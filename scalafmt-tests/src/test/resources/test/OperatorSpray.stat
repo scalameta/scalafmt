@@ -141,3 +141,44 @@ val x = 1 + 2 +
 >>>
 val x = 1 + 2 +
   3
+<<< avoid extra indent on non-top-level
+indentOperator.preset = default
+===
+lazy val mySettings = Seq(
+  scalacOptions ++= Seq(
+      // Replaces macro-paradise in Scala 2.13
+      "-Ymacro-annotations",
+      "-Wconf:any:warning-verbose"
+    ),
+  scalafmtOnCompile := true
+)
+>>>
+lazy val mySettings = Seq(
+  scalacOptions ++= Seq(
+    // Replaces macro-paradise in Scala 2.13
+    "-Ymacro-annotations",
+    "-Wconf:any:warning-verbose"
+  ),
+  scalafmtOnCompile := true
+)
+<<< avoid extra indent on non-top-level, !topLevelOnly
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+lazy val mySettings = Seq(
+  scalacOptions ++= Seq(
+      // Replaces macro-paradise in Scala 2.13
+      "-Ymacro-annotations",
+      "-Wconf:any:warning-verbose"
+    ),
+  scalafmtOnCompile := true
+)
+>>>
+lazy val mySettings = Seq(
+  scalacOptions ++= Seq(
+        // Replaces macro-paradise in Scala 2.13
+        "-Ymacro-annotations",
+        "-Wconf:any:warning-verbose"
+      ),
+  scalafmtOnCompile := true
+)

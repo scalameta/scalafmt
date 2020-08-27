@@ -1,0 +1,2913 @@
+maxColumn=40
+<<< #2177 1.1.1 preset=default topLevelOnly func +
+maxColumn = 7
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  function(
+    a +
+      b
+  )
+  function {
+    a +
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a +
+      b
+  )
+  function {
+    a +
+      b
+  }
+}
+<<< #2177 1.1.2 preset=default topLevelOnly func +, comment
+maxColumn = 15
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  function(
+    a + /* c */
+      b
+  )
+  function {
+    a + /* c */
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a + /* c */
+    b
+  )
+  function {
+    a + /* c */
+    b
+  }
+}
+<<< #2177 1.2.1 preset=default topLevelOnly func &&
+maxColumn = 8
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  function(
+    a &&
+      b
+  )
+  function {
+    a &&
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a &&
+      b
+  )
+  function {
+    a &&
+    b
+  }
+}
+<<< #2177 1.2.2 preset=default topLevelOnly func &&, comment
+maxColumn = 16
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  function(
+    a && /* c */
+      b
+  )
+  function {
+    a && /* c */
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a && /* c */
+    b
+  )
+  function {
+    a && /* c */
+    b
+  }
+}
+<<< #2177 1.3.1 preset=default topLevelOnly def +
+maxColumn = 13
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  def c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  def c = a +
+      bbb +
+      ccc +
+      ddddd
+  def c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+>>>
+object a {
+  def c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  def c = a +
+    bbb +
+    ccc +
+    ddddd
+  def c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+<<< #2177 1.3.2 preset=default topLevelOnly def +, comment
+maxColumn = 21
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  def c = /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  def c = /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  def c = a + /* c */
+  bbb + /* c */
+  ccc + /* c */
+  ddddd
+  def c = {
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  }
+}
+<<< #2177 1.3.3 preset=default topLevelOnly val +
+maxColumn = 13
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  val c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  val c = a +
+      bbb +
+      ccc +
+      ddddd
+  val c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+>>>
+object a {
+  val c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  val c = a +
+    bbb +
+    ccc +
+    ddddd
+  val c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+<<< #2177 1.3.4 preset=default topLevelOnly val +, comment
+maxColumn = 21
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  val c = /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  val c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  val c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  val c = /* c */
+  aaa + /* c */
+  bbb + /* c */
+  ccc + /* c */
+  ddddd
+  val c = a + /* c */
+  bbb + /* c */
+  ccc + /* c */
+  ddddd
+  val c = {
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  }
+}
+<<< #2177 1.3.5 preset=default topLevelOnly assign +
+maxColumn = 10
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  c = a +
+      bbb +
+      ccc +
+      ddddd
+  c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+>>>
+object a {
+  c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  c = a +
+    bbb +
+    ccc +
+    ddddd
+  c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+<<< #2177 1.3.6 preset=default topLevelOnly assign +, comment
+maxColumn = 18
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  c = /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  c = /* c */
+  aaa + /* c */
+  bbb + /* c */
+  ccc + /* c */
+  ddddd
+  c = a + /* c */
+  bbb + /* c */
+  ccc + /* c */
+  ddddd
+  c = {
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  }
+}
+<<< #2177 1.4.1 preset=default topLevelOnly def &&
+maxColumn = 14
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  def c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = {
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  }
+}
+>>>
+object a {
+  def c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = a &&
+    bbb &&
+    ccc &&
+    ddddd
+  def c = {
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  }
+}
+<<< #2177 1.4.2 preset=default topLevelOnly def &&, comment
+maxColumn = 22
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  def c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = {
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  def c = /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  def c = a && /* c */
+  bbb && /* c */
+  ccc && /* c */
+  ddddd
+  def c = {
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  }
+}
+<<< #2177 1.4.3 preset=default topLevelOnly val &&
+maxColumn = 14
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  val c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  val c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  val c = {
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  }
+}
+>>>
+object a {
+  val c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  val c = a &&
+    bbb &&
+    ccc &&
+    ddddd
+  val c = {
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  }
+}
+<<< #2177 1.4.4 preset=default topLevelOnly val &&, comment
+maxColumn = 22
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  val c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  val c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  val c = {
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  val c = /* c */
+  aaa && /* c */
+  bbb && /* c */
+  ccc && /* c */
+  ddddd
+  val c = a && /* c */
+  bbb && /* c */
+  ccc && /* c */
+  ddddd
+  val c = {
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  }
+}
+<<< #2177 1.4.5 preset=default topLevelOnly assign &&
+maxColumn = 11
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  c = {
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  }
+}
+>>>
+object a {
+  c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  c = a &&
+    bbb &&
+    ccc &&
+    ddddd
+  c = {
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  }
+}
+<<< #2177 1.4.6 preset=default topLevelOnly assign &&, comment
+maxColumn = 18
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  c = {
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  c = /* c */
+  aaa && /* c */
+  bbb && /* c */
+  ccc && /* c */
+  ddddd
+  c = a && /* c */
+  bbb && /* c */
+  ccc && /* c */
+  ddddd
+  c = {
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  }
+}
+<<< #2177 1.5.1 preset=default topLevelOnly if +
+maxColumn = 7
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  if (
+    a +
+      b
+  )
+    a +
+      b
+  if (
+    a +
+      b
+  ) {
+    a +
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a +
+      b
+  )
+    a +
+      b
+  if (
+    a +
+      b
+  ) {
+    a +
+      b
+  }
+}
+<<< #2177 1.5.2 preset=default topLevelOnly if +, comment
+maxColumn = 15
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  if (
+    a + /* c */
+      b
+  )
+    a + /* c */
+      b
+  if (
+    a + /* c */
+      b
+  ) {
+    a + /* c */
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a + /* c */
+    b
+  )
+    a + /* c */
+    b
+  if (
+    a + /* c */
+    b
+  ) {
+    a + /* c */
+    b
+  }
+}
+<<< #2177 1.6.1 preset=default topLevelOnly if &&
+maxColumn = 8
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  if (
+    a &&
+      b
+  )
+    a &&
+      b
+  if (
+    a &&
+      b
+  ) {
+    a &&
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a &&
+    b
+  )
+    a &&
+    b
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  }
+}
+<<< #2177 1.6.2 preset=default topLevelOnly if &&, comment
+maxColumn = 16
+indentOperator.preset = default
+indentOperator.topLevelOnly = true
+===
+object a {
+  if (
+    a && /* c */
+      b
+  )
+    a && /* c */
+      b
+  if (
+    a && /* c */
+      b
+  ) {
+    a && /* c */
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a && /* c */
+    b
+  )
+    a && /* c */
+    b
+  if (
+    a && /* c */
+    b
+  ) {
+    a && /* c */
+    b
+  }
+}
+<<< #2177 2.1.1 preset=default !topLevelOnly func +
+maxColumn = 7
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  function(
+    a +
+      b
+  )
+  function {
+    a +
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a +
+        b
+  )
+  function {
+    a +
+      b
+  }
+}
+<<< #2177 2.1.2 preset=default !topLevelOnly func +
+maxColumn = 15
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  function(
+    a + /* c */
+      b
+  )
+  function {
+    a + /* c */
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a + /* c */
+        b
+  )
+  function {
+    a + /* c */
+    b
+  }
+}
+<<< #2177 2.2.1 preset=default !topLevelOnly func &&
+maxColumn = 8
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  function(
+    a &&
+      b
+  )
+  function {
+    a &&
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a &&
+      b
+  )
+  function {
+    a &&
+    b
+  }
+}
+<<< #2177 2.2.2 preset=default !topLevelOnly func &&
+maxColumn = 16
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  function(
+    a && /* c */
+      b
+  )
+  function {
+    a && /* c */
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a && /* c */
+      b
+  )
+  function {
+    a && /* c */
+    b
+  }
+}
+<<< #2177 2.3.1 preset=default !topLevelOnly def +
+maxColumn = 13
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  def c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  def c = a +
+      bbb +
+      ccc +
+      ddddd
+  def c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+>>>
+object a {
+  def c =
+    aaa +
+        bbb +
+        ccc +
+        ddddd
+  def c = a +
+      bbb +
+      ccc +
+      ddddd
+  def c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+<<< #2177 2.3.2 preset=default !topLevelOnly def +
+maxColumn = 21
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  def c = /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  def c = /* c */
+    aaa + /* c */
+        bbb + /* c */
+        ccc + /* c */
+        ddddd
+  def c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = {
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  }
+}
+<<< #2177 2.3.3 preset=default !topLevelOnly val +
+maxColumn = 13
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  val c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  val c = a +
+      bbb +
+      ccc +
+      ddddd
+  val c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+>>>
+object a {
+  val c =
+    aaa +
+        bbb +
+        ccc +
+        ddddd
+  val c = a +
+        bbb +
+        ccc +
+        ddddd
+  val c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+<<< #2177 2.3.4 preset=default !topLevelOnly val +
+maxColumn = 21
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  val c = /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  val c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  val c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  val c = /* c */
+    aaa + /* c */
+        bbb + /* c */
+        ccc + /* c */
+        ddddd
+  val c = a + /* c */
+        bbb + /* c */
+        ccc + /* c */
+        ddddd
+  val c = {
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  }
+}
+<<< #2177 2.3.5 preset=default !topLevelOnly assign +
+maxColumn = 12
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  c = a +
+      bbb +
+      ccc +
+      ddddd
+  c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+>>>
+object a {
+  c =
+    aaa +
+        bbb +
+        ccc +
+        ddddd
+  c = a +
+        bbb +
+        ccc +
+        ddddd
+  c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+<<< #2177 2.3.6 preset=default !topLevelOnly assign +
+maxColumn = 20
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  c = /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  c = /* c */
+    aaa + /* c */
+        bbb + /* c */
+        ccc + /* c */
+        ddddd
+  c = a + /* c */
+        bbb + /* c */
+        ccc + /* c */
+        ddddd
+  c = {
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  }
+}
+<<< #2177 2.4.1 preset=default !topLevelOnly def &&
+maxColumn = 14
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  def c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = {
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  }
+}
+>>>
+object a {
+  def c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = a &&
+    bbb &&
+    ccc &&
+    ddddd
+  def c = {
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  }
+}
+<<< #2177 2.4.2 preset=default !topLevelOnly def &&
+maxColumn = 22
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  def c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = {
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  def c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  def c = {
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  }
+}
+<<< #2177 2.4.3 preset=default !topLevelOnly val &&
+maxColumn = 14
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  val c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  val c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  val c = {
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  }
+}
+>>>
+object a {
+  val c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  val c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  val c = {
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  }
+}
+<<< #2177 2.4.4 preset=default !topLevelOnly val &&
+maxColumn = 22
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  val c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  val c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  val c = {
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  val c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  val c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  val c = {
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  }
+}
+<<< #2177 2.4.5 preset=default !topLevelOnly assign &&
+maxColumn = 11
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  c = {
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  }
+}
+>>>
+object a {
+  c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  c = {
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  }
+}
+<<< #2177 2.4.6 preset=default !topLevelOnly assign &&
+maxColumn = 19
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  c = {
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  c = {
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  }
+}
+<<< #2177 2.5.1 preset=default !topLevelOnly if +
+maxColumn = 7
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  if (
+    a +
+      b
+  )
+    a +
+      b
+  if (
+    a +
+      b
+  ) {
+    a +
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a +
+      b
+  )
+    a +
+      b
+  if (
+    a +
+      b
+  ) {
+    a +
+      b
+  }
+}
+<<< #2177 2.5.2 preset=default !topLevelOnly if +
+maxColumn = 15
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  if (
+    a + /* c */
+      b
+  )
+    a + /* c */
+      b
+  if (
+    a + /* c */
+      b
+  ) {
+    a + /* c */
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a + /* c */
+    b
+  )
+    a + /* c */
+    b
+  if (
+    a + /* c */
+    b
+  ) {
+    a + /* c */
+    b
+  }
+}
+<<< #2177 2.6.1 preset=default !topLevelOnly if &&
+maxColumn = 8
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  if (
+    a &&
+      b
+  )
+    a &&
+      b
+  if (
+    a &&
+      b
+  ) {
+    a &&
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a &&
+    b
+  )
+    a &&
+    b
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  }
+}
+<<< #2177 2.6.2 preset=default !topLevelOnly if &&
+maxColumn = 16
+indentOperator.preset = default
+indentOperator.topLevelOnly = false
+===
+object a {
+  if (
+    a && /* c */
+      b
+  )
+    a && /* c */
+      b
+  if (
+    a && /* c */
+      b
+  ) {
+    a && /* c */
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a && /* c */
+    b
+  )
+    a && /* c */
+    b
+  if (
+    a && /* c */
+    b
+  ) {
+    a && /* c */
+    b
+  }
+}
+<<< #2177 3.1.1 preset=akka topLevelOnly func +
+maxColumn = 7
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  function(
+    a +
+      b
+  )
+  function {
+    a +
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a +
+      b
+  )
+  function {
+    a +
+    b
+  }
+}
+<<< #2177 3.1.2 preset=akka topLevelOnly func +
+maxColumn = 15
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  function(
+    a + /* c */
+      b
+  )
+  function {
+    a + /* c */
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a + /* c */
+    b
+  )
+  function {
+    a + /* c */
+    b
+  }
+}
+<<< #2177 3.2.1 preset=akka topLevelOnly func &&
+maxColumn = 8
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  function(
+    a &&
+      b
+  )
+  function {
+    a &&
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a &&
+      b
+  )
+  function {
+    a &&
+    b
+  }
+}
+<<< #2177 3.2.2 preset=akka topLevelOnly func &&
+maxColumn = 16
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  function(
+    a && /* c */
+      b
+  )
+  function {
+    a && /* c */
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a && /* c */
+    b
+  )
+  function {
+    a && /* c */
+    b
+  }
+}
+<<< #2177 3.3.3 preset=akka topLevelOnly val +
+maxColumn = 13
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  val c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  val c = a +
+      bbb +
+      ccc +
+      ddddd
+  val c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+>>>
+object a {
+  val c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  val c = a +
+    bbb +
+    ccc +
+    ddddd
+  val c = {
+    aaa +
+    bbb +
+    ccc +
+    ddddd
+  }
+}
+<<< #2177 3.3.4 preset=akka topLevelOnly val +
+maxColumn = 21
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  val c = /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  val c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  val c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  val c = /* c */
+  aaa + /* c */
+  bbb + /* c */
+  ccc + /* c */
+  ddddd
+  val c = a + /* c */
+  bbb + /* c */
+  ccc + /* c */
+  ddddd
+  val c = {
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  }
+}
+<<< #2177 3.3.1 preset=akka topLevelOnly def +
+maxColumn = 13
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  def c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  def c = a +
+      bbb +
+      ccc +
+      ddddd
+  def c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+>>>
+object a {
+  def c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  def c = a +
+    bbb +
+    ccc +
+    ddddd
+  def c = {
+    aaa +
+    bbb +
+    ccc +
+    ddddd
+  }
+}
+<<< #2177 3.3.2 preset=akka topLevelOnly def +
+maxColumn = 21
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  def c = /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  def c = /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  def c = a + /* c */
+  bbb + /* c */
+  ccc + /* c */
+  ddddd
+  def c = {
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  }
+}
+<<< #2177 3.3.5 preset=akka topLevelOnly assign +
+maxColumn = 10
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  c = a +
+      bbb +
+      ccc +
+      ddddd
+  c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+>>>
+object a {
+  c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  c = a +
+    bbb +
+    ccc +
+    ddddd
+  c = {
+    aaa +
+    bbb +
+    ccc +
+    ddddd
+  }
+}
+<<< #2177 3.3.6 preset=akka topLevelOnly assign +
+maxColumn = 17
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  c = /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  c = /* c */
+  aaa + /* c */
+  bbb + /* c */
+  ccc + /* c */
+  ddddd
+  c = a + /* c */
+  bbb + /* c */
+  ccc + /* c */
+  ddddd
+  c = {
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  }
+}
+<<< #2177 3.4.1 preset=akka topLevelOnly def &&
+maxColumn = 14
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  def c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = {
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  }
+}
+>>>
+object a {
+  def c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = a &&
+    bbb &&
+    ccc &&
+    ddddd
+  def c = {
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  }
+}
+<<< #2177 3.4.2 preset=akka topLevelOnly def &&
+maxColumn = 22
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  def c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = {
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  def c = /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  def c = a && /* c */
+  bbb && /* c */
+  ccc && /* c */
+  ddddd
+  def c = {
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  }
+}
+<<< #2177 3.4.3 preset=akka topLevelOnly val &&
+maxColumn = 14
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  val c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  val c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  val c = {
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  }
+}
+>>>
+object a {
+  val c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  val c = a &&
+    bbb &&
+    ccc &&
+    ddddd
+  val c = {
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  }
+}
+<<< #2177 3.4.4 preset=akka topLevelOnly val &&
+maxColumn = 22
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  val c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  val c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  val c = {
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  val c = /* c */
+  aaa && /* c */
+  bbb && /* c */
+  ccc && /* c */
+  ddddd
+  val c = a && /* c */
+  bbb && /* c */
+  ccc && /* c */
+  ddddd
+  val c = {
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  }
+}
+<<< #2177 3.4.5 preset=akka topLevelOnly assign &&
+maxColumn = 11
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  c = {
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  }
+}
+>>>
+object a {
+  c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  c = a &&
+    bbb &&
+    ccc &&
+    ddddd
+  c = {
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  }
+}
+<<< #2177 3.4.6 preset=akka topLevelOnly assign &&, comment
+maxColumn = 18
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  c = {
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  c = /* c */
+  aaa && /* c */
+  bbb && /* c */
+  ccc && /* c */
+  ddddd
+  c = a && /* c */
+  bbb && /* c */
+  ccc && /* c */
+  ddddd
+  c = {
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  }
+}
+<<< #2177 3.5.1 preset=akka topLevelOnly if +
+maxColumn = 7
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  if (
+    a +
+      b
+  )
+    a +
+      b
+  if (
+    a +
+      b
+  ) {
+    a +
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a +
+    b
+  )
+    a +
+    b
+  if (
+    a +
+    b
+  ) {
+    a +
+    b
+  }
+}
+<<< #2177 3.5.2 preset=akka topLevelOnly if +, comment
+maxColumn = 15
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  if (
+    a + /* c */
+      b
+  )
+    a + /* c */
+      b
+  if (
+    a + /* c */
+      b
+  ) {
+    a + /* c */
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a + /* c */
+    b
+  )
+    a + /* c */
+    b
+  if (
+    a + /* c */
+    b
+  ) {
+    a + /* c */
+    b
+  }
+}
+<<< #2177 3.6.1 preset=akka topLevelOnly if &&
+maxColumn = 8
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  if (
+    a &&
+      b
+  )
+    a &&
+      b
+  if (
+    a &&
+      b
+  ) {
+    a &&
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a &&
+    b
+  )
+    a &&
+    b
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  }
+}
+<<< #2177 3.6.2 preset=akka topLevelOnly if &&, comment
+maxColumn = 16
+indentOperator.preset = akka
+indentOperator.topLevelOnly = true
+===
+object a {
+  if (
+    a && /* c */
+      b
+  )
+    a && /* c */
+      b
+  if (
+    a && /* c */
+      b
+  ) {
+    a && /* c */
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a && /* c */
+    b
+  )
+    a && /* c */
+    b
+  if (
+    a && /* c */
+    b
+  ) {
+    a && /* c */
+    b
+  }
+}
+<<< #2177 4.1.1 preset=akka !topLevelOnly func +
+maxColumn = 7
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  function(
+    a +
+      b
+  )
+  function {
+    a +
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a +
+    b
+  )
+  function {
+    a +
+    b
+  }
+}
+<<< #2177 4.1.2 preset=akka !topLevelOnly func +, comment
+maxColumn = 15
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  function(
+    a + /* c */
+      b
+  )
+  function {
+    a + /* c */
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a + /* c */
+    b
+  )
+  function {
+    a + /* c */
+    b
+  }
+}
+<<< #2177 4.2.1 preset=akka !topLevelOnly func &&
+maxColumn = 8
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  function(
+    a &&
+      b
+  )
+  function {
+    a &&
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a &&
+    b
+  )
+  function {
+    a &&
+    b
+  }
+}
+<<< #2177 4.2.1 preset=akka !topLevelOnly func &&, comment
+maxColumn = 16
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  function(
+    a && /* c */
+      b
+  )
+  function {
+    a && /* c */
+      b
+  }
+}
+>>>
+object a {
+  function(
+    a && /* c */
+    b
+  )
+  function {
+    a && /* c */
+    b
+  }
+}
+<<< #2177 4.3.1 preset=akka !topLevelOnly def +
+maxColumn = 13
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  def c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  def c = a +
+      bbb +
+      ccc +
+      ddddd
+  def c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+>>>
+object a {
+  def c =
+    aaa +
+    bbb +
+    ccc +
+    ddddd
+  def c = a +
+  bbb +
+  ccc +
+  ddddd
+  def c = {
+    aaa +
+    bbb +
+    ccc +
+    ddddd
+  }
+}
+<<< #2177 4.3.2 preset=akka !topLevelOnly def +, comment
+maxColumn = 21
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  def c = /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  def c = /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  def c = a + /* c */
+  bbb + /* c */
+  ccc + /* c */
+  ddddd
+  def c = {
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  }
+}
+<<< #2177 4.3.3 preset=akka !topLevelOnly val +
+maxColumn = 13
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  val c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  val c = a +
+      bbb +
+      ccc +
+      ddddd
+  val c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+>>>
+object a {
+  val c =
+    aaa +
+    bbb +
+    ccc +
+    ddddd
+  val c = a +
+    bbb +
+    ccc +
+    ddddd
+  val c = {
+    aaa +
+    bbb +
+    ccc +
+    ddddd
+  }
+}
+<<< #2177 4.3.4 preset=akka !topLevelOnly val +, comment
+maxColumn = 21
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  val c = /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  val c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  val c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  val c = /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  val c = a + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  val c = {
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  }
+}
+<<< #2177 4.3.5 preset=akka !topLevelOnly assign +
+maxColumn = 9
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  c =
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  c = a +
+      bbb +
+      ccc +
+      ddddd
+  c = {
+    aaa +
+      bbb +
+      ccc +
+      ddddd
+  }
+}
+>>>
+object a {
+  c =
+    aaa +
+    bbb +
+    ccc +
+    ddddd
+  c = a +
+    bbb +
+    ccc +
+    ddddd
+  c = {
+    aaa +
+    bbb +
+    ccc +
+    ddddd
+  }
+}
+<<< #2177 4.3.6 preset=akka !topLevelOnly assign +, comment
+maxColumn = 17
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  c = /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  c = /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  c = a + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  c = {
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
+  }
+}
+<<< #2177 4.4.1 preset=akka !topLevelOnly def &&
+maxColumn = 14
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  def c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = {
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  }
+}
+>>>
+object a {
+  def c =
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  def c = a &&
+  bbb &&
+  ccc &&
+  ddddd
+  def c = {
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  }
+}
+<<< #2177 4.4.2 preset=akka !topLevelOnly def &&, comment
+maxColumn = 22
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  def c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = {
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  def c = /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  def c = a && /* c */
+  bbb && /* c */
+  ccc && /* c */
+  ddddd
+  def c = {
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  }
+}
+<<< #2177 4.4.3 preset=akka !topLevelOnly val &&
+maxColumn = 14
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  val c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  val c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  val c = {
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  }
+}
+>>>
+object a {
+  val c =
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  val c = a &&
+    bbb &&
+    ccc &&
+    ddddd
+  val c = {
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  }
+}
+<<< #2177 4.4.4 preset=akka !topLevelOnly val &&, comment
+maxColumn = 22
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  val c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  val c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  val c = {
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  val c = /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  val c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  val c = {
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  }
+}
+<<< #2177 4.4.5 preset=akka !topLevelOnly assign &&
+maxColumn = 10
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  c =
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  c = a &&
+      bbb &&
+      ccc &&
+      ddddd
+  c = {
+    aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  }
+}
+>>>
+object a {
+  c =
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  c = a &&
+    bbb &&
+    ccc &&
+    ddddd
+  c = {
+    aaa &&
+    bbb &&
+    ccc &&
+    ddddd
+  }
+}
+<<< #2177 4.4.6 preset=akka !topLevelOnly assign &&, comment
+maxColumn = 18
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  c = /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  c = a && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  c = {
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  }
+}
+>>>
+object a {
+  c = /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  c = {
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
+  }
+}
+<<< #2177 4.5.1 preset=akka !topLevelOnly if +
+maxColumn = 7
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  if (
+    a +
+      b
+  )
+    a +
+      b
+  if (
+    a +
+      b
+  ) {
+    a +
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a +
+    b
+  )
+    a +
+    b
+  if (
+    a +
+    b
+  ) {
+    a +
+    b
+  }
+}
+<<< #2177 4.5.2 preset=akka !topLevelOnly if +, comment
+maxColumn = 15
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  if (
+    a + /* c */
+      b
+  )
+    a + /* c */
+      b
+  if (
+    a + /* c */
+      b
+  ) {
+    a + /* c */
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a + /* c */
+    b
+  )
+    a + /* c */
+    b
+  if (
+    a + /* c */
+    b
+  ) {
+    a + /* c */
+    b
+  }
+}
+<<< #2177 4.6.1 preset=akka !topLevelOnly if &&
+maxColumn = 8
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  if (
+    a &&
+      b
+  )
+    a &&
+      b
+  if (
+    a &&
+      b
+  ) {
+    a &&
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a &&
+    b
+  )
+    a &&
+    b
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  }
+}
+<<< #2177 4.6.2 preset=akka !topLevelOnly if &&, comment
+maxColumn = 16
+indentOperator.preset = akka
+indentOperator.topLevelOnly = false
+===
+object a {
+  if (
+    a && /* c */
+      b
+  )
+    a && /* c */
+      b
+  if (
+    a && /* c */
+      b
+  ) {
+    a && /* c */
+      b
+  }
+}
+>>>
+object a {
+  if (
+    a && /* c */
+    b
+  )
+    a && /* c */
+    b
+  if (
+    a && /* c */
+    b
+  ) {
+    a && /* c */
+    b
+  }
+}
