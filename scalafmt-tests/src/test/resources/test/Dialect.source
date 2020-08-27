@@ -49,3 +49,17 @@ rewrite.rules = [AvoidInfix]
 #!/usr/bin/env   amm
 >>> foo.sc
 #!/usr/bin/env amm
+<<< #2104
+runner.dialect = dotty
+===
+sealed trait Foo {
+  def negate : - = -
+}
+trait -
+case object - extends -
+>>>
+sealed trait Foo {
+  def negate: - = -
+}
+trait -
+case object - extends -
