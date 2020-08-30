@@ -220,7 +220,13 @@ case class Split(
     withMod(modExt.withIndents(indents), ignore)
 
   def switch(trigger: Token): Split =
-    withMod(modExt.switch(trigger))
+    if (isIgnored) this
+    else {
+      val switchedModExt = modExt.switch(trigger)
+      val switchedPolicy = policy.switch(trigger)
+      if (policy.eq(switchedPolicy) && modExt.eq(switchedModExt)) this
+      else copy(modExt = switchedModExt, policy = switchedPolicy)
+    }
 
   def withMod(mod: Modification): Split =
     withMod(modExt.copy(mod = mod), this.modExt.mod eq mod)
