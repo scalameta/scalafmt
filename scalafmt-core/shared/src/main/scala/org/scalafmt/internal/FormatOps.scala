@@ -428,18 +428,18 @@ class FormatOps(
 
   def infixIndent(
       app: InfixApp,
-      formatToken: FormatToken,
+      ft: FormatToken,
       isNewline: Boolean
   )(implicit style: ScalafmtConfig): Int = {
     if (style.verticalAlignMultilineOperators)
-      if (InfixApp.isAssignment(formatToken.meta.left.text)) 2 else 0
+      if (InfixApp.isAssignment(ft.meta.left.text)) 2 else 0
     else if (
       !app.rhs.headOption.exists { x =>
         x.is[Term.Block] || x.is[Term.NewAnonymous]
-      } && isInfixTopLevelMatch(app.all, formatToken.meta.left.text, false)
+      } && isInfixTopLevelMatch(app.all, ft.meta.left.text, false)
     ) 2
     else if (isInfixTopLevelMatch(app.all, app.op.value, true)) 0
-    else if (!isNewline && !isSingleLineComment(formatToken.right)) 0
+    else if (!isNewline && !isSingleLineComment(ft.right)) 0
     else if (app.all.is[Pat] && isChildOfCaseClause(app.all)) 0
     else 2
   }
@@ -456,15 +456,15 @@ class FormatOps(
 
   def beforeInfixSplit(
       owner: Term.ApplyInfix,
-      formatToken: FormatToken
+      ft: FormatToken
   )(implicit style: ScalafmtConfig): Seq[Split] = {
     val InfixApp(app) = owner
-    infixSplitImpl(app, formatToken, true)
+    infixSplitImpl(app, ft, true)
   }
 
   private def infixSplitImpl(
       app: InfixApp,
-      formatToken: FormatToken,
+      ft: FormatToken,
       beforeLhs: Boolean
   )(implicit style: ScalafmtConfig): Seq[Split] = {
     // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
@@ -480,19 +480,19 @@ class FormatOps(
 
     // we don't modify line breaks generally around infix expressions
     // TODO: if that ever changes, modify how rewrite rules handle infix
-    val modification = getModCheckIndent(formatToken)
+    val modification = getModCheckIndent(ft)
     val isNewline = modification.isNewline
     val asIs = !beforeLhs ||
       (isNewline && !style.newlines.sourceIgnored) ||
-      formatToken.right.is[T.Comment]
+      ft.right.is[T.Comment]
     if (asIs) {
-      val indent = infixIndent(app, formatToken, isNewline)
+      val indent = infixIndent(app, ft, isNewline)
       Seq(
         Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.After)
       )
     } else {
-      val spcIndent = infixIndent(app, formatToken, false)
-      val nlIndent = infixIndent(app, formatToken, true)
+      val spcIndent = infixIndent(app, ft, false)
+      val nlIndent = infixIndent(app, ft, true)
       val nlCost = if (style.newlines.formatInfix) 2 else 1
       val (spcMod, nlMod) =
         if (isNewline) (Space, modification)
@@ -592,7 +592,7 @@ class FormatOps(
       if (x.last._2 == 0) x else x :+ fullExpire -> 0
     }
     val firstInfixOp = findLeftInfix(fullInfix).op
-    val isFirst = beforeLhs || (firstInfixOp eq app.op)
+    val isFirstOp = beforeLhs || (firstInfixOp eq app.op)
     val firstInfixOpTok = firstInfixOp.tokens.head
 
     val infixTooLong = infixSequenceLength(fullInfix) >
@@ -605,7 +605,7 @@ class FormatOps(
     val nlIndentLength = Num(if (beforeLhs) 0 else infixIndent(app, ft, true))
     val fullIndent = Indent(nlIndentLength, fullExpire, ExpiresOn.After)
     val nlIndent =
-      if (isFirst || (fullIndent eq Indent.Empty)) fullIndent
+      if (isFirstOp || (fullIndent eq Indent.Empty)) fullIndent
       else Indent.before(fullIndent, firstInfixOpTok)
     val nlPolicy =
       if (nlIndent eq Indent.Empty) NoPolicy
@@ -618,9 +618,9 @@ class FormatOps(
               s.map(x => if (x.isNL) x.switch(firstInfixOpTok) else x)
         }
 
-    val singleLineExpire = if (isFirst) fullExpire else expires.head._1
+    val singleLineExpire = if (isFirstOp) fullExpire else expires.head._1
     val singleLinePolicy =
-      if (infixTooLong || !isFirst) None
+      if (infixTooLong || !isFirstOp) None
       else Some(getSingleLineInfixPolicy(fullExpire))
     val nlSinglelineSplit = Split(nlMod, 0)
       .onlyIf(singleLinePolicy.isDefined && beforeLhs)
