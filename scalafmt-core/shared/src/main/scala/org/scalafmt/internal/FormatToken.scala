@@ -37,7 +37,7 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
     else 0
   }
   @inline def noBreak: Boolean = FormatToken.noBreak(newlinesBetween)
-  @inline def hasBreak: Boolean = newlinesBetween != 0
+  @inline def hasBreak: Boolean = !noBreak
   @inline def hasBlankLine: Boolean = FormatToken.hasBlankLine(newlinesBetween)
 
   @inline def leftHasNewline = meta.left.firstNL >= 0
