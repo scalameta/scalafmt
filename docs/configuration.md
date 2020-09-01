@@ -120,7 +120,7 @@ including top-level.
       neverInResultType = true
       neverBeforeJsNative = true
       sometimesBeforeColonInMethodReturnType = false
-    )
+    }
     runner.optimizer {
       forceConfigStyleOnOffset = 500
       forceConfigStyleMinArgCount = 5
