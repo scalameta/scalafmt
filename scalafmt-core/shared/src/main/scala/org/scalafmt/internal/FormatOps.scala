@@ -625,7 +625,18 @@ class FormatOps(
         style.newlines.breakAfterInfix == Newlines.AfterInfix.many
       val rightAsInfix = asInfixApp(ft.meta.rightOwner)
 
-      val nlMod = newStmtMod.getOrElse(getModCheckIndent(ft, 1))
+      def breakAfterComment(t: FormatToken) = {
+        val end = nextNonCommentSameLine(t)
+        if (end.right.is[T.LeftBrace] || end.right.is[T.Comment]) None
+        else if (end eq t) Some(decideNewlinesOnlyAfterToken(end.left))
+        else Some(decideNewlinesOnlyAfterClose(Split(Newline, 0))(end.left))
+      }
+      val nlMod = newStmtMod.getOrElse {
+        val hasAttachedComment = ft.noBreak && ft.right.is[T.Comment]
+        getModCheckIndent(ft, if (hasAttachedComment) 0 else 1)
+      }
+      val delayedBreak = if (nlMod.isNewline) None else breakAfterComment(ft)
+
       val skipNlIndent = beforeLhs || skipInfixIndent(app, ft, true)
       val nlIndentLength = Num(if (skipNlIndent) 0 else 2)
       val fullIndent = Indent(nlIndentLength, fullExpire, ExpiresOn.After)
@@ -649,6 +660,7 @@ class FormatOps(
         .withIndent(nlIndentLength, singleLineExpire, ExpiresOn.After)
         .withSingleLine(singleLineExpire)
         .andPolicyOpt(singleLinePolicy)
+        .andPolicyOpt(delayedBreak)
       val spaceSingleLine = Split(Space, 0)
         .onlyIf(newStmtMod.isEmpty)
         .withSingleLine(singleLineExpire)
@@ -661,7 +673,7 @@ class FormatOps(
 
       val otherSplits = closeOpt.fold {
         val nlSplit = Split(nlMod, 1 + breakPenalty)
-        Seq(nlSplit.withIndent(nlIndent).withPolicy(nlPolicy))
+        Seq(nlSplit.withIndent(nlIndent).withPolicy(nlPolicy & delayedBreak))
       } { close =>
         val noSingleLine = newStmtMod.isDefined || breakMany ||
           rightAsInfix.exists(10 < infixSequenceLength(_))
@@ -675,9 +687,7 @@ class FormatOps(
             }
         val endOfNextOp = nextOp.map(_.tokens.last)
         val breakAfterClose = endOfNextOp.flatMap { tok =>
-          val end = nextNonCommentSameLine(tokens(tok))
-          if (end.right.is[T.LeftBrace]) None
-          else Some(decideNewlinesOnlyAfterToken(end.left))
+          breakAfterComment(tokens(tok))
         }
 
         val nlSplit = Split(nlMod, 0)
