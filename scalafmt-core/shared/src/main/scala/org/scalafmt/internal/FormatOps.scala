@@ -594,6 +594,7 @@ class FormatOps(
     }
     val firstInfixOp = findLeftInfix(fullInfix).op
     val isFirst = beforeLhs || (firstInfixOp eq app.op)
+    val firstInfixOpTok = firstInfixOp.tokens.head
 
     val infixTooLong = infixSequenceLength(fullInfix) >
       style.newlines.afterInfixMaxCountPerExprForSome
@@ -606,16 +607,16 @@ class FormatOps(
     val fullIndent = Indent(nlIndentLength, fullExpire, ExpiresOn.After)
     val nlIndent =
       if (isFirst || (fullIndent eq Indent.Empty)) fullIndent
-      else new Indent.Before(fullIndent, firstInfixOp)
+      else new Indent.Before(fullIndent, firstInfixOpTok)
     val nlPolicy =
       if (nlIndent eq Indent.Empty) NoPolicy
       else
         Policy.on(fullExpire) {
           case Decision(t: FormatToken, s) if isInfixOp(t.meta.leftOwner) =>
             if (isSingleLineComment(t.right)) // will break
-              s.map(_.switch(firstInfixOp))
+              s.map(_.switch(firstInfixOpTok))
             else
-              s.map(x => if (x.isNL) x.switch(firstInfixOp) else x)
+              s.map(x => if (x.isNL) x.switch(firstInfixOpTok) else x)
         }
 
     val singleLineExpire = if (isFirst) fullExpire else expires.head._1
