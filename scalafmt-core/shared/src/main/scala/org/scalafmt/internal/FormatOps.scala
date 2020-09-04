@@ -606,7 +606,7 @@ class FormatOps(
     val fullIndent = Indent(nlIndentLength, fullExpire, ExpiresOn.After)
     val nlIndent =
       if (isFirst || (fullIndent eq Indent.Empty)) fullIndent
-      else new Indent.Before(fullIndent, firstInfixOpTok)
+      else Indent.before(fullIndent, firstInfixOpTok)
     val nlPolicy =
       if (nlIndent eq Indent.Empty) NoPolicy
       else
