@@ -41,8 +41,8 @@ case class ModExt(
   private def withIndentImpl(indent: Indent): ModExt =
     copy(indents = indents :+ indent)
 
-  def switch(switchObject: AnyRef): ModExt = {
-    val newIndents = indents.map(_.switch(switchObject))
+  def switch(trigger: Token): ModExt = {
+    val newIndents = indents.map(_.switch(trigger))
     copy(indents = newIndents.filter(_ ne Indent.Empty))
   }
 

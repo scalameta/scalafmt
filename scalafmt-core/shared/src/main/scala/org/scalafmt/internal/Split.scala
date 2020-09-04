@@ -219,8 +219,8 @@ case class Split(
   def withIndents(indents: Seq[Indent], ignore: Boolean = false): Split =
     withMod(modExt.withIndents(indents), ignore)
 
-  def switch(switchObject: AnyRef): Split =
-    withMod(modExt.switch(switchObject))
+  def switch(trigger: Token): Split =
+    withMod(modExt.switch(trigger))
 
   def withMod(mod: Modification): Split =
     withMod(modExt.copy(mod = mod), this.modExt.mod eq mod)
