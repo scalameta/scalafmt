@@ -45,13 +45,11 @@ object a {
 >>>
 object a {
   function(
-    a +
-      /* c */
+    a + /* c */
       b
   )
   function {
-    a +
-      /* c */
+    a + /* c */
       b
   }
 }
@@ -99,13 +97,11 @@ object a {
 >>>
 object a {
   function(
-    a &&
-      /* c */
+    a && /* c */
       b
   )
   function {
-    a &&
-    /* c */
+    a && /* c */
     b
   }
 }
@@ -174,27 +170,18 @@ object a {
 >>>
 object a {
   def c = /* c */
-    aaa +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
-  def c = a +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  def c = a + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   def c = {
-    aaa +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
   }
 }
@@ -263,27 +250,18 @@ object a {
 >>>
 object a {
   val c = /* c */
-  aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
-  val c = a +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  val c = a + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   val c = {
-    aaa +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
   }
 }
@@ -352,27 +330,18 @@ object a {
 >>>
 object a {
   c = /* c */
-  aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
-  c = a +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  c = a + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   c = {
-    aaa +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
   }
 }
@@ -441,27 +410,18 @@ object a {
 >>>
 object a {
   def c = /* c */
-    aaa &&
-      /* c */
-      bbb &&
-      /* c */
-      ccc &&
-      /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
       ddddd
-  def c = a &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  def c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   def c = {
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   }
 }
@@ -530,27 +490,18 @@ object a {
 >>>
 object a {
   val c = /* c */
-  aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
-  val c = a &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  val c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   val c = {
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   }
 }
@@ -619,27 +570,18 @@ object a {
 >>>
 object a {
   c = /* c */
-  aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
-  c = a &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   c = {
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   }
 }
@@ -702,20 +644,16 @@ object a {
 >>>
 object a {
   if (
-    a +
-      /* c */
+    a + /* c */
       b
   )
-    a +
-      /* c */
+    a + /* c */
       b
   if (
-    a +
-      /* c */
+    a + /* c */
       b
   ) {
-    a +
-      /* c */
+    a + /* c */
       b
   }
 }
@@ -778,20 +716,16 @@ object a {
 >>>
 object a {
   if (
-    a &&
-    /* c */ aa &&
-    b
+    a && /* c */
+    aa && b
   )
-    a &&
-    /* c */
+    a && /* c */
     b
   if (
-    a &&
-    /* c */
+    a && /* c */
     b
   ) {
-    a &&
-    /* c */
+    a && /* c */
     b
   }
 }
@@ -839,13 +773,11 @@ object a {
 >>>
 object a {
   function(
-    a +
-      /* c */
+    a + /* c */
       b
   )
   function {
-    a +
-      /* c */
+    a + /* c */
       b
   }
 }
@@ -893,13 +825,11 @@ object a {
 >>>
 object a {
   function(
-    a &&
-    /* c */
+    a && /* c */
     b
   )
   function {
-    a &&
-    /* c */
+    a && /* c */
     b
   }
 }
@@ -968,27 +898,18 @@ object a {
 >>>
 object a {
   def c = /* c */
-    aaa +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
-  def c = a +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  def c = a + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   def c = {
-    aaa +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
   }
 }
@@ -1057,27 +978,18 @@ object a {
 >>>
 object a {
   val c = /* c */
-    aaa +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
-  val c = a +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+  val c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
   val c = {
-    aaa +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
   }
 }
@@ -1146,27 +1058,18 @@ object a {
 >>>
 object a {
   c = /* c */
-    aaa +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
-  c = a +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+  c = a + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
   c = {
-    aaa +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
   }
 }
@@ -1234,27 +1137,18 @@ object a {
 >>>
 object a {
   def c = /* c */
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
-  def c = a &&
-  /* c */
-  bbb &&
-  /* c */
-  ccc &&
-  /* c */
+  def c = a && /* c */
+  bbb && /* c */
+  ccc && /* c */
   ddddd
   def c = {
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   }
 }
@@ -1323,27 +1217,18 @@ object a {
 >>>
 object a {
   val c = /* c */
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
-  val c = a &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  val c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   val c = {
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   }
 }
@@ -1412,27 +1297,18 @@ object a {
 >>>
 object a {
   c = /* c */
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
-  c = a &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   c = {
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   }
 }
@@ -1495,20 +1371,16 @@ object a {
 >>>
 object a {
   if (
-    a +
-      /* c */
+    a + /* c */
       b
   )
-    a +
-      /* c */
+    a + /* c */
       b
   if (
-    a +
-      /* c */
+    a + /* c */
       b
   ) {
-    a +
-      /* c */
+    a + /* c */
       b
   }
 }
@@ -1571,20 +1443,16 @@ object a {
 >>>
 object a {
   if (
-    a &&
-    /* c */ aa &&
-    b
+    a && /* c */
+    aa && b
   )
-    a &&
-    /* c */
+    a && /* c */
     b
   if (
-    a &&
-    /* c */
+    a && /* c */
     b
   ) {
-    a &&
-    /* c */
+    a && /* c */
     b
   }
 }
@@ -1632,13 +1500,11 @@ object a {
 >>>
 object a {
   function(
-    a +
-      /* c */
+    a + /* c */
       b
   )
   function {
-    a +
-    /* c */
+    a + /* c */
     b
   }
 }
@@ -1686,13 +1552,11 @@ object a {
 >>>
 object a {
   function(
-    a &&
-      /* c */
+    a && /* c */
       b
   )
   function {
-    a &&
-    /* c */
+    a && /* c */
     b
   }
 }
@@ -1761,27 +1625,18 @@ object a {
 >>>
 object a {
   def c = /* c */
-    aaa +
-      /* c */
-      bbb +
-      /* c */
-      ccc +
-      /* c */
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
       ddddd
-  def c = a +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  def c = a + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   def c = {
-    aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   }
 }
@@ -1850,27 +1705,18 @@ object a {
 >>>
 object a {
   val c = /* c */
-  aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
-  val c = a +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  val c = a + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   val c = {
-    aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   }
 }
@@ -1939,27 +1785,18 @@ object a {
 >>>
 object a {
   c = /* c */
-  aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
-  c = a +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  c = a + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   c = {
-    aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   }
 }
@@ -2028,27 +1865,18 @@ object a {
 >>>
 object a {
   def c = /* c */
-    aaa &&
-      /* c */
-      bbb &&
-      /* c */
-      ccc &&
-      /* c */
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
       ddddd
-  def c = a &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  def c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   def c = {
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   }
 }
@@ -2117,27 +1945,18 @@ object a {
 >>>
 object a {
   val c = /* c */
-  aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
-  val c = a &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  val c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   val c = {
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   }
 }
@@ -2206,27 +2025,18 @@ object a {
 >>>
 object a {
   c = /* c */
-  aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
-  c = a &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   c = {
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   }
 }
@@ -2289,20 +2099,16 @@ object a {
 >>>
 object a {
   if (
-    a +
-    /* c */
+    a + /* c */
     b
   )
-    a +
-    /* c */
+    a + /* c */
     b
   if (
-    a +
-    /* c */
+    a + /* c */
     b
   ) {
-    a +
-    /* c */
+    a + /* c */
     b
   }
 }
@@ -2365,20 +2171,16 @@ object a {
 >>>
 object a {
   if (
-    a &&
-    /* c */ aa &&
-    b
+    a && /* c */
+    aa && b
   )
-    a &&
-    /* c */
+    a && /* c */
     b
   if (
-    a &&
-    /* c */
+    a && /* c */
     b
   ) {
-    a &&
-    /* c */
+    a && /* c */
     b
   }
 }
@@ -2426,13 +2228,11 @@ object a {
 >>>
 object a {
   function(
-    a +
-    /* c */
+    a + /* c */
     b
   )
   function {
-    a +
-    /* c */
+    a + /* c */
     b
   }
 }
@@ -2480,13 +2280,11 @@ object a {
 >>>
 object a {
   function(
-    a &&
-    /* c */
+    a && /* c */
     b
   )
   function {
-    a &&
-    /* c */
+    a && /* c */
     b
   }
 }
@@ -2554,27 +2352,18 @@ object a {
 >>>
 object a {
   def c = /* c */
-    aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
-  def c = a +
-  /* c */
-  bbb +
-  /* c */
-  ccc +
-  /* c */
+  def c = a + /* c */
+  bbb + /* c */
+  ccc + /* c */
   ddddd
   def c = {
-    aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   }
 }
@@ -2643,27 +2432,18 @@ object a {
 >>>
 object a {
   val c = /* c */
-    aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
-  val c = a +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  val c = a + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   val c = {
-    aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   }
 }
@@ -2732,27 +2512,18 @@ object a {
 >>>
 object a {
   c = /* c */
-    aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
-  c = a +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+  c = a + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   c = {
-    aaa +
-    /* c */
-    bbb +
-    /* c */
-    ccc +
-    /* c */
+    aaa + /* c */
+    bbb + /* c */
+    ccc + /* c */
     ddddd
   }
 }
@@ -2820,27 +2591,18 @@ object a {
 >>>
 object a {
   def c = /* c */
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
-  def c = a &&
-  /* c */
-  bbb &&
-  /* c */
-  ccc &&
-  /* c */
+  def c = a && /* c */
+  bbb && /* c */
+  ccc && /* c */
   ddddd
   def c = {
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   }
 }
@@ -2909,27 +2671,18 @@ object a {
 >>>
 object a {
   val c = /* c */
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
-  val c = a &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  val c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   val c = {
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   }
 }
@@ -2998,27 +2751,18 @@ object a {
 >>>
 object a {
   c = /* c */
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
-  c = a &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+  c = a && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   c = {
-    aaa &&
-    /* c */
-    bbb &&
-    /* c */
-    ccc &&
-    /* c */
+    aaa && /* c */
+    bbb && /* c */
+    ccc && /* c */
     ddddd
   }
 }
@@ -3081,20 +2825,16 @@ object a {
 >>>
 object a {
   if (
-    a +
-    /* c */
+    a + /* c */
     b
   )
-    a +
-    /* c */
+    a + /* c */
     b
   if (
-    a +
-    /* c */
+    a + /* c */
     b
   ) {
-    a +
-    /* c */
+    a + /* c */
     b
   }
 }
@@ -3157,20 +2897,16 @@ object a {
 >>>
 object a {
   if (
-    a &&
-    /* c */ aa &&
-    b
+    a && /* c */
+    aa && b
   )
-    a &&
-    /* c */
+    a && /* c */
     b
   if (
-    a &&
-    /* c */
+    a && /* c */
     b
   ) {
-    a &&
-    /* c */
+    a && /* c */
     b
   }
 }
