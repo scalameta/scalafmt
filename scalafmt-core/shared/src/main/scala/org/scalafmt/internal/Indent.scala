@@ -93,7 +93,7 @@ private class IndentImpl(length: Length, expire: Token, expiresAt: ExpiresOn)
 
 object Indent {
 
-  def apply(length: Length, expire: Token, expiresAt: ExpiresOn): Indent =
+  def apply(length: Length, expire: => Token, expiresAt: => ExpiresOn): Indent =
     length match {
       case Length.Num(0, _) => Empty
       case x => new IndentImpl(x, expire, expiresAt)
@@ -105,22 +105,27 @@ object Indent {
     override def hasStateColumn: Boolean = false
   }
 
-  class Before(indent: Indent, trigger: Token) extends Indent {
+  class Switch private (before: Indent, trigger: Token, after: Indent)
+      extends Indent {
     override def switch(trigger: Token): Indent =
-      if (trigger ne this.trigger) this else Indent.Empty
+      if (trigger ne this.trigger) this else after.switch(trigger)
     override def withStateOffset(offset: Int): Option[ActualIndent] =
-      indent.withStateOffset(offset)
-    override def hasStateColumn: Boolean = indent.hasStateColumn
-    override def toString: String = s"$indent>?"
+      before.withStateOffset(offset)
+    override def hasStateColumn: Boolean = before.hasStateColumn
+    override def toString: String = s"$before>($trigger:${trigger.end})?$after"
   }
 
-  class After(trigger: Token, indent: Indent) extends Indent {
-    override def switch(trigger: Token): Indent =
-      if (trigger ne this.trigger) this else indent
-    override def withStateOffset(offset: Int): Option[ActualIndent] = None
-    override def hasStateColumn: Boolean = false
-    override def toString: String = s"?<$indent"
+  object Switch {
+    def apply(before: Indent, trigger: Token, after: Indent): Indent =
+      if (before.eq(Indent.Empty) && after.eq(Indent.Empty)) Indent.Empty
+      else new Switch(before, trigger, after)
   }
+
+  def before(indent: Indent, trigger: Token): Indent =
+    Switch(indent, trigger, Indent.Empty)
+
+  def after(trigger: Token, indent: Indent): Indent =
+    Switch(Indent.Empty, trigger, indent)
 
   def getIndent(indents: Iterable[ActualIndent]): Int =
     indents.foldLeft(0) {
