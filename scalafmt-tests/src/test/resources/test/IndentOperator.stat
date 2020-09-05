@@ -287,11 +287,10 @@ object a {
 }
 >>>
 object a {
-  c =
-    aaa +
-      bbb +
-      ccc +
-      ddddd
+  c = aaa +
+    bbb +
+    ccc +
+    ddddd
   c = a +
     bbb +
     ccc +
@@ -527,11 +526,10 @@ object a {
 }
 >>>
 object a {
-  c =
-    aaa &&
-      bbb &&
-      ccc &&
-      ddddd
+  c = aaa &&
+    bbb &&
+    ccc &&
+    ddddd
   c = a &&
     bbb &&
     ccc &&
@@ -1015,11 +1013,10 @@ object a {
 }
 >>>
 object a {
-  c =
-    aaa +
-      bbb +
-      ccc +
-      ddddd
+  c = aaa +
+    bbb +
+    ccc +
+    ddddd
   c = a +
     bbb +
     ccc +
@@ -1097,9 +1094,9 @@ object a {
 object a {
   def c =
     aaa &&
-      bbb &&
-      ccc &&
-      ddddd
+    bbb &&
+    ccc &&
+    ddddd
   def c = a &&
     bbb &&
     ccc &&
@@ -1137,9 +1134,9 @@ object a {
 object a {
   def c = /* c */
     aaa && /* c */
-      bbb && /* c */
-      ccc && /* c */
-      ddddd
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
   def c = a && /* c */
     bbb && /* c */
     ccc && /* c */
@@ -1743,11 +1740,10 @@ object a {
 }
 >>>
 object a {
-  c =
-    aaa +
-      bbb +
-      ccc +
-      ddddd
+  c = aaa +
+    bbb +
+    ccc +
+    ddddd
   c = a +
     bbb +
     ccc +
@@ -1983,11 +1979,10 @@ object a {
 }
 >>>
 object a {
-  c =
-    aaa &&
-      bbb &&
-      ccc &&
-      ddddd
+  c = aaa &&
+    bbb &&
+    ccc &&
+    ddddd
   c = a &&
     bbb &&
     ccc &&
@@ -2313,9 +2308,9 @@ object a {
 object a {
   def c =
     aaa +
-      bbb +
-      ccc +
-      ddddd
+    bbb +
+    ccc +
+    ddddd
   def c = a +
     bbb +
     ccc +
@@ -2353,9 +2348,9 @@ object a {
 object a {
   def c = /* c */
     aaa + /* c */
-      bbb + /* c */
-      ccc + /* c */
-      ddddd
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
   def c = a + /* c */
     bbb + /* c */
     ccc + /* c */
@@ -2553,9 +2548,9 @@ object a {
 object a {
   def c =
     aaa &&
-      bbb &&
-      ccc &&
-      ddddd
+    bbb &&
+    ccc &&
+    ddddd
   def c = a &&
     bbb &&
     ccc &&
@@ -2593,9 +2588,9 @@ object a {
 object a {
   def c = /* c */
     aaa && /* c */
-      bbb && /* c */
-      ccc && /* c */
-      ddddd
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
   def c = a && /* c */
     bbb && /* c */
     ccc && /* c */

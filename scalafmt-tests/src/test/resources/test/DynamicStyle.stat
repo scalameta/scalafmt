@@ -46,8 +46,8 @@ type Row =
 >>>
 type Row =
   AlertEvent :+:
-    TestEvent :+:
-    InteractionEvent
+  TestEvent :+:
+  InteractionEvent
 <<< base config is preseverd
 {
   // scalafmt: { maxColumn = 40 }

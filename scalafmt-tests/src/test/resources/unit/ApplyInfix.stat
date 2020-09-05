@@ -104,10 +104,9 @@ ctx.replace(
 )
 >>>
 ctx.replace(
-    additionalImports =
-      "" ::
-        (if (true) x
-         else y)
+    additionalImports = "" ::
+      (if (true) x
+       else y)
 )
 <<< #990 if/else indent 2
 ctx.replace(
@@ -119,11 +118,10 @@ ctx.replace(
 )
 >>>
 ctx.replace(
-    additionalImports =
-      "" ::
-        foo.map { x =>
-          x + 1
-        }
+    additionalImports = "" ::
+      foo.map { x =>
+        x + 1
+      }
 )
 <<< right assoc
 x ::
