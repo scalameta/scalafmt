@@ -800,9 +800,10 @@ object a {
 }
 >>>
 object a {
-  val a = (intercept[java.lang.IllegalStateException] {
-    in.readObject
-  }) ++ 2
+  val a =
+    (intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }) ++ 2
 }
 <<< 3.16 enclosed, assignment, infix on right
 maxColumn = 80
@@ -817,10 +818,11 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++
-    (intercept[java.lang.IllegalStateException] {
-      in.readObject
-    })
+  val a =
+    2 ++
+      (intercept[java.lang.IllegalStateException] {
+        in.readObject
+      })
 }
 <<< 3.17 enclosed, assignment, infix in middle
 maxColumn = 80
@@ -835,10 +837,11 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++
-    (intercept[java.lang.IllegalStateException] {
-      in.readObject
-    }) ++ 3
+  val a =
+    2 ++
+      (intercept[java.lang.IllegalStateException] {
+        in.readObject
+      }) ++ 3
 }
 <<< 3.18 enclosed, assignment, by itself, narrower
 maxColumn = 60
@@ -868,9 +871,10 @@ object a {
 }
 >>>
 object a {
-  val a = (intercept[java.lang.IllegalStateException] {
-    in.readObject
-  }) ++ 2
+  val a =
+    (intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }) ++ 2
 }
 <<< 3.20 enclosed, assignment, infix on right, narrower
 maxColumn = 60
@@ -885,10 +889,11 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++
-    (intercept[java.lang.IllegalStateException] {
-      in.readObject
-    })
+  val a =
+    2 ++
+      (intercept[java.lang.IllegalStateException] {
+        in.readObject
+      })
 }
 <<< 3.21 enclosed, assignment, infix in middle, narrower
 maxColumn = 60
@@ -903,10 +908,11 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++
-    (intercept[java.lang.IllegalStateException] {
-      in.readObject
-    }) ++ 3
+  val a =
+    2 ++
+      (intercept[java.lang.IllegalStateException] {
+        in.readObject
+      }) ++ 3
 }
 <<< 3.22 enclosed, assignment, by itself, narrow
 maxColumn = 40
@@ -940,10 +946,11 @@ object a {
 }
 >>>
 object a {
-  val a = (intercept[
-    java.lang.IllegalStateException] {
-    in.readObject
-  }) ++ 2
+  val a =
+    (intercept[
+      java.lang.IllegalStateException] {
+      in.readObject
+    }) ++ 2
 }
 <<< 3.24 enclosed, assignment, infix on right, narrow
 maxColumn = 40
@@ -958,11 +965,12 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++
-    (intercept[
-      java.lang.IllegalStateException] {
-      in.readObject
-    })
+  val a =
+    2 ++
+      (intercept[
+        java.lang.IllegalStateException] {
+        in.readObject
+      })
 }
 <<< 3.25 enclosed, assignment, infix in middle, narrow
 maxColumn = 40
@@ -977,11 +985,12 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++
-    (intercept[
-      java.lang.IllegalStateException] {
-      in.readObject
-    }) ++ 3
+  val a =
+    2 ++
+      (intercept[
+        java.lang.IllegalStateException] {
+        in.readObject
+      }) ++ 3
 }
 <<< 3.26 enclosed, def, chain follows
 maxColumn = 80
@@ -1775,15 +1784,15 @@ val a =
       8 % 9
     }
 >>>
-val a = 1 + 2 * 3 && 4 ^ 5 || 6 op
-  7 map {
+val a =
+  1 + 2 * 3 && 4 ^ 5 || 6 op 7 map {
     8 % 9
   }
 <<< 8.2: infix with shorter left ||
 val a = 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 }
 >>>
-val a = 1 + 2 * 3 || 4 ^ 5 && 6 op
-  7 map {
+val a =
+  1 + 2 * 3 || 4 ^ 5 && 6 op 7 map {
     8 % 9
   }
 <<< 8.3: infix with longer left ||, narrow
@@ -1841,26 +1850,27 @@ val strings = Seq(
       s"The best variant params can be found in $p"
     }
 >>>
-val strings = Seq(
-  "MetricEvaluatorResult:",
-  s"  # engine params evaluated: ${engineParamsScores.size}"
-) ++
+val strings =
   Seq(
-    "Optimal Engine Params:",
-    s"  $bestEPStr",
-    "Metrics:",
-    s"  $metricHeader: ${bestScore.score}"
+    "MetricEvaluatorResult:",
+    s"  # engine params evaluated: ${engineParamsScores.size}"
   ) ++
-  otherMetricHeaders
-    .zip(bestScore.otherScores)
-    .map { case (h, s) =>
-      s"  $h: $s"
-    } ++
-  outputPath
-    .toSeq
-    .map { p =>
-      s"The best variant params can be found in $p"
-    }
+    Seq(
+      "Optimal Engine Params:",
+      s"  $bestEPStr",
+      "Metrics:",
+      s"  $metricHeader: ${bestScore.score}"
+    ) ++
+    otherMetricHeaders
+      .zip(bestScore.otherScores)
+      .map { case (h, s) =>
+        s"  $h: $s"
+      } ++
+    outputPath
+      .toSeq
+      .map { p =>
+        s"The best variant params can be found in $p"
+      }
 <<< 8.6: assignment with short expression
 object a {
   plugins(service.pluginType) += service.pluginName -> service
@@ -1913,10 +1923,11 @@ val fields = JField("engineVariant", JString(i.engineVariant)) ::
 }
 >>>
 object a {
-  val fields = JField("engineVariant", JString(i.engineVariant)) ::
-    JField("engineFactory", JString(i.engineFactory)) ::
-    JField("batch", JString(i.batch)) ::
-    JField("env", Extraction.decompose(i.env)(DefaultFormats))
+  val fields =
+    JField("engineVariant", JString(i.engineVariant)) ::
+      JField("engineFactory", JString(i.engineFactory)) ::
+      JField("batch", JString(i.batch)) ::
+      JField("env", Extraction.decompose(i.env)(DefaultFormats))
 }
 <<< 8.10
 maxColumn = 80
@@ -2056,29 +2067,30 @@ private lazy val subNode: Parser[SubNode] = rep(' ') ~>
    '^' ~ '*' ^^ (a => SelectThisNode(true)) |
    '^' ~ '^' ^^ (a => SelectThisNode(false)))
 >>>
-private lazy val subNode: Parser[SubNode] = rep(' ') ~>
-  ((opt('*') ~ '[' ~> attrName <~ '+' ~ ']' ^^ { name =>
-    AttrAppendSubNode(name)
-  }) |
-    (opt('*') ~ '[' ~> attrName <~ '!' ~ ']' ^^ { name =>
-      AttrRemoveSubNode(name)
+private lazy val subNode: Parser[SubNode] =
+  rep(' ') ~>
+    ((opt('*') ~ '[' ~> attrName <~ '+' ~ ']' ^^ { name =>
+      AttrAppendSubNode(name)
     }) |
-    (opt('*') ~ '[' ~> attrName <~ ']' ^^ { name =>
-      AttrSubNode(name)
-    }) |
-    ('!' ~ '!' ^^ (a => DontMergeAttributes)) |
-    ('<' ~ '*' ~ '>') ^^
-    (a => SurroundKids()) |
-    ('-' ~ '*' ^^ (a => PrependKidsSubNode())) |
-    ('>' ~ '*' ^^ (a => PrependKidsSubNode())) |
-    ('*' ~ '+' ^^ (a => AppendKidsSubNode())) |
-    ('*' ~ '<' ^^ (a => AppendKidsSubNode())) |
-    '*' ^^
-    (a => KidsSubNode()) |
-    '^' ~ '*' ^^
-    (a => SelectThisNode(true)) |
-    '^' ~ '^' ^^
-    (a => SelectThisNode(false)))
+      (opt('*') ~ '[' ~> attrName <~ '!' ~ ']' ^^ { name =>
+        AttrRemoveSubNode(name)
+      }) |
+      (opt('*') ~ '[' ~> attrName <~ ']' ^^ { name =>
+        AttrSubNode(name)
+      }) |
+      ('!' ~ '!' ^^ (a => DontMergeAttributes)) |
+      ('<' ~ '*' ~ '>') ^^
+      (a => SurroundKids()) |
+      ('-' ~ '*' ^^ (a => PrependKidsSubNode())) |
+      ('>' ~ '*' ^^ (a => PrependKidsSubNode())) |
+      ('*' ~ '+' ^^ (a => AppendKidsSubNode())) |
+      ('*' ~ '<' ^^ (a => AppendKidsSubNode())) |
+      '*' ^^
+      (a => KidsSubNode()) |
+      '^' ~ '*' ^^
+      (a => SelectThisNode(true)) |
+      '^' ~ '^' ^^
+      (a => SelectThisNode(false)))
 <<< 8.15
 maxColumn = 80
 ===
@@ -2225,13 +2237,14 @@ private val allParams: Map[String, String] = mandatoryParams +
       "keep" -> dummyOptionalMaxVersionCount
     )
 >>>
-private val allParams: Map[String, String] = mandatoryParams +
-  (
-    "data-config" -> dummyOptionalConfigPath,
-    "max-sales-mappers" -> "10",
-    "overwrite" -> null,
-    "keep" -> dummyOptionalMaxVersionCount
-  )
+private val allParams: Map[String, String] =
+  mandatoryParams +
+    (
+      "data-config" -> dummyOptionalConfigPath,
+      "max-sales-mappers" -> "10",
+      "overwrite" -> null,
+      "keep" -> dummyOptionalMaxVersionCount
+    )
 <<< 8.22
 maxColumn = 40
 ===
@@ -2340,12 +2353,13 @@ object a {
 }
 >>>
 object a {
-  val b = qual1 op1 {
-    1 + 2 + 3 + 4 + 5
-  } op2
-    111 * 222 * 333 * 444 * 555 op3 {
-      "1 / 2 / 3 / 4 / 5 / 6 / 7"
-    }
+  val b =
+    qual1 op1 {
+      1 + 2 + 3 + 4 + 5
+    } op2
+      111 * 222 * 333 * 444 * 555 op3 {
+        "1 / 2 / 3 / 4 / 5 / 6 / 7"
+      }
 }
 <<< 8.29
 object a {

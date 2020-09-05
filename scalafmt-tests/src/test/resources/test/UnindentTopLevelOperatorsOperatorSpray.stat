@@ -102,9 +102,9 @@ object TestRoutes {
     pathPrefix("foo") {
       ???
     } ~
-      pathPrefix("bar") {
-        ???
-      }
+    pathPrefix("bar") {
+      ???
+    }
 }
 <<< #848
   val x =

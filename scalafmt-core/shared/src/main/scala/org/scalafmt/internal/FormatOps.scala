@@ -428,30 +428,6 @@ class FormatOps(
   def getOptimalTokenFor(ft: FormatToken): Token =
     if (isAttachedSingleLineComment(ft)) ft.right else ft.left
 
-  def beforeInfixSplit(
-      owner: Term.ApplyInfix,
-      ft: FormatToken
-  )(implicit style: ScalafmtConfig): Seq[Split] = {
-    val InfixApp(app) = owner
-    val modification = getModCheckIndent(ft)
-    val isNewline = modification.isNewline
-    val asIs =
-      (isNewline && !style.newlines.sourceIgnored) ||
-        ft.right.is[T.Comment]
-    val is = InfixSplits(app, ft)
-    if (asIs) {
-      Seq(is.withNLIndent(Split(modification, 0)))
-    } else {
-      val nlCost = if (style.newlines.formatInfix) 2 else 1
-      val (spcMod, nlMod) =
-        if (isNewline) (Space, modification) else (modification, Newline)
-      Seq(
-        is.withNLIndent(Split(spcMod, 0)),
-        is.withNLIndent(Split(nlMod, nlCost))
-      )
-    }
-  }
-
   def insideInfixSplit(
       app: InfixApp,
       ft: FormatToken
@@ -1652,7 +1628,7 @@ class FormatOps(
       Seq(spaceSplit, nlSplit)
     }
 
-    def foldedNonComment(
+    private def foldedNonComment(
         ft: FormatToken,
         body: Tree,
         nlSplitFunc: Int => Split
@@ -1746,6 +1722,24 @@ class FormatOps(
             foldedNonComment(x, body, nlSplitFunc)
         }
       }
+
+    def getWithIndent(
+        ft: FormatToken,
+        body: Tree
+    )(classicNoBreakFunc: => Split)(nlSplitFunc: Int => Split)(implicit
+        style: ScalafmtConfig
+    ): Seq[Split] =
+      get(ft, body)(classicNoBreakFunc)(x =>
+        withIndent(nlSplitFunc(x), ft, body)
+      )
+
+    def withIndent(nlSplit: Split, ft: FormatToken, body: Tree)(implicit
+        style: ScalafmtConfig
+    ): Split =
+      asInfixApp(body).fold {
+        nlSplit.withIndent(Num(2), body.tokens.last, ExpiresOn.After)
+      }(app => InfixSplits(app, ft).withNLIndent(nlSplit))
+
   }
 
   // Redundant () delims around case statements

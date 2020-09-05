@@ -1157,18 +1157,12 @@ class Router(formatOps: FormatOps) {
         }
 
         asInfixApp(rightOwner, style.newlines.formatInfix).fold {
-          if (rhs.is[Term.ApplyInfix])
-            beforeInfixSplit(rhs.asInstanceOf[Term.ApplyInfix], ft)
-          else
-            getSplitsDefValEquals(ft, rhs) {
-              val classic = !leftOwner.is[Defn] ||
-                style.newlines.getBeforeMultiline.eq(Newlines.classic)
-              if (classic) getSplitsValEquals(ft, rhs)
-              else
-                CtrlBodySplits.get(ft, rhs)(null) {
-                  Split(Newline, _).withIndent(2, rhs.tokens.last, After)
-                }
-            }
+          getSplitsDefValEquals(ft, rhs) {
+            val classic = !leftOwner.is[Defn] ||
+              style.newlines.getBeforeMultiline.eq(Newlines.classic)
+            if (classic) getSplitsValEquals(ft, rhs)
+            else CtrlBodySplits.getWithIndent(ft, rhs)(null)(Split(Newline, _))
+          }
         }(getInfixSplitsBeforeLhs(_, ft))
 
       case FormatToken(_, _: T.Dot, _)
@@ -2006,7 +2000,7 @@ class Router(formatOps: FormatOps) {
       ft.right.is[T.Comment] &&
       (ft.hasBreak || nextNonCommentSameLine(next(ft)).hasBreak)
     )
-      Seq(Split(Space.orNL(ft.noBreak), 0).withIndent(2, expire, After))
+      Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft.noBreak), 0), ft, body))
     else if (isJsNative(body))
       Seq(Split(Space, 0).withSingleLine(expire))
     else
@@ -2019,7 +2013,7 @@ class Router(formatOps: FormatOps) {
     val expire = body.tokens.last
     def baseSplit = Split(Space, 0)
     def newlineSplit(cost: Int)(implicit line: sourcecode.Line) =
-      Split(Newline, cost).withIndent(2, expire, After)
+      CtrlBodySplits.withIndent(Split(Newline, cost), ft, body)
 
     style.newlines.getBeforeMultilineDef match {
       case Newlines.classic | Newlines.keep if ft.hasBreak =>
@@ -2147,9 +2141,9 @@ class Router(formatOps: FormatOps) {
     )
     Seq(
       spaceSplit,
-      Split(Newline, 1 + penalty)
-        .withIndent(2, expire, After)
-        .withPolicy(
+      CtrlBodySplits
+        .withIndent(Split(Newline, 1 + penalty), ft, body)
+        .andPolicy(
           PenalizeAllNewlines(expire, 1),
           !style.newlines.sourceIgnored
         )
