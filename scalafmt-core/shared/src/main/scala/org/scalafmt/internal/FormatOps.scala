@@ -22,6 +22,7 @@ import scala.meta.{
   Init,
   Pat,
   Pkg,
+  Source,
   Template,
   Term,
   Tree,
@@ -426,34 +427,6 @@ class FormatOps(
   def getOptimalTokenFor(ft: FormatToken): Token =
     if (isAttachedSingleLineComment(ft)) ft.right else ft.left
 
-  def skipInfixIndent(
-      app: InfixApp,
-      ft: FormatToken,
-      isNewline: Boolean
-  )(implicit style: ScalafmtConfig): Boolean = {
-    if (style.verticalAlignMultilineOperators)
-      !InfixApp.isAssignment(ft.meta.left.text)
-    else if (
-      !app.rhs.headOption.exists { x =>
-        x.is[Term.Block] || x.is[Term.NewAnonymous]
-      } && isInfixTopLevelMatch(app, ft.meta.left.text, false)
-    ) false
-    else if (isInfixTopLevelMatch(app, app.op.value, true)) true
-    else if (!isNewline && !isSingleLineComment(ft.right)) true
-    else if (app.all.is[Pat] && isChildOfCaseClause(app.all)) true
-    else false
-  }
-
-  private def isInfixTopLevelMatch(
-      app: InfixApp,
-      op: String,
-      noindent: Boolean
-  )(implicit style: ScalafmtConfig) = {
-    def isTopLevel = isTopLevelInfixApplication(app.all)
-    noindent == style.indentOperator.noindent(op) &&
-    noindent == (noindent != style.indentOperatorTopLevelOnly || isTopLevel)
-  }
-
   def beforeInfixSplit(
       owner: Term.ApplyInfix,
       ft: FormatToken
@@ -486,12 +459,13 @@ class FormatOps(
       (isNewline && !style.newlines.sourceIgnored) ||
       ft.right.is[T.Comment]
     val indent = Indent(Num(2), expire, ExpiresOn.After)
+    val is = InfixSplits(app, ft)
     if (asIs) {
-      val noIndent = skipInfixIndent(app, ft, isNewline)
+      val noIndent = is.skipInfixIndent(isNewline)
       Seq(Split(modification, 0).withIndent(indent, noIndent))
     } else {
-      val noSpcIndent = skipInfixIndent(app, ft, false)
-      val noNlIndent = skipInfixIndent(app, ft, true)
+      val noSpcIndent = is.skipInfixIndent(false)
+      val noNlIndent = is.skipInfixIndent(true)
       val nlCost = if (style.newlines.formatInfix) 2 else 1
       val (spcMod, nlMod) =
         if (isNewline) (Space, modification)
@@ -578,6 +552,31 @@ class FormatOps(
     private val fullExpire = getLastEnclosedToken(fullInfix.all)
     private val isFirstOp = beforeLhs || (leftInfix.op eq app.op)
 
+    def skipInfixIndent(isNewline: Boolean): Boolean = {
+      val isTopLevel = {
+        val resOpt = fullInfix.all.parent.collect {
+          case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
+          case fun: Term.Function if isBlockFunction(fun) => true
+        }
+        resOpt.getOrElse(false)
+      }
+      def isInfixTopLevelMatch(op: String, noindent: Boolean): Boolean = {
+        noindent == style.indentOperator.noindent(op) &&
+        noindent == (noindent != style.indentOperatorTopLevelOnly || isTopLevel)
+      }
+      if (style.verticalAlignMultilineOperators)
+        !InfixApp.isAssignment(ft.meta.left.text)
+      else if (
+        !app.rhs.headOption.exists { x =>
+          x.is[Term.Block] || x.is[Term.NewAnonymous]
+        } && isInfixTopLevelMatch(ft.meta.left.text, false)
+      ) false
+      else if (isInfixTopLevelMatch(app.op.value, true)) true
+      else if (!isNewline && !isSingleLineComment(ft.right)) true
+      else if (app.all.is[Pat] && isChildOfCaseClause(app.all)) true
+      else false
+    }
+
     def getBeforeLhsOrRhs(
         newStmtMod: Option[Modification] = None
     ): Seq[Split] = {
@@ -636,7 +635,7 @@ class FormatOps(
       }
       val delayedBreak = if (nlMod.isNewline) None else breakAfterComment(ft)
 
-      val skipNlIndent = beforeLhs || skipInfixIndent(app, ft, true)
+      val skipNlIndent = beforeLhs || skipInfixIndent(true)
       val nlIndentLength = Num(if (skipNlIndent) 0 else 2)
       val fullIndent = Indent(nlIndentLength, fullExpire, ExpiresOn.After)
       val nlIndent =
