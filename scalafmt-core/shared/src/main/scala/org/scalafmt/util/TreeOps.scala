@@ -14,7 +14,6 @@ import scala.meta.Mod
 import scala.meta.Name
 import scala.meta.Pat
 import scala.meta.Pkg
-import scala.meta.Source
 import scala.meta.Stat
 import scala.meta.Template
 import scala.meta.Term
@@ -478,15 +477,6 @@ object TreeOps {
 
   @inline
   final def isInfixApp(tree: Tree): Boolean = asInfixApp(tree).isDefined
-
-  @tailrec
-  final def isTopLevelInfixApplication(child: Tree): Boolean =
-    child.parent match {
-      case Some(p @ InfixApp(_)) => isTopLevelInfixApplication(p)
-      case Some(_: Term.Block | _: Term.If | _: Term.While | _: Source) => true
-      case Some(fun: Term.Function) => isBlockFunction(fun)
-      case _ => false
-    }
 
   @tailrec
   def findNextInfixInParent(tree: Tree, scope: Tree): Option[Name] =
