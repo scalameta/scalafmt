@@ -3101,9 +3101,8 @@ a match {
 }
 >>>
 a match {
-  case (k, v) => (
-    k -> v
-  )
+  case (k, v) =>
+    (k -> v)
 }
 <<< #2137 tuple with ->, partial func
 maxColumn = 20
@@ -3112,10 +3111,8 @@ a {
   case (k, v) => (k -> v)
 }
 >>>
-a {
-  case (k, v) => (
-    k -> v
-  )
+a { case (k, v) =>
+  (k -> v)
 }
 <<< #2137 non-matching parens
 a match {
@@ -3123,7 +3120,8 @@ a match {
 }
 >>>
 a match {
-  case (k, v) => () => k(v)
+  case (k, v) =>
+    () => k(v)
 }
 <<< #2137 empty parens
 maxColumn = 17
@@ -3132,6 +3130,7 @@ a match {
   case (k, v) => ()
 }
 >>>
-BestFirstSearch:330 Failed to format
-UNABLE TO FORMAT,
-tok==>∙([26:28]
+a match {
+  case (k, v) =>
+    ()
+}

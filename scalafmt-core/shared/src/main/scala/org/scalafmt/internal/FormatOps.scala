@@ -20,6 +20,7 @@ import scala.meta.{
   Defn,
   Import,
   Init,
+  Lit,
   Pat,
   Pkg,
   Template,
@@ -1699,10 +1700,16 @@ class FormatOps(
   ): Boolean = {
     val body = caseStat.body
     (ft.noBreak || style.newlines.getBeforeMultiline.ignoreSourceSplit) &&
-    body.eq(ft.meta.rightOwner) && !body.is[Term.Tuple] && {
+    body.eq(ft.meta.rightOwner) && (body match {
+      case _: Lit.Unit | _: Term.Tuple => false
+      case t: Term.ApplyInfix =>
+        val op = t.op.value
+        op != "->" && op != "→"
+      case _ => true
+    }) && {
       val btoks = body.tokens
       btoks.headOption.exists { head =>
-        head.is[Token.LeftParen] && btoks.last.is[Token.RightParen]
+        head.is[Token.LeftParen] && matchingOpt(head).contains(btoks.last)
       }
     }
   }
