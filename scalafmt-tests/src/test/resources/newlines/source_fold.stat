@@ -2932,3 +2932,43 @@ pubSubMessage match {
       .defaultServices).processEff
     .message()
 }
+<<< #2137 tuple with ->, match
+maxColumn = 20
+===
+a match {
+  case (k, v) => (k -> v)
+}
+>>>
+a match {
+  case (k, v) => (
+    k -> v
+  )
+}
+<<< #2137 tuple with ->, partial func
+maxColumn = 20
+===
+a {
+  case (k, v) => (k -> v)
+}
+>>>
+a {
+  case (k, v) => (
+    k -> v
+  )
+}
+<<< #2137 non-matching parens
+a match {
+  case (k, v) => () => k(v)
+}
+>>>
+a match { case (k, v) => () => k(v) }
+<<< #2137 empty parens
+maxColumn = 17
+===
+a match {
+  case (k, v) => ()
+}
+>>>
+BestFirstSearch:330 Failed to format
+UNABLE TO FORMAT,
+tok==>∙([26:28]
