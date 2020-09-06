@@ -82,4 +82,11 @@ object FileOps {
   ): Unit = {
     writeFile(Paths.get(filename), content)
   }
+
+  @inline
+  def isAmmonite(filename: String): Boolean = filename.endsWith(".sc")
+
+  @inline
+  def isSbt(filename: String): Boolean = filename.endsWith(".sbt")
+
 }

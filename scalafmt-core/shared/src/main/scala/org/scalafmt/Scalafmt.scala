@@ -16,6 +16,7 @@ import org.scalafmt.internal.BestFirstSearch
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
+import org.scalafmt.util.FileOps
 
 /**
   * WARNING. This API is discouraged when integrating with Scalafmt from a build tool
@@ -61,7 +62,7 @@ object Scalafmt {
       if (filename == defaultFilename) baseStyle
       else { // might throw for invalid conf
         val style = baseStyle.getConfigFor(filename)
-        val isSbt = filename.endsWith(".sc") || filename.endsWith(".sbt")
+        val isSbt = FileOps.isAmmonite(filename) || FileOps.isSbt(filename)
         if (isSbt) style.forSbt else style
       }
     val isWin = code.contains(WinLineEnding)

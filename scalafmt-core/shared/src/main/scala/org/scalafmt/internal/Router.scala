@@ -71,7 +71,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.BOF, right, _) =>
         val policy = right match {
           case T.Ident(name) // shebang in .sc files
-              if filename.endsWith(".sc") && name.startsWith("#!") =>
+              if FileOps.isAmmonite(filename) && name.startsWith("#!") =>
             val nl = findFirst(next(formatToken), Int.MaxValue) { x =>
               x.hasBreak || x.right.is[T.EOF]
             }
