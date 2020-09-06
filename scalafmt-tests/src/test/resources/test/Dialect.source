@@ -63,3 +63,17 @@ sealed trait Foo {
 }
 trait -
 case object - extends -
+<<< #1966 reload interpreter
+import mill._
+interp.repositories() =
+  interp.repositories() ++ Seq(coursier.MavenRepository("https://jitpack.io"))
+@
+@ import $ivy.`com.github.yyadavalli::mill-ensime:0.0.2`
+>>> foo.sc
+test does not parse
+interp.repositories() =
+  interp.repositories() ++ Seq(coursier.MavenRepository("https://jitpack.io"))
+@
+@ import $ivy.`com.github.yyadavalli::mill-ensime:0.0.2`
+^
+foo.sc:5: error: identifier expected but @ found
