@@ -505,7 +505,7 @@ class Router(formatOps: FormatOps) {
             val mod =
               if (left.is[T.Comment] && tok.noBreak) Space
               else NewlineT(isDouble = tok.hasBlankLine)
-            getInfixSplitsBeforeLhs(app, tok, Left(mod))
+            getInfixSplitsBeforeLhs(app, tok, Some(mod))
           }
         }
 
@@ -575,7 +575,7 @@ class Router(formatOps: FormatOps) {
         val body = defBody(leftOwner).get
         asInfixApp(rightOwner, style.newlines.formatInfix).fold {
           getSplitsDefValEquals(ft, body)(getSplitsDefEquals(ft, body))
-        }(getInfixSplitsBeforeLhs(_, ft, Right(body)))
+        }(getInfixSplitsBeforeLhs(_, ft))
 
       // Parameter opening for one parameter group. This format works
       // on the WHOLE defnSite (via policies)
@@ -1169,7 +1169,7 @@ class Router(formatOps: FormatOps) {
                   Split(Newline, _).withIndent(2, rhs.tokens.last, After)
                 }
             }
-        }(getInfixSplitsBeforeLhs(_, ft, Right(rhs)))
+        }(getInfixSplitsBeforeLhs(_, ft))
 
       case FormatToken(_, _: T.Dot, _)
           if style.newlines.source.ne(Newlines.keep) &&
@@ -1694,7 +1694,7 @@ class Router(formatOps: FormatOps) {
           getSplitsEnumerator(tok)
         } { app =>
           val rhs = leftOwner.asInstanceOf[Enumerator.Generator].rhs
-          getInfixSplitsBeforeLhs(app, formatToken, Right(rhs))
+          getInfixSplitsBeforeLhs(app, formatToken)
         }
       case tok @ FormatToken(_: T.Equals, _, _)
           if leftOwner.is[Enumerator.Val] =>
@@ -1702,7 +1702,7 @@ class Router(formatOps: FormatOps) {
           getSplitsEnumerator(tok)
         } { app =>
           val rhs = leftOwner.asInstanceOf[Enumerator.Val].rhs
-          getInfixSplitsBeforeLhs(app, formatToken, Right(rhs))
+          getInfixSplitsBeforeLhs(app, formatToken)
         }
 
       // Inline comment
