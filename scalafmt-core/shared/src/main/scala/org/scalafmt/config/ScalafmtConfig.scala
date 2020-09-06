@@ -266,7 +266,7 @@ object ScalafmtConfig {
     continuationIndent = ContinuationIndent(4, 4),
     importSelectors = ImportSelectors.binPack,
     newlines = default.newlines.copy(
-      neverInResultType = true,
+      avoidInResultType = true,
       neverBeforeJsNative = true,
       sometimesBeforeColonInMethodReturnType = false
     ),

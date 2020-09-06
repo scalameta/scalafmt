@@ -147,7 +147,8 @@ import metaconfig.generic.Surface
   */
 case class Newlines(
     source: SourceHints = Newlines.classic,
-    neverInResultType: Boolean = false,
+    @annotation.ExtraName("neverInResultType")
+    avoidInResultType: Boolean = false,
     neverBeforeJsNative: Boolean = false,
     sometimesBeforeColonInMethodReturnType: Boolean = true,
     penalizeSingleSelectMultiArgList: Boolean = true,

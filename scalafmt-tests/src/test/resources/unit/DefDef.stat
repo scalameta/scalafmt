@@ -156,8 +156,8 @@ val a = new a[b, c](/*c1*/d => e)(/*c2*/f => g, h => i)(/*c3*/j => k)
 val a = new a[b, c]( /*c1*/ d => e)(
     /*c2*/ f => g,
     h => i)( /*c3*/ j => k)
-<<< #2179 neverInResultType=true
-newlines.neverInResultType = true
+<<< #2179 avoidInResultType=true
+newlines.avoidInResultType = true
 ===
 object a {
   implicit protected val td: TildeArrow[RequestContext, Future[RouteResult]] {
@@ -165,11 +165,14 @@ object a {
   } = TildeArrow.injectIntoRoute
 }
 >>>
-BestFirstSearch:330 Failed to format
-UNABLE TO FORMAT,
-tok={∙type[89:98]
-<<< #2179 neverInResultType=false
-newlines.neverInResultType = false
+object a {
+  implicit protected val td
+      : TildeArrow[RequestContext, Future[RouteResult]] {
+        type Out = RouteTestResult
+      } = TildeArrow.injectIntoRoute
+}
+<<< #2179 avoidInResultType=false
+newlines.avoidInResultType = false
 ===
 object a {
   implicit protected val td: TildeArrow[RequestContext, Future[RouteResult]] {

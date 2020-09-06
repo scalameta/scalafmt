@@ -997,9 +997,13 @@ class Router(formatOps: FormatOps) {
             .withPolicy(penalizeNewlines)
         )
       case FormatToken(T.Colon(), _, _)
-          if style.newlines.neverInResultType &&
+          if style.newlines.avoidInResultType &&
             defDefReturnType(leftOwner).isDefined =>
-        val expire = lastToken(defDefReturnType(leftOwner).get)
+        val expire = defDefReturnType(leftOwner).get match {
+          case Type.Refine(_, headStat :: _) =>
+            tokens(headStat.tokens.head, -1).left
+          case t => lastToken(t)
+        }
         Seq(Split(Space, 0).withPolicy(SingleLineBlock(expire, okSLC = true)))
 
       case FormatToken(T.LeftParen(), T.LeftBrace(), between) =>
