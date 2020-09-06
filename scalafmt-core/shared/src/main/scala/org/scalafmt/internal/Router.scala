@@ -2044,11 +2044,18 @@ class Router(formatOps: FormatOps) {
 
     val expire = body.tokens.last
     // rhsOptimalToken is too aggressive here
-    val optimal = tokens(expire).right match {
-      case x: T.Comma => x
-      case x @ RightParenOrBracket() if !wouldDangle => x
-      case _ => expire
+    val expireFt = tokens(expire)
+    val optimalFt = expireFt.right match {
+      case _: T.Comma => next(expireFt)
+      case RightParenOrBracket() if !wouldDangle => next(expireFt)
+      case _ => expireFt
     }
+    val optimal = optimalFt.left
+    def optimalWithComment =
+      optimalFt.right match {
+        case x: T.Comment if optimalFt.noBreak => x
+        case _ => optimalFt.left
+      }
 
     val penalty = ft.meta.leftOwner match {
       case l: Term.Assign if style.binPack.unsafeCallSite =>
@@ -2082,6 +2089,8 @@ class Router(formatOps: FormatOps) {
           case _: Term.Try | _: Term.TryWithHandler =>
             // we force newlines in try/catch/finally
             Left(Split.ignored)
+          case t: Term.Apply if t.args.nonEmpty =>
+            Left(baseSpaceSplit.withOptimalToken(optimalWithComment))
           case _ => Right(NoPolicy)
         }
 
