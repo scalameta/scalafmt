@@ -2,7 +2,7 @@ package org.scalafmt
 
 import metaconfig.Configured
 import scala.meta.Dialect
-import scala.meta.inputs.Input
+import scala.meta.Input
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
@@ -10,8 +10,7 @@ import scala.util.Try
 import org.scalafmt.config.Config
 import org.scalafmt.Error.PreciseIncomplete
 import org.scalafmt.config.FormatEvent.CreateFormatOps
-import org.scalafmt.config.LineEndings.preserve
-import org.scalafmt.config.LineEndings.windows
+import org.scalafmt.config.LineEndings
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.BestFirstSearch
 import org.scalafmt.internal.FormatOps
@@ -24,7 +23,7 @@ import org.scalafmt.rewrite.Rewrite
   */
 object Scalafmt {
 
-  private val WindowsLineEnding = "\r\n"
+  private val WinLineEnding = "\r\n"
   private val UnixLineEnding = "\n"
   private val defaultFilename = "<input>"
 
@@ -65,44 +64,46 @@ object Scalafmt {
         val isSbt = filename.endsWith(".sc") || filename.endsWith(".sbt")
         if (isSbt) style.forSbt else style
       }
-    val runner = style.runner
-    Try {
-      if (code.matches("\\s*")) System.lineSeparator()
-      else {
-        val isWindows = containsWindowsLineEndings(code)
-        val unixCode = if (isWindows) {
-          code.replaceAll(WindowsLineEnding, UnixLineEnding)
-        } else {
-          code
-        }
-        val toParse = Rewrite(Input.VirtualFile(filename, unixCode), style)
-        val tree = runner.parse(toParse).get
-        val formatOps = new FormatOps(tree, style, filename)
-        runner.event(CreateFormatOps(formatOps))
-        val formatWriter = new FormatWriter(formatOps)
-        val partial = BestFirstSearch(formatOps, range, formatWriter)
-        val formattedString = formatWriter.mkString(partial.state)
-        val correctedFormattedString =
-          if (
-            (style.lineEndings == preserve && isWindows) ||
-            style.lineEndings == windows
-          ) {
-            formattedString.replaceAll(UnixLineEnding, WindowsLineEnding)
-          } else {
-            formattedString
-          }
-        if (partial.reachedEOF) {
-          correctedFormattedString
-        } else {
-          val pos = formatOps.tokens(partial.state.depth).left.pos
-          throw PreciseIncomplete(pos, correctedFormattedString)
-        }
-      }
-    } match {
+    val isWin = code.contains(WinLineEnding)
+    val unixCode =
+      if (isWin) code.replaceAll(WinLineEnding, UnixLineEnding) else code
+    doFormat(unixCode, style, filename, range) match {
       case Failure(e) => Formatted.Result(Formatted.Failure(e), style)
-      case Success(s) => Formatted.Result(Formatted.Success(s), style)
+      case Success(s) =>
+        val asWin = style.lineEndings == LineEndings.windows ||
+          (isWin && style.lineEndings == LineEndings.preserve)
+        val res = if (asWin) s.replaceAll(UnixLineEnding, WinLineEnding) else s
+        Formatted.Result(Formatted.Success(res), style)
     }
   }
+
+  private def doFormat(
+      code: String,
+      style: ScalafmtConfig,
+      file: String,
+      range: Set[Range] = Set.empty
+  ): Try[String] =
+    if (code.matches("\\s*")) Try("\n")
+    else {
+      val runner = style.runner
+      val parsed = runner.parse(Rewrite(Input.VirtualFile(file, code), style))
+      parsed.fold(
+        e => Failure(e.details),
+        tree => {
+          val formatOps = new FormatOps(tree, style, file)
+          runner.event(CreateFormatOps(formatOps))
+          val formatWriter = new FormatWriter(formatOps)
+          Try(BestFirstSearch(formatOps, range, formatWriter)).flatMap { res =>
+            val formattedString = formatWriter.mkString(res.state)
+            if (res.reachedEOF) Success(formattedString)
+            else {
+              val pos = formatOps.tokens(res.state.depth).left.pos
+              Failure(PreciseIncomplete(pos, formattedString))
+            }
+          }
+        }
+      )
+    }
 
   // XXX: don't modify signature, scalafmt-dynamic expects it via reflection
   def format(
@@ -115,9 +116,6 @@ object Scalafmt {
 
   def parseHoconConfig(configString: String): Configured[ScalafmtConfig] =
     Config.fromHoconString(configString, None)
-
-  private[this] def containsWindowsLineEndings(code: String): Boolean =
-    code.contains(WindowsLineEnding)
 
   /** Utility method to change dialect on ScalafmtConfig.
     *
