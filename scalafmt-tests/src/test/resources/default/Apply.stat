@@ -1380,3 +1380,43 @@ class Test {
       )
   )
 }
+<<< #2175 1 nested assign with apply and long comment
+preset = default
+===
+object a {
+  def i: Item =
+    i.copy(
+      name = b(c) // Very long comment here because I need to have more than 80 characters
+    )
+}
+>>>
+Idempotency violated
+object a {
+  def i: Item =
+    i.copy(
+      name =
+        b(
+          c
+        ) // Very long comment here because I need to have more than 80 characters
+    )
+}
+<<< #2175 2 nested assign with apply and long comment
+preset = default
+===
+object a {
+  def i: Item =
+    i.copy(
+      name = b(
+        c
+      ) // Very long comment here because I need to have more than 80 characters
+    )
+}
+>>>
+object a {
+  def i: Item =
+    i.copy(
+      name = b(
+        c
+      ) // Very long comment here because I need to have more than 80 characters
+    )
+}
