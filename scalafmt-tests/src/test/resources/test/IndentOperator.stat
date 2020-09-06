@@ -44,11 +44,11 @@ object a {
 object a {
   function(
     a + /* c */
-    b
+      b
   )
   function {
     a + /* c */
-    b
+      b
   }
 }
 <<< #2177 1.2.1 preset=default topLevelOnly func &&
@@ -96,7 +96,7 @@ object a {
 object a {
   function(
     a && /* c */
-    b
+      b
   )
   function {
     a && /* c */
@@ -169,18 +169,18 @@ object a {
 object a {
   def c = /* c */
     aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = a + /* c */
     bbb + /* c */
     ccc + /* c */
     ddddd
-  def c = a + /* c */
-  bbb + /* c */
-  ccc + /* c */
-  ddddd
   def c = {
     aaa + /* c */
-    bbb + /* c */
-    ccc + /* c */
-    ddddd
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   }
 }
 <<< #2177 1.3.3 preset=default topLevelOnly val +
@@ -248,19 +248,19 @@ object a {
 >>>
 object a {
   val c = /* c */
-  aaa + /* c */
-  bbb + /* c */
-  ccc + /* c */
-  ddddd
-  val c = a + /* c */
-  bbb + /* c */
-  ccc + /* c */
-  ddddd
-  val c = {
     aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  val c = a + /* c */
     bbb + /* c */
     ccc + /* c */
     ddddd
+  val c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   }
 }
 <<< #2177 1.3.5 preset=default topLevelOnly assign +
@@ -328,19 +328,19 @@ object a {
 >>>
 object a {
   c = /* c */
-  aaa + /* c */
-  bbb + /* c */
-  ccc + /* c */
-  ddddd
-  c = a + /* c */
-  bbb + /* c */
-  ccc + /* c */
-  ddddd
-  c = {
     aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  c = a + /* c */
     bbb + /* c */
     ccc + /* c */
     ddddd
+  c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   }
 }
 <<< #2177 1.4.1 preset=default topLevelOnly def &&
@@ -409,13 +409,13 @@ object a {
 object a {
   def c = /* c */
     aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = a && /* c */
     bbb && /* c */
     ccc && /* c */
     ddddd
-  def c = a && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
   def c = {
     aaa && /* c */
     bbb && /* c */
@@ -488,14 +488,14 @@ object a {
 >>>
 object a {
   val c = /* c */
-  aaa && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
   val c = a && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
   val c = {
     aaa && /* c */
     bbb && /* c */
@@ -568,14 +568,14 @@ object a {
 >>>
 object a {
   c = /* c */
-  aaa && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
   c = a && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
   c = {
     aaa && /* c */
     bbb && /* c */
@@ -643,16 +643,16 @@ object a {
 object a {
   if (
     a + /* c */
-    b
+      b
   )
     a + /* c */
-    b
+      b
   if (
     a + /* c */
-    b
+      b
   ) {
     a + /* c */
-    b
+      b
   }
 }
 <<< #2177 1.6.1 preset=default topLevelOnly if &&
@@ -746,7 +746,7 @@ object a {
 object a {
   function(
     a +
-        b
+      b
   )
   function {
     a +
@@ -772,11 +772,11 @@ object a {
 object a {
   function(
     a + /* c */
-        b
+      b
   )
   function {
     a + /* c */
-    b
+      b
   }
 }
 <<< #2177 2.2.1 preset=default !topLevelOnly func &&
@@ -798,7 +798,7 @@ object a {
 object a {
   function(
     a &&
-      b
+    b
   )
   function {
     a &&
@@ -824,7 +824,7 @@ object a {
 object a {
   function(
     a && /* c */
-      b
+    b
   )
   function {
     a && /* c */
@@ -857,13 +857,13 @@ object a {
 object a {
   def c =
     aaa +
-        bbb +
-        ccc +
-        ddddd
-  def c = a +
       bbb +
       ccc +
       ddddd
+  def c = a +
+    bbb +
+    ccc +
+    ddddd
   def c = {
     aaa +
       bbb +
@@ -897,18 +897,18 @@ object a {
 object a {
   def c = /* c */
     aaa + /* c */
-        bbb + /* c */
-        ccc + /* c */
-        ddddd
-  def c = a + /* c */
       bbb + /* c */
       ccc + /* c */
       ddddd
-  def c = {
-    aaa + /* c */
+  def c = a + /* c */
     bbb + /* c */
     ccc + /* c */
     ddddd
+  def c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   }
 }
 <<< #2177 2.3.3 preset=default !topLevelOnly val +
@@ -937,13 +937,13 @@ object a {
 object a {
   val c =
     aaa +
-        bbb +
-        ccc +
-        ddddd
+      bbb +
+      ccc +
+      ddddd
   val c = a +
-        bbb +
-        ccc +
-        ddddd
+    bbb +
+    ccc +
+    ddddd
   val c = {
     aaa +
       bbb +
@@ -977,18 +977,18 @@ object a {
 object a {
   val c = /* c */
     aaa + /* c */
-        bbb + /* c */
-        ccc + /* c */
-        ddddd
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   val c = a + /* c */
-        bbb + /* c */
-        ccc + /* c */
-        ddddd
-  val c = {
-    aaa + /* c */
     bbb + /* c */
     ccc + /* c */
     ddddd
+  val c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   }
 }
 <<< #2177 2.3.5 preset=default !topLevelOnly assign +
@@ -1017,13 +1017,13 @@ object a {
 object a {
   c =
     aaa +
-        bbb +
-        ccc +
-        ddddd
+      bbb +
+      ccc +
+      ddddd
   c = a +
-        bbb +
-        ccc +
-        ddddd
+    bbb +
+    ccc +
+    ddddd
   c = {
     aaa +
       bbb +
@@ -1057,18 +1057,18 @@ object a {
 object a {
   c = /* c */
     aaa + /* c */
-        bbb + /* c */
-        ccc + /* c */
-        ddddd
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   c = a + /* c */
-        bbb + /* c */
-        ccc + /* c */
-        ddddd
-  c = {
-    aaa + /* c */
     bbb + /* c */
     ccc + /* c */
     ddddd
+  c = {
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   }
 }
 <<< #2177 2.4.1 preset=default !topLevelOnly def &&
@@ -1177,13 +1177,13 @@ object a {
 object a {
   val c =
     aaa &&
-      bbb &&
-      ccc &&
-      ddddd
+    bbb &&
+    ccc &&
+    ddddd
   val c = a &&
-      bbb &&
-      ccc &&
-      ddddd
+    bbb &&
+    ccc &&
+    ddddd
   val c = {
     aaa &&
     bbb &&
@@ -1217,13 +1217,13 @@ object a {
 object a {
   val c = /* c */
     aaa && /* c */
-      bbb && /* c */
-      ccc && /* c */
-      ddddd
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
   val c = a && /* c */
-      bbb && /* c */
-      ccc && /* c */
-      ddddd
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
   val c = {
     aaa && /* c */
     bbb && /* c */
@@ -1257,13 +1257,13 @@ object a {
 object a {
   c =
     aaa &&
-      bbb &&
-      ccc &&
-      ddddd
+    bbb &&
+    ccc &&
+    ddddd
   c = a &&
-      bbb &&
-      ccc &&
-      ddddd
+    bbb &&
+    ccc &&
+    ddddd
   c = {
     aaa &&
     bbb &&
@@ -1297,13 +1297,13 @@ object a {
 object a {
   c = /* c */
     aaa && /* c */
-      bbb && /* c */
-      ccc && /* c */
-      ddddd
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
   c = a && /* c */
-      bbb && /* c */
-      ccc && /* c */
-      ddddd
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
   c = {
     aaa && /* c */
     bbb && /* c */
@@ -1371,16 +1371,16 @@ object a {
 object a {
   if (
     a + /* c */
-    b
+      b
   )
     a + /* c */
-    b
+      b
   if (
     a + /* c */
-    b
+      b
   ) {
     a + /* c */
-    b
+      b
   }
 }
 <<< #2177 2.6.1 preset=default !topLevelOnly if &&
@@ -1493,14 +1493,14 @@ object a {
   )
   function {
     a + /* c */
-      b
+    b
   }
 }
 >>>
 object a {
   function(
     a + /* c */
-    b
+      b
   )
   function {
     a + /* c */
@@ -1545,14 +1545,14 @@ object a {
   )
   function {
     a && /* c */
-      b
+    b
   }
 }
 >>>
 object a {
   function(
     a && /* c */
-    b
+      b
   )
   function {
     a && /* c */
@@ -1624,14 +1624,14 @@ object a {
 >>>
 object a {
   val c = /* c */
-  aaa + /* c */
-  bbb + /* c */
-  ccc + /* c */
-  ddddd
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   val c = a + /* c */
-  bbb + /* c */
-  ccc + /* c */
-  ddddd
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
   val c = {
     aaa + /* c */
     bbb + /* c */
@@ -1705,13 +1705,13 @@ object a {
 object a {
   def c = /* c */
     aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = a + /* c */
     bbb + /* c */
     ccc + /* c */
     ddddd
-  def c = a + /* c */
-  bbb + /* c */
-  ccc + /* c */
-  ddddd
   def c = {
     aaa + /* c */
     bbb + /* c */
@@ -1784,14 +1784,14 @@ object a {
 >>>
 object a {
   c = /* c */
-  aaa + /* c */
-  bbb + /* c */
-  ccc + /* c */
-  ddddd
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   c = a + /* c */
-  bbb + /* c */
-  ccc + /* c */
-  ddddd
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
   c = {
     aaa + /* c */
     bbb + /* c */
@@ -1865,13 +1865,13 @@ object a {
 object a {
   def c = /* c */
     aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = a && /* c */
     bbb && /* c */
     ccc && /* c */
     ddddd
-  def c = a && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
   def c = {
     aaa && /* c */
     bbb && /* c */
@@ -1944,14 +1944,14 @@ object a {
 >>>
 object a {
   val c = /* c */
-  aaa && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
   val c = a && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
   val c = {
     aaa && /* c */
     bbb && /* c */
@@ -2024,14 +2024,14 @@ object a {
 >>>
 object a {
   c = /* c */
-  aaa && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
   c = a && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
+    bbb && /* c */
+    ccc && /* c */
+    ddddd
   c = {
     aaa && /* c */
     bbb && /* c */
@@ -2313,13 +2313,13 @@ object a {
 object a {
   def c =
     aaa +
+      bbb +
+      ccc +
+      ddddd
+  def c = a +
     bbb +
     ccc +
     ddddd
-  def c = a +
-  bbb +
-  ccc +
-  ddddd
   def c = {
     aaa +
     bbb +
@@ -2353,13 +2353,13 @@ object a {
 object a {
   def c = /* c */
     aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = a + /* c */
     bbb + /* c */
     ccc + /* c */
     ddddd
-  def c = a + /* c */
-  bbb + /* c */
-  ccc + /* c */
-  ddddd
   def c = {
     aaa + /* c */
     bbb + /* c */
@@ -2553,13 +2553,13 @@ object a {
 object a {
   def c =
     aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = a &&
     bbb &&
     ccc &&
     ddddd
-  def c = a &&
-  bbb &&
-  ccc &&
-  ddddd
   def c = {
     aaa &&
     bbb &&
@@ -2593,13 +2593,13 @@ object a {
 object a {
   def c = /* c */
     aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = a && /* c */
     bbb && /* c */
     ccc && /* c */
     ddddd
-  def c = a && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
   def c = {
     aaa && /* c */
     bbb && /* c */
