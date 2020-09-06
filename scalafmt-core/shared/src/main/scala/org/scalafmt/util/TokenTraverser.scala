@@ -20,7 +20,7 @@ class TokenTraverser(tokens: Tokens, filename: String) {
       map += (tok -> i)
       i += 1
     }
-    if (filename.endsWith(".sc")) {
+    if (FileOps.isAmmonite(filename)) {
       val realTokens = tokens.dropWhile(_.is[Token.BOF])
       realTokens.headOption.foreach {
         // shebang in .sc files
