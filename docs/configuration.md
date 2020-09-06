@@ -201,12 +201,15 @@ trait Foo extends A with B with C with D with E {
 
 ### `indentOperator`
 
-Normally, breaks in infix operators are indented by 2. This group of parameters
-allows overriding this rule and controls when indentation is _omitted_.
+Normally, the first eligible break _inside_ a chain of infix operators is
+indented by 2.
+
+This group of parameters allows overriding which infix operators are eligible
+and controls when indentation is _omitted_.
 
 #### `indentOperator.topLevelOnly`
 
-If true, only top-level infix operators are eligible for to be exempted from
+If true, only top-level infix operators are eligible to be exempted from
 the default indentation rule.
 
 ```scala mdoc:defaults
