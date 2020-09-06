@@ -1359,6 +1359,30 @@ class Engine[TD, EI, PD, Q, P, A](
       Class[_ <: BaseDataSource[TD, EI, Q, A]]]) {}
 ```
 
+### `newlines.avoidInResultType`
+
+If true, newlines in definition result type will only be used if formatting
+without them is impossible. This parameter was added in 2.7.0, replacing
+`neverInResultType`.
+
+```scala mdoc:defaults
+newlines.avoidInResultType
+```
+
+```scala mdoc:scalafmt
+maxColumn = 40
+newlines.avoidInResultType = true
+newlines.neverBeforeJsNative = true
+---
+// no newlines in result type
+def permissionState(a: A = js.native): js.Promise[PushPermissionState] = js.native
+// no newlines in result type
+val permissionState: js.Promise[PushPermissionState] = js.native
+// can't format without newlines
+implicit protected val td: TildeArrow {
+  type Out = RouteTestResult } = TildeArrow.injectIntoRoute
+```
+
 ## Rewrite Rules
 
 To enable a rewrite rule, add it to the config like this
