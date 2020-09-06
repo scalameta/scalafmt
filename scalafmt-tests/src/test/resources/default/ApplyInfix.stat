@@ -105,6 +105,31 @@ val spaceCouldBeOk =
     }
   }
 }
+<<< space ok 2
+newlines.afterInfix = some
+indentOperator.preset = akka
+===
+{{{{{
+val spaceCouldBeOk =
+          oldNewlines == 0 && !left.isInstanceOf[Comment] &&
+          right.isInstanceOf[Keyword] &&
+          isSingleIdentifierAnnotation(prev(tok))
+          }}}}}
+>>>
+{
+  {
+    {
+      {
+        {
+          val spaceCouldBeOk =
+            oldNewlines == 0 && !left.isInstanceOf[Comment] &&
+              right.isInstanceOf[Keyword] &&
+              isSingleIdentifierAnnotation(prev(tok))
+        }
+      }
+    }
+  }
+}
 <<< penalty &&
 {{
    def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
@@ -301,7 +326,7 @@ object ExternForwarder {
 {
   lazy val propertyName =
     ("""[a-zA-Z_][a-zA-Z_0-9]*""".r | """`([^`\\]|\\.)+`""".r ^^ canonicalizePropertyName | """"([^"\\]|\\.)+"""".r ^^ canonicalizeStr //"
-  )
+    )
 }
 <<< #728
 lazy val ReleaseCmd = Command.command("release") { state =>

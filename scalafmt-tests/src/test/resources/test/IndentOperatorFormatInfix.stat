@@ -250,10 +250,10 @@ object a {
 >>>
 object a {
   val c = /* c */
-  aaa + /* c */
-    bbb + /* c */
-    ccc + /* c */
-    ddddd
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   val c = a + /* c */
     bbb + /* c */
     ccc + /* c */
@@ -273,13 +273,13 @@ indentOperator.topLevelOnly = true
 object a {
   c =
     aaa +
-      bbb +
-      ccc +
-      ddddd
+    bbb +
+    ccc +
+    ddddd
   c = a +
-      bbb +
-      ccc +
-      ddddd
+    bbb +
+    ccc +
+    ddddd
   c = {
     aaa +
       bbb +
@@ -330,10 +330,10 @@ object a {
 >>>
 object a {
   c = /* c */
-  aaa + /* c */
-    bbb + /* c */
-    ccc + /* c */
-    ddddd
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   c = a + /* c */
     bbb + /* c */
     ccc + /* c */
@@ -490,10 +490,10 @@ object a {
 >>>
 object a {
   val c = /* c */
-  aaa && /* c */
-    bbb && /* c */
-    ccc && /* c */
-    ddddd
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
   val c = a && /* c */
     bbb && /* c */
     ccc && /* c */
@@ -570,10 +570,10 @@ object a {
 >>>
 object a {
   c = /* c */
-  aaa && /* c */
-    bbb && /* c */
-    ccc && /* c */
-    ddddd
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
   c = a && /* c */
     bbb && /* c */
     ccc && /* c */
@@ -943,9 +943,9 @@ object a {
       ccc +
       ddddd
   val c = a +
-      bbb +
-      ccc +
-      ddddd
+    bbb +
+    ccc +
+    ddddd
   val c = {
     aaa +
       bbb +
@@ -983,9 +983,9 @@ object a {
       ccc + /* c */
       ddddd
   val c = a + /* c */
-      bbb + /* c */
-      ccc + /* c */
-      ddddd
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
   val c = {
     aaa + /* c */
       bbb + /* c */
@@ -1023,9 +1023,9 @@ object a {
       ccc +
       ddddd
   c = a +
-      bbb +
-      ccc +
-      ddddd
+    bbb +
+    ccc +
+    ddddd
   c = {
     aaa +
       bbb +
@@ -1063,9 +1063,9 @@ object a {
       ccc + /* c */
       ddddd
   c = a + /* c */
-      bbb + /* c */
-      ccc + /* c */
-      ddddd
+    bbb + /* c */
+    ccc + /* c */
+    ddddd
   c = {
     aaa + /* c */
       bbb + /* c */
@@ -1099,12 +1099,13 @@ object a {
 object a {
   def c =
     aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = a &&
     bbb &&
     ccc &&
     ddddd
-  def c = a &&
-  bbb &&
-  ccc && ddddd
   def c = {
     aaa &&
     bbb &&
@@ -1138,13 +1139,13 @@ object a {
 object a {
   def c = /* c */
     aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = a && /* c */
     bbb && /* c */
     ccc && /* c */
     ddddd
-  def c = a && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
   def c = {
     aaa && /* c */
     bbb && /* c */
@@ -1705,10 +1706,10 @@ object a {
 >>>
 object a {
   val c = /* c */
-  aaa + /* c */
-    bbb + /* c */
-    ccc + /* c */
-    ddddd
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   val c = a + /* c */
     bbb + /* c */
     ccc + /* c */
@@ -1728,9 +1729,9 @@ indentOperator.topLevelOnly = true
 object a {
   c =
     aaa +
-      bbb +
-      ccc +
-      ddddd
+    bbb +
+    ccc +
+    ddddd
   c = a +
       bbb +
       ccc +
@@ -1785,10 +1786,10 @@ object a {
 >>>
 object a {
   c = /* c */
-  aaa + /* c */
-    bbb + /* c */
-    ccc + /* c */
-    ddddd
+    aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
   c = a + /* c */
     bbb + /* c */
     ccc + /* c */
@@ -1945,10 +1946,10 @@ object a {
 >>>
 object a {
   val c = /* c */
-  aaa && /* c */
-    bbb && /* c */
-    ccc && /* c */
-    ddddd
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
   val c = a && /* c */
     bbb && /* c */
     ccc && /* c */
@@ -2025,10 +2026,10 @@ object a {
 >>>
 object a {
   c = /* c */
-  aaa && /* c */
-    bbb && /* c */
-    ccc && /* c */
-    ddddd
+    aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
   c = a && /* c */
     bbb && /* c */
     ccc && /* c */
@@ -2314,12 +2315,13 @@ object a {
 object a {
   def c =
     aaa +
+      bbb +
+      ccc +
+      ddddd
+  def c = a +
     bbb +
     ccc +
     ddddd
-  def c = a +
-  bbb + ccc +
-  ddddd
   def c = {
     aaa +
     bbb +
@@ -2353,13 +2355,13 @@ object a {
 object a {
   def c = /* c */
     aaa + /* c */
+      bbb + /* c */
+      ccc + /* c */
+      ddddd
+  def c = a + /* c */
     bbb + /* c */
     ccc + /* c */
     ddddd
-  def c = a + /* c */
-  bbb + /* c */
-  ccc + /* c */
-  ddddd
   def c = {
     aaa + /* c */
     bbb + /* c */
@@ -2553,12 +2555,13 @@ object a {
 object a {
   def c =
     aaa &&
+      bbb &&
+      ccc &&
+      ddddd
+  def c = a &&
     bbb &&
     ccc &&
     ddddd
-  def c = a &&
-  bbb &&
-  ccc && ddddd
   def c = {
     aaa &&
     bbb &&
@@ -2592,13 +2595,13 @@ object a {
 object a {
   def c = /* c */
     aaa && /* c */
+      bbb && /* c */
+      ccc && /* c */
+      ddddd
+  def c = a && /* c */
     bbb && /* c */
     ccc && /* c */
     ddddd
-  def c = a && /* c */
-  bbb && /* c */
-  ccc && /* c */
-  ddddd
   def c = {
     aaa && /* c */
     bbb && /* c */

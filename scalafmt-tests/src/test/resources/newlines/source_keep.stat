@@ -1672,8 +1672,8 @@ val a =
 val a =
   1 + 2 * 3 && 4 ^ 5 || 6 op
     7 map {
-    8 % 9
-  }
+      8 % 9
+    }
 <<< 8.2: infix with shorter left ||
 val a = 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 }
 >>>
@@ -1770,10 +1770,10 @@ val json = ("event" -> data("event")) ~ ("entityType" -> "user") ~
   ("entityId" -> data("userId")) ~ ("targetEntityType" -> "item") ~
   ("targetEntityId" -> data("itemId")) ~
   ("eventTime" -> data("timestamp")) ~ ("properties" -> (("context" ->
-  (("ip" -> data("context[ip]")) ~ ("prop1" -> data("context[prop1]")
-    .toDouble) ~ ("prop2" -> data("context[prop2]")))) ~
-  ("anotherPropertyA" -> data.get("anotherPropertyA").map(_.toDouble)) ~
-  ("anotherPropertyB" -> data.get("anotherPropertyB").map(_.toBoolean))))
+    (("ip" -> data("context[ip]")) ~ ("prop1" -> data("context[prop1]")
+      .toDouble) ~ ("prop2" -> data("context[prop2]")))) ~
+    ("anotherPropertyA" -> data.get("anotherPropertyA").map(_.toDouble)) ~
+    ("anotherPropertyB" -> data.get("anotherPropertyB").map(_.toBoolean))))
 <<< 8.8
 maxColumn = 80
 ===
@@ -1853,10 +1853,10 @@ val json = (estype -> ("properties" -> ("status" ->
   ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
   ("dataSourceParams" -> ("type" -> "string") ~ ("index" ->
     "not_analyzed")) ~ ("preparatorParams" -> ("type" -> "string") ~
-  ("index" -> "not_analyzed")) ~ ("algorithmsParams" -> ("type" ->
-  "string") ~ ("index" -> "not_analyzed")) ~ ("servingParams" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("status" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed"))))
+    ("index" -> "not_analyzed")) ~ ("algorithmsParams" -> ("type" ->
+    "string") ~ ("index" -> "not_analyzed")) ~ ("servingParams" ->
+    ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("status" ->
+    ("type" -> "string") ~ ("index" -> "not_analyzed"))))
 <<< 8.13
 val a = b match {
   case i: EngineInstance =>
@@ -1978,8 +1978,8 @@ private lazy val subNode: Parser[SubNode] = rep(' ') ~>
     (opt('*') ~ '[' ~> attrName <~ '!' ~ ']' ^^ {
       name => AttrRemoveSubNode(name)
     }) | (opt('*') ~ '[' ~> attrName <~ ']' ^^ {
-    name => AttrSubNode(name)
-  }) |
+      name => AttrSubNode(name)
+    }) |
 
     ('!' ~ '!' ^^ (a => DontMergeAttributes)) |
     ('<' ~ '*' ~ '>') ^^ (a => SurroundKids()) |
@@ -2070,7 +2070,7 @@ object a {
     rule {
       "*/*" ~ push("*") ~ push("*") |
         `type` ~ '/' ~
-          ('*' ~ !tchar ~ push("*") | subtype) |
+        ('*' ~ !tchar ~ push("*") | subtype) |
         '*' ~ push("*") ~ push("*")
     }
 }
@@ -2090,7 +2090,7 @@ object a {
   (people.map(p => (p.name, p.age))
   // c1
     returning people.map(_.id)
-  // c2
+    // c2
     into ((nameAge, id) => Person(id, nameAge._1, nameAge._2)))
 }
 <<< 8.19
@@ -2143,7 +2143,7 @@ private val allParams: Map[String, String] = mandatoryParams +
     "overwrite" ->
       null,
     "keep" -> dummyOptionalMaxVersionCount
-)
+  )
 <<< 8.22
 maxColumn = 40
 ===
@@ -2161,7 +2161,7 @@ maxColumn = 40
       "\n" +
         indent +
         "   |    toDie: ", "\n" + indent + "   |           ", ""
-  ))
+    ))
 <<< 8.23
 maxColumn = 80
 ===
@@ -2255,8 +2255,8 @@ object a {
     1 + 2 + 3 + 4 + 5
   } op2
     111 * 222 * 333 * 444 * 555 op3 {
-    "1 / 2 / 3 / 4 / 5 / 6 / 7"
-  }
+      "1 / 2 / 3 / 4 / 5 / 6 / 7"
+    }
 }
 <<< 8.29
 object a {

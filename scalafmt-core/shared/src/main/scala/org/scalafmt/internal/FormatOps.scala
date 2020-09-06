@@ -433,47 +433,21 @@ class FormatOps(
       ft: FormatToken
   )(implicit style: ScalafmtConfig): Seq[Split] = {
     val InfixApp(app) = owner
-    infixSplitImpl(app, ft, true)
-  }
-
-  private def infixSplitImpl(
-      app: InfixApp,
-      ft: FormatToken,
-      beforeLhs: Boolean
-  )(implicit style: ScalafmtConfig): Seq[Split] = {
-    // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
-    val treeOpt =
-      if (!beforeLhs && app.isRightAssoc)
-        app.rhs.headOption.collectFirst {
-          case InfixApp(ia) if ia.lhs.tokens.nonEmpty => ia.lhs
-          case arg if arg.tokens.nonEmpty => arg
-        }
-      else
-        findLast(app.rhs)(_.tokens.nonEmpty)
-    val expire = treeOpt.getOrElse(app.all).tokens.last
-
-    // we don't modify line breaks generally around infix expressions
-    // TODO: if that ever changes, modify how rewrite rules handle infix
     val modification = getModCheckIndent(ft)
     val isNewline = modification.isNewline
-    val asIs = !beforeLhs ||
+    val asIs =
       (isNewline && !style.newlines.sourceIgnored) ||
-      ft.right.is[T.Comment]
-    val indent = Indent(Num(2), expire, ExpiresOn.After)
+        ft.right.is[T.Comment]
     val is = InfixSplits(app, ft)
     if (asIs) {
-      val noIndent = is.skipInfixIndent(isNewline)
-      Seq(Split(modification, 0).withIndent(indent, noIndent))
+      Seq(is.withNLIndent(Split(modification, 0)))
     } else {
-      val noSpcIndent = is.skipInfixIndent(false)
-      val noNlIndent = is.skipInfixIndent(true)
       val nlCost = if (style.newlines.formatInfix) 2 else 1
       val (spcMod, nlMod) =
-        if (isNewline) (Space, modification)
-        else (modification, Newline)
+        if (isNewline) (Space, modification) else (modification, Newline)
       Seq(
-        Split(spcMod, 0).withIndent(indent, noSpcIndent),
-        Split(nlMod, nlCost).withIndent(indent, noNlIndent)
+        is.withNLIndent(Split(spcMod, 0)),
+        is.withNLIndent(Split(nlMod, nlCost))
       )
     }
   }
@@ -489,7 +463,11 @@ class FormatOps(
       case _ if style.newlines.formatInfix =>
         if (ft.meta.leftOwner ne app.op) Seq(Split(Space, 0))
         else InfixSplits(app, ft).getBeforeLhsOrRhs()
-      case _ => infixSplitImpl(app, ft, false)
+      case _ =>
+        // we don't modify line breaks generally around infix expressions
+        // TODO: if that ever changes, modify how rewrite rules handle infix
+        val mod = getModCheckIndent(ft)
+        Seq(InfixSplits(app, ft).withNLIndent(Split(mod, 0)))
     }
 
   def getInfixSplitsBeforeLhs(
@@ -501,16 +479,8 @@ class FormatOps(
       findTreeWithParentSimple(lhsApp.all, false)(isInfixApp)
     val fullInfix = fullInfixTreeOpt.flatMap(asInfixApp).getOrElse(lhsApp)
     val app = findLeftInfix(fullInfix)
-    val is = new InfixSplits(app, ft, fullInfix, app)
-    newStmtModOrBody.fold(
-      x => is.getBeforeLhsOrRhs(Some(x)),
-      x => {
-        val indent = Indent(Num(2), x.tokens.last, ExpiresOn.After)
-        is.getBeforeLhsOrRhs().map { s =>
-          if (s.isNL) s.withIndent(indent) else s
-        }
-      }
-    )
+    new InfixSplits(app, ft, fullInfix, app)
+      .getBeforeLhsOrRhs(newStmtModOrBody.left.toOption)
   }
 
   private object InfixSplits {
@@ -553,29 +523,86 @@ class FormatOps(
     private val fullExpire = getLastEnclosedToken(fullInfix.all)
     private val isFirstOp = beforeLhs || (leftInfix.op eq app.op)
 
-    def skipInfixIndent(isNewline: Boolean): Boolean = {
+    private val assignBodyExpire = {
+      val prevFt = prevNonComment(tokens(fullInfix.all.tokens.head, -1))
+      if (!prevFt.left.is[T.Equals]) None
+      else Some(prevFt.meta.leftOwner.tokens.last)
+    }
+
+    private val skipInfixIndent: Boolean = {
       val isTopLevel = {
-        val resOpt = fullInfix.all.parent.collect {
+        @tailrec
+        def getLastPat(t: Pat): Tree =
+          t.parent match {
+            case Some(p: Pat) => getLastPat(p)
+            case _ => t
+          }
+        val child = fullInfix.all match {
+          case t: Pat => getLastPat(t)
+          case t => t
+        }
+        child.parent.collect {
           case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
           case fun: Term.Function if isBlockFunction(fun) => true
+          case t: Case => t.pat eq child
         }
-        resOpt.getOrElse(false)
       }
       def isInfixTopLevelMatch(op: String, noindent: Boolean): Boolean = {
         noindent == style.indentOperator.noindent(op) &&
-        noindent == (noindent != style.indentOperatorTopLevelOnly || isTopLevel)
+        noindent == isTopLevel.getOrElse(!style.indentOperatorTopLevelOnly)
       }
       if (style.verticalAlignMultilineOperators)
         !InfixApp.isAssignment(ft.meta.left.text)
+      else if (beforeLhs) assignBodyExpire.isEmpty
       else if (
         !app.rhs.headOption.exists { x =>
           x.is[Term.Block] || x.is[Term.NewAnonymous]
         } && isInfixTopLevelMatch(ft.meta.left.text, false)
       ) false
       else if (isInfixTopLevelMatch(app.op.value, true)) true
-      else if (!isNewline && !isSingleLineComment(ft.right)) true
       else if (app.all.is[Pat] && isChildOfCaseClause(app.all)) true
       else false
+    }
+
+    private val fullIndent: Indent = {
+      val expire = assignBodyExpire.fold(fullExpire) { x =>
+        if (beforeLhs) x else fullExpire
+      }
+      Indent(Num(2), expire, ExpiresOn.After)
+    }
+
+    private val (nlIndent, nlPolicy) = {
+      def policy(triggers: Token*)(implicit line: sourcecode.Line) =
+        if (triggers.isEmpty) Policy.NoPolicy
+        else
+          Policy.on(fullExpire) {
+            case Decision(t: FormatToken, s)
+                if isInfixOp(t.meta.leftOwner) ||
+                  !style.newlines.formatInfix && isInfixOp(t.meta.rightOwner) =>
+              InfixSplits.switch(s, triggers: _*)
+          }
+
+      val fullTok = fullInfix.all.tokens.head
+      val noAssign = assignBodyExpire.isEmpty
+      if (!noAssign && beforeLhs) (fullIndent, policy(fullTok))
+      else if (skipInfixIndent) {
+        if (noAssign) (Indent.Empty, Policy.NoPolicy)
+        else (Indent.before(fullIndent, fullTok), policy(fullTok))
+      } else {
+        val opTok = leftInfix.op.tokens.head
+        val ind =
+          if (isFirstOp) fullIndent else Indent.before(fullIndent, opTok)
+        if (noAssign) (ind, policy(opTok))
+        else (Indent.Switch(fullIndent, fullTok, ind), policy(fullTok, opTok))
+      }
+    }
+
+    def withNLIndent(split: Split): Split = {
+      val noNL = !split.isNL && {
+        val nextFt = nextNonCommentSameLine(ft)
+        nextFt.eq(ft) || nextFt.noBreak
+      }
+      if (noNL) split else split.withIndent(nlIndent).andPolicy(nlPolicy)
     }
 
     def getBeforeLhsOrRhs(
@@ -616,7 +643,6 @@ class FormatOps(
       val expires = expiresOpt.fold(Seq(fullExpire -> 0)) { x =>
         if (x.last._2 == 0) x else x :+ fullExpire -> 0
       }
-      val firstInfixOpTok = leftInfix.op.tokens.head
 
       val infixTooLong = infixSequenceLength(fullInfix) >
         style.newlines.afterInfixMaxCountPerExprForSome
@@ -636,27 +662,23 @@ class FormatOps(
       }
       val delayedBreak = if (nlMod.isNewline) None else breakAfterComment(ft)
 
-      val skipNlIndent = beforeLhs || skipInfixIndent(true)
-      val nlIndentLength = Num(if (skipNlIndent) 0 else 2)
-      val fullIndent = Indent(nlIndentLength, fullExpire, ExpiresOn.After)
-      val nlIndent =
-        if (isFirstOp || (fullIndent eq Indent.Empty)) fullIndent
-        else Indent.before(fullIndent, firstInfixOpTok)
-      val nlPolicy =
-        if (nlIndent eq Indent.Empty) NoPolicy
-        else
-          Policy.on(fullExpire) {
-            case Decision(t: FormatToken, s) if isInfixOp(t.meta.leftOwner) =>
-              InfixSplits.switch(s, firstInfixOpTok)
-          }
+      val (singleLineExpire, singleLineIndent) = {
+        val skip = skipInfixIndent
+        if (isFirstOp) (fullExpire, if (skip) Indent.Empty else fullIndent)
+        else {
+          val expire = expires.head._1
+          val indent =
+            if (skip) Indent.Empty else Indent(Num(2), expire, ExpiresOn.After)
+          (expire, indent)
+        }
+      }
 
-      val singleLineExpire = if (isFirstOp) fullExpire else expires.head._1
       val singleLinePolicy =
         if (infixTooLong || !isFirstOp) None
         else Some(getSingleLineInfixPolicy(fullExpire))
       val nlSinglelineSplit = Split(nlMod, 0)
         .onlyIf(singleLinePolicy.isDefined && beforeLhs)
-        .withIndent(nlIndentLength, singleLineExpire, ExpiresOn.After)
+        .withIndent(singleLineIndent)
         .withSingleLine(singleLineExpire)
         .andPolicyOpt(singleLinePolicy)
         .andPolicyOpt(delayedBreak)

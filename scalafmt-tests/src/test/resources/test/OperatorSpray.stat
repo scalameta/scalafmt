@@ -176,9 +176,9 @@ lazy val mySettings = Seq(
 >>>
 lazy val mySettings = Seq(
   scalacOptions ++= Seq(
-        // Replaces macro-paradise in Scala 2.13
-        "-Ymacro-annotations",
-        "-Wconf:any:warning-verbose"
-      ),
+    // Replaces macro-paradise in Scala 2.13
+    "-Ymacro-annotations",
+    "-Wconf:any:warning-verbose"
+  ),
   scalafmtOnCompile := true
 )
