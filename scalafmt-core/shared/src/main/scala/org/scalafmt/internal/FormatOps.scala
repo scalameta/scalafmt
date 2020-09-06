@@ -472,14 +472,13 @@ class FormatOps(
   def getInfixSplitsBeforeLhs(
       lhsApp: InfixApp,
       ft: FormatToken,
-      newStmtModOrBody: Either[Modification, Tree]
+      newStmtMod: Option[Modification] = None
   )(implicit style: ScalafmtConfig): Seq[Split] = {
     val fullInfixTreeOpt =
       findTreeWithParentSimple(lhsApp.all, false)(isInfixApp)
     val fullInfix = fullInfixTreeOpt.flatMap(asInfixApp).getOrElse(lhsApp)
     val app = findLeftInfix(fullInfix)
-    new InfixSplits(app, ft, fullInfix, app)
-      .getBeforeLhsOrRhs(newStmtModOrBody.left.toOption)
+    new InfixSplits(app, ft, fullInfix, app).getBeforeLhsOrRhs(newStmtMod)
   }
 
   private object InfixSplits {
