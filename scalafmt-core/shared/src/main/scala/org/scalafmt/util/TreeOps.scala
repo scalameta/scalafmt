@@ -689,18 +689,4 @@ object TreeOps {
   def isCaseBodyABlock(ft: FormatToken, caseStat: Case): Boolean =
     ft.right.is[Token.LeftBrace] && (caseStat.body eq ft.meta.rightOwner)
 
-  // Redundant () delims around case statements
-  def isCaseBodyEnclosedAsBlock(ft: FormatToken, caseStat: Case)(implicit
-      style: ScalafmtConfig
-  ): Boolean = {
-    val body = caseStat.body
-    (ft.noBreak || style.newlines.getBeforeMultiline.ignoreSourceSplit) &&
-    body.eq(ft.meta.rightOwner) && !body.is[Term.Tuple] && {
-      val btoks = body.tokens
-      btoks.headOption.exists { head =>
-        head.is[Token.LeftParen] && btoks.last.is[Token.RightParen]
-      }
-    }
-  }
-
 }
