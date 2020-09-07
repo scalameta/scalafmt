@@ -70,10 +70,9 @@ interp.repositories() =
 @
 @ import $ivy.`com.github.yyadavalli::mill-ensime:0.0.2`
 >>> foo.sc
-test does not parse
+import mill._
 interp.repositories() =
   interp.repositories() ++ Seq(coursier.MavenRepository("https://jitpack.io"))
+
 @
-@ import $ivy.`com.github.yyadavalli::mill-ensime:0.0.2`
-^
-foo.sc:5: error: identifier expected but @ found
+import $ivy.`com.github.yyadavalli::mill-ensime:0.0.2`
