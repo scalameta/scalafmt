@@ -709,8 +709,8 @@ object a {
 }
 >>>
 object a {
-  val a =
-    2 ++ (intercept[java.lang.IllegalStateException] { in.readObject }) ++ 3
+  val a = 2 ++ (intercept[java.lang.IllegalStateException] { in.readObject }) ++
+    3
 }
 <<< 3.18 enclosed, assignment, by itself, narrower
 maxColumn = 60
@@ -1607,13 +1607,12 @@ val b = { 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 } || somethinglong }
 }
 >>>
 {
-  val a =
-    1 + 2 * 3 ||
-      4 ^
-      5 && 6 op
-      7 map {
-        8 % 9
-      }
+  val a = 1 +
+    2 * 3 ||
+    4 ^ 5 && 6 op
+    7 map {
+      8 % 9
+    }
   val b = {
     1 + 2 * 3 ||
     4 ^ 5 && 6 op
@@ -1722,8 +1721,8 @@ object a {
 }
 >>>
 object a {
-  def isReservedPrefix(name: String): Boolean =
-    name.startsWith("$") || name.startsWith("pio_")
+  def isReservedPrefix(name: String): Boolean = name.startsWith("$") ||
+    name.startsWith("pio_")
   def idWithAppid(appid: Int, id: String): String = appid + "_" + id
 }
 <<< 8.11
@@ -2117,11 +2116,12 @@ object a {
 }
 >>>
 object a {
-  val b =
-    qual1 op1 { 1 + 2 + 3 + 4 + 5 } op2
-      111 * 222 * 333 * 444 * 555 op3 {
-        "1 / 2 / 3 / 4 / 5 / 6 / 7"
-      }
+  val b = qual1 op1 {
+    1 + 2 + 3 + 4 + 5
+  } op2
+    111 * 222 * 333 * 444 * 555 op3 {
+      "1 / 2 / 3 / 4 / 5 / 6 / 7"
+    }
 }
 <<< 8.29
 object a {
@@ -2667,8 +2667,8 @@ object a {
 >>>
 object a {
   def validate(d: Directory): Unit =
-    if (step != 0)
-      d.name should be("dir" + step)
+    if (step != 0) d.name should
+      be("dir" + step)
 }
 <<< #2113 def 5
 maxColumn = 80
@@ -2748,8 +2748,8 @@ object a {
 >>>
 object a {
   a match {
-    case a =>
-      d.name should be("dir" + step)
+    case a => d.name should
+        be("dir" + step)
   }
 }
 <<< #2113 case 6
