@@ -1,11 +1,13 @@
 package org.scalafmt
 
 import metaconfig.Configured
+import scala.annotation.tailrec
 import scala.meta.Dialect
 import scala.meta.Input
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
+import scala.util.matching.Regex
 
 import org.scalafmt.config.Config
 import org.scalafmt.Error.PreciseIncomplete
@@ -78,7 +80,38 @@ object Scalafmt {
     }
   }
 
+  private def flatMapAll[A, B](xs: Iterator[A])(f: A => Try[B]): Try[Seq[B]] = {
+    @tailrec
+    def iter(res: Seq[B]): Try[Seq[B]] =
+      if (!xs.hasNext) Success(res)
+      else
+        f(xs.next()) match {
+          case Success(x) => iter(res :+ x)
+          case Failure(e) => Failure(e)
+        }
+    iter(Seq.empty)
+  }
+
+  // see: https://ammonite.io/#Save/LoadSession
+  private val ammonitePattern: Regex = "(?:\\s*\\n@)+".r
+
   private def doFormat(
+      code: String,
+      style: ScalafmtConfig,
+      file: String,
+      range: Set[Range] = Set.empty
+  ): Try[String] =
+    if (!FileOps.isAmmonite(file)) doFormatOne(code, style, file, range)
+    else {
+      // XXX: we won't support ranges as we don't keep track of lines
+      val chunks = ammonitePattern.split(code)
+      if (chunks.length <= 1) doFormatOne(code, style, file, range)
+      else
+        flatMapAll(chunks.iterator)(doFormatOne(_, style, file))
+          .map(_.mkString("\n@\n"))
+    }
+
+  private def doFormatOne(
       code: String,
       style: ScalafmtConfig,
       file: String,
