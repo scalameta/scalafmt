@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v7
       - uses: olafurpg/setup-gpg@v2
-      - run: git fetch --tags --unshallow
+      - run: git fetch --tags --unshallow -f
       - name: Publish ${{ github.ref }}
         run: sbt ci-release docs/docusaurusPublishGhpages
         env:
