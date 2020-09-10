@@ -1992,13 +1992,14 @@ class Router(formatOps: FormatOps) {
 
   private def getSplitsDefValEquals(
       ft: FormatToken,
-      body: Tree
+      body: Tree,
+      spaceIndents: Seq[Indent] = Seq.empty
   )(splits: => Seq[Split])(implicit
       style: ScalafmtConfig
   ): Seq[Split] = {
     def expire = body.tokens.last
-    if (ft.right.is[T.LeftBrace])
-      Seq(Split(Space, 0)) // The block will take care of indenting by 2
+    if (ft.right.is[T.LeftBrace]) // The block will take care of indenting by 2
+      Seq(Split(Space, 0).withIndents(spaceIndents))
     else if (
       ft.right.is[T.Comment] &&
       (ft.hasBreak || nextNonCommentSameLine(next(ft)).hasBreak)
