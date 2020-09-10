@@ -1555,7 +1555,8 @@ class FormatOps(
     private def foldedNonEmptyNonComment(
         ft: FormatToken,
         body: Tree,
-        nlSplitFunc: Int => Split
+        nlSplitFunc: Int => Split,
+        spaceIndents: Seq[Indent]
     )(implicit style: ScalafmtConfig): Seq[Split] = {
       val bhead = body.tokens.head
       val blast = lastToken(body)
@@ -1569,7 +1570,11 @@ class FormatOps(
       }
       def getSplits(spaceSplit: Split, noIndent: Boolean) = {
         val nlSplit = getNlSplit(1)(spaceSplit.line)
-        (spaceSplit.withIndents(nlSplit.modExt.indents, noIndent), nlSplit)
+        val indents =
+          if (spaceIndents.nonEmpty) spaceIndents
+          else if (noIndent) Seq.empty
+          else nlSplit.modExt.indents
+        (spaceSplit.withIndents(indents), nlSplit)
       }
       def getSlb(end: Token, excl: TokenRanges)(implicit l: sourcecode.Line) =
         SingleLineBlock(end, exclude = excl, noSyntaxNL = true)
@@ -1601,13 +1606,17 @@ class FormatOps(
           getSlbSplit(expire, exclude, policy),
           getNlSplit(if (policy.isEmpty) 0 else 1)
         )
+      def hasStateColumn = spaceIndents.exists(_.hasStateColumn)
       val (spaceSplit, nlSplit) = body match {
-        case t: Term.If if ifWithoutElse(t) =>
+        case t: Term.If if ifWithoutElse(t) || hasStateColumn =>
           val thenIsBlock = t.thenp.is[Term.Block]
           val thenBeg = tokens(t.thenp.tokens.head)
           val end = if (thenIsBlock) thenBeg else prevNonComment(prev(thenBeg))
           getSplits(getSlbSplit(end.left), true)
-        case _: Term.Try | _: Term.TryWithHandler | _: Term.If => getSlbSplits()
+        case _: Term.If => getSlbSplits()
+        case _: Term.Try | _: Term.TryWithHandler =>
+          if (hasStateColumn) getSplits(getSpaceSplit(1), false)
+          else getSlbSplits()
         case _: Term.Block | _: Term.Match | _: Term.NewAnonymous =>
           if (!hasMatching(blast)) getSlbSplits()
           else getSplits(getSpaceSplit(1), true)
@@ -1636,10 +1645,11 @@ class FormatOps(
     private def foldedNonComment(
         ft: FormatToken,
         body: Tree,
-        nlSplitFunc: Int => Split
+        nlSplitFunc: Int => Split,
+        spaceIndents: Seq[Indent]
     )(implicit style: ScalafmtConfig): Seq[Split] =
       if (body.tokens.isEmpty) Seq(Split(Space, 0))
-      else foldedNonEmptyNonComment(ft, body, nlSplitFunc)
+      else foldedNonEmptyNonComment(ft, body, nlSplitFunc, spaceIndents)
 
     private def unfoldedSpaceNonEmptyNonComment(body: Tree): Split = {
       val expire = nextNonCommentSameLine(tokens(lastToken(body))).left
@@ -1665,12 +1675,13 @@ class FormatOps(
 
     private def unfoldedNonComment(
         body: Tree,
-        nlSplitFunc: Int => Split
+        nlSplitFunc: Int => Split,
+        spaceIndents: Seq[Indent]
     )(implicit style: ScalafmtConfig): Seq[Split] =
-      if (body.tokens.isEmpty) Seq(Split(Space, 0))
+      if (body.tokens.isEmpty) Seq(Split(Space, 0).withIndents(spaceIndents))
       else {
         val spaceSplit = unfoldedSpaceNonEmptyNonComment(body)
-        Seq(spaceSplit, nlSplitFunc(1).forThisLine)
+        Seq(spaceSplit.withIndents(spaceIndents), nlSplitFunc(1).forThisLine)
       }
 
     def checkComment(
@@ -1691,43 +1702,47 @@ class FormatOps(
 
     def folded(
         ft: FormatToken,
-        body: Tree
+        body: Tree,
+        spaceIndents: Seq[Indent] = Seq.empty
     )(nlSplitFunc: Int => Split)(implicit style: ScalafmtConfig): Seq[Split] =
       checkComment(ft, nlSplitFunc) { x =>
-        foldedNonComment(x, body, nlSplitFunc)
+        foldedNonComment(x, body, nlSplitFunc, spaceIndents)
       }
 
     def get(
         ft: FormatToken,
-        body: Tree
+        body: Tree,
+        spaceIndents: Seq[Indent] = Seq.empty
     )(classicNoBreakFunc: => Split)(nlSplitFunc: Int => Split)(implicit
         style: ScalafmtConfig
     ): Seq[Split] =
       checkComment(ft, nlSplitFunc) { x =>
         style.newlines.getBeforeMultiline match {
-          case Newlines.unfold => unfoldedNonComment(body, nlSplitFunc)
+          case Newlines.unfold =>
+            unfoldedNonComment(body, nlSplitFunc, spaceIndents)
           case Newlines.classic | Newlines.keep if x.hasBreak =>
             Seq(nlSplitFunc(0).forThisLine)
           case Newlines.classic =>
             Option(classicNoBreakFunc).fold {
-              foldedNonComment(x, body, nlSplitFunc)
+              foldedNonComment(x, body, nlSplitFunc, spaceIndents)
             } { func =>
               val spcSplit = func.forThisLine
               val nlSplit = nlSplitFunc(spcSplit.getCost(_ + 1, 0)).forThisLine
               Seq(spcSplit, nlSplit)
             }
           case _ => // fold or keep without break
-            foldedNonComment(x, body, nlSplitFunc)
+            foldedNonComment(x, body, nlSplitFunc, spaceIndents)
         }
       }
 
     def getWithIndent(
         ft: FormatToken,
-        body: Tree
+        body: Tree,
+        spaceIndents: Seq[Indent] = Seq.empty
     )(classicNoBreakFunc: => Split)(nlSplitFunc: Int => Split)(implicit
         style: ScalafmtConfig
     ): Seq[Split] =
-      get(ft, body)(classicNoBreakFunc)(x =>
+      get(ft, body, spaceIndents)(classicNoBreakFunc)(x =>
         withIndent(nlSplitFunc(x), ft, body)
       )
 
