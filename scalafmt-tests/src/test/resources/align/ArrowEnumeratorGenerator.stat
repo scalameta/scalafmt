@@ -14,12 +14,26 @@ for {
        }
   y <- Int(2)
 } yield x + y
-<<< split long lines
+<<< split long lines, with breaks
 for {
   variable <-
     record.field.field1.map(_.toString)
   cond <-
     if (variable) doSomething
+    else doAnything
+} yield cond
+>>>
+for {
+  variable <- record.field.field1.map(
+                _.toString
+              )
+  cond <- if (variable) doSomething
+          else doAnything
+} yield cond
+<<< split long lines, without breaks
+for {
+  variable <- record.field.field1.map(_.toString)
+  cond <- if (variable) doSomething
     else doAnything
 } yield cond
 >>>
@@ -149,4 +163,74 @@ for {
   cond <-
     if (variable) doSomething
     else doAnything
+} yield x + y
+<<< keep try without break
+newlines.source=keep
+align.arrowEnumeratorGenerator = true
+===
+for {
+  cond <- try { Some(x) } catch { case _ => None }
+  cond = try { Some(x) } catch { case _ => None }
+} yield x + y
+>>>
+for {
+  cond <- try { Some(x) }
+          catch { case _ => None }
+  cond = try { Some(x) }
+         catch { case _ => None }
+} yield x + y
+<<< keep try with break
+newlines.source=keep
+align.arrowEnumeratorGenerator = true
+===
+for {
+  cond <-
+    try { Some(x) } catch { case _ => None }
+  cond =
+    try { Some(x) } catch { case _ => None }
+} yield x + y
+>>>
+for {
+  cond <-
+    try { Some(x) }
+    catch { case _ => None }
+  cond =
+    try { Some(x) }
+    catch { case _ => None }
+} yield x + y
+<<< fold try without break
+newlines.source=fold
+align.arrowEnumeratorGenerator = true
+===
+for {
+  cond <- try { Some(x) } catch { case _ => None }
+  cond = try { Some(x) } catch { case _ => None }
+} yield x + y
+>>>
+for {
+  cond <-
+    try { Some(x) }
+    catch { case _ => None }
+  cond =
+    try { Some(x) }
+    catch { case _ => None }
+} yield x + y
+<<< fold try with break
+newlines.source=fold
+align.arrowEnumeratorGenerator = true
+===
+for {
+  cond <-
+    try { Some(x) } catch { case _ => None }
+  cond =
+    try { Some(x) } catch { case _ => None }
+} yield x + y
+>>>
+for {
+  cond <-
+    try { Some(x) }
+    catch { case _ => None }
+  cond =
+    try { Some(x) }
+    catch { case _ => None }
 } yield x + y

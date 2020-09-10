@@ -3164,3 +3164,39 @@ a match {
   case (k, v) =>
     ()
 }
+<<< #2158 for with guard
+maxColumn = 70
+danglingParentheses.preset = false
+===
+object a {
+  for (method <- e.getMethods if break && method.hasModifierProperty("static")) {
+    // noop
+  }
+}
+>>>
+object a {
+  for (method <- e.getMethods
+    if break && method.hasModifierProperty("static")) {
+    // noop
+  }
+}
+<<< #2158 val and no val
+object a {
+  val bbb = c match {
+    case _ =>
+  }
+  bbb = c match {
+    case _ =>
+  }
+}
+>>>
+object a {
+  val bbb =
+    c match {
+      case _ =>
+    }
+  bbb =
+    c match {
+      case _ =>
+    }
+}
