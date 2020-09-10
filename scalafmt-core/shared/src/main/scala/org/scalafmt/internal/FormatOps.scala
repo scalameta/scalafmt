@@ -1621,10 +1621,10 @@ class FormatOps(
             case _ => getSlbSplits()
           }
         case InfixApp(ia) =>
-          val left = findLeftInfix(ia)
-          val (callPolicy, isCallSite) = CallSite.getFoldedPolicies(left.lhs)
+          val left = findLeftInfix(ia).lhs
+          val (callPolicy, isCallSite) = CallSite.getFoldedPolicies(left)
           if (isCallSite) getPolicySplits(0, callPolicy)
-          else getSplits(getSlbSplit(left.op.tokens.last), true)
+          else getSplits(getSlbSplit(left.tokens.last), true)
         case _ =>
           val (callPolicy, isCallSite) = CallSite.getFoldedPolicies(body)
           getPolicySplits(if (isCallSite) 0 else 1, callPolicy)
