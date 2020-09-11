@@ -2171,7 +2171,9 @@ class Router(formatOps: FormatOps) {
   )(implicit style: ScalafmtConfig): Seq[Split] =
     asInfixApp(ft.meta.rightOwner, style.newlines.formatInfix).fold {
       val expire = lastToken(body)
-      val spaceIndents = arrowEnumeratorGeneratorAlignIndents(expire)
+      val spaceIndents =
+        if (!style.align.arrowEnumeratorGenerator) Seq.empty
+        else Seq(Indent(StateColumn, expire, After))
       getSplitsDefValEquals(ft, body, spaceIndents) {
         CtrlBodySplits.get(ft, body, spaceIndents) {
           if (spaceIndents.nonEmpty)
@@ -2188,42 +2190,5 @@ class Router(formatOps: FormatOps) {
         }(Split(Newline, _).withIndent(2, expire, After))
       }
     }(getInfixSplitsBeforeLhs(_, ft))
-
-  private def arrowEnumeratorGeneratorAlignIndents(
-      expire: Token
-  )(implicit style: ScalafmtConfig) =
-    if (style.align.arrowEnumeratorGenerator) {
-      Seq(
-        Indent(StateColumn, expire, After),
-        /**
-          * This gap is necessary for pretty alignment multiline expressions
-          * on the right-side of enumerator.
-          * Without:
-          * ```
-          * for {
-          *    a <- new Integer {
-          *          value = 1
-          *        }
-          *   x <- if (variable) doSomething
-          *       else doAnything
-          * }
-          * ```
-          *
-          * With:
-          * ```
-          * for {
-          *    a <- new Integer {
-          *           value = 1
-          *         }
-          *   x <- if (variable) doSomething
-          *        else doAnything
-          * }
-          * ```
-          */
-        Indent(Num(1), expire, After)
-      )
-    } else {
-      Seq.empty
-    }
 
 }

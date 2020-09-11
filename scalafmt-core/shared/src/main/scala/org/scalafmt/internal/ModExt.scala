@@ -46,6 +46,36 @@ case class ModExt(
     copy(indents = newIndents.filter(_ ne Indent.Empty))
   }
 
+  /**
+    * This gap is necessary for pretty alignment multiline expressions
+    * on the right-side of enumerator.
+    * Without:
+    * ```
+    * for {
+    *    a <- new Integer {
+    *          value = 1
+    *        }
+    *   x <- if (variable) doSomething
+    *       else doAnything
+    * }
+    * ```
+    *
+    * With:
+    * ```
+    * for {
+    *    a <- new Integer {
+    *           value = 1
+    *         }
+    *   x <- if (variable) doSomething
+    *        else doAnything
+    * }
+    * ```
+    */
+  def getActualIndents(offset: Int): Seq[ActualIndent] = {
+    val adjustedOffset = if (mod eq Space) offset + 1 else offset
+    indents.flatMap(_.withStateOffset(adjustedOffset))
+  }
+
 }
 
 object ModExt {

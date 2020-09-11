@@ -50,17 +50,18 @@ final case class State(
         val offset = column - indentation
         def getUnexpired(indents: Seq[ActualIndent]): Seq[ActualIndent] =
           indents.filter(_.notExpiredBy(tok))
-        def getPushes(indents: Seq[Indent]): Seq[ActualIndent] =
-          getUnexpired(indents.flatMap(_.withStateOffset(offset)))
-        val indents = initialNextSplit.modExt.indents
-        val nextPushes = getUnexpired(pushes) ++ getPushes(indents)
+        def getPushes(modExt: ModExt): Seq[ActualIndent] =
+          getUnexpired(modExt.getActualIndents(offset))
+        val initialModExt = initialNextSplit.modExt
+        val indents = initialModExt.indents
+        val nextPushes = getUnexpired(pushes) ++ getPushes(initialModExt)
         val nextIndent = Indent.getIndent(nextPushes)
         initialNextSplit.modExt.mod match {
           case m: NewlineT
               if !tok.left.is[Token.Comment] && m.alt.isDefined &&
                 nextIndent >= m.alt.get.mod.length + column =>
             val alt = m.alt.get
-            val altPushes = getPushes(alt.indents)
+            val altPushes = getPushes(alt)
             val altIndent = Indent.getIndent(altPushes)
             val split = initialNextSplit.withMod(alt.withIndents(indents))
             (split, nextIndent + altIndent, nextPushes ++ altPushes)
