@@ -703,13 +703,14 @@ object a {
           man ! "run"
           man
         })
-  terminaters = Set() ++
-    (for (i ← 1 to n)
-      yield {
-        val man = context.watch(context.system.actorOf(Props[Terminater]))
-        man ! "run"
-        man
-      })
+  terminaters =
+    Set() ++
+      (for (i ← 1 to n)
+        yield {
+          val man = context.watch(context.system.actorOf(Props[Terminater]))
+          man ! "run"
+          man
+        })
 }
 <<< 3.11 enclosed, by itself
 maxColumn = 80
@@ -2234,8 +2235,9 @@ HttpResponse(
 >>>
 HttpResponse(
   StatusCodes.ServiceUnavailable,
-  entity = "The server was not able " +
-    "to produce a timely response to your request.\r\nPlease try again in a short while!"
+  entity =
+    "The server was not able " +
+      "to produce a timely response to your request.\r\nPlease try again in a short while!"
 )
 <<< 8.21
 maxColumn = 80

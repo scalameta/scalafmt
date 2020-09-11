@@ -1142,7 +1142,7 @@ class Router(formatOps: FormatOps) {
       // an infix application or an if. For example, this is allowed:
       // val x = function(a,
       //                  b)
-      case ft @ FormatToken(_: T.Equals, right, _) if (leftOwner match {
+      case ft @ FormatToken(_: T.Equals, _, _) if (leftOwner match {
             case _: Defn.Type | _: Defn.Val | _: Defn.Var => true
             case _: Term.Assign => true
             case t: Term.Param => t.default.isDefined
@@ -1162,8 +1162,7 @@ class Router(formatOps: FormatOps) {
 
         asInfixApp(rightOwner, style.newlines.formatInfix).fold {
           getSplitsDefValEquals(ft, rhs) {
-            val classic = !leftOwner.is[Defn] ||
-              style.newlines.getBeforeMultiline.eq(Newlines.classic)
+            val classic = style.newlines.getBeforeMultiline eq Newlines.classic
             if (classic) getSplitsValEquals(ft, rhs)
             else CtrlBodySplits.getWithIndent(ft, rhs)(null)(Split(Newline, _))
           }
@@ -2130,7 +2129,6 @@ class Router(formatOps: FormatOps) {
         Right(NoPolicy)
       case Newlines.unfold =>
         body match {
-          case _: Term.If => Right(SingleLineBlock(expire))
           case _: Term.ForYield =>
             // unfold policy on yield forces a break
             // revert it if we are attempting a single line
@@ -2144,9 +2142,7 @@ class Router(formatOps: FormatOps) {
           // don't tuck curried apply
           case Term.Apply(_: Term.Apply, _) => Right(SingleLineBlock(expire))
           case EndOfFirstCall(end) => Left(baseSpaceSplit.withSingleLine(end))
-          case _ if ft.meta.leftOwner.is[Defn] =>
-            Right(SingleLineBlock(expire))
-          case _ => Right(NoPolicy)
+          case _ => Right(SingleLineBlock(expire))
         }
     }).fold(
       identity,
