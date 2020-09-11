@@ -254,14 +254,15 @@ object a {
 object a {
   x.map { x => s"${x._1} -> ${x._2}" }
   x.map { case (c, i) => s"$c -> $i" }
-  x.zipWithIndex.map { x =>
-    s"${x._1} -> ${x._2}"
+  x.zipWithIndex.map {
+    x => s"${x._1} -> ${x._2}"
   }
-  x.zipWithIndex.map { case (c, i) =>
-    s"$c -> $i"
+  x.zipWithIndex.map {
+    case (c, i) => s"$c -> $i"
   }
-  x.zipWithIndex.map { case (c, i) =>
-    s"$c -> $i (long comment)"
+  x.zipWithIndex.map {
+    case (c, i) =>
+      s"$c -> $i (long comment)"
   }
   x.zipWithIndex.map {
     case (c, i) if c != i =>
