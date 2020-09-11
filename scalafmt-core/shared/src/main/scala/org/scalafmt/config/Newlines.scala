@@ -250,9 +250,6 @@ case class Newlines(
   lazy val avoidForSimpleOverflowTooLong: Boolean =
     avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.tooLong)
 
-  lazy val neverBeforeCurlyLambdaParams = !alwaysBeforeCurlyBraceLambdaParams &&
-    (beforeCurlyLambdaParams eq BeforeCurlyLambdaParams.never)
-
   lazy val alwaysBeforeCurlyLambdaParams = alwaysBeforeCurlyBraceLambdaParams ||
     (beforeCurlyLambdaParams eq BeforeCurlyLambdaParams.always)
 
@@ -328,11 +325,13 @@ object Newlines {
   object BeforeCurlyLambdaParams {
     case object always extends BeforeCurlyLambdaParams
     case object never extends BeforeCurlyLambdaParams
+    case object multiline extends BeforeCurlyLambdaParams
     case object multilineWithCaseOnly extends BeforeCurlyLambdaParams
     implicit val codec: ConfCodec[BeforeCurlyLambdaParams] =
       ReaderUtil.oneOfCustom[BeforeCurlyLambdaParams](
         never,
         always,
+        multiline,
         multilineWithCaseOnly
       ) {
         case Conf.Bool(true) => Configured.Ok(always)
