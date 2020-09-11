@@ -56,13 +56,13 @@ for ((l, r) ← /* c1 */ { /* c2 */ Seq(
 >>>
 for (
     (l, r) ← /* c1 */ { /* c2 */
-        Seq(
-            SelectString("a/b/c") -> None,
-            SelectString("akka://all-systems/Nobody") -> None,
-            SelectPath(system / "hallo") -> None,
-            SelectPath(looker.path child "hallo") -> None, // test Java API
-            SelectPath(looker.path descendant Seq("a", "b").asJava) -> None
-        ) // test Java API
+      Seq(
+          SelectString("a/b/c") -> None,
+          SelectString("akka://all-systems/Nobody") -> None,
+          SelectPath(system / "hallo") -> None,
+          SelectPath(looker.path child "hallo") -> None, // test Java API
+          SelectPath(looker.path descendant Seq("a", "b").asJava) -> None
+      ) // test Java API
     }
 ) checkOne(looker, l, r)
 <<< multiline for with paren, no comments
@@ -78,12 +78,12 @@ for ((l, r) ← ( Seq(
 >>>
 for (
     (l, r) ← (Seq(
-          SelectString("a/b/c") -> None,
-          SelectString("akka://all-systems/Nobody") -> None,
-          SelectPath(system / "hallo") -> None,
-          SelectPath(looker.path child "hallo") -> None, // test Java API
-          SelectPath(looker.path descendant Seq("a", "b").asJava) -> None
-      ))
+        SelectString("a/b/c") -> None,
+        SelectString("akka://all-systems/Nobody") -> None,
+        SelectPath(system / "hallo") -> None,
+        SelectPath(looker.path child "hallo") -> None, // test Java API
+        SelectPath(looker.path descendant Seq("a", "b").asJava) -> None
+    ))
 ) checkOne(looker, l, r)
 <<< multiline for with paren
 for ((l, r) ← /* c1 */ ( /* c2 */ Seq(
@@ -119,12 +119,12 @@ for ((l, r) ← ( Seq(
 >>>
 for (
     (l, r) ← (Seq(
-          SelectString("a/b/c") -> None,
-          SelectString("akka://all-systems/Nobody") -> None,
-          SelectPath(system / "hallo") -> None,
-          SelectPath(looker.path child "hallo") -> None, // test Java API
-          SelectPath(looker.path descendant Seq("a", "b").asJava) -> None
-      ))
+        SelectString("a/b/c") -> None,
+        SelectString("akka://all-systems/Nobody") -> None,
+        SelectPath(system / "hallo") -> None,
+        SelectPath(looker.path child "hallo") -> None, // test Java API
+        SelectPath(looker.path descendant Seq("a", "b").asJava) -> None
+    ))
 ) checkOne(looker, l, r)
 <<< multiline for with paren, no align
 align.preset = none
