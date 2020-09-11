@@ -1641,10 +1641,7 @@ class FormatOps(
       if (body.tokens.isEmpty) Seq(Split(Space, 0))
       else foldedNonEmptyNonComment(ft, body, nlSplitFunc)
 
-    private def unfoldedSpaceNonEmptyNonComment(
-        ft: FormatToken,
-        body: Tree
-    ): Split = {
+    private def unfoldedSpaceNonEmptyNonComment(body: Tree): Split = {
       val expire = nextNonCommentSameLine(tokens(lastToken(body))).left
       def slbSplit(end: Token)(implicit line: sourcecode.Line) =
         Split(Space, 0).withSingleLine(end, noSyntaxNL = true)
@@ -1666,14 +1663,13 @@ class FormatOps(
       }
     }
 
-    def unfoldedNonComment(
-        ft: FormatToken,
+    private def unfoldedNonComment(
         body: Tree,
         nlSplitFunc: Int => Split
     )(implicit style: ScalafmtConfig): Seq[Split] =
       if (body.tokens.isEmpty) Seq(Split(Space, 0))
       else {
-        val spaceSplit = unfoldedSpaceNonEmptyNonComment(ft, body)
+        val spaceSplit = unfoldedSpaceNonEmptyNonComment(body)
         Seq(spaceSplit, nlSplitFunc(1).forThisLine)
       }
 
@@ -1709,7 +1705,7 @@ class FormatOps(
     ): Seq[Split] =
       checkComment(ft, nlSplitFunc) { x =>
         style.newlines.getBeforeMultiline match {
-          case Newlines.unfold => unfoldedNonComment(x, body, nlSplitFunc)
+          case Newlines.unfold => unfoldedNonComment(body, nlSplitFunc)
           case Newlines.classic | Newlines.keep if x.hasBreak =>
             Seq(nlSplitFunc(0).forThisLine)
           case Newlines.classic =>
