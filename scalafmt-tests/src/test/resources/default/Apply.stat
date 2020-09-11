@@ -33,6 +33,29 @@ List(Split(Space,
            policy = { case Decision(t @ FormatToken(_, `close`, _), s) =>
              Decision(t, List(Split(Newline, 0)))
            }))
+<<< Massive 2 with spaces inside parens
+spaces.inParentheses = true
+===
+ List(Split(Space,
+            0,
+            policy = SingleLineBlock(close),
+            ignoreIf = blockSize > style.maxColumn),
+      Split(nl,
+            1,
+            policy = {
+            case Decision(t@FormatToken(_, `close`, _), s) =>
+            Decision(t, List(Split(Newline, 0)))
+            }))
+>>>
+List( Split( Space,
+            0,
+            policy = SingleLineBlock( close ),
+            ignoreIf = blockSize > style.maxColumn ),
+     Split( nl,
+           1,
+           policy = { case Decision( t @ FormatToken( _, `close`, _ ), s ) =>
+             Decision( t, List( Split( Newline, 0 ) ) )
+           } ) )
 <<< Massive (good API) 3
 Split(Space, 0).withPolicy {
     // Following case:
