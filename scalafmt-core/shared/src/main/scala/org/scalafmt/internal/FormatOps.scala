@@ -168,6 +168,10 @@ class FormatOps(
   final def nextNonComment(curr: FormatToken): FormatToken =
     findToken(curr, next)(!_.right.is[T.Comment]).fold(identity, identity)
 
+  final def prevNonCommentSameLine(curr: FormatToken): FormatToken =
+    findToken(curr, prev)(ft => ft.hasBreak || !ft.left.is[T.Comment])
+      .fold(identity, identity)
+
   final def prevNonComment(curr: FormatToken): FormatToken =
     findToken(curr, prev)(!_.left.is[T.Comment]).fold(identity, identity)
 

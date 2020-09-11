@@ -1656,11 +1656,13 @@ val k =
   for {
     _ <- aa + bb
     if !onlyOne
-    _ <-
-      Future(aaa)
+    _ <- Future(
+      aaa
+    )
     if !onlyOne
-    _ <-
-      Future(2)
+    _ <- Future(
+      2
+    )
   } yield ()
 <<< 7.5: multiple consecutive guards
 maxColumn = 80

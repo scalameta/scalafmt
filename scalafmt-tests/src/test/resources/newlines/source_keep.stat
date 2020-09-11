@@ -1550,9 +1550,8 @@ val k = for {
 val k = for {
   _ <- aaa + bbb
   if !onlyOne
-  _ <- Future(
-    aaa
-  )
+  _ <-
+    Future(aaa)
   if !onlyOne
   _ <- Future(2)
 } yield ()

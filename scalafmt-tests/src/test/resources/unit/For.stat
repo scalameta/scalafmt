@@ -281,8 +281,8 @@ for {
 } yield cond
 >>>
 for {
-  variable <-
-    record.field.field1.map(_.toString)
+  variable <- record.field.field1
+    .map(_.toString)
   cond <-
     if (variable) doSomething
     else doAnything
@@ -304,8 +304,8 @@ for {
 } yield cond
 >>>
 for {
-  variable <-
-    record.field.field1.map(_.toString)
+  variable <- record.field.field1
+    .map(_.toString)
   cond =
     if (variable) doSomething
     else doAnything

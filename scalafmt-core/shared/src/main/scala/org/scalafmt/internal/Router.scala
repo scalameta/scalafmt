@@ -1570,10 +1570,17 @@ class Router(formatOps: FormatOps) {
           val indent: Length = right match {
             case T.KwIf() => StateColumn
             case T.KwFor() if !style.indentYieldKeyword => StateColumn
-            case _ => Num(0)
+            case _ =>
+              if (leftOwner.is[Term.ApplyInfix]) Num(0)
+              else {
+                val closeFt = tokens(close, -1)
+                val willBreak = closeFt.left.is[T.Comment] &&
+                  prevNonCommentSameLine(closeFt).hasBreak
+                Num(if (willBreak) 2 else 0)
+              }
           }
           val useSpace = style.spaces.inParentheses
-          Split(Space(useSpace), 0).withIndent(indent, close, After)
+          Split(Space(useSpace), 0).withIndent(indent, close, Before)
         }
         def spaceSplit(implicit line: sourcecode.Line) =
           spaceSplitWithoutPolicy.withPolicy(PenalizeAllNewlines(close, 1))
@@ -1687,20 +1694,12 @@ class Router(formatOps: FormatOps) {
       // ForYield
       case tok @ FormatToken(_: T.LeftArrow, _, _)
           if leftOwner.is[Enumerator.Generator] =>
-        asInfixApp(rightOwner, style.newlines.formatInfix).fold {
-          getSplitsEnumerator(tok)
-        } { app =>
-          val rhs = leftOwner.asInstanceOf[Enumerator.Generator].rhs
-          getInfixSplitsBeforeLhs(app, formatToken)
-        }
+        val enumerator = leftOwner.asInstanceOf[Enumerator.Generator]
+        getSplitsEnumerator(tok, enumerator.rhs)
       case tok @ FormatToken(_: T.Equals, _, _)
           if leftOwner.is[Enumerator.Val] =>
-        asInfixApp(rightOwner, style.newlines.formatInfix).fold {
-          getSplitsEnumerator(tok)
-        } { app =>
-          val rhs = leftOwner.asInstanceOf[Enumerator.Val].rhs
-          getInfixSplitsBeforeLhs(app, formatToken)
-        }
+        val enumerator = leftOwner.asInstanceOf[Enumerator.Val]
+        getSplitsEnumerator(tok, enumerator.rhs)
 
       // Inline comment
       case FormatToken(left, _: T.Comment, _) =>
@@ -2161,55 +2160,28 @@ class Router(formatOps: FormatOps) {
   }
 
   private def getSplitsEnumerator(
-      ft: FormatToken
-  )(implicit style: ScalafmtConfig): Seq[Split] = {
-    val postCommentFT = nextNonCommentSameLine(ft)
-    val expire = lastToken(ft.meta.leftOwner)
-    if (postCommentFT.right.is[T.Comment])
-      Seq(Split(Space.orNL(ft.noBreak), 0).withIndent(2, expire, After))
-    else if (style.newlines.source eq Newlines.keep)
-      Seq(
-        if (ft.noBreak)
-          Split(Space, 0)
-            .withIndents(arrowEnumeratorGeneratorAlignIndents(expire))
-        else Split(Newline, 0).withIndent(2, expire, After)
-      )
-    else {
-      val close = getClosingIfEnclosedInMatching(postCommentFT.meta.rightOwner)
-      val spaceSplit = style.newlines.source match {
-        case _ if close.exists(_.is[T.RightBrace]) => Split(Space, 1)
-
-        case Newlines.unfold =>
-          if (close.isEmpty) Split.ignored else Split(Space, 1)
-
-        case Newlines.classic if style.align.arrowEnumeratorGenerator =>
-          Split(Space, 1)
-
-        case Newlines.fold | Newlines.classic =>
-          postCommentFT.meta.rightOwner match {
-            case _: Term.Try | _: Term.TryWithHandler => Split.ignored
-            case t: Term.If if !ifWithoutElse(t) => Split.ignored
-            case t: Term.If =>
-              Split(Space, 1).withSingleLine(t.cond.tokens.last)
-            case _ =>
-              def exclude = insideBlock[LeftParenOrBrace](postCommentFT, expire)
-              Split(Space, 0).withSingleLine(expire, exclude = exclude)
+      ft: FormatToken,
+      body: => Tree
+  )(implicit style: ScalafmtConfig): Seq[Split] =
+    asInfixApp(ft.meta.rightOwner, style.newlines.formatInfix).fold {
+      val expire = lastToken(body)
+      val spaceIndents = arrowEnumeratorGeneratorAlignIndents(expire)
+      getSplitsDefValEquals(ft, body, spaceIndents) {
+        CtrlBodySplits.get(ft, body, spaceIndents) {
+          if (spaceIndents.nonEmpty)
+            Split(Space, 0).withIndents(spaceIndents)
+          else {
+            val noSlb = body match {
+              case _: Term.Try | _: Term.TryWithHandler => false
+              case t: Term.If => ifWithoutElse(t)
+              case _ => true
+            }
+            if (noSlb) Split(Space, 0).withOptimalToken(ft.right)
+            else Split(Space, 0).withSingleLine(expire)
           }
+        }(Split(Newline, _).withIndent(2, expire, After))
       }
-
-      Seq(
-        Split(Space, 0)
-          .onlyIf(spaceSplit.isIgnored || spaceSplit.cost != 0)
-          .withSingleLine(expire),
-        spaceSplit
-          .withIndents(arrowEnumeratorGeneratorAlignIndents(expire))
-          .withIndentOpt(close.map(Indent(Num(2), _, Before))),
-        Split(Newline, if (spaceSplit.isIgnored) 1 else spaceSplit.cost + 1)
-          .onlyIf(ft eq postCommentFT)
-          .withIndent(2, expire, After)
-      )
-    }
-  }
+    }(getInfixSplitsBeforeLhs(_, ft))
 
   private def arrowEnumeratorGeneratorAlignIndents(
       expire: Token
