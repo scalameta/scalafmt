@@ -1641,11 +1641,14 @@ class FormatOps(
       if (body.tokens.isEmpty) Seq(Split(Space, 0))
       else foldedNonEmptyNonComment(ft, body, nlSplitFunc)
 
-    def unfoldedSpaceNonEmptyNonComment(ft: FormatToken, body: Tree): Split = {
+    private def unfoldedSpaceNonEmptyNonComment(
+        ft: FormatToken,
+        body: Tree
+    ): Split = {
       val expire = nextNonCommentSameLine(tokens(lastToken(body))).left
+      def slbSplit(end: Token)(implicit line: sourcecode.Line) =
+        Split(Space, 0).withSingleLine(end, noSyntaxNL = true)
       body match {
-        case _: Term.If =>
-          Split(Space, 0).withSingleLine(expire, noSyntaxNL = true)
         case _: Term.ForYield =>
           // unfold policy on yield forces a break
           // revert it if we are attempting a single line
@@ -1653,19 +1656,13 @@ class FormatOps(
             case Decision(ft, s) if s.isEmpty && ft.right.is[Token.KwYield] =>
               Seq(Split(Space, 0))
           }
-          Split(Space, 0)
-            .withSingleLine(expire, noSyntaxNL = true)
-            .andPolicy(noBreakOnYield)
+          slbSplit(expire).andPolicy(noBreakOnYield)
         // we force newlines in try/catch/finally
         case _: Term.Try | _: Term.TryWithHandler => Split.ignored
         // don't tuck curried apply
-        case Term.Apply(_: Term.Apply, _) =>
-          Split(Space, 0).withSingleLine(expire, noSyntaxNL = true)
-        case EndOfFirstCall(end) =>
-          Split(Space, 0).withSingleLine(end, noSyntaxNL = true)
-        case _ if ft.meta.leftOwner.is[Defn] =>
-          Split(Space, 0).withSingleLine(expire, noSyntaxNL = true)
-        case _ => Split(Space, 0)
+        case Term.Apply(_: Term.Apply, _) => slbSplit(expire)
+        case EndOfFirstCall(end) => slbSplit(end)
+        case _ => slbSplit(expire)
       }
     }
 
