@@ -680,6 +680,12 @@ maxColumn = 80
 danglingParentheses.preset = false
 ===
 object a {
+  val terminaters = Set() ++ (for (i ← 1 to n)
+    yield {
+      val man = context.watch(context.system.actorOf(Props[Terminater]))
+      man ! "run"
+      man
+    })
   terminaters = Set() ++ (for (i ← 1 to n)
     yield {
       val man = context.watch(context.system.actorOf(Props[Terminater]))
@@ -689,6 +695,14 @@ object a {
 }
 >>>
 object a {
+  val terminaters =
+    Set() ++
+      (for (i ← 1 to n)
+        yield {
+          val man = context.watch(context.system.actorOf(Props[Terminater]))
+          man ! "run"
+          man
+        })
   terminaters = Set() ++
     (for (i ← 1 to n)
       yield {
