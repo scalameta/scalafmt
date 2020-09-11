@@ -196,7 +196,13 @@ class Router(formatOps: FormatOps) {
             case Some(owner: Term.Function) =>
               val arrow = getFuncArrow(lastLambda(owner))
               val expire = arrow.getOrElse(tokens(owner.tokens.last))
-              val nlOnly = Some(style.newlines.alwaysBeforeCurlyLambdaParams)
+              val nlOnly =
+                if (style.newlines.alwaysBeforeCurlyLambdaParams) Some(true)
+                else if (
+                  style.newlines.beforeCurlyLambdaParams eq
+                    Newlines.BeforeCurlyLambdaParams.multiline
+                ) None
+                else Some(false)
               (expire, arrow.map(_.left), 0, nlOnly)
             case Some(t: Case) if t.cond.isEmpty && (leftOwner match {
                   case Term.PartialFunction(List(`t`)) => true
@@ -206,8 +212,8 @@ class Router(formatOps: FormatOps) {
               val nlOnly =
                 if (style.newlines.alwaysBeforeCurlyLambdaParams) Some(true)
                 else if (
-                  style.newlines.beforeCurlyLambdaParams eq
-                    Newlines.BeforeCurlyLambdaParams.multilineWithCaseOnly
+                  style.newlines.beforeCurlyLambdaParams ne
+                    Newlines.BeforeCurlyLambdaParams.never
                 ) None
                 else Some(false)
               (arrow, Some(arrow.left), 0, nlOnly)
