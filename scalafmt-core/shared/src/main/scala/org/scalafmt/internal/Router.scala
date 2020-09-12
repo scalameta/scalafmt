@@ -592,15 +592,15 @@ class Router(formatOps: FormatOps) {
 
       // Term.Apply and friends
       case FormatToken(T.LeftParen(), _, _)
-          if style.optIn.configStyleArguments &&
-            !style.newlines.alwaysBeforeCurlyLambdaParams &&
-            getLambdaAtSingleArgCallSite(formatToken).isDefined => {
+          if getLambdaAtSingleArgCallSite(formatToken).isDefined =>
         val lambda = getLambdaAtSingleArgCallSite(formatToken).get
         val close = matching(formatToken.left)
         val newlinePolicy =
           if (!style.danglingParentheses.callSite) None
           else Some(decideNewlinesOnlyBeforeClose(close))
-        val noSplitMod = getNoSplit(formatToken, true)
+        val noSplitMod =
+          if (style.newlines.alwaysBeforeCurlyLambdaParams) null
+          else getNoSplit(formatToken, true)
 
         def multilineSpaceSplit(implicit line: sourcecode.Line): Split = {
           val lambdaLeft: Option[Token] =
@@ -631,15 +631,16 @@ class Router(formatOps: FormatOps) {
           )
         else {
           val newlinePenalty = 3 + nestedApplies(leftOwner)
+          val noMultiline = style.newlines.beforeCurlyLambdaParams eq
+            Newlines.BeforeCurlyLambdaParams.multiline
           Seq(
             Split(noSplitMod, 0).withSingleLine(close),
-            multilineSpaceSplit,
+            if (noMultiline) Split.ignored else multilineSpaceSplit,
             Split(Newline, newlinePenalty)
               .withPolicyOpt(newlinePolicy)
               .withIndent(style.continuationIndent.callSite, close, Before)
           )
         }
-      }
 
       case FormatToken(T.LeftParen(), T.RightParen(), _) =>
         val noNL = style.newlines.sourceIgnored || formatToken.noBreak
