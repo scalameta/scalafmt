@@ -213,15 +213,16 @@ object a {
   x.map {
     x => s"${x._1} -> ${x._2}"
   }
-  x.map(x => s"${x._1} -> ${x._2}")
+  x.map(
+      x => s"${x._1} -> ${x._2}")
   x.map {
     case (c, i) => s"$c -> $i"
   }
   x.zipWithIndex.map {
     x => s"${x._1} -> ${x._2}"
   }
-  x.zipWithIndex.map(x =>
-    s"${x._1} -> ${x._2}")
+  x.zipWithIndex.map(
+      x => s"${x._1} -> ${x._2}")
   x.zipWithIndex.map {
     case (c, i) => s"$c -> $i"
   }
@@ -233,11 +234,12 @@ object a {
     case (c, i) if c != i =>
       s"$c -> $i"
   }
-  x.flatMap(result =>
-    for {
-      _ <- a
-      _ <- b
-    } yield ())
+  x.flatMap(
+      result =>
+        for {
+          _ <- a
+          _ <- b
+        } yield ())
 }
 <<< #2099 beforeCurlyLambdaParams = multilineWithCaseOnly
 newlines.beforeCurlyLambdaParams = multilineWithCaseOnly
@@ -310,8 +312,8 @@ object a {
   x.zipWithIndex.map {
     x => s"${x._1} -> ${x._2}"
   }
-  x.zipWithIndex.map(x =>
-    s"${x._1} -> ${x._2}")
+  x.zipWithIndex.map(
+      x => s"${x._1} -> ${x._2}")
   x.zipWithIndex.map {
     case (c, i) => s"$c -> $i"
   }
@@ -323,9 +325,10 @@ object a {
     case (c, i) if c != i =>
       s"$c -> $i"
   }
-  x.flatMap(result =>
-    for {
-      _ <- a
-      _ <- b
-    } yield ())
+  x.flatMap(
+      result =>
+        for {
+          _ <- a
+          _ <- b
+        } yield ())
 }
