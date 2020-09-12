@@ -596,39 +596,49 @@ class Router(formatOps: FormatOps) {
             !style.newlines.alwaysBeforeCurlyLambdaParams &&
             getLambdaAtSingleArgCallSite(formatToken).isDefined => {
         val lambda = getLambdaAtSingleArgCallSite(formatToken).get
-        val lambdaLeft: Option[Token] =
-          matchingOpt(functionExpire(lambda)._1).filter(_.is[T.LeftBrace])
-
-        val arrowFt = getFuncArrow(lambda).get
-        val lambdaIsABlock = lambdaLeft.contains(arrowFt.right)
-        val lambdaToken =
-          getOptimalTokenFor(if (lambdaIsABlock) next(arrowFt) else arrowFt)
-
         val close = matching(formatToken.left)
         val newlinePolicy =
           if (!style.danglingParentheses.callSite) None
           else Some(decideNewlinesOnlyBeforeClose(close))
-        val spacePolicy = SingleLineBlock(lambdaToken) | {
-          if (lambdaIsABlock) None
-          else
-            newlinePolicy.map(
-              delayedBreakPolicy(Policy.End.On(lambdaLeft.getOrElse(close)))
-            )
+        val noSplitMod = getNoSplit(formatToken, true)
+
+        def multilineSpaceSplit(implicit line: sourcecode.Line): Split = {
+          val lambdaLeft: Option[Token] =
+            matchingOpt(functionExpire(lambda)._1).filter(_.is[T.LeftBrace])
+
+          val arrowFt = getFuncArrow(lambda).get
+          val lambdaIsABlock = lambdaLeft.contains(arrowFt.right)
+          val lambdaToken =
+            getOptimalTokenFor(if (lambdaIsABlock) next(arrowFt) else arrowFt)
+
+          val spacePolicy = SingleLineBlock(lambdaToken) | {
+            if (lambdaIsABlock) None
+            else
+              newlinePolicy.map(
+                delayedBreakPolicy(Policy.End.On(lambdaLeft.getOrElse(close)))
+              )
+          }
+          Split(noSplitMod, 0)
+            .withPolicy(spacePolicy)
+            .withOptimalToken(lambdaToken)
         }
 
-        val noSplitMod = getNoSplit(formatToken, true)
-        val newlinePenalty = 3 + nestedApplies(leftOwner)
-        Seq(
-          Split(noSplitMod, 0)
-            .onlyIf(noSplitMod != null)
-            .withSingleLine(close),
-          Split(noSplitMod, 0, policy = spacePolicy)
-            .onlyIf(noSplitMod != null)
-            .withOptimalToken(lambdaToken),
-          Split(Newline, newlinePenalty)
-            .withPolicyOpt(newlinePolicy)
-            .withIndent(style.continuationIndent.callSite, close, Before)
-        )
+        if (noSplitMod == null)
+          Seq(
+            Split(Newline, 0)
+              .withPolicyOpt(newlinePolicy)
+              .withIndent(style.continuationIndent.callSite, close, Before)
+          )
+        else {
+          val newlinePenalty = 3 + nestedApplies(leftOwner)
+          Seq(
+            Split(noSplitMod, 0).withSingleLine(close),
+            multilineSpaceSplit,
+            Split(Newline, newlinePenalty)
+              .withPolicyOpt(newlinePolicy)
+              .withIndent(style.continuationIndent.callSite, close, Before)
+          )
+        }
       }
 
       case FormatToken(T.LeftParen(), T.RightParen(), _) =>
