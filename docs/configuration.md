@@ -914,6 +914,9 @@ below.)
 It accepts the same values as [`newlines.source`](#newlinessource)
 (and defaults to that parameter's setting).
 
+NB: for breaks before parameters of a multi-line lambda, use `multiline` with
+[`newlines.beforeCurlyLambdaParams`](#newlinesbeforecurlylambdaparams).
+
 ```scala mdoc:scalafmt
 newlines.beforeMultiline = unfold
 ---
@@ -1080,18 +1083,34 @@ newlines.beforeCurlyLambdaParams = never
 // should keep one-line
 x.map { x => s"${x._1} -> ${x._2}" }
 x.map { case (c, i) => s"$c -> $i" }
-// should unfold, break on { since case fits on a line but lambda doesn't
+// should break on arrow since case doesn't fit on a line
 x.zipWithIndex.map { case (c, i) => s"$c -> $i" }
-// should unfold, break on => since case doesn't fit on a line
 x.zipWithIndex.map { case (c, i) => s"$c -> $i (long comment)" }
 ```
 
 ```scala mdoc:scalafmt
 newlines.beforeCurlyLambdaParams = always
 ---
-// should unfold, break on {, though fits on a line
+// should break on brace, though fits on the same line
 x.map { x => s"${x._1} -> ${x._2}" }
 x.map { case (c, i) => s"$c -> $i" }
+x.zipWithIndex.map { case (c, i) => s"$c -> $i (long comment)" }
+// should break on brace and arrow as lambda doesn't fit on a line
+x.zipWithIndex.map { x => s"${x._1} -> ${x._2} (long comment)" }
+```
+
+```scala mdoc:scalafmt
+newlines.beforeCurlyLambdaParams = multiline
+---
+// should keep one-line
+x.map { x => s"${x._1} -> ${x._2}" }
+x.map { case (c, i) => s"$c -> $i" }
+// should break on brace as lambda doesn't fit on the same line
+x.zipWithIndex.map { x => s"${x._1} -> ${x._2}" }
+x.zipWithIndex.map { case (c, i) => s"$c -> $i" }
+// should break on brace and arrow as lambda doesn't fit on a line
+x.zipWithIndex.map { x => s"${x._1} -> ${x._2} (long comment)" }
+x.zipWithIndex.map { case (c, i) => s"$c -> $i (long comment)" }
 ```
 
 ```scala mdoc:scalafmt
@@ -1100,8 +1119,12 @@ newlines.beforeCurlyLambdaParams = multilineWithCaseOnly
 // should keep one-line
 x.map { x => s"${x._1} -> ${x._2}" }
 x.map { case (c, i) => s"$c -> $i" }
-// should unfold, break on { as lambda doesn't fit on a line
+// should break after arrow as lambda doesn't fit on the same line
+x.zipWithIndex.map { x => s"${x._1} -> ${x._2}" }
+x.zipWithIndex.map { x => s"${x._1} -> ${x._2} (long comment)" }
+// should break on brace as lambda doesn't fit on the same line
 x.zipWithIndex.map { case (c, i) => s"$c -> $i" }
+// should break on brace and arrow as lambda doesn't fit on a line
 x.zipWithIndex.map { case (c, i) => s"$c -> $i (long comment)" }
 ```
 
