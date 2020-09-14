@@ -28,9 +28,9 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
   private[rewrite] val rewriteFunc: PartialFunction[Tree, Unit] = {
     case t @ (_: Term.Tuple | _: Type.Tuple | _: Lit.Unit) => remove(t, 2)
 
-    case g: Enumerator.Guard => remove(g.cond)
+    case g: Enumerator.Guard => maybeRemovePostfix(g.cond)
 
-    case t: Case => t.cond.foreach(remove(_))
+    case t: Case => t.cond.foreach(maybeRemovePostfix)
 
     case t if usesAvoidInfix && t.parent.exists {
           case p: Term.ApplyInfix => p.lhs ne t
@@ -73,6 +73,15 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
       case _ if rewriteFunc.isDefinedAt(tree) =>
       case InfixApp(ia) if breaksBeforeOp(ia) => // can't rewrite
       case _ => remove(tree, minToKeep)
+    }
+
+  // https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#prefix-infix-and-postfix-operations
+  private def maybeRemovePostfix(tree: Tree): Unit =
+    tree match {
+      case _: Lit | _: Term.Name | _: Term.ApplyInfix | _: Term.Select |
+          _: Term.Apply | _: Term.ApplyUnary =>
+        remove(tree)
+      case _ =>
     }
 
   private def remove(tree: Tree, minToKeep: Int = 0): Unit =
