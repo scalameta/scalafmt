@@ -154,10 +154,14 @@ rewrite.rules = [AvoidInfix, RedundantParens]
 ===
 object a {
   val z = (((insertData) op (readDatabase(id))))
+  val z = (((insertData)
+   op (readDatabase(id))))
 }
 >>>
 object a {
   val z = insertData.op(readDatabase(id))
+  val z = insertData
+    .op(readDatabase(id))
 }
 <<< #1895 4
 object a {
@@ -301,3 +305,101 @@ val map = (Map("A" -> 1) - "Test" - "Test" - "Test" - "Test" - "Test"
 >>>
 val map = (Map("A" -> 1) - "Test" - "Test" - "Test" - "Test" - "Test"
   - "Test" - "Test" - "Test" - "Test" - "Test" - "Test" - "Test" + "B" -> 2)
+<<< #2194 1 match
+object a {
+  val b = c match {
+    case true if (d match {
+      case true  => true
+      case false => false
+    }) =>
+  }
+}
+>>>
+test does not parse
+object a {
+  val b = c match {
+    case true if (d match {
+                  ^
+<<< #2194 2 infix
+object a {
+  val b = c match {
+    case true if (d map {
+      case true  => true
+      case false => false
+    }) =>
+    case true if (d
+      map {
+        case true  => true
+        case false => false
+      }) =>
+  }
+}
+>>>
+object a {
+  val b = c match {
+    case true if d map {
+          case true  => true
+          case false => false
+        } =>
+    case true
+        if d
+          map {
+            case true  => true
+            case false => false
+          } =>
+  }
+}
+<<< #2194 3 apply with brace
+object a {
+  val b = c match {
+    case true if (d.map {
+      case true  => true
+      case false => false
+    }) =>
+  }
+}
+>>>
+object a {
+  val b = c match {
+    case true if d.map {
+          case true  => true
+          case false => false
+        } =>
+  }
+}
+<<< #2194 4 apply with paren
+object a {
+  val b = c match {
+    case true if (d.map({
+      case true  => true
+      case false => false
+    })) =>
+  }
+}
+>>>
+object a {
+  val b = c match {
+    case true if d.map({
+          case true  => true
+          case false => false
+        }) =>
+  }
+}
+<<< #2194 5 unary
+object a {
+  val b = c match {
+    case false if (+1) =>
+    case false if (-1) =>
+    case false if (~1) =>
+    case false if (!1) =>
+  }
+}
+>>>
+object a {
+  val b = c match {
+    case false if +1 =>
+    case false if -1 =>
+    case false if ~1 =>
+    case false if !1 =>
+  }
+}
