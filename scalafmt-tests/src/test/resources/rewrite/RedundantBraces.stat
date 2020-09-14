@@ -864,12 +864,13 @@ object a {
 }
 >>>
 object a {
-  val result =
+  val result = {
     for {
       b <- o
-    } yield b match {
-      case x => x
-    }
+    } yield b
+  } match {
+    case x => x
+  }
 }
 <<< #2197 remove block around match expr
 preset = default
