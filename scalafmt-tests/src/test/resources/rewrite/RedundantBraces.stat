@@ -849,3 +849,43 @@ object Issue {
 }op2 3
 >>>
 1 op1 2 op2 3
+<<< #2197 keep block around match expr
+preset = default
+rewrite.rules = [RedundantBraces]
+===
+object a {
+  val result = {
+    for {
+      b <- o
+    } yield b
+  } match {
+    case x => x
+  }
+}
+>>>
+object a {
+  val result =
+    for {
+      b <- o
+    } yield b match {
+      case x => x
+    }
+}
+<<< #2197 remove block around match expr
+preset = default
+rewrite.rules = [RedundantBraces]
+===
+object a {
+  val result = {
+    b(o)
+  } match {
+    case x => x
+  }
+}
+>>>
+object a {
+  val result =
+    b(o) match {
+      case x => x
+    }
+}
