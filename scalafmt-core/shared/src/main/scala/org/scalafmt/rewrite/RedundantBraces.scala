@@ -320,6 +320,8 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
             case _ => true // don't allow other non-infix
           }
 
+        case Term.Match(`b`, _) => true
+
         case parent =>
           SyntacticGroupOps.groupNeedsParenthesis(
             TreeSyntacticGroup(parent),
