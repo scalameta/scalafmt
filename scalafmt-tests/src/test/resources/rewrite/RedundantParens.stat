@@ -315,11 +315,14 @@ object a {
   }
 }
 >>>
-test does not parse
 object a {
   val b = c match {
     case true if (d match {
-                  ^
+          case true  => true
+          case false => false
+        }) =>
+  }
+}
 <<< #2194 2 infix
 object a {
   val b = c match {
