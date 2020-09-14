@@ -1215,6 +1215,8 @@ of method definitions, please see <a href="#newlinesbeforemultilinedef"><code>ne
 below.)</p>
 <p>It accepts the same values as <a href="#newlinessource"><code>newlines.source</code></a>
 (and defaults to that parameter's setting).</p>
+<p>NB: for breaks before parameters of a multi-line lambda, use <code>multiline</code> with
+<a href="#newlinesbeforecurlylambdaparams"><code>newlines.beforeCurlyLambdaParams</code></a>.</p>
 <pre><code class="hljs css language-scala formatted">a <span class="hljs-keyword">match</span> {
   <span class="hljs-comment">// had space after "=&gt;"</span>
   <span class="hljs-keyword">case</span> a =&gt;
@@ -1461,11 +1463,10 @@ boolean <code>alwaysBeforeCurlyBraceLambdaParams</code>.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// should keep one-line</span>
 x.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
 x.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span> }
-<span class="hljs-comment">// should unfold, break on { since case fits on a line but lambda doesn't</span>
+<span class="hljs-comment">// should break on arrow since case doesn't fit on a line</span>
 x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt;
   <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span>
 }
-<span class="hljs-comment">// should unfold, break on =&gt; since case doesn't fit on a line</span>
 x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt;
   <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span> (long comment)"</span>
 }
@@ -1473,26 +1474,37 @@ x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt;
 <pre><code class="hljs css language-scala original"><span class="hljs-comment">// should keep one-line</span>
 x.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
 x.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span> }
-<span class="hljs-comment">// should unfold, break on { since case fits on a line but lambda doesn't</span>
+<span class="hljs-comment">// should break on arrow since case doesn't fit on a line</span>
 x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span> }
-<span class="hljs-comment">// should unfold, break on =&gt; since case doesn't fit on a line</span>
 x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span> (long comment)"</span> }
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.beforeCurlyLambdaParams = never
 </code></pre>
 </p></details>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// should unfold, break on {, though fits on a line</span>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// should break on brace, though fits on the same line</span>
 x.map {
   x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span>
 }
 x.map {
   <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span>
 }
+x.zipWithIndex.map {
+  <span class="hljs-keyword">case</span> (c, i) =&gt;
+    <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span> (long comment)"</span>
+}
+<span class="hljs-comment">// should break on brace and arrow as lambda doesn't fit on a line</span>
+x.zipWithIndex.map {
+  x =&gt;
+    <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span> (long comment)"</span>
+}
 </code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-comment">// should unfold, break on {, though fits on a line</span>
+<pre><code class="hljs css language-scala original"><span class="hljs-comment">// should break on brace, though fits on the same line</span>
 x.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
 x.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span> }
+x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span> (long comment)"</span> }
+<span class="hljs-comment">// should break on brace and arrow as lambda doesn't fit on a line</span>
+x.zipWithIndex.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span> (long comment)"</span> }
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.beforeCurlyLambdaParams = always
@@ -1501,9 +1513,17 @@ x.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-st
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// should keep one-line</span>
 x.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
 x.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span> }
-<span class="hljs-comment">// should unfold, break on { as lambda doesn't fit on a line</span>
+<span class="hljs-comment">// should break on brace as lambda doesn't fit on the same line</span>
+x.zipWithIndex.map {
+  x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span>
+}
 x.zipWithIndex.map {
   <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span>
+}
+<span class="hljs-comment">// should break on brace and arrow as lambda doesn't fit on a line</span>
+x.zipWithIndex.map {
+  x =&gt;
+    <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span> (long comment)"</span>
 }
 x.zipWithIndex.map {
   <span class="hljs-keyword">case</span> (c, i) =&gt;
@@ -1513,8 +1533,46 @@ x.zipWithIndex.map {
 <pre><code class="hljs css language-scala original"><span class="hljs-comment">// should keep one-line</span>
 x.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
 x.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span> }
-<span class="hljs-comment">// should unfold, break on { as lambda doesn't fit on a line</span>
+<span class="hljs-comment">// should break on brace as lambda doesn't fit on the same line</span>
+x.zipWithIndex.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
 x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span> }
+<span class="hljs-comment">// should break on brace and arrow as lambda doesn't fit on a line</span>
+x.zipWithIndex.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span> (long comment)"</span> }
+x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span> (long comment)"</span> }
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">newlines.beforeCurlyLambdaParams = multiline
+</code></pre>
+</p></details>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// should keep one-line</span>
+x.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
+x.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span> }
+<span class="hljs-comment">// should break after arrow as lambda doesn't fit on the same line</span>
+x.zipWithIndex.map { x =&gt;
+  <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span>
+}
+x.zipWithIndex.map { x =&gt;
+  <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span> (long comment)"</span>
+}
+<span class="hljs-comment">// should break on brace as lambda doesn't fit on the same line</span>
+x.zipWithIndex.map {
+  <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span>
+}
+<span class="hljs-comment">// should break on brace and arrow as lambda doesn't fit on a line</span>
+x.zipWithIndex.map {
+  <span class="hljs-keyword">case</span> (c, i) =&gt;
+    <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span> (long comment)"</span>
+}
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-comment">// should keep one-line</span>
+x.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
+x.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span> }
+<span class="hljs-comment">// should break after arrow as lambda doesn't fit on the same line</span>
+x.zipWithIndex.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
+x.zipWithIndex.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span> (long comment)"</span> }
+<span class="hljs-comment">// should break on brace as lambda doesn't fit on the same line</span>
+x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span> }
+<span class="hljs-comment">// should break on brace and arrow as lambda doesn't fit on a line</span>
 x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span> (long comment)"</span> }
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
