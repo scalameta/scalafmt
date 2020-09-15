@@ -1,37 +1,10 @@
 package org.scalafmt.rewrite
 
-import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.meta._
 
 object AvoidInfix extends Rewrite {
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new AvoidInfix
-
-  def hasPlaceholder(tree: Tree): Boolean = {
-    val queue = new mutable.Queue[Tree]
-    queue += tree
-    @tailrec
-    def iter: Boolean =
-      queue.nonEmpty && {
-        queue.dequeue() match {
-          case _: Term.Placeholder => true
-          case t: Term.ApplyInfix =>
-            queue ++= (t.lhs +: t.args)
-            iter
-          case t: Term.Apply =>
-            queue += t.fun
-            iter
-          case t: Term.Select =>
-            queue += t.qual
-            iter
-          case _ =>
-            iter
-        }
-      }
-    iter
-  }
-
 }
 
 class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
@@ -59,7 +32,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
             val last = args.head.tokens.last
             val opLast = op.tokens.last
             if (!ctx.isMatching(head, last)) {
-              if (AvoidInfix.hasPlaceholder(args.head)) return
+              if (RewriteCtx.hasPlaceholder(args.head)) return
               builder += TokenPatch.AddRight(opLast, "(", keepTok = true)
               builder += TokenPatch.AddRight(last, ")", keepTok = true)
             } else {
@@ -77,7 +50,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
                 head.is[Token.LeftParen] &&
                 ctx.getMatchingOpt(head).contains(lhs.tokens.last)
               } =>
-            if (AvoidInfix.hasPlaceholder(lhs)) return
+            if (RewriteCtx.hasPlaceholder(lhs)) return
             true
           case _: Term.Eta => true // foo _ compose bar => (foo _).compose(bar)
           case _ => false
