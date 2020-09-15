@@ -1,5 +1,6 @@
 package org.scalafmt.rewrite
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 import metaconfig.ConfCodec
@@ -181,5 +182,29 @@ object RewriteCtx {
       case Whitespace() => None
       case _ => Some(false)
     }
+
+  def hasPlaceholder(expr: Tree): Boolean = {
+    val queue = new mutable.Queue[Tree]
+    queue += expr
+    @tailrec
+    def iter: Boolean =
+      queue.nonEmpty && {
+        queue.dequeue() match {
+          case _: Term.Placeholder => true
+          case t: Term.ApplyInfix =>
+            queue ++= (t.lhs +: t.args)
+            iter
+          case t: Term.Apply =>
+            queue += t.fun
+            iter
+          case t: Term.Select =>
+            queue += t.qual
+            iter
+          case _ =>
+            iter
+        }
+      }
+    iter
+  }
 
 }
