@@ -183,6 +183,22 @@ object RewriteCtx {
       case _ => Some(false)
     }
 
+  // https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#prefix-infix-and-postfix-operations
+  private def isSimpleExprOr(
+      expr: Tree
+  )(orElse: PartialFunction[Tree, Boolean]): Boolean =
+    expr match {
+      case _: Lit | _: Name => true
+      case _: Term.Apply | _: Term.ApplyUnary => !hasPlaceholder(expr)
+      case _ => orElse.applyOrElse(expr, (_: Tree) => false)
+    }
+
+  @inline
+  def isPostfixExpr(expr: Tree): Boolean =
+    isSimpleExprOr(expr) {
+      case _: Term.Select | _: Term.ApplyInfix => !hasPlaceholder(expr)
+    }
+
   def hasPlaceholder(expr: Tree): Boolean = {
     val queue = new mutable.Queue[Tree]
     queue += expr
