@@ -75,14 +75,8 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
       case _ => remove(tree, minToKeep)
     }
 
-  // https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#prefix-infix-and-postfix-operations
   private def maybeRemovePostfix(tree: Tree): Unit =
-    tree match {
-      case _: Lit | _: Term.Name | _: Term.ApplyInfix | _: Term.Select |
-          _: Term.Apply | _: Term.ApplyUnary =>
-        remove(tree)
-      case _ =>
-    }
+    if (RewriteCtx.isPostfixExpr(tree)) remove(tree)
 
   private def remove(tree: Tree, minToKeep: Int = 0): Unit =
     removeByTokens(tree.tokens, minToKeep)
