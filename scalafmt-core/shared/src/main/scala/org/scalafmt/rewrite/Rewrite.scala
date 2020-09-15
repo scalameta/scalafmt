@@ -12,7 +12,7 @@ import scala.meta.transversers.SimpleTraverser
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.TrailingCommas
-import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps, Whitespace}
+import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps, Trivia, Whitespace}
 
 case class RewriteCtx(
     style: ScalafmtConfig,
@@ -87,6 +87,17 @@ case class RewriteCtx(
       token: Token
   )(implicit builder: Rewrite.PatchBuilder): Unit =
     removeLFToAvoidEmptyLine(token, token)
+
+  // special case for Select which might contain a space instead of dot
+  def isPrefixExpr(expr: Tree): Boolean =
+    RewriteCtx.isSimpleExprOr(expr) {
+      case t: Term.Select if !RewriteCtx.hasPlaceholder(expr) =>
+        val maybeDot = tokenTraverser.findBefore(t.name.tokens.head) {
+          case Trivia() => None
+          case t => Some(t.is[Token.Dot])
+        }
+        maybeDot.isDefined
+    }
 
 }
 

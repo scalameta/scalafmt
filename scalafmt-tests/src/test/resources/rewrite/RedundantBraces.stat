@@ -557,21 +557,21 @@ object a {
     (a.compareTo(b) >= 0)
   }
 }
-<<< #1633 3.1: function block in a val statement
+<<< #1633 3.1: function block
 object a {
   b getOrElse { c(d) }
 }
 >>>
 object a {
-  b getOrElse { c(d) }
+  b getOrElse c(d)
 }
-<<< #1633 3.2: function block in a val statement
+<<< #1633 3.2: function block
 object a {
   b getOrElse { c.d {e} }
 }
 >>>
 object a {
-  b getOrElse { c.d(e) }
+  b getOrElse c.d(e)
 }
 <<< #1633 3.3: function block in a val statement
 object a {
@@ -650,9 +650,7 @@ object a {
 }
 >>>
 object a {
-  1 + {
-    a(b)
-  } + 3
+  1 + a(b) + 3
 }
 <<< #1633 4.6: infix with apply and no break before
 object a {
@@ -661,9 +659,7 @@ object a {
 }
 >>>
 object a {
-  1 + {
-    a(b)
-  } + 3
+  1 + a(b) + 3
 }
 <<< #1633 4.7: infix with apply and comment
 object a {
