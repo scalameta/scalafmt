@@ -289,6 +289,9 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
             case _ => true
           }
 
+        // can't do it for try until 2.13.3
+        case _ if ctx.isPrefixExpr(stat) => false
+
         case parentIf: Term.If if stat.is[Term.If] =>
           // if (a) { if (b) c } else d
           //   ↑ cannot be replaced by ↓
@@ -314,7 +317,6 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
                 TreeSyntacticGroup(t),
                 if (useRight) Side.Right else Side.Left
               )
-            case _: Name | _: Lit => false
             case _ => true // don't allow other non-infix
           }
 
