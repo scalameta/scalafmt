@@ -890,3 +890,47 @@ object a {
       case x => x
     }
 }
+<<< infix with new
+object a {
+  1 + {
+    new A("a")
+  } + 2
+}
+>>>
+object a {
+  1 + {
+    new A("a")
+  } + 2
+}
+<<< infix with new and select
+object a {
+  1 + {
+    new A("a").run { "b" }
+  } + 2
+}
+>>>
+object a {
+  1 + new A("a").run("b") + 2
+}
+<<< infix with new anonymous
+object a {
+  1 + {
+    new A { def toString = "a" }
+  } + 2
+}
+>>>
+object a {
+  1 + {
+    new A { def toString = "a" }
+  } + 2
+}
+<<< infix with new anonymous and select
+object a {
+  1 + {
+    new A { def toString = "a" }.run { "b" }
+  } + 2
+}
+>>>
+object a {
+  1 + new A { def toString = "a" }.run("b") + 2
+}
