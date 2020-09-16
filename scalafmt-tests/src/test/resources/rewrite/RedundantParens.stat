@@ -406,3 +406,15 @@ object a {
     case false if !1 =>
   }
 }
+<<< parens for infix with interpolate
+object a {
+  the[Exception] thrownBy a should have message("b")
+  the[Exception] thrownBy a should have message(s"b")
+  the[Exception] thrownBy a should have message(f"b")
+}
+>>>
+object a {
+  the[Exception] thrownBy a should have message "b"
+  the[Exception] thrownBy a should have message (s"b")
+  the[Exception] thrownBy a should have message (f"b")
+}
