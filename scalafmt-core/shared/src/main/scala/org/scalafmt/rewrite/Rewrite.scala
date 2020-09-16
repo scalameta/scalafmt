@@ -199,7 +199,8 @@ object RewriteCtx {
       expr: Tree
   )(orElse: PartialFunction[Tree, Boolean]): Boolean =
     expr match {
-      case _: Lit | _: Name => true
+      case _: Lit | _: Name | _: Term.Interpolate => true
+      case _: Term.New | _: Term.NewAnonymous => !hasPlaceholder(expr)
       case _: Term.Apply | _: Term.ApplyUnary => !hasPlaceholder(expr)
       case _ => orElse.applyOrElse(expr, (_: Tree) => false)
     }
