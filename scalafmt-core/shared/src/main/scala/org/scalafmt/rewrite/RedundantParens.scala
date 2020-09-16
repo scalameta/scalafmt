@@ -37,7 +37,7 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
           case _ => false
         } => // noop, but blocks Term.Name below
 
-    case t @ (_: Lit | _: Term.Name) => remove(t)
+    case t @ (_: Lit | _: Term.Name | _: Term.Interpolate) => remove(t)
 
     case t @ Term.Apply(_, List(b: Term.Block))
         if b.tokens.headOption.exists(_.is[Token.LeftBrace]) =>

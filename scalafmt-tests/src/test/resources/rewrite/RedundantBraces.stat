@@ -898,9 +898,7 @@ object a {
 }
 >>>
 object a {
-  1 + {
-    new A("a")
-  } + 2
+  1 + new A("a") + 2
 }
 <<< infix with new and select
 object a {
@@ -920,9 +918,7 @@ object a {
 }
 >>>
 object a {
-  1 + {
-    new A { def toString = "a" }
-  } + 2
+  1 + new A { def toString = "a" } + 2
 }
 <<< infix with new anonymous and select
 object a {
