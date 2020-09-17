@@ -14,7 +14,7 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
 
   import ctx.dialect
 
-  private val usesAvoidInfix = ctx.style.rewrite.rules.contains(AvoidInfix)
+  private val avoidInfixMatcher = AvoidInfix.getMatcherIfEnabled(ctx)
 
   override def rewrite(tree: Tree): Unit =
     tree match {
@@ -32,12 +32,13 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
 
     case t: Case => t.cond.foreach(maybeRemovePostfix)
 
-    case t if usesAvoidInfix && t.parent.exists {
-          case p: Term.ApplyInfix => p.lhs ne t
+    case t if t.parent.exists {
+          case p: Term.ApplyInfix if p.lhs ne t =>
+            avoidInfixMatcher.exists(_.matches(p.op.value))
           case _ => false
         } => // noop, but blocks Term.Name below
 
-    case t @ (_: Lit | _: Term.Name | _: Term.Interpolate) => remove(t)
+    case t @ (_: Lit | _: Name | _: Term.Interpolate) => remove(t)
 
     case t @ Term.Apply(_, List(b: Term.Block))
         if b.tokens.headOption.exists(_.is[Token.LeftBrace]) =>
