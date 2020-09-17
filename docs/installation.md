@@ -135,10 +135,10 @@ The latest version will be used by default.
 
 - `myproject/scalafmt`: Format main sources of `myproject` project
 - `myproject/test:scalafmt`: Format test sources of `myproject` project
-- `scalafmtCheck`: Check if the scala sources under the project has been
+- `scalafmtCheck`: Check if the scala sources under the project have been
   formatted.
 - `scalafmtSbt`: Format `*.sbt` and `project/*.scala` files.
-- `scalafmtSbtCheck`: Check if the files has been formatted by `scalafmtSbt`.
+- `scalafmtSbtCheck`: Check if the files have been formatted by `scalafmtSbt`.
 - `scalafmtOnly`: Format a single given file.
 - `scalafmtAll`: Execute the scalafmt task for all configurations in which it is
   enabled. (By default this means the Compile and Test configurations.)
