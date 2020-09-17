@@ -8,11 +8,10 @@ case class Pattern(
     excludeFilters: Seq[String]
 ) {
   val reader: ConfDecoder[Pattern] = generic.deriveDecoder(this).noTypos
-  def toMatcher: FilterMatcher =
-    new FilterMatcher(
-      FilterMatcher.mkRegexp(includeFilters),
-      FilterMatcher.mkRegexp(excludeFilters, true)
-    )
+  lazy val matcher: FilterMatcher = new FilterMatcher(
+    FilterMatcher.mkRegexp(includeFilters),
+    FilterMatcher.mkRegexp(excludeFilters, true)
+  )
 }
 
 object Pattern {

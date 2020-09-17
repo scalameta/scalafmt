@@ -2,14 +2,21 @@ package org.scalafmt.rewrite
 
 import scala.meta._
 
+import org.scalafmt.config.FilterMatcher
+
 object AvoidInfix extends Rewrite {
+
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new AvoidInfix
+
+  def getMatcher(ctx: RewriteCtx): FilterMatcher =
+    ctx.style.rewrite.neverInfix.matcher
+
 }
 
 class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
-  private val matcher = ctx.style.rewrite.neverInfix.toMatcher
+  private val matcher = AvoidInfix.getMatcher(ctx)
 
   // In a perfect world, we could just use
   // Tree.transform {
