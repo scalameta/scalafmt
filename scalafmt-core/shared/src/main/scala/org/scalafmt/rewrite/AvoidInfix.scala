@@ -12,6 +12,10 @@ object AvoidInfix extends Rewrite {
   def getMatcher(ctx: RewriteCtx): FilterMatcher =
     ctx.style.rewrite.neverInfix.matcher
 
+  def getMatcherIfEnabled(ctx: RewriteCtx): Option[FilterMatcher] =
+    if (ctx.style.rewrite.rules.contains(AvoidInfix)) Some(getMatcher(ctx))
+    else None
+
 }
 
 class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {

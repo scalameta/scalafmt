@@ -429,9 +429,9 @@ object a {
 }
 >>>
 object a {
-  the[Exception].thrownBy(a).should(have) message ("b")
-  the[Exception].thrownBy(a).should(have) message (s"b")
-  the[Exception].thrownBy(a).should(have) message (f"b")
+  the[Exception].thrownBy(a).should(have) message "b"
+  the[Exception].thrownBy(a).should(have) message s"b"
+  the[Exception].thrownBy(a).should(have) message f"b"
 }
 <<< parens for infix with interpolate with AvoidInfix/neverInfix
 rewrite.rules = [RedundantParens, AvoidInfix]
@@ -444,7 +444,7 @@ object a {
 }
 >>>
 object a {
-  the[Exception] thrownBy a should have message ("b")
-  the[Exception] thrownBy a should have message (s"b")
-  the[Exception] thrownBy a should have message (f"b")
+  the[Exception] thrownBy a should have message "b"
+  the[Exception] thrownBy a should have message s"b"
+  the[Exception] thrownBy a should have message f"b"
 }
