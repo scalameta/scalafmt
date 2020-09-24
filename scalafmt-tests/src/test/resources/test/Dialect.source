@@ -76,3 +76,13 @@ interp.repositories() =
 
 @
 import $ivy.`com.github.yyadavalli::mill-ensime:0.0.2`
+<<< #2204 annotations
+def myMethod(): Unit = doSomeStuff()
+@main
+def anotherMethod(): Unit = doOtherStuff()
+>>> foo.sc
+def myMethod(): Unit = doSomeStuff()
+
+@
+main
+def anotherMethod(): Unit = doOtherStuff()
