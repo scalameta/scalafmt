@@ -82,7 +82,5 @@ def myMethod(): Unit = doSomeStuff()
 def anotherMethod(): Unit = doOtherStuff()
 >>> foo.sc
 def myMethod(): Unit = doSomeStuff()
-
-@
-main
+@main
 def anotherMethod(): Unit = doOtherStuff()

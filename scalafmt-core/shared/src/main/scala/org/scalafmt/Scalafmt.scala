@@ -93,7 +93,7 @@ object Scalafmt {
   }
 
   // see: https://ammonite.io/#Save/LoadSession
-  private val ammonitePattern: Regex = "(?:\\s*\\n@)+".r
+  private val ammonitePattern: Regex = "(?:\\s*\\n@(?=\\s))+".r
 
   private def doFormat(
       code: String,
