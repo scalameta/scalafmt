@@ -12,7 +12,7 @@ addSbtPlugin(
   "io.get-coursier" % "sbt-coursier" % coursier.util.Properties.version
 )
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.15.0")
-addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.3.7")
+addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.4.0")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.0.0")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.2.0")
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.7.0")
