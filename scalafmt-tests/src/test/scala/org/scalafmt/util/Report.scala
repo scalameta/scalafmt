@@ -89,53 +89,50 @@ object Report {
         explanation,
         after
           .intersectResults(before)
-          .sortBy {
-            case (aft, bef) =>
-              -Math.abs(aft.visitedStates - bef.visitedStates)
+          .sortBy { case (aft, bef) =>
+            -Math.abs(aft.visitedStates - bef.visitedStates)
           }
-          .map {
-            case (aft, bef) =>
-              div(
-                h2(aft.test.fullName),
-                table(
-                  tr(
-                    th(""),
-                    th("Before"),
-                    th("After"),
-                    th("Diff")
-                  ),
-                  tr(
-                    td("Time (ms)"),
-                    td(bef.timeMs),
-                    td(aft.timeMs),
-                    td(bef.timeMs - aft.timeMs)
-                  ),
-                  tr(
-                    td("States"),
-                    td(bef.visitedStates),
-                    td(aft.visitedStates),
-                    td(aft.visitedStates - bef.visitedStates)
-                  )
+          .map { case (aft, bef) =>
+            div(
+              h2(aft.test.fullName),
+              table(
+                tr(
+                  th(""),
+                  th("Before"),
+                  th("After"),
+                  th("Diff")
                 ),
-                pre(
-                  fontFamily := "monospace",
-                  background := "#fff",
-                  fontSize := "16px",
-                  width := testWidth(aft),
-                  code(
-                    heatmapBar(aft.test.style),
-                    raw(mkHtml(mergeResults(aft, bef), aft.test.style))
-                  )
+                tr(
+                  td("Time (ms)"),
+                  td(bef.timeMs),
+                  td(aft.timeMs),
+                  td(bef.timeMs - aft.timeMs)
+                ),
+                tr(
+                  td("States"),
+                  td(bef.visitedStates),
+                  td(aft.visitedStates),
+                  td(aft.visitedStates - bef.visitedStates)
+                )
+              ),
+              pre(
+                fontFamily := "monospace",
+                background := "#fff",
+                fontSize := "16px",
+                width := testWidth(aft),
+                code(
+                  heatmapBar(aft.test.style),
+                  raw(mkHtml(mergeResults(aft, bef), aft.test.style))
                 )
               )
+            )
           }
       )
     ).render
 
   def mergeResults(after: Result, before: Result): Seq[FormatOutput] =
-    after.tokens.zip(before.tokens).map {
-      case (aft, bef) =>
-        FormatOutput(aft.token, aft.visits - bef.visits)
+    after.tokens.zip(before.tokens).map { case (aft, bef) =>
+      FormatOutput(aft.token, aft.visits - bef.visits)
     }
 
   def mkHtml(output: Seq[FormatOutput], scalaStyle: ScalafmtConfig): String = {

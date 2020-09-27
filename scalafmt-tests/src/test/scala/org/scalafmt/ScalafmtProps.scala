@@ -81,8 +81,8 @@ class ScalafmtProps extends AnyFunSuite with FormatAssertions {
         .mapValues(_.length)
         .toSeq
         .sortBy(_._2)
-        .map {
-          case (a, b) => s"$a=$b"
+        .map { case (a, b) =>
+          s"$a=$b"
         }
         .mkString("\n")
     val report =

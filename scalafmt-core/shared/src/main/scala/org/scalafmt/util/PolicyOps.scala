@@ -88,12 +88,11 @@ object PolicyOps {
       policyFunc: End.WithPos => Policy
   )(implicit line: sourcecode.Line): Policy = {
     val lastPolicy = policyFunc(expire)
-    exclude.ranges.foldRight(lastPolicy) {
-      case (range, policy) =>
-        new Policy.Relay(
-          policyFunc(endLt(range.lt)),
-          new Policy.Delay(policy, endRt(range.rt))
-        )
+    exclude.ranges.foldRight(lastPolicy) { case (range, policy) =>
+      new Policy.Relay(
+        policyFunc(endLt(range.lt)),
+        new Policy.Delay(policy, endRt(range.rt))
+      )
     }
   }
 

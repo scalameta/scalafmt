@@ -128,10 +128,9 @@ object Indent {
     Switch(Indent.Empty, trigger, indent)
 
   def getIndent(indents: Iterable[ActualIndent]): Int =
-    indents.foldLeft(0) {
-      case (res, elem) =>
-        if (elem.reset) elem.length
-        else res + elem.length
+    indents.foldLeft(0) { case (res, elem) =>
+      if (elem.reset) elem.length
+      else res + elem.length
     }
 
 }

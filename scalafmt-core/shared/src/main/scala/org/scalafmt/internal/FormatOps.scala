@@ -70,12 +70,11 @@ class FormatOps(
   private final val nonWhitespaceOffset: Map[Token, Int] = {
     val resultB = Map.newBuilder[Token, Int]
     var curr = 0
-    tree.tokens.foreach {
-      case t =>
-        resultB += (t -> curr)
-        if (!t.is[Whitespace]) {
-          curr += (t.end - t.start)
-        }
+    tree.tokens.foreach { case t =>
+      resultB += (t -> curr)
+      if (!t.is[Whitespace]) {
+        curr += (t.end - t.start)
+      }
 
     }
     resultB.result()
@@ -608,11 +607,10 @@ class FormatOps(
               }
           if (filtered.isEmpty) None
           else {
-            val res = filtered.foldLeft(Seq.empty[(T, Int)]) {
-              case (out, ia) =>
-                val cost = maxPrecedence - ia.precedence
-                if (out.nonEmpty && out.last._2 <= cost) out
-                else out :+ getMidInfixToken(ia) -> cost
+            val res = filtered.foldLeft(Seq.empty[(T, Int)]) { case (out, ia) =>
+              val cost = maxPrecedence - ia.precedence
+              if (out.nonEmpty && out.last._2 <= cost) out
+              else out :+ getMidInfixToken(ia) -> cost
             }
             Some(res)
           }
@@ -992,8 +990,8 @@ class FormatOps(
         if (replaced) Some(splits) else None
       }
     }
-    {
-      case OnBreakDecision(d) => d
+    { case OnBreakDecision(d) =>
+      d
     }
   }
 
@@ -1249,8 +1247,8 @@ class FormatOps(
           }) =>
         Some(fun)
       case t: Init =>
-        findArgsFor(ft.left, t.argss).collect {
-          case List(f: Term.Function) => f
+        findArgsFor(ft.left, t.argss).collect { case List(f: Term.Function) =>
+          f
         }
       case _ => None
     }
@@ -1698,8 +1696,8 @@ class FormatOps(
       else {
         val nextFt = nextNonCommentSameLine(next(ft))
         val splits = splitsFunc(nextFt)
-        val policy = Policy.on(nextFt.right) {
-          case Decision(`nextFt`, _) => splits
+        val policy = Policy.on(nextFt.right) { case Decision(`nextFt`, _) =>
+          splits
         }
         Seq(Split(Space, 0, policy = policy))
       }

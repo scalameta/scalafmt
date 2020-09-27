@@ -181,16 +181,15 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
              * in a comment), and if we keep the break before the right brace
              * we are removing, that will likely invalidate the expression. */
             val canRemove: ((Token, Option[Token.LF])) => Boolean =
-              if (!ctx.style.newlines.formatInfix) {
-                case (_, lfOpt) => lfOpt.isEmpty
+              if (!ctx.style.newlines.formatInfix) { case (_, lfOpt) =>
+                lfOpt.isEmpty
               }
-              else {
-                case (nonWs, lfOpt) =>
-                  if (nonWs.is[Token.Comment]) lfOpt.isEmpty
-                  else {
-                    lfOpt.foreach(builder += TokenPatch.Remove(_))
-                    true
-                  }
+              else { case (nonWs, lfOpt) =>
+                if (nonWs.is[Token.Comment]) lfOpt.isEmpty
+                else {
+                  lfOpt.foreach(builder += TokenPatch.Remove(_))
+                  true
+                }
               }
             Seq(
               // ensure can remove opening brace

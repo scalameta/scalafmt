@@ -14,15 +14,14 @@ class PolicySummary(val policies: Seq[Policy]) {
     else new PolicySummary((other +: policies).flatMap(_.unexpiredOpt(ft)))
 
   def execute(decision: Decision, debug: Boolean = false): Decision =
-    policies.foldLeft(decision) {
-      case (result, policy) =>
-        def withSplits(splits: Seq[Split]): Decision = {
-          if (debug) logger.debug(s"$policy defined at $result")
-          result.withSplits(splits)
-        }
-        policy.f
-          .andThen(withSplits _)
-          .applyOrElse(result, identity[Decision])
+    policies.foldLeft(decision) { case (result, policy) =>
+      def withSplits(splits: Seq[Split]): Decision = {
+        if (debug) logger.debug(s"$policy defined at $result")
+        result.withSplits(splits)
+      }
+      policy.f
+        .andThen(withSplits _)
+        .applyOrElse(result, identity[Decision])
     }
 
 }

@@ -175,8 +175,8 @@ case class ScalafmtConfig(
             val section = Seq(Decodable.presetKey, "style").flatMap { y =>
               x.field(y).map(y -> _)
             }
-            section.headOption.map {
-              case (field, obj) => obj -> Conf.Obj((x.map - field).toList)
+            section.headOption.map { case (field, obj) =>
+              obj -> Conf.Obj((x.map - field).toList)
             }
           case _ => None
         }
@@ -198,10 +198,9 @@ case class ScalafmtConfig(
 
   private lazy val expandedFileOverride = Try {
     val fs = file.FileSystems.getDefault
-    fileOverride.values.map {
-      case (pattern, conf) =>
-        val style = decoder.read(conf).get
-        fs.getPathMatcher(pattern) -> style
+    fileOverride.values.map { case (pattern, conf) =>
+      val style = decoder.read(conf).get
+      fs.getPathMatcher(pattern) -> style
     }
   }
   def getConfigFor(filename: String): ScalafmtConfig = {

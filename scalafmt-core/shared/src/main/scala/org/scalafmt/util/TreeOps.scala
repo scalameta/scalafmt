@@ -493,8 +493,8 @@ object TreeOps {
     while (queue.nonEmpty) {
       val elem = queue.dequeue()
       length += 1
-      queue ++= (elem.lhs +: elem.rhs).collect {
-        case InfixApp(ia) => ia
+      queue ++= (elem.lhs +: elem.rhs).collect { case InfixApp(ia) =>
+        ia
       }
     }
     length

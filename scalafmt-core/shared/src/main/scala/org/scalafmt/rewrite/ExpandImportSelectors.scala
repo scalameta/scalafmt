@@ -29,34 +29,32 @@ class ExpandImportSelectors(implicit ctx: RewriteCtx) extends RewriteSession {
             groupedPatches.getOrElseUpdate(parentTokens.head, new Group)
           parentTokens.tail.foreach(x => group.patches += TokenPatch.Remove(x))
 
-          `import`.traverse {
-            case importer @ Importer(path, importees) =>
-              val hasRenamesOrUnimports = importees.exists(importee =>
-                importee.is[Importee.Rename] || importee.is[Importee.Unimport]
-              )
+          `import`.traverse { case importer @ Importer(path, importees) =>
+            val hasRenamesOrUnimports = importees.exists(importee =>
+              importee.is[Importee.Rename] || importee.is[Importee.Unimport]
+            )
 
-              val hasWildcards = importees.exists(_.is[Importee.Wildcard])
+            val hasWildcards = importees.exists(_.is[Importee.Wildcard])
 
-              if (hasWildcards && hasRenamesOrUnimports)
-                group.imports += s"import ${importer.syntax}"
-              else
-                importees.foreach { importee =>
-                  val importString = importee.toString
-                  val replacement =
-                    if (importString.contains("=>"))
-                      s"import $path.{$importString}"
-                    else
-                      s"import $path.$importString"
-                  group.imports += replacement
-                }
+            if (hasWildcards && hasRenamesOrUnimports)
+              group.imports += s"import ${importer.syntax}"
+            else
+              importees.foreach { importee =>
+                val importString = importee.toString
+                val replacement =
+                  if (importString.contains("=>"))
+                    s"import $path.{$importString}"
+                  else
+                    s"import $path.$importString"
+                group.imports += replacement
+              }
           }
         }
 
-        groupedPatches.foreach {
-          case (tok, group) =>
-            group.patches +=
-              TokenPatch.AddRight(tok, group.imports.mkString("\n"))
-            ctx.addPatchSet(group.patches.result(): _*)
+        groupedPatches.foreach { case (tok, group) =>
+          group.patches +=
+            TokenPatch.AddRight(tok, group.imports.mkString("\n"))
+          ctx.addPatchSet(group.patches.result(): _*)
         }
 
       case _ =>

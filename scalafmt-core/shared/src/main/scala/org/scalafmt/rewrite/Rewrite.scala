@@ -142,13 +142,12 @@ object Rewrite {
     )
 
   def validateRewrites(rewrites: Seq[Rewrite]): Seq[String] = {
-    incompatibleRewrites.flatMap {
-      case (a, b) =>
-        if (rewrites.contains(a) && rewrites.contains(b))
-          List(
-            s"Incompatible rewrites: $a and $b"
-          )
-        else Nil
+    incompatibleRewrites.flatMap { case (a, b) =>
+      if (rewrites.contains(a) && rewrites.contains(b))
+        List(
+          s"Incompatible rewrites: $a and $b"
+        )
+      else Nil
     }
   }
 
@@ -207,8 +206,8 @@ object RewriteCtx {
 
   @inline
   def isPostfixExpr(expr: Tree): Boolean =
-    isSimpleExprOr(expr) {
-      case _: Term.Select | _: Term.ApplyInfix => !hasPlaceholder(expr)
+    isSimpleExprOr(expr) { case _: Term.Select | _: Term.ApplyInfix =>
+      !hasPlaceholder(expr)
     }
 
   def hasPlaceholder(expr: Tree): Boolean = {

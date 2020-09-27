@@ -52,15 +52,14 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
       val sanitized = oldMods.filterNot(TreeOps.isHiddenImplicit)
       val sortedMods: Seq[Mod] = sanitized.sortWith(orderModsBy)
 
-      ctx.addPatchSet(sortedMods.zip(sanitized).flatMap {
-        case (next, old) =>
-          if (next eq old) Seq.empty
-          else {
-            val removeOld = old.tokens.tail.map(TokenPatch.Remove)
-            val nextSyntax = next.tokens.syntax // XXX: not next.syntax!
-            val addNext = TokenPatch.Replace(old.tokens.head, nextSyntax)
-            removeOld :+ addNext
-          }
+      ctx.addPatchSet(sortedMods.zip(sanitized).flatMap { case (next, old) =>
+        if (next eq old) Seq.empty
+        else {
+          val removeOld = old.tokens.tail.map(TokenPatch.Remove)
+          val nextSyntax = next.tokens.syntax // XXX: not next.syntax!
+          val addNext = TokenPatch.Replace(old.tokens.head, nextSyntax)
+          removeOld :+ addNext
+        }
       }: _*)
     }
   }

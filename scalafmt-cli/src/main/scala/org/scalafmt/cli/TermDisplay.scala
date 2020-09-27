@@ -334,9 +334,8 @@ object TermDisplay {
         case Some(Message.Update) =>
           val (done0, downloads0) = downloads.synchronized {
             val q = doneQueue.toVector
-              .filter {
-                case (url, _) =>
-                  !url.endsWith(".sha1") && !url.endsWith(".md5")
+              .filter { case (url, _) =>
+                !url.endsWith(".sha1") && !url.endsWith(".md5")
               }
               .sortBy { case (url, _) => url }
 
@@ -416,8 +415,8 @@ object TermDisplay {
 
           out.flush()
           Thread.sleep(fallbackRefreshInterval)
-          fallbackDisplayLoop(previous ++ downloads0.map {
-            case (url, _) => url
+          fallbackDisplayLoop(previous ++ downloads0.map { case (url, _) =>
+            url
           })
       }
 
