@@ -76,8 +76,8 @@ class Router(formatOps: FormatOps) {
               x.hasBreak || x.right.is[T.EOF]
             }
             nl.fold(Policy.noPolicy) { ft =>
-              Policy.on(ft.left) {
-                case Decision(t, _) => Seq(Split(Space(t.between.nonEmpty), 0))
+              Policy.on(ft.left) { case Decision(t, _) =>
+                Seq(Split(Space(t.between.nonEmpty), 0))
               }
             }
           case _ => Policy.NoPolicy
@@ -1188,10 +1188,10 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, _: T.Dot, _)
           if style.newlines.source.ne(Newlines.keep) &&
             rightOwner.is[Term.Select] && findTreeWithParent(rightOwner) {
-            case _: Type.Select | _: Importer | _: Pkg => Some(true)
-            case _: Term.Select | SplitCallIntoParts(_, _) => None
-            case _ => Some(false)
-          }.isDefined =>
+              case _: Type.Select | _: Importer | _: Pkg => Some(true)
+              case _: Term.Select | SplitCallIntoParts(_, _) => None
+              case _ => Some(false)
+            }.isDefined =>
         Seq(Split(NoSplit, 0))
 
       case t @ FormatToken(left, _: T.Dot, _) if rightOwner.is[Term.Select] =>
@@ -1625,11 +1625,11 @@ class Router(formatOps: FormatOps) {
             case _ =>
               val singleLine = !isSuperfluousParenthesis(open, leftOwner) ||
                 style.newlines.source.eq(Newlines.unfold) &&
-                  leftOwner.parent.exists {
-                    case _: Template | _: Defn => false
-                    case InfixApp(_) => false
-                    case _ => true
-                  }
+                leftOwner.parent.exists {
+                  case _: Template | _: Defn => false
+                  case InfixApp(_) => false
+                  case _ => true
+                }
               Seq(
                 if (!singleLine) spaceSplit
                 else {

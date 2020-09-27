@@ -52,15 +52,14 @@ class Debug(val verbose: Boolean) {
         .sortBy(-_._2.size)
         .iterator
         .take(3)
-        .foreach {
-          case (line, group) =>
-            sb.append("Split(line=")
-              .append(line)
-              .append(" count=")
-              .append(group.size)
-              .append("=")
-            group.foreach(sb.append("\n\t").append(_))
-            sb.append("\n")
+        .foreach { case (line, group) =>
+          sb.append("Split(line=")
+            .append(line)
+            .append(" count=")
+            .append(group.size)
+            .append("=")
+          group.foreach(sb.append("\n\t").append(_))
+          sb.append("\n")
         }
       LoggerOps.logger.debug(sb.toString())
     }

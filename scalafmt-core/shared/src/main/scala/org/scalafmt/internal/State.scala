@@ -246,18 +246,17 @@ final case class State(
   private def lineStartsStatement(
       isComment: Boolean
   )(implicit style: ScalafmtConfig, fops: FormatOps): Option[FormatToken] = {
-    getLineStartOwner(isComment).flatMap {
-      case (lineFt, lineOwner) =>
-        val ft = fops.tokens(depth)
-        val ok = {
-          // comment could be preceded by a comma
-          isComment && ft.left.is[Token.Comma] &&
-          (fops.prev(ft).meta.leftOwner eq lineOwner)
-        } ||
-          TreeOps
-            .findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner)
-            .isDefined
-        if (ok) Some(lineFt) else None
+    getLineStartOwner(isComment).flatMap { case (lineFt, lineOwner) =>
+      val ft = fops.tokens(depth)
+      val ok = {
+        // comment could be preceded by a comma
+        isComment && ft.left.is[Token.Comma] &&
+        (fops.prev(ft).meta.leftOwner eq lineOwner)
+      } ||
+        TreeOps
+          .findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner)
+          .isDefined
+      if (ok) Some(lineFt) else None
     }
   }
 

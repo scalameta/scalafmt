@@ -224,12 +224,12 @@ class FormatWriter(formatOps: FormatOps) {
           case nl: NewlineT =>
             val isDouble = nl.isDouble ||
               style.newlines.forceBlankBeforeMultilineTopLevelStmt &&
-                isMultilineTopLevelStatement(locations, i) ||
+              isMultilineTopLevelStatement(locations, i) ||
               style.newlines.forceBlankAfterMultilineTopLevelStmt &&
-                locations.lengthCompare(i + 1) != 0 &&
-                topLevelLastToHeadTokens.get(i).exists {
-                  isMultilineTopLevelStatement(locations, _)
-                }
+              locations.lengthCompare(i + 1) != 0 &&
+              topLevelLastToHeadTokens.get(i).exists {
+                isMultilineTopLevelStatement(locations, _)
+              }
             val newline = if (isDouble) "\n\n" else "\n"
             if (nl.noIndent) newline
             else newline + getIndentation(state.indentation)
@@ -355,10 +355,9 @@ class FormatWriter(formatOps: FormatOps) {
             }
           case _ => None
         }
-        tupleOpt.fold(text) {
-          case (pipe, indent) =>
-            val spaces = getIndentation(indent)
-            getStripMarginPattern(pipe).matcher(text).replaceAll(spaces)
+        tupleOpt.fold(text) { case (pipe, indent) =>
+          val spaces = getIndentation(indent)
+          getStripMarginPattern(pipe).matcher(text).replaceAll(spaces)
         }
       }
 
@@ -1069,8 +1068,8 @@ class FormatWriter(formatOps: FormatOps) {
 
           // package a.b.c
           case select: Term.Select =>
-            select.parent.collect {
-              case pkg: Pkg => pkg.stats.headOption
+            select.parent.collect { case pkg: Pkg =>
+              pkg.stats.headOption
             }.flatten
         }
         .flatten

@@ -135,12 +135,11 @@ object Policy {
   }
 
   private class AndThen(p1: Policy, p2: Policy) extends Policy {
-    override lazy val f: Pf = {
-      case x =>
-        p2.f.applyOrElse(
-          p1.f.andThen(x.withSplits _).applyOrElse(x, identity[Decision]),
-          (y: Decision) => y.splits
-        )
+    override lazy val f: Pf = { case x =>
+      p2.f.applyOrElse(
+        p1.f.andThen(x.withSplits _).applyOrElse(x, identity[Decision]),
+        (y: Decision) => y.splits
+      )
     }
 
     override def unexpired(ft: FormatToken): Policy =

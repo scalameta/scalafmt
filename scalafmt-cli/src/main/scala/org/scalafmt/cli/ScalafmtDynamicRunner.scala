@@ -128,7 +128,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
           val dirname = dir.path
           filename.startsWith(dirname) && (
             filename.length == dirname.length ||
-            filename.charAt(dirname.length) == File.separatorChar
+              filename.charAt(dirname.length) == File.separatorChar
           )
         }
       }

@@ -19,21 +19,20 @@ object ReaderUtil {
       options: sourcecode.Text[T]*
   )(f: PartialFunction[Conf, Configured[T]]): ConfCodec[T] = {
     val m = options.map(x => lowerCaseNoBackticks(x.source) -> x.value).toMap
-    val decoder = ConfDecoder.instance[T](f.orElse {
-      case Conf.Str(x) =>
-        m.get(lowerCaseNoBackticks(x)) match {
-          case Some(y) =>
-            Ok(y)
-          case None =>
-            val available = m.keys.mkString(", ")
-            val msg = s"Unknown input '$x'. Expected one of: $available"
-            ConfError.message(msg).notOk
-        }
+    val decoder = ConfDecoder.instance[T](f.orElse { case Conf.Str(x) =>
+      m.get(lowerCaseNoBackticks(x)) match {
+        case Some(y) =>
+          Ok(y)
+        case None =>
+          val available = m.keys.mkString(", ")
+          val msg = s"Unknown input '$x'. Expected one of: $available"
+          ConfError.message(msg).notOk
+      }
     })
     val encoder = ConfEncoder.instance[T] { value =>
       options
-        .collectFirst {
-          case sourcecode.Text(`value`, source) => Conf.Str(source)
+        .collectFirst { case sourcecode.Text(`value`, source) =>
+          Conf.Str(source)
         }
         .getOrElse(Conf.Null())
     }
