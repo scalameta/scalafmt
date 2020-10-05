@@ -83,8 +83,7 @@ docstrings.style = SpaceAsterisk
     */
 class Main
 >>>
-/**
-  * Main entry-point.
+/** Main entry-point.
   */
 class Main
 <<< #1403 1: AsteriskSpace 1
@@ -99,8 +98,7 @@ docstrings.style = AsteriskSpace
     */
 class Main
 >>>
-/**
- *  Indent0
+/** Indent0
  *  Indent1
  *  Indent2
  *   Indent3
@@ -1100,11 +1098,9 @@ object a {
 object a {
 
   /** alias for [[literal]] */
-  /**
-    * alias for [[literal]]
+  /** alias for [[literal]]
     */
-  /**
-    * alias for [[literal]]
+  /** alias for [[literal]]
     * alias for [[literal]]
     */
 }
@@ -1131,8 +1127,7 @@ object a {
 
   /** alias for [[literal]] */
   /** alias for [[literal]] */
-  /**
-    * alias for [[literal]]
+  /** alias for [[literal]]
     * alias for [[literal]]
     */
 }
@@ -1159,11 +1154,9 @@ object a {
 
   /** alias for [[literal]]
     */
-  /**
-    * alias for [[literal]]
+  /** alias for [[literal]]
     */
-  /**
-    * alias for [[literal]]
+  /** alias for [[literal]]
     * alias for [[literal]]
     */
 }
@@ -1189,11 +1182,9 @@ object a {
 object a {
 
   /** alias for [[literal]] */
-  /**
-   *  alias for [[literal]]
+  /** alias for [[literal]]
    */
-  /**
-   *  alias for [[literal]]
+  /** alias for [[literal]]
    *  alias for [[literal]]
    */
 }
@@ -1220,8 +1211,7 @@ object a {
 
   /** alias for [[literal]] */
   /** alias for [[literal]] */
-  /**
-   *  alias for [[literal]]
+  /** alias for [[literal]]
    *  alias for [[literal]]
    */
 }
@@ -1248,11 +1238,9 @@ object a {
 
   /** alias for [[literal]]
    */
-  /**
-   *  alias for [[literal]]
+  /** alias for [[literal]]
    */
-  /**
-   *  alias for [[literal]]
+  /** alias for [[literal]]
    *  alias for [[literal]]
    */
 }

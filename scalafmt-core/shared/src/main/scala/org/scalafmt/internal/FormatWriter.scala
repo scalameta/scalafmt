@@ -717,8 +717,9 @@ class FormatWriter(formatOps: FormatOps) {
           while (matcher.find()) {
             val contentBeg = matcher.start(2)
             val contentEnd = matcher.end(2)
-            if (contentBeg == contentEnd) prevWasBlank = true
-            else {
+            if (contentBeg == contentEnd) {
+              if (sb.length() != sbLen) prevWasBlank = true
+            } else {
               if (sb.length() != sbLen) appendBreak()
               if (prevWasBlank) {
                 appendBreak
