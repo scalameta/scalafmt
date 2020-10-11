@@ -1016,6 +1016,68 @@ object a {
    * alias for [[literal]]
    */
 }
+<<< #2028 Asterisk keep, blankFirst
+docstrings.style = Asterisk
+docstrings.oneline = keep
+docstrings.blankFirstLine = true
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /**
+   * alias for [[literal]]
+   */
+  /**
+   * alias for [[literal]]
+   * alias for [[literal]]
+   */
+}
+<<< #2028 Asterisk keep, !blankFirst
+docstrings.style = Asterisk
+docstrings.oneline = keep
+docstrings.blankFirstLine = false
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /**
+   * alias for [[literal]]
+   */
+  /**
+   * alias for [[literal]]
+   * alias for [[literal]]
+   */
+}
 <<< #2028 Asterisk fold
 docstrings.style = Asterisk
 docstrings.oneline = fold
@@ -1104,6 +1166,64 @@ object a {
     * alias for [[literal]]
     */
 }
+<<< #2028 SpaceAsterisk keep, blankFirst
+docstrings.style = SpaceAsterisk
+docstrings.oneline = keep
+docstrings.blankFirstLine = true
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]]
+    */
+  /** alias for [[literal]]
+    * alias for [[literal]]
+    */
+}
+<<< #2028 SpaceAsterisk keep, !blankFirst
+docstrings.style = SpaceAsterisk
+docstrings.oneline = keep
+docstrings.blankFirstLine = false
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]]
+    */
+  /** alias for [[literal]]
+    * alias for [[literal]]
+    */
+}
 <<< #2028 SpaceAsterisk fold
 docstrings.style = SpaceAsterisk
 docstrings.oneline = fold
@@ -1163,6 +1283,64 @@ object a {
 <<< #2028 AsteriskSpace keep
 docstrings.style = AsteriskSpace
 docstrings.oneline = keep
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]]
+   */
+  /** alias for [[literal]]
+   *  alias for [[literal]]
+   */
+}
+<<< #2028 AsteriskSpace keep, blankFirst
+docstrings.style = AsteriskSpace
+docstrings.oneline = keep
+docstrings.blankFirstLine = true
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]]
+   */
+  /** alias for [[literal]]
+   *  alias for [[literal]]
+   */
+}
+<<< #2028 AsteriskSpace keep, !blankFirst
+docstrings.style = AsteriskSpace
+docstrings.oneline = keep
+docstrings.blankFirstLine = false
 ===
 object a {
   /** alias for [[literal]] */
