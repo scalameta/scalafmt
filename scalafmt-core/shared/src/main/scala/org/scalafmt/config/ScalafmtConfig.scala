@@ -335,13 +335,13 @@ object ScalafmtConfig {
         addIf(optIn.configStyleArguments && align.openParenCallSite)
         addIf(optIn.configStyleArguments && align.openParenDefnSite)
         newlines.beforeMultiline.foreach { x =>
-          addIfDirect(
+          addIf(
             x.eq(Newlines.classic) || x.eq(Newlines.keep),
             s"newlines.beforeMultiline=$x"
           )
         }
         newlines.beforeMultilineDef.foreach { x =>
-          addIfDirect(
+          addIf(
             x.eq(Newlines.classic) || x.eq(Newlines.keep),
             s"newlines.beforeMultilineDef=$x"
           )
