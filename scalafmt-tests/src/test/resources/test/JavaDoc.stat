@@ -1189,9 +1189,11 @@ object a {
 object a {
 
   /** alias for [[literal]] */
-  /** alias for [[literal]]
+  /**
+    * alias for [[literal]]
     */
-  /** alias for [[literal]]
+  /**
+    * alias for [[literal]]
     * alias for [[literal]]
     */
 }
@@ -1331,9 +1333,11 @@ object a {
 object a {
 
   /** alias for [[literal]] */
-  /** alias for [[literal]]
+  /**
+   *  alias for [[literal]]
    */
-  /** alias for [[literal]]
+  /**
+   *  alias for [[literal]]
    *  alias for [[literal]]
    */
 }

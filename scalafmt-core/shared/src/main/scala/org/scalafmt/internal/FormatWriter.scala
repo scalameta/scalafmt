@@ -723,7 +723,7 @@ class FormatWriter(formatOps: FormatOps) {
                 if (prevWasBlank) appendBreak()
                 appendBreakWithMargin()
               } else {
-                if (style.docstrings.skipFirstLine)
+                if (style.docstrings.skipFirstLineIf(prevWasBlank))
                   appendBreakWithMargin()
                 else sb.append(' ')
               }
