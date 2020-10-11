@@ -354,6 +354,7 @@ object ScalafmtConfig {
         addIf(optIn.breaksInsideChains)
         addIf(!includeCurlyBraceInSelectChains)
       }
+      docstrings.validate
       if (errors.nonEmpty) {
         val prefix = s"newlines.source=${newlines.source} and ["
         allErrors += errors.mkString(prefix, ",", "]")

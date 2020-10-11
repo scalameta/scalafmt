@@ -2154,6 +2154,64 @@ maxColumn = 30
 def pow2(d: Double): Double
 ```
 
+#### `docstrings.blankFirstLine`
+
+Controls whether to force the first line to be blank in a multiline docstring.
+Keep in mind that some combinations of parameters are prohibited (e.g., this
+doesn't work with `wrap=no`, and `blankFirstLine=keep` contradicts with
+`style=Asterisk`).
+
+> Since v2.7.5.
+
+```scala mdoc:defaults
+docstrings.blankFirstLine
+```
+
+```scala mdoc:scalafmt
+# do not force a blank first line
+docstrings.blankFirstLine = no
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+---
+/** Scaladoc oneline */
+/** Scaladoc multiline1
+  */
+/**
+  * Scaladoc multiline2
+  */
+val a = 1
+```
+
+```scala mdoc:scalafmt
+# force a blank first line
+docstrings.blankFirstLine = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+---
+/** Scaladoc oneline */
+/** Scaladoc multiline1
+  */
+/**
+  * Scaladoc multiline2
+  */
+val a = 1
+```
+
+```scala mdoc:scalafmt
+# preserve a blank first line
+docstrings.blankFirstLine = keep
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+---
+/** Scaladoc oneline */
+/** Scaladoc multiline1
+  */
+/**
+  * Scaladoc multiline2
+  */
+val a = 1
+```
+
 ## Disabling or customizing formatting
 
 ### For code block

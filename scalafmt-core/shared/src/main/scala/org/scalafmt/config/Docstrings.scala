@@ -1,5 +1,9 @@
 package org.scalafmt.config
 
+import scala.collection.mutable
+
+import org.scalafmt.util.ValidationOps
+
 import metaconfig._
 
 /**
@@ -20,6 +24,7 @@ import metaconfig._
 case class Docstrings(
     oneline: Docstrings.Oneline = Docstrings.Oneline.keep,
     wrap: Docstrings.Wrap = Docstrings.Wrap.no,
+    blankFirstLine: Docstrings.BlankFirstLine = Docstrings.BlankFirstLine.no,
     style: Option[Docstrings.Style] = Some(Docstrings.SpaceAsterisk)
 ) {
   import Docstrings._
@@ -28,6 +33,18 @@ case class Docstrings(
   def skipFirstLine: Boolean = style.exists(_.skipFirstLine)
   def isSpaceAsterisk: Boolean = style.contains(SpaceAsterisk)
   def isAsteriskSpace: Boolean = style.contains(AsteriskSpace)
+
+  def validate(implicit errors: mutable.Buffer[String]): Unit = {
+    import ValidationOps._
+    addIf(
+      blankFirstLine.ne(BlankFirstLine.no) && wrap.eq(Docstrings.Wrap.yes),
+      s"docstrings"
+    )
+    addIf(
+      blankFirstLine.eq(BlankFirstLine.keep) && style.eq(Docstrings.Asterisk),
+      s"docstrings"
+    )
+  }
 
   implicit lazy val decoder: ConfDecoder[Docstrings] = {
     val genericDecoder = generic.deriveDecoder(this).noTypos
@@ -86,6 +103,18 @@ object Docstrings {
     case object yes extends Wrap
     implicit val codec: ConfCodec[Wrap] =
       ReaderUtil.oneOfCustom[Wrap](no, yes) {
+        case Conf.Bool(true) => Configured.Ok(yes)
+        case Conf.Bool(false) => Configured.Ok(no)
+      }
+  }
+
+  sealed abstract class BlankFirstLine
+  object BlankFirstLine {
+    case object yes extends BlankFirstLine
+    case object no extends BlankFirstLine
+    case object keep extends BlankFirstLine
+    implicit val codec: ConfCodec[BlankFirstLine] =
+      ReaderUtil.oneOfCustom[BlankFirstLine](yes, no, keep) {
         case Conf.Bool(true) => Configured.Ok(yes)
         case Conf.Bool(false) => Configured.Ok(no)
       }
