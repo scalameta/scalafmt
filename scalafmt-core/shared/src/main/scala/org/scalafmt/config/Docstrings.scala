@@ -29,6 +29,11 @@ case class Docstrings(
 ) {
   import Docstrings._
 
+  def skipFirstLineIf(wasBlank: Boolean): Boolean = blankFirstLine match {
+    case BlankFirstLine.yes => true
+    case BlankFirstLine.no => skipFirstLine
+    case BlankFirstLine.keep => wasBlank || skipFirstLine
+  }
   @inline
   def skipFirstLine: Boolean = style.exists(_.skipFirstLine)
   def isSpaceAsterisk: Boolean = style.contains(SpaceAsterisk)
