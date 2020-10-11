@@ -85,7 +85,10 @@ object Docstrings {
     case object no extends Wrap
     case object yes extends Wrap
     implicit val codec: ConfCodec[Wrap] =
-      ReaderUtil.oneOf[Wrap](no, yes)
+      ReaderUtil.oneOfCustom[Wrap](no, yes) {
+        case Conf.Bool(true) => Configured.Ok(yes)
+        case Conf.Bool(false) => Configured.Ok(no)
+      }
   }
 
 }
