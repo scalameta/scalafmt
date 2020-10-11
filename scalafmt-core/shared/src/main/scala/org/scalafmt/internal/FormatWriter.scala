@@ -713,31 +713,35 @@ class FormatWriter(formatOps: FormatOps) {
           val matcher = docstringLine.matcher(trimmed)
           sb.append("/**")
           val sbLen = sb.length()
-          var prevWasBlank = style.docstrings.skipFirstLine
-          while (matcher.find()) {
+          @tailrec
+          def iter(prevWasBlank: Boolean): Unit = if (matcher.find()) {
             val contentBeg = matcher.start(2)
             val contentEnd = matcher.end(2)
-            if (contentBeg == contentEnd) {
-              if (sb.length() != sbLen) prevWasBlank = true
-            } else {
-              if (sb.length() != sbLen) appendBreak()
-              if (prevWasBlank) {
-                appendBreak
-                prevWasBlank = false
+            if (contentBeg == contentEnd) iter(true)
+            else {
+              if (sb.length() != sbLen) {
+                if (prevWasBlank) appendBreak()
+                appendBreakWithMargin()
+              } else {
+                if (style.docstrings.skipFirstLine)
+                  appendBreakWithMargin()
+                else sb.append(' ')
               }
-              if (sb.length() == sbLen) sb.append(' ') else sb.append(margin)
               val extraMargin =
                 matcher.end(1) - matcher.start(1) - margin.length
               if (extraMargin > 0) sb.append(getIndentation(extraMargin))
               sb.append(CharBuffer.wrap(trimmed, contentBeg, contentEnd))
+              iter(false)
             }
           }
-          appendBreak
-          sb.append('/')
+          iter(false)
+          appendBreak().append('/')
         }
 
-        private def appendBreak(): Unit =
+        @inline private def appendBreak() =
           sb.append('\n').append(spaces).append('*')
+        @inline private def appendBreakWithMargin() =
+          appendBreak().append(margin)
       }
 
     }
