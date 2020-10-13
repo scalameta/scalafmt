@@ -3153,3 +3153,37 @@ object a {
     case _ =>
   }
 }
+<<< #2137 val, parens with select chain
+object a {
+  val baz = (
+    Bar
+      .newBuilder
+      .baz()
+  )
+}
+>>>
+object a {
+  val baz = (
+    Bar.newBuilder
+      .baz()
+    )
+}
+<<< #2137 case, parens with select chain
+object a {
+  a match {
+    case foo => (
+      Bar
+        .newBuilder
+        .baz()
+    )
+  }
+}
+>>>
+object a {
+  a match {
+    case foo => (
+      Bar.newBuilder
+        .baz()
+      )
+  }
+}
