@@ -1200,7 +1200,8 @@ class Router(formatOps: FormatOps) {
           findLastApplyAndNextSelect(rightOwner, enclosed)
         val thisSelect = rightOwner.asInstanceOf[Term.Select]
         val prevSelect = findPrevSelect(thisSelect, enclosed)
-        val expire = lastToken(expireTree)
+        val expireDropRight = if (isEnclosedInMatching(expireTree)) 1 else 0
+        val expire = lastToken(expireTree.tokens.dropRight(expireDropRight))
 
         def breakOnNextDot: Policy =
           nextSelect.fold(Policy.noPolicy) { tree =>
@@ -1234,9 +1235,7 @@ class Router(formatOps: FormatOps) {
             val prevChain = inSelectChain(prevSelect, thisSelect, expireTree)
             if (canStartSelectChain(thisSelect, nextSelect, expireTree)) {
               val chainExpire =
-                if (nextSelect.isEmpty) lastToken(thisSelect)
-                else if (!isEnclosedInMatching(expireTree)) expire
-                else lastToken(expireTree.tokens.dropRight(1))
+                if (nextSelect.isEmpty) lastToken(thisSelect) else expire
               val nestedPenalty =
                 nestedSelect(rightOwner) + nestedApplies(leftOwner)
               // This policy will apply to both the space and newline splits, otherwise

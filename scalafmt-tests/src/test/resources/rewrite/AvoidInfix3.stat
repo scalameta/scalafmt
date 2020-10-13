@@ -90,7 +90,7 @@ object a {
       .read[Double]
       .and((JsPath \ "long").read[Double])
       .and((JsPath \ "anotherField").read[String])
-    )(Location.apply _)
+  )(Location.apply _)
 }
 <<< #842 1
 maxColumn = 80
@@ -111,5 +111,5 @@ object a {
       .and( // comment
         (JsPath \ "anotherField").read[String]
       )
-    )(Location.apply _)
+  )(Location.apply _)
 }
