@@ -3123,7 +3123,7 @@ pubSubMessage match {
     (
       IngestionSubscriber
         .defaultServices
-      ).processEff.message()
+    ).processEff.message()
 }
 <<< #2137 tuple with ->, match
 maxColumn = 20

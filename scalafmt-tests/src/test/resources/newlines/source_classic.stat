@@ -3166,7 +3166,7 @@ object a {
   val baz = (
     Bar.newBuilder
       .baz()
-    )
+  )
 }
 <<< #2137 case, parens with select chain
 object a {
@@ -3184,6 +3184,6 @@ object a {
     case foo => (
       Bar.newBuilder
         .baz()
-      )
+    )
   }
 }
