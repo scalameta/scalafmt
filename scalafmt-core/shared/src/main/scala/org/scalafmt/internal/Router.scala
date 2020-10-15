@@ -1918,12 +1918,16 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
-      case FormatToken(_, T.RightParen(), _) =>
-        val mod =
-          Space(style.spaces.inParentheses && isDefnOrCallSite(rightOwner))
-        Seq(
-          Split(mod, 0)
-        )
+      case FormatToken(_, close: T.RightParen, _) =>
+        def modNoNL = {
+          def allowSpace = rightOwner match {
+            case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield =>
+              isLastToken(close, rightOwner)
+            case _ => true
+          }
+          Space(style.spaces.inParentheses && allowSpace)
+        }
+        Seq(Split(modNoNL, 0))
 
       case FormatToken(left, _: T.KwCatch | _: T.KwFinally, _)
           if style.newlines.alwaysBeforeElseAfterCurlyIf

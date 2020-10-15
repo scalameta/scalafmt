@@ -345,10 +345,17 @@ object TreeOps {
   def isSuperfluousParenthesis(open: LeftParen, owner: Tree): Boolean =
     !isTuple(owner) && owner.tokens.headOption.contains(open)
 
-  def isFirstOrLastToken(token: Token, owner: Tree): Boolean = {
-    owner.tokens.headOption.contains(token) ||
+  @inline
+  def isFirstOrLastToken(token: Token, owner: Tree): Boolean =
+    isFirstToken(token, owner) || isLastToken(token, owner)
+
+  @inline
+  def isFirstToken(token: Token, owner: Tree): Boolean =
+    owner.tokens.headOption.contains(token)
+
+  @inline
+  def isLastToken(token: Token, owner: Tree): Boolean =
     owner.tokens.lastOption.contains(token)
-  }
 
   def isCallSite(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
     tree match {
