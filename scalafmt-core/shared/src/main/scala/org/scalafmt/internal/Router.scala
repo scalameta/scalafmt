@@ -1777,12 +1777,15 @@ class Router(formatOps: FormatOps) {
         }
 
       // Pat
-      case tok @ FormatToken(T.Ident("|"), _, _)
-          if leftOwner.is[Pat.Alternative] =>
-        Seq(
-          Split(Space, 0),
-          Split(Newline, 1)
-        )
+      case FormatToken(T.Ident("|"), _, _) if leftOwner.is[Pat.Alternative] =>
+        if (style.newlines.source eq Newlines.keep)
+          Seq(Split(Space.orNL(newlines == 0), 0))
+        else
+          Seq(Split(Space, 0), Split(Newline, 1))
+      case FormatToken(_, T.Ident("|"), _) if rightOwner.is[Pat.Alternative] =>
+        val noNL = style.newlines.source.ne(Newlines.keep) || newlines == 0
+        Seq(Split(Space.orNL(noNL), 0))
+
       case FormatToken(
             T.Ident(_) | Literal() | T.Interpolation.End() | T.Xml.End(),
             T.Ident(_) | Literal() | T.Xml.Start(),
@@ -1927,7 +1930,9 @@ class Router(formatOps: FormatOps) {
           }
           Space(style.spaces.inParentheses && allowSpace)
         }
-        Seq(Split(modNoNL, 0))
+        val isNL = rightOwner.is[Pat.Alternative] &&
+          style.newlines.source.eq(Newlines.keep) && newlines != 0
+        Seq(Split(if (isNL) Newline else modNoNL, 0))
 
       case FormatToken(left, _: T.KwCatch | _: T.KwFinally, _)
           if style.newlines.alwaysBeforeElseAfterCurlyIf
