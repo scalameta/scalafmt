@@ -3156,11 +3156,11 @@ a match {
 >>>
 a match {
   case ( Root / "foo" | Root / "bar" |
-      Root / "baz" / _ / "qux") =>
-    ( if (foo) ( foo) + bar
-      else foo + ( bar)) + ( baz)
+      Root / "baz" / _ / "qux" ) =>
+    ( if (foo) ( foo ) + bar
+      else foo + ( bar ) ) + ( baz )
   case ( Root / "foo" | Root / "bar" |
-      Root / "baz" / _ / "qux") => (
+      Root / "baz" / _ / "qux" ) => (
     foo
   )
 }
