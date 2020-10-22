@@ -31,7 +31,9 @@ intellij/out
 docs/xx.md
 
 # metals
+project/metals.sbt
 .metals/
 .bloop/
+.bsp/
 
 node_modules/
