@@ -31,6 +31,7 @@ import scala.meta.{
 }
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
+import org.scalafmt.config.ScalafmtRunner
 
 /**
   * Helper functions for generating splits/policies for a given tree.
@@ -40,7 +41,7 @@ class FormatOps(
     baseStyle: ScalafmtConfig,
     val filename: String = ""
 ) {
-  val initStyle = {
+  val initStyle: ScalafmtConfig = {
     val queue = new mutable.Queue[Tree]
     queue += tree
     var count = 0
@@ -53,7 +54,7 @@ class FormatOps(
     if (checkedNewlines eq baseStyle.newlines) baseStyle
     else baseStyle.copy(newlines = checkedNewlines)
   }
-  val runner = initStyle.runner
+  val runner: ScalafmtRunner = initStyle.runner
   import PolicyOps._
   import TokenOps._
   import TreeOps._

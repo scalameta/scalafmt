@@ -5,6 +5,7 @@ gh-pages/
 .secrets
 
 idea/
+.vscode/
 
 repos.tar.gz
 
