@@ -15,8 +15,7 @@ import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 
-/**
-  * Implements best first search to find optimal formatting.
+/** Implements best first search to find optimal formatting.
   */
 private class BestFirstSearch private (
     range: Set[Range],
@@ -32,8 +31,7 @@ private class BestFirstSearch private (
 
   implicit val stateOrdering = State.Ordering
 
-  /**
-    * Precomputed table of splits for each token.
+  /** Precomputed table of splits for each token.
     */
   val routes: Array[Seq[Split]] = {
     val router = new Router(formatOps)
@@ -55,8 +53,7 @@ private class BestFirstSearch private (
     noOptimizations.contains(token.left)
   }
 
-  /**
-    * Returns true if it's OK to skip over state.
+  /** Returns true if it's OK to skip over state.
     */
   def shouldEnterState(curr: State): Boolean =
     keepSlowStates || curr.policy.noDequeue ||
@@ -118,8 +115,7 @@ private class BestFirstSearch private (
     }
   }
 
-  /**
-    * Runs best first search to find lowest penalty split.
+  /** Runs best first search to find lowest penalty split.
     */
   def shortestPath(
       start: State,
@@ -273,8 +269,7 @@ private class BestFirstSearch private (
     runner.event(Explored(explored, depth, queueSize))
   }
 
-  /**
-    * Follow states having single active non-newline split
+  /** Follow states having single active non-newline split
     */
   @tailrec
   private def traverseSameLine(state: State, depth: Int): State =

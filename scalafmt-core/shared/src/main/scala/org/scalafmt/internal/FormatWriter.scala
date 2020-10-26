@@ -33,8 +33,7 @@ import scala.meta.{
   Type
 }
 
-/**
-  * Produces formatted output from sequence of splits.
+/** Produces formatted output from sequence of splits.
   */
 class FormatWriter(formatOps: FormatOps) {
   import FormatWriter._
@@ -746,8 +745,7 @@ class FormatWriter(formatOps: FormatOps) {
 
     }
 
-    /**
-      * Returns how many extra spaces are needed to align tokens, as configured
+    /** Returns how many extra spaces are needed to align tokens, as configured
       * by `initStyle.align.tokens`.
       */
     // TODO(olafur) Refactor implementation to make it maintainable. It's super
@@ -943,8 +941,7 @@ class FormatWriter(formatOps: FormatOps) {
       var column = 0
       val columns = block.map(_.length).max
 
-      /**
-        * Separator length gap needed to align blocks with different token
+      /** Separator length gap needed to align blocks with different token
         * lengths by expression names, not tokens themselves.
         *
         * Without considering gaps:
@@ -1220,8 +1217,7 @@ object FormatWriter {
     def isStandalone: Boolean = hasBreakAfter && hasBreakBefore
   }
 
-  /**
-    * Alignment information extracted from FormatToken. Used only when align!=none.
+  /** Alignment information extracted from FormatToken. Used only when align!=none.
     * For example:
     * ```
     * libraryDependencies ++= Seq(

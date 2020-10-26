@@ -1,7 +1,6 @@
 package org.scalafmt.util
 
-/**
-  * Shamelessly copied from:
+/** Shamelessly copied from:
   * http://stackoverflow.com/a/7542476
   */
 object Tabulator {

@@ -32,8 +32,7 @@ import scala.meta.{
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
 
-/**
-  * Helper functions for generating splits/policies for a given tree.
+/** Helper functions for generating splits/policies for a given tree.
   */
 class FormatOps(
     val tree: Tree,
@@ -237,8 +236,7 @@ class FormatOps(
   final def startsNewBlockOnRight(ft: FormatToken): Boolean =
     ft.meta.rightOwner.tokens.headOption.contains(ft.right)
 
-  /**
-    * js.native is very special in Scala.js.
+  /** js.native is very special in Scala.js.
     *
     * Context: https://github.com/scalameta/scalafmt/issues/108
     */
@@ -1048,8 +1046,7 @@ class FormatOps(
     }
   }
 
-  /**
-    * Implementation for `verticalMultiline`
+  /** Implementation for `verticalMultiline`
     */
   def verticalMultiline(owner: Tree, ft: FormatToken)(implicit
       style: ScalafmtConfig

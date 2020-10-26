@@ -252,8 +252,7 @@ object ScalafmtConfig {
     )
   val defaultWithAlign: ScalafmtConfig = addAlign(default)
 
-  /**
-    * Experimental implementation of:
+  /** Experimental implementation of:
     * https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md
     */
   val scalaJs: ScalafmtConfig = default.copy(
@@ -281,8 +280,7 @@ object ScalafmtConfig {
     )
   )
 
-  /**
-    * Ready styles provided by scalafmt.
+  /** Ready styles provided by scalafmt.
     */
   val activeStyles: Map[String, ScalafmtConfig] =
     Map(

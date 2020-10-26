@@ -2,8 +2,7 @@ package org.scalafmt.config
 
 import metaconfig._
 
-/**
-  * Configuration related to multi-line formatting.
+/** Configuration related to multi-line formatting.
   */
 case class VerticalMultiline(
     atDefnSite: Boolean = false,

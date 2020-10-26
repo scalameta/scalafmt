@@ -67,8 +67,7 @@ object InfixApp {
 
 }
 
-/**
-  * Pattern extractor to concisely and safely query parent chain.
+/** Pattern extractor to concisely and safely query parent chain.
   *
   * Example:
   * {{{

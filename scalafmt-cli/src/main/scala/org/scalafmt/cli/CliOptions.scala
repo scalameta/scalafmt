@@ -18,8 +18,7 @@ import scala.util.control.Exception.catching
 object CliOptions {
   val default = CliOptions()
 
-  /**
-    * Tries to read configuration from
+  /** Tries to read configuration from
     *
     * 1. .scalafmt.conf in root dir of current git repo
     *     IF the following setting is enabled: project.git = true

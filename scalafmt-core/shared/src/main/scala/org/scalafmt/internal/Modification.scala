@@ -18,8 +18,7 @@ case object NoSplit extends Modification {
   def orNL(flag: Boolean): Modification = if (flag) this else Newline
 }
 
-/**
-  * A split representing a newline.
+/** A split representing a newline.
   *
   * @param isDouble Insert a blank line?
   * @param noIndent Should no indentation follow? For example in commented out

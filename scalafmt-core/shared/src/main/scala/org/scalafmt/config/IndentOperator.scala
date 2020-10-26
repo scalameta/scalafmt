@@ -2,8 +2,7 @@ package org.scalafmt.config
 
 import metaconfig._
 
-/**
-  * @param include
+/** @param include
   *   Regexp for which infix operators should
   *   indent by 2 spaces. For example, .*=
   *   produces this output

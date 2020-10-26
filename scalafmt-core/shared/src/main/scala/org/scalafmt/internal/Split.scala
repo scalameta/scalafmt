@@ -10,8 +10,7 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false) {
   override def toString: String = s"$token:${token.end}"
 }
 
-/**
-  * A Split is the whitespace between two non-whitespace tokens.
+/** A Split is the whitespace between two non-whitespace tokens.
   *
   * Consider a split to be an edge in a search graph and [[FormatToken]]
   * are the nodes.

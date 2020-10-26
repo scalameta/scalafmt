@@ -4,8 +4,7 @@ import org.scalafmt.config.{Case, ScalafmtConfig}
 
 object LiteralOps {
 
-  /**
-    * Prints integer literals with specified case
+  /** Prints integer literals with specified case
     *
     * Divides literal into three parts:
     *
@@ -33,8 +32,7 @@ object LiteralOps {
   def prettyPrintDouble(str: String)(implicit style: ScalafmtConfig): String =
     prettyPrintFloatingPoint(str, 'D', 'd', style.literals.double)
 
-  /**
-    * Prints floating point literals with specified case
+  /** Prints floating point literals with specified case
     *
     * Divides literals into two parts:
     *

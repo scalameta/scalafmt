@@ -5,8 +5,7 @@ import org.scalafmt.config.Newlines._
 import metaconfig._
 import metaconfig.generic.Surface
 
-/**
-  * @param penalizeSingleSelectMultiArgList
+/** @param penalizeSingleSelectMultiArgList
   *   If true, adds a penalty to newlines before a dot starting a select
   *   chain of length one and argument list. The penalty matches the number
   *   of arguments to the select chain application.

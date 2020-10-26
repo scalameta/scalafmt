@@ -12,8 +12,7 @@ import org.scalafmt.internal.State
 
 import sourcecode.Text
 
-/**
-  * Debugging utility.
+/** Debugging utility.
   */
 object LoggerOps {
   val logger = org.scalameta.logger

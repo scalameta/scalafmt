@@ -48,8 +48,7 @@ object RedundantBraces extends Rewrite {
 
 }
 
-/**
-  * Removes/adds curly braces where desired.
+/** Removes/adds curly braces where desired.
   */
 class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
 
@@ -71,8 +70,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
     def isLiteralIdentifier(arg: Term.Name): Boolean =
       arg.syntax.startsWith("`") && arg.syntax.endsWith("`")
 
-    /**
-      * we need remain braces for interpolated literal identifiers: s"string  ${`type`}"
+    /** we need remain braces for interpolated literal identifiers: s"string  ${`type`}"
       * and identifiers started with '_': s"string  %{_id}"
       * otherwise formatting will result in compilation error (see https://github.com/scalameta/scalafmt/issues/1420)
       */

@@ -10,8 +10,7 @@ object PreferCurlyFors extends Rewrite {
     new PreferCurlyFors
 }
 
-/**
-  * Replaces multi generator For / ForYield Expression parens and semi-colons
+/** Replaces multi generator For / ForYield Expression parens and semi-colons
   * with braces and new-lines.
   *
   * For example,
