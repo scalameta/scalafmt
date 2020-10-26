@@ -2041,13 +2041,22 @@ val b = 2 // long singleline comment
 docstrings.style
 ```
 
+##### `docstrings.style = Preserve`
+
+Prohibits formatting of docstrings. All other `docstrings` parameters are ignored.
+
 ```scala mdoc:scalafmt
-docstrings.style = SpaceAsterisk
+docstrings.style = Preserve
 ---
-/** Format intermediate lines with a space and an asterisk,
- * both below the two asterisks of the first line
- */
+/**   do not touch
+ * this style
+  * keep the text as-is
+*/
 ```
+
+##### `docstrings.style = Asterisk`
+
+This variant used to be called `JavaDoc`.
 
 ```scala mdoc:scalafmt
 docstrings.style = Asterisk
@@ -2056,6 +2065,20 @@ docstrings.style = Asterisk
   * below the first asterisk of the first line (aka JavaDoc)
   */
 ```
+
+##### `docstrings.style = SpaceAsterisk`
+
+This variant used to be called `ScalaDoc`.
+
+```scala mdoc:scalafmt
+docstrings.style = SpaceAsterisk
+---
+/** Format intermediate lines with a space and an asterisk,
+ * both below the two asterisks of the first line
+ */
+```
+
+##### `docstrings.style = AsteriskSpace`
 
 ```scala mdoc:scalafmt
 docstrings.style = AsteriskSpace
@@ -2067,13 +2090,13 @@ docstrings.style = AsteriskSpace
 
 #### `docstrings.oneline`
 
-> Since v2.6.0.
+> Since v2.6.0. Ignored for `docstrings.style = Preserve`.
 
 ```scala mdoc:defaults
 docstrings.oneline
 ```
 
-- `fold`
+##### `docstrings.oneline = fold`
 
 ```scala mdoc:scalafmt
 docstrings.style = Asterisk
@@ -2086,7 +2109,7 @@ docstrings.oneline = fold
 val a = 1
 ```
 
-- `unfold`
+##### `docstrings.oneline = unfold`
 
 ```scala mdoc:scalafmt
 docstrings.style = Asterisk
@@ -2099,7 +2122,7 @@ docstrings.oneline = unfold
 val a = 1
 ```
 
-- `keep`
+##### `docstrings.oneline = keep`
 
 ```scala mdoc:scalafmt
 docstrings.style = Asterisk
@@ -2123,7 +2146,7 @@ for instance, the scaladoc parser doesn't have proper support of embedded HTML.
 
 However, [tables are supported](https://www.scala-lang.org/blog/2018/10/04/scaladoc-tables.html).
 
-> Since v2.6.0.
+> Since v2.6.0. Ignored for `docstrings.style = Preserve`.
 
 ```scala mdoc:defaults
 docstrings.wrap
@@ -2157,11 +2180,10 @@ def pow2(d: Double): Double
 #### `docstrings.blankFirstLine`
 
 Controls whether to force the first line to be blank in a multiline docstring.
-Keep in mind that some combinations of parameters are prohibited (e.g., this
-doesn't work with `wrap=no`, and `blankFirstLine=keep` contradicts with
-`style=Asterisk`).
+Keep in mind that some combinations of parameters are prohibited (e.g.,
+`blankFirstLine=keep` contradicts with `style=Asterisk`).
 
-> Since v2.7.5.
+> Since v2.7.5. Ignored for `docstrings.style = Preserve` or `docstrings.wrap = no`.
 
 ```scala mdoc:defaults
 docstrings.blankFirstLine

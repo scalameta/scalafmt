@@ -397,7 +397,7 @@ class FormatWriter(formatOps: FormatOps) {
       private def formatDocstring(
           text: String
       )(implicit sb: StringBuilder): Unit = {
-        if (style.docstrings.style.isEmpty) sb.append(text)
+        if (style.docstrings.style eq Docstrings.Preserve) sb.append(text)
         else if (!formatOnelineDocstring(text))
           new FormatMlDoc(text).format
       }
@@ -562,8 +562,8 @@ class FormatWriter(formatOps: FormatOps) {
 
       private class FormatMlDoc(text: String)(implicit sb: StringBuilder)
           extends FormatCommentBase(
-            if (style.docstrings.isSpaceAsterisk) 2 else 1,
-            if (style.docstrings.isAsteriskSpace) 1 else 0
+            if (style.docstrings.style eq Docstrings.SpaceAsterisk) 2 else 1,
+            if (style.docstrings.style eq Docstrings.AsteriskSpace) 1 else 0
           ) {
         private val spaces: String = getIndentation(indent + extraIndent)
         private val margin = getIndentation(1 + leadingMargin)
@@ -581,7 +581,7 @@ class FormatWriter(formatOps: FormatOps) {
 
         private def formatWithWrap(doc: Scaladoc): Unit = {
           sb.append("/**")
-          if (style.docstrings.skipFirstLine) appendBreak()
+          if (style.docstrings.style.skipFirstLine) appendBreak()
           sb.append(' ')
           val sbLen = sb.length()
           val paras = doc.para.iterator

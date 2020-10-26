@@ -24,19 +24,15 @@ case class Docstrings(
     oneline: Docstrings.Oneline = Docstrings.Oneline.keep,
     wrap: Docstrings.Wrap = Docstrings.Wrap.no,
     blankFirstLine: Docstrings.BlankFirstLine = Docstrings.BlankFirstLine.no,
-    style: Option[Docstrings.Style] = Some(Docstrings.SpaceAsterisk)
+    style: Docstrings.Style = Docstrings.SpaceAsterisk
 ) {
   import Docstrings._
 
   def skipFirstLineIf(wasBlank: Boolean): Boolean = blankFirstLine match {
     case BlankFirstLine.yes => true
-    case BlankFirstLine.no => skipFirstLine
-    case BlankFirstLine.keep => wasBlank || skipFirstLine
+    case BlankFirstLine.no => style.skipFirstLine
+    case BlankFirstLine.keep => wasBlank || style.skipFirstLine
   }
-  @inline
-  def skipFirstLine: Boolean = style.exists(_.skipFirstLine)
-  def isSpaceAsterisk: Boolean = style.contains(SpaceAsterisk)
-  def isAsteriskSpace: Boolean = style.contains(AsteriskSpace)
 
   def validate(implicit errors: mutable.Buffer[String]): Unit = {
     import ValidationOps._
@@ -55,14 +51,12 @@ case class Docstrings(
     new ConfDecoder[Docstrings] {
       override def read(conf: Conf): Configured[Docstrings] =
         conf match {
-          case Conf.Str("preserve") =>
-            Configured.ok(copy(style = None))
           case Conf.Str("ScalaDoc") =>
-            Configured.ok(copy(style = Some(SpaceAsterisk)))
+            Configured.ok(copy(style = SpaceAsterisk))
           case Conf.Str("JavaDoc") =>
-            Configured.ok(copy(style = Some(Asterisk)))
+            Configured.ok(copy(style = Asterisk))
           case _: Conf.Str =>
-            reader.read(conf).map(x => copy(style = Some(x)))
+            reader.read(conf).map(x => copy(style = x))
           case _ => genericDecoder.read(conf)
         }
     }
@@ -79,6 +73,11 @@ object Docstrings {
   sealed abstract class Style {
     def skipFirstLine: Boolean
   }
+  case object Preserve extends Style {
+    override def skipFirstLine: Boolean = throw new NotImplementedError(
+      "skipFirstLine called for docstrings.style=preserve, it's a bug in scalafmt"
+    )
+  }
   case object Asterisk extends Style {
     override def skipFirstLine: Boolean = true
   }
@@ -90,7 +89,7 @@ object Docstrings {
   }
 
   implicit val reader: ConfCodec[Style] =
-    ReaderUtil.oneOf[Style](Asterisk, SpaceAsterisk, AsteriskSpace)
+    ReaderUtil.oneOf[Style](Preserve, Asterisk, SpaceAsterisk, AsteriskSpace)
 
   sealed abstract class Oneline
   object Oneline {

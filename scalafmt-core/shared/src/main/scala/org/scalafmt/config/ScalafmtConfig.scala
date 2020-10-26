@@ -272,7 +272,7 @@ object ScalafmtConfig {
     // config style. It's fixable, but I don't want to spend time on it
     // right now.
     runner = conservativeRunner,
-    docstrings = default.docstrings.copy(style = Some(Docstrings.Asterisk)),
+    docstrings = default.docstrings.copy(style = Docstrings.Asterisk),
     align = default.align.copy(
       arrowEnumeratorGenerator = false,
       tokens = Seq(AlignToken.caseArrow),
