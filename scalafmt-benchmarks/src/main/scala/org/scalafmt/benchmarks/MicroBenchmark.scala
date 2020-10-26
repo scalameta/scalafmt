@@ -7,8 +7,7 @@ import org.openjdk.jmh.annotations._
 import org.scalafmt.Scalafmt
 import org.scalafmt.util.FileOps
 
-/**
-  * Formats filename at [[path]] with scalafmt.
+/** Formats filename at [[path]] with scalafmt.
   *
   * To run benchmark:
   *

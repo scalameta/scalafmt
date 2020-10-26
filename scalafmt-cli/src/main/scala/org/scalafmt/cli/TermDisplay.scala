@@ -1,7 +1,6 @@
 package org.scalafmt.cli
 
-/**
-  * This code is copy/pasted from (Apache 2 licence)
+/** This code is copy/pasted from (Apache 2 licence)
   * https://github.com/alexarchambault/coursier/blob/51fefe5c29d95752ce487f60d333b1f8a91dd1b0/cache/src/main/scala/coursier/TermDisplay.scala
   *
   * which in turn was copy/pasted from (MIT licence)
@@ -41,23 +40,19 @@ object Terminal {
   implicit class Ansi(val output: Writer) extends AnyVal {
     private def control(n: Int, c: Char) = output.write("\u001b[" + n + c)
 
-    /**
-      * Move up `n` squares
+    /** Move up `n` squares
       */
     def up(n: Int): Unit = if (n > 0) control(n, 'A')
 
-    /**
-      * Move down `n` squares
+    /** Move down `n` squares
       */
     def down(n: Int): Unit = if (n > 0) control(n, 'B')
 
-    /**
-      * Move left `n` squares
+    /** Move left `n` squares
       */
     def left(n: Int): Unit = if (n > 0) control(n, 'D')
 
-    /**
-      * Clear the current line
+    /** Clear the current line
       *
       * n=0: clear from cursor to end of line
       * n=1: clear from cursor to start of line

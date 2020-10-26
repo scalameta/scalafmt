@@ -2,8 +2,7 @@ package org.scalafmt.config
 
 import metaconfig._
 
-/**
-  * Configuration for scalafmt optimizations.
+/** Configuration for scalafmt optimizations.
   *
   * @param dequeueOnNewStatements
   *                   Clear the search queue on new statements.

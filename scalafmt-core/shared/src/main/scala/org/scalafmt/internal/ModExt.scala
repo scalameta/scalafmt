@@ -3,8 +3,7 @@ package org.scalafmt.internal
 import scala.language.implicitConversions
 import scala.meta.tokens.Token
 
-/**
-  * @param mod Is this a space, no space, newline or 2 newlines?
+/** @param mod Is this a space, no space, newline or 2 newlines?
   * @param indents Does this add indentation?
   */
 case class ModExt(
@@ -46,8 +45,7 @@ case class ModExt(
     copy(indents = newIndents.filter(_ ne Indent.Empty))
   }
 
-  /**
-    * This gap is necessary for pretty alignment multiline expressions
+  /** This gap is necessary for pretty alignment multiline expressions
     * on the right-side of enumerator.
     * Without:
     * ```

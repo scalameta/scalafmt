@@ -12,8 +12,7 @@ import org.scalafmt.config.{ScalafmtRunner => SRunner}
 import org.scalafmt.util.{FileOps, StyleCache}
 import org.scalafmt.util.LoggerOps._
 
-/**
-  * Classload ScalaFmt210 to run ScalaFmt from Scala 2.10, for example sbt
+/** Classload ScalaFmt210 to run ScalaFmt from Scala 2.10, for example sbt
   * plugin.
   */
 class Scalafmt210 {

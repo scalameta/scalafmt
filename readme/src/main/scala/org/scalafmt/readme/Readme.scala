@@ -41,8 +41,7 @@ object Readme {
     code(str)
   }
 
-  /**
-    * repl session, inspired by tut.
+  /** repl session, inspired by tut.
     *
     * Example: code="1 + 1" returns
     * "scala> 1 + 1
@@ -233,8 +232,7 @@ object Readme {
       )
     )
 
-  /**
-    * This looks way too hacky. But can't seem to find a typeclass
+  /** This looks way too hacky. But can't seem to find a typeclass
     * that ought to "encode" the ``ModKey`` enum.
     *
     * Additionally, a Vector of Strings is simply concatenated, hence

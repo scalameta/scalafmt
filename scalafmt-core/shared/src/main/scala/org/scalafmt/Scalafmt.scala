@@ -20,8 +20,7 @@ import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.util.FileOps
 
-/**
-  * WARNING. This API is discouraged when integrating with Scalafmt from a build tool
+/** WARNING. This API is discouraged when integrating with Scalafmt from a build tool
   * or editor plugin. It is recommended to use the `scalafmt-dynamic` module instead.
   */
 object Scalafmt {
@@ -31,8 +30,7 @@ object Scalafmt {
   private val defaultFilename = "<input>"
 
   // XXX: don't modify signature, scalafmt-dynamic expects it via reflection
-  /**
-    * Format Scala code using scalafmt.
+  /** Format Scala code using scalafmt.
     *
     * WARNING. This API is discouraged when integrating with Scalafmt from a build tool
     * or editor plugin. It is recommended to use the `scalafmt-dynamic` module instead.

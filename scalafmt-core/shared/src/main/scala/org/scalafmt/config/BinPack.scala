@@ -2,8 +2,7 @@ package org.scalafmt.config
 
 import metaconfig._
 
-/**
-  * @param unsafeCallSite      DO NOT USE! This option is buggy for complicated expressions.
+/** @param unsafeCallSite      DO NOT USE! This option is buggy for complicated expressions.
   *                            The only reason this option exists is to support
   *                            the [[literalArgumentLists]] option, which enables callSite
   *                            only for simple expressions.

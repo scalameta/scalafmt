@@ -25,8 +25,7 @@ object Length {
     override def toString: String = n.toString
   }
 
-  /**
-    * Indent up to the column of the left token.
+  /** Indent up to the column of the left token.
     *
     * Example: the opening parenthesis below indents by [[StateColumn]].
     *
@@ -58,8 +57,7 @@ abstract class Indent {
   def hasStateColumn: Boolean
 }
 
-/**
-  * One layer of indentation, created by an opening (, {, etc.
+/** One layer of indentation, created by an opening (, {, etc.
   *
   * Indent is parameterized by some [[Length]] to allow splits from
   * [[Router]] to be memoized. If the length field was int, we would have to

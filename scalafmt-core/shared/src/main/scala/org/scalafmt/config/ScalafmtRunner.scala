@@ -6,8 +6,7 @@ import scala.meta.Tree
 import scala.meta.parsers.Parse
 import scala.meta.parsers.Parsed
 
-/**
-  * A FormatRunner configures how formatting should behave.
+/** A FormatRunner configures how formatting should behave.
   *
   * @param debug         Should we collect debugging statistics?
   * @param eventCallback Listen to events that happens while formatting
@@ -63,8 +62,7 @@ object ScalafmtRunner {
   implicit lazy val dialectEncoder: ConfEncoder[Dialect] =
     ConfEncoder.StringEncoder.contramap(_ => "<Dialect>")
 
-  /**
-    * The default runner formats a compilation unit and listens to no events.
+  /** The default runner formats a compilation unit and listens to no events.
     */
   val default = ScalafmtRunner(
     debug = false,
@@ -73,8 +71,7 @@ object ScalafmtRunner {
     maxStateVisits = 1000000
   )
 
-  /**
-    * Same as [[default]], except formats the input as a statement/expression.
+  /** Same as [[default]], except formats the input as a statement/expression.
     *
     * An example of how to format something other than a compilation unit.
     */

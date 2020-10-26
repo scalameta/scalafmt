@@ -12,8 +12,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 
-/**
-  * A partial formatting solution up to splits.length number of tokens.
+/** A partial formatting solution up to splits.length number of tokens.
   */
 final case class State(
     cost: Int,
@@ -34,8 +33,7 @@ final case class State(
   def alwaysBetter(other: State): Boolean =
     this.cost <= other.cost && this.indentation <= other.indentation
 
-  /**
-    * Calculates next State given split at tok.
+  /** Calculates next State given split at tok.
     */
   def next(
       initialNextSplit: Split,
@@ -203,8 +201,7 @@ final case class State(
     }
   }
 
-  /**
-    * Traverses back to the beginning of the line and returns the largest tree
+  /** Traverses back to the beginning of the line and returns the largest tree
     * which starts with that token at the start of the line, if any.
     * @see [[State.allowSplitForLineStart]] which tokens can be traversed.
     */
@@ -239,8 +236,7 @@ final case class State(
     }
   }
 
-  /**
-    * Check that the current line starts a statement which also contains
+  /** Check that the current line starts a statement which also contains
     * the current token.
     */
   private def lineStartsStatement(
@@ -382,8 +378,7 @@ object State {
     }
   }
 
-  /**
-    * Checks whether a given token and split can be traversed while looking for
+  /** Checks whether a given token and split can be traversed while looking for
     * the beginning of the line.
     */
   private def allowSplitForLineStart(

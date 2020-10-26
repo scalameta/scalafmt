@@ -48,8 +48,7 @@ trait FormatAssertions extends DiffAssertions {
     (command #< input).!!.trim
   }
 
-  /**
-    * Creates diff from structures.
+  /** Creates diff from structures.
     * WARNING: slow for large asts.
     */
   def diffAsts(original: String, obtained: String): String = {

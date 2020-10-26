@@ -10,8 +10,7 @@ import scala.collection.GenIterable
 import scala.meta.testkit.Corpus
 import scala.util.Try
 
-/**
-  * Formats filename at with scalafmt.
+/** Formats filename at with scalafmt.
   *
   * To run benchmark:
   *
