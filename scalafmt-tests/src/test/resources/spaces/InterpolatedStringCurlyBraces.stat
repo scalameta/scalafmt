@@ -1,0 +1,77 @@
+spaces.inInterpolatedStringCurlyBraces = Never
+
+<<< Never have spaces for simple variables
+s"Hello ${ the } world!"
+>>>
+s"Hello ${the} world!"
+
+<<< Never have spaces for complex statements
+s"Hello ${ th.e } ${ functional() } world!"
+>>>
+s"Hello ${th.e} ${functional()} world!"
+
+<<< Never have spaces for multiline statements
+s"""Hello ${ 
+ the 
+ } ${
+  functional() 
+}world!"""
+>>>
+s"""Hello ${the} ${functional()}world!"""
+
+<<< No spaces for simple variables
+spaces.inInterpolatedStringCurlyBraces = IfComplex
+===
+s"Hello ${ the } world!"
+>>>
+s"Hello ${the} world!"
+
+<<< Add spaces for complex statements
+spaces.inInterpolatedStringCurlyBraces = IfComplex
+===
+s"Hello ${th.e} ${functional()} world!"
+>>>
+s"Hello ${ th.e } ${ functional() } world!"
+
+<<< IfComplex should handle multiline statements
+spaces.inInterpolatedStringCurlyBraces = IfComplex
+===
+s"""Hello ${ 
+ the 
+ } ${
+  functional() 
+}world!"""
+>>>
+s"""Hello ${the} ${ functional() }world!"""
+
+<<< Always have spaces for simple variables
+spaces.inInterpolatedStringCurlyBraces = Always
+===
+s"Hello ${the} world!"
+>>>
+s"Hello ${ the } world!"
+
+<<< Always have spaces for complex statements
+spaces.inInterpolatedStringCurlyBraces = Always
+===
+s"Hello ${th.e} ${functional()} world!"
+>>>
+s"Hello ${ th.e } ${ functional() } world!"
+
+<<< Always have spaces for multiline statements
+spaces.inInterpolatedStringCurlyBraces = Always
+===
+s"""Hello ${
+the
+} ${
+functional()
+}world!"""
+>>>
+s"""Hello ${ the } ${ functional() }world!"""
+
+<<< Shouldn't add spaces to imports
+spaces.inInterpolatedStringCurlyBraces = Always
+===
+import play.api.libs.json.{JsObject, JsString, Json}
+>>>
+import play.api.libs.json.{JsObject, JsString, Json}
