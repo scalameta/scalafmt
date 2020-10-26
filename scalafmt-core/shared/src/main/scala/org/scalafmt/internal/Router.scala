@@ -164,10 +164,24 @@ class Router(formatOps: FormatOps) {
       // Interpolated string left brace
       case FormatToken(open @ T.LeftBrace(), _, _)
           if leftOwner.is[SomeInterpolate] =>
-        Seq(Split(NoSplit, 0))
+        val spaces = style.spaces.inInterpolatedStringCurlyBraces
+        val needed =
+          spaces.isAlways ||
+            spaces.isIfComplex && (
+              rightOwner.children.nonEmpty ||
+                !rightOwner.parent.contains(leftOwner)
+            )
+        Seq(Split(Space(needed), 0))
       case FormatToken(_, close @ T.RightBrace(), _)
           if rightOwner.is[SomeInterpolate] =>
-        Seq(Split(NoSplit, 0))
+        val spaces = style.spaces.inInterpolatedStringCurlyBraces
+        val needed =
+          spaces.isAlways ||
+            spaces.isIfComplex && (
+              leftOwner.children.nonEmpty ||
+                !leftOwner.parent.contains(rightOwner)
+            )
+        Seq(Split(Space(needed), 0))
 
       // { ... } Blocks
       case tok @ FormatToken(open @ T.LeftBrace(), right, between) =>

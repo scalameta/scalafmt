@@ -1,0 +1,16 @@
+spaces.inInterpolatedStringCurlyBraces = IfComplex
+
+<<< Simple variable
+s"Hello ${ the } world!"
+>>>
+s"Hello ${the} world!"
+
+<<< Complex statement
+s"Hello ${th.e} world!"
+>>>
+s"Hello ${ th.e } world!"
+
+<<< Function call
+s"Hello ${the()} world!"
+>>>
+s"Hello ${ the() } world!"

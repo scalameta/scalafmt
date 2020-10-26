@@ -1,7 +1,8 @@
 package org.scalafmt.config
 
 import metaconfig._
-import org.scalafmt.config.SpaceBeforeContextBound.Never
+import org.scalafmt.config.{SpaceBeforeContextBound => Scb}
+import org.scalafmt.config.{SpacesInInterpolatedStringCurlyBraces => Sis}
 
 /**
   * @param beforeContextBoundColon formats [A: T] as [A : T]
@@ -9,6 +10,9 @@ import org.scalafmt.config.SpaceBeforeContextBound.Never
   * @param inImportCurlyBraces
   *   If true, formats `import a.b.{ c, d }`.
   *   If false, formats `import a.b.{c, d}`.
+  * @param inInterpolatedStringCurlyBraces
+  *   Specifies spaces formatting within interpolated string curly braces.
+  *   E.g. IfComplex formats `s"\${var1} \${var2.sub}"` as `s"\${var1} \${ var2.sub }"`.
   * @param inParentheses If true, formats `foo(a, b)` as `foo( a, b )`.
   * @param neverAroundInfixTypes
   *   If ["##"] is specified as operator then
@@ -25,9 +29,11 @@ import org.scalafmt.config.SpaceBeforeContextBound.Never
   *   def <=> [T](that: T): Boolean
   */
 case class Spaces(
-    beforeContextBoundColon: SpaceBeforeContextBound = Never,
+    beforeContextBoundColon: SpaceBeforeContextBound = Scb.Never,
     afterTripleEquals: Boolean = false,
     inImportCurlyBraces: Boolean = false,
+    inInterpolatedStringCurlyBraces: SpacesInInterpolatedStringCurlyBraces =
+      Sis.Never,
     inParentheses: Boolean = false,
     neverAroundInfixTypes: Seq[String] = Nil,
     afterKeywordBeforeParen: Boolean = true,

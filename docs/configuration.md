@@ -2335,6 +2335,28 @@ spaces.inImportCurlyBraces=true
 import a.b.{c, d}
 ```
 
+### `spaces.inInterpolatedStringCurlyBraces`
+
+```scala mdoc:defaults
+spaces.inInterpolatedStringCurlyBraces
+```
+
+```scala mdoc:scalafmt
+spaces.inInterpolatedStringCurlyBraces = Always
+---
+s"Hello ${the} world!"
+s"Hello ${th.e} world!"
+s"Hello ${the()} world!"
+```
+
+```scala mdoc:scalafmt
+spaces.inInterpolatedStringCurlyBraces = IfComplex
+---
+s"Hello ${ the } world!"
+s"Hello ${th.e} world!"
+s"Hello ${the()} world!"
+```
+
 ### `spaces.inParentheses`
 
 ```scala mdoc:defaults
