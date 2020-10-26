@@ -6,10 +6,10 @@ import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 
 object Dependencies {
   val metaconfigV = "0.9.10"
-  val scalametaV  = "4.3.22"
+  val scalametaV  = "4.3.24"
   val scalatestV  = "3.2.2"
   val scalacheckV = "1.14.3"
-  val coursier    = "1.0.3"
+  val coursier    = "2.0.4"
 
   val scalapb = Def.setting {
     ExclusionRule(
