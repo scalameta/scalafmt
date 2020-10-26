@@ -2,8 +2,7 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.Token
 
-/**
-  * The decision made by [[Router]].
+/** The decision made by [[Router]].
   *
   * Used by [[Policy]] to enforce non-local formatting.
   */

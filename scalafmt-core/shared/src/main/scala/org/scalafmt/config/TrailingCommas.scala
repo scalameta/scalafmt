@@ -2,8 +2,7 @@ package org.scalafmt.config
 
 import metaconfig._
 
-/**
-  * ADT representing trailing commas settings
+/** ADT representing trailing commas settings
   *
   * When [[org.scalafmt.config.TrailingCommas.always]] is selected, trailing
   * commas are added everywhere a newline is followed by a right parens, brace

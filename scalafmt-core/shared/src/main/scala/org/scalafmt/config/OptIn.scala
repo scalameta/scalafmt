@@ -3,8 +3,7 @@ package org.scalafmt.config
 import metaconfig._
 import metaconfig.generic.Surface
 
-/**
-  * @param configStyleArguments Call-sites where there is a newline after
+/** @param configStyleArguments Call-sites where there is a newline after
   *                             opening ( and newline before closing ).
   *                             If true, preserves the newlines and keeps one
   *                             line per argument.
@@ -118,8 +117,7 @@ case class OptIn(
 ) {
   implicit val reader: ConfDecoder[OptIn] = generic.deriveDecoder(this).noTypos
 
-  /**
-    * See https://github.com/scalameta/scalafmt/issues/1712
+  /** See https://github.com/scalameta/scalafmt/issues/1712
     *
     * Setting behavior and name were mirrored. After deprecation and right naming
     * we need to:

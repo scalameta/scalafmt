@@ -2,8 +2,7 @@ package org.scalafmt.config
 
 import metaconfig._
 
-/**
-  * @param defnSite indentation around class/def
+/** @param defnSite indentation around class/def
   * @param ctorSite indentation around class constructor parameters
   * @param callSite indentation around function calls, etc.
   * @param extendSite indentation before `extends`

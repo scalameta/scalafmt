@@ -31,8 +31,7 @@ import org.scalafmt.Error
 import org.scalafmt.config.{DanglingParentheses, ScalafmtConfig}
 import org.scalafmt.internal.FormatToken
 
-/**
-  * Stateless helper functions on `scala.meta.Tree`.
+/** Stateless helper functions on `scala.meta.Tree`.
   */
 object TreeOps {
   import TokenOps._
@@ -157,8 +156,7 @@ object TreeOps {
     ret.result()
   }
 
-  /**
-    * Finds matching parens [({})].
+  /** Finds matching parens [({})].
     *
     * Contains lookup keys in both directions, opening [({ and closing })].
     */
@@ -195,8 +193,7 @@ object TreeOps {
     }
   }
 
-  /**
-    * Creates lookup table from token offset to its closest scala.meta tree.
+  /** Creates lookup table from token offset to its closest scala.meta tree.
     */
   def getOwners(tree: Tree): collection.Map[TokenHash, Tree] = {
     val result = new java.util.HashMap[TokenHash, Tree](2048)
@@ -220,8 +217,7 @@ object TreeOps {
       case _ => cnt
     }
 
-  /**
-    * Returns first ancestor which matches the given predicate.
+  /** Returns first ancestor which matches the given predicate.
     */
   @tailrec
   def findTreeOrParent(
@@ -242,8 +238,7 @@ object TreeOps {
   )(pred: Tree => Boolean): Option[Tree] =
     findTreeOrParent(tree)(x => if (pred(x) == flag) Some(true) else None)
 
-  /**
-    * Returns first ancestor whose parent matches the given predicate.
+  /** Returns first ancestor whose parent matches the given predicate.
     */
   @tailrec
   def findTreeWithParent(
@@ -264,16 +259,14 @@ object TreeOps {
   )(pred: Tree => Boolean): Option[Tree] =
     findTreeWithParent(tree)(x => if (pred(x) == flag) Some(true) else None)
 
-  /**
-    * Returns first ancestor with a parent of a given type.
+  /** Returns first ancestor with a parent of a given type.
     */
   def findTreeWithParentOfType[A <: Tree](tree: Tree)(implicit
       classifier: Classifier[Tree, A]
   ): Option[Tree] =
     findTreeWithParentSimple(tree)(classifier.apply)
 
-  /**
-    * Returns true if a matching ancestor of a given type exists.
+  /** Returns true if a matching ancestor of a given type exists.
     */
   @inline
   def existsParentOfType[A <: Tree](
@@ -298,8 +291,7 @@ object TreeOps {
       case _ => None
     }
 
-  /**
-    * Returns `true` if the `scala.meta.Tree` is a class, trait or def
+  /** Returns `true` if the `scala.meta.Tree` is a class, trait or def
     *
     * For classes this includes primary and secondary Ctors.
     */
@@ -313,8 +305,7 @@ object TreeOps {
       case _ => false
     }
 
-  /**
-    * Returns `true` if the `scala.meta.Tree` is a definition site
+  /** Returns `true` if the `scala.meta.Tree` is a definition site
     *
     * Currently, this includes everything from classes and defs to type
     * applications
@@ -330,8 +321,7 @@ object TreeOps {
       case _ => false
     }
 
-  /**
-    * Returns true if open is "unnecessary".
+  /** Returns true if open is "unnecessary".
     *
     * An opening parenthesis is unnecessary if without it and its closing
     * parenthesis can be removed without changing the AST. For example:
@@ -432,8 +422,7 @@ object TreeOps {
       splitDefnIntoParts.lift(tree)
   }
 
-  /**
-    * How many parents of tree are Term.Apply?
+  /** How many parents of tree are Term.Apply?
     */
   def nestedApplies(tree: Tree): Int =
     numParents(tree) {
@@ -443,8 +432,7 @@ object TreeOps {
 
   def nestedSelect(tree: Tree): Int = numParents(tree)(_.is[Term.Select])
 
-  /**
-    * Calculates depth to deepest child in tree.
+  /** Calculates depth to deepest child in tree.
     */
   // TODO(olafur) inefficient, precalculate?
 
@@ -552,8 +540,7 @@ object TreeOps {
       pos.endLine - pos.startLine
     }
 
-  /**
-    * In cases like:
+  /** In cases like:
     * {{{
     *   class X(
     *     implicit
