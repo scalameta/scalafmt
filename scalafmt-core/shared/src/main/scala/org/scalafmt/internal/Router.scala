@@ -44,8 +44,7 @@ object Constants {
   val IndentForWithChains = 2
 }
 
-/**
-  * Assigns splits to format tokens.
+/** Assigns splits to format tokens.
   *
   * NOTE(olafurpg). The pattern match in this file has gotten out of hand. It's
   * difficult even for myself to keep track of what's going on in some cases,
@@ -1977,8 +1976,7 @@ class Router(formatOps: FormatOps) {
     }
   }
 
-  /**
-    * Assigns possible splits to a FormatToken.
+  /** Assigns possible splits to a FormatToken.
     *
     * The FormatToken can be considered as a node in a graph and the
     * splits as edges. Given a format token (a node in the graph), Route

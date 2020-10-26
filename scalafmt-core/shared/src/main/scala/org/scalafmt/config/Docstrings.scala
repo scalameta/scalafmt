@@ -6,8 +6,7 @@ import org.scalafmt.util.ValidationOps
 
 import metaconfig._
 
-/**
-  * @param oneline
+/** @param oneline
   *        - if fold, try to fold short docstrings into a single line
   *        - if unfold, unfold a single-line docstring into multiple lines
   *        - if keep, preserve the current formatting

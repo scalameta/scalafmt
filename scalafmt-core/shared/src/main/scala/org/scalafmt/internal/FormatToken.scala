@@ -5,8 +5,7 @@ import scala.meta.tokens.Token
 
 import org.scalafmt.util.TokenOps._
 
-/**
-  * Two adjacent non-whitespace tokens.
+/** Two adjacent non-whitespace tokens.
   *
   * Consider a FormatToken as a node in a search graph and [[Split]]
   * are the edges. The format tokens remain unchanged after formatting,
@@ -42,8 +41,7 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
 
   @inline def leftHasNewline = meta.left.firstNL >= 0
 
-  /**
-    * A format token is uniquely identified by its left token.
+  /** A format token is uniquely identified by its left token.
     */
   override def hashCode(): Int = hash(left).##
 }
@@ -53,8 +51,7 @@ object FormatToken {
   @inline def noBreak(newlines: Int): Boolean = newlines == 0
   @inline def hasBlankLine(newlines: Int): Boolean = newlines > 1
 
-  /**
-    * @param between The whitespace tokens between left and right.
+  /** @param between The whitespace tokens between left and right.
     * @param idx The token's index in the FormatTokens array
     */
   case class Meta(

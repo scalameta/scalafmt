@@ -64,8 +64,7 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
     }
   }
 
-  /**
-    * @return
+  /** @return
     *   m1 < m2; according to the order given by the List
     */
   private def orderModsBy(m1: Mod, m2: Mod): Boolean = {

@@ -2,8 +2,7 @@ package org.scalafmt.rewrite
 
 import scala.meta._
 
-/**
-  * Sorts imports inside curly braces.
+/** Sorts imports inside curly braces.
   *
   * For example
   *
@@ -18,8 +17,7 @@ sealed abstract class SortImports(implicit ctx: RewriteCtx)
 
   import ctx.dialect
 
-  /**
-    * The sorting scheme to use when sorting the imports
+  /** The sorting scheme to use when sorting the imports
     */
   protected def sorted(str: Seq[String]): IndexedSeq[String]
 
@@ -49,8 +47,7 @@ sealed abstract class SortImports(implicit ctx: RewriteCtx)
     }
 }
 
-/**
-  * Sort imports with symbols at the beginning, followed by lowercase and
+/** Sort imports with symbols at the beginning, followed by lowercase and
   * finally uppercase
   */
 object SortImports extends Rewrite {
@@ -80,8 +77,7 @@ object SortImports extends Rewrite {
   }
 }
 
-/**
-  * Sort imports using the traditional ASCII sorting
+/** Sort imports using the traditional ASCII sorting
   *
   * See: http://support.ecisolutions.com/doc-ddms/help/reportsmenu/ascii_sort_order_chart.htm
   */

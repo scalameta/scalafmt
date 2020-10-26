@@ -13,18 +13,15 @@ import org.scalafmt.internal.Modification
 import org.scalafmt.internal.NewlineT
 import org.scalafmt.internal.Space
 
-/**
-  * Stateless helper functions on [[scala.meta.Token]].
+/** Stateless helper functions on [[scala.meta.Token]].
   */
 object TokenOps {
 
-  /**
-    * For convenience when experimenting with different hashing strategies.
+  /** For convenience when experimenting with different hashing strategies.
     */
   type TokenHash = Long
 
-  /**
-    * Custom hash code for token.
+  /** Custom hash code for token.
     *
     * The default hashCode is slow because it prevents conflicts between
     * tokens from different source files. We only care about getting a unique

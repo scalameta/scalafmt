@@ -2,8 +2,7 @@ package org.scalafmt.config
 
 import metaconfig._
 
-/**
-  * ADT representing import selectors settings, specifically pertaining to the
+/** ADT representing import selectors settings, specifically pertaining to the
   * handling when multiple names are imported from the same package.
   *
   * When [[org.scalafmt.config.ImportSelectors.noBinPack]] is selected, imports

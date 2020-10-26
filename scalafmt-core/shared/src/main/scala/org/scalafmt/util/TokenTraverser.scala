@@ -59,8 +59,7 @@ class TokenTraverser(tokens: Tokens, filename: String) {
     }
   }
 
-  /**
-    * Find a token after the given one. The search stops when the predicate
+  /** Find a token after the given one. The search stops when the predicate
     * returns Some value (or the end is reached).
     * @return Some(token) if the predicate returned Some(true), else None.
     */
@@ -69,8 +68,7 @@ class TokenTraverser(tokens: Tokens, filename: String) {
   )(predicate: Token => Option[Boolean]): Option[Token] =
     tok2idx.get(token).flatMap(x => findAtOrAfter(x + 1, predicate))
 
-  /**
-    * Find a token before the given one. The search stops when the predicate
+  /** Find a token before the given one. The search stops when the predicate
     * returns Some value (or the end is reached).
     * @return Some(token) if the predicate returned Some(true), else None.
     */

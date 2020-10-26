@@ -1,7 +1,6 @@
 package org.scalafmt.internal
 
-/**
-  * Minimal implementation of the PriorityQueue's functions needed.
+/** Minimal implementation of the PriorityQueue's functions needed.
   *
   * We use `java.util.PriorityQueue` to enable usage under GraalVM. The
   * native-image compiler is unable to work with

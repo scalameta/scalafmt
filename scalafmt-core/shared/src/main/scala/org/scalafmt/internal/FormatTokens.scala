@@ -36,8 +36,7 @@ class FormatTokens(val arr: Array[FormatToken])
 
 object FormatTokens {
 
-  /**
-    * Convert scala.meta Tokens to FormatTokens.
+  /** Convert scala.meta Tokens to FormatTokens.
     *
     * Since tokens might be very large, we try to allocate as
     * little memory as possible.

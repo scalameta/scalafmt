@@ -3,8 +3,7 @@ package org.scalafmt.config
 import metaconfig._
 import org.scalafmt.config.SpaceBeforeContextBound.Never
 
-/**
-  * @param beforeContextBoundColon formats [A: T] as [A : T]
+/** @param beforeContextBoundColon formats [A: T] as [A : T]
   * @param afterTripleEquals If true, formats ===( as === (
   * @param inImportCurlyBraces
   *   If true, formats `import a.b.{ c, d }`.

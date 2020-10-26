@@ -11,8 +11,7 @@ import org.scalafmt.internal.Split
 import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
 
-/**
-  * (ugly) Utility to collect data about formatter.
+/** (ugly) Utility to collect data about formatter.
   *
   * Only used during development.
   */

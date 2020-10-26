@@ -8,8 +8,7 @@ import org.scalafmt.util.FileOps
 
 object FileTestOps {
 
-  /**
-    * The inverse of [[dir2string]]. Given a string representation creates the
+  /** The inverse of [[dir2string]]. Given a string representation creates the
     * necessary files/directories with respective file contents.
     */
   def string2dir(layout: String): AbsoluteFile = {

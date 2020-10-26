@@ -3,8 +3,7 @@ package org.scalafmt.config
 import metaconfig._
 import metaconfig.generic.Surface
 
-/**
-  * @param openParenCallSite
+/** @param openParenCallSite
   *   If true AND bin-packing is true, then call-site
   *   arguments won't be aligned by the opening
   *   parenthesis. For example, this output

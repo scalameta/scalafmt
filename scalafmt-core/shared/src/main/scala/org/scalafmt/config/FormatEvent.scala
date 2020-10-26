@@ -5,8 +5,7 @@ import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Split
 import org.scalafmt.internal.State
 
-/**
-  * An event that happens while formatting a file.
+/** An event that happens while formatting a file.
   */
 abstract class FormatEvent
 

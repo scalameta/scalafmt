@@ -2,8 +2,7 @@ package org.scalafmt.config
 
 import metaconfig._
 
-/**
-  * @param wrap
+/** @param wrap
   *        defines whether to wrap comments; the comment to be wrapped may not
   *        contain nested comments.
   *        - no: do not wrap

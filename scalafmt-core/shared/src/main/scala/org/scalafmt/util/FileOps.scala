@@ -39,8 +39,7 @@ object FileOps {
   }
 
   // TODO(olafur) allow user to specify encoding through CLI.
-  /**
-    * Reads file from file system or from http url.
+  /** Reads file from file system or from http url.
     */
   def readFile(filename: String)(implicit codec: Codec): String = {
     if (filename matches "https?://.*") {
