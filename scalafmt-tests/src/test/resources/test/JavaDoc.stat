@@ -1615,3 +1615,36 @@ object a {
   bar /* a */
   /** b */
 }
+<<< empty docstring Asterisk
+docstrings.style = Asterisk
+docstrings.wrap = yes
+===
+object a {
+  /** */
+}
+>>>
+error: unclosed comment
+  /** /
+  ^
+<<< empty docstring SpaceAsterisk
+docstrings.style = SpaceAsterisk
+docstrings.wrap = yes
+===
+object a {
+  /** */
+}
+>>>
+error: unclosed comment
+  /** /
+  ^
+<<< empty docstring AsteriskSpace
+docstrings.style = AsteriskSpace
+docstrings.wrap = yes
+===
+object a {
+  /** */
+}
+>>>
+error: unclosed comment
+  /** /
+  ^
