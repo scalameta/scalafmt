@@ -26,12 +26,17 @@ project/plugins/project/
 .idea.bak/
 intellij/out
 
+# Vim
+*.orig
+*.sw?
 
 *~
 docs/xx.md
 
 # metals
 .metals/
+metals.sbt
 .bloop/
 
 node_modules/
+.java-version
