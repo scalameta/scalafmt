@@ -1215,7 +1215,8 @@ object FormatWriter {
   ) {
     def hasBreakAfter: Boolean = state.split.isNL
     def hasBreakBefore: Boolean =
-      state.prev.split.isNL || formatToken.left.start == 0
+      // first token is BOF
+      formatToken.meta.idx <= 1 || state.prev.split.isNL
     def isStandalone: Boolean = hasBreakAfter && hasBreakBefore
   }
 

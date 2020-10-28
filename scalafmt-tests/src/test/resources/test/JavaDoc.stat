@@ -1660,8 +1660,8 @@ docstrings.wrap = yes
    */
  val a = 1
 >>>
-Idempotency violated
 /**
- * If any errors happen below this line, but before a groupBy, write to a TypedSink
+ * If any errors happen below this line, but before a groupBy, write to a
+ * TypedSink
  */
 val a = 1
