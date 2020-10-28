@@ -640,6 +640,7 @@ class FormatWriter(formatOps: FormatOps) {
             }
             if (paras.hasNext) appendBreak()
           }
+          if (sb.length() == sbLen) sb.append('*')
           sb.append('/')
         }
 

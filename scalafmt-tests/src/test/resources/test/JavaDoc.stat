@@ -1623,9 +1623,11 @@ object a {
   /** */
 }
 >>>
-error: unclosed comment
-  /** /
-  ^
+object a {
+
+  /**
+   * */
+}
 <<< empty docstring SpaceAsterisk
 docstrings.style = SpaceAsterisk
 docstrings.wrap = yes
@@ -1634,9 +1636,10 @@ object a {
   /** */
 }
 >>>
-error: unclosed comment
-  /** /
-  ^
+object a {
+
+  /** */
+}
 <<< empty docstring AsteriskSpace
 docstrings.style = AsteriskSpace
 docstrings.wrap = yes
@@ -1645,6 +1648,7 @@ object a {
   /** */
 }
 >>>
-error: unclosed comment
-  /** /
-  ^
+object a {
+
+  /** */
+}
