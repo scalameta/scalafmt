@@ -42,8 +42,8 @@ object FormatTokens {
     * little memory as possible.
     */
   def apply(tokens: Tokens, owner: Token => Tree): FormatTokens = {
-    var left = tokens.head
-    var lmeta = FormatToken.TokenMeta(owner(left), left.syntax)
+    var left: Token = null
+    var lmeta: FormatToken.TokenMeta = null
     val result = Array.newBuilder[FormatToken]
     var ftIdx = 0
     var wsIdx = 0
@@ -51,12 +51,14 @@ object FormatTokens {
     val arr = tokens.toArray
     def process(right: Token): Unit = {
       val rmeta = FormatToken.TokenMeta(owner(right), right.syntax)
-      val meta =
-        FormatToken.Meta(arr.slice(wsIdx, tokIdx), ftIdx, lmeta, rmeta)
-      result += FormatToken(left, right, meta)
+      if (left ne null) {
+        val meta =
+          FormatToken.Meta(arr.slice(wsIdx, tokIdx), ftIdx, lmeta, rmeta)
+        result += FormatToken(left, right, meta)
+        ftIdx += 1
+      }
       left = right
       lmeta = rmeta
-      ftIdx += 1
     }
     val tokCnt = arr.length
     while (tokIdx < tokCnt)
