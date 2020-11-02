@@ -328,7 +328,8 @@ class FormatWriter(formatOps: FormatOps) {
           case _: T.Constant.String =>
             TreeOps.getStripMarginChar(tok.meta.leftOwner).map { pipe =>
               def isPipeFirstChar = text.find(_ != '"').contains(pipe)
-              val noAlign = !style.align.stripMargin || prevState.split.isNL
+              val noAlign = !style.align.stripMargin ||
+                tok.meta.idx <= 1 || prevState.split.isNL
               val pipeOffset =
                 if (style.align.stripMargin && isPipeFirstChar) 1 else 0
               val indent = pipeOffset +
