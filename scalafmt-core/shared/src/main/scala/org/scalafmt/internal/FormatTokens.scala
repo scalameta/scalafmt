@@ -49,19 +49,24 @@ object FormatTokens {
     var wsIdx = 0
     var tokIdx = 0
     val arr = tokens.toArray
-    arr.foreach {
-      case Whitespace() => tokIdx += 1
-      case right =>
-        val rmeta = FormatToken.TokenMeta(owner(right), right.syntax)
-        val meta =
-          FormatToken.Meta(arr.slice(wsIdx, tokIdx), ftIdx, lmeta, rmeta)
-        result += FormatToken(left, right, meta)
-        left = right
-        lmeta = rmeta
-        ftIdx += 1
-        tokIdx += 1
-        wsIdx = tokIdx
+    def process(right: Token): Unit = {
+      val rmeta = FormatToken.TokenMeta(owner(right), right.syntax)
+      val meta =
+        FormatToken.Meta(arr.slice(wsIdx, tokIdx), ftIdx, lmeta, rmeta)
+      result += FormatToken(left, right, meta)
+      left = right
+      lmeta = rmeta
+      ftIdx += 1
     }
+    val tokCnt = arr.length
+    while (tokIdx < tokCnt)
+      arr(tokIdx) match {
+        case Whitespace() => tokIdx += 1
+        case right =>
+          process(right)
+          tokIdx += 1
+          wsIdx = tokIdx
+      }
     new FormatTokens(result.result)
   }
 
