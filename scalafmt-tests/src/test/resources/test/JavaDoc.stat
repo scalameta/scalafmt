@@ -1652,3 +1652,16 @@ object a {
 
   /** */
 }
+<<< wrap long docstring with leading space at start of document
+docstrings.wrap = yes
+===
+ /**
+   * If any errors happen below this line, but before a groupBy, write to a TypedSink
+   */
+ val a = 1
+>>>
+Idempotency violated
+/**
+ * If any errors happen below this line, but before a groupBy, write to a TypedSink
+ */
+val a = 1
