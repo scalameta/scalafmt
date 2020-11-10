@@ -2364,21 +2364,19 @@ spaces.inInterpolatedStringCurlyBraces
 ```
 
 ```scala mdoc:scalafmt
-spaces.inInterpolatedStringCurlyBraces = Always
+spaces.inInterpolatedStringCurlyBraces = true
 ---
 s"Hello ${the} world!"
-s"Hello ${th.e} world!"
-s"Hello ${the()} world!"
+s"Hello ${ th.e} world!"
+s"Hello ${the() } world!"
 ```
 
 ```scala mdoc:scalafmt
-spaces.inInterpolatedStringCurlyBraces = IfComplex
+spaces.inInterpolatedStringCurlyBraces = false
 ---
-// add spaces only to placeholders
-// that are not simple variables
 s"Hello ${ oneHundred }% world!"
-s"Hello ${th.e} world!"
-s"Hello ${the()} world!"
+s"Hello ${ th.e} world!"
+s"Hello ${the() } world!"
 ```
 
 ### `spaces.inParentheses`
