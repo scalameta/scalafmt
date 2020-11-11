@@ -81,3 +81,11 @@ case q"""...${stats: Seq[Stat]} """ =>
 case  List(xs @ _*) => a
 >>>
 case List(xs @ _*) => a
+<<< #2258 Evenly align case values
+case _: Aaaaaa |
+    _: Bbbbbb |
+    _: Cccccc =>
+>>>
+case _: Aaaaaa |
+     _: Bbbbbb |
+     _: Cccccc =>
