@@ -318,9 +318,9 @@ object a {
 object a {
   val b = c match {
     case true if (d match {
-          case true  => true
-          case false => false
-        }) =>
+           case true  => true
+           case false => false
+         }) =>
   }
 }
 <<< #2194 2 infix
@@ -341,15 +341,15 @@ object a {
 object a {
   val b = c match {
     case true if d map {
-          case true  => true
-          case false => false
-        } =>
+           case true  => true
+           case false => false
+         } =>
     case true
-        if d
-          map {
-            case true  => true
-            case false => false
-          } =>
+         if d
+           map {
+             case true  => true
+             case false => false
+           } =>
   }
 }
 <<< #2194 3 apply with brace
@@ -365,9 +365,9 @@ object a {
 object a {
   val b = c match {
     case true if d.map {
-          case true  => true
-          case false => false
-        } =>
+           case true  => true
+           case false => false
+         } =>
   }
 }
 <<< #2194 4 apply with paren
@@ -383,9 +383,9 @@ object a {
 object a {
   val b = c match {
     case true if d.map({
-          case true  => true
-          case false => false
-        }) =>
+           case true  => true
+           case false => false
+         }) =>
   }
 }
 <<< #2194 5 unary

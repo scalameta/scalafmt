@@ -127,12 +127,12 @@ private val _extractClientIP: Directive1[RemoteAddress] =
 //to prevent situation where access modifiers print earlier then throw
 val sortModifiers = modifiers.collect {
   case m: Modifier
-      if !modifiersConstruction.accessModifiers.contains(m.modificator) =>
+       if !modifiersConstruction.accessModifiers.contains(m.modificator) =>
     m
 } ++
   modifiers.collect {
     case m: Modifier
-        if modifiersConstruction.accessModifiers.contains(m.modificator) =>
+         if modifiersConstruction.accessModifiers.contains(m.modificator) =>
       m
   }
 <<< #269 6

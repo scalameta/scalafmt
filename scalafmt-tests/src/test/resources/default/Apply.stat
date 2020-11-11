@@ -63,7 +63,7 @@ Split(Space, 0).withPolicy {
     //
     // object a
     case Decision(t@FormatToken(`lastRef`, _: Comment, between), splits)
-        if !between.exists(_.isInstanceOf[`\n`]) =>
+         if !between.exists(_.isInstanceOf[`\n`]) =>
       Decision(t, splits.map(_.withModification(Space)))
     case Decision(t@FormatToken(`lastRef`, _, _), splits) =>
       Decision(t, splits.map(_.withModification(Newline2x)))
@@ -75,7 +75,7 @@ Split(Space, 0).withPolicy {
   //
   // object a
   case Decision(t @ FormatToken(`lastRef`, _: Comment, between), splits)
-      if !between.exists(_.isInstanceOf[`\n`]) =>
+       if !between.exists(_.isInstanceOf[`\n`]) =>
     Decision(t, splits.map(_.withModification(Space)))
   case Decision(t @ FormatToken(`lastRef`, _, _), splits) =>
     Decision(t, splits.map(_.withModification(Newline2x)))
@@ -87,7 +87,7 @@ Split(Space, 0, policy = {
     //
     // object a
     case Decision(t@FormatToken(`lastRef`, _: Comment, between), splits)
-        if !between.exists(_.isInstanceOf[`\n`]) =>
+         if !between.exists(_.isInstanceOf[`\n`]) =>
       Decision(t, splits.map(_.withModification(Space)))
     case Decision(t@FormatToken(`lastRef`, _, _), splits) =>
       Decision(t, splits.map(_.withModification(Newline2x)))
@@ -101,7 +101,7 @@ Split(Space,
         //
         // object a
         case Decision(t @ FormatToken(`lastRef`, _: Comment, between), splits)
-            if !between.exists(_.isInstanceOf[`\n`]) =>
+             if !between.exists(_.isInstanceOf[`\n`]) =>
           Decision(t, splits.map(_.withModification(Space)))
         case Decision(t @ FormatToken(`lastRef`, _, _), splits) =>
           Decision(t, splits.map(_.withModification(Newline2x)))
@@ -363,8 +363,8 @@ foo.fold(err => {
             Split(Newline, 1).withPolicy(Policy({
               // Force template to be multiline.
               case d @ Decision(FormatToken(open: `{`, right, _), splits)
-                  if !right.isInstanceOf[`}`] && // corner case, body is {}
-                  childOf(template, owners(open)) =>
+                   if !right.isInstanceOf[`}`] && // corner case, body is {}
+                   childOf(template, owners(open)) =>
                 d.copy(splits = splits.filter(_.modification.isNewline))
             }, expire.end))
         )
@@ -375,8 +375,8 @@ Seq(
         Policy({
                  // Force template to be multiline.
                  case d @ Decision(FormatToken(open: `{`, right, _), splits)
-                     if !right.isInstanceOf[`}`] && // corner case, body is {}
-                       childOf(template, owners(open)) =>
+                      if !right.isInstanceOf[`}`] && // corner case, body is {}
+                        childOf(template, owners(open)) =>
                    d.copy(splits = splits.filter(_.modification.isNewline))
                },
                expire.end))

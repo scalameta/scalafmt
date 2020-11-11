@@ -307,14 +307,14 @@ withNewLocalNameScope {
 <<< instance_of_?
 tree match {
   case Apply(TypeApply(asInstanceOf_? @Select(base, _), _), _)
-      if asInstanceOf_?.symbol == Object_asInstanceOf =>
+       if asInstanceOf_?.symbol == Object_asInstanceOf =>
     Some(base)
   case _ => Some(tree)
 }
 >>>
 tree match {
   case Apply(TypeApply(asInstanceOf_? @ Select(base, _), _), _)
-      if asInstanceOf_?.symbol == Object_asInstanceOf =>
+       if asInstanceOf_?.symbol == Object_asInstanceOf =>
     Some(base)
   case _ => Some(tree)
 }

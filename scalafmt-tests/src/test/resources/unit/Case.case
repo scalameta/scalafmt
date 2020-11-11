@@ -27,21 +27,21 @@ case x@Foooooooooooooooo(1111,1111) if true =>
   danger()
 >>>
 case x @ Foooooooooooooooo(1111, 1111)
-    if true =>
+     if true =>
   danger()
 <<< with long condition
 case SuperDuperCool if banana > orange =>
   danger()
 >>>
 case SuperDuperCool
-    if banana > orange =>
+     if banana > orange =>
   danger()
 <<< break first on if
 case SuperDuperCool(aaaaaaa, bbbbbbb) if banana > orange =>
   danger()
 >>>
 case SuperDuperCool(aaaaaaa, bbbbbbb)
-    if banana > orange =>
+     if banana > orange =>
   danger()
 <<< newline if Pat is not single line
 case SuperDuperCool(aaaaaaa, bbbbbbb, _) =>
@@ -55,7 +55,7 @@ case SuperDuperCool(aaaaaaa,
 case _: Defn.Def | _: Pkg.Object | _: Defn.Class | _: Defn.Trait => true
 >>>
 case _: Defn.Def | _: Pkg.Object |
-    _: Defn.Class | _: Defn.Trait =>
+     _: Defn.Class | _: Defn.Trait =>
   true
 <<< bind @ with symbols
 case f@ \/-(a) => f
@@ -69,8 +69,8 @@ case x: Foo[_] => 1
 case Foooooooooooooooo(aaaaaaaaaaaaaaaa, bbbbbbbbbbbb) =>
 >>>
 case Foooooooooooooooo(
-        aaaaaaaaaaaaaaaa,
-        bbbbbbbbbbbb) =>
+         aaaaaaaaaaaaaaaa,
+         bbbbbbbbbbbb) =>
 <<< #512
 case q"""...${ stats: Seq[Stat] } """ =>
   s"${foo}"
@@ -82,10 +82,10 @@ case  List(xs @ _*) => a
 >>>
 case List(xs @ _*) => a
 <<< #2258 Evenly align case values
-case _: Aaaaaa |
-    _: Bbbbbb |
-    _: Cccccc =>
+case _: Aaaaaaaaaaaaaaaa |
+    _: Bbbbbbbbbbbbbbbb |
+    _: Cccccccccccccccc =>
 >>>
-case _: Aaaaaa |
-     _: Bbbbbb |
-     _: Cccccc =>
+case _: Aaaaaaaaaaaaaaaa |
+     _: Bbbbbbbbbbbbbbbb |
+     _: Cccccccccccccccc =>

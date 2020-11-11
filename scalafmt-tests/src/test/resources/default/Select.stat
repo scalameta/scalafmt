@@ -592,10 +592,10 @@ object a {
   def a = {
     a match {
       case (
-            com.twitter.finagle.exp.Address
-              .ServiceFactory(sf: ServiceFactory[Req, Rep], _),
-            _
-          ) =>
+             com.twitter.finagle.exp.Address
+               .ServiceFactory(sf: ServiceFactory[Req, Rep], _),
+             _
+           ) =>
         sf
     }
   }

@@ -11,10 +11,10 @@ val Route: PartialFunction[Decision, Decision] = {
 >>>
 val Route: PartialFunction[Decision, Decision] = {
   case FormatToken(
-        _: Ident | _: `this` | _: `_ ` | _: `(`,
-        _: `.` | _: `#`,
-        _
-      ) =>
+         _: Ident | _: `this` | _: `_ ` | _: `(`,
+         _: `.` | _: `#`,
+         _
+       ) =>
     List(
       NoSplit0
     )
@@ -62,11 +62,11 @@ x match {
 >>>
 x match {
   case tok
-      if // TODO(olafur) DRY.
-      (leftOwner.isInstanceOf[Term.Interpolate] &&
-        rightOwner.isInstanceOf[Term.Interpolate]) ||
-        (leftOwner.isInstanceOf[Pat.Interpolate] &&
-          rightOwner.isInstanceOf[Pat.Interpolate]) =>
+       if // TODO(olafur) DRY.
+       (leftOwner.isInstanceOf[Term.Interpolate] &&
+         rightOwner.isInstanceOf[Term.Interpolate]) ||
+         (leftOwner.isInstanceOf[Pat.Interpolate] &&
+           rightOwner.isInstanceOf[Pat.Interpolate]) =>
     Seq(Split(NoSplit, 0))
 }
 <<< PrepJSInterop
@@ -110,9 +110,9 @@ x match {
 >>>
 x match {
   case Foo(
-        a,
-        b
-      ) =>
+         a,
+         b
+       ) =>
     ???
 }
 <<< #1244 1.2: one multiline pattern, no cfg style
@@ -144,16 +144,16 @@ x match {
 >>>
 x match {
   case Foo(
-        a,
-        b
-      ) infix Bar(
-        c,
-        d
-      )
-      if bar(
-        a,
-        b
-      ) =>
+         a,
+         b
+       ) infix Bar(
+         c,
+         d
+       )
+       if bar(
+         a,
+         b
+       ) =>
     ???
 }
 <<< #1244 1.4: two multiline patterns with infix and multiline guard, no cfg style
@@ -171,9 +171,9 @@ x match {
 >>>
 x match {
   case Foo(a, b) infix Bar(
-        c,
-        d
-      ) if bar(a, b) =>
+         c,
+         d
+       ) if bar(a, b) =>
     ???
 }
 <<< #1244 1.5: one single-line pattern and one multiline pattern with infix and guard
@@ -221,13 +221,13 @@ x match {
 
   x match {
     case a @ Foo infix Bar(
-          c,
-          d
-        )
-        if baz(
-          a,
-          b
-        ) =>
+           c,
+           d
+         )
+         if baz(
+           a,
+           b
+         ) =>
       if (
         x +
           y
@@ -301,9 +301,9 @@ x match {
 >>>
 x match {
   case Foo(
-        a,
-        b
-      ) infix Bar =>
+         a,
+         b
+       ) infix Bar =>
     ???
 }
 <<< #1244 1.8: one multiline pattern and one single-line pattern with infix and multiline guard
@@ -321,13 +321,13 @@ x match {
 >>>
 x match {
   case Foo(
-        a,
-        b
-      ) infix Bar
-      if bar(
-        a,
-        b
-      ) =>
+         a,
+         b
+       ) infix Bar
+       if bar(
+         a,
+         b
+       ) =>
     ???
 }
 <<< #1244 1.9: one multiline pattern and one single-line pattern with infix and single-line guard
@@ -343,9 +343,9 @@ x match {
 >>>
 x match {
   case Foo(
-        a,
-        b
-      ) infix Bar if bar(a, b) =>
+         a,
+         b
+       ) infix Bar if bar(a, b) =>
     ???
 }
 <<< #1244 2.1: long patterns: two single-line with infix and guard
@@ -361,7 +361,7 @@ x match {
 >>>
 x match {
   case VeryLongFirstPatExtractCall(firstParameter, secondParameter)
-      infix QuiteLongSecondPat if VeryLongAdditionalCheck(a, b) =>
+       infix QuiteLongSecondPat if VeryLongAdditionalCheck(a, b) =>
     ???
 }
 <<< #1244 2.2: long patterns: multi-line and single-line with infix and guard
@@ -379,11 +379,11 @@ x match {
 >>>
 x match {
   case VeryLongFirstPatExtractCall(
-        firstParameter,
-        secondParameter
-      )
-      infix QuiteLongSecondPat
-      if VeryLongAdditionalCheck(firstParameter, secondParameter) =>
+         firstParameter,
+         secondParameter
+       )
+       infix QuiteLongSecondPat
+       if VeryLongAdditionalCheck(firstParameter, secondParameter) =>
     ???
 }
 <<< #1244 2.3: long patterns: two multi-line with infix and guard
@@ -403,13 +403,13 @@ x match {
 >>>
 x match {
   case VeryLongFirstPatExtractCall(
-        firstParameter,
-        secondParameter
-      )
-      infix QuiteLongSecondPat(
-        aaa,
-        bbb
-      ) if VeryLongAdditionalCheck(firstParameter, secondParameter) =>
+         firstParameter,
+         secondParameter
+       )
+       infix QuiteLongSecondPat(
+         aaa,
+         bbb
+       ) if VeryLongAdditionalCheck(firstParameter, secondParameter) =>
     ???
 }
 <<< #1244 2.4: long patterns: two multi-line with infix and select guard
@@ -427,15 +427,15 @@ x match {
 >>>
 x match {
   case VeryLongFirstPatExtractCall(
-        firstParameter,
-        secondParameter
-      )
-      infix QuiteLongSecondPat(
-        aaa,
-        bbb
-      )
-      if VeryLongAdditionalCheckObject
-        .checkMethod(firstParameter, secondParameter) =>
+         firstParameter,
+         secondParameter
+       )
+       infix QuiteLongSecondPat(
+         aaa,
+         bbb
+       )
+       if VeryLongAdditionalCheckObject
+         .checkMethod(firstParameter, secondParameter) =>
     ???
 }
 <<< #1244 3.1 splitting on | and not on infix (infix short)
@@ -446,7 +446,7 @@ x match {
 >>>
 x match {
   case _: T.LeftBrace | _: T.RightBrace | _: T.LeftParen | a :: b :: c :: Nil |
-      _: T.RightParen | _: T.LeftBracket | _: T.RightBracket if true =>
+       _: T.RightParen | _: T.LeftBracket | _: T.RightBracket if true =>
     ???
 }
 <<< #1244 3.2 splitting on | and not on infix (infix long)
@@ -457,8 +457,8 @@ x match {
 >>>
 x match {
   case _: T.LeftBrace | _: T.RightBrace | _: T.LeftParen |
-      a :: b :: c :: d :: Nil | _: T.RightParen | _: T.LeftBracket |
-      _: T.RightBracket if true =>
+       a :: b :: c :: d :: Nil | _: T.RightParen | _: T.LeftBracket |
+       _: T.RightBracket if true =>
     ???
 }
 <<< #1244 4.1
@@ -495,37 +495,37 @@ object a {
 object a {
   expectMsgPF() {
     case SymbolSearchResults(
-          List(
-            TypeSearchResult(
-              "scala.util.Random",
-              "Random",
-              DeclaredAs.Class,
-              Some(_)
-            ),
-            TypeSearchResult(
-              "scala.util.Random$",
-              "Random$",
-              DeclaredAs.Class,
-              Some(_)
-            )
-          )
-        ) =>
+           List(
+             TypeSearchResult(
+               "scala.util.Random",
+               "Random",
+               DeclaredAs.Class,
+               Some(_)
+             ),
+             TypeSearchResult(
+               "scala.util.Random$",
+               "Random$",
+               DeclaredAs.Class,
+               Some(_)
+             )
+           )
+         ) =>
     case SymbolSearchResults(
-          List(
-            TypeSearchResult(
-              "java.util.Random",
-              "Random",
-              DeclaredAs.Class,
-              Some(_)
-            ),
-            TypeSearchResult(
-              "scala.util.Random",
-              "Random",
-              DeclaredAs.Class,
-              Some(_)
-            )
-          )
-        ) =>
+           List(
+             TypeSearchResult(
+               "java.util.Random",
+               "Random",
+               DeclaredAs.Class,
+               Some(_)
+             ),
+             TypeSearchResult(
+               "scala.util.Random",
+               "Random",
+               DeclaredAs.Class,
+               Some(_)
+             )
+           )
+         ) =>
     // this is a pretty ropey test at the best of times
   }
 }
@@ -539,10 +539,10 @@ object a {
         "Parsed and analyzed: " + (System.currentTimeMillis() - t) + "ms")
     } catch {
       case e @ (_: Abort | _: ArrayIndexOutOfBoundsException |
-          _: AssertionError) =>
+           _: AssertionError) =>
         log.error("Javac error: " + e.getMessage())
       case (_: Abort | _: ArrayIndexOutOfBoundsException |_: Throwable |
-          _: AssertionError) =>
+           _: AssertionError) =>
         log.error("Javac error: " + e.getMessage())
     }
   }
@@ -558,10 +558,10 @@ object a {
       )
     } catch {
       case e @ (_: Abort | _: ArrayIndexOutOfBoundsException |
-          _: AssertionError) =>
+           _: AssertionError) =>
         log.error("Javac error: " + e.getMessage())
       case (_: Abort | _: ArrayIndexOutOfBoundsException | _: Throwable |
-          _: AssertionError) =>
+           _: AssertionError) =>
         log.error("Javac error: " + e.getMessage())
     }
   }

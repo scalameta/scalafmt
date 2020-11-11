@@ -280,11 +280,11 @@ if (other == null) {
     object ExternForwarder {
       def unapply(tree: Tree): Option[Symbol] = tree match {
         case DefDef()
-            if isExternModule(from.symbol)
-            && params.length == args.length
-            && params.zip(args).forall {
-                case _                     => false
-              } =>
+             if isExternModule(from.symbol)
+             && params.length == args.length
+             && params.zip(args).forall {
+                 case _                     => false
+               } =>
           Some(sel.symbol)
         case _ =>
           None
@@ -294,11 +294,11 @@ if (other == null) {
 object ExternForwarder {
   def unapply(tree: Tree): Option[Symbol] = tree match {
     case DefDef()
-        if isExternModule(from.symbol)
-          && params.length == args.length
-          && params.zip(args).forall { case _ =>
-            false
-          } =>
+         if isExternModule(from.symbol)
+           && params.length == args.length
+           && params.zip(args).forall { case _ =>
+             false
+           } =>
       Some(sel.symbol)
     case _ =>
       None
@@ -313,9 +313,9 @@ object ExternForwarder {
 >>>
 1 match {
   case accountIdStr :: userIdStr :: connectorIdStr :: timestampStr :: eventClassStr :: contactIdStr
-      :: contactPointIdStr :: contactPointValue :: remoteContactId :: to :: subject :: remoteId
-      :: remoteGroupId :: timeZoneStr :: rest
-      if "some lengthy condition is not empty".nonEmpty =>
+       :: contactPointIdStr :: contactPointValue :: remoteContactId :: to :: subject :: remoteId
+       :: remoteGroupId :: timeZoneStr :: rest
+       if "some lengthy condition is not empty".nonEmpty =>
 }
 <<< unfortunate side-effect of #740
 { lazy val propertyName =

@@ -401,11 +401,11 @@ object Foo {
 object Foo {
   code.collect {
     case d: Defn.Def
-        if (d match {
-          case _ => false
+         if (d match {
+           case _ => false
 
-        }) &&
-          d =>
+         }) &&
+           d =>
   }
 }
 <<< #1485

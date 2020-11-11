@@ -182,9 +182,9 @@ lst.map { case (
 >>>
 lst.map {
   case (
-        value1,
-        value2,
-      ) =>
+         value1,
+         value2,
+       ) =>
     value1
 }
 <<< #1592 avoid single-arg lambda closing paren split with trailing comma

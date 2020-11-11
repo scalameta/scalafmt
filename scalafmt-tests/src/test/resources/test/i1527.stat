@@ -4,10 +4,10 @@ object a {
 @tailrec
   final def rhsOptimalToken(start: FormatToken): Token = start.right match {
       case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() |
-          T.Semicolon() | T.RightArrow() | T.Equals()
-          if next(start) != start &&
-            !startsNewBlock(start.right) &&
-            newlinesBetween(start.between) == 0 =>
+           T.Semicolon() | T.RightArrow() | T.Equals()
+           if next(start) != start &&
+             !startsNewBlock(start.right) &&
+             newlinesBetween(start.between) == 0 =>
         rhsOptimalToken(next(start))
       case _ => start.left
     }
@@ -17,10 +17,10 @@ object a {
   @tailrec
   final def rhsOptimalToken(start: FormatToken): Token = start.right match {
     case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() |
-        T.Semicolon() | T.RightArrow() | T.Equals()
-        if next(start) != start &&
-          !startsNewBlock(start.right) &&
-          newlinesBetween(start.between) == 0 =>
+         T.Semicolon() | T.RightArrow() | T.Equals()
+         if next(start) != start &&
+           !startsNewBlock(start.right) &&
+           newlinesBetween(start.between) == 0 =>
       rhsOptimalToken(next(start))
     case _ => start.left
   }
@@ -75,39 +75,39 @@ def genCQuoteOp(app: Apply): Val = {
     //   ).c()
     // """ =>
     case Apply(
-          Select(
-            Apply(
-              _,
-              List(
-                Apply(
-                  _,
-                  List(
-                    Apply(
-                      _,
-                      List(
-                        Apply(
-                          TypeApply(
-                            Select(
-                              ArrayValue(
-                                _,
-                                List(Literal(Constant(str: String)))
-                              ),
-                              _
-                            ),
-                            _
-                          ),
-                          _
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            ),
-            _
-          ),
-          _
-        ) =>
+           Select(
+             Apply(
+               _,
+               List(
+                 Apply(
+                   _,
+                   List(
+                     Apply(
+                       _,
+                       List(
+                         Apply(
+                           TypeApply(
+                             Select(
+                               ArrayValue(
+                                 _,
+                                 List(Literal(Constant(str: String)))
+                               ),
+                               _
+                             ),
+                             _
+                           ),
+                           _
+                         )
+                       )
+                     )
+                   )
+                 )
+               )
+             ),
+             _
+           ),
+           _
+         ) =>
       val chars = Val.Chars(str.replace("\\n", "\n").replace("\\r", "\r"))
       val const = Val.Const(chars)
       buf.box(nir.Rt.BoxedPtr, const, unwind)
