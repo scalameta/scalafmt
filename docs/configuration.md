@@ -182,6 +182,27 @@ class A(
 }
 ```
 
+### `continuationIndent.caseSite`
+
+> Since v2.7.6.
+
+Applies additional indentation to case values.
+
+```scala mdoc:defaults
+continuationIndent.caseSite
+```
+
+```scala mdoc:scalafmt
+newlines.source = keep
+continuationIndent.caseSite = 3
+---
+x match {
+  case _: Aaaaaa |
+      _: Bbbbbb |
+      _: Cccccc =>
+}
+```
+
 ### `continuationIndent.extendSite`
 
 ```scala mdoc:defaults

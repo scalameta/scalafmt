@@ -1734,7 +1734,11 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0).withSingleLine(expire, killOnFail = true),
           Split(Space, 0, policy = policy)
             .withIndent(if (bodyBlock) 0 else 2, expire, After)
-            .withIndent(if (bodyBlock) 4 else 2, arrow, After)
+            .withIndent(
+              if (bodyBlock) 4 else style.continuationIndent.caseSite,
+              arrow,
+              After
+            )
         )
 
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
