@@ -136,6 +136,7 @@ object TreeOps {
         case t: Defn.Def => addDefn[KwDef](t.mods, t)
         case t: Defn.Macro => addDefn[KwDef](t.mods, t)
         case t: Decl.Def => addDefn[KwDef](t.mods, t)
+        case t: Defn.Enum => addDefn[KwEnum](t.mods, t)
         case t: Defn.Object => addDefn[KwObject](t.mods, t)
         case t: Defn.Trait => addDefn[KwTrait](t.mods, t)
         case t: Defn.Type => addDefn[KwType](t.mods, t)

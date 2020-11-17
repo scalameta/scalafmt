@@ -556,8 +556,12 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(modification, 0)
         )
-      // Defn.{Object, Class, Trait}
-      case FormatToken(_: T.KwObject | _: T.KwClass | _: T.KwTrait, r, _) =>
+      // Defn.{Object, Class, Trait, Enum}
+      case FormatToken(
+            _: T.KwObject | _: T.KwClass | _: T.KwTrait | _: T.KwEnum,
+            r,
+            _
+          ) =>
         val expire = defnTemplate(leftOwner)
           .flatMap(templateCurly)
           .getOrElse(leftOwner.tokens.last)
