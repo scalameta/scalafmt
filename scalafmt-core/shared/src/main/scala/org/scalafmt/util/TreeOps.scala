@@ -292,14 +292,14 @@ object TreeOps {
       case _ => None
     }
 
-  /** Returns `true` if the `scala.meta.Tree` is a class, trait or def
+  /** Returns `true` if the `scala.meta.Tree` is a class, trait, enum or def
     *
     * For classes this includes primary and secondary Ctors.
     */
   def isDefnSiteWithParams(tree: Tree): Boolean =
     tree match {
       case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
-          _: Defn.Trait | _: Ctor.Secondary =>
+          _: Defn.Trait | _: Defn.Enum | _: Ctor.Secondary =>
         true
       case x: Ctor.Primary =>
         x.parent.exists(isDefnSiteWithParams)
@@ -315,7 +315,7 @@ object TreeOps {
     tree match {
       case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
           _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type | _: Defn.Type |
-          _: Type.Apply | _: Type.Param | _: Type.Tuple =>
+          _: Type.Apply | _: Type.Param | _: Type.Tuple | _: Defn.Enum =>
         true
       case _: Term.Function | _: Type.Function => true
       case x: Ctor.Primary => x.parent.exists(isDefnSite)
@@ -415,6 +415,7 @@ object TreeOps {
     case t: Decl.Def => (t.mods, t.name, t.tparams, t.paramss)
     case t: Defn.Class => (t.mods, t.name, t.tparams, t.ctor.paramss)
     case t: Defn.Trait => (t.mods, t.name, t.tparams, t.ctor.paramss)
+    case t: Defn.Enum => (t.mods, t.name, t.tparams, t.ctor.paramss)
     case t: Ctor.Primary => (t.mods, t.name, Seq.empty, t.paramss)
     case t: Ctor.Secondary => (t.mods, t.name, Seq.empty, t.paramss)
   }
@@ -576,6 +577,7 @@ object TreeOps {
           case _: Ctor.Primary | _: Defn.Class =>
             DanglingParentheses.Exclude.`class`
           case _: Defn.Trait => DanglingParentheses.Exclude.`trait`
+          case _: Defn.Enum => DanglingParentheses.Exclude.`enum`
           case _: Defn.Def => DanglingParentheses.Exclude.`def`
           case _ => null
         }
