@@ -89,3 +89,73 @@ enum A
     with Epsilon {
   case B
 }
+<<< enum case with parent constructors `never`
+binPack.parentConstructors = Never
+maxColumn = 30
+===
+enum Foo(val x: Int) {
+  case Bar extends Foo(1) with X with Y with Z
+}
+>>>
+enum Foo(val x: Int) {
+  case Bar
+      extends Foo(1)
+      with X
+      with Y
+      with Z
+}
+<<< enum case with parent constructors `always`
+binPack.parentConstructors = Always
+maxColumn = 30
+===
+enum Foo(val x: Int) {
+  case Bar extends Foo(1) with X with Y with Z
+}
+>>>
+enum Foo(val x: Int) {
+  case Bar
+      extends Foo(1) with X
+      with Y with Z
+}
+<<< enum case with parent constructors `oneline`
+binPack.parentConstructors = Oneline
+maxColumn = 45
+===
+enum Foo(val x: String, val y: String) {
+  case Bar extends Foo("a", "b") with A with B
+
+  case Far extends Foo("aaaaaa", "bbbbbb") with A with B
+}
+>>>
+enum Foo(val x: String, val y: String) {
+  case Bar
+      extends Foo("a", "b") with A with B
+
+  case Far
+      extends Foo("aaaaaa", "bbbbbb")
+      with A
+      with B
+}
+<<< enum case with parent constructors `onelineIfPrimaryOneline`
+binPack.parentConstructors = OnelineIfPrimaryOneline
+maxColumn = 45
+===
+enum Foo(val a: String, val b: String) {
+  case Bar extends Foo("a", "b")
+  with A with B
+
+  case Far extends Foo("aaaaaaaaaaaaaaa", "bbbbbbbbbbbbbb") with A with B
+}
+>>>
+enum Foo(val a: String, val b: String) {
+  case Bar
+      extends Foo("a", "b") with A with B
+
+  case Far
+      extends Foo(
+        "aaaaaaaaaaaaaaa",
+        "bbbbbbbbbbbbbb"
+      )
+      with A
+      with B
+}

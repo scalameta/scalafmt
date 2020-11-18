@@ -945,7 +945,8 @@ class FormatOps(
       }
 
   def binPackParentConstructorSplits(
-      chain: Either[Template, Seq[Type.With]],
+      chain: Either[Tree, Seq[Type.With]],
+      inits: Option[List[Init]],
       lastToken: Token,
       indentLen: Int
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
@@ -962,7 +963,7 @@ class FormatOps(
         Right(style.newlines.source eq Newlines.fold)
     }
     val indent = Indent(Num(indentLen), lastToken, ExpiresOn.After)
-    val extendsThenWith = chain.left.exists(_.inits.length > 1)
+    val extendsThenWith = inits.exists(_.length > 1)
     Seq(
       Split(Space, 0).withSingleLine(lastToken, noSyntaxNL = extendsThenWith),
       Split(nlMod, 0)

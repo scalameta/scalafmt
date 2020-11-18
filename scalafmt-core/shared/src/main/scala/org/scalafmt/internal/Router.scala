@@ -1388,6 +1388,17 @@ class Router(formatOps: FormatOps) {
         // Add space if right starts with a symbol
         Seq(Split(identModification(right), 0))
 
+      // Enum Case
+      case FormatToken(_, T.KwExtends(), _)
+          if rightOwner.isInstanceOf[Defn.EnumCase] =>
+        val lastToken = rightOwner.tokens.last
+        val enumCase = rightOwner.asInstanceOf[Defn.EnumCase]
+        binPackParentConstructorSplits(
+          Left(rightOwner),
+          Some(enumCase.inits),
+          lastToken,
+          style.continuationIndent.extendSite
+        )
       // Template
       case FormatToken(_, right @ T.KwExtends(), _) =>
         val template = defnTemplate(rightOwner)
@@ -1397,6 +1408,7 @@ class Router(formatOps: FormatOps) {
           .getOrElse(rightOwner.tokens.last)
         binPackParentConstructorSplits(
           template.toLeft(Seq.empty),
+          template.map(_.inits),
           lastToken,
           style.continuationIndent.extendSite
         )
@@ -1452,6 +1464,14 @@ class Router(formatOps: FormatOps) {
               top.tokens.last
             )
 
+          case enumCase: Defn.EnumCase =>
+            val indent = style.continuationIndent.withSiteRelativeToExtends
+            val expire = enumCase.tokens.last
+            Seq(
+              Split(Space, 0).withIndent(indent, expire, ExpiresOn.After),
+              Split(Newline, 1)
+                .withIndent(indent, expire, ExpiresOn.After)
+            )
           case _ =>
             Seq(Split(Space, 0))
         }
@@ -2011,7 +2031,12 @@ class Router(formatOps: FormatOps) {
       lastToken: => Token
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
     if (isFirstWith) {
-      binPackParentConstructorSplits(chain, lastToken, IndentForWithChains)
+      binPackParentConstructorSplits(
+        chain,
+        chain.left.toOption.map(_.inits),
+        lastToken,
+        IndentForWithChains
+      )
     } else {
       Seq(Split(Space, 0), Split(Newline, 1))
     }
