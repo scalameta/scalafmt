@@ -12,7 +12,7 @@ jobs:
       - uses: olafurpg/setup-gpg@v3
       - run: git fetch --tags --unshallow -f
       - name: Publish ${{ github.ref }}
-        run: sbt ci-release; sbt docs/docusaurusPublishGhpages
+        run: sbt ci-release docs/docusaurusPublishGhpages
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
