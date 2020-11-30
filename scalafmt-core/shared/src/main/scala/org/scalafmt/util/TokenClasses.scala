@@ -14,16 +14,16 @@ object Keyword {
     token.is[KwClass] || token.is[KwDef] || token.is[KwDo] ||
     token.is[KwElse] || token.is[KwEnum] || token.is[KwExtends] ||
     token.is[KwFalse] || token.is[KwFinal] || token.is[KwFinally] ||
-    token.is[KwFor] || token.is[KwForsome] || token.is[KwIf] ||
-    token.is[KwImplicit] || token.is[KwImport] || token.is[KwLazy] ||
-    token.is[KwMatch] || token.is[KwMacro] || token.is[KwNew] ||
-    token.is[KwNull] || token.is[KwObject] || token.is[KwOverride] ||
-    token.is[KwPackage] || token.is[KwPrivate] || token.is[KwProtected] ||
-    token.is[KwReturn] || token.is[KwSealed] || token.is[KwSuper] ||
-    token.is[KwThis] || token.is[KwThrow] || token.is[KwTrait] ||
-    token.is[KwTrue] || token.is[KwTry] || token.is[KwType] ||
-    token.is[KwVal] || token.is[KwVar] || token.is[KwWhile] ||
-    token.is[KwWith] || token.is[KwYield]
+    token.is[KwFor] || token.is[KwForsome] || token.is[KwGiven] ||
+    token.is[KwIf] || token.is[KwImplicit] || token.is[KwImport] ||
+    token.is[KwLazy] || token.is[KwMatch] || token.is[KwMacro] ||
+    token.is[KwNew] || token.is[KwNull] || token.is[KwObject] ||
+    token.is[KwOverride] || token.is[KwPackage] || token.is[KwPrivate] ||
+    token.is[KwProtected] || token.is[KwReturn] || token.is[KwSealed] ||
+    token.is[KwSuper] || token.is[KwThis] || token.is[KwThrow] ||
+    token.is[KwTrait] || token.is[KwTrue] || token.is[KwTry] ||
+    token.is[KwType] || token.is[KwVal] || token.is[KwVar] ||
+    token.is[KwWhile] || token.is[KwWith] || token.is[KwYield]
   }
 }
 
