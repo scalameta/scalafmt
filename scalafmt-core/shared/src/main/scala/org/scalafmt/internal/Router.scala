@@ -1394,10 +1394,10 @@ class Router(formatOps: FormatOps) {
         val lastToken = rightOwner.tokens.last
         val enumCase = rightOwner.asInstanceOf[Defn.EnumCase]
         binPackParentConstructorSplits(
-          Left(rightOwner),
-          Some(enumCase.inits),
+          Set(rightOwner),
           lastToken,
-          style.continuationIndent.extendSite
+          style.continuationIndent.extendSite,
+          enumCase.inits.length > 1
         )
       // Template
       case FormatToken(_, right @ T.KwExtends(), _) =>
@@ -1407,10 +1407,10 @@ class Router(formatOps: FormatOps) {
           .orElse(template.map(_.tokens.last))
           .getOrElse(rightOwner.tokens.last)
         binPackParentConstructorSplits(
-          template.toLeft(Seq.empty),
-          template.map(_.inits),
+          template.toSet,
           lastToken,
-          style.continuationIndent.extendSite
+          style.continuationIndent.extendSite,
+          template.exists(_.inits.length > 1)
         )
       case FormatToken(_, T.KwWith(), _) =>
         def isFirstWith(t: Template) =
@@ -1426,8 +1426,9 @@ class Router(formatOps: FormatOps) {
               } =>
             splitWithChain(
               isFirstWith(template),
-              Left(template),
-              templateCurly(template).getOrElse(template.tokens.last)
+              Set(template),
+              templateCurly(template).getOrElse(template.tokens.last),
+              template.inits.length > 1
             )
 
           case template: Template =>
@@ -1460,7 +1461,7 @@ class Router(formatOps: FormatOps) {
           case t @ WithChain(top) =>
             splitWithChain(
               !t.lhs.is[Type.With],
-              Right(withChain(top)),
+              withChain(top).toSet,
               top.tokens.last
             )
 
@@ -2027,15 +2028,16 @@ class Router(formatOps: FormatOps) {
 
   private def splitWithChain(
       isFirstWith: Boolean,
-      chain: => Either[Template, Seq[Type.With]],
-      lastToken: => Token
+      owners: => Set[Tree],
+      lastToken: => Token,
+      extendsThenWith: => Boolean = false
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
     if (isFirstWith) {
       binPackParentConstructorSplits(
-        chain,
-        chain.left.toOption.map(_.inits),
+        owners,
         lastToken,
-        IndentForWithChains
+        IndentForWithChains,
+        extendsThenWith
       )
     } else {
       Seq(Split(Space, 0), Split(Newline, 1))
