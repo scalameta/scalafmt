@@ -8,6 +8,7 @@ import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
 
 import scala.language.implicitConversions
+import scala.meta.Term.ApplyUsing
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.{Token, Tokens}
 import scala.meta.tokens.{Token => T}
@@ -759,14 +760,15 @@ class Router(formatOps: FormatOps) {
             Policy.NoPolicy
           }
 
-        val handleImplicit =
-          if (onlyConfigStyle) opensConfigStyleImplicitParamList(formatToken)
-          else opensImplicitParamList(formatToken, args)
+        val handleImplicitOrUsing =
+          if (onlyConfigStyle)
+            opensConfigStyleImplicitOrUsingParamList(formatToken)
+          else opensImplicitOrUsingParamList(formatToken, args)
 
         val noSplitMod =
           if (
             style.newlines.source.eq(Newlines.keep) && tok.hasBreak || {
-              if (!handleImplicit) onlyConfigStyle
+              if (!handleImplicitOrUsing) onlyConfigStyle
               else style.newlines.forceBeforeImplicitParamListModifier
             }
           )
@@ -777,7 +779,7 @@ class Router(formatOps: FormatOps) {
         val align = {
           if (defnSite) style.align.openParenDefnSite
           else style.align.openParenCallSite
-        } && (!handleImplicit ||
+        } && (!handleImplicitOrUsing ||
           style.newlines.forceAfterImplicitParamListModifier)
         val alignTuple = align && isTuple(leftOwner) && !onlyConfigStyle
 
@@ -813,7 +815,7 @@ class Router(formatOps: FormatOps) {
             Indent(Num(2), right, After)
           else Indent.Empty
         val (implicitPenalty, implicitPolicy) =
-          if (!handleImplicit) (2, Policy.NoPolicy)
+          if (!handleImplicitOrUsing) (2, Policy.NoPolicy)
           else (0, decideNewlinesOnlyAfterToken(right))
 
         val splitsNoNL =
@@ -846,7 +848,7 @@ class Router(formatOps: FormatOps) {
               Split(noSplitMod, (implicitPenalty + lhsPenalty) * bracketCoef)
                 .withPolicy(oneArgOneLine & implicitPolicy)
                 .onlyIf(
-                  (notTooManyArgs && align) || (handleImplicit &&
+                  (notTooManyArgs && align) || (handleImplicitOrUsing &&
                     style.newlines.notBeforeImplicitParamListModifier)
                 )
                 .withIndent(if (align) StateColumn else indent, close, Before)
@@ -1762,10 +1764,22 @@ class Router(formatOps: FormatOps) {
       case FormatToken(c: T.Comment, _, _) =>
         Seq(Split(getMod(formatToken), 0))
 
-      case FormatToken(_: T.KwImplicit, _, _)
+      case FormatToken(_: T.KwImplicit | T.Ident("using"), _, _)
           if !style.binPack.unsafeDefnSite &&
-            !style.verticalMultiline.atDefnSite =>
-        opensImplicitParamList(prevNonComment(prev(formatToken))).fold {
+            !style.verticalMultiline.atDefnSite && isRightImplicitOrUsingSoftKw(
+              prev(formatToken)
+            ) =>
+        val argsOrParamsOpt = formatToken.meta.leftOwner match {
+          // for the using argument list
+          case _: ApplyUsing =>
+            Some {
+              val (_, args) = getApplyArgs(formatToken, false)
+              args
+            }
+          case _ =>
+            opensImplicitOrUsingParamList(prevNonComment(prev(formatToken)))
+        }
+        argsOrParamsOpt.fold {
           Seq(Split(Space, 0))
         } { params =>
           val spaceSplit = Split(Space, 0)

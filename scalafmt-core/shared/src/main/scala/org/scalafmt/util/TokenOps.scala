@@ -222,4 +222,10 @@ object TokenOps {
     }
   }
 
+  def isRightImplicitOrUsingSoftKw(ft: FormatToken): Boolean = ft match {
+    case FormatToken(_: LeftParen, Ident("using"), _) => true
+    case FormatToken(_, _: KwImplicit, _) => true
+    case _ => false
+  }
+
 }

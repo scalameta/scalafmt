@@ -882,19 +882,20 @@ class FormatOps(
   )(implicit style: ScalafmtConfig): Boolean = {
     def opensImplicit =
       (style.newlines.forceAfterImplicitParamListModifier ||
-        next(ft).hasBreak) && opensConfigStyleImplicitParamList(ft)
+        next(ft).hasBreak) && opensConfigStyleImplicitOrUsingParamList(ft)
     (ft.hasBreak || opensImplicit) && {
       val close = matching(ft.left)
       tokens(close, -1).hasBreak
     }
   }
 
-  def opensConfigStyleImplicitParamList(
+  def opensConfigStyleImplicitOrUsingParamList(
       formatToken: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
-    formatToken.right.is[T.KwImplicit] &&
+    (formatToken.right
+      .is[T.KwImplicit] || formatToken.right.text == "using") &&
       style.newlines.notBeforeImplicitParamListModifier &&
-      opensImplicitParamList(formatToken).isDefined
+      opensImplicitOrUsingParamList(formatToken).isDefined
 
   def styleAt(tree: Tree): ScalafmtConfig = {
     val style = styleMap.at(tree.tokens.head)
@@ -1135,7 +1136,7 @@ class FormatOps(
         def isDefinition = ownerCheck(owners(close2))
 
         val shouldAddNewline = {
-          if (right.is[T.KwImplicit])
+          if (right.is[T.KwImplicit] || right.text == "using")
             style.newlines.forceBeforeImplicitParamListModifier ||
             style.verticalMultiline.newlineBeforeImplicitKW
           else
@@ -1146,7 +1147,7 @@ class FormatOps(
           Split(NoSplit.orNL(!shouldAddNewline), 0)
             .withIndent(indentParam, close2, ExpiresOn.Before)
         )
-      case Decision(t @ FormatToken(T.KwImplicit(), _, _), _)
+      case Decision(t @ FormatToken(T.KwImplicit() | T.Ident("using"), _, _), _)
           if style.newlines.forceAfterImplicitParamListModifier ||
             style.verticalMultiline.newlineAfterImplicitKW =>
         Seq(Split(Newline, 0))
@@ -1315,7 +1316,9 @@ class FormatOps(
     }
   }
 
-  def opensImplicitParamList(ft: FormatToken): Option[Seq[Term.Param]] = {
+  def opensImplicitOrUsingParamList(
+      ft: FormatToken
+  ): Option[Seq[Term.Param]] = {
     val paramsOpt = splitDefnIntoParts.lift(ft.meta.leftOwner).flatMap {
       case (_, _, _, paramss) =>
         findArgsFor(ft.left, paramss)
@@ -1324,11 +1327,14 @@ class FormatOps(
     paramsOpt.filter(!_.exists(TreeOps.hasExplicitImplicit))
   }
 
-  def opensImplicitParamList(ft: FormatToken, args: Seq[Tree]): Boolean =
+  def opensImplicitOrUsingParamList(
+      ft: FormatToken,
+      args: Seq[Tree]
+  ): Boolean =
     ft.right.is[T.KwImplicit] && args.forall {
       case t: Term.Param => !hasExplicitImplicit(t)
       case _ => true
-    }
+    } || ft.right.text == "using"
 
   def isEnclosedInMatching(tree: Tree, open: T, close: T): Boolean =
     tree.tokens.headOption.contains(open) && (tree.tokens.last eq close)

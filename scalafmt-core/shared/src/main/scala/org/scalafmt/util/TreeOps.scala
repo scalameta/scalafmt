@@ -353,7 +353,7 @@ object TreeOps {
     tree match {
       case _: Term.Apply | _: Type.Apply | _: Pat.Extract | _: Term.Super |
           _: Pat.Tuple | _: Term.Tuple | _: Term.ApplyType | _: Term.Assign |
-          _: Init =>
+          _: Init | _: Term.ApplyUsing =>
         true
       case t: Term.ApplyInfix => style.newlines.formatInfix && t.args.length > 1
       case _ => false
@@ -398,6 +398,7 @@ object TreeOps {
     case t: Type.Function => (t, Left(t.params))
     case t: Type.Tuple => (t, Left(t.args))
     case t: Init => (t.tpe, Right(t.argss))
+    case t: Term.ApplyUsing => (t.fun, Left(t.args))
   }
   object SplitCallIntoParts {
     def unapply(tree: Tree): Option[CallParts] =
