@@ -1,0 +1,163 @@
+<<< enum
+enum Color {
+case Red, Green, Blue
+}
+>>>
+enum Color {
+  case Red, Green, Blue
+}
+<<< parameterized enum
+enum Color (val rgb: Int) {
+case Red   extends Color(0xff0000)
+case Green extends Color(0x00ff00)
+case Blue  extends Color(0x0000ff)
+}
+>>>
+enum Color(val rgb: Int) {
+  case Red extends Color(0xff0000)
+  case Green extends Color(0x00ff00)
+  case Blue extends Color(0x0000ff)
+}
+<<< user-defined members of enums
+maxColumn = 40
+===
+enum Planet (mass: Double, radius: Double, name: String, id: Int) {
+case Mercury extends Planet(3.303e+23, 2.4397e6)
+case Venus extends Planet(4.869e+24, 6.0518e6)
+case Earth extends Planet(5.976e+24, 6.37814e6)
+case Mars extends Planet(6.421e+23, 3.3972e6)
+case Jupiter extends Planet(1.9e+27, 7.1492e7)
+case Saturn extends Planet(5.688e+26, 6.0268e7)
+case Uranus extends Planet(8.686e+25, 2.5559e7)
+case Neptune extends Planet(1.024e+26, 2.4746e7)
+}
+>>>
+enum Planet(
+    mass: Double,
+    radius: Double,
+    name: String,
+    id: Int
+) {
+  case Mercury
+      extends Planet(
+        3.303e+23,
+        2.4397e6
+      )
+  case Venus
+      extends Planet(
+        4.869e+24,
+        6.0518e6
+      )
+  case Earth
+      extends Planet(
+        5.976e+24,
+        6.37814e6
+      )
+  case Mars
+      extends Planet(
+        6.421e+23,
+        3.3972e6
+      )
+  case Jupiter
+      extends Planet(1.9e+27, 7.1492e7)
+  case Saturn
+      extends Planet(
+        5.688e+26,
+        6.0268e7
+      )
+  case Uranus
+      extends Planet(
+        8.686e+25,
+        2.5559e7
+      )
+  case Neptune
+      extends Planet(
+        1.024e+26,
+        2.4746e7
+      )
+}
+<<< enum with sequence of `with` statements
+maxColumn = 40
+===
+enum A extends Alpha with Beta with Gamma with Delta with Epsilon {
+  case B
+}
+>>>
+enum A
+    extends Alpha
+    with Beta
+    with Gamma
+    with Delta
+    with Epsilon {
+  case B
+}
+<<< enum case with parent constructors `never`
+binPack.parentConstructors = Never
+maxColumn = 30
+===
+enum Foo(val x: Int) {
+  case Bar extends Foo(1) with X with Y with Z
+}
+>>>
+enum Foo(val x: Int) {
+  case Bar
+      extends Foo(1)
+      with X
+      with Y
+      with Z
+}
+<<< enum case with parent constructors `always`
+binPack.parentConstructors = Always
+maxColumn = 30
+===
+enum Foo(val x: Int) {
+  case Bar extends Foo(1) with X with Y with Z
+}
+>>>
+enum Foo(val x: Int) {
+  case Bar
+      extends Foo(1) with X
+      with Y with Z
+}
+<<< enum case with parent constructors `oneline`
+binPack.parentConstructors = Oneline
+maxColumn = 45
+===
+enum Foo(val x: String, val y: String) {
+  case Bar extends Foo("a", "b") with A with B
+
+  case Far extends Foo("aaaaaa", "bbbbbb") with A with B
+}
+>>>
+enum Foo(val x: String, val y: String) {
+  case Bar
+      extends Foo("a", "b") with A with B
+
+  case Far
+      extends Foo("aaaaaa", "bbbbbb")
+      with A
+      with B
+}
+<<< enum case with parent constructors `onelineIfPrimaryOneline`
+binPack.parentConstructors = OnelineIfPrimaryOneline
+maxColumn = 45
+===
+enum Foo(val a: String, val b: String) {
+  case Bar extends Foo("a", "b")
+  with A with B
+
+  case Far extends Foo("aaaaaaaaaaaaaaa", "bbbbbbbbbbbbbb") with A with B
+}
+>>>
+enum Foo(val a: String, val b: String) {
+  case Bar
+      extends Foo("a", "b") with A with B
+
+  case Far
+      extends Foo(
+        "aaaaaaaaaaaaaaa",
+        "bbbbbbbbbbbbbb"
+      )
+      with A
+      with B
+}

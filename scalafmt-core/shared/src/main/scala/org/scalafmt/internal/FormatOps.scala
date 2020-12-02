@@ -945,12 +945,12 @@ class FormatOps(
       }
 
   def binPackParentConstructorSplits(
-      chain: Either[Template, Seq[Type.With]],
+      owners: Set[Tree],
       lastToken: Token,
-      indentLen: Int
+      indentLen: Int,
+      extendsThenWith: Boolean = false
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
     val nlMod = NewlineT(alt = Some(Space))
-    val owners = chain.fold[Set[Tree]](Set(_), x => x.toSet)
     val nlPolicy = ctorWithChain(owners, lastToken)
     val nlOnelineTag = style.binPack.parentConstructors match {
       case BinPack.ParentCtors.Oneline => Right(true)
@@ -962,7 +962,6 @@ class FormatOps(
         Right(style.newlines.source eq Newlines.fold)
     }
     val indent = Indent(Num(indentLen), lastToken, ExpiresOn.After)
-    val extendsThenWith = chain.left.exists(_.inits.length > 1)
     Seq(
       Split(Space, 0).withSingleLine(lastToken, noSyntaxNL = extendsThenWith),
       Split(nlMod, 0)

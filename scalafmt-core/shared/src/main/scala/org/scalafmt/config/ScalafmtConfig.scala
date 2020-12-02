@@ -280,6 +280,10 @@ object ScalafmtConfig {
     )
   )
 
+  val dotty: ScalafmtConfig = default.copy(
+    runner = ScalafmtRunner.default.copy(dialect = scala.meta.dialects.Dotty)
+  )
+
   /** Ready styles provided by scalafmt.
     */
   val activeStyles: Map[String, ScalafmtConfig] =

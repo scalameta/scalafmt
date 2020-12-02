@@ -132,6 +132,7 @@ object TokenOps {
       case t: Defn.Object => Some(t.templ)
       case t: Defn.Class => Some(t.templ)
       case t: Defn.Trait => Some(t.templ)
+      case t: Defn.Enum => Some(t.templ)
       case t: Pkg.Object => Some(t.templ)
       case t: Template => Some(t)
       case _ => None
@@ -142,6 +143,7 @@ object TokenOps {
       case t: Defn.Object => Some(t.name)
       case t: Defn.Class => Some(t.ctor)
       case t: Defn.Trait => Some(t.ctor)
+      case t: Defn.Enum => Some(t.ctor)
       case t: Pkg.Object => Some(t.name)
       case _ => None
     }
