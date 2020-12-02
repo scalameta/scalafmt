@@ -1,5 +1,3 @@
-runner.dialect = dotty
-maxColumn = 40
 <<< enum
 enum Color {
 case Red, Green, Blue
@@ -21,6 +19,8 @@ enum Color(val rgb: Int) {
   case Blue extends Color(0x0000ff)
 }
 <<< user-defined members of enums
+maxColumn = 40
+===
 enum Planet (mass: Double, radius: Double, name: String, id: Int) {
 case Mercury extends Planet(3.303e+23, 2.4397e6)
 case Venus extends Planet(4.869e+24, 6.0518e6)
@@ -77,6 +77,8 @@ enum Planet(
       )
 }
 <<< enum with sequence of `with` statements
+maxColumn = 40
+===
 enum A extends Alpha with Beta with Gamma with Delta with Epsilon {
   case B
 }

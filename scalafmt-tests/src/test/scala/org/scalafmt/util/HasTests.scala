@@ -146,6 +146,7 @@ trait HasTests extends FormatAssertions {
       case "unit" => HasTests.unitTest40
       case "default" | "standard" | "scala" => HasTests.unitTest80
       case "scalajs" => ScalafmtConfig.scalaJs.copy(maxColumn = 79)
+      case "dotty" => ScalafmtConfig.dotty
       case style => throw UnknownStyle(style)
     }
 
