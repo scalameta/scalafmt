@@ -2,7 +2,6 @@ package org.scalafmt.rewrite
 
 import org.scalafmt.rewrite.TokenPatch.{Add, Remove}
 
-import scala.meta._
 import scala.meta.tokens.Token
 
 sealed abstract class Patch
