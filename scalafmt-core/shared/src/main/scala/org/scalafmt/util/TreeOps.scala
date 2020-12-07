@@ -299,7 +299,7 @@ object TreeOps {
   def isDefnSiteWithParams(tree: Tree): Boolean =
     tree match {
       case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
-          _: Defn.Trait | _: Defn.Enum | _: Ctor.Secondary =>
+          _: Defn.Trait | _: Defn.Enum | _: Defn.EnumCase | _: Ctor.Secondary =>
         true
       case x: Ctor.Primary =>
         x.parent.exists(isDefnSiteWithParams)
@@ -315,7 +315,8 @@ object TreeOps {
     tree match {
       case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
           _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type | _: Defn.Type |
-          _: Type.Apply | _: Type.Param | _: Type.Tuple | _: Defn.Enum =>
+          _: Type.Apply | _: Type.Param | _: Type.Tuple | _: Defn.Enum |
+          _: Defn.EnumCase =>
         true
       case _: Term.Function | _: Type.Function => true
       case x: Ctor.Primary => x.parent.exists(isDefnSite)
@@ -416,6 +417,7 @@ object TreeOps {
     case t: Defn.Class => (t.mods, t.name, t.tparams, t.ctor.paramss)
     case t: Defn.Trait => (t.mods, t.name, t.tparams, t.ctor.paramss)
     case t: Defn.Enum => (t.mods, t.name, t.tparams, t.ctor.paramss)
+    case t: Defn.EnumCase => (t.mods, t.name, t.tparams, t.ctor.paramss)
     case t: Ctor.Primary => (t.mods, t.name, Seq.empty, t.paramss)
     case t: Ctor.Secondary => (t.mods, t.name, Seq.empty, t.paramss)
   }
