@@ -36,7 +36,5 @@ object Tabulator {
   }
 
   def rowSeparator(colSizes: Seq[Int]) =
-    colSizes map {
-      "-" * _
-    } mkString ("+", "+", "+")
+    colSizes.map(size => "-" * size).mkString("+", "+", "+")
 }

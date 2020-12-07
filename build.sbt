@@ -10,8 +10,8 @@ def localSnapshotVersion: String = s"$parseTagVersion-SNAPSHOT"
 def isCI = System.getenv("CI") != null
 
 def scala211 = "2.11.12"
-def scala212 = "2.12.8"
-def scala213 = "2.13.1"
+def scala212 = "2.12.12"
+def scala213 = "2.13.3"
 
 inThisBuild(
   List(
@@ -211,7 +211,8 @@ lazy val tests = project
       scalametaTestkit,
       scalatest.value
     ),
-    scalacOptions ++= scalacJvmOptions.value
+    scalacOptions ++= scalacJvmOptions.value,
+    fork := true
   )
   .dependsOn(coreJVM, dynamic, cli)
 

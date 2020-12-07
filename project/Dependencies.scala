@@ -6,7 +6,7 @@ import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 
 object Dependencies {
   val metaconfigV = "0.9.10"
-  val scalametaV  = "4.3.24"
+  val scalametaV  = "4.4.1"
   val scalatestV  = "3.2.3"
   val scalacheckV = "1.15.1"
   val coursier    = "1.0.3"
@@ -21,7 +21,10 @@ object Dependencies {
   val scalametaTestkit = "org.scalameta" %% "testkit" % scalametaV
 
   val scalacheck = "org.scalacheck" %% "scalacheck" % scalacheckV
-  val scalatest  = Def.setting("org.scalatest" %%% "scalatest" % scalatestV)
+  // NOTE(olafur): this repo uses only ScalaTest FunSuite with asserts. Matchers
+  // are intentionally not included in the build because they rely on "multiple
+  // infix" syntax, which is deprecated in the latest Scala version.
+  val scalatest = Def.setting("org.scalatest" %%% "scalatest-funsuite" % scalatestV)
   val scalameta = Def.setting {
     scalaBinaryVersion.value match {
       case "2.11" =>

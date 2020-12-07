@@ -6,3 +6,4 @@
 -XX:+TieredCompilation
 -XX:-UseGCOverheadLimit
 -XX:+CMSClassUnloadingEnabled
+-Dsbt.server.autostart=false

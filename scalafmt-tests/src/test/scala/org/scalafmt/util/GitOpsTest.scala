@@ -8,12 +8,11 @@ import org.scalactic.source.Position
 import org.scalafmt.util.DeleteTree.deleteTree
 import org.scalatest._
 import org.scalatest.funsuite
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.Assertions
 
 class GitOpsTest extends funsuite.FixtureAnyFunSuite {
 
   import GitOpsTest._
-  import Matchers._
 
   val root = AbsoluteFile.userDir
   val dirName = "gitTestDir"
@@ -95,20 +94,20 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
   test("lsTree should not return files not added to the index") {
     implicit ops =>
       touch()
-      ls shouldBe empty
+      assert(ls.isEmpty)
   }
 
   test("#1010: lsTree should return staged files") { implicit ops =>
     val f = touch()
     add(f)
-    ls should contain only (f)
+    assert(ls.toSet == Set(f))
   }
 
   test("lsTree should return committed files") { implicit ops =>
     val f = touch()
     add(f)
     commit
-    ls should contain only (f)
+    assert(ls.toSet == Set(f))
   }
 
   test("lsTree should exclude symbolic links") { implicit ops =>
@@ -117,7 +116,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
     val g = symbolicLinkTo(f)
     add(g)
     commit
-    ls should contain only (f)
+    assert(ls.toSet == Set(f))
   }
 
   test("lsTree should not return committed files that have been deleted") {
@@ -126,7 +125,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
       add(f)
       commit
       rm(f)
-      ls shouldBe empty
+      assert(ls.isEmpty)
   }
 
   test(
@@ -140,7 +139,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
     add(f2)
 
     val innerGitOps = new GitOpsImpl(innerDir)
-    ls(innerGitOps) should contain only f2
+    assert(ls(innerGitOps).toSet == Set(f2))
   }
 
   test("lsTree should return committed files that have been modified") {
@@ -149,7 +148,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
       add(f)
       commit
       modify(f)
-      ls should contain only (f)
+      assert(ls.toSet == Set(f))
   }
 
   def diff(br: String = "HEAD")(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
@@ -164,7 +163,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
     add(f)
     commit
     modify(f)
-    diff() should contain only (f)
+    assert(diff().toSet == Set(f))
   }
 
   test("#1000: diff should not return git deleted files") { implicit o =>
@@ -172,7 +171,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
     add(f)
     commit
     rm(f)
-    diff() shouldBe empty
+    assert(diff().isEmpty)
   }
 
   test("#1000: diff should not return fs deleted files") { implicit o =>
@@ -180,7 +179,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
     add(f)
     commit
     rmfs(f)
-    diff() shouldBe empty
+    assert(diff().isEmpty)
   }
 
   test("diff should return added files against HEAD") { implicit o =>
@@ -188,7 +187,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
     val f2 = touch()
     add(f1)
     add(f2)
-    diff() should contain only (f1, f2)
+    assert(diff().toSet == Set(f1, f2))
   }
 
   test("diff should return added files against a different branch") {
@@ -202,7 +201,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
       add(f1)
       add(f2)
       commit
-      diff("master") should contain only (f1, f2)
+      assert(diff("master").toSet == Set(f1, f2))
   }
 
   test(
@@ -217,7 +216,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
     add(f1)
     add(f2)
     modify(f1)
-    diff("master") should contain only (f1, f2)
+    assert(diff("master").toSet == Set(f1, f2))
   }
 
   test("diff should not return removed files against a different branch") {
@@ -232,7 +231,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
       add(f2)
       commit
       rm(f1)
-      diff("master") should contain only (f2)
+      assert(diff("master").toSet == Set(f2))
   }
 
   test("status should return only modified files") { implicit o =>
@@ -240,7 +239,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
     add(f)
     commit
     val f1 = touch()
-    status should contain only f1
+    assert(status.toSet == Set(f1))
   }
 
   test("status should return moved") { implicit o =>
@@ -249,7 +248,7 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
     commit
     val f1 = mv(f)
     add(f1)
-    status should contain only f1
+    assert(status.toSet == Set(f1))
   }
 
   test("status should not return deleted files") { implicit o =>
@@ -261,21 +260,19 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
     modify(f1)
     add(f1)
     rm(f)
-    status should contain only f1
+    assert(status.toSet == Set(f1))
   }
 
   test("status should return files with spaces in the path") { implicit o =>
     val dir = mkDir("dir 1")
     val f = touch(dir = Option(dir))
     add(f)
-    status should contain only f
+    assert(status.toSet == Set(f))
   }
 
 }
 
 private object GitOpsTest {
-
-  import Matchers._
 
   // Filesystem commands
   def rmfs(file: AbsoluteFile): Unit =
@@ -284,7 +281,7 @@ private object GitOpsTest {
   // Git commands
   def git(str: String*)(implicit ops: GitOpsImpl, pos: Position): Seq[String] =
     ops.exec("git" +: str) match {
-      case Failure(f) => fail(s"Failed git command. Got: $f")
+      case Failure(f) => Assertions.fail(s"Failed git command. Got: $f")
       case Success(s) => s
     }
 
