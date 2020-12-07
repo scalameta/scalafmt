@@ -161,3 +161,103 @@ enum Foo(val a: String, val b: String) {
       with A
       with B
 }
+<<< enum case with constructor and parent constructors `never`
+binPack.parentConstructors = Never
+maxColumn = 30
+===
+enum Enum2(val i: Int) {
+  case A(val s: String) extends Enum2(1) with A
+}
+>>>
+enum Enum2(val i: Int) {
+  case A(val s: String)
+      extends Enum2(1)
+      with A
+}
+<<< enum case with constructor and parent constructors `always`
+binPack.parentConstructors = Always
+maxColumn = 30
+===
+enum Enum2(val i: Int) {
+  case A(val s: String) extends Enum2(1) with X with Y
+}
+>>>
+enum Enum2(val i: Int) {
+  case A(val s: String)
+      extends Enum2(1) with X
+      with Y
+}
+<<< enum case with constructor and parent constructors `oneline`
+binPack.parentConstructors = Oneline
+maxColumn = 45
+===
+enum Enum2(val a: String, val b: String) {
+  case A(val s: String) extends Enum2("a", "b") with X with Y
+
+  case B(val s1: String, val s2: String) extends Enum2("aaaaaaaa", "bbbbbbbb") with X with Y
+}
+>>>
+enum Enum2(val a: String, val b: String) {
+  case A(val s: String)
+      extends Enum2("a", "b") with X with Y
+
+  case B(val s1: String, val s2: String)
+      extends Enum2("aaaaaaaa", "bbbbbbbb")
+      with X
+      with Y
+}
+<<< enum case with constructor and parent constructors `onelineIfPrimaryOneline`
+binPack.parentConstructors = OnelineIfPrimaryOneline
+maxColumn = 45
+===
+enum Enum2(val a: String, val b: String) {
+  case A(val s: String) extends Enum2("a", "b") with X with Y
+
+  case B(val s1: String, val s2: String, val s3: String) extends Enum2("aaaaaaaa", "bbbbbbbb") with X with Y
+}
+>>>
+enum Enum2(val a: String, val b: String) {
+  case A(val s: String)
+      extends Enum2("a", "b") with X with Y
+
+  case B(
+      val s1: String,
+      val s2: String,
+      val s3: String
+  ) extends Enum2("aaaaaaaa", "bbbbbbbb")
+      with X
+      with Y
+}
+<<< enum case with constructor
+enum
+Enum2(val i: Int) {
+  case A (val s: String)
+  extends
+  Enum2(1)
+  case B (val t: String)
+  extends
+  Enum2(2)
+  case C (val u: String)
+  extends
+  Enum2(3)
+}
+>>>
+enum Enum2(val i: Int) {
+  case A(val s: String) extends Enum2(1)
+  case B(val t: String) extends Enum2(2)
+  case C(val u: String) extends Enum2(3)
+}
+<<< enum case with type parameters
+enum Enum4 [ + T] {
+  case G(s: String)
+  case B extends Enum4[Int] with A
+  case C [V] (s: String) extends Enum4[V]
+  case D [T] (s: String) extends Enum4[T]
+}
+>>>
+enum Enum4[+T] {
+  case G(s: String)
+  case B extends Enum4[Int] with A
+  case C[V](s: String) extends Enum4[V]
+  case D[T](s: String) extends Enum4[T]
+}
