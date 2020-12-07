@@ -1,6 +1,5 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.config.SortSettings._
 import org.scalafmt.util.TreeOps
 
 import scala.meta._
@@ -50,7 +49,14 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
     if (oldMods.nonEmpty) {
       // ignore implicit "implicit" whenever we sort, and apply patches
       val sanitized = oldMods.filterNot(TreeOps.isHiddenImplicit)
-      val sortedMods: Seq[Mod] = sanitized.sortWith(orderModsBy)
+      // NOTE: modifiers with no configuration return -1 from `indexWhere` and
+      // therefore sort at the front of the list. This behavior is intentional
+      // in order to preserve backwards compatibility when adding support to
+      // format new keywords. However, the choice of putting unconfigured
+      // modifiers to the front of the list instead of back of the list is
+      // mostly arbitrary.
+      val sortedMods: Seq[Mod] =
+        sanitized.sortBy(mod => order.indexWhere(_.matches(mod)))
 
       ctx.addPatchSet(sortedMods.zip(sanitized).flatMap { case (next, old) =>
         if (next eq old) Seq.empty
@@ -62,26 +68,6 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
         }
       }: _*)
     }
-  }
-
-  /** @return
-    *   m1 < m2; according to the order given by the List
-    */
-  private def orderModsBy(m1: Mod, m2: Mod): Boolean = {
-    val idx1 = order.indexWhere(modCorrespondsToSettingKey(m1))
-    val idx2 = order.indexWhere(modCorrespondsToSettingKey(m2))
-    idx1 < idx2
-  }
-
-  private def modCorrespondsToSettingKey(m: Mod)(p: ModKey): Boolean = {
-    p == `private` && m.is[Mod.Private] ||
-    p == `protected` && m.is[Mod.Protected] ||
-    p == `final` && m.is[Mod.Final] ||
-    p == `sealed` && m.is[Mod.Sealed] ||
-    p == `abstract` && m.is[Mod.Abstract] ||
-    p == `lazy` && m.is[Mod.Lazy] ||
-    p == `implicit` && m.is[Mod.Implicit] ||
-    p == `override` && m.is[Mod.Override]
   }
 
 }

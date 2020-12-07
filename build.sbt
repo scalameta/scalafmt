@@ -212,7 +212,10 @@ lazy val tests = project
       scalatest.value
     ),
     scalacOptions ++= scalacJvmOptions.value,
-    fork := true
+    // Fork in CI to hit on memory limitation issues. Disable forking locally
+    // because ScalaTest error reporting fails with serialization errors when
+    // forking is disabled.
+    fork := isCI
   )
   .dependsOn(coreJVM, dynamic, cli)
 

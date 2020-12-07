@@ -87,10 +87,13 @@ object ScalafmtRunner {
     val scala213 = Scala213
       .withAllowTrailingCommas(true)
     val default = scala213
-      .withAllowOrTypes(true) // New feature in Dotty
-      .withAllowAndTypes(true) // New feature in Dotty
-      .withAllowTraitParameters(true) // New feature in Dotty
-      .withAllowColonForExtractorVarargs(true) // New feature in Dotty
+      // Supported Dotty features.
+      .withAllowOrTypes(true)
+      .withAllowAndTypes(true)
+      .withAllowTraitParameters(true)
+      .withAllowColonForExtractorVarargs(true)
+      .withAllowExportClause(true)
+      .withAllowOpenClass(true)
 
     implicit lazy val decoder: ConfDecoder[Dialect] = {
       ReaderUtil.oneOf[Dialect](

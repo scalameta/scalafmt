@@ -1,0 +1,10 @@
+rewrite {
+  rules = [SortModifiers]
+  sortModifiers {
+    order = ["implicit"]
+  }
+}
+<<< open goes to the front of the list if it's missing from the config
+implicit open class Foo()
+>>>
+open implicit class Foo()

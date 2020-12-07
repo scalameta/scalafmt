@@ -1,0 +1,11 @@
+maxColumn = 200 #to not disturb the output too much
+rewrite {
+  rules = [SortModifiers]
+  sortModifiers {
+    order = ["open", "implicit"]
+  }
+}
+<<< open implicit class
+implicit open class Foo()
+>>>
+open implicit class Foo()

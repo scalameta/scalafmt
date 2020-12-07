@@ -1,0 +1,21 @@
+maxColumn = 40
+<<< class
+open class Foobar()
+>>>
+open class Foobar()
+<<< object
+open object Foobar
+>>>
+open object Foobar
+<<< trait
+open trait Foobar
+>>>
+open trait Foobar
+<<< implicit open
+implicit open class Foobar()
+>>>
+implicit open class Foobar()
+<<< open implicit
+open implicit class Foobar()
+>>>
+open implicit class Foobar()
