@@ -211,7 +211,8 @@ lazy val tests = project
       scalametaTestkit,
       scalatest.value
     ),
-    scalacOptions ++= scalacJvmOptions.value
+    scalacOptions ++= scalacJvmOptions.value,
+    fork := true
   )
   .dependsOn(coreJVM, dynamic, cli)
 
