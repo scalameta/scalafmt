@@ -94,6 +94,7 @@ object ScalafmtRunner {
       .withAllowColonForExtractorVarargs(true)
       .withAllowExportClause(true)
       .withAllowOpenClass(true)
+      .withAllowWhiteboxMacro(true)
 
     implicit lazy val decoder: ConfDecoder[Dialect] = {
       ReaderUtil.oneOf[Dialect](
