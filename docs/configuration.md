@@ -2846,6 +2846,22 @@ maxColumn = 30
   .filter(_ > 2)
 ```
 
+## Scala 3
+
+Scalafmt has basic support for Scala 3 features that can be enabled by changing
+the dialect of the Scalafmt parser.
+
+```
+runner.dialect = Scala3
+---
+open class MyOpenClass()
+val myQuote = '{ expr }
+val mySplice = ${ expr }
+enum class Weekday {
+  case Monday, Tuesday, Wednesday, Thursday, Friday
+}
+```
+
 ## Miscellaneous
 
 ### `optIn.forceBlankLineBeforeDocstring`
