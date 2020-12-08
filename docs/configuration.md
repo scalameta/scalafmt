@@ -29,17 +29,17 @@ maxColumn
 
 ### `assumeStandardLibraryStripMargin`
 
-This parameter simply says the `.stripMargin` method was not redefined
-by the user to assign special meaning to indentation preceding
-the `|` character. Hence, that indentation can be modified.
+This parameter simply says the `.stripMargin` method was not redefined by the
+user to assign special meaning to indentation preceding the `|` character.
+Hence, that indentation can be modified.
 
 ```scala mdoc:defaults
 assumeStandardLibraryStripMargin
 align.stripMargin
 ```
 
-If `true`, lines starting with the margin character `|` (or another if
-specified in the `.stripMargin(...)` call) will be indented differently.
+If `true`, lines starting with the margin character `|` (or another if specified
+in the `.stripMargin(...)` call) will be indented differently.
 
 If `align.stripMargin` is true, they will align with the opening triple-quote
 `"""` in interpolated and raw string literals. Otherwise, they will be indented
@@ -85,13 +85,14 @@ val example2 =
 
 ## Presets
 
-Some sections provide preset values to set multiple parameters at once.
-These are always accessed via the `preset` key of the appropriate section,
-including top-level.
+Some sections provide preset values to set multiple parameters at once. These
+are always accessed via the `preset` key of the appropriate section, including
+top-level.
 
 ### Top-level presets
 
-- `preset=default`: this preset is implicit and sets all values to their defaults.
+- `preset=default`: this preset is implicit and sets all values to their
+  defaults.
 - `preset=IntelliJ`: this preset is defined as
 
 ```
@@ -209,8 +210,8 @@ and controls when indentation is _omitted_.
 
 #### `indentOperator.topLevelOnly`
 
-If true, only top-level infix operators are eligible to be exempted from
-the default indentation rule.
+If true, only top-level infix operators are eligible to be exempted from the
+default indentation rule.
 
 ```scala mdoc:defaults
 indentOperator.topLevelOnly
@@ -293,9 +294,9 @@ x match { // false for case arrows
 > in diffs or use `--ignore-all-space` to avoid conflicts when git merging or
 > rebasing.
 
-> Starting with the introduction of `align.stripMargin` parameter in v2.5.0,
-> one must explicitly enable it to get earlier behaviour of `align.preset=none`.
-> See [assumeStandardLibraryStripMargin](#assumestandardlibrarystripmargin).
+> Starting with the introduction of `align.stripMargin` parameter in v2.5.0, one
+> must explicitly enable it to get earlier behaviour of `align.preset=none`. See
+> [assumeStandardLibraryStripMargin](#assumestandardlibrarystripmargin).
 
 #### `align.preset=some`
 
@@ -526,13 +527,13 @@ See [assumeStandardLibraryStripMargin](#assumestandardlibrarystripmargin).
 align.stripMargin
 ```
 
-This functionality is enabled in all presets except `align.preset=none` where it was
-disabled since the parameter's introduction in v2.5.0.
+This functionality is enabled in all presets except `align.preset=none` where it
+was disabled since the parameter's introduction in v2.5.0.
 
 ### `align.multiline`
 
-If this flag is set, when alignment is applied, multiline statements will
-not be excluded from search of tokens to align.
+If this flag is set, when alignment is applied, multiline statements will not be
+excluded from search of tokens to align.
 
 > Since v2.5.0.
 
@@ -580,12 +581,14 @@ insert newlines.
 
 > Since v2.5.0.
 
-This parameter controls the general approach to line breaks, and whether to take into
-account existing newlines in the source. The default value (if the parameter is not
-specified) is the _classic_, original way. Below are the alternatives.
+This parameter controls the general approach to line breaks, and whether to take
+into account existing newlines in the source. The default value (if the
+parameter is not specified) is the _classic_, original way. Below are the
+alternatives.
 
 > These alternatives are EXPERIMENTAL and might change in the future without
-> regard to any `edition` settings, until fully released (and this message deleted).
+> regard to any `edition` settings, until fully released (and this message
+> deleted).
 
 #### `newlines.source=keep`
 
@@ -593,12 +596,12 @@ This approach attempts to preserve line breaks in the input whenever possible.
 
 #### `newlines.source=fold,unfold`
 
-These two approaches _completely ignore_ existing line breaks, except around comments
-and blank lines (i.e., multiple consecutive newlines).
+These two approaches _completely ignore_ existing line breaks, except around
+comments and blank lines (i.e., multiple consecutive newlines).
 
-> Might require increasing runner limits
-> (`runner.optimizer.maxVisitsPerToken`, possibly even `runner.maxStateVisits`),
-> to avoid _SearchStateExploded_ exceptions.
+> Might require increasing runner limits (`runner.optimizer.maxVisitsPerToken`,
+> possibly even `runner.maxStateVisits`), to avoid _SearchStateExploded_
+> exceptions.
 
 `fold` attempts to remove line breaks whenever possible resulting in a more
 horizontal, or vertically compact look.
@@ -611,12 +614,12 @@ are prohibited and will result in an error.
 
 ### Config-style formatting
 
-This formatting applies to argument lists in class definitions and method calls. It
-normally involves a newline after the opening parenthesis (or after the `implicit` keyword)
-and a newline before the closing parenthesis.
+This formatting applies to argument lists in class definitions and method calls.
+It normally involves a newline after the opening parenthesis (or after the
+`implicit` keyword) and a newline before the closing parenthesis.
 
-As part of the formatting output, arguments are output one per line (but this is not used in
-determining whether the source uses config-style formatting).
+As part of the formatting output, arguments are output one per line (but this is
+not used in determining whether the source uses config-style formatting).
 
 While this parameter is not technically under the `newlines` section, it
 logically belongs there.
@@ -653,17 +656,19 @@ object a {
 
 #### Forcing config style
 
-Controls parameters which trigger forced config-style formatting.
-All conditions must be satisfied in order for this rule to apply.
+Controls parameters which trigger forced config-style formatting. All conditions
+must be satisfied in order for this rule to apply.
 
 ```scala mdoc:defaults
 runner.optimizer.forceConfigStyleOnOffset
 runner.optimizer.forceConfigStyleMinArgCount
 ```
 
-- `runner.optimizer.forceConfigStyleOnOffset`: applies to method calls; if positive, specifies the
-  minimum character distance between the matching parentheses, excluding any whitespace
-- `runner.optimizer.forceConfigStyleMinArgCount` applies to method calls; specifies the minimum number of arguments
+- `runner.optimizer.forceConfigStyleOnOffset`: applies to method calls; if
+  positive, specifies the minimum character distance between the matching
+  parentheses, excluding any whitespace
+- `runner.optimizer.forceConfigStyleMinArgCount` applies to method calls;
+  specifies the minimum number of arguments
 
 ```scala mdoc:scalafmt
 optIn.configStyleArguments = true
@@ -735,8 +740,8 @@ object a {
 
 > Since v2.5.0.
 
-Forces dangling on open/close parens around control structures
-(`if`, `while`, `for`) when line breaks must occur.
+Forces dangling on open/close parens around control structures (`if`, `while`,
+`for`) when line breaks must occur.
 
 ```scala mdoc:defaults
 danglingParentheses.ctrlSite
@@ -779,9 +784,9 @@ other(a, b)(c, d)
 
 > Since v2.5.0.
 
-This parameter, together with its companions below, controls whether to
-enforce a blank line before and/or after a top-level statement spanning
-a certain number of lines.
+This parameter, together with its companions below, controls whether to enforce
+a blank line before and/or after a top-level statement spanning a certain number
+of lines.
 
 > This parameter will not cause any blank lines to be removed.
 
@@ -857,11 +862,11 @@ package core {
 
 > Since v2.5.0.
 
-This parameter sets the minimum of line breaks between the first and last
-line of a top-level statement (i.e., one less than the number of lines
-the statement spans). For instance, `newlines.topLevelStatementsMinBreaks=0`
-will apply to all top-level statements, whereas 1 will require at least one
-line break (or a multi-line statement).
+This parameter sets the minimum of line breaks between the first and last line
+of a top-level statement (i.e., one less than the number of lines the statement
+spans). For instance, `newlines.topLevelStatementsMinBreaks=0` will apply to all
+top-level statements, whereas 1 will require at least one line break (or a
+multi-line statement).
 
 ```scala mdoc:defaults
 newlines.topLevelStatementsMinBreaks
@@ -907,12 +912,12 @@ package core {
 > Since 2.7.0
 
 This parameter controls whether to force a new line before a multi-line body of
-`case/if/val` and how to format it if the space is allowed. (For multi-line bodies
-of method definitions, please see [`newlines.beforeMultilineDef`](#newlinesbeforemultilinedef)
-below.)
+`case/if/val` and how to format it if the space is allowed. (For multi-line
+bodies of method definitions, please see
+[`newlines.beforeMultilineDef`](#newlinesbeforemultilinedef) below.)
 
-It accepts the same values as [`newlines.source`](#newlinessource)
-(and defaults to that parameter's setting).
+It accepts the same values as [`newlines.source`](#newlinessource) (and defaults
+to that parameter's setting).
 
 NB: for breaks before parameters of a multi-line lambda, use `multiline` with
 [`newlines.beforeCurlyLambdaParams`](#newlinesbeforecurlylambdaparams).
@@ -977,9 +982,9 @@ a match {
 
 > Since 2.7.0
 
-This parameter applies to multi-line definitions only. It accepts the same values
-as [`newlines.beforeMultiline`](#newlinesbeforemultiline) (and defaults to that
-parameter's setting).
+This parameter applies to multi-line definitions only. It accepts the same
+values as [`newlines.beforeMultiline`](#newlinesbeforemultiline) (and defaults
+to that parameter's setting).
 
 It replaced deprecated boolean `newlines.alwaysBeforeMultilineDef` (with `false`
 mapped to `fold` and `true` to `unfold`).
@@ -1069,9 +1074,9 @@ else {
 
 ### `newlines.beforeCurlyLambdaParams`
 
-This parameter controls whether a newline is forced between the opening curly brace
-and the parameters of a lambda or partial function. Added in 2.7.0, replacing
-boolean `alwaysBeforeCurlyBraceLambdaParams`.
+This parameter controls whether a newline is forced between the opening curly
+brace and the parameters of a lambda or partial function. Added in 2.7.0,
+replacing boolean `alwaysBeforeCurlyBraceLambdaParams`.
 
 ```scala mdoc:defaults
 newlines.beforeCurlyLambdaParams
@@ -1131,9 +1136,9 @@ x.zipWithIndex.map { case (c, i) => s"$c -> $i (long comment)" }
 ### `newlines.afterCurlyLambdaParams`
 
 This parameter controls handling of newlines after the arrow following the
-parameters of a curly brace lambda or partial function, and whether a space
-can be used for one-line formatting of the entire function body (if allowed
-but the body doesn't fit, a break is always forced).
+parameters of a curly brace lambda or partial function, and whether a space can
+be used for one-line formatting of the entire function body (if allowed but the
+body doesn't fit, a break is always forced).
 
 This parameter was renamed in 2.7.0 from `afterCurlyLambda`, for clarity and
 consistency with `beforeCurlyLambdaParams` defined above.
@@ -1210,10 +1215,9 @@ something.map { x => f(x) }
 
 #### Prefer After (default)
 
-> Prefers newline after `implicit`. Newline will be added
-> unless the entire implicit parameter list fits on a line,
-> or config style is false. Newline can also be added _before_
-> if the keyword itself would overflow the line.
+> Prefers newline after `implicit`. Newline will be added unless the entire
+> implicit parameter list fits on a line, or config style is false. Newline can
+> also be added _before_ if the keyword itself would overflow the line.
 
 ```scala mdoc:scalafmt
 maxColumn = 60
@@ -1224,8 +1228,8 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 
 #### Prefer Before
 
-> Prefers newline before `implicit`. Newline will not be added
-> if the entire implicit parameter list fits on a line.
+> Prefers newline before `implicit`. Newline will not be added if the entire
+> implicit parameter list fits on a line.
 
 ```scala mdoc:scalafmt
 maxColumn = 60
@@ -1270,9 +1274,9 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 
 #### Implicit with `optIn.configStyleArguments`
 
-While config-style normally requires a newline after the opening parenthesis, postponing
-that break until after the `implicit` keyword is allowed if other parameters require
-keeping this keyword attached to the opening brace.
+While config-style normally requires a newline after the opening parenthesis,
+postponing that break until after the `implicit` keyword is allowed if other
+parameters require keeping this keyword attached to the opening brace.
 
 Therefore, any of the parameters described in this section will take precedence
 even when `optIn.configStyleArguments = true` is used.
@@ -1297,13 +1301,15 @@ These approaches _completely ignore_ existing newlines around infix, always use
 a space before an infix operator and occasionally break after it. `some` is
 default for `newlines.source=fold`, and `many` for `newlines.source=unfold`.
 
-> Might require increasing runner limits
-> (`runner.optimizer.maxVisitsPerToken`, possibly even `runner.maxStateVisits`),
-> to avoid _SearchStateExploded_ exceptions.
+> Might require increasing runner limits (`runner.optimizer.maxVisitsPerToken`,
+> possibly even `runner.maxStateVisits`), to avoid _SearchStateExploded_
+> exceptions.
 
-`some` will introduce fewer line breaks than `many`. Both will attempt to break after
+`some` will introduce fewer line breaks than `many`. Both will attempt to break
+after
 [higher-precedence operators](https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations),
-and both will _always_ break before an expression enclosed in matching parentheses.
+and both will _always_ break before an expression enclosed in matching
+parentheses.
 
 #### `newlines.afterInfixMaxCountPerFile`
 
@@ -1321,8 +1327,8 @@ If the total number of infix operations in the _entire file_ exceeds
 newlines.afterInfixMaxCountPerExprForSome
 ```
 
-If `newlines.afterInfix` is set to `some` and the number of infix operations in a
-_given expression sequence_ (top-level or enclosed in parens/braces) exceeds
+If `newlines.afterInfix` is set to `some` and the number of infix operations in
+a _given expression sequence_ (top-level or enclosed in parens/braces) exceeds
 `newlines.afterInfixMaxCountPerExprForSome`, the formatter switches to `many`
 for that sequence only.
 
@@ -1332,14 +1338,15 @@ for that sequence only.
 newlines.afterInfixBreakOnNested
 ```
 
-If enabled, will force line breaks around a nested parenthesized
-sub-expression in a multi-line infix expression.
+If enabled, will force line breaks around a nested parenthesized sub-expression
+in a multi-line infix expression.
 
 ### `newlines.avoidForSimpleOverflow`
 
-A list parameter (of comma-separated flags), with possible flags described below.
-These flags relax formatting rules to allow occasional line overflow (i.e., when
-line exceeds `maxColumn`) in simple cases instead of introducing a newline.
+A list parameter (of comma-separated flags), with possible flags described
+below. These flags relax formatting rules to allow occasional line overflow
+(i.e., when line exceeds `maxColumn`) in simple cases instead of introducing a
+newline.
 
 ```scala mdoc:defaults
 newlines.avoidForSimpleOverflow
@@ -1349,7 +1356,8 @@ newlines.avoidForSimpleOverflow
 
 > Since v2.6.0.
 
-This flag tries to avoid introducing a newline if the line would overflow even with a newline.
+This flag tries to avoid introducing a newline if the line would overflow even
+with a newline.
 
 ```scala mdoc:scalafmt
 maxColumn = 50
@@ -1476,8 +1484,8 @@ List(1, 2, 3).map { x => x + 1 }
 ```
 
 Entire power of `RedundantBraces` can be accessed with
-`newlines.afterCurlyLambdaParams=squash`. It will try to squash lambda body in one
-line and then replace braces with parens:
+`newlines.afterCurlyLambdaParams=squash`. It will try to squash lambda body in
+one line and then replace braces with parens:
 
 ```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
@@ -1578,8 +1586,9 @@ rewrite.redundantBraces.stringInterpolation = true
 s"user id is ${id}"
 ```
 
-`rewrite.redundantBraces.parensForOneLineApply` is `true` by default for `edition` >= 2020-01.
-See also [newlines.afterCurlyLambdaParams = squash](#newlinesaftercurlylambdaparams).
+`rewrite.redundantBraces.parensForOneLineApply` is `true` by default for
+`edition` >= 2020-01. See also
+[newlines.afterCurlyLambdaParams = squash](#newlinesaftercurlylambdaparams).
 
 ```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
@@ -2043,7 +2052,8 @@ docstrings.style
 
 ##### `docstrings.style = Preserve`
 
-Prohibits formatting of docstrings. All other `docstrings` parameters are ignored.
+Prohibits formatting of docstrings. All other `docstrings` parameters are
+ignored.
 
 ```scala mdoc:scalafmt
 docstrings.style = Preserve
@@ -2141,10 +2151,11 @@ Will parse scaladoc comments and reformat them.
 
 This functionality is generally limited to
 [standard scaladoc elements](https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html)
-and might lead to undesirable results in corner cases;
-for instance, the scaladoc parser doesn't have proper support of embedded HTML.
+and might lead to undesirable results in corner cases; for instance, the
+scaladoc parser doesn't have proper support of embedded HTML.
 
-However, [tables are supported](https://www.scala-lang.org/blog/2018/10/04/scaladoc-tables.html).
+However,
+[tables are supported](https://www.scala-lang.org/blog/2018/10/04/scaladoc-tables.html).
 
 > Since v2.6.0. Ignored for `docstrings.style = Preserve`.
 
@@ -2183,7 +2194,8 @@ Controls whether to force the first line to be blank in a multiline docstring.
 Keep in mind that some combinations of parameters are prohibited (e.g.,
 `blankFirstLine=keep` contradicts with `style=Asterisk`).
 
-> Since v2.7.5. Ignored for `docstrings.style = Preserve` or `docstrings.wrap = no`.
+> Since v2.7.5. Ignored for `docstrings.style = Preserve` or
+> `docstrings.wrap = no`.
 
 ```scala mdoc:defaults
 docstrings.blankFirstLine
@@ -2291,8 +2303,8 @@ project.includeFilters = [
 
 > Since v2.5.0.
 
-Allows specifying an additional subset of parameters for each file matching
-a [PathMatcher](https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-)
+Allows specifying an additional subset of parameters for each file matching a
+[PathMatcher](https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-)
 pattern. For instance,
 
 ```
@@ -2308,8 +2320,9 @@ fileOverride {
 }
 ```
 
-uses `align.preset=none` for all files except `.sbt` for which `align.preset=most`
-will apply. It will also use different parameters for test suites.
+uses `align.preset=none` for all files except `.sbt` for which
+`align.preset=most` will apply. It will also use different parameters for test
+suites.
 
 > This parameter does not modify which files are formatted.
 
@@ -2425,8 +2438,11 @@ def +++(a: A): F[A]
 
 > Since v2.5.0.
 
-Scalafmt allows flexible configuration of [Integer](https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-syntax.html#integer-literals)
-and [Floating Point](https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-syntax.html#integer-literals) literals formatting.
+Scalafmt allows flexible configuration of
+[Integer](https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-syntax.html#integer-literals)
+and
+[Floating Point](https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-syntax.html#integer-literals)
+literals formatting.
 
 Default formatting:
 
@@ -2439,8 +2455,8 @@ Default formatting:
 10e-1D
 ```
 
-Each `literals.*` setting has three available options:
-`Upper`, `Lower`, `Unchanged`.
+Each `literals.*` setting has three available options: `Upper`, `Lower`,
+`Unchanged`.
 
 ### `literals.long`
 
@@ -2603,16 +2619,16 @@ val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
 
 See also:
 
-- `binPack.literalsIncludeSimpleExpr` (to allow a few select methods followed
-  by a few nested single-argument apply calls, with literals as arguments);
-  added in v2.5.0
+- `binPack.literalsIncludeSimpleExpr` (to allow a few select methods followed by
+  a few nested single-argument apply calls, with literals as arguments); added
+  in v2.5.0
 - all other `binPack.literalXXX` parameters (see list at the bottom) are
   self-explanatory.
 
 ### `binPack.parentConstructors`
 
-Parent constructors are `C` and `D` in `class A extends B with C and D`.
-Changed from a boolean to a wider set of options in v2.6.0.
+Parent constructors are `C` and `D` in `class A extends B with C and D`. Changed
+from a boolean to a wider set of options in v2.6.0.
 
 ```scala mdoc:defaults
 binPack.parentConstructors
@@ -2677,11 +2693,12 @@ object A {
 
 ## Classic select chains
 
-The parameters below control formatting of select chains when `newlines.source = classic`,
-and specifically which select expressions are included in a chain.
+The parameters below control formatting of select chains when
+`newlines.source = classic`, and specifically which select expressions are
+included in a chain.
 
-Generally, a chain can either be formatted on one line up to the last select, or will
-have a break on the first select.
+Generally, a chain can either be formatted on one line up to the last select, or
+will have a break on the first select.
 
 ### `includeCurlyBraceInSelectChains`
 
@@ -2764,12 +2781,12 @@ Controls whether to preserve a newline before each subsequent select when the
 very first one used a line break; that is, this parameter doesn't prohibit
 single-line formatting even if there are source breaks down the chain.
 
-If false, each subsequent select within the chain will behave exactly like the first,
-that is, either the entire chain will be formatted on one line, or will contain a break
-on every select.
+If false, each subsequent select within the chain will behave exactly like the
+first, that is, either the entire chain will be formatted on one line, or will
+contain a break on every select.
 
-If true, preserves existence or lack of breaks on subsequent selects if the first
-select was formatted with a newline.
+If true, preserves existence or lack of breaks on subsequent selects if the
+first select was formatted with a newline.
 
 ```scala mdoc:defaults
 optIn.breaksInsideChains
@@ -2804,8 +2821,8 @@ foo.bar(_ + 1)
 ### `optIn.encloseClassicChains`
 
 Controls what happens if a chain enclosed in parentheses is followed by
-additional selects. Those additional selects will be considered part of
-the enclosed chain if and only if this flag is false.
+additional selects. Those additional selects will be considered part of the
+enclosed chain if and only if this flag is false.
 
 > Since 2.6.2.
 
