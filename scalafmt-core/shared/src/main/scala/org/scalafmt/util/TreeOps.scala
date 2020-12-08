@@ -64,10 +64,11 @@ object TreeOps {
   }
 
   @tailrec
-  def isBlockFunction(fun: Term.Function): Boolean =
+  def isBlockFunction(fun: Tree): Boolean =
     fun.parent match {
       case Some(b: Term.Block) => isSingleElement(b.stats, fun)
       case Some(next: Term.Function) => isBlockFunction(next)
+      case Some(next: Term.ContextFunction) => isBlockFunction(next)
       case _ => false
     }
 
@@ -81,6 +82,7 @@ object TreeOps {
     tree match {
       case b: Term.Block => b.stats
       case b: Term.Function if isBlockFunction(b) => b.body :: Nil
+      case b: Term.ContextFunction if isBlockFunction(b) => b.body :: Nil
       case t: Pkg => t.stats
       // TODO(olafur) would be nice to have an abstract "For" superclass.
       case t: Term.For => getEnumStatements(t.enums)
@@ -479,15 +481,28 @@ object TreeOps {
       case _ => None
     }
 
-  @tailrec
-  final def lastLambda(first: Term.Function): Term.Function =
-    first.body match {
-      case child: Term.Function => lastLambda(child)
-      case block: Term.Block
-          if block.stats.headOption.exists(_.is[Term.Function]) =>
-        lastLambda(block.stats.head.asInstanceOf[Term.Function])
-      case _ => first
+  final def lastLambda(first: Tree): Tree = {
+    assert(first.is[Term.Function] || first.is[Term.ContextFunction])
+
+    @tailrec
+    def nextLambda(body: Tree): Tree =
+      body match {
+        case child: Term.Function => lastLambda(child)
+        case child: Term.ContextFunction => lastLambda(child)
+        case block: Term.Block
+            if block.stats.headOption.exists(_.is[Term.Function]) =>
+          nextLambda(block.stats.head)
+        case block: Term.Block
+            if block.stats.headOption.exists(_.is[Term.ContextFunction]) =>
+          nextLambda(block.stats.head)
+        case _ => first
+      }
+
+    first match {
+      case f: Term.Function => nextLambda(f.body)
+      case f: Term.ContextFunction => nextLambda(f.body)
     }
+  }
 
   final def isInfixOp(tree: Tree): Boolean =
     tree.parent.exists {

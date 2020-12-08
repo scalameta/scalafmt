@@ -195,7 +195,8 @@ class Router(formatOps: FormatOps) {
         // lambdaNLOnly: None for single line only
         val (lambdaExpire, lambdaArrow, lambdaIndent, lambdaNLOnly) =
           startsStatement(right) match {
-            case Some(owner: Term.Function) =>
+            case Some(owner)
+                if owner.is[Term.Function] || owner.is[Term.ContextFunction] =>
               val arrow = getFuncArrow(lastLambda(owner))
               val expire = arrow.getOrElse(tokens(owner.tokens.last))
               val nlOnly =
@@ -327,12 +328,15 @@ class Router(formatOps: FormatOps) {
           case _ => splits
         }
 
-      case FormatToken(arrow @ T.RightArrow(), right, _)
+      case FormatToken(T.RightArrow() | T.ContextArrow(), right, _)
           if startsStatement(right).isDefined &&
-            leftOwner.isInstanceOf[Term.Function] =>
-        val endOfFunction = lastToken(
-          leftOwner.asInstanceOf[Term.Function].body
-        )
+            (leftOwner.isInstanceOf[Term.Function] ||
+              leftOwner.isInstanceOf[Term.ContextFunction]) =>
+        val body = leftOwner match {
+          case f: Term.Function => f.body
+          case f: Term.ContextFunction => f.body
+        }
+        val endOfFunction = lastToken(body)
         val canBeSpace =
           startsStatement(right).get.isInstanceOf[Term.Function]
         val (afterCurlySpace, afterCurlyNewlines) =
@@ -353,12 +357,14 @@ class Router(formatOps: FormatOps) {
           Split(afterCurlyNewlines, 1).withIndent(2, endOfFunction, After)
         )
 
-      case FormatToken(T.RightArrow(), right, _)
+      case FormatToken(T.RightArrow() | T.ContextArrow(), right, _)
           if leftOwner.is[Term.Function] ||
+            leftOwner.is[Term.ContextFunction] ||
             (leftOwner.is[Template] &&
               leftOwner.parent.exists(_.is[Term.NewAnonymous])) =>
         val (endOfFunction, expiresOn) = leftOwner match {
           case t: Term.Function => functionExpire(t)
+          case t: Term.ContextFunction => functionExpire(t)
           case t => lastToken(t) -> ExpiresOn.Before
         }
 

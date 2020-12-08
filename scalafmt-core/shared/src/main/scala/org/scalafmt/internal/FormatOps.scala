@@ -32,6 +32,7 @@ import scala.meta.{
   Source,
   Template,
   Term,
+  Tokens,
   Tree,
   Type,
   TypeCase
@@ -530,6 +531,7 @@ class FormatOps(
         child.parent.collect {
           case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
           case fun: Term.Function if isBlockFunction(fun) => true
+          case fun: Term.ContextFunction if isBlockFunction(fun) => true
           case t: Case => t.pat eq child
         }
       }
@@ -815,7 +817,9 @@ class FormatOps(
       case _ => false
     }
 
-  def functionExpire(function: Term.Function): (Token, ExpiresOn) = {
+  def functionExpire(function: Tree): (Token, ExpiresOn) = {
+    assert(function.is[Term.Function] || function.is[Term.ContextFunction])
+
     def dropWS(rtoks: Seq[Token]): Seq[Token] =
       rtoks.dropWhile(_.is[Whitespace])
     def orElse(rtoks: Seq[Token]) = {
@@ -1247,20 +1251,24 @@ class FormatOps(
 
   def getLambdaAtSingleArgCallSite(
       ft: FormatToken
-  )(implicit style: ScalafmtConfig): Option[Term.Function] =
+  )(implicit style: ScalafmtConfig): Option[Tree] = {
+    def infixArg(fun: Tree) = fun.parent.exists {
+      case Term.ApplyInfix(_, _, _, List(`fun`)) => true
+      case _ => false
+    }
     ft.meta.leftOwner match {
       case Term.Apply(_, List(fun: Term.Function)) => Some(fun)
-      case fun: Term.Function if fun.parent.exists({
-            case Term.ApplyInfix(_, _, _, List(`fun`)) => true
-            case _ => false
-          }) =>
-        Some(fun)
+      case Term.Apply(_, List(fun: Term.ContextFunction)) => Some(fun)
+      case fun: Term.Function if infixArg(fun) => Some(fun)
+      case fun: Term.ContextFunction if infixArg(fun) => Some(fun)
       case t: Init =>
-        findArgsFor(ft.left, t.argss).collect { case List(f: Term.Function) =>
-          f
+        findArgsFor(ft.left, t.argss).collect {
+          case List(f: Term.Function) => f
+          case List(f: Term.ContextFunction) => f
         }
       case _ => None
     }
+  }
 
   def findArgsFor[A <: Tree](
       token: Token,
@@ -1268,12 +1276,22 @@ class FormatOps(
   ): Option[Seq[A]] =
     TokenOps.findArgsFor(token, argss, matchingParentheses)
 
+  def getFuncArrow(term: Tree): Option[FormatToken] = term match {
+    case f: Term.Function => getFuncArrow(f.body, f.params, f.tokens)
+    case f: Term.ContextFunction => getFuncArrow(f.body, f.params, f.tokens)
+    case _ => None
+  }
+
   // look for arrow before body, if any, else after params
-  def getFuncArrow(term: Term.Function): Option[FormatToken] =
-    term.body.tokens.headOption
+  private def getFuncArrow(
+      body: Term,
+      params: List[Term.Param],
+      termTokens: Tokens
+  ): Option[FormatToken] =
+    body.tokens.headOption
       .map(x => prevNonComment(tokens(x, -1)))
       .orElse {
-        val lastParam = term.params.lastOption
+        val lastParam = params.lastOption
         lastParam.flatMap(_.tokens.lastOption).map { x =>
           val maybeArrow = tokens(nextNonComment(tokens(x)), 1)
           if (maybeArrow.left.is[T.RightArrow]) maybeArrow
@@ -1281,8 +1299,8 @@ class FormatOps(
         }
       }
       .orElse {
-        val headToken = tokens(term.tokens.head)
-        findFirst(headToken, term.tokens.last)(_.left.is[T.RightArrow])
+        val headToken = tokens(termTokens.head)
+        findFirst(headToken, termTokens.last)(_.left.is[T.RightArrow])
       }
 
   // look for arrow before body, if any, else after cond/pat
