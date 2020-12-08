@@ -2,8 +2,7 @@ maxColumn = 200 #to not disturb the output too much
 rewrite {
   rules = [SortModifiers]
 }
-
-
+runner.dialect = Scala3
 <<< default formatting of ADT
 package test
 

@@ -1,4 +1,5 @@
 maxColumn = 40
+runner.dialect = Scala3
 <<< class
 open class Foobar()
 >>>

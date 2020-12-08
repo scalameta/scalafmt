@@ -5,6 +5,7 @@ rewrite {
     order = ["open", "implicit"]
   }
 }
+runner.dialect = Scala3
 <<< open implicit class
 implicit open class Foo()
 >>>

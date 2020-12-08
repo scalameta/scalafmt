@@ -4,6 +4,7 @@ rewrite {
     order = ["implicit"]
   }
 }
+runner.dialect = Scala3
 <<< open goes to the front of the list if it's missing from the config
 implicit open class Foo()
 >>>

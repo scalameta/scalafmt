@@ -1,0 +1,9 @@
+runner.dialect = Scala3
+<<< extractor
+val List(a : _ *) = 2
+>>>
+val List(a: _*) = 2
+<<< trait parameters
+trait T(a : Int)
+>>>
+trait T(a: Int)
