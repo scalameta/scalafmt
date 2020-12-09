@@ -1,10 +1,7 @@
 package org.scalafmt.config
 
 import metaconfig._
-import scala.meta.classifiers.Classifier
-import scala.meta.Tree
 import scala.meta.Mod
-import sourcecode.Name
 import sourcecode.Text
 
 case class SortSettings(
@@ -15,35 +12,22 @@ object SortSettings {
   final case class ModKey(
       name: String,
       matches: Mod => Boolean
-  ) extends Product
-  private def createMod[T <: Mod](implicit
-      name: Name,
-      c: Classifier[Tree, T]
-  ): ModKey = ModKey(name.value, m => c(m))
-  val `private` = createMod[Mod.Private]
-  val `protected` = createMod[Mod.Protected]
-  val `final` = createMod[Mod.Final]
-  val `sealed` = createMod[Mod.Sealed]
-  val `abstract` = createMod[Mod.Abstract]
-  val `implicit` = createMod[Mod.Implicit]
-  val `override` = createMod[Mod.Override]
-  val `lazy` = createMod[Mod.Lazy]
-  val `open` = createMod[Mod.Open]
+  )
 
   val defaultOrder: List[ModKey] = List(
-    `implicit`,
+    ModKey("implicit", _.is[Mod.Implicit]),
     //
-    `final`,
-    `sealed`,
-    `abstract`,
+    ModKey("final", _.is[Mod.Final]),
+    ModKey("sealed", _.is[Mod.Sealed]),
+    ModKey("abstract", _.is[Mod.Abstract]),
     //
-    `override`,
+    ModKey("override", _.is[Mod.Override]),
     //
-    `private`,
-    `protected`,
+    ModKey("private", _.is[Mod.Private]),
+    ModKey("protected", _.is[Mod.Protected]),
     //
-    `lazy`,
-    `open`
+    ModKey("lazy", _.is[Mod.Lazy]),
+    ModKey("open", _.is[Mod.Open])
   )
 
   implicit val SortSettingsModKeyReader: ConfCodec[ModKey] =
