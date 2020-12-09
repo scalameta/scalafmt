@@ -1078,7 +1078,7 @@ class Router(formatOps: FormatOps) {
 
       case FormatToken(_: T.MacroSplice | _: T.MacroQuote, _: T.LeftBrace, _) =>
         Seq(Split(NoSplit, 0))
-      case FormatToken(left, _: T.LeftBrace, _) =>
+      case FormatToken(_, _: T.LeftBrace, _) =>
         Seq(Split(Space, 0))
 
       // Delim
