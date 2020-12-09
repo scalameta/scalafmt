@@ -59,6 +59,7 @@ class Router(formatOps: FormatOps) {
   import PolicyOps._
   import TokenOps._
   import TreeOps._
+  import FormatOps._
   import formatOps._
 
   private def getSplitsImpl(formatToken: FormatToken): Seq[Split] = {
@@ -655,7 +656,7 @@ class Router(formatOps: FormatOps) {
             (!style.binPack.unsafeCallSite && isCallSite(leftOwner)) ||
             (!style.binPack.unsafeDefnSite && isDefnSite(leftOwner)) =>
         val close = matching(open)
-        val (lhs, args) = getApplyArgs(formatToken, false)
+        val TreeArgs(lhs, args) = getApplyArgs(formatToken, false)
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
         val lhsPenalty = treeDepth(lhs)
@@ -760,15 +761,15 @@ class Router(formatOps: FormatOps) {
             Policy.NoPolicy
           }
 
-        val handleImplicitOrUsing =
-          if (onlyConfigStyle)
-            opensConfigStyleImplicitOrUsingParamList(formatToken)
-          else opensImplicitOrUsingParamList(formatToken, args)
+        // covers using as well
+        val handleImplicit =
+          if (onlyConfigStyle) opensConfigStyleImplicitParamList(formatToken)
+          else opensImplicitParamList(formatToken, args)
 
         val noSplitMod =
           if (
             style.newlines.source.eq(Newlines.keep) && tok.hasBreak || {
-              if (!handleImplicitOrUsing) onlyConfigStyle
+              if (!handleImplicit) onlyConfigStyle
               else style.newlines.forceBeforeImplicitParamListModifier
             }
           )
@@ -779,7 +780,7 @@ class Router(formatOps: FormatOps) {
         val align = {
           if (defnSite) style.align.openParenDefnSite
           else style.align.openParenCallSite
-        } && (!handleImplicitOrUsing ||
+        } && (!handleImplicit ||
           style.newlines.forceAfterImplicitParamListModifier)
         val alignTuple = align && isTuple(leftOwner) && !onlyConfigStyle
 
@@ -815,7 +816,7 @@ class Router(formatOps: FormatOps) {
             Indent(Num(2), right, After)
           else Indent.Empty
         val (implicitPenalty, implicitPolicy) =
-          if (!handleImplicitOrUsing) (2, Policy.NoPolicy)
+          if (!handleImplicit) (2, Policy.NoPolicy)
           else (0, decideNewlinesOnlyAfterToken(right))
 
         val splitsNoNL =
@@ -848,7 +849,7 @@ class Router(formatOps: FormatOps) {
               Split(noSplitMod, (implicitPenalty + lhsPenalty) * bracketCoef)
                 .withPolicy(oneArgOneLine & implicitPolicy)
                 .onlyIf(
-                  (notTooManyArgs && align) || (handleImplicitOrUsing &&
+                  (notTooManyArgs && align) || (handleImplicit &&
                     style.newlines.notBeforeImplicitParamListModifier)
                 )
                 .withIndent(if (align) StateColumn else indent, close, Before)
@@ -1764,20 +1765,14 @@ class Router(formatOps: FormatOps) {
       case FormatToken(c: T.Comment, _, _) =>
         Seq(Split(getMod(formatToken), 0))
 
-      case FormatToken(_: T.KwImplicit | T.Ident("using"), _, _)
+      case FormatToken(soft.ImplicitOrUsing(), _, _)
           if !style.binPack.unsafeDefnSite &&
-            !style.verticalMultiline.atDefnSite && isRightImplicitOrUsingSoftKw(
-              prev(formatToken)
-            ) =>
+            !style.verticalMultiline.atDefnSite &&
+            isRightImplicitOrUsingSoftKw(formatToken, soft) =>
         val argsOrParamsOpt = formatToken.meta.leftOwner match {
           // for the using argument list
-          case _: ApplyUsing =>
-            Some {
-              val (_, args) = getApplyArgs(formatToken, false)
-              args
-            }
-          case _ =>
-            opensImplicitOrUsingParamList(prevNonComment(prev(formatToken)))
+          case _: ApplyUsing => Some(getApplyArgs(formatToken, false).args)
+          case _ => opensImplicitParamList(prevNonComment(prev(formatToken)))
         }
         argsOrParamsOpt.fold {
           Seq(Split(Space, 0))

@@ -45,6 +45,8 @@ class FormatOps(
     baseStyle: ScalafmtConfig,
     val filename: String = ""
 ) {
+  import FormatOps._
+
   val initStyle = {
     val queue = new mutable.Queue[Tree]
     queue += tree
@@ -65,6 +67,7 @@ class FormatOps(
   implicit val dialect = initStyle.runner.dialect
   private val ownersMap = getOwners(tree)
   val tokens: FormatTokens = FormatTokens(tree.tokens, owners)
+  private[internal] val soft = new SoftKeywordClasses(dialect)
   private val statementStarts = getStatementStarts(tree)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   private val matchingParentheses: Map[TokenHash, Token] =
@@ -882,20 +885,20 @@ class FormatOps(
   )(implicit style: ScalafmtConfig): Boolean = {
     def opensImplicit =
       (style.newlines.forceAfterImplicitParamListModifier ||
-        next(ft).hasBreak) && opensConfigStyleImplicitOrUsingParamList(ft)
+        next(ft).hasBreak) && opensConfigStyleImplicitParamList(ft)
     (ft.hasBreak || opensImplicit) && {
       val close = matching(ft.left)
       tokens(close, -1).hasBreak
     }
   }
 
-  def opensConfigStyleImplicitOrUsingParamList(
+  /** Works for `using` as well */
+  def opensConfigStyleImplicitParamList(
       formatToken: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
-    (formatToken.right
-      .is[T.KwImplicit] || formatToken.right.text == "using") &&
+    formatToken.right.is[soft.ImplicitOrUsing] &&
       style.newlines.notBeforeImplicitParamListModifier &&
-      opensImplicitOrUsingParamList(formatToken).isDefined
+      opensImplicitParamList(formatToken).isDefined
 
   def styleAt(tree: Tree): ScalafmtConfig = {
     val style = styleMap.at(tree.tokens.head)
@@ -1136,7 +1139,7 @@ class FormatOps(
         def isDefinition = ownerCheck(owners(close2))
 
         val shouldAddNewline = {
-          if (right.is[T.KwImplicit] || right.text == "using")
+          if (right.is[soft.ImplicitOrUsing])
             style.newlines.forceBeforeImplicitParamListModifier ||
             style.verticalMultiline.newlineBeforeImplicitKW
           else
@@ -1147,7 +1150,7 @@ class FormatOps(
           Split(NoSplit.orNL(!shouldAddNewline), 0)
             .withIndent(indentParam, close2, ExpiresOn.Before)
         )
-      case Decision(t @ FormatToken(T.KwImplicit() | T.Ident("using"), _, _), _)
+      case Decision(t @ FormatToken(soft.ImplicitOrUsing(), _, _), _)
           if style.newlines.forceAfterImplicitParamListModifier ||
             style.verticalMultiline.newlineAfterImplicitKW =>
         Seq(Split(Newline, 0))
@@ -1291,22 +1294,22 @@ class FormatOps(
   def getApplyArgs(
       ft: FormatToken,
       isRight: Boolean
-  )(implicit style: ScalafmtConfig): (Tree, Seq[Tree]) = {
+  )(implicit style: ScalafmtConfig): TreeArgs = {
     val paren = if (isRight) ft.right else ft.left
     val owner = if (isRight) ft.meta.rightOwner else ft.meta.leftOwner
     def getArgs(argss: Seq[Seq[Tree]]): Seq[Tree] =
       findArgsFor(paren, argss).getOrElse(Seq.empty)
     owner match {
-      case InfixApp(ia) if style.newlines.formatInfix => (ia.op, ia.rhs)
+      case InfixApp(ia) if style.newlines.formatInfix => TreeArgs(ia.op, ia.rhs)
       case t @ SplitDefnIntoParts(_, name, tparams, paramss) =>
         if (if (isRight) paren.is[T.RightParen] else paren.is[T.LeftParen])
-          (name, getArgs(paramss))
+          TreeArgs(name, getArgs(paramss))
         else
-          (name, tparams)
+          TreeArgs(name, tparams)
       case SplitCallIntoParts(tree, either) =>
         either match {
-          case Left(args) => (tree, args)
-          case Right(argss) => (tree, getArgs(argss))
+          case Left(args) => TreeArgs(tree, args)
+          case Right(argss) => TreeArgs(tree, getArgs(argss))
         }
       case _ =>
         logger.debug(s"""Unknown tree
@@ -1316,9 +1319,7 @@ class FormatOps(
     }
   }
 
-  def opensImplicitOrUsingParamList(
-      ft: FormatToken
-  ): Option[Seq[Term.Param]] = {
+  def opensImplicitParamList(ft: FormatToken): Option[Seq[Term.Param]] = {
     val paramsOpt = splitDefnIntoParts.lift(ft.meta.leftOwner).flatMap {
       case (_, _, _, paramss) =>
         findArgsFor(ft.left, paramss)
@@ -1327,14 +1328,12 @@ class FormatOps(
     paramsOpt.filter(!_.exists(TreeOps.hasExplicitImplicit))
   }
 
-  def opensImplicitOrUsingParamList(
-      ft: FormatToken,
-      args: Seq[Tree]
-  ): Boolean =
+  /** Works for `using` as well */
+  def opensImplicitParamList(ft: FormatToken, args: Seq[Tree]): Boolean =
     ft.right.is[T.KwImplicit] && args.forall {
       case t: Term.Param => !hasExplicitImplicit(t)
       case _ => true
-    } || ft.right.text == "using"
+    } || ft.right.is[soft.KwUsing]
 
   def isEnclosedInMatching(tree: Tree, open: T, close: T): Boolean =
     tree.tokens.headOption.contains(open) && (tree.tokens.last eq close)
@@ -1785,4 +1784,17 @@ class FormatOps(
     }
   }
 
+  // For using to be the soft kw it also has to be preceded by paren
+  def isRightImplicitOrUsingSoftKw(
+      ft: FormatToken,
+      soft: SoftKeywordClasses
+  ): Boolean = ft.left match {
+    case _: T.KwImplicit => true
+    case soft.KwUsing() => prevNonComment(prev(ft)).left.is[T.LeftParen]
+    case _ => false
+  }
+}
+
+object FormatOps {
+  case class TreeArgs(tree: Tree, args: Seq[Tree])
 }

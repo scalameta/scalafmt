@@ -244,3 +244,25 @@ val using = "aaaaaa"
 >>>
 val using =
   "aaaaaa"
+<<< comment in definition
+maxColumn = 40
+===
+def foo( /* go scala3 */ using a: String, b: String, c: String )
+>>>
+def foo(
+    /* go scala3 */ using
+    a: String,
+    b: String,
+    c: String
+)
+<<< comment in apply
+maxColumn = 40
+===
+foo( /* go scala3 */ using a: String, b: String, c: String )
+>>>
+foo(
+  /* go scala3 */ using
+  a: String,
+  b: String,
+  c: String
+)

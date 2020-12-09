@@ -1017,7 +1017,7 @@ class FormatWriter(formatOps: FormatOps) {
     ft.meta.rightOwner match {
       case x: Importer => x.importees.length > 1
       case _ =>
-        val args = getApplyArgs(ft, true)._2
+        val args = getApplyArgs(ft, true).args
         args.length > 1 && (args.last match {
           case _: Term.Repeated => false
           case t: Term.Param => !t.decltpe.exists(_.is[Type.Repeated])

@@ -1,6 +1,8 @@
 package org.scalafmt.util
 
+import scala.meta.Dialect
 import scala.meta.internal.classifiers.classifier
+import scala.meta.internal.parsers.SoftKeywords
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
@@ -96,4 +98,14 @@ object RightParenOrBracket {
 trait LeftParenOrBrace
 object LeftParenOrBrace {
   def unapply(tok: Token): Boolean = tok.is[LeftParen] || tok.is[LeftBrace]
+}
+
+class SoftKeywordClasses(dialect: Dialect) extends SoftKeywords(dialect) {
+  @classifier
+  trait ImplicitOrUsing
+  object ImplicitOrUsing {
+    def unapply(tok: Token): Boolean = {
+      tok.is[KwImplicit] || tok.is[KwUsing]
+    }
+  }
 }
