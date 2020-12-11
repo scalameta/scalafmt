@@ -1,4 +1,3 @@
-runner.dialect = Scala3
 <<< enum
 enum Color {
 case Red, Green, Blue
