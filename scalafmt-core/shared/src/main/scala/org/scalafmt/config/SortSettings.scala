@@ -1,70 +1,50 @@
 package org.scalafmt.config
 
 import metaconfig._
+import scala.meta.Mod
+import sourcecode.Text
 
 case class SortSettings(
     order: List[SortSettings.ModKey]
 )
 
 object SortSettings {
-
-  implicit val SortSettingsModKeyReader: ConfCodec[ModKey] =
-    ReaderUtil.oneOf[ModKey](
-      `implicit`,
-      `final`,
-      `sealed`,
-      `abstract`,
-      `override`,
-      `private`,
-      `protected`,
-      `lazy`
-    )
+  final case class ModKey(
+      name: String,
+      matches: Mod => Boolean
+  )
 
   val defaultOrder: List[ModKey] = List(
-    `implicit`,
+    ModKey("implicit", _.is[Mod.Implicit]),
     //
-    `final`,
-    `sealed`,
-    `abstract`,
+    ModKey("final", _.is[Mod.Final]),
+    ModKey("sealed", _.is[Mod.Sealed]),
+    ModKey("abstract", _.is[Mod.Abstract]),
     //
-    `override`,
+    ModKey("override", _.is[Mod.Override]),
     //
-    `private`,
-    `protected`,
+    ModKey("private", _.is[Mod.Private]),
+    ModKey("protected", _.is[Mod.Protected]),
     //
-    `lazy`
+    ModKey("lazy", _.is[Mod.Lazy]),
+    ModKey("open", _.is[Mod.Open])
   )
+
+  implicit val SortSettingsModKeyReader: ConfCodec[ModKey] =
+    ReaderUtil.oneOf[ModKey](defaultOrder.map(v => Text(v, v.name)): _*)
 
   implicit val surface: generic.Surface[SortSettings] = generic.deriveSurface
   implicit lazy val encoder: ConfEncoder[SortSettings] =
     generic.deriveEncoder
   implicit val reader: ConfDecoder[SortSettings] =
-    generic.deriveDecoder(SortSettings(defaultOrder)).flatMap { result =>
-      if (result.order.distinct.length != 8) {
-        val diff = defaultOrder.diff(result.order.distinct)
-        ConfError
-          .message(
-            s"Incomplete 'sortModifiers.order', missing values: ${diff.mkString(", ")}. " +
-              s"If specified, it has to contain all of the following values in the order you wish them sorted:" +
-              """["private", "protected" , "abstract", "final", "sealed", "implicit", "override", "lazy"]"""
-          )
-          .notOk
-      } else {
-        Configured.ok(result)
-      }
-    }
+    // NOTE: Originally, the configuration parser failed if a modifier was
+    // missing from the configuration but this behavior was problematic
+    // because it was a breaking change to add formatting support for a
+    // new modifier like Scala 3 "open". Instead, modifiers with no configuration
+    // get sorted to the front of the list.
+    generic.deriveDecoder(SortSettings(defaultOrder))
 
   def default: SortSettings =
     SortSettings(defaultOrder)
 
-  sealed trait ModKey extends Product
-
-  case object `private` extends ModKey
-  case object `protected` extends ModKey
-  case object `final` extends ModKey
-  case object `sealed` extends ModKey
-  case object `abstract` extends ModKey
-  case object `implicit` extends ModKey
-  case object `override` extends ModKey
-  case object `lazy` extends ModKey
 }

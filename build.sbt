@@ -57,6 +57,7 @@ commands += Command.command("ci-test") { s =>
   val docsTest = if (scalaVersion == scala212) "docs/run" else "version"
   s"++$scalaVersion" ::
     "tests/test" ::
+    "publishLocal" ::
     docsTest ::
     s
 }
@@ -212,7 +213,10 @@ lazy val tests = project
       scalatest.value
     ),
     scalacOptions ++= scalacJvmOptions.value,
-    fork := true
+    // Fork in CI to avoid memory limitation issues. Disable forking locally
+    // because ScalaTest error reporting fails with cryptic serialization errors
+    // when forking is enabled.
+    fork := isCI
   )
   .dependsOn(coreJVM, dynamic, cli)
 

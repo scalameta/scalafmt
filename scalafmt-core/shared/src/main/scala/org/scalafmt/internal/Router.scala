@@ -527,7 +527,8 @@ class Router(formatOps: FormatOps) {
       // Opening ( with no leading space.
       case FormatToken(
             RightParenOrBracket() | T.KwSuper() | T.KwThis() | T.Ident(_) |
-            T.RightBrace() | T.Underscore(),
+            T.RightBrace() | T.Underscore() | T.MacroQuotedIdent(_) |
+            T.MacroSplicedIdent(_),
             LeftParenOrBracket(),
             _
           ) if noSpaceBeforeOpeningParen(rightOwner) && {
@@ -1075,6 +1076,8 @@ class Router(formatOps: FormatOps) {
             .withSingleLine(close, killOnFail = true)
         ) ++ oneArgPerLineSplits
 
+      case FormatToken(_: T.MacroSplice | _: T.MacroQuote, _: T.LeftBrace, _) =>
+        Seq(Split(NoSplit, 0))
       case FormatToken(_, _: T.LeftBrace, _) =>
         Seq(Split(Space, 0))
 

@@ -1,0 +1,47 @@
+maxColumn = 40
+<<< splice brace
+${    locationImpl() }
+>>>
+${ locationImpl() }
+<<< quote brace
+'{   new Location() }
+>>>
+'{ new Location() }
+<<< quote expr
+val x   = 'expr
+>>>
+val x = 'expr
+<<< splice expr
+val x   = $expr
+>>>
+val x = $expr
+<<< splice expr
+${   assertImpl('expr  ) }
+>>>
+${ assertImpl('expr) }
+<<< splice expr2
+throw new   AssertionError(s"failed assertion: ${${ showExpr(expr) }}")
+>>>
+throw new AssertionError(s"failed assertion: ${${ showExpr(expr) }}")
+<<< functions
+'{   (x: T) => ${ f('x) } }
+>>>
+'{ (x: T) => ${ f('x) } }
+<<< unctions spliced
+  (x: Expr[T]) => '{ $f($x) }
+>>>
+(x: Expr[T]) => '{ $f($x) }
+<<< functions quoted
+(  x: Expr[T]) => 'f('x)
+>>>
+(x: Expr[T]) => 'f('x)
+<<< line wrap brace
+val xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx = ${    locationImpl(Foooooooooooooooooooooooo()) }
+>>>
+val xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx = ${
+  locationImpl(Foooooooooooooooooooooooo())
+}
+<<< SKIP dollar parameter - FIXME https://github.com/scalameta/scalameta/issues/2191
+List().map(($, a) => $.a)
+>>>
+List().map(($, a) => $.a)

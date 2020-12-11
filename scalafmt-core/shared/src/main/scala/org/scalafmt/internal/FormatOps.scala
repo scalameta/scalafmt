@@ -4,7 +4,13 @@ import java.{util => ju}
 
 import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{BinPack, Comments, Newlines, ScalafmtConfig}
+import org.scalafmt.config.{
+  BinPack,
+  Comments,
+  Newlines,
+  ScalafmtConfig,
+  ScalafmtRunner
+}
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
@@ -52,7 +58,7 @@ class FormatOps(
     if (checkedNewlines eq baseStyle.newlines) baseStyle
     else baseStyle.copy(newlines = checkedNewlines)
   }
-  val runner = initStyle.runner
+  val runner: ScalafmtRunner = initStyle.runner
   import PolicyOps._
   import TokenOps._
   import TreeOps._

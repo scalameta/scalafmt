@@ -2,8 +2,7 @@ maxColumn = 200 #to not disturb the output too much
 rewrite {
   rules = [SortModifiers]
 }
-
-
+runner.dialect = Scala3
 <<< default formatting of ADT
 package test
 
@@ -92,3 +91,7 @@ final private[test] object Tests {
     implicit final override protected lazy val name: String = impl
   }
 }
+<<< open default
+open implicit class Test()
+>>>
+implicit open class Test()
