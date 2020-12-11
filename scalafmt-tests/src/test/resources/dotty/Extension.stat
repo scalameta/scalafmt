@@ -1,0 +1,96 @@
+#                                                                            |
+<<< extension method
+extension [A](a: A  ) def add(b: A) = a + b
+>>>
+extension [A](a: A) def add(b: A) = a + b
+<<< extension method wrap eparam
+maxColumn = 40
+===
+extension [A](a: Map[A, Foooooooooooooooo[B]]) def add(b: A) = a + b
+>>>
+extension [A](
+    a: Map[A, Foooooooooooooooo[B]]
+) def add(b: A) = a + b
+<<< extension method wrap tparam
+maxColumn = 40
+===
+extension [Aaaaaaaaaaaa, Bbbbbb, Ccccccccccccc](a: Map[A, F[B]]) def add(b: A) = a + b
+>>>
+extension [
+    Aaaaaaaaaaaa,
+    Bbbbbb,
+    Ccccccccccccc
+](a: Map[A, F[B]]) def add(b: A) = a + b
+<<< extension method wrap tparam + eparam
+maxColumn = 40
+===
+extension [Aaaaaaaaaaaaaaaaaaaaa, Bbbbb, Ccc](a: Map[A, Fooooooooooooo[Baaaaaaaaaarrrrrrrrrrrrrrrrrrrrrrr]]) def add(b: A) = a + b
+>>>
+extension [
+    Aaaaaaaaaaaaaaaaaaaaa,
+    Bbbbb,
+    Ccc
+](
+    a: Map[A, Fooooooooooooo[
+      Baaaaaaaaaarrrrrrrrrrrrrrrrrrrrrrr
+    ]]
+) def add(b: A) = a + b
+<<< extension method wrap uparam
+maxColumn = 40
+===
+extension (a: A)(using c: Aaaaaaaaaaaaaaaa) def add(b: A) = a + b
+>>>
+extension (a: A)(
+    using c: Aaaaaaaaaaaaaaaa
+) def add(b: A) = a + b
+<<< space before def
+extension (a: A)
+    def add(b: A) = a + b
+>>>
+extension (a: A) def add(b: A) = a + b
+<<< extension method wrap def
+maxColumn = 40
+===
+extension (a: A) def add(b: Aaaaaaaaaaaaaaaaa) = a + b
+>>>
+extension (a: A)
+  def add(b: Aaaaaaaaaaaaaaaaa) = a + b
+<<< extension method wrap def paramss
+maxColumn = 40
+===
+extension (a: A) def add(b: Aaaaaaaaaaa, c: CCCCCCCCCCCCCC) = a + b
+>>>
+extension (a: A)
+  def add(
+      b: Aaaaaaaaaaa,
+      c: CCCCCCCCCCCCCC
+  ) = a + b
+<<< extension group single line
+extension      (a: A) { def add1      (b: A) = a + b; def add2(b: A) = a + b }
+>>>
+extension (a: A) { def add1(b: A) = a + b; def add2(b: A) = a + b }
+<<< extension group wrap single line
+extension      (a: A) { def add1      (b: Aaaaaaaaaaaaaaaaaaaaaa) = a + b; def add2(b: A) = a + b }
+>>>
+extension (a: A) {
+  def add1(b: Aaaaaaaaaaaaaaaaaaaaaa) = a + b; def add2(b: A) = a + b
+}
+<<< class wrap single line - confirm consistency between extension gropus and classes
+class C      (a: A) { def add1      (b: Aaaaaaaaaaaaaaaaaaaaaa) = a + b; def add2(b: A) = a + b }
+>>>
+class C(a: A) {
+  def add1(b: Aaaaaaaaaaaaaaaaaaaaaa) = a + b; def add2(b: A) = a + b
+}
+<<< extension group wrap eparams
+maxColumn = 40
+===
+extension [AAaaaaaaaaaa](a: AAaaaaaaa)(using b: AAaaaaaaa) { def add1(b: A) = a + b
+  def add2(b: A) = a + b
+}
+>>>
+extension [AAaaaaaaaaaa](
+    a: AAaaaaaaa
+)(using b: AAaaaaaaa) {
+  def add1(b: A) = a + b
+  def add2(b: A) = a + b
+}

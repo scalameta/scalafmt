@@ -466,6 +466,14 @@ class Router(formatOps: FormatOps) {
           Split(NewlineT(isDouble = tok.hasBlankLine), 0)
         )
 
+      case tok @ FormatToken(_: T.RightParen, _: T.KwDef, _)
+          if leftOwner.is[Defn.ExtensionGroup] =>
+        // Force a newline with the body of a Defn.ExtensionGroup if the
+        // method doesn't fit on a single line.
+        Seq(
+          Split(Space, 0).withSingleLine(leftOwner.tokens.last),
+          Split(Newline, 1).withIndent(2, leftOwner.tokens.last, After)
+        )
       case tok @ FormatToken(left, right, _)
           if startsStatement(right).isDefined =>
         val expire = rightOwner.tokens
