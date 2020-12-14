@@ -71,15 +71,15 @@ code on your phone.</li>
 <li>Consider refactoring your code before of choosing a value above 100.</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="assumestandardlibrarystripmargin"></a><a href="#assumestandardlibrarystripmargin" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>assumeStandardLibraryStripMargin</code></h3>
-<p>This parameter simply says the <code>.stripMargin</code> method was not redefined
-by the user to assign special meaning to indentation preceding
-the <code>|</code> character. Hence, that indentation can be modified.</p>
+<p>This parameter simply says the <code>.stripMargin</code> method was not redefined by the
+user to assign special meaning to indentation preceding the <code>|</code> character.
+Hence, that indentation can be modified.</p>
 <pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
 assumeStandardLibraryStripMargin = <span class="hljs-literal">false</span>
 align.stripMargin = <span class="hljs-literal">true</span>
 </code></pre>
-<p>If <code>true</code>, lines starting with the margin character <code>|</code> (or another if
-specified in the <code>.stripMargin(...)</code> call) will be indented differently.</p>
+<p>If <code>true</code>, lines starting with the margin character <code>|</code> (or another if specified
+in the <code>.stripMargin(...)</code> call) will be indented differently.</p>
 <p>If <code>align.stripMargin</code> is true, they will align with the opening triple-quote
 <code>&quot;&quot;&quot;</code> in interpolated and raw string literals. Otherwise, they will be indented
 relative to the <em>start</em> of the opening line.</p>
@@ -142,12 +142,13 @@ align.stripMargin = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
 <h2><a class="anchor" aria-hidden="true" id="presets"></a><a href="#presets" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Presets</h2>
-<p>Some sections provide preset values to set multiple parameters at once.
-These are always accessed via the <code>preset</code> key of the appropriate section,
-including top-level.</p>
+<p>Some sections provide preset values to set multiple parameters at once. These
+are always accessed via the <code>preset</code> key of the appropriate section, including
+top-level.</p>
 <h3><a class="anchor" aria-hidden="true" id="top-level-presets"></a><a href="#top-level-presets" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Top-level presets</h3>
 <ul>
-<li><code>preset=default</code>: this preset is implicit and sets all values to their defaults.</li>
+<li><code>preset=default</code>: this preset is implicit and sets all values to their
+defaults.</li>
 <li><code>preset=IntelliJ</code>: this preset is defined as</li>
 </ul>
 <pre><code class="hljs">    preset =<span class="hljs-built_in"> default
@@ -269,8 +270,8 @@ indented by 2.</p>
 <p>This group of parameters allows overriding which infix operators are eligible
 and controls when indentation is <em>omitted</em>.</p>
 <h4><a class="anchor" aria-hidden="true" id="indentoperatortoplevelonly"></a><a href="#indentoperatortoplevelonly" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indentOperator.topLevelOnly</code></h4>
-<p>If true, only top-level infix operators are eligible to be exempted from
-the default indentation rule.</p>
+<p>If true, only top-level infix operators are eligible to be exempted from the
+default indentation rule.</p>
 <p>Default: <code>indentOperator.topLevelOnly = true</code></p>
 <pre><code class="hljs css language-scala formatted">function(
   a &amp;&amp;
@@ -363,9 +364,9 @@ in diffs or use <code>--ignore-all-space</code> to avoid conflicts when git merg
 rebasing.</p>
 </blockquote>
 <blockquote>
-<p>Starting with the introduction of <code>align.stripMargin</code> parameter in v2.5.0,
-one must explicitly enable it to get earlier behaviour of <code>align.preset=none</code>.
-See <a href="#assumestandardlibrarystripmargin">assumeStandardLibraryStripMargin</a>.</p>
+<p>Starting with the introduction of <code>align.stripMargin</code> parameter in v2.5.0, one
+must explicitly enable it to get earlier behaviour of <code>align.preset=none</code>. See
+<a href="#assumestandardlibrarystripmargin">assumeStandardLibraryStripMargin</a>.</p>
 </blockquote>
 <h4><a class="anchor" aria-hidden="true" id="alignpresetsome"></a><a href="#alignpresetsome" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.preset=some</code></h4>
 <pre><code class="hljs css language-scala formatted">x <span class="hljs-keyword">match</span> { <span class="hljs-comment">// true for case arrows</span>
@@ -538,7 +539,7 @@ token. If no <code>owner</code> is provided, then all tree kinds will be matched
 </p></details>
 <p>To find the <code>owner</code> part for a custom tree, depend on Scalameta and use
 <code>scala.meta.Tree.productPrefix</code> from the (for example, Ammonite) REPL.</p>
-<pre><code class="hljs css language-scala">@ import $ivy.`org.scalameta:scalameta_2.12:4.3.24`, scala.meta._
+<pre><code class="hljs css language-scala">@ import $ivy.`org.scalameta:scalameta_2.12:4.4.2`, scala.meta._
 @ val termMatch = q"x match { case 2 =&gt; foo(bar) }"
 termMatch: Term.Match = x match {
  case 2 =&gt;
@@ -691,11 +692,11 @@ function(
 <h3><a class="anchor" aria-hidden="true" id="alignstripmargin"></a><a href="#alignstripmargin" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.stripMargin</code></h3>
 <p>See <a href="#assumestandardlibrarystripmargin">assumeStandardLibraryStripMargin</a>.</p>
 <p>Default: <code>align.stripMargin = true</code></p>
-<p>This functionality is enabled in all presets except <code>align.preset=none</code> where it was
-disabled since the parameter's introduction in v2.5.0.</p>
+<p>This functionality is enabled in all presets except <code>align.preset=none</code> where it
+was disabled since the parameter's introduction in v2.5.0.</p>
 <h3><a class="anchor" aria-hidden="true" id="alignmultiline"></a><a href="#alignmultiline" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.multiline</code></h3>
-<p>If this flag is set, when alignment is applied, multiline statements will
-not be excluded from search of tokens to align.</p>
+<p>If this flag is set, when alignment is applied, multiline statements will not be
+excluded from search of tokens to align.</p>
 <blockquote>
 <p>Since v2.5.0.</p>
 </blockquote>
@@ -757,22 +758,24 @@ section.</p>
 <blockquote>
 <p>Since v2.5.0.</p>
 </blockquote>
-<p>This parameter controls the general approach to line breaks, and whether to take into
-account existing newlines in the source. The default value (if the parameter is not
-specified) is the <em>classic</em>, original way. Below are the alternatives.</p>
+<p>This parameter controls the general approach to line breaks, and whether to take
+into account existing newlines in the source. The default value (if the
+parameter is not specified) is the <em>classic</em>, original way. Below are the
+alternatives.</p>
 <blockquote>
 <p>These alternatives are EXPERIMENTAL and might change in the future without
-regard to any <code>edition</code> settings, until fully released (and this message deleted).</p>
+regard to any <code>edition</code> settings, until fully released (and this message
+deleted).</p>
 </blockquote>
 <h4><a class="anchor" aria-hidden="true" id="newlinessourcekeep"></a><a href="#newlinessourcekeep" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.source=keep</code></h4>
 <p>This approach attempts to preserve line breaks in the input whenever possible.</p>
 <h4><a class="anchor" aria-hidden="true" id="newlinessourcefoldunfold"></a><a href="#newlinessourcefoldunfold" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.source=fold,unfold</code></h4>
-<p>These two approaches <em>completely ignore</em> existing line breaks, except around comments
-and blank lines (i.e., multiple consecutive newlines).</p>
+<p>These two approaches <em>completely ignore</em> existing line breaks, except around
+comments and blank lines (i.e., multiple consecutive newlines).</p>
 <blockquote>
-<p>Might require increasing runner limits
-(<code>runner.optimizer.maxVisitsPerToken</code>, possibly even <code>runner.maxStateVisits</code>),
-to avoid <em>SearchStateExploded</em> exceptions.</p>
+<p>Might require increasing runner limits (<code>runner.optimizer.maxVisitsPerToken</code>,
+possibly even <code>runner.maxStateVisits</code>), to avoid <em>SearchStateExploded</em>
+exceptions.</p>
 </blockquote>
 <p><code>fold</code> attempts to remove line breaks whenever possible resulting in a more
 horizontal, or vertically compact look.</p>
@@ -781,11 +784,11 @@ or horizontally compact look.</p>
 <p>Both settings attempt to play nice with other parameters, but some combinations
 are prohibited and will result in an error.</p>
 <h3><a class="anchor" aria-hidden="true" id="config-style-formatting"></a><a href="#config-style-formatting" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Config-style formatting</h3>
-<p>This formatting applies to argument lists in class definitions and method calls. It
-normally involves a newline after the opening parenthesis (or after the <code>implicit</code> keyword)
-and a newline before the closing parenthesis.</p>
-<p>As part of the formatting output, arguments are output one per line (but this is not used in
-determining whether the source uses config-style formatting).</p>
+<p>This formatting applies to argument lists in class definitions and method calls.
+It normally involves a newline after the opening parenthesis (or after the
+<code>implicit</code> keyword) and a newline before the closing parenthesis.</p>
+<p>As part of the formatting output, arguments are output one per line (but this is
+not used in determining whether the source uses config-style formatting).</p>
 <p>While this parameter is not technically under the <code>newlines</code> section, it
 logically belongs there.</p>
 <h4><a class="anchor" aria-hidden="true" id="optinconfigstylearguments"></a><a href="#optinconfigstylearguments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>optIn.configStyleArguments</code></h4>
@@ -834,16 +837,18 @@ maxColumn=<span class="hljs-number">45</span>
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="forcing-config-style"></a><a href="#forcing-config-style" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Forcing config style</h4>
-<p>Controls parameters which trigger forced config-style formatting.
-All conditions must be satisfied in order for this rule to apply.</p>
+<p>Controls parameters which trigger forced config-style formatting. All conditions
+must be satisfied in order for this rule to apply.</p>
 <pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
 runner.optimizer.forceConfigStyleOnOffset = <span class="hljs-number">150</span>
 runner.optimizer.forceConfigStyleMinArgCount = <span class="hljs-number">2</span>
 </code></pre>
 <ul>
-<li><code>runner.optimizer.forceConfigStyleOnOffset</code>: applies to method calls; if positive, specifies the
-minimum character distance between the matching parentheses, excluding any whitespace</li>
-<li><code>runner.optimizer.forceConfigStyleMinArgCount</code> applies to method calls; specifies the minimum number of arguments</li>
+<li><code>runner.optimizer.forceConfigStyleOnOffset</code>: applies to method calls; if
+positive, specifies the minimum character distance between the matching
+parentheses, excluding any whitespace</li>
+<li><code>runner.optimizer.forceConfigStyleMinArgCount</code> applies to method calls;
+specifies the minimum number of arguments</li>
 </ul>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
   <span class="hljs-comment">// this is a definition, not a method call</span>
@@ -948,8 +953,8 @@ maxColumn=<span class="hljs-number">25</span>
 <blockquote>
 <p>Since v2.5.0.</p>
 </blockquote>
-<p>Forces dangling on open/close parens around control structures
-(<code>if</code>, <code>while</code>, <code>for</code>) when line breaks must occur.</p>
+<p>Forces dangling on open/close parens around control structures (<code>if</code>, <code>while</code>,
+<code>for</code>) when line breaks must occur.</p>
 <p>Default: <code>danglingParentheses.ctrlSite = true</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">if</span> (something) {
   <span class="hljs-comment">// nothing</span>
@@ -998,9 +1003,9 @@ danglingParentheses.exclude = [<span class="hljs-function"><span class="hljs-key
 <blockquote>
 <p>Since v2.5.0.</p>
 </blockquote>
-<p>This parameter, together with its companions below, controls whether to
-enforce a blank line before and/or after a top-level statement spanning
-a certain number of lines.</p>
+<p>This parameter, together with its companions below, controls whether to enforce
+a blank line before and/or after a top-level statement spanning a certain number
+of lines.</p>
 <blockquote>
 <p>This parameter will not cause any blank lines to be removed.</p>
 </blockquote>
@@ -1127,11 +1132,11 @@ a certain number of lines.</p>
 <blockquote>
 <p>Since v2.5.0.</p>
 </blockquote>
-<p>This parameter sets the minimum of line breaks between the first and last
-line of a top-level statement (i.e., one less than the number of lines
-the statement spans). For instance, <code>newlines.topLevelStatementsMinBreaks=0</code>
-will apply to all top-level statements, whereas 1 will require at least one
-line break (or a multi-line statement).</p>
+<p>This parameter sets the minimum of line breaks between the first and last line
+of a top-level statement (i.e., one less than the number of lines the statement
+spans). For instance, <code>newlines.topLevelStatementsMinBreaks=0</code> will apply to all
+top-level statements, whereas 1 will require at least one line break (or a
+multi-line statement).</p>
 <p>Default: <code>newlines.topLevelStatementsMinBreaks = 1</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">package</span> core {
 
@@ -1210,11 +1215,11 @@ newlines.topLevelStatementsMinBreaks = <span class="hljs-number">2</span>
 <p>Since 2.7.0</p>
 </blockquote>
 <p>This parameter controls whether to force a new line before a multi-line body of
-<code>case/if/val</code> and how to format it if the space is allowed. (For multi-line bodies
-of method definitions, please see <a href="#newlinesbeforemultilinedef"><code>newlines.beforeMultilineDef</code></a>
-below.)</p>
-<p>It accepts the same values as <a href="#newlinessource"><code>newlines.source</code></a>
-(and defaults to that parameter's setting).</p>
+<code>case/if/val</code> and how to format it if the space is allowed. (For multi-line
+bodies of method definitions, please see
+<a href="#newlinesbeforemultilinedef"><code>newlines.beforeMultilineDef</code></a> below.)</p>
+<p>It accepts the same values as <a href="#newlinessource"><code>newlines.source</code></a> (and defaults
+to that parameter's setting).</p>
 <p>NB: for breaks before parameters of a multi-line lambda, use <code>multiline</code> with
 <a href="#newlinesbeforecurlylambdaparams"><code>newlines.beforeCurlyLambdaParams</code></a>.</p>
 <pre><code class="hljs css language-scala formatted">a <span class="hljs-keyword">match</span> {
@@ -1318,9 +1323,9 @@ below.)</p>
 <blockquote>
 <p>Since 2.7.0</p>
 </blockquote>
-<p>This parameter applies to multi-line definitions only. It accepts the same values
-as <a href="#newlinesbeforemultiline"><code>newlines.beforeMultiline</code></a> (and defaults to that
-parameter's setting).</p>
+<p>This parameter applies to multi-line definitions only. It accepts the same
+values as <a href="#newlinesbeforemultiline"><code>newlines.beforeMultiline</code></a> (and defaults
+to that parameter's setting).</p>
 <p>It replaced deprecated boolean <code>newlines.alwaysBeforeMultilineDef</code> (with <code>false</code>
 mapped to <code>fold</code> and <code>true</code> to <code>unfold</code>).</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// had space after "="</span>
@@ -1456,9 +1461,9 @@ mapped to <code>fold</code> and <code>true</code> to <code>unfold</code>).</p>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="newlinesbeforecurlylambdaparams"></a><a href="#newlinesbeforecurlylambdaparams" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.beforeCurlyLambdaParams</code></h3>
-<p>This parameter controls whether a newline is forced between the opening curly brace
-and the parameters of a lambda or partial function. Added in 2.7.0, replacing
-boolean <code>alwaysBeforeCurlyBraceLambdaParams</code>.</p>
+<p>This parameter controls whether a newline is forced between the opening curly
+brace and the parameters of a lambda or partial function. Added in 2.7.0,
+replacing boolean <code>alwaysBeforeCurlyBraceLambdaParams</code>.</p>
 <p>Default: <code>newlines.beforeCurlyLambdaParams = &quot;never&quot;</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// should keep one-line</span>
 x.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
@@ -1581,9 +1586,9 @@ x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span c
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="newlinesaftercurlylambdaparams"></a><a href="#newlinesaftercurlylambdaparams" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.afterCurlyLambdaParams</code></h3>
 <p>This parameter controls handling of newlines after the arrow following the
-parameters of a curly brace lambda or partial function, and whether a space
-can be used for one-line formatting of the entire function body (if allowed
-but the body doesn't fit, a break is always forced).</p>
+parameters of a curly brace lambda or partial function, and whether a space can
+be used for one-line formatting of the entire function body (if allowed but the
+body doesn't fit, a break is always forced).</p>
 <p>This parameter was renamed in 2.7.0 from <code>afterCurlyLambda</code>, for clarity and
 consistency with <code>beforeCurlyLambdaParams</code> defined above.</p>
 <p>Default: <code>newlines.afterCurlyLambdaParams = &quot;never&quot;</code></p>
@@ -1692,10 +1697,9 @@ something.map { x =&gt; f(x) }
 </blockquote>
 <h4><a class="anchor" aria-hidden="true" id="prefer-after-default"></a><a href="#prefer-after-default" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Prefer After (default)</h4>
 <blockquote>
-<p>Prefers newline after <code>implicit</code>. Newline will be added
-unless the entire implicit parameter list fits on a line,
-or config style is false. Newline can also be added <em>before</em>
-if the keyword itself would overflow the line.</p>
+<p>Prefers newline after <code>implicit</code>. Newline will be added unless the entire
+implicit parameter list fits on a line, or config style is false. Newline can
+also be added <em>before</em> if the keyword itself would overflow the line.</p>
 </blockquote>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span>
     ev: <span class="hljs-type">Parser</span>,
@@ -1711,8 +1715,8 @@ newlines.implicitParamListModifierPrefer = after
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="prefer-before"></a><a href="#prefer-before" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Prefer Before</h4>
 <blockquote>
-<p>Prefers newline before <code>implicit</code>. Newline will not be added
-if the entire implicit parameter list fits on a line.</p>
+<p>Prefers newline before <code>implicit</code>. Newline will not be added if the entire
+implicit parameter list fits on a line.</p>
 </blockquote>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(
     <span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>,
@@ -1776,9 +1780,9 @@ newlines.implicitParamListModifierForce = [before,after]
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="implicit-with-optinconfigstylearguments"></a><a href="#implicit-with-optinconfigstylearguments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Implicit with <code>optIn.configStyleArguments</code></h4>
-<p>While config-style normally requires a newline after the opening parenthesis, postponing
-that break until after the <code>implicit</code> keyword is allowed if other parameters require
-keeping this keyword attached to the opening brace.</p>
+<p>While config-style normally requires a newline after the opening parenthesis,
+postponing that break until after the <code>implicit</code> keyword is allowed if other
+parameters require keeping this keyword attached to the opening brace.</p>
 <p>Therefore, any of the parameters described in this section will take precedence
 even when <code>optIn.configStyleArguments = true</code> is used.</p>
 <h3><a class="anchor" aria-hidden="true" id="newlinesafterinfix"></a><a href="#newlinesafterinfix" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.afterInfix</code></h3>
@@ -1798,13 +1802,15 @@ behaviour, and default for <code>newlines.source=classic,keep</code>.</p>
 a space before an infix operator and occasionally break after it. <code>some</code> is
 default for <code>newlines.source=fold</code>, and <code>many</code> for <code>newlines.source=unfold</code>.</p>
 <blockquote>
-<p>Might require increasing runner limits
-(<code>runner.optimizer.maxVisitsPerToken</code>, possibly even <code>runner.maxStateVisits</code>),
-to avoid <em>SearchStateExploded</em> exceptions.</p>
+<p>Might require increasing runner limits (<code>runner.optimizer.maxVisitsPerToken</code>,
+possibly even <code>runner.maxStateVisits</code>), to avoid <em>SearchStateExploded</em>
+exceptions.</p>
 </blockquote>
-<p><code>some</code> will introduce fewer line breaks than <code>many</code>. Both will attempt to break after
+<p><code>some</code> will introduce fewer line breaks than <code>many</code>. Both will attempt to break
+after
 <a href="https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations">higher-precedence operators</a>,
-and both will <em>always</em> break before an expression enclosed in matching parentheses.</p>
+and both will <em>always</em> break before an expression enclosed in matching
+parentheses.</p>
 <h4><a class="anchor" aria-hidden="true" id="newlinesafterinfixmaxcountperfile"></a><a href="#newlinesafterinfixmaxcountperfile" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.afterInfixMaxCountPerFile</code></h4>
 <p>Default: <code>newlines.afterInfixMaxCountPerFile = 500</code></p>
 <p>If the total number of infix operations in the <em>entire file</em> exceeds
@@ -1812,24 +1818,26 @@ and both will <em>always</em> break before an expression enclosed in matching pa
 <code>newlines.afterInfix=keep</code> for this file.</p>
 <h4><a class="anchor" aria-hidden="true" id="newlinesafterinfixmaxcountperexprforsome"></a><a href="#newlinesafterinfixmaxcountperexprforsome" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.afterInfixMaxCountPerExprForSome</code></h4>
 <p>Default: <code>newlines.afterInfixMaxCountPerExprForSome = 10</code></p>
-<p>If <code>newlines.afterInfix</code> is set to <code>some</code> and the number of infix operations in a
-<em>given expression sequence</em> (top-level or enclosed in parens/braces) exceeds
+<p>If <code>newlines.afterInfix</code> is set to <code>some</code> and the number of infix operations in
+a <em>given expression sequence</em> (top-level or enclosed in parens/braces) exceeds
 <code>newlines.afterInfixMaxCountPerExprForSome</code>, the formatter switches to <code>many</code>
 for that sequence only.</p>
 <h4><a class="anchor" aria-hidden="true" id="newlinesafterinfixbreakonnested"></a><a href="#newlinesafterinfixbreakonnested" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.afterInfixBreakOnNested</code></h4>
 <p>Default: <code>newlines.afterInfixBreakOnNested = false</code></p>
-<p>If enabled, will force line breaks around a nested parenthesized
-sub-expression in a multi-line infix expression.</p>
+<p>If enabled, will force line breaks around a nested parenthesized sub-expression
+in a multi-line infix expression.</p>
 <h3><a class="anchor" aria-hidden="true" id="newlinesavoidforsimpleoverflow"></a><a href="#newlinesavoidforsimpleoverflow" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.avoidForSimpleOverflow</code></h3>
-<p>A list parameter (of comma-separated flags), with possible flags described below.
-These flags relax formatting rules to allow occasional line overflow (i.e., when
-line exceeds <code>maxColumn</code>) in simple cases instead of introducing a newline.</p>
+<p>A list parameter (of comma-separated flags), with possible flags described
+below. These flags relax formatting rules to allow occasional line overflow
+(i.e., when line exceeds <code>maxColumn</code>) in simple cases instead of introducing a
+newline.</p>
 <p>Default: <code>newlines.avoidForSimpleOverflow = []</code></p>
 <h4><a class="anchor" aria-hidden="true" id="newlinesavoidforsimpleoverflowtoolong"></a><a href="#newlinesavoidforsimpleoverflowtoolong" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.avoidForSimpleOverflow=[tooLong]</code></h4>
 <blockquote>
 <p>Since v2.6.0.</p>
 </blockquote>
-<p>This flag tries to avoid introducing a newline if the line would overflow even with a newline.</p>
+<p>This flag tries to avoid introducing a newline if the line would overflow even
+with a newline.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">Example</span> </span>{
   foo_bar_baz(<span class="hljs-string">"the quick brown fox jumps over the lazy dog"</span>) {
     println(<span class="hljs-string">""</span>)
@@ -1997,8 +2005,8 @@ rewrite.redundantBraces.stringInterpolation = <span class="hljs-literal">true</s
 </code></pre>
 </p></details>
 <p>Entire power of <code>RedundantBraces</code> can be accessed with
-<code>newlines.afterCurlyLambdaParams=squash</code>. It will try to squash lambda body in one
-line and then replace braces with parens:</p>
+<code>newlines.afterCurlyLambdaParams=squash</code>. It will try to squash lambda body in
+one line and then replace braces with parens:</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>).map(x =&gt; x + <span class="hljs-number">1</span>)
 
 <span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>).map { x =&gt;
@@ -2113,8 +2121,9 @@ rewrite.redundantBraces.includeUnitMethods = <span class="hljs-literal">false</s
 rewrite.redundantBraces.stringInterpolation = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
-<p><code>rewrite.redundantBraces.parensForOneLineApply</code> is <code>true</code> by default for <code>edition</code> &gt;= 2020-01.
-See also <a href="#newlinesaftercurlylambdaparams">newlines.afterCurlyLambdaParams = squash</a>.</p>
+<p><code>rewrite.redundantBraces.parensForOneLineApply</code> is <code>true</code> by default for
+<code>edition</code> &gt;= 2020-01. See also
+<a href="#newlinesaftercurlylambdaparams">newlines.afterCurlyLambdaParams = squash</a>.</p>
 <pre><code class="hljs css language-scala formatted">xs.map(x =&gt; x + <span class="hljs-number">1</span>)
 </code></pre>
 <pre><code class="hljs css language-scala original">xs.map { x =&gt; x + <span class="hljs-number">1</span> }
@@ -2743,7 +2752,8 @@ comments.wrapStandaloneSlcAsSlc = <span class="hljs-literal">true</span>
 </blockquote>
 <p>Default: <code>docstrings.style = &quot;SpaceAsterisk&quot;</code></p>
 <h5><a class="anchor" aria-hidden="true" id="docstringsstyle--preserve"></a><a href="#docstringsstyle--preserve" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = Preserve</code></h5>
-<p>Prohibits formatting of docstrings. All other <code>docstrings</code> parameters are ignored.</p>
+<p>Prohibits formatting of docstrings. All other <code>docstrings</code> parameters are
+ignored.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/**   do not touch
  * this style
   * keep the text as-is
@@ -2863,9 +2873,10 @@ docstrings.oneline = keep
 <p>Will parse scaladoc comments and reformat them.</p>
 <p>This functionality is generally limited to
 <a href="https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html">standard scaladoc elements</a>
-and might lead to undesirable results in corner cases;
-for instance, the scaladoc parser doesn't have proper support of embedded HTML.</p>
-<p>However, <a href="https://www.scala-lang.org/blog/2018/10/04/scaladoc-tables.html">tables are supported</a>.</p>
+and might lead to undesirable results in corner cases; for instance, the
+scaladoc parser doesn't have proper support of embedded HTML.</p>
+<p>However,
+<a href="https://www.scala-lang.org/blog/2018/10/04/scaladoc-tables.html">tables are supported</a>.</p>
 <blockquote>
 <p>Since v2.6.0. Ignored for <code>docstrings.style = Preserve</code>.</p>
 </blockquote>
@@ -2931,7 +2942,8 @@ maxColumn = <span class="hljs-number">30</span>
 Keep in mind that some combinations of parameters are prohibited (e.g.,
 <code>blankFirstLine=keep</code> contradicts with <code>style=Asterisk</code>).</p>
 <blockquote>
-<p>Since v2.7.5. Ignored for <code>docstrings.style = Preserve</code> or <code>docstrings.wrap = no</code>.</p>
+<p>Since v2.7.5. Ignored for <code>docstrings.style = Preserve</code> or
+<code>docstrings.wrap = no</code>.</p>
 </blockquote>
 <p>Default: <code>docstrings.blankFirstLine = &quot;no&quot;</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** Scaladoc oneline */</span>
@@ -3062,8 +3074,8 @@ libraryDependencies ++= <span class="hljs-type">Seq</span>(
 <blockquote>
 <p>Since v2.5.0.</p>
 </blockquote>
-<p>Allows specifying an additional subset of parameters for each file matching
-a <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-">PathMatcher</a>
+<p>Allows specifying an additional subset of parameters for each file matching a
+<a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-">PathMatcher</a>
 pattern. For instance,</p>
 <pre><code class="hljs">align.<span class="hljs-attr">preset</span> = none
 fileOverride {
@@ -3076,8 +3088,9 @@ fileOverride {
   }
 }
 </code></pre>
-<p>uses <code>align.preset=none</code> for all files except <code>.sbt</code> for which <code>align.preset=most</code>
-will apply. It will also use different parameters for test suites.</p>
+<p>uses <code>align.preset=none</code> for all files except <code>.sbt</code> for which
+<code>align.preset=most</code> will apply. It will also use different parameters for test
+suites.</p>
 <blockquote>
 <p>This parameter does not modify which files are formatted.</p>
 </blockquote>
@@ -3192,8 +3205,11 @@ will apply. It will also use different parameters for test suites.</p>
 <blockquote>
 <p>Since v2.5.0.</p>
 </blockquote>
-<p>Scalafmt allows flexible configuration of <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-syntax.html#integer-literals">Integer</a>
-and <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-syntax.html#integer-literals">Floating Point</a> literals formatting.</p>
+<p>Scalafmt allows flexible configuration of
+<a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-syntax.html#integer-literals">Integer</a>
+and
+<a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-syntax.html#integer-literals">Floating Point</a>
+literals formatting.</p>
 <p>Default formatting:</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-number">123</span>L
 <span class="hljs-number">0xfff</span>
@@ -3207,8 +3223,8 @@ and <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-synta
 <span class="hljs-number">10E-1</span>
 <span class="hljs-number">10e-1</span>D
 </code></pre>
-<p>Each <code>literals.*</code> setting has three available options:
-<code>Upper</code>, <code>Lower</code>, <code>Unchanged</code>.</p>
+<p>Each <code>literals.*</code> setting has three available options: <code>Upper</code>, <code>Lower</code>,
+<code>Unchanged</code>.</p>
 <h3><a class="anchor" aria-hidden="true" id="literalslong"></a><a href="#literalslong" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>literals.long</code></h3>
 <p>Default: <code>literals.long = &quot;Upper&quot;</code></p>
 <p>Responsible for the case of <code>Long</code> literals suffix <code>L</code></p>
@@ -3391,15 +3407,15 @@ binPack.literalsSingleLine = <span class="hljs-literal">true</span>
 </p></details>
 <p>See also:</p>
 <ul>
-<li><code>binPack.literalsIncludeSimpleExpr</code> (to allow a few select methods followed
-by a few nested single-argument apply calls, with literals as arguments);
-added in v2.5.0</li>
+<li><code>binPack.literalsIncludeSimpleExpr</code> (to allow a few select methods followed by
+a few nested single-argument apply calls, with literals as arguments); added
+in v2.5.0</li>
 <li>all other <code>binPack.literalXXX</code> parameters (see list at the bottom) are
 self-explanatory.</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="binpackparentconstructors"></a><a href="#binpackparentconstructors" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>binPack.parentConstructors</code></h3>
-<p>Parent constructors are <code>C</code> and <code>D</code> in <code>class A extends B with C and D</code>.
-Changed from a boolean to a wider set of options in v2.6.0.</p>
+<p>Parent constructors are <code>C</code> and <code>D</code> in <code>class A extends B with C and D</code>. Changed
+from a boolean to a wider set of options in v2.6.0.</p>
 <p>Default: <code>binPack.parentConstructors = &quot;never&quot;</code></p>
 <blockquote>
 <p>Keep in mind that explicitly specifying the default value might change
@@ -3491,10 +3507,11 @@ maxColumn = <span class="hljs-number">30</span>
 </code></pre>
 </p></details>
 <h2><a class="anchor" aria-hidden="true" id="classic-select-chains"></a><a href="#classic-select-chains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Classic select chains</h2>
-<p>The parameters below control formatting of select chains when <code>newlines.source = classic</code>,
-and specifically which select expressions are included in a chain.</p>
-<p>Generally, a chain can either be formatted on one line up to the last select, or will
-have a break on the first select.</p>
+<p>The parameters below control formatting of select chains when
+<code>newlines.source = classic</code>, and specifically which select expressions are
+included in a chain.</p>
+<p>Generally, a chain can either be formatted on one line up to the last select, or
+will have a break on the first select.</p>
 <h3><a class="anchor" aria-hidden="true" id="includecurlybraceinselectchains"></a><a href="#includecurlybraceinselectchains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>includeCurlyBraceInSelectChains</code></h3>
 <p>Controls if select followed by curly braces can <em>start</em> a chain.</p>
 <p>Default: <code>includeCurlyBraceInSelectChains = true</code></p>
@@ -3588,11 +3605,11 @@ foo
 <p>Controls whether to preserve a newline before each subsequent select when the
 very first one used a line break; that is, this parameter doesn't prohibit
 single-line formatting even if there are source breaks down the chain.</p>
-<p>If false, each subsequent select within the chain will behave exactly like the first,
-that is, either the entire chain will be formatted on one line, or will contain a break
-on every select.</p>
-<p>If true, preserves existence or lack of breaks on subsequent selects if the first
-select was formatted with a newline.</p>
+<p>If false, each subsequent select within the chain will behave exactly like the
+first, that is, either the entire chain will be formatted on one line, or will
+contain a break on every select.</p>
+<p>If true, preserves existence or lack of breaks on subsequent selects if the
+first select was formatted with a newline.</p>
 <p>Default: <code>optIn.breaksInsideChains = false</code></p>
 <pre><code class="hljs css language-scala formatted">foo
   .bar(_ + <span class="hljs-number">1</span>)
@@ -3654,8 +3671,8 @@ maxColumn = <span class="hljs-number">35</span>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="optinencloseclassicchains"></a><a href="#optinencloseclassicchains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>optIn.encloseClassicChains</code></h3>
 <p>Controls what happens if a chain enclosed in parentheses is followed by
-additional selects. Those additional selects will be considered part of
-the enclosed chain if and only if this flag is false.</p>
+additional selects. Those additional selects will be considered part of the
+enclosed chain if and only if this flag is false.</p>
 <blockquote>
 <p>Since 2.6.2.</p>
 </blockquote>
@@ -3684,6 +3701,18 @@ maxColumn = <span class="hljs-number">30</span>
 maxColumn = <span class="hljs-number">30</span>
 </code></pre>
 </p></details>
+<h2><a class="anchor" aria-hidden="true" id="scala-3"></a><a href="#scala-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Scala 3</h2>
+<p>Scalafmt has basic support for Scala 3 features that can be enabled by changing
+the dialect of the Scalafmt parser.</p>
+<pre><code class="hljs">runner.dialect = Scala3
+---
+open <span class="hljs-keyword">class</span> <span class="hljs-symbol">MyOpenClass</span>()
+<span class="hljs-symbol">val</span> <span class="hljs-symbol">myQuote</span> = '{ expr }
+val mySplice = ${ expr }
+<span class="hljs-keyword">enum</span> <span class="hljs-keyword">class</span> <span class="hljs-symbol">Weekday</span> {
+  <span class="hljs-keyword">case</span> Monday, Tuesday, Wednesday, Thursday, Friday
+}
+</code></pre>
 <h2><a class="anchor" aria-hidden="true" id="miscellaneous"></a><a href="#miscellaneous" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Miscellaneous</h2>
 <h3><a class="anchor" aria-hidden="true" id="optinforceblanklinebeforedocstring"></a><a href="#optinforceblanklinebeforedocstring" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>optIn.forceBlankLineBeforeDocstring</code></h3>
 <p>If true, always insert a blank line before docstrings;<br>
@@ -3835,14 +3864,15 @@ rewrite.redundantBraces.<span class="hljs-attr">parensForOneLineApply</span> = <
 rewrite.redundantBraces.<span class="hljs-attr">generalExpressions</span> = <span class="hljs-literal">true</span>
 rewrite.redundantBraces.<span class="hljs-attr">ifElseExpressions</span> = <span class="hljs-literal">false</span>
 rewrite.sortModifiers.<span class="hljs-attr">order</span> = [
-  <span class="hljs-string">"`implicit`"</span>
-  <span class="hljs-string">"`final`"</span>
-  <span class="hljs-string">"`sealed`"</span>
-  <span class="hljs-string">"`abstract`"</span>
-  <span class="hljs-string">"`override`"</span>
-  <span class="hljs-string">"`private`"</span>
-  <span class="hljs-string">"`protected`"</span>
-  <span class="hljs-string">"`lazy`"</span>
+  implicit
+  final
+  sealed
+  abstract
+  override
+  private
+  protected
+  lazy
+  open
 ]
 rewrite.neverInfix.<span class="hljs-attr">includeFilters</span> = [
   <span class="hljs-string">"[\w\d_]+"</span>
@@ -3953,7 +3983,7 @@ project.<span class="hljs-attr">includeFilters</span> = [
 project.<span class="hljs-attr">excludeFilters</span> = []
 xmlLiterals.<span class="hljs-attr">assumeFormatted</span> = <span class="hljs-literal">false</span>
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#presets">Presets</a><ul class="toc-headings"><li><a href="#top-level-presets">Top-level presets</a></li></ul></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#continuationindentcallsite"><code>continuationIndent.callSite</code></a></li><li><a href="#continuationindentdefnsite"><code>continuationIndent.defnSite</code></a></li><li><a href="#continuationindentctorsite"><code>continuationIndent.ctorSite</code></a></li><li><a href="#continuationindentextendsite"><code>continuationIndent.extendSite</code></a></li><li><a href="#indentoperator"><code>indentOperator</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#align"><code>align</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#aligntokensadd"><code>align.tokens.add</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li><li><a href="#alignstripmargin"><code>align.stripMargin</code></a></li><li><a href="#alignmultiline"><code>align.multiline</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinessource"><code>newlines.source</code></a></li><li><a href="#config-style-formatting">Config-style formatting</a></li><li><a href="#danglingparentheses"><code>danglingParentheses</code></a></li><li><a href="#newlinestoplevelstatements"><code>newlines.topLevelStatements</code></a></li><li><a href="#newlinesbeforemultiline"><code>newlines.beforeMultiline</code></a></li><li><a href="#newlinesbeforemultilinedef"><code>newlines.beforeMultilineDef</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li><li><a href="#newlinesbeforecurlylambdaparams"><code>newlines.beforeCurlyLambdaParams</code></a></li><li><a href="#newlinesaftercurlylambdaparams"><code>newlines.afterCurlyLambdaParams</code></a></li><li><a href="#newlines-around-implicit-parameter-list-modifier">Newlines around <code>implicit</code> parameter list modifier</a></li><li><a href="#newlinesafterinfix"><code>newlines.afterInfix</code></a></li><li><a href="#newlinesavoidforsimpleoverflow"><code>newlines.avoidForSimpleOverflow</code></a></li><li><a href="#newlinesavoidinresulttype"><code>newlines.avoidInResultType</code></a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#expandimportselectors"><code>ExpandImportSelectors</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#sortimports"><code>SortImports</code></a></li><li><a href="#asciisortimports"><code>AsciiSortImports</code></a></li><li><a href="#trailing-commas">Trailing commas</a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilineexcludedanglingparens"><code>verticalMultiline.excludeDanglingParens</code></a></li><li><a href="#vertical-multiline-with-implicit-parameter-lists">Vertical multiline with <code>implicit</code> parameter lists</a></li></ul></li><li><a href="#comment-processing">Comment processing</a><ul class="toc-headings"><li><a href="#comments"><code>comments</code></a></li><li><a href="#docstrings"><code>docstrings</code></a></li></ul></li><li><a href="#disabling-or-customizing-formatting">Disabling or customizing formatting</a><ul class="toc-headings"><li><a href="#for-code-block">For code block</a></li><li><a href="#-format-off">// format: off</a></li><li><a href="#project">Project</a></li><li><a href="#fileoverride"><code>fileOverride</code></a></li></ul></li><li><a href="#spaces">Spaces</a><ul class="toc-headings"><li><a href="#spacesbeforecontextboundcolon"><code>spaces.beforeContextBoundColon</code></a></li><li><a href="#spacesinimportcurlybraces"><code>spaces.inImportCurlyBraces</code></a></li><li><a href="#spacesinparentheses"><code>spaces.inParentheses</code></a></li><li><a href="#spacesneveraroundinfixtypes"><code>spaces.neverAroundInfixTypes</code></a></li><li><a href="#spacesafterkeywordbeforeparen"><code>spaces.afterKeywordBeforeParen</code></a></li><li><a href="#spacesinbynametypes"><code>spaces.inByNameTypes</code></a></li><li><a href="#spacesaftersymbolicdefs"><code>spaces.afterSymbolicDefs</code></a></li></ul></li><li><a href="#literals">Literals</a><ul class="toc-headings"><li><a href="#literalslong"><code>literals.long</code></a></li><li><a href="#literalsfloat"><code>literals.float</code></a></li><li><a href="#literalsdouble"><code>literals.double</code></a></li><li><a href="#literalshexprefix"><code>literals.hexPrefix</code></a></li><li><a href="#literalshexdigits"><code>literals.hexDigits</code></a></li><li><a href="#literalsscientific"><code>literals.scientific</code></a></li></ul></li><li><a href="#xml">XML</a><ul class="toc-headings"><li><a href="#xmlliteralsassumeformatted"><code>xmlLiterals.assumeFormatted</code></a></li></ul></li><li><a href="#binpacking">Binpacking</a><ul class="toc-headings"><li><a href="#binpackliteralargumentlists"><code>binPack.literalArgumentLists</code></a></li><li><a href="#binpackparentconstructors"><code>binPack.parentConstructors</code></a></li></ul></li><li><a href="#classic-select-chains">Classic select chains</a><ul class="toc-headings"><li><a href="#includecurlybraceinselectchains"><code>includeCurlyBraceInSelectChains</code></a></li><li><a href="#includenoparensinselectchains"><code>includeNoParensInSelectChains</code></a></li><li><a href="#optinbreakchainonfirstmethoddot"><code>optIn.breakChainOnFirstMethodDot</code></a></li><li><a href="#optinbreaksinsidechains"><code>optIn.breaksInsideChains</code></a></li><li><a href="#optinencloseclassicchains"><code>optIn.encloseClassicChains</code></a></li></ul></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#optinforceblanklinebeforedocstring"><code>optIn.forceBlankLineBeforeDocstring</code></a></li><li><a href="#rewritetokens"><code>rewriteTokens</code></a></li></ul></li><li><a href="#edition">Edition</a></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#presets">Presets</a><ul class="toc-headings"><li><a href="#top-level-presets">Top-level presets</a></li></ul></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#continuationindentcallsite"><code>continuationIndent.callSite</code></a></li><li><a href="#continuationindentdefnsite"><code>continuationIndent.defnSite</code></a></li><li><a href="#continuationindentctorsite"><code>continuationIndent.ctorSite</code></a></li><li><a href="#continuationindentextendsite"><code>continuationIndent.extendSite</code></a></li><li><a href="#indentoperator"><code>indentOperator</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#align"><code>align</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#aligntokensadd"><code>align.tokens.add</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li><li><a href="#alignstripmargin"><code>align.stripMargin</code></a></li><li><a href="#alignmultiline"><code>align.multiline</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinessource"><code>newlines.source</code></a></li><li><a href="#config-style-formatting">Config-style formatting</a></li><li><a href="#danglingparentheses"><code>danglingParentheses</code></a></li><li><a href="#newlinestoplevelstatements"><code>newlines.topLevelStatements</code></a></li><li><a href="#newlinesbeforemultiline"><code>newlines.beforeMultiline</code></a></li><li><a href="#newlinesbeforemultilinedef"><code>newlines.beforeMultilineDef</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li><li><a href="#newlinesbeforecurlylambdaparams"><code>newlines.beforeCurlyLambdaParams</code></a></li><li><a href="#newlinesaftercurlylambdaparams"><code>newlines.afterCurlyLambdaParams</code></a></li><li><a href="#newlines-around-implicit-parameter-list-modifier">Newlines around <code>implicit</code> parameter list modifier</a></li><li><a href="#newlinesafterinfix"><code>newlines.afterInfix</code></a></li><li><a href="#newlinesavoidforsimpleoverflow"><code>newlines.avoidForSimpleOverflow</code></a></li><li><a href="#newlinesavoidinresulttype"><code>newlines.avoidInResultType</code></a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#expandimportselectors"><code>ExpandImportSelectors</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#sortimports"><code>SortImports</code></a></li><li><a href="#asciisortimports"><code>AsciiSortImports</code></a></li><li><a href="#trailing-commas">Trailing commas</a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilineexcludedanglingparens"><code>verticalMultiline.excludeDanglingParens</code></a></li><li><a href="#vertical-multiline-with-implicit-parameter-lists">Vertical multiline with <code>implicit</code> parameter lists</a></li></ul></li><li><a href="#comment-processing">Comment processing</a><ul class="toc-headings"><li><a href="#comments"><code>comments</code></a></li><li><a href="#docstrings"><code>docstrings</code></a></li></ul></li><li><a href="#disabling-or-customizing-formatting">Disabling or customizing formatting</a><ul class="toc-headings"><li><a href="#for-code-block">For code block</a></li><li><a href="#-format-off">// format: off</a></li><li><a href="#project">Project</a></li><li><a href="#fileoverride"><code>fileOverride</code></a></li></ul></li><li><a href="#spaces">Spaces</a><ul class="toc-headings"><li><a href="#spacesbeforecontextboundcolon"><code>spaces.beforeContextBoundColon</code></a></li><li><a href="#spacesinimportcurlybraces"><code>spaces.inImportCurlyBraces</code></a></li><li><a href="#spacesinparentheses"><code>spaces.inParentheses</code></a></li><li><a href="#spacesneveraroundinfixtypes"><code>spaces.neverAroundInfixTypes</code></a></li><li><a href="#spacesafterkeywordbeforeparen"><code>spaces.afterKeywordBeforeParen</code></a></li><li><a href="#spacesinbynametypes"><code>spaces.inByNameTypes</code></a></li><li><a href="#spacesaftersymbolicdefs"><code>spaces.afterSymbolicDefs</code></a></li></ul></li><li><a href="#literals">Literals</a><ul class="toc-headings"><li><a href="#literalslong"><code>literals.long</code></a></li><li><a href="#literalsfloat"><code>literals.float</code></a></li><li><a href="#literalsdouble"><code>literals.double</code></a></li><li><a href="#literalshexprefix"><code>literals.hexPrefix</code></a></li><li><a href="#literalshexdigits"><code>literals.hexDigits</code></a></li><li><a href="#literalsscientific"><code>literals.scientific</code></a></li></ul></li><li><a href="#xml">XML</a><ul class="toc-headings"><li><a href="#xmlliteralsassumeformatted"><code>xmlLiterals.assumeFormatted</code></a></li></ul></li><li><a href="#binpacking">Binpacking</a><ul class="toc-headings"><li><a href="#binpackliteralargumentlists"><code>binPack.literalArgumentLists</code></a></li><li><a href="#binpackparentconstructors"><code>binPack.parentConstructors</code></a></li></ul></li><li><a href="#classic-select-chains">Classic select chains</a><ul class="toc-headings"><li><a href="#includecurlybraceinselectchains"><code>includeCurlyBraceInSelectChains</code></a></li><li><a href="#includenoparensinselectchains"><code>includeNoParensInSelectChains</code></a></li><li><a href="#optinbreakchainonfirstmethoddot"><code>optIn.breakChainOnFirstMethodDot</code></a></li><li><a href="#optinbreaksinsidechains"><code>optIn.breaksInsideChains</code></a></li><li><a href="#optinencloseclassicchains"><code>optIn.encloseClassicChains</code></a></li></ul></li><li><a href="#scala-3">Scala 3</a></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#optinforceblanklinebeforedocstring"><code>optIn.forceBlankLineBeforeDocstring</code></a></li><li><a href="#rewritetokens"><code>rewriteTokens</code></a></li></ul></li><li><a href="#edition">Edition</a></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
                 /scalafmt/docs/installation.html">Installation</a><a href="
                 /scalafmt/docs/configuration.html">Configuration</a><a href="
                 /scalafmt/docs/contributing-scalafmt.html">Contributing</a></div><div><h5>Community</h5><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2020 Scalafmt</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
