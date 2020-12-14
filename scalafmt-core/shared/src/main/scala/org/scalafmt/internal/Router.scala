@@ -527,8 +527,7 @@ class Router(formatOps: FormatOps) {
       // Opening ( with no leading space.
       case FormatToken(
             RightParenOrBracket() | T.KwSuper() | T.KwThis() | T.Ident(_) |
-            T.RightBrace() | T.Underscore() | T.MacroQuotedIdent(_) |
-            T.MacroSplicedIdent(_),
+            T.RightBrace() | T.Underscore() | T.Constant.Symbol(_),
             LeftParenOrBracket(),
             _
           ) if noSpaceBeforeOpeningParen(rightOwner) && {
