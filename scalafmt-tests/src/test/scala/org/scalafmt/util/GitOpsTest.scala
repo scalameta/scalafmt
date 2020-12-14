@@ -31,7 +31,15 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
     add(initF)(ops)
     commit(ops)
     try withFixture(test.toNoArgTest(ops))
-    finally deleteTree(f)
+    finally {
+      try {
+        deleteTree(f)
+      } catch {
+        case t: Throwable =>
+          println("Unable to delete test files")
+          t.printStackTrace()
+      }
+    }
   }
 
   def touch(

@@ -15,7 +15,11 @@ jobs:
       fail-fast: false
       matrix:
         java: [adopt@1.8, adopt@1.11]
-    runs-on: ubuntu-latest
+        os: [windows-latest, ubuntu-latest]
+        exclude:
+          - os: windows-latest
+            java: adopt@1.8
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v10
@@ -26,8 +30,11 @@ jobs:
           # for GitOps tests	
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
       - run: TEST="2.11" sbt ci-test
+        shell: bash
       - run: TEST="2.12" sbt ci-test
+        shell: bash
       - run: TEST="2.13" sbt ci-test
+        shell: bash
   formatting:
     runs-on: ubuntu-latest
     steps:

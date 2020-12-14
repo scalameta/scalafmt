@@ -34,6 +34,13 @@ abstract class AbstractCliTest extends AnyFunSuite with DiffAssertions {
     Cli.getConfig(args, baseCliOptions).get
   }
 
+  def assertContains(out: String, expected: String) = {
+    assert(
+      out.replace("\r\n", "\n").contains(expected.replace("\r\n", "\n")),
+      out + "\n should have contained \n" + expected
+    )
+  }
+
   val unformatted = """
     |object a    extends   App {
     |pr("h")
@@ -247,10 +254,10 @@ trait CliTestBehavior { this: AbstractCliTest =>
           |/target/FormatMe.scala
           |object    PleaseFormatMeOtherwiseIWillBeReallySad   {  }
           |
-          |/target/nested/DoNotFormatMe.scala
+          |/target/nested1/DoNotFormatMe.scala
           |object    AAAAAAIgnoreME   {  }
           |
-          |/target/nested/nested2/DoNotFormatMeToo.scala
+          |/target/nested1/nested2/DoNotFormatMeToo.scala
           |object    BBBBBBIgnoreME   {  }
           |
           |/target/nested3/DoNotFormatMe.scala
@@ -264,10 +271,10 @@ trait CliTestBehavior { this: AbstractCliTest =>
           |/target/FormatMe.scala
           |object PleaseFormatMeOtherwiseIWillBeReallySad {}
           |
-          |/target/nested/DoNotFormatMe.scala
+          |/target/nested1/DoNotFormatMe.scala
           |object    AAAAAAIgnoreME   {  }
           |
-          |/target/nested/nested2/DoNotFormatMeToo.scala
+          |/target/nested1/nested2/DoNotFormatMeToo.scala
           |object    BBBBBBIgnoreME   {  }
           |
           |/target/nested3/DoNotFormatMe.scala
@@ -279,13 +286,15 @@ trait CliTestBehavior { this: AbstractCliTest =>
           s"""{version="$version",style=IntelliJ}""",
           input.path,
           "--exclude",
-          "target/nested".asFilename,
-          "target/nested3".asFilename
+          "target/nested".asFilename
         )
       )
+
       Cli.run(options)
+
       val obtained = dir2string(input)
       assertNoDiff(obtained, expected)
+
     }
 
     test(s"scalafmt doesnotexist.scala throws error: $label") {
@@ -590,12 +599,11 @@ trait CliTestBehavior { this: AbstractCliTest =>
         ),
         assertExit = { exit => assert(exit.is(ExitCode.ParseError)) },
         assertOut = out => {
-          assert(
-            out.contains(
-              """foo.scala:1: error: illegal start of simple expression
-                |object    A { foo( }
-                |                   ^""".stripMargin
-            )
+          assertContains(
+            out,
+            """foo.scala:1: error: illegal start of simple expression
+              |object    A { foo( }
+              |                   ^""".stripMargin
           )
         }
       )
@@ -624,15 +632,14 @@ trait CliTestBehavior { this: AbstractCliTest =>
         Seq(Array("--test")),
         assertExit = { exit => assert(exit.is(ExitCode.TestError)) },
         assertOut = out => {
-          assert(
-            out.contains(
-              """|foo.scala-formatted
-                |@@ -1,1 +1,1 @@
-                |-object    A { }
-                |+object A {}
-                |error: --test failed
-                |To fix this ...""".stripMargin
-            )
+          assertContains(
+            out,
+            """|foo.scala-formatted
+              |@@ -1,1 +1,1 @@
+              |-object    A { }
+              |+object A {}
+              |error: --test failed
+              |To fix this ...""".stripMargin
           )
         }
       )
