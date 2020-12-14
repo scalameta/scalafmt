@@ -2,10 +2,7 @@ package org.scalafmt
 
 import java.io.File
 
-import org.scalactic.source.Position
-import org.scalatest.{BeforeAndAfterAllConfigMap, ConfigMap}
-import org.scalatest.funsuite.AnyFunSuite
-
+import munit.FunSuite
 import org.scalafmt.Error.{Incomplete, SearchStateExploded}
 import org.scalafmt.util._
 
@@ -16,12 +13,7 @@ import scala.meta.Tree
 import scala.meta.parsers.Parse
 // TODO(olafur) property test: same solution without optimization or timeout.
 
-class FormatTests
-    extends AnyFunSuite
-    with CanRunTests
-    with FormatAssertions
-    with DiffAssertions
-    with BeforeAndAfterAllConfigMap {
+class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
   import LoggerOps._
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only)
@@ -35,12 +27,14 @@ class FormatTests
   }
 
   tests
-    .sortBy(x => (x.loc.fileName, x.loc.lineNumber))
+    .sortBy(x => (x.loc.path, x.loc.line))
     .withFilter(testShouldRun)
     .foreach(runTest(run))
 
-  def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    implicit val loc: Position = t.loc
+  def run(t: DiffTest, parse: Parse[_ <: Tree])(implicit
+      location: munit.Location
+  ): Unit = {
+    val loc = location
     val debug = new Debug(onlyOne)
     val runner = t.style.runner.copy(parser = parse)
     val result = Scalafmt.formatCode(
@@ -88,7 +82,7 @@ class FormatTests
 
   def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only
 
-  override def afterAll(configMap: ConfigMap): Unit = {
+  override def afterAll(): Unit = {
     logger.debug(s"Total explored: ${Debug.explored}")
     val results = debugResults.result()
     // TODO(olafur) don't block printing out test results.

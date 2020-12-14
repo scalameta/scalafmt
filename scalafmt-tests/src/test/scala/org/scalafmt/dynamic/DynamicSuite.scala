@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.nio.file.attribute.FileTime
 
-import org.scalactic.source.Position
 import org.scalafmt.interfaces.{PositionException, Scalafmt, ScalafmtReporter}
 import PositionSyntax._
 
@@ -13,11 +12,10 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 import scala.{meta => m}
+import munit.FunSuite
+import munit.Location
 
-import org.scalatest.funsuite.AnyFunSuite
-import org.scalafmt.util.DiffAssertions
-
-class DynamicSuite extends AnyFunSuite with DiffAssertions {
+class DynamicSuite extends FunSuite {
   class Format(name: String, cfgFunc: ScalafmtDynamic => ScalafmtDynamic) {
     val download = new ByteArrayOutputStream()
     def downloadLogs: String = download.toString()
@@ -98,7 +96,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
         .filter(_.startsWith("error"))
         .mkString("\n")
     }
-    def assertNotIgnored(filename: String)(implicit pos: Position): Unit = {
+    def assertNotIgnored(filename: String)(implicit loc: Location): Unit = {
       assertFormat(
         "object A  {  }",
         "object A {}\n",
@@ -112,24 +110,24 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
       val obtained = dynamic.format(config, file, original)
       val outString = out.toString().replaceAll("\\\\", "/")
       assert(outString.contains(s"file excluded: $filename"))
-      assertNoDiffOrPrintExpected(obtained, original)
+      assertNoDiff(obtained, original)
     }
-    def assertFormat()(implicit pos: Position): Unit = {
+    def assertFormat()(implicit loc: Location): Unit = {
       assertFormat("object A  {  }", "object A {}\n")
     }
     def assertFormat(
         original: String,
         expected: String,
         file: Path = filename
-    )(implicit pos: Position): Unit = {
+    )(implicit loc: Location): Unit = {
       out.reset()
       val obtained = dynamic.format(config, file, original)
       if (errors.nonEmpty) {
-        assertNoDiffOrPrintExpected(out.toString(), "", "Reporter had errors")
+        assertNoDiff(out.toString(), "", "Reporter had errors")
       }
-      assertNoDiffOrPrintExpected(obtained, expected)
+      assertNoDiff(obtained, expected)
     }
-    def assertMissingVersion()(implicit pos: Position): Unit = {
+    def assertMissingVersion()(implicit loc: Location): Unit = {
       out.reset()
       missingVersions.clear()
       intercept[ScalafmtDynamicError.ConfigMissingVersion] {
@@ -138,22 +136,22 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
       assert(out.toString().isEmpty)
       assert(missingVersions.nonEmpty)
     }
-    def assertThrows[A <: AnyRef: ClassTag](
+    def assertThrows[A <: Throwable: ClassTag](
         code: String = "object A  {  }"
-    )(implicit pos: Position): A = {
+    )(implicit loc: Location): A = {
       out.reset()
       intercept[A] {
         dynamic.format(config, filename, code)
       }
     }
-    def assertError(expected: String)(implicit pos: Position): Unit = {
+    def assertError(expected: String)(implicit loc: Location): Unit = {
       assertError("object A  {  }", expected)
     }
     def assertError(
         code: String,
         expected: String,
         path: Path = filename
-    )(implicit pos: Position): Unit = {
+    )(implicit loc: Location): Unit = {
       out.reset()
       val obtained = dynamic.format(config, path, code)
       assertNoDiff(relevant, expected)
@@ -293,7 +291,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     f.setVersion(latest)
     f.assertFormat()
     f.assertFormat()
-    assert(f.parsedCount == 1, f.parsed)
+    assertEquals(f.parsedCount, 1, f.parsed)
 
     f.setConfig("invalid")
     val parseError = f.assertThrows[ScalafmtDynamicError.ConfigParseError]()
@@ -311,9 +309,9 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
         |""".stripMargin
     )
     f.assertFormat()
-    assert(f.parsedCount == 2, f.parsed)
+    assertEquals(f.parsedCount, 2, f.parsed)
     f.assertFormat()
-    assert(f.parsedCount == 2, f.parsed)
+    assertEquals(f.parsedCount, 2, f.parsed)
 
     f.setConfig(
       """version=1.0.0
@@ -321,11 +319,11 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
         |""".stripMargin
     )
     f.assertFormat()
-    assert(f.parsedCount == 3, f.parsed)
+    assertEquals(f.parsedCount, 3, f.parsed)
     f.assertFormat()
-    assert(f.parsedCount == 3, f.parsed)
+    assertEquals(f.parsedCount, 3, f.parsed)
 
-    assert(f.parsed.toMap == Map("1.0.0" -> 1, latest -> 2))
+    assertEquals(f.parsed.toMap, Map("1.0.0" -> 1, latest -> 2))
   }
 
   check("wrong-version") { f =>
@@ -449,7 +447,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     val config = configOpt.get
     assert(config.hasRewriteRules)
     val configWithoutRewrites = config.withoutRewriteRules
-    assert(config !== configWithoutRewrites)
+    assertNotEquals(config, configWithoutRewrites)
     assert(!configWithoutRewrites.hasRewriteRules)
   }
 }

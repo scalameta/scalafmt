@@ -6,6 +6,7 @@ import java.util.regex.Pattern
 import scala.annotation.tailrec
 
 import metaconfig.Configured
+import munit.Assertions._
 import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.{Debug, Scalafmt}
 import org.scalafmt.config.FormatEvent._
@@ -22,8 +23,7 @@ import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 import scala.util.Try
-
-import org.scalactic.source.Position
+import munit.Location
 
 trait HasTests extends FormatAssertions {
   import LoggerOps._
@@ -129,7 +129,7 @@ trait HasTests extends FormatAssertions {
       val test = DiffTest(
         actualName,
         altFilename.getOrElse(filename),
-        new Position(spec, filename, linenum),
+        new Location(filename, linenum),
         original,
         trimmed(expected),
         moduleSkip || isSkip(name),
@@ -166,8 +166,9 @@ trait HasTests extends FormatAssertions {
 
   def ignore(t: DiffTest): Boolean = false
 
-  def defaultRun(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    implicit val loc: Position = t.loc
+  def defaultRun(t: DiffTest, parse: Parse[_ <: Tree])(implicit
+      loc: Location
+  ): Unit = {
     val debug = new Debug(false)
     val runner = scalafmtRunner(t.style.runner, debug).copy(parser = parse)
     val result = Scalafmt

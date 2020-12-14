@@ -10,15 +10,15 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
 import scala.collection.JavaConverters._
-import org.scalatest.funsuite.AnyFunSuite
+import munit.FunSuite
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Versions
 import org.scalafmt.cli.FileTestOps._
 import org.scalafmt.config.{Config, ScalafmtConfig}
-import org.scalafmt.util.{AbsoluteFile, DiffAssertions, FileOps}
+import org.scalafmt.util.{AbsoluteFile, FileOps}
 import org.scalafmt.util.OsSpecific._
 
-abstract class AbstractCliTest extends AnyFunSuite with DiffAssertions {
+abstract class AbstractCliTest extends FunSuite {
   def mkArgs(str: String): Array[String] =
     str.split(' ')
 
@@ -460,15 +460,15 @@ trait CliTestBehavior { this: AbstractCliTest =>
       val conf = Cli.getConfig(args, opts)
       Cli.run(conf.get)
 
-      assertNoDiff(root / "scalatex.scalatex", unformatted)
-      assertNoDiff(root / "sbt.sbtfile", sbtOriginal)
+      assertNoDiff(dir2string(root / "scalatex.scalatex"), unformatted)
+      assertNoDiff(dir2string(root / "sbt.sbtfile"), sbtOriginal)
 
-      assertNoDiff(root / "scalafile.scala", formatted)
+      assertNoDiff(dir2string(root / "scalafile.scala"), formatted)
       val sbtFormatted =
         """|lazy val x = project
           |lazy val y = project
           |""".stripMargin
-      assertNoDiff(root / "sbt.sbt", sbtFormatted)
+      assertNoDiff(dir2string(root / "sbt.sbt"), sbtFormatted)
     }
 
     test(
@@ -497,10 +497,10 @@ trait CliTestBehavior { this: AbstractCliTest =>
       ) ++ Seq(inner1, inner2, full1, full2)
       runWith(root, opts.mkString(" "))
 
-      assertNoDiff(inner1 / "file1.scala", formatted)
-      assertNoDiff(inner2 / "file2.scalahala", unformatted)
-      assertNoDiff(full1, formatted)
-      assertNoDiff(full2, formatted)
+      assertNoDiff(dir2string(inner1 / "file1.scala"), formatted)
+      assertNoDiff(dir2string(inner2 / "file2.scalahala"), unformatted)
+      assertNoDiff(dir2string(full1), formatted)
+      assertNoDiff(dir2string(full2), formatted)
     }
 
     test(
@@ -530,10 +530,10 @@ trait CliTestBehavior { this: AbstractCliTest =>
       ) ++ Seq(inner1, inner2, full1, full2)
       runWith(root, opts.mkString(" "))
 
-      assertNoDiff(inner1 / "file1.scala", formatted)
-      assertNoDiff(inner2 / "file2.scalahala", unformatted)
-      assertNoDiff(full1, formatted)
-      assertNoDiff(full2, unformatted)
+      assertNoDiff(dir2string(inner1 / "file1.scala"), formatted)
+      assertNoDiff(dir2string(inner2 / "file2.scalahala"), unformatted)
+      assertNoDiff(dir2string(full1), formatted)
+      assertNoDiff(dir2string(full2), unformatted)
     }
 
     test(s"--config accepts absolute paths: $label") {

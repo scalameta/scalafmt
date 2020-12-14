@@ -2,10 +2,10 @@ package org.scalafmt
 
 import java.lang.System.lineSeparator
 
-import org.scalatest.funsuite.AnyFunSuite
-import org.scalafmt.util.DiffAssertions
+import munit.FunSuite
 
-class EmptyFileTest extends AnyFunSuite with DiffAssertions {
+class EmptyFileTest extends FunSuite {
+
   test("empty tree formats to newline") {
     Seq("", lineSeparator, "", s"   $lineSeparator  ").foreach { original =>
       val expected = "\n"
