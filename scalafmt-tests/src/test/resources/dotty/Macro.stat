@@ -8,9 +8,13 @@ ${ locationImpl() }
 >>>
 '{ new Location() }
 <<< quote expr
+${
 val x   = 'expr
+}
 >>>
-val x = 'expr
+${
+  val x = 'expr
+}
 <<< splice expr
 val x   = $expr
 >>>
@@ -32,9 +36,9 @@ throw new AssertionError(s"failed assertion: ${${ showExpr(expr) }}")
 >>>
 (x: Expr[T]) => '{ $f($x) }
 <<< functions quoted
-(  x: Expr[T]) => 'f('x)
+(  x: Expr[T]) =>   ${  'f ('x) }
 >>>
-(x: Expr[T]) => 'f('x)
+(x: Expr[T]) => ${ 'f('x) } 
 <<< line wrap brace
 val xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx = ${    locationImpl(Foooooooooooooooooooooooo()) }
 >>>
