@@ -213,6 +213,7 @@ lazy val tests = project
       scalatest.value
     ),
     scalacOptions ++= scalacJvmOptions.value,
+    javaOptions += "-Dfile.encoding=UTF8",
     // Fork in CI to avoid memory limitation issues. Disable forking locally
     // because ScalaTest error reporting fails with cryptic serialization errors
     // when forking is enabled.
