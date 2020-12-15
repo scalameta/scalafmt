@@ -31,10 +31,8 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     .withFilter(testShouldRun)
     .foreach(runTest(run))
 
-  def run(t: DiffTest, parse: Parse[_ <: Tree])(implicit
-      location: munit.Location
-  ): Unit = {
-    val loc = location
+  def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
+    implicit val loc = t.loc
     val debug = new Debug(onlyOne)
     val runner = t.style.runner.copy(parser = parse)
     val result = Scalafmt.formatCode(

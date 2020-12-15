@@ -1,10 +1,10 @@
 package org.scalafmt.util
 
-import java.io.File
 import java.nio.file.Paths
 
 import munit.Location
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.tests.BuildInfo
 
 case class DiffTest(
     name: String,
@@ -21,7 +21,5 @@ case class DiffTest(
 }
 
 object DiffTest {
-  val testDir = new File(
-    getClass.getClassLoader.getResource("test").toURI
-  ).toPath().getParent()
+  val testDir = BuildInfo.resourceDirectory.toPath
 }

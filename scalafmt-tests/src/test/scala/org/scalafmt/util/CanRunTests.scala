@@ -1,7 +1,6 @@
 package org.scalafmt.util
 
 import munit.FunSuite
-
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 import munit.Location

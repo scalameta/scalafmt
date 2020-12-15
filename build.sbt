@@ -220,8 +220,13 @@ lazy val tests = project
     // Fork in CI to avoid memory limitation issues. Disable forking locally
     // because ScalaTest error reporting fails with cryptic serialization errors
     // when forking is enabled.
-    fork := isCI
+    fork := isCI,
+    buildInfoPackage := "org.scalafmt.tests",
+    buildInfoKeys := Seq[BuildInfoKey](
+      "resourceDirectory" -> resourceDirectory.in(Test).value
+    )
   )
+  .enablePlugins(BuildInfoPlugin)
   .dependsOn(coreJVM, dynamic, cli)
 
 lazy val benchmarks = project

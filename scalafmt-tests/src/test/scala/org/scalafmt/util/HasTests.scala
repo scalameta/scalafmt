@@ -1,6 +1,5 @@
 package org.scalafmt.util
 
-import java.io.File
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
@@ -17,6 +16,7 @@ import org.scalafmt.config.{
   ScalafmtConfig,
   ScalafmtRunner
 }
+import org.scalafmt.tests.BuildInfo
 import org.scalafmt.internal.FormatWriter
 
 import scala.collection.mutable
@@ -43,9 +43,6 @@ trait HasTests extends FormatAssertions {
     )
 
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
-  val testDir = new File(
-    getClass.getClassLoader.getResource("test").toURI
-  ).getParent
 
   def tests: Seq[DiffTest]
 
@@ -78,7 +75,7 @@ trait HasTests extends FormatAssertions {
     val sep =
       if (content.contains(System.lineSeparator)) System.lineSeparator
       else "\n"
-    val spec = filename.stripPrefix(testDir + File.separator)
+    val spec = filename.stripPrefix(BuildInfo.resourceDirectory.toURI.toString)
     val moduleOnly = isOnly(content)
     val moduleSkip = isSkip(content)
     val split = content.split(s"$sep<<< ")
