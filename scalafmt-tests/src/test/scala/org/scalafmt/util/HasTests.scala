@@ -1,5 +1,6 @@
 package org.scalafmt.util
 
+import java.nio.file.Paths
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
@@ -43,6 +44,7 @@ trait HasTests extends FormatAssertions {
     )
 
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
+  val testDir = BuildInfo.resourceDirectory
 
   def tests: Seq[DiffTest]
 
@@ -72,10 +74,14 @@ trait HasTests extends FormatAssertions {
   def extension(filename: String): String = filename.replaceAll(".*\\.", "")
 
   def parseDiffTests(content: String, filename: String): Seq[DiffTest] = {
-    val sep =
+    val sep = {
       if (content.contains(System.lineSeparator)) System.lineSeparator
       else "\n"
-    val spec = filename.stripPrefix(BuildInfo.resourceDirectory.toURI.toString)
+    }
+    val spec = BuildInfo.resourceDirectory.toPath
+      .relativize(Paths.get(filename))
+      .getName(0)
+      .toString
     val moduleOnly = isOnly(content)
     val moduleSkip = isSkip(content)
     val split = content.split(s"$sep<<< ")
@@ -90,15 +96,10 @@ trait HasTests extends FormatAssertions {
               |$c""".stripMargin
           )
       }
-    val style: ScalafmtConfig = {
-      val pathPatternToReplace =
-        if (OsSpecific.isWindows) s"""\\\\.*""" else "/.*"
-      Try(
-        spec2style(spec.replaceFirst(pathPatternToReplace, ""))
-      ).getOrElse(
+    val style: ScalafmtConfig =
+      Try(spec2style(spec)).getOrElse(
         loadStyle(split.head.stripPrefix("ONLY "), ScalafmtConfig.default)
       )
-    }
 
     @tailrec
     def numLines(str: String, cnt: Int = 1, off: Int = 0): Int = {
