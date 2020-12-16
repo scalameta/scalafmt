@@ -134,3 +134,72 @@ trait Bar(param1: A,
     with X
     with Y
     with Z
+<<< trait params - arity treshold reached
+maxColumn = 200
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+===
+trait Bar(x: String, y: String)
+>>>
+trait Bar(
+    x: String,
+    y: String)
+<<< trait params - arity treshold not reached
+maxColumn = 200
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 3
+===
+trait Bar(x: String, y: String)
+>>>
+trait Bar(x: String, y: String)
+<<< trait params mixed - arity treshold reached
+maxColumn = 200
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+===
+class Bar[T, C, D, F](x: String, y: String)
+>>>
+class Bar[T, C, D, F](
+    x: String,
+    y: String)
+<<< trait multiple params mixed - newlineAfterOpenParen
+maxColumn = 200
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+verticalMultiline.newlineAfterOpenParen = true
+===
+class Bar[T, C, D, F](x: String, y: String)(f: Int, d: Int)
+>>>
+class Bar[T, C, D, F](
+    x: String,
+    y: String
+  )(
+    f: Int,
+    d: Int)
+<<< trait multiple params mixed
+maxColumn = 200
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+===
+class Bar[T, C, D, F](x: String, y: String)(f: Int, d: Int)
+>>>
+class Bar[T, C, D, F](
+    x: String,
+    y: String
+  )(f: Int,
+    d: Int)
+<<< trait params mixed - implicitParamListModifierForce
+maxColumn = 200
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+newlines.implicitParamListModifierForce = [before,after]
+===
+class Bar[T, C, D, F](x: String, y: String)(implicit f: Int, d: Int)
+>>>
+class Bar[T, C, D, F](
+    x: String,
+    y: String
+  )(
+    implicit
+    f: Int,
+    d: Int)
