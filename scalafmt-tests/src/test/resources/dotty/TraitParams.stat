@@ -1,0 +1,205 @@
+
+<<< single-line
+trait Foobar(a : String )
+>>>
+trait Foobar(a: String)
+<<< multi-line
+maxColumn = 40
+===
+trait Foobar(abracadabra : String, number : Int)
+>>>
+trait Foobar(
+    abracadabra: String,
+    number: Int
+)
+<<< trait param single parent constructors
+maxColumn = 30
+===
+trait Bar(param : A) extends Foo(1) with X with Y with Z
+
+>>>
+trait Bar(param: A)
+    extends Foo(1)
+    with X
+    with Y
+    with Z
+
+<<< trait param multi parent constructors
+maxColumn = 30
+===
+trait Bar(param1 : A, param2 : A, param3 : A) extends Foo(1) with X with Y with Z
+>>>
+trait Bar(
+    param1: A,
+    param2: A,
+    param3: A
+) extends Foo(1)
+    with X
+    with Y
+    with Z
+<<< trait param single and type param with parent constructors
+maxColumn = 30
+===
+trait Bar[A, B](param : A) extends Foo(1) with X with Y with Z
+
+>>>
+trait Bar[A, B](param: A)
+    extends Foo(1)
+    with X
+    with Y
+    with Z
+
+<<< trait param multi and type param with parent constructors
+maxColumn = 30
+===
+trait Bar[A, B, C](param1 : A, param2 : A, param3 : A) extends Foo(1) with X with Y with Z
+>>>
+trait Bar[A, B, C](
+    param1: A,
+    param2: A,
+    param3: A
+) extends Foo(1)
+    with X
+    with Y
+    with Z
+<<< trait param multi and type param with parent constructors
+maxColumn = 30
+===
+trait Bar[AAAAAAAAAA, BBBBBBBBBB, CCCCCCCCCC](param1 : A, param2 : A, param3 : A) extends Foo(1) with X with Y with Z
+>>>
+trait Bar[
+    AAAAAAAAAA,
+    BBBBBBBBBB,
+    CCCCCCCCCC
+](
+    param1: A,
+    param2: A,
+    param3: A
+) extends Foo(1)
+    with X
+    with Y
+    with Z
+<<< trait param multi implicit
+maxColumn = 30
+===
+trait Bar(implicit param1 : A, param2 : A, param3 : A) extends Foo(1) with X with Y with Z
+>>>
+trait Bar(implicit
+    param1: A,
+    param2: A,
+    param3: A
+) extends Foo(1)
+    with X
+    with Y
+    with Z
+<<< trait param multi implicit newline before
+maxColumn = 30
+newlines.implicitParamListModifierPrefer = before
+===
+trait Bar(implicit param1 : A, param2 : A, param3 : A) extends Foo(1) with X with Y with Z
+>>>
+trait Bar(
+    implicit param1: A,
+    param2: A,
+    param3: A
+) extends Foo(1)
+    with X
+    with Y
+    with Z
+<<< trait param multi implicit newline before
+maxColumn = 30
+newlines.implicitParamListModifierForce = [before,after]
+===
+trait Bar(implicit param1 : A, param2 : A, param3 : A) extends Foo(1) with X with Y with Z
+>>>
+trait Bar(
+    implicit
+    param1: A,
+    param2: A,
+    param3: A
+) extends Foo(1)
+    with X
+    with Y
+    with Z
+<<< trait param multi openParenDefnSite
+maxColumn = 30
+align.openParenDefnSite = true
+===
+trait Bar(param1 : A, param2 : A, param3 : A) extends Foo(1) with X with Y with Z
+>>>
+trait Bar(param1: A,
+          param2: A,
+          param3: A
+) extends Foo(1)
+    with X
+    with Y
+    with Z
+<<< trait params - arity treshold reached
+maxColumn = 200
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+===
+trait Bar(x: String, y: String)
+>>>
+trait Bar(
+    x: String,
+    y: String)
+<<< trait params - arity treshold not reached
+maxColumn = 200
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 3
+===
+trait Bar(x: String, y: String)
+>>>
+trait Bar(x: String, y: String)
+<<< trait params mixed - arity treshold reached
+maxColumn = 200
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+===
+class Bar[T, C, D, F](x: String, y: String)
+>>>
+class Bar[T, C, D, F](
+    x: String,
+    y: String)
+<<< trait multiple params mixed - newlineAfterOpenParen
+maxColumn = 200
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+verticalMultiline.newlineAfterOpenParen = true
+===
+class Bar[T, C, D, F](x: String, y: String)(f: Int, d: Int)
+>>>
+class Bar[T, C, D, F](
+    x: String,
+    y: String
+  )(
+    f: Int,
+    d: Int)
+<<< trait multiple params mixed
+maxColumn = 200
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+===
+class Bar[T, C, D, F](x: String, y: String)(f: Int, d: Int)
+>>>
+class Bar[T, C, D, F](
+    x: String,
+    y: String
+  )(f: Int,
+    d: Int)
+<<< trait params mixed - implicitParamListModifierForce
+maxColumn = 200
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+newlines.implicitParamListModifierForce = [before,after]
+===
+class Bar[T, C, D, F](x: String, y: String)(implicit f: Int, d: Int)
+>>>
+class Bar[T, C, D, F](
+    x: String,
+    y: String
+  )(
+    implicit
+    f: Int,
+    d: Int)

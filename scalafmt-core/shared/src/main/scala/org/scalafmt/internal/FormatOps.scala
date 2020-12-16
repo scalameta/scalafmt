@@ -1088,6 +1088,8 @@ class FormatOps(
       owner match {
         case cls: Defn.Class =>
           cls.tparams.nonEmpty && cls.ctor.paramss.nonEmpty
+        case cls: Defn.Trait =>
+          cls.tparams.nonEmpty && cls.ctor.paramss.nonEmpty
         case _ => false
       }
     }
