@@ -19,18 +19,18 @@ class GitOpsTest extends FunSuite {
 
   // DESNOTE(2017-08-16, pjrt): Create a temporary git directory for each
   // test.
-  private implicit var gitOps: GitOpsImpl = _
+  private implicit var ops: GitOpsImpl = _
   private var path: Path = _
 
   override def beforeEach(context: BeforeEach): Unit = {
     path = Files.createTempDirectory(dirName)
     val absFile = AbsoluteFile.fromPath(path.toString).get
-    gitOps = new GitOpsImpl(absFile)
-    init(gitOps)
+    ops = new GitOpsImpl(absFile)
+    init(ops)
     // initial commit is needed
     val initF = touch("initialfile")
-    add(initF)(gitOps)
-    commit(gitOps)
+    add(initF)(ops)
+    commit(ops)
   }
 
   override def afterEach(context: AfterEach): Unit = {
@@ -47,7 +47,7 @@ class GitOpsTest extends FunSuite {
       dir: Option[AbsoluteFile] = None
   ): AbsoluteFile = {
     val f =
-      File.createTempFile(name, ".ext", dir.orElse(gitOps.rootDir).get.jfile)
+      File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
     f.deleteOnExit()
     AbsoluteFile.fromPath(f.toString).get
   }
@@ -58,7 +58,7 @@ class GitOpsTest extends FunSuite {
       dir: Option[AbsoluteFile] = None
   ): AbsoluteFile = {
     val linkFile =
-      File.createTempFile(name, ".ext", dir.orElse(gitOps.rootDir).get.jfile)
+      File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
     linkFile.delete()
     val link = AbsoluteFile.fromPath(linkFile.toString).get
     Files.createSymbolicLink(linkFile.toPath, file.jfile.toPath)
@@ -67,7 +67,7 @@ class GitOpsTest extends FunSuite {
 
   def mv(f: AbsoluteFile, dir: Option[AbsoluteFile] = None): AbsoluteFile = {
     val destDir = Files.createTempDirectory(
-      dir.orElse(gitOps.rootDir).get.jfile.toPath,
+      dir.orElse(ops.rootDir).get.jfile.toPath,
       "dir_"
     )
     val dest = Files.move(
@@ -94,9 +94,9 @@ class GitOpsTest extends FunSuite {
   def mkDir(
       dirName: String = Random.alphanumeric.take(10).mkString
   ): AbsoluteFile = {
-    val file = new File(gitOps.rootDir.get.jfile, dirName)
+    val file = new File(ops.rootDir.get.jfile, dirName)
     file.mkdir()
-    AbsoluteFile.fromFile(file, gitOps.workingDirectory)
+    AbsoluteFile.fromFile(file, ops.workingDirectory)
   }
 
   test("lsTree should not return files not added to the index") {
