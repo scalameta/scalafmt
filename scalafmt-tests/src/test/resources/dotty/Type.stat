@@ -1,0 +1,44 @@
+
+<<< type inside block
+maxColumn = 30
+===
+def hello() = {
+    type T
+    val a  : T
+}
+>>>
+def hello() = {
+  type T
+  val a: T
+}
+<<< type inside block long
+maxColumn = 20
+===
+def hello() = {
+    type T[ AAAAAAA <:  BBBBBB [?] ]
+    val a  : T
+}
+>>>
+def hello() = {
+  type T[AAAAAAA <: BBBBBB[
+    ?
+  ]]
+  val a: T
+}
+
+<<< type inside block longer
+maxColumn = 20
+===
+def hello() = {
+    type T[ AAAAAAAAAAAAA <:  BBBBBBBBBBBBBB [?] ]
+    val a  : T
+}
+>>>
+def hello() = {
+  type T[
+      AAAAAAAAAAAAA <: BBBBBBBBBBBBBB[
+        ?
+      ]
+  ]
+  val a: T
+}
