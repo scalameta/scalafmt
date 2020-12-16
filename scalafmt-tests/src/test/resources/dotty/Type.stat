@@ -30,14 +30,14 @@ def hello() = {
 maxColumn = 20
 ===
 def hello() = {
-    type T[ AAAAAAAAAAAAA <:  BBBBBBBBBBBBBB [?] ]
+    type T[ AAAAAAAAAAAAA <:  BBBBBBBBBBBBBB [? <: B] ]
     val a  : T
 }
 >>>
 def hello() = {
   type T[
       AAAAAAAAAAAAA <: BBBBBBBBBBBBBB[
-        ?
+        ? <: B
       ]
   ]
   val a: T
