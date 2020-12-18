@@ -33,7 +33,8 @@ import scala.meta.{
   Template,
   Term,
   Tree,
-  Type
+  Type,
+  TypeCase
 }
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
@@ -1293,6 +1294,10 @@ class FormatOps(
       else tokens(nextNonComment(maybeArrow), 1)
     }(x => prevNonComment(tokens(x, -1)))
 
+  // look for arrow before body, if any, else after cond/pat
+  def getCaseArrow(term: TypeCase): FormatToken =
+    tokens(nextNonComment(tokens(term.pat.tokens.last)), 1)
+
   def getApplyArgs(
       ft: FormatToken,
       isRight: Boolean
@@ -1628,7 +1633,8 @@ class FormatOps(
         case _: Term.Try | _: Term.TryWithHandler =>
           if (hasStateColumn) getSplits(getSpaceSplit(1), false)
           else getSlbSplits()
-        case _: Term.Block | _: Term.Match | _: Term.NewAnonymous =>
+        case _: Term.Block | _: Term.Match | _: Type.Match |
+            _: Term.NewAnonymous =>
           if (!hasMatching(blast)) getSlbSplits()
           else getSplits(getSpaceSplit(1), true)
         case Term.ForYield(_, b) =>
@@ -1767,21 +1773,27 @@ class FormatOps(
   }
 
   // Redundant () delims around case statements
-  def isCaseBodyEnclosedAsBlock(ft: FormatToken, caseStat: Case)(implicit
+  def isCaseBodyEnclosedAsBlock(ft: FormatToken, caseStat: Tree)(implicit
       style: ScalafmtConfig
   ): Boolean = {
-    val body = caseStat.body
-    (ft.noBreak || style.newlines.getBeforeMultiline.ignoreSourceSplit) &&
-    body.eq(ft.meta.rightOwner) && (body match {
-      case _: Lit.Unit | _: Term.Tuple => false
-      case t: Term.ApplyInfix =>
-        val op = t.op.value
-        op != "->" && op != "→"
-      case _ => true
-    }) && {
-      val btoks = body.tokens
-      btoks.headOption.exists { head =>
-        head.is[Token.LeftParen] && matchingOpt(head).contains(btoks.last)
+    val bodyOpt = caseStat match {
+      case tc: TypeCase => Some(tc.body)
+      case c: Case => Some(c.body)
+      case _ => None
+    }
+    bodyOpt.exists { body =>
+      (ft.noBreak || style.newlines.getBeforeMultiline.ignoreSourceSplit) &&
+      body.eq(ft.meta.rightOwner) && (body match {
+        case _: Lit.Unit | _: Term.Tuple => false
+        case t: Term.ApplyInfix =>
+          val op = t.op.value
+          op != "->" && op != "→"
+        case _ => true
+      }) && {
+        val btoks = body.tokens
+        btoks.headOption.exists { head =>
+          head.is[Token.LeftParen] && matchingOpt(head).contains(btoks.last)
+        }
       }
     }
   }

@@ -66,6 +66,7 @@ object TreeSyntacticGroup {
       case _: Type.ByName => g.Type.ParamTyp
       case _: Type.Var => g.Type.ParamTyp
       case _: Type.Param => g.Path // ???
+      case _: Type.Match => g.Type.Typ
       // Pat
       case _: Pat.Var => g.Pat.SimplePattern
       case _: Pat.Wildcard => g.Pat.SimplePattern
