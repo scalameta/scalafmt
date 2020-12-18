@@ -1,8 +1,8 @@
 package org.scalafmt.dynamic
 
-import org.scalatest.funsuite.AnyFunSuite
+import munit.FunSuite
 
-class ScalafmtVersionSuite extends AnyFunSuite {
+class ScalafmtVersionSuite extends FunSuite {
   test("parse valid versions") {
     assert(
       ScalafmtVersion.parse("2.0.0") == Some(ScalafmtVersion(2, 0, 0))

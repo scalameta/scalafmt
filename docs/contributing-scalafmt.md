@@ -13,6 +13,10 @@ title: Contributing
 - You should be able to import the project into IntelliJ as normal:
   `File -> New -> Project from existing source` and pick the `build.sbt` file.
 
+## Testing
+
+Take a look at https://github.com/scalameta/scalafmt/blob/master/scalafmt-tests/src/test/resources/readme.md to see how to test your changes.
+
 ## Opening pull requests
 
 - **All code PRs should come with**: a meaningful description, inline-comments

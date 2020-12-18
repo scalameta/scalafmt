@@ -2,9 +2,9 @@ package org.scalafmt
 
 import org.scalafmt.config.Align
 import org.scalafmt.config.Newlines
-import org.scalatest.funsuite.AnyFunSuite
+import munit.FunSuite
 
-class ScalafmtConfigTest extends AnyFunSuite {
+class ScalafmtConfigTest extends FunSuite {
 
   test("project.matcher") {
     val config = Scalafmt

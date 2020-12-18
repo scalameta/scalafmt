@@ -2,6 +2,7 @@ package org.scalafmt.util
 
 import java.io.ByteArrayInputStream
 
+import munit.internal.difflib.Diffs
 import org.scalafmt.Error.{FormatterChangedAST, FormatterOutputDoesNotParse}
 import org.scalameta.logger
 
@@ -9,7 +10,7 @@ import scala.meta.parsers.{Parse, ParseException}
 import scala.meta.testkit.StructurallyEqual
 import scala.meta.{Dialect, Tree}
 
-trait FormatAssertions extends DiffAssertions {
+trait FormatAssertions {
 
   def assertFormatPreservesAst[T <: Tree](
       original: String,
@@ -52,12 +53,13 @@ trait FormatAssertions extends DiffAssertions {
     * WARNING: slow for large asts.
     */
   def diffAsts(original: String, obtained: String): String = {
-//    compareContents(formatAst(original), formatAst(obtained))
-
-    compareContents(
-      original.replace("(", "\n("),
-      obtained.replace("(", "\n(")
-    ).linesIterator.mkString("\n")
+    Diffs
+      .unifiedDiff(
+        original.replace("(", "\n("),
+        obtained.replace("(", "\n(")
+      )
+      .linesIterator
+      .mkString("\n")
   }
 
   // TODO(olafur) move this to scala.meta?

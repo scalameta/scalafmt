@@ -6,13 +6,13 @@ import java.io.File
 
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
-import org.scalatest.funsuite.AnyFunSuite
+import munit.FunSuite
 
 /** Asserts formatter does not alter original source file's AST.
   *
   * Will maybe use scalacheck someday.
   */
-class FidelityTest extends AnyFunSuite with FormatAssertions {
+class FidelityTest extends FunSuite with FormatAssertions {
 
   case class TestCase(filename: String, code: String)
 

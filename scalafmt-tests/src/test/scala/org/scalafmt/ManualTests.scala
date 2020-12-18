@@ -2,11 +2,11 @@ package org.scalafmt
 
 import java.io.File
 
-import org.scalactic.source.Position
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.HasTests
+import munit.Location
 
 object ManualTests extends HasTests {
   lazy val tests: Seq[DiffTest] = {
@@ -24,7 +24,7 @@ object ManualTests extends HasTests {
             DiffTest(
               testFile,
               testFile,
-              new Position(testFile, testPath, 1),
+              new Location(testPath, 1),
               original,
               original,
               isSkip(name),
@@ -41,7 +41,7 @@ object ManualTests extends HasTests {
       DiffTest(
         filename,
         filename,
-        new Position(filename, filename, 1),
+        new Location(filename, 1),
         content,
         content,
         false,

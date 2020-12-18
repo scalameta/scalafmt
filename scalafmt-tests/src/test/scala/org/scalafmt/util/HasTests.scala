@@ -1,11 +1,12 @@
 package org.scalafmt.util
 
-import java.io.File
+import java.nio.file.Paths
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
 
 import metaconfig.Configured
+import munit.Assertions._
 import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.{Debug, Scalafmt}
 import org.scalafmt.config.FormatEvent._
@@ -16,14 +17,14 @@ import org.scalafmt.config.{
   ScalafmtConfig,
   ScalafmtRunner
 }
+import org.scalafmt.tests.BuildInfo
 import org.scalafmt.internal.FormatWriter
 
 import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 import scala.util.Try
-
-import org.scalactic.source.Position
+import munit.Location
 
 trait HasTests extends FormatAssertions {
   import LoggerOps._
@@ -43,9 +44,7 @@ trait HasTests extends FormatAssertions {
     )
 
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
-  val testDir = new File(
-    getClass.getClassLoader.getResource("test").toURI
-  ).getParent
+  val testDir = BuildInfo.resourceDirectory
 
   def tests: Seq[DiffTest]
 
@@ -75,10 +74,14 @@ trait HasTests extends FormatAssertions {
   def extension(filename: String): String = filename.replaceAll(".*\\.", "")
 
   def parseDiffTests(content: String, filename: String): Seq[DiffTest] = {
-    val sep =
+    val sep = {
       if (content.contains(System.lineSeparator)) System.lineSeparator
       else "\n"
-    val spec = filename.stripPrefix(testDir + File.separator)
+    }
+    val spec = BuildInfo.resourceDirectory.toPath
+      .relativize(Paths.get(filename))
+      .getName(0)
+      .toString
     val moduleOnly = isOnly(content)
     val moduleSkip = isSkip(content)
     val split = content.split(s"$sep<<< ")
@@ -93,15 +96,10 @@ trait HasTests extends FormatAssertions {
               |$c""".stripMargin
           )
       }
-    val style: ScalafmtConfig = {
-      val pathPatternToReplace =
-        if (OsSpecific.isWindows) s"""\\\\.*""" else "/.*"
-      Try(
-        spec2style(spec.replaceFirst(pathPatternToReplace, ""))
-      ).getOrElse(
+    val style: ScalafmtConfig =
+      Try(spec2style(spec)).getOrElse(
         loadStyle(split.head.stripPrefix("ONLY "), ScalafmtConfig.default)
       )
-    }
 
     @tailrec
     def numLines(str: String, cnt: Int = 1, off: Int = 0): Int = {
@@ -129,7 +127,7 @@ trait HasTests extends FormatAssertions {
       val test = DiffTest(
         actualName,
         altFilename.getOrElse(filename),
-        new Position(spec, filename, linenum),
+        new Location(filename, linenum),
         original,
         trimmed(expected),
         moduleSkip || isSkip(name),
@@ -166,8 +164,9 @@ trait HasTests extends FormatAssertions {
 
   def ignore(t: DiffTest): Boolean = false
 
-  def defaultRun(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    implicit val loc: Position = t.loc
+  def defaultRun(t: DiffTest, parse: Parse[_ <: Tree])(implicit
+      loc: Location
+  ): Unit = {
     val debug = new Debug(false)
     val runner = scalafmtRunner(t.style.runner, debug).copy(parser = parse)
     val result = Scalafmt

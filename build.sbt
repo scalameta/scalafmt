@@ -36,10 +36,11 @@ inThisBuild(
     crossScalaVersions := List(scala213, scala212, scala211),
     resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= List(
-      scalatest.value % Test,
+      munit.value % Test,
       scalacheck % Test,
       scalametaTestkit % Test
-    )
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
   )
 )
 
@@ -72,7 +73,9 @@ lazy val dynamic = project
     buildInfoObject := "BuildInfo",
     libraryDependencies ++= List(
       "io.get-coursier" % "interface" % "0.0.17",
-      "com.typesafe" % "config" % "1.4.1"
+      "com.typesafe" % "config" % "1.4.1",
+      munit.value % Test,
+      scalametaTestkit % Test
     ),
     scalacOptions ++= scalacJvmOptions.value
   )
@@ -210,15 +213,16 @@ lazy val tests = project
       },
       "org.typelevel" %% "paiges-core" % "0.3.0",
       scalametaTestkit,
-      scalatest.value
+      munit.value
     ),
     scalacOptions ++= scalacJvmOptions.value,
     javaOptions += "-Dfile.encoding=UTF8",
-    // Fork in CI to avoid memory limitation issues. Disable forking locally
-    // because ScalaTest error reporting fails with cryptic serialization errors
-    // when forking is enabled.
-    fork := isCI
+    buildInfoPackage := "org.scalafmt.tests",
+    buildInfoKeys := Seq[BuildInfoKey](
+      "resourceDirectory" -> resourceDirectory.in(Test).value
+    )
   )
+  .enablePlugins(BuildInfoPlugin)
   .dependsOn(coreJVM, dynamic, cli)
 
 lazy val benchmarks = project

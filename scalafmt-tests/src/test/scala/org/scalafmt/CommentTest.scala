@@ -1,10 +1,9 @@
 package org.scalafmt
 
-import org.scalatest.funsuite.AnyFunSuite
+import munit.FunSuite
 import org.scalafmt.config.{Docstrings, ScalafmtConfig}
-import org.scalafmt.util.DiffAssertions
 
-class CommentTest extends AnyFunSuite with DiffAssertions {
+class CommentTest extends FunSuite {
 
   private val javadocStyle: ScalafmtConfig =
     ScalafmtConfig.default.copy(docstrings =
