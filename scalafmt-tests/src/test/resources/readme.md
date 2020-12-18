@@ -71,3 +71,12 @@ bar(2)
 ```
 
 If you are unsure which directory to put your test in, put it in `test/resources/test`.
+
+In case of an error a message will be shown that will point to the exact tests that failed:
+
+```
+==> X org.scalafmt.FormatTests.binPack/LiteralList.stat:3: basic                                     |  1.627s munit.ComparisonFailException: /home/tgodzik/Documents/scalafmt/scalafmt-tests/src/test/resources/binPack/LiteralList.stat:3
+```
+
+The file link itself should be clickable (via ctrl/cmd + click) when used from VS Code terminal or within Intellij, though in the latter case currently link will be created only if the Android plugin is active as the functionality is tied to that plugin. In the future that functionality might be migrated to the core Intellij code.
+
