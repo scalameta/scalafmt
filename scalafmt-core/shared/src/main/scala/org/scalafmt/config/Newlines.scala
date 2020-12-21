@@ -170,7 +170,9 @@ case class Newlines(
     @annotation.ExtraName("afterCurlyLambda")
     afterCurlyLambdaParams: AfterCurlyLambdaParams =
       AfterCurlyLambdaParams.never,
+    @annotation.ExtraName("usingParamListModifierForce")
     implicitParamListModifierForce: Seq[BeforeAfter] = Seq.empty,
+    @annotation.ExtraName("usingParamListModifierPrefer")
     implicitParamListModifierPrefer: Option[BeforeAfter] = None,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     @annotation.DeprecatedName(

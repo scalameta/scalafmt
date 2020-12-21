@@ -8,6 +8,7 @@ import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
 
 import scala.language.implicitConversions
+import scala.meta.Term.ApplyUsing
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.{Token, Tokens}
 import scala.meta.tokens.{Token => T}
@@ -58,6 +59,7 @@ class Router(formatOps: FormatOps) {
   import PolicyOps._
   import TokenOps._
   import TreeOps._
+  import FormatOps._
   import formatOps._
 
   private def getSplitsImpl(formatToken: FormatToken): Seq[Split] = {
@@ -654,7 +656,7 @@ class Router(formatOps: FormatOps) {
             (!style.binPack.unsafeCallSite && isCallSite(leftOwner)) ||
             (!style.binPack.unsafeDefnSite && isDefnSite(leftOwner)) =>
         val close = matching(open)
-        val (lhs, args) = getApplyArgs(formatToken, false)
+        val TreeArgs(lhs, args) = getApplyArgs(formatToken, false)
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
         val lhsPenalty = treeDepth(lhs)
@@ -759,6 +761,7 @@ class Router(formatOps: FormatOps) {
             Policy.NoPolicy
           }
 
+        // covers using as well
         val handleImplicit =
           if (onlyConfigStyle) opensConfigStyleImplicitParamList(formatToken)
           else opensImplicitParamList(formatToken, args)
@@ -1762,10 +1765,16 @@ class Router(formatOps: FormatOps) {
       case FormatToken(c: T.Comment, _, _) =>
         Seq(Split(getMod(formatToken), 0))
 
-      case FormatToken(_: T.KwImplicit, _, _)
+      case FormatToken(soft.ImplicitOrUsing(), _, _)
           if !style.binPack.unsafeDefnSite &&
-            !style.verticalMultiline.atDefnSite =>
-        opensImplicitParamList(prevNonComment(prev(formatToken))).fold {
+            !style.verticalMultiline.atDefnSite &&
+            isRightImplicitOrUsingSoftKw(formatToken, soft) =>
+        val argsOrParamsOpt = formatToken.meta.leftOwner match {
+          // for the using argument list
+          case _: ApplyUsing => Some(getApplyArgs(formatToken, false).args)
+          case _ => opensImplicitParamList(prevNonComment(prev(formatToken)))
+        }
+        argsOrParamsOpt.fold {
           Seq(Split(Space, 0))
         } { params =>
           val spaceSplit = Split(Space, 0)
