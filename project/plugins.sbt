@@ -6,7 +6,7 @@ resolvers ++= Seq(
 
 addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.2.12")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.2")
-addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.4")
+addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.5")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.10.0")
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.15.0")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.4.0")
