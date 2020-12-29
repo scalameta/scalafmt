@@ -765,7 +765,7 @@ if (something_else) {
 
 When the appropriate `danglingParentheses` flag (e.g., `defnSite`) has been set,
 this parameter can be used to limit contexts where dangling is applied
-(currently, `class`, `trait` and `def` are supported).
+(currently, `class`, `trait`, `enum`, `extension` and `def` are supported).
 
 ```scala mdoc:defaults
 danglingParentheses.exclude

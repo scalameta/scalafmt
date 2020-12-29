@@ -1,4 +1,4 @@
-#                                                                            |
+#
 <<< extension method
 extension [A](a: A  ) def add(b: A) = a + b
 >>>
@@ -40,8 +40,8 @@ maxColumn = 40
 ===
 extension (a: A)(using c: Aaaaaaaaaaaaaaaa) def add(b: A) = a + b
 >>>
-extension (a: A)(
-    using c: Aaaaaaaaaaaaaaaa
+extension (a: A)(using
+    c: Aaaaaaaaaaaaaaaa
 ) def add(b: A) = a + b
 <<< space before def
 extension (a: A)
@@ -93,4 +93,51 @@ extension [AAaaaaaaaaaa](
 )(using b: AAaaaaaaa) {
   def add1(b: A) = a + b
   def add2(b: A) = a + b
+}
+<<< extension soft
+maxColumn = 40
+===
+extension [A](extension: Path) def isScala = false
+>>>
+extension [A](extension: Path)
+  def isScala = false
+<<< extension soft apply
+maxColumn = 40
+===
+object A{
+  def extension(a : Int) = a + 1
+  `extension`(1)
+}
+>>>
+object A {
+  def extension(a: Int) = a + 1
+  `extension`(1)
+}
+<<< extension soft def
+maxColumn = 40
+===
+extension [A](extension: Path) def extension() = ""
+>>>
+extension [A](extension: Path)
+  def extension() = ""
+<<< extension comments
+maxColumn = 40
+===
+extension [A](cat: Cat) /* new feature */ // or this
+  def a = 1
+>>>
+extension [A](cat: Cat)
+  /* new feature */ // or this
+  def a = 1
+<<< extension comments brace
+maxColumn = 40
+===
+extension [A](cat: Cat){ /* new feature */ // or this
+  def a = 1
+}
+>>>
+extension [A](
+    cat: Cat
+) { /* new feature */ // or this
+  def a = 1
 }

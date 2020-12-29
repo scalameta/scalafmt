@@ -7,16 +7,6 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 @classifier
-trait ExtensionKeyword
-object ExtensionKeyword {
-  def unapply(token: Token): Boolean = token match {
-    case _: KwExtension => true
-    case Ident("extension") => true
-    case _ => false
-  }
-}
-
-@classifier
 trait Keyword
 object Keyword {
   def unapply(token: Token): Boolean = {

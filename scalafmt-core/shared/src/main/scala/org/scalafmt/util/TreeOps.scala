@@ -24,7 +24,6 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
 import scala.reflect.ClassTag
-import scala.reflect.classTag
 
 import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error
@@ -105,7 +104,10 @@ object TreeOps {
     ret.result()
   }
 
-  def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
+  def getStatementStarts(
+      tree: Tree,
+      soft: SoftKeywordClasses
+  ): Map[TokenHash, Tree] = {
     val ret = Map.newBuilder[TokenHash, Tree]
     ret.sizeHint(tree.tokens.length)
 
@@ -114,7 +116,7 @@ object TreeOps {
       t.tokens.find(!_.is[Trivia]).foreach(addTok(_, tree))
     def addAll(trees: Seq[Tree]) = trees.foreach(x => addTree(x, x))
 
-    def addDefnTokens[T](
+    def addDefnTokens(
         mods: Seq[Mod],
         tree: Tree,
         what: String,
@@ -130,17 +132,19 @@ object TreeOps {
           // No non-annotation modifier exists, fallback to keyword like `object`
           tree.tokens.find(isMatch) match {
             case Some(x) => addTok(x, tree)
-            case None =>
-              throw Error.CantFindDefnToken(what, tree)
+            case None => throw Error.CantFindDefnToken(what, tree)
           }
       }
     }
-    def addDefn[T: ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
-      addDefnTokens[T](
+    def addDefn[T](mods: Seq[Mod], tree: Tree)(implicit
+        tag: ClassTag[T]
+    ): Unit = {
+      val runtimeClass = tag.runtimeClass
+      addDefnTokens(
         mods,
         tree,
-        classTag[T].runtimeClass.getSimpleName(),
-        t => classTag[T].runtimeClass.isInstance(t)
+        runtimeClass.getSimpleName(),
+        runtimeClass.isInstance
       )
     }
 
@@ -152,7 +156,7 @@ object TreeOps {
         case t: Decl.Def => addDefn[KwDef](t.mods, t)
         case t: Defn.Enum => addDefn[KwEnum](t.mods, t)
         case t: Defn.ExtensionGroup =>
-          addDefnTokens(Nil, t, "extension", t => ExtensionKeyword.unapply(t))
+          addDefnTokens(Nil, t, "extension", soft.KwExtension.unapply)
         case t: Defn.Object => addDefn[KwObject](t.mods, t)
         case t: Defn.Trait => addDefn[KwTrait](t.mods, t)
         case t: Defn.Type => addDefn[KwType](t.mods, t)
