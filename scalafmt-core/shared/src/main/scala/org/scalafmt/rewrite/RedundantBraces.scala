@@ -318,6 +318,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
           }
 
         case Term.Match(`b`, _) => true
+        case Type.Match(`b`, _) => true
 
         case parent =>
           SyntacticGroupOps.groupNeedsParenthesis(

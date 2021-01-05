@@ -19,6 +19,7 @@ import scala.meta.Template
 import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.Type
+import scala.meta.TypeCase
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -86,12 +87,14 @@ object TreeOps {
       case t: Term.For => getEnumStatements(t.enums)
       case t: Term.ForYield => getEnumStatements(t.enums)
       case t: Term.Match => t.cases
+      case t: Type.Match => t.cases
       case t: Term.PartialFunction => t.cases
       case t: Term.Try => t.catchp
       case t: Type.Refine => t.stats
       case t: scala.meta.Source => t.stats
       case t: Template => t.stats
       case t: Case if t.body.tokens.nonEmpty => Seq(t.body)
+      case t: TypeCase if t.body.tokens.nonEmpty => Seq(t.body)
       case _ => Seq.empty[Tree]
     }
 
@@ -676,7 +679,15 @@ object TreeOps {
     }
 
   // Redundant {} block around case statements
-  def isCaseBodyABlock(ft: FormatToken, caseStat: Case): Boolean =
-    ft.right.is[Token.LeftBrace] && (caseStat.body eq ft.meta.rightOwner)
+  def isCaseBodyABlock(ft: FormatToken, caseStat: Tree): Boolean = {
+    val bodyOpt = caseStat match {
+      case tc: TypeCase => Some(tc.body)
+      case c: Case => Some(c.body)
+      case _ => None
+    }
+    bodyOpt.exists { body =>
+      ft.right.is[Token.LeftBrace] && (body eq ft.meta.rightOwner)
+    }
+  }
 
 }

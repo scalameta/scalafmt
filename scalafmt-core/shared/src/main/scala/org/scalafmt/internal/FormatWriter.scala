@@ -854,7 +854,7 @@ class FormatWriter(formatOps: FormatOps) {
       def unapply(tree: Tree): Option[Tree] =
         tree match {
           case _: Source | _: Template | _: Term.Block | _: Term.Match |
-              _: Term.Function | _: Term.PartialFunction =>
+              _: Type.Match | _: Term.Function | _: Term.PartialFunction =>
             Some(tree)
           case _ => None
         }

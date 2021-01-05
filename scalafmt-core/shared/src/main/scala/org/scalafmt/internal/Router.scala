@@ -26,7 +26,8 @@ import scala.meta.{
   Template,
   Term,
   Tree,
-  Type
+  Type,
+  TypeCase
 }
 
 object Constants {
@@ -418,9 +419,12 @@ class Router(formatOps: FormatOps) {
         singleLineSplit +: multiLineSplits
 
       // Case arrow
-      case tok @ FormatToken(_: T.RightArrow, _, _) if leftOwner.is[Case] =>
-        val caseStat = leftOwner.asInstanceOf[Case]
-        val body = caseStat.body
+      case tok @ FormatToken(_: T.RightArrow, _, _)
+          if leftOwner.is[Case] || leftOwner.is[TypeCase] =>
+        val (body, condIsDefined) = leftOwner match {
+          case c: Case => (c.body, c.cond.isDefined)
+          case tc: TypeCase => (tc.body, false)
+        }
         val bodyIsEmpty = body.tokens.isEmpty
         def baseSplit = Split(Space, 0)
         def nlSplit(ft: FormatToken)(cost: Int)(implicit l: sourcecode.Line) = {
@@ -430,8 +434,8 @@ class Router(formatOps: FormatOps) {
         }
         CtrlBodySplits.checkComment(tok, nlSplit(tok)) { ft =>
           val beforeMultiline = style.newlines.getBeforeMultiline
-          if (isCaseBodyABlock(ft, caseStat)) Seq(baseSplit)
-          else if (isCaseBodyEnclosedAsBlock(ft, caseStat)) Seq(baseSplit)
+          if (isCaseBodyABlock(ft, leftOwner)) Seq(baseSplit)
+          else if (isCaseBodyEnclosedAsBlock(ft, leftOwner)) Seq(baseSplit)
           else if (ft.right.is[T.KwCase]) Seq(nlSplit(ft)(0))
           else if (beforeMultiline eq Newlines.unfold) {
             if (ft.right.is[T.Semicolon]) Seq(baseSplit, nlSplit(ft)(1))
@@ -442,7 +446,7 @@ class Router(formatOps: FormatOps) {
           ) Seq(nlSplit(ft)(0))
           else if (bodyIsEmpty) Seq(baseSplit, nlSplit(ft)(1))
           else if (
-            caseStat.cond.isDefined ||
+            condIsDefined ||
             beforeMultiline.eq(Newlines.classic) ||
             (body match {
               case t: Term.Block => t.stats.lengthCompare(1) > 0
@@ -683,6 +687,7 @@ class Router(formatOps: FormatOps) {
             case t: Term.Apply => t.args.nonEmpty
             case t: Term.ApplyType => t.targs.nonEmpty
             case t: Term.Match => t.cases.nonEmpty
+            case t: Type.Match => t.cases.nonEmpty
             case t: Term.New => t.init.argss.nonEmpty
             case _: Term.NewAnonymous => true
             case _ => false
@@ -1681,20 +1686,23 @@ class Router(formatOps: FormatOps) {
         insideInfixSplit(app, formatToken)
 
       // Case
-      case FormatToken(_: T.KwCase, _, _) if leftOwner.is[Case] =>
-        val owner = leftOwner.asInstanceOf[Case]
-        val arrowFt = getCaseArrow(owner)
+      case FormatToken(_: T.KwCase, _, _)
+          if leftOwner.is[Case] || leftOwner.is[TypeCase] =>
+        val (body, arrowFt) = leftOwner match {
+          case c: Case => (c.body, getCaseArrow(c))
+          case tc: TypeCase => (tc.body, getCaseArrow(tc))
+        }
         val arrow = arrowFt.left
         val postArrowFt = nextNonCommentSameLine(arrowFt)
-        val expire = lastTokenOpt(owner.body.tokens)
+        val expire = lastTokenOpt(body.tokens)
           .fold(postArrowFt)(x => nextNonCommentSameLine(tokens(x)))
           .left
 
-        val bodyBlock = isCaseBodyABlock(arrowFt, owner)
+        val bodyBlock = isCaseBodyABlock(arrowFt, leftOwner)
         def defaultPolicy = decideNewlinesOnlyAfterToken(postArrowFt.left)
         val policy =
           if (bodyBlock || isAttachedSingleLineComment(arrowFt)) NoPolicy
-          else if (isCaseBodyEnclosedAsBlock(postArrowFt, owner)) {
+          else if (isCaseBodyEnclosedAsBlock(postArrowFt, leftOwner)) {
             val postParenFt = nextNonCommentSameLine(next(postArrowFt))
             val lparen = postParenFt.left
             val rparen = matching(lparen)

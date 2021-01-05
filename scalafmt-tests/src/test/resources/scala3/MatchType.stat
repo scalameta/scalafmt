@@ -1,0 +1,126 @@
+#
+<<< simple match type
+type Elem[X] = X match {
+             case String => Char
+             case Array[t] => t
+}
+>>>
+type Elem[X] = X match {
+  case String   => Char
+  case Array[t] => t
+}
+<<< type bound match type
+type Head[X <: Tuple] = X match {
+           case (x1, ?) => 
+           x1
+         }
+>>>
+type Head[X <: Tuple] = X match {
+  case (x1, ?) =>
+    x1
+}
+<<< recursive match type
+type Len[X] <: Int = X match {
+           case Unit => 0
+           case x *: xs => S[Len[xs]]}
+>>>
+type Len[X] <: Int = X match {
+  case Unit    => 0
+  case x *: xs => S[Len[xs]]
+}
+<<< complex match type
+type Concat[X <: Tuple, Y <: Tuple] <: Tuple = X match {
+           case Unit => 
+          Y
+           case x1 *: xs1 => 
+          x1 *: Concat[xs1, Y]
+         }
+>>>
+type Concat[X <: Tuple, Y <: Tuple] <: Tuple = X match {
+  case Unit =>
+    Y
+  case x1 *: xs1 =>
+    x1 *: Concat[xs1, Y]
+}
+<<< long type bound match type
+maxColumn = 40
+===
+type Concat[X <: Tuple, Y <: Tuple] <: Tuple = X match {
+           case Unit => 
+          Y
+           case x1 *: xs1 => 
+          x1 *: Concat[xs1, Y]
+         }
+>>>
+type Concat[
+    X <: Tuple,
+    Y <: Tuple
+] <: Tuple = X match {
+  case Unit =>
+    Y
+  case x1 *: xs1 =>
+    x1 *: Concat[xs1, Y]
+}
+<<< even longer type bound 
+maxColumn = 40
+===
+type Concat[X, Y] <: TupleTupleTupleTupleTupleTupleTuple = X match {
+           case Unit => 
+          Y
+           case x1 *: xs1 => 
+          x1 *: Concat[xs1, Y]
+         }
+>>>
+type Concat[
+    X,
+    Y
+] <: TupleTupleTupleTupleTupleTupleTuple =
+  X match {
+    case Unit =>
+      Y
+    case x1 *: xs1 =>
+      x1 *: Concat[xs1, Y]
+  }
+<<< match type unfold
+newlines.beforeMultiline = unfold
+===
+  type Elem[X] = X match {
+    case String   => Array[AVeryLongTraitNameToTestOutSomeThings]
+    case Array[t] => 
+      t
+  }
+>>>
+type Elem[X] =
+  X match {
+    case String =>
+      Array[AVeryLongTraitNameToTestOutSomeThings]
+    case Array[t] =>
+      t
+  }
+<<< match type fold
+newlines.beforeMultiline = fold
+===
+  type Elem[X] = X match {
+    case String   => 
+      Array[AVeryLongTraitNameToTestOutSomeThings]
+    case Array[t] => t
+  }
+>>>
+type Elem[X] = X match {
+  case String   => Array[AVeryLongTraitNameToTestOutSomeThings]
+  case Array[t] => t
+}
+<<< match type keep
+newlines.beforeMultiline = keep
+===
+  type Elem[X] = X match {
+    case String   => 
+      Array[AVeryLongTraitNameToTestOutSomeThings]
+    case Array[t] => t
+  }
+>>>
+type Elem[X] = X match {
+  case String =>
+    Array[AVeryLongTraitNameToTestOutSomeThings]
+  case Array[t] => t
+}
