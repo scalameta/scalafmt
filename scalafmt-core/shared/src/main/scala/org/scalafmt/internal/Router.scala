@@ -470,6 +470,16 @@ class Router(formatOps: FormatOps) {
           Split(NewlineT(isDouble = tok.hasBlankLine), 0)
         )
 
+      case tok @ FormatToken(_: T.RightParen, _: T.KwDef | _: T.Comment, _)
+          if leftOwner.is[Defn.ExtensionGroup] =>
+        val expireToken = leftOwner.tokens.last
+        // Force a newline with the body of a Defn.ExtensionGroup if the
+        // method doesn't fit on a single line.
+        Seq(
+          Split(Space, 0).withSingleLine(expireToken),
+          Split(Newline, 1).withIndent(2, expireToken, After)
+        )
+
       case tok @ FormatToken(left, right, _)
           if startsStatement(right).isDefined =>
         val expire = rightOwner.tokens
@@ -556,6 +566,9 @@ class Router(formatOps: FormatOps) {
           case name: Term.Name
               if style.spaces.afterSymbolicDefs &&
                 isSymbolicName(name.value) && name.parent.exists(isDefDef) =>
+            Space
+          case _: Defn.ExtensionGroup
+              if formatToken.left.is[soft.KwExtension] =>
             Space
           case _ => NoSplit
         }

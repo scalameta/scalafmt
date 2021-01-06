@@ -25,7 +25,6 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
 import scala.reflect.ClassTag
-import scala.reflect.classTag
 
 import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error
@@ -108,7 +107,10 @@ object TreeOps {
     ret.result()
   }
 
-  def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
+  def getStatementStarts(
+      tree: Tree,
+      soft: SoftKeywordClasses
+  ): Map[TokenHash, Tree] = {
     val ret = Map.newBuilder[TokenHash, Tree]
     ret.sizeHint(tree.tokens.length)
 
@@ -117,7 +119,12 @@ object TreeOps {
       t.tokens.find(!_.is[Trivia]).foreach(addTok(_, tree))
     def addAll(trees: Seq[Tree]) = trees.foreach(x => addTree(x, x))
 
-    def addDefn[T: ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
+    def addDefnTokens(
+        mods: Seq[Mod],
+        tree: Tree,
+        what: String,
+        isMatch: Token => Boolean
+    ): Unit = {
       // Each @annotation gets a separate line
       val annotations = mods.filter(_.is[Mod.Annot])
       addAll(annotations)
@@ -126,11 +133,22 @@ object TreeOps {
         case Some(x) => addTree(x, tree)
         case _ =>
           // No non-annotation modifier exists, fallback to keyword like `object`
-          tree.tokens.find(classTag[T].runtimeClass.isInstance) match {
+          tree.tokens.find(isMatch) match {
             case Some(x) => addTok(x, tree)
-            case None => throw Error.CantFindDefnToken[T](tree)
+            case None => throw Error.CantFindDefnToken(what, tree)
           }
       }
+    }
+    def addDefn[T](mods: Seq[Mod], tree: Tree)(implicit
+        tag: ClassTag[T]
+    ): Unit = {
+      val runtimeClass = tag.runtimeClass
+      addDefnTokens(
+        mods,
+        tree,
+        runtimeClass.getSimpleName(),
+        runtimeClass.isInstance
+      )
     }
 
     def loop(x: Tree): Unit = {
@@ -140,6 +158,8 @@ object TreeOps {
         case t: Defn.Macro => addDefn[KwDef](t.mods, t)
         case t: Decl.Def => addDefn[KwDef](t.mods, t)
         case t: Defn.Enum => addDefn[KwEnum](t.mods, t)
+        case t: Defn.ExtensionGroup =>
+          addDefnTokens(Nil, t, "extension", soft.KwExtension.unapply)
         case t: Defn.Object => addDefn[KwObject](t.mods, t)
         case t: Defn.Trait => addDefn[KwTrait](t.mods, t)
         case t: Defn.Type => addDefn[KwType](t.mods, t)
@@ -302,7 +322,8 @@ object TreeOps {
   def isDefnSiteWithParams(tree: Tree): Boolean =
     tree match {
       case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
-          _: Defn.Trait | _: Defn.Enum | _: Defn.EnumCase | _: Ctor.Secondary =>
+          _: Defn.Trait | _: Defn.Enum | _: Defn.EnumCase |
+          _: Defn.ExtensionGroup | _: Ctor.Secondary =>
         true
       case x: Ctor.Primary =>
         x.parent.exists(isDefnSiteWithParams)
@@ -319,7 +340,7 @@ object TreeOps {
       case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
           _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type | _: Defn.Type |
           _: Type.Apply | _: Type.Param | _: Type.Tuple | _: Defn.Enum |
-          _: Defn.EnumCase =>
+          _: Defn.EnumCase | _: Defn.ExtensionGroup =>
         true
       case _: Term.Function | _: Type.Function => true
       case x: Ctor.Primary => x.parent.exists(isDefnSite)
@@ -422,6 +443,8 @@ object TreeOps {
     case t: Defn.Trait => (t.mods, t.name, t.tparams, t.ctor.paramss)
     case t: Defn.Enum => (t.mods, t.name, t.tparams, t.ctor.paramss)
     case t: Defn.EnumCase => (t.mods, t.name, t.tparams, t.ctor.paramss)
+    case t: Defn.ExtensionGroup =>
+      (Nil, Name.Anonymous(), t.tparams, List(t.eparam) :: t.uparams)
     case t: Ctor.Primary => (t.mods, t.name, Seq.empty, t.paramss)
     case t: Ctor.Secondary => (t.mods, t.name, Seq.empty, t.paramss)
   }
@@ -584,6 +607,7 @@ object TreeOps {
             DanglingParentheses.Exclude.`class`
           case _: Defn.Trait => DanglingParentheses.Exclude.`trait`
           case _: Defn.Enum => DanglingParentheses.Exclude.`enum`
+          case _: Defn.ExtensionGroup => DanglingParentheses.Exclude.`extension`
           case _: Defn.Def => DanglingParentheses.Exclude.`def`
           case _ => null
         }

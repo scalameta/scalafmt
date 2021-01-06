@@ -69,7 +69,7 @@ class FormatOps(
   private val ownersMap = getOwners(tree)
   val tokens: FormatTokens = FormatTokens(tree.tokens, owners)
   private[internal] val soft = new SoftKeywordClasses(dialect)
-  private val statementStarts = getStatementStarts(tree)
+  private val statementStarts = getStatementStarts(tree, soft)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   private val matchingParentheses: Map[TokenHash, Token] =
     getMatchingParentheses(tree.tokens)
