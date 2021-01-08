@@ -64,11 +64,10 @@ object TreeOps {
   }
 
   @tailrec
-  def isBlockFunction(fun: Tree): Boolean =
+  def isBlockFunction(fun: Term.FunctionTerm): Boolean =
     fun.parent match {
       case Some(b: Term.Block) => isSingleElement(b.stats, fun)
-      case Some(next: Term.Function) => isBlockFunction(next)
-      case Some(next: Term.ContextFunction) => isBlockFunction(next)
+      case Some(next: Term.FunctionTerm) => isBlockFunction(next)
       case _ => false
     }
 
@@ -81,8 +80,7 @@ object TreeOps {
   def extractStatementsIfAny(tree: Tree): Seq[Tree] =
     tree match {
       case b: Term.Block => b.stats
-      case b: Term.Function if isBlockFunction(b) => b.body :: Nil
-      case b: Term.ContextFunction if isBlockFunction(b) => b.body :: Nil
+      case b: Term.FunctionTerm if isBlockFunction(b) => b.body :: Nil
       case t: Pkg => t.stats
       // TODO(olafur) would be nice to have an abstract "For" superclass.
       case t: Term.For => getEnumStatements(t.enums)
@@ -481,28 +479,15 @@ object TreeOps {
       case _ => None
     }
 
-  final def lastLambda(first: Tree): Tree = {
-    assert(first.is[Term.Function] || first.is[Term.ContextFunction])
-
-    @tailrec
-    def nextLambda(body: Tree): Tree =
-      body match {
-        case child: Term.Function => lastLambda(child)
-        case child: Term.ContextFunction => lastLambda(child)
-        case block: Term.Block
-            if block.stats.headOption.exists(_.is[Term.Function]) =>
-          nextLambda(block.stats.head)
-        case block: Term.Block
-            if block.stats.headOption.exists(_.is[Term.ContextFunction]) =>
-          nextLambda(block.stats.head)
-        case _ => first
-      }
-
-    first match {
-      case f: Term.Function => nextLambda(f.body)
-      case f: Term.ContextFunction => nextLambda(f.body)
+  @tailrec
+  final def lastLambda(first: Term.FunctionTerm): Term.FunctionTerm =
+    first.body match {
+      case child: Term.FunctionTerm => lastLambda(child)
+      case block: Term.Block
+          if block.stats.headOption.exists(_.is[Term.FunctionTerm]) =>
+        lastLambda(block.stats.head.asInstanceOf[Term.FunctionTerm])
+      case _ => first
     }
-  }
 
   final def isInfixOp(tree: Tree): Boolean =
     tree.parent.exists {
