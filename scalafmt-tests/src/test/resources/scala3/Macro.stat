@@ -45,7 +45,73 @@ val xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx = ${    locationImpl(Foooooooooooooooooooooo
 val xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx = ${
   locationImpl(Foooooooooooooooooooooooo())
 }
-<<< SKIP dollar parameter - FIXME https://github.com/scalameta/scalameta/issues/2191
+<<< dollar parameter
 List().map(($, a) => $.a)
 >>>
 List().map(($, a) => $.a)
+<<< simple pattern
+   body match    {  
+      case '{ sum() } => Expr(0)
+      case '{ sum($n) } =>        n
+      case '{ sum(${Varargs(args)}: _*) } => sumExpr(args)
+      case body => body
+   }
+>>>
+body match {
+  case '{ sum() }                       => Expr(0)
+  case '{ sum($n) }                     => n
+  case '{ sum(${ Varargs(args) }: _*) } => sumExpr(args)
+  case body                             => body
+}
+<<< long pattern
+   body match    {  
+      case 
+      '{ 
+        sum(${Varargs(subArgs)}: _*) 
+      } if aVeryLongCondition(parameter) => subArgs.flatMap(flatSumArgs)
+      case body => body
+   }
+>>>
+body match {
+  case '{
+        sum(${ Varargs(subArgs) }: _*)
+      } if aVeryLongCondition(parameter) =>
+    subArgs.flatMap(flatSumArgs)
+  case body => body
+}
+<<< macro pattern unfold
+newlines.beforeMultiline = unfold
+===
+body match    {  
+  case 
+  '{ 
+    sum(${Varargs(subArgs)}: _*) 
+  } if aVeryLongCondition(parameter) => subArgs.flatMap(flatSumArgs)
+  case body => body
+}
+>>>
+body match {
+  case '{
+        sum(${ Varargs(subArgs) }: _*)
+      } if aVeryLongCondition(parameter) =>
+    subArgs.flatMap(flatSumArgs)
+  case body =>
+    body
+}
+<<< macro pattern fold
+newlines.beforeMultiline = fold
+===
+body match    {  
+  case 
+  '{ 
+    sum(${Varargs(subArgs)}: _*) 
+  } if aVeryLongCondition(parameter) => subArgs.flatMap(flatSumArgs)
+  case body => body
+}
+>>>
+body match {
+  case '{
+        sum(${ Varargs(subArgs) }: _*)
+      } if aVeryLongCondition(parameter) => subArgs.flatMap(flatSumArgs)
+  case body => body
+}
