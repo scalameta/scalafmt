@@ -16,7 +16,6 @@ import scala.meta.{
   Case,
   Defn,
   Enumerator,
-  Import,
   Importer,
   Init,
   Lit,
@@ -28,7 +27,8 @@ import scala.meta.{
   Tree,
   Type,
   TypeCase,
-  CaseTree
+  CaseTree,
+  ImportExportStat
 }
 
 object Constants {
@@ -131,11 +131,11 @@ class Router(formatOps: FormatOps) {
         )
       // Import
       case FormatToken(_: T.Dot, _, _)
-          if existsParentOfType[Import](rightOwner) =>
+          if existsParentOfType[ImportExportStat](rightOwner) =>
         Seq(Split(NoSplit, 0))
       // Import left brace
       case FormatToken(open: T.LeftBrace, _, _)
-          if existsParentOfType[Import](leftOwner) =>
+          if existsParentOfType[ImportExportStat](leftOwner) =>
         val close = matching(open)
         val policy = SingleLineBlock(
           close,
@@ -161,7 +161,7 @@ class Router(formatOps: FormatOps) {
             .withIndent(2, close, Before)
         )
       case FormatToken(_, _: T.RightBrace, _)
-          if existsParentOfType[Import](rightOwner) =>
+          if existsParentOfType[ImportExportStat](rightOwner) =>
         Seq(Split(Space(style.spaces.inImportCurlyBraces), 0))
 
       // Interpolated string left brace
