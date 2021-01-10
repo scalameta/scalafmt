@@ -426,8 +426,10 @@ val a = Seq(
 >>>
 val a = Seq(
     a,
+
 // b,
     c,
+
     // comment
     d
 )
