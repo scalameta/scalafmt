@@ -89,7 +89,14 @@ object Docstrings {
   }
 
   implicit val reader: ConfCodec[Style] =
-    ReaderUtil.oneOf[Style](Preserve, Asterisk, SpaceAsterisk, AsteriskSpace)
+    ReaderUtil.oneOfCustom[Style](
+      Preserve,
+      Asterisk,
+      SpaceAsterisk,
+      AsteriskSpace
+    ) { case Conf.Str("keep") =>
+      Configured.Ok(Preserve)
+    }
 
   sealed abstract class Oneline
   object Oneline {

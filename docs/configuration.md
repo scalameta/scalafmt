@@ -1179,7 +1179,7 @@ something.map { x => f(x) }
 ```
 
 ```scala mdoc:scalafmt
-newlines.afterCurlyLambdaParams = preserve
+newlines.afterCurlyLambdaParams = keep
 ---
 // if blank lines are present, keep only one
 // one-line formatting depends on newlines.source:
@@ -1778,12 +1778,12 @@ method3(
 )
 ```
 
-#### Trailing commas: `preserve`
+#### Trailing commas: `keep`
 
 Keeps any trailing commas:
 
 ```scala mdoc:scalafmt
-trailingCommas = preserve
+trailingCommas = keep
 ---
 import a.{
   b,
@@ -2062,13 +2062,13 @@ val b = 2 // long singleline comment
 docstrings.style
 ```
 
-##### `docstrings.style = Preserve`
+##### `docstrings.style = keep`
 
 Prohibits formatting of docstrings. All other `docstrings` parameters are
 ignored.
 
 ```scala mdoc:scalafmt
-docstrings.style = Preserve
+docstrings.style = keep
 ---
 /**   do not touch
  * this style
@@ -2112,7 +2112,7 @@ docstrings.style = AsteriskSpace
 
 #### `docstrings.oneline`
 
-> Since v2.6.0. Ignored for `docstrings.style = Preserve`.
+> Since v2.6.0. Ignored for `docstrings.style = keep`.
 
 ```scala mdoc:defaults
 docstrings.oneline
@@ -2169,7 +2169,7 @@ scaladoc parser doesn't have proper support of embedded HTML.
 However,
 [tables are supported](https://www.scala-lang.org/blog/2018/10/04/scaladoc-tables.html).
 
-> Since v2.6.0. Ignored for `docstrings.style = Preserve`.
+> Since v2.6.0. Ignored for `docstrings.style = keep`.
 
 ```scala mdoc:defaults
 docstrings.wrap
@@ -2206,7 +2206,7 @@ Controls whether to force the first line to be blank in a multiline docstring.
 Keep in mind that some combinations of parameters are prohibited (e.g.,
 `blankFirstLine=keep` contradicts with `style=Asterisk`).
 
-> Since v2.7.5. Ignored for `docstrings.style = Preserve` or
+> Since v2.7.5. Ignored for `docstrings.style = keep` or
 > `docstrings.wrap = no`.
 
 ```scala mdoc:defaults

@@ -1,5 +1,5 @@
 preset = default
-newlines.afterCurlyLambda = preserve
+newlines.afterCurlyLambda = keep
 
 <<< Preserve newline in lambda call
 def f = {

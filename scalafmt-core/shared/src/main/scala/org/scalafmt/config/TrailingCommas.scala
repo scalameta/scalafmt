@@ -22,7 +22,9 @@ sealed abstract class TrailingCommas
 object TrailingCommas {
 
   implicit val reader: ConfCodec[TrailingCommas] =
-    ReaderUtil.oneOf[TrailingCommas](always, never, preserve, multiple)
+    ReaderUtil.oneOfCustom[TrailingCommas](always, never, preserve, multiple) {
+      case Conf.Str("keep") => Configured.Ok(preserve)
+    }
 
   case object always extends TrailingCommas
   case object never extends TrailingCommas

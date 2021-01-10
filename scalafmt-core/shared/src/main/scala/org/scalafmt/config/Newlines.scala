@@ -319,7 +319,14 @@ object Newlines {
     case object never extends AfterCurlyLambdaParams
     case object squash extends AfterCurlyLambdaParams
     implicit val codec: ConfCodec[AfterCurlyLambdaParams] =
-      ReaderUtil.oneOf[AfterCurlyLambdaParams](preserve, always, never, squash)
+      ReaderUtil.oneOfCustom[AfterCurlyLambdaParams](
+        preserve,
+        always,
+        never,
+        squash
+      ) { case Conf.Str("keep") =>
+        Configured.Ok(preserve)
+      }
   }
 
   sealed abstract class BeforeCurlyLambdaParams

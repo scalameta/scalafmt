@@ -14,8 +14,8 @@ object a {
    */
   val y = 2
 }
-<<< #1403 1: preserve
-docstrings = preserve
+<<< #1403 1: keep
+docstrings = keep
 ===
 /** Top line.
    * Main entry-point.
