@@ -413,3 +413,21 @@ object a {
    */
   WED = Value
 }
+<<< #2137 keep blanks between comma and comment
+val a = Seq(
+  a,
+
+// b,
+  c,
+
+  // comment
+  d
+)
+>>>
+val a = Seq(
+    a,
+// b,
+    c,
+    // comment
+    d
+)
