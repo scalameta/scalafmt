@@ -17,6 +17,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
 import org.scalafmt.util.TokenOps.TokenHash
+import org.scalameta.FileLine
 import org.scalameta.logger
 
 class StyleMap(
@@ -34,16 +35,24 @@ class StyleMap(
     var empty = true
     val map = Map.newBuilder[TokenHash, ScalafmtConfig]
     val disableBinPack = mutable.Set.empty[Token]
+    def warn(err: String)(implicit fileLine: FileLine): Unit = logger.elem(err)
     tokens.arr.foreach { tok =>
       tok.left match {
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
           Config.fromHoconString(c, Some("scalafmt"), init) match {
             case Configured.Ok(style) =>
+              if (init.rewrite ne style.rewrite)
+                warn("May not override rewrite settings")
+              else if (
+                init.trailingCommas != style.trailingCommas ||
+                init.runner.dialect.allowTrailingCommas !=
+                  style.runner.dialect.allowTrailingCommas
+              )
+                warn("May not override rewrite settings (trailingCommas)")
               empty = false
               curr = style
-            case Configured.NotOk(
-                  e
-                ) => // TODO(olafur) report error via callback
+            case Configured.NotOk(e) =>
+              // TODO(olafur) report error via callback
               logger.elem(e)
           }
         case open @ LeftParen()
