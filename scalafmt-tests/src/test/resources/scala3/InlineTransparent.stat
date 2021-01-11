@@ -1,0 +1,32 @@
+<<< simple inline
+inline val logging =     false
+>>>
+inline val logging = false
+<<< complex inline
+inline val logging = {
+    if (a) { true}
+    else false
+}
+>>>
+inline val logging = {
+  if (a) { true }
+  else false
+}
+<<< inline transparent
+transparent inline def choose(b: Boolean): A = {if(b) {new A} else {new B}}
+>>>
+transparent inline def choose(b: Boolean): A = {
+  if (b) { new A }
+  else { new B }
+}
+<<< inline transparent break
+maxColumn = 20
+===
+transparent inline override protected def choose(b: Boolean): A = {if(b) {new A} else {new B}}
+>>>
+transparent inline override protected def choose(
+    b: Boolean
+): A = {
+  if (b) { new A }
+  else { new B }
+}
