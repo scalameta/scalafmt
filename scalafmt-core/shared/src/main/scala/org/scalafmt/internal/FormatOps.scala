@@ -529,7 +529,7 @@ class FormatOps(
         }
         child.parent.collect {
           case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
-          case fun: Term.Function if isBlockFunction(fun) => true
+          case fun: Term.FunctionTerm if isBlockFunction(fun) => true
           case t: Case => t.pat eq child
         }
       }
@@ -815,7 +815,7 @@ class FormatOps(
       case _ => false
     }
 
-  def functionExpire(function: Term.Function): (Token, ExpiresOn) = {
+  def functionExpire(function: Term.FunctionTerm): (Token, ExpiresOn) = {
     def dropWS(rtoks: Seq[Token]): Seq[Token] =
       rtoks.dropWhile(_.is[Whitespace])
     def orElse(rtoks: Seq[Token]) = {
@@ -1247,17 +1247,17 @@ class FormatOps(
 
   def getLambdaAtSingleArgCallSite(
       ft: FormatToken
-  )(implicit style: ScalafmtConfig): Option[Term.Function] =
+  )(implicit style: ScalafmtConfig): Option[Term.FunctionTerm] =
     ft.meta.leftOwner match {
-      case Term.Apply(_, List(fun: Term.Function)) => Some(fun)
-      case fun: Term.Function if fun.parent.exists({
+      case Term.Apply(_, List(fun: Term.FunctionTerm)) => Some(fun)
+      case fun: Term.FunctionTerm if fun.parent.exists({
             case Term.ApplyInfix(_, _, _, List(`fun`)) => true
             case _ => false
           }) =>
         Some(fun)
       case t: Init =>
-        findArgsFor(ft.left, t.argss).collect { case List(f: Term.Function) =>
-          f
+        findArgsFor(ft.left, t.argss).collect {
+          case List(f: Term.FunctionTerm) => f
         }
       case _ => None
     }
@@ -1269,7 +1269,7 @@ class FormatOps(
     TokenOps.findArgsFor(token, argss, matchingParentheses)
 
   // look for arrow before body, if any, else after params
-  def getFuncArrow(term: Term.Function): Option[FormatToken] =
+  def getFuncArrow(term: Term.FunctionTerm): Option[FormatToken] =
     term.body.tokens.headOption
       .map(x => prevNonComment(tokens(x, -1)))
       .orElse {
