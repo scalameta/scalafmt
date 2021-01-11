@@ -1,0 +1,18 @@
+maxColumn = 200 #to not disturb the output too much
+rewrite {
+  rules = [SortModifiers]
+  sortModifiers {
+    order = ["inline", "transparent"]
+  }
+}
+runner.dialect = Scala3
+<<< transparent inline method
+transparent inline def choose(b: Boolean): A = {
+  if (b) { new A }
+  else { new B }
+}
+>>>
+inline transparent def choose(b: Boolean): A = {
+  if (b) { new A }
+  else { new B }
+}
