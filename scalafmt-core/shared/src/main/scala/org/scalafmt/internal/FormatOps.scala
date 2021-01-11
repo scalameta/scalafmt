@@ -942,6 +942,33 @@ class FormatOps(
     nonWhitespaceOffset(right) - nonWhitespaceOffset(left)
   }
 
+  def typeTemplateSplits(
+      template: Template,
+      indent: Int
+  ): Seq[Split] = {
+    val hasSelfAnnotation = template.self.tokens.nonEmpty
+    val expire = templateCurly(template).getOrElse(template.tokens.last)
+    val policy =
+      if (hasSelfAnnotation) NoPolicy
+      else
+        Policy.after(expire) {
+          // Force template to be multiline.
+          case d @ Decision(
+                t @ FormatToken(_: T.LeftBrace, right, _),
+                _
+              )
+              if !right.is[T.RightBrace] && // corner case, body is {}
+                childOf(template, t.meta.leftOwner) =>
+            d.forceNewline
+        }
+    Seq(
+      Split(Space, 0).withIndent(Num(indent), expire, ExpiresOn.After),
+      Split(Newline, 1)
+        .withPolicy(policy)
+        .withIndent(Num(indent), expire, ExpiresOn.After)
+    )
+  }
+
   def ctorWithChain(
       ownerSet: Set[Tree],
       lastToken: Token
@@ -949,9 +976,12 @@ class FormatOps(
     if (style.binPack.parentConstructors eq BinPack.ParentCtors.Always) NoPolicy
     else if (ownerSet.isEmpty) NoPolicy
     else
-      Policy.before(lastToken) {
+      Policy.after(lastToken) {
         case d @ Decision(t @ FormatToken(_, _: T.KwWith, _), _)
             if ownerSet.contains(t.meta.rightOwner) =>
+          d.onlyNewlinesWithoutFallback
+        case d @ Decision(t @ FormatToken(T.Comma(), _, _), _)
+            if ownerSet.contains(t.meta.leftOwner) =>
           d.onlyNewlinesWithoutFallback
       }
 

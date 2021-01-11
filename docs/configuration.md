@@ -200,6 +200,28 @@ trait Foo extends A with B with C with D with E {
 }
 ```
 
+### `continuationIndent.commaSiteRelativeToExtends`
+
+> Since v3.0.0
+
+Added to support Scala 3, which allows to specify multiple parents with a comma.
+
+```scala mdoc:defaults
+continuationIndent.extendSite
+continuationIndent.commaSiteRelativeToExtends
+```
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+continuationIndent.extendSite = 4
+continuationIndent.commaSiteRelativeToExtends = 4
+maxColumn = 20
+---
+trait Foo extends A, B, C, D, E {
+  def foo: Boolean = true
+}
+```
+
 ### `indentOperator`
 
 Normally, the first eligible break _inside_ a chain of infix operators is
