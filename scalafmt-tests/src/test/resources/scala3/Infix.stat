@@ -1,0 +1,41 @@
+
+<<< simple infix
+infix def   a(param: Int)=param
+>>>
+infix def a(param: Int) = param
+<<< soft identifier  infix
+infix def   infix(infix: Int)=infix
+>>>
+infix def infix(infix: Int) = infix
+<<< infix long break
+maxColumn = 20
+===
+override protected transparent inline infix def choose(b: Boolean): A = {if(b) {new A} else {new B}}
+>>>
+override protected transparent inline infix def choose(
+    b: Boolean
+): A = {
+  if (b) { new A }
+  else { new B }
+}
+<<< infix type
+infix type or  [X , Y]
+>>>
+infix type or[X, Y]
+<<< infix class
+infix class A[B,   C]
+>>>
+infix class A[B, C]
+<<< infix trait
+infix trait A[B,   C]
+>>>
+infix trait A[B, C]
+<<< infix extension method
+maxColumn = 30
+===
+extension (i: Int) infix def zero(other: Int): Int = 0
+>>>
+extension (i: Int)
+  infix def zero(
+      other: Int
+  ): Int = 0

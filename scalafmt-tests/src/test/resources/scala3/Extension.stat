@@ -141,3 +141,29 @@ extension [A](
 ) { /* new feature */ // or this
   def a = 1
 }
+<<< extension multiple comments
+maxColumn = 40
+===
+extension [A, B](a: A) /* foo */ (
+  using b: B /* bar */
+) /* baz */ {
+  def a = 1
+}
+>>>
+extension [A, B](a: A) /* foo */ (using
+    b: B /* bar */
+) /* baz */ {
+  def a = 1
+}
+<<< extension multiple comments no brace
+maxColumn = 40
+===
+extension [A, B](a: A) /* foo */ (
+  using b: B /* bar */
+) /* baz */ def a = 1
+>>>
+extension [A, B](a: A) /* foo */ (using
+    b: B /* bar */
+)
+  /* baz */
+  def a = 1
