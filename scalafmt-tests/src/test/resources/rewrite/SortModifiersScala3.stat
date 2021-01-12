@@ -1,0 +1,56 @@
+maxColumn = 200 #to not disturb the output too much
+rewrite {
+  rules = [SortModifiers]
+  sortModifiers {
+    order = ["infix", "open"]
+  }
+}
+runner.dialect = Scala3
+<<< open infix trait
+open infix trait Foo[A, B]
+>>>
+infix open trait Foo[A, B]
+<<< open goes to the front of the list if it's missing from the config
+rewrite {
+  rules = [SortModifiers]
+  sortModifiers {
+    order = ["implicit"]
+  }
+}
+runner.dialect = Scala3
+===
+implicit open class Foo()
+>>>
+open implicit class Foo()
+<<< open implicit class
+maxColumn = 200 
+rewrite {
+  rules = [SortModifiers]
+  sortModifiers {
+    order = ["open", "implicit"]
+  }
+}
+runner.dialect = Scala3
+===
+implicit open class Foo()
+>>>
+open implicit class Foo()
+<<< transparent inline method
+maxColumn = 200
+rewrite {
+  rules = [SortModifiers]
+  sortModifiers {
+    order = ["inline", "transparent"]
+  }
+}
+runner.dialect = Scala3
+===
+transparent inline def choose(b: Boolean): A = {
+  if (b) { new A }
+  else { new B }
+}
+>>>
+inline transparent def choose(b: Boolean): A = {
+  if (b) { new A }
+  else { new B }
+}

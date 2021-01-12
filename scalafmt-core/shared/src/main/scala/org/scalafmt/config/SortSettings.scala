@@ -29,7 +29,8 @@ object SortSettings {
     ModKey("lazy", _.is[Mod.Lazy]),
     ModKey("open", _.is[Mod.Open]),
     ModKey("transparent", _.is[Mod.Transparent]),
-    ModKey("inline", _.is[Mod.Inline])
+    ModKey("inline", _.is[Mod.Inline]),
+    ModKey("infix", _.is[Mod.Infix])
   )
 
   implicit val SortSettingsModKeyReader: ConfCodec[ModKey] =
