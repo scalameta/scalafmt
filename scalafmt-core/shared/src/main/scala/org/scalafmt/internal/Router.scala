@@ -1118,7 +1118,8 @@ class Router(formatOps: FormatOps) {
             nextNonComment(next(tok)).right.is[RightParenOrBracket]
           Seq(Split(Space, 0), Split(Newline, 1).notIf(noNewline))
         }
-      case tok @ FormatToken(T.Comma(), right, _) =>
+      case tok @ FormatToken(T.Comma(), right, _)
+          if leftOwner.isNot[Template] =>
         // TODO(olafur) DRY, see OneArgOneLine.
         argumentStarts.get(hash(right)) match {
           case Some(nextArg) if isBinPack(leftOwner) =>
@@ -1437,59 +1438,41 @@ class Router(formatOps: FormatOps) {
           style.continuationIndent.extendSite,
           template.exists(_.inits.length > 1)
         )
+      // trait A extends B, C, D, E
+      case FormatToken(T.Comma(), right, _) if leftOwner.is[Template] =>
+        val template = leftOwner.asInstanceOf[Template]
+        val prevOwner = prevNonComment(prev(formatToken)).meta.leftOwner
+        val ident =
+          if (isFirstInit(template, prevOwner))
+            style.continuationIndent.commaSiteRelativeToExtends
+          else 0
+        typeTemplateSplits(template, ident)
+
       case FormatToken(_, T.KwWith(), _) =>
-        def isFirstWith(t: Template) =
-          t.inits.headOption.exists { init =>
-            // [init.tpe == leftOwner] part is about expressions like [new A with B]
-            // [leftOwner.is[Init] && init == leftOwner] part is about expressions like [new A(x) with B]
-            leftOwner.is[Init] && init == leftOwner || init.tpe == leftOwner
-          }
         rightOwner match {
           // something like new A with B with C
           case template: Template if template.parent.exists { p =>
                 p.is[Term.New] || p.is[Term.NewAnonymous]
               } =>
             splitWithChain(
-              isFirstWith(template),
+              isFirstInit(template, leftOwner),
               Set(template),
               templateCurly(template).getOrElse(template.tokens.last),
               template.inits.length > 1
             )
-
-          case template: Template =>
-            val hasSelfAnnotation = template.self.tokens.nonEmpty
-            val expire = templateCurly(rightOwner)
-            val indent =
-              if (!isFirstWith(template)) 0
-              else style.continuationIndent.withSiteRelativeToExtends
-            val policy =
-              if (hasSelfAnnotation) NoPolicy
-              else
-                Policy.after(expire) {
-                  // Force template to be multiline.
-                  case d @ Decision(
-                        t @ FormatToken(_: T.LeftBrace, right, _),
-                        _
-                      )
-                      if !hasSelfAnnotation &&
-                        !right.is[T.RightBrace] && // corner case, body is {}
-                        childOf(template, t.meta.leftOwner) =>
-                    d.forceNewline
-                }
-            Seq(
-              Split(Space, 0).withIndent(indent, expire, ExpiresOn.After),
-              Split(Newline, 1)
-                .withPolicy(policy)
-                .withIndent(indent, expire, ExpiresOn.After)
-            )
           // trait A extends B with C with D with E
+          case template: Template =>
+            val prev = prevNonComment(formatToken)
+            val indent =
+              if (!isFirstInit(template, prev.meta.leftOwner)) 0
+              else style.continuationIndent.withSiteRelativeToExtends
+            typeTemplateSplits(template, indent)
           case t @ WithChain(top) =>
             splitWithChain(
               !t.lhs.is[Type.With],
               withChain(top).toSet,
               top.tokens.last
             )
-
           case enumCase: Defn.EnumCase =>
             val indent = style.continuationIndent.withSiteRelativeToExtends
             val expire = enumCase.tokens.last

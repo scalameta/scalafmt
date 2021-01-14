@@ -7,13 +7,15 @@ import metaconfig._
   * @param callSite indentation around function calls, etc.
   * @param extendSite indentation before `extends`
   * @param withSiteRelativeToExtends additional indentation before `with`
+  * @param commaSiteRelativeToExtends additional indentation before in the line after extends with a comma
   */
 case class ContinuationIndent(
     callSite: Int = 2,
     defnSite: Int = 4,
     ctorSite: Option[Int] = None,
     extendSite: Int = 4,
-    withSiteRelativeToExtends: Int = 0
+    withSiteRelativeToExtends: Int = 0,
+    commaSiteRelativeToExtends: Int = 2
 ) {
   implicit val reader: ConfDecoder[ContinuationIndent] =
     generic.deriveDecoder(this).noTypos

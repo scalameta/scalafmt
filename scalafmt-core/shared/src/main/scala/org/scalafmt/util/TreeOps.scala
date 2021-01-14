@@ -714,4 +714,11 @@ object TreeOps {
     }
   }
 
+  def isFirstInit(t: Template, owner: Tree) =
+    t.inits.headOption.exists { init =>
+      // [init.tpe == leftOwner] part is about expressions like [new A with B]
+      // [leftOwner.is[Init] && init == leftOwner] part is about expressions like [new A(x) with B]
+      owner.is[Init] && init == owner || init.tpe == owner
+    }
+
 }
