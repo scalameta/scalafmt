@@ -34,7 +34,8 @@ import scala.meta.{
   Term,
   Tree,
   Type,
-  TypeCase
+  TypeCase,
+  CaseTree
 }
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
@@ -1803,27 +1804,21 @@ class FormatOps(
   }
 
   // Redundant () delims around case statements
-  def isCaseBodyEnclosedAsBlock(ft: FormatToken, caseStat: Tree)(implicit
+  def isCaseBodyEnclosedAsBlock(ft: FormatToken, caseStat: CaseTree)(implicit
       style: ScalafmtConfig
   ): Boolean = {
-    val bodyOpt = caseStat match {
-      case tc: TypeCase => Some(tc.body)
-      case c: Case => Some(c.body)
-      case _ => None
-    }
-    bodyOpt.exists { body =>
-      (ft.noBreak || style.newlines.getBeforeMultiline.ignoreSourceSplit) &&
-      body.eq(ft.meta.rightOwner) && (body match {
-        case _: Lit.Unit | _: Term.Tuple => false
-        case t: Term.ApplyInfix =>
-          val op = t.op.value
-          op != "->" && op != "→"
-        case _ => true
-      }) && {
-        val btoks = body.tokens
-        btoks.headOption.exists { head =>
-          head.is[Token.LeftParen] && matchingOpt(head).contains(btoks.last)
-        }
+    val body = caseStat.body
+    (ft.noBreak || style.newlines.getBeforeMultiline.ignoreSourceSplit) &&
+    body.eq(ft.meta.rightOwner) && (body match {
+      case _: Lit.Unit | _: Term.Tuple => false
+      case t: Term.ApplyInfix =>
+        val op = t.op.value
+        op != "->" && op != "→"
+      case _ => true
+    }) && {
+      val btoks = body.tokens
+      btoks.headOption.exists { head =>
+        head.is[Token.LeftParen] && matchingOpt(head).contains(btoks.last)
       }
     }
   }

@@ -19,7 +19,7 @@ import scala.meta.Template
 import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.Type
-import scala.meta.TypeCase
+import scala.meta.CaseTree
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -92,8 +92,7 @@ object TreeOps {
       case t: Type.Refine => t.stats
       case t: scala.meta.Source => t.stats
       case t: Template => t.stats
-      case t: Case if t.body.tokens.nonEmpty => Seq(t.body)
-      case t: TypeCase if t.body.tokens.nonEmpty => Seq(t.body)
+      case t: CaseTree if t.body.tokens.nonEmpty => Seq(t.body)
       case _ => Seq.empty[Tree]
     }
 
@@ -703,10 +702,9 @@ object TreeOps {
     }
 
   // Redundant {} block around case statements
-  def isCaseBodyABlock(ft: FormatToken, caseStat: Tree): Boolean = {
+  def isCaseBodyABlock(ft: FormatToken, caseStat: CaseTree): Boolean = {
     val bodyOpt = caseStat match {
-      case tc: TypeCase => Some(tc.body)
-      case c: Case => Some(c.body)
+      case c: CaseTree => Some(c.body)
       case _ => None
     }
     bodyOpt.exists { body =>
