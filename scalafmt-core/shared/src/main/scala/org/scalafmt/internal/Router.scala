@@ -1410,6 +1410,11 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(Space, 0)
         )
+      // pattern-bound given instances
+      case FormatToken(T.KwGiven(), _, _) if leftOwner.is[Pat.Given] =>
+        Seq(
+          Split(Space, 0)
+        )
       case FormatToken(T.At(), right @ Delim(), _) =>
         Seq(Split(NoSplit, 0))
       case FormatToken(T.At(), right @ T.Ident(_), _) =>

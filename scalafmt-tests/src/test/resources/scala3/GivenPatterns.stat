@@ -1,0 +1,27 @@
+#
+<<< for comprehension
+for given Context <- applicationContexts yield ()
+>>>
+for given Context <- applicationContexts yield ()
+<<< for comprehension with parens
+for (given Context <- applicationContexts)
+yield ()
+>>>
+for (given Context <- applicationContexts)
+  yield ()
+<<< match case
+context match {
+  case (ctx @ given Context) => ctx
+}
+>>>
+context match {
+  case (ctx @ given Context) => ctx
+}
+<<< match case tuple
+pair match {
+  case (ctx @ given Context, y) => ctx
+}
+>>>
+pair match {
+  case (ctx @ given Context, y) => ctx
+}
