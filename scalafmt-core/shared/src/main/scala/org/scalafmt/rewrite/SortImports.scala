@@ -23,7 +23,8 @@ sealed abstract class SortImports(implicit ctx: RewriteCtx)
 
   override def rewrite(tree: Tree): Unit =
     tree match {
-      case Import(imports) =>
+      case stat: ImportExportStat =>
+        val imports = stat.importers
         val builder = Seq.newBuilder[TokenPatch]
         imports.foreach { `import` =>
           val importees = `import`.importees

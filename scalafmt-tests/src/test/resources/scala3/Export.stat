@@ -1,0 +1,120 @@
+<<< simple
+export     scanUnit.scan
+>>>
+export scanUnit.scan
+<<< braces
+export A.{ 
+     b, c, d, _ }
+>>>
+export A.{b, c, d, _}
+<<< rename
+export   printUnit.  {status  => _, _}
+>>>
+export printUnit.{status => _, _}
+<<< multiline
+maxColumn = 20
+===
+export   printUnit.  {status  => S, Tree}
+>>>
+export printUnit.{
+  status => S,
+  Tree
+}
+<<< ascii sorting
+rewrite.rules = [AsciiSortImports]
+===
+export a.{
+  ~>,
+  lowercase,
+  Uppercase,
+  `symbol`
+}
+>>>
+export a.{Uppercase, `symbol`, lowercase, ~>}
+<<< sorting
+rewrite.rules = [SortImports]
+===
+export a.b.{
+  c,
+  a,
+  b
+}, k.{
+  g, f
+}
+>>>
+export a.b.{a, b, c}, k.{f, g}
+<<< spaces in braces
+spaces.inImportCurlyBraces=true
+===
+export A.{ 
+     b, c, d, _ }
+>>>
+export A.{ b, c, d, _ }
+<<< expand selectors
+rewrite.rules = [ExpandImportSelectors]
+maxColumn = 30
+===
+object e {
+  export a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  export d.e.{f, g}
+}
+>>>
+object e {
+  export a.b
+  export a.c
+  export h.k
+  export h.l
+  export d.e.f
+  export d.e.g
+}
+<<< expand selectors rename/unimport
+rewrite.rules = [ExpandImportSelectors]
+maxColumn = 30
+===
+object e {
+  export a.{
+    foo => bar,
+    zzzz => _,
+    baz
+  }
+}
+>>>
+object e {
+  export a.{foo => bar}
+  export a.{zzzz => _}
+  export a.baz
+}
+<<< export binpack single line
+importSelectors = singleLine
+maxColumn = 30
+===
+export packagename.{AVeryLongClass1, AVeryLongClass2, AVeryLongClass3, AVeryLongClass4}
+>>>
+export packagename.{AVeryLongClass1, AVeryLongClass2, AVeryLongClass3, AVeryLongClass4}
+<<< export binpack noBinPack
+importSelectors = noBinPack
+maxColumn = 30
+===
+export packagename.{AVeryLongClass1, AVeryLongClass2, AVeryLongClass3, AVeryLongClass4}
+>>>
+export packagename.{
+  AVeryLongClass1,
+  AVeryLongClass2,
+  AVeryLongClass3,
+  AVeryLongClass4
+}
+<<< export binpack binPack
+importSelectors = binPack
+maxColumn = 50
+===
+export packagename.{AVeryLongClass1, AVeryLongClass2, AVeryLongClass3, AVeryLongClass4}
+>>>
+export packagename.{
+  AVeryLongClass1, AVeryLongClass2,
+  AVeryLongClass3, AVeryLongClass4
+}
