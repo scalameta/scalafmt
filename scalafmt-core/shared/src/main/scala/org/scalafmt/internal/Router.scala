@@ -130,7 +130,7 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // Import
-      case FormatToken(_: T.Dot, _: T.LeftBrace | _: T.Underscore, _)
+      case FormatToken(_: T.Dot, _, _)
           if existsParentOfType[Import](rightOwner) =>
         Seq(Split(NoSplit, 0))
       // Import left brace

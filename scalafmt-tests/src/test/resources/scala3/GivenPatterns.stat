@@ -1,0 +1,43 @@
+<<< for comprehension
+for given Context <- applicationContexts yield ()
+>>>
+for given Context <- applicationContexts yield ()
+<<< for comprehension with parens
+for (given Context <- applicationContexts)
+yield ()
+>>>
+for (given Context <- applicationContexts)
+  yield ()
+<<< match case
+context match {
+  case (ctx @ given Context) => ctx
+}
+>>>
+context match {
+  case (ctx @ given Context) => ctx
+}
+<<< match case tuple
+pair match {
+  case (ctx @ given Context, y) => ctx
+}
+>>>
+pair match {
+  case (ctx @ given Context, y) => ctx
+}
+<<< don't break before nor after given
+maxColumn = 10
+===
+context match {
+  case (ctx @ given Context) => ctx
+  case (ctx @ given Context) => ctx
+  case (ctx @ given Context) => ctx
+}
+>>>
+context match {
+  case (ctx @ given Context) =>
+    ctx
+  case (ctx @ given Context) =>
+    ctx
+  case (ctx @ given Context) =>
+    ctx
+}
