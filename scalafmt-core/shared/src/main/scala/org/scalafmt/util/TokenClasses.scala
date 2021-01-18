@@ -109,4 +109,12 @@ class SoftKeywordClasses(dialect: Dialect) extends SoftKeywords(dialect) {
       tok.is[KwImplicit] || tok.is[KwUsing]
     }
   }
+
+  @classifier
+  trait ExtendsOrDerives
+  object ExtendsOrDerives {
+    def unapply(tok: Token): Boolean = {
+      tok.is[KwExtends] || tok.is[KwDerives]
+    }
+  }
 }

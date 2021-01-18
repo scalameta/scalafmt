@@ -733,4 +733,7 @@ object TreeOps {
       owner.is[Init] && init == owner || init.tpe == owner
     }
 
+  def isFirstDerives(t: Template, owner: Tree) =
+    owner.is[Type] && t.derives.headOption.contains(owner)
+
 }
