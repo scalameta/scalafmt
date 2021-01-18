@@ -411,6 +411,13 @@ class FormatOps(
     template.tokens.find(x => x.is[T.LeftBrace] && owners(x) == template)
   }
 
+  def templateDerivesOrCurly(template: Template): Option[Token] = {
+    template.tokens.collectFirst {
+      case t: T.LeftBrace if owners(t) eq template => t
+      case t @ soft.KwDerives() if owners(t) eq template => tokens(t, -1).left
+    }
+  }
+
   @inline
   def getElseChain(term: Term.If): Seq[T] = getElseChain(term, Seq.empty)
 
@@ -942,14 +949,17 @@ class FormatOps(
 
   def typeTemplateSplits(
       template: Template,
-      indent: Int
-  ): Seq[Split] = {
+      indent: Int,
+      isDerives: Boolean = false
+  )(implicit line: sourcecode.Line): Seq[Split] = {
     val hasSelfAnnotation = template.self.tokens.nonEmpty
     val expire = (template.parent match {
       case Some(_: Defn.Given) =>
         findLast(template.tokens)(x => x.is[T.KwWith] && owners(x) == template)
-      case _ => templateCurly(template)
+      case _ if isDerives => templateCurly(template)
+      case _ => templateDerivesOrCurly(template)
     }).getOrElse(template.tokens.last)
+
     val policy =
       if (hasSelfAnnotation) NoPolicy
       else

@@ -590,7 +590,7 @@ class Router(formatOps: FormatOps) {
           .flatMap(templateCurly)
           .getOrElse(leftOwner.tokens.last)
         val forceNewlineBeforeExtends = Policy.before(expire) {
-          case Decision(t @ FormatToken(_, _: T.KwExtends, _), s)
+          case Decision(t @ FormatToken(_, soft.ExtendsOrDerives(), _), s)
               if t.meta.rightOwner == leftOwner =>
             s.filter(x => x.isNL && !x.isActiveFor(SplitTag.OnelineWithChain))
         }
@@ -1432,28 +1432,38 @@ class Router(formatOps: FormatOps) {
           style.continuationIndent.extendSite,
           enumCase.inits.length > 1
         )
+
       // Template
-      case FormatToken(_, right @ T.KwExtends(), _) =>
+      case FormatToken(_, right @ soft.ExtendsOrDerives(), _) =>
         val template = defnTemplate(rightOwner)
         val lastToken = template
-          .flatMap(templateCurly)
+          .flatMap {
+            if (right.is[soft.KwDerives]) templateCurly
+            else templateDerivesOrCurly
+          }
           .orElse(template.map(_.tokens.last))
           .getOrElse(rightOwner.tokens.last)
+
         binPackParentConstructorSplits(
           template.toSet,
           lastToken,
           style.continuationIndent.extendSite,
           template.exists(_.inits.length > 1)
         )
+
       // trait A extends B, C, D, E
       case FormatToken(T.Comma(), right, _) if leftOwner.is[Template] =>
         val template = leftOwner.asInstanceOf[Template]
         val prevOwner = prevNonComment(prev(formatToken)).meta.leftOwner
+        val firstDerives = isFirstDerives(
+          template,
+          prevOwner
+        )
         val ident =
-          if (isFirstInit(template, prevOwner))
+          if (firstDerives || isFirstInit(template, prevOwner))
             style.continuationIndent.commaSiteRelativeToExtends
           else 0
-        typeTemplateSplits(template, ident)
+        typeTemplateSplits(template, ident, firstDerives)
 
       case FormatToken(_, T.KwWith(), _) =>
         rightOwner match {

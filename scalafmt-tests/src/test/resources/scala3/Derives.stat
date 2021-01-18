@@ -1,0 +1,177 @@
+<<< class
+class A derives XX,XY,XZ
+>>>
+class A derives XX, XY, XZ
+<<< class long
+maxColumn = 20
+===
+class A derives AVeryLongName1, AVeryLongName2, AVeryLongName3
+>>>
+class A
+    derives AVeryLongName1,
+      AVeryLongName2,
+      AVeryLongName3
+<<< class mixed
+maxColumn = 20
+===
+class A extends AVeryLongName4, AVeryLongName5, AVeryLongName6 derives AVeryLongName1, AVeryLongName2, AVeryLongName3
+>>>
+class A
+    extends AVeryLongName4,
+      AVeryLongName5,
+      AVeryLongName6
+    derives AVeryLongName1,
+      AVeryLongName2,
+      AVeryLongName3
+<<< class mixed with
+maxColumn = 20
+===
+class A extends AVeryLongName4 with AVeryLongName5 with AVeryLongName6 derives AVeryLongName1, AVeryLongName2, AVeryLongName3
+>>>
+class A
+    extends AVeryLongName4
+    with AVeryLongName5
+    with AVeryLongName6
+    derives AVeryLongName1,
+      AVeryLongName2,
+      AVeryLongName3
+<<< enum derives
+maxColumn = 20
+===
+enum Tree[T] derives Eq, Ordering, Show{
+   case Branch
+   case Leaf
+}
+>>>
+enum Tree[T]
+    derives Eq,
+      Ordering,
+      Show {
+  case Branch
+  case Leaf
+}
+<<< parent constructors `never`
+binPack.parentConstructors = Never
+maxColumn = 40
+===
+class A(a : Int, b : Int) derives Alpha, Beta, Gamma, Delta, Epsilon {
+  def a = ???
+}
+>>>
+class A(a: Int, b: Int)
+    derives Alpha,
+      Beta,
+      Gamma,
+      Delta,
+      Epsilon {
+  def a = ???
+}
+<<< mixed parent constructors `never`
+binPack.parentConstructors = Never
+maxColumn = 30
+===
+class A extends Alpha, Beta, Gamma, Delta, Epsilon derives Alpha, Beta, Gamma, Delta, Epsilon
+>>>
+class A
+    extends Alpha,
+      Beta,
+      Gamma,
+      Delta,
+      Epsilon
+    derives Alpha,
+      Beta,
+      Gamma,
+      Delta,
+      Epsilon
+<<< parent constructors `always`
+binPack.parentConstructors = Always
+maxColumn = 30
+===
+trait A(a : Int, b : Int) derives Alpha, Beta, Gamma, Delta, Epsilon {
+  def a = ???
+}
+>>>
+trait A(a: Int, b: Int)
+    derives Alpha, Beta,
+      Gamma, Delta, Epsilon {
+  def a = ???
+}
+<<< mixed parent constructors `always`
+binPack.parentConstructors = Always
+maxColumn = 30
+===
+class A extends Alpha, Beta, Gamma, Delta, Epsilon derives Alpha, Beta, Gamma, Delta, Epsilon
+>>>
+class A
+    extends Alpha, Beta,
+      Gamma, Delta, Epsilon
+    derives Alpha, Beta,
+      Gamma, Delta, Epsilon
+<<< parent constructors `oneline`
+binPack.parentConstructors = Oneline
+maxColumn = 40
+===
+trait A derives Alpha, Beta, Gamma, Delta {
+  def a = ???
+}
+>>>
+trait A
+    derives Alpha, Beta, Gamma, Delta {
+  def a = ???
+}
+<<< mixed parent constructors `oneline`
+binPack.parentConstructors = Oneline
+maxColumn = 50
+===
+class A extends Alpha, Beta, Gamma, Delta, Epsilon derives Alpha, Beta, Gamma, Delta, Epsilon
+>>>
+class A extends Alpha, Beta, Gamma, Delta, Epsilon
+    derives Alpha, Beta, Gamma, Delta, Epsilon
+<<< parent constructors `onelineIfPrimaryOneline`
+binPack.parentConstructors = OnelineIfPrimaryOneline
+maxColumn = 40
+===
+trait A(alphaParam : Int, betaParam : Int) derives Alpha, Beta, Gamma, Delta {
+  def a = ???
+}
+>>>
+trait A(alphaParam: Int, betaParam: Int)
+    derives Alpha, Beta, Gamma, Delta {
+  def a = ???
+}
+<<< parent constructors `onelineIfPrimaryOneline` too long
+binPack.parentConstructors = OnelineIfPrimaryOneline
+maxColumn = 30
+===
+trait A(alphaParam : Int, betaParam : Int) derives Alpha, Beta, Gamma, Delta {
+  def a = ???
+}
+>>>
+trait A(
+    alphaParam: Int,
+    betaParam: Int
+) derives Alpha,
+      Beta,
+      Gamma,
+      Delta {
+  def a = ???
+}
+<<< mixed parent with constructor `onelineIfPrimaryOneline`
+binPack.parentConstructors = OnelineIfPrimaryOneline
+maxColumn = 50
+===
+class A(alphaParam : Int, betaParam : Int)  extends Alpha, Beta, Gamma, Delta, Epsilon derives Alpha, Beta, Gamma, Delta, Epsilon
+>>>
+class A(alphaParam: Int, betaParam: Int)
+    extends Alpha, Beta, Gamma, Delta, Epsilon
+    derives Alpha, Beta, Gamma, Delta, Epsilon
+<<< continuationIndent `deriveSite`
+binPack.parentConstructors = Oneline
+continuationIndent.deriveSite = 1
+maxColumn = 50
+===
+class A(alphaParam : Int, betaParam : Int)  extends Alpha, Beta, Gamma, Delta, Epsilon derives Alpha, Beta, Gamma, Delta, Epsilon
+>>>
+class A(alphaParam: Int, betaParam: Int)
+ extends Alpha, Beta, Gamma, Delta, Epsilon
+ derives Alpha, Beta, Gamma, Delta, Epsilon
