@@ -1193,7 +1193,9 @@ class Router(formatOps: FormatOps) {
       // val x = function(a,
       //                  b)
       case ft @ FormatToken(_: T.Equals, _, _) if (leftOwner match {
-            case _: Defn.Type | _: Defn.Val | _: Defn.Var => true
+            case _: Defn.Type | _: Defn.Val | _: Defn.Var |
+                _: Defn.GivenAlias =>
+              true
             case _: Term.Assign => true
             case t: Term.Param => t.default.isDefined
             case _ => false
@@ -1203,6 +1205,7 @@ class Router(formatOps: FormatOps) {
           case l: Term.Param => l.default.get
           case l: Defn.Type => l.body
           case l: Defn.Val => l.rhs
+          case l: Defn.GivenAlias => l.body
           case r: Defn.Var =>
             r.rhs match {
               case Some(x) => x
@@ -1456,7 +1459,7 @@ class Router(formatOps: FormatOps) {
         rightOwner match {
           // something like new A with B with C
           case template: Template if template.parent.exists { p =>
-                p.is[Term.New] || p.is[Term.NewAnonymous]
+                p.is[Term.New] || p.is[Term.NewAnonymous] || p.is[Defn.Given]
               } =>
             splitWithChain(
               isFirstInit(template, leftOwner),

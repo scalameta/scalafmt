@@ -38,9 +38,11 @@ object DanglingParentheses {
     case object `enum` extends Exclude
     case object `extension` extends Exclude
     case object `def` extends Exclude
+    case object `given` extends Exclude
 
     implicit val reader: ConfCodec[Exclude] =
-      ReaderUtil.oneOf[Exclude](`class`, `trait`, `enum`, `extension`, `def`)
+      ReaderUtil
+        .oneOf[Exclude](`class`, `trait`, `enum`, `extension`, `def`, `given`)
   }
 
 }

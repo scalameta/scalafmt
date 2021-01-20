@@ -41,7 +41,7 @@ class StyleMapTest extends FunSuite {
     val headToken = formatOps.tokens.head
     val printlnToken = formatOps.tokens.find(_.left.syntax == "println").get
 
-    val defaultEquals = "(Enumerator.Val|Defn.(Va(l|r)|Def|Type))"
+    val defaultEquals = "(Enumerator.Val|Defn.(Va(l|r)|GivenAlias|Def|Type))"
     val overrideEquals = ".*"
 
     val headConfig = formatOps.styleMap.at(headToken)

@@ -154,8 +154,11 @@ object TreeOps {
       x match {
         case t: Defn.Class => addDefn[KwClass](t.mods, t)
         case t: Defn.Def => addDefn[KwDef](t.mods, t)
+        case t: Defn.Given => addDefn[KwGiven](t.mods, t)
+        case t: Defn.GivenAlias => addDefn[KwGiven](t.mods, t)
         case t: Defn.Macro => addDefn[KwDef](t.mods, t)
         case t: Decl.Def => addDefn[KwDef](t.mods, t)
+        case t: Decl.Given => addDefn[KwGiven](t.mods, t)
         case t: Defn.Enum => addDefn[KwEnum](t.mods, t)
         case t: Defn.ExtensionGroup =>
           addDefnTokens(Nil, t, "extension", soft.KwExtension.unapply)
@@ -307,6 +310,9 @@ object TreeOps {
     tree match {
       case d: Decl.Def => Some(d.decltpe)
       case d: Defn.Def => d.decltpe
+      case d: Defn.Given => d.templ.inits.headOption.map(_.tpe)
+      case d: Defn.GivenAlias => Some(d.decltpe)
+      case d: Decl.Given => Some(d.decltpe)
       case d: Defn.Val => d.decltpe
       case d: Defn.Var => d.decltpe
       case pat: Pat.Var => pat.parent.flatMap(defDefReturnType)
@@ -339,7 +345,8 @@ object TreeOps {
       case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
           _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type | _: Defn.Type |
           _: Type.Apply | _: Type.Param | _: Type.Tuple | _: Defn.Enum |
-          _: Defn.EnumCase | _: Defn.ExtensionGroup =>
+          _: Defn.EnumCase | _: Defn.ExtensionGroup | _: Decl.Given |
+          _: Defn.Given | _: Defn.GivenAlias =>
         true
       case _: Term.FunctionTerm | _: Type.FunctionType => true
       case _: Term.PolyFunction | _: Type.PolyFunction => true
@@ -439,6 +446,9 @@ object TreeOps {
     case t: Defn.Type => (t.mods, t.name, t.tparams, Seq.empty)
     // definitions
     case t: Defn.Def => (t.mods, t.name, t.tparams, t.paramss)
+    case t: Defn.Given => (t.mods, t.name, t.tparams, t.sparams)
+    case t: Decl.Given => (t.mods, t.name, t.tparams, t.sparams)
+    case t: Defn.GivenAlias => (t.mods, t.name, t.tparams, t.sparams)
     case t: Defn.Macro => (t.mods, t.name, t.tparams, t.paramss)
     case t: Decl.Def => (t.mods, t.name, t.tparams, t.paramss)
     case t: Defn.Class => (t.mods, t.name, t.tparams, t.ctor.paramss)
@@ -611,6 +621,8 @@ object TreeOps {
           case _: Defn.Enum => DanglingParentheses.Exclude.`enum`
           case _: Defn.ExtensionGroup => DanglingParentheses.Exclude.`extension`
           case _: Defn.Def => DanglingParentheses.Exclude.`def`
+          case _: Defn.Given => DanglingParentheses.Exclude.`given`
+          case _: Defn.GivenAlias => DanglingParentheses.Exclude.`given`
           case _ => null
         }
         null != exclude && excludeList.contains(exclude)
