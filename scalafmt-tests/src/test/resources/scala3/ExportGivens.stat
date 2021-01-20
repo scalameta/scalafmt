@@ -1,0 +1,55 @@
+<<< wildcard import
+object B {
+  export A._
+  export A.given}
+>>>
+object B {
+  export A._
+  export A.given
+}
+<<< merged export clauses
+object B {
+  export A.{given, _}
+}
+>>>
+object B {
+  export A.{given, _}
+}
+<<< export given of type
+maxColumn = 20
+===
+export A.{given T1, given T2, given T3}
+>>>
+export A.{
+  given T1,
+  given T2,
+  given T3
+}
+<<< export given of type doesn't break
+maxColumn = 10
+===
+export A.{given T1, given T2, given T3}
+>>>
+export A.{
+  given T1,
+  given T2,
+  given T3
+}
+<<< with wildcard argument
+maxColumn = 20
+===
+export Instances.{given Ordering[?], given ExecutionContext}
+>>>
+export Instances.{
+  given Ordering[?],
+  given ExecutionContext
+}
+<<< by-type mixed with by-name
+maxColumn = 20
+===
+export Instances.{im, given Ordering[?]}
+>>>
+export Instances.{
+  im,
+  given Ordering[?]
+}
