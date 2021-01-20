@@ -22,6 +22,8 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
 
       case t: Defn.Def => maybeRemove(t.body)
 
+      case t: Defn.GivenAlias => maybeRemove(t.body)
+
       case t => rewriteFunc.applyOrElse(t, (x: Tree) => remove(x, 1))
     }
 

@@ -863,6 +863,8 @@ class FormatWriter(formatOps: FormatOps) {
         def unapply(tree: Tree): Option[Tree] =
           tree match {
             case p: Defn.Def => Some(p.body)
+            case p: Defn.Given => Some(p.templ)
+            case p: Defn.GivenAlias => Some(p.body)
             case p: Defn.Val => Some(p.rhs)
             case p: Defn.Trait => Some(p.templ)
             case p: Defn.Class => Some(p.templ)

@@ -407,10 +407,6 @@ class FormatOps(
     }
   }
 
-  def templateCurly(owner: Tree): Token = {
-    defnTemplate(owner).flatMap(templateCurly).getOrElse(owner.tokens.last)
-  }
-
   def templateCurly(template: Template): Option[Token] = {
     template.tokens.find(x => x.is[T.LeftBrace] && owners(x) == template)
   }
@@ -949,7 +945,11 @@ class FormatOps(
       indent: Int
   ): Seq[Split] = {
     val hasSelfAnnotation = template.self.tokens.nonEmpty
-    val expire = templateCurly(template).getOrElse(template.tokens.last)
+    val expire = (template.parent match {
+      case Some(_: Defn.Given) =>
+        findLast(template.tokens)(x => x.is[T.KwWith] && owners(x) == template)
+      case _ => templateCurly(template)
+    }).getOrElse(template.tokens.last)
     val policy =
       if (hasSelfAnnotation) NoPolicy
       else

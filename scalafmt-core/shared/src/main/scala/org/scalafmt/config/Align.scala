@@ -68,9 +68,10 @@ case class Align(
     ifWhileOpenParen: Boolean = false,
     tokenCategory: Map[String, String] = Map(),
     treeCategory: Map[String, String] = Map(
-      "Defn.Val" -> "val/var/def",
-      "Defn.Var" -> "val/var/def",
-      "Defn.Def" -> "val/var/def",
+      "Defn.Val" -> "given/val/var/def",
+      "Defn.Var" -> "given/val/var/def",
+      "Defn.Def" -> "given/val/var/def",
+      "Defn.GivenAlias" -> "given/val/var/def",
       "Defn.Class" -> "class/object/trait/enum",
       "Defn.Object" -> "class/object/trait/enum",
       "Defn.Trait" -> "class/object/trait/enum",
