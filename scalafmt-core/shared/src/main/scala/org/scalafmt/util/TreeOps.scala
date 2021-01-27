@@ -342,6 +342,7 @@ object TreeOps {
           _: Defn.EnumCase | _: Defn.ExtensionGroup =>
         true
       case _: Term.FunctionTerm | _: Type.FunctionType => true
+      case _: Term.PolyFunction | _: Type.PolyFunction => true
       case x: Ctor.Primary => x.parent.exists(isDefnSite)
       case _ => false
     }
@@ -418,7 +419,9 @@ object TreeOps {
     case t: Term.ApplyType => (t.fun, Left(t.targs))
     case t: Term.Tuple => (t, Left(t.args))
     case t: Term.FunctionTerm => (t, Left(t.params))
+    case t: Term.PolyFunction => (t, Left(t.tparams))
     case t: Type.FunctionType => (t, Left(t.params))
+    case t: Type.PolyFunction => (t, Left(t.tparams))
     case t: Type.Tuple => (t, Left(t.args))
     case t: Init => (t.tpe, Right(t.argss))
     case t: Term.ApplyUsing => (t.fun, Left(t.args))

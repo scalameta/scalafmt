@@ -1,0 +1,67 @@
+
+<<< simple polymorphic function
+val t0 = [T] => (ts: List[T]) =>     ts.headOption
+>>>
+val t0 = [T] => (ts: List[T]) => ts.headOption
+<<< long polymorphic function
+maxColumn = 30
+===
+val thisIsAPolymorphicFunction = [PolymorphicFunctionTypeParam] => (polymorphicFunctionParam: List[T]) =>     ts.headOption
+>>>
+val thisIsAPolymorphicFunction =
+  [
+      PolymorphicFunctionTypeParam
+  ] =>
+    (polymorphicFunctionParam: List[
+      T
+    ]) => ts.headOption
+<<< complex polymorphic function
+maxColumn = 15
+===
+val t1 = [F[_], G[_], T] => (ft: F[T], f: F[T] => G[T]) => f(ft)
+>>>
+val t1 = [F[
+    _
+], G[_], T] =>
+  (
+      ft: F[T],
+      f: F[
+        T
+      ] => G[T]
+  ) => f(ft)
+<<< simple polymorphic function type
+type F0 = [T] => List[T]   =>    Option[T]
+>>>
+type F0 = [T] => List[T] => Option[T]
+<<< long polymorphic function type
+maxColumn = 30
+===
+type ThisIsAPolymorphicFunctionType = [PolymorphicFunctionTypeParam] => List[T] =>     Option[T]
+>>>
+type ThisIsAPolymorphicFunctionType =
+  [
+      PolymorphicFunctionTypeParam
+  ] => List[T] => Option[T]
+<<< long polymorphic context function type
+maxColumn = 30
+===
+type ThisIsAPolymorphicFunctionType = [PolymorphicFunctionTypeParam] => List[T] ?=>     Option[T]
+>>>
+type ThisIsAPolymorphicFunctionType =
+  [
+      PolymorphicFunctionTypeParam
+  ] => List[T] ?=> Option[T]
+<<< complex polymorphic function type
+maxColumn = 15
+===
+type T1 = [F[_], G[_], T] => (F[T], F[T] => G[T]) => F[T]
+>>>
+type T1 =
+  [F[_], G[
+      _
+  ], T] => (
+      F[T],
+      F[
+        T
+      ] => G[T]
+  ) => F[T]
