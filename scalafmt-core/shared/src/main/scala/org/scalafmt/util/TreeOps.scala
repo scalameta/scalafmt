@@ -341,7 +341,7 @@ object TreeOps {
           _: Type.Apply | _: Type.Param | _: Type.Tuple | _: Defn.Enum |
           _: Defn.EnumCase | _: Defn.ExtensionGroup =>
         true
-      case _: Term.Function | _: Type.Function => true
+      case _: Term.FunctionTerm | _: Type.FunctionType => true
       case x: Ctor.Primary => x.parent.exists(isDefnSite)
       case _ => false
     }
@@ -417,8 +417,8 @@ object TreeOps {
     case t: Type.Apply => (t.tpe, Left(t.args))
     case t: Term.ApplyType => (t.fun, Left(t.targs))
     case t: Term.Tuple => (t, Left(t.args))
-    case t: Term.Function => (t, Left(t.params))
-    case t: Type.Function => (t, Left(t.params))
+    case t: Term.FunctionTerm => (t, Left(t.params))
+    case t: Type.FunctionType => (t, Left(t.params))
     case t: Type.Tuple => (t, Left(t.args))
     case t: Init => (t.tpe, Right(t.argss))
     case t: Term.ApplyUsing => (t.fun, Left(t.args))
