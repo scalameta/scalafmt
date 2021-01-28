@@ -356,6 +356,7 @@ class Router(formatOps: FormatOps) {
 
       case FormatToken(T.RightArrow() | T.ContextArrow(), right, _)
           if leftOwner.is[Term.FunctionTerm] ||
+            leftOwner.is[Term.PolyFunction] ||
             (leftOwner.is[Template] &&
               leftOwner.parent.exists(_.is[Term.NewAnonymous])) =>
         val (endOfFunction, expiresOn) = leftOwner match {

@@ -33,6 +33,7 @@ object TreeSyntacticGroup {
       case _: Term.Try => g.Term.Expr1
       case _: Term.TryWithHandler => g.Term.Expr1
       case _: Term.FunctionTerm => g.Term.Expr
+      case _: Term.PolyFunction => g.Term.Expr
       case _: Term.PartialFunction => g.Term.SimpleExpr
       case _: Term.While => g.Term.Expr1
       case _: Term.Do => g.Term.Expr1
@@ -52,6 +53,7 @@ object TreeSyntacticGroup {
       case _: Type.Apply => g.Type.SimpleTyp
       case t: Type.ApplyInfix => g.Type.InfixTyp(t.op.value)
       case _: Type.FunctionType => g.Type.Typ
+      case _: Type.PolyFunction => g.Type.Typ
       case _: Type.Tuple => g.Type.SimpleTyp
       case _: Type.With => g.Type.WithTyp
       case _: Type.And => g.Type.InfixTyp("&")
