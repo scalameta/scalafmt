@@ -21,6 +21,7 @@ object Keyword {
     token.is[KwObject] || token.is[KwOverride] || token.is[KwPackage] ||
     token.is[KwPrivate] || token.is[KwProtected] || token.is[KwReturn] ||
     token.is[KwSealed] || token.is[KwSuper] || token.is[KwThis] ||
+    token.is[KwThen] ||
     token.is[KwThrow] || token.is[KwTrait] || token.is[KwTrue] ||
     token.is[KwTry] || token.is[KwType] || token.is[KwVal] ||
     token.is[KwVar] || token.is[KwWhile] || token.is[KwWith] ||
@@ -117,4 +118,18 @@ class SoftKeywordClasses(dialect: Dialect) extends SoftKeywords(dialect) {
       tok.is[KwExtends] || tok.is[KwDerives]
     }
   }
+}
+
+/*
+=  =>  ?=>  <-  catch  do  else  finally  for
+if  match  return  then  throw  try  while  yield
+ */
+@classifier
+trait CanStartIndent {
+  def unapply(tok: Token): Boolean =
+    tok.is[Equals] || tok.is[RightArrow] || tok.is[ContextArrow] ||
+      tok.is[LeftArrow] || tok.is[KwCatch] || tok.is[KwDo] || tok.is[KwElse] ||
+      tok.is[KwElse] || tok.is[KwFinally] || tok.is[KwFor] || tok.is[KwMatch] ||
+      tok.is[KwReturn] || tok.is[KwThen] || tok.is[KwThrow] || tok.is[KwTry] ||
+      tok.is[KwWhile] || tok.is[KwYield]
 }

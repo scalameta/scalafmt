@@ -177,6 +177,37 @@ class Router(formatOps: FormatOps) {
           if rightOwner.is[SomeInterpolate] =>
         Seq(Split(Space(style.spaces.inInterpolatedStringCurlyBraces), 0))
 
+      // Optional braces after any token that can start indentation:
+      // =  =>  ?=>  <-  catch  do  else  finally  for
+      // if  match  return  then  throw  try  while  yield
+      case FormatToken(left, right, _)
+          if dialect.allowSignificantIndentation &&
+            left.is[CanStartIndent] &&
+            startsStatement(right).isDefined &&
+            rightOwner.parent.exists(_.is[Term.Block]) =>
+        val block = rightOwner.parent.get.asInstanceOf[Term.Block]
+        val last = lastToken(block)
+        Seq(Split(Newline, 0).withIndent(2, last, After))
+
+      // Optional braces in templates after `:` or `with`
+      case FormatToken(_: T.Colon | _: T.KwWith, right, _)
+          if dialect.allowSignificantIndentation &&
+            leftOwner.is[Template] &&
+            startsStatement(right).isDefined =>
+        Seq(Split(Newline, 0).withIndent(2, lastToken(leftOwner), After))
+
+      // Optional braces in templates after if (cond) or extension groups
+      case FormatToken(T.RightParen(), right, _)
+          if dialect.allowSignificantIndentation &&
+            (leftOwner.is[Defn.ExtensionGroup] || leftOwner.is[Term.If]) &&
+            startsStatement(right).isDefined &&
+            rightOwner.parent.exists(_.is[Term.Block]) =>
+        val expire = leftOwner match {
+          case ifClause: Term.If => lastToken(ifClause.thenp)
+          case ext: Defn.ExtensionGroup => lastToken(ext)
+        }
+        Seq(Split(Newline, 0).withIndent(2, expire, After))
+
       // { ... } Blocks
       case tok @ FormatToken(open @ T.LeftBrace(), right, between) =>
         val close = matching(open)

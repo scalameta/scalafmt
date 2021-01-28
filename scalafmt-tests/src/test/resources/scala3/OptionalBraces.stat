@@ -1,0 +1,112 @@
+
+<<< simple value equals
+val test = 
+    val a = ""
+     a  +    ""
+>>>
+val test =
+  val a = ""
+  a + ""
+<<< if else
+trait A:
+  val cond = if true then
+    stat1
+    stat2
+  else
+      stat3
+      stat4
+>>>
+trait A:
+  val cond =
+    if true then
+      stat1
+      stat2
+    else
+      stat3
+      stat4
+<<< object
+object Obj:
+  def hello = 
+      1
+       2
+>>>
+object Obj:
+  def hello =
+    1
+    2
+<<< object with braces
+object Obj{
+  def hello = 
+    1
+    2
+}
+>>>
+object Obj {
+  def hello =
+    1
+    2
+}
+<<< extension method
+maxColumn = 40
+===
+extension [A](a: Map[A, Foooooooooooooooo[B]]) 
+    def add(b: A) = a + b
+     def add2(b: A) = a + b
+  
+    def add3(b: A) = a + b
+>>>
+extension [A](
+    a: Map[A, Foooooooooooooooo[B]]
+)
+  def add(b: A) = a + b
+  def add2(b: A) = a + b
+
+  def add3(b: A) = a + b
+<<< extension multi
+maxColumn = 40
+===
+extension [A](a: Map[A, Foooooooooooooooo[B]]) (using b: Map[A, Foooooooooooooooo[B]])
+    def add(b: A) = a + b
+     def add2(b: A) = a + b
+  
+    def add3(b: A) = a + b
+>>>
+extension [A](
+    a: Map[A, Foooooooooooooooo[B]]
+)(using b: Map[A, Foooooooooooooooo[B]])
+  def add(b: A) = a + b
+  def add2(b: A) = a + b
+
+  def add3(b: A) = a + b
+<<< if(cond) indentation 
+trait A:
+  val cond =
+    if (true)
+        stat1
+         stat2
+    else
+       stat3
+       stat4
+>>>
+trait A:
+  val cond =
+    if (true)
+      stat1
+      stat2
+    else
+      stat3
+      stat4
+<<< given with
+given intOrd: Ord[Int] with Eq[Int] with
+    def compare(x: Int, y: Int) =
+      if x < y then -1 else if x > y then +1 else 0
+     def compare2(x: Int, y: Int) =
+      if x < y then -1 else if x > y then +1 else 0
+>>>
+given intOrd: Ord[Int]
+  with Eq[Int]
+  with
+    def compare(x: Int, y: Int) =
+      if x < y then -1 else if x > y then +1 else 0
+    def compare2(x: Int, y: Int) =
+      if x < y then -1 else if x > y then +1 else 0
