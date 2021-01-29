@@ -1237,8 +1237,17 @@ class Router(formatOps: FormatOps) {
         val thisSelect = rightOwner.asInstanceOf[Term.Select]
         val prevSelect = findPrevSelect(thisSelect, enclosed)
         val expireDropRight = if (isEnclosedInMatching(expireTree)) 1 else 0
-        val expire = lastToken(expireTree.tokens.dropRight(expireDropRight))
+        def noMatchChainExpire = lastToken(
+          expireTree.tokens.dropRight(expireDropRight)
+        )
 
+        lazy val lastTreeInMatchChain = lastTreeInChainContaingMatch(rightOwner)
+        val expire =
+          if (dialect.allowMatchAsOperator)
+            lastTreeInMatchChain
+              .map(_.tokens.last)
+              .getOrElse(noMatchChainExpire)
+          else noMatchChainExpire
         def breakOnNextDot: Policy =
           nextSelect.fold(Policy.noPolicy) { tree =>
             val end = tree.name.tokens.head
@@ -1261,6 +1270,14 @@ class Router(formatOps: FormatOps) {
             }
           }
         val baseSplits = style.newlines.source match {
+          case Newlines.classic | Newlines.unfold
+              if dialect.allowMatchAsOperator && lastTreeInMatchChain.isDefined =>
+            val expire = lastTreeInMatchChain.get.tokens.last
+            val forceNewlineOnDots = matchChainPolicy(expire, rightOwner)
+            Seq(
+              Split(Newline, 0)
+                .withPolicy(forceNewlineOnDots)
+            )
           case Newlines.classic =>
             def getNlMod = {
               val endSelect = nextSelect.fold(expire)(x => lastToken(x.qual))
@@ -1859,6 +1876,38 @@ class Router(formatOps: FormatOps) {
           ) =>
         Seq(
           Split(Space, 0)
+        )
+
+      // make `.match` to not be split and create policies
+      case FormatToken(T.Dot(), T.KwMatch(), _)
+          if dialect.allowMatchAsOperator =>
+        def isFirstMatch = rightOwner match {
+          case mtch: Term.Match =>
+            mtch.expr match {
+              case _: Term.Name => true
+              case _ => false
+            }
+          case _ => false
+        }
+        lastTreeInChainContaingMatch(rightOwner) match {
+          case Some(last) if isFirstMatch =>
+            val expire = last.tokens.last
+            val forceNewlineOnDots = matchChainPolicy(expire, rightOwner)
+            Seq(
+              Split(NoSplit, 0)
+                .withPolicy(forceNewlineOnDots)
+                .withIndent(2, expire, After)
+            )
+          case _ =>
+            Seq(Split(NoSplit, 0))
+        }
+
+      // match used as an operator with a dot
+      case FormatToken(_, T.Dot(), _)
+          if rightOwner.is[Term.Match] && dialect.allowMatchAsOperator =>
+        Seq(
+          Split(NoSplit, 0),
+          Split(Newline, 1)
         )
 
       // Case

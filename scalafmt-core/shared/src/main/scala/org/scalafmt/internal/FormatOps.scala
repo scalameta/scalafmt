@@ -1458,6 +1458,40 @@ class FormatOps(
     })
   }
 
+  /* Find last tree in a chain if the chain contains a match*/
+  def lastTreeInChainContaingMatch(
+      term: Tree,
+      matchFound: Boolean = false
+  ): Option[Tree] = {
+    term.parent match {
+      case Some(p: Term.Match) =>
+        lastTreeInChainContaingMatch(p, matchFound = true)
+      case Some(p) if p.is[Term.Select] || p.is[Term.Apply] =>
+        lastTreeInChainContaingMatch(p, matchFound)
+      case _ if term.is[Term.Match] || matchFound => Some(term)
+      case _ => None
+    }
+  }
+
+  /* Create policy for chains containing .match expressions */
+  def matchChainPolicy(expire: Token, rightOwner: Tree) = {
+    def parentInChain(tree: Tree): Boolean = {
+      if (rightOwner == tree) true
+      else
+        tree match {
+          case mtch: Term.Match => parentInChain(mtch.expr)
+          case select: Term.Select => parentInChain(select.qual)
+          case apply: Term.Apply => parentInChain(apply.fun)
+          case _ => false
+        }
+    }
+    Policy.before(expire) {
+      case Decision(t @ FormatToken(_, T.Dot(), _), s)
+          if parentInChain(t.meta.rightOwner) =>
+        Seq(Split(Newline, 0))
+    }
+  }
+
   /** Checks if an earlier select started the chain */
   @tailrec
   final def inSelectChain(
