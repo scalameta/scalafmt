@@ -1,0 +1,131 @@
+
+<<< simple intersection
+maxColumn = 30
+===
+def hello(): A & B = {
+    val a  : A & B
+}
+>>>
+def hello(): A & B = {
+  val a: A & B
+}
+<<< simple union
+maxColumn = 30
+===
+def hello(): A | B = {
+    val a  : A | B
+}
+>>>
+def hello(): A | B = {
+  val a: A | B
+}
+<<< long intersection
+maxColumn = 30
+===
+def hello(): FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType & ThirdTypeInTheInterSectionType = {
+    val a  : FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType 
+}
+>>>
+def hello(): FirstTypeInTheInterSectionType &
+  SecondTypeInTheInterSectionType &
+  ThirdTypeInTheInterSectionType = {
+  val a: FirstTypeInTheInterSectionType &
+    SecondTypeInTheInterSectionType
+}
+<<< long union
+maxColumn = 30
+===
+def hello(): FirstTypeInTheInterSectionType | SecondTypeInTheInterSectionType |  ThirdTypeInTheInterSectionType = {
+    val a  : A | B
+}
+>>>
+def hello(): FirstTypeInTheInterSectionType |
+  SecondTypeInTheInterSectionType |
+  ThirdTypeInTheInterSectionType = {
+  val a: A | B
+}
+<<< long intersection keep
+maxColumn = 30
+newlines.source=keep
+===
+def hello(): FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType & ThirdTypeInTheInterSectionType = {
+    val a  : FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType 
+}
+>>>
+def hello()
+    : FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType & ThirdTypeInTheInterSectionType = {
+  val a: FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType
+}
+<<< long union keep
+maxColumn = 30
+newlines.source=keep
+===
+def hello(): FirstTypeInTheInterSectionType | SecondTypeInTheInterSectionType |  ThirdTypeInTheInterSectionType = {
+    val a  : A | B
+}
+>>>
+def hello()
+    : FirstTypeInTheInterSectionType | SecondTypeInTheInterSectionType | ThirdTypeInTheInterSectionType = {
+  val a: A | B
+}
+<<< long intersection param
+maxColumn = 30
+===
+def hello(aNumberOfpossibleTypes: FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType & ThirdTypeInTheInterSectionType) = {
+    val a  : FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType 
+}
+>>>
+def hello(
+    aNumberOfpossibleTypes: FirstTypeInTheInterSectionType &
+      SecondTypeInTheInterSectionType &
+      ThirdTypeInTheInterSectionType
+) = {
+  val a: FirstTypeInTheInterSectionType &
+    SecondTypeInTheInterSectionType
+}
+<<< long union
+maxColumn = 30
+===
+def hello(aNumberOfpossibleTypes : FirstTypeInTheInterSectionType | SecondTypeInTheInterSectionType |  ThirdTypeInTheInterSectionType) = {
+    val a  : A | B
+}
+>>>
+def hello(
+    aNumberOfpossibleTypes: FirstTypeInTheInterSectionType |
+      SecondTypeInTheInterSectionType |
+      ThirdTypeInTheInterSectionType
+) = {
+  val a: A | B
+}
+<<< long union in type
+maxColumn = 30
+===
+def hello(aNumberOfpossibleTypes : Type[FirstTypeInTheInterSectionType | SecondTypeInTheInterSectionType |  ThirdTypeInTheInterSectionType]) = {
+    val a  : A | B
+}
+>>>
+def hello(
+    aNumberOfpossibleTypes: Type[
+      FirstTypeInTheInterSectionType |
+        SecondTypeInTheInterSectionType |
+        ThirdTypeInTheInterSectionType
+    ]
+) = {
+  val a: A | B
+}
+<<< long intersection in type
+maxColumn = 30
+===
+def hello(aNumberOfpossibleTypes : Type[FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType &  ThirdTypeInTheInterSectionType]) = {
+    val a  : A & B
+}
+>>>
+def hello(
+    aNumberOfpossibleTypes: Type[
+      FirstTypeInTheInterSectionType &
+        SecondTypeInTheInterSectionType &
+        ThirdTypeInTheInterSectionType
+    ]
+) = {
+  val a: A & B
+}

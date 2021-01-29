@@ -1821,7 +1821,19 @@ class Router(formatOps: FormatOps) {
             Seq(Split(Space.orNL(noNL), 0))
         }
 
-      // Pat
+      // Union/Intersection types
+      case FormatToken(T.Ident(value), _, _)
+          if (value == "|" && leftOwner.is[Type.Or]) ||
+            (value == "&" && leftOwner.is[Type.And]) =>
+        if (style.newlines.source eq Newlines.keep)
+          Seq(Split(Space.orNL(newlines == 0), 0))
+        else
+          Seq(
+            Split(Space, 0),
+            Split(Newline, 1).withIndent(2, lastToken(leftOwner), After)
+          )
+
+      // Pattern alternatives
       case FormatToken(T.Ident("|"), _, _) if leftOwner.is[Pat.Alternative] =>
         if (style.newlines.source eq Newlines.keep)
           Seq(Split(Space.orNL(newlines == 0), 0))
