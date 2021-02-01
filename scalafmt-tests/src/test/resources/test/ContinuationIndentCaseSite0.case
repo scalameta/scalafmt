@@ -1,9 +1,9 @@
-continuationIndent.caseSite = 5
+continuationIndent.caseSite = 0
 <<< Long if
 case tok if tok.left.name.startsWith("xml") && tok.right.name.startsWith("xml") => List( NoSplit0 )
 >>>
 case tok
-     if tok.left.name.startsWith("xml") && tok.right.name.startsWith("xml") =>
+if tok.left.name.startsWith("xml") && tok.right.name.startsWith("xml") =>
   List(NoSplit0)
 <<< Pathological if
 case FormatToken(left, open: `(`, _)
@@ -15,9 +15,9 @@ case FormatToken(left, open: `(`, _)
   )
 >>>
 case FormatToken(left, open: `(`, _)
-     if owners(open).isInstanceOf[Term.Apply] ||
-       owners(left).parent.exists(_.isInstanceOf[Defn.Def]) ||
-       owners(left).parent.exists(_.isInstanceOf[Defn.Class]) =>
+if owners(open).isInstanceOf[Term.Apply] ||
+  owners(left).parent.exists(_.isInstanceOf[Defn.Def]) ||
+  owners(left).parent.exists(_.isInstanceOf[Defn.Class]) =>
   List(
     NoSplit0
   )
@@ -31,10 +31,10 @@ case Decision(t@FormatToken(comma: `,`, right, between), splits)
       Decision(t, splits.filter(_.modification == Newline))
 >>>
 case Decision(t @ FormatToken(comma: `,`, right, between), splits)
-     if owners.get(open) == owners.get(comma) &&
-       // If comment is bound to comma, see unit/Comment.
-       (!right.isInstanceOf[Comment] ||
-         between.exists(_.isInstanceOf[`\n`])) =>
+if owners.get(open) == owners.get(comma) &&
+  // If comment is bound to comma, see unit/Comment.
+  (!right.isInstanceOf[Comment] ||
+    between.exists(_.isInstanceOf[`\n`])) =>
   Decision(t, splits.filter(_.modification == Newline))
 <<< or #177
    case NullTag
@@ -51,7 +51,7 @@ case Decision(t @ FormatToken(comma: `,`, right, between), splits)
          focus withValue genLiteralValue(lit)
 >>>
 case NullTag | UnitTag | BooleanTag | ByteTag | ShortTag | CharTag | IntTag |
-     LongTag | FloatTag | DoubleTag | StringTag =>
+LongTag | FloatTag | DoubleTag | StringTag =>
   focus withValue genLiteralValue(lit)
 <<< gimme space with config style
       case e @ (
@@ -63,11 +63,10 @@ case NullTag | UnitTag | BooleanTag | ByteTag | ShortTag | CharTag | IntTag |
                  qux
 >>>
 case e @ (
-       _: NoSuchMethodException | _: SecurityException |
-       _: IllegalAccessException | _: IllegalArgumentException |
-       _: InvocationTargetException | _: NullPointerException |
-       _: ClassNotFoundException
-     ) =>
+  _: NoSuchMethodException | _: SecurityException | _: IllegalAccessException |
+  _: IllegalArgumentException | _: InvocationTargetException |
+  _: NullPointerException | _: ClassNotFoundException
+) =>
   qux
 <<< gimme space with config style, with guard
       case e @ (
@@ -82,15 +81,14 @@ case e @ (
                  qux
 >>>
 case e @ (
-       _: NoSuchMethodException | _: SecurityException |
-       _: IllegalAccessException | _: IllegalArgumentException |
-       _: InvocationTargetException | _: NullPointerException |
-       _: ClassNotFoundException
-     ) /* c1 */
-     if /* c2 */ foo(
-       bar,
-       baz
-     ) =>
+  _: NoSuchMethodException | _: SecurityException | _: IllegalAccessException |
+  _: IllegalArgumentException | _: InvocationTargetException |
+  _: NullPointerException | _: ClassNotFoundException
+) /* c1 */
+if /* c2 */ foo(
+  bar,
+  baz
+) =>
   qux
 <<< gimme space with config style, with infix
       case e @ (
@@ -105,14 +103,13 @@ case e @ (
                  qux
 >>>
 case e @ (
-       _: NoSuchMethodException | _: SecurityException |
-       _: IllegalAccessException | _: IllegalArgumentException |
-       _: InvocationTargetException | _: NullPointerException |
-       _: ClassNotFoundException
-     ) infix foo(
-       bar,
-       baz
-     ) =>
+  _: NoSuchMethodException | _: SecurityException | _: IllegalAccessException |
+  _: IllegalArgumentException | _: InvocationTargetException |
+  _: NullPointerException | _: ClassNotFoundException
+) infix foo(
+  bar,
+  baz
+) =>
   qux
 <<< gimme space with config style, with infix and nest
       case e @ (
@@ -134,21 +131,20 @@ case e @ (
                  qux
 >>>
 case e @ (
-       _: NoSuchMethodException | _: SecurityException |
-       _: IllegalAccessException | _: IllegalArgumentException |
-       _: InvocationTargetException | _: NullPointerException |
-       _: ClassNotFoundException
-     )
-     infix (
-       foo(
-         bar,
-         baz
-       )
-       anotherInfix foo(
-         bar,
-         baz
-       )
-     ) =>
+  _: NoSuchMethodException | _: SecurityException | _: IllegalAccessException |
+  _: IllegalArgumentException | _: InvocationTargetException |
+  _: NullPointerException | _: ClassNotFoundException
+)
+infix (
+  foo(
+    bar,
+    baz
+  )
+  anotherInfix foo(
+    bar,
+    baz
+  )
+) =>
   qux
 <<< bodyBlock
 maxColumn = 30
@@ -159,6 +155,6 @@ case _: SomeThing |
 }
 >>>
 case _: SomeThing |
-     _: SomeThingAgain => {
+_: SomeThingAgain => {
   ???
 }
