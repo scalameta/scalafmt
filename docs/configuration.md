@@ -2406,6 +2406,8 @@ import a.b.{c, d}
 
 ### `spaces.inInterpolatedStringCurlyBraces`
 
+> Since v3.0.0.
+
 ```scala mdoc:defaults
 spaces.inInterpolatedStringCurlyBraces
 ```
