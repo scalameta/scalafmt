@@ -81,15 +81,3 @@ case q"""...${stats: Seq[Stat]} """ =>
 case  List(xs @ _*) => a
 >>>
 case List(xs @ _*) => a
-<<< #2258 Evenly align case values
-newlines.source = keep
-includeCurlyBraceInSelectChains = true
-continuationIndent.caseSite = 3
-===
-case _: Aaaaaa |
-    _: Bbbbbb |
-    _: Cccccc =>
->>>
-case _: Aaaaaa |
-     _: Bbbbbb |
-     _: Cccccc =>

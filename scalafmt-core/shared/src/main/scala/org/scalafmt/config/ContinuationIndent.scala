@@ -4,7 +4,7 @@ import metaconfig._
 
 /** @param defnSite indentation around class/def
   * @param ctorSite indentation around class constructor parameters
-  * @param caseSite additional indentation for case values
+  * @param caseSite indentation for case values before arrow
   * @param callSite indentation around function calls, etc.
   * @param extendSite indentation before `extends`
   * @param withSiteRelativeToExtends additional indentation before `with`
@@ -13,7 +13,7 @@ import metaconfig._
 case class ContinuationIndent(
     callSite: Int = 2,
     defnSite: Int = 4,
-    caseSite: Int = 2,
+    caseSite: Int = 4,
     ctorSite: Option[Int] = None,
     extendSite: Int = 4,
     withSiteRelativeToExtends: Int = 0,

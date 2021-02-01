@@ -1735,7 +1735,7 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0, policy = policy)
             .withIndent(if (bodyBlock) 0 else 2, expire, After)
             .withIndent(
-              if (bodyBlock) 4 else style.continuationIndent.caseSite,
+              style.continuationIndent.caseSite + (if (bodyBlock) 0 else -2),
               arrow,
               After
             )
