@@ -186,15 +186,15 @@ class A(
 
 > Since v3.0.0.
 
-Applies additional indentation to case values.
+Applies indentation to case values before arrow.
 
 ```scala mdoc:defaults
 continuationIndent.caseSite
 ```
 
 ```scala mdoc:scalafmt
-newlines.source = keep
-continuationIndent.caseSite = 3
+maxColumn = 20
+continuationIndent.caseSite = 5
 ---
 x match {
   case _: Aaaaaa |
