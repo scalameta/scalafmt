@@ -1,0 +1,52 @@
+spaces.inInterpolatedStringCurlyBraces = false
+
+<<< No spaces for simple variables
+s"Hello ${ the } world!"
+>>>
+s"Hello ${the} world!"
+
+<<< No spaces for complex statements
+s"Hello ${ th.e } ${ functional() } world!"
+>>>
+s"Hello ${th.e} ${functional()} world!"
+
+<<< No spaces for multiline statements
+s"""Hello ${ 
+ the 
+ } ${
+  functional() 
+}world!"""
+>>>
+s"""Hello ${the} ${functional()}world!"""
+
+<<< Always have spaces for simple variables
+spaces.inInterpolatedStringCurlyBraces = true
+===
+s"Hello ${the} world!"
+>>>
+s"Hello ${ the } world!"
+
+<<< Always have spaces for complex statements
+spaces.inInterpolatedStringCurlyBraces = true
+===
+s"Hello ${th.e} ${functional()} world!"
+>>>
+s"Hello ${ th.e } ${ functional() } world!"
+
+<<< Always have spaces for multiline statements
+spaces.inInterpolatedStringCurlyBraces = true
+===
+s"""Hello ${
+the
+} ${
+functional()
+}world!"""
+>>>
+s"""Hello ${ the } ${ functional() }world!"""
+
+<<< Shouldn't add spaces to imports
+spaces.inInterpolatedStringCurlyBraces = true
+===
+import play.api.libs.json.{JsObject, JsString, Json}
+>>>
+import play.api.libs.json.{JsObject, JsString, Json}
