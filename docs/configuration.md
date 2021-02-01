@@ -184,7 +184,7 @@ class A(
 
 ### `continuationIndent.caseSite`
 
-> Since v2.7.6.
+> Since v3.0.0.
 
 Applies additional indentation to case values.
 
