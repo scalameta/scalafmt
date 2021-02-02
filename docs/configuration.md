@@ -182,6 +182,27 @@ class A(
 }
 ```
 
+### `continuationIndent.caseSite`
+
+> Since v3.0.0.
+
+Applies indentation to case values before arrow.
+
+```scala mdoc:defaults
+continuationIndent.caseSite
+```
+
+```scala mdoc:scalafmt
+maxColumn = 20
+continuationIndent.caseSite = 5
+---
+x match {
+  case _: Aaaaaa |
+      _: Bbbbbb |
+      _: Cccccc =>
+}
+```
+
 ### `continuationIndent.extendSite`
 
 ```scala mdoc:defaults
