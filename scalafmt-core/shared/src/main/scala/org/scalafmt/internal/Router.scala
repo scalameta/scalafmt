@@ -1730,12 +1730,16 @@ class Router(formatOps: FormatOps) {
           ) NoPolicy
           else defaultPolicy
 
-        val foo = if (bodyBlock) 0 else 2
+        val entireClauseIndent = if (bodyBlock) 0 else 2
         Seq(
           Split(Space, 0).withSingleLine(expire, killOnFail = true),
           Split(Space, 0, policy = policy)
-            .withIndent(foo, expire, After)
-            .withIndent(style.continuationIndent.caseSite - foo, arrow, After)
+            .withIndent(entireClauseIndent, expire, After)
+            .withIndent(
+              style.continuationIndent.caseSite - entireClauseIndent,
+              arrow,
+              After
+            )
         )
 
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
