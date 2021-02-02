@@ -1,0 +1,119 @@
+continuationIndent.caseSite = 1
+<<< Long if
+val Route: PartialFunction[Decision, Decision] = {
+case token if (token match { case Left("xml") => true; case Right(_) => false }) => List( NoSplit0 )
+}
+>>>
+val Route: PartialFunction[Decision, Decision] = {
+  case token
+   if (token match { case Left("xml") => true; case Right(_) => false }) =>
+    List(NoSplit0)
+}
+<<< Pathological if
+maxColumn = 55
+===
+List(Split(Space, 0).withPolicy {
+case FormatToken(left, open: `(`, _)
+    if owners(open).isInstanceOf[Term.Apply] ||
+      owners(left).parent.exists{
+        case Defn.DefDefDefDef|
+        Defn.ClassClassClassClass =>
+          true
+        case _ =>
+          false
+      } =>
+  List(
+    NoSplit0
+  )
+})
+>>>
+List(Split(Space, 0).withPolicy {
+  case FormatToken(left, open: `(`, _)
+   if owners(open).isInstanceOf[Term.Apply] ||
+     owners(left).parent.exists {
+       case Defn.DefDefDefDef |
+        Defn.ClassClassClassClass =>
+         true
+       case _ =>
+         false
+     } =>
+    List(
+      NoSplit0
+    )
+})
+<<< wrapped cond inside if
+x match {
+case Decision(t@FormatToken(comma: `,`, right, between), splits)
+        if owners.get(open) == owners.get(comma) &&
+        // If comment is bound to comma, see unit/Comment.
+        (
+          !right.isInstanceOf[Comment] ||
+          between.exists(_.isInstanceOf[`\n`])) =>
+      Decision(t, splits.filter(_.modification == Newline))
+}
+>>>
+x match {
+  case Decision(t @ FormatToken(comma: `,`, right, between), splits)
+   if owners.get(open) == owners.get(comma) &&
+     // If comment is bound to comma, see unit/Comment.
+     (!right.isInstanceOf[Comment] ||
+       between.exists(_.isInstanceOf[`\n`])) =>
+    Decision(t, splits.filter(_.modification == Newline))
+}
+<<< gimme space with config style
+x match {
+      case e @ (
+      _: NoSuchMethodException | _: SecurityException |
+                _: IllegalAccessException | _: IllegalArgumentException |
+                _: InvocationTargetException | _: NullPointerException |
+                _: ClassNotFoundException
+                ) =>
+                 qux
+}
+>>>
+x match {
+  case e @ (
+     _: NoSuchMethodException | _: SecurityException |
+     _: IllegalAccessException | _: IllegalArgumentException |
+     _: InvocationTargetException | _: NullPointerException |
+     _: ClassNotFoundException
+   ) =>
+    qux
+}
+<<< nested block in body, verify correct indentation
+maxColumn = 20
+===
+object a {
+  b match {
+    case c => {}
+     d
+     case e => {
+      f
+     }
+     g
+    case h |
+    k |
+    l |
+    m |
+    n=> {
+        i
+      } // comment
+  }
+}
+>>>
+object a {
+  b match {
+    case c =>
+      {}
+      d
+    case e =>
+      {
+        f
+      }
+      g
+    case h | k | l |
+     m | n => {
+      i
+    } // comment
+  }
+}
