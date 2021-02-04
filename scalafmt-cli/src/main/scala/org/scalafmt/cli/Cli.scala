@@ -90,8 +90,8 @@ object Cli {
   private object FileArgument {
     def unapply(arg: String): Option[Iterator[String]] = {
       val atFile = arg.stripPrefix("@")
-      if (atFile eq arg) None // doesn't start with @
-      else if (atFile eq "-") Some(Source.stdin.getLines())
+      if (atFile == arg) None // doesn't start with @
+      else if (atFile == "-") Some(Source.stdin.getLines())
       else if (!Files.isRegularFile(Paths.get(atFile))) None
       else Some(Source.fromFile(atFile).getLines())
     }
