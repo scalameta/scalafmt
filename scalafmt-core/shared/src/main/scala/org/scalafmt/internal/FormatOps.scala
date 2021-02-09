@@ -67,6 +67,7 @@ class FormatOps(
   import TokenOps._
   import TreeOps._
   implicit val dialect = initStyle.runner.dialect
+  def isScala3Dialect = dialect == ScalafmtRunner.Dialect.scala3
   private val ownersMap = getOwners(tree)
   val tokens: FormatTokens = FormatTokens(tree.tokens, owners)
   private[internal] val soft = new SoftKeywordClasses(dialect)

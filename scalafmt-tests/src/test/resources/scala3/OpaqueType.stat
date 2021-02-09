@@ -13,10 +13,10 @@ opaque type HelloIAmAnOpaqueTypeTerry =
 <<< opaque type bounds
 maxColumn = 15
 ===
-opaque type VeryLongClassName <: A & B = AB
+opaque type VeryLongClassName <: AType = AB
 >>>
-opaque type VeryLongClassName <: A & B =
-  AB
+opaque type VeryLongClassName
+  <: AType = AB
 <<< mixed modifiers
 private opaque   type T =   List[Int] 
 >>>

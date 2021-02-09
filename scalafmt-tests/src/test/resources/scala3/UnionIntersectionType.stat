@@ -129,3 +129,26 @@ def hello(
 ) = {
   val a: A & B
 }
+<<< opaque type bounds
+maxColumn = 20
+===
+opaque type VeryLongClassName <: Alpha & Beta & Gamma = AB
+>>>
+opaque type VeryLongClassName
+  <: Alpha & Beta &
+    Gamma = AB
+<<< single split type bounds
+maxColumn = 20
+===
+opaque type VeryLongClassName <: Alpha & Beta = AB
+>>>
+opaque type VeryLongClassName
+  <: Alpha & Beta =
+  AB
+<<< single split type decl bounds
+maxColumn = 20
+===
+type VeryLongClassName <: Alpha & Beta
+>>>
+type VeryLongClassName
+  <: Alpha & Beta
