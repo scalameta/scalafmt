@@ -71,9 +71,10 @@ case class Align(
       "Defn.Val" -> "val/var/def",
       "Defn.Var" -> "val/var/def",
       "Defn.Def" -> "val/var/def",
-      "Defn.Class" -> "class/object/trait",
-      "Defn.Object" -> "class/object/trait",
-      "Defn.Trait" -> "class/object/trait",
+      "Defn.Class" -> "class/object/trait/enum",
+      "Defn.Object" -> "class/object/trait/enum",
+      "Defn.Trait" -> "class/object/trait/enum",
+      "Defn.Enum" -> "class/object/trait/enum",
       "Enumerator.Generator" -> "for",
       "Enumerator.Val" -> "for"
     )

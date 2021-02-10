@@ -32,7 +32,7 @@ object AlignToken {
 
   val default = Seq(
     caseArrow,
-    AlignToken("extends", "Defn.(Class|Trait|Object)"),
+    AlignToken("extends", "Defn.(Class|Trait|Object|Enum)"),
     AlignToken("//", ".*"),
     AlignToken("{", "Template"),
     AlignToken("}", "Template"),
