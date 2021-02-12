@@ -1204,7 +1204,7 @@ src/main/scala/file1.scala
 - \#739: AvoidInfix Bug [\#749](https://github.com/scalameta/scalafmt/pull/749) ([ysusuk](https://github.com/ysusuk))
 - Upgrade to meta 1.6 [\#746](https://github.com/scalameta/scalafmt/pull/746) ([olafurpg](https://github.com/olafurpg))
 - Remove 'HEAD' from git diff, to include all uncommitted changes aswell [\#742](https://github.com/scalameta/scalafmt/pull/742) ([bjornj12](https://github.com/bjornj12))
-- Fix \#731: empty-param group with verical style [\#734](https://github.com/scalameta/scalafmt/pull/734) ([pjrt](https://github.com/pjrt))
+- Fix \#731: empty-param group with vertical style [\#734](https://github.com/scalameta/scalafmt/pull/734) ([pjrt](https://github.com/pjrt))
 - Add flag for newline before toplevel statements [\#733](https://github.com/scalameta/scalafmt/pull/733) ([Daxten](https://github.com/Daxten))
 - \#726: unimport is not respected [\#729](https://github.com/scalameta/scalafmt/pull/729) ([ysusuk](https://github.com/ysusuk))
 
