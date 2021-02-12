@@ -68,7 +68,7 @@ object a {
   sealed trait T1
   final class FC1
 }
-<<< Don't touch preformated code which is fine
+<<< Don't touch preformatted code which is fine
 package a {
   import x1.b
   import x2.b
