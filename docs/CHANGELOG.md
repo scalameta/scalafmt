@@ -798,7 +798,7 @@ src/main/scala/file1.scala
 **Merged pull requests:**
 
 - Add scalafmt-dynamic module for easier build tool integrations. [\#1337](https://github.com/scalameta/scalafmt/pull/1337) ([olafurpg](https://github.com/olafurpg))
-- Type Annotation Site indention same as Definition Site [\#1336](https://github.com/scalameta/scalafmt/pull/1336) ([AesaKamar](https://github.com/AesaKamar))
+- Type Annotation Site indentation same as Definition Site [\#1336](https://github.com/scalameta/scalafmt/pull/1336) ([AesaKamar](https://github.com/AesaKamar))
 - Fix the mysterious case of missing newline at end of file. [\#1333](https://github.com/scalameta/scalafmt/pull/1333) ([olafurpg](https://github.com/olafurpg))
 - Expand on the align=none protip [\#1331](https://github.com/scalameta/scalafmt/pull/1331) ([dwijnand](https://github.com/dwijnand))
 - Fix broken links README [\#1330](https://github.com/scalameta/scalafmt/pull/1330) ([glammers1](https://github.com/glammers1))
@@ -848,7 +848,7 @@ src/main/scala/file1.scala
 
 **Merged pull requests:**
 
-- Fix trailing comma handling when followed by indenation-free comment [\#1230](https://github.com/scalameta/scalafmt/pull/1230) ([gabro](https://github.com/gabro))
+- Fix trailing comma handling when followed by indentation-free comment [\#1230](https://github.com/scalameta/scalafmt/pull/1230) ([gabro](https://github.com/gabro))
 - Add foursquare to adopters list [\#1229](https://github.com/scalameta/scalafmt/pull/1229) ([iantabolt](https://github.com/iantabolt))
 - Upgrade metaconfig [\#1226](https://github.com/scalameta/scalafmt/pull/1226) ([olafurpg](https://github.com/olafurpg))
 
