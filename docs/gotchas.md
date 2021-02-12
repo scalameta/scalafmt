@@ -16,7 +16,7 @@ the `maxColumn` setting is not respected.
 
 ```scala
 // column limit |
-// if you have long infix appplications
+// if you have long infix applications
 a.b(c) && d.e(f, g, h)
 
 // then scalafmt may format like this
