@@ -760,7 +760,7 @@ private final class Analyzer(semantics: Semantics,
       }
 
       /* `for` loops on maps are written with `while` loops to help the JIT
-       * compiler to inline and stack allocate tupples created by the iterators
+       * compiler to inline and stack allocate tuples created by the iterators
        */
       val methodsCalledIterator = data.methodsCalled.iterator
       while (methodsCalledIterator.hasNext) {
