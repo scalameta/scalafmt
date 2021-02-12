@@ -174,7 +174,7 @@ See https://scalameta.org/scalafmt/docs/configuration.html#fileoverride
 
 ### Infix formatting
 
-Formatting line breaks around infix expressions turned out to be a difficult problem, and a couple of years ago `scalafmt` gave up on that and let the user choose where to break. Here, we are definining a couple of parameters to try and take that control back, by adding newlines _after_ an infix operator (as the only universally safe place; there are _some_ cases when a break can happen before an infix operator, but those are rare, and this logic doesn't attempt to discern them).
+Formatting line breaks around infix expressions turned out to be a difficult problem, and a couple of years ago `scalafmt` gave up on that and let the user choose where to break. Here, we are defining a couple of parameters to try and take that control back, by adding newlines _after_ an infix operator (as the only universally safe place; there are _some_ cases when a break can happen before an infix operator, but those are rare, and this logic doesn't attempt to discern them).
 
 See https://scalameta.org/scalafmt/docs/configuration.html#newlinesafterinfix
 
