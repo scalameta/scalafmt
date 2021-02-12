@@ -34,10 +34,10 @@ Here is an example test suite in a file `test/resources/Foo/foo.stat`:
 ```
 maxColumn = 40 # configuration is defined at the top of the file
 <<< This is the test name
-val x = "This can be an arbirary statement"
+val x = "This can be an arbitrary statement"
 >>>
 val x =
-  "This can be an arbirary statement"
+  "This can be an arbitrary statement"
 ```
 
 Prefix a test name with `ONLY` to only run that single test.
