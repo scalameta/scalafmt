@@ -1147,7 +1147,7 @@ src/main/scala/file1.scala
 - Fix issue \#816: Makes verticalMultilineDefnSite respect continuationIndent.defnSite [\#829](https://github.com/scalameta/scalafmt/pull/829) ([pjrt](https://github.com/pjrt))
 - Topic/newlines_annotations \#806 [\#820](https://github.com/scalameta/scalafmt/pull/820) ([Daxten](https://github.com/Daxten))
 - Fix \#780, add spaces in parens flag [\#818](https://github.com/scalameta/scalafmt/pull/818) ([olafurpg](https://github.com/olafurpg))
-- Don't resolve from ivy2local in ScalafmtBotstrap. [\#817](https://github.com/scalameta/scalafmt/pull/817) ([olafurpg](https://github.com/olafurpg))
+- Don't resolve from ivy2local in ScalafmtBootstrap. [\#817](https://github.com/scalameta/scalafmt/pull/817) ([olafurpg](https://github.com/olafurpg))
 - Fix newlines.alwaysBeforeTopLevelStatements doc [\#804](https://github.com/scalameta/scalafmt/pull/804) ([dwijnand](https://github.com/dwijnand))
 - Fix \#798. [\#803](https://github.com/scalameta/scalafmt/pull/803) ([olafurpg](https://github.com/olafurpg))
 - Fix \#800. [\#801](https://github.com/scalameta/scalafmt/pull/801) ([olafurpg](https://github.com/olafurpg))
