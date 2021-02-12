@@ -1943,7 +1943,7 @@ abstract class GenJSCode extends plugins.PluginComponent
     }
 
     /** Gen jump to a label.
-     *  Most label-applys are caught upstream (while and do..while loops,
+     *  Most label-applies are caught upstream (while and do..while loops,
      *  jumps to next case of a pattern match), but some are still handled here:
      *  * Jumps to enclosing label-defs, including tail-recursive calls
      *  * Jump to the end of a pattern match
