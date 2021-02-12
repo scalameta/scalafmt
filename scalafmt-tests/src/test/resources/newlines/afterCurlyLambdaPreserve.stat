@@ -38,7 +38,7 @@ def f = {
   }
 }
 
-<<< Replace multiple newlines with a single newline when preseving
+<<< Replace multiple newlines with a single newline when preserving
 def f = {
   something.call { x =>
 
