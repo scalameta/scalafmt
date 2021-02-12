@@ -26,7 +26,7 @@ function(a,
   // Give me 2x newlines!
   val y = 2
 }
-<<< muliline comment gets 2x newline
+<<< multiline comment gets 2x newline
 {val x = 1
 
   /*
