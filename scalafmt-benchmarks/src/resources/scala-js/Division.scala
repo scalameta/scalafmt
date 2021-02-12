@@ -824,7 +824,7 @@ private[math] object Division {
   /** The Montgomery modular exponentiation.
    *
    *  Implements the Montgomery modular exponentiation based in <i>The sliding
-   *  windows algorithm and the MongomeryReduction</i>.
+   *  windows algorithm and the MontgomeryReduction</i>.
    *
    *  @ar.org.fitc.ref
    *  "A. Menezes,P. van Oorschot, S. Vanstone - Handbook of Applied Cryptography"
