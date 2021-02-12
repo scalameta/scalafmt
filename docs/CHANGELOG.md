@@ -1412,7 +1412,7 @@ src/main/scala/file1.scala
 
 **Merged pull requests:**
 
-- Add nailgun interrop to CLI. [\#514](https://github.com/scalameta/scalafmt/pull/514) ([olafurpg](https://github.com/olafurpg))
+- Add nailgun interop to CLI. [\#514](https://github.com/scalameta/scalafmt/pull/514) ([olafurpg](https://github.com/olafurpg))
 
 ## [v0.4.5](https://github.com/scalameta/scalafmt/tree/v0.4.5) (2016-10-10)
 
