@@ -389,7 +389,7 @@ private object K {
 private object K {
   def l: String = ""
 }
-<<< miltiple modifiers
+<<< multiple modifiers
 private object K {
   override protected implicit def l: String = {
   ""
