@@ -10,7 +10,7 @@ val design: Design =
   .bind[D1]
   .toInstance(D1(1))    // Bind D1 to a concrete instance D1(1)
   .bind[D2].toInstance(D2(2))    // Bind D2 to a concrete instance D2(2)
-  .bind[D3].toInstance(D3(3))    // Bind D3 to a cocreete instance D3(3)
+  .bind[D3].toInstance(D3(3))    // Bind D3 to a concrete instance D3(3)
   .bind[D3].toInstance(D3(3)) .bind[D3].toInstance(D3(3)) .bind[D3].toInstance(D3(3)) .bind[D3].toInstance(D3(3)) .bind[D3].toInstance(D3(3))
 >>>
 val design: Design =
@@ -24,6 +24,6 @@ val design: Design =
     .bind[D1]
     .toInstance(D1(1)) // Bind D1 to a concrete instance D1(1)
     .bind[D2].toInstance(D2(2)) // Bind D2 to a concrete instance D2(2)
-    .bind[D3].toInstance(D3(3)) // Bind D3 to a cocreete instance D3(3)
+    .bind[D3].toInstance(D3(3)) // Bind D3 to a concrete instance D3(3)
     .bind[D3].toInstance(D3(3)).bind[D3].toInstance(D3(3)).bind[D3].toInstance(
       D3(3)).bind[D3].toInstance(D3(3)).bind[D3].toInstance(D3(3))
