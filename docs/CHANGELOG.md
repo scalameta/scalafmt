@@ -915,7 +915,7 @@ src/main/scala/file1.scala
 
 **Merged pull requests:**
 
-- SortModifiers rewrite fixes + doc prettyfying [\#1153](https://github.com/scalameta/scalafmt/pull/1153) ([lorandszakacs](https://github.com/lorandszakacs))
+- SortModifiers rewrite fixes + doc prettifying [\#1153](https://github.com/scalameta/scalafmt/pull/1153) ([lorandszakacs](https://github.com/lorandszakacs))
 
 ## [v1.5.0](https://github.com/scalameta/scalafmt/tree/v1.5.0) (2018-04-23)
 
