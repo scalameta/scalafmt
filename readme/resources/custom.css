@@ -153,7 +153,7 @@ ul.menu-item-list {
   display: none;
 }
 
-/** Ovrride pre code styling in case of pair split as it's taken care of by
+/** Override pre code styling in case of pair split as it's taken care of by
  * .scalafmt-pair and .scalafmt-rows*/
 .scalatex-site-Styles-content .scalafmt-pair pre code,
 .scalatex-site-Styles-content .scalafmt-rows pre code {
