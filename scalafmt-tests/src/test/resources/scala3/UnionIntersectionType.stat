@@ -71,12 +71,12 @@ def hello()
 <<< long intersection param
 maxColumn = 30
 ===
-def hello(aNumberOfpossibleTypes: FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType & ThirdTypeInTheInterSectionType) = {
+def hello(aNumberOfPossibleTypes: FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType & ThirdTypeInTheInterSectionType) = {
     val a  : FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType 
 }
 >>>
 def hello(
-    aNumberOfpossibleTypes: FirstTypeInTheInterSectionType &
+    aNumberOfPossibleTypes: FirstTypeInTheInterSectionType &
       SecondTypeInTheInterSectionType &
       ThirdTypeInTheInterSectionType
 ) = {
@@ -86,12 +86,12 @@ def hello(
 <<< long union
 maxColumn = 30
 ===
-def hello(aNumberOfpossibleTypes : FirstTypeInTheInterSectionType | SecondTypeInTheInterSectionType |  ThirdTypeInTheInterSectionType) = {
+def hello(aNumberOfPossibleTypes : FirstTypeInTheInterSectionType | SecondTypeInTheInterSectionType |  ThirdTypeInTheInterSectionType) = {
     val a  : A | B
 }
 >>>
 def hello(
-    aNumberOfpossibleTypes: FirstTypeInTheInterSectionType |
+    aNumberOfPossibleTypes: FirstTypeInTheInterSectionType |
       SecondTypeInTheInterSectionType |
       ThirdTypeInTheInterSectionType
 ) = {
@@ -100,12 +100,12 @@ def hello(
 <<< long union in type
 maxColumn = 30
 ===
-def hello(aNumberOfpossibleTypes : Type[FirstTypeInTheInterSectionType | SecondTypeInTheInterSectionType |  ThirdTypeInTheInterSectionType]) = {
+def hello(aNumberOfPossibleTypes : Type[FirstTypeInTheInterSectionType | SecondTypeInTheInterSectionType |  ThirdTypeInTheInterSectionType]) = {
     val a  : A | B
 }
 >>>
 def hello(
-    aNumberOfpossibleTypes: Type[
+    aNumberOfPossibleTypes: Type[
       FirstTypeInTheInterSectionType |
         SecondTypeInTheInterSectionType |
         ThirdTypeInTheInterSectionType
@@ -116,12 +116,12 @@ def hello(
 <<< long intersection in type
 maxColumn = 30
 ===
-def hello(aNumberOfpossibleTypes : Type[FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType &  ThirdTypeInTheInterSectionType]) = {
+def hello(aNumberOfPossibleTypes : Type[FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType &  ThirdTypeInTheInterSectionType]) = {
     val a  : A & B
 }
 >>>
 def hello(
-    aNumberOfpossibleTypes: Type[
+    aNumberOfPossibleTypes: Type[
       FirstTypeInTheInterSectionType &
         SecondTypeInTheInterSectionType &
         ThirdTypeInTheInterSectionType
