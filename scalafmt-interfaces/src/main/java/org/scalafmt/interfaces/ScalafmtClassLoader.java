@@ -5,7 +5,7 @@ package org.scalafmt.interfaces;
  *
  * This classloader is intended to be used as a parent when class-loading scalafmt-dynamic.
  * By using this classloader as a parent, it's possible to cast runtime instances from
- * the scalafmt-dynamic classloader into `org.scalafmt.interfaces.Scalafmt` from this classlaoder.
+ * the scalafmt-dynamic classloader into `org.scalafmt.interfaces.Scalafmt` from this classloader.
  */
 public class ScalafmtClassLoader extends ClassLoader {
 
