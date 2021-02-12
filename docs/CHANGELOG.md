@@ -499,7 +499,7 @@ The following are changes in default behaviour:
 - Update scalatags to 0.8.4 [\#1636](https://github.com/scalameta/scalafmt/pull/1636) ([scala-steward](https://github.com/scala-steward))
 - RedundantBraces: fix various bugs with general expressions [\#1635](https://github.com/scalameta/scalafmt/pull/1635) ([kitbellew](https://github.com/kitbellew))
 - Update sbt to 1.3.7 [\#1634](https://github.com/scalameta/scalafmt/pull/1634) ([scala-steward](https://github.com/scala-steward))
-- Add headers for each invidiual editor that Metals supports. [\#1629](https://github.com/scalameta/scalafmt/pull/1629) ([olafurpg](https://github.com/olafurpg))
+- Add headers for each individual editor that Metals supports. [\#1629](https://github.com/scalameta/scalafmt/pull/1629) ([olafurpg](https://github.com/olafurpg))
 - FormatOps: check "new anonymous" in infix indent [\#1626](https://github.com/scalameta/scalafmt/pull/1626) ([kitbellew](https://github.com/kitbellew))
 - Rewrite: rewrite patchsets unless any is no-format [\#1625](https://github.com/scalameta/scalafmt/pull/1625) ([kitbellew](https://github.com/kitbellew))
 - Router bugfix: improve optimal token for assign [\#1623](https://github.com/scalameta/scalafmt/pull/1623) ([kitbellew](https://github.com/kitbellew))
