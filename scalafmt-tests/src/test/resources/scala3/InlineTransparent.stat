@@ -30,3 +30,69 @@ transparent inline override protected def choose(
   if (b) { new A }
   else { new B }
 }
+<<< inline if
+transparent inline def choose(b: Boolean): A =
+           inline if (b) new A else new B
+>>>
+transparent inline def choose(b: Boolean): A =
+  inline if (b) new A else new B
+<<< inline if long
+maxColumn = 45
+===
+inline def update(delta: Int) = inline if (delta >= 0) increaseBy(delta)
+   else decreaseBy(-delta)
+>>>
+inline def update(delta: Int) = inline if (
+  delta >= 0
+) increaseBy(delta)
+else decreaseBy(-delta)
+<<< inline if unfold
+newlines.beforeMultiline = unfold
+===
+inline def update(delta: Int) = inline if (delta >= 0) increaseBy(delta)
+   else decreaseBy(-delta)
+>>>
+inline def update(delta: Int) =
+  inline if (delta >= 0)
+    increaseBy(delta)
+  else
+    decreaseBy(-delta)
+<<< inline match
+transparent   inline def g(x: Any): Any =   inline x match {
+         case x: String => (x, x) // Tuple2[String, String](x, x)
+        case x: Double => x 
+      }
+>>>
+transparent inline def g(x: Any): Any = inline x match {
+  case x: String => (x, x) // Tuple2[String, String](x, x)
+  case x: Double => x
+}
+<<< inline match long
+maxColumn = 50
+===
+transparent inline def g(x: Any): Any =   inline x match {
+      case x: String => (x, x) // Tuple2[String, String](x, x)
+      case x: Double => x 
+      }
+>>>
+transparent inline def g(x: Any): Any =
+  inline x match {
+    case x: String =>
+      (x, x) // Tuple2[String, String](x, x)
+    case x: Double => x
+  }
+<<< inline match unfold
+newlines.beforeMultiline = unfold
+===
+transparent inline def g(x: Any): Any =   inline x match {
+      case x: String => (x, x) // Tuple2[String, String](x, x)
+      case x: Double => x 
+      }
+>>>
+transparent inline def g(x: Any): Any =
+  inline x match {
+    case x: String =>
+      (x, x) // Tuple2[String, String](x, x)
+    case x: Double =>
+      x
+  }
