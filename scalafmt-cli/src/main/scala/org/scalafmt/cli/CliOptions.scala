@@ -22,7 +22,7 @@ object CliOptions {
     *
     * 1. .scalafmt.conf in root dir of current git repo
     *     IF the following setting is enabled: project.git = true
-    * 2. .scalafmt.conf from init.commong.workingDirectory
+    * 2. .scalafmt.conf from init.common.workingDirectory
     *
     * I am happy to add alternative fallback methods for other VCS.
     *
