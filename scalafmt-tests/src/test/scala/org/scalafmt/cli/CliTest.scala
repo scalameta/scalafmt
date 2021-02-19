@@ -626,15 +626,16 @@ trait CliTestBehavior { this: AbstractCliTest =>
           |/foo.scala
           |object    A { }
           |""".stripMargin
+      val dir = string2dir(input)
       noArgTest(
-        string2dir(input),
+        dir,
         input,
         Seq(Array("--test")),
         assertExit = { exit => assert(exit.is(ExitCode.TestError)) },
         assertOut = out => {
           assertContains(
             out,
-            """|foo.scala-formatted
+            s"""b$dir/foo.scala
               |@@ -1,1 +1,1 @@
               |-object    A { }
               |+object A {}

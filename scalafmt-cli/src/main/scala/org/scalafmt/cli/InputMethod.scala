@@ -84,8 +84,8 @@ object InputMethod {
     else {
       difflib.DiffUtils
         .generateUnifiedDiff(
-          filename,
-          s"$filename-formatted",
+          s"a$filename",
+          s"b$filename",
           a,
           diff,
           1
