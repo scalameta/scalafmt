@@ -618,23 +618,26 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"--test failure prints out unified diff: $label") {
+      val fooFile = "foo.scala"
       val input =
         s"""|/.scalafmt.conf
           |onTestFailure = "To fix this ..."
           |version = "$version"
           |
-          |/foo.scala
+          |/$fooFile
           |object    A { }
           |""".stripMargin
+      val dir = string2dir(input)
+      val fooPath = dir / fooFile
       noArgTest(
-        string2dir(input),
+        dir,
         input,
         Seq(Array("--test")),
         assertExit = { exit => assert(exit.is(ExitCode.TestError)) },
         assertOut = out => {
           assertContains(
             out,
-            """|foo.scala-formatted
+            s"""b$fooPath
               |@@ -1,1 +1,1 @@
               |-object    A { }
               |+object A {}
