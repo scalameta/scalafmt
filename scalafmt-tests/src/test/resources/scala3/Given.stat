@@ -209,10 +209,10 @@ given xx: Int = 22
 danglingParentheses.defnSite = false
 maxColumn = 30
 ===
-given xx(using helloPrammeter: Int, otherParameter: String): Int = ???
+given xx(using helloParameter: Int, otherParameter: String): Int = ???
 >>>
 given xx(using
-    helloPrammeter: Int,
+    helloParameter: Int,
     otherParameter: String)
     : Int = ???
 <<< dangling parens exclude
@@ -221,10 +221,10 @@ danglingParentheses.defnSite = true
 danglingParentheses.exclude = [given]
 maxColumn = 30
 ===
-given xx(using helloPrammeter: Int, otherParameter: String): Int = ???
+given xx(using helloParameter: Int, otherParameter: String): Int = ???
 >>>
 given xx(using
-     helloPrammeter: Int,
+     helloParameter: Int,
      otherParameter: String)
      : Int = ???
 <<< rewrite modifiers default

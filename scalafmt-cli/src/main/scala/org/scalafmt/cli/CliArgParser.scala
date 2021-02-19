@@ -31,9 +31,9 @@ object CliArgParser {
       override def showUsageOnError = false
 
       private def printAndExit(
-          inludeUsage: Boolean
+          includeUsage: Boolean
       )(ignore: Unit, c: CliOptions): CliOptions = {
-        if (inludeUsage) showUsage
+        if (includeUsage) showUsage
         else showHeader
         sys.exit
         c
@@ -59,10 +59,10 @@ object CliArgParser {
 
       head("scalafmt", Versions.nightly)
       opt[Unit]('h', "help")
-        .action(printAndExit(inludeUsage = true))
+        .action(printAndExit(includeUsage = true))
         .text("prints this usage text")
       opt[Unit]('v', "version")
-        .action(printAndExit(inludeUsage = false))
+        .action(printAndExit(includeUsage = false))
         .text("print version ")
 
       arg[File]("<file>...")

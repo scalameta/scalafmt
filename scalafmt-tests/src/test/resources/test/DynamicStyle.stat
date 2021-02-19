@@ -48,7 +48,7 @@ type Row =
   AlertEvent :+:
   TestEvent :+:
   InteractionEvent
-<<< base config is preseverd
+<<< base config is preserved
 {
   // scalafmt: { maxColumn = 40 }
   val x = 2 + foo

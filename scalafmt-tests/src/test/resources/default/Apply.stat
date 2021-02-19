@@ -1328,7 +1328,7 @@ object a {
      val timeoutResponse = HttpResponse(
        StatusCodes.EnhanceYourCalm,
        entity =
-         "Unable to serve response within time limit, please enchance your calm.")
+         "Unable to serve response within time limit, please enhance your calm.")
    }
 }
 >>>
@@ -1336,7 +1336,7 @@ object a {
   "allow mapping the response" in {
     val timeoutResponse = HttpResponse(
         StatusCodes.EnhanceYourCalm,
-        entity = "Unable to serve response within time limit, please enchance your calm.")
+        entity = "Unable to serve response within time limit, please enhance your calm.")
   }
 }
 <<< #1505 4 short unchanged

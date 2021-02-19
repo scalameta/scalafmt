@@ -1510,7 +1510,7 @@ object a {
   def a = for (a <- b; if cc < dd)
     yield a
 }
-<<< 7.2: enumerator shoft, guard long
+<<< 7.2: enumerator short, guard long
 maxColumn = 30
 ===
 object a {

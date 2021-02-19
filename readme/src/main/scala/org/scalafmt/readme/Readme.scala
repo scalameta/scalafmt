@@ -261,7 +261,7 @@ object Readme {
     verticalMultiline = VerticalMultiline(atDefnSite = true)
   )
 
-  val VerticalMultilineDefultConfigStr = Conf.printHocon(
+  val verticalMultilineDefaultConfigStr = Conf.printHocon(
     Conf.Obj(
       "verticalMultiline" -> ConfEncoder[VerticalMultiline]
         .write(ScalafmtConfig.default.verticalMultiline)

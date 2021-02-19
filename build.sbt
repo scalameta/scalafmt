@@ -17,7 +17,7 @@ inThisBuild(
   List(
     version ~= { dynVer =>
       if (isCI) dynVer
-      else localSnapshotVersion // only for local publishng
+      else localSnapshotVersion // only for local publishing
     },
     organization := "org.scalameta",
     homepage := Some(url("https://github.com/scalameta/scalafmt")),

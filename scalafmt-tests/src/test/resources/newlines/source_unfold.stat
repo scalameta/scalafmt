@@ -1612,7 +1612,7 @@ object a {
     )
       yield a
 }
-<<< 7.2: enumerator shoft, guard long
+<<< 7.2: enumerator short, guard long
 maxColumn = 28
 ===
 object a {

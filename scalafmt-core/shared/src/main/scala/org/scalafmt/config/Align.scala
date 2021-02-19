@@ -106,7 +106,7 @@ object Align {
   implicit lazy val encoder: ConfEncoder[Align] = generic.deriveEncoder
 
   // only for the truest vertical aligners, this setting is open for changes,
-  // please open PR addding more stuff to it if you like.
+  // please open PR adding more stuff to it if you like.
   val most: Align = more.copy(
     multiline = true,
     arrowEnumeratorGenerator = true,

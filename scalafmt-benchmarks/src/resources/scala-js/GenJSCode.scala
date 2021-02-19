@@ -1943,7 +1943,7 @@ abstract class GenJSCode extends plugins.PluginComponent
     }
 
     /** Gen jump to a label.
-     *  Most label-applys are caught upstream (while and do..while loops,
+     *  Most label-applies are caught upstream (while and do..while loops,
      *  jumps to next case of a pattern match), but some are still handled here:
      *  * Jumps to enclosing label-defs, including tail-recursive calls
      *  * Jump to the end of a pattern match
@@ -3518,7 +3518,7 @@ abstract class GenJSCode extends plugins.PluginComponent
               /* Here we have an issue with evaluation order of arg1 and arg2,
                * since the obvious translation is `arg2 in arg1`, but then
                * arg2 is evaluated before arg1. Since this is not a commonly
-               * used operator, we don't try to avoid unnessary temp vars, and
+               * used operator, we don't try to avoid unnecessary temp vars, and
                * simply always evaluate arg1 in a temp before doing the `in`.
                */
               val temp = freshLocalIdent()

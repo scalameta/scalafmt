@@ -1159,7 +1159,7 @@ class FormatOps(
       case Decision(FormatToken(previous, `lastParen`, _), _)
           if shouldNotDangle && !isSingleLineComment(previous) =>
         Seq(Split(NoSplit, 0))
-      // Indent seperators `)(` and `](` by `indentSep`
+      // Indent separators `)(` and `](` by `indentSep`
       case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
           if ownerCheck(t.meta.rightOwner) =>
         Seq(Split(Newline, 0).withIndent(indentSep, rp, ExpiresOn.After))

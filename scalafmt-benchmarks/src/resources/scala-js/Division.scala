@@ -824,7 +824,7 @@ private[math] object Division {
   /** The Montgomery modular exponentiation.
    *
    *  Implements the Montgomery modular exponentiation based in <i>The sliding
-   *  windows algorithm and the MongomeryReduction</i>.
+   *  windows algorithm and the MontgomeryReduction</i>.
    *
    *  @ar.org.fitc.ref
    *  "A. Menezes,P. van Oorschot, S. Vanstone - Handbook of Applied Cryptography"
@@ -951,14 +951,14 @@ private[math] object Division {
     val modulusLen = modulus.numberLength
     var outerCarry: Long = 0
     for (i <- 0 until modulusLen) {
-      var innnerCarry: Long = 0
+      var innerCarry: Long = 0
       val m = Multiplication.unsignedMultAddAdd(res(i), n2, 0, 0).toInt
       for (j <- 0 until modulusLen) {
-        innnerCarry = unsignedMultAddAdd(m, modulusDigits(j), res(i + j), innnerCarry.toInt)
-        res(i + j) = innnerCarry.toInt
-        innnerCarry >>>= 32
+        innerCarry = unsignedMultAddAdd(m, modulusDigits(j), res(i + j), innerCarry.toInt)
+        res(i + j) = innerCarry.toInt
+        innerCarry >>>= 32
       }
-      outerCarry += (res(i + modulusLen) & UINT_MAX) + innnerCarry
+      outerCarry += (res(i + modulusLen) & UINT_MAX) + innerCarry
       res(i + modulusLen) = outerCarry.toInt
       outerCarry >>>= 32
     }

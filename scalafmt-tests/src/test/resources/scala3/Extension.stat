@@ -75,7 +75,7 @@ extension      (a: A) { def add1      (b: Aaaaaaaaaaaaaaaaaaaaaa) = a + b; def a
 extension (a: A) {
   def add1(b: Aaaaaaaaaaaaaaaaaaaaaa) = a + b; def add2(b: A) = a + b
 }
-<<< class wrap single line - confirm consistency between extension gropus and classes
+<<< class wrap single line - confirm consistency between extension groups and classes
 class C      (a: A) { def add1      (b: Aaaaaaaaaaaaaaaaaaaaaa) = a + b; def add2(b: A) = a + b }
 >>>
 class C(a: A) {

@@ -67,11 +67,11 @@ import metaconfig.generic.Surface
   *   - if newlines.source is missing or keep:
   *     - if true, will keep existing line breaks around annotations
   *   - if newlines.source is fold:
-  *     - if true, will break before the entity being annotatated
+  *     - if true, will break before the entity being annotated
   *     - will not force break between consecutive annotations
   *   - if newlines.source is unfold:
   *     - if true, will break between consecutive annotations
-  *     - will always break before the entity being annotatated
+  *     - will always break before the entity being annotated
   *
   * @param selfAnnotationNewline See https://github.com/scalameta/scalafmt/issues/938
   *                              If true, will force a line break before a self annotation

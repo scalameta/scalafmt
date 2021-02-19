@@ -104,7 +104,7 @@ implicit def pairEncoder[A, B](implicit
   aEncoder: CsvEncoder[A],
   bEncoder: CsvEncoder[B]
 ): CsvEncoder[(A, B)]
-<<< #1362 1: single implict, long line
+<<< #1362 1: single implicit, long line
 danglingParentheses.preset = true
 align.openParenCallSite = false
 align.openParenDefnSite = false

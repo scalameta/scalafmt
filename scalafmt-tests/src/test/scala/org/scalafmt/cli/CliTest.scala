@@ -184,7 +184,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
       assert(obtained.size == sbtExpected.size)
     }
 
-    test(s"scalafmt --test tmpFile is left unformmated: $label") {
+    test(s"scalafmt --test tmpFile is left unformatted: $label") {
       val tmpFile = Files.createTempFile("prefix", ".scala")
       Files.write(tmpFile, unformatted.getBytes)
       val args = Array(
