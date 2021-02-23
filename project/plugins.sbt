@@ -4,7 +4,7 @@ resolvers ++= Seq(
   Resolver.bintrayIvyRepo("jetbrains", "sbt-plugins")
 )
 
-addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.2.16")
+addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.2.18")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.2")
 addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.5")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.10.0")
