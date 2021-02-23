@@ -455,8 +455,7 @@ object TreeOps {
     case t: Defn.Trait => (t.mods, t.name, t.tparams, t.ctor.paramss)
     case t: Defn.Enum => (t.mods, t.name, t.tparams, t.ctor.paramss)
     case t: Defn.EnumCase => (t.mods, t.name, t.tparams, t.ctor.paramss)
-    case t: Defn.ExtensionGroup =>
-      (Nil, Name.Anonymous(), t.tparams, List(t.eparam) :: t.uparams)
+    case t: Defn.ExtensionGroup => (Nil, Name.Anonymous(), t.tparams, t.paramss)
     case t: Ctor.Primary => (t.mods, t.name, Seq.empty, t.paramss)
     case t: Ctor.Secondary => (t.mods, t.name, Seq.empty, t.paramss)
   }
