@@ -3086,7 +3086,7 @@ private[optimizer] abstract class OptimizerCore(
     }
   }
 
-  /** Tries and optimizes the remainings of a pattern match as if/elses.
+  /** Tries and optimizes the remaining pattern match cases as if/elses.
    *
    *  !!! There is quite of bit of code duplication with
    *      GenJSCode.genOptimizedLabeled.

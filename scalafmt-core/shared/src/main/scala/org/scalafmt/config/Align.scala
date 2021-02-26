@@ -68,12 +68,14 @@ case class Align(
     ifWhileOpenParen: Boolean = false,
     tokenCategory: Map[String, String] = Map(),
     treeCategory: Map[String, String] = Map(
-      "Defn.Val" -> "val/var/def",
-      "Defn.Var" -> "val/var/def",
-      "Defn.Def" -> "val/var/def",
-      "Defn.Class" -> "class/object/trait",
-      "Defn.Object" -> "class/object/trait",
-      "Defn.Trait" -> "class/object/trait",
+      "Defn.Val" -> "given/val/var/def",
+      "Defn.Var" -> "given/val/var/def",
+      "Defn.Def" -> "given/val/var/def",
+      "Defn.GivenAlias" -> "given/val/var/def",
+      "Defn.Class" -> "class/object/trait/enum",
+      "Defn.Object" -> "class/object/trait/enum",
+      "Defn.Trait" -> "class/object/trait/enum",
+      "Defn.Enum" -> "class/object/trait/enum",
       "Enumerator.Generator" -> "for",
       "Enumerator.Val" -> "for"
     )
@@ -104,7 +106,7 @@ object Align {
   implicit lazy val encoder: ConfEncoder[Align] = generic.deriveEncoder
 
   // only for the truest vertical aligners, this setting is open for changes,
-  // please open PR addding more stuff to it if you like.
+  // please open PR adding more stuff to it if you like.
   val most: Align = more.copy(
     multiline = true,
     arrowEnumeratorGenerator = true,

@@ -1,0 +1,83 @@
+<<< type
+type Executable[T] =   ExecutionContext  ?=>  T
+>>>
+type Executable[T] = ExecutionContext ?=> T
+<<< type with type params
+type Parseable[T] = ImpliedInstances.StringParser[ T ] ?=> Try[ T ]
+>>>
+type Parseable[T] = ImpliedInstances.StringParser[T] ?=> Try[T]
+<<< parameter type
+def collect[T]( thunk: Emitter[ T ] ?=> Unit ): Seq[T] = {}
+>>>
+def collect[T](thunk: Emitter[T] ?=> Unit): Seq[T] = {}
+<<< context function
+def f(x: Int): ExecutionContext  ?=>  Int = {}
+>>>
+def f(x: Int): ExecutionContext ?=> Int = {}
+<<< apply with inferred argument
+g((ctx: ExecutionContext ) =>
+f(3))
+>>>
+g((ctx: ExecutionContext) => f(3))
+<<< long parameter type
+def fn(x: S  ?=>  T  ?=>  U ) = {}
+>>>
+def fn(x: S ?=> T ?=> U) = {}
+<<< multiple parameters
+def fn(x: S ?=> T, y: P ?=> Q, z: R ?=> S) = {}
+>>>
+def fn(x: S ?=> T, y: P ?=> Q, z: R ?=> S) = {}
+<<< anonymous function
+for {
+  a <- b % c.map { x ?=>
+    x * x
+  }
+} yield (a, aaa)
+>>>
+for {
+  a <- b % c.map { x ?=>
+    x * x
+  }
+} yield (a, aaa)
+<<< double args infinite loop?
+  private def withNewLocalDefs = {
+    bindings match {
+      case first :: rest =>
+        withNewLocalDef(first) { (firstLocalDef, cont1) ?=>
+          withNewLocalDefs(rest) { (restLocalDefs, cont2) ?=>
+            buildInner(firstLocalDef :: restLocalDefs, cont2)
+          } (cont1)
+        } (cont)
+
+      case Nil =>
+        buildInner(Nil, cont)
+    }
+  }
+>>>
+private def withNewLocalDefs = {
+  bindings match {
+    case first :: rest =>
+      withNewLocalDef(first) { (firstLocalDef, cont1) ?=>
+        withNewLocalDefs(rest) { (restLocalDefs, cont2) ?=>
+          buildInner(firstLocalDef :: restLocalDefs, cont2)
+        }(cont1)
+      }(cont)
+
+    case Nil =>
+      buildInner(Nil, cont)
+  }
+}
+<<< => {, #224, but with ?=>
+runner.dialect = Scala3
+===
+    foo.fold(
+        err ?=>
+        {
+            logger.warn(s"Malformed request: $err\n${req.body}")
+            BadRequest(jsonError(JsError toJson err)).fuccess
+        })
+>>>
+foo.fold(err ?=> {
+  logger.warn(s"Malformed request: $err\n${req.body}")
+  BadRequest(jsonError(JsError toJson err)).fuccess
+})

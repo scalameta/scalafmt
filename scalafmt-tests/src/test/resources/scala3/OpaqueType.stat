@@ -1,0 +1,38 @@
+
+<<< simple opaque type
+opaque   type F = X
+>>>
+opaque type F = X
+<<< long opaque type
+maxColumn = 20
+===
+opaque   type HelloIAmAnOpaqueTypeTerry = NiceToMeetYouTerry
+>>>
+opaque type HelloIAmAnOpaqueTypeTerry =
+  NiceToMeetYouTerry
+<<< opaque type bounds
+maxColumn = 15
+===
+opaque type VeryLongClassName <: AType = AB
+>>>
+opaque type VeryLongClassName
+  <: AType = AB
+<<< mixed modifiers
+private opaque   type T =   List[Int] 
+>>>
+private opaque type T = List[Int] 
+<<< rewrite modifiers default
+rewrite.rules = [SortModifiers]
+===
+opaque private    type T =   List[Int] 
+>>>
+private opaque type T = List[Int] 
+<<< rewrite modifiers
+rewrite.rules = [SortModifiers]
+rewrite.sortModifiers {
+  order = ["opaque", "private"]
+}
+===
+opaque private    type T =   List[Int] 
+>>>
+opaque private type T = List[Int] 

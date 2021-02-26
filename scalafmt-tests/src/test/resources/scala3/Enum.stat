@@ -261,3 +261,19 @@ enum Enum4[+T] {
   case C[V](s: String) extends Enum4[V]
   case D[T](s: String) extends Enum4[T]
 }
+<<< align enum extends
+align.preset = most
+===
+object Outer{
+object Alphabet extends A with B
+enum Color extends A {
+  case R,G,B
+}
+}
+>>>
+object Outer {
+  object Alphabet extends A with B
+  enum Color      extends A {
+    case R, G, B
+  }
+}

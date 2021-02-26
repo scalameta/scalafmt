@@ -1,0 +1,46 @@
+
+<<< type lambda simple
+type   Tuple   =  [  X ] =>> (X, X)
+>>>
+type Tuple = [X] =>> (X, X)
+<<< type lambda long
+maxColumn = 30
+===
+type   Tuple   =  [  TheOnlyTypeInTheTuple ] =>> (TheOnlyTypeInTheTuple, TheOnlyTypeInTheTuple)
+>>>
+type Tuple =
+  [TheOnlyTypeInTheTuple] =>> (
+      TheOnlyTypeInTheTuple,
+      TheOnlyTypeInTheTuple
+  )
+<<< type lambda parameter
+def method(param : T[[  X ] =>> (X, X)]) = ???
+>>>
+def method(param: T[[X] =>> (X, X)]) = ???
+<<< type lambda parameter long
+maxColumn = 30
+===
+def method(param : TupleType[[  TheOnlyTypeInTheTuple ] =>> (TheOnlyTypeInTheTuple, TheOnlyTypeInTheTuple)]) = ???
+>>>
+def method(
+    param: TupleType[
+      [TheOnlyTypeInTheTuple] =>> (
+          TheOnlyTypeInTheTuple,
+          TheOnlyTypeInTheTuple
+      )
+    ]
+) = ???
+<<< type lambda multi
+type   Tuple   =  [  X ] =>> [Y] =>> (X, Y)
+>>>
+type Tuple = [X] =>> [Y] =>> (X, Y)
+<<< type lambda long
+maxColumn = 20
+===
+type   Tuple   =  [  FirstTypeInTheTuple ] =>> [SecondTypeInTheTuple] =>> (FirstTypeInTheTuple, SecondTypeInTheTuple)
+>>>
+type Tuple =
+  [FirstTypeInTheTuple] =>> [SecondTypeInTheTuple] =>> (
+      FirstTypeInTheTuple,
+      SecondTypeInTheTuple
+  )

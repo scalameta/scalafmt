@@ -1,0 +1,167 @@
+<<< class
+class A extends XX,XY,XZ
+>>>
+class A extends XX, XY, XZ
+<<< class long
+maxColumn = 40
+===
+class A extends AVeryLongName1, AVeryLongName2, AVeryLongName3
+>>>
+class A
+    extends AVeryLongName1,
+      AVeryLongName2,
+      AVeryLongName3
+<<< class long params
+class A(abc: Int) extends AVeryLongName1(abc), AVeryLongName2(abc), AVeryLongName3(abc)
+>>>
+class A(abc: Int)
+    extends AVeryLongName1(abc),
+      AVeryLongName2(abc),
+      AVeryLongName3(abc)
+<<< parent constructors `never`
+binPack.parentConstructors = Never
+maxColumn = 40
+===
+trait A(a : Int, b : Int) extends Alpha, Beta, Gamma, Delta, Epsilon {
+  def a = ???
+}
+>>>
+trait A(a: Int, b: Int)
+    extends Alpha,
+      Beta,
+      Gamma,
+      Delta,
+      Epsilon {
+  def a = ???
+}
+<<< parent constructors `always`
+binPack.parentConstructors = Always
+maxColumn = 30
+===
+trait A(a : Int, b : Int) extends Alpha, Beta, Gamma, Delta, Epsilon {
+  def a = ???
+}
+>>>
+trait A(a: Int, b: Int)
+    extends Alpha, Beta,
+      Gamma, Delta, Epsilon {
+  def a = ???
+}
+<<< parent constructors `oneline`
+binPack.parentConstructors = Oneline
+maxColumn = 40
+===
+trait A extends Alpha, Beta, Gamma, Delta {
+  def a = ???
+}
+>>>
+trait A
+    extends Alpha, Beta, Gamma, Delta {
+  def a = ???
+}
+<<< parent constructors `onelineIfPrimaryOneline`
+binPack.parentConstructors = OnelineIfPrimaryOneline
+maxColumn = 40
+===
+trait A(alphaParam : Int, betaParam : Int) extends Alpha, Beta, Gamma, Delta {
+  def a = ???
+}
+>>>
+trait A(alphaParam: Int, betaParam: Int)
+    extends Alpha, Beta, Gamma, Delta {
+  def a = ???
+}
+<<< enum case with constructor and parent constructors with and `never`
+binPack.parentConstructors = Never
+maxColumn = 30
+===
+enum Enum2(val i: Int) {
+  case A(val s: String) extends Enum2(1), A
+}
+>>>
+enum Enum2(val i: Int) {
+  case A(val s: String)
+      extends Enum2(1),
+      A
+}
+<<< enum case with constructor and parent constructors `always`
+binPack.parentConstructors = Always
+maxColumn = 27
+===
+enum Enum2(val i: Int) {
+  case A(val s: String) extends Enum2(1), X, Y
+}
+>>>
+enum Enum2(val i: Int) {
+  case A(val s: String)
+      extends Enum2(1), X,
+      Y
+}
+<<< enum case with constructor and parent constructors `oneline`
+binPack.parentConstructors = Oneline
+maxColumn = 45
+===
+enum Enum2(val a: String, val b: String) {
+  case A(val s: String) extends Enum2("a", "b"), X, Y
+
+  case B(val s1: String, val s2: String) extends Enum2("aaaaaaaa", "bbbbbbbb"), X, Y
+}
+>>>
+enum Enum2(val a: String, val b: String) {
+  case A(val s: String)
+      extends Enum2("a", "b"), X, Y
+
+  case B(val s1: String, val s2: String)
+      extends Enum2("aaaaaaaa", "bbbbbbbb"),
+      X,
+      Y
+}
+<<< enum case with constructor and parent constructors `onelineIfPrimaryOneline`
+binPack.parentConstructors = OnelineIfPrimaryOneline
+maxColumn = 45
+===
+enum Enum2(val a: String, val b: String) {
+  case A(val s: String) extends Enum2("a", "b"), X, Y
+
+  case B(val s1: String, val s2: String, val s3: String) extends Enum2("aaaaaaaa", "bbbbbbbb"), X, Y
+}
+>>>
+enum Enum2(val a: String, val b: String) {
+  case A(val s: String)
+      extends Enum2("a", "b"), X, Y
+
+  case B(
+      val s1: String,
+      val s2: String,
+      val s3: String
+  ) extends Enum2("aaaaaaaa", "bbbbbbbb"),
+      X,
+      Y
+}
+<<< #143
+continuationIndent.commaSiteRelativeToExtends = 4
+continuationIndent.withSiteRelativeToExtends = 2
+maxColumn = 30
+===
+class A extends AVeryLongName1, AVeryLongName2, AVeryLongName3 { self: A with B with C with D with E =>
+}
+>>>
+class A
+    extends AVeryLongName1,
+        AVeryLongName2,
+        AVeryLongName3 {
+  self: A
+    with B
+    with C
+    with D
+    with E =>
+}
+<<< comment between inits
+maxColumn = 30
+===
+class A extends AVeryLongName1 /* comment */ ,AVeryLongName2, AVeryLongName3
+>>>
+class A
+    extends AVeryLongName1 /* comment */,
+      AVeryLongName2,
+      AVeryLongName3

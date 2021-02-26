@@ -32,7 +32,7 @@ object AlignToken {
 
   val default = Seq(
     caseArrow,
-    AlignToken("extends", "Defn.(Class|Trait|Object)"),
+    AlignToken("extends", "Defn.(Class|Trait|Object|Enum)"),
     AlignToken("//", ".*"),
     AlignToken("{", "Template"),
     AlignToken("}", "Template"),
@@ -44,6 +44,6 @@ object AlignToken {
     AlignToken("←", "Enumerator.Generator"),
     AlignToken("->", applyInfix),
     AlignToken("→", applyInfix),
-    AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|Def|Type))")
+    AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|GivenAlias|Def|Type))")
   )
 }

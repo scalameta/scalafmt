@@ -116,6 +116,7 @@ private def scalaJSStageSettings = Seq(
     usesScalaJSLinkerTag in key := {
       Tags
     },
+
     // Prevent this linker from being used concurrently
     concurrentRestrictions in Global +=
       Tags.limit((usesScalaJSLinkerTag in key).value, 1)

@@ -33,9 +33,9 @@ object Error {
           "Unable to format file due to bug in scalafmt"
         )
       )
-  case class CantFindDefnToken[T: ClassTag](tree: Tree)
+  case class CantFindDefnToken(what: String, tree: Tree)
       extends Error(
-        s"Expected keyword of type ${classTag[T].getClass} in tree $tree"
+        s"Expected keyword of type $what in tree $tree"
       )
 
   case class CaseMissingArrow(tree: Case)

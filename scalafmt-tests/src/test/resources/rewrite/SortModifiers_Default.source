@@ -95,3 +95,17 @@ final private[test] object Tests {
 open implicit class Test()
 >>>
 implicit open class Test()
+<<< transparent inline method
+transparent inline def choose(b: Boolean): A = {
+  if (b) { new A }
+  else { new B }
+}
+>>>
+transparent inline def choose(b: Boolean): A = {
+  if (b) { new A }
+  else { new B }
+}
+<<< infix method
+override infix protected def choose(b: Boolean): A = new A
+>>>
+override protected infix def choose(b: Boolean): A = new A

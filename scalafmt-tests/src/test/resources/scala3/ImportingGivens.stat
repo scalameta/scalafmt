@@ -1,0 +1,55 @@
+<<< wildcard import
+object B {
+  import A._
+  import A.given}
+>>>
+object B {
+  import A._
+  import A.given
+}
+<<< merged import clauses
+object B {
+  import A.{given, _}
+}
+>>>
+object B {
+  import A.{given, _}
+}
+<<< import given of type
+maxColumn = 20
+===
+import A.{given T1, given T2, given T3}
+>>>
+import A.{
+  given T1,
+  given T2,
+  given T3
+}
+<<< import given of type doesn't break
+maxColumn = 10
+===
+import A.{given T1, given T2, given T3}
+>>>
+import A.{
+  given T1,
+  given T2,
+  given T3
+}
+<<< with wildcard argument
+maxColumn = 20
+===
+import Instances.{given Ordering[?], given ExecutionContext}
+>>>
+import Instances.{
+  given Ordering[?],
+  given ExecutionContext
+}
+<<< by-type mixed with by-name
+maxColumn = 20
+===
+import Instances.{im, given Ordering[?]}
+>>>
+import Instances.{
+  im,
+  given Ordering[?]
+}

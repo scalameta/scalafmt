@@ -1,0 +1,260 @@
+
+<<< given with body
+maxColumn = 40
+===
+object Order {
+given intOrd: Ord[Int] with {def compare(x: Int, y: Int) = { if (x < y) -1 else if (x > y) +1 else 0 }}
+}
+>>>
+object Order {
+  given intOrd: Ord[Int] with {
+    def compare(x: Int, y: Int) = {
+      if (x < y) -1
+      else if (x > y) +1
+      else 0
+    }
+  }
+}
+<<< given with body and multi parents
+maxColumn = 30
+===
+given intOrd: Ord[Int] with Eq[T] with Sort[T] with {def compare(x: Int, y: Int) = {if (x < y) -1 else if (x > y) +1 else 0 }}
+>>>
+given intOrd: Ord[Int]
+  with Eq[T]
+  with Sort[T]
+  with {
+  def compare(
+      x: Int,
+      y: Int
+  ) = {
+    if (x < y) -1
+    else if (x > y) +1
+    else 0
+  }
+}
+<<< given with body and multi parents single line
+given intOrd: Ord[Int] with Eq[T] with Sort[T] with {}
+>>>
+given intOrd: Ord[Int] with Eq[T] with Sort[T] with {}
+<<< using and type param
+maxColumn = 30
+===
+given listOrd[T](using ord: Ord[T]): Alpha with Beta with {
+  def a = ???
+}
+>>>
+given listOrd[T](using
+    ord: Ord[T]
+): Alpha with Beta with {
+  def a = ???
+}
+<<< anonymous given
+maxColumn = 30
+===
+given [T](using ord: Ord[T]): Alpha with Beta with {
+  def a = ???
+}
+>>>
+given [T](using
+    ord: Ord[T]
+): Alpha with Beta with {
+  def a = ???
+}
+<<< anonymous given multi parents
+maxColumn = 30
+===
+given [T](using ord: Ord[T]): Alpha with Beta with Gamma with Epsilon with {
+  def a = ???
+}
+>>>
+given [T](using
+    ord: Ord[T]
+): Alpha
+  with Beta
+  with Gamma
+  with Epsilon
+  with {
+  def a = ???
+}
+<<< abstract given
+object Order {
+given listOrd  [T](using  ord: Ord[T])  : Eq[T]
+}
+>>>
+object Order {
+  given listOrd[T](using ord: Ord[T]): Eq[T]
+}
+<<< abstract given long
+maxColumn = 25
+===
+given listOrd  [T](using  ord: Ord[T])  : Eq[T]
+>>>
+given listOrd[T](using
+    ord: Ord[T]
+): Eq[T]
+<<< alias given
+object O { 
+  given   global: ExecutionContext =   ForkJoinPool()}
+>>>
+object O {
+  given global: ExecutionContext = ForkJoinPool()
+}
+<<< alias given long
+maxColumn = 35
+===
+given global: ExecutionContext = ForkJoinPool()
+>>>
+given global: ExecutionContext =
+  ForkJoinPool()
+<<< alias abstract given
+given   ExecutionContext[  NoActualParameterIsNormallyHere] =   ForkJoinPool()
+>>>
+given ExecutionContext[NoActualParameterIsNormallyHere] = ForkJoinPool()
+<<< alias abstract given long
+maxColumn = 25
+===
+given   ExecutionContext[  NoActualParameterIsNormallyHere] =   ForkJoinPool()
+>>>
+given ExecutionContext[
+  NoActualParameterIsNormallyHere
+] = ForkJoinPool()
+<<< parent constructors `never`
+binPack.parentConstructors = Never
+maxColumn = 40
+===
+given a:A with Alpha with Beta with Gamma with Delta with Epsilon with {
+  def a = ???
+}
+>>>
+given a: A
+  with Alpha
+  with Beta
+  with Gamma
+  with Delta
+  with Epsilon
+  with {
+  def a = ???
+}
+<<< parent constructors `always`
+binPack.parentConstructors = Always
+maxColumn = 30
+===
+given a:A with Alpha with Beta with Gamma with Delta with Epsilon with {
+  def a = ???
+}
+>>>
+given a: A
+  with Alpha with Beta
+  with Gamma with Delta
+  with Epsilon with {
+  def a = ???
+}
+<<< parent constructors `oneline`
+maxColumn = 80
+===
+given a:Anonymous with Alpha with Beta with Gamma with {
+    def a = ???
+}
+>>>
+given a: Anonymous with Alpha with Beta with Gamma with {
+  def a = ???
+}
+<<< newlines from parent constructors `onelineIfPrimaryOneline`
+binPack.parentConstructors = OnelineIfPrimaryOneline
+maxColumn = 20
+===
+given listOrd[T](using ord: Ord[T]): Alpha[HelloIAmAVeryLongTypeVariableThatExists] with Beta with Gamma with  {
+  def a = ???
+}
+>>>
+given listOrd[T](
+    using
+    ord: Ord[T]
+): Alpha[
+  HelloIAmAVeryLongTypeVariableThatExists
+] with Beta
+  with Gamma
+  with {
+  def a = ???
+}
+<<< non split parent constructors `onelineIfPrimaryOneline` 
+binPack.parentConstructors = OnelineIfPrimaryOneline
+maxColumn = 40
+===
+given listOrd[T](using ord: Ord[T]): Alpha[HelloIAmAVeryLongTypeVariableThatExists] with Beta with Gamma with  {
+  def a = ???
+}
+>>>
+given listOrd[T](using
+    ord: Ord[T]
+): Alpha[
+  HelloIAmAVeryLongTypeVariableThatExists
+] with Beta with Gamma with {
+  def a = ???
+}
+<<< redundant parens
+rewrite.rules = [RedundantParens]
+===
+given xx: Int = (22)
+>>>
+given xx: Int = 22
+<<< redundant braces
+rewrite.rules = [RedundantBraces]
+===
+given xx: Int = { 22}
+>>>
+given xx: Int = 22
+<<< dangling parens
+danglingParentheses.defnSite = false
+maxColumn = 30
+===
+given xx(using helloParameter: Int, otherParameter: String): Int = ???
+>>>
+given xx(using
+    helloParameter: Int,
+    otherParameter: String)
+    : Int = ???
+<<< dangling parens exclude
+continuationIndent.defnSite = 5
+danglingParentheses.defnSite = true
+danglingParentheses.exclude = [given]
+maxColumn = 30
+===
+given xx(using helloParameter: Int, otherParameter: String): Int = ???
+>>>
+given xx(using
+     helloParameter: Int,
+     otherParameter: String)
+     : Int = ???
+<<< rewrite modifiers default
+rewrite.rules = [SortModifiers]
+===
+inline transparent    given T =   givenT
+>>>
+transparent inline given T = givenT
+<<< rewrite modifiers
+rewrite.rules = [SortModifiers]
+rewrite.sortModifiers {
+  order = ["inline", "transparent"]
+}
+===
+inline transparent    given T =   givenT
+>>>
+inline transparent given T = givenT
+<<< align with def/val/var/given
+align.preset=more
+===
+object A {
+  def name = column[String]("name")
+def status = column[Int]("status")
+val x = 1
+given xx: Int = 22
+}
+>>>
+object A {
+  def name      = column[String]("name")
+  def status    = column[Int]("status")
+  val x         = 1
+  given xx: Int = 22
+}

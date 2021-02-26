@@ -64,7 +64,7 @@ abstract class Indent {
   * eagerly evaluate the indentation for state columns, which may be different
   * depending on the formatting we choose.
   *
-  * @param length lengt of indentation, can be negative (in rare cases, with
+  * @param length length of indentation, can be negative (in rare cases, with
   *               deeply nested terms with no newlines).
   * @param expire Until which token does this indentation stay?
   * @param expiresAt If Right, then expires when [[expire]] is curr.right,

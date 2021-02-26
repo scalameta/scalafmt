@@ -32,7 +32,8 @@ object TreeSyntacticGroup {
       case _: Term.Match => g.Term.Expr1
       case _: Term.Try => g.Term.Expr1
       case _: Term.TryWithHandler => g.Term.Expr1
-      case _: Term.Function => g.Term.Expr
+      case _: Term.FunctionTerm => g.Term.Expr
+      case _: Term.PolyFunction => g.Term.Expr
       case _: Term.PartialFunction => g.Term.SimpleExpr
       case _: Term.While => g.Term.Expr1
       case _: Term.Do => g.Term.Expr1
@@ -45,12 +46,14 @@ object TreeSyntacticGroup {
       case _: Term.Param => g.Path // ???
       // Type
       case _: Type.Name => g.Path
+      case _: Type.TypedParam => g.Type.SimpleTyp
       case _: Type.Select => g.Type.SimpleTyp
       case _: Type.Project => g.Type.SimpleTyp
       case _: Type.Singleton => g.Type.SimpleTyp
       case _: Type.Apply => g.Type.SimpleTyp
       case t: Type.ApplyInfix => g.Type.InfixTyp(t.op.value)
-      case _: Type.Function => g.Type.Typ
+      case _: Type.FunctionType => g.Type.Typ
+      case _: Type.PolyFunction => g.Type.Typ
       case _: Type.Tuple => g.Type.SimpleTyp
       case _: Type.With => g.Type.WithTyp
       case _: Type.And => g.Type.InfixTyp("&")
@@ -66,6 +69,7 @@ object TreeSyntacticGroup {
       case _: Type.ByName => g.Type.ParamTyp
       case _: Type.Var => g.Type.ParamTyp
       case _: Type.Param => g.Path // ???
+      case _: Type.Match => g.Type.Typ
       // Pat
       case _: Pat.Var => g.Pat.SimplePattern
       case _: Pat.Wildcard => g.Pat.SimplePattern

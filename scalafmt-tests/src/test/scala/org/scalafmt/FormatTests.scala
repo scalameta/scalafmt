@@ -74,9 +74,9 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
       )
       .get
     debug2.printTest()
-    assertNoDiff(formattedAgain, obtained, "Idempotency violated")
+    assertEquals(formattedAgain, obtained, "Idempotency violated")
     if (!onlyManual) {
-      assertNoDiff(obtained, t.expected)
+      assertEquals(obtained, t.expected)
     }
   }
 

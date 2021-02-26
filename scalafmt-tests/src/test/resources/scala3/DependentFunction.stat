@@ -1,0 +1,61 @@
+
+<<< simple dependent function
+val extractor:   (e: Entry) => e.Key =    extractKey
+>>>
+val extractor: (e: Entry) => e.Key = extractKey
+<<< simple dependent function term
+type T = 
+ (e: Entry) 
+=> e.Key
+>>>
+type T =
+  (e: Entry) => e.Key
+<<< long dependent function
+maxColumn = 30
+===
+val extractor: (entryWithALongName: EntryWithALongName) => e.KeyOfALongName = extractKey
+>>>
+val extractor: (
+    entryWithALongName: EntryWithALongName
+) => e.KeyOfALongName =
+  extractKey
+<<< dependent function multiple params
+maxColumn = 30
+===
+val extractor: (entryWithALongName1: EntryWithALongName1, entryWithALongName2: EntryWithALongName2) => e.KeyOfALongName = extractKey
+>>>
+val extractor: (
+    entryWithALongName1: EntryWithALongName1,
+    entryWithALongName2: EntryWithALongName2
+) => e.KeyOfALongName =
+  extractKey
+<<< dependent function term multiple params
+maxColumn = 30
+===
+type Type[T <: LongName] = (entryWithALongName1: EntryWithALongName1, entryWithALongName2: EntryWithALongName2[? <: T]) => e.KeyOfALongName
+>>>
+type Type[T <: LongName] = (
+    entryWithALongName1: EntryWithALongName1,
+    entryWithALongName2: EntryWithALongName2[
+      ? <: T
+    ]
+) => e.KeyOfALongName
+<<< simple context dependent function
+val extractor:   (e: Entry) ?=> e.Key =    extractKey
+>>>
+val extractor: (e: Entry) ?=> e.Key = extractKey
+<<< context dependent function term
+type T = 
+ (e: Entry)    ?=> e.Key
+>>>
+type T =
+  (e: Entry) ?=> e.Key
+<<< long context dependent function
+maxColumn = 30
+===
+val extractor: (entryWithALongName: EntryWithALongName) ?=> e.KeyOfALongName = extractKey
+>>>
+val extractor: (
+    entryWithALongName: EntryWithALongName
+) ?=> e.KeyOfALongName =
+  extractKey

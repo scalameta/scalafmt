@@ -134,7 +134,7 @@ trait Bar(param1: A,
     with X
     with Y
     with Z
-<<< trait params - arity treshold reached
+<<< trait params - arity threshold reached
 maxColumn = 200
 verticalMultiline.atDefnSite = true
 verticalMultiline.arityThreshold = 2
@@ -144,7 +144,7 @@ trait Bar(x: String, y: String)
 trait Bar(
     x: String,
     y: String)
-<<< trait params - arity treshold not reached
+<<< trait params - arity threshold not reached
 maxColumn = 200
 verticalMultiline.atDefnSite = true
 verticalMultiline.arityThreshold = 3
@@ -152,7 +152,7 @@ verticalMultiline.arityThreshold = 3
 trait Bar(x: String, y: String)
 >>>
 trait Bar(x: String, y: String)
-<<< trait params mixed - arity treshold reached
+<<< trait params mixed - arity threshold reached
 maxColumn = 200
 verticalMultiline.atDefnSite = true
 verticalMultiline.arityThreshold = 2

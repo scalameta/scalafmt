@@ -33,7 +33,9 @@ import scala.meta.{
   Template,
   Term,
   Tree,
-  Type
+  Type,
+  TypeCase,
+  CaseTree
 }
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
@@ -65,10 +67,11 @@ class FormatOps(
   import TokenOps._
   import TreeOps._
   implicit val dialect = initStyle.runner.dialect
+  def isScala3Dialect = dialect == ScalafmtRunner.Dialect.scala3
   private val ownersMap = getOwners(tree)
   val tokens: FormatTokens = FormatTokens(tree.tokens, owners)
   private[internal] val soft = new SoftKeywordClasses(dialect)
-  private val statementStarts = getStatementStarts(tree)
+  private val statementStarts = getStatementStarts(tree, soft)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   private val matchingParentheses: Map[TokenHash, Token] =
     getMatchingParentheses(tree.tokens)
@@ -404,10 +407,6 @@ class FormatOps(
     }
   }
 
-  def templateCurly(owner: Tree): Token = {
-    defnTemplate(owner).flatMap(templateCurly).getOrElse(owner.tokens.last)
-  }
-
   def templateCurly(template: Template): Option[Token] = {
     template.tokens.find(x => x.is[T.LeftBrace] && owners(x) == template)
   }
@@ -528,7 +527,7 @@ class FormatOps(
         }
         child.parent.collect {
           case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
-          case fun: Term.Function if isBlockFunction(fun) => true
+          case fun: Term.FunctionTerm if isBlockFunction(fun) => true
           case t: Case => t.pat eq child
         }
       }
@@ -814,7 +813,7 @@ class FormatOps(
       case _ => false
     }
 
-  def functionExpire(function: Term.Function): (Token, ExpiresOn) = {
+  def functionExpire(function: Term.FunctionTerm): (Token, ExpiresOn) = {
     def dropWS(rtoks: Seq[Token]): Seq[Token] =
       rtoks.dropWhile(_.is[Whitespace])
     def orElse(rtoks: Seq[Token]) = {
@@ -941,6 +940,37 @@ class FormatOps(
     nonWhitespaceOffset(right) - nonWhitespaceOffset(left)
   }
 
+  def typeTemplateSplits(
+      template: Template,
+      indent: Int
+  ): Seq[Split] = {
+    val hasSelfAnnotation = template.self.tokens.nonEmpty
+    val expire = (template.parent match {
+      case Some(_: Defn.Given) =>
+        findLast(template.tokens)(x => x.is[T.KwWith] && owners(x) == template)
+      case _ => templateCurly(template)
+    }).getOrElse(template.tokens.last)
+    val policy =
+      if (hasSelfAnnotation) NoPolicy
+      else
+        Policy.after(expire) {
+          // Force template to be multiline.
+          case d @ Decision(
+                t @ FormatToken(_: T.LeftBrace, right, _),
+                _
+              )
+              if !right.is[T.RightBrace] && // corner case, body is {}
+                childOf(template, t.meta.leftOwner) =>
+            d.forceNewline
+        }
+    Seq(
+      Split(Space, 0).withIndent(Num(indent), expire, ExpiresOn.After),
+      Split(Newline, 1)
+        .withPolicy(policy)
+        .withIndent(Num(indent), expire, ExpiresOn.After)
+    )
+  }
+
   def ctorWithChain(
       ownerSet: Set[Tree],
       lastToken: Token
@@ -948,9 +978,12 @@ class FormatOps(
     if (style.binPack.parentConstructors eq BinPack.ParentCtors.Always) NoPolicy
     else if (ownerSet.isEmpty) NoPolicy
     else
-      Policy.before(lastToken) {
+      Policy.after(lastToken) {
         case d @ Decision(t @ FormatToken(_, _: T.KwWith, _), _)
             if ownerSet.contains(t.meta.rightOwner) =>
+          d.onlyNewlinesWithoutFallback
+        case d @ Decision(t @ FormatToken(T.Comma(), _, _), _)
+            if ownerSet.contains(t.meta.leftOwner) =>
           d.onlyNewlinesWithoutFallback
       }
 
@@ -1126,7 +1159,7 @@ class FormatOps(
       case Decision(FormatToken(previous, `lastParen`, _), _)
           if shouldNotDangle && !isSingleLineComment(previous) =>
         Seq(Split(NoSplit, 0))
-      // Indent seperators `)(` and `](` by `indentSep`
+      // Indent separators `)(` and `](` by `indentSep`
       case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
           if ownerCheck(t.meta.rightOwner) =>
         Seq(Split(Newline, 0).withIndent(indentSep, rp, ExpiresOn.After))
@@ -1246,17 +1279,17 @@ class FormatOps(
 
   def getLambdaAtSingleArgCallSite(
       ft: FormatToken
-  )(implicit style: ScalafmtConfig): Option[Term.Function] =
+  )(implicit style: ScalafmtConfig): Option[Term.FunctionTerm] =
     ft.meta.leftOwner match {
-      case Term.Apply(_, List(fun: Term.Function)) => Some(fun)
-      case fun: Term.Function if fun.parent.exists({
+      case Term.Apply(_, List(fun: Term.FunctionTerm)) => Some(fun)
+      case fun: Term.FunctionTerm if fun.parent.exists({
             case Term.ApplyInfix(_, _, _, List(`fun`)) => true
             case _ => false
           }) =>
         Some(fun)
       case t: Init =>
-        findArgsFor(ft.left, t.argss).collect { case List(f: Term.Function) =>
-          f
+        findArgsFor(ft.left, t.argss).collect {
+          case List(f: Term.FunctionTerm) => f
         }
       case _ => None
     }
@@ -1268,7 +1301,7 @@ class FormatOps(
     TokenOps.findArgsFor(token, argss, matchingParentheses)
 
   // look for arrow before body, if any, else after params
-  def getFuncArrow(term: Term.Function): Option[FormatToken] =
+  def getFuncArrow(term: Term.FunctionTerm): Option[FormatToken] =
     term.body.tokens.headOption
       .map(x => prevNonComment(tokens(x, -1)))
       .orElse {
@@ -1292,6 +1325,10 @@ class FormatOps(
       if (maybeArrow.left.is[T.RightArrow]) maybeArrow
       else tokens(nextNonComment(maybeArrow), 1)
     }(x => prevNonComment(tokens(x, -1)))
+
+  // look for arrow before body, if any, else after cond/pat
+  def getCaseArrow(term: TypeCase): FormatToken =
+    tokens(nextNonComment(tokens(term.pat.tokens.last)), 1)
 
   def getApplyArgs(
       ft: FormatToken,
@@ -1628,7 +1665,8 @@ class FormatOps(
         case _: Term.Try | _: Term.TryWithHandler =>
           if (hasStateColumn) getSplits(getSpaceSplit(1), false)
           else getSlbSplits()
-        case _: Term.Block | _: Term.Match | _: Term.NewAnonymous =>
+        case _: Term.Block | _: Term.Match | _: Type.Match |
+            _: Term.NewAnonymous =>
           if (!hasMatching(blast)) getSlbSplits()
           else getSplits(getSpaceSplit(1), true)
         case Term.ForYield(_, b) =>
@@ -1767,7 +1805,7 @@ class FormatOps(
   }
 
   // Redundant () delims around case statements
-  def isCaseBodyEnclosedAsBlock(ft: FormatToken, caseStat: Case)(implicit
+  def isCaseBodyEnclosedAsBlock(ft: FormatToken, caseStat: CaseTree)(implicit
       style: ScalafmtConfig
   ): Boolean = {
     val body = caseStat.body

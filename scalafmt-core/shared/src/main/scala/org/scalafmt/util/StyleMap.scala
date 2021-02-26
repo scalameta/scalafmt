@@ -17,6 +17,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
 import org.scalafmt.util.TokenOps.TokenHash
+import org.scalameta.FileLine
 import org.scalameta.logger
 
 class StyleMap(
@@ -34,21 +35,29 @@ class StyleMap(
     var empty = true
     val map = Map.newBuilder[TokenHash, ScalafmtConfig]
     val disableBinPack = mutable.Set.empty[Token]
+    def warn(err: String)(implicit fileLine: FileLine): Unit = logger.elem(err)
     tokens.arr.foreach { tok =>
       tok.left match {
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
           Config.fromHoconString(c, Some("scalafmt"), init) match {
             case Configured.Ok(style) =>
+              if (init.rewrite ne style.rewrite)
+                warn("May not override rewrite settings")
+              else if (
+                init.trailingCommas != style.trailingCommas ||
+                init.runner.dialect.allowTrailingCommas !=
+                  style.runner.dialect.allowTrailingCommas
+              )
+                warn("May not override rewrite settings (trailingCommas)")
               empty = false
               curr = style
-            case Configured.NotOk(
-                  e
-                ) => // TODO(olafur) report error via callback
+            case Configured.NotOk(e) =>
+              // TODO(olafur) report error via callback
               logger.elem(e)
           }
         case open @ LeftParen()
-            if init.binPack.literalArgumentLists &&
-              opensLiteralArgumentList(tok) =>
+            if curr.binPack.literalArgumentLists &&
+              opensLiteralArgumentList(tok)(curr) =>
           forcedBinPack += owners(hash(open))
           empty = false
           curr = setBinPack(curr, callSite = true)
@@ -73,7 +82,9 @@ class StyleMap(
     )
 
   @tailrec
-  private def isBasicLiteral(tree: Tree): Boolean =
+  private def isBasicLiteral(
+      tree: Tree
+  )(implicit style: ScalafmtConfig): Boolean =
     tree match {
       case lit: Lit =>
         val strName = tree match {
@@ -86,7 +97,7 @@ class StyleMap(
         }
         literalR.matches(strName)
       case x: Name => literalR.matches(x.productPrefix)
-      case _ if !init.binPack.literalsIncludeSimpleExpr => false
+      case _ if !style.binPack.literalsIncludeSimpleExpr => false
       case t: Term.Select => isBasicLiteral(t.qual)
       case t: Term.Assign => isBasicLiteral(t.rhs)
       case _ =>
@@ -98,9 +109,9 @@ class StyleMap(
     }
 
   @tailrec
-  private def isLiteral(tree: Tree): Boolean =
+  private def isLiteral(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
     isBasicLiteral(tree) ||
-      init.binPack.literalsIncludeSimpleExpr && (tree match {
+      style.binPack.literalsIncludeSimpleExpr && (tree match {
         case t: Term.Assign => isLiteral(t.rhs)
         case t: Term.Apply =>
           isBasicLiteral(t.fun) && (t.args match {
@@ -116,13 +127,15 @@ class StyleMap(
           }
       })
 
-  def opensLiteralArgumentList(ft: FormatToken): Boolean =
+  def opensLiteralArgumentList(
+      ft: FormatToken
+  )(implicit style: ScalafmtConfig): Boolean =
     ft.meta.leftOwner match {
       case TreeOps.SplitCallIntoParts(_, eitherArgs) =>
         eitherArgs
           .fold(Some(_), TokenOps.findArgsFor(ft.left, _, matching))
           .exists { args =>
-            args.length > init.binPack.literalsMinArgCount &&
+            args.length > style.binPack.literalsMinArgCount &&
             args.forall(isLiteral)
           }
       case _ => false

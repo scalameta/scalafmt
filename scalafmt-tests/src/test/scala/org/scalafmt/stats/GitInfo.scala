@@ -2,7 +2,7 @@ package org.scalafmt.stats
 
 import scala.util.Try
 
-// Name and email is anyways registered in the git log.
+// Name and email is registered anyway in the git log.
 
 case class GitInfo(name: String, email: String, branch: String, commit: String)
 

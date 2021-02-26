@@ -182,6 +182,27 @@ class A(
 }
 ```
 
+### `continuationIndent.caseSite`
+
+> Since v3.0.0.
+
+Applies indentation to case values before arrow.
+
+```scala mdoc:defaults
+continuationIndent.caseSite
+```
+
+```scala mdoc:scalafmt
+maxColumn = 20
+continuationIndent.caseSite = 5
+---
+x match {
+  case _: Aaaaaa |
+      _: Bbbbbb |
+      _: Cccccc =>
+}
+```
+
 ### `continuationIndent.extendSite`
 
 ```scala mdoc:defaults
@@ -196,6 +217,28 @@ continuationIndent.withSiteRelativeToExtends = 2
 maxColumn = 30
 ---
 trait Foo extends A with B with C with D with E {
+  def foo: Boolean = true
+}
+```
+
+### `continuationIndent.commaSiteRelativeToExtends`
+
+> Since v3.0.0
+
+Added to support Scala 3, which allows to specify multiple parents with a comma.
+
+```scala mdoc:defaults
+continuationIndent.extendSite
+continuationIndent.commaSiteRelativeToExtends
+```
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+continuationIndent.extendSite = 4
+continuationIndent.commaSiteRelativeToExtends = 4
+maxColumn = 20
+---
+trait Foo extends A, B, C, D, E {
   def foo: Boolean = true
 }
 ```
@@ -765,7 +808,7 @@ if (something_else) {
 
 When the appropriate `danglingParentheses` flag (e.g., `defnSite`) has been set,
 this parameter can be used to limit contexts where dangling is applied
-(currently, `class`, `trait` and `def` are supported).
+(currently, `class`, `trait`, `enum`, `extension` and `def` are supported).
 
 ```scala mdoc:defaults
 danglingParentheses.exclude
@@ -2380,6 +2423,30 @@ spaces.inImportCurlyBraces
 spaces.inImportCurlyBraces=true
 ---
 import a.b.{c, d}
+```
+
+### `spaces.inInterpolatedStringCurlyBraces`
+
+> Since v3.0.0.
+
+```scala mdoc:defaults
+spaces.inInterpolatedStringCurlyBraces
+```
+
+```scala mdoc:scalafmt
+spaces.inInterpolatedStringCurlyBraces = true
+---
+s"Hello ${the} world!"
+s"Hello ${ th.e} world!"
+s"Hello ${the() } world!"
+```
+
+```scala mdoc:scalafmt
+spaces.inInterpolatedStringCurlyBraces = false
+---
+s"Hello ${ oneHundred }% world!"
+s"Hello ${ th.e} world!"
+s"Hello ${the() } world!"
 ```
 
 ### `spaces.inParentheses`

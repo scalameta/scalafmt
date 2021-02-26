@@ -174,7 +174,7 @@ See https://scalameta.org/scalafmt/docs/configuration.html#fileoverride
 
 ### Infix formatting
 
-Formatting line breaks around infix expressions turned out to be a difficult problem, and a couple of years ago `scalafmt` gave up on that and let the user choose where to break. Here, we are definining a couple of parameters to try and take that control back, by adding newlines _after_ an infix operator (as the only universally safe place; there are _some_ cases when a break can happen before an infix operator, but those are rare, and this logic doesn't attempt to discern them).
+Formatting line breaks around infix expressions turned out to be a difficult problem, and a couple of years ago `scalafmt` gave up on that and let the user choose where to break. Here, we are defining a couple of parameters to try and take that control back, by adding newlines _after_ an infix operator (as the only universally safe place; there are _some_ cases when a break can happen before an infix operator, but those are rare, and this logic doesn't attempt to discern them).
 
 See https://scalameta.org/scalafmt/docs/configuration.html#newlinesafterinfix
 
@@ -499,7 +499,7 @@ The following are changes in default behaviour:
 - Update scalatags to 0.8.4 [\#1636](https://github.com/scalameta/scalafmt/pull/1636) ([scala-steward](https://github.com/scala-steward))
 - RedundantBraces: fix various bugs with general expressions [\#1635](https://github.com/scalameta/scalafmt/pull/1635) ([kitbellew](https://github.com/kitbellew))
 - Update sbt to 1.3.7 [\#1634](https://github.com/scalameta/scalafmt/pull/1634) ([scala-steward](https://github.com/scala-steward))
-- Add headers for each invidiual editor that Metals supports. [\#1629](https://github.com/scalameta/scalafmt/pull/1629) ([olafurpg](https://github.com/olafurpg))
+- Add headers for each individual editor that Metals supports. [\#1629](https://github.com/scalameta/scalafmt/pull/1629) ([olafurpg](https://github.com/olafurpg))
 - FormatOps: check "new anonymous" in infix indent [\#1626](https://github.com/scalameta/scalafmt/pull/1626) ([kitbellew](https://github.com/kitbellew))
 - Rewrite: rewrite patchsets unless any is no-format [\#1625](https://github.com/scalameta/scalafmt/pull/1625) ([kitbellew](https://github.com/kitbellew))
 - Router bugfix: improve optimal token for assign [\#1623](https://github.com/scalameta/scalafmt/pull/1623) ([kitbellew](https://github.com/kitbellew))
@@ -711,7 +711,7 @@ src/main/scala/file1.scala
 - Update .gitignore for metals and bloop [\#1451](https://github.com/scalameta/scalafmt/pull/1451) ([tanishiking](https://github.com/tanishiking))
 - Suppress cli output in case option was set [\#1449](https://github.com/scalameta/scalafmt/pull/1449) ([stremlenye](https://github.com/stremlenye))
 - exclude dangling parens in methods with enabled verticalMultiline [\#1435](https://github.com/scalameta/scalafmt/pull/1435) ([darl](https://github.com/darl))
-- Prints out the paths of files subjected to formating before the beginning of formatting in debug mode [\#1422](https://github.com/scalameta/scalafmt/pull/1422) ([stremlenye](https://github.com/stremlenye))
+- Prints out the paths of files subjected to formatting before the beginning of formatting in debug mode [\#1422](https://github.com/scalameta/scalafmt/pull/1422) ([stremlenye](https://github.com/stremlenye))
 
 ## [v2.0.0-RC8](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC8) (2019-06-06)
 
@@ -723,7 +723,7 @@ src/main/scala/file1.scala
 - Fixed spaces.beforeContextBoundColon=IfMultipleBounds behavior for case with subtyping [\#1428](https://github.com/scalameta/scalafmt/pull/1428) ([poslegm](https://github.com/poslegm))
 - Fixed bug with RedundantBraces for string interpolation [\#1425](https://github.com/scalameta/scalafmt/pull/1425) ([poslegm](https://github.com/poslegm))
 - Remove space for variance annotations with underscore [\#1419](https://github.com/scalameta/scalafmt/pull/1419) ([vlovgr](https://github.com/vlovgr))
-- Add the CLI option to fetch only recently changed files for formating. [\#1416](https://github.com/scalameta/scalafmt/pull/1416) ([stremlenye](https://github.com/stremlenye))
+- Add the CLI option to fetch only recently changed files for formatting. [\#1416](https://github.com/scalameta/scalafmt/pull/1416) ([stremlenye](https://github.com/stremlenye))
 - Use a simple cache based on futures to avoid redownloading on concurrent usage [\#1384](https://github.com/scalameta/scalafmt/pull/1384) ([jrudolph](https://github.com/jrudolph))
 - Upgrade IntelliJ plugin [\#1381](https://github.com/scalameta/scalafmt/pull/1381) ([olafurpg](https://github.com/olafurpg))
 - Upgrade to latest scalafmt. [\#1380](https://github.com/scalameta/scalafmt/pull/1380) ([olafurpg](https://github.com/olafurpg))
@@ -798,7 +798,7 @@ src/main/scala/file1.scala
 **Merged pull requests:**
 
 - Add scalafmt-dynamic module for easier build tool integrations. [\#1337](https://github.com/scalameta/scalafmt/pull/1337) ([olafurpg](https://github.com/olafurpg))
-- Type Annotation Site indention same as Definition Site [\#1336](https://github.com/scalameta/scalafmt/pull/1336) ([AesaKamar](https://github.com/AesaKamar))
+- Type Annotation Site indentation same as Definition Site [\#1336](https://github.com/scalameta/scalafmt/pull/1336) ([AesaKamar](https://github.com/AesaKamar))
 - Fix the mysterious case of missing newline at end of file. [\#1333](https://github.com/scalameta/scalafmt/pull/1333) ([olafurpg](https://github.com/olafurpg))
 - Expand on the align=none protip [\#1331](https://github.com/scalameta/scalafmt/pull/1331) ([dwijnand](https://github.com/dwijnand))
 - Fix broken links README [\#1330](https://github.com/scalameta/scalafmt/pull/1330) ([glammers1](https://github.com/glammers1))
@@ -848,7 +848,7 @@ src/main/scala/file1.scala
 
 **Merged pull requests:**
 
-- Fix trailing comma handling when followed by indenation-free comment [\#1230](https://github.com/scalameta/scalafmt/pull/1230) ([gabro](https://github.com/gabro))
+- Fix trailing comma handling when followed by indentation-free comment [\#1230](https://github.com/scalameta/scalafmt/pull/1230) ([gabro](https://github.com/gabro))
 - Add foursquare to adopters list [\#1229](https://github.com/scalameta/scalafmt/pull/1229) ([iantabolt](https://github.com/iantabolt))
 - Upgrade metaconfig [\#1226](https://github.com/scalameta/scalafmt/pull/1226) ([olafurpg](https://github.com/olafurpg))
 
@@ -915,7 +915,7 @@ src/main/scala/file1.scala
 
 **Merged pull requests:**
 
-- SortModifiers rewrite fixes + doc prettyfying [\#1153](https://github.com/scalameta/scalafmt/pull/1153) ([lorandszakacs](https://github.com/lorandszakacs))
+- SortModifiers rewrite fixes + doc prettifying [\#1153](https://github.com/scalameta/scalafmt/pull/1153) ([lorandszakacs](https://github.com/lorandszakacs))
 
 ## [v1.5.0](https://github.com/scalameta/scalafmt/tree/v1.5.0) (2018-04-23)
 
@@ -1147,7 +1147,7 @@ src/main/scala/file1.scala
 - Fix issue \#816: Makes verticalMultilineDefnSite respect continuationIndent.defnSite [\#829](https://github.com/scalameta/scalafmt/pull/829) ([pjrt](https://github.com/pjrt))
 - Topic/newlines_annotations \#806 [\#820](https://github.com/scalameta/scalafmt/pull/820) ([Daxten](https://github.com/Daxten))
 - Fix \#780, add spaces in parens flag [\#818](https://github.com/scalameta/scalafmt/pull/818) ([olafurpg](https://github.com/olafurpg))
-- Don't resolve from ivy2local in ScalafmtBotstrap. [\#817](https://github.com/scalameta/scalafmt/pull/817) ([olafurpg](https://github.com/olafurpg))
+- Don't resolve from ivy2local in ScalafmtBootstrap. [\#817](https://github.com/scalameta/scalafmt/pull/817) ([olafurpg](https://github.com/olafurpg))
 - Fix newlines.alwaysBeforeTopLevelStatements doc [\#804](https://github.com/scalameta/scalafmt/pull/804) ([dwijnand](https://github.com/dwijnand))
 - Fix \#798. [\#803](https://github.com/scalameta/scalafmt/pull/803) ([olafurpg](https://github.com/olafurpg))
 - Fix \#800. [\#801](https://github.com/scalameta/scalafmt/pull/801) ([olafurpg](https://github.com/olafurpg))
@@ -1204,7 +1204,7 @@ src/main/scala/file1.scala
 - \#739: AvoidInfix Bug [\#749](https://github.com/scalameta/scalafmt/pull/749) ([ysusuk](https://github.com/ysusuk))
 - Upgrade to meta 1.6 [\#746](https://github.com/scalameta/scalafmt/pull/746) ([olafurpg](https://github.com/olafurpg))
 - Remove 'HEAD' from git diff, to include all uncommitted changes aswell [\#742](https://github.com/scalameta/scalafmt/pull/742) ([bjornj12](https://github.com/bjornj12))
-- Fix \#731: empty-param group with verical style [\#734](https://github.com/scalameta/scalafmt/pull/734) ([pjrt](https://github.com/pjrt))
+- Fix \#731: empty-param group with vertical style [\#734](https://github.com/scalameta/scalafmt/pull/734) ([pjrt](https://github.com/pjrt))
 - Add flag for newline before toplevel statements [\#733](https://github.com/scalameta/scalafmt/pull/733) ([Daxten](https://github.com/Daxten))
 - \#726: unimport is not respected [\#729](https://github.com/scalameta/scalafmt/pull/729) ([ysusuk](https://github.com/ysusuk))
 
@@ -1412,7 +1412,7 @@ src/main/scala/file1.scala
 
 **Merged pull requests:**
 
-- Add nailgun interrop to CLI. [\#514](https://github.com/scalameta/scalafmt/pull/514) ([olafurpg](https://github.com/olafurpg))
+- Add nailgun interop to CLI. [\#514](https://github.com/scalameta/scalafmt/pull/514) ([olafurpg](https://github.com/olafurpg))
 
 ## [v0.4.5](https://github.com/scalameta/scalafmt/tree/v0.4.5) (2016-10-10)
 

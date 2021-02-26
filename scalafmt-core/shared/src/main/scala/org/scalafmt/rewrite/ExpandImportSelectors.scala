@@ -21,7 +21,9 @@ class ExpandImportSelectors(implicit ctx: RewriteCtx) extends RewriteSession {
 
   override def rewrite(tree: Tree): Unit =
     tree match {
-      case q"import ..$imports" =>
+      case stat: ImportExportStat =>
+        val imports = stat.importers
+        val keyword = stat.tokens.head.text
         val groupedPatches = mutable.Map.empty[Token, Group]
         imports.foreach { `import` =>
           val parentTokens = `import`.parent.get.tokens
@@ -37,15 +39,15 @@ class ExpandImportSelectors(implicit ctx: RewriteCtx) extends RewriteSession {
             val hasWildcards = importees.exists(_.is[Importee.Wildcard])
 
             if (hasWildcards && hasRenamesOrUnimports)
-              group.imports += s"import ${importer.syntax}"
+              group.imports += s"$keyword ${importer.syntax}"
             else
               importees.foreach { importee =>
                 val importString = importee.toString
                 val replacement =
                   if (importString.contains("=>"))
-                    s"import $path.{$importString}"
+                    s"$keyword $path.{$importString}"
                   else
-                    s"import $path.$importString"
+                    s"$keyword $path.$importString"
                 group.imports += replacement
               }
           }
