@@ -28,13 +28,13 @@ object CliArgParser {
 
   val scoptParser: OptionParser[CliOptions] =
     new scopt.OptionParser[CliOptions]("scalafmt") {
-      override def showUsageOnError = false
+      override def showUsageOnError: Option[Boolean] = Some(false)
 
       private def printAndExit(
-          inludeUsage: Boolean
+          includeUsage: Boolean
       )(ignore: Unit, c: CliOptions): CliOptions = {
-        if (inludeUsage) showUsage
-        else showHeader
+        if (includeUsage) displayToOut(usage)
+        else displayToOut(header)
         sys.exit
         c
       }
@@ -59,10 +59,10 @@ object CliArgParser {
 
       head("scalafmt", Versions.nightly)
       opt[Unit]('h', "help")
-        .action(printAndExit(inludeUsage = true))
+        .action(printAndExit(includeUsage = true))
         .text("prints this usage text")
       opt[Unit]('v', "version")
-        .action(printAndExit(inludeUsage = false))
+        .action(printAndExit(includeUsage = false))
         .text("print version ")
 
       arg[File]("<file>...")
