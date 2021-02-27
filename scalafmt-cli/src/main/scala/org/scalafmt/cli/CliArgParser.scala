@@ -28,13 +28,13 @@ object CliArgParser {
 
   val scoptParser: OptionParser[CliOptions] =
     new scopt.OptionParser[CliOptions]("scalafmt") {
-      override def showUsageOnError = false
+      override def showUsageOnError: Option[Boolean] = Some(false)
 
       private def printAndExit(
           includeUsage: Boolean
       )(ignore: Unit, c: CliOptions): CliOptions = {
-        if (includeUsage) showUsage
-        else showHeader
+        if (includeUsage) displayToOut(usage)
+        else displayToOut(header)
         sys.exit
         c
       }
