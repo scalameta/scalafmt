@@ -167,3 +167,94 @@ extension [A, B](a: A) /* foo */ (using
 )
   /* baz */
   def a = 1
+<<< multiple using clauses
+maxColumn = 40
+===
+extension (using longName1: AVeryLongName1)(mainParameter: MainParameter)(using longName2: AVeryLongName2)(using AnEvenLongerVeryLongName) 
+  def add[TypeParameter1, TypeParameter2, TypeParameter3](b: A) = a + b
+>>>
+extension (using
+    longName1: AVeryLongName1
+)(mainParameter: MainParameter)(using
+    longName2: AVeryLongName2
+)(using AnEvenLongerVeryLongName)
+  def add[
+      TypeParameter1,
+      TypeParameter2,
+      TypeParameter3
+  ](b: A) = a + b
+<<< multiple using clauses with newline before using
+newlines.implicitParamListModifierForce = [before]
+maxColumn = 40
+===
+extension (using longName1: AVeryLongName1)(mainParameter: MainParameter)(using longName2: AVeryLongName2)(using AnEvenLongerVeryLongName) 
+  def add[TypeParameter1, TypeParameter2, TypeParameter3](b: A) = a + b
+>>>
+extension (
+    using longName1: AVeryLongName1
+)(mainParameter: MainParameter)(
+    using longName2: AVeryLongName2
+)(
+    using AnEvenLongerVeryLongName
+)
+  def add[
+      TypeParameter1,
+      TypeParameter2,
+      TypeParameter3
+  ](b: A) = a + b
+<<< multiple using clauses with newline before and after using
+newlines.implicitParamListModifierForce = [after, before]
+maxColumn = 40
+===
+extension (using longName1: AVeryLongName1)(mainParameter: MainParameter)(using longName2: AVeryLongName2)(using AnEvenLongerVeryLongName) 
+  def add[TypeParameter1, TypeParameter2, TypeParameter3](b: A) = a + b
+>>>
+extension (
+    using
+    longName1: AVeryLongName1
+)(mainParameter: MainParameter)(
+    using
+    longName2: AVeryLongName2
+)(
+    using
+    AnEvenLongerVeryLongName
+)
+  def add[
+      TypeParameter1,
+      TypeParameter2,
+      TypeParameter3
+  ](b: A) = a + b
+<<< multiple using clauses with newline preffered before using
+newlines.implicitParamListModifierPrefer = before
+maxColumn = 40
+===
+extension (using longName1: AVeryLongName1)(mainParameter: MainParameter)(using longName2: AVeryLongName2)(using AnEvenLongerVeryLongName) 
+  def add[TypeParameter1, TypeParameter2, TypeParameter3](b: A) = a + b
+>>>
+extension (
+    using longName1: AVeryLongName1
+)(mainParameter: MainParameter)(
+    using longName2: AVeryLongName2
+)(using AnEvenLongerVeryLongName)
+  def add[
+      TypeParameter1,
+      TypeParameter2,
+      TypeParameter3
+  ](b: A) = a + b
+<<< multiple using clauses with newline preffered after using
+newlines.implicitParamListModifierPrefer = after
+maxColumn = 40
+===
+extension (using longName1: AVeryLongName1)(mainParameter: MainParameter)(using longName2: AVeryLongName2)(using AnEvenLongerVeryLongName) 
+  def add[TypeParameter1, TypeParameter2, TypeParameter3](b: A) = a + b
+>>>
+extension (using
+    longName1: AVeryLongName1
+)(mainParameter: MainParameter)(using
+    longName2: AVeryLongName2
+)(using AnEvenLongerVeryLongName)
+  def add[
+      TypeParameter1,
+      TypeParameter2,
+      TypeParameter3
+  ](b: A) = a + b
