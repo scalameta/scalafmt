@@ -1,0 +1,17 @@
+
+<<< simple wildcard import
+import a . b . c . *
+>>>
+import a.b.c.*
+<<< star named import
+import a . b . c . `*`
+>>>
+import a.b.c.`*`
+<<< simple wildcard export
+export a . b . c . *
+>>>
+export a.b.c.*
+<<< star named export
+export a . b . c . `*`
+>>>
+export a.b.c.`*`
