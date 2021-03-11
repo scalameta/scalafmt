@@ -9,6 +9,8 @@ import org.scalafmt.internal.TreeSyntacticGroup
 import scala.meta._
 import scala.meta.tokens.Token.LeftBrace
 import scala.meta.tokens.Token.RightBrace
+import scala.meta.tokens.Token.Dot
+import scala.meta.tokens.Token.RightArrow
 
 import org.scalafmt.util.InfixApp
 import org.scalafmt.util.TreeOps._
@@ -104,8 +106,33 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
       case t: Term.Interpolate if settings.stringInterpolation =>
         processInterpolation(t)
 
+      case Importer(_, List(importee)) if ctx.dialect.allowAsForImportRename =>
+        processSingleImport(importee)
+
       case _ =>
     }
+
+  private def processSingleImport(tree: Importee) = {
+    val tokens = tree.tokens
+    tree match {
+      case _: Importee.Rename | _: Importee.Unimport
+          if !tokens.exists(_.is[RightArrow]) =>
+        ctx.tokenTraverser
+          .findBefore(tokens.head) {
+            case _: LeftBrace => Some(true)
+            case _: Dot => Some(false)
+            case _ => None
+          }
+          .foreach { leftBrace =>
+            val rightBrace = ctx.getMatching(leftBrace)
+            implicit val builder = Seq.newBuilder[TokenPatch]
+            removeBraces(leftBrace, rightBrace)
+            ctx.addPatchSet(builder.result(): _*)
+          }
+      case _ =>
+    }
+
+  }
 
   private def processInit(tree: Init): Unit =
     tree.argss.foreach(processMultiArgApply)
