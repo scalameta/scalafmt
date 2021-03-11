@@ -1851,7 +1851,11 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, T.Ident("|"), _) if rightOwner.is[Pat.Alternative] =>
         val noNL = style.newlines.source.ne(Newlines.keep) || newlines == 0
         Seq(Split(Space.orNL(noNL), 0))
-
+      case FormatToken(_, T.Ident("*"), _)
+          if rightOwner.is[Term.Repeated] || rightOwner.is[Pat.Repeated] =>
+        Seq(
+          Split(NoSplit, 0)
+        )
       case FormatToken(
             T.Ident(_) | Literal() | T.Interpolation.End() | T.Xml.End(),
             T.Ident(_) | Literal() | T.Xml.Start(),
