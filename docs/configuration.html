@@ -1714,7 +1714,7 @@ something.map { x =&gt;
 something.map { x =&gt; f(x) }
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">newlines.afterCurlyLambdaParams = preserve
+<pre><code class="hljs css language-scala config">newlines.afterCurlyLambdaParams = keep
 </code></pre>
 </p></details>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// ensure a single blank line</span>
@@ -2416,7 +2416,7 @@ method3(
 <pre><code class="hljs css language-scala config">trailingCommas = never
 </code></pre>
 </p></details>
-<h4><a class="anchor" aria-hidden="true" id="trailing-commas-preserve"></a><a href="#trailing-commas-preserve" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Trailing commas: <code>preserve</code></h4>
+<h4><a class="anchor" aria-hidden="true" id="trailing-commas-keep"></a><a href="#trailing-commas-keep" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Trailing commas: <code>keep</code></h4>
 <p>Keeps any trailing commas:</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> a.{b, c}
 <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method1</span></span>(
@@ -2470,7 +2470,7 @@ method3(
 )
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">trailingCommas = preserve
+<pre><code class="hljs css language-scala config">trailingCommas = keep
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="trailing-commas-always"></a><a href="#trailing-commas-always" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Trailing commas: <code>always</code></h4>
@@ -2815,7 +2815,7 @@ comments.wrapStandaloneSlcAsSlc = <span class="hljs-literal">true</span>
 <p>Since v2.6.0.</p>
 </blockquote>
 <p>Default: <code>docstrings.style = &quot;SpaceAsterisk&quot;</code></p>
-<h5><a class="anchor" aria-hidden="true" id="docstringsstyle--preserve"></a><a href="#docstringsstyle--preserve" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = Preserve</code></h5>
+<h5><a class="anchor" aria-hidden="true" id="docstringsstyle--keep"></a><a href="#docstringsstyle--keep" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = keep</code></h5>
 <p>Prohibits formatting of docstrings. All other <code>docstrings</code> parameters are
 ignored.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/**   do not touch
@@ -2829,7 +2829,7 @@ ignored.</p>
 */</span>
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">docstrings.style = <span class="hljs-type">Preserve</span>
+<pre><code class="hljs css language-scala config">docstrings.style = keep
 </code></pre>
 </p></details>
 <h5><a class="anchor" aria-hidden="true" id="docstringsstyle--asterisk"></a><a href="#docstringsstyle--asterisk" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = Asterisk</code></h5>
@@ -2876,7 +2876,7 @@ ignored.</p>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="docstringsoneline"></a><a href="#docstringsoneline" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.oneline</code></h4>
 <blockquote>
-<p>Since v2.6.0. Ignored for <code>docstrings.style = Preserve</code>.</p>
+<p>Since v2.6.0. Ignored for <code>docstrings.style = keep</code>.</p>
 </blockquote>
 <p>Default: <code>docstrings.oneline = &quot;keep&quot;</code></p>
 <h5><a class="anchor" aria-hidden="true" id="docstringsoneline--fold"></a><a href="#docstringsoneline--fold" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.oneline = fold</code></h5>
@@ -2942,7 +2942,7 @@ scaladoc parser doesn't have proper support of embedded HTML.</p>
 <p>However,
 <a href="https://www.scala-lang.org/blog/2018/10/04/scaladoc-tables.html">tables are supported</a>.</p>
 <blockquote>
-<p>Since v2.6.0. Ignored for <code>docstrings.style = Preserve</code>.</p>
+<p>Since v2.6.0. Ignored for <code>docstrings.style = keep</code>.</p>
 </blockquote>
 <p>Default: <code>docstrings.wrap = &quot;no&quot;</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** @param d
@@ -3006,7 +3006,7 @@ maxColumn = <span class="hljs-number">30</span>
 Keep in mind that some combinations of parameters are prohibited (e.g.,
 <code>blankFirstLine=keep</code> contradicts with <code>style=Asterisk</code>).</p>
 <blockquote>
-<p>Since v2.7.5. Ignored for <code>docstrings.style = Preserve</code> or
+<p>Since v2.7.5. Ignored for <code>docstrings.style = keep</code> or
 <code>docstrings.wrap = no</code>.</p>
 </blockquote>
 <p>Default: <code>docstrings.blankFirstLine = &quot;no&quot;</code></p>
