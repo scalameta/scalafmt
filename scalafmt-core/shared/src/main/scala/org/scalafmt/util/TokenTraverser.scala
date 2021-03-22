@@ -42,8 +42,7 @@ class TokenTraverser(tokens: Tokens, filename: String) {
 
   def nextToken(token: Token): Token = {
     tok2idx.get(token) match {
-      case Some(i) if tokens.length > i + 1 =>
-        tokens(i + 1)
+      case Some(i) if i < tokens.length - 1 => tokens(i + 1)
       case _ => token
     }
   }
@@ -53,8 +52,7 @@ class TokenTraverser(tokens: Tokens, filename: String) {
 
   def prevToken(token: Token): Token = {
     tok2idx.get(token) match {
-      case Some(i) if tokens.length > i - 1 =>
-        tokens(i - 1)
+      case Some(i) if i > 0 => tokens(i - 1)
       case _ => token
     }
   }
