@@ -2110,6 +2110,8 @@ docstrings.style
 Prohibits formatting of docstrings. All other `docstrings` parameters are
 ignored.
 
+> Since v3.0.0.
+
 ```scala mdoc:scalafmt
 docstrings.style = keep
 ---
