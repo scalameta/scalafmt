@@ -3011,6 +3011,10 @@ of Scalafmt. A good place to start is `ScalafmtConfig`. Observe that this
 listing below is the top-level, there are more configuration options if you
 visited nested fields like `spaces` and `newlines`.
 
+> The values for parameters below are purely for informational purposes. They use
+> pseudo-formatting similar to but incompatible with `scalafmt.conf`.
+> Some of them show values which can't be explicitly specified.
+
 ```scala mdoc:defaults:all
 
 ```
