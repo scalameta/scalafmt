@@ -1084,21 +1084,23 @@ something.map { x =>
 something.map { x => f(x) }
 ```
 
-### Newlines around `implicit` parameter list modifier
+### `newlines.implicitParamListModifierXXX`
+
+These parameters control newlines around `implicit` parameter list modifier.
 
 > Since v2.5.0.
 
 #### Newlines around `using` parameter and argument list modifier
 
-> Since v3.0.0
-
-`using` soft keyword was introduced in Scala 3 and is supported in scalafmt.
-The settings `newlines.implicitParamListModifierPrefer` and
-`newlines.implicitParamListModifierForce` are from now on aliases for
-`newlines.usingParamListModifierPrefer` and `newlines.usingParamListModifierForce`.
-By picking one of them formatting will be applied at the same time to both `implicit` and `using`.
+`using` soft keyword was introduced in Scala 3 and is supported in `scalafmt`.
 Besides parameter lists, `using` can also be used with argument lists hence
-provided rules will then also be applied to the argument lists.
+provided rules will then also be applied to them.
+
+> Since v3.0.0.
+
+The parameters defined below can also be accessed via their alternative names where
+`implicit` is replaced with `using` (for instance, `newlines.usingParamListModifierPrefer`).
+Whichever naming you use, formatting will be applied to both `implicit` and `using`.
 
 #### Prefer After (default)
 
