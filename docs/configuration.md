@@ -319,7 +319,7 @@ Default: **some**
 Align has several nested fields, which you can customize. However, it comes with
 four possible presets: none, some, more, & most.
 
-### `align`
+### `align.preset`
 
 #### `align.preset=none`
 
@@ -654,174 +654,6 @@ or horizontally compact look.
 
 Both settings attempt to play nice with other parameters, but some combinations
 are prohibited and will result in an error.
-
-### Config-style formatting
-
-This formatting applies to argument lists in class definitions and method calls.
-It normally involves a newline after the opening parenthesis (or after the
-`implicit` keyword) and a newline before the closing parenthesis.
-
-As part of the formatting output, arguments are output one per line (but this is
-not used in determining whether the source uses config-style formatting).
-
-While this parameter is not technically under the `newlines` section, it
-logically belongs there.
-
-#### `optIn.configStyleArguments`
-
-If true, applies config-style formatting:
-
-- if single-line formatting is impossible
-- if the source uses config-style and `newlines.source = classic/keep`
-- if other parameters force config-style (see below)
-
-```scala mdoc:defaults
-optIn.configStyleArguments
-```
-
-```scala mdoc:scalafmt
-optIn.configStyleArguments = true
-maxColumn=45
----
-object a {
-  // keeps single line
-  def method1(a: Int, b: String): Boolean
-
-  // forces config style
-  def method2(a: Int, b: String, c: String): Boolean
-
-  // preserves config style
-  def method3(
-    a: Int, b: String, c: String
-  ): Boolean
-}
-```
-
-#### Forcing config style
-
-Controls parameters which trigger forced config-style formatting. All conditions
-must be satisfied in order for this rule to apply.
-
-```scala mdoc:defaults
-runner.optimizer.forceConfigStyleOnOffset
-runner.optimizer.forceConfigStyleMinArgCount
-```
-
-- `runner.optimizer.forceConfigStyleOnOffset`: applies to method calls; if
-  positive, specifies the minimum character distance between the matching
-  parentheses, excluding any whitespace
-- `runner.optimizer.forceConfigStyleMinArgCount` applies to method calls;
-  specifies the minimum number of arguments
-
-```scala mdoc:scalafmt
-optIn.configStyleArguments = true
-runner.optimizer.forceConfigStyleOnOffset = 5
-runner.optimizer.forceConfigStyleMinArgCount = 2
-maxColumn = 60
----
-object a {
-  // this is a definition, not a method call
-  def method(a: String, b: String = null): Boolean
-
-  // keeps single line; min offset not satisfied
-  method(a, b)
-
-  // keeps single line; min arg not satisfied
-  method(SomeVeryVeryVeryVeryLongArgument)
-
-  // forces config style
-  method(foo, bar)
-}
-```
-
-### `danglingParentheses`
-
-While this parameter is not technically under the `newlines` section, it
-logically belongs there.
-
-#### `danglingParentheses.defnSite`
-
-```scala mdoc:defaults
-danglingParentheses.defnSite
-```
-
-```scala mdoc:scalafmt
-danglingParentheses.defnSite = true
-danglingParentheses.callSite = false
-maxColumn=25
----
-object a {
-  // defnSite
-  def method(a: Int, b: String): Boolean
-
-  // callSite
-  method(argument1, argument2)
-}
-```
-
-#### `danglingParentheses.callSite`
-
-```scala mdoc:defaults
-danglingParentheses.callSite
-```
-
-```scala mdoc:scalafmt
-danglingParentheses.defnSite = false
-danglingParentheses.callSite = true
-maxColumn=25
----
-object a {
-  // defnSite
-  def method(a: Int, b: String): Boolean
-
-  // callSite
-  method(argument1, argument2)
-}
-```
-
-#### `danglingParentheses.ctrlSite`
-
-> Since v2.5.0.
-
-Forces dangling on open/close parens around control structures (`if`, `while`,
-`for`) when line breaks must occur.
-
-```scala mdoc:defaults
-danglingParentheses.ctrlSite
-```
-
-```scala mdoc:scalafmt
-danglingParentheses.ctrlSite = true
-maxColumn=20
----
-if (something) {
-  // nothing
-}
-if (something_else) {
-  // nothing
-}
-```
-
-#### `danglingParentheses.exclude`
-
-> Since v2.5.0.
-
-When the appropriate `danglingParentheses` flag (e.g., `defnSite`) has been set,
-this parameter can be used to limit contexts where dangling is applied
-(currently, `class`, `trait`, `enum`, `extension` and `def` are supported).
-
-```scala mdoc:defaults
-danglingParentheses.exclude
-```
-
-```scala mdoc:scalafmt
-continuationIndent.defnSite = 2
-danglingParentheses.defnSite = true
-danglingParentheses.exclude = [def]
----
-def other(a: String, b: String)(c: String, d: String) = a + b + c
-other(a, b)(c, d)
-```
 
 ### `newlines.topLevelStatements`
 
@@ -1472,6 +1304,174 @@ implicit protected val td: TildeArrow {
   type Out = RouteTestResult } = TildeArrow.injectIntoRoute
 ```
 
+## Newlines: `danglingParentheses`
+
+While this parameter is not technically under the `newlines` section, it
+logically belongs there.
+
+### `danglingParentheses.defnSite`
+
+```scala mdoc:defaults
+danglingParentheses.defnSite
+```
+
+```scala mdoc:scalafmt
+danglingParentheses.defnSite = true
+danglingParentheses.callSite = false
+maxColumn=25
+---
+object a {
+  // defnSite
+  def method(a: Int, b: String): Boolean
+
+  // callSite
+  method(argument1, argument2)
+}
+```
+
+### `danglingParentheses.callSite`
+
+```scala mdoc:defaults
+danglingParentheses.callSite
+```
+
+```scala mdoc:scalafmt
+danglingParentheses.defnSite = false
+danglingParentheses.callSite = true
+maxColumn=25
+---
+object a {
+  // defnSite
+  def method(a: Int, b: String): Boolean
+
+  // callSite
+  method(argument1, argument2)
+}
+```
+
+### `danglingParentheses.ctrlSite`
+
+> Since v2.5.0.
+
+Forces dangling on open/close parens around control structures (`if`, `while`,
+`for`) when line breaks must occur.
+
+```scala mdoc:defaults
+danglingParentheses.ctrlSite
+```
+
+```scala mdoc:scalafmt
+danglingParentheses.ctrlSite = true
+maxColumn=20
+---
+if (something) {
+  // nothing
+}
+if (something_else) {
+  // nothing
+}
+```
+
+### `danglingParentheses.exclude`
+
+> Since v2.5.0.
+
+When the appropriate `danglingParentheses` flag (e.g., `defnSite`) has been set,
+this parameter can be used to limit contexts where dangling is applied
+(currently, `class`, `trait`, `enum`, `extension` and `def` are supported).
+
+```scala mdoc:defaults
+danglingParentheses.exclude
+```
+
+```scala mdoc:scalafmt
+continuationIndent.defnSite = 2
+danglingParentheses.defnSite = true
+danglingParentheses.exclude = [def]
+---
+def other(a: String, b: String)(c: String, d: String) = a + b + c
+other(a, b)(c, d)
+```
+
+## Newlines: Config-style formatting
+
+This formatting applies to argument lists in class definitions and method calls.
+It normally involves a newline after the opening parenthesis (or after the
+`implicit` keyword) and a newline before the closing parenthesis.
+
+As part of the formatting output, arguments are output one per line (but this is
+not used in determining whether the source uses config-style formatting).
+
+While this parameter is not technically under the `newlines` section, it
+logically belongs there.
+
+### `optIn.configStyleArguments`
+
+If true, applies config-style formatting:
+
+- if single-line formatting is impossible
+- if the source uses config-style and `newlines.source = classic/keep`
+- if other parameters force config-style (see below)
+
+```scala mdoc:defaults
+optIn.configStyleArguments
+```
+
+```scala mdoc:scalafmt
+optIn.configStyleArguments = true
+maxColumn=45
+---
+object a {
+  // keeps single line
+  def method1(a: Int, b: String): Boolean
+
+  // forces config style
+  def method2(a: Int, b: String, c: String): Boolean
+
+  // preserves config style
+  def method3(
+    a: Int, b: String, c: String
+  ): Boolean
+}
+```
+
+### Forcing config style
+
+Controls parameters which trigger forced config-style formatting. All conditions
+must be satisfied in order for this rule to apply.
+
+```scala mdoc:defaults
+runner.optimizer.forceConfigStyleOnOffset
+runner.optimizer.forceConfigStyleMinArgCount
+```
+
+- `runner.optimizer.forceConfigStyleOnOffset`: applies to method calls; if
+  positive, specifies the minimum character distance between the matching
+  parentheses, excluding any whitespace
+- `runner.optimizer.forceConfigStyleMinArgCount` applies to method calls;
+  specifies the minimum number of arguments
+
+```scala mdoc:scalafmt
+optIn.configStyleArguments = true
+runner.optimizer.forceConfigStyleOnOffset = 5
+runner.optimizer.forceConfigStyleMinArgCount = 2
+maxColumn = 60
+---
+object a {
+  // this is a definition, not a method call
+  def method(a: String, b: String = null): Boolean
+
+  // keeps single line; min offset not satisfied
+  method(a, b)
+
+  // keeps single line; min arg not satisfied
+  method(SomeVeryVeryVeryVeryLongArgument)
+
+  // forces config style
+  method(foo, bar)
+}
+```
+
 ## Rewrite Rules
 
 To enable a rewrite rule, add it to the config like this
@@ -2035,9 +2035,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 
 ## Comment processing
 
-### `comments`
-
-#### `comments.wrap`
+### `comments.wrap`
 
 > Since v2.6.0.
 
@@ -2047,7 +2045,7 @@ Allows wrapping comments exceeding `maxColumn`.
 comments.wrap
 ```
 
-##### `comments.wrap = standalone`
+#### `comments.wrap = standalone`
 
 A standalone comment is one which is surrounded by line breaks.
 
@@ -2061,7 +2059,7 @@ val a = 1 // short
 val b = 2 // long singleline comment
 ```
 
-##### `comments.wrap = trailing`
+#### `comments.wrap = trailing`
 
 A trailing comment is one which is followed by a line break.
 
@@ -2075,7 +2073,7 @@ val a = 1 // short
 val b = 2 // long singleline comment
 ```
 
-#### `comments.wrapStandaloneSlcAsSlc`
+### `comments.wrapStandaloneSlcAsSlc`
 
 > Since v2.6.0.
 
@@ -2095,9 +2093,7 @@ comments.wrapStandaloneSlcAsSlc = true
 val b = 2 // long singleline comment
 ```
 
-### `docstrings`
-
-#### `docstrings.style`
+### `docstrings.style`
 
 > Since v2.6.0.
 
@@ -2105,7 +2101,7 @@ val b = 2 // long singleline comment
 docstrings.style
 ```
 
-##### `docstrings.style = keep`
+#### `docstrings.style = keep`
 
 Prohibits formatting of docstrings. All other `docstrings` parameters are
 ignored.
@@ -2121,7 +2117,7 @@ docstrings.style = keep
 */
 ```
 
-##### `docstrings.style = Asterisk`
+#### `docstrings.style = Asterisk`
 
 This variant used to be called `JavaDoc`.
 
@@ -2133,7 +2129,7 @@ docstrings.style = Asterisk
   */
 ```
 
-##### `docstrings.style = SpaceAsterisk`
+#### `docstrings.style = SpaceAsterisk`
 
 This variant used to be called `ScalaDoc`.
 
@@ -2145,7 +2141,7 @@ docstrings.style = SpaceAsterisk
  */
 ```
 
-##### `docstrings.style = AsteriskSpace`
+#### `docstrings.style = AsteriskSpace`
 
 ```scala mdoc:scalafmt
 docstrings.style = AsteriskSpace
@@ -2155,7 +2151,7 @@ docstrings.style = AsteriskSpace
   */
 ```
 
-#### `docstrings.oneline`
+### `docstrings.oneline`
 
 > Since v2.6.0. Ignored for `docstrings.style = keep`.
 
@@ -2163,7 +2159,7 @@ docstrings.style = AsteriskSpace
 docstrings.oneline
 ```
 
-##### `docstrings.oneline = fold`
+#### `docstrings.oneline = fold`
 
 ```scala mdoc:scalafmt
 docstrings.style = Asterisk
@@ -2176,7 +2172,7 @@ docstrings.oneline = fold
 val a = 1
 ```
 
-##### `docstrings.oneline = unfold`
+#### `docstrings.oneline = unfold`
 
 ```scala mdoc:scalafmt
 docstrings.style = Asterisk
@@ -2189,7 +2185,7 @@ docstrings.oneline = unfold
 val a = 1
 ```
 
-##### `docstrings.oneline = keep`
+#### `docstrings.oneline = keep`
 
 ```scala mdoc:scalafmt
 docstrings.style = Asterisk
@@ -2202,7 +2198,7 @@ docstrings.oneline = keep
 val a = 1
 ```
 
-#### `docstrings.wrap`
+### `docstrings.wrap`
 
 Will parse scaladoc comments and reformat them.
 
@@ -2245,7 +2241,7 @@ maxColumn = 30
 def pow2(d: Double): Double
 ```
 
-#### `docstrings.blankFirstLine`
+### `docstrings.blankFirstLine`
 
 Controls whether to force the first line to be blank in a multiline docstring.
 Keep in mind that some combinations of parameters are prohibited (e.g.,
