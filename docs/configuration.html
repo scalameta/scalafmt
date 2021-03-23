@@ -394,7 +394,7 @@ operator matches and is not excluded explicitly by
 <p>Default: <strong>some</strong></p>
 <p>Align has several nested fields, which you can customize. However, it comes with
 four possible presets: none, some, more, &amp; most.</p>
-<h3><a class="anchor" aria-hidden="true" id="align"></a><a href="#align" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align</code></h3>
+<h3><a class="anchor" aria-hidden="true" id="alignpreset"></a><a href="#alignpreset" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.preset</code></h3>
 <h4><a class="anchor" aria-hidden="true" id="alignpresetnone"></a><a href="#alignpresetnone" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.preset=none</code></h4>
 <pre><code class="hljs css language-scala formatted">x <span class="hljs-keyword">match</span> { <span class="hljs-comment">// false for case arrows</span>
   <span class="hljs-keyword">case</span> <span class="hljs-number">2</span> =&gt; <span class="hljs-number">22</span> <span class="hljs-comment">// also comments!</span>
@@ -836,222 +836,6 @@ horizontal, or vertically compact look.</p>
 or horizontally compact look.</p>
 <p>Both settings attempt to play nice with other parameters, but some combinations
 are prohibited and will result in an error.</p>
-<h3><a class="anchor" aria-hidden="true" id="config-style-formatting"></a><a href="#config-style-formatting" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Config-style formatting</h3>
-<p>This formatting applies to argument lists in class definitions and method calls.
-It normally involves a newline after the opening parenthesis (or after the
-<code>implicit</code> keyword) and a newline before the closing parenthesis.</p>
-<p>As part of the formatting output, arguments are output one per line (but this is
-not used in determining whether the source uses config-style formatting).</p>
-<p>While this parameter is not technically under the <code>newlines</code> section, it
-logically belongs there.</p>
-<h4><a class="anchor" aria-hidden="true" id="optinconfigstylearguments"></a><a href="#optinconfigstylearguments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>optIn.configStyleArguments</code></h4>
-<p>If true, applies config-style formatting:</p>
-<ul>
-<li>if single-line formatting is impossible</li>
-<li>if the source uses config-style and <code>newlines.source = classic/keep</code></li>
-<li>if other parameters force config-style (see below)</li>
-</ul>
-<p>Default: <code>optIn.configStyleArguments = true</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
-  <span class="hljs-comment">// keeps single line</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method1</span></span>(a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span>
-
-  <span class="hljs-comment">// forces config style</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method2</span></span>(
-      a: <span class="hljs-type">Int</span>,
-      b: <span class="hljs-type">String</span>,
-      c: <span class="hljs-type">String</span>
-  ): <span class="hljs-type">Boolean</span>
-
-  <span class="hljs-comment">// preserves config style</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method3</span></span>(
-      a: <span class="hljs-type">Int</span>,
-      b: <span class="hljs-type">String</span>,
-      c: <span class="hljs-type">String</span>
-  ): <span class="hljs-type">Boolean</span>
-}
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
-  <span class="hljs-comment">// keeps single line</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method1</span></span>(a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span>
-
-  <span class="hljs-comment">// forces config style</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method2</span></span>(a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">String</span>, c: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span>
-
-  <span class="hljs-comment">// preserves config style</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method3</span></span>(
-    a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">String</span>, c: <span class="hljs-type">String</span>
-  ): <span class="hljs-type">Boolean</span>
-}
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">optIn.configStyleArguments = <span class="hljs-literal">true</span>
-maxColumn=<span class="hljs-number">45</span>
-</code></pre>
-</p></details>
-<h4><a class="anchor" aria-hidden="true" id="forcing-config-style"></a><a href="#forcing-config-style" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Forcing config style</h4>
-<p>Controls parameters which trigger forced config-style formatting. All conditions
-must be satisfied in order for this rule to apply.</p>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-runner.optimizer.forceConfigStyleOnOffset = <span class="hljs-number">150</span>
-runner.optimizer.forceConfigStyleMinArgCount = <span class="hljs-number">2</span>
-</code></pre>
-<ul>
-<li><code>runner.optimizer.forceConfigStyleOnOffset</code>: applies to method calls; if
-positive, specifies the minimum character distance between the matching
-parentheses, excluding any whitespace</li>
-<li><code>runner.optimizer.forceConfigStyleMinArgCount</code> applies to method calls;
-specifies the minimum number of arguments</li>
-</ul>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
-  <span class="hljs-comment">// this is a definition, not a method call</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span> = <span class="hljs-literal">null</span>): <span class="hljs-type">Boolean</span>
-
-  <span class="hljs-comment">// keeps single line; min offset not satisfied</span>
-  method(a, b)
-
-  <span class="hljs-comment">// keeps single line; min arg not satisfied</span>
-  method(<span class="hljs-type">SomeVeryVeryVeryVeryLongArgument</span>)
-
-  <span class="hljs-comment">// forces config style</span>
-  method(
-    foo,
-    bar
-  )
-}
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
-  <span class="hljs-comment">// this is a definition, not a method call</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span> = <span class="hljs-literal">null</span>): <span class="hljs-type">Boolean</span>
-
-  <span class="hljs-comment">// keeps single line; min offset not satisfied</span>
-  method(a, b)
-
-  <span class="hljs-comment">// keeps single line; min arg not satisfied</span>
-  method(<span class="hljs-type">SomeVeryVeryVeryVeryLongArgument</span>)
-
-  <span class="hljs-comment">// forces config style</span>
-  method(foo, bar)
-}
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">optIn.configStyleArguments = <span class="hljs-literal">true</span>
-runner.optimizer.forceConfigStyleOnOffset = <span class="hljs-number">5</span>
-runner.optimizer.forceConfigStyleMinArgCount = <span class="hljs-number">2</span>
-maxColumn = <span class="hljs-number">60</span>
-</code></pre>
-</p></details>
-<h3><a class="anchor" aria-hidden="true" id="danglingparentheses"></a><a href="#danglingparentheses" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>danglingParentheses</code></h3>
-<p>While this parameter is not technically under the <code>newlines</code> section, it
-logically belongs there.</p>
-<h4><a class="anchor" aria-hidden="true" id="danglingparenthesesdefnsite"></a><a href="#danglingparenthesesdefnsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>danglingParentheses.defnSite</code></h4>
-<p>Default: <code>danglingParentheses.defnSite = true</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
-  <span class="hljs-comment">// defnSite</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(
-      a: <span class="hljs-type">Int</span>,
-      b: <span class="hljs-type">String</span>
-  ): <span class="hljs-type">Boolean</span>
-
-  <span class="hljs-comment">// callSite</span>
-  method(
-    argument1,
-    argument2)
-}
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
-  <span class="hljs-comment">// defnSite</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span>
-
-  <span class="hljs-comment">// callSite</span>
-  method(argument1, argument2)
-}
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">danglingParentheses.defnSite = <span class="hljs-literal">true</span>
-danglingParentheses.callSite = <span class="hljs-literal">false</span>
-maxColumn=<span class="hljs-number">25</span>
-</code></pre>
-</p></details>
-<h4><a class="anchor" aria-hidden="true" id="danglingparenthesescallsite"></a><a href="#danglingparenthesescallsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>danglingParentheses.callSite</code></h4>
-<p>Default: <code>danglingParentheses.callSite = true</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
-  <span class="hljs-comment">// defnSite</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(
-      a: <span class="hljs-type">Int</span>,
-      b: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span>
-
-  <span class="hljs-comment">// callSite</span>
-  method(
-    argument1,
-    argument2
-  )
-}
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
-  <span class="hljs-comment">// defnSite</span>
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span>
-
-  <span class="hljs-comment">// callSite</span>
-  method(argument1, argument2)
-}
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">danglingParentheses.defnSite = <span class="hljs-literal">false</span>
-danglingParentheses.callSite = <span class="hljs-literal">true</span>
-maxColumn=<span class="hljs-number">25</span>
-</code></pre>
-</p></details>
-<h4><a class="anchor" aria-hidden="true" id="danglingparenthesesctrlsite"></a><a href="#danglingparenthesesctrlsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>danglingParentheses.ctrlSite</code></h4>
-<blockquote>
-<p>Since v2.5.0.</p>
-</blockquote>
-<p>Forces dangling on open/close parens around control structures (<code>if</code>, <code>while</code>,
-<code>for</code>) when line breaks must occur.</p>
-<p>Default: <code>danglingParentheses.ctrlSite = true</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">if</span> (something) {
-  <span class="hljs-comment">// nothing</span>
-}
-<span class="hljs-keyword">if</span> (
-  something_else
-) {
-  <span class="hljs-comment">// nothing</span>
-}
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-keyword">if</span> (something) {
-  <span class="hljs-comment">// nothing</span>
-}
-<span class="hljs-keyword">if</span> (something_else) {
-  <span class="hljs-comment">// nothing</span>
-}
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">danglingParentheses.ctrlSite = <span class="hljs-literal">true</span>
-maxColumn=<span class="hljs-number">20</span>
-</code></pre>
-</p></details>
-<h4><a class="anchor" aria-hidden="true" id="danglingparenthesesexclude"></a><a href="#danglingparenthesesexclude" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>danglingParentheses.exclude</code></h4>
-<blockquote>
-<p>Since v2.5.0.</p>
-</blockquote>
-<p>When the appropriate <code>danglingParentheses</code> flag (e.g., <code>defnSite</code>) has been set,
-this parameter can be used to limit contexts where dangling is applied
-(currently, <code>class</code>, <code>trait</code>, <code>enum</code>, <code>extension</code> and <code>def</code> are supported).</p>
-<p>Default: <code>danglingParentheses.exclude = []</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">other</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span>)(
-  c: <span class="hljs-type">String</span>,
-  d: <span class="hljs-type">String</span>) = a + b + c
-other(a, b)(c, d)
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">other</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span>)(c: <span class="hljs-type">String</span>, d: <span class="hljs-type">String</span>) = a + b + c
-other(a, b)(c, d)
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">continuationIndent.defnSite = <span class="hljs-number">2</span>
-danglingParentheses.defnSite = <span class="hljs-literal">true</span>
-danglingParentheses.exclude = [<span class="hljs-function"><span class="hljs-keyword">def</span>]</span>
-</code></pre>
-</p></details>
 <h3><a class="anchor" aria-hidden="true" id="newlinestoplevelstatements"></a><a href="#newlinestoplevelstatements" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.topLevelStatements</code></h3>
 <blockquote>
 <p>Since v2.5.0.</p>
@@ -1744,21 +1528,21 @@ something.map { x =&gt; f(x) }
 <pre><code class="hljs css language-scala config">newlines.afterCurlyLambdaParams = always
 </code></pre>
 </p></details>
-<h3><a class="anchor" aria-hidden="true" id="newlines-around-implicit-parameter-list-modifier"></a><a href="#newlines-around-implicit-parameter-list-modifier" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Newlines around <code>implicit</code> parameter list modifier</h3>
+<h3><a class="anchor" aria-hidden="true" id="newlinesimplicitparamlistmodifierxxx"></a><a href="#newlinesimplicitparamlistmodifierxxx" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.implicitParamListModifierXXX</code></h3>
+<p>These parameters control newlines around <code>implicit</code> parameter list modifier.</p>
 <blockquote>
 <p>Since v2.5.0.</p>
 </blockquote>
 <h4><a class="anchor" aria-hidden="true" id="newlines-around-using-parameter-and-argument-list-modifier"></a><a href="#newlines-around-using-parameter-and-argument-list-modifier" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Newlines around <code>using</code> parameter and argument list modifier</h4>
-<blockquote>
-<p>Since v3.0.0</p>
-</blockquote>
-<p><code>using</code> soft keyword was introduced in Scala 3 and is supported in scalafmt.
-The settings <code>newlines.implicitParamListModifierPrefer</code> and
-<code>newlines.implicitParamListModifierForce</code> are from now on aliases for
-<code>newlines.usingParamListModifierPrefer</code> and <code>newlines.usingParamListModifierForce</code>.
-By picking one of them formatting will be applied at the same time to both <code>implicit</code> and <code>using</code>.
+<p><code>using</code> soft keyword was introduced in Scala 3 and is supported in <code>scalafmt</code>.
 Besides parameter lists, <code>using</code> can also be used with argument lists hence
-provided rules will then also be applied to the argument lists.</p>
+provided rules will then also be applied to them.</p>
+<blockquote>
+<p>Since v3.0.0.</p>
+</blockquote>
+<p>The parameters defined below can also be accessed via their alternative names where
+<code>implicit</code> is replaced with <code>using</code> (for instance, <code>newlines.usingParamListModifierPrefer</code>).
+Whichever naming you use, formatting will be applied to both <code>implicit</code> and <code>using</code>.</p>
 <h4><a class="anchor" aria-hidden="true" id="prefer-after-default"></a><a href="#prefer-after-default" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Prefer After (default)</h4>
 <blockquote>
 <p>Prefers newline after <code>implicit</code>. Newline will be added unless the entire
@@ -1977,6 +1761,222 @@ without them is impossible. This parameter was added in 2.7.0, replacing
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">40</span>
 newlines.avoidInResultType = <span class="hljs-literal">true</span>
 newlines.neverBeforeJsNative = <span class="hljs-literal">true</span>
+</code></pre>
+</p></details>
+<h2><a class="anchor" aria-hidden="true" id="newlines-danglingparentheses"></a><a href="#newlines-danglingparentheses" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Newlines: <code>danglingParentheses</code></h2>
+<p>While this parameter is not technically under the <code>newlines</code> section, it
+logically belongs there.</p>
+<h3><a class="anchor" aria-hidden="true" id="danglingparenthesesdefnsite"></a><a href="#danglingparenthesesdefnsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>danglingParentheses.defnSite</code></h3>
+<p>Default: <code>danglingParentheses.defnSite = true</code></p>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
+  <span class="hljs-comment">// defnSite</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(
+      a: <span class="hljs-type">Int</span>,
+      b: <span class="hljs-type">String</span>
+  ): <span class="hljs-type">Boolean</span>
+
+  <span class="hljs-comment">// callSite</span>
+  method(
+    argument1,
+    argument2)
+}
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
+  <span class="hljs-comment">// defnSite</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span>
+
+  <span class="hljs-comment">// callSite</span>
+  method(argument1, argument2)
+}
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">danglingParentheses.defnSite = <span class="hljs-literal">true</span>
+danglingParentheses.callSite = <span class="hljs-literal">false</span>
+maxColumn=<span class="hljs-number">25</span>
+</code></pre>
+</p></details>
+<h3><a class="anchor" aria-hidden="true" id="danglingparenthesescallsite"></a><a href="#danglingparenthesescallsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>danglingParentheses.callSite</code></h3>
+<p>Default: <code>danglingParentheses.callSite = true</code></p>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
+  <span class="hljs-comment">// defnSite</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(
+      a: <span class="hljs-type">Int</span>,
+      b: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span>
+
+  <span class="hljs-comment">// callSite</span>
+  method(
+    argument1,
+    argument2
+  )
+}
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
+  <span class="hljs-comment">// defnSite</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span>
+
+  <span class="hljs-comment">// callSite</span>
+  method(argument1, argument2)
+}
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">danglingParentheses.defnSite = <span class="hljs-literal">false</span>
+danglingParentheses.callSite = <span class="hljs-literal">true</span>
+maxColumn=<span class="hljs-number">25</span>
+</code></pre>
+</p></details>
+<h3><a class="anchor" aria-hidden="true" id="danglingparenthesesctrlsite"></a><a href="#danglingparenthesesctrlsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>danglingParentheses.ctrlSite</code></h3>
+<blockquote>
+<p>Since v2.5.0.</p>
+</blockquote>
+<p>Forces dangling on open/close parens around control structures (<code>if</code>, <code>while</code>,
+<code>for</code>) when line breaks must occur.</p>
+<p>Default: <code>danglingParentheses.ctrlSite = true</code></p>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">if</span> (something) {
+  <span class="hljs-comment">// nothing</span>
+}
+<span class="hljs-keyword">if</span> (
+  something_else
+) {
+  <span class="hljs-comment">// nothing</span>
+}
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-keyword">if</span> (something) {
+  <span class="hljs-comment">// nothing</span>
+}
+<span class="hljs-keyword">if</span> (something_else) {
+  <span class="hljs-comment">// nothing</span>
+}
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">danglingParentheses.ctrlSite = <span class="hljs-literal">true</span>
+maxColumn=<span class="hljs-number">20</span>
+</code></pre>
+</p></details>
+<h3><a class="anchor" aria-hidden="true" id="danglingparenthesesexclude"></a><a href="#danglingparenthesesexclude" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>danglingParentheses.exclude</code></h3>
+<blockquote>
+<p>Since v2.5.0.</p>
+</blockquote>
+<p>When the appropriate <code>danglingParentheses</code> flag (e.g., <code>defnSite</code>) has been set,
+this parameter can be used to limit contexts where dangling is applied
+(currently, <code>class</code>, <code>trait</code>, <code>enum</code>, <code>extension</code> and <code>def</code> are supported).</p>
+<p>Default: <code>danglingParentheses.exclude = []</code></p>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">other</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span>)(
+  c: <span class="hljs-type">String</span>,
+  d: <span class="hljs-type">String</span>) = a + b + c
+other(a, b)(c, d)
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">other</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span>)(c: <span class="hljs-type">String</span>, d: <span class="hljs-type">String</span>) = a + b + c
+other(a, b)(c, d)
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">continuationIndent.defnSite = <span class="hljs-number">2</span>
+danglingParentheses.defnSite = <span class="hljs-literal">true</span>
+danglingParentheses.exclude = [<span class="hljs-function"><span class="hljs-keyword">def</span>]</span>
+</code></pre>
+</p></details>
+<h2><a class="anchor" aria-hidden="true" id="newlines-config-style-formatting"></a><a href="#newlines-config-style-formatting" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Newlines: Config-style formatting</h2>
+<p>This formatting applies to argument lists in class definitions and method calls.
+It normally involves a newline after the opening parenthesis (or after the
+<code>implicit</code> keyword) and a newline before the closing parenthesis.</p>
+<p>As part of the formatting output, arguments are output one per line (but this is
+not used in determining whether the source uses config-style formatting).</p>
+<p>While this parameter is not technically under the <code>newlines</code> section, it
+logically belongs there.</p>
+<h3><a class="anchor" aria-hidden="true" id="optinconfigstylearguments"></a><a href="#optinconfigstylearguments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>optIn.configStyleArguments</code></h3>
+<p>If true, applies config-style formatting:</p>
+<ul>
+<li>if single-line formatting is impossible</li>
+<li>if the source uses config-style and <code>newlines.source = classic/keep</code></li>
+<li>if other parameters force config-style (see below)</li>
+</ul>
+<p>Default: <code>optIn.configStyleArguments = true</code></p>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
+  <span class="hljs-comment">// keeps single line</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method1</span></span>(a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span>
+
+  <span class="hljs-comment">// forces config style</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method2</span></span>(
+      a: <span class="hljs-type">Int</span>,
+      b: <span class="hljs-type">String</span>,
+      c: <span class="hljs-type">String</span>
+  ): <span class="hljs-type">Boolean</span>
+
+  <span class="hljs-comment">// preserves config style</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method3</span></span>(
+      a: <span class="hljs-type">Int</span>,
+      b: <span class="hljs-type">String</span>,
+      c: <span class="hljs-type">String</span>
+  ): <span class="hljs-type">Boolean</span>
+}
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
+  <span class="hljs-comment">// keeps single line</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method1</span></span>(a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span>
+
+  <span class="hljs-comment">// forces config style</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method2</span></span>(a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">String</span>, c: <span class="hljs-type">String</span>): <span class="hljs-type">Boolean</span>
+
+  <span class="hljs-comment">// preserves config style</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method3</span></span>(
+    a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">String</span>, c: <span class="hljs-type">String</span>
+  ): <span class="hljs-type">Boolean</span>
+}
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">optIn.configStyleArguments = <span class="hljs-literal">true</span>
+maxColumn=<span class="hljs-number">45</span>
+</code></pre>
+</p></details>
+<h3><a class="anchor" aria-hidden="true" id="forcing-config-style"></a><a href="#forcing-config-style" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Forcing config style</h3>
+<p>Controls parameters which trigger forced config-style formatting. All conditions
+must be satisfied in order for this rule to apply.</p>
+<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
+runner.optimizer.forceConfigStyleOnOffset = <span class="hljs-number">150</span>
+runner.optimizer.forceConfigStyleMinArgCount = <span class="hljs-number">2</span>
+</code></pre>
+<ul>
+<li><code>runner.optimizer.forceConfigStyleOnOffset</code>: applies to method calls; if
+positive, specifies the minimum character distance between the matching
+parentheses, excluding any whitespace</li>
+<li><code>runner.optimizer.forceConfigStyleMinArgCount</code> applies to method calls;
+specifies the minimum number of arguments</li>
+</ul>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
+  <span class="hljs-comment">// this is a definition, not a method call</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span> = <span class="hljs-literal">null</span>): <span class="hljs-type">Boolean</span>
+
+  <span class="hljs-comment">// keeps single line; min offset not satisfied</span>
+  method(a, b)
+
+  <span class="hljs-comment">// keeps single line; min arg not satisfied</span>
+  method(<span class="hljs-type">SomeVeryVeryVeryVeryLongArgument</span>)
+
+  <span class="hljs-comment">// forces config style</span>
+  method(
+    foo,
+    bar
+  )
+}
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
+  <span class="hljs-comment">// this is a definition, not a method call</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span> = <span class="hljs-literal">null</span>): <span class="hljs-type">Boolean</span>
+
+  <span class="hljs-comment">// keeps single line; min offset not satisfied</span>
+  method(a, b)
+
+  <span class="hljs-comment">// keeps single line; min arg not satisfied</span>
+  method(<span class="hljs-type">SomeVeryVeryVeryVeryLongArgument</span>)
+
+  <span class="hljs-comment">// forces config style</span>
+  method(foo, bar)
+}
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">optIn.configStyleArguments = <span class="hljs-literal">true</span>
+runner.optimizer.forceConfigStyleOnOffset = <span class="hljs-number">5</span>
+runner.optimizer.forceConfigStyleMinArgCount = <span class="hljs-number">2</span>
+maxColumn = <span class="hljs-number">60</span>
 </code></pre>
 </p></details>
 <h2><a class="anchor" aria-hidden="true" id="rewrite-rules"></a><a href="#rewrite-rules" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Rewrite Rules</h2>
@@ -2737,14 +2737,13 @@ newlines.implicitParamListModifierForce = [before,after]
 </code></pre>
 </p></details>
 <h2><a class="anchor" aria-hidden="true" id="comment-processing"></a><a href="#comment-processing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Comment processing</h2>
-<h3><a class="anchor" aria-hidden="true" id="comments"></a><a href="#comments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments</code></h3>
-<h4><a class="anchor" aria-hidden="true" id="commentswrap"></a><a href="#commentswrap" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrap</code></h4>
+<h3><a class="anchor" aria-hidden="true" id="commentswrap"></a><a href="#commentswrap" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrap</code></h3>
 <blockquote>
 <p>Since v2.6.0.</p>
 </blockquote>
 <p>Allows wrapping comments exceeding <code>maxColumn</code>.</p>
 <p>Default: <code>comments.wrap = &quot;no&quot;</code></p>
-<h5><a class="anchor" aria-hidden="true" id="commentswrap--standalone"></a><a href="#commentswrap--standalone" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrap = standalone</code></h5>
+<h4><a class="anchor" aria-hidden="true" id="commentswrap--standalone"></a><a href="#commentswrap--standalone" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrap = standalone</code></h4>
 <p>A standalone comment is one which is surrounded by line breaks.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/* long multiline
  * comment */</span>
@@ -2764,7 +2763,7 @@ newlines.implicitParamListModifierForce = [before,after]
 comments.wrap = standalone
 </code></pre>
 </p></details>
-<h5><a class="anchor" aria-hidden="true" id="commentswrap--trailing"></a><a href="#commentswrap--trailing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrap = trailing</code></h5>
+<h4><a class="anchor" aria-hidden="true" id="commentswrap--trailing"></a><a href="#commentswrap--trailing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrap = trailing</code></h4>
 <p>A trailing comment is one which is followed by a line break.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/* long multiline
  * comment */</span>
@@ -2786,7 +2785,7 @@ comments.wrap = standalone
 comments.wrap = trailing
 </code></pre>
 </p></details>
-<h4><a class="anchor" aria-hidden="true" id="commentswrapstandaloneslcasslc"></a><a href="#commentswrapstandaloneslcasslc" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrapStandaloneSlcAsSlc</code></h4>
+<h3><a class="anchor" aria-hidden="true" id="commentswrapstandaloneslcasslc"></a><a href="#commentswrapstandaloneslcasslc" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrapStandaloneSlcAsSlc</code></h3>
 <blockquote>
 <p>Since v2.6.0.</p>
 </blockquote>
@@ -2809,13 +2808,12 @@ comments.wrap = trailing
 comments.wrapStandaloneSlcAsSlc = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
-<h3><a class="anchor" aria-hidden="true" id="docstrings"></a><a href="#docstrings" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings</code></h3>
-<h4><a class="anchor" aria-hidden="true" id="docstringsstyle"></a><a href="#docstringsstyle" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style</code></h4>
+<h3><a class="anchor" aria-hidden="true" id="docstringsstyle"></a><a href="#docstringsstyle" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style</code></h3>
 <blockquote>
 <p>Since v2.6.0.</p>
 </blockquote>
 <p>Default: <code>docstrings.style = &quot;SpaceAsterisk&quot;</code></p>
-<h5><a class="anchor" aria-hidden="true" id="docstringsstyle--keep"></a><a href="#docstringsstyle--keep" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = keep</code></h5>
+<h4><a class="anchor" aria-hidden="true" id="docstringsstyle--keep"></a><a href="#docstringsstyle--keep" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = keep</code></h4>
 <p>Prohibits formatting of docstrings. All other <code>docstrings</code> parameters are
 ignored.</p>
 <blockquote>
@@ -2835,7 +2833,7 @@ ignored.</p>
 <pre><code class="hljs css language-scala config">docstrings.style = keep
 </code></pre>
 </p></details>
-<h5><a class="anchor" aria-hidden="true" id="docstringsstyle--asterisk"></a><a href="#docstringsstyle--asterisk" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = Asterisk</code></h5>
+<h4><a class="anchor" aria-hidden="true" id="docstringsstyle--asterisk"></a><a href="#docstringsstyle--asterisk" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = Asterisk</code></h4>
 <p>This variant used to be called <code>JavaDoc</code>.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/**
  * Skip first line, format intermediate lines with an asterisk
@@ -2850,7 +2848,7 @@ ignored.</p>
 <pre><code class="hljs css language-scala config">docstrings.style = <span class="hljs-type">Asterisk</span>
 </code></pre>
 </p></details>
-<h5><a class="anchor" aria-hidden="true" id="docstringsstyle--spaceasterisk"></a><a href="#docstringsstyle--spaceasterisk" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = SpaceAsterisk</code></h5>
+<h4><a class="anchor" aria-hidden="true" id="docstringsstyle--spaceasterisk"></a><a href="#docstringsstyle--spaceasterisk" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = SpaceAsterisk</code></h4>
 <p>This variant used to be called <code>ScalaDoc</code>.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** Format intermediate lines with a space and an asterisk,
   * both below the two asterisks of the first line
@@ -2864,7 +2862,7 @@ ignored.</p>
 <pre><code class="hljs css language-scala config">docstrings.style = <span class="hljs-type">SpaceAsterisk</span>
 </code></pre>
 </p></details>
-<h5><a class="anchor" aria-hidden="true" id="docstringsstyle--asteriskspace"></a><a href="#docstringsstyle--asteriskspace" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = AsteriskSpace</code></h5>
+<h4><a class="anchor" aria-hidden="true" id="docstringsstyle--asteriskspace"></a><a href="#docstringsstyle--asteriskspace" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = AsteriskSpace</code></h4>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** Format intermediate lines with an asterisk and a space,
  *  both below the two asterisks of the first line
  */</span>
@@ -2877,12 +2875,12 @@ ignored.</p>
 <pre><code class="hljs css language-scala config">docstrings.style = <span class="hljs-type">AsteriskSpace</span>
 </code></pre>
 </p></details>
-<h4><a class="anchor" aria-hidden="true" id="docstringsoneline"></a><a href="#docstringsoneline" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.oneline</code></h4>
+<h3><a class="anchor" aria-hidden="true" id="docstringsoneline"></a><a href="#docstringsoneline" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.oneline</code></h3>
 <blockquote>
 <p>Since v2.6.0. Ignored for <code>docstrings.style = keep</code>.</p>
 </blockquote>
 <p>Default: <code>docstrings.oneline = &quot;keep&quot;</code></p>
-<h5><a class="anchor" aria-hidden="true" id="docstringsoneline--fold"></a><a href="#docstringsoneline--fold" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.oneline = fold</code></h5>
+<h4><a class="anchor" aria-hidden="true" id="docstringsoneline--fold"></a><a href="#docstringsoneline--fold" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.oneline = fold</code></h4>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** Scaladoc oneline */</span>
 <span class="hljs-comment">/** Scaladoc multiline */</span>
 <span class="hljs-keyword">val</span> a = <span class="hljs-number">1</span>
@@ -2898,7 +2896,7 @@ ignored.</p>
 docstrings.oneline = fold
 </code></pre>
 </p></details>
-<h5><a class="anchor" aria-hidden="true" id="docstringsoneline--unfold"></a><a href="#docstringsoneline--unfold" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.oneline = unfold</code></h5>
+<h4><a class="anchor" aria-hidden="true" id="docstringsoneline--unfold"></a><a href="#docstringsoneline--unfold" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.oneline = unfold</code></h4>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/**
  * Scaladoc oneline
  */</span>
@@ -2918,7 +2916,7 @@ docstrings.oneline = fold
 docstrings.oneline = unfold
 </code></pre>
 </p></details>
-<h5><a class="anchor" aria-hidden="true" id="docstringsoneline--keep"></a><a href="#docstringsoneline--keep" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.oneline = keep</code></h5>
+<h4><a class="anchor" aria-hidden="true" id="docstringsoneline--keep"></a><a href="#docstringsoneline--keep" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.oneline = keep</code></h4>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** Scaladoc oneline */</span>
 <span class="hljs-comment">/**
  * Scaladoc multiline
@@ -2936,7 +2934,7 @@ docstrings.oneline = unfold
 docstrings.oneline = keep
 </code></pre>
 </p></details>
-<h4><a class="anchor" aria-hidden="true" id="docstringswrap"></a><a href="#docstringswrap" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.wrap</code></h4>
+<h3><a class="anchor" aria-hidden="true" id="docstringswrap"></a><a href="#docstringswrap" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.wrap</code></h3>
 <p>Will parse scaladoc comments and reformat them.</p>
 <p>This functionality is generally limited to
 <a href="https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html">standard scaladoc elements</a>
@@ -3004,7 +3002,7 @@ scaladoc parser doesn't have proper support of embedded HTML.</p>
 maxColumn = <span class="hljs-number">30</span>
 </code></pre>
 </p></details>
-<h4><a class="anchor" aria-hidden="true" id="docstringsblankfirstline"></a><a href="#docstringsblankfirstline" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.blankFirstLine</code></h4>
+<h3><a class="anchor" aria-hidden="true" id="docstringsblankfirstline"></a><a href="#docstringsblankfirstline" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.blankFirstLine</code></h3>
 <p>Controls whether to force the first line to be blank in a multiline docstring.
 Keep in mind that some combinations of parameters are prohibited (e.g.,
 <code>blankFirstLine=keep</code> contradicts with <code>style=Asterisk</code>).</p>
@@ -3881,6 +3879,11 @@ will not respect the <code>edition</code> setting.</p>
 of Scalafmt. A good place to start is <code>ScalafmtConfig</code>. Observe that this
 listing below is the top-level, there are more configuration options if you
 visited nested fields like <code>spaces</code> and <code>newlines</code>.</p>
+<blockquote>
+<p>The values for parameters below are purely for informational purposes. They use
+pseudo-formatting similar to but incompatible with <code>scalafmt.conf</code>.
+Some of them show values which can't be explicitly specified.</p>
+</blockquote>
 <pre><code class="hljs"><span class="hljs-attr">version</span> = <span class="hljs-string">"2.7.5"</span>
 <span class="hljs-attr">maxColumn</span> = <span class="hljs-number">80</span>
 docstrings.<span class="hljs-attr">oneline</span> = keep
@@ -4088,7 +4091,7 @@ project.<span class="hljs-attr">includeFilters</span> = [
 project.<span class="hljs-attr">excludeFilters</span> = []
 xmlLiterals.<span class="hljs-attr">assumeFormatted</span> = <span class="hljs-literal">false</span>
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#presets">Presets</a><ul class="toc-headings"><li><a href="#top-level-presets">Top-level presets</a></li></ul></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#continuationindentcallsite"><code>continuationIndent.callSite</code></a></li><li><a href="#continuationindentdefnsite"><code>continuationIndent.defnSite</code></a></li><li><a href="#continuationindentctorsite"><code>continuationIndent.ctorSite</code></a></li><li><a href="#continuationindentcasesite"><code>continuationIndent.caseSite</code></a></li><li><a href="#continuationindentextendsite"><code>continuationIndent.extendSite</code></a></li><li><a href="#continuationindentcommasiterelativetoextends"><code>continuationIndent.commaSiteRelativeToExtends</code></a></li><li><a href="#indentoperator"><code>indentOperator</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#align"><code>align</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#aligntokensadd"><code>align.tokens.add</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li><li><a href="#alignstripmargin"><code>align.stripMargin</code></a></li><li><a href="#alignmultiline"><code>align.multiline</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinessource"><code>newlines.source</code></a></li><li><a href="#config-style-formatting">Config-style formatting</a></li><li><a href="#danglingparentheses"><code>danglingParentheses</code></a></li><li><a href="#newlinestoplevelstatements"><code>newlines.topLevelStatements</code></a></li><li><a href="#newlinesbeforemultiline"><code>newlines.beforeMultiline</code></a></li><li><a href="#newlinesbeforemultilinedef"><code>newlines.beforeMultilineDef</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li><li><a href="#newlinesbeforecurlylambdaparams"><code>newlines.beforeCurlyLambdaParams</code></a></li><li><a href="#newlinesaftercurlylambdaparams"><code>newlines.afterCurlyLambdaParams</code></a></li><li><a href="#newlines-around-implicit-parameter-list-modifier">Newlines around <code>implicit</code> parameter list modifier</a></li><li><a href="#newlinesafterinfix"><code>newlines.afterInfix</code></a></li><li><a href="#newlinesavoidforsimpleoverflow"><code>newlines.avoidForSimpleOverflow</code></a></li><li><a href="#newlinesavoidinresulttype"><code>newlines.avoidInResultType</code></a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#expandimportselectors"><code>ExpandImportSelectors</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#sortimports"><code>SortImports</code></a></li><li><a href="#asciisortimports"><code>AsciiSortImports</code></a></li><li><a href="#trailing-commas">Trailing commas</a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilineexcludedanglingparens"><code>verticalMultiline.excludeDanglingParens</code></a></li><li><a href="#vertical-multiline-with-implicit-parameter-lists">Vertical multiline with <code>implicit</code> parameter lists</a></li></ul></li><li><a href="#comment-processing">Comment processing</a><ul class="toc-headings"><li><a href="#comments"><code>comments</code></a></li><li><a href="#docstrings"><code>docstrings</code></a></li></ul></li><li><a href="#disabling-or-customizing-formatting">Disabling or customizing formatting</a><ul class="toc-headings"><li><a href="#for-code-block">For code block</a></li><li><a href="#-format-off">// format: off</a></li><li><a href="#project">Project</a></li><li><a href="#fileoverride"><code>fileOverride</code></a></li></ul></li><li><a href="#spaces">Spaces</a><ul class="toc-headings"><li><a href="#spacesbeforecontextboundcolon"><code>spaces.beforeContextBoundColon</code></a></li><li><a href="#spacesinimportcurlybraces"><code>spaces.inImportCurlyBraces</code></a></li><li><a href="#spacesininterpolatedstringcurlybraces"><code>spaces.inInterpolatedStringCurlyBraces</code></a></li><li><a href="#spacesinparentheses"><code>spaces.inParentheses</code></a></li><li><a href="#spacesneveraroundinfixtypes"><code>spaces.neverAroundInfixTypes</code></a></li><li><a href="#spacesafterkeywordbeforeparen"><code>spaces.afterKeywordBeforeParen</code></a></li><li><a href="#spacesinbynametypes"><code>spaces.inByNameTypes</code></a></li><li><a href="#spacesaftersymbolicdefs"><code>spaces.afterSymbolicDefs</code></a></li></ul></li><li><a href="#literals">Literals</a><ul class="toc-headings"><li><a href="#literalslong"><code>literals.long</code></a></li><li><a href="#literalsfloat"><code>literals.float</code></a></li><li><a href="#literalsdouble"><code>literals.double</code></a></li><li><a href="#literalshexprefix"><code>literals.hexPrefix</code></a></li><li><a href="#literalshexdigits"><code>literals.hexDigits</code></a></li><li><a href="#literalsscientific"><code>literals.scientific</code></a></li></ul></li><li><a href="#xml">XML</a><ul class="toc-headings"><li><a href="#xmlliteralsassumeformatted"><code>xmlLiterals.assumeFormatted</code></a></li></ul></li><li><a href="#binpacking">Binpacking</a><ul class="toc-headings"><li><a href="#binpackliteralargumentlists"><code>binPack.literalArgumentLists</code></a></li><li><a href="#binpackparentconstructors"><code>binPack.parentConstructors</code></a></li></ul></li><li><a href="#classic-select-chains">Classic select chains</a><ul class="toc-headings"><li><a href="#includecurlybraceinselectchains"><code>includeCurlyBraceInSelectChains</code></a></li><li><a href="#includenoparensinselectchains"><code>includeNoParensInSelectChains</code></a></li><li><a href="#optinbreakchainonfirstmethoddot"><code>optIn.breakChainOnFirstMethodDot</code></a></li><li><a href="#optinbreaksinsidechains"><code>optIn.breaksInsideChains</code></a></li><li><a href="#optinencloseclassicchains"><code>optIn.encloseClassicChains</code></a></li></ul></li><li><a href="#scala-3">Scala 3</a></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#optinforceblanklinebeforedocstring"><code>optIn.forceBlankLineBeforeDocstring</code></a></li><li><a href="#rewritetokens"><code>rewriteTokens</code></a></li></ul></li><li><a href="#edition">Edition</a></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#presets">Presets</a><ul class="toc-headings"><li><a href="#top-level-presets">Top-level presets</a></li></ul></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#continuationindentcallsite"><code>continuationIndent.callSite</code></a></li><li><a href="#continuationindentdefnsite"><code>continuationIndent.defnSite</code></a></li><li><a href="#continuationindentctorsite"><code>continuationIndent.ctorSite</code></a></li><li><a href="#continuationindentcasesite"><code>continuationIndent.caseSite</code></a></li><li><a href="#continuationindentextendsite"><code>continuationIndent.extendSite</code></a></li><li><a href="#continuationindentcommasiterelativetoextends"><code>continuationIndent.commaSiteRelativeToExtends</code></a></li><li><a href="#indentoperator"><code>indentOperator</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#alignpreset"><code>align.preset</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#aligntokensadd"><code>align.tokens.add</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li><li><a href="#alignstripmargin"><code>align.stripMargin</code></a></li><li><a href="#alignmultiline"><code>align.multiline</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinessource"><code>newlines.source</code></a></li><li><a href="#newlinestoplevelstatements"><code>newlines.topLevelStatements</code></a></li><li><a href="#newlinesbeforemultiline"><code>newlines.beforeMultiline</code></a></li><li><a href="#newlinesbeforemultilinedef"><code>newlines.beforeMultilineDef</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li><li><a href="#newlinesbeforecurlylambdaparams"><code>newlines.beforeCurlyLambdaParams</code></a></li><li><a href="#newlinesaftercurlylambdaparams"><code>newlines.afterCurlyLambdaParams</code></a></li><li><a href="#newlinesimplicitparamlistmodifierxxx"><code>newlines.implicitParamListModifierXXX</code></a></li><li><a href="#newlinesafterinfix"><code>newlines.afterInfix</code></a></li><li><a href="#newlinesavoidforsimpleoverflow"><code>newlines.avoidForSimpleOverflow</code></a></li><li><a href="#newlinesavoidinresulttype"><code>newlines.avoidInResultType</code></a></li></ul></li><li><a href="#newlines-danglingparentheses">Newlines: <code>danglingParentheses</code></a><ul class="toc-headings"><li><a href="#danglingparenthesesdefnsite"><code>danglingParentheses.defnSite</code></a></li><li><a href="#danglingparenthesescallsite"><code>danglingParentheses.callSite</code></a></li><li><a href="#danglingparenthesesctrlsite"><code>danglingParentheses.ctrlSite</code></a></li><li><a href="#danglingparenthesesexclude"><code>danglingParentheses.exclude</code></a></li></ul></li><li><a href="#newlines-config-style-formatting">Newlines: Config-style formatting</a><ul class="toc-headings"><li><a href="#optinconfigstylearguments"><code>optIn.configStyleArguments</code></a></li><li><a href="#forcing-config-style">Forcing config style</a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#expandimportselectors"><code>ExpandImportSelectors</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#sortimports"><code>SortImports</code></a></li><li><a href="#asciisortimports"><code>AsciiSortImports</code></a></li><li><a href="#trailing-commas">Trailing commas</a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilineexcludedanglingparens"><code>verticalMultiline.excludeDanglingParens</code></a></li><li><a href="#vertical-multiline-with-implicit-parameter-lists">Vertical multiline with <code>implicit</code> parameter lists</a></li></ul></li><li><a href="#comment-processing">Comment processing</a><ul class="toc-headings"><li><a href="#commentswrap"><code>comments.wrap</code></a></li><li><a href="#commentswrapstandaloneslcasslc"><code>comments.wrapStandaloneSlcAsSlc</code></a></li><li><a href="#docstringsstyle"><code>docstrings.style</code></a></li><li><a href="#docstringsoneline"><code>docstrings.oneline</code></a></li><li><a href="#docstringswrap"><code>docstrings.wrap</code></a></li><li><a href="#docstringsblankfirstline"><code>docstrings.blankFirstLine</code></a></li></ul></li><li><a href="#disabling-or-customizing-formatting">Disabling or customizing formatting</a><ul class="toc-headings"><li><a href="#for-code-block">For code block</a></li><li><a href="#-format-off">// format: off</a></li><li><a href="#project">Project</a></li><li><a href="#fileoverride"><code>fileOverride</code></a></li></ul></li><li><a href="#spaces">Spaces</a><ul class="toc-headings"><li><a href="#spacesbeforecontextboundcolon"><code>spaces.beforeContextBoundColon</code></a></li><li><a href="#spacesinimportcurlybraces"><code>spaces.inImportCurlyBraces</code></a></li><li><a href="#spacesininterpolatedstringcurlybraces"><code>spaces.inInterpolatedStringCurlyBraces</code></a></li><li><a href="#spacesinparentheses"><code>spaces.inParentheses</code></a></li><li><a href="#spacesneveraroundinfixtypes"><code>spaces.neverAroundInfixTypes</code></a></li><li><a href="#spacesafterkeywordbeforeparen"><code>spaces.afterKeywordBeforeParen</code></a></li><li><a href="#spacesinbynametypes"><code>spaces.inByNameTypes</code></a></li><li><a href="#spacesaftersymbolicdefs"><code>spaces.afterSymbolicDefs</code></a></li></ul></li><li><a href="#literals">Literals</a><ul class="toc-headings"><li><a href="#literalslong"><code>literals.long</code></a></li><li><a href="#literalsfloat"><code>literals.float</code></a></li><li><a href="#literalsdouble"><code>literals.double</code></a></li><li><a href="#literalshexprefix"><code>literals.hexPrefix</code></a></li><li><a href="#literalshexdigits"><code>literals.hexDigits</code></a></li><li><a href="#literalsscientific"><code>literals.scientific</code></a></li></ul></li><li><a href="#xml">XML</a><ul class="toc-headings"><li><a href="#xmlliteralsassumeformatted"><code>xmlLiterals.assumeFormatted</code></a></li></ul></li><li><a href="#binpacking">Binpacking</a><ul class="toc-headings"><li><a href="#binpackliteralargumentlists"><code>binPack.literalArgumentLists</code></a></li><li><a href="#binpackparentconstructors"><code>binPack.parentConstructors</code></a></li></ul></li><li><a href="#classic-select-chains">Classic select chains</a><ul class="toc-headings"><li><a href="#includecurlybraceinselectchains"><code>includeCurlyBraceInSelectChains</code></a></li><li><a href="#includenoparensinselectchains"><code>includeNoParensInSelectChains</code></a></li><li><a href="#optinbreakchainonfirstmethoddot"><code>optIn.breakChainOnFirstMethodDot</code></a></li><li><a href="#optinbreaksinsidechains"><code>optIn.breaksInsideChains</code></a></li><li><a href="#optinencloseclassicchains"><code>optIn.encloseClassicChains</code></a></li></ul></li><li><a href="#scala-3">Scala 3</a></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#optinforceblanklinebeforedocstring"><code>optIn.forceBlankLineBeforeDocstring</code></a></li><li><a href="#rewritetokens"><code>rewriteTokens</code></a></li></ul></li><li><a href="#edition">Edition</a></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
                 /scalafmt/docs/installation.html">Installation</a><a href="
                 /scalafmt/docs/configuration.html">Configuration</a><a href="
                 /scalafmt/docs/contributing-scalafmt.html">Contributing</a></div><div><h5>Community</h5><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2021 Scalafmt</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
