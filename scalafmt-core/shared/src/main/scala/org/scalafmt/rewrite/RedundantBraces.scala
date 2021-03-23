@@ -251,7 +251,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
         def disqualifiedByUnit =
           !settings.includeUnitMethods && d.decltpe.exists(_.syntax == "Unit")
         settings.methodBodies &&
-        getSingleStatIfLineSpanOk(b).exists(innerOk) &&
+        getSingleStatIfLineSpanOk(b).exists(innerOk(b)) &&
         !isProcedureSyntax(d) &&
         !disqualifiedByUnit
 
@@ -266,9 +266,14 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
     }
   }
 
-  private def innerOk(s: Stat) =
+  private def innerOk(b: Term.Block)(s: Stat): Boolean =
     s match {
       case _: Term.Function | _: Defn => false
+      case t: Term.NewAnonymous =>
+        // can't allow: new A with B .foo
+        // can allow if: no ".foo", no "with B", or has braces
+        !b.parent.exists(_.is[Term.Select]) || t.templ.inits.length <= 1 ||
+          t.templ.stats.nonEmpty || t.tokens.last.is[RightBrace]
       case _ => true
     }
 
@@ -286,7 +291,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
   /** Some blocks look redundant but aren't */
   private def shouldRemoveSingleStatBlock(b: Term.Block): Boolean =
     getSingleStatIfLineSpanOk(b).exists { stat =>
-      innerOk(stat) && !b.parent.exists {
+      innerOk(b)(stat) && !b.parent.exists {
         case _: Term.Try | _: Term.TryWithHandler =>
           // "try (x).y" or "try { x }.y" isn't supported until scala 2.13
           // inside exists, return true if rewrite is OK

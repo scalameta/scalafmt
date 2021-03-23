@@ -952,7 +952,7 @@ object a {
   val res = new A {}
   val res = new A {}.foo
   val res = new A with B
-  val res = new A with B.foo
+  val res = { new A with B }.foo
   val res = new A with B {}
   val res = new A with B {}.foo
   val res = new A { val foo = 1 }
