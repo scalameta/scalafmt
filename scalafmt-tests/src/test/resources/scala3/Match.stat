@@ -1,0 +1,287 @@
+maxColumn=80
+<<< match with dot
+def mtch(x: Int): String =
+            x.match {
+             case 1 => "1"
+              case _ => "ERR"
+            }.trim()
+>>>
+def mtch(x: Int): String =
+  x. match {
+    case 1 => "1"
+    case _ => "ERR"
+  }.trim()
+<<< match with dot complex
+def mtch(int: Int): String =
+            int.hello().thisIsALongMethodName().match {
+             case 1 => "1"
+              case _ => "ERR"
+            }.thisIsALongMethodName().thisIsALongMethodName().match {
+              case "1" => 1
+              case _ => 0
+            }
+>>>
+def mtch(int: Int): String =
+  int.hello().thisIsALongMethodName(). match {
+    case 1 => "1"
+    case _ => "ERR"
+  }.thisIsALongMethodName().thisIsALongMethodName(). match {
+    case "1" => 1
+    case _   => 0
+  }
+<<< match with dot complex inside
+maxColumn = 50
+===
+def mtch(int: Int): String =
+            int.hello().match {
+              case a =>
+                a.thisIsALongMethodName().thisIsALongMethodName().match {
+              case "1" => 1
+              case _ => 0
+            }
+            }
+>>>
+def mtch(int: Int): String =
+  int.hello(). match {
+    case a =>
+      a.thisIsALongMethodName()
+        .thisIsALongMethodName(). match {
+        case "1" => 1
+        case _   => 0
+      }
+  }
+<<< select with dot complex inside
+maxColumn = 50
+===
+def mtch(int: Int): String =
+            int.hello().matc {
+              case a =>
+                a.thisIsALongMethodName().thisIsALongMethodName().matc {
+              case "1" => 1
+              case _ => 0
+            }
+            }
+>>>
+def mtch(int: Int): String =
+  int.hello().matc { case a =>
+    a.thisIsALongMethodName()
+      .thisIsALongMethodName()
+      .matc {
+        case "1" => 1
+        case _   => 0
+      }
+  }
+<<< match chain complex
+val hello = xs match {
+  case Nil => "empty"
+   case x :: xs1 => "nonempty"
+} startsWith "empty" match {
+   case true => 0
+    case false => 1
+}
+>>>
+val hello = xs match {
+  case Nil      => "empty"
+  case x :: xs1 => "nonempty"
+} startsWith "empty" match {
+  case true  => 0
+  case false => 1
+}
+<<< infix chain complex
+val hello = xs match {
+  case Nil => "empty"
+   case x :: xs1 => "nonempty"
+} startsWith "empty" match {
+   case true => 0
+    case false => 1
+}
+>>>
+val hello = xs match {
+  case Nil      => "empty"
+  case x :: xs1 => "nonempty"
+} startsWith "empty" match {
+  case true  => 0
+  case false => 1
+}
+<<< match chain
+xs match {
+  case Nil => "empty"
+  case x :: xs1 => "nonempty"
+} match {
+  case "empty" => 0
+  case "nonempty" => 1
+}
+>>>
+xs match {
+  case Nil      => "empty"
+  case x :: xs1 => "nonempty"
+} match {
+  case "empty"    => 0
+  case "nonempty" => 1
+}
+<<< match with dot complex keep
+newlines.source=keep
+===
+def mtch(int: Int): String =
+            int.hello().thisIsALongMethodName().match {
+             case 1 => "1"
+              case _ => "ERR"
+            }.thisIsALongMethodName().thisIsALongMethodName().match {
+              case "1" => 1
+              case _ => 0
+            }
+>>>
+def mtch(int: Int): String =
+  int.hello().thisIsALongMethodName(). match {
+    case 1 => "1"
+    case _ => "ERR"
+  }.thisIsALongMethodName().thisIsALongMethodName(). match {
+    case "1" => 1
+    case _   => 0
+  }
+<<< match infix complex keep
+newlines.source=keep
+===
+def mtch(int: Int): String =
+            int.hello().thisIsALongMethodName() match {
+             case 1 => "1"
+              case _ => "ERR"
+            } thisIsALongMethodName thisIsALongMethodName match {
+              case "1" => 1
+              case _ => 0
+            }
+>>>
+def mtch(int: Int): String =
+  int.hello().thisIsALongMethodName() match {
+    case 1 => "1"
+    case _ => "ERR"
+  } thisIsALongMethodName thisIsALongMethodName match {
+    case "1" => 1
+    case _   => 0
+  }
+<<< match with dot complex fold
+newlines.source=fold
+===
+def mtch(int: Int): String =
+            int
+              .hello()
+              .thisIsALongMethodName().match {
+             case 1 => "1"
+              case _ => "ERR"
+            }.thisIsALongMethodName().thisIsALongMethodName().match {
+              case "1" => 1
+              case _ => 0
+            }
+>>>
+def mtch(int: Int): String = int.hello().thisIsALongMethodName(). match {
+  case 1 => "1"
+  case _ => "ERR"
+}.thisIsALongMethodName().thisIsALongMethodName(). match {
+  case "1" => 1
+  case _   => 0
+}
+<<< match with dot complex fold val
+newlines.source=fold
+===
+val mtch =
+            int
+              .hello()
+              .thisIsALongMethodName().match {
+             case 1 => "1"
+              case _ => "ERR"
+            }.thisIsALongMethodName().thisIsALongMethodName().match {
+              case "1" => 1
+              case _ => 0
+            }
+>>>
+val mtch = int.hello().thisIsALongMethodName(). match {
+  case 1 => "1"
+  case _ => "ERR"
+}.thisIsALongMethodName().thisIsALongMethodName(). match {
+  case "1" => 1
+  case _   => 0
+}
+<<< select with dot complex fold
+newlines.source=fold
+===
+def mtch(int: Int): String =
+            int
+              .hello()
+              .thisIsALongMethodName().matc {
+             case 1 => "1"
+              case _ => "ERR"
+            }.thisIsALongMethodName().thisIsALongMethodName().matc {
+              case "1" => 1
+              case _ => 0
+            }
+>>>
+def mtch(int: Int): String = int.hello().thisIsALongMethodName().matc {
+  case 1 => "1"
+  case _ => "ERR"
+}.thisIsALongMethodName().thisIsALongMethodName().matc {
+  case "1" => 1
+  case _   => 0
+}
+<<< match infix complex fold
+newlines.source=fold
+===
+def mtch(int: Int): String =
+            int
+              .hello()
+              .thisIsALongMethodName() match {
+             case 1 => "1"
+              case _ => "ERR"
+            } thisIsALongMethodName thisIsALongMethodName match {
+              case "1" => 1
+              case _ => 0
+            }
+>>>
+def mtch(int: Int): String = int.hello().thisIsALongMethodName() match {
+  case 1 => "1"
+  case _ => "ERR"
+} thisIsALongMethodName thisIsALongMethodName match {
+  case "1" => 1
+  case _   => 0
+}
+<<< match infix complex fold val
+newlines.source=fold
+===
+val mtch =
+            int
+              .hello()
+              .thisIsALongMethodName() match {
+             case 1 => "1"
+              case _ => "ERR"
+            } thisIsALongMethodName thisIsALongMethodName match {
+              case "1" => 1
+              case _ => 0
+            }
+>>>
+val mtch = int.hello().thisIsALongMethodName() match {
+  case 1 => "1"
+  case _ => "ERR"
+} thisIsALongMethodName thisIsALongMethodName match {
+  case "1" => 1
+  case _   => 0
+}
+<<< select infix complex fold
+newlines.source=fold
+===
+def mtch(int: Int): String =
+            int
+              .hello()
+              .thisIsALongMethodName() matc {
+             case 1 => "1"
+              case _ => "ERR"
+            } thisIsALongMethodName thisIsALongMethodName matc {
+              case "1" => 1
+              case _ => 0
+            }
+>>>
+def mtch(int: Int): String = int.hello().thisIsALongMethodName() matc {
+  case 1 => "1"
+  case _ => "ERR"
+} thisIsALongMethodName thisIsALongMethodName matc {
+  case "1" => 1
+  case _   => 0
+}
