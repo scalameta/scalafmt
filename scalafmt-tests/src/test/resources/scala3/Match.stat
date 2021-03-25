@@ -7,7 +7,7 @@ def mtch(x: Int): String =
             }.trim()
 >>>
 def mtch(x: Int): String =
-  x. match {
+  x.match {
     case 1 => "1"
     case _ => "ERR"
   }.trim()
@@ -22,13 +22,19 @@ def mtch(int: Int): String =
             }
 >>>
 def mtch(int: Int): String =
-  int.hello().thisIsALongMethodName(). match {
-    case 1 => "1"
-    case _ => "ERR"
-  }.thisIsALongMethodName().thisIsALongMethodName(). match {
-    case "1" => 1
-    case _   => 0
-  }
+  int
+    .hello()
+    .thisIsALongMethodName()
+    .match {
+      case 1 => "1"
+      case _ => "ERR"
+    }
+    .thisIsALongMethodName()
+    .thisIsALongMethodName()
+    .match {
+      case "1" => 1
+      case _   => 0
+    }
 <<< match with dot complex inside
 maxColumn = 50
 ===
@@ -42,10 +48,10 @@ def mtch(int: Int): String =
             }
 >>>
 def mtch(int: Int): String =
-  int.hello(). match {
-    case a =>
-      a.thisIsALongMethodName()
-        .thisIsALongMethodName(). match {
+  int.hello().match { case a =>
+    a.thisIsALongMethodName()
+      .thisIsALongMethodName()
+      .match {
         case "1" => 1
         case _   => 0
       }
@@ -132,10 +138,10 @@ def mtch(int: Int): String =
             }
 >>>
 def mtch(int: Int): String =
-  int.hello().thisIsALongMethodName(). match {
+  int.hello().thisIsALongMethodName().match {
     case 1 => "1"
     case _ => "ERR"
-  }.thisIsALongMethodName().thisIsALongMethodName(). match {
+  }.thisIsALongMethodName().thisIsALongMethodName().match {
     case "1" => 1
     case _   => 0
   }
@@ -173,10 +179,10 @@ def mtch(int: Int): String =
               case _ => 0
             }
 >>>
-def mtch(int: Int): String = int.hello().thisIsALongMethodName(). match {
+def mtch(int: Int): String = int.hello().thisIsALongMethodName().match {
   case 1 => "1"
   case _ => "ERR"
-}.thisIsALongMethodName().thisIsALongMethodName(). match {
+}.thisIsALongMethodName().thisIsALongMethodName().match {
   case "1" => 1
   case _   => 0
 }
@@ -194,10 +200,10 @@ val mtch =
               case _ => 0
             }
 >>>
-val mtch = int.hello().thisIsALongMethodName(). match {
+val mtch = int.hello().thisIsALongMethodName().match {
   case 1 => "1"
   case _ => "ERR"
-}.thisIsALongMethodName().thisIsALongMethodName(). match {
+}.thisIsALongMethodName().thisIsALongMethodName().match {
   case "1" => 1
   case _   => 0
 }

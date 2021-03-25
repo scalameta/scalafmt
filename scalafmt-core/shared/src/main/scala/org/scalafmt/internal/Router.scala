@@ -210,6 +210,7 @@ class Router(formatOps: FormatOps) {
               (expire, arrow.map(_.left), 0, nlOnly)
             case Some(t: Case) if t.cond.isEmpty && (leftOwner match {
                   case Term.PartialFunction(List(`t`)) => true
+                  case x @ Term.Match(_, List(`t`)) => getMatchDot(x).isDefined
                   case _ => false
                 }) =>
               val arrow = getCaseArrow(t)
@@ -1230,19 +1231,24 @@ class Router(formatOps: FormatOps) {
             }.isDefined =>
         Seq(Split(NoSplit, 0))
 
-      case t @ FormatToken(left, _: T.Dot, _) if rightOwner.is[Term.Select] =>
+      case t @ FormatToken(left, _: T.Dot, _)
+          if rightOwner.is[Term.Select] ||
+            (rightOwner.is[Term.Match] && dialect.allowMatchAsOperator) =>
         val enclosed = style.encloseSelectChains
         val (expireTree, nextSelect) =
           findLastApplyAndNextSelect(rightOwner, enclosed)
-        val thisSelect = rightOwner.asInstanceOf[Term.Select]
+        val thisSelect = rightOwner match {
+          case x: Term.Select => SelectLike(x)
+          case x: Term.Match => SelectLike(x, getKwMatchAfterDot(t))
+        }
         val prevSelect = findPrevSelect(thisSelect, enclosed)
         val expireDropRight = if (isEnclosedInMatching(expireTree)) 1 else 0
         val expire = lastToken(expireTree.tokens.dropRight(expireDropRight))
 
         def breakOnNextDot: Policy =
-          nextSelect.fold(Policy.noPolicy) { tree =>
-            val end = tree.name.tokens.head
-            Policy.before(end) {
+          nextSelect.fold(Policy.noPolicy) { selectLike =>
+            val tree = selectLike.tree
+            Policy.before(selectLike.nameToken) {
               case Decision(t @ FormatToken(_, _: T.Dot, _), s)
                   if t.meta.rightOwner eq tree =>
                 val filtered = s.flatMap { x =>
@@ -1269,9 +1275,10 @@ class Router(formatOps: FormatOps) {
             }
 
             val prevChain = inSelectChain(prevSelect, thisSelect, expireTree)
-            if (canStartSelectChain(thisSelect, nextSelect, expireTree)) {
+            val nextSelectTree = nextSelect.map(_.tree)
+            if (canStartSelectChain(thisSelect, nextSelectTree, expireTree)) {
               val chainExpire =
-                if (nextSelect.isEmpty) lastToken(thisSelect) else expire
+                if (nextSelect.isEmpty) thisSelect.nameToken else expire
               val nestedPenalty =
                 nestedSelect(rightOwner) + nestedApplies(leftOwner)
               // This policy will apply to both the space and newline splits, otherwise
@@ -1350,8 +1357,9 @@ class Router(formatOps: FormatOps) {
             if (prevSelect.isEmpty && nextSelect.isEmpty)
               Seq(Split(NoSplit, 0), Split(Newline, 1))
             else {
-              val forcedBreakPolicy = nextSelect.map { tree =>
-                Policy.before(tree.name.tokens.head) {
+              val forcedBreakPolicy = nextSelect.map { selectLike =>
+                val tree = selectLike.tree
+                Policy.before(selectLike.nameToken) {
                   case Decision(t @ FormatToken(_, _: T.Dot, _), s)
                       if t.meta.rightOwner eq tree =>
                     s.filter(_.isNL)
@@ -1373,8 +1381,9 @@ class Router(formatOps: FormatOps) {
             )
         }
 
-        val delayedBreakPolicyOpt = nextSelect.map { tree =>
-          Policy.before(tree.name.tokens.head) {
+        val delayedBreakPolicyOpt = nextSelect.map { selectLike =>
+          val tree = selectLike.tree
+          Policy.before(selectLike.nameToken) {
             case Decision(t @ FormatToken(_, _: T.Dot, _), s)
                 if t.meta.rightOwner eq tree =>
               SplitTag.SelectChainFirstNL.activateOnly(s)
@@ -1781,7 +1790,7 @@ class Router(formatOps: FormatOps) {
           blankLineBeforeDocstring(formatToken)
         val mod = if (forceBlankLine) Newline2x else getMod(formatToken)
         val indent = formatToken.meta.rightOwner match {
-          case ts: Term.Select
+          case GetSelectLike(ts)
               if !left.is[T.Comment] &&
                 findPrevSelect(ts, style.encloseSelectChains).isEmpty =>
             Indent(2, nextNonComment(next(formatToken)).left, ExpiresOn.After)
@@ -1876,10 +1885,10 @@ class Router(formatOps: FormatOps) {
         )
 
       // Case
-      case FormatToken(_, T.KwMatch(), _) =>
-        Seq(
-          Split(Space, 0)
-        )
+      case FormatToken(left, _: T.KwMatch, _) =>
+        // do not split `.match`
+        val noSplit = left.is[T.Dot] && dialect.allowMatchAsOperator
+        Seq(Split(Space(!noSplit), 0))
 
       // Protected []
       case tok @ FormatToken(_, T.LeftBracket(), _)

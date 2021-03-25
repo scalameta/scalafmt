@@ -707,8 +707,8 @@ object TreeOps {
   @inline
   def ifWithoutElse(t: Term.If) = t.elsep.is[Lit.Unit]
 
-  def cannotStartSelectChain(select: Term.Select): Boolean =
-    select.qual match {
+  def cannotStartSelectChainOnExpr(expr: Term): Boolean =
+    expr match {
       case _: Term.Placeholder => true
       case t: Term.Name => isSymbolicName(t.value)
       case t: Term.Select => isSymbolicName(t.name.value)
