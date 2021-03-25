@@ -209,7 +209,7 @@ lazy val tests = project
       // Test dependencies
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 13)) => "com.lihaoyi" %% "scalatags" % "0.9.3"
-        case _ => "com.lihaoyi" %% "scalatags" % "0.6.8"
+        case _ => "com.lihaoyi" %% "scalatags" % "0.9.4"
       },
       "org.typelevel" %% "paiges-core" % "0.3.0",
       scalametaTestkit,
