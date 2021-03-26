@@ -207,10 +207,7 @@ lazy val tests = project
     skip in publish := true,
     libraryDependencies ++= Seq(
       // Test dependencies
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 13)) => "com.lihaoyi" %% "scalatags" % "0.9.3"
-        case _ => "com.lihaoyi" %% "scalatags" % "0.9.4"
-      },
+      "com.lihaoyi" %% "scalatags" % "0.9.4",
       "org.typelevel" %% "paiges-core" % "0.3.0",
       scalametaTestkit,
       munit.value
