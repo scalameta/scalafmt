@@ -36,6 +36,7 @@ trait FormatAssertions {
             )
           case _ =>
         }
+      case _ =>
     }
   }
 
