@@ -1394,30 +1394,33 @@ class FormatOps(
     getClosingIfEnclosedInMatching(tree).isDefined
 
   @tailrec
-  final def findPrevSelect(tree: Tree, enclosed: Boolean): Option[Term.Select] =
+  final def findPrevSelect(
+      tree: Tree,
+      enclosed: Boolean
+  ): Option[SelectLike] =
     tree match {
-      case t: Term.Select => Some(t)
+      case GetSelectLike(t) => Some(t)
       case t @ SplitCallIntoParts(fun, _) if t ne fun =>
         if (enclosed && isEnclosedInMatching(t)) None
         else findPrevSelect(fun, enclosed)
       case _ => None
     }
   def findPrevSelect(
-      tree: Term.Select,
+      tree: SelectLike,
       enclosed: Boolean = true
-  ): Option[Term.Select] =
+  ): Option[SelectLike] =
     findPrevSelect(tree.qual, enclosed)
 
   @tailrec
   private def findLastApplyAndNextSelectEnclosed(
       tree: Tree,
-      select: Option[Term.Select] = None
-  ): (Tree, Option[Term.Select]) =
+      select: Option[SelectLike] = None
+  ): (Tree, Option[SelectLike]) =
     if (isEnclosedInMatching(tree)) (tree, select)
     else
       tree.parent match {
-        case Some(p: Term.Select) =>
-          findLastApplyAndNextSelectEnclosed(p, select.orElse(Some(p)))
+        case Some(GetSelectLike(p)) =>
+          findLastApplyAndNextSelectEnclosed(p.tree, select.orElse(Some(p)))
         case Some(p @ SplitCallIntoParts(`tree`, _)) =>
           findLastApplyAndNextSelectEnclosed(p, select)
         case _ => (tree, select)
@@ -1426,12 +1429,12 @@ class FormatOps(
   @tailrec
   private def findLastApplyAndNextSelectPastEnclosed(
       tree: Tree,
-      select: Option[Term.Select] = None,
+      select: Option[SelectLike] = None,
       prevEnclosed: Option[Tree] = None
-  ): (Tree, Option[Term.Select]) =
+  ): (Tree, Option[SelectLike]) =
     tree.parent match {
-      case Some(p: Term.Select) =>
-        findLastApplyAndNextSelectPastEnclosed(p, select.orElse(Some(p)))
+      case Some(GetSelectLike(p)) =>
+        findLastApplyAndNextSelectPastEnclosed(p.tree, select.orElse(Some(p)))
       case Some(p @ SplitCallIntoParts(`tree`, _)) =>
         prevEnclosed match {
           case Some(t) => (t, select)
@@ -1446,24 +1449,26 @@ class FormatOps(
   final def findLastApplyAndNextSelect(
       tree: Tree,
       enclosed: Boolean
-  ): (Tree, Option[Term.Select]) =
+  ): (Tree, Option[SelectLike]) =
     if (enclosed) findLastApplyAndNextSelectEnclosed(tree)
     else findLastApplyAndNextSelectPastEnclosed(tree)
 
   def canStartSelectChain(
-      thisSelect: Term.Select,
-      nextSelect: Option[Term.Select],
+      thisSelectLike: SelectLike,
+      nextSelect: Option[Term],
       lastApply: Tree
   )(implicit style: ScalafmtConfig): Boolean = {
-    val ok = (thisSelect ne lastApply) && !cannotStartSelectChain(thisSelect)
-    ok && (thisSelect.parent match {
+    val thisTree = thisSelectLike.tree
+    val ok = thisTree.ne(lastApply) &&
+      !cannotStartSelectChainOnExpr(thisSelectLike.qual)
+    ok && (thisTree.parent match {
       case `nextSelect` => style.includeNoParensInSelectChains
       case Some(ta: Term.Apply)
           if ta.args.lengthCompare(1) == 0 &&
             nextNonComment(tokens(ta.fun.tokens.last)).right.is[T.LeftBrace] =>
         style.includeCurlyBraceInSelectChains &&
           !nextSelect.contains(lastApply) // exclude short curly
-      case Some(SplitCallIntoParts(`thisSelect`, _)) => true
+      case Some(SplitCallIntoParts(`thisTree`, _)) => true
       case _ => false
     })
   }
@@ -1471,13 +1476,14 @@ class FormatOps(
   /** Checks if an earlier select started the chain */
   @tailrec
   final def inSelectChain(
-      prevSelect: Option[Term.Select],
-      thisSelect: Term.Select,
+      prevSelect: Option[SelectLike],
+      thisSelect: SelectLike,
       lastApply: Tree
   )(implicit style: ScalafmtConfig): Boolean =
     prevSelect match {
       case None => false
-      case Some(p) if canStartSelectChain(p, Some(thisSelect), lastApply) =>
+      case Some(p)
+          if canStartSelectChain(p, Some(thisSelect.tree), lastApply) =>
         true
       case Some(p) =>
         val prevPrevSelect = findPrevSelect(p, style.encloseSelectChains)
@@ -1843,8 +1849,37 @@ class FormatOps(
     case soft.KwUsing() => prevNonComment(prev(ft)).left.is[T.LeftParen]
     case _ => false
   }
+
+  def getMatchDot(tree: Term.Match): Option[FormatToken] =
+    if (dialect.allowMatchAsOperator) {
+      val ft = nextNonComment(tokens(tree.expr.tokens.last))
+      if (ft.right.is[T.Dot]) Some(ft) else None
+    } else None
+
+  def getKwMatchAfterDot(ft: FormatToken): T.KwMatch =
+    nextNonComment(next(ft)).right.asInstanceOf[T.KwMatch]
+
+  object GetSelectLike {
+    def unapply(tree: Tree): Option[SelectLike] = tree match {
+      case t: Term.Select => Some(SelectLike(t))
+      case t: Term.Match =>
+        getMatchDot(t).map { ft => SelectLike(t, getKwMatchAfterDot(ft)) }
+      case _ => None
+    }
+  }
+
 }
 
 object FormatOps {
   case class TreeArgs(tree: Tree, args: Seq[Tree])
+
+  class SelectLike(val tree: Term, val qual: Term, val nameToken: Token)
+
+  object SelectLike {
+    def apply(tree: Term.Select): SelectLike =
+      new SelectLike(tree, tree.qual, tree.name.tokens.head)
+    def apply(tree: Term.Match, kw: Token.KwMatch): SelectLike =
+      new SelectLike(tree, tree.expr, kw)
+  }
+
 }
