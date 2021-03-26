@@ -583,11 +583,11 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append("/**")
           if (style.docstrings.style.skipFirstLine) appendBreak()
           sb.append(' ')
-          val sbLen = sb.length()
+          val sbLen = sb.length
           val paras = doc.para.iterator
           paras.foreach { para =>
             para.term.foreach { term =>
-              if (sb.length() != sbLen) sb.append(margin)
+              if (sb.length != sbLen) sb.append(margin)
               term match {
                 case t: Scaladoc.CodeBlock =>
                   sb.append("{{{")
@@ -626,11 +626,11 @@ class FormatWriter(formatOps: FormatOps) {
                 case t: Scaladoc.ListBlock =>
                   // outputs margin space and appends new line, too
                   // therefore, let's start by "rewinding"
-                  if (sb.length() != sbLen || leadingMargin == 0) {
-                    sb.setLength(sb.length() - margin.length)
+                  if (sb.length != sbLen || leadingMargin == 0) {
+                    sb.setLength(sb.length - margin.length)
                   } else {
                     // don't output on top line, lists are sensitive to margin
-                    sb.setLength(sb.length() - 1) // remove space
+                    sb.setLength(sb.length - 1) // remove space
                     appendBreak()
                   }
                   formatListBlock(getIndentation(margin.length + 2))(t)
@@ -641,13 +641,13 @@ class FormatWriter(formatOps: FormatOps) {
             }
             if (paras.hasNext) appendBreak()
           }
-          if (sb.length() == sbLen) sb.append('*')
+          if (sb.length == sbLen) sb.append('*')
           sb.append('/')
         }
 
         private def formatTextAfterMargin(words: WordIter): Unit = {
           // remove space as iterWords adds it
-          sb.setLength(sb.length() - 1)
+          sb.setLength(sb.length - 1)
           iterWords(words, appendBreak, 0, margin)
           appendBreak()
         }
@@ -713,14 +713,14 @@ class FormatWriter(formatOps: FormatOps) {
           val trimmed = CharBuffer.wrap(text, 2, text.length - 2)
           val matcher = docstringLine.matcher(trimmed)
           sb.append("/**")
-          val sbLen = sb.length()
+          val sbLen = sb.length
           @tailrec
           def iter(prevWasBlank: Boolean): Unit = if (matcher.find()) {
             val contentBeg = matcher.start(2)
             val contentEnd = matcher.end(2)
             if (contentBeg == contentEnd) iter(true)
             else {
-              if (sb.length() != sbLen) {
+              if (sb.length != sbLen) {
                 if (prevWasBlank) appendBreak()
                 appendBreakWithMargin()
               } else {
