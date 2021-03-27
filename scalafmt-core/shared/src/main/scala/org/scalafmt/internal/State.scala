@@ -388,6 +388,7 @@ object State {
   ): Boolean = {
     {
       split.length == 0 || isComment ||
+      isInterpolation(ft.meta.rightOwner) ||
       ft.meta.leftOwner.is[meta.Term.Assign]
     } && !split.modExt.indents.exists(_.hasStateColumn)
   }
