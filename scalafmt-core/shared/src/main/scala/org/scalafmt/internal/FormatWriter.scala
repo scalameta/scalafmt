@@ -460,26 +460,33 @@ class FormatWriter(formatOps: FormatOps) {
       private class FormatSlc(text: String)(implicit sb: StringBuilder)
           extends FormatCommentBase {
         def format: Unit = {
-          if (
-            canRewrite &&
-            text.length + indent > style.maxColumn
-          ) {
-            val useSlc =
-              breakBefore && style.comments.wrapStandaloneSlcAsSlc
-            val appendLineBreak: () => Unit =
-              if (useSlc) {
-                val spaces: String = getIndentation(indent)
-                () => sb.append('\n').append(spaces).append("//")
-              } else {
-                val spaces: String = getIndentation(indent + 1)
-                () => sb.append('\n').append(spaces).append('*')
-              }
-            val contents = text.substring(2).trim
-            val wordIter = splitAsIterator(slcDelim)(contents)
-            sb.append(if (useSlc) "//" else "/*")
-            iterWords(wordIter, appendLineBreak, getFirstLineLength)
-            if (!useSlc) sb.append(" */")
-          } else sb.append(removeTrailingWhiteSpace(text))
+          val trimmed = removeTrailingWhiteSpace(text)
+          if (!canRewrite) sb.append(trimmed)
+          else {
+            val hasSpace = trimmed.length <= 2 ||
+              Character.isWhitespace(trimmed.charAt(2))
+            val column = indent + trimmed.length + (if (hasSpace) 0 else 1)
+            if (column > style.maxColumn) reFormat(trimmed)
+            else if (hasSpace) sb.append(trimmed)
+            else sb.append(s"// ${trimmed.substring(2)}")
+          }
+        }
+        private def reFormat(text: String): Unit = {
+          val useSlc =
+            breakBefore && style.comments.wrapStandaloneSlcAsSlc
+          val appendLineBreak: () => Unit =
+            if (useSlc) {
+              val spaces: String = getIndentation(indent)
+              () => sb.append('\n').append(spaces).append("//")
+            } else {
+              val spaces: String = getIndentation(indent + 1)
+              () => sb.append('\n').append(spaces).append('*')
+            }
+          val contents = text.substring(2).trim
+          val wordIter = splitAsIterator(slcDelim)(contents)
+          sb.append(if (useSlc) "//" else "/*")
+          iterWords(wordIter, appendLineBreak, getFirstLineLength)
+          if (!useSlc) sb.append(" */")
         }
       }
 
