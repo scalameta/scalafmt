@@ -3796,3 +3796,14 @@ type T = A1 & A2 | A3 & A4 | A5 &
   A61 & A62 | A63 & A64 | A65 &
   A66 /* c1 */ | /* c2 */ A67 & A68 |
   A69 & A70[T70]
+<<< #2226
+object Class extends Base
+   with Trait1
+   with Trait2 {
+
+}
+>>>
+object Class
+    extends Base
+    with Trait1
+    with Trait2 {}

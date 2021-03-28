@@ -82,6 +82,17 @@ class A(a: Int, b: String)
     extends B("""
 foo""")
     with C
+<<< #1640 class with multiline parent ctor, keep
+newlines.source = keep
+includeCurlyBraceInSelectChains = true
+===
+class A(a: Int, b: String) extends B("""
+foo""") with C
+>>>
+class A(a: Int, b: String)
+    extends B("""
+foo""")
+    with C
 <<< #1640 select chain with multiline arg
 object a {
   foo.B("""

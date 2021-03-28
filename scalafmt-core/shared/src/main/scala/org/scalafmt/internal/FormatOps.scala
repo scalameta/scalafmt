@@ -993,7 +993,7 @@ class FormatOps(
         Left(SplitTag.OnelineWithChain)
       case BinPack.ParentCtors.Always | BinPack.ParentCtors.Never =>
         Right(false)
-      case BinPack.ParentCtors.MaybeNever =>
+      case _ =>
         Right(style.newlines.source eq Newlines.fold)
     }
     val indent = Indent(Num(indentLen), lastToken, ExpiresOn.After)

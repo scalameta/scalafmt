@@ -35,3 +35,21 @@ trait SampleTrait
 
     def foo: Boolean = true
 }
+<<< #2226 enum
+maxColumn = 20
+runner.dialect = scala3
+binPack.parentConstructors = keep
+indent.withSiteRelativeToExtends = 2
+===
+enum A extends B(
+  foo, bar
+) with C
+with D
+>>>
+enum A
+    extends B(
+      foo,
+      bar
+    )
+      with C
+      with D

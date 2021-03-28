@@ -30,7 +30,7 @@ case class BinPack(
     unsafeCallSite: Boolean = false,
     unsafeDefnSite: Boolean = false,
     indentCallSiteOnce: Boolean = false,
-    parentConstructors: BinPack.ParentCtors = BinPack.ParentCtors.MaybeNever,
+    parentConstructors: BinPack.ParentCtors = BinPack.ParentCtors.source,
     literalArgumentLists: Boolean = true,
     literalsIncludeSimpleExpr: Boolean = false,
     literalsSingleLine: Boolean = false,
@@ -60,31 +60,26 @@ object BinPack {
 
   sealed abstract class ParentCtors
   object ParentCtors {
+    case object source extends ParentCtors
+    case object keep extends ParentCtors
     case object Always extends ParentCtors
     case object Never extends ParentCtors
     case object Oneline extends ParentCtors
     case object OnelineIfPrimaryOneline extends ParentCtors
 
-    val oneOfReader: ConfCodec[ParentCtors] = ReaderUtil.oneOf(
-      Always,
-      Never,
-      Oneline,
-      OnelineIfPrimaryOneline
-    )
+    implicit val oneOfReader: ConfCodec[ParentCtors] =
+      ReaderUtil.oneOfCustom[ParentCtors](
+        source,
+        keep,
+        Always,
+        Never,
+        Oneline,
+        OnelineIfPrimaryOneline
+      ) {
+        case Conf.Bool(true) => Configured.ok(Always)
+        case Conf.Bool(false) => Configured.ok(Never)
+      }
 
-    /* don't expose this; it will serve as unspecified, default to Never but
-     * could be overridden by other parameters, such as newlines.source */
-    case object MaybeNever extends ParentCtors
-
-    implicit val encoder: ConfEncoder[ParentCtors] = {
-      case MaybeNever => Conf.Str("never")
-      case value => oneOfReader.write(value)
-    }
-    implicit val decoder: ConfDecoder[ParentCtors] = {
-      case Conf.Bool(true) => Configured.ok(Always)
-      case Conf.Bool(false) => Configured.ok(Never)
-      case conf => oneOfReader.read(conf)
-    }
   }
 
 }
