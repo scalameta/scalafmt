@@ -3170,3 +3170,22 @@ a match {
     foo
   )
 }
+<<< #2250
+danglingParentheses.callSite = true
+===
+object a {
+  val a = foo(
+     bar = baz =>
+       qux(b =
+         c
+      )
+   )
+}
+>>>
+object a {
+  val a = foo(
+    bar = baz =>
+      qux(b =
+        c)
+  )
+}
