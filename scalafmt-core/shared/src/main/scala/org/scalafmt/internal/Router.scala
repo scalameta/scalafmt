@@ -832,8 +832,8 @@ class Router(formatOps: FormatOps) {
               )
             }
 
-        val preferNoSplit = singleArgument &&
-          style.newlines.source.eq(Newlines.keep) && tok.noBreak
+        val keepNoNL = style.newlines.source.eq(Newlines.keep) && tok.noBreak
+        val preferNoSplit = keepNoNL && singleArgument
         val oneArgOneLine = newlinePolicy & splitOneArgOneLine(close, leftOwner)
         val extraOneArgPerLineIndent =
           if (multipleArgs && style.poorMansTrailingCommasInConfigStyle)
@@ -855,7 +855,8 @@ class Router(formatOps: FormatOps) {
             )
           else {
             val noSplitPolicy =
-              if (preferNoSplit) singleLine(2)
+              if (keepNoNL && splitsForAssign.isDefined) singleLine(3)
+              else if (preferNoSplit) singleLine(2)
               else if (wouldDangle || mustDangle && isBracket || useConfigStyle)
                 SingleLineBlock(
                   close,

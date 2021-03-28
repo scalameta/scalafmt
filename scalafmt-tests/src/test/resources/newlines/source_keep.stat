@@ -3186,6 +3186,7 @@ object a {
   val a = foo(
     bar = baz =>
       qux(b =
-        c)
+        c
+      )
   )
 }
