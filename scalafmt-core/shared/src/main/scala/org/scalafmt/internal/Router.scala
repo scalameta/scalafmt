@@ -692,6 +692,7 @@ class Router(formatOps: FormatOps) {
         val isBracket = open.is[T.LeftBracket]
         val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
 
+        val rightIsComment = right.is[T.Comment]
         val onlyConfigStyle = mustUseConfigStyle(formatToken)
 
         val sourceIgnored = style.newlines.sourceIgnored
@@ -799,9 +800,9 @@ class Router(formatOps: FormatOps) {
           )
             null
           else getNoSplit(formatToken, !isBracket)
-        val noSplitIndent = if (right.is[T.Comment]) indent else Num(0)
+        val noSplitIndent = if (rightIsComment) indent else Num(0)
 
-        val align = {
+        val align = !rightIsComment && {
           if (defnSite) style.align.openParenDefnSite
           else style.align.openParenCallSite
         } && (!handleImplicit ||
