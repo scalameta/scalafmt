@@ -34,6 +34,27 @@ given intOrd: Ord[Int]
         else 0
     }
 }
+<<< given with body and multi parents, keep
+maxColumn = 30
+indent.main = 4
+newlines.source = keep
+===
+given intOrd: Ord[Int] with Eq[T]
+  with Sort[T] with {def compare(x: Int, y: Int) = {if (x < y) -1 else if (x > y) +1 else 0 }}
+>>>
+given intOrd: Ord[Int]
+    with Eq[T]
+    with Sort[T]
+    with {
+    def compare(
+        x: Int,
+        y: Int
+    ) = {
+        if (x < y) -1
+        else if (x > y) +1
+        else 0
+    }
+}
 <<< given with body and multi parents single line
 given intOrd: Ord[Int] with Eq[T] with Sort[T] with {}
 >>>
@@ -66,6 +87,24 @@ given [T](using
 maxColumn = 30
 ===
 given [T](using ord: Ord[T]): Alpha with Beta with Gamma with Epsilon with {
+  def a = ???
+}
+>>>
+given [T](using
+    ord: Ord[T]
+): Alpha
+  with Beta
+  with Gamma
+  with Epsilon
+  with {
+  def a = ???
+}
+<<< anonymous given multi parents, keep
+maxColumn = 30
+newlines.source = keep
+===
+given [T](using ord: Ord[T]): Alpha with Beta with Gamma with Epsilon
+  with {
   def a = ???
 }
 >>>

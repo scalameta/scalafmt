@@ -350,6 +350,7 @@ object ScalafmtConfig {
           )
         }
         addIf(newlines.beforeTypeBounds eq Newlines.keep)
+        addIf(binPack.parentConstructors eq BinPack.ParentCtors.keep)
       }
       if (newlines.source == Newlines.unfold) {
         addIf(align.arrowEnumeratorGenerator)
