@@ -148,6 +148,7 @@ case class Newlines(
     source: SourceHints = Newlines.classic,
     @annotation.ExtraName("neverInResultType")
     avoidInResultType: Boolean = false,
+    beforeTypeBounds: SourceHints = Newlines.classic,
     neverBeforeJsNative: Boolean = false,
     sometimesBeforeColonInMethodReturnType: Boolean = true,
     penalizeSingleSelectMultiArgList: Boolean = true,

@@ -349,6 +349,7 @@ object ScalafmtConfig {
             s"newlines.beforeMultilineDef=$x"
           )
         }
+        addIf(newlines.beforeTypeBounds eq Newlines.keep)
       }
       if (newlines.source == Newlines.unfold) {
         addIf(align.arrowEnumeratorGenerator)
