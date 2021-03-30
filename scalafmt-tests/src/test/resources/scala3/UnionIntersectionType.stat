@@ -131,6 +131,7 @@ def hello(
 }
 <<< opaque type bounds
 maxColumn = 20
+newlines.beforeTypeBounds = unfold
 ===
 opaque type VeryLongClassName <: Alpha & Beta & Gamma = AB
 >>>
@@ -139,6 +140,7 @@ opaque type VeryLongClassName
     Gamma = AB
 <<< single split type bounds
 maxColumn = 20
+newlines.beforeTypeBounds = unfold
 ===
 opaque type VeryLongClassName <: Alpha & Beta = AB
 >>>
@@ -147,6 +149,7 @@ opaque type VeryLongClassName
   AB
 <<< single split type decl bounds
 maxColumn = 20
+newlines.beforeTypeBounds = fold
 ===
 type VeryLongClassName <: Alpha & Beta
 >>>

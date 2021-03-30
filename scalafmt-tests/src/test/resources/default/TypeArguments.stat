@@ -71,3 +71,227 @@ def processTypeForUpdateOrApply(
                                Option[ScalaResolveResult])] = {
   println(1)
 }
+<<< #1249 classic
+maxColumn = 30
+===
+class Foo[
+  F[_] : Bar : Sync
+       : ExecuteUnsafe,
+  T
+]
+>>>
+class Foo[
+    F[_]: Bar: Sync: ExecuteUnsafe,
+    T
+]
+<<< #1249 fold
+maxColumn = 30
+newlines.beforeTypeBounds = fold
+===
+class Foo[
+  F[_] : Bar
+       : Sync : ExecuteUnsafe,
+  T
+]
+>>>
+class Foo[
+    F[_]: Bar: Sync: ExecuteUnsafe,
+    T
+]
+<<< #1249 unfold
+maxColumn = 30
+newlines.beforeTypeBounds = unfold
+===
+class Foo[
+  F[_] : Bar
+       : Sync : ExecuteUnsafe,
+  T
+]
+>>>
+class Foo[
+    F[_]: Bar: Sync: ExecuteUnsafe,
+    T
+]
+<<< #1249 keep
+maxColumn = 30
+newlines.beforeTypeBounds = keep
+===
+class Foo[
+  F[_] : Bar
+       : Sync : ExecuteUnsafe,
+  T
+]
+>>>
+class Foo[
+    F[_]: Bar: Sync: ExecuteUnsafe,
+    T
+]
+<<< #1342 classic
+object TestScalafmt {
+  def sayHi[
+      T: HasContextA: HasContextB: HasContextB: HasContextB
+      : HasContextB: HasContextB: HasContextB: HasContextB:
+       HasContextB: HasContextB: HasContextB: HasContextB: HasContextB](
+      name: String): Unit =
+    s"my name is $name"
+}
+>>>
+object TestScalafmt {
+  def sayHi[
+      T: HasContextA: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB](
+      name: String): Unit =
+    s"my name is $name"
+}
+<<< #1342 fold
+newlines.beforeTypeBounds = fold
+===
+object TestScalafmt {
+  def sayHi[
+      T: HasContextA: HasContextB: HasContextB: HasContextB
+      : HasContextB: HasContextB: HasContextB: HasContextB:
+       HasContextB: HasContextB: HasContextB: HasContextB: HasContextB](
+      name: String): Unit =
+    s"my name is $name"
+}
+>>>
+object TestScalafmt {
+  def sayHi[
+      T: HasContextA: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB](
+      name: String): Unit =
+    s"my name is $name"
+}
+<<< #1342 unfold
+newlines.beforeTypeBounds = unfold
+===
+object TestScalafmt {
+  def sayHi[
+      T: HasContextA: HasContextB: HasContextB: HasContextB
+      : HasContextB: HasContextB: HasContextB: HasContextB:
+       HasContextB: HasContextB: HasContextB: HasContextB: HasContextB](
+      name: String): Unit =
+    s"my name is $name"
+}
+>>>
+object TestScalafmt {
+  def sayHi[
+      T: HasContextA: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB](
+      name: String): Unit =
+    s"my name is $name"
+}
+<<< #1342 keep
+newlines.beforeTypeBounds = keep
+===
+object TestScalafmt {
+  def sayHi[
+      T: HasContextA: HasContextB: HasContextB: HasContextB
+      : HasContextB: HasContextB: HasContextB: HasContextB:
+       HasContextB: HasContextB: HasContextB: HasContextB: HasContextB](
+      name: String): Unit =
+    s"my name is $name"
+}
+>>>
+object TestScalafmt {
+  def sayHi[
+      T: HasContextA: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB](
+      name: String): Unit =
+    s"my name is $name"
+}
+<<< type inside block longer, classic
+maxColumn = 60
+align.preset = none
+===
+object a {
+  def foo[
+     AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[dddddd] <% CCCCCC[cccccc]
+       <% DDDDDD[dddddd] : CCCCCC[cccccc] : DDDDDD[dddddd],
+     AAAAAAAAAAAAA >: CCCCCCCC[cccccccc]
+       <: DDDDDDDD[dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[dddddddd]
+       : CCCCCCCC[cccccccc] : DDDDDDDD[dddddddd]
+  ] = ???
+}
+>>>
+object a {
+  def foo[
+      AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[
+          dddddd] <% CCCCCC[cccccc] <% DDDDDD[
+          dddddd]: CCCCCC[cccccc]: DDDDDD[dddddd],
+      AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
+          dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[
+          dddddddd]: CCCCCCCC[cccccccc]: DDDDDDDD[dddddddd]
+  ] = ???
+}
+<<< type inside block longer, keep
+maxColumn = 60
+align.preset = none
+newlines.beforeTypeBounds = keep
+===
+object a {
+  def foo[
+     AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[dddddd] <% CCCCCC[cccccc]
+       <% DDDDDD[dddddd] : CCCCCC[cccccc] : DDDDDD[dddddd],
+     AAAAAAAAAAAAA >: CCCCCCCC[cccccccc]
+       <: DDDDDDDD[dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[dddddddd]
+       : CCCCCCCC[cccccccc] : DDDDDDDD[dddddddd]
+  ] = ???
+}
+>>>
+object a {
+  def foo[
+      AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[
+          dddddd] <% CCCCCC[cccccc] <% DDDDDD[
+          dddddd]: CCCCCC[cccccc]: DDDDDD[dddddd],
+      AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
+          dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[
+          dddddddd]: CCCCCCCC[cccccccc]: DDDDDDDD[dddddddd]
+  ] = ???
+}
+<<< type inside block longer, fold
+maxColumn = 60
+align.preset = none
+newlines.beforeTypeBounds = fold
+===
+object a {
+  def foo[
+     AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[dddddd] <% CCCCCC[cccccc]
+       <% DDDDDD[dddddd] : CCCCCC[cccccc] : DDDDDD[dddddd],
+     AAAAAAAAAAAAA >: CCCCCCCC[cccccccc]
+       <: DDDDDDDD[dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[dddddddd]
+       : CCCCCCCC[cccccccc] : DDDDDDDD[dddddddd]
+  ] = ???
+}
+>>>
+object a {
+  def foo[
+      AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[
+          dddddd] <% CCCCCC[cccccc] <% DDDDDD[
+          dddddd]: CCCCCC[cccccc]: DDDDDD[dddddd],
+      AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
+          dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[
+          dddddddd]: CCCCCCCC[cccccccc]: DDDDDDDD[dddddddd]
+  ] = ???
+}
+<<< type inside block longer, unfold
+maxColumn = 60
+align.preset = none
+newlines.beforeTypeBounds = unfold
+===
+object a {
+  def foo[
+     AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[dddddd] <% CCCCCC[cccccc]
+       <% DDDDDD[dddddd] : CCCCCC[cccccc] : DDDDDD[dddddd],
+     AAAAAAAAAAAAA >: CCCCCCCC[cccccccc]
+       <: DDDDDDDD[dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[dddddddd]
+       : CCCCCCCC[cccccccc] : DDDDDDDD[dddddddd]
+  ] = ???
+}
+>>>
+object a {
+  def foo[
+      AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[
+          dddddd] <% CCCCCC[cccccc] <% DDDDDD[
+          dddddd]: CCCCCC[cccccc]: DDDDDD[dddddd],
+      AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
+          dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[
+          dddddddd]: CCCCCCCC[cccccccc]: DDDDDDDD[dddddddd]
+  ] = ???
+}
