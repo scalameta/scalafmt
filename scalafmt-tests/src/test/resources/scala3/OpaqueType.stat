@@ -12,6 +12,7 @@ opaque type HelloIAmAnOpaqueTypeTerry =
   NiceToMeetYouTerry
 <<< opaque type bounds
 maxColumn = 15
+newlines.beforeTypeBounds = fold
 ===
 opaque type VeryLongClassName <: AType = AB
 >>>

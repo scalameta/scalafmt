@@ -44,6 +44,7 @@ type Concat[X <: Tuple, Y <: Tuple] <: Tuple = X match {
 }
 <<< long type bound match type
 maxColumn = 40
+newlines.beforeTypeBounds = fold
 ===
 type Concat[X <: Tuple, Y <: Tuple] <: Tuple = X match {
            case Unit => 
@@ -59,7 +60,8 @@ type Concat[X <: Tuple, Y <: Tuple]
   case x1 *: xs1 =>
     x1 *: Concat[xs1, Y]
 }
-<<< even longer type bound 
+<<< even longer type bound
+newlines.beforeTypeBounds = fold
 maxColumn = 40
 ===
 type Concat[X, Y] <: TupleTupleTupleTupleTupleTupleTuple = X match {
