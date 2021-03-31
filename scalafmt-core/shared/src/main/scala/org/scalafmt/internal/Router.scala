@@ -1194,6 +1194,18 @@ class Router(formatOps: FormatOps) {
           }
         )
         Seq(Split(noNLMod, 0))
+      /* Type bounds in type definitions and declarations such as:
+       * type `Tuple <: Alpha & Beta = Another` or `Tuple <: Alpha & Beta`
+       */
+      case FormatToken(_, _: T.Subtype, _)
+          if isScala3Dialect &&
+            rightOwner.is[Type.Bounds] &&
+            rightOwner.parent.exists(t => t.is[Defn.Type] || t.is[Decl.Type]) =>
+        val typeBoundEnd = rightOwner.tokens.last
+        Seq(
+          Split(Space, 0).withSingleLineNoOptimal(typeBoundEnd),
+          Split(Newline, 1).withIndent(2, typeBoundEnd, After)
+        )
 
       case FormatToken(left, _: T.Colon, _) =>
         val mod = left match {
@@ -1948,18 +1960,6 @@ class Router(formatOps: FormatOps) {
             Split(Newline, 1).withIndent(2, lastToken, After)
           )
         }
-      /* Type bounds in type definitions and declarations such as:
-       * type `Tuple <: Alpha & Beta = Another` or `Tuple <: Alpha & Beta`
-       */
-      case FormatToken(_, _: T.Subtype, _)
-          if isScala3Dialect &&
-            rightOwner.is[Type.Bounds] &&
-            rightOwner.parent.exists(t => t.is[Defn.Type] || t.is[Decl.Type]) =>
-        val typeBoundEnd = rightOwner.tokens.last
-        Seq(
-          Split(Space, 0).withSingleLineNoOptimal(typeBoundEnd),
-          Split(Newline, 1).withIndent(2, typeBoundEnd, After)
-        )
       // Interpolation
       case FormatToken(_, _: T.Interpolation.Id, _) =>
         Seq(
