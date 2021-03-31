@@ -19,7 +19,6 @@ import scala.meta.tokens.{Token, Tokens}
 import scala.meta.tokens.{Token => T}
 import scala.meta.{
   Case,
-  Decl,
   Defn,
   Enumerator,
   Importer,
@@ -1200,15 +1199,17 @@ class Router(formatOps: FormatOps) {
       /* Type bounds in type definitions and declarations such as:
        * type `Tuple <: Alpha & Beta = Another` or `Tuple <: Alpha & Beta`
        */
-      case FormatToken(_, _: T.Subtype, _)
-          if isScala3Dialect &&
-            rightOwner.is[Type.Bounds] &&
-            rightOwner.parent.exists(t => t.is[Defn.Type] || t.is[Decl.Type]) =>
-        val typeBoundEnd = rightOwner.tokens.last
-        Seq(
-          Split(Space, 0).withSingleLineNoOptimal(typeBoundEnd),
-          Split(Newline, 1).withIndent(2, typeBoundEnd, After)
-        )
+      case FormatToken(_, _: T.Subtype | _: T.Supertype, _)
+          if rightOwner.is[Type.Bounds] && rightOwner.parent.isDefined =>
+        val tbounds = rightOwner.asInstanceOf[Type.Bounds]
+        val boundOpt = formatToken.right match {
+          case _: T.Subtype => tbounds.hi
+          case _: T.Supertype => tbounds.lo
+          case _ => None
+        }
+        val boundEnd = boundOpt.map(lastToken)
+        val typeOwner = rightOwner.parent.get
+        getSplitsForTypeBounds(formatToken, Space, typeOwner, boundEnd)
 
       case FormatToken(left, _: T.Colon, _) =>
         val mod = left match {

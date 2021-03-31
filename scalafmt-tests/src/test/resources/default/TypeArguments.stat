@@ -256,8 +256,8 @@ object a {
       AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[dddddd]
         <% CCCCCC[cccccc]
         <% DDDDDD[dddddd]: CCCCCC[cccccc]: DDDDDD[dddddd],
-      AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
-          dddddddd] <% CCCCCCCC[cccccccc]
+      AAAAAAAAAAAAA >: CCCCCCCC[cccccccc]
+        <: DDDDDDDD[dddddddd] <% CCCCCCCC[cccccccc]
         <% DDDDDDDD[dddddddd]
         : CCCCCCCC[cccccccc]: DDDDDDDD[dddddddd]
   ] = ???
@@ -282,8 +282,8 @@ object a {
       AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[dddddd]
         <% CCCCCC[cccccc] <% DDDDDD[dddddd]: CCCCCC[cccccc]
         : DDDDDD[dddddd],
-      AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
-          dddddddd] <% CCCCCCCC[cccccccc]
+      AAAAAAAAAAAAA >: CCCCCCCC[cccccccc]
+        <: DDDDDDDD[dddddddd] <% CCCCCCCC[cccccccc]
         <% DDDDDDDD[dddddddd]: CCCCCCCC[cccccccc]
         : DDDDDDDD[dddddddd]
   ] = ???
@@ -305,13 +305,16 @@ object a {
 >>>
 object a {
   def foo[
-      AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[dddddd]
+      AAAAAAAAAAAAA
+        >: CCCCCC[cccccc]
+        <: DDDDDD[dddddd]
         <% CCCCCC[cccccc]
         <% DDDDDD[dddddd]
         : CCCCCC[cccccc]
         : DDDDDD[dddddd],
-      AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
-          dddddddd]
+      AAAAAAAAAAAAA
+        >: CCCCCCCC[cccccccc]
+        <: DDDDDDDD[dddddddd]
         <% CCCCCCCC[cccccccc]
         <% DDDDDDDD[dddddddd]
         : CCCCCCCC[cccccccc]
