@@ -95,7 +95,8 @@ class Foo[
 ]
 >>>
 class Foo[
-    F[_]: Bar: Sync: ExecuteUnsafe,
+    F[_]: Bar: Sync
+      : ExecuteUnsafe,
     T
 ]
 <<< #1249 unfold
@@ -109,7 +110,10 @@ class Foo[
 ]
 >>>
 class Foo[
-    F[_]: Bar: Sync: ExecuteUnsafe,
+    F[_]
+      : Bar
+      : Sync
+      : ExecuteUnsafe,
     T
 ]
 <<< #1249 keep
@@ -123,7 +127,8 @@ class Foo[
 ]
 >>>
 class Foo[
-    F[_]: Bar: Sync: ExecuteUnsafe,
+    F[_]: Bar
+      : Sync: ExecuteUnsafe,
     T
 ]
 <<< #1342 classic
@@ -155,9 +160,9 @@ object TestScalafmt {
 }
 >>>
 object TestScalafmt {
-  def sayHi[
-      T: HasContextA: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB](
-      name: String): Unit =
+  def sayHi[T: HasContextA: HasContextB: HasContextB: HasContextB: HasContextB
+    : HasContextB: HasContextB: HasContextB: HasContextB: HasContextB
+    : HasContextB: HasContextB: HasContextB](name: String): Unit =
     s"my name is $name"
 }
 <<< #1342 unfold
@@ -173,9 +178,20 @@ object TestScalafmt {
 }
 >>>
 object TestScalafmt {
-  def sayHi[
-      T: HasContextA: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB](
-      name: String): Unit =
+  def sayHi[T
+    : HasContextA
+    : HasContextB
+    : HasContextB
+    : HasContextB
+    : HasContextB
+    : HasContextB
+    : HasContextB
+    : HasContextB
+    : HasContextB
+    : HasContextB
+    : HasContextB
+    : HasContextB
+    : HasContextB](name: String): Unit =
     s"my name is $name"
 }
 <<< #1342 keep
@@ -191,9 +207,9 @@ object TestScalafmt {
 }
 >>>
 object TestScalafmt {
-  def sayHi[
-      T: HasContextA: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB: HasContextB](
-      name: String): Unit =
+  def sayHi[T: HasContextA: HasContextB: HasContextB: HasContextB
+    : HasContextB: HasContextB: HasContextB: HasContextB: HasContextB
+    : HasContextB: HasContextB: HasContextB: HasContextB](name: String): Unit =
     s"my name is $name"
 }
 <<< type inside block longer, classic
@@ -238,11 +254,12 @@ object a {
 object a {
   def foo[
       AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[
-          dddddd] <% CCCCCC[cccccc] <% DDDDDD[
-          dddddd]: CCCCCC[cccccc]: DDDDDD[dddddd],
+          dddddd] <% CCCCCC[cccccc] <% DDDDDD[dddddd]
+        : CCCCCC[cccccc]: DDDDDD[dddddd],
       AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
           dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[
-          dddddddd]: CCCCCCCC[cccccccc]: DDDDDDDD[dddddddd]
+          dddddddd]
+        : CCCCCCCC[cccccccc]: DDDDDDDD[dddddddd]
   ] = ???
 }
 <<< type inside block longer, fold
@@ -263,8 +280,8 @@ object a {
 object a {
   def foo[
       AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[
-          dddddd] <% CCCCCC[cccccc] <% DDDDDD[
-          dddddd]: CCCCCC[cccccc]: DDDDDD[dddddd],
+          dddddd] <% CCCCCC[cccccc] <% DDDDDD[dddddd]
+        : CCCCCC[cccccc]: DDDDDD[dddddd],
       AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
           dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[
           dddddddd]: CCCCCCCC[cccccccc]: DDDDDDDD[dddddddd]
@@ -288,8 +305,9 @@ object a {
 object a {
   def foo[
       AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[
-          dddddd] <% CCCCCC[cccccc] <% DDDDDD[
-          dddddd]: CCCCCC[cccccc]: DDDDDD[dddddd],
+          dddddd] <% CCCCCC[cccccc] <% DDDDDD[dddddd]
+        : CCCCCC[cccccc]
+        : DDDDDD[dddddd],
       AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
           dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[
           dddddddd]: CCCCCCCC[cccccccc]: DDDDDDDD[dddddddd]

@@ -1868,6 +1868,52 @@ class FormatOps(
     }
   }
 
+  def getSplitsForTypeBounds(
+      ft: FormatToken,
+      noNLMod: => Modification,
+      tparam: Type.Param,
+      bounds: Type.Param => Seq[Type]
+  )(implicit style: ScalafmtConfig): Seq[Split] = {
+    val boundOpt = bounds(tparam).find(_.pos.start > ft.right.end)
+    getSplitsForTypeBounds(ft, noNLMod, tparam, boundOpt.map(lastToken))
+  }
+
+  def getSplitsForTypeBounds(
+      ft: FormatToken,
+      noNLMod: => Modification,
+      typeOwner: Tree,
+      boundEndOpt: Option[T]
+  )(implicit style: ScalafmtConfig): Seq[Split] = {
+    val typeEnd = lastToken(typeOwner)
+    val boundEnd = boundEndOpt.getOrElse(typeEnd)
+    def indent = Indent(Num(2), boundEnd, ExpiresOn.After)
+    def unfoldPolicy = typeOwner match {
+      case tparam: Type.Param =>
+        Policy.on(typeEnd) {
+          case Decision(t @ FormatToken(_, _: T.Colon | _: T.Viewbound, _), s)
+              if t.meta.rightOwner eq tparam =>
+            Decision.onlyNewlineSplits(s)
+        }
+      case _ => NoPolicy
+    }
+    style.newlines.beforeTypeBounds match {
+      case Newlines.classic =>
+        Seq(Split(noNLMod, 0))
+      case Newlines.unfold =>
+        Seq(
+          Split(noNLMod, 0).withSingleLine(typeEnd),
+          Split(Newline, 1).withIndent(indent).withPolicy(unfoldPolicy)
+        )
+      case Newlines.keep if ft.hasBreak =>
+        Seq(Split(Newline, 1).withIndent(indent))
+      case _ =>
+        Seq(
+          Split(noNLMod, 0).withSingleLine(boundEnd),
+          Split(Newline, 1).withIndent(indent)
+        )
+    }
+  }
+
 }
 
 object FormatOps {
