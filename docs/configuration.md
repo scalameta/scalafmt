@@ -2003,7 +2003,7 @@ other(a, b)(c, d)
 ### Vertical multiline with `implicit` parameter lists
 
 > Also see the general section on
-> [implicit parameter lists](#newlines-around-implicit-parameter-list-modifier).
+> [implicit parameter lists](#newlinesimplicitparamlistmodifierxxx).
 
 #### Before only
 
@@ -2992,6 +2992,35 @@ for {
   a ← Option(1)
   b ← Option(2)
 } yield a + b
+```
+
+### `importSelectors`
+
+This parameter controls formatting of imports.
+
+```scala mdoc:defaults
+importSelectors
+```
+
+```scala mdoc:scalafmt
+maxColumn = 10
+importSelectors = noBinPack
+---
+import a.b.{c, d, e, f, g}
+```
+
+```scala mdoc:scalafmt
+maxColumn = 10
+importSelectors = binPack
+---
+import a.b.{c, d, e, f, g}
+```
+
+```scala mdoc:scalafmt
+maxColumn = 10
+importSelectors = singleLine
+---
+import a.b.{c, d, e, f, g}
 ```
 
 ## Edition
