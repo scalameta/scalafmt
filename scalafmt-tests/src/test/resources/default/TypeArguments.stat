@@ -253,12 +253,12 @@ object a {
 >>>
 object a {
   def foo[
-      AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[
-          dddddd] <% CCCCCC[cccccc] <% DDDDDD[dddddd]
-        : CCCCCC[cccccc]: DDDDDD[dddddd],
+      AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[dddddd]
+        <% CCCCCC[cccccc]
+        <% DDDDDD[dddddd]: CCCCCC[cccccc]: DDDDDD[dddddd],
       AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
-          dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[
-          dddddddd]
+          dddddddd] <% CCCCCCCC[cccccccc]
+        <% DDDDDDDD[dddddddd]
         : CCCCCCCC[cccccccc]: DDDDDDDD[dddddddd]
   ] = ???
 }
@@ -279,12 +279,13 @@ object a {
 >>>
 object a {
   def foo[
-      AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[
-          dddddd] <% CCCCCC[cccccc] <% DDDDDD[dddddd]
-        : CCCCCC[cccccc]: DDDDDD[dddddd],
+      AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[dddddd]
+        <% CCCCCC[cccccc] <% DDDDDD[dddddd]: CCCCCC[cccccc]
+        : DDDDDD[dddddd],
       AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
-          dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[
-          dddddddd]: CCCCCCCC[cccccccc]: DDDDDDDD[dddddddd]
+          dddddddd] <% CCCCCCCC[cccccccc]
+        <% DDDDDDDD[dddddddd]: CCCCCCCC[cccccccc]
+        : DDDDDDDD[dddddddd]
   ] = ???
 }
 <<< type inside block longer, unfold
@@ -304,12 +305,16 @@ object a {
 >>>
 object a {
   def foo[
-      AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[
-          dddddd] <% CCCCCC[cccccc] <% DDDDDD[dddddd]
+      AAAAAAAAAAAAA >: CCCCCC[cccccc] <: DDDDDD[dddddd]
+        <% CCCCCC[cccccc]
+        <% DDDDDD[dddddd]
         : CCCCCC[cccccc]
         : DDDDDD[dddddd],
       AAAAAAAAAAAAA >: CCCCCCCC[cccccccc] <: DDDDDDDD[
-          dddddddd] <% CCCCCCCC[cccccccc] <% DDDDDDDD[
-          dddddddd]: CCCCCCCC[cccccccc]: DDDDDDDD[dddddddd]
+          dddddddd]
+        <% CCCCCCCC[cccccccc]
+        <% DDDDDDDD[dddddddd]
+        : CCCCCCCC[cccccccc]
+        : DDDDDDDD[dddddddd]
   ] = ???
 }

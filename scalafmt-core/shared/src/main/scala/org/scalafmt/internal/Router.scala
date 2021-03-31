@@ -1188,12 +1188,15 @@ class Router(formatOps: FormatOps) {
           style.spaces.beforeContextBoundColon match {
             case SpaceBeforeContextBound.Always => true
             case SpaceBeforeContextBound.IfMultipleBounds =>
-              1 < tp.cbounds.length +
+              1 < tp.cbounds.length + tp.vbounds.length +
                 tp.tbounds.lo.size + tp.tbounds.hi.size
             case _ => false
           }
         )
         getSplitsForTypeBounds(formatToken, noNLMod, tp, _.cbounds)
+      case FormatToken(_, _: T.Viewbound, _) if rightOwner.is[Type.Param] =>
+        val tp = rightOwner.asInstanceOf[Type.Param]
+        getSplitsForTypeBounds(formatToken, Space, tp, _.vbounds)
       /* Type bounds in type definitions and declarations such as:
        * type `Tuple <: Alpha & Beta = Another` or `Tuple <: Alpha & Beta`
        */
