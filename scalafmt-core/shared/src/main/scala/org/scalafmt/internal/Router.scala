@@ -1193,7 +1193,7 @@ class Router(formatOps: FormatOps) {
             case _ => false
           }
         )
-        Seq(Split(noNLMod, 0))
+        getSplitsForTypeBounds(formatToken, noNLMod, tp, _.cbounds)
       /* Type bounds in type definitions and declarations such as:
        * type `Tuple <: Alpha & Beta = Another` or `Tuple <: Alpha & Beta`
        */
