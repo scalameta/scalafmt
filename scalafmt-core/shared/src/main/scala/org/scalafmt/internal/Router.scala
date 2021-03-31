@@ -1,7 +1,12 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{ImportSelectors, Newlines, ScalafmtConfig}
+import org.scalafmt.config.{
+  ImportSelectors,
+  Newlines,
+  ScalafmtConfig,
+  SpaceBeforeContextBound
+}
 import org.scalafmt.internal.ExpiresOn.{After, Before}
 import org.scalafmt.internal.Length.{Num, StateColumn}
 import org.scalafmt.internal.Policy.NoPolicy
@@ -1172,25 +1177,31 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(mod, 0)
         )
-      case FormatToken(left, T.Colon(), _) =>
-        val mod: Modification = rightOwner match {
-          case tp: Type.Param =>
-            val contextOption = style.spaces.beforeContextBoundColon
-            val summaryTypeBoundsCount =
-              tp.tbounds.lo.size + tp.tbounds.hi.size + tp.cbounds.size
-            val useSpace = contextOption.isAlways ||
-              contextOption.isIfMultipleBounds && summaryTypeBoundsCount > 1
-            Space(useSpace)
 
-          case _ =>
-            left match {
-              case ident: T.Ident => identModification(ident)
-              case _ => NoSplit
-            }
-        }
-        Seq(
-          Split(mod, 0)
+      /*
+       * Type Bounds
+       */
+
+      case FormatToken(_, _: T.Colon, _) if rightOwner.is[Type.Param] =>
+        val tp = rightOwner.asInstanceOf[Type.Param]
+        def noNLMod = Space(
+          style.spaces.beforeContextBoundColon match {
+            case SpaceBeforeContextBound.Always => true
+            case SpaceBeforeContextBound.IfMultipleBounds =>
+              1 < tp.cbounds.length +
+                tp.tbounds.lo.size + tp.tbounds.hi.size
+            case _ => false
+          }
         )
+        Seq(Split(noNLMod, 0))
+
+      case FormatToken(left, _: T.Colon, _) =>
+        val mod = left match {
+          case ident: T.Ident => identModification(ident)
+          case _ => NoSplit
+        }
+        Seq(Split(mod, 0))
+
       // Only allow space after = in val if rhs is a single line or not
       // an infix application or an if. For example, this is allowed:
       // val x = function(a,
