@@ -784,7 +784,7 @@ package core {
 
 ### `newlines.beforeMultiline`
 
-> Since 2.7.0
+> Since v2.7.0
 
 This parameter controls whether to force a new line before a multi-line body of
 `case/if/val` and how to format it if the space is allowed. (For multi-line
@@ -855,7 +855,7 @@ a match {
 
 ### `newlines.beforeMultilineDef`
 
-> Since 2.7.0
+> Since v2.7.0
 
 This parameter applies to multi-line definitions only. It accepts the same
 values as [`newlines.beforeMultiline`](#newlinesbeforemultiline) (and defaults
@@ -919,6 +919,19 @@ def foo: String =
     x.toUpper
   }
 ```
+
+### `newlines.beforeTypeBounds`
+
+> Since v3.0.0
+
+This parameter controls formatting of bounds of type parameters: upper `<:`,
+lower `>:`, view `<%`, and context `:` bounds. It accepts the
+same values as [`newlines.source`](#newlinessource).
+
+- `classic`: simply allows no line breaks (default; can't be specified)
+- `keep`: preserves a no-break if the next bound fits on the line
+- `fold`: uses a no-break if the next bound fits on the line
+- `unfold`: puts all bounds on the same line, or breaks before each
 
 ### `newlines.alwaysBeforeElseAfterCurlyIf`
 
@@ -2903,7 +2916,7 @@ Controls what happens if a chain enclosed in parentheses is followed by
 additional selects. Those additional selects will be considered part of the
 enclosed chain if and only if this flag is false.
 
-> Since 2.6.2.
+> Since v2.6.2.
 
 ```scala mdoc:defaults
 optIn.encloseClassicChains
