@@ -1241,6 +1241,7 @@ class Router(formatOps: FormatOps) {
         val prevSelect = findPrevSelect(thisSelect, enclosed)
         val expireDropRight = if (isEnclosedInMatching(expireTree)) 1 else 0
         val expire = lastToken(expireTree.tokens.dropRight(expireDropRight))
+        val indentLen = style.indent.main
 
         def breakOnNextDot: Policy =
           nextSelect.fold(Policy.noPolicy) { selectLike =>
@@ -1267,8 +1268,8 @@ class Router(formatOps: FormatOps) {
           case Newlines.classic =>
             def getNlMod = {
               val endSelect = nextSelect.fold(expire)(x => lastToken(x.qual))
-              val nlAlt = ModExt(NoSplit).withIndent(-2, endSelect, After)
-              NewlineT(alt = Some(nlAlt))
+              val altIndent = Indent(-indentLen, endSelect, After)
+              NewlineT(alt = Some(ModExt(NoSplit).withIndent(altIndent)))
             }
 
             val prevChain = inSelectChain(prevSelect, thisSelect, expireTree)
@@ -1388,7 +1389,7 @@ class Router(formatOps: FormatOps) {
         }
 
         // trigger indent only on the first newline
-        val indent = Indent(Num(2), expire, After)
+        val indent = Indent(indentLen, expire, After)
         val willBreak = nextNonCommentSameLine(tokens(t, 2)).right.is[T.Comment]
         val splits = baseSplits.map { s =>
           if (willBreak || s.isNL) s.withIndent(indent)
@@ -1790,7 +1791,8 @@ class Router(formatOps: FormatOps) {
           case GetSelectLike(ts)
               if !left.is[T.Comment] &&
                 findPrevSelect(ts, style.encloseSelectChains).isEmpty =>
-            Indent(2, nextNonComment(next(formatToken)).left, ExpiresOn.After)
+            val expire = nextNonComment(next(formatToken)).left
+            Indent(style.indent.main, expire, ExpiresOn.After)
           case _ => Indent.Empty
         }
         Seq(Split(mod, 0).withIndent(indent))

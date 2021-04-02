@@ -2488,6 +2488,8 @@ class Foo {
     .ddd()
 }
 <<< #1334 4: continue chain indent after a comment with apply, longer
+indent.main = 4
+===
 class Foo {
   val vv = v.aaa //
   .bbb() //
@@ -2497,10 +2499,10 @@ class Foo {
 >>>
 class Foo {
   val vv = v
-    .aaa //
-    .bbb() //
-    .ccc() //
-    .ddd()
+      .aaa //
+      .bbb() //
+      .ccc() //
+      .ddd()
 }
 <<< #1334 5: select and a block apply after a comment
      val a: Vector[Array[Double]] = b.c
