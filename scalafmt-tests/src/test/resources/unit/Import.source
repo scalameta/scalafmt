@@ -128,6 +128,8 @@ package a.b.c
 
 import d.e.f
 <<< rename/unimport (partial format:off 1)
+indent.main = 4
+===
 object blah {
   // format: off
   import a.{
@@ -149,19 +151,21 @@ object blah {
   // format: off
   import a.{
     // format: on
-    foo => bar,
-    zzzz => _,
-    baz
+      foo => bar,
+      zzzz => _,
+      baz
   }
   // format is not off
   import a.{
-    // format is not on
-    foo => bar,
-    zzzz => _,
-    baz
+      // format is not on
+      foo => bar,
+      zzzz => _,
+      baz
   }
 }
 <<< rename/unimport (partial format:off 2)
+indent.main = 4
+===
 object blah {
   import a.{
     // format: off
@@ -185,13 +189,13 @@ object blah {
     foo => bar,
     zzzz => _,
     // format: on
-    baz
+      baz
   }
   import a.{
-    // format is not off
-    foo => bar,
-    zzzz => _,
-    // format is not on
-    baz
+      // format is not off
+      foo => bar,
+      zzzz => _,
+      // format is not on
+      baz
   }
 }

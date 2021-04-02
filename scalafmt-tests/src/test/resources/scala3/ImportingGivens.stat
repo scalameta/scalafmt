@@ -36,20 +36,22 @@ import A.{
   given T3
 }
 <<< with wildcard argument
-maxColumn = 20
+maxColumn = 25
+indent.main = 4
 ===
 import Instances.{given Ordering[?], given ExecutionContext}
 >>>
 import Instances.{
-  given Ordering[?],
-  given ExecutionContext
+    given Ordering[?],
+    given ExecutionContext
 }
 <<< by-type mixed with by-name
-maxColumn = 20
+maxColumn = 25
+indent.main = 4
 ===
 import Instances.{im, given Ordering[?]}
 >>>
 import Instances.{
-  im,
-  given Ordering[?]
+    im,
+    given Ordering[?]
 }

@@ -164,7 +164,7 @@ class Router(formatOps: FormatOps) {
           Split(Newline, 1)
             .onlyIf(style.importSelectors != ImportSelectors.singleLine)
             .withPolicy(newlinePolicy)
-            .withIndent(2, close, Before)
+            .withIndent(style.indent.main, close, Before)
         )
       case FormatToken(_, _: T.RightBrace, _)
           if existsParentOfType[ImportExportStat](rightOwner) =>
