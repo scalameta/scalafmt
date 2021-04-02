@@ -36,20 +36,22 @@ export A.{
   given T3
 }
 <<< with wildcard argument
-maxColumn = 20
+maxColumn = 25
+indent.main = 4
 ===
 export Instances.{given Ordering[?], given ExecutionContext}
 >>>
 export Instances.{
-  given Ordering[?],
-  given ExecutionContext
+    given Ordering[?],
+    given ExecutionContext
 }
 <<< by-type mixed with by-name
-maxColumn = 20
+maxColumn = 25
+indent.main = 4
 ===
 export Instances.{im, given Ordering[?]}
 >>>
 export Instances.{
-  im,
-  given Ordering[?]
+    im,
+    given Ordering[?]
 }
