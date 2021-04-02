@@ -10,7 +10,6 @@ import org.scalafmt.config.FormatEvent.Enqueue
 import org.scalafmt.config.FormatEvent.Explored
 import org.scalafmt.config.FormatEvent.VisitToken
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.Length.Num
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
@@ -79,18 +78,6 @@ private class BestFirstSearch private (
         if (ok) Some(close) else None
       }
     }
-
-  def provided(formatToken: FormatToken): Split = {
-    // TODO(olafur) the indentation is not correctly set.
-    val split = new Split(Provided(formatToken), 0) {
-      override def activateFor(splitTag: SplitTag): Split = this
-    }
-    val result =
-      if (formatToken.left.is[LeftBrace])
-        split.withIndent(Num(2), matching(formatToken.left), ExpiresOn.Before)
-      else split
-    result
-  }
 
   def stateColumnKey(state: State): StateHash = {
     state.column << 8 | state.indentation
@@ -252,13 +239,20 @@ private class BestFirstSearch private (
   private def getActiveSplits(state: State, maxCost: Int): Seq[Split] = {
     val ft = tokens(state.depth)
     val useProvided = state.formatOff || !ft.inside(range)
-    val splits = if (useProvided) Seq(provided(ft)) else routes(state.depth)
-
-    state.policy
-      .execute(Decision(ft, splits))
+    val active = state.policy
+      .execute(Decision(ft, routes(state.depth)))
       .splits
       .filter(x => x.isActive && x.cost <= maxCost)
-      .sortBy(_.cost)
+    val splits =
+      if (useProvided && active.nonEmpty) {
+        val isNL = ft.hasBreak
+        val mod = Provided(ft)
+        active.map { x =>
+          val penalty = if (x.isNL == isNL) 0 else Constants.ExceedColumnPenalty
+          x.withMod(mod).withPenalty(penalty)
+        }
+      } else active
+    splits.sortBy(_.cost)
   }
 
   private def trackState(state: State, depth: Int, queueSize: Int): Unit = {
