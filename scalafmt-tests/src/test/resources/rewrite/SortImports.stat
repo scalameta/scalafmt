@@ -41,6 +41,11 @@ import a.b.{
 object a {
 import a.b.{
   c,
+// format is not off
+  b
+}
+import a.b.{
+  c,
 // format: off
   b
 }
@@ -48,6 +53,11 @@ import a.b.{
 
 >>>
 object a {
+  import a.b.{
+    b,
+// format is not off
+    c
+  }
   import a.b.{
     c,
 // format: off

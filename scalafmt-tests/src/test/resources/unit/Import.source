@@ -127,3 +127,68 @@ package a.b.c
   */
 
 import d.e.f
+<<< rename/unimport (partial format:off 1)
+object blah {
+  // format: off
+  import a.{
+    // format: on
+    foo => bar,
+    zzzz => _,
+    baz
+  }
+  // format is not off
+  import a.{
+    // format is not on
+    foo => bar,
+    zzzz => _,
+    baz
+  }
+}
+>>>
+object blah {
+  // format: off
+  import a.{
+    // format: on
+    foo => bar, zzzz => _, baz}
+  // format is not off
+  import a.{
+    // format is not on
+    foo => bar,
+    zzzz => _,
+    baz
+  }
+}
+<<< rename/unimport (partial format:off 2)
+object blah {
+  import a.{
+    // format: off
+    foo => bar,
+    zzzz => _,
+    // format: on
+    baz
+  }
+  import a.{
+    // format is not off
+    foo => bar,
+    zzzz => _,
+    // format is not on
+    baz
+  }
+}
+>>>
+object blah {
+  import a.{
+    // format: off
+    foo => bar,
+    zzzz => _,
+    // format: on
+    baz
+  }
+  import a.{
+    // format is not off
+    foo => bar,
+    zzzz => _,
+    // format is not on
+    baz
+  }
+}
