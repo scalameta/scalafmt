@@ -305,20 +305,20 @@ object a {
 }
 >>>
 object a {
-  def foo[
-      AAAAAAAAAAAAA
-          >: CCCCCC[cccccc]
-          <: DDDDDD[dddddd]
-          <% CCCCCC[cccccc]
-          <% DDDDDD[dddddd]
-          : CCCCCC[cccccc]
-          : DDDDDD[dddddd],
-      AAAAAAAAAAAAA
-          >: CCCCCCCC[cccccccc]
-          <: DDDDDDDD[dddddddd]
-          <% CCCCCCCC[cccccccc]
-          <% DDDDDDDD[dddddddd]
-          : CCCCCCCC[cccccccc]
-          : DDDDDDDD[dddddddd]
-  ] = ???
+    def foo[
+        AAAAAAAAAAAAA
+            >: CCCCCC[cccccc]
+            <: DDDDDD[dddddd]
+            <% CCCCCC[cccccc]
+            <% DDDDDD[dddddd]
+            : CCCCCC[cccccc]
+            : DDDDDD[dddddd],
+        AAAAAAAAAAAAA
+            >: CCCCCCCC[cccccccc]
+            <: DDDDDDDD[dddddddd]
+            <% CCCCCCCC[cccccccc]
+            <% DDDDDDDD[dddddddd]
+            : CCCCCCCC[cccccccc]
+            : DDDDDDDD[dddddddd]
+    ] = ???
 }

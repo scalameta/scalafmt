@@ -1,5 +1,7 @@
 align.preset = most
 <<< Align = with <-
+indent.main = 4
+===
 for {
   _ <- f1
   someValue <- f2
@@ -8,10 +10,10 @@ for {
 } yield ()
 >>>
 for {
-  _         <- f1
-  someValue <- f2
-  _          = doLogs
-  _         <- f3
+    _         <- f1
+    someValue <- f2
+    _          = doLogs
+    _         <- f3
 } yield ()
 <<< align sbt deps
 libraryDependencies ++= Seq(

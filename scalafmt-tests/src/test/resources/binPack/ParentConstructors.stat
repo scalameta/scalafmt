@@ -29,9 +29,9 @@ trait SampleTrait extends A with B with C with D with E{
 trait SampleTrait
     extends A with B with C with D
     with E {
-  self: LongNameMixin
-      with B with C with D
-      with EEEEEEEEE =>
+    self: LongNameMixin
+        with B with C with D
+        with EEEEEEEEE =>
 
-  def foo: Boolean = true
+    def foo: Boolean = true
 }

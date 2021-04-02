@@ -151,17 +151,17 @@ object blah {
   // format: off
   import a.{
     // format: on
-      foo => bar,
-      zzzz => _,
-      baz
-  }
-  // format is not off
-  import a.{
-      // format is not on
-      foo => bar,
-      zzzz => _,
-      baz
-  }
+        foo => bar,
+        zzzz => _,
+        baz
+    }
+    // format is not off
+    import a.{
+        // format is not on
+        foo => bar,
+        zzzz => _,
+        baz
+    }
 }
 <<< rename/unimport (partial format:off 2)
 indent.main = 4
@@ -184,18 +184,18 @@ object blah {
 }
 >>>
 object blah {
-  import a.{
+    import a.{
     // format: off
     foo => bar,
     zzzz => _,
     // format: on
-      baz
-  }
-  import a.{
-      // format is not off
-      foo => bar,
-      zzzz => _,
-      // format is not on
-      baz
-  }
+        baz
+    }
+    import a.{
+        // format is not off
+        foo => bar,
+        zzzz => _,
+        // format is not on
+        baz
+    }
 }

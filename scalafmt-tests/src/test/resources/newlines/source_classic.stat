@@ -1664,7 +1664,7 @@ val a =
 val a =
     1 + 2 * 3 && 4 ^ 5 || 6 op
         7 map {
-          8 % 9
+            8 % 9
         }
 <<< 8.2: infix with shorter left ||
 val a = 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 }
@@ -1681,7 +1681,7 @@ val a = 1 + 2 * 3 && 4 ^ 5 || 6 op 7 map { 8 % 9 }
 >>>
 val a =
    1 + 2 * 3 && 4 ^ 5 || 6 op 7 map {
-     8 % 9
+      8 % 9
    }
 <<< 8.4: infix with shorter left ||, narrow
 maxColumn = 17
@@ -2390,10 +2390,10 @@ class Foo {
 }
 >>>
 class Foo {
-  val vv = v.aaa //
-      .bbb() //
-      .ccc() //
-      .ddd()
+    val vv = v.aaa //
+        .bbb() //
+        .ccc() //
+        .ddd()
 }
 <<< #1334 5: select and a block apply after a comment
      val a: Vector[Array[Double]] = b.c

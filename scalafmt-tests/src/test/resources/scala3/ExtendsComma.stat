@@ -151,11 +151,11 @@ class A
     extends AVeryLongName1,
         AVeryLongName2,
         AVeryLongName3 {
-  self: A
-     with B
-     with C
-     with D
-     with E =>
+   self: A
+      with B
+      with C
+      with D
+      with E =>
 }
 <<< comment between inits
 maxColumn = 30
