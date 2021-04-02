@@ -319,6 +319,7 @@ class FormatWriter(formatOps: FormatOps) {
 
       def formatMarginized: String = {
         val text = tok.meta.left.text
+        def offset = style.indent.main
         val tupleOpt = tok.left match {
           case _ if !style.assumeStandardLibraryStripMargin => None
           case _ if tok.meta.left.firstNL < 0 => None
@@ -327,27 +328,27 @@ class FormatWriter(formatOps: FormatOps) {
               def isPipeFirstChar = text.find(_ != '"').contains(pipe)
               val noAlign = !style.align.stripMargin ||
                 tok.meta.idx <= 1 || prevState.split.isNL
-              val pipeOffset =
-                if (style.align.stripMargin && isPipeFirstChar) 1 else 0
-              val indent = pipeOffset +
-                (if (noAlign) prevState.indentation
-                 else prevState.prev.column + prevState.prev.split.length)
-              (pipe, 2 + indent)
+              def alignPipeOffset = if (isPipeFirstChar) 3 else 2
+              val thisOffset =
+                if (style.align.stripMargin) alignPipeOffset else offset
+              val prevIndent =
+                if (noAlign) prevState.indentation
+                else prevState.prev.column + prevState.prev.split.length
+              (pipe, thisOffset + prevIndent)
             }
           case _: T.Interpolation.Part =>
             TreeOps.findInterpolate(tok.meta.leftOwner).flatMap { ti =>
               TreeOps.getStripMarginChar(ti).map { pipe =>
+                def alignPipeOffset = ti.parts.headOption match {
+                  case Some(Lit.String(x)) if x.headOption.contains(pipe) => 3
+                  case _ => 2
+                }
                 val tiState =
                   locations(tokens(ti.tokens.head).meta.idx).state.prev
                 val indent =
-                  if (!style.align.stripMargin) tiState.indentation
-                  else
-                    tiState.column + (ti.parts.headOption match {
-                      case Some(Lit.String(x)) if x.headOption.contains(pipe) =>
-                        1
-                      case _ => 0
-                    })
-                (pipe, 2 + indent)
+                  if (style.align.stripMargin) tiState.column + alignPipeOffset
+                  else tiState.indentation + offset
+                (pipe, indent)
               }
             }
           case _ => None
