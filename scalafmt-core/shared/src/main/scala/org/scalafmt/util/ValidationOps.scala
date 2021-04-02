@@ -4,12 +4,38 @@ import scala.collection.mutable
 
 object ValidationOps {
 
-  def addIfNegative(
+  def checkNonNeg(
       ns: sourcecode.Text[Int]*
   )(implicit errors: mutable.Buffer[String]): Unit =
     ns.foreach { n =>
       if (n.value < 0)
         errors += s"${n.source} must be non-negative, was ${n.value}"
+    }
+
+  def checkPositive(
+      ns: sourcecode.Text[Int]*
+  )(implicit errors: mutable.Buffer[String]): Unit =
+    ns.foreach { n =>
+      if (n.value <= 0)
+        errors += s"${n.source} must be positive, was ${n.value}"
+    }
+
+  def checkNonNegOpt(
+      ns: sourcecode.Text[Option[Int]]*
+  )(implicit errors: mutable.Buffer[String]): Unit =
+    ns.foreach { n =>
+      n.value.foreach { nv =>
+        if (nv < 0) errors += s"${n.source} must be non-negative, was $nv"
+      }
+    }
+
+  def checkPositiveOpt(
+      ns: sourcecode.Text[Option[Int]]*
+  )(implicit errors: mutable.Buffer[String]): Unit =
+    ns.foreach { n =>
+      n.value.foreach { nv =>
+        if (nv <= 0) errors += s"${n.source} must be positive, was $nv"
+      }
     }
 
   def addIf(

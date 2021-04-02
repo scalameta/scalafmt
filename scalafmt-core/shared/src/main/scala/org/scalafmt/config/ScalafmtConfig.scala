@@ -380,7 +380,19 @@ object ScalafmtConfig {
         },
         "binPack.unsafeXXX && newlines.implicitParamListModifierXXX (not implemented)"
       )
-      addIfNegative(indent.callSite, indent.defnSite)
+      checkPositive(
+        indent.callSite,
+        indent.defnSite,
+        indent.commaSiteRelativeToExtends
+      )
+      checkNonNeg(
+        indent.caseSite,
+        indent.extendSite,
+        indent.withSiteRelativeToExtends
+      )
+      checkPositiveOpt(
+        indent.ctorSite
+      )
     }
     if (allErrors.isEmpty) Configured.ok(cfg)
     else {

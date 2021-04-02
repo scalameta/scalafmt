@@ -14,7 +14,7 @@ case class Indents(
     callSite: Int = 2,
     defnSite: Int = 4,
     caseSite: Int = 4,
-    ctorSite: Option[Int] = None,
+    private[config] val ctorSite: Option[Int] = None,
     @annotation.ExtraName("deriveSite")
     extendSite: Int = 4,
     withSiteRelativeToExtends: Int = 0,
