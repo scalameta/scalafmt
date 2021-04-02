@@ -65,13 +65,15 @@ object blah {
     baz
   }
 }
-
 >>>
 object blah {
   // format: off
   import a.{
     // format: on
-    foo => bar, zzzz => _, baz}
+    foo => bar,
+    zzzz => _,
+    baz
+  }
 }
 <<< rename/unimport (partial format:off 2)
 object blah {
