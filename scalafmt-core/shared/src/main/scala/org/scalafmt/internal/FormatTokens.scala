@@ -4,6 +4,7 @@ import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
 
+import org.scalafmt.util.TokenOps
 import org.scalafmt.util.Whitespace
 
 class FormatTokens(val arr: Array[FormatToken])
@@ -48,12 +49,17 @@ object FormatTokens {
     var ftIdx = 0
     var wsIdx = 0
     var tokIdx = 0
+    var fmtWasOff = false
     val arr = tokens.toArray
     def process(right: Token): Unit = {
       val rmeta = FormatToken.TokenMeta(owner(right), right.syntax)
-      if (left ne null) {
-        val meta =
-          FormatToken.Meta(arr.slice(wsIdx, tokIdx), ftIdx, lmeta, rmeta)
+      if (left eq null) {
+        fmtWasOff = TokenOps.isFormatOff(right)
+      } else {
+        val between = arr.slice(wsIdx, tokIdx)
+        val fmtIsOff = fmtWasOff || TokenOps.isFormatOff(right)
+        fmtWasOff = if (fmtWasOff) !TokenOps.isFormatOn(right) else fmtIsOff
+        val meta = FormatToken.Meta(between, ftIdx, fmtIsOff, lmeta, rmeta)
         result += FormatToken(left, right, meta)
         ftIdx += 1
       }

@@ -238,7 +238,7 @@ private class BestFirstSearch private (
 
   private def getActiveSplits(state: State, maxCost: Int): Seq[Split] = {
     val ft = tokens(state.depth)
-    val useProvided = state.formatOff || !ft.inside(range)
+    val useProvided = ft.meta.formatOff || !ft.inside(range)
     val active = state.policy
       .execute(Decision(ft, routes(state.depth)))
       .splits
