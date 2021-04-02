@@ -555,10 +555,11 @@ class FormatOps(
     }
 
     private val fullIndent: Indent = {
-      val expire = assignBodyExpire.fold(fullExpire) { x =>
-        if (beforeLhs) x else fullExpire
+      val expire = assignBodyExpire match {
+        case Some(x) if beforeLhs => x
+        case _ => fullExpire
       }
-      Indent(Num(2), expire, ExpiresOn.After)
+      Indent(Num(style.indent.main), expire, ExpiresOn.After)
     }
 
     private val (nlIndent, nlPolicy) = {
@@ -656,8 +657,8 @@ class FormatOps(
         if (isFirstOp) (fullExpire, if (skip) Indent.Empty else fullIndent)
         else {
           val expire = expires.head._1
-          val indent =
-            if (skip) Indent.Empty else Indent(Num(2), expire, ExpiresOn.After)
+          val indentLen = if (skip) 0 else style.indent.main
+          val indent = Indent(Num(indentLen), expire, ExpiresOn.After)
           (expire, indent)
         }
       }

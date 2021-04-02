@@ -1653,6 +1653,8 @@ for {
     mean * mean / x
 }
 <<< 8.1: infix with longer left ||
+indent.main = 4
+===
 val a =
   1 + 2 * 3 && 4 ^ 5 || 6 op
     7 map {
@@ -1660,10 +1662,10 @@ val a =
     }
 >>>
 val a =
-  1 + 2 * 3 && 4 ^ 5 || 6 op
-    7 map {
-      8 % 9
-    }
+    1 + 2 * 3 && 4 ^ 5 || 6 op
+        7 map {
+          8 % 9
+        }
 <<< 8.2: infix with shorter left ||
 val a = 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 }
 >>>
@@ -1673,13 +1675,14 @@ val a =
   }
 <<< 8.3: infix with longer left ||, narrow
 maxColumn = 20
+indent.main = 3
 ===
 val a = 1 + 2 * 3 && 4 ^ 5 || 6 op 7 map { 8 % 9 }
 >>>
 val a =
-  1 + 2 * 3 && 4 ^ 5 || 6 op 7 map {
-    8 % 9
-  }
+   1 + 2 * 3 && 4 ^ 5 || 6 op 7 map {
+     8 % 9
+   }
 <<< 8.4: infix with shorter left ||, narrow
 maxColumn = 17
 ===
