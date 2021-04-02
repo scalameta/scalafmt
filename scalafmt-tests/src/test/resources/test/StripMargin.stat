@@ -76,6 +76,8 @@ val x = """Formatter changed AST
         """
   .stripMargin('?')
 <<< Align | margin 1 | interpolate, different char
+indent.main = 4
+===
 val x = s"""Formatter changed AST
       |=====================
       |$diff
@@ -90,8 +92,10 @@ val x = s"""Formatter changed AST
            ?=====================
            ?$diff
         """
-  .stripMargin('?')
+    .stripMargin('?')
 <<< Align | margin 1 | interpolate, different char, starts string
+indent.main = 4
+===
 val x = s"""?Formatter changed AST
       |=====================
       |$diff
@@ -106,9 +110,10 @@ val x = s"""?Formatter changed AST
             ?=====================
             ?$diff
         """
-  .stripMargin('?')
+    .stripMargin('?')
 <<< No align | margin 1 | interpolate, different char
 align.stripMargin = false
+indent.main = 4
 ===
 val x = f"""Formatter changed AST
       |=====================
@@ -121,10 +126,10 @@ val x = f"""Formatter changed AST
 val x = f"""Formatter changed AST
       |=====================
       |$diff
-  ?=====================
-  ?$diff
+    ?=====================
+    ?$diff
         """
-  .stripMargin('?')
+    .stripMargin('?')
 <<< No rewrite | margin 1 | interpolate, different char
 assumeStandardLibraryStripMargin = false
 ===
@@ -174,12 +179,13 @@ val x =
    |second""".stripMargin
 <<< pipe char on first line #324, no align
 align.stripMargin = false
+indent.main = 4
 ===
 """|first
   |second""".stripMargin
 >>>
 """|first
-  |second""".stripMargin
+    |second""".stripMargin
 <<< no align, complex interpolation
 align.stripMargin = false
 ===

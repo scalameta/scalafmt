@@ -105,11 +105,12 @@ class Router(formatOps: FormatOps) {
         val split = Split(NoSplit, 0).withPolicy(policy)
         Seq(
           if (getStripMarginChar(formatToken).isEmpty) split
-          else if (!style.align.stripMargin) split.withIndent(2, end, After)
-          else // statecolumn - 1 because of margin characters |
+          else if (style.align.stripMargin)
             split
               .withIndent(StateColumn, end, After)
-              .withIndent(-1, end, After)
+              .withIndent(-1, end, After) // -1 because of margin characters |
+          else
+            split.withIndent(style.indent.main, end, After)
         )
       // Interpolation
       case FormatToken(
