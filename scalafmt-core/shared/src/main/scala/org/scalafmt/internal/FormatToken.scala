@@ -53,10 +53,12 @@ object FormatToken {
 
   /** @param between The whitespace tokens between left and right.
     * @param idx The token's index in the FormatTokens array
+    * @param formatOff if true, between and right should not be formatted
     */
   case class Meta(
       between: Array[Token],
       idx: Int,
+      formatOff: Boolean,
       left: TokenMeta,
       right: TokenMeta
   ) {

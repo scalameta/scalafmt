@@ -46,14 +46,11 @@ class FormatWriter(formatOps: FormatOps) {
     locations.iterate.foreach { entry =>
       val location = entry.curr
       implicit val style: ScalafmtConfig = location.style
-      val state = location.state.prev // this is the state for left
       val formatToken = location.formatToken
 
       formatToken.left match {
-        // formatting flag fetches from the previous state because of
-        // `formatToken.left` rendering. `FormatToken(x, // format: on)` will have
-        // formatOff = false, but x still should not be formatted
-        case _ if state.formatOff => sb.append(formatToken.meta.left.text)
+        case _ if entry.previous.formatToken.meta.formatOff =>
+          sb.append(formatToken.meta.left.text) // checked the state for left
         case _: T.Comment =>
           entry.formatComment
         case _: T.Interpolation.Part | _: T.Constant.String =>
@@ -293,7 +290,7 @@ class FormatWriter(formatOps: FormatOps) {
         val noExtraOffset =
           !runner.dialect.allowTrailingCommas ||
             tok.left.is[T.Comment] ||
-            prevState.formatOff
+            previous.formatToken.meta.formatOff
 
         if (noExtraOffset)
           ws(0)

@@ -24,8 +24,7 @@ final case class State(
     pushes: Seq[ActualIndent],
     column: Int,
     allAltAreNL: Boolean,
-    delayedPenalty: Int, // apply if positive, ignore otherwise
-    formatOff: Boolean
+    delayedPenalty: Int // apply if positive, ignore otherwise
 ) {
 
   override def toString = s"State($cost, $depth)"
@@ -104,10 +103,6 @@ final case class State(
       }
     val splitWithPenalty = nextSplit.withPenalty(penalty)
 
-    val nextFormatOff =
-      if (formatOff) !TokenOps.isFormatOn(right)
-      else TokenOps.isFormatOff(right)
-
     State(
       cost + splitWithPenalty.cost,
       // TODO(olafur) expire policy, see #18.
@@ -119,8 +114,7 @@ final case class State(
       nextIndents,
       nextStateColumn,
       nextAllAltAreNL,
-      nextDelayedPenalty,
-      nextFormatOff
+      nextDelayedPenalty
     )
   }
 
@@ -270,8 +264,7 @@ object State {
     Seq.empty,
     0,
     false,
-    0,
-    formatOff = false
+    0
   )
 
   // this is not best state, it's higher priority for search

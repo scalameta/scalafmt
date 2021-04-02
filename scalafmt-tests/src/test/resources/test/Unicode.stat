@@ -23,7 +23,7 @@ object Foo {
 }
 >>>
 object Foo {
-  // format: off
+   // format: off
    val nbsp = "\u00A0"
    val test = s"${nbsp}\uD83D"
    // format: on
