@@ -56,10 +56,10 @@ type Concat[X <: Tuple, Y <: Tuple] <: Tuple = X match {
 >>>
 type Concat[X <: Tuple, Y <: Tuple]
     <: Tuple = X match {
-  case Unit =>
-    Y
-  case x1 *: xs1 =>
-    x1 *: Concat[xs1, Y]
+    case Unit =>
+        Y
+    case x1 *: xs1 =>
+        x1 *: Concat[xs1, Y]
 }
 <<< even longer type bound
 newlines.beforeTypeBounds = fold

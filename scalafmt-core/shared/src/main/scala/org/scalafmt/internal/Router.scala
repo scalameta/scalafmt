@@ -227,7 +227,8 @@ class Router(formatOps: FormatOps) {
                 case Some(anno) =>
                   val arrow = leftOwner.tokens.find(_.is[T.RightArrow])
                   val expire = arrow.getOrElse(anno.last)
-                  (tokens(expire), arrow, 2, Some(isSelfAnnotationNL))
+                  val indent = style.indent.main
+                  (tokens(expire), arrow, indent, Some(isSelfAnnotationNL))
                 case _ =>
                   (null, None, 0, None)
               }
@@ -317,7 +318,7 @@ class Router(formatOps: FormatOps) {
           singleLineSplit,
           Split(nl, 1)
             .withPolicy(newlineBeforeClosingCurly)
-            .withIndent(2, close, Before),
+            .withIndent(style.indent.main, close, Before),
           Split(Space, 0)
             .onlyIf(lambdaNLOnly.contains(false) && lambdaPolicy != null)
             .notIf(style.newlines.source.eq(Newlines.keep) && newlines != 0)
@@ -353,7 +354,8 @@ class Router(formatOps: FormatOps) {
           else Split.ignored
         Seq(
           spaceSplit,
-          Split(afterCurlyNewlines, 1).withIndent(2, endOfFunction, After)
+          Split(afterCurlyNewlines, 1)
+            .withIndent(style.indent.main, endOfFunction, After)
         )
 
       case FormatToken(T.RightArrow() | T.ContextArrow(), right, _)
@@ -370,7 +372,7 @@ class Router(formatOps: FormatOps) {
         val indent = // don't indent if the body is empty `{ x => }`
           if (isEmptyFunctionBody(leftOwner) && !right.is[T.Comment]) 0
           else if (leftOwner.is[Template]) 0 // { applied the indent
-          else 2
+          else style.indent.main
 
         def noSingleLine = {
           // for constructors with empty args lambda
@@ -483,7 +485,7 @@ class Router(formatOps: FormatOps) {
         // method doesn't fit on a single line.
         Seq(
           Split(Space, 0).withSingleLine(expireToken),
-          Split(Newline, 1).withIndent(2, expireToken, After)
+          Split(Newline, 1).withIndent(style.indent.main, expireToken, After)
         )
 
       case tok @ FormatToken(left, right, _)
@@ -1564,7 +1566,7 @@ class Router(formatOps: FormatOps) {
         }
         val expire = body.tokens.last
         def nlSplitFunc(cost: Int)(implicit l: sourcecode.Line) =
-          Split(Newline, cost).withIndent(2, expire, After)
+          Split(Newline, cost).withIndent(style.indent.main, expire, After)
         if (style.newlines.getBeforeMultiline eq Newlines.unfold)
           CtrlBodySplits.checkComment(formatToken, nlSplitFunc) { ft =>
             if (ft.right.is[T.LeftBrace]) {
@@ -1612,7 +1614,7 @@ class Router(formatOps: FormatOps) {
         val body = leftOwner.asInstanceOf[Term.If].elsep
         val expire = body.tokens.last
         def nlSplitFunc(cost: Int) =
-          Split(Newline, cost).withIndent(2, expire, After)
+          Split(Newline, cost).withIndent(style.indent.main, expire, After)
         if (style.newlines.getBeforeMultiline eq Newlines.unfold)
           Seq(nlSplitFunc(0))
         else
@@ -1644,7 +1646,7 @@ class Router(formatOps: FormatOps) {
                 val closeFt = tokens(close, -1)
                 val willBreak = closeFt.left.is[T.Comment] &&
                   prevNonCommentSameLine(closeFt).hasBreak
-                Num(if (willBreak) 2 else 0)
+                Num(if (willBreak) style.indent.main else 0)
               }
           }
           val useSpace = style.spaces.inParentheses
@@ -1727,9 +1729,10 @@ class Router(formatOps: FormatOps) {
             val rparen = matching(lparen)
             if (postParenFt.right.start >= rparen.start) defaultPolicy
             else {
+              val indent = style.indent.main
               val lindents = Seq(
-                Indent(2, rparen, Before),
-                Indent(-2, expire, After)
+                Indent(indent, rparen, Before),
+                Indent(-indent, expire, After)
               )
               val split = Split(Newline, 0)
               val lsplit = Seq(split.withIndents(lindents))
@@ -1747,16 +1750,13 @@ class Router(formatOps: FormatOps) {
           ) NoPolicy
           else defaultPolicy
 
-        val entireClauseIndent = if (bodyBlock) 0 else 2
+        val bodyIndent = if (bodyBlock) 0 else style.indent.main
+        val arrowIndent = style.indent.caseSite - bodyIndent
         Seq(
           Split(Space, 0).withSingleLine(expire, killOnFail = true),
           Split(Space, 0, policy = policy)
-            .withIndent(entireClauseIndent, expire, After)
-            .withIndent(
-              style.indent.caseSite - entireClauseIndent,
-              arrow,
-              After
-            )
+            .withIndent(bodyIndent, expire, After)
+            .withIndent(arrowIndent, arrow, After)
         )
 
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
@@ -1929,7 +1929,7 @@ class Router(formatOps: FormatOps) {
           Seq(
             // Either everything fits in one line or break on =>
             Split(Space, 0).withSingleLineNoOptimal(lastToken),
-            Split(Newline, 1).withIndent(2, lastToken, After)
+            Split(Newline, 1).withIndent(style.indent.main, lastToken, After)
           )
         }
       // Interpolation
@@ -2237,7 +2237,7 @@ class Router(formatOps: FormatOps) {
             if (noSlb) Split(Space, 0).withOptimalToken(ft.right)
             else Split(Space, 0).withSingleLine(expire)
           }
-        }(Split(Newline, _).withIndent(2, expire, After))
+        }(Split(Newline, _).withIndent(style.indent.main, expire, After))
       }
     }(getInfixSplitsBeforeLhs(_, ft))
 

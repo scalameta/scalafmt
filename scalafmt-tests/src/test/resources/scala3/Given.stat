@@ -25,14 +25,14 @@ given intOrd: Ord[Int]
     with Eq[T]
     with Sort[T]
     with {
-  def compare(
-      x: Int,
-      y: Int
-  ) = {
-    if (x < y) -1
-    else if (x > y) +1
-    else 0
-  }
+    def compare(
+        x: Int,
+        y: Int
+    ) = {
+        if (x < y) -1
+        else if (x > y) +1
+        else 0
+    }
 }
 <<< given with body and multi parents single line
 given intOrd: Ord[Int] with Eq[T] with Sort[T] with {}
