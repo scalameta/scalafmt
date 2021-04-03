@@ -292,6 +292,7 @@ object a {
 maxColumn = 60
 align.preset = none
 newlines.beforeTypeBounds = unfold
+indent.main = 4
 ===
 object a {
   def foo[
@@ -306,18 +307,18 @@ object a {
 object a {
   def foo[
       AAAAAAAAAAAAA
-        >: CCCCCC[cccccc]
-        <: DDDDDD[dddddd]
-        <% CCCCCC[cccccc]
-        <% DDDDDD[dddddd]
-        : CCCCCC[cccccc]
-        : DDDDDD[dddddd],
+          >: CCCCCC[cccccc]
+          <: DDDDDD[dddddd]
+          <% CCCCCC[cccccc]
+          <% DDDDDD[dddddd]
+          : CCCCCC[cccccc]
+          : DDDDDD[dddddd],
       AAAAAAAAAAAAA
-        >: CCCCCCCC[cccccccc]
-        <: DDDDDDDD[dddddddd]
-        <% CCCCCCCC[cccccccc]
-        <% DDDDDDDD[dddddddd]
-        : CCCCCCCC[cccccccc]
-        : DDDDDDDD[dddddddd]
+          >: CCCCCCCC[cccccccc]
+          <: DDDDDDDD[dddddddd]
+          <% CCCCCCCC[cccccccc]
+          <% DDDDDDDD[dddddddd]
+          : CCCCCCCC[cccccccc]
+          : DDDDDDDD[dddddddd]
   ] = ???
 }

@@ -1879,7 +1879,7 @@ class FormatOps(
   )(implicit style: ScalafmtConfig): Seq[Split] = {
     val typeEnd = lastToken(typeOwner)
     val boundEnd = boundEndOpt.getOrElse(typeEnd)
-    def indent = Indent(Num(2), boundEnd, ExpiresOn.After)
+    def indent = Indent(Num(style.indent.main), boundEnd, ExpiresOn.After)
     def unfoldPolicy = typeOwner match {
       case tparam: Type.Param =>
         Policy.on(typeEnd) {
