@@ -1245,9 +1245,7 @@ class Router(formatOps: FormatOps) {
 
         asInfixApp(rightOwner, style.newlines.formatInfix).fold {
           getSplitsDefValEquals(ft, rhs) {
-            val classic = style.newlines.getBeforeMultiline eq Newlines.classic
-            if (classic) getSplitsValEquals(ft, rhs)
-            else CtrlBodySplits.getWithIndent(ft, rhs)(null)(Split(Newline, _))
+            getSplitsValEquals(ft, rhs)(getSplitsValEqualsClassic(ft, rhs))
           }
         }(getInfixSplitsBeforeLhs(_, ft))
 
@@ -2180,7 +2178,13 @@ class Router(formatOps: FormatOps) {
     }
   }
 
-  private def getSplitsValEquals(ft: FormatToken, body: Tree)(implicit
+  private def getSplitsValEquals(ft: FormatToken, body: Tree)(
+      classicSplits: => Seq[Split]
+  )(implicit style: ScalafmtConfig): Seq[Split] =
+    if (style.newlines.getBeforeMultiline eq Newlines.classic) classicSplits
+    else CtrlBodySplits.getWithIndent(ft, body)(null)(Split(Newline, _))
+
+  private def getSplitsValEqualsClassic(ft: FormatToken, body: Tree)(implicit
       style: ScalafmtConfig
   ): Seq[Split] = {
     def wouldDangle =
@@ -2215,95 +2219,29 @@ class Router(formatOps: FormatOps) {
     def baseSpaceSplit(implicit line: sourcecode.Line) =
       Split(Space, 0).notIf(isSingleLineComment(ft.right))
     def twoBranches(implicit line: sourcecode.Line) =
-      Left(
-        baseSpaceSplit
-          .withOptimalToken(optimal)
-          .withPolicy {
-            val exclude = insideBlock[T.LeftBrace](ft, expire)
-            policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
-              Policy.End.Before(expire),
-              new PenalizeAllNewlines(_, Constants.ShouldBeSingleLine)
-            )
-          }
-      )
-    val spaceSplit = (style.newlines.source match {
-      case Newlines.classic if ft.hasBreak && ft.meta.leftOwner.is[Defn] =>
-        Left(Split.ignored)
-      case Newlines.classic =>
-        body match {
-          case _: Term.If => twoBranches
-          case _: Term.ForYield => twoBranches
-          case _: Term.Try | _: Term.TryWithHandler =>
-            // we force newlines in try/catch/finally
-            Left(Split.ignored)
-          case t: Term.Apply if t.args.nonEmpty =>
-            Left(baseSpaceSplit.withOptimalToken(optimalWithComment))
-          case _ => Right(NoPolicy)
+      baseSpaceSplit
+        .withOptimalToken(optimal)
+        .withPolicy {
+          val exclude = insideBlock[T.LeftBrace](ft, expire)
+          policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
+            Policy.End.Before(expire),
+            new PenalizeAllNewlines(_, Constants.ShouldBeSingleLine)
+          )
         }
-
-      case Newlines.keep if ft.hasBreak => Left(Split.ignored)
-      case Newlines.keep =>
-        body match {
-          case _: Term.If => twoBranches
-          case _: Term.ForYield => twoBranches
-          // we force newlines in try/catch/finally
-          case _: Term.Try | _: Term.TryWithHandler => Left(Split.ignored)
-          case _ => Right(NoPolicy)
-        }
-
-      case Newlines.fold =>
-        body match {
-          case t: Term.If =>
-            Either.cond(
-              !ifWithoutElse(t),
-              SingleLineBlock(expire),
-              baseSpaceSplit.withSingleLine(t.cond.tokens.last)
-            )
-          case _: Term.ForYield => twoBranches
-          case _: Term.Try | _: Term.TryWithHandler =>
-            Right(SingleLineBlock(expire))
-          case InfixApp(ia) if style.newlines.formatInfix =>
-            val end = getMidInfixToken(findLeftInfix(ia))
-            val exclude = insideBlock[LeftParenOrBrace](ft, end)
-            Right(SingleLineBlock(end, exclude = exclude))
-          case _ =>
-            val policy = PenalizeAllNewlines(expire, 1)
-            Left(baseSpaceSplit.withOptimalToken(optimal).withPolicy(policy))
-        }
-
-      case Newlines.unfold
-          if (ft.meta.rightOwner eq body) &&
-            isSuperfluousParenthesis(ft.right, body) =>
-        Right(NoPolicy)
-      case Newlines.unfold =>
-        body match {
-          case _: Term.ForYield =>
-            // unfold policy on yield forces a break
-            // revert it if we are attempting a single line
-            val noBreakOnYield = Policy.before(expire) {
-              case Decision(ft, s) if s.isEmpty && ft.right.is[Token.KwYield] =>
-                Seq(Split(Space, 0))
-            }
-            Right(SingleLineBlock(expire) & noBreakOnYield)
-          // we force newlines in try/catch/finally
-          case _: Term.Try | _: Term.TryWithHandler => Left(Split.ignored)
-          // don't tuck curried apply
-          case Term.Apply(_: Term.Apply, _) => Right(SingleLineBlock(expire))
-          case EndOfFirstCall(end) => Left(baseSpaceSplit.withSingleLine(end))
-          case _ => Right(SingleLineBlock(expire))
-        }
-    }).fold(
-      identity,
-      x => baseSpaceSplit.withPolicy(x).withOptimalToken(optimal)
-    )
+    val spaceSplit = body match {
+      case _ if ft.hasBreak && ft.meta.leftOwner.is[Defn] => Split.ignored
+      case _: Term.If => twoBranches
+      case _: Term.ForYield => twoBranches
+      // we force newlines in try/catch/finally
+      case _: Term.Try | _: Term.TryWithHandler => Split.ignored
+      case t: Term.Apply if t.args.nonEmpty =>
+        baseSpaceSplit.withOptimalToken(optimalWithComment)
+      case _ =>
+        baseSpaceSplit.withOptimalToken(optimal)
+    }
     Seq(
       spaceSplit,
-      CtrlBodySplits
-        .withIndent(Split(Newline, 1 + penalty), ft, body)
-        .andPolicy(
-          PenalizeAllNewlines(expire, 1),
-          !style.newlines.sourceIgnored
-        )
+      CtrlBodySplits.withIndent(Split(Newline, 1 + penalty), ft, body)
     )
   }
 
