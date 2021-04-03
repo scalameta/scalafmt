@@ -139,6 +139,7 @@ enum Enum2(val a: String, val b: String) {
       Y
 }
 <<< #143
+indent.main = 3
 indent.commaSiteRelativeToExtends = 4
 indent.withSiteRelativeToExtends = 2
 maxColumn = 30
@@ -151,10 +152,10 @@ class A
         AVeryLongName2,
         AVeryLongName3 {
   self: A
-    with B
-    with C
-    with D
-    with E =>
+     with B
+     with C
+     with D
+     with E =>
 }
 <<< comment between inits
 maxColumn = 30
