@@ -1852,11 +1852,13 @@ class Router(formatOps: FormatOps) {
             (value == "&" && leftOwner.is[Type.And]) =>
         if (style.newlines.source eq Newlines.keep)
           Seq(Split(Space.orNL(newlines == 0), 0))
-        else
+        else {
+          val indent = style.indent.main
           Seq(
             Split(Space, 0),
-            Split(Newline, 1).withIndent(2, lastToken(leftOwner), After)
+            Split(Newline, 1).withIndent(indent, lastToken(leftOwner), After)
           )
+        }
 
       // Pattern alternatives
       case FormatToken(T.Ident("|"), _, _) if leftOwner.is[Pat.Alternative] =>
