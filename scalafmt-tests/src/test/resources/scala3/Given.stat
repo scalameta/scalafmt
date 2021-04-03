@@ -17,13 +17,14 @@ object Order {
 }
 <<< given with body and multi parents
 maxColumn = 30
+indent.main = 4
 ===
 given intOrd: Ord[Int] with Eq[T] with Sort[T] with {def compare(x: Int, y: Int) = {if (x < y) -1 else if (x > y) +1 else 0 }}
 >>>
 given intOrd: Ord[Int]
-  with Eq[T]
-  with Sort[T]
-  with {
+    with Eq[T]
+    with Sort[T]
+    with {
   def compare(
       x: Int,
       y: Int

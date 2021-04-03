@@ -45,11 +45,6 @@ object Constants {
   val ExceedColumnPenalty = 1000
   // Breaking a line like s"aaaaaaa${111111 + 22222}" should be last resort.
   val BreakSingleLineInterpolatedString = 10 * ExceedColumnPenalty
-  // when converting new A with B with C to
-  // new A
-  //   with B
-  //   with C
-  val IndentForWithChains = 2
 }
 
 /** Assigns splits to format tokens.
@@ -2103,7 +2098,7 @@ class Router(formatOps: FormatOps) {
       binPackParentConstructorSplits(
         owners,
         lastToken,
-        IndentForWithChains,
+        style.indent.main,
         extendsThenWith
       )
     } else {

@@ -18,6 +18,7 @@ trait SampleTrait
 }
 <<< #370 scala211
 runner.dialect = scala211
+indent.main = 4
 ===
 trait SampleTrait extends A with B with C with D with E{
   self: LongNameMixin with B with C with D with EEEEEEEEE =>
@@ -29,8 +30,8 @@ trait SampleTrait
     extends A with B with C with D
     with E {
   self: LongNameMixin
-    with B with C with D
-    with EEEEEEEEE =>
+      with B with C with D
+      with EEEEEEEEE =>
 
   def foo: Boolean = true
 }
