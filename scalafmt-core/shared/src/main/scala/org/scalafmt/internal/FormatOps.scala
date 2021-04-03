@@ -1631,14 +1631,8 @@ class FormatOps(
         val nlLine = line.copy(value = line.value + 1)
         nlSplitFunc(1).andPolicy(penalize(penalty)).forThisLine(nlLine)
       }
-      def getSplits(spaceSplit: Split, noIndent: Boolean) = {
-        val nlSplit = getNlSplit(1)(spaceSplit.line)
-        val indents =
-          if (spaceIndents.nonEmpty) spaceIndents
-          else if (noIndent) Seq.empty
-          else nlSplit.modExt.indents
-        (spaceSplit.withIndents(indents), nlSplit)
-      }
+      def getSplits(spaceSplit: Split) =
+        (spaceSplit.withIndents(spaceIndents), getNlSplit(1)(spaceSplit.line))
       def getSlb(end: Token, excl: TokenRanges)(implicit l: sourcecode.Line) =
         SingleLineBlock(end, exclude = excl, noSyntaxNL = true)
       def getSlbSplit(
@@ -1660,7 +1654,7 @@ class FormatOps(
           penalty: Int,
           policy: Policy = Policy.NoPolicy
       )(implicit line: sourcecode.Line) =
-        getSplits(getSpaceSplit(penalty, policy), !ft.left.is[T.Comment])
+        getSplits(getSpaceSplit(penalty, policy))
       def getSlbSplits(
           exclude: TokenRanges = TokenRanges.empty,
           policy: Policy = Policy.NoPolicy
@@ -1675,15 +1669,15 @@ class FormatOps(
           val thenIsBlock = t.thenp.is[Term.Block]
           val thenBeg = tokens(t.thenp.tokens.head)
           val end = if (thenIsBlock) thenBeg else prevNonComment(prev(thenBeg))
-          getSplits(getSlbSplit(end.left), true)
+          getSplits(getSlbSplit(end.left))
         case _: Term.If => getSlbSplits()
         case _: Term.Try | _: Term.TryWithHandler =>
-          if (hasStateColumn) getSplits(getSpaceSplit(1), false)
+          if (hasStateColumn) getSplits(getSpaceSplit(1))
           else getSlbSplits()
         case _: Term.Block | _: Term.Match | _: Type.Match |
             _: Term.NewAnonymous =>
           if (!hasMatching(blast)) getSlbSplits()
-          else getSplits(getSpaceSplit(1), true)
+          else getSplits(getSpaceSplit(1))
         case Term.ForYield(_, b) =>
           nextNonComment(tokens(bhead)).right match {
             case x @ LeftParenOrBrace() =>
@@ -1697,7 +1691,7 @@ class FormatOps(
           val left = findLeftInfix(ia).lhs
           val (callPolicy, isCallSite) = CallSite.getFoldedPolicies(left)
           if (isCallSite) getPolicySplits(0, callPolicy)
-          else getSplits(getSlbSplit(left.tokens.last), true)
+          else getSplits(getSlbSplit(left.tokens.last))
         case _ =>
           val (callPolicy, isCallSite) = CallSite.getFoldedPolicies(body)
           getPolicySplits(if (isCallSite) 0 else 1, callPolicy)

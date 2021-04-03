@@ -3226,9 +3226,9 @@ class Test {
     222
   )
   val a = /* c */ functionCall(
-      111,
-      222
-    )
+    111,
+    222
+  )
   val a = /* c */
     functionCall(
       111,
