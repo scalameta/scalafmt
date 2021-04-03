@@ -447,10 +447,8 @@ class Router(formatOps: FormatOps) {
           else if (beforeMultiline eq Newlines.unfold) {
             if (ft.right.is[T.Semicolon]) Seq(baseSplit, nlSplit(ft)(1))
             else Seq(nlSplit(ft)(0))
-          } else if (
-            ft.hasBreak &&
-            beforeMultiline.in(Newlines.classic, Newlines.keep)
-          ) Seq(nlSplit(ft)(0))
+          } else if (ft.hasBreak && !beforeMultiline.ignoreSourceSplit)
+            Seq(nlSplit(ft)(0))
           else if (bodyIsEmpty) Seq(baseSplit, nlSplit(ft)(1))
           else if (
             condIsDefined ||
@@ -2134,12 +2132,16 @@ class Router(formatOps: FormatOps) {
     def newlineSplit(cost: Int)(implicit line: sourcecode.Line) =
       CtrlBodySplits.withIndent(Split(Newline, cost), ft, body)
 
-    style.newlines.getBeforeMultilineDef match {
-      case Newlines.classic | Newlines.keep if ft.hasBreak =>
-        Seq(newlineSplit(0))
+    def getClassicSplits =
+      if (ft.hasBreak) Seq(newlineSplit(0))
+      else Seq(baseSplit, newlineSplit(1))
 
-      case Newlines.classic =>
-        Seq(baseSplit, newlineSplit(1))
+    style.newlines.getBeforeMultilineDef.fold {
+      getSplitsValEquals(ft, body)(getClassicSplits)
+    } {
+      case Newlines.classic => getClassicSplits
+
+      case Newlines.keep if ft.hasBreak => Seq(newlineSplit(0))
 
       case Newlines.unfold =>
         Seq(baseSplit.withSingleLine(expire), newlineSplit(1))
