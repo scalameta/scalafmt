@@ -256,8 +256,8 @@ case class Newlines(
     (beforeCurlyLambdaParams eq BeforeCurlyLambdaParams.always)
 
   lazy val getBeforeMultiline = beforeMultiline.getOrElse(source)
-  lazy val getBeforeMultilineDef = beforeMultilineDef.getOrElse {
-    if (alwaysBeforeMultilineDef) Newlines.unfold else getBeforeMultiline
+  lazy val getBeforeMultilineDef = beforeMultilineDef.orElse {
+    if (alwaysBeforeMultilineDef) Some(Newlines.unfold) else None
   }
 
 }

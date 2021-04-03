@@ -2189,6 +2189,27 @@ object a {
 }
 >>>
 object a {
+  def `media-range-def` = rule {
+    "*/*" ~ push("*") ~ push("*") |
+      `type` ~ '/' ~
+      ('*' ~ !tchar ~ push("*") | subtype) | '*' ~ push("*") ~ push("*")
+  }
+}
+<<< 8.17 with explicit beforeMultilineDef
+maxColumn = 80
+newlines.beforeMultilineDef = unfold
+===
+object a {
+   def `media-range-def` =
+     rule {
+       "*/*" ~ push("*") ~ push("*") |
+        `type` ~ '/' ~
+        ('*' ~ !tchar ~ push("*") | subtype) |
+        '*' ~ push("*") ~ push("*")
+     }
+}
+>>>
+object a {
   def `media-range-def` =
     rule {
       "*/*" ~ push("*") ~ push("*") |
@@ -2224,11 +2245,10 @@ def `day-name` =
        "Sun" ~ push(0) | "Mon" ~ push(1) | "Tue" ~ push(2) | "Wed" ~ push(3) |
         "Thu" ~ push(4) | "Fri" ~ push(5) | "Sat" ~ push(6))
 >>>
-def `day-name` =
-  rule(
-    "Sun" ~ push(0) | "Mon" ~ push(1) | "Tue" ~ push(2) | "Wed" ~ push(3) |
-      "Thu" ~ push(4) | "Fri" ~ push(5) | "Sat" ~ push(6)
-  )
+def `day-name` = rule(
+  "Sun" ~ push(0) | "Mon" ~ push(1) | "Tue" ~ push(2) | "Wed" ~ push(3) |
+    "Thu" ~ push(4) | "Fri" ~ push(5) | "Sat" ~ push(6)
+)
 <<< 8.20
 maxColumn = 80
 ===
