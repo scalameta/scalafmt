@@ -3202,3 +3202,53 @@ object a {
       case _ =>
     }
 }
+<<< #2400
+maxColumn = 25
+===
+class Test {
+  val a = foo(
+    1,
+    2
+  )
+  val a = functionCall(
+    111,
+    222
+  )
+  val a = /* c */ functionCall(
+    111,
+    222
+  )
+  val a = /* c */
+    functionCall(
+      111,
+      222
+    )
+  val a = // c
+    functionCall(
+      111,
+      222
+    )
+}
+>>>
+class Test {
+  val a = foo(1, 2)
+  val a = functionCall(
+    111,
+    222
+  )
+  val a = /* c */
+    functionCall(
+      111,
+      222
+    )
+  val a = /* c */
+    functionCall(
+      111,
+      222
+    )
+  val a = // c
+    functionCall(
+      111,
+      222
+    )
+}
