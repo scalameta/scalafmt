@@ -604,43 +604,15 @@ class Router(formatOps: FormatOps) {
         val policy = delayedBreakPolicy(policyEnd)(forceNewlineBeforeExtends)
         Seq(Split(Space, 0).withPolicy(policy))
       // DefDef
-      case tok @ FormatToken(T.KwDef(), name @ T.Ident(_), _) =>
-        Seq(
-          Split(Space, 0)
-        )
+      case FormatToken(_: T.KwDef, _: T.Ident, _) =>
+        Seq(Split(Space, 0))
       case ft @ FormatToken(_: T.Equals, _, _)
-          if defBody(leftOwner).isDefined =>
-        val body = defBody(leftOwner).get
+          if splitAssignIntoParts.isDefinedAt(leftOwner) =>
         asInfixApp(rightOwner, style.newlines.formatInfix).fold {
-          getSplitsDefValEquals(ft, body)(getSplitsDefEquals(ft, body))
-        }(getInfixSplitsBeforeLhs(_, ft))
-      // Only allow space after = in val if rhs is a single line or not
-      // an infix application or an if. For example, this is allowed:
-      // val x = function(a,
-      //                  b)
-      case ft @ FormatToken(_: T.Equals, _, _) if (leftOwner match {
-            case _: Defn.Type | _: Defn.Val | _: Defn.Var |
-                _: Defn.GivenAlias =>
-              true
-            case _: Term.Assign => true
-            case t: Term.Param => t.default.isDefined
-            case _ => false
-          }) =>
-        val rhs: Tree = leftOwner match {
-          case l: Term.Assign => l.rhs
-          case l: Term.Param => l.default.get
-          case l: Defn.Type => l.body
-          case l: Defn.Val => l.rhs
-          case l: Defn.GivenAlias => l.body
-          case r: Defn.Var =>
-            r.rhs match {
-              case Some(x) => x
-              case None => r // var x: Int = _, no policy
-            }
-        }
-        asInfixApp(rightOwner, style.newlines.formatInfix).fold {
+          val (rhs, paramss) = splitAssignIntoParts(leftOwner)
           getSplitsDefValEquals(ft, rhs) {
-            getSplitsValEquals(ft, rhs)(getSplitsValEqualsClassic(ft, rhs))
+            if (paramss.isDefined) getSplitsDefEquals(ft, rhs)
+            else getSplitsValEquals(ft, rhs)(getSplitsValEqualsClassic(ft, rhs))
           }
         }(getInfixSplitsBeforeLhs(_, ft))
 
@@ -2245,7 +2217,7 @@ class Router(formatOps: FormatOps) {
 
   private def getSplitsEnumerator(
       ft: FormatToken,
-      body: => Tree
+      body: Tree
   )(implicit style: ScalafmtConfig): Seq[Split] =
     asInfixApp(ft.meta.rightOwner, style.newlines.formatInfix).fold {
       val expire = lastToken(body)
