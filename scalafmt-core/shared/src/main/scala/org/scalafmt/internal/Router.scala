@@ -614,6 +614,35 @@ class Router(formatOps: FormatOps) {
         asInfixApp(rightOwner, style.newlines.formatInfix).fold {
           getSplitsDefValEquals(ft, body)(getSplitsDefEquals(ft, body))
         }(getInfixSplitsBeforeLhs(_, ft))
+      // Only allow space after = in val if rhs is a single line or not
+      // an infix application or an if. For example, this is allowed:
+      // val x = function(a,
+      //                  b)
+      case ft @ FormatToken(_: T.Equals, _, _) if (leftOwner match {
+            case _: Defn.Type | _: Defn.Val | _: Defn.Var |
+                _: Defn.GivenAlias =>
+              true
+            case _: Term.Assign => true
+            case t: Term.Param => t.default.isDefined
+            case _ => false
+          }) =>
+        val rhs: Tree = leftOwner match {
+          case l: Term.Assign => l.rhs
+          case l: Term.Param => l.default.get
+          case l: Defn.Type => l.body
+          case l: Defn.Val => l.rhs
+          case l: Defn.GivenAlias => l.body
+          case r: Defn.Var =>
+            r.rhs match {
+              case Some(x) => x
+              case None => r // var x: Int = _, no policy
+            }
+        }
+        asInfixApp(rightOwner, style.newlines.formatInfix).fold {
+          getSplitsDefValEquals(ft, rhs) {
+            getSplitsValEquals(ft, rhs)(getSplitsValEqualsClassic(ft, rhs))
+          }
+        }(getInfixSplitsBeforeLhs(_, ft))
 
       // Parameter opening for one parameter group. This format works
       // on the WHOLE defnSite (via policies)
@@ -1217,37 +1246,6 @@ class Router(formatOps: FormatOps) {
           case _ => NoSplit
         }
         Seq(Split(mod, 0))
-
-      // Only allow space after = in val if rhs is a single line or not
-      // an infix application or an if. For example, this is allowed:
-      // val x = function(a,
-      //                  b)
-      case ft @ FormatToken(_: T.Equals, _, _) if (leftOwner match {
-            case _: Defn.Type | _: Defn.Val | _: Defn.Var |
-                _: Defn.GivenAlias =>
-              true
-            case _: Term.Assign => true
-            case t: Term.Param => t.default.isDefined
-            case _ => false
-          }) =>
-        val rhs: Tree = leftOwner match {
-          case l: Term.Assign => l.rhs
-          case l: Term.Param => l.default.get
-          case l: Defn.Type => l.body
-          case l: Defn.Val => l.rhs
-          case l: Defn.GivenAlias => l.body
-          case r: Defn.Var =>
-            r.rhs match {
-              case Some(x) => x
-              case None => r // var x: Int = _, no policy
-            }
-        }
-
-        asInfixApp(rightOwner, style.newlines.formatInfix).fold {
-          getSplitsDefValEquals(ft, rhs) {
-            getSplitsValEquals(ft, rhs)(getSplitsValEqualsClassic(ft, rhs))
-          }
-        }(getInfixSplitsBeforeLhs(_, ft))
 
       case FormatToken(_, _: T.Dot, _)
           if style.newlines.source.ne(Newlines.keep) &&
