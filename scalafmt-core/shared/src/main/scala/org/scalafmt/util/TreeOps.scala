@@ -464,6 +464,19 @@ object TreeOps {
       splitDefnIntoParts.lift(tree)
   }
 
+  type AssignParts = (Tree, Option[Seq[Seq[Term.Param]]])
+  val splitAssignIntoParts: PartialFunction[Tree, AssignParts] = {
+    case t: Defn.Def => (t.body, Some(t.paramss))
+    case t: Defn.Macro => (t.body, Some(t.paramss))
+    case t: Defn.GivenAlias => (t.body, Some(t.sparams))
+    case t: Ctor.Secondary => (t.init, Some(t.paramss))
+    case t: Term.Param if t.default.isDefined => (t.default.get, None)
+    case t: Term.Assign => (t.rhs, None)
+    case t: Defn.Type => (t.body, None)
+    case t: Defn.Val => (t.rhs, None)
+    case t: Defn.Var => (t.rhs.getOrElse(t), None) // var x: Int = _, no policy
+  }
+
   /** How many parents of tree are Term.Apply?
     */
   def nestedApplies(tree: Tree): Int =
@@ -481,14 +494,6 @@ object TreeOps {
   def treeDepth(tree: Tree): Int =
     if (tree.children.isEmpty) 0
     else 1 + tree.children.map(treeDepth).max
-
-  def defBody(tree: Tree): Option[Tree] =
-    tree match {
-      case t: Defn.Def => Some(t.body)
-      case t: Defn.Macro => Some(t.body)
-      case t: Ctor.Secondary => Some(t.init)
-      case _ => None
-    }
 
   @tailrec
   final def lastLambda(first: Term.FunctionTerm): Term.FunctionTerm =
