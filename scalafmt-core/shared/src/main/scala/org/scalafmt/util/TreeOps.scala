@@ -245,19 +245,31 @@ object TreeOps {
 
   /** Returns first ancestor which matches the given predicate.
     */
-  @tailrec
   def findTreeOrParent(
       tree: Tree
   )(pred: Tree => Option[Boolean]): Option[Tree] =
-    pred(tree) match {
-      case Some(true) => Some(tree)
-      case Some(false) => None
-      case None =>
-        tree.parent match {
-          case None => None
-          case Some(p) => findTreeOrParent(p)(pred)
-        }
+    findTreeEx(tree) { t =>
+      pred(t) match {
+        case None => t.parent
+        case Some(true) => Some(null)
+        case Some(false) => None
+      }
     }
+
+  /** Returns first tree which matches the given predicate.
+    * The predicate returns None to indicate failure; or the tree to recurse to;
+    * if the tree is null (or the same as current tree), the current tree is returned.
+    */
+  @tailrec
+  def findTreeEx(
+      tree: Tree
+  )(pred: Tree => Option[Tree]): Option[Tree] =
+    pred(tree) match {
+      case None => None
+      case Some(null | `tree`) => Some(tree)
+      case Some(r) => findTreeEx(r)(pred)
+    }
+
   def findTreeOrParentSimple(
       tree: Tree,
       flag: Boolean = true
@@ -265,20 +277,38 @@ object TreeOps {
     findTreeOrParent(tree)(x => if (pred(x) == flag) Some(true) else None)
 
   /** Returns first ancestor whose parent matches the given predicate.
+    * The predicate returns None to continue with the parent, or
+    * the boolean match flag, which terminates the search.
     */
-  @tailrec
   def findTreeWithParent(
       tree: Tree
   )(pred: Tree => Option[Boolean]): Option[Tree] =
+    findTreeWithParentEx(tree) { t =>
+      pred(t) match {
+        case None => Some(t)
+        case Some(true) => Some(null)
+        case Some(false) => None
+      }
+    }
+
+  /** Returns first ancestor whose parent matches the given predicate.
+    * The predicate returns None to indicate failure; or the tree to recurse to;
+    * if the recurse-to tree is null, the current tree is returned.
+    */
+  @tailrec
+  def findTreeWithParentEx(
+      tree: Tree
+  )(pred: Tree => Option[Tree]): Option[Tree] =
     tree.parent match {
       case None => None
       case Some(p) =>
         pred(p) match {
-          case Some(true) => Some(tree)
-          case Some(false) => None
-          case None => findTreeWithParent(p)(pred)
+          case None => None
+          case Some(null) => Some(tree)
+          case Some(r) => findTreeWithParentEx(r)(pred)
         }
     }
+
   def findTreeWithParentSimple(
       tree: Tree,
       flag: Boolean = true
