@@ -2,7 +2,8 @@ package org.scalafmt.config
 
 import metaconfig._
 
-/** @param defnSite indentation around class/def
+/** @param main the primary indentation used in the code
+  * @param defnSite indentation around class/def
   * @param ctorSite indentation around class constructor parameters
   * @param caseSite indentation for case values before arrow
   * @param callSite indentation around function calls, etc.
@@ -11,6 +12,7 @@ import metaconfig._
   * @param commaSiteRelativeToExtends additional indentation before in the line after extends with a comma
   */
 case class Indents(
+    main: Int = 2,
     callSite: Int = 2,
     defnSite: Int = 4,
     caseSite: Int = 4,

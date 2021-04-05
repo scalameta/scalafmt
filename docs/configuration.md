@@ -130,6 +130,17 @@ top-level.
 
 ## Indentation
 
+### `indent.main`
+
+> Since v3.0.0.
+
+This parameter controls the primary code indentation. Various context-specific
+overrides are defined below, within this section.
+
+```scala mdoc:defaults
+indent.main
+```
+
 ### `indent.callSite`
 
 ```scala mdoc:defaults
