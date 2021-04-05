@@ -381,6 +381,7 @@ object ScalafmtConfig {
         "binPack.unsafeXXX && newlines.implicitParamListModifierXXX (not implemented)"
       )
       checkPositive(
+        indent.main,
         indent.callSite,
         indent.defnSite,
         indent.commaSiteRelativeToExtends
