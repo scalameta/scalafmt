@@ -7,7 +7,6 @@ import scala.annotation.tailrec
 
 import metaconfig.Configured
 import munit.Assertions._
-import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.{Debug, Scalafmt}
 import org.scalafmt.config.FormatEvent._
 import org.scalafmt.config.{
@@ -19,14 +18,13 @@ import org.scalafmt.config.{
 }
 import org.scalafmt.tests.BuildInfo
 import org.scalafmt.internal.FormatWriter
-
 import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.parsers.Parse
-import scala.util.Try
 import munit.Location
 
 trait HasTests extends FormatAssertions {
+  import HasTests._
   import LoggerOps._
 
   def scalafmtRunner(sr: ScalafmtRunner, dg: Debug): ScalafmtRunner =
@@ -55,12 +53,14 @@ trait HasTests extends FormatAssertions {
     else tests
   }
 
-  def isOnly(name: String) = name.startsWith("ONLY ")
+  def isOnly(name: String) = isPrefix(name, onlyPrefix)
 
-  def isSkip(name: String) = name.startsWith("SKIP ")
+  def isSkip(name: String) = isPrefix(name, skipPrefix)
 
   def stripPrefix(name: String) =
-    name.stripPrefix("SKIP ").stripPrefix("ONLY ").trim
+    stripPrefixOpt(name, skipPrefix)
+      .orElse(stripPrefixOpt(name, onlyPrefix))
+      .getOrElse(name)
 
   def filename2parse(filename: String): Option[Parse[_ <: Tree]] =
     extension(filename) match {
@@ -82,9 +82,13 @@ trait HasTests extends FormatAssertions {
       .relativize(Paths.get(filename))
       .getName(0)
       .toString
-    val moduleOnly = isOnly(content)
-    val moduleSkip = isSkip(content)
-    val split = content.split(s"$sep<<< ")
+
+    val split = content.split(s"(?:^|$sep)<<< ")
+    if (split.length <= 1) return Seq.empty // RETURNING!!!
+
+    val (head, tail) = (split.head, split.tail)
+    val moduleOnly = isOnly(head)
+    val moduleSkip = isSkip(head)
 
     def loadStyle(content: String, base: ScalafmtConfig): ScalafmtConfig =
       Config.fromHoconString(content, None, base) match {
@@ -96,22 +100,22 @@ trait HasTests extends FormatAssertions {
               |$c""".stripMargin
           )
       }
-    val style: ScalafmtConfig =
-      Try(spec2style(spec)).getOrElse(
-        loadStyle(split.head.stripPrefix("ONLY "), ScalafmtConfig.default)
-      )
+    val style: ScalafmtConfig = loadStyle(
+      stripPrefixOpt(head, onlyPrefix).getOrElse(head),
+      spec2style(spec)
+    )
 
     @tailrec
     def numLines(str: String, cnt: Int = 1, off: Int = 0): Int = {
       val idx = str.indexOf(sep, off)
       if (idx < 0) cnt else numLines(str, cnt + 1, idx + sep.length)
     }
-    var linenum = numLines(split.head, 2)
+    var linenum = numLines(head, 2)
     val inputOutputRegex = Pattern.compile(
       s"(.+?)$sep(?:(.+)$sep===$sep)?(.+)$sep>>>(?: +(.+?))?$sep(.*)",
       Pattern.DOTALL
     )
-    split.tail.map { t =>
+    tail.map { t =>
       val matcher = inputOutputRegex.matcher(t)
       if (!matcher.matches())
         throw new IllegalStateException(
@@ -139,13 +143,13 @@ trait HasTests extends FormatAssertions {
     }
   }
 
-  def spec2style(spec: String): ScalafmtConfig =
+  private def spec2style(spec: String): ScalafmtConfig =
     spec match {
       case "unit" => HasTests.unitTest40
       case "default" | "standard" | "scala" => HasTests.unitTest80
       case "scalajs" => ScalafmtConfig.scalaJs.copy(maxColumn = 79)
       case "scala3" => ScalafmtConfig.scala3
-      case style => throw UnknownStyle(style)
+      case _ => ScalafmtConfig.default
     }
 
   def saveResult(t: DiffTest, obtained: String, debug: Debug): Result = {
@@ -231,5 +235,15 @@ object HasTests {
   )
 
   val unitTest40 = unitTest80.copy(maxColumn = 39)
+
+  private val onlyPrefix = "ONLY"
+  private val skipPrefix = "SKIP"
+
+  private def isPrefix(name: String, prefix: String) =
+    name.startsWith(prefix) && !name.charAt(prefix.length).isLetterOrDigit
+
+  private def stripPrefixOpt(name: String, prefix: String) =
+    if (isPrefix(name, prefix)) Some(name.substring(prefix.length).trim)
+    else None
 
 }
