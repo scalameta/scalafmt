@@ -2381,7 +2381,7 @@ object a {
 }
 <<< #1973 1
 maxColumn = 25
-continuationIndent.extendSite = 2
+indent.extendSite = 2
 ===
 object a {
   object Foo
@@ -2395,7 +2395,7 @@ object a {
 }
 <<< #1973 2
 maxColumn = 25
-continuationIndent.extendSite = 2
+indent.extendSite = 2
 ===
 object a {
   case class Foo(
@@ -2416,7 +2416,7 @@ object a {
 }
 <<< #1973 3
 maxColumn = 25
-continuationIndent.extendSite = 2
+indent.extendSite = 2
 ===
 object a {
   trait Foo

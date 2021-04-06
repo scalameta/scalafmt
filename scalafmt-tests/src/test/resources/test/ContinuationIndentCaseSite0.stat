@@ -1,4 +1,4 @@
-continuationIndent.caseSite = 0
+indent.caseSite = 0
 <<< Long if
 val Route: PartialFunction[Decision, Decision] = {
 case token if (token match { case Left("xml") => true; case Right(_) => false }) => List( NoSplit0 )

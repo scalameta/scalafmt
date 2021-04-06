@@ -165,9 +165,9 @@ class A(alphaParam : Int, betaParam : Int)  extends Alpha, Beta, Gamma, Delta, E
 class A(alphaParam: Int, betaParam: Int)
     extends Alpha, Beta, Gamma, Delta, Epsilon
     derives Alpha, Beta, Gamma, Delta, Epsilon
-<<< continuationIndent `deriveSite`
+<<< indent `deriveSite`
 binPack.parentConstructors = Oneline
-continuationIndent.deriveSite = 1
+indent.deriveSite = 1
 maxColumn = 50
 ===
 class A(alphaParam : Int, betaParam : Int)  extends Alpha, Beta, Gamma, Delta, Epsilon derives Alpha, Beta, Gamma, Delta, Epsilon

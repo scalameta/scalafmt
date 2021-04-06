@@ -919,8 +919,8 @@ class FormatOps(
     leftOwner match {
       case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
         if (style.binPack.unsafeDefnSite && !isConfigStyle) Num(0)
-        else Num(style.continuationIndent.getDefnSite(x))
-      case _ => Num(style.continuationIndent.callSite)
+        else Num(style.indent.getDefnSite(x))
+      case _ => Num(style.indent.callSite)
     }
 
   def isBinPack(owner: Tree): Boolean = {
@@ -1105,7 +1105,7 @@ class FormatOps(
 
     val FormatToken(open, r, _) = ft
     val close = matching(open)
-    val indentParam = Num(style.continuationIndent.getDefnSite(owner))
+    val indentParam = Num(style.indent.getDefnSite(owner))
     val indentSep = Num((indentParam.n - 2).max(0))
     val isBracket = open.is[T.LeftBracket]
 

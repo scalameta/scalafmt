@@ -10,7 +10,7 @@ import metaconfig._
   * @param withSiteRelativeToExtends additional indentation before `with`
   * @param commaSiteRelativeToExtends additional indentation before in the line after extends with a comma
   */
-case class ContinuationIndent(
+case class Indents(
     callSite: Int = 2,
     defnSite: Int = 4,
     caseSite: Int = 4,
@@ -20,7 +20,7 @@ case class ContinuationIndent(
     withSiteRelativeToExtends: Int = 0,
     commaSiteRelativeToExtends: Int = 2
 ) {
-  implicit val reader: ConfDecoder[ContinuationIndent] =
+  implicit val reader: ConfDecoder[Indents] =
     generic.deriveDecoder(this).noTypos
 
   def getDefnSite(tree: meta.Tree): Int =
@@ -30,9 +30,9 @@ case class ContinuationIndent(
     }).getOrElse(defnSite)
 }
 
-object ContinuationIndent {
-  implicit lazy val surface: generic.Surface[ContinuationIndent] =
+object Indents {
+  implicit lazy val surface: generic.Surface[Indents] =
     generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[ContinuationIndent] =
+  implicit lazy val encoder: ConfEncoder[Indents] =
     generic.deriveEncoder
 }

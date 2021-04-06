@@ -175,7 +175,7 @@ object a {
   }
 }
 <<< #1505 4
-continuationIndent.callSite = 2
+indent.callSite = 2
 newlines.avoidForSimpleOverflow = [toolong]
 ===
 object RemoteRestartedQuarantinedSpec extends MultiNodeConfig {

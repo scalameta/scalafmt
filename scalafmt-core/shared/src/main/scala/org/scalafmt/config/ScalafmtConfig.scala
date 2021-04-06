@@ -105,7 +105,8 @@ case class ScalafmtConfig(
     comments: Comments = Comments(),
     optIn: OptIn = OptIn(),
     binPack: BinPack = BinPack(),
-    continuationIndent: ContinuationIndent = ContinuationIndent(),
+    @annotation.ExtraName("continuationIndent")
+    indent: Indents = Indents(),
     align: Align = Align(),
     spaces: Spaces = Spaces(),
     literals: Literals = Literals(),
@@ -151,7 +152,7 @@ case class ScalafmtConfig(
   private implicit def spacesReader = spaces.reader
   private implicit def literalsReader = literals.reader
   private implicit def xmlLiteralsDecoder = xmlLiterals.decoder
-  private implicit def continuationIndentReader = continuationIndent.reader
+  private implicit def indentReader = indent.reader
   private implicit def binpackReader = binPack.decoder
   private implicit def newlinesReader = newlines.reader
   private implicit def optInReader = optIn.reader
@@ -236,7 +237,7 @@ object ScalafmtConfig {
   val default = ScalafmtConfig()
 
   val intellij: ScalafmtConfig = default.copy(
-    continuationIndent = ContinuationIndent(2, 2),
+    indent = Indents(callSite = 2, defnSite = 2),
     align = default.align.copy(openParenCallSite = false),
     optIn = default.optIn.copy(
       configStyleArguments = false
@@ -261,7 +262,7 @@ object ScalafmtConfig {
       unsafeCallSite = true,
       parentConstructors = BinPack.ParentCtors.Always
     ),
-    continuationIndent = ContinuationIndent(4, 4),
+    indent = Indents(callSite = 4, defnSite = 4),
     importSelectors = ImportSelectors.binPack,
     newlines = default.newlines.copy(
       avoidInResultType = true,
@@ -379,7 +380,7 @@ object ScalafmtConfig {
         },
         "binPack.unsafeXXX && newlines.implicitParamListModifierXXX (not implemented)"
       )
-      addIfNegative(continuationIndent.callSite, continuationIndent.defnSite)
+      addIfNegative(indent.callSite, indent.defnSite)
     }
     if (allErrors.isEmpty) Configured.ok(cfg)
     else {

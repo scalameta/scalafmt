@@ -1,7 +1,7 @@
-continuationIndent.callSite = 5
-continuationIndent.defnSite = 3
-continuationIndent.extendSite = 2
-continuationIndent.withSiteRelativeToExtends = 2
+indent.callSite = 5
+indent.defnSite = 3
+indent.extendSite = 2
+indent.withSiteRelativeToExtends = 2
 maxColumn = 39
 <<< #143
 def foo(
@@ -40,7 +40,7 @@ class ExtendTest
 }
 <<< comment between inits
 maxColumn = 30
-continuationIndent.withSiteRelativeToExtends = 2
+indent.withSiteRelativeToExtends = 2
 ===
 class A extends AVeryLongName1 /* comment */ with AVeryLongName2 with AVeryLongName3
 >>>

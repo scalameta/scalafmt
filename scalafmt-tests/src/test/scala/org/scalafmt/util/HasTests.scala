@@ -12,7 +12,7 @@ import org.scalafmt.{Debug, Scalafmt}
 import org.scalafmt.config.FormatEvent._
 import org.scalafmt.config.{
   Config,
-  ContinuationIndent,
+  Indents,
   DanglingParentheses,
   ScalafmtConfig,
   ScalafmtRunner
@@ -227,7 +227,7 @@ object HasTests {
   )
 
   val unitTest80 = testing.copy(
-    continuationIndent = ContinuationIndent(4, 4)
+    indent = Indents(callSite = 4, defnSite = 4)
   )
 
   val unitTest40 = unitTest80.copy(maxColumn = 39)

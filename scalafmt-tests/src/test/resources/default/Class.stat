@@ -326,8 +326,8 @@ case class Foo(
     ???
 }
 <<< #1487
-continuationIndent.defnSite = 2
-continuationIndent.ctorSite = 4
+indent.defnSite = 2
+indent.ctorSite = 4
 ===
 abstract class A(
  b: Int

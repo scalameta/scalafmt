@@ -285,8 +285,7 @@ object Readme {
   )
 
   val multilineNewlineAfterParen = ScalafmtConfig.default.copy(
-    continuationIndent =
-      ScalafmtConfig.default.continuationIndent.copy(defnSite = 2),
+    indent = ScalafmtConfig.default.indent.copy(defnSite = 2),
     verticalMultiline = VerticalMultiline(
       atDefnSite = true,
       arityThreshold = 2,
@@ -295,8 +294,7 @@ object Readme {
   )
 
   val multilineDanglingParens = ScalafmtConfig.default.copy(
-    continuationIndent =
-      ScalafmtConfig.default.continuationIndent.copy(defnSite = 2),
+    indent = ScalafmtConfig.default.indent.copy(defnSite = 2),
     verticalMultiline = VerticalMultiline(
       atDefnSite = true,
       arityThreshold = 2,
