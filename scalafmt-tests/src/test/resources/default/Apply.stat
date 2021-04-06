@@ -1,4 +1,4 @@
-80 columns                                                                     |
+
 <<< Massive 1
 List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
            Split(nl, 1).withPolicy({

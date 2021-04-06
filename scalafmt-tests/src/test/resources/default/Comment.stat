@@ -1,9 +1,7 @@
-80 columns                                                                     ##
 ## Devos BEWARE of reformatting this file, it contains essential invisible
 ## horizontal whitespace as defined by Java 8 java.util.regex.Pattern
 ## "\\h": [\x20\t\xA0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000].
 ## For quick reference \x20 is ASCII space, \t is tab.
-|
 <<< keep blank lines
 {
 

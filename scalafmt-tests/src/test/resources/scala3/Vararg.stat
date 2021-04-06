@@ -1,5 +1,4 @@
 
-
 <<< simple invocation
 val a = method(0, 1,"", others*)
 >>>

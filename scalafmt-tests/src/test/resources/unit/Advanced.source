@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< Rich syntax
 @ foobar("annot", {
   val x = 2

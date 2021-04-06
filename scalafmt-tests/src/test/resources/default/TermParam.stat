@@ -1,4 +1,4 @@
-80 columns                                                                     |
+
 <<< unindent by 2 in blocks, #186
 scrut.branchSwitch(scrut.value,
                    casevals = normalcases.map { case (v, _) => v },

@@ -1,4 +1,4 @@
-maxColumn = 40
+
 <<< splice brace
 ${    locationImpl() }
 >>>

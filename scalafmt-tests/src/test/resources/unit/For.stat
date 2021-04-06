@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< newline for each clause
 for { f0 <- Option(a)
   filename <- f0

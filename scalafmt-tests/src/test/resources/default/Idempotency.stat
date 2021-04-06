@@ -1,4 +1,4 @@
-80 columns                                                                     |
+
 <<< paulp example #192
 class A {
   def traced(in: A => Unit, out: B => Unit): Fun[A, B] = ( f

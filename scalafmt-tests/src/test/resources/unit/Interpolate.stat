@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< has expression
 s"${a.foo[Bar]}"
 >>>

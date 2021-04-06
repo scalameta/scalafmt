@@ -1,4 +1,4 @@
-80 columns                                                                     |
+
 <<< Route partial function
 val Route: PartialFunction[Decision, Decision] = {
   case FormatToken(_: Ident | _: `this` | _: `_ ` | _: `(`, _: `.` | _: `#`, _) =>

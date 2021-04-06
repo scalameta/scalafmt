@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< no newline after binding (
 js.Return(!(!({
 genIsScalaJSObject(obj) &&

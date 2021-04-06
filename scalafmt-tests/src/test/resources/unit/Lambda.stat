@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< keep x to {
 lst.map { x =>
       println(x)

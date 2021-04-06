@@ -1,4 +1,4 @@
-80 columns                                                                     |
+
 <<< breaking cost #158
  object ReferrerPolicy {
   val `no-referrer-when-downgrade` = "no-referrer-when-downgrade".asInstanceOf[
