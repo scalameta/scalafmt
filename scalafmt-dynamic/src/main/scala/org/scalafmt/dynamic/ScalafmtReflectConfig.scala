@@ -27,15 +27,6 @@ class ScalafmtReflectConfig private[dynamic] (
 
   private val rewriteRulesMethod = Try(targetCls.getMethod("rewrite")).toOption
 
-  private val continuationIndentMethod =
-    Try(targetCls.getMethod("continuationIndent")).toOption
-  private val continuationIndentCallSiteMethod =
-    Try(targetCls.getMethod("continuationIndentCallSite")).toOption
-  private val continuationIndentDefnSiteMethod =
-    Try(targetCls.getMethod("continuationIndentDefnSite")).toOption
-  private val DefaultIndentCallSite = 2
-  private val DefaultIndentDefnSite = 4
-
   val version: String = {
     target.invokeAs[String]("version").trim
   }
@@ -84,36 +75,6 @@ class ScalafmtReflectConfig private[dynamic] (
         !rewriteSettings.invoke("rules").invokeAs[Boolean]("isEmpty")
       case None =>
         false
-    }
-  }
-
-  val continuationIndentCallSite: Int = {
-    continuationIndentMethod match {
-      case Some(method) => // scalafmt >= v0.4
-        val indentsObj = method.invoke(target)
-        indentsObj.invokeAs[Int]("callSite")
-      case None =>
-        continuationIndentCallSiteMethod match {
-          case Some(method) => // scalafmt >= v0.2.0
-            method.invoke(target).asInstanceOf[Int]
-          case None =>
-            DefaultIndentCallSite
-        }
-    }
-  }
-
-  val continuationIndentDefnSite: Int = {
-    continuationIndentMethod match {
-      case Some(method) =>
-        val indentsObj = method.invoke(target)
-        indentsObj.invokeAs[Int]("defnSite")
-      case None =>
-        continuationIndentDefnSiteMethod match {
-          case Some(method) =>
-            method.invoke(target).asInstanceOf[Int]
-          case None =>
-            DefaultIndentDefnSite
-        }
     }
   }
 
