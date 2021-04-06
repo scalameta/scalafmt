@@ -281,10 +281,8 @@ class DynamicSuite extends FunSuite {
         |version=$latest
         |""".stripMargin
     )
-    f.assertThrows[ScalafmtDynamicError.ConfigParseError](
-      """|error: path/.scalafmt.conf: Invalid config: Invalid field: max. Expected one of version, maxColumn, docstrings, optIn, binPack, continuationIndent, align, spaces, literals, lineEndings, rewriteTokens, rewrite, indentOperator, newlines, runner, indentYieldKeyword, importSelectors, unindentTopLevelOperators, includeCurlyBraceInSelectChains, includeNoParensInSelectChains, assumeStandardLibraryStripMargin, danglingParentheses, poorMansTrailingCommasInConfigStyle, trailingCommas, verticalMultilineAtDefinitionSite, verticalMultilineAtDefinitionSiteArityThreshold, verticalMultiline, onTestFailure, encoding, project
-        |""".stripMargin
-    )
+    val thrown = f.assertThrows[ScalafmtDynamicError.ConfigParseError]()
+    assert(thrown.getMessage.contains("Invalid config: Invalid field: max."))
   }
 
   check("config-cache") { f =>
@@ -383,10 +381,8 @@ class DynamicSuite extends FunSuite {
 
   check("no-config") { f =>
     Files.delete(f.config)
-    f.assertThrows[ScalafmtDynamicError.ConfigDoesNotExist](
-      """|error: path/.scalafmt.conf: Missing config
-        |""".stripMargin
-    )
+    val thrown = f.assertThrows[ScalafmtDynamicError.ConfigDoesNotExist]()
+    assert(thrown.getMessage.contains("Missing config"))
   }
 
   check("intellij-default-config") { f: Format =>
