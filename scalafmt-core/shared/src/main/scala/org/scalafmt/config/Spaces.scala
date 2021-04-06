@@ -1,7 +1,6 @@
 package org.scalafmt.config
 
 import metaconfig._
-import org.scalafmt.config.SpaceBeforeContextBound
 
 /** @param beforeContextBoundColon formats [A: T] as [A : T]
   * @param afterTripleEquals If true, formats ===( as === (
@@ -26,8 +25,8 @@ import org.scalafmt.config.SpaceBeforeContextBound
   *   def <=> [T](that: T): Boolean
   */
 case class Spaces(
-    beforeContextBoundColon: SpaceBeforeContextBound =
-      SpaceBeforeContextBound.Never,
+    beforeContextBoundColon: Spaces.BeforeContextBound =
+      Spaces.BeforeContextBound.Never,
     afterTripleEquals: Boolean = false,
     inImportCurlyBraces: Boolean = false,
     inInterpolatedStringCurlyBraces: Boolean = false,
@@ -43,4 +42,18 @@ case class Spaces(
 object Spaces {
   implicit lazy val surface: generic.Surface[Spaces] = generic.deriveSurface
   implicit lazy val encoder: ConfEncoder[Spaces] = generic.deriveEncoder
+
+  sealed abstract class BeforeContextBound
+  object BeforeContextBound {
+    implicit val codec: ConfCodec[BeforeContextBound] = ReaderUtil
+      .oneOfCustom[BeforeContextBound](Always, Never, IfMultipleBounds) {
+        case Conf.Bool(true) => Configured.ok(Always)
+        case Conf.Bool(false) => Configured.ok(Never)
+      }
+
+    case object Always extends BeforeContextBound
+    case object Never extends BeforeContextBound
+    case object IfMultipleBounds extends BeforeContextBound
+  }
+
 }

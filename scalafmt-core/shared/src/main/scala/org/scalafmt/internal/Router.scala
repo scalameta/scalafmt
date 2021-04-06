@@ -1,12 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{
-  ImportSelectors,
-  Newlines,
-  ScalafmtConfig,
-  SpaceBeforeContextBound
-}
+import org.scalafmt.config.{ImportSelectors, Newlines, ScalafmtConfig, Spaces}
 import org.scalafmt.internal.ExpiresOn.{After, Before}
 import org.scalafmt.internal.Length.{Num, StateColumn}
 import org.scalafmt.internal.Policy.NoPolicy
@@ -1201,8 +1196,8 @@ class Router(formatOps: FormatOps) {
         val tp = rightOwner.asInstanceOf[Type.Param]
         def noNLMod = Space(
           style.spaces.beforeContextBoundColon match {
-            case SpaceBeforeContextBound.Always => true
-            case SpaceBeforeContextBound.IfMultipleBounds =>
+            case Spaces.BeforeContextBound.Always => true
+            case Spaces.BeforeContextBound.IfMultipleBounds =>
               1 < tp.cbounds.length + tp.vbounds.length +
                 tp.tbounds.lo.size + tp.tbounds.hi.size
             case _ => false
