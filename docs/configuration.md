@@ -798,9 +798,9 @@ package core {
 > Since v2.7.0
 
 This parameter controls whether to force a new line before a multi-line body of
-`case/if/val` and how to format it if the space is allowed. (For multi-line
-bodies of method definitions, please see
-[`newlines.beforeMultilineDef`](#newlinesbeforemultilinedef) below.)
+`case/if/def/val` and how to format it if the space is allowed. (For
+additional control with assignment expressions, please also see
+[`newlines.forceBeforeMultilineAssign`](#newlinesforcebeforemultilineassign) below.)
 
 It accepts the same values as [`newlines.source`](#newlinessource) (and defaults
 to that parameter's setting).
@@ -864,71 +864,85 @@ a match {
 }
 ```
 
-### `newlines.beforeMultilineDef`
+### `newlines.forceBeforeMultilineAssign`
 
-> Since v2.7.0
+> Since v3.0.0
 
-This parameter applies to multi-line definitions only. It accepts the same
-values as [`newlines.beforeMultiline`](#newlinesbeforemultiline) (and defaults
-to that parameter's setting).
+This section controls whether to force a break before a multi-line body of an
+assignment expression unless it can be formatted on a single line (or is enclosed
+in braces). By default, the rule is disabled. It takes precedence
+over `newlines.beforeMultiline` settings.
 
-It replaced deprecated boolean `newlines.alwaysBeforeMultilineDef` (with `false`
-mapped to `fold` and `true` to `unfold`).
+It can take the following values:
+
+- `never`: the rule is disabled
+- `any`: applies to any assignment expression (`def`, assignment to
+  a `var`, default value of a method parameter, etc.)
+- `def`: applies only to definitions which can potentially be parameterized
+  (`def`, `macro`, `given` alias, etc.)
+- `anyMember`: applies to members of a `class/trait/object`
+- `topMember`: applies to members of a `class/trait/object` which itself
+  can only be nested within a sequence of `class/trait/object` definitions
+
+It replaces deprecated `newlines` parameters `beforeMultilineDef=unfold` and
+`alwaysBeforeMultilineDef=true` which, if this parameter is not set,
+map to `def`.
 
 ```scala mdoc:scalafmt
-newlines.beforeMultilineDef = unfold
+maxColumn = 17
+newlines.forceBeforeMultilineAssign = def
 ---
-// had space after "="
-def foo: String = "123".map { x =>
-  x.toUpper
-}
-// had newline after "="
-def foo: String =
-  "123".map { x =>
-    x.toUpper
+class A {
+  // break, allows params (even if it doesn't define any)
+  def foo = func(foo, bar)
+  // no break, doesn't allow params
+  val foo = func(foo, bar)
+  def foo = {
+    def a = func(foo, bar)
+    val a = func(foo, bar)
   }
+}
 ```
 
 ```scala mdoc:scalafmt
-newlines.beforeMultilineDef = fold
+maxColumn = 19
+newlines.forceBeforeMultilineAssign = topMember
 ---
-// had space after "="
-def foo: String = "123".map { x =>
-  x.toUpper
-}
-// had newline after "="
-def foo: String =
-  "123".map { x =>
-    x.toUpper
+class A {
+  class B {
+    // break, a top member
+    def foo = func(foo, bar)
+    // break, a top member
+    val foo = func(foo, bar)
   }
+  def foo = {
+    // no break, not a member
+    def a = func(foo, bar)
+    // no break, not a member
+    val a = func(foo, bar)
+    new A with B {
+      // no break, not a top member
+      def foo = func(foo, bar)
+      // no break, not a top member
+      val foo = func(foo, bar)
+    }
+  }
+}
 ```
 
 ```scala mdoc:scalafmt
-newlines.beforeMultilineDef = keep
+maxColumn = 17
+newlines.forceBeforeMultilineAssign = never
 ---
-// had space after "="
-def foo: String = "123".map { x =>
-  x.toUpper
-}
-// had newline after "="
-def foo: String =
-  "123".map { x =>
-    x.toUpper
+// all disabled, no breaks
+class A {
+  def foo = func(foo, bar)
+  val foo = func(foo, bar)
+  def foo = {
+    def a = func(foo, bar)
+    val a = func(foo, bar)
   }
-```
-
-```scala mdoc:scalafmt
-# newlines.beforeMultilineDef = classic
----
-// had space after "="
-def foo: String = "123".map { x =>
-  x.toUpper
 }
-// had newline after "="
-def foo: String =
-  "123".map { x =>
-    x.toUpper
-  }
 ```
 
 ### `newlines.beforeTypeBounds`
