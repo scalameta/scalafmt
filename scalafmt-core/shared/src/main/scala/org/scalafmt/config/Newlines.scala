@@ -1,6 +1,11 @@
 package org.scalafmt.config
 
+import scala.meta.Pkg
+import scala.meta.Template
+import scala.meta.Tree
+
 import org.scalafmt.config.Newlines._
+import org.scalafmt.util.TreeOps
 
 import metaconfig._
 import metaconfig.generic.Surface
@@ -176,13 +181,20 @@ case class Newlines(
     @annotation.ExtraName("usingParamListModifierPrefer")
     implicitParamListModifierPrefer: Option[BeforeAfter] = None,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
+    private val forceBeforeMultilineAssign: Option[ForceBeforeMultilineAssign] =
+      None,
     @annotation.DeprecatedName(
       "alwaysBeforeMultilineDef",
-      "Use newlines.beforeMultilineDef instead",
-      "2.7.0"
+      "Use newlines.forceBeforeMultilineAssign instead",
+      "3.0.0"
     )
     private val alwaysBeforeMultilineDef: Boolean = false,
     private[config] val beforeMultiline: Option[SourceHints] = None,
+    @annotation.DeprecatedName(
+      "beforeMultilineDef",
+      "Use newlines.beforeMultiline, newlines.forceBeforeMultilineAssign instead",
+      "3.0.0"
+    )
     private[config] val beforeMultilineDef: Option[SourceHints] = None,
     afterInfix: Option[AfterInfix] = None,
     afterInfixBreakOnNested: Boolean = false,
@@ -346,6 +358,48 @@ object Newlines {
         case Conf.Bool(true) => Configured.Ok(always)
         case Conf.Bool(false) => Configured.Ok(never)
       }
+  }
+
+  sealed abstract class ForceBeforeMultilineAssign {
+    def apply(tree: Tree): Boolean
+  }
+
+  object ForceBeforeMultilineAssign {
+
+    implicit val codec: ConfCodec[ForceBeforeMultilineAssign] =
+      ReaderUtil.oneOf[ForceBeforeMultilineAssign](
+        never,
+        any,
+        `def`,
+        anyMember,
+        topMember
+      )
+
+    case object never extends ForceBeforeMultilineAssign {
+      def apply(tree: Tree): Boolean = false
+    }
+    case object any extends ForceBeforeMultilineAssign {
+      def apply(tree: Tree): Boolean = true
+    }
+    case object `def` extends ForceBeforeMultilineAssign {
+      def apply(tree: Tree): Boolean =
+        TreeOps.splitAssignIntoParts.lift(tree).exists(_._2.isDefined)
+    }
+    case object anyMember extends ForceBeforeMultilineAssign {
+      def apply(tree: Tree): Boolean = tree.parent.exists(_.is[Template])
+    }
+    case object topMember extends ForceBeforeMultilineAssign {
+      def apply(tree: Tree): Boolean = {
+        // find the first invalid tree
+        val nonMemberTree = TreeOps.findTreeWithParentEx(tree) {
+          case t: Template => t.parent
+          case _: Pkg => None // all trees valid, no need to go further
+          case _ => Some(null) // reached invalid parent, no need to go further
+        }
+        nonMemberTree.isEmpty
+      }
+    }
+
   }
 
 }

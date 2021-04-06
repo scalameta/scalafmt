@@ -3192,7 +3192,9 @@ object a {
     )
   }
 }
-<<< #2400
+<<< #2400 forceBeforeMultilineAssign = never
+newlines.forceBeforeMultilineAssign = never
+===
 class Test {
   val a = foo(
     1,
@@ -3241,4 +3243,447 @@ class Test {
       111,
       222
     )
+}
+<<< #2400 forceBeforeMultilineAssign = any
+newlines.forceBeforeMultilineAssign = any
+===
+class Test {
+  val a = foo(
+    1,
+    2
+  )
+  val a = functionCall(
+    111,
+    222
+  )
+  val a = /* c */ functionCall(
+    111,
+    222
+  )
+  val a = /* c */
+    functionCall(
+      111,
+      222
+    )
+  val a = // c
+    functionCall(
+      111,
+      222
+    )
+}
+>>>
+class Test {
+  val a = foo(
+    1,
+    2
+  )
+  val a = functionCall(
+    111,
+    222
+  )
+  val a = /* c */ functionCall(
+    111,
+    222
+  )
+  val a = /* c */
+    functionCall(
+      111,
+      222
+    )
+  val a = // c
+    functionCall(
+      111,
+      222
+    )
+}
+<<< #2400 infix forceBeforeMultilineAssign = never
+newlines.forceBeforeMultilineAssign = never
+maxColumn = 25
+===
+class Test {
+  val foo = bar +
+    baz * qux + 1 + 2
+}
+>>>
+class Test {
+  val foo = bar +
+    baz * qux + 1 + 2
+}
+<<< #2400 infix forceBeforeMultilineAssign = any
+newlines.forceBeforeMultilineAssign = any
+maxColumn = 25
+===
+class Test {
+  val foo = bar +
+    baz * qux + 1 + 2
+}
+>>>
+class Test {
+  val foo = bar +
+    baz * qux + 1 + 2
+}
+<<< #2400 nesting forceBeforeMultilineAssign = topMember
+maxColumn = 27
+newlines.forceBeforeMultilineAssign = topMember
+===
+package a {
+  class b {
+    class c {
+      val foo = barBar(bazBaz, quxQux)
+      def foo() = barBar(bazBaz, quxQux)
+      def foo(q: Int) = barBar(bazBaz, quxQux)
+    }
+    def d = {
+      val foo = barBar(bazBaz, quxQux)
+      def foo() = barBar(bazBaz, quxQux)
+      def foo(q: Int) = barBar(bazBaz, quxQux)
+      new a with b {
+        val foo = barBar(bazBaz, quxQux)
+        def foo() = barBar(bazBaz, quxQux)
+        def foo(q: Int) = barBar(bazBaz, quxQux)
+      }
+    }
+  }
+}
+>>>
+package a {
+  class b {
+    class c {
+      val foo = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo() = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo(q: Int) =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+    }
+    def d = {
+      val foo = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo() = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo(q: Int) =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+      new a with b {
+        val foo = barBar(
+          bazBaz,
+          quxQux
+        )
+        def foo() = barBar(
+          bazBaz,
+          quxQux
+        )
+        def foo(q: Int) =
+          barBar(
+            bazBaz,
+            quxQux
+          )
+      }
+    }
+  }
+}
+<<< #2400 nesting forceBeforeMultilineAssign = anyMember
+maxColumn = 27
+newlines.forceBeforeMultilineAssign = anyMember
+===
+package a {
+  class b {
+    class c {
+      val foo = barBar(bazBaz, quxQux)
+      def foo() = barBar(bazBaz, quxQux)
+      def foo(q: Int) = barBar(bazBaz, quxQux)
+    }
+    def d = {
+      val foo = barBar(bazBaz, quxQux)
+      def foo() = barBar(bazBaz, quxQux)
+      def foo(q: Int) = barBar(bazBaz, quxQux)
+      new a with b {
+        val foo = barBar(bazBaz, quxQux)
+        def foo() = barBar(bazBaz, quxQux)
+        def foo(q: Int) = barBar(bazBaz, quxQux)
+      }
+    }
+  }
+}
+>>>
+package a {
+  class b {
+    class c {
+      val foo = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo() = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo(q: Int) =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+    }
+    def d = {
+      val foo = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo() = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo(q: Int) =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+      new a with b {
+        val foo = barBar(
+          bazBaz,
+          quxQux
+        )
+        def foo() = barBar(
+          bazBaz,
+          quxQux
+        )
+        def foo(q: Int) =
+          barBar(
+            bazBaz,
+            quxQux
+          )
+      }
+    }
+  }
+}
+<<< #2400 nesting forceBeforeMultilineAssign = any
+maxColumn = 27
+newlines.forceBeforeMultilineAssign = any
+===
+package a {
+  class b {
+    class c {
+      val foo = barBar(bazBaz, quxQux)
+      def foo() = barBar(bazBaz, quxQux)
+      def foo(q: Int) = barBar(bazBaz, quxQux)
+    }
+    def d = {
+      val foo = barBar(bazBaz, quxQux)
+      def foo() = barBar(bazBaz, quxQux)
+      def foo(q: Int) = barBar(bazBaz, quxQux)
+      new a with b {
+        val foo = barBar(bazBaz, quxQux)
+        def foo() = barBar(bazBaz, quxQux)
+        def foo(q: Int) = barBar(bazBaz, quxQux)
+      }
+    }
+  }
+}
+>>>
+package a {
+  class b {
+    class c {
+      val foo = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo() = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo(q: Int) =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+    }
+    def d = {
+      val foo = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo() = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo(q: Int) =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+      new a with b {
+        val foo = barBar(
+          bazBaz,
+          quxQux
+        )
+        def foo() = barBar(
+          bazBaz,
+          quxQux
+        )
+        def foo(q: Int) =
+          barBar(
+            bazBaz,
+            quxQux
+          )
+      }
+    }
+  }
+}
+<<< #2400 nesting forceBeforeMultilineAssign = def
+maxColumn = 27
+newlines.forceBeforeMultilineAssign = def
+===
+package a {
+  class b {
+    class c {
+      val foo = barBar(bazBaz, quxQux)
+      def foo() = barBar(bazBaz, quxQux)
+      def foo(q: Int) = barBar(bazBaz, quxQux)
+    }
+    def d = {
+      val foo = barBar(bazBaz, quxQux)
+      def foo() = barBar(bazBaz, quxQux)
+      def foo(q: Int) = barBar(bazBaz, quxQux)
+      new a with b {
+        val foo = barBar(bazBaz, quxQux)
+        def foo() = barBar(bazBaz, quxQux)
+        def foo(q: Int) = barBar(bazBaz, quxQux)
+      }
+    }
+  }
+}
+>>>
+package a {
+  class b {
+    class c {
+      val foo = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo() = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo(q: Int) =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+    }
+    def d = {
+      val foo = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo() = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo(q: Int) =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+      new a with b {
+        val foo = barBar(
+          bazBaz,
+          quxQux
+        )
+        def foo() = barBar(
+          bazBaz,
+          quxQux
+        )
+        def foo(q: Int) =
+          barBar(
+            bazBaz,
+            quxQux
+          )
+      }
+    }
+  }
+}
+<<< #2400 nesting forceBeforeMultilineAssign = never
+maxColumn = 27
+newlines.forceBeforeMultilineAssign = never
+===
+package a {
+  class b {
+    class c {
+      val foo = barBar(bazBaz, quxQux)
+      def foo() = barBar(bazBaz, quxQux)
+      def foo(q: Int) = barBar(bazBaz, quxQux)
+    }
+    def d = {
+      val foo = barBar(bazBaz, quxQux)
+      def foo() = barBar(bazBaz, quxQux)
+      def foo(q: Int) = barBar(bazBaz, quxQux)
+      new a with b {
+        val foo = barBar(bazBaz, quxQux)
+        def foo() = barBar(bazBaz, quxQux)
+        def foo(q: Int) = barBar(bazBaz, quxQux)
+      }
+    }
+  }
+}
+>>>
+package a {
+  class b {
+    class c {
+      val foo = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo() = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo(q: Int) =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+    }
+    def d = {
+      val foo = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo() = barBar(
+        bazBaz,
+        quxQux
+      )
+      def foo(q: Int) =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+      new a with b {
+        val foo = barBar(
+          bazBaz,
+          quxQux
+        )
+        def foo() = barBar(
+          bazBaz,
+          quxQux
+        )
+        def foo(q: Int) =
+          barBar(
+            bazBaz,
+            quxQux
+          )
+      }
+    }
+  }
 }
