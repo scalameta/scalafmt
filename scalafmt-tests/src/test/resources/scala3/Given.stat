@@ -216,7 +216,7 @@ given xx(using
     otherParameter: String)
     : Int = ???
 <<< dangling parens exclude
-continuationIndent.defnSite = 5
+indent.defnSite = 5
 danglingParentheses.defnSite = true
 danglingParentheses.exclude = [given]
 maxColumn = 30

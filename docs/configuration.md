@@ -97,7 +97,7 @@ top-level.
 
 ```
     preset = default
-    continuationIndent.defnSite = 2
+    indent.defnSite = 2
     optIn.configStyleArguments = false
 ```
 
@@ -114,7 +114,7 @@ top-level.
     preset = default
     binPack.preset = true
     align.ifWhileOpenParen = false
-    continuationIndent.callSite = 4
+    indent.callSite = 4
     docstrings.style = Asterisk
     importSelectors = binPack
     newlines {
@@ -130,16 +130,16 @@ top-level.
 
 ## Indentation
 
-### `continuationIndent.callSite`
+### `indent.callSite`
 
 ```scala mdoc:defaults
-continuationIndent.callSite
+indent.callSite
 ```
 
 Example:
 
 ```scala mdoc:scalafmt
-continuationIndent.callSite = 2
+indent.callSite = 2
 ---
 function(
 argument1, // indented by 2
@@ -147,31 +147,31 @@ argument1, // indented by 2
 )
 ```
 
-### `continuationIndent.defnSite`
+### `indent.defnSite`
 
 ```scala mdoc:defaults
-continuationIndent.defnSite
+indent.defnSite
 ```
 
-Same as `continuationIndent.callSite` except for definition site. Example:
+Same as `indent.callSite` except for definition site. Example:
 
 ```scala mdoc:scalafmt
-continuationIndent.defnSite = 4
+indent.defnSite = 4
 ---
 def function(
 argument1: Type1 // indented by 4
 ): ReturnType
 ```
 
-### `continuationIndent.ctorSite`
+### `indent.ctorSite`
 
 > Since v2.5.0.
 
-Applies to constructors. Defaults to `continuationIndent.defnSite`.
+Applies to constructors. Defaults to `indent.defnSite`.
 
 ```scala mdoc:scalafmt
-continuationIndent.ctorSite = 4
-continuationIndent.defnSite = 2
+indent.ctorSite = 4
+indent.defnSite = 2
 ---
 class A(
  field1: Type1 // indented by 4
@@ -182,19 +182,19 @@ class A(
 }
 ```
 
-### `continuationIndent.caseSite`
+### `indent.caseSite`
 
 > Since v3.0.0.
 
 Applies indentation to case values before arrow.
 
 ```scala mdoc:defaults
-continuationIndent.caseSite
+indent.caseSite
 ```
 
 ```scala mdoc:scalafmt
 maxColumn = 20
-continuationIndent.caseSite = 5
+indent.caseSite = 5
 ---
 x match {
   case _: Aaaaaa |
@@ -203,17 +203,17 @@ x match {
 }
 ```
 
-### `continuationIndent.extendSite`
+### `indent.extendSite`
 
 ```scala mdoc:defaults
-continuationIndent.extendSite
-continuationIndent.withSiteRelativeToExtends
+indent.extendSite
+indent.withSiteRelativeToExtends
 ```
 
 ```scala mdoc:scalafmt
-continuationIndent.extendSite = 4
+indent.extendSite = 4
 # this one added in v2.5.0
-continuationIndent.withSiteRelativeToExtends = 2
+indent.withSiteRelativeToExtends = 2
 maxColumn = 30
 ---
 trait Foo extends A with B with C with D with E {
@@ -221,21 +221,21 @@ trait Foo extends A with B with C with D with E {
 }
 ```
 
-### `continuationIndent.commaSiteRelativeToExtends`
+### `indent.commaSiteRelativeToExtends`
 
 > Since v3.0.0
 
 Added to support Scala 3, which allows to specify multiple parents with a comma.
 
 ```scala mdoc:defaults
-continuationIndent.extendSite
-continuationIndent.commaSiteRelativeToExtends
+indent.extendSite
+indent.commaSiteRelativeToExtends
 ```
 
 ```scala mdoc:scalafmt
 runner.dialect = scala3
-continuationIndent.extendSite = 4
-continuationIndent.commaSiteRelativeToExtends = 4
+indent.extendSite = 4
+indent.commaSiteRelativeToExtends = 4
 maxColumn = 20
 ---
 trait Foo extends A, B, C, D, E {
@@ -1400,7 +1400,7 @@ danglingParentheses.exclude
 ```
 
 ```scala mdoc:scalafmt
-continuationIndent.defnSite = 2
+indent.defnSite = 2
 danglingParentheses.defnSite = true
 danglingParentheses.exclude = [def]
 ---
@@ -1949,9 +1949,9 @@ method3(
 Since: v1.6.0.
 
 If enabled this formats methods such that parameters are on their own line
-indented by [`continuationIndent.defnSite`](#continuationindentdefnsite).
+indented by [`indent.defnSite`](#continuationindentdefnsite).
 Separation between parameter groups are indented by two spaces less than
-`continuationIndent.defnSite`. The return type is on its own line at the end.
+`indent.defnSite`. The return type is on its own line at the end.
 
 > This formatting is only triggered if the method definition exceeds the
 > maxColumn value in width or if the number of arguments to the method exceeds
@@ -1982,7 +1982,7 @@ verticalMultiline.newlineAfterOpenParen
 ```
 
 ```scala mdoc:scalafmt
-continuationIndent.defnSite = 2
+indent.defnSite = 2
 verticalMultiline.atDefnSite = true
 verticalMultiline.arityThreshold = 2
 verticalMultiline.newlineAfterOpenParen = true
@@ -2003,7 +2003,7 @@ verticalMultiline.excludeDanglingParens
 ```
 
 ```scala mdoc:scalafmt
-continuationIndent.defnSite = 2
+indent.defnSite = 2
 verticalMultiline.excludeDanglingParens = [def]
 verticalMultiline.atDefnSite = true
 verticalMultiline.arityThreshold = 2

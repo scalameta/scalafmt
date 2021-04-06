@@ -1,6 +1,6 @@
 preset = intellij
 maxColumn = 40
-continuationIndent.callSite = 4
+indent.callSite = 4
 <<< single line still works
 function(aaaaaaaa, bbbbbbbb)
 >>>

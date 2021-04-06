@@ -3,7 +3,7 @@ verticalMultiline = {
     atDefnSite = true
     arityThreshold = 2
 }
-continuationIndent.defnSite = 2
+indent.defnSite = 2
 <<< Verify that verticalMultiline.arityThreshold works as expected
 case class Foo(x: String)
 case class Bar(x: String, y: String)

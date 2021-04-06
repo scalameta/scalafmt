@@ -139,8 +139,8 @@ enum Enum2(val a: String, val b: String) {
       Y
 }
 <<< #143
-continuationIndent.commaSiteRelativeToExtends = 4
-continuationIndent.withSiteRelativeToExtends = 2
+indent.commaSiteRelativeToExtends = 4
+indent.withSiteRelativeToExtends = 2
 maxColumn = 30
 ===
 class A extends AVeryLongName1, AVeryLongName2, AVeryLongName3 { self: A with B with C with D with E =>

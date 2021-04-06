@@ -1,8 +1,8 @@
 maxColumn = 80
 newlines.implicitParamListModifierForce = [after]
 verticalMultiline.atDefnSite = true
-continuationIndent.defnSite = 2
-continuationIndent.extendSite = 0
+indent.defnSite = 2
+indent.extendSite = 0
 
 <<< should add a newline after implicit keyword in function definitions
 def format_![T <: Tree](code: String, foo: Int)(f: A => B, k: D)(implicit ev: Parse[T], ev2: EC): String

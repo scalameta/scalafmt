@@ -185,7 +185,7 @@ else
   }
 <<< #1190 1 if
 danglingParentheses.ctrlSite = true
-continuationIndent.callSite = 2
+indent.callSite = 2
 maxColumn = 45
 ===
 object a {
@@ -215,7 +215,7 @@ object a {
 }
 <<< #1190 2 while
 danglingParentheses.ctrlSite = true
-continuationIndent.callSite = 2
+indent.callSite = 2
 maxColumn = 45
 ===
 object a {
