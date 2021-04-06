@@ -1,4 +1,4 @@
-80 columns                                                                     |
+
 <<< resolveLocalDef
     def withDedicatedVar: Unit = {
       def doBuildInner = {

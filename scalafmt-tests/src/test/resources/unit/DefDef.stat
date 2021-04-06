@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< single line
 def log(split: Split): String = "aasplit"
 >>>

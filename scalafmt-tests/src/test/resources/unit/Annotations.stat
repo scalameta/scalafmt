@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< single line annotation
   @inline def Rule = raw.CSSRule
 >>>

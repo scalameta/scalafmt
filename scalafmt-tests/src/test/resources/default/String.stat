@@ -1,4 +1,4 @@
-80 columns                                                                     |
+
 <<< no indent multiline strings without margin
 val x = """Formatter changed AST
                 |=====================

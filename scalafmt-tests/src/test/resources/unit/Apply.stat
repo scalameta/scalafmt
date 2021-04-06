@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< SKIP incorrect indent expire
 jv.validated[AddScheduledQueryRequest]
   .disjunction leftMap { err =>

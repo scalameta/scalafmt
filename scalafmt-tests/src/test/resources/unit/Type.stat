@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< abstract defs get newline
 type ObjNotifyLike = Any {
         def notify(): Unit

@@ -1,4 +1,4 @@
-maxColumn=80
+
 <<< match with dot
 def mtch(x: Int): String =
             x.match {

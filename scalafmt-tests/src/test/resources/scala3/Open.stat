@@ -1,4 +1,4 @@
-maxColumn = 40
+
 <<< class
 open class Foobar()
 >>>

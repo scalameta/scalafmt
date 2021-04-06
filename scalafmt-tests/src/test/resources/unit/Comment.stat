@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< Inline comment binds left
 function(a,// comment
          b)

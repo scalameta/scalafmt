@@ -1,4 +1,4 @@
-80 columns                                                                     |
+
 <<< with
 { def getAnnotationOwner(
        annotationOwnerLookUp: ScLiteral => Option[

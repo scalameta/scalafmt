@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< one arg chained (state explosion)
 a(b).c(d).e(f).g(h).i(j).k { aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa }
 >>>

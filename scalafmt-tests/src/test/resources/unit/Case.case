@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< Match tuple
 case (x, y) =>   x -> y
 >>>

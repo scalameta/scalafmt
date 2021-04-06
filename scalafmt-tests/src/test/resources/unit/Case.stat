@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< No inline
 object Object {
   val x = { case 2 => 1

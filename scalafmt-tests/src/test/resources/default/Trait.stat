@@ -1,4 +1,4 @@
-80 columns                                                                     |
+
 <<< break on extends trait #109
 trait WorkerNavigator extends NavigatorID with NavigatorOnLine with NavigatorLanguage
 >>>

@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< trait start new lines
 object A {
       val x = 1;

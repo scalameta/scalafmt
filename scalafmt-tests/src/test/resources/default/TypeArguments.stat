@@ -1,4 +1,4 @@
-80 columns                                                                     |
+
 <<< val type apply formats too #117
 val xxxxxxxxxxxxxxxxxxxxxxxxx:FooBarrrrrr[BaaaaaaaaaaaazBazzzKaaaaaaaaar[ String, Option[ List[Either[ Int, Option[String] ]]] ]]
 >>>

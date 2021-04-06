@@ -1,4 +1,4 @@
-40 columns                              |
+
 <<< One argument per line
 object Object {
   val x = function[a1234567, b1234567,
