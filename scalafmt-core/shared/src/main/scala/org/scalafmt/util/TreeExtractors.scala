@@ -67,34 +67,13 @@ object InfixApp {
 
 }
 
-/** Pattern extractor to concisely and safely query parent chain.
-  *
-  * Example:
-  * {{{
-  *   tree match {
-  *     case (_: Term) `:parent:` (_: Defn) `:parent:` (_: Source) => ???
-  *   }
-  * }}}
-  * The name is backquoted to get right associativity while using
-  * alphabetic characters
-  */
-object `:parent:` {
-  def unapply(tree: Tree): Option[(Tree, Tree)] =
-    tree.parent match {
-      case Some(parent) =>
-        Some(tree -> parent)
+object WithChain {
+  def unapply(t: Type.With): Option[Type.With] = {
+    // self types, params, val/def/var/type definitions or declarations
+    val top = TreeOps.topTypeWith(t)
+    top.parent match {
+      case Some(_: Defn | _: Decl | _: Term.Param | _: Self) => Some(top)
       case _ => None
     }
-}
-
-object WithChain {
-  def unapply(t: Type.With): Option[Type.With] =
-    TreeOps.topTypeWith(t) match {
-      // self types, params, val/def/var/type definitions or declarations
-      case (top: Type.With) `:parent:`
-          (_: Defn | _: Decl | _: Term.Param | _: Self) =>
-        Some(top)
-      case _ =>
-        None
-    }
+  }
 }

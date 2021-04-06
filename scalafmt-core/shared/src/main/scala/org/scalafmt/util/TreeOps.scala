@@ -349,6 +349,10 @@ object TreeOps {
       case name: Term.Name => name.parent.flatMap(defDefReturnType)
       case _ => None
     }
+  val DefDefReturnTypeLeft =
+    new FormatToken.ExtractFromMeta(x => defDefReturnType(x.leftOwner))
+  val DefDefReturnTypeRight =
+    new FormatToken.ExtractFromMeta(x => defDefReturnType(x.rightOwner))
 
   /** Returns `true` if the `scala.meta.Tree` is a class, trait, enum or def
     *
@@ -506,6 +510,8 @@ object TreeOps {
     case t: Defn.Val => (t.rhs, None)
     case t: Defn.Var => (t.rhs.getOrElse(t), None) // var x: Int = _, no policy
   }
+  val SplitAssignIntoPartsLeft =
+    new FormatToken.ExtractFromMeta(x => splitAssignIntoParts.lift(x.leftOwner))
 
   /** How many parents of tree are Term.Apply?
     */
