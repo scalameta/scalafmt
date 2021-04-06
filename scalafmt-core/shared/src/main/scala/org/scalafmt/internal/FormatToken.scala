@@ -73,4 +73,10 @@ object FormatToken {
     lazy val firstNL = text.indexOf('\n')
   }
 
+  class ExtractFromMeta[A](f: FormatToken.Meta => Option[A]) {
+    def unapply(meta: FormatToken.Meta): Option[A] = f(meta)
+  }
+
+  val LeftOwner = new ExtractFromMeta(x => Some(x.leftOwner))
+
 }

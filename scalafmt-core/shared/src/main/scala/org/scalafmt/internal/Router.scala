@@ -602,8 +602,7 @@ class Router(formatOps: FormatOps) {
       // DefDef
       case FormatToken(_: T.KwDef, _: T.Ident, _) =>
         Seq(Split(Space, 0))
-      case ft @ FormatToken(_: T.Equals, _, _)
-          if splitAssignIntoParts.isDefinedAt(leftOwner) =>
+      case ft @ FormatToken(_: T.Equals, _, SplitAssignIntoPartsLeft(parts)) =>
         def singleLineOrBreak(rhs: Tree): Seq[Split] = {
           def nlSplitFunc(cost: Int): Split =
             CtrlBodySplits.withIndent(Split(Newline, cost), ft, rhs)
@@ -618,7 +617,7 @@ class Router(formatOps: FormatOps) {
           }
         }
         asInfixApp(rightOwner, style.newlines.formatInfix).fold {
-          val (rhs, paramss) = splitAssignIntoParts(leftOwner)
+          val (rhs, paramss) = parts
           getSplitsDefValEquals(ft, rhs) {
             if (style.newlines.shouldForceBeforeMultilineAssign(leftOwner))
               singleLineOrBreak(rhs)
@@ -635,9 +634,7 @@ class Router(formatOps: FormatOps) {
         verticalMultiline(leftOwner, ft)(style)
 
       // Term.Apply and friends
-      case FormatToken(T.LeftParen(), _, _)
-          if getLambdaAtSingleArgCallSite(formatToken).isDefined =>
-        val lambda = getLambdaAtSingleArgCallSite(formatToken).get
+      case FormatToken(_: T.LeftParen, _, LambdaAtSingleArgCallSite(lambda)) =>
         val close = matching(formatToken.left)
         val newlinePolicy =
           if (!style.danglingParentheses.callSite) None
@@ -1045,10 +1042,9 @@ class Router(formatOps: FormatOps) {
         Seq(Split(NoSplit, 0))
 
       // Closing def site ): ReturnType
-      case FormatToken(left, T.Colon(), _)
-          if style.newlines.sometimesBeforeColonInMethodReturnType &&
-            defDefReturnType(leftOwner).isDefined =>
-        val expire = lastToken(defDefReturnType(rightOwner).get)
+      case FormatToken(left, _: T.Colon, DefDefReturnTypeRight(returnType))
+          if style.newlines.sometimesBeforeColonInMethodReturnType =>
+        val expire = lastToken(returnType)
         val penalizeNewlines =
           PenalizeAllNewlines(expire, Constants.BracketPenalty)
         val sameLineSplit = Space(endsWithSymbolIdent(left))
@@ -1061,10 +1057,9 @@ class Router(formatOps: FormatOps) {
             .withIndent(indent, expire, After)
             .withPolicy(penalizeNewlines)
         )
-      case FormatToken(T.Colon(), _, _)
-          if style.newlines.avoidInResultType &&
-            defDefReturnType(leftOwner).isDefined =>
-        val expire = defDefReturnType(leftOwner).get match {
+      case FormatToken(_: T.Colon, _, DefDefReturnTypeLeft(returnType))
+          if style.newlines.avoidInResultType =>
+        val expire = returnType match {
           case Type.Refine(_, headStat :: _) =>
             tokens(headStat.tokens.head, -1).left
           case t => lastToken(t)

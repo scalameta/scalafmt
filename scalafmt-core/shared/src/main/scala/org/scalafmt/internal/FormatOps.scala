@@ -143,9 +143,8 @@ class FormatOps(
     (packages.result(), imports.result(), arguments.toMap, optional)
   }
 
-  object `:owner:` {
-    def unapply(tok: Token): Option[(Token, Tree)] =
-      ownersMap.get(hash(tok)).map(tree => tok -> tree)
+  class ExtractFromMeta[A](f: FormatToken => Option[A]) {
+    def unapply(meta: FormatToken.Meta): Option[A] = f(tokens(meta.idx))
   }
 
   @inline def prev(tok: FormatToken): FormatToken = tokens(tok, -1)
@@ -1086,8 +1085,12 @@ class FormatOps(
     else {
       val clearQueues = Set.newBuilder[TokenHash]
       val forces = Set.newBuilder[Tree]
-      tree.tokens.foreach {
-        case left @ T.LeftParen() `:owner:` (app: Term.Apply)
+      tokens.foreach {
+        case FormatToken(
+              left: T.LeftParen,
+              _,
+              FormatToken.LeftOwner(app: Term.Apply)
+            )
             if app.args.length >= runner.optimizer.forceConfigStyleMinArgCount &&
               distance(left, matching(left)) > maxDistance =>
           forces += app
@@ -1287,9 +1290,7 @@ class FormatOps(
         Space(style.spaces.inParentheses && spaceOk)
     }
 
-  def getLambdaAtSingleArgCallSite(
-      ft: FormatToken
-  )(implicit style: ScalafmtConfig): Option[Term.FunctionTerm] =
+  def getLambdaAtSingleArgCallSite(ft: FormatToken): Option[Term.FunctionTerm] =
     ft.meta.leftOwner match {
       case Term.Apply(_, List(fun: Term.FunctionTerm)) => Some(fun)
       case fun: Term.FunctionTerm if fun.parent.exists({
@@ -1303,6 +1304,8 @@ class FormatOps(
         }
       case _ => None
     }
+  val LambdaAtSingleArgCallSite =
+    new ExtractFromMeta(getLambdaAtSingleArgCallSite)
 
   def findArgsFor[A <: Tree](
       token: Token,
