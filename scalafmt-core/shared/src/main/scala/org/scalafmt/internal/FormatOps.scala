@@ -406,14 +406,15 @@ class FormatOps(
     }
   }
 
-  def templateCurly(template: Template): Option[Token] = {
-    template.tokens.find(x => x.is[T.LeftBrace] && owners(x) == template)
-  }
+  def templateCurly(template: Template): Option[Token] =
+    getStartOfTemplateBody(template)
+      .map(x => prevNonComment(tokens(x, -1)).left)
 
   def templateDerivesOrCurly(template: Template): Option[Token] = {
-    template.tokens.collectFirst {
-      case t: T.LeftBrace if owners(t) eq template => t
-      case t @ soft.KwDerives() if owners(t) eq template => tokens(t, -1).left
+    val endOfInits = template.inits.lastOption.flatMap(_.tokens.lastOption)
+    endOfInits.fold(templateCurly(template)) { x =>
+      if (x.end >= template.pos.end) None
+      else Some(nextNonComment(tokens(x)).left)
     }
   }
 
@@ -952,27 +953,21 @@ class FormatOps(
       indent: Int,
       isDerives: Boolean = false
   )(implicit line: sourcecode.Line): Seq[Split] = {
-    val hasSelfAnnotation = template.self.tokens.nonEmpty
-    val expire = (template.parent match {
-      case Some(_: Defn.Given) =>
-        findLast(template.tokens)(x => x.is[T.KwWith] && owners(x) == template)
-      case _ if isDerives => templateCurly(template)
-      case _ => templateDerivesOrCurly(template)
-    }).getOrElse(template.tokens.last)
+    val templateBrace =
+      if (isDerives) templateCurly(template)
+      else templateDerivesOrCurly(template)
+    val expire = templateBrace.getOrElse(template.tokens.last)
 
-    val policy =
-      if (hasSelfAnnotation) NoPolicy
-      else
-        Policy.after(expire) {
+    val policy = templateBrace match {
+      case Some(lb: T.LeftBrace) if template.self.tokens.isEmpty =>
+        Policy.after(lb) {
           // Force template to be multiline.
-          case d @ Decision(
-                t @ FormatToken(_: T.LeftBrace, right, _),
-                _
-              )
-              if !right.is[T.RightBrace] && // corner case, body is {}
-                childOf(template, t.meta.leftOwner) =>
+          case d @ Decision(FormatToken(`lb`, right, _), _)
+              if !right.is[T.RightBrace] => // corner case, body is {}
             d.forceNewline
         }
+      case _ => NoPolicy
+    }
     Seq(
       Split(Space, 0).withIndent(Num(indent), expire, ExpiresOn.After),
       Split(Newline, 1)
