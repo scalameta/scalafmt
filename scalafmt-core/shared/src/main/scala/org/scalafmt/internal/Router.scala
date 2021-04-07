@@ -173,6 +173,28 @@ class Router(formatOps: FormatOps) {
           if rightOwner.is[SomeInterpolate] =>
         Seq(Split(Space(style.spaces.inInterpolatedStringCurlyBraces), 0))
 
+      // optional braces: template follows
+      case FormatToken(
+            _: T.Colon | _: T.KwWith,
+            _,
+            OptionalBracesTemplate(owner)
+          ) if dialect.allowSignificantIndentation =>
+        val indent = style.indent.getSignificant
+        Seq(Split(Newline, 0).withIndent(indent, lastToken(owner), After))
+
+      // optional braces: block follows
+      case FormatToken(
+            _: T.Equals | _: T.RightArrow | _: T.ContextArrow | _: T.LeftArrow |
+            _: T.KwCatch | _: T.KwDo | _: T.KwElse | _: T.KwFinally |
+            _: T.KwFor | _: T.KwMatch | _: T.KwReturn | _: T.KwThen |
+            _: T.KwThrow | _: T.KwTry | _: T.KwWhile | _: T.KwYield |
+            _: T.RightParen,
+            _,
+            OptionalBracesBlock(owner)
+          ) if dialect.allowSignificantIndentation =>
+        val indent = style.indent.getSignificant
+        Seq(Split(Newline, 0).withIndent(indent, lastToken(owner), After))
+
       // { ... } Blocks
       case tok @ FormatToken(open @ T.LeftBrace(), right, between) =>
         val close = matching(open)

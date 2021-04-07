@@ -1907,6 +1907,30 @@ class FormatOps(
     }
   }
 
+  // Optional braces in templates after `:|with`
+  object OptionalBracesTemplate {
+    def unapply(meta: FormatToken.Meta): Option[Template] =
+      meta.leftOwner match {
+        case t: Template if templateCurly(t).contains(tokens(meta.idx).left) =>
+          Some(t)
+        case _ => None
+      }
+  }
+
+  // Optional braces after any token that can start indentation:
+  // )  =  =>  ?=>  <-  catch  do  else  finally  for
+  // if  match  return  then  throw  try  while  yield
+  object OptionalBracesBlock {
+    def unapply(meta: FormatToken.Meta): Option[Term.Block] = {
+      val nft = nextNonComment(tokens(meta.idx))
+      nft.meta.rightOwner.parent match {
+        case Some(t: Term.Block) if t.tokens.headOption.contains(nft.right) =>
+          Some(t)
+        case _ => None
+      }
+    }
+  }
+
 }
 
 object FormatOps {

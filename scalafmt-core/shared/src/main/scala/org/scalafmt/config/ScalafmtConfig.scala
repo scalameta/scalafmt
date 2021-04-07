@@ -392,6 +392,7 @@ object ScalafmtConfig {
         indent.withSiteRelativeToExtends
       )
       checkPositiveOpt(
+        indent.significant,
         indent.ctorSite
       )
     }
