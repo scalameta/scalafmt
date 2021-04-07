@@ -604,10 +604,25 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Space, 0))
       case ft @ FormatToken(_: T.Equals, _, _)
           if splitAssignIntoParts.isDefinedAt(leftOwner) =>
+        def singleLineOrBreak(rhs: Tree): Seq[Split] = {
+          def nlSplitFunc(cost: Int): Split =
+            CtrlBodySplits.withIndent(Split(Newline, cost), ft, rhs)
+          CtrlBodySplits.checkComment(ft, nlSplitFunc) { _ =>
+            def spaceSplit = Split(Space, 0)
+            rhs.tokens.lastOption.fold(Seq(spaceSplit)) { expire =>
+              Seq(
+                spaceSplit.withSingleLine(expire, noSyntaxNL = true),
+                nlSplitFunc(1)
+              )
+            }
+          }
+        }
         asInfixApp(rightOwner, style.newlines.formatInfix).fold {
           val (rhs, paramss) = splitAssignIntoParts(leftOwner)
           getSplitsDefValEquals(ft, rhs) {
-            if (paramss.isDefined) getSplitsDefEquals(ft, rhs)
+            if (style.newlines.shouldForceBeforeMultilineAssign(leftOwner))
+              singleLineOrBreak(rhs)
+            else if (paramss.isDefined) getSplitsDefEquals(ft, rhs)
             else getSplitsValEquals(ft, rhs)(getSplitsValEqualsClassic(ft, rhs))
           }
         }(getInfixSplitsBeforeLhs(_, ft))
@@ -2136,7 +2151,7 @@ class Router(formatOps: FormatOps) {
       if (ft.hasBreak) Seq(newlineSplit(0))
       else Seq(baseSplit, newlineSplit(1))
 
-    style.newlines.getBeforeMultilineDef.fold {
+    style.newlines.beforeMultilineDef.fold {
       getSplitsValEquals(ft, body)(getClassicSplits)
     } {
       case Newlines.classic => getClassicSplits

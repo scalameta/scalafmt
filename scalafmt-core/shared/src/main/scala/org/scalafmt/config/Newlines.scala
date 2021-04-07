@@ -195,7 +195,7 @@ case class Newlines(
       "Use newlines.beforeMultiline, newlines.forceBeforeMultilineAssign instead",
       "3.0.0"
     )
-    private[config] val beforeMultilineDef: Option[SourceHints] = None,
+    beforeMultilineDef: Option[SourceHints] = None,
     afterInfix: Option[AfterInfix] = None,
     afterInfixBreakOnNested: Boolean = false,
     afterInfixMaxCountPerExprForSome: Int = 10,
@@ -268,8 +268,12 @@ case class Newlines(
     (beforeCurlyLambdaParams eq BeforeCurlyLambdaParams.always)
 
   lazy val getBeforeMultiline = beforeMultiline.getOrElse(source)
-  lazy val getBeforeMultilineDef = beforeMultilineDef.orElse {
-    if (alwaysBeforeMultilineDef) Some(Newlines.unfold) else None
+  lazy val shouldForceBeforeMultilineAssign = {
+    forceBeforeMultilineAssign.getOrElse {
+      if (alwaysBeforeMultilineDef || beforeMultilineDef.eq(Newlines.unfold))
+        ForceBeforeMultilineAssign.`def`
+      else ForceBeforeMultilineAssign.never
+    }
   }
 
 }
