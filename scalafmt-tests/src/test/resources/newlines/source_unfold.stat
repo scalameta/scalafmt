@@ -3309,10 +3309,11 @@ class Test {
 >>>
 class Test {
   val a = foo(1, 2)
-  val a = functionCall(
-    111,
-    222
-  )
+  val a =
+    functionCall(
+      111,
+      222
+    )
   val a = /* c */
     functionCall(
       111,
@@ -3384,14 +3385,16 @@ package a {
 package a {
   class b {
     class c {
-      val foo = barBar(
-        bazBaz,
-        quxQux
-      )
-      def foo() = barBar(
-        bazBaz,
-        quxQux
-      )
+      val foo =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+      def foo() =
+        barBar(
+          bazBaz,
+          quxQux
+        )
       def foo(q: Int) =
         barBar(
           bazBaz,
@@ -3457,14 +3460,16 @@ package a {
 package a {
   class b {
     class c {
-      val foo = barBar(
-        bazBaz,
-        quxQux
-      )
-      def foo() = barBar(
-        bazBaz,
-        quxQux
-      )
+      val foo =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+      def foo() =
+        barBar(
+          bazBaz,
+          quxQux
+        )
       def foo(q: Int) =
         barBar(
           bazBaz,
@@ -3486,14 +3491,16 @@ package a {
           quxQux
         )
       new a with b {
-        val foo = barBar(
-          bazBaz,
-          quxQux
-        )
-        def foo() = barBar(
-          bazBaz,
-          quxQux
-        )
+        val foo =
+          barBar(
+            bazBaz,
+            quxQux
+          )
+        def foo() =
+          barBar(
+            bazBaz,
+            quxQux
+          )
         def foo(q: Int) =
           barBar(
             bazBaz,
@@ -3530,14 +3537,16 @@ package a {
 package a {
   class b {
     class c {
-      val foo = barBar(
-        bazBaz,
-        quxQux
-      )
-      def foo() = barBar(
-        bazBaz,
-        quxQux
-      )
+      val foo =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+      def foo() =
+        barBar(
+          bazBaz,
+          quxQux
+        )
       def foo(q: Int) =
         barBar(
           bazBaz,
@@ -3545,28 +3554,32 @@ package a {
         )
     }
     def d = {
-      val foo = barBar(
-        bazBaz,
-        quxQux
-      )
-      def foo() = barBar(
-        bazBaz,
-        quxQux
-      )
+      val foo =
+        barBar(
+          bazBaz,
+          quxQux
+        )
+      def foo() =
+        barBar(
+          bazBaz,
+          quxQux
+        )
       def foo(q: Int) =
         barBar(
           bazBaz,
           quxQux
         )
       new a with b {
-        val foo = barBar(
-          bazBaz,
-          quxQux
-        )
-        def foo() = barBar(
-          bazBaz,
-          quxQux
-        )
+        val foo =
+          barBar(
+            bazBaz,
+            quxQux
+          )
+        def foo() =
+          barBar(
+            bazBaz,
+            quxQux
+          )
         def foo(q: Int) =
           barBar(
             bazBaz,
@@ -3607,10 +3620,11 @@ package a {
         bazBaz,
         quxQux
       )
-      def foo() = barBar(
-        bazBaz,
-        quxQux
-      )
+      def foo() =
+        barBar(
+          bazBaz,
+          quxQux
+        )
       def foo(q: Int) =
         barBar(
           bazBaz,
@@ -3622,10 +3636,11 @@ package a {
         bazBaz,
         quxQux
       )
-      def foo() = barBar(
-        bazBaz,
-        quxQux
-      )
+      def foo() =
+        barBar(
+          bazBaz,
+          quxQux
+        )
       def foo(q: Int) =
         barBar(
           bazBaz,
@@ -3636,10 +3651,11 @@ package a {
           bazBaz,
           quxQux
         )
-        def foo() = barBar(
-          bazBaz,
-          quxQux
-        )
+        def foo() =
+          barBar(
+            bazBaz,
+            quxQux
+          )
         def foo(q: Int) =
           barBar(
             bazBaz,
