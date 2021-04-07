@@ -21,6 +21,7 @@ object Keyword {
     token.is[KwObject] || token.is[KwOverride] || token.is[KwPackage] ||
     token.is[KwPrivate] || token.is[KwProtected] || token.is[KwReturn] ||
     token.is[KwSealed] || token.is[KwSuper] || token.is[KwThis] ||
+    token.is[KwThen] ||
     token.is[KwThrow] || token.is[KwTrait] || token.is[KwTrue] ||
     token.is[KwTry] || token.is[KwType] || token.is[KwVal] ||
     token.is[KwVar] || token.is[KwWhile] || token.is[KwWith] ||

@@ -3,6 +3,7 @@ package org.scalafmt.config
 import metaconfig._
 
 /** @param main the primary indentation used in the code
+  * @param significant the indentation used when optional braces are omitted
   * @param defnSite indentation around class/def
   * @param ctorSite indentation around class constructor parameters
   * @param caseSite indentation for case values before arrow
@@ -13,6 +14,7 @@ import metaconfig._
   */
 case class Indents(
     main: Int = 2,
+    private[config] val significant: Option[Int] = None,
     callSite: Int = 2,
     defnSite: Int = 4,
     caseSite: Int = 4,
@@ -24,6 +26,8 @@ case class Indents(
 ) {
   implicit val reader: ConfDecoder[Indents] =
     generic.deriveDecoder(this).noTypos
+
+  lazy val getSignificant = significant.getOrElse(main)
 
   def getDefnSite(tree: meta.Tree): Int =
     (tree match {
