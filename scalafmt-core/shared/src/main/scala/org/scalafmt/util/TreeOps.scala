@@ -771,4 +771,8 @@ object TreeOps {
   def isFirstDerives(t: Template, owner: Tree) =
     owner.is[Type] && t.derives.headOption.contains(owner)
 
+  def getStartOfTemplateBody(template: Template): Option[Token] =
+    template.self.tokens.headOption
+      .orElse(template.stats.headOption.flatMap(_.tokens.headOption))
+
 }
