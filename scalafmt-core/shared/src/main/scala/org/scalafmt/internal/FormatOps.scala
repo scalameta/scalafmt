@@ -1943,7 +1943,7 @@ class FormatOps(
   }
 
   // Optional braces after any token that can start indentation:
-  // )  =>  ?=>  <-  do  else  finally  for
+  // )  ?=>  <-  do  else  finally  for
   // if  return  then  throw  try  while  yield
   object OptionalBracesBlock {
     def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] = {
@@ -1959,6 +1959,14 @@ class FormatOps(
         }
       }
     }
+  }
+
+  // Optional braces after any token that can start indentation:
+  // =>
+  object OptionalBracesRightArrow {
+    def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] =
+      if (ftMeta.leftOwner.is[Case]) None // already takes care of indents etc.
+      else OptionalBracesBlock.unapply(ftMeta)
   }
 
   // Optional braces after any token that can start indentation:

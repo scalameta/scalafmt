@@ -213,12 +213,19 @@ class Router(formatOps: FormatOps) {
           ) if dialect.allowSignificantIndentation =>
         getOptionalBracesSplits(formatToken, owner)
 
+      // optional braces: right arrow
+      case FormatToken(
+            _: T.RightArrow,
+            _,
+            OptionalBracesRightArrow(owner)
+          ) if dialect.allowSignificantIndentation =>
+        getOptionalBracesSplits(formatToken, owner)
+
       // optional braces: block follows
       case FormatToken(
-            _: T.RightArrow | _: T.ContextArrow | _: T.LeftArrow | _: T.KwDo |
-            _: T.KwElse | _: T.KwFinally | _: T.KwReturn | _: T.KwThen |
-            _: T.KwThrow | _: T.KwTry | _: T.KwWhile | _: T.KwYield |
-            _: T.RightParen,
+            _: T.ContextArrow | _: T.LeftArrow | _: T.KwDo | _: T.KwElse |
+            _: T.KwFinally | _: T.KwReturn | _: T.KwThen | _: T.KwThrow |
+            _: T.KwTry | _: T.KwWhile | _: T.KwYield | _: T.RightParen,
             _,
             OptionalBracesBlock(owner)
           ) if dialect.allowSignificantIndentation =>
