@@ -334,10 +334,10 @@ object a:
    def foo =
      this match
         case A =>
-             that match
-                case b => bb
-                case c => cc
-             end match
+          that match
+             case b => bb
+             case c => cc
+          end match
         case B =>
           that match
              case c => cc
@@ -395,10 +395,10 @@ object a:
      try foo
      catch
         case A =>
-             that match
-                case b => bb
-                case c => cc
-             end match
+          that match
+             case b => bb
+             case c => cc
+          end match
         case B =>
           that match
              case c => cc
