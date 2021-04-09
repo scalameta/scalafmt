@@ -302,15 +302,14 @@ class a(vi: Int, vs: String):
     foo
   end this
 >>>
-org.scalafmt.Error$FormatterChangedAST: Formatter changed AST
 class a(vi: Int, vs: String):
    def this() =
-     this(0, "")
-   foo
+      this(0, "")
+      foo
    end this
    def this(vi: Int) =
-     this(vi, "")
-   foo
+      this(vi, "")
+      foo
    end this
 <<< match
 object a:
@@ -329,15 +328,15 @@ object a:
 object a:
    def foo =
      this match
-     case A =>
-       that match
-       case b => bb
-       case c => cc
-       end match
-     case B =>
-       that match
-       case c => cc
-       case _ => dd
+        case A =>
+          that match
+             case b => bb
+             case c => cc
+          end match
+        case B =>
+          that match
+             case c => cc
+             case _ => dd
 <<< match type
 object a:
   type foo[x] = x match
@@ -352,14 +351,14 @@ object a:
 >>>
 object a:
    type foo[x] = x match
-   case A =>
-     that match
-     case b => bb
-     case c => cc
-   case B =>
-     that match
-     case c => cc
-     case _ => dd
+      case A =>
+        that match
+           case b => bb
+           case c => cc
+      case B =>
+        that match
+           case c => cc
+           case _ => dd
 <<< catch one
 object a:
   def foo =
@@ -369,8 +368,7 @@ object a:
 object a:
    def foo =
      try foo
-     catch
-     case A => foo
+     catch case A => foo
 <<< catch multiple
 object a:
   def foo =
@@ -386,22 +384,19 @@ object a:
             case c => cc
             case _ => dd
 >>>
-<input>:10: error: outdent expected but case found
-     case B =>
-     ^
 object a:
    def foo =
      try foo
      catch
-     case A =>
-       that match
-       case b => bb
-       case c => cc
-       end match
-     case B =>
-       that match
-       case c => cc
-       case _ => dd
+        case A =>
+          that match
+             case b => bb
+             case c => cc
+          end match
+        case B =>
+          that match
+             case c => cc
+             case _ => dd
 <<< for
 object a:
   def foo =
@@ -419,8 +414,10 @@ object a:
 >>>
 object a:
    def foo =
-     for x <- y
-     x <- y do
+     for
+        x <- y
+        x <- y
+     do
         foo
         bar
    def foo =
@@ -443,9 +440,10 @@ object a:
 >>>
 object a:
    def foo =
-     for x <- y
-     x = y
-     if x
+     for
+        x <- y
+        x = y
+        if x
      yield
         foo
         bar

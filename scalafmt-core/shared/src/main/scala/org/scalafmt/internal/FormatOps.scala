@@ -1943,8 +1943,8 @@ class FormatOps(
   }
 
   // Optional braces after any token that can start indentation:
-  // )  =  =>  ?=>  <-  catch  do  else  finally  for
-  // if  match  return  then  throw  try  while  yield
+  // )  =>  ?=>  <-  do  else  finally  for
+  // if  return  then  throw  try  while  yield
   object OptionalBracesBlock {
     def unapply(meta: FormatToken.Meta): Option[OptionalBraces] = {
       val nft = nextNonComment(meta)
@@ -1955,6 +1955,75 @@ class FormatOps(
       }
     }
   }
+
+  // Optional braces after any token that can start indentation:
+  // for
+  object OptionalBracesFor {
+    def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] = {
+      ftMeta.leftOwner match {
+        case t: Term.For => getOptionalBraces(ftMeta, t.enums)
+        case t: Term.ForYield => getOptionalBraces(ftMeta, t.enums)
+        case _ => OptionalBracesBlock.unapply(ftMeta)
+      }
+    }
+  }
+
+  // Optional braces after any token that can start indentation:
+  // =
+  object OptionalBracesEquals {
+    def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] =
+      ftMeta.leftOwner match {
+        case t: Ctor.Secondary => getOptionalBraces(ftMeta, t.init, t.stats)
+        case _ => OptionalBracesBlock.unapply(ftMeta)
+      }
+  }
+
+  // Optional braces after any token that can start indentation:
+  // catch
+  object OptionalBracesCatch {
+    def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] =
+      ftMeta.leftOwner match {
+        case t: Term.Try => getOptionalBraces(ftMeta, t.catchp)
+        case _ => None
+      }
+  }
+
+  // Optional braces after any token that can start indentation:
+  // match
+  object OptionalBracesMatch {
+    def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] = {
+      def result(tree: Tree, cases: Seq[Tree]): Option[OptionalBraces] = {
+        val ok = cases.headOption.exists {
+          _.tokens.head eq nextNonComment(ftMeta).right
+        }
+        if (ok) Some(new OptionalBraces(tree, true)) else None
+      }
+      ftMeta.leftOwner match {
+        case t: Term.Match => result(t, t.cases)
+        case t: Type.Match => result(t, t.cases)
+        case _ => None
+      }
+    }
+  }
+
+  private def getOptionalBraces(
+      ftMeta: FormatToken.Meta,
+      head: => Tree,
+      tail: Seq[Tree]
+  ): Option[OptionalBraces] =
+    if (head.tokens.headOption.contains(nextNonComment(ftMeta).right))
+      tail.lastOption match {
+        case None => Some(new OptionalBraces(head, mainIndent = true))
+        case Some(res) => Some(new OptionalBraces(res))
+      }
+    else None
+
+  private def getOptionalBraces(
+      ftMeta: FormatToken.Meta,
+      trees: Seq[Tree]
+  ): Option[OptionalBraces] =
+    if (trees.isEmpty) None
+    else getOptionalBraces(ftMeta, trees.head, trees.tail)
 
 }
 
