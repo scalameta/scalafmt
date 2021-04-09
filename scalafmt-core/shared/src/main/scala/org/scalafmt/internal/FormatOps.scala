@@ -1946,12 +1946,17 @@ class FormatOps(
   // )  =>  ?=>  <-  do  else  finally  for
   // if  return  then  throw  try  while  yield
   object OptionalBracesBlock {
-    def unapply(meta: FormatToken.Meta): Option[OptionalBraces] = {
-      val nft = nextNonComment(meta)
-      nft.meta.rightOwner.parent match {
-        case Some(t: Term.Block) if t.tokens.headOption.contains(nft.right) =>
-          Some(new OptionalBraces(t, mainIndent = t.stats.length == 1))
-        case _ => None
+    def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] = {
+      val nft = nextNonComment(ftMeta)
+      val rightOwner = nft.meta.rightOwner
+      if (nft.right.is[T.LeftBrace] || rightOwner.is[Term.Block]) None
+      else {
+        val leftOwner = ftMeta.leftOwner
+        findTreeWithParentSimple(rightOwner)(_ eq leftOwner) match {
+          case Some(t: Term.Block) if t.tokens.headOption.contains(nft.right) =>
+            Some(new OptionalBraces(t, mainIndent = t.stats.length == 1))
+          case _ => None
+        }
       }
     }
   }
