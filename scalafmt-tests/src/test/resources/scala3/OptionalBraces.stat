@@ -450,3 +450,27 @@ object a:
    def foo =
      for x <- y
      yield foo
+<<< complex "block" expression
+def foo =
+   if cond then
+        sb.append(doc.text.substring(offset, end))
+        sb.append(doc.text.substring(offset, end))
+>>>
+def foo =
+  if cond then
+  sb.append(doc.text.substring(offset, end))
+  sb.append(doc.text.substring(offset, end))
+=====================
+Formatter changed AST
+<<< lambda with =>
+object a:
+  val func: A => B = (a: A) =>
+    a + a
+    a * a
+  func(a)
+>>>
+object a:
+   val func: A => B = (a: A) =>
+     a + a
+     a * a
+   func(a)
