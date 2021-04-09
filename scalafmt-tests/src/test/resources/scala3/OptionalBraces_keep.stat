@@ -1,4 +1,5 @@
 indent.significant = 3
+newlines.source = keep
 <<< simple value equals
 val test = // comm
     val a = ""
@@ -72,9 +73,10 @@ extension [A](a: Map[A, Foooooooooooooooo[B]])
   
     def add3(b: A) = a + b
 >>>
-extension [A](
-    a: Map[A, Foooooooooooooooo[B]]
-)
+extension [A](a: Map[
+  A,
+  Foooooooooooooooo[B]
+])
    def add(b: A) = a + b
    def add2(b: A) = a + b
 
@@ -88,9 +90,12 @@ extension [A](a: Map[A, Foooooooooooooooo[B]]) (using b: Map[A, Fooooooooooooooo
   
     def add3(b: A) = a + b
 >>>
-extension [A](
-    a: Map[A, Foooooooooooooooo[B]]
-)(using b: Map[A, Foooooooooooooooo[B]])
+extension [A](a: Map[
+  A,
+  Foooooooooooooooo[B]
+])(using
+    b: Map[A, Foooooooooooooooo[B]]
+)
    def add(b: A) = a + b
    def add2(b: A) = a + b
 
@@ -350,15 +355,16 @@ object a:
             case _ => dd
 >>>
 object a:
-   type foo[x] = x match
-      case A =>
-        that match
-           case b => bb
-           case c => cc
-      case B =>
-        that match
-           case c => cc
-           case _ => dd
+   type foo[x] =
+     x match
+        case A =>
+          that match
+             case b => bb
+             case c => cc
+        case B =>
+          that match
+             case c => cc
+             case _ => dd
 <<< catch one
 object a:
   def foo =

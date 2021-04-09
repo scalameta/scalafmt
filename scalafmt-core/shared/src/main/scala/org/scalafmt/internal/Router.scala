@@ -179,23 +179,50 @@ class Router(formatOps: FormatOps) {
             _,
             OptionalBracesTemplate(owner)
           ) if dialect.allowSignificantIndentation =>
-        val indent = style.indent.getSignificant
-        val mod = NewlineT(formatToken.hasBlankLine)
-        Seq(Split(mod, 0).withIndent(indent, lastToken(owner), After))
+        getOptionalBracesSplits(formatToken, owner)
+
+      // optional braces: catch
+      case FormatToken(
+            _: T.KwCatch,
+            _,
+            OptionalBracesCatch(owner)
+          ) if dialect.allowSignificantIndentation =>
+        getOptionalBracesSplits(formatToken, owner)
+
+      // optional braces: match
+      case FormatToken(
+            _: T.KwMatch,
+            _,
+            OptionalBracesMatch(owner)
+          ) if dialect.allowSignificantIndentation =>
+        getOptionalBracesSplits(formatToken, owner)
+
+      // optional braces: equals
+      case FormatToken(
+            _: T.Equals,
+            _,
+            OptionalBracesEquals(owner)
+          ) if dialect.allowSignificantIndentation =>
+        getOptionalBracesSplits(formatToken, owner)
+
+      // optional braces: for
+      case FormatToken(
+            _: T.KwFor,
+            _,
+            OptionalBracesFor(owner)
+          ) if dialect.allowSignificantIndentation =>
+        getOptionalBracesSplits(formatToken, owner)
 
       // optional braces: block follows
       case FormatToken(
-            _: T.Equals | _: T.RightArrow | _: T.ContextArrow | _: T.LeftArrow |
-            _: T.KwCatch | _: T.KwDo | _: T.KwElse | _: T.KwFinally |
-            _: T.KwFor | _: T.KwMatch | _: T.KwReturn | _: T.KwThen |
+            _: T.RightArrow | _: T.ContextArrow | _: T.LeftArrow | _: T.KwDo |
+            _: T.KwElse | _: T.KwFinally | _: T.KwReturn | _: T.KwThen |
             _: T.KwThrow | _: T.KwTry | _: T.KwWhile | _: T.KwYield |
             _: T.RightParen,
             _,
             OptionalBracesBlock(owner)
           ) if dialect.allowSignificantIndentation =>
-        val indent = style.indent.getSignificant
-        val mod = NewlineT(formatToken.hasBlankLine)
-        Seq(Split(mod, 0).withIndent(indent, lastToken(owner), After))
+        getOptionalBracesSplits(formatToken, owner)
 
       // { ... } Blocks
       case tok @ FormatToken(open @ T.LeftBrace(), right, between) =>

@@ -1,4 +1,5 @@
 indent.significant = 3
+newlines.source = unfold
 <<< simple value equals
 val test = // comm
     val a = ""
@@ -124,9 +125,15 @@ given intOrd: Ord[Int] with Eq[Int] with // c1
 given intOrd: Ord[Int] with Eq[Int] with // c1
    /* c2 */
    def compare(x: Int, y: Int) =
-     if x < y then -1 else if x > y then +1 else 0
+     if x < y then -1
+     else if x > y then +1
+     else
+       0
    def compare2(x: Int, y: Int) =
-     if x < y then -1 else if x > y then +1 else 0
+     if x < y then -1
+     else if x > y then +1
+     else
+       0
 <<< given with and a blank
 given intOrd: Ord[Int] with Eq[Int] with
 
@@ -136,7 +143,10 @@ given intOrd: Ord[Int] with Eq[Int] with
 given intOrd: Ord[Int] with Eq[Int] with
 
    def compare(x: Int, y: Int) =
-     if x < y then -1 else if x > y then +1 else 0
+     if x < y then -1
+     else if x > y then +1
+     else
+       0
 <<< derived trait, val-end, if-end
 trait A extends B:
   val cond1 =
@@ -330,13 +340,17 @@ object a:
      this match
         case A =>
           that match
-             case b => bb
-             case c => cc
+             case b =>
+               bb
+             case c =>
+               cc
           end match
         case B =>
           that match
-             case c => cc
-             case _ => dd
+             case c =>
+               cc
+             case _ =>
+               dd
 <<< match type
 object a:
   type foo[x] = x match
@@ -350,15 +364,20 @@ object a:
             case _ => dd
 >>>
 object a:
-   type foo[x] = x match
-      case A =>
-        that match
-           case b => bb
-           case c => cc
-      case B =>
-        that match
-           case c => cc
-           case _ => dd
+   type foo[x] =
+     x match
+        case A =>
+          that match
+             case b =>
+               bb
+             case c =>
+               cc
+        case B =>
+          that match
+             case c =>
+               cc
+             case _ =>
+               dd
 <<< catch one
 object a:
   def foo =
@@ -368,7 +387,9 @@ object a:
 object a:
    def foo =
      try foo
-     catch case A => foo
+     catch
+       case A =>
+         foo
 <<< catch multiple
 object a:
   def foo =
@@ -390,13 +411,17 @@ object a:
      catch
         case A =>
           that match
-             case b => bb
-             case c => cc
+             case b =>
+               bb
+             case c =>
+               cc
           end match
         case B =>
           that match
-             case c => cc
-             case _ => dd
+             case c =>
+               cc
+             case _ =>
+               dd
 <<< for
 object a:
   def foo =
@@ -420,8 +445,7 @@ object a:
      do
         foo
         bar
-   def foo =
-     for x <- y do bar
+   def foo = for x <- y do bar
 <<< for-yield
 object a:
   def foo =
@@ -447,6 +471,4 @@ object a:
      yield
         foo
         bar
-   def foo =
-     for x <- y
-     yield foo
+   def foo = for x <- y yield foo
