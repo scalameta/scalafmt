@@ -176,6 +176,9 @@ class FormatOps(
   final def nextNonComment(curr: FormatToken): FormatToken =
     findToken(curr, next)(!_.right.is[T.Comment]).fold(identity, identity)
 
+  final def nextNonComment(curr: FormatToken.Meta): FormatToken =
+    nextNonComment(tokens(curr.idx))
+
   final def prevNonCommentSameLine(curr: FormatToken): FormatToken =
     findToken(curr, prev)(ft => ft.hasBreak || !ft.left.is[T.Comment])
       .fold(identity, identity)
@@ -1907,12 +1910,34 @@ class FormatOps(
     }
   }
 
+  def getOptionalBracesSplits(ft: FormatToken, ob: OptionalBraces)(implicit
+      style: ScalafmtConfig
+  ): Seq[Split] = {
+    val expire = lastToken(ob.tree)
+    def getIndent(len: Int) = Indent(Num(len), expire, ExpiresOn.After)
+    val nlPolicy = decideNewlinesOnlyAfterClose(Split(Newline, 0))(expire)
+    if (ft.hasBlankLine) {
+      val indent = getIndent(style.indent.getSignificant)
+      Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
+    } else if (ob.forceNL) {
+      val indent = getIndent(style.indent.getSignificant)
+      Seq(Split(Newline, 0).withIndent(indent).withPolicy(nlPolicy))
+    } else {
+      val indentLen =
+        if (ob.mainIndent) style.indent.main else style.indent.getSignificant
+      Seq(
+        Split(Space, 0).withSingleLine(expire),
+        Split(Newline, 1).withIndent(getIndent(indentLen)).withPolicy(nlPolicy)
+      )
+    }
+  }
+
   // Optional braces in templates after `:|with`
   object OptionalBracesTemplate {
-    def unapply(meta: FormatToken.Meta): Option[Template] =
+    def unapply(meta: FormatToken.Meta): Option[OptionalBraces] =
       meta.leftOwner match {
         case t: Template if templateCurly(t).contains(tokens(meta.idx).left) =>
-          Some(t)
+          Some(new OptionalBraces(t, forceNL = true))
         case _ => None
       }
   }
@@ -1921,11 +1946,11 @@ class FormatOps(
   // )  =  =>  ?=>  <-  catch  do  else  finally  for
   // if  match  return  then  throw  try  while  yield
   object OptionalBracesBlock {
-    def unapply(meta: FormatToken.Meta): Option[Term.Block] = {
-      val nft = nextNonComment(tokens(meta.idx))
+    def unapply(meta: FormatToken.Meta): Option[OptionalBraces] = {
+      val nft = nextNonComment(meta)
       nft.meta.rightOwner.parent match {
         case Some(t: Term.Block) if t.tokens.headOption.contains(nft.right) =>
-          Some(t)
+          Some(new OptionalBraces(t, mainIndent = t.stats.length == 1))
         case _ => None
       }
     }
@@ -1944,5 +1969,11 @@ object FormatOps {
     def apply(tree: Term.Match, kw: Token.KwMatch): SelectLike =
       new SelectLike(tree, tree.expr, kw)
   }
+
+  class OptionalBraces(
+      val tree: Tree,
+      val forceNL: Boolean = false,
+      val mainIndent: Boolean = false
+  )
 
 }

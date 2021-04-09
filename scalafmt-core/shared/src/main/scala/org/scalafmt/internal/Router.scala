@@ -179,9 +179,7 @@ class Router(formatOps: FormatOps) {
             _,
             OptionalBracesTemplate(owner)
           ) if dialect.allowSignificantIndentation =>
-        val indent = style.indent.getSignificant
-        val mod = NewlineT(formatToken.hasBlankLine)
-        Seq(Split(mod, 0).withIndent(indent, lastToken(owner), After))
+        getOptionalBracesSplits(formatToken, owner)
 
       // optional braces: block follows
       case FormatToken(
@@ -193,9 +191,7 @@ class Router(formatOps: FormatOps) {
             _,
             OptionalBracesBlock(owner)
           ) if dialect.allowSignificantIndentation =>
-        val indent = style.indent.getSignificant
-        val mod = NewlineT(formatToken.hasBlankLine)
-        Seq(Split(mod, 0).withIndent(indent, lastToken(owner), After))
+        getOptionalBracesSplits(formatToken, owner)
 
       // { ... } Blocks
       case tok @ FormatToken(open @ T.LeftBrace(), right, between) =>
