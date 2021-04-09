@@ -334,10 +334,10 @@ object a:
    def foo =
      this match
         case A =>
-          that match
-             case b => bb
-             case c => cc
-          end match
+             that match
+                case b => bb
+                case c => cc
+             end match
         case B =>
           that match
              case c => cc
@@ -395,10 +395,10 @@ object a:
      try foo
      catch
         case A =>
-          that match
-             case b => bb
-             case c => cc
-          end match
+             that match
+                case b => bb
+                case c => cc
+             end match
         case B =>
           that match
              case c => cc
@@ -464,10 +464,8 @@ def foo =
 >>>
 def foo =
   if cond then
-  sb.append(doc.text.substring(offset, end))
-  sb.append(doc.text.substring(offset, end))
-=====================
-Formatter changed AST
+     sb.append(doc.text.substring(offset, end))
+     sb.append(doc.text.substring(offset, end))
 <<< lambda with =>
 object a:
   val func: A => B = (a: A) =>
@@ -477,6 +475,6 @@ object a:
 >>>
 object a:
    val func: A => B = (a: A) =>
-     a + a
-     a * a
+      a + a
+      a * a
    func(a)
