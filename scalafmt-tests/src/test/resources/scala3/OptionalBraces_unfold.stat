@@ -1,0 +1,475 @@
+indent.significant = 3
+newlines.source = unfold
+<<< simple value equals
+val test = // comm
+    val a = ""
+     a  +    ""
+>>>
+val test = // comm
+   val a = ""
+   a + ""
+<<< if else with comment before colon
+trait A /* comm */ :
+  val cond =
+   if true then
+    stat1
+    stat2
+   else { // c1
+     stat3
+     stat4
+     }
+   end if
+>>>
+trait A /* comm */:
+   val cond =
+      if true then
+         stat1
+         stat2
+      else { // c1
+        stat3
+        stat4
+      }
+      end if
+<<< nested class with end marker
+trait A /* comm */ :
+  class B:
+    val a = ""
+  end B
+>>>
+trait A /* comm */:
+   class B:
+      val a = ""
+   end B
+<<< object
+object Obj:
+  def hello = 
+      1
+       2
+  end hello
+>>>
+object Obj:
+   def hello =
+      1
+      2
+   end hello
+<<< object with braces
+object Obj{
+  def hello = 
+    1
+    2
+}
+>>>
+object Obj {
+  def hello =
+     1
+     2
+}
+<<< extension method
+maxColumn = 40
+===
+extension [A](a: Map[A, Foooooooooooooooo[B]]) 
+    def add(b: A) = a + b
+     def add2(b: A) = a + b
+  
+    def add3(b: A) = a + b
+>>>
+extension [A](
+    a: Map[A, Foooooooooooooooo[B]]
+)
+   def add(b: A) = a + b
+   def add2(b: A) = a + b
+
+   def add3(b: A) = a + b
+<<< extension multi
+maxColumn = 40
+===
+extension [A](a: Map[A, Foooooooooooooooo[B]]) (using b: Map[A, Foooooooooooooooo[B]])
+    def add(b: A) = a + b
+     def add2(b: A) = a + b
+  
+    def add3(b: A) = a + b
+>>>
+extension [A](
+    a: Map[A, Foooooooooooooooo[B]]
+)(using b: Map[A, Foooooooooooooooo[B]])
+   def add(b: A) = a + b
+   def add2(b: A) = a + b
+
+   def add3(b: A) = a + b
+<<< if(cond) indentation 
+trait A:
+  val cond =
+    if (true)
+        stat1
+         stat2
+    else
+       stat3
+       stat4
+>>>
+trait A:
+   val cond =
+     if (true)
+        stat1
+        stat2
+     else
+        stat3
+        stat4
+<<< given with
+given intOrd: Ord[Int] with Eq[Int] with // c1
+    /* c2 */
+     def compare(x: Int, y: Int) =
+      if x < y then -1 else if x > y then +1 else 0
+     def compare2(x: Int, y: Int) =
+      if x < y then -1 else if x > y then +1 else 0
+>>>
+given intOrd: Ord[Int] with Eq[Int] with // c1
+   /* c2 */
+   def compare(x: Int, y: Int) =
+     if x < y then -1
+     else if x > y then +1
+     else
+       0
+   def compare2(x: Int, y: Int) =
+     if x < y then -1
+     else if x > y then +1
+     else
+       0
+<<< given with and a blank
+given intOrd: Ord[Int] with Eq[Int] with
+
+     def compare(x: Int, y: Int) =
+      if x < y then -1 else if x > y then +1 else 0
+>>>
+given intOrd: Ord[Int] with Eq[Int] with
+
+   def compare(x: Int, y: Int) =
+     if x < y then -1
+     else if x > y then +1
+     else
+       0
+<<< derived trait, val-end, if-end
+trait A extends B:
+  val cond1 =
+    if true then
+
+     stat1
+     stat2
+    else
+
+     stat3
+     stat4
+    end if
+  end cond1
+>>>
+trait A extends B:
+   val cond1 =
+      if true then
+
+         stat1
+         stat2
+      else
+
+         stat3
+         stat4
+      end if
+   end cond1
+<<< derived trait, val-end, if-noend
+trait A extends B:
+  val cond1 =
+    if true then
+     stat1
+     stat2
+    else
+     stat3
+     stat4
+  end cond1
+>>>
+trait A extends B:
+   val cond1 =
+     if true then
+        stat1
+        stat2
+     else
+        stat3
+        stat4
+   end cond1
+<<< derived trait, val-noend, if-end
+trait A extends B:
+  val cond1 =
+    if true then
+     stat1
+     stat2
+    else
+     stat3
+     stat4
+    end if
+>>>
+trait A extends B:
+   val cond1 =
+      if true then
+         stat1
+         stat2
+      else
+         stat3
+         stat4
+      end if
+<<< derived trait, val-noend, if-noend
+trait A extends B:
+  val cond1 =
+    if true then
+     stat1
+     stat2
+    else
+     stat3
+     stat4
+>>>
+trait A extends B:
+   val cond1 =
+     if true then
+        stat1
+        stat2
+     else
+        stat3
+        stat4
+<<< derived trait with self
+trait A extends B:
+
+  self: C =>
+  val cond =
+   if true then
+    stat1
+    stat2
+   else
+     stat3
+     stat4
+   end if
+>>>
+trait A extends B:
+
+   self: C =>
+   val cond =
+      if true then
+         stat1
+         stat2
+      else
+         stat3
+         stat4
+      end if
+<<< lots of end markers
+object a {
+ trait A:
+  val cond =
+    if true then
+      stat1
+      stat2
+    else
+      stat3
+      stat4
+    end if
+  end cond
+  val cond =
+    if true then
+      stat1
+      stat2
+    else
+      stat3
+      stat4
+    end if
+  end cond
+ end A
+}
+>>>
+object a {
+  trait A:
+     val cond =
+        if true then
+           stat1
+           stat2
+        else
+           stat3
+           stat4
+        end if
+     end cond
+     val cond =
+        if true then
+           stat1
+           stat2
+        else
+           stat3
+           stat4
+        end if
+     end cond
+  end A
+}
+<<< ctor this
+class a(vi: Int, vs: String):
+  def this() =
+    this(0, "")
+    foo
+  end this
+  def this(vi: Int) =
+    this(vi, "")
+    foo
+  end this
+>>>
+Formatter changed AST
+class a(vi: Int, vs: String):
+   def this() = this(0, "")
+   foo
+   end this
+   def this(vi: Int) = this(vi, "")
+   foo
+   end this
+<<< match
+object a:
+  def foo =
+    this match
+      case A =>
+         that match
+            case b => bb
+            case c => cc
+         end match
+      case B =>
+         that match
+            case c => cc
+            case _ => dd
+>>>
+object a:
+   def foo =
+     this match
+     case A =>
+       that match
+       case b =>
+         bb
+       case c =>
+         cc
+       end match
+     case B =>
+       that match
+       case c =>
+         cc
+       case _ =>
+         dd
+<<< match type
+object a:
+  type foo[x] = x match
+      case A =>
+         that match
+            case b => bb
+            case c => cc
+      case B =>
+         that match
+            case c => cc
+            case _ => dd
+>>>
+object a:
+   type foo[x] =
+     x match
+     case A =>
+       that match
+       case b =>
+         bb
+       case c =>
+         cc
+     case B =>
+       that match
+       case c =>
+         cc
+       case _ =>
+         dd
+<<< catch one
+object a:
+  def foo =
+    try foo
+    catch case A => foo
+>>>
+object a:
+   def foo =
+     try foo
+     catch
+     case A =>
+       foo
+<<< catch multiple
+object a:
+  def foo =
+    try foo
+    catch
+      case A =>
+         that match
+            case b => bb
+            case c => cc
+         end match
+      case B =>
+         that match
+            case c => cc
+            case _ => dd
+>>>
+<input>:12: error: outdent expected but case found
+     case B =>
+     ^
+       that match
+       case c =>
+object a:
+   def foo =
+     try foo
+     catch
+     case A =>
+       that match
+       case b =>
+         bb
+       case c =>
+         cc
+       end match
+     case B =>
+       that match
+       case c =>
+         cc
+       case _ =>
+         dd
+<<< for
+object a:
+  def foo =
+    for
+      x <- y
+      x <- y
+    do
+      foo
+      bar
+  def foo =
+    for
+      x <- y
+    do
+      bar
+>>>
+object a:
+   def foo =
+     for x <- y
+     x <- y do
+        foo
+        bar
+   def foo = for x <- y do bar
+<<< for-yield
+object a:
+  def foo =
+    for
+      x <- y
+      x = y
+      if x
+    yield
+      foo
+      bar
+  def foo =
+    for
+      x <- y
+    yield
+      foo
+>>>
+object a:
+   def foo =
+     for x <- y
+     x = y
+     if x
+     yield
+        foo
+        bar
+   def foo = for x <- y yield foo
