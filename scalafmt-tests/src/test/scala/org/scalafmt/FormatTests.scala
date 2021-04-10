@@ -52,7 +52,8 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
       case Formatted.Failure(e: SearchStateExploded) =>
         logger.elem(e)
         e.partialOutput
-      case x => x.get
+      case Formatted.Failure(e) => throw FormatException(e, t.original)
+      case Formatted.Success(code) => code
     }
     debugResults += saveResult(t, obtained, debug)
     if (
@@ -66,13 +67,15 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
       )
     }
     val debug2 = new Debug(onlyOne)
-    val formattedAgain = Scalafmt
-      .formatCode(
-        obtained,
-        t.style.copy(runner = scalafmtRunner(runner, debug2)),
-        filename = t.filename
-      )
-      .get
+    val result2 = Scalafmt.formatCode(
+      obtained,
+      t.style.copy(runner = scalafmtRunner(runner, debug2)),
+      filename = t.filename
+    )
+    val formattedAgain = result2.formatted match {
+      case Formatted.Failure(e) => throw FormatException(e, obtained)
+      case Formatted.Success(code) => code
+    }
     debug2.printTest()
     assertEquals(formattedAgain, obtained, "Idempotency violated")
     if (!onlyManual) {

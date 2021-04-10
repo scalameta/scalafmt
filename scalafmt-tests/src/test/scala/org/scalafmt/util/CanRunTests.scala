@@ -23,10 +23,11 @@ trait CanRunTests extends FunSuite with HasTests {
             try {
               run.apply(t, parse)
             } catch {
-              case e: ParseException =>
+              case FormatException(e: ParseException, code) =>
                 fail(
                   "test does not parse\n" +
-                    parseException2Message(e, t.original)
+                    parseException2Message(e, code),
+                  e
                 )
             }
           case None => fail(s"Found no parse for filename $filename")
