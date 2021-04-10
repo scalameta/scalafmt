@@ -69,6 +69,16 @@ class FormatOps(
   implicit val dialect = initStyle.runner.dialect
   private val ownersMap = getOwners(tree)
   val tokens: FormatTokens = FormatTokens(tree.tokens, owners)
+  import tokens.{
+    findToken,
+    findTokenWith,
+    prev,
+    next,
+    prevNonComment,
+    nextNonComment,
+    nextNonCommentSameLine
+  }
+
   private[internal] val soft = new SoftKeywordClasses(dialect)
   private val statementStarts = getStatementStarts(tree, soft)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
@@ -147,9 +157,6 @@ class FormatOps(
     def unapply(meta: FormatToken.Meta): Option[A] = f(tokens(meta.idx))
   }
 
-  @inline def prev(tok: FormatToken): FormatToken = tokens(tok, -1)
-  @inline def next(tok: FormatToken): FormatToken = tokens(tok, 1)
-
   final def findFirst(start: FormatToken, end: Token)(
       f: FormatToken => Boolean
   ): Option[FormatToken] = {
@@ -168,23 +175,6 @@ class FormatOps(
       else findFirst(next_, end)(f)
     }
   }
-
-  final def nextNonCommentSameLine(curr: FormatToken): FormatToken =
-    findToken(curr, next)(ft => ft.hasBreak || !ft.right.is[T.Comment])
-      .fold(identity, identity)
-
-  final def nextNonComment(curr: FormatToken): FormatToken =
-    findToken(curr, next)(!_.right.is[T.Comment]).fold(identity, identity)
-
-  final def nextNonComment(curr: FormatToken.Meta): FormatToken =
-    nextNonComment(tokens(curr.idx))
-
-  final def prevNonCommentSameLine(curr: FormatToken): FormatToken =
-    findToken(curr, prev)(ft => ft.hasBreak || !ft.left.is[T.Comment])
-      .fold(identity, identity)
-
-  final def prevNonComment(curr: FormatToken): FormatToken =
-    findToken(curr, prev)(!_.left.is[T.Comment]).fold(identity, identity)
 
   final def rhsOptimalToken(
       start: FormatToken
@@ -1490,25 +1480,6 @@ class FormatOps(
         val prevPrevSelect = findPrevSelect(p, style.encloseSelectChains)
         inSelectChain(prevPrevSelect, p, lastApply)
     }
-
-  @tailrec
-  final def findTokenWith[A](
-      ft: FormatToken,
-      iter: FormatToken => FormatToken
-  )(f: FormatToken => Option[A]): Either[FormatToken, A] =
-    f(ft) match {
-      case Some(a) => Right(a)
-      case _ =>
-        val nextFt = iter(ft)
-        if (nextFt eq ft) Left(ft)
-        else findTokenWith(nextFt, iter)(f)
-    }
-
-  final def findToken(
-      ft: FormatToken,
-      iter: FormatToken => FormatToken
-  )(f: FormatToken => Boolean): Either[FormatToken, FormatToken] =
-    findTokenWith(ft, iter)(Some(_).filter(f))
 
   @tailrec
   final def findXmlLastLineIndent(ft: FormatToken): Int =

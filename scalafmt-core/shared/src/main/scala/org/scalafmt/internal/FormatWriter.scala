@@ -252,7 +252,7 @@ class FormatWriter(formatOps: FormatOps) {
         ): Option[FormatToken] = {
           def owner = tok.meta.rightOwner
 
-          val nextNonCommentTok = nextNonComment(tok)
+          val nextNonCommentTok = tokens.nextNonComment(tok)
           val skip = nextNonCommentTok.meta.idx - tok.meta.idx
           val right = nextNonCommentTok.right
           def isNewline =
@@ -1091,7 +1091,7 @@ class FormatWriter(formatOps: FormatOps) {
 
     def checkTopLevelStatement: Boolean =
       topLevelHeadTokens.contains(formatToken.meta.idx) && {
-        val nextNonCommentTok = nextNonComment(formatToken)
+        val nextNonCommentTok = tokens.nextNonComment(formatToken)
         val distance = nextNonCommentTok.meta.idx - formatToken.meta.idx
         val nonCommentOwner = nextNonCommentTok.meta.rightOwner match {
           case mod: Mod => mod.parent.get

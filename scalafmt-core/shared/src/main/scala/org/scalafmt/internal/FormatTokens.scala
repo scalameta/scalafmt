@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import scala.annotation.tailrec
 import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
@@ -32,6 +33,45 @@ class FormatTokens(val arr: Array[FormatToken])
 
   @inline def hasNext(ft: FormatToken): Boolean = ft.meta.idx < (arr.length - 1)
   @inline def hasPrev(ft: FormatToken): Boolean = ft.meta.idx > 0
+
+  @inline def prev(ft: FormatToken): FormatToken = apply(ft, -1)
+  @inline def next(ft: FormatToken): FormatToken = apply(ft, 1)
+
+  @tailrec
+  final def findTokenWith[A](
+      ft: FormatToken,
+      iter: FormatToken => FormatToken
+  )(f: FormatToken => Option[A]): Either[FormatToken, A] =
+    f(ft) match {
+      case Some(a) => Right(a)
+      case _ =>
+        val nextFt = iter(ft)
+        if (nextFt eq ft) Left(ft)
+        else findTokenWith(nextFt, iter)(f)
+    }
+
+  final def findToken(
+      ft: FormatToken,
+      iter: FormatToken => FormatToken
+  )(f: FormatToken => Boolean): Either[FormatToken, FormatToken] =
+    findTokenWith(ft, iter)(Some(_).filter(f))
+
+  final def nextNonCommentSameLine(curr: FormatToken): FormatToken =
+    findToken(curr, next)(ft => ft.hasBreak || !ft.right.is[Token.Comment])
+      .fold(identity, identity)
+
+  final def nextNonComment(curr: FormatToken): FormatToken =
+    findToken(curr, next)(!_.right.is[Token.Comment]).fold(identity, identity)
+
+  final def nextNonComment(curr: FormatToken.Meta): FormatToken =
+    nextNonComment(apply(curr.idx))
+
+  final def prevNonCommentSameLine(curr: FormatToken): FormatToken =
+    findToken(curr, prev)(ft => ft.hasBreak || !ft.left.is[Token.Comment])
+      .fold(identity, identity)
+
+  final def prevNonComment(curr: FormatToken): FormatToken =
+    findToken(curr, prev)(!_.left.is[Token.Comment]).fold(identity, identity)
 
 }
 

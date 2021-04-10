@@ -76,14 +76,14 @@ final case class State(
 
     val overflow = columnOnCurrentLine - style.maxColumn
     val nextPolicy: PolicySummary =
-      policy.combine(nextSplit.policy, fops.next(tok))
+      policy.combine(nextSplit.policy, fops.tokens.next(tok))
 
     val (penalty, nextDelayedPenalty) =
       if (
         overflow <= 0 || right.is[Token.Comment] && {
           val rtext = tok.meta.right.text
           nextSplit.isNL && rtext.length >= (style.maxColumn - nextIndent) ||
-          fops.next(tok).hasBreak && {
+          fops.tokens.next(tok).hasBreak && {
             if (TokenOps.isDocstring(rtext))
               (style.docstrings.wrap ne Docstrings.Wrap.no) && nextSplit.isNL
             else
@@ -241,7 +241,7 @@ final case class State(
       val ok = {
         // comment could be preceded by a comma
         isComment && ft.left.is[Token.Comma] &&
-        (fops.prev(ft).meta.leftOwner eq lineOwner)
+        (fops.tokens.prev(ft).meta.leftOwner eq lineOwner)
       } ||
         TreeOps
           .findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner)
