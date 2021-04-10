@@ -2,12 +2,20 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.Token
 
-sealed abstract class ExpiresOn
+sealed abstract class ExpiresOn {
+  def notExpiredBy(ft: FormatToken, expireEnd: Int): Boolean
+}
 
 object ExpiresOn {
-  case object After extends ExpiresOn
+  case object After extends ExpiresOn {
+    def notExpiredBy(ft: FormatToken, expireEnd: Int): Boolean =
+      ft.right.start < expireEnd
+  }
 
-  case object Before extends ExpiresOn
+  case object Before extends ExpiresOn {
+    def notExpiredBy(ft: FormatToken, expireEnd: Int): Boolean =
+      ft.right.end < expireEnd
+  }
 
   @inline
   def beforeIf(flag: Boolean) = if (flag) Before else After
@@ -40,15 +48,13 @@ object Length {
 
 case class ActualIndent(
     length: Int,
-    expire: Token,
+    expireEnd: Int,
     expiresAt: ExpiresOn,
     reset: Boolean
 ) {
-  def notExpiredBy(ft: FormatToken): Boolean = {
-    val expireToken: Token =
-      if (expiresAt == ExpiresOn.After) ft.left else ft.right
-    expire.end > expireToken.end
-  }
+  @inline
+  def notExpiredBy(ft: FormatToken): Boolean =
+    expiresAt.notExpiredBy(ft, expireEnd)
 }
 
 abstract class Indent {
@@ -78,7 +84,7 @@ private class IndentImpl(length: Length, expire: Token, expiresAt: ExpiresOn)
     Some(
       ActualIndent(
         length.withStateOffset(offset),
-        expire,
+        expire.end,
         expiresAt,
         length.reset
       )
