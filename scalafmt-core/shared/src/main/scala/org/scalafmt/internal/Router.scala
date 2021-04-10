@@ -64,6 +64,15 @@ class Router(formatOps: FormatOps) {
   import FormatOps._
   import formatOps._
 
+  import tokens.{
+    prev,
+    next,
+    prevNonComment,
+    nextNonComment,
+    prevNonCommentSameLine,
+    nextNonCommentSameLine
+  }
+
   private def getSplitsImpl(formatToken: FormatToken): Seq[Split] = {
     implicit val style = styleMap.at(formatToken)
     val leftOwner = formatToken.meta.leftOwner
