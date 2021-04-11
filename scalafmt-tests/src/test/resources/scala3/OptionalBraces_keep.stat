@@ -403,6 +403,42 @@ object a:
           that match
              case c => cc
              case _ => dd
+<<< try/finally, single
+object a:
+   def foo =
+     try foo
+     catch
+       case a => baz
+     finally bar
+>>>
+object a:
+   def foo =
+     try foo
+     catch
+        case a => baz
+     finally bar
+<<< try/finally, multiple
+object a:
+   def foo =
+     try
+       foo
+       bar
+     catch
+       case a => baz
+     finally
+       bar
+       qux
+>>>
+object a:
+   def foo =
+     try
+        foo
+        bar
+     catch
+        case a => baz
+     finally
+        bar
+        qux
 <<< for
 object a:
   def foo =
