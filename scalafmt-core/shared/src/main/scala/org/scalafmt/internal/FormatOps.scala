@@ -828,7 +828,7 @@ class FormatOps(
 
     def getRToks = dropWS(function.tokens.reverse)
     function.parent match {
-      case Some(b: Term.Block) if b.stats.length == 1 =>
+      case Some(b: Term.Block) if b.stats.lengthCompare(1) == 0 =>
         b.tokens.last -> ExpiresOn.Before
       case Some(Case(_, _, `function`)) =>
         orElse(dropComment(getRToks))
@@ -1950,7 +1950,7 @@ class FormatOps(
               _.tokens.headOption.contains(nft.right)
             ) =>
           val forceNL = shouldBreakInOptionalBraces(nft)
-          val useMain = t.stats.length == 1
+          val useMain = t.stats.lengthCompare(1) == 0
           Some(getSplits(ft, t, forceNL, useMain))
         case _ => None
       }
@@ -2035,7 +2035,14 @@ class FormatOps(
         case _ => false
       }
 
+    private def isTreeUsingOptionalBraces(tree: Tree): Boolean =
+      isTreeMultiStatBlock(tree) && !isTreePrecededBy[T.LeftBrace](tree)
+
   }
+
+  private def isTreePrecededBy[A](tree: Tree)(implicit
+      cls: Classifier[Token, A]
+  ): Boolean = prevNonComment(tokens(tree.tokens.head, -1)).left.is[A]
 
 }
 

@@ -474,10 +474,7 @@ class Router(formatOps: FormatOps) {
           else if (
             condIsDefined ||
             beforeMultiline.eq(Newlines.classic) ||
-            (body match {
-              case t: Term.Block => t.stats.lengthCompare(1) > 0
-              case _ => false
-            })
+            isTreeMultiStatBlock(body)
           ) Seq(baseSplit.withSingleLine(lastToken(body)), nlSplit(ft)(1))
           else CtrlBodySplits.folded(ft, body)(nlSplit(ft))
         }

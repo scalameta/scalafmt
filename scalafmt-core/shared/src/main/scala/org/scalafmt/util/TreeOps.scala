@@ -610,6 +610,11 @@ object TreeOps {
   def getBlockSingleStat(b: Term.Block): Option[Stat] =
     if (b.stats.lengthCompare(1) != 0) None else Some(b.stats.head)
 
+  def isTreeMultiStatBlock(tree: Tree): Boolean = tree match {
+    case t: Term.Block => t.stats.lengthCompare(1) > 0
+    case _ => false
+  }
+
   def getTermSingleStat(t: Term): Option[Tree] =
     t match {
       case b: Term.Block => getBlockSingleStat(b)
