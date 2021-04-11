@@ -445,7 +445,10 @@ object a:
      do
         foo
         bar
-   def foo = for x <- y do bar
+   def foo =
+     for
+       x <- y
+     do bar
 <<< for-yield
 object a:
   def foo =
@@ -471,7 +474,10 @@ object a:
      yield
         foo
         bar
-   def foo = for x <- y yield foo
+   def foo =
+     for
+       x <- y
+     yield foo
 <<< complex "block" expression
 def foo =
    if cond then

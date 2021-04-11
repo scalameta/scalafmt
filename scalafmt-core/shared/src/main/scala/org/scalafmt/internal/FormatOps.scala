@@ -1913,25 +1913,21 @@ class FormatOps(
         forceNL: Boolean = false,
         useMain: Boolean = false
     )(implicit style: ScalafmtConfig): Seq[Split] = {
-      val expire = lastToken(tree)
-      def getIndent(len: Int) = Indent(Num(len), expire, ExpiresOn.After)
-      val nlPolicy = decideNewlinesOnlyAfterClose(Split(Newline, 0))(expire)
-      if (ft.hasBlankLine) {
-        val indent = getIndent(style.indent.getSignificant)
+      val expire = nextNonCommentSameLine(tokens(tree.tokens.last)).left
+      def nlPolicy(implicit line: sourcecode.Line) =
+        decideNewlinesOnlyAfterClose(Split(Newline, 0))(expire)
+      val indentLen =
+        if (useMain) style.indent.main else style.indent.getSignificant
+      val indent = Indent(Num(indentLen), expire, ExpiresOn.After)
+      if (ft.hasBlankLine)
         Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
-      } else if (forceNL) {
-        val indent = getIndent(style.indent.getSignificant)
+      else if (forceNL)
         Seq(Split(Newline, 0).withIndent(indent).withPolicy(nlPolicy))
-      } else {
-        val indentLen =
-          if (useMain) style.indent.main else style.indent.getSignificant
+      else
         Seq(
           Split(Space, 0).withSingleLine(expire),
-          Split(Newline, 1)
-            .withIndent(getIndent(indentLen))
-            .withPolicy(nlPolicy)
+          Split(Newline, 1).withIndent(indent).withPolicy(nlPolicy)
         )
-      }
     }
 
     def unapplyTemplate(ft: FormatToken, nft: FormatToken)(implicit
@@ -1949,8 +1945,13 @@ class FormatOps(
     ): Option[Seq[Split]] = {
       val leftOwner = ft.meta.leftOwner
       findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
-        case Some(t: Term.Block) if t.tokens.headOption.contains(nft.right) =>
-          Some(getSplits(ft, t, useMain = t.stats.length == 1))
+        case Some(t: Term.Block)
+            if t.stats.headOption.exists(
+              _.tokens.headOption.contains(nft.right)
+            ) =>
+          val forceNL = shouldBreakInOptionalBraces(nft)
+          val useMain = t.stats.length == 1
+          Some(getSplits(ft, t, forceNL, useMain))
         case _ => None
       }
     }
@@ -2006,12 +2007,13 @@ class FormatOps(
         head: => Tree,
         tail: Seq[Tree]
     )(implicit style: ScalafmtConfig): Option[Seq[Split]] =
-      if (head.tokens.headOption.contains(nft.right))
+      if (head.tokens.headOption.contains(nft.right)) {
+        val forceNL = shouldBreakInOptionalBraces(ft)
         tail.lastOption match {
-          case None => Some(getSplits(ft, head, useMain = true))
-          case Some(res) => Some(getSplits(ft, res))
+          case None => Some(getSplits(ft, head, forceNL, useMain = true))
+          case Some(res) => Some(getSplits(ft, res, forceNL))
         }
-      else None
+      } else None
 
     private def getOptionalBraces(
         ft: FormatToken,
@@ -2020,6 +2022,16 @@ class FormatOps(
     )(implicit style: ScalafmtConfig): Option[Seq[Split]] =
       if (trees.isEmpty) None
       else getOptionalBraces(ft, nft, trees.head, trees.tail)
+
+    private def shouldBreakInOptionalBraces(
+        ft: FormatToken
+    )(implicit style: ScalafmtConfig): Boolean =
+      style.newlines.source match {
+        case Newlines.unfold => true
+        case Newlines.keep => ft.hasBreak
+        case _ => false
+      }
+
   }
 
 }
