@@ -427,7 +427,9 @@ object a:
         foo
         bar
    def foo =
-     for x <- y do bar
+     for
+       x <- y
+     do bar
 <<< for-yield
 object a:
   def foo =
@@ -454,7 +456,8 @@ object a:
         foo
         bar
    def foo =
-     for x <- y
+     for
+       x <- y
      yield foo
 <<< complex "block" expression
 def foo =
