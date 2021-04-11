@@ -53,7 +53,7 @@ class StyleMap(
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
           Config.fromHoconString(c, Some("scalafmt"), init) match {
             case Configured.Ok(style) =>
-              if (init.rewrite ne style.rewrite)
+              if (init.rewrite.rulesChanged(style.rewrite))
                 warn("May not override rewrite settings")
               else if (
                 init.trailingCommas != style.trailingCommas ||
