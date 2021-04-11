@@ -72,7 +72,7 @@ private class BestFirstSearch private (
       else {
         val close = matching(left.left)
         // Block must span at least 3 lines to be worth recursing.
-        val ok = close != stop &&
+        val ok = close.start < stop.start &&
           distance(left.left, close) > style.maxColumn * 3 &&
           extractStatementsIfAny(left.meta.leftOwner).nonEmpty
         if (ok) Some(close) else None
@@ -128,7 +128,7 @@ private class BestFirstSearch private (
 
       val splitToken = tokens(curr.depth)
       if (
-        splitToken.left.start >= stop.start &&
+        splitToken.right.start > stop.start &&
         splitToken.left.start < splitToken.left.end
       ) {
         return curr
