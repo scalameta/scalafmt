@@ -77,9 +77,12 @@ object TreeOps {
       case _ => false
     }
 
-  def extractStatementsIfAny(tree: Tree): Seq[Tree] =
+  def extractStatementsIfAny(tree: Tree, all: Boolean): Seq[Tree] =
     tree match {
-      case b: Term.Block => b.stats
+      case b: Term.Block =>
+        val ok = all || b.stats.length != 1 ||
+          b.stats.head.is[Term.FunctionTerm]
+        if (ok) b.stats else Seq.empty
       case b: Term.FunctionTerm if isBlockFunction(b) => b.body :: Nil
       case t: Pkg => t.stats
       // TODO(olafur) would be nice to have an abstract "For" superclass.
@@ -174,7 +177,7 @@ object TreeOps {
           addDefn[KwDef](t.mods, t)
           addAll(t.stats)
         case t => // Nothing
-          addAll(extractStatementsIfAny(t))
+          addAll(extractStatementsIfAny(t, false))
       }
       x.children.foreach(loop)
     }

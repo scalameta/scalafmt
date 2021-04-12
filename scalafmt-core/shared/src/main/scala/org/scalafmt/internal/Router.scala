@@ -254,8 +254,9 @@ class Router(formatOps: FormatOps) {
           style.optIn.selfAnnotationNewline && selfAnnotation.nonEmpty && (
             formatToken.hasBreak || style.newlines.sourceIgnored
           )
+        val rightIsComment = right.is[T.Comment]
         val nl: Modification =
-          if (right.is[T.Comment] && tok.noBreak) Space
+          if (rightIsComment && tok.noBreak) Space
           else if (isSelfAnnotationNL)
             getModCheckIndent(formatToken, math.max(newlines, 1))
           else
@@ -381,10 +382,16 @@ class Router(formatOps: FormatOps) {
               .andPolicy(sld)
           }
 
+        val nlCommentPolicy =
+          if (rightIsComment && !nl.isNewline) {
+            val nft = nextNonCommentSameLine(next(tok))
+            decideNewlinesOnlyAfterClose(Split(Newline, 0))(nft.left)
+          } else NoPolicy
+
         val splits = Seq(
           singleLineSplit,
           Split(nl, 1)
-            .withPolicy(newlineBeforeClosingCurly)
+            .withPolicy(newlineBeforeClosingCurly & nlCommentPolicy)
             .withIndent(style.indent.main, close, Before),
           Split(Space, 0)
             .onlyIf(lambdaNLOnly.contains(false) && lambdaPolicy != null)
