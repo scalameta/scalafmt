@@ -1966,8 +1966,8 @@ class FormatOps(
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
       ft.meta.leftOwner match {
-        case t: Term.For => getOptionalBraces(ft, nft, t.enums)
-        case t: Term.ForYield => getOptionalBraces(ft, nft, t.enums)
+        case t: Term.For => getOptionalBraces(ft, nft, t.enums, false)
+        case t: Term.ForYield => getOptionalBraces(ft, nft, t.enums, false)
         case _ => unapplyBlock(ft, nft)
       }
 
@@ -1975,7 +1975,8 @@ class FormatOps(
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
       ft.meta.leftOwner match {
-        case t: Ctor.Secondary => getOptionalBraces(ft, nft, t.init, t.stats)
+        case t: Ctor.Secondary =>
+          getOptionalBraces(ft, nft, t.init, t.stats, true)
         case _ => unapplyBlock(ft, nft)
       }
 
@@ -1983,7 +1984,7 @@ class FormatOps(
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
       ft.meta.leftOwner match {
-        case t: Term.Try => getOptionalBraces(ft, nft, t.catchp)
+        case t: Term.Try => getOptionalBraces(ft, nft, t.catchp, false)
         case _ => None
       }
 
@@ -2005,12 +2006,13 @@ class FormatOps(
         ft: FormatToken,
         nft: FormatToken,
         head: => Tree,
-        tail: Seq[Tree]
+        tail: Seq[Tree],
+        allowMain: Boolean
     )(implicit style: ScalafmtConfig): Option[Seq[Split]] =
       if (head.tokens.headOption.contains(nft.right)) {
         val forceNL = shouldBreakInOptionalBraces(ft)
         tail.lastOption match {
-          case None => Some(getSplits(ft, head, forceNL, useMain = true))
+          case None => Some(getSplits(ft, head, forceNL, useMain = allowMain))
           case Some(res) => Some(getSplits(ft, res, forceNL))
         }
       } else None
@@ -2018,10 +2020,11 @@ class FormatOps(
     private def getOptionalBraces(
         ft: FormatToken,
         nft: FormatToken,
-        trees: Seq[Tree]
+        trees: Seq[Tree],
+        allowMain: Boolean
     )(implicit style: ScalafmtConfig): Option[Seq[Split]] =
       if (trees.isEmpty) None
-      else getOptionalBraces(ft, nft, trees.head, trees.tail)
+      else getOptionalBraces(ft, nft, trees.head, trees.tail, allowMain)
 
     private def shouldBreakInOptionalBraces(
         ft: FormatToken
