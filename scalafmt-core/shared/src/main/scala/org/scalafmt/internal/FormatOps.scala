@@ -1881,133 +1881,146 @@ class FormatOps(
     }
   }
 
-  def getOptionalBracesSplits(ft: FormatToken, ob: OptionalBraces)(implicit
-      style: ScalafmtConfig
-  ): Seq[Split] = {
-    val expire = lastToken(ob.tree)
-    def getIndent(len: Int) = Indent(Num(len), expire, ExpiresOn.After)
-    val nlPolicy = decideNewlinesOnlyAfterClose(Split(Newline, 0))(expire)
-    if (ft.hasBlankLine) {
-      val indent = getIndent(style.indent.getSignificant)
-      Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
-    } else if (ob.forceNL) {
-      val indent = getIndent(style.indent.getSignificant)
-      Seq(Split(Newline, 0).withIndent(indent).withPolicy(nlPolicy))
-    } else {
-      val indentLen =
-        if (ob.mainIndent) style.indent.main else style.indent.getSignificant
-      Seq(
-        Split(Space, 0).withSingleLine(expire),
-        Split(Newline, 1).withIndent(getIndent(indentLen)).withPolicy(nlPolicy)
-      )
-    }
-  }
+  object OptionalBraces {
 
-  // Optional braces in templates after `:|with`
-  object OptionalBracesTemplate {
-    def unapply(meta: FormatToken.Meta): Option[OptionalBraces] =
-      meta.leftOwner match {
-        case t: Template if templateCurly(t).contains(tokens(meta.idx).left) =>
-          Some(new OptionalBraces(t, forceNL = true))
-        case _ => None
-      }
-  }
-
-  // Optional braces after any token that can start indentation:
-  // )  ?=>  <-  do  else  finally  for
-  // if  return  then  throw  try  while  yield
-  object OptionalBracesBlock {
-    def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] = {
-      val nft = nextNonComment(ftMeta)
+    // Optional braces in templates after `:|with`
+    // Optional braces after any token that can start indentation:
+    // )  =  =>  ?=>  <-  catch  do  else  finally  for
+    // if  match  return  then  throw  try  while  yield
+    def unapply(
+        ftMeta: FormatToken.Meta
+    )(implicit style: ScalafmtConfig): Option[Seq[Split]] = {
+      val ft = tokens(ftMeta.idx)
+      val nft = nextNonComment(ft)
       val rightOwner = nft.meta.rightOwner
       if (nft.right.is[T.LeftBrace] || rightOwner.is[Term.Block]) None
       else {
-        val leftOwner = ftMeta.leftOwner
-        findTreeWithParentSimple(rightOwner)(_ eq leftOwner) match {
-          case Some(t: Term.Block) if t.tokens.headOption.contains(nft.right) =>
-            Some(new OptionalBraces(t, mainIndent = t.stats.length == 1))
-          case _ => None
+        ft.left match {
+          case _: T.Colon | _: T.KwWith => unapplyTemplate(ft, nft)
+          case _: T.RightArrow => unapplyRightArrow(ft, nft)
+          case _: T.KwFor => unapplyFor(ft, nft)
+          case _: T.Equals => unapplyEquals(ft, nft)
+          case _: T.KwCatch => unapplyCatch(ft, nft)
+          case _: T.KwMatch => unapplyMatch(ft, nft)
+          case _ => unapplyBlock(ft, nft)
         }
       }
     }
-  }
 
-  // Optional braces after any token that can start indentation:
-  // =>
-  object OptionalBracesRightArrow {
-    def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] =
-      if (ftMeta.leftOwner.is[Case]) None // already takes care of indents etc.
-      else OptionalBracesBlock.unapply(ftMeta)
-  }
-
-  // Optional braces after any token that can start indentation:
-  // for
-  object OptionalBracesFor {
-    def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] = {
-      ftMeta.leftOwner match {
-        case t: Term.For => getOptionalBraces(ftMeta, t.enums)
-        case t: Term.ForYield => getOptionalBraces(ftMeta, t.enums)
-        case _ => OptionalBracesBlock.unapply(ftMeta)
+    private def getSplits(
+        ft: FormatToken,
+        tree: Tree,
+        forceNL: Boolean = false,
+        useMain: Boolean = false
+    )(implicit style: ScalafmtConfig): Seq[Split] = {
+      val expire = lastToken(tree)
+      def getIndent(len: Int) = Indent(Num(len), expire, ExpiresOn.After)
+      val nlPolicy = decideNewlinesOnlyAfterClose(Split(Newline, 0))(expire)
+      if (ft.hasBlankLine) {
+        val indent = getIndent(style.indent.getSignificant)
+        Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
+      } else if (forceNL) {
+        val indent = getIndent(style.indent.getSignificant)
+        Seq(Split(Newline, 0).withIndent(indent).withPolicy(nlPolicy))
+      } else {
+        val indentLen =
+          if (useMain) style.indent.main else style.indent.getSignificant
+        Seq(
+          Split(Space, 0).withSingleLine(expire),
+          Split(Newline, 1)
+            .withIndent(getIndent(indentLen))
+            .withPolicy(nlPolicy)
+        )
       }
     }
-  }
 
-  // Optional braces after any token that can start indentation:
-  // =
-  object OptionalBracesEquals {
-    def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] =
-      ftMeta.leftOwner match {
-        case t: Ctor.Secondary => getOptionalBraces(ftMeta, t.init, t.stats)
-        case _ => OptionalBracesBlock.unapply(ftMeta)
-      }
-  }
-
-  // Optional braces after any token that can start indentation:
-  // catch
-  object OptionalBracesCatch {
-    def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] =
-      ftMeta.leftOwner match {
-        case t: Term.Try => getOptionalBraces(ftMeta, t.catchp)
+    def unapplyTemplate(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] = {
+      ft.meta.leftOwner match {
+        case t: Template if templateCurly(t).contains(ft.left) =>
+          Some(getSplits(ft, t, forceNL = true))
         case _ => None
       }
-  }
+    }
 
-  // Optional braces after any token that can start indentation:
-  // match
-  object OptionalBracesMatch {
-    def unapply(ftMeta: FormatToken.Meta): Option[OptionalBraces] = {
-      def result(tree: Tree, cases: Seq[Tree]): Option[OptionalBraces] = {
-        val ok = cases.headOption.exists {
-          _.tokens.head eq nextNonComment(ftMeta).right
-        }
-        if (ok) Some(new OptionalBraces(tree, true)) else None
+    def unapplyBlock(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] = {
+      val leftOwner = ft.meta.leftOwner
+      findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
+        case Some(t: Term.Block) if t.tokens.headOption.contains(nft.right) =>
+          Some(getSplits(ft, t, useMain = t.stats.length == 1))
+        case _ => None
       }
-      ftMeta.leftOwner match {
+    }
+
+    def unapplyRightArrow(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] =
+      if (ft.meta.leftOwner.is[Case]) None // already takes care of indents etc.
+      else unapplyBlock(ft, nft)
+
+    def unapplyFor(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] =
+      ft.meta.leftOwner match {
+        case t: Term.For => getOptionalBraces(ft, nft, t.enums)
+        case t: Term.ForYield => getOptionalBraces(ft, nft, t.enums)
+        case _ => unapplyBlock(ft, nft)
+      }
+
+    def unapplyEquals(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] =
+      ft.meta.leftOwner match {
+        case t: Ctor.Secondary => getOptionalBraces(ft, nft, t.init, t.stats)
+        case _ => unapplyBlock(ft, nft)
+      }
+
+    def unapplyCatch(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] =
+      ft.meta.leftOwner match {
+        case t: Term.Try => getOptionalBraces(ft, nft, t.catchp)
+        case _ => None
+      }
+
+    def unapplyMatch(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] = {
+      def result(tree: Tree, cases: Seq[Tree]): Option[Seq[Split]] = {
+        val ok = cases.headOption.exists(_.tokens.head eq nft.right)
+        if (ok) Some(getSplits(ft, tree, true)) else None
+      }
+      ft.meta.leftOwner match {
         case t: Term.Match => result(t, t.cases)
         case t: Type.Match => result(t, t.cases)
         case _ => None
       }
     }
+
+    private def getOptionalBraces(
+        ft: FormatToken,
+        nft: FormatToken,
+        head: => Tree,
+        tail: Seq[Tree]
+    )(implicit style: ScalafmtConfig): Option[Seq[Split]] =
+      if (head.tokens.headOption.contains(nft.right))
+        tail.lastOption match {
+          case None => Some(getSplits(ft, head, useMain = true))
+          case Some(res) => Some(getSplits(ft, res))
+        }
+      else None
+
+    private def getOptionalBraces(
+        ft: FormatToken,
+        nft: FormatToken,
+        trees: Seq[Tree]
+    )(implicit style: ScalafmtConfig): Option[Seq[Split]] =
+      if (trees.isEmpty) None
+      else getOptionalBraces(ft, nft, trees.head, trees.tail)
   }
-
-  private def getOptionalBraces(
-      ftMeta: FormatToken.Meta,
-      head: => Tree,
-      tail: Seq[Tree]
-  ): Option[OptionalBraces] =
-    if (head.tokens.headOption.contains(nextNonComment(ftMeta).right))
-      tail.lastOption match {
-        case None => Some(new OptionalBraces(head, mainIndent = true))
-        case Some(res) => Some(new OptionalBraces(res))
-      }
-    else None
-
-  private def getOptionalBraces(
-      ftMeta: FormatToken.Meta,
-      trees: Seq[Tree]
-  ): Option[OptionalBraces] =
-    if (trees.isEmpty) None
-    else getOptionalBraces(ftMeta, trees.head, trees.tail)
 
 }
 
@@ -2022,11 +2035,5 @@ object FormatOps {
     def apply(tree: Term.Match, kw: Token.KwMatch): SelectLike =
       new SelectLike(tree, tree.expr, kw)
   }
-
-  class OptionalBraces(
-      val tree: Tree,
-      val forceNL: Boolean = false,
-      val mainIndent: Boolean = false
-  )
 
 }
