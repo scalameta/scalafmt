@@ -500,13 +500,17 @@ object a:
 object a:
    val a =
      if a then
-        if aa then aaa
+        if aa then
+           aaa
         // c1
-        if aa then aaa
+        if aa then
+           aaa
      else
-        if aa then aaa
+        if aa then
+           aaa
         // c1
-        if aa then aaa
+        if aa then
+           aaa
 <<< nested if-else chained
 object a:
   val a =
@@ -522,14 +526,15 @@ object a:
 >>>
 object a:
    val a =
-     if a then if aa then if bb then if cc then ccc
-     else if bb then if cc then ccc
-     else ddd
-     else eee
+     if a then
+        if aa then
+           if bb then if cc then ccc
+        else if bb then
+           if cc then ccc
+           else ddd
+        else eee
      else if aa then aaa
      else bbb
-=====================
-Formatter changed AST
 <<< nested if-else single
 object a:
   val a =
@@ -544,9 +549,10 @@ object a:
 >>>
 object a:
    val a =
-     if a then if aa then aaa
+     if a then
+        if aa then
+           aaa
      // c1
-     else if aa then aaa
+     else if aa then
+        aaa
 // c1
-=====================
-Formatter changed AST

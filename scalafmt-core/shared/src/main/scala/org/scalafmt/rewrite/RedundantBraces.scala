@@ -327,15 +327,8 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
           // if (a) if (b) c else d
           //   which would be equivalent to
           // if (a) { if (b) c else d }
-          def insideIfThen = parentIf.thenp eq b
-          @tailrec
-          def existsIfWithoutElse(t: Term.If): Boolean =
-            t.elsep match {
-              case x: Term.If => existsIfWithoutElse(x)
-              case _ => ifWithoutElse(t)
-            }
-          insideIfThen && !ifWithoutElse(parentIf) &&
-          existsIfWithoutElse(stat.asInstanceOf[Term.If])
+          (parentIf.thenp eq b) && !ifWithoutElse(parentIf) &&
+            existsIfWithoutElse(stat.asInstanceOf[Term.If])
 
         case p: Term.ApplyInfix =>
           stat match {

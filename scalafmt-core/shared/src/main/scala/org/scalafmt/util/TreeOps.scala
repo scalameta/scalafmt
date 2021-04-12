@@ -753,6 +753,17 @@ object TreeOps {
   @inline
   def ifWithoutElse(t: Term.If) = t.elsep.is[Lit.Unit]
 
+  def existsIfWithoutElse(t: Term.If): Boolean =
+    existsIfWithoutElse(t.thenp) || (t.elsep match {
+      case x: Term.If => existsIfWithoutElse(x)
+      case _ => ifWithoutElse(t)
+    })
+
+  def existsIfWithoutElse(tree: Tree): Boolean = tree match {
+    case t: Term.If => existsIfWithoutElse(t)
+    case _ => false
+  }
+
   def cannotStartSelectChainOnExpr(expr: Term): Boolean =
     expr match {
       case _: Term.Placeholder => true
