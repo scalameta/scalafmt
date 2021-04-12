@@ -498,16 +498,22 @@ object a:
     if a then
       if aa then
         if bb then if cc then ccc
-    else
+      else
         if bb then
           if cc then ccc
           else ddd
         else eee
     else if aa then aaa else bbb
 >>>
-test does not parse
-    else if aa then aaa else bbb
-    ^
+object a:
+   val a =
+     if a then
+        if aa then
+           if bb then if cc then ccc
+        else if bb then if cc then ccc else ddd
+        else eee
+     else if aa then aaa
+     else bbb
 <<< nested if-else single
 object a:
   val a =
@@ -522,9 +528,8 @@ object a:
 >>>
 object a:
    val a =
-     if a then if aa then aaa
+     if a then
+        if aa then aaa
      // c1
      else if aa then aaa
 // c1
-=====================
-Formatter changed AST

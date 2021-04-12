@@ -125,15 +125,19 @@ given intOrd: Ord[Int] with Eq[Int] with // c1
 given intOrd: Ord[Int] with Eq[Int] with // c1
    /* c2 */
    def compare(x: Int, y: Int) =
-     if x < y then -1
-     else if x > y then +1
+     if x < y then
+        -1
+     else if x > y then
+        +1
      else
-       0
+        0
    def compare2(x: Int, y: Int) =
-     if x < y then -1
-     else if x > y then +1
+     if x < y then
+        -1
+     else if x > y then
+        +1
      else
-       0
+        0
 <<< given with and a blank
 given intOrd: Ord[Int] with Eq[Int] with
 
@@ -143,10 +147,12 @@ given intOrd: Ord[Int] with Eq[Int] with
 given intOrd: Ord[Int] with Eq[Int] with
 
    def compare(x: Int, y: Int) =
-     if x < y then -1
-     else if x > y then +1
+     if x < y then
+        -1
+     else if x > y then
+        +1
      else
-       0
+        0
 <<< derived trait, val-end, if-end
 trait A extends B:
   val cond1 =
@@ -520,13 +526,17 @@ object a:
 object a:
    val a =
      if a then
-        if aa then aaa
+        if aa then
+           aaa
         // c1
-        if aa then aaa
+        if aa then
+           aaa
      else
-        if aa then aaa
+        if aa then
+           aaa
         // c1
-        if aa then aaa
+        if aa then
+           aaa
 <<< nested if-else chained
 object a:
   val a =
@@ -542,16 +552,22 @@ object a:
 >>>
 object a:
    val a =
-     if a then if aa then if bb then if cc then ccc
-     else if bb then if cc then ccc
+     if a then
+        if aa then
+           if bb then
+              if cc then
+                 ccc
+        else if bb then
+           if cc then
+              ccc
+           else
+              ddd
+        else
+           eee
+     else if aa then
+        aaa
      else
-       ddd
-     else
-       eee
-     else if aa then aaa
-     else
-=====================
-Formatter changed AST
+        bbb
 <<< nested if-else single
 object a:
   val a =
@@ -566,9 +582,10 @@ object a:
 >>>
 object a:
    val a =
-     if a then if aa then aaa
+     if a then
+        if aa then
+           aaa
      // c1
-     else if aa then aaa
+     else if aa then
+        aaa
 // c1
-=====================
-Formatter changed AST

@@ -1902,6 +1902,8 @@ class FormatOps(
           case _: T.Equals => unapplyEquals(ft, nft)
           case _: T.KwCatch => unapplyCatch(ft, nft)
           case _: T.KwMatch => unapplyMatch(ft, nft)
+          case _: T.KwThen => unapplyThen(ft, nft)
+          case _: T.KwElse => unapplyElse(ft, nft)
           case _ => unapplyBlock(ft, nft)
         }
       }
@@ -2001,6 +2003,45 @@ class FormatOps(
         case _ => None
       }
     }
+
+    def unapplyThen(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] =
+      ft.meta.leftOwner match {
+        case t: Term.If =>
+          def nestedIf(x: Term.If) = {
+            val forceNL = shouldBreakInOptionalBraces(nft) ||
+              !ifWithoutElse(t) && existsIfWithoutElse(x)
+            Some(getSplits(ft, x, forceNL))
+          }
+          t.thenp match {
+            case x: Term.If => nestedIf(x)
+            case Term.Block(List(x: Term.If)) => nestedIf(x)
+            case x =>
+              val forceNL =
+                isTreeMultiStatBlock(x) || shouldBreakInOptionalBraces(nft)
+              Some(getSplits(ft, x, forceNL))
+          }
+        case _ => None
+      }
+
+    def unapplyElse(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] =
+      ft.meta.leftOwner match {
+        case t: Term.If =>
+          t.elsep match {
+            case _: Term.If => None
+            case x =>
+              if (isTreeMultiStatBlock(x))
+                Some(getSplits(ft, x, true))
+              else if (isTreePrecededBy[T.KwThen](t.thenp)) {
+                val forceNL = shouldBreakInOptionalBraces(nft)
+                Some(getSplits(ft, x, forceNL))
+              } else None
+          }
+        case _ => None
+      }
 
     private def getOptionalBraces(
         ft: FormatToken,
