@@ -108,6 +108,7 @@ object TreeOps {
 
   def getStatementStarts(
       tree: Tree,
+      replacedWith: Token => Token,
       soft: SoftKeywordClasses
   ): Map[TokenHash, Tree] = {
     val ret = Map.newBuilder[TokenHash, Tree]
@@ -173,6 +174,15 @@ object TreeOps {
         case t: Ctor.Secondary =>
           addDefn[KwDef](t.mods, t)
           addAll(t.stats)
+        // special handling for rewritten blocks
+        case t @ Term.Block(List(_)) // single-stat block
+            if t.tokens.headOption // see if opening brace was removed
+              .exists(x => x.is[Token.LeftBrace] && replacedWith(x).ne(x)) =>
+        // special handling for rewritten apply(x => { b }) to a { x => b }
+        case t @ Term.Apply(_, List(f: Term.Function))
+            if f.tokens.lastOption // see if closing brace was moved
+              .exists(x => x.is[Token.RightBrace] && replacedWith(x).ne(x)) =>
+          addAll(Seq(f))
         case t => // Nothing
           addAll(extractStatementsIfAny(t))
       }
@@ -202,6 +212,10 @@ object TreeOps {
         stack = stack.tail
       case _ =>
     }
+    if (stack.nonEmpty)
+      throw new IllegalArgumentException(
+        stack.map(x => s"[${x.end}]$x").mkString("Orphan parens (", ", ", ")")
+      )
     val result = ret.result()
     result
   }
