@@ -1899,6 +1899,7 @@ class FormatOps(
           case _: T.Colon | _: T.KwWith => unapplyTemplate(ft, nft)
           case _: T.RightArrow => unapplyRightArrow(ft, nft)
           case _: T.KwFor => unapplyFor(ft, nft)
+          case _: T.KwDo => unapplyDo(ft, nft)
           case _: T.Equals => unapplyEquals(ft, nft)
           case _: T.KwCatch => unapplyCatch(ft, nft)
           case _: T.KwMatch => unapplyMatch(ft, nft)
@@ -1972,6 +1973,21 @@ class FormatOps(
         case t: Term.ForYield => getOptionalBraces(ft, nft, t.enums, false)
         case _ => unapplyBlock(ft, nft)
       }
+
+    def unapplyDo(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] = {
+      (ft.meta.leftOwner match {
+        case t: Term.Do => Some(t.body -> true)
+        case t: Term.While => Some(t.body -> false)
+        case t: Term.For => Some(t.body -> false)
+        case _ => None
+      }).map { case (body, allowMain) =>
+        val multiStat = isTreeMultiStatBlock(body)
+        val forceNL = multiStat || shouldBreakInOptionalBraces(nft)
+        getSplits(ft, body, forceNL, allowMain && !multiStat)
+      }
+    }
 
     def unapplyEquals(ft: FormatToken, nft: FormatToken)(implicit
         style: ScalafmtConfig

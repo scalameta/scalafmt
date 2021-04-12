@@ -454,7 +454,8 @@ object a:
    def foo =
      for
         x <- y
-     do bar
+     do
+        bar
 <<< for-yield
 object a:
   def foo =
@@ -553,8 +554,11 @@ object a:
       if (aa) then
          foo
          bar
-   while (foo) do foo
-   while (foo) do while (foo) do foo
+   while (foo) do
+      foo
+   while (foo) do
+      while (foo) do
+         foo
    while (foo) do
       foo
       bar
