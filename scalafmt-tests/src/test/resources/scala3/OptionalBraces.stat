@@ -499,39 +499,33 @@ object a:
   while (foo) do
     foo
     bar
-    while (foo) do
-      foo
-      bar
+  while (foo) do
+    foo
+    bar
 >>>
 object a:
    if (a) then foo
    if (a) then if (aa) then foo
-   if (a)
-     then
-        foo
-        bar
-   if (a)
-     then
-        foo
-        bar
-        if (aa)
-          then
-             foo
-             bar
+   if (a) then
+      foo
+      bar
+   if (a) then
+      foo
+      bar
+      if (aa) then
+         foo
+         bar
    while (foo) do foo
    while (foo) do while (foo) do foo
-   while (foo)
-     do
-        foo
-        bar
-   while (foo)
-     do
-        foo
-        bar
-        while (foo)
-          do
-             foo
-             bar
+   while (foo) do
+      foo
+      bar
+   while (foo) do
+      foo
+      bar
+   while (foo) do
+      foo
+      bar
 <<< nested if-else multiple
 object a:
   val a =
