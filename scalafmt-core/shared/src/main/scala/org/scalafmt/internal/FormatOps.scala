@@ -1901,7 +1901,9 @@ class FormatOps(
           case _: T.KwFor => unapplyFor(ft, nft)
           case _: T.KwDo => unapplyDo(ft, nft)
           case _: T.Equals => unapplyEquals(ft, nft)
+          case _: T.KwTry => unapplyTry(ft, nft)
           case _: T.KwCatch => unapplyCatch(ft, nft)
+          case _: T.KwFinally => unapplyFinally(ft, nft)
           case _: T.KwMatch => unapplyMatch(ft, nft)
           case _: T.KwThen => unapplyThen(ft, nft)
           case _: T.KwElse => unapplyElse(ft, nft)
@@ -1998,12 +2000,55 @@ class FormatOps(
         case _ => unapplyBlock(ft, nft)
       }
 
+    def unapplyTry(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] =
+      (ft.meta.leftOwner match {
+        case t: Term.Try =>
+          val usesOB = isTreeMultiStatBlock(t.expr) ||
+            isCatchUsingOptionalBraces(t) ||
+            t.finallyp.exists(isTreeUsingOptionalBraces)
+          Some(t.expr -> usesOB)
+        case t: Term.TryWithHandler =>
+          val usesOB = isTreeMultiStatBlock(t.expr) ||
+            t.finallyp.exists(isTreeUsingOptionalBraces)
+          Some(t.expr -> usesOB)
+        case _ => None
+      }).map { case (body, usesOptionalBraces) =>
+        val forceNL = shouldBreakInOptionalBraces(nft)
+        getSplits(ft, body, forceNL, !usesOptionalBraces)
+      }
+
+    private def isCatchUsingOptionalBraces(tree: Term.Try): Boolean =
+      tree.catchp.headOption.exists(x => !isTreePrecededBy[T.LeftBrace](x))
+
     def unapplyCatch(ft: FormatToken, nft: FormatToken)(implicit
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
       ft.meta.leftOwner match {
         case t: Term.Try => getOptionalBraces(ft, nft, t.catchp, false)
         case _ => None
+      }
+
+    def unapplyFinally(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] =
+      (ft.meta.leftOwner match {
+        case t: Term.Try =>
+          t.finallyp.map { x =>
+            x -> (isTreeMultiStatBlock(x) ||
+              isCatchUsingOptionalBraces(t) ||
+              isTreeUsingOptionalBraces(t.expr))
+          }
+        case t: Term.TryWithHandler =>
+          t.finallyp.map { x =>
+            x -> (isTreeMultiStatBlock(x) ||
+              isTreeUsingOptionalBraces(t.expr))
+          }
+        case _ => None
+      }).map { case (body, usesOptionalBraces) =>
+        val forceNL = shouldBreakInOptionalBraces(nft)
+        getSplits(ft, body, forceNL, !usesOptionalBraces)
       }
 
     def unapplyMatch(ft: FormatToken, nft: FormatToken)(implicit
