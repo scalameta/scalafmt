@@ -479,12 +479,12 @@ class Router(formatOps: FormatOps) {
           else CtrlBodySplits.folded(ft, body)(nlSplit(ft))
         }
       // New statement
-      case tok @ FormatToken(T.Semicolon(), right, _)
-          if newlines == 0 && startsStatement(right).isDefined =>
+      case tok @ FormatToken(_: T.Semicolon, _, StartsStatementRight(stmt))
+          if newlines == 0 =>
         val spaceSplit =
           if (style.newlines.source eq Newlines.unfold) Split.ignored
           else {
-            val expire = startsStatement(right).get.tokens.last
+            val expire = stmt.tokens.last
             Split(Space, 0).withSingleLine(expire)
           }
         Seq(
@@ -504,8 +504,7 @@ class Router(formatOps: FormatOps) {
           Split(Newline, 1).withIndent(style.indent.main, expireToken, After)
         )
 
-      case tok @ FormatToken(left, right, _)
-          if startsStatement(right).isDefined =>
+      case tok @ FormatToken(left, right, StartsStatementRight(_)) =>
         val expire = rightOwner.tokens
           .find(_.is[T.Equals])
           .map { equalsToken =>

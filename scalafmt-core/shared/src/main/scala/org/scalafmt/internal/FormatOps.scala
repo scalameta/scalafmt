@@ -80,7 +80,7 @@ class FormatOps(
   }
 
   private[internal] val soft = new SoftKeywordClasses(dialect)
-  private val statementStarts = getStatementStarts(tree, soft)
+  private val statementStarts = getStatementStarts(tree, tokens(_).left, soft)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   private val matchingParentheses: Map[TokenHash, Token] =
     getMatchingParentheses(tree.tokens)
@@ -255,6 +255,7 @@ class FormatOps(
   @inline
   final def startsStatement(token: Token): Option[Tree] =
     statementStarts.get(hash(token))
+  val StartsStatementRight = new ExtractFromMeta[Tree](startsStatement)
 
   def parensTuple(token: Token): TokenRanges =
     matchingOpt(token).fold(TokenRanges.empty) { other =>
