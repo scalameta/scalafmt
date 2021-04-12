@@ -388,8 +388,8 @@ object a:
    def foo =
      try foo
      catch
-       case A =>
-         foo
+        case A =>
+          foo
 <<< catch multiple
 object a:
   def foo =
@@ -447,7 +447,7 @@ object a:
         bar
    def foo =
      for
-       x <- y
+        x <- y
      do bar
 <<< for-yield
 object a:
@@ -476,7 +476,7 @@ object a:
         bar
    def foo =
      for
-       x <- y
+        x <- y
      yield foo
 <<< complex "block" expression
 def foo =
