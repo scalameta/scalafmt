@@ -518,6 +518,70 @@ object a:
       a + a
       a * a
    func(a)
+<<< if, with parens, without braces
+object a:
+  val a =
+    if (a)
+      if (aa)
+        aaa
+      // c1
+    else
+      b
+  if (a)
+    foo
+  if (a)
+    if (aa)
+      foo
+  if (a)
+    if (aa)
+      if (aaa) then
+        foo
+  if (a)
+    foo
+  else if (a)
+    foo
+    bar
+  if (a)
+    foo
+    bar
+  if (a)
+    foo
+    bar
+    if (aa)
+      foo
+      bar
+>>>
+object a:
+   val a =
+     if (a)
+       if (aa)
+         aaa
+     // c1
+     else
+       b
+   if (a)
+     foo
+   if (a)
+     if (aa)
+       foo
+   if (a)
+     if (aa)
+       if (aaa) then
+          foo
+   if (a)
+     foo
+   else if (a)
+      foo
+      bar
+   if (a)
+      foo
+      bar
+   if (a)
+      foo
+      bar
+      if (aa)
+         foo
+         bar
 <<< if and while, with parens
 object a:
   if (a) then
@@ -545,9 +609,9 @@ object a:
   while (foo) do
     foo
     bar
-  while (foo) do
-    foo
-    bar
+    while (foo) do
+      foo
+      bar
 >>>
 object a:
    if (a) then
@@ -575,9 +639,9 @@ object a:
    while (foo) do
       foo
       bar
-   while (foo) do
-      foo
-      bar
+      while (foo) do
+         foo
+         bar
 <<< nested if-else multiple
 object a:
   val a =
