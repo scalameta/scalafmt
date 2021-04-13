@@ -399,8 +399,7 @@ class FormatOps(
   }
 
   def templateCurly(template: Template): Option[Token] =
-    getStartOfTemplateBody(template)
-      .map(x => prevNonComment(tokens(x, -1)).left)
+    getStartOfTemplateBody(template).map(x => nonCommentBefore(x).left)
 
   def templateDerivesOrCurly(template: Template): Option[Token] = {
     val endOfInits = template.inits.lastOption.flatMap(_.tokens.lastOption)
@@ -507,7 +506,7 @@ class FormatOps(
     private val isFirstOp = beforeLhs || (leftInfix.op eq app.op)
 
     private val assignBodyExpire = {
-      val prevFt = prevNonComment(tokens(fullInfix.all.tokens.head, -1))
+      val prevFt = nonCommentBefore(fullInfix.all)
       if (!prevFt.left.is[T.Equals]) None
       else Some(prevFt.meta.leftOwner.tokens.last)
     }
@@ -1304,7 +1303,7 @@ class FormatOps(
   // look for arrow before body, if any, else after params
   def getFuncArrow(term: Term.FunctionTerm): Option[FormatToken] =
     term.body.tokens.headOption
-      .map(x => prevNonComment(tokens(x, -1)))
+      .map(nonCommentBefore)
       .orElse {
         val lastParam = term.params.lastOption
         lastParam.flatMap(_.tokens.lastOption).map { x =>
@@ -1325,7 +1324,7 @@ class FormatOps(
       val maybeArrow = tokens(nextNonComment(tokens(endOfPat)), 1)
       if (maybeArrow.left.is[T.RightArrow]) maybeArrow
       else tokens(nextNonComment(maybeArrow), 1)
-    }(x => prevNonComment(tokens(x, -1)))
+    }(nonCommentBefore)
 
   // look for arrow before body, if any, else after cond/pat
   def getCaseArrow(term: TypeCase): FormatToken =
@@ -2020,7 +2019,9 @@ class FormatOps(
       }
 
     private def isCatchUsingOptionalBraces(tree: Term.Try): Boolean =
-      tree.catchp.headOption.exists(x => !isTreePrecededBy[T.LeftBrace](x))
+      tree.catchp.headOption.exists(x =>
+        !nonCommentBefore(x).left.is[T.LeftBrace]
+      )
 
     def unapplyCatch(ft: FormatToken, nft: FormatToken)(implicit
         style: ScalafmtConfig
@@ -2093,13 +2094,12 @@ class FormatOps(
         case t: Term.If =>
           t.elsep match {
             case _: Term.If => None
-            case x =>
-              if (isTreeMultiStatBlock(x))
-                Some(getSplits(ft, x, true))
-              else if (isTreePrecededBy[T.KwThen](t.thenp)) {
-                val forceNL = shouldBreakInOptionalBraces(nft)
-                Some(getSplits(ft, x, forceNL))
-              } else None
+            case x if isTreeMultiStatBlock(x) =>
+              Some(getSplits(ft, x, true))
+            case x if nonCommentBefore(t.thenp).left.is[T.KwThen] =>
+              val forceNL = shouldBreakInOptionalBraces(nft)
+              Some(getSplits(ft, x, forceNL))
+            case _ => None
           }
         case _ => None
       }
@@ -2138,13 +2138,17 @@ class FormatOps(
       }
 
     private def isTreeUsingOptionalBraces(tree: Tree): Boolean =
-      isTreeMultiStatBlock(tree) && !isTreePrecededBy[T.LeftBrace](tree)
+      isTreeMultiStatBlock(tree) && !nonCommentBefore(tree).left.is[T.LeftBrace]
 
   }
 
-  private def isTreePrecededBy[A](tree: Tree)(implicit
-      cls: Classifier[Token, A]
-  ): Boolean = prevNonComment(tokens(tree.tokens.head, -1)).left.is[A]
+  @inline
+  private def nonCommentBefore(token: T): FormatToken =
+    prevNonComment(tokens(token, -1))
+
+  @inline
+  private def nonCommentBefore(tree: Tree): FormatToken =
+    nonCommentBefore(tree.tokens.head)
 
 }
 
