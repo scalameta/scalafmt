@@ -535,11 +535,10 @@ object a:
 >>>
 object a:
    val a =
-     if (a) if (aa) aaa
+     if (a)
+       if (aa) aaa
      // c1
      else b
-=====================
-Formatter changed AST
    if (a) foo
    if (a) if (aa) foo
    if (a) if (aa) if (aaa) then foo

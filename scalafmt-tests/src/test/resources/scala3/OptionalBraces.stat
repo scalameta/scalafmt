@@ -555,8 +555,7 @@ object a:
    if (a)
      if (aa)
        if (aaa) then foo
-   if (a)
-     foo
+   if (a) foo
    else if (a)
       foo
       bar

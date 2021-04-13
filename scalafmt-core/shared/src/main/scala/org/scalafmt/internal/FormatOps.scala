@@ -1897,6 +1897,7 @@ class FormatOps(
         ft.left match {
           case _: T.Colon | _: T.KwWith => unapplyTemplate(ft, nft)
           case _: T.RightArrow => unapplyRightArrow(ft, nft)
+          case _: T.RightParen => unapplyRightParen(ft, nft)
           case _: T.KwFor => unapplyFor(ft, nft)
           case _: T.KwDo => unapplyDo(ft, nft)
           case _: T.Equals => unapplyEquals(ft, nft)
@@ -1954,6 +1955,22 @@ class FormatOps(
         case _ => None
       }
     }
+
+    def unapplyRightParen(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] =
+      ft.meta.leftOwner match {
+        case Defn.ExtensionGroup(_, _, t: Term.Block) if isBlockStart(t, nft) =>
+          Some(getSplitsMaybeBlock(ft, nft, t, true))
+        case t: Term.If if (nft.right match {
+              case _: T.KwThen | _: T.LeftBrace => false
+              case _ =>
+                isTreeMultiStatBlock(t.thenp) || isElsePWithOptionalBraces(t) ||
+                  !ifWithoutElse(t) && existsBlockIfWithoutElse(t.thenp)
+            }) =>
+          Some(getSplitsForIf(ft, nft, t, false))
+        case _ => None
+      }
 
     def unapplyRightArrow(ft: FormatToken, nft: FormatToken)(implicit
         style: ScalafmtConfig
@@ -2062,20 +2079,7 @@ class FormatOps(
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
       ft.meta.leftOwner match {
-        case t: Term.If =>
-          def nestedIf(x: Term.If) = {
-            val forceNL = shouldBreakInOptionalBraces(nft) ||
-              !ifWithoutElse(t) && existsIfWithoutElse(x)
-            Some(getSplits(ft, x, forceNL))
-          }
-          t.thenp match {
-            case x: Term.If => nestedIf(x)
-            case Term.Block(List(x: Term.If)) => nestedIf(x)
-            case x =>
-              val forceNL =
-                isTreeMultiStatBlock(x) || shouldBreakInOptionalBraces(nft)
-              Some(getSplits(ft, x, forceNL))
-          }
+        case t: Term.If => Some(getSplitsForIf(ft, nft, t, true))
         case _ => None
       }
 
@@ -2088,7 +2092,7 @@ class FormatOps(
             case _: Term.If => None
             case x if isTreeMultiStatBlock(x) =>
               Some(getSplits(ft, x, true))
-            case x if nonCommentBefore(t.thenp).left.is[T.KwThen] =>
+            case x if isThenPWithOptionalBraces(t) =>
               val forceNL = shouldBreakInOptionalBraces(nft)
               Some(getSplits(ft, x, forceNL))
             case _ => None
@@ -2131,6 +2135,45 @@ class FormatOps(
       if (trees.isEmpty) None
       else getSplitsForStats(ft, nft, trees.head, trees.tail, allowMain)
 
+    private def getSplitsForIf(
+        ft: FormatToken,
+        nft: FormatToken,
+        t: Term.If,
+        usedThen: Boolean
+    )(implicit style: ScalafmtConfig): Seq[Split] = {
+      val allowMain = !(usedThen ||
+        isThenPWithOptionalBraces(t) || isElsePWithOptionalBraces(t))
+      def nestedIf(x: Term.If) = {
+        val forceNL = shouldBreakInOptionalBraces(nft) ||
+          !ifWithoutElse(t) && existsIfWithoutElse(x)
+        getSplits(ft, x, forceNL, allowMain)
+      }
+      t.thenp match {
+        case x: Term.If => nestedIf(x)
+        case Term.Block(List(x: Term.If)) => nestedIf(x)
+        case x => getSplitsMaybeBlock(ft, nft, x, allowMain)
+      }
+    }
+
+    private def isThenPWithOptionalBraces(tree: Term.If): Boolean =
+      nonCommentBefore(tree.thenp).left match {
+        case _: T.KwThen => true
+        case _: T.LeftBrace => false
+        case _ => isTreeMultiStatBlock(tree.thenp)
+      }
+
+    @tailrec
+    private def isElsePWithOptionalBraces(tree: Term.If): Boolean =
+      !ifWithoutElse(tree) &&
+        !nonCommentBefore(tree.elsep).left.is[T.LeftBrace] &&
+        (tree.elsep match {
+          case t: Term.If =>
+            isThenPWithOptionalBraces(t) || isElsePWithOptionalBraces(t)
+          case Term.Block(List(t: Term.If)) =>
+            isThenPWithOptionalBraces(t) || isElsePWithOptionalBraces(t)
+          case t => isTreeMultiStatBlock(t)
+        })
+
     private def shouldBreakInOptionalBraces(
         ft: FormatToken
     )(implicit style: ScalafmtConfig): Boolean =
@@ -2155,6 +2198,29 @@ class FormatOps(
   @inline
   private def nonCommentBefore(tree: Tree): FormatToken =
     nonCommentBefore(tree.tokens.head)
+
+  def isBlockWithoutOptionalBraces(t: Term.Block): Boolean =
+    t.stats.lengthCompare(1) == 0 && (
+      t.tokens.head match {
+        case lb: T.LeftBrace => lb ne tokens(lb).left
+        case _ => false
+      }
+    )
+
+  def existsBlockIfWithoutElse(t: Term.If): Boolean =
+    existsBlockIfWithoutElse(t.thenp) || (t.elsep match {
+      case x: Term.If => existsBlockIfWithoutElse(x)
+      case t @ Term.Block(List(x: Term.If)) =>
+        isBlockWithoutOptionalBraces(t) && existsBlockIfWithoutElse(x)
+      case _ => ifWithoutElse(t)
+    })
+
+  def existsBlockIfWithoutElse(tree: Tree): Boolean = tree match {
+    case x: Term.If => existsBlockIfWithoutElse(x)
+    case t @ Term.Block(List(x: Term.If)) =>
+      isBlockWithoutOptionalBraces(t) && existsBlockIfWithoutElse(x)
+    case _ => false
+  }
 
 }
 

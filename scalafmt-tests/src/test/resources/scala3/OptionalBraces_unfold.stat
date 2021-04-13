@@ -601,7 +601,7 @@ object a:
        if (aaa) then
           foo
    if (a)
-     foo
+      foo
    else if (a)
       foo
       bar
