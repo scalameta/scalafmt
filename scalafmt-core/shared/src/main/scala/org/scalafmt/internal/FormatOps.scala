@@ -1949,13 +1949,8 @@ class FormatOps(
     ): Option[Seq[Split]] = {
       val leftOwner = ft.meta.leftOwner
       findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
-        case Some(t: Term.Block)
-            if t.stats.headOption.exists(
-              _.tokens.headOption.contains(nft.right)
-            ) =>
-          val forceNL = shouldBreakInOptionalBraces(nft)
-          val useMain = t.stats.lengthCompare(1) == 0
-          Some(getSplits(ft, t, forceNL, useMain))
+        case Some(t: Term.Block) if isBlockStart(t, nft) =>
+          Some(getSplitsMaybeBlock(ft, nft, t, true))
         case _ => None
       }
     }
@@ -1970,32 +1965,29 @@ class FormatOps(
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
       ft.meta.leftOwner match {
-        case t: Term.For => getOptionalBraces(ft, nft, t.enums, false)
-        case t: Term.ForYield => getOptionalBraces(ft, nft, t.enums, false)
+        case t: Term.For => getSplitsForStats(ft, nft, t.enums, false)
+        case t: Term.ForYield => getSplitsForStats(ft, nft, t.enums, false)
         case _ => unapplyBlock(ft, nft)
       }
 
     def unapplyDo(ft: FormatToken, nft: FormatToken)(implicit
         style: ScalafmtConfig
-    ): Option[Seq[Split]] = {
+    ): Option[Seq[Split]] =
       (ft.meta.leftOwner match {
         case t: Term.Do => Some(t.body -> true)
         case t: Term.While => Some(t.body -> false)
         case t: Term.For => Some(t.body -> false)
         case _ => None
       }).map { case (body, allowMain) =>
-        val multiStat = isTreeMultiStatBlock(body)
-        val forceNL = multiStat || shouldBreakInOptionalBraces(nft)
-        getSplits(ft, body, forceNL, allowMain && !multiStat)
+        getSplitsMaybeBlock(ft, nft, body, allowMain)
       }
-    }
 
     def unapplyEquals(ft: FormatToken, nft: FormatToken)(implicit
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
       ft.meta.leftOwner match {
         case t: Ctor.Secondary =>
-          getOptionalBraces(ft, nft, t.init, t.stats, true)
+          getSplitsForStats(ft, nft, t.init, t.stats, true)
         case _ => unapplyBlock(ft, nft)
       }
 
@@ -2027,7 +2019,7 @@ class FormatOps(
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
       ft.meta.leftOwner match {
-        case t: Term.Try => getOptionalBraces(ft, nft, t.catchp, false)
+        case t: Term.Try => getSplitsForStats(ft, nft, t.catchp, false)
         case _ => None
       }
 
@@ -2104,7 +2096,18 @@ class FormatOps(
         case _ => None
       }
 
-    private def getOptionalBraces(
+    private def getSplitsMaybeBlock(
+        ft: FormatToken,
+        nft: FormatToken,
+        tree: Tree,
+        allowMain: Boolean
+    )(implicit style: ScalafmtConfig): Seq[Split] = {
+      val multiStat = isTreeMultiStatBlock(tree)
+      val forceNL = multiStat || shouldBreakInOptionalBraces(nft)
+      getSplits(ft, tree, forceNL, allowMain && !multiStat)
+    }
+
+    private def getSplitsForStats(
         ft: FormatToken,
         nft: FormatToken,
         head: => Tree,
@@ -2119,14 +2122,14 @@ class FormatOps(
         }
       } else None
 
-    private def getOptionalBraces(
+    private def getSplitsForStats(
         ft: FormatToken,
         nft: FormatToken,
         trees: Seq[Tree],
         allowMain: Boolean
     )(implicit style: ScalafmtConfig): Option[Seq[Split]] =
       if (trees.isEmpty) None
-      else getOptionalBraces(ft, nft, trees.head, trees.tail, allowMain)
+      else getSplitsForStats(ft, nft, trees.head, trees.tail, allowMain)
 
     private def shouldBreakInOptionalBraces(
         ft: FormatToken
@@ -2139,6 +2142,9 @@ class FormatOps(
 
     private def isTreeUsingOptionalBraces(tree: Tree): Boolean =
       isTreeMultiStatBlock(tree) && !nonCommentBefore(tree).left.is[T.LeftBrace]
+
+    private def isBlockStart(tree: Term.Block, ft: FormatToken): Boolean =
+      tree.stats.headOption.exists(_.tokens.headOption.contains(ft.right))
 
   }
 
