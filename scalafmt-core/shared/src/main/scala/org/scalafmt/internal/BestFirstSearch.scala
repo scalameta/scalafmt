@@ -39,7 +39,7 @@ private class BestFirstSearch private (
     tokens.foreach { t => result += router.getSplits(t) }
     result.result()
   }
-  val noOptimizations = noOptimizationZones(tree)
+  val noOptimizations = noOptimizationZones()
   var explored = 0
   var deepestYet = State.start
   val best = mutable.Map.empty[Int, State]

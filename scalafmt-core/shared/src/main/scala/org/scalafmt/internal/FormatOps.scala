@@ -80,22 +80,20 @@ class FormatOps(
     nextNonComment,
     nextNonCommentSameLine
   }
+  private val usedTokens = tokens.head.left +: tokens.map(_.right)
 
   private[internal] val soft = new SoftKeywordClasses(dialect)
   private val statementStarts = getStatementStarts(tree, tokens(_).left, soft)
-  val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
+  val dequeueSpots = getDequeueSpots(usedTokens) ++ statementStarts.keys
   val styleMap =
     new StyleMap(tokens, initStyle, ownersMap, matchingOpt)
   // Maps token to number of non-whitespace bytes before the token's position.
   private final val nonWhitespaceOffset: Map[Token, Int] = {
     val resultB = Map.newBuilder[Token, Int]
     var curr = 0
-    tree.tokens.foreach { case t =>
+    usedTokens.foreach { t =>
       resultB += (t -> curr)
-      if (!t.is[Whitespace]) {
-        curr += (t.end - t.start)
-      }
-
+      curr += (t.end - t.start)
     }
     resultB.result()
   }
@@ -830,20 +828,20 @@ class FormatOps(
     }
   }
 
-  def noOptimizationZones(tree: Tree): Set[Token] = {
+  def noOptimizationZones(): Set[Token] = {
     val result = Set.newBuilder[Token]
     var expire: Token = null
-    tree.tokens.foreach {
-      case x if expire ne null =>
+    tokens.foreach {
+      case FormatToken(x, _, _) if expire ne null =>
         if (x eq expire) expire = null else result += x
-      case t: T.LeftParen =>
-        owners(t) match {
+      case x @ FormatToken(t: T.LeftParen, _, _) =>
+        x.meta.leftOwner match {
           // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
           case _: Term.Apply | _: Init => expire = matching(t)
           case _ =>
         }
-      case t: T.LeftBrace =>
-        owners(t) match {
+      case x @ FormatToken(t: T.LeftBrace, _, _) =>
+        x.meta.leftOwner match {
           // Type compounds can be inside defn.defs
           case _: Type.Refine => expire = matching(t)
           case _ =>
