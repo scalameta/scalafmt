@@ -55,12 +55,6 @@ class StyleMap(
             case Configured.Ok(style) =>
               if (init.rewrite.rulesChanged(style.rewrite))
                 warn("May not override rewrite settings")
-              else if (
-                init.trailingCommas != style.trailingCommas ||
-                init.runner.dialect.allowTrailingCommas !=
-                  style.runner.dialect.allowTrailingCommas
-              )
-                warn("May not override rewrite settings (trailingCommas)")
               changeStyle(style)
             case Configured.NotOk(e) =>
               // TODO(olafur) report error via callback

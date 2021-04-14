@@ -191,7 +191,8 @@ object FormatTokensRewrite {
 
   private val factories = Seq(
     RemoveScala3OptionalBraces,
-    ConvertToNewScala3Syntax
+    ConvertToNewScala3Syntax,
+    RewriteTrailingCommas
   )
 
   private[rewrite] trait Rule {
