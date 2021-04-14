@@ -11,7 +11,6 @@ import scala.meta.transversers.SimpleTraverser
 
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.TrailingCommas
 import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps, Trivia, Whitespace}
 
 case class RewriteCtx(
@@ -152,14 +151,7 @@ object Rewrite {
   }
 
   def apply(input: VirtualFile, style: ScalafmtConfig): VirtualFile = {
-    val trailingCommaRewrite =
-      if (
-        !style.runner.dialect.allowTrailingCommas ||
-        style.trailingCommas == TrailingCommas.preserve
-      ) Seq.empty
-      else Seq(RewriteTrailingCommas)
-
-    val rewrites = style.rewrite.rules ++ trailingCommaRewrite
+    val rewrites = style.rewrite.rules
     if (rewrites.isEmpty) {
       input
     } else {
