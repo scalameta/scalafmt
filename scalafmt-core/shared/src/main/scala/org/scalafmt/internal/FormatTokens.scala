@@ -6,6 +6,7 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
 
 import org.scalafmt.util.TokenOps
+import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
 
 class FormatTokens(val arr: Array[FormatToken])
@@ -18,6 +19,9 @@ class FormatTokens(val arr: Array[FormatToken])
     result += FormatTokens.thash(arr.last.right) -> arr.last.meta.idx
     result.result()
   }
+
+  private lazy val matchingParentheses: Map[TokenOps.TokenHash, Token] =
+    TreeOps.getMatchingParentheses(arr.view.map(_.right))
 
   override def length: Int = arr.length
   override def apply(idx: Int): FormatToken = arr(idx)
@@ -56,6 +60,15 @@ class FormatTokens(val arr: Array[FormatToken])
 
   @inline def prev(ft: FormatToken): FormatToken = apply(ft, -1)
   @inline def next(ft: FormatToken): FormatToken = apply(ft, 1)
+
+  @inline def matching(token: Token): Token =
+    matchingParentheses(TokenOps.hash(token))
+  @inline def matchingOpt(token: Token): Option[Token] =
+    matchingParentheses.get(TokenOps.hash(token))
+  @inline def hasMatching(token: Token): Boolean =
+    matchingParentheses.contains(TokenOps.hash(token))
+  @inline def areMatching(t1: Token)(t2: Token): Boolean =
+    matchingOpt(t1).contains(t2)
 
   @tailrec
   final def findTokenWith[A](

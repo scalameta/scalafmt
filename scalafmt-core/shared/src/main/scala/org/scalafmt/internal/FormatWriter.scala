@@ -121,7 +121,7 @@ class FormatWriter(formatOps: FormatOps) {
                     TreeOps.isSingleElement(ta.args, b)
                   case _ => false
                 } && RedundantBraces.canRewriteWithParens(b) =>
-              val beg = tokens(matching(rb))
+              val beg = tokens(tokens.matching(rb))
               lookup.update(beg.meta.idx, tok.meta.idx -> loc.leftLineId)
             case _ =>
           }

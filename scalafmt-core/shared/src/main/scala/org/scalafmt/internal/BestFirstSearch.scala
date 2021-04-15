@@ -29,6 +29,7 @@ private class BestFirstSearch private (
   import formatOps.runner.optimizer._
 
   implicit val stateOrdering = State.Ordering
+  implicit val tokens = formatOps.tokens
 
   /** Precomputed table of splits for each token.
     */
@@ -70,7 +71,7 @@ private class BestFirstSearch private (
       val left = tokens(ft, -1)
       if (!left.left.is[LeftBrace]) None
       else {
-        val close = matching(left.left)
+        val close = tokens.matching(left.left)
         // Block must span at least 3 lines to be worth recursing.
         val ok = close != stop &&
           distance(left.left, close) > style.maxColumn * 3 &&

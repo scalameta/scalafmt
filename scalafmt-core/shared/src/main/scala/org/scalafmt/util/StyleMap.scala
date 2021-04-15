@@ -24,7 +24,7 @@ class StyleMap(
     tokens: FormatTokens,
     init: ScalafmtConfig,
     owners: collection.Map[TokenHash, Tree],
-    matching: Map[TokenHash, Token]
+    matchingOpt: Token => Option[Token]
 ) {
   import TokenOps.hash
   val literalR: FilterMatcher = init.binPack.literalsRegex
@@ -61,7 +61,7 @@ class StyleMap(
           forcedBinPack += owners(hash(open))
           empty = false
           curr = setBinPack(curr, callSite = true)
-          disableBinPack += matching(hash(open))
+          matchingOpt(open).foreach(disableBinPack += _)
         case close @ RightParen() if disableBinPack(close) =>
           curr = setBinPack(curr, callSite = false)
         case _ =>
@@ -133,7 +133,7 @@ class StyleMap(
     ft.meta.leftOwner match {
       case TreeOps.SplitCallIntoParts(_, eitherArgs) =>
         eitherArgs
-          .fold(Some(_), TokenOps.findArgsFor(ft.left, _, matching))
+          .fold(Some(_), TokenOps.findArgsFor(ft.left, _, matchingOpt))
           .exists { args =>
             args.length > style.binPack.literalsMinArgCount &&
             args.forall(isLiteral)
