@@ -37,8 +37,8 @@ final case class State(
   def next(
       initialNextSplit: Split,
       nextAllAltAreNL: Boolean
-  )(implicit style: ScalafmtConfig, fops: FormatOps): State = {
-    val tok = fops.tokens(depth)
+  )(implicit style: ScalafmtConfig, tokens: FormatTokens): State = {
+    val tok = tokens(depth)
     val right = tok.right
 
     val (nextSplit, nextIndent, nextIndents) =
@@ -76,14 +76,14 @@ final case class State(
 
     val overflow = columnOnCurrentLine - style.maxColumn
     val nextPolicy: PolicySummary =
-      policy.combine(nextSplit.policy, fops.tokens.next(tok))
+      policy.combine(nextSplit.policy, tokens.next(tok))
 
     val (penalty, nextDelayedPenalty) =
       if (
         overflow <= 0 || right.is[Token.Comment] && {
           val rtext = tok.meta.right.text
           nextSplit.isNL && rtext.length >= (style.maxColumn - nextIndent) ||
-          fops.tokens.next(tok).hasBreak && {
+          tokens.next(tok).hasBreak && {
             if (TokenOps.isDocstring(rtext))
               (style.docstrings.wrap ne Docstrings.Wrap.no) && nextSplit.isNL
             else
@@ -129,7 +129,7 @@ final case class State(
   private def getOverflowPenalty(
       nextSplit: Split,
       defaultOverflowPenalty: Int
-  )(implicit style: ScalafmtConfig, fops: FormatOps): (Int, Int) = {
+  )(implicit style: ScalafmtConfig, tokens: FormatTokens): (Int, Int) = {
     val prevActive = delayedPenalty > 0
     val fullPenalty = defaultOverflowPenalty +
       (if (prevActive) delayedPenalty else -delayedPenalty)
@@ -140,7 +140,7 @@ final case class State(
       val penalty = fullPenalty - nextDelayedPenalty
       (penalty, if (nextActive) nextDelayedPenalty else -nextDelayedPenalty)
     }
-    val ft = fops.tokens(depth)
+    val ft = tokens(depth)
     if (nextSplit.isNL || ft.right.is[Token.EOF]) {
       result(if (prevActive) fullPenalty else defaultOverflowPenalty, false)
     } else {
@@ -155,7 +155,7 @@ final case class State(
           else lineStartsStatement(isComment)
         val delay = startFtOpt.exists {
           case FormatToken(_, t: Token.Interpolation.Start, _) =>
-            fops.matching(t) ne ft.right
+            tokens.matching(t) ne ft.right
           case _ => true
         }
         // if delaying, estimate column if the split had been a newline
@@ -202,9 +202,9 @@ final case class State(
   @tailrec
   private def getLineStartOwner(isComment: Boolean)(implicit
       style: ScalafmtConfig,
-      fops: FormatOps
+      tokens: FormatTokens
   ): Option[(FormatToken, meta.Tree)] = {
-    val ft = fops.tokens(depth)
+    val ft = tokens(depth)
     if (ft.meta.left.firstNL >= 0) None
     else if (!split.isNL) {
       val ok = (prev ne State.start) &&
@@ -233,15 +233,16 @@ final case class State(
   /** Check that the current line starts a statement which also contains
     * the current token.
     */
-  private def lineStartsStatement(
-      isComment: Boolean
-  )(implicit style: ScalafmtConfig, fops: FormatOps): Option[FormatToken] = {
+  private def lineStartsStatement(isComment: Boolean)(implicit
+      style: ScalafmtConfig,
+      tokens: FormatTokens
+  ): Option[FormatToken] = {
     getLineStartOwner(isComment).flatMap { case (lineFt, lineOwner) =>
-      val ft = fops.tokens(depth)
+      val ft = tokens(depth)
       val ok = {
         // comment could be preceded by a comma
         isComment && ft.left.is[Token.Comma] &&
-        (fops.tokens.prev(ft).meta.leftOwner eq lineOwner)
+        (tokens.prev(ft).meta.leftOwner eq lineOwner)
       } ||
         TreeOps
           .findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner)

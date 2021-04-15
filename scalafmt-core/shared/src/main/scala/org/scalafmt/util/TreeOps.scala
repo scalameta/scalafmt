@@ -196,7 +196,7 @@ object TreeOps {
     *
     * Contains lookup keys in both directions, opening [({ and closing })].
     */
-  def getMatchingParentheses(tokens: Tokens): Map[TokenHash, Token] = {
+  def getMatchingParentheses(tokens: Iterable[Token]): Map[TokenHash, Token] = {
     val ret = Map.newBuilder[TokenHash, Token]
     var stack = List.empty[Token]
     tokens.foreach {

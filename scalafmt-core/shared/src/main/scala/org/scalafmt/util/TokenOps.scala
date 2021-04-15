@@ -209,9 +209,9 @@ object TokenOps {
   def findArgsFor[A <: Tree](
       token: Token,
       argss: Seq[Seq[A]],
-      matching: Map[TokenHash, Token]
+      matchingOpt: Token => Option[Token]
   ): Option[Seq[A]] =
-    matching.get(hash(token)).flatMap { other =>
+    matchingOpt(token).flatMap { other =>
       // find the arg group starting with given format token
       val beg = math.min(token.start, other.start)
       argss

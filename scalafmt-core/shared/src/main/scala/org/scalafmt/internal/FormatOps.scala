@@ -70,6 +70,8 @@ class FormatOps(
   private val ownersMap = getOwners(tree)
   val tokens: FormatTokens = FormatTokens(tree.tokens, owners)
   import tokens.{
+    matching,
+    matchingOpt,
     findToken,
     findTokenWith,
     prev,
@@ -82,10 +84,8 @@ class FormatOps(
   private[internal] val soft = new SoftKeywordClasses(dialect)
   private val statementStarts = getStatementStarts(tree, tokens(_).left, soft)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
-  private val matchingParentheses: Map[TokenHash, Token] =
-    getMatchingParentheses(tree.tokens)
   val styleMap =
-    new StyleMap(tokens, initStyle, ownersMap, matchingParentheses)
+    new StyleMap(tokens, initStyle, ownersMap, matchingOpt)
   // Maps token to number of non-whitespace bytes before the token's position.
   private final val nonWhitespaceOffset: Map[Token, Int] = {
     val resultB = Map.newBuilder[Token, Int]
@@ -101,12 +101,6 @@ class FormatOps(
   }
 
   val (forceConfigStyle, emptyQueueSpots) = getForceConfigStyle
-
-  @inline def matching(token: Token): Token = matchingParentheses(hash(token))
-  @inline def matchingOpt(token: Token): Option[Token] =
-    matchingParentheses.get(hash(token))
-  @inline def hasMatching(token: Token): Boolean =
-    matchingParentheses.contains(hash(token))
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))
@@ -1300,7 +1294,7 @@ class FormatOps(
       token: Token,
       argss: Seq[Seq[A]]
   ): Option[Seq[A]] =
-    TokenOps.findArgsFor(token, argss, matchingParentheses)
+    TokenOps.findArgsFor(token, argss, matchingOpt)
 
   // look for arrow before body, if any, else after params
   def getFuncArrow(term: Term.FunctionTerm): Option[FormatToken] =
@@ -1380,7 +1374,7 @@ class FormatOps(
     tree.tokens.headOption.contains(open) && (tree.tokens.last eq close)
 
   def getClosingIfEnclosedInMatching(tree: Tree): Option[T] =
-    tree.tokens.lastOption.filter(matchingOpt(_).contains(tree.tokens.head))
+    tree.tokens.lastOption.filter(tokens.areMatching(tree.tokens.head))
 
   def isEnclosedInMatching(tree: Tree): Boolean =
     getClosingIfEnclosedInMatching(tree).isDefined
@@ -1650,7 +1644,7 @@ class FormatOps(
           else getSlbSplits()
         case _: Term.Block | _: Term.Match | _: Type.Match |
             _: Term.NewAnonymous =>
-          if (!hasMatching(blast)) getSlbSplits()
+          if (!tokens.hasMatching(blast)) getSlbSplits()
           else getSplits(getSpaceSplit(1))
         case Term.ForYield(_, b) =>
           nextNonComment(tokens(bhead)).right match {
@@ -1803,7 +1797,7 @@ class FormatOps(
     }) && {
       val btoks = body.tokens
       btoks.headOption.exists { head =>
-        head.is[Token.LeftParen] && matchingOpt(head).contains(btoks.last)
+        head.is[Token.LeftParen] && tokens.areMatching(head)(btoks.last)
       }
     }
   }
