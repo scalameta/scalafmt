@@ -485,15 +485,27 @@ object a:
      for x <- y
      yield foo
 <<< complex "block" expression
-def foo =
-   if cond then
+object a:
+  def foo =
+    if cond then
         sb.append(doc.text.substring(offset, end))
         sb.append(doc.text.substring(offset, end))
+  def foo =
+    if (cond) {
+        sb.append(doc.text.substring(offset, end))
+        sb.append(doc.text.substring(offset, end))
+    }
 >>>
-def foo =
-  if cond then
-     sb.append(doc.text.substring(offset, end))
-     sb.append(doc.text.substring(offset, end))
+object a:
+   def foo =
+     if cond then
+        sb.append(doc.text.substring(offset, end))
+        sb.append(doc.text.substring(offset, end))
+   def foo =
+     if (cond) {
+       sb.append(doc.text.substring(offset, end))
+       sb.append(doc.text.substring(offset, end))
+     }
 <<< lambda with =>
 object a:
   val func: A => B = (a: A) =>
