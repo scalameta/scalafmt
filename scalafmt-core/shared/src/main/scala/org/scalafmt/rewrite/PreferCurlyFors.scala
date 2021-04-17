@@ -1,13 +1,22 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.util.Whitespace
-
-import scala.meta.tokens.Tokens
 import scala.meta._
+import scala.meta.tokens.Token
 
-object PreferCurlyFors extends RewriteFactory {
-  override def create(implicit ctx: RewriteCtx): RewriteSession =
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.FormatTokens
+
+object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
+
+  override def enabled(implicit style: ScalafmtConfig): Boolean = true
+
+  override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new PreferCurlyFors
+
+  private def hasMultipleGenerators(enums: Seq[Enumerator]): Boolean =
+    enums.count(_.is[Enumerator.Generator]) > 1
+
 }
 
 /** Replaces multi generator For / ForYield Expression parens and semi-colons
@@ -24,70 +33,49 @@ object PreferCurlyFors extends RewriteFactory {
   *     b <- bs if b > 2
   *   } yield (a, b)
   */
-class PreferCurlyFors(implicit ctx: RewriteCtx) extends RewriteSession {
+private class PreferCurlyFors extends FormatTokensRewrite.Rule {
 
-  import ctx.dialect
-  import ctx.tokenTraverser._
+  import FormatTokensRewrite._
+  import PreferCurlyFors._
 
-  private def findForParens(forTokens: Tokens): Option[(Token, Token)] =
-    for {
-      forToken <- forTokens.find(_.is[Token.KwFor])
-      leftParen <- findAfter(forToken) {
-        case _: Token.LeftParen => Some(true)
-        case Whitespace() => None
-        case _ => Some(false)
-      }
-      rightParen <- ctx.getMatchingOpt(leftParen)
-    } yield (leftParen, rightParen)
+  override def enabled(implicit style: ScalafmtConfig): Boolean =
+    PreferCurlyFors.enabled
 
-  private def findForSemiColons(forEnumerators: Seq[Enumerator]): Seq[Token] =
-    for {
-      enumerator <- forEnumerators
-      token <-
-        enumerator
-          .tokens(ctx.style.runner.dialect)
-          .headOption
-          .toIterable
-      semicolon <- findBefore(token) {
-        case _: Token.Semicolon => Some(true)
-        case Whitespace() => None
-        case _ => Some(false)
-      }.toIterable
-    } yield semicolon
+  override def onToken(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig
+  ): Option[Replacement] = Option {
+    ft.right match {
+      case x: Token.LeftParen =>
+        val ok = ft.meta.rightOwner match {
+          case t: Term.For => hasMultipleGenerators(t.enums)
+          case t: Term.ForYield => hasMultipleGenerators(t.enums)
+          case _ => false
+        }
+        if (ok)
+          replaceToken("{")(new Token.LeftBrace(x.input, x.dialect, x.start))
+        else null
 
-  private def rewriteFor(
-      forTokens: Tokens,
-      forEnumerators: Seq[Enumerator]
-  ): Seq[TokenPatch] = {
-    val builder = Seq.newBuilder[TokenPatch]
+      case _: Token.Semicolon =>
+        ft.meta.rightOwner match {
+          case _: Term.For | _: Term.ForYield => removeToken
+          case _ => null
+        }
 
-    findForParens(forTokens).foreach { parens =>
-      val openBraceTokens =
-        if (nextToken(parens._1).is[Token.LF]) "{" else "{\n"
-      builder += TokenPatch.AddRight(parens._1, openBraceTokens)
-      builder += TokenPatch.AddRight(parens._2, "}")
-      findForSemiColons(forEnumerators).foreach { semiColon =>
-        val semiColonReplacementTokens =
-          if (nextToken(semiColon).is[Token.LF]) "" else "\n"
-        builder += TokenPatch.AddRight(semiColon, semiColonReplacementTokens)
-      }
+      case _ => null
     }
-
-    builder.result()
   }
 
-  private def hasMoreThanOneGenerator(
-      forEnumerators: Seq[Enumerator]
-  ): Boolean =
-    forEnumerators.count(_.is[Enumerator.Generator]) > 1
-
-  override def rewrite(tree: Tree): Unit =
-    tree match {
-      case fy: Term.ForYield if hasMoreThanOneGenerator(fy.enums) =>
-        ctx.addPatchSet(rewriteFor(fy.tokens, fy.enums): _*)
-      case f: Term.For if hasMoreThanOneGenerator(f.enums) =>
-        ctx.addPatchSet(rewriteFor(f.tokens, f.enums): _*)
-      case _ =>
+  override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig
+  ): Option[(Replacement, Replacement)] =
+    ft.right match {
+      case x: Token.RightParen if left.exists(_.right.is[Token.LeftBrace]) =>
+        val right =
+          replaceToken("}")(new Token.RightBrace(x.input, x.dialect, x.start))
+        Some((left, right))
+      case _ => None
     }
 
 }
