@@ -626,7 +626,7 @@ class FormatOps(
         val end = nextNonCommentSameLine(t)
         if (end.right.is[T.LeftBrace] || end.right.is[T.Comment]) None
         else if (end eq t) Some(decideNewlinesOnlyAfterToken(end.left))
-        else Some(decideNewlinesOnlyAfterClose(Split(Newline, 0))(end.left))
+        else Some(decideNewlinesOnlyAfterClose(end.left))
       }
       val nlMod = newStmtMod.getOrElse {
         val hasAttachedComment = ft.noBreak && ft.right.is[T.Comment]
@@ -1031,6 +1031,11 @@ class FormatOps(
       case d: Decision if d.formatToken.right eq close =>
         d.onlyNewlinesWithFallback(split)
     }
+
+  def decideNewlinesOnlyAfterClose(
+      close: Token
+  )(implicit line: sourcecode.Line): Policy =
+    decideNewlinesOnlyAfterClose(Split(Newline, 0))(close)
 
   def decideNewlinesOnlyAfterClose(
       split: Split
@@ -1906,7 +1911,7 @@ class FormatOps(
     )(implicit style: ScalafmtConfig): Seq[Split] = {
       val expire = nextNonCommentSameLine(tokens.getLast(tree)).left
       def nlPolicy(implicit line: sourcecode.Line) =
-        decideNewlinesOnlyAfterClose(Split(Newline, 0))(expire)
+        decideNewlinesOnlyAfterClose(expire)
       val indentLen =
         if (useMain) style.indent.main else style.indent.getSignificant
       val indent = Indent(Num(indentLen), expire, ExpiresOn.After)
