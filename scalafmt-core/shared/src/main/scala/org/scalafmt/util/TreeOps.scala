@@ -811,4 +811,10 @@ object TreeOps {
     template.self.tokens.headOption
       .orElse(template.stats.headOption.flatMap(_.tokens.headOption))
 
+  def getAndOrTypeRhs(tree: Tree): Option[Type] = tree match {
+    case x: Type.Or => Some(x.rhs)
+    case x: Type.And => Some(x.rhs)
+    case _ => None
+  }
+
 }

@@ -2181,11 +2181,11 @@ class FormatOps(
   }
 
   @inline
-  private def nonCommentBefore(token: T): FormatToken =
+  def nonCommentBefore(token: T): FormatToken =
     prevNonComment(tokens(token, -1))
 
   @inline
-  private def nonCommentBefore(tree: Tree): FormatToken =
+  def nonCommentBefore(tree: Tree): FormatToken =
     nonCommentBefore(tree.tokens.head)
 
   def isBlockWithoutOptionalBraces(t: Term.Block): Boolean =
@@ -2222,6 +2222,9 @@ class FormatOps(
 
   def getLastNonTrivialTokenOpt(tree: Tree): Option[T] =
     tokens.getLastNonTrivialOpt(tree).map(_.left)
+
+  val ExtractAndOrTypeRhsIdentLeft =
+    new ExtractFromMeta(ft => getAndOrTypeRhs(ft.meta.leftOwner))
 
 }
 

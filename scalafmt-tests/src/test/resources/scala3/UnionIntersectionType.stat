@@ -52,9 +52,11 @@ def hello(): FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType & 
     val a  : FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType 
 }
 >>>
-def hello()
-    : FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType & ThirdTypeInTheInterSectionType = {
-  val a: FirstTypeInTheInterSectionType & SecondTypeInTheInterSectionType
+def hello(): FirstTypeInTheInterSectionType &
+  SecondTypeInTheInterSectionType &
+  ThirdTypeInTheInterSectionType = {
+  val a: FirstTypeInTheInterSectionType &
+    SecondTypeInTheInterSectionType
 }
 <<< long union keep
 maxColumn = 30
@@ -64,8 +66,9 @@ def hello(): FirstTypeInTheInterSectionType | SecondTypeInTheInterSectionType | 
     val a  : A | B
 }
 >>>
-def hello()
-    : FirstTypeInTheInterSectionType | SecondTypeInTheInterSectionType | ThirdTypeInTheInterSectionType = {
+def hello(): FirstTypeInTheInterSectionType |
+  SecondTypeInTheInterSectionType |
+  ThirdTypeInTheInterSectionType = {
   val a: A | B
 }
 <<< long intersection param
