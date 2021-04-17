@@ -1804,6 +1804,30 @@ class Router(formatOps: FormatOps) {
         val enumerator = leftOwner.asInstanceOf[Enumerator.Val]
         getSplitsEnumerator(tok, enumerator.rhs)
 
+      // Union/Intersection types
+      case FormatToken(_: T.Ident, _, ExtractAndOrTypeRhsIdentLeft(rhs)) =>
+        val rhsEnd = getLastNonTrivialToken(rhs)
+        def nlSplit(cost: Int): Split = {
+          val indent = Indent(style.indent.main, rhsEnd, After)
+          val breakToken = nextNonCommentSameLine(formatToken)
+          if (breakToken eq formatToken)
+            Split(Newline, cost).withIndent(indent)
+          else
+            Split(Space, cost)
+              .withIndent(indent)
+              .withPolicy(decideNewlinesOnlyAfterClose(breakToken.left))
+        }
+        style.newlines.source match {
+          case Newlines.unfold => Seq(nlSplit(0))
+          case Newlines.keep if newlines != 0 => Seq(nlSplit(0))
+          case _ =>
+            val nextRhs =
+              leftOwner.parent.flatMap(getAndOrTypeRhs).map(nonCommentBefore)
+            val slbEnd =
+              nextRhs.fold(rhsEnd)(x => nextNonCommentSameLine(x).left)
+            Seq(Split(Space, 0).withSingleLine(slbEnd), nlSplit(1))
+        }
+
       // Inline comment
       case FormatToken(left, _: T.Comment, _) =>
         val forceBlankLine = formatToken.hasBreak &&
@@ -1868,21 +1892,6 @@ class Router(formatOps: FormatOps) {
           case _ =>
             val noNL = !style.optIn.annotationNewlines || formatToken.noBreak
             Seq(Split(Space.orNL(noNL), 0))
-        }
-
-      // Union/Intersection types
-      case FormatToken(T.Ident(value), _, _)
-          if (value == "|" && leftOwner.is[Type.Or]) ||
-            (value == "&" && leftOwner.is[Type.And]) =>
-        if (style.newlines.source eq Newlines.keep)
-          Seq(Split(Space.orNL(newlines == 0), 0))
-        else {
-          val indent = style.indent.main
-          val expire = getLastNonTrivialToken(leftOwner)
-          Seq(
-            Split(Space, 0),
-            Split(Newline, 1).withIndent(indent, expire, After)
-          )
         }
 
       // Pattern alternatives
