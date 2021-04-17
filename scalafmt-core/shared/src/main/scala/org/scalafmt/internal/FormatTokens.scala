@@ -5,6 +5,8 @@ import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
 
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.util.StyleMap
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
@@ -127,7 +129,9 @@ object FormatTokens {
     * Since tokens might be very large, we try to allocate as
     * little memory as possible.
     */
-  def apply(tokens: Tokens, owner: Token => Tree): FormatTokens = {
+  def apply(tokens: Tokens, owner: Token => Tree)(implicit
+      style: ScalafmtConfig
+  ): (FormatTokens, StyleMap) = {
     var left: Token = null
     var lmeta: FormatToken.TokenMeta = null
     val result = Array.newBuilder[FormatToken]
@@ -160,7 +164,11 @@ object FormatTokens {
           tokIdx += 1
           wsIdx = tokIdx
       }
-    new FormatTokens(result.result)
+
+    val ftoks = new FormatTokens(result.result)
+    val styleMap = new StyleMap(ftoks, style)
+
+    ftoks -> styleMap
   }
 
   @inline
