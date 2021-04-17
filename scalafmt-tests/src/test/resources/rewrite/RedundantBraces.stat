@@ -967,4 +967,6 @@ def main(args: Array[String]): Unit =
   }
 >>>
 def main(args: Array[String]): Unit =
-  args foreach println(_)
+  args foreach {
+    println(_)
+  }

@@ -222,7 +222,7 @@ object RewriteCtx {
             queue ++= (t.lhs +: t.args)
             iter
           case t: Term.Apply =>
-            queue += t.fun
+            queue ++= (t.fun +: t.args)
             iter
           case t: Term.Select =>
             queue += t.qual
