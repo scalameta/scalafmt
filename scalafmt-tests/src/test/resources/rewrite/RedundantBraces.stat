@@ -960,3 +960,11 @@ object a {
   val res = new A with B { val foo = 1 }
   val res = new A with B { val foo = 1 }.foo
 }
+<<< #2426 placeholder in infix
+def main(args: Array[String]): Unit =
+  args foreach {
+    println(_)
+  }
+>>>
+def main(args: Array[String]): Unit =
+  args foreach println(_)
