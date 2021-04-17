@@ -1279,11 +1279,13 @@ class FormatOps(
 
   def getLambdaAtSingleArgCallSite(ft: FormatToken): Option[Term.FunctionTerm] =
     ft.meta.leftOwner match {
-      case Term.Apply(_, List(fun: Term.FunctionTerm)) => Some(fun)
-      case fun: Term.FunctionTerm if fun.parent.exists({
+      case ta @ Term.Apply(_, List(fun: Term.FunctionTerm))
+          if ta.fun.pos.end <= ft.left.start =>
+        Some(fun)
+      case fun: Term.FunctionTerm if fun.parent.exists {
             case Term.ApplyInfix(_, _, _, List(`fun`)) => true
             case _ => false
-          }) =>
+          } =>
         Some(fun)
       case t: Init =>
         findArgsFor(ft.left, t.argss).collect {
