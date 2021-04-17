@@ -22,9 +22,7 @@ import org.scalameta.logger
 
 class StyleMap(
     tokens: FormatTokens,
-    init: ScalafmtConfig,
-    owners: collection.Map[TokenHash, Tree],
-    matchingOpt: Token => Option[Token]
+    val init: ScalafmtConfig
 ) {
   import TokenOps.hash
   val literalR: FilterMatcher = init.binPack.literalsRegex
@@ -58,10 +56,10 @@ class StyleMap(
         case open @ LeftParen()
             if curr.binPack.literalArgumentLists &&
               opensLiteralArgumentList(tok)(curr) =>
-          forcedBinPack += owners(hash(open))
+          forcedBinPack += tok.meta.leftOwner
           empty = false
           curr = setBinPack(curr, callSite = true)
-          matchingOpt(open).foreach(disableBinPack += _)
+          tokens.matchingOpt(open).foreach(disableBinPack += _)
         case close @ RightParen() if disableBinPack(close) =>
           curr = setBinPack(curr, callSite = false)
         case _ =>
@@ -133,7 +131,7 @@ class StyleMap(
     ft.meta.leftOwner match {
       case TreeOps.SplitCallIntoParts(_, eitherArgs) =>
         eitherArgs
-          .fold(Some(_), TokenOps.findArgsFor(ft.left, _, matchingOpt))
+          .fold(Some(_), TokenOps.findArgsFor(ft.left, _, tokens.matchingOpt))
           .exists { args =>
             args.length > style.binPack.literalsMinArgCount &&
             args.forall(isLiteral)

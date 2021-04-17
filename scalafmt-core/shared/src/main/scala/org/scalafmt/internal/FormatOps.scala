@@ -85,8 +85,7 @@ class FormatOps(
   private[internal] val soft = new SoftKeywordClasses(dialect)
   private val statementStarts = getStatementStarts(tree, tokens(_).left, soft)
   val dequeueSpots = getDequeueSpots(usedTokens) ++ statementStarts.keys
-  val styleMap =
-    new StyleMap(tokens, initStyle, ownersMap, matchingOpt)
+  val styleMap = new StyleMap(tokens, initStyle)
   // Maps token to number of non-whitespace bytes before the token's position.
   private final val nonWhitespaceOffset: Map[Token, Int] = {
     val resultB = Map.newBuilder[Token, Int]
