@@ -305,9 +305,7 @@ class FormatOps(
   def defnSiteLastToken(close: FormatToken, tree: Tree): Token = {
     tree match {
       // TODO(olafur) scala.meta should make this easier.
-      case procedure: Defn.Def
-          if procedure.decltpe.isDefined &&
-            procedure.decltpe.get.tokens.isEmpty =>
+      case procedure: Defn.Def if procedure.decltpe.exists(_.tokens.isEmpty) =>
         procedure.body.tokens.find(_.is[T.LeftBrace])
       case t: Defn.Def if t.body.is[Term.Block] =>
         t.body.tokens.headOption
@@ -1640,9 +1638,9 @@ class FormatOps(
       def hasStateColumn = spaceIndents.exists(_.hasStateColumn)
       val (spaceSplit, nlSplit) = body match {
         case t: Term.If if ifWithoutElse(t) || hasStateColumn =>
-          val thenIsBlock = t.thenp.is[Term.Block]
           val thenBeg = tokens(t.thenp.tokens.head)
-          val end = if (thenIsBlock) thenBeg else prevNonComment(prev(thenBeg))
+          val thenHasLB = thenBeg.left.is[T.LeftBrace]
+          val end = if (thenHasLB) thenBeg else prevNonComment(prev(thenBeg))
           getSplits(getSlbSplit(end.left))
         case _: Term.If => getSlbSplits()
         case _: Term.Try | _: Term.TryWithHandler =>
