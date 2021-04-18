@@ -850,7 +850,7 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
     private def isEarlierLine(t: Tree)(implicit fl: FormatLocation): Boolean = {
-      val idx = tokens(t.tokens.head).meta.idx + 1
+      val idx = tokens.after(t.tokens.head).meta.idx + 1
       idx <= fl.formatToken.meta.idx && // e.g., leading comments
       locations(idx).leftLineId != fl.leftLineId
     }

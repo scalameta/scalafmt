@@ -1102,7 +1102,7 @@ class FormatOps(
 
     @tailrec
     def loop(token: Token): FormatToken = {
-      val f = tokens(token)
+      val f = tokens.after(token)
       f.right match {
         case x: T.LeftParen => loop(matching(x))
         // modifier for constructor if class definition has type parameters: [class A[T, K, C] private (a: Int)]
@@ -1315,7 +1315,7 @@ class FormatOps(
         }
       }
       .orElse {
-        val headToken = tokens(term.tokens.head)
+        val headToken = tokens.after(term.tokens.head)
         findFirst(headToken, term.tokens.last)(_.left.is[T.RightArrow])
       }
 
@@ -1640,7 +1640,7 @@ class FormatOps(
       def hasStateColumn = spaceIndents.exists(_.hasStateColumn)
       val (spaceSplit, nlSplit) = body match {
         case t: Term.If if ifWithoutElse(t) || hasStateColumn =>
-          val thenBeg = tokens(t.thenp.tokens.head)
+          val thenBeg = tokens.after(t.thenp.tokens.head)
           val thenHasLB = thenBeg.left.is[T.LeftBrace]
           val end = if (thenHasLB) thenBeg else prevNonComment(prev(thenBeg))
           getSplits(getSlbSplit(end.left))
