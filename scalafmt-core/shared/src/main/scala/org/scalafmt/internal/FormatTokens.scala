@@ -73,6 +73,18 @@ class FormatTokens(val arr: Array[FormatToken])
   final def prevNonComment(curr: FormatToken): FormatToken =
     findToken(curr, prev)(!_.left.is[Token.Comment]).fold(identity, identity)
 
+  def getLast(tree: Tree): FormatToken =
+    apply(TokenOps.findLastVisibleToken(tree.tokens))
+
+  def getLastOpt(tree: Tree): Option[FormatToken] =
+    TokenOps.findLastVisibleTokenOpt(tree.tokens).map(apply)
+
+  def getLastNonTrivial(tree: Tree): FormatToken =
+    apply(TokenOps.findLastNonTrivialToken(tree.tokens))
+
+  def getLastNonTrivialOpt(tree: Tree): Option[FormatToken] =
+    TokenOps.findLastNonTrivialTokenOpt(tree.tokens).map(apply)
+
 }
 
 object FormatTokens {

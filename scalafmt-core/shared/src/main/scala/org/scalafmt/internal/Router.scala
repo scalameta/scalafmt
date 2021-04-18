@@ -220,7 +220,7 @@ class Router(formatOps: FormatOps) {
           startsStatement(right) match {
             case Some(owner: Term.FunctionTerm) =>
               val arrow = getFuncArrow(lastLambda(owner))
-              val expire = arrow.getOrElse(tokens(owner.tokens.last))
+              val expire = arrow.getOrElse(tokens.getLast(owner))
               val nlOnly =
                 if (style.newlines.alwaysBeforeCurlyLambdaParams) Some(true)
                 else if (
@@ -355,9 +355,8 @@ class Router(formatOps: FormatOps) {
       case FormatToken(T.RightArrow() | T.ContextArrow(), right, _)
           if startsStatement(right).isDefined &&
             leftOwner.isInstanceOf[Term.FunctionTerm] =>
-        val endOfFunction = lastToken(
-          leftOwner.asInstanceOf[Term.FunctionTerm].body
-        )
+        val leftFuncBody = leftOwner.asInstanceOf[Term.FunctionTerm].body
+        val endOfFunction = getLastNonTrivialToken(leftFuncBody)
         val canBeSpace =
           startsStatement(right).get.isInstanceOf[Term.FunctionTerm]
         val (afterCurlySpace, afterCurlyNewlines) =
@@ -386,7 +385,7 @@ class Router(formatOps: FormatOps) {
               leftOwner.parent.exists(_.is[Term.NewAnonymous])) =>
         val (endOfFunction, expiresOn) = leftOwner match {
           case t: Term.FunctionTerm => functionExpire(t)
-          case t => lastToken(t) -> ExpiresOn.Before
+          case t => getLastNonTrivialToken(t) -> ExpiresOn.Before
         }
 
         val hasSingleLineComment = isSingleLineComment(right)
@@ -475,8 +474,10 @@ class Router(formatOps: FormatOps) {
             condIsDefined ||
             beforeMultiline.eq(Newlines.classic) ||
             isTreeMultiStatBlock(body)
-          ) Seq(baseSplit.withSingleLine(lastToken(body)), nlSplit(ft)(1))
-          else CtrlBodySplits.folded(ft, body)(nlSplit(ft))
+          ) {
+            val expire = getLastNonTrivialToken(body)
+            Seq(baseSplit.withSingleLine(expire), nlSplit(ft)(1))
+          } else CtrlBodySplits.folded(ft, body)(nlSplit(ft))
         }
       // New statement
       case tok @ FormatToken(_: T.Semicolon, _, StartsStatementRight(stmt))
@@ -484,7 +485,7 @@ class Router(formatOps: FormatOps) {
         val spaceSplit =
           if (style.newlines.source eq Newlines.unfold) Split.ignored
           else {
-            val expire = stmt.tokens.last
+            val expire = getLastToken(stmt)
             Split(Space, 0).withSingleLine(expire)
           }
         Seq(
@@ -496,7 +497,7 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(_: T.RightParen, _, _)
           if leftOwner.is[Defn.ExtensionGroup] &&
             nextNonComment(formatToken).right.isNot[LeftParenOrBrace] =>
-        val expireToken = leftOwner.tokens.last
+        val expireToken = getLastToken(leftOwner)
         // Force a newline with the body of a Defn.ExtensionGroup if the
         // method doesn't fit on a single line.
         Seq(
@@ -515,7 +516,7 @@ class Router(formatOps: FormatOps) {
               equalsToken
             }
           }
-          .getOrElse(rightOwner.tokens.last)
+          .getOrElse(getLastToken(rightOwner))
 
         val annoRight = right.is[T.At]
         val annoLeft = isSingleIdentifierAnnotation(prev(tok))
@@ -606,7 +607,7 @@ class Router(formatOps: FormatOps) {
           ) =>
         val expire = defnTemplate(leftOwner)
           .flatMap(templateCurly)
-          .getOrElse(leftOwner.tokens.last)
+          .getOrElse(getLastToken(leftOwner))
         val forceNewlineBeforeExtends = Policy.before(expire) {
           case Decision(t @ FormatToken(_, soft.ExtendsOrDerives(), _), s)
               if t.meta.rightOwner == leftOwner =>
@@ -968,7 +969,7 @@ class Router(formatOps: FormatOps) {
               val noSplitPenalizeNewlines = penalizeBrackets(1 + bracketPenalty)
               argumentStarts.get(hash(right)) match {
                 case Some(arg) =>
-                  val singleLine = SingleLineBlock(arg.tokens.last)
+                  val singleLine = SingleLineBlock(getLastToken(arg))
                   if (isBracket) {
                     noSplitPenalizeNewlines & singleLine
                   } else {
@@ -1061,7 +1062,7 @@ class Router(formatOps: FormatOps) {
       // Closing def site ): ReturnType
       case FormatToken(left, _: T.Colon, DefDefReturnTypeRight(returnType))
           if style.newlines.sometimesBeforeColonInMethodReturnType =>
-        val expire = lastToken(returnType)
+        val expire = getLastNonTrivialToken(returnType)
         val penalizeNewlines =
           PenalizeAllNewlines(expire, Constants.BracketPenalty)
         val sameLineSplit = Space(endsWithSymbolIdent(left))
@@ -1079,7 +1080,7 @@ class Router(formatOps: FormatOps) {
         val expire = returnType match {
           case Type.Refine(_, headStat :: _) =>
             tokens(headStat.tokens.head, -1).left
-          case t => lastToken(t)
+          case t => getLastNonTrivialToken(t)
         }
         Seq(Split(Space, 0).withPolicy(SingleLineBlock(expire, okSLC = true)))
 
@@ -1158,7 +1159,7 @@ class Router(formatOps: FormatOps) {
         // TODO(olafur) DRY, see OneArgOneLine.
         argumentStarts.get(hash(right)) match {
           case Some(nextArg) if isBinPack(leftOwner) =>
-            val lastFT = tokens(nextArg.tokens.last)
+            val lastFT = tokens.getLast(nextArg)
             Seq(
               Split(Space, 0).withSingleLine(rhsOptimalToken(lastFT)),
               Split(Newline, 1)
@@ -1231,7 +1232,7 @@ class Router(formatOps: FormatOps) {
           case _: T.Supertype => tbounds.lo
           case _ => None
         }
-        val boundEnd = boundOpt.map(lastToken)
+        val boundEnd = boundOpt.map(getLastNonTrivialToken)
         val typeOwner = rightOwner.parent.get
         getSplitsForTypeBounds(formatToken, Space, typeOwner, boundEnd)
 
@@ -1263,7 +1264,8 @@ class Router(formatOps: FormatOps) {
         }
         val prevSelect = findPrevSelect(thisSelect, enclosed)
         val expireDropRight = if (isEnclosedInMatching(expireTree)) 1 else 0
-        val expire = lastToken(expireTree.tokens.dropRight(expireDropRight))
+        val expireTreeSlice = expireTree.tokens.dropRight(expireDropRight)
+        val expire = findLastNonTrivialToken(expireTreeSlice)
         val indentLen = style.indent.main
 
         def breakOnNextDot: Policy =
@@ -1290,7 +1292,8 @@ class Router(formatOps: FormatOps) {
         val baseSplits = style.newlines.source match {
           case Newlines.classic =>
             def getNlMod = {
-              val endSelect = nextSelect.fold(expire)(x => lastToken(x.qual))
+              val endSelect =
+                nextSelect.fold(expire)(x => getLastNonTrivialToken(x.qual))
               val altIndent = Indent(-indentLen, endSelect, After)
               NewlineT(alt = Some(ModExt(NoSplit).withIndent(altIndent)))
             }
@@ -1394,7 +1397,8 @@ class Router(formatOps: FormatOps) {
             }
 
           case Newlines.fold =>
-            val end = nextSelect.fold(expire)(x => lastToken(x.qual))
+            val end =
+              nextSelect.fold(expire)(x => getLastNonTrivialToken(x.qual))
             def exclude = insideBlock[LeftParenOrBrace](t, end)
             Seq(
               Split(NoSplit, 0).withSingleLine(end, exclude),
@@ -1454,7 +1458,7 @@ class Router(formatOps: FormatOps) {
       // Enum Case
       case FormatToken(_, T.KwExtends(), _)
           if rightOwner.isInstanceOf[Defn.EnumCase] =>
-        val lastToken = rightOwner.tokens.last
+        val lastToken = getLastToken(rightOwner)
         val enumCase = rightOwner.asInstanceOf[Defn.EnumCase]
         binPackParentConstructorSplits(
           Set(rightOwner),
@@ -1471,8 +1475,7 @@ class Router(formatOps: FormatOps) {
             if (right.is[soft.KwDerives]) templateCurly
             else templateDerivesOrCurly
           }
-          .orElse(template.map(_.tokens.last))
-          .getOrElse(rightOwner.tokens.last)
+          .getOrElse(getLastToken(template.getOrElse(rightOwner)))
 
         binPackParentConstructorSplits(
           template.toSet,
@@ -1504,7 +1507,7 @@ class Router(formatOps: FormatOps) {
             splitWithChain(
               isFirstInit(template, leftOwner),
               Set(template),
-              templateCurly(template).getOrElse(template.tokens.last),
+              templateCurly(template).getOrElse(getLastToken(template)),
               template.inits.length > 1
             )
           // trait A extends B with C with D with E
@@ -1522,7 +1525,7 @@ class Router(formatOps: FormatOps) {
             )
           case enumCase: Defn.EnumCase =>
             val indent = style.indent.withSiteRelativeToExtends
-            val expire = enumCase.tokens.last
+            val expire = getLastToken(enumCase)
             Seq(
               Split(Space, 0).withIndent(indent, expire, ExpiresOn.After),
               Split(Newline, 1)
@@ -1559,11 +1562,8 @@ class Router(formatOps: FormatOps) {
         }
       case FormatToken(T.KwIf(), _, _) if leftOwner.is[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
-        val expire = rhsOptimalToken(
-          tokens(
-            owner.elsep.tokens.lastOption.getOrElse(owner.tokens.last)
-          )
-        )
+        val expireTree = if (ifWithoutElse(owner)) owner else owner.elsep
+        val expire = rhsOptimalToken(tokens.getLast(expireTree))
         val elses = getElseChain(owner)
         val breakOnlyBeforeElse =
           if (elses.isEmpty) Policy.NoPolicy
@@ -1590,7 +1590,7 @@ class Router(formatOps: FormatOps) {
           case t: Term.ForYield => t.body
           case t: Term.While => t.body
         }
-        val expire = body.tokens.last
+        val expire = getLastToken(body)
         def nlSplitFunc(cost: Int)(implicit l: sourcecode.Line) =
           Split(Newline, cost).withIndent(style.indent.main, expire, After)
         if (style.newlines.getBeforeMultiline eq Newlines.unfold)
@@ -1622,7 +1622,7 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0)
         )
       case FormatToken(_, T.KwElse() | T.KwYield(), _) =>
-        val expire = rhsOptimalToken(tokens(rightOwner.tokens.last))
+        val expire = rhsOptimalToken(tokens.getLast(rightOwner))
         val noSpace = shouldBreak(formatToken)
         def exclude = insideBlock[T.LeftBrace](formatToken, expire)
         val noSyntaxNL = formatToken.right.is[T.KwYield]
@@ -1638,7 +1638,7 @@ class Router(formatOps: FormatOps) {
             case x => throw new UnexpectedTree[Term.If](x)
           }) =>
         val body = leftOwner.asInstanceOf[Term.If].elsep
-        val expire = body.tokens.last
+        val expire = getLastToken(body)
         def nlSplitFunc(cost: Int) =
           Split(Newline, cost).withIndent(style.indent.main, expire, After)
         if (style.newlines.getBeforeMultiline eq Newlines.unfold)
@@ -1741,9 +1741,8 @@ class Router(formatOps: FormatOps) {
         }
         val arrow = arrowFt.left
         val postArrowFt = nextNonCommentSameLine(arrowFt)
-        val expire = lastTokenOpt(body.tokens)
-          .fold(postArrowFt)(x => nextNonCommentSameLine(tokens(x)))
-          .left
+        val bodyEnd = tokens.getLastNonTrivialOpt(body)
+        val expire = bodyEnd.fold(postArrowFt)(nextNonCommentSameLine).left
 
         val bodyBlock = isCaseBodyABlock(arrowFt, owner)
         def defaultPolicy = decideNewlinesOnlyAfterToken(postArrowFt.left)
@@ -1878,9 +1877,10 @@ class Router(formatOps: FormatOps) {
           Seq(Split(Space.orNL(newlines == 0), 0))
         else {
           val indent = style.indent.main
+          val expire = getLastNonTrivialToken(leftOwner)
           Seq(
             Split(Space, 0),
-            Split(Newline, 1).withIndent(indent, lastToken(leftOwner), After)
+            Split(Newline, 1).withIndent(indent, expire, After)
           )
         }
 
@@ -1932,7 +1932,7 @@ class Router(formatOps: FormatOps) {
          * "if startsStatement" matches */
         style.newlines.source match {
           case Newlines.fold =>
-            val endOfGuard = rightOwner.tokens.last
+            val endOfGuard = getLastToken(rightOwner)
             val exclude =
               insideBlock[LeftParenOrBrace](formatToken, endOfGuard)
             Seq(
@@ -1951,7 +1951,8 @@ class Router(formatOps: FormatOps) {
         if (style.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
           Seq(Split(Space, 0))
         } else {
-          val lastToken = leftOwner.asInstanceOf[Term.ForYield].body.tokens.last
+          val lastToken =
+            getLastToken(leftOwner.asInstanceOf[Term.ForYield].body)
           Seq(
             // Either everything fits in one line or break on =>
             Split(Space, 0).withSingleLineNoOptimal(lastToken),
@@ -2138,7 +2139,7 @@ class Router(formatOps: FormatOps) {
   )(splits: => Seq[Split])(implicit
       style: ScalafmtConfig
   ): Seq[Split] = {
-    def expire = body.tokens.last
+    def expire = getLastToken(body)
     if (ft.right.is[T.LeftBrace]) // The block will take care of indenting by 2
       Seq(Split(Space, 0).withIndents(spaceIndents))
     else if (
@@ -2155,7 +2156,7 @@ class Router(formatOps: FormatOps) {
   private def getSplitsDefEquals(ft: FormatToken, body: Tree)(implicit
       style: ScalafmtConfig
   ): Seq[Split] = {
-    val expire = body.tokens.last
+    val expire = getLastToken(body)
     def baseSplit = Split(Space, 0)
     def newlineSplit(cost: Int)(implicit line: sourcecode.Line) =
       CtrlBodySplits.withIndent(Split(Newline, cost), ft, body)
@@ -2193,9 +2194,9 @@ class Router(formatOps: FormatOps) {
         else isCallSite(lop) && style.danglingParentheses.callSite
       }
 
-    val expire = body.tokens.last
+    val expireFt = tokens.getLast(body)
+    val expire = expireFt.left
     // rhsOptimalToken is too aggressive here
-    val expireFt = tokens(expire)
     val optimalFt = expireFt.right match {
       case _: T.Comma => next(expireFt)
       case RightParenOrBracket() if !wouldDangle => next(expireFt)
@@ -2250,7 +2251,7 @@ class Router(formatOps: FormatOps) {
       body: Tree
   )(implicit style: ScalafmtConfig): Seq[Split] =
     asInfixApp(ft.meta.rightOwner, style.newlines.formatInfix).fold {
-      val expire = lastToken(body)
+      val expire = getLastNonTrivialToken(body)
       val spaceIndents =
         if (!style.align.arrowEnumeratorGenerator) Seq.empty
         else Seq(Indent(StateColumn, expire, After))

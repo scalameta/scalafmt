@@ -321,7 +321,7 @@ class FormatOps(
       case _ =>
         tree.tokens.find(t => t.is[T.Equals] && owners(t) == tree)
     }
-  }.getOrElse(tree.tokens.last)
+  }.getOrElse(getLastToken(tree))
 
   @inline
   def splitOneArgOneLine(close: Token, owner: Tree)(implicit
@@ -507,7 +507,7 @@ class FormatOps(
     private val assignBodyExpire = {
       val prevFt = nonCommentBefore(fullInfix.all)
       if (!prevFt.left.is[T.Equals]) None
-      else Some(prevFt.meta.leftOwner.tokens.last)
+      else Some(getLastToken(prevFt.meta.leftOwner))
     }
 
     private val skipInfixIndent: Boolean = {
@@ -605,7 +605,7 @@ class FormatOps(
             if (!style.newlines.afterInfixBreakOnNested) infixes
             else
               infixes.takeWhile { x =>
-                val close = lastToken(x.lhs)
+                val close = getLastNonTrivialToken(x.lhs)
                 !close.is[T.RightParen] ||
                 !isEnclosedInMatching(owners(close), matching(close), close)
               }
@@ -733,12 +733,13 @@ class FormatOps(
   def getMidInfixToken(app: InfixApp): Token = {
     val opToken = app.op.tokens.head
     val opFollowsComment = tokens(opToken, -1).left.is[T.Comment]
-    if (opFollowsComment) lastToken(app.lhs) else opToken
+    if (opFollowsComment) getLastNonTrivialToken(app.lhs) else opToken
   }
 
   private def getLastEnclosedToken(tree: Tree): Token = {
     val tokens = tree.tokens
-    lastToken(if (isEnclosedInMatching(tree)) tokens.dropRight(1) else tokens)
+    val slice = if (isEnclosedInMatching(tree)) tokens.dropRight(1) else tokens
+    findLastNonTrivialToken(slice)
   }
 
   @tailrec
@@ -827,7 +828,7 @@ class FormatOps(
     def getRToks = dropWS(function.tokens.reverse)
     function.parent match {
       case Some(b: Term.Block) if b.stats.lengthCompare(1) == 0 =>
-        b.tokens.last -> ExpiresOn.Before
+        getLastToken(b) -> ExpiresOn.Before
       case Some(Case(_, _, `function`)) =>
         orElse(dropComment(getRToks))
       case _ =>
@@ -946,7 +947,7 @@ class FormatOps(
     val templateBrace =
       if (isDerives) templateCurly(template)
       else templateDerivesOrCurly(template)
-    val expire = templateBrace.getOrElse(template.tokens.last)
+    val expire = templateBrace.getOrElse(getLastToken(template))
 
     val policy = templateBrace match {
       case Some(lb: T.LeftBrace) if template.self.tokens.isEmpty =>
@@ -1321,15 +1322,15 @@ class FormatOps(
   // look for arrow before body, if any, else after cond/pat
   def getCaseArrow(term: Case): FormatToken =
     term.body.tokens.headOption.fold {
-      val endOfPat = term.cond.getOrElse(term.pat).tokens.last
-      val maybeArrow = tokens(nextNonComment(tokens(endOfPat)), 1)
+      val endOfPat = tokens.getLast(term.cond.getOrElse(term.pat))
+      val maybeArrow = tokens(nextNonComment(endOfPat), 1)
       if (maybeArrow.left.is[T.RightArrow]) maybeArrow
       else tokens(nextNonComment(maybeArrow), 1)
     }(nonCommentBefore)
 
   // look for arrow before body, if any, else after cond/pat
   def getCaseArrow(term: TypeCase): FormatToken =
-    tokens(nextNonComment(tokens(term.pat.tokens.last)), 1)
+    tokens(nextNonComment(tokens.getLast(term.pat)), 1)
 
   def getApplyArgs(
       ft: FormatToken,
@@ -1454,9 +1455,8 @@ class FormatOps(
       !cannotStartSelectChainOnExpr(thisSelectLike.qual)
     ok && (thisTree.parent match {
       case `nextSelect` => style.includeNoParensInSelectChains
-      case Some(ta: Term.Apply)
-          if ta.args.lengthCompare(1) == 0 &&
-            nextNonComment(tokens(ta.fun.tokens.last)).right.is[T.LeftBrace] =>
+      case Some(Term.Apply(fun, List(_)))
+          if nextNonComment(tokens.getLast(fun)).right.is[T.LeftBrace] =>
         style.includeCurlyBraceInSelectChains &&
           !nextSelect.contains(lastApply) // exclude short curly
       case Some(SplitCallIntoParts(`thisTree`, _)) => true
@@ -1541,7 +1541,7 @@ class FormatOps(
               case t: T.LeftBrace => Policy.End.After(t)
               case t => Policy.End.On(t)
             }
-            val argLastFt = tokens(args.last.tokens.last)
+            val argLastFt = tokens.getLast(args.last)
             val pnlPolicy = new Policy.Delay(
               new PenalizeAllNewlines(endPolicy, penalty, noSyntaxNL = true),
               Policy.End.On(openFt.right)
@@ -1566,7 +1566,7 @@ class FormatOps(
           case Left(args) => Seq(args)
           case Right(argss) => argss
         }
-        val funLastFt = tokens(fun.tokens.last)
+        val funLastFt = tokens.getLast(fun)
         getOpenNLByArgs(funLastFt, argss, penalty)
       }
 
@@ -1595,8 +1595,9 @@ class FormatOps(
         spaceIndents: Seq[Indent]
     )(implicit style: ScalafmtConfig): Seq[Split] = {
       val bhead = body.tokens.head
-      val blast = lastToken(body)
-      val expire = nextNonCommentSameLine(tokens(blast)).left
+      val blastFT = tokens.getLastNonTrivial(body)
+      val blast = blastFT.left
+      val expire = nextNonCommentSameLine(blastFT).left
       def penalize(penalty: Int) =
         if (penalty <= 0) Policy.NoPolicy
         else new PolicyOps.PenalizeAllNewlines(Policy.End.On(blast), penalty)
@@ -1664,7 +1665,7 @@ class FormatOps(
           val left = findLeftInfix(ia).lhs
           val (callPolicy, isCallSite) = CallSite.getFoldedPolicies(left)
           if (isCallSite) getPolicySplits(0, callPolicy)
-          else getSplits(getSlbSplit(left.tokens.last))
+          else getSplits(getSlbSplit(getLastToken(left)))
         case _ =>
           val (callPolicy, isCallSite) = CallSite.getFoldedPolicies(body)
           getPolicySplits(if (isCallSite) 0 else 1, callPolicy)
@@ -1683,7 +1684,7 @@ class FormatOps(
       else foldedNonEmptyNonComment(ft, body, nlSplitFunc, spaceIndents)
 
     private def unfoldedSpaceNonEmptyNonComment(body: Tree): Split = {
-      val expire = nextNonCommentSameLine(tokens(lastToken(body))).left
+      val expire = nextNonCommentSameLine(tokens.getLastNonTrivial(body)).left
       def slbSplit(end: Token)(implicit line: sourcecode.Line) =
         Split(Space, 0).withSingleLine(end, noSyntaxNL = true)
       body match {
@@ -1781,7 +1782,7 @@ class FormatOps(
         style: ScalafmtConfig
     ): Split =
       asInfixApp(body).fold {
-        val expire = body.tokens.last
+        val expire = getLastToken(body)
         nlSplit.withIndent(Num(style.indent.main), expire, ExpiresOn.After)
       }(app => InfixSplits(app, ft).withNLIndent(nlSplit))
 
@@ -1819,7 +1820,7 @@ class FormatOps(
 
   def getMatchDot(tree: Term.Match): Option[FormatToken] =
     if (dialect.allowMatchAsOperator) {
-      val ft = nextNonComment(tokens(tree.expr.tokens.last))
+      val ft = nextNonComment(tokens.getLast(tree.expr))
       if (ft.right.is[T.Dot]) Some(ft) else None
     } else None
 
@@ -1842,7 +1843,8 @@ class FormatOps(
       bounds: Type.Param => Seq[Type]
   )(implicit style: ScalafmtConfig): Seq[Split] = {
     val boundOpt = bounds(tparam).find(_.pos.start > ft.right.end)
-    getSplitsForTypeBounds(ft, noNLMod, tparam, boundOpt.map(lastToken))
+    val expireOpt = boundOpt.map(getLastNonTrivialToken)
+    getSplitsForTypeBounds(ft, noNLMod, tparam, expireOpt)
   }
 
   def getSplitsForTypeBounds(
@@ -1851,7 +1853,7 @@ class FormatOps(
       typeOwner: Tree,
       boundEndOpt: Option[T]
   )(implicit style: ScalafmtConfig): Seq[Split] = {
-    val typeEnd = lastToken(typeOwner)
+    val typeEnd = getLastNonTrivialToken(typeOwner)
     val boundEnd = boundEndOpt.getOrElse(typeEnd)
     def indent = Indent(Num(style.indent.main), boundEnd, ExpiresOn.After)
     def unfoldPolicy = typeOwner match {
@@ -1919,7 +1921,7 @@ class FormatOps(
         forceNL: Boolean = false,
         useMain: Boolean = false
     )(implicit style: ScalafmtConfig): Seq[Split] = {
-      val expire = nextNonCommentSameLine(tokens(tree.tokens.last)).left
+      val expire = nextNonCommentSameLine(tokens.getLast(tree)).left
       def nlPolicy(implicit line: sourcecode.Line) =
         decideNewlinesOnlyAfterClose(Split(Newline, 0))(expire)
       val indentLen =
@@ -2223,6 +2225,18 @@ class FormatOps(
       isBlockWithoutOptionalBraces(t) && existsBlockIfWithoutElse(x)
     case _ => false
   }
+
+  def getLastToken(tree: Tree): T =
+    tokens.getLast(tree).left
+
+  def getLastTokenOpt(tree: Tree): Option[T] =
+    tokens.getLastOpt(tree).map(_.left)
+
+  def getLastNonTrivialToken(tree: Tree): T =
+    tokens.getLastNonTrivial(tree).left
+
+  def getLastNonTrivialTokenOpt(tree: Tree): Option[T] =
+    tokens.getLastNonTrivialOpt(tree).map(_.left)
 
 }
 
