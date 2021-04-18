@@ -79,7 +79,7 @@ case class Align(
       "Enumerator.Generator" -> "for",
       "Enumerator.Val" -> "for"
     )
-) extends Decodable[Align] {
+) extends Decodable[Align]("align") {
   override protected[config] def baseDecoder =
     generic.deriveDecoder(this).noTypos
   implicit def alignReader: ConfDecoder[Seq[AlignToken]] =

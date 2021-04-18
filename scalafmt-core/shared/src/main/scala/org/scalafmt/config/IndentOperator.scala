@@ -53,7 +53,7 @@ case class IndentOperator(
     topLevelOnly: Boolean = true,
     include: String = ".*",
     exclude: String = "^(&&|\\|\\|)$"
-) extends Decodable[IndentOperator] {
+) extends Decodable[IndentOperator]("indentOperator") {
   override protected[config] def baseDecoder =
     generic.deriveDecoder(this).noTypos
 

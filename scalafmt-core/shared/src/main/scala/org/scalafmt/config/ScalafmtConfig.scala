@@ -160,7 +160,6 @@ case class ScalafmtConfig(
   private implicit def alignDecoder = align.decoder
   private implicit def danglingParenthesesReader = danglingParentheses.decoder
   private implicit def indentOperatorReader = indentOperator.decoder
-  private implicit def importSelectorsReader = importSelectors.decoder
   private implicit def docstringsDecoder = docstrings.decoder
   private implicit def commentsDecoder = comments.decoder
   lazy val alignMap: Map[String, regex.Pattern] =

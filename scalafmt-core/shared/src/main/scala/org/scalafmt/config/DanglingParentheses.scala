@@ -7,7 +7,7 @@ case class DanglingParentheses(
     defnSite: Boolean,
     ctrlSite: Boolean = true,
     exclude: List[DanglingParentheses.Exclude] = Nil
-) extends Decodable[DanglingParentheses] {
+) extends Decodable[DanglingParentheses]("danglingParentheses") {
   override protected[config] def baseDecoder =
     generic.deriveDecoder(this).noTypos
 }

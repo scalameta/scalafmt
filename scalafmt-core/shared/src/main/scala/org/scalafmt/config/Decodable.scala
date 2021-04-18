@@ -8,7 +8,7 @@ object Decodable {
 
 }
 
-abstract class Decodable[A] { self: A =>
+abstract class Decodable[A](sectionName: String = null) { self: A =>
   type T = A
   protected[config] def baseDecoder: ConfDecoder[A]
 
@@ -45,12 +45,11 @@ abstract class Decodable[A] { self: A =>
           case x =>
             ConfError.message(s"$me: unsupported preset: $x").notOk
         }
-      case presetsMatch(x) =>
-        Console.err.println(
-          s"$me: top-level presets deprecated; " +
-            s"use '${Decodable.presetKey}' subsection"
-        )
-        Some(Configured.ok(x, null))
+      case presetsMatch(_) =>
+        val section = Option(sectionName).fold("subsection '")(x => s"'$x.")
+        val err = s"$me: top-level presets removed since v3.0.0; " +
+          s"use $section${Decodable.presetKey} = $conf' instead"
+        Some(ConfError.message(err).notOk)
       case _ => None
     }
   }

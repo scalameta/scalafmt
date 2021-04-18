@@ -36,7 +36,7 @@ case class BinPack(
     literalsMinArgCount: Int = 5,
     literalsInclude: Seq[String] = Seq(".*"),
     literalsExclude: Seq[String] = Seq("String", "Term.Name")
-) extends Decodable[BinPack] {
+) extends Decodable[BinPack]("binPack") {
   override protected[config] def baseDecoder =
     generic.deriveDecoder(this).noTypos
   def literalsRegex: FilterMatcher =

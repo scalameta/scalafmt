@@ -38,29 +38,15 @@ import metaconfig._
   *   import org.{Aaaa, Bbbb, C, D, Eeee}
   * }}}
   */
-sealed abstract class ImportSelectors extends Decodable[ImportSelectors] {
-  override protected[config] def baseDecoder = ImportSelectors.reader
-}
+sealed abstract class ImportSelectors
 
 object ImportSelectors {
 
-  val reader: ConfCodec[ImportSelectors] =
-    ReaderUtil.oneOf[ImportSelectors](noBinPack, binPack, singleLine)
-
-  implicit val encoder: ConfEncoder[ImportSelectors] = reader
-
-  // This reader is backwards compatible with the old import selector
-  // configuration, which used the boolean flag binPackImportSelectors to
-  // decide between (what are now) the `binPack` and `noBinPack` strategies.
-  // It is defined here to keep the `ConfDecoder.instance[T} {}` lambda in a
-  // separate file from the @DeriveConfDecoder macro annotation; this is due to
-  // limitations in the current version of scalameta/paradise, but these will
-  // likely be fixed in the future, at which point this reader could be moved
-  // to ScalafmtConfig
-  implicit val preset: PartialFunction[Conf, ImportSelectors] = {
-    case Conf.Bool(true) => ImportSelectors.binPack
-    case Conf.Bool(false) => ImportSelectors.noBinPack
-  }
+  implicit val codec: ConfCodec[ImportSelectors] =
+    ReaderUtil.oneOfCustom[ImportSelectors](noBinPack, binPack, singleLine) {
+      case Conf.Bool(true) => Configured.ok(ImportSelectors.binPack)
+      case Conf.Bool(false) => Configured.ok(ImportSelectors.noBinPack)
+    }
 
   case object noBinPack extends ImportSelectors
   case object binPack extends ImportSelectors
