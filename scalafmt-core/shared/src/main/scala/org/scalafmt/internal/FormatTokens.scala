@@ -6,21 +6,23 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
 
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.rewrite.FormatTokensRewrite
 import org.scalafmt.util.StyleMap
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
 
-class FormatTokens(val arr: Array[FormatToken])
-    extends IndexedSeq[FormatToken] {
+class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
+    val arr: Array[FormatToken]
+) extends IndexedSeq[FormatToken] {
 
-  private val leftTok2tok: Map[TokenOps.TokenHash, Int] = {
+  private def this(arr: Array[FormatToken]) = this {
     val result = Map.newBuilder[TokenOps.TokenHash, Int]
     result.sizeHint(arr.length)
     arr.foreach(t => result += FormatTokens.thash(t.left) -> t.meta.idx)
     result += FormatTokens.thash(arr.last.right) -> arr.last.meta.idx
     result.result()
-  }
+  }(arr)
 
   private lazy val matchingParentheses: Map[TokenOps.TokenHash, Token] =
     TreeOps.getMatchingParentheses(arr.view.map(_.right))
@@ -33,11 +35,14 @@ class FormatTokens(val arr: Array[FormatToken])
     case _: Token.EOF => arr.last
     case _ =>
       val idx = leftTok2tok(FormatTokens.thash(tok))
-      val ft = arr(idx)
-      if (isBefore) {
-        if (ft.left.start <= tok.start) ft else at(idx - 1)
-      } else {
-        if (ft.left.start >= tok.start) ft else at(idx + 1)
+      if (idx >= arr.length) arr.last
+      else {
+        val ft = arr(idx)
+        if (isBefore) {
+          if (ft.left.start <= tok.start) ft else at(idx - 1)
+        } else {
+          if (ft.left.start >= tok.start) ft else at(idx + 1)
+        }
       }
   }
 
@@ -168,7 +173,7 @@ object FormatTokens {
     val ftoks = new FormatTokens(result.result)
     val styleMap = new StyleMap(ftoks, style)
 
-    ftoks -> styleMap
+    FormatTokensRewrite(ftoks, styleMap) -> styleMap
   }
 
   @inline
