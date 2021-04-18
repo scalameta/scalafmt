@@ -11,24 +11,44 @@ import org.scalafmt.util.Whitespace
 class FormatTokens(val arr: Array[FormatToken])
     extends IndexedSeq[FormatToken] {
 
-  private val leftTok2tok: Map[Token, FormatToken] = {
-    val result = Map.newBuilder[Token, FormatToken]
+  private val leftTok2tok: Map[TokenOps.TokenHash, Int] = {
+    val result = Map.newBuilder[TokenOps.TokenHash, Int]
     result.sizeHint(arr.length)
-    arr.foreach(t => result += t.left -> t)
-    result += (arr.last.right -> arr.last)
+    arr.foreach(t => result += FormatTokens.thash(t.left) -> t.meta.idx)
+    result += FormatTokens.thash(arr.last.right) -> arr.last.meta.idx
     result.result()
   }
 
   override def length: Int = arr.length
   override def apply(idx: Int): FormatToken = arr(idx)
 
+  private def get(tok: Token, isBefore: Boolean): FormatToken = tok match {
+    case _: Token.BOF => arr.head
+    case _: Token.EOF => arr.last
+    case _ =>
+      val idx = leftTok2tok(FormatTokens.thash(tok))
+      val ft = arr(idx)
+      if (isBefore) {
+        if (ft.left.start <= tok.start) ft else at(idx - 1)
+      } else {
+        if (ft.left.start >= tok.start) ft else at(idx + 1)
+      }
+  }
+
   def at(off: Int): FormatToken =
     if (off < 0) arr.head else if (off < arr.length) arr(off) else arr.last
 
-  def get(tok: Token): Option[FormatToken] = leftTok2tok.get(tok)
-  def apply(tok: Token): FormatToken = leftTok2tok(tok)
+  @inline def before(tok: Token): FormatToken = get(tok, true)
+  @inline def after(tok: Token): FormatToken = get(tok, false)
+  @inline def apply(tok: Token): FormatToken = before(tok)
 
-  def apply(tok: Token, off: Int): FormatToken = apply(apply(tok), off)
+  /** If the token is missing:
+    * - to go backward, start from the next token
+    * - to go forward, start from the previous token
+    * This ensures that the next token in the direction of search is counted.
+    */
+  def apply(tok: Token, off: Int): FormatToken =
+    apply(if (off < 0) after(tok) else before(tok), off)
   def apply(ft: FormatToken, off: Int): FormatToken = at(ft.meta.idx + off)
 
   @inline def hasNext(ft: FormatToken): Boolean = ft.meta.idx < (arr.length - 1)
@@ -64,7 +84,7 @@ class FormatTokens(val arr: Array[FormatToken])
     findToken(curr, next)(!_.right.is[Token.Comment]).fold(identity, identity)
 
   final def nextNonComment(curr: FormatToken.Meta): FormatToken =
-    nextNonComment(apply(curr.idx))
+    nextNonComment(arr(curr.idx))
 
   final def prevNonCommentSameLine(curr: FormatToken): FormatToken =
     findToken(curr, prev)(ft => ft.hasBreak || !ft.left.is[Token.Comment])
@@ -129,5 +149,8 @@ object FormatTokens {
       }
     new FormatTokens(result.result)
   }
+
+  @inline
+  def thash(token: Token): TokenOps.TokenHash = TokenOps.hash(token)
 
 }
