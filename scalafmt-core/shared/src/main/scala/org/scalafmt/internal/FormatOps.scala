@@ -1950,7 +1950,8 @@ class FormatOps(
     ): Option[Seq[Split]] = {
       val leftOwner = ft.meta.leftOwner
       findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
-        case Some(t: Term.Block) if isBlockStart(t, nft) =>
+        case Some(t: Term.Block)
+            if t.stats.lengthCompare(1) > 0 && isBlockStart(t, nft) =>
           Some(getSplitsMaybeBlock(ft, nft, t, true))
         case _ => None
       }
