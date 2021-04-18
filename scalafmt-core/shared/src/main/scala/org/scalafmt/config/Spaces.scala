@@ -37,7 +37,6 @@ case class Spaces(
     inByNameTypes: Boolean = true,
     afterSymbolicDefs: Boolean = false
 ) {
-  implicit val spaceBeforeContextBoundReader = beforeContextBoundColon.decoder
   implicit val reader: ConfDecoder[Spaces] = generic.deriveDecoder(this).noTypos
 }
 
