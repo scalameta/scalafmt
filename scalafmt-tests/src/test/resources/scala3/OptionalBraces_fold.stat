@@ -491,10 +491,9 @@ object a:
     }
 >>>
 object a:
-   def foo =
-     if cond then
-        sb.append(doc.text.substring(offset, end))
-        sb.append(doc.text.substring(offset, end))
+   def foo = if cond then
+      sb.append(doc.text.substring(offset, end))
+      sb.append(doc.text.substring(offset, end))
    def foo = if (cond) {
      sb.append(doc.text.substring(offset, end))
      sb.append(doc.text.substring(offset, end))
