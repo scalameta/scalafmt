@@ -2051,7 +2051,7 @@ class Router(formatOps: FormatOps) {
           if style.newlines.alwaysBeforeElseAfterCurlyIf
             || !left.is[T.RightBrace] =>
         Seq(
-          Split(Newline, 0)
+          Split(NewlineT(formatToken.hasBlankLine), 0)
         )
 
       case FormatToken(_, Keyword(), _) =>

@@ -4,6 +4,7 @@ import java.io.File
 
 import munit.FunSuite
 import org.scalafmt.Error.{Incomplete, SearchStateExploded}
+import org.scalafmt.rewrite.FormatTokensRewrite
 import org.scalafmt.util._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -58,6 +59,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     debugResults += saveResult(t, obtained, debug)
     if (
       t.style.rewrite.rules.isEmpty &&
+      FormatTokensRewrite.getEnabledFactories(t.style).isEmpty &&
       !t.style.assumeStandardLibraryStripMargin &&
       t.style.onTestFailure.isEmpty
     ) {
