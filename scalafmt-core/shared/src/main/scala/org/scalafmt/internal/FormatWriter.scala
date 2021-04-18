@@ -1042,7 +1042,7 @@ class FormatWriter(formatOps: FormatOps) {
           case t: Template => super.apply(t.stats) // skip inits
           case TreeOps.MaybeTopLevelStat(t) =>
             val leading = leadingComment(tokens(t.tokens.head, -1)).meta.idx
-            val trailing = tokens(t.tokens.last).meta.idx
+            val trailing = tokens.getLast(t).meta.idx
             headBuffer += leading
             lastBuffer += trailing -> leading
             super.apply(tree)
@@ -1059,9 +1059,9 @@ class FormatWriter(formatOps: FormatOps) {
       toks: Array[FormatLocation],
       i: Int
   ): Boolean = {
-    @tailrec def isMultiline(end: Token, i: Int, minLines: Int): Boolean =
+    @tailrec def isMultiline(end: FormatToken, i: Int, minLines: Int): Boolean =
       if (minLines <= 0) true
-      else if (i >= toks.length || toks(i).formatToken.left == end) false
+      else if (i >= toks.length || toks(i).formatToken == end) false
       else {
         val hasNL = toks(i).state.split.isNL
         isMultiline(end, i + 1, if (hasNL) minLines - 1 else minLines)
@@ -1085,7 +1085,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
         .flatten
         .map {
-          case pkg: Pkg => tokens(pkg.ref.tokens.last).right.is[T.LeftBrace]
+          case pkg: Pkg => tokens.getLast(pkg.ref).right.is[T.LeftBrace]
           case _ => true
         }
 
@@ -1098,7 +1098,7 @@ class FormatWriter(formatOps: FormatOps) {
           case x => x
         }
         isMultiline(
-          nonCommentOwner.tokens.last,
+          tokens.getLast(nonCommentOwner),
           i + distance + 1,
           initStyle.newlines.topLevelStatementsMinBreaks
         )
