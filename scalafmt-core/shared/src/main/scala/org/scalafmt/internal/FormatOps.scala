@@ -889,13 +889,6 @@ class FormatOps(
       style.newlines.notBeforeImplicitParamListModifier &&
       opensImplicitParamList(formatToken).isDefined
 
-  def styleAt(tree: Tree): ScalafmtConfig = {
-    val style = styleMap.at(tree.tokens.head)
-    if (styleMap.forcedBinPack(tree)) // off-by-one
-      styleMap.setBinPack(style, callSite = true)
-    else style
-  }
-
   def getApplyIndent(
       leftOwner: Tree,
       isConfigStyle: Boolean = false
@@ -907,8 +900,7 @@ class FormatOps(
       case _ => Num(style.indent.callSite)
     }
 
-  def isBinPack(owner: Tree): Boolean = {
-    implicit val style = styleAt(owner)
+  def isBinPack(owner: Tree)(implicit style: ScalafmtConfig): Boolean = {
     (style.binPack.unsafeCallSite && isCallSite(owner)) ||
     (style.binPack.unsafeDefnSite && isDefnSite(owner))
   }
