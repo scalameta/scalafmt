@@ -1156,8 +1156,7 @@ class Router(formatOps: FormatOps) {
             nextNonComment(next(tok)).right.is[RightParenOrBracket]
           Seq(Split(Space, 0), Split(Newline, 1).notIf(noNewline))
         }
-      case tok @ FormatToken(T.Comma(), right, _)
-          if leftOwner.isNot[Template] =>
+      case FormatToken(_: T.Comma, right, _) if leftOwner.isNot[Template] =>
         // TODO(olafur) DRY, see OneArgOneLine.
         argumentStarts.get(hash(right)) match {
           case Some(nextArg) if isBinPack(leftOwner) =>
