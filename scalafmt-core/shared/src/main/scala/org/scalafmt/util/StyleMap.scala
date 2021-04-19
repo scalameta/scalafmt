@@ -147,4 +147,6 @@ class StyleMap(
   def at(token: Token): ScalafmtConfig =
     tok2style.getOrElse(hash(token), init)
 
+  private[util] def numEntries: Int = tok2style.size
+
 }
