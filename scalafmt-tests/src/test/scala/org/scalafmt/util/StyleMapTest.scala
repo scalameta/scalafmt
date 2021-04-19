@@ -2,6 +2,7 @@ package org.scalafmt.util
 
 import scala.meta._
 
+import org.scalafmt.config.BinPack
 import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatOps
@@ -87,6 +88,32 @@ class StyleMapTest extends FunSuite {
     val newStyle2 = formatOps2.styleMap.at(token2)
     assert(style2.newlines.implicitParamListModifierForce == overrideValue)
     assert(newStyle2.newlines.implicitParamListModifierForce == overrideValue)
+  }
+
+  test("StyleMap.numEntries: unsafeCallSite for literalArgumentLists") {
+    /* By default, binPack.literalsMinArgCount=5, binPack.literalArgumentLists=true.
+     *
+     * Therefore, every println below (with 6 literal arguments) results in an
+     * attempt to set binPack.unsafeCallSite=true on the opening parenthesis,
+     * and then to reset it back to false on the closing parenthesis.
+     *
+     * One test uses the default settings (meaning, unsafeCallSite=false) while
+     * the other starts with BinPack.enabled, which includes unsafeCallSite=true.
+     */
+    val code =
+      """object a {
+        |  println(1, 2, 3, 4, 5, 6)
+        |  println(1, 2, 3, 4, 5, 6)
+        |  // scalafmt: { binPack.unsafeCallSite = false }
+        |  println(1, 2, 3, 4, 5, 6)
+        |}
+      """.stripMargin.parse[Source].get
+    val fops1 = new FormatOps(code, ScalafmtConfig.default)
+    val fops2 = new FormatOps(code, ScalafmtConfig(binPack = BinPack.enabled))
+    // all tokens starting with first "("
+    assertEquals(fops1.styleMap.numEntries, 43)
+    // all tokens starting with first "("
+    assertEquals(fops2.styleMap.numEntries, 43)
   }
 
 }
