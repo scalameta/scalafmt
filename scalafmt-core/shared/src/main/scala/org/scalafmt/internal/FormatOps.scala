@@ -1907,7 +1907,7 @@ class FormatOps(
         tree: Tree,
         forceNL: Boolean = false,
         useMain: Boolean = false
-    )(implicit style: ScalafmtConfig): Seq[Split] = {
+    )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
       val expire = nextNonCommentSameLine(tokens.getLast(tree)).left
       def nlPolicy(implicit line: sourcecode.Line) =
         decideNewlinesOnlyAfterClose(expire)
@@ -1918,11 +1918,13 @@ class FormatOps(
         Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
       else if (forceNL)
         Seq(Split(Newline, 0).withIndent(indent).withPolicy(nlPolicy))
-      else
+      else {
+        val nextLine = line.copy(value = line.value + 1)
         Seq(
           Split(Space, 0).withSingleLine(expire),
-          Split(Newline, 1).withIndent(indent).withPolicy(nlPolicy)
+          Split(Newline, 1)(nextLine).withIndent(indent).withPolicy(nlPolicy)
         )
+      }
     }
 
     def unapplyTemplate(ft: FormatToken, nft: FormatToken)(implicit
@@ -2096,7 +2098,7 @@ class FormatOps(
         nft: FormatToken,
         tree: Tree,
         allowMain: Boolean
-    )(implicit style: ScalafmtConfig): Seq[Split] = {
+    )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
       val multiStat = isTreeMultiStatBlock(tree)
       val forceNL = multiStat || shouldBreakInOptionalBraces(nft)
       getSplits(ft, tree, forceNL, allowMain && !multiStat)
@@ -2108,7 +2110,10 @@ class FormatOps(
         head: => Tree,
         tail: Seq[Tree],
         allowMain: Boolean
-    )(implicit style: ScalafmtConfig): Option[Seq[Split]] =
+    )(implicit
+        line: sourcecode.Line,
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] =
       if (head.tokens.headOption.contains(nft.right)) {
         val forceNL = shouldBreakInOptionalBraces(ft)
         tail.lastOption match {
@@ -2122,7 +2127,10 @@ class FormatOps(
         nft: FormatToken,
         trees: Seq[Tree],
         allowMain: Boolean
-    )(implicit style: ScalafmtConfig): Option[Seq[Split]] =
+    )(implicit
+        line: sourcecode.Line,
+        style: ScalafmtConfig
+    ): Option[Seq[Split]] =
       if (trees.isEmpty) None
       else getSplitsForStats(ft, nft, trees.head, trees.tail, allowMain)
 
@@ -2130,7 +2138,7 @@ class FormatOps(
         ft: FormatToken,
         nft: FormatToken,
         t: Term.If
-    )(implicit style: ScalafmtConfig): Seq[Split] = {
+    )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
       def nestedIf(x: Term.If) = {
         val forceNL = shouldBreakInOptionalBraces(nft) ||
           !ifWithoutElse(t) && existsIfWithoutElse(x)
