@@ -3,8 +3,12 @@ package org.scalafmt.rewrite
 import scala.meta._
 
 import org.scalafmt.config.FilterMatcher
+import org.scalafmt.config.RewriteSettings
 
-object AvoidInfix extends Rewrite {
+object AvoidInfix extends RewriteFactory {
+
+  override def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean =
+    v2.neverInfix ne v1.neverInfix
 
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new AvoidInfix

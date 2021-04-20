@@ -3,7 +3,7 @@ package org.scalafmt.rewrite
 import scala.collection.mutable
 import scala.meta._
 
-object ExpandImportSelectors extends Rewrite {
+object ExpandImportSelectors extends RewriteFactory {
 
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new ExpandImportSelectors

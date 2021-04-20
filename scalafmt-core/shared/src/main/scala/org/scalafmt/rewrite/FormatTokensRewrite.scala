@@ -215,7 +215,7 @@ object FormatTokensRewrite {
   }
 
   private def getFactories(implicit style: ScalafmtConfig): Seq[RuleFactory] =
-    factories
+    factories ++ style.rewrite.rules.collect { case x: RuleFactory => x }
 
   def getEnabledFactories(implicit style: ScalafmtConfig): Seq[RuleFactory] =
     getFactories.filter(_.enabled)

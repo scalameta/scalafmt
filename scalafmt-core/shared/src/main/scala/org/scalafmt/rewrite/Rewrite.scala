@@ -10,6 +10,7 @@ import scala.meta.tokens.Token.LF
 import scala.meta.transversers.SimpleTraverser
 
 import org.scalafmt.config.ReaderUtil
+import org.scalafmt.config.RewriteSettings
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps, Trivia, Whitespace}
 
@@ -100,8 +101,11 @@ case class RewriteCtx(
 
 }
 
-abstract class Rewrite {
+trait Rewrite
+
+abstract class RewriteFactory extends Rewrite {
   def create(implicit ctx: RewriteCtx): RewriteSession
+  def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean = false
 }
 
 abstract class RewriteSession(implicit ctx: RewriteCtx) {
@@ -151,7 +155,7 @@ object Rewrite {
   }
 
   def apply(input: VirtualFile, style: ScalafmtConfig): VirtualFile = {
-    val rewrites = style.rewrite.rules
+    val rewrites = style.rewrite.rewriteFactoryRules
     if (rewrites.isEmpty) {
       input
     } else {
@@ -186,7 +190,7 @@ object RewriteCtx {
     }
 
   // https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#prefix-infix-and-postfix-operations
-  private def isSimpleExprOr(
+  def isSimpleExprOr(
       expr: Tree
   )(orElse: PartialFunction[Tree, Boolean]): Boolean =
     expr match {

@@ -1,10 +1,15 @@
 package org.scalafmt.rewrite
 
+import org.scalafmt.config.RewriteSettings
 import org.scalafmt.util.TreeOps
 
 import scala.meta._
 
-object SortModifiers extends Rewrite {
+object SortModifiers extends RewriteFactory {
+
+  override def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean =
+    v2.sortModifiers ne v1.sortModifiers
+
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new SortModifiers
 }
