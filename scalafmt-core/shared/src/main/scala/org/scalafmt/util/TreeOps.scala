@@ -43,10 +43,11 @@ object TreeOps {
       case _ => typeWith
     }
 
-  def withChain(top: Tree): Seq[Type.With] =
+  @tailrec
+  def withChain(top: Tree, res: Seq[Type.With] = Seq.empty): Seq[Type.With] =
     top match {
-      case t: Type.With => t +: withChain(t.lhs)
-      case _ => Nil
+      case t: Type.With => withChain(t.lhs, t +: res)
+      case _ => res
     }
 
   def getEnumStatements(enums: Seq[Enumerator]): Seq[Enumerator] = {
