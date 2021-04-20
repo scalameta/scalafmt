@@ -566,8 +566,8 @@ object a:
 object a:
    val a =
      if (a)
-       if (aa)
-         aaa
+        if (aa)
+          aaa
      // c1
      else
        b
