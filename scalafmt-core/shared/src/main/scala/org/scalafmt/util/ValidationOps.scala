@@ -39,14 +39,19 @@ object ValidationOps {
     }
 
   def addIf(
+      what: sourcecode.Text[Boolean]
+  )(implicit errors: mutable.Buffer[String]): Unit =
+    addIfDirect(what.value, what.source)
+
+  def addIf(
       what: sourcecode.Text[Boolean],
-      why: => String = ""
+      why: => String
   )(implicit errors: mutable.Buffer[String]): Unit =
     addIfDirect(what.value, s"$why: ${what.source}")
 
   def addIfDirect(
       what: Boolean,
-      why: => String = ""
+      why: => String
   )(implicit errors: mutable.Buffer[String]): Unit =
     if (what) errors += why
 
