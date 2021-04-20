@@ -1963,7 +1963,7 @@ class FormatOps(
                 isTreeMultiStatBlock(t.thenp) || isElsePWithOptionalBraces(t) ||
                   !ifWithoutElse(t) && existsBlockIfWithoutElse(t.thenp)
             }) =>
-          Some(getSplitsForIf(ft, nft, t, false))
+          Some(getSplitsForIf(ft, nft, t))
         case _ => None
       }
 
@@ -2074,7 +2074,7 @@ class FormatOps(
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
       ft.meta.leftOwner match {
-        case t: Term.If => Some(getSplitsForIf(ft, nft, t, true))
+        case t: Term.If => Some(getSplitsForIf(ft, nft, t))
         case _ => None
       }
 
@@ -2133,20 +2133,17 @@ class FormatOps(
     private def getSplitsForIf(
         ft: FormatToken,
         nft: FormatToken,
-        t: Term.If,
-        usedThen: Boolean
+        t: Term.If
     )(implicit style: ScalafmtConfig): Seq[Split] = {
-      val allowMain = !(usedThen ||
-        isThenPWithOptionalBraces(t) || isElsePWithOptionalBraces(t))
       def nestedIf(x: Term.If) = {
         val forceNL = shouldBreakInOptionalBraces(nft) ||
           !ifWithoutElse(t) && existsIfWithoutElse(x)
-        getSplits(ft, x, forceNL, allowMain)
+        getSplits(ft, x, forceNL, false)
       }
       t.thenp match {
         case x: Term.If => nestedIf(x)
         case Term.Block(List(x: Term.If)) => nestedIf(x)
-        case x => getSplitsMaybeBlock(ft, nft, x, allowMain)
+        case x => getSplitsMaybeBlock(ft, nft, x, false)
       }
     }
 
