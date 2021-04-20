@@ -10,13 +10,13 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
 import scala.meta.tokens.Token.LeftParen
 import scala.meta.tokens.Token.RightParen
+
 import metaconfig.Configured
 import org.scalafmt.config.Config
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
-import org.scalafmt.util.TokenOps.TokenHash
 import org.scalameta.FileLine
 import org.scalameta.logger
 
@@ -25,21 +25,26 @@ class StyleMap(
     val init: ScalafmtConfig
 ) {
   import StyleMap._
-  import TokenOps.hash
   val literalR: FilterMatcher = init.binPack.literalsRegex
   private val prefix = "\\s*scalafmt: ".r
   val forcedBinPack: mutable.Set[Tree] = mutable.Set.empty
-  val (isEmpty: Boolean, tok2style: Map[TokenHash, ScalafmtConfig]) = {
+  private val (
+    starts: Array[Int],
+    styles: Array[ScalafmtConfig]
+  ) = {
     var curr = init
-    var empty = true
-    val map = Map.newBuilder[TokenHash, ScalafmtConfig]
+    val startBuilder = Array.newBuilder[Int]
+    val styleBuilder = Array.newBuilder[ScalafmtConfig]
+    startBuilder += 0
+    styleBuilder += init
     val disableBinPack = mutable.Set.empty[Token]
     def warn(err: String)(implicit fileLine: FileLine): Unit = logger.elem(err)
     tokens.arr.foreach { tok =>
       def changeStyle(style: ScalafmtConfig): Boolean = {
         val changing = curr != style
         if (changing) {
-          empty = false
+          startBuilder += tok.left.start
+          styleBuilder += style
           curr = style
         }
         changing
@@ -71,12 +76,8 @@ class StyleMap(
           changeStyle(setBinPack(curr, callSite = false))
         case _ =>
       }
-      if (!empty) {
-        // Minor optimization? Only add to map if needed.
-        map += hash(tok.left) -> curr
-      }
     }
-    (empty, map.result())
+    (startBuilder.result(), styleBuilder.result())
   }
 
   @tailrec
@@ -144,10 +145,15 @@ class StyleMap(
     at(token.left)
 
   @inline
-  def at(token: Token): ScalafmtConfig =
-    tok2style.getOrElse(hash(token), init)
+  def forall(f: ScalafmtConfig => Boolean): Boolean = styles.forall(f)
 
-  private[util] def numEntries: Int = tok2style.size
+  def at(token: Token): ScalafmtConfig = {
+    // since init is at pos 0, idx cannot be -1
+    val idx = java.util.Arrays.binarySearch(starts, token.start)
+    if (idx >= 0) styles(idx) else styles(-idx - 2)
+  }
+
+  private[util] def numEntries: Int = styles.length
 
 }
 

@@ -110,10 +110,19 @@ class StyleMapTest extends FunSuite {
       """.stripMargin.parse[Source].get
     val fops1 = new FormatOps(code, ScalafmtConfig.default)
     val fops2 = new FormatOps(code, ScalafmtConfig(binPack = BinPack.enabled))
-    // all tokens starting with first "("
-    assertEquals(fops1.styleMap.numEntries, 43)
-    // all tokens starting with "// scalafmt:" override
-    assertEquals(fops2.styleMap.numEntries, 16)
+    /*
+     * - 1: initial style
+     * - 6: all 3 pairs of "()"
+     * - "// scalafmt:" override does nothing, since the value doesn't change
+     */
+    assertEquals(fops1.styleMap.numEntries, 7)
+    /*
+     * - 1: initial style
+     * - 1: "// scalafmt:" override
+     * - 2: last pair of "()"
+     * - the first two pairs of () do nothing, since the value doesn't change
+     */
+    assertEquals(fops2.styleMap.numEntries, 4)
   }
 
 }
