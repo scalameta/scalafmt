@@ -2110,6 +2110,8 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t: Ctor.Secondary =>
             getSplitsForStats(ft, nft, t.init, t.stats, true)
+          case SplitAssignIntoParts((x: Term.PartialFunction, _)) =>
+            getSplitsForStats(ft, nft, x.cases, false)
           case _ => BlockImpl.tryGetSplits(ft, nft)
         }
 
@@ -2117,6 +2119,8 @@ class FormatOps(
           style: ScalafmtConfig
       ): Option[T] = ft.meta.leftOwner match {
         case t: Ctor.Secondary => if (t.stats.nonEmpty) treeLast(t) else None
+        case SplitAssignIntoParts((x: Term.PartialFunction, _)) =>
+          treeLast(x)
         case _ => BlockImpl.tryGetRightBrace(ft, nft)
       }
     }

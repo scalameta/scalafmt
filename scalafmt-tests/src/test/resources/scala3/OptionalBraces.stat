@@ -761,10 +761,6 @@ val f: String => String =
   case "horses" => "are neat"
   case _ => "cows are sweet"
 >>>
-<input>:2: error: illegal start of simple expression
-case "horses" => "are neat"
-^
-case _        => "cows are sweet"
 val f: String => String =
-case "horses" => "are neat"
-case _        => "cows are sweet"
+   case "horses" => "are neat"
+   case _        => "cows are sweet"

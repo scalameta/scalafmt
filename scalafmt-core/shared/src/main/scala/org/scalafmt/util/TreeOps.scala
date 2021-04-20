@@ -525,6 +525,10 @@ object TreeOps {
     case t: Defn.Val => (t.rhs, None)
     case t: Defn.Var => (t.rhs.getOrElse(t), None) // var x: Int = _, no policy
   }
+  object SplitAssignIntoParts {
+    def unapply(tree: Tree): Option[AssignParts] =
+      splitAssignIntoParts.lift(tree)
+  }
   val SplitAssignIntoPartsLeft =
     new FormatToken.ExtractFromMeta(x => splitAssignIntoParts.lift(x.leftOwner))
 
