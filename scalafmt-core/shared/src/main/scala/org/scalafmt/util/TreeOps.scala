@@ -805,11 +805,13 @@ object TreeOps {
       owner.is[Init] && init == owner || init.tpe == owner
     }
 
-  def isFirstDerives(t: Template, owner: Tree) =
-    owner.is[Type] && t.derives.headOption.contains(owner)
-
   def getStartOfTemplateBody(template: Template): Option[Token] =
     template.self.tokens.headOption
+      .filter { x =>
+        template.derives.lastOption
+          .orElse(template.inits.lastOption)
+          .forall(y => y.pos.end < x.start)
+      }
       .orElse(template.stats.headOption.flatMap(_.tokens.headOption))
 
   def getAndOrTypeRhs(tree: Tree): Option[Type] = tree match {

@@ -390,12 +390,40 @@ class FormatOps(
   def templateCurly(template: Template): Option[Token] =
     getStartOfTemplateBody(template).map(x => nonCommentBefore(x).left)
 
-  def templateDerivesOrCurly(template: Template): Option[Token] = {
-    val endOfInits = template.inits.lastOption.flatMap(_.tokens.lastOption)
-    endOfInits.fold(templateCurly(template)) { x =>
-      if (x.end >= template.pos.end) None
-      else Some(nextNonComment(tokens(x)).left)
+  def templateDerivesOrCurly(
+      template: Template
+  )(implicit ft: FormatToken): Option[Token] =
+    findTemplateGroupOnRight { case (_, group, func) =>
+      func(tokenAfter(group))
+    }(template).orElse(templateCurly(template))
+
+  private def findTreeInGroup[A](
+      trees: Seq[Tree],
+      func: (Tree, Seq[Tree], FormatToken => T) => A
+  )(expireFunc: FormatToken => T)(implicit ft: FormatToken): Option[A] = {
+    val endPos = ft.right.end
+    trees.find(_.pos.end >= endPos).map { x =>
+      func(x, trees, expireFunc)
     }
+  }
+
+  def findTemplateGroupOnRight[A](
+      func: (Tree, Seq[Tree], FormatToken => T) => A
+  )(template: Template)(implicit ft: FormatToken): Option[A] = {
+    @tailrec
+    def iter(groups: Seq[Seq[Tree]]): Option[A] =
+      if (groups.lengthCompare(1) == 0)
+        // for the last group, return '{' or ':'
+        findTreeInGroup(groups.head, func) { x =>
+          if (x.right.end <= template.pos.end) x.right else x.left
+        }
+      else {
+        // for intermediate groups, return its last token
+        val res = findTreeInGroup(groups.head, func)(_.left)
+        if (res.isDefined) res else iter(groups.tail)
+      }
+    val groups = Seq(template.inits, template.derives).filter(_.nonEmpty)
+    if (groups.isEmpty) None else iter(groups)
   }
 
   @inline
@@ -923,16 +951,10 @@ class FormatOps(
 
   def typeTemplateSplits(
       template: Template,
-      indent: Int,
-      isDerives: Boolean = false
-  )(implicit line: sourcecode.Line): Seq[Split] = {
-    val templateBrace =
-      if (isDerives) templateCurly(template)
-      else templateDerivesOrCurly(template)
-    val expire = templateBrace.getOrElse(getLastToken(template))
-
-    val policy = templateBrace match {
-      case Some(lb: T.LeftBrace) if template.self.tokens.isEmpty =>
+      indentIfSecond: Int
+  )(implicit line: sourcecode.Line, ft: FormatToken): Seq[Split] = {
+    def getPolicy(expire: T) = expire match {
+      case lb: T.LeftBrace if template.self.tokens.isEmpty =>
         Policy.after(lb) {
           // Force template to be multiline.
           case d @ Decision(FormatToken(`lb`, right, _), _)
@@ -941,12 +963,22 @@ class FormatOps(
         }
       case _ => NoPolicy
     }
-    Seq(
-      Split(Space, 0).withIndent(Num(indent), expire, ExpiresOn.After),
-      Split(Newline, 1)
-        .withPolicy(policy)
-        .withIndent(Num(indent), expire, ExpiresOn.After)
-    )
+    findTemplateGroupOnRight { case (tree, group, func) =>
+      // this method is called on a `with` or comma; hence, it can
+      // only refer to second or subsequent init/derive in a group
+      // we'll indent only the second, but not any subsequent ones
+      val isSecond = group.drop(1).headOption.contains(tree)
+      val expire = func(tokenAfter(group))
+      val indent =
+        if (!isSecond) Indent.Empty
+        else Indent(Num(indentIfSecond), expire, ExpiresOn.After)
+      Seq(
+        Split(Space, 0).withIndent(indent),
+        Split(Newline, 1).withPolicy(getPolicy(expire)).withIndent(indent)
+      )
+    }(template).getOrElse {
+      Seq(Split(Space, 0)) // shouldn't happen
+    }
   }
 
   def ctorWithChain(
@@ -2186,6 +2218,13 @@ class FormatOps(
       tree.stats.headOption.exists(_.tokens.headOption.contains(ft.right))
 
   }
+
+  @inline
+  def tokenAfter(tree: Tree): FormatToken =
+    nextNonComment(tokens.getLast(tree))
+
+  @inline
+  def tokenAfter(trees: Seq[Tree]): FormatToken = tokenAfter(trees.last)
 
   @inline
   def nonCommentBefore(token: T): FormatToken =
