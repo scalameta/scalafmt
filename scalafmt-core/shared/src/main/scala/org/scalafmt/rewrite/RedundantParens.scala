@@ -5,7 +5,7 @@ import scala.meta._
 
 import org.scalafmt.util.InfixApp
 
-object RedundantParens extends Rewrite {
+object RedundantParens extends RewriteFactory {
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new RedundantParens
 }

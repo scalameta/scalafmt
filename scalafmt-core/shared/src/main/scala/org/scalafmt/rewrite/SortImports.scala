@@ -51,7 +51,7 @@ sealed abstract class SortImports(implicit ctx: RewriteCtx)
 /** Sort imports with symbols at the beginning, followed by lowercase and
   * finally uppercase
   */
-object SortImports extends Rewrite {
+object SortImports extends RewriteFactory {
 
   // sort contributed by @djspiewak: https://gist.github.com/djspiewak/127776c2b6a9d6cd3c21a228afd4580f
   private val LCase = """([a-z].*)""".r
@@ -82,7 +82,7 @@ object SortImports extends Rewrite {
   *
   * See: http://support.ecisolutions.com/doc-ddms/help/reportsmenu/ascii_sort_order_chart.htm
   */
-object AsciiSortImports extends Rewrite {
+object AsciiSortImports extends RewriteFactory {
 
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new Impl

@@ -53,8 +53,9 @@ class StyleMap(
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
           Config.fromHoconString(c, Some("scalafmt"), init) match {
             case Configured.Ok(style) =>
-              if (init.rewrite.rulesChanged(style.rewrite))
-                warn("May not override rewrite settings")
+              init.rewrite.rulesChanged(style.rewrite).foreach { x =>
+                warn(x.mkString("May not override rewrite settings: ", ",", ""))
+              }
               changeStyle(style)
             case Configured.NotOk(e) =>
               // TODO(olafur) report error via callback

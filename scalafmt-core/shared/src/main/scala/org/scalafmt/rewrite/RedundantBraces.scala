@@ -12,10 +12,15 @@ import scala.meta.tokens.Token.RightBrace
 import scala.meta.tokens.Token.Dot
 import scala.meta.tokens.Token.RightArrow
 
+import org.scalafmt.config.RewriteSettings
 import org.scalafmt.util.InfixApp
 import org.scalafmt.util.TreeOps._
 
-object RedundantBraces extends Rewrite {
+object RedundantBraces extends RewriteFactory {
+
+  override def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean =
+    v2.redundantBraces ne v1.redundantBraces
+
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new RedundantBraces
 

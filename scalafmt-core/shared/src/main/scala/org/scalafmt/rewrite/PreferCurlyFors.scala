@@ -5,7 +5,7 @@ import org.scalafmt.util.Whitespace
 import scala.meta.tokens.Tokens
 import scala.meta._
 
-object PreferCurlyFors extends Rewrite {
+object PreferCurlyFors extends RewriteFactory {
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new PreferCurlyFors
 }
