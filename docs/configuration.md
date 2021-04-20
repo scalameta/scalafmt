@@ -1972,6 +1972,35 @@ method3(
 )
 ```
 
+## Scala3 rewrites
+
+This section describes rules which are applied if the appropriate dialect (e.g.,
+`runner.dialect = scala3`) is selected.
+
+> This logic is not triggered via the `rewrite.rules` parameter, but by setting
+> parameters under `rewrite.scala3` subsection.
+
+### `rewrite.scala3.convertToNewSyntax`
+
+If this flag is enabled, the following new syntax will be applied:
+
+- [control syntax](https://dotty.epfl.ch/docs/reference/other-new-features/control-syntax.html)
+- [vararg splices](https://dotty.epfl.ch/docs/reference/changed-features/vararg-splices.html)
+- [imports](https://dotty.epfl.ch/docs/reference/changed-features/imports.html)
+
+### `rewrite.scala3.removeOptionalBraces`
+
+If this flag is enabled,
+[optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
+will be removed and significant indentation applied.
+
+The flag takes the following values:
+
+- `no`: disabled
+- `yes`: applies to expressions using the new control syntax (or
+  `rewrite.scala3.convertToNewSyntax` is set)
+- `oldSyntaxToo`: applies also to expressions using deprecated syntax
+
 ## Vertical Multiline
 
 Since: v1.6.0.
