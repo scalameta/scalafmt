@@ -75,7 +75,7 @@ class Router(formatOps: FormatOps) {
     nextNonCommentSameLine
   }
 
-  private def getSplitsImpl(formatToken: FormatToken): Seq[Split] = {
+  private def getSplitsImpl(implicit formatToken: FormatToken): Seq[Split] = {
     implicit val style = styleMap.at(formatToken)
     val leftOwner = formatToken.meta.leftOwner
     val rightOwner = formatToken.meta.rightOwner
@@ -1449,24 +1449,20 @@ class Router(formatOps: FormatOps) {
       // Enum Case
       case FormatToken(_, T.KwExtends(), _)
           if rightOwner.isInstanceOf[Defn.EnumCase] =>
-        val lastToken = getLastToken(rightOwner)
         val enumCase = rightOwner.asInstanceOf[Defn.EnumCase]
         binPackParentConstructorSplits(
           Set(rightOwner),
-          lastToken,
+          getLastToken(rightOwner),
           style.indent.extendSite,
           enumCase.inits.length > 1
         )
 
       // Template
-      case FormatToken(_, right @ soft.ExtendsOrDerives(), _) =>
+      case FormatToken(_, soft.ExtendsOrDerives(), _) =>
         val template = defnTemplate(rightOwner)
-        val lastToken = template
-          .flatMap {
-            if (right.is[soft.KwDerives]) templateCurly
-            else templateDerivesOrCurly
-          }
-          .getOrElse(getLastToken(template.getOrElse(rightOwner)))
+        def lastToken = template.fold(getLastToken(rightOwner)) { x =>
+          templateDerivesOrCurly(x).getOrElse(getLastToken(x))
+        }
 
         binPackParentConstructorSplits(
           template.toSet,
@@ -1476,20 +1472,11 @@ class Router(formatOps: FormatOps) {
         )
 
       // trait A extends B, C, D, E
-      case FormatToken(T.Comma(), right, _) if leftOwner.is[Template] =>
+      case FormatToken(_: T.Comma, _, _) if leftOwner.is[Template] =>
         val template = leftOwner.asInstanceOf[Template]
-        val prevOwner = prevNonComment(prev(formatToken)).meta.leftOwner
-        val firstDerives = isFirstDerives(
-          template,
-          prevOwner
-        )
-        val ident =
-          if (firstDerives || isFirstInit(template, prevOwner))
-            style.indent.commaSiteRelativeToExtends
-          else 0
-        typeTemplateSplits(template, ident, firstDerives)
+        typeTemplateSplits(template, style.indent.commaSiteRelativeToExtends)
 
-      case FormatToken(_, T.KwWith(), _) =>
+      case FormatToken(_, _: T.KwWith, _) =>
         rightOwner match {
           // something like new A with B with C
           case template: Template if template.parent.exists { p =>
@@ -1503,11 +1490,7 @@ class Router(formatOps: FormatOps) {
             )
           // trait A extends B with C with D with E
           case template: Template =>
-            val prev = prevNonComment(formatToken)
-            val indent =
-              if (!isFirstInit(template, prev.meta.leftOwner)) 0
-              else style.indent.withSiteRelativeToExtends
-            typeTemplateSplits(template, indent)
+            typeTemplateSplits(template, style.indent.withSiteRelativeToExtends)
           case t @ WithChain(top) =>
             splitWithChain(
               !t.lhs.is[Type.With],

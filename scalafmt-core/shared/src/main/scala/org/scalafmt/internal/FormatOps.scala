@@ -404,12 +404,37 @@ class FormatOps(
   def templateCurly(template: Template): Option[Token] =
     getStartOfTemplateBody(template).map(x => nonCommentBefore(x).left)
 
-  def templateDerivesOrCurly(template: Template): Option[Token] = {
-    val endOfInits = template.inits.lastOption.flatMap(_.tokens.lastOption)
-    endOfInits.fold(templateCurly(template)) { x =>
-      if (x.end >= template.pos.end) None
-      else Some(nextNonComment(tokens(x)).left)
+  def templateDerivesOrCurly(
+      template: Template
+  )(implicit ft: FormatToken): Option[Token] =
+    findTemplateGroupOnRight(_.getExpireToken())(template)
+      .orElse(templateCurly(template))
+
+  private def findTreeInGroup[A](
+      trees: Seq[Tree],
+      func: TemplateSupertypeGroup => A
+  )(expireFunc: Seq[Tree] => T)(implicit ft: FormatToken): Option[A] =
+    trees.find(_.pos.end >= ft.right.end).map { x =>
+      func(TemplateSupertypeGroup(x, trees, expireFunc))
     }
+
+  def findTemplateGroupOnRight[A](
+      func: TemplateSupertypeGroup => A
+  )(template: Template)(implicit ft: FormatToken): Option[A] = {
+    @tailrec
+    def iter(groups: Seq[Seq[Tree]]): Option[A] =
+      if (groups.lengthCompare(1) == 0)
+        // for the last group, return '{' or ':'
+        findTreeInGroup(groups.head, func) { x =>
+          templateCurly(template).getOrElse(tokenAfter(x).left)
+        }
+      else {
+        // for intermediate groups, return its last token
+        val res = findTreeInGroup(groups.head, func)(x => tokenAfter(x).left)
+        if (res.isDefined) res else iter(groups.tail)
+      }
+    val groups = Seq(template.inits, template.derives).filter(_.nonEmpty)
+    if (groups.isEmpty) None else iter(groups)
   }
 
   @inline
@@ -937,16 +962,10 @@ class FormatOps(
 
   def typeTemplateSplits(
       template: Template,
-      indent: Int,
-      isDerives: Boolean = false
-  )(implicit line: sourcecode.Line): Seq[Split] = {
-    val templateBrace =
-      if (isDerives) templateCurly(template)
-      else templateDerivesOrCurly(template)
-    val expire = templateBrace.getOrElse(getLastToken(template))
-
-    val policy = templateBrace match {
-      case Some(lb: T.LeftBrace) if template.self.tokens.isEmpty =>
+      indentIfSecond: Int
+  )(implicit line: sourcecode.Line, ft: FormatToken): Seq[Split] = {
+    def getPolicy(expire: T) = expire match {
+      case lb: T.LeftBrace if template.self.tokens.isEmpty =>
         Policy.after(lb) {
           // Force template to be multiline.
           case d @ Decision(FormatToken(`lb`, right, _), _)
@@ -955,12 +974,20 @@ class FormatOps(
         }
       case _ => NoPolicy
     }
-    Seq(
-      Split(Space, 0).withIndent(Num(indent), expire, ExpiresOn.After),
-      Split(Newline, 1)
-        .withPolicy(policy)
-        .withIndent(Num(indent), expire, ExpiresOn.After)
-    )
+    findTemplateGroupOnRight { x =>
+      // this method is called on a `with` or comma; hence, it can
+      // only refer to second or subsequent init/derive in a group
+      // we'll indent only the second, but not any subsequent ones
+      val expire = x.getExpireToken()
+      val indent =
+        if (!x.isSecond()) Indent.Empty
+        else Indent(Num(indentIfSecond), expire, ExpiresOn.After)
+      def nlSplit(cost: Int) =
+        Split(Newline, cost).withPolicy(getPolicy(expire)).withIndent(indent)
+      Seq(Split(Space, 0).withIndent(indent), nlSplit(1))
+    }(template).getOrElse {
+      Seq(Split(Space, 0)) // shouldn't happen
+    }
   }
 
   def ctorWithChain(
@@ -2376,6 +2403,13 @@ class FormatOps(
   }
 
   @inline
+  def tokenAfter(tree: Tree): FormatToken =
+    nextNonComment(tokens.getLast(tree))
+
+  @inline
+  def tokenAfter(trees: Seq[Tree]): FormatToken = tokenAfter(trees.last)
+
+  @inline
   def nonCommentBefore(token: T): FormatToken =
     prevNonComment(tokens(token, -1))
 
@@ -2446,6 +2480,15 @@ object FormatOps {
       new SelectLike(tree, tree.qual, tree.name.tokens.head)
     def apply(tree: Term.Match, kw: Token.KwMatch): SelectLike =
       new SelectLike(tree, tree.expr, kw)
+  }
+
+  case class TemplateSupertypeGroup(
+      superType: Tree,
+      superTypeGroup: Seq[Tree],
+      expireTokenFunc: Seq[Tree] => T
+  ) {
+    def getExpireToken() = expireTokenFunc(superTypeGroup)
+    def isSecond() = superTypeGroup.drop(1).headOption.contains(superType)
   }
 
 }
