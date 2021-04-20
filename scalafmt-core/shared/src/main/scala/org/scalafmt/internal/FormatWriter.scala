@@ -764,8 +764,7 @@ class FormatWriter(formatOps: FormatOps) {
     // TODO(olafur) Refactor implementation to make it maintainable. It's super
     // imperative and error-prone right now.
     private def alignmentTokens: Map[Int, Int] = {
-      lazy val noAlignTokens = initStyle.align.tokens.isEmpty &&
-        styleMap.tok2style.values.forall(_.align.tokens.isEmpty)
+      lazy val noAlignTokens = styleMap.forall(_.align.tokens.isEmpty)
       if (locations.length != tokens.length || noAlignTokens)
         Map.empty[Int, Int]
       else {
