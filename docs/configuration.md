@@ -83,6 +83,24 @@ val example2 =
   |""".stripMargin
 ```
 
+## Scala 3
+
+Scalafmt supports Scala 3 features that can be enabled by changing
+the dialect of the Scalafmt parser.
+
+```
+runner.dialect = scala3
+---
+open class MyOpenClass()
+val myQuote = '{ expr }
+val mySplice = ${ expr }
+enum class Weekday {
+  case Monday, Tuesday, Wednesday, Thursday, Friday
+}
+```
+
+Please also see [rewrite rules](#scala3-rewrites) for Scala 3.
+
 ## Presets
 
 Some sections provide preset values to set multiple parameters at once. These
@@ -2964,22 +2982,6 @@ maxColumn = 30
 ---
 (foo.map(_ + 1).map(_ + 1))
   .filter(_ > 2)
-```
-
-## Scala 3
-
-Scalafmt has basic support for Scala 3 features that can be enabled by changing
-the dialect of the Scalafmt parser.
-
-```
-runner.dialect = Scala3
----
-open class MyOpenClass()
-val myQuote = '{ expr }
-val mySplice = ${ expr }
-enum class Weekday {
-  case Monday, Tuesday, Wednesday, Thursday, Friday
-}
 ```
 
 ## Miscellaneous
