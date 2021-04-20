@@ -24,6 +24,7 @@ class StyleMap(
     tokens: FormatTokens,
     val init: ScalafmtConfig
 ) {
+  import StyleMap._
   import TokenOps.hash
   val literalR: FilterMatcher = init.binPack.literalsRegex
   private val prefix = "\\s*scalafmt: ".r
@@ -35,6 +36,14 @@ class StyleMap(
     val disableBinPack = mutable.Set.empty[Token]
     def warn(err: String)(implicit fileLine: FileLine): Unit = logger.elem(err)
     tokens.arr.foreach { tok =>
+      def changeStyle(style: ScalafmtConfig): Boolean = {
+        val changing = curr != style
+        if (changing) {
+          empty = false
+          curr = style
+        }
+        changing
+      }
       tok.left match {
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
           Config.fromHoconString(c, Some("scalafmt"), init) match {
@@ -47,8 +56,7 @@ class StyleMap(
                   style.runner.dialect.allowTrailingCommas
               )
                 warn("May not override rewrite settings (trailingCommas)")
-              empty = false
-              curr = style
+              changeStyle(style)
             case Configured.NotOk(e) =>
               // TODO(olafur) report error via callback
               logger.elem(e)
@@ -57,11 +65,10 @@ class StyleMap(
             if curr.binPack.literalArgumentLists &&
               opensLiteralArgumentList(tok)(curr) =>
           forcedBinPack += tok.meta.leftOwner
-          empty = false
-          curr = setBinPack(curr, callSite = true)
-          tokens.matchingOpt(open).foreach(disableBinPack += _)
+          if (changeStyle(setBinPack(curr, callSite = true)))
+            tokens.matchingOpt(open).foreach(disableBinPack += _)
         case close @ RightParen() if disableBinPack(close) =>
-          curr = setBinPack(curr, callSite = false)
+          changeStyle(setBinPack(curr, callSite = false))
         case _ =>
       }
       if (!empty) {
@@ -71,13 +78,6 @@ class StyleMap(
     }
     (empty, map.result())
   }
-
-  def setBinPack(curr: ScalafmtConfig, callSite: Boolean): ScalafmtConfig =
-    curr.copy(
-      binPack = curr.binPack.copy(
-        unsafeCallSite = callSite
-      )
-    )
 
   @tailrec
   private def isBasicLiteral(
@@ -148,5 +148,13 @@ class StyleMap(
     tok2style.getOrElse(hash(token), init)
 
   private[util] def numEntries: Int = tok2style.size
+
+}
+
+object StyleMap {
+
+  def setBinPack(curr: ScalafmtConfig, callSite: Boolean): ScalafmtConfig =
+    if (curr.binPack.unsafeCallSite == callSite) curr
+    else curr.copy(binPack = curr.binPack.copy(unsafeCallSite = callSite))
 
 }
