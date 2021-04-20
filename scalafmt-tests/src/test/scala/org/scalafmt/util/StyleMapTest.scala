@@ -112,8 +112,8 @@ class StyleMapTest extends FunSuite {
     val fops2 = new FormatOps(code, ScalafmtConfig(binPack = BinPack.enabled))
     // all tokens starting with first "("
     assertEquals(fops1.styleMap.numEntries, 43)
-    // all tokens starting with first "("
-    assertEquals(fops2.styleMap.numEntries, 43)
+    // all tokens starting with "// scalafmt:" override
+    assertEquals(fops2.styleMap.numEntries, 16)
   }
 
 }
