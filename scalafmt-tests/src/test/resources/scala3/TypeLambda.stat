@@ -3,6 +3,10 @@
 type   Tuple   =  [  X ] =>> (X, X)
 >>>
 type Tuple = [X] =>> (X, X)
+<<< type lambda ident
+type Of[S] = [F[_]] =>>   Scoped[F, S]
+>>>
+type Of[S] = [F[_]] =>> Scoped[F, S]
 <<< type lambda long
 maxColumn = 30
 ===

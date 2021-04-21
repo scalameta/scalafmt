@@ -39,7 +39,7 @@ object Delim {
     token.is[Underscore] || token.is[LeftParen] || token.is[RightParen] ||
     token.is[Comma] || token.is[Dot] || token.is[Semicolon] ||
     token.is[LeftBracket] || token.is[RightBracket] || token.is[LeftBrace] ||
-    token.is[RightBrace] || token.is[ContextArrow]
+    token.is[RightBrace] || token.is[ContextArrow] || token.is[TypeLambdaArrow]
   }
 }
 
