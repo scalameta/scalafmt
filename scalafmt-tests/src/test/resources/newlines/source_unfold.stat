@@ -3591,14 +3591,16 @@ package a {
           )
       }
       for {
-        foo <- barBar(
-          bazBaz,
-          quxQux
-        )
-        foo = barBar(
-          bazBaz,
-          quxQux
-        )
+        foo <-
+          barBar(
+            bazBaz,
+            quxQux
+          )
+        foo =
+          barBar(
+            bazBaz,
+            quxQux
+          )
       } yield foo
     }
   }

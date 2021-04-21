@@ -1670,7 +1670,10 @@ class FormatOps(
       if (body.tokens.isEmpty) Seq(Split(Space, 0))
       else foldedNonEmptyNonComment(ft, body, nlSplitFunc, spaceIndents)
 
-    private def unfoldedSpaceNonEmptyNonComment(body: Tree): Split = {
+    private def unfoldedSpaceNonEmptyNonComment(
+        body: Tree,
+        slbOnly: Boolean
+    ): Split = {
       val expire = nextNonCommentSameLine(tokens.getLastNonTrivial(body)).left
       def slbSplit(end: Token)(implicit line: sourcecode.Line) =
         Split(Space, 0).withSingleLine(end, noSyntaxNL = true)
@@ -1687,7 +1690,7 @@ class FormatOps(
         case _: Term.Try | _: Term.TryWithHandler => Split.ignored
         // don't tuck curried apply
         case Term.Apply(_: Term.Apply, _) => slbSplit(expire)
-        case EndOfFirstCall(end) => slbSplit(end)
+        case EndOfFirstCall(end) if !slbOnly => slbSplit(end)
         case _ => slbSplit(expire)
       }
     }
@@ -1695,11 +1698,12 @@ class FormatOps(
     private def unfoldedNonComment(
         body: Tree,
         nlSplitFunc: Int => Split,
-        spaceIndents: Seq[Indent]
+        spaceIndents: Seq[Indent],
+        slbOnly: Boolean
     )(implicit style: ScalafmtConfig): Seq[Split] =
       if (body.tokens.isEmpty) Seq(Split(Space, 0).withIndents(spaceIndents))
       else {
-        val spaceSplit = unfoldedSpaceNonEmptyNonComment(body)
+        val spaceSplit = unfoldedSpaceNonEmptyNonComment(body, slbOnly)
         Seq(spaceSplit.withIndents(spaceIndents), nlSplitFunc(1).forThisLine)
       }
 
@@ -1728,6 +1732,15 @@ class FormatOps(
         foldedNonComment(x, body, nlSplitFunc, spaceIndents)
       }
 
+    def slbOnly(
+        ft: FormatToken,
+        body: Tree,
+        spaceIndents: Seq[Indent] = Seq.empty
+    )(nlSplitFunc: Int => Split)(implicit style: ScalafmtConfig): Seq[Split] =
+      checkComment(ft, nlSplitFunc) { _ =>
+        unfoldedNonComment(body, nlSplitFunc, spaceIndents, true)
+      }
+
     def get(
         ft: FormatToken,
         body: Tree,
@@ -1738,7 +1751,7 @@ class FormatOps(
       checkComment(ft, nlSplitFunc) { x =>
         style.newlines.getBeforeMultiline match {
           case Newlines.unfold =>
-            unfoldedNonComment(body, nlSplitFunc, spaceIndents)
+            unfoldedNonComment(body, nlSplitFunc, spaceIndents, false)
           case Newlines.classic | Newlines.keep if x.hasBreak =>
             Seq(nlSplitFunc(0).forThisLine)
           case Newlines.classic =>
