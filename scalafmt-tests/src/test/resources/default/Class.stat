@@ -352,3 +352,34 @@ abstract class A(
     x: Int
   ): Int
 }
+<<< #2441 template handling in scala3, short
+runner.dialect = scala3
+maxColumn = 40
+===
+object ValueTypes:
+    case object Private
+        extends ClassificationValue
+        with ConstantText
+>>>
+object ValueTypes:
+  case object Private
+      extends ClassificationValue
+      with ConstantText
+------Idempotency violated
+      with
+        ConstantText
+<<< #2441 template handling in scala3
+runner.dialect = scala3
+===
+object ValueTypes:
+    case object Private
+        extends ClassificationValue
+        with ConstantText
+>>>
+object ValueTypes:
+  case object Private extends ClassificationValue with ConstantText
+--Idempotency violated
+  case object Private
+      extends ClassificationValue
+      with
+        ConstantText
