@@ -1004,8 +1004,10 @@ class Router(formatOps: FormatOps) {
         val open = formatToken.left
         val close = matching(open)
         val indent = getApplyIndent(leftOwner)
+        val noSplitIndent =
+          if (style.binPack.indentCallSiteOnce) Num(0) else indent
         def baseNoSplit(implicit line: sourcecode.Line) =
-          Split(NoSplit, 0).withIndent(indent, close, Before)
+          Split(NoSplit, 0).withIndent(noSplitIndent, close, Before)
         val opensLiteralArgumentList =
           styleMap.opensLiteralArgumentList(formatToken)
         val singleLineOnly =
@@ -1161,9 +1163,12 @@ class Router(formatOps: FormatOps) {
         argumentStarts.get(hash(right)) match {
           case Some(nextArg) if isBinPack(leftOwner) =>
             val lastFT = tokens.getLast(nextArg)
+            val indentCallSiteOnce =
+              style.binPack.indentCallSiteOnce && isCallSite(leftOwner)
+            val indent = if (indentCallSiteOnce) style.indent.callSite else 0
             Seq(
               Split(Space, 0).withSingleLine(rhsOptimalToken(lastFT)),
-              Split(Newline, 1)
+              Split(Newline, 1).withIndent(indent, right, After)
             )
           case _
               if !style.newlines.formatInfix &&

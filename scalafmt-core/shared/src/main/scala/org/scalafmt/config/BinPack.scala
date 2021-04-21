@@ -29,6 +29,7 @@ import metaconfig._
 case class BinPack(
     unsafeCallSite: Boolean = false,
     unsafeDefnSite: Boolean = false,
+    indentCallSiteOnce: Boolean = false,
     parentConstructors: BinPack.ParentCtors = BinPack.ParentCtors.MaybeNever,
     literalArgumentLists: Boolean = true,
     literalsIncludeSimpleExpr: Boolean = false,

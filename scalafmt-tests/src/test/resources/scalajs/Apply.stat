@@ -154,6 +154,7 @@ object SharedPolicyAmounts {
 }
 <<< #2079 avoid nested indent
 binPack.preset = true
+binPack.indentCallSiteOnce = true
 continuationIndent.callSite = 4
 ===
 object a {
@@ -163,5 +164,5 @@ object a {
 >>>
 object a {
   new SimpleMethodName(validateSimpleEncodedName(name, 0, len,
-          openAngleBracketOK = false))
+      openAngleBracketOK = false))
 }
