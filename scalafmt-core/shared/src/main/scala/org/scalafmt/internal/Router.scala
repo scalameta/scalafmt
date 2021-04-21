@@ -623,25 +623,10 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.KwDef, _: T.Ident, _) =>
         Seq(Split(Space, 0))
       case ft @ FormatToken(_: T.Equals, _, SplitAssignIntoPartsLeft(parts)) =>
-        def singleLineOrBreak(rhs: Tree): Seq[Split] = {
-          def nlSplitFunc(cost: Int): Split =
-            CtrlBodySplits.withIndent(Split(Newline, cost), ft, rhs)
-          CtrlBodySplits.checkComment(ft, nlSplitFunc) { _ =>
-            def spaceSplit = Split(Space, 0)
-            rhs.tokens.lastOption.fold(Seq(spaceSplit)) { expire =>
-              Seq(
-                spaceSplit.withSingleLine(expire, noSyntaxNL = true),
-                nlSplitFunc(1)
-              )
-            }
-          }
-        }
         asInfixApp(rightOwner, style.newlines.formatInfix).fold {
           val (rhs, paramss) = parts
           getSplitsDefValEquals(ft, rhs) {
-            if (style.newlines.shouldForceBeforeMultilineAssign(leftOwner))
-              singleLineOrBreak(rhs)
-            else if (paramss.isDefined) getSplitsDefEquals(ft, rhs)
+            if (paramss.isDefined) getSplitsDefEquals(ft, rhs)
             else getSplitsValEquals(ft, rhs)(getSplitsValEqualsClassic(ft, rhs))
           }
         }(getInfixSplitsBeforeLhs(_, ft))
@@ -2164,6 +2149,10 @@ class Router(formatOps: FormatOps) {
       Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft.noBreak), 0), ft, body))
     else if (isJsNative(body))
       Seq(Split(Space, 0).withSingleLine(expire))
+    else if (style.newlines.shouldForceBeforeMultilineAssign(ft.meta.leftOwner))
+      CtrlBodySplits.slbOnly(ft, body, spaceIndents) { x =>
+        CtrlBodySplits.withIndent(Split(Newline, x), ft, body)
+      }
     else
       splits
   }
