@@ -3498,6 +3498,10 @@ package a {
         def foo() = barBar(bazBaz, quxQux)
         def foo(q: Int) = barBar(bazBaz, quxQux)
       }
+      for {
+        foo <- barBar(bazBaz, quxQux)
+        foo = barBar(bazBaz, quxQux)
+      } yield foo
     }
   }
 }
@@ -3554,6 +3558,16 @@ package a {
             quxQux
           )
       }
+      for {
+        foo <- barBar(
+          bazBaz,
+          quxQux
+        )
+        foo = barBar(
+          bazBaz,
+          quxQux
+        )
+      } yield foo
     }
   }
 }
@@ -3653,6 +3667,10 @@ package a {
         def foo() = barBar(bazBaz, quxQux)
         def foo(q: Int) = barBar(bazBaz, quxQux)
       }
+      for {
+        foo <- barBar(bazBaz, quxQux)
+        foo = barBar(bazBaz, quxQux)
+      } yield foo
     }
   }
 }
@@ -3703,6 +3721,16 @@ package a {
             quxQux
           )
       }
+      for {
+        foo <- barBar(
+          bazBaz,
+          quxQux
+        )
+        foo = barBar(
+          bazBaz,
+          quxQux
+        )
+      } yield foo
     }
   }
 }
