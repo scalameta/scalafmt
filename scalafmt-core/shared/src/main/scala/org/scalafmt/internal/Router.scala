@@ -1451,6 +1451,7 @@ class Router(formatOps: FormatOps) {
           if rightOwner.isInstanceOf[Defn.EnumCase] =>
         val enumCase = rightOwner.asInstanceOf[Defn.EnumCase]
         binPackParentConstructorSplits(
+          true,
           Set(rightOwner),
           getLastToken(rightOwner),
           style.indent.extendSite,
@@ -1465,6 +1466,7 @@ class Router(formatOps: FormatOps) {
         }
 
         binPackParentConstructorSplits(
+          true,
           template.toSet,
           lastToken,
           style.indent.extendSite,
@@ -1482,20 +1484,22 @@ class Router(formatOps: FormatOps) {
           case template: Template if template.parent.exists { p =>
                 p.is[Term.New] || p.is[Term.NewAnonymous] || p.is[Defn.Given]
               } =>
-            splitWithChain(
+            binPackParentConstructorSplits(
               isFirstInit(template, leftOwner),
               Set(template),
               templateCurly(template).getOrElse(getLastToken(template)),
+              style.indent.main,
               template.inits.length > 1
             )
           // trait A extends B with C with D with E
           case template: Template =>
             typeTemplateSplits(template, style.indent.withSiteRelativeToExtends)
           case t @ WithChain(top) =>
-            splitWithChain(
+            binPackParentConstructorSplits(
               !t.lhs.is[Type.With],
               withChain(top).toSet,
-              top.tokens.last
+              top.tokens.last,
+              style.indent.main
             )
           case enumCase: Defn.EnumCase =>
             val indent = style.indent.withSiteRelativeToExtends
@@ -2098,23 +2102,6 @@ class Router(formatOps: FormatOps) {
   }
 
   private implicit def int2num(n: Int): Num = Num(n)
-
-  private def splitWithChain(
-      isFirstWith: Boolean,
-      owners: => Set[Tree],
-      lastToken: => Token,
-      extendsThenWith: => Boolean = false
-  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
-    if (isFirstWith) {
-      binPackParentConstructorSplits(
-        owners,
-        lastToken,
-        style.indent.main,
-        extendsThenWith
-      )
-    } else {
-      Seq(Split(Space, 0), Split(Newline, 1))
-    }
 
   private def getSplitsDefValEquals(
       ft: FormatToken,

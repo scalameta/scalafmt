@@ -1007,33 +1007,36 @@ class FormatOps(
       }
 
   def binPackParentConstructorSplits(
-      owners: Set[Tree],
+      isFirstCtor: Boolean,
+      owners: => Set[Tree],
       lastToken: Token,
       indentLen: Int,
-      extendsThenWith: Boolean = false
-  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
-    val nlMod = NewlineT(alt = Some(Space))
-    val nlPolicy = ctorWithChain(owners, lastToken)
-    val nlOnelineTag = style.binPack.parentConstructors match {
-      case BinPack.ParentCtors.Oneline => Right(true)
-      case BinPack.ParentCtors.OnelineIfPrimaryOneline =>
-        Left(SplitTag.OnelineWithChain)
-      case BinPack.ParentCtors.Always | BinPack.ParentCtors.Never =>
-        Right(false)
-      case _ =>
-        Right(style.newlines.source eq Newlines.fold)
-    }
-    val indent = Indent(Num(indentLen), lastToken, ExpiresOn.After)
-    Seq(
-      Split(Space, 0).withSingleLine(lastToken, noSyntaxNL = extendsThenWith),
-      Split(nlMod, 0)
-        .onlyIf(nlOnelineTag != Right(false))
-        .preActivateFor(nlOnelineTag.left.toOption)
-        .withSingleLine(lastToken, noSyntaxNL = extendsThenWith)
-        .withIndent(indent),
-      Split(nlMod, 1).withPolicy(nlPolicy).withIndent(indent)
-    )
-  }
+      extendsThenWith: => Boolean = false
+  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
+    if (isFirstCtor) {
+      val nlMod = NewlineT(alt = Some(Space))
+      val nlPolicy = ctorWithChain(owners, lastToken)
+      val nlOnelineTag = style.binPack.parentConstructors match {
+        case BinPack.ParentCtors.Oneline => Right(true)
+        case BinPack.ParentCtors.OnelineIfPrimaryOneline =>
+          Left(SplitTag.OnelineWithChain)
+        case BinPack.ParentCtors.Always | BinPack.ParentCtors.Never =>
+          Right(false)
+        case _ =>
+          Right(style.newlines.source eq Newlines.fold)
+      }
+      val indent = Indent(Num(indentLen), lastToken, ExpiresOn.After)
+      val noSyntaxNL = extendsThenWith
+      Seq(
+        Split(Space, 0).withSingleLine(lastToken, noSyntaxNL = noSyntaxNL),
+        Split(nlMod, 0)
+          .onlyIf(nlOnelineTag != Right(false))
+          .preActivateFor(nlOnelineTag.left.toOption)
+          .withSingleLine(lastToken, noSyntaxNL = noSyntaxNL)
+          .withIndent(indent),
+        Split(nlMod, 1).withPolicy(nlPolicy).withIndent(indent)
+      )
+    } else Seq(Split(Space, 0), Split(Newline, 1))
 
   def delayedBreakPolicyFactory(onBreakPolicy: Policy): Policy.Pf = {
     object OnBreakDecision {
