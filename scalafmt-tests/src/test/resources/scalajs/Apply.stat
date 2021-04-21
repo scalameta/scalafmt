@@ -152,3 +152,16 @@ object SharedPolicyAmounts {
       75000, 100000, 150000, 200000, 300000, 400000, 500000, 750000, 1000000
   )
 }
+<<< #2079 avoid nested indent
+binPack.preset = true
+continuationIndent.callSite = 4
+===
+object a {
+  new SimpleMethodName(
+    validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))
+}
+>>>
+object a {
+  new SimpleMethodName(validateSimpleEncodedName(name, 0, len,
+          openAngleBracketOK = false))
+}
