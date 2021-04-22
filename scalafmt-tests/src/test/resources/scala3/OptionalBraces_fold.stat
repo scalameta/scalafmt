@@ -686,3 +686,53 @@ object a:
      // c1
      else if aa then aaa
 // c1
+<<< #2448
+object Foo:
+  def bar = process(arg match
+    case a: A if a.b =>
+      None
+
+    case a: A if a.c() =>
+      None
+
+    case a: A if a.c() =>
+      None
+
+    case a: A if a.b =>
+      Some(someMethod().anotherMethod().fooBarMethod(ObjectWithLongName.method()))
+
+    case a: A if a.c() =>
+      val varName = a.method(a.someField.anotherField.method().map(ObjectWithLongName.A))
+      val otherVarName = varName.method(a.someField.method(ObjectWithLongName.B))
+      otherVarName
+
+    case a: A if a.someField.otherField.function().exists(SomeObjectLongName.isTrue) =>
+      None
+  )
+>>>
+object Foo:
+   def bar = process(
+     arg match
+        case a: A if a.b => None
+
+        case a: A if a.c() => None
+
+        case a: A if a.c() => None
+
+        case a: A if a.b =>
+          Some(
+            someMethod().anotherMethod()
+              .fooBarMethod(ObjectWithLongName.method())
+          )
+
+        case a: A if a.c() =>
+          val varName = a
+            .method(a.someField.anotherField.method().map(ObjectWithLongName.A))
+          val otherVarName = varName
+            .method(a.someField.method(ObjectWithLongName.B))
+          otherVarName
+
+        case a: A
+            if a.someField.otherField.function()
+              .exists(SomeObjectLongName.isTrue) => None
+   )
