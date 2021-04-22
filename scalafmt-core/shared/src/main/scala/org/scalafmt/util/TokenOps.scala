@@ -1,6 +1,5 @@
 package org.scalafmt.util
 
-import scala.meta.classifiers.Classifier
 import scala.meta.{Defn, Pkg, Source, Template, Term, Tree}
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -202,9 +201,6 @@ object TokenOps {
       case Newlines.fold => false
       case Newlines.unfold => true
     }
-
-  def classifyOnRight[A](cls: Classifier[Token, A])(ft: FormatToken): Boolean =
-    cls(ft.right)
 
   def findArgsFor[A <: Tree](
       token: Token,

@@ -747,7 +747,7 @@ class Router(formatOps: FormatOps) {
             }
           )
             parensTuple(args(0).tokens.last)
-          else insideBlock[T.LeftBrace](tok, close)
+          else insideBracesBlock(tok, close)
 
         val indent = getApplyIndent(leftOwner, onlyConfigStyle)
 
@@ -1012,7 +1012,7 @@ class Router(formatOps: FormatOps) {
               if (isBracket)
                 insideBlock[T.LeftBracket](formatToken, close)
               else
-                insideBlock[T.LeftBrace](formatToken, close)
+                insideBracesBlock(formatToken, close)
             val policy =
               policyWithExclude(exclude, Policy.End.Before, Policy.End.On)(
                 Policy.End.Before(close),
@@ -1390,7 +1390,7 @@ class Router(formatOps: FormatOps) {
           case Newlines.fold =>
             val end =
               nextSelect.fold(expire)(x => getLastNonTrivialToken(x.qual))
-            def exclude = insideBlock[LeftParenOrBrace](t, end)
+            def exclude = insideBracesBlock(t, end, true)
             Seq(
               Split(NoSplit, 0).withSingleLine(end, exclude),
               Split(NewlineT(alt = Some(NoSplit)), 1)
@@ -1597,7 +1597,7 @@ class Router(formatOps: FormatOps) {
           CtrlBodySplits.get(formatToken, body) {
             Split(Space, 0).withSingleLineNoOptimal(
               expire,
-              insideBlock[T.LeftBrace](formatToken, expire),
+              insideBracesBlock(formatToken, expire),
               noSyntaxNL = leftOwner.is[Term.ForYield] && right.is[T.KwYield]
             )
           }(nlSplitFunc)
@@ -1615,7 +1615,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, T.KwElse() | T.KwYield(), _) =>
         val expire = rhsOptimalToken(tokens.getLast(rightOwner))
         val noSpace = shouldBreak(formatToken)
-        def exclude = insideBlock[T.LeftBrace](formatToken, expire)
+        def exclude = insideBracesBlock(formatToken, expire)
         val noSyntaxNL = formatToken.right.is[T.KwYield]
         Seq(
           Split(Space, 0)
@@ -1777,7 +1777,7 @@ class Router(formatOps: FormatOps) {
 
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
         val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
-        val exclude = insideBlock[T.LeftBrace](tok, arrow)
+        val exclude = insideBracesBlock(tok, arrow)
 
         Seq(
           Split(Space, 0).withSingleLineNoOptimal(arrow, exclude = exclude),
@@ -1934,7 +1934,7 @@ class Router(formatOps: FormatOps) {
           case Newlines.fold =>
             val endOfGuard = getLastToken(rightOwner)
             val exclude =
-              insideBlock[LeftParenOrBrace](formatToken, endOfGuard)
+              insideBracesBlock(formatToken, endOfGuard, true)
             Seq(
               Split(Space, 0).withSingleLine(endOfGuard, exclude = exclude),
               Split(Newline, 1)
@@ -2227,7 +2227,7 @@ class Router(formatOps: FormatOps) {
       baseSpaceSplit
         .withOptimalToken(optimal)
         .withPolicy {
-          val exclude = insideBlock[T.LeftBrace](ft, expire)
+          val exclude = insideBracesBlock(ft, expire)
           policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
             Policy.End.Before(expire),
             new PenalizeAllNewlines(_, Constants.ShouldBeSingleLine)
