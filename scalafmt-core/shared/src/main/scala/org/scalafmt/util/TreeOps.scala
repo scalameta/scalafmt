@@ -788,15 +788,8 @@ object TreeOps {
     }
 
   // Redundant {} block around case statements
-  def isCaseBodyABlock(ft: FormatToken, caseStat: CaseTree): Boolean = {
-    val bodyOpt = caseStat match {
-      case c: CaseTree => Some(c.body)
-      case _ => None
-    }
-    bodyOpt.exists { body =>
-      ft.right.is[Token.LeftBrace] && (body eq ft.meta.rightOwner)
-    }
-  }
+  def isCaseBodyABlock(ft: FormatToken, caseStat: CaseTree): Boolean =
+    ft.right.is[Token.LeftBrace] && (caseStat.body eq ft.meta.rightOwner)
 
   def isFirstInit(t: Template, owner: Tree) =
     t.inits.headOption.exists { init =>
