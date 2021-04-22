@@ -1,0 +1,9 @@
+
+<<< extends with scalafmt/issues/2441
+object ValueTypes:
+    case object Private
+        extends ClassificationValue
+        with ConstantText
+>>>
+object ValueTypes:
+  case object Private extends ClassificationValue with ConstantText
