@@ -1885,6 +1885,12 @@ class FormatOps(
 
   object OptionalBraces {
 
+    trait Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]]
+    }
+
     // Optional braces in templates after `:|with`
     // Optional braces after any token that can start indentation:
     // )  =  =>  ?=>  <-  catch  do  else  finally  for
@@ -1894,26 +1900,35 @@ class FormatOps(
     )(implicit style: ScalafmtConfig): Option[Seq[Split]] = {
       val ft = tokens(ftMeta.idx)
       val nft = nextNonComment(ft)
-      val rightOwner = nft.meta.rightOwner
-      if (nft.right.is[T.LeftBrace] || rightOwner.is[Term.Block]) None
-      else {
-        ft.left match {
-          case _: T.Colon | _: T.KwWith => unapplyTemplate(ft, nft)
-          case _: T.RightArrow => unapplyRightArrow(ft, nft)
-          case _: T.RightParen => unapplyRightParen(ft, nft)
-          case _: T.KwFor => unapplyFor(ft, nft)
-          case _: T.KwDo => unapplyDo(ft, nft)
-          case _: T.Equals => unapplyEquals(ft, nft)
-          case _: T.KwTry => unapplyTry(ft, nft)
-          case _: T.KwCatch => unapplyCatch(ft, nft)
-          case _: T.KwFinally => unapplyFinally(ft, nft)
-          case _: T.KwMatch => unapplyMatch(ft, nft)
-          case _: T.KwThen => unapplyThen(ft, nft)
-          case _: T.KwElse => unapplyElse(ft, nft)
-          case _ => unapplyBlock(ft, nft)
-        }
-      }
+      getImpl(ft, nft).flatMap(_.tryGetSplits(ft, nft))
     }
+
+    def getImpl(ft: FormatToken, nft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Option[Impl] =
+      if (nft.right.is[T.LeftBrace]) None
+      else if (!style.runner.dialect.allowSignificantIndentation) None
+      else {
+        val impl = ft.left match {
+          case _: T.Colon | _: T.KwWith => TemplateImpl
+          case _: T.RightArrow => RightArrowImpl
+          case _: T.RightParen => RightParenImpl
+          case _: T.KwFor => ForImpl
+          case _: T.KwDo => DoImpl
+          case _: T.Equals => EqualsImpl
+          case _: T.KwTry => TryImpl
+          case _: T.KwCatch => CatchImpl
+          case _: T.KwFinally => FinallyImpl
+          case _: T.KwMatch => MatchImpl
+          case _: T.KwThen => ThenImpl
+          case _: T.KwElse => ElseImpl
+          case _: T.KwReturn | _: T.ContextArrow | _: T.LeftArrow |
+              _: T.KwThrow | _: T.KwWhile | _: T.KwYield =>
+            BlockImpl
+          case _ => null
+        }
+        Option(impl)
+      }
 
     private def getSplits(
         ft: FormatToken,
@@ -1940,171 +1955,196 @@ class FormatOps(
       }
     }
 
-    def unapplyTemplate(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] = {
-      ft.meta.leftOwner match {
-        case t: Template if templateCurly(t).contains(ft.left) =>
-          Some(getSplits(ft, t, forceNL = true))
-        case _ => None
+    object TemplateImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] = {
+        ft.meta.leftOwner match {
+          case t: Template if templateCurly(t).contains(ft.left) =>
+            Some(getSplits(ft, t, forceNL = true))
+          case _ => None
+        }
       }
     }
 
-    def unapplyBlock(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] = {
-      val leftOwner = ft.meta.leftOwner
-      findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
-        case Some(t: Term.Block)
-            if t.stats.lengthCompare(1) > 0 && isBlockStart(t, nft) =>
-          Some(getSplitsMaybeBlock(ft, nft, t, true))
-        case _ => None
+    object BlockImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] = {
+        val leftOwner = ft.meta.leftOwner
+        findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
+          case Some(t: Term.Block)
+              if t.stats.lengthCompare(1) > 0 && isBlockStart(t, nft) =>
+            Some(getSplitsMaybeBlock(ft, nft, t, true))
+          case _ => None
+        }
       }
     }
 
-    def unapplyRightParen(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] =
-      ft.meta.leftOwner match {
-        case Defn.ExtensionGroup(_, _, t: Term.Block) if isBlockStart(t, nft) =>
-          Some(getSplitsMaybeBlock(ft, nft, t, true))
-        case t: Term.If if (nft.right match {
-              case _: T.KwThen | _: T.LeftBrace => false
-              case _ =>
+    object RightParenImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] =
+        ft.meta.leftOwner match {
+          case Defn.ExtensionGroup(_, _, t: Term.Block)
+              if isBlockStart(t, nft) =>
+            Some(getSplitsMaybeBlock(ft, nft, t, true))
+          case t: Term.If if !nft.right.is[T.KwThen] && {
                 isTreeMultiStatBlock(t.thenp) || isElsePWithOptionalBraces(t) ||
-                  !ifWithoutElse(t) && existsBlockIfWithoutElse(t.thenp)
-            }) =>
-          Some(getSplitsForIf(ft, nft, t))
-        case _ => None
-      }
+                !ifWithoutElse(t) && existsBlockIfWithoutElse(t.thenp)
+              } =>
+            Some(getSplitsForIf(ft, nft, t))
+          case _ => None
+        }
+    }
 
-    def unapplyRightArrow(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] =
-      if (ft.meta.leftOwner.is[Case]) None // already takes care of indents etc.
-      else unapplyBlock(ft, nft)
+    object RightArrowImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] =
+        if (ft.meta.leftOwner.is[Case]) None // already behaves this way
+        else BlockImpl.tryGetSplits(ft, nft)
+    }
 
-    def unapplyFor(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] =
-      ft.meta.leftOwner match {
-        case t: Term.For => getSplitsForStats(ft, nft, t.enums, false)
-        case t: Term.ForYield => getSplitsForStats(ft, nft, t.enums, false)
-        case _ => unapplyBlock(ft, nft)
-      }
+    object ForImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] =
+        ft.meta.leftOwner match {
+          case t: Term.For => getSplitsForStats(ft, nft, t.enums, false)
+          case t: Term.ForYield => getSplitsForStats(ft, nft, t.enums, false)
+          case _ => BlockImpl.tryGetSplits(ft, nft)
+        }
+    }
 
-    def unapplyDo(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] =
-      (ft.meta.leftOwner match {
-        case t: Term.Do => Some(t.body -> true)
-        case t: Term.While => Some(t.body -> false)
-        case t: Term.For => Some(t.body -> false)
-        case _ => None
-      }).map { case (body, allowMain) =>
-        getSplitsMaybeBlock(ft, nft, body, allowMain)
-      }
+    object DoImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] =
+        (ft.meta.leftOwner match {
+          case t: Term.Do => Some(t.body -> true)
+          case t: Term.While => Some(t.body -> false)
+          case t: Term.For => Some(t.body -> false)
+          case _ => None
+        }).map { case (body, allowMain) =>
+          getSplitsMaybeBlock(ft, nft, body, allowMain)
+        }
+    }
 
-    def unapplyEquals(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] =
-      ft.meta.leftOwner match {
-        case t: Ctor.Secondary =>
-          getSplitsForStats(ft, nft, t.init, t.stats, true)
-        case _ => unapplyBlock(ft, nft)
-      }
+    object EqualsImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] =
+        ft.meta.leftOwner match {
+          case t: Ctor.Secondary =>
+            getSplitsForStats(ft, nft, t.init, t.stats, true)
+          case _ => BlockImpl.tryGetSplits(ft, nft)
+        }
+    }
 
-    def unapplyTry(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] =
-      (ft.meta.leftOwner match {
-        case t: Term.Try =>
-          val usesOB = isTreeMultiStatBlock(t.expr) ||
-            isCatchUsingOptionalBraces(t) ||
-            t.finallyp.exists(isTreeUsingOptionalBraces)
-          Some(t.expr -> usesOB)
-        case t: Term.TryWithHandler =>
-          val usesOB = isTreeMultiStatBlock(t.expr) ||
-            t.finallyp.exists(isTreeUsingOptionalBraces)
-          Some(t.expr -> usesOB)
-        case _ => None
-      }).map { case (body, usesOptionalBraces) =>
-        val forceNL = shouldBreakInOptionalBraces(nft)
-        getSplits(ft, body, forceNL, !usesOptionalBraces)
-      }
+    object TryImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] =
+        (ft.meta.leftOwner match {
+          case t: Term.Try =>
+            val usesOB = isTreeMultiStatBlock(t.expr) ||
+              isCatchUsingOptionalBraces(t) ||
+              t.finallyp.exists(isTreeUsingOptionalBraces)
+            Some(t.expr -> usesOB)
+          case t: Term.TryWithHandler =>
+            val usesOB = isTreeMultiStatBlock(t.expr) ||
+              t.finallyp.exists(isTreeUsingOptionalBraces)
+            Some(t.expr -> usesOB)
+          case _ => None
+        }).map { case (body, usesOptionalBraces) =>
+          val forceNL = shouldBreakInOptionalBraces(nft)
+          getSplits(ft, body, forceNL, !usesOptionalBraces)
+        }
+    }
 
     private def isCatchUsingOptionalBraces(tree: Term.Try): Boolean =
       tree.catchp.headOption.exists(x =>
         !nonCommentBefore(x).left.is[T.LeftBrace]
       )
 
-    def unapplyCatch(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] =
-      ft.meta.leftOwner match {
-        case t: Term.Try => getSplitsForStats(ft, nft, t.catchp, false)
-        case _ => None
-      }
+    object CatchImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] =
+        ft.meta.leftOwner match {
+          case t: Term.Try => getSplitsForStats(ft, nft, t.catchp, false)
+          case _ => None
+        }
+    }
 
-    def unapplyFinally(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] =
-      (ft.meta.leftOwner match {
-        case t: Term.Try =>
-          t.finallyp.map { x =>
-            x -> (isTreeMultiStatBlock(x) ||
-              isCatchUsingOptionalBraces(t) ||
-              isTreeUsingOptionalBraces(t.expr))
-          }
-        case t: Term.TryWithHandler =>
-          t.finallyp.map { x =>
-            x -> (isTreeMultiStatBlock(x) ||
-              isTreeUsingOptionalBraces(t.expr))
-          }
-        case _ => None
-      }).map { case (body, usesOptionalBraces) =>
-        val forceNL = shouldBreakInOptionalBraces(nft)
-        getSplits(ft, body, forceNL, !usesOptionalBraces)
-      }
+    object FinallyImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] =
+        (ft.meta.leftOwner match {
+          case t: Term.Try =>
+            t.finallyp.map { x =>
+              x -> (isTreeMultiStatBlock(x) ||
+                isCatchUsingOptionalBraces(t) ||
+                isTreeUsingOptionalBraces(t.expr))
+            }
+          case t: Term.TryWithHandler =>
+            t.finallyp.map { x =>
+              x -> (isTreeMultiStatBlock(x) ||
+                isTreeUsingOptionalBraces(t.expr))
+            }
+          case _ => None
+        }).map { case (body, usesOptionalBraces) =>
+          val forceNL = shouldBreakInOptionalBraces(nft)
+          getSplits(ft, body, forceNL, !usesOptionalBraces)
+        }
+    }
 
-    def unapplyMatch(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] = {
-      def result(tree: Tree, cases: Seq[Tree]): Option[Seq[Split]] = {
-        val ok = cases.headOption.exists(_.tokens.head eq nft.right)
-        if (ok) Some(getSplits(ft, tree, true)) else None
-      }
-      ft.meta.leftOwner match {
-        case t: Term.Match => result(t, t.cases)
-        case t: Type.Match => result(t, t.cases)
-        case _ => None
+    object MatchImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] = {
+        def result(tree: Tree, cases: Seq[Tree]): Option[Seq[Split]] = {
+          val ok = cases.headOption.exists(_.tokens.head eq nft.right)
+          if (ok) Some(getSplits(ft, tree, true)) else None
+        }
+        ft.meta.leftOwner match {
+          case t: Term.Match => result(t, t.cases)
+          case t: Type.Match => result(t, t.cases)
+          case _ => None
+        }
       }
     }
 
-    def unapplyThen(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] =
-      ft.meta.leftOwner match {
-        case t: Term.If => Some(getSplitsForIf(ft, nft, t))
-        case _ => None
-      }
+    object ThenImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] =
+        ft.meta.leftOwner match {
+          case t: Term.If => Some(getSplitsForIf(ft, nft, t))
+          case _ => None
+        }
+    }
 
-    def unapplyElse(ft: FormatToken, nft: FormatToken)(implicit
-        style: ScalafmtConfig
-    ): Option[Seq[Split]] =
-      ft.meta.leftOwner match {
-        case t: Term.If =>
-          t.elsep match {
-            case _: Term.If => None
-            case x if isTreeMultiStatBlock(x) =>
-              Some(getSplits(ft, x, true))
-            case x if isThenPWithOptionalBraces(t) =>
-              val forceNL = shouldBreakInOptionalBraces(nft)
-              Some(getSplits(ft, x, forceNL))
-            case _ => None
-          }
-        case _ => None
-      }
+    object ElseImpl extends Impl {
+      def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[Seq[Split]] =
+        ft.meta.leftOwner match {
+          case t: Term.If =>
+            t.elsep match {
+              case _: Term.If => None
+              case x if isTreeMultiStatBlock(x) =>
+                Some(getSplits(ft, x, true))
+              case x if isThenPWithOptionalBraces(t) =>
+                val forceNL = shouldBreakInOptionalBraces(nft)
+                Some(getSplits(ft, x, forceNL))
+              case _ => None
+            }
+          case _ => None
+        }
+    }
 
     private def getSplitsMaybeBlock(
         ft: FormatToken,
