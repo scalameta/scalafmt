@@ -727,14 +727,32 @@ object Foo:
       None
   )
 >>>
-FormatTests:53 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '.∙isTrue[557:563]', line 19
+object Foo:
+   def bar = process(arg match
+      case a: A if a.b =>
+        None
 
-org.scalafmt.Error$FormatterOutputDoesNotParse: Formatter output does not parse:
-          otherVarName
+      case a: A if a.c() =>
+        None
 
-        case a: A
-            if a.someField.otherField.function().exists(SomeObjectLongName
-                                                                        ^
-<input>:29: error: ) expected but end of file found
-            if a.someField.otherField.function().exists(SomeObjectLongName
-                                                                          ^
+      case a: A if a.c() =>
+        None
+
+      case a: A if a.b =>
+        Some(
+          someMethod().anotherMethod().fooBarMethod(ObjectWithLongName.method())
+        )
+
+      case a: A if a.c() =>
+        val varName =
+          a.method(a.someField.anotherField.method().map(ObjectWithLongName.A))
+        val otherVarName =
+          varName.method(a.someField.method(ObjectWithLongName.B))
+        otherVarName
+
+      case a: A
+          if a.someField.otherField
+            .function()
+            .exists(SomeObjectLongName.isTrue) =>
+        None
+   )

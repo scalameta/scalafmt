@@ -20,8 +20,6 @@ private class BestFirstSearch private (
     range: Set[Range],
     formatWriter: FormatWriter
 )(implicit val formatOps: FormatOps) {
-  import Token._
-
   import LoggerOps._
   import TokenOps._
   import TreeOps._
@@ -69,15 +67,13 @@ private class BestFirstSearch private (
     if (!recurseOnBlocks || !isInsideNoOptZone(ft)) None
     else {
       val left = tokens(ft, -1)
-      if (!left.left.is[LeftBrace]) None
-      else {
-        val close = tokens.matching(left.left)
+      val closeOpt = formatOps.getEndOfBlock(left, false)(style)
+      closeOpt.filter(close =>
         // Block must span at least 3 lines to be worth recursing.
-        val ok = close != stop &&
+        close != stop &&
           distance(left.left, close) > style.maxColumn * 3 &&
           extractStatementsIfAny(left.meta.leftOwner).nonEmpty
-        if (ok) Some(close) else None
-      }
+      )
     }
 
   def stateColumnKey(state: State): StateHash = {

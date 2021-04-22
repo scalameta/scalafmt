@@ -263,33 +263,46 @@ class FormatOps(
   def insideBlock[A](start: FormatToken, end: Token)(implicit
       classifier: Classifier[Token, A]
   ): TokenRanges =
-    insideBlock(start, end, classifyOnRight(classifier))
+    insideBlock(start, end, x => classifier(x.left))
 
   def insideBlock(
       start: FormatToken,
       end: T,
       matches: FormatToken => Boolean
+  ): TokenRanges =
+    insideBlock { x =>
+      if (matches(x)) matchingOpt(x.left) else None
+    }(start, end)
+
+  def insideBracesBlock(
+      start: FormatToken,
+      end: T,
+      parensToo: Boolean = false
+  )(implicit style: ScalafmtConfig): TokenRanges =
+    insideBlock(x => getEndOfBlock(x, parensToo))(start, end)
+
+  def insideBlock(matches: FormatToken => Option[T])(
+      start: FormatToken,
+      end: T
   ): TokenRanges = {
     val result = Seq.newBuilder[TokenRange]
 
     @tailrec
     def run(tok: FormatToken): Unit =
-      if (tok.right.start < end.start) {
-        val nextTokOpt = Option(tok).filter(matches).flatMap { tok =>
-          val open = tok.right
-          matchingOpt(open).flatMap { close =>
-            if (open.start >= close.end) None
-            else {
-              result += TokenRange(open, close)
-              Some(tokens(close))
-            }
+      if (tok.left.start < end.start) {
+        val nextTokOpt = matches(tok).flatMap { close =>
+          val open = tok.left
+          if (open.start >= close.end) None
+          else {
+            result += TokenRange(open, close)
+            Some(tokens(close))
           }
         }
         val nextTok = nextTokOpt.getOrElse(next(tok))
         if (nextTok ne tok) run(nextTok)
       }
 
-    run(start)
+    run(next(start))
     TokenRanges(result.result())
   }
 
@@ -703,7 +716,7 @@ class FormatOps(
             case (expire, cost) =>
               val exclude =
                 if (breakMany) TokenRanges.empty
-                else insideBlock[LeftParenOrBrace](nextFT, expire)
+                else insideBracesBlock(nextFT, expire, true)
               Split(ModExt(newStmtMod.getOrElse(Space)), cost)
                 .withSingleLine(expire, exclude)
           }
@@ -1876,6 +1889,10 @@ class FormatOps(
       def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig
       ): Option[Seq[Split]]
+
+      def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T]
     }
 
     // Optional braces in templates after `:|with`
@@ -1952,6 +1969,14 @@ class FormatOps(
           case _ => None
         }
       }
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = ft.meta.leftOwner match {
+        case t: Template if templateCurly(t).contains(ft.left) =>
+          if (t.stats.lengthCompare(1) > 0) treeLast(t) else None
+        case _ => None
+      }
     }
 
     object BlockImpl extends Impl {
@@ -1963,6 +1988,18 @@ class FormatOps(
           case Some(t: Term.Block)
               if t.stats.lengthCompare(1) > 0 && isBlockStart(t, nft) =>
             Some(getSplitsMaybeBlock(ft, nft, t, true))
+          case _ => None
+        }
+      }
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = {
+        val leftOwner = ft.meta.leftOwner
+        findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
+          case Some(t: Term.Block)
+              if t.stats.lengthCompare(1) > 0 && isBlockStart(t, nft) =>
+            treeLast(t)
           case _ => None
         }
       }
@@ -1983,6 +2020,17 @@ class FormatOps(
             Some(getSplitsForIf(ft, nft, t))
           case _ => None
         }
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = ft.meta.leftOwner match {
+        case Defn.ExtensionGroup(_, _, t: Term.Block) if isBlockStart(t, nft) =>
+          if (t.stats.lengthCompare(1) > 0) treeLast(t) else None
+        case t: Term.If if !nft.right.is[T.KwThen] => blockLast(t.thenp)
+        case t: Term.For if !nft.right.is[T.KwDo] => blockLast(t.body)
+        case t: Term.While if !nft.right.is[T.KwDo] => blockLast(t.body)
+        case _ => None
+      }
     }
 
     object RightArrowImpl extends Impl {
@@ -1991,6 +2039,13 @@ class FormatOps(
       ): Option[Seq[Split]] =
         if (ft.meta.leftOwner.is[Case]) None // already behaves this way
         else BlockImpl.tryGetSplits(ft, nft)
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = ft.meta.leftOwner match {
+        case t: Case => blockLast(t.body)
+        case _ => BlockImpl.tryGetRightBrace(ft, nft)
+      }
     }
 
     object ForImpl extends Impl {
@@ -2002,6 +2057,14 @@ class FormatOps(
           case t: Term.ForYield => getSplitsForStats(ft, nft, t.enums, false)
           case _ => BlockImpl.tryGetSplits(ft, nft)
         }
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = ft.meta.leftOwner match {
+        case t: Term.For => seqLast(t.enums)
+        case t: Term.ForYield => seqLast(t.enums)
+        case _ => None
+      }
     }
 
     object DoImpl extends Impl {
@@ -2016,6 +2079,15 @@ class FormatOps(
         }).map { case (body, allowMain) =>
           getSplitsMaybeBlock(ft, nft, body, allowMain)
         }
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = ft.meta.leftOwner match {
+        case t: Term.Do => blockLast(t.body)
+        case t: Term.For => blockLast(t.body)
+        case t: Term.While => blockLast(t.body)
+        case _ => None
+      }
     }
 
     object EqualsImpl extends Impl {
@@ -2027,6 +2099,13 @@ class FormatOps(
             getSplitsForStats(ft, nft, t.init, t.stats, true)
           case _ => BlockImpl.tryGetSplits(ft, nft)
         }
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = ft.meta.leftOwner match {
+        case t: Ctor.Secondary => if (t.stats.nonEmpty) treeLast(t) else None
+        case _ => BlockImpl.tryGetRightBrace(ft, nft)
+      }
     }
 
     object TryImpl extends Impl {
@@ -2048,6 +2127,14 @@ class FormatOps(
           val forceNL = shouldBreakInOptionalBraces(nft)
           getSplits(ft, body, forceNL, !usesOptionalBraces)
         }
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = ft.meta.leftOwner match {
+        case t: Term.Try => blockLast(t.expr)
+        case t: Term.TryWithHandler => blockLast(t.expr)
+        case _ => None
+      }
     }
 
     private def isCatchUsingOptionalBraces(tree: Term.Try): Boolean =
@@ -2063,6 +2150,13 @@ class FormatOps(
           case t: Term.Try => getSplitsForStats(ft, nft, t.catchp, false)
           case _ => None
         }
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = ft.meta.leftOwner match {
+        case t: Term.Try => seqLast(t.catchp)
+        case _ => None
+      }
     }
 
     object FinallyImpl extends Impl {
@@ -2086,6 +2180,14 @@ class FormatOps(
           val forceNL = shouldBreakInOptionalBraces(nft)
           getSplits(ft, body, forceNL, !usesOptionalBraces)
         }
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = ft.meta.leftOwner match {
+        case t: Term.Try => t.finallyp.flatMap(blockLast)
+        case t: Term.TryWithHandler => t.finallyp.flatMap(blockLast)
+        case _ => None
+      }
     }
 
     object MatchImpl extends Impl {
@@ -2102,6 +2204,14 @@ class FormatOps(
           case _ => None
         }
       }
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = ft.meta.leftOwner match {
+        case t: Term.Match => treeLast(t)
+        case t: Type.Match => treeLast(t)
+        case _ => None
+      }
     }
 
     object ThenImpl extends Impl {
@@ -2112,6 +2222,13 @@ class FormatOps(
           case t: Term.If => Some(getSplitsForIf(ft, nft, t))
           case _ => None
         }
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = ft.meta.leftOwner match {
+        case t: Term.If => blockLast(t.thenp)
+        case _ => None
+      }
     }
 
     object ElseImpl extends Impl {
@@ -2131,6 +2248,13 @@ class FormatOps(
             }
           case _ => None
         }
+
+      override def tryGetRightBrace(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[T] = ft.meta.leftOwner match {
+        case t: Term.If => blockLast(t.elsep)
+        case _ => None
+      }
     }
 
     private def getSplitsMaybeBlock(
@@ -2225,6 +2349,12 @@ class FormatOps(
     private def isBlockStart(tree: Term.Block, ft: FormatToken): Boolean =
       tree.stats.headOption.exists(_.tokens.headOption.contains(ft.right))
 
+    @inline private def treeLast(tree: Tree): Option[T] = tree.tokens.lastOption
+    @inline private def blockLast(tree: Tree): Option[T] =
+      if (isTreeMultiStatBlock(tree)) treeLast(tree) else None
+    @inline private def seqLast(seq: Seq[Tree]): Option[T] =
+      if (seq.lengthCompare(1) > 0) treeLast(seq.last) else None
+
   }
 
   @inline
@@ -2272,6 +2402,19 @@ class FormatOps(
 
   val ExtractAndOrTypeRhsIdentLeft =
     new ExtractFromMeta(ft => getAndOrTypeRhs(ft.meta.leftOwner))
+
+  def getEndOfBlock(ft: FormatToken, parensToo: Boolean)(implicit
+      style: ScalafmtConfig
+  ): Option[T] =
+    ft.left match {
+      case x: T.LeftBrace => matchingOpt(x)
+      case x: T.LeftParen => if (parensToo) matchingOpt(x) else None
+      case _ =>
+        val nft = nextNonComment(ft)
+        if (nft.right.is[T.LeftBrace]) None
+        else
+          OptionalBraces.getImpl(ft, nft).flatMap(_.tryGetRightBrace(ft, nft))
+    }
 
 }
 
