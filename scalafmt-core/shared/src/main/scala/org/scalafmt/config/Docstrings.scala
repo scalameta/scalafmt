@@ -46,21 +46,8 @@ case class Docstrings(
     )
   }
 
-  implicit lazy val decoder: ConfDecoder[Docstrings] = {
-    val genericDecoder = generic.deriveDecoder(this).noTypos
-    new ConfDecoder[Docstrings] {
-      override def read(conf: Conf): Configured[Docstrings] =
-        conf match {
-          case Conf.Str("ScalaDoc") =>
-            Configured.ok(copy(style = SpaceAsterisk))
-          case Conf.Str("JavaDoc") =>
-            Configured.ok(copy(style = Asterisk))
-          case _: Conf.Str =>
-            reader.read(conf).map(x => copy(style = x))
-          case _ => genericDecoder.read(conf)
-        }
-    }
-  }
+  implicit lazy val decoder: ConfDecoder[Docstrings] =
+    generic.deriveDecoder(this).noTypos
 
 }
 
