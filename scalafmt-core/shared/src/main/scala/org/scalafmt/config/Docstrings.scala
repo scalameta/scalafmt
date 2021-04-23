@@ -37,10 +37,6 @@ case class Docstrings(
   def validate(implicit errors: mutable.Buffer[String]): Unit = {
     import ValidationOps._
     addIf(
-      blankFirstLine.ne(BlankFirstLine.no) && wrap.eq(Docstrings.Wrap.yes),
-      s"docstrings"
-    )
-    addIf(
       blankFirstLine.eq(BlankFirstLine.keep) && style.eq(Docstrings.Asterisk),
       s"docstrings"
     )
