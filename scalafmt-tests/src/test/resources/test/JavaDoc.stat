@@ -1,4 +1,4 @@
-docstrings = JavaDoc
+docstrings.style = Asterisk
 <<< test 1
 object a {
 /**
@@ -15,7 +15,7 @@ object a {
   val y = 2
 }
 <<< #1403 1: keep
-docstrings = keep
+docstrings.style = keep
 ===
 /** Top line.
    * Main entry-point.
@@ -25,18 +25,6 @@ class Main
 /** Top line.
    * Main entry-point.
     */
-class Main
-<<< #1403 1: ScalaDoc
-docstrings = ScalaDoc
-===
-/** Top line.
-   * Main entry-point.
-    */
-class Main
->>>
-/** Top line.
-  * Main entry-point.
-  */
 class Main
 <<< #1403 1: Asterisk 1
 docstrings.style = Asterisk
