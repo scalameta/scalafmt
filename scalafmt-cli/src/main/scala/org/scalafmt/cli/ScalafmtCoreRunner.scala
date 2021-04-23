@@ -7,9 +7,8 @@ import util.control.Breaks
 import metaconfig.Configured
 import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
 import org.scalafmt.{Formatted, Scalafmt, Versions}
-import org.scalafmt.config.{FilterMatcher, ScalafmtConfig}
+import org.scalafmt.config.{ProjectFiles, ScalafmtConfig}
 import org.scalafmt.CompatCollections.ParConverters._
-import org.scalafmt.util.OsSpecific
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
 import scala.meta.parsers.ParseException
@@ -26,11 +25,9 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         ExitCode.UnexpectedError
       case Configured.Ok(scalafmtConf) =>
         options.common.debug.println(s"parsed config (v${Versions.version})")
-        val filterMatcher: FilterMatcher = FilterMatcher(
-          scalafmtConf.project.includeFilters
-            .map(OsSpecific.fixSeparatorsInPathPattern),
-          (scalafmtConf.project.excludeFilters ++ options.customExcludes)
-            .map(OsSpecific.fixSeparatorsInPathPattern)
+        val filterMatcher = ProjectFiles.FileMatcher(
+          scalafmtConf.project,
+          options.customExcludes
         )
 
         val inputMethods = getInputMethods(options, filterMatcher.matchesFile)

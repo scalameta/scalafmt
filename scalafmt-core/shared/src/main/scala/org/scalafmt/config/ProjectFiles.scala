@@ -1,23 +1,77 @@
 package org.scalafmt.config
 
+import java.nio.file
+
+import org.scalafmt.util.AbsoluteFile
+import org.scalafmt.util.OsSpecific._
+
 import metaconfig._
-import org.scalafmt.util.OsSpecific
+import metaconfig.annotation.DeprecatedName
 
 case class ProjectFiles(
     git: Boolean = false,
-    includeFilters: Seq[String] = Seq(".*\\.scala$", ".*\\.sbt$", ".*\\.sc$"),
+    include: Seq[String] = Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc"),
+    exclude: Seq[String] = Nil,
+    @DeprecatedName(
+      "includeFilters",
+      "use `include` with `regex:` prefix",
+      "v3.0.0"
+    )
+    includeFilters: Seq[String] = Nil,
+    @DeprecatedName(
+      "excludeFilters",
+      "use `exclude` with `regex:` prefix",
+      "v3.0.0"
+    )
     excludeFilters: Seq[String] = Nil
 ) {
   val reader: ConfDecoder[ProjectFiles] = generic.deriveDecoder(this).noTypos
-  lazy val matcher: FilterMatcher =
-    FilterMatcher(
-      includeFilters.map(OsSpecific.fixSeparatorsInPathPattern),
-      excludeFilters.map(OsSpecific.fixSeparatorsInPathPattern)
-    )
+
+  // required for ScalafmtDynamic (ScalafmtReflectConfig.isIncludedInProject)
+  lazy val matcher: ProjectFiles.FileMatcher = ProjectFiles.FileMatcher(this)
 }
+
 object ProjectFiles {
   implicit lazy val surface: generic.Surface[ProjectFiles] =
     generic.deriveSurface
   implicit lazy val encoder: ConfEncoder[ProjectFiles] =
     generic.deriveEncoder
+
+  private implicit val fs: file.FileSystem = file.FileSystems.getDefault
+
+  private sealed abstract class PathMatcher {
+    def matches(path: file.Path): Boolean
+  }
+
+  object FileMatcher {
+    def apply(pf: ProjectFiles, regexExclude: Seq[String] = Nil): FileMatcher =
+      new FileMatcher(
+        nio(pf.include) ++ regex(pf.includeFilters),
+        nio(pf.exclude) ++ regex(pf.excludeFilters ++ regexExclude)
+      )
+    private def create(seq: Seq[String], f: String => PathMatcher) =
+      seq.map(_.asFilename).distinct.map(f)
+    private def nio(seq: Seq[String]) = create(seq, new Nio(_))
+    private def regex(seq: Seq[String]) = create(seq, new Regex(_))
+
+    private final class Nio(pattern: String) extends PathMatcher {
+      private val matcher = fs.getPathMatcher(pattern)
+      def matches(path: file.Path): Boolean = matcher.matches(path)
+    }
+    private final class Regex(regex: String) extends PathMatcher {
+      private val pattern = java.util.regex.Pattern.compile(regex)
+      def matches(path: file.Path): Boolean =
+        pattern.matcher(path.toString).find()
+    }
+  }
+
+  class FileMatcher(include: Seq[PathMatcher], exclude: Seq[PathMatcher]) {
+    def matchesPath(path: file.Path): Boolean =
+      include.exists(_.matches(path)) && !exclude.exists(_.matches(path))
+    def matches(filename: String): Boolean =
+      matchesPath(fs.getPath(filename))
+    def matchesFile(file: AbsoluteFile): Boolean =
+      matchesPath(file.jfile.toPath)
+  }
+
 }
