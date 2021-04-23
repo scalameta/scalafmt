@@ -7,9 +7,11 @@ import scala.collection.mutable
 import scala.io.Codec
 import scala.meta.Dialect
 import scala.util.Try
+
 import metaconfig._
 import metaconfig.Configured._
 import org.scalafmt.util.LoggerOps
+import org.scalafmt.util.OsSpecific._
 import org.scalafmt.util.ValidationOps
 
 /** Configuration options for scalafmt.
@@ -200,7 +202,7 @@ case class ScalafmtConfig(
     val fs = file.FileSystems.getDefault
     fileOverride.values.map { case (pattern, conf) =>
       val style = decoder.read(conf).get
-      fs.getPathMatcher(pattern) -> style
+      fs.getPathMatcher(pattern.asFilename) -> style
     }
   }
   def getConfigFor(filename: String): ScalafmtConfig = {
