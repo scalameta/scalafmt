@@ -2377,19 +2377,37 @@ val identity = Array(1, 0, 0,
 
 Configure which source files should be formatted in this project.
 
+#### `project.git`
+
+If this boolean flag is set, only format files tracked by git.
+
+#### `project.include/exclude`
+
+> Since v3.0.0.
+
+```scala mdoc:defaults
+project.include
+project.exclude
+```
+
+Allows specifying
+[PathMatcher](https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-)
+selection patterns to identify further which files are to be formatted (explicit `glob:` or
+`regex:` prefixes are required; keep in mind that `PathMatcher` patterns must match the entire
+path).
+
+For instance,
+
 ```conf
-# Only format files tracked by git.
-project.git = true
-# manually exclude files to format.
-project.excludeFilters = [
-   regex1
-   regex2
-]
-# manually include files to format.
-project.includeFilters = [
-  regex1
-  regex2
-]
+project {
+  include = [
+    "glob:**.scala",
+    "regex:.*\\.sc"
+  ]
+  exclude = [
+    "glob:**/src/test/scala/**.scala"
+  ]
+}
 ```
 
 ### `fileOverride`
