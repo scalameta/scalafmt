@@ -7,7 +7,8 @@ class CommentTest extends FunSuite {
 
   private val javadocStyle: ScalafmtConfig =
     ScalafmtConfig.default.copy(docstrings =
-      ScalafmtConfig.default.docstrings.copy(style = Docstrings.Asterisk)
+      ScalafmtConfig.default.docstrings
+        .copy(style = Docstrings.Asterisk, wrap = Docstrings.Wrap.no)
     )
 
   test("remove trailing space in comments") {
