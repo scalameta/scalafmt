@@ -22,7 +22,7 @@ import metaconfig._
   */
 case class Docstrings(
     oneline: Docstrings.Oneline = Docstrings.Oneline.keep,
-    wrap: Docstrings.Wrap = Docstrings.Wrap.no,
+    wrap: Docstrings.Wrap = Docstrings.Wrap.yes,
     blankFirstLine: Docstrings.BlankFirstLine = Docstrings.BlankFirstLine.no,
     style: Docstrings.Style = Docstrings.SpaceAsterisk
 ) {

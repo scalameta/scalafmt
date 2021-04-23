@@ -1,4 +1,5 @@
 docstrings.style = Asterisk
+docstrings.wrap = no
 <<< test 1
 object a {
 /**
