@@ -54,7 +54,7 @@ class Main
 <<< #1403 1: Asterisk 3, wrap
 docstrings.style = Asterisk
 docstrings.wrap = yes
-# docstrings.blankFirstLine = yes
+docstrings.blankFirstLine = yes
 ===
 /**
    *Main entry-point.
@@ -91,14 +91,15 @@ class Main
 <<< #1403 1: SpaceAsterisk 3, wrap
 docstrings.style = SpaceAsterisk
 docstrings.wrap = yes
-# docstrings.blankFirstLine = yes
+docstrings.blankFirstLine = yes
 ===
 /**
    *Main entry-point.
     */
 class Main
 >>>
-/** Main entry-point.
+/**
+  * Main entry-point.
   */
 class Main
 <<< #1403 1: AsteriskSpace 1
@@ -143,7 +144,7 @@ class Main
 <<< #1403 1: AsteriskSpace 3, wrap
 docstrings.style = AsteriskSpace
 docstrings.wrap = yes
-# docstrings.blankFirstLine = yes
+docstrings.blankFirstLine = yes
 ===
 /**Top line.
    *Indent0
@@ -154,7 +155,8 @@ docstrings.wrap = yes
     */
 class Main
 >>>
-/** Top line. Indent0 Indent1 Indent2 Indent3 Indent4
+/**
+ *  Top line. Indent0 Indent1 Indent2 Indent3 Indent4
  */
 class Main
 <<< #1403 2: fold Asterisk
@@ -1658,7 +1660,7 @@ object a {
 object a {
 
   /**
-   * */
+   */
 }
 <<< empty docstring SpaceAsterisk
 docstrings.style = SpaceAsterisk

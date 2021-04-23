@@ -592,9 +592,14 @@ class FormatWriter(formatOps: FormatOps) {
 
         private def formatWithWrap(doc: Scaladoc): Unit = {
           sb.append("/**")
-          if (style.docstrings.style.skipFirstLine) appendBreak()
-          sb.append(' ')
-          val sbLen = sb.length
+          val sbLen =
+            if (style.docstrings.skipFirstLineIf(false)) {
+              appendBreak()
+              0 // force margin but not extra asterisk
+            } else {
+              sb.append(' ')
+              sb.length
+            }
           val paras = doc.para.iterator
           paras.foreach { para =>
             para.term.foreach { term =>
