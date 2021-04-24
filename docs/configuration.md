@@ -436,6 +436,10 @@ An align token is a pair of `code`, which is the string literal of an operator
 of token, and `owner`, which is the kind of the closest tree node that owns that
 token. If no `owner` is provided, then all tree kinds will be matched.
 
+> To find the `owner` part for a custom tree, look for its type prefix using
+> [ScalaFiddle Playgroud](https://scalameta.org/docs/trees/scalafiddle.html) or
+> [AST Explorer](https://scalameta.org/docs/trees/astexplorer.html).
+
 ```scala mdoc:scalafmt
 align.tokens = [{code = "=>", owner = "Case"}]
 ---
@@ -455,25 +459,6 @@ val x = List(
 "org.scala-lang" %% "scala-compiler" % scalaVersion.value,
 "com.lihaoyi" %% "sourcecode" % "0.1.1"
 )
-```
-
-To find the `owner` part for a custom tree, depend on Scalameta and use
-`scala.meta.Tree.productPrefix` from the (for example, Ammonite) REPL.
-
-```scala
-@ import $ivy.`org.scalameta:scalameta_2.12:@SCALAMETA_VERSION@`, scala.meta._
-@ val termMatch = q"x match { case 2 => foo(bar) }"
-termMatch: Term.Match = x match {
- case 2 =>
-   foo(bar)
-}
-@ termMatch.structure
-res0: String = """
-Term.Match(Term.Name("x"), Seq(Case(Lit.Int(2), None, Term.Apply(Term.Name("foo"), Seq(Term.Name("bar"))))))
-"""
-
-@ termMatch.productPrefix
-res1: String = "Term.Match"
 ```
 
 ### `align.tokens.add`
