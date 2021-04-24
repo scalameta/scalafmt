@@ -21,7 +21,9 @@ object Terminal {
     if (new File("/usr/bin/tput").exists()) "/usr/bin/tput" else "tput"
 
   def consoleDim(s: String): Option[Int] =
-    if (new File("/dev/tty").exists()) {
+    if (System.getenv("TERM") == null) None
+    else if (!new File("/dev/tty").exists()) None
+    else {
       import sys.process._
       val nullLog = new ProcessLogger {
         def out(s: => String): Unit = {}
@@ -34,8 +36,7 @@ object Terminal {
           .trim
           .toInt
       ).toOption
-    } else
-      None
+    }
 
   implicit class Ansi(val output: Writer) extends AnyVal {
     private def control(n: Int, c: Char) = output.write("\u001b[" + n + c)
