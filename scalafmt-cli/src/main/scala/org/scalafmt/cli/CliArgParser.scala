@@ -98,9 +98,6 @@ object CliArgParser {
         .action((_, c) => writeMode(c, WriteMode.Stdout))
         .text("write formatted files to stdout")
 
-      opt[Boolean]("git")
-        .action((opt, c) => c.copy(git = Some(opt)))
-        .text("if true, ignore files in .gitignore (default false)")
       opt[Seq[String]]("exclude")
         .unbounded()
         .action((excludes, c) => c.copy(customExcludes = excludes))

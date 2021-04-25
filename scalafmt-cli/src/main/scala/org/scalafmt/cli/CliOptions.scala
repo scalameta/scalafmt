@@ -112,7 +112,6 @@ case class CliOptions(
     customFiles: Seq[AbsoluteFile] = Nil,
     customExcludes: Seq[String] = Nil,
     respectProjectFilters: Boolean = false,
-    git: Option[Boolean] = None,
     nonInteractive: Boolean = false,
     mode: Option[FileFetchMode] = None,
     assumeFilename: String = "stdin.scala", // used when read from stdin
