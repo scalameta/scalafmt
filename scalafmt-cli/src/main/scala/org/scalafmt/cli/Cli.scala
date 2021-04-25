@@ -1,7 +1,6 @@
 package org.scalafmt.cli
 
 import com.martiansoftware.nailgun.NGContext
-import java.io.{InputStream, PrintStream}
 import java.nio.file.{Files, Paths}
 
 import org.scalafmt.Versions
@@ -33,24 +32,6 @@ object Cli {
     nGContext.exit(exit.code)
   }
 
-  def main(
-      args: Array[String],
-      in: InputStream,
-      out: PrintStream,
-      err: PrintStream,
-      workingDirectory: String
-  ): Unit = {
-    val options = CliOptions.default.copy(
-      common = CommonOptions(
-        in = in,
-        out = out,
-        err = err,
-        workingDirectory = AbsoluteFile.fromPath(workingDirectory).get
-      )
-    )
-    mainWithOptions(args, options)
-  }
-
   private def throwIfError(exit: ExitCode): Unit = {
     if (exit != ExitCode.Ok) {
       throw new RuntimeException(exit.toString) with NoStackTrace
@@ -58,7 +39,7 @@ object Cli {
   }
 
   def main(args: Array[String]): Unit = {
-    val exit = mainWithOptions(args, CliOptions())
+    val exit = mainWithOptions(args, CliOptions.default)
     sys.exit(exit.code)
   }
 
