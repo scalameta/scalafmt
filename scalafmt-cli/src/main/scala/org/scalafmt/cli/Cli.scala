@@ -98,32 +98,26 @@ object Cli {
     // - `scalafmt-dynamic` if the specified `version` setting doesn't match build version.
     // - `scalafmt-core` if the specified `version` setting match with build version
     //   (or if the `version` is not specified).
-    options.version match {
-      case None =>
-        Right(ScalafmtCoreRunner)
-      case Some(v) =>
-        if (v == Versions.version) {
-          Right(ScalafmtCoreRunner)
-        } else if (isNativeImage) {
-          Left(
-            s"""error: invalid Scalafmt version.
-              |
-              |This Scalafmt installation has version '${Versions.version}' and the version configured in '${options.configPath}' is '${v}'.
-              |To fix this problem, add the following line to .scalafmt.conf:
-              |```
-              |version = '${Versions.version}'
-              |```
-              |
-              |NOTE: this error happens only when running a native Scalafmt binary.
-              |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
-              |""".stripMargin
-          )
-        } else {
-          Right(ScalafmtDynamicRunner)
-        }
+    options.getVersionIfDifferent match {
+      case Some(v) if isNativeImage =>
+        Left(
+          s"""error: invalid Scalafmt version.
+            |
+            |This Scalafmt installation has version '${Versions.version}' and the version configured in '${options.configPath}' is '${v}'.
+            |To fix this problem, add the following line to .scalafmt.conf:
+            |```
+            |version = '${Versions.version}'
+            |```
+            |
+            |NOTE: this error happens only when running a native Scalafmt binary.
+            |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
+            |""".stripMargin
+        )
+      case None => Right(ScalafmtCoreRunner)
+      case _ => Right(ScalafmtDynamicRunner)
     }
-
   }
+
   private[cli] def runWithRunner(
       options: CliOptions,
       runner: ScalafmtRunner
