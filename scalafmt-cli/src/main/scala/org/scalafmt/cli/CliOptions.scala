@@ -1,17 +1,15 @@
 package org.scalafmt.cli
 
 import java.io.{File, InputStream, OutputStream, PrintStream}
-import java.nio.charset.UnsupportedCharsetException
 import java.nio.file.{Files, Path}
 
-import com.typesafe.config.{ConfigException, ConfigFactory}
-import metaconfig.Configured
+import metaconfig.{Conf, Configured, ConfDecoder, ConfDynamic}
 import org.scalafmt.Versions
 import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
 import org.scalafmt.util.{AbsoluteFile, GitOps, GitOpsImpl, OsSpecific}
 
 import scala.io.Codec
-import scala.util.control.NonFatal
+import scala.util.Try
 import scala.util.matching.Regex
 
 object CliOptions {
@@ -143,18 +141,20 @@ case class CliOptions(
     *
     * If `--config-str` is not specified and configuration file is missing, this will return the default configuration
     */
-  def scalafmtConfig: Configured[ScalafmtConfig] = {
-    (configStr match {
-      case Some(contents) => Some(Config.fromHoconString(contents))
+  def scalafmtConfig: Configured[ScalafmtConfig] =
+    hoconOpt.fold(Configured.ok(ScalafmtConfig.default))(Config.fromConf(_))
+
+  private lazy val hoconOpt: Option[Configured[Conf]] =
+    configStr match {
+      case Some(contents) => Some(Config.hoconStringToConf(contents, None))
       case None =>
         config
           .map { x =>
             AbsoluteFile.fromFile(x.toFile, common.workingDirectory).jfile
           }
           .orElse(defaultConfigFile)
-          .map(Config.fromHoconFile(_))
-    }).getOrElse(Configured.Ok(ScalafmtConfig.default))
-  }
+          .map(Config.hoconFileToConf(_, None))
+    }
 
   lazy val fileFetchMode: FileFetchMode =
     mode.getOrElse(if (isGit) GitFiles else RecursiveSearch)
@@ -182,104 +182,44 @@ case class CliOptions(
       case _ => filters.mkString("(", "|", ")").r
     }
 
+  private def getHoconValueOpt[A: ConfDecoder](path: String*): Option[A] =
+    hoconOpt.flatMap { x =>
+      val conf = path.foldLeft(ConfDynamic(x))(_ selectDynamic _)
+      conf.as[A].toEither.right.toOption
+    }
+
+  private def getHoconValue[A: ConfDecoder](default: A, path: String*): A =
+    getHoconValueOpt[A](path: _*).getOrElse(default)
+
   private[cli] def isGit: Boolean =
-    configPathOpt
-      .flatMap(readGit)
-      .getOrElse(ScalafmtConfig.default.project.git)
+    getHoconValue(ScalafmtConfig.default.project.git, "project", "git")
 
   private[cli] def fatalWarnings: Boolean =
-    configPathOpt
-      .flatMap(readFatalWarnings)
-      .getOrElse(ScalafmtRunner.default.fatalWarnings)
+    getHoconValue(
+      ScalafmtRunner.default.fatalWarnings,
+      "runner",
+      "fatalWarnings"
+    )
 
   private[cli] def ignoreWarnings: Boolean =
-    configPathOpt
-      .flatMap(readIgnoreWarnings)
-      .getOrElse(ScalafmtRunner.default.ignoreWarnings)
+    getHoconValue(
+      ScalafmtRunner.default.ignoreWarnings,
+      "runner",
+      "ignoreWarnings"
+    )
 
   private[cli] def onTestFailure: Option[String] =
-    configPathOpt.flatMap(readOnTestFailure)
+    getHoconValueOpt[String]("onTestFailure")
 
   private[cli] def encoding: Codec =
-    configPathOpt
-      .flatMap(readEncoding)
+    getHoconValueOpt[String]("encoding")
+      .flatMap(x => Try(Codec(x)).toOption)
       .getOrElse(ScalafmtConfig.default.encoding)
 
   /** Returns None if .scalafmt.conf is not found or
     * version setting is missing.
     */
   private[cli] def getVersionIfDifferent: Option[String] =
-    configPathOpt.flatMap(readVersion).filter(_ != Versions.version)
+    getHoconValueOpt[String]("version").filter(_ != Versions.version)
 
-  private def readGit(config: Path): Option[Boolean] = {
-    try {
-      Some(
-        ConfigFactory
-          .parseFile(config.toFile)
-          .getConfig("project")
-          .getBoolean("git")
-      )
-    } catch {
-      case _: ConfigException.Missing => None
-      case NonFatal(_) => None
-    }
-  }
-
-  private def readOnTestFailure(config: Path): Option[String] = {
-    try {
-      Some(ConfigFactory.parseFile(config.toFile).getString("onTestFailure"))
-    } catch {
-      case _: ConfigException.Missing => None
-      case NonFatal(_) => None
-    }
-  }
-
-  private def readFatalWarnings(config: Path): Option[Boolean] = {
-    try {
-      Some(
-        ConfigFactory
-          .parseFile(config.toFile)
-          .getConfig("runner")
-          .getBoolean("fatalWarnings")
-      )
-    } catch {
-      case _: ConfigException.Missing => None
-      case NonFatal(_) => None
-    }
-  }
-
-  private def readIgnoreWarnings(config: Path): Option[Boolean] = {
-    try {
-      Some(
-        ConfigFactory
-          .parseFile(config.toFile)
-          .atPath("runner")
-          .getBoolean("ignoreWarnings")
-      )
-    } catch {
-      case _: ConfigException.Missing => None
-      case NonFatal(_) => None
-    }
-  }
-
-  private def readEncoding(config: Path): Option[Codec] = {
-    try {
-      val codecStr =
-        ConfigFactory.parseFile(config.toFile).getString("encoding")
-      Some(Codec.apply(codecStr))
-    } catch {
-      case _: ConfigException.Missing => None
-      case _: UnsupportedCharsetException => None
-      case NonFatal(_) => None
-    }
-  }
-
-  private def readVersion(config: Path): Option[String] = {
-    try {
-      Some(ConfigFactory.parseFile(config.toFile).getString("version"))
-    } catch {
-      case _: ConfigException.Missing => None
-      case NonFatal(_) => None
-    }
-  }
 }
