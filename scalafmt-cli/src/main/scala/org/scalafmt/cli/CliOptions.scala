@@ -7,7 +7,7 @@ import java.nio.file.{Files, Path}
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import metaconfig.Configured
 import org.scalafmt.Versions
-import org.scalafmt.config.{Config, ScalafmtConfig}
+import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
 import org.scalafmt.util.{AbsoluteFile, GitOps, GitOpsImpl, OsSpecific}
 
 import scala.io.Codec
@@ -128,13 +128,6 @@ case class CliOptions(
 ) {
   lazy val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
 
-  // These default values are copied from here.
-  // https://github.com/scalameta/scalafmt/blob/f2154330afa0bc4a0a556598adeb116eafecb8e3/scalafmt-core/shared/src/main/scala/org/scalafmt/config/ScalafmtConfig.scala#L127-L162
-  private[this] val DefaultGit = false
-  private[this] val DefaultFatalWarnings = false
-  private[this] val DefaultIgnoreWarnings = false
-  private[this] val DefaultEncoding = Codec.UTF8
-
   /** Create a temporary file that contains configuration string specified by `--config-str`.
     * This temporary file will be passed to `scalafmt-dynamic`.
     * See https://github.com/scalameta/scalafmt/pull/1367#issuecomment-464744077
@@ -208,18 +201,23 @@ case class CliOptions(
       case _ => filters.mkString("(", "|", ")").r
     }
 
-  private[cli] def isGit: Boolean = readGit(configPath).getOrElse(DefaultGit)
+  private[cli] def isGit: Boolean =
+    readGit(configPath).getOrElse(ScalafmtConfig.default.project.git)
 
   private[cli] def fatalWarnings: Boolean =
-    readFatalWarnings(configPath).getOrElse(DefaultFatalWarnings)
+    readFatalWarnings(configPath).getOrElse(
+      ScalafmtRunner.default.fatalWarnings
+    )
 
   private[cli] def ignoreWarnings: Boolean =
-    readIgnoreWarnings(configPath).getOrElse(DefaultIgnoreWarnings)
+    readIgnoreWarnings(configPath).getOrElse(
+      ScalafmtRunner.default.ignoreWarnings
+    )
 
   private[cli] def onTestFailure: Option[String] = readOnTestFailure(configPath)
 
   private[cli] def encoding: Codec =
-    readEncoding(configPath).getOrElse(DefaultEncoding)
+    readEncoding(configPath).getOrElse(ScalafmtConfig.default.encoding)
 
   /** Returns None if .scalafmt.conf is not found or
     * version setting is missing.
