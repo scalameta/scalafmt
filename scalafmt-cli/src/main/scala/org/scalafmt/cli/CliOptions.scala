@@ -170,8 +170,8 @@ case class CliOptions(
     }).getOrElse(Configured.Ok(ScalafmtConfig.default))
   }
 
-  val fileFetchMode: FileFetchMode =
-    mode.orElse(Some(GitFiles).filter(_ => isGit)).getOrElse(RecursiveSearch)
+  lazy val fileFetchMode: FileFetchMode =
+    mode.getOrElse(if (isGit) GitFiles else RecursiveSearch)
 
   val files: Seq[AbsoluteFile] =
     if (customFiles.isEmpty)
@@ -180,11 +180,6 @@ case class CliOptions(
       customFiles
 
   val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
-  /*
-  def withProject(projectFiles: ProjectFiles): CliOptions = {
-    this.copy(config = config.copy(project = projectFiles))
-  }
-   */
 
   def withFiles(files: Seq[AbsoluteFile]): CliOptions = {
     this.copy(customFiles = files)
