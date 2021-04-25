@@ -6,8 +6,8 @@ import java.nio.file.{Files, Path}
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import metaconfig.Configured
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.Config
+import org.scalafmt.Versions
+import org.scalafmt.config.{Config, ScalafmtConfig}
 import org.scalafmt.util.{AbsoluteFile, GitOps, GitOpsImpl, OsSpecific}
 
 import scala.io.Codec
@@ -224,8 +224,8 @@ case class CliOptions(
   /** Returns None if .scalafmt.conf is not found or
     * version setting is missing.
     */
-  private[cli] def version: Option[String] =
-    readVersion(configPath)
+  private[cli] def getVersionIfDifferent: Option[String] =
+    readVersion(configPath).filter(_ != Versions.version)
 
   private def readGit(config: Path): Option[Boolean] = {
     try {
