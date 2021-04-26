@@ -3196,18 +3196,31 @@ libraryDependencies ++= <span class="hljs-type">Seq</span>(
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="project"></a><a href="#project" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Project</h3>
 <p>Configure which source files should be formatted in this project.</p>
-<pre><code class="hljs css language-conf"><span class="hljs-comment"># Only format files tracked by git.</span>
-<span class="hljs-attr">project.git</span> = <span class="hljs-literal">true</span>
-<span class="hljs-comment"># manually exclude files to format.</span>
-<span class="hljs-attr">project.excludeFilters</span> = [
-   regex1
-   regex2
-]
-<span class="hljs-comment"># manually include files to format.</span>
-<span class="hljs-attr">project.includeFilters</span> = [
-  regex1
-  regex2
-]
+<h4><a class="anchor" aria-hidden="true" id="projectgit"></a><a href="#projectgit" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>project.git</code></h4>
+<p>If this boolean flag is set, only format files tracked by git.</p>
+<h4><a class="anchor" aria-hidden="true" id="projectincludeexclude"></a><a href="#projectincludeexclude" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>project.include/exclude</code></h4>
+<blockquote>
+<p>Since v3.0.0.</p>
+</blockquote>
+<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
+project.include = [<span class="hljs-string">"glob:**.scala"</span>, <span class="hljs-string">"glob:**.sbt"</span>, <span class="hljs-string">"glob:**.sc"</span>]
+project.exclude = []
+</code></pre>
+<p>Allows specifying
+<a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-">PathMatcher</a>
+selection patterns to identify further which files are to be formatted (explicit <code>glob:</code> or
+<code>regex:</code> prefixes are required; keep in mind that <code>PathMatcher</code> patterns must match the entire
+path).</p>
+<p>For instance,</p>
+<pre><code class="hljs css language-conf"><span class="hljs-keyword">project</span> {
+  <span class="hljs-keyword">include</span> = [
+    <span class="hljs-string">"glob:**.scala"</span>,
+    <span class="hljs-string">"regex:.*\\.sc"</span>
+  ]
+  <span class="hljs-keyword">exclude</span> = [
+    <span class="hljs-string">"glob:**/src/test/scala/**.scala"</span>
+  ]
+}
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="fileoverride"></a><a href="#fileoverride" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>fileOverride</code></h3>
 <blockquote>
@@ -4200,12 +4213,13 @@ verticalMultiline.<span class="hljs-attr">excludeDanglingParens</span> = [
 <span class="hljs-attr">onTestFailure</span> = <span class="hljs-string">""</span>
 <span class="hljs-attr">encoding</span> = <span class="hljs-string">"UTF-8"</span>
 project.<span class="hljs-attr">git</span> = <span class="hljs-literal">false</span>
-project.<span class="hljs-attr">files</span> = []
-project.<span class="hljs-attr">includeFilters</span> = [
-  <span class="hljs-string">".*\.scala$"</span>
-  <span class="hljs-string">".*\.sbt$"</span>
-  <span class="hljs-string">".*\.sc$"</span>
+project.<span class="hljs-attr">include</span> = [
+  <span class="hljs-string">"glob:**.scala"</span>
+  <span class="hljs-string">"glob:**.sbt"</span>
+  <span class="hljs-string">"glob:**.sc"</span>
 ]
+project.<span class="hljs-attr">exclude</span> = []
+project.<span class="hljs-attr">includeFilters</span> = []
 project.<span class="hljs-attr">excludeFilters</span> = []
 xmlLiterals.<span class="hljs-attr">assumeFormatted</span> = <span class="hljs-literal">false</span>
 </code></pre>
