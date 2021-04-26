@@ -29,8 +29,6 @@ jobs:
       - run:
           # for GitOps tests	
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: TEST="2.11" sbt ci-test
-        shell: bash
       - run: TEST="2.12" sbt ci-test
         shell: bash
       - run: TEST="2.13" sbt ci-test
