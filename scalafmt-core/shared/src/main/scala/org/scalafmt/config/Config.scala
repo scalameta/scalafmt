@@ -11,6 +11,14 @@ import org.scalafmt.config.PlatformConfig._
 // can be seen here https://scalameta.org/scalafmt/#Standalonelibrary
 object Config {
 
+  def hoconStringToConf(input: String, path: Option[String]): Configured[Conf] =
+    fromInput(Input.String(input), path)
+
+  def hoconFileToConf(input: File, path: Option[String]): Configured[Conf] =
+    Configured
+      .fromExceptionThrowing(Input.File(input))
+      .andThen(fromInput(_, path))
+
   def fromInput(input: Input, path: Option[String]): Configured[Conf] = {
     val configured = implicitly[MetaconfigParser].fromInput(input)
     path match {
@@ -33,7 +41,7 @@ object Config {
       path: Option[String],
       default: ScalafmtConfig
   ): Configured[ScalafmtConfig] =
-    fromConf(fromInput(Input.String(string), path), default = default)
+    fromConf(hoconStringToConf(string, path), default = default)
 
   /** Read ScalafmtConfig from String contents from an optional HOCON path. */
   def fromHoconFile(
@@ -41,7 +49,7 @@ object Config {
       path: Option[String] = None,
       default: ScalafmtConfig = ScalafmtConfig.default
   ): Configured[ScalafmtConfig] =
-    fromConf(fromInput(Input.File(file), path), default = default)
+    fromConf(hoconFileToConf(file, path), default = default)
 
   def fromConf(
       conf: Configured[Conf],

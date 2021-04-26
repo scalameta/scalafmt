@@ -1,12 +1,14 @@
 package org.scalafmt.cli
 
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, NoSuchFileException, Path, Paths}
 
 import metaconfig.Configured.NotOk
 import metaconfig.Configured.Ok
 import org.scalafmt.config.{Config, ScalafmtConfig}
 import FileTestOps._
 import org.scalafmt.Versions
+
+import metaconfig.Configured
 import munit.FunSuite
 
 class CliOptionsTest extends FunSuite {
@@ -59,12 +61,12 @@ class CliOptionsTest extends FunSuite {
   }
 
   test(
-    ".configPath returns path to workingDirectory's .scalafmt.conf by default"
+    ".configPath returns path to workingDirectory's .scalafmt.conf by default, if exists"
   ) {
     val opt = baseCliOptions
-    assert(
-      (opt.common.workingDirectory / ".scalafmt.conf").jfile.toPath == opt.configPath
-    )
+    assertEquals(baseCliOptions.config, None)
+    assertEquals(baseCliOptions.configStr, None)
+    assertEquals(baseCliOptions.configPathOpt, None)
   }
 
   test(
@@ -100,7 +102,9 @@ class CliOptionsTest extends FunSuite {
     val configDir = Files.createTempDirectory("temp-dir")
     val configPath = Paths.get(configDir.toString + "/.scalafmt.conf")
     val opt = baseCliOptions.copy(config = Some(configPath))
-    assert(opt.scalafmtConfig.get == ScalafmtConfig.default)
+    assert(opt.scalafmtConfig.isInstanceOf[Configured.NotOk])
+    val confError = opt.scalafmtConfig.asInstanceOf[Configured.NotOk].error
+    assert(confError.cause.exists(_.isInstanceOf[NoSuchFileException]))
   }
 
   test(".scalafmtConfig returns Configured.NotOk for invalid configuration") {

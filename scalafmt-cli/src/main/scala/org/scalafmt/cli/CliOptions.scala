@@ -1,6 +1,6 @@
 package org.scalafmt.cli
 
-import java.io.{IOException, InputStream, OutputStream, PrintStream}
+import java.io.{File, InputStream, OutputStream, PrintStream}
 import java.nio.charset.UnsupportedCharsetException
 import java.nio.file.{Files, Path}
 
@@ -13,7 +13,6 @@ import org.scalafmt.util.{AbsoluteFile, GitOps, GitOpsImpl, OsSpecific}
 import scala.io.Codec
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
-import scala.util.control.Exception.catching
 
 object CliOptions {
   val default = CliOptions()
@@ -30,15 +29,7 @@ object CliOptions {
     * contains an error. Why? Because this method is only supposed to be
     * called directly from main.
     */
-  def auto(args: Array[String], init: CliOptions)(
-      parsed: CliOptions
-  ): CliOptions = {
-    val style: Option[Path] = if (init.config != parsed.config) {
-      parsed.config
-    } else {
-      tryCurrentDirectory(parsed).orElse(tryGit(parsed))
-    }
-
+  def auto(parsed: CliOptions): CliOptions = {
     val auxOut =
       if (
         parsed.noStdErr ||
@@ -48,7 +39,6 @@ object CliOptions {
       else parsed.common.err
 
     parsed.copy(
-      config = style,
       common = parsed.common.copy(
         out =
           guardPrintStream(parsed.quiet && !parsed.stdIn)(parsed.common.out),
@@ -56,7 +46,7 @@ object CliOptions {
           parsed.stdIn || parsed.writeMode == WriteMode.Stdout || parsed.quiet || parsed.writeMode == WriteMode.List
         )(auxOut),
         debug = guardPrintStream(parsed.quiet)(
-          if (parsed.debug) auxOut else init.common.debug
+          if (parsed.debug) auxOut else parsed.common.debug
         ),
         err = guardPrintStream(parsed.quiet)(parsed.common.err)
       )
@@ -68,22 +58,11 @@ object CliOptions {
   )(candidate: PrintStream): PrintStream =
     if (p) NoopOutputStream.printStream else candidate
 
-  private def getConfigJFile(file: AbsoluteFile): AbsoluteFile =
-    file / ".scalafmt.conf"
-
-  private def tryDirectory(dir: AbsoluteFile): Path =
-    getConfigJFile(dir).jfile.toPath
-
-  private def tryGit(options: CliOptions): Option[Path] = {
-    for {
-      rootDir <- options.gitOps.rootDir
-      configFilePath <- Option(tryDirectory(rootDir)).filter(_.toFile.isFile)
-    } yield configFilePath
+  private def tryGetConfigFile(dir: AbsoluteFile): Option[File] = {
+    val file = (dir / ".scalafmt.conf").jfile
+    if (file.isFile) Some(file) else None
   }
 
-  private def tryCurrentDirectory(options: CliOptions): Option[Path] =
-    Option(tryDirectory(options.common.workingDirectory))
-      .filter(_.toFile.isFile)
 }
 
 object NoopOutputStream extends OutputStream { self =>
@@ -126,6 +105,8 @@ case class CliOptions(
     error: Boolean = false,
     check: Boolean = false
 ) {
+  import CliOptions._
+
   lazy val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
 
   /** Create a temporary file that contains configuration string specified by `--config-str`.
@@ -146,13 +127,15 @@ case class CliOptions(
     * @return A path to a configuration file
     */
   def configPath: Path =
-    tempConfigPath match {
-      case Some(tempConf) => tempConf
-      case None =>
-        config.getOrElse(
-          (common.workingDirectory / ".scalafmt.conf").jfile.toPath
-        )
-    }
+    configPathOpt.get
+
+  private[cli] def configPathOpt: Option[Path] =
+    (if (configStr.isEmpty) config else tempConfigPath)
+      .orElse(defaultConfigFile.map(_.toPath))
+
+  private lazy val defaultConfigFile: Option[File] =
+    tryGetConfigFile(common.workingDirectory)
+      .orElse(gitOps.rootDir.flatMap(tryGetConfigFile))
 
   /** Parse the scalafmt configuration and try to encode it to `ScalafmtConfig`.
     * If `--config-str` is specified, this will parse the configuration string specified by `--config-str`.
@@ -164,9 +147,12 @@ case class CliOptions(
     (configStr match {
       case Some(contents) => Some(Config.fromHoconString(contents))
       case None =>
-        val file =
-          AbsoluteFile.fromFile(configPath.toFile, common.workingDirectory)
-        catching(classOf[IOException]).opt(Config.fromHoconFile(file.jfile))
+        config
+          .map { x =>
+            AbsoluteFile.fromFile(x.toFile, common.workingDirectory).jfile
+          }
+          .orElse(defaultConfigFile)
+          .map(Config.fromHoconFile(_))
     }).getOrElse(Configured.Ok(ScalafmtConfig.default))
   }
 
@@ -197,28 +183,33 @@ case class CliOptions(
     }
 
   private[cli] def isGit: Boolean =
-    readGit(configPath).getOrElse(ScalafmtConfig.default.project.git)
+    configPathOpt
+      .flatMap(readGit)
+      .getOrElse(ScalafmtConfig.default.project.git)
 
   private[cli] def fatalWarnings: Boolean =
-    readFatalWarnings(configPath).getOrElse(
-      ScalafmtRunner.default.fatalWarnings
-    )
+    configPathOpt
+      .flatMap(readFatalWarnings)
+      .getOrElse(ScalafmtRunner.default.fatalWarnings)
 
   private[cli] def ignoreWarnings: Boolean =
-    readIgnoreWarnings(configPath).getOrElse(
-      ScalafmtRunner.default.ignoreWarnings
-    )
+    configPathOpt
+      .flatMap(readIgnoreWarnings)
+      .getOrElse(ScalafmtRunner.default.ignoreWarnings)
 
-  private[cli] def onTestFailure: Option[String] = readOnTestFailure(configPath)
+  private[cli] def onTestFailure: Option[String] =
+    configPathOpt.flatMap(readOnTestFailure)
 
   private[cli] def encoding: Codec =
-    readEncoding(configPath).getOrElse(ScalafmtConfig.default.encoding)
+    configPathOpt
+      .flatMap(readEncoding)
+      .getOrElse(ScalafmtConfig.default.encoding)
 
   /** Returns None if .scalafmt.conf is not found or
     * version setting is missing.
     */
   private[cli] def getVersionIfDifferent: Option[String] =
-    readVersion(configPath).filter(_ != Versions.version)
+    configPathOpt.flatMap(readVersion).filter(_ != Versions.version)
 
   private def readGit(config: Path): Option[Boolean] = {
     try {
