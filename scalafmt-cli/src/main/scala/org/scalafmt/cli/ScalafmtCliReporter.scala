@@ -4,7 +4,6 @@ import java.io.PrintWriter
 import java.io.OutputStreamWriter
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
-import java.util.function.UnaryOperator
 
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.interfaces.{PositionException, ScalafmtReporter}
@@ -23,10 +22,7 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
   ): Unit = {
     if (!options.ignoreWarnings) {
       options.common.err.println(s"$message: $file")
-      exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
-        override def apply(t: ExitCode): ExitCode =
-          ExitCode.merge(ExitCode.UnexpectedError, t)
-      })
+      exitCode.getAndUpdate(ExitCode.merge(ExitCode.UnexpectedError, _))
     }
   }
   override def error(
@@ -36,24 +32,15 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
     e match {
       case _: PositionException if !options.ignoreWarnings =>
         options.common.err.println(s"${e.toString}: $file")
-        exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
-          override def apply(t: ExitCode): ExitCode =
-            ExitCode.merge(ExitCode.ParseError, t)
-        })
+        exitCode.getAndUpdate(ExitCode.merge(ExitCode.ParseError, _))
       case MisformattedFile(_, diff) =>
         options.common.err.println(diff)
-        exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
-          override def apply(t: ExitCode): ExitCode =
-            ExitCode.merge(ExitCode.TestError, t)
-        })
+        exitCode.getAndUpdate(ExitCode.merge(ExitCode.TestError, _))
       case ScalafmtException(_, cause) => error(file, cause)
       case _ if !options.ignoreWarnings =>
         new FailedToFormat(file.toString, e)
           .printStackTrace(options.common.err)
-        exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
-          override def apply(t: ExitCode): ExitCode =
-            ExitCode.merge(ExitCode.UnexpectedError, t)
-        })
+        exitCode.getAndUpdate(ExitCode.merge(ExitCode.UnexpectedError, _))
     }
   }
 

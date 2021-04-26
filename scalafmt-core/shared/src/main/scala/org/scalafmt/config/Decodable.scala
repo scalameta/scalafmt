@@ -15,15 +15,13 @@ abstract class Decodable[A](sectionName: String = null) { self: A =>
   implicit final def decoder(implicit
       presets: PartialFunction[Conf, A]
   ): ConfDecoder[A] =
-    new ConfDecoder[A] {
-      override def read(conf: Conf): Configured[A] = {
-        decodePresets(conf, presets) match {
-          case Some(x: Configured.NotOk) => x
-          case Some(Configured.Ok((obj, null))) => Configured.ok(obj)
-          case Some(Configured.Ok((obj, cfg))) =>
-            obj.asInstanceOf[Decodable[A]].baseDecoder.read(cfg)
-          case _ => self.baseDecoder.read(conf)
-        }
+    (conf: Conf) => {
+      decodePresets(conf, presets) match {
+        case Some(x: Configured.NotOk) => x
+        case Some(Configured.Ok((obj, null))) => Configured.ok(obj)
+        case Some(Configured.Ok((obj, cfg))) =>
+          obj.asInstanceOf[Decodable[A]].baseDecoder.read(cfg)
+        case _ => self.baseDecoder.read(conf)
       }
     }
 

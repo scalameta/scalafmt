@@ -170,27 +170,25 @@ case class ScalafmtConfig(
   private def baseDecoder = generic.deriveDecoder(this).noTypos
 
   implicit final lazy val decoder: ConfDecoder[ScalafmtConfig] =
-    new ConfDecoder[ScalafmtConfig] {
-      override def read(conf: Conf): Configured[ScalafmtConfig] = {
-        val stylePreset = conf match {
-          case x: Conf.Obj =>
-            val section = Seq(Decodable.presetKey, "style").flatMap { y =>
-              x.field(y).map(y -> _)
-            }
-            section.headOption.map { case (field, obj) =>
-              obj -> Conf.Obj((x.map - field).toList)
-            }
-          case _ => None
-        }
-        val parsed = stylePreset match {
-          case Some((styleConf, restConf)) =>
-            ScalafmtConfig
-              .readActiveStylePresets(styleConf)
-              .andThen(_.baseDecoder.read(restConf))
-          case _ => baseDecoder.read(conf)
-        }
-        parsed.andThen(ScalafmtConfig.validate)
+    (conf: Conf) => {
+      val stylePreset = conf match {
+        case x: Conf.Obj =>
+          val section = Seq(Decodable.presetKey, "style").flatMap { y =>
+            x.field(y).map(y -> _)
+          }
+          section.headOption.map { case (field, obj) =>
+            obj -> Conf.Obj((x.map - field).toList)
+          }
+        case _ => None
       }
+      val parsed = stylePreset match {
+        case Some((styleConf, restConf)) =>
+          ScalafmtConfig
+            .readActiveStylePresets(styleConf)
+            .andThen(_.baseDecoder.read(restConf))
+        case _ => baseDecoder.read(conf)
+      }
+      parsed.andThen(ScalafmtConfig.validate)
     }
 
   def withDialect(dialect: Dialect): ScalafmtConfig =
