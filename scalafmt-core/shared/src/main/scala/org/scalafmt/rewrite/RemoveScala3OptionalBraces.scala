@@ -29,8 +29,9 @@ private class RemoveScala3OptionalBraces(ftoks: FormatTokens)
   import FormatTokensRewrite._
 
   private def allowOldSyntax(implicit style: ScalafmtConfig): Boolean =
-    style.rewrite.scala3.removeOptionalBraces
-      .eq(RewriteScala3Settings.RemoveOptionalBraces.oldSyntaxToo)
+    ConvertToNewScala3Syntax.enabled ||
+      style.rewrite.scala3.removeOptionalBraces
+        .eq(RewriteScala3Settings.RemoveOptionalBraces.oldSyntaxToo)
 
   override def enabled(implicit style: ScalafmtConfig): Boolean =
     RemoveScala3OptionalBraces.enabled

@@ -1894,7 +1894,8 @@ class Router(formatOps: FormatOps) {
         val noNL = style.newlines.source.ne(Newlines.keep) || newlines == 0
         Seq(Split(Space.orNL(noNL), 0))
       case FormatToken(_, T.Ident("*"), _)
-          if rightOwner.is[Term.Repeated] || rightOwner.is[Pat.Repeated] =>
+          if rightOwner.is[Pat.SeqWildcard] ||
+            rightOwner.is[Term.Repeated] || rightOwner.is[Pat.Repeated] =>
         Seq(
           Split(NoSplit, 0)
         )

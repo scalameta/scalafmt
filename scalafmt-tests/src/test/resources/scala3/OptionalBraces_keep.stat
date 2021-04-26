@@ -1151,7 +1151,7 @@ object a {
 >>>
 object a {
   val a = {
-    if (a) { // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
+    if a then { // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
       if (aa) { // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
         aaa
       } // c1
@@ -1189,19 +1189,15 @@ object a {
 >>>
 object a:
    for (a <- b) yield for a <- b yield foo
-   while (a > 0) {
-     while (a > 0) do
-        foo
-   }
-   for (a <- b) {
-     for (a <- b)
-       do
-          foo
-   }
-   for { a <- b } {
-     for a <- b do
-        foo
-   }
+   while a > 0 do
+      while a > 0 do
+         foo
+   for a <- b do
+      for a <- b do
+         foo
+   for a <- b do
+      for a <- b do
+         foo
 <<< rewrite to new syntax with for-do, multiple
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
@@ -1258,32 +1254,27 @@ object a:
         for a <- b; c <- d yield
            foo
            bar
-   while (a > 0) {
-     while (a > 0) do
-        foo
-        bar
-     while (a > 0) do
-        foo
-        bar
-   }
-   for (a <- b; c <- d) {
-     for (a <- b; c <- d)
-       do
-          foo
-          bar
-     for (a <- b; c <- d)
-       do
-          foo
-          bar
-   }
-   for { a <- b; c <- d } {
-     for a <- b; c <- d do
-        foo
-        bar
-     for a <- b; c <- d do
-        foo
-        bar
-   }
+   while a > 0 do
+      while a > 0 do
+         foo
+         bar
+      while a > 0 do
+         foo
+         bar
+   for a <- b; c <- d do
+      for a <- b; c <- d do
+         foo
+         bar
+      for a <- b; c <- d do
+         foo
+         bar
+   for a <- b; c <- d do
+      for a <- b; c <- d do
+         foo
+         bar
+      for a <- b; c <- d do
+         foo
+         bar
 <<< rewrite to new syntax, imports
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
@@ -1296,11 +1287,11 @@ object a:
  import Predef.{augmentString => _}
 >>>
 object a:
-   import A.{min => minimum, `*` => multiply}
-   import Predef.{augmentString => _, _}
-   import scala.{annotation => ann}
+   import A.{min as minimum, `*` as multiply}
+   import Predef.{augmentString as _, *}
+   import scala.{annotation as ann}
    import java as j
-   import Predef.{augmentString => _}
+   import Predef.{augmentString as _}
 <<< rewrite to new syntax, wildcard
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
@@ -1309,7 +1300,7 @@ object a:
   def foo(a: Foo[_]): Unit = ???
 >>>
 object a:
-   def foo(a: Foo[_]): Unit = ???
+   def foo(a: Foo[?]): Unit = ???
 <<< rewrite to new syntax, vararg splices, call
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
@@ -1318,7 +1309,7 @@ def foo: Unit =
   foo(a: _*)
 >>>
 def foo: Unit =
-  foo(a: _*)
+  foo(a*)
 <<< rewrite to new syntax, vararg splices, pat bind
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
@@ -1329,4 +1320,4 @@ object a:
 >>>
 object a:
    lst match
-      case List(0, 1, xs @ _*) => foo
+      case List(0, 1, xs*) => foo
