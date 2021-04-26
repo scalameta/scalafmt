@@ -59,7 +59,7 @@ object Cli {
     val expandedArguments = expandArguments(args)
     CliArgParser.scoptParser
       .parse(expandedArguments, init)
-      .map(CliOptions.auto(expandedArguments, init))
+      .map(CliOptions.auto)
   }
 
   private def expandArguments(args: Array[String]): Array[String] = {
