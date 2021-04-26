@@ -1,7 +1,6 @@
 package org.scalafmt.cli
 
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
-import java.util.function.UnaryOperator
 import util.control.Breaks
 
 import metaconfig.Configured
@@ -41,10 +40,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         Breaks.breakable {
           inputMethods.par.foreach { inputMethod =>
             val code = handleFile(inputMethod, options, scalafmtConf)
-            exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
-              override def apply(t: ExitCode): ExitCode =
-                ExitCode.merge(code, t)
-            })
+            exitCode.getAndUpdate(ExitCode.merge(code, _))
             if (options.check && !code.isOk) Breaks.break
             PlatformTokenizerCache.megaCache.clear()
             termDisplay.taskProgress(

@@ -76,21 +76,15 @@ object BinPack {
      * could be overridden by other parameters, such as newlines.source */
     case object MaybeNever extends ParentCtors
 
-    implicit val encoder: ConfEncoder[ParentCtors] =
-      new ConfEncoder[ParentCtors] {
-        override def write(value: ParentCtors): Conf =
-          if (value eq MaybeNever) Conf.Str("never")
-          else oneOfReader.write(value)
-      }
-    implicit val decoder: ConfDecoder[ParentCtors] =
-      new ConfDecoder[ParentCtors] {
-        override def read(conf: Conf): Configured[ParentCtors] =
-          conf match {
-            case Conf.Bool(true) => Configured.ok(Always)
-            case Conf.Bool(false) => Configured.ok(Never)
-            case _ => oneOfReader.read(conf)
-          }
-      }
+    implicit val encoder: ConfEncoder[ParentCtors] = {
+      case MaybeNever => Conf.Str("never")
+      case value => oneOfReader.write(value)
+    }
+    implicit val decoder: ConfDecoder[ParentCtors] = {
+      case Conf.Bool(true) => Configured.ok(Always)
+      case Conf.Bool(false) => Configured.ok(Never)
+      case conf => oneOfReader.read(conf)
+    }
   }
 
 }
