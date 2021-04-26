@@ -9,7 +9,6 @@ def parseTagVersion: String = {
 def localSnapshotVersion: String = s"$parseTagVersion-SNAPSHOT"
 def isCI = System.getenv("CI") != null
 
-def scala211 = "2.11.12"
 def scala212 = "2.12.13"
 def scala213 = "2.13.5"
 
@@ -33,7 +32,7 @@ inThisBuild(
       )
     ),
     scalaVersion := scala213,
-    crossScalaVersions := List(scala213, scala212, scala211),
+    crossScalaVersions := List(scala213, scala212),
     resolvers ++= Seq(
       Resolver.sonatypeRepo("releases"),
       Resolver.sonatypeRepo("snapshots")
@@ -54,7 +53,6 @@ addCommandAlias("native-image", "cli/graalvm-native-image:packageBin")
 
 commands += Command.command("ci-test") { s =>
   val scalaVersion = sys.env.get("TEST") match {
-    case Some("2.11") => scala211
     case Some("2.12") => scala212
     case _ => scala213
   }
@@ -278,7 +276,6 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "nightly" -> version.value,
     "stable" -> stableVersion.value,
     "scala" -> scalaVersion.value,
-    "scala211" -> scala211,
     "scala212" -> scala212,
     "coursier" -> coursier,
     "commit" -> sys.process.Process("git rev-parse HEAD").lineStream_!.head,

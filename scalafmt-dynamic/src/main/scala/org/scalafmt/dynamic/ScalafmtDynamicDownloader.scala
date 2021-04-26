@@ -65,7 +65,7 @@ class ScalafmtDynamicDownloader(
 
   @inline
   private def scalaVersion(version: ScalafmtVersion): String =
-    if (version < ScalafmtVersion(0, 7, 0, 0)) BuildInfo.scala211
+    if (version < ScalafmtVersion(0, 7, 0, 0)) "2.11.12"
     else if (version < ScalafmtVersion(2, 1, 2, 0)) BuildInfo.scala212
     else BuildInfo.scala
 
