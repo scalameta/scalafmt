@@ -798,9 +798,8 @@ object a {
   }
 }
 >>>
-object a {
-  def a = {}
-}
+object a:
+   def a = {}
 <<< rewrite with nested if-else, old syntax
 rewrite.scala3.removeOptionalBraces = yes
 ===
@@ -816,17 +815,14 @@ object a {
   }
 }
 >>>
-object a {
-  val a = {
-    if (a) {
-      if (aa) {
-        aaa
-      } // c1
-    } else {
-      b
-    }
-  }
-}
+object a:
+   val a =
+     if (a) {
+       if (aa) {
+         aaa
+       } // c1
+     } else
+       b
 <<< rewrite with nested if-else
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -842,17 +838,14 @@ object a {
   }
 }
 >>>
-object a {
-  val a = {
-    if (a) {
-      if (aa) {
-        aaa
-      } // c1
-    } else {
-      b
-    }
-  }
-}
+object a:
+   val a =
+     if (a)
+        if (aa)
+          aaa
+     // c1
+     else
+       b
 <<< rewrite with val and if-else
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -872,21 +865,17 @@ object a {
  }
 }
 >>>
-object a {
-  trait A {
-    val cond = {
-      if true then {
-        stat1
-        stat2
-      } else {
-        stat3
-        stat4
-      }
-      end if
-    }
-    end cond
-  }
-}
+object a:
+   trait A:
+      val cond =
+         if true then
+            stat1
+            stat2
+         else
+            stat3
+            stat4
+         end if
+      end cond
 <<< rewrite with given-with
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -902,17 +891,13 @@ object a {
   }
 }
 >>>
-object a {
-  given intOrd: Ord[Int] with Eq[Int] with { // c1
-    /* c2 */
-    def compare(x: Int, y: Int) = {
-      if x < y then -1 else if x > y then +1 else 0
-    }
-    def compare2(x: Int, y: Int) = {
-      if x < y then -1 else if x > y then +1 else 0
-    }
-  }
-}
+object a:
+   given intOrd: Ord[Int] with Eq[Int] with // c1
+      /* c2 */
+      def compare(x: Int, y: Int) =
+        if x < y then -1 else if x > y then +1 else 0
+      def compare2(x: Int, y: Int) =
+        if x < y then -1 else if x > y then +1 else 0
 <<< rewrite with match
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -933,23 +918,18 @@ enum IndentWidth {
   }
 }
 >>>
-enum IndentWidth {
-  def foo = {
-    this match {
-      case a =>
-        that match {
-          case b => bb
-          case c => cc
-        }
-        end match
-      case b =>
-        that match {
-          case c => cc
-          case _ => dd
-        }
-    }
-  }
-}
+enum IndentWidth:
+   def foo =
+     this match
+        case a =>
+          that match
+             case b => bb
+             case c => cc
+          end match
+        case b =>
+          that match
+             case c => cc
+             case _ => dd
 <<< rewrite with catch
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -975,28 +955,23 @@ enum IndentWidth {
      }
 }
 >>>
-enum IndentWidth {
-  def foo = {
-    try { foo }
-    catch {
-      case a =>
-        that match {
-          case b => bb
-          case c => cc
-        }
-        end match
-      case b =>
-        that match {
-          case c => cc
-          case _ => dd
-        }
+enum IndentWidth:
+   def foo =
+     try foo
+     catch
+        case a =>
+          that match
+             case b => bb
+             case c => cc
+          end match
+        case b =>
+          that match
+             case c => cc
+             case _ => dd
 
-    } finally {
-      foo
-      bar
-    }
-  }
-}
+     finally
+        foo
+        bar
 <<< rewrite with catch, format-off
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -1026,7 +1001,7 @@ enum IndentWidth {
 >>>
 enum IndentWidth {
   def foo = {
-    try { foo }
+    try foo
     catch {
       case a =>
         that match {
@@ -1037,15 +1012,13 @@ enum IndentWidth {
         }
         end match
       case b =>
-        that match {
-          case c => cc
-          case _ => dd
-        }
+        that match
+           case c => cc
+           case _ => dd
 
-    } finally {
-      foo
-      bar
-    }
+    } finally
+       foo
+       bar
   }
 }
 <<< rewrite with catch, config override
@@ -1074,29 +1047,24 @@ enum IndentWidth {
      }
 }
 >>>
-enum IndentWidth {
-  def foo = {
-    try { foo }
-    catch {
-      case a =>
-        that match {
-          // scalafmt: { indent { significant = 1 } }
-          case b => bb
-          case c => cc
-        }
-        end match
-      case b =>
-        that match {
-          case c => cc
-          case _ => dd
-        }
+enum IndentWidth:
+   def foo =
+     try foo
+     catch
+        case a =>
+          that match
+             // scalafmt: { indent { significant = 1 } }
+             case b => bb
+             case c => cc
+          end match
+        case b =>
+          that match
+           case c => cc
+           case _ => dd
 
-    } finally {
+     finally
       foo
       bar
-    }
-  }
-}
 <<< rewrite with try/finally
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -1110,16 +1078,13 @@ object a {
   }
 }
 >>>
-object a {
-  def foo = {
-    try { foo }
-    catch {
-      case a => baz
-    } finally {
-      bar
-    }
-  }
-}
+object a:
+   def foo =
+     try foo
+     catch
+        case a => baz
+     finally
+        bar
 <<< rewrite with end markers: this; with equals, only init
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -1136,15 +1101,13 @@ class a(vi: Int, vs: String):
   end this
 >>>
 class a(vi: Int, vs: String):
-   def this() = {
+   def this() =
 
      this(0, "")
 
-   }
    end this
-   def this(vi: Int) = {
+   def this(vi: Int) =
      this(vi, "")
-   }
    end this
 <<< rewrite with end markers: this; with equals, not only init
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
@@ -1162,15 +1125,13 @@ class a(vi: Int, vs: String):
   end this
 >>>
 class a(vi: Int, vs: String):
-   def this() = {
-     this(0, "")
-     foo
-   }
+   def this() =
+      this(0, "")
+      foo
    end this
-   def this(vi: Int) = {
-     this(vi, "")
-     foo
-   }
+   def this(vi: Int) =
+      this(vi, "")
+      foo
    end this
 <<< rewrite to new syntax with nested if-else
 rewrite.scala3.convertToNewSyntax = true
@@ -1226,28 +1187,21 @@ object a {
   }
 }
 >>>
-object a {
-  for (a <- b) yield {
-    for { a <- b } yield {
-      foo
-    }
-  }
-  while (a > 0) {
-    while (a > 0) do {
-      foo
-    }
-  }
-  for (a <- b) {
-    for (a <- b) do {
-      foo
-    }
-  }
-  for { a <- b } {
-    for { a <- b } do {
-      foo
-    }
-  }
-}
+object a:
+   for (a <- b) yield for a <- b yield foo
+   while (a > 0) {
+     while (a > 0) do
+        foo
+   }
+   for (a <- b) {
+     for (a <- b)
+       do
+          foo
+   }
+   for { a <- b } {
+     for a <- b do
+        foo
+   }
 <<< rewrite to new syntax with for-do, multiple
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
@@ -1295,48 +1249,41 @@ object a {
   }
 }
 >>>
-object a {
-  for (a <- b; c <- d) yield {
-    for { a <- b; c <- d } yield {
-      foo
-      bar
-    }
-    for { a <- b; c <- d } yield {
-      foo
-      bar
-    }
-  }
-  while (a > 0) {
-    while (a > 0) do {
-      foo
-      bar
-    }
-    while (a > 0) do {
-      foo
-      bar
-    }
-  }
-  for (a <- b; c <- d) {
-    for (a <- b; c <- d) do {
-      foo
-      bar
-    }
-    for (a <- b; c <- d) do {
-      foo
-      bar
-    }
-  }
-  for { a <- b; c <- d } {
-    for { a <- b; c <- d } do {
-      foo
-      bar
-    }
-    for { a <- b; c <- d } do {
-      foo
-      bar
-    }
-  }
-}
+object a:
+   for (a <- b; c <- d)
+     yield
+        for a <- b; c <- d yield
+           foo
+           bar
+        for a <- b; c <- d yield
+           foo
+           bar
+   while (a > 0) {
+     while (a > 0) do
+        foo
+        bar
+     while (a > 0) do
+        foo
+        bar
+   }
+   for (a <- b; c <- d) {
+     for (a <- b; c <- d)
+       do
+          foo
+          bar
+     for (a <- b; c <- d)
+       do
+          foo
+          bar
+   }
+   for { a <- b; c <- d } {
+     for a <- b; c <- d do
+        foo
+        bar
+     for a <- b; c <- d do
+        foo
+        bar
+   }
 <<< rewrite to new syntax, imports
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
