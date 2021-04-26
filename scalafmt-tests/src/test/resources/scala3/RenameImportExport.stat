@@ -36,7 +36,14 @@ rewrite.rules = [RedundantBraces]
 import java.util.{List   =>  `J-List`}
 >>>
 import java.util.{List => `J-List`}
-<<< no redundant braces in import 
+<<< remove redundant braces old syntax, converting
+rewrite.rules = [RedundantBraces]
+rewrite.scala3.convertToNewSyntax = true
+===
+import java.util.{List   =>  `J-List`}
+>>>
+import java.util.List as `J-List`
+<<< no redundant braces in import
 rewrite.rules = [RedundantBraces]
 ===
 import java.util.List   as  `J-List`

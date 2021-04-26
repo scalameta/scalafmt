@@ -2,66 +2,113 @@ package org.scalafmt.rewrite
 
 import scala.annotation.tailrec
 import scala.meta._
+import scala.meta.tokens.Token
 
-import org.scalafmt.util.InfixApp
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.internal.{FormatToken, FormatTokens}
+import org.scalafmt.util.{InfixApp, TreeOps}
 
-object RedundantParens extends RewriteFactory {
-  override def create(implicit ctx: RewriteCtx): RewriteSession =
-    new RedundantParens
+object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
+
+  override def enabled(implicit style: ScalafmtConfig): Boolean = true
+
+  override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
+    new RedundantParens(ftoks)
+
 }
 
-class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
+class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
-  import ctx.dialect
+  import FormatTokensRewrite._
 
-  private val avoidInfixMatcher = AvoidInfix.getMatcherIfEnabled(ctx)
+  override def enabled(implicit style: ScalafmtConfig): Boolean =
+    RedundantParens.enabled
 
-  override def rewrite(tree: Tree): Unit =
-    tree match {
-      case t: Defn.Val => maybeRemove(t.rhs)
+  override def onToken(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig
+  ): Option[Replacement] = Option {
+    ft.right match {
+      case _: Token.LeftParen =>
+        val numParens = countParens
+        if (numParens == 0)
+          replaceNotEnclosed
+        else
+          replaceEnclosed(numParens)
 
-      case t: Defn.Def => maybeRemove(t.body)
+      case _ => null
+    }
+  }
 
-      case t: Defn.GivenAlias => maybeRemove(t.body)
-
-      case t => rewriteFunc.applyOrElse(t, (x: Tree) => remove(x, 1))
+  override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig
+  ): Option[(Replacement, Replacement)] =
+    ft.right match {
+      case _: Token.RightParen if left.isLeft =>
+        Some((left, removeToken))
+      case _ => None
     }
 
-  private[rewrite] val rewriteFunc: PartialFunction[Tree, Unit] = {
-    case t @ (_: Term.Tuple | _: Type.Tuple | _: Lit.Unit) => remove(t, 2)
+  private def replaceEnclosed(
+      numParens: Int
+  )(implicit ft: FormatToken, style: ScalafmtConfig): Replacement = {
+    val ok = ft.meta.rightOwner match {
+      case _: Term.Tuple | _: Type.Tuple | _: Lit.Unit => numParens >= 3
 
-    case g: Enumerator.Guard => maybeRemovePostfix(g.cond)
+      case _ if numParens >= 2 => true
 
-    case t: Case => t.cond.foreach(maybeRemovePostfix)
+      case t if t.parent.exists {
+            case p: Term.ApplyInfix if p.lhs ne t =>
+              avoidInfixMatcher.exists(_.matches(p.op.value))
+            case _ => false
+          } =>
+        false // supersedes Term.Name below
 
-    case t if t.parent.exists {
-          case p: Term.ApplyInfix if p.lhs ne t =>
-            avoidInfixMatcher.exists(_.matches(p.op.value))
+      case _: Lit | _: Name | _: Term.Interpolate => true
+
+      case Term.Apply(_, List(b: Term.Block))
+          if b.tokens.headOption.exists(_.is[Token.LeftBrace]) =>
+        true
+
+      case t =>
+        t.parent.exists {
+          case TreeOps.SplitAssignIntoParts((body, _)) =>
+            body.eq(t) && (t match {
+              case InfixApp(ia) => !breaksBeforeOp(ia)
+              case _ => true
+            })
+          case _: Enumerator.Guard => RewriteCtx.isPostfixExpr(t)
+          case p: Case =>
+            p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
           case _ => false
-        } => // noop, but blocks Term.Name below
-
-    case t @ (_: Lit | _: Name | _: Term.Interpolate) => remove(t)
-
-    case t @ Term.Apply(_, List(b: Term.Block))
-        if b.tokens.headOption.exists(_.is[Token.LeftBrace]) =>
-      val lastTok = t.tokens.last
-      ctx.getMatchingOpt(lastTok).foreach(removeBetween(_, lastTok))
+        }
+    }
+    if (ok) removeToken else null
   }
+
+  private def replaceNotEnclosed(implicit ft: FormatToken): Replacement = {
+    val ok = ft.meta.rightOwner match {
+      case Term.Apply(_, List(b: Term.Block)) =>
+        b.tokens.headOption.exists(_.is[Token.LeftBrace])
+      case _ => false
+    }
+    if (ok) removeToken else null
+  }
+
+  private def avoidInfixMatcher(implicit style: ScalafmtConfig) =
+    if (style.rewrite.rules.contains(AvoidInfix))
+      Some(style.rewrite.neverInfix.matcher)
+    else None
 
   private def breaksBeforeOpAndNotEnclosed(ia: InfixApp): Boolean = {
     val allToks = ia.all.tokens
-    !ctx.isMatching(allToks.head, allToks.last) && breaksBeforeOp(ia)
+    !ftoks.areMatching(allToks.head)(allToks.last) && breaksBeforeOp(ia)
   }
 
   private def breaksBeforeOp(ia: InfixApp): Boolean = {
-    val lhs = ia.lhs
-    val lhsLastTok = lhs.tokens.last
-    val hasPreOpLF = ctx.tokenTraverser.findBefore(ia.op.tokens.head) {
-      case _: Token.LF => Some(true)
-      case `lhsLastTok` => Some(false)
-      case _ => None
-    }
-    hasPreOpLF.isDefined || (lhs match {
+    val beforeOp = ftoks(ia.op.tokens.head, -1)
+    ftoks.prevNonCommentSameLine(beforeOp).hasBreak || (ia.lhs match {
       case InfixApp(lhsApp) if breaksBeforeOpAndNotEnclosed(lhsApp) => true
       case _ =>
         ia.rhs match {
@@ -71,64 +118,24 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
     })
   }
 
-  private def maybeRemove(tree: Tree, minToKeep: Int = 0): Unit =
-    tree match {
-      case _ if rewriteFunc.isDefinedAt(tree) =>
-      case InfixApp(ia) if breaksBeforeOp(ia) => // can't rewrite
-      case _ => remove(tree, minToKeep)
-    }
-
-  private def maybeRemovePostfix(tree: Tree): Unit =
-    if (RewriteCtx.isPostfixExpr(tree)) remove(tree)
-
-  private def remove(tree: Tree, minToKeep: Int = 0): Unit =
-    removeByTokens(tree.tokens, minToKeep)
-
-  private def removeByTokens(toks: Tokens, minToKeep: Int = 0): Unit =
-    toks.headOption.foreach { head =>
-      val beg = ctx.getIndex(head)
-      removeParensByIndex(beg until (beg + toks.length), minToKeep)
-    }
-
-  private def removeBetween(b: Token, e: Token): Unit =
-    removeParensByIndex(ctx.getIndex(b) to ctx.getIndex(e))
-
-  private def removeParensByIndex(range: Range, minToKeep: Int = 0): Unit = {
-    val beg = range.head
-    val end = range.last
-    val mid = (beg + end) / 2
-    val toks = ctx.tokens
+  private def countParens(implicit ft: FormatToken): Int = {
+    val tree = ft.meta.rightOwner
+    val head = tree.tokens.head
+    val last = tree.tokens.last
     @tailrec
-    def getOutOfRange(off: Int): Int = {
-      val idx = beg + off
-      if (idx >= mid) off
-      else
-        toks(idx) match {
-          case lp: Token.LeftParen =>
-            ctx.getMatchingOpt(lp) match {
-              case Some(rp) if toks(end - off) eq rp => getOutOfRange(off + 1)
-              case _ => off
-            }
-          case _ => off
+    def iter(lt: FormatToken, rt: FormatToken, cnt: Int = 0): Int = {
+      if (lt.right.eq(head) && rt.left.eq(last)) cnt + 1
+      else {
+        val prev = ftoks.prevNonComment(ftoks.prev(lt))
+        if (!prev.right.is[Token.LeftParen]) 0
+        else {
+          val next = ftoks.nextNonComment(ftoks.next(rt))
+          if (!next.left.is[Token.RightParen]) 0
+          else iter(prev, next, cnt + 1)
         }
-    }
-    val offEnd = getOutOfRange(0) - 1
-    if (offEnd >= 0) {
-      val offBeg = minToKeep
-      if (offBeg <= offEnd) {
-        implicit val builder = Seq.newBuilder[TokenPatch]
-        // replace outer with space, to avoid joining with an adjacent keyword
-        builder += TokenPatch.AddLeft(toks(beg + offBeg), " ", keepTok = false)
-        builder += TokenPatch.AddRight(toks(end - offBeg), " ", keepTok = false)
-        ((offBeg + 1) to offEnd).foreach { x =>
-          builder += TokenPatch.Remove(toks(beg + x))
-          builder += TokenPatch.Remove(toks(end - x))
-        }
-        ctx.removeLFToAvoidEmptyLine(toks(beg + offBeg), toks(beg + offEnd))
-        ctx.removeLFToAvoidEmptyLine(toks(end - offEnd), toks(end - offBeg))
-        ctx.addPatchSet(builder.result(): _*)
       }
     }
+    ftoks.matchingOpt(ft.right).fold(0)(rt => iter(ft, ftoks.after(rt)))
   }
 
 }
