@@ -197,6 +197,12 @@ object CliArgParser {
         |$usageExamples
         |Please file bugs to https://github.com/scalameta/scalafmt/issues
       """.stripMargin)
+
+      checkConfig { c =>
+        if (c.config.isDefined && c.configStr.isDefined)
+          failure("may not specify both --config and --config-str")
+        else success
+      }
     }
   def buildInfo =
     s"""build commit: ${Versions.commit}
