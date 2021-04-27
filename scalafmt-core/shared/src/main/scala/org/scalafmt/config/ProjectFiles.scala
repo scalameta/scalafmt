@@ -47,11 +47,20 @@ object ProjectFiles {
   }
 
   object FileMatcher {
-    def apply(pf: ProjectFiles, regexExclude: Seq[String] = Nil): FileMatcher =
+    def apply(
+        pf: ProjectFiles,
+        regexExclude: Seq[String] = Nil
+    ): FileMatcher = {
+      // check if includePaths were specified explicitly
+      val useIncludePaths =
+        pf.includePaths.ne(defaultIncludePaths) || pf.includeFilters.isEmpty
+      val includePaths = if (useIncludePaths) pf.includePaths else Seq.empty
       new FileMatcher(
-        nio(pf.includePaths) ++ regex(pf.includeFilters),
+        nio(includePaths) ++ regex(pf.includeFilters),
         nio(pf.excludePaths) ++ regex(pf.excludeFilters ++ regexExclude)
       )
+    }
+
     private def create(seq: Seq[String], f: String => PathMatcher) =
       seq.map(_.asFilename).distinct.map(f)
     private def nio(seq: Seq[String]) = create(seq, new Nio(_))
