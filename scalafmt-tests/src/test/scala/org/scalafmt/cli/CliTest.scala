@@ -14,7 +14,7 @@ import munit.FunSuite
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Versions
 import org.scalafmt.cli.FileTestOps._
-import org.scalafmt.config.{Config, ScalafmtConfig}
+import org.scalafmt.config.{Config, ProjectFiles, ScalafmtConfig}
 import org.scalafmt.util.{AbsoluteFile, FileOps}
 import org.scalafmt.util.OsSpecific._
 
@@ -939,6 +939,88 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |
         |/target/foo.scala
         |object A   { }
+        |""".stripMargin
+    noArgTest(
+      input,
+      expected,
+      Seq(Array.empty[String], Array("--mode", "diff"))
+    )
+  }
+
+  test(s"scalafmt: includeFilters overrides default includePaths") {
+    val input = string2dir(
+      s"""|/bar.scala
+        |object    FormatMe {
+        |  val x = 1
+        |}
+        |
+        |/target/foo.scala
+        |object A   { }
+        |
+        |/.scalafmt.conf
+        |maxColumn = 2
+        |project { includeFilters = ["bar"] }
+        |""".stripMargin
+    )
+
+    val expected =
+      s"""|/.scalafmt.conf
+        |maxColumn = 2
+        |project { includeFilters = ["bar"] }
+        |
+        |/bar.scala
+        |object FormatMe {
+        |  val x =
+        |    1
+        |}
+        |
+        |/target/foo.scala
+        |object A   { }
+        |""".stripMargin
+    noArgTest(
+      input,
+      expected,
+      Seq(Array.empty[String], Array("--mode", "diff"))
+    )
+  }
+
+  test(s"scalafmt: includeFilters with explicit includePaths") {
+    val defaultIncludePathsJson =
+      ProjectFiles.defaultIncludePaths.mkString("[\"", "\", \"", "\"]")
+    val input = string2dir(
+      s"""|/bar.scala
+        |object    FormatMe {
+        |  val x = 1
+        |}
+        |
+        |/target/foo.scala
+        |object A   { }
+        |
+        |/.scalafmt.conf
+        |maxColumn = 2
+        |project {
+        |  includePaths = $defaultIncludePathsJson
+        |  includeFilters = ["bar"]
+        |}
+        |""".stripMargin
+    )
+
+    val expected =
+      s"""|/.scalafmt.conf
+        |maxColumn = 2
+        |project {
+        |  includePaths = $defaultIncludePathsJson
+        |  includeFilters = ["bar"]
+        |}
+        |
+        |/bar.scala
+        |object FormatMe {
+        |  val x =
+        |    1
+        |}
+        |
+        |/target/foo.scala
+        |object A {}
         |""".stripMargin
     noArgTest(
       input,
