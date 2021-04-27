@@ -857,4 +857,20 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     assert(config.maxColumn == 40)
     assert(obtained.files.head.jfile.getName() == "foobar.scala")
   }
+
+  test("can't specify both --config and --config-str") {
+    val errStream = new ByteArrayOutputStream()
+    val obtained = Console.withErr(errStream) {
+      Cli.getConfig(
+        Array("--config", "foo", "--config-str", "bar"),
+        CliOptions.default
+      )
+    }
+    assertEquals(
+      errStream.toString.trim,
+      "Error: may not specify both --config and --config-str"
+    )
+    assertEquals(None: Option[CliOptions], obtained)
+  }
+
 }
