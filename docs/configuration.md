@@ -2418,8 +2418,8 @@ If this boolean flag is set, only format files tracked by git.
 > Since v3.0.0.
 
 ```scala mdoc:defaults
-project.include
-project.exclude
+project.includePaths
+project.excludePaths
 ```
 
 Allows specifying
@@ -2432,11 +2432,11 @@ For instance,
 
 ```conf
 project {
-  include = [
+  includePaths = [
     "glob:**.scala",
     "regex:.*\\.sc"
   ]
-  exclude = [
+  excludePaths = [
     "glob:**/src/test/scala/**.scala"
   ]
 }

@@ -873,4 +873,78 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     assertEquals(None: Option[CliOptions], obtained)
   }
 
+  test(s"scalafmt use includePaths") {
+    val input = string2dir(
+      s"""|/bar.scala
+        |object    FormatMe {
+        |  val x = 1
+        |}
+        |
+        |/target/foo.scala
+        |object A   { }
+        |
+        |/.scalafmt.conf
+        |maxColumn = 2
+        |project { includePaths = ["glob:**/bar.scala"] }
+        |""".stripMargin
+    )
+
+    val expected =
+      s"""|/.scalafmt.conf
+        |maxColumn = 2
+        |project { includePaths = ["glob:**/bar.scala"] }
+        |
+        |/bar.scala
+        |object FormatMe {
+        |  val x =
+        |    1
+        |}
+        |
+        |/target/foo.scala
+        |object A   { }
+        |""".stripMargin
+    noArgTest(
+      input,
+      expected,
+      Seq(Array.empty[String], Array("--mode", "diff"))
+    )
+  }
+
+  test(s"scalafmt use excludePaths") {
+    val input = string2dir(
+      s"""|/foo.scala
+        |object    FormatMe {
+        |  val x = 1
+        |}
+        |
+        |/target/foo.scala
+        |object A   { }
+        |
+        |/.scalafmt.conf
+        |maxColumn = 2
+        |project { excludePaths = ["glob:**target**"] }
+        |""".stripMargin
+    )
+
+    val expected =
+      s"""|/.scalafmt.conf
+        |maxColumn = 2
+        |project { excludePaths = ["glob:**target**"] }
+        |
+        |/foo.scala
+        |object FormatMe {
+        |  val x =
+        |    1
+        |}
+        |
+        |/target/foo.scala
+        |object A   { }
+        |""".stripMargin
+    noArgTest(
+      input,
+      expected,
+      Seq(Array.empty[String], Array("--mode", "diff"))
+    )
+  }
+
 }

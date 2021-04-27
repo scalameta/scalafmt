@@ -10,17 +10,17 @@ import metaconfig.annotation.DeprecatedName
 
 case class ProjectFiles(
     git: Boolean = false,
-    include: Seq[String] = Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc"),
-    exclude: Seq[String] = Nil,
+    includePaths: Seq[String] = ProjectFiles.defaultIncludePaths,
+    excludePaths: Seq[String] = Nil,
     @DeprecatedName(
       "includeFilters",
-      "use `include` with `regex:` prefix",
+      "use `includePaths` with `regex:` prefix",
       "v3.0.0"
     )
     includeFilters: Seq[String] = Nil,
     @DeprecatedName(
       "excludeFilters",
-      "use `exclude` with `regex:` prefix",
+      "use `excludePaths` with `regex:` prefix",
       "v3.0.0"
     )
     excludeFilters: Seq[String] = Nil
@@ -39,6 +39,9 @@ object ProjectFiles {
 
   private implicit val fs: file.FileSystem = file.FileSystems.getDefault
 
+  val defaultIncludePaths =
+    Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc")
+
   private sealed abstract class PathMatcher {
     def matches(path: file.Path): Boolean
   }
@@ -46,8 +49,8 @@ object ProjectFiles {
   object FileMatcher {
     def apply(pf: ProjectFiles, regexExclude: Seq[String] = Nil): FileMatcher =
       new FileMatcher(
-        nio(pf.include) ++ regex(pf.includeFilters),
-        nio(pf.exclude) ++ regex(pf.excludeFilters ++ regexExclude)
+        nio(pf.includePaths) ++ regex(pf.includeFilters),
+        nio(pf.excludePaths) ++ regex(pf.excludeFilters ++ regexExclude)
       )
     private def create(seq: Seq[String], f: String => PathMatcher) =
       seq.map(_.asFilename).distinct.map(f)
