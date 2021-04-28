@@ -42,6 +42,12 @@ case class BinPack(
     generic.deriveDecoder(this).noTypos
   def literalsRegex: FilterMatcher =
     FilterMatcher(literalsInclude, literalsExclude)
+
+  def keepParentConstructors(implicit style: ScalafmtConfig): Boolean =
+    parentConstructors.eq(BinPack.ParentCtors.keep) ||
+      style.newlines.source.eq(Newlines.keep) &&
+      parentConstructors.eq(BinPack.ParentCtors.source)
+
 }
 object BinPack {
   implicit lazy val surface: generic.Surface[BinPack] =

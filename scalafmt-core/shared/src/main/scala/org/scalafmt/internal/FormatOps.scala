@@ -960,10 +960,11 @@ class FormatOps(
     nonWhitespaceOffset(right) - nonWhitespaceOffset(left)
   }
 
-  def typeTemplateSplits(
-      template: Template,
-      indentIfSecond: Int
-  )(implicit line: sourcecode.Line, ft: FormatToken): Seq[Split] = {
+  def typeTemplateSplits(template: Template, indentIfSecond: Int)(implicit
+      line: sourcecode.Line,
+      ft: FormatToken,
+      style: ScalafmtConfig
+  ): Seq[Split] = {
     def getPolicy(expire: T) = expire match {
       case lb: T.LeftBrace if template.self.tokens.isEmpty =>
         Policy.after(lb) {
@@ -984,7 +985,23 @@ class FormatOps(
         else Indent(Num(indentIfSecond), expire, ExpiresOn.After)
       def nlSplit(cost: Int) =
         Split(Newline, cost).withPolicy(getPolicy(expire)).withIndent(indent)
-      Seq(Split(Space, 0).withIndent(indent), nlSplit(1))
+      if (!style.binPack.keepParentConstructors)
+        Seq(Split(Space, 0).withIndent(indent), nlSplit(1))
+      else if (ft.hasBreak)
+        Seq(nlSplit(0))
+      else {
+        val slbEnd = getLastToken(x.superType)
+        Seq(
+          Split(Space, 0)
+            .withIndent(indent)
+            .withSingleLine(
+              slbEnd,
+              exclude = insideBlock[T.LeftParen](ft, slbEnd),
+              noSyntaxNL = true
+            ),
+          nlSplit(1)
+        )
+      }
     }(template).getOrElse {
       Seq(Split(Space, 0)) // shouldn't happen
     }
@@ -1009,12 +1026,36 @@ class FormatOps(
   def binPackParentConstructorSplits(
       isFirstCtor: Boolean,
       owners: => Set[Tree],
+      rhs: => Option[Tree],
       lastToken: Token,
       indentLen: Int,
       extendsThenWith: => Boolean = false
-  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
-    if (isFirstCtor) {
-      val nlMod = NewlineT(alt = Some(Space))
+  )(implicit
+      line: sourcecode.Line,
+      ft: FormatToken,
+      style: ScalafmtConfig
+  ): Seq[Split] = {
+    val nlMod = NewlineT(alt = Some(Space))
+    val indent =
+      if (!isFirstCtor) Indent.Empty
+      else Indent(Num(indentLen), lastToken, ExpiresOn.After)
+    if (style.binPack.keepParentConstructors) {
+      if (ft.hasBreak)
+        Seq(Split(nlMod, 0).withIndent(indent))
+      else {
+        val slbEnd = rhs.fold(lastToken)(getLastToken)
+        Seq(
+          Split(Space, 0)
+            .withIndent(indent)
+            .withSingleLine(
+              slbEnd,
+              exclude = insideBlock[T.LeftParen](ft, slbEnd),
+              noSyntaxNL = extendsThenWith
+            ),
+          Split(nlMod, 1).withIndent(indent)
+        )
+      }
+    } else if (isFirstCtor) {
       val nlPolicy = ctorWithChain(owners, lastToken)
       val nlOnelineTag = style.binPack.parentConstructors match {
         case BinPack.ParentCtors.Oneline => Right(true)
@@ -1025,7 +1066,6 @@ class FormatOps(
         case _ =>
           Right(style.newlines.source eq Newlines.fold)
       }
-      val indent = Indent(Num(indentLen), lastToken, ExpiresOn.After)
       val noSyntaxNL = extendsThenWith
       Seq(
         Split(Space, 0).withSingleLine(lastToken, noSyntaxNL = noSyntaxNL),
@@ -1037,6 +1077,7 @@ class FormatOps(
         Split(nlMod, 1).withPolicy(nlPolicy).withIndent(indent)
       )
     } else Seq(Split(Space, 0), Split(Newline, 1))
+  }
 
   def delayedBreakPolicyFactory(onBreakPolicy: Policy): Policy.Pf = {
     object OnBreakDecision {

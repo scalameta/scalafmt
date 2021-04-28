@@ -2801,9 +2801,9 @@ from a boolean to a wider set of options in v2.6.0.
 binPack.parentConstructors
 ```
 
-> Keep in mind that explicitly specifying the default value might change
-> behaviour; other parameters, such as [`newlines.source`](#newlinessource),
-> could interpret implied default differently but yield to an explicit value.
+The behaviour of `binPack.parentConstructors = source` depends on the value of
+[`newlines.source`](#newlinessource); `keep` maps to `keep` and attempts to preserve the
+space if there's no line break in the source, `fold` maps to `Oneline`, rest to `Never`.
 
 ```scala mdoc:scalafmt
 binPack.parentConstructors = Always
@@ -2855,6 +2855,18 @@ object A {
     a: Int,
     b: Int
   ) extends Bar with Baz
+}
+```
+
+```scala mdoc:scalafmt
+binPack.parentConstructors = keep
+---
+object A {
+  class Foo(a: Int, b: Int) extends Bar(
+    a,
+    b
+  ) with Baz
+  with Qux
 }
 ```
 

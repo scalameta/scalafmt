@@ -1453,6 +1453,7 @@ class Router(formatOps: FormatOps) {
         binPackParentConstructorSplits(
           true,
           Set(rightOwner),
+          enumCase.inits.headOption,
           getLastToken(rightOwner),
           style.indent.extendSite,
           enumCase.inits.length > 1
@@ -1468,6 +1469,7 @@ class Router(formatOps: FormatOps) {
         binPackParentConstructorSplits(
           true,
           template.toSet,
+          template.flatMap(findTemplateGroupOnRight(_.superType)),
           lastToken,
           style.indent.extendSite,
           template.exists(_.inits.length > 1)
@@ -1487,6 +1489,7 @@ class Router(formatOps: FormatOps) {
             binPackParentConstructorSplits(
               isFirstInit(template, leftOwner),
               Set(template),
+              findTemplateGroupOnRight(_.superType)(template),
               templateCurly(template).getOrElse(getLastToken(template)),
               style.indent.main,
               template.inits.length > 1
@@ -1498,6 +1501,7 @@ class Router(formatOps: FormatOps) {
             binPackParentConstructorSplits(
               !t.lhs.is[Type.With],
               withChain(top).toSet,
+              Some(t.rhs),
               top.tokens.last,
               style.indent.main
             )

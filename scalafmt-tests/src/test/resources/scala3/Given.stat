@@ -44,8 +44,7 @@ given intOrd: Ord[Int] with Eq[T]
 >>>
 given intOrd: Ord[Int]
     with Eq[T]
-    with Sort[T]
-    with {
+    with Sort[T] with {
     def compare(
         x: Int,
         y: Int
@@ -110,9 +109,7 @@ given [T](using ord: Ord[T]): Alpha with Beta with Gamma with Epsilon
 >>>
 given [T](using
     ord: Ord[T]
-): Alpha
-  with Beta
-  with Gamma
+): Alpha with Beta with Gamma
   with Epsilon
   with {
   def a = ???
