@@ -288,7 +288,7 @@ private class BestFirstSearch private (
 
   def getBestPath: SearchResult = {
     val state = {
-      def run = shortestPath(State.start, tree.tokens.last)
+      def run = shortestPath(State.start, topSourceTree.tokens.last)
       val state = run
       if (null != state || keepSlowStates) state
       else {
