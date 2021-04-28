@@ -40,15 +40,15 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
 
       case _: Token.LeftParen =>
         ft.meta.rightOwner match {
-          case t: Term.If if ft.right.start < t.cond.pos.start =>
+          case t: Term.If if ftoks.prevNonComment(ft).left.is[Token.KwIf] =>
             removeToken
-          case t: Term.While if ft.right.start < t.expr.pos.start =>
+          case t: Term.While
+              if ftoks.prevNonComment(ft).left.is[Token.KwWhile] =>
             removeToken
-          case t: Term.For
-              if t.enums.headOption.exists(x => ft.right.start < x.pos.start) =>
+          case t: Term.For if ftoks.prevNonComment(ft).left.is[Token.KwFor] =>
             removeToken
           case t: Term.ForYield
-              if t.enums.headOption.exists(x => ft.right.start < x.pos.start) =>
+              if ftoks.prevNonComment(ft).left.is[Token.KwFor] =>
             removeToken
           case _ => null
         }

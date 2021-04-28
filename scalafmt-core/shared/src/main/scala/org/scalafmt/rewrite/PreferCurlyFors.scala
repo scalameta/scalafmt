@@ -12,7 +12,7 @@ object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
   override def enabled(implicit style: ScalafmtConfig): Boolean = true
 
   override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
-    new PreferCurlyFors
+    new PreferCurlyFors(ftoks)
 
   private def hasMultipleGenerators(enums: Seq[Enumerator]): Boolean =
     enums.count(_.is[Enumerator.Generator]) > 1
@@ -33,7 +33,8 @@ object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
   *     b <- bs if b > 2
   *   } yield (a, b)
   */
-private class PreferCurlyFors extends FormatTokensRewrite.Rule {
+private class PreferCurlyFors(ftoks: FormatTokens)
+    extends FormatTokensRewrite.Rule {
 
   import FormatTokensRewrite._
   import PreferCurlyFors._
@@ -46,7 +47,8 @@ private class PreferCurlyFors extends FormatTokensRewrite.Rule {
       style: ScalafmtConfig
   ): Option[Replacement] = Option {
     ft.right match {
-      case x: Token.LeftParen =>
+      case x: Token.LeftParen
+          if ftoks.prevNonComment(ft).left.is[Token.KwFor] =>
         val ok = ft.meta.rightOwner match {
           case t: Term.For => hasMultipleGenerators(t.enums)
           case t: Term.ForYield => hasMultipleGenerators(t.enums)
