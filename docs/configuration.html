@@ -3635,12 +3635,10 @@ self-explanatory.</li>
 <h3><a class="anchor" aria-hidden="true" id="binpackparentconstructors"></a><a href="#binpackparentconstructors" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>binPack.parentConstructors</code></h3>
 <p>Parent constructors are <code>C</code> and <code>D</code> in <code>class A extends B with C and D</code>. Changed
 from a boolean to a wider set of options in v2.6.0.</p>
-<p>Default: <code>binPack.parentConstructors = &quot;never&quot;</code></p>
-<blockquote>
-<p>Keep in mind that explicitly specifying the default value might change
-behaviour; other parameters, such as <a href="#newlinessource"><code>newlines.source</code></a>,
-could interpret implied default differently but yield to an explicit value.</p>
-</blockquote>
+<p>Default: <code>binPack.parentConstructors = &quot;source&quot;</code></p>
+<p>The behaviour of <code>binPack.parentConstructors = source</code> depends on the value of
+<a href="#newlinessource"><code>newlines.source</code></a>; <code>keep</code> maps to <code>keep</code> and attempts to preserve the
+space if there's no line break in the source, <code>fold</code> maps to <code>Oneline</code>, rest to <code>Never</code>.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
   <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span></span>
       <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span> <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
@@ -3723,6 +3721,26 @@ maxColumn = <span class="hljs-number">30</span>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">binPack.parentConstructors = <span class="hljs-type">OnelineIfPrimaryOneline</span>
 maxColumn = <span class="hljs-number">30</span>
+</code></pre>
+</p></details>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
+  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">Int</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Bar</span>(<span class="hljs-params">
+        a,
+        b
+      </span>) <span class="hljs-keyword">with</span> <span class="hljs-title">Baz</span></span>
+      <span class="hljs-keyword">with</span> <span class="hljs-type">Qux</span>
+}
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
+  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">Int</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Bar</span>(<span class="hljs-params">
+    a,
+    b
+  </span>) <span class="hljs-keyword">with</span> <span class="hljs-title">Baz</span></span>
+  <span class="hljs-keyword">with</span> <span class="hljs-type">Qux</span>
+}
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">binPack.parentConstructors = keep
 </code></pre>
 </p></details>
 <h2><a class="anchor" aria-hidden="true" id="classic-select-chains"></a><a href="#classic-select-chains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Classic select chains</h2>
@@ -4055,7 +4073,7 @@ optIn.<span class="hljs-attr">blankLineBeforeDocstring</span> = <span class="hlj
 binPack.<span class="hljs-attr">unsafeCallSite</span> = <span class="hljs-literal">false</span>
 binPack.<span class="hljs-attr">unsafeDefnSite</span> = <span class="hljs-literal">false</span>
 binPack.<span class="hljs-attr">indentCallSiteOnce</span> = <span class="hljs-literal">false</span>
-binPack.<span class="hljs-attr">parentConstructors</span> = never
+binPack.<span class="hljs-attr">parentConstructors</span> = source
 binPack.<span class="hljs-attr">literalArgumentLists</span> = <span class="hljs-literal">true</span>
 binPack.<span class="hljs-attr">literalsIncludeSimpleExpr</span> = <span class="hljs-literal">false</span>
 binPack.<span class="hljs-attr">literalsSingleLine</span> = <span class="hljs-literal">false</span>
