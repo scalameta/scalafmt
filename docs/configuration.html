@@ -3241,8 +3241,8 @@ libraryDependencies ++= <span class="hljs-type">Seq</span>(
 <p>Since v3.0.0.</p>
 </blockquote>
 <pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-project.include = [<span class="hljs-string">"glob:**.scala"</span>, <span class="hljs-string">"glob:**.sbt"</span>, <span class="hljs-string">"glob:**.sc"</span>]
-project.exclude = []
+project.includePaths = [<span class="hljs-string">"glob:**.scala"</span>, <span class="hljs-string">"glob:**.sbt"</span>, <span class="hljs-string">"glob:**.sc"</span>]
+project.excludePaths = []
 </code></pre>
 <p>Allows specifying
 <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-">PathMatcher</a>
@@ -3250,12 +3250,12 @@ selection patterns to identify further which files are to be formatted (explicit
 <code>regex:</code> prefixes are required; keep in mind that <code>PathMatcher</code> patterns must match the entire
 path).</p>
 <p>For instance,</p>
-<pre><code class="hljs css language-conf"><span class="hljs-keyword">project</span> {
-  <span class="hljs-keyword">include</span> = [
+<pre><code class="hljs css language-conf"><span class="hljs-section">project</span> {
+  <span class="hljs-attribute">includePaths</span> = [
     <span class="hljs-string">"glob:**.scala"</span>,
     <span class="hljs-string">"regex:.*\\.sc"</span>
   ]
-  <span class="hljs-keyword">exclude</span> = [
+  excludePaths = [
     <span class="hljs-string">"glob:**/src/test/scala/**.scala"</span>
   ]
 }
@@ -4241,12 +4241,12 @@ verticalMultiline.<span class="hljs-attr">excludeDanglingParens</span> = [
 <span class="hljs-attr">onTestFailure</span> = <span class="hljs-string">""</span>
 <span class="hljs-attr">encoding</span> = <span class="hljs-string">"UTF-8"</span>
 project.<span class="hljs-attr">git</span> = <span class="hljs-literal">false</span>
-project.<span class="hljs-attr">include</span> = [
+project.<span class="hljs-attr">includePaths</span> = [
   <span class="hljs-string">"glob:**.scala"</span>
   <span class="hljs-string">"glob:**.sbt"</span>
   <span class="hljs-string">"glob:**.sc"</span>
 ]
-project.<span class="hljs-attr">exclude</span> = []
+project.<span class="hljs-attr">excludePaths</span> = []
 project.<span class="hljs-attr">includeFilters</span> = []
 project.<span class="hljs-attr">excludeFilters</span> = []
 xmlLiterals.<span class="hljs-attr">assumeFormatted</span> = <span class="hljs-literal">false</span>
