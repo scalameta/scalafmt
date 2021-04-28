@@ -100,12 +100,9 @@ enum A extends Alpha with Beta with Gamma
   case B
 }
 >>>
-enum A
-    extends Alpha
-    with Beta
+enum A extends Alpha with Beta
     with Gamma
-    with Delta
-    with Epsilon {
+    with Delta with Epsilon {
   case B
 }
 <<< enum case with parent constructors `never`
@@ -281,9 +278,12 @@ Enum2(val i: Int) {
 }
 >>>
 enum Enum2(val i: Int) {
-  case A(val s: String) extends Enum2(1)
-  case B(val t: String) extends Enum2(2)
-  case C(val u: String) extends Enum2(3)
+  case A(val s: String)
+      extends Enum2(1)
+  case B(val t: String)
+      extends Enum2(2)
+  case C(val u: String)
+      extends Enum2(3)
 }
 <<< enum case with type parameters
 enum Enum4 [ + T] {

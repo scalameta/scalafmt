@@ -46,10 +46,8 @@ enum A extends B(
 ) with C
 with D
 >>>
-enum A
-    extends B(
+enum A extends B(
       foo,
       bar
-    )
-      with C
+    ) with C
       with D
