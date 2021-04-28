@@ -43,7 +43,7 @@ import scala.meta.tokens.{Token => T}
 /** Helper functions for generating splits/policies for a given tree.
   */
 class FormatOps(
-    val tree: Tree,
+    val topSourceTree: Tree,
     baseStyle: ScalafmtConfig,
     val filename: String = ""
 ) {
@@ -51,7 +51,7 @@ class FormatOps(
 
   val initStyle = {
     val queue = new mutable.Queue[Tree]
-    queue += tree
+    queue += topSourceTree
     var count = 0
     while (queue.nonEmpty) {
       val elem = queue.dequeue()
@@ -67,8 +67,8 @@ class FormatOps(
   import TokenOps._
   import TreeOps._
   implicit val dialect = initStyle.runner.dialect
-  private val ownersMap = getOwners(tree)
-  val (tokens, styleMap) = FormatTokens(tree.tokens, owners)(initStyle)
+  private val ownersMap = getOwners(topSourceTree)
+  val (tokens, styleMap) = FormatTokens(topSourceTree.tokens, owners)(initStyle)
   import tokens.{
     matching,
     matchingOpt,
@@ -83,7 +83,8 @@ class FormatOps(
   private val usedTokens = tokens.head.left +: tokens.map(_.right)
 
   private[internal] val soft = new SoftKeywordClasses(dialect)
-  private val statementStarts = getStatementStarts(tree, tokens(_).left, soft)
+  private val statementStarts =
+    getStatementStarts(topSourceTree, tokens(_).left, soft)
   val dequeueSpots = getDequeueSpots(usedTokens) ++ statementStarts.keys
   // Maps token to number of non-whitespace bytes before the token's position.
   private final val nonWhitespaceOffset: Map[Token, Int] = {
@@ -125,7 +126,7 @@ class FormatOps(
       tree.tokens.headOption.foreach(x => optional += hash(x))
 
     val workList = new ju.LinkedList[Tree]()
-    workList.add(tree)
+    workList.add(topSourceTree)
     while (!workList.isEmpty) {
       val tree = workList.poll()
       tree match {

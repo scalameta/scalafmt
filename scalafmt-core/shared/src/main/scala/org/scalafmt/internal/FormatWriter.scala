@@ -1061,7 +1061,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
     }
 
-    trav(tree)
+    trav(topSourceTree)
     (headBuffer.result(), lastBuffer.result())
   }
 
