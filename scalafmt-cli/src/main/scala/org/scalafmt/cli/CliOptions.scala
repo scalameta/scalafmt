@@ -5,7 +5,7 @@ import java.nio.file.{Files, Path}
 
 import metaconfig.{Conf, Configured, ConfDecoder, ConfDynamic}
 import org.scalafmt.Versions
-import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
+import org.scalafmt.config.{Config, ScalafmtConfig}
 import org.scalafmt.util.{AbsoluteFile, GitOps, GitOpsImpl, OsSpecific}
 
 import scala.io.Codec
@@ -196,14 +196,14 @@ case class CliOptions(
 
   private[cli] def fatalWarnings: Boolean =
     getHoconValue(
-      ScalafmtRunner.default.fatalWarnings,
+      ScalafmtConfig.default.runner.fatalWarnings,
       "runner",
       "fatalWarnings"
     )
 
   private[cli] def ignoreWarnings: Boolean =
     getHoconValue(
-      ScalafmtRunner.default.ignoreWarnings,
+      ScalafmtConfig.default.runner.ignoreWarnings,
       "runner",
       "ignoreWarnings"
     )
