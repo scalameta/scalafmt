@@ -47,7 +47,7 @@ inThisBuild(
 )
 
 name := "scalafmtRoot"
-skip in publish := true
+publish / skip := true
 
 addCommandAlias("native-image", "cli/graalvm-native-image:packageBin")
 
@@ -90,12 +90,9 @@ lazy val interfaces = project
     description := "Dependency-free, pure Java public interfaces to integrate with Scalafmt through a build tool or editor plugin.",
     crossVersion := CrossVersion.disabled,
     autoScalaLibrary := false,
-    resourceGenerators.in(Compile) += Def.task {
+    Compile / resourceGenerators += Def.task {
       val out =
-        managedResourceDirectories
-          .in(Compile)
-          .value
-          .head / "scalafmt.properties"
+        (Compile / managedResourceDirectories).value.head / "scalafmt.properties"
       val props = new java.util.Properties()
       props.put("version", version.value)
       IO.write(props, "scalafmt properties", out)
@@ -138,7 +135,7 @@ lazy val core = crossProject(JVMPlatform)
   //   )
   // )
   .jvmSettings(
-    fork.in(run).in(Test) := true,
+    Test / run / fork := true,
     libraryDependencies ++= List(
       metaconfigTypesafe.value
     )
@@ -167,14 +164,14 @@ lazy val cli = project
   .in(file("scalafmt-cli"))
   .settings(
     moduleName := "scalafmt-cli",
-    mainClass in assembly := Some("org.scalafmt.cli.Cli"),
-    assemblyOption in assembly := (assemblyOption in assembly).value
+    assembly / mainClass := Some("org.scalafmt.cli.Cli"),
+    assembly / assemblyOption := (assembly / assemblyOption).value
       .copy(prependShellScript = Some(defaultUniversalScript(shebang = false))),
-    assemblyJarName.in(assembly) := "scalafmt.jar",
-    assemblyMergeStrategy in assembly := {
+    assembly / assemblyJarName := "scalafmt.jar",
+    assembly / assemblyMergeStrategy := {
       case "reflect.properties" => MergeStrategy.first
       case x =>
-        val oldStrategy = (assemblyMergeStrategy in assembly).value
+        val oldStrategy = (assembly / assemblyMergeStrategy).value
         oldStrategy(x)
     },
     libraryDependencies ++= Seq(
@@ -185,7 +182,7 @@ lazy val cli = project
       "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
     ),
     scalacOptions ++= scalacJvmOptions.value,
-    mainClass in GraalVMNativeImage := Some("org.scalafmt.cli.Cli"),
+    GraalVMNativeImage / mainClass := Some("org.scalafmt.cli.Cli"),
     graalVMNativeImageOptions ++= {
       sys.env
         .get("NATIVE_IMAGE_MUSL")
@@ -205,7 +202,7 @@ lazy val cli = project
 lazy val tests = project
   .in(file("scalafmt-tests"))
   .settings(
-    skip in publish := true,
+    publish / skip := true,
     libraryDependencies ++= Seq(
       // Test dependencies
       "com.lihaoyi" %% "scalatags" % "0.9.4",
@@ -216,7 +213,7 @@ lazy val tests = project
     javaOptions += "-Dfile.encoding=UTF8",
     buildInfoPackage := "org.scalafmt.tests",
     buildInfoKeys := Seq[BuildInfoKey](
-      "resourceDirectory" -> resourceDirectory.in(Test).value
+      "resourceDirectory" -> (Test / resourceDirectory).value
     )
   )
   .enablePlugins(BuildInfoPlugin)
@@ -225,12 +222,12 @@ lazy val tests = project
 lazy val benchmarks = project
   .in(file("scalafmt-benchmarks"))
   .settings(
-    skip in publish := true,
+    publish / skip := true,
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
       scalametaTestkit
     ),
-    javaOptions in run ++= Seq(
+    run / javaOptions ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
       "-XX:+AggressiveOpts",
       "-XX:+UseParNewGC",
@@ -254,8 +251,8 @@ lazy val docs = project
   .in(file("scalafmt-docs"))
   .settings(
     crossScalaVersions := List(scala212),
-    skip in publish := true,
-    mdoc := run.in(Compile).evaluated
+    publish / skip := true,
+    mdoc := (Compile / run).evaluated
   )
   .dependsOn(cli, dynamic)
   .enablePlugins(DocusaurusPlugin)
@@ -265,7 +262,7 @@ val ReleaseCandidate = s"($V-RC\\d+).*".r
 val Milestone = s"($V-M\\d+).*".r
 
 lazy val stableVersion = Def.setting {
-  version.in(ThisBuild).value.replaceAll("\\+.*", "")
+  (ThisBuild / version).value.replaceAll("\\+.*", "")
 }
 
 lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
