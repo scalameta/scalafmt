@@ -351,3 +351,193 @@ abstract class A(
     x: Int
   ): Int
 }
+<<< #1975 beforeTemplateBodyIfBreakInParentCtors
+newlines.source = keep
+includeCurlyBraceInSelectChains = true
+newlines.beforeTemplateBodyIfBreakInParentCtors = true
+===
+object a {
+  class A(
+    foo: Int, bar: String
+  ) extends B with C
+    with D { self =>
+    // c1
+    def a = 1
+    def b = 2
+    // c2
+  }
+  class A(
+    foo: Int, bar: String
+  ) extends B with C {
+    self =>
+    // c1
+    def a = 1
+    def b = 2
+    // c2
+  }
+}
+>>>
+object a {
+  class A(
+      foo: Int,
+      bar: String
+  ) extends B with C
+      with D { self =>
+    // c1
+    def a = 1
+    def b = 2
+    // c2
+  }
+  class A(
+      foo: Int,
+      bar: String
+  ) extends B with C {
+    self =>
+    // c1
+    def a = 1
+    def b = 2
+    // c2
+  }
+}
+<<< #1975 !beforeTemplateBodyIfBreakInParentCtors
+newlines.source = keep
+includeCurlyBraceInSelectChains = true
+newlines.beforeTemplateBodyIfBreakInParentCtors = false
+===
+object a {
+  class A(
+    foo: Int, bar: String
+  ) extends B with C
+    with D { self =>
+    // c1
+    def a = 1
+    def b = 2
+    // c2
+  }
+  class A(
+    foo: Int, bar: String
+  ) extends B with C {
+    self =>
+    // c1
+    def a = 1
+    def b = 2
+    // c2
+  }
+}
+>>>
+object a {
+  class A(
+      foo: Int,
+      bar: String
+  ) extends B with C
+      with D { self =>
+    // c1
+    def a = 1
+    def b = 2
+    // c2
+  }
+  class A(
+      foo: Int,
+      bar: String
+  ) extends B with C {
+    self =>
+    // c1
+    def a = 1
+    def b = 2
+    // c2
+  }
+}
+<<< #1975 beforeTemplateBodyIfBreakInParentCtors, templateBodyIfMinStatements=before,after
+newlines.source = keep
+includeCurlyBraceInSelectChains = true
+newlines.beforeTemplateBodyIfBreakInParentCtors = true
+newlines.templateBodyIfMinStatements = [before,after]
+===
+object a {
+  class A(
+    foo: Int, bar: String
+  ) extends B with C
+    with D { self =>
+    // c1
+    def a = 1
+    // c2
+  }
+  class A(
+    foo: Int, bar: String
+  ) extends B with C {
+    self =>
+    // c1
+    def a = 1
+    // c2
+  }
+}
+>>>
+object a {
+  class A(
+      foo: Int,
+      bar: String
+  ) extends B with C
+      with D { self =>
+    // c1
+    def a = 1
+    // c2
+  }
+  class A(
+      foo: Int,
+      bar: String
+  ) extends B with C {
+    self =>
+    // c1
+    def a = 1
+    // c2
+  }
+}
+<<< #1975 !beforeTemplateBodyIfBreakInParentCtors, templateBodyIfMinStatements=before,after
+newlines.source = keep
+includeCurlyBraceInSelectChains = true
+newlines.beforeTemplateBodyIfBreakInParentCtors = false
+newlines.templateBodyIfMinStatements = [before,after]
+===
+object a {
+  class A(
+    foo: Int, bar: String
+  ) extends B with C
+    with D { self =>
+    // c1
+    def a = 1
+    def b = 2
+    // c2
+  }
+  class A(
+    foo: Int, bar: String
+  ) extends B with C {
+    self =>
+    // c1
+    def a = 1
+    def b = 2
+    // c2
+  }
+}
+>>>
+object a {
+  class A(
+      foo: Int,
+      bar: String
+  ) extends B with C
+      with D { self =>
+    // c1
+    def a = 1
+    def b = 2
+    // c2
+  }
+  class A(
+      foo: Int,
+      bar: String
+  ) extends B with C {
+    self =>
+    // c1
+    def a = 1
+    def b = 2
+    // c2
+  }
+}
