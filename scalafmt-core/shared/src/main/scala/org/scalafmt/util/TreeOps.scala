@@ -812,4 +812,9 @@ object TreeOps {
     case _ => None
   }
 
+  def getTemplateGroups(template: Template): Option[Seq[List[Tree]]] = {
+    val groups = Seq(template.inits, template.derives).filter(_.nonEmpty)
+    if (groups.isEmpty) None else Some(groups)
+  }
+
 }
