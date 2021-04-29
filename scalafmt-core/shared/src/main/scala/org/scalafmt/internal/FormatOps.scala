@@ -426,7 +426,7 @@ class FormatOps(
       if (groups.lengthCompare(1) == 0)
         // for the last group, return '{' or ':'
         findTreeInGroup(groups.head, func) { x =>
-          templateCurly(template).getOrElse(tokenAfter(x).left)
+          templateCurly(template).getOrElse(getLastNonTrivialToken(x.last))
         }
       else {
         // for intermediate groups, return its last token

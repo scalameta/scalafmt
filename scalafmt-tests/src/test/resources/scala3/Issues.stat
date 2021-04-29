@@ -19,3 +19,21 @@ def f(s: String): Double =
   s match
     case re(v): String => v.toDouble
     case _             => 0.0
+<<< extends with scalafmt/issues/2479
+object Outer:
+  trait A
+
+  object Foo extends A
+  object Bar extends A
+
+  /** A doc comment */
+  object D extends A
+>>>
+object Outer:
+  trait A
+
+  object Foo extends A
+  object Bar extends A
+
+  /** A doc comment */
+  object D extends A
