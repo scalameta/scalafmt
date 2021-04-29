@@ -404,11 +404,14 @@ class FormatOps(
   def templateCurly(template: Template): Option[Token] =
     getStartOfTemplateBody(template).map(x => nonCommentBefore(x).left)
 
-  def templateDerivesOrCurly(
+  def templateCurlyOrLastNonTrivial(template: Template): Token =
+    templateCurly(template).getOrElse(getLastNonTrivialToken(template))
+
+  def templateDerivesOrCurlyOrLastNonTrivial(
       template: Template
-  )(implicit ft: FormatToken): Option[Token] =
+  )(implicit ft: FormatToken): Token =
     findTemplateGroupOnRight(_.getExpireToken())(template)
-      .orElse(templateCurly(template))
+      .getOrElse(templateCurlyOrLastNonTrivial(template))
 
   private def findTreeInGroup[A](
       trees: Seq[Tree],
@@ -433,8 +436,7 @@ class FormatOps(
         val res = findTreeInGroup(groups.head, func)(x => tokenAfter(x).left)
         if (res.isDefined) res else iter(groups.tail)
       }
-    val groups = Seq(template.inits, template.derives).filter(_.nonEmpty)
-    if (groups.isEmpty) None else iter(groups)
+    getTemplateGroups(template).flatMap(iter)
   }
 
   @inline

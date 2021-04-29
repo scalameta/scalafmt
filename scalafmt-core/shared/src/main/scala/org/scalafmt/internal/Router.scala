@@ -603,7 +603,11 @@ class Router(formatOps: FormatOps) {
             _
           ) =>
         val expire = defnTemplate(leftOwner)
-          .flatMap(templateCurly)
+          .flatMap {
+            getTemplateGroups(_).flatMap(
+              _.lastOption.flatMap(_.headOption.flatMap(_.tokens.headOption))
+            )
+          }
           .getOrElse(getLastToken(leftOwner))
         val forceNewlineBeforeExtends = Policy.before(expire) {
           case Decision(t @ FormatToken(_, soft.ExtendsOrDerives(), _), s)
@@ -1458,7 +1462,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, soft.ExtendsOrDerives(), _) =>
         val template = defnTemplate(rightOwner)
         def lastToken = template.fold(getLastNonTrivialToken(rightOwner)) { x =>
-          templateDerivesOrCurly(x).getOrElse(getLastNonTrivialToken(x))
+          templateDerivesOrCurlyOrLastNonTrivial(x)
         }
 
         binPackParentConstructorSplits(
@@ -1485,7 +1489,7 @@ class Router(formatOps: FormatOps) {
               isFirstInit(template, leftOwner),
               Set(template),
               findTemplateGroupOnRight(_.superType)(template),
-              templateCurly(template).getOrElse(getLastToken(template)),
+              templateCurlyOrLastNonTrivial(template),
               style.indent.main,
               template.inits.length > 1
             )
