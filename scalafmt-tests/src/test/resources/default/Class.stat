@@ -383,6 +383,7 @@ object a {
       bar: String
   ) extends B with C
       with D { self =>
+
     // c1
     def a = 1
     def b = 2
@@ -473,11 +474,13 @@ object a {
 }
 >>>
 object a {
+
   class A(
       foo: Int,
       bar: String
   ) extends B with C
       with D { self =>
+
     // c1
     def a = 1
     // c2
@@ -491,6 +494,7 @@ object a {
     def a = 1
     // c2
   }
+
 }
 <<< #1975 !beforeTemplateBodyIfBreakInParentCtors, templateBodyIfMinStatements=before,after
 newlines.source = keep
@@ -520,14 +524,17 @@ object a {
 }
 >>>
 object a {
+
   class A(
       foo: Int,
       bar: String
   ) extends B with C
       with D { self =>
+
     // c1
     def a = 1
     def b = 2
+
     // c2
   }
   class A(
@@ -535,9 +542,12 @@ object a {
       bar: String
   ) extends B with C {
     self =>
+
     // c1
     def a = 1
     def b = 2
+
     // c2
   }
+
 }

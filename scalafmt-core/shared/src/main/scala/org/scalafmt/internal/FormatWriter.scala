@@ -4,7 +4,7 @@ import java.nio.CharBuffer
 import java.util.regex.Pattern
 
 import org.scalafmt.CompatCollections.JavaConverters._
-import org.scalafmt.config.{Comments, Docstrings, ScalafmtConfig}
+import org.scalafmt.config.{Comments, Docstrings, Newlines, ScalafmtConfig}
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.{LiteralOps, TreeOps}
@@ -225,6 +225,7 @@ class FormatWriter(formatOps: FormatOps) {
 
           case nl: NewlineT =>
             val isDouble = nl.isDouble ||
+              needTemplateBodyBlank(locations, i) ||
               style.newlines.forceBlankBeforeMultilineTopLevelStmt &&
               isMultilineTopLevelStatement(locations, i) ||
               style.newlines.forceBlankAfterMultilineTopLevelStmt &&
@@ -1042,16 +1043,30 @@ class FormatWriter(formatOps: FormatOps) {
         })
     }
 
-  lazy val (topLevelHeadTokens, topLevelLastToHeadTokens) = {
+  lazy val (
+    topLevelHeadTokens,
+    topLevelLastToHeadTokens,
+    templateBodyTokens
+  ) = {
     val headBuffer = Set.newBuilder[Int]
     val lastBuffer = Map.newBuilder[Int, Int]
+    val templateBodyBuffer = Map.newBuilder[Int, (Boolean, Template)]
     val trav = new Traverser {
       override def apply(tree: Tree): Unit =
         tree match {
           case _: Term.Block =>
-          case t: Template => super.apply(t.stats) // skip inits
+          case t: Template =>
+            t.stats.headOption.foreach { x =>
+              val idx = leadingComment(x).meta.idx
+              templateBodyBuffer += idx -> (true, t)
+            }
+            t.stats.lastOption.foreach { x =>
+              val idx = tokens.getLast(x).meta.idx
+              templateBodyBuffer += idx -> (false, t)
+            }
+            super.apply(t.stats) // skip inits
           case TreeOps.MaybeTopLevelStat(t) =>
-            val leading = leadingComment(tokens(t.tokens.head, -1)).meta.idx
+            val leading = leadingComment(t).meta.idx
             val trailing = tokens.getLast(t).meta.idx
             headBuffer += leading
             lastBuffer += trailing -> leading
@@ -1062,8 +1077,29 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
     trav(topSourceTree)
-    (headBuffer.result(), lastBuffer.result())
+    (headBuffer.result(), lastBuffer.result(), templateBodyBuffer.result())
   }
+
+  private def needTemplateBodyBlank(
+      toks: Array[FormatLocation],
+      i: Int
+  ): Boolean =
+    templateBodyTokens.get(i).exists { case (isBefore, template) =>
+      val floc = toks(i)
+      val settings = floc.style.newlines
+      def checkBeforeAfter(ba: Newlines.BeforeAfter): Boolean =
+        template.stats.lengthCompare(settings.templateBodyMinStatements) >= 0 &&
+          settings.templateBodyIfMinStatements.contains(ba)
+      if (isBefore)
+        checkBeforeAfter(Newlines.before) ||
+        settings.beforeTemplateBodyIfBreakInParentCtors && {
+          val curly = tokens(templateCurlyOrLastNonTrivial(template)).meta.idx
+          val beforeTemplate = leadingComment(template).meta.idx
+          toks(curly).leftLineId != toks(beforeTemplate).leftLineId
+        }
+      else
+        checkBeforeAfter(Newlines.after)
+    }
 
   private def isMultilineTopLevelStatement(
       toks: Array[FormatLocation],

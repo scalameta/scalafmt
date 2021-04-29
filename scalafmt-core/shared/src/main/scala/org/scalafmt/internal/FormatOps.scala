@@ -1311,6 +1311,9 @@ class FormatOps(
       formatToken.hasBlankLine || !formatToken.left.is[T.Comment]
     }.fold(identity, identity)
 
+  final def leadingComment(tree: Tree): FormatToken =
+    leadingComment(tokens(tree.tokens.head, -1))
+
   def xmlSpace(owner: Tree): Modification =
     owner match {
       case _: Term.Xml | _: Pat.Xml => NoSplit
