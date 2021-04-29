@@ -970,3 +970,41 @@ def main(args: Array[String]): Unit =
   args foreach {
     println(_)
   }
+<<< import simple
+import x.{Y}
+>>>
+import x.Y
+<<< import wildcard
+import x.{_}
+>>>
+import x._
+<<< import wildcard Scala 3
+import x.{*}
+>>>
+import x.*
+<<< import multiple wildcard untouched
+import x.{Y, _}
+>>>
+import x.{Y, _}
+<<< import multiple statements untouched
+import x.{Y, Z}
+>>>
+import x.{Y, Z}
+<<< import single statement without braces untouched
+import x.Y
+>>>
+import x.Y
+<<< import rename untouched
+import x.{Y => Z}
+>>>
+import x.{Y => Z}
+<<< import unimport untouched
+import x.{Y => _}
+>>>
+import x.{Y => _}
+<<< don't rewrite on disabled flag
+rewrite.rules = []
+===
+import x.{Y}
+>>>
+import x.{Y}
