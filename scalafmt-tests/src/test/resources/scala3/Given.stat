@@ -189,6 +189,7 @@ given a: A
   with Delta
   with Epsilon
   with {
+
   def a = ???
 }
 <<< parent constructors `always`
