@@ -79,7 +79,7 @@ object TokenOps {
     }
 
   def findLastVisibleToken(tokens: Tokens): Token =
-    findLastNonTrivialTokenOpt(tokens).getOrElse(tokens.last)
+    findLastVisibleTokenOpt(tokens).getOrElse(tokens.last)
 
   def endsWithNoIndent(between: Seq[Token]): Boolean =
     between.lastOption.exists(_.is[LF])
