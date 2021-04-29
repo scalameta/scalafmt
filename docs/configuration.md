@@ -1719,6 +1719,19 @@ def f() = {
 }
 ```
 
+```scala mdoc:defaults
+rewrite.redundantBraces.importStatements
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.importStatements = true
+---
+import x.{Y}
+import x.{_}
+import x.{Y, Z}
+```
+
 ### `RedundantParens`
 
 ```scala mdoc:scalafmt

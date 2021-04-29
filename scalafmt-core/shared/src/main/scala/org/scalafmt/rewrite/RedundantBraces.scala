@@ -124,6 +124,9 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             (ConvertToNewScala3Syntax.enabled ||
               !x.tokens.exists(_.is[Token.RightArrow])) =>
         removeToken
+      case p: Importer
+          if settings.importStatements && p.importees.length == 1 =>
+        removeToken
       case _ => null
     }
   }

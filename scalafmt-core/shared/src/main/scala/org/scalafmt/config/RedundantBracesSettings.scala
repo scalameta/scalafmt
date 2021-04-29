@@ -9,7 +9,8 @@ case class RedundantBracesSettings(
     stringInterpolation: Boolean = false,
     parensForOneLineApply: Option[Boolean] = None,
     generalExpressions: Boolean = true,
-    ifElseExpressions: Boolean = false
+    ifElseExpressions: Boolean = false,
+    importStatements: Boolean = true
 ) {
   val reader: ConfDecoder[RedundantBracesSettings] =
     generic.deriveDecoder(this).noTypos
