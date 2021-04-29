@@ -982,6 +982,12 @@ import x._
 import x.{*}
 >>>
 import x.*
+<<< import rename Scala 3
+runner.dialect = Scala3
+===
+import x.{Y as Z}
+>>>
+import x.Y as Z
 <<< import multiple wildcard untouched
 import x.{Y, _}
 >>>
