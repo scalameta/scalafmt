@@ -1457,8 +1457,8 @@ class Router(formatOps: FormatOps) {
       // Template
       case FormatToken(_, soft.ExtendsOrDerives(), _) =>
         val template = defnTemplate(rightOwner)
-        def lastToken = template.fold(getLastToken(rightOwner)) { x =>
-          templateDerivesOrCurly(x).getOrElse(getLastToken(x))
+        def lastToken = template.fold(getLastNonTrivialToken(rightOwner)) { x =>
+          templateDerivesOrCurly(x).getOrElse(getLastNonTrivialToken(x))
         }
 
         binPackParentConstructorSplits(
