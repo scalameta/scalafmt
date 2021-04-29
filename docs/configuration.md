@@ -796,6 +796,145 @@ package core {
 }
 ```
 
+### Newlines around template body
+
+> Since v3.0.0.
+
+This group of parameters controls whether to enforce a blank line before the first
+or after the last statement of a template body (i.e., body of a class, object, trait, enum).
+
+> These parameters will not cause any blank lines to be removed.
+
+#### `newlines.templateBodyIfMinStatements`
+
+`templateBodyIfMinStatements` can be `before` and/or `after`, while
+`templateBodyMinStatements` limits when the rule is applied.
+
+```scala mdoc:defaults
+newlines.templateBodyIfMinStatements
+newlines.templateBodyMinStatements
+```
+
+```scala mdoc:scalafmt
+newlines.templateBodyIfMinStatements = []
+---
+import org.scalafmt
+package core {
+  class C1 {
+    def one = 1
+  }
+  object O1 {
+    val one = 1
+    def two = 2
+  }
+  class C2 {}
+}
+```
+
+```scala mdoc:scalafmt
+newlines.templateBodyIfMinStatements = [before]
+---
+import org.scalafmt
+package core {
+  class C1 {
+    def one = 1
+  }
+  object O1 {
+    val one = 1
+    def two = 2
+  }
+  class C2 {}
+}
+```
+
+```scala mdoc:scalafmt
+newlines.templateBodyIfMinStatements = [after]
+---
+package core {
+  class C1 {
+    def one = 1
+  }
+  object O1 {
+    val one = 1
+    def two = 2
+  }
+  class C2 {}
+}
+```
+
+```scala mdoc:scalafmt
+newlines.templateBodyIfMinStatements = [before,after]
+---
+import org.scalafmt
+package core {
+  class C1 {
+    def one = 1
+  }
+  object O1 {
+    val one = 1
+    def two = 2
+  }
+  class C2 {}
+}
+```
+
+#### `newlines.beforeTemplateBodyIfBreakInParentCtors`
+
+This parameter will force a blank line before the first statement of a template body if the
+token _before_ `extends` and the `{` (or, in scala3, `:`) token are not on the same line.
+
+```scala mdoc:defaults
+newlines.beforeTemplateBodyIfBreakInParentCtors
+```
+
+```scala mdoc:scalafmt
+newlines.source = keep
+newlines.beforeTemplateBodyIfBreakInParentCtors = true
+---
+package core {
+  class C1 extends S { // no breaks between "C1" and "{"
+    def one = 1
+  }
+  class C1(
+    param: Int
+  ) extends S { // no breaks between ")" and "{"
+    def one = 1
+  }
+  class C1 extends S { // no breaks between "C1" and "=>"
+    self =>
+    def one = 1
+  }
+  class C1
+    extends S { // break between "C1" and "{"
+    def one = 1
+  }
+}
+```
+
+```scala mdoc:scalafmt
+newlines.source = keep
+newlines.beforeTemplateBodyIfBreakInParentCtors = false
+---
+package core {
+  class C1 extends S { // no breaks between "C1" and "{"
+    def one = 1
+  }
+  class C1(
+    param: Int
+  ) extends S { // no breaks between ")" and "{"
+    def one = 1
+  }
+  class C1 extends S { // no breaks between "C1" and "=>"
+    self =>
+    def one = 1
+  }
+  class C1
+    extends S { // break between "C1" and "{"
+    def one = 1
+  }
+}
+```
+
 ### `newlines.beforeMultiline`
 
 > Since v2.7.0

@@ -167,6 +167,9 @@ case class Newlines(
       BeforeCurlyLambdaParams.never,
     topLevelStatementsMinBreaks: Int = 1,
     topLevelStatements: Seq[BeforeAfter] = Seq.empty,
+    beforeTemplateBodyIfBreakInParentCtors: Boolean = false,
+    templateBodyIfMinStatements: Seq[BeforeAfter] = Seq.empty,
+    templateBodyMinStatements: Int = 2,
     @annotation.DeprecatedName(
       "alwaysBeforeTopLevelStatements",
       "Use newlines.topLevelStatements instead",

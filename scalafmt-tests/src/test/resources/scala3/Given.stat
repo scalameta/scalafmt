@@ -173,6 +173,24 @@ given a: A
   with {
   def a = ???
 }
+<<< parent constructors `never`, beforeTemplateBodyIfBreakInParentCtors
+binPack.parentConstructors = Never
+newlines.beforeTemplateBodyIfBreakInParentCtors = true
+maxColumn = 40
+===
+given a:A with Alpha with Beta with Gamma with Delta with Epsilon with {
+  def a = ???
+}
+>>>
+given a: A
+  with Alpha
+  with Beta
+  with Gamma
+  with Delta
+  with Epsilon
+  with {
+  def a = ???
+}
 <<< parent constructors `always`
 binPack.parentConstructors = Always
 maxColumn = 30
