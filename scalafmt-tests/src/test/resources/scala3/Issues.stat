@@ -7,3 +7,15 @@ object ValueTypes:
 >>>
 object ValueTypes:
   case object Private extends ClassificationValue with ConstantText
+<<< typed pat scalafmt/issues/2424
+  def f(s: String): Double =
+   val re =  """.*(\d+).*""".r
+    s match
+         case re(v): String => v.toDouble
+         case _ => 0.0
+>>>
+def f(s: String): Double =
+  val re = """.*(\d+).*""".r
+  s match
+    case re(v): String => v.toDouble
+    case _             => 0.0
