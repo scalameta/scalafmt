@@ -1,4 +1,4 @@
-maxColumn = 30
+maxColumn = 35
 trailingCommas = multiple
 align.preset = more
 <<< should consider comments with extra whitespace when adding trailing commas align more

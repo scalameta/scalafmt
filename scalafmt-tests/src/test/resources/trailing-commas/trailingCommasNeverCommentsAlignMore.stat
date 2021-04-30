@@ -1,4 +1,4 @@
-maxColumn = 30
+maxColumn = 35
 trailingCommas = never
 align.preset = more
 

@@ -679,6 +679,19 @@ for {
 } yield ()
 ```
 
+### `align.allowOverflow`
+
+If this flag is set, as long as unaligned lines did not overflow, we will not check
+whether alignment causes any lines to overflow the [`maxColumn`](#maxcolumn) setting.
+
+> Since v3.0.0.
+
+```scala mdoc:defaults
+align.allowOverflow
+```
+
+It's also enabled by default in `align.preset = most`.
+
 ## Newlines
 
 The `newlines.*` options are used to configure when and where `scalafmt` should
