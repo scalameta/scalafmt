@@ -17,10 +17,6 @@ val x: 42 = 42
 val x : A   &  B = 42
 >>>
 val x: A & B = 42
-<<< trait parameters - supported in default dialect to produce consistent trees in Scala 2 and Scala 3.
-trait T(a : Int)
->>>
-trait T(a: Int)
 <<< class param
 class T(a : Int)
 >>>
