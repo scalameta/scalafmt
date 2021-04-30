@@ -997,3 +997,185 @@ val x = blar match {
     ???
   case aaaaaaaaaa => ???
 }
+<<< #2449, allowOverflow
+align.allowOverflow = true
+===
+class ThisIsMyClass(a: Long, b: Long) {
+  val taskid = "abcd" + (new Random).nextLong
+  val init = 1234567890123L
+  val end = 1234567891123L
+  val myClass = new ThisIsMyClass(init, end)
+  val thisIsMyListOfClasses: ListBuffer[ThisIsMyClass] = ListBuffer()
+  val abcdefghijklmnopqrstuvwxyz = new ThisIsMyClass(init, end)
+  val abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst = new ThisIsMyClass(init, end)
+}
+>>>
+class ThisIsMyClass(a: Long, b: Long) {
+  val taskid                                           = "abcd" + (new Random).nextLong
+  val init                                             = 1234567890123L
+  val end                                              = 1234567891123L
+  val myClass                                          = new ThisIsMyClass(init, end)
+  val thisIsMyListOfClasses: ListBuffer[ThisIsMyClass] = ListBuffer()
+  val abcdefghijklmnopqrstuvwxyz                       = new ThisIsMyClass(init, end)
+  val abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst =
+    new ThisIsMyClass(init, end)
+}
+<<< #2449, !allowOverflow
+align.allowOverflow = false
+===
+class ThisIsMyClass(a: Long, b: Long) {
+  val taskid = "abcd" + (new Random).nextLong
+  val init = 1234567890123L
+  val end = 1234567891123L
+  val myClass = new ThisIsMyClass(init, end)
+  val thisIsMyListOfClasses: ListBuffer[ThisIsMyClass] = ListBuffer()
+  val abcdefghijklmnopqrstuvwxyz = new ThisIsMyClass(init, end)
+  val abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst = new ThisIsMyClass(init, end)
+}
+>>>
+class ThisIsMyClass(a: Long, b: Long) {
+  val taskid                                           = "abcd" + (new Random).nextLong
+  val init                                             = 1234567890123L
+  val end                                              = 1234567891123L
+  val myClass                                          = new ThisIsMyClass(init, end)
+  val thisIsMyListOfClasses: ListBuffer[ThisIsMyClass] = ListBuffer()
+  val abcdefghijklmnopqrstuvwxyz                       = new ThisIsMyClass(init, end)
+  val abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst =
+    new ThisIsMyClass(init, end)
+}
+<<< alternating align-stop sizes and owners, allowOverflow
+align.allowOverflow = true
+===
+libraryDependencies ++= Seq(
+  "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
+  "org.scala-lang" % "scala-compiler", // c1
+  "ch.qos.logback" % "logback-classic" % "1.1.6" % "test",
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6" % "test",
+  "org.scalatest" %%% "scalatest" % Deps.scalatest % "test"
+)
+>>>
+libraryDependencies ++= Seq(
+  "org.scala-lang"                 % "scala-reflect" % scalaVersion.value % "test",
+  "org.scala-lang"                 % "scala-compiler", // c1
+  "ch.qos.logback"                 % "logback-classic" % "1.1.6" % "test",
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0"        % "test",
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4"        % "test",
+  "org.apache.commons"             % "commons-math3" % "3.6"          % "test",
+  "org.scalatest"                %%% "scalatest"     % Deps.scalatest % "test"
+)
+<<< alternating align-stop sizes and owners, !allowOverflow
+align.allowOverflow = false
+===
+libraryDependencies ++= Seq(
+  "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
+  "org.scala-lang" % "scala-compiler", // c1
+  "ch.qos.logback" % "logback-classic" % "1.1.6" % "test",
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6" % "test",
+  "org.scalatest" %%% "scalatest" % Deps.scalatest % "test"
+)
+>>>
+libraryDependencies ++= Seq(
+  "org.scala-lang"                 % "scala-reflect" % scalaVersion.value % "test",
+  "org.scala-lang"                 % "scala-compiler", // c1
+  "ch.qos.logback"                 % "logback-classic" % "1.1.6" % "test",
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0"        % "test",
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4"        % "test",
+  "org.apache.commons"             % "commons-math3" % "3.6"          % "test",
+  "org.scalatest"                %%% "scalatest"     % Deps.scalatest % "test"
+)
+<<< alternating align-stop sizes and owners, !allowOverflow but fits
+align.allowOverflow = false
+===
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6" % "test",
+  "org.scalatest" %%% "scalatest" % Deps.scalatest % "test"
+)
+>>>
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0" % "test",
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4"        % "test",
+  "org.apache.commons"             % "commons-math3" % "3.6"          % "test",
+  "org.scalatest"                %%% "scalatest"     % Deps.scalatest % "test"
+)
+<<< alternating align-stop sizes and owners, allowOverflow but fits
+align.allowOverflow = true
+===
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6" % "test",
+  "org.scalatest" %%% "scalatest" % Deps.scalatest % "test"
+)
+>>>
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0" % "test",
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4"        % "test",
+  "org.apache.commons"             % "commons-math3" % "3.6"          % "test",
+  "org.scalatest"                %%% "scalatest"     % Deps.scalatest % "test"
+)
+<<< shrinking and growing align-stop sizes and owners, allowOverflow
+align.allowOverflow = true
+===
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c1
+  "com.ibm" %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6",
+  "org.scalatest" %%% "scalatest", // c2
+  "org.apache.commons" % "commons-math3" % "3.6",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "com.ibm" %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.googlecode.java-diff-utils" % "diffutils" // c1
+)
+>>>
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c1
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4" % "test",
+  "org.apache.commons"             % "commons-math3" % "3.6",
+  "org.scalatest"                %%% "scalatest", // c2
+  "org.apache.commons"             % "commons-math3" % "3.6",
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4" % "test",
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.googlecode.java-diff-utils" % "diffutils" // c1
+)
+<<< shrinking and growing align-stop sizes and owners, !allowOverflow
+align.allowOverflow = false
+===
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c1
+  "com.ibm" %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6",
+  "org.scalatest" %%% "scalatest", // c2
+  "org.apache.commons" % "commons-math3" % "3.6",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "com.ibm" %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.googlecode.java-diff-utils" % "diffutils" // c1
+)
+>>>
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c1
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4" % "test",
+  "org.apache.commons"             % "commons-math3" % "3.6",
+  "org.scalatest"                %%% "scalatest", // c2
+  "org.apache.commons"             % "commons-math3" % "3.6",
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4" % "test",
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.googlecode.java-diff-utils" % "diffutils" // c1
+)
