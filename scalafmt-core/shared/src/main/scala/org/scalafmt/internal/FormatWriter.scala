@@ -14,7 +14,6 @@ import scala.collection.AbstractIterator
 import scala.collection.mutable
 import scala.meta.internal.Scaladoc
 import scala.meta.internal.parsers.ScaladocParser
-import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
 import scala.meta.{
@@ -796,24 +795,29 @@ class FormatWriter(formatOps: FormatOps) {
         var idx = 0
         while (idx < locations.length) {
           var alignContainer: Tree = null
-          val columnCandidates = IndexedSeq.newBuilder[FormatLocation]
+          val columnCandidates = IndexedSeq.newBuilder[AlignStop]
           @tailrec
           def processLine: FormatLocation = {
+            if (idx > 0) {
+              val prevFloc = locations(idx - 1)
+              if (prevFloc.hasBreakAfter || prevFloc.formatToken.leftHasNewline)
+                columnShift = 0
+            }
             val floc = locations(idx)
             idx += 1
-            val ok = !floc.state.split.isNL
-            if (!ok || floc.formatToken.leftHasNewline) columnShift = 0
             columnShift += floc.shift
-            if (!ok) floc
+            if (floc.hasBreakAfter || floc.formatToken.leftHasNewline) floc
             else {
               getAlignContainer(floc).foreach { container =>
                 if (alignContainer eq null)
                   alignContainer = container
                 if (alignContainer eq container)
-                  columnCandidates += floc.copy(
-                    alignContainer = container,
-                    alignHashKey = getAlignHashKey(floc),
-                    shift = floc.state.prev.column + columnShift
+                  columnCandidates += new AlignStop(
+                    getAlignColumn(floc) + columnShift,
+                    floc.copy(
+                      alignContainer = container,
+                      alignHashKey = getAlignHashKey(floc)
+                    )
                   )
               }
               if (idx < locations.length) processLine else floc
@@ -830,24 +834,19 @@ class FormatWriter(formatOps: FormatOps) {
           } else {
             val candidates = columnCandidates.result()
             val block = getOrCreateBlock(alignContainer)
+            def appendToBlock(line: IndexedSeq[AlignStop], matches: Int = 0) = {
+              val alignLine = new AlignLine(line)
+              block.tryAppendToBlock(alignLine, matches)
+            }
             if (block.isEmpty) {
-              if (!isBlankLine) block += candidates
+              if (!isBlankLine) appendToBlock(candidates)
             } else {
-              val prev = block.last
               val matches =
-                columnMatches(prev, candidates, location.formatToken)
-              if (matches > 0) {
-                // truncate candidates if matches are shorter than both lists
-                val truncate =
-                  matches < prev.length && matches < candidates.length
-                if (truncate) {
-                  block(block.length - 1) = prev.take(matches)
-                  block += candidates.take(matches)
-                } else block += candidates
-              }
+                columnMatches(block.refStops, candidates, location.formatToken)
+              if (matches > 0) appendToBlock(candidates, matches)
               if (isBlankLine || matches == 0 && shouldFlush(alignContainer)) {
                 flushAlignBlock(block)
-                if (!isBlankLine && matches == 0) block += candidates
+                if (!isBlankLine && matches == 0) appendToBlock(candidates)
               }
             }
 
@@ -950,7 +949,7 @@ class FormatWriter(formatOps: FormatOps) {
     private def flushAlignBlock(block: AlignBlock)(implicit
         builder: mutable.Builder[(Int, Int), Map[Int, Int]]
     ): Unit = {
-      if (block.length > 1)
+      if (block.hasMultiple)
         flushMultiEntryAlignBlock(block)
       block.clear()
     }
@@ -958,48 +957,21 @@ class FormatWriter(formatOps: FormatOps) {
     private def flushMultiEntryAlignBlock(block: AlignBlock)(implicit
         builder: mutable.Builder[(Int, Int), Map[Int, Int]]
     ): Unit = {
-      var column = 0
-      val columns = block.map(_.length).max
-
-      /** Separator length gap needed to align blocks with different token
-        * lengths by expression names, not tokens themselves.
-        *
-        * Without considering gaps:
-        * ```
-        * libraryDependencies ++= Seq(
-        *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
-        *   "io.get-coursier" % "interface"   % "0.0.17"
-        * )
-        * ```
-        *
-        * Taking gaps into account:
-        * ```
-        * libraryDependencies ++= Seq(
-        *   "org.scalacheck" %% "scalacheck" % scalacheckV,
-        *   "io.get-coursier" % "interface"  % "0.0.17"
-        * )
-        * ```
-        */
-      val previousSeparatorLengthGaps = new Array[Int](block.length)
-      while (column < columns) {
-        val alignmentUnits = prepareAlignmentInfo(
-          block.toIndexedSeq,
-          previousSeparatorLengthGaps,
-          column
-        )
-
-        val widest = alignmentUnits.maxBy(_.width)
-        val endIndex = locations.length - 1
-        alignmentUnits.foreach { info =>
-          import info._
-          previousSeparatorLengthGaps(lineIndex) =
-            widest.separatorLength - separatorLength
-          val offset = widest.width - width
-          builder += ftIndex -> offset
-          if (column == 0 && initStyle.align.multiline && ftIndex < endIndex)
-            shiftStateColumnIndent(ftIndex + 1, offset)
+      val endIndex = locations.length - 1
+      block.foreach { x =>
+        val headStop = x.stops.head
+        if (headStop.floc.style.align.multiline) {
+          val offset = block.stopColumns.head - headStop.column
+          val ftIndex = headStop.floc.formatToken.meta.idx
+          if (ftIndex < endIndex) shiftStateColumnIndent(ftIndex + 1, offset)
         }
-        column += 1
+        var previousShift = 0
+        x.stops.zip(block.stopColumns).foreach { case (stop, blockStop) =>
+          val currentShift = blockStop - stop.column
+          val offset = currentShift - previousShift
+          previousShift = currentShift
+          builder += stop.floc.formatToken.meta.idx -> offset
+        }
       }
     }
 
@@ -1206,55 +1178,24 @@ class FormatWriter(formatOps: FormatOps) {
   }
 
   private def columnMatches(
-      a: Seq[FormatLocation],
-      b: Seq[FormatLocation],
+      a: Seq[AlignStop],
+      b: Seq[AlignStop],
       eol: FormatToken
   ): Int = {
     val endOfLineOwner = eol.meta.rightOwner
     @tailrec
-    def iter(pairs: Seq[(FormatLocation, FormatLocation)], cnt: Int): Int =
+    def iter(pairs: Seq[(AlignStop, AlignStop)], cnt: Int): Int =
       pairs.headOption match {
-        case Some((r1, r2)) if columnsMatch(r1, r2, endOfLineOwner) =>
+        case Some((r1, r2)) if columnsMatch(r1.floc, r2.floc, endOfLineOwner) =>
           iter(pairs.tail, cnt + 1)
         case _ => cnt
       }
     iter(a.zip(b), 0)
   }
 
-  private def prepareAlignmentInfo(
-      block: IndexedSeq[IndexedSeq[FormatLocation]],
-      separatorLengthGaps: Array[Int],
-      column: Int
-  ): Vector[AlignmentUnit] = {
-    var i = 0
-    val units = Vector.newBuilder[AlignmentUnit]
-    while (i < block.length) {
-      val line = block(i)
-      if (column < line.length) {
-        val location = line(column)
-        val previousWidth = if (column == 0) 0 else line(column - 1).shift
-        val key = location.shift - previousWidth + separatorLengthGaps(i)
-        val separatorLength =
-          if (location.formatToken.right.is[Token.Comment]) 0
-          else location.formatToken.meta.right.text.length
-        units += AlignmentUnit(
-          key + separatorLength,
-          location.formatToken.meta.idx,
-          separatorLength,
-          i
-        )
-      }
-      i += 1
-    }
-
-    units.result()
-  }
-
 }
 
 object FormatWriter {
-
-  type AlignBlock = mutable.ArrayBuffer[IndexedSeq[FormatLocation]]
 
   case class FormatLocation(
       formatToken: FormatToken,
@@ -1273,27 +1214,100 @@ object FormatWriter {
     def isStandalone: Boolean = hasBreakAfter && hasBreakBefore
   }
 
-  /** Alignment information extracted from FormatToken. Used only when align!=none.
-    * For example:
+  class AlignStop(val column: Int, val floc: FormatLocation)
+
+  class AlignLine(var stops: IndexedSeq[AlignStop])
+
+  class AlignBlock(
+      buffer: mutable.ArrayBuffer[AlignLine] =
+        new mutable.ArrayBuffer[AlignLine],
+      var refStops: Seq[AlignStop] = Seq.empty,
+      var stopColumns: IndexedSeq[Int] = IndexedSeq.empty
+  ) {
+    def tryAppendToBlock(line: AlignLine, matches: Int): Unit = {
+      // truncate if matches are shorter than both lists
+      val truncate = shouldTruncate(line, matches)
+      def trunc[A](s: IndexedSeq[A], c: Boolean) = if (c) s.take(matches) else s
+      val oldStops = trunc(stopColumns, truncate < 0)
+      val newStops = trunc(line.stops, truncate > 0)
+
+      // compute new stops for the block
+      var oldShift = 0
+      var newShift = 0
+      val builder = IndexedSeq.newBuilder[Int]
+      // common stops first
+      oldStops.zip(newStops).foreach { case (oldStopColumn, newStop) =>
+        val oldStopShifted = oldShift + oldStopColumn
+        val newStopShifted = newShift + newStop.column
+        val diff = newStopShifted - oldStopShifted
+        if (diff > 0) {
+          oldShift += diff
+          builder += newStopShifted
+        } else {
+          newShift -= diff
+          builder += oldStopShifted
+        }
+      }
+      // whatever remains
+      oldStops.drop(newStops.length).foreach(builder += oldShift + _)
+      newStops.drop(oldStops.length).foreach(builder += newShift + _.column)
+      val newStopColumns = builder.result()
+
+      // now we mutate
+      line.stops = newStops
+      if (truncate < 0) foreach(x => x.stops = x.stops.take(matches))
+      if (newStopColumns.length == newStops.length) refStops = newStops
+      buffer += line
+      stopColumns = newStopColumns
+    }
+
+    // <0 old, 0 neither, >0 new
+    private def shouldTruncate(line: AlignLine, matches: Int): Int = {
+      // truncate if matches are shorter than both lists
+      val oldStops = refStops.length
+      val newStops = line.stops.length
+      if (matches == 0 || matches >= oldStops || matches >= newStops) 0
+      else if (oldStops < newStops) -1 // new is longer
+      else if (oldStops > newStops || hasMultiple) 1 // old is longer
+      else if (line.stops.last.floc.formatToken.right.is[T.Comment]) 1
+      else -1
+    }
+
+    def clear(): Unit = {
+      buffer.clear()
+      refStops = Seq.empty
+      stopColumns = IndexedSeq.empty
+    }
+
+    @inline def isEmpty: Boolean = buffer.isEmpty
+    @inline def hasMultiple: Boolean = buffer.lengthCompare(1) > 0
+    @inline def foreach[A](f: AlignLine => A): Unit = buffer.foreach(f)
+  }
+
+  /** Separator length gap needed to align blocks with different token
+    * lengths by expression names, not tokens themselves.
+    *
+    * Without considering gaps:
     * ```
     * libraryDependencies ++= Seq(
-    *   "io.get-coursier" % "interface" % "0.0.17",
-    *   "org.scalacheck" %% "scalacheck" % scalacheckV
+    *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"   % "0.0.17"
     * )
     * ```
     *
-    * `"io.get-coursier" % "interface" % "0.0.17"`
-    *  |<--------------->|      => width
-    *  hash("io.get-coursier")  => tokenHash
-    *  length(%)                => separatorLength
-    *  line number in block (1) => lineIndex
+    * Taking gaps into account:
+    * ```
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * ```
     */
-  case class AlignmentUnit(
-      width: Int,
-      ftIndex: Int,
-      separatorLength: Int,
-      lineIndex: Int
-  )
+  def getAlignColumn(floc: FormatLocation): Int = {
+    // if we didn't care about align token lengths, we'd always "useLeft"
+    val useLeft = floc.formatToken.right.is[T.Comment]
+    if (useLeft) floc.state.prev.column else floc.state.column
+  }
 
   // cache indentations to some level
   private val indentations: IndexedSeq[String] = {
