@@ -835,8 +835,12 @@ class FormatWriter(formatOps: FormatOps) {
             val candidates = columnCandidates.result()
             val block = getOrCreateBlock(alignContainer)
             def appendToBlock(line: IndexedSeq[AlignStop], matches: Int = 0) = {
-              val alignLine = new AlignLine(line)
-              block.tryAppendToBlock(alignLine, matches)
+              val eolColumn = location.state.prev.column + columnShift
+              val alignLine = new AlignLine(line, eolColumn)
+              if (!block.tryAppendToBlock(alignLine, matches)) {
+                flushAlignBlock(block)
+                block.tryAppendToBlock(alignLine, 0)
+              }
             }
             if (block.isEmpty) {
               if (!isBlankLine) appendToBlock(candidates)
@@ -1216,7 +1220,7 @@ object FormatWriter {
 
   class AlignStop(val column: Int, val floc: FormatLocation)
 
-  class AlignLine(var stops: IndexedSeq[AlignStop])
+  class AlignLine(var stops: IndexedSeq[AlignStop], val eolColumn: Int)
 
   class AlignBlock(
       buffer: mutable.ArrayBuffer[AlignLine] =
@@ -1224,7 +1228,7 @@ object FormatWriter {
       var refStops: Seq[AlignStop] = Seq.empty,
       var stopColumns: IndexedSeq[Int] = IndexedSeq.empty
   ) {
-    def tryAppendToBlock(line: AlignLine, matches: Int): Unit = {
+    def tryAppendToBlock(line: AlignLine, matches: Int): Boolean = {
       // truncate if matches are shorter than both lists
       val truncate = shouldTruncate(line, matches)
       def trunc[A](s: IndexedSeq[A], c: Boolean) = if (c) s.take(matches) else s
@@ -1253,12 +1257,29 @@ object FormatWriter {
       newStops.drop(oldStops.length).foreach(builder += newShift + _.column)
       val newStopColumns = builder.result()
 
+      // check overflow
+      val style = line.stops.last.floc.style
+      if (!style.align.allowOverflow) {
+        val overflow = (line.eolColumn + newShift) > style.maxColumn ||
+          buffer.exists { x =>
+            val idx = -1 + {
+              if (truncate < 0) math.min(matches, x.stops.length)
+              else x.stops.length
+            }
+            val lastStop = x.stops(idx)
+            val totalShift = newStopColumns(idx) - lastStop.column
+            x.eolColumn + totalShift > lastStop.floc.style.maxColumn
+          }
+        if (overflow) return false // RETURNING
+      }
+
       // now we mutate
       line.stops = newStops
       if (truncate < 0) foreach(x => x.stops = x.stops.take(matches))
       if (newStopColumns.length == newStops.length) refStops = newStops
       buffer += line
       stopColumns = newStopColumns
+      true
     }
 
     // <0 old, 0 neither, >0 new
