@@ -383,6 +383,7 @@ object a {
       bar: String
   ) extends B with C
       with D { self => // c0
+
     // c1
     def a = 1
     def b = 2
