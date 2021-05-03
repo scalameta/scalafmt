@@ -1042,11 +1042,6 @@ class Router(formatOps: FormatOps) {
             .andPolicy(nlPolicy)
         )
 
-      // If configured to skip the trailing space after `if` and other keywords, do so.
-      case FormatToken(T.KwIf() | T.KwFor() | T.KwWhile(), T.LeftParen(), _)
-          if !style.spaces.afterKeywordBeforeParen =>
-        Seq(Split(NoSplit, 0))
-
       // Closing def site ): ReturnType
       case FormatToken(left, _: T.Colon, DefDefReturnTypeRight(returnType))
           if style.newlines.sometimesBeforeColonInMethodReturnType =>
@@ -1541,7 +1536,7 @@ class Router(formatOps: FormatOps) {
               .withPolicy(penalizeNewlines)
           )
         }
-      case FormatToken(T.KwIf(), _, _) if leftOwner.is[Term.If] =>
+      case FormatToken(_: T.KwIf, right, _) if leftOwner.is[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
         val expireTree = if (ifWithoutElse(owner)) owner else owner.elsep
         val expire = rhsOptimalToken(tokens.getLast(expireTree))
@@ -1554,10 +1549,15 @@ class Router(formatOps: FormatOps) {
                   if elses.contains(r) =>
                 d.onlyNewlinesWithFallback(Split(Newline, 0))
             }
+        val spaceMod = Space(style.spaces.isSpaceAfterKeyword(right))
         Seq(
-          Split(Space, 0).withSingleLine(expire, killOnFail = true),
-          Split(Space, 1).withPolicy(breakOnlyBeforeElse)
+          Split(spaceMod, 0).withSingleLine(expire, killOnFail = true),
+          Split(spaceMod, 1).withPolicy(breakOnlyBeforeElse)
         )
+      case FormatToken(_: T.KwWhile, right, _) =>
+        Seq(Split(Space(style.spaces.isSpaceAfterKeyword(right)), 0))
+      case FormatToken(_: T.KwFor, right, _) =>
+        Seq(Split(Space(style.spaces.isSpaceAfterKeyword(right)), 0))
       case FormatToken(close: T.RightParen, right, _) if (leftOwner match {
             case _: Term.If => !nextNonComment(formatToken).right.is[T.KwThen]
             case _: Term.For => true

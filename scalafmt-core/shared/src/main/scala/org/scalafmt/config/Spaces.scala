@@ -1,5 +1,7 @@
 package org.scalafmt.config
 
+import scala.meta.tokens.Token
+
 import metaconfig._
 
 /** @param beforeContextBoundColon formats [A: T] as [A : T]
@@ -37,6 +39,9 @@ case class Spaces(
     afterSymbolicDefs: Boolean = false
 ) {
   implicit val reader: ConfDecoder[Spaces] = generic.deriveDecoder(this).noTypos
+
+  def isSpaceAfterKeyword(tokenAfter: Token): Boolean =
+    afterKeywordBeforeParen || !tokenAfter.is[Token.LeftParen]
 }
 
 object Spaces {
