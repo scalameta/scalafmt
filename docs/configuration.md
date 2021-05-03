@@ -159,6 +159,36 @@ overrides are defined below, within this section.
 indent.main
 ```
 
+### `indent.significant`
+
+> Since v3.0.0.
+
+This parameter controls the amount of significant indentation used when
+[optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
+rules apply.
+
+By default, equals to `indent.main`.
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+indent.main = 2
+indent.significant = 3
+---
+object a {
+  if (foo)
+    bar
+  else
+    baz
+
+  if foo then
+    bar
+    bar
+  else
+    baz
+    baz
+}
+```
+
 ### `indent.callSite`
 
 ```scala mdoc:defaults
@@ -236,12 +266,33 @@ x match {
 
 ```scala mdoc:defaults
 indent.extendSite
+```
+
+This parameter defines indentation used for the `extends A with B` or `derives A, B` sequences
+in a template (class, trait, object, enum, etc.).
+
+```scala mdoc:scalafmt
+indent.extendSite = 4
+maxColumn = 20
+---
+trait Foo extends A {
+  def foo: Boolean = true
+}
+```
+
+### `indent.withSiteRelativeToExtends`
+
+> Since v2.5.0.
+
+This parameter defines _additional_ indentation used for the `with` elements of an
+`extends A with B` sequence in a template.
+
+```scala mdoc:defaults
 indent.withSiteRelativeToExtends
 ```
 
 ```scala mdoc:scalafmt
 indent.extendSite = 4
-# this one added in v2.5.0
 indent.withSiteRelativeToExtends = 2
 maxColumn = 30
 ---
@@ -254,10 +305,12 @@ trait Foo extends A with B with C with D with E {
 
 > Since v3.0.0
 
+This parameter defines _additional_ indentation used for the post-comma elements
+of an `extends A, B` or `derives A, B` sequences of a template.
+
 Added to support Scala 3, which allows to specify multiple parents with a comma.
 
 ```scala mdoc:defaults
-indent.extendSite
 indent.commaSiteRelativeToExtends
 ```
 
@@ -2145,7 +2198,7 @@ The flag takes the following values:
 Since: v1.6.0.
 
 If enabled this formats methods such that parameters are on their own line
-indented by [`indent.defnSite`](#continuationindentdefnsite).
+indented by [`indent.defnSite`](#indentdefnsite).
 Separation between parameter groups are indented by two spaces less than
 `indent.defnSite`. The return type is on its own line at the end.
 
