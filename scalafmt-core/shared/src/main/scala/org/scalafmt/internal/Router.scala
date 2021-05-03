@@ -1550,12 +1550,19 @@ class Router(formatOps: FormatOps) {
                 d.onlyNewlinesWithFallback(Split(Newline, 0))
             }
         val spaceMod = Space(style.spaces.isSpaceAfterKeyword(right))
-        Seq(
-          Split(spaceMod, 0).withSingleLine(expire, killOnFail = true),
-          Split(spaceMod, 1).withPolicy(breakOnlyBeforeElse)
-        )
+        val slb = Split(spaceMod, 0).withSingleLine(expire, killOnFail = true)
+        val mlSplitBase = Split(spaceMod, 1).withPolicy(breakOnlyBeforeElse)
+        val mlSplit =
+          OptionalBraces.indentAndBreakBefore[T.KwThen](owner.cond, mlSplitBase)
+        Seq(slb, mlSplit)
       case FormatToken(_: T.KwWhile, right, _) =>
-        Seq(Split(Space(style.spaces.isSpaceAfterKeyword(right)), 0))
+        val splitBase = Split(Space(style.spaces.isSpaceAfterKeyword(right)), 0)
+        val split = formatToken.meta.leftOwner match {
+          case t: Term.While =>
+            OptionalBraces.indentAndBreakBefore[T.KwDo](t.expr, splitBase)
+          case _ => splitBase
+        }
+        Seq(split)
       case FormatToken(_: T.KwFor, right, _) =>
         Seq(Split(Space(style.spaces.isSpaceAfterKeyword(right)), 0))
       case FormatToken(close: T.RightParen, right, _) if (leftOwner match {

@@ -2449,6 +2449,21 @@ class FormatOps(
     @inline private def seqLast(seq: Seq[Tree]): Option[T] =
       if (seq.lengthCompare(1) > 0) treeLast(seq.last) else None
 
+    def indentAndBreakBefore[A](tree: Tree, split: Split)(implicit
+        style: ScalafmtConfig,
+        classifier: Classifier[Token, A]
+    ): Split =
+      if (!style.runner.dialect.allowSignificantIndentation) split
+      else {
+        val kw = tokenAfter(tree).right
+        if (kw.is[A]) {
+          val breakOn = decideNewlinesOnlyBeforeClose(kw)
+          split
+            .withIndent(Num(style.indent.getSignificant), kw, ExpiresOn.Before)
+            .andPolicy(delayedBreakPolicy(Policy.End.On(kw))(breakOn))
+        } else split
+      }
+
   }
 
   @inline

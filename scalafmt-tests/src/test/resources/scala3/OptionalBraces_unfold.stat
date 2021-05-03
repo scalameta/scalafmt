@@ -1446,8 +1446,8 @@ object a:
 >>>
 object a:
    if a &&
-   b &&
-   c then
+      b && c
+   then
       foo
 <<< while break before do if multiline cond
 maxColumn = 12
@@ -1460,5 +1460,6 @@ object a:
 >>>
 object a:
    while a &&
-   b && c do
+      b && c
+   do
       foo
