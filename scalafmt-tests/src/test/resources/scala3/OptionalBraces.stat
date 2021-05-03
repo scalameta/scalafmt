@@ -1305,3 +1305,30 @@ object a:
 object a:
    lst match
       case List(0, 1, xs*) => foo
+<<< if break before then if multiline cond
+maxColumn = 12
+===
+object a:
+  if a &&
+     b &&
+     c then
+      foo
+>>>
+object a:
+   if a &&
+   b &&
+   c then
+      foo
+<<< while break before do if multiline cond
+maxColumn = 12
+===
+object a:
+  while a &&
+     b &&
+     c do
+      foo
+>>>
+object a:
+   while a &&
+   b &&
+   c do foo
