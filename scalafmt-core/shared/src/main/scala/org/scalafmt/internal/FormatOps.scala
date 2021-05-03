@@ -72,7 +72,6 @@ class FormatOps(
   import tokens.{
     matching,
     matchingOpt,
-    findToken,
     findTokenWith,
     prev,
     next,
@@ -1305,11 +1304,18 @@ class FormatOps(
 
   }
 
-  // Returns leading comment, if there exists one, otherwise formatToken.right
+  // Returns leading comment, if there exists one, otherwise formatToken
+  @tailrec
+  private def leadingWithLeftComment(formatToken: FormatToken): FormatToken = {
+    val ft = tokens.prevNonCommentSameLine(prev(formatToken))
+    if (ft.noBreak) formatToken
+    else if (ft.hasBlankLine || !ft.left.is[T.Comment]) ft
+    else leadingWithLeftComment(ft)
+  }
+  // Returns leading comment, if there exists one, otherwise formatToken
   final def leadingComment(formatToken: FormatToken): FormatToken =
-    findToken(formatToken, prev) { formatToken =>
-      formatToken.hasBlankLine || !formatToken.left.is[T.Comment]
-    }.fold(identity, identity)
+    if (formatToken.left.is[T.Comment]) leadingWithLeftComment(formatToken)
+    else formatToken
 
   final def leadingComment(tree: Tree): FormatToken =
     leadingComment(tokens(tree.tokens.head, -1))
