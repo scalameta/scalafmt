@@ -1344,7 +1344,13 @@ val a = List(Some(1), None, Some(3), Some(4)).map({
   case _ => "none"
 })
 >>>
-org.scalafmt.util.FormatException: java.util.NoSuchElementException
+val a = List(Some(1), None, Some(3), Some(4)).map({
+  case Some(x) =>
+    x match
+       case 1 => "one"
+       case _ => "more than one"
+  case _ => "none"
+})
 <<< #2495 2
 rewrite.scala3.removeOptionalBraces = yes
 ===
@@ -1359,4 +1365,12 @@ val bar =
     arr
   })
 >>>
-org.scalafmt.util.FormatException: java.util.NoSuchElementException
+val bar =
+  foo({
+    val arr = new Array[String](10)
+    var x = 0
+    while x < 10 do
+       arr(x) = "x"
+       x += 1
+    arr
+  })

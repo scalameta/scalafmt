@@ -2449,7 +2449,8 @@ class FormatOps(
     private def isBlockStart(tree: Term.Block, ft: FormatToken): Boolean =
       tree.stats.headOption.exists(_.tokens.headOption.contains(ft.right))
 
-    @inline private def treeLast(tree: Tree): Option[T] = tree.tokens.lastOption
+    @inline private def treeLast(tree: Tree): Option[T] =
+      tree.tokens.lastOption.map(tokens(_).left)
     @inline private def blockLast(tree: Tree): Option[T] =
       if (isTreeMultiStatBlock(tree)) treeLast(tree) else None
     @inline private def seqLast(seq: Seq[Tree]): Option[T] =
