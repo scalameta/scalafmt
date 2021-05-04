@@ -3,6 +3,7 @@ package org.scalafmt.rewrite
 import scala.meta.Defn
 import scala.meta.Template
 import scala.meta.Term
+import scala.meta.Type
 import scala.meta.tokens.Token
 
 import org.scalafmt.config.RewriteScala3Settings
@@ -56,6 +57,7 @@ private class RemoveScala3OptionalBraces(ftoks: FormatTokens)
             removeToken
           case _: Term.ForYield => removeToken
           case _: Term.Match => removeToken
+          case _: Type.Match => removeToken
           case _: Term.Try => removeToken
           case _: meta.Ctor.Secondary
               if ftoks.prevNonComment(ft).left.is[Token.Equals] =>

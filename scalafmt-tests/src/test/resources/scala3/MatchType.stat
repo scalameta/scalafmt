@@ -123,3 +123,16 @@ type Elem[X] = X match {
     Array[AVeryLongTraitNameToTestOutSomeThings]
   case Array[t] => t
 }
+<<< drop optional braces
+rewrite.scala3.convertToNewSyntax = true
+rewrite.rules = [RedundantBraces]
+rewrite.scala3.removeOptionalBraces = yes
+===
+type HeadOf[T <: Tuple] = T match {
+   case h *: t     => h
+   case EmptyTuple => Nothing
+}
+>>>
+type HeadOf[T <: Tuple] = T match
+  case h *: t     => h
+  case EmptyTuple => Nothing
