@@ -2038,7 +2038,10 @@ class FormatOps(
         forceNL: Boolean = false,
         useMain: Boolean = false
     )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
-      val expire = nextNonCommentSameLine(tokens.getLast(tree)).left
+      val end = tokens.getLast(tree)
+      val slbExpire = nextNonCommentSameLine(end).left
+      val expire = getClosingIfEnclosedInMatching(tree)
+        .fold(end.left)(x => prevNonComment(tokens(x, -1)).left)
       def nlPolicy(implicit line: sourcecode.Line) =
         decideNewlinesOnlyAfterClose(expire)
       val indentLen =
@@ -2051,7 +2054,7 @@ class FormatOps(
       else {
         val nextLine = line.copy(value = line.value + 1)
         Seq(
-          Split(Space, 0).withSingleLine(expire),
+          Split(Space, 0).withSingleLine(slbExpire),
           Split(Newline, 1)(nextLine).withIndent(indent).withPolicy(nlPolicy)
         )
       }
