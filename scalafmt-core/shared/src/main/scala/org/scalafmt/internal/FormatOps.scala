@@ -73,6 +73,8 @@ class FormatOps(
     matching,
     matchingOpt,
     findTokenWith,
+    tokenBefore,
+    tokenAfter,
     prev,
     next,
     prevNonComment,
@@ -401,7 +403,7 @@ class FormatOps(
   }
 
   def templateCurly(template: Template): Option[Token] =
-    getStartOfTemplateBody(template).map(x => nonCommentBefore(x).left)
+    getStartOfTemplateBody(template).map(x => tokenBefore(x).left)
 
   def templateCurlyOrLastNonTrivial(template: Template): Token =
     templateCurly(template).getOrElse(getLastNonTrivialToken(template))
@@ -535,7 +537,7 @@ class FormatOps(
     private val isFirstOp = beforeLhs || (leftInfix.op eq app.op)
 
     private val assignBodyExpire = {
-      val prevFt = nonCommentBefore(fullInfix.all)
+      val prevFt = tokenBefore(fullInfix.all)
       if (!prevFt.left.is[T.Equals]) None
       else Some(getLastToken(prevFt.meta.leftOwner))
     }
@@ -1388,7 +1390,7 @@ class FormatOps(
   // look for arrow before body, if any, else after params
   def getFuncArrow(term: Term.FunctionTerm): Option[FormatToken] =
     term.body.tokens.headOption
-      .map(nonCommentBefore)
+      .map(tokenBefore)
       .orElse {
         val lastParam = term.params.lastOption
         lastParam.flatMap(_.tokens.lastOption).map { x =>
@@ -1409,7 +1411,7 @@ class FormatOps(
       val maybeArrow = tokens(nextNonComment(endOfPat), 1)
       if (maybeArrow.left.is[T.RightArrow]) maybeArrow
       else tokens(nextNonComment(maybeArrow), 1)
-    }(nonCommentBefore)
+    }(tokenBefore)
 
   // look for arrow before body, if any, else after cond/pat
   def getCaseArrow(term: TypeCase): FormatToken =
@@ -2238,9 +2240,7 @@ class FormatOps(
     }
 
     private def isCatchUsingOptionalBraces(tree: Term.Try): Boolean =
-      tree.catchp.headOption.exists(x =>
-        !nonCommentBefore(x).left.is[T.LeftBrace]
-      )
+      tree.catchp.headOption.exists(x => !tokenBefore(x).left.is[T.LeftBrace])
 
     object CatchImpl extends Impl {
       def tryGetSplits(ft: FormatToken, nft: FormatToken)(implicit
@@ -2416,7 +2416,7 @@ class FormatOps(
     }
 
     private def isThenPWithOptionalBraces(tree: Term.If): Boolean =
-      nonCommentBefore(tree.thenp).left match {
+      tokenBefore(tree.thenp).left match {
         case _: T.KwThen => true
         case _: T.LeftBrace => false
         case _ => isTreeMultiStatBlock(tree.thenp)
@@ -2425,7 +2425,7 @@ class FormatOps(
     @tailrec
     private def isElsePWithOptionalBraces(tree: Term.If): Boolean =
       !ifWithoutElse(tree) &&
-        !nonCommentBefore(tree.elsep).left.is[T.LeftBrace] &&
+        !tokenBefore(tree.elsep).left.is[T.LeftBrace] &&
         (tree.elsep match {
           case t: Term.If =>
             isThenPWithOptionalBraces(t) || isElsePWithOptionalBraces(t)
@@ -2444,7 +2444,7 @@ class FormatOps(
       }
 
     private def isTreeUsingOptionalBraces(tree: Tree): Boolean =
-      isTreeMultiStatBlock(tree) && !nonCommentBefore(tree).left.is[T.LeftBrace]
+      isTreeMultiStatBlock(tree) && !tokenBefore(tree).left.is[T.LeftBrace]
 
     private def isBlockStart(tree: Term.Block, ft: FormatToken): Boolean =
       tree.stats.headOption.exists(_.tokens.headOption.contains(ft.right))
@@ -2471,21 +2471,6 @@ class FormatOps(
       }
 
   }
-
-  @inline
-  def tokenAfter(tree: Tree): FormatToken =
-    nextNonComment(tokens.getLast(tree))
-
-  @inline
-  def tokenAfter(trees: Seq[Tree]): FormatToken = tokenAfter(trees.last)
-
-  @inline
-  def nonCommentBefore(token: T): FormatToken =
-    prevNonComment(tokens(token, -1))
-
-  @inline
-  def nonCommentBefore(tree: Tree): FormatToken =
-    nonCommentBefore(tree.tokens.head)
 
   def isBlockWithoutOptionalBraces(t: Term.Block): Boolean =
     t.stats.lengthCompare(1) == 0 && (

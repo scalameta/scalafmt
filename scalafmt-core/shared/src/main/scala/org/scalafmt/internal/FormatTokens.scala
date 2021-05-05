@@ -125,6 +125,21 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   def getLastNonTrivialOpt(tree: Tree): Option[FormatToken] =
     TokenOps.findLastNonTrivialTokenOpt(tree.tokens).map(apply)
 
+  @inline
+  def tokenAfter(tree: Tree): FormatToken = nextNonComment(getLast(tree))
+
+  @inline
+  def tokenAfter(trees: Seq[Tree]): FormatToken = tokenAfter(trees.last)
+
+  @inline
+  def tokenBefore(token: Token): FormatToken = prevNonComment(apply(token, -1))
+
+  @inline
+  def tokenBefore(tree: Tree): FormatToken = tokenBefore(tree.tokens.head)
+
+  @inline
+  def tokenBefore(trees: Seq[Tree]): FormatToken = tokenBefore(trees.head)
+
 }
 
 object FormatTokens {

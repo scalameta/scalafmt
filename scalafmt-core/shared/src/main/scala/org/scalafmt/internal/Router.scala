@@ -64,6 +64,7 @@ class Router(formatOps: FormatOps) {
     matchingOpt,
     prev,
     next,
+    tokenBefore,
     prevNonComment,
     nextNonComment,
     prevNonCommentSameLine,
@@ -1809,7 +1810,7 @@ class Router(formatOps: FormatOps) {
           case Newlines.keep if newlines != 0 => Seq(nlSplit(0))
           case _ =>
             val nextRhs =
-              leftOwner.parent.flatMap(getAndOrTypeRhs).map(nonCommentBefore)
+              leftOwner.parent.flatMap(getAndOrTypeRhs).map(tokenBefore)
             val slbEnd =
               nextRhs.fold(rhsEnd)(x => nextNonCommentSameLine(x).left)
             Seq(Split(Space, 0).withSingleLine(slbEnd), nlSplit(1))
