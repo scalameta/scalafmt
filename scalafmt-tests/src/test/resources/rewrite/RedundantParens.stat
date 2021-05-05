@@ -478,8 +478,8 @@ object a {
   val b = c match {
     case true if (d match
           case true  => true
-          case false => false)
-        =>
+          case false => false
+        ) =>
   }
 }
 <<< #2194 6 match with parens and dot
@@ -533,16 +533,16 @@ object a {
 object a {
   val b = c + (d.match
     case true  => true
-    case false => false)
+    case false => false
+  )
   val b = c + (d.match
     case true  => true
-    case false => false)
-    + e
-Idempotency violated
-  + e
+    case false => false
+  ) + e
   val b = c + (d match
     case true  => true
-    case false => false)
+    case false => false
+  )
 }
 <<< #2194 5 unary
 object a {
