@@ -60,8 +60,16 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
       case _: Lit | _: Name | _: Term.Interpolate => true
 
-      case Term.Apply(_, List(b: Term.Block))
+      case Term.Apply(_, List(b @ (_: Term.Block | _: Term.PartialFunction)))
           if b.tokens.headOption.exists(_.is[Token.LeftBrace]) =>
+        true
+
+      case _: Term.PartialFunction => true
+
+      case t: Term.Match
+          if style.runner.dialect.allowMatchAsOperator &&
+            ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
+            ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace] =>
         true
 
       case t =>
@@ -80,10 +88,14 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     if (ok) removeToken else null
   }
 
-  private def replaceNotEnclosed(implicit ft: FormatToken): Replacement = {
+  private def replaceNotEnclosed(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig
+  ): Replacement = {
     val ok = ft.meta.rightOwner match {
-      case Term.Apply(_, List(b: Term.Block)) =>
-        b.tokens.headOption.exists(_.is[Token.LeftBrace])
+      case Term.Apply(_, List(t @ (_: Term.Block | _: Term.PartialFunction))) =>
+        t.tokens.headOption.exists(_.is[Token.LeftBrace])
+      case _: Term.Match => style.runner.dialect.allowMatchAsOperator
       case _ => false
     }
     if (ok) removeToken else null

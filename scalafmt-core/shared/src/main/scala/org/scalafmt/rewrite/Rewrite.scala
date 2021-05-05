@@ -201,9 +201,12 @@ object RewriteCtx {
     }
 
   @inline
-  def isPostfixExpr(expr: Tree): Boolean =
-    isSimpleExprOr(expr) { case _: Term.Select | _: Term.ApplyInfix =>
-      !hasPlaceholder(expr)
+  def isPostfixExpr(expr: Tree)(implicit style: ScalafmtConfig): Boolean =
+    isSimpleExprOr(expr) {
+      case _: Term.Select | _: Term.ApplyInfix =>
+        !hasPlaceholder(expr)
+      case _: Term.Match if style.runner.dialect.allowMatchAsOperator =>
+        !hasPlaceholder(expr)
     }
 
   def hasPlaceholder(expr: Tree): Boolean = {
