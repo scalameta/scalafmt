@@ -58,13 +58,6 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
       case _ if numParens >= 2 => true
 
-      case t if t.parent.exists {
-            case p: Term.ApplyInfix if p.lhs ne t =>
-              avoidInfixMatcher.exists(_.matches(p.op.value))
-            case _ => false
-          } =>
-        false // supersedes Term.Name below
-
       case _: Lit | _: Name | _: Term.Interpolate => true
 
       case Term.Apply(_, List(b: Term.Block))
@@ -95,11 +88,6 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     }
     if (ok) removeToken else null
   }
-
-  private def avoidInfixMatcher(implicit style: ScalafmtConfig) =
-    if (style.rewrite.rules.contains(AvoidInfix))
-      Some(style.rewrite.neverInfix.matcher)
-    else None
 
   private def breaksBeforeOpAndNotEnclosed(ia: InfixApp): Boolean = {
     val allToks = ia.all.tokens
