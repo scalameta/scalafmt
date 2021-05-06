@@ -607,22 +607,7 @@ class FormatWriter(formatOps: FormatOps) {
               term match {
                 case t: Scaladoc.CodeBlock =>
                   sb.append("{{{")
-                  appendBreak()
-                  t.code.foreach { x =>
-                    if (x.nonEmpty) {
-                      val matcher = docstringLeadingSpace.matcher(x)
-                      val minMargin = margin.length
-                      if (matcher.lookingAt()) {
-                        val offset = matcher.end()
-                        val extra = math.max(0, offset - minMargin)
-                        val codeIndent = minMargin + extra - extra % 2
-                        sb.append(getIndentation(codeIndent))
-                        sb.append(CharBuffer.wrap(x, offset, x.length))
-                      } else
-                        sb.append(getIndentation(minMargin)).append(x)
-                    }
-                    appendBreak()
-                  }
+                  formatCodeBlock(t.code)
                   sb.append(margin).append("}}}")
                   appendBreak()
                 case t: Scaladoc.Heading =>
@@ -666,6 +651,25 @@ class FormatWriter(formatOps: FormatOps) {
           sb.setLength(sb.length - 1)
           iterWords(words, appendBreak, 0, margin)
           appendBreak()
+        }
+
+        private def formatCodeBlock(code: Seq[String]): Unit = {
+          appendBreak()
+          code.foreach { x =>
+            if (x.nonEmpty) {
+              val matcher = docstringLeadingSpace.matcher(x)
+              val minMargin = margin.length
+              if (matcher.lookingAt()) {
+                val offset = matcher.end()
+                val extra = math.max(0, offset - minMargin)
+                val codeIndent = minMargin + extra - extra % 2
+                sb.append(getIndentation(codeIndent))
+                sb.append(CharBuffer.wrap(x, offset, x.length))
+              } else
+                sb.append(getIndentation(minMargin)).append(x)
+            }
+            appendBreak()
+          }
         }
 
         private def formatListBlock(
