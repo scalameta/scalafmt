@@ -4,6 +4,7 @@ import java.nio.CharBuffer
 import java.util.regex.Pattern
 
 import org.scalafmt.CompatCollections.JavaConverters._
+import org.scalafmt.{Formatted, Scalafmt}
 import org.scalafmt.config.{Comments, Docstrings, Newlines, ScalafmtConfig}
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps._
@@ -607,7 +608,9 @@ class FormatWriter(formatOps: FormatOps) {
               term match {
                 case t: Scaladoc.CodeBlock =>
                   sb.append("{{{")
-                  formatCodeBlock(t.code)
+                  if (t.code.headOption.exists(_.endsWith("// scala")))
+                    formatScalaCodeBlock(t.code)
+                  else formatCodeBlock(t.code)
                   sb.append(margin).append("}}}")
                   appendBreak()
                 case t: Scaladoc.Heading =>
@@ -669,6 +672,24 @@ class FormatWriter(formatOps: FormatOps) {
                 sb.append(getIndentation(minMargin)).append(x)
             }
             appendBreak()
+          }
+        }
+
+        private def formatScalaCodeBlock(code: Seq[String]): Unit = {
+          val codeStyle = style.copy(
+            runner = style.runner.copy(
+              debug = false,
+              eventCallback = null,
+              parser = meta.parsers.Parse.parseSource
+            ),
+            // let's not wrap docstrings, to avoid recursion
+            docstrings = style.docstrings.copy(wrap = Docstrings.Wrap.no),
+            maxColumn = style.maxColumn - spaces.length - margin.length - 1
+          )
+          Scalafmt.format(code.mkString("\n"), codeStyle) match {
+            case Formatted.Success(formattedCode) =>
+              formatCodeBlock(formattedCode.split('\n'))
+            case _ => formatCodeBlock(code)
           }
         }
 
