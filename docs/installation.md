@@ -388,9 +388,9 @@ plugin:
 
 ## Mill
 
-Mill have scalafmt support built-in:
+Mill has scalafmt support built-in:
 
-- [scalafmt module](http://www.lihaoyi.com/mill/page/configuring-mill.html#reformatting-your-code)
+- [scalafmt module](https://com-lihaoyi.github.io/mill/page/configuring-mill.html#reformatting-your-code)
 
 ## Standalone library
 
