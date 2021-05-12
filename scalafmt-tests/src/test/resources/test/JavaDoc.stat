@@ -1831,13 +1831,22 @@ maxColumn = 50
 val a = 1
 >>>
 /**
- * Nice scala code: ```scala class
- * Formatter(style: ScalaStyle, tree1: Tree) class
- * Formatter(style: ScalaStyle, tree12: Tree)
- * class Formatter(style: ScalaStyle, tree: Tree,
- * toks: Array[FormatToken], statementStarts:
- * Set[Token], owners: Map[Token, Tree]) ``` No
- * more nice scala code.
+ * Nice scala code:
+ * ```scala
+ * class Formatter(style: ScalaStyle, tree1: Tree)
+ * class Formatter(
+ *   style: ScalaStyle,
+ *   tree12: Tree
+ * )
+ * class Formatter(
+ *   style: ScalaStyle,
+ *   tree: Tree,
+ *   toks: Array[FormatToken],
+ *   statementStarts: Set[Token],
+ *   owners: Map[Token, Tree]
+ * )
+ * ```
+ * No more nice scala code.
  */
 val a = 1
 <<< #2498 format fenced scala code block, SpaceAsterisk
@@ -1855,13 +1864,25 @@ maxColumn = 50
   */
 val a = 1
 >>>
-/** Nice scala code: ```scala class
-  * Formatter(style: ScalaStyle, tree1: Tree)
-  * class Formatter(style: ScalaStyle, tree12:
-  * Tree) class Formatter(style: ScalaStyle, tree:
-  * Tree, toks: Array[FormatToken],
-  * statementStarts: Set[Token], owners:
-  * Map[Token, Tree]) ``` No more nice scala code.
+/** Nice scala code:
+  * ```scala
+  * class Formatter(
+  *   style: ScalaStyle,
+  *   tree1: Tree
+  * )
+  * class Formatter(
+  *   style: ScalaStyle,
+  *   tree12: Tree
+  * )
+  * class Formatter(
+  *   style: ScalaStyle,
+  *   tree: Tree,
+  *   toks: Array[FormatToken],
+  *   statementStarts: Set[Token],
+  *   owners: Map[Token, Tree]
+  * )
+  * ```
+  * No more nice scala code.
   */
 val a = 1
 <<< #2498 format fenced scala code block, AsteriskSpace
@@ -1879,13 +1900,25 @@ maxColumn = 50
   */
 val a = 1
 >>>
-/** Nice scala code: ```scala class
- *  Formatter(style: ScalaStyle, tree1: Tree)
- *  class Formatter(style: ScalaStyle, tree12:
- *  Tree) class Formatter(style: ScalaStyle, tree:
- *  Tree, toks: Array[FormatToken],
- *  statementStarts: Set[Token], owners:
- *  Map[Token, Tree]) ``` No more nice scala code.
+/** Nice scala code:
+ *  ```scala
+ *  class Formatter(
+ *    style: ScalaStyle,
+ *    tree1: Tree
+ *  )
+ *  class Formatter(
+ *    style: ScalaStyle,
+ *    tree12: Tree
+ *  )
+ *  class Formatter(
+ *    style: ScalaStyle,
+ *    tree: Tree,
+ *    toks: Array[FormatToken],
+ *    statementStarts: Set[Token],
+ *    owners: Map[Token, Tree]
+ *  )
+ *  ```
+ *  No more nice scala code.
  */
 val a = 1
 <<< #2498 do not format broken fenced scala code block
@@ -1899,7 +1932,9 @@ docstrings.wrap = yes
   */
 val a = 1
 >>>
-/** Nice scala code: ```scala sc:compile class Formatter(style: ScalaStyle,
-  * tree: Tree, toks: Array[FormatToken ```
+/** Nice scala code:
+  * ```scala sc:compile
+  * class Formatter(style: ScalaStyle, tree: Tree, toks: Array[FormatToken
+  * ```
   */
 val a = 1

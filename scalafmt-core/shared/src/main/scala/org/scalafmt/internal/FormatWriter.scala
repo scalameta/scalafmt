@@ -613,6 +613,17 @@ class FormatWriter(formatOps: FormatOps) {
                   else formatCodeBlock(t.code)
                   sb.append(margin).append("}}}")
                   appendBreak()
+                case t: Scaladoc.MdCodeBlock =>
+                  sb.append(t.fence)
+                  if (t.info.nonEmpty) {
+                    sb.append(t.info.head)
+                    t.info.tail.foreach(x => sb.append(' ').append(x))
+                  }
+                  if (t.info.headOption.contains("scala"))
+                    formatScalaCodeBlock(t.code)
+                  else formatCodeBlock(t.code)
+                  sb.append(margin).append(t.fence)
+                  appendBreak()
                 case t: Scaladoc.Heading =>
                   val delimiter = t.level * '='
                   sb.append(delimiter).append(t.title).append(delimiter)

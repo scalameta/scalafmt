@@ -136,7 +136,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case Left(_) => (left, removeToken)
       case Right(lft @ FormatToken(_, _: Token.LeftParen, _)) =>
         val rt = ft.right
-        val right = replaceToken("}") { // shifted right
+        val right = replaceToken("}", ft.meta.rightOwner.parent) {
+          // shifted right
           new Token.RightBrace(rt.input, rt.dialect, rt.start + 1)
         }
         (removeToken(lft), right)

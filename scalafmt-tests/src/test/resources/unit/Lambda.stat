@@ -110,11 +110,10 @@ map(() => {
   }
 })
 >>>
-map(() => {
-  x =>
-    x match {
-      case e =>
-    }
+map(() => { x =>
+  x match {
+    case e =>
+  }
 })
 <<< case
 classTag[K] match {
