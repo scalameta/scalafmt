@@ -37,3 +37,15 @@ object Outer:
 
   /** A doc comment */
   object D extends A
+<<< lambda partial function #2480
+val f : String => PartialFunction[String, Int] = s =>
+        case "Hello" =>
+         5
+        case "Goodbye" =>
+         0
+>>>
+val f: String => PartialFunction[String, Int] = s =>
+  case "Hello" =>
+    5
+  case "Goodbye" =>
+    0
