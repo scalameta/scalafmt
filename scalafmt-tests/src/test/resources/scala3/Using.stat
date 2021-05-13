@@ -230,13 +230,13 @@ def method2(using
 <<< using as identifier
 maxColumn = 20
 ===
-def using(using using: using, using: using, using: using)
+def using(using using: using, using: using, using: using): Unit
 >>>
 def using(using
     using: using,
     using: using,
     using: using
-)
+): Unit
 <<< using as a val
 maxColumn = 15
 ===
@@ -247,14 +247,14 @@ val using =
 <<< comment in definition
 maxColumn = 40
 ===
-def foo( /* go scala3 */ using a: String, b: String, c: String )
+def foo( /* go scala3 */ using a: String, b: String, c: String ): Unit
 >>>
 def foo(
     /* go scala3 */ using
     a: String,
     b: String,
     c: String
-)
+): Unit
 <<< comment in apply
 maxColumn = 40
 ===

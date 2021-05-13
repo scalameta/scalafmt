@@ -199,7 +199,7 @@ class Router(formatOps: FormatOps) {
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
         val selfAnnotation: Option[Tokens] = leftOwner match {
           // Self type: trait foo { self => ... }
-          case t: Template => Some(t.self.name.tokens).filter(_.nonEmpty)
+          case t: Template => Some(t.self.tokens).filter(_.nonEmpty)
           case _ => None
         }
         val isSelfAnnotationNL =
@@ -612,13 +612,14 @@ class Router(formatOps: FormatOps) {
           .getOrElse(getLastToken(leftOwner))
         val forceNewlineBeforeExtends = Policy.before(expire) {
           case Decision(t @ FormatToken(_, soft.ExtendsOrDerives(), _), s)
-              if t.meta.rightOwner == leftOwner =>
+              if t.meta.rightOwner.parent.contains(leftOwner) =>
             s.filter(x => x.isNL && !x.isActiveFor(SplitTag.OnelineWithChain))
         }
-        val policyExpire = defnBeforeTemplate(leftOwner).fold(r)(_.tokens.last)
-        val policyEnd = Policy.End.After(policyExpire)
-        val policy = delayedBreakPolicy(policyEnd)(forceNewlineBeforeExtends)
-        Seq(Split(Space, 0).withPolicy(policy))
+        val policy = defnBeforeTemplate(leftOwner).map { x =>
+          val policyEnd = Policy.End.On(x.tokens.last)
+          delayedBreakPolicy(policyEnd)(forceNewlineBeforeExtends)
+        }
+        Seq(Split(Space, 0).withPolicyOpt(policy))
       // DefDef
       case FormatToken(_: T.KwDef, _: T.Ident, _) =>
         Seq(Split(Space, 0))
