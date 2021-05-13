@@ -1392,3 +1392,18 @@ val bar =
        x += 1
     arr
   })
+<<< new optional braces
+rewrite.scala3.removeOptionalBraces = yes
+===
+val request: Request = Request(
+  "./api/notes",
+  new {
+    method = HttpMethod.POST
+  }
+)
+>>>
+val request: Request = Request(
+  "./api/notes",
+  new:
+     method = HttpMethod.POST
+)
