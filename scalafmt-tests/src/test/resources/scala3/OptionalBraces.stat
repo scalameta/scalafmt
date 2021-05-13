@@ -1374,3 +1374,22 @@ val bar =
        x += 1
     arr
   })
+<<< lambda
+rewrite.scala3.removeOptionalBraces = yes
+===
+val f: Int => Int = (x: Int) => {
+  x * x
+}
+>>>
+val f: Int => Int = (x: Int) => x * x
+<<< lambda multiple statements
+rewrite.scala3.removeOptionalBraces = yes
+===
+val f: Int => Int = (x: Int) => {
+  val y = x * x
+  y
+}
+>>>
+val f: Int => Int = (x: Int) =>
+   val y = x * x
+   y
