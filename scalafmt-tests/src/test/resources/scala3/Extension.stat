@@ -258,3 +258,24 @@ extension (using
       TypeParameter2,
       TypeParameter3
   ](b: A) = a + b
+<<< drop optional braces
+rewrite.scala3.removeOptionalBraces = yes
+===
+object Dictionary:
+  def empty[A]: Dictionary[A] =
+    js.Dynamic.literal()
+  extension [A](dict: Dictionary[A]) {
+    def apply(key: String): A =
+      dict.selectDynamic(key).asInstanceOf[A]
+    def update(key: String, value: A): Unit =
+      dict.updateDynamic(key)(value.asInstanceOf[js.Any])
+  }
+>>>
+object Dictionary:
+  def empty[A]: Dictionary[A] =
+    js.Dynamic.literal()
+  extension [A](dict: Dictionary[A])
+    def apply(key: String): A =
+      dict.selectDynamic(key).asInstanceOf[A]
+    def update(key: String, value: A): Unit =
+      dict.updateDynamic(key)(value.asInstanceOf[js.Any])
