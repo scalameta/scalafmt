@@ -56,7 +56,7 @@ object FileTestOps {
     CliOptions.default.copy(
       gitOpsConstructor = _ => new FakeGitOps(baseDir),
       common = CliOptions.default.common.copy(
-        workingDirectory = workingDir,
+        cwd = workingDir,
         out = out,
         err = out
       )
