@@ -22,7 +22,7 @@ object Cli {
       nGContext.getArgs,
       CliOptions.default.copy(
         common = CliOptions.default.common.copy(
-          workingDirectory = workingDirectory,
+          cwd = workingDirectory,
           out = nGContext.out,
           in = nGContext.in,
           err = nGContext.err

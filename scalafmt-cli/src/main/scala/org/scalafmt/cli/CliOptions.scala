@@ -74,13 +74,16 @@ object NoopOutputStream extends OutputStream { self =>
 }
 
 case class CommonOptions(
-    workingDirectory: AbsoluteFile = AbsoluteFile.userDir,
+    private val cwd: AbsoluteFile = null,
     out: PrintStream = System.out,
     in: InputStream = System.in,
     err: PrintStream = System.err,
     debug: PrintStream = NoopOutputStream.printStream,
     info: PrintStream = NoopOutputStream.printStream
-)
+) {
+  lazy val workingDirectory: AbsoluteFile =
+    Option(cwd).getOrElse(AbsoluteFile.userDir)
+}
 
 case class CliOptions(
     config: Option[Path] = None,

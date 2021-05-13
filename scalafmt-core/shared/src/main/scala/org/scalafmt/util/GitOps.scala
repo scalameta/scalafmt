@@ -12,10 +12,6 @@ trait GitOps {
   def rootDir: Option[AbsoluteFile]
 }
 
-object GitOps {
-  def apply(): GitOps = new GitOpsImpl(AbsoluteFile.userDir)
-}
-
 class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
     extends GitOps {
 
