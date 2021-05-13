@@ -96,3 +96,21 @@ transparent inline def g(x: Any): Any =
     case x: Double =>
       x
   }
+<<< complex
+inline def repro[T <: Int with Singleton  ,   U <: Int with Singleton]: Int = 
+  inline erasedValue[T] match
+     case _: 5 => 5
+     case _: 6 =>
+       inline erasedValue[T] < erasedValue[U] match
+         case _: true => 100
+         case _: false => 101
+     case _    => 0
+>>>
+inline def repro[T <: Int with Singleton, U <: Int with Singleton]: Int =
+  inline erasedValue[T] match
+    case _: 5 => 5
+    case _: 6 =>
+      inline erasedValue[T] < erasedValue[U] match
+        case _: true  => 100
+        case _: false => 101
+    case _ => 0
