@@ -2087,7 +2087,7 @@ class FormatOps(
         val leftOwner = ft.meta.leftOwner
         findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
           case Some(t: Term.Block)
-              if t.stats.lengthCompare(1) > 0 && isBlockStart(t, nft) =>
+              if !hasSingleTermStat(t) && isBlockStart(t, nft) =>
             Some(getSplitsMaybeBlock(ft, nft, t, true))
           case _ => None
         }
@@ -2367,7 +2367,8 @@ class FormatOps(
         allowMain: Boolean
     )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
       val multiStat = isTreeMultiStatBlock(tree)
-      val forceNL = multiStat || shouldBreakInOptionalBraces(nft)
+      val forceNL =
+        !hasSingleTermStatIfBlock(tree) || shouldBreakInOptionalBraces(nft)
       getSplits(ft, tree, forceNL, allowMain && !multiStat)
     }
 

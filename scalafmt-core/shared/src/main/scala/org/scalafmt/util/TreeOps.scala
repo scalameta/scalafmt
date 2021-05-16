@@ -634,18 +634,26 @@ object TreeOps {
     case _ => false
   }
 
-  def getTermSingleStat(t: Term): Option[Tree] =
+  def getTreeSingleStat(t: Tree): Option[Tree] =
     t match {
       case b: Term.Block => getBlockSingleStat(b)
       case _ => Some(t)
     }
 
-  def getTermLineSpan(b: Tree): Int =
+  def getTreeLineSpan(b: Tree): Int =
     if (b.tokens.isEmpty) 0
     else {
       val pos = b.pos
       pos.endLine - pos.startLine
     }
+
+  def hasSingleTermStat(t: Term.Block): Boolean =
+    getBlockSingleStat(t).exists(_.is[Term])
+
+  def hasSingleTermStatIfBlock(t: Tree): Boolean = t match {
+    case b: Term.Block => hasSingleTermStat(b)
+    case _ => true
+  }
 
   /** In cases like:
     * {{{
