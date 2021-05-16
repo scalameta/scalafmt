@@ -39,7 +39,7 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
    * "foo { x => y; z }" can't become "foo(x => y; z)" */
   @tailrec
   def canRewriteWithParens(f: Term.Function, nested: Boolean = false): Boolean =
-    !needParensAroundParams(f) && (getTermSingleStat(f.body) match {
+    !needParensAroundParams(f) && (getTreeSingleStat(f.body) match {
       case Some(t: Term.Function) => canRewriteWithParens(t, true)
       case Some(_: Defn) => false
       case x => nested || x.isDefined
@@ -298,13 +298,12 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
   private def innerOk(b: Term.Block)(s: Stat): Boolean =
     s match {
-      case _: Term.Function | _: Defn => false
       case t: Term.NewAnonymous =>
         // can't allow: new A with B .foo
         // can allow if: no ".foo", no "with B", or has braces
         !b.parent.exists(_.is[Term.Select]) || t.templ.inits.length <= 1 ||
           t.templ.stats.nonEmpty || t.tokens.last.is[Token.RightBrace]
-      case _ => true
+      case tree => tree.is[Term] && tree.isNot[Term.Function]
     }
 
   private def okToRemoveBlockWithinApply(
@@ -396,16 +395,16 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       b: Term,
       okIfMultipleStats: => Boolean
   )(implicit style: ScalafmtConfig): Boolean =
-    settings.methodBodies && (getTermSingleStat(b) match {
+    settings.methodBodies && (getTreeSingleStat(b) match {
       case Some(_: Term.PartialFunction) => false
-      case Some(s) => getTermLineSpan(s) <= settings.maxLines
+      case Some(s) => getTreeLineSpan(s) <= settings.maxLines
       case _ => okIfMultipleStats
     })
 
   private def getSingleStatIfLineSpanOk(b: Term.Block)(implicit
       style: ScalafmtConfig
   ): Option[Stat] =
-    getBlockSingleStat(b).filter(getTermLineSpan(_) <= settings.maxLines)
+    getBlockSingleStat(b).filter(getTreeLineSpan(_) <= settings.maxLines)
 
   // special case for Select which might contain a space instead of dot
   private def isPrefixExpr(expr: Tree): Boolean =

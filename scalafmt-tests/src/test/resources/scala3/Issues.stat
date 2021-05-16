@@ -49,3 +49,11 @@ val f: String => PartialFunction[String, Int] = s =>
     5
   case "Goodbye" =>
     0
+<<< single val in block
+object Util:
+  def assertPropPassed(prop: Prop): Unit =
+    val _ = ""
+>>>
+object Util:
+  def assertPropPassed(prop: Prop): Unit =
+    val _ = ""
