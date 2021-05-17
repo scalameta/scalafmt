@@ -1118,7 +1118,11 @@ class Router(formatOps: FormatOps) {
             .withSingleLine(close, killOnFail = true)
         ) ++ oneArgPerLineSplits
 
-      case FormatToken(_: T.MacroSplice | _: T.MacroQuote, _: T.LeftBrace, _) =>
+      case FormatToken(
+            _: T.MacroSplice | _: T.MacroQuote,
+            _: T.LeftBrace | _: T.LeftBracket,
+            _
+          ) =>
         Seq(Split(NoSplit, 0))
       case FormatToken(_, _: T.LeftBrace, _) =>
         Seq(Split(Space, 0))

@@ -57,3 +57,16 @@ object Util:
 object Util:
   def assertPropPassed(prop: Prop): Unit =
     val _ = ""
+
+<<< macro type match 2512 
+   def getTypeTreeRec(tpr: TypeRepr)(using Quotes): Expr[TypeTreeTag] = {
+        tpr.asType match {
+          case '[t] => getTypeTree[t]
+        }
+    }
+>>>
+def getTypeTreeRec(tpr: TypeRepr)(using Quotes): Expr[TypeTreeTag] = {
+  tpr.asType match {
+    case '[t] => getTypeTree[t]
+  }
+}
