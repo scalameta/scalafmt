@@ -15,6 +15,7 @@ import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
 import org.scalafmt.util.LoggerOps._
+import org.scalameta.FileLine
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -330,7 +331,7 @@ class FormatOps(
 
   @inline
   def splitOneArgOneLine(close: Token, owner: Tree)(implicit
-      line: sourcecode.Line,
+      fileLine: FileLine,
       style: ScalafmtConfig
   ): Policy = {
     val pf =
@@ -383,7 +384,7 @@ class FormatOps(
   }
 
   def penalizeNewlineByNesting(from: Token, to: Token)(implicit
-      line: sourcecode.Line
+      fileLine: FileLine
   ): Policy = {
     Policy.before(to) {
       case Decision(t, s) if t.right.start >= from.start =>
@@ -586,7 +587,7 @@ class FormatOps(
     }
 
     private val (nlIndent, nlPolicy) = {
-      def policy(triggers: Token*)(implicit line: sourcecode.Line) =
+      def policy(triggers: Token*)(implicit fileLine: FileLine) =
         if (triggers.isEmpty) Policy.NoPolicy
         else
           Policy.on(fullExpire) {
@@ -964,7 +965,7 @@ class FormatOps(
   }
 
   def typeTemplateSplits(template: Template, indentIfSecond: Int)(implicit
-      line: sourcecode.Line,
+      fileLine: FileLine,
       ft: FormatToken,
       style: ScalafmtConfig
   ): Seq[Split] = {
@@ -1034,7 +1035,7 @@ class FormatOps(
       indentLen: Int,
       extendsThenWith: => Boolean = false
   )(implicit
-      line: sourcecode.Line,
+      fileLine: FileLine,
       ft: FormatToken,
       style: ScalafmtConfig
   ): Seq[Split] = {
@@ -1103,17 +1104,17 @@ class FormatOps(
 
   def delayedBreakPolicy(
       end: Policy.End.WithPos
-  )(onBreakPolicy: Policy)(implicit line: sourcecode.Line): Policy =
+  )(onBreakPolicy: Policy)(implicit fileLine: FileLine): Policy =
     Policy.Proxy(onBreakPolicy, end)(delayedBreakPolicyFactory)
 
   def decideNewlinesOnlyBeforeClose(
       close: Token
-  )(implicit line: sourcecode.Line): Policy =
+  )(implicit fileLine: FileLine): Policy =
     decideNewlinesOnlyBeforeClose(Split(Newline, 0))(close)
 
   def decideNewlinesOnlyBeforeClose(
       split: Split
-  )(close: Token)(implicit line: sourcecode.Line): Policy =
+  )(close: Token)(implicit fileLine: FileLine): Policy =
     Policy.on(close) {
       case d: Decision if d.formatToken.right eq close =>
         d.onlyNewlinesWithFallback(split)
@@ -1121,12 +1122,12 @@ class FormatOps(
 
   def decideNewlinesOnlyAfterClose(
       close: Token
-  )(implicit line: sourcecode.Line): Policy =
+  )(implicit fileLine: FileLine): Policy =
     decideNewlinesOnlyAfterClose(Split(Newline, 0))(close)
 
   def decideNewlinesOnlyAfterClose(
       split: Split
-  )(close: Token)(implicit line: sourcecode.Line): Policy =
+  )(close: Token)(implicit fileLine: FileLine): Policy =
     Policy.after(close) {
       case d: Decision if d.formatToken.left eq close =>
         d.onlyNewlinesWithFallback(split)
@@ -1134,7 +1135,7 @@ class FormatOps(
 
   def decideNewlinesOnlyAfterToken(
       token: Token
-  )(implicit line: sourcecode.Line): Policy =
+  )(implicit fileLine: FileLine): Policy =
     Policy.after(token) {
       case d: Decision if d.formatToken.left eq token =>
         d.onlyNewlinesWithoutFallback
@@ -1686,38 +1687,40 @@ class FormatOps(
       def penalize(penalty: Int) =
         if (penalty <= 0) Policy.NoPolicy
         else new PolicyOps.PenalizeAllNewlines(Policy.End.On(blast), penalty)
-      def getNlSplit(penalty: Int)(implicit line: sourcecode.Line): Split = {
-        val nlLine = line.copy(value = line.value + 1)
-        nlSplitFunc(1).andPolicy(penalize(penalty)).forThisLine(nlLine)
+      def getNlSplit(penalty: Int)(implicit fileLine: FileLine): Split = {
+        nlSplitFunc(1).andPolicy(penalize(penalty)).forThisLine(nextLine)
       }
       def getSplits(spaceSplit: Split) =
-        (spaceSplit.withIndents(spaceIndents), getNlSplit(1)(spaceSplit.line))
-      def getSlb(end: Token, excl: TokenRanges)(implicit l: sourcecode.Line) =
+        (
+          spaceSplit.withIndents(spaceIndents),
+          getNlSplit(1)(spaceSplit.fileLine)
+        )
+      def getSlb(end: Token, excl: TokenRanges)(implicit fileLine: FileLine) =
         SingleLineBlock(end, exclude = excl, noSyntaxNL = true)
       def getSlbSplit(
           end: Token,
           exclude: TokenRanges = TokenRanges.empty,
           policy: Policy = Policy.NoPolicy
-      )(implicit line: sourcecode.Line) =
+      )(implicit fileLine: FileLine) =
         Split(Space, 0)
           .withPolicy(policy | getSlb(end, exclude))
           .withOptimalToken(end, ignore = blast.start > end.start)
       def getSpaceSplit(
           penalty: Int,
           policy: Policy = Policy.NoPolicy
-      )(implicit line: sourcecode.Line) = {
+      )(implicit fileLine: FileLine) = {
         val spacePolicy = policy | penalize(penalty)
         Split(Space, 0).withPolicy(spacePolicy).withOptimalToken(blast)
       }
       def getPolicySplits(
           penalty: Int,
           policy: Policy = Policy.NoPolicy
-      )(implicit line: sourcecode.Line) =
+      )(implicit fileLine: FileLine) =
         getSplits(getSpaceSplit(penalty, policy))
       def getSlbSplits(
           exclude: TokenRanges = TokenRanges.empty,
           policy: Policy = Policy.NoPolicy
-      )(implicit line: sourcecode.Line) =
+      )(implicit fileLine: FileLine) =
         (
           getSlbSplit(expire, exclude, policy),
           getNlSplit(if (policy.isEmpty) 0 else 1)
@@ -1773,7 +1776,7 @@ class FormatOps(
         slbOnly: Boolean
     ): Split = {
       val expire = nextNonCommentSameLine(tokens.getLastNonTrivial(body)).left
-      def slbSplit(end: Token)(implicit line: sourcecode.Line) =
+      def slbSplit(end: Token)(implicit fileLine: FileLine) =
         Split(Space, 0).withSingleLine(end, noSyntaxNL = true)
       body match {
         case _: Term.ForYield =>
@@ -2037,12 +2040,12 @@ class FormatOps(
         tree: Tree,
         forceNL: Boolean = false,
         useMain: Boolean = false
-    )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
+    )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
       val end = tokens.getLast(tree)
       val slbExpire = nextNonCommentSameLine(end).left
       val expire = getClosingIfEnclosedInMatching(tree)
         .fold(end.left)(x => prevNonComment(tokens(x, -1)).left)
-      def nlPolicy(implicit line: sourcecode.Line) =
+      def nlPolicy(implicit fileLine: FileLine) =
         decideNewlinesOnlyAfterClose(expire)
       val indentLen =
         if (useMain) style.indent.main else style.indent.getSignificant
@@ -2052,7 +2055,6 @@ class FormatOps(
       else if (forceNL)
         Seq(Split(Newline, 0).withIndent(indent).withPolicy(nlPolicy))
       else {
-        val nextLine = line.copy(value = line.value + 1)
         Seq(
           Split(Space, 0).withSingleLine(slbExpire),
           Split(Newline, 1)(nextLine).withIndent(indent).withPolicy(nlPolicy)
@@ -2365,7 +2367,7 @@ class FormatOps(
         nft: FormatToken,
         tree: Tree,
         allowMain: Boolean
-    )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
+    )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
       val multiStat = isTreeMultiStatBlock(tree)
       val forceNL = multiStat || shouldBreakInOptionalBraces(nft)
       getSplits(ft, tree, forceNL, allowMain && !multiStat)
@@ -2378,7 +2380,7 @@ class FormatOps(
         tail: Seq[Tree],
         allowMain: Boolean
     )(implicit
-        line: sourcecode.Line,
+        fileLine: FileLine,
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
       if (head.tokens.headOption.contains(nft.right)) {
@@ -2395,7 +2397,7 @@ class FormatOps(
         trees: Seq[Tree],
         allowMain: Boolean
     )(implicit
-        line: sourcecode.Line,
+        fileLine: FileLine,
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
       if (trees.isEmpty) None
@@ -2405,7 +2407,7 @@ class FormatOps(
         ft: FormatToken,
         nft: FormatToken,
         t: Term.If
-    )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
+    )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
       def nestedIf(x: Term.If) = {
         val forceNL = shouldBreakInOptionalBraces(nft) ||
           !ifWithoutElse(t) && existsIfWithoutElse(x)
@@ -2550,4 +2552,8 @@ object FormatOps {
     def isSecond() = superTypeGroup.drop(1).headOption.contains(superType)
   }
 
+  def nextLine(implicit fl: FileLine): FileLine = {
+    val line = fl.line
+    new FileLine(fl.file, line.copy(value = line.value + 1))
+  }
 }

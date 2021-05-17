@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import scala.meta.tokens.Token
+import org.scalameta.FileLine
 
 /** The decision made by [[Router]].
   *
@@ -59,44 +60,44 @@ object Policy {
   def apply(
       endPolicy: End.WithPos,
       noDequeue: Boolean = false
-  )(f: Pf)(implicit line: sourcecode.Line): Policy =
+  )(f: Pf)(implicit fileLine: FileLine): Policy =
     new ClauseImpl(f, endPolicy, noDequeue)
 
   def after(
       token: Token,
       noDequeue: Boolean = false
-  )(f: Pf)(implicit line: sourcecode.Line): Policy =
+  )(f: Pf)(implicit fileLine: FileLine): Policy =
     apply(End.After(token), noDequeue)(f)
 
   def before(
       token: Token,
       noDequeue: Boolean = false
-  )(f: Pf)(implicit line: sourcecode.Line): Policy =
+  )(f: Pf)(implicit fileLine: FileLine): Policy =
     apply(End.Before(token), noDequeue)(f)
 
   def after(trigger: Token, policy: Policy)(implicit
-      line: sourcecode.Line
+      fileLine: FileLine
   ): Policy =
     new Switch(NoPolicy, trigger, policy)
 
   def before(policy: Policy, trigger: Token)(implicit
-      line: sourcecode.Line
+      fileLine: FileLine
   ): Policy =
     new Switch(policy, trigger, NoPolicy)
 
   def on(
       token: Token,
       noDequeue: Boolean = false
-  )(f: Pf)(implicit line: sourcecode.Line): Policy =
+  )(f: Pf)(implicit fileLine: FileLine): Policy =
     apply(End.On(token), noDequeue)(f)
 
-  abstract class Clause(implicit val line: sourcecode.Line) extends Policy {
+  abstract class Clause(implicit val fileLine: FileLine) extends Policy {
     val f: Policy.Pf
     val endPolicy: End.WithPos
 
     override def toString = {
       val noDeqPrefix = if (noDequeue) "!" else ""
-      s"${line.value}$endPolicy${noDeqPrefix}d"
+      s"[${fileLine}]$endPolicy${noDeqPrefix}d"
     }
 
     override def unexpired(ft: FormatToken): Policy =
@@ -112,7 +113,7 @@ object Policy {
       val f: Policy.Pf,
       val endPolicy: End.WithPos,
       val noDequeue: Boolean
-  )(implicit line: sourcecode.Line)
+  )(implicit fileLine: FileLine)
       extends Clause
 
   private class OrElse(p1: Policy, p2: Policy) extends Policy {
@@ -157,7 +158,7 @@ object Policy {
   }
 
   class Delay(policy: Policy, begPolicy: End.WithPos)(implicit
-      line: sourcecode.Line
+      fileLine: FileLine
   ) extends Policy {
     override def f: Pf = PartialFunction.empty
     override def filter(pred: Clause => Boolean): Policy = this
@@ -172,14 +173,15 @@ object Policy {
   }
 
   class Relay(before: Policy, after: Policy)(implicit
-      line: sourcecode.Line
+      fileLine: FileLine
   ) extends Policy {
     override def f: Pf = before.f
     override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
     override def switch(trigger: Token): Policy = conv(_.switch(trigger))
     override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
     override def noDequeue: Boolean = before.noDequeue
-    override def toString: String = s"REL:${line.value}($before,$after)"
+    override def toString: String =
+      s"REL:[${fileLine}]($before,$after)"
 
     private def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
@@ -190,7 +192,7 @@ object Policy {
   }
 
   class Switch(before: Policy, trigger: Token, after: Policy)(implicit
-      line: sourcecode.Line
+      fileLine: FileLine
   ) extends Policy {
     override def f: Pf = before.f
     override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
@@ -199,7 +201,8 @@ object Policy {
       else after.switch(trigger)
     override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
     override def noDequeue: Boolean = before.noDequeue
-    override def toString: String = s"SW:${line.value}($before,$trigger,$after)"
+    override def toString: String =
+      s"SW:[${fileLine}]($before,$trigger,$after)"
 
     private def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
@@ -212,7 +215,7 @@ object Policy {
     def apply(
         policy: Policy,
         end: End.WithPos
-    )(factory: Policy => Pf)(implicit line: sourcecode.Line): Policy =
+    )(factory: Policy => Pf)(implicit fileLine: FileLine): Policy =
       if (policy.isEmpty) NoPolicy
       else new Proxy(policy, factory, end)
   }
@@ -221,7 +224,7 @@ object Policy {
       policy: Policy,
       factory: Policy => Policy.Pf,
       override val endPolicy: End.WithPos
-  )(implicit line: sourcecode.Line)
+  )(implicit fileLine: FileLine)
       extends Policy.Clause {
     override val f: Pf = factory(policy)
 

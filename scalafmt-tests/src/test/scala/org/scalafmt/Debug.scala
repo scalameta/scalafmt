@@ -46,7 +46,7 @@ class Debug(val verbose: Boolean) {
     if (enqueuedSplits.nonEmpty) {
       val sb = new StringBuilder()
       enqueuedSplits
-        .groupBy(_.line.value)
+        .groupBy(_.fileLine.line.value)
         .toSeq
         .sortBy(-_._2.size)
         .iterator
