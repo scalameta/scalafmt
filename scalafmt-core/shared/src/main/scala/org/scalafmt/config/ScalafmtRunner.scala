@@ -89,6 +89,7 @@ object ScalafmtRunner {
         Scala211,
         scala212,
         scala213,
+        Scala213Source3,
         Sbt0137,
         Sbt1,
         Dotty,

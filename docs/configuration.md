@@ -101,6 +101,10 @@ enum class Weekday {
 
 Please also see [rewrite rules](#scala3-rewrites) for Scala 3.
 
+Additionally, when using `-Xsource:3` option for Scala 2 you can change the
+dialect to `Scala213Source3`, which will allow to format the new syntax ported
+from Scala 3.
+
 ## Presets
 
 Some sections provide preset values to set multiple parameters at once. These
