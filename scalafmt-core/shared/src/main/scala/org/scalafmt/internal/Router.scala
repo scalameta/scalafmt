@@ -404,12 +404,12 @@ class Router(formatOps: FormatOps) {
             style.newlines.afterCurlyLambdaParams ne
               Newlines.AfterCurlyLambdaParams.squash
 
-          isCurlyLambda && (style.newlines.source match {
+          style.newlines.source match {
             case Newlines.fold => false
-            case Newlines.unfold => noSquash
+            case Newlines.unfold => isCurlyLambda && noSquash
             case Newlines.keep => newlines != 0
-            case Newlines.classic => newlines != 0 && noSquash
-          })
+            case Newlines.classic => isCurlyLambda && newlines != 0 && noSquash
+          }
         }
         val singleLineSplit =
           Split(Space, 0)
