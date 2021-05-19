@@ -6,6 +6,7 @@ import org.scalafmt.internal.Decision
 import org.scalafmt.internal.Policy
 import org.scalafmt.internal.Policy.End
 import org.scalafmt.internal.TokenRanges
+import org.scalameta.FileLine
 
 object PolicyOps {
 
@@ -16,7 +17,7 @@ object PolicyOps {
       penalty: Int,
       penalizeLambdas: Boolean = true,
       noSyntaxNL: Boolean = false
-  )(implicit line: sourcecode.Line)
+  )(implicit fileLine: FileLine)
       extends Policy.Clause {
     override val noDequeue: Boolean = false
     override val f: Policy.Pf = {
@@ -33,7 +34,7 @@ object PolicyOps {
         penalty: Int,
         penalizeLambdas: Boolean = true,
         noSyntaxNL: Boolean = false
-    )(implicit line: sourcecode.Line): Policy = {
+    )(implicit fileLine: FileLine): Policy = {
       new PenalizeAllNewlines(
         Policy.End.Before(expire),
         penalty,
@@ -51,7 +52,7 @@ object PolicyOps {
       val endPolicy: End.WithPos,
       okSLC: Boolean = false,
       noSyntaxNL: Boolean = false
-  )(implicit line: sourcecode.Line)
+  )(implicit fileLine: FileLine)
       extends Policy.Clause {
     import TokenOps.isSingleLineComment
     override val noDequeue: Boolean = true
@@ -70,7 +71,7 @@ object PolicyOps {
         exclude: TokenRanges = TokenRanges.empty,
         okSLC: Boolean = false,
         noSyntaxNL: Boolean = false
-    )(implicit line: sourcecode.Line): Policy =
+    )(implicit fileLine: FileLine): Policy =
       policyWithExclude(exclude, End.On, End.After)(
         End.On(expire),
         new SingleLineBlock(_, okSLC = okSLC, noSyntaxNL = noSyntaxNL)
@@ -84,7 +85,7 @@ object PolicyOps {
   )(
       expire: End.WithPos,
       policyFunc: End.WithPos => Policy
-  )(implicit line: sourcecode.Line): Policy = {
+  )(implicit fileLine: FileLine): Policy = {
     val lastPolicy = policyFunc(expire)
     exclude.ranges.foldRight(lastPolicy) { case (range, policy) =>
       new Policy.Relay(

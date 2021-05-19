@@ -5,6 +5,7 @@ import scala.meta.tokens.Token
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.PolicyOps
 import org.scalafmt.util.TokenOps
+import org.scalameta.FileLine
 
 case class OptimalToken(token: Token, killOnFail: Boolean = false) {
   override def toString: String = s"$token:${token.end}"
@@ -41,7 +42,7 @@ case class Split(
     activeTags: Set[SplitTag] = Set.empty,
     policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None
-)(implicit val line: sourcecode.Line) {
+)(implicit val fileLine: FileLine) {
   import PolicyOps._
   import TokenOps._
 
@@ -84,11 +85,11 @@ case class Split(
 
   def onlyFor(splitTag: SplitTag, ignore: Boolean = false): Split =
     if (isIgnored || ignore || isNeededFor(splitTag)) this
-    else copy(neededTags = neededTags + splitTag)(line = line)
+    else copy(neededTags = neededTags + splitTag)
 
   def activateFor(splitTag: SplitTag): Split =
     if (isIgnored || isActiveFor(splitTag)) this
-    else copy(activeTags = activeTags + splitTag)(line = line)
+    else copy(activeTags = activeTags + splitTag)
 
   def preActivateFor(splitTag: SplitTag): Split =
     if (isIgnored) this
@@ -96,13 +97,13 @@ case class Split(
       copy(
         activeTags = activeTags + splitTag,
         neededTags = neededTags + splitTag
-      )(line = line)
+      )
 
   def preActivateFor(splitTag: Option[SplitTag]): Split =
     if (isIgnored) this else splitTag.fold(this)(preActivateFor)
 
-  def forThisLine(implicit line: sourcecode.Line): Split =
-    if (isIgnored) this else copy()(line = line)
+  def forThisLine(implicit fileLine: FileLine): Split =
+    if (isIgnored) this else copy()(fileLine = fileLine)
 
   def getCost(ifActive: Int => Int, ifIgnored: => Int): Int =
     if (isIgnored) ifIgnored else ifActive(cost)
@@ -136,7 +137,7 @@ case class Split(
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
-  )(implicit line: sourcecode.Line): Split =
+  )(implicit fileLine: FileLine): Split =
     withSingleLineAndOptimal(
       expire,
       expire,
@@ -150,7 +151,7 @@ case class Split(
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
-  )(implicit line: sourcecode.Line): Split =
+  )(implicit fileLine: FileLine): Split =
     expire.fold(this)(
       withSingleLine(_, exclude, noSyntaxNL, killOnFail)
     )
@@ -161,7 +162,7 @@ case class Split(
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
-  )(implicit line: sourcecode.Line): Split =
+  )(implicit fileLine: FileLine): Split =
     withOptimalToken(optimal, killOnFail)
       .withSingleLineNoOptimal(expire, exclude, noSyntaxNL)
 
@@ -169,7 +170,7 @@ case class Split(
       expire: Token,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false
-  )(implicit line: sourcecode.Line): Split =
+  )(implicit fileLine: FileLine): Split =
     withPolicy(SingleLineBlock(expire, exclude, noSyntaxNL = noSyntaxNL))
 
   def withPolicyOpt(newPolicy: => Option[Policy]): Split =
@@ -177,11 +178,11 @@ case class Split(
 
   def orPolicy(newPolicy: Policy): Split =
     if (isIgnored || newPolicy.isEmpty) this
-    else copy(policy = policy | newPolicy)(line = line)
+    else copy(policy = policy | newPolicy)
 
   def andPolicy(newPolicy: Policy): Split =
     if (isIgnored || newPolicy.isEmpty) this
-    else copy(policy = policy & newPolicy)(line = line)
+    else copy(policy = policy & newPolicy)
 
   def andPolicy(newPolicy: => Policy, ignore: Boolean): Split =
     if (ignore) this else andPolicy(newPolicy)
@@ -191,7 +192,7 @@ case class Split(
 
   def andFirstPolicy(newPolicy: Policy): Split =
     if (isIgnored || newPolicy.isEmpty) this
-    else copy(policy = newPolicy & policy)(line = line)
+    else copy(policy = newPolicy & policy)
 
   def andFirstPolicyOpt(newPolicy: => Option[Policy]): Split =
     if (isIgnored) this else newPolicy.fold(this)(andFirstPolicy)
@@ -234,7 +235,7 @@ case class Split(
     if (ignore || isIgnored) this
     else {
       val modExt = modExtByName
-      if (this.modExt eq modExt) this else copy(modExt = modExt)(line = line)
+      if (this.modExt eq modExt) this else copy(modExt = modExt)
     }
 
   override def toString = {
@@ -248,7 +249,7 @@ case class Split(
         else ""
       }
     val opt = optimalAt.fold("")(", opt=" + _)
-    s"""$prefix${modExt.mod}:${line.value}(cost=$cost, indents=$indentation, $policy$opt)"""
+    s"""$prefix${modExt.mod}:[$fileLine](cost=$cost, indents=$indentation, $policy$opt)"""
   }
 }
 
@@ -256,12 +257,12 @@ object Split {
 
   private val ignoredTags = Set[SplitTag](null)
 
-  def ignored(implicit line: sourcecode.Line) =
+  def ignored(implicit fileLine: FileLine) =
     Split(ModExt(NoSplit), 0).ignored
 
   def apply(ignore: Boolean, cost: Int)(
       modExt: ModExt
-  )(implicit line: sourcecode.Line): Split =
+  )(implicit fileLine: FileLine): Split =
     if (ignore) ignored else Split(modExt, cost)
 
 }
