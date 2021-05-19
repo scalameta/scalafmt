@@ -180,8 +180,7 @@ object Policy {
     override def switch(trigger: Token): Policy = conv(_.switch(trigger))
     override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
     override def noDequeue: Boolean = before.noDequeue
-    override def toString: String =
-      s"REL:[${fileLine}]($before,$after)"
+    override def toString: String = s"REL:[$fileLine]($before,$after)"
 
     private def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
