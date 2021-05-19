@@ -1414,7 +1414,8 @@ val f: Int => Int = (x: Int) => {
   x * x
 }
 >>>
-val f: Int => Int = (x: Int) => x * x
+val f: Int => Int = (x: Int) =>
+  x * x
 <<< lambda multiple statements
 rewrite.scala3.removeOptionalBraces = yes
 ===
