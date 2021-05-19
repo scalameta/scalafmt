@@ -97,7 +97,7 @@ object Policy {
 
     override def toString = {
       val noDeqPrefix = if (noDequeue) "!" else ""
-      s"[${fileLine}]$endPolicy${noDeqPrefix}d"
+      s"[$fileLine]$endPolicy${noDeqPrefix}d"
     }
 
     override def unexpired(ft: FormatToken): Policy =
