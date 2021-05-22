@@ -15,7 +15,7 @@ object StyleCache {
   private val timeStamps = mutable.Map.empty[String, Long]
 
   def getStyleForFile(filename: String): Option[ScalafmtConfig] = {
-    getStyleForFileOrError(filename).toEither.right.toOption
+    getStyleForFileOrError(filename)
   }
 
   def getStyleForFileOrError(filename: String): Configured[ScalafmtConfig] = {
@@ -28,7 +28,7 @@ object StyleCache {
       case _ =>
         // Throw an exception if file does not exist. Better to fail fast than
         // continue silently.
-        val result = config.Config.fromHoconString(FileOps.readFile(file))
+        val result = config.Config.fromHoconFile(file, None)
         result match {
           case Configured.NotOk(e) =>
             styleCache.remove(filename)
