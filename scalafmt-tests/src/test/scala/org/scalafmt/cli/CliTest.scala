@@ -712,9 +712,9 @@ trait CliTestBehavior { this: AbstractCliTest =>
         assertExit = { exit => assert(exit == ExitCode.UnexpectedError) },
         assertOut = out => {
           assert(
-            out.contains(
-              "Invalid field: blah"
-            )
+            out.contains("Invalid field: blah") ||
+              out.contains("found option 'blah' which wasn't expected"),
+            s"assertion failed [$out]"
           )
         }
       )
