@@ -228,7 +228,7 @@ object ScalafmtConfig {
     ConfEncoder.StringEncoder.contramap(_.name)
 
   implicit val confObjReader: ConfDecoder[Conf.Obj] =
-    ConfDecoder.instance[Conf.Obj] {
+    ConfDecoder.from {
       case x: Conf.Obj => Ok(x)
       case _ => ConfError.message("not a config").notOk
     }

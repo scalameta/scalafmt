@@ -22,7 +22,7 @@ object AlignToken {
   val caseArrow = AlignToken("=>", "Case")
   protected[scalafmt] val fallbackAlign = new AlignToken("<empty>", ".*")
   implicit val DefaultAlignTokenDecoder: ConfDecoder[AlignToken] =
-    ConfDecoder.instance[AlignToken] {
+    ConfDecoder.from {
       case Conf.Str("caseArrow") => Ok(caseArrow)
       case Conf.Str(regex) =>
         val owner = default.find(_.code == regex).fold(".*")(_.owner)
