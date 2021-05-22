@@ -3,7 +3,6 @@ package org.scalafmt.cli
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import util.control.Breaks
 
-import metaconfig.Configured
 import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
 import org.scalafmt.{Formatted, Scalafmt, Versions}
 import org.scalafmt.config.{ProjectFiles, ScalafmtConfig}
@@ -17,43 +16,41 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
   override private[cli] def run(
       options: CliOptions,
       termDisplayMessage: String
-  ): ExitCode = {
-    options.scalafmtConfig match {
-      case Configured.NotOk(e) =>
-        options.common.err.println(s"${e.msg}")
-        ExitCode.UnexpectedError
-      case Configured.Ok(scalafmtConf) =>
-        options.common.debug.println(s"parsed config (v${Versions.version})")
-        val filterMatcher = ProjectFiles.FileMatcher(
-          scalafmtConf.project,
-          options.customExcludes
-        )
+  ): ExitCode =
+    options.scalafmtConfig.fold { e =>
+      options.common.err.println(s"${e.msg}")
+      ExitCode.UnexpectedError
+    } { scalafmtConf =>
+      options.common.debug.println(s"parsed config (v${Versions.version})")
+      val filterMatcher = ProjectFiles.FileMatcher(
+        scalafmtConf.project,
+        options.customExcludes
+      )
 
-        val inputMethods = getInputMethods(options, filterMatcher.matchesFile)
-        if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
-          throw NoMatchingFiles
+      val inputMethods = getInputMethods(options, filterMatcher.matchesFile)
+      if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
+        throw NoMatchingFiles
 
-        val counter = new AtomicInteger()
-        val termDisplay =
-          newTermDisplay(options, inputMethods, termDisplayMessage)
-        val exitCode = new AtomicReference(ExitCode.Ok)
-        Breaks.breakable {
-          inputMethods.par.foreach { inputMethod =>
-            val code = handleFile(inputMethod, options, scalafmtConf)
-            exitCode.getAndUpdate(ExitCode.merge(code, _))
-            if (options.check && !code.isOk) Breaks.break
-            PlatformTokenizerCache.megaCache.clear()
-            termDisplay.taskProgress(
-              termDisplayMessage,
-              counter.incrementAndGet()
-            )
-          }
+      val counter = new AtomicInteger()
+      val termDisplay =
+        newTermDisplay(options, inputMethods, termDisplayMessage)
+      val exitCode = new AtomicReference(ExitCode.Ok)
+      Breaks.breakable {
+        inputMethods.par.foreach { inputMethod =>
+          val code = handleFile(inputMethod, options, scalafmtConf)
+          exitCode.getAndUpdate(ExitCode.merge(code, _))
+          if (options.check && !code.isOk) Breaks.break
+          PlatformTokenizerCache.megaCache.clear()
+          termDisplay.taskProgress(
+            termDisplayMessage,
+            counter.incrementAndGet()
+          )
         }
-        termDisplay.completedTask(termDisplayMessage, exitCode.get.isOk)
-        termDisplay.stop()
-        exitCode.get()
+      }
+      termDisplay.completedTask(termDisplayMessage, exitCode.get.isOk)
+      termDisplay.stop()
+      exitCode.get()
     }
-  }
 
   private[this] def handleFile(
       inputMethod: InputMethod,

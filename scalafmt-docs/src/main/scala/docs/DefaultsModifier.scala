@@ -27,13 +27,10 @@ class DefaultsModifier extends StringModifier {
       def getDefaultValue(param: String): String = {
         val path = param.split("\\.").toList
         val down = path.foldLeft(default.dynamic)(_ selectDynamic _)
-        down.asConf match {
-          case Configured.Ok(value) =>
-            value.toString()
-          case Configured.NotOk(e) =>
-            reporter.error(Position.Range(code, 0, 0), e.toString())
-            "<fail>"
-        }
+        down.asConf.fold { e =>
+          reporter.error(Position.Range(code, 0, 0), e.toString())
+          "<fail>"
+        }(_.toString())
       }
 
       val params = code.text.split("\\s+")

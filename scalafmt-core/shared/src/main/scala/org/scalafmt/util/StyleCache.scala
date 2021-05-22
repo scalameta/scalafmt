@@ -29,11 +29,10 @@ object StyleCache {
         // Throw an exception if file does not exist. Better to fail fast than
         // continue silently.
         val result = config.Config.fromHoconFile(file, None)
-        result match {
-          case Configured.NotOk(e) =>
-            styleCache.remove(filename)
-          case Configured.Ok(style) =>
-            styleCache.put(filename, style)
+        result.foreach { _ =>
+          styleCache.remove(filename)
+        } {
+          styleCache.put(filename, _)
         }
         result
     }
