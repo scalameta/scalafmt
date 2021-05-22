@@ -11,7 +11,6 @@ import scala.meta.tokens.Token.Comment
 import scala.meta.tokens.Token.LeftParen
 import scala.meta.tokens.Token.RightParen
 
-import metaconfig.Configured
 import org.scalafmt.config.Config
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.ScalafmtConfig
@@ -51,15 +50,13 @@ class StyleMap(
       }
       tok.left match {
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
-          Config.fromHoconString(c, Some("scalafmt"), init) match {
-            case Configured.Ok(style) =>
-              init.rewrite.rulesChanged(style.rewrite).foreach { x =>
-                warn(x.mkString("May not override rewrite settings: ", ",", ""))
-              }
-              changeStyle(style)
-            case Configured.NotOk(e) =>
-              // TODO(olafur) report error via callback
-              logger.elem(e)
+          val configured = Config.fromHoconString(c, Some("scalafmt"), init)
+          // TODO(olafur) report error via callback
+          configured.foreach(logger.elem(_)) { style =>
+            init.rewrite.rulesChanged(style.rewrite).foreach { x =>
+              warn(x.mkString("May not override rewrite settings: ", ",", ""))
+            }
+            changeStyle(style)
           }
         case open @ LeftParen()
             if curr.binPack.literalArgumentLists &&

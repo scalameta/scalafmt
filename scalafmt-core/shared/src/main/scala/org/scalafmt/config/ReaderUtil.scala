@@ -3,7 +3,6 @@ package org.scalafmt.config
 import scala.reflect.ClassTag
 
 import metaconfig._
-import metaconfig.Configured._
 
 object ReaderUtil {
 
@@ -21,13 +20,10 @@ object ReaderUtil {
     val m = options.map(x => lowerCaseNoBackticks(x.source) -> x.value).toMap
     val decoder =
       ConfDecoder.fromPartial[T]("String")(f.orElse { case Conf.Str(x) =>
-        m.get(lowerCaseNoBackticks(x)) match {
-          case Some(y) =>
-            Ok(y)
-          case None =>
-            val available = m.keys.mkString(", ")
-            val msg = s"Unknown input '$x'. Expected one of: $available"
-            ConfError.message(msg).notOk
+        Configured.opt(m.get(lowerCaseNoBackticks(x))) {
+          val available = m.keys.mkString(", ")
+          val msg = s"Unknown input '$x'. Expected one of: $available"
+          ConfError.message(msg)
         }
       })
     val encoder = ConfEncoder.instance[T] { value =>

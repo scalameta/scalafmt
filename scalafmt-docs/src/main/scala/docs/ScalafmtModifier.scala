@@ -35,34 +35,34 @@ class ScalafmtModifier extends StringModifier {
     } else {
       val config = Input.Slice(code, 0, i)
       val program = Input.Slice(code, i + separator.length, code.chars.length)
-      Config.fromHoconString(config.text, None, base) match {
-        case Configured.Ok(c) =>
-          Scalafmt.format(program.text, c).toEither match {
-            case Right(formatted) =>
-              val configText = config.text.trim
-              val configBlock =
-                if (configText == "") ""
-                else mdConfigSection("Config for this example:", configText)
+      val configured = Config.fromHoconString(config.text, None, base)
+      configured.fold { e =>
+        reporter.error(pos, e.toString())
+        "fail"
+      } { c =>
+        Scalafmt.format(program.text, c).toEither match {
+          case Right(formatted) =>
+            val configText = config.text.trim
+            val configBlock =
+              if (configText == "") ""
+              else mdConfigSection("Config for this example:", configText)
 
-              val formattedCodeBlock =
-                mdScalaCodeBlock("formatted", formatted.trim)
-              val originalCodeBlock =
-                mdScalaCodeBlock("original", program.text.trim)
-              List(
-                formattedCodeBlock,
-                originalCodeBlock,
-                configBlock
-              ).mkString("\n")
-            case Left(e: ParseException) =>
-              reporter.error(pos, e.toString())
-              "parse error"
-            case Left(e) =>
-              reporter.error(pos, e)
-              "fail"
-          }
-        case Configured.NotOk(e) =>
-          reporter.error(pos, e.toString())
-          "fail"
+            val formattedCodeBlock =
+              mdScalaCodeBlock("formatted", formatted.trim)
+            val originalCodeBlock =
+              mdScalaCodeBlock("original", program.text.trim)
+            List(
+              formattedCodeBlock,
+              originalCodeBlock,
+              configBlock
+            ).mkString("\n")
+          case Left(e: ParseException) =>
+            reporter.error(pos, e.toString())
+            "parse error"
+          case Left(e) =>
+            reporter.error(pos, e)
+            "fail"
+        }
       }
     }
   }

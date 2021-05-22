@@ -5,7 +5,6 @@ import java.util.regex.Pattern
 
 import scala.annotation.tailrec
 
-import metaconfig.Configured
 import munit.Assertions._
 import org.scalafmt.{Debug, Scalafmt}
 import org.scalafmt.config.FormatEvent._
@@ -91,14 +90,12 @@ trait HasTests extends FormatAssertions {
     val moduleSkip = isSkip(head)
 
     def loadStyle(content: String, base: ScalafmtConfig): ScalafmtConfig =
-      Config.fromHoconString(content, None, base) match {
-        case Configured.Ok(c) => c
-        case Configured.NotOk(c) =>
-          throw new IllegalArgumentException(
-            s"""Failed to parse filename $filename:
-              |$content
-              |$c""".stripMargin
-          )
+      Config.fromHoconString(content, None, base).getOrRecover { c =>
+        throw new IllegalArgumentException(
+          s"""Failed to parse filename $filename:
+            |$content
+            |$c""".stripMargin
+        )
       }
     val style: ScalafmtConfig = loadStyle(
       stripPrefixOpt(head, onlyPrefix).getOrElse(head),
