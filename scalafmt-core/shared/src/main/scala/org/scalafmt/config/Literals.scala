@@ -9,12 +9,10 @@ case class Literals(
     hexDigits: Case = Case.Lower,
     hexPrefix: Case = Case.Lower,
     scientific: Case = Case.Lower
-) {
-  implicit val reader: ConfDecoder[Literals] =
-    generic.deriveDecoder(this).noTypos
-}
+)
 
 object Literals {
   implicit val surface: generic.Surface[Literals] = generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[Literals] = generic.deriveEncoder
+  implicit val codec: ConfCodecEx[Literals] =
+    generic.deriveCodecEx(Literals()).noTypos
 }

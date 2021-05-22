@@ -1,13 +1,13 @@
 package org.scalafmt.config
 
 import metaconfig.Conf
-import metaconfig.ConfCodec
+import metaconfig.ConfCodecEx
 import metaconfig.Configured
 
 sealed abstract class LineEndings
 
 object LineEndings {
-  implicit val reader: ConfCodec[LineEndings] =
+  implicit val reader: ConfCodecEx[LineEndings] =
     ReaderUtil.oneOfCustom[LineEndings](unix, windows, preserve) {
       case Conf.Str("keep") => Configured.Ok(preserve)
     }

@@ -3,7 +3,7 @@ package org.scalafmt.cli
 import java.io.{File, InputStream, OutputStream, PrintStream}
 import java.nio.file.{Files, Path}
 
-import metaconfig.{Conf, Configured, ConfDecoder, ConfDynamic}
+import metaconfig.{Conf, ConfDecoderEx, ConfDynamic, Configured}
 import org.scalafmt.Versions
 import org.scalafmt.config.{Config, ScalafmtConfig}
 import org.scalafmt.util.{AbsoluteFile, GitOps, GitOpsImpl, OsSpecific}
@@ -185,13 +185,15 @@ case class CliOptions(
       case _ => filters.mkString("(", "|", ")").r
     }
 
-  private def getHoconValueOpt[A: ConfDecoder](path: String*): Option[A] =
+  private def getHoconValueOpt[A](
+      path: String*
+  )(implicit ev: ConfDecoderEx[A]): Option[A] =
     hoconOpt.flatMap { x =>
       val conf = path.foldLeft(ConfDynamic(x))(_ selectDynamic _)
-      conf.as[A].toEither.right.toOption
+      conf.asConf.andThen(ev.read(None, _)): Option[A]
     }
 
-  private def getHoconValue[A: ConfDecoder](default: A, path: String*): A =
+  private def getHoconValue[A: ConfDecoderEx](default: A, path: String*): A =
     getHoconValueOpt[A](path: _*).getOrElse(default)
 
   private[cli] def isGit: Boolean =

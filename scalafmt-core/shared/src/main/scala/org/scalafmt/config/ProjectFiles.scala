@@ -25,8 +25,6 @@ case class ProjectFiles(
     )
     excludeFilters: Seq[String] = Nil
 ) {
-  val reader: ConfDecoder[ProjectFiles] = generic.deriveDecoder(this).noTypos
-
   // required for ScalafmtDynamic (ScalafmtReflectConfig.isIncludedInProject)
   lazy val matcher: ProjectFiles.FileMatcher = ProjectFiles.FileMatcher(this)
 }
@@ -34,8 +32,8 @@ case class ProjectFiles(
 object ProjectFiles {
   implicit lazy val surface: generic.Surface[ProjectFiles] =
     generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[ProjectFiles] =
-    generic.deriveEncoder
+  implicit lazy val codec: ConfCodecEx[ProjectFiles] =
+    generic.deriveCodecEx(ProjectFiles()).noTypos
 
   private implicit val fs: file.FileSystem = file.FileSystems.getDefault
 

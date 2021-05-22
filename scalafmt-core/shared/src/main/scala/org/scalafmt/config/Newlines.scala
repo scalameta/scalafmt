@@ -216,8 +216,6 @@ case class Newlines(
     )
   }
 
-  val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
-
   @inline
   def sourceIgnored: Boolean = source.ignoreSourceSplit
 
@@ -283,7 +281,8 @@ case class Newlines(
 
 object Newlines {
   implicit lazy val surface: Surface[Newlines] = generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[Newlines] = generic.deriveEncoder
+  implicit lazy val codec: ConfCodecEx[Newlines] =
+    generic.deriveCodecEx(Newlines()).noTypos
 
   sealed abstract class SourceHints(val ignoreSourceSplit: Boolean) {
     @inline
@@ -300,7 +299,7 @@ object Newlines {
 
   object SourceHints {
     // NB: don't allow specifying classic, only by default
-    implicit val codec: ConfCodec[SourceHints] =
+    implicit val codec: ConfCodecEx[SourceHints] =
       ReaderUtil.oneOfCustom[SourceHints](keep, fold, unfold) {
         case Conf.Bool(true) => Configured.Ok(unfold)
         case Conf.Bool(false) => Configured.Ok(fold)
@@ -313,7 +312,7 @@ object Newlines {
     case object some extends AfterInfix
     case object many extends AfterInfix
 
-    implicit val reader: ConfCodec[AfterInfix] =
+    implicit val reader: ConfCodecEx[AfterInfix] =
       ReaderUtil.oneOf[AfterInfix](keep, some, many)
   }
 
@@ -321,14 +320,14 @@ object Newlines {
   case object before extends BeforeAfter
   case object after extends BeforeAfter
 
-  implicit val beforeAfterReader: ConfCodec[BeforeAfter] =
+  implicit val beforeAfterReader: ConfCodecEx[BeforeAfter] =
     ReaderUtil.oneOf[BeforeAfter](before, after)
 
   sealed abstract class AvoidForSimpleOverflow
   object AvoidForSimpleOverflow {
     case object punct extends AvoidForSimpleOverflow
     case object tooLong extends AvoidForSimpleOverflow
-    implicit val codec: ConfCodec[AvoidForSimpleOverflow] =
+    implicit val codec: ConfCodecEx[AvoidForSimpleOverflow] =
       ReaderUtil.oneOf[AvoidForSimpleOverflow](punct, tooLong)
   }
 
@@ -338,7 +337,7 @@ object Newlines {
     case object always extends AfterCurlyLambdaParams
     case object never extends AfterCurlyLambdaParams
     case object squash extends AfterCurlyLambdaParams
-    implicit val codec: ConfCodec[AfterCurlyLambdaParams] =
+    implicit val codec: ConfCodecEx[AfterCurlyLambdaParams] =
       ReaderUtil.oneOfCustom[AfterCurlyLambdaParams](
         preserve,
         always,
@@ -355,7 +354,7 @@ object Newlines {
     case object never extends BeforeCurlyLambdaParams
     case object multiline extends BeforeCurlyLambdaParams
     case object multilineWithCaseOnly extends BeforeCurlyLambdaParams
-    implicit val codec: ConfCodec[BeforeCurlyLambdaParams] =
+    implicit val codec: ConfCodecEx[BeforeCurlyLambdaParams] =
       ReaderUtil.oneOfCustom[BeforeCurlyLambdaParams](
         never,
         always,
@@ -373,7 +372,7 @@ object Newlines {
 
   object ForceBeforeMultilineAssign {
 
-    implicit val codec: ConfCodec[ForceBeforeMultilineAssign] =
+    implicit val codec: ConfCodecEx[ForceBeforeMultilineAssign] =
       ReaderUtil.oneOf[ForceBeforeMultilineAssign](
         never,
         any,

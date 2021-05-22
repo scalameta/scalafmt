@@ -38,19 +38,18 @@ case class Spaces(
     inByNameTypes: Boolean = true,
     afterSymbolicDefs: Boolean = false
 ) {
-  implicit val reader: ConfDecoder[Spaces] = generic.deriveDecoder(this).noTypos
-
   def isSpaceAfterKeyword(tokenAfter: Token): Boolean =
     afterKeywordBeforeParen || !tokenAfter.is[Token.LeftParen]
 }
 
 object Spaces {
   implicit lazy val surface: generic.Surface[Spaces] = generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[Spaces] = generic.deriveEncoder
+  implicit lazy val codec: ConfCodecEx[Spaces] =
+    generic.deriveCodecEx(Spaces()).noTypos
 
   sealed abstract class BeforeContextBound
   object BeforeContextBound {
-    implicit val codec: ConfCodec[BeforeContextBound] = ReaderUtil
+    implicit val codec: ConfCodecEx[BeforeContextBound] = ReaderUtil
       .oneOfCustom[BeforeContextBound](Always, Never, IfMultipleBounds) {
         case Conf.Bool(true) => Configured.ok(Always)
         case Conf.Bool(false) => Configured.ok(Never)

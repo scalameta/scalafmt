@@ -1,6 +1,6 @@
 package org.scalafmt.config
 
-import metaconfig.ConfCodec
+import metaconfig.ConfCodecEx
 
 sealed abstract class Case {
   import Case._
@@ -13,7 +13,7 @@ sealed abstract class Case {
 }
 
 object Case {
-  implicit val codec: ConfCodec[Case] =
+  implicit val codec: ConfCodecEx[Case] =
     ReaderUtil.oneOf[Case](Upper, Lower, Unchanged)
   case object Upper extends Case
   case object Lower extends Case

@@ -7,10 +7,7 @@ import metaconfig._
 case class RewriteScala3Settings(
     convertToNewSyntax: Boolean = false,
     removeOptionalBraces: RemoveOptionalBraces = RemoveOptionalBraces.no
-) extends Decodable[RewriteScala3Settings] {
-  override protected[config] def baseDecoder: ConfDecoder[T] =
-    generic.deriveDecoder(this).noTypos
-}
+)
 
 object RewriteScala3Settings {
   implicit val surface: generic.Surface[RewriteScala3Settings] =
@@ -18,17 +15,20 @@ object RewriteScala3Settings {
   implicit val encoder: ConfEncoder[RewriteScala3Settings] =
     generic.deriveEncoder[RewriteScala3Settings]
 
-  implicit val preset: PartialFunction[Conf, RewriteScala3Settings] = {
-    case Conf.Bool(true) =>
-      new RewriteScala3Settings(true, RemoveOptionalBraces.yes)
-    case Conf.Bool(false) => new RewriteScala3Settings
-  }
+  private val default = new RewriteScala3Settings
+
+  implicit val decodec: ConfDecoderEx[RewriteScala3Settings] = Presets
+    .mapDecoder(generic.deriveDecoderEx(default).noTypos, "rewrite.scala3") {
+      case Conf.Bool(true) =>
+        new RewriteScala3Settings(true, RemoveOptionalBraces.yes)
+      case Conf.Bool(false) => default
+    }
 
   sealed abstract class RemoveOptionalBraces
 
   object RemoveOptionalBraces {
 
-    implicit val codec: ConfCodec[RemoveOptionalBraces] = ReaderUtil
+    implicit val codec: ConfCodecEx[RemoveOptionalBraces] = ReaderUtil
       .oneOfCustom[RemoveOptionalBraces](yes, no, oldSyntaxToo) {
         case Conf.Bool(true) => Configured.Ok(yes)
         case Conf.Bool(false) => Configured.Ok(no)

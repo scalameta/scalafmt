@@ -10,14 +10,11 @@ case class RedundantBracesSettings(
     parensForOneLineApply: Option[Boolean] = None,
     generalExpressions: Boolean = true,
     ifElseExpressions: Boolean = false
-) {
-  val reader: ConfDecoder[RedundantBracesSettings] =
-    generic.deriveDecoder(this).noTypos
-}
+)
 
 object RedundantBracesSettings {
   implicit lazy val surface: generic.Surface[RedundantBracesSettings] =
     generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[RedundantBracesSettings] =
-    generic.deriveEncoder
+  implicit lazy val codec: ConfCodecEx[RedundantBracesSettings] =
+    generic.deriveCodecEx(RedundantBracesSettings()).noTypos
 }

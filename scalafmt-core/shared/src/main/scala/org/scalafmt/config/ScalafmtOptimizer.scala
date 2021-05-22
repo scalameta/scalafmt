@@ -71,17 +71,13 @@ case class ScalafmtOptimizer(
     recurseOnBlocks: Boolean = true,
     forceConfigStyleOnOffset: Int = 150,
     forceConfigStyleMinArgCount: Int = 2
-) {
-
-  val reader: ConfDecoder[ScalafmtOptimizer] =
-    generic.deriveDecoder(this).noTypos
-}
+)
 
 object ScalafmtOptimizer {
   implicit lazy val surface: generic.Surface[ScalafmtOptimizer] =
     generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[ScalafmtOptimizer] =
-    generic.deriveEncoder
+  implicit lazy val codec: ConfCodecEx[ScalafmtOptimizer] =
+    generic.deriveCodecEx(ScalafmtOptimizer()).noTypos
   val default = ScalafmtOptimizer()
 
   // TODO(olafur) uncomment once scala.meta converter supports default args.

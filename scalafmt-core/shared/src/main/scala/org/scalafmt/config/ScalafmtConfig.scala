@@ -9,7 +9,6 @@ import scala.meta.Dialect
 import scala.util.Try
 
 import metaconfig._
-import metaconfig.Configured._
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.OsSpecific._
 import org.scalafmt.util.ValidationOps
@@ -147,50 +146,8 @@ case class ScalafmtConfig(
     fileOverride: Conf.Obj = Conf.Obj.empty,
     xmlLiterals: XmlLiterals = XmlLiterals()
 ) {
-
-  private implicit def runnerReader = runner.reader
-  private implicit def projectReader = project.reader
-  private implicit def rewriteReader = rewrite.reader
-  private implicit def spacesReader = spaces.reader
-  private implicit def literalsReader = literals.reader
-  private implicit def xmlLiteralsDecoder = xmlLiterals.decoder
-  private implicit def indentReader = indent.reader
-  private implicit def binpackReader = binPack.decoder
-  private implicit def newlinesReader = newlines.reader
-  private implicit def optInReader = optIn.reader
-  private implicit def verticalMultilineReader = verticalMultiline.reader
-  private implicit def alignDecoder = align.decoder
-  private implicit def danglingParenthesesReader = danglingParentheses.decoder
-  private implicit def indentOperatorReader = indentOperator.decoder
-  private implicit def docstringsDecoder = docstrings.decoder
-  private implicit def commentsDecoder = comments.decoder
   lazy val alignMap: Map[String, regex.Pattern] =
     align.tokens.map(x => x.code -> x.owner.r.pattern).toMap
-  private implicit val confObjReader = ScalafmtConfig.confObjReader
-  private def baseDecoder = generic.deriveDecoder(this).noTypos
-
-  implicit final lazy val decoder: ConfDecoder[ScalafmtConfig] =
-    (conf: Conf) => {
-      val stylePreset = conf match {
-        case x: Conf.Obj =>
-          val section = Seq(Decodable.presetKey, "style").flatMap { y =>
-            x.field(y).map(y -> _)
-          }
-          section.headOption.map { case (field, obj) =>
-            obj -> Conf.Obj((x.map - field).toList)
-          }
-        case _ => None
-      }
-      val parsed = stylePreset match {
-        case Some((styleConf, restConf)) =>
-          ScalafmtConfig.readActiveStylePresets(styleConf).andThen { x =>
-            val preset = x.copy(runner = x.runner.copy(parser = runner.parser))
-            preset.baseDecoder.read(restConf)
-          }
-        case _ => baseDecoder.read(conf)
-      }
-      parsed.andThen(ScalafmtConfig.validate)
-    }
 
   def withDialect(dialect: Dialect): ScalafmtConfig =
     copy(runner = runner.copy(dialect = dialect))
@@ -200,7 +157,7 @@ case class ScalafmtConfig(
   private lazy val expandedFileOverride = Try {
     val fs = file.FileSystems.getDefault
     fileOverride.values.map { case (pattern, conf) =>
-      val style = decoder.read(conf).get
+      val style = ScalafmtConfig.decoder.read(Some(this), conf).get
       fs.getPathMatcher(pattern.asFilename) -> style
     }
   }
@@ -227,12 +184,6 @@ object ScalafmtConfig {
 
   implicit lazy val codecEncoder: ConfEncoder[Codec] =
     ConfEncoder.StringEncoder.contramap(_.name)
-
-  implicit val confObjReader: ConfDecoder[Conf.Obj] =
-    ConfDecoder.from {
-      case x: Conf.Obj => Ok(x)
-      case _ => ConfError.message("not a config").notOk
-    }
 
   val default = ScalafmtConfig()
 
@@ -403,5 +354,32 @@ object ScalafmtConfig {
       Configured.notOk(ConfError.message(msg))
     }
   }
+
+  private val baseDecoder = generic.deriveDecoderEx(default).noTypos
+
+  implicit final val decoder: ConfDecoderEx[ScalafmtConfig] =
+    (stateOpt, conf) => {
+      val stylePreset = conf match {
+        case x: Conf.Obj =>
+          val section = Seq(Presets.presetKey, "style").flatMap { y =>
+            x.field(y).map(y -> _)
+          }
+          section.headOption.map { case (field, obj) =>
+            obj -> Conf.Obj((x.map - field).toList)
+          }
+        case _ => None
+      }
+      val parsed = stylePreset match {
+        case Some((styleConf, restConf)) =>
+          ScalafmtConfig.readActiveStylePresets(styleConf).andThen { x =>
+            val preset = stateOpt.fold(x) { state =>
+              x.copy(runner = x.runner.copy(parser = state.runner.parser))
+            }
+            baseDecoder.read(Some(preset), restConf)
+          }
+        case _ => baseDecoder.read(stateOpt, conf)
+      }
+      parsed.andThen(ScalafmtConfig.validate)
+    }
 
 }

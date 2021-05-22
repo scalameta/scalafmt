@@ -29,14 +29,11 @@ case class VerticalMultiline(
       DanglingParentheses.Exclude.`class`,
       DanglingParentheses.Exclude.`trait`
     )
-) {
-  val reader: ConfDecoder[VerticalMultiline] =
-    generic.deriveDecoder(this).noTypos
-}
+)
 
 object VerticalMultiline {
   implicit lazy val surface: generic.Surface[VerticalMultiline] =
     generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[VerticalMultiline] =
-    generic.deriveEncoder[VerticalMultiline]
+  implicit lazy val codec: ConfCodecEx[VerticalMultiline] =
+    generic.deriveCodecEx(VerticalMultiline()).noTypos
 }

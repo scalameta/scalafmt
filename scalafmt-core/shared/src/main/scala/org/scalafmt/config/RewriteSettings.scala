@@ -12,10 +12,6 @@ case class RewriteSettings(
     sortModifiers: SortSettings = SortSettings.default,
     neverInfix: Pattern = Pattern.neverInfix
 ) {
-  private implicit val redundantBracesReader = redundantBraces.reader
-  private implicit val patternReader = neverInfix.reader
-  private implicit val scala3Decoder = scala3.decoder
-  val reader: ConfDecoder[RewriteSettings] = generic.deriveDecoder(this).noTypos
   Rewrite.validateRewrites(rules) match {
     case Nil => // OK
     case errs =>
@@ -43,7 +39,7 @@ case class RewriteSettings(
 object RewriteSettings {
   implicit lazy val surface: generic.Surface[RewriteSettings] =
     generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[RewriteSettings] =
-    generic.deriveEncoder
+  implicit lazy val codec: ConfCodecEx[RewriteSettings] =
+    generic.deriveCodecEx(RewriteSettings()).noTypos
 
 }

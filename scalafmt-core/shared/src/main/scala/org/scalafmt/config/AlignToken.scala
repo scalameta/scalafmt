@@ -9,10 +9,7 @@ import metaconfig.generic.Surface
   * @param code string literal value of the token to align by.
   * @param owner regexp for class name of scala.meta.Tree "owner" of [[code]].
   */
-case class AlignToken(code: String, owner: String) {
-  val reader: ConfDecoder[AlignToken] =
-    generic.deriveDecoder(this).noTypos
-}
+case class AlignToken(code: String, owner: String)
 
 object AlignToken {
   implicit lazy val surface: Surface[AlignToken] =
@@ -21,14 +18,17 @@ object AlignToken {
   val applyInfix = "Term.ApplyInfix"
   val caseArrow = AlignToken("=>", "Case")
   protected[scalafmt] val fallbackAlign = new AlignToken("<empty>", ".*")
-  implicit val DefaultAlignTokenDecoder: ConfDecoder[AlignToken] =
-    ConfDecoder.from {
-      case Conf.Str("caseArrow") => Ok(caseArrow)
-      case Conf.Str(regex) =>
+  implicit val decoder: ConfDecoderEx[AlignToken] = {
+    val base = generic.deriveDecoderEx[AlignToken](fallbackAlign).noTypos
+    ConfDecoderEx.from {
+      case (_, Conf.Str("caseArrow")) => Ok(caseArrow)
+      case (_, Conf.Str(regex)) =>
         val owner = default.find(_.code == regex).fold(".*")(_.owner)
         Ok(AlignToken(regex, owner))
-      case els => fallbackAlign.reader.read(els)
+      case (state, conf) => base.read(state, conf)
     }
+  }
+  val seqDecoder: ConfDecoderEx[Seq[AlignToken]] = implicitly
 
   val default = Seq(
     caseArrow,
