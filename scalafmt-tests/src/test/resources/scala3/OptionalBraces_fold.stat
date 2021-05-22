@@ -1095,15 +1095,13 @@ object a {
   }
 }
 >>>
-object a {
-  val a = {
-    if a then { // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
-      if (aa) { // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
-        aaa
-      } // c1
-    } else { b }
-  }
-}
+object a:
+   val a =
+     if a then // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
+        if (aa) { // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
+          aaa
+        } // c1
+     else b
 <<< rewrite to new syntax with for-do, single
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes

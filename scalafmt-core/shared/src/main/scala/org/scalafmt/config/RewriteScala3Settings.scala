@@ -9,14 +9,14 @@ case class RewriteScala3Settings(
     removeOptionalBraces: RemoveOptionalBraces = RemoveOptionalBraces.no
 ) extends Decodable[RewriteScala3Settings] {
   override protected[config] def baseDecoder: ConfDecoder[T] =
-    RewriteScala3Settings.codec
+    generic.deriveDecoder(this).noTypos
 }
 
 object RewriteScala3Settings {
   implicit val surface: generic.Surface[RewriteScala3Settings] =
     generic.deriveSurface
-  implicit val codec: ConfCodec[RewriteScala3Settings] =
-    generic.deriveCodec(new RewriteScala3Settings)
+  implicit val encoder: ConfEncoder[RewriteScala3Settings] =
+    generic.deriveEncoder[RewriteScala3Settings]
 
   implicit val preset: PartialFunction[Conf, RewriteScala3Settings] = {
     case Conf.Bool(true) =>
