@@ -24,9 +24,6 @@ case class Indents(
     withSiteRelativeToExtends: Int = 0,
     commaSiteRelativeToExtends: Int = 2
 ) {
-  implicit val reader: ConfDecoder[Indents] =
-    generic.deriveDecoder(this).noTypos
-
   lazy val getSignificant = significant.getOrElse(main)
 
   def getDefnSite(tree: meta.Tree): Int =
@@ -39,6 +36,6 @@ case class Indents(
 object Indents {
   implicit lazy val surface: generic.Surface[Indents] =
     generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[Indents] =
-    generic.deriveEncoder
+  implicit lazy val codec: ConfCodecEx[Indents] =
+    generic.deriveCodecEx(Indents()).noTypos
 }

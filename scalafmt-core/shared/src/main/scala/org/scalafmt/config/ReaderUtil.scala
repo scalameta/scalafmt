@@ -10,16 +10,25 @@ object ReaderUtil {
     s.toLowerCase().replace("`", "")
 
   // Poor mans coproduct reader
-  def oneOf[T: ClassTag](options: sourcecode.Text[T]*): ConfCodec[T] = {
-    oneOfCustom(options: _*)(PartialFunction.empty)
+  def oneOf[T: ClassTag](options: sourcecode.Text[T]*): ConfCodecEx[T] = {
+    oneOfCustomEx(options: _*)(PartialFunction.empty)
   }
 
   def oneOfCustom[T: ClassTag](
       options: sourcecode.Text[T]*
-  )(f: PartialFunction[Conf, Configured[T]]): ConfCodec[T] = {
+  )(f: PartialFunction[Conf, Configured[T]]): ConfCodecEx[T] = {
+    object extract {
+      def unapply(conf: Conf): Option[Configured[T]] = f.lift(conf)
+    }
+    oneOfCustomEx(options: _*) { case (_, extract(res)) => res }
+  }
+
+  def oneOfCustomEx[T: ClassTag](
+      options: sourcecode.Text[T]*
+  )(f: PartialFunction[(Option[T], Conf), Configured[T]]): ConfCodecEx[T] = {
     val m = options.map(x => lowerCaseNoBackticks(x.source) -> x.value).toMap
     val decoder =
-      ConfDecoder.fromPartial[T]("String")(f.orElse { case Conf.Str(x) =>
+      ConfDecoderEx.fromPartial[T]("String")(f.orElse { case (_, Conf.Str(x)) =>
         Configured.opt(m.get(lowerCaseNoBackticks(x))) {
           val available = m.keys.mkString(", ")
           val msg = s"Unknown input '$x'. Expected one of: $available"
@@ -33,7 +42,7 @@ object ReaderUtil {
         }
         .getOrElse(Conf.Null())
     }
-    ConfCodec.EncoderDecoderToCodec(encoder, decoder)
+    new ConfCodecEx(encoder, decoder)
   }
 
 }

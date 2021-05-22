@@ -34,21 +34,19 @@ object SortSettings {
     ModKey("opaque", _.is[Mod.Opaque])
   )
 
-  implicit val SortSettingsModKeyReader: ConfCodec[ModKey] =
+  implicit val sortSettingsModKeyCodec: ConfCodecEx[ModKey] =
     ReaderUtil.oneOf[ModKey](defaultOrder.map(v => Text(v, v.name)): _*)
 
   implicit val surface: generic.Surface[SortSettings] = generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[SortSettings] =
-    generic.deriveEncoder
-  implicit val reader: ConfDecoder[SortSettings] =
-    // NOTE: Originally, the configuration parser failed if a modifier was
-    // missing from the configuration but this behavior was problematic
-    // because it was a breaking change to add formatting support for a
-    // new modifier like Scala 3 "open". Instead, modifiers with no configuration
-    // get sorted to the front of the list.
-    generic.deriveDecoder(SortSettings(defaultOrder))
 
-  def default: SortSettings =
-    SortSettings(defaultOrder)
+  // NOTE: Originally, the configuration parser failed if a modifier was
+  // missing from the configuration but this behavior was problematic
+  // because it was a breaking change to add formatting support for a
+  // new modifier like Scala 3 "open". Instead, modifiers with no configuration
+  // get sorted to the front of the list.
+  def default: SortSettings = SortSettings(defaultOrder)
+
+  implicit val codec: ConfCodecEx[SortSettings] =
+    generic.deriveCodecEx(default).noTypos
 
 }

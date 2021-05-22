@@ -17,22 +17,20 @@ import metaconfig._
 case class Comments(
     wrap: Comments.Wrap = Comments.Wrap.no,
     wrapStandaloneSlcAsSlc: Boolean = false
-) {
-  implicit lazy val decoder = generic.deriveDecoder(this).noTypos
-}
+)
 
 object Comments {
 
   implicit val surface: generic.Surface[Comments] =
     generic.deriveSurface[Comments]
-  implicit val encoder = generic.deriveEncoder[Comments]
+  implicit val codec = generic.deriveCodecEx(Comments()).noTypos
 
   sealed abstract class Wrap
   object Wrap {
     case object no extends Wrap
     case object standalone extends Wrap
     case object trailing extends Wrap
-    implicit val reader: ConfCodec[Wrap] =
+    implicit val reader: ConfCodecEx[Wrap] =
       ReaderUtil.oneOf[Wrap](no, standalone, trailing)
   }
 

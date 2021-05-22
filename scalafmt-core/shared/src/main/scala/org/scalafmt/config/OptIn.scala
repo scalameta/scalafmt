@@ -115,7 +115,6 @@ case class OptIn(
     )
     blankLineBeforeDocstring: Boolean = false
 ) {
-  implicit val reader: ConfDecoder[OptIn] = generic.deriveDecoder(this).noTypos
 
   /** See https://github.com/scalameta/scalafmt/issues/1712
     *
@@ -133,5 +132,6 @@ case class OptIn(
 
 object OptIn {
   implicit lazy val surface: Surface[OptIn] = generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[OptIn] = generic.deriveEncoder
+  implicit lazy val codec: ConfCodecEx[OptIn] =
+    generic.deriveCodecEx(OptIn()).noTypos
 }

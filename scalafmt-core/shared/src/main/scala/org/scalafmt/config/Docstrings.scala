@@ -42,16 +42,13 @@ case class Docstrings(
     )
   }
 
-  implicit lazy val decoder: ConfDecoder[Docstrings] =
-    generic.deriveDecoder(this).noTypos
-
 }
 
 object Docstrings {
 
   implicit val surface: generic.Surface[Docstrings] =
     generic.deriveSurface[Docstrings]
-  implicit val encoder = generic.deriveEncoder[Docstrings]
+  implicit val codec = generic.deriveCodecEx(Docstrings()).noTypos
 
   sealed abstract class Style {
     def skipFirstLine: Boolean
@@ -71,7 +68,7 @@ object Docstrings {
     override def skipFirstLine: Boolean = false
   }
 
-  implicit val reader: ConfCodec[Style] =
+  implicit val reader: ConfCodecEx[Style] =
     ReaderUtil.oneOfCustom[Style](
       Preserve,
       Asterisk,
@@ -86,7 +83,7 @@ object Docstrings {
     case object keep extends Oneline
     case object fold extends Oneline
     case object unfold extends Oneline
-    implicit val reader: ConfCodec[Oneline] =
+    implicit val reader: ConfCodecEx[Oneline] =
       ReaderUtil.oneOf[Oneline](keep, fold, unfold)
   }
 
@@ -94,7 +91,7 @@ object Docstrings {
   object Wrap {
     case object no extends Wrap
     case object yes extends Wrap
-    implicit val codec: ConfCodec[Wrap] =
+    implicit val codec: ConfCodecEx[Wrap] =
       ReaderUtil.oneOfCustom[Wrap](no, yes) {
         case Conf.Bool(true) => Configured.Ok(yes)
         case Conf.Bool(false) => Configured.Ok(no)
@@ -106,7 +103,7 @@ object Docstrings {
     case object yes extends BlankFirstLine
     case object no extends BlankFirstLine
     case object keep extends BlankFirstLine
-    implicit val codec: ConfCodec[BlankFirstLine] =
+    implicit val codec: ConfCodecEx[BlankFirstLine] =
       ReaderUtil.oneOfCustom[BlankFirstLine](yes, no, keep) {
         case Conf.Bool(true) => Configured.Ok(yes)
         case Conf.Bool(false) => Configured.Ok(no)

@@ -7,7 +7,6 @@ case class Pattern(
     includeFilters: Seq[String],
     excludeFilters: Seq[String]
 ) {
-  val reader: ConfDecoder[Pattern] = generic.deriveDecoder(this).noTypos
   lazy val matcher: FilterMatcher = new FilterMatcher(
     FilterMatcher.mkRegexp(includeFilters),
     FilterMatcher.mkRegexp(excludeFilters, true)
@@ -17,8 +16,8 @@ case class Pattern(
 object Pattern {
   implicit lazy val surface: Surface[Pattern] =
     generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[Pattern] =
-    generic.deriveEncoder
+  implicit lazy val codec: ConfCodecEx[Pattern] =
+    generic.deriveCodecEx(neverInfix).noTypos
   val neverInfix = Pattern(
     Seq("[\\w\\d_]+"),
     Seq(

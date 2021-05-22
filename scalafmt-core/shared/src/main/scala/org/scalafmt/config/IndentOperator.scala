@@ -53,10 +53,7 @@ case class IndentOperator(
     topLevelOnly: Boolean = true,
     include: String = ".*",
     exclude: String = "^(&&|\\|\\|)$"
-) extends Decodable[IndentOperator]("indentOperator") {
-  override protected[config] def baseDecoder =
-    generic.deriveDecoder(this).noTypos
-
+) {
   private val includeRegexp = include.r.pattern
   private val excludeRegexp = exclude.r.pattern
 
@@ -73,8 +70,12 @@ object IndentOperator {
   implicit lazy val encoder: ConfEncoder[IndentOperator] =
     generic.deriveEncoder
 
-  implicit val preset: PartialFunction[Conf, IndentOperator] = {
+  implicit val decoder = Presets.mapDecoder(
+    generic.deriveDecoderEx(default).noTypos,
+    "indentOperator"
+  ) {
     case Conf.Str("spray" | "akka" | "akka-http") => IndentOperator.akka
     case Conf.Str("default") => IndentOperator.default
   }
+
 }

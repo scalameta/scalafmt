@@ -7,10 +7,7 @@ case class DanglingParentheses(
     defnSite: Boolean,
     ctrlSite: Boolean = true,
     exclude: List[DanglingParentheses.Exclude] = Nil
-) extends Decodable[DanglingParentheses]("danglingParentheses") {
-  override protected[config] def baseDecoder =
-    generic.deriveDecoder(this).noTypos
-}
+)
 
 object DanglingParentheses {
 
@@ -25,7 +22,10 @@ object DanglingParentheses {
   implicit val encoder: ConfEncoder[DanglingParentheses] =
     generic.deriveEncoder
 
-  implicit val preset: PartialFunction[Conf, DanglingParentheses] = {
+  implicit val decoder: ConfDecoderEx[DanglingParentheses] = Presets.mapDecoder(
+    generic.deriveDecoderEx(default).noTypos,
+    "danglingParentheses"
+  ) {
     case Conf.Bool(true) => shortcutTrue
     case Conf.Bool(false) => shortcutFalse
   }
@@ -40,7 +40,7 @@ object DanglingParentheses {
     case object `def` extends Exclude
     case object `given` extends Exclude
 
-    implicit val reader: ConfCodec[Exclude] =
+    implicit val reader: ConfCodecEx[Exclude] =
       ReaderUtil
         .oneOf[Exclude](`class`, `trait`, `enum`, `extension`, `def`, `given`)
   }

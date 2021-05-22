@@ -80,12 +80,7 @@ case class Align(
       "Enumerator.Generator" -> "for",
       "Enumerator.Val" -> "for"
     )
-) extends Decodable[Align]("align") {
-  override protected[config] def baseDecoder =
-    generic.deriveDecoder(this).noTypos
-  implicit def alignReader: ConfDecoder[Seq[AlignToken]] =
-    Align.alignTokenReader(tokens)
-}
+)
 
 object Align {
   // no vertical alignment whatsoever, if you find any vertical alignment with
@@ -105,6 +100,8 @@ object Align {
   val more: Align = some.copy(tokens = AlignToken.default)
   implicit lazy val surface: Surface[Align] = generic.deriveSurface[Align]
   implicit lazy val encoder: ConfEncoder[Align] = generic.deriveEncoder
+  implicit lazy val decoder =
+    Presets.mapDecoder(generic.deriveDecoderEx(default).noTypos, "align")
 
   // only for the truest vertical aligners, this setting is open for changes,
   // please open PR adding more stuff to it if you like.
@@ -126,13 +123,14 @@ object Align {
     case Conf.Str("most") => Align.most
   }
 
-  def alignTokenReader(
-      initTokens: Seq[AlignToken]
-  ): ConfDecoder[Seq[AlignToken]] = {
-    val base = ConfDecoder[Seq[AlignToken]]
-    ConfDecoder.instance[Seq[AlignToken]] {
-      case Conf.Obj(("add", c) :: Nil) => base.read(c).map(initTokens ++ _)
-      case c => preset.lift(c).fold(base.read(c))(x => Configured.ok(x.tokens))
+  implicit val alignTokensDecoder: ConfDecoderEx[Seq[AlignToken]] = {
+    val base = AlignToken.seqDecoder
+    ConfDecoderEx.from {
+      // this is really no longer necessary; metaconfig supports "+" key
+      case (state, Conf.Obj(List(("add", c)))) =>
+        base.read(None, c).map(x => state.fold(x)(_ ++ x))
+      case (state, c) =>
+        preset.lift(c).fold(base.read(state, c))(x => Configured.Ok(x.tokens))
     }
   }
 

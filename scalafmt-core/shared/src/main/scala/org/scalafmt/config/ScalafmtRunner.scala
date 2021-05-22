@@ -22,9 +22,6 @@ case class ScalafmtRunner(
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
-  implicit val optimizeDecoder = optimizer.reader
-  implicit def dialectDecoder = ScalafmtRunner.Dialect.decoder
-  val reader: ConfDecoder[ScalafmtRunner] = generic.deriveDecoder(this).noTypos
   def forSbt: ScalafmtRunner =
     copy(
       dialect = dialect
@@ -46,12 +43,8 @@ case class ScalafmtRunner(
 object ScalafmtRunner {
   implicit lazy val surface: generic.Surface[ScalafmtRunner] =
     generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[ScalafmtRunner] =
-    generic.deriveEncoder
   implicit lazy val formatEventEncoder: ConfEncoder[FormatEvent => Unit] =
     ConfEncoder.StringEncoder.contramap(_ => "<FormatEvent => Unit>")
-  implicit lazy val dialectEncoder: ConfEncoder[Dialect] =
-    ConfEncoder.StringEncoder.contramap(_ => "<Dialect>")
 
   /** The default runner formats a compilation unit and listens to no events.
     */
@@ -74,22 +67,23 @@ object ScalafmtRunner {
     val default = scala213
     val scala3 = Scala3
 
-    implicit lazy val decoder: ConfDecoder[Dialect] = {
-      ReaderUtil.oneOf[Dialect](
-        default,
-        Scala211,
-        scala212,
-        scala213,
-        Scala213Source3,
-        Sbt0137,
-        Sbt1,
-        Dotty,
-        scala3,
-        Paradise211,
-        Paradise212
-      )
-    }
-
+    val codec = ReaderUtil.oneOf[Dialect](
+      default,
+      Scala211,
+      scala212,
+      scala213,
+      Scala213Source3,
+      Sbt0137,
+      Sbt1,
+      Dotty,
+      scala3,
+      Paradise211,
+      Paradise212
+    )
   }
+
+  implicit val dialectCodec = Dialect.codec
+  implicit val codec: ConfCodecEx[ScalafmtRunner] =
+    generic.deriveCodecEx(default).noTypos
 
 }

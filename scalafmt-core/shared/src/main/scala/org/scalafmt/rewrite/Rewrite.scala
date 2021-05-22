@@ -3,7 +3,7 @@ package org.scalafmt.rewrite
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-import metaconfig.ConfCodec
+import metaconfig.ConfCodecEx
 import scala.meta._
 import scala.meta.Input.VirtualFile
 import scala.meta.tokens.Token.LF
@@ -128,7 +128,7 @@ object Rewrite {
     SortModifiers
   )
 
-  implicit val reader: ConfCodec[Rewrite] = ReaderUtil.oneOf(rewrites: _*)
+  implicit val reader: ConfCodecEx[Rewrite] = ReaderUtil.oneOf(rewrites: _*)
 
   val name2rewrite: Map[String, Rewrite] =
     rewrites.view.map(x => x.source -> x.value).toMap

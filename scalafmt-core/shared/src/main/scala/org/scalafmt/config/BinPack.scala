@@ -37,9 +37,7 @@ case class BinPack(
     literalsMinArgCount: Int = 5,
     literalsInclude: Seq[String] = Seq(".*"),
     literalsExclude: Seq[String] = Seq("String", "Term.Name")
-) extends Decodable[BinPack]("binPack") {
-  override protected[config] def baseDecoder =
-    generic.deriveDecoder(this).noTypos
+) {
   def literalsRegex: FilterMatcher =
     FilterMatcher(literalsInclude, literalsExclude)
 
@@ -59,10 +57,12 @@ object BinPack {
     unsafeCallSite = true,
     parentConstructors = ParentCtors.Always
   )
-  implicit val preset: PartialFunction[Conf, BinPack] = {
-    case Conf.Bool(true) => enabled
-    case Conf.Bool(false) => BinPack()
-  }
+
+  implicit val decoder =
+    Presets.mapDecoder(generic.deriveDecoderEx(BinPack()).noTypos, "binPack") {
+      case Conf.Bool(true) => enabled
+      case Conf.Bool(false) => BinPack()
+    }
 
   sealed abstract class ParentCtors
   object ParentCtors {
@@ -73,7 +73,7 @@ object BinPack {
     case object Oneline extends ParentCtors
     case object OnelineIfPrimaryOneline extends ParentCtors
 
-    implicit val oneOfReader: ConfCodec[ParentCtors] =
+    implicit val oneOfReader: ConfCodecEx[ParentCtors] =
       ReaderUtil.oneOfCustom[ParentCtors](
         source,
         keep,

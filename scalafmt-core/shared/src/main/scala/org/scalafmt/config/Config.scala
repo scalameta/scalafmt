@@ -63,7 +63,7 @@ object Config {
               ConfError.typeMismatch("Conf.Obj", x).notOk
           }
       }
-      default.decoder.read(next)
+      ScalafmtConfig.decoder.read(Option(default), next)
     }
 
 }
