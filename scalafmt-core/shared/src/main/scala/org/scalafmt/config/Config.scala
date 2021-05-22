@@ -12,20 +12,12 @@ import org.scalafmt.config.PlatformConfig._
 object Config {
 
   def hoconStringToConf(input: String, path: Option[String]): Configured[Conf] =
-    fromInput(Input.String(input), path)
+    Input.String(input).parse(path)
 
   def hoconFileToConf(input: File, path: Option[String]): Configured[Conf] =
     Configured
       .fromExceptionThrowing(Input.File(input))
-      .andThen(fromInput(_, path))
-
-  def fromInput(input: Input, path: Option[String]): Configured[Conf] = {
-    val configured = implicitly[MetaconfigParser].fromInput(input)
-    path match {
-      case Some(x) => ConfDynamic(configured).selectDynamic(x).asConf
-      case None => configured
-    }
-  }
+      .andThen(_.parse(path))
 
   def fromHoconString(string: String): Configured[ScalafmtConfig] =
     fromHoconString(string, None)
