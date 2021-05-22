@@ -2043,13 +2043,14 @@ class FormatOps(
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
       val end = tokens.getLast(tree)
       val slbExpire = nextNonCommentSameLine(end).left
-      val expire = getClosingIfEnclosedInMatching(tree)
-        .fold(end.left)(x => prevNonComment(tokens(x, -1)).left)
+      val closeOpt = getClosingIfEnclosedInMatching(tree)
+        .map(x => prevNonComment(tokens(x, -1)).left)
       def nlPolicy(implicit fileLine: FileLine) =
-        decideNewlinesOnlyAfterClose(expire)
+        decideNewlinesOnlyAfterClose(closeOpt.getOrElse(slbExpire))
       val indentLen =
         if (useMain) style.indent.main else style.indent.getSignificant
-      val indent = Indent(Num(indentLen), expire, ExpiresOn.After)
+      val indent =
+        Indent(Num(indentLen), closeOpt.getOrElse(end.left), ExpiresOn.After)
       if (ft.hasBlankLine)
         Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
       else if (forceNL)
