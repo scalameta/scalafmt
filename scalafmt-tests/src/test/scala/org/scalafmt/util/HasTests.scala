@@ -99,8 +99,12 @@ trait HasTests extends FormatAssertions {
         )
       }
     val style: ScalafmtConfig = loadStyle(
-      stripPrefixOpt(head, onlyPrefix).getOrElse(head),
-      spec2style(spec)
+      stripPrefixOpt(head, onlyPrefix).getOrElse(head), {
+        val base = spec2style(spec)
+        filename2parse(filename).fold(base) { x =>
+          base.copy(runner = base.runner.copy(parser = x))
+        }
+      }
     )
 
     @tailrec
@@ -166,11 +170,11 @@ trait HasTests extends FormatAssertions {
 
   def ignore(t: DiffTest): Boolean = false
 
-  def defaultRun(t: DiffTest, parse: Parse[_ <: Tree])(implicit
+  def defaultRun(t: DiffTest)(implicit
       loc: Location
   ): Unit = {
     val debug = new Debug(false)
-    val runner = scalafmtRunner(t.style.runner, debug).copy(parser = parse)
+    val runner = scalafmtRunner(t.style.runner, debug)
     val result = Scalafmt
       .formatCode(
         t.original,
@@ -178,12 +182,8 @@ trait HasTests extends FormatAssertions {
         filename = t.filename
       )
     val obtained = result.formatted.get
-    if (t.style.rewrite.rules.isEmpty) {
-      assertFormatPreservesAst(t.original, obtained)(
-        parse,
-        result.config.runner.dialect
-      )
-    }
+    if (t.style.rewrite.rules.isEmpty)
+      assertFormatPreservesAst(t.original, obtained, result.config.runner)
     assertNoDiff(obtained, t.expected)
   }
 
