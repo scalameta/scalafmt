@@ -151,7 +151,7 @@ trait HasTests extends FormatAssertions {
     }
 
   def saveResult(t: DiffTest, obtained: String, debug: Debug): Result = {
-    val output = getFormatOutput(t.style, debug)
+    val output = getFormatOutput(debug)
     val obtainedHtml = Report.mkHtml(output, t.style)
     Result(
       t,
@@ -187,10 +187,7 @@ trait HasTests extends FormatAssertions {
     assertNoDiff(obtained, t.expected)
   }
 
-  def getFormatOutput(
-      style: ScalafmtConfig,
-      debug: Debug
-  ): Array[FormatOutput] = {
+  def getFormatOutput(debug: Debug): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]
     val writer = new FormatWriter(debug.formatOps)
     writer.getFormatLocations(debug.state).iterate.foreach { entry =>
