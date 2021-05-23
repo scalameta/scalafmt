@@ -183,9 +183,10 @@ case class ScalafmtConfig(
       }
       val parsed = stylePreset match {
         case Some((styleConf, restConf)) =>
-          ScalafmtConfig
-            .readActiveStylePresets(styleConf)
-            .andThen(_.baseDecoder.read(restConf))
+          ScalafmtConfig.readActiveStylePresets(styleConf).andThen { x =>
+            val preset = x.copy(runner = x.runner.copy(parser = runner.parser))
+            preset.baseDecoder.read(restConf)
+          }
         case _ => baseDecoder.read(conf)
       }
       parsed.andThen(ScalafmtConfig.validate)
