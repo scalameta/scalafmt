@@ -10,16 +10,16 @@ import org.scalafmt.{Debug, Scalafmt}
 import org.scalafmt.config.FormatEvent._
 import org.scalafmt.config.{
   Config,
-  Indents,
   DanglingParentheses,
+  Indents,
   ScalafmtConfig,
+  ScalafmtParser,
   ScalafmtRunner
 }
 import org.scalafmt.tests.BuildInfo
 import org.scalafmt.internal.FormatWriter
 import scala.collection.mutable
-import scala.meta.Tree
-import scala.meta.parsers.Parse
+
 import munit.Location
 
 trait HasTests extends FormatAssertions {
@@ -61,12 +61,12 @@ trait HasTests extends FormatAssertions {
       .orElse(stripPrefixOpt(name, onlyPrefix))
       .getOrElse(name)
 
-  def filename2parse(filename: String): Option[Parse[_ <: Tree]] =
+  def filename2parse(filename: String): Option[ScalafmtParser] =
     extension(filename) match {
       case "source" | "scala" | "scalafmt" =>
-        Some(scala.meta.parsers.Parse.parseSource)
-      case "stat" => Some(scala.meta.parsers.Parse.parseStat)
-      case "case" => Some(scala.meta.parsers.Parse.parseCase)
+        Some(ScalafmtParser.Source)
+      case "stat" => Some(ScalafmtParser.Stat)
+      case "case" => Some(ScalafmtParser.Case)
       case _ => None
     }
 

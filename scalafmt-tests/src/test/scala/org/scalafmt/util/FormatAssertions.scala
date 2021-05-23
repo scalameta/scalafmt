@@ -19,7 +19,7 @@ trait FormatAssertions {
       runner: ScalafmtRunner
   ): Unit =
     assertFormatPreservesAst(original, obtained)(
-      runner.parser,
+      runner.parser.parse,
       runner.dialect
     )
 

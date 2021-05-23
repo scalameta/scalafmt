@@ -3,7 +3,6 @@ package org.scalafmt.config
 import metaconfig._
 import scala.meta.Dialect
 import scala.meta.Tree
-import scala.meta.parsers.Parse
 import scala.meta.parsers.Parsed
 
 /** A FormatRunner configures how formatting should behave.
@@ -16,7 +15,7 @@ import scala.meta.parsers.Parsed
 case class ScalafmtRunner(
     debug: Boolean = false,
     private val eventCallback: FormatEvent => Unit = null,
-    parser: Parse[_ <: Tree] = Parse.parseSource,
+    parser: ScalafmtParser = ScalafmtParser.Source,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
     dialect: Dialect = ScalafmtRunner.Dialect.default,
@@ -40,7 +39,7 @@ case class ScalafmtRunner(
     if (null != eventCallback) evts.foreach(eventCallback)
 
   def parse(input: meta.inputs.Input): Parsed[_ <: Tree] =
-    dialect(input).parse(parser)
+    dialect(input).parse(parser.parse)
 
 }
 
@@ -51,8 +50,6 @@ object ScalafmtRunner {
     generic.deriveEncoder
   implicit lazy val formatEventEncoder: ConfEncoder[FormatEvent => Unit] =
     ConfEncoder.StringEncoder.contramap(_ => "<FormatEvent => Unit>")
-  implicit lazy val parseEncoder: ConfEncoder[Parse[_ <: Tree]] =
-    ConfEncoder.StringEncoder.contramap(_ => "<Parse[Tree]>")
   implicit lazy val dialectEncoder: ConfEncoder[Dialect] =
     ConfEncoder.StringEncoder.contramap(_ => "<Dialect>")
 
@@ -60,16 +57,10 @@ object ScalafmtRunner {
     */
   val default = ScalafmtRunner(
     debug = false,
-    parser = scala.meta.parsers.Parse.parseSource,
+    parser = ScalafmtParser.Source,
     optimizer = ScalafmtOptimizer.default,
     maxStateVisits = 1000000
   )
-
-  /** Same as [[default]], except formats the input as a statement/expression.
-    *
-    * An example of how to format something other than a compilation unit.
-    */
-  val statement = default.copy(parser = scala.meta.parsers.Parse.parseStat)
 
   val sbt = default.forSbt
 

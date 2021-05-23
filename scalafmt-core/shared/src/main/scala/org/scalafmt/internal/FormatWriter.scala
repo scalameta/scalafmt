@@ -6,6 +6,7 @@ import java.util.regex.Pattern
 import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.{Formatted, Scalafmt}
 import org.scalafmt.config.{Comments, Docstrings, Newlines, ScalafmtConfig}
+import org.scalafmt.config.ScalafmtParser
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.{LiteralOps, TreeOps}
@@ -691,7 +692,7 @@ class FormatWriter(formatOps: FormatOps) {
             runner = style.runner.copy(
               debug = false,
               eventCallback = null,
-              parser = meta.parsers.Parse.parseSource
+              parser = ScalafmtParser.Source
             ),
             // let's not wrap docstrings, to avoid recursion
             docstrings = style.docstrings.copy(wrap = Docstrings.Wrap.no),
