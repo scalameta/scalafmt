@@ -90,11 +90,11 @@ trait HasTests extends FormatAssertions {
     val moduleOnly = isOnly(head)
     val moduleSkip = isSkip(head)
 
-    def loadStyle(content: String, base: ScalafmtConfig): ScalafmtConfig =
-      Config.fromHoconString(content, None, base).getOrRecover { c =>
+    def loadStyle(cfg: String, base: ScalafmtConfig): ScalafmtConfig =
+      Config.fromHoconString(cfg, None, base).getOrRecover { c =>
         throw new IllegalArgumentException(
           s"""Failed to parse filename $filename:
-            |$content
+            |$cfg
             |$c""".stripMargin
         )
       }
