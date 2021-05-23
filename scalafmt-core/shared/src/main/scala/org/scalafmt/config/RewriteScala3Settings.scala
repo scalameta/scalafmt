@@ -6,7 +6,8 @@ import metaconfig._
 
 case class RewriteScala3Settings(
     convertToNewSyntax: Boolean = false,
-    removeOptionalBraces: RemoveOptionalBraces = RemoveOptionalBraces.no
+    removeOptionalBraces: RemoveOptionalBraces = RemoveOptionalBraces.no,
+    insertEndMarkerMinLines: Int = 0
 )
 
 object RewriteScala3Settings {
