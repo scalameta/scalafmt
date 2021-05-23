@@ -1210,11 +1210,29 @@ class a(vi: Int, vs: String):
       foo
    end this
 <<< rewrite to new syntax with nested if-else
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 6
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
 ===
 object a {
   val a = {
+    if (a) { // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
+      if (aa) {  // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
+        aaa
+      } // c1
+    } else {
+      b
+    }
+  }
+  val a = {
+    if (a) { // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
+      if (aa) {  // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
+        aaa
+      } // c1
+    } else {
+      b
+    }
     if (a) { // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
       if (aa) {  // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
         aaa
@@ -1233,7 +1251,22 @@ object a:
         } // c1
      else
         b
+   val a =
+      if a then // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
+         if (aa) { // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
+           aaa
+         } // c1
+      else
+         b
+      if a then // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
+         if (aa) { // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
+           aaa
+         } // c1
+      else
+         b
 <<< rewrite to new syntax with for-do, single
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 6
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
 ===
@@ -1283,6 +1316,8 @@ object a:
       do
          foo
 <<< rewrite to new syntax with for-do, multiple
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 6
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
 ===

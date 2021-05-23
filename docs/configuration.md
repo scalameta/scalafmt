@@ -2224,6 +2224,12 @@ The flag takes the following values:
   `rewrite.scala3.convertToNewSyntax` is set)
 - `oldSyntaxToo`: applies also to expressions using deprecated syntax
 
+### `rewrite.scala3.insertEndMarkerMinLines`
+
+If this flag is set to a positive value, when an expression containing an
+[optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
+region spans at least as many lines and isn't followed by an end marker, one will be inserted.
+
 ## Vertical Multiline
 
 Since: v1.6.0.
