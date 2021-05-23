@@ -1,4 +1,4 @@
-align.tokens.add = ["="]
+align.tokens."+" = ["="]
 <<< don't align independent columns (see #1896)
 object fmt {
   val header = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
@@ -12,7 +12,7 @@ object fmt {
   val claim   = JwtClaim(content = content)
 }
 <<< respect specified owner
-align.tokens.add = [{code = "=", owner = "(Term.Assign|Defn.Val)"}]
+align.tokens."+" = [{code = "=", owner = "(Term.Assign|Defn.Val)"}]
 ===
 object fmt {
   val header = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
@@ -26,7 +26,7 @@ object fmt {
   val claim   = JwtClaim(content = content)
 }
 <<< fallback to any owner
-align.tokens.add = ["!"]
+align.tokens."+" = ["!"]
 ===
 object fmt {
   aaa ! 2
