@@ -150,6 +150,21 @@ top-level.
     }
 ```
 
+### Appending to preset collections
+
+If, instead of redefining the default or preset value of a list or a map parameter,
+you'd like to append to it, use the following syntax:
+
+```
+// set
+a.b.c.list = [ ... ]
+a.b.c.dict = { ... }
+
+// append; "+" must be the only key
+a.b.c.list."+" = [ ... ]
+a.b.c.dict."+" = { ... }
+```
+
 ## Indentation
 
 ### `indent.main`
@@ -535,11 +550,6 @@ val x = List(
 "com.lihaoyi" %% "sourcecode" % "0.1.1"
 )
 ```
-
-### `align.tokens.add`
-
-Usage is identical to `align.tokens`, but token pairs will be _added_ to
-defaults rather than replacing them.
 
 ### `align.arrowEnumeratorGenerator`
 
@@ -1733,6 +1743,7 @@ To enable a rewrite rule, add it to the config like this
 
 ```scala mdoc:scalafmt
 rewrite.rules = [AvoidInfix]
+rewrite.neverInfix.excludeFilters."+" = [ "map" ]
 ---
 a success b
 a error (b, c)
@@ -1740,6 +1751,9 @@ a map { x =>
   x + 2
 }
 "o" % "a" % "v" c(D)
+future map {
+  case e: Err => 0
+} recover (_.toString)
 future recover {
   case e: Err => 0
 } map (_.toString)

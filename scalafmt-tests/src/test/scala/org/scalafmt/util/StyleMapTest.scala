@@ -31,10 +31,10 @@ class StyleMapTest extends FunSuite {
     assert(m.styleMap.at(m.tokens.last).maxColumn == 110)
   }
 
-  test("align.tokens.add") {
+  test("align.tokens.+") {
     val code =
       """object a {
-        |  // scalafmt: { align.tokens.add = [{ code="=", owner=".*" }] }
+        |  // scalafmt: { align.tokens."+" = [{ code="=", owner=".*" }] }
         |  println(1)
         |}
       """.stripMargin.parse[Source].get

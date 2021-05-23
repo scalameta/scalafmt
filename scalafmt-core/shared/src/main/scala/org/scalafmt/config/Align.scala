@@ -31,7 +31,7 @@ import metaconfig.generic.Surface
   *
   *               and want to add one extra token (for example "|>") to align by, write
   *
-  *               align.tokens.add = [ "|> ]
+  *               align.tokens."+" = [ "|> ]
   *
   *               NOTE. Adding more alignment tokens may potentially decrease the
   *               vertical alignment in formatted output. Customize at your own
@@ -128,6 +128,9 @@ object Align {
     ConfDecoderEx.from {
       // this is really no longer necessary; metaconfig supports "+" key
       case (state, Conf.Obj(List(("add", c)))) =>
+        Console.err.println(
+          """'align.tokens.add' is deprecated; use align.tokens."+" instead."""
+        )
         base.read(None, c).map(x => state.fold(x)(_ ++ x))
       case (state, c) =>
         preset.lift(c).fold(base.read(state, c))(x => Configured.Ok(x.tokens))

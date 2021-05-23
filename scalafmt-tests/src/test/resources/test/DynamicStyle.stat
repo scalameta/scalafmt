@@ -2,7 +2,7 @@ maxColumn = 100 # comment
 preset = defaultWithAlign
 unindentTopLevelOperators = true
 indentOperator.exclude = ":\\+:"
-align.tokens.add = [foo]
+align.tokens."+" = [foo]
 danglingParentheses.preset = false
 <<< dynamic
 // scalafmt: { maxColumn = 20 }
