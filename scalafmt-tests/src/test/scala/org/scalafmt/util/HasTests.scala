@@ -72,7 +72,8 @@ trait HasTests extends FormatAssertions {
 
   def extension(filename: String): String = filename.replaceAll(".*\\.", "")
 
-  def parseDiffTests(content: String, filename: String): Seq[DiffTest] = {
+  def parseDiffTests(filename: String): Seq[DiffTest] = {
+    val content = FileOps.readFile(filename)
     val sep = {
       if (content.contains(System.lineSeparator)) System.lineSeparator
       else "\n"

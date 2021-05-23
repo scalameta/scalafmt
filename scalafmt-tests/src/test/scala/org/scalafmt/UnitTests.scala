@@ -20,10 +20,7 @@ object UnitTests extends HasTests {
   override lazy val tests: Seq[DiffTest] = {
     for {
       filename <- getTestFiles
-      test <- {
-        val content = readFile(filename)
-        parseDiffTests(content, filename)
-      }
+      test <- parseDiffTests(filename)
     } yield {
       if (sys.env.contains("CI") && test.only) {
         sys.error(
