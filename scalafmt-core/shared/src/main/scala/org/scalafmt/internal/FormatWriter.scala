@@ -233,7 +233,7 @@ class FormatWriter(formatOps: FormatOps) {
           if (
             eLoc.state.split.isNL &&
             !eLoc.optionalBraces.contains(begIndent) &&
-            bLoc.leftLineId - eLoc.leftLineId >= // this is a bit approximate
+            getLineDiff(bLoc, eLoc) >=
               bLoc.style.rewrite.scala3.insertEndMarkerMinLines
           ) {
             val label = getEndMarkerLabel(owner)
@@ -1169,13 +1169,6 @@ class FormatWriter(formatOps: FormatOps) {
       toks: Array[FormatLocation],
       i: Int
   ): Boolean = {
-    @tailrec def isMultiline(end: FormatToken, i: Int, minLines: Int): Boolean =
-      if (minLines <= 0) true
-      else if (i >= toks.length || toks(i).formatToken == end) false
-      else {
-        val hasNL = toks(i).state.split.isNL
-        isMultiline(end, i + 1, if (hasNL) minLines - 1 else minLines)
-      }
     val formatToken = toks(i).formatToken
 
     def checkPackage: Option[Boolean] =
@@ -1202,16 +1195,16 @@ class FormatWriter(formatOps: FormatOps) {
     def checkTopLevelStatement: Boolean =
       topLevelHeadTokens.contains(formatToken.meta.idx) && {
         val nextNonCommentTok = tokens.nextNonComment(formatToken)
-        val distance = nextNonCommentTok.meta.idx - formatToken.meta.idx
         val nonCommentOwner = nextNonCommentTok.meta.rightOwner match {
           case mod: Mod => mod.parent.get
           case x => x
         }
-        isMultiline(
-          tokens.getLast(nonCommentOwner),
-          i + distance + 1,
-          initStyle.newlines.topLevelStatementsMinBreaks
+        val numBreaks = getLineDiff(
+          toks,
+          tokens.next(nextNonCommentTok),
+          tokens.getLast(nonCommentOwner)
         )
+        numBreaks >= initStyle.newlines.topLevelStatementsMinBreaks
       }
 
     checkPackage.getOrElse(checkTopLevelStatement)
@@ -1293,7 +1286,7 @@ object FormatWriter {
       formatToken: FormatToken,
       state: State,
       style: ScalafmtConfig,
-      leftLineId: Int, // only guaranteed to match for toks on the same line
+      leftLineId: Int, // counts back from the end of the file
       shift: Int = 0,
       alignContainer: Tree = null,
       alignHashKey: Int = 0,
@@ -1511,5 +1504,16 @@ object FormatWriter {
     case _: Term.Try | _: Term.TryWithHandler => "try"
     case _ => null
   }
+
+  @inline private def getLineDiff(
+      beg: FormatLocation,
+      end: FormatLocation
+  ): Int = beg.leftLineId - end.leftLineId
+
+  @inline private def getLineDiff(
+      toks: Array[FormatLocation],
+      beg: FormatToken,
+      end: FormatToken
+  ): Int = getLineDiff(toks(beg.meta.idx), toks(end.meta.idx))
 
 }
