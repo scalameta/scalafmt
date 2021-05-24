@@ -95,8 +95,10 @@ class FormatWriter(formatOps: FormatOps) {
         val prev = state.prev
         val idx = prev.depth
         val ft = toks(idx)
-        val breaks = idx == 0 || state.split.isNL || ft.leftHasNewline
-        val newLineId = lineId + (if (breaks) 1 else 0)
+        val newlines =
+          if (idx == 0) 1
+          else state.split.modExt.mod.newlines + ft.meta.left.countNL
+        val newLineId = lineId + newlines
         result(idx) = FormatLocation(ft, state, styleMap.at(ft), newLineId)
         iter(prev, newLineId)
       }
