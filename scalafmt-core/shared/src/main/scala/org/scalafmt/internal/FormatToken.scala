@@ -71,6 +71,7 @@ object FormatToken {
       text: String
   ) {
     lazy val firstNL = text.indexOf('\n')
+    def countNL: Int = if (firstNL < 0) 0 else text.count(_ == '\n')
   }
 
   class ExtractFromMeta[A](f: FormatToken.Meta => Option[A]) {
