@@ -71,6 +71,13 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append(rewrittenToken)
       }
 
+      location.optionalBraces.toSeq
+        .sortBy { case (indent, _) => -indent }
+        .foreach { case (indent, label) =>
+          val indentStr = getIndentation(indent)
+          sb.append("\n").append(indentStr).append("end ").append(label)
+        }
+
       entry.formatWhitespace
     }
 
@@ -100,6 +107,11 @@ class FormatWriter(formatOps: FormatOps) {
       !initStyle.rewrite.redundantBraces.parensForOneLineApply.contains(false)
     )
       replaceRedundantBraces(result)
+    if (
+      initStyle.runner.dialect.allowSignificantIndentation &&
+      initStyle.rewrite.scala3.insertEndMarkerMinLines > 0
+    )
+      checkOptionalBraces(result)
 
     new FormatLocations(result)
   }
@@ -194,6 +206,43 @@ class FormatWriter(formatOps: FormatOps) {
       idx -= 1
     }
   }
+
+  private def checkOptionalBraces(locations: Array[FormatLocation]): Unit =
+    locations.foreach { floc =>
+      val ob = formatOps.OptionalBraces.get(floc.formatToken)(floc.style)
+      val ownerOpt = ob.flatMap(_.owner).filter {
+        /* if we add the end marker, it might turn a single-stat expression (or
+         * block) into a multi-stat block and thus potentially change how that
+         * parent expression would have been formatted; so, avoid those cases.
+         */
+        _.parent match {
+          case Some(t: Term.Block) => t.stats.lengthCompare(1) > 0
+          case Some(_: Template | _: Source | _: Pkg) => true
+          case _ => false
+        }
+      }
+      ownerOpt.foreach { owner =>
+        val endFt = tokens.tokenAfter(owner)
+        if (!endFt.meta.rightOwner.is[Term.EndMarker]) {
+          val end = endFt.meta.idx
+          val eLoc = locations(end)
+          val bLoc = locations(tokens(owner.tokens.head, -1).meta.idx)
+          val begIndent = bLoc.state.indentation
+          if (
+            eLoc.state.split.isNL &&
+            !eLoc.optionalBraces.contains(begIndent) &&
+            bLoc.leftLineId - eLoc.leftLineId >= // this is a bit approximate
+              bLoc.style.rewrite.scala3.insertEndMarkerMinLines
+          ) {
+            val label = getEndMarkerLabel(owner)
+            if (null != label)
+              locations(end) = eLoc.copy(optionalBraces =
+                eLoc.optionalBraces + (begIndent -> label)
+              )
+          }
+        }
+      }
+    }
 
   class FormatLocations(val locations: Array[FormatLocation]) {
 
@@ -1246,6 +1295,7 @@ object FormatWriter {
       shift: Int = 0,
       alignContainer: Tree = null,
       alignHashKey: Int = 0,
+      optionalBraces: Map[Int, String] = Map.empty,
       replace: String = null
   ) {
     def hasBreakAfter: Boolean = state.split.isNL
@@ -1415,5 +1465,49 @@ object FormatWriter {
     Pattern.compile(s"(?<=\n)\\h*+(?=\\${pipe})")
 
   private val leadingPipeSpace = compileStripMarginPattern('|')
+
+  /** [[https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html#the-end-marker]] */
+  private def getEndMarkerLabel(tree: Tree): String = tree match {
+    // templates
+    case _: Term.NewAnonymous => "new"
+    case t: Defn.Class => t.name.value
+    case t: Defn.Object => t.name.value
+    case t: Defn.Trait => t.name.value
+    case t: Defn.Enum => t.name.value
+    case t: Defn.Given => t.name.value
+    case t: Pkg.Object => t.name.value
+    // definitions
+    case t: Defn.Def => t.name.value
+    case t: Defn.GivenAlias =>
+      val label = t.name.value
+      if (label.isEmpty) "given" else label
+    case t: Defn.Type => t.name.value
+    case t: Defn.Val =>
+      t.pats match {
+        case List(Pat.Var(n)) => n.value
+        case _ => "val"
+      }
+    case t: Defn.Var =>
+      t.pats match {
+        case List(Pat.Var(n)) => n.value
+        case _ => "var"
+      }
+    // other
+    case t: Pkg =>
+      t.ref match {
+        case x: Term.Name => x.value
+        case x: Term.Select => x.name.value
+        case _ => null
+      }
+    case _: meta.Ctor.Secondary => "this"
+    case _: Defn.ExtensionGroup => "extension"
+    case _: Term.If => "if"
+    case _: Term.Do => "do"
+    case _: Term.While => "while"
+    case _: Term.Match | _: Type.Match => "match"
+    case _: Term.For | _: Term.ForYield => "for"
+    case _: Term.Try | _: Term.TryWithHandler => "try"
+    case _ => null
+  }
 
 }

@@ -2230,6 +2230,12 @@ If this flag is set to a positive value, when an expression containing an
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
 region spans at least as many lines and isn't followed by an end marker, one will be inserted.
 
+> The lines computation ignores additional lines in multiline strings or comments.
+
+> We will not insert end markers if the statement is not part of a template body or
+> a multiline block. Doing so might turn a single-stat expression (which doesn't
+> require significant indentation handling) into a multi-stat block.
+
 ## Vertical Multiline
 
 Since: v1.6.0.
