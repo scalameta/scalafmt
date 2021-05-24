@@ -1429,3 +1429,46 @@ val f: Int => Int = (x: Int) => {
 val f: Int => Int = (x: Int) =>
    val y = x * x
    y
+<<< 2 end markers at end of file
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 3
+===
+object a:
+  class a:
+    val a =
+      a
+>>>
+object a:
+   class a:
+      val a =
+        a
+   end a
+end a
+<<< 1 end marker at end of file
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 4
+===
+object a:
+  class a:
+    val a =
+      a
+>>>
+object a:
+   class a:
+      val a =
+        a
+   end a
+end a
+<<< no end markers at end of file
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 5
+===
+object a:
+  class a:
+    val a =
+      a
+>>>
+object a:
+   class a:
+      val a =
+        a
