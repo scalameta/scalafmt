@@ -1457,7 +1457,6 @@ object a:
    class a:
       val a =
         a
-   end a
 end a
 <<< no end markers at end of file
 runner.parser = source
