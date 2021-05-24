@@ -1497,6 +1497,7 @@ object a:
    class a:
       val a =
         a
+end a
 <<< no end markers at end of file
 runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 5
