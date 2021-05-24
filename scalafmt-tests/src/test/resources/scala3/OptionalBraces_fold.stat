@@ -1435,3 +1435,17 @@ object a:
 object a:
    class a:
       val a = a
+<<< package colonEol
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 4
+===
+package a.b.c:
+  object a:
+    println("ah")
+    println("ha")
+>>>
+test does not parse
+package a.b.c:
+object a:
+   println("ah")
+   println("ha")
