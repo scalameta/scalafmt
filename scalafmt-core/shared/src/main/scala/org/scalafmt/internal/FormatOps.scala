@@ -2065,6 +2065,7 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t: Template if templateCurly(t).contains(ft.left) =>
             Some(new OptionalBracesRegion {
+              def owner = t.parent
               def splits = Some(getSplits(ft, t, forceNL = true))
               def rightBrace =
                 if (t.stats.lengthCompare(1) > 0) treeLast(t) else None
@@ -2082,6 +2083,7 @@ class FormatOps(
           case Some(t: Term.Block)
               if !hasSingleTermStat(t) && isBlockStart(t, nft) =>
             Some(new OptionalBracesRegion {
+              def owner = t.parent
               def splits = Some(getSplitsMaybeBlock(ft, nft, t, true))
               def rightBrace = treeLast(t)
             })
@@ -2095,9 +2097,10 @@ class FormatOps(
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] =
         ft.meta.leftOwner match {
-          case Defn.ExtensionGroup(_, _, t: Term.Block)
+          case g @ Defn.ExtensionGroup(_, _, t: Term.Block)
               if isBlockStart(t, nft) =>
             Some(new OptionalBracesRegion {
+              def owner = Some(g)
               def splits = Some(getSplitsMaybeBlock(ft, nft, t, true))
               def rightBrace =
                 if (t.stats.lengthCompare(1) > 0) treeLast(t) else None
@@ -2107,18 +2110,21 @@ class FormatOps(
                 !ifWithoutElse(t) && existsBlockIfWithoutElse(t.thenp)
               } =>
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = Some(getSplitsForIf(ft, nft, t))
               def rightBrace = blockLast(t.thenp)
             })
           case t: Term.For if !nft.right.is[T.KwDo] =>
             // unsupported except for right brace
             Some(new OptionalBracesRegion {
+              def owner = None
               def splits = None
               def rightBrace = blockLast(t.body)
             })
           case t: Term.While if !nft.right.is[T.KwDo] =>
             // unsupported except for right brace
             Some(new OptionalBracesRegion {
+              def owner = None
               def splits = None
               def rightBrace = blockLast(t.body)
             })
@@ -2133,6 +2139,7 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t: Case => // unsupported except for right brace
             Some(new OptionalBracesRegion {
+              def owner = None
               def splits = None
               def rightBrace = blockLast(t.body)
             })
@@ -2147,11 +2154,13 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t: Term.For =>
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = getSplitsForStats(ft, nft, t.enums, false)
               def rightBrace = seqLast(t.enums)
             })
           case t: Term.ForYield =>
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = getSplitsForStats(ft, nft, t.enums, false)
               def rightBrace = seqLast(t.enums)
             })
@@ -2166,16 +2175,19 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t: Term.Do =>
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = Some(getSplitsMaybeBlock(ft, nft, t.body, true))
               def rightBrace = blockLast(t.body)
             })
           case t: Term.While =>
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = Some(getSplitsMaybeBlock(ft, nft, t.body, false))
               def rightBrace = blockLast(t.body)
             })
           case t: Term.For =>
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = Some(getSplitsMaybeBlock(ft, nft, t.body, false))
               def rightBrace = blockLast(t.body)
             })
@@ -2190,11 +2202,13 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t: Ctor.Secondary =>
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = getSplitsForStats(ft, nft, t.init, t.stats, true)
               def rightBrace = if (t.stats.nonEmpty) treeLast(t) else None
             })
           case t @ SplitAssignIntoParts((x: Term.PartialFunction, _)) =>
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = getSplitsForStats(ft, nft, x.cases, false)
               def rightBrace = treeLast(x)
             })
@@ -2213,6 +2227,7 @@ class FormatOps(
               isCatchUsingOptionalBraces(t) ||
               t.finallyp.exists(isTreeUsingOptionalBraces)
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = Some(getSplits(ft, t.expr, forceNL, !usesOB))
               def rightBrace = blockLast(t.expr)
             })
@@ -2220,6 +2235,7 @@ class FormatOps(
             val usesOB = isTreeMultiStatBlock(t.expr) ||
               t.finallyp.exists(isTreeUsingOptionalBraces)
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = Some(getSplits(ft, t.expr, forceNL, !usesOB))
               def rightBrace = blockLast(t.expr)
             })
@@ -2238,6 +2254,7 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t: Term.Try =>
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = getSplitsForStats(ft, nft, t.catchp, false)
               def rightBrace = seqLast(t.catchp)
             })
@@ -2257,6 +2274,7 @@ class FormatOps(
                 isCatchUsingOptionalBraces(t) ||
                 isTreeUsingOptionalBraces(t.expr)
               new OptionalBracesRegion {
+                def owner = Some(t)
                 def splits = Some(getSplits(ft, x, forceNL, !usesOB))
                 def rightBrace = blockLast(x)
               }
@@ -2266,6 +2284,7 @@ class FormatOps(
               val usesOB = isTreeMultiStatBlock(x) ||
                 isTreeUsingOptionalBraces(t.expr)
               new OptionalBracesRegion {
+                def owner = Some(t)
                 def splits = Some(getSplits(ft, x, forceNL, !usesOB))
                 def rightBrace = blockLast(x)
               }
@@ -2286,11 +2305,13 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t: Term.Match =>
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = result(t, t.cases)
               def rightBrace = treeLast(t)
             })
           case t: Type.Match =>
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = result(t, t.cases)
               def rightBrace = treeLast(t)
             })
@@ -2306,6 +2327,7 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t: Term.If =>
             Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = Some(getSplitsForIf(ft, nft, t))
               def rightBrace = blockLast(t.thenp)
             })
@@ -2327,6 +2349,7 @@ class FormatOps(
               case _ => None
             }).map { forceNL =>
               new OptionalBracesRegion {
+                def owner = Some(t)
                 def splits = Some(getSplits(ft, t.elsep, forceNL))
                 def rightBrace = blockLast(t.elsep)
               }
@@ -2528,6 +2551,7 @@ object FormatOps {
   }
 
   abstract class OptionalBracesRegion {
+    def owner: Option[Tree]
     def splits: Option[Seq[Split]]
     def rightBrace: Option[T]
   }
