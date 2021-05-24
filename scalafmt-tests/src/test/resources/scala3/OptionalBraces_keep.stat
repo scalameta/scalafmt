@@ -1182,12 +1182,16 @@ object a:
          } // c1
       else
          b
+      end if
       if a then // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
          if (aa) { // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
            aaa
          } // c1
       else
          b
+      end if
+   end a
+end a
 <<< rewrite to new syntax with for-do, single
 runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 6
@@ -1228,6 +1232,7 @@ object a:
    for a <- b do
       for a <- b do
          foo
+end a
 <<< rewrite to new syntax with for-do, multiple
 runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 6
@@ -1286,6 +1291,7 @@ object a:
         for a <- b; c <- d yield
            foo
            bar
+   end for
    while a > 0 do
       while a > 0 do
          foo
@@ -1293,6 +1299,7 @@ object a:
       while a > 0 do
          foo
          bar
+   end while
    for a <- b; c <- d do
       for a <- b; c <- d do
          foo
@@ -1300,6 +1307,7 @@ object a:
       for a <- b; c <- d do
          foo
          bar
+   end for
    for a <- b; c <- d do
       for a <- b; c <- d do
          foo
@@ -1307,6 +1315,8 @@ object a:
       for a <- b; c <- d do
          foo
          bar
+   end for
+end a
 <<< rewrite to new syntax, imports
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
