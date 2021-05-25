@@ -305,8 +305,35 @@ package b {
 
 }
 <<< #2511 use topLevelStatementBlankLines instead
-newlines.topLevelStatements = [before, after]
+newlines.topLevelStatements = []
 newlines.topLevelBodyIfMinStatements = [before,after]
+newlines.topLevelStatementBlankLines = [
+  {
+    maxNest = 0
+    minBreaks = 1
+    blanks = 4
+  }, {
+    maxNest = 1
+    minBreaks = 1
+    blanks {
+      before = 3
+      after = 2
+    }
+  }, {
+    maxNest = 2
+    minBreaks = 1
+    blanks {
+      before = 2
+      after = 1
+    }
+  }, {
+    minBreaks = 1
+    blanks {
+      before = 1
+      after = 1
+    }
+  }
+]
 ===
 package a
 package a1
@@ -363,9 +390,14 @@ import a.b
 import a.b
 import a.b
 
+
+
+
 package b {
 
   trait a {}
+
+
 
   // c1
   class a {
@@ -373,18 +405,24 @@ package b {
   }
   // c2
 
+
   // c
+
+
 
   // c1
   object a {
     type a = a
   }
 
+
+
   // c1
   package c {
 
     import a.b
     import a.b
+
 
     package d {
 

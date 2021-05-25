@@ -139,11 +139,8 @@ import metaconfig.generic.Surface
   *   Switch to `many` for a given expression (possibly nested) if the
   *   number of operations in that expression exceeds this value AND
   *   `afterInfix` had been set to `some`.
-  * @param topLevelStatements
-  *   Forces a blank line before and/or after a top-level statement.
-  * @param topLevelStatementsMinBreaks
-  *   Minimum span (number of line breaks between first and last line)
-  *   to start forcing blank lines.
+  * @param topLevelStatementBlankLines
+  *   Controls blank line before and/or after a top-level statement.
   * @param avoidForSimpleOverflow
   *   - punct: don't force break if overflow is only due to trailing punctuation
   *   - tooLong: don't force break if overflow is due to tokens which are too long
@@ -165,7 +162,18 @@ case class Newlines(
     private val alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
     beforeCurlyLambdaParams: BeforeCurlyLambdaParams =
       BeforeCurlyLambdaParams.never,
+    private val topLevelStatementBlankLines: Seq[TopStatBlanks] = Seq.empty,
+    @annotation.DeprecatedName(
+      "topLevelStatementsMinBreaks",
+      "Use newlines.topLevelStatementBlankLines instead",
+      "3.0.0"
+    )
     topLevelStatementsMinBreaks: Int = 1,
+    @annotation.DeprecatedName(
+      "topLevelStatementsMinBreaks",
+      "Use newlines.topLevelStatementBlankLines instead",
+      "3.0.0"
+    )
     topLevelStatements: Seq[BeforeAfter] = Seq.empty,
     beforeTemplateBodyIfBreakInParentCtors: Boolean = false,
     topLevelBodyIfMinStatements: Seq[BeforeAfter] = Seq.empty,
@@ -250,8 +258,6 @@ case class Newlines(
 
   lazy val forceBlankBeforeMultilineTopLevelStmt: Boolean =
     topLevelStatements.contains(before)
-  lazy val forceBlankAfterMultilineTopLevelStmt: Boolean =
-    topLevelStatements.contains(after)
 
   lazy val avoidForSimpleOverflowPunct: Boolean =
     avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.punct)
@@ -269,6 +275,39 @@ case class Newlines(
       else ForceBeforeMultilineAssign.never
     }
   }
+
+  private lazy val topStatBlankLinesSorted = {
+    val oldBlankLines = {
+      // combine old settings with new
+      val nb = NumBlanks(
+        if (forceBlankBeforeMultilineTopLevelStmt) 1 else 0,
+        if (topLevelStatements.contains(after)) 1 else 0
+      )
+      if (nb.isEmpty) Seq.empty
+      else {
+        val pattern = Some("^Pkg|^Defn\\.|^Decl\\.")
+        Seq(TopStatBlanks(pattern, topLevelStatementsMinBreaks, Some(nb)))
+      }
+    }
+    /* minBreaks has to come first; since we'll be adding blanks, this could
+     * potentially move us into another setting which didn't match before we
+     * we added the blanks; the rest are sorted to put more specific first */
+    (topLevelStatementBlankLines ++ oldBlankLines).sortBy(x =>
+      (x.minBreaks, x.maxNest, x.regex.fold(0)(-_.length))
+    )
+  }
+  def getTopStatBlankLines(
+      tree: Tree,
+      numBreaks: Int,
+      nest: Int
+  ): Option[NumBlanks] =
+    topStatBlankLinesSorted.iterator
+      .takeWhile(_.minBreaks <= numBreaks)
+      .find { x =>
+        x.maxNest >= nest &&
+        x.pattern.forall(_.matcher(tree.productPrefix).find())
+      }
+      .flatMap(_.blanks)
 
 }
 
@@ -399,6 +438,45 @@ object Newlines {
       }
     }
 
+  }
+
+  /** @param before number of blanks to use before the statement
+    * @param after number of blanks to use after the statement
+    */
+  case class NumBlanks(before: Int = 0, after: Int = 0) {
+    def isEmpty: Boolean = before == 0 && after == 0
+  }
+  object NumBlanks {
+    implicit val surface = generic.deriveSurface[NumBlanks]
+    implicit val encoder = generic.deriveEncoder[NumBlanks]
+    implicit val decoder = {
+      val base = generic.deriveDecoderEx(NumBlanks()).noTypos
+      ConfDecoderEx.from[NumBlanks] {
+        case (_, Conf.Num(num)) if num.isWhole =>
+          val cnt = num.toInt
+          Configured.Ok(NumBlanks(before = cnt, after = cnt))
+        case (state, conf) => base.read(state, conf)
+      }
+    }
+  }
+
+  /** @param regex Regular expression to match against the statement type
+    * @param minBreaks Minimum span (number of line breaks between first and last line)
+    *   to start forcing blank lines.
+    * @param maxNest Maximum amount of nesting (indentation level) of a statement
+    */
+  case class TopStatBlanks(
+      regex: Option[String] = None,
+      minBreaks: Int = 1,
+      blanks: Option[NumBlanks] = None,
+      maxNest: Int = Int.MaxValue
+  ) {
+    lazy val pattern = regex.map(_.r.pattern)
+  }
+  object TopStatBlanks {
+    implicit val surface = generic.deriveSurface[TopStatBlanks]
+    implicit val codec: ConfCodecEx[TopStatBlanks] =
+      generic.deriveCodecEx(TopStatBlanks()).noTypos
   }
 
 }
