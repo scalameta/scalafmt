@@ -110,6 +110,7 @@ abstract class RewriteFactory extends Rewrite {
 
 abstract class RewriteSession(implicit ctx: RewriteCtx) {
   def rewrite(tree: Tree): Unit
+  implicit val dialect = ctx.dialect
 }
 
 object Rewrite {
