@@ -31,7 +31,7 @@ sealed abstract class SortImports(implicit ctx: RewriteCtx)
             // import a.{d, b => c}
             // I think we are safe to sort these, just want to convince myself
             // it's 100% safe first.
-            val sortedImportees = sorted(importees.map(_.tokens.mkString))
+            val sortedImportees = sorted(importees.map(_.toString()))
             var i = 0
             importees.foreach { importee =>
               builder +=

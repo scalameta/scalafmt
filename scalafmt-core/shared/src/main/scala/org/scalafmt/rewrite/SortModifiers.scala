@@ -70,8 +70,7 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
         if (next eq old) Seq.empty
         else {
           val removeOld = old.tokens.tail.map(TokenPatch.Remove)
-          val nextSyntax = next.tokens.syntax // XXX: not next.syntax!
-          val addNext = TokenPatch.Replace(old.tokens.head, nextSyntax)
+          val addNext = TokenPatch.Replace(old.tokens.head, next.toString())
           removeOld :+ addNext
         }
       }: _*)

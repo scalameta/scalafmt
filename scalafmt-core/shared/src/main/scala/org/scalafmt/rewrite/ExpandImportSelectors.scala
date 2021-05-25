@@ -39,7 +39,7 @@ class ExpandImportSelectors(implicit ctx: RewriteCtx) extends RewriteSession {
             val hasWildcards = importees.exists(_.is[Importee.Wildcard])
 
             if (hasWildcards && hasRenamesOrUnimports)
-              group.imports += s"$keyword ${importer.syntax}"
+              group.imports += s"$keyword $importer"
             else
               importees.foreach { importee =>
                 val importString = importee.toString

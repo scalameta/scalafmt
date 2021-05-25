@@ -159,8 +159,10 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     def isIdentifierAtStart(value: String) =
       value.headOption.exists(x => Character.isLetterOrDigit(x) || x == '_')
 
-    def isLiteralIdentifier(arg: Term.Name): Boolean =
-      arg.syntax.startsWith("`") && arg.syntax.endsWith("`")
+    def isLiteralIdentifier(arg: Term.Name): Boolean = {
+      val syntax = arg.toString()
+      syntax.headOption.contains('`') && syntax.lastOption.contains('`')
+    }
 
     /** we need remain braces for interpolated literal identifiers: s"string  ${`type`}"
       * and identifiers started with '_': s"string  %{_id}"
@@ -279,7 +281,10 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
       case d: Defn.Def =>
         def disqualifiedByUnit =
-          !settings.includeUnitMethods && d.decltpe.exists(_.syntax == "Unit")
+          !settings.includeUnitMethods && d.decltpe.exists {
+            case Type.Name("Unit") => true
+            case _ => false
+          }
         settings.methodBodies &&
         getSingleStatIfLineSpanOk(b).exists(innerOk(b)) &&
         !isProcedureSyntax(d) &&
