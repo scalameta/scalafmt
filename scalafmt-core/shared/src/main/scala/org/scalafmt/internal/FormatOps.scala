@@ -2009,7 +2009,7 @@ class FormatOps(
       else if (!style.runner.dialect.allowSignificantIndentation) None
       else {
         val impl = ft.left match {
-          case _: T.Colon | _: T.KwWith => TemplateImpl
+          case _: T.Colon | _: T.KwWith => ColonEolImpl
           case _: T.RightArrow => RightArrowImpl
           case _: T.RightParen => RightParenImpl
           case _: T.KwFor => ForImpl
@@ -2058,7 +2058,9 @@ class FormatOps(
       }
     }
 
-    private object TemplateImpl extends Factory {
+    // https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html#variant-indentation-marker-
+    // TODO: amend for additional cases when the parser supports them
+    private object ColonEolImpl extends Factory {
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] =
@@ -2066,6 +2068,13 @@ class FormatOps(
           case t: Template if templateCurly(t).contains(ft.left) =>
             Some(new OptionalBracesRegion {
               def owner = t.parent
+              def splits = Some(getSplits(ft, t, forceNL = true))
+              def rightBrace =
+                if (t.stats.lengthCompare(1) > 0) treeLast(t) else None
+            })
+          case t: Pkg if tokenAfter(t.ref).right eq ft.left =>
+            Some(new OptionalBracesRegion {
+              def owner = Some(t)
               def splits = Some(getSplits(ft, t, forceNL = true))
               def rightBrace =
                 if (t.stats.lengthCompare(1) > 0) treeLast(t) else None

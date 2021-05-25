@@ -1520,8 +1520,8 @@ package a.b.c:
     println("ah")
     println("ha")
 >>>
-test does not parse
 package a.b.c:
-object a:
-   println("ah")
-   println("ha")
+   object a:
+      println("ah")
+      println("ha")
+end c
