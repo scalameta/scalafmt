@@ -15,8 +15,6 @@ import scala.meta._
 sealed abstract class SortImports(implicit ctx: RewriteCtx)
     extends RewriteSession {
 
-  import ctx.dialect
-
   /** The sorting scheme to use when sorting the imports
     */
   protected def sorted(str: Seq[String]): IndexedSeq[String]

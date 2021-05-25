@@ -19,8 +19,6 @@ class ExpandImportSelectors(implicit ctx: RewriteCtx) extends RewriteSession {
 
   import ExpandImportSelectors.Group
 
-  implicit val dialect = ctx.dialect
-
   override def rewrite(tree: Tree): Unit =
     tree match {
       case stat: ImportExportStat =>
