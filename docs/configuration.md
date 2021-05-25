@@ -807,22 +807,55 @@ or horizontally compact look.
 Both settings attempt to play nice with other parameters, but some combinations
 are prohibited and will result in an error.
 
-### `newlines.topLevelStatements`
+### `newlines.topLevelStatementBlankLines`
 
-> Since v2.5.0.
+> Since v3.0.0.
 
-This parameter, together with its companions below, controls whether to enforce
-a blank line before and/or after a top-level statement spanning a certain number
-of lines.
+This parameter controls when to add blank lines before and/or after a top-level
+statement (a member of a package or template; nesting is allowed but not within
+a block). It does _not_ apply to end markers, imports and non-indented packages.
 
-> This parameter will not cause any blank lines to be removed.
+> This parameter might reduce the number of blank lines but will not eliminate
+> them completely.
+
+Each entry on this list consists of the following fields:
+
+- `regex`
+  - a regular expression to match the type of the statement
+  - if unspecified, will match all valid statements
+  - see [align.tokens](#aligntokens) for instructions on how to find the type
+- `maxNest`
+  - basically, limits indentation level (not actual indentation) of a statement
+  - unindented statements (under source-level unindented package) have
+    nest level of 0, those under them are 1 etc.
+  - if unspecified, will match any nesting level
+- `minBreaks` (default: 1)
+  - sets the minimum number of line breaks between the first and last line of
+    a statement (i.e., one less than the number of lines the statement spans).
+  - for instance, `minBreaks=0` will apply to all statements, whereas 1 will
+    require at least one line break (that is, a multi-line statement).
+- `blanks`
+  - consists of two integer fields, `before` and `after`, specifying how many
+    blank lines need to be added in the appropriate place
+  - can be specified as a single integer, to set both:
+
+```
+// these two are equivalent
+newlines.topLevelStatementBlankLines = [{ blanks { before = 1, after = 1 }]
+newlines.topLevelStatementBlankLines = [{ blanks = 1 }]
+```
+
+> If multiple entries match a statement, an entry with the lowest `minBreaks`
+> will be selected. Since we'll be adding lines, this will increase the span
+> of the statement and might potentially lead to another entry, with a higher
+> `minBreaks`, to match as well, which is undesirable.
 
 ```scala mdoc:defaults
-newlines.topLevelStatements
+newlines.topLevelStatementBlankLines
 ```
 
 ```scala mdoc:scalafmt
-newlines.topLevelStatements = []
+newlines.topLevelStatementBlankLines = []
 ---
 import org.scalafmt
 package core { // no newline added here
@@ -838,7 +871,11 @@ package core { // no newline added here
 ```
 
 ```scala mdoc:scalafmt
-newlines.topLevelStatements = [before]
+newlines.topLevelStatementBlankLines = [
+  {
+    blanks { before = 1 }
+  }
+]
 ---
 import org.scalafmt
 package core {
@@ -854,7 +891,11 @@ package core {
 ```
 
 ```scala mdoc:scalafmt
-newlines.topLevelStatements = [after]
+newlines.topLevelStatementBlankLines = [
+  {
+    blanks { after = 1 }
+  }
+]
 ---
 import org.scalafmt
 package core {
@@ -870,7 +911,11 @@ package core {
 ```
 
 ```scala mdoc:scalafmt
-newlines.topLevelStatements = [before,after]
+newlines.topLevelStatementBlankLines = [
+  {
+    blanks = 1
+  }
+]
 ---
 import org.scalafmt
 package core {
@@ -885,23 +930,13 @@ package core {
 }
 ```
 
-#### `newlines.topLevelStatementsMinBreaks`
-
-> Since v2.5.0.
-
-This parameter sets the minimum of line breaks between the first and last line
-of a top-level statement (i.e., one less than the number of lines the statement
-spans). For instance, `newlines.topLevelStatementsMinBreaks=0` will apply to all
-top-level statements, whereas 1 will require at least one line break (or a
-multi-line statement).
-
-```scala mdoc:defaults
-newlines.topLevelStatementsMinBreaks
-```
-
 ```scala mdoc:scalafmt
-newlines.topLevelStatements = [before,after]
-newlines.topLevelStatementsMinBreaks = 0
+newlines.topLevelStatementBlankLines = [
+  {
+    minBreaks = 0
+    blanks = 1
+  }
+]
 ---
 package core {
   object O {
@@ -917,8 +952,12 @@ package core {
 ```
 
 ```scala mdoc:scalafmt
-newlines.topLevelStatements = [before,after]
-newlines.topLevelStatementsMinBreaks = 2
+newlines.topLevelStatementBlankLines = [
+  {
+    minBreaks = 2
+    blanks = 1
+  }
+]
 ---
 import org.scalafmt
 package core {
@@ -932,6 +971,25 @@ package core {
     }
   }
 }
+```
+
+### `newlines.topLevelStatements`
+
+> Deprecated in v3.0.0.
+
+This parameter and its companion `newlines.topLevelStatementsMinBreaks` have
+been deprecated and will be removed in a subsequent release.
+
+An equivalent setting is
+
+```
+newlines.topLevelStatementBlankLines = [
+  {
+    regex = "^Pkg|^Defn\\.|^Decl\\."
+    blanks = 1
+    minBreaks = <value of topLevelStatementsMinBreaks>
+  }
+]
 ```
 
 ### Newlines around package or template body

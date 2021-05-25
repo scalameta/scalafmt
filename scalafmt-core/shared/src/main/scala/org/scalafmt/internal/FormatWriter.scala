@@ -22,6 +22,7 @@ import scala.meta.{
   Case,
   Defn,
   Enumerator,
+  ImportExportStat,
   Importer,
   Lit,
   Pat,
@@ -1096,26 +1097,45 @@ class FormatWriter(formatOps: FormatOps) {
         case _: T.LeftBrace | _: T.Colon => true
         case _ => false
       }
-      def setTopStats(owner: Tree, stats: Seq[Tree]): Unit = {
+      @tailrec
+      def getNest(tree: Tree, curNest: Int): Int = tree.parent match {
+        case Some(_: Source) | None => curNest
+        case Some(t: Pkg) if !indentedPackage(t) => getNest(t, curNest)
+        case Some(t) => getNest(t, curNest + 1)
+      }
+      def setTopStats(owner: Tree, stats: Seq[Stat], curNest: Int = 1): Unit = {
+        if (stats.isEmpty) return
+        val nest = getNest(owner, curNest)
+        if (nest < 0) return
         val end = owner.pos.end
-        def setStat(stat: Tree): Unit = {
+        def setStat(stat: Tree, idx: Int, isLast: Boolean): Unit = {
+          def blanks(cnt: Int, unless: Boolean): Int =
+            if (unless && cnt > 0) 1 else cnt
           val head = tokens.tokenJustBefore(stat)
           val last = tokens.getLast(stat)
           val bLoc = locations(head.meta.idx + 1)
           val nl = bLoc.style.newlines
           val numBreaks = getLineDiff(bLoc, locations(last.meta.idx))
-          if (numBreaks >= nl.topLevelStatementsMinBreaks) {
-            if (nl.forceBlankBeforeMultilineTopLevelStmt)
-              setFt(leadingComment(head))
-            if (nl.forceBlankAfterMultilineTopLevelStmt)
-              setFt(trailingComment(last, end))
+          nl.getTopStatBlankLines(stat, numBreaks, nest).foreach { x =>
+            setFt(leadingComment(head), blanks(x.before, idx == 0))
+            setFt(trailingComment(last, end), blanks(x.after, isLast))
           }
         }
-        stats.foreach {
-          case t: Pkg => if (indentedPackage(t)) setStat(t)
-          case t @ (_: Defn | _: meta.Decl) => setStat(t)
-          case _ =>
+        @tailrec
+        def iter(rest: Seq[Stat], idx: Int, prevIsImport: Boolean): Unit = {
+          val stat = rest.head
+          val ok = stat match {
+            case _: Term.EndMarker => false
+            case t: Pkg => indentedPackage(t)
+            case _: ImportExportStat => !prevIsImport
+            case _ => true
+          }
+          val newRest = rest.tail
+          val isLast = newRest.isEmpty
+          if (ok) setStat(stat, idx, isLast)
+          if (!isLast) iter(newRest, idx + 1, stat.is[ImportExportStat])
         }
+        iter(stats, 0, false)
       }
       def insideBody(stats: Seq[Stat], nl: Newlines, ba: Newlines.BeforeAfter) =
         stats.lengthCompare(nl.topLevelBodyMinStatements) >= 0 &&
@@ -1138,6 +1158,9 @@ class FormatWriter(formatOps: FormatOps) {
         override def apply(tree: Tree): Unit =
           tree match {
             case _: Term.Block =>
+            case t: Source =>
+              setTopStats(t, t.stats)
+              super.apply(t.stats)
             case t: Template =>
               beforeBody(t.stats) {
                 _.beforeTemplateBodyIfBreakInParentCtors && {
@@ -1161,7 +1184,7 @@ class FormatWriter(formatOps: FormatOps) {
               }
               if (isBeforeBody)
                 beforeBody(t.stats)(_.forceBlankBeforeMultilineTopLevelStmt)
-              setTopStats(t, t.stats)
+              setTopStats(t, t.stats, 0)
               super.apply(t.stats) // skip ref
             case _ =>
               super.apply(tree)
