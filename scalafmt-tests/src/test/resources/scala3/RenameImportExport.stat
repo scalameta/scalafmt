@@ -86,3 +86,10 @@ rewrite.rules = [RedundantBraces]
 export java.util.List   as  `J-List`
 >>>
 export java.util.List as `J-List`
+<<< expand import selectors #2535
+runner.parser = source
+rewrite.rules = [ExpandImportSelectors]
+===
+import foo.{ bar as baz, *}
+>>>
+import foo.{bar as baz, *}
