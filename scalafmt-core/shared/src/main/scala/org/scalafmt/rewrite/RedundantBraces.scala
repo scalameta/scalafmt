@@ -296,6 +296,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case _: Term.If =>
         settings.ifElseExpressions && shouldRemoveSingleStatBlock(b)
 
+      case Term.Block(List(`b`)) => true
+
       case _ =>
         settings.generalExpressions && shouldRemoveSingleStatBlock(b)
     }
@@ -402,6 +404,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   )(implicit style: ScalafmtConfig): Boolean =
     settings.methodBodies && (getTreeSingleStat(b) match {
       case Some(_: Term.PartialFunction) => false
+      case Some(_: Term.Block) => true
       case Some(s) => getTreeLineSpan(s) <= settings.maxLines
       case _ => okIfMultipleStats
     })
