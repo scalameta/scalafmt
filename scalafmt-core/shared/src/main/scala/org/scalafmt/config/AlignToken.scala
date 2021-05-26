@@ -1,5 +1,7 @@
 package org.scalafmt.config
 
+import java.util.regex.{Pattern => jurPattern}
+
 import metaconfig.Configured.Ok
 import metaconfig._
 import metaconfig.generic.Surface
@@ -9,7 +11,13 @@ import metaconfig.generic.Surface
   * @param code string literal value of the token to align by.
   * @param owner regexp for class name of scala.meta.Tree "owner" of [[code]].
   */
-case class AlignToken(code: String, owner: String)
+case class AlignToken(
+    code: String,
+    owner: String
+) {
+  def getMatcher: AlignToken.Matcher =
+    new AlignToken.Matcher(owner.r.pattern)
+}
 
 object AlignToken {
   implicit lazy val surface: Surface[AlignToken] =
@@ -23,8 +31,7 @@ object AlignToken {
     ConfDecoderEx.from {
       case (_, Conf.Str("caseArrow")) => Ok(caseArrow)
       case (_, Conf.Str(regex)) =>
-        val owner = default.find(_.code == regex).fold(".*")(_.owner)
-        Ok(AlignToken(regex, owner))
+        Ok(default.find(_.code == regex).getOrElse(AlignToken(regex, ".*")))
       case (state, conf) => base.read(state, conf)
     }
   }
@@ -46,4 +53,14 @@ object AlignToken {
     AlignToken("→", applyInfix),
     AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|GivenAlias|Def|Type))")
   )
+
+  class Matcher(val owner: jurPattern) {
+    def matches(tree: meta.Tree): Boolean =
+      check(tree)(owner)
+  }
+
+  @inline
+  private def check(tree: meta.Tree)(pattern: jurPattern): Boolean =
+    pattern.matcher(tree.productPrefix).find()
+
 }
