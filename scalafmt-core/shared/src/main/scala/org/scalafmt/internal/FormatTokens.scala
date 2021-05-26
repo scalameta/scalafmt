@@ -34,7 +34,12 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
     case _: Token.BOF => arr.head
     case _: Token.EOF => arr.last
     case _ =>
-      val idx = leftTok2tok(FormatTokens.thash(tok))
+      val idx = leftTok2tok.getOrElse(
+        FormatTokens.thash(tok),
+        throw new NoSuchElementException(
+          s"Missing token index [${tok.start}:${tok.end}]: `$tok`"
+        )
+      )
       if (idx >= arr.length) arr.last
       else {
         val ft = arr(idx)
