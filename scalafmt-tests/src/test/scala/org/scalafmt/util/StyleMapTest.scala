@@ -51,21 +51,21 @@ class StyleMapTest extends FunSuite {
 
     val newHeadConfig = newFormatOps.styleMap.at(headToken)
     assertEquals(
-      headConfig.alignMap("=").owner.pattern(),
+      headConfig.alignMap("=").owner.get.pattern(),
       defaultEquals
     )
     assertEquals(
-      newHeadConfig.alignMap("=").owner.pattern(),
+      newHeadConfig.alignMap("=").owner.get.pattern(),
       overrideEquals
     )
 
     val newPrintlnConfig = newFormatOps.styleMap.at(printlnToken)
     assertEquals(
-      printlnConfig.alignMap("=").owner.pattern(),
+      printlnConfig.alignMap("=").owner.get.pattern(),
       overrideEquals
     )
     assertEquals(
-      newPrintlnConfig.alignMap("=").owner.pattern(),
+      newPrintlnConfig.alignMap("=").owner.get.pattern(),
       overrideEquals
     )
   }
