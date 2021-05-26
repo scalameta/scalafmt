@@ -1026,11 +1026,9 @@ object a {
 >>>
 object a {
   def foo = {
-    foo.map(foo => {
-      {
-        logger.info(logMarker, s"SomeFoo: $foo")
-        foo
-      }
-    })
+    foo.map { foo =>
+      logger.info(logMarker, s"SomeFoo: $foo")
+      foo
+    }
   }
 }
