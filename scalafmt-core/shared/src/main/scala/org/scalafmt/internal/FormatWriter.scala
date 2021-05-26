@@ -1030,9 +1030,9 @@ class FormatWriter(formatOps: FormatOps) {
       val slc = isSingleLineComment(ft.right)
       val code = if (slc) "//" else ft.meta.right.text
 
-      fl.style.alignMap.get(code).flatMap { pattern =>
+      fl.style.alignMap.get(code).flatMap { matcher =>
         val owner = getAlignOwner(ft)
-        if (!pattern.matcher(owner.getClass.getName).find()) None
+        if (!matcher.matches(owner)) None
         else if (!slc) Some(getAlignContainer(owner))
         else Some(getAlignContainer(ft.meta.rightOwner))
       }

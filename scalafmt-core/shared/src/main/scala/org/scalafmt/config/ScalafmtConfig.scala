@@ -1,7 +1,6 @@
 package org.scalafmt.config
 
 import java.nio.file
-import java.util.regex
 
 import scala.collection.mutable
 import scala.io.Codec
@@ -146,8 +145,10 @@ case class ScalafmtConfig(
     fileOverride: Conf.Obj = Conf.Obj.empty,
     xmlLiterals: XmlLiterals = XmlLiterals()
 ) {
-  lazy val alignMap: Map[String, regex.Pattern] =
-    align.tokens.map(x => x.code -> x.owner.r.pattern).toMap
+  lazy val alignMap: Map[String, AlignToken.Matcher] =
+    align.tokens.map(x => x.code -> x).toMap.map { case (k, v) =>
+      k -> v.getMatcher
+    }
 
   def withDialect(dialect: Dialect): ScalafmtConfig =
     copy(runner = runner.copy(dialect = dialect))

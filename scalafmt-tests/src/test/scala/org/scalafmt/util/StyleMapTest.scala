@@ -50,12 +50,24 @@ class StyleMapTest extends FunSuite {
     val newFormatOps = new FormatOps(code, printlnConfig)
 
     val newHeadConfig = newFormatOps.styleMap.at(headToken)
-    assert(headConfig.alignMap("=").pattern() == defaultEquals)
-    assert(newHeadConfig.alignMap("=").pattern() == overrideEquals)
+    assertEquals(
+      headConfig.alignMap("=").owner.pattern(),
+      defaultEquals
+    )
+    assertEquals(
+      newHeadConfig.alignMap("=").owner.pattern(),
+      overrideEquals
+    )
 
     val newPrintlnConfig = newFormatOps.styleMap.at(printlnToken)
-    assert(printlnConfig.alignMap("=").pattern() == overrideEquals)
-    assert(newPrintlnConfig.alignMap("=").pattern() == overrideEquals)
+    assertEquals(
+      printlnConfig.alignMap("=").owner.pattern(),
+      overrideEquals
+    )
+    assertEquals(
+      newPrintlnConfig.alignMap("=").owner.pattern(),
+      overrideEquals
+    )
   }
 
   test("newlines.implicitParamListModifierForce") {
