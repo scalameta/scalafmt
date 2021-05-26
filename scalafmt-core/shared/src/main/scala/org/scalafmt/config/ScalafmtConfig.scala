@@ -145,7 +145,7 @@ case class ScalafmtConfig(
     fileOverride: Conf.Obj = Conf.Obj.empty,
     xmlLiterals: XmlLiterals = XmlLiterals()
 ) {
-  lazy val alignMap: Map[String, AlignToken.Matcher] =
+  lazy val alignMap: Map[String, Seq[AlignToken.Matcher]] =
     align.tokens.map(x => x.code -> x).toMap.map { case (k, v) =>
       k -> v.getMatcher
     }

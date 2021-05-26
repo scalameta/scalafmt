@@ -1179,3 +1179,63 @@ libraryDependencies ++= Seq(
   "com.ibm"           %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
   "com.googlecode.java-diff-utils" % "diffutils" // c1
 )
+<<< align without parent
+align.tokens."+" = [{ code=":", owner="Term\\.Param" }]
+===
+object a {
+  case class Foo(
+    firstParam: Int,
+    secondParam: String,
+    thirdParam: Boolean
+  ) {
+    def Foo(
+      firstParam: Int,
+      secondParam: String,
+      thirdParam: Boolean
+    ) = ???
+  }
+}
+>>>
+object a {
+  case class Foo(
+      firstParam:  Int,
+      secondParam: String,
+      thirdParam:  Boolean
+  ) {
+    def Foo(
+        firstParam:  Int,
+        secondParam: String,
+        thirdParam:  Boolean
+    ) = ???
+  }
+}
+<<< align with parent
+align.tokens."+" = [{ code=":", owners=[{ regex="Term\\.Param", parents=["Ctor\\.Primary"] }] }]
+===
+object a {
+  case class Foo(
+    firstParam: Int,
+    secondParam: String,
+    thirdParam: Boolean
+  ) {
+    def Foo(
+      firstParam: Int,
+      secondParam: String,
+      thirdParam: Boolean
+    ) = ???
+  }
+}
+>>>
+object a {
+  case class Foo(
+      firstParam:  Int,
+      secondParam: String,
+      thirdParam:  Boolean
+  ) {
+    def Foo(
+        firstParam: Int,
+        secondParam: String,
+        thirdParam: Boolean
+    ) = ???
+  }
+}
