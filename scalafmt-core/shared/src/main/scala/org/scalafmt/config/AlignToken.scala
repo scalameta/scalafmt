@@ -13,25 +13,29 @@ import metaconfig.generic.Surface
   */
 case class AlignToken(
     code: String,
-    owner: String
+    owner: String = null
 ) {
   def getMatcher: AlignToken.Matcher =
-    new AlignToken.Matcher(owner.r.pattern)
+    new AlignToken.Matcher(Option(owner).map(AlignToken.pattern))
 }
 
 object AlignToken {
+
+  private def pattern(value: String): jurPattern =
+    value.r.pattern
+
   implicit lazy val surface: Surface[AlignToken] =
     generic.deriveSurface[AlignToken]
   implicit lazy val encoder: ConfEncoder[AlignToken] = generic.deriveEncoder
   val applyInfix = "Term.ApplyInfix"
   val caseArrow = AlignToken("=>", "Case")
-  protected[scalafmt] val fallbackAlign = new AlignToken("<empty>", ".*")
+  protected[scalafmt] val fallbackAlign = new AlignToken("<empty>")
   implicit val decoder: ConfDecoderEx[AlignToken] = {
     val base = generic.deriveDecoderEx[AlignToken](fallbackAlign).noTypos
     ConfDecoderEx.from {
       case (_, Conf.Str("caseArrow")) => Ok(caseArrow)
       case (_, Conf.Str(regex)) =>
-        Ok(default.find(_.code == regex).getOrElse(AlignToken(regex, ".*")))
+        Ok(default.find(_.code == regex).getOrElse(AlignToken(regex)))
       case (state, conf) => base.read(state, conf)
     }
   }
@@ -40,7 +44,7 @@ object AlignToken {
   val default = Seq(
     caseArrow,
     AlignToken("extends", "Template"),
-    AlignToken("//", ".*"),
+    AlignToken("//"),
     AlignToken("{", "Template"),
     AlignToken("}", "Template"),
     AlignToken("%", applyInfix),
@@ -54,9 +58,9 @@ object AlignToken {
     AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|GivenAlias|Def|Type))")
   )
 
-  class Matcher(val owner: jurPattern) {
+  class Matcher(val owner: Option[jurPattern]) {
     def matches(tree: meta.Tree): Boolean =
-      check(tree)(owner)
+      owner.forall(check(tree))
   }
 
   @inline
