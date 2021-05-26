@@ -1014,3 +1014,23 @@ rewrite.rules = []
 import x.{Y}
 >>>
 import x.{Y}
+<<< #2539 nested blocks
+object a {
+  def foo = {
+    foo.map(foo => {{
+      logger.info(logMarker, s"SomeFoo: $foo")
+      foo
+    }})
+  }
+}
+>>>
+object a {
+  def foo = {
+    foo.map(foo => {
+      {
+        logger.info(logMarker, s"SomeFoo: $foo")
+        foo
+      }
+    })
+  }
+}
