@@ -4,25 +4,48 @@ import java.util.regex.{Pattern => jurPattern}
 
 import metaconfig.Configured.Ok
 import metaconfig._
+import metaconfig.annotation.DeprecatedName
 import metaconfig.generic.Surface
 
 /** Configuration option for aligning tokens.
   *
   * @param code string literal value of the token to align by.
-  * @param owner regexp for class name of scala.meta.Tree "owner" of [[code]].
+  * @param owners array of owner specs.
   */
 case class AlignToken(
     code: String,
-    owner: String = null
+    @DeprecatedName("owner", "use owners instead", "3.0.0")
+    owner: String = null,
+    owners: Seq[AlignToken.Owner] = Seq.empty
 ) {
-  def getMatcher: AlignToken.Matcher =
-    new AlignToken.Matcher(Option(owner).map(AlignToken.pattern))
+  def getMatcher: Seq[AlignToken.Matcher] = {
+    val specs =
+      if (owners.isEmpty) Option(owner) match {
+        case None => Seq.empty
+        case x => Seq(AlignToken.Owner(x))
+      }
+      else owners.distinct
+    specs.map(_.getMatcher)
+  }
 }
 
 object AlignToken {
 
   private def pattern(value: String): jurPattern =
     value.r.pattern
+
+  /** @param regex regexp for class name of scala.meta.Tree "owner".
+    * @param parent optional regexp for class name of owner's parent.
+    */
+  case class Owner(
+      regex: Option[String] = None,
+      parents: Seq[String] = Seq.empty
+  ) {
+    def getMatcher: Matcher =
+      new Matcher(regex.map(pattern), parents.map(pattern))
+  }
+  implicit val ownerSurface = generic.deriveSurface[Owner]
+  implicit val ownerCodec = generic.deriveCodecEx(Owner())
 
   implicit lazy val surface: Surface[AlignToken] =
     generic.deriveSurface[AlignToken]
@@ -58,9 +81,10 @@ object AlignToken {
     AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|GivenAlias|Def|Type))")
   )
 
-  class Matcher(val owner: Option[jurPattern]) {
+  class Matcher(val owner: Option[jurPattern], val parents: Seq[jurPattern]) {
     def matches(tree: meta.Tree): Boolean =
-      owner.forall(check(tree))
+      owner.forall(check(tree)) &&
+        (parents.isEmpty || tree.parent.exists(x => parents.forall(check(x))))
   }
 
   @inline

@@ -522,16 +522,22 @@ for {
 
 Default: **[caseArrow]**
 
-An align token is a pair of `code`, which is the string literal of an operator
-of token, and `owner`, which is the kind of the closest tree node that owns that
-token. If no `owner` is provided, then all tree kinds will be matched.
+An align token contains a `code` (the string literal of an operator of token) and a list of
+`owners`; each owner entry in turn contains an optional `regex` (the kind of the closest tree
+node that owns that token), and a list of `parents` (to match the tree containing the owner of
+the token).
 
 > To find the `owner` part for a custom tree, look for its type prefix using
 > [ScalaFiddle Playgroud](https://scalameta.org/docs/trees/scalafiddle.html) or
 > [AST Explorer](https://scalameta.org/docs/trees/astexplorer.html).
 
 ```scala mdoc:scalafmt
-align.tokens = [{code = "=>", owner = "Case"}]
+align.tokens = [{
+  code = "=>"
+  owners = [{
+    regex = "Case"
+  }]
+}]
 ---
 x match {
   case 1 => 1 -> 2
@@ -541,14 +547,66 @@ x match {
 
 ```scala mdoc:scalafmt
 align.tokens = [
-  {code = "%", owner = "Term.ApplyInfix"},
-  {code = "%%", owner = "Term.ApplyInfix"}
+  {
+    code = "%"
+    owners = [{
+      regex = "Term.ApplyInfix"
+    }]
+  }, {
+    code = "%%"
+    owners = [{
+      regex = "Term.ApplyInfix"
+    }]
+  }
 ]
 ---
 val x = List(
 "org.scala-lang" %% "scala-compiler" % scalaVersion.value,
 "com.lihaoyi" %% "sourcecode" % "0.1.1"
 )
+```
+
+```scala mdoc:scalafmt
+align.tokens."+" = [{
+  code = ":"
+  owners = [{
+    regex = "Term\\.Param"
+    parents = [ "Ctor\\.Primary" ]
+  }]
+}]
+---
+case class Foo(
+  firstParam: Int,
+  secondParam: String,
+  thirdParam: Boolean
+) {
+  def Foo(
+    firstParam: Int,
+    secondParam: String,
+    thirdParam: Boolean
+  ) = ???
+}
+```
+
+```scala mdoc:scalafmt
+align.tokens."+" = [{
+  code = ":"
+  owners = [{
+    parents = [ "Defn\\." ]
+  }]
+}]
+---
+case class Foo(
+  firstParam: Int,
+  secondParam: String,
+  thirdParam: Boolean
+) {
+  def Foo(
+    firstParam: Int,
+    secondParam: String,
+    thirdParam: Boolean
+  ) = ???
+}
 ```
 
 ### `align.arrowEnumeratorGenerator`
