@@ -298,6 +298,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
       case Term.Block(List(`b`)) => true
 
+      case _: Term.QuotedMacroExpr | _: Term.SplicedMacroExpr => false
+
       case _ =>
         settings.generalExpressions && shouldRemoveSingleStatBlock(b)
     }
