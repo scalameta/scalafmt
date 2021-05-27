@@ -7,6 +7,12 @@ ${ locationImpl() }
 '{   new Location() }
 >>>
 '{ new Location() }
+<<< remove redundant braces in quote braces
+rewrite.rules = [RedundantBraces]
+===
+'{   { new Location() } }
+>>>
+'{ new Location() }
 <<< quote expr
 ${
 val x   = 'expr
@@ -27,11 +33,23 @@ ${ assertImpl('expr) }
 throw new   AssertionError(s"failed assertion: ${${ showExpr(expr) }}")
 >>>
 throw new AssertionError(s"failed assertion: ${${ showExpr(expr) }}")
-<<< functions
+<<< functions in splices
 '{   (x: T) => ${ f('x) } }
 >>>
 '{ (x: T) => ${ f('x) } }
-<<< unctions spliced
+<<< functions with RedundantBraces
+rewrite.rules = [RedundantBraces]
+===
+'{   (x: T) => ${ f('x) } }
+>>>
+'{ (x: T) => ${ f('x) } }
+<<< remove redundant braces in functions in splices
+rewrite.rules = [RedundantBraces]
+===
+'{   (x: T) => ${ { f('x) } } }
+>>>
+'{ (x: T) => ${ f('x) } }
+<<< functions spliced
   (x: Expr[T]) => '{ $f($x) }
 >>>
 (x: Expr[T]) => '{ $f($x) }
@@ -115,3 +133,15 @@ body match {
       } if aVeryLongCondition(parameter) => subArgs.flatMap(flatSumArgs)
   case body => body
 }
+<<< redundant braces in splices and quotes
+rewrite.rules = [RedundantBraces]
+===
+def to[T, R](f: Expr[T] => Expr[R])(using
+    t: Type[T]
+)(using Type[R], Quotes): Expr[T => R] =
+  '{ { (x: t.Underlying) => ${ { f('x) } } } }
+>>>
+def to[T, R](f: Expr[T] => Expr[R])(using
+    t: Type[T]
+)(using Type[R], Quotes): Expr[T => R] =
+  '{ (x: t.Underlying) => ${ f('x) } }
