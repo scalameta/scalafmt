@@ -31,7 +31,13 @@ throw new AssertionError(s"failed assertion: ${${ showExpr(expr) }}")
 '{   (x: T) => ${ f('x) } }
 >>>
 '{ (x: T) => ${ f('x) } }
-<<< unctions spliced
+<<< functions with RedundantBraces
+rewrite.rules = [RedundantBraces]
+===
+'{   (x: T) => ${ f('x) } }
+>>>
+'{ (x: T) => ${ f('x) } }
+<<< functions spliced
   (x: Expr[T]) => '{ $f($x) }
 >>>
 (x: Expr[T]) => '{ $f($x) }
