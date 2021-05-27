@@ -70,3 +70,30 @@ def getTypeTreeRec(tpr: TypeRepr)(using Quotes): Expr[TypeTreeTag] = {
     case '[t] => getTypeTree[t]
   }
 }
+<<< curried indented #2522 
+def g =
+  f("Foo")
+    ("Bar")
+>>>
+def g =
+  f("Foo")("Bar")
+<<< curried indented brace #2522 
+def g =
+  f("Foo")
+    {"Bar"}
+>>>
+def g =
+  f("Foo") { "Bar" }
+<<< curried indented brace multiline #2522 
+def g =
+  f("Foo")
+    { param =>
+       val a = param + 2
+       a
+    }
+>>>
+def g =
+  f("Foo") { param =>
+    val a = param + 2
+    a
+  }
