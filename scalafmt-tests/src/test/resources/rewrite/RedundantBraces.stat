@@ -1043,4 +1043,4 @@ object ScalaFmtTest {
   )
 }
 >>>
-org.scalafmt.util.FormatException: java.util.NoSuchElementException: key not found: 1981583843223666796
+org.scalafmt.util.FormatException: java.util.NoSuchElementException: Missing matching token index [107:108]: `)`

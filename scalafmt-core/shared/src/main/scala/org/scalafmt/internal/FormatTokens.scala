@@ -74,7 +74,12 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   @inline def next(ft: FormatToken): FormatToken = apply(ft, 1)
 
   @inline def matching(token: Token): Token =
-    matchingParentheses(TokenOps.hash(token))
+    matchingParentheses.getOrElse(
+      TokenOps.hash(token),
+      throw new NoSuchElementException(
+        s"Missing matching token index [${token.start}:${token.end}]: `$token`"
+      )
+    )
   @inline def matchingOpt(token: Token): Option[Token] =
     matchingParentheses.get(TokenOps.hash(token))
   @inline def hasMatching(token: Token): Boolean =
