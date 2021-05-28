@@ -850,7 +850,7 @@ class FormatOps(
       rtoks.dropWhile(_.is[Whitespace])
     def orElse(rtoks: Seq[Token]) = {
       val last = rtoks.head
-      if (last.is[T.RightParen] && (matching(last) eq rtoks.last))
+      if (last.is[T.RightParen] && matchingOpt(last).contains(rtoks.last))
         rtoks.tail.find(!_.is[Whitespace]).get -> ExpiresOn.After
       else
         last -> ExpiresOn.After

@@ -1043,4 +1043,12 @@ object ScalaFmtTest {
   )
 }
 >>>
-org.scalafmt.util.FormatException: java.util.NoSuchElementException: Missing matching token index [107:108]: `)`
+object ScalaFmtTest {
+  foo.map(foo =>
+    foo(foo, 2)
+      .map { bar =>
+        baz
+        bar
+      }
+  )
+}
