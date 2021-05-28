@@ -107,29 +107,29 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     def replace = replaceToken("(") {
       val rt = ft.right
       new Token.LeftParen(rt.input, rt.dialect, rt.start)
-    }
-    // we will not keep it but will hint to onRight
-    (ft.meta.rightOwner, ft.left) match {
-      case (_, _: Token.MacroSplice) =>
-        null
-      case (t: Term.Function, _) if t.tokens.last.is[Token.RightBrace]  =>
-        if (!okToRemoveFunctionInApplyOrInit(t)) null
-        else if (okToReplaceFunctionInSingleArgApply(t)) replace
-        else removeToken
-      case (t: Term.Block, _) =>
-        if (okToReplaceBlockInSingleArgApply(t)) replace
-        else if (processBlock(t)) removeToken
-        else null
-      case (_: Term.Interpolate, _) =>
-        if (processInterpolation) removeToken else null
-      case (meta.Importer(_, List(x)), _)
-          if !(x.is[Importee.Rename] || x.is[Importee.Unimport]) ||
-            style.runner.dialect.allowAsForImportRename &&
-            (ConvertToNewScala3Syntax.enabled ||
-              !x.tokens.exists(_.is[Token.RightArrow])) =>
-        removeToken
-      case _ => null
-    }
+    } // we will not keep it but will hint to onRight
+    if (ft.left.is[Token.MacroSplice] || ft.left.is[Token.MacroQuote])
+      null
+    else
+      ft.meta.rightOwner match {
+        case t: Term.Function if t.tokens.last.is[Token.RightBrace] =>
+          if (!okToRemoveFunctionInApplyOrInit(t)) null
+          else if (okToReplaceFunctionInSingleArgApply(t)) replace
+          else removeToken
+        case t: Term.Block =>
+          if (okToReplaceBlockInSingleArgApply(t)) replace
+          else if (processBlock(t)) removeToken
+          else null
+        case _: Term.Interpolate =>
+          if (processInterpolation) removeToken else null
+        case meta.Importer(_, List(x))
+            if !(x.is[Importee.Rename] || x.is[Importee.Unimport]) ||
+              style.runner.dialect.allowAsForImportRename &&
+              (ConvertToNewScala3Syntax.enabled ||
+                !x.tokens.exists(_.is[Token.RightArrow])) =>
+          removeToken
+        case _ => null
+      }
   }
 
   private def onRightBrace(
