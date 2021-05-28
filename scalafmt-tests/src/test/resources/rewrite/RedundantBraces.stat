@@ -1032,3 +1032,15 @@ object a {
     }
   }
 }
+<<< #2539 nested rewritten lambda within another lambda
+object ScalaFmtTest {
+  foo.map(
+    foo => foo(foo, 2)
+      .map(bar => {
+        baz
+        bar
+      })
+  )
+}
+>>>
+org.scalafmt.util.FormatException: java.util.NoSuchElementException: key not found: 1981583843223666796
