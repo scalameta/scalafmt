@@ -601,15 +601,6 @@ object TreeOps {
   def isProcedureSyntax(defn: Defn.Def): Boolean =
     defn.decltpe.exists(_.tokens.isEmpty)
 
-  // matches tree nodes that can be considered "top-level statement": package/object/trait/def/val
-  object MaybeTopLevelStat {
-    def unapply(tree: Tree): Option[Tree] =
-      tree match {
-        case _: Pkg | _: Defn | _: Decl => Some(tree)
-        case _ => None
-      }
-  }
-
   def isXmlBrace(owner: Tree): Boolean =
     owner match {
       case _: Term.Xml | _: Pat.Xml => true

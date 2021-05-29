@@ -24,10 +24,10 @@ import scala.meta.{
   Enumerator,
   Importer,
   Lit,
-  Mod,
   Pat,
   Pkg,
   Source,
+  Stat,
   Template,
   Term,
   Tree,
@@ -277,14 +277,7 @@ class FormatWriter(formatOps: FormatOps) {
 
           case nl: NewlineT =>
             val isDouble = nl.isDouble ||
-              needTemplateBodyBlank(i) ||
-              style.newlines.forceBlankBeforeMultilineTopLevelStmt &&
-              isMultilineTopLevelStatement(i) ||
-              style.newlines.forceBlankAfterMultilineTopLevelStmt &&
-              locations.lengthCompare(i + 1) != 0 &&
-              topLevelLastToHeadTokens.get(i).exists {
-                isMultilineTopLevelStatement
-              }
+              i != locations.length - 1 && extraBlankTokens.contains(i)
             val newline = if (isDouble) "\n\n" else "\n"
             if (nl.noIndent) newline
             else newline + getIndentation(state.indentation)
@@ -1091,102 +1084,89 @@ class FormatWriter(formatOps: FormatOps) {
       }
     }
 
-    lazy val (
-      topLevelHeadTokens,
-      topLevelLastToHeadTokens,
-      templateBodyTokens
-    ) = {
-      val headBuffer = Set.newBuilder[Int]
-      val lastBuffer = Map.newBuilder[Int, Int]
-      val templateBodyBuffer = Map.newBuilder[Int, (Boolean, Template)]
+    lazy val extraBlankTokens = {
+      val extraBlankBuffer = Set.newBuilder[Int]
+      def setFt(ft: FormatToken): Unit =
+        extraBlankBuffer += ft.meta.idx
+      def indentedPackage(pkg: Pkg) = tokens.tokenAfter(pkg.ref).right match {
+        case _: T.LeftBrace | _: T.Colon => true
+        case _ => false
+      }
+      def setTopStats(stats: Seq[Tree]): Unit = {
+        def setStat(stat: Tree): Unit = {
+          val head = tokens.tokenJustBefore(stat)
+          val last = tokens.getLast(stat)
+          val bLoc = locations(head.meta.idx + 1)
+          val nl = bLoc.style.newlines
+          val numBreaks = getLineDiff(bLoc, locations(last.meta.idx))
+          if (numBreaks >= nl.topLevelStatementsMinBreaks) {
+            if (nl.forceBlankBeforeMultilineTopLevelStmt)
+              setFt(leadingComment(head))
+            if (nl.forceBlankAfterMultilineTopLevelStmt)
+              setFt(last)
+          }
+        }
+        stats.foreach {
+          case t: Pkg => if (indentedPackage(t)) setStat(t)
+          case t @ (_: Defn | _: meta.Decl) => setStat(t)
+          case _ =>
+        }
+      }
+      def insideBody(stats: Seq[Stat], nl: Newlines, ba: Newlines.BeforeAfter) =
+        stats.lengthCompare(nl.templateBodyMinStatements) >= 0 &&
+          nl.templateBodyIfMinStatements.contains(ba)
+      def beforeBody(stats: Seq[Stat])(altOk: Newlines => Boolean): Unit =
+        stats.headOption.foreach { x =>
+          val ft = tokens.tokenJustBefore(x)
+          val nl = locations(ft.meta.idx).style.newlines
+          val ok = insideBody(stats, nl, Newlines.before) || altOk(nl)
+          if (ok) setFt(leadingComment(ft))
+        }
+      def afterBody(stats: Seq[Stat]): Unit =
+        stats.lastOption.foreach { x =>
+          val ft = tokens.getLast(x)
+          val nl = locations(ft.meta.idx).style.newlines
+          if (insideBody(stats, nl, Newlines.after)) setFt(ft)
+        }
       val trav = new Traverser {
         override def apply(tree: Tree): Unit =
           tree match {
             case _: Term.Block =>
             case t: Template =>
-              t.stats.headOption.foreach { x =>
-                val idx = leadingComment(x).meta.idx
-                templateBodyBuffer += idx -> (true, t)
+              beforeBody(t.stats) {
+                _.beforeTemplateBodyIfBreakInParentCtors && {
+                  val beg = leadingComment(t).meta.idx
+                  val end = tokens(templateCurlyOrLastNonTrivial(t)).meta.idx
+                  locations(beg).leftLineId != locations(end).leftLineId
+                }
               }
-              t.stats.lastOption.foreach { x =>
-                val idx = tokens.getLast(x).meta.idx
-                templateBodyBuffer += idx -> (false, t)
-              }
+              afterBody(t.stats)
+              setTopStats(t.stats)
               super.apply(t.stats) // skip inits
-            case TreeOps.MaybeTopLevelStat(t) =>
-              val leading = leadingComment(t).meta.idx
-              val trailing = tokens.getLast(t).meta.idx
-              headBuffer += leading
-              lastBuffer += trailing -> leading
-              super.apply(tree)
+            case t: Pkg if indentedPackage(t) =>
+              setTopStats(t.stats)
+              super.apply(t.stats) // skip ref
+            case t: Pkg =>
+              val isBeforeBody = t.stats.headOption.exists {
+                case pkg: Pkg => indentedPackage(pkg)
+                case _ => true
+              }
+              if (isBeforeBody)
+                t.stats.headOption.foreach { x =>
+                  val index = tokens.tokenJustBefore(x)
+                  val nl = locations(index.meta.idx).style.newlines
+                  val ok = nl.forceBlankBeforeMultilineTopLevelStmt
+                  if (ok) setFt(leadingComment(index))
+                }
+              setTopStats(t.stats)
+              super.apply(t.stats) // skip ref
             case _ =>
               super.apply(tree)
           }
       }
 
       trav(topSourceTree)
-      (headBuffer.result(), lastBuffer.result(), templateBodyBuffer.result())
-    }
-
-    private def needTemplateBodyBlank(i: Int): Boolean =
-      templateBodyTokens.get(i).exists { case (isBefore, template) =>
-        val floc = locations(i)
-        val settings = floc.style.newlines
-        def checkBeforeAfter(ba: Newlines.BeforeAfter): Boolean =
-          template.stats
-            .lengthCompare(settings.templateBodyMinStatements) >= 0 &&
-            settings.templateBodyIfMinStatements.contains(ba)
-        if (isBefore)
-          checkBeforeAfter(Newlines.before) ||
-          settings.beforeTemplateBodyIfBreakInParentCtors && {
-            val curly = tokens(templateCurlyOrLastNonTrivial(template)).meta.idx
-            val beforeTemplate = leadingComment(template).meta.idx
-            locations(curly).leftLineId != locations(beforeTemplate).leftLineId
-          }
-        else
-          checkBeforeAfter(Newlines.after)
-      }
-
-    private def isMultilineTopLevelStatement(i: Int): Boolean = {
-      val formatToken = locations(i).formatToken
-
-      def checkPackage: Option[Boolean] =
-        Some(formatToken.meta.leftOwner)
-          .collect { case term: Term.Name => term.parent }
-          .flatten
-          .collect {
-            // package a
-            case pkg: Pkg =>
-              pkg.stats.headOption
-
-            // package a.b.c
-            case select: Term.Select =>
-              select.parent.collect { case pkg: Pkg =>
-                pkg.stats.headOption
-              }.flatten
-          }
-          .flatten
-          .map {
-            case pkg: Pkg => tokens.getLast(pkg.ref).right.is[T.LeftBrace]
-            case _ => true
-          }
-
-      def checkTopLevelStatement: Boolean =
-        topLevelHeadTokens.contains(formatToken.meta.idx) && {
-          val nextNonCommentTok = tokens.nextNonComment(formatToken)
-          val nonCommentOwner = nextNonCommentTok.meta.rightOwner match {
-            case mod: Mod => mod.parent.get
-            case x => x
-          }
-          val numBreaks = getLineDiff(
-            locations,
-            tokens.next(nextNonCommentTok),
-            tokens.getLast(nonCommentOwner)
-          )
-          numBreaks >= initStyle.newlines.topLevelStatementsMinBreaks
-        }
-
-      checkPackage.getOrElse(checkTopLevelStatement)
+      extraBlankBuffer.result()
     }
 
   }
