@@ -934,27 +934,28 @@ package core {
 }
 ```
 
-### Newlines around template body
+### Newlines around package or template body
 
 > Since v3.0.0.
 
 This group of parameters controls whether to enforce a blank line before the first
-or after the last statement of a template body (i.e., body of a class, object, trait, enum).
+or after the last statement of a package or template (i.e., body of a class, object,
+trait, enum).
 
 > These parameters will not cause any blank lines to be removed.
 
-#### `newlines.templateBodyIfMinStatements`
+#### `newlines.topLevelBodyIfMinStatements`
 
-`templateBodyIfMinStatements` can be `before` and/or `after`, while
-`templateBodyMinStatements` limits when the rule is applied.
+`topLevelBodyIfMinStatements` can be `before` and/or `after`, while
+`topLevelBodyMinStatements` limits when the rule is applied.
 
 ```scala mdoc:defaults
-newlines.templateBodyIfMinStatements
-newlines.templateBodyMinStatements
+newlines.topLevelBodyIfMinStatements
+newlines.topLevelBodyMinStatements
 ```
 
 ```scala mdoc:scalafmt
-newlines.templateBodyIfMinStatements = []
+newlines.topLevelBodyIfMinStatements = []
 ---
 import org.scalafmt
 package core {
@@ -970,7 +971,7 @@ package core {
 ```
 
 ```scala mdoc:scalafmt
-newlines.templateBodyIfMinStatements = [before]
+newlines.topLevelBodyIfMinStatements = [before]
 ---
 import org.scalafmt
 package core {
@@ -986,7 +987,7 @@ package core {
 ```
 
 ```scala mdoc:scalafmt
-newlines.templateBodyIfMinStatements = [after]
+newlines.topLevelBodyIfMinStatements = [after]
 ---
 package core {
   class C1 {
@@ -1001,7 +1002,7 @@ package core {
 ```
 
 ```scala mdoc:scalafmt
-newlines.templateBodyIfMinStatements = [before,after]
+newlines.topLevelBodyIfMinStatements = [before,after]
 ---
 import org.scalafmt
 package core {
