@@ -1114,8 +1114,8 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
       def insideBody(stats: Seq[Stat], nl: Newlines, ba: Newlines.BeforeAfter) =
-        stats.lengthCompare(nl.templateBodyMinStatements) >= 0 &&
-          nl.templateBodyIfMinStatements.contains(ba)
+        stats.lengthCompare(nl.topLevelBodyMinStatements) >= 0 &&
+          nl.topLevelBodyIfMinStatements.contains(ba)
       def beforeBody(stats: Seq[Stat])(altOk: Newlines => Boolean): Unit =
         stats.headOption.foreach { x =>
           val ft = tokens.tokenJustBefore(x)
@@ -1146,6 +1146,8 @@ class FormatWriter(formatOps: FormatOps) {
               setTopStats(t, t.stats)
               super.apply(t.stats) // skip inits
             case t: Pkg if indentedPackage(t) =>
+              beforeBody(t.stats)(_ => false)
+              afterBody(t, t.stats)
               setTopStats(t, t.stats)
               super.apply(t.stats) // skip ref
             case t: Pkg =>
@@ -1154,12 +1156,7 @@ class FormatWriter(formatOps: FormatOps) {
                 case _ => true
               }
               if (isBeforeBody)
-                t.stats.headOption.foreach { x =>
-                  val index = tokens.tokenJustBefore(x)
-                  val nl = locations(index.meta.idx).style.newlines
-                  val ok = nl.forceBlankBeforeMultilineTopLevelStmt
-                  if (ok) setFt(leadingComment(index))
-                }
+                beforeBody(t.stats)(_.forceBlankBeforeMultilineTopLevelStmt)
               setTopStats(t, t.stats)
               super.apply(t.stats) // skip ref
             case _ =>

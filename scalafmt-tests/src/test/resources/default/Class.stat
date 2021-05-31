@@ -448,13 +448,13 @@ object a {
     // c2
   }
 }
-<<< #1975 beforeTemplateBodyIfBreakInParentCtors, templateBodyIfMinStatements=before,after
+<<< #1975 beforeTemplateBodyIfBreakInParentCtors, topLevelBodyIfMinStatements=before,after
 newlines.source = keep
 includeCurlyBraceInSelectChains = true
 newlines.beforeTemplateBodyIfBreakInParentCtors = true
-newlines.templateBodyIfMinStatements = [before,after]
+newlines.topLevelBodyIfMinStatements = [before,after]
 ===
-object a {
+package a {
   class A(
     foo: Int, bar: String
   ) extends B with C
@@ -473,7 +473,7 @@ object a {
   }
 }
 >>>
-object a {
+package a {
 
   class A(
       foo: Int,
@@ -496,11 +496,11 @@ object a {
   }
 
 }
-<<< #1975 !beforeTemplateBodyIfBreakInParentCtors, templateBodyIfMinStatements=before,after
+<<< #1975 !beforeTemplateBodyIfBreakInParentCtors, topLevelBodyIfMinStatements=before,after
 newlines.source = keep
 includeCurlyBraceInSelectChains = true
 newlines.beforeTemplateBodyIfBreakInParentCtors = false
-newlines.templateBodyIfMinStatements = [before,after]
+newlines.topLevelBodyIfMinStatements = [before,after]
 ===
 object a {
   class A(
