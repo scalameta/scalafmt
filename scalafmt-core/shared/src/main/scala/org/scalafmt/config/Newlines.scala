@@ -170,12 +170,6 @@ case class Newlines(
     beforeTemplateBodyIfBreakInParentCtors: Boolean = false,
     topLevelBodyIfMinStatements: Seq[BeforeAfter] = Seq.empty,
     topLevelBodyMinStatements: Int = 2,
-    @annotation.DeprecatedName(
-      "alwaysBeforeTopLevelStatements",
-      "Use newlines.topLevelStatements instead",
-      "2.5.0"
-    )
-    private val alwaysBeforeTopLevelStatements: Boolean = false,
     @annotation.ExtraName("afterCurlyLambda")
     afterCurlyLambdaParams: AfterCurlyLambdaParams =
       AfterCurlyLambdaParams.never,
@@ -255,8 +249,7 @@ case class Newlines(
       !forceBeforeImplicitParamListModifier
 
   lazy val forceBlankBeforeMultilineTopLevelStmt: Boolean =
-    topLevelStatements.contains(before) ||
-      alwaysBeforeTopLevelStatements
+    topLevelStatements.contains(before)
   lazy val forceBlankAfterMultilineTopLevelStmt: Boolean =
     topLevelStatements.contains(after)
 
