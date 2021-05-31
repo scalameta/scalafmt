@@ -276,11 +276,12 @@ class FormatWriter(formatOps: FormatOps) {
             getIndentation(1 + currentAlign + previousAlign)
 
           case nl: NewlineT =>
-            val isDouble = nl.isDouble ||
-              i != locations.length - 1 && extraBlankTokens.contains(i)
-            val newline = if (isDouble) "\n\n" else "\n"
-            if (nl.noIndent) newline
-            else newline + getIndentation(state.indentation)
+            val extraBlanks =
+              if (i == locations.length - 1) 0
+              else extraBlankTokens.getOrElse(i, if (nl.isDouble) 1 else 0)
+            val newlines = getNewlines(extraBlanks)
+            if (nl.noIndent) newlines
+            else newlines + getIndentation(state.indentation)
 
           case Provided(ft) => ft.betweenText
 
@@ -1085,9 +1086,12 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
     lazy val extraBlankTokens = {
-      val extraBlankBuffer = Set.newBuilder[Int]
-      def setFt(ft: FormatToken): Unit =
-        extraBlankBuffer += ft.meta.idx
+      val extraBlankMap = new mutable.HashMap[Int, Int]
+      def setFt(ft: FormatToken, cnt: Int = 1): Unit = if (cnt > 0) {
+        val idx = ft.meta.idx
+        if (extraBlankMap.getOrElseUpdate(idx, cnt) < cnt)
+          extraBlankMap.update(idx, cnt)
+      }
       def indentedPackage(pkg: Pkg) = tokens.tokenAfter(pkg.ref).right match {
         case _: T.LeftBrace | _: T.Colon => true
         case _ => false
@@ -1165,7 +1169,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       trav(topSourceTree)
-      extraBlankBuffer.result()
+      extraBlankMap.toMap
     }
 
   }
@@ -1399,6 +1403,21 @@ object FormatWriter {
   // see if indentation level is cached first
   private def getIndentation(len: Int): String =
     if (len < indentations.length) indentations(len) else " " * len
+
+  // cache newlines to some level
+  private val extraNewlines: IndexedSeq[String] = {
+    val size = 4
+    val buf = new mutable.ArrayBuffer[String](size)
+    buf += "\n"
+    // use the previous indentation to add another newline
+    (1 until size).foreach(_ => buf += "\n" + buf.last)
+    buf.toIndexedSeq
+  }
+
+  // see if blank level is cached first
+  private def getNewlines(extra: Int): String =
+    if (extra < extraNewlines.length) extraNewlines(extra)
+    else "\n" * (1 + extra)
 
   private val trailingSpace = Pattern.compile("\\h++$", Pattern.MULTILINE)
   private def removeTrailingWhiteSpace(str: String): String = {
