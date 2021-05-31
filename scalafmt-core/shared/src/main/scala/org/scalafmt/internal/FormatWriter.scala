@@ -1092,7 +1092,8 @@ class FormatWriter(formatOps: FormatOps) {
         case _: T.LeftBrace | _: T.Colon => true
         case _ => false
       }
-      def setTopStats(stats: Seq[Tree]): Unit = {
+      def setTopStats(owner: Tree, stats: Seq[Tree]): Unit = {
+        val end = owner.pos.end
         def setStat(stat: Tree): Unit = {
           val head = tokens.tokenJustBefore(stat)
           val last = tokens.getLast(stat)
@@ -1103,7 +1104,7 @@ class FormatWriter(formatOps: FormatOps) {
             if (nl.forceBlankBeforeMultilineTopLevelStmt)
               setFt(leadingComment(head))
             if (nl.forceBlankAfterMultilineTopLevelStmt)
-              setFt(last)
+              setFt(trailingComment(last, end))
           }
         }
         stats.foreach {
@@ -1122,11 +1123,12 @@ class FormatWriter(formatOps: FormatOps) {
           val ok = insideBody(stats, nl, Newlines.before) || altOk(nl)
           if (ok) setFt(leadingComment(ft))
         }
-      def afterBody(stats: Seq[Stat]): Unit =
+      def afterBody(owner: Tree, stats: Seq[Stat]): Unit =
         stats.lastOption.foreach { x =>
           val ft = tokens.getLast(x)
           val nl = locations(ft.meta.idx).style.newlines
-          if (insideBody(stats, nl, Newlines.after)) setFt(ft)
+          if (insideBody(stats, nl, Newlines.after))
+            setFt(trailingComment(ft, owner.pos.end))
         }
       val trav = new Traverser {
         override def apply(tree: Tree): Unit =
@@ -1140,11 +1142,11 @@ class FormatWriter(formatOps: FormatOps) {
                   locations(beg).leftLineId != locations(end).leftLineId
                 }
               }
-              afterBody(t.stats)
-              setTopStats(t.stats)
+              afterBody(t, t.stats)
+              setTopStats(t, t.stats)
               super.apply(t.stats) // skip inits
             case t: Pkg if indentedPackage(t) =>
-              setTopStats(t.stats)
+              setTopStats(t, t.stats)
               super.apply(t.stats) // skip ref
             case t: Pkg =>
               val isBeforeBody = t.stats.headOption.exists {
@@ -1158,7 +1160,7 @@ class FormatWriter(formatOps: FormatOps) {
                   val ok = nl.forceBlankBeforeMultilineTopLevelStmt
                   if (ok) setFt(leadingComment(index))
                 }
-              setTopStats(t.stats)
+              setTopStats(t, t.stats)
               super.apply(t.stats) // skip ref
             case _ =>
               super.apply(tree)

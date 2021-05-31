@@ -534,8 +534,8 @@ object a {
     // c1
     def a = 1
     def b = 2
-
     // c2
+
   }
   class A(
       foo: Int,
@@ -546,8 +546,8 @@ object a {
     // c1
     def a = 1
     def b = 2
-
     // c2
+
   }
 
 }
