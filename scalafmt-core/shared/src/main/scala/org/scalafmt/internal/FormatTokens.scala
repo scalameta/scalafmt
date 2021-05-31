@@ -137,13 +137,16 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
 
   @inline
   def tokenAfter(tree: Tree): FormatToken = nextNonComment(getLast(tree))
-
   @inline
   def tokenAfter(trees: Seq[Tree]): FormatToken = tokenAfter(trees.last)
 
   @inline
-  def tokenBefore(token: Token): FormatToken = prevNonComment(apply(token, -1))
+  def justBefore(token: Token): FormatToken = apply(token, -1)
+  @inline
+  def tokenJustBefore(tree: Tree): FormatToken = justBefore(tree.tokens.head)
 
+  @inline
+  def tokenBefore(token: Token): FormatToken = prevNonComment(justBefore(token))
   @inline
   def tokenBefore(tree: Tree): FormatToken = tokenBefore(tree.tokens.head)
 
