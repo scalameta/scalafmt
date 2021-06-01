@@ -220,6 +220,8 @@ package b {
  }
  // c2
 
+ // c
+
  // c1
  object a {
   type a = a
@@ -265,6 +267,8 @@ package b {
     type a = a
   }
   // c2
+
+  // c
 
   // c1
   object a {
@@ -320,6 +324,8 @@ package b {
  }
  // c2
 
+ // c
+
  // c1
  object a {
   type a = a
@@ -366,6 +372,8 @@ package b {
     type a = a
   }
   // c2
+
+  // c
 
   // c1
   object a {
