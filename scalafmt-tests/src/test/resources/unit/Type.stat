@@ -105,3 +105,20 @@ trait Foo[+->[_, _]]
 trait Foo[+ F[_, _]]
 >>>
 trait Foo[+F[_, _]]
+<<< kind projector #2560 
+runner.dialect = scala213source3
+maxColumn = 80
+===
+object O{
+class x(arg: OptionT[Either[Int, +_]])
+class y(arg: OptionT[Either[Int, -_]])
+class z(arg: OptionT[Either[Int, +*]])
+class t(arg: OptionT[Either[Int, -*]])
+}
+>>>
+object O {
+  class x(arg: OptionT[Either[Int, +_]])
+  class y(arg: OptionT[Either[Int, -_]])
+  class z(arg: OptionT[Either[Int, +*]])
+  class t(arg: OptionT[Either[Int, -*]])
+}

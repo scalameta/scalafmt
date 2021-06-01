@@ -1648,6 +1648,11 @@ class Router(formatOps: FormatOps) {
           if isTypeVariant(leftOwner) =>
         Seq(Split(Space(isSymbolicIdent(tok.right)), 0))
 
+      // Kind projector type lambda
+      case FormatToken(T.Ident("+" | "-"), T.Underscore(), _)
+          if leftOwner.is[Type.Name] =>
+        Seq(Split(NoSplit, 0))
+
       // Var args
       case FormatToken(_, T.Ident("*"), _) if rightOwner.is[Type.Repeated] =>
         Seq(
