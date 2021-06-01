@@ -224,7 +224,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
       ownerOpt.foreach { owner =>
-        val endFt = tokens.tokenAfter(owner)
+        val endFt = tokens.getLast(owner)
         if (!endFt.meta.rightOwner.is[Term.EndMarker]) {
           val end = endFt.meta.idx
           val eLoc = locations(end)
