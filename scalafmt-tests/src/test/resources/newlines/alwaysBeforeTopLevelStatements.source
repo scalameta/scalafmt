@@ -595,6 +595,7 @@ def foo[X](f: => X): String = ???
 
 
 extension (s: String)
+
   /** A documentation comment. */
   def baz(cb: String => Unit): Unit =
     ???
@@ -628,6 +629,8 @@ extension (s: String)
   /** A documentation comment. */
   def baz(cb: String => Unit): Unit =
     ???
+
+
 
   /** A documentation comment. */
   def baz(cb: String => Unit): Unit =

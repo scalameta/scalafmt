@@ -1177,6 +1177,15 @@ class FormatWriter(formatOps: FormatOps) {
               afterBody(t, t.stats)
               setTopStats(t, t.stats)
               super.apply(t.stats) // skip inits
+            case t: Defn.ExtensionGroup =>
+              val stats = t.body match {
+                case b: Term.Block => b.stats
+                case b => List(b)
+              }
+              beforeBody(stats)(_ => false)
+              afterBody(t, stats)
+              setTopStats(t, stats)
+              super.apply(stats)
             case t: Pkg if indentedPackage(t) =>
               beforeBody(t.stats)(_ => false)
               afterBody(t, t.stats)
