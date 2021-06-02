@@ -837,12 +837,23 @@ Each entry on this list consists of the following fields:
 - `blanks`
   - consists of two integer fields, `before` and `after`, specifying how many
     blank lines need to be added in the appropriate place
+  - if omitted while the entry matches, serves to exclude another entry
   - can be specified as a single integer, to set both:
 
 ```
 // these two are equivalent
 newlines.topLevelStatementBlankLines = [{ blanks { before = 1, after = 1 } }]
 newlines.topLevelStatementBlankLines = [{ blanks = 1 }]
+```
+
+If you'd like to override or exclude some cases, add them explicitly:
+
+```
+newlines.topLevelStatementBlankLines = [
+  { maxNest = 0, blanks = 2 } // uses 2 blanks for all unindented statements
+  { regex = "^Import" } // excludes import groups; blanks are not specified
+]
+
 ```
 
 > If multiple entries match a statement, an entry with the lowest `minBreaks`

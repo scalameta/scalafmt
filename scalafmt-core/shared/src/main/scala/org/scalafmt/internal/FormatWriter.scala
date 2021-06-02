@@ -1113,10 +1113,18 @@ class FormatWriter(formatOps: FormatOps) {
           case _ => true
         }
         def setStat(stat: Tree, idx: Int, isLast: Boolean): Unit = {
+          setStats(idx, stat, stat, isLast)
+        }
+        def setStats(
+            idx: Int,
+            stat: Tree,
+            statLast: Tree,
+            isLast: Boolean
+        ): Unit = {
           def blanks(cnt: Int, unless: Boolean): Int =
             if (unless && cnt > 0) 1 else cnt
           val head = tokens.tokenJustBefore(stat)
-          val last = tokens.getLast(stat)
+          val last = tokens.getLast(statLast)
           val bLoc = locations(head.meta.idx + 1)
           val nl = bLoc.style.newlines
           val numBreaks = getLineDiff(bLoc, locations(last.meta.idx))
@@ -1127,20 +1135,39 @@ class FormatWriter(formatOps: FormatOps) {
           }
         }
         @tailrec
-        def iter(rest: Seq[Stat], idx: Int, prevIsImport: Boolean): Unit = {
+        def iter(
+            rest: Seq[Stat],
+            idx: Int,
+            imports: Option[(Int, ImportExportStat, ImportExportStat)]
+        ): Unit = {
           val stat = rest.head
           val ok = stat match {
             case _: Term.EndMarker => false
             case t: Pkg => indentedPackage(t)
-            case _: ImportExportStat => !prevIsImport
+            case _: ImportExportStat => false
             case _ => true
           }
           val newRest = rest.tail
           val isLast = newRest.isEmpty
+          val newImports = stat match {
+            case t: ImportExportStat =>
+              val (idxHead, head) =
+                imports.fold((idx, t)) { case (i, h, _) => (i, h) }
+              if (!isLast) Some((idxHead, head, t))
+              else {
+                setStats(idxHead, head, t, true)
+                None
+              }
+            case _ =>
+              imports.foreach { case (idxHead, head, last) =>
+                setStats(idxHead, head, last, false)
+              }
+              None
+          }
           if (ok) setStat(stat, idx, isLast)
-          if (!isLast) iter(newRest, idx + 1, stat.is[ImportExportStat])
+          if (!isLast) iter(newRest, idx + 1, newImports)
         }
-        iter(stats, 0, false)
+        iter(stats, 0, None)
       }
       def insideBody(stats: Seq[Stat], nl: Newlines, ba: Newlines.BeforeAfter) =
         stats.lengthCompare(nl.topLevelBodyMinStatements) >= 0 &&
