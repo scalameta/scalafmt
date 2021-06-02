@@ -15,8 +15,10 @@ import scala.meta.tokens.{Token, Tokens}
 import scala.meta.tokens.{Token => T}
 import scala.meta.{
   Case,
+  CaseTree,
   Defn,
   Enumerator,
+  ImportExportStat,
   Importer,
   Init,
   Lit,
@@ -27,9 +29,7 @@ import scala.meta.{
   Term,
   Tree,
   Type,
-  TypeCase,
-  CaseTree,
-  ImportExportStat
+  TypeCase
 }
 
 object Constants {
@@ -564,18 +564,19 @@ class Router(formatOps: FormatOps) {
         )
       // Opening [ with no leading space.
       // Opening ( with no leading space.
-      case FormatToken(
-            RightParenOrBracket() | T.KwSuper() | T.KwThis() | T.Ident(_) |
-            T.RightBrace() | T.Underscore() | T.Constant.Symbol(_),
-            LeftParenOrBracket(),
-            _
-          ) if noSpaceBeforeOpeningParen(rightOwner) && {
+      case ft @ FormatToken(_, open @ LeftParenOrBracket(), _)
+          if noSpaceBeforeOpeningParen(rightOwner) &&
             leftOwner.parent.forall {
               // infix applications have no space.
               case _: Type.ApplyInfix | _: Term.ApplyInfix => false
-              case parent => true
-            }
-          } =>
+              case _ => true
+            } && (prevNonComment(formatToken).left match {
+              case RightParenOrBracket() | T.KwSuper() | T.KwThis() |
+                  T.Ident(_) | T.RightBrace() | T.Underscore() |
+                  T.Constant.Symbol(_) =>
+                true
+              case _ => false
+            }) =>
         val modification: Modification = leftOwner match {
           case _: Mod => Space
           // Add a space between constructor annotations and their parameter lists
@@ -593,7 +594,7 @@ class Router(formatOps: FormatOps) {
           case _: Defn.ExtensionGroup
               if formatToken.left.is[soft.KwExtension] =>
             Space
-          case _ => NoSplit
+          case _ => Space(ft.left.is[T.Comment])
         }
         Seq(
           Split(modification, 0)
