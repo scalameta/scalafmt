@@ -383,6 +383,9 @@ package b {
 package a
 package a1
 
+
+
+
 import a.b
 import a.b
 
@@ -433,6 +436,7 @@ package b {
       }
 
       object a {}
+
       import a.b
       import a.b
 
@@ -554,6 +558,7 @@ class Bar[V <: VAType](someProperty: String)
     extends SomePropertyBuilder[V](someProperty)
 >>>
 package x.y.z
+
 
 import x.y.foo1
 import x.y.foo2
