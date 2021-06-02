@@ -3794,6 +3794,7 @@ type T = A1 & A2 | A3 & A4 | A5 &
 <<< #2561 scala 2: defn, no align
 align.preset = none
 newlines.beforeOpenParenDefnSite = true
+newlines.sometimesBeforeColonInMethodReturnType = true
 ===
 object a {
   def fooFunc
@@ -3816,45 +3817,42 @@ object a {
 }
 >>>
 object a {
-  def fooFunc(foo1: String)(
-      foo2: String
-  ): String = ???
-  def fooFunc(foo1: String)(
-      foo2: String
-  )(foo3: String)(foo4: String)(
-      foo5: String
-  ): (String, String, String, String) =
+  def fooFunc(foo1: String)
+    (foo2: String)
+    : String = ???
+  def fooFunc(foo1: String)
+    (foo2: String)(foo3: String)
+    (foo4: String)(foo5: String)
+    : (String, String, String, String) =
     ???
-  def notAnInterestingFunction(
-      foo1: String
-  )(
-      foo2: String,
-      foo3: String,
-      foo4: Map[
-        String,
-        Map[String, Map[String, String]]
-      ]
-  ) // this line doesn't fit
-  (foo5: String)(implicit
-      foo6: Int,
-      foo7: Int,
-      foo8: Int,
-      foo9: Int,
-      foo10: Int,
-      foo11: Int,
-      foo12: Int
-  ) // this line also doesn't fit
-      : (
+  def notAnInterestingFunction
+    (foo1: String)
+    (
+        foo2: String,
+        foo3: String,
+        foo4: Map[String, Map[
           String,
-          String,
-          String,
-          String
-      ) = ???
+          Map[String, String]
+        ]]
+    ) // this line doesn't fit
+    (foo5: String)
+    (implicit
+        foo6: Int,
+        foo7: Int,
+        foo8: Int,
+        foo9: Int,
+        foo10: Int,
+        foo11: Int,
+        foo12: Int
+    ) // this line also doesn't fit
+    : (String, String, String, String) =
+    ???
 }
 <<< #2561 scala 2: defn, align
 align.preset = none
 align.openParenDefnSite = true
 newlines.beforeOpenParenDefnSite = true
+newlines.sometimesBeforeColonInMethodReturnType = true
 ===
 object a {
   def fooFunc
@@ -3877,38 +3875,35 @@ object a {
 }
 >>>
 object a {
-  def fooFunc(foo1: String)(
-      foo2: String
-  ): String = ???
-  def fooFunc(foo1: String)(
-      foo2: String
-  )(foo3: String)(foo4: String)(
-      foo5: String
-  ): (String, String, String, String) =
+  def fooFunc(foo1: String)
+    (foo2: String)
+    : String = ???
+  def fooFunc(foo1: String)
+    (foo2: String)(foo3: String)
+    (foo4: String)(foo5: String)
+    : (String, String, String, String) =
     ???
-  def notAnInterestingFunction(
-      foo1: String
-  )(foo2: String,
-    foo3: String,
-    foo4: Map[
-      String,
-      Map[String, Map[String, String]]
-    ]
-  ) // this line doesn't fit
-  (foo5: String)(implicit
-      foo6: Int,
-      foo7: Int,
-      foo8: Int,
-      foo9: Int,
-      foo10: Int,
-      foo11: Int,
-      foo12: Int
-  ) // this line also doesn't fit
-      : (String,
-         String,
-         String,
-         String
-      ) = ???
+  def notAnInterestingFunction
+    (foo1: String)
+    (foo2: String,
+     foo3: String,
+     foo4: Map[
+       String,
+       Map[String, Map[String, String]]
+     ]
+    ) // this line doesn't fit
+    (foo5: String)
+    (implicit
+        foo6: Int,
+        foo7: Int,
+        foo8: Int,
+        foo9: Int,
+        foo10: Int,
+        foo11: Int,
+        foo12: Int
+    ) // this line also doesn't fit
+    : (String, String, String, String) =
+    ???
 }
 <<< #2561 scala 3: defn, no align
 align.preset = none
@@ -3936,40 +3931,36 @@ object a {
 }
 >>>
 object a {
-  def fooFunc(foo1: String)(
-      foo2: String
-  ): String = ???
-  def fooFunc(foo1: String)(
-      foo2: String
-  )(foo3: String)(foo4: String)(
-      foo5: String
-  ): (String, String, String, String) =
+  def fooFunc(foo1: String)
+    (foo2: String)
+    : String = ???
+  def fooFunc(foo1: String)
+    (foo2: String)(foo3: String)
+    (foo4: String)(foo5: String)
+    : (String, String, String, String) =
     ???
-  def notAnInterestingFunction(
-      foo1: String
-  )(
-      foo2: String,
-      foo3: String,
-      foo4: Map[
-        String,
-        Map[String, Map[String, String]]
-      ]
-  ) // this line doesn't fit
-  (foo5: String)(using
-      foo6: Int,
-      foo7: Int,
-      foo8: Int,
-      foo9: Int,
-      foo10: Int,
-      foo11: Int,
-      foo12: Int
-  ) // this line also doesn't fit
-      : (
+  def notAnInterestingFunction
+    (foo1: String)
+    (
+        foo2: String,
+        foo3: String,
+        foo4: Map[String, Map[
           String,
-          String,
-          String,
-          String
-      ) = ???
+          Map[String, String]
+        ]]
+    ) // this line doesn't fit
+    (foo5: String)
+    (using
+        foo6: Int,
+        foo7: Int,
+        foo8: Int,
+        foo9: Int,
+        foo10: Int,
+        foo11: Int,
+        foo12: Int
+    ) // this line also doesn't fit
+    : (String, String, String, String) =
+    ???
 }
 <<< #2561 scala 3: defn, align
 align.preset = none
@@ -3998,38 +3989,35 @@ object a {
 }
 >>>
 object a {
-  def fooFunc(foo1: String)(
-      foo2: String
-  ): String = ???
-  def fooFunc(foo1: String)(
-      foo2: String
-  )(foo3: String)(foo4: String)(
-      foo5: String
-  ): (String, String, String, String) =
+  def fooFunc(foo1: String)
+    (foo2: String)
+    : String = ???
+  def fooFunc(foo1: String)
+    (foo2: String)(foo3: String)
+    (foo4: String)(foo5: String)
+    : (String, String, String, String) =
     ???
-  def notAnInterestingFunction(
-      foo1: String
-  )(foo2: String,
-    foo3: String,
-    foo4: Map[
-      String,
-      Map[String, Map[String, String]]
-    ]
-  ) // this line doesn't fit
-  (foo5: String)(using
-      foo6: Int,
-      foo7: Int,
-      foo8: Int,
-      foo9: Int,
-      foo10: Int,
-      foo11: Int,
-      foo12: Int
-  ) // this line also doesn't fit
-      : (String,
-         String,
-         String,
-         String
-      ) = ???
+  def notAnInterestingFunction
+    (foo1: String)
+    (foo2: String,
+     foo3: String,
+     foo4: Map[
+       String,
+       Map[String, Map[String, String]]
+     ]
+    ) // this line doesn't fit
+    (foo5: String)
+    (using
+        foo6: Int,
+        foo7: Int,
+        foo8: Int,
+        foo9: Int,
+        foo10: Int,
+        foo11: Int,
+        foo12: Int
+    ) // this line also doesn't fit
+    : (String, String, String, String) =
+    ???
 }
 <<< #2561 scala 3: call, no align
 align.preset = none
@@ -4054,27 +4042,23 @@ object a {
 }
 >>>
 object a {
-  def f = fooFunc("foo1")("foo2")(
-    "foo3"
-  )("foo4")("foo5")
+  def f = fooFunc("foo1")("foo2")
+    ("foo3")("foo4")("foo5")
   def f =
-    fooFunc("foo1")("foo2")("foo3")(
-      "foo4"
-    )("foo5")
+    fooFunc("foo1")("foo2")("foo3")
+      ("foo4")("foo5")
   def f =
-    notAnInterestingFunction("foo1")(
-      "foo2",
-      "foo3",
-      "foo4"
-    )("foo5")(using
-      "foo6",
-      "foo7",
-      "foo8",
-      "foo9",
-      "foo10",
-      "foo11",
-      "foo12"
-    )
+    notAnInterestingFunction("foo1")
+      ("foo2", "foo3", "foo4")("foo5")
+      (using
+        "foo6",
+        "foo7",
+        "foo8",
+        "foo9",
+        "foo10",
+        "foo11",
+        "foo12"
+      )
 }
 <<< #2561 scala 3: call, align
 align.preset = none
@@ -4100,25 +4084,21 @@ object a {
 }
 >>>
 object a {
-  def f = fooFunc("foo1")("foo2")(
-    "foo3"
-  )("foo4")("foo5")
+  def f = fooFunc("foo1")("foo2")
+    ("foo3")("foo4")("foo5")
   def f =
-    fooFunc("foo1")("foo2")("foo3")(
-      "foo4"
-    )("foo5")
+    fooFunc("foo1")("foo2")("foo3")
+      ("foo4")("foo5")
   def f =
-    notAnInterestingFunction("foo1")(
-      "foo2",
-      "foo3",
-      "foo4"
-    )("foo5")(using
-      "foo6",
-      "foo7",
-      "foo8",
-      "foo9",
-      "foo10",
-      "foo11",
-      "foo12"
-    )
+    notAnInterestingFunction("foo1")
+      ("foo2", "foo3", "foo4")("foo5")
+      (using
+        "foo6",
+        "foo7",
+        "foo8",
+        "foo9",
+        "foo10",
+        "foo11",
+        "foo12"
+      )
 }
