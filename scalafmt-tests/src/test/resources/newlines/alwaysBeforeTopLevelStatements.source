@@ -515,8 +515,6 @@ class Bar[V <: VAType](someProperty: String)
 >>>
 package x.y.z
 
-
-
 object Foo:
 
   def apply[V <: VAType](someProperty: String): SomePropertyBuilder[V] =
@@ -525,6 +523,10 @@ object Foo:
 
 
 /** A doc comment. */
+<Idempotency violated
+
+
+>Idempotency violated
 class Bar[V <: VAType](someProperty: String)
     extends SomePropertyBuilder[V](someProperty)
 <<< #2511 nesting, blanks 3, package -> import
@@ -556,7 +558,6 @@ class Bar[V <: VAType](someProperty: String)
 >>>
 package x.y.z
 
-
 import x.y.foo1
 import x.y.foo2
 
@@ -573,6 +574,10 @@ object Foo:
 
 
 /** A doc comment. */
+<Idempotency violated
+
+
+>Idempotency violated
 class Bar[V <: VAType](someProperty: String)
     extends SomePropertyBuilder[V](someProperty)
 <<< #2511 nesting, blanks 3, extension single
@@ -597,7 +602,6 @@ def foo[X](f: => X): String = ???
 
 
 extension (s: String)
-
   /** A documentation comment. */
   def baz(cb: String => Unit): Unit =
     ???
@@ -631,8 +635,6 @@ extension (s: String)
   /** A documentation comment. */
   def baz(cb: String => Unit): Unit =
     ???
-
-
 
   /** A documentation comment. */
   def baz(cb: String => Unit): Unit =
