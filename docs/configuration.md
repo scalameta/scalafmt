@@ -105,6 +105,16 @@ Additionally, when using `-Xsource:3` option for Scala 2 you can change the
 dialect to `Scala213Source3`, which will allow to format the new syntax ported
 from Scala 3.
 
+You can also specify `runner.dialect` for a subset of files using [fileOverride](#fileoverride):
+
+```
+fileOverride {
+  "glob:**/scala3-subproject/src/main/scala/**" {
+    runner.dialect = scala3
+  }
+}
+```
+
 ## Presets
 
 Some sections provide preset values to set multiple parameters at once. These
