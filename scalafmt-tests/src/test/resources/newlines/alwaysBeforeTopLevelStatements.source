@@ -514,6 +514,8 @@ class Bar[V <: VAType](someProperty: String)
 >>>
 package x.y.z
 
+
+
 object Foo:
 
   def apply[V <: VAType](someProperty: String): SomePropertyBuilder[V] =

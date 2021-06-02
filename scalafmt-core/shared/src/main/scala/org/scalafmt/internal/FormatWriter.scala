@@ -1108,6 +1108,10 @@ class FormatWriter(formatOps: FormatOps) {
         val nest = getNest(owner, curNest)
         if (nest < 0) return
         val end = owner.pos.end
+        val notUnindentedPkg = owner match {
+          case t: Pkg => indentedPackage(t)
+          case _ => true
+        }
         def setStat(stat: Tree, idx: Int, isLast: Boolean): Unit = {
           def blanks(cnt: Int, unless: Boolean): Int =
             if (unless && cnt > 0) 1 else cnt
@@ -1117,7 +1121,8 @@ class FormatWriter(formatOps: FormatOps) {
           val nl = bLoc.style.newlines
           val numBreaks = getLineDiff(bLoc, locations(last.meta.idx))
           nl.getTopStatBlankLines(stat, numBreaks, nest).foreach { x =>
-            setFt(leadingComment(head), blanks(x.before, idx == 0))
+            val skipBefore = notUnindentedPkg && idx == 0
+            setFt(leadingComment(head), blanks(x.before, skipBefore))
             setFt(trailingComment(last, end), blanks(x.after, isLast))
           }
         }
