@@ -351,6 +351,18 @@ object TreeOps {
       case _ => false
     }
 
+  def defDefBody(tree: Tree): Option[Tree] =
+    tree match {
+      case d: Defn.Def => Some(d.body)
+      case d: Defn.Given => Some(d.templ)
+      case d: Defn.GivenAlias => Some(d.body)
+      case d: Defn.Val => Some(d.rhs)
+      case d: Defn.Var => d.rhs
+      case pat: Pat.Var => pat.parent.flatMap(defDefBody)
+      case name: Term.Name => name.parent.flatMap(defDefBody)
+      case _ => None
+    }
+
   def defDefReturnType(tree: Tree): Option[Type] =
     tree match {
       case d: Decl.Def => Some(d.decltpe)
@@ -713,6 +725,21 @@ object TreeOps {
         case _ => res
       }
   }
+
+  @inline
+  def getLastCall(tree: Tree): Tree = getLastCall(tree, tree)
+
+  @tailrec
+  private def getLastCall(tree: Tree, lastCall: Tree): Tree =
+    SplitCallIntoParts.unapply(tree) match {
+      case None => lastCall
+      case Some((_, Left(_))) =>
+        tree.parent match {
+          case Some(p) => getLastCall(p, tree)
+          case _ => tree
+        }
+      case _ => tree
+    }
 
   @tailrec
   def findInterpolate(

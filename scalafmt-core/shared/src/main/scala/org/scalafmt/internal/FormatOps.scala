@@ -1442,7 +1442,7 @@ class FormatOps(
       findArgsFor(paren, argss).getOrElse(Seq.empty)
     owner match {
       case InfixApp(ia) if style.newlines.formatInfix => TreeArgs(ia.op, ia.rhs)
-      case t @ SplitDefnIntoParts(_, name, tparams, paramss) =>
+      case SplitDefnIntoParts(_, name, tparams, paramss) =>
         if (if (isRight) paren.is[T.RightParen] else paren.is[T.LeftParen])
           TreeArgs(name, getArgs(paramss))
         else
