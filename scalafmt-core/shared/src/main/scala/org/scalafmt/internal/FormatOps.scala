@@ -1324,18 +1324,17 @@ class FormatOps(
 
   // Returns trailing comment, if there exists one, otherwise formatToken
   @inline
-  final def trailingComment(ft: FormatToken, end: Int): FormatToken =
-    if (!ft.right.is[T.Comment]) ft
-    else trailingWithRightComment(ft, end).getOrElse(ft)
-  @tailrec
-  private def trailingWithRightComment(
-      ft: FormatToken,
-      end: Int
-  ): Option[FormatToken] = {
-    val nft = tokens.nextNonCommentSameLine(next(ft))
-    if (nft.hasBlankLine || nft.right.end >= end) Some(nft)
-    else if (nft.noBreak || !nft.right.is[T.Comment]) None
-    else trailingWithRightComment(nft, end)
+  final def trailingComment(ft: FormatToken, end: Int): FormatToken = {
+    @inline
+    def isDone(x: FormatToken) = x.hasBlankLine || x.right.end >= end
+    @tailrec
+    def iter(x: FormatToken): FormatToken = {
+      val nft = tokens.nextNonCommentSameLine(next(x))
+      if (isDone(nft)) nft
+      else if (!nft.right.is[T.Comment]) ft // original
+      else iter(nft)
+    }
+    if (!ft.right.is[T.Comment] || isDone(ft)) ft else iter(ft)
   }
 
   def xmlSpace(owner: Tree): Modification =

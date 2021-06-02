@@ -493,7 +493,6 @@ given intToVAValueString: Conversion[Number, VAValue[String]] =
   (x: Number) => VAValue(x.toString)
 
 // import math.Numeric.Implicits.infixNumericOps
-
 //
 // Foo
 // Bar
@@ -523,10 +522,6 @@ object Foo:
 
 
 /** A doc comment. */
-<Idempotency violated
-
-
->Idempotency violated
 class Bar[V <: VAType](someProperty: String)
     extends SomePropertyBuilder[V](someProperty)
 <<< #2511 nesting, blanks 3, package -> import
@@ -574,10 +569,6 @@ object Foo:
 
 
 /** A doc comment. */
-<Idempotency violated
-
-
->Idempotency violated
 class Bar[V <: VAType](someProperty: String)
     extends SomePropertyBuilder[V](someProperty)
 <<< #2511 nesting, blanks 3, extension single
