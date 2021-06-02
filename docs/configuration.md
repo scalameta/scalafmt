@@ -841,7 +841,7 @@ Each entry on this list consists of the following fields:
 
 ```
 // these two are equivalent
-newlines.topLevelStatementBlankLines = [{ blanks { before = 1, after = 1 }]
+newlines.topLevelStatementBlankLines = [{ blanks { before = 1, after = 1 } }]
 newlines.topLevelStatementBlankLines = [{ blanks = 1 }]
 ```
 
