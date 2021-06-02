@@ -278,9 +278,11 @@ object ScalafmtConfig {
     }
 
   private def validate(cfg: ScalafmtConfig): Configured[ScalafmtConfig] = {
+    // scalafmt: { maxColumn = 200 }
     import cfg._
     import Newlines._
     import ValidationOps._
+    val errDialect = " (no support in Scala dialect)"
     val allErrors = new mutable.ArrayBuffer[String]
     locally {
       implicit val errors = new mutable.ArrayBuffer[String]
@@ -322,9 +324,8 @@ object ScalafmtConfig {
       implicit val errors = allErrors
       addIf(align.openParenCtrlSite && danglingParentheses.ctrlSite)
       if (!runner.dialect.allowTrailingCommas) {
-        def err = " (no support in Scala dialect)"
-        addIf(trailingCommas == TrailingCommas.always, err)
-        addIf(trailingCommas == TrailingCommas.multiple, err)
+        addIf(trailingCommas == TrailingCommas.always, errDialect)
+        addIf(trailingCommas == TrailingCommas.multiple, errDialect)
       }
       addIfDirect( // can't use addIf on multiline conditions
         (binPack.unsafeCallSite || binPack.unsafeDefnSite) && {
@@ -349,6 +350,7 @@ object ScalafmtConfig {
         indent.ctorSite
       )
     }
+    // scalafmt: {}
     if (allErrors.isEmpty) Configured.ok(cfg)
     else {
       val msg = allErrors.mkString("can't use: [\n\t", "\n\t", "\n]")
