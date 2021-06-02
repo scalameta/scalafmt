@@ -1044,12 +1044,20 @@ require at least one line break (that is, a multi-line statement).</li>
 <ul>
 <li>consists of two integer fields, <code>before</code> and <code>after</code>, specifying how many
 blank lines need to be added in the appropriate place</li>
+<li>if omitted while the entry matches, serves to exclude another entry</li>
 <li>can be specified as a single integer, to set both:</li>
 </ul></li>
 </ul>
 <pre><code class="hljs"><span class="hljs-comment">// these two are equivalent</span>
-<span class="hljs-keyword">new</span><span class="hljs-type">lines</span>.topLevelStatementBlankLines = [{ blanks { before = <span class="hljs-number">1</span>, after = <span class="hljs-number">1</span> }]
+<span class="hljs-keyword">new</span><span class="hljs-type">lines</span>.topLevelStatementBlankLines = [{ blanks { before = <span class="hljs-number">1</span>, after = <span class="hljs-number">1</span> } }]
 <span class="hljs-keyword">new</span><span class="hljs-type">lines</span>.topLevelStatementBlankLines = [{ blanks = <span class="hljs-number">1</span> }]
+</code></pre>
+<p>If you'd like to override or exclude some cases, add them explicitly:</p>
+<pre><code class="hljs"><span class="hljs-keyword">new</span><span class="hljs-type">lines</span>.topLevelStatementBlankLines = [
+  { maxNest = <span class="hljs-number">0</span>, blanks = <span class="hljs-number">2</span> } <span class="hljs-comment">// uses 2 blanks for all unindented statements</span>
+  { regex = <span class="hljs-string">"^Import"</span> } <span class="hljs-comment">// excludes import groups; blanks are not specified</span>
+]
+
 </code></pre>
 <blockquote>
 <p>If multiple entries match a statement, an entry with the lowest <code>minBreaks</code>
