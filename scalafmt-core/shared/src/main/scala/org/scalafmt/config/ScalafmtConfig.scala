@@ -290,8 +290,8 @@ object ScalafmtConfig {
         addIf(
           newlines.afterCurlyLambdaParams == AfterCurlyLambdaParams.preserve
         )
-        addIf(optIn.configStyleArguments && align.openParenCallSite)
-        addIf(optIn.configStyleArguments && align.openParenDefnSite)
+        addIf(optIn.configStyleArguments && align.openParenCallSite && !newlines.beforeOpenParenCallSite)
+        addIf(optIn.configStyleArguments && align.openParenDefnSite && !newlines.beforeOpenParenDefnSite)
         newlines.beforeMultiline.foreach { x =>
           addIf(
             x.eq(Newlines.classic) || x.eq(Newlines.keep),
@@ -326,6 +326,9 @@ object ScalafmtConfig {
       if (!runner.dialect.allowTrailingCommas) {
         addIf(trailingCommas == TrailingCommas.always, errDialect)
         addIf(trailingCommas == TrailingCommas.multiple, errDialect)
+      }
+      if (!runner.dialect.allowSignificantIndentation) {
+        addIf(newlines.beforeOpenParenCallSite, errDialect)
       }
       addIfDirect( // can't use addIf on multiline conditions
         (binPack.unsafeCallSite || binPack.unsafeDefnSite) && {

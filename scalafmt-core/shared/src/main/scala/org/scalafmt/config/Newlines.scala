@@ -153,6 +153,8 @@ case class Newlines(
     beforeTypeBounds: SourceHints = Newlines.classic,
     neverBeforeJsNative: Boolean = false,
     sometimesBeforeColonInMethodReturnType: Boolean = true,
+    beforeOpenParenDefnSite: Boolean = false,
+    beforeOpenParenCallSite: Boolean = false,
     penalizeSingleSelectMultiArgList: Boolean = true,
     @annotation.DeprecatedName(
       "alwaysBeforeCurlyBraceLambdaParams",
