@@ -450,3 +450,190 @@ package b {
   // c2
 
 }
+<<< #2511 trailing comments, before
+runner.dialect = scala3
+newlines.topLevelStatements = [before]
+===
+package dev.muve.vdom
+
+given intToVAValueString: Conversion[Number, VAValue[String]] =
+  (x: Number) => VAValue(x.toString)
+
+// import math.Numeric.Implicits.infixNumericOps
+//
+// Foo
+// Bar
+>>>
+package dev.muve.vdom
+
+given intToVAValueString: Conversion[Number, VAValue[String]] =
+  (x: Number) => VAValue(x.toString)
+
+// import math.Numeric.Implicits.infixNumericOps
+//
+// Foo
+// Bar
+<<< #2511 trailing comments, after 1
+runner.dialect = scala3
+newlines.topLevelStatements = [after]
+===
+package dev.muve.vdom
+
+given intToVAValueString: Conversion[Number, VAValue[String]] =
+  (x: Number) => VAValue(x.toString)
+
+// import math.Numeric.Implicits.infixNumericOps
+//
+// Foo
+// Bar
+>>>
+package dev.muve.vdom
+
+given intToVAValueString: Conversion[Number, VAValue[String]] =
+  (x: Number) => VAValue(x.toString)
+
+// import math.Numeric.Implicits.infixNumericOps
+
+//
+// Foo
+// Bar
+<<< #2511 nesting, blanks 3, package -> object
+runner.dialect = scala3
+newlines.topLevelStatements = []
+newlines.topLevelStatementBlankLines = [{ blanks = 3 }]
+===
+package x.y.z
+
+object Foo:
+
+  def apply[V <: VAType](someProperty: String): SomePropertyBuilder[V] =
+    new SomePropertyBuilder(someProperty)
+
+/** A doc comment. */
+class Bar[V <: VAType](someProperty: String)
+    extends SomePropertyBuilder[V](someProperty)
+>>>
+package x.y.z
+
+
+
+object Foo:
+
+  def apply[V <: VAType](someProperty: String): SomePropertyBuilder[V] =
+    new SomePropertyBuilder(someProperty)
+
+
+
+/** A doc comment. */
+class Bar[V <: VAType](someProperty: String)
+    extends SomePropertyBuilder[V](someProperty)
+<<< #2511 nesting, blanks 3, package -> import
+runner.dialect = scala3
+newlines.topLevelStatements = []
+newlines.topLevelStatementBlankLines = [
+  { blanks = 3 }
+  { blanks = 2, regex = "^Import" }
+]
+===
+package x.y.z
+
+import x.y.foo1
+import x.y.foo2
+
+import x.y.foo3
+import x.y.foo4
+
+object Foo:
+
+  def apply[V <: VAType](someProperty: String): SomePropertyBuilder[V] =
+    new SomePropertyBuilder(someProperty)
+
+
+
+/** A doc comment. */
+class Bar[V <: VAType](someProperty: String)
+    extends SomePropertyBuilder[V](someProperty)
+>>>
+package x.y.z
+
+
+import x.y.foo1
+import x.y.foo2
+
+import x.y.foo3
+import x.y.foo4
+
+
+
+object Foo:
+
+  def apply[V <: VAType](someProperty: String): SomePropertyBuilder[V] =
+    new SomePropertyBuilder(someProperty)
+
+
+
+/** A doc comment. */
+class Bar[V <: VAType](someProperty: String)
+    extends SomePropertyBuilder[V](someProperty)
+<<< #2511 nesting, blanks 3, extension single
+runner.dialect = scala3
+newlines.topLevelStatements = []
+newlines.topLevelStatementBlankLines = [{ blanks = 3 }]
+===
+package x.y
+
+def foo[X](f: => X): String = ???
+
+extension (s: String)
+
+  /** A documentation comment. */
+  def baz(cb: String => Unit): Unit =
+    ???
+>>>
+package x.y
+
+def foo[X](f: => X): String = ???
+
+
+
+extension (s: String)
+
+  /** A documentation comment. */
+  def baz(cb: String => Unit): Unit =
+    ???
+<<< #2511 nesting, blanks 3, extension multiple
+runner.dialect = scala3
+newlines.topLevelStatements = []
+newlines.topLevelStatementBlankLines = [{ blanks = 3 }]
+===
+package x.y
+
+def foo[X](f: => X): String = ???
+
+extension (s: String)
+
+  /** A documentation comment. */
+  def baz(cb: String => Unit): Unit =
+    ???
+
+  /** A documentation comment. */
+  def baz(cb: String => Unit): Unit =
+    ???
+>>>
+package x.y
+
+def foo[X](f: => X): String = ???
+
+
+
+extension (s: String)
+
+  /** A documentation comment. */
+  def baz(cb: String => Unit): Unit =
+    ???
+
+
+
+  /** A documentation comment. */
+  def baz(cb: String => Unit): Unit =
+    ???
