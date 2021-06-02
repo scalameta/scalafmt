@@ -577,7 +577,7 @@ class Router(formatOps: FormatOps) {
                 true
               case _ => false
             }) =>
-        val modification: Modification = leftOwner match {
+        def modification: Modification = leftOwner match {
           case _: Mod => Space
           // Add a space between constructor annotations and their parameter lists
           // see:
@@ -596,9 +596,73 @@ class Router(formatOps: FormatOps) {
             Space
           case _ => Space(ft.left.is[T.Comment])
         }
-        Seq(
-          Split(modification, 0)
-        )
+        val defn = isDefnSite(rightOwner)
+        def getSplitsBeforeOpenParen(indentLen: Int) = {
+          val close = matching(open)
+          val indent = Indent(indentLen, close, ExpiresOn.After)
+          style.newlines.source match {
+            case Newlines.unfold =>
+              val slbEnd =
+                if (defn)
+                  defDefBody(rightOwner).fold(getLastToken(rightOwner)) {
+                    tokens.tokenBefore(_).left
+                  }
+                else getLastToken(getLastCall(rightOwner))
+              val multipleArgs =
+                getApplyArgs(next(ft), false).args.lengthCompare(1) > 0
+              val nft = tokens.tokenAfter(close)
+              val nlPolicy = nft.right match {
+                case t: T.LeftParen => decideNewlinesOnlyBeforeClose(t)
+                case t: T.Colon
+                    if (style.newlines.sometimesBeforeColonInMethodReturnType
+                      || nft.left.is[T.Comment]) && defn =>
+                  decideNewlinesOnlyBeforeClose(t)
+                case _ => NoPolicy
+              }
+              Seq(
+                Split(NoSplit, 0).withSingleLine(slbEnd),
+                Split(Newline, 1)
+                  .withIndent(indent)
+                  .withSingleLineOpt(if (multipleArgs) None else Some(close))
+                  .andPolicy(nlPolicy)
+              )
+            case Newlines.keep =>
+              if (newlines != 0)
+                Seq(Split(Newline, 0).withIndent(indent))
+              else
+                Seq(
+                  Split(NoSplit, 0).withSingleLine(close),
+                  Split(Newline, 1).withIndent(indent)
+                )
+            case _ =>
+              def nlColonPolicy =
+                if (!style.newlines.sometimesBeforeColonInMethodReturnType) None
+                else if (!defn) None
+                else
+                  defDefReturnType(rightOwner).flatMap { declTpe =>
+                    tokenBefore(declTpe).left match {
+                      case t: T.Colon => Some(decideNewlinesOnlyBeforeClose(t))
+                      case _ => None
+                    }
+                  }
+              Seq(
+                Split(NoSplit, 0).withSingleLine(close),
+                Split(Newline, 1)
+                  .withIndent(indent)
+                  .withPolicyOpt(nlColonPolicy)
+              )
+          }
+        }
+        if (
+          style.newlines.beforeOpenParenDefnSite &&
+          open.is[T.LeftParen] && defn
+        ) getSplitsBeforeOpenParen(style.indent.main)
+        else if (
+          style.newlines.beforeOpenParenCallSite &&
+          style.runner.dialect.allowSignificantIndentation &&
+          open.is[T.LeftParen] && !defn
+        ) getSplitsBeforeOpenParen(style.indent.getSignificant)
+        else Seq(Split(modification, 0))
       // Defn.{Object, Class, Trait, Enum}
       case FormatToken(
             _: T.KwObject | _: T.KwClass | _: T.KwTrait | _: T.KwEnum,
@@ -1051,18 +1115,28 @@ class Router(formatOps: FormatOps) {
           if style.newlines.sometimesBeforeColonInMethodReturnType
             || left.is[T.Comment] && newlines != 0 =>
         val expire = getLastNonTrivialToken(returnType)
-        val penalizeNewlines =
-          PenalizeAllNewlines(expire, Constants.BracketPenalty)
         val sameLineSplit = Space(endsWithSymbolIdent(left))
-        val indent = style.indent.getDefnSite(leftOwner)
-        Seq(
-          Split(sameLineSplit, 0).withPolicy(penalizeNewlines),
-          // Spark style guide allows this:
-          // https://github.com/databricks/scala-style-guide#indent
-          Split(Newline, Constants.SparkColonNewline)
-            .withIndent(indent, expire, After)
-            .withPolicy(penalizeNewlines)
-        )
+        if (style.newlines.beforeOpenParenDefnSite) {
+          Seq(
+            Split(sameLineSplit, 0)
+              .onlyIf(newlines == 0 || style.newlines.source.ne(Newlines.keep))
+              .withSingleLine(expire),
+            Split(Newline, 1)
+              .withIndent(style.indent.main, expire, After)
+          )
+        } else {
+          val penalizeNewlines =
+            PenalizeAllNewlines(expire, Constants.BracketPenalty)
+          val indent = style.indent.getDefnSite(leftOwner)
+          Seq(
+            Split(sameLineSplit, 0).withPolicy(penalizeNewlines),
+            // Spark style guide allows this:
+            // https://github.com/databricks/scala-style-guide#indent
+            Split(Newline, Constants.SparkColonNewline)
+              .withIndent(indent, expire, After)
+              .withPolicy(penalizeNewlines)
+          )
+        }
       case FormatToken(_: T.Colon, _, DefDefReturnTypeLeft(returnType))
           if style.newlines.avoidInResultType =>
         val expire = returnType match {
