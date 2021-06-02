@@ -3932,3 +3932,327 @@ type T =
     A68 |
     A69 &
     A70[T70]
+<<< #2561 scala 2: defn, no align
+align.preset = none
+newlines.beforeOpenParenDefnSite = true
+===
+object a {
+  def fooFunc
+    (foo1: String)
+    (foo2: String)
+    : String = ???
+  def fooFunc
+    (foo1: String)
+    (foo2: String)
+    (foo3: String)
+    (foo4: String)
+    (foo5: String)
+    : (String, String, String, String) = ???
+  def notAnInterestingFunction
+    (foo1: String)
+    (foo2: String, foo3: String, foo4: Map[String, Map[String, Map[String, String]]]) // this line doesn't fit
+    (foo5: String)
+    (implicit foo6: Int,  foo7: Int,  foo8: Int,  foo9: Int,  foo10: Int,  foo11: Int,  foo12: Int) // this line also doesn't fit
+    : (String, String, String, String) = ???
+}
+>>>
+object a {
+  def fooFunc(foo1: String)(
+      foo2: String
+  ): String = ???
+  def fooFunc(foo1: String)(
+      foo2: String
+  )(foo3: String)(foo4: String)(
+      foo5: String
+  ): (String, String, String, String) =
+    ???
+  def notAnInterestingFunction(
+      foo1: String
+  )(
+      foo2: String,
+      foo3: String,
+      foo4: Map[
+        String,
+        Map[String, Map[String, String]]
+      ]
+  ) // this line doesn't fit
+  (foo5: String)(implicit
+      foo6: Int,
+      foo7: Int,
+      foo8: Int,
+      foo9: Int,
+      foo10: Int,
+      foo11: Int,
+      foo12: Int
+  ) // this line also doesn't fit
+      : (
+          String,
+          String,
+          String,
+          String
+      ) = ???
+}
+<<< #2561 scala 2: defn, align
+align.preset = none
+align.openParenDefnSite = true
+newlines.beforeOpenParenDefnSite = true
+===
+object a {
+  def fooFunc
+    (foo1: String)
+    (foo2: String)
+    : String = ???
+  def fooFunc
+    (foo1: String)
+    (foo2: String)
+    (foo3: String)
+    (foo4: String)
+    (foo5: String)
+    : (String, String, String, String) = ???
+  def notAnInterestingFunction
+    (foo1: String)
+    (foo2: String, foo3: String, foo4: Map[String, Map[String, Map[String, String]]]) // this line doesn't fit
+    (foo5: String)
+    (implicit foo6: Int,  foo7: Int,  foo8: Int,  foo9: Int,  foo10: Int,  foo11: Int,  foo12: Int) // this line also doesn't fit
+    : (String, String, String, String) = ???
+}
+>>>
+object a {
+  def fooFunc(foo1: String)(
+      foo2: String
+  ): String = ???
+  def fooFunc(foo1: String)(
+      foo2: String
+  )(foo3: String)(foo4: String)(
+      foo5: String
+  ): (String, String, String, String) =
+    ???
+  def notAnInterestingFunction(
+      foo1: String
+  )(foo2: String,
+    foo3: String,
+    foo4: Map[
+      String,
+      Map[String, Map[String, String]]
+    ]
+  ) // this line doesn't fit
+  (foo5: String)(implicit
+      foo6: Int,
+      foo7: Int,
+      foo8: Int,
+      foo9: Int,
+      foo10: Int,
+      foo11: Int,
+      foo12: Int
+  ) // this line also doesn't fit
+      : (String,
+         String,
+         String,
+         String
+      ) = ???
+}
+<<< #2561 scala 3: defn, no align
+align.preset = none
+runner.dialect = scala3
+newlines.beforeOpenParenDefnSite = true
+newlines.sometimesBeforeColonInMethodReturnType = false
+===
+object a {
+  def fooFunc
+    (foo1: String)
+    (foo2: String)
+    : String = ???
+  def fooFunc
+    (foo1: String)
+    (foo2: String)
+    (foo3: String)
+    (foo4: String)
+    (foo5: String)
+    : (String, String, String, String) = ???
+  def notAnInterestingFunction
+    (foo1: String)
+    (foo2: String, foo3: String, foo4: Map[String, Map[String, Map[String, String]]]) // this line doesn't fit
+    (foo5: String)
+    (using foo6: Int,  foo7: Int,  foo8: Int,  foo9: Int,  foo10: Int,  foo11: Int,  foo12: Int) // this line also doesn't fit
+    : (String, String, String, String) = ???
+}
+>>>
+object a {
+  def fooFunc(foo1: String)(
+      foo2: String
+  ): String = ???
+  def fooFunc(foo1: String)(
+      foo2: String
+  )(foo3: String)(foo4: String)(
+      foo5: String
+  ): (String, String, String, String) =
+    ???
+  def notAnInterestingFunction(
+      foo1: String
+  )(
+      foo2: String,
+      foo3: String,
+      foo4: Map[
+        String,
+        Map[String, Map[String, String]]
+      ]
+  ) // this line doesn't fit
+  (foo5: String)(using
+      foo6: Int,
+      foo7: Int,
+      foo8: Int,
+      foo9: Int,
+      foo10: Int,
+      foo11: Int,
+      foo12: Int
+  ) // this line also doesn't fit
+  : (String, String, String, String) =
+    ???
+}
+<<< #2561 scala 3: defn, align
+align.preset = none
+align.openParenDefnSite = true
+runner.dialect = scala3
+newlines.beforeOpenParenDefnSite = true
+newlines.sometimesBeforeColonInMethodReturnType = false
+===
+object a {
+  def fooFunc
+    (foo1: String)
+    (foo2: String)
+    : String = ???
+  def fooFunc
+    (foo1: String)
+    (foo2: String)
+    (foo3: String)
+    (foo4: String)
+    (foo5: String)
+    : (String, String, String, String) = ???
+  def notAnInterestingFunction
+    (foo1: String)
+    (foo2: String, foo3: String, foo4: Map[String, Map[String, Map[String, String]]]) // this line doesn't fit
+    (foo5: String)
+    (using foo6: Int,  foo7: Int,  foo8: Int,  foo9: Int,  foo10: Int,  foo11: Int,  foo12: Int) // this line also doesn't fit
+    : (String, String, String, String) = ???
+}
+>>>
+object a {
+  def fooFunc(foo1: String)(
+      foo2: String
+  ): String = ???
+  def fooFunc(foo1: String)(
+      foo2: String
+  )(foo3: String)(foo4: String)(
+      foo5: String
+  ): (String, String, String, String) =
+    ???
+  def notAnInterestingFunction(
+      foo1: String
+  )(foo2: String,
+    foo3: String,
+    foo4: Map[
+      String,
+      Map[String, Map[String, String]]
+    ]
+  ) // this line doesn't fit
+  (foo5: String)(using
+      foo6: Int,
+      foo7: Int,
+      foo8: Int,
+      foo9: Int,
+      foo10: Int,
+      foo11: Int,
+      foo12: Int
+  ) // this line also doesn't fit
+  : (String, String, String, String) =
+    ???
+}
+<<< #2561 scala 3: call, no align
+align.preset = none
+runner.dialect = scala3
+newlines.beforeOpenParenCallSite = true
+===
+object a {
+  def f = fooFunc("foo1")("foo2")("foo3")("foo4")("foo5")
+  def f =
+    fooFunc
+      ("foo1")
+      ("foo2")
+      ("foo3")
+      ("foo4")
+      ("foo5")
+  def f =
+    notAnInterestingFunction
+      ("foo1")
+      ("foo2", "foo3", "foo4")
+      ("foo5")
+      (using "foo6", "foo7", "foo8", "foo9", "foo10", "foo11", "foo12")
+}
+>>>
+object a {
+  def f =
+    fooFunc("foo1")("foo2")("foo3")(
+      "foo4"
+    )("foo5")
+  def f =
+    fooFunc("foo1")("foo2")("foo3")(
+      "foo4"
+    )("foo5")
+  def f = notAnInterestingFunction(
+    "foo1"
+  )("foo2", "foo3", "foo4")("foo5")(
+    using
+    "foo6",
+    "foo7",
+    "foo8",
+    "foo9",
+    "foo10",
+    "foo11",
+    "foo12"
+  )
+}
+<<< #2561 scala 3: call, align
+align.preset = none
+align.openParenCallSite = true
+runner.dialect = scala3
+newlines.beforeOpenParenCallSite = true
+===
+object a {
+  def f = fooFunc("foo1")("foo2")("foo3")("foo4")("foo5")
+  def f =
+    fooFunc
+      ("foo1")
+      ("foo2")
+      ("foo3")
+      ("foo4")
+      ("foo5")
+  def f =
+    notAnInterestingFunction
+      ("foo1")
+      ("foo2", "foo3", "foo4")
+      ("foo5")
+      (using "foo6", "foo7", "foo8", "foo9", "foo10", "foo11", "foo12")
+}
+>>>
+object a {
+  def f =
+    fooFunc("foo1")("foo2")("foo3")(
+      "foo4"
+    )("foo5")
+  def f =
+    fooFunc("foo1")("foo2")("foo3")(
+      "foo4"
+    )("foo5")
+  def f = notAnInterestingFunction(
+    "foo1"
+  )("foo2", "foo3", "foo4")("foo5")(
+    using
+    "foo6",
+    "foo7",
+    "foo8",
+    "foo9",
+    "foo10",
+    "foo11",
+    "foo12"
+  )
+}

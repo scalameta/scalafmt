@@ -1714,6 +1714,82 @@ implicit protected val td: TildeArrow {
   type Out = RouteTestResult } = TildeArrow.injectIntoRoute
 ```
 
+### `newlines.sometimesBeforeColonInMethodReturnType`
+
+If true, in some rare cases a newline could be added before the colon which
+delimits the return type in a method signature.
+
+Normally, this will only happen if formatting otherwise will lead to line
+overflow or the return type spanning too many lines.
+
+Also, see [newlines.beforeOpenParenXxxSite](#newlinesbeforeopenparenxxxsite) below.
+
+```scala mdoc:defaults
+newlines.sometimesBeforeColonInMethodReturnType
+```
+
+```scala mdoc:scalafmt
+maxColumn = 40
+newlines.sometimesBeforeColonInMethodReturnType = true
+---
+def someVeryLongMethodName: Map[String, String] = ???
+```
+
+### `newlines.beforeOpenParenXxxSite`
+
+If true, a parameter group which doesn't fit on the same line will be formatted
+separately, with a newline just before the opening parenthesis.
+
+Specific formatting depends on the value of `newlines.source` (for `keep`, will
+preserve a newline; for `unfold`, will format every parameter group separately
+unless all fit on a single line, etc.).
+
+- `beforeOpenParenDefnSite` applies to definitions (methods, ctors, macros, etc.)
+- `beforeOpenParenCallSite` applies to invocations (method calls) and is only
+  supported for scala3
+
+Additional nuances:
+
+- if `newlines.sometimesBeforeColonInMethodReturnType` is true, a newline will
+  be added before the colon unless the entire signature fits on a line (except
+  when `newlines.source = keep`).
+- if the corresponding `align.openParenXxxSite` is true, multi-line parameters
+  will start on the same line as the opening parenthesis and align; otherwise,
+  formatting will use a newline and an appropriate continuation indent.
+
+```scala mdoc:defaults
+newlines.beforeOpenParenDefnSite
+newlines.beforeOpenParenCallSite
+```
+
+```scala mdoc:scalafmt
+maxColumn = 20
+runner.dialect = scala3 // for CallSite
+align.openParenCallSite = true
+newlines {
+  beforeOpenParenDefnSite = true
+  beforeOpenParenCallSite = true
+  sometimesBeforeColonInMethodReturnType = true
+}
+---
+def fooFunc(foo1: String)(foo2: String, foo3: String): String = ???
+val res = fooFunc("foo1")("foo2", "foo3")
+```
+
+```scala mdoc:scalafmt
+maxColumn = 20
+runner.dialect = scala3 // for CallSite
+align.openParenDefnSite = true
+newlines {
+  beforeOpenParenDefnSite = true
+  beforeOpenParenCallSite = true
+  sometimesBeforeColonInMethodReturnType = false
+}
+---
+def fooFunc(foo1: String)(foo2: String, foo3: String): String = ???
+val res = fooFunc("foo1")("foo2", "foo3")
+```
+
 ## Newlines: `danglingParentheses`
 
 While this parameter is not technically under the `newlines` section, it
