@@ -1810,7 +1810,7 @@ package a.b.c:
       println("ah")
       println("ha")
 end c
-<<< two consequtive defs #2559
+<<< two consecutive defs #2559
 runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 2
 ===
@@ -1826,6 +1826,28 @@ def f(s: String) =
    val t = "Bar"
    val u = "Baz"
    s"$t $u $s"
+end f
+
+/** Some doc comment */
+def g = f("Foo")
+<<< two consecutive defs #2559, trailing comment in block
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 2
+===
+def f(s: String) =
+  val t = "Bar"
+  val u = "Baz"
+  s"$t $u $s"
+  // final comment
+
+/** Some doc comment */
+def g = f("Foo")
+>>>
+def f(s: String) =
+   val t = "Bar"
+   val u = "Baz"
+   s"$t $u $s"
+   // final comment
 end f
 
 /** Some doc comment */
