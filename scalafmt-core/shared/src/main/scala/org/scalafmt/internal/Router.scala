@@ -1048,7 +1048,8 @@ class Router(formatOps: FormatOps) {
 
       // Closing def site ): ReturnType
       case FormatToken(left, _: T.Colon, DefDefReturnTypeRight(returnType))
-          if style.newlines.sometimesBeforeColonInMethodReturnType =>
+          if style.newlines.sometimesBeforeColonInMethodReturnType
+            || left.is[T.Comment] && newlines != 0 =>
         val expire = getLastNonTrivialToken(returnType)
         val penalizeNewlines =
           PenalizeAllNewlines(expire, Constants.BracketPenalty)
