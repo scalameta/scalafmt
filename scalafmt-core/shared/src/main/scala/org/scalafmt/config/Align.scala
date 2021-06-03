@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
 import metaconfig._
+import metaconfig.annotation.ExtraName
 import metaconfig.generic.Surface
 
 /** @param openParenCallSite
@@ -37,7 +38,7 @@ import metaconfig.generic.Surface
   *               vertical alignment in formatted output. Customize at your own
   *               risk, I recommend you try and stick to the default settings.
   * @param arrowEnumeratorGenerator If true, aligns by `<-` in for comprehensions.
-  * @param ifWhileOpenParen
+  * @param openParenCtrlSite
   *   If true, aligns by ( in if/while/for. If false,
   *   indents by continuation indent at call site.
   * @param tokenCategory
@@ -63,10 +64,11 @@ case class Align(
     multiline: Boolean = false,
     stripMargin: Boolean = true,
     openParenCallSite: Boolean = false,
+    @ExtraName("ifWhileOpenParen")
+    openParenCtrlSite: Boolean = false,
     openParenDefnSite: Boolean = false,
     tokens: Seq[AlignToken] = Seq(AlignToken.caseArrow),
     arrowEnumeratorGenerator: Boolean = false,
-    ifWhileOpenParen: Boolean = false,
     tokenCategory: Map[String, String] = Map(),
     treeCategory: Map[String, String] = Map(
       "Defn.Val" -> "given/val/var/def",
@@ -88,9 +90,9 @@ object Align {
   val none: Align = Align(
     stripMargin = false,
     openParenCallSite = false,
+    openParenCtrlSite = false,
     openParenDefnSite = false,
     tokens = Seq.empty,
-    ifWhileOpenParen = false,
     tokenCategory = Map.empty,
     treeCategory = Map.empty
   )

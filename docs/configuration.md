@@ -145,7 +145,7 @@ top-level.
 ```
     preset = default
     binPack.preset = true
-    align.ifWhileOpenParen = false
+    align.openParenCtrlSite = false
     indent.callSite = 4
     docstrings.style = Asterisk
     importSelectors = binPack
@@ -679,6 +679,14 @@ function(arg1, // no align by (
 function(
   argument1,
   argument2)
+```
+
+### `align.openParenCtrlSite`
+
+This parameter controls alignment after `(` in `if/while/for`.
+
+```scala mdoc:defaults
+align.openParenCtrlSite
 ```
 
 ### `align.openParenDefnSite`

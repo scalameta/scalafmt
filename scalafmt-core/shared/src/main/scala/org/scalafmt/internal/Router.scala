@@ -1535,7 +1535,7 @@ class Router(formatOps: FormatOps) {
           )
         else {
           val indent: Length =
-            if (style.align.ifWhileOpenParen) StateColumn
+            if (style.align.openParenCtrlSite) StateColumn
             else style.indent.callSite
           Seq(
             Split(NoSplit, 0)

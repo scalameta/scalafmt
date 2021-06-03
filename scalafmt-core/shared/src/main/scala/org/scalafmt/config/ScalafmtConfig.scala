@@ -229,7 +229,7 @@ object ScalafmtConfig {
     align = default.align.copy(
       arrowEnumeratorGenerator = false,
       tokens = Seq(AlignToken.caseArrow),
-      ifWhileOpenParen = false
+      openParenCtrlSite = false
     )
   )
 
@@ -320,7 +320,7 @@ object ScalafmtConfig {
     }
     locally {
       implicit val errors = allErrors
-      addIf(align.ifWhileOpenParen && danglingParentheses.ctrlSite)
+      addIf(align.openParenCtrlSite && danglingParentheses.ctrlSite)
       if (!runner.dialect.allowTrailingCommas) {
         def err = " (no support in Scala dialect)"
         addIf(trailingCommas == TrailingCommas.always, err)
