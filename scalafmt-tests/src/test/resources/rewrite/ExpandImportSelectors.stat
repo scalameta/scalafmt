@@ -119,3 +119,14 @@ object blah {
 object blah {
   import a.{zzzz => _, _}
 }
+<<< #2571
+runner.parser = source
+===
+import zio.prelude.<=>
+import zio.prelude.` => `
+import zio.prelude.{<=>, ` => `}
+>>>
+import zio.prelude.{<=>}
+import zio.prelude.{` => `}
+import zio.prelude.{<=>}
+import zio.prelude.{` => `}
