@@ -645,6 +645,38 @@ for {
 } yield x
 ```
 
+### `align.closeParenSite`
+
+This parameter controls whether to align the closing parentheses _when_ we
+aligned the opening one (see `openParenXxxSite` parameters below) and the
+respective `danglingParentheses.xxxSite` is set.
+
+> Since v3.0.0.
+
+```scala mdoc:defaults
+align.closeParenSite
+```
+
+```scala mdoc:scalafmt
+align.closeParenSite = true
+align.openParenCallSite = true
+danglingParentheses.callSite = true
+---
+function(arg1, // align by (
+    arg2,
+ arg3)
+```
+
+```scala mdoc:scalafmt
+align.closeParenSite = false
+align.openParenCallSite = true
+danglingParentheses.callSite = true
+---
+function(arg1, // align by (
+    arg2,
+ arg3)
+```
+
 ### `align.openParenCallSite`
 
 ```scala mdoc:defaults
