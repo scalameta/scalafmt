@@ -42,12 +42,20 @@ class ExpandImportSelectors(implicit ctx: RewriteCtx) extends RewriteSession {
               group.imports += s"$keyword $importer"
             else
               importees.foreach { importee =>
-                val importString = importee.toString
+                val nameOpt = importee match {
+                  case t: Importee.Rename => Some(t.name)
+                  case t: Importee.Unimport => Some(t.name)
+                  case _ => None
+                }
+                val hasArrow = nameOpt.exists { x =>
+                  val nonWs = ctx.tokenTraverser.nextNonWsToken(x.tokens.last)
+                  nonWs.exists(_.is[Token.RightArrow])
+                }
                 val replacement =
-                  if (importString.contains("=>"))
-                    s"$keyword $path.{$importString}"
+                  if (hasArrow)
+                    s"$keyword $path.{$importee}"
                   else
-                    s"$keyword $path.$importString"
+                    s"$keyword $path.$importee"
                 group.imports += replacement
               }
           }
