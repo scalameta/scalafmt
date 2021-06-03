@@ -296,3 +296,70 @@ else (x, isBlankLine) => if (isBlankLine) blocks.get(x) else None
 >>>
 if (initStyle.align.multiline) (_, _) => Some(prevBlock)
 else (x, isBlankLine) => if (isBlankLine) blocks.get(x) else None
+<<< #2573 dangle, !align
+indent.callSite = 2
+indent.ctrlSite = 6
+align.openParenCtrlSite = false
+danglingParentheses.ctrlSite = true
+===
+if (host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
+    host.indexOf('[') == -1
+) {
+  hostVar = "[" + host + "]"
+}
+>>>
+if (
+  host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
+  host.indexOf('[') == -1
+) {
+  hostVar = "[" + host + "]"
+}
+<<< #2573 dangle, align
+indent.callSite = 2
+indent.ctrlSite = 6
+align.openParenCtrlSite = true
+danglingParentheses.ctrlSite = true
+===
+if (host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
+    host.indexOf('[') == -1
+) {
+  hostVar = "[" + host + "]"
+}
+>>>
+if (host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
+    host.indexOf('[') == -1
+) {
+  hostVar = "[" + host + "]"
+}
+<<< #2573 !dangle, align
+indent.callSite = 2
+indent.ctrlSite = 6
+align.openParenCtrlSite = true
+danglingParentheses.ctrlSite = false
+===
+if (host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
+    host.indexOf('[') == -1
+) {
+  hostVar = "[" + host + "]"
+}
+>>>
+if (host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
+    host.indexOf('[') == -1) {
+  hostVar = "[" + host + "]"
+}
+<<< #2573 !dangle, !align
+indent.callSite = 2
+indent.ctrlSite = 6
+align.openParenCtrlSite = false
+danglingParentheses.ctrlSite = false
+===
+if (host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
+    host.indexOf('[') == -1
+) {
+  hostVar = "[" + host + "]"
+}
+>>>
+if (host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
+  host.indexOf('[') == -1) {
+  hostVar = "[" + host + "]"
+}

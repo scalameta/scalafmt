@@ -1369,6 +1369,40 @@ object a:
       b &&
       c
    do foo
+<<< if break before then if multiline cond, !dangle
+maxColumn = 12
+indent.callSite = 4
+indent.ctrlSite = 6
+danglingParentheses.ctrlSite = false
+===
+object a:
+  if a &&
+     b &&
+     c then
+      foo
+>>>
+object a:
+   if a &&
+      b &&
+      c
+   then foo
+<<< while break before do if multiline cond, !dangle
+maxColumn = 12
+indent.callSite = 4
+indent.ctrlSite = 6
+danglingParentheses.ctrlSite = false
+===
+object a:
+  while a &&
+     b &&
+     c do
+      foo
+>>>
+object a:
+   while a &&
+      b &&
+      c
+   do foo
 <<< #2495 1
 rewrite.scala3.removeOptionalBraces = yes
 ===
