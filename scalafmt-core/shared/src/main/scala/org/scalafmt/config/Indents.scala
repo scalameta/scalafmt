@@ -16,6 +16,7 @@ case class Indents(
     main: Int = 2,
     private[config] val significant: Option[Int] = None,
     callSite: Int = 2,
+    ctrlSite: Option[Int] = None,
     defnSite: Int = 4,
     caseSite: Int = 4,
     private[config] val ctorSite: Option[Int] = None,

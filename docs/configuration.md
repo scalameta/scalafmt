@@ -235,6 +235,36 @@ argument1, // indented by 2
 )
 ```
 
+### `indent.ctrlSite`
+
+This parameter controls indentation within control expressions (`if/while/etc`).
+If not set, the value of `indent.callSite` applies.
+
+> Since v3.0.0.
+
+```scala mdoc:scalafmt
+indent.callSite = 2
+indent.ctrlSite = 4
+---
+if (
+ foo && // indented by 4
+ bar
+) {
+  baz
+}
+```
+
+```scala mdoc:scalafmt
+indent.callSite = 2
+---
+if (
+ foo && // indented by 2
+ bar
+) {
+  baz
+}
+```
+
 ### `indent.defnSite`
 
 ```scala mdoc:defaults
