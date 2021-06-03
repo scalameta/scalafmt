@@ -1524,6 +1524,44 @@ val i =
       3,
       4,
       4)
+<<< #2562 tuple no break
+danglingParentheses.tupleSite = true
+===
+val i =
+          ( //hello scalafmt, please don't blow up
+                   (1, 2),
+                   1,
+                   3,
+                   4,
+                   4)
+>>>
+val i =
+  ( //hello scalafmt, please don't blow up
+      (1, 2),
+      1,
+      3,
+      4,
+      4)
+<<< #2562 tuple break
+danglingParentheses.tupleSite = true
+===
+val i =
+          (
+                   //hello scalafmt, please don't blow up
+                   (1, 2),
+                   1,
+                   3,
+                   4,
+                   4)
+>>>
+val i =
+  (
+      //hello scalafmt, please don't blow up
+      (1, 2),
+      1,
+      3,
+      4,
+      4)
 <<< enclosed apply with single-arg lambda 1
 object a {
   val columnQueriesForInsert = {
