@@ -22,6 +22,7 @@ import scala.collection.mutable
 import scala.meta.classifiers.Classifier
 import scala.meta.{
   Case,
+  CaseTree,
   Ctor,
   Decl,
   Defn,
@@ -35,8 +36,7 @@ import scala.meta.{
   Term,
   Tree,
   Type,
-  TypeCase,
-  CaseTree
+  TypeCase
 }
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
@@ -2580,5 +2580,17 @@ object FormatOps {
     def splits: Option[Seq[Split]]
     def rightBrace: Option[T]
   }
+
+  def getOpenParenAlignIndents(
+      end: Token
+  )(implicit style: ScalafmtConfig): Seq[Indent] =
+    if (style.align.closeParenSite)
+      Seq(
+        Indent(Length.StateColumn, end, ExpiresOn.After),
+        Indent(Length.Num(1), end, ExpiresOn.Before),
+        Indent(Length.Num(-1), end, ExpiresOn.After)
+      )
+    else
+      Seq(Indent(Length.StateColumn, end, ExpiresOn.Before))
 
 }

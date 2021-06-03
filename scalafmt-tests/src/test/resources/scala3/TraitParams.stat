@@ -144,7 +144,8 @@ trait Bar(param1 : A, param2 : A, param3 : A) extends Foo(1) with X with Y with 
 trait Bar(param1: A,
           param2: A,
           param3: A
-) extends Foo(1)
+         )
+    extends Foo(1)
     with X
     with Y
     with Z
