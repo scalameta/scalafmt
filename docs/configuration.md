@@ -781,6 +781,34 @@ class IntStringLong(
 )
 ```
 
+### `align.openParenTupleSite`
+
+This parameter controls aligning of tuples to their opening parenthesis. If not
+specified, will use the value of `align.openParenCallSite`.
+
+> Since v3.0.0.
+
+```scala mdoc:scalafmt
+maxColumn = 10
+align.openParenCallSite = false
+align.openParenTupleSite = true
+---
+object a {
+  foo(bar, baz)
+  (bar, baz)
+}
+```
+
+```scala mdoc:scalafmt
+maxColumn = 10
+align.openParenCallSite = true
+---
+object a {
+  foo(bar, baz)
+  (bar, baz)
+}
+```
+
 ### `align.stripMargin`
 
 See [assumeStandardLibraryStripMargin](#assumestandardlibrarystripmargin).
@@ -1932,6 +1960,37 @@ if (something) {
 if (something_else) {
   // nothing
 }
+```
+
+### `danglingParentheses.tupleSite`
+
+This parameter controls dangling of closing parentheses in tuples. If not
+specified, will use the value of `danglingParentheses.callSite`.
+
+> Since v3.0.0.
+
+```scala mdoc:scalafmt
+danglingParentheses.tupleSite = true
+---
+val i =
+          ( //hello scalafmt, please don't blow up
+                   (1, 2),
+                   1,
+                   3,
+                   4,
+                   4)
+```
+
+```scala mdoc:scalafmt
+danglingParentheses.tupleSite = false
+---
+val i =
+          ( //hello scalafmt, please don't blow up
+                   (1, 2),
+                   1,
+                   3,
+                   4,
+                   4)
 ```
 
 ### `danglingParentheses.exclude`

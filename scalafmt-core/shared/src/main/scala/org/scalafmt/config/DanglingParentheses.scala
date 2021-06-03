@@ -6,8 +6,11 @@ case class DanglingParentheses(
     callSite: Boolean,
     defnSite: Boolean,
     ctrlSite: Boolean = true,
+    private[config] val tupleSite: Option[Boolean] = None,
     exclude: List[DanglingParentheses.Exclude] = Nil
-)
+) {
+  def getTupleSite = tupleSite.getOrElse(callSite)
+}
 
 object DanglingParentheses {
 

@@ -68,6 +68,7 @@ case class Align(
     @ExtraName("ifWhileOpenParen")
     openParenCtrlSite: Boolean = false,
     openParenDefnSite: Boolean = false,
+    private[config] val openParenTupleSite: Option[Boolean] = None,
     tokens: Seq[AlignToken] = Seq(AlignToken.caseArrow),
     arrowEnumeratorGenerator: Boolean = false,
     tokenCategory: Map[String, String] = Map(),
@@ -83,7 +84,9 @@ case class Align(
       "Enumerator.Generator" -> "for",
       "Enumerator.Val" -> "for"
     )
-)
+) {
+  def getOpenParenTupleSite = openParenTupleSite.getOrElse(openParenCallSite)
+}
 
 object Align {
   // no vertical alignment whatsoever, if you find any vertical alignment with

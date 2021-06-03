@@ -1239,3 +1239,59 @@ object a {
     ) = ???
   }
 }
+<<< #2562 !call, tuple
+maxColumn = 10
+align.openParenCallSite = false
+align.openParenTupleSite = true
+===
+object a {
+  foo(bar, baz)
+  (bar, baz)
+}
+>>>
+object a {
+  foo(
+    bar,
+    baz
+  )
+  (
+    bar,
+    baz
+  )
+}
+<<< #2562 call, tuple
+maxColumn = 10
+align.openParenCallSite = true
+align.openParenTupleSite = true
+===
+object a {
+  foo(bar, baz)
+  (bar, baz)
+}
+>>>
+object a {
+  foo(bar,
+      baz
+  )
+  (bar,
+   baz
+  )
+}
+<<< #2562 call, !tuple
+maxColumn = 10
+align.openParenCallSite = true
+align.openParenTupleSite = false
+===
+object a {
+  foo(bar, baz)
+  (bar, baz)
+}
+>>>
+object a {
+  foo(bar,
+      baz
+  )
+  (bar,
+   baz
+  )
+}
