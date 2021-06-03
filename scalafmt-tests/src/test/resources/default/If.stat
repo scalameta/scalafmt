@@ -52,12 +52,11 @@ danglingParentheses.ctrlSite = true
           Q.dequeueAll
         }
 >>>
-if (
-    aaaaaaaaaaaadequeOnNewStatements &&
+if (aaaaaaaaaaaadequeOnNewStatements &&
     (depth > 0 || !isInsideNoOptZone(splitToken)) &&
     statementStarts.contains(hash(splitToken.left)) &&
     curr.splits.last.modification.isNewline
-) {
+   ) {
   Q.dequeueAll
 }
 <<< break on &&

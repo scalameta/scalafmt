@@ -963,7 +963,10 @@ class Router(formatOps: FormatOps) {
                   (notTooManyArgs && align) || (handleImplicit &&
                     style.newlines.notBeforeImplicitParamListModifier)
                 )
-                .withIndent(if (align) StateColumn else indent, close, Before)
+                .withIndents(
+                  if (align) FormatOps.getOpenParenAlignIndents(close)
+                  else Seq(Indent(indent, close, ExpiresOn.Before))
+                )
             )
           }
 
@@ -1600,25 +1603,36 @@ class Router(formatOps: FormatOps) {
             case _ => false
           }) =>
         val close = matching(open)
+        val indentLen = style.indent.callSite
+        def indents =
+          if (style.align.openParenCtrlSite)
+            FormatOps.getOpenParenAlignIndents(close)
+          else Seq(Indent(indentLen, close, ExpiresOn.Before))
         val penalizeNewlines = penalizeNewlineByNesting(open, close)
-        if (style.danglingParentheses.ctrlSite)
+        if (style.danglingParentheses.ctrlSite) {
+          val policy = decideNewlinesOnlyBeforeClose(close)
+          val noSplit =
+            if (style.align.openParenCtrlSite)
+              Split(NoSplit, 0)
+                .withIndents(indents)
+                .withOptimalToken(close)
+                .withPolicy(penalizeNewlines)
+                .andPolicy(delayedBreakPolicy(Policy.End.Before(close))(policy))
+            else
+              Split(NoSplit, 0).withSingleLine(close)
           Seq(
-            Split(NoSplit, 0).withSingleLine(close),
+            noSplit,
             Split(Newline, 1)
-              .withIndent(style.indent.callSite, close, Before)
+              .withIndent(indentLen, close, Before)
               .withPolicy(penalizeNewlines)
-              .andPolicy(decideNewlinesOnlyBeforeClose(close))
+              .andPolicy(policy)
           )
-        else {
-          val indent: Length =
-            if (style.align.openParenCtrlSite) StateColumn
-            else style.indent.callSite
+        } else
           Seq(
             Split(NoSplit, 0)
-              .withIndent(indent, close, Before)
+              .withIndents(indents)
               .withPolicy(penalizeNewlines)
           )
-        }
       case FormatToken(_: T.KwIf, right, _) if leftOwner.is[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
         val expireTree = if (ifWithoutElse(owner)) owner else owner.elsep

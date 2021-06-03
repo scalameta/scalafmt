@@ -126,7 +126,7 @@ private def extractRhino(e: js.Dynamic): js.Array[String] = {
     .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
     .jsReplace("""\r\n?""".re("gm"),
                "\n"
-    ) // Rhino has platform-dependent EOL's
+              ) // Rhino has platform-dependent EOL's
     .jsSplit("\n")
 }
 <<< select is cheaper

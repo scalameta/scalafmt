@@ -154,7 +154,7 @@ val OffsetPrimes = Array(null,
                          (54, 43),
                          (97, 75)
                          // All {@code BigInteger} prime numbers with bit length lesser than 8 bits. */
-)
+                        )
 <<< non comment exceeds line (state explosion).
   val OffsetPrimes = Array(
       null, null, (0, 2), (2, 2), (4, 2), (6, 5), (11, 7),
