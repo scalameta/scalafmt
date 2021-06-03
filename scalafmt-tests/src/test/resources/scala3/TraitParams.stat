@@ -134,6 +134,20 @@ trait Bar(param1: A,
     with X
     with Y
     with Z
+<<< trait param multi openParenDefnSite, align close
+maxColumn = 30
+align.openParenDefnSite = true
+align.closeParenSite = true
+===
+trait Bar(param1 : A, param2 : A, param3 : A) extends Foo(1) with X with Y with Z
+>>>
+trait Bar(param1: A,
+          param2: A,
+          param3: A
+) extends Foo(1)
+    with X
+    with Y
+    with Z
 <<< trait params - arity threshold reached
 maxColumn = 200
 verticalMultiline.atDefnSite = true

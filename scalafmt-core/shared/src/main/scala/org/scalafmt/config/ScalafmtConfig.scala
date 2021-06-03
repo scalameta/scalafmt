@@ -322,7 +322,6 @@ object ScalafmtConfig {
     }
     locally {
       implicit val errors = allErrors
-      addIf(align.openParenCtrlSite && danglingParentheses.ctrlSite)
       if (!runner.dialect.allowTrailingCommas) {
         addIf(trailingCommas == TrailingCommas.always, errDialect)
         addIf(trailingCommas == TrailingCommas.multiple, errDialect)

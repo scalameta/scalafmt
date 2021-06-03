@@ -63,6 +63,7 @@ case class Align(
     allowOverflow: Boolean = false,
     multiline: Boolean = false,
     stripMargin: Boolean = true,
+    closeParenSite: Boolean = false,
     openParenCallSite: Boolean = false,
     @ExtraName("ifWhileOpenParen")
     openParenCtrlSite: Boolean = false,

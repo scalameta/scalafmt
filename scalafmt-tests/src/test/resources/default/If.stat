@@ -22,6 +22,44 @@ if (
 ) {
   Q.dequeueAll
 }
+<<< break by nesting depth, align open
+align.openParenCtrlSite = true
+align.closeParenSite = false
+danglingParentheses.ctrlSite = false
+===
+        if (aaaaaaaaaaaadequeOnNewStatements &&
+          (depth > 0 || !isInsideNoOptZone(splitToken)) &&
+          statementStarts.contains(hash(splitToken.left)) &&
+          curr.splits.last.modification.isNewline ) {
+          Q.dequeueAll
+        }
+>>>
+if (aaaaaaaaaaaadequeOnNewStatements &&
+    (depth > 0 || !isInsideNoOptZone(splitToken)) &&
+    statementStarts.contains(hash(splitToken.left)) &&
+    curr.splits.last.modification.isNewline) {
+  Q.dequeueAll
+}
+<<< break by nesting depth, align open and close
+align.openParenCtrlSite = true
+align.closeParenSite = true
+danglingParentheses.ctrlSite = true
+===
+        if (aaaaaaaaaaaadequeOnNewStatements &&
+          (depth > 0 || !isInsideNoOptZone(splitToken)) &&
+          statementStarts.contains(hash(splitToken.left)) &&
+          curr.splits.last.modification.isNewline ) {
+          Q.dequeueAll
+        }
+>>>
+if (
+    aaaaaaaaaaaadequeOnNewStatements &&
+    (depth > 0 || !isInsideNoOptZone(splitToken)) &&
+    statementStarts.contains(hash(splitToken.left)) &&
+    curr.splits.last.modification.isNewline
+) {
+  Q.dequeueAll
+}
 <<< break on &&
 if (packageTokensaaaaaa.contains(tok.left) &&
  !packageTokens.contains(tok.right)) true
