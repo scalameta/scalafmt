@@ -305,7 +305,6 @@ package b {
 
 }
 <<< #2511 use topLevelStatementBlankLines instead
-newlines.topLevelStatements = []
 newlines.topLevelBodyIfMinStatements = [before,after]
 newlines.topLevelStatementBlankLines = [
   {
@@ -502,7 +501,6 @@ given intToVAValueString: Conversion[Number, VAValue[String]] =
 // Bar
 <<< #2511 nesting, blanks 3, package -> object
 runner.dialect = scala3
-newlines.topLevelStatements = []
 newlines.topLevelStatementBlankLines = [{ blanks = 3 }]
 ===
 package x.y.z
@@ -532,7 +530,6 @@ class Bar[V <: VAType](someProperty: String)
     extends SomePropertyBuilder[V](someProperty)
 <<< #2511 nesting, blanks 3, package -> import
 runner.dialect = scala3
-newlines.topLevelStatements = []
 newlines.topLevelStatementBlankLines = [
   { blanks = 3 }
   { blanks = 2, regex = "^Import" }
@@ -580,7 +577,6 @@ class Bar[V <: VAType](someProperty: String)
     extends SomePropertyBuilder[V](someProperty)
 <<< #2511 nesting, blanks 3, extension single
 runner.dialect = scala3
-newlines.topLevelStatements = []
 newlines.topLevelStatementBlankLines = [{ blanks = 3 }]
 ===
 package x.y
@@ -606,7 +602,6 @@ extension (s: String)
     ???
 <<< #2511 nesting, blanks 3, extension multiple
 runner.dialect = scala3
-newlines.topLevelStatements = []
 newlines.topLevelStatementBlankLines = [{ blanks = 3 }]
 ===
 package x.y

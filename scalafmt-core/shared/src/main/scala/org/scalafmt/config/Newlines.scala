@@ -277,8 +277,7 @@ case class Newlines(
   }
 
   private lazy val topStatBlankLinesSorted = {
-    val oldBlankLines = {
-      // combine old settings with new
+    if (topLevelStatementBlankLines.isEmpty) {
       val nb = NumBlanks(
         if (forceBlankBeforeMultilineTopLevelStmt) 1 else 0,
         if (topLevelStatements.contains(after)) 1 else 0
@@ -288,13 +287,14 @@ case class Newlines(
         val pattern = Some("^Pkg|^Defn\\.|^Decl\\.")
         Seq(TopStatBlanks(pattern, topLevelStatementsMinBreaks, Some(nb)))
       }
+    } else {
+      /* minBreaks has to come first; since we'll be adding blanks, this could
+       * potentially move us into another setting which didn't match before we
+       * we added the blanks; the rest are sorted to put more specific first */
+      topLevelStatementBlankLines.sortBy(x =>
+        (x.minBreaks, x.maxNest, x.regex.fold(0)(-_.length))
+      )
     }
-    /* minBreaks has to come first; since we'll be adding blanks, this could
-     * potentially move us into another setting which didn't match before we
-     * we added the blanks; the rest are sorted to put more specific first */
-    (topLevelStatementBlankLines ++ oldBlankLines).sortBy(x =>
-      (x.minBreaks, x.maxNest, x.regex.fold(0)(-_.length))
-    )
   }
   def getTopStatBlankLines(
       tree: Tree,
