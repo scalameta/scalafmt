@@ -1528,8 +1528,7 @@ object a:
 object a:
    if a &&
          b &&
-         c
-   then
+         c then
       foo
 <<< while break before do if multiline cond, !dangle
 maxColumn = 12
@@ -1546,8 +1545,7 @@ object a:
 object a:
    while a &&
          b &&
-         c
-   do
+         c do
       foo
 <<< #2495 1
 rewrite.scala3.removeOptionalBraces = yes
