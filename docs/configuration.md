@@ -1013,6 +1013,8 @@ newlines.topLevelStatementBlankLines = [
 ]
 ```
 
+If `newlines.topLevelStatementBlankLines` is set, this setting will be ignored.
+
 ### Newlines around package or template body
 
 > Since v3.0.0.
