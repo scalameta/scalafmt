@@ -1915,6 +1915,9 @@ object a {
 Forces dangling on open/close parens around control structures (`if`, `while`,
 `for`) when line breaks must occur.
 
+For optional braces in scala3, this parameter also controls whether to break
+before `then` or `do` in a multi-line condition.
+
 ```scala mdoc:defaults
 danglingParentheses.ctrlSite
 ```
