@@ -54,7 +54,9 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   def at(off: Int): FormatToken =
     if (off < 0) arr.head else if (off < arr.length) arr(off) else arr.last
 
+  // get token; if rewritten, the one before
   @inline def before(tok: Token): FormatToken = get(tok, true)
+  // get token; if rewritten, the one after
   @inline def after(tok: Token): FormatToken = get(tok, false)
   @inline def apply(tok: Token): FormatToken = before(tok)
 
@@ -135,21 +137,28 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   def getLastNonTrivialOpt(tree: Tree): Option[FormatToken] =
     TokenOps.findLastNonTrivialTokenOpt(tree.tokens).map(apply)
 
+  /* the following methods return the first format token such that
+   * its `right` is after the parameter and is not a comment */
+  @inline
+  def tokenAfter(token: Token): FormatToken = nextNonComment(before(token))
   @inline
   def tokenAfter(tree: Tree): FormatToken = nextNonComment(getLast(tree))
   @inline
   def tokenAfter(trees: Seq[Tree]): FormatToken = tokenAfter(trees.last)
 
+  /* the following methods return the last format token such that
+   * its `left` is before the parameter */
   @inline
   def justBefore(token: Token): FormatToken = apply(token, -1)
   @inline
   def tokenJustBefore(tree: Tree): FormatToken = justBefore(tree.tokens.head)
 
+  /* the following methods return the last format token such that
+   * its `left` is before the parameter and is not a comment */
   @inline
   def tokenBefore(token: Token): FormatToken = prevNonComment(justBefore(token))
   @inline
   def tokenBefore(tree: Tree): FormatToken = tokenBefore(tree.tokens.head)
-
   @inline
   def tokenBefore(trees: Seq[Tree]): FormatToken = tokenBefore(trees.head)
 
