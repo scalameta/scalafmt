@@ -1096,16 +1096,6 @@ class FormatWriter(formatOps: FormatOps) {
         if (extraBlankMap.getOrElseUpdate(idx, cnt) < cnt)
           extraBlankMap.update(idx, cnt)
       }
-      def indentedPackage(pkg: Pkg) = tokens.tokenAfter(pkg.ref).right match {
-        case _: T.LeftBrace | _: T.Colon => true
-        case _ => false
-      }
-      @tailrec
-      def getNest(tree: Tree, curNest: Int): Int = tree.parent match {
-        case Some(_: Source) | None => curNest
-        case Some(t: Pkg) if !indentedPackage(t) => getNest(t, curNest)
-        case Some(t) => getNest(t, curNest + 1)
-      }
       def setTopStats(owner: Tree, stats: Seq[Stat], curNest: Int = 1): Unit = {
         if (stats.isEmpty) return
         val nest = getNest(owner, curNest)
@@ -1118,20 +1108,15 @@ class FormatWriter(formatOps: FormatOps) {
         def setStat(stat: Tree, idx: Int, isLast: Boolean): Unit = {
           setStats(idx, stat, stat, isLast)
         }
+        def blanks(cnt: Int, unless: Boolean): Int =
+          if (unless && cnt > 0) 1 else cnt
         def setStats(
             idx: Int,
             stat: Tree,
             statLast: Tree,
             isLast: Boolean
         ): Unit = {
-          def blanks(cnt: Int, unless: Boolean): Int =
-            if (unless && cnt > 0) 1 else cnt
-          val head = tokens.tokenJustBefore(stat)
-          val last = tokens.getLast(statLast)
-          val bLoc = locations(head.meta.idx + 1)
-          val nl = bLoc.style.newlines
-          val numBreaks = getLineDiff(bLoc, locations(last.meta.idx))
-          nl.getTopStatBlankLines(stat, numBreaks, nest).foreach { x =>
+          getBlanks(stat, statLast, nest).map { case (x, head, last) =>
             val skipBefore = notUnindentedPkg && idx == 0
             setFt(leadingComment(head), blanks(x.before, skipBefore))
             setFt(trailingComment(last, end), blanks(x.after, isLast))
@@ -1144,14 +1129,14 @@ class FormatWriter(formatOps: FormatOps) {
             imports: Option[(Int, ImportExportStat, ImportExportStat)]
         ): Unit = {
           val stat = rest.head
+          val newRest = rest.tail
+          val isLast = newRest.isEmpty
           val ok = stat match {
             case _: Term.EndMarker => false
             case t: Pkg => indentedPackage(t)
             case _: ImportExportStat => false
             case _ => true
           }
-          val newRest = rest.tail
-          val isLast = newRest.isEmpty
           val newImports = stat match {
             case t: ImportExportStat =>
               val (idxHead, head) =
@@ -1237,6 +1222,32 @@ class FormatWriter(formatOps: FormatOps) {
 
       trav(topSourceTree)
       extraBlankMap.toMap
+    }
+
+    def indentedPackage(pkg: Pkg) = tokens.tokenAfter(pkg.ref).right match {
+      case _: T.LeftBrace | _: T.Colon => true
+      case _ => false
+    }
+
+    @tailrec
+    private def getNest(tree: Tree, curNest: Int): Int = tree.parent match {
+      case Some(_: Source) | None => curNest
+      case Some(t: Pkg) if !indentedPackage(t) => getNest(t, curNest)
+      case Some(t) => getNest(t, curNest + 1)
+    }
+
+    def getBlanks(
+        statHead: Tree,
+        statLast: Tree,
+        nest: Int
+    ): Option[(Newlines.NumBlanks, FormatToken, FormatToken)] = {
+      val head = tokens.tokenJustBefore(statHead)
+      val last = tokens.getLast(statLast)
+      val bLoc = locations(head.meta.idx + 1)
+      val numBreaks = getLineDiff(bLoc, locations(last.meta.idx))
+      bLoc.style.newlines.getTopStatBlankLines(statHead, numBreaks, nest).map {
+        x => (x, head, last)
+      }
     }
 
   }
