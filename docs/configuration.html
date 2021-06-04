@@ -1052,15 +1052,30 @@ require at least one line break (that is, a multi-line statement).</li>
 </ul></li>
 <li><code>blanks</code>
 <ul>
-<li>consists of two integer fields, <code>before</code> and <code>after</code>, specifying how many
-blank lines need to be added in the appropriate place</li>
 <li>if omitted while the entry matches, serves to exclude another entry</li>
-<li>can be specified as a single integer, to set both:</li>
+<li><code>before</code>: number of lines to be added before a matching statement</li>
+<li><code>after</code>: number of lines to be added after a matching statement
+<ul>
+<li>for instance, if a <code>package</code> matches, this controls how many lines need
+to be added after <em>all statements</em> of a package, not after the first
+line which declares the package name</li>
+</ul></li>
+<li><code>beforeEndMarker</code>:
+<ul>
+<li>end markers themselves will not be matched against any rule; blanks before
+them will come from <code>beforeEndMarker</code> and blanks after from <code>after</code></li>
+</ul></li>
+<li>can be specified as a single integer, to set just <code>before</code> and <code>after</code> to
+the same value:</li>
 </ul></li>
 </ul>
 <pre><code class="hljs"><span class="hljs-comment">// these two are equivalent</span>
-<span class="hljs-keyword">new</span><span class="hljs-type">lines</span>.topLevelStatementBlankLines = [{ blanks { before = <span class="hljs-number">1</span>, after = <span class="hljs-number">1</span> } }]
-<span class="hljs-keyword">new</span><span class="hljs-type">lines</span>.topLevelStatementBlankLines = [{ blanks = <span class="hljs-number">1</span> }]
+newlines.topLevelStatementBlankLines = [
+  { blanks { before = <span class="hljs-number">1</span>, after = <span class="hljs-number">1</span>, beforeEndMarker = <span class="hljs-number">0</span> } }
+]
+newlines.topLevelStatementBlankLines = [
+  { blanks = <span class="hljs-number">1</span> }
+]
 </code></pre>
 <p>If you'd like to override or exclude some cases, add them explicitly:</p>
 <pre><code class="hljs"><span class="hljs-keyword">new</span><span class="hljs-type">lines</span>.topLevelStatementBlankLines = [
