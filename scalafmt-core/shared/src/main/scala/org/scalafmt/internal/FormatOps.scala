@@ -2483,7 +2483,7 @@ class FormatOps(
     @inline private def seqLast(seq: Seq[Tree]): Option[T] =
       if (seq.lengthCompare(1) > 0) treeLast(seq.last) else None
 
-    def indentAndBreakBefore[A](tree: Tree, split: Split)(implicit
+    def indentAndBreakBeforeCtrl[A](tree: Tree, split: Split)(implicit
         style: ScalafmtConfig,
         classifier: Classifier[Token, A]
     ): Split =

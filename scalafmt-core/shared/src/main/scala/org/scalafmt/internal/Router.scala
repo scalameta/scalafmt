@@ -1653,14 +1653,14 @@ class Router(formatOps: FormatOps) {
         val spaceMod = Space(style.spaces.isSpaceAfterKeyword(right))
         val slb = Split(spaceMod, 0).withSingleLine(expire, killOnFail = true)
         val mlSplitBase = Split(spaceMod, 1).withPolicy(breakOnlyBeforeElse)
-        val mlSplit =
-          OptionalBraces.indentAndBreakBefore[T.KwThen](owner.cond, mlSplitBase)
+        val mlSplit = OptionalBraces
+          .indentAndBreakBeforeCtrl[T.KwThen](owner.cond, mlSplitBase)
         Seq(slb, mlSplit)
       case FormatToken(_: T.KwWhile, right, _) =>
         val splitBase = Split(Space(style.spaces.isSpaceAfterKeyword(right)), 0)
         val split = formatToken.meta.leftOwner match {
           case t: Term.While =>
-            OptionalBraces.indentAndBreakBefore[T.KwDo](t.expr, splitBase)
+            OptionalBraces.indentAndBreakBeforeCtrl[T.KwDo](t.expr, splitBase)
           case _ => splitBase
         }
         Seq(split)
