@@ -77,7 +77,15 @@ class FormatWriter(formatOps: FormatOps) {
         .foreach { case (indent, owner) =>
           val label = getEndMarkerLabel(owner)
           if (label != null) {
-            sb.append("\n")
+            val numBlanks = locations
+              .getBlanks(owner, owner, locations.getNest(owner))
+              .fold(0) { case (blanks, _, last) =>
+                val numBlanks = blanks.beforeEndMarker
+                if (numBlanks > 0) numBlanks
+                else if (locations.extraBlankTokens.contains(last.meta.idx)) 1
+                else 0
+              }
+            sb.append(getNewlines(numBlanks))
               .append(getIndentation(indent))
               .append("end ")
               .append(label)
@@ -1091,10 +1099,13 @@ class FormatWriter(formatOps: FormatOps) {
 
     lazy val extraBlankTokens = {
       val extraBlankMap = new mutable.HashMap[Int, Int]
-      def setFt(ft: FormatToken, cnt: Int = 1): Unit = if (cnt > 0) {
+      def setFt(ft: FormatToken, cnt: Int = 1): Int = {
         val idx = ft.meta.idx
-        if (extraBlankMap.getOrElseUpdate(idx, cnt) < cnt)
-          extraBlankMap.update(idx, cnt)
+        if (cnt > 0) {
+          if (extraBlankMap.getOrElseUpdate(idx, cnt) < cnt)
+            extraBlankMap.update(idx, cnt)
+        }
+        idx
       }
       def setTopStats(owner: Tree, stats: Seq[Stat], curNest: Int = 1): Unit = {
         if (stats.isEmpty) return
@@ -1105,9 +1116,12 @@ class FormatWriter(formatOps: FormatOps) {
           case t: Pkg => indentedPackage(t)
           case _ => true
         }
-        def setStat(stat: Tree, idx: Int, isLast: Boolean): Unit = {
+        def setStat(
+            stat: Tree,
+            idx: Int,
+            isLast: Boolean
+        ): Option[(Int, Newlines.NumBlanks)] =
           setStats(idx, stat, stat, isLast)
-        }
         def blanks(cnt: Int, unless: Boolean): Int =
           if (unless && cnt > 0) 1 else cnt
         def setStats(
@@ -1115,24 +1129,44 @@ class FormatWriter(formatOps: FormatOps) {
             stat: Tree,
             statLast: Tree,
             isLast: Boolean
-        ): Unit = {
+        ): Option[(Int, Newlines.NumBlanks)] = {
           getBlanks(stat, statLast, nest).map { case (x, head, last) =>
             val skipBefore = notUnindentedPkg && idx == 0
             setFt(leadingComment(head), blanks(x.before, skipBefore))
-            setFt(trailingComment(last, end), blanks(x.after, isLast))
+            val lastIdx =
+              setFt(trailingComment(last, end), blanks(x.after, isLast))
+            (lastIdx, x)
           }
+        }
+        def setEndMarker(
+            stat: Term.EndMarker,
+            prevIdx: Int,
+            prevBlanks: Newlines.NumBlanks,
+            isLast: Boolean
+        ): Unit = {
+          val last = tokens.getLast(stat)
+          if (prevBlanks.beforeEndMarker <= 0)
+            extraBlankMap.remove(prevIdx)
+          else
+            extraBlankMap.update(prevIdx, prevBlanks.beforeEndMarker)
+          setFt(trailingComment(last, end), blanks(prevBlanks.after, isLast))
         }
         @tailrec
         def iter(
             rest: Seq[Stat],
             idx: Int,
+            previous: Option[(Int, Newlines.NumBlanks)],
             imports: Option[(Int, ImportExportStat, ImportExportStat)]
         ): Unit = {
           val stat = rest.head
           val newRest = rest.tail
           val isLast = newRest.isEmpty
           val ok = stat match {
-            case _: Term.EndMarker => false
+            case t: Term.EndMarker =>
+              previous.foreach { case (prevIdx, prevBlanks) =>
+                setEndMarker(t, prevIdx, prevBlanks, isLast)
+              }
+              false
             case t: Pkg => indentedPackage(t)
             case _: ImportExportStat => false
             case _ => true
@@ -1152,10 +1186,10 @@ class FormatWriter(formatOps: FormatOps) {
               }
               None
           }
-          if (ok) setStat(stat, idx, isLast)
-          if (!isLast) iter(newRest, idx + 1, newImports)
+          val newPrevious = if (ok) setStat(stat, idx, isLast) else None
+          if (!isLast) iter(newRest, idx + 1, newPrevious, newImports)
         }
-        iter(stats, 0, None)
+        iter(stats, 0, None, None)
       }
       def insideBody(stats: Seq[Stat], nl: Newlines, ba: Newlines.BeforeAfter) =
         stats.lengthCompare(nl.topLevelBodyMinStatements) >= 0 &&
@@ -1227,6 +1261,14 @@ class FormatWriter(formatOps: FormatOps) {
     def indentedPackage(pkg: Pkg) = tokens.tokenAfter(pkg.ref).right match {
       case _: T.LeftBrace | _: T.Colon => true
       case _ => false
+    }
+
+    final def getNest(tree: Tree): Int = {
+      val initNest = tree match {
+        case t: Pkg if !indentedPackage(t) => 0
+        case _ => 1
+      }
+      getNest(tree, initNest)
     }
 
     @tailrec

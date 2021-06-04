@@ -667,9 +667,10 @@ final class Builder:
     ???
 
 
-
-
 end Builder
+
+
+
 
 val ul = Builder()
 <<< #2511 end marker inserted
@@ -700,9 +701,11 @@ final class Builder:
 
   def coalesce(seq: List[String]): Seq[String] =
     ???
--end Builder
 
-+
-+end Builder
+
+end Builder
+
+
+
 
 val ul = Builder()
