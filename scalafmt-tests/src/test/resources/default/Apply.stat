@@ -1541,7 +1541,8 @@ val i =
       1,
       3,
       4,
-      4)
+      4
+  )
 <<< #2562 tuple break
 danglingParentheses.tupleSite = true
 ===
@@ -1561,7 +1562,8 @@ val i =
       1,
       3,
       4,
-      4)
+      4
+  )
 <<< enclosed apply with single-arg lambda 1
 object a {
   val columnQueriesForInsert = {

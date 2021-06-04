@@ -851,7 +851,8 @@ class Router(formatOps: FormatOps) {
           baseSingleLinePolicy
         }
 
-        val defnSite = isDefnSite(leftOwner)
+        val tupleSite = isTuple(leftOwner)
+        val defnSite = !tupleSite && isDefnSite(leftOwner)
         val closeFormatToken = tokens(close)
         val expirationToken: Token =
           if (defnSite && !isBracket)
@@ -862,6 +863,7 @@ class Router(formatOps: FormatOps) {
         val mustDangle = onlyConfigStyle || expirationToken.is[T.Comment]
         val shouldDangle =
           if (defnSite) !shouldNotDangleAtDefnSite(leftOwner, false)
+          else if (tupleSite) style.danglingParentheses.getTupleSite
           else style.danglingParentheses.callSite
         val wouldDangle = shouldDangle || {
           val beforeClose = prev(closeFormatToken)
@@ -876,9 +878,10 @@ class Router(formatOps: FormatOps) {
           }
 
         // covers using as well
-        val handleImplicit =
+        val handleImplicit = !tupleSite && (
           if (onlyConfigStyle) opensConfigStyleImplicitParamList(formatToken)
           else opensImplicitParamList(formatToken, args)
+        )
 
         val noSplitMod =
           if (
@@ -892,11 +895,12 @@ class Router(formatOps: FormatOps) {
         val noSplitIndent = if (rightIsComment) indent else Num(0)
 
         val align = !rightIsComment && {
-          if (defnSite) style.align.openParenDefnSite
+          if (tupleSite) style.align.getOpenParenTupleSite
+          else if (defnSite) style.align.openParenDefnSite
           else style.align.openParenCallSite
         } && (!handleImplicit ||
           style.newlines.forceAfterImplicitParamListModifier)
-        val alignTuple = align && isTuple(leftOwner) && !onlyConfigStyle
+        val alignTuple = align && tupleSite && !onlyConfigStyle
 
         val keepConfigStyleSplit = !sourceIgnored &&
           style.optIn.configStyleArguments && newlines != 0
@@ -1104,8 +1108,10 @@ class Router(formatOps: FormatOps) {
             if (styleMap.forcedBinPack(leftOwner)) newlineBeforeClose
             else splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
           } else if (
-            style.newlines.sourceIgnored &&
-            style.danglingParentheses.callSite
+            style.newlines.sourceIgnored && (
+              if (isTuple(leftOwner)) style.danglingParentheses.getTupleSite
+              else style.danglingParentheses.callSite
+            )
           )
             newlineBeforeClose
           else NoPolicy
@@ -2282,7 +2288,11 @@ class Router(formatOps: FormatOps) {
     def wouldDangle =
       ft.meta.leftOwner.parent.exists { lop =>
         if (isDefnSite(lop)) !shouldNotDangleAtDefnSite(lop, false)
-        else isCallSite(lop) && style.danglingParentheses.callSite
+        else
+          isCallSite(lop) && (
+            if (isTuple(lop)) style.danglingParentheses.getTupleSite
+            else style.danglingParentheses.callSite
+          )
       }
 
     val expireFt = tokens.getLast(body)
