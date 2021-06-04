@@ -1527,7 +1527,8 @@ object a:
 >>>
 object a:
    if a &&
-      b && c
+         b &&
+         c
    then
       foo
 <<< while break before do if multiline cond, !dangle
@@ -1544,7 +1545,8 @@ object a:
 >>>
 object a:
    while a &&
-      b && c
+         b &&
+         c
    do
       foo
 <<< #2495 1
