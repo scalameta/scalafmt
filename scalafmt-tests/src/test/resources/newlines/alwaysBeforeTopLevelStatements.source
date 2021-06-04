@@ -635,3 +635,74 @@ extension (s: String)
   /** A documentation comment. */
   def baz(cb: String => Unit): Unit =
     ???
+<<< #2511 end marker present
+runner.dialect = scala3
+rewrite.scala3.insertEndMarkerMinLines = 1
+newlines.topLevelStatementBlankLines = [
+  { blanks = { before = 3, after = 4, beforeEndMarker = 2 } }
+  { regex = "^Import", minBreaks=0, blanks = 1 }
+  { regex = "^Pkg", minBreaks=0, blanks.after = 3 }
+  { regex = "^Defn.Def", blanks = 2 }
+  { regex = "^(Defn.Var|Defn.Val|Defn.Type)", blanks = 1 }
+]
+===
+package bug
+
+final class Builder:
+
+  def coalesce(seq: List[String]): Seq[String] =
+    ???
+
+end Builder
+
+val ul = Builder()
+>>>
+package bug
+
+
+
+final class Builder:
+
+  def coalesce(seq: List[String]): Seq[String] =
+    ???
+
+
+
+
+end Builder
+
+val ul = Builder()
+<<< #2511 end marker inserted
+runner.dialect = scala3
+rewrite.scala3.insertEndMarkerMinLines = 1
+newlines.topLevelStatementBlankLines = [
+  { blanks = { before = 3, after = 4, beforeEndMarker = 2 } }
+  { regex = "^Import", minBreaks=0, blanks = 1 }
+  { regex = "^Pkg", minBreaks=0, blanks.after = 3 }
+  { regex = "^Defn.Def", blanks = 2 }
+  { regex = "^(Defn.Var|Defn.Val|Defn.Type)", blanks = 1 }
+]
+===
+package bug
+
+final class Builder:
+
+  def coalesce(seq: List[String]): Seq[String] =
+    ???
+
+val ul = Builder()
+>>>
+package bug
+
+
+
+final class Builder:
+
+  def coalesce(seq: List[String]): Seq[String] =
+    ???
+-end Builder
+
++
++end Builder
+
+val ul = Builder()
