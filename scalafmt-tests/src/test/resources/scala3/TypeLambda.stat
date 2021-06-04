@@ -24,9 +24,8 @@ align.openParenTupleSite = true
 type   Tuple   =  [  TheOnlyTypeInTheTuple ] =>> (TheOnlyTypeInTheTuple, TheOnlyTypeInTheTuple)
 >>>
 type Tuple =
-  [TheOnlyTypeInTheTuple] =>> (
-      TheOnlyTypeInTheTuple,
-      TheOnlyTypeInTheTuple
+  [TheOnlyTypeInTheTuple] =>> (TheOnlyTypeInTheTuple,
+                               TheOnlyTypeInTheTuple
   )
 <<< type lambda long, align open and close
 maxColumn = 30
@@ -36,10 +35,9 @@ align.closeParenSite = true
 type   Tuple   =  [  TheOnlyTypeInTheTuple ] =>> (TheOnlyTypeInTheTuple, TheOnlyTypeInTheTuple)
 >>>
 type Tuple =
-  [TheOnlyTypeInTheTuple] =>> (
-      TheOnlyTypeInTheTuple,
-      TheOnlyTypeInTheTuple
-  )
+  [TheOnlyTypeInTheTuple] =>> (TheOnlyTypeInTheTuple,
+                               TheOnlyTypeInTheTuple
+                              )
 <<< type lambda parameter
 def method(param : T[[  X ] =>> (X, X)]) = ???
 >>>

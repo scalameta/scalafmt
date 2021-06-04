@@ -4154,10 +4154,11 @@ object a {
     (foo2: String)
     (foo3: String)
     (foo4: String)
-    (foo5: String): (String,
-                     String,
-                     String,
-                     String
+    (foo5: String): (
+      String,
+      String,
+      String,
+      String
   ) = ???
   def notAnInterestingFunction
     (foo1: String)

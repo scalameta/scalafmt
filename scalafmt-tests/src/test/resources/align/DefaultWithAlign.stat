@@ -1254,9 +1254,8 @@ object a {
     bar,
     baz
   )
-  (
-    bar,
-    baz
+  (bar,
+   baz
   )
 }
 <<< #2562 call, tuple
@@ -1291,7 +1290,8 @@ object a {
   foo(bar,
       baz
   )
-  (bar,
-   baz
+  (
+    bar,
+    baz
   )
 }
