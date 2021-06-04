@@ -1607,7 +1607,7 @@ class Router(formatOps: FormatOps) {
             case _ => false
           }) =>
         val close = matching(open)
-        val indentLen = style.indent.callSite
+        val indentLen = style.indent.ctrlSite.getOrElse(style.indent.callSite)
         def indents =
           if (style.align.openParenCtrlSite)
             FormatOps.getOpenParenAlignIndents(close)

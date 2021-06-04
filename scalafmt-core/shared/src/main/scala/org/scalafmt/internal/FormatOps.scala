@@ -2492,8 +2492,10 @@ class FormatOps(
         val kw = tokenAfter(tree).right
         if (kw.is[A]) {
           val breakOn = decideNewlinesOnlyBeforeClose(kw)
+          val indent =
+            style.indent.ctrlSite.getOrElse(style.indent.getSignificant)
           split
-            .withIndent(Num(style.indent.getSignificant), kw, ExpiresOn.Before)
+            .withIndent(Num(indent), kw, ExpiresOn.Before)
             .andPolicy(delayedBreakPolicy(Policy.End.On(kw))(breakOn))
         } else split
       }

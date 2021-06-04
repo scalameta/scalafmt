@@ -309,8 +309,8 @@ if (host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
 }
 >>>
 if (
-  host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
-  host.indexOf('[') == -1
+      host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
+      host.indexOf('[') == -1
 ) {
   hostVar = "[" + host + "]"
 }
@@ -360,6 +360,6 @@ if (host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
 }
 >>>
 if (host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
-  host.indexOf('[') == -1) {
+      host.indexOf('[') == -1) {
   hostVar = "[" + host + "]"
 }
