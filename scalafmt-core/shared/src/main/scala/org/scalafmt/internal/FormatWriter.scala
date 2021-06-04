@@ -74,9 +74,14 @@ class FormatWriter(formatOps: FormatOps) {
 
       location.optionalBraces.toSeq
         .sortBy { case (indent, _) => -indent }
-        .foreach { case (indent, label) =>
-          val indentStr = getIndentation(indent)
-          sb.append("\n").append(indentStr).append("end ").append(label)
+        .foreach { case (indent, owner) =>
+          val label = getEndMarkerLabel(owner)
+          if (label != null) {
+            sb.append("\n")
+              .append(getIndentation(indent))
+              .append("end ")
+              .append(label)
+          }
         }
 
       entry.formatWhitespace
@@ -237,11 +242,9 @@ class FormatWriter(formatOps: FormatOps) {
             getLineDiff(bLoc, eLoc) >=
               bLoc.style.rewrite.scala3.insertEndMarkerMinLines
           ) {
-            val label = getEndMarkerLabel(owner)
-            if (null != label)
-              locations(end) = eLoc.copy(optionalBraces =
-                eLoc.optionalBraces + (begIndent -> label)
-              )
+            locations(end) = eLoc.copy(optionalBraces =
+              eLoc.optionalBraces + (begIndent -> owner)
+            )
           }
         }
       }
@@ -1332,7 +1335,7 @@ object FormatWriter {
       shift: Int = 0,
       alignContainer: Tree = null,
       alignHashKey: Int = 0,
-      optionalBraces: Map[Int, String] = Map.empty,
+      optionalBraces: Map[Int, Tree] = Map.empty,
       replace: String = null
   ) {
     def hasBreakAfter: Boolean = state.split.isNL
