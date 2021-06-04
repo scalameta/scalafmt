@@ -443,7 +443,11 @@ object Newlines {
   /** @param before number of blanks to use before the statement
     * @param after number of blanks to use after the statement
     */
-  case class NumBlanks(before: Int = 0, after: Int = 0) {
+  case class NumBlanks(
+      before: Int = 0,
+      after: Int = 0,
+      beforeEndMarker: Int = 0
+  ) {
     def isEmpty: Boolean = before == 0 && after == 0
   }
   object NumBlanks {

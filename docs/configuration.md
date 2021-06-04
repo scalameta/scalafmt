@@ -845,15 +845,26 @@ Each entry on this list consists of the following fields:
   - for instance, `minBreaks=0` will apply to all statements, whereas 1 will
     require at least one line break (that is, a multi-line statement).
 - `blanks`
-  - consists of two integer fields, `before` and `after`, specifying how many
-    blank lines need to be added in the appropriate place
   - if omitted while the entry matches, serves to exclude another entry
-  - can be specified as a single integer, to set both:
+  - `before`: number of lines to be added before a matching statement
+  - `after`: number of lines to be added after a matching statement
+    - for instance, if a `package` matches, this controls how many lines need
+      to be added after _all statements_ of a package, not after the first
+      line which declares the package name
+  - `beforeEndMarker`:
+    - end markers themselves will not be matched against any rule; blanks before
+      them will come from `beforeEndMarker` and blanks after from `after`
+  - can be specified as a single integer, to set just `before` and `after` to
+    the same value:
 
 ```
 // these two are equivalent
-newlines.topLevelStatementBlankLines = [{ blanks { before = 1, after = 1 } }]
-newlines.topLevelStatementBlankLines = [{ blanks = 1 }]
+newlines.topLevelStatementBlankLines = [
+  { blanks { before = 1, after = 1, beforeEndMarker = 0 } }
+]
+newlines.topLevelStatementBlankLines = [
+  { blanks = 1 }
+]
 ```
 
 If you'd like to override or exclude some cases, add them explicitly:
