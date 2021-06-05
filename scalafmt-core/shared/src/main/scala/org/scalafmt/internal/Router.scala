@@ -623,7 +623,10 @@ class Router(formatOps: FormatOps) {
                 Split(NoSplit, 0).withSingleLine(slbEnd),
                 Split(Newline, 1)
                   .withIndent(indent)
-                  .withSingleLineOpt(if (multipleArgs) None else Some(close))
+                  .withPolicy(
+                    penalizeNewlineByNesting(open, close),
+                    multipleArgs
+                  )
                   .andPolicy(nlPolicy)
               )
             case Newlines.keep =>

@@ -4304,6 +4304,18 @@ enum Namespace(val uri: String | Null):
 
    case none extends Namespace(null)
 >>>
-BestFirstSearch:317 Failed to format
-UNABLE TO FORMAT,
-tok=|∙Null[55:60]
+package dev.muve.vdom
+
+enum Namespace
+  (
+      val uri: String |
+        Null
+  )
+:
+  case xhtml extends Namespace("http://www.w3.org/1999/xhtml")
+  case xlink extends Namespace("http://www.w3.org/1999/xlink")
+  case xmlns extends Namespace("http://www.w3.org/2000/xmlns/")
+  case svg extends Namespace("http://www.w3.org/2000/svg")
+  case muve extends Namespace("http://dev.muve/2021/muve")
+
+  case none extends Namespace(null)
