@@ -317,6 +317,8 @@ case class Newlines(
     beforeOpenParenCallSite.map(getBeforeOpenParen)
   def getBeforeOpenParenDefnSite: Option[SourceHints] =
     beforeOpenParenDefnSite.map(getBeforeOpenParen)
+  def isBeforeOpenParenCallSite: Boolean = beforeOpenParenCallSite.isDefined
+  def isBeforeOpenParenDefnSite: Boolean = beforeOpenParenDefnSite.isDefined
 }
 
 object Newlines {

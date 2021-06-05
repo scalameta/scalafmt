@@ -860,8 +860,14 @@ class Router(formatOps: FormatOps) {
         val tupleSite = isTuple(leftOwner)
         val defnSite = !tupleSite && isDefnSite(leftOwner)
         val closeFormatToken = tokens(close)
+        val isBeforeOpenParen =
+          if (defnSite)
+            style.newlines.isBeforeOpenParenDefnSite
+          else
+            style.newlines.isBeforeOpenParenCallSite
         val expirationToken: Token =
-          if (defnSite && !isBracket)
+          if (isBeforeOpenParen) close
+          else if (defnSite && !isBracket)
             defnSiteLastToken(closeFormatToken, leftOwner)
           else
             rhsOptimalToken(closeFormatToken)
