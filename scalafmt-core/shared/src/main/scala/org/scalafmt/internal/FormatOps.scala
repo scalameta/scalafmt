@@ -2052,8 +2052,10 @@ class FormatOps(
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
       val end = tokens.getLast(tree)
       val slbExpire = nextNonCommentSameLine(end).left
-      val closeOpt = getClosingIfEnclosedInMatching(tree)
-        .map(x => prevNonComment(tokens(x, -1)).left)
+      val closeOpt =
+        if (isTuple(tree)) None
+        else
+          getClosingIfEnclosedInMatching(tree).map(tokens.tokenBefore(_).left)
       def nlPolicy(implicit fileLine: FileLine) =
         decideNewlinesOnlyAfterClose(closeOpt.getOrElse(slbExpire))
       val indentLen =
