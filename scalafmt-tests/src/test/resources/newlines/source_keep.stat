@@ -4118,3 +4118,33 @@ object a {
         "foo12"
       )
 }
+<<< #2561 enum, single arg, wide
+maxColumn = 80
+runner.parser = source
+runner.dialect = scala3
+newlines {
+  beforeOpenParenDefnSite = true
+  beforeOpenParenCallSite = true
+}
+===
+package dev.muve.vdom
+
+enum Namespace(val uri: String | Null):
+   case xhtml extends Namespace("http://www.w3.org/1999/xhtml")
+   case xlink extends Namespace("http://www.w3.org/1999/xlink")
+   case xmlns extends Namespace("http://www.w3.org/2000/xmlns/")
+   case svg extends Namespace("http://www.w3.org/2000/svg")
+   case muve extends Namespace("http://dev.muve/2021/muve")
+
+   case none extends Namespace(null)
+>>>
+package dev.muve.vdom
+
+enum Namespace(val uri: String | Null):
+  case xhtml extends Namespace("http://www.w3.org/1999/xhtml")
+  case xlink extends Namespace("http://www.w3.org/1999/xlink")
+  case xmlns extends Namespace("http://www.w3.org/2000/xmlns/")
+  case svg extends Namespace("http://www.w3.org/2000/svg")
+  case muve extends Namespace("http://dev.muve/2021/muve")
+
+  case none extends Namespace(null)
