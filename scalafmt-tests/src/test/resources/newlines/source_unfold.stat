@@ -4304,4 +4304,6 @@ enum Namespace(val uri: String | Null):
 
    case none extends Namespace(null)
 >>>
-org.scalafmt.util.FormatException: java.lang.ArrayIndexOutOfBoundsException: 59
+BestFirstSearch:317 Failed to format
+UNABLE TO FORMAT,
+tok=|∙Null[55:60]

@@ -1254,7 +1254,8 @@ class FormatWriter(formatOps: FormatOps) {
           }
       }
 
-      trav(topSourceTree)
+      if (locations.length == tokens.length)
+        trav(topSourceTree)
       extraBlankMap.toMap
     }
 
