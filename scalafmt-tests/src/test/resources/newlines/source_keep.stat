@@ -3809,7 +3809,7 @@ object Class
     with Trait2 {}
 <<< #2561 scala 2: defn, no align
 align.preset = none
-newlines.beforeOpenParenDefnSite = true
+newlines.beforeOpenParenDefnSite = source
 newlines.sometimesBeforeColonInMethodReturnType = true
 ===
 object a {
@@ -3866,7 +3866,7 @@ object a {
 <<< #2561 scala 2: defn, align
 align.preset = none
 align.openParenDefnSite = true
-newlines.beforeOpenParenDefnSite = true
+newlines.beforeOpenParenDefnSite = keep
 newlines.sometimesBeforeColonInMethodReturnType = true
 ===
 object a {
@@ -3924,7 +3924,7 @@ object a {
 <<< #2561 scala 3: defn, no align
 align.preset = none
 runner.dialect = scala3
-newlines.beforeOpenParenDefnSite = true
+newlines.beforeOpenParenDefnSite = keep
 ===
 object a {
   def fooFunc
@@ -3984,7 +3984,7 @@ object a {
 align.preset = none
 align.openParenDefnSite = true
 runner.dialect = scala3
-newlines.beforeOpenParenDefnSite = true
+newlines.beforeOpenParenDefnSite = source
 ===
 object a {
   def fooFunc(foo1: String)(foo2: String):
@@ -4040,7 +4040,7 @@ object a {
 <<< #2561 scala 3: call, no align
 align.preset = none
 runner.dialect = scala3
-newlines.beforeOpenParenCallSite = true
+newlines.beforeOpenParenCallSite = source
 ===
 object a {
   def f = fooFunc("foo1")("foo2")("foo3")("foo4")("foo5")
@@ -4081,7 +4081,7 @@ object a {
 align.preset = none
 align.openParenCallSite = true
 runner.dialect = scala3
-newlines.beforeOpenParenCallSite = true
+newlines.beforeOpenParenCallSite = keep
 ===
 object a {
   def f = fooFunc("foo1")("foo2")("foo3")("foo4")("foo5")
@@ -4123,8 +4123,8 @@ maxColumn = 80
 runner.parser = source
 runner.dialect = scala3
 newlines {
-  beforeOpenParenDefnSite = true
-  beforeOpenParenCallSite = true
+  beforeOpenParenDefnSite = source
+  beforeOpenParenCallSite = source
 }
 ===
 package dev.muve.vdom
