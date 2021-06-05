@@ -614,8 +614,9 @@ class Router(formatOps: FormatOps) {
               val nlPolicy = nft.right match {
                 case t: T.LeftParen => decideNewlinesOnlyBeforeClose(t)
                 case t: T.Colon
-                    if (style.newlines.sometimesBeforeColonInMethodReturnType
-                      || nft.left.is[T.Comment]) && defn =>
+                    if defn && (nft.left.is[T.Comment] ||
+                      style.newlines.sometimesBeforeColonInMethodReturnType
+                      && defDefReturnType(rightOwner).isDefined) =>
                   decideNewlinesOnlyBeforeClose(t)
                 case _ => NoPolicy
               }
