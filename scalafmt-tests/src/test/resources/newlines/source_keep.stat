@@ -4038,6 +4038,7 @@ object a {
     ???
 }
 <<< #2561 scala 3: call, no align
+maxColumn = 25
 align.preset = none
 runner.dialect = scala3
 newlines.beforeOpenParenCallSite = source
@@ -4056,16 +4057,22 @@ object a {
 }
 >>>
 object a {
-  def f = fooFunc("foo1")("foo2")
-    ("foo3")("foo4")("foo5")
+  def f = fooFunc("foo1")
+    ("foo2")("foo3")
+    ("foo4")("foo5")
   def f =
     fooFunc
-      ("foo1")("foo2")("foo3")("foo4")
+      ("foo1")("foo2")
+      ("foo3")("foo4")
       ("foo5")
   def f =
     notAnInterestingFunction
       ("foo1")
-      ("foo2", "foo3", "foo4")
+      (
+        "foo2",
+        "foo3",
+        "foo4"
+      )
       ("foo5")
       (using
         "foo6",
@@ -4078,6 +4085,7 @@ object a {
       )
 }
 <<< #2561 scala 3: call, align
+maxColumn = 25
 align.preset = none
 align.openParenCallSite = true
 runner.dialect = scala3
@@ -4097,16 +4105,21 @@ object a {
 }
 >>>
 object a {
-  def f = fooFunc("foo1")("foo2")
-    ("foo3")("foo4")("foo5")
+  def f = fooFunc("foo1")
+    ("foo2")("foo3")
+    ("foo4")("foo5")
   def f =
-    fooFunc("foo1")("foo2")("foo3")
+    fooFunc("foo1")
+      ("foo2")("foo3")
       ("foo4")
       ("foo5")
   def f =
     notAnInterestingFunction
       ("foo1")
-      ("foo2", "foo3", "foo4")
+      ("foo2",
+       "foo3",
+       "foo4"
+      )
       ("foo5")
       (using
         "foo6",
