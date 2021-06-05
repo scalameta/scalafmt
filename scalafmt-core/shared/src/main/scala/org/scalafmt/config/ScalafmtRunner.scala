@@ -71,14 +71,12 @@ object ScalafmtRunner {
       default,
       Scala211,
       scala212,
+      Scala212Source3,
       scala213,
       Scala213Source3,
       Sbt0137,
       Sbt1,
-      Dotty,
-      scala3,
-      Paradise211,
-      Paradise212
+      scala3
     )
   }
 

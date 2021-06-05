@@ -50,7 +50,7 @@ rewrite.rules = [AvoidInfix]
 >>> foo.sc
 #!/usr/bin/env amm
 <<< #2104
-runner.dialect = dotty
+runner.dialect = scala3
 ===
 sealed trait Foo {
   def negate : - = -
