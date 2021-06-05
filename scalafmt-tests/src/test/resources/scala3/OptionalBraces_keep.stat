@@ -1545,3 +1545,23 @@ end f
 
 /** Some doc comment */
 def g = f("Foo")
+<<< #2561 no forced dangle in tuples
+newlines {
+  beforeOpenParenDefnSite = true
+  beforeOpenParenCallSite = true
+}
+===
+val (length, width) =
+   if s % 5 == 0 then
+      (hourMarkLength, hourMarkWidth)
+   else
+      (secondMarkLength, secondMarkWidth)
+>>>
+Idempotency violated
+val (length, width) =
+  if s % 5 == 0 then
+     (hourMarkLength, hourMarkWidth
+  )
+  else
+     (secondMarkLength, secondMarkWidth
+  )
