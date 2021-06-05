@@ -153,8 +153,8 @@ case class Newlines(
     beforeTypeBounds: SourceHints = Newlines.classic,
     neverBeforeJsNative: Boolean = false,
     sometimesBeforeColonInMethodReturnType: Boolean = true,
-    beforeOpenParenDefnSite: Boolean = false,
-    beforeOpenParenCallSite: Boolean = false,
+    private[config] val beforeOpenParenDefnSite: Option[BeforeOpenParen] = None,
+    private[config] val beforeOpenParenCallSite: Option[BeforeOpenParen] = None,
     penalizeSingleSelectMultiArgList: Boolean = true,
     @annotation.DeprecatedName(
       "alwaysBeforeCurlyBraceLambdaParams",
@@ -311,6 +311,12 @@ case class Newlines(
       }
       .flatMap(_.blanks)
 
+  private def getBeforeOpenParen(bop: BeforeOpenParen): SourceHints =
+    Option(bop.src).getOrElse(source)
+  def getBeforeOpenParenCallSite: Option[SourceHints] =
+    beforeOpenParenCallSite.map(getBeforeOpenParen)
+  def getBeforeOpenParenDefnSite: Option[SourceHints] =
+    beforeOpenParenDefnSite.map(getBeforeOpenParen)
 }
 
 object Newlines {
@@ -483,6 +489,20 @@ object Newlines {
     implicit val surface = generic.deriveSurface[TopStatBlanks]
     implicit val codec: ConfCodecEx[TopStatBlanks] =
       generic.deriveCodecEx(TopStatBlanks()).noTypos
+  }
+
+  case class BeforeOpenParen(src: SourceHints = null)
+  object BeforeOpenParen {
+    implicit val encoder: ConfEncoder[BeforeOpenParen] =
+      SourceHints.codec.contramap(_.src)
+    implicit val decoder: ConfDecoderEx[BeforeOpenParen] =
+      ConfDecoderEx.from {
+        case (_, Conf.Str("source")) => Configured.Ok(BeforeOpenParen())
+        case (_, _: Conf.Bool) =>
+          ConfError.message("beforeOpenParen can't be bool").notOk
+        case (_, conf) =>
+          SourceHints.codec.read(None, conf).map(BeforeOpenParen.apply)
+      }
   }
 
 }

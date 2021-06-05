@@ -1810,12 +1810,19 @@ def someVeryLongMethodName: Map[String, String] = ???
 
 ### `newlines.beforeOpenParenXxxSite`
 
-If true, a parameter group which doesn't fit on the same line will be formatted
-separately, with a newline just before the opening parenthesis.
+This parameter, if enabled, causes a parameter group which doesn't fit on the
+same line to be formatted separately, with a newline just before the opening
+parenthesis.
 
-Specific formatting depends on the value of `newlines.source` (for `keep`, will
-preserve a newline; for `unfold`, will format every parameter group separately
-unless all fit on a single line, etc.).
+> Since v3.0.0.
+
+Use `null` (default) to disable it. Otherwise, takes the same values as
+[newlines.source](#newlinessource) (or explicit `source` to mirror the current
+value of `newlines.source`).
+
+Specific formatting depends on the value: for `keep`, will preserve a newline;
+for `unfold`, will format every parameter group separately unless all fit on a
+single line; `fold` will use a more compact formatting.
 
 - `beforeOpenParenDefnSite` applies to definitions (methods, ctors, macros, etc.)
 - `beforeOpenParenCallSite` applies to invocations (method calls) and is only
@@ -1825,7 +1832,7 @@ Additional nuances:
 
 - if `newlines.sometimesBeforeColonInMethodReturnType` is true, a newline will
   be added before the colon unless the entire signature fits on a line (except
-  when `newlines.source = keep`).
+  when set to `keep`).
 - if the corresponding `align.openParenXxxSite` is true, multi-line parameters
   will start on the same line as the opening parenthesis and align; otherwise,
   formatting will use a newline and an appropriate continuation indent.
@@ -1838,10 +1845,10 @@ newlines.beforeOpenParenCallSite
 ```scala mdoc:scalafmt
 maxColumn = 20
 runner.dialect = scala3 // for CallSite
-align.openParenCallSite = true
+align.openParenDefnSite = true
 newlines {
-  beforeOpenParenDefnSite = true
-  beforeOpenParenCallSite = true
+  beforeOpenParenDefnSite = fold
+  beforeOpenParenCallSite = unfold
   sometimesBeforeColonInMethodReturnType = true
 }
 ---
@@ -1852,10 +1859,10 @@ val res = fooFunc("foo1")("foo2", "foo3")
 ```scala mdoc:scalafmt
 maxColumn = 20
 runner.dialect = scala3 // for CallSite
-align.openParenDefnSite = true
+align.openParenCallSite = true
 newlines {
-  beforeOpenParenDefnSite = true
-  beforeOpenParenCallSite = true
+  beforeOpenParenDefnSite = unfold
+  beforeOpenParenCallSite = fold
   sometimesBeforeColonInMethodReturnType = false
 }
 ---

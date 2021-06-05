@@ -290,8 +290,8 @@ object ScalafmtConfig {
         addIf(
           newlines.afterCurlyLambdaParams == AfterCurlyLambdaParams.preserve
         )
-        addIf(optIn.configStyleArguments && align.openParenCallSite && !newlines.beforeOpenParenCallSite)
-        addIf(optIn.configStyleArguments && align.openParenDefnSite && !newlines.beforeOpenParenDefnSite)
+        addIf(optIn.configStyleArguments && align.openParenCallSite && newlines.beforeOpenParenCallSite.isEmpty)
+        addIf(optIn.configStyleArguments && align.openParenDefnSite && newlines.beforeOpenParenDefnSite.isEmpty)
         newlines.beforeMultiline.foreach { x =>
           addIf(
             x.eq(Newlines.classic) || x.eq(Newlines.keep),
@@ -306,6 +306,8 @@ object ScalafmtConfig {
         }
         addIf(newlines.beforeTypeBounds eq Newlines.keep)
         addIf(binPack.parentConstructors eq BinPack.ParentCtors.keep)
+        addIf(newlines.beforeOpenParenCallSite.exists(_.src eq Newlines.keep))
+        addIf(newlines.beforeOpenParenDefnSite.exists(_.src eq Newlines.keep))
       }
       if (newlines.source == Newlines.unfold) {
         addIf(align.arrowEnumeratorGenerator)
@@ -327,7 +329,7 @@ object ScalafmtConfig {
         addIf(trailingCommas == TrailingCommas.multiple, errDialect)
       }
       if (!runner.dialect.allowSignificantIndentation) {
-        addIf(newlines.beforeOpenParenCallSite, errDialect)
+        addIf(newlines.beforeOpenParenCallSite.nonEmpty, errDialect)
       }
       addIfDirect( // can't use addIf on multiline conditions
         (binPack.unsafeCallSite || binPack.unsafeDefnSite) && {

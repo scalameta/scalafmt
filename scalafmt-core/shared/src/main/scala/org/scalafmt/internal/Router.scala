@@ -597,10 +597,13 @@ class Router(formatOps: FormatOps) {
           case _ => Space(ft.left.is[T.Comment])
         }
         val defn = isDefnSite(rightOwner)
-        def getSplitsBeforeOpenParen(indentLen: Int) = {
+        def getSplitsBeforeOpenParen(
+            src: Newlines.SourceHints,
+            indentLen: Int
+        ) = {
           val close = matching(open)
           val indent = Indent(indentLen, close, ExpiresOn.After)
-          style.newlines.source match {
+          src match {
             case Newlines.unfold =>
               val slbEnd =
                 if (defn)
@@ -657,16 +660,19 @@ class Router(formatOps: FormatOps) {
               )
           }
         }
-        if (
-          style.newlines.beforeOpenParenDefnSite &&
-          open.is[T.LeftParen] && defn
-        ) getSplitsBeforeOpenParen(style.indent.main)
-        else if (
-          style.newlines.beforeOpenParenCallSite &&
-          style.runner.dialect.allowSignificantIndentation &&
-          open.is[T.LeftParen] && !defn
-        ) getSplitsBeforeOpenParen(style.indent.getSignificant)
-        else Seq(Split(modification, 0))
+        val beforeOpenParenSplits =
+          if (!open.is[T.LeftParen]) None
+          else if (defn)
+            style.newlines.getBeforeOpenParenDefnSite.map(
+              getSplitsBeforeOpenParen(_, style.indent.main)
+            )
+          else if (style.runner.dialect.allowSignificantIndentation)
+            style.newlines.getBeforeOpenParenCallSite.map(
+              getSplitsBeforeOpenParen(_, style.indent.getSignificant)
+            )
+          else None
+        beforeOpenParenSplits.getOrElse(Seq(Split(modification, 0)))
+
       // Defn.{Object, Class, Trait, Enum}
       case FormatToken(
             _: T.KwObject | _: T.KwClass | _: T.KwTrait | _: T.KwEnum,
@@ -1123,15 +1129,16 @@ class Router(formatOps: FormatOps) {
             || left.is[T.Comment] && newlines != 0 =>
         val expire = getLastNonTrivialToken(returnType)
         val sameLineSplit = Space(endsWithSymbolIdent(left))
-        if (style.newlines.beforeOpenParenDefnSite) {
+        val bopSplits = style.newlines.getBeforeOpenParenDefnSite.map { x =>
           Seq(
             Split(sameLineSplit, 0)
-              .onlyIf(newlines == 0 || style.newlines.source.ne(Newlines.keep))
+              .onlyIf(newlines == 0 || x.ne(Newlines.keep))
               .withSingleLine(expire),
             Split(Newline, 1)
               .withIndent(style.indent.main, expire, After)
           )
-        } else {
+        }
+        bopSplits.getOrElse {
           val penalizeNewlines =
             PenalizeAllNewlines(expire, Constants.BracketPenalty)
           val indent = style.indent.getDefnSite(leftOwner)

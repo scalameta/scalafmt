@@ -1506,8 +1506,8 @@ def g = f("Foo")
 <<< #2561 no forced dangle in tuples
 maxColumn = 40
 newlines {
-  beforeOpenParenDefnSite = true
-  beforeOpenParenCallSite = true
+  beforeOpenParenDefnSite = source
+  beforeOpenParenCallSite = source
 }
 ===
 val (length, width) =
