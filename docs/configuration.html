@@ -2479,11 +2479,18 @@ newlines.sometimesBeforeColonInMethodReturnType = <span class="hljs-literal">tru
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="newlinesbeforeopenparenxxxsite"></a><a href="#newlinesbeforeopenparenxxxsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.beforeOpenParenXxxSite</code></h3>
-<p>If true, a parameter group which doesn't fit on the same line will be formatted
-separately, with a newline just before the opening parenthesis.</p>
-<p>Specific formatting depends on the value of <code>newlines.source</code> (for <code>keep</code>, will
-preserve a newline; for <code>unfold</code>, will format every parameter group separately
-unless all fit on a single line, etc.).</p>
+<p>This parameter, if enabled, causes a parameter group which doesn't fit on the
+same line to be formatted separately, with a newline just before the opening
+parenthesis.</p>
+<blockquote>
+<p>Since v3.0.0.</p>
+</blockquote>
+<p>Use <code>null</code> (default) to disable it. Otherwise, takes the same values as
+<a href="#newlinessource">newlines.source</a> (or explicit <code>source</code> to mirror the current
+value of <code>newlines.source</code>).</p>
+<p>Specific formatting depends on the value: for <code>keep</code>, will preserve a newline;
+for <code>unfold</code>, will format every parameter group separately unless all fit on a
+single line; <code>fold</code> will use a more compact formatting.</p>
 <ul>
 <li><code>beforeOpenParenDefnSite</code> applies to definitions (methods, ctors, macros, etc.)</li>
 <li><code>beforeOpenParenCallSite</code> applies to invocations (method calls) and is only
@@ -2493,23 +2500,47 @@ supported for scala3</li>
 <ul>
 <li>if <code>newlines.sometimesBeforeColonInMethodReturnType</code> is true, a newline will
 be added before the colon unless the entire signature fits on a line (except
-when <code>newlines.source = keep</code>).</li>
+when set to <code>keep</code>).</li>
 <li>if the corresponding <code>align.openParenXxxSite</code> is true, multi-line parameters
 will start on the same line as the opening parenthesis and align; otherwise,
 formatting will use a newline and an appropriate continuation indent.</li>
 </ul>
 <pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-newlines.beforeOpenParenDefnSite = <span class="hljs-literal">false</span>
-newlines.beforeOpenParenCallSite = <span class="hljs-literal">false</span>
+newlines.beforeOpenParenDefnSite = <span class="hljs-literal">null</span>
+newlines.beforeOpenParenCallSite = <span class="hljs-literal">null</span>
 </code></pre>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fooFunc</span></span>
+  (foo1: <span class="hljs-type">String</span>)
+  (foo2: <span class="hljs-type">String</span>,
+   foo3: <span class="hljs-type">String</span>
+  )
+  : <span class="hljs-type">String</span> = ???
+<span class="hljs-keyword">val</span> res = fooFunc
+  (<span class="hljs-string">"foo1"</span>)
+  (<span class="hljs-string">"foo2"</span>, <span class="hljs-string">"foo3"</span>)
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fooFunc</span></span>(foo1: <span class="hljs-type">String</span>)(foo2: <span class="hljs-type">String</span>, foo3: <span class="hljs-type">String</span>): <span class="hljs-type">String</span> = ???
+<span class="hljs-keyword">val</span> res = fooFunc(<span class="hljs-string">"foo1"</span>)(<span class="hljs-string">"foo2"</span>, <span class="hljs-string">"foo3"</span>)
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">20</span>
+runner.dialect = scala3 <span class="hljs-comment">// for CallSite</span>
+align.openParenDefnSite = <span class="hljs-literal">true</span>
+newlines {
+  beforeOpenParenDefnSite = fold
+  beforeOpenParenCallSite = unfold
+  sometimesBeforeColonInMethodReturnType = <span class="hljs-literal">true</span>
+}
+</code></pre>
+</p></details>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fooFunc</span></span>
   (foo1: <span class="hljs-type">String</span>)
   (
       foo2: <span class="hljs-type">String</span>,
       foo3: <span class="hljs-type">String</span>
-  )
-  : <span class="hljs-type">String</span> = ???
-<span class="hljs-keyword">val</span> res = fooFunc(<span class="hljs-string">"foo1"</span>)
+  ): <span class="hljs-type">String</span> = ???
+<span class="hljs-keyword">val</span> res = fooFunc
+  (<span class="hljs-string">"foo1"</span>)
   (<span class="hljs-string">"foo2"</span>, <span class="hljs-string">"foo3"</span>)
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fooFunc</span></span>(foo1: <span class="hljs-type">String</span>)(foo2: <span class="hljs-type">String</span>, foo3: <span class="hljs-type">String</span>): <span class="hljs-type">String</span> = ???
@@ -2520,32 +2551,8 @@ newlines.beforeOpenParenCallSite = <span class="hljs-literal">false</span>
 runner.dialect = scala3 <span class="hljs-comment">// for CallSite</span>
 align.openParenCallSite = <span class="hljs-literal">true</span>
 newlines {
-  beforeOpenParenDefnSite = <span class="hljs-literal">true</span>
-  beforeOpenParenCallSite = <span class="hljs-literal">true</span>
-  sometimesBeforeColonInMethodReturnType = <span class="hljs-literal">true</span>
-}
-</code></pre>
-</p></details>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fooFunc</span></span>
-  (foo1: <span class="hljs-type">String</span>)
-  (foo2: <span class="hljs-type">String</span>,
-   foo3: <span class="hljs-type">String</span>
-  ): <span class="hljs-type">String</span> = ???
-<span class="hljs-keyword">val</span> res = fooFunc
-  (
-    <span class="hljs-string">"foo1"</span>
-  )(<span class="hljs-string">"foo2"</span>, <span class="hljs-string">"foo3"</span>)
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fooFunc</span></span>(foo1: <span class="hljs-type">String</span>)(foo2: <span class="hljs-type">String</span>, foo3: <span class="hljs-type">String</span>): <span class="hljs-type">String</span> = ???
-<span class="hljs-keyword">val</span> res = fooFunc(<span class="hljs-string">"foo1"</span>)(<span class="hljs-string">"foo2"</span>, <span class="hljs-string">"foo3"</span>)
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">20</span>
-runner.dialect = scala3 <span class="hljs-comment">// for CallSite</span>
-align.openParenDefnSite = <span class="hljs-literal">true</span>
-newlines {
-  beforeOpenParenDefnSite = <span class="hljs-literal">true</span>
-  beforeOpenParenCallSite = <span class="hljs-literal">true</span>
+  beforeOpenParenDefnSite = unfold
+  beforeOpenParenCallSite = fold
   sometimesBeforeColonInMethodReturnType = <span class="hljs-literal">false</span>
 }
 </code></pre>
@@ -4971,8 +4978,8 @@ newlines.<span class="hljs-attr">avoidInResultType</span> = <span class="hljs-li
 newlines.<span class="hljs-attr">beforeTypeBounds</span> = <span class="hljs-literal">null</span>
 newlines.<span class="hljs-attr">neverBeforeJsNative</span> = <span class="hljs-literal">false</span>
 newlines.<span class="hljs-attr">sometimesBeforeColonInMethodReturnType</span> = <span class="hljs-literal">true</span>
-newlines.<span class="hljs-attr">beforeOpenParenDefnSite</span> = <span class="hljs-literal">false</span>
-newlines.<span class="hljs-attr">beforeOpenParenCallSite</span> = <span class="hljs-literal">false</span>
+newlines.<span class="hljs-attr">beforeOpenParenDefnSite</span> = <span class="hljs-literal">null</span>
+newlines.<span class="hljs-attr">beforeOpenParenCallSite</span> = <span class="hljs-literal">null</span>
 newlines.<span class="hljs-attr">penalizeSingleSelectMultiArgList</span> = <span class="hljs-literal">true</span>
 newlines.<span class="hljs-attr">alwaysBeforeCurlyBraceLambdaParams</span> = <span class="hljs-literal">false</span>
 newlines.<span class="hljs-attr">beforeCurlyLambdaParams</span> = never
