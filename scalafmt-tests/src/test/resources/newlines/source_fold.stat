@@ -3871,9 +3871,7 @@ object a {
     ("foo2")("foo3")
     ("foo4")("foo5")
   def f = notAnInterestingFunction
-    (
-      "foo1"
-    )
+    ("foo1")
     (
       "foo2",
       "foo3",
@@ -3920,21 +3918,21 @@ object a {
   def f = fooFunc("foo1")
     ("foo2")("foo3")
     ("foo4")("foo5")
-  def f =
-    notAnInterestingFunction("foo1")
-      ("foo2",
-       "foo3",
-       "foo4"
-      )("foo5")
-      (using
-        "foo6",
-        "foo7",
-        "foo8",
-        "foo9",
-        "foo10",
-        "foo11",
-        "foo12"
-      )
+  def f = notAnInterestingFunction
+    ("foo1")
+    ("foo2",
+     "foo3",
+     "foo4"
+    )("foo5")
+    (using
+      "foo6",
+      "foo7",
+      "foo8",
+      "foo9",
+      "foo10",
+      "foo11",
+      "foo12"
+    )
 }
 <<< #2561 enum, single arg, wide
 maxColumn = 80

@@ -4052,9 +4052,7 @@ object a {
       ("foo4")("foo5")
   def f =
     notAnInterestingFunction
-      (
-        "foo1"
-      )
+      ("foo1")
       (
         "foo2",
         "foo3",
@@ -4103,7 +4101,8 @@ object a {
       ("foo2")("foo3")
       ("foo4")("foo5")
   def f =
-    notAnInterestingFunction("foo1")
+    notAnInterestingFunction
+      ("foo1")
       ("foo2",
        "foo3",
        "foo4"
