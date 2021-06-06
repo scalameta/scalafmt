@@ -3964,3 +3964,29 @@ enum Namespace(val uri: String | Null):
   case muve extends Namespace("http://dev.muve/2021/muve")
 
   case none extends Namespace(null)
+<<< #2561 nested apply as parameter
+maxColumn = 80
+runner.dialect = scala3
+newlines.beforeOpenParenCallSite = unfold
+===
+line
+  (x1 := centre - offset * s,
+   y1 := centre + offset * c,
+   x2 := centre + (length - offset) * s,
+   y2 := centre - (length - offset) * c,
+   (SvgA.filter := "url(#handShadow)").when(hasShadow),
+   strokeWidth := width,
+   stroke := colour)
+>>>
+line
+  (
+    x1 := centre - offset * s,
+    y1 := centre + offset * c,
+    x2 := centre + (length - offset) * s,
+    y2 := centre - (length - offset) * c,
+    (SvgA.filter := "url(#handShadow)")
+      .when
+        (hasShadow),
+    strokeWidth := width,
+    stroke := colour
+  )
