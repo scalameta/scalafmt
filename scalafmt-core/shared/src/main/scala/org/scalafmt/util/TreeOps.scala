@@ -351,15 +351,25 @@ object TreeOps {
       case _ => false
     }
 
+  @tailrec
   def defDefBody(tree: Tree): Option[Tree] =
     tree match {
       case d: Defn.Def => Some(d.body)
       case d: Defn.Given => Some(d.templ)
       case d: Defn.GivenAlias => Some(d.body)
+      case d: Defn.Macro => Some(d.body)
       case d: Defn.Val => Some(d.rhs)
       case d: Defn.Var => d.rhs
-      case pat: Pat.Var => pat.parent.flatMap(defDefBody)
-      case name: Term.Name => name.parent.flatMap(defDefBody)
+      case t: Defn.Class => Some(t.templ)
+      case t: Defn.Trait => Some(t.templ)
+      case t: Defn.Enum => Some(t.templ)
+      case t: Defn.ExtensionGroup => Some(t.body)
+      case t: Ctor.Secondary => Some(t.init)
+      case _: Ctor.Primary | _: Pat.Var | _: Term.Name =>
+        tree.parent match {
+          case Some(p) => defDefBody(p)
+          case _ => None
+        }
       case _ => None
     }
 
