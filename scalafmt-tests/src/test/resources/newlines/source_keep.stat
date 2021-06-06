@@ -3834,46 +3834,46 @@ class fooClass
 }
 >>>
 class fooClass
-  (foo1: String)
-  (
-      foo2: String,
-      foo3: String,
-      foo4: Map[
-        String,
-        Map[String, Map[String, String]]
-      ]
-  ) // this line doesn't fit
-  (foo5: String) {
+     (foo1: String)
+     (
+         foo2: String,
+         foo3: String,
+         foo4: Map[String, Map[
+           String,
+           Map[String, String]
+         ]]
+     ) // this line doesn't fit
+     (foo5: String) {
   def fooFunc(foo1: String)
-    (foo2: String): String = ???
+       (foo2: String): String = ???
   def fooFunc
-    (foo1: String)
-    (foo2: String)
-    (foo3: String)
-    (foo4: String)
-    (foo5: String)
+       (foo1: String)
+       (foo2: String)
+       (foo3: String)
+       (foo4: String)
+       (foo5: String)
     : (String, String, String, String) =
     ???
   def notAnInterestingFunction
-    (foo1: String)
-    (
-        foo2: String,
-        foo3: String,
-        foo4: Map[String, Map[
-          String,
-          Map[String, String]
-        ]]
-    ) // this line doesn't fit
-    (foo5: String)
-    (implicit
-        foo6: Int,
-        foo7: Int,
-        foo8: Int,
-        foo9: Int,
-        foo10: Int,
-        foo11: Int,
-        foo12: Int
-    ) // this line also doesn't fit
+       (foo1: String)
+       (
+           foo2: String,
+           foo3: String,
+           foo4: Map[String, Map[
+             String,
+             Map[String, String]
+           ]]
+       ) // this line doesn't fit
+       (foo5: String)
+       (implicit
+           foo6: Int,
+           foo7: Int,
+           foo8: Int,
+           foo9: Int,
+           foo10: Int,
+           foo11: Int,
+           foo12: Int
+       ) // this line also doesn't fit
     : (String, String, String, String) =
     ???
 }
@@ -4051,23 +4051,23 @@ class fooClass
 }
 >>>
 class fooClass
-  (foo1: String)
-  (foo2: String,
-   foo3: String,
-   foo4: Map[
-     String,
-     Map[String, Map[String, String]]
-   ]
-  ) // this line doesn't fit
-  (foo5: String) {
-  def fooFunc(foo1: String)
-    (foo2: String): String = ???
-  def fooFunc
      (foo1: String)
-     (foo2: String)
-     (foo3: String)
-     (foo4: String)
-     (foo5: String)
+     (foo2: String,
+      foo3: String,
+      foo4: Map[
+        String,
+        Map[String, Map[String, String]]
+      ]
+     ) // this line doesn't fit
+     (foo5: String) {
+  def fooFunc(foo1: String)
+       (foo2: String): String = ???
+  def fooFunc
+        (foo1: String)
+        (foo2: String)
+        (foo3: String)
+        (foo4: String)
+        (foo5: String)
      : (
          String,
          String,
@@ -4077,24 +4077,24 @@ class fooClass
      bar
      baz
   def notAnInterestingFunction
-    (foo1: String)
-    (foo2: String,
-     foo3: String,
-     foo4: Map[
-       String,
-       Map[String, Map[String, String]]
-     ]
-    ) // this line doesn't fit
-    (foo5: String)
-    (using
-        foo6: Int,
-        foo7: Int,
-        foo8: Int,
-        foo9: Int,
-        foo10: Int,
-        foo11: Int,
-        foo12: Int
-    ) // this line also doesn't fit
+       (foo1: String)
+       (foo2: String,
+        foo3: String,
+        foo4: Map[String, Map[
+          String,
+          Map[String, String]
+        ]]
+       ) // this line doesn't fit
+       (foo5: String)
+       (using
+           foo6: Int,
+           foo7: Int,
+           foo8: Int,
+           foo9: Int,
+           foo10: Int,
+           foo11: Int,
+           foo12: Int
+       ) // this line also doesn't fit
     : (String, String, String, String) =
     ???
 }
