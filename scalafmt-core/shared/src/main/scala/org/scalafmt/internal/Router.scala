@@ -1919,9 +1919,10 @@ class Router(formatOps: FormatOps) {
       // Union/Intersection types
       case FormatToken(_: T.Ident, _, ExtractAndOrTypeRhsIdentLeft(rhs)) =>
         val rhsEnd = getLastNonTrivialToken(rhs)
+        @inline def getBreakToken(ft: FormatToken) = nextNonCommentSameLine(ft)
         def nlSplit(cost: Int): Split = {
           val indent = Indent(style.indent.main, rhsEnd, After)
-          val breakToken = nextNonCommentSameLine(formatToken)
+          val breakToken = getBreakToken(formatToken)
           if (breakToken eq formatToken)
             Split(Newline, cost).withIndent(indent)
           else
@@ -1929,14 +1930,14 @@ class Router(formatOps: FormatOps) {
               .withIndent(indent)
               .withPolicy(decideNewlinesOnlyAfterClose(breakToken.left))
         }
+        def nextRhsEnd = leftOwner.parent
+          .flatMap(getAndOrTypeRhs)
+          .map(x => getBreakToken(tokens.tokenBefore(x)).left)
         style.newlines.source match {
           case Newlines.unfold => Seq(nlSplit(0))
           case Newlines.keep if newlines != 0 => Seq(nlSplit(0))
           case _ =>
-            val nextRhs =
-              leftOwner.parent.flatMap(getAndOrTypeRhs).map(tokenBefore)
-            val slbEnd =
-              nextRhs.fold(rhsEnd)(x => nextNonCommentSameLine(x).left)
+            val slbEnd = nextRhsEnd.getOrElse(rhsEnd)
             Seq(Split(Space, 0).withSingleLine(slbEnd), nlSplit(1))
         }
 
