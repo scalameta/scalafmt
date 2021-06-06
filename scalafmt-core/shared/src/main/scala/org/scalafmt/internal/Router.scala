@@ -1934,7 +1934,13 @@ class Router(formatOps: FormatOps) {
           .flatMap(getAndOrTypeRhs)
           .map(x => getBreakToken(tokens.tokenBefore(x)).left)
         style.newlines.source match {
-          case Newlines.unfold => Seq(nlSplit(0))
+          case Newlines.unfold =>
+            val topEnd = tokens.getLastNonTrivial(getTopAndOrType(leftOwner))
+            Seq(
+              Split(Space, 0).withSingleLine(getBreakToken(topEnd).left),
+              nlSplit(1)
+                .andPolicyOpt(nextRhsEnd.map(decideNewlinesOnlyAfterToken))
+            )
           case Newlines.keep if newlines != 0 => Seq(nlSplit(0))
           case _ =>
             val slbEnd = nextRhsEnd.getOrElse(rhsEnd)

@@ -4318,11 +4318,7 @@ enum Namespace(val uri: String | Null):
 >>>
 package dev.muve.vdom
 
-enum Namespace
-  (
-      val uri: String |
-        Null
-  ):
+enum Namespace(val uri: String | Null):
   case xhtml extends Namespace("http://www.w3.org/1999/xhtml")
   case xlink extends Namespace("http://www.w3.org/1999/xlink")
   case xmlns extends Namespace("http://www.w3.org/2000/xmlns/")
@@ -4354,10 +4350,7 @@ enum Namespace(val uri: String | Null):
 package dev.muve.vdom
 
 enum Namespace
-  (
-      val uri: String |
-        Null
-  ):
+  (val uri: String | Null):
   case xhtml
       extends Namespace
         ("http://www.w3.org/1999/xhtml")
