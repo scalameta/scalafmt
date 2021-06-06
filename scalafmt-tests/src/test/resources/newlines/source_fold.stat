@@ -3984,9 +3984,7 @@ line
     y1 := centre + offset * c,
     x2 := centre + (length - offset) * s,
     y2 := centre - (length - offset) * c,
-    (SvgA.filter := "url(#handShadow)")
-      .when
-        (hasShadow),
+    (SvgA.filter := "url(#handShadow)").when(hasShadow),
     strokeWidth := width,
     stroke := colour
   )
