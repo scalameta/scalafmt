@@ -3935,6 +3935,7 @@ type T =
 <<< #2561 scala 2: defn, no align
 align.preset = none
 newlines.beforeOpenParenDefnSite = source
+indent.extraBeforeOpenParenDefnSite = 3
 newlines.sometimesBeforeColonInMethodReturnType = true
 ===
 class fooClass
@@ -4161,6 +4162,7 @@ align.preset = none
 align.openParenDefnSite = true
 runner.dialect = scala3
 newlines.beforeOpenParenDefnSite = source
+indent.extraBeforeOpenParenDefnSite = 3
 newlines.sometimesBeforeColonInMethodReturnType = false
 indent.significant = 3
 ===
