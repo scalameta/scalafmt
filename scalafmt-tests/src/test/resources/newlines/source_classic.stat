@@ -4042,9 +4042,14 @@ class fooClass(foo1: String)
     (foo2: String)
     : String = ???
   def fooFunc(foo1: String)
-    (foo2: String)(foo3: String)
-    (foo4: String)(foo5: String)
-    : (String, String, String, String) =
+     (foo2: String)(foo3: String)
+     (foo4: String)(foo5: String)
+     : (
+         String,
+         String,
+         String,
+         String
+     ) =
      bar
      baz
   def notAnInterestingFunction

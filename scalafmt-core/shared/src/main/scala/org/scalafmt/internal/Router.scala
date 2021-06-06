@@ -597,6 +597,8 @@ class Router(formatOps: FormatOps) {
           case _ => Space(ft.left.is[T.Comment])
         }
         val defn = isDefnSite(rightOwner)
+        val defRhs = if (defn) defDefBody(rightOwner) else None
+        val beforeDefRhs = defRhs.flatMap(_.tokens.headOption.map(tokenBefore))
         def getSplitsBeforeOpenParen(
             src: Newlines.SourceHints,
             indentLen: Int
@@ -606,10 +608,7 @@ class Router(formatOps: FormatOps) {
           src match {
             case Newlines.unfold =>
               val slbEnd =
-                if (defn)
-                  defDefBody(rightOwner)
-                    .flatMap(_.tokens.headOption.map(tokenBefore(_).left))
-                    .getOrElse(getLastToken(rightOwner))
+                if (defn) beforeDefRhs.fold(getLastToken(rightOwner))(_.left)
                 else getLastToken(getLastCall(rightOwner))
               val multipleArgs =
                 getApplyArgs(next(ft), false).args.lengthCompare(1) > 0
@@ -663,9 +662,16 @@ class Router(formatOps: FormatOps) {
         val beforeOpenParenSplits =
           if (!open.is[T.LeftParen]) None
           else if (defn)
-            style.newlines.getBeforeOpenParenDefnSite.map(
-              getSplitsBeforeOpenParen(_, style.indent.main)
-            )
+            style.newlines.getBeforeOpenParenDefnSite.map { x =>
+              val beforeBody = defRhs.flatMap {
+                case t: Template => templateCurlyFt(t)
+                case _ => beforeDefRhs
+              }
+              val ob = beforeBody.flatMap(OptionalBraces.get).nonEmpty
+              val indent =
+                if (ob) style.indent.getSignificant else style.indent.main
+              getSplitsBeforeOpenParen(x, indent)
+            }
           else if (style.runner.dialect.allowSignificantIndentation)
             style.newlines.getBeforeOpenParenCallSite.map(
               getSplitsBeforeOpenParen(_, style.indent.getSignificant)
@@ -1139,15 +1145,18 @@ class Router(formatOps: FormatOps) {
       case FormatToken(left, _: T.Colon, DefDefReturnTypeRight(returnType))
           if style.newlines.sometimesBeforeColonInMethodReturnType
             || left.is[T.Comment] && newlines != 0 =>
-        val expire = getLastNonTrivialToken(returnType)
+        val expireFt = tokens.getLastNonTrivial(returnType)
+        val expire = expireFt.left
         val sameLineSplit = Space(endsWithSymbolIdent(left))
         val bopSplits = style.newlines.getBeforeOpenParenDefnSite.map { x =>
+          val ob = OptionalBraces.get(next(nextNonComment(expireFt))).nonEmpty
+          val indent =
+            if (ob) style.indent.getSignificant else style.indent.main
           Seq(
             Split(sameLineSplit, 0)
               .onlyIf(newlines == 0 || x.ne(Newlines.keep))
               .withSingleLine(expire),
-            Split(Newline, 1)
-              .withIndent(style.indent.main, expire, After)
+            Split(Newline, 1).withIndent(indent, expire, After)
           )
         }
         bopSplits.getOrElse {
