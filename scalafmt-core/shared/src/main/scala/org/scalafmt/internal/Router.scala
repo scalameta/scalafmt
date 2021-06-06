@@ -667,9 +667,11 @@ class Router(formatOps: FormatOps) {
                 case t: Template => templateCurlyFt(t)
                 case _ => beforeDefRhs
               }
-              val ob = beforeBody.flatMap(OptionalBraces.get).nonEmpty
-              val indent =
-                if (ob) style.indent.getSignificant else style.indent.main
+              val indent = beforeBody.fold(style.indent.main) { y =>
+                val ob = OptionalBraces.get(y).nonEmpty
+                style.indent.extraBeforeOpenParenDefnSite +
+                  (if (ob) style.indent.getSignificant else style.indent.main)
+              }
               getSplitsBeforeOpenParen(x, indent)
             }
           else if (style.runner.dialect.allowSignificantIndentation)
