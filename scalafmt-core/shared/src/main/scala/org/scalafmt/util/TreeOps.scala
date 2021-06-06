@@ -730,16 +730,22 @@ object TreeOps {
   def getLastCall(tree: Tree): Tree = getLastCall(tree, tree)
 
   @tailrec
-  private def getLastCall(tree: Tree, lastCall: Tree): Tree =
-    SplitCallIntoParts.unapply(tree) match {
-      case None => lastCall
-      case Some((_, Left(_))) =>
-        tree.parent match {
-          case Some(p) => getLastCall(p, tree)
-          case _ => tree
-        }
+  private def getLastCall(tree: Tree, lastCall: Tree): Tree = {
+    // this is to cover types which include one parameter group at a time
+    def body = tree match {
+      case t: Term.Apply => t.fun
+      case t: Pat.Extract => t.fun
+      case t: Term.ApplyType => t.fun
+      case t: Term.ApplyUsing => t.fun
       case _ => tree
     }
+    if (lastCall.eq(tree) || lastCall.eq(body))
+      tree.parent match {
+        case Some(p) => getLastCall(p, tree)
+        case _ => tree
+      }
+    else lastCall
+  }
 
   @tailrec
   def findInterpolate(
