@@ -403,8 +403,11 @@ class FormatOps(
     }
   }
 
+  def templateCurlyFt(template: Template): Option[FormatToken] =
+    getStartOfTemplateBody(template).map(tokenBefore)
+
   def templateCurly(template: Template): Option[Token] =
-    getStartOfTemplateBody(template).map(x => tokenBefore(x).left)
+    templateCurlyFt(template).map(_.left)
 
   def templateCurlyOrLastNonTrivial(template: Template): Token =
     templateCurly(template).getOrElse(getLastNonTrivialToken(template))
@@ -2081,7 +2084,7 @@ class FormatOps(
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] =
         ft.meta.leftOwner match {
-          case t: Template if templateCurly(t).contains(ft.left) =>
+          case t: Template if templateCurlyFt(t).contains(ft) =>
             Some(new OptionalBracesRegion {
               def owner = t.parent
               def splits = Some(getSplits(ft, t, forceNL = true))
