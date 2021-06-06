@@ -172,7 +172,7 @@ case class Newlines(
     )
     topLevelStatementsMinBreaks: Int = 1,
     @annotation.DeprecatedName(
-      "topLevelStatementsMinBreaks",
+      "topLevelStatements",
       "Use newlines.topLevelStatementBlankLines instead",
       "3.0.0"
     )
