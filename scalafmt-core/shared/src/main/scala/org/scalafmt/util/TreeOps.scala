@@ -838,6 +838,12 @@ object TreeOps {
     case _ => None
   }
 
+  @tailrec
+  final def getTopAndOrType(tree: Tree): Tree = tree.parent match {
+    case Some(x @ (_: Type.Or | _: Type.And)) => getTopAndOrType(x)
+    case _ => tree
+  }
+
   def getTemplateGroups(template: Template): Option[Seq[List[Tree]]] = {
     val groups = Seq(template.inits, template.derives).filter(_.nonEmpty)
     if (groups.isEmpty) None else Some(groups)
