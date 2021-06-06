@@ -384,6 +384,97 @@ trait Foo extends A, B, C, D, E {
 }
 ```
 
+### `indent.extraBeforeOpenParenDefnSite`
+
+> Since v3.0.0
+
+This parameter applies to definitions and sets extra indentation (relative to
+the indentation of the body) used for parameter groups when
+
+- the definition has a body (that needs differentiating from)
+- [newlines.beforeOpenParenDefnSite](#newlinesbeforeopenparenxxxsite) is set
+
+```scala mdoc:defaults
+indent.extraBeforeOpenParenDefnSite
+```
+
+```scala mdoc:scalafmt
+maxColumn = 25
+newlines.beforeOpenParenDefnSite = fold
+---
+case class fooClass
+  (foo1: String)
+  (foo2: String, foo3: String)
+  (foo5: String)
+abstract class fooClass
+  (foo1: String)
+  (foo2: String, foo3: String)
+  (foo5: String) {
+  def fooDef
+    (foo1: String)
+    (foo2: String, foo3: String)
+    (foo5: String)
+}
+def fooDef
+  (foo1: String)
+  (foo2: String, foo3: String)
+  (foo5: String) = {
+  // body
+}
+```
+
+```scala mdoc:scalafmt
+maxColumn = 25
+indent.extraBeforeOpenParenDefnSite = 2
+newlines.beforeOpenParenDefnSite = fold
+---
+case class fooClass
+  (foo1: String)
+  (foo2: String, foo3: String)
+  (foo5: String)
+abstract class fooClass
+  (foo1: String)
+  (foo2: String, foo3: String)
+  (foo5: String) {
+  def fooDef
+    (foo1: String)
+    (foo2: String, foo3: String)
+    (foo5: String)
+}
+def fooDef
+  (foo1: String)
+  (foo2: String, foo3: String)
+  (foo5: String) = {
+  // body
+}
+```
+
+```scala mdoc:scalafmt
+maxColumn = 25
+indent.extraBeforeOpenParenDefnSite = -1
+newlines.beforeOpenParenDefnSite = fold
+---
+case class fooClass
+  (foo1: String)
+  (foo2: String, foo3: String)
+  (foo5: String)
+abstract class fooClass
+  (foo1: String)
+  (foo2: String, foo3: String)
+  (foo5: String) {
+  def fooDef
+    (foo1: String)
+    (foo2: String, foo3: String)
+    (foo5: String)
+}
+def fooDef
+  (foo1: String)
+  (foo2: String, foo3: String)
+  (foo5: String) = {
+  // body
+}
+```
+
 ### `indentOperator`
 
 Normally, the first eligible break _inside_ a chain of infix operators is

@@ -3794,6 +3794,7 @@ type T = A1 & A2 | A3 & A4 | A5 &
 <<< #2561 scala 2: defn, no align
 align.preset = none
 newlines.beforeOpenParenDefnSite = source
+indent.extraBeforeOpenParenDefnSite = 3
 newlines.sometimesBeforeColonInMethodReturnType = true
 ===
 class fooClass
@@ -4003,6 +4004,7 @@ align.openParenDefnSite = true
 runner.dialect = scala3
 newlines.beforeOpenParenDefnSite = source
 indent.significant = 3
+indent.extraBeforeOpenParenDefnSite = 3
 ===
 class fooClass
     (foo1: String)
