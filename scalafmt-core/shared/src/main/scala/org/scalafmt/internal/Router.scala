@@ -607,9 +607,9 @@ class Router(formatOps: FormatOps) {
             case Newlines.unfold =>
               val slbEnd =
                 if (defn)
-                  defDefBody(rightOwner).fold(getLastToken(rightOwner)) {
-                    tokens.tokenBefore(_).left
-                  }
+                  defDefBody(rightOwner)
+                    .flatMap(_.tokens.headOption.map(tokenBefore(_).left))
+                    .getOrElse(getLastToken(rightOwner))
                 else getLastToken(getLastCall(rightOwner))
               val multipleArgs =
                 getApplyArgs(next(ft), false).args.lengthCompare(1) > 0
