@@ -3812,7 +3812,10 @@ align.preset = none
 newlines.beforeOpenParenDefnSite = source
 newlines.sometimesBeforeColonInMethodReturnType = true
 ===
-object a {
+class fooClass
+    (foo1: String)
+    (foo2: String, foo3: String, foo4: Map[String, Map[String, Map[String, String]]]) // this line doesn't fit
+    (foo5: String) {
   def fooFunc(foo1: String)(foo2: String): String = ???
   def fooFunc
     (foo1: String)
@@ -3829,7 +3832,17 @@ object a {
     : (String, String, String, String) = ???
 }
 >>>
-object a {
+class fooClass
+  (foo1: String)
+  (
+      foo2: String,
+      foo3: String,
+      foo4: Map[
+        String,
+        Map[String, Map[String, String]]
+      ]
+  ) // this line doesn't fit
+  (foo5: String) {
   def fooFunc(foo1: String)
     (foo2: String): String = ???
   def fooFunc
@@ -3869,7 +3882,10 @@ align.openParenDefnSite = true
 newlines.beforeOpenParenDefnSite = keep
 newlines.sometimesBeforeColonInMethodReturnType = true
 ===
-object a {
+class fooClass
+    (foo1: String)
+    (foo2: String, foo3: String, foo4: Map[String, Map[String, Map[String, String]]]) // this line doesn't fit
+    (foo5: String) {
   def fooFunc
     (foo1: String)(foo2: String): String = ???
   def fooFunc
@@ -3887,7 +3903,16 @@ object a {
     : (String, String, String, String) = ???
 }
 >>>
-object a {
+class fooClass
+  (foo1: String)
+  (foo2: String,
+   foo3: String,
+   foo4: Map[
+     String,
+     Map[String, Map[String, String]]
+   ]
+  ) // this line doesn't fit
+  (foo5: String) {
   def fooFunc
     (foo1: String)(foo2: String)
     : String = ???
@@ -3926,7 +3951,10 @@ align.preset = none
 runner.dialect = scala3
 newlines.beforeOpenParenDefnSite = keep
 ===
-object a {
+class fooClass
+    (foo1: String)
+    (foo2: String, foo3: String, foo4: Map[String, Map[String, Map[String, String]]]) // this line doesn't fit
+    (foo5: String) {
   def fooFunc
     (foo1: String)(foo2: String)
     : String = ???
@@ -3945,7 +3973,17 @@ object a {
     : (String, String, String, String) = ???
 }
 >>>
-object a {
+class fooClass
+  (foo1: String)
+  (
+      foo2: String,
+      foo3: String,
+      foo4: Map[
+        String,
+        Map[String, Map[String, String]]
+      ]
+  ) // this line doesn't fit
+  (foo5: String) {
   def fooFunc
     (foo1: String)(foo2: String)
     : String = ???
@@ -3985,8 +4023,12 @@ align.preset = none
 align.openParenDefnSite = true
 runner.dialect = scala3
 newlines.beforeOpenParenDefnSite = source
+indent.significant = 3
 ===
-object a {
+class fooClass
+    (foo1: String)
+    (foo2: String, foo3: String, foo4: Map[String, Map[String, Map[String, String]]]) // this line doesn't fit
+    (foo5: String) {
   def fooFunc(foo1: String)(foo2: String):
     String = ???
   def fooFunc
@@ -3995,7 +4037,9 @@ object a {
     (foo3: String)
     (foo4: String)
     (foo5: String):
-    (String, String, String, String) = ???
+    (String, String, String, String) =
+    bar
+    baz
   def notAnInterestingFunction
     (foo1: String)
     (foo2: String, foo3: String, foo4: Map[String, Map[String, Map[String, String]]]) // this line doesn't fit
@@ -4004,7 +4048,16 @@ object a {
     : (String, String, String, String) = ???
 }
 >>>
-object a {
+class fooClass
+  (foo1: String)
+  (foo2: String,
+   foo3: String,
+   foo4: Map[
+     String,
+     Map[String, Map[String, String]]
+   ]
+  ) // this line doesn't fit
+  (foo5: String) {
   def fooFunc(foo1: String)
     (foo2: String): String = ???
   def fooFunc
@@ -4014,7 +4067,8 @@ object a {
     (foo4: String)
     (foo5: String)
     : (String, String, String, String) =
-    ???
+     bar
+     baz
   def notAnInterestingFunction
     (foo1: String)
     (foo2: String,
@@ -4042,8 +4096,20 @@ maxColumn = 25
 align.preset = none
 runner.dialect = scala3
 newlines.beforeOpenParenCallSite = source
+newlines.beforeOpenParenDefnSite = source
 ===
 object a {
+  // class with no body
+  case class fooClass
+   (foo1: String)
+   (foo2: String,
+    foo3: String,
+    foo4: Map[
+      String,
+      Map[String, Map[String, String]]
+    ]
+   )
+   (foo5: String)
   def f = fooFunc("foo1")("foo2")("foo3")("foo4")("foo5")
   def f =
     fooFunc
@@ -4057,6 +4123,24 @@ object a {
 }
 >>>
 object a {
+  // class with no body
+  case class fooClass
+    (foo1: String)
+    (
+        foo2: String,
+        foo3: String,
+        foo4: Map[
+          String,
+          Map[
+            String,
+            Map[
+              String,
+              String
+            ]
+          ]
+        ]
+    )
+    (foo5: String)
   def f = fooFunc("foo1")
     ("foo2")("foo3")
     ("foo4")("foo5")
