@@ -1319,7 +1319,14 @@ are prohibited and will result in an error.</p>
 </blockquote>
 <p>This parameter controls when to add blank lines before and/or after a top-level
 statement (a member of a package or template; nesting is allowed but not within
-a block). It does <em>not</em> apply to end markers, imports and non-indented packages.</p>
+a block). Special cases:</p>
+<ul>
+<li>the rules do <em>not</em> apply to non-indented packages (but do consider other
+statements within those packages)</li>
+<li>end markers are handled through a setting for the statement they mark</li>
+<li>imports and exports are processed as a group of consecutive statements</li>
+<li>also see <a href="#newlines-around-package-or-template-body">Newlines around package or template body</a></li>
+</ul>
 <blockquote>
 <p>This parameter might reduce the number of blank lines but will not eliminate
 them completely.</p>
@@ -1361,6 +1368,9 @@ line which declares the package name</li>
 <li>end markers themselves will not be matched against any rule; blanks before
 them will come from <code>beforeEndMarker</code> and blanks after from <code>after</code></li>
 </ul></li>
+<li>number of blank lines before the first statement of a template or indented
+package, and after the last one, will be limited to 1 if the respective
+parameter is positive</li>
 <li>can be specified as a single integer, to set just <code>before</code> and <code>after</code> to
 the same value:</li>
 </ul></li>
