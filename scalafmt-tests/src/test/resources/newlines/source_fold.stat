@@ -3834,7 +3834,18 @@ class fooClass
   def fooFunc
     (foo1: String)
     (foo2: String)
+    : String
+  def fooFunc
+    (foo1: String)
+    (foo2: String)
     : String = ???
+  def fooFunc
+    (foo1: String)
+    (foo2: String)
+    (foo3: String)
+    (foo4: String)
+    (foo5: String)
+    : (String, String, String, String)
   def fooFunc
     (foo1: String)
     (foo2: String)
@@ -3862,8 +3873,15 @@ class fooClass(foo1: String)
      ) // this line doesn't fit
      (foo5: String) {
   def fooFunc(foo1: String)
+    (foo2: String)
+    : String
+  def fooFunc(foo1: String)
        (foo2: String)
     : String = ???
+  def fooFunc(foo1: String)
+    (foo2: String)(foo3: String)
+    (foo4: String)(foo5: String)
+    : (String, String, String, String)
   def fooFunc(foo1: String)
         (foo2: String)(foo3: String)
         (foo4: String)(foo5: String)

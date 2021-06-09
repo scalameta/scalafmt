@@ -4032,7 +4032,16 @@ class fooClass
     (foo2: String, foo3: String, foo4: Map[String, Map[String, Map[String, String]]]) // this line doesn't fit
     (foo5: String) {
   def fooFunc(foo1: String)(foo2: String):
+    String
+  def fooFunc(foo1: String)(foo2: String):
     String = ???
+  def fooFunc
+    (foo1: String)
+    (foo2: String)
+    (foo3: String)
+    (foo4: String)
+    (foo5: String):
+    (String, String, String, String)
   def fooFunc
     (foo1: String)
     (foo2: String)
@@ -4061,7 +4070,16 @@ class fooClass
      ) // this line doesn't fit
      (foo5: String) {
   def fooFunc(foo1: String)
+    (foo2: String): String
+  def fooFunc(foo1: String)
        (foo2: String): String = ???
+  def fooFunc
+    (foo1: String)
+    (foo2: String)
+    (foo3: String)
+    (foo4: String)
+    (foo5: String)
+    : (String, String, String, String)
   def fooFunc
         (foo1: String)
         (foo2: String)
