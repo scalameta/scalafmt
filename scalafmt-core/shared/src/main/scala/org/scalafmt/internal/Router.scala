@@ -1152,8 +1152,12 @@ class Router(formatOps: FormatOps) {
         val sameLineSplit = Space(endsWithSymbolIdent(left))
         val bopSplits = style.newlines.getBeforeOpenParenDefnSite.map { x =>
           val ob = OptionalBraces.get(next(nextNonComment(expireFt))).nonEmpty
+          def extraIfBody = style.indent.extraBeforeOpenParenDefnSite
           val indent =
-            if (ob) style.indent.getSignificant else style.indent.main
+            if (ob) style.indent.getSignificant + extraIfBody
+            else
+              style.indent.main +
+                (if (defDefBody(rightOwner).isEmpty) 0 else extraIfBody)
           Seq(
             Split(sameLineSplit, 0)
               .onlyIf(newlines == 0 || x.ne(Newlines.keep))

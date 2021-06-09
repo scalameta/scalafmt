@@ -3852,8 +3852,12 @@ class fooClass
        (foo3: String)
        (foo4: String)
        (foo5: String)
-    : (String, String, String, String) =
-    ???
+       : (
+           String,
+           String,
+           String,
+           String
+       ) = ???
   def notAnInterestingFunction
        (foo1: String)
        (
@@ -3874,8 +3878,12 @@ class fooClass
            foo11: Int,
            foo12: Int
        ) // this line also doesn't fit
-    : (String, String, String, String) =
-    ???
+       : (
+           String,
+           String,
+           String,
+           String
+       ) = ???
 }
 <<< #2561 scala 2: defn, align
 align.preset = none
@@ -4086,12 +4094,12 @@ class fooClass
         (foo3: String)
         (foo4: String)
         (foo5: String)
-     : (
-         String,
-         String,
-         String,
-         String
-     ) =
+        : (
+            String,
+            String,
+            String,
+            String
+        ) =
      bar
      baz
   def notAnInterestingFunction
@@ -4113,8 +4121,12 @@ class fooClass
            foo11: Int,
            foo12: Int
        ) // this line also doesn't fit
-    : (String, String, String, String) =
-    ???
+       : (
+           String,
+           String,
+           String,
+           String
+       ) = ???
 }
 <<< #2561 scala 3: call, no align
 maxColumn = 25
