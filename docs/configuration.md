@@ -1012,7 +1012,13 @@ are prohibited and will result in an error.
 
 This parameter controls when to add blank lines before and/or after a top-level
 statement (a member of a package or template; nesting is allowed but not within
-a block). It does _not_ apply to end markers, imports and non-indented packages.
+a block). Special cases:
+
+- the rules do _not_ apply to non-indented packages (but do consider other
+  statements within those packages)
+- end markers are handled through a setting for the statement they mark
+- imports and exports are processed as a group of consecutive statements
+- also see [Newlines around package or template body](#newlines-around-package-or-template-body)
 
 > This parameter might reduce the number of blank lines but will not eliminate
 > them completely.
@@ -1043,6 +1049,9 @@ Each entry on this list consists of the following fields:
   - `beforeEndMarker`:
     - end markers themselves will not be matched against any rule; blanks before
       them will come from `beforeEndMarker` and blanks after from `after`
+  - number of blank lines before the first statement of a template or indented
+    package, and after the last one, will be limited to 1 if the respective
+    parameter is positive
   - can be specified as a single integer, to set just `before` and `after` to
     the same value:
 
