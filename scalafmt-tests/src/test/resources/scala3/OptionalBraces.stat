@@ -1557,3 +1557,79 @@ val (length, width) =
      (hourMarkLength, hourMarkWidth)
   else
      (secondMarkLength, secondMarkWidth)
+<<< if indentation
+if // comm
+    val cond1 = true
+    (a1 && a2) == cond1
+  then
+    val exitCode = 1
+    exitCode
+    
+>>>
+if // comm
+   val cond1 = true
+   (a1 && a2) == cond1
+then
+   val exitCode = 1
+   exitCode
+<<< if indentation long
+runner.parser = source
+maxColumn = 35
+rewrite.scala3.insertEndMarkerMinLines = 1
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+===
+object O {
+  if {// comm
+    def bye = "bye"
+    def hello = { val greet = "This is a long string hello!  "; greet }
+    (hello + bye).length > 10
+  } then
+    val greet = "Too many words!"
+    println(greet)
+}
+>>>
+object O:
+   if // comm
+      def bye = "bye"
+      def hello =
+         val greet =
+           "This is a long string hello!  ";
+         greet
+      end hello
+      (hello + bye).length > 10
+   then
+      val greet = "Too many words!"
+      println(greet)
+   end if
+end O
+<<< if indentation danglingParentheses false
+danglingParentheses.ctrlSite = false
+===
+if // comm
+    val cond1 = true
+    (a1 && a2) == cond1
+  then
+    val exitCode = 1
+    exitCode
+    
+>>>
+if // comm
+   val cond1 = true
+   (a1 && a2) == cond1
+then
+   val exitCode = 1
+   exitCode
+<<< if indentation danglingParentheses false oneline
+danglingParentheses.ctrlSite = false
+===
+if
+    (a1 && a2) == cond1
+  then
+    val exitCode = 1
+    exitCode
+    
+>>>
+if (a1 && a2) == cond1 then
+   val exitCode = 1
+   exitCode

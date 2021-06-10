@@ -94,6 +94,7 @@ private class RemoveScala3OptionalBraces(ftoks: FormatTokens)
     tree.parent.fold(null: Replacement) {
       case t: Term.If =>
         val ok = ftoks.prevNonComment(ft).left match {
+          case _: Token.KwIf => true
           case _: Token.KwThen => true
           case _: Token.KwElse =>
             !TreeOps.isTreeMultiStatBlock(t.elsep) || {

@@ -2037,6 +2037,7 @@ class FormatOps(
           case _: T.KwFinally => FinallyImpl
           case _: T.KwMatch => MatchImpl
           case _: T.KwThen => ThenImpl
+          case _: T.KwIf => IfImpl
           case _: T.KwElse => ElseImpl
           case _: T.KwReturn | _: T.ContextArrow | _: T.LeftArrow |
               _: T.KwThrow | _: T.KwWhile | _: T.KwYield =>
@@ -2361,6 +2362,28 @@ class FormatOps(
             })
           case _ => None
         }
+    }
+
+    private object IfImpl extends Factory {
+      def create(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[OptionalBracesRegion] = {
+        ft.meta.leftOwner match {
+          case t: Term.If =>
+            t.cond match {
+              case b: Term.Block =>
+                Some(
+                  new OptionalBracesRegion {
+                    def owner = Some(t)
+                    def splits = Some(getSplits(ft, b, true))
+                    def rightBrace = blockLast(b)
+                  }
+                )
+              case _ => None
+            }
+          case _ => None
+        }
+      }
     }
 
     private object ElseImpl extends Factory {
