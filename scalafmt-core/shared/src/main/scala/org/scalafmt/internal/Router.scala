@@ -187,7 +187,7 @@ class Router(formatOps: FormatOps) {
             _: T.KwReturn | _: T.ContextArrow | _: T.LeftArrow |
             _: T.RightArrow | _: T.KwMatch | _: T.KwThen | _: T.KwElse |
             _: T.KwThrow | _: T.KwTry | _: T.KwCatch | _: T.KwFinally |
-            _: T.KwFor | _: T.KwDo | _: T.KwWhile | _: T.KwYield,
+            _: T.KwFor | _: T.KwDo | _: T.KwWhile | _: T.KwYield | _: T.KwIf,
             _,
             OptionalBraces(splits)
           ) if dialect.allowSignificantIndentation =>
