@@ -218,3 +218,8 @@ class Bar[T, C, D, F](
     implicit
     f: Int,
     d: Int)
+<<< trait context bounds 
+trait MyTrait[T: TypeClass] {
+}
+>>>
+trait MyTrait[T: TypeClass] {}
