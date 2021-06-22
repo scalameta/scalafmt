@@ -3,7 +3,6 @@ package org.scalafmt.util
 import java.io.File
 import java.net.URL
 
-import org.apache.commons.io.FileUtils
 import org.rauschig.jarchivelib.ArchiverFactory
 
 case class ScalaFile(filename: String, projectUrl: String, commit: String) {
@@ -76,9 +75,10 @@ object ScalaFile {
   }
 
   private def downloadReposTar(destination: File): Unit = {
+    import sys.process._
     val fileToDownload = new URL(reposTarballUrl)
     println(s"Downloading $reposTarballUrl...")
-    FileUtils.copyURLToFile(fileToDownload, destination)
+    fileToDownload.#>(destination).!!
     println("Download finished.")
   }
 
