@@ -246,7 +246,7 @@ private class BestFirstSearch private (
         val isNL = ft.hasBreak
         val mod = Provided(ft)
         active.map { x =>
-          val penalty = if (x.isNL == isNL) 0 else Constants.ExceedColumnPenalty
+          val penalty = if (x.isNL == isNL) 0 else Constants.ShouldBeNewline
           x.withMod(mod).withPenalty(penalty)
         }
       } else active
