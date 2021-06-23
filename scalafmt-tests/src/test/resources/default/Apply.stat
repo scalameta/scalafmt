@@ -1621,6 +1621,7 @@ maxColumn = 60
      val q"def this(..$params) = $rhs2" = q"def this(x: Int) = this(0)"
    """)
 >>>
-fails("'this' expected but unquotee found", """
+fails("'this' expected but unquotee found",
+      """
      val q"def this(..$params) = $rhs2" = q"def this(x: Int) = this(0)"
    """)
