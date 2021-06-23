@@ -839,14 +839,14 @@ class Router(formatOps: FormatOps) {
         def singleLine(
             newlinePenalty: Int
         )(implicit fileLine: FileLine): Policy = {
-          val baseSingleLinePolicy = if (isBracket) {
-            if (!multipleArgs)
-              PenalizeAllNewlines(
-                close,
-                newlinePenalty,
-                penalizeLambdas = false
-              )
-            else SingleLineBlock(close, noSyntaxNL = true)
+          if (multipleArgs && (isBracket || excludeBlocks.ranges.isEmpty)) {
+            SingleLineBlock(close, noSyntaxNL = true)
+          } else if (isBracket) {
+            PenalizeAllNewlines(
+              close,
+              newlinePenalty,
+              penalizeLambdas = false
+            )
           } else {
             val penalty =
               if (!multipleArgs) newlinePenalty
@@ -861,8 +861,6 @@ class Router(formatOps: FormatOps) {
               )
             )
           }
-
-          baseSingleLinePolicy
         }
 
         val tupleSite = isTuple(leftOwner)
