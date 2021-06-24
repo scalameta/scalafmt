@@ -2052,7 +2052,8 @@ class FormatOps(
         ft: FormatToken,
         tree: Tree,
         forceNL: Boolean = false,
-        useMain: Boolean = false
+        useMain: Boolean = false,
+        danglingKeyword: Boolean = true
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
       val end = tokens.getLast(tree)
       val slbExpire = nextNonCommentSameLine(end).left
@@ -2061,7 +2062,9 @@ class FormatOps(
         else
           getClosingIfEnclosedInMatching(tree).map(tokens.tokenBefore(_).left)
       def nlPolicy(implicit fileLine: FileLine) =
-        decideNewlinesOnlyAfterClose(closeOpt.getOrElse(slbExpire))
+        if (danglingKeyword)
+          decideNewlinesOnlyAfterClose(closeOpt.getOrElse(slbExpire))
+        else NoPolicy
       val indentLen =
         if (useMain) style.indent.main else style.indent.getSignificant
       val indent =
@@ -2113,7 +2116,16 @@ class FormatOps(
               if !hasSingleTermStat(t) && isBlockStart(t, nft) =>
             Some(new OptionalBracesRegion {
               def owner = t.parent
-              def splits = Some(getSplitsMaybeBlock(ft, nft, t, true))
+              def splits = Some(
+                getSplitsMaybeBlock(
+                  ft,
+                  nft,
+                  t,
+                  allowMain = true,
+                  danglingKeyword = style.danglingParentheses.ctrlSite &&
+                    ft.left.is[Token.KwWhile]
+                )
+              )
               def rightBrace = treeLast(t)
             })
           case _ => None
@@ -2375,7 +2387,14 @@ class FormatOps(
                 Some(
                   new OptionalBracesRegion {
                     def owner = Some(t)
-                    def splits = Some(getSplits(ft, b, true))
+                    def splits = Some(
+                      getSplits(
+                        ft,
+                        b,
+                        forceNL = true,
+                        danglingKeyword = style.danglingParentheses.ctrlSite
+                      )
+                    )
                     def rightBrace = blockLast(b)
                   }
                 )
@@ -2413,12 +2432,13 @@ class FormatOps(
         ft: FormatToken,
         nft: FormatToken,
         tree: Tree,
-        allowMain: Boolean
+        allowMain: Boolean,
+        danglingKeyword: Boolean = true
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
       val multiStat = isTreeMultiStatBlock(tree)
       val forceNL =
         !hasSingleTermStatIfBlock(tree) || shouldBreakInOptionalBraces(nft)
-      getSplits(ft, tree, forceNL, allowMain && !multiStat)
+      getSplits(ft, tree, forceNL, allowMain && !multiStat, danglingKeyword)
     }
 
     private def getSplitsForStats(
