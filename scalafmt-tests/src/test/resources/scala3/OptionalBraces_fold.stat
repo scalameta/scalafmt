@@ -1580,8 +1580,7 @@ if // comm
 >>>
 if // comm
    val cond1 = true
-   (a1 && a2) == cond1
-then
+   (a1 && a2) == cond1 then
    val exitCode = 1
    exitCode
 <<< if indentation danglingParentheses false oneline
@@ -1595,5 +1594,34 @@ if
     
 >>>
 if (a1 && a2) == cond1 then
+   val exitCode = 1
+   exitCode
+<<< while indentation danglingParentheses false
+danglingParentheses.ctrlSite = false
+===
+while // comm
+    val cond1 = true
+    (a1 && a2) == cond1
+  do
+    val exitCode = 1
+    exitCode
+    
+>>>
+while // comm
+   val cond1 = true
+   (a1 && a2) == cond1 do
+   val exitCode = 1
+   exitCode
+<<< if indentation danglingParentheses false oneline
+danglingParentheses.ctrlSite = false
+===
+while
+    (a1 && a2) == cond1
+  do
+    val exitCode = 1
+    exitCode
+    
+>>>
+while (a1 && a2) == cond1 do
    val exitCode = 1
    exitCode
