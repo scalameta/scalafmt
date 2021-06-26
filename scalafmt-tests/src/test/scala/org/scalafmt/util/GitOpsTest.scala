@@ -156,8 +156,10 @@ class GitOpsTest extends FunSuite {
     assert(ls.toSet == Set(f))
   }
 
-  def diff(br: String = "HEAD")(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
-    ops.diff(br)
+  def diff(br: String = "HEAD", cwd: AbsoluteFile = null)(implicit
+      ops: GitOpsImpl
+  ): Seq[AbsoluteFile] =
+    ops.diff(br, Option(cwd))
 
   def status(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
     ops.status
@@ -188,11 +190,13 @@ class GitOpsTest extends FunSuite {
   }
 
   test("diff should return added files against HEAD") {
+    val dir = mkDir("dir 1")
     val f1 = touch()
-    val f2 = touch()
+    val f2 = touch(dir = dir)
     add(f1)
     add(f2)
     assert(diff().toSet == Set(f1, f2))
+    assert(diff(cwd = dir).toSet == Set(f2))
   }
 
   test("diff should return added files against a different branch") {
@@ -200,12 +204,14 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     checkoutBr("other")
+    val dir = mkDir("dir 1")
     val f1 = touch()
-    val f2 = touch()
+    val f2 = touch(dir = dir)
     add(f1)
     add(f2)
     commit
     assert(diff("master").toSet == Set(f1, f2))
+    assert(diff("master", dir).toSet == Set(f2))
   }
 
   test(
@@ -215,12 +221,14 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     checkoutBr("other")
+    val dir = mkDir("dir 1")
     val f1 = touch()
-    val f2 = touch()
+    val f2 = touch(dir = dir)
     add(f1)
     add(f2)
     modify(f1)
     assert(diff("master").toSet == Set(f1, f2))
+    assert(diff("master", dir).toSet == Set(f2))
   }
 
   test("diff should not return removed files against a different branch") {
