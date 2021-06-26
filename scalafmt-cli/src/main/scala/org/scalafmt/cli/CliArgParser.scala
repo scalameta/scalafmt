@@ -52,11 +52,6 @@ object CliArgParser {
         c.copy(config = Some(configFile.jfile.toPath))
       }
 
-      private def addFile(file: File, c: CliOptions): CliOptions = {
-        val absFile = AbsoluteFile.fromFile(file, c.common.workingDirectory)
-        c.copy(customFiles = c.customFiles :+ absFile)
-      }
-
       head("scalafmt", Versions.nightly)
       opt[Unit]('h', "help")
         .action(printAndExit(includeUsage = true))
@@ -68,7 +63,7 @@ object CliArgParser {
       arg[File]("<file>...")
         .optional()
         .unbounded()
-        .action((file, c) => addFile(file, c))
+        .action((file, c) => c.addFile(file))
         .text(
           """file, or directory (in which all *.scala files are to be formatted);
             |if starts with '@', refers to path listing files to be formatted
@@ -76,12 +71,7 @@ object CliArgParser {
         )
 
       opt[Seq[File]]('f', "files")
-        .action { (files, c) =>
-          c.copy(
-            customFiles =
-              AbsoluteFile.fromFiles(files, c.common.workingDirectory)
-          )
-        }
+        .action((files, c) => c.withFiles(files))
         .hidden() // this option isn't needed anymore. Simply pass the files as
         // arguments. Keeping for backwards compatibility
         .text(
