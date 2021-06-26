@@ -170,9 +170,15 @@ case class CliOptions(
 
   val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
 
-  def withFiles(files: Seq[AbsoluteFile]): CliOptions = {
+  def addFile(file: File): CliOptions = withCustomFiles(
+    customFiles :+ AbsoluteFile.fromFile(file, common.workingDirectory)
+  )
+
+  def withFiles(files: Seq[File]): CliOptions =
+    withCustomFiles(AbsoluteFile.fromFiles(files, common.workingDirectory))
+
+  def withCustomFiles(files: Seq[AbsoluteFile]): CliOptions =
     this.copy(customFiles = files)
-  }
 
   def excludeFilterRegexp: Regex =
     mkRegexp(customExcludes.map(OsSpecific.fixSeparatorsInPathPattern))

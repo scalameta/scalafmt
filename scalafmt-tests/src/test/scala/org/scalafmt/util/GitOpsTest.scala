@@ -44,10 +44,10 @@ class GitOpsTest extends FunSuite {
   }
   def touch(
       name: String = Random.alphanumeric.take(10).mkString,
-      dir: Option[AbsoluteFile] = None
+      dir: AbsoluteFile = null
   ): AbsoluteFile = {
-    val f =
-      File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
+    val d = Option(dir).orElse(ops.rootDir).get.jfile
+    val f = File.createTempFile(name, ".ext", d)
     f.deleteOnExit()
     AbsoluteFile.fromPath(f.toString).get
   }
@@ -141,7 +141,7 @@ class GitOpsTest extends FunSuite {
     add(f1)
 
     val innerDir = mkDir()
-    val f2 = touch(dir = Some(innerDir))
+    val f2 = touch(dir = innerDir)
     add(f2)
 
     val innerGitOps = new GitOpsImpl(innerDir)
@@ -268,7 +268,7 @@ class GitOpsTest extends FunSuite {
 
   test("status should return files with spaces in the path") {
     val dir = mkDir("dir 1")
-    val f = touch(dir = Option(dir))
+    val f = touch(dir = dir)
     add(f)
     assert(status.toSet == Set(f))
   }
