@@ -67,7 +67,9 @@ trait ScalafmtRunner {
         )
 
       case DiffFiles(branch) =>
-        options.gitOps.diff(branch).filter(canFormat)
+        if (options.files.isEmpty)
+          options.gitOps.diff(branch, None).filter(canFormat)
+        else filesWithFetch(x => options.gitOps.diff(branch, Some(x)))
 
       case ChangedFiles =>
         options.gitOps.status.filter(canFormat)

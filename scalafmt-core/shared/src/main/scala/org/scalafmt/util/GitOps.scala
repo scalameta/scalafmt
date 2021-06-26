@@ -7,7 +7,7 @@ import java.io.File
 
 trait GitOps {
   def status: Seq[AbsoluteFile]
-  def diff(branch: String): Seq[AbsoluteFile]
+  def diff(branch: String, cwd: Option[AbsoluteFile]): Seq[AbsoluteFile]
   def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile]
   def rootDir: Option[AbsoluteFile]
 }
@@ -64,14 +64,17 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
     } yield file
   }
 
-  override def diff(branch: String): Seq[AbsoluteFile] = {
+  override def diff(
+      branch: String,
+      cwd: Option[AbsoluteFile]
+  ): Seq[AbsoluteFile] = {
     val cmd = Seq(
       "git",
       "diff",
       "--name-only",
       "--diff-filter=d",
       branch
-    )
+    ) ++ cwd.map(x => Seq("--", x.path)).getOrElse(Seq.empty)
     for {
       root <- rootDir.toSeq
       path <- exec(cmd).getOrElse(Seq.empty)
