@@ -664,9 +664,6 @@ object Application {
             .router(app => {
               val handler = server.ref(classOf[SampleHandler])
 
-              app.GET("/", req => {
-                app.GET("/new", req => {
-Idempotency violated
               app.GET("/",
                 req => {
                 app.GET("/new",
