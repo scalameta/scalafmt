@@ -119,13 +119,14 @@ class FormatOps(
     val imports = Set.newBuilder[Token]
     val arguments = mutable.Map.empty[TokenHash, Tree]
     val optional = mutable.Set.empty[TokenHash]
-    def add(tree: Tree): Unit = {
-      if (tree.tokens.nonEmpty && !arguments.contains(hash(tree.tokens.head))) {
-        arguments += hash(tree.tokens.head) -> tree
+    def getHeadHash(tree: Tree): Option[TokenHash] =
+      tree.tokens.headOption.map { x => hash(tokens.after(x).left) }
+    def add(tree: Tree): Unit =
+      getHeadHash(tree).foreach { x =>
+        if (!arguments.contains(x)) arguments += x -> tree
       }
-    }
     def addOptional(tree: Tree): Unit =
-      tree.tokens.headOption.foreach(x => optional += hash(x))
+      getHeadHash(tree).foreach { optional += _ }
 
     val workList = new ju.LinkedList[Tree]()
     workList.add(topSourceTree)
@@ -134,6 +135,7 @@ class FormatOps(
       tree match {
         case p: Pkg => packages ++= p.ref.tokens
         case i: Import => imports ++= i.tokens
+        case _: Lit.Unit =>
         case t: Term => add(t)
         case t: Term.Param =>
           add(t)
