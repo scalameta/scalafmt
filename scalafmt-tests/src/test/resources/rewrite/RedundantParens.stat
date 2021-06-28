@@ -666,12 +666,12 @@ object Application {
 
               app.GET("/",
                 req => {
-                app.GET("/new",
-                  req => {
-                  ServerResponse.ok().bodyValue("dynamically created during GET / index request")
+                  app.GET("/new",
+                    req => {
+                      ServerResponse.ok().bodyValue("dynamically created during GET / index request")
+                    })
+                  handler.hello(req)
                 })
-                handler.hello(req)
-              })
               app.GET("/api", handler.json)
 
             })

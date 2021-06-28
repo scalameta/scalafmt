@@ -1084,7 +1084,7 @@ class Router(formatOps: FormatOps) {
           if style.binPack.unsafeCallSite && isCallSite(leftOwner) =>
         val open = formatToken.left
         val close = matching(open)
-        val indent = getApplyIndent(leftOwner)
+        val indent = Num(style.indent.callSite)
         val noSplitIndent =
           if (style.binPack.indentCallSiteOnce) Num(0) else indent
         def baseNoSplit(implicit fileLine: FileLine) =
@@ -1109,14 +1109,23 @@ class Router(formatOps: FormatOps) {
                 insideBlock[T.LeftBracket](formatToken, close)
               else
                 insideBracesBlock(formatToken, close)
+            val isSingleArg = leftOwner match {
+              case SplitCallIntoParts(_, args) =>
+                def check(arg: Seq[Tree]): Boolean = arg.lengthCompare(1) == 0
+                args.fold(check, formatOps.findArgsFor(open, _).exists(check))
+              case _ => false
+            }
+            val unindentPolicy =
+              if (isSingleArg) Policy.on(close) {
+                val excludeOpen = exclude.ranges.map(_.lt).toSet
+                UnindentAtExclude(excludeOpen, Num(-indent.n))
+              }
+              else Policy.NoPolicy
             val policy =
               policyWithExclude(exclude, Policy.End.Before, Policy.End.On)(
                 Policy.End.Before(close),
                 new PenalizeAllNewlines(_, 3)
-              ) & Policy.on(close) {
-                val excludeOpen = exclude.ranges.map(_.lt).toSet
-                UnindentAtExclude(excludeOpen, Num(-indent.n))
-              }
+              ) & unindentPolicy
             baseNoSplit.withOptimalTokenOpt(opt).withPolicy(policy)
           }
 
