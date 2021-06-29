@@ -1948,7 +1948,7 @@ docstrings.wrap = yes
 val a = 1
 >>>
 /**
- * @throws
- *   foo bar baz qux
+ * @throws foo
+ *   bar baz qux
  */
 val a = 1
