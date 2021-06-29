@@ -1938,3 +1938,17 @@ val a = 1
   * ```
   */
 val a = 1
+<<< scalameta #2398
+docstrings.wrap = yes
+===
+/**
+  * @throws foo bar baz
+  * qux
+  */
+val a = 1
+>>>
+/**
+ * @throws
+ *   foo bar baz qux
+ */
+val a = 1
