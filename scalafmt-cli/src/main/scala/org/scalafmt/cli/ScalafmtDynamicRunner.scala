@@ -42,9 +42,8 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
     def sessionMatcher(x: AbsoluteFile): Boolean =
       session.matchesProjectFilters(x.jfile.toPath)
     val filterMatcher: AbsoluteFile => Boolean =
-      if (options.customFiles.isEmpty) sessionMatcher
-      else {
-        val customMatcher = getFileMatcher(options.customFiles)
+      options.customFilesOpt.fold(sessionMatcher _) { customFiles =>
+        val customMatcher = getFileMatcher(customFiles)
         x => customMatcher(x) && sessionMatcher(x)
       }
     val inputMethods = getInputMethods(options, filterMatcher)
@@ -84,7 +83,11 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
     instance.format(opts.configPath, opts.configPath, "")
     private val customFiles =
       if (opts.respectProjectFilters) Seq.empty
-      else opts.customFiles.filter(_.jfile.isFile).map(_.jfile.toPath)
+      else
+        opts.customFilesOpt.getOrElse(Seq.empty).flatMap { x =>
+          val file = x.jfile
+          if (file.isFile) Some(file.toPath) else None
+        }
     override def format(file: Path, code: String): String = {
       // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
       // formatted regardless of what it is or where it is.
