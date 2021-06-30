@@ -11,6 +11,12 @@ class CommentTest extends FunSuite {
         .copy(style = Docstrings.Asterisk, wrap = Docstrings.Wrap.no)
     )
 
+  private val wrapStyle: ScalafmtConfig =
+    ScalafmtConfig.default.copy(docstrings =
+      ScalafmtConfig.default.docstrings
+        .copy(wrap = Docstrings.Wrap.yes)
+    )
+
   test("remove trailing space in comments") {
     val trailingSpace = "   "
     val original = s"""object a {
@@ -122,6 +128,21 @@ class CommentTest extends FunSuite {
       |}
       |""".stripMargin
     val obtained = Scalafmt.format(original, javadocStyle).get
+    assertNoDiff(obtained, expected)
+  }
+
+  test("preserve wikidoc headings when docstring wrap is enabled") {
+    val original = """
+      |/** =Heading1=
+      |  *
+      |  * ==Heading2==
+      |  *
+      |  * ===Heading3===
+      |  */
+      |""".stripMargin
+
+    val expected = original
+    val obtained = Scalafmt.format(original, wrapStyle).get
     assertNoDiff(obtained, expected)
   }
 }
