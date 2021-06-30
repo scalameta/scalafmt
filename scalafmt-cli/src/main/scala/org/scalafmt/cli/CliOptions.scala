@@ -86,10 +86,10 @@ case class CommonOptions(
 }
 
 case class CliOptions(
-    config: Option[Path] = None,
+    private[cli] val config: Option[Path] = None,
     configStr: Option[String] = None,
     range: Set[Range] = Set.empty[Range],
-    customFiles: Seq[AbsoluteFile] = Nil,
+    private val customFiles: Seq[AbsoluteFile] = Nil,
     customExcludes: Seq[String] = Nil,
     respectProjectFilters: Boolean = false,
     nonInteractive: Boolean = false,
