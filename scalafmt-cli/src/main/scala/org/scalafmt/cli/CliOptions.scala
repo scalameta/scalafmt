@@ -162,11 +162,12 @@ case class CliOptions(
   lazy val fileFetchMode: FileFetchMode =
     mode.getOrElse(if (isGit) GitFiles else RecursiveSearch)
 
-  val files: Seq[AbsoluteFile] =
-    if (customFiles.isEmpty)
-      Seq(common.workingDirectory)
-    else
-      customFiles
+  lazy val customFilesOpt =
+    if (customFiles.isEmpty) None
+    else Some(customFiles)
+
+  def files: Seq[AbsoluteFile] =
+    customFilesOpt.getOrElse(Seq(common.workingDirectory))
 
   val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
 
