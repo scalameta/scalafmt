@@ -48,9 +48,10 @@ trait ScalafmtRunner {
       canFormat: AbsoluteFile => Boolean
   ): Seq[AbsoluteFile] = {
     def filesWithFetch(
+        filesToProcess: Seq[AbsoluteFile],
         fetchFiles: AbsoluteFile => Seq[AbsoluteFile]
     ): Seq[AbsoluteFile] =
-      options.files.flatMap {
+      filesToProcess.flatMap {
         case d if d.jfile.isDirectory => fetchFiles(d).filter(canFormat)
         // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
         // formatted regardless of what it is or where it is.
@@ -62,14 +63,15 @@ trait ScalafmtRunner {
     val files = options.fileFetchMode match {
       case m @ (GitFiles | RecursiveSearch) =>
         filesWithFetch(
+          options.files,
           if (m == GitFiles) options.gitOps.lsTree
           else FileOps.listFiles
         )
 
       case DiffFiles(branch) =>
-        if (options.files.isEmpty)
+        options.customFilesOpt.fold(
           options.gitOps.diff(branch, None).filter(canFormat)
-        else filesWithFetch(x => options.gitOps.diff(branch, Some(x)))
+        )(filesWithFetch(_, x => options.gitOps.diff(branch, Some(x))))
 
       case ChangedFiles =>
         options.gitOps.status.filter(canFormat)
