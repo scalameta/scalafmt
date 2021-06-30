@@ -107,7 +107,7 @@ case class CliOptions(
 ) {
   import CliOptions._
 
-  lazy val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
+  val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
 
   /** Create a temporary file that contains configuration string specified by `--config-str`.
     * This temporary file will be passed to `scalafmt-dynamic`.
@@ -168,7 +168,7 @@ case class CliOptions(
   def files: Seq[AbsoluteFile] =
     customFilesOpt.getOrElse(Seq(common.workingDirectory))
 
-  val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
+  lazy val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
 
   def addFile(file: File): CliOptions = withCustomFiles(
     customFiles :+ AbsoluteFile.fromFile(file, common.workingDirectory)
