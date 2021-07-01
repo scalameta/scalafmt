@@ -22,7 +22,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v11
+      - uses: olafurpg/setup-scala@v12
         with:
           java-version: ${{ matrix.java }}
       - run: git fetch --tags -f
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v11
+      - uses: olafurpg/setup-scala@v12
       - run: ./scalafmt --test
       - run: yarn install
       - run: yarn format-check
@@ -70,7 +70,7 @@ jobs:
     env: ${{ matrix.env }}
     steps:
       - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v11
+      - uses: olafurpg/setup-scala@v12
         with:
           java-version: graalvm-ce-java11@20.1.0
       - if: matrix.libc == 'musl'
