@@ -4,7 +4,6 @@ import java.io.File
 import java.util.Date
 
 import org.scalafmt.Versions
-import org.scalafmt.util.AbsoluteFile
 import scopt.OptionParser
 
 object CliArgParser {
@@ -41,15 +40,6 @@ object CliArgParser {
 
       private def readConfig(contents: String, c: CliOptions): CliOptions = {
         c.copy(configStr = Some(contents))
-      }
-
-      private def readConfigFromFile(
-          file: String,
-          c: CliOptions
-      ): CliOptions = {
-        val configFile =
-          AbsoluteFile.fromFile(new File(file), c.common.workingDirectory)
-        c.copy(config = Some(configFile.jfile.toPath))
       }
 
       head("scalafmt", Versions.nightly)
@@ -99,8 +89,8 @@ object CliArgParser {
         .text(
           "use project filters even when specific files to format are provided"
         )
-      opt[String]('c', "config")
-        .action(readConfigFromFile)
+      opt[File]('c', "config")
+        .action((file, c) => c.copy(config = Some(file)))
         .text("a file path to .scalafmt.conf.")
       opt[String]("config-str")
         .action(readConfig)

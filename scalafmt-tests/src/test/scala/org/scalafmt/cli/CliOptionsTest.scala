@@ -56,7 +56,7 @@ class CliOptionsTest extends FunSuite {
 
   test(".configPath returns path to specified configuration path") {
     val tempPath = Files.createTempFile(".scalafmt", ".conf")
-    val opt = baseCliOptions.copy(config = Some(tempPath))
+    val opt = baseCliOptions.copy(config = Some(tempPath.toFile))
     assert(tempPath == opt.configPath)
   }
 
@@ -92,7 +92,7 @@ class CliOptionsTest extends FunSuite {
       |""".stripMargin
     Files.write(configPath, config.getBytes)
 
-    val opt = baseCliOptions.copy(config = Some(configPath))
+    val opt = baseCliOptions.copy(config = Some(configPath.toFile))
     assert(opt.scalafmtConfig.get.onTestFailure == expected)
   }
 
@@ -101,7 +101,7 @@ class CliOptionsTest extends FunSuite {
   ) {
     val configDir = Files.createTempDirectory("temp-dir")
     val configPath = Paths.get(configDir.toString + "/.scalafmt.conf")
-    val opt = baseCliOptions.copy(config = Some(configPath))
+    val opt = baseCliOptions.copy(config = Some(configPath.toFile))
     assert(opt.scalafmtConfig.isInstanceOf[Configured.NotOk])
     val confError = opt.scalafmtConfig.asInstanceOf[Configured.NotOk].error
     assert(confError.cause.exists(_.isInstanceOf[NoSuchFileException]))
