@@ -12,9 +12,11 @@ class CommentTest extends FunSuite {
     )
 
   private val wrapStyle: ScalafmtConfig =
-    ScalafmtConfig.default.copy(docstrings =
-      ScalafmtConfig.default.docstrings
-        .copy(wrap = Docstrings.Wrap.yes)
+    ScalafmtConfig.default.copy(
+      maxColumn = 20,
+      docstrings = ScalafmtConfig.default.docstrings.copy(
+        wrap = Docstrings.Wrap.yes
+      )
     )
 
   test("remove trailing space in comments") {
@@ -135,13 +137,28 @@ class CommentTest extends FunSuite {
     val original = """
       |/** =Heading1=
       |  *
-      |  * ==Heading2==
+      |  * I exceed the configured column count in a docstring.
       |  *
-      |  * ===Heading3===
+      |  * ==Heading2 - Long headings will not get wrapped==
+      |  *
+      |  * ===Heading3 also not getting wrapped===
       |  */
       |""".stripMargin
 
-    val expected = original
+    val expected = """
+      |/** =Heading1=
+      |  *
+      |  * I exceed the
+      |  * configured
+      |  * column count in
+      |  * a docstring.
+      |  *
+      |  * ==Heading2 - Long headings will not get wrapped==
+      |  *
+      |  * ===Heading3 also not getting wrapped===
+      |  */
+      |""".stripMargin
+
     val obtained = Scalafmt.format(original, wrapStyle).get
     assertNoDiff(obtained, expected)
   }
