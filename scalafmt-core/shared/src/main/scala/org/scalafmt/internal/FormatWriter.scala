@@ -683,7 +683,7 @@ class FormatWriter(formatOps: FormatOps) {
                   sb.append(margin).append(t.fence)
                   appendBreak()
                 case t: Scaladoc.Heading =>
-                  val delimiter = t.level * '='
+                  val delimiter = "=" * t.level
                   sb.append(delimiter).append(t.title).append(delimiter)
                   appendBreak()
                 case t: Scaladoc.Tag =>
