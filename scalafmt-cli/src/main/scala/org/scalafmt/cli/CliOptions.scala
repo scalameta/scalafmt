@@ -86,10 +86,10 @@ case class CommonOptions(
 }
 
 case class CliOptions(
-    private[cli] val config: Option[Path] = None,
+    private[cli] val config: Option[File] = None,
     configStr: Option[String] = None,
     range: Set[Range] = Set.empty[Range],
-    private val customFiles: Seq[AbsoluteFile] = Nil,
+    private val customFiles: Seq[File] = Nil,
     customExcludes: Seq[String] = Nil,
     respectProjectFilters: Boolean = false,
     nonInteractive: Boolean = false,
@@ -133,7 +133,7 @@ case class CliOptions(
     tempConfigPath.orElse(canonicalConfigFile.map(_.toPath))
 
   private lazy val canonicalConfigFile = config
-    .map(_.toFile)
+    .map(AbsoluteFile.fromFile(_, common.workingDirectory).jfile)
     .orElse(tryGetConfigFile(common.workingDirectory))
     .orElse(gitOps.rootDir.flatMap(tryGetConfigFile))
 
@@ -157,22 +157,16 @@ case class CliOptions(
 
   lazy val customFilesOpt =
     if (customFiles.isEmpty) None
-    else Some(customFiles)
+    else Some(AbsoluteFile.fromFiles(customFiles, common.workingDirectory))
 
   def files: Seq[AbsoluteFile] =
     customFilesOpt.getOrElse(Seq(common.workingDirectory))
 
   lazy val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
 
-  def addFile(file: File): CliOptions = withCustomFiles(
-    customFiles :+ AbsoluteFile.fromFile(file, common.workingDirectory)
-  )
+  def addFile(file: File): CliOptions = withFiles(customFiles :+ file)
 
-  def withFiles(files: Seq[File]): CliOptions =
-    withCustomFiles(AbsoluteFile.fromFiles(files, common.workingDirectory))
-
-  def withCustomFiles(files: Seq[AbsoluteFile]): CliOptions =
-    this.copy(customFiles = files)
+  def withFiles(files: Seq[File]): CliOptions = this.copy(customFiles = files)
 
   def excludeFilterRegexp: Regex =
     mkRegexp(customExcludes.map(OsSpecific.fixSeparatorsInPathPattern))
