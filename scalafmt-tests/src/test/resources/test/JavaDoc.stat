@@ -1952,3 +1952,30 @@ val a = 1
  *   bar baz qux
  */
 val a = 1
+<<< #2619 do not modify wikidoc heading delimiters
+docstrings.style = SpaceAsterisk
+docstrings.wrap = yes
+maxColumn = 20
+===
+/** =Heading1=
+  *
+  * I exceed the configured column count in a docstring.
+  *
+  * ==Heading2 - Long headings will not get wrapped==
+  *
+  * ===Heading3 also not getting wrapped===
+  */
+val a = 1
+>>>
+/** =Heading1=
+  *
+  * I exceed the
+  * configured
+  * column count in
+  * a docstring.
+  *
+  * ==Heading2 - Long headings will not get wrapped==
+  *
+  * ===Heading3 also not getting wrapped===
+  */
+val a = 1
