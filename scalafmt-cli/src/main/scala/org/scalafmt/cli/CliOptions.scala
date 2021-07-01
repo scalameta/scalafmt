@@ -130,12 +130,12 @@ case class CliOptions(
     configPathOpt.get
 
   private[cli] def configPathOpt: Option[Path] =
-    (if (configStr.isEmpty) config else tempConfigPath)
-      .orElse(defaultConfigFile.map(_.toPath))
+    tempConfigPath.orElse(canonicalConfigFile.map(_.toPath))
 
-  private lazy val defaultConfigFile: Option[File] =
-    tryGetConfigFile(common.workingDirectory)
-      .orElse(gitOps.rootDir.flatMap(tryGetConfigFile))
+  private lazy val canonicalConfigFile = config
+    .map(_.toFile)
+    .orElse(tryGetConfigFile(common.workingDirectory))
+    .orElse(gitOps.rootDir.flatMap(tryGetConfigFile))
 
   /** Parse the scalafmt configuration and try to encode it to `ScalafmtConfig`.
     * If `--config-str` is specified, this will parse the configuration string specified by `--config-str`.
@@ -149,13 +149,7 @@ case class CliOptions(
   private lazy val hoconOpt: Option[Configured[Conf]] =
     configStr match {
       case Some(contents) => Some(Config.hoconStringToConf(contents, None))
-      case None =>
-        config
-          .map { x =>
-            AbsoluteFile.fromFile(x.toFile, common.workingDirectory).jfile
-          }
-          .orElse(defaultConfigFile)
-          .map(Config.hoconFileToConf(_, None))
+      case None => canonicalConfigFile.map(Config.hoconFileToConf(_, None))
     }
 
   lazy val fileFetchMode: FileFetchMode =
