@@ -102,7 +102,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: git fetch --unshallow
-      - uses: actions/download-artifact@v2.0.9
+      - uses: actions/download-artifact@v2.0.10
         with:
           name: scalafmt-linux-musl
           path: tmp/scalafmt-linux-musl
