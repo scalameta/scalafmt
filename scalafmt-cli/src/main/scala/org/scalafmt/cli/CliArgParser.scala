@@ -131,16 +131,6 @@ object CliArgParser {
         .text(
           "test for mis-formatted code only, exits with status 1 on first failure."
         )
-      opt[File]("migrate2hocon")
-        .action((file, c) =>
-          c.copy(
-            migrate =
-              Some(AbsoluteFile.fromFile(file, c.common.workingDirectory))
-          )
-        )
-        .text(
-          """migrate .scalafmt CLI style configuration to hocon style configuration in .scalafmt.conf"""
-        )
       opt[Unit]("diff")
         .action((_, c) => c.copy(mode = Option(DiffFiles("master"))))
         .text(

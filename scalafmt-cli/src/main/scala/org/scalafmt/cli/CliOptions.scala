@@ -95,7 +95,6 @@ case class CliOptions(
     nonInteractive: Boolean = false,
     mode: Option[FileFetchMode] = None,
     assumeFilename: String = "stdin.scala", // used when read from stdin
-    migrate: Option[AbsoluteFile] = None,
     common: CommonOptions = CommonOptions(),
     gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x),
     writeModeOpt: Option[WriteMode] = None,
