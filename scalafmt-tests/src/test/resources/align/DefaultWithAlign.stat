@@ -97,6 +97,36 @@ def status = column[Int]("status")
   def name    = column[String]("name")
   def status  = column[Int]("status")
 }
+<<< sbt := operator
+{
+  scalaVersion := "2.13.6"
+  version := "0.1.0-SNAPSHOT"
+}
+>>>
+{
+  scalaVersion := "2.13.6"
+  version      := "0.1.0-SNAPSHOT"
+}
+<<< sbt := operator with in ThisBuild
+{
+  scalaVersion in ThisBuild := "2.13.6"
+  version in ThisBuild := "0.1.0-SNAPSHOT"
+}
+>>>
+{
+  scalaVersion in ThisBuild := "2.13.6"
+  version in ThisBuild      := "0.1.0-SNAPSHOT"
+}
+<<< sbt := operator with /
+{
+  ThisBuild / scalaVersion := "2.13.6"
+  ThisBuild / version := "0.1.0-SNAPSHOT"
+}
+>>>
+{
+  ThisBuild / scalaVersion := "2.13.6"
+  ThisBuild / version      := "0.1.0-SNAPSHOT"
+}
 <<< colors #138
 // tuples
 val colors = Map (
