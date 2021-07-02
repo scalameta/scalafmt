@@ -49,7 +49,7 @@ inThisBuild(
 name := "scalafmtRoot"
 publish / skip := true
 
-addCommandAlias("native-image", "cli/graalvm-native-image:packageBin")
+addCommandAlias("native-image", "cli/nativeImage")
 
 commands += Command.command("ci-test") { s =>
   val scalaVersion = sys.env.get("TEST") match {
@@ -182,8 +182,8 @@ lazy val cli = project
       "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
     ),
     scalacOptions ++= scalacJvmOptions.value,
-    GraalVMNativeImage / mainClass := Some("org.scalafmt.cli.Cli"),
-    graalVMNativeImageOptions ++= {
+    Compile / mainClass := Some("org.scalafmt.cli.Cli"),
+    nativeImageOptions ++= {
       sys.env
         .get("NATIVE_IMAGE_MUSL")
         .map(path => s"-H:UseMuslC=$path")
@@ -197,7 +197,7 @@ lazy val cli = project
     }
   )
   .dependsOn(coreJVM, dynamic)
-  .enablePlugins(GraalVMNativeImagePlugin)
+  .enablePlugins(NativeImagePlugin)
 
 lazy val tests = project
   .in(file("scalafmt-tests"))
