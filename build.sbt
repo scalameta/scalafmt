@@ -183,6 +183,7 @@ lazy val cli = project
     ),
     scalacOptions ++= scalacJvmOptions.value,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
+    nativeImageVersion := "20.1.0",
     nativeImageOptions ++= {
       sys.env
         .get("NATIVE_IMAGE_MUSL")
