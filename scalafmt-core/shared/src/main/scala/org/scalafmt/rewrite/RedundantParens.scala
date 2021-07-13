@@ -82,6 +82,10 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           case _: Enumerator.Guard => RewriteCtx.isPostfixExpr(t)
           case p: Case =>
             p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
+          case w: Term.While =>
+            style.runner.dialect.allowSignificantIndentation && w.expr == t
+          case i: Term.If =>
+            style.runner.dialect.allowSignificantIndentation && i.cond == t
           case _ => false
         }
     }

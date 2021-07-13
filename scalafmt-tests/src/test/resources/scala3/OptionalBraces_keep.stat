@@ -1197,6 +1197,7 @@ runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 6
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
+rewrite.rules = [RedundantParens]
 ===
 object a {
   for (a <- b) yield {
@@ -1238,6 +1239,7 @@ runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 6
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
+rewrite.rules = [RedundantParens]
 ===
 object a {
   for (a <- b; c <- d) yield {
@@ -1700,3 +1702,11 @@ while
 while (a1 && a2) == cond1 do
    val exitCode = 1
    exitCode
+<<< if redundant parens
+rewrite.rules = [RedundantParens]
+===
+if (a > 1) then
+  println("Hello!")
+>>>
+if a > 1 then
+   println("Hello!")
