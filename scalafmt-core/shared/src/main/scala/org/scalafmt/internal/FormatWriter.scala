@@ -1583,7 +1583,9 @@ object FormatWriter {
     case t: Defn.Object => t.name.value
     case t: Defn.Trait => t.name.value
     case t: Defn.Enum => t.name.value
-    case t: Defn.Given => t.name.value
+    case t: Defn.Given =>
+      val label = t.name.value
+      if (label.isEmpty) "given" else label
     case t: Pkg.Object => t.name.value
     // definitions
     case t: Defn.Def => t.name.value

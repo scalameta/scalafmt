@@ -1645,5 +1645,4 @@ object a:
 object a:
    given Foo[String] with
       def foo(s: String) = true
-   end
-+  end
+   end given
