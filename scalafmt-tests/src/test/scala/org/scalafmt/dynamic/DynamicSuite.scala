@@ -454,10 +454,9 @@ class DynamicSuite extends FunSuite {
         |""".stripMargin
     )
     val thrown = f.assertThrows[ScalafmtDynamicError.ConfigParseError]()
+    assert(thrown.getMessage.startsWith("Invalid config:"))
     assert(
-      thrown.getMessage.startsWith(
-        "Invalid config: <input>:3:0 error: Type mismatch;"
-      )
+      thrown.getMessage.contains(".scalafmt.conf:2:0 error: Type mismatch;")
     )
   }
 

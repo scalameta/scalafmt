@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import java.nio.file.Path
+
 import metaconfig.Configured
 import scala.annotation.tailrec
 import scala.meta.Dialect
@@ -146,6 +148,11 @@ object Scalafmt {
     formatCode(code, style, range).formatted
   }
 
+  // used by ScalafmtReflect.parseConfig
+  def parseHoconConfigFile(configPath: Path): Configured[ScalafmtConfig] =
+    Config.fromHoconFile(configPath.toFile)
+
+  // used by ScalafmtReflect.parseConfig
   def parseHoconConfig(configString: String): Configured[ScalafmtConfig] =
     Config.fromHoconString(configString, None)
 

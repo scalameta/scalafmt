@@ -61,7 +61,7 @@ case class ScalafmtReflect(
   }
 
   def parseConfig(path: Path): ScalafmtReflectConfig = {
-    parseConfigPre300(path)
+    parseConfigPost300(path)
       .map { configured =>
         new ScalafmtReflectConfig(this, configured.invoke("get"), classLoader)
       }
@@ -69,6 +69,14 @@ case class ScalafmtReflect(
         Failure(new ScalafmtDynamicError.ConfigParseError(path, e.getMessage))
       }
       .get
+  }
+
+  private def parseConfigPost300(path: Path): Try[Object] = {
+    // scalafmt >= 3.0.0
+    Try(scalafmtCls.invokeStatic("parseHoconConfigFile", path.asParam))
+      .recoverWith { case _: NoSuchMethodException =>
+        parseConfigPre300(path)
+      }
   }
 
   private def parseConfigPre300(path: Path): Try[Object] = {
