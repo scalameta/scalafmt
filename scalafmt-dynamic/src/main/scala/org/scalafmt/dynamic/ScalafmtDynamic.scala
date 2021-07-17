@@ -133,7 +133,11 @@ final case class ScalafmtDynamic(
   ): FormatEval[ScalafmtReflectConfig] = {
     for {
       version <- readVersion(configPath)
-      fmtReflect <- resolveFormatter(configPath, version)
+      fmtReflect <-
+        if (version == ScalafmtVersion.current)
+          Right(ScalafmtReflect.current)
+        else
+          resolveFormatter(configPath, version)
       config <- parseConfig(configPath, fmtReflect)
     } yield config
   }

@@ -177,3 +177,8 @@ case class ScalafmtReflect(
     module.get(null)
   }
 }
+
+object ScalafmtReflect {
+  val current =
+    ScalafmtReflect(getClass.getClassLoader, ScalafmtVersion.current, false)
+}
