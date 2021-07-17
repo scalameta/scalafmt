@@ -1,5 +1,6 @@
 package org.scalafmt.dynamic
 
+import java.io.Closeable
 import java.net.URLClassLoader
 import java.nio.file.{Files, Path}
 import java.nio.file.attribute.FileTime
@@ -43,13 +44,14 @@ final case class ScalafmtDynamic(
     )
 
   override def clear(): Unit =
-    formatCache
-      .clear()
-      .foreach(
-        _.foreach(_.right.foreach(_.classLoader.close()))(
-          ExecutionContext.global
-        )
-      )
+    formatCache.clear().foreach {
+      _.foreach {
+        _.right.foreach(_.classLoader match {
+          case x: Closeable => x.close()
+          case _ =>
+        })
+      }(ExecutionContext.global)
+    }
 
   override def withReporter(reporter: ScalafmtReporter): ScalafmtDynamic =
     copy(reporter = reporter)

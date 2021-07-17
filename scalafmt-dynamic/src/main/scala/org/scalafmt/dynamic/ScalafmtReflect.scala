@@ -1,14 +1,13 @@
 package org.scalafmt.dynamic
 
 import com.typesafe.config.ConfigFactory
-import java.net.URLClassLoader
 import java.nio.file.Path
 import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.dynamic.utils.ReflectUtils._
 import scala.util.Try
 
 case class ScalafmtReflect(
-    classLoader: URLClassLoader,
+    classLoader: ClassLoader,
     version: ScalafmtVersion,
     respectVersion: Boolean
 ) {
