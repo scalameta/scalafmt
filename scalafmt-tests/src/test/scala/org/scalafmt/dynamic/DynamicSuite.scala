@@ -446,4 +446,43 @@ class DynamicSuite extends FunSuite {
     assertNotEquals(config, configWithoutRewrites)
     assert(!configWithoutRewrites.hasRewriteRules)
   }
+
+  check("invalid config in current") { f =>
+    f.setConfig(
+      s"""|version=current
+        |align=does-not-exist
+        |""".stripMargin
+    )
+    val thrown = f.assertThrows[ScalafmtDynamicError.ConfigParseError]()
+    assert(
+      thrown.getMessage.startsWith(
+        "Invalid config: <input>:3:0 error: Type mismatch;"
+      )
+    )
+  }
+
+  check("invalid config in 3.0.0-RC6") { f =>
+    f.setConfig(
+      s"""|version=3.0.0-RC6
+        |align=does-not-exist
+        |""".stripMargin
+    )
+    val thrown = f.assertThrows[ScalafmtDynamicError.ConfigParseError]()
+    assert(
+      thrown.getMessage.startsWith(
+        "Invalid config: <input>:3:0 error: Type mismatch;"
+      )
+    )
+  }
+
+  check("invalid config in 2.7.5") { f =>
+    f.setConfig(
+      s"""|version=2.7.5
+        |align=does-not-exist
+        |""".stripMargin
+    )
+    val thrown = f.assertThrows[ScalafmtDynamicError.ConfigParseError]()
+    assert(thrown.getMessage.startsWith("Invalid config: Type mismatch;"))
+  }
+
 }
