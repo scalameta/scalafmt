@@ -1891,6 +1891,31 @@ class Engine[TD, EI, PD, Q, P, A](
       Class[_ <: BaseDataSource[TD, EI, Q, A]]]) {}
 ```
 
+#### `newlines.avoidForSimpleOverflow=[slc]`
+
+> Since v3.0.0.
+
+This flag tries to avoid a newline if the line would overflow only because of
+trailing single-line comment (one which starts with `//`).
+
+```scala mdoc:scalafmt
+maxColumn = 40
+newlines.avoidForSimpleOverflow = [slc]
+---
+intercept[TestException] {
+  val ct = Thread.currentThread() // comment
+}
+```
+
+```scala mdoc:scalafmt
+maxColumn = 40
+newlines.avoidForSimpleOverflow = []
+---
+intercept[TestException] {
+  val ct = Thread.currentThread() // comment
+}
+```
+
 ### `newlines.avoidInResultType`
 
 If true, newlines in definition result type will only be used if formatting
