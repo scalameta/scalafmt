@@ -621,9 +621,70 @@ val a = List(Some(1), None, Some(3), Some(4)).map {
     }
   case _ => "none"
 }
-<<< #2612
+<<< #2612 1
 maxColumn = 120
-binPack.preset = true
+binPack.unsafeCallSite = Always
+rewrite.rules = [RedundantParens]
+===
+object Application {
+  val app = reactiveWebApplication((a) =>
+    a.beans((b) => b.bean(classOf[SampleHandler]).bean(classOf[SampleService]))
+      .enable(
+        webFlux((server) =>
+          server
+            .port(if (server.profiles().contains("test")) 8181 else 8080)
+            .router((app) => {
+              val handler = server.ref(classOf[SampleHandler])
+
+        app.GET("/", (req) => {
+          app.GET("/new", (req) => {
+              ServerResponse.ok().bodyValue("dynamically created during GET / index request")
+          })
+            handler.hello(req)
+        })
+        app.GET("/api", handler.json)
+
+
+            })
+            .codecs(_.string().jackson())
+        )
+      )
+  )
+
+  def main(args: Array[String]): Unit = app.run(args)
+}
+>>>
+object Application {
+  val app = reactiveWebApplication(a =>
+    a.beans(b => b.bean(classOf[SampleHandler]).bean(classOf[SampleService]))
+      .enable(
+        webFlux(server =>
+          server
+            .port(if (server.profiles().contains("test")) 8181 else 8080)
+            .router(app => {
+              val handler = server.ref(classOf[SampleHandler])
+
+              app.GET("/",
+                req => {
+                  app.GET("/new",
+                    req => {
+                      ServerResponse.ok().bodyValue("dynamically created during GET / index request")
+                    })
+                  handler.hello(req)
+                })
+              app.GET("/api", handler.json)
+
+            })
+            .codecs(_.string().jackson())
+        )
+      )
+  )
+
+  def main(args: Array[String]): Unit = app.run(args)
+}
+<<< #2612 2
+maxColumn = 120
+binPack.unsafeCallSite = Oneline
 rewrite.rules = [RedundantParens]
 ===
 object Application {

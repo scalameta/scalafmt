@@ -166,3 +166,18 @@ object a {
   new SimpleMethodName(validateSimpleEncodedName(name, 0, len,
       openAngleBracketOK = false))
 }
+<<< #2079 avoid nested indent, oneline
+binPack.preset = true
+binPack.unsafeCallSite = oneline
+binPack.indentCallSiteOnce = true
+continuationIndent.callSite = 4
+===
+object a {
+  new SimpleMethodName(
+    validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))
+}
+>>>
+object a {
+  new SimpleMethodName(validateSimpleEncodedName(name, 0, len,
+      openAngleBracketOK = false))
+}

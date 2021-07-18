@@ -94,9 +94,10 @@ object BinPack {
   object Unsafe {
     case object Never extends Unsafe
     case object Always extends Unsafe
+    case object Oneline extends Unsafe
 
     implicit val oneOfReader: ConfCodecEx[Unsafe] =
-      ReaderUtil.oneOfCustom[Unsafe](Never, Always) {
+      ReaderUtil.oneOfCustom[Unsafe](Never, Always, Oneline) {
         case Conf.Bool(true) => Configured.ok(Always)
         case Conf.Bool(false) => Configured.ok(Never)
       }

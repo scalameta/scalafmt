@@ -2615,8 +2615,32 @@ object a {
     F(c.name.toString.trim, alias, sym.typeSignature)
   }
 }
-<<< binpack call
-binPack.preset = true
+<<< binpack call, always
+binPack.unsafeCallSite = always
+optIn.configStyleArguments = false
+===
+object a {
+  test("foo") {
+    a.b(c, d) shouldBe
+      E(Seq(F(1, "v1"), F(2, "v2")), G(Some(Seq(h, i)), Some(Seq(j, k)), a.b, c.d, e.f.g, h.i.j)).foo
+  }
+}
+>>>
+object a {
+  test("foo") {
+    a.b(c, d) shouldBe
+      E(
+        Seq(F(1, "v1"), F(2, "v2")),
+        G(
+          Some(Seq(h, i)),
+          Some(Seq(j, k)), a.b, c.d,
+          e.f.g, h.i.j
+        )
+      ).foo
+  }
+}
+<<< binpack call, oneline
+binPack.unsafeCallSite = oneline
 optIn.configStyleArguments = false
 ===
 object a {
