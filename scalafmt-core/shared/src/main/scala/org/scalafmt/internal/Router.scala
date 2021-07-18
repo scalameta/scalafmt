@@ -1405,7 +1405,7 @@ class Router(formatOps: FormatOps) {
                 }
             }
           }
-        val baseSplits = style.newlines.source match {
+        val baseSplits = style.newlines.getSelectChains match {
           case Newlines.classic =>
             def getNlMod = {
               val endSelect =
