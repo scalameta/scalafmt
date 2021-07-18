@@ -3712,6 +3712,15 @@ object A {
 }
 ```
 
+### `binPack.unsafeXxxSite`
+
+Controls binpacking around `defn` or `call` sites. The following parameter
+values are supported since v3.0.0:
+
+- `Never` disables the functionality (also takes `false`)
+- `Always` enables the functionality (also takes `true`)
+- `Oneline` ensures multiline arguments are not binpacked
+
 ## Classic select chains
 
 The parameters below control formatting of select chains when

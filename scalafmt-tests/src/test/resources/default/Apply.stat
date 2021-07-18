@@ -1683,3 +1683,125 @@ cache.getOrElseUpdate(name, { x; y; z }, { x => y; z }, foo, bar)
 >>>
 cache.getOrElseUpdate(name, { x; y; z }, { x => y; z }, foo,
     bar)
+<<< #2633 binPack with multiline arg, always
+maxColumn = 80
+indent.callSite = 2
+binPack.unsafeCallSite = Always
+===
+object a {
+  val cls = Select(Select(Select(Select(Select(Select(Ident(nme.ROOTPKG),
+    nme.scala_), scalajs), js), nme.annotation, x, y, z), internal_, a, b, c),
+    wasPublicBeforeTyperXxx)
+}
+>>>
+object a {
+  val cls =
+    Select(Select(Select(Select(Select(Select(Ident(nme.ROOTPKG), nme.scala_),
+              scalajs), js), nme.annotation, x, y, z), internal_, a, b, c),
+      wasPublicBeforeTyperXxx)
+}
+<<< #2633 binPack with multiline arg, oneline
+maxColumn = 80
+indent.callSite = 2
+binPack.unsafeCallSite = Oneline
+===
+object a {
+  val cls = Select(Select(Select(Select(Select(Select(Ident(nme.ROOTPKG),
+    nme.scala_), scalajs), js), nme.annotation, x, y, z), internal_, a, b, c),
+    wasPublicBeforeTyperXxx)
+}
+>>>
+object a {
+  val cls =
+    Select(Select(Select(Select(Select(Select(Ident(nme.ROOTPKG), nme.scala_),
+              scalajs), js), nme.annotation, x, y, z), internal_, a, b, c),
+      wasPublicBeforeTyperXxx)
+}
+<<< #2633 with binPack always
+maxColumn = 70
+indent.callSite = 2
+binPack.unsafeCallSite = always
+optIn.breaksInsideChains = true
+optIn.breakChainOnFirstMethodDot = false
+===
+object a {
+  def addAnnots(sym: Symbol, symForName: Symbol): Unit = {
+    symForName.getAnnotation(JSNameAnnotation).fold {
+      sym.addAnnotation(JSNameAnnotation,
+          Literal(Constant(jsInterop.defaultJSNameOf(symForName))))
+    } { annot =>
+      sym.addAnnotation(annot)
+    }
+  }
+}
+>>>
+object a {
+  def addAnnots(sym: Symbol, symForName: Symbol): Unit = {
+    symForName
+      .getAnnotation(JSNameAnnotation).fold {
+        sym.addAnnotation(JSNameAnnotation,
+          Literal(Constant(jsInterop.defaultJSNameOf(symForName))))
+      } { annot =>
+        sym.addAnnotation(annot)
+      }
+  }
+}
+<<< #2633 with binPack oneline
+maxColumn = 70
+indent.callSite = 2
+binPack.unsafeCallSite = oneline
+optIn.breaksInsideChains = true
+optIn.breakChainOnFirstMethodDot = false
+===
+object a {
+  def addAnnots(sym: Symbol, symForName: Symbol): Unit = {
+    symForName.getAnnotation(JSNameAnnotation).fold {
+      sym.addAnnotation(JSNameAnnotation,
+          Literal(Constant(jsInterop.defaultJSNameOf(symForName))))
+    } { annot =>
+      sym.addAnnotation(annot)
+    }
+  }
+}
+>>>
+object a {
+  def addAnnots(sym: Symbol, symForName: Symbol): Unit = {
+    symForName
+      .getAnnotation(JSNameAnnotation).fold {
+        sym.addAnnotation(JSNameAnnotation,
+          Literal(Constant(jsInterop.defaultJSNameOf(symForName))))
+      } { annot =>
+        sym.addAnnotation(annot)
+      }
+  }
+}
+<<< #2633 without binPack
+maxColumn = 70
+indent.callSite = 2
+binPack.unsafeCallSite = false
+optIn.breaksInsideChains = true
+optIn.breakChainOnFirstMethodDot = false
+===
+object a {
+  def addAnnots(sym: Symbol, symForName: Symbol): Unit = {
+    symForName.getAnnotation(JSNameAnnotation).fold {
+      sym.addAnnotation(JSNameAnnotation,
+          Literal(Constant(jsInterop.defaultJSNameOf(symForName))))
+    } { annot =>
+      sym.addAnnotation(annot)
+    }
+  }
+}
+>>>
+object a {
+  def addAnnots(sym: Symbol, symForName: Symbol): Unit = {
+    symForName
+      .getAnnotation(JSNameAnnotation).fold {
+        sym.addAnnotation(
+          JSNameAnnotation,
+          Literal(Constant(jsInterop.defaultJSNameOf(symForName))))
+      } { annot =>
+        sym.addAnnotation(annot)
+      }
+  }
+}
