@@ -185,6 +185,11 @@ final case class State(
         if (ok) result(1, prevActive)
         else prev.getOverflowPenalty(split, defaultOverflowPenalty + 1)
       } else if (
+        style.newlines.avoidForSimpleOverflowSLC &&
+        TokenOps.isSingleLineComment(ft.right)
+      ) {
+        result(0, prevActive)
+      } else if (
         style.newlines.avoidForSimpleOverflowTooLong &&
         delayedPenalty == 0 // can't delay multiple times
       ) {

@@ -265,6 +265,8 @@ case class Newlines(
     avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.punct)
   lazy val avoidForSimpleOverflowTooLong: Boolean =
     avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.tooLong)
+  lazy val avoidForSimpleOverflowSLC: Boolean =
+    avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.slc)
 
   lazy val alwaysBeforeCurlyLambdaParams = alwaysBeforeCurlyBraceLambdaParams ||
     (beforeCurlyLambdaParams eq BeforeCurlyLambdaParams.always)
