@@ -369,8 +369,9 @@ object Newlines {
   object AvoidForSimpleOverflow {
     case object punct extends AvoidForSimpleOverflow
     case object tooLong extends AvoidForSimpleOverflow
+    case object slc extends AvoidForSimpleOverflow
     implicit val codec: ConfCodecEx[AvoidForSimpleOverflow] =
-      ReaderUtil.oneOf[AvoidForSimpleOverflow](punct, tooLong)
+      ReaderUtil.oneOf[AvoidForSimpleOverflow](punct, tooLong, slc)
   }
 
   sealed abstract class AfterCurlyLambdaParams

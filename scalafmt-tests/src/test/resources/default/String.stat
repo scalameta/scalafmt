@@ -158,6 +158,7 @@ newlines.avoidForSimpleOverflow = [toolong]
 ===
 object a {
   intercept[TestException] {
+    val ct = Thread.currentThread() // Ensure that the thunk is executed in the tests thread
     val ct =
       Thread.currentThread() // Ensure that the thunk is executed in the tests thread
   }
@@ -165,6 +166,47 @@ object a {
 >>>
 object a {
   intercept[TestException] {
+    val ct = Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+    val ct =
+      Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+  }
+}
+<<< #1505 2.1
+maxColumn = 90
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+  intercept[TestException] {
+    val ct = Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+    val ct =
+      Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+  }
+}
+>>>
+object a {
+  intercept[TestException] {
+    val ct =
+      Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+    val ct =
+      Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+  }
+}
+<<< #1505 2.2 [#2633]
+maxColumn = 90
+newlines.avoidForSimpleOverflow = [slc]
+===
+object a {
+  intercept[TestException] {
+    val ct = Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+    val ct =
+      Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+  }
+}
+>>>
+object a {
+  intercept[TestException] {
+    val ct =
+      Thread.currentThread() // Ensure that the thunk is executed in the tests thread
     val ct =
       Thread.currentThread() // Ensure that the thunk is executed in the tests thread
   }
