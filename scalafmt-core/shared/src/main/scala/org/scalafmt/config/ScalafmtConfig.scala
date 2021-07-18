@@ -308,6 +308,7 @@ object ScalafmtConfig {
         addIf(binPack.parentConstructors eq BinPack.ParentCtors.keep)
         addIf(newlines.beforeOpenParenCallSite.exists(_.src eq Newlines.keep))
         addIf(newlines.beforeOpenParenDefnSite.exists(_.src eq Newlines.keep))
+        addIf(newlines.selectChains.exists(_ eq Newlines.keep))
       }
       if (newlines.source == Newlines.unfold) {
         addIf(align.arrowEnumeratorGenerator)

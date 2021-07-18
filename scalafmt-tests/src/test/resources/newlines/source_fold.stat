@@ -1310,6 +1310,17 @@ val a =
 >>>
 val a = b.c.d.e(f).g.h { i => j }.k()
   .l({ m => n }, o)
+<<< 6.2.1: chain, break on =, unfold
+newlines.selectChains = unfold
+===
+val a =
+ b.c
+ .d.e(f)
+ .g.h { i => j }
+ .k().l({ m => n}, o)
+>>>
+val a = b.c.d.e(f).g.h { i => j }.k()
+  .l({ m => n }, o)
 <<< 6.3: chain, breaks in the middle
 val a = b.c
  .d.e() .f
