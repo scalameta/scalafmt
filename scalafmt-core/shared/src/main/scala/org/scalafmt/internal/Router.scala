@@ -687,22 +687,25 @@ class Router(formatOps: FormatOps) {
             r,
             _
           ) =>
-        val expire = defnTemplate(leftOwner)
+        def expire = defnTemplate(leftOwner)
           .flatMap {
             getTemplateGroups(_).flatMap(
               _.lastOption.flatMap(_.headOption.flatMap(_.tokens.headOption))
             )
           }
           .getOrElse(getLastToken(leftOwner))
-        val forceNewlineBeforeExtends = Policy.before(expire) {
+        def forceNewlineBeforeExtends = Policy.before(expire) {
           case Decision(t @ FormatToken(_, soft.ExtendsOrDerives(), _), s)
               if t.meta.rightOwner.parent.contains(leftOwner) =>
             s.filter(x => x.isNL && !x.isActiveFor(SplitTag.OnelineWithChain))
         }
-        val policy = defnBeforeTemplate(leftOwner).map { x =>
-          val policyEnd = Policy.End.On(x.tokens.last)
-          delayedBreakPolicy(policyEnd)(forceNewlineBeforeExtends)
-        }
+        val policy =
+          if (style.binPack.keepParentConstructors) None
+          else
+            defnBeforeTemplate(leftOwner).map { x =>
+              val policyEnd = Policy.End.On(x.tokens.last)
+              delayedBreakPolicy(policyEnd)(forceNewlineBeforeExtends)
+            }
         Seq(Split(Space, 0).withPolicyOpt(policy))
       // DefDef
       case FormatToken(_: T.KwDef, _: T.Ident, _) =>

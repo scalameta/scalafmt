@@ -63,6 +63,5 @@ object a {
 >>>
 object a {
   case class TopLevelExportInfo(moduleID: String, jsName: String)(
-      val pos: Position)
-      extends ExportInfo
+      val pos: Position) extends ExportInfo
 }
