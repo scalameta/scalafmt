@@ -203,6 +203,7 @@ case class Newlines(
       "3.0.0"
     )
     beforeMultilineDef: Option[SourceHints] = None,
+    private[config] val selectChains: Option[SourceHints] = None,
     afterInfix: Option[AfterInfix] = None,
     afterInfixBreakOnNested: Boolean = false,
     afterInfixMaxCountPerExprForSome: Int = 10,

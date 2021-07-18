@@ -1998,6 +1998,22 @@ def fooFunc(foo1: String)(foo2: String, foo3: String): String = ???
 val res = fooFunc("foo1")("foo2", "foo3")
 ```
 
+### `newlines.selectChains`
+
+This parameter controls how select chains (sequences of `.method` invocations)
+are formatted.
+
+It takes the same values as [newlines.source](#newlinessource); use `null`
+(default) to fall back on the current value of `newlines.source`.
+
+> Since v3.0.0.
+
+- `keep`: attempts to preserve break
+- `fold`: attempts to avoid breaks
+- `unfold`: forces breaks on each select unless all fit on a single line
+- `classic` (i.e., `null` and `newlines.source` is not specified):
+  see [Classic select chains](#classic-select-chains).
+
 ## Newlines: `danglingParentheses`
 
 While this parameter is not technically under the `newlines` section, it
