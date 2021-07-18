@@ -279,6 +279,8 @@ case class Newlines(
     }
   }
 
+  lazy val getSelectChains = selectChains.getOrElse(source)
+
   private lazy val topStatBlankLinesSorted = {
     if (topLevelStatementBlankLines.isEmpty) {
       val nb = NumBlanks(
