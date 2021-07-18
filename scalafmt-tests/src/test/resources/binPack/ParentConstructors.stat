@@ -51,3 +51,18 @@ enum A extends B(
       bar
     ) with C
       with D
+<<< #2633 keep with class
+maxColumn = 70
+binPack.preset = true
+binPack.parentConstructors = keep
+===
+object a {
+   case class TopLevelExportInfo(moduleID: String, jsName: String)(
+      val pos: Position) extends ExportInfo
+}
+>>>
+object a {
+  case class TopLevelExportInfo(moduleID: String, jsName: String)(
+      val pos: Position)
+      extends ExportInfo
+}
