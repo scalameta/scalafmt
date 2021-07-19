@@ -1,14 +1,14 @@
 package org.scalafmt.dynamic
 
 import com.typesafe.config.ConfigFactory
-import java.net.URLClassLoader
 import java.nio.file.Path
 import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.dynamic.utils.ReflectUtils._
+import scala.util.Failure
 import scala.util.Try
 
 case class ScalafmtReflect(
-    classLoader: URLClassLoader,
+    classLoader: ClassLoader,
     version: ScalafmtVersion,
     respectVersion: Boolean
 ) {
@@ -60,36 +60,40 @@ case class ScalafmtReflect(
     }
   }
 
-  def parseConfig(configPath: Path): ScalafmtReflectConfig = {
-    val configText = ConfigFactory.parseFile(configPath.toFile).root.render()
-    val configured: Object =
-      try { // scalafmt >= 1.6.0
-        scalafmtCls.invokeStatic("parseHoconConfig", configText.asParam)
-      } catch {
-        case _: NoSuchMethodException =>
-          // scalafmt >= v0.7.0-RC1 && scalafmt < 1.6.0
-          val fromHoconEmptyPath =
-            configCls.invokeStatic("fromHoconString$default$2")
-          configCls.invokeStatic(
-            "fromHoconString",
-            configText.asParam,
-            fromHoconEmptyPath.asParam(optionCls)
-          )
-        case ReflectionException(e) =>
-          throw new ScalafmtDynamicError.ConfigParseError(
-            configPath,
-            e.getMessage
-          )
+  def parseConfig(path: Path): ScalafmtReflectConfig = {
+    parseConfigPost300(path)
+      .map { configured =>
+        new ScalafmtReflectConfig(this, configured.invoke("get"), classLoader)
       }
+      .recoverWith { case ReflectionException(e) =>
+        Failure(new ScalafmtDynamicError.ConfigParseError(path, e.getMessage))
+      }
+      .get
+  }
 
-    try {
-      new ScalafmtReflectConfig(this, configured.invoke("get"), classLoader)
-    } catch {
-      case ReflectionException(e) =>
-        throw new ScalafmtDynamicError.ConfigParseError(
-          configPath,
-          e.getMessage
-        )
+  private def parseConfigPost300(path: Path): Try[Object] = {
+    // scalafmt >= 3.0.0
+    Try(scalafmtCls.invokeStatic("parseHoconConfigFile", path.asParam))
+      .recoverWith { case _: NoSuchMethodException =>
+        parseConfigPre300(path)
+      }
+  }
+
+  private def parseConfigPre300(path: Path): Try[Object] = {
+    val textParam = ConfigFactory.parseFile(path.toFile).root.render().asParam
+    // scalafmt >= 1.6.0
+    Try(scalafmtCls.invokeStatic("parseHoconConfig", textParam))
+      .recoverWith { case _: NoSuchMethodException =>
+        parseConfigPre160(textParam)
+      }
+  }
+
+  private def parseConfigPre160(textParam: (Class[_], String)): Try[Object] = {
+    // scalafmt >= v0.7.0-RC1 && scalafmt < 1.6.0
+    Try {
+      val fromHoconEmptyPath =
+        configCls.invokeStatic("fromHoconString$default$2").asParam(optionCls)
+      configCls.invokeStatic("fromHoconString", textParam, fromHoconEmptyPath)
     }
   }
 
@@ -177,4 +181,9 @@ case class ScalafmtReflect(
     module.setAccessible(true)
     module.get(null)
   }
+}
+
+object ScalafmtReflect {
+  val current =
+    ScalafmtReflect(getClass.getClassLoader, ScalafmtVersion.current, false)
 }
