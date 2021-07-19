@@ -1670,3 +1670,16 @@ if (a > 1) then
   println("Hello!")
 >>>
 if a > 1 then println("Hello!")
+<<< #2634
+rewrite.scala3.insertEndMarkerMinLines = 1
+===
+object a:
+  given Foo[String] with
+    def foo(s: String) =
+      true
+>>>
+object a:
+   given Foo[String] with
+      def foo(s: String) =
+        true
+   end given
