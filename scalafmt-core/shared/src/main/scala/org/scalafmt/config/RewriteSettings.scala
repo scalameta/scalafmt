@@ -8,6 +8,7 @@ case class RewriteSettings(
     scala3: RewriteScala3Settings = new RewriteScala3Settings,
     redundantBraces: RedundantBracesSettings = RedundantBracesSettings(),
     sortModifiers: SortSettings = SortSettings.default,
+    imports: Imports.Settings = Imports.Settings(),
     neverInfix: Pattern = Pattern.neverInfix
 ) {
   def rewriteFactoryRules: Seq[RewriteFactory] =
