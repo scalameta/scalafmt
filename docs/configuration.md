@@ -2244,7 +2244,7 @@ object a {
 ## Rewrite Rules
 
 To enable a rewrite rule, add it to the config like this
-`rewrite.rules = [SortImports]`.
+`rewrite.rules = [Imports]`.
 
 ### `AvoidInfix`
 
@@ -2264,25 +2264,6 @@ future map {
 future recover {
   case e: Err => 0
 } map (_.toString)
-```
-
-### `ExpandImportSelectors`
-
-```scala mdoc:scalafmt
-rewrite.rules = [ExpandImportSelectors]
----
-import a.{
-    b,
-    c
-  }, h.{
-    k, l
-  }
-import d.e.{f, g}
-import a.{
-    foo => bar,
-    zzzz => _,
-    _
-  }
 ```
 
 ### `RedundantBraces`
@@ -2520,24 +2501,138 @@ for(a <- as; b <- bs if b > 2)
  yield (a, b)
 ```
 
-### `SortImports`
+### `Imports`
 
+This rule applies to `import` or, in Scala 3, also `export` statements found
+at the top level (source, package or class/object/trait level).
+
+The logic also moves comments attached to each import statement
+or selector, as follows:
+
+- all consecutive standalone comments before (no blank lines and not
+  following some other token)
+- the comment right after (possibly after a comma), on the same line
+- only single-line (`//`) comments are supported; multiline (`/*`) comments
+  will not be moved and in many cases will likely be removed instead
+
+> Since v3.0.0.
+
+#### Imports: `expand`
+
+This parameter will attempt to create a separate line for each selector
+within a `{...}`. It replaces the deprecated rule `ExpandImportSelectors`.
+
+```scala mdoc:defaults
+rewrite.imports.expand
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [Imports]
+rewrite.imports.expand = true
+---
+import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+import d.e.{f, g}
+import a.{
+    foo => bar,
+    zzzz => _,
+    _
+  }
+```
+
+#### Imports: `sort = none`
+
+This default option causes no sorting.
+
+#### Imports: `sort = original`
+
+Replaces the deprecated rule `SortImports`.
 The imports are sorted by the groups: symbols, lower-case, upper-case.
 
 ```scala mdoc:scalafmt
-rewrite.rules = [SortImports]
+rewrite.rules = [Imports]
+rewrite.imports.sort = original
 ---
 import foo.{Zilch, bar, Random, sand}
 ```
 
-### `AsciiSortImports`
+#### Imports: `sort = ascii`
 
-The imports are sorted by their Ascii codes
+Replaces the deprecated rule `AsciiSortImports`.
+The imports are sorted by their Ascii codes.
 
 ```scala mdoc:scalafmt
-rewrite.rules = [AsciiSortImports]
+rewrite.rules = [Imports]
+rewrite.imports.sort = ascii
 ---
 import foo.{~>, `symbol`, bar, Random}
+```
+
+#### Imports: `sort = scalastyle`
+
+- Selectors are sorted in a case-insensitive manner (ascii on lowercase),
+  except by first character as follows: non-wildcard symbols, lowercase,
+  uppercase, wildcard.
+- If grouping, import statements are also sorted using case-insensitive
+  order, except by first character in every dot-separated label as follows:
+  symbols (including wildcard), uppercase, lowercase.
+
+```scala mdoc:scalafmt
+maxColumn = 50
+rewrite.rules = [Imports]
+rewrite.imports.sort = scalastyle
+rewrite.imports.groups = [["foo\\..*"]]
+---
+import foo.bar.{Random, bar, ~>, `symbol`}
+import foo.Baz.{bar => xyz, _}
+import foo.`qux`.{Random, bar, ~>, `symbol`}
+import foo._
+```
+
+#### Imports: `groups`
+
+This rule will separate all import statements into groups. If sorting is
+enabled (i.e., not `none`), imports will also be sorted within each group.
+
+The `groups` parameter defines several sets of regular expressions; each
+set defines a single group, and the groups are output in the order they
+are configured (imports not matching any of the regexes will form their own
+group at the end). Regular expressions are applied to the entire parent domain
+of the import statement, up to and including the final dot.
+
+> Keep in mind that this functionality should be used very carefully if
+> hierarchical (relative) imports are allowed in your codebase. Groups
+> should only refer to typical top-level domains such as `java`, `org`,
+> `com` or `scala`, and sorting should be disabled.
+>
+> The safest way to handle this case is by using `scalafix` with a semantic
+> rule like `OrganizeImports`. However, on a large codebase, the overhead
+> of using semantic `scalafix` rules might be substantial.
+
+```scala mdoc:scalafmt
+rewrite.rules = [Imports]
+rewrite.imports.sort = ascii
+rewrite.imports.groups = [
+  ["foo\\..*"],
+  ["bar\\..*", "baz\\..*"]
+]
+---
+import bar.bar.{Random, bar, ~>, `symbol`}
+import baz.Baz.{bar => xyz, _}
+import qux.`qux`.{Random, bar, ~>, `symbol`}
+import foo._
+import baz.bar.{Random, bar, ~>, `symbol`}
+import qux.Baz.{bar => xyz, _}
+import foo.`qux`.{Random, bar, ~>, `symbol`}
+import bar._
+import qux.bar.{Random, bar, ~>, `symbol`}
+import foo.Baz.{bar => xyz, _}
+import bar.`qux`.{Random, bar, ~>, `symbol`}
+import baz._
 ```
 
 ### Trailing commas
