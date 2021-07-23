@@ -1,4 +1,4 @@
-rewrite.rules = [ExpandImportSelectors]
+rewrite.rules = [Imports]
 runner.dialect = scala3
 <<< basic with wildcard
 rewrite.imports.expand = true
@@ -57,7 +57,6 @@ import h.k
 import h.l
 export d.e.f
 export d.e.g
-
 // comment
 import a.md.e.f
 import a.md.e.g
@@ -98,47 +97,46 @@ package a
 
 import a.b
 import a.c
-import h.k
-import h.l
-export d.e.f
-export d.e.g
-
-// comment
-import a.md.e.a
-import a.md.e.A
-import a.md.e.f
-import a.md.e.g
-import a.md.E.a
-import a.md.E.A
-import a.md.E.f
-import a.md.E.g
-import a.md.eE
-import a.md.ef
-import a.md.Ee
-import a.md.EF
-import a.md._
-import a.md.a
 import a.md.A
-import a.md.f
-import a.md.g
-import a.md.e.b.a
-import a.md.e.b.A
-import a.md.e.b.f
-import a.md.e.b.g
-import a.md.e.B.a
-import a.md.e.B.A
-import a.md.e.B.f
-import a.md.e.B.g
-import a.md.E.b.a
-import a.md.E.b.A
-import a.md.E.b.f
-import a.md.E.b.g
-import a.md.E.B.a
+import a.md.E.A
 import a.md.E.B.A
+import a.md.E.B.a
 import a.md.E.B.f
 import a.md.E.B.g
 import a.md.E._
+import a.md.E.a
+import a.md.E.b.A
+import a.md.E.b.a
+import a.md.E.b.f
+import a.md.E.b.g
+import a.md.E.f
+import a.md.E.g
+import a.md.EF
+import a.md.Ee
+import a.md._
+import a.md.a
+// comment
+import a.md.e.A
+import a.md.e.B.A
+import a.md.e.B.a
+import a.md.e.B.f
+import a.md.e.B.g
 import a.md.e._
+import a.md.e.a
+import a.md.e.b.A
+import a.md.e.b.a
+import a.md.e.b.f
+import a.md.e.b.g
+import a.md.e.f
+import a.md.e.g
+import a.md.eE
+import a.md.ef
+import a.md.f
+import a.md.g
+export d.e.f
+export d.e.g
+import h.k
+import h.l
 
 //package b
 <<< basic sort scalastyle
@@ -176,47 +174,46 @@ package a
 
 import a.b
 import a.c
-import h.k
-import h.l
-export d.e.f
-export d.e.g
-
-// comment
-import a.md.e.a
-import a.md.e.A
-import a.md.e.f
-import a.md.e.g
-import a.md.E.a
-import a.md.E.A
-import a.md.E.f
-import a.md.E.g
-import a.md.eE
-import a.md.ef
-import a.md.Ee
-import a.md.EF
 import a.md._
-import a.md.a
 import a.md.A
-import a.md.f
-import a.md.g
-import a.md.e.b.a
-import a.md.e.b.A
-import a.md.e.b.f
-import a.md.e.b.g
-import a.md.e.B.a
-import a.md.e.B.A
-import a.md.e.B.f
-import a.md.e.B.g
-import a.md.E.b.a
-import a.md.E.b.A
-import a.md.E.b.f
-import a.md.E.b.g
-import a.md.E.B.a
+import a.md.E._
+import a.md.E.A
 import a.md.E.B.A
+import a.md.E.B.a
 import a.md.E.B.f
 import a.md.E.B.g
-import a.md.E._
+import a.md.E.a
+import a.md.E.b.A
+import a.md.E.b.a
+import a.md.E.b.f
+import a.md.E.b.g
+import a.md.E.f
+import a.md.E.g
+import a.md.Ee
+import a.md.EF
+import a.md.a
 import a.md.e._
+// comment
+import a.md.e.A
+import a.md.e.B.A
+import a.md.e.B.a
+import a.md.e.B.f
+import a.md.e.B.g
+import a.md.e.a
+import a.md.e.b.A
+import a.md.e.b.a
+import a.md.e.b.f
+import a.md.e.b.g
+import a.md.e.f
+import a.md.e.g
+import a.md.eE
+import a.md.ef
+import a.md.f
+import a.md.g
+export d.e.f
+export d.e.g
+import h.k
+import h.l
 
 //package b
 <<< basic sort original
@@ -254,47 +251,46 @@ package a
 
 import a.b
 import a.c
-import h.k
-import h.l
-export d.e.f
-export d.e.g
-
-// comment
-import a.md.e.a
-import a.md.e.A
-import a.md.e.f
-import a.md.e.g
-import a.md.E.a
-import a.md.E.A
-import a.md.E.f
-import a.md.E.g
-import a.md.eE
-import a.md.ef
-import a.md.Ee
-import a.md.EF
 import a.md._
 import a.md.a
-import a.md.A
-import a.md.f
-import a.md.g
+import a.md.e._
+// comment
+import a.md.e.a
 import a.md.e.b.a
-import a.md.e.b.A
 import a.md.e.b.f
 import a.md.e.b.g
+import a.md.e.b.A
+import a.md.e.f
+import a.md.e.g
+import a.md.e.A
 import a.md.e.B.a
-import a.md.e.B.A
 import a.md.e.B.f
 import a.md.e.B.g
+import a.md.e.B.A
+import a.md.eE
+import a.md.ef
+import a.md.f
+import a.md.g
+import a.md.A
+import a.md.E._
+import a.md.E.a
 import a.md.E.b.a
-import a.md.E.b.A
 import a.md.E.b.f
 import a.md.E.b.g
+import a.md.E.b.A
+import a.md.E.f
+import a.md.E.g
+import a.md.E.A
 import a.md.E.B.a
-import a.md.E.B.A
 import a.md.E.B.f
 import a.md.E.B.g
-import a.md.E._
-import a.md.e._
+import a.md.E.B.A
+import a.md.EF
+import a.md.Ee
+export d.e.f
+export d.e.g
+import h.k
+import h.l
 
 //package b
 <<< grouped sort ascii
@@ -331,27 +327,30 @@ package a
 >>>
 package a
 
-import a.b
-import a.c
-import h.k
-import h.l
-export d.e.f
-export d.e.g
-
 // comment
 import A.md.e.f
 import A.md.e.g
+import a.b
+import a.c
 
+import B.A.d.f
+import B.A.d.g
 //package b
 export b.c.d.f
 export b.c.d.g
-import B.A.d.f
-import B.A.d.g
-import c.b.a.{d, f => g, g => _, _}
-export C.b.a.{d, f => g, g => _, _}
+
 import D.c.b.d
 import D.c.b.{f => g}
 import D.c.b.{g => _}
+import c.b.a.d
+import c.b.a.{f => g, g => _, _}
+
+export C.b.a.d
+export C.b.a.{f => g, g => _, _}
+export d.e.f
+export d.e.g
+import h.k
+import h.l
 <<< grouped sort scalastyle
 rewrite.imports {
   expand = true
@@ -386,27 +385,30 @@ package a
 >>>
 package a
 
-import a.b
-import a.c
-import h.k
-import h.l
-export d.e.f
-export d.e.g
-
 // comment
 import A.md.e.f
 import A.md.e.g
+import a.b
+import a.c
 
+import B.A.d.f
+import B.A.d.g
 //package b
 export b.c.d.f
 export b.c.d.g
-import B.A.d.f
-import B.A.d.g
-import c.b.a.{d, f => g, g => _, _}
-export C.b.a.{d, f => g, g => _, _}
-import D.c.b.d
+
 import D.c.b.{f => g}
 import D.c.b.{g => _}
+import D.c.b.d
+import c.b.a.{f => g, g => _, _}
+import c.b.a.d
+
+export C.b.a.{f => g, g => _, _}
+export C.b.a.d
+export d.e.f
+export d.e.g
+import h.k
+import h.l
 <<< grouped sort original
 rewrite.imports {
   expand = true
@@ -443,11 +445,6 @@ package a
 
 import a.b
 import a.c
-import h.k
-import h.l
-export d.e.f
-export d.e.g
-
 // comment
 import A.md.e.f
 import A.md.e.g
@@ -457,11 +454,19 @@ export b.c.d.f
 export b.c.d.g
 import B.A.d.f
 import B.A.d.g
-import c.b.a.{d, f => g, g => _, _}
-export C.b.a.{d, f => g, g => _, _}
-import D.c.b.d
+
+import c.b.a.{f => g, g => _, _}
+import c.b.a.d
 import D.c.b.{f => g}
 import D.c.b.{g => _}
+import D.c.b.d
+
+export d.e.f
+export d.e.g
+import h.k
+import h.l
+export C.b.a.{f => g, g => _, _}
+export C.b.a.d
 <<< grouped sort ascii with nested package
 rewrite.imports {
   expand = true
@@ -502,33 +507,37 @@ package b {
 >>>
 package a
 
-import a.b
-import a.c
-import h.k
-import h.l
-export d.e.f
-export d.e.g
-
-class A
-
 // comment
 import A.md.e.f
 import A.md.e.g
+import a.b
+import a.c
+
+export d.e.f
+export d.e.g
+import h.k
+import h.l
+
+class A
 
 package b {
-  export b.c.d.f
-  export b.c.d.g
   import B.A.d.f
   import B.A.d.g
+  export b.c.d.f
+  export b.c.d.g
 
-  class B
-  import c.b.a.{d, f => g, g => _, _}
-  export C.b.a.{d, f => g, g => _, _}
-
-  class C
   import D.c.b.d
   import D.c.b.{f => g}
   import D.c.b.{g => _}
+  import c.b.a.d
+  import c.b.a.{f => g, g => _, _}
+
+  export C.b.a.d
+  export C.b.a.{f => g, g => _, _}
+
+  class B
+
+  class C
 }
 <<< comments galore 1
 rewrite.imports {
@@ -552,8 +561,9 @@ import a.{b, // c2
 package a
 
 // c1
-import a.b
-import a.c
+import a.b // c2
+import a.c // c3
+
 import d.e
 import d.f // c5
 <<< comments galore 2
@@ -586,9 +596,15 @@ package a
 
 // c1
 // C1
-import A.B
-import A.c
-import D.e
+import A.B // C2
+import A.c // C3
+
+// c4
+// C4
+// C5
+import D.e // C6
+// c7
+// C7
 import D.f // C8
 <<< comments galore 3
 rewrite.imports {
@@ -620,6 +636,14 @@ import A.{
   B => B1, // C2
   c => _,
   _
+} // C3
+
+// C4
+import D.{
+// C5
+  e => f // C6
 }
-import D.{e => f}
-import D.{f => g} // C8
+import D.{
+  // C7
+  f => g
+} // C8
