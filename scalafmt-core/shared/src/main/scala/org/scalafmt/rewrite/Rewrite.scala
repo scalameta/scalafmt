@@ -54,8 +54,10 @@ case class RewriteCtx(
         patchBuilder.update(key, value)
       }
 
-  def onlyWhitespaceBefore(token: Token): Boolean =
-    tokenTraverser.findBefore(token)(RewriteCtx.isLFSkipWhitespace).isDefined
+  def onlyWhitespaceBefore(index: Int): Boolean =
+    tokenTraverser
+      .findAtOrBefore(index - 1)(RewriteCtx.isLFSkipWhitespace)
+      .isDefined
 
   def findNonWhitespaceWith(
       f: (Token => Option[Boolean]) => Option[Token]
@@ -73,20 +75,14 @@ case class RewriteCtx(
 
   // end is inclusive
   def removeLFToAvoidEmptyLine(
-      beg: Token,
-      end: Token
+      beg: Int,
+      end: Int
   )(implicit builder: Rewrite.PatchBuilder): Unit =
     if (onlyWhitespaceBefore(beg))
       tokenTraverser
-        .findAfter(end)(RewriteCtx.isLFSkipWhitespace)
+        .findAtOrAfter(end + 1)(RewriteCtx.isLFSkipWhitespace)
         .map(TokenPatch.Remove)
         .foreach(builder += _)
-
-  @inline
-  def removeLFToAvoidEmptyLine(
-      token: Token
-  )(implicit builder: Rewrite.PatchBuilder): Unit =
-    removeLFToAvoidEmptyLine(token, token)
 
   // special case for Select which might contain a space instead of dot
   def isPrefixExpr(expr: Tree): Boolean =
@@ -113,6 +109,12 @@ abstract class RewriteSession(implicit ctx: RewriteCtx) {
   implicit val dialect = ctx.dialect
 }
 
+object RewriteSession {
+  final class None(implicit ctx: RewriteCtx) extends RewriteSession {
+    def rewrite(tree: Tree): Unit = {}
+  }
+}
+
 object Rewrite {
 
   type PatchBuilder =
@@ -121,6 +123,7 @@ object Rewrite {
   private val rewrites = Seq[sourcecode.Text[Rewrite]](
     RedundantBraces,
     RedundantParens,
+    Imports,
     SortImports,
     AsciiSortImports,
     PreferCurlyFors,

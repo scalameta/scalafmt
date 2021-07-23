@@ -39,6 +39,7 @@ class TokenTraverser(tokens: Tokens, filename: String) {
     excludedTokens.contains(TokenOps.hash(token))
 
   @inline def getIndex(token: Token): Int = tok2idx(token)
+  @inline def getIndexOpt(token: Token): Option[Int] = tok2idx.get(token)
 
   def nextToken(token: Token): Token = {
     tok2idx.get(token) match {
@@ -47,8 +48,8 @@ class TokenTraverser(tokens: Tokens, filename: String) {
     }
   }
 
-  def nextNonWsToken(token: Token): Option[Token] =
-    findAfter(token)(x => if (x.is[Whitespace]) None else Some(true))
+  def nextNonTrivialToken(token: Token): Option[Token] =
+    findAfter(token)(x => if (x.is[Trivia]) None else Some(true))
 
   def prevToken(token: Token): Token = {
     tok2idx.get(token) match {
@@ -64,7 +65,7 @@ class TokenTraverser(tokens: Tokens, filename: String) {
   def findAfter(
       token: Token
   )(predicate: Token => Option[Boolean]): Option[Token] =
-    tok2idx.get(token).flatMap(x => findAtOrAfter(x + 1, predicate))
+    tok2idx.get(token).flatMap(x => findAtOrAfter(x + 1)(predicate))
 
   /** Find a token before the given one. The search stops when the predicate
     * returns Some value (or the end is reached).
@@ -73,11 +74,10 @@ class TokenTraverser(tokens: Tokens, filename: String) {
   def findBefore(
       token: Token
   )(predicate: Token => Option[Boolean]): Option[Token] =
-    tok2idx.get(token).flatMap(x => findAtOrBefore(x - 1, predicate))
+    tok2idx.get(token).flatMap(x => findAtOrBefore(x - 1)(predicate))
 
   @tailrec
-  private def findAtOrAfter(
-      off: Int,
+  final def findAtOrAfter(off: Int)(
       pred: Token => Option[Boolean]
   ): Option[Token] =
     if (off >= tokens.length) None
@@ -86,13 +86,12 @@ class TokenTraverser(tokens: Tokens, filename: String) {
       pred(token) match {
         case Some(true) => Some(token)
         case Some(false) => None
-        case _ => findAtOrAfter(off + 1, pred)
+        case _ => findAtOrAfter(off + 1)(pred)
       }
     }
 
   @tailrec
-  private def findAtOrBefore(
-      off: Int,
+  final def findAtOrBefore(off: Int)(
       pred: Token => Option[Boolean]
   ): Option[Token] =
     if (off < 0) None
@@ -101,7 +100,7 @@ class TokenTraverser(tokens: Tokens, filename: String) {
       pred(token) match {
         case Some(true) => Some(token)
         case Some(false) => None
-        case _ => findAtOrBefore(off - 1, pred)
+        case _ => findAtOrBefore(off - 1)(pred)
       }
     }
 

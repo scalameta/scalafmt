@@ -54,8 +54,8 @@ import a.b.{
 >>>
 object a {
   import a.b.{
-    b,
 // format is not off
+    b,
     c
   }
   import a.b.{
@@ -79,7 +79,7 @@ import a.{
   bar
 }
 >>>
-import a.{zzzz => _, bar}
+import a.{bar, zzzz => _}
 <<< caveat: comments
 import a.{
   c, // comment for c
@@ -87,6 +87,6 @@ import a.{
 }
 >>>
 import a.{
-  b, // comment for c
-  c
+  b,
+  c // comment for c
 }
