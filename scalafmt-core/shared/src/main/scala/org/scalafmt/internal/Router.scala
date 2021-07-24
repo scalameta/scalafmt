@@ -1219,27 +1219,39 @@ class Router(formatOps: FormatOps) {
       // non-statement starting curly brace
       case FormatToken(_: T.Comma, open: T.LeftBrace, _)
           if !style.poorMansTrailingCommasInConfigStyle &&
-            isBinPack(leftOwner, false) =>
+            isCallSite(leftOwner) =>
         val close = matching(open)
+        val binPackIsEnabled = style.binPack.unsafeCallSite
+        val indent =
+          if (binPackIsEnabled && style.binPack.indentCallSiteOnce)
+            Indent(style.indent.callSite, open, ExpiresOn.After)
+          else Indent.Empty
         val useSpace = newlines == 0 || style.newlines.source.ne(Newlines.keep)
-        val singleSplit = Split(Space.orNL(useSpace), 0)
+        val singleSplit =
+          if (!binPackIsEnabled) Split(Space.orNL(useSpace), 0)
+          else Split(Space, 0).onlyIf(useSpace).withSingleLine(close)
+        val otherSplits = rightOwner match {
+          case _: Term.PartialFunction | Term.Block(
+                List(_: Term.Function | _: Term.PartialFunction)
+              ) =>
+            Seq(Split(Newline, 0).withIndent(indent))
+          case _ =>
+            val breakAfter =
+              rhsOptimalToken(next(nextNonCommentSameLine(formatToken)))
+            val multiLine =
+              decideNewlinesOnlyBeforeClose(close) |
+                decideNewlinesOnlyAfterToken(breakAfter)
+            Seq(
+              Split(Newline, 0)
+                .withSingleLine(close, killOnFail = true)
+                .withIndent(indent),
+              Split(Space, 1, policy = multiLine)
+            )
+        }
         val oneArgPerLineSplits =
-          (rightOwner match {
-            case _: Term.PartialFunction | Term.Block(
-                  List(_: Term.Function | _: Term.PartialFunction)
-                ) =>
-              Seq(Split(Newline, 0))
-            case _ =>
-              val breakAfter =
-                rhsOptimalToken(next(nextNonCommentSameLine(formatToken)))
-              val multiLine =
-                decideNewlinesOnlyBeforeClose(close) |
-                  decideNewlinesOnlyAfterToken(breakAfter)
-              Seq(
-                Split(Newline, 0).withSingleLine(close, killOnFail = true),
-                Split(Space, 1, policy = multiLine)
-              )
-          }).map(_.onlyFor(SplitTag.OneArgPerLine))
+          if (binPackIsEnabled)
+            otherSplits.map(_.preActivateFor(SplitTag.OneArgPerLine))
+          else otherSplits.map(_.onlyFor(SplitTag.OneArgPerLine))
         singleSplit +: oneArgPerLineSplits
 
       case FormatToken(
