@@ -1219,6 +1219,8 @@ class Router(formatOps: FormatOps) {
             else isDefnSite(leftOwner) && !style.binPack.unsafeDefnSite
           } =>
         val close = matching(open)
+        val useSpace = newlines == 0 || style.newlines.source.ne(Newlines.keep)
+        val singleSplit = Split(Space.orNL(useSpace), 0)
         val oneArgPerLineSplits =
           (rightOwner match {
             case _: Term.PartialFunction | Term.Block(
@@ -1236,15 +1238,7 @@ class Router(formatOps: FormatOps) {
                 Split(Space, 1, policy = multiLine)
               )
           }).map(_.onlyFor(SplitTag.OneArgPerLine))
-        val sourceIsKeep = style.newlines.source eq Newlines.keep
-        Seq(
-          Split(Space, 0).onlyIf(newlines == 0 || !sourceIsKeep),
-          Split(Newline, 0)
-            .onlyIf(oneArgPerLineSplits.isEmpty)
-            .onlyIf(newlines != 0)
-            .onlyIf(sourceIsKeep || open.pos.endLine == close.pos.startLine)
-            .withSingleLine(close, killOnFail = true)
-        ) ++ oneArgPerLineSplits
+        singleSplit +: oneArgPerLineSplits
 
       case FormatToken(
             _: T.MacroSplice | _: T.MacroQuote,
