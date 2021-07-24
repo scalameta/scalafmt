@@ -780,10 +780,14 @@ class Router(formatOps: FormatOps) {
         val noNL = style.newlines.sourceIgnored || formatToken.noBreak
         Seq(Split(NoSplit.orNL(noNL), 0))
 
-      case tok @ FormatToken(open @ LeftParenOrBracket(), right, _)
-          if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
-            (!style.binPack.unsafeCallSite && isCallSite(leftOwner)) ||
-            (!style.binPack.unsafeDefnSite && isDefnSite(leftOwner)) =>
+      case tok @ FormatToken(open @ LeftParenOrBracket(), right, _) if {
+            if (isCallSite(leftOwner))
+              !style.binPack.unsafeCallSite &&
+              !isSuperfluousParenthesis(formatToken.left, leftOwner)
+            else
+              !style.binPack.unsafeDefnSite &&
+              isDefnSite(leftOwner)
+          } =>
         val close = matching(open)
         val TreeArgs(lhs, args) = getApplyArgs(formatToken, false)
         // In long sequence of select/apply, we penalize splitting on
@@ -1214,10 +1218,8 @@ class Router(formatOps: FormatOps) {
         )
       // non-statement starting curly brace
       case FormatToken(_: T.Comma, open: T.LeftBrace, _)
-          if !style.poorMansTrailingCommasInConfigStyle && {
-            if (isCallSite(leftOwner)) !style.binPack.unsafeCallSite
-            else isDefnSite(leftOwner) && !style.binPack.unsafeDefnSite
-          } =>
+          if !style.poorMansTrailingCommasInConfigStyle &&
+            isBinPack(leftOwner, false) =>
         val close = matching(open)
         val useSpace = newlines == 0 || style.newlines.source.ne(Newlines.keep)
         val singleSplit = Split(Space.orNL(useSpace), 0)
@@ -1268,7 +1270,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.Comma, right, _) if leftOwner.isNot[Template] =>
         // TODO(olafur) DRY, see OneArgOneLine.
         argumentStarts.get(hash(right)) match {
-          case Some(nextArg) if isBinPack(leftOwner) =>
+          case Some(nextArg) if isBinPack(leftOwner, true) =>
             val lastFT = tokens.getLast(nextArg)
             val indentCallSiteOnce =
               style.binPack.indentCallSiteOnce && isCallSite(leftOwner)

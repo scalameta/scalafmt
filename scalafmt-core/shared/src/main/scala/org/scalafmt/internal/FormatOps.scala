@@ -947,11 +947,6 @@ class FormatOps(
       case _ => Num(style.indent.callSite)
     }
 
-  def isBinPack(owner: Tree)(implicit style: ScalafmtConfig): Boolean = {
-    (style.binPack.unsafeCallSite && isCallSite(owner)) ||
-    (style.binPack.unsafeDefnSite && isDefnSite(owner))
-  }
-
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
     val toMatch = if (tok.right.is[T.RightParen]) {
       // Hack to allow any annotations with arguments like @foo(1)

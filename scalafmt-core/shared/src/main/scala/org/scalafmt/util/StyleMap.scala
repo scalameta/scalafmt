@@ -64,7 +64,7 @@ class StyleMap(
           forcedBinPack += tok.meta.leftOwner
           if (changeStyle(setBinPack(curr, callSite = true)))
             tokens.matchingOpt(open).foreach(disableBinPack += _)
-        case close @ RightParen() if disableBinPack(close) =>
+        case close @ RightParen() if disableBinPack.remove(close) =>
           changeStyle(setBinPack(curr, callSite = false))
         case _ =>
       }
