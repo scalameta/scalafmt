@@ -338,9 +338,7 @@ class FormatOps(
     Policy.before(close)(pf)
   }
 
-  def splitOneArgPerLineBeforeComma(
-      owner: Tree
-  )(implicit style: ScalafmtConfig): Policy.Pf = {
+  def splitOneArgPerLineBeforeComma(owner: Tree): Policy.Pf = {
     // TODO(olafur) clear queue between arguments, they are independent.
     case Decision(t @ FormatToken(_, _: T.Comma, _), splits)
         if owner == t.meta.rightOwner && !next(t).right.is[T.Comment] =>
@@ -355,20 +353,19 @@ class FormatOps(
       splits.filter(_.isNL == isNewline)
   }
 
-  def splitOneArgPerLineAfterComma(
-      owner: Tree
-  )(implicit style: ScalafmtConfig): Policy.Pf = {
+  def splitOneArgPerLineAfterComma(owner: Tree): Policy.Pf = {
     // Newline on every comma.
     case Decision(t @ FormatToken(_: T.Comma, right, _), splits)
         if owner == t.meta.leftOwner &&
           // TODO(olafur) what the right { decides to be single line?
           // If comment is bound to comma, see unit/Comment.
           (!right.is[T.Comment] || t.hasBreak) =>
-      if (!right.is[T.LeftBrace])
-        splits.filter(_.isNL)
-      else
-        SplitTag.OneArgPerLine.activateOnly(splits)
+      getOneArgPerLineSplitsAfterComma(right, splits)
   }
+
+  private def getOneArgPerLineSplitsAfterComma(r: Token, s: Seq[Split]) =
+    if (r.is[T.LeftBrace]) SplitTag.OneArgPerLine.activateOnly(s)
+    else Decision.onlyNewlineSplits(s)
 
   def UnindentAtExclude(
       exclude: Set[Token],
