@@ -146,6 +146,7 @@ class FormatOps(
     def unapply(meta: FormatToken.Meta): Option[A] = f(tokens(meta.idx))
   }
 
+  @inline
   final def findFirst(start: FormatToken, end: Token)(
       f: FormatToken => Boolean
   ): Option[FormatToken] = {
@@ -164,6 +165,11 @@ class FormatOps(
       else findFirst(next_, end)(f)
     }
   }
+
+  def findFirstOnRight[A](start: FormatToken, end: Token)(implicit
+      classifier: Classifier[Token, A]
+  ): Option[Token] =
+    findFirst(start, end)(x => classifier(x.right)).map(_.right)
 
   final def rhsOptimalToken(
       start: FormatToken

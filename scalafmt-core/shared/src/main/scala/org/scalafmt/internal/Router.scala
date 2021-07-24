@@ -1103,12 +1103,22 @@ class Router(formatOps: FormatOps) {
         val onlyConfigStyle =
           mustUseConfigStyle(formatToken, !opensLiteralArgumentList)
 
+        val argsOpt = (leftOwner match {
+          case SplitCallIntoParts(_, args) =>
+            args.fold(Some(_), formatOps.findArgsFor(open, _))
+          case _ => None
+        }).filter(_.nonEmpty)
+        val isSingleArg = argsOpt.exists(_.lengthCompare(1) == 0)
+
+        def findComma(ft: FormatToken) = findFirstOnRight[T.Comma](ft, close)
+
         val noSplit =
           if (singleLineOnly || style.newlines.sourceIgnored)
             baseNoSplit.withSingleLine(close)
           else if (onlyConfigStyle) Split.ignored
           else {
-            val opt = leftOwner.tokens.find(_.is[T.Comma]).orElse(Some(close))
+            val nextComma = findComma(formatToken)
+            val opt = nextComma.getOrElse(close)
             val isBracket = open.is[T.LeftBracket]
             // TODO(olafur) DRY. Same logic as in default.
             val exclude =
@@ -1116,12 +1126,6 @@ class Router(formatOps: FormatOps) {
                 insideBlock[T.LeftBracket](formatToken, close)
               else
                 insideBracesBlock(formatToken, close)
-            val isSingleArg = leftOwner match {
-              case SplitCallIntoParts(_, args) =>
-                def check(arg: Seq[Tree]): Boolean = arg.lengthCompare(1) == 0
-                args.fold(check, formatOps.findArgsFor(open, _).exists(check))
-              case _ => false
-            }
             val unindentPolicy =
               if (isSingleArg) Policy.on(close) {
                 val excludeOpen = exclude.ranges.map(_.lt).toSet
@@ -1133,7 +1137,7 @@ class Router(formatOps: FormatOps) {
                 Policy.End.Before(close),
                 new PenalizeAllNewlines(_, 3)
               ) & unindentPolicy
-            baseNoSplit.withOptimalTokenOpt(opt).withPolicy(policy)
+            baseNoSplit.withOptimalToken(opt).withPolicy(policy)
           }
 
         def newlineBeforeClose = decideNewlinesOnlyBeforeClose(close)
