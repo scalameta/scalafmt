@@ -1625,3 +1625,49 @@ fails("'this' expected but unquotee found",
       """
      val q"def this(..$params) = $rhs2" = q"def this(x: Int) = this(0)"
    """)
+<<< #2633 binPack one arg per line with braces, config style 1
+binPack.preset = true
+===
+cache.getOrElseUpdate(
+  name, { x
+    y
+    z }, foo, bar
+)
+>>>
+BestFirstSearch:317 Failed to format
+UNABLE TO FORMAT,
+tok=,∙{[28:30]
+<<< #2633 binPack one arg per line with braces, config style 2
+binPack.preset = true
+===
+cache.getOrElseUpdate(
+  name, { x =>
+    y
+    z }, foo, bar
+)
+>>>
+BestFirstSearch:317 Failed to format
+UNABLE TO FORMAT,
+tok=,∙{[30:32]
+<<< #2633 binPack one arg per line with braces 2
+binPack.preset = true
+===
+cache.getOrElseUpdate(name, { x; y; z }, foo, bar)
+>>>
+cache.getOrElseUpdate(name, { x; y; z }, foo, bar)
+<<< #2633 binPack one arg per line with braces 3
+maxColumn = 40
+binPack.preset = true
+===
+cache.getOrElseUpdate(name, { x; y; z }, foo, bar)
+>>>
+cache.getOrElseUpdate(name, { x; y; z },
+    foo, bar)
+<<< #2633 binPack one arg per line with braces 3
+maxColumn = 60
+binPack.preset = true
+===
+cache.getOrElseUpdate(name, { x; y; z }, { x => y; z }, foo, bar)
+>>>
+cache.getOrElseUpdate(name, { x; y; z }, { x => y; z }, foo,
+    bar)
