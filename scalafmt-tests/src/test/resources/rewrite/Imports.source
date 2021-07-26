@@ -647,3 +647,22 @@ import D.{
   // C7
   f => g
 } // C8
+<<< multiple identical imports
+rewrite.imports.expand = true
+rewrite.imports.sort = ascii
+===
+import bar._
+class A {
+  import foo._
+}
+class B {
+  import foo._
+}
+import bar._
+>>>
+import bar._
+
+class A {
+  import foo._
+}
+class B {}
