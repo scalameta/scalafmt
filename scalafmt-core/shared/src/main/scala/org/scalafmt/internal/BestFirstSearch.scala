@@ -60,15 +60,13 @@ private class BestFirstSearch private (
       // TODO(olafur) document why/how this optimization works.
       !best.get(curr.depth).exists(_.alwaysBetter(curr))
 
-  def shouldRecurseOnBlock(
-      ft: FormatToken,
-      stop: Token,
+  def shouldRecurseOnBlock(ft: FormatToken, stop: Token)(implicit
       style: ScalafmtConfig
   ): Option[Token] =
     if (!recurseOnBlocks || !isInsideNoOptZone(ft)) None
     else {
       val left = tokens(ft, -1)
-      val closeOpt = formatOps.getEndOfBlock(left, false)(style)
+      val closeOpt = formatOps.getEndOfBlock(left, false)
       closeOpt.filter(close =>
         // Block must span at least 3 lines to be worth recursing.
         close != stop &&
@@ -156,10 +154,12 @@ private class BestFirstSearch private (
             else Q.clear()
         }
 
-        val blockClose = shouldRecurseOnBlock(splitToken, stop, style)
+        val blockClose = shouldRecurseOnBlock(splitToken, stop)
         if (blockClose.nonEmpty)
-          shortestPathMemo(curr, blockClose.get, depth + 1, maxCost)
-            .foreach(Q.enqueue(_))
+          blockClose.foreach { end =>
+            shortestPathMemo(curr, end, depth + 1, maxCost)
+              .foreach(Q.enqueue(_))
+          }
         else if (
           escapeInPathologicalCases &&
           routes(curr.depth).lengthCompare(1) != 0 &&
