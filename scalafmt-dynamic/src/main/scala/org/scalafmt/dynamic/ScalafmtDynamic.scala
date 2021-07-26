@@ -196,7 +196,8 @@ final case class ScalafmtDynamic(
       val configWithDialect: ScalafmtReflectConfig =
         if (
           config.fmtReflect.version < ScalafmtVersion(2, 6, 3) &&
-          (filename.endsWith(".sbt") || filename.endsWith(".sc"))
+          (filename.endsWith(".sbt") || filename.endsWith(".sc") ||
+            filename.endsWith(".md"))
         ) {
           config.withSbtDialect
         } else {

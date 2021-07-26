@@ -38,7 +38,8 @@ object ProjectFiles {
   private implicit val fs: file.FileSystem = file.FileSystems.getDefault
 
   val defaultIncludePaths =
-    Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc")
+    // TODO: figure out how to make `*.md` pattern optional
+    Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc", "glob:**.md")
 
   private sealed abstract class PathMatcher {
     def matches(path: file.Path): Boolean

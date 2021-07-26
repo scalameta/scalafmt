@@ -246,6 +246,46 @@ trait CliTestBehavior { this: AbstractCliTest =>
       assertNoDiff(obtained, expected)
     }
 
+    test(s"handles .md files") {
+      val input = string2dir(
+        s"""|/foobar.md
+          |# Hello
+          |Example usage 1
+          |```scala mdoc
+          |val  x   =   42
+          |```
+          |Example usage 2
+          |```java
+          |val  x   =   42
+          |```
+          |/.scalafmt.conf
+          |version = $version
+          |project.includePaths = ['glob:**.md']
+          |""".stripMargin
+      )
+      val expected =
+        s"""|
+          |/.scalafmt.conf
+          |version = $version
+          |project.includePaths = ['glob:**.md']
+          |
+          |/foobar.md
+          |# Hello
+          |Example usage 1
+          |```scala mdoc
+          |val x = 42
+          |```
+          |Example usage 2
+          |```java
+          |val  x   =   42
+          |```
+          |""".stripMargin
+      val options = getConfig(Array(input.path))
+      Cli.run(options)
+      val obtained = dir2string(input)
+      assertNoDiff(obtained, expected)
+    }
+
     test(s"excludefilters are respected: $label") {
       val input = string2dir(
         s"""|/foo.sbt
