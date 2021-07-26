@@ -110,7 +110,10 @@ object Imports extends RewriteFactory {
     }
     def result(): Seq[GroupingEntry] =
       try buffer.result()
-      finally buffer.clear()
+      finally {
+        stats.clear()
+        buffer.clear()
+      }
   }
 
   case class GroupingEntry(

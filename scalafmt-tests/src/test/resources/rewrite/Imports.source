@@ -665,4 +665,6 @@ import bar._
 class A {
   import foo._
 }
-class B {}
+class B {
+  import foo._
+}
