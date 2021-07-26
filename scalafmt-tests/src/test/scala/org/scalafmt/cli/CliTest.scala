@@ -246,46 +246,6 @@ trait CliTestBehavior { this: AbstractCliTest =>
       assertNoDiff(obtained, expected)
     }
 
-    test(s"handles .md files") {
-      val input = string2dir(
-        s"""|/foobar.md
-          |# Hello
-          |Example usage 1
-          |```scala mdoc
-          |val  x   =   42
-          |```
-          |Example usage 2
-          |```java
-          |val  x   =   42
-          |```
-          |/.scalafmt.conf
-          |version = $version
-          |project.includePaths = ['glob:**.md']
-          |""".stripMargin
-      )
-      val expected =
-        s"""|
-          |/.scalafmt.conf
-          |version = $version
-          |project.includePaths = ['glob:**.md']
-          |
-          |/foobar.md
-          |# Hello
-          |Example usage 1
-          |```scala mdoc
-          |val x = 42
-          |```
-          |Example usage 2
-          |```java
-          |val  x   =   42
-          |```
-          |""".stripMargin
-      val options = getConfig(Array(input.path))
-      Cli.run(options)
-      val obtained = dir2string(input)
-      assertNoDiff(obtained, expected)
-    }
-
     test(s"excludefilters are respected: $label") {
       val input = string2dir(
         s"""|/foo.sbt
@@ -1067,6 +1027,106 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       expected,
       Seq(Array.empty[String], Array("--mode", "diff"))
     )
+  }
+
+}
+
+class CliTestSimp extends AbstractCliTest {
+  val version = Versions.version
+  /* TODO Figure out why these fail with
+      munit.FailException: /home/bfrasure/Repositories/scalafmt/scalafmt-tests/src/test/scala/org/scalafmt/cli/CliTest.scala:84
+      83:      cmds: Seq[Array[String]],
+      84:      assertExit: ExitCode => Unit = { exit => assert(exit.isOk, exit) },
+      85:      assertOut: String => Unit = { out => println(out) }
+      ExitCode(
+        code = 8,
+        name = "UnexpectedError"
+      )
+
+      when I move them back into the main test class :(
+   */
+  test(s"handles .md files") {
+    val input = string2dir(
+      s"""|/foobar.md
+          |# Hello
+          |Example usage 1 with long   spaced line
+          |```scala mdoc
+          |val  x   =   42
+          |```
+          |Example usage 2
+          |```java
+          |val  x   =   42
+          |```
+          |/.scalafmt.conf
+          |version = $version
+          |project.includeMarkdown = true
+          |maxColumn   = 8
+          |""".stripMargin
+    )
+    val expected =
+      s"""|
+          |/.scalafmt.conf
+          |version = $version
+          |project.includeMarkdown = true
+          |maxColumn   = 8
+          |
+          |/foobar.md
+          |# Hello
+          |Example usage 1 with long   spaced line
+          |```scala mdoc
+          |val x =
+          |  42
+          |```
+          |Example usage 2
+          |```java
+          |val  x   =   42
+          |```
+          |""".stripMargin
+
+    noArgTest(
+      input,
+      expected,
+      Seq(Array.empty[String], Array("--mode", "diff"))
+    )
+  }
+
+  test(s"ignores .md files if includeMarkdown is false") {
+    val input = string2dir(
+      s"""|/foobar.md
+          |# Hello
+          |Example usage 1
+          |```scala mdoc
+          |val  x   =   42
+          |```
+          |/.scalafmt.conf
+          |version = $version
+          |project.includeMarkdown = false
+          |""".stripMargin
+    )
+    val expected =
+      s"""|
+          |/.scalafmt.conf
+          |version = $version
+          |project.includeMarkdown = false
+          |
+          |/foobar.md
+          |# Hello
+          |Example usage 1
+          |```scala mdoc
+          |val x   =   42
+          |```
+          |""".stripMargin
+
+    try {
+      noArgTest(
+        input,
+        expected,
+        Seq(Array.empty[String], Array("--mode", "diff"))
+      )
+      fail("Should have thrown noMatchingFiles because our markdown file was skipped")
+    } catch {
+      case _: org.scalafmt.Error.NoMatchingFiles.type => ()
+    }
   }
 
 }

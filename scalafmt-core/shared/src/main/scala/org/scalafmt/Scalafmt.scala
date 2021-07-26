@@ -113,19 +113,23 @@ object Scalafmt {
         flatMapAll(chunks.iterator)(doFormatOne(_, style, file))
           .map(_.mkString("\n@\n"))
     } else if (FileOps.isMarkdown(file)) {
-      val markdown = MarkdownFile.parse(Input.VirtualFile(file, code))
-      flatMapAll(markdown.parts.iterator) {
-        case text: Text => Success(text.value)
-        case fence: CodeFence =>
-          if (fence.info.value.startsWith("scala mdoc")) {
-            doFormatOne(fence.body.value, style, file).map { formatted =>
-              fence.newBody = Some(formatted.trim)
+      if (code.contains("```scala mdoc")) {
+        val markdown = MarkdownFile.parse(Input.VirtualFile(file, code))
+        flatMapAll(markdown.parts.iterator) {
+          case text: Text => Success(text.value)
+          case fence: CodeFence =>
+            if (fence.info.value.startsWith("scala mdoc")) {
+              doFormatOne(fence.body.value, style, file).map { formatted =>
+                fence.newBody = Some(formatted.trim)
+              }
+            } else {
+              Success("")
             }
-          } else {
-            Success("")
-          }
-      }.map { _ =>
-        markdown.renderToString
+        }.map { _ =>
+          markdown.renderToString
+        }
+      } else {
+        Success(code)
       }
     } else {
       doFormatOne(code, style, file, range)

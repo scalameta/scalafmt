@@ -10,6 +10,7 @@ import metaconfig.annotation.DeprecatedName
 
 case class ProjectFiles(
     git: Boolean = false,
+    includeMarkdown: Boolean = false,
     includePaths: Seq[String] = ProjectFiles.defaultIncludePaths,
     excludePaths: Seq[String] = Nil,
     @DeprecatedName(
@@ -38,8 +39,7 @@ object ProjectFiles {
   private implicit val fs: file.FileSystem = file.FileSystems.getDefault
 
   val defaultIncludePaths =
-    // TODO: figure out how to make `*.md` pattern optional
-    Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc", "glob:**.md")
+    Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc")
 
   private sealed abstract class PathMatcher {
     def matches(path: file.Path): Boolean
@@ -54,8 +54,10 @@ object ProjectFiles {
       val useIncludePaths =
         pf.includePaths.ne(defaultIncludePaths) || pf.includeFilters.isEmpty
       val includePaths = if (useIncludePaths) pf.includePaths else Seq.empty
+      val markdownPaths =
+        if (pf.includeMarkdown) Seq("glob:**.md") else Seq.empty
       new FileMatcher(
-        nio(includePaths) ++ regex(pf.includeFilters),
+        nio(includePaths ++ markdownPaths) ++ regex(pf.includeFilters),
         nio(pf.excludePaths) ++ regex(pf.excludeFilters ++ regexExclude)
       )
     }

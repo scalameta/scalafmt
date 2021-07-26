@@ -19,11 +19,12 @@ final case class MarkdownFile(input: Input, parts: List[MarkdownPart]) {
 object MarkdownFile {
   sealed abstract class State
   object State {
-    case class CodeFence(start: Int, backticks: String, info: String) extends State
+    case class CodeFence(start: Int, backticks: String, info: String)
+        extends State
     case object Text extends State
   }
   class Parser(input: Input) {
-	      private val text = input.text
+    private val text = input.text
     private def newPos(start: Int, end: Int): Position = {
       Position.Range(input, start, end)
     }
@@ -120,8 +121,12 @@ sealed abstract class MarkdownPart {
     }
 }
 final case class Text(value: String) extends MarkdownPart
-final case class CodeFence(openBackticks: Text, info: Text, body: Text, closeBackticks: Text)
-    extends MarkdownPart {
+final case class CodeFence(
+    openBackticks: Text,
+    info: Text,
+    body: Text,
+    closeBackticks: Text
+) extends MarkdownPart {
   var newPart = Option.empty[String]
   var newInfo = Option.empty[String]
   var newBody = Option.empty[String]

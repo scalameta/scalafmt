@@ -3184,6 +3184,13 @@ project {
 }
 ```
 
+### `project.includeMarkdown`
+```scala mdoc:defaults
+project.includeMarkdown = true
+```
+If true, format triple-backticked `scala mdoc` snippets in Markdown files in the project.
+This will not affect any of the markdown text outside the snippets.
+
 ### `fileOverride`
 
 > Since v2.5.0.
