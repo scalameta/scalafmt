@@ -448,9 +448,12 @@ class FormatWriter(formatOps: FormatOps) {
               matcher.start(1) == -1 && matcher.start(3) == -1
           }) && {
             val content = matcher.group(2)
-            val folding = // 7 is the length of "/** " and " */"
-              content.length <= style.maxColumn - prevState.indentation - 7 ||
-                (style.docstrings.wrap eq Docstrings.Wrap.no)
+            val folding = style.docstrings.wrap match {
+              case Docstrings.Wrap.yes =>
+                content.length <= // 7 is the length of "/** " and " */"
+                  style.docstringsWrapMaxColumn - prevState.indentation - 7
+              case _ => true
+            }
             if (folding) sb.append("/** ").append(content).append(" */")
             folding
           }
@@ -466,6 +469,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       private abstract class FormatCommentBase(
+          protected val maxColumn: Int,
           protected val extraIndent: Int = 1,
           protected val leadingMargin: Int = 0
       )(implicit sb: StringBuilder) {
@@ -474,8 +478,7 @@ class FormatWriter(formatOps: FormatOps) {
           if (breakBefore) prevState.indentation
           else prevState.prev.indentation
         // extra 1 is for "*" (in "/*" or " *") or "/" (in "//")
-        protected final val maxLength =
-          style.maxColumn - indent - extraIndent - 1
+        protected final val maxLength = maxColumn - indent - extraIndent - 1
 
         protected final def getFirstLineLength =
           if (breakBefore) 0
@@ -521,7 +524,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       private class FormatSlc(text: String)(implicit sb: StringBuilder)
-          extends FormatCommentBase {
+          extends FormatCommentBase(style.maxColumn) {
         def format: Unit = {
           val trimmed = removeTrailingWhiteSpace(text)
           if (!canRewrite) sb.append(trimmed)
@@ -529,7 +532,7 @@ class FormatWriter(formatOps: FormatOps) {
             val hasSpace = trimmed.length <= 2 ||
               Character.isWhitespace(trimmed.charAt(2))
             val column = indent + trimmed.length + (if (hasSpace) 0 else 1)
-            if (column > style.maxColumn) reFormat(trimmed)
+            if (column > maxColumn) reFormat(trimmed)
             else if (hasSpace) sb.append(trimmed)
             else sb.append(s"// ${trimmed.substring(2)}")
           }
@@ -554,7 +557,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       private class FormatMlc(text: String)(implicit sb: StringBuilder)
-          extends FormatCommentBase {
+          extends FormatCommentBase(style.maxColumn) {
         private val spaces: String = getIndentation(indent + 1)
 
         def format: Unit = {
@@ -630,22 +633,23 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
 
-      private class FormatMlDoc(text: String)(implicit sb: StringBuilder)
-          extends FormatCommentBase(
+      private class FormatMlDoc(isWrap: Boolean)(text: String)(implicit
+          sb: StringBuilder
+      ) extends FormatCommentBase(
+            if (isWrap) style.docstringsWrapMaxColumn else style.maxColumn,
             if (style.docstrings.style eq Docstrings.SpaceAsterisk) 2 else 1,
             if (style.docstrings.style eq Docstrings.AsteriskSpace) 1 else 0
           ) {
+        def this(text: String)(implicit sb: StringBuilder) = this(
+          (style.docstrings.wrap eq Docstrings.Wrap.yes) && curr.isStandalone
+        )(text)
+
         private val spaces: String = getIndentation(indent + extraIndent)
         private val margin = getIndentation(1 + leadingMargin)
 
         def format: Unit = {
           val docOpt =
-            if (
-              (style.docstrings.wrap eq Docstrings.Wrap.yes) &&
-              curr.isStandalone
-            )
-              ScaladocParser.parse(tok.meta.left.text)
-            else None
+            if (isWrap) ScaladocParser.parse(tok.meta.left.text) else None
           docOpt.fold(formatNoWrap)(formatWithWrap)
         }
 
