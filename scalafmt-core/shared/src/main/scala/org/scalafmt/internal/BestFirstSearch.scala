@@ -154,7 +154,9 @@ private class BestFirstSearch private (
             else Q.clear()
         }
 
-        val blockClose = shouldRecurseOnBlock(splitToken, stop)
+        val blockClose =
+          if (start.eq(curr) && 0 != maxCost) None
+          else shouldRecurseOnBlock(splitToken, stop)
         if (blockClose.nonEmpty)
           blockClose.foreach { end =>
             shortestPathMemo(curr, end, depth + 1, maxCost)
