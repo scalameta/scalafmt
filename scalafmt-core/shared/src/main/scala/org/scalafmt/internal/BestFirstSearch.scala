@@ -150,8 +150,7 @@ private class BestFirstSearch private (
             dequeueSpots.contains(tokenHash) &&
             (depth > 0 || !isInsideNoOptZone(splitToken))
           )
-            if (depth == 0) addGeneration
-            else Q.clear()
+            addGeneration
         }
 
         val blockClose =
