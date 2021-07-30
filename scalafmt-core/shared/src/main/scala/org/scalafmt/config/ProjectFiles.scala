@@ -10,7 +10,6 @@ import metaconfig.annotation.DeprecatedName
 
 case class ProjectFiles(
     git: Boolean = false,
-    includeMarkdown: Boolean = false,
     includePaths: Seq[String] = ProjectFiles.defaultIncludePaths,
     excludePaths: Seq[String] = Nil,
     @DeprecatedName(

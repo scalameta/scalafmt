@@ -248,8 +248,6 @@ trait CliTestBehavior { this: AbstractCliTest =>
       assertNoDiff(obtained, expected)
     }
 
-    // TODO put comment test back here
-
     test(s"excludefilters are respected: $label") {
       val input = string2dir(
         s"""|/foo.sbt
@@ -1032,7 +1030,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       Seq(Array.empty[String], Array("--mode", "diff"))
     )
   }
-  // TODO Put tests back here
+  // TODO Put tests back here once PR issues are fully resolved
 
 }
 
@@ -1094,14 +1092,12 @@ class CliTestSimp extends AbstractCliTest {
         |```
         |/.scalafmt.conf
         |version = ${Versions.version}
-        |project.includeMarkdown = false
         |""".stripMargin
     )
     val expected =
       s"""|
         |/.scalafmt.conf
         |version = ${Versions.version}
-        |project.includeMarkdown = false
         |
         |/foobar.md
         |# Hello
@@ -1166,7 +1162,8 @@ class CliTestSimp extends AbstractCliTest {
     assertNoDiff(obtained, expected)
   }
 
-  test(s"handles .md with indented fenced content ") {
+  // This test might need to change based on maintainer feedback/requirements
+  test(s"does not apply to .md files with indented fenced content ") {
     val input = string2dir(
       s"""|/foobar2.md
         | Intro text:
@@ -1179,7 +1176,7 @@ class CliTestSimp extends AbstractCliTest {
       s"""|/foobar2.md
         | Intro text:
         |  ```scala mdoc
-        |object A {}
+        |        object    A {      }
         |  ```
         |""".stripMargin
     val options = getConfig(
@@ -1196,7 +1193,8 @@ class CliTestSimp extends AbstractCliTest {
     assertNoDiff(obtained, expected)
   }
 
-  test(s"handles .scala with unusual comment that contains a nested fence") {
+  // This test might need to change based on maintainer feedback/requirements
+  test(s"does not format nested fences when not inside a Scala comment") {
     val input = string2dir(
       s"""|/foobar.md
         |```scala mdoc
@@ -1213,13 +1211,13 @@ class CliTestSimp extends AbstractCliTest {
     val expected =
       s"""|/foobar.md
         |```scala mdoc
-        |object A {
-        |  /*
+        |object    A {
+        | /*
         |```scala mdoc
         |   val example = "text"
         |```
-        |   */
-        |}
+        |  */
+        |  }
         |```
         |""".stripMargin
     val options = getConfig(
