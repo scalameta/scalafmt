@@ -514,13 +514,10 @@ object a {
 object a {
 
   /** Binds values to wrap */
+  /** Binds values to be wrapped */
   /**
-   * Binds values to be
+   * Binds values which should be
    * wrapped
-   */
-  /**
-   * Binds values which should
-   * be wrapped
    */
 }
 <<< #1887 2 SpaceAsterisk: first line max
@@ -560,11 +557,9 @@ object a {
 object a {
 
   /** Binds values to wrap */
-  /** Binds values to be
+  /** Binds values to be wrapped */
+  /** Binds values which should be
     * wrapped
-    */
-  /** Binds values which
-    * should be wrapped
     */
 }
 <<< #1887 2 AsteriskSpace: first line max
@@ -604,11 +599,9 @@ object a {
 object a {
 
   /** Binds values to wrap */
-  /** Binds values to be
+  /** Binds values to be wrapped */
+  /** Binds values which should be
    *  wrapped
-   */
-  /** Binds values which
-   *  should be wrapped
    */
 }
 <<< #1887 3 Asterisk: markdown

@@ -175,6 +175,9 @@ case class ScalafmtConfig(
   def indentOperatorTopLevelOnly =
     indentOperator.topLevelOnly && !unindentTopLevelOperators
 
+  lazy val docstringsWrapMaxColumn: Int =
+    docstrings.wrapMaxColumn.getOrElse(maxColumn)
+
 }
 
 object ScalafmtConfig {
