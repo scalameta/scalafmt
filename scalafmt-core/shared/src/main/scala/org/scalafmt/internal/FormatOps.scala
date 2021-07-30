@@ -1243,7 +1243,8 @@ class FormatOps(
       // - There's an implicit keyword and newlineBeforeImplicitKW is enabled
       // - newlineAfterOpenParen is enabled
       // - Mixed-params case with constructor modifier `] private (`
-      case Decision(t @ FormatToken(open2 @ T.LeftParen(), right, _), _) =>
+      case Decision(t @ FormatToken(open2 @ T.LeftParen(), right, _), _)
+          if ownerCheck(t.meta.leftOwner) =>
         val close2 = matching(open2)
 
         // We don't want to create newlines for default values.
