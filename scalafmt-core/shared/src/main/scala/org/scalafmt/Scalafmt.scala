@@ -1,8 +1,8 @@
 package org.scalafmt
 
 import java.nio.file.Path
-
 import metaconfig.Configured
+
 import scala.annotation.tailrec
 import scala.meta.Dialect
 import scala.meta.Input
@@ -10,7 +10,6 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 import scala.util.matching.Regex
-
 import org.scalafmt.config.Config
 import org.scalafmt.Error.PreciseIncomplete
 import org.scalafmt.config.FormatEvent.CreateFormatOps
@@ -20,10 +19,7 @@ import org.scalafmt.internal.BestFirstSearch
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
-import org.scalafmt.util.FileOps
-import org.scalafmt.util.CodeFence
-import org.scalafmt.util.Text
-import org.scalafmt.util.MarkdownFile
+import org.scalafmt.util.{FileOps, MarkdownFile, MarkdownPart}
 
 /** WARNING. This API is discouraged when integrating with Scalafmt from a build tool
   * or editor plugin. It is recommended to use the `scalafmt-dynamic` module instead.
@@ -113,23 +109,25 @@ object Scalafmt {
         flatMapAll(chunks.iterator)(doFormatOne(_, style, file))
           .map(_.mkString("\n@\n"))
     } else if (FileOps.isMarkdown(file)) {
-      if (code.contains("```scala mdoc")) {
-        val markdown = MarkdownFile.parse(Input.VirtualFile(file, code))
-        flatMapAll(markdown.parts.iterator) {
-          case text: Text => Success(text.value)
-          case fence: CodeFence =>
-            if (fence.info.value.startsWith("scala mdoc")) {
-              doFormatOne(fence.body.value, style, file).map { formatted =>
-                fence.newBody = Some(formatted.trim)
-              }
-            } else {
-              Success("")
+      val markdown = MarkdownFile.parse(Input.VirtualFile(file, code))
+
+      val resultIterator: Iterator[Try[String]] =
+        markdown.parts.iterator.collect {
+          case fence: MarkdownPart.CodeFence
+              if fence.info.value.startsWith("scala mdoc") =>
+            val res = doFormatOne(fence.body.value, style, file)
+            res.foreach { formatted =>
+              fence.newBody = Some(formatted.trim)
             }
-        }.map { _ =>
-          markdown.renderToString
+            res
         }
-      } else {
-        Success(code)
+      if (resultIterator.isEmpty) Success(code)
+      else {
+        val fRes: Option[Try[String]] =
+          resultIterator
+            .collectFirst { case f: Failure[_] => f }
+        fRes
+          .getOrElse(Success[String](markdown.renderToString))
       }
     } else {
       doFormatOne(code, style, file, range)

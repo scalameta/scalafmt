@@ -32,7 +32,7 @@ import metaconfig.generic.Surface
   *
   *               and want to add one extra token (for example "|>") to align by, write
   *
-  *               align.tokens."+" = [ "|> ]
+  *               align.tokens."+" = [ "|>" ]
   *
   *               NOTE. Adding more alignment tokens may potentially decrease the
   *               vertical alignment in formatted output. Customize at your own

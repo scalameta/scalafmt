@@ -54,10 +54,8 @@ object ProjectFiles {
       val useIncludePaths =
         pf.includePaths.ne(defaultIncludePaths) || pf.includeFilters.isEmpty
       val includePaths = if (useIncludePaths) pf.includePaths else Seq.empty
-      val markdownPaths =
-        if (pf.includeMarkdown) Seq("glob:**.md") else Seq.empty
       new FileMatcher(
-        nio(includePaths ++ markdownPaths) ++ regex(pf.includeFilters),
+        nio(includePaths) ++ regex(pf.includeFilters),
         nio(pf.excludePaths) ++ regex(pf.excludeFilters ++ regexExclude)
       )
     }
