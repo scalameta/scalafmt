@@ -493,6 +493,36 @@ object a {
    * be wrapped
    */
 }
+<<< #1887 2 Asterisk: first line different max
+docstrings.wrap = yes
+docstrings.wrapMaxColumn = 35
+docstrings.oneline = fold
+docstrings.style = Asterisk
+maxColumn = 30
+===
+object a {
+  /**
+   * Binds values to wrap
+   */
+  /**
+   * Binds values to be wrapped
+   */
+  /** Binds values which should
+   * be wrapped */
+}
+>>>
+object a {
+
+  /** Binds values to wrap */
+  /**
+   * Binds values to be
+   * wrapped
+   */
+  /**
+   * Binds values which should
+   * be wrapped
+   */
+}
 <<< #1887 2 SpaceAsterisk: first line max
 docstrings.wrap = yes
 docstrings.style = SpaceAsterisk
@@ -509,6 +539,34 @@ object a {
     * should be wrapped
     */
 }
+<<< #1887 2 SpaceAsterisk: first line different max
+docstrings.wrap = yes
+docstrings.wrapMaxColumn = 35
+docstrings.oneline = fold
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+object a {
+  /**
+   * Binds values to wrap
+   */
+  /**
+   * Binds values to be wrapped
+   */
+  /** Binds values which should
+   * be wrapped */
+}
+>>>
+object a {
+
+  /** Binds values to wrap */
+  /** Binds values to be
+    * wrapped
+    */
+  /** Binds values which
+    * should be wrapped
+    */
+}
 <<< #1887 2 AsteriskSpace: first line max
 docstrings.wrap = yes
 docstrings.style = AsteriskSpace
@@ -521,6 +579,34 @@ object a {
 >>>
 object a {
 
+  /** Binds values which
+   *  should be wrapped
+   */
+}
+<<< #1887 2 AsteriskSpace: first line different max
+docstrings.wrap = yes
+docstrings.wrapMaxColumn = 35
+docstrings.oneline = fold
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+object a {
+  /**
+   * Binds values to wrap
+   */
+  /**
+   * Binds values to be wrapped
+   */
+  /** Binds values which should
+   * be wrapped */
+}
+>>>
+object a {
+
+  /** Binds values to wrap */
+  /** Binds values to be
+   *  wrapped
+   */
   /** Binds values which
    *  should be wrapped
    */

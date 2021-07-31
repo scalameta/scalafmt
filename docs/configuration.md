@@ -3150,6 +3150,11 @@ maxColumn = 30
 def pow2(d: Double): Double
 ```
 
+### `docstrings.wrapMaxColumn`
+
+If wrapping (or applying `oneline`), allows specifying a different value than
+the default `maxColumn`.
+
 ### `docstrings.blankFirstLine`
 
 Controls whether to force the first line to be blank in a multiline docstring.
