@@ -49,19 +49,22 @@ class FormatOps(
 ) {
   import FormatOps._
 
-  val initStyle = {
+  private val initStyle = {
     val queue = new mutable.Queue[Tree]
     queue += topSourceTree
-    var count = 0
+    var infixCount = 0
     while (queue.nonEmpty) {
       val elem = queue.dequeue()
       queue ++= elem.children
-      if (TreeOps.isInfixApp(elem)) count += 1
+      if (TreeOps.isInfixApp(elem)) infixCount += 1
     }
-    val checkedNewlines = baseStyle.newlines.checkInfixConfig(count)
-    if (checkedNewlines eq baseStyle.newlines) baseStyle
-    else baseStyle.copy(newlines = checkedNewlines)
+    val checkedNewlines = baseStyle.newlines.checkInfixConfig(infixCount)
+    val initStyle =
+      if (checkedNewlines eq baseStyle.newlines) baseStyle
+      else baseStyle.copy(newlines = checkedNewlines)
+    initStyle
   }
+
   val runner: ScalafmtRunner = initStyle.runner
   import PolicyOps._
   import TokenOps._

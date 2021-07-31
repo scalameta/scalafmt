@@ -118,6 +118,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
     iter(state, 0)
 
+    val initStyle = result(0).style
     if (
       initStyle.rewrite.rules.contains(RedundantBraces) &&
       !initStyle.rewrite.redundantBraces.parensForOneLineApply.contains(false)
@@ -873,21 +874,22 @@ class FormatWriter(formatOps: FormatOps) {
       else {
         var columnShift = 0
         implicit val finalResult = Map.newBuilder[Int, Int]
+        val isMultiline = locations(0).style.align.multiline
 
         // all blocks must be here, to get final flush
         val blocks = new mutable.HashMap[Tree, AlignBlock]
         def createBlock(x: Tree) = blocks.getOrElseUpdate(x, new AlignBlock)
         var prevAlignContainer: Tree = null
         var prevBlock: AlignBlock =
-          if (initStyle.align.multiline) null else createBlock(null)
+          if (isMultiline) null else createBlock(null)
         val getOrCreateBlock: Tree => AlignBlock =
-          if (initStyle.align.multiline) createBlock else _ => prevBlock
+          if (isMultiline) createBlock else _ => prevBlock
         val getBlockToFlush: (=> Tree, Boolean) => Option[AlignBlock] =
-          if (initStyle.align.multiline) // don't flush unless blank line
+          if (isMultiline) // don't flush unless blank line
             (x, isBlankLine) => if (isBlankLine) blocks.get(x) else None
           else (_, _) => Some(prevBlock)
         val shouldFlush: Tree => Boolean =
-          if (!initStyle.align.multiline) _ => true
+          if (!isMultiline) _ => true
           else (x: Tree) => x eq prevAlignContainer
 
         var idx = 0
