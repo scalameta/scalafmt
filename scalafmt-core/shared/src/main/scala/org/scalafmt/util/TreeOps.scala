@@ -97,16 +97,6 @@ object TreeOps {
       case _ => Seq.empty[Tree]
     }
 
-  def getDequeueSpots(tokens: Iterable[Token]): Set[TokenHash] = {
-    val ret = Set.newBuilder[TokenHash]
-    tokens.foreach {
-      case t @ KwElse() =>
-        ret += hash(t)
-      case _ =>
-    }
-    ret.result()
-  }
-
   def getStatementStarts(
       tree: Tree,
       replacedWith: Token => Token,

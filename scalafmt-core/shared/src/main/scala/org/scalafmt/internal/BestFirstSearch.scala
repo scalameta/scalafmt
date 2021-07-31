@@ -123,9 +123,10 @@ private class BestFirstSearch private (
         return curr
 
       val splitToken = tokens(curr.depth)
+      val leftTok = splitToken.left
       if (
         splitToken.right.start > stop.start &&
-        splitToken.left.start < splitToken.left.end
+        leftTok.start < leftTok.end
       ) {
         return curr
       }
@@ -143,11 +144,11 @@ private class BestFirstSearch private (
         implicit val style = styleMap.at(splitToken)
 
         if (curr.split != null && curr.split.isNL) {
-          val tokenHash = hash(splitToken.left)
+          val tokenHash = hash(leftTok)
           if (
             emptyQueueSpots.contains(tokenHash) ||
             dequeueOnNewStatements && curr.allAltAreNL &&
-            dequeueSpots.contains(tokenHash) &&
+            (leftTok.is[Token.KwElse] || statementStarts.contains(tokenHash)) &&
             (depth > 0 || !isInsideNoOptZone(splitToken))
           )
             addGeneration
