@@ -26,7 +26,6 @@ import scala.meta.{
   Ctor,
   Decl,
   Defn,
-  Import,
   Init,
   Lit,
   Pat,
@@ -114,9 +113,7 @@ class FormatOps(
    * ...
    *
    */
-  val (packageTokens, importTokens, argumentStarts, optionalNewlines) = {
-    val packages = Set.newBuilder[Token]
-    val imports = Set.newBuilder[Token]
+  val (argumentStarts, optionalNewlines) = {
     val arguments = mutable.Map.empty[TokenHash, Tree]
     val optional = mutable.Set.empty[TokenHash]
     def getHeadHash(tree: Tree): Option[TokenHash] =
@@ -133,8 +130,6 @@ class FormatOps(
     while (!workList.isEmpty) {
       val tree = workList.poll()
       tree match {
-        case p: Pkg => packages ++= p.ref.tokens
-        case i: Import => imports ++= i.tokens
         case _: Lit.Unit =>
         case t: Term => add(t)
         case t: Term.Param =>
@@ -145,7 +140,7 @@ class FormatOps(
       }
       workList.addAll(tree.children.asJava)
     }
-    (packages.result(), imports.result(), arguments.toMap, optional)
+    (arguments.toMap, optional)
   }
 
   class ExtractFromMeta[A](f: FormatToken => Option[A]) {
