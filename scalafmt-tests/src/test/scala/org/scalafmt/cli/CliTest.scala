@@ -91,8 +91,6 @@ abstract class AbstractCliTest extends FunSuite {
       val exit = Cli.run(config)
       assertExit(exit)
       val obtained = dir2string(input)
-      println("Obtained: ")
-      println(obtained)
       assertNoDiff(obtained, expected)
       val testConfig = config.copy(writeModeOpt = None)
       Cli.run(Cli.getConfig(Array("--test"), testConfig).get)
@@ -1030,12 +1028,6 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       Seq(Array.empty[String], Array("--mode", "diff"))
     )
   }
-  // TODO Put tests back here once PR issues are fully resolved
-
-}
-
-class CliTestSimp extends AbstractCliTest {
-  val version = Versions.version
 
   test(s"handles .md files when present in includePaths") {
     val input = string2dir(
@@ -1153,12 +1145,11 @@ class CliTestSimp extends AbstractCliTest {
       Array(
         input.path,
         "--config-str",
-        s"""{version="$version",project.includePaths."+" = ["glob:**.md"]}"""
+        s"""{version="${Versions.version}",project.includePaths."+" = ["glob:**.md"]}"""
       )
     )
     Cli.run(options)
     val obtained = dir2string(input)
-    println(obtained)
     assertNoDiff(obtained, expected)
   }
 
@@ -1183,13 +1174,11 @@ class CliTestSimp extends AbstractCliTest {
       Array(
         input.path,
         "--config-str",
-        s"""{version="$version",project.includePaths."+" = ["glob:**.md"]}"""
+        s"""{version="${Versions.version}",project.includePaths."+" = ["glob:**.md"]}"""
       )
     )
     Cli.run(options)
     val obtained = dir2string(input)
-    println("Obtained: ")
-    println(obtained)
     assertNoDiff(obtained, expected)
   }
 
@@ -1224,7 +1213,7 @@ class CliTestSimp extends AbstractCliTest {
       Array(
         input.path,
         "--config-str",
-        s"""{version="$version",project.includePaths."+" = ["glob:**.md"]}"""
+        s"""{version="${Versions.version}",project.includePaths."+" = ["glob:**.md"]}"""
       )
     )
     Cli.run(options)

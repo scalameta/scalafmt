@@ -1,8 +1,8 @@
 package org.scalafmt
 
 import java.nio.file.Path
-import metaconfig.Configured
 
+import metaconfig.Configured
 import scala.annotation.tailrec
 import scala.meta.Dialect
 import scala.meta.Input
@@ -10,6 +10,7 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 import scala.util.matching.Regex
+
 import org.scalafmt.config.Config
 import org.scalafmt.Error.PreciseIncomplete
 import org.scalafmt.config.FormatEvent.CreateFormatOps
@@ -112,22 +113,21 @@ object Scalafmt {
       val markdown = MarkdownFile.parse(Input.VirtualFile(file, code))
 
       val resultIterator: Iterator[Try[String]] =
-        markdown.parts.iterator.collect {
-          case fence: MarkdownPart.CodeFence
-              if fence.info.value.startsWith("scala mdoc") =>
-            val res = doFormatOne(fence.body.value, style, file)
-            res.foreach { formatted =>
-              fence.newBody = Some(formatted.trim)
-            }
-            res
-        }
+        markdown.parts.iterator
+          .collect {
+            case fence: MarkdownPart.CodeFence
+                if fence.info.startsWith("scala mdoc") =>
+              val res = doFormatOne(fence.body, style, file)
+              res.foreach { formatted =>
+                fence.newBody = Some(formatted.trim)
+              }
+              res
+          }
       if (resultIterator.isEmpty) Success(code)
       else {
-        val fRes: Option[Try[String]] =
-          resultIterator
-            .collectFirst { case f: Failure[_] => f }
-        fRes
-          .getOrElse(Success[String](markdown.renderToString))
+        resultIterator
+          .find(_.isFailure)
+          .getOrElse(Success(markdown.renderToString))
       }
     } else {
       doFormatOne(code, style, file, range)
