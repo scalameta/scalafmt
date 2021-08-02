@@ -933,8 +933,8 @@ class FormatOps(
   )(implicit style: ScalafmtConfig): Num =
     leftOwner match {
       case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
-        if (style.binPack.unsafeDefnSite && !isConfigStyle) Num(0)
-        else Num(style.indent.getDefnSite(x))
+        def isSafe = style.binPack.unsafeDefnSite.isNever
+        Num(if (isConfigStyle || isSafe) style.indent.getDefnSite(x) else 0)
       case _ => Num(style.indent.callSite)
     }
 

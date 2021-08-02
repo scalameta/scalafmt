@@ -27,8 +27,8 @@ import metaconfig._
   *                            constructor gets its own line.
   */
 case class BinPack(
-    unsafeCallSite: Boolean = false,
-    unsafeDefnSite: Boolean = false,
+    unsafeCallSite: BinPack.Unsafe = BinPack.Unsafe.Never,
+    unsafeDefnSite: BinPack.Unsafe = BinPack.Unsafe.Never,
     indentCallSiteOnce: Boolean = false,
     parentConstructors: BinPack.ParentCtors = BinPack.ParentCtors.source,
     literalArgumentLists: Boolean = true,
@@ -53,8 +53,8 @@ object BinPack {
   implicit lazy val encoder: ConfEncoder[BinPack] = generic.deriveEncoder
 
   val enabled = BinPack(
-    unsafeDefnSite = true,
-    unsafeCallSite = true,
+    unsafeDefnSite = Unsafe.Always,
+    unsafeCallSite = Unsafe.Always,
     parentConstructors = ParentCtors.Always
   )
 
@@ -86,6 +86,20 @@ object BinPack {
         case Conf.Bool(false) => Configured.ok(Never)
       }
 
+  }
+
+  sealed abstract class Unsafe {
+    final def isNever: Boolean = this eq Unsafe.Never
+  }
+  object Unsafe {
+    case object Never extends Unsafe
+    case object Always extends Unsafe
+
+    implicit val oneOfReader: ConfCodecEx[Unsafe] =
+      ReaderUtil.oneOfCustom[Unsafe](Never, Always) {
+        case Conf.Bool(true) => Configured.ok(Always)
+        case Conf.Bool(false) => Configured.ok(Never)
+      }
   }
 
 }
