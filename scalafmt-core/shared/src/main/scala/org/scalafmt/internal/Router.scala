@@ -1280,25 +1280,31 @@ class Router(formatOps: FormatOps) {
           Seq(Split(Space, 0), Split(Newline, 1).notIf(noNewline))
         }
       case FormatToken(_: T.Comma, right, _) if leftOwner.isNot[Template] =>
-        // TODO(olafur) DRY, see OneArgOneLine.
-        argumentStarts.get(hash(right)) match {
-          case Some(nextArg) if isBinPack(leftOwner, true) =>
+        val splitsOpt = argumentStarts.get(hash(right)).flatMap { nextArg =>
+          val callSite = isCallSite(leftOwner)
+          val binPack =
+            if (callSite) style.binPack.unsafeCallSite
+            else if (isDefnSite(leftOwner)) style.binPack.unsafeDefnSite
+            else false
+          if (binPack) Some {
             val lastFT = tokens.getLast(nextArg)
             val indentCallSiteOnce =
-              style.binPack.indentCallSiteOnce && isCallSite(leftOwner)
+              style.binPack.indentCallSiteOnce && callSite
             val indent = if (indentCallSiteOnce) style.indent.callSite else 0
             Seq(
               Split(Space, 0).withSingleLine(rhsOptimalToken(lastFT)),
               Split(Newline, 1).withIndent(indent, right, After)
             )
-          case _
-              if !style.newlines.formatInfix &&
-                leftOwner.isInstanceOf[Term.ApplyInfix] =>
+          }
+          else None
+        }
+        splitsOpt.getOrElse {
+          if (!style.newlines.formatInfix && leftOwner.is[Term.ApplyInfix])
             Seq(
               // Do whatever the user did if infix.
               Split(Space.orNL(newlines == 0), 0)
             )
-          case _ =>
+          else {
             val indent = leftOwner match {
               case _: Defn.Val | _: Defn.Var =>
                 style.indent.getDefnSite(leftOwner)
@@ -1309,6 +1315,7 @@ class Router(formatOps: FormatOps) {
               Split(Space, 0),
               Split(Newline, 1).withIndent(indent, right, After)
             )
+          }
         }
       case FormatToken(_, T.Semicolon(), _) =>
         Seq(
