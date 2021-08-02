@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
+import org.scalafmt.config.BinPack
 import org.scalafmt.config.{ImportSelectors, Newlines, ScalafmtConfig, Spaces}
 import org.scalafmt.internal.ExpiresOn.{After, Before}
 import org.scalafmt.internal.Length.{Num, StateColumn}
@@ -1051,22 +1052,26 @@ class Router(formatOps: FormatOps) {
           val nestingPenalty = nestedApplies(leftOwner)
           val onlyConfigStyle = mustUseConfigStyle(formatToken)
 
+          val argsHeadOpt = argumentStarts.get(hash(right))
+          val onelinePolicy =
+            if (style.binPack.unsafeDefnSite == BinPack.Unsafe.Oneline)
+              argsHeadOpt.flatMap { x =>
+                findFirstOnRight[T.Comma](tokens.getLast(x), close)
+                  .map(splitOneArgPerLineAfterCommaOnBreak)
+              }
+            else None
+
           val mustDangle = onlyConfigStyle ||
             style.newlines.sourceIgnored && style.danglingParentheses.defnSite
           val noSplitPolicy: Policy =
             if (mustDangle) SingleLineBlock(close)
             else {
-              val noSplitPenalizeNewlines = penalizeBrackets(1 + bracketPenalty)
-              argumentStarts.get(hash(right)) match {
-                case Some(arg) =>
-                  val singleLine = SingleLineBlock(getLastToken(arg))
-                  if (isBracket) {
-                    noSplitPenalizeNewlines & singleLine
-                  } else {
-                    singleLine
-                  }
-                case _ => noSplitPenalizeNewlines
-              }
+              def noSplitPenalizeNewlines = penalizeBrackets(1 + bracketPenalty)
+              onelinePolicy
+                .orElse(argsHeadOpt.map(x => SingleLineBlock(x.tokens.last)))
+                .fold(noSplitPenalizeNewlines) { x =>
+                  if (isBracket) noSplitPenalizeNewlines & x else x
+                }
             }
           val noSplitModification =
             if (right.is[T.Comment]) getMod(formatToken)
@@ -1081,8 +1086,7 @@ class Router(formatOps: FormatOps) {
               .withIndent(indent, close, Before),
             Split(Newline, (1 + nestingPenalty * nestingPenalty) * bracketCoef)
               .notIf(right.is[T.RightParen])
-              .withPolicy(penalizeBrackets(1))
-              .andPolicy(nlDanglePolicy)
+              .withPolicy(penalizeBrackets(1) & nlDanglePolicy & onelinePolicy)
               .withIndent(indent, close, Before)
           )
         }
@@ -1112,12 +1116,20 @@ class Router(formatOps: FormatOps) {
 
         def findComma(ft: FormatToken) = findFirstOnRight[T.Comma](ft, close)
 
+        val oneline = style.binPack.unsafeCallSite == BinPack.Unsafe.Oneline
+        val nextCommaOneline =
+          if (!oneline || isSingleArg) None
+          else argsOpt.flatMap(x => findComma(tokens.getLast(x.head)))
+        val binPackOnelinePolicy =
+          nextCommaOneline.map(splitOneArgPerLineAfterCommaOnBreak)
+
         val noSplit =
-          if (singleLineOnly || style.newlines.sourceIgnored)
+          if (singleLineOnly || style.newlines.sourceIgnored && !oneline)
             baseNoSplit.withSingleLine(close)
           else if (onlyConfigStyle) Split.ignored
           else {
-            val nextComma = findComma(formatToken)
+            val nextComma =
+              if (oneline) nextCommaOneline else findComma(formatToken)
             val opt = nextComma.getOrElse(close)
             val isBracket = open.is[T.LeftBracket]
             // TODO(olafur) DRY. Same logic as in default.
@@ -1136,14 +1148,15 @@ class Router(formatOps: FormatOps) {
               policyWithExclude(exclude, Policy.End.Before, Policy.End.On)(
                 Policy.End.Before(close),
                 new PenalizeAllNewlines(_, 3)
-              ) & unindentPolicy
+              ) & unindentPolicy & binPackOnelinePolicy
             baseNoSplit.withOptimalToken(opt).withPolicy(policy)
           }
 
         def newlineBeforeClose = decideNewlinesOnlyBeforeClose(close)
         val nlPolicy =
           if (onlyConfigStyle) {
-            if (styleMap.forcedBinPack(leftOwner)) newlineBeforeClose
+            if (styleMap.forcedBinPack(leftOwner))
+              newlineBeforeClose & binPackOnelinePolicy
             else splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
           } else if (
             style.newlines.sourceIgnored && (
@@ -1151,8 +1164,8 @@ class Router(formatOps: FormatOps) {
               else style.danglingParentheses.callSite
             )
           )
-            newlineBeforeClose
-          else NoPolicy
+            newlineBeforeClose & binPackOnelinePolicy
+          else NoPolicy & binPackOnelinePolicy
         Seq(
           noSplit,
           Split(NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None), 2)
@@ -1292,12 +1305,34 @@ class Router(formatOps: FormatOps) {
             else None
           binPackOpt.filter(!_.isNever).map { binPack =>
             val lastFT = tokens.getLast(nextArg)
+            val oneline = binPack == BinPack.Unsafe.Oneline
+            val nextCommaOrParen = findFirst(lastFT, leftOwner.tokens.last) {
+              case FormatToken(_, _: T.Comma, _) => true
+              case FormatToken(_, RightParenOrBracket(), _) => true
+              case _ => false
+            }
+            val optFT = nextCommaOrParen match {
+              case Some(ft @ FormatToken(_, _: T.Comma, _)) => ft
+              case _ => lastFT
+            }
+            val nlPolicy =
+              if (oneline) nextCommaOrParen match {
+                case Some(FormatToken(_, t: T.Comma, _)) =>
+                  if (callSite) splitOneArgPerLineAfterCommaOnBreak(t)
+                  else delayedBreakPolicyFor(t)(decideNewlinesOnlyAfterClose)
+                case Some(FormatToken(_, t, _)) =>
+                  decideNewlinesOnlyBeforeCloseOnBreak(t)
+                case _ => NoPolicy
+              }
+              else NoPolicy
             val indentCallSiteOnce =
               style.binPack.indentCallSiteOnce && callSite
             val indent = if (indentCallSiteOnce) style.indent.callSite else 0
             Seq(
-              Split(Space, 0).withSingleLine(rhsOptimalToken(lastFT)),
-              Split(Newline, 1).withIndent(indent, right, After)
+              Split(Space, 0).withSingleLine(rhsOptimalToken(optFT)),
+              Split(Newline, 1)
+                .withIndent(indent, right, After)
+                .withPolicy(nlPolicy)
             )
           }
         }
