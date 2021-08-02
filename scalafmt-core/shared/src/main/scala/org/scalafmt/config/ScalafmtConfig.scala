@@ -213,8 +213,8 @@ object ScalafmtConfig {
     */
   val scalaJs: ScalafmtConfig = default.copy(
     binPack = BinPack(
-      unsafeDefnSite = true,
-      unsafeCallSite = true,
+      unsafeDefnSite = BinPack.Unsafe.Always,
+      unsafeCallSite = BinPack.Unsafe.Always,
       parentConstructors = BinPack.ParentCtors.Always
     ),
     indent = Indents(callSite = 4, defnSite = 4),
@@ -336,11 +336,11 @@ object ScalafmtConfig {
         addIf(newlines.beforeOpenParenCallSite.nonEmpty, errDialect)
       }
       addIfDirect( // can't use addIf on multiline conditions
-        (binPack.unsafeCallSite || binPack.unsafeDefnSite) && {
+        !(binPack.unsafeCallSite.isNever && binPack.unsafeDefnSite.isNever) && {
           newlines.implicitParamListModifierForce.nonEmpty ||
           newlines.implicitParamListModifierPrefer.nonEmpty
         },
-        "binPack.unsafeXXX && newlines.implicitParamListModifierXXX (not implemented)"
+        "binPack.unsafeXXXSite && newlines.implicitParamListModifierXXX (not implemented)"
       )
       checkPositive(
         indent.main,

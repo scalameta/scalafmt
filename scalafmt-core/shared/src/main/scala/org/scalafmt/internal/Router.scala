@@ -782,10 +782,10 @@ class Router(formatOps: FormatOps) {
 
       case tok @ FormatToken(open @ LeftParenOrBracket(), right, _) if {
             if (isCallSite(leftOwner))
-              !style.binPack.unsafeCallSite &&
+              style.binPack.unsafeCallSite.isNever &&
               !isSuperfluousParenthesis(formatToken.left, leftOwner)
             else
-              !style.binPack.unsafeDefnSite &&
+              style.binPack.unsafeDefnSite.isNever &&
               isDefnSite(leftOwner)
           } =>
         val close = matching(open)
@@ -1033,7 +1033,7 @@ class Router(formatOps: FormatOps) {
         splitsNoNL ++ splitsNL ++ splitsForAssign.getOrElse(Seq.empty)
 
       case FormatToken(open @ LeftParenOrBracket(), right, between)
-          if style.binPack.unsafeDefnSite && isDefnSite(leftOwner) =>
+          if !style.binPack.unsafeDefnSite.isNever && isDefnSite(leftOwner) =>
         val close = matching(open)
         val isBracket = open.is[T.LeftBracket]
         val indent = Num(style.indent.getDefnSite(leftOwner))
@@ -1088,7 +1088,7 @@ class Router(formatOps: FormatOps) {
         }
 
       case FormatToken(LeftParenOrBracket(), _, _)
-          if style.binPack.unsafeCallSite && isCallSite(leftOwner) =>
+          if !style.binPack.unsafeCallSite.isNever && isCallSite(leftOwner) =>
         val open = formatToken.left
         val close = matching(open)
         val indent = Num(style.indent.callSite)
@@ -1221,7 +1221,7 @@ class Router(formatOps: FormatOps) {
           if !style.poorMansTrailingCommasInConfigStyle &&
             isCallSite(leftOwner) =>
         val close = matching(open)
-        val binPackIsEnabled = style.binPack.unsafeCallSite
+        val binPackIsEnabled = !style.binPack.unsafeCallSite.isNever
         val indent =
           if (binPackIsEnabled && style.binPack.indentCallSiteOnce)
             Indent(style.indent.callSite, open, ExpiresOn.After)
@@ -1282,11 +1282,11 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.Comma, right, _) if leftOwner.isNot[Template] =>
         val splitsOpt = argumentStarts.get(hash(right)).flatMap { nextArg =>
           val callSite = isCallSite(leftOwner)
-          val binPack =
-            if (callSite) style.binPack.unsafeCallSite
-            else if (isDefnSite(leftOwner)) style.binPack.unsafeDefnSite
-            else false
-          if (binPack) Some {
+          val binPackOpt =
+            if (callSite) Some(style.binPack.unsafeCallSite)
+            else if (isDefnSite(leftOwner)) Some(style.binPack.unsafeDefnSite)
+            else None
+          binPackOpt.filter(!_.isNever).map { binPack =>
             val lastFT = tokens.getLast(nextArg)
             val indentCallSiteOnce =
               style.binPack.indentCallSiteOnce && callSite
@@ -1296,7 +1296,6 @@ class Router(formatOps: FormatOps) {
               Split(Newline, 1).withIndent(indent, right, After)
             )
           }
-          else None
         }
         splitsOpt.getOrElse {
           if (!style.newlines.formatInfix && leftOwner.is[Term.ApplyInfix])
@@ -2007,7 +2006,7 @@ class Router(formatOps: FormatOps) {
         Seq(Split(getMod(formatToken), 0))
 
       case FormatToken(soft.ImplicitOrUsing(), _, _)
-          if !style.binPack.unsafeDefnSite &&
+          if style.binPack.unsafeDefnSite.isNever &&
             !style.verticalMultiline.atDefnSite &&
             isRightImplicitOrUsingSoftKw(formatToken, soft) =>
         val argsOrParamsOpt = formatToken.meta.leftOwner match {
@@ -2370,9 +2369,9 @@ class Router(formatOps: FormatOps) {
       }
 
     val penalty = ft.meta.leftOwner match {
-      case l: Term.Assign if style.binPack.unsafeCallSite =>
+      case l: Term.Assign if !style.binPack.unsafeCallSite.isNever =>
         Constants.BinPackAssignmentPenalty
-      case l: Term.Param if style.binPack.unsafeDefnSite =>
+      case l: Term.Param if !style.binPack.unsafeDefnSite.isNever =>
         Constants.BinPackAssignmentPenalty
       case _ => 0
     }

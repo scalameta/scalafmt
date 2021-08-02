@@ -11,6 +11,7 @@ import scala.meta.tokens.Token.Comment
 import scala.meta.tokens.Token.LeftParen
 import scala.meta.tokens.Token.RightParen
 
+import org.scalafmt.config.BinPack
 import org.scalafmt.config.Config
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.ScalafmtConfig
@@ -36,17 +37,19 @@ class StyleMap(
     val styleBuilder = Array.newBuilder[ScalafmtConfig]
     startBuilder += 0
     styleBuilder += init
-    val disableBinPack = mutable.Set.empty[Token]
+    val disableBinPack = mutable.Map.empty[Token, BinPack.Unsafe]
     def warn(err: String)(implicit fileLine: FileLine): Unit = logger.elem(err)
     tokens.arr.foreach { tok =>
-      def changeStyle(style: ScalafmtConfig): Boolean = {
+      def changeStyle(style: ScalafmtConfig): Option[ScalafmtConfig] = {
         val changing = curr != style
-        if (changing) {
+        if (!changing) None
+        else {
           startBuilder += tok.left.start
           styleBuilder += style
+          val prev = curr
           curr = style
+          Some(prev)
         }
-        changing
       }
       tok.left match {
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
@@ -62,10 +65,15 @@ class StyleMap(
             if curr.binPack.literalArgumentLists &&
               opensLiteralArgumentList(tok)(curr) =>
           forcedBinPack += tok.meta.leftOwner
-          if (changeStyle(setBinPack(curr, callSite = true)))
-            tokens.matchingOpt(open).foreach(disableBinPack += _)
-        case close @ RightParen() if disableBinPack.remove(close) =>
-          changeStyle(setBinPack(curr, callSite = false))
+          changeStyle(setBinPack(curr, callSite = BinPack.Unsafe.Always))
+            .foreach { x =>
+              val unsafe = x.binPack.unsafeCallSite
+              tokens.matchingOpt(open).foreach(disableBinPack.update(_, unsafe))
+            }
+        case close @ RightParen() =>
+          disableBinPack.remove(close).foreach { x =>
+            changeStyle(setBinPack(curr, callSite = x))
+          }
         case _ =>
       }
     }
@@ -151,7 +159,10 @@ class StyleMap(
 
 object StyleMap {
 
-  def setBinPack(curr: ScalafmtConfig, callSite: Boolean): ScalafmtConfig =
+  def setBinPack(
+      curr: ScalafmtConfig,
+      callSite: BinPack.Unsafe
+  ): ScalafmtConfig =
     if (curr.binPack.unsafeCallSite == callSite) curr
     else curr.copy(binPack = curr.binPack.copy(unsafeCallSite = callSite))
 
