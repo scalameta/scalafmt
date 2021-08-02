@@ -5,6 +5,7 @@ import scala.meta.tokens.{Token => T}
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.Policy
 import org.scalafmt.internal.Policy.End
+import org.scalafmt.internal.Split
 import org.scalafmt.internal.TokenRanges
 import org.scalameta.FileLine
 
@@ -94,5 +95,39 @@ object PolicyOps {
       )
     }
   }
+
+  private def delayedBreakPolicyFactory(onBreakPolicy: Policy): Policy.Pf = {
+    object OnBreakDecision {
+      def unapply(d: Decision): Option[Seq[Split]] = {
+        var replaced = false
+        def decisionPf(s: Split): Split =
+          if (!s.isNL) s
+          else {
+            replaced = true
+            s.orPolicy(onBreakPolicy)
+          }
+        val splits = d.splits.map(decisionPf)
+        if (replaced) Some(splits) else None
+      }
+    }
+    { case OnBreakDecision(d) =>
+      d
+    }
+  }
+
+  def delayedBreakPolicy(
+      end: Policy.End.WithPos
+  )(onBreakPolicy: Policy)(implicit fileLine: FileLine): Policy =
+    Policy.Proxy(onBreakPolicy, end)(delayedBreakPolicyFactory)
+
+  def delayedBreakPolicyBefore(
+      token: T
+  )(onBreakPolicy: Policy)(implicit fileLine: FileLine): Policy =
+    delayedBreakPolicy(Policy.End.Before(token))(onBreakPolicy)
+
+  def delayedBreakPolicyFor(
+      token: T
+  )(f: T => Policy)(implicit fileLine: FileLine): Policy =
+    delayedBreakPolicyBefore(token)(f(token))
 
 }
