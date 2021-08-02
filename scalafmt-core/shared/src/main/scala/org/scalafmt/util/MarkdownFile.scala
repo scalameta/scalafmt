@@ -66,7 +66,7 @@ object MarkdownFile {
             case s: State.CodeFence =>
               if (
                 line.startsWith(s.backticks) &&
-                line.forall(ch => ch == '`' || ch.isSpaceChar)
+                line.forall(ch => ch == '`' || ch.isWhitespace)
               ) {
                 parts += newCodeFence(s, curr, end)
                 state = State.Text
