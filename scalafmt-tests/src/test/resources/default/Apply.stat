@@ -1712,10 +1712,13 @@ object a {
 }
 >>>
 object a {
-  val cls =
-    Select(Select(Select(Select(Select(Select(Ident(nme.ROOTPKG), nme.scala_),
-              scalajs), js), nme.annotation, x, y, z), internal_, a, b, c),
-      wasPublicBeforeTyperXxx)
+  val cls = Select(
+    Select(
+      Select(
+        Select(Select(Select(Ident(nme.ROOTPKG), nme.scala_), scalajs), js),
+        nme.annotation, x, y, z),
+      internal_, a, b, c),
+    wasPublicBeforeTyperXxx)
 }
 <<< #2633 with binPack always
 maxColumn = 70

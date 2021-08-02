@@ -178,6 +178,6 @@ object a {
 }
 >>>
 object a {
-  new SimpleMethodName(validateSimpleEncodedName(name, 0, len,
-      openAngleBracketOK = false))
+  new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))
 }
