@@ -1,8 +1,6 @@
 package org.scalafmt.util
 
-import java.{util => ju}
 import scala.annotation.tailrec
-import scala.collection.immutable.HashMap
 import scala.collection.mutable
 import scala.meta.Case
 import scala.meta.Ctor
@@ -27,7 +25,6 @@ import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
 import scala.reflect.ClassTag
 
-import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error
 import org.scalafmt.config.{DanglingParentheses, ScalafmtConfig}
 import org.scalafmt.internal.FormatToken
@@ -223,20 +220,6 @@ object TreeOps {
       case (o, c) =>
         throw new IllegalArgumentException(s"Mismatching parens ($o, $c)")
     }
-  }
-
-  /** Creates lookup table from token offset to its closest scala.meta tree.
-    */
-  def getOwners(tree: Tree): collection.Map[TokenHash, Tree] = {
-    val ownersMap = HashMap.newBuilder[TokenHash, Tree]
-    val workList = new ju.LinkedList[Tree]()
-    workList.add(tree)
-    while (!workList.isEmpty) {
-      val x = workList.poll()
-      x.tokens.foreach { tok => ownersMap += hash(tok) -> x }
-      workList.addAll(x.children.asJava)
-    }
-    ownersMap.result()
   }
 
   final def childOf(child: Tree, tree: Tree): Boolean =
