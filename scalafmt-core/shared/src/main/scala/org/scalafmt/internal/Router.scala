@@ -1666,14 +1666,13 @@ class Router(formatOps: FormatOps) {
           else Seq(Indent(indentLen, close, ExpiresOn.Before))
         val penalizeNewlines = penalizeNewlineByNesting(open, close)
         if (style.danglingParentheses.ctrlSite) {
-          val policy = decideNewlinesOnlyBeforeClose(close)
           val noSplit =
             if (style.align.openParenCtrlSite)
               Split(NoSplit, 0)
                 .withIndents(indents)
                 .withOptimalToken(close)
                 .withPolicy(penalizeNewlines)
-                .andPolicy(delayedBreakPolicy(Policy.End.Before(close))(policy))
+                .andPolicy(decideNewlinesOnlyBeforeCloseOnBreak(close))
             else
               Split(NoSplit, 0).withSingleLine(close)
           Seq(
@@ -1681,7 +1680,7 @@ class Router(formatOps: FormatOps) {
             Split(Newline, 1)
               .withIndent(indentLen, close, Before)
               .withPolicy(penalizeNewlines)
-              .andPolicy(policy)
+              .andPolicy(decideNewlinesOnlyBeforeClose(close))
           )
         } else
           Seq(

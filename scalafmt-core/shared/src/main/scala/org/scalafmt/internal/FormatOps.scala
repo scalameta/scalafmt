@@ -1074,34 +1074,15 @@ class FormatOps(
     } else Seq(Split(Space, 0), Split(Newline, 1))
   }
 
-  def delayedBreakPolicyFactory(onBreakPolicy: Policy): Policy.Pf = {
-    object OnBreakDecision {
-      def unapply(d: Decision): Option[Seq[Split]] = {
-        var replaced = false
-        def decisionPf(s: Split): Split =
-          if (!s.isNL) s
-          else {
-            replaced = true
-            s.orPolicy(onBreakPolicy)
-          }
-        val splits = d.splits.map(decisionPf)
-        if (replaced) Some(splits) else None
-      }
-    }
-    { case OnBreakDecision(d) =>
-      d
-    }
-  }
-
-  def delayedBreakPolicy(
-      end: Policy.End.WithPos
-  )(onBreakPolicy: Policy)(implicit fileLine: FileLine): Policy =
-    Policy.Proxy(onBreakPolicy, end)(delayedBreakPolicyFactory)
-
   def decideNewlinesOnlyBeforeClose(
       close: Token
   )(implicit fileLine: FileLine): Policy =
     decideNewlinesOnlyBeforeClose(Split(Newline, 0))(close)
+
+  def decideNewlinesOnlyBeforeCloseOnBreak(
+      close: Token
+  )(implicit fileLine: FileLine): Policy =
+    delayedBreakPolicyFor(close)(decideNewlinesOnlyBeforeClose)
 
   def decideNewlinesOnlyBeforeClose(
       split: Split
@@ -2526,13 +2507,12 @@ class FormatOps(
       else {
         val kw = tokenAfter(tree).right
         if (kw.is[A]) {
-          def breakOn = decideNewlinesOnlyBeforeClose(kw)
           val indent =
             style.indent.ctrlSite.getOrElse(style.indent.getSignificant)
           split
             .withIndent(Num(indent), kw, ExpiresOn.Before)
             .andPolicy(
-              delayedBreakPolicy(Policy.End.On(kw))(breakOn),
+              decideNewlinesOnlyBeforeCloseOnBreak(kw),
               !style.danglingParentheses.ctrlSite
             )
         } else split
