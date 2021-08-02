@@ -18,6 +18,7 @@ import org.scalafmt.util.LoggerOps._
 import org.scalameta.FileLine
 
 import scala.annotation.tailrec
+import scala.collection.immutable.HashMap
 import scala.collection.mutable
 import scala.meta.classifiers.Classifier
 import scala.meta.{
@@ -48,29 +49,34 @@ class FormatOps(
     val filename: String = ""
 ) {
   import FormatOps._
+  import PolicyOps._
+  import TokenOps._
+  import TreeOps._
 
-  private val initStyle = {
+  private val (
+    initStyle: ScalafmtConfig,
+    ownersMap: collection.Map[TokenHash, Tree]
+  ) = {
     val queue = new mutable.Queue[Tree]
     queue += topSourceTree
     var infixCount = 0
+    // Creates lookup table from token offset to its closest scala.meta tree
+    val ownersMap = HashMap.newBuilder[TokenHash, Tree]
     while (queue.nonEmpty) {
       val elem = queue.dequeue()
       queue ++= elem.children
       if (TreeOps.isInfixApp(elem)) infixCount += 1
+      elem.tokens.foreach { tok => ownersMap += hash(tok) -> elem }
     }
     val checkedNewlines = baseStyle.newlines.checkInfixConfig(infixCount)
     val initStyle =
       if (checkedNewlines eq baseStyle.newlines) baseStyle
       else baseStyle.copy(newlines = checkedNewlines)
-    initStyle
+    (initStyle, ownersMap.result())
   }
 
   val runner: ScalafmtRunner = initStyle.runner
-  import PolicyOps._
-  import TokenOps._
-  import TreeOps._
   implicit val dialect = initStyle.runner.dialect
-  private val ownersMap = getOwners(topSourceTree)
   val (tokens, styleMap) = FormatTokens(topSourceTree.tokens, owners)(initStyle)
   import tokens.{
     matching,
