@@ -1042,7 +1042,6 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |val  x   =   42
         |```
         |/.scalafmt.conf
-        |version = ${Versions.version}
         |maxColumn   = 8
         |project.includePaths."+" = ["glob:**.md"]
         |""".stripMargin
@@ -1050,7 +1049,6 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     val expected =
       s"""|
         |/.scalafmt.conf
-        |version = ${Versions.version}
         |maxColumn   = 8
         |project.includePaths."+" = ["glob:**.md"]
         |
@@ -1083,13 +1081,11 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |val  x   =   42
         |```
         |/.scalafmt.conf
-        |version = ${Versions.version}
         |""".stripMargin
     )
     val expected =
       s"""|
         |/.scalafmt.conf
-        |version = ${Versions.version}
         |
         |/foobar.md
         |# Hello
@@ -1145,7 +1141,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       Array(
         input.path,
         "--config-str",
-        s"""{version="${Versions.version}",project.includePaths."+" = ["glob:**.md"]}"""
+        s"""{project.includePaths."+" = ["glob:**.md"]}"""
       )
     )
     Cli.run(options)
@@ -1174,7 +1170,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       Array(
         input.path,
         "--config-str",
-        s"""{version="${Versions.version}",project.includePaths."+" = ["glob:**.md"]}"""
+        s"""{project.includePaths."+" = ["glob:**.md"]}"""
       )
     )
     Cli.run(options)
@@ -1213,12 +1209,55 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       Array(
         input.path,
         "--config-str",
-        s"""{version="${Versions.version}",project.includePaths."+" = ["glob:**.md"]}"""
+        s"""{project.includePaths."+" = ["glob:**.md"]}"""
       )
     )
     Cli.run(options)
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
+  }
+
+  test(s"handles .md fences with uneven backticks") {
+    val input = string2dir(
+      s"""|/foobar.md
+        |# Hello
+        |Example usage 1 with long   spaced line
+        |```scala mdoc
+        |val  x   =   42
+        |`````
+        |Example usage 2
+        |```java
+        |val  x   =   42
+        |```
+        |/.scalafmt.conf
+        |maxColumn   = 8
+        |project.includePaths."+" = ["glob:**.md"]
+        |""".stripMargin
+    )
+    val expected =
+      s"""|
+        |/.scalafmt.conf
+        |maxColumn   = 8
+        |project.includePaths."+" = ["glob:**.md"]
+        |
+        |/foobar.md
+        |# Hello
+        |Example usage 1 with long   spaced line
+        |```scala mdoc
+        |val x =
+        |  42
+        |`````
+        |Example usage 2
+        |```java
+        |val  x   =   42
+        |```
+        |""".stripMargin
+
+    noArgTest(
+      input,
+      expected,
+      Seq(Array.empty[String], Array("--mode", "diff"))
+    )
   }
 
 }

@@ -113,25 +113,22 @@ object Scalafmt {
       val markdown = MarkdownFile.parse(Input.VirtualFile(file, code))
 
       val resultIterator: Iterator[Try[String]] =
-        markdown.parts.iterator
-          .collect {
-            case fence: MarkdownPart.CodeFence
-                if fence.info.startsWith("scala mdoc") =>
-              val res = doFormatOne(fence.body, style, file)
-              res.foreach { formatted =>
-                fence.newBody = Some(formatted.trim)
-              }
-              res
-          }
+        markdown.parts.iterator.collect {
+          case fence: MarkdownPart.CodeFence
+              if fence.info.startsWith("scala mdoc") =>
+            val res = doFormatOne(fence.body, style, file)
+            res.foreach { formatted =>
+              fence.newBody = Some(formatted.trim)
+            }
+            res
+        }
       if (resultIterator.isEmpty) Success(code)
-      else {
+      else
         resultIterator
           .find(_.isFailure)
           .getOrElse(Success(markdown.renderToString))
-      }
-    } else {
+    } else
       doFormatOne(code, style, file, range)
-    }
 
   private def doFormatOne(
       code: String,
