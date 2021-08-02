@@ -117,7 +117,7 @@ class FormatOps(
    */
   val (argumentStarts, optionalNewlines) = {
     val arguments = mutable.Map.empty[TokenHash, Tree]
-    val optional = mutable.Set.empty[TokenHash]
+    val optional = Set.newBuilder[TokenHash]
     def getHeadHash(tree: Tree): Option[TokenHash] =
       tree.tokens.headOption.map { x => hash(tokens.after(x).left) }
     def add(tree: Tree): Unit =
@@ -142,7 +142,7 @@ class FormatOps(
       }
       workList.addAll(tree.children.asJava)
     }
-    (arguments.toMap, optional)
+    (arguments.toMap, optional.result())
   }
 
   class ExtractFromMeta[A](f: FormatToken => Option[A]) {
