@@ -855,11 +855,4 @@ object TreeOps {
     if (groups.isEmpty) None else Some(groups)
   }
 
-  def isBinPack(owner: Tree, enabled: Boolean)(implicit
-      style: ScalafmtConfig
-  ): Boolean =
-    if (isCallSite(owner)) style.binPack.unsafeCallSite == enabled
-    else if (isDefnSite(owner)) style.binPack.unsafeDefnSite == enabled
-    else false
-
 }
