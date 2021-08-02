@@ -1,8 +1,5 @@
 package org.scalafmt.internal
 
-import java.{util => ju}
-
-import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.config.{
   BinPack,
@@ -57,14 +54,13 @@ class FormatOps(
     initStyle: ScalafmtConfig,
     ownersMap: collection.Map[TokenHash, Tree]
   ) = {
-    val queue = new mutable.Queue[Tree]
-    queue += topSourceTree
+    val queue = new mutable.ListBuffer[List[Tree]]
+    queue += topSourceTree :: Nil
     var infixCount = 0
     // Creates lookup table from token offset to its closest scala.meta tree
     val ownersMap = HashMap.newBuilder[TokenHash, Tree]
-    while (queue.nonEmpty) {
-      val elem = queue.dequeue()
-      queue ++= elem.children
+    while (queue.nonEmpty) queue.remove(0).foreach { elem =>
+      queue += elem.children
       if (TreeOps.isInfixApp(elem)) infixCount += 1
       elem.tokens.foreach { tok => ownersMap += hash(tok) -> elem }
     }
@@ -133,20 +129,19 @@ class FormatOps(
     def addOptional(tree: Tree): Unit =
       getHeadHash(tree).foreach { optional += _ }
 
-    val workList = new ju.LinkedList[Tree]()
-    workList.add(topSourceTree)
-    while (!workList.isEmpty) {
-      val tree = workList.poll()
+    val queue = new mutable.ListBuffer[List[Tree]]
+    queue += topSourceTree :: Nil
+    while (queue.nonEmpty) queue.remove(0).foreach { tree =>
       tree match {
         case _: Lit.Unit =>
-        case t: Term => add(t)
         case t: Term.Param =>
           add(t)
           t.mods.foreach(addOptional)
           addOptional(t.name)
+        case t: Term => add(t)
         case _ =>
       }
-      workList.addAll(tree.children.asJava)
+      queue += tree.children
     }
     (arguments.toMap, optional.result())
   }
