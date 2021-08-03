@@ -154,14 +154,14 @@ class FormatOps(
   final def findFirst(start: FormatToken, end: Token)(
       f: FormatToken => Boolean
   ): Option[FormatToken] = {
-    findFirst(start, end.start)(f)
+    findFirst(start, end.end)(f)
   }
 
   @tailrec
   final def findFirst(start: FormatToken, end: Int)(
       f: FormatToken => Boolean
   ): Option[FormatToken] = {
-    if (start.left.start > end) None
+    if (start.left.end >= end) None
     else if (f(start)) Some(start)
     else {
       val next_ = next(start)
@@ -173,7 +173,7 @@ class FormatOps(
   def findFirstOnRight[A](start: FormatToken, end: Token)(implicit
       classifier: Classifier[Token, A]
   ): Option[Token] =
-    findFirst(start, end)(x => classifier(x.right)).map(_.right)
+    findFirst(start, end.start)(x => classifier(x.right)).map(_.right)
 
   final def rhsOptimalToken(
       start: FormatToken
