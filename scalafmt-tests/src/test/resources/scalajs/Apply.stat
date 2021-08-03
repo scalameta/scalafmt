@@ -181,3 +181,301 @@ object a {
   new SimpleMethodName(
       validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))
 }
+<<< #2079 avoid nested indent, always; 2
+binPack.preset = true
+binPack.unsafeCallSite = always
+continuationIndent.callSite = 4
+===
+object a {
+  new SimpleMethodName(new SimpleMethodName(
+    validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
+}
+>>>
+object a {
+  new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name, 0,
+              len, openAngleBracketOK = false)))
+}
+<<< #2079 avoid nested indent, oneline; 2
+binPack.preset = true
+binPack.unsafeCallSite = oneline
+continuationIndent.callSite = 4
+===
+object a {
+  new SimpleMethodName(new SimpleMethodName(
+    validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
+}
+>>>
+object a {
+  new SimpleMethodName(
+      new SimpleMethodName(
+          validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
+}
+<<< #2079 avoid nested indent, always; 3
+binPack.preset = true
+binPack.unsafeCallSite = always
+continuationIndent.callSite = 4
+===
+object a {
+  foo(
+    new SimpleMethodName(new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))),
+    new SimpleMethodName(new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))))
+}
+>>>
+object a {
+  foo(new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+                  0, len, openAngleBracketOK = false))),
+      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+                  0, len, openAngleBracketOK = false))))
+}
+<<< #2079 avoid nested indent, oneline; 3
+binPack.preset = true
+binPack.unsafeCallSite = oneline
+continuationIndent.callSite = 4
+===
+object a {
+  foo(
+    new SimpleMethodName(new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))),
+    new SimpleMethodName(new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))))
+}
+>>>
+object a {
+  foo(
+      new SimpleMethodName(
+          new SimpleMethodName(
+              validateSimpleEncodedName(name, 0, len,
+                  openAngleBracketOK = false))),
+      new SimpleMethodName(
+          new SimpleMethodName(
+              validateSimpleEncodedName(name, 0, len,
+                  openAngleBracketOK = false)))
+  )
+}
+<<< #2079 avoid nested indent, always; 4
+binPack.preset = true
+binPack.unsafeCallSite = always
+continuationIndent.callSite = 4
+===
+object a {
+  new SimpleMethodName(new SimpleMethodName(new SimpleMethodName(
+    validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))).foo
+}
+>>>
+object a {
+  new SimpleMethodName(
+      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+                  0, len, openAngleBracketOK = false)))).foo
+}
+<<< #2079 avoid nested indent, oneline; 4
+binPack.preset = true
+binPack.unsafeCallSite = oneline
+continuationIndent.callSite = 4
+===
+object a {
+  new SimpleMethodName(new SimpleMethodName(new SimpleMethodName(
+    validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))).foo
+}
+>>>
+object a {
+  new SimpleMethodName(
+      new SimpleMethodName(
+          new SimpleMethodName(
+              validateSimpleEncodedName(name, 0, len,
+                  openAngleBracketOK = false)))).foo
+}
+<<< binpack=oneline, nested, inner with multiple args
+maxColumn = 72
+binPack.unsafeCallSite = Oneline
+===
+object a {
+ if (staticInitializerStats.nonEmpty) {
+  List(genStaticConstructorWithStats(ir.Names.StaticInitializerName,
+           js.Block(staticInitializerStats)))
+ } else
+   Nil
+}
+>>>
+object a {
+  if (staticInitializerStats.nonEmpty) {
+    List(
+        genStaticConstructorWithStats(ir.Names.StaticInitializerName,
+            js.Block(staticInitializerStats)))
+  } else
+    Nil
+}
+<<< binpack=always, nested, inner with multiple args
+maxColumn = 72
+binPack.unsafeCallSite = Always
+===
+object a {
+ if (staticInitializerStats.nonEmpty) {
+  List(genStaticConstructorWithStats(ir.Names.StaticInitializerName,
+           js.Block(staticInitializerStats)))
+ } else
+   Nil
+}
+>>>
+object a {
+  if (staticInitializerStats.nonEmpty) {
+    List(genStaticConstructorWithStats(ir.Names.StaticInitializerName,
+            js.Block(staticInitializerStats)))
+  } else
+    Nil
+}
+<<< binpack=oneline, pat.extract
+maxColumn = 80
+binPack.unsafeCallSite = Oneline
+===
+object a {
+  foo match {
+     case Apply(appMeth, Apply(wrapRefArrayMeth, StripCast(arg @ ArrayValue(
+                         elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
+         if WrapArray.isClassTagBasedWrapArrayMethod(
+                          wrapRefArrayMeth.symbol) &&
+                        appMeth.symbol == ArrayModule_genericApply =>
+      bar
+   }
+}
+>>>
+object a {
+  foo match {
+    case Apply(appMeth, Apply(wrapRefArrayMeth,
+                StripCast(
+                    arg @ ArrayValue(elemtpt,
+                        elems)) :: Nil) :: classTagEvidence :: Nil)
+        if WrapArray.isClassTagBasedWrapArrayMethod(wrapRefArrayMeth.symbol) &&
+          appMeth.symbol == ArrayModule_genericApply =>
+      bar
+  }
+}
+<<< binpack=always, pat.extract
+maxColumn = 80
+binPack.unsafeCallSite = Always
+===
+object a {
+  foo match {
+     case Apply(appMeth, Apply(wrapRefArrayMeth, StripCast(arg @ ArrayValue(
+                         elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
+         if WrapArray.isClassTagBasedWrapArrayMethod(
+                          wrapRefArrayMeth.symbol) &&
+                        appMeth.symbol == ArrayModule_genericApply =>
+      bar
+   }
+}
+>>>
+object a {
+  foo match {
+    case Apply(appMeth, Apply(wrapRefArrayMeth, StripCast(arg @ ArrayValue(
+                        elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
+        if WrapArray.isClassTagBasedWrapArrayMethod(wrapRefArrayMeth.symbol) &&
+          appMeth.symbol == ArrayModule_genericApply =>
+      bar
+  }
+}
+<<< binpack=oneline, with infix
+maxColumn = 80
+binPack.unsafeCallSite = Oneline
+===
+object a {
+   Apply(appMeth, Apply(wrapRefArrayMeth, StripCast(ArrayValue(
+                       elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
+}
+>>>
+object a {
+  Apply(appMeth,
+      Apply(wrapRefArrayMeth,
+          StripCast(
+              ArrayValue(elemtpt, elems)) :: Nil
+      ) :: classTagEvidence :: Nil
+  )
+}
+<<< binpack=always, with infix
+maxColumn = 80
+binPack.unsafeCallSite = Always
+===
+object a {
+   Apply(appMeth, Apply(wrapRefArrayMeth, StripCast(ArrayValue(
+                       elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
+}
+>>>
+object a {
+  Apply(appMeth,
+      Apply(wrapRefArrayMeth,
+          StripCast(ArrayValue(elemtpt,
+                  elems)) :: Nil) :: classTagEvidence :: Nil)
+}
+<<< binpack=oneline, no break after opening, apply
+maxColumn = 80
+binPack.unsafeCallSite = Oneline
+===
+object a {
+  val call = js.JSFunctionApply(
+    js.Select(js.This()(classType), className, fFieldIdent)(
+        jstpe.AnyType),
+    actualParams)
+}
+>>>
+object a {
+  val call = js.JSFunctionApply(
+      js.Select(js.This()(classType), className, fFieldIdent)(jstpe.AnyType),
+      actualParams)
+}
+<<< binpack=always, no break after opening, apply
+maxColumn = 80
+binPack.unsafeCallSite = Always
+===
+object a {
+  val call = js.JSFunctionApply(
+    js.Select(js.This()(classType), className, fFieldIdent)(
+        jstpe.AnyType),
+    actualParams)
+}
+>>>
+object a {
+  val call =
+    js.JSFunctionApply(js.Select(js.This()(classType), className, fFieldIdent)(
+            jstpe.AnyType), actualParams)
+}
+<<< binpack=oneline, no break after opening, extract
+maxColumn = 80
+binPack.unsafeCallSite = Oneline
+===
+object a {
+  def genBodyWithinReturnableScope(): js.Tree = tree match {
+    case Block(
+        (thisDef @ ValDef(_, nme.THIS, _, initialThis)) :: otherStats,
+        rhs) =>
+      // This method has tail jumps
+  }
+}
+>>>
+object a {
+  def genBodyWithinReturnableScope(): js.Tree = tree match {
+    case Block((thisDef @ ValDef(_, nme.THIS, _, initialThis)) :: otherStats,
+            rhs) =>
+    // This method has tail jumps
+  }
+}
+<<< binpack=always, no break after opening, extract
+maxColumn = 80
+binPack.unsafeCallSite = Always
+===
+object a {
+  def genBodyWithinReturnableScope(): js.Tree = tree match {
+    case Block(
+        (thisDef @ ValDef(_, nme.THIS, _, initialThis)) :: otherStats,
+        rhs) =>
+      // This method has tail jumps
+  }
+}
+>>>
+object a {
+  def genBodyWithinReturnableScope(): js.Tree = tree match {
+    case Block((thisDef @ ValDef(_, nme.THIS, _, initialThis)) :: otherStats,
+            rhs) =>
+    // This method has tail jumps
+  }
+}
