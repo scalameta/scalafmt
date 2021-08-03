@@ -1306,25 +1306,25 @@ class Router(formatOps: FormatOps) {
           binPackOpt.filter(!_.isNever).map { binPack =>
             val lastFT = tokens.getLast(nextArg)
             val oneline = binPack == BinPack.Unsafe.Oneline
-            val nextCommaOrParen = findFirst(lastFT, leftOwner.tokens.last) {
-              case FormatToken(_, _: T.Comma, _) => true
-              case FormatToken(_, RightParenOrBracket(), _) => true
-              case _ => false
-            }
-            val optFT = nextCommaOrParen match {
+            val nextCommaOrParenOneline = if (oneline) {
+              findFirst(lastFT, leftOwner.tokens.last) {
+                case FormatToken(_, _: T.Comma, _) => true
+                case FormatToken(_, RightParenOrBracket(), _) => true
+                case _ => false
+              }
+            } else None
+            val optFT = nextCommaOrParenOneline match {
               case Some(ft @ FormatToken(_, _: T.Comma, _)) => ft
               case _ => lastFT
             }
-            val nlPolicy =
-              if (oneline) nextCommaOrParen match {
-                case Some(FormatToken(_, t: T.Comma, _)) =>
-                  if (callSite) splitOneArgPerLineAfterCommaOnBreak(t)
-                  else delayedBreakPolicyFor(t)(decideNewlinesOnlyAfterClose)
-                case Some(FormatToken(_, t, _)) =>
-                  decideNewlinesOnlyBeforeCloseOnBreak(t)
-                case _ => NoPolicy
-              }
-              else NoPolicy
+            val nlPolicy = nextCommaOrParenOneline match {
+              case Some(FormatToken(_, t: T.Comma, _)) =>
+                if (callSite) splitOneArgPerLineAfterCommaOnBreak(t)
+                else delayedBreakPolicyFor(t)(decideNewlinesOnlyAfterClose)
+              case Some(FormatToken(_, t, _)) =>
+                decideNewlinesOnlyBeforeCloseOnBreak(t)
+              case _ => NoPolicy
+            }
             val indentCallSiteOnce =
               style.binPack.indentCallSiteOnce && callSite
             val indent = if (indentCallSiteOnce) style.indent.callSite else 0
