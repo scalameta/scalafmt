@@ -139,6 +139,7 @@ class FormatOps(
           t.mods.foreach(addOptional)
           addOptional(t.name)
         case t: Term => add(t)
+        case t: Pat.Extract => t.args.foreach(add)
         case _ =>
       }
       queue += tree.children

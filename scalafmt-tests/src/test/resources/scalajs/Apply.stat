@@ -342,10 +342,12 @@ object a {
 >>>
 object a {
   foo match {
-    case Apply(appMeth, Apply(wrapRefArrayMeth,
+    case Apply(appMeth,
+            Apply(wrapRefArrayMeth,
                 StripCast(
-                    arg @ ArrayValue(elemtpt,
-                        elems)) :: Nil) :: classTagEvidence :: Nil)
+                    arg @ ArrayValue(elemtpt, elems)) :: Nil
+            ) :: classTagEvidence :: Nil
+        )
         if WrapArray.isClassTagBasedWrapArrayMethod(wrapRefArrayMeth.symbol) &&
           appMeth.symbol == ArrayModule_genericApply =>
       bar
@@ -368,8 +370,10 @@ object a {
 >>>
 object a {
   foo match {
-    case Apply(appMeth, Apply(wrapRefArrayMeth, StripCast(arg @ ArrayValue(
-                        elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
+    case Apply(appMeth,
+            Apply(wrapRefArrayMeth,
+                StripCast(arg @ ArrayValue(elemtpt,
+                        elems)) :: Nil) :: classTagEvidence :: Nil)
         if WrapArray.isClassTagBasedWrapArrayMethod(wrapRefArrayMeth.symbol) &&
           appMeth.symbol == ArrayModule_genericApply =>
       bar
