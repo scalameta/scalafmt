@@ -20,7 +20,7 @@ import org.scalafmt.internal.BestFirstSearch
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
-import org.scalafmt.util.FileOps
+import org.scalafmt.util.{FileOps, MarkdownFile, MarkdownPart}
 
 /** WARNING. This API is discouraged when integrating with Scalafmt from a build tool
   * or editor plugin. It is recommended to use the `scalafmt-dynamic` module instead.
@@ -64,7 +64,8 @@ object Scalafmt {
       if (filename == defaultFilename) baseStyle
       else { // might throw for invalid conf
         val style = baseStyle.getConfigFor(filename)
-        val isSbt = FileOps.isAmmonite(filename) || FileOps.isSbt(filename)
+        val isSbt = FileOps.isAmmonite(filename) || FileOps.isSbt(filename) ||
+          FileOps.isMarkdown(filename)
         if (isSbt) style.forSbt else style
       }
     val isWin = code.contains(WinLineEnding)
@@ -101,15 +102,33 @@ object Scalafmt {
       file: String,
       range: Set[Range] = Set.empty
   ): Try[String] =
-    if (!FileOps.isAmmonite(file)) doFormatOne(code, style, file, range)
-    else {
+    if (FileOps.isAmmonite(file)) {
       // XXX: we won't support ranges as we don't keep track of lines
       val chunks = ammonitePattern.split(code)
       if (chunks.length <= 1) doFormatOne(code, style, file, range)
       else
         flatMapAll(chunks.iterator)(doFormatOne(_, style, file))
           .map(_.mkString("\n@\n"))
-    }
+    } else if (FileOps.isMarkdown(file)) {
+      val markdown = MarkdownFile.parse(Input.VirtualFile(file, code))
+
+      val resultIterator: Iterator[Try[String]] =
+        markdown.parts.iterator.collect {
+          case fence: MarkdownPart.CodeFence
+              if fence.info.startsWith("scala mdoc") =>
+            val res = doFormatOne(fence.body, style, file)
+            res.foreach { formatted =>
+              fence.newBody = Some(formatted.trim)
+            }
+            res
+        }
+      if (resultIterator.isEmpty) Success(code)
+      else
+        resultIterator
+          .find(_.isFailure)
+          .getOrElse(Success(markdown.renderToString))
+    } else
+      doFormatOne(code, style, file, range)
 
   private def doFormatOne(
       code: String,

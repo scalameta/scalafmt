@@ -1029,4 +1029,235 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     )
   }
 
+  test(s"handles .md files when present in includePaths") {
+    val input = string2dir(
+      s"""|/foobar.md
+        |# Hello
+        |Example usage 1 with long   spaced line
+        |```scala mdoc
+        |val  x   =   42
+        |```
+        |Example usage 2
+        |```java
+        |val  x   =   42
+        |```
+        |/.scalafmt.conf
+        |maxColumn   = 8
+        |project.includePaths."+" = ["glob:**.md"]
+        |""".stripMargin
+    )
+    val expected =
+      s"""|
+        |/.scalafmt.conf
+        |maxColumn   = 8
+        |project.includePaths."+" = ["glob:**.md"]
+        |
+        |/foobar.md
+        |# Hello
+        |Example usage 1 with long   spaced line
+        |```scala mdoc
+        |val x =
+        |  42
+        |```
+        |Example usage 2
+        |```java
+        |val  x   =   42
+        |```
+        |""".stripMargin
+
+    noArgTest(
+      input,
+      expected,
+      Seq(Array.empty[String], Array("--mode", "diff"))
+    )
+  }
+
+  test(s"ignores .md files if not present in includePaths") {
+    val input = string2dir(
+      s"""|/foobar.md
+        |# Hello
+        |Example usage 1
+        |```scala mdoc
+        |val  x   =   42
+        |```
+        |/.scalafmt.conf
+        |""".stripMargin
+    )
+    val expected =
+      s"""|
+        |/.scalafmt.conf
+        |
+        |/foobar.md
+        |# Hello
+        |Example usage 1
+        |```scala mdoc
+        |val x   =   42
+        |```
+        |""".stripMargin
+
+    try {
+      noArgTest(
+        input,
+        expected,
+        Seq(Array.empty[String], Array("--mode", "diff"))
+      )
+      fail(
+        "Should have thrown noMatchingFiles because our markdown file was skipped"
+      )
+    } catch {
+      case _: org.scalafmt.Error.NoMatchingFiles.type => ()
+    }
+  }
+
+  test(s"handles .md with normal comment that contains a nested fence") {
+    val input = string2dir(
+      s"""|/foobar.md
+        | Intro
+        |```scala mdoc
+        |object    A {
+        | /*
+        |  * ```scala mdoc
+        |  *    val example = "text"
+        |  * ```
+        |  */
+        |                       }
+        |```
+        |""".stripMargin
+    )
+    val expected =
+      s"""|/foobar.md
+        | Intro
+        |```scala mdoc
+        |object A {
+        |  /*
+        |   * ```scala mdoc
+        |   *    val example = "text"
+        |   * ```
+        |   */
+        |}
+        |```
+        |""".stripMargin
+    val options = getConfig(
+      Array(
+        input.path,
+        "--config-str",
+        s"""{project.includePaths."+" = ["glob:**.md"]}"""
+      )
+    )
+    Cli.run(options)
+    val obtained = dir2string(input)
+    assertNoDiff(obtained, expected)
+  }
+
+  // This test might need to change based on maintainer feedback/requirements
+  test(s"does not apply to .md files with indented fenced content ") {
+    val input = string2dir(
+      s"""|/foobar2.md
+        | Intro text:
+        |  ```scala mdoc
+        |        object    A {      }
+        |  ```
+        |""".stripMargin
+    )
+    val expected =
+      s"""|/foobar2.md
+        | Intro text:
+        |  ```scala mdoc
+        |        object    A {      }
+        |  ```
+        |""".stripMargin
+    val options = getConfig(
+      Array(
+        input.path,
+        "--config-str",
+        s"""{project.includePaths."+" = ["glob:**.md"]}"""
+      )
+    )
+    Cli.run(options)
+    val obtained = dir2string(input)
+    assertNoDiff(obtained, expected)
+  }
+
+  // This test might need to change based on maintainer feedback/requirements
+  test(s"does not format nested fences when not inside a Scala comment") {
+    val input = string2dir(
+      s"""|/foobar.md
+        |```scala mdoc
+        |object    A {
+        | /*
+        |```scala mdoc
+        |   val example = "text"
+        |```
+        |  */
+        |  }
+        |```
+        |""".stripMargin
+    )
+    val expected =
+      s"""|/foobar.md
+        |```scala mdoc
+        |object    A {
+        | /*
+        |```scala mdoc
+        |   val example = "text"
+        |```
+        |  */
+        |  }
+        |```
+        |""".stripMargin
+    val options = getConfig(
+      Array(
+        input.path,
+        "--config-str",
+        s"""{project.includePaths."+" = ["glob:**.md"]}"""
+      )
+    )
+    Cli.run(options)
+    val obtained = dir2string(input)
+    assertNoDiff(obtained, expected)
+  }
+
+  test(s"handles .md fences with uneven backticks") {
+    val input = string2dir(
+      s"""|/foobar.md
+        |# Hello
+        |Example usage 1 with long   spaced line
+        |```scala mdoc
+        |val  x   =   42
+        |`````
+        |Example usage 2
+        |```java
+        |val  x   =   42
+        |```
+        |/.scalafmt.conf
+        |maxColumn   = 8
+        |project.includePaths."+" = ["glob:**.md"]
+        |""".stripMargin
+    )
+    val expected =
+      s"""|
+        |/.scalafmt.conf
+        |maxColumn   = 8
+        |project.includePaths."+" = ["glob:**.md"]
+        |
+        |/foobar.md
+        |# Hello
+        |Example usage 1 with long   spaced line
+        |```scala mdoc
+        |val x =
+        |  42
+        |`````
+        |Example usage 2
+        |```java
+        |val  x   =   42
+        |```
+        |""".stripMargin
+
+    noArgTest(
+      input,
+      expected,
+      Seq(Array.empty[String], Array("--mode", "diff"))
+    )
+  }
+
 }

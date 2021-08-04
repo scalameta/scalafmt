@@ -83,6 +83,9 @@ object FileOps {
   }
 
   @inline
+  def isMarkdown(filename: String): Boolean = filename.endsWith(".md")
+
+  @inline
   def isAmmonite(filename: String): Boolean = filename.endsWith(".sc")
 
   @inline
