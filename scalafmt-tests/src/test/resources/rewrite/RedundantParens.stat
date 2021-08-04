@@ -730,11 +730,9 @@ object Application {
                   app.GET("/new",
                     req => {
                       ServerResponse.ok().bodyValue("dynamically created during GET / index request")
-                    }
-                  )
+                    })
                   handler.hello(req)
-                }
-              )
+                })
               app.GET("/api", handler.json)
 
             })

@@ -1120,8 +1120,12 @@ class Router(formatOps: FormatOps) {
         val nextCommaOneline =
           if (!oneline || isSingleArg) None
           else argsOpt.flatMap(x => findComma(tokens.getLast(x.head)))
-        val binPackOnelinePolicy =
-          nextCommaOneline.map(splitOneArgPerLineAfterCommaOnBreak)
+        val binPackOnelinePolicy = if (oneline) {
+          nextCommaOneline.fold {
+            if (!followedBySelectOrApply(leftOwner)) NoPolicy
+            else decideNewlinesOnlyBeforeCloseOnBreak(close)
+          }(splitOneArgPerLineAfterCommaOnBreak)
+        } else NoPolicy
 
         val noSplit =
           if (singleLineOnly || style.newlines.sourceIgnored && !oneline)
@@ -1322,7 +1326,8 @@ class Router(formatOps: FormatOps) {
               case Some(FormatToken(_, t: T.Comma, _)) =>
                 if (callSite) splitOneArgPerLineAfterCommaOnBreak(t)
                 else delayedBreakPolicyFor(t)(decideNewlinesOnlyAfterClose)
-              case Some(FormatToken(_, t, _)) =>
+              case Some(FormatToken(_, t, _))
+                  if !callSite || followedBySelectOrApply(leftOwner) =>
                 decideNewlinesOnlyBeforeCloseOnBreak(t)
               case _ => NoPolicy
             }
