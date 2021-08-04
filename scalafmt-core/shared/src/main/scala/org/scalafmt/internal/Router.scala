@@ -1166,9 +1166,10 @@ class Router(formatOps: FormatOps) {
           )
             newlineBeforeClose & binPackOnelinePolicy
           else NoPolicy & binPackOnelinePolicy
+        val nlMod = NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None)
         Seq(
           noSplit,
-          Split(NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None), 2)
+          Split(nlMod, if (oneline) 4 else 2)
             .withIndent(indent, close, Before)
             .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
             .andPolicy(nlPolicy)
