@@ -206,8 +206,7 @@ object a {
 }
 >>>
 object a {
-  new SimpleMethodName(
-      new SimpleMethodName(
+  new SimpleMethodName(new SimpleMethodName(
           validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
 }
 <<< #2079 avoid nested indent, always; 3
@@ -244,14 +243,10 @@ object a {
 >>>
 object a {
   foo(
-      new SimpleMethodName(
-          new SimpleMethodName(
-              validateSimpleEncodedName(name, 0, len,
-                  openAngleBracketOK = false))),
-      new SimpleMethodName(
-          new SimpleMethodName(
-              validateSimpleEncodedName(name, 0, len,
-                  openAngleBracketOK = false)))
+      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+                  0, len, openAngleBracketOK = false))),
+      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+                  0, len, openAngleBracketOK = false)))
   )
 }
 <<< #2079 avoid nested indent, always; 4
@@ -281,10 +276,8 @@ object a {
 >>>
 object a {
   new SimpleMethodName(
-      new SimpleMethodName(
-          new SimpleMethodName(
-              validateSimpleEncodedName(name, 0, len,
-                  openAngleBracketOK = false)))).foo
+      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+                  0, len, openAngleBracketOK = false)))).foo
 }
 <<< binpack=oneline, nested, inner with multiple args
 maxColumn = 72
@@ -300,8 +293,7 @@ object a {
 >>>
 object a {
   if (staticInitializerStats.nonEmpty) {
-    List(
-        genStaticConstructorWithStats(ir.Names.StaticInitializerName,
+    List(genStaticConstructorWithStats(ir.Names.StaticInitializerName,
             js.Block(staticInitializerStats)))
   } else
     Nil
