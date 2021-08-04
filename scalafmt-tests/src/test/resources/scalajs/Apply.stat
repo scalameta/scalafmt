@@ -246,8 +246,7 @@ object a {
       new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
                   0, len, openAngleBracketOK = false))),
       new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
-                  0, len, openAngleBracketOK = false)))
-  )
+                  0, len, openAngleBracketOK = false))))
 }
 <<< #2079 avoid nested indent, always; 4
 binPack.preset = true
@@ -277,7 +276,8 @@ object a {
 object a {
   new SimpleMethodName(
       new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
-                  0, len, openAngleBracketOK = false)))).foo
+                  0, len, openAngleBracketOK = false)))
+  ).foo
 }
 <<< binpack=oneline, nested, inner with multiple args
 maxColumn = 72
@@ -338,8 +338,7 @@ object a {
             Apply(wrapRefArrayMeth,
                 StripCast(
                     arg @ ArrayValue(elemtpt, elems)) :: Nil
-            ) :: classTagEvidence :: Nil
-        )
+            ) :: classTagEvidence :: Nil)
         if WrapArray.isClassTagBasedWrapArrayMethod(wrapRefArrayMeth.symbol) &&
           appMeth.symbol == ArrayModule_genericApply =>
       bar
@@ -385,8 +384,7 @@ object a {
       Apply(wrapRefArrayMeth,
           StripCast(
               ArrayValue(elemtpt, elems)) :: Nil
-      ) :: classTagEvidence :: Nil
-  )
+      ) :: classTagEvidence :: Nil)
 }
 <<< binpack=always, with infix
 maxColumn = 80

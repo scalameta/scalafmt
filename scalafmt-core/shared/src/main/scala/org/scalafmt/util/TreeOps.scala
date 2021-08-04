@@ -839,4 +839,16 @@ object TreeOps {
     if (groups.isEmpty) None else Some(groups)
   }
 
+  @tailrec
+  final def followedBySelectOrApply(tree: Tree): Boolean = tree.parent match {
+    case Some(p: Term.New) => followedBySelectOrApply(p)
+    case Some(_: Term.Select) => true
+    case Some(p: Term.ApplyInfix) =>
+      p.lhs.eq(tree) || followedBySelectOrApply(p)
+    case Some(p: Pat.ExtractInfix) =>
+      p.lhs.eq(tree) || followedBySelectOrApply(p)
+    case SplitCallIntoParts(`tree`, _) => true
+    case _ => false
+  }
+
 }
