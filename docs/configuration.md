@@ -277,7 +277,7 @@ Same as `indent.callSite` except for definition site. Example:
 indent.defnSite = 4
 ---
 def function(
-argument1: Type1 // indented by 4
+parameter1: Type1 // indented by 4
 ): ReturnType
 ```
 
@@ -295,7 +295,7 @@ class A(
  field1: Type1 // indented by 4
 ) {
  def function2(
-  argument1: Type1 // indented by 2
+  parameter1: Type1 // indented by 2
  ): ReturnType = None
 }
 ```
