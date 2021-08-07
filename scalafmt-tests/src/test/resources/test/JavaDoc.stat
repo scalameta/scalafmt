@@ -2081,11 +2081,10 @@ object a {
    * to help clarify.
    *
    * @example
-   *   {{{
-   *   {"errors":["error1",
-   *   "error2", "error3"]}
-   *   {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
-   *   }}}
+   * {{{
+   * {"errors":["error1", "error2", "error3"]}
+   * {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
+   * }}}
    */
 }
 <<< SM#2444 tag with markdown code block
@@ -2111,10 +2110,9 @@ object a {
    * to help clarify.
    *
    * @example
-   *   ```scala
-   *   {"errors":["error1",
-   *   "error2", "error3"]}
-   *   {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
+   * ```scala
+   * {"errors":["error1", "error2", "error3"]}
+   * {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
    * ```
    */
 }

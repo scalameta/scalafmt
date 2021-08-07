@@ -693,9 +693,9 @@ class FormatWriter(formatOps: FormatOps) {
                   appendBreak()
                 case t: Scaladoc.Tag =>
                   sb.append(t.tag.tag)
-                  if (t.tag.hasLabel) sb.append(' ').append(t.label.syntax)
-                  if (t.tag.hasDesc) {
-                    val words = t.desc.part.iterator.map(_.syntax)
+                  t.label.foreach(x => sb.append(' ').append(x.syntax))
+                  t.desc.foreach { x =>
+                    val words = x.part.iterator.map(_.syntax)
                     val tagMargin = getIndentation(2 + margin.length)
                     // use maxLength to force a newline
                     iterWords(words, appendBreak, maxLength, tagMargin)
