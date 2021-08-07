@@ -114,3 +114,18 @@ inline def repro[T <: Int with Singleton, U <: Int with Singleton]: Int =
         case _: true  => 100
         case _: false => 101
     case _ => 0
+<<< #2640
+"static meta" - {
+  implicit inline def qm: QueryMeta[PersonName, String] = { //hellooo
+    queryMeta[PersonName, String](
+      quote {
+        (q: Query[PersonName]) => q.map(p => p.name)
+      }
+    )((name: String) => PersonName(name))
+  }
+}
+>>>
+test does not parse
+"static meta" - {
+      implicit inline def qm: QueryMeta[PersonName, String] = { //hellooo
+                    ^
