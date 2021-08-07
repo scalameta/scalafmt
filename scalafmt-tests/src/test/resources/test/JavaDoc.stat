@@ -2058,3 +2058,63 @@ val a = 1
   * ===Heading3 also not getting wrapped===
   */
 val a = 1
+<<< SM#2444 tag with code block
+docstrings.wrap = yes
+maxColumn = 30
+===
+object a {
+  /** Some scaladoc. A few examples are shown here to help clarify.
+    *
+    * @example
+    * {{{
+    * {"errors":["error1", "error2", "error3"]}
+    * {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
+    * }}}
+    */
+}
+>>>
+object a {
+
+  /**
+   * Some scaladoc. A few
+   * examples are shown here
+   * to help clarify.
+   *
+   * @example
+   *   {{{
+   *   {"errors":["error1",
+   *   "error2", "error3"]}
+   *   {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
+   *   }}}
+   */
+}
+<<< SM#2444 tag with markdown code block
+docstrings.wrap = yes
+maxColumn = 30
+===
+object a {
+  /** Some scaladoc. A few examples are shown here to help clarify.
+    *
+    * @example
+    * ```scala
+    * {"errors":["error1", "error2", "error3"]}
+    * {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
+    * ```
+    */
+}
+>>>
+object a {
+
+  /**
+   * Some scaladoc. A few
+   * examples are shown here
+   * to help clarify.
+   *
+   * @example
+   *   ```scala
+   *   {"errors":["error1",
+   *   "error2", "error3"]}
+   *   {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
+   * ```
+   */
+}
