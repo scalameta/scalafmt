@@ -1485,14 +1485,14 @@ runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 4
 ===
 object a:
-  class a:
-    val a =
-      a
+  class b:
+    val c =
+      d
 >>>
 object a:
-   class a:
-      val a =
-        a
+   class b:
+      val c =
+        d
 end a
 <<< no end markers at end of file
 runner.parser = source
