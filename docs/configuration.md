@@ -3958,6 +3958,44 @@ importSelectors = singleLine
 import a.b.{c, d, e, f, g}
 ```
 
+## Markdown Formatting
+
+> Since v3.0.0.
+
+Will format all `scala mdoc` fences inside Markdown files.
+
+```conf
+# Format default filetypes + Markdown files
+project.includePaths."+" = ["glob:**.md"]
+
+# *Only* format Markdown files
+project.includePaths = [ "glob:**.md" ]
+```
+
+Before:
+
+````markdown
+Markdown prose beginning.
+
+```scala mdoc
+val x  =       3
+```
+
+Markdown prose end.
+````
+
+After:
+
+````markdown
+Markdown prose beginning.
+
+```scala mdoc
+val x = 3
+```
+
+Markdown prose end.
+````
+
 ## Edition
 
 > Removed in 2.7.0
