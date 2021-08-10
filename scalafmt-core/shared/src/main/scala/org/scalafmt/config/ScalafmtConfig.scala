@@ -357,6 +357,8 @@ object ScalafmtConfig {
         indent.significant,
         indent.ctorSite
       )
+      if (rewrite.scala3.insertEndMarkerMinLines != 0)
+        addIf(rewrite.scala3.removeEndMarkerMaxLines >= rewrite.scala3.insertEndMarkerMinLines)
     }
     // scalafmt: {}
     if (allErrors.isEmpty) Configured.ok(cfg)

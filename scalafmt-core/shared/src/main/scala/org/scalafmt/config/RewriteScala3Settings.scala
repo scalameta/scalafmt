@@ -7,6 +7,7 @@ import metaconfig._
 case class RewriteScala3Settings(
     convertToNewSyntax: Boolean = false,
     removeOptionalBraces: RemoveOptionalBraces = RemoveOptionalBraces.no,
+    removeEndMarkerMaxLines: Int = 0,
     insertEndMarkerMinLines: Int = 0
 )
 
