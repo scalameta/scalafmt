@@ -118,7 +118,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
     iter(state, 0)
 
-    val initStyle = result(0).style
+    val initStyle = styleMap.init
     if (
       initStyle.rewrite.rules.contains(RedundantBraces) &&
       !initStyle.rewrite.redundantBraces.parensForOneLineApply.contains(false)
@@ -874,7 +874,7 @@ class FormatWriter(formatOps: FormatOps) {
       else {
         var columnShift = 0
         implicit val finalResult = Map.newBuilder[Int, Int]
-        val isMultiline = locations(0).style.align.multiline
+        val isMultiline = styleMap.init.align.multiline
 
         // all blocks must be here, to get final flush
         val blocks = new mutable.HashMap[Tree, AlignBlock]
