@@ -120,16 +120,15 @@ class FormatWriter(formatOps: FormatOps) {
     iter(state, 0)
 
     val initStyle = styleMap.init
+    if (initStyle.runner.dialect.allowSignificantIndentation) {
+      if (initStyle.rewrite.scala3.insertEndMarkerMinLines > 0)
+        checkInsertEndMarkers(result)
+    }
     if (
       initStyle.rewrite.rules.contains(RedundantBraces) &&
       !initStyle.rewrite.redundantBraces.parensForOneLineApply.contains(false)
     )
       replaceRedundantBraces(result)
-    if (
-      initStyle.runner.dialect.allowSignificantIndentation &&
-      initStyle.rewrite.scala3.insertEndMarkerMinLines > 0
-    )
-      checkOptionalBraces(result)
 
     new FormatLocations(result)
   }
@@ -225,21 +224,27 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  private def checkOptionalBraces(locations: Array[FormatLocation]): Unit =
-    locations.foreach { floc =>
-      val ob = formatOps.OptionalBraces.get(floc.formatToken)(floc.style)
-      val ownerOpt = ob.flatMap(_.owner).filter {
-        /* if we add the end marker, it might turn a single-stat expression (or
-         * block) into a multi-stat block and thus potentially change how that
-         * parent expression would have been formatted; so, avoid those cases.
-         */
-        _.parent match {
-          case Some(t: Term.Block) => t.stats.lengthCompare(1) > 0
-          case Some(_: Template | _: Source | _: Pkg) => true
-          case _ => false
-        }
+  private def getOptionalBracesOwner(
+      floc: FormatLocation,
+      minBlockStats: Int
+  ): Option[Tree] = {
+    val ob = formatOps.OptionalBraces.get(floc.formatToken)(floc.style)
+    ob.flatMap(_.owner).filter {
+      /* if we add the end marker, it might turn a single-stat expression (or
+       * block) into a multi-stat block and thus potentially change how that
+       * parent expression would have been formatted; so, avoid those cases.
+       */
+      _.parent match {
+        case Some(t: Term.Block) => t.stats.lengthCompare(minBlockStats) >= 0
+        case Some(_: Template | _: Source | _: Pkg) => true
+        case _ => false
       }
-      ownerOpt.foreach { owner =>
+    }
+  }
+
+  private def checkInsertEndMarkers(locations: Array[FormatLocation]): Unit =
+    locations.foreach { floc =>
+      getOptionalBracesOwner(floc, 2).foreach { owner =>
         val endFt = tokens.getLast(owner)
         if (!endFt.meta.rightOwner.is[Term.EndMarker]) {
           val end = endFt.meta.idx
