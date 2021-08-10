@@ -2832,11 +2832,25 @@ If this flag is set to a positive value, when an expression containing an
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
 region spans at least as many lines and isn't followed by an end marker, one will be inserted.
 
-> The lines computation ignores additional lines in multiline strings or comments.
+> We will not insert end markers if the statement is not part of a template body,
+> or a multi-stat block. Doing so might turn a single-stat expression (which
+> doesn't require significant indentation handling) into a multi-stat block.
 
-> We will not insert end markers if the statement is not part of a template body or
-> a multiline block. Doing so might turn a single-stat expression (which doesn't
-> require significant indentation handling) into a multi-stat block.
+### `rewrite.scala3.removeEndMarkerMaxLines`
+
+If this flag is set to a positive value, when an expression containing an
+[optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
+region spans at most as many lines and is followed by a standalone end marker
+(i.e., no other tokens on that line, including comments), the line containing
+the end marker will be deleted.
+
+> We will not remove end markers if
+>
+> - the statement is not part of a template body, or a block with at least 3
+>   statements. Doing so might turn a multi-stat expression (which requires
+>   significant indentation handling) into a single-stat.
+> - there are comments before the end marker, as without the end marker they
+>   would be treated as outside of the optional-braces region.
 
 ## Vertical Multiline
 
