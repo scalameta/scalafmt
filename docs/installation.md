@@ -118,7 +118,7 @@ in the `.scalafmt.conf` configuration file and downloaded dynamically.
 
 ```scala
 // In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.x.
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.0") // "2.4.0" is just sbt plugin version
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.3") // "2.4.3" is just sbt plugin version
 ```
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt)
