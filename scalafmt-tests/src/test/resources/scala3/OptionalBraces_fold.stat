@@ -1460,8 +1460,6 @@ end a
 object a:
    class b:
       val c = d
-   end b
-end a
 // c
 end a
 <<< 1 end marker at end of file
@@ -1491,7 +1489,6 @@ end a
 object a:
    class b:
       val c = d
-end a
 // c
 end a
 <<< no end markers at end of file
