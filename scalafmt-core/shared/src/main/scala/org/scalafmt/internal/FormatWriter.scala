@@ -246,7 +246,11 @@ class FormatWriter(formatOps: FormatOps) {
     locations.foreach { floc =>
       getOptionalBracesOwner(floc, 2).foreach { owner =>
         val endFt = tokens.getLast(owner)
-        if (!tokens.nextNonComment(endFt).meta.rightOwner.is[Term.EndMarker]) {
+        val ok = tokens.nextNonComment(endFt).meta.rightOwner match {
+          case em: Term.EndMarker => em.parent != owner.parent
+          case _ => true
+        }
+        if (ok) {
           val end = endFt.meta.idx
           val eLoc = locations(end)
           val bLoc = locations(tokens.tokenJustBefore(owner).meta.idx)
