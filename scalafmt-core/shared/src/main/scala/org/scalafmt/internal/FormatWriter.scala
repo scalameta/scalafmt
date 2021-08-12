@@ -244,10 +244,10 @@ class FormatWriter(formatOps: FormatOps) {
         if (!endFt.meta.rightOwner.is[Term.EndMarker]) {
           val end = endFt.meta.idx
           val eLoc = locations(end)
-          val bLoc = locations(tokens(owner.tokens.head, -1).meta.idx)
+          val bLoc = locations(tokens.tokenJustBefore(owner).meta.idx)
           val begIndent = bLoc.state.indentation
           if (
-            eLoc.state.split.isNL &&
+            eLoc.hasBreakAfter &&
             !eLoc.optionalBraces.contains(begIndent) &&
             getLineDiff(bLoc, eLoc) >=
               bLoc.style.rewrite.scala3.insertEndMarkerMinLines
@@ -324,7 +324,7 @@ class FormatWriter(formatOps: FormatOps) {
           val right = nextNonCommentTok.right
           def isNewline =
             Seq(curr, locations(math.min(i + skip, locations.length - 1)))
-              .exists(_.state.split.isNL)
+              .exists(_.hasBreakAfter)
 
           // Scala syntax allows commas before right braces in weird places,
           // like constructor bodies:
@@ -393,8 +393,7 @@ class FormatWriter(formatOps: FormatOps) {
           case _: T.Constant.String =>
             TreeOps.getStripMarginChar(tok.meta.leftOwner).map { pipe =>
               def isPipeFirstChar = text.find(_ != '"').contains(pipe)
-              val noAlign = !style.align.stripMargin ||
-                tok.meta.idx <= 1 || prevState.split.isNL
+              val noAlign = !style.align.stripMargin || curr.hasBreakBefore
               def alignPipeOffset = if (isPipeFirstChar) 3 else 2
               val thisOffset =
                 if (style.align.stripMargin) alignPipeOffset else offset
