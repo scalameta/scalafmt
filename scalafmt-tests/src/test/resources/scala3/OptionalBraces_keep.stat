@@ -1520,6 +1520,25 @@ object a:
         a
    end a
 end a
+<<< 2 end markers at end of file, comment
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 3
+===
+object a:
+  class b:
+    val c =
+      d
+  // c
+end a
+>>>
+object a:
+   class b:
+      val c =
+        d
+   end b
+end a
+// c
+end a
 <<< 1 end marker at end of file
 runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 4
@@ -1533,6 +1552,24 @@ object a:
    class b:
       val c =
         d
+end a
+<<< 1 end marker at end of file, comment
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 4
+===
+object a:
+  class b:
+    val c =
+      d
+  // c
+end a
+>>>
+object a:
+   class b:
+      val c =
+        d
+end a
+// c
 end a
 <<< no end markers at end of file
 runner.parser = source
