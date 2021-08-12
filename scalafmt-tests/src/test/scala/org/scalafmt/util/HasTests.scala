@@ -17,7 +17,6 @@ import org.scalafmt.config.{
   ScalafmtRunner
 }
 import org.scalafmt.tests.BuildInfo
-import org.scalafmt.internal.FormatWriter
 import scala.collection.mutable
 
 import munit.Location
@@ -36,6 +35,7 @@ trait HasTests extends FormatAssertions {
           logger.elem(explored)
         case Enqueue(split) => dg.enqueued(split)
         case evt: CompleteFormat => dg.completed(evt)
+        case x: Written => dg.locations = x.formatLocations
         case _ =>
       }
     )
@@ -189,8 +189,7 @@ trait HasTests extends FormatAssertions {
 
   def getFormatOutput(debug: Debug): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]
-    val writer = new FormatWriter(debug.formatOps)
-    writer.getFormatLocations(debug.state).iterate.foreach { entry =>
+    debug.locations.iterate.foreach { entry =>
       val token = entry.curr.formatToken
       builder += FormatOutput(
         token.left.syntax + entry.getWhitespace(0),

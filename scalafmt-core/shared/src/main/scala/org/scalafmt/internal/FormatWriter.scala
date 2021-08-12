@@ -6,7 +6,7 @@ import java.util.regex.Pattern
 import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.{Formatted, Scalafmt}
 import org.scalafmt.config.{Comments, Docstrings, Newlines, ScalafmtConfig}
-import org.scalafmt.config.ScalafmtParser
+import org.scalafmt.config.{FormatEvent, ScalafmtParser}
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.{LiteralOps, TreeOps}
@@ -44,6 +44,7 @@ class FormatWriter(formatOps: FormatOps) {
   def mkString(state: State): String = {
     implicit val sb = new StringBuilder()
     val locations = getFormatLocations(state)
+    styleMap.init.runner.event(FormatEvent.Written(locations))
 
     locations.iterate.foreach { entry =>
       val location = entry.curr
@@ -98,7 +99,7 @@ class FormatWriter(formatOps: FormatOps) {
     sb.toString()
   }
 
-  def getFormatLocations(state: State): FormatLocations = {
+  private def getFormatLocations(state: State): FormatLocations = {
     val toks = formatOps.tokens.arr
     require(toks.length >= state.depth, "splits !=")
     val result = new Array[FormatLocation](state.depth)

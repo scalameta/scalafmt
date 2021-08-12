@@ -2,12 +2,13 @@ package org.scalafmt.config
 
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.FormatWriter
 import org.scalafmt.internal.Split
 import org.scalafmt.internal.State
 
 /** An event that happens while formatting a file.
   */
-abstract class FormatEvent
+abstract sealed class FormatEvent
 
 object FormatEvent {
   case class CreateFormatOps(formatOps: FormatOps) extends FormatEvent
@@ -19,4 +20,6 @@ object FormatEvent {
       finalState: State,
       visits: IndexedSeq[Int]
   ) extends FormatEvent
+  case class Written(formatLocations: FormatWriter#FormatLocations)
+      extends FormatEvent
 }

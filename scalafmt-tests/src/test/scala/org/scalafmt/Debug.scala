@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit
 
 import org.scalafmt.config.FormatEvent.CompleteFormat
 import org.scalafmt.internal.FormatOps
+import org.scalafmt.internal.FormatWriter
 import org.scalafmt.internal.Split
 import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
@@ -22,6 +23,7 @@ class Debug(val verbose: Boolean) {
   var formatOps: FormatOps = _
   var explored = 0
   var state = State.start
+  var locations: FormatWriter#FormatLocations = _
   def tokens = formatOps.tokens.arr
   var startTime = System.nanoTime()
 
