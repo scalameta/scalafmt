@@ -14,6 +14,7 @@ import org.scalafmt.util.{LiteralOps, TreeOps}
 import scala.annotation.tailrec
 import scala.collection.AbstractIterator
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.meta.internal.Scaladoc
 import scala.meta.internal.parsers.ScaladocParser
 import scala.meta.tokens.{Token => T}
@@ -121,6 +122,8 @@ class FormatWriter(formatOps: FormatOps) {
 
     val initStyle = styleMap.init
     if (initStyle.runner.dialect.allowSignificantIndentation) {
+      if (initStyle.rewrite.scala3.removeEndMarkerMaxLines > 0)
+        checkRemoveEndMarkers(result)
       if (initStyle.rewrite.scala3.insertEndMarkerMinLines > 0)
         checkInsertEndMarkers(result)
     }
@@ -242,6 +245,52 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
+  private def checkRemoveEndMarkers(locations: Array[FormatLocation]): Unit = {
+    var removedEndMarkerLines = 0
+    val endMarkers = new ListBuffer[(Int, Int)]
+    locations.foreach { x =>
+      val idx = x.formatToken.meta.idx
+      val floc = if (removedEndMarkerLines > 0 && x.leftLineId >= 0) {
+        val floc = x.copy(leftLineId = x.leftLineId + removedEndMarkerLines)
+        locations(idx) = floc
+        floc
+      } else x
+      if (endMarkers.nonEmpty && endMarkers(0)._1 == idx) {
+        val begIdx = endMarkers.remove(0)._2
+        val endIdx = locations.lastIndexWhere(_.leftLineId >= 0, idx)
+        if (endIdx >= 0) {
+          val bLoc = locations(begIdx)
+          val eLoc = locations(endIdx)
+          val span = getLineDiff(bLoc, eLoc)
+          if (span <= bLoc.style.rewrite.scala3.removeEndMarkerMaxLines) {
+            val loc2 = locations(idx + 2)
+            locations(idx + 1) = locations(idx + 1).copy(leftLineId = -1)
+            locations(idx + 2) = loc2.copy(leftLineId = -1)
+            locations(endIdx) = eLoc.copy(state = loc2.state)
+            removedEndMarkerLines += 1
+          }
+        }
+      } else
+        getOptionalBracesOwner(floc, 3).foreach { owner =>
+          // do not skip comment lines, as the parser doesn't handle comments
+          // at end of optional braces region and treats them as outside
+          val endFt = tokens.nextNonCommentSameLine(tokens.getLast(owner))
+          val ok = endFt.meta.rightOwner match {
+            case em: Term.EndMarker => em.parent == owner.parent
+            case _ => false
+          }
+          if (ok) {
+            // "<left> end name <right>"
+            val end = endFt.meta.idx
+            val isStandalone = locations(end).hasBreakAfter &&
+              end + 2 < locations.length && locations(end + 2).hasBreakAfter
+            if (isStandalone)
+              endMarkers.prepend(end -> tokens.tokenJustBefore(owner).meta.idx)
+          }
+        }
+    }
+  }
+
   private def checkInsertEndMarkers(locations: Array[FormatLocation]): Unit =
     locations.foreach { floc =>
       getOptionalBracesOwner(floc, 2).foreach { owner =>
@@ -273,8 +322,10 @@ class FormatWriter(formatOps: FormatOps) {
 
     val tokenAligns: Map[Int, Int] = alignmentTokens
 
-    def iterate: Iterator[Entry] =
-      Iterator.range(0, locations.length).map(new Entry(_))
+    def iterate: Iterator[Entry] = {
+      val iterator = Iterator.range(0, locations.length).map(new Entry(_))
+      iterator.filter(_.curr.leftLineId >= 0)
+    }
 
     private def getAlign(tok: FormatToken, alignOffset: Int = 0): Int =
       tokenAligns.get(tok.meta.idx).fold(0)(_ + alignOffset)

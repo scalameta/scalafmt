@@ -1733,7 +1733,6 @@ object a:
    class b:
       val c = d
       end c
-   end b
 end a
 <<< ml=4 remove 2 end markers
 runner.parser = source
@@ -1751,8 +1750,6 @@ object a:
    class b:
       val c = d
       end c
-   end b
-end a
 <<< ml=4 remove 0 end markers, comment 1
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 4
@@ -1788,7 +1785,6 @@ object a:
       val c = d
       end c
    end b // comment
-end a
 <<< ml=10 remove 1 end marker, comment 1
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 10
@@ -1806,7 +1802,6 @@ object a:
       val c = d
       end c
    end b // comment
-end a
 <<< ml=2 remove 0 end markers, comment 2
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 2
@@ -1841,7 +1836,6 @@ object a:
    class b:
       val c = d
       end c
-   end b
 end a // comment
 <<< ml=10 remove 1 end marker, comment 2
 runner.parser = source
@@ -1859,7 +1853,6 @@ object a:
    class b:
       val c = d
       end c
-   end b
 end a // comment
 <<< package colonEol
 runner.parser = source
