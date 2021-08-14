@@ -569,12 +569,35 @@ indentOperator.include
 
 ## Alignment
 
-Default: **some**
+Alignment describes formatting which inserts additional spaces to align certain
+tokens on different lines vertically.
+
+Apart from a few special cases, the way alignment works is as follows:
+
+- for each line, alignment stops are identified, by looking up each token in
+  `align.tokens` (matching token, owner and, if specified, the owner's parent)
+- for two candidate lines, respective alignment stops are compared (first stop
+  on one line to the first one on the other, etc); the only exception are the
+  single-line comments which are compared regardless of their stop position
+- two tokens will match if:
+  - both tokens have the same token category; a token's category is the value
+    associated with its type in `align.tokenCategory` mapping or, if missing,
+    its type
+  - both owners have the same tree category; similarly, a tree's category is the
+    value for its type in `align.treeCategory` mapping or the type itself
+  - both owners belong to the same "statement container"; this is determined
+    internally and usually selects the nearest containing block, template,
+    match, argument or parameter group.
+- if two tokens match:
+  - if there's a space before them, they themselves will be aligned on the right
+  - if there's a space after them, the next tokens will be aligned on the left
 
 Align has several nested fields, which you can customize. However, it comes with
 four possible presets: none, some, more, & most.
 
 ### `align.preset`
+
+Default: **some**
 
 #### `align.preset=none`
 
