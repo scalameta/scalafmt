@@ -83,10 +83,41 @@ val example2 =
   |""".stripMargin
 ```
 
-## Scala 3
+## Scala Dialects
 
-Scalafmt supports Scala 3 features that can be enabled by changing
-the dialect of the Scalafmt parser.
+The formatter supports various dialects defined and supported by `scalameta` parser. However,
+for any given file, one and only one dialect is supported, and `runner.dialect` must be
+used to select it.
+
+```scala mdoc:defaults
+runner.dialect
+```
+
+Available dialects are:
+
+- `scala211`
+- `scala212`
+- `scala212source3`
+- `scala213`
+- `scala213source3`
+- `scala3`
+- `sbt0137`
+- `sbt1`
+
+You can also specify `runner.dialect` for a subset of files using [fileOverride](#fileoverride):
+
+```
+fileOverride {
+  "glob:**/scala3-subproject/src/main/scala/**" {
+    runner.dialect = scala3
+  }
+}
+```
+
+### Scala 3
+
+Since v3.0.0, `scalafmt` supports Scala 3 features that can be enabled by changing
+the dialect of the `scalameta` parser.
 
 ```
 runner.dialect = scala3
@@ -101,19 +132,11 @@ enum class Weekday {
 
 Please also see [rewrite rules](#scala3-rewrites) for Scala 3.
 
-Additionally, when using `-Xsource:3` option for Scala 2 you can change the
-dialect to `Scala213Source3`, which will allow to format the new syntax ported
+### Scala 2 with `-Xsource:3`
+
+Also since v3.0.0, if using `-Xsource:3` option for Scala 2 compiler, you can change the
+dialect to `Scala213Source3`, which will allow to format some of the new syntax backported
 from Scala 3.
-
-You can also specify `runner.dialect` for a subset of files using [fileOverride](#fileoverride):
-
-```
-fileOverride {
-  "glob:**/scala3-subproject/src/main/scala/**" {
-    runner.dialect = scala3
-  }
-}
-```
 
 ## Presets
 
