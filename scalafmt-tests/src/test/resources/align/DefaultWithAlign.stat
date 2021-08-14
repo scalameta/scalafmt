@@ -1325,3 +1325,66 @@ object a {
     baz
   )
 }
+<<< #2680 1
+align.tokens."+" = [
+  { code = "=", owners = [{regex="Term.Param|Defn|Term.Assign"}] },
+  { code = ":", owners = [{regex="Term.Param"}]  }
+]
+===
+object a {
+  case class Foo(
+      numBytes:    Int     = 4, // a comment
+      someBoolean: Boolean = false // a comment
+  )
+}
+>>>
+object a {
+  case class Foo(
+      numBytes:    Int     = 4, // a comment
+      someBoolean: Boolean = false // a comment
+  )
+}
+<<< #2680 2
+align.tokens."+" = [
+  { code = "=", owners = [{regex="Term.Param|Defn|Term.Assign"}] },
+  { code = ":", owners = [{regex="Term.Param"}]  }
+]
+===
+object a {
+  def bar(
+      numBytes:    Int     = 4,    // a comment
+      someBoolean: Boolean = false // a comment
+  ) = new Foo(
+    numBytes    = 3, //  calling comment
+    someBoolean = true // calling comment
+  )
+}
+>>>
+object a {
+  def bar(
+      numBytes:    Int     = 4,    // a comment
+      someBoolean: Boolean = false // a comment
+  ) = new Foo(
+    numBytes    = 3, //  calling comment
+    someBoolean = true // calling comment
+  )
+}
+<<< #2680 3
+align.tokens."+" = [
+  { code = "=", owners = [{regex="Term.Param|Defn|Term.Assign"}] },
+  { code = ":", owners = [{regex="Term.Param"}]  }
+]
+===
+object a {
+  def foo = bar(
+    numBytes    = 4, // bar comment
+    someBoolean = true // bar comment
+  )
+}
+>>>
+object a {
+  def foo = bar(
+    numBytes    = 4, // bar comment
+    someBoolean = true // bar comment
+  )
+}
