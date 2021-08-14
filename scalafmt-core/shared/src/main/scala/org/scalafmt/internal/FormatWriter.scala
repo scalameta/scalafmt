@@ -1041,7 +1041,9 @@ class FormatWriter(formatOps: FormatOps) {
 
         case AlignContainer(t) if fl.formatToken.right.is[T.Comment] => t
 
-        case _: Defn | _: Case => getAlignContainerParent(t, Some(t))
+        case _: Defn | _: Case | _: Term.Apply | _: meta.Init |
+            _: meta.Ctor.Primary =>
+          getAlignContainerParent(t, Some(t))
 
         case _ => getAlignContainerParent(t)
       }
