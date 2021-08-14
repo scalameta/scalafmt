@@ -18,7 +18,7 @@ case class ScalafmtRunner(
     parser: ScalafmtParser = ScalafmtParser.Source,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
-    dialect: Dialect = ScalafmtRunner.Dialect.default,
+    dialect: Dialect = ScalafmtRunner.Dialect.scala213,
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
@@ -64,11 +64,9 @@ object ScalafmtRunner {
       .withAllowTrailingCommas(true) // SIP-27, 2.12.2
     val scala213 = Scala213
       .withAllowTrailingCommas(true)
-    val default = scala213
     val scala3 = Scala3
 
-    val codec = ReaderUtil.oneOf[Dialect](
-      default,
+    val codec = ReaderUtil.oneOfCustom[Dialect](
       Scala211,
       scala212,
       Scala212Source3,
@@ -77,7 +75,10 @@ object ScalafmtRunner {
       Sbt0137,
       Sbt1,
       scala3
-    )
+    ) {
+      // current default is 213
+      case Conf.Str("default") => Configured.Ok(scala213)
+    }
   }
 
   implicit val dialectCodec = Dialect.codec
