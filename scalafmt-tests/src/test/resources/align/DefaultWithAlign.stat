@@ -1340,7 +1340,7 @@ object a {
 >>>
 object a {
   case class Foo(
-      numBytes:    Int     = 4, // a comment
+      numBytes:    Int     = 4,    // a comment
       someBoolean: Boolean = false // a comment
   )
 }
@@ -1365,7 +1365,7 @@ object a {
       numBytes:    Int     = 4,    // a comment
       someBoolean: Boolean = false // a comment
   ) = new Foo(
-    numBytes    = 3, //  calling comment
+    numBytes    = 3,   //  calling comment
     someBoolean = true // calling comment
   )
 }
@@ -1384,7 +1384,7 @@ object a {
 >>>
 object a {
   def foo = bar(
-    numBytes    = 4, // bar comment
+    numBytes    = 4,   // bar comment
     someBoolean = true // bar comment
   )
 }
