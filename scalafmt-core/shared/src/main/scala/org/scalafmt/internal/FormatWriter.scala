@@ -767,6 +767,7 @@ class FormatWriter(formatOps: FormatOps) {
             runner = style.runner.copy(
               debug = false,
               eventCallback = null,
+              dialect = style.runner.topLevelDialect,
               parser = ScalafmtParser.Source
             ),
             // let's not wrap docstrings, to avoid recursion

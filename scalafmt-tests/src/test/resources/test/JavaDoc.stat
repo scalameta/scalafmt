@@ -2215,10 +2215,10 @@ object a {
    * )
    * ```
    * ```scala
-   *   libraryDependencies ++= Seq(
-   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *     "io.get-coursier" % "interface"  % "0.0.17"
-   *   )
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
    * ```
    * ```scala
    * libraryDependencies ++= Seq(
@@ -2327,25 +2327,25 @@ object a {
    * )
    * }}}
    * {{{
-   *   // scala
-   *   libraryDependencies ++= Seq(
-   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *     "io.get-coursier" % "interface"  % "0.0.17"
-   *   )
+   * // scala
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
    * }}}
    * {{{
-   *   // scala
-   *   libraryDependencies ++= Seq(
-   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *     "io.get-coursier" % "interface"  % "0.0.17"
-   *   )
+   * // scala
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
    * }}}
    * {{{
-   *   // scala
-   *   libraryDependencies ++= Seq(
-   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *     "io.get-coursier" % "interface"  % "0.0.17"
-   *   )
+   * // scala
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
    * }}}
    */
   def getAlignColumn(floc: FormatLocation): Int = _
@@ -2448,10 +2448,10 @@ object a {
     * )
     * ```
     * ```scala
-    *   libraryDependencies ++= Seq(
-    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
-    *     "io.get-coursier" % "interface"  % "0.0.17"
-    *   )
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
     * ```
     * ```scala
     * libraryDependencies ++= Seq(
@@ -2559,25 +2559,25 @@ object a {
     * )
     * }}}
     * {{{
-    *   // scala
-    *   libraryDependencies ++= Seq(
-    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
-    *     "io.get-coursier" % "interface"  % "0.0.17"
-    *   )
+    * // scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
     * }}}
     * {{{
-    *   // scala
-    *   libraryDependencies ++= Seq(
-    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
-    *     "io.get-coursier" % "interface"  % "0.0.17"
-    *   )
+    * // scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
     * }}}
     * {{{
-    *   // scala
-    *   libraryDependencies ++= Seq(
-    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
-    *     "io.get-coursier" % "interface"  % "0.0.17"
-    *   )
+    * // scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
     * }}}
     */
   def getAlignColumn(floc: FormatLocation): Int = _
@@ -2680,10 +2680,10 @@ object a {
    *  )
    *  ```
    *  ```scala
-   *    libraryDependencies ++= Seq(
-   *      "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *      "io.get-coursier" % "interface"  % "0.0.17"
-   *    )
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
    *  ```
    *  ```scala
    *  libraryDependencies ++= Seq(
@@ -2798,18 +2798,18 @@ object a {
    *  )
    *  }}}
    *  {{{
-   *    // scala
-   *    libraryDependencies ++= Seq(
-   *      "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *      "io.get-coursier" % "interface"  % "0.0.17"
-   *    )
+   *  // scala
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
    *  }}}
    *  {{{
-   *    // scala
-   *    libraryDependencies ++= Seq(
-   *      "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *      "io.get-coursier" % "interface"  % "0.0.17"
-   *    )
+   *  // scala
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
    *  }}}
    */
   def getAlignColumn(floc: FormatLocation): Int = _
