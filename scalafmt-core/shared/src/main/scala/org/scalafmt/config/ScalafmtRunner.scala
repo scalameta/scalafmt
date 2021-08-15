@@ -22,12 +22,11 @@ case class ScalafmtRunner(
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
-  def forSbt: ScalafmtRunner =
-    copy(
-      dialect = dialect
-        .withAllowToplevelTerms(true)
-        .withToplevelSeparator("")
-    )
+  def topLevelDialect: Dialect = dialect
+    .withAllowToplevelTerms(true)
+    .withToplevelSeparator("")
+
+  def forSbt: ScalafmtRunner = copy(dialect = topLevelDialect)
 
   def event(evt: => FormatEvent): Unit =
     if (null != eventCallback) eventCallback(evt)
