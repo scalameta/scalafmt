@@ -744,15 +744,14 @@ class FormatWriter(formatOps: FormatOps) {
           code.foreach { x =>
             if (x.nonEmpty) {
               val matcher = docstringLeadingSpace.matcher(x)
-              val minMargin = margin.length
               if (matcher.lookingAt()) {
                 val offset = matcher.end()
-                val extra = math.max(0, offset - minMargin)
-                val codeIndent = minMargin + extra - extra % 2
+                val extra = math.max(0, offset - leadingMargin)
+                val codeIndent = 1 + leadingMargin + ((extra >> 1) << 1)
                 sb.append(getIndentation(codeIndent))
                 sb.append(CharBuffer.wrap(x, offset, x.length))
               } else
-                sb.append(getIndentation(minMargin)).append(x)
+                sb.append(margin).append(x)
             }
             appendBreak()
           }
