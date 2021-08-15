@@ -680,9 +680,9 @@ class FormatWriter(formatOps: FormatOps) {
               term match {
                 case t: Scaladoc.CodeBlock =>
                   sb.append("{{{")
-                  if (t.code.headOption.exists(_.endsWith("// scala")))
-                    formatScalaCodeBlock(t.code)
-                  else formatCodeBlock(t.code)
+                  val nested = t.code.headOption.exists(_.endsWith("// scala"))
+                  if (!(nested && formatScalaCodeBlock(t.code)))
+                    formatCodeBlock(t.code)
                   sb.append(margin).append("}}}")
                   appendBreak()
                 case t: Scaladoc.MdCodeBlock =>
@@ -691,9 +691,9 @@ class FormatWriter(formatOps: FormatOps) {
                     sb.append(t.info.head)
                     t.info.tail.foreach(x => sb.append(' ').append(x))
                   }
-                  if (t.info.headOption.contains("scala"))
-                    formatScalaCodeBlock(t.code)
-                  else formatCodeBlock(t.code)
+                  val nested = t.info.headOption.contains("scala")
+                  if (!(nested && formatScalaCodeBlock(t.code)))
+                    formatCodeBlock(t.code)
                   sb.append(margin).append(t.fence)
                   appendBreak()
                 case t: Scaladoc.Heading =>
@@ -758,7 +758,7 @@ class FormatWriter(formatOps: FormatOps) {
           }
         }
 
-        private def formatScalaCodeBlock(code: Seq[String]): Unit = {
+        private def formatScalaCodeBlock(code: Seq[String]): Boolean = {
           val codeStyle = style.copy(
             runner = style.runner.copy(
               debug = false,
@@ -772,7 +772,8 @@ class FormatWriter(formatOps: FormatOps) {
           Scalafmt.format(code.mkString("\n"), codeStyle) match {
             case Formatted.Success(formattedCode) =>
               formatCodeBlock(formattedCode.split('\n'))
-            case _ => formatCodeBlock(code)
+              true
+            case _ => false
           }
         }
 
