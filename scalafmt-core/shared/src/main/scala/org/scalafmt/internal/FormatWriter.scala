@@ -682,7 +682,7 @@ class FormatWriter(formatOps: FormatOps) {
                   sb.append("{{{")
                   val nested = t.code.headOption.exists(_.endsWith("// scala"))
                   if (!(nested && formatScalaCodeBlock(t.code)))
-                    formatCodeBlock(t.code)
+                    formatCodeBlock(t.code, false)
                   sb.append(margin).append("}}}")
                   appendBreak()
                 case t: Scaladoc.MdCodeBlock =>
@@ -693,7 +693,7 @@ class FormatWriter(formatOps: FormatOps) {
                   }
                   val nested = t.info.headOption.contains("scala")
                   if (!(nested && formatScalaCodeBlock(t.code)))
-                    formatCodeBlock(t.code)
+                    formatCodeBlock(t.code, true)
                   sb.append(margin).append(t.fence)
                   appendBreak()
                 case t: Scaladoc.Heading =>
@@ -739,14 +739,19 @@ class FormatWriter(formatOps: FormatOps) {
           appendBreak()
         }
 
-        private def formatCodeBlock(code: Seq[String]): Unit = {
+        private def formatCodeBlock(
+            code: Seq[String],
+            isRelative: Boolean
+        ): Unit = {
           appendBreak()
           code.foreach { x =>
             if (x.nonEmpty) {
               val matcher = docstringLeadingSpace.matcher(x)
               if (matcher.lookingAt()) {
                 val offset = matcher.end()
-                val extra = math.max(0, offset - leadingMargin)
+                val extra =
+                  if (isRelative) offset
+                  else math.max(0, offset - leadingMargin)
                 val codeIndent = 1 + leadingMargin + ((extra >> 1) << 1)
                 sb.append(getIndentation(codeIndent))
                 sb.append(CharBuffer.wrap(x, offset, x.length))
@@ -770,7 +775,7 @@ class FormatWriter(formatOps: FormatOps) {
           )
           Scalafmt.format(code.mkString("\n"), codeStyle) match {
             case Formatted.Success(formattedCode) =>
-              formatCodeBlock(formattedCode.split('\n'))
+              formatCodeBlock(formattedCode.split('\n'), true)
               true
             case _ => false
           }
