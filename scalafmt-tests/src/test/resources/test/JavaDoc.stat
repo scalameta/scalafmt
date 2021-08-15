@@ -1863,15 +1863,15 @@ val a = 1
  *  // scala
  *  class Formatter(style: ScalaStyle, tree: Tree)
  *  class Formatter(
- *    style: ScalaStyle,
- *    tree1: Tree
+ *      style: ScalaStyle,
+ *      tree1: Tree
  *  )
  *  class Formatter(
- *    style: ScalaStyle,
- *    tree: Tree,
- *    toks: Array[FormatToken],
- *    statementStarts: Set[Token],
- *    owners: Map[Token, Tree]
+ *      style: ScalaStyle,
+ *      tree: Tree,
+ *      toks: Array[FormatToken],
+ *      statementStarts: Set[Token],
+ *      owners: Map[Token, Tree]
  *  )
  *  }}}
  */
@@ -1982,19 +1982,19 @@ val a = 1
 /** Nice scala code:
  *  ```scala
  *  class Formatter(
- *    style: ScalaStyle,
- *    tree1: Tree
+ *      style: ScalaStyle,
+ *      tree1: Tree
  *  )
  *  class Formatter(
- *    style: ScalaStyle,
- *    tree12: Tree
+ *      style: ScalaStyle,
+ *      tree12: Tree
  *  )
  *  class Formatter(
- *    style: ScalaStyle,
- *    tree: Tree,
- *    toks: Array[FormatToken],
- *    statementStarts: Set[Token],
- *    owners: Map[Token, Tree]
+ *      style: ScalaStyle,
+ *      tree: Tree,
+ *      toks: Array[FormatToken],
+ *      statementStarts: Set[Token],
+ *      owners: Map[Token, Tree]
  *  )
  *  ```
  *  No more nice scala code.
@@ -2645,66 +2645,48 @@ object a {
 
   /** ```
    *  libraryDependencies ++= Seq(
-   *  "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *  "io.get-coursier" % "interface"  % "0.0.17"
-   *  )
-   *  ```
-   *  ```
-   *  libraryDependencies ++= Seq(
-   *  "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *  "io.get-coursier" % "interface"  % "0.0.17"
-Idempotency violated
    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
    *    "io.get-coursier" % "interface"  % "0.0.17"
    *  )
    *  ```
    *  ```
    *  libraryDependencies ++= Seq(
-   *  "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *  "io.get-coursier" % "interface"  % "0.0.17"
-Idempotency violated
    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
    *    "io.get-coursier" % "interface"  % "0.0.17"
    *  )
    *  ```
    *  ```
+   *    libraryDependencies ++= Seq(
+   *      "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *      "io.get-coursier" % "interface"  % "0.0.17"
+   *    )
+   *  ```
+   *  ```
    *  libraryDependencies ++= Seq(
-   *  "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *  "io.get-coursier" % "interface"  % "0.0.17"
-Idempotency violated
    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
    *    "io.get-coursier" % "interface"  % "0.0.17"
    *  )
    *  ```
    *  ```scala
    *  libraryDependencies ++= Seq(
-   *  "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *  "io.get-coursier" % "interface"  % "0.0.17"
-   *  )
-   *  ```
-   *  ```scala
-   *  libraryDependencies ++= Seq(
-   *  "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *  "io.get-coursier" % "interface"  % "0.0.17"
-Idempotency violated
    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
    *    "io.get-coursier" % "interface"  % "0.0.17"
    *  )
    *  ```
    *  ```scala
    *  libraryDependencies ++= Seq(
-   *  "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *  "io.get-coursier" % "interface"  % "0.0.17"
-Idempotency violated
    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
    *    "io.get-coursier" % "interface"  % "0.0.17"
    *  )
    *  ```
    *  ```scala
+   *    libraryDependencies ++= Seq(
+   *      "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *      "io.get-coursier" % "interface"  % "0.0.17"
+   *    )
+   *  ```
+   *  ```scala
    *  libraryDependencies ++= Seq(
-   *  "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *  "io.get-coursier" % "interface"  % "0.0.17"
-Idempotency violated
    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
    *    "io.get-coursier" % "interface"  % "0.0.17"
    *  )
