@@ -2029,3 +2029,25 @@ object a:
    given Foo[String] with
       def foo(s: String) = true
    end given
+<<< #2687 preserve break for partial function
+maxColumn = 100
+===
+given liftPropertyAlias: NiceLiftable[PropertyAlias] with {
+  def lift =
+    case PropertyAlias(a, b) => '{ PropertyAlias(${ a.expr }, ${ b.expr }) }
+}
+>>>
+given liftPropertyAlias: NiceLiftable[PropertyAlias] with {
+  def lift =
+     case PropertyAlias(a, b) =>
+       '{
+         PropertyAlias(
+           ${
+             a.expr
+           },
+           ${
+             b.expr
+           }
+         )
+       }
+}
