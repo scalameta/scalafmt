@@ -2186,13 +2186,13 @@ class FormatOps(
           case t: Term.For =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
-              def splits = getSplitsForStats(ft, nft, t.enums, false)
+              def splits = getSplitsForStats(ft, nft, t.enums)
               def rightBrace = seqLast(t.enums)
             })
           case t: Term.ForYield =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
-              def splits = getSplitsForStats(ft, nft, t.enums, false)
+              def splits = getSplitsForStats(ft, nft, t.enums)
               def rightBrace = seqLast(t.enums)
             })
           case _ => BlockImpl.create(ft, nft)
@@ -2234,7 +2234,7 @@ class FormatOps(
           case t: Ctor.Secondary =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
-              def splits = getSplitsForStats(ft, nft, t.init, t.stats, true)
+              def splits = getSplitsForStatsImpl(ft, nft, t.init, t.stats, true)
               def rightBrace = if (t.stats.nonEmpty) treeLast(t) else None
             })
           case t @ SplitAssignIntoParts((x: Term.PartialFunction, _)) =>
@@ -2286,7 +2286,7 @@ class FormatOps(
           case t: Term.Try =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
-              def splits = getSplitsForStats(ft, nft, t.catchp, false)
+              def splits = getSplitsForStats(ft, nft, t.catchp)
               def rightBrace = seqLast(t.catchp)
             })
           case _ => None
@@ -2431,7 +2431,7 @@ class FormatOps(
       getSplits(ft, tree, forceNL, allowMain && !multiStat, danglingKeyword)
     }
 
-    private def getSplitsForStats(
+    private def getSplitsForStatsImpl(
         ft: FormatToken,
         nft: FormatToken,
         head: => Tree,
@@ -2441,25 +2441,25 @@ class FormatOps(
         fileLine: FileLine,
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
-      if (head.tokens.headOption.contains(nft.right)) {
+      if (head.tokens.headOption.contains(nft.right)) Some {
         val forceNL = shouldBreakInOptionalBraces(ft)
-        tail.lastOption match {
-          case None => Some(getSplits(ft, head, forceNL, useMain = allowMain))
-          case Some(res) => Some(getSplits(ft, res, forceNL))
-        }
-      } else None
+        tail.lastOption.fold {
+          getSplits(ft, head, forceNL, useMain = allowMain)
+        }(getSplits(ft, _, forceNL))
+      }
+      else None
 
     private def getSplitsForStats(
         ft: FormatToken,
         nft: FormatToken,
         trees: Seq[Tree],
-        allowMain: Boolean
+        allowMain: Boolean = false
     )(implicit
         fileLine: FileLine,
         style: ScalafmtConfig
-    ): Option[Seq[Split]] =
-      if (trees.isEmpty) None
-      else getSplitsForStats(ft, nft, trees.head, trees.tail, allowMain)
+    ): Option[Seq[Split]] = trees.headOption.flatMap { head =>
+      getSplitsForStatsImpl(ft, nft, head, trees.tail, allowMain)
+    }
 
     private def getSplitsForIf(
         ft: FormatToken,
