@@ -1842,7 +1842,7 @@ given liftPropertyAlias: NiceLiftable[PropertyAlias] with {
     case PropertyAlias(a, b) => '{ PropertyAlias(${ a.expr }, ${ b.expr }) }
 }
 >>>
-test does not parse
 given liftPropertyAlias: NiceLiftable[PropertyAlias] with {
-  def lift = case PropertyAlias(a, b) => '{ PropertyAlias(${ a.expr }, ${ b.expr }) }
-           ^
+  def lift =
+     case PropertyAlias(a, b) => '{ PropertyAlias(${ a.expr }, ${ b.expr }) }
+}

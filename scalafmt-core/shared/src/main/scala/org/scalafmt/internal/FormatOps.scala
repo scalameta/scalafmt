@@ -2240,7 +2240,7 @@ class FormatOps(
           case t @ SplitAssignIntoParts((x: Term.PartialFunction, _)) =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
-              def splits = getSplitsForStats(ft, nft, x.cases, false)
+              def splits = getSplitsForStats(ft, nft, x.cases, nlOnly = true)
               def rightBrace = treeLast(x)
             })
           case _ => BlockImpl.create(ft, nft)
@@ -2436,15 +2436,16 @@ class FormatOps(
         nft: FormatToken,
         head: => Tree,
         tail: Seq[Tree],
-        allowMain: Boolean
+        allowMain: Boolean,
+        nlOnly: Boolean = false
     )(implicit
         fileLine: FileLine,
         style: ScalafmtConfig
     ): Option[Seq[Split]] =
       if (head.tokens.headOption.contains(nft.right)) Some {
-        val forceNL = shouldBreakInOptionalBraces(ft)
+        val forceNL = nlOnly || shouldBreakInOptionalBraces(ft)
         tail.lastOption.fold {
-          getSplits(ft, head, forceNL, useMain = allowMain)
+          getSplits(ft, head, forceNL, useMain = !nlOnly && allowMain)
         }(getSplits(ft, _, forceNL))
       }
       else None
@@ -2453,12 +2454,13 @@ class FormatOps(
         ft: FormatToken,
         nft: FormatToken,
         trees: Seq[Tree],
-        allowMain: Boolean = false
+        allowMain: Boolean = false,
+        nlOnly: Boolean = false
     )(implicit
         fileLine: FileLine,
         style: ScalafmtConfig
     ): Option[Seq[Split]] = trees.headOption.flatMap { head =>
-      getSplitsForStatsImpl(ft, nft, head, trees.tail, allowMain)
+      getSplitsForStatsImpl(ft, nft, head, trees.tail, allowMain, nlOnly)
     }
 
     private def getSplitsForIf(
