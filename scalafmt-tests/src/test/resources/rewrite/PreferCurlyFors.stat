@@ -100,8 +100,7 @@ object a {
   for {
     a <- as // comment
     b <- bs
-    c <- cs
-    d <- ds
+    c <- cs; d <- ds
   } {
     println(a + b)
   }
