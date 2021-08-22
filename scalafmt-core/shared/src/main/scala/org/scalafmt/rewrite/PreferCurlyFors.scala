@@ -7,6 +7,8 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
 
+import metaconfig._
+
 object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   override def enabled(implicit style: ScalafmtConfig): Boolean = true
@@ -16,6 +18,17 @@ object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   private def hasMultipleGenerators(enums: Seq[Enumerator]): Boolean =
     enums.count(_.is[Enumerator.Generator]) > 1
+
+  case class Settings(
+      removeTrailingSemicolonsOnly: Boolean = false
+  )
+
+  object Settings {
+    implicit lazy val surface: generic.Surface[Settings] =
+      generic.deriveSurface
+    implicit lazy val codec: ConfCodecEx[Settings] =
+      generic.deriveCodecEx(Settings()).noTypos
+  }
 
 }
 

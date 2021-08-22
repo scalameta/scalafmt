@@ -83,3 +83,49 @@ object a {
     println(a)
   }
 }
+<<< removes only trailing semi-colons 1
+rewrite.preferCurlyFors.removeTrailingSemicolonsOnly = true
+===
+object a {
+  for (
+    a <- as; // comment
+    b <- bs;
+    c <- cs; d <- ds
+  ) {
+    println(a + b)
+  }
+}
+>>>
+object a {
+  for {
+    a <- as // comment
+    b <- bs
+    c <- cs
+    d <- ds
+  } {
+    println(a + b)
+  }
+}
+<<< removes only trailing semi-colons 2
+rewrite.preferCurlyFors.removeTrailingSemicolonsOnly = false
+===
+object a {
+  for (
+    a <- as; // comment
+    b <- bs;
+    c <- cs; d <- ds
+  ) {
+    println(a + b)
+  }
+}
+>>>
+object a {
+  for {
+    a <- as // comment
+    b <- bs
+    c <- cs
+    d <- ds
+  } {
+    println(a + b)
+  }
+}

@@ -2547,6 +2547,12 @@ for(a <- as; b <- bs if b > 2)
  yield (a, b)
 ```
 
+This rule accepts the following settings:
+
+- `rewrite.preferCurlyFors.removeTrailingSemicolonsOnly` (default: `false`):
+  - if `false` (default), replaces all semicolons with a newline
+  - if `true`, keeps semicolons unless followed by a newline or single-line comment
+
 ### `Imports`
 
 This rule applies to `import` or, in Scala 3, also `export` statements found
