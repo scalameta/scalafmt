@@ -402,3 +402,75 @@ private object K {
     ""
   }
 }
+<<< no leading comment, with prior blank after a standalone
+maxColumn = 100
+newlines.topLevelStatementBlankLines = [ { blanks = { before = 1 } } ]
+===
+object a {
+  // comment
+
+  def foo = {
+    bar
+    baz
+  }
+}
+>>>
+object a {
+
+  // comment
+
+  def foo = {
+    bar
+    baz
+  }
+}
+<<< leading comment, with prior blank after a standalone
+maxColumn = 100
+newlines.topLevelStatementBlankLines = [ { blanks = { before = 1 } } ]
+===
+object a {
+  // comment
+
+  /* comment */ def foo = {
+    bar
+    baz
+  }
+}
+>>>
+object a {
+  // comment
+
+  /* comment */
+  def foo = {
+    bar
+    baz
+  }
+}
+<<< leading comment, with no prior blank after a trailing
+maxColumn = 100
+newlines.topLevelStatementBlankLines = [ { blanks = { before = 1 } } ]
+===
+object a {
+  val a = {
+    b
+    c
+  } // comment
+  /* comment */ def foo = {
+    bar
+    baz
+  }
+}
+>>>
+object a {
+
+  val a = {
+    b
+    c
+  } // comment
+
+  /* comment */
+  def foo = {
+    bar
+    baz
+  }
+}
