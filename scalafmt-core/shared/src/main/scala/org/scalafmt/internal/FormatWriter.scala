@@ -1197,6 +1197,12 @@ class FormatWriter(formatOps: FormatOps) {
           setStats(idx, stat, stat, isLast)
         def blanks(cnt: Int, unless: Boolean): Int =
           if (unless && cnt > 0) 1 else cnt
+        @inline
+        def blanksBefore(cnt: Newlines.NumBlanks, isFirst: Boolean): Int =
+          blanks(cnt.before, isFirst)
+        @inline
+        def blanksAfter(cnt: Newlines.NumBlanks, isLast: Boolean): Int =
+          blanks(cnt.after, isLast)
         def setStats(
             idx: Int,
             stat: Tree,
@@ -1205,9 +1211,9 @@ class FormatWriter(formatOps: FormatOps) {
         ): Option[(Int, Newlines.NumBlanks)] = {
           getBlanks(stat, statLast, nest).map { case (x, head, last) =>
             val skipBefore = notUnindentedPkg && idx == 0
-            setFt(leadingComment(head), blanks(x.before, skipBefore))
+            setFt(leadingComment(head), blanksBefore(x, skipBefore))
             val lastIdx =
-              setFt(trailingComment(last, end), blanks(x.after, isLast))
+              setFt(trailingComment(last, end), blanksAfter(x, isLast))
             (lastIdx, x)
           }
         }
@@ -1222,7 +1228,7 @@ class FormatWriter(formatOps: FormatOps) {
             extraBlankMap.remove(prevIdx)
           else
             extraBlankMap.update(prevIdx, prevBlanks.beforeEndMarker)
-          setFt(trailingComment(last, end), blanks(prevBlanks.after, isLast))
+          setFt(trailingComment(last, end), blanksAfter(prevBlanks, isLast))
         }
         @tailrec
         def iter(
