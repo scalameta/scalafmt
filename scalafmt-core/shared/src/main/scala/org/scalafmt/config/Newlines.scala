@@ -462,6 +462,8 @@ object Newlines {
   case class NumBlanks(
       before: Int = 0,
       after: Int = 0,
+      beforeAll: Option[Int] = None,
+      afterAll: Option[Int] = None,
       beforeEndMarker: Int = 0
   ) {
     def isEmpty: Boolean = before == 0 && after == 0
