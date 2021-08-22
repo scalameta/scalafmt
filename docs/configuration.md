@@ -1067,7 +1067,7 @@ a block). Special cases:
 - also see [Newlines around package or template body](#newlines-around-package-or-template-body)
 
 > This parameter might reduce the number of blank lines but will not eliminate
-> them completely.
+> them completely unless corresponding value is negative.
 
 Each entry on this list consists of the following fields:
 
@@ -1087,17 +1087,20 @@ Each entry on this list consists of the following fields:
     require at least one line break (that is, a multi-line statement).
 - `blanks`
   - if omitted while the entry matches, serves to exclude another entry
-  - `before`: number of lines to be added before a matching statement
+  - `before`: number of lines to be added before a matching statement; if
+    negative (v3.0.1), lines will be removed unless before a comment
   - `after`: number of lines to be added after a matching statement
     - for instance, if a `package` matches, this controls how many lines need
       to be added after _all statements_ of a package, not after the first
       line which declares the package name
+    - same logic as above applies to negative values
   - `beforeEndMarker`:
     - end markers themselves will not be matched against any rule; blanks before
       them will come from `beforeEndMarker` and blanks after from `after`
-  - number of blank lines before the first statement of a template or indented
-    package, and after the last one, will be limited to 1 if the respective
-    parameter is positive
+  - `beforeAll` and `afterAll` (v3.0.1): if set explicitly, replaces the
+    respective `before` or `after` value before the first or after the last
+    statement of a template or indented package; otherwise, the `before` or
+    `after` value will be capped at 1
   - can be specified as a single integer, to set just `before` and `after` to
     the same value:
 
