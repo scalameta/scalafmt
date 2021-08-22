@@ -84,8 +84,10 @@ class FormatWriter(formatOps: FormatOps) {
               .fold(0) { case (blanks, _, last) =>
                 val numBlanks = blanks.beforeEndMarker
                 if (numBlanks > 0) numBlanks
-                else if (locations.extraBlankTokens.contains(last.meta.idx)) 1
-                else 0
+                else
+                  locations.extraBlankTokens
+                    .get(last.meta.idx)
+                    .fold(0)(x => if (x > 0) 1 else 0)
               }
             sb.append(getNewlines(numBlanks))
               .append(getIndentation(indent))
@@ -1172,14 +1174,14 @@ class FormatWriter(formatOps: FormatOps) {
 
     lazy val extraBlankTokens = {
       val extraBlankMap = new mutable.HashMap[Int, Int]
-      def setFt(ft: FormatToken, cnt: Int = 1): Int = {
-        val idx = ft.meta.idx
-        if (cnt > 0) {
-          if (extraBlankMap.getOrElseUpdate(idx, cnt) < cnt)
-            extraBlankMap.update(idx, cnt)
-        }
-        idx
-      }
+      def setIdx(idx: Int, cnt: Int) =
+        if (extraBlankMap.getOrElseUpdate(idx, cnt) < cnt)
+          extraBlankMap.update(idx, cnt)
+      @inline def setIdxCheck(idx: => Int, cnt: Int, force: => Boolean) =
+        if (cnt > 0) setIdx(idx, cnt) else if (cnt < 0 && force) setIdx(idx, 0)
+      @inline def setFt(ft: FormatToken) = setIdx(ft.meta.idx, 1)
+      @inline def setFtCheck(ft: FormatToken, cnt: Int, force: => Boolean) =
+        setIdxCheck(ft.meta.idx, cnt, force)
       def setTopStats(owner: Tree, stats: Seq[Stat], curNest: Int = 1): Unit = {
         if (stats.isEmpty) return
         val nest = getNest(owner, curNest)
@@ -1210,10 +1212,13 @@ class FormatWriter(formatOps: FormatOps) {
             isLast: Boolean
         ): Option[(Int, Newlines.NumBlanks)] = {
           getBlanks(stat, statLast, nest).map { case (x, head, last) =>
-            val skipBefore = notUnindentedPkg && idx == 0
-            setFt(leadingComment(head), blanksBefore(x, skipBefore))
-            val lastIdx =
-              setFt(trailingComment(last, end), blanksAfter(x, isLast))
+            val beforeCnt = blanksBefore(x, notUnindentedPkg && idx == 0)
+            val beforeFt = leadingComment(head)
+            setFtCheck(beforeFt, beforeCnt, head eq beforeFt)
+            val afterFt = trailingComment(last, end)
+            val lastIdx = afterFt.meta.idx
+            val afterCnt = blanksAfter(x, isLast)
+            setIdxCheck(lastIdx, afterCnt, last eq afterFt)
             (lastIdx, x)
           }
         }
@@ -1228,7 +1233,9 @@ class FormatWriter(formatOps: FormatOps) {
             extraBlankMap.remove(prevIdx)
           else
             extraBlankMap.update(prevIdx, prevBlanks.beforeEndMarker)
-          setFt(trailingComment(last, end), blanksAfter(prevBlanks, isLast))
+          val cnt = blanksAfter(prevBlanks, isLast)
+          val afterFt = trailingComment(last, end)
+          setFtCheck(afterFt, cnt, afterFt eq last)
         }
         @tailrec
         def iter(
