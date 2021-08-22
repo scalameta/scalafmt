@@ -723,7 +723,6 @@ object Foo {
 package x.y.z
 
 object Foo {
-
   def apply[V <: VAType](someProperty: String): SomePropertyBuilder[V] =
     new SomePropertyBuilder(someProperty)
 
@@ -786,7 +785,6 @@ object Foo {
 
   def apply[V <: VAType](someProperty: String): SomePropertyBuilder[V] =
     new SomePropertyBuilder(someProperty)
-
 }
 <<< afterAll negative, has blank
 newlines.topLevelStatementBlankLines = [

@@ -1195,14 +1195,14 @@ class FormatWriter(formatOps: FormatOps) {
             isLast: Boolean
         ): Option[(Int, Newlines.NumBlanks)] =
           setStats(idx, stat, stat, isLast)
-        def blanks(cnt: Int, unless: Boolean): Int =
-          if (unless && cnt > 0) 1 else cnt
+        def blanks(cnt: => Int, edge: Boolean, edgeCnt: => Option[Int]): Int =
+          if (edge) edgeCnt.getOrElse(math.min(cnt, 1)) else cnt
         @inline
         def blanksBefore(cnt: Newlines.NumBlanks, isFirst: Boolean): Int =
-          blanks(cnt.before, isFirst)
+          blanks(cnt.before, isFirst, cnt.beforeAll)
         @inline
         def blanksAfter(cnt: Newlines.NumBlanks, isLast: Boolean): Int =
-          blanks(cnt.after, isLast)
+          blanks(cnt.after, isLast, cnt.afterAll)
         def setStats(
             idx: Int,
             stat: Tree,
