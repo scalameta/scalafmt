@@ -9,6 +9,7 @@ case class RewriteSettings(
     redundantBraces: RedundantBracesSettings = RedundantBracesSettings(),
     sortModifiers: SortSettings = SortSettings.default,
     imports: Imports.Settings = Imports.Settings(),
+    preferCurlyFors: PreferCurlyFors.Settings = PreferCurlyFors.Settings(),
     neverInfix: Pattern = Pattern.neverInfix
 ) {
   def rewriteFactoryRules: Seq[RewriteFactory] =
