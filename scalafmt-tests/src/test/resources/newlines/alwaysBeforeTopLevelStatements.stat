@@ -416,7 +416,6 @@ object a {
 }
 >>>
 object a {
-
   // comment
 
   def foo = {

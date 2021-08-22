@@ -1302,18 +1302,15 @@ class FormatOps(
 
   // Returns leading comment, if there exists one, otherwise formatToken
   @inline
-  final def leadingComment(ft: FormatToken): FormatToken =
-    if (ft.left.is[T.Comment]) leadingWithLeftComment(ft) else ft
-  @inline
   final def leadingComment(tree: Tree): FormatToken =
     leadingComment(tokens.tokenJustBefore(tree))
   @tailrec
-  private def leadingWithLeftComment(ft: FormatToken): FormatToken = {
-    val pft = tokens.prevNonCommentSameLine(prev(ft))
-    if (pft.noBreak) ft
-    else if (pft.hasBlankLine || !pft.left.is[T.Comment]) pft
-    else leadingWithLeftComment(pft)
-  }
+  final def leadingComment(ft: FormatToken): FormatToken =
+    if (ft.hasBlankLine || !ft.left.is[T.Comment]) ft
+    else {
+      val pft = tokens.prevNonCommentSameLine(prev(ft))
+      if (pft.noBreak) ft else leadingComment(pft)
+    }
 
   // Returns trailing comment, if there exists one, otherwise formatToken
   @inline
