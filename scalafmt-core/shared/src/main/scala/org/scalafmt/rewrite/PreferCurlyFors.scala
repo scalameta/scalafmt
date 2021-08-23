@@ -17,8 +17,10 @@ object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
   override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new PreferCurlyFors(ftoks)
 
-  private def hasMultipleGenerators(enums: Seq[Enumerator]): Boolean =
-    enums.count(_.is[Enumerator.Generator]) > 1
+  @inline
+  private def hasMultipleNonGuardEnums(enums: Seq[Enumerator]): Boolean =
+    // first one is never a guard
+    enums.view.drop(1).exists(!_.is[Enumerator.Guard])
 
   case class Settings(
       removeTrailingSemicolonsOnly: Boolean = false
@@ -64,8 +66,8 @@ private class PreferCurlyFors(ftoks: FormatTokens)
       case x: Token.LeftParen
           if ftoks.prevNonComment(ft).left.is[Token.KwFor] =>
         val ok = ft.meta.rightOwner match {
-          case t: Term.For => hasMultipleGenerators(t.enums)
-          case t: Term.ForYield => hasMultipleGenerators(t.enums)
+          case t: Term.For => hasMultipleNonGuardEnums(t.enums)
+          case t: Term.ForYield => hasMultipleNonGuardEnums(t.enums)
           case _ => false
         }
         if (ok)
