@@ -128,3 +128,29 @@ object a {
     println(a + b)
   }
 }
+<<< #2695 generator and val
+object O {
+  for (pos <- "a->1|b->2".split('|'); c = pos.split("->"))
+  yield ()
+}
+>>>
+object O {
+  for (pos <- "a->1|b->2".split('|') c = pos.split("->"))
+Idempotency violated
+  for (
+    pos <- "a->1|b->2".split('|')
+    c = pos.split("->")
+  )
+    yield ()
+}
+<<< #2695 generator and multiple guards
+object O {
+  for (a <- b; if c; if d) yield ()
+}
+>>>
+object O {
+  for (
+    a <- b if c
+    if d
+  ) yield ()
+}
