@@ -226,10 +226,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case Some(_: Init) =>
         okToRemoveAroundFunctionBody(t.body, false)
       case Some(p: Term.Apply) =>
-        getOpeningParen(p).isDefined && okToRemoveAroundFunctionBody(
-          t.body,
-          p.args
-        )
+        getOpeningParen(p).isDefined &&
+          okToRemoveAroundFunctionBody(t.body, p.args)
       case _ => false
     }
 

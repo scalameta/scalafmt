@@ -1068,18 +1068,17 @@ object a {
   }
 }
 >>>
-Idempotency violated
 object a {
-  val foo = bar {
-    x => y
+  val foo = bar { x =>
+    y
   }
-  val foo = bar {
-    x => y
+  val foo = bar { x =>
+    y
   }
-  val foo = bar.baz {
-    x => y
+  val foo = bar.baz { x =>
+    y
   }
-  val foo = bar.baz {
-    x => y
+  val foo = bar.baz { x =>
+    y
   }
 }
