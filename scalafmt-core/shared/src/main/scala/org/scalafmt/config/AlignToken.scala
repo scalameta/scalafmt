@@ -9,8 +9,10 @@ import metaconfig.generic.Surface
 
 /** Configuration option for aligning tokens.
   *
-  * @param code string literal value of the token to align by.
-  * @param owners array of owner specs.
+  * @param code
+  *   string literal value of the token to align by.
+  * @param owners
+  *   array of owner specs.
   */
 case class AlignToken(
     code: String,
@@ -34,8 +36,10 @@ object AlignToken {
   private def pattern(value: String): jurPattern =
     value.r.pattern
 
-  /** @param regex regexp for class name of scala.meta.Tree "owner".
-    * @param parent optional regexp for class name of owner's parent.
+  /** @param regex
+    *   regexp for class name of scala.meta.Tree "owner".
+    * @param parent
+    *   optional regexp for class name of owner's parent.
     */
   case class Owner(
       regex: Option[String] = None,

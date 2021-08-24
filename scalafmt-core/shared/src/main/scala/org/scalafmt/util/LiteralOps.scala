@@ -8,13 +8,10 @@ object LiteralOps {
     *
     * Divides literal into three parts:
     *
-    * 0xFF123L
-    * 0x is a hex prefix
-    * FF123 is a body
-    * L is a long suffix
+    * 0xFF123L 0x is a hex prefix FF123 is a body L is a long suffix
     *
-    * literals.hexPrefix applies prefix, literals.hexDigits applies to body
-    * and literals.long applies to suffix
+    * literals.hexPrefix applies prefix, literals.hexDigits applies to body and
+    * literals.long applies to suffix
     */
   def prettyPrintInteger(
       str: String
@@ -37,10 +34,10 @@ object LiteralOps {
     * Divides literals into two parts:
     *
     * 1.0e-10f
-    * 1.0e-10 is a body with scientific notation
-    * f is a float/double suffix
+    * 1.0e-10 is a body with scientific notation f is a float/double suffix
     *
-    * literals.scientific applies to body and literals.float/double applies to suffix
+    * literals.scientific applies to body and literals.float/double applies to
+    * suffix
     */
   private def prettyPrintFloatingPoint(
       str: String,

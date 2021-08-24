@@ -5,59 +5,55 @@ import metaconfig.annotation.ExtraName
 import metaconfig.generic.Surface
 
 /** @param openParenCallSite
-  *   If true AND bin-packing is true, then call-site
-  *   arguments won't be aligned by the opening
-  *   parenthesis. For example, this output
-  *   will be disallowed
+  *   If true AND bin-packing is true, then call-site arguments won't be aligned
+  *   by the opening parenthesis. For example, this output will be disallowed
   *
-  *   function(a,
-  *            b,
-  *            c)
-  * @param openParenDefnSite Same as [[openParenCallSite]], except definition site.
-  * @param tokens The tokens to vertically align by. The "owner" is the
-  *               scala.meta.Tree.getClass.getName of the deepest tree node
-  *               that "owns" the token to align by.
+  * function(a, b, c)
+  * @param openParenDefnSite
+  *   Same as [[openParenCallSite]], except definition site.
+  * @param tokens
+  *   The tokens to vertically align by. The "owner" is the
+  *   scala.meta.Tree.getClass.getName of the deepest tree node that "owns" the
+  *   token to align by.
   *
-  *               Examples:
+  * Examples:
   *
-  *               align.tokens = ["="] // align = owned by any tree node (not recommended)
+  * align.tokens = ["="] // align = owned by any tree node (not recommended)
   *
-  *               align.tokens = [
-  *                 { code = "=", owner = "Param" } // align = when owned by parameter tree nodes
-  *               ]
+  * align.tokens = [ { code = "=", owner = "Param" } // align = when owned by
+  * parameter tree nodes ]
   *
-  *               Pro tip. if you use for example
+  * Pro tip. if you use for example
   *
-  *               preset = defaultWithAlign
+  * preset = defaultWithAlign
   *
-  *               and want to add one extra token (for example "|>") to align by, write
+  * and want to add one extra token (for example "|>") to align by, write
   *
-  *               align.tokens."+" = [ "|> ]
+  * align.tokens."+" = [ "|> ]
   *
-  *               NOTE. Adding more alignment tokens may potentially decrease the
-  *               vertical alignment in formatted output. Customize at your own
-  *               risk, I recommend you try and stick to the default settings.
-  * @param arrowEnumeratorGenerator If true, aligns by `<-` in for comprehensions.
+  * NOTE. Adding more alignment tokens may potentially decrease the vertical
+  * alignment in formatted output. Customize at your own risk, I recommend you
+  * try and stick to the default settings.
+  * @param arrowEnumeratorGenerator
+  *   If true, aligns by `<-` in for comprehensions.
   * @param openParenCtrlSite
-  *   If true, aligns by ( in if/while/for. If false,
-  *   indents by continuation indent at call site.
+  *   If true, aligns by ( in if/while/for. If false, indents by continuation
+  *   indent at call site.
   * @param tokenCategory
-  *   Customize which token kinds can align together. By default, only tokens with
-  *   the same `Token.productPrefix` align. To for example align = and <-,
-  *   set the values to:
-  *     Map("Equals" -> "Assign", "LeftArrow" -> "Assign")
+  *   Customize which token kinds can align together. By default, only tokens
+  *   with the same `Token.productPrefix` align. To for example align = and <-,
+  *   set the values to: Map("Equals" -> "Assign", "LeftArrow" -> "Assign")
   *   Note. Requires mixedTokens to be true.
   * @param treeCategory
   *   Customize which tree kinds can align together. By default, only trees with
   *   the same `Tree.productPrefix` align. To for example align Defn.Val and
-  *   Defn.Var, set the values to:
-  *     Map("Defn.Var" -> "Assign", "Defn.Val" -> "Assign")
-  *   Note. Requires mixedOwners to be true.
+  *   Defn.Var, set the values to: Map("Defn.Var" -> "Assign", "Defn.Val" ->
+  *   "Assign") Note. Requires mixedOwners to be true.
   * @param stripMargin
   *   If set, indent lines with a strip-margin character in a multiline string
   *   constant relative to the opening quotes (or the strip-margin character if
-  *   present) on the first line; otherwise, indent relative to the beginning
-  *   of the first line, as usual.
+  *   present) on the first line; otherwise, indent relative to the beginning of
+  *   the first line, as usual.
   */
 case class Align(
     allowOverflow: Boolean = false,

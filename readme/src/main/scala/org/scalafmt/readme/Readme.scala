@@ -43,9 +43,7 @@ object Readme {
 
   /** repl session, inspired by tut.
     *
-    * Example: code="1 + 1" returns
-    * "scala> 1 + 1
-    * res0: Int = 2"
+    * Example: code="1 + 1" returns "scala> 1 + 1 res0: Int = 2"
     */
   def repl(code: String) = {
     import scala.meta._
@@ -232,16 +230,16 @@ object Readme {
       )
     )
 
-  /** This looks way too hacky. But can't seem to find a typeclass
-    * that ought to "encode" the ``ModKey`` enum.
+  /** This looks way too hacky. But can't seem to find a typeclass that ought to
+    * "encode" the ``ModKey`` enum.
     *
-    * Additionally, a Vector of Strings is simply concatenated, hence
-    * the extra .mkString.
+    * Additionally, a Vector of Strings is simply concatenated, hence the extra
+    * .mkString.
     * {{{
-    *    [error]  found   : Vector[org.scalafmt.config.SortSettings.ModKey]
-    *    [error]  required: scalatags.Text.Modifier
-    *    [error]     (which expands to)  scalatags.generic.Modifier[scalatags.text.Builder]
-    *    [error]           @code{rewrite.sortModifiers.order} = @rewriteSortModifiers.rewrite.sortModifiers.order
+    *     [error]  found   : Vector[org.scalafmt.config.SortSettings.ModKey]
+    *     [error]  required: scalatags.Text.Modifier
+    *     [error]     (which expands to)  scalatags.generic.Modifier[scalatags.text.Builder]
+    *     [error]           @code{rewrite.sortModifiers.order} = @rewriteSortModifiers.rewrite.sortModifiers.order
     * }}}
     */
   val rewriteSortModifiersDefaultString =

@@ -245,9 +245,9 @@ object TreeOps {
       }
     }
 
-  /** Returns first tree which matches the given predicate.
-    * The predicate returns None to indicate failure; or the tree to recurse to;
-    * if the tree is null (or the same as current tree), the current tree is returned.
+  /** Returns first tree which matches the given predicate. The predicate
+    * returns None to indicate failure; or the tree to recurse to; if the tree
+    * is null (or the same as current tree), the current tree is returned.
     */
   @tailrec
   def findTreeEx(
@@ -265,9 +265,9 @@ object TreeOps {
   )(pred: Tree => Boolean): Option[Tree] =
     findTreeOrParent(tree)(x => if (pred(x) == flag) Some(true) else None)
 
-  /** Returns first ancestor whose parent matches the given predicate.
-    * The predicate returns None to continue with the parent, or
-    * the boolean match flag, which terminates the search.
+  /** Returns first ancestor whose parent matches the given predicate. The
+    * predicate returns None to continue with the parent, or the boolean match
+    * flag, which terminates the search.
     */
   def findTreeWithParent(
       tree: Tree
@@ -280,9 +280,9 @@ object TreeOps {
       }
     }
 
-  /** Returns first ancestor whose parent matches the given predicate.
-    * The predicate returns None to indicate failure; or the tree to recurse to;
-    * if the recurse-to tree is null, the current tree is returned.
+  /** Returns first ancestor whose parent matches the given predicate. The
+    * predicate returns None to indicate failure; or the tree to recurse to; if
+    * the recurse-to tree is null, the current tree is returned.
     */
   @tailrec
   def findTreeWithParentEx(

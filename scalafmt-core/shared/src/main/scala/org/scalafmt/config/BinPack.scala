@@ -2,29 +2,30 @@ package org.scalafmt.config
 
 import metaconfig._
 
-/** @param unsafeCallSite      DO NOT USE! This option is buggy for complicated expressions.
-  *                            The only reason this option exists is to support
-  *                            the [[literalArgumentLists]] option, which enables callSite
-  *                            only for simple expressions.
+/** @param unsafeCallSite
+  *   DO NOT USE! This option is buggy for complicated expressions. The only
+  *   reason this option exists is to support the [[literalArgumentLists]]
+  *   option, which enables callSite only for simple expressions.
   *
-  *                            If true, will fit as many arguments on each line,
-  *                            only breaking at commas. If false, a function
-  *                            call's arguments will either be all on the same
-  *                            line or will have one line each.
-  * @param unsafeDefnSite            Same as [[unsafeCallSite]], except for definition site.
+  * If true, will fit as many arguments on each line, only breaking at commas.
+  * If false, a function call's arguments will either be all on the same line or
+  * will have one line each.
+  * @param unsafeDefnSite
+  *   Same as [[unsafeCallSite]], except for definition site.
   * @param literalArgumentLists
-  *                            If true, automatically sets the style to bin-pack for argument lists
-  *                            that only consist of literals.
-  * @param literalsMinArgCount Argument list must be longer than this setting
-  *                            to be eligible for [[literalArgumentLists]].
-  * @param literalsInclude     Regexes for literal type names. For example, "Int"
-  *                            or "Byte".
-  * @param literalsExclude     Regexes for literal to exclude from [[literalArgumentLists]].
-  * @param parentConstructors  Parent constructors are C and D in
-  *                            "class A extends B with C and D". If "Always",
-  *                            scalafmt will fit as many parent constructors
-  *                            on a single line. If "Never", each parent
-  *                            constructor gets its own line.
+  *   If true, automatically sets the style to bin-pack for argument lists that
+  *   only consist of literals.
+  * @param literalsMinArgCount
+  *   Argument list must be longer than this setting to be eligible for
+  *   [[literalArgumentLists]].
+  * @param literalsInclude
+  *   Regexes for literal type names. For example, "Int" or "Byte".
+  * @param literalsExclude
+  *   Regexes for literal to exclude from [[literalArgumentLists]].
+  * @param parentConstructors
+  *   Parent constructors are C and D in "class A extends B with C and D". If
+  *   "Always", scalafmt will fit as many parent constructors on a single line.
+  *   If "Never", each parent constructor gets its own line.
   */
 case class BinPack(
     unsafeCallSite: BinPack.Unsafe = BinPack.Unsafe.Never,

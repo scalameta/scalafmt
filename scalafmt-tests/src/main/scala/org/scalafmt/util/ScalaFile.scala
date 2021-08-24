@@ -64,7 +64,9 @@ object ScalaFile {
     }
   }
 
-  /** If needed, downloads the tarball containing sources from different projects and extracts these files. */
+  /** If needed, downloads the tarball containing sources from different
+    * projects and extracts these files.
+    */
   private def createReposDir(): Unit = {
     val currentDir = new File(".")
     val localTarball = new File(currentDir, tarballNameWithExt)

@@ -1575,8 +1575,8 @@ object FormatWriter {
     @inline def foreach[A](f: AlignLine => A): Unit = buffer.foreach(f)
   }
 
-  /** Separator length gap needed to align blocks with different token
-    * lengths by expression names, not tokens themselves.
+  /** Separator length gap needed to align blocks with different token lengths
+    * by expression names, not tokens themselves.
     *
     * Without considering gaps:
     * ```
@@ -1664,7 +1664,8 @@ object FormatWriter {
 
   private val leadingPipeSpace = compileStripMarginPattern('|')
 
-  /** [[https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html#the-end-marker]] */
+  /** [[https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html#the-end-marker]]
+    */
   private def getEndMarkerLabel(tree: Tree): String = tree match {
     // templates
     case _: Term.NewAnonymous => "new"

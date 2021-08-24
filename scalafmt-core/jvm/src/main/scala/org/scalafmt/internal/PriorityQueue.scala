@@ -6,7 +6,8 @@ package org.scalafmt.internal
   * native-image compiler is unable to work with
   * `scala.collection.mutable.PriorityQueue` currently.
   *
-  * @tparam T the values inside the queue
+  * @tparam T
+  *   the values inside the queue
   */
 class PriorityQueue[T](implicit ord: Ordering[T]) {
   private[this] val q = new java.util.PriorityQueue[T](11, ord.reversed())

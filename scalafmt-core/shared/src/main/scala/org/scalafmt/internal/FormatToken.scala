@@ -7,13 +7,16 @@ import org.scalafmt.util.TokenOps._
 
 /** Two adjacent non-whitespace tokens.
   *
-  * Consider a FormatToken as a node in a search graph and [[Split]]
-  * are the edges. The format tokens remain unchanged after formatting,
-  * while the splits are changed.
+  * Consider a FormatToken as a node in a search graph and [[Split]] are the
+  * edges. The format tokens remain unchanged after formatting, while the splits
+  * are changed.
   *
-  * @param left The left non-whitespace token.
-  * @param right The right non-whitespace token.
-  * @param meta Extra information about the token
+  * @param left
+  *   The left non-whitespace token.
+  * @param right
+  *   The right non-whitespace token.
+  * @param meta
+  *   Extra information about the token
   */
 case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
 
@@ -51,9 +54,12 @@ object FormatToken {
   @inline def noBreak(newlines: Int): Boolean = newlines == 0
   @inline def hasBlankLine(newlines: Int): Boolean = newlines > 1
 
-  /** @param between The whitespace tokens between left and right.
-    * @param idx The token's index in the FormatTokens array
-    * @param formatOff if true, between and right should not be formatted
+  /** @param between
+    *   The whitespace tokens between left and right.
+    * @param idx
+    *   The token's index in the FormatTokens array
+    * @param formatOff
+    *   if true, between and right should not be formatted
     */
   case class Meta(
       between: Array[Token],

@@ -7,10 +7,13 @@ import scala.meta.parsers.Parsed
 
 /** A FormatRunner configures how formatting should behave.
   *
-  * @param debug         Should we collect debugging statistics?
-  * @param eventCallback Listen to events that happens while formatting
-  * @param parser        Are we formatting a scala.meta.{Source,Stat,Case,...}? For
-  *                      more details, see members of [[scala.meta.parsers]].
+  * @param debug
+  *   Should we collect debugging statistics?
+  * @param eventCallback
+  *   Listen to events that happens while formatting
+  * @param parser
+  *   Are we formatting a scala.meta.{Source,Stat,Case,...}? For more details,
+  *   see members of [[scala.meta.parsers]].
   */
 case class ScalafmtRunner(
     debug: Boolean = false,

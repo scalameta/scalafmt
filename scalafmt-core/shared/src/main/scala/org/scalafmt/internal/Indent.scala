@@ -37,8 +37,7 @@ object Length {
     *
     * Example: the opening parenthesis below indents by [[StateColumn]].
     *
-    * foobar(arg1,
-    *        arg2)
+    * foobar(arg1, arg2)
     */
   case object StateColumn extends Length {
     override def withStateOffset(offset: Int): Int = offset
@@ -65,16 +64,19 @@ abstract class Indent {
 
 /** One layer of indentation, created by an opening (, {, etc.
   *
-  * Indent is parameterized by some [[Length]] to allow splits from
-  * [[Router]] to be memoized. If the length field was int, we would have to
-  * eagerly evaluate the indentation for state columns, which may be different
-  * depending on the formatting we choose.
+  * Indent is parameterized by some [[Length]] to allow splits from [[Router]]
+  * to be memoized. If the length field was int, we would have to eagerly
+  * evaluate the indentation for state columns, which may be different depending
+  * on the formatting we choose.
   *
-  * @param length length of indentation, can be negative (in rare cases, with
-  *               deeply nested terms with no newlines).
-  * @param expire Until which token does this indentation stay?
-  * @param expiresAt If Right, then expires when [[expire]] is curr.right,
-  *                  otherwise curr.left in [[BestFirstSearch]].
+  * @param length
+  *   length of indentation, can be negative (in rare cases, with deeply nested
+  *   terms with no newlines).
+  * @param expire
+  *   Until which token does this indentation stay?
+  * @param expiresAt
+  *   If Right, then expires when [[expire]] is curr.right, otherwise curr.left
+  *   in [[BestFirstSearch]].
   */
 private class IndentImpl(length: Length, expire: Token, expiresAt: ExpiresOn)
     extends Indent {

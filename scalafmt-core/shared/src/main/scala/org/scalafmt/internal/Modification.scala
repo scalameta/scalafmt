@@ -20,13 +20,14 @@ case object NoSplit extends Modification {
 
 /** A split representing a newline.
   *
-  * @param isDouble Insert a blank line?
-  * @param noIndent Should no indentation follow? For example in commented out
-  *                 code.
+  * @param isDouble
+  *   Insert a blank line?
+  * @param noIndent
+  *   Should no indentation follow? For example in commented out code.
   * @param alt
-  *   Is it ok to replace this newline with a [[NoSplit]] or [[Space]] (with
-  *   an optional additional set of indents) if the newline will indent beyond
-  *   the current column? For example, used by select chains in [[Router]].
+  *   Is it ok to replace this newline with a [[NoSplit]] or [[Space]] (with an
+  *   optional additional set of indents) if the newline will indent beyond the
+  *   current column? For example, used by select chains in [[Router]].
   */
 case class NewlineT(
     isDouble: Boolean = false,

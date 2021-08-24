@@ -3,16 +3,15 @@ package org.scalafmt.config
 import metaconfig._
 import metaconfig.generic.Surface
 
-/** @param configStyleArguments Call-sites where there is a newline after
-  *                             opening ( and newline before closing ).
-  *                             If true, preserves the newlines and keeps one
-  *                             line per argument.
+/** @param configStyleArguments
+  *   Call-sites where there is a newline after opening ( and newline before
+  *   closing ). If true, preserves the newlines and keeps one line per
+  *   argument.
   * @param breaksInsideChains
-  *  NB: failure unless newlines.source=classic
-  *  If true, then the user can opt out of line breaks
-  *  inside select chains.
+  *   NB: failure unless newlines.source=classic If true, then the user can opt
+  *   out of line breaks inside select chains.
   *
-  *  {{{
+  * {{{
   *     // original
   *     foo
   *       .map(_ + 1).map(_ + 1)
@@ -29,9 +28,9 @@ import metaconfig.generic.Surface
   * }}}
   *
   * @param breakChainOnFirstMethodDot
-  *   NB: ignored unless newlines.source=classic
-  *   If true, keeps the line break before a dot if it already exists.
-  *   {{{
+  *   NB: ignored unless newlines.source=classic If true, keeps the line break
+  *   before a dot if it already exists.
+  * {{{
   *     // original
   *     foo
   *       .map(_ + 1)
@@ -42,14 +41,14 @@ import metaconfig.generic.Surface
   *       .filter( > 2)
   *     // if false
   *     foo.map(_ + 1).filter( > 2)
-  *   }}}
+  * }}}
   *
   * @param encloseClassicChains
-  *   NB: ignored unless newlines.source=classic.
-  *   Controls what happens if a chain enclosed in parentheses is followed by
-  *   additional selects. Those additional selects will be considered part of
-  *   the enclosed chain if and only if this flag is false.
-  *   {{{
+  *   NB: ignored unless newlines.source=classic. Controls what happens if a
+  *   chain enclosed in parentheses is followed by additional selects. Those
+  *   additional selects will be considered part of the enclosed chain if and
+  *   only if this flag is false.
+  * {{{
   *     // original
   *     (foo.map(_ + 1).map(_ + 1))
   *       .filter(_ > 2)
@@ -61,7 +60,7 @@ import metaconfig.generic.Surface
   *       .map(_ + 1)
   *       .map(_ + 1))
   *       .filter(_ > 2)
-  *   }}}
+  * }}}
   *
   * @param annotationNewlines
   *   - if newlines.source is missing or keep:
@@ -73,31 +72,31 @@ import metaconfig.generic.Surface
   *     - if true, will break between consecutive annotations
   *     - will always break before the entity being annotated
   *
-  * @param selfAnnotationNewline See https://github.com/scalameta/scalafmt/issues/938
-  *                              If true, will force a line break before a self annotation
-  *                              if there was a line break there before.
+  * @param selfAnnotationNewline
+  *   See https://github.com/scalameta/scalafmt/issues/938 If true, will force a
+  *   line break before a self annotation if there was a line break there
+  *   before.
   * @param forceBlankLineBeforeDocstring
-  *  If true, always insert a blank line before docstrings,
-  *  If false, preserves blank line only if one exists before.
-  *  Example:
-  *  {{{
-  *    // before
-  *    object Foo {
-  *      /** Docstring */
-  *      def foo = 2
-  *    }
-  *    // after, if forceBlankLineBeforeDocstring=false
-  *    object Foo {
-  *      /** Docstring */
-  *      def foo = 2
-  *    }
-  *    // after, if forceBlankLineBeforeDocstring=true
-  *    object Foo {
+  *   If true, always insert a blank line before docstrings, If false, preserves
+  *   blank line only if one exists before. Example:
+  * {{{
+  *     // before
+  *     object Foo {
+  *       /** Docstring */
+  *       def foo = 2
+  *     }
+  *     // after, if forceBlankLineBeforeDocstring=false
+  *     object Foo {
+  *       /** Docstring */
+  *       def foo = 2
+  *     }
+  *     // after, if forceBlankLineBeforeDocstring=true
+  *     object Foo {
   *
-  *      /** Docstring */
-  *      def foo = 2
-  *    }
-  *  }}}
+  *       /** Docstring */
+  *       def foo = 2
+  *     }
+  * }}}
   */
 case class OptIn(
     configStyleArguments: Boolean = true,
@@ -118,13 +117,12 @@ case class OptIn(
 
   /** See https://github.com/scalameta/scalafmt/issues/1712
     *
-    * Setting behavior and name were mirrored. After deprecation and right naming
-    * we need to:
-    * if `forceBlankLineBeforeDocstring` (new name) has default value (true)
-    *   fallback to `blankLineBeforeDocstring` (old config) which may be
-    *   configured in .scalafmt.conf
-    * if `forceBlankLineBeforeDocstring` configured to non-default value
-    *   don't look at the old name
+    * Setting behavior and name were mirrored. After deprecation and right
+    * naming we need to: if `forceBlankLineBeforeDocstring` (new name) has
+    * default value (true) fallback to `blankLineBeforeDocstring` (old config)
+    * which may be configured in .scalafmt.conf if
+    * `forceBlankLineBeforeDocstring` configured to non-default value don't look
+    * at the old name
     */
   lazy val forceNewlineBeforeDocstringSummary: Boolean =
     forceBlankLineBeforeDocstring && !blankLineBeforeDocstring

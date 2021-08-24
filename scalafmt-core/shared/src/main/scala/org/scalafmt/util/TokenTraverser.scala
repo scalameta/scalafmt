@@ -60,7 +60,8 @@ class TokenTraverser(tokens: Tokens, filename: String) {
 
   /** Find a token after the given one. The search stops when the predicate
     * returns Some value (or the end is reached).
-    * @return Some(token) if the predicate returned Some(true), else None.
+    * @return
+    *   Some(token) if the predicate returned Some(true), else None.
     */
   def findAfter(
       token: Token
@@ -69,7 +70,8 @@ class TokenTraverser(tokens: Tokens, filename: String) {
 
   /** Find a token before the given one. The search stops when the predicate
     * returns Some value (or the end is reached).
-    * @return Some(token) if the predicate returned Some(true), else None.
+    * @return
+    *   Some(token) if the predicate returned Some(true), else None.
     */
   def findBefore(
       token: Token

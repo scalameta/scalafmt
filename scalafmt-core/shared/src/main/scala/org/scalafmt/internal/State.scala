@@ -119,11 +119,11 @@ final case class State(
   }
 
   /** Returns a penalty to be applied to the split and any delayed penalty.
-    * - if delayedPenalty is positive, it is considered activated and will be
-    *   applied at the end of a line unless deactivated earlier;
-    * - if delayedPenalty is negative, it is considered inactive but could be
-    *   converted to regular penalty if a disqualifying token/split is found
-    *   before the end of a line or document.
+    *   - if delayedPenalty is positive, it is considered activated and will be
+    *     applied at the end of a line unless deactivated earlier;
+    *   - if delayedPenalty is negative, it is considered inactive but could be
+    *     converted to regular penalty if a disqualifying token/split is found
+    *     before the end of a line or document.
     */
   @tailrec
   private def getOverflowPenalty(
@@ -202,7 +202,8 @@ final case class State(
 
   /** Traverses back to the beginning of the line and returns the largest tree
     * which starts with that token at the start of the line, if any.
-    * @see [[State.allowSplitForLineStart]] which tokens can be traversed.
+    * @see
+    *   [[State.allowSplitForLineStart]] which tokens can be traversed.
     */
   @tailrec
   private def getLineStartOwner(isComment: Boolean)(implicit
@@ -235,8 +236,8 @@ final case class State(
     }
   }
 
-  /** Check that the current line starts a statement which also contains
-    * the current token.
+  /** Check that the current line starts a statement which also contains the
+    * current token.
     */
   private def lineStartsStatement(isComment: Boolean)(implicit
       style: ScalafmtConfig,
