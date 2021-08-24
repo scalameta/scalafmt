@@ -1052,3 +1052,34 @@ object ScalaFmtTest {
       }
   )
 }
+<<< single-block function with block one-arg apply
+object a {
+  val foo = bar {
+    { x => y }
+  }
+  val foo = bar {
+    { { x => y } }
+  }
+  val foo = bar.baz {
+    { x => y }
+  }
+  val foo = bar.baz {
+    { { x => y } }
+  }
+}
+>>>
+Idempotency violated
+object a {
+  val foo = bar {
+    x => y
+  }
+  val foo = bar {
+    x => y
+  }
+  val foo = bar.baz {
+    x => y
+  }
+  val foo = bar.baz {
+    x => y
+  }
+}
