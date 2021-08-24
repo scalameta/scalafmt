@@ -164,11 +164,20 @@ object TreeOps {
           addDefn[KwDef](t.mods, t)
           addAll(t.stats)
         // special handling for rewritten blocks
-        case t @ Term.Block(List(_)) // single-stat block
+        case t @ Term.Block(List(arg)) // single-stat block
             if t.tokens.headOption // see if opening brace was removed
               .exists(x => x.is[Token.LeftBrace] && replacedWith(x).ne(x)) =>
+          if (arg.is[Term.Function]) {
+            // handle rewritten apply { { x => b } } to a { x => b }
+            val parentApply = findTreeWithParent(t) {
+              case Term.Block(_) => None
+              case Term.Apply(_, List(_)) => Some(true)
+              case _ => Some(false)
+            }
+            if (parentApply.isDefined) addAll(Seq(arg))
+          }
         // special handling for rewritten apply(x => { b }) to a { x => b }
-        case t @ Term.Apply(_, List(f: Term.Function))
+        case Term.Apply(_, List(f: Term.Function))
             if f.tokens.lastOption // see if closing brace was moved
               .exists(x => x.is[Token.RightBrace] && replacedWith(x).ne(x)) =>
           addAll(Seq(f))
