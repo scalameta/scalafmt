@@ -49,7 +49,8 @@ object Constants {
   * NOTE(olafurpg). The pattern match in this file has gotten out of hand. It's
   * difficult even for myself to keep track of what's going on in some cases,
   * especially around applications and lambdas. I'm hoping to sunset this file
-  * along with BestFirstSearch in favor of https://github.com/scalameta/scalafmt/issues/917
+  * along with BestFirstSearch in favor of
+  * https://github.com/scalameta/scalafmt/issues/917
   */
 class Router(formatOps: FormatOps) {
 
@@ -2305,9 +2306,9 @@ class Router(formatOps: FormatOps) {
 
   /** Assigns possible splits to a FormatToken.
     *
-    * The FormatToken can be considered as a node in a graph and the
-    * splits as edges. Given a format token (a node in the graph), Route
-    * determines which edges lead out from the format token.
+    * The FormatToken can be considered as a node in a graph and the splits as
+    * edges. Given a format token (a node in the graph), Route determines which
+    * edges lead out from the format token.
     */
   def getSplits(formatToken: FormatToken): Seq[Split] = {
     val splits =

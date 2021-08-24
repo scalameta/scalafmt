@@ -30,9 +30,9 @@ import metaconfig._
   *   }
   * }}}
   *
-  * When [[org.scalafmt.config.ImportSelectors.singleLine]] is selected,
-  * imports are organized such that all names for a single package are arranged
-  * on a single line:
+  * When [[org.scalafmt.config.ImportSelectors.singleLine]] is selected, imports
+  * are organized such that all names for a single package are arranged on a
+  * single line:
   * {{{
   *   // max columns     |
   *   import org.{Aaaa, Bbbb, C, D, Eeee}

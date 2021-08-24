@@ -55,9 +55,8 @@ object Terminal {
 
     /** Clear the current line
       *
-      * n=0: clear from cursor to end of line
-      * n=1: clear from cursor to start of line
-      * n=2: clear entire line
+      * n=0: clear from cursor to end of line n=1: clear from cursor to start of
+      * line n=2: clear entire line
       */
     def clearLine(n: Int): Unit = control(n, 'K')
   }

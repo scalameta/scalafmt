@@ -14,89 +14,84 @@ import org.scalafmt.util.ValidationOps
 
 /** Configuration options for scalafmt.
   *
-  * @param version The version of scalafmt to use for this project. Currently not used,
-  *                the plan is to use this field for the IntelliJ+sbt integrations.
-  * @param maxColumn Column limit, any formatting exceeding this field is
-  *                  penalized heavily.
-  * @param assumeStandardLibraryStripMargin If true, the margin character | is treated
-  *                                as the new indentation in multiline strings
-  *                                ending with `.stripMargin`.
-  * @param danglingParentheses If true
-  *                            AND @binPackArguments is true
-  *                            AND @configStyleArguments is false, then this
+  * @param version
+  *   The version of scalafmt to use for this project. Currently not used, the
+  *   plan is to use this field for the IntelliJ+sbt integrations.
+  * @param maxColumn
+  *   Column limit, any formatting exceeding this field is penalized heavily.
+  * @param assumeStandardLibraryStripMargin
+  *   If true, the margin character | is treated as the new indentation in
+  *   multiline strings ending with `.stripMargin`.
+  * @param danglingParentheses
+  *   If true AND @binPackArguments is true AND @configStyleArguments is false,
+  *   then this
   *
-  *                            function(
-  *                                longerArg1,
-  *                                longerArg3)
+  * function( longerArg1, longerArg3)
   *
-  *                            is formatted like this
+  * is formatted like this
   *
-  *                            function(
-  *                                longerArg1,
-  *                                longerArg3
-  *                            )
-  * @param rewriteTokens Map of tokens to rewrite. For example, Map("⇒" -> "=>")
-  *                      will rewrite unicode arrows to regular ascii arrows.
-  * @param importSelectors Controls formatting of import selectors with multiple names from the
-  *                        same package;
-  *                        If [[org.scalafmt.config.ImportSelectors.binPack]], import selectors are
-  *                        arranged to fit within the maximum line width
-  *                        If [[org.scalafmt.config.ImportSelectors.noBinPack]], import selectors
-  *                        are broken to one per line
-  *                        If [[org.scalafmt.config.ImportSelectors.singleLine]], import selectors
-  *                        are kept on a single line
-  *                        The default setting is currently `noBinPack`.
-  * @param trailingCommas If [[org.scalafmt.config.TrailingCommas.always]], trailing
-  *                       commas are added everywhere a newline is followed by a right parens, brace
-  *                       or bracket.
+  * function( longerArg1, longerArg3 )
+  * @param rewriteTokens
+  *   Map of tokens to rewrite. For example, Map("⇒" -> "=>") will rewrite
+  *   unicode arrows to regular ascii arrows.
+  * @param importSelectors
+  *   Controls formatting of import selectors with multiple names from the same
+  *   package; If [[org.scalafmt.config.ImportSelectors.binPack]], import
+  *   selectors are arranged to fit within the maximum line width If
+  *   [[org.scalafmt.config.ImportSelectors.noBinPack]], import selectors are
+  *   broken to one per line If
+  *   [[org.scalafmt.config.ImportSelectors.singleLine]], import selectors are
+  *   kept on a single line The default setting is currently `noBinPack`.
+  * @param trailingCommas
+  *   If [[org.scalafmt.config.TrailingCommas.always]], trailing commas are
+  *   added everywhere a newline is followed by a right parens, brace or
+  *   bracket.
   *
-  *                       If [[org.scalafmt.config.TrailingCommas.never]], trailing
-  *                       commas are removed whenever they appear.
+  * If [[org.scalafmt.config.TrailingCommas.never]], trailing commas are removed
+  * whenever they appear.
   *
-  *                       If [[org.scalafmt.config.TrailingCommas.preserve]], existing
-  *                       trailing commas will be preserved, and no new ones will be added.
+  * If [[org.scalafmt.config.TrailingCommas.preserve]], existing trailing commas
+  * will be preserved, and no new ones will be added.
   *
-  * @param indentYieldKeyword If true, indents `yield` by two spaces
-  *                           for (i <- j)
-  *                             yield banana
-  *                           If false, treats `yield` like `else`
-  *                           for (i <- j)
-  *                           yield banana
-  * @param lineEndings If [[LineEndings.unix]], output will include only unix line endings
-  *                    If [[LineEndings.windows]], output will include only windows line endings
-  *                    If [[LineEndings.preserve]], output will include endings included in original
-  *                    file (windows if there was at least one windows line ending, unix if there
-  *                    was zero occurrences of windows line endings)
+  * @param indentYieldKeyword
+  *   If true, indents `yield` by two spaces for (i <- j) yield banana If false,
+  *   treats `yield` like `else` for (i <- j) yield banana
+  * @param lineEndings
+  *   If [[LineEndings.unix]], output will include only unix line endings If
+  *   [[LineEndings.windows]], output will include only windows line endings If
+  *   [[LineEndings.preserve]], output will include endings included in original
+  *   file (windows if there was at least one windows line ending, unix if there
+  *   was zero occurrences of windows line endings)
   * @param includeCurlyBraceInSelectChains
-  *  NB: failure unless newlines.source=classic
-  *  If true, includes curly brace applications in select chains/pipelines.
-  *  {{{
-  *    // If true
-  *    List(1)
-  *      .map { x =>
-  *        x + 2
-  *      }
-  *      .filter(_ > 2)
-  *    // If false
-  *    List(1).map { x =>
-  *        x + 2
-  *    }.filter(_ > 2)
-  *  }}}
+  *   NB: failure unless newlines.source=classic If true, includes curly brace
+  *   applications in select chains/pipelines.
+  * {{{
+  *     // If true
+  *     List(1)
+  *       .map { x =>
+  *         x + 2
+  *       }
+  *       .filter(_ > 2)
+  *     // If false
+  *     List(1).map { x =>
+  *         x + 2
+  *     }.filter(_ > 2)
+  * }}}
   * @param includeNoParensInSelectChains
-  *  NB: ignored unless newlines.source=classic
-  *  If true, includes applications without parens in select chains/pipelines.
-  *  {{{
-  *    // If true
-  *    List(1)
-  *      .toIterator
-  *      .buffered
-  *      .map(_ + 2)
-  *      .filter(_ > 2)
-  *    // If false
-  *    List(1).toIterator.buffered
-  *      .map(_ + 2)
-  *      .filter(_ > 2)
-  *  }}}
+  *   NB: ignored unless newlines.source=classic If true, includes applications
+  *   without parens in select chains/pipelines.
+  * {{{
+  *     // If true
+  *     List(1)
+  *       .toIterator
+  *       .buffered
+  *       .map(_ + 2)
+  *       .filter(_ > 2)
+  *     // If false
+  *     List(1).toIterator.buffered
+  *       .map(_ + 2)
+  *       .filter(_ > 2)
+  * }}}
   */
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,

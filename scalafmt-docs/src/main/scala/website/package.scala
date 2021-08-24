@@ -54,7 +54,8 @@ package object website {
   /** Prints a formatted Scala code block one using the provided configuration,
     * which is added as a comment on top
     *
-    * @param code the unformatted code * @param config the config as an HOCON string
+    * @param code
+    *   the unformatted code * @param config the config as an HOCON string
     */
   def exampleBlock(code: String, config: String*): Unit = {
     example(code, config, ScalafmtRunner.sbt)
@@ -93,11 +94,13 @@ package object website {
     println(scalaCode(result))
   }
 
-  /** Prints two Scala code block next to each other, one with the original code,
-    * the other one formatted using the provided configuration
+  /** Prints two Scala code block next to each other, one with the original
+    * code, the other one formatted using the provided configuration
     *
-    * @param code the unformatted code
-    * @param config the config to format the code (defaults to `default40`)
+    * @param code
+    *   the unformatted code
+    * @param config
+    *   the config to format the code (defaults to `default40`)
     */
   def formatExample(code: String, config: String*): Unit = {
     val parsedConfig = Config
@@ -138,7 +141,8 @@ $configString
 
   /** Prints the default value of a property
     *
-    * @param selector a function to select the default from the config
+    * @param selector
+    *   a function to select the default from the config
     */
   def default[A](selector: ScalafmtConfig => A) = {
     val defaultValue = selector(ScalafmtConfig.default)

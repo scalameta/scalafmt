@@ -13,27 +13,31 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false) {
 
 /** A Split is the whitespace between two non-whitespace tokens.
   *
-  * Consider a split to be an edge in a search graph and [[FormatToken]]
-  * are the nodes.
+  * Consider a split to be an edge in a search graph and [[FormatToken]] are the
+  * nodes.
   *
-  * NB: there's a historical inconsistency in how splits are sorted; when
-  * they are initially considered, cost is the primary factor (and hence,
-  * because of stable sort, earlier split with the same cost will take
-  * precedence). However, when a search state is added into the priority
-  * queue, preference is given to states with lower cost, further token
-  * and, unlike above, a LATER line defining the split.
+  * NB: there's a historical inconsistency in how splits are sorted; when they
+  * are initially considered, cost is the primary factor (and hence, because of
+  * stable sort, earlier split with the same cost will take precedence).
+  * However, when a search state is added into the priority queue, preference is
+  * given to states with lower cost, further token and, unlike above, a LATER
+  * line defining the split.
   *
-  * A possible reason for the latter is to give those "secondary" splits
-  * a chance to move through the BestFirstSearch algorithm, as otherwise
-  * a sequence of primary splits might end up as the winning solution
-  * even if it exceeds the maxColumn margins, because a secondary split
-  * was deemed unlikely to win and moved to a backup priority queue.
+  * A possible reason for the latter is to give those "secondary" splits a
+  * chance to move through the BestFirstSearch algorithm, as otherwise a
+  * sequence of primary splits might end up as the winning solution even if it
+  * exceeds the maxColumn margins, because a secondary split was deemed unlikely
+  * to win and moved to a backup priority queue.
   *
-  * @param modExt whitespace and indents
-  * @param cost How good is this output? Lower is better.
-  * @param policy How does this split affect other later splits?
-  * @param line For debugging, to retrace from which case in [[Router]]
-  *             this split originates.
+  * @param modExt
+  *   whitespace and indents
+  * @param cost
+  *   How good is this output? Lower is better.
+  * @param policy
+  *   How does this split affect other later splits?
+  * @param line
+  *   For debugging, to retrace from which case in [[Router]] this split
+  *   originates.
   */
 case class Split(
     modExt: ModExt,

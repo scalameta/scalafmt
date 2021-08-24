@@ -11,7 +11,8 @@ import org.scalameta.FileLine
 
 object PolicyOps {
 
-  /** @param noSyntaxNL do not allow newlines in token syntax
+  /** @param noSyntaxNL
+    *   do not allow newlines in token syntax
     */
   class PenalizeAllNewlines(
       val endPolicy: End.WithPos,
@@ -46,8 +47,10 @@ object PolicyOps {
   }
 
   /** Forces all splits up to including expire to be on a single line.
-    * @param okSLC if true, allow single-line comments
-    * @param noSyntaxNL if false, allow newlines in token syntax
+    * @param okSLC
+    *   if true, allow single-line comments
+    * @param noSyntaxNL
+    *   if false, allow newlines in token syntax
     */
   class SingleLineBlock(
       val endPolicy: End.WithPos,

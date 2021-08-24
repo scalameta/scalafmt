@@ -8,8 +8,9 @@ sealed trait FileFetchMode
 
 object FileFetchMode {
 
-  /** The read instance is practically is not exhaustive due to the RecursiveSearch and GitFiles are the fallback used in the absence of
-    * other options
+  /** The read instance is practically is not exhaustive due to the
+    * RecursiveSearch and GitFiles are the fallback used in the absence of other
+    * options
     */
   implicit val read: Read[FileFetchMode] = Read.reads {
     case "diff" => DiffFiles("master")

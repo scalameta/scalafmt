@@ -17,15 +17,15 @@ object CliOptions {
 
   /** Tries to read configuration from
     *
-    * 1. .scalafmt.conf in root dir of current git repo
-    *     IF the following setting is enabled: project.git = true
-    * 2. .scalafmt.conf from init.common.workingDirectory
+    *   1. .scalafmt.conf in root dir of current git repo IF the following
+    *      setting is enabled: project.git = true 2. .scalafmt.conf from
+    *      init.common.workingDirectory
     *
     * I am happy to add alternative fallback methods for other VCS.
     *
     * WARNING. Throws an exception if the .scalafmt.conf error exists but
-    * contains an error. Why? Because this method is only supposed to be
-    * called directly from main.
+    * contains an error. Why? Because this method is only supposed to be called
+    * directly from main.
     */
   def auto(parsed: CliOptions): CliOptions = {
     val auxOut =
@@ -109,8 +109,8 @@ case class CliOptions(
 
   val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
 
-  /** Create a temporary file that contains configuration string specified by `--config-str`.
-    * This temporary file will be passed to `scalafmt-dynamic`.
+  /** Create a temporary file that contains configuration string specified by
+    * `--config-str`. This temporary file will be passed to `scalafmt-dynamic`.
     * See https://github.com/scalameta/scalafmt/pull/1367#issuecomment-464744077
     */
   private[this] val tempConfigPath: Option[Path] = configStr.map { s =>
@@ -119,12 +119,13 @@ case class CliOptions(
     file
   }
 
-  /** - If --config-str is specified (and tempConfigPath is defined),
-    *   this returns the path to a temporary file.
-    * - If both tempConfigPath and config are None,
-    *   this return the path to `.scalafmt.conf` on the working directory.
+  /**   - If --config-str is specified (and tempConfigPath is defined), this
+    *     returns the path to a temporary file.
+    *   - If both tempConfigPath and config are None, this return the path to
+    *     `.scalafmt.conf` on the working directory.
     *
-    * @return A path to a configuration file
+    * @return
+    *   A path to a configuration file
     */
   def configPath: Path =
     configPathOpt.get
@@ -138,10 +139,12 @@ case class CliOptions(
     .orElse(gitOps.rootDir.flatMap(tryGetConfigFile))
 
   /** Parse the scalafmt configuration and try to encode it to `ScalafmtConfig`.
-    * If `--config-str` is specified, this will parse the configuration string specified by `--config-str`.
-    * Otherwise, a contents of configuration file specified by `configPath` will be parsed.
+    * If `--config-str` is specified, this will parse the configuration string
+    * specified by `--config-str`. Otherwise, a contents of configuration file
+    * specified by `configPath` will be parsed.
     *
-    * If `--config-str` is not specified and configuration file is missing, this will return the default configuration
+    * If `--config-str` is not specified and configuration file is missing, this
+    * will return the default configuration
     */
   def scalafmtConfig: Configured[ScalafmtConfig] =
     hoconOpt.fold(Configured.ok(ScalafmtConfig.default))(Config.fromConf(_))
@@ -215,8 +218,7 @@ case class CliOptions(
       .flatMap(x => Try(Codec(x)).toOption)
       .getOrElse(ScalafmtConfig.default.encoding)
 
-  /** Returns None if .scalafmt.conf is not found or
-    * version setting is missing.
+  /** Returns None if .scalafmt.conf is not found or version setting is missing.
     */
   private[cli] def getVersionIfDifferent: Option[String] =
     getHoconValueOpt[String]("version").filter(_ != Versions.version)

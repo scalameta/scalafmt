@@ -35,7 +35,9 @@ object PositionSyntax {
     def formatMessage(severity: String, message: String): String =
       PositionSyntax.formatMessage(pos, severity, message)
 
-    /** Returns a formatted string of this position including filename/line/caret. */
+    /** Returns a formatted string of this position including
+      * filename/line/caret.
+      */
     def lineInput: String =
       s"${pos.input.syntax}:${pos.startLine + 1}:${pos.startColumn + 1}:"
 

@@ -61,9 +61,9 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   @inline def apply(tok: Token): FormatToken = before(tok)
 
   /** If the token is missing:
-    * - to go backward, start from the next token
-    * - to go forward, start from the previous token
-    * This ensures that the next token in the direction of search is counted.
+    *   - to go backward, start from the next token
+    *   - to go forward, start from the previous token This ensures that the
+    *     next token in the direction of search is counted.
     */
   def apply(tok: Token, off: Int): FormatToken =
     apply(if (off < 0) after(tok) else before(tok), off)
@@ -168,8 +168,8 @@ object FormatTokens {
 
   /** Convert scala.meta Tokens to FormatTokens.
     *
-    * Since tokens might be very large, we try to allocate as
-    * little memory as possible.
+    * Since tokens might be very large, we try to allocate as little memory as
+    * possible.
     */
   def apply(tokens: Tokens, owner: Token => Tree)(implicit
       style: ScalafmtConfig

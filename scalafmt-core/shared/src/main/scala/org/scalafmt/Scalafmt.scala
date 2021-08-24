@@ -22,8 +22,9 @@ import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.util.{FileOps, MarkdownFile, MarkdownPart}
 
-/** WARNING. This API is discouraged when integrating with Scalafmt from a build tool
-  * or editor plugin. It is recommended to use the `scalafmt-dynamic` module instead.
+/** WARNING. This API is discouraged when integrating with Scalafmt from a build
+  * tool or editor plugin. It is recommended to use the `scalafmt-dynamic`
+  * module instead.
   */
 object Scalafmt {
 
@@ -34,16 +35,20 @@ object Scalafmt {
   // XXX: don't modify signature, scalafmt-dynamic expects it via reflection
   /** Format Scala code using scalafmt.
     *
-    * WARNING. This API is discouraged when integrating with Scalafmt from a build tool
-    * or editor plugin. It is recommended to use the `scalafmt-dynamic` module instead.
+    * WARNING. This API is discouraged when integrating with Scalafmt from a
+    * build tool or editor plugin. It is recommended to use the
+    * `scalafmt-dynamic` module instead.
     *
-    * @param code Code string to format.
-    * @param style Configuration for formatting output.
-    * @param range EXPERIMENTAL. Format a subset of lines.
-    * @return [[Formatted.Success]] if successful,
-    *         [[Formatted.Failure]] otherwise. If you are OK with throwing
-    *         exceptions, use [[Formatted.Success.get]] to get back a
-    *         string.
+    * @param code
+    *   Code string to format.
+    * @param style
+    *   Configuration for formatting output.
+    * @param range
+    *   EXPERIMENTAL. Format a subset of lines.
+    * @return
+    *   [[Formatted.Success]] if successful, [[Formatted.Failure]] otherwise. If
+    *   you are OK with throwing exceptions, use [[Formatted.Success.get]] to
+    *   get back a string.
     */
   def format(
       code: String,
@@ -177,7 +182,8 @@ object Scalafmt {
 
   /** Utility method to change dialect on ScalafmtConfig.
     *
-    * Binary compatibility is guaranteed between releases, unlike with ScalafmtConfig.copy.
+    * Binary compatibility is guaranteed between releases, unlike with
+    * ScalafmtConfig.copy.
     */
   def configWithDialect(
       config: ScalafmtConfig,

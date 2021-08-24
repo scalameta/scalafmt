@@ -7,18 +7,18 @@ import org.scalafmt.util.ValidationOps
 import metaconfig._
 
 /** @param oneline
-  *        - if fold, try to fold short docstrings into a single line
-  *        - if unfold, unfold a single-line docstring into multiple lines
-  *        - if keep, preserve the current formatting
+  *   - if fold, try to fold short docstrings into a single line
+  *   - if unfold, unfold a single-line docstring into multiple lines
+  *   - if keep, preserve the current formatting
   * @param wrap
   *   if yes, allow reformatting/rewrapping the contents of the docstring
   * @param style
-  *        - Asterisk: format intermediate lines with an asterisk below the
-  *          first asterisk of the first line (aka JavaDoc)
-  *        - SpaceAsterisk: format intermediate lines with a space and
-  *          an asterisk, both below the two asterisks of the first line
-  *        - AsteriskSpace: format intermediate lines with an asterisk
-  *          and a space, both below the two asterisks of the first line
+  *   - Asterisk: format intermediate lines with an asterisk below the first
+  *     asterisk of the first line (aka JavaDoc)
+  *   - SpaceAsterisk: format intermediate lines with a space and an asterisk,
+  *     both below the two asterisks of the first line
+  *   - AsteriskSpace: format intermediate lines with an asterisk and a space,
+  *     both below the two asterisks of the first line
   */
 case class Docstrings(
     oneline: Docstrings.Oneline = Docstrings.Oneline.keep,
