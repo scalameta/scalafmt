@@ -84,10 +84,13 @@ object InputMethod {
       revised: String
   ): String = {
     import org.scalafmt.CompatCollections.JavaConverters._
-    def jList(string: String) =
-      java.util.Collections.list(string.linesIterator.asJavaEnumeration)
-    val a = jList(original)
-    val b = jList(revised)
+    @inline def noEol(ch: Char) = ch != '\n' && ch != '\r'
+    def jList(code: String, addEol: Boolean) = {
+      val last = if (addEol) Iterator.single("") else Iterator.empty
+      (code.linesIterator ++ last).toList.asJava
+    }
+    val a = jList(original, false)
+    val b = jList(revised, noEol(original.last)) // formatted always has EOL
     val diff = difflib.DiffUtils.diff(a, b)
     if (diff.getDeltas.isEmpty) ""
     else {
