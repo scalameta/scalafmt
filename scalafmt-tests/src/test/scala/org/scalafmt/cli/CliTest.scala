@@ -1288,7 +1288,12 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     )
     assertEquals(
       CliTest.stripCR(err.toString),
-      "\n"
+      """--- astdin.scala
+        |+++ bstdin.scala
+        |@@ -4,1 +4,2 @@
+        | }
+        |+
+        |""".stripMargin
     )
   }
 
