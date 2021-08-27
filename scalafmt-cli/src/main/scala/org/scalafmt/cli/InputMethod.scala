@@ -21,7 +21,7 @@ object InputMethod {
     def apply(assumeFilename: String, inputStream: InputStream): StdinCode = {
       StdinCode.apply(
         assumeFilename,
-        Source.fromInputStream(inputStream).getLines().mkString("\n")
+        Source.fromInputStream(inputStream).mkString
       )
     }
   }
