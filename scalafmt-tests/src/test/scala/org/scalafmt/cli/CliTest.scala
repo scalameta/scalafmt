@@ -1281,16 +1281,14 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         Cli.run(options2)
       }
     }
-    assertEquals(res.code, 0)
+    assertEquals(res.code, 1)
     assertEquals(
       CliTest.stripCR(out.toString),
-      s"""$codeNoEol
-        |All files are formatted with scalafmt :)
-        |""".stripMargin
+      "error: --test failed\n"
     )
     assertEquals(
       CliTest.stripCR(err.toString),
-      ""
+      "\n"
     )
   }
 
