@@ -36,7 +36,7 @@ abstract class AbstractCliTest extends FunSuite {
 
   def assertContains(out: String, expected: String) = {
     assert(
-      out.replace("\r\n", "\n").contains(expected.replace("\r\n", "\n")),
+      CliTest.stripCR(out).contains(CliTest.stripCR(expected)),
       out + "\n should have contained \n" + expected
     )
   }
@@ -1258,6 +1258,49 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       expected,
       Seq(Array.empty[String], Array("--mode", "diff"))
     )
+  }
+
+  test("no final EOL") {
+    val out = new ByteArrayOutputStream()
+    val err = new ByteArrayOutputStream()
+    val codeNoEol =
+      """|object FormatMe {
+        |  val x =
+        |    1
+        |}""".stripMargin
+    val res = Console.withOut(out) {
+      Console.withErr(err) {
+        val options = getConfig(Array("--stdin", "--test"))
+        val options2 = options.copy(
+          common = options.common.copy(
+            in = new ByteArrayInputStream(codeNoEol.getBytes),
+            out = Console.out,
+            err = Console.err
+          )
+        )
+        Cli.run(options2)
+      }
+    }
+    assertEquals(res.code, 0)
+    assertEquals(
+      CliTest.stripCR(out.toString),
+      s"""$codeNoEol
+        |All files are formatted with scalafmt :)
+        |""".stripMargin
+    )
+    assertEquals(
+      CliTest.stripCR(err.toString),
+      ""
+    )
+  }
+
+}
+
+object CliTest {
+
+  val stripCR: String => String = {
+    val eol = System.lineSeparator()
+    if (eol == "\n") identity else _.replace(eol, "\n")
   }
 
 }
