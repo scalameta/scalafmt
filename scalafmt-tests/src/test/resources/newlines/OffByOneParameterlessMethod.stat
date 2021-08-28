@@ -14,7 +14,7 @@ object Test {
     String,
     Int] = Right(0)
 }
-<<< SKIP left brace is at column + 1
+<<< left brace is at column + 1
 object Test {
 //-----------------------------|
   def ab: Either[String, Int] = {
@@ -24,8 +24,9 @@ object Test {
 >>>
 object Test {
 //-----------------------------|
-  def ab: Either[String,
-                 Int] = {
+  def ab: Either[
+    String,
+    Int] = {
     Right(0)
   }
 }

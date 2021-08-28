@@ -50,12 +50,12 @@ private trait Iterator {
 
   @jsnative type bra[Meth]
 }
-<<< SKIP single line trait
--@typeclass trait Invariant[F[_]] { self =>
-+@typeclass
-+trait Invariant[F[_]] { self =>
+<<< single line trait
+@typeclass trait Invariant[F[_]] { self => }
 >>>
-x
+@typeclass trait Invariant[F[_]] {
+  self =>
+}
 <<< #1640
 maxColumn = 120
 preset = intellij
