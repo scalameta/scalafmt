@@ -44,7 +44,14 @@ object Cli {
   }
 
   def exceptionThrowingMain(args: Array[String]): Unit = {
-    val exit = mainWithOptions(args, CliOptions.default)
+    exceptionThrowingMainWithOptions(args, CliOptions.default)
+  }
+
+  def exceptionThrowingMainWithOptions(
+      args: Array[String],
+      options: CliOptions
+  ): Unit = {
+    val exit = mainWithOptions(args, options)
     throwIfError(exit)
   }
 

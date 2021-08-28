@@ -46,7 +46,6 @@ class FidelityTest extends FunSuite with FormatAssertions {
         scala.meta.parsers.Parse.parseSource,
         Scala211
       )
-      println(example.filename)
     }
   }
 }
