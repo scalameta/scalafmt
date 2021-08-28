@@ -82,7 +82,7 @@ abstract class AbstractCliTest extends FunSuite {
       expected: String,
       cmds: Seq[Array[String]],
       assertExit: ExitCode => Unit = { exit => assert(exit.isOk, exit) },
-      assertOut: String => Unit = { out => println(out) }
+      assertOut: String => Unit = { _ => {} }
   ): Unit = {
     cmds.foreach { args =>
       val out = new ByteArrayOutputStream()
@@ -208,7 +208,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         s"""{version="$version",style=IntelliJ}""",
         tmpFile.toFile.getAbsolutePath
       )
-      Cli.exceptionThrowingMain(args)
+      Cli.exceptionThrowingMainWithOptions(args, baseCliOptions)
       val obtained = FileOps.readFile(tmpFile.toString)
       // TODO: We need to pass customFiles information to ProjectFiles
       assertNoDiff(obtained, formatted)
@@ -305,7 +305,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
           s"""{version="$version",style=IntelliJ}"""
         )
         intercept[IOException] {
-          Cli.exceptionThrowingMain(args)
+          Cli.exceptionThrowingMainWithOptions(args, baseCliOptions)
         }
       }
       check("notfound")
@@ -552,7 +552,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         config,
         toFormat
       )
-      Cli.exceptionThrowingMain(args) // runs without errors
+      Cli.exceptionThrowingMainWithOptions(args, baseCliOptions)
       val obtained = FileOps.readFile(toFormat)
       assertNoDiff(obtained, "object A\n")
     }
@@ -610,10 +610,12 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"command line argument error: $label") {
-      val exit = Cli.mainWithOptions(
-        Array("--foobar"),
-        getMockOptions(AbsoluteFile.userDir)
-      )
+      val exit = Console.withErr(NoopOutputStream.printStream) {
+        Cli.mainWithOptions(
+          Array("--foobar"),
+          getMockOptions(AbsoluteFile.userDir)
+        )
+      }
       assert(exit.is(ExitCode.CommandLineArgumentError), exit)
     }
 
@@ -659,7 +661,6 @@ trait CliTestBehavior { this: AbstractCliTest =>
         Seq(Array("--test", "--config-str", s"""{version="$version"}""")),
         assertExit = { exit => assert(exit.isOk) },
         assertOut = out => {
-          println(s"succeed: $out")
           assert(
             out.contains(
               "foo.scala:2: error: } expected but end of file found"
@@ -723,7 +724,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     test(s"eof: $label") {
       val in = Files.createTempFile("scalafmt", "Foo.scala")
       Files.write(in, "object A".getBytes(StandardCharsets.UTF_8))
-      val exit = Cli.mainWithOptions(Array(in.toString), CliOptions.default)
+      val exit = Cli.mainWithOptions(Array(in.toString), baseCliOptions)
       assert(exit.isOk)
       val obtained = new String(Files.readAllBytes(in), StandardCharsets.UTF_8)
       assert(obtained == "object A\n")
