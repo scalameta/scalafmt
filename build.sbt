@@ -166,7 +166,7 @@ lazy val cli = project
     moduleName := "scalafmt-cli",
     assembly / mainClass := Some("org.scalafmt.cli.Cli"),
     assembly / assemblyOption := (assembly / assemblyOption).value
-      .copy(prependShellScript = Some(defaultUniversalScript(shebang = false))),
+      .withPrependShellScript(Some(defaultUniversalScript(shebang = false))),
     assembly / assemblyJarName := "scalafmt.jar",
     assembly / assemblyMergeStrategy := {
       case "reflect.properties" => MergeStrategy.first
