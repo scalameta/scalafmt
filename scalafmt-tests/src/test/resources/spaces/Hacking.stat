@@ -1,5 +1,7 @@
 maxColumn = 40
-<<< SKIP Spaces in parentheses
+<<< Spaces in parentheses
+spaces.inParentheses = true
+===
 function(a, b, c)
 >>>
 function( a, b, c )

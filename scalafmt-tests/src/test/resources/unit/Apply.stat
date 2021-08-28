@@ -1,5 +1,5 @@
 
-<<< SKIP incorrect indent expire
+<<< incorrect indent expire
 jv.validated[AddScheduledQueryRequest]
   .disjunction leftMap { err =>
   badRequest(
@@ -9,11 +9,11 @@ jv.validated[AddScheduledQueryRequest]
 >>>
 jv.validated[AddScheduledQueryRequest]
   .disjunction leftMap { err =>
-    badRequest(
-        "Request body %s is not a valid scheduling query request: %s"
-          .format(jv.renderCompact,
-                  err.message))
-  }
+  badRequest(
+      "Request body %s is not a valid scheduling query request: %s"
+        .format(jv.renderCompact,
+                err.message))
+}
 <<< Init
 new DenseMatrix(
   data = from.data map { _.conjugate },
