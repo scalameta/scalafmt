@@ -745,3 +745,19 @@ object Application {
 
   def main(args: Array[String]): Unit = app.run(args)
 }
+<<< constructor issue
+rewrite.rules = [ RedundantParens]
+===
+class Toto() {
+private def myScalaFmtTest(): String = {
+  val test = new Toto
+  ("test")
+}
+}
+>>>
+class Toto() {
+  private def myScalaFmtTest(): String = {
+    val test = new Toto
+    "test"
+  }
+}

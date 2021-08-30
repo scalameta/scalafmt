@@ -2111,7 +2111,10 @@ class Router(formatOps: FormatOps) {
             _
           ) =>
         Seq(
-          Split(Space, 0)
+          if (leftOwner.parent.exists(_.isNot[Init]))
+            Split(Space, 0)
+          else
+            Split(Newline, 0)
         )
 
       // Case
