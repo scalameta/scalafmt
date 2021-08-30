@@ -751,11 +751,12 @@ class Toto() {
   }
 }
 >>>
-test does not parse
 class Toto() {
   private def myScalaFmtTest(): String = {
-    val test = new Toto "test"
-                      ^
+    val test = new Toto
+    "test"
+  }
+}
 <<< #2712 name
 class Toto() {
   private def myScalaFmtTest(): String = {
@@ -766,6 +767,7 @@ class Toto() {
 >>>
 class Toto() {
   private def myScalaFmtTest(): String = {
-    val test = new Toto a
+    val test = new Toto
+    a
   }
 }
