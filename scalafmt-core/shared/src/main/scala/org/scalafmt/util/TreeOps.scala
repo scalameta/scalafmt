@@ -103,7 +103,8 @@ object TreeOps {
     val ret = Map.newBuilder[TokenHash, Tree]
     ret.sizeHint(tree.tokens.length)
 
-    def addTok(token: Token, tree: Tree) = ret += hash(token) -> tree
+    def addTok(token: Token, tree: Tree) =
+      ret += hash(replacedWith(token)) -> tree
     def addTree(t: Tree, tree: Tree) =
       t.tokens.find(!_.is[Trivia]).foreach(addTok(_, tree))
     def addAll(trees: Seq[Tree]) = trees.foreach(x => addTree(x, x))

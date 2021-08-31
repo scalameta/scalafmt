@@ -743,3 +743,31 @@ object Application {
 
   def main(args: Array[String]): Unit = app.run(args)
 }
+<<< #2712 literal
+class Toto() {
+  private def myScalaFmtTest(): String = {
+    val test = new Toto
+    ("test")
+  }
+}
+>>>
+class Toto() {
+  private def myScalaFmtTest(): String = {
+    val test = new Toto
+    "test"
+  }
+}
+<<< #2712 name
+class Toto() {
+  private def myScalaFmtTest(): String = {
+    val test = new Toto
+    (a)
+  }
+}
+>>>
+class Toto() {
+  private def myScalaFmtTest(): String = {
+    val test = new Toto
+    a
+  }
+}
