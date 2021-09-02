@@ -1,4 +1,5 @@
 rewrite.rules = [Imports]
+rewrite.imports.contiguousGroups = no
 runner.dialect = scala3
 <<< basic with wildcard
 rewrite.imports.expand = true
@@ -668,6 +669,56 @@ class A {
 }
 class B {
   import foo._
+}
+<<< #2718 contiguousGroups = only
+rewrite.imports.groups = [["""scala\..*"""]]
+rewrite.imports.contiguousGroups = only
+===
+object Main {
+  // c1
+  import Foo._ // c2
+  // c3
+  val bar: Bar = getBar
+  // c4
+  import bar.ec // c5
+
+  def getBar: Foo.Bar = ???
+}
+>>>
+object Main {
+  // c1
+  import Foo._ // c2
+  // c4
+  import bar.ec // c5
+  // c3
+  val bar: Bar = getBar
+
+  def getBar: Foo.Bar = ???
+}
+<<< #2718 contiguousGroups = no
+rewrite.imports.groups = [["""scala\..*"""]]
+rewrite.imports.contiguousGroups = no
+===
+object Main {
+  // c1
+  import Foo._ // c2
+  // c3
+  val bar: Bar = getBar
+  // c4
+  import bar.ec // c5
+
+  def getBar: Foo.Bar = ???
+}
+>>>
+object Main {
+  // c1
+  import Foo._ // c2
+  // c4
+  import bar.ec // c5
+  // c3
+  val bar: Bar = getBar
+
+  def getBar: Foo.Bar = ???
 }
 <<< #2720 expand
 rewrite.imports.expand = true

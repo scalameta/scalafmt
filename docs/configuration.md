@@ -2650,15 +2650,6 @@ import foo._
 
 #### Imports: `groups`
 
-This rule will separate all import statements into groups. If sorting is
-enabled (i.e., not `none`), imports will also be sorted within each group.
-
-The `groups` parameter defines several sets of regular expressions; each
-set defines a single group, and the groups are output in the order they
-are configured (imports not matching any of the regexes will form their own
-group at the end). Regular expressions are applied to the entire parent domain
-of the import statement, up to and including the final dot.
-
 > Keep in mind that this functionality should be used very carefully if
 > hierarchical (relative) imports are allowed in your codebase. Groups
 > should only refer to typical top-level domains such as `java`, `org`,
@@ -2667,6 +2658,21 @@ of the import statement, up to and including the final dot.
 > The safest way to handle this case is by using `scalafix` with a semantic
 > rule like `OrganizeImports`. However, on a large codebase, the overhead
 > of using semantic `scalafix` rules might be substantial.
+
+This rule will separate all import statements into groups. If sorting is
+enabled (i.e., not `none`), imports will also be sorted within each group.
+
+The rule accepts the following parameters:
+
+- `rewrite.imports.groups`: defines several sets of regular expressions; each
+  set defines a single group, and the groups are output in the order they
+  are configured (imports not matching any of the regexes will form their own
+  group at the end). Regular expressions are applied to the entire parent domain
+  of the import statement, up to and including the final dot.
+- `rewrite.imports.contiguousGroups` (since v3.0.2):
+  - if `only` (default), only consecutive import statements will be grouped
+  - if `no`, grouping will happen on all imports within the same container
+    (source, package, template etc.)
 
 ```scala mdoc:scalafmt
 rewrite.rules = [Imports]

@@ -22,6 +22,7 @@ object Imports extends RewriteFactory {
   case class Settings(
       sort: Sort = Sort.none,
       expand: Boolean = false,
+      contiguousGroups: ContiguousGroups = ContiguousGroups.only,
       groups: Seq[Seq[String]] = Nil
   ) {
     private lazy val regex = groups.map(_.map(Pattern.compile))
@@ -38,6 +39,15 @@ object Imports extends RewriteFactory {
     implicit val surface: generic.Surface[Settings] = generic.deriveSurface
     implicit val codec: ConfCodecEx[Settings] =
       generic.deriveCodecEx(new Settings).noTypos
+  }
+
+  sealed abstract class ContiguousGroups
+  object ContiguousGroups {
+    case object no extends ContiguousGroups
+    case object only extends ContiguousGroups
+
+    implicit val codec: ConfCodecEx[ContiguousGroups] =
+      ReaderUtil.oneOf(only, no)
   }
 
   override def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean =
