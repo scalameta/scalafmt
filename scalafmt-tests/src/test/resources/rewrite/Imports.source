@@ -688,10 +688,10 @@ object Main {
 object Main {
   // c1
   import Foo._ // c2
-  // c4
-  import bar.ec // c5
   // c3
   val bar: Bar = getBar
+  // c4
+  import bar.ec // c5
 
   def getBar: Foo.Bar = ???
 }

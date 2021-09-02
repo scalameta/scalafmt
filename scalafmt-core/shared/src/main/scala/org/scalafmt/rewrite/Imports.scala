@@ -485,6 +485,8 @@ object Imports extends RewriteFactory {
     ): Unit =
       if (settings.groups.isEmpty && settings.sort.eq(Sort.none))
         processEachLine(stats)
+      else if (settings.contiguousGroups eq ContiguousGroups.only)
+        processEachGroup(stats)
       else
         processAllGroups(stats)
 
@@ -502,6 +504,13 @@ object Imports extends RewriteFactory {
         val group = Seq(stat)
         val importString = processImports(group)
         processTokenRanges(importString, getTokenRange(group))
+      }
+
+    private def processEachGroup(stats: Seq[Seq[ImportExportStat]]): Unit =
+      stats.foreach { group =>
+        val tokenRange = getTokenRange(group)
+        val importString = processImports(group)
+        processTokenRanges(importString, tokenRange)
       }
 
     private def processAllGroups(stats: Seq[Seq[ImportExportStat]]): Unit = {
