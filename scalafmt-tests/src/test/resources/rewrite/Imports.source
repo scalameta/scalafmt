@@ -668,3 +668,22 @@ class A {
 class B {
   import foo._
 }
+<<< #2720 expand
+rewrite.imports.expand = true
+===
+import bar.b
+
+import bar.a
+>>>
+import bar.b
+import bar.a
+<<< #2720 !expand
+rewrite.imports.expand = false
+===
+import bar.b
+
+import bar.a
+>>>
+import bar.b
+
+import bar.a
