@@ -119,7 +119,17 @@ object blah {
 object blah {
   import a.{zzzz => _, _}
 }
-<<< #2571
+<<< #2571 sorted
+runner.parser = source
+rewrite.imports.sort = ascii
+===
+import zio.prelude.<=>
+import zio.prelude.` => `
+import zio.prelude.{<=>, ` => `}
+>>>
+import zio.prelude.<=>
+import zio.prelude.` => `
+<<< #2571 !sorted
 runner.parser = source
 ===
 import zio.prelude.<=>
