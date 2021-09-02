@@ -472,17 +472,28 @@ object Imports extends RewriteFactory {
 
     override protected def processImports(
         stats: Seq[Seq[ImportExportStat]]
-    ): Unit = {
-      val tokenRanges = stats.map { x =>
-        val headTok = x.head.tokens.head
-        val lastTok = x.last.tokens.last
-        (
-          getCommentsBefore(headTok).headOption.getOrElse(headTok),
-          getCommentAfter(lastTok).getOrElse(lastTok)
-        )
-      }
+    ): Unit =
+      processAllGroups(stats)
 
+    private def getTokenRange(x: Seq[ImportExportStat]): (Token, Token) = {
+      val headTok = x.head.tokens.head
+      val lastTok = x.last.tokens.last
+      (
+        getCommentsBefore(headTok).headOption.getOrElse(headTok),
+        getCommentAfter(lastTok).getOrElse(lastTok)
+      )
+    }
+
+    private def processAllGroups(stats: Seq[Seq[ImportExportStat]]): Unit = {
+      val tokenRanges = stats.map(getTokenRange)
       val importString = processImports(stats.flatten)
+      processTokenRanges(importString, tokenRanges: _*)
+    }
+
+    private def processTokenRanges(
+        importString: String,
+        tokenRanges: (Token, Token)*
+    ): Unit = {
       implicit val patchBuilder = Seq.newBuilder[TokenPatch]
 
       // replace the first token
