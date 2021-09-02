@@ -137,4 +137,7 @@ import zio.prelude.` => `
 import zio.prelude.{<=>, ` => `}
 >>>
 import zio.prelude.<=>
+
+import zio.prelude.` => `
+import zio.prelude.<=>
 import zio.prelude.` => `

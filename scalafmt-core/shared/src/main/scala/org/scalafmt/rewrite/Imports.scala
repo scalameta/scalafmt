@@ -473,7 +473,10 @@ object Imports extends RewriteFactory {
     override protected def processImports(
         stats: Seq[Seq[ImportExportStat]]
     ): Unit =
-      processAllGroups(stats)
+      if (settings.groups.isEmpty && settings.sort.eq(Sort.none))
+        processEachLine(stats)
+      else
+        processAllGroups(stats)
 
     private def getTokenRange(x: Seq[ImportExportStat]): (Token, Token) = {
       val headTok = x.head.tokens.head
@@ -483,6 +486,13 @@ object Imports extends RewriteFactory {
         getCommentAfter(lastTok).getOrElse(lastTok)
       )
     }
+
+    private def processEachLine(stats: Seq[Seq[ImportExportStat]]): Unit =
+      stats.flatten.foreach { stat =>
+        val group = Seq(stat)
+        val importString = processImports(group)
+        processTokenRanges(importString, getTokenRange(group))
+      }
 
     private def processAllGroups(stats: Seq[Seq[ImportExportStat]]): Unit = {
       val tokenRanges = stats.map(getTokenRange)

@@ -57,6 +57,7 @@ import h.k
 import h.l
 export d.e.f
 export d.e.g
+
 // comment
 import a.md.e.f
 import a.md.e.g
@@ -676,6 +677,7 @@ import bar.b
 import bar.a
 >>>
 import bar.b
+
 import bar.a
 <<< #2720 !expand
 rewrite.imports.expand = false
