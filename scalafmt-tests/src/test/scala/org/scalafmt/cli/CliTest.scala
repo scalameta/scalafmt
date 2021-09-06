@@ -199,6 +199,19 @@ trait CliTestBehavior { this: AbstractCliTest =>
       val str = FileOps.readFile(tmpFile.toString)
       assertNoDiff(str, unformatted)
     }
+    test(s"scalafmt --test fails with non zero exit code $label") {
+      val tmpFile = Files.createTempFile("prefix", ".scala")
+      Files.write(tmpFile, unformatted.getBytes)
+      val args = Array(
+        tmpFile.toFile.getPath,
+        "--test",
+        "--config-str",
+        s"""{version="$version",style=IntelliJ, docstring = Asterisk}"""
+      )
+      val formatInPlace = getConfig(args)
+      val exit = Cli.run(formatInPlace)
+      assert(exit.is(ExitCode.UnexpectedError))
+    }
 
     test(s"scalafmt foo.randomsuffix is formatted: $label") {
       val tmpFile = Files.createTempFile("prefix", "randomsuffix")

@@ -154,7 +154,7 @@ object Cli {
     if (
       options.writeMode == WriteMode.Test &&
       !options.fatalWarnings &&
-      !exit.is(ExitCode.TestError)
+      exit.is(ExitCode.ParseError)
     ) {
       // Ignore parse errors etc.
       ExitCode.Ok

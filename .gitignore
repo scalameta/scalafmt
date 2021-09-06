@@ -37,6 +37,7 @@ docs/xx.md
 .metals/
 metals.sbt
 .bloop/
+.vscode
 
 node_modules/
 .java-version
