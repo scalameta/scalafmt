@@ -499,12 +499,19 @@ class Router(formatOps: FormatOps) {
           if leftOwner.is[Defn.ExtensionGroup] &&
             nextNonComment(formatToken).right.isNot[LeftParenOrBrace] =>
         val expireToken = getLastToken(leftOwner)
-        // Force a newline with the body of a Defn.ExtensionGroup if the
-        // method doesn't fit on a single line.
-        Seq(
-          Split(Space, 0).withSingleLine(expireToken),
-          Split(Newline, 1).withIndent(style.indent.main, expireToken, After)
-        )
+        def nlSplit(cost: Int = 0)(implicit fileLine: FileLine) =
+          Split(Newline, cost).withIndent(style.indent.main, expireToken, After)
+        style.newlines.source match {
+          case Newlines.unfold =>
+            Seq(nlSplit())
+          case Newlines.keep if newlines != 0 =>
+            Seq(nlSplit())
+          case _ =>
+            Seq(
+              Split(Space, 0).withSingleLine(expireToken),
+              nlSplit(cost = 1)
+            )
+        }
 
       case tok @ FormatToken(left, right, StartsStatementRight(_)) =>
         val expire = rightOwner.tokens

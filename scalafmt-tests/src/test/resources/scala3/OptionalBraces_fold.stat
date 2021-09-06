@@ -1846,3 +1846,19 @@ given liftPropertyAlias: NiceLiftable[PropertyAlias] with {
   def lift =
      case PropertyAlias(a, b) => '{ PropertyAlias(${ a.expr }, ${ b.expr }) }
 }
+<<< #2725 newline after extension parameter
+extension (a: All) 
+  def getAll: Boolean = a
+>>>
+extension (a: All) def getAll: Boolean = a
+<<< #2725 newline after extension parameter short
+extension (a: All) def getAll: Boolean = a
+>>>
+extension (a: All) def getAll: Boolean = a
+<<< #2725 newline after extension parameter long
+maxColumn = 40
+===
+extension (a: All) def getAll: Boolean = a
+>>>
+extension (a: All)
+  def getAll: Boolean = a
