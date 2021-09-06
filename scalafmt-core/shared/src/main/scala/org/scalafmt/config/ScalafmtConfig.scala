@@ -231,11 +231,6 @@ object ScalafmtConfig {
     )
   )
 
-  val scala3: ScalafmtConfig = default.copy(
-    runner =
-      ScalafmtRunner.default.copy(dialect = ScalafmtRunner.Dialect.scala3)
-  )
-
   /** Ready styles provided by scalafmt.
     */
   val activeStyles: Map[String, ScalafmtConfig] =
