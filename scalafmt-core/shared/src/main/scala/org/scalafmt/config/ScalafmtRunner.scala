@@ -21,7 +21,7 @@ case class ScalafmtRunner(
     parser: ScalafmtParser = ScalafmtParser.Source,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
-    dialect: Dialect = ScalafmtRunner.Dialect.scala213,
+    dialect: Dialect = ScalafmtRunner.Dialect.default.value,
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
@@ -62,6 +62,10 @@ object ScalafmtRunner {
   val sbt = default.forSbt
 
   object Dialect {
+    type WithName = sourcecode.Text[Dialect]
+    def withName(name: String, dialect: Dialect): WithName =
+      sourcecode.Text(dialect, name)
+
     import scala.meta.dialects._
 
     val scala212 = Scala212
@@ -70,7 +74,7 @@ object ScalafmtRunner {
       .withAllowTrailingCommas(true)
     val scala3 = Scala3
 
-    val codec = ReaderUtil.oneOfCustom[Dialect](
+    private[ScalafmtRunner] val known: Seq[WithName] = Seq(
       Scala211,
       scala212,
       Scala212Source3,
@@ -79,13 +83,18 @@ object ScalafmtRunner {
       Sbt0137,
       Sbt1,
       scala3
-    ) {
-      // current default is 213
-      case Conf.Str("default") => Configured.Ok(scala213)
-    }
+    )
+
+    private[ScalafmtRunner] val defaultName = "default"
+    // current default is 213
+    private[ScalafmtRunner] val default = withName(defaultName, scala213)
   }
 
-  implicit val dialectCodec = Dialect.codec
+  implicit val dialectCodec = {
+    val dialects = (Dialect.known :+ Dialect.default)
+    ReaderUtil.oneOf(dialects: _*)
+  }
+
   implicit val codec: ConfCodecEx[ScalafmtRunner] =
     generic.deriveCodecEx(default).noTypos
 
