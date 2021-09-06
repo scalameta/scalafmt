@@ -30,7 +30,7 @@ lazy val root = project
   .aggregate(core, cli, benchmarks, scalafmtSbt, macros, readme)
   .dependsOn(core)
 <<< #1716 shebang for ammonite
-runner.dialect = default
+runner.dialect = scala213
 align.preset = most
 ===
 #!/usr/bin/env   amm
@@ -43,7 +43,7 @@ addSbtPlugin("io.get-coursier"  % "sbt-coursier"    % "1.0.0-M14")
 addSbtPlugin("com.eed3si9n"     % "sbt-assembly"    % "0.14.3")
 addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % "0.14")
 <<< #2135 shebang for ammonite with AvoidInfix
-runner.dialect = default
+runner.dialect = scala213
 rewrite.rules = [AvoidInfix]
 ===
 #!/usr/bin/env   amm
