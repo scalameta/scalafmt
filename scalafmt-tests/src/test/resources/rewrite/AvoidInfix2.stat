@@ -1,16 +1,20 @@
 rewrite.rules = [AvoidInfix]
 rewrite.neverInfix.includeFilters = [".*"]
-<<< basic
+<<< right assoc
 lst :: foo
 >>>
 lst.::(foo)
+<<< basic
+lst :+ foo
+>>>
+lst.:+(foo)
 <<< basic (format:off)
 // format: off
-lst :: foo
+lst :+ foo
 
 >>>
 // format: off
-lst :: foo
+lst :+ foo
 <<< default scalatest
 behavior of "..." {
   a shouldBe b
