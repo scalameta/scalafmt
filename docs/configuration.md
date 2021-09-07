@@ -2297,6 +2297,15 @@ To enable a rewrite rule, add it to the config like this
 
 ### `AvoidInfix`
 
+This rule replaces infix expressions `a op b` with proper method calls `a.op(b)`.
+
+> NB: The rule currently does not support right-associative operators (i.e.,
+> those which end in `:`) which would have had to be rewritten as `b.op(a)`.
+
+The rule takes the `rewrite.neverInfix` parameter group which consists of
+`includeFilters` and `excludeFilters`, two lists of regular expressions,
+which determine which operators are eligible for this rewrite.
+
 ```scala mdoc:scalafmt
 rewrite.rules = [AvoidInfix]
 rewrite.neverInfix.excludeFilters."+" = [ "map" ]
