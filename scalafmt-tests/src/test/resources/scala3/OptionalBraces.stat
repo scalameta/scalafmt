@@ -1314,6 +1314,26 @@ object a:
    import scala.{annotation as ann}
    import java as j
    import Predef.{augmentString as _}
+<<< rewrite to new syntax, imports, scala2-source3
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+runner.dialect = scala213source3
+===
+object a {
+ import A.{min => minimum, `*` => multiply}
+ import Predef.{augmentString => _, _}
+ import scala.{annotation => ann}
+ import java as j
+ import Predef.{augmentString => _}
+}
+>>>
+object a {
+  import A.{min => minimum, `*` => multiply}
+  import Predef.{augmentString => _, _}
+  import scala.{annotation => ann}
+  import java as j
+  import Predef.{augmentString => _}
+}
 <<< rewrite to new syntax, wildcard
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
@@ -1323,6 +1343,18 @@ object a:
 >>>
 object a:
    def foo(a: Foo[?]): Unit = ???
+<<< rewrite to new syntax, wildcard, scala2-source3
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+runner.dialect = scala213source3
+===
+object a {
+  def foo(a: Foo[_]): Unit = ???
+}
+>>>
+object a {
+  def foo(a: Foo[_]): Unit = ???
+}
 <<< rewrite to new syntax, vararg splices, call
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
@@ -1332,6 +1364,16 @@ def foo: Unit =
 >>>
 def foo: Unit =
   foo(a*)
+<<< rewrite to new syntax, vararg splices, call, scala2-source3
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+runner.dialect = scala213source3
+===
+def foo: Unit =
+  foo(a: _*)
+>>>
+def foo: Unit =
+  foo(a: _*)
 <<< rewrite to new syntax, vararg splices, pat bind
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
@@ -1343,6 +1385,22 @@ object a:
 object a:
    lst match
       case List(0, 1, xs*) => foo
+<<< rewrite to new syntax, vararg splices, pat bind, scala2-source3
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+runner.dialect = scala213source3
+===
+object a {
+  lst match {
+    case List(0, 1, xs @ _*) => foo
+  }
+}
+>>>
+object a {
+  lst match {
+    case List(0, 1, xs @ _*) => foo
+  }
+}
 <<< if break before then if multiline cond
 maxColumn = 12
 ===
