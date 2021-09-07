@@ -4,6 +4,7 @@ import scala.meta._
 
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.RewriteSettings
+import org.scalafmt.util.InfixApp
 
 object AvoidInfix extends RewriteFactory {
 
@@ -35,7 +36,8 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
   override def rewrite(tree: Tree): Unit =
     tree match {
-      case Term.ApplyInfix(lhs, op, _, args) if matcher.matches(op.value) =>
+      case Term.ApplyInfix(lhs, op, _, args)
+          if InfixApp.isLeftAssoc(op.value) && matcher.matches(op.value) =>
         val builder = Seq.newBuilder[TokenPatch]
 
         val opHead = op.tokens.head

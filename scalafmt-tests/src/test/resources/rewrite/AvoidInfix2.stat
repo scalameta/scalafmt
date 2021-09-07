@@ -3,7 +3,7 @@ rewrite.neverInfix.includeFilters = [".*"]
 <<< right assoc
 lst :: foo
 >>>
-lst.::(foo)
+lst :: foo
 <<< basic
 lst :+ foo
 >>>
