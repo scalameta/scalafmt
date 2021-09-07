@@ -15,11 +15,6 @@ case class InfixApp(lhs: Tree, op: Name, rhs: Seq[Tree], all: Tree) {
   @inline
   def isAssignment: Boolean = InfixApp.isAssignment(op.value)
 
-  // https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
-  // Operators ending in a colon `:' are right-associative. All other operators are left-associative.
-  @inline
-  def isRightAssoc: Boolean = op.value.last == ':'
-
   @inline
   lazy val precedence: Int =
     InfixApp.infixOpPrecedence.getOrElse(op.value.head, 0)
@@ -64,6 +59,10 @@ object InfixApp {
   def isAssignment(op: String): Boolean =
     op.lastOption.contains('=') && (op.length == 1 ||
       op.head != '=' && !nonAssignmentOperators.contains(op))
+
+  // https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
+  // Operators ending in a colon `:' are right-associative. All other operators are left-associative.
+  @inline def isLeftAssoc(op: String): Boolean = op.last != ':'
 
 }
 

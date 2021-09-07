@@ -1,7 +1,9 @@
 package org.scalafmt.internal
 
-import scala.meta.{Term, Tree, Lit}
 import org.scalafmt.internal.{SyntacticGroup => g}
+import org.scalafmt.util.InfixApp
+
+import scala.meta.{Lit, Term, Tree}
 import scala.meta.internal.trees._
 
 object SyntacticGroupOps {
@@ -15,12 +17,8 @@ object SyntacticGroupOps {
       forceRight: Boolean = false
   ): Boolean = {
 
-    // The associativity of an operator is determined by the operator's last character.
-    // Operators ending in a colon ‘:’ are right-associative. All
-    // other operators are left-associative.
-    // https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#infix-operations
     def isLeftAssociative(name: String): Boolean =
-      if (customAssociativity) name.last != ':' else true
+      !customAssociativity || InfixApp.isLeftAssoc(name)
 
     def precedence(name: String): Int =
       if (customPrecedence) Term.Name(name).precedence else 0
