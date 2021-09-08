@@ -1472,11 +1472,11 @@ object a {
 }
 >>>
 object a {
-  import A.{min => minimum, `*` => multiply}
-  import Predef.{augmentString => _, _}
-  import scala.{annotation => ann}
+  import A.{min as minimum, `*` as multiply}
+  import Predef.{augmentString as _, *}
+  import scala.{annotation as ann}
   import java as j
-  import Predef.{augmentString => _}
+  import Predef.{augmentString as _}
 }
 <<< rewrite to new syntax, wildcard
 rewrite.scala3.convertToNewSyntax = true
@@ -1497,7 +1497,7 @@ object a {
 }
 >>>
 object a {
-  def foo(a: Foo[_]): Unit = ???
+  def foo(a: Foo[?]): Unit = ???
 }
 <<< rewrite to new syntax, vararg splices, call
 rewrite.scala3.convertToNewSyntax = true
@@ -1515,7 +1515,7 @@ runner.dialect = scala213source3
 def foo: Unit =
   foo(a: _*)
 >>>
-def foo: Unit = foo(a: _*)
+def foo: Unit = foo(a*)
 <<< rewrite to new syntax, vararg splices, pat bind
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
@@ -1541,7 +1541,7 @@ object a {
 >>>
 object a {
   lst match {
-    case List(0, 1, xs @ _*) =>
+    case List(0, 1, xs*) =>
       foo
   }
 }

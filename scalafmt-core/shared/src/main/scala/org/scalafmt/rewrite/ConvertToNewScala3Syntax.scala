@@ -13,8 +13,7 @@ import org.scalafmt.internal.FormatTokens
 object ConvertToNewScala3Syntax extends FormatTokensRewrite.RuleFactory {
 
   override def enabled(implicit style: ScalafmtConfig): Boolean =
-    style.runner.dialect.allowSignificantIndentation &&
-      style.rewrite.scala3.convertToNewSyntax
+    style.rewrite.scala3.convertToNewSyntax
 
   override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new ConvertToNewScala3Syntax(ftoks)
@@ -38,7 +37,7 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
   ): Option[Replacement] = Option {
     ft.right match {
 
-      case _: Token.LeftParen =>
+      case _: Token.LeftParen if dialect.allowSignificantIndentation =>
         ft.meta.rightOwner match {
           case t: Term.If if ftoks.prevNonComment(ft).left.is[Token.KwIf] =>
             removeToken
@@ -53,17 +52,16 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
           case _ => null
         }
 
-      case _: Token.Colon =>
+      case _: Token.Colon if dialect.allowPostfixStarVarargSplices =>
         ft.meta.rightOwner match {
-          case _: Term.Repeated if dialect.allowPostfixStarVarargSplices =>
+          case _: Term.Repeated =>
             removeToken // trick: to get "*", just remove ":" and "_"
           case _ => null
         }
 
-      case _: Token.At =>
+      case _: Token.At if dialect.allowPostfixStarVarargSplices =>
         ft.meta.rightOwner match {
-          case Pat.Bind(_, _: Pat.SeqWildcard)
-              if dialect.allowPostfixStarVarargSplices =>
+          case Pat.Bind(_, _: Pat.SeqWildcard) =>
             removeToken // trick: to get "*", just remove "@" and "_"
           case _ => null
         }
@@ -80,10 +78,9 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
           case _ => null
         }
 
-      case _: Token.RightArrow =>
+      case _: Token.RightArrow if dialect.allowAsForImportRename =>
         ft.meta.rightOwner match {
-          case _: Importee.Rename | _: Importee.Unimport
-              if dialect.allowAsForImportRename =>
+          case _: Importee.Rename | _: Importee.Unimport =>
             replaceTokenIdent("as", ft.right)
           case _ => null
         }
