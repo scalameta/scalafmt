@@ -63,7 +63,12 @@ object Config {
               ConfError.typeMismatch("Conf.Obj", x).notOk
           }
       }
-      ScalafmtConfig.decoder.read(Option(default), next)
+      val decoded = ScalafmtConfig.decoder.read(Option(default), next)
+      decoded match {
+        case Configured.Ok(x) => x.runner.warnDefault
+        case _ =>
+      }
+      decoded
     }
 
 }

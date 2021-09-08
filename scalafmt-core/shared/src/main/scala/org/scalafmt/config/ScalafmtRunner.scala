@@ -44,6 +44,16 @@ case class ScalafmtRunner(
   def parse(input: meta.inputs.Input): Parsed[_ <: Tree] =
     parser.parse(input, getDialect)
 
+  def isDefaultDialect = dialect.source == ScalafmtRunner.Dialect.defaultName
+  def warnDefault: Unit = if (isDefaultDialect) {
+    val known = ScalafmtRunner.Dialect.known.map(_.source).mkString(",")
+    Console.err.print(
+      s"""Default dialect is deprecated; use explicit: [$known]
+        |Also see https://scalameta.org/scalafmt/docs/configuration.html#scala-dialects"
+        |""".stripMargin
+    )
+  }
+
 }
 
 object ScalafmtRunner {
