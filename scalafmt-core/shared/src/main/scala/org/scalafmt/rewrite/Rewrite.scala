@@ -19,7 +19,7 @@ case class RewriteCtx(
     fileName: String,
     tree: Tree
 ) {
-  implicit val dialect = style.runner.dialect
+  implicit val dialect = style.dialect
 
   private val patchBuilder = mutable.Map.empty[(Int, Int), TokenPatch]
 
@@ -192,7 +192,7 @@ object RewriteCtx {
     isSimpleExprOr(expr) {
       case _: Term.Select | _: Term.ApplyInfix =>
         !hasPlaceholder(expr)
-      case _: Term.Match if style.runner.dialect.allowMatchAsOperator =>
+      case _: Term.Match if style.dialect.allowMatchAsOperator =>
         !hasPlaceholder(expr)
     }
 

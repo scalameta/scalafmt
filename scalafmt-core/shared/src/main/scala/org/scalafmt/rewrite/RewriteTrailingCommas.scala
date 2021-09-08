@@ -12,7 +12,7 @@ import org.scalafmt.util.TreeOps
 object RewriteTrailingCommas extends FormatTokensRewrite.RuleFactory {
 
   override def enabled(implicit style: ScalafmtConfig): Boolean =
-    style.runner.dialect.allowTrailingCommas &&
+    style.dialect.allowTrailingCommas &&
       style.trailingCommas != TrailingCommas.preserve
 
   override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =

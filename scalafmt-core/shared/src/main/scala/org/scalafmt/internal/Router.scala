@@ -683,7 +683,7 @@ class Router(formatOps: FormatOps) {
               }
               getSplitsBeforeOpenParen(x, indent)
             }
-          else if (style.runner.dialect.allowSignificantIndentation)
+          else if (style.dialect.allowSignificantIndentation)
             style.newlines.getBeforeOpenParenCallSite.map(
               getSplitsBeforeOpenParen(_, style.indent.getSignificant)
             )

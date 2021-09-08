@@ -72,7 +72,7 @@ class FormatOps(
   }
 
   val runner: ScalafmtRunner = initStyle.runner
-  implicit val dialect = initStyle.runner.dialect
+  implicit val dialect = initStyle.dialect
   val (tokens, styleMap) = FormatTokens(topSourceTree.tokens, owners)(initStyle)
   import tokens.{
     matching,
@@ -2010,7 +2010,7 @@ class FormatOps(
     ): Option[OptionalBracesRegion] = {
       val nft = nextNonComment(ft)
       if (nft.right.is[T.LeftBrace]) None
-      else if (!style.runner.dialect.allowSignificantIndentation) None
+      else if (!style.dialect.allowSignificantIndentation) None
       else {
         val impl = ft.left match {
           case _: T.Colon | _: T.KwWith => ColonEolImpl
@@ -2522,7 +2522,7 @@ class FormatOps(
         style: ScalafmtConfig,
         classifier: Classifier[Token, A]
     ): Split =
-      if (!style.runner.dialect.allowSignificantIndentation) split
+      if (!style.dialect.allowSignificantIndentation) split
       else {
         val kw = tokenAfter(tree).right
         if (kw.is[A]) {

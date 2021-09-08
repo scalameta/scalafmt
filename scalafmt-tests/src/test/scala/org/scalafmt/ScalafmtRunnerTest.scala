@@ -7,7 +7,7 @@ import munit.FunSuite
 class ScalafmtRunnerTest extends FunSuite {
   test("sbt dialect supports trailing commas") {
     ScalafmtRunner.sbt
-      .dialect(
+      .getDialect(
         """
           |lazy
           |val x = project(

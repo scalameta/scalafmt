@@ -123,7 +123,7 @@ class FormatWriter(formatOps: FormatOps) {
     iter(state, 0)
 
     val initStyle = styleMap.init
-    if (initStyle.runner.dialect.allowSignificantIndentation) {
+    if (initStyle.dialect.allowSignificantIndentation) {
       if (initStyle.rewrite.scala3.removeEndMarkerMaxLines > 0)
         checkRemoveEndMarkers(result)
       if (initStyle.rewrite.scala3.insertEndMarkerMinLines > 0)
@@ -417,7 +417,7 @@ class FormatWriter(formatOps: FormatOps) {
         @inline def ws(offset: Int): Unit = sb.append(getWhitespace(offset))
 
         val noExtraOffset =
-          !runner.dialect.allowTrailingCommas ||
+          !dialect.allowTrailingCommas ||
             tok.left.is[T.Comment] ||
             previous.formatToken.meta.formatOff
 

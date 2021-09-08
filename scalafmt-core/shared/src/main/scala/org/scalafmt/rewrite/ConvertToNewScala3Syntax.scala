@@ -26,7 +26,7 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
   import FormatTokensRewrite._
 
   @inline
-  private def dialect(implicit style: ScalafmtConfig) = style.runner.dialect
+  private def dialect(implicit style: ScalafmtConfig) = style.dialect
 
   override def enabled(implicit style: ScalafmtConfig): Boolean =
     ConvertToNewScala3Syntax.enabled

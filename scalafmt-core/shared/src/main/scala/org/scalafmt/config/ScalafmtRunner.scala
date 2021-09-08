@@ -25,6 +25,8 @@ case class ScalafmtRunner(
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
+  @inline def getDialect = dialect
+
   def topLevelDialect: Dialect = dialect
     .withAllowToplevelTerms(true)
     .withToplevelSeparator("")
@@ -38,7 +40,7 @@ case class ScalafmtRunner(
     if (null != eventCallback) evts.foreach(eventCallback)
 
   def parse(input: meta.inputs.Input): Parsed[_ <: Tree] =
-    dialect(input).parse(parser.parse)
+    parser.parse(input, getDialect)
 
 }
 
