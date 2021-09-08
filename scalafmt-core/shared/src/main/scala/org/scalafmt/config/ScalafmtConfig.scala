@@ -173,6 +173,7 @@ case class ScalafmtConfig(
   lazy val docstringsWrapMaxColumn: Int =
     docstrings.wrapMaxColumn.getOrElse(maxColumn)
 
+  lazy val dialect = runner.getDialect
 }
 
 object ScalafmtConfig {
@@ -318,11 +319,11 @@ object ScalafmtConfig {
     }
     locally {
       implicit val errors = allErrors
-      if (!runner.dialect.allowTrailingCommas) {
+      if (!dialect.allowTrailingCommas) {
         addIf(trailingCommas == TrailingCommas.always, errDialect)
         addIf(trailingCommas == TrailingCommas.multiple, errDialect)
       }
-      if (!runner.dialect.allowSignificantIndentation) {
+      if (!dialect.allowSignificantIndentation) {
         addIf(newlines.beforeOpenParenCallSite.nonEmpty, errDialect)
       }
       addIfDirect( // can't use addIf on multiline conditions

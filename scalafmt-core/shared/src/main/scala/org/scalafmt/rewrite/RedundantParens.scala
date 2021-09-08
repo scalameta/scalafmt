@@ -67,7 +67,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case _: Term.PartialFunction => true
 
       case t: Term.Match
-          if style.runner.dialect.allowMatchAsOperator &&
+          if style.dialect.allowMatchAsOperator &&
             ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
             ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace] =>
         true
@@ -83,9 +83,9 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           case p: Case =>
             p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
           case w: Term.While =>
-            style.runner.dialect.allowSignificantIndentation && w.expr == t
+            style.dialect.allowSignificantIndentation && w.expr == t
           case i: Term.If =>
-            style.runner.dialect.allowSignificantIndentation && i.cond == t
+            style.dialect.allowSignificantIndentation && i.cond == t
           case _ => false
         }
     }
@@ -99,7 +99,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     val ok = ft.meta.rightOwner match {
       case Term.Apply(_, List(t @ (_: Term.Block | _: Term.PartialFunction))) =>
         t.tokens.headOption.exists(_.is[Token.LeftBrace])
-      case _: Term.Match => style.runner.dialect.allowMatchAsOperator
+      case _: Term.Match => style.dialect.allowMatchAsOperator
       case _ => false
     }
     if (ok) removeToken else null

@@ -15,7 +15,7 @@ import org.scalafmt.util.TreeOps
 object RemoveScala3OptionalBraces extends FormatTokensRewrite.RuleFactory {
 
   override def enabled(implicit style: ScalafmtConfig): Boolean =
-    style.runner.dialect.allowSignificantIndentation &&
+    style.dialect.allowSignificantIndentation &&
       style.rewrite.scala3.removeOptionalBraces
         .ne(RewriteScala3Settings.RemoveOptionalBraces.no)
 
