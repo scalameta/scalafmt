@@ -160,6 +160,7 @@ case class ScalafmtConfig(
     val fs = file.FileSystems.getDefault
     fileOverride.values.map { case (pattern, conf) =>
       val style = ScalafmtConfig.decoder.read(Some(this), conf).get
+      if (style.runner.getDialect ne runner.getDialect) style.runner.warnDefault
       fs.getPathMatcher(pattern.asFilename) -> style
     }
   }
@@ -383,7 +384,10 @@ object ScalafmtConfig {
         case Some((styleConf, restConf)) =>
           ScalafmtConfig.readActiveStylePresets(styleConf).andThen { x =>
             val preset = stateOpt.fold(x) { state =>
-              x.copy(runner = x.runner.copy(parser = state.runner.parser))
+              val isDefaultDialect = x.runner.isDefaultDialect
+              val dialect = (if (isDefaultDialect) state else x).runner.dialect
+              val parser = state.runner.parser
+              x.copy(runner = x.runner.copy(parser = parser, dialect = dialect))
             }
             baseDecoder.read(Some(preset), restConf)
           }
