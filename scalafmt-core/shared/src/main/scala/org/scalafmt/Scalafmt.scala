@@ -6,6 +6,7 @@ import metaconfig.Configured
 import scala.annotation.tailrec
 import scala.meta.Dialect
 import scala.meta.Input
+import scala.meta.parsers.ParseException
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
@@ -146,7 +147,13 @@ object Scalafmt {
       val runner = style.runner
       val parsed = runner.parse(Rewrite(Input.VirtualFile(file, code), style))
       parsed.fold(
-        e => Failure(e.details),
+        _.details match {
+          case ed: ParseException =>
+            val dialect = runner.dialect.source
+            val msg = s"[dialect $dialect] ${ed.shortMessage}"
+            Failure(new ParseException(ed.pos, msg))
+          case ed => Failure(ed)
+        },
         tree => {
           val formatOps = new FormatOps(tree, style, file)
           runner.event(CreateFormatOps(formatOps))

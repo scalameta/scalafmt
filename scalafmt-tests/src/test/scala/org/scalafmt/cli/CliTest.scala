@@ -104,6 +104,8 @@ abstract class AbstractCliTest extends FunSuite {
 trait CliTestBehavior { this: AbstractCliTest =>
   def testCli(version: String) {
     val label = if (version == Versions.version) "core" else "dynamic"
+    val dialectError =
+      if (version == Versions.version) " [dialect default]" else ""
     test(s"scalafmt tmpFile tmpFile2: $label") {
       val originalTmpFile = Files.createTempFile("prefix", ".scala")
       val originalTmpFile2 = Files.createTempFile("prefix2", ".scala")
@@ -614,7 +616,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         assertOut = out => {
           assertContains(
             out,
-            """foo.scala:1: error: illegal start of simple expression
+            s"""foo.scala:1: error:$dialectError illegal start of simple expression
               |object    A { foo( }
               |                   ^""".stripMargin
           )
@@ -676,7 +678,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         assertOut = out => {
           assert(
             out.contains(
-              "foo.scala:2: error: } expected but end of file found"
+              s"foo.scala:2: error:$dialectError } expected but end of file found"
             ) &&
               out.contains(
                 "error: ParseError=2"
@@ -702,7 +704,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         assertOut = out => {
           assert(
             out.contains(
-              "foo.scala:2: error: } expected but end of file found"
+              s"foo.scala:2: error:$dialectError } expected but end of file found"
             ) && out.contains(
               "error: ParseError=2"
             )
