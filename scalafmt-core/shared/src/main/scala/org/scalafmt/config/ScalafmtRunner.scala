@@ -21,15 +21,17 @@ case class ScalafmtRunner(
     parser: ScalafmtParser = ScalafmtParser.Source,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
-    dialect: Dialect = ScalafmtRunner.Dialect.default.value,
+    dialect: ScalafmtRunner.Dialect.WithName = ScalafmtRunner.Dialect.default,
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
-  @inline def getDialect = dialect
+  @inline def getDialect = dialect.value
 
-  def topLevelDialect: Dialect = dialect
-    .withAllowToplevelTerms(true)
-    .withToplevelSeparator("")
+  def topLevelDialect = dialect.copy(
+    value = getDialect
+      .withAllowToplevelTerms(true)
+      .withToplevelSeparator("")
+  )
 
   def forSbt: ScalafmtRunner = copy(dialect = topLevelDialect)
 
@@ -92,6 +94,7 @@ object ScalafmtRunner {
 
   implicit val dialectCodec = {
     val dialects = (Dialect.known :+ Dialect.default)
+      .map(x => sourcecode.Text(x, x.source))
     ReaderUtil.oneOf(dialects: _*)
   }
 
