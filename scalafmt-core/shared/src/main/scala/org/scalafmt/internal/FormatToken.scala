@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import scala.annotation.tailrec
 import scala.meta.Tree
 import scala.meta.tokens.Token
 
@@ -30,7 +31,7 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
 
   def between = meta.between
   lazy val newlinesBetween: Int = {
-    val nl = meta.between.count(_.is[Token.LF])
+    val nl = meta.newlinesBetween
     // make sure to break before/after docstring
     if (nl != 0) nl
     else if (left.is[Token.Comment] && isDocstring(meta.left.text)) 1
@@ -53,6 +54,8 @@ object FormatToken {
   @inline def noBreak(newlines: Int): Boolean = newlines == 0
   @inline def hasBlankLine(newlines: Int): Boolean = newlines > 1
 
+  @inline def isNL(token: Token): Boolean = token.is[Token.LF]
+
   /** @param between
     *   The whitespace tokens between left and right.
     * @param idx
@@ -69,6 +72,22 @@ object FormatToken {
   ) {
     @inline def leftOwner: Tree = left.owner
     @inline def rightOwner: Tree = right.owner
+
+    /** returns a value between 0 and 2 (2 for a blank line) */
+    lazy val newlinesBetween: Int = {
+      @tailrec
+      def count(idx: Int, maxCount: Int): Int = {
+        if (idx == between.length) maxCount
+        else {
+          val token = between(idx)
+          if (isNL(token))
+            if (maxCount == 0) count(idx + 1, 1) else 2
+          else
+            count(idx + 1, maxCount)
+        }
+      }
+      count(0, 0)
+    }
   }
 
   case class TokenMeta(
