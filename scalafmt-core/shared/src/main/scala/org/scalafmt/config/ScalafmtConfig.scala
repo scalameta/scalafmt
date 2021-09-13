@@ -140,12 +140,14 @@ case class ScalafmtConfig(
     fileOverride: Conf.Obj = Conf.Obj.empty,
     xmlLiterals: XmlLiterals = XmlLiterals()
 ) {
-  lazy val alignMap: Map[String, Seq[AlignToken.Matcher]] =
+  private[scalafmt] lazy val alignMap: Map[String, Seq[AlignToken.Matcher]] =
     align.tokens.map(x => x.code -> x).toMap.map { case (k, v) =>
       k -> v.getMatcher
     }
 
-  def withDialect(dialect: ScalafmtRunner.Dialect.WithName): ScalafmtConfig =
+  private[scalafmt] def withDialect(
+      dialect: ScalafmtRunner.Dialect.WithName
+  ): ScalafmtConfig =
     copy(runner = runner.copy(dialect = dialect))
 
   def withDialect(
@@ -171,16 +173,16 @@ case class ScalafmtConfig(
       .getOrElse(this)
   }
 
-  lazy val encloseSelectChains =
+  private[scalafmt] lazy val encloseSelectChains =
     optIn.encloseClassicChains || newlines.source.ne(Newlines.classic)
 
-  def indentOperatorTopLevelOnly =
+  private[scalafmt] def indentOperatorTopLevelOnly =
     indentOperator.topLevelOnly && !unindentTopLevelOperators
 
-  lazy val docstringsWrapMaxColumn: Int =
+  private[scalafmt] lazy val docstringsWrapMaxColumn: Int =
     docstrings.wrapMaxColumn.getOrElse(maxColumn)
 
-  lazy val dialect = runner.getDialect
+  private[scalafmt] lazy val dialect = runner.getDialect
 }
 
 object ScalafmtConfig {
@@ -241,7 +243,7 @@ object ScalafmtConfig {
 
   /** Ready styles provided by scalafmt.
     */
-  val activeStyles: Map[String, ScalafmtConfig] =
+  private val activeStyles: Map[String, ScalafmtConfig] =
     Map(
       "Scala.js" -> scalaJs,
       "IntelliJ" -> intellij
@@ -250,13 +252,13 @@ object ScalafmtConfig {
       defaultWithAlign
     )
 
-  val availableStyles: Map[String, ScalafmtConfig] = {
+  private val availableStyles: Map[String, ScalafmtConfig] = {
     activeStyles ++ LoggerOps.name2style(
       scalaJs
     )
   }.map { case (k, v) => k.toLowerCase -> v }
 
-  def conservativeRunner: ScalafmtRunner =
+  private[scalafmt] def conservativeRunner: ScalafmtRunner =
     default.runner.copy(
       optimizer = default.runner.optimizer.copy(
         // The tests were not written in this style
