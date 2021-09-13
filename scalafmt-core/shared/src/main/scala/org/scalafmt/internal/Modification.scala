@@ -9,7 +9,8 @@ sealed abstract class Modification {
 case class Provided(ft: FormatToken) extends Modification {
   override val newlines: Int = ft.newlinesBetween
   override lazy val length: Int =
-    if (newlines == 0) ft.betweenText.length else ft.betweenText.indexOf('\n')
+    if (newlines == 0) betweenText.length else betweenText.indexOf('\n')
+  lazy val betweenText: String = ft.between.map(_.syntax).mkString
 }
 
 case object NoSplit extends Modification {
