@@ -382,7 +382,7 @@ class FormatWriter(formatOps: FormatOps) {
             if (nl.noIndent) newlines
             else newlines + getIndentation(state.indentation)
 
-          case Provided(ft) => ft.betweenText
+          case p: Provided => p.betweenText
 
           case NoSplit => ""
         }
