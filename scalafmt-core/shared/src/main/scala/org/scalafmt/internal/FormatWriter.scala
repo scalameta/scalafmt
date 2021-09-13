@@ -248,12 +248,12 @@ class FormatWriter(formatOps: FormatOps) {
   }
 
   private def checkRemoveEndMarkers(locations: Array[FormatLocation]): Unit = {
-    var removedEndMarkerLines = 0
+    var removedLines = 0
     val endMarkers = new ListBuffer[(Int, Int)]
     locations.foreach { x =>
       val idx = x.formatToken.meta.idx
-      val floc = if (removedEndMarkerLines > 0 && x.leftLineId >= 0) {
-        val floc = x.copy(leftLineId = x.leftLineId + removedEndMarkerLines)
+      val floc = if (removedLines > 0 && x.leftLineId >= 0) {
+        val floc = x.copy(leftLineId = x.leftLineId + removedLines)
         locations(idx) = floc
         floc
       } else x
@@ -269,7 +269,7 @@ class FormatWriter(formatOps: FormatOps) {
             locations(idx + 1) = locations(idx + 1).copy(leftLineId = -1)
             locations(idx + 2) = loc2.copy(leftLineId = -1)
             locations(endIdx) = eLoc.copy(state = loc2.state)
-            removedEndMarkerLines += 1
+            removedLines += 1
           }
         }
       } else
@@ -1648,9 +1648,10 @@ object FormatWriter {
   private val leadingAsteriskSpace = Pattern.compile("(?<=\n)\\h*+(?=[*][^*])")
   private val docstringLine =
     Pattern.compile("^(?:\\h*+\\*)?(\\h*+)(.*?)\\h*+$", Pattern.MULTILINE)
+  private val emptyLines = "\\h*+(\n\\h*+\\*?\\h*+)*"
   private val onelineDocstring = {
-    val empty = "\\h*+(\n\\h*+\\*?\\h*+)*"
-    Pattern.compile(s"^/\\*\\*$empty([^*\n\\h](?:[^\n]*[^\n\\h])?)$empty\\*/$$")
+    val oneline = "[^*\n\\h](?:[^\n]*[^\n\\h])?"
+    Pattern.compile(s"^/\\*\\*$emptyLines($oneline)$emptyLines\\*/$$")
   }
   private val docstringLeadingSpace = Pattern.compile("^\\h++")
 
