@@ -22,6 +22,7 @@ import metaconfig._
   */
 case class Docstrings(
     oneline: Docstrings.Oneline = Docstrings.Oneline.keep,
+    removeEmpty: Boolean = false,
     wrap: Docstrings.Wrap = Docstrings.Wrap.yes,
     private[config] val wrapMaxColumn: Option[Int] = None,
     blankFirstLine: Docstrings.BlankFirstLine = Docstrings.BlankFirstLine.no,

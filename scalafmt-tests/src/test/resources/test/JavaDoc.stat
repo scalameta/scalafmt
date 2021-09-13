@@ -2814,3 +2814,33 @@ object a {
    */
   def getAlignColumn(floc: FormatLocation): Int = _
 }
+<<< #2039
+docstrings.removeEmpty = true
+===
+object a {
+  /** */
+  /**
+    *
+    */
+  /**
+    **
+    */
+  /** */ /** */
+  val a = 1
+}
+>>>
+object a {
+
+  /**
+   */
+  /**
+   */
+  /**
+   * *
+   */
+  /**
+   */
+  /**
+   */
+  val a = 1
+}

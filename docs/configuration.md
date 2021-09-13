@@ -3144,6 +3144,27 @@ docstrings.style = AsteriskSpace
   */
 ```
 
+### `docstrings.removeEmpty`
+
+If set, will cause empty standalone docstrings to be removed.
+
+> Since v3.0.4.
+
+```scala mdoc:defaults
+docstrings.removeEmpty
+```
+
+```scala mdoc:scalafmt
+docstrings.removeEmpty = true
+---
+/** */
+/**
+  *
+  */
+/** */ /** */
+val a = 1
+```
+
 ### `docstrings.oneline`
 
 > Since v2.6.0. Ignored for `docstrings.style = keep`.
