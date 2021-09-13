@@ -3146,7 +3146,7 @@ docstrings.style = AsteriskSpace
 
 ### `docstrings.removeEmpty`
 
-If set, will cause empty standalone docstrings to be removed.
+If set, will cause empty docstrings to be removed.
 
 > Since v3.0.4.
 
