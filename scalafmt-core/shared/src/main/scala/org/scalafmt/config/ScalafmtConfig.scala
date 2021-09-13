@@ -150,11 +150,13 @@ case class ScalafmtConfig(
   ): ScalafmtConfig =
     copy(runner = runner.copy(dialect = dialect))
 
-  def withDialect(
-      dialect: Dialect,
-      name: String = "unknown dialect"
-  ): ScalafmtConfig =
+  def withDialect(dialect: Dialect, name: String): ScalafmtConfig =
     withDialect(ScalafmtRunner.Dialect.withName(name, dialect))
+
+  def withDialect(dialect: Dialect): ScalafmtConfig = withDialect(
+    dialect,
+    "unknown dialect"
+  )
 
   def forSbt: ScalafmtConfig = copy(runner = runner.forSbt)
 
