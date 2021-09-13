@@ -252,19 +252,17 @@ object FormatTokensRewrite {
     new T.Ident(t.input, t.dialect, t.start, t.start + text.length, text)
   )
 
-  @inline
-  private def isNL(token: T): Boolean = token.is[T.LF]
-
   private def mergeWhitespaceLeftToRight(
       lt: FormatToken.Meta,
       rt: FormatToken.Meta
   ): Option[Array[T]] = {
+    import FormatToken.isNL
     val rtBW = rt.between
-    val rtNumNL = rtBW.count(isNL)
+    val rtNumNL = rt.newlinesBetween
     if (rtNumNL >= 2) None // right has a blank line, nothing to get from left
     else {
       val ltBW = lt.between
-      val ltNumNL = ltBW.count(isNL)
+      val ltNumNL = lt.newlinesBetween
       if (rtNumNL >= ltNumNL) None // right has at least as many newlines
       else {
         // left has more newlines than right (so it's non-empty)
