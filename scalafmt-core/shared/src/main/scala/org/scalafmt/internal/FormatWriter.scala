@@ -129,8 +129,6 @@ class FormatWriter(formatOps: FormatOps) {
       if (initStyle.rewrite.scala3.insertEndMarkerMinLines > 0)
         checkInsertEndMarkers(result)
     }
-    if (initStyle.docstrings.removeEmpty)
-      checkRemoveEmptyDocstrings(result)
     if (
       initStyle.rewrite.rules.contains(RedundantBraces) &&
       !initStyle.rewrite.redundantBraces.parensForOneLineApply.contains(false)
@@ -321,27 +319,6 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
     }
-
-  private def checkRemoveEmptyDocstrings(
-      locations: Array[FormatLocation]
-  ): Unit = {
-    var removedLines = 0
-    locations.foreach { x =>
-      val ft = x.formatToken
-      val idx = ft.meta.idx
-      val floc = if (removedLines > 0 && x.leftLineId >= 0) {
-        val floc = x.copy(leftLineId = x.leftLineId + removedLines)
-        locations(idx) = floc
-        floc
-      } else x
-      val ok = ft.left.is[T.Comment] && floc.isStandalone &&
-        emptyDocstring.matcher(ft.meta.left.text).matches()
-      if (ok) {
-        locations(idx) = floc.copy(leftLineId = -1)
-        removedLines += 1
-      }
-    }
-  }
 
   class FormatLocations(val locations: Array[FormatLocation]) {
 
@@ -1746,5 +1723,8 @@ object FormatWriter {
       beg: FormatToken,
       end: FormatToken
   ): Int = getLineDiff(toks(beg.meta.idx), toks(end.meta.idx))
+
+  def isEmptyDocstring(text: String): Boolean =
+    emptyDocstring.matcher(text).matches()
 
 }
