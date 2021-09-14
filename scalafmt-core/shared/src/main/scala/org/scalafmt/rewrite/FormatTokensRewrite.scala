@@ -112,22 +112,17 @@ class FormatTokensRewrite(
    * - for standalone tokens, simply invoke the rule and record any rewrites
    */
   private def getRewrittenTokens: Iterable[Replacement] = {
-    val tokens = new ArrayBuffer[Replacement]()
+    implicit val tokens = new ArrayBuffer[Replacement]()
     val leftDelimIndex = new ListBuffer[(Int, Option[Rule])]()
     val formatOffStack = new ListBuffer[Boolean]()
     arr.foreach { implicit ft =>
       ft.right match {
         case _: T.LeftBrace | _: T.LeftParen | _: T.LeftBracket =>
-          val (replacement, ruleOpt) =
-            if (ft.meta.formatOff) (null, None)
-            else
-              applyRules match {
-                case None => (null, None)
-                case Some((t, rule)) => (t, Some(rule))
-              }
+          val ldelimIdx = tokens.length
+          val ruleOpt = if (ft.meta.formatOff) None else applyRules
           formatOffStack.prepend(ft.meta.formatOff)
-          leftDelimIndex.prepend((tokens.length, ruleOpt))
-          tokens.append(replacement)
+          leftDelimIndex.prepend((ldelimIdx, ruleOpt))
+          if (ruleOpt.isEmpty) tokens.append(null)
 
         case _: T.RightBrace | _: T.RightParen | _: T.RightBracket =>
           val formatOff = formatOffStack.remove(0)
@@ -160,26 +155,28 @@ class FormatTokensRewrite(
 
         case Whitespace() =>
 
-        case _ =>
-          applyRules.foreach { case (repl, _) => tokens.append(repl) }
+        case _ => applyRules
       }
     }
     tokens.filter(_ != null)
   }
 
   private def applyRules(implicit
-      ft: FormatToken
-  ): Option[(Replacement, Rule)] = {
+      ft: FormatToken,
+      tokens: ArrayBuffer[Replacement]
+  ): Option[Rule] = {
     implicit val style = styleMap.at(ft.right)
     @tailrec
-    def iter(remainingRules: Seq[Rule]): Option[(Replacement, Rule)] =
+    def iter(remainingRules: Seq[Rule]): Option[Rule] =
       remainingRules.headOption match {
         case None => None
         case Some(rule) =>
           val res = if (rule.enabled) rule.onToken else None
           res match {
             case None => iter(remainingRules.tail)
-            case Some(repl) => Some((repl, rule))
+            case Some(repl) =>
+              tokens.append(repl)
+              Some(rule)
           }
       }
     iter(rules)
