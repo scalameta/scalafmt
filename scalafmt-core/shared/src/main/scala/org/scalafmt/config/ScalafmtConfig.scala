@@ -155,7 +155,7 @@ case class ScalafmtConfig(
 
   def withDialect(dialect: Dialect): ScalafmtConfig = withDialect(
     dialect,
-    "unknown dialect"
+    ScalafmtRunner.Dialect.getName(dialect).getOrElse("unknown dialect")
   )
 
   def forSbt: ScalafmtConfig = copy(runner = runner.forSbt)
