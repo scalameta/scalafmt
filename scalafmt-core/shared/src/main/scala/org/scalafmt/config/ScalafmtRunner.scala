@@ -100,6 +100,9 @@ object ScalafmtRunner {
     private[ScalafmtRunner] val defaultName = "default"
     // current default is 213
     private[ScalafmtRunner] val default = withName(defaultName, scala213)
+
+    def getName(dialect: Dialect): Option[String] =
+      known.find(_.value eq dialect).map(_.source)
   }
 
   implicit val dialectCodec = {
