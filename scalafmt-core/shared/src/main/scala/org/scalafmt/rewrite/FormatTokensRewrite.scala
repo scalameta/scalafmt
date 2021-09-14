@@ -148,7 +148,8 @@ class FormatTokensRewrite(
         // below, only non-paired tokens
 
         case _: T.Comment => // formatOff gets set only by comment
-          if (formatOffStack.nonEmpty && ft.meta.formatOff)
+          if (!ft.meta.formatOff) applyRules
+          else if (formatOffStack.nonEmpty)
             formatOffStack.update(0, true)
 
         case _ if ft.meta.formatOff =>
