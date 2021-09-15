@@ -30,6 +30,8 @@ import metaconfig._
 case class BinPack(
     unsafeCallSite: BinPack.Unsafe = BinPack.Unsafe.Never,
     unsafeDefnSite: BinPack.Unsafe = BinPack.Unsafe.Never,
+    private val bracketCallSite: Option[BinPack.Unsafe] = None,
+    private val bracketDefnSite: Option[BinPack.Unsafe] = None,
     indentCallSiteOnce: Boolean = false,
     parentConstructors: BinPack.ParentCtors = BinPack.ParentCtors.source,
     literalArgumentLists: Boolean = true,

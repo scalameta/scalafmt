@@ -60,9 +60,11 @@ case class Align(
     multiline: Boolean = false,
     stripMargin: Boolean = true,
     closeParenSite: Boolean = false,
+    private val openBracketCallSite: Option[Boolean] = None,
     openParenCallSite: Boolean = false,
     @ExtraName("ifWhileOpenParen")
     openParenCtrlSite: Boolean = false,
+    private val openBracketDefnSite: Option[Boolean] = None,
     openParenDefnSite: Boolean = false,
     private[config] val openParenTupleSite: Option[Boolean] = None,
     tokens: Seq[AlignToken] = Seq(AlignToken.caseArrow),

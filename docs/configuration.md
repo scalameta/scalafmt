@@ -880,6 +880,13 @@ function(
   argument2)
 ```
 
+### `align.openBracketCallSite`
+
+> Since v3.0.4.
+
+If set explicitly, will be used for the left bracket in type arguments,
+instead of [`align.openParenCallSite`](#align-openparencallsite).
+
 ### `align.openParenCtrlSite`
 
 This parameter controls alignment after `(` in `if/while/for`.
@@ -917,6 +924,13 @@ class IntStringLong(
   long: Long
 )
 ```
+
+### `align.openBracketDefnSite`
+
+> Since v3.0.4.
+
+If set explicitly, will be used for the left bracket in type parameters,
+instead of [`align.openParenDefnSite`](#align-openparendefnsite).
 
 ### `align.openParenTupleSite`
 
@@ -3825,6 +3839,13 @@ values are supported since v3.0.0:
 - `Never` disables the functionality (also takes `false`)
 - `Always` enables the functionality (also takes `true`)
 - `Oneline` ensures multiline arguments are not binpacked
+
+### `binPack.bracketXxxSite`
+
+> Since v3.0.4.
+
+If set explicitly, will be used for type arguments or parameters,
+instead of the respective [`binPack.unsafeXxxSite`](#binpack-unsafexxxsite).
 
 ## Classic select chains
 

@@ -322,3 +322,178 @@ object a {
             : DDDDDDDD[dddddddd]
     ] = ???
 }
+<<< #2739 bracketDefnSite = never, danglingParentheses
+maxColumn = 100
+newlines.beforeTypeBounds = unfold
+danglingParentheses.preset = true
+binPack.bracketDefnSite = never
+===
+object a {
+def deploy[M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder, K: KeyEncoder: KeyDecoder] = ???
+def props[M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+>>>
+object a {
+  def deploy[M[_[_]]: FunctorK, F[
+      _
+  ], State, Event: PersistentEncoder: PersistentDecoder, K: KeyEncoder: KeyDecoder] = ???
+  def props[M[_[_]], F[_]
+    : Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+<<< #2739 bracketDefnSite = never, danglingParentheses, !align
+maxColumn = 100
+newlines.beforeTypeBounds = unfold
+danglingParentheses.preset = false
+binPack.bracketDefnSite = never
+align.preset = none
+===
+object a {
+def deploy[M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder, K: KeyEncoder: KeyDecoder] = ???
+def props[M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+>>>
+object a {
+  def deploy[
+      M[_[_]]: FunctorK,
+      F[_],
+      State,
+      Event: PersistentEncoder: PersistentDecoder,
+      K: KeyEncoder: KeyDecoder] = ???
+  def props[
+      M[_[_]],
+      F[_]: Async,
+      I: KeyDecoder,
+      State,
+      Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+<<< #2739 bracketDefnSite = never, !danglingParentheses
+maxColumn = 100
+newlines.beforeTypeBounds = unfold
+danglingParentheses.preset = false
+binPack.bracketDefnSite = never
+===
+object a {
+def deploy[M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder, K: KeyEncoder: KeyDecoder] = ???
+def props[M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+>>>
+object a {
+  def deploy[M[_[_]]: FunctorK,
+             F[_],
+             State,
+             Event: PersistentEncoder: PersistentDecoder,
+             K: KeyEncoder: KeyDecoder] = ???
+  def props[M[_[_]],
+            F[_]: Async,
+            I: KeyDecoder,
+            State,
+            Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+<<< #2739 bracketDefnSite = never, !danglingParentheses, !align
+maxColumn = 100
+newlines.beforeTypeBounds = unfold
+danglingParentheses.preset = false
+binPack.bracketDefnSite = never
+align.preset = none
+===
+object a {
+def deploy[M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder, K: KeyEncoder: KeyDecoder] = ???
+def props[M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+>>>
+object a {
+  def deploy[
+      M[_[_]]: FunctorK,
+      F[_],
+      State,
+      Event: PersistentEncoder: PersistentDecoder,
+      K: KeyEncoder: KeyDecoder] = ???
+  def props[
+      M[_[_]],
+      F[_]: Async,
+      I: KeyDecoder,
+      State,
+      Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+<<< #2739 bracketDefnSite = oneline, danglingParentheses
+maxColumn = 100
+newlines.beforeTypeBounds = unfold
+danglingParentheses.preset = true
+binPack.bracketDefnSite = oneline
+===
+object a {
+def deploy[M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder, K: KeyEncoder: KeyDecoder] = ???
+def props[M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+>>>
+object a {
+  def deploy[M[_[_]]: FunctorK, F[
+      _
+  ], State, Event: PersistentEncoder: PersistentDecoder, K: KeyEncoder: KeyDecoder] = ???
+  def props[M[_[_]], F[_]
+    : Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+<<< #2739 bracketDefnSite = oneline, !danglingParentheses
+maxColumn = 100
+newlines.beforeTypeBounds = unfold
+danglingParentheses.preset = false
+binPack.bracketDefnSite = oneline
+===
+object a {
+def deploy[M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder, K: KeyEncoder: KeyDecoder] = ???
+def props[M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+>>>
+object a {
+  def deploy[M[_[_]]: FunctorK,
+             F[_],
+             State,
+             Event: PersistentEncoder: PersistentDecoder,
+             K: KeyEncoder: KeyDecoder] = ???
+  def props[M[_[_]],
+            F[_]: Async,
+            I: KeyDecoder,
+            State,
+            Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+<<< #2739 bracketDefnSite = always, danglingParentheses
+maxColumn = 100
+newlines.beforeTypeBounds = unfold
+danglingParentheses.preset = true
+binPack.bracketDefnSite = always
+===
+object a {
+def deploy[M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder, K: KeyEncoder: KeyDecoder] = ???
+def props[M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+>>>
+object a {
+  def deploy[M[_[_]]: FunctorK, F[
+      _
+  ], State, Event: PersistentEncoder: PersistentDecoder, K: KeyEncoder: KeyDecoder] = ???
+  def props[M[_[_]], F[_]
+    : Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+<<< #2739 bracketDefnSite = always, !danglingParentheses
+maxColumn = 100
+newlines.beforeTypeBounds = unfold
+danglingParentheses.preset = false
+binPack.bracketDefnSite = always
+===
+object a {
+def deploy[M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder, K: KeyEncoder: KeyDecoder] = ???
+def props[M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() = ???
+}
+>>>
+object a {
+  def deploy[M[_[_]]: FunctorK,
+             F[_],
+             State,
+             Event: PersistentEncoder: PersistentDecoder,
+             K: KeyEncoder: KeyDecoder] = ???
+  def props[M[_[_]],
+            F[_]: Async,
+            I: KeyDecoder,
+            State,
+            Event: PersistentEncoder: PersistentDecoder]() = ???
+}
