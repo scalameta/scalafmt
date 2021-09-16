@@ -791,10 +791,10 @@ class Router(formatOps: FormatOps) {
 
       case tok @ FormatToken(open @ LeftParenOrBracket(), right, _) if {
             if (isCallSite(leftOwner))
-              style.binPack.unsafeCallSite.isNever &&
+              style.binPack.callSite(open).isNever &&
               !isSuperfluousParenthesis(formatToken.left, leftOwner)
             else
-              style.binPack.unsafeDefnSite.isNever &&
+              style.binPack.defnSite(open).isNever &&
               isDefnSite(leftOwner)
           } =>
         val close = matching(open)
@@ -881,8 +881,7 @@ class Router(formatOps: FormatOps) {
 
         val align = !rightIsComment && {
           if (tupleSite) style.align.getOpenParenTupleSite
-          else if (defnSite) style.align.openParenDefnSite
-          else style.align.openParenCallSite
+          else style.align.getOpenDelimSite(isBracket, defnSite)
         } && (!handleImplicit ||
           style.newlines.forceAfterImplicitParamListModifier)
         val alignTuple = align && tupleSite && !onlyConfigStyle
@@ -1050,7 +1049,7 @@ class Router(formatOps: FormatOps) {
         splitsNoNL ++ splitsNL ++ splitsForAssign.getOrElse(Seq.empty)
 
       case FormatToken(open @ LeftParenOrBracket(), right, between)
-          if !style.binPack.unsafeDefnSite.isNever && isDefnSite(leftOwner) =>
+          if !style.binPack.defnSite(open).isNever && isDefnSite(leftOwner) =>
         val close = matching(open)
         val isBracket = open.is[T.LeftBracket]
         val indent = Num(style.indent.getDefnSite(leftOwner))
@@ -1070,7 +1069,7 @@ class Router(formatOps: FormatOps) {
 
           val argsHeadOpt = argumentStarts.get(hash(right))
           val onelinePolicy =
-            if (style.binPack.unsafeDefnSite == BinPack.Unsafe.Oneline)
+            if (style.binPack.defnSite(isBracket) == BinPack.Unsafe.Oneline)
               argsHeadOpt.flatMap { x =>
                 findFirstOnRight[T.Comma](tokens.getLast(x), close)
                   .map(splitOneArgPerLineAfterCommaOnBreak)
@@ -1107,9 +1106,8 @@ class Router(formatOps: FormatOps) {
           )
         }
 
-      case FormatToken(LeftParenOrBracket(), _, _)
-          if !style.binPack.unsafeCallSite.isNever && isCallSite(leftOwner) =>
-        val open = formatToken.left
+      case FormatToken(open @ LeftParenOrBracket(), _, _)
+          if !style.binPack.callSite(open).isNever && isCallSite(leftOwner) =>
         val close = matching(open)
         val indent = Num(style.indent.callSite)
         val noSplitIndent =
@@ -1132,7 +1130,7 @@ class Router(formatOps: FormatOps) {
 
         def findComma(ft: FormatToken) = findFirstOnRight[T.Comma](ft, close)
 
-        val oneline = style.binPack.unsafeCallSite == BinPack.Unsafe.Oneline
+        val oneline = style.binPack.callSite(open) == BinPack.Unsafe.Oneline
         val nextCommaOneline =
           if (!oneline || isSingleArg) None
           else argsOpt.flatMap(x => findComma(tokens.getLast(x.head)))

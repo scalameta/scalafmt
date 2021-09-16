@@ -84,6 +84,13 @@ case class Align(
     )
 ) {
   def getOpenParenTupleSite = openParenTupleSite.getOrElse(openParenCallSite)
+
+  def getOpenDelimSite(bracket: Boolean, defnSite: Boolean): Boolean =
+    if (defnSite)
+      (if (bracket) openBracketDefnSite else None).getOrElse(openParenDefnSite)
+    else
+      (if (bracket) openBracketCallSite else None).getOrElse(openParenCallSite)
+
 }
 
 object Align {

@@ -1,5 +1,7 @@
 package org.scalafmt.config
 
+import scala.meta.tokens.Token
+
 import metaconfig._
 
 /** @param unsafeCallSite
@@ -49,7 +51,18 @@ case class BinPack(
       style.newlines.source.eq(Newlines.keep) &&
       parentConstructors.eq(BinPack.ParentCtors.source)
 
+  @inline def callSite(open: Token): BinPack.Unsafe =
+    callSite(open.is[Token.LeftBracket])
+  def callSite(isBracket: Boolean): BinPack.Unsafe =
+    (if (isBracket) bracketCallSite else None).getOrElse(unsafeCallSite)
+
+  @inline def defnSite(open: Token): BinPack.Unsafe =
+    defnSite(open.is[Token.LeftBracket])
+  def defnSite(isBracket: Boolean): BinPack.Unsafe =
+    (if (isBracket) bracketDefnSite else None).getOrElse(unsafeDefnSite)
+
 }
+
 object BinPack {
   implicit lazy val surface: generic.Surface[BinPack] =
     generic.deriveSurface[BinPack]
