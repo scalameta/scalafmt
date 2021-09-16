@@ -947,17 +947,6 @@ class FormatOps(
       style.newlines.notBeforeImplicitParamListModifier &&
       opensImplicitParamList(formatToken).isDefined
 
-  def getApplyIndent(
-      leftOwner: Tree,
-      isConfigStyle: Boolean = false
-  )(implicit style: ScalafmtConfig): Num =
-    leftOwner match {
-      case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
-        def isSafe = style.binPack.unsafeDefnSite.isNever
-        Num(if (isConfigStyle || isSafe) style.indent.getDefnSite(x) else 0)
-      case _ => Num(style.indent.callSite)
-    }
-
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
     val toMatch = if (tok.right.is[T.RightParen]) {
       // Hack to allow any annotations with arguments like @foo(1)

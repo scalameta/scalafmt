@@ -850,7 +850,15 @@ class Router(formatOps: FormatOps) {
             parensTuple(args(0).tokens.last)
           else insideBracesBlock(tok, close)
 
-        val indent = getApplyIndent(leftOwner, onlyConfigStyle)
+        val tupleSite = isTuple(leftOwner)
+        val anyDefnSite = isDefnSite(leftOwner)
+        val defnSite = !tupleSite && anyDefnSite
+
+        val indent =
+          if (anyDefnSite && !leftOwner.isInstanceOf[Type.Apply])
+            Num(style.indent.getDefnSite(leftOwner))
+          else
+            Num(style.indent.callSite)
 
         def singleLine(
             newlinePenalty: Int
@@ -879,8 +887,6 @@ class Router(formatOps: FormatOps) {
           }
         }
 
-        val tupleSite = isTuple(leftOwner)
-        val defnSite = !tupleSite && isDefnSite(leftOwner)
         val closeFormatToken = tokens(close)
         val isBeforeOpenParen =
           if (defnSite)
