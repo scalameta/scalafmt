@@ -923,9 +923,10 @@ class Router(formatOps: FormatOps) {
           }
 
         val excludeBlocks =
-          if (isBracket)
-            insideBlock[T.LeftBracket](tok, close)
-          else if (
+          if (isBracket) {
+            val excludeBeg = if (align) tokens(args.last.tokens.head) else tok
+            insideBlock[T.LeftBracket](excludeBeg, close)
+          } else if (
             multipleArgs ||
             !isSingleEnclosedArgument &&
             style.newlines.source.eq(Newlines.unfold)
