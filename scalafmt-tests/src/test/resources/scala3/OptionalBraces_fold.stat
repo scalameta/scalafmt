@@ -1924,8 +1924,6 @@ rewrite.scala3.insertEndMarkerMinLines = 1
 object `Accept-Ranges`:
   val r = ""
 >>>
-test does not parse
 object `Accept-Ranges`:
    val r = ""
-end Accept-Ranges
-^
+end `Accept-Ranges`
