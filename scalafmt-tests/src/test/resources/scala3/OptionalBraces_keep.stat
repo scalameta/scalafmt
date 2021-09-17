@@ -2009,3 +2009,13 @@ extension (a: All) def getAll: Boolean = a
 >>>
 extension (a: All)
   def getAll: Boolean = a
+<<< #2740
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 1
+===
+object `Accept-Ranges`:
+  val r = ""
+>>>
+object `Accept-Ranges`:
+   val r = ""
+end `Accept-Ranges`
