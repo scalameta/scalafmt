@@ -820,35 +820,7 @@ class Router(formatOps: FormatOps) {
         val useConfigStyle = onlyConfigStyle || (sourceIgnored &&
           style.optIn.configStyleArguments && !isSingleEnclosedArgument)
 
-        def isExcludedTree(tree: Tree): Boolean =
-          tree match {
-            case t: Init => t.argss.nonEmpty
-            case t: Term.Apply => t.args.nonEmpty
-            case t: Term.ApplyType => t.targs.nonEmpty
-            case t: Term.Match => t.cases.nonEmpty
-            case t: Type.Match => t.cases.nonEmpty
-            case t: Term.New => t.init.argss.nonEmpty
-            case _: Term.NewAnonymous => true
-            case _ => false
-          }
-
         val nestedPenalty = 1 + nestedApplies(leftOwner) + lhsPenalty
-        val excludeBlocks =
-          if (isBracket) insideBlock[T.LeftBracket](tok, close)
-          else if (
-            multipleArgs ||
-            !isSingleEnclosedArgument &&
-            style.newlines.source.eq(Newlines.unfold)
-          )
-            TokenRanges.empty
-          else if (
-            style.newlines.source.eq(Newlines.fold) && {
-              isSingleEnclosedArgument ||
-              singleArgument && isExcludedTree(args(0))
-            }
-          )
-            parensTuple(args(0).tokens.last)
-          else insideBracesBlock(tok, close)
 
         val tupleSite = isTuple(leftOwner)
         val anyDefnSite = isDefnSite(leftOwner)
@@ -859,33 +831,6 @@ class Router(formatOps: FormatOps) {
             Num(style.indent.getDefnSite(leftOwner))
           else
             Num(style.indent.callSite)
-
-        def singleLine(
-            newlinePenalty: Int
-        )(implicit fileLine: FileLine): Policy = {
-          if (multipleArgs && (isBracket || excludeBlocks.ranges.isEmpty)) {
-            SingleLineBlock(close, noSyntaxNL = true)
-          } else if (isBracket) {
-            PenalizeAllNewlines(
-              close,
-              newlinePenalty,
-              penalizeLambdas = false
-            )
-          } else {
-            val penalty =
-              if (!multipleArgs) newlinePenalty
-              else Constants.ShouldBeNewline
-            policyWithExclude(excludeBlocks, Policy.End.On, Policy.End.On)(
-              Policy.End.Before(close),
-              new PenalizeAllNewlines(
-                _,
-                penalty = penalty,
-                penalizeLambdas = multipleArgs,
-                noSyntaxNL = multipleArgs
-              )
-            )
-          }
-        }
 
         val closeFormatToken = tokens(close)
         val isBeforeOpenParen =
@@ -965,6 +910,63 @@ class Router(formatOps: FormatOps) {
                   .andPolicy(newlinePolicy & newlineAfterAssignDecision)
               )
             }
+
+        def isExcludedTree(tree: Tree): Boolean =
+          tree match {
+            case t: Init => t.argss.nonEmpty
+            case t: Term.Apply => t.args.nonEmpty
+            case t: Term.ApplyType => t.targs.nonEmpty
+            case t: Term.Match => t.cases.nonEmpty
+            case t: Type.Match => t.cases.nonEmpty
+            case t: Term.New => t.init.argss.nonEmpty
+            case _: Term.NewAnonymous => true
+            case _ => false
+          }
+
+        val excludeBlocks =
+          if (isBracket)
+            insideBlock[T.LeftBracket](tok, close)
+          else if (
+            multipleArgs ||
+            !isSingleEnclosedArgument &&
+            style.newlines.source.eq(Newlines.unfold)
+          )
+            TokenRanges.empty
+          else if (
+            style.newlines.source.eq(Newlines.fold) && {
+              isSingleEnclosedArgument ||
+              singleArgument && isExcludedTree(args(0))
+            }
+          )
+            parensTuple(args(0).tokens.last)
+          else insideBracesBlock(tok, close)
+
+        def singleLine(
+            newlinePenalty: Int
+        )(implicit fileLine: FileLine): Policy = {
+          if (multipleArgs && (isBracket || excludeBlocks.ranges.isEmpty)) {
+            SingleLineBlock(close, noSyntaxNL = true)
+          } else if (isBracket) {
+            PenalizeAllNewlines(
+              close,
+              newlinePenalty,
+              penalizeLambdas = false
+            )
+          } else {
+            val penalty =
+              if (!multipleArgs) newlinePenalty
+              else Constants.ShouldBeNewline
+            policyWithExclude(excludeBlocks, Policy.End.On, Policy.End.On)(
+              Policy.End.Before(close),
+              new PenalizeAllNewlines(
+                _,
+                penalty = penalty,
+                penalizeLambdas = multipleArgs,
+                noSyntaxNL = multipleArgs
+              )
+            )
+          }
+        }
 
         val keepNoNL = style.newlines.source.eq(Newlines.keep) && tok.noBreak
         val preferNoSplit = keepNoNL && singleArgument
