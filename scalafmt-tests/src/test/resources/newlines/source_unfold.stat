@@ -4554,3 +4554,57 @@ line
     strokeWidth := width,
     stroke := colour
   )
+<<< bracketDefnSite=oneline
+maxColumn = 100
+binPack.bracketCallSite = oneline
+binPack.bracketDefnSite = oneline
+===
+object a {
+  private def getAudiencesWithStatus(statuses: AudienceStatus*): RIO[Blocking, Seq[Audience]] =
+    effectBlocking {
+      audienceManager.list(InternalAudienceFilter(statuses = Contains(statuses.map(_.name))))
+    }
+}
+>>>
+object a {
+  private def getAudiencesWithStatus(statuses: AudienceStatus*): RIO[Blocking, Seq[Audience]] =
+    effectBlocking {
+      audienceManager.list(InternalAudienceFilter(statuses = Contains(statuses.map(_.name))))
+    }
+}
+<<< bracketDefnSite=always
+maxColumn = 100
+binPack.bracketCallSite = always
+binPack.bracketDefnSite = always
+===
+object a {
+  private def getAudiencesWithStatus(statuses: AudienceStatus*): RIO[Blocking, Seq[Audience]] =
+    effectBlocking {
+      audienceManager.list(InternalAudienceFilter(statuses = Contains(statuses.map(_.name))))
+    }
+}
+>>>
+object a {
+  private def getAudiencesWithStatus(statuses: AudienceStatus*): RIO[Blocking, Seq[Audience]] =
+    effectBlocking {
+      audienceManager.list(InternalAudienceFilter(statuses = Contains(statuses.map(_.name))))
+    }
+}
+<<< bracketDefnSite=never
+maxColumn = 100
+binPack.bracketCallSite = never
+binPack.bracketDefnSite = never
+===
+object a {
+  private def getAudiencesWithStatus(statuses: AudienceStatus*): RIO[Blocking, Seq[Audience]] =
+    effectBlocking {
+      audienceManager.list(InternalAudienceFilter(statuses = Contains(statuses.map(_.name))))
+    }
+}
+>>>
+object a {
+  private def getAudiencesWithStatus(statuses: AudienceStatus*): RIO[Blocking, Seq[Audience]] =
+    effectBlocking {
+      audienceManager.list(InternalAudienceFilter(statuses = Contains(statuses.map(_.name))))
+    }
+}
