@@ -40,41 +40,53 @@ public interface Scalafmt {
 
 
     /**
-     * Whether to respect the 'project.{excludeFilters,includeFilters}' setting in .scalafmt.conf.
+     * Builder method.
      *
      * @param respectExcludeFilters If true (default), returns the original file contents when
      *                              formatting a file that does not matches the project settings
      *                              in .scalafmt.conf. If false, formats every file that is passed
      *                              to the {@link #format(Path, Path, String)} method regardless
      *                              of .scalafmt.conf settings.
+     * @return an updated interface instance controlling whether to respect the
+     *         'project.{excludeFilters,includeFilters}' setting in .scalafmt.conf.
      */
     Scalafmt withRespectProjectFilters(boolean respectExcludeFilters);
 
     /**
-     * Whether to respect the 'version' setting in .scalafmt.conf.
+     * Builder method.
      *
      * @param respectVersion If true (default), refuses to format files when the 'version' setting
      *                       is missing in .scalafmt.conf and users must update .scalafmt.conf to
      *                       format files. If false, falls back to the default version provided
      *                       via {@link #withDefaultVersion(String)}.
-     *
+     * @return an updated interface instance controlling whether to respect the
+     *         'version' setting in .scalafmt.conf.
      */
     Scalafmt withRespectVersion(boolean respectVersion);
 
     /**
-     * The fallback Scalafmt version to use when there is no 'version' setting in .scalafmt.conf.
+     * Builder method.
      *
-     * The default version is ignored when {@link #withRespectVersion(boolean)} is true.
+     * @param defaultVersion the fallback Scalafmt version to use when there is no 'version'
+     *                       setting in `.scalafmt.conf`; N.B. ignored when
+     *                       {@link #withRespectVersion(boolean)} is true
+     * @return an updated interface instance with the default version set
      */
     Scalafmt withDefaultVersion(String defaultVersion);
 
     /**
-     * Use this reporter to report errors and information messages.
+     * Builder method.
+     *
+     * @param reporter Use this instance to report errors and information messages
+     * @return an updated interface instance with the reporter instance set
      */
     Scalafmt withReporter(ScalafmtReporter reporter);
 
     /**
-     * Use this repositories to resolve dependencies.
+     * Builder method.
+     *
+     * @param repositories maven repositories to use when resolving
+     * @return an updated interface instance with the repositories to use to resolve dependencies.
      */
     Scalafmt withMavenRepositories(String ... repositories);
 
@@ -87,7 +99,7 @@ public interface Scalafmt {
      * Classload a new instance of this Scalafmt instance.
      *
      * @param loader the classloader containing the 'scalafmt-dynamic' module.
-     *
+     * @return a new instance of this interface
      * @throws NoSuchElementException if the classloader does not have the 'scalafmt-dynamic' module.
      */
     static Scalafmt create(ClassLoader loader) {

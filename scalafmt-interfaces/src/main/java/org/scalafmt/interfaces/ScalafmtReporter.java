@@ -60,17 +60,24 @@ public interface ScalafmtReporter {
     }
 
     /**
-     * The .scalafmt.conf file was parsed with the given Scalafmt version.
+     * Record the configuration file and version used
+     *
+     * @param config location of the configuration file parsed
+     * @param scalafmtVersion the version of scalafmt used to parse
      */
     void parsedConfig(Path config, String scalafmtVersion);
 
     /**
      * Use {@link #downloadOutputStreamWriter} instead.
+     *
+     * @return an instance of progress writer
      */
     @Deprecated PrintWriter downloadWriter();
 
     /**
      * Use this writer for printing progress while downloading new Scalafmt versions.
+     *
+     * @return an instance of progress writer
      */
     OutputStreamWriter downloadOutputStreamWriter();
 

@@ -21,6 +21,8 @@ public interface ScalafmtSession {
 
     /**
      * Whether the path matches the 'project.{excludeFilters,includeFilters}' setting.
+     * @param file path to match
+     * @return true if the path matched the filters
      */
     boolean matchesProjectFilters(Path file);
 

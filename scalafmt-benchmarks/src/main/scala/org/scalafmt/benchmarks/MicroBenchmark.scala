@@ -7,11 +7,15 @@ import org.openjdk.jmh.annotations._
 import org.scalafmt.Scalafmt
 import org.scalafmt.util.FileOps
 
-/** Formats filename at [[path]] with scalafmt.
+/** Formats some files with scalafmt.
   *
   * To run benchmark:
-  *
+  * {{{
   * > benchmarks/jmh:run -i 10 -wi 10 -f1 -t1 org.scalafmt.*
+  * }}}
+  *
+  * @param path
+  *   filename(s) to format
   */
 @org.openjdk.jmh.annotations.State(Scope.Benchmark)
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
