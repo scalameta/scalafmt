@@ -205,6 +205,18 @@ implicit def toFunction22[
 >>>
 def sourceMapper: js.UndefOr[js.Function1[ // scalastyle:ignore
         js.Array[JSStackTraceElem], js.Array[JSStackTraceElem]]] = js.native
+<<< comment inside middle of type parameter #264 3
+   def sourceMapper: js.UndefOr[ // scalastyle:ignore
+    js.Array[JSStackTraceElem], js.Array[JSStackTraceElem]] = js.native
+>>>
+def sourceMapper: js.UndefOr[ // scalastyle:ignore
+    js.Array[JSStackTraceElem], js.Array[JSStackTraceElem]] = js.native
+<<< comment inside middle of type parameter #264 4
+   def sourceMapper: js.UndefOr[js.Array[ // scalastyle:ignore
+    JSStackTraceElem], js.Array[JSStackTraceElem]] = js.native
+>>>
+def sourceMapper: js.UndefOr[js.Array[ // scalastyle:ignore
+        JSStackTraceElem], js.Array[JSStackTraceElem]] = js.native
 <<< align by =>;Case #268
    def unwrapJavaScriptException(th: Throwable): Any = th match {
      case js.JavaScriptException(e) => e
