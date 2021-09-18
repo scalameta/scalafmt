@@ -399,9 +399,9 @@ object TreeOps {
     tree match {
       case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
           _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type | _: Defn.Type |
-          _: Type.Apply | _: Type.Param | _: Type.Tuple | _: Defn.Enum |
-          _: Defn.EnumCase | _: Defn.ExtensionGroup | _: Decl.Given |
-          _: Defn.Given | _: Defn.GivenAlias =>
+          _: Type.Param | _: Type.Tuple | _: Defn.Enum | _: Defn.EnumCase |
+          _: Defn.ExtensionGroup | _: Decl.Given | _: Defn.Given |
+          _: Defn.GivenAlias =>
         true
       case _: Term.FunctionTerm | _: Type.FunctionType => true
       case _: Term.PolyFunction | _: Type.PolyFunction => true
