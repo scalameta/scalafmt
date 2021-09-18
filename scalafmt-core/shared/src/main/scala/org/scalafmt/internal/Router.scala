@@ -827,7 +827,7 @@ class Router(formatOps: FormatOps) {
         val defnSite = !tupleSite && anyDefnSite
 
         val indent =
-          if (anyDefnSite && !leftOwner.isInstanceOf[Type.Apply])
+          if (anyDefnSite)
             Num(style.indent.getDefnSite(leftOwner))
           else
             Num(style.indent.callSite)
