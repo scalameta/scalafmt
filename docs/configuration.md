@@ -885,7 +885,7 @@ function(
 > Since v3.0.4.
 
 If set explicitly, will be used for the left bracket in type arguments,
-instead of [`align.openParenCallSite`](#align-openparencallsite).
+instead of [`align.openParenCallSite`](#alignopenparencallsite).
 
 ### `align.openParenCtrlSite`
 
@@ -930,7 +930,7 @@ class IntStringLong(
 > Since v3.0.4.
 
 If set explicitly, will be used for the left bracket in type parameters,
-instead of [`align.openParenDefnSite`](#align-openparendefnsite).
+instead of [`align.openParenDefnSite`](#alignopenparendefnsite).
 
 ### `align.openParenTupleSite`
 
@@ -3845,7 +3845,7 @@ values are supported since v3.0.0:
 > Since v3.0.4.
 
 If set explicitly, will be used for type arguments or parameters,
-instead of the respective [`binPack.unsafeXxxSite`](#binpack-unsafexxxsite).
+instead of the respective [`binPack.unsafeXxxSite`](#binpackunsafexxxsite).
 
 ## Classic select chains
 
