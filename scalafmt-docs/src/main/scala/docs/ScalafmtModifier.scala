@@ -23,10 +23,8 @@ class ScalafmtModifier extends StringModifier {
       code: Input,
       reporter: Reporter
   ): String = {
-    val runner =
-      if (code.text.contains("package")) ScalafmtRunner.default
-      else ScalafmtRunner.sbt
-    val base = ScalafmtConfig.default.copy(runner = runner, maxColumn = 40)
+    val base =
+      if (code.text.contains("package")) defaultConfig else defaultSbtConfig
     val i = code.text.indexOf(separator)
     val pos = Position.Range(code, 0, 0)
     if (i == -1) {
@@ -70,6 +68,12 @@ class ScalafmtModifier extends StringModifier {
 }
 
 object ScalafmtModifier {
+
+  private val defaultConfig = ScalafmtConfig.default
+    .copy(maxColumn = 40)
+    .withDialect(ScalafmtRunner.Dialect.scala213, "scala213")
+
+  private val defaultSbtConfig = defaultConfig.forSbt
 
   def mdCodeBlock(language: String, content: String): String =
     s"```$language\n$content\n```"
