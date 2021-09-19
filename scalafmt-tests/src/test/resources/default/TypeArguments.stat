@@ -434,8 +434,7 @@ def props[M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: 
 }
 >>>
 object a {
-  def deploy[
-      M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder,
+  def deploy[M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder,
       K: KeyEncoder: KeyDecoder] = ???
   def props[
       M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() =
@@ -453,8 +452,7 @@ def props[M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: 
 }
 >>>
 object a {
-  def deploy[
-      M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder,
+  def deploy[M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder,
       K: KeyEncoder: KeyDecoder] = ???
   def props[
       M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() =
@@ -472,8 +470,7 @@ def props[M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: 
 }
 >>>
 object a {
-  def deploy[
-      M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder,
+  def deploy[M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder,
       K: KeyEncoder: KeyDecoder] = ???
   def props[
       M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() =
@@ -491,8 +488,7 @@ def props[M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: 
 }
 >>>
 object a {
-  def deploy[
-      M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder,
+  def deploy[M[_[_]]: FunctorK, F[_], State, Event: PersistentEncoder: PersistentDecoder,
       K: KeyEncoder: KeyDecoder] = ???
   def props[
       M[_[_]], F[_]: Async, I: KeyDecoder, State, Event: PersistentEncoder: PersistentDecoder]() =

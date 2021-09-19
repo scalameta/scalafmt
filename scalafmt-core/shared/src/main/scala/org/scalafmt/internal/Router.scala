@@ -1062,13 +1062,10 @@ class Router(formatOps: FormatOps) {
           val indent =
             Indent(style.indent.getDefnSite(leftOwner), close, Before)
 
-          def penalizeBrackets(penalty: Int): Policy =
-            if (isBracket)
-              PenalizeAllNewlines(close, Constants.BracketPenalty * penalty + 3)
-            else NoPolicy
-          val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
-          val bracketPenalty = if (isBracket) 1 else 0
-          val nestingPenalty = nestedApplies(leftOwner)
+          val bracketPenalty =
+            if (isBracket) Some(Constants.BracketPenalty) else None
+          val penalizeBrackets =
+            bracketPenalty.map(p => PenalizeAllNewlines(close, p + 3))
           val onlyConfigStyle = mustUseConfigStyle(formatToken)
 
           val argsHeadOpt = argumentStarts.get(hash(right))
@@ -1086,10 +1083,19 @@ class Router(formatOps: FormatOps) {
             if (mustDangle || style.newlines.source.eq(Newlines.unfold))
               slbPolicy
             else {
+              val penalizeOpens = bracketPenalty.fold(Policy.noPolicy) { p =>
+                Policy.before(close) {
+                  case Decision(FormatToken(o: T.LeftBracket, r, m), s)
+                      if isDefnSite(m.leftOwner) &&
+                        !styleMap.at(o).binPack.defnSite(o).isNever =>
+                    if (isSingleLineComment(r)) s
+                    else s.map(x => if (x.isNL) x.withPenalty(p) else x)
+                }
+              }
               val argPolicy = onelinePolicy
                 .orElse(argsHeadOpt.map(x => SingleLineBlock(x.tokens.last)))
                 .getOrElse(NoPolicy)
-              argPolicy & penalizeBrackets(1 + bracketPenalty)
+              argPolicy & (penalizeOpens | penalizeBrackets)
             }
           val noSplitModification =
             if (right.is[T.Comment]) getMod(formatToken)
@@ -1098,15 +1104,15 @@ class Router(formatOps: FormatOps) {
             if (mustDangle) decideNewlinesOnlyBeforeClose(close) else NoPolicy
           val mustUseNL = onlyConfigStyle ||
             style.newlines.source.eq(Newlines.keep) && newlines != 0
-          def nlCost = (1 + nestingPenalty * nestingPenalty) * bracketCoef
+          def nlCost = bracketPenalty.getOrElse(1)
 
           Seq(
-            Split(noSplitModification, 0 + (nestingPenalty * bracketCoef))
+            Split(noSplitModification, 0)
               .notIf(mustUseNL)
               .withPolicy(noSplitPolicy)
               .withIndent(indent),
             Split(Newline, if (mustUseNL) 0 else nlCost)
-              .withPolicy(nlDanglePolicy & onelinePolicy & penalizeBrackets(1))
+              .withPolicy(nlDanglePolicy & onelinePolicy & penalizeBrackets)
               .withIndent(indent)
           )
         }
