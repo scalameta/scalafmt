@@ -1054,11 +1054,12 @@ class Router(formatOps: FormatOps) {
         val close = matching(open)
         val isBracket = open.is[T.LeftBracket]
         val indent = Num(style.indent.getDefnSite(leftOwner))
-        if (isTuple(leftOwner)) {
-          Seq(
-            Split(NoSplit, 0).withPolicy(SingleLineBlock(close, okSLC = true))
-          )
-        } else {
+        def slbPolicy = SingleLineBlock(close, okSLC = true)
+        if (close eq right)
+          Seq(Split(NoSplit, 0))
+        else if (isTuple(leftOwner))
+          Seq(Split(NoSplit, 0).withPolicy(slbPolicy))
+        else {
           def penalizeBrackets(penalty: Int): Policy =
             if (isBracket)
               PenalizeAllNewlines(close, Constants.BracketPenalty * penalty + 3)
@@ -1079,8 +1080,9 @@ class Router(formatOps: FormatOps) {
 
           val mustDangle = onlyConfigStyle ||
             style.newlines.sourceIgnored && style.danglingParentheses.defnSite
-          val noSplitPolicy: Policy =
-            if (mustDangle) SingleLineBlock(close)
+          def noSplitPolicy: Policy =
+            if (mustDangle)
+              slbPolicy
             else {
               def noSplitPenalizeNewlines = penalizeBrackets(1 + bracketPenalty)
               onelinePolicy
@@ -1101,7 +1103,6 @@ class Router(formatOps: FormatOps) {
               .withPolicy(noSplitPolicy)
               .withIndent(indent, close, Before),
             Split(Newline, (1 + nestingPenalty * nestingPenalty) * bracketCoef)
-              .notIf(right.is[T.RightParen])
               .withPolicy(penalizeBrackets(1) & nlDanglePolicy & onelinePolicy)
               .withIndent(indent, close, Before)
           )
