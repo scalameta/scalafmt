@@ -1049,17 +1049,19 @@ class Router(formatOps: FormatOps) {
 
         splitsNoNL ++ splitsNL ++ splitsForAssign.getOrElse(Seq.empty)
 
-      case FormatToken(open @ LeftParenOrBracket(), right, between)
+      case FormatToken(open @ LeftParenOrBracket(), right, _)
           if !style.binPack.defnSite(open).isNever && isDefnSite(leftOwner) =>
         val close = matching(open)
-        val isBracket = open.is[T.LeftBracket]
-        val indent = Num(style.indent.getDefnSite(leftOwner))
         def slbPolicy = SingleLineBlock(close, okSLC = true)
         if (close eq right)
           Seq(Split(NoSplit, 0))
         else if (isTuple(leftOwner))
           Seq(Split(NoSplit, 0).withPolicy(slbPolicy))
         else {
+          val isBracket = open.is[T.LeftBracket]
+          val indent =
+            Indent(style.indent.getDefnSite(leftOwner), close, Before)
+
           def penalizeBrackets(penalty: Int): Policy =
             if (isBracket)
               PenalizeAllNewlines(close, Constants.BracketPenalty * penalty + 3)
@@ -1084,12 +1086,10 @@ class Router(formatOps: FormatOps) {
             if (mustDangle)
               slbPolicy
             else {
-              def noSplitPenalizeNewlines = penalizeBrackets(1 + bracketPenalty)
-              onelinePolicy
+              val argPolicy = onelinePolicy
                 .orElse(argsHeadOpt.map(x => SingleLineBlock(x.tokens.last)))
-                .fold(noSplitPenalizeNewlines) { x =>
-                  if (isBracket) noSplitPenalizeNewlines & x else x
-                }
+                .getOrElse(NoPolicy)
+              argPolicy & penalizeBrackets(1 + bracketPenalty)
             }
           val noSplitModification =
             if (right.is[T.Comment]) getMod(formatToken)
@@ -1101,10 +1101,10 @@ class Router(formatOps: FormatOps) {
             Split(noSplitModification, 0 + (nestingPenalty * bracketCoef))
               .notIf(onlyConfigStyle)
               .withPolicy(noSplitPolicy)
-              .withIndent(indent, close, Before),
+              .withIndent(indent),
             Split(Newline, (1 + nestingPenalty * nestingPenalty) * bracketCoef)
-              .withPolicy(penalizeBrackets(1) & nlDanglePolicy & onelinePolicy)
-              .withIndent(indent, close, Before)
+              .withPolicy(nlDanglePolicy & onelinePolicy & penalizeBrackets(1))
+              .withIndent(indent)
           )
         }
 
