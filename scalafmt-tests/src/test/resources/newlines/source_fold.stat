@@ -4155,11 +4155,10 @@ object a {
 }
 >>>
 object a {
-  private def getAudiencesWithStatus(
-      statuses: AudienceStatus*
-  ): RIO[Blocking, Seq[Audience]] = effectBlocking {
-    audienceManager.list(InternalAudienceFilter(statuses = Contains(statuses.map(_.name))))
-  }
+  private def getAudiencesWithStatus(statuses: AudienceStatus*): RIO[Blocking, Seq[Audience]] =
+    effectBlocking {
+      audienceManager.list(InternalAudienceFilter(statuses = Contains(statuses.map(_.name))))
+    }
 }
 <<< bracketDefnSite=always
 maxColumn = 100
@@ -4174,11 +4173,10 @@ object a {
 }
 >>>
 object a {
-  private def getAudiencesWithStatus(
-      statuses: AudienceStatus*
-  ): RIO[Blocking, Seq[Audience]] = effectBlocking {
-    audienceManager.list(InternalAudienceFilter(statuses = Contains(statuses.map(_.name))))
-  }
+  private def getAudiencesWithStatus(statuses: AudienceStatus*): RIO[Blocking, Seq[Audience]] =
+    effectBlocking {
+      audienceManager.list(InternalAudienceFilter(statuses = Contains(statuses.map(_.name))))
+    }
 }
 <<< bracketDefnSite=never
 maxColumn = 100
