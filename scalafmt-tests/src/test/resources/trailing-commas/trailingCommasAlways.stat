@@ -147,3 +147,93 @@ object Foo {
       foo())
   }
 }
+<<< #2755 one, comma
+maxColumn = 80
+runner.parser = source
+===
+import foo.{
+  b,
+}
+class foo(
+  b: String,
+) {
+  def method(
+    b: String,
+  ) = ???
+  method(
+    b,
+  )
+}
+>>>
+import foo.{b}
+class foo(
+    b: String,
+) {
+  def method(
+      b: String,
+  ) = ???
+  method(
+    b,
+  )
+}
+<<< #2755 two, comma
+maxColumn = 80
+runner.parser = source
+===
+import foo.{a,
+  b,
+}
+class foo(a: String,
+  b: String,
+) {
+  def method(a: String,
+    b: String,
+  ) = ???
+  method(a,
+    b,
+  )
+}
+>>>
+import foo.{a, b}
+class foo(a: String, b: String) {
+  def method(a: String, b: String) = ???
+  method(a, b)
+}
+<<< #2755 one, no comma
+maxColumn = 80
+runner.parser = source
+===
+import foo.{
+  b}
+class foo(
+  b: String) {
+  def method(
+    b: String) = ???
+  method(
+    b)
+}
+>>>
+import foo.{b}
+class foo(b: String) {
+  def method(b: String) = ???
+  method(b)
+}
+<<< #2755 two, no comma
+maxColumn = 80
+runner.parser = source
+===
+import foo.{a,
+  b}
+class foo(a: String,
+  b: String) {
+  def method(a: String,
+    b: String) = ???
+  method(a,
+    b)
+}
+>>>
+import foo.{a, b}
+class foo(a: String, b: String) {
+  def method(a: String, b: String) = ???
+  method(a, b)
+}
