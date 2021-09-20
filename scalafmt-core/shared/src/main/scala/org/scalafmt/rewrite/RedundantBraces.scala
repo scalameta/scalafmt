@@ -129,8 +129,10 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         else if (okToReplaceBlockInSingleArgApply(t)) replace
         else if (processBlock(t)) removeToken
         else null
-      case _: Term.Interpolate =>
-        if (processInterpolation) removeToken else null
+      case _: Term.Interpolate
+          if style.rewrite.redundantBraces.stringInterpolation &&
+            processInterpolation =>
+        removeToken
       case meta.Importer(_, List(x))
           if !(x.is[Importee.Rename] || x.is[Importee.Unimport]) ||
             style.dialect.allowAsForImportRename &&

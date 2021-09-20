@@ -98,5 +98,5 @@ object Test {
 }
 >>>
 object Test {
-  s"${foo}_$bar"
+  s"${foo}_${bar}"
 }
