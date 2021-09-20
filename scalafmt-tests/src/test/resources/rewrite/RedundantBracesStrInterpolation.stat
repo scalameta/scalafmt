@@ -80,3 +80,23 @@ object a {
 object a {
   s"Hello ${`type`}"
 }
+<<< #2754 stringInterpolation
+rewrite.redundantBraces.stringInterpolation = true
+===
+object Test {
+  s"${foo}_${bar}"
+}
+>>>
+object Test {
+  s"${foo}_$bar"
+}
+<<< #2754 !stringInterpolation
+rewrite.redundantBraces.stringInterpolation = false
+===
+object Test {
+  s"${foo}_${bar}"
+}
+>>>
+object Test {
+  s"${foo}_$bar"
+}
