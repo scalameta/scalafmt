@@ -21,6 +21,7 @@ import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
 import scala.meta.{
   Case,
+  Ctor,
   Defn,
   Enumerator,
   ImportExportStat,
@@ -1100,7 +1101,7 @@ class FormatWriter(formatOps: FormatOps) {
         case AlignContainer(t) if fl.formatToken.right.is[T.Comment] => t
 
         case _: Defn | _: Case | _: Term.Apply | _: meta.Init |
-            _: meta.Ctor.Primary =>
+            _: Ctor.Primary =>
           getAlignContainerParent(t, Some(t))
 
         case _ => getAlignContainerParent(t)
@@ -1702,7 +1703,7 @@ object FormatWriter {
         case x: Term.Select => x.name.toString
         case _ => null
       }
-    case _: meta.Ctor.Secondary => "this"
+    case _: Ctor.Secondary => "this"
     case _: Defn.ExtensionGroup => "extension"
     case _: Term.If => "if"
     case _: Term.Do => "do"
