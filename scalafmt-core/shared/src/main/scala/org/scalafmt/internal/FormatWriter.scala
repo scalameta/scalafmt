@@ -980,6 +980,14 @@ class FormatWriter(formatOps: FormatOps) {
               getAlignContainer(floc).foreach { container =>
                 if (alignContainer eq null)
                   alignContainer = container
+                else if (alignContainer ne container) {
+                  val pos1 = alignContainer.pos
+                  val pos2 = container.pos
+                  if (pos2.start <= pos1.start && pos2.end >= pos1.end) {
+                    alignContainer = container
+                    columnCandidates.clear()
+                  }
+                }
                 if (alignContainer eq container)
                   columnCandidates += new AlignStop(
                     getAlignColumn(floc) + columnShift,
