@@ -63,3 +63,124 @@ def a(b: Int, c: Int,
  /* comment */ )
 >>>
 def a( b: Int, c: Int /* comment */ )
+<<< keep, do not fold, with spaces and two comments after break
+spaces.inParentheses = true
+maxColumn = 40
+danglingParentheses.preset = false
+===
+def a(b: Int, c: Int,
+ /* comment */
+  /* c1 */ )
+>>>
+def a(
+    b: Int,
+    c: Int,
+    /* comment */
+    /* c1 */ )
+<<< keep, do not fold, with spaces and two comments with break in between
+spaces.inParentheses = true
+maxColumn = 40
+danglingParentheses.preset = false
+===
+def a(b: Int, c: Int, /* comment */
+  /* c1 */ )
+>>>
+def a(
+    b: Int,
+    c: Int /* comment */
+    /* c1 */ )
+<<< keep, do not fold, with spaces and one comment without break
+spaces.inParentheses = true
+maxColumn = 40
+danglingParentheses.preset = false
+===
+def a(b: Int, c: Int, /* comment */
+ )
+>>>
+def a(
+    b: Int,
+    c: Int, /* comment */
+)
+<<< #2755 keep, comma, comment
+maxColumn = 100
+===
+object a {
+  def longFunctionName(a: Int, b: Int, /* c1 */
+    ) = a + b
+
+  def longFunctionName(a: Int, b: Int, /* c1 */
+    /* c2 */ ) = a + b
+}
+>>>
+object a {
+  def longFunctionName(
+      a: Int,
+      b: Int, /* c1 */
+  ) = a + b
+
+  def longFunctionName(
+      a: Int,
+      b: Int, /* c1 */
+      /* c2 */
+  ) = a + b
+}
+<<< #2755 keep, no comma, no comment
+maxColumn = 100
+===
+object a {
+  def longFunctionName2(
+    a: Int,
+    b: Int) =
+      a + b
+}
+>>>
+object a {
+  def longFunctionName2(a: Int, b: Int) =
+    a + b
+}
+<<< #2755 keep, no comma, comment
+maxColumn = 100
+===
+object a {
+  def longFunctionName2(
+    a: Int,
+    b: Int /* c */ ) =
+      a + b
+}
+>>>
+object a {
+  def longFunctionName2(a: Int, b: Int /* c */ ) =
+    a + b
+}
+<<< #2755 keep, no comma, no comment, config style
+maxColumn = 100
+===
+object a {
+  def longFunctionName2(
+    a: Int,
+    b: Int
+  ) = a + b
+}
+>>>
+object a {
+  def longFunctionName2(
+      a: Int,
+      b: Int
+  ) = a + b
+}
+<<< #2755 keep, no comma, comment, config style
+maxColumn = 100
+===
+object a {
+  def longFunctionName2(
+    a: Int,
+    b: Int /* c */
+  ) = a + b
+}
+>>>
+object a {
+  def longFunctionName2(
+      a: Int,
+      b: Int /* c */
+  ) = a + b
+}
