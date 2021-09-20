@@ -994,12 +994,7 @@ class FormatWriter(formatOps: FormatOps) {
 
           implicit val location = processLine
           val isBlankLine = location.state.split.modExt.mod.newlines > 1
-          if (alignContainer eq null) {
-            getBlockToFlush(
-              getAlignContainer(location.formatToken.meta.rightOwner),
-              isBlankLine
-            ).foreach(flushAlignBlock)
-          } else {
+          if (alignContainer ne null) {
             val candidates = columnCandidates.result()
             val block = getOrCreateBlock(alignContainer)
             def appendToBlock(line: IndexedSeq[AlignStop], matches: Int = 0) = {
@@ -1025,6 +1020,11 @@ class FormatWriter(formatOps: FormatOps) {
             prevAlignContainer = alignContainer
             prevBlock = block
           }
+          if (isBlankLine || alignContainer.eq(null))
+            getBlockToFlush(
+              getAlignContainer(location.formatToken.meta.rightOwner),
+              isBlankLine
+            ).foreach(flushAlignBlock)
         }
         blocks.valuesIterator.foreach(flushAlignBlock)
         finalResult.result()
