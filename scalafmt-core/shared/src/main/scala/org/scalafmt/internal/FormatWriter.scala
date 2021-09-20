@@ -1078,9 +1078,14 @@ class FormatWriter(formatOps: FormatOps) {
         // containers that can be traversed further if on same line
         case Some(p @ (_: Case | _: Enumerator)) =>
           if (isEarlierLine(p)) p else getAlignContainerParent(p)
-        // containers that can be traversed further if single-stat
+        // containers that can be traversed further if lhs single-line
         case Some(p @ AlignContainer.WithBody(b)) =>
-          if (b.is[Term.Block]) p else getAlignContainerParent(p)
+          val keepGoing = (b.eq(child) || p.eq(child)) && {
+            val beg = tokens.after(p.tokens.head)
+            val end = tokens.tokenJustBefore(b)
+            getLineDiff(locations, beg, end) == 0
+          }
+          if (keepGoing) getAlignContainerParent(p) else p
         case Some(p: Term.ForYield) if child ne p.body => p
         case Some(p) => p.parent.getOrElse(p)
         case _ => child
