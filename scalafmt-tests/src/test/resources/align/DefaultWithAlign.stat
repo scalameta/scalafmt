@@ -1445,11 +1445,11 @@ object Thing {
 object Thing {
   def apply(foo: FooBaz.booberry, someInt: Int, booControl: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz =
     apply(policy, Some(beatBytes), booControl)
-  def apply(foo: FooBaz.booberry, someInt: Int)(implicit p: Parameters): FooBaz =
+  def apply(foo: FooBaz.booberry, someInt: Int)(implicit p: Parameters):                                             FooBaz =
     apply(policy, Some(beatBytes), booControl = None)
-  def apply(fooBaz: Int, someBooberry: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz =
+  def apply(fooBaz: Int, someBooberry: Option[OptionalBooberryParams])(implicit p: Parameters):                      FooBaz =
     apply(policy = FooBaz.booberry, Some(someInt), booControl)
-  def apply(fooBaz: Int)(implicit p: Parameters): TLNode =
+  def apply(fooBaz: Int)(implicit p: Parameters):                                                                    TLNode =
     apply(policy = FooBaz.booberry, Some(someInt), booControl = None)
 }
 <<< #2750 3 blocks, blanks
@@ -1522,13 +1522,13 @@ object Thing {
   def apply(foo: FooBaz.booberry, someInt: Int, booControl: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz = {
     apply(policy, Some(beatBytes), booControl)
   }
-  def apply(foo: FooBaz.booberry, someInt: Int)(implicit p: Parameters): FooBaz = {
+  def apply(foo: FooBaz.booberry, someInt: Int)(implicit p: Parameters):                                             FooBaz = {
     apply(policy, Some(beatBytes), booControl = None)
   }
-  def apply(fooBaz: Int, someBooberry: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz = {
+  def apply(fooBaz: Int, someBooberry: Option[OptionalBooberryParams])(implicit p: Parameters):                      FooBaz = {
     apply(policy = FooBaz.booberry, Some(someInt), booControl)
   }
-  def apply(fooBaz: Int)(implicit p: Parameters): TLNode = {
+  def apply(fooBaz: Int)(implicit p: Parameters):                                                                    TLNode = {
     apply(policy = FooBaz.booberry, Some(someInt), booControl = None)
   }
 }
