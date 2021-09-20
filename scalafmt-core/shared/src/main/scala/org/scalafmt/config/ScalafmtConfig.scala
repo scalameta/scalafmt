@@ -50,7 +50,7 @@ import org.scalafmt.util.ValidationOps
   * If [[org.scalafmt.config.TrailingCommas.never]], trailing commas are removed
   * whenever they appear.
   *
-  * If [[org.scalafmt.config.TrailingCommas.preserve]], existing trailing commas
+  * If [[org.scalafmt.config.TrailingCommas.keep]], existing trailing commas
   * will be preserved, and no new ones will be added.
   *
   * @param indentYieldKeyword
@@ -314,6 +314,7 @@ object ScalafmtConfig {
         addIf(newlines.beforeOpenParenCallSite.exists(_.src eq Newlines.keep))
         addIf(newlines.beforeOpenParenDefnSite.exists(_.src eq Newlines.keep))
         addIf(newlines.selectChains.exists(_ eq Newlines.keep))
+        addIf(trailingCommas eq TrailingCommas.keep)
       }
       if (newlines.source == Newlines.unfold) {
         addIf(align.arrowEnumeratorGenerator)

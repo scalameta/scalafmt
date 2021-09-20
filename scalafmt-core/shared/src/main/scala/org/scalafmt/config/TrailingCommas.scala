@@ -14,7 +14,7 @@ import metaconfig._
   * When [[org.scalafmt.config.TrailingCommas.never]] is selected, trailing
   * commas are removed whenever they appear.
   *
-  * When [[org.scalafmt.config.TrailingCommas.preserve]] is selected, existing
+  * When [[org.scalafmt.config.TrailingCommas.keep]] is selected, existing
   * trailing commas will be preserved, and no new ones will be added.
   */
 sealed abstract class TrailingCommas
@@ -22,13 +22,14 @@ sealed abstract class TrailingCommas
 object TrailingCommas {
 
   implicit val reader: ConfCodecEx[TrailingCommas] =
-    ReaderUtil.oneOfCustom[TrailingCommas](always, never, preserve, multiple) {
-      case Conf.Str("keep") => Configured.Ok(preserve)
+    ReaderUtil.oneOfCustom[TrailingCommas](always, never, keep, multiple) {
+      case Conf.Str(str) if str.equalsIgnoreCase("preserve") =>
+        Configured.Ok(keep)
     }
 
   case object always extends TrailingCommas
   case object never extends TrailingCommas
-  case object preserve extends TrailingCommas
+  case object keep extends TrailingCommas
   case object multiple extends TrailingCommas
 
 }

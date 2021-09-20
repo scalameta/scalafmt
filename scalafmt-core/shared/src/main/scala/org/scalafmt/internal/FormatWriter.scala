@@ -427,7 +427,7 @@ class FormatWriter(formatOps: FormatOps) {
         else
           style.trailingCommas match {
             // remove comma if no newline
-            case TrailingCommas.preserve
+            case TrailingCommas.keep
                 if tok.left.is[T.Comma] && isClosedDelimWithNewline(false) =>
               sb.setLength(sb.length - 1)
               if (!tok.right.is[T.RightParen]) ws(1)
