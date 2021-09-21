@@ -13,7 +13,7 @@ object RewriteTrailingCommas extends FormatTokensRewrite.RuleFactory {
 
   override def enabled(implicit style: ScalafmtConfig): Boolean =
     style.dialect.allowTrailingCommas &&
-      style.trailingCommas != TrailingCommas.keep
+      style.getTrailingCommas.ne(TrailingCommas.keep)
 
   override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new RewriteTrailingCommas(ftoks)

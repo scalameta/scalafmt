@@ -425,7 +425,7 @@ class FormatWriter(formatOps: FormatOps) {
         if (noExtraOffset)
           ws(0)
         else
-          style.trailingCommas match {
+          style.getTrailingCommas match {
             // remove comma if no newline
             case TrailingCommas.keep
                 if tok.left.is[T.Comma] && isClosedDelimWithNewline(false) =>
