@@ -3,6 +3,7 @@ package org.scalafmt.config
 import metaconfig._
 
 case class TrailingCommas(
+    allowFolding: Boolean = true,
     style: TrailingCommas.Style = TrailingCommas.never
 )
 
