@@ -2,7 +2,16 @@ package org.scalafmt.config
 
 import metaconfig._
 
+case class TrailingCommas(
+    style: TrailingCommas.Style = TrailingCommas.never
+)
+
 object TrailingCommas {
+
+  implicit lazy val surface: generic.Surface[TrailingCommas] =
+    generic.deriveSurface
+  implicit lazy val codec: ConfCodecEx[TrailingCommas] =
+    generic.deriveCodecEx(TrailingCommas())
 
   /** ADT representing trailing commas settings
     *

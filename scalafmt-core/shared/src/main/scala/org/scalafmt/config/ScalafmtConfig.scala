@@ -42,17 +42,6 @@ import org.scalafmt.util.ValidationOps
   *   broken to one per line If
   *   [[org.scalafmt.config.ImportSelectors.singleLine]], import selectors are
   *   kept on a single line The default setting is currently `noBinPack`.
-  * @param trailingCommas
-  *   If [[org.scalafmt.config.TrailingCommas.always]], trailing commas are
-  *   added everywhere a newline is followed by a right parens, brace or
-  *   bracket.
-  *
-  * If [[org.scalafmt.config.TrailingCommas.never]], trailing commas are removed
-  * whenever they appear.
-  *
-  * If [[org.scalafmt.config.TrailingCommas.keep]], existing trailing commas
-  * will be preserved, and no new ones will be added.
-  *
   * @param indentYieldKeyword
   *   If true, indents `yield` by two spaces for (i <- j) yield banana If false,
   *   treats `yield` like `else` for (i <- j) yield banana
@@ -131,7 +120,12 @@ case class ScalafmtConfig(
       "2.5.0"
     )
     poorMansTrailingCommasInConfigStyle: Boolean = false,
-    trailingCommas: TrailingCommas.Style = TrailingCommas.never,
+    @annotation.DeprecatedName(
+      "trailingCommas",
+      "use rewrite.trailingCommas.style instead",
+      "3.0.5"
+    )
+    private val trailingCommas: Option[TrailingCommas.Style] = None,
     verticalMultiline: VerticalMultiline = VerticalMultiline(),
     verticalAlignMultilineOperators: Boolean = false,
     onTestFailure: String = "",
@@ -185,6 +179,8 @@ case class ScalafmtConfig(
     docstrings.wrapMaxColumn.getOrElse(maxColumn)
 
   private[scalafmt] lazy val dialect = runner.getDialect
+
+  private[scalafmt] def getTrailingCommas = rewrite.trailingCommas.style
 }
 
 object ScalafmtConfig {
@@ -314,7 +310,7 @@ object ScalafmtConfig {
         addIf(newlines.beforeOpenParenCallSite.exists(_.src eq Newlines.keep))
         addIf(newlines.beforeOpenParenDefnSite.exists(_.src eq Newlines.keep))
         addIf(newlines.selectChains.exists(_ eq Newlines.keep))
-        addIf(trailingCommas eq TrailingCommas.keep)
+        addIf(getTrailingCommas.eq(TrailingCommas.keep))
       }
       if (newlines.source == Newlines.unfold) {
         addIf(align.arrowEnumeratorGenerator)
@@ -332,8 +328,8 @@ object ScalafmtConfig {
     locally {
       implicit val errors = allErrors
       if (!dialect.allowTrailingCommas) {
-        addIf(trailingCommas == TrailingCommas.always, errDialect)
-        addIf(trailingCommas == TrailingCommas.multiple, errDialect)
+        addIf(getTrailingCommas eq TrailingCommas.always, errDialect)
+        addIf(getTrailingCommas eq TrailingCommas.multiple, errDialect)
       }
       if (!dialect.allowSignificantIndentation) {
         addIf(newlines.beforeOpenParenCallSite.nonEmpty, errDialect)
@@ -398,7 +394,14 @@ object ScalafmtConfig {
           }
         case _ => baseDecoder.read(stateOpt, conf)
       }
-      parsed.andThen(ScalafmtConfig.validate)
+      parsed
+        .map { cfg =>
+          cfg.trailingCommas.fold(cfg) { tc =>
+            val rt = cfg.rewrite.trailingCommas.copy(style = tc)
+            cfg.copy(rewrite = cfg.rewrite.copy(trailingCommas = rt))
+          }
+        }
+        .andThen(ScalafmtConfig.validate)
     }
 
 }

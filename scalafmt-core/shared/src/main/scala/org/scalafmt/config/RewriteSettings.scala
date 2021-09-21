@@ -10,6 +10,7 @@ case class RewriteSettings(
     sortModifiers: SortSettings = SortSettings.default,
     imports: Imports.Settings = Imports.Settings(),
     preferCurlyFors: PreferCurlyFors.Settings = PreferCurlyFors.Settings(),
+    trailingCommas: TrailingCommas = TrailingCommas(),
     neverInfix: Pattern = Pattern.neverInfix
 ) {
   def rewriteFactoryRules: Seq[RewriteFactory] =

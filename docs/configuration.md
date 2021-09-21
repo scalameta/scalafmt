@@ -2732,10 +2732,11 @@ delimiter is not dangling (i.e., follows the final argument without a line
 break).
 
 > This logic is not triggered via the `rewrite.rules` parameter, but by setting
-> `trailingCommas`.
+> parameters within the `rewrite.trailingCommas` section (since v3.0.5; prior to that
+> there was a single top-level `trailingCommas` parameter).
 
 ```scala mdoc:defaults
-trailingCommas
+rewrite.trailingCommas.style
 ```
 
 #### Trailing commas: `never`
@@ -2743,7 +2744,7 @@ trailingCommas
 Makes sure there are no trailing commas:
 
 ```scala mdoc:scalafmt
-trailingCommas = never
+rewrite.trailingCommas.style = never
 ---
 import a.{
   b,
@@ -2778,7 +2779,7 @@ method3(
 Keeps any trailing commas:
 
 ```scala mdoc:scalafmt
-trailingCommas = keep
+rewrite.trailingCommas.style = keep
 ---
 import a.{
   b,
@@ -2813,7 +2814,7 @@ method3(
 Makes sure there are trailing commas:
 
 ```scala mdoc:scalafmt
-trailingCommas = always
+rewrite.trailingCommas.style = always
 ---
 import a.{
   b,
@@ -2851,7 +2852,7 @@ Makes sure there are trailing commas for multiple-argument expressions only,
 except when the last argument is repeated:
 
 ```scala mdoc:scalafmt
-trailingCommas = multiple
+rewrite.trailingCommas.style = multiple
 ---
 import a.{
   b,
