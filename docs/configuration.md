@@ -2882,6 +2882,20 @@ method3(
 )
 ```
 
+#### `rewrite.trailingCommas.allowFolding`
+
+This parameter controls whether the trailing comma must be maintained (except
+for `never`), or the code can be folded to avoid a dangling closing delimiter
+which is required by Scala after a trailing comma.
+
+> Since v3.0.5
+
+```scala mdoc:defaults
+rewrite.trailingCommas.allowFolding
+```
+
+If set to false, the trailing comma will always be forced.
+
 ## Scala3 rewrites
 
 This section describes rules which are applied if the appropriate dialect (e.g.,

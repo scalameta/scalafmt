@@ -218,9 +218,93 @@ class foo(b: String) {
   def method(b: String) = ???
   method(b)
 }
+<<< #2755 one, no comma, no fold
+maxColumn = 80
+runner.parser = source
+rewrite.trailingCommas.allowFolding = false
+===
+import foo.{
+  b}
+class foo(
+  b: String) {
+  def method(
+    b: String) = ???
+  method(
+    b)
+}
+>>>
+import foo.{b}
+class foo(b: String) {
+  def method(b: String) = ???
+  method(b)
+}
+<<< #2755 one, no comma, no fold, binpack
+maxColumn = 80
+runner.parser = source
+binPack.preset = true
+importSelectors = binPack
+rewrite.trailingCommas.allowFolding = false
+===
+import foo.{
+  b}
+class foo(
+  b: String) {
+  def method(
+    b: String) = ???
+  method(
+    b)
+}
+>>>
+import foo.{b}
+class foo(b: String) {
+  def method(b: String) = ???
+  method(b)
+}
 <<< #2755 two, no comma
 maxColumn = 80
 runner.parser = source
+===
+import foo.{a,
+  b}
+class foo(a: String,
+  b: String) {
+  def method(a: String,
+    b: String) = ???
+  method(a,
+    b)
+}
+>>>
+import foo.{a, b}
+class foo(a: String, b: String) {
+  def method(a: String, b: String) = ???
+  method(a, b)
+}
+<<< #2755 two, no comma, no fold
+maxColumn = 80
+runner.parser = source
+rewrite.trailingCommas.allowFolding = false
+===
+import foo.{a,
+  b}
+class foo(a: String,
+  b: String) {
+  def method(a: String,
+    b: String) = ???
+  method(a,
+    b)
+}
+>>>
+import foo.{a, b}
+class foo(a: String, b: String) {
+  def method(a: String, b: String) = ???
+  method(a, b)
+}
+<<< #2755 two, no comma, no fold, binpack
+maxColumn = 80
+runner.parser = source
+binPack.preset = true
+importSelectors = binPack
+rewrite.trailingCommas.allowFolding = false
 ===
 import foo.{a,
   b}
