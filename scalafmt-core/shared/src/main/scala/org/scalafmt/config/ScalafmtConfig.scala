@@ -131,7 +131,7 @@ case class ScalafmtConfig(
       "2.5.0"
     )
     poorMansTrailingCommasInConfigStyle: Boolean = false,
-    trailingCommas: TrailingCommas = TrailingCommas.never,
+    trailingCommas: TrailingCommas.Style = TrailingCommas.never,
     verticalMultiline: VerticalMultiline = VerticalMultiline(),
     verticalAlignMultilineOperators: Boolean = false,
     onTestFailure: String = "",
