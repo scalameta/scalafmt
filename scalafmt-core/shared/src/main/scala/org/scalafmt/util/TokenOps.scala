@@ -49,7 +49,6 @@ object TokenOps {
       ft: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
     style.optIn.forceNewlineBeforeDocstringSummary &&
-      ft.right.is[Token.Comment] && !ft.left.is[Token.Comment] &&
       isDocstring(ft.meta.right.text) &&
       TreeOps
         .findTreeOrParent(ft.meta.leftOwner) {

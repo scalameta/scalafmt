@@ -209,12 +209,16 @@ class Router(formatOps: FormatOps) {
           style.optIn.selfAnnotationNewline && selfAnnotation.nonEmpty && (
             formatToken.hasBreak || style.newlines.sourceIgnored
           )
+        val rightIsComment = right.is[T.Comment]
         val nl: Modification =
-          if (right.is[T.Comment] && tok.noBreak) Space
+          if (rightIsComment && tok.noBreak) Space
           else if (isSelfAnnotationNL)
             getModCheckIndent(formatToken, math.max(newlines, 1))
-          else
-            NewlineT(tok.hasBlankLine || blankLineBeforeDocstring(tok))
+          else {
+            val double = tok.hasBlankLine ||
+              rightIsComment && blankLineBeforeDocstring(tok)
+            NewlineT(double)
+          }
 
         // lambdaNLOnly: None for single line only
         val (lambdaExpire, lambdaArrow, lambdaIndent, lambdaNLOnly) =
@@ -2055,6 +2059,9 @@ class Router(formatOps: FormatOps) {
             Seq(Split(Space, 0).withSingleLine(slbEnd), nlSplit(1))
         }
 
+      // After comment
+      case FormatToken(_: T.Comment, _, _) =>
+        Seq(Split(getMod(formatToken), 0))
       // Inline comment
       case FormatToken(left, _: T.Comment, _) =>
         val forceBlankLine = formatToken.hasBreak &&
@@ -2062,18 +2069,12 @@ class Router(formatOps: FormatOps) {
         val mod = if (forceBlankLine) Newline2x else getMod(formatToken)
         val indent = formatToken.meta.rightOwner match {
           case GetSelectLike(ts)
-              if !left.is[T.Comment] &&
-                findPrevSelect(ts, style.encloseSelectChains).isEmpty =>
+              if findPrevSelect(ts, style.encloseSelectChains).isEmpty =>
             val expire = nextNonComment(next(formatToken)).left
             Indent(style.indent.main, expire, ExpiresOn.After)
           case _ => Indent.Empty
         }
         Seq(Split(mod, 0).withIndent(indent))
-      // Commented out code should stay to the left
-      case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
-        Seq(Split(Newline, 0))
-      case FormatToken(c: T.Comment, _, _) =>
-        Seq(Split(getMod(formatToken), 0))
 
       case FormatToken(soft.ImplicitOrUsing(), _, _)
           if style.binPack.unsafeDefnSite.isNever &&
