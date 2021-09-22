@@ -87,7 +87,7 @@ def a(b: Int, c: Int, /* comment */
 >>>
 def a(
     b: Int,
-    c: Int /* comment */
+    c: Int, /* comment */
     /* c1 */ )
 <<< keep, do not fold, with spaces and one comment without break
 spaces.inParentheses = true

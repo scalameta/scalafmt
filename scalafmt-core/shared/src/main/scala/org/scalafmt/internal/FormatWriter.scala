@@ -382,13 +382,6 @@ class FormatWriter(formatOps: FormatOps) {
         ): Option[FormatToken] = {
           def owner = tok.meta.rightOwner
 
-          val nextNonCommentTok = tokens.nextNonComment(tok)
-          val skip = nextNonCommentTok.meta.idx - tok.meta.idx
-          val right = nextNonCommentTok.right
-          def isNewline =
-            Seq(curr, locations(math.min(i + skip, locations.length - 1)))
-              .exists(_.hasBreakAfter)
-
           // Scala syntax allows commas before right braces in weird places,
           // like constructor bodies:
           // def this() = {
@@ -400,7 +393,7 @@ class FormatWriter(formatOps: FormatOps) {
           // try to add them in the TrainingCommas.always branch.
 
           // skip empty parens/braces/brackets
-          def rightIsCloseDelim =
+          def rightIsCloseDelim(right: T) =
             right match {
               case _: T.RightBrace =>
                 !tok.left.is[T.LeftBrace] && owner.is[Importer]
@@ -411,8 +404,29 @@ class FormatWriter(formatOps: FormatOps) {
               case _ => false
             }
 
-          val ok = rightIsCloseDelim && expectedNewline == isNewline
-          if (ok) Some(nextNonCommentTok) else None
+          @tailrec
+          def iter(
+              floc: FormatLocation,
+              hadNL: Boolean
+          ): Option[FormatToken] = {
+            val isNL = floc.hasBreakAfter
+            if (isNL && !expectedNewline) None
+            else {
+              val ft = floc.formatToken
+              def gotNL = hadNL || isNL
+              ft.right match {
+                case _: T.Comment =>
+                  val idx = ft.meta.idx + 1
+                  if (idx == locations.length) None
+                  else iter(locations(idx), gotNL)
+                case r =>
+                  val ok = gotNL == expectedNewline && rightIsCloseDelim(r)
+                  if (ok) Some(ft) else None
+              }
+            }
+          }
+
+          iter(curr, false)
         }
 
         @inline def ws(offset: Int): Unit = sb.append(getWhitespace(offset))
