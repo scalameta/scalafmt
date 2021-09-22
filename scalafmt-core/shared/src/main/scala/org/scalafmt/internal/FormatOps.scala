@@ -24,6 +24,7 @@ import scala.meta.{
   Ctor,
   Decl,
   Defn,
+  Importer,
   Init,
   Lit,
   Pat,
@@ -2573,6 +2574,20 @@ class FormatOps(
       case x: T.LeftBrace => matchingOpt(x)
       case x: T.LeftParen => if (parensToo) matchingOpt(x) else None
       case _ => OptionalBraces.get(ft).flatMap(_.rightBrace)
+    }
+
+  def isCloseDelimForTrailingCommasMultiple(
+      ft: FormatToken
+  )(implicit style: ScalafmtConfig): Boolean =
+    ft.meta.rightOwner match {
+      case x: Importer => x.importees.length > 1
+      case _ =>
+        val args = getApplyArgs(ft, true).args
+        args.length > 1 && (args.last match {
+          case _: Term.Repeated => false
+          case t: Term.Param => !t.decltpe.exists(_.is[Type.Repeated])
+          case _ => true
+        })
     }
 
 }

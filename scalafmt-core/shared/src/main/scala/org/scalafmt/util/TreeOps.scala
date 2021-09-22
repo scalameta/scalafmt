@@ -3,10 +3,12 @@ package org.scalafmt.util
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Case
+import scala.meta.CaseTree
 import scala.meta.Ctor
 import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Enumerator
+import scala.meta.Importer
 import scala.meta.Init
 import scala.meta.Lit
 import scala.meta.Mod
@@ -18,7 +20,6 @@ import scala.meta.Template
 import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.Type
-import scala.meta.CaseTree
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -859,6 +860,31 @@ object TreeOps {
       p.lhs.eq(tree) || followedBySelectOrApply(p)
     case SplitCallIntoParts(`tree`, _) => true
     case _ => false
+  }
+
+  // Scala syntax allows commas before right braces in weird places,
+  // like constructor bodies:
+  // def this() = {
+  //   this(1),
+  // }
+  // This code simply ignores those commas because it does not
+  // consider them "trailing" commas. It does not remove them
+  // in the TrailingCommas.never branch, nor does it
+  // try to add them in the TrainingCommas.always branch.
+  def rightIsCloseDelimForTrailingComma(left: Token, ft: FormatToken)(implicit
+      style: ScalafmtConfig
+  ): Boolean = {
+    def owner = ft.meta.rightOwner
+    // skip empty parens/braces/brackets
+    ft.right match {
+      case _: Token.RightBrace =>
+        !left.is[Token.LeftBrace] && owner.is[Importer]
+      case _: Token.RightParen =>
+        !left.is[Token.LeftParen] && isDefnOrCallSite(owner)
+      case _: Token.RightBracket =>
+        !left.is[Token.LeftBracket] && isDefnOrCallSite(owner)
+      case _ => false
+    }
   }
 
 }

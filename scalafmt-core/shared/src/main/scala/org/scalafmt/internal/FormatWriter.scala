@@ -25,7 +25,6 @@ import scala.meta.{
   Defn,
   Enumerator,
   ImportExportStat,
-  Importer,
   Lit,
   Pat,
   Pkg,
@@ -380,30 +379,6 @@ class FormatWriter(formatOps: FormatOps) {
         def getClosedDelimWithNewline(
             expectedNewline: Boolean
         ): Option[FormatToken] = {
-          def owner = tok.meta.rightOwner
-
-          // Scala syntax allows commas before right braces in weird places,
-          // like constructor bodies:
-          // def this() = {
-          //   this(1),
-          // }
-          // This code simply ignores those commas because it does not
-          // consider them "trailing" commas. It does not remove them
-          // in the TrailingCommas.never branch, nor does it
-          // try to add them in the TrainingCommas.always branch.
-
-          // skip empty parens/braces/brackets
-          def rightIsCloseDelim(right: T) =
-            right match {
-              case _: T.RightBrace =>
-                !tok.left.is[T.LeftBrace] && owner.is[Importer]
-              case _: T.RightParen =>
-                !tok.left.is[T.LeftParen] && TreeOps.isDefnOrCallSite(owner)
-              case _: T.RightBracket =>
-                !tok.left.is[T.LeftBracket] && TreeOps.isDefnOrCallSite(owner)
-              case _ => false
-            }
-
           @tailrec
           def iter(
               floc: FormatLocation,
@@ -419,8 +394,9 @@ class FormatWriter(formatOps: FormatOps) {
                   val idx = ft.meta.idx + 1
                   if (idx == locations.length) None
                   else iter(locations(idx), gotNL)
-                case r =>
-                  val ok = gotNL == expectedNewline && rightIsCloseDelim(r)
+                case _ =>
+                  val ok = gotNL == expectedNewline &&
+                    TreeOps.rightIsCloseDelimForTrailingComma(tok.left, ft)
                   if (ok) Some(ft) else None
               }
             }
@@ -1408,20 +1384,6 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
   }
-
-  private def isCloseDelimForTrailingCommasMultiple(
-      ft: FormatToken
-  )(implicit style: ScalafmtConfig): Boolean =
-    ft.meta.rightOwner match {
-      case x: Importer => x.importees.length > 1
-      case _ =>
-        val args = getApplyArgs(ft, true).args
-        args.length > 1 && (args.last match {
-          case _: Term.Repeated => false
-          case t: Term.Param => !t.decltpe.exists(_.is[Type.Repeated])
-          case _ => true
-        })
-    }
 
   private def getAlignHashKey(location: FormatLocation): Int = {
     val ft = location.formatToken
