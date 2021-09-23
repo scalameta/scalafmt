@@ -246,10 +246,18 @@ class foo(
     b /* c1 */ /* c2 */ )
 }
 >>>
-import foo.{b /* c1 */ /* c2 */}
-class foo(b: String /* c1 */ /* c2 */ ) {
-  def method(b: String /* c1 */ /* c2 */ ) = ???
-  method(b /* c1 */ /* c2 */ )
+import foo.{
+  b, /* c1 */ /* c2 */
+}
+class foo(
+    b: String, /* c1 */ /* c2 */
+) {
+  def method(
+      b: String, /* c1 */ /* c2 */
+  ) = ???
+  method(
+    b, /* c1 */ /* c2 */
+  )
 }
 <<< #2755 one, no comma, no fold, binpack
 maxColumn = 80
@@ -268,10 +276,18 @@ class foo(
     b /* c1 */ /* c2 */ )
 }
 >>>
-import foo.{b /* c1 */ /* c2 */}
-class foo(b: String /* c1 */ /* c2 */ ) {
-  def method(b: String /* c1 */ /* c2 */ ) = ???
-  method(b /* c1 */ /* c2 */ )
+import foo.{
+  b, /* c1 */ /* c2 */
+}
+class foo(
+    b: String, /* c1 */ /* c2 */
+) {
+  def method(
+      b: String, /* c1 */ /* c2 */
+  ) = ???
+  method(
+    b, /* c1 */ /* c2 */
+  )
 }
 <<< #2755 two, no comma
 maxColumn = 80
@@ -307,10 +323,22 @@ class foo(a: String,
     b /* c1 */ /* c2 */ )
 }
 >>>
-import foo.{a, b /* c1 */ /* c2 */}
-class foo(a: String, b: String /* c1 */ /* c2 */ ) {
-  def method(a: String, b: String /* c1 */ /* c2 */ ) = ???
-  method(a, b /* c1 */ /* c2 */ )
+import foo.{
+  a,
+  b, /* c1 */ /* c2 */
+}
+class foo(
+    a: String,
+    b: String, /* c1 */ /* c2 */
+) {
+  def method(
+      a: String,
+      b: String, /* c1 */ /* c2 */
+  ) = ???
+  method(
+    a,
+    b, /* c1 */ /* c2 */
+  )
 }
 <<< #2755 two, no comma, no fold, binPack
 maxColumn = 80
@@ -329,8 +357,16 @@ class foo(a: String,
     b /* c1 */ /* c2 */ )
 }
 >>>
-import foo.{a, b /* c1 */ /* c2 */}
-class foo(a: String, b: String /* c1 */ /* c2 */ ) {
-  def method(a: String, b: String /* c1 */ /* c2 */ ) = ???
-  method(a, b /* c1 */ /* c2 */ )
+import foo.{
+  a, b, /* c1 */ /* c2 */
+}
+class foo(
+    a: String, b: String, /* c1 */ /* c2 */
+) {
+  def method(
+      a: String, b: String, /* c1 */ /* c2 */
+  ) = ???
+  method(
+    a, b, /* c1 */ /* c2 */
+  )
 }

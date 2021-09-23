@@ -154,8 +154,9 @@ class Router(formatOps: FormatOps) {
         )
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
 
+        val mustDangleForTrailingCommas = getMustDangleForTrailingCommas(close)
         val newlinePolicy = style.importSelectors match {
-          case ImportSelectors.singleLine =>
+          case ImportSelectors.singleLine if !mustDangleForTrailingCommas =>
             NoPolicy
           case ImportSelectors.binPack =>
             newlineBeforeClosingCurly
@@ -165,6 +166,7 @@ class Router(formatOps: FormatOps) {
 
         Seq(
           Split(Space(style.spaces.inImportCurlyBraces), 0)
+            .notIf(mustDangleForTrailingCommas)
             .withPolicy(policy),
           Split(Newline, 1)
             .onlyIf(newlinePolicy ne NoPolicy)
@@ -849,7 +851,11 @@ class Router(formatOps: FormatOps) {
           else
             rhsOptimalToken(closeFormatToken)
 
-        val mustDangle = onlyConfigStyle || expirationToken.is[T.Comment]
+        val mustDangleForTrailingCommas =
+          getMustDangleForTrailingCommas(prev(closeFormatToken))
+
+        val mustDangle = onlyConfigStyle || expirationToken.is[T.Comment] ||
+          mustDangleForTrailingCommas
         val shouldDangle =
           if (defnSite) !shouldNotDangleAtDefnSite(leftOwner, false)
           else if (tupleSite) style.danglingParentheses.getTupleSite
@@ -1009,6 +1015,7 @@ class Router(formatOps: FormatOps) {
                 singleLine(10)
             Seq(
               Split(noSplitMod, 0, policy = noSplitPolicy)
+                .notIf(mustDangleForTrailingCommas)
                 .withOptimalToken(expirationToken)
                 .withIndent(noSplitIndent, close, Before),
               Split(noSplitMod, (implicitPenalty + lhsPenalty) * bracketCoef)
@@ -1071,7 +1078,8 @@ class Router(formatOps: FormatOps) {
             if (isBracket) Some(Constants.BracketPenalty) else None
           val penalizeBrackets =
             bracketPenalty.map(p => PenalizeAllNewlines(close, p + 3))
-          val onlyConfigStyle = mustUseConfigStyle(formatToken)
+          val onlyConfigStyle = mustUseConfigStyle(formatToken) ||
+            getMustDangleForTrailingCommas(close)
 
           val argsHeadOpt = argumentStarts.get(hash(right))
           val onelinePolicy =
@@ -1135,7 +1143,9 @@ class Router(formatOps: FormatOps) {
           styleMap.opensLiteralArgumentList(formatToken)
         val singleLineOnly =
           style.binPack.literalsSingleLine && opensLiteralArgumentList
-        val onlyConfigStyle =
+        val mustDangleForTrailingCommas = getMustDangleForTrailingCommas(close)
+
+        val onlyConfigStyle = !mustDangleForTrailingCommas &&
           mustUseConfigStyle(formatToken, !opensLiteralArgumentList)
 
         val argsOpt = (leftOwner match {
@@ -1159,7 +1169,8 @@ class Router(formatOps: FormatOps) {
         } else NoPolicy
 
         val noSplit =
-          if (singleLineOnly || style.newlines.sourceIgnored && !oneline)
+          if (mustDangleForTrailingCommas) Split.ignored
+          else if (singleLineOnly || style.newlines.sourceIgnored && !oneline)
             baseNoSplit.withSingleLine(close)
           else if (onlyConfigStyle) Split.ignored
           else {
@@ -1194,6 +1205,7 @@ class Router(formatOps: FormatOps) {
               newlineBeforeClose & binPackOnelinePolicy
             else splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
           } else if (
+            mustDangleForTrailingCommas ||
             style.newlines.sourceIgnored && (
               if (isTuple(leftOwner)) style.danglingParentheses.getTupleSite
               else style.danglingParentheses.callSite
@@ -1322,14 +1334,13 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // These are mostly filtered out/modified by policies.
-      case tok @ FormatToken(_: T.Comma, c: T.Comment, _) =>
+      case tok @ FormatToken(left: T.Comma, c: T.Comment, _) =>
         if (isSingleLineComment(c))
           Seq(Split(getModCheckIndent(tok, newlines), 0))
         else if (tok.meta.right.firstNL >= 0) Seq(Split(Newline, 0))
         else {
-          val noNewline = newlines == 0 &&
-            // perhaps left is a trailing comma
-            nextNonComment(next(tok)).right.is[RightParenOrBracket]
+          val noNewline = newlines == 0 && // perhaps left is a trailing comma
+            rightIsCloseDelimToAddTrailingComma(left, nextNonComment(next(tok)))
           Seq(Split(Space, 0), Split(Newline, 1).notIf(noNewline))
         }
       case FormatToken(_: T.Comma, right, _) if leftOwner.isNot[Template] =>

@@ -6,7 +6,8 @@ import org.scalafmt.config.{
   Comments,
   Newlines,
   ScalafmtConfig,
-  ScalafmtRunner
+  ScalafmtRunner,
+  TrailingCommas
 }
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
@@ -2588,6 +2589,41 @@ class FormatOps(
           case t: Term.Param => !t.decltpe.exists(_.is[Type.Repeated])
           case _ => true
         })
+    }
+
+  def rightIsCloseDelimToAddTrailingComma(left: Token, ft: => FormatToken)(
+      implicit style: ScalafmtConfig
+  ): Boolean =
+    style.getTrailingCommas match {
+      case TrailingCommas.keep =>
+        left.is[T.Comma] &&
+          TreeOps.rightIsCloseDelimForTrailingComma(left, ft)
+      case TrailingCommas.always =>
+        TreeOps.rightIsCloseDelimForTrailingComma(left, ft)
+      case TrailingCommas.multiple =>
+        val ftEval = ft
+        TreeOps.rightIsCloseDelimForTrailingComma(left, ftEval) &&
+        isCloseDelimForTrailingCommasMultiple(ftEval)
+      case _ => false
+    }
+
+  def getMustDangleForTrailingCommas(close: T)(implicit
+      style: ScalafmtConfig
+  ): Boolean =
+    getMustDangleForTrailingCommas(tokens.justBefore(close))
+
+  def getMustDangleForTrailingCommas(getCloseFt: => FormatToken)(implicit
+      style: ScalafmtConfig
+  ): Boolean =
+    !style.rewrite.trailingCommas.allowFolding && {
+      val closeFt = getCloseFt
+      val beforeClose =
+        if (!closeFt.left.is[T.Comment]) Some(closeFt.left)
+        else {
+          val tok = tokens.prevNonCommentSameLine(prev(closeFt)).left
+          if (tok.is[T.Comment]) None else Some(tok)
+        }
+      beforeClose.exists(rightIsCloseDelimToAddTrailingComma(_, closeFt))
     }
 
 }
