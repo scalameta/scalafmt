@@ -155,19 +155,19 @@ class Router(formatOps: FormatOps) {
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
 
         val newlinePolicy = style.importSelectors match {
-          case ImportSelectors.noBinPack =>
-            newlineBeforeClosingCurly & splitOneArgOneLine(close, leftOwner)
+          case ImportSelectors.singleLine =>
+            NoPolicy
           case ImportSelectors.binPack =>
             newlineBeforeClosingCurly
-          case ImportSelectors.singleLine =>
-            SingleLineBlock(close)
+          case _ =>
+            newlineBeforeClosingCurly & splitOneArgOneLine(close, leftOwner)
         }
 
         Seq(
           Split(Space(style.spaces.inImportCurlyBraces), 0)
             .withPolicy(policy),
           Split(Newline, 1)
-            .onlyIf(style.importSelectors != ImportSelectors.singleLine)
+            .onlyIf(newlinePolicy ne NoPolicy)
             .withPolicy(newlinePolicy)
             .withIndent(style.indent.main, close, Before)
         )
