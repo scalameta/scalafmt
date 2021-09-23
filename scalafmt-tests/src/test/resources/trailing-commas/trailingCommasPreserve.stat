@@ -45,7 +45,10 @@ def a(b: Int,
  c: Int,
 )
 >>>
-def a(b: Int, c: Int)
+def a(
+    b: Int,
+    c: Int,
+)
 <<< keep, do not fold, binpack
 binPack.preset = true
 importSelectors = binPack
@@ -55,7 +58,9 @@ def a(b: Int,
  c: Int,
 )
 >>>
-def a(b: Int, c: Int)
+def a(
+    b: Int, c: Int,
+)
 <<< should remove trailing comma when folding, with comment
 maxColumn = 40
 danglingParentheses.preset = false
@@ -72,7 +77,11 @@ rewrite.trailingCommas.allowFolding = false
 def a(b: Int, c: Int,
  /* comment */ )
 >>>
-def a(b: Int, c: Int /* comment */ )
+def a(
+    b: Int,
+    c: Int,
+    /* comment */
+)
 <<< keep, do not fold, with comment after break, binpack
 maxColumn = 40
 binPack.preset = true
@@ -83,7 +92,9 @@ rewrite.trailingCommas.allowFolding = false
 def a(b: Int, c: Int,
  /* comment */ )
 >>>
-def a(b: Int, c: Int /* comment */ )
+def a(
+    b: Int, c: Int, /* comment */
+)
 <<< keep, do not fold, with comment before break
 maxColumn = 40
 danglingParentheses.preset = false
@@ -106,7 +117,8 @@ rewrite.trailingCommas.allowFolding = false
 def a(b: Int, c: Int, /* comment */
 )
 >>>
-def a(b: Int, c: Int, /* comment */
+def a(
+    b: Int, c: Int, /* comment */
 )
 <<< should remove trailing comma when folding, with spaces
 spaces.inParentheses = true
@@ -124,7 +136,10 @@ def a(b: Int,
  c: Int,
 )
 >>>
-def a( b: Int, c: Int )
+def a(
+    b: Int,
+    c: Int,
+)
 <<< keep, do not fold, with spaces, binpack
 binPack.preset = true
 importSelectors = binPack
@@ -135,7 +150,9 @@ def a(b: Int,
  c: Int,
 )
 >>>
-def a( b: Int, c: Int )
+def a(
+    b: Int, c: Int,
+)
 <<< should remove trailing comma when folding, with spaces and comment
 spaces.inParentheses = true
 maxColumn = 40
@@ -154,7 +171,11 @@ rewrite.trailingCommas.allowFolding = false
 def a(b: Int, c: Int,
  /* comment */ )
 >>>
-def a( b: Int, c: Int /* comment */ )
+def a(
+    b: Int,
+    c: Int,
+    /* comment */
+)
 <<< keep, do not fold, with spaces and comment after break, binpack
 spaces.inParentheses = true
 maxColumn = 40
@@ -166,7 +187,9 @@ rewrite.trailingCommas.allowFolding = false
 def a(b: Int, c: Int,
  /* comment */ )
 >>>
-def a( b: Int, c: Int /* comment */ )
+def a(
+    b: Int, c: Int, /* comment */
+)
 <<< keep, do not fold, with spaces and comment before break
 spaces.inParentheses = true
 maxColumn = 40
@@ -191,7 +214,8 @@ rewrite.trailingCommas.allowFolding = false
 def a(b: Int, c: Int, /* comment */
 )
 >>>
-def a( b: Int, c: Int, /* comment */
+def a(
+    b: Int, c: Int, /* comment */
 )
 <<< keep, do not fold, with spaces and two comments after break
 spaces.inParentheses = true
@@ -241,7 +265,10 @@ object a {
 }
 >>>
 object a {
-  def longFunctionName(a: Int, b: Int) = a + b
+  def longFunctionName(
+      a: Int,
+      b: Int,
+  ) = a + b
 }
 <<< #2755 keep, comma, comment
 maxColumn = 100
