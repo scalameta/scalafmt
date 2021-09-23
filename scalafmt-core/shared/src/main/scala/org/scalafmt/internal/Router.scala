@@ -1057,10 +1057,11 @@ class Router(formatOps: FormatOps) {
           if !style.binPack.defnSite(open).isNever && isDefnSite(leftOwner) =>
         val close = matching(open)
         def slbPolicy = SingleLineBlock(close, okSLC = true)
+        val baseNoSplitMod = Space(style.spaces.inParentheses)
         if (close eq right)
-          Seq(Split(NoSplit, 0))
+          Seq(Split(baseNoSplitMod, 0))
         else if (isTuple(leftOwner))
-          Seq(Split(NoSplit, 0).withPolicy(slbPolicy))
+          Seq(Split(baseNoSplitMod, 0).withPolicy(slbPolicy))
         else {
           val isBracket = open.is[T.LeftBracket]
           val indent =
@@ -1103,7 +1104,7 @@ class Router(formatOps: FormatOps) {
             }
           val noSplitModification =
             if (right.is[T.Comment]) getMod(formatToken)
-            else NoSplit
+            else baseNoSplitMod
           val nlDanglePolicy =
             if (mustDangle) decideNewlinesOnlyBeforeClose(close) else NoPolicy
           val mustUseNL = onlyConfigStyle ||
@@ -1128,7 +1129,8 @@ class Router(formatOps: FormatOps) {
         val noSplitIndent =
           if (style.binPack.indentCallSiteOnce) Num(0) else indent
         def baseNoSplit(implicit fileLine: FileLine) =
-          Split(NoSplit, 0).withIndent(noSplitIndent, close, Before)
+          Split(Space(style.spaces.inParentheses), 0)
+            .withIndent(noSplitIndent, close, Before)
         val opensLiteralArgumentList =
           styleMap.opensLiteralArgumentList(formatToken)
         val singleLineOnly =

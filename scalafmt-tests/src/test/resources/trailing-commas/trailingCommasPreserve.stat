@@ -135,7 +135,7 @@ def a(b: Int,
  c: Int,
 )
 >>>
-def a(b: Int, c: Int )
+def a( b: Int, c: Int )
 <<< should remove trailing comma when folding, with spaces and comment
 spaces.inParentheses = true
 maxColumn = 40
@@ -166,7 +166,7 @@ rewrite.trailingCommas.allowFolding = false
 def a(b: Int, c: Int,
  /* comment */ )
 >>>
-def a(b: Int, c: Int /* comment */ )
+def a( b: Int, c: Int /* comment */ )
 <<< keep, do not fold, with spaces and comment before break
 spaces.inParentheses = true
 maxColumn = 40
@@ -191,7 +191,7 @@ rewrite.trailingCommas.allowFolding = false
 def a(b: Int, c: Int, /* comment */
 )
 >>>
-def a(b: Int, c: Int, /* comment */
+def a( b: Int, c: Int, /* comment */
 )
 <<< keep, do not fold, with spaces and two comments after break
 spaces.inParentheses = true
