@@ -1306,6 +1306,132 @@ object a {
    baz
   )
 }
+<<< #2562 call, binpack
+maxColumn = 15
+binPack.preset = true
+align.openParenCallSite = true
+===
+object a {
+  foo(bar, baz, qux)
+}
+>>>
+object a {
+  foo(bar, baz,
+    qux)
+}
+<<< #2562 tuple, binpack
+maxColumn = 13
+binPack.preset = true
+align.openParenTupleSite = true
+===
+object a {
+  (bar, baz, qux)
+}
+>>>
+object a {
+  (bar, baz,
+    qux)
+}
+<<< #2562 def, binpack
+maxColumn = 22
+binPack.preset = true
+align.openParenDefnSite = true
+===
+object a {
+  def a(b: B, c: C, ddd: DDD) = ???
+}
+>>>
+object a {
+  def a(b: B, c: C,
+      ddd: DDD) = ???
+}
+<<< #2562 call, with spaces
+maxColumn = 16
+align.openParenCallSite = true
+spaces.inParentheses = true
+===
+object a {
+  foo(bar, baz, qux)
+}
+>>>
+object a {
+  foo( bar,
+       baz,
+       qux
+  )
+}
+<<< #2562 tuple, with spaces
+maxColumn = 11
+align.openParenTupleSite = true
+spaces.inParentheses = true
+===
+object a {
+  (bar, baz, qux)
+}
+>>>
+object a {
+  ( bar,
+    baz,
+    qux
+  )
+}
+<<< #2562 def, with spaces
+maxColumn = 20
+align.openParenDefnSite = true
+spaces.inParentheses = true
+===
+object a {
+  def a(b: B, c: C, ddd: DDD) = ???
+}
+>>>
+object a {
+  def a( b: B,
+         c: C,
+         ddd: DDD
+  ) = ???
+}
+<<< #2562 call, with spaces, binpack
+maxColumn = 16
+binPack.preset = true
+align.openParenCallSite = true
+spaces.inParentheses = true
+===
+object a {
+  foo(bar, baz, qux)
+}
+>>>
+object a {
+  foo( bar, baz,
+    qux )
+}
+<<< #2562 tuple, with spaces, binpack
+maxColumn = 14
+binPack.preset = true
+align.openParenTupleSite = true
+spaces.inParentheses = true
+===
+object a {
+  (bar, baz, qux)
+}
+>>>
+object a {
+  ( bar, baz,
+    qux )
+}
+<<< #2562 def, with spaces, binpack
+maxColumn = 22
+binPack.preset = true
+align.openParenDefnSite = true
+spaces.inParentheses = true
+===
+object a {
+  def a(b: B, c: C, ddd: DDD) = ???
+}
+>>>
+object a {
+  def a( b: B, c: C,
+      ddd: DDD ) = ???
+}
 <<< #2562 call, !tuple
 maxColumn = 10
 align.openParenCallSite = true
