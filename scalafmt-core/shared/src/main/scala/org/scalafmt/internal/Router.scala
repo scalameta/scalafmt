@@ -145,7 +145,7 @@ class Router(formatOps: FormatOps) {
           if existsParentOfType[ImportExportStat](rightOwner) =>
         Seq(Split(NoSplit, 0))
       // Import left brace
-      case FormatToken(open: T.LeftBrace, _, _)
+      case FormatToken(open: T.LeftBrace, right, _)
           if existsParentOfType[ImportExportStat](leftOwner) =>
         val close = matching(open)
         val policy = SingleLineBlock(
@@ -155,7 +155,10 @@ class Router(formatOps: FormatOps) {
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
 
         val mustDangleForTrailingCommas = getMustDangleForTrailingCommas(close)
+        val mustUseNL = newlines != 0 && isSingleLineComment(right)
         val newlinePolicy = style.importSelectors match {
+          case ImportSelectors.singleLine if mustUseNL =>
+            policy
           case ImportSelectors.singleLine if !mustDangleForTrailingCommas =>
             NoPolicy
           case ImportSelectors.binPack =>
@@ -166,7 +169,7 @@ class Router(formatOps: FormatOps) {
 
         Seq(
           Split(Space(style.spaces.inImportCurlyBraces), 0)
-            .notIf(mustDangleForTrailingCommas)
+            .notIf(mustUseNL || mustDangleForTrailingCommas)
             .withPolicy(policy),
           Split(Newline, 1)
             .onlyIf(newlinePolicy ne NoPolicy)
@@ -1118,8 +1121,9 @@ class Router(formatOps: FormatOps) {
             else baseNoSplitMod
           val nlDanglePolicy =
             if (mustDangle) decideNewlinesOnlyBeforeClose(close) else NoPolicy
-          val mustUseNL = onlyConfigStyle ||
-            style.newlines.source.eq(Newlines.keep) && newlines != 0
+          val mustUseNL = onlyConfigStyle || newlines != 0 &&
+            (style.newlines.source.eq(Newlines.keep) ||
+              isSingleLineComment(right))
           def nlCost = bracketPenalty.getOrElse(1)
 
           Seq(
