@@ -1674,7 +1674,7 @@ binPack.preset = true
 cache.getOrElseUpdate(name, { x; y; z }, foo, bar)
 >>>
 cache.getOrElseUpdate(name, { x; y; z },
-    foo, bar)
+                      foo, bar)
 <<< #2633 binPack one arg per line with braces 3
 maxColumn = 60
 binPack.preset = true
@@ -1682,7 +1682,7 @@ binPack.preset = true
 cache.getOrElseUpdate(name, { x; y; z }, { x => y; z }, foo, bar)
 >>>
 cache.getOrElseUpdate(name, { x; y; z }, { x => y; z }, foo,
-    bar)
+                      bar)
 <<< #2633 binPack with multiline arg, always
 maxColumn = 80
 indent.callSite = 2
@@ -1697,8 +1697,8 @@ object a {
 object a {
   val cls =
     Select(Select(Select(Select(Select(Select(Ident(nme.ROOTPKG), nme.scala_),
-              scalajs), js), nme.annotation, x, y, z), internal_, a, b, c),
-      wasPublicBeforeTyperXxx)
+                                       scalajs), js), nme.annotation, x, y, z),
+                  internal_, a, b, c), wasPublicBeforeTyperXxx)
 }
 <<< #2633 binPack with multiline arg, oneline
 maxColumn = 80
@@ -1743,7 +1743,8 @@ object a {
     symForName
       .getAnnotation(JSNameAnnotation).fold {
         sym.addAnnotation(JSNameAnnotation,
-          Literal(Constant(jsInterop.defaultJSNameOf(symForName))))
+                          Literal(Constant(jsInterop.defaultJSNameOf(
+                                             symForName))))
       } { annot =>
         sym.addAnnotation(annot)
       }
@@ -1772,7 +1773,8 @@ object a {
     symForName
       .getAnnotation(JSNameAnnotation).fold {
         sym.addAnnotation(JSNameAnnotation,
-          Literal(Constant(jsInterop.defaultJSNameOf(symForName))))
+                          Literal(Constant(jsInterop.defaultJSNameOf(
+                                             symForName))))
       } { annot =>
         sym.addAnnotation(annot)
       }
