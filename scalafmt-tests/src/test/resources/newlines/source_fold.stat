@@ -4196,3 +4196,242 @@ object a {
       audienceManager.list(InternalAudienceFilter(statuses = Contains(statuses.map(_.name))))
     }
 }
+<<< bracketCallSite = Oneline in return type, !sometimesBeforeColonInMethodReturnType
+maxColumn = 50
+binPack.bracketCallSite = Oneline
+newlines.sometimesBeforeColonInMethodReturnType = false
+===
+object a {
+  def foo(bb: BB, cc: CC,
+    dd: DD = DDD.ddd): Bar[Baz] = {
+      // c
+      qux
+    }
+}
+>>>
+object a {
+  def foo(bb: BB, cc: CC, dd: DD = DDD.ddd): Bar[
+    Baz
+  ] = {
+    // c
+    qux
+  }
+}
+<<< unsafeXxxSite = Oneline, !sometimesBeforeColonInMethodReturnType
+maxColumn = 50
+binPack.unsafeCallSite = Oneline
+binPack.unsafeDefnSite = Oneline
+newlines.sometimesBeforeColonInMethodReturnType = false
+===
+object a {
+  def foo(bb: BB, cc: CC,
+    dd: DD = DDD.ddd): Bar[Baz] = {
+      // c
+      qux
+    }
+}
+>>>
+object a {
+  def foo(
+      bb: BB, cc: CC, dd: DD = DDD.ddd
+  ): Bar[Baz] = {
+    // c
+    qux
+  }
+}
+<<< bracketCallSite = Oneline, nested with one arg
+maxColumn = 100
+binPack.bracketCallSite = Oneline
+runner.optimizer.forceConfigStyleMinArgCount = 100
+===
+object a {
+    binder.bind("f", params) shouldBe Some(Left(
+      s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
+    ))
+
+
+    when(audienceService.publish(any[Tenant], any[Int])).thenReturn(
+      Success[NonEmptyList[String], ApiAudience](apiAudience
+          .copy(status = AudienceStatus.Pending.name))
+    )
+}
+>>>
+object a {
+  binder.bind("f", params) shouldBe Some(Left(
+    s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
+  ))
+
+  when(audienceService.publish(any[Tenant], any[Int]))
+    .thenReturn(Success[NonEmptyList[String], ApiAudience](
+      apiAudience.copy(status = AudienceStatus.Pending.name)
+    ))
+}
+<<< bracketCallSite = always, nested with one arg
+maxColumn = 100
+binPack.bracketCallSite = always
+runner.optimizer.forceConfigStyleMinArgCount = 100
+===
+object a {
+    binder.bind("f", params) shouldBe Some(Left(
+      s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
+    ))
+
+
+    when(audienceService.publish(any[Tenant], any[Int])).thenReturn(
+      Success[NonEmptyList[String], ApiAudience](apiAudience
+          .copy(status = AudienceStatus.Pending.name))
+    )
+}
+>>>
+object a {
+  binder.bind("f", params) shouldBe Some(Left(
+    s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
+  ))
+
+  when(audienceService.publish(any[Tenant], any[Int]))
+    .thenReturn(Success[NonEmptyList[String], ApiAudience](
+      apiAudience.copy(status = AudienceStatus.Pending.name)
+    ))
+}
+<<< unsafeCallSite = Oneline, nested with one arg
+maxColumn = 100
+binPack.unsafeCallSite = Oneline
+runner.optimizer.forceConfigStyleMinArgCount = 100
+===
+object a {
+    binder.bind("f", params) shouldBe Some(Left(
+      s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
+    ))
+
+
+    when(audienceService.publish(any[Tenant], any[Int])).thenReturn(
+      Success[NonEmptyList[String], ApiAudience](apiAudience
+          .copy(status = AudienceStatus.Pending.name))
+    )
+}
+>>>
+object a {
+  binder.bind("f", params) shouldBe Some(
+    Left(
+      s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
+    )
+  )
+
+  when(audienceService.publish(any[Tenant], any[Int])).thenReturn(Success[NonEmptyList[String],
+      ApiAudience](apiAudience.copy(status = AudienceStatus.Pending.name)))
+}
+<<< unsafeCallSite = Oneline, nested with one arg, several options
+maxColumn = 100
+binPack.unsafeCallSite = Oneline
+runner.optimizer.forceConfigStyleMinArgCount = 100
+===
+object a {
+  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default
+  )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)),
+    Page(0, Page.maxPageLimit), Order.default
+  )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default,
+  PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
+}
+>>>
+object a {
+  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+      Order.default)
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit),
+      Order.default)
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+    .thenReturn(None)
+}
+<<< unsafeCallSite = always, nested with one arg
+maxColumn = 100
+binPack.unsafeCallSite = always
+runner.optimizer.forceConfigStyleMinArgCount = 100
+===
+object a {
+    binder.bind("f", params) shouldBe Some(Left(
+      s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
+    ))
+
+
+    when(audienceService.publish(any[Tenant], any[Int])).thenReturn(
+      Success[NonEmptyList[String], ApiAudience](apiAudience
+          .copy(status = AudienceStatus.Pending.name))
+    )
+}
+>>>
+object a {
+  binder.bind("f", params) shouldBe Some(
+    Left(
+      s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
+    )
+  )
+
+  when(audienceService.publish(any[Tenant], any[Int])).thenReturn(
+    Success[NonEmptyList[String], ApiAudience](
+      apiAudience.copy(status = AudienceStatus.Pending.name)
+    )
+  )
+}
+<<< unsafeCallSite = always, nested with one arg, several options
+maxColumn = 100
+binPack.unsafeCallSite = always
+runner.optimizer.forceConfigStyleMinArgCount = 100
+===
+object a {
+  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default
+  )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)),
+    Page(0, Page.maxPageLimit), Order.default
+  )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default,
+  PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
+}
+>>>
+object a {
+  when(
+    service.list(
+      ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit), Order.default
+    )
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(
+    service.list(
+      ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit), Order.default
+    )
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(
+    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(
+    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))
+  ).thenReturn(None)
+}
