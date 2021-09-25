@@ -1025,7 +1025,7 @@ class Router(formatOps: FormatOps) {
                     style.newlines.notBeforeImplicitParamListModifier)
                 )
                 .withIndents(
-                  if (align) FormatOps.getOpenParenAlignIndents(close)
+                  if (align) getOpenParenAlignIndents(close)
                   else Seq(Indent(indent, close, ExpiresOn.Before))
                 )
             )
@@ -1133,12 +1133,14 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open @ LeftParenOrBracket(), _, _)
           if !style.binPack.callSite(open).isNever && isCallSite(leftOwner) =>
         val close = matching(open)
-        val indent = Num(style.indent.callSite)
-        val noSplitIndent =
-          if (style.binPack.indentCallSiteOnce) Num(0) else indent
+        val indentLen = style.indent.callSite
+        val indent = Indent(Num(indentLen), close, Before)
+        val noSplitIndents =
+          if (style.binPack.indentCallSiteOnce) Seq.empty
+          else Seq(indent)
         def baseNoSplit(implicit fileLine: FileLine) =
           Split(Space(style.spaces.inParentheses), 0)
-            .withIndent(noSplitIndent, close, Before)
+            .withIndents(noSplitIndents)
         val opensLiteralArgumentList =
           styleMap.opensLiteralArgumentList(formatToken)
         val singleLineOnly =
@@ -1187,7 +1189,7 @@ class Router(formatOps: FormatOps) {
             val unindentPolicy =
               if (isSingleArg) Policy.on(close) {
                 val excludeOpen = exclude.ranges.map(_.lt).toSet
-                UnindentAtExclude(excludeOpen, Num(-indent.n))
+                UnindentAtExclude(excludeOpen, Num(-indentLen))
               }
               else Policy.NoPolicy
             val policy =
@@ -1217,7 +1219,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           noSplit,
           Split(nlMod, if (oneline) 4 else 2)
-            .withIndent(indent, close, Before)
+            .withIndent(indent)
             .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
             .andPolicy(nlPolicy)
         )
@@ -1754,8 +1756,7 @@ class Router(formatOps: FormatOps) {
         val close = matching(open)
         val indentLen = style.indent.ctrlSite.getOrElse(style.indent.callSite)
         def indents =
-          if (style.align.openParenCtrlSite)
-            FormatOps.getOpenParenAlignIndents(close)
+          if (style.align.openParenCtrlSite) getOpenParenAlignIndents(close)
           else Seq(Indent(indentLen, close, ExpiresOn.Before))
         val penalizeNewlines = penalizeNewlineByNesting(open, close)
         if (style.danglingParentheses.ctrlSite) {
