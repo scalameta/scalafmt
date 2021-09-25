@@ -1073,6 +1073,9 @@ class Router(formatOps: FormatOps) {
           val isBracket = open.is[T.LeftBracket]
           val indent =
             Indent(style.indent.getDefnSite(leftOwner), close, Before)
+          val align = style.align.getOpenDelimSite(isBracket, true)
+          val noSplitIndents =
+            if (align) getOpenParenAlignIndents(close) else Seq(indent)
 
           val bracketPenalty =
             if (isBracket) Some(Constants.BracketPenalty) else None
@@ -1123,7 +1126,7 @@ class Router(formatOps: FormatOps) {
             Split(noSplitModification, 0)
               .notIf(mustUseNL)
               .withPolicy(noSplitPolicy)
-              .withIndent(indent),
+              .withIndents(noSplitIndents),
             Split(Newline, if (mustUseNL) 0 else nlCost)
               .withPolicy(nlDanglePolicy & onelinePolicy & penalizeBrackets)
               .withIndent(indent)
@@ -1137,6 +1140,10 @@ class Router(formatOps: FormatOps) {
         val indent = Indent(Num(indentLen), close, Before)
         val noSplitIndents =
           if (style.binPack.indentCallSiteOnce) Seq.empty
+          else if (
+            if (isTuple(leftOwner)) style.align.getOpenParenTupleSite
+            else style.align.getOpenDelimSite(false, false)
+          ) getOpenParenAlignIndents(close)
           else Seq(indent)
         def baseNoSplit(implicit fileLine: FileLine) =
           Split(Space(style.spaces.inParentheses), 0)

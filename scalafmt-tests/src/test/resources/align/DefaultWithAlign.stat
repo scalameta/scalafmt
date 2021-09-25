@@ -1317,7 +1317,7 @@ object a {
 >>>
 object a {
   foo(bar, baz,
-    qux)
+      qux)
 }
 <<< #2562 tuple, binpack
 maxColumn = 13
@@ -1330,7 +1330,7 @@ object a {
 >>>
 object a {
   (bar, baz,
-    qux)
+   qux)
 }
 <<< #2562 def, binpack
 maxColumn = 22
@@ -1343,7 +1343,8 @@ object a {
 >>>
 object a {
   def a(b: B, c: C,
-      ddd: DDD) = ???
+        ddd: DDD) =
+    ???
 }
 <<< #2562 call, with spaces
 maxColumn = 16
@@ -1402,7 +1403,7 @@ object a {
 >>>
 object a {
   foo( bar, baz,
-    qux )
+       qux )
 }
 <<< #2562 tuple, with spaces, binpack
 maxColumn = 14
@@ -1430,7 +1431,8 @@ object a {
 >>>
 object a {
   def a( b: B, c: C,
-      ddd: DDD ) = ???
+         ddd: DDD ) =
+    ???
 }
 <<< #2562 call, !tuple
 maxColumn = 10
