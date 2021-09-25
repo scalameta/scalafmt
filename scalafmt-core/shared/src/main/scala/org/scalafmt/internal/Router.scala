@@ -2363,16 +2363,19 @@ class Router(formatOps: FormatOps) {
   def getSplits(formatToken: FormatToken): Seq[Split] = {
     val splits =
       getSplitsImpl(formatToken).filter(!_.isIgnored).map(_.adapt(formatToken))
+    def splitsAsNewlines: Seq[Split] = {
+      val filtered = Decision.onlyNewlineSplits(splits)
+      if (filtered.nonEmpty) filtered else splits.map(_.withMod(Newline))
+    }
     formatToken match {
       // TODO(olafur) refactor into "global policy"
       // Only newlines after inline comments.
       case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
-        val newlineSplits = splits.filter(_.isNL)
-        if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
-        else newlineSplits
-      case FormatToken(_, c: T.Comment, _)
-          if isAttachedSingleLineComment(formatToken) =>
-        splits.map(x => if (x.isNL) x.withMod(Space) else x)
+        splitsAsNewlines
+      case FormatToken(_, c: T.Comment, _) if isSingleLineComment(c) =>
+        if (formatToken.left.is[T.BOF]) splits
+        else if (formatToken.hasBreak) splitsAsNewlines
+        else splits.map(_.withMod(Space))
       case _ => splits
     }
   }
