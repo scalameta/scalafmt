@@ -1773,8 +1773,8 @@ object a {
     symForName
       .getAnnotation(JSNameAnnotation).fold {
         sym.addAnnotation(JSNameAnnotation,
-                          Literal(Constant(jsInterop.defaultJSNameOf(
-                                             symForName))))
+                          Literal(Constant(
+                            jsInterop.defaultJSNameOf(symForName))))
       } { annot =>
         sym.addAnnotation(annot)
       }
