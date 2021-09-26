@@ -1660,3 +1660,13 @@ object Thing {
     apply(policy = FooBaz.booberry, Some(someInt), booControl = None)
   }
 }
+<<< #2772 empty body for alignment
+class A {
+  @B("c") // d
+  case class E(f: Int)
+
+  val g = E(2)
+}
+>>>
+org.scalafmt.util.FormatException: java.util.NoSuchElementException: Missing token index [49:50]: `
+`
