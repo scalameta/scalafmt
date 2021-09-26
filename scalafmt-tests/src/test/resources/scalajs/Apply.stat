@@ -206,7 +206,7 @@ object a {
 >>>
 object a {
   new SimpleMethodName(new SimpleMethodName(
-          validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
 }
 <<< #2079 avoid nested indent, always; 3
 binPack.preset = true
@@ -242,9 +242,9 @@ object a {
 >>>
 object a {
   foo(new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
-                  0, len, openAngleBracketOK = false))),
+          0, len, openAngleBracketOK = false))),
       new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
-                  0, len, openAngleBracketOK = false))))
+          0, len, openAngleBracketOK = false))))
 }
 <<< #2079 avoid nested indent, always; 4
 binPack.preset = true
@@ -273,8 +273,8 @@ object a {
 >>>
 object a {
   new SimpleMethodName(
-      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
-                  0, len, openAngleBracketOK = false)))
+      new SimpleMethodName(new SimpleMethodName(
+          validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
   ).foo
 }
 <<< binpack=oneline, nested, inner with multiple args
@@ -292,7 +292,7 @@ object a {
 object a {
   if (staticInitializerStats.nonEmpty) {
     List(genStaticConstructorWithStats(ir.Names.StaticInitializerName,
-            js.Block(staticInitializerStats)))
+        js.Block(staticInitializerStats)))
   } else
     Nil
 }

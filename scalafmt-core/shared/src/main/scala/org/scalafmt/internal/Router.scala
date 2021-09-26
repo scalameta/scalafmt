@@ -1175,6 +1175,7 @@ class Router(formatOps: FormatOps) {
         val indent = Indent(Num(indentLen), close, Before)
         val noSplitIndents =
           if (style.binPack.indentCallSiteOnce) Seq.empty
+          else if (isSingleArg && oneline && !needOnelinePolicy) Seq.empty
           else if (
             if (isTuple(leftOwner)) style.align.getOpenParenTupleSite
             else style.align.getOpenDelimSite(false, false)
@@ -1217,7 +1218,7 @@ class Router(formatOps: FormatOps) {
             baseNoSplit
               .withOptimalTokenOpt(opt)
               .withPolicy(penalizeNewlinesPolicy)
-              .andPolicy(unindentPolicy, !isSingleArg)
+              .andPolicy(unindentPolicy, !isSingleArg || noSplitIndents.isEmpty)
               .andPolicyOpt(nextCommaOnelinePolicy)
           }
 
