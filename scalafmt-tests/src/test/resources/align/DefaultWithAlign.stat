@@ -1668,5 +1668,9 @@ class A {
   val g = E(2)
 }
 >>>
-org.scalafmt.util.FormatException: java.util.NoSuchElementException: Missing token index [49:50]: `
-`
+class A {
+  @B("c") // d
+  case class E(f: Int)
+
+  val g = E(2)
+}
