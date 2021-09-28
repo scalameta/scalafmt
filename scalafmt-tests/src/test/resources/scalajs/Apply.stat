@@ -18,8 +18,8 @@ optIn.breakChainOnFirstMethodDot = false
             .bracketCall[JSIterator[A]](iteratorSymbol)())
 >>>
 def iterator(): Iterator[A] =
-  toIterator(
-      it.asInstanceOf[IteratorMethodAccess]
+  toIterator(it
+        .asInstanceOf[IteratorMethodAccess]
         .bracketCall[JSIterator[A]](iteratorSymbol)())
 <<< penalty 2 #248
 {
@@ -82,8 +82,7 @@ p.`then`[Unit](
             (): Unit | Thenable[Unit]
           })
 >>>
-p.`then`[Unit](
-    { (v: A) =>
+p.`then`[Unit]({ (v: A) =>
       p2.success(v)
       (): Unit | Thenable[Unit]
     },
@@ -242,8 +241,7 @@ object a {
 }
 >>>
 object a {
-  foo(
-      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+  foo(new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
                   0, len, openAngleBracketOK = false))),
       new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
                   0, len, openAngleBracketOK = false))))

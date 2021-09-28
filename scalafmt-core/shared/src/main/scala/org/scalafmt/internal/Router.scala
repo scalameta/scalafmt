@@ -1140,6 +1140,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open @ LeftParenOrBracket(), _, _)
           if !style.binPack.callSite(open).isNever && isCallSite(leftOwner) =>
         val close = matching(open)
+        val isBracket = open.is[T.LeftBracket]
 
         val argsOpt = (leftOwner match {
           case SplitCallIntoParts(_, args) =>
@@ -1182,6 +1183,15 @@ class Router(formatOps: FormatOps) {
           Split(Space(style.spaces.inParentheses), 0)
             .withIndents(noSplitIndents)
 
+        val exclude =
+          if (!isBracket) insideBracesBlock(formatToken, close)
+          else insideBlock[T.LeftBracket](formatToken, close)
+        val penalizeNewlinesPolicy =
+          policyWithExclude(exclude, Policy.End.Before, Policy.End.On)(
+            Policy.End.On(close),
+            new PenalizeAllNewlines(_, 3)
+          )
+
         val noSplit =
           if (mustDangleForTrailingCommas || onlyConfigStyle) Split.ignored
           else if (
@@ -1199,22 +1209,10 @@ class Router(formatOps: FormatOps) {
             val nextComma =
               if (oneline) nextCommaOneline else findComma(formatToken)
             val opt = nextComma.getOrElse(close)
-            val isBracket = open.is[T.LeftBracket]
-            // TODO(olafur) DRY. Same logic as in default.
-            val exclude =
-              if (isBracket)
-                insideBlock[T.LeftBracket](formatToken, close)
-              else
-                insideBracesBlock(formatToken, close)
             def unindentPolicy = Policy.on(close) {
               val excludeOpen = exclude.ranges.map(_.lt).toSet
               UnindentAtExclude(excludeOpen, Num(-indentLen))
             }
-            val penalizeNewlinesPolicy =
-              policyWithExclude(exclude, Policy.End.Before, Policy.End.On)(
-                Policy.End.Before(close),
-                new PenalizeAllNewlines(_, 3)
-              )
             baseNoSplit
               .withOptimalToken(opt)
               .withPolicy(penalizeNewlinesPolicy)
@@ -1248,6 +1246,7 @@ class Router(formatOps: FormatOps) {
           Split(nlMod, if (oneline) 4 else 2)
             .withIndent(indent)
             .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
+            .andPolicy(penalizeNewlinesPolicy, singleLineOnly)
             .andPolicy(nlPolicy)
         )
 
