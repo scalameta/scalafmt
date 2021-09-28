@@ -1141,6 +1141,7 @@ class Router(formatOps: FormatOps) {
           if !style.binPack.callSite(open).isNever && isCallSite(leftOwner) =>
         val close = matching(open)
         val isBracket = open.is[T.LeftBracket]
+        val bracketPenalty = if (isBracket) Constants.BracketPenalty else 1
 
         val argsOpt = (leftOwner match {
           case SplitCallIntoParts(_, args) =>
@@ -1189,7 +1190,7 @@ class Router(formatOps: FormatOps) {
         val penalizeNewlinesPolicy =
           policyWithExclude(exclude, Policy.End.Before, Policy.End.On)(
             Policy.End.On(close),
-            new PenalizeAllNewlines(_, 3)
+            new PenalizeAllNewlines(_, 3 + indentLen * bracketPenalty)
           )
 
         val noSplit =
@@ -1243,7 +1244,7 @@ class Router(formatOps: FormatOps) {
         val nlMod = NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None)
         Seq(
           noSplit,
-          Split(nlMod, if (oneline) 4 else 2)
+          Split(nlMod, bracketPenalty * (if (oneline) 4 else 2))
             .withIndent(indent)
             .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
             .andPolicy(penalizeNewlinesPolicy, singleLineOnly)

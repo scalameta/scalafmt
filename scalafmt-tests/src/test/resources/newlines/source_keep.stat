@@ -4424,8 +4424,11 @@ object a {
 }
 >>>
 object a {
-  def foo(bb: BB, cc: CC, dd: DD = DDD.ddd): Bar[
-    Baz] = {
+  def foo(
+      bb: BB,
+      cc: CC,
+      dd: DD = DDD.ddd
+  ): Bar[Baz] = {
     // c
     qux
   }
