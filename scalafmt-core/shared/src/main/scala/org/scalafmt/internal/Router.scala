@@ -1202,20 +1202,20 @@ class Router(formatOps: FormatOps) {
               // multiline binpack is at odds with unfold, at least force a break
               case Newlines.unfold => true
               case Newlines.keep => newlines != 0
-              case Newlines.fold => !oneline
               case _ => false
             })
           ) baseNoSplit.withSingleLine(close)
           else {
-            val nextComma =
-              if (oneline) nextCommaOneline else findComma(formatToken)
-            val opt = nextComma.getOrElse(close)
+            val opt =
+              if (oneline) nextCommaOneline.orElse(Some(close))
+              else if (style.newlines.source.eq(Newlines.fold)) None
+              else findComma(formatToken).orElse(Some(close))
             def unindentPolicy = Policy.on(close) {
               val excludeOpen = exclude.ranges.map(_.lt).toSet
               UnindentAtExclude(excludeOpen, Num(-indentLen))
             }
             baseNoSplit
-              .withOptimalToken(opt)
+              .withOptimalTokenOpt(opt)
               .withPolicy(penalizeNewlinesPolicy)
               .andPolicy(unindentPolicy, !isSingleArg)
               .andPolicyOpt(nextCommaOnelinePolicy)
