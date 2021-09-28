@@ -1674,3 +1674,55 @@ class A {
 
   val g = E(2)
 }
+<<< #2775 align with modifiers and blank line 1
+align.preset = most
+===
+object a {
+  protected[this] def onStart(): Unit = {
+    startCallback()
+    super.onStart()
+  }
+
+  override def onStop(): Unit = {
+    stopCallback()
+    super.onStop()
+  }
+}
+>>>
+object a {
+  protected[this] def onStart(): Unit = {
+    startCallback()
+    super.onStart()
+  }
+
+  override def onStop(): Unit         = {
+    stopCallback()
+    super.onStop()
+  }
+}
+<<< #2775 align with modifiers and blank line 2
+align.preset = most
+===
+object a {
+  override def onStart(): Unit = {
+    startCallback()
+    super.onStart()
+  }
+
+  protected[this] def onStop(): Unit = {
+    stopCallback()
+    super.onStop()
+  }
+}
+>>>
+object a {
+  override def onStart(): Unit       = {
+    startCallback()
+    super.onStart()
+  }
+
+  protected[this] def onStop(): Unit = {
+    stopCallback()
+    super.onStop()
+  }
+}
