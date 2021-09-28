@@ -4210,9 +4210,11 @@ object a {
 }
 >>>
 object a {
-  def foo(bb: BB, cc: CC, dd: DD = DDD.ddd): Bar[
-    Baz
-  ] = {
+  def foo(
+      bb: BB,
+      cc: CC,
+      dd: DD = DDD.ddd
+  ): Bar[Baz] = {
     // c
     qux
   }
@@ -4315,8 +4317,9 @@ object a {
       s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
     ))
 
-  when(audienceService.publish(any[Tenant], any[Int])).thenReturn(Success[NonEmptyList[String],
-      ApiAudience](apiAudience.copy(status = AudienceStatus.Pending.name)))
+  when(audienceService.publish(any[Tenant], any[Int]))
+    .thenReturn(Success[NonEmptyList[String], ApiAudience](apiAudience
+          .copy(status = AudienceStatus.Pending.name)))
 }
 <<< unsafeCallSite = Oneline, nested with one arg, several options
 maxColumn = 100
