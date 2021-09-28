@@ -1211,8 +1211,8 @@ class Router(formatOps: FormatOps) {
             baseNoSplit.withOptimalToken(opt).withPolicy(policy)
           }
 
-        def newlineBeforeClose = decideNewlinesOnlyBeforeClose(close)
-        val nlPolicy =
+        val nlPolicy = {
+          def newlineBeforeClose = decideNewlinesOnlyBeforeClose(close)
           if (onlyConfigStyle) {
             if (styleMap.forcedBinPack(leftOwner))
               newlineBeforeClose & binPackOnelinePolicy
@@ -1225,7 +1225,8 @@ class Router(formatOps: FormatOps) {
             )
           )
             newlineBeforeClose & binPackOnelinePolicy
-          else NoPolicy & binPackOnelinePolicy
+          else binPackOnelinePolicy
+        }
         val nlMod = NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None)
         Seq(
           noSplit,
