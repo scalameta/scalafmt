@@ -1184,10 +1184,9 @@ class Router(formatOps: FormatOps) {
             .withIndents(noSplitIndents)
 
         val noSplit =
-          if (mustDangleForTrailingCommas) Split.ignored
+          if (mustDangleForTrailingCommas || onlyConfigStyle) Split.ignored
           else if (singleLineOnly || style.newlines.sourceIgnored && !oneline)
             baseNoSplit.withSingleLine(close)
-          else if (onlyConfigStyle) Split.ignored
           else {
             val nextComma =
               if (oneline) nextCommaOneline else findComma(formatToken)
