@@ -2348,11 +2348,9 @@ object a {
   test("foo") {
     a.b(c, d) shouldBe E(
       Seq(F(1, "v1"), F(2, "v2")),
-      G(
-        Some(Seq(h, i)),
+      G(Some(Seq(h, i)),
         Some(Seq(j, k)), a.b, c.d,
-        e.f.g, h.i.j
-      )
+        e.f.g, h.i.j)
     ).foo
   }
 }
@@ -4380,17 +4378,13 @@ object a {
 }
 >>>
 object a {
-  binder.bind("f", params) shouldBe Some(
-    Left(
+  binder.bind("f", params) shouldBe Some(Left(
       s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
-    )
-  )
+    ))
 
-  when(audienceService.publish(any[Tenant], any[Int])).thenReturn(
-    Success[NonEmptyList[String], ApiAudience](
-      apiAudience.copy(status = AudienceStatus.Pending.name)
-    )
-  )
+  when(audienceService.publish(any[Tenant], any[Int]))
+    .thenReturn(Success[NonEmptyList[String], ApiAudience](apiAudience
+          .copy(status = AudienceStatus.Pending.name)))
 }
 <<< unsafeCallSite = always, nested with one arg, several options
 maxColumn = 100
@@ -4416,25 +4410,18 @@ object a {
 }
 >>>
 object a {
-  when(
-    service.list(
-      ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit), Order.default
-    )
-  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+      Order.default))
+    .thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(
-    service.list(
-      ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit), Order.default
-    )
-  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit),
+      Order.default))
+    .thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(
-    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default
-  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(
-    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))
-  ).thenReturn(None)
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+    .thenReturn(None)
 }
