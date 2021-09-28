@@ -1091,6 +1091,7 @@ class FormatWriter(formatOps: FormatOps) {
         case _ => child
       }
 
+    @tailrec
     private def getAlignContainer(t: Tree)(implicit fl: FormatLocation): Tree =
       t match {
         case _: Term.ApplyInfix =>
@@ -1108,6 +1109,12 @@ class FormatWriter(formatOps: FormatOps) {
         case _: Defn | _: Case | _: Term.Apply | _: meta.Init |
             _: Ctor.Primary =>
           getAlignContainerParent(t, Some(t))
+
+        case _: meta.Mod =>
+          t.parent match {
+            case Some(p) => getAlignContainer(p)
+            case None => t
+          }
 
         case _ => getAlignContainerParent(t)
       }
