@@ -1163,12 +1163,11 @@ class Router(formatOps: FormatOps) {
         val nextCommaOneline =
           if (!oneline || isSingleArg) None
           else argsOpt.flatMap(x => findComma(tokens.getLast(x.head)))
-        val binPackOnelinePolicy = if (oneline) {
-          nextCommaOneline.fold {
-            if (!followedBySelectOrApply(leftOwner)) NoPolicy
-            else decideNewlinesOnlyBeforeCloseOnBreak(close)
-          }(splitOneArgPerLineAfterCommaOnBreak)
-        } else NoPolicy
+        val needOnelinePolicy = oneline &&
+          (nextCommaOneline.isDefined || followedBySelectOrApply(leftOwner))
+        val nextCommaOnelinePolicy = if (needOnelinePolicy) {
+          nextCommaOneline.map(splitOneArgPerLineAfterCommaOnBreak)
+        } else None
 
         val indentLen = style.indent.callSite
         val indent = Indent(Num(indentLen), close, Before)
@@ -1185,8 +1184,17 @@ class Router(formatOps: FormatOps) {
 
         val noSplit =
           if (mustDangleForTrailingCommas || onlyConfigStyle) Split.ignored
-          else if (singleLineOnly || style.newlines.sourceIgnored && !oneline)
-            baseNoSplit.withSingleLine(close)
+          else if (
+            singleLineOnly ||
+            needOnelinePolicy && nextCommaOneline.isEmpty ||
+            (style.newlines.source match {
+              // multiline binpack is at odds with unfold, at least force a break
+              case Newlines.unfold => true
+              case Newlines.keep => newlines != 0
+              case Newlines.fold => !oneline
+              case _ => false
+            })
+          ) baseNoSplit.withSingleLine(close)
           else {
             val nextComma =
               if (oneline) nextCommaOneline else findComma(formatToken)
@@ -1211,11 +1219,15 @@ class Router(formatOps: FormatOps) {
               .withOptimalToken(opt)
               .withPolicy(penalizeNewlinesPolicy)
               .andPolicy(unindentPolicy, !isSingleArg)
-              .andPolicy(binPackOnelinePolicy)
+              .andPolicyOpt(nextCommaOnelinePolicy)
           }
 
         val nlPolicy = {
           def newlineBeforeClose = decideNewlinesOnlyBeforeClose(close)
+          def binPackOnelinePolicy = if (needOnelinePolicy) {
+            nextCommaOnelinePolicy
+              .getOrElse(decideNewlinesOnlyBeforeCloseOnBreak(close))
+          } else NoPolicy
           if (onlyConfigStyle) {
             if (styleMap.forcedBinPack(leftOwner))
               newlineBeforeClose & binPackOnelinePolicy
