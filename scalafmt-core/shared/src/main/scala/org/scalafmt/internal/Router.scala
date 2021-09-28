@@ -1140,18 +1140,14 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open @ LeftParenOrBracket(), _, _)
           if !style.binPack.callSite(open).isNever && isCallSite(leftOwner) =>
         val close = matching(open)
-        val indentLen = style.indent.callSite
-        val indent = Indent(Num(indentLen), close, Before)
-        val noSplitIndents =
-          if (style.binPack.indentCallSiteOnce) Seq.empty
-          else if (
-            if (isTuple(leftOwner)) style.align.getOpenParenTupleSite
-            else style.align.getOpenDelimSite(false, false)
-          ) getOpenParenAlignIndents(close)
-          else Seq(indent)
-        def baseNoSplit(implicit fileLine: FileLine) =
-          Split(Space(style.spaces.inParentheses), 0)
-            .withIndents(noSplitIndents)
+
+        val argsOpt = (leftOwner match {
+          case SplitCallIntoParts(_, args) =>
+            args.fold(Some(_), formatOps.findArgsFor(open, _))
+          case _ => None
+        }).filter(_.nonEmpty)
+        val isSingleArg = argsOpt.exists(_.lengthCompare(1) == 0)
+
         val opensLiteralArgumentList =
           styleMap.opensLiteralArgumentList(formatToken)
         val singleLineOnly =
@@ -1160,13 +1156,6 @@ class Router(formatOps: FormatOps) {
 
         val onlyConfigStyle = !mustDangleForTrailingCommas &&
           mustUseConfigStyle(formatToken, !opensLiteralArgumentList)
-
-        val argsOpt = (leftOwner match {
-          case SplitCallIntoParts(_, args) =>
-            args.fold(Some(_), formatOps.findArgsFor(open, _))
-          case _ => None
-        }).filter(_.nonEmpty)
-        val isSingleArg = argsOpt.exists(_.lengthCompare(1) == 0)
 
         def findComma(ft: FormatToken) = findFirstOnRight[T.Comma](ft, close)
 
@@ -1180,6 +1169,19 @@ class Router(formatOps: FormatOps) {
             else decideNewlinesOnlyBeforeCloseOnBreak(close)
           }(splitOneArgPerLineAfterCommaOnBreak)
         } else NoPolicy
+
+        val indentLen = style.indent.callSite
+        val indent = Indent(Num(indentLen), close, Before)
+        val noSplitIndents =
+          if (style.binPack.indentCallSiteOnce) Seq.empty
+          else if (
+            if (isTuple(leftOwner)) style.align.getOpenParenTupleSite
+            else style.align.getOpenDelimSite(false, false)
+          ) getOpenParenAlignIndents(close)
+          else Seq(indent)
+        def baseNoSplit(implicit fileLine: FileLine) =
+          Split(Space(style.spaces.inParentheses), 0)
+            .withIndents(noSplitIndents)
 
         val noSplit =
           if (mustDangleForTrailingCommas) Split.ignored
