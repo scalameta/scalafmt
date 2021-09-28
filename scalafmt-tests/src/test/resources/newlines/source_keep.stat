@@ -4523,8 +4523,7 @@ object a {
 }
 >>>
 object a {
-  binder.bind("f", params) shouldBe Some(
-    Left(
+  binder.bind("f", params) shouldBe Some(Left(
       s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
     ))
 
@@ -4592,14 +4591,12 @@ object a {
 }
 >>>
 object a {
-  binder.bind("f", params) shouldBe Some(
-    Left(
+  binder.bind("f", params) shouldBe Some(Left(
       s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
     ))
 
   when(audienceService.publish(any[Tenant], any[Int])).thenReturn(
-    Success[NonEmptyList[String], ApiAudience](
-      apiAudience
+    Success[NonEmptyList[String], ApiAudience](apiAudience
         .copy(status = AudienceStatus.Pending.name))
   )
 }
