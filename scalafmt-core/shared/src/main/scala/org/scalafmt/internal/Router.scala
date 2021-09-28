@@ -1197,18 +1197,20 @@ class Router(formatOps: FormatOps) {
                 insideBlock[T.LeftBracket](formatToken, close)
               else
                 insideBracesBlock(formatToken, close)
-            val unindentPolicy =
-              if (isSingleArg) Policy.on(close) {
-                val excludeOpen = exclude.ranges.map(_.lt).toSet
-                UnindentAtExclude(excludeOpen, Num(-indentLen))
-              }
-              else Policy.NoPolicy
-            val policy =
+            def unindentPolicy = Policy.on(close) {
+              val excludeOpen = exclude.ranges.map(_.lt).toSet
+              UnindentAtExclude(excludeOpen, Num(-indentLen))
+            }
+            val penalizeNewlinesPolicy =
               policyWithExclude(exclude, Policy.End.Before, Policy.End.On)(
                 Policy.End.Before(close),
                 new PenalizeAllNewlines(_, 3)
-              ) & unindentPolicy & binPackOnelinePolicy
-            baseNoSplit.withOptimalToken(opt).withPolicy(policy)
+              )
+            baseNoSplit
+              .withOptimalToken(opt)
+              .withPolicy(penalizeNewlinesPolicy)
+              .andPolicy(unindentPolicy, !isSingleArg)
+              .andPolicy(binPackOnelinePolicy)
           }
 
         val nlPolicy = {
