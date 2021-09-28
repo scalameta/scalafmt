@@ -1695,7 +1695,7 @@ object a {
     super.onStart()
   }
 
-  override def onStop(): Unit         = {
+  override def onStop(): Unit = {
     stopCallback()
     super.onStop()
   }
@@ -1716,7 +1716,7 @@ object a {
 }
 >>>
 object a {
-  override def onStart(): Unit       = {
+  override def onStart(): Unit = {
     startCallback()
     super.onStart()
   }
