@@ -23,11 +23,13 @@ object Imports extends RewriteFactory {
       sort: Sort = Sort.none,
       expand: Boolean = false,
       contiguousGroups: ContiguousGroups = ContiguousGroups.only,
-      groups: Seq[Seq[String]] = Nil
+      private val groups: Seq[Seq[String]] = Nil
   ) {
     private lazy val regex = groups.map(_.map(Pattern.compile))
 
-    def nonEmpty: Boolean = sort.ne(Sort.none) || expand || groups.nonEmpty
+    private[Imports] val numGroups = groups.length
+
+    def noGroups: Boolean = sort.eq(Sort.none) && numGroups == 0
 
     def group(str: String): Int = {
       val index = regex.indexWhere(_.exists(_.matcher(str).matches()))
@@ -57,7 +59,7 @@ object Imports extends RewriteFactory {
     val settings = ctx.style.rewrite.imports
     if (settings.expand)
       new ExpandFull
-    else if (settings.groups.nonEmpty)
+    else if (settings.numGroups != 0)
       new ExpandPart
     else if (settings.sort ne Sort.none)
       new ExpandNone
@@ -405,7 +407,7 @@ object Imports extends RewriteFactory {
         importer: Importer
     ): Unit
 
-    protected val groups = Array.fill(settings.groups.length + 1)(new Grouping)
+    protected val groups = Array.fill(settings.numGroups + 1)(new Grouping)
 
     protected def addToGroup(
         group: Grouping,
@@ -483,7 +485,7 @@ object Imports extends RewriteFactory {
     override protected def processImports(
         stats: Seq[Seq[ImportExportStat]]
     ): Unit =
-      if (settings.groups.isEmpty && settings.sort.eq(Sort.none))
+      if (settings.noGroups)
         processEachLine(stats)
       else if (settings.contiguousGroups eq ContiguousGroups.only)
         processEachGroup(stats)
