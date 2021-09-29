@@ -2687,11 +2687,13 @@ enabled (i.e., not `none`), imports will also be sorted within each group.
 
 The rule accepts the following parameters:
 
-- `rewrite.imports.groups`: defines several sets of regular expressions; each
-  set defines a single group, and the groups are output in the order they
-  are configured (imports not matching any of the regexes will form their own
-  group at the end). Regular expressions are applied to the entire parent domain
-  of the import statement, up to and including the final dot.
+- `rewrite.imports.groups`: defines several sets of regular expressions
+  - each set defines a single group, and the groups are output in the order they
+    are configured
+  - imports not matching any of the regexes will form their own group at the end
+  - regular expressions are applied to the entire parent domain of the import
+    statement, up to and including the final dot
+  - the longest patterns are applied first
 - `rewrite.imports.contiguousGroups` (since v3.0.2):
   - if `only` (default), only consecutive import statements will be grouped
   - if `no`, grouping will happen on all imports within the same container

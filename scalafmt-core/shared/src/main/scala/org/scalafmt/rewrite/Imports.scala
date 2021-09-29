@@ -25,16 +25,17 @@ object Imports extends RewriteFactory {
       contiguousGroups: ContiguousGroups = ContiguousGroups.only,
       private val groups: Seq[Seq[String]] = Nil
   ) {
-    private lazy val regex = groups.map(_.map(Pattern.compile))
+    private lazy val regex = groups.zipWithIndex
+      .flatMap { case (patterns, index) => patterns.map((_, index)) }
+      .sortBy(_._1)(Ordering.String.reverse) // longest pattern first
+      .map { case (pattern, index) => Pattern.compile(pattern) -> index }
 
     private[Imports] val numGroups = groups.length
 
     def noGroups: Boolean = sort.eq(Sort.none) && numGroups == 0
 
-    def group(str: String): Int = {
-      val index = regex.indexWhere(_.exists(_.matcher(str).matches()))
-      if (index < 0) regex.length else index
-    }
+    def group(str: String): Int =
+      regex.find(_._1.matcher(str).matches()).map(_._2).getOrElse(numGroups)
   }
 
   object Settings {

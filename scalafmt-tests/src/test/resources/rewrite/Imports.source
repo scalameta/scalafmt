@@ -753,5 +753,6 @@ import other._
 >>>
 import foo._
 
-import bar._
 import other._
+
+import bar._
