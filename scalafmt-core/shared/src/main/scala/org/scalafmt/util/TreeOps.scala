@@ -142,8 +142,8 @@ object TreeOps {
       )
     }
 
-    def loop(x: Tree): Unit = {
-      x match {
+    def loop(subtree: Tree): Unit = {
+      subtree match {
         case t: Defn.Class => addDefn[KwClass](t.mods, t)
         case t: Defn.Def => addDefn[KwDef](t.mods, t)
         case t: Defn.Given => addDefn[KwGiven](t.mods, t)
@@ -186,7 +186,7 @@ object TreeOps {
         case t => // Nothing
           addAll(extractStatementsIfAny(t))
       }
-      x.children.foreach(loop)
+      subtree.children.foreach(loop)
     }
     loop(tree)
     ret.result()
