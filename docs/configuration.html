@@ -3559,11 +3559,15 @@ of using semantic <code>scalafix</code> rules might be substantial.</p>
 enabled (i.e., not <code>none</code>), imports will also be sorted within each group.</p>
 <p>The rule accepts the following parameters:</p>
 <ul>
-<li><code>rewrite.imports.groups</code>: defines several sets of regular expressions; each
-set defines a single group, and the groups are output in the order they
-are configured (imports not matching any of the regexes will form their own
-group at the end). Regular expressions are applied to the entire parent domain
-of the import statement, up to and including the final dot.</li>
+<li><code>rewrite.imports.groups</code>: defines several sets of regular expressions
+<ul>
+<li>each set defines a single group, and the groups are output in the order they
+are configured</li>
+<li>imports not matching any of the regexes will form their own group at the end</li>
+<li>regular expressions are applied to the entire parent domain of the import
+statement, up to and including the final dot</li>
+<li>the longest patterns are applied first</li>
+</ul></li>
 <li><code>rewrite.imports.contiguousGroups</code> (since v3.0.2):
 <ul>
 <li>if <code>only</code> (default), only consecutive import statements will be grouped</li>
