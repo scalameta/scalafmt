@@ -2028,12 +2028,8 @@ object x:
     v + 1
   })
 >>>
-Idempotency violated
- object x:
--   val y = List(1).map(v =>
-+   val y = List(1).map(
-+   v =>
-       println(v)
--      v + 1
--   )
-+      v + 1)
+object x:
+   val y = List(1).map(v =>
+      println(v)
+      v + 1
+   )
