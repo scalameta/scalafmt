@@ -180,8 +180,8 @@ object TreeOps {
           }
         // special handling for rewritten apply(x => { b }) to a { x => b }
         case Term.Apply(_, List(f: Term.Function))
-            if f.tokens.lastOption // see if closing brace was moved
-              .exists(x => x.is[Token.RightBrace] && replacedWith(x).ne(x)) =>
+            if subtree.tokens.lastOption // see if closing paren was moved
+              .exists(x => x.is[Token.RightParen] && replacedWith(x).ne(x)) =>
           addAll(Seq(f))
         case t => // Nothing
           addAll(extractStatementsIfAny(t))
