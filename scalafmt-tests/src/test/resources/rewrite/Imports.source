@@ -740,3 +740,18 @@ import bar.a
 import bar.b
 
 import bar.a
+<<< #2777
+rewrite.imports.groups = [
+  ["foo\\..*"],
+  [".+"],
+  ["bar\\..*"]
+]
+===
+import bar._
+import foo._
+import other._
+>>>
+import foo._
+
+import bar._
+import other._
