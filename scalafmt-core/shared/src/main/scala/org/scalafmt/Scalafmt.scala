@@ -185,7 +185,7 @@ object Scalafmt {
 
   // used by ScalafmtReflect.parseConfig
   def parseHoconConfig(configString: String): Configured[ScalafmtConfig] =
-    Config.fromHoconString(configString, None)
+    Config.fromHoconString(configString)
 
   /** Utility method to change dialect on ScalafmtConfig.
     *

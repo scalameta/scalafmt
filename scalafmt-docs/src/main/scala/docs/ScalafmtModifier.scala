@@ -33,7 +33,7 @@ class ScalafmtModifier extends StringModifier {
     } else {
       val config = Input.Slice(code, 0, i)
       val program = Input.Slice(code, i + separator.length, code.chars.length)
-      val configured = Config.fromHoconString(config.text, None, base)
+      val configured = Config.fromHoconString(config.text, base)
       configured.fold { e =>
         reporter.error(pos, e.toString())
         "fail"

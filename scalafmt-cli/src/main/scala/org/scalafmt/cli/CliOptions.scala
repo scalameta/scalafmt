@@ -87,6 +87,7 @@ case class CommonOptions(
 
 case class CliOptions(
     private[cli] val config: Option[File] = None,
+    private[cli] val baseConfig: ScalafmtConfig = ScalafmtConfig.default,
     configStr: Option[String] = None,
     range: Set[Range] = Set.empty[Range],
     private val customFiles: Seq[File] = Nil,
@@ -147,7 +148,7 @@ case class CliOptions(
     * will return the default configuration
     */
   def scalafmtConfig: Configured[ScalafmtConfig] =
-    hoconOpt.fold(Configured.ok(ScalafmtConfig.default))(Config.fromConf(_))
+    hoconOpt.fold(Configured.ok(baseConfig))(Config.fromConf(_, baseConfig))
 
   private lazy val hoconOpt: Option[Configured[Conf]] =
     configStr match {

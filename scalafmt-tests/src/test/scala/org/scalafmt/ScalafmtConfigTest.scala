@@ -1,14 +1,15 @@
 package org.scalafmt
 
 import org.scalafmt.config.Align
+import org.scalafmt.config.Config
 import org.scalafmt.config.Newlines
 import munit.FunSuite
 
 class ScalafmtConfigTest extends FunSuite {
 
   test("project.matcher") {
-    val config = Scalafmt
-      .parseHoconConfig(
+    val config = Config
+      .fromHoconString(
         """
           |project.excludeFilters = [
           |  "scalafmt-benchmarks/src/resources"
@@ -23,8 +24,8 @@ class ScalafmtConfigTest extends FunSuite {
   }
 
   test("file overrides") {
-    val config = Scalafmt
-      .parseHoconConfig(
+    val config = Config
+      .fromHoconString(
         """
           |newlines.source = fold
           |newlines.topLevelStatements = [before,after]
@@ -46,8 +47,8 @@ class ScalafmtConfigTest extends FunSuite {
   }
 
   test("align preset no override") {
-    val config = Scalafmt
-      .parseHoconConfig("""
+    val config = Config
+      .fromHoconString("""
         |align = none
         |align.stripMargin = true
       """.stripMargin)
@@ -57,8 +58,8 @@ class ScalafmtConfigTest extends FunSuite {
   }
 
   test("align preset with override") {
-    val config = Scalafmt
-      .parseHoconConfig("""
+    val config = Config
+      .fromHoconString("""
         |align.preset = none
         |align.stripMargin = true
       """.stripMargin)
