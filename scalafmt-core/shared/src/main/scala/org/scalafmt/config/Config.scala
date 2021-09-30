@@ -56,7 +56,9 @@ object Config {
       }
       val decoded = ScalafmtConfig.decoder.read(Option(default), next)
       decoded match {
-        case Configured.Ok(x) => x.runner.warnDefault
+        case Configured.Ok(x)
+            if default.eq(ScalafmtConfig.uncheckedDefault) && path.isEmpty =>
+          x.runner.warnDefault
         case _ =>
       }
       decoded

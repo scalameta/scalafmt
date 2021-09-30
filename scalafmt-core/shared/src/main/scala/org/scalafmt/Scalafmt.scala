@@ -62,7 +62,7 @@ object Scalafmt {
 
   private[scalafmt] def formatCode(
       code: String,
-      baseStyle: ScalafmtConfig = ScalafmtConfig.default,
+      baseStyle: ScalafmtConfig = ScalafmtConfig.uncheckedDefault,
       range: Set[Range] = Set.empty,
       filename: String = defaultFilename
   ): Formatted.Result = {
@@ -181,11 +181,11 @@ object Scalafmt {
 
   // used by ScalafmtReflect.parseConfig
   def parseHoconConfigFile(configPath: Path): Configured[ScalafmtConfig] =
-    Config.fromHoconFile(configPath.toFile)
+    Config.fromHoconFile(configPath.toFile, ScalafmtConfig.uncheckedDefault)
 
   // used by ScalafmtReflect.parseConfig
   def parseHoconConfig(configString: String): Configured[ScalafmtConfig] =
-    Config.fromHoconString(configString)
+    Config.fromHoconString(configString, ScalafmtConfig.uncheckedDefault)
 
   /** Utility method to change dialect on ScalafmtConfig.
     *

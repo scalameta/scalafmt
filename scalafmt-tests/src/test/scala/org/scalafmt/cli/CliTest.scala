@@ -868,7 +868,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     Files.write(argumentsFile, arguments.asJava)
     Files.write(configFile, List("maxColumn=40").asJava)
     val obtained =
-      Cli.getConfig(Array(s"@$argumentsFile"), CliOptions.default).get
+      Cli.getConfig(Array(s"@$argumentsFile"), CliTest.defaultOptions).get
     val config = obtained.scalafmtConfig.get
     assert(config.maxColumn == 40)
     assert(obtained.files.head.jfile.getName() == "foobar.scala")
@@ -879,7 +879,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     val obtained = Console.withErr(errStream) {
       Cli.getConfig(
         Array("--config", "foo", "--config-str", "bar"),
-        CliOptions.default
+        CliTest.defaultOptions
       )
     }
     assertEquals(
@@ -1321,5 +1321,8 @@ object CliTest {
     val eol = System.lineSeparator()
     if (eol == "\n") identity else _.replace(eol, "\n")
   }
+
+  val defaultOptions =
+    CliOptions.default.copy(baseConfig = ScalafmtConfig.default)
 
 }

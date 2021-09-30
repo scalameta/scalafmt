@@ -87,7 +87,8 @@ case class CommonOptions(
 
 case class CliOptions(
     private[cli] val config: Option[File] = None,
-    private[cli] val baseConfig: ScalafmtConfig = ScalafmtConfig.default,
+    private[cli] val baseConfig: ScalafmtConfig =
+      ScalafmtConfig.uncheckedDefault,
     configStr: Option[String] = None,
     range: Set[Range] = Set.empty[Range],
     private val customFiles: Seq[File] = Nil,
@@ -195,18 +196,18 @@ case class CliOptions(
     getHoconValueOpt[A](path: _*).getOrElse(default)
 
   private[cli] def isGit: Boolean =
-    getHoconValue(ScalafmtConfig.default.project.git, "project", "git")
+    getHoconValue(baseConfig.project.git, "project", "git")
 
   private[cli] def fatalWarnings: Boolean =
     getHoconValue(
-      ScalafmtConfig.default.runner.fatalWarnings,
+      baseConfig.runner.fatalWarnings,
       "runner",
       "fatalWarnings"
     )
 
   private[cli] def ignoreWarnings: Boolean =
     getHoconValue(
-      ScalafmtConfig.default.runner.ignoreWarnings,
+      baseConfig.runner.ignoreWarnings,
       "runner",
       "ignoreWarnings"
     )
@@ -217,7 +218,7 @@ case class CliOptions(
   private[cli] def encoding: Codec =
     getHoconValueOpt[String]("encoding")
       .flatMap(x => Try(Codec(x)).toOption)
-      .getOrElse(ScalafmtConfig.default.encoding)
+      .getOrElse(baseConfig.encoding)
 
   /** Returns None if .scalafmt.conf is not found or version setting is missing.
     */

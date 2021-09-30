@@ -4,6 +4,7 @@ import scala.meta.dialects.Scala211
 
 import java.io.File
 
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
 import munit.FunSuite
@@ -40,9 +41,12 @@ class FidelityTest extends FunSuite with FormatAssertions {
 
   examples.foreach { example =>
     test(example.filename) {
-      val formatted =
-        Scalafmt.formatCode(example.code, filename = example.filename).get
-      assertFormatPreservesAst(example.code, formatted)(
+      val formatted = Scalafmt.formatCode(
+        example.code,
+        ScalafmtConfig.default,
+        filename = example.filename
+      )
+      assertFormatPreservesAst(example.code, formatted.get)(
         scala.meta.parsers.Parse.parseSource,
         Scala211
       )
