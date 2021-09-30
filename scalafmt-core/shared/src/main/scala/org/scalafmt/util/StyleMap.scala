@@ -53,7 +53,7 @@ class StyleMap(
       }
       tok.left match {
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
-          val configured = Config.fromHoconString(c, Some("scalafmt"), init)
+          val configured = Config.fromHoconString(c, init, Some("scalafmt"))
           // TODO(olafur) report error via callback
           configured.foreach(logger.elem(_)) { style =>
             init.rewrite.rulesChanged(style.rewrite).foreach { x =>

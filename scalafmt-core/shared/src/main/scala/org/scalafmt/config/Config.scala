@@ -19,34 +19,25 @@ object Config {
       .fromExceptionThrowing(Input.File(input))
       .andThen(_.parse(path))
 
-  def fromHoconString(string: String): Configured[ScalafmtConfig] =
-    fromHoconString(string, None)
-
   def fromHoconString(
       string: String,
-      path: Option[String]
-  ): Configured[ScalafmtConfig] =
-    fromHoconString(string, path, ScalafmtConfig.default)
-
-  def fromHoconString(
-      string: String,
-      path: Option[String],
-      default: ScalafmtConfig
+      default: ScalafmtConfig = ScalafmtConfig.default,
+      path: Option[String] = None
   ): Configured[ScalafmtConfig] =
     fromConf(hoconStringToConf(string, path), default = default)
 
   /** Read ScalafmtConfig from String contents from an optional HOCON path. */
   def fromHoconFile(
       file: File,
-      path: Option[String] = None,
-      default: ScalafmtConfig = ScalafmtConfig.default
+      default: ScalafmtConfig = ScalafmtConfig.default,
+      path: Option[String] = None
   ): Configured[ScalafmtConfig] =
     fromConf(hoconFileToConf(file, path), default = default)
 
   def fromConf(
       conf: Configured[Conf],
-      path: Option[String] = None,
-      default: ScalafmtConfig = ScalafmtConfig.default
+      default: ScalafmtConfig,
+      path: Option[String] = None
   ): Configured[ScalafmtConfig] =
     conf.andThen { baseConf =>
       val next = path match {
