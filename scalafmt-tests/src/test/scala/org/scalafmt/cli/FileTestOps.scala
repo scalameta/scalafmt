@@ -3,6 +3,7 @@ package org.scalafmt.cli
 import java.io.{File, PrintStream}
 import java.nio.file.Files
 
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 
@@ -50,6 +51,7 @@ object FileTestOps {
       out: PrintStream = NoopOutputStream.printStream
   ): CliOptions = {
     CliOptions.default.copy(
+      baseConfig = ScalafmtConfig.default,
       gitOpsConstructor = _ => new FakeGitOps(baseDir),
       common = CliOptions.default.common.copy(
         cwd = workingDir,

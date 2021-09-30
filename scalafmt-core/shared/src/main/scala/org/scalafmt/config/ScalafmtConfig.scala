@@ -193,6 +193,7 @@ object ScalafmtConfig {
     ConfEncoder.StringEncoder.contramap(_.name)
 
   val default = ScalafmtConfig()
+  private[scalafmt] val uncheckedDefault = ScalafmtConfig()
 
   val intellij: ScalafmtConfig = default.copy(
     indent = Indents(callSite = 2, defnSite = 2),
