@@ -6,7 +6,7 @@ import java.util.regex.Pattern
 import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.{Formatted, Scalafmt}
 import org.scalafmt.config.{Comments, Docstrings, Newlines, ScalafmtConfig}
-import org.scalafmt.config.{FormatEvent, ScalafmtParser}
+import org.scalafmt.config.{FormatEvent, RewriteScala3Settings, ScalafmtParser}
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.{LiteralOps, TreeOps}
@@ -287,7 +287,13 @@ class FormatWriter(formatOps: FormatOps) {
             val isStandalone = locations(end).hasBreakAfter &&
               end + 2 < locations.length && locations(end + 2).hasBreakAfter
             if (isStandalone) {
-              val idx = tokens.tokenJustBefore(owner).meta.idx
+              val settings = floc.style.rewrite.scala3
+              val idx = settings.countEndMarkerLines match {
+                case RewriteScala3Settings.EndMarkerLines.lastBlockOnly =>
+                  floc.formatToken.meta.idx
+                case RewriteScala3Settings.EndMarkerLines.all =>
+                  tokens.tokenJustBefore(owner).meta.idx
+              }
               endMarkers.prepend(end -> idx)
             }
           }
@@ -312,12 +318,20 @@ class FormatWriter(formatOps: FormatOps) {
             locations(end) = eLoc.copy(optionalBraces =
               eLoc.optionalBraces + (begIndent -> owner)
             )
+          def removeOwner =
+            locations(end) =
+              eLoc.copy(optionalBraces = eLoc.optionalBraces - begIndent)
           def processOwner = {
             val settings = floc.style.rewrite.scala3
             def okSpan(loc: FormatLocation) =
               getLineDiff(loc, eLoc) >= settings.insertEndMarkerMinLines
-            if (!eLoc.optionalBraces.contains(begIndent) && okSpan(bLoc))
-              appendOwner
+            settings.countEndMarkerLines match {
+              case RewriteScala3Settings.EndMarkerLines.lastBlockOnly =>
+                if (okSpan(floc)) appendOwner else removeOwner
+              case RewriteScala3Settings.EndMarkerLines.all =>
+                if (!eLoc.optionalBraces.contains(begIndent) && okSpan(bLoc))
+                  appendOwner
+            }
           }
           if (eLoc.hasBreakAfter) processOwner
         }
