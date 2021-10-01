@@ -7,6 +7,8 @@ import metaconfig._
 case class RewriteScala3Settings(
     convertToNewSyntax: Boolean = false,
     removeOptionalBraces: RemoveOptionalBraces = RemoveOptionalBraces.no,
+    countEndMarkerLines: RewriteScala3Settings.EndMarkerLines =
+      RewriteScala3Settings.EndMarkerLines.all,
     removeEndMarkerMaxLines: Int = 0,
     insertEndMarkerMinLines: Int = 0
 )
@@ -39,6 +41,18 @@ object RewriteScala3Settings {
     case object no extends RemoveOptionalBraces
     case object yes extends RemoveOptionalBraces
     case object oldSyntaxToo extends RemoveOptionalBraces
+
+  }
+
+  sealed abstract class EndMarkerLines
+
+  object EndMarkerLines {
+
+    implicit val codec: ConfCodecEx[EndMarkerLines] =
+      ReaderUtil.oneOf[EndMarkerLines](all, lastBlockOnly)
+
+    case object all extends EndMarkerLines
+    case object lastBlockOnly extends EndMarkerLines
 
   }
 

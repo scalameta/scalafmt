@@ -2151,3 +2151,211 @@ object x:
       println(v)
       v + 1
    )
+<<< 2786 insert def
+runner.parser = source
+rewrite.scala3.countEndMarkerLines = lastBlockOnly
+rewrite.scala3.insertEndMarkerMinLines = 3
+===
+def foo(
+    a1: Int,
+    a2: Int
+): Int =
+  println()
+  42
+
+def foo(
+    a1: Int,
+    a2: Int
+): Int =
+  println()
+  42
+  43
+>>>
+def foo(a1: Int, a2: Int): Int =
+   println()
+   42
+end foo
+
+def foo(a1: Int, a2: Int): Int =
+   println()
+   42
+   43
+end foo
+<<< 2786 insert else
+runner.parser = source
+rewrite.scala3.countEndMarkerLines = lastBlockOnly
+rewrite.scala3.insertEndMarkerMinLines = 3
+===
+def foo2: Int =
+  fx()
+  if true then
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    32
+  else // c
+    42
+    43
+end foo2
+
+def foo2: Int =
+  fx()
+  if true then
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    32
+  else
+    42
+    43
+    44
+end foo2
+>>>
+def foo2: Int =
+   fx()
+   if true then
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      32
+   else // c
+      42
+      43
+   end if
+end foo2
+
+def foo2: Int =
+   fx()
+   if true then
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      32
+   else
+      42
+      43
+      44
+   end if
+end foo2
+<<< 2786 remove def
+runner.parser = source
+rewrite.scala3.countEndMarkerLines = lastBlockOnly
+rewrite.scala3.removeEndMarkerMaxLines = 2
+===
+def foo(
+    a1: Int,
+    a2: Int
+): Int =
+  println()
+  42
+end foo
+
+def foo(
+    a1: Int,
+    a2: Int
+): Int =
+  println()
+  42
+  43
+end foo
+>>>
+def foo(a1: Int, a2: Int): Int =
+   println()
+   42
+end foo
+
+def foo(a1: Int, a2: Int): Int =
+   println()
+   42
+   43
+end foo
+<<< 2786 remove else
+runner.parser = source
+rewrite.scala3.countEndMarkerLines = lastBlockOnly
+rewrite.scala3.removeEndMarkerMaxLines = 2
+===
+def foo2: Int =
+  fx()
+  if true then
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    32
+  else // c
+    42
+    43
+  end if
+end foo2
+
+def foo2: Int =
+  fx()
+  if true then
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    32
+  else
+    42
+    43
+    44
+  end if
+end foo2
+>>>
+def foo2: Int =
+   fx()
+   if true then
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      32
+   else // c
+      42
+      43
+   end if
+end foo2
+
+def foo2: Int =
+   fx()
+   if true then
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      32
+   else
+      42
+      43
+      44
+   end if
+end foo2
