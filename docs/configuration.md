@@ -2953,6 +2953,22 @@ the end marker will be deleted.
 > - there are comments before the end marker, as without the end marker they
 >   would be treated as outside of the optional-braces region.
 
+### `rewrite.scala3.countEndMarkerLines`
+
+> Since v3.0.6.
+
+This flag dictates which part of the expression terminated by the end marker
+is used to calculate the span for the purposes of applying
+[`insertEndMarkerMinLines`](#rewritescala3insertendmarkerminlines) and
+[`removeEndMarkerMaxLines`](#rewritescala3removeendmarkermaxlines).
+
+- `all` (default): the entire expression
+- `lastBlockOnly`: only the last block with significant indentation relative to
+  the start of the said expression (as a replacement for the closing curly brace
+  which would have been used otherwise); for instance:
+  - in case of a class, this would be the body of the class
+  - but for an if-else, this would be just the `else` part
+
 ## Vertical Multiline
 
 Since: v1.6.0.
