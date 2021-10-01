@@ -286,8 +286,10 @@ class FormatWriter(formatOps: FormatOps) {
             val end = endFt.meta.idx
             val isStandalone = locations(end).hasBreakAfter &&
               end + 2 < locations.length && locations(end + 2).hasBreakAfter
-            if (isStandalone)
-              endMarkers.prepend(end -> tokens.tokenJustBefore(owner).meta.idx)
+            if (isStandalone) {
+              val idx = tokens.tokenJustBefore(owner).meta.idx
+              endMarkers.prepend(end -> idx)
+            }
           }
         }
     }
@@ -306,16 +308,18 @@ class FormatWriter(formatOps: FormatOps) {
           val eLoc = locations(end)
           val bLoc = locations(tokens.tokenJustBefore(owner).meta.idx)
           val begIndent = bLoc.state.indentation
-          if (
-            eLoc.hasBreakAfter &&
-            !eLoc.optionalBraces.contains(begIndent) &&
-            getLineDiff(bLoc, eLoc) >=
-              bLoc.style.rewrite.scala3.insertEndMarkerMinLines
-          ) {
+          def appendOwner =
             locations(end) = eLoc.copy(optionalBraces =
               eLoc.optionalBraces + (begIndent -> owner)
             )
+          def processOwner = {
+            val settings = floc.style.rewrite.scala3
+            def okSpan(loc: FormatLocation) =
+              getLineDiff(loc, eLoc) >= settings.insertEndMarkerMinLines
+            if (!eLoc.optionalBraces.contains(begIndent) && okSpan(bLoc))
+              appendOwner
           }
+          if (eLoc.hasBreakAfter) processOwner
         }
       }
     }
