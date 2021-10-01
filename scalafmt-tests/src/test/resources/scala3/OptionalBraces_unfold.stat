@@ -2174,7 +2174,6 @@ def foo(
 def foo(a1: Int, a2: Int): Int =
    println()
    42
-end foo
 
 def foo(a1: Int, a2: Int): Int =
    println()
@@ -2233,7 +2232,6 @@ def foo2: Int =
    else // c
       42
       43
-   end if
 end foo2
 
 def foo2: Int =
@@ -2278,7 +2276,6 @@ end foo
 def foo(a1: Int, a2: Int): Int =
    println()
    42
-end foo
 
 def foo(a1: Int, a2: Int): Int =
    println()
@@ -2339,7 +2336,6 @@ def foo2: Int =
    else // c
       42
       43
-   end if
 end foo2
 
 def foo2: Int =

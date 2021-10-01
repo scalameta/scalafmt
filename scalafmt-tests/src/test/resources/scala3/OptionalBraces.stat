@@ -2018,7 +2018,6 @@ def foo(
 ): Int =
    println()
    42
-end foo
 
 def foo(
     a1: Int,
@@ -2080,7 +2079,6 @@ def foo2: Int =
    else // c
       42
       43
-   end if
 end foo2
 
 def foo2: Int =
@@ -2128,7 +2126,6 @@ def foo(
 ): Int =
    println()
    42
-end foo
 
 def foo(
     a1: Int,
@@ -2192,7 +2189,6 @@ def foo2: Int =
    else // c
       42
       43
-   end if
 end foo2
 
 def foo2: Int =
