@@ -2123,19 +2123,19 @@ class FormatOps(
               def splits = Some(getSplitsForIf(ft, nft, t))
               def rightBrace = blockLast(thenp)
             })
-          case t: Term.For if !nft.right.is[T.KwDo] =>
-            // unsupported except for right brace
+          case f @ Term.For(_, t) if !nft.right.is[T.KwDo] =>
             Some(new OptionalBracesRegion {
-              def owner = None
-              def splits = None
-              def rightBrace = blockLast(t.body)
+              def owner = Some(f)
+              def splits =
+                Some(getSplitsMaybeBlock(ft, nft, t))
+              def rightBrace = blockLast(t)
             })
-          case t: Term.While if !nft.right.is[T.KwDo] =>
-            // unsupported except for right brace
+          case w @ Term.While(_, t) if !nft.right.is[T.KwDo] =>
             Some(new OptionalBracesRegion {
-              def owner = None
-              def splits = None
-              def rightBrace = blockLast(t.body)
+              def owner = Some(w)
+              def splits =
+                Some(getSplitsMaybeBlock(ft, nft, t))
+              def rightBrace = blockLast(t)
             })
           case _ => None
         }
