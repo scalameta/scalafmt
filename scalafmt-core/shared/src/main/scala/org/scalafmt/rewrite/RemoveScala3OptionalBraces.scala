@@ -105,7 +105,6 @@ private class RemoveScala3OptionalBraces(ftoks: FormatTokens)
           case _ => false
         }
         if (ok) removeToken else null
-      case _: Term.Do => removeToken
       case _: Term.While =>
         val ok = ftoks.prevNonComment(ft).left match {
           case _: Token.KwDo => true

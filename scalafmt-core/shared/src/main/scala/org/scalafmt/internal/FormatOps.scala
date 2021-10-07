@@ -2192,12 +2192,6 @@ class FormatOps(
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] =
         ft.meta.leftOwner match {
-          case t: Term.Do =>
-            Some(new OptionalBracesRegion {
-              def owner = Some(t)
-              def splits = Some(getSplitsMaybeBlock(ft, nft, t.body, true))
-              def rightBrace = blockLast(t.body)
-            })
           case t: Term.While =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)

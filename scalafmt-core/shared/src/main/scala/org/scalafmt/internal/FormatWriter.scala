@@ -1722,7 +1722,6 @@ object FormatWriter {
     case _: Ctor.Secondary => "this"
     case _: Defn.ExtensionGroup => "extension"
     case _: Term.If => "if"
-    case _: Term.Do => "do"
     case _: Term.While => "while"
     case _: Term.Match | _: Type.Match => "match"
     case _: Term.For | _: Term.ForYield => "for"
