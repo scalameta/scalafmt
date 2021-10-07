@@ -1094,11 +1094,11 @@ class a(vi: Int, vs: String):
 >>>
 class a(vi: Int, vs: String):
    def this() =
-
      this(0, "")
 
    end this
-   def this(vi: Int) = this(vi, "")
+   def this(vi: Int) =
+     this(vi, "")
    end this
 <<< rewrite with end markers: this; with equals, not only init
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo

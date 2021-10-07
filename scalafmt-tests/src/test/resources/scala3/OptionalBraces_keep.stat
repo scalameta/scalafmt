@@ -1102,7 +1102,6 @@ class a(vi: Int, vs: String):
 >>>
 class a(vi: Int, vs: String):
    def this() =
-
      this(0, "")
 
    end this
