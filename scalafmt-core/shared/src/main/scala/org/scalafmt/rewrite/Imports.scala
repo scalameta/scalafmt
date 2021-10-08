@@ -13,6 +13,7 @@ import scala.meta.tokens.Token
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.RewriteSettings
 import org.scalafmt.util.TokenOps
+import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
 
 import metaconfig._
@@ -75,7 +76,7 @@ object Imports extends RewriteFactory {
     val (importRules, nonImportRules) =
       obj.rules.partition(allImportRules.contains)
     val ok = importRules.isEmpty ||
-      importRules.lengthCompare(1) == 0 && importRules.head.eq(Imports)
+      TreeOps.isSeqSingle(importRules) && importRules.head.eq(Imports)
     if (ok) Configured.Ok(obj)
     else {
       val sortOriginal = importRules.contains(SortImports)

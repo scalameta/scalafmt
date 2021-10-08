@@ -293,7 +293,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         // Example: as.map { _.toString }
         // Leave this alone for now.
         // In future there should be an option to surround such expressions with parens instead of braces
-        t.args.lengthCompare(1) > 0 && okToRemoveBlockWithinApply(b)
+        isSeqMulti(t.args) && okToRemoveBlockWithinApply(b)
 
       case d: Defn.Def =>
         def disqualifiedByUnit =
@@ -414,7 +414,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   private def okToRemoveAroundFunctionBody(b: Term, s: Seq[Tree])(implicit
       style: ScalafmtConfig
   ): Boolean =
-    okToRemoveAroundFunctionBody(b, s.lengthCompare(1) == 0)
+    okToRemoveAroundFunctionBody(b, isSeqSingle(s))
 
   private def okToRemoveAroundFunctionBody(
       b: Term,
