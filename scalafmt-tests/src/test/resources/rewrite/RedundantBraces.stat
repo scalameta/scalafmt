@@ -1155,12 +1155,9 @@ class a(vi: Int, vs: String) {
 }
 >>>
 class a(vi: Int, vs: String) {
-  def this() = {
-
+  def this() =
     this(0, "")
 
-  }
-  def this(vi: Int) = {
+  def this(vi: Int) =
     this(vi, "")
-  }
 }

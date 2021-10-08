@@ -139,6 +139,9 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             (ConvertToNewScala3Syntax.enabled ||
               !x.tokens.exists(_.is[Token.RightArrow])) =>
         removeToken
+      case t: Ctor.Secondary
+          if t.stats.isEmpty && style.rewrite.redundantBraces.methodBodies =>
+        removeToken
       case _ => null
     }
   }
