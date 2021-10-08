@@ -621,14 +621,26 @@ object TreeOps {
       case _ => None
     }
 
+  @inline
+  def isSeqSingle(seq: Seq[_]): Boolean = seq.lengthCompare(1) == 0
+
+  @inline
+  def isSeqMulti(seq: Seq[_]): Boolean = seq.lengthCompare(1) > 0
+
+  @inline
+  def isSingleStatBlock(tree: Term.Block): Boolean = isSeqSingle(tree.stats)
+
+  @inline
+  def isMultiStatBlock(tree: Term.Block): Boolean = isSeqMulti(tree.stats)
+
   def isSingleElement(elements: List[Tree], value: Tree): Boolean =
-    elements.lengthCompare(1) == 0 && (value eq elements.head)
+    isSeqSingle(elements) && (value eq elements.head)
 
   def getBlockSingleStat(b: Term.Block): Option[Stat] =
-    if (b.stats.lengthCompare(1) != 0) None else Some(b.stats.head)
+    if (isSingleStatBlock(b)) Some(b.stats.head) else None
 
   def isTreeMultiStatBlock(tree: Tree): Boolean = tree match {
-    case t: Term.Block => t.stats.lengthCompare(1) > 0
+    case t: Term.Block => isMultiStatBlock(t)
     case _ => false
   }
 

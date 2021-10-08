@@ -446,7 +446,7 @@ class FormatOps(
   )(template: Template)(implicit ft: FormatToken): Option[A] = {
     @tailrec
     def iter(groups: Seq[Seq[Tree]]): Option[A] =
-      if (groups.lengthCompare(1) == 0)
+      if (isSeqSingle(groups))
         // for the last group, return '{' or ':'
         findTreeInGroup(groups.head, func) { x =>
           templateCurly(template).getOrElse(getLastNonTrivialToken(x.last))
@@ -878,7 +878,7 @@ class FormatOps(
 
     def getRToks = dropWS(function.tokens.reverse)
     function.parent match {
-      case Some(b: Term.Block) if b.stats.lengthCompare(1) == 0 =>
+      case Some(b: Term.Block) if isSingleStatBlock(b) =>
         getLastToken(b) -> ExpiresOn.Before
       case Some(Case(_, _, `function`)) =>
         orElse(dropComment(getRToks))
@@ -2069,15 +2069,13 @@ class FormatOps(
             Some(new OptionalBracesRegion {
               def owner = t.parent
               def splits = Some(getSplits(ft, t, forceNL = true))
-              def rightBrace =
-                if (t.stats.lengthCompare(1) > 0) treeLast(t) else None
+              def rightBrace = if (isSeqMulti(t.stats)) treeLast(t) else None
             })
           case t: Pkg if tokenAfter(t.ref).right eq ft.left =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
               def splits = Some(getSplits(ft, t, forceNL = true))
-              def rightBrace =
-                if (t.stats.lengthCompare(1) > 0) treeLast(t) else None
+              def rightBrace = if (isSeqMulti(t.stats)) treeLast(t) else None
             })
           case _ => None
         }
@@ -2111,8 +2109,7 @@ class FormatOps(
             Some(new OptionalBracesRegion {
               def owner = Some(g)
               def splits = Some(getSplitsMaybeBlock(ft, nft, t))
-              def rightBrace =
-                if (t.stats.lengthCompare(1) > 0) treeLast(t) else None
+              def rightBrace = if (isMultiStatBlock(t)) treeLast(t) else None
             })
           case t @ Term.If(_, thenp, _) if !nft.right.is[T.KwThen] && {
                 isTreeMultiStatBlock(thenp) || isElsePWithOptionalBraces(t) ||
@@ -2499,7 +2496,7 @@ class FormatOps(
     @inline private def blockLast(tree: Tree): Option[T] =
       if (isTreeMultiStatBlock(tree)) treeLast(tree) else None
     @inline private def seqLast(seq: Seq[Tree]): Option[T] =
-      if (seq.lengthCompare(1) > 0) treeLast(seq.last) else None
+      if (isSeqMulti(seq)) treeLast(seq.last) else None
 
     def indentAndBreakBeforeCtrl[A](tree: Tree, split: Split)(implicit
         style: ScalafmtConfig,
@@ -2523,7 +2520,7 @@ class FormatOps(
   }
 
   def isBlockWithoutOptionalBraces(t: Term.Block): Boolean =
-    t.stats.lengthCompare(1) == 0 && (
+    isSingleStatBlock(t) && (
       t.tokens.head match {
         case lb: T.LeftBrace => lb ne tokens(lb).left
         case _ => false

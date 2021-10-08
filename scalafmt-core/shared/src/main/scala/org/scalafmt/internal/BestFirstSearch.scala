@@ -164,7 +164,7 @@ private class BestFirstSearch private (
           }
         else if (
           escapeInPathologicalCases &&
-          routes(curr.depth).lengthCompare(1) != 0 &&
+          isSeqMulti(routes(curr.depth)) &&
           visits(curr.depth) > maxVisitsPerToken
         ) {
           complete(deepestYet)
@@ -272,7 +272,7 @@ private class BestFirstSearch private (
       trackState(state, depth, 0)
       val activeSplits = getActiveSplits(state, Int.MaxValue)
 
-      if (activeSplits.lengthCompare(1) != 0)
+      if (!isSeqSingle(activeSplits))
         if (activeSplits.isEmpty) null else state // dead end if empty
       else {
         val split = activeSplits.head

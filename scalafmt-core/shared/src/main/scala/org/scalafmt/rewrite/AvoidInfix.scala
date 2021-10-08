@@ -5,6 +5,7 @@ import scala.meta._
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.RewriteSettings
 import org.scalafmt.util.InfixApp
+import org.scalafmt.util.TreeOps
 
 object AvoidInfix extends RewriteFactory {
 
@@ -43,7 +44,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
         val opHead = op.tokens.head
         builder += TokenPatch.AddLeft(opHead, ".", keepTok = true)
 
-        if (args.lengthCompare(1) == 0) { // otherwise, definitely enclosed
+        if (TreeOps.isSeqSingle(args)) { // otherwise, definitely enclosed
           val rhs = args.head
           rhs.tokens.headOption.foreach { head =>
             val last = args.head.tokens.last

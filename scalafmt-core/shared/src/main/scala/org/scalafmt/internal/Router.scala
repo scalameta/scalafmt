@@ -628,8 +628,7 @@ class Router(formatOps: FormatOps) {
               val slbEnd =
                 if (defn) beforeDefRhs.fold(getLastToken(rightOwner))(_.left)
                 else getLastToken(getLastCall(rightOwner))
-              val multipleArgs =
-                getApplyArgs(next(ft), false).args.lengthCompare(1) > 0
+              val multipleArgs = isSeqMulti(getApplyArgs(next(ft), false).args)
               val nft = tokens.tokenAfter(close)
               val nlPolicy = nft.right match {
                 case t: T.LeftParen => decideNewlinesOnlyBeforeClose(t)
@@ -1148,7 +1147,7 @@ class Router(formatOps: FormatOps) {
             args.fold(Some(_), formatOps.findArgsFor(open, _))
           case _ => None
         }).filter(_.nonEmpty)
-        val isSingleArg = argsOpt.exists(_.lengthCompare(1) == 0)
+        val isSingleArg = argsOpt.exists(isSeqSingle)
 
         val opensLiteralArgumentList =
           styleMap.opensLiteralArgumentList(formatToken)
