@@ -1142,3 +1142,25 @@ object a {
   val foo = bar.baz { case x => y }
   val foo = bar.baz { case x => y }
 }
+<<< init-only secondary ctors
+class a(vi: Int, vs: String) {
+  def this() = {
+
+    this(0, "")
+
+  }
+  def this(vi: Int) = {
+    this(vi, "")
+  }
+}
+>>>
+class a(vi: Int, vs: String) {
+  def this() = {
+
+    this(0, "")
+
+  }
+  def this(vi: Int) = {
+    this(vi, "")
+  }
+}
