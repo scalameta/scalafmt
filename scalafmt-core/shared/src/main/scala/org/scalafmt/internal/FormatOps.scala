@@ -2008,6 +2008,7 @@ class FormatOps(
           case _: T.RightArrow => RightArrowImpl
           case _: T.RightParen => RightParenImpl
           case _: T.KwFor => ForImpl
+          case _: T.KwWhile => WhileImpl
           case _: T.KwDo => DoImpl
           case _: T.Equals => EqualsImpl
           case _: T.KwTry => TryImpl
@@ -2018,7 +2019,7 @@ class FormatOps(
           case _: T.KwIf => IfImpl
           case _: T.KwElse => ElseImpl
           case _: T.KwReturn | _: T.ContextArrow | _: T.LeftArrow |
-              _: T.KwThrow | _: T.KwWhile | _: T.KwYield =>
+              _: T.KwThrow | _: T.KwYield =>
             BlockImpl
           case _ => null
         }
@@ -2092,11 +2093,7 @@ class FormatOps(
               if !hasSingleTermStat(t) && isBlockStart(t, nft) =>
             Some(new OptionalBracesRegion {
               def owner = t.parent
-              def splits = Some {
-                val danglingKeyword = style.danglingParentheses.ctrlSite &&
-                  ft.left.is[Token.KwWhile]
-                getSplitsMaybeBlock(ft, nft, t, danglingKeyword)
-              }
+              def splits = Some(getSplitsMaybeBlock(ft, nft, t))
               def rightBrace = treeLast(t)
             })
           case _ => None
@@ -2177,6 +2174,24 @@ class FormatOps(
               def rightBrace = seqLast(t.enums)
             })
           case _ => BlockImpl.create(ft, nft)
+        }
+    }
+
+    private object WhileImpl extends Factory {
+      def create(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig
+      ): Option[OptionalBracesRegion] =
+        ft.meta.leftOwner match {
+          case t @ Term.While(b: Term.Block, _) =>
+            Some(new OptionalBracesRegion {
+              def owner = Some(t)
+              def splits = Some {
+                val dangle = style.danglingParentheses.ctrlSite
+                getSplitsMaybeBlock(ft, nft, b, danglingKeyword = dangle)
+              }
+              def rightBrace = blockLast(b)
+            })
+          case _ => None
         }
     }
 
