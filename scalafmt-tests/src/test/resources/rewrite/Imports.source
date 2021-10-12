@@ -770,16 +770,14 @@ class B:
   import baz._
 import bar._
 >>>
-Idempotency violated
 import bar._
--import foo._
 
 class A:
   import baz._
-+import foo._
+  import foo._
 class B:
   import baz._
-+import foo._
+  import foo._
 <<< imports with optional braces and comments
 runner.dialect = scala3
 rewrite.imports.expand = true
@@ -794,18 +792,17 @@ class B:
   /* baz */ import baz._
 import bar._
 >>>
-Idempotency violated
 import bar._
--import foo._
 
 class A:
   /* foo */
   import baz._
-+import foo._
+  import foo._
+
 class B:
   /* foo */
   import baz._
-+import foo._
+  import foo._
 <<< imports with optional braces and comments
 runner.dialect = scala3
 rewrite.imports.expand = true
@@ -824,12 +821,15 @@ class B:
   import baz._
 import bar._
 >>>
-test does not parse
+import bar._
+
 class A:
+  // baz
+  import baz._
   // foo
   import foo._
-  // baz
-^
-.../Imports.source:5: error: [dialect scala3] expected template body
-import baz._
-^
+class B:
+// baz
+  import baz._
+// foo
+  import foo._

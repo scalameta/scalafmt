@@ -431,6 +431,21 @@ object Imports extends RewriteFactory {
         group.add(kw, ref, getSelectors(selectors, true), importer)
 
     private def processImports(stats: Iterable[ImportExportStat]): String = {
+      val indent = {
+        @tailrec
+        def iter(off: Int, nonWs: Token): String =
+          if (off == 0) ""
+          else {
+            val nextOff = off - 1
+            ctx.tokens(nextOff) match {
+              case t: Token.LF => t.input.text.substring(t.end, nonWs.start)
+              case Whitespace() => iter(nextOff, nonWs)
+              case t => iter(nextOff, t)
+            }
+          }
+        val head = stats.head.tokens.head
+        iter(ctx.tokenTraverser.getIndex(head), head)
+      }
       stats.foreach { x =>
         val kw = x.tokens.head.toString
         x.importers.foreach { importer =>
@@ -441,6 +456,7 @@ object Imports extends RewriteFactory {
       }
       val seenImports = new HashMap[Importer, Int]
       val sb = new StringBuilder()
+      @inline def appendIndent(): Unit = if (sb.nonEmpty) sb.append(indent)
       groups.foreach { group =>
         val entries = group.result()
         if (entries.nonEmpty) {
@@ -472,9 +488,10 @@ object Imports extends RewriteFactory {
               case _ => (Seq.empty, None)
             }
             commentBefore.foreach { x =>
-              if (x.pos.startColumn != 0) sb.append(' ')
+              if (x.pos.startColumn != 0) appendIndent()
               sb.append(x.text).append('\n')
             }
+            appendIndent()
             sb.append(x.stat)
             commentAfter.foreach(x => sb.append(' ').append(x.text))
             sb.append('\n')
