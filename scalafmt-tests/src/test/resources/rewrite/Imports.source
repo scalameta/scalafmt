@@ -756,3 +756,80 @@ import foo._
 import other._
 
 import bar._
+<<< imports with optional braces
+runner.dialect = scala3
+rewrite.imports.expand = true
+rewrite.imports.sort = ascii
+===
+import bar._
+class A:
+  import foo._
+  import baz._
+class B:
+  import foo._
+  import baz._
+import bar._
+>>>
+Idempotency violated
+import bar._
+-import foo._
+
+class A:
+  import baz._
++import foo._
+class B:
+  import baz._
++import foo._
+<<< imports with optional braces and comments
+runner.dialect = scala3
+rewrite.imports.expand = true
+rewrite.imports.sort = ascii
+===
+import bar._
+class A:
+  /* foo */ import foo._
+  /* baz */ import baz._
+class B:
+  /* foo */ import foo._
+  /* baz */ import baz._
+import bar._
+>>>
+Idempotency violated
+import bar._
+-import foo._
+
+class A:
+  /* foo */
+  import baz._
++import foo._
+class B:
+  /* foo */
+  import baz._
++import foo._
+<<< imports with optional braces and comments
+runner.dialect = scala3
+rewrite.imports.expand = true
+rewrite.imports.sort = ascii
+===
+import bar._
+class A:
+  // foo
+  import foo._
+  // baz
+  import baz._
+class B:
+// foo
+  import foo._
+// baz
+  import baz._
+import bar._
+>>>
+test does not parse
+class A:
+  // foo
+  import foo._
+  // baz
+^
+.../Imports.source:5: error: [dialect scala3] expected template body
+import baz._
+^
