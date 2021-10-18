@@ -15,7 +15,10 @@ object StyleCache {
   private val timeStamps = mutable.Map.empty[String, Long]
 
   def getStyleForFile(filename: String): Option[ScalafmtConfig] = {
-    getStyleForFileOrError(filename)
+    getStyleForFileOrError(filename) match {
+      case Configured.Ok(x) => Some(x)
+      case _ => None
+    }
   }
 
   def getStyleForFileOrError(filename: String): Configured[ScalafmtConfig] = {
