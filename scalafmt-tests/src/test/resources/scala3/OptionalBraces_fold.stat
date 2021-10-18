@@ -2152,8 +2152,9 @@ def update(tpf: Float): Unit =
     scene.updateLogicalState(tpf)
 >>>
 def update(tpf: Float): Unit =
-   for (scene <- scenes.all) scene.updateLogicalState(tpf)
-   scene.updateGeometricState()
+   for (scene <- scenes.all)
+      scene.updateLogicalState(tpf)
+      scene.updateGeometricState()
    for (scene <- scenes.all) scene.updateLogicalState(tpf)
 <<< 2790 while loops indentation
 def update(tpf: Float): Unit =
@@ -2164,8 +2165,9 @@ def update(tpf: Float): Unit =
     scene.updateLogicalState(tpf)
 >>>
 def update(tpf: Float): Unit =
-   while (true) scene.updateLogicalState(tpf)
-   scene.updateGeometricState()
+   while (true)
+      scene.updateLogicalState(tpf)
+      scene.updateGeometricState()
    while (true) scene.updateLogicalState(tpf)
 <<< 2790 for loops indentation end marker
 rewrite.scala3.insertEndMarkerMinLines = 1
@@ -2185,9 +2187,9 @@ def update(tpf: Float): Unit =
   )
 >>>
 def update(tpf: Float): Unit =
-   for (scene <- scenes.all) scene.updateLogicalState(tpf)
-   end for
-   scene.updateGeometricState()
+   for (scene <- scenes.all)
+      scene.updateLogicalState(tpf)
+      scene.updateGeometricState()
    end for
    for (scene <- scenes.all) scene.updateLogicalState(tpf)
    end for
@@ -2215,8 +2217,13 @@ def update(tpf: Float): Unit =
   )
 >>>
 def update(tpf: Float): Unit =
+   while (true)
+      scene.updateLogicalState(tpf)
+      scene.updateGeometricState()
+   end while
    while (true) scene.updateLogicalState(tpf)
-   scene.updateGeometricState()
-   while (true) scene.updateLogicalState(tpf)
+   end while
    while (true) while (true) scene.updateLogicalState(tpf)
+   end while
    while (true) scene.updateLogicalState(tpf, scene.updateLogicalState(tpf))
+   end while

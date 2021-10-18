@@ -2121,17 +2121,19 @@ class FormatOps(
               def rightBrace = blockLast(thenp)
             })
           case t @ Term.For(_, b) if !nft.right.is[T.KwDo] =>
-            // unsupported except for right brace
             Some(new OptionalBracesRegion {
-              def owner = None
-              def splits = None
+              def owner = Some(t)
+              def splits =
+                if (!isTreeMultiStatBlock(b)) None
+                else Some(getSplits(ft, b, true))
               def rightBrace = blockLast(b)
             })
           case t @ Term.While(_, b) if !nft.right.is[T.KwDo] =>
-            // unsupported except for right brace
             Some(new OptionalBracesRegion {
-              def owner = None
-              def splits = None
+              def owner = Some(t)
+              def splits =
+                if (!isTreeMultiStatBlock(b)) None
+                else Some(getSplits(ft, b, true))
               def rightBrace = blockLast(b)
             })
           case _ => None
