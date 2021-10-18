@@ -2104,12 +2104,12 @@ class FormatOps(
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] =
         ft.meta.leftOwner match {
-          case g @ Defn.ExtensionGroup(_, _, t: Term.Block)
-              if isBlockStart(t, nft) =>
+          case t @ Defn.ExtensionGroup(_, _, b: Term.Block)
+              if isBlockStart(b, nft) =>
             Some(new OptionalBracesRegion {
-              def owner = Some(g)
-              def splits = Some(getSplitsMaybeBlock(ft, nft, t))
-              def rightBrace = if (isMultiStatBlock(t)) treeLast(t) else None
+              def owner = Some(t)
+              def splits = Some(getSplitsMaybeBlock(ft, nft, b))
+              def rightBrace = blockLast(b)
             })
           case t @ Term.If(_, thenp, _) if !nft.right.is[T.KwThen] && {
                 isTreeMultiStatBlock(thenp) || isElsePWithOptionalBraces(t) ||
@@ -2120,19 +2120,19 @@ class FormatOps(
               def splits = Some(getSplitsForIf(ft, nft, t))
               def rightBrace = blockLast(thenp)
             })
-          case t: Term.For if !nft.right.is[T.KwDo] =>
+          case t @ Term.For(_, b) if !nft.right.is[T.KwDo] =>
             // unsupported except for right brace
             Some(new OptionalBracesRegion {
               def owner = None
               def splits = None
-              def rightBrace = blockLast(t.body)
+              def rightBrace = blockLast(b)
             })
-          case t: Term.While if !nft.right.is[T.KwDo] =>
+          case t @ Term.While(_, b) if !nft.right.is[T.KwDo] =>
             // unsupported except for right brace
             Some(new OptionalBracesRegion {
               def owner = None
               def splits = None
-              def rightBrace = blockLast(t.body)
+              def rightBrace = blockLast(b)
             })
           case _ => None
         }
@@ -2495,6 +2495,8 @@ class FormatOps(
       tree.tokens.lastOption.map(tokens(_).left)
     @inline private def blockLast(tree: Tree): Option[T] =
       if (isTreeMultiStatBlock(tree)) treeLast(tree) else None
+    @inline private def blockLast(tree: Term.Block): Option[T] =
+      if (isMultiStatBlock(tree)) treeLast(tree) else None
     @inline private def seqLast(seq: Seq[Tree]): Option[T] =
       if (isSeqMulti(seq)) treeLast(seq.last) else None
 
