@@ -189,7 +189,10 @@ case class CliOptions(
   )(implicit ev: ConfDecoderEx[A]): Option[A] =
     hoconOpt.flatMap { x =>
       val conf = path.foldLeft(ConfDynamic(x))(_ selectDynamic _)
-      conf.asConf.andThen(ev.read(None, _)): Option[A]
+      conf.asConf.andThen(ev.read(None, _)) match {
+        case Configured.Ok(x) => Some(x)
+        case _ => None
+      }
     }
 
   private def getHoconValue[A: ConfDecoderEx](default: A, path: String*): A =
