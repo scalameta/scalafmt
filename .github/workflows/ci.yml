@@ -102,6 +102,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Docker Meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: scalameta/scalafmt
+          tags: type=semver,pattern={{raw}}
       - name: Downloading scalafmt-linux-musl for Docker Build
         uses: actions/download-artifact@v2.0.10
         with:
@@ -117,4 +123,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: scalameta/scalafmt:$(echo $GITHUB_REF | cut -d / -f 3)
+          tags: ${{ steps.meta.outputs.tags }}
