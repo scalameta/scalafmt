@@ -117,7 +117,7 @@ lazy val core = crossProject(JVMPlatform)
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 13)) =>
           Seq(
-            "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.3"
+            "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4"
           )
         case _ =>
           Seq(
