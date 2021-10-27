@@ -1730,7 +1730,7 @@ newlines.afterCurlyLambdaParams = keep
 ---
 // if blank lines are present, keep only one
 // one-line formatting depends on newlines.source:
-// yes for fold; no for unfold; otherwise, only if there was no break
+// if no blank for fold; no for unfold; otherwise, only if there was no break
 something.map { x =>
 
 

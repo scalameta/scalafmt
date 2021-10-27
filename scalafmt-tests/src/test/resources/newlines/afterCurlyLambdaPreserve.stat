@@ -100,7 +100,10 @@ object O {
 }
 >>>
 object O {
-  something.map { x => f(x) }
+  something.map { x =>
+
+    f(x)
+  }
 
   something.map { x => f(x) }
 
