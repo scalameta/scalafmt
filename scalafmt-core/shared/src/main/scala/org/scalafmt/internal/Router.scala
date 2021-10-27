@@ -480,6 +480,7 @@ class Router(formatOps: FormatOps) {
           else if (ft.right.is[T.KwCase]) Seq(nlSplit(ft)(0))
           else if (beforeMultiline eq Newlines.unfold) {
             if (ft.right.is[T.Semicolon]) Seq(baseSplit, nlSplit(ft)(1))
+            else if (style.newlines.source ne Newlines.unfold) withSlbSplit
             else Seq(nlSplit(ft)(0))
           } else if (ft.hasBreak && !beforeMultiline.ignoreSourceSplit)
             Seq(nlSplit(ft)(0))

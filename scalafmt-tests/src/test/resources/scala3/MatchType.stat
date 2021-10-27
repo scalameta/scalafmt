@@ -91,10 +91,8 @@ newlines.beforeMultiline = unfold
 >>>
 type Elem[X] =
   X match {
-    case String =>
-      Array[AVeryLongTraitNameToTestOutSomeThings]
-    case Array[t] =>
-      t
+    case String   => Array[AVeryLongTraitNameToTestOutSomeThings]
+    case Array[t] => t
   }
 <<< match type fold
 newlines.beforeMultiline = fold
