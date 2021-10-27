@@ -464,12 +464,16 @@ class Router(formatOps: FormatOps) {
         }
         val bodyIsEmpty = body.tokens.isEmpty
         def baseSplit = Split(Space, 0)
-        def nlSplit(ft: FormatToken)(cost: Int)(implicit l: sourcecode.Line) = {
+        def nlSplit(ft: FormatToken)(cost: Int)(implicit l: FileLine) = {
           val noIndent = rhsIsCommentedOut(ft)
           val isDouble = ft.hasBlankLine && bodyIsEmpty
           Split(NewlineT(isDouble = isDouble, noIndent = noIndent), cost)
         }
         CtrlBodySplits.checkComment(tok, nlSplit(tok)) { ft =>
+          def withSlbSplit(implicit l: FileLine) = Seq(
+            baseSplit.withSingleLine(getLastNonTrivialToken(body)),
+            nlSplit(ft)(1)(nextLine)
+          )
           val beforeMultiline = style.newlines.getBeforeMultiline
           if (isCaseBodyABlock(ft, owner)) Seq(baseSplit)
           else if (isCaseBodyEnclosedAsBlock(ft, owner)) Seq(baseSplit)
@@ -484,10 +488,8 @@ class Router(formatOps: FormatOps) {
             condIsDefined ||
             beforeMultiline.eq(Newlines.classic) ||
             isTreeMultiStatBlock(body)
-          ) {
-            val expire = getLastNonTrivialToken(body)
-            Seq(baseSplit.withSingleLine(expire), nlSplit(ft)(1))
-          } else CtrlBodySplits.folded(ft, body)(nlSplit(ft))
+          ) withSlbSplit
+          else CtrlBodySplits.folded(ft, body)(nlSplit(ft))
         }
       // New statement
       case tok @ FormatToken(_: T.Semicolon, _, StartsStatementRight(stmt))
