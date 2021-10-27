@@ -1725,6 +1725,8 @@ something.map { x =>
 something.map { x => f(x) }
 ```
 
+`afterCurlyLambdaParams.keep` cannot be used with `newlines.source = fold`.
+
 ```scala mdoc:scalafmt
 newlines.afterCurlyLambdaParams = keep
 ---

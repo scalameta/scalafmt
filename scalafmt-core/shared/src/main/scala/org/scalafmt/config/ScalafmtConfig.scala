@@ -288,10 +288,11 @@ object ScalafmtConfig {
     val allErrors = new mutable.ArrayBuffer[String]
     locally {
       implicit val errors = new mutable.ArrayBuffer[String]
+      addIf(
+        newlines.afterCurlyLambdaParams == AfterCurlyLambdaParams.preserve &&
+          newlines.source == Newlines.fold
+      )
       if (newlines.sourceIgnored) {
-        addIf(
-          newlines.afterCurlyLambdaParams == AfterCurlyLambdaParams.preserve
-        )
         addIf(optIn.configStyleArguments && align.openParenCallSite && newlines.beforeOpenParenCallSite.isEmpty)
         addIf(optIn.configStyleArguments && align.openParenDefnSite && newlines.beforeOpenParenDefnSite.isEmpty)
         newlines.beforeMultiline.foreach { x =>
