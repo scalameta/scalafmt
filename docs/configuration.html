@@ -2410,6 +2410,7 @@ something.map { x =&gt; f(x) }
 <pre><code class="hljs css language-scala config">newlines.afterCurlyLambdaParams = never
 </code></pre>
 </p></details>
+<p><code>afterCurlyLambdaParams.keep</code> cannot be used with <code>newlines.source = fold</code>.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// if blank lines are present, keep only one</span>
 <span class="hljs-comment">// one-line formatting depends on newlines.source:</span>
 <span class="hljs-comment">// yes for fold; no for unfold; otherwise, only if there was no break</span>
