@@ -4659,8 +4659,6 @@ assembly / assemblyMergeStrategy := {
 }
 >>>
 assembly / assemblyMergeStrategy := {
-  case A("B", c @ _*) =>
-    D.e
-  case _ =>
-    E.f
+  case A("B", c @ _*) => D.e
+  case _ => E.f
 }

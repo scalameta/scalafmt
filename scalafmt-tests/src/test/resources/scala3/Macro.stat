@@ -113,8 +113,7 @@ body match {
         sum(${ Varargs(subArgs) }: _*)
       } if aVeryLongCondition(parameter) =>
     subArgs.flatMap(flatSumArgs)
-  case body =>
-    body
+  case body => body
 }
 <<< macro pattern fold
 newlines.beforeMultiline = fold
