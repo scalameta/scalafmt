@@ -282,16 +282,11 @@ object ScalafmtConfig {
   private def validate(cfg: ScalafmtConfig): Configured[ScalafmtConfig] = {
     // scalafmt: { maxColumn = 200 }
     import cfg._
-    import Newlines._
     import ValidationOps._
     val errDialect = " (no support in Scala dialect)"
     val allErrors = new mutable.ArrayBuffer[String]
     locally {
       implicit val errors = new mutable.ArrayBuffer[String]
-      addIf(
-        newlines.afterCurlyLambdaParams == AfterCurlyLambdaParams.preserve &&
-          newlines.source == Newlines.fold
-      )
       if (newlines.sourceIgnored) {
         addIf(optIn.configStyleArguments && align.openParenCallSite && newlines.beforeOpenParenCallSite.isEmpty)
         addIf(optIn.configStyleArguments && align.openParenDefnSite && newlines.beforeOpenParenDefnSite.isEmpty)
