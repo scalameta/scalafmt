@@ -489,7 +489,7 @@ class Router(formatOps: FormatOps) {
             beforeMultiline.eq(Newlines.classic) ||
             isTreeMultiStatBlock(body)
           ) withSlbSplit
-          else CtrlBodySplits.folded(ft, body)(nlSplit(ft))
+          else CtrlBodySplits.foldedNonEmptyNonComment(body, nlSplit(ft))
         }
       // New statement
       case tok @ FormatToken(_: T.Semicolon, _, StartsStatementRight(stmt))

@@ -1670,11 +1670,10 @@ class FormatOps(
 
     }
 
-    private def foldedNonEmptyNonComment(
-        ft: FormatToken,
+    def foldedNonEmptyNonComment(
         body: Tree,
         nlSplitFunc: Int => Split,
-        spaceIndents: Seq[Indent]
+        spaceIndents: Seq[Indent] = Seq.empty
     )(implicit style: ScalafmtConfig): Seq[Split] = {
       val bhead = body.tokens.head
       val blastFT = tokens.getLastNonTrivial(body)
@@ -1759,13 +1758,12 @@ class FormatOps(
     }
 
     private def foldedNonComment(
-        ft: FormatToken,
         body: Tree,
         nlSplitFunc: Int => Split,
         spaceIndents: Seq[Indent]
     )(implicit style: ScalafmtConfig): Seq[Split] =
       if (body.tokens.isEmpty) Seq(Split(Space, 0))
-      else foldedNonEmptyNonComment(ft, body, nlSplitFunc, spaceIndents)
+      else foldedNonEmptyNonComment(body, nlSplitFunc, spaceIndents)
 
     private def unfoldedSpaceNonEmptyNonComment(
         body: Tree,
@@ -1825,8 +1823,8 @@ class FormatOps(
         body: Tree,
         spaceIndents: Seq[Indent] = Seq.empty
     )(nlSplitFunc: Int => Split)(implicit style: ScalafmtConfig): Seq[Split] =
-      checkComment(ft, nlSplitFunc) { x =>
-        foldedNonComment(x, body, nlSplitFunc, spaceIndents)
+      checkComment(ft, nlSplitFunc) { _ =>
+        foldedNonComment(body, nlSplitFunc, spaceIndents)
       }
 
     def slbOnly(
@@ -1853,14 +1851,14 @@ class FormatOps(
             Seq(nlSplitFunc(0).forThisLine)
           case Newlines.classic =>
             Option(classicNoBreakFunc).fold {
-              foldedNonComment(x, body, nlSplitFunc, spaceIndents)
+              foldedNonComment(body, nlSplitFunc, spaceIndents)
             } { func =>
               val spcSplit = func.forThisLine
               val nlSplit = nlSplitFunc(spcSplit.getCost(_ + 1, 0)).forThisLine
               Seq(spcSplit, nlSplit)
             }
           case _ => // fold or keep without break
-            foldedNonComment(x, body, nlSplitFunc, spaceIndents)
+            foldedNonComment(body, nlSplitFunc, spaceIndents)
         }
       }
 
