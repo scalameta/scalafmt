@@ -4642,3 +4642,51 @@ object a {
     Order.default,
     PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
 }
+<<< #2821 default
+assembly / assemblyMergeStrategy := {
+  case A("B", c @ _*) => D.e
+  case _ => E.f
+}
+>>>
+assembly / assemblyMergeStrategy := {
+  case A("B", c @ _*) => D.e
+  case _ => E.f
+}
+<<< #2821 keep
+newlines.beforeMultiline = keep
+===
+assembly / assemblyMergeStrategy := {
+  case A("B", c @ _*) => D.e
+  case _ => E.f
+}
+>>>
+assembly / assemblyMergeStrategy := {
+  case A("B", c @ _*) => D.e
+  case _ => E.f
+}
+<<< #2821 fold
+newlines.beforeMultiline = fold
+===
+assembly / assemblyMergeStrategy := {
+  case A("B", c @ _*) => D.e
+  case _ => E.f
+}
+>>>
+assembly / assemblyMergeStrategy := {
+  case A("B", c @ _*) => D.e
+  case _ => E.f
+}
+<<< #2821 unfold
+newlines.beforeMultiline = unfold
+===
+assembly / assemblyMergeStrategy := {
+  case A("B", c @ _*) => D.e
+  case _ => E.f
+}
+>>>
+assembly / assemblyMergeStrategy := {
+  case A("B", c @ _*) =>
+    D.e
+  case _ =>
+    E.f
+}
