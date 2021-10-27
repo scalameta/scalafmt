@@ -53,3 +53,26 @@ def f = {
     g(x)
   }
 }
+
+<<< #2822 keep with unfold
+newlines.source=unfold
+===
+object O{
+something.map { x =>
+
+  f(x)
+}
+
+something.map { x => f(x) }
+}
+>>>
+object O {
+  something.map { x =>
+
+    f(x)
+  }
+
+  something.map { x =>
+    f(x)
+  }
+}
