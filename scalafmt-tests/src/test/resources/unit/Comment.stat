@@ -233,9 +233,7 @@ object a {
   def a = {}
 }
 >>>
-/* A really long comment that scalafmt
- * should break up but does not because
- * this feature is not implemented yet */
+// A really long comment that scalafmt should break up but does not because this feature is not implemented yet
 // short comment
 object a {
   // short comment
@@ -297,9 +295,7 @@ object a {
   def a = {} /* And block-style comments should also be indented aligned sensibly, because they're just as good as single-line comments */
 }
 >>>
-/* A really long comment that scalafmt
- * should break up but does not because
- * this feature is not implemented yet */
+// A really long comment that scalafmt should break up but does not because this feature is not implemented yet
 // short comment
 /* short comment */
 /* Block-style comments should also be
@@ -385,9 +381,7 @@ object a {
   val a = b(c) // A really long comment that scalafmt should break up but does not because this feature is not implemented yet
 }
 >>>
-// A really long comment that scalafmt
-// should break up but does not because
-// this feature is not implemented yet
+// A really long comment that scalafmt should break up but does not because this feature is not implemented yet
 object a {
   // A really long comment that
   // scalafmt should break up but does
@@ -501,11 +495,8 @@ private object ClientMetrics {
   private val AdapterCallType = ""//empty since it is not an adapter call
 }
 >>>
-Idempotency violated
 private object ClientMetrics {
--  /* empty since it is not an
-+/* empty since it is not an
-   * adapter call */
+//empty since it is not an adapter call
   private val AdapterCallType = "" /*
    * empty since it is not an
    * adapter call */
