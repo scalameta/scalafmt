@@ -271,6 +271,8 @@ comments.wrap = standalone
 /* short comment */
 /* Block-style comments should also be wrapped, because some people like them and we want to be inclusive */
 object a {
+  // A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+  // short comment
   /* And block-style comments should also be indented aligned sensibly, because they're just as good as single-line comments */
   /* long comment, with a nested comment following; shouldn't be rewritten
   /* nested comment
@@ -304,6 +306,11 @@ object a {
  * wrapped, because some people like
  * them and we want to be inclusive */
 object a {
+  /* A really long comment that
+   * scalafmt should break up but does
+   * not because this feature is not
+   * implemented yet */
+  // short comment
   /* And block-style comments should
    * also be indented aligned sensibly,
    * because they're just as good as
@@ -374,6 +381,7 @@ comments.wrapStandaloneSlcAsSlc = true
 ===
 // A really long comment that scalafmt should break up but does not because this feature is not implemented yet
 object a {
+  // A really long comment that scalafmt should break up but does not because this feature is not implemented yet
   val a = b(c) // A really long comment that scalafmt should break up but does not because this feature is not implemented yet
 }
 >>>
@@ -381,6 +389,10 @@ object a {
 // should break up but does not because
 // this feature is not implemented yet
 object a {
+  // A really long comment that
+  // scalafmt should break up but does
+  // not because this feature is not
+  // implemented yet
   val a = b(c) /* A really long comment
    * that scalafmt should break up but
    * does not because this feature is
@@ -479,4 +491,22 @@ private object ClientMetrics {
 private object ClientMetrics {
   // empty since it is not an adapter call
   private val AdapterCallType = "" //empty since it is not an adapter call
+}
+<<< #2809 wrapping with commented out
+maxColumn = 35
+comments.wrap = trailing
+===
+private object ClientMetrics {
+//empty since it is not an adapter call
+  private val AdapterCallType = ""//empty since it is not an adapter call
+}
+>>>
+Idempotency violated
+private object ClientMetrics {
+-  /* empty since it is not an
++/* empty since it is not an
+   * adapter call */
+  private val AdapterCallType = "" /*
+   * empty since it is not an
+   * adapter call */
 }
