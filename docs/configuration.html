@@ -4123,8 +4123,7 @@ newlines.implicitParamListModifierForce = [before,after]
 <p>A standalone comment is one which is surrounded by line breaks.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/* long multiline
  * comment */</span>
-<span class="hljs-comment">/* long singleline
- * comment */</span>
+<span class="hljs-comment">// long singleline comment</span>
 <span class="hljs-keyword">val</span> a = <span class="hljs-number">1</span> <span class="hljs-comment">// short</span>
 <span class="hljs-keyword">val</span> b =
   <span class="hljs-number">2</span> <span class="hljs-comment">// long singleline comment</span>
@@ -4143,8 +4142,7 @@ comments.wrap = standalone
 <p>A trailing comment is one which is followed by a line break.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/* long multiline
  * comment */</span>
-<span class="hljs-comment">/* long singleline
- * comment */</span>
+<span class="hljs-comment">// long singleline comment</span>
 <span class="hljs-keyword">val</span> a = <span class="hljs-number">1</span> <span class="hljs-comment">// short</span>
 <span class="hljs-keyword">val</span> b =
   <span class="hljs-number">2</span> <span class="hljs-comment">/* long
@@ -4168,8 +4166,7 @@ comments.wrap = trailing
 <p>This parameter allows formatting a standalone single-line comment (i.e., <code>//</code>)
 to be wrapped using the same type, not a multi-line comment (<code>/* ... */</code>).</p>
 <p>Default: <code>comments.wrapStandaloneSlcAsSlc = false</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// long singleline</span>
-<span class="hljs-comment">// comment</span>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// long singleline comment</span>
 <span class="hljs-keyword">val</span> b =
   <span class="hljs-number">2</span> <span class="hljs-comment">/* long
    * singleline
