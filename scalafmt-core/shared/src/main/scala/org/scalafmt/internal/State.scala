@@ -68,11 +68,10 @@ final case class State(
       }
 
     // Some tokens contain newline, like multiline strings/comments.
-    val (columnOnCurrentLine, nextStateColumn) = State.getColumns(
-      tok,
-      nextIndent,
-      if (nextSplit.isNL) None else Some(column + nextSplit.length)
-    )
+    val startColumn =
+      if (nextSplit.isNL) nextIndent else column + nextSplit.length
+    val (columnOnCurrentLine, nextStateColumn) =
+      State.getColumns(tok, nextIndent, startColumn)
 
     val overflow = columnOnCurrentLine - style.maxColumn
     val nextPolicy: PolicySummary =
@@ -320,21 +319,20 @@ object State {
   def getColumns(
       ft: FormatToken,
       indent: Int,
-      noBreakColumn: Option[Int]
+      startColumn: Int
   )(implicit style: ScalafmtConfig): (Int, Int) = {
-    val firstLineOffset = noBreakColumn.getOrElse(indent)
     val syntax = ft.meta.right.text
     val firstNewline = ft.meta.right.firstNL
     if (firstNewline == -1) {
-      val firstLineLength = firstLineOffset + syntax.length
+      val firstLineLength = startColumn + syntax.length
       (firstLineLength, firstLineLength)
     } else
       ft.right match {
         case _: Token.Constant.String =>
-          getColumnsWithStripMargin(syntax, firstNewline, indent, noBreakColumn)
+          getColumnsWithStripMargin(syntax, firstNewline, indent, startColumn)
         case _ =>
           val lastNewline = syntax.length - syntax.lastIndexOf('\n') - 1
-          (firstLineOffset + firstNewline, lastNewline)
+          (startColumn + firstNewline, lastNewline)
       }
   }
 
@@ -342,9 +340,8 @@ object State {
       syntax: String,
       firstNewline: Int,
       indent: Int,
-      noBreakColumn: Option[Int]
+      column: Int
   )(implicit style: ScalafmtConfig): (Int, Int) = {
-    val column = noBreakColumn.getOrElse(indent)
     val matcher = stripMarginPattern.matcher(syntax)
     matcher.region(firstNewline, syntax.length)
     val firstLineLength = column + firstNewline
