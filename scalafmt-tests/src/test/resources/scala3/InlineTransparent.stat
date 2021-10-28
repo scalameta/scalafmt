@@ -124,7 +124,7 @@ inline def repro[T <: Int with Singleton, U <: Int with Singleton]: Int =
 }
 >>>
 "static meta" - {
-  implicit inline def qm: QueryMeta[PersonName, String] = { //hellooo
+  implicit inline def qm: QueryMeta[PersonName, String] = { // hellooo
     queryMeta[PersonName, String](
       quote { (q: Query[PersonName]) =>
         q.map(p => p.name)

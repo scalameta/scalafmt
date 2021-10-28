@@ -484,7 +484,7 @@ private object ClientMetrics {
 >>>
 private object ClientMetrics {
   // empty since it is not an adapter call
-  private val AdapterCallType = "" //empty since it is not an adapter call
+  private val AdapterCallType = "" // empty since it is not an adapter call
 }
 <<< #2809 wrapping with commented out
 maxColumn = 35

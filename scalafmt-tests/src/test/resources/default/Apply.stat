@@ -648,7 +648,7 @@ SSLConfig(SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 comment 2
         SSLLooseConfig(allowLegacyHelloMessages =
           None) /*comment 123 comment 234*/
     )
-  ) //comment 345 comment 456
+  ) // comment 345 comment 456
 }
 <<< #1604 2: apply without then with assign, and attached comments
 {
@@ -662,7 +662,7 @@ SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 c
         SSLLooseConfig(allowLegacyHelloMessages =
           None) /*comment 123 comment 234*/
       )
-  ) //comment 345 comment 456
+  ) // comment 345 comment 456
 }
 <<< #1604 3: apply with assign and attached comments
 {
@@ -673,7 +673,7 @@ SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 c
 {
   val config = WSClientConfig(ssl = SSLConfig(loose =
     SSLLooseConfig(allowLegacyHelloMessages = None) /*comment 123 comment 234*/
-  )) //comment 345 comment 456
+  )) // comment 345 comment 456
 }
 <<< #1604 4: apply without assign and attached comments
 {
@@ -684,7 +684,7 @@ SSLConfig(SSLLooseConfig(None)/*comment 123 comment 234*/)) //comment 345 commen
 {
   val config = WSClientConfig(
       SSLConfig(SSLLooseConfig(None) /*comment 123 comment 234*/ )
-  ) //comment 345 comment 456
+  ) // comment 345 comment 456
 }
 <<< comment in first arg, no newline
 maxColumn = 28
@@ -1466,7 +1466,7 @@ val i =
                    4)
 >>>
 val i =
-  foo( //hello scalafmt, please don't blow up
+  foo( // hello scalafmt, please don't blow up
       (1, 2),
       1,
       3,
@@ -1484,7 +1484,7 @@ val i =
 >>>
 val i =
   foo(
-      //hello scalafmt, please don't blow up
+      // hello scalafmt, please don't blow up
       (1, 2),
       1,
       3,
@@ -1500,7 +1500,7 @@ val i =
                    4)
 >>>
 val i =
-  ( //hello scalafmt, please don't blow up
+  ( // hello scalafmt, please don't blow up
       (1, 2),
       1,
       3,
@@ -1518,7 +1518,7 @@ val i =
 >>>
 val i =
   (
-      //hello scalafmt, please don't blow up
+      // hello scalafmt, please don't blow up
       (1, 2),
       1,
       3,
@@ -1536,7 +1536,7 @@ val i =
                    4)
 >>>
 val i =
-  ( //hello scalafmt, please don't blow up
+  ( // hello scalafmt, please don't blow up
       (1, 2),
       1,
       3,
@@ -1557,7 +1557,7 @@ val i =
 >>>
 val i =
   (
-      //hello scalafmt, please don't blow up
+      // hello scalafmt, please don't blow up
       (1, 2),
       1,
       3,

@@ -318,6 +318,8 @@ object State {
   private val stripMarginPattern =
     Pattern.compile("\n(\\h*+\\|)?([^\n]*+)")
 
+  private val slcLine = Pattern.compile("^/\\/\\/*+\\h*+(.*?)\\h*+$")
+
   def getColumns(
       ft: FormatToken,
       indent: Int,
@@ -326,7 +328,13 @@ object State {
     val syntax = ft.meta.right.text
     val firstNewline = ft.meta.right.firstNL
     if (firstNewline == -1) {
-      val firstLineLength = startColumn + syntax.length
+      val syntaxLen =
+        if (startColumn != 0 && ft.right.is[Token.Comment]) {
+          val asSlc = State.slcLine.matcher(syntax)
+          if (asSlc.matches()) 3 + asSlc.end(1) - asSlc.start(1)
+          else syntax.length
+        } else syntax.length
+      val firstLineLength = startColumn + syntaxLen
       (firstLineLength, firstLineLength)
     } else
       ft.right match {

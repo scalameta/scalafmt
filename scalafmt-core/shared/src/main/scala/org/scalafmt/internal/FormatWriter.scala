@@ -603,13 +603,12 @@ class FormatWriter(formatOps: FormatOps) {
             case m: NewlineT if m.noIndent => 0
             case _ => indent
           }
-          if (!canRewrite) sb.append(trimmed)
-          else if (slcIndent == 0) sb.append(trimmed) // commented out
+          if (slcIndent == 0) sb.append(trimmed) // commented out
           else {
             val hasSpace = trimmed.length <= 2 ||
               Character.isWhitespace(trimmed.charAt(2))
             val column = slcIndent + trimmed.length + (if (hasSpace) 0 else 1)
-            if (column > maxColumn) reFormat(trimmed)
+            if (column > maxColumn && canRewrite) reFormat(trimmed)
             else if (hasSpace) sb.append(trimmed)
             else sb.append(s"// ${trimmed.substring(2)}")
           }
