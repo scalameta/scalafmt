@@ -14,7 +14,7 @@ def tee(): js.Array[_ <: ReadableStream[T]] = js.native  //TODO js.Tuple2[Readab
 }
 >>>
 {
-  def tee(): js.Array[_ <: ReadableStream[T]] = js.native //TODO js.Tuple2[ReadableStream[T]]
+  def tee(): js.Array[_ <: ReadableStream[T]] = js.native // TODO js.Tuple2[ReadableStream[T]]
 }
 <<< newline before closing parens #162 with arg
 {
@@ -23,7 +23,7 @@ def tee(arg: IntAAAAAAAAAAA): js.Array[_ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[
 >>>
 {
   def tee(
-      arg: IntAAAAAAAAAAA): js.Array[_ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[T]] = js.native //TODO js.Tuple2[ReadableStream[T
+      arg: IntAAAAAAAAAAA): js.Array[_ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[T]] = js.native // TODO js.Tuple2[ReadableStream[T
 }
 <<< breaking precedence #164
    def getUserMedia(constraints: MediaStreamConstraints,

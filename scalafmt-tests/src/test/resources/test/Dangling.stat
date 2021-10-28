@@ -194,7 +194,7 @@ SSLConfig(SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 comment 2
               None
         ) /*comment 123 comment 234*/
     )
-  ) //comment 345 comment 456
+  ) // comment 345 comment 456
 }
 <<< #1604 2: apply with and without assign and attached comments 2
 {
@@ -210,7 +210,7 @@ SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 c
               None
         ) /*comment 123 comment 234*/
       )
-  ) //comment 345 comment 456
+  ) // comment 345 comment 456
 }
 <<< #1604 3: apply without assign and attached comments
 {
@@ -225,7 +225,7 @@ SSLConfig(SSLLooseConfig(None)/*comment 123 comment 234*/)) //comment 345 commen
               None
           ) /*comment 123 comment 234*/
       )
-  ) //comment 345 comment 456
+  ) // comment 345 comment 456
 }
 <<< #1604 4: apply with assign and attached comments
 {
@@ -241,7 +241,7 @@ SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 c
             None
       ) /*comment 123 comment 234*/
     )
-  ) //comment 345 comment 456
+  ) // comment 345 comment 456
 }
 <<< #1604 5: apply with single too-long assign of trailing comment then infix
 {

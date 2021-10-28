@@ -86,7 +86,7 @@ class ScProjectionType private () {
 class ScProjectionType private () {
   def isAliasTypeInner = {
     x match {
-      case ta: ScTypeAlias => //higher kind case
+      case ta: ScTypeAlias => // higher kind case
         typesCallSubstitutor(ta.typeParameters.map(tp =>
                                (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
                              ta.typeParameters.map(tp => {
