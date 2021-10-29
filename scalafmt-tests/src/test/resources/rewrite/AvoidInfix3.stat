@@ -56,6 +56,30 @@ object a {
 object a {
   b.c(foo bar _.baz(0))
 }
+<<< #2830 1
+object a {
+  new Foo run bar
+}
+>>>
+object a {
+  (new Foo).run(bar)
+}
+<<< #2830 2
+object a {
+  new Foo run new Bar
+}
+>>>
+object a {
+  (new Foo).run(new Bar)
+}
+<<< #2830 3
+object a {
+  new Foo(a, b) run new Bar
+}
+>>>
+object a {
+  (new Foo(a, b)).run(new Bar)
+}
 <<< #1047 1
 val i: Ordering[I] = Ordering.fromLessThan(_.i isAfter _.i)
 >>>

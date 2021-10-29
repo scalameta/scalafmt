@@ -70,7 +70,9 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
               } =>
             if (RewriteCtx.hasPlaceholder(lhs)) return
             true
-          case _: Term.Eta => true // foo _ compose bar => (foo _).compose(bar)
+          // foo _ compose bar => (foo _).compose(bar)
+          // new Foo compose bar => (new Foo).compose(bar)
+          case _: Term.Eta | _: Term.New => true
           case _ => false
         }
         if (shouldWrapLhs) {
