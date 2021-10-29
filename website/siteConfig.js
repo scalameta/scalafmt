@@ -38,8 +38,8 @@ const siteConfig = {
   users,
 
   /* path to images for header/footer */
-  // headerIcon: 'img/scalameta-logo.png',
-  // footerIcon: 'img/scalameta-logo.png',
+  headerIcon: 'img/scalameta-logo.png',
+  footerIcon: 'img/scalameta-logo.png',
   favicon: "img/favicon.ico",
 
   /* colors for website */
