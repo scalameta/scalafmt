@@ -3880,6 +3880,22 @@ values are supported since v3.0.0:
 If set explicitly, will be used for type arguments or parameters,
 instead of the respective [`binPack.unsafeXxxSite`](#binpackunsafexxxsite).
 
+### binpacking of `importSelectors`
+
+Import selectors (those grouped in `{...}`) will always be formatted on a single
+line if they fit without exceeding `maxColumn`. This parameter controls how they
+will be handled _if_ they overflow.
+
+```scala mdoc:defaults
+importSelectors
+```
+
+Takes the following parameters:
+
+- `noBinPack`: format one per line
+- `binPack`: binpack, with as many as would fit on each line
+- `singleLine`: format all on one line
+
 ## Classic select chains
 
 The parameters below control formatting of select chains when
