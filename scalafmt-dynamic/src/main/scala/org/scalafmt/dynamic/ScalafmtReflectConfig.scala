@@ -9,11 +9,10 @@ import org.scalafmt.dynamic.utils.ReflectUtils._
 import scala.util.Try
 
 //noinspection TypeAnnotation
-class ScalafmtReflectConfig private[dynamic] (
-    val fmtReflect: ScalafmtReflect,
-    private[dynamic] val target: Object,
-    private val classLoader: ClassLoader
+class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
+    private[dynamic] val target: Object
 ) {
+  import fmtReflect.classLoader
   private val targetCls = target.getClass
   private val constructor: Constructor[_] = targetCls.getConstructors()(0)
   private val constructorParams = constructor.getParameters.map(_.getName)
@@ -40,24 +39,23 @@ class ScalafmtReflectConfig private[dynamic] (
     }
   }
 
-  lazy val withSbtDialect: ScalafmtReflectConfig = {
-    val newTarget =
+  lazy val withSbtDialect: ScalafmtReflectConfig =
+    new ScalafmtReflectConfig(fmtReflect)(
       try target.invoke("forSbt")
       catch {
         case ReflectionException(_: NoSuchMethodException) =>
           target.invoke("withDialect", (dialectCls, sbtDialect))
       }
-    new ScalafmtReflectConfig(fmtReflect, newTarget, classLoader)
-  }
+    )
 
   def withoutRewriteRules: ScalafmtReflectConfig = {
     if (hasRewriteRules) {
       // emulating this.copy(rewrite = RewriteSettings())
       val fieldsValues = constructorParams.map(param => target.invoke(param))
       fieldsValues(rewriteParamIdx) = emptyRewrites
-      val targetNew =
+      new ScalafmtReflectConfig(fmtReflect)(
         constructor.newInstance(fieldsValues: _*).asInstanceOf[Object]
-      new ScalafmtReflectConfig(fmtReflect, targetNew, classLoader)
+      )
     } else {
       this
     }
