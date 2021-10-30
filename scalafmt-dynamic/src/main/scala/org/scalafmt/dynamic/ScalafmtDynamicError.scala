@@ -43,6 +43,9 @@ object ScalafmtDynamicError {
       extends ConfigError(configPath, s"Invalid version: $version")
       with NoStackTrace
 
+  class UnknownConfigError(configPath: Path, cause: Throwable)
+      extends ConfigError(configPath, "unknown error", cause)
+
   case class UnknownError(cause: Throwable)
       extends ScalafmtDynamicError("unknown error", cause)
 }
