@@ -9,8 +9,7 @@ import scala.util.Try
 
 case class ScalafmtReflect(
     classLoader: ClassLoader,
-    version: ScalafmtVersion,
-    respectVersion: Boolean
+    version: ScalafmtVersion
 ) {
   import classLoader.loadClass
 
@@ -101,7 +100,6 @@ case class ScalafmtReflect(
       fileOpt: Option[Path] = None
   ): String = {
     require(this eq config.fmtReflect)
-    checkVersionMismatch(config)
 
     val formatted = (formatMethodWithFilename, fileOpt) match {
       case (Some(method), Some(file)) =>
@@ -163,16 +161,6 @@ case class ScalafmtReflect(
     cache.invoke("megaCache").invoke("clear")
   }
 
-  private def checkVersionMismatch(config: ScalafmtReflectConfig): Unit = {
-    if (respectVersion) {
-      val expected = version.toString
-      val obtained = config.version
-      if (obtained != expected) {
-        throw VersionMismatch(obtained, expected)
-      }
-    }
-  }
-
   private def moduleInstance(fqn: String): Object = {
     val cls = classLoader.loadClass(fqn)
     val module = cls.getField("MODULE$")
@@ -185,8 +173,7 @@ object ScalafmtReflect {
 
   lazy val current = ScalafmtReflect(
     getClass.getClassLoader,
-    ScalafmtVersion.parse(BuildInfo.stable).get,
-    false
+    ScalafmtVersion.parse(BuildInfo.stable).get
   )
 
 }

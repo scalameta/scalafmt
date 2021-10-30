@@ -67,7 +67,6 @@ class DynamicSuite extends FunSuite {
       Scalafmt
         .create(this.getClass.getClassLoader)
         .withReporter(reporter)
-        .withDefaultVersion(latest)
         .asInstanceOf[ScalafmtDynamic]
     )
     val config = Files.createTempFile("scalafmt", ".scalafmt.conf")
@@ -226,13 +225,6 @@ class DynamicSuite extends FunSuite {
   }
 
   check("missing-version") { f => f.assertMissingVersion() }
-
-  check("ignore-version", _.withRespectVersion(false)) { f =>
-    f.assertFormat(
-      "object A  { }",
-      "object A {}\n"
-    )
-  }
 
   check("excluded-file") { f =>
     f.setConfig(

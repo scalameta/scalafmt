@@ -15,14 +15,12 @@ import org.scalafmt.dynamic.utils.ReentrantCache
 import org.scalafmt.interfaces._
 
 import scala.concurrent.ExecutionContext
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 final case class ScalafmtDynamic(
     reporter: ScalafmtReporter,
     repositories: List[Repository],
-    respectVersion: Boolean,
     respectExcludeFilters: Boolean,
-    defaultVersion: String,
     formatCache: ReentrantCache[ScalafmtVersion, FormatEval[ScalafmtReflect]],
     cacheConfigs: Boolean,
     configsCache: ReentrantCache[Path, FormatEval[
@@ -36,8 +34,6 @@ final case class ScalafmtDynamic(
       ConsoleScalafmtReporter,
       Nil,
       true,
-      true,
-      BuildInfo.stable,
       ReentrantCache(),
       true,
       ReentrantCache()
@@ -62,10 +58,11 @@ final case class ScalafmtDynamic(
     copy(respectExcludeFilters = respectExcludeFilters)
 
   override def withRespectVersion(respectVersion: Boolean): ScalafmtDynamic =
-    copy(respectVersion = respectVersion)
+    if (respectVersion) this
+    else throw new ScalafmtInterfaceMethodDeprecated("withRespectVersion")
 
   override def withDefaultVersion(defaultVersion: String): ScalafmtDynamic =
-    copy(defaultVersion = defaultVersion)
+    throw new ScalafmtInterfaceMethodDeprecated("withDefaultVersion")
 
   def withConfigCaching(cacheConfigs: Boolean): ScalafmtDynamic =
     copy(cacheConfigs = cacheConfigs)
@@ -84,7 +81,7 @@ final case class ScalafmtDynamic(
   private def reportError(file: Path, error: ScalafmtDynamicError): Unit = {
     error match {
       case e: ConfigMissingVersion =>
-        reporter.missingVersion(e.configPath, defaultVersion)
+        reporter.missingVersion(e.configPath, BuildInfo.stable)
       case e: ConfigError =>
         Option(e.getCause) match {
           case Some(cause) => reporter.error(e.configPath, e.getMessage, cause)
@@ -119,7 +116,10 @@ final case class ScalafmtDynamic(
           _.fold(_ => true, _._2.compareTo(currentTimestamp) != 0)
         ) { () =>
           resolveConfigWithScalafmt(configPath).map { config =>
-            reporter.parsedConfig(configPath, config.version)
+            reporter.parsedConfig(
+              configPath,
+              config.fmtReflect.version.toString
+            )
             (config, currentTimestamp)
           }
         }
@@ -169,7 +169,7 @@ final case class ScalafmtDynamic(
     val DownloadSuccess(version, urls) = downloadSuccess
     Try {
       val classloader = new URLClassLoader(urls.toArray, null)
-      ScalafmtReflect(classloader, version, respectVersion)
+      ScalafmtReflect(classloader, version)
     }.toEither.left.map {
       case e: ReflectiveOperationException =>
         new CorruptedClassPath(configPath, version, urls, e)
@@ -217,17 +217,16 @@ final case class ScalafmtDynamic(
   private def readVersion(config: Path): FormatEval[ScalafmtVersion] = {
     Try {
       ConfigFactory.parseFile(config.toFile).getString("version")
-    }.toEither.left
-      .flatMap {
-        case e: ConfigException.Parse =>
-          Left(new ConfigParseError(config, e.getMessage))
-        case _: ConfigException.Missing =>
-          if (respectVersion) Left(new ConfigMissingVersion(config))
-          else Right(defaultVersion)
-      }
-      .flatMap { v =>
+    } match {
+      case Failure(e: ConfigException.Parse) =>
+        Left(new ConfigParseError(config, e.getMessage))
+      case Failure(_: ConfigException.Missing) =>
+        Left(new ConfigMissingVersion(config))
+      case Failure(e) =>
+        Left(new UnknownConfigError(config, e))
+      case Success(v) =>
         ScalafmtVersion.parse(v).toRight(new ConfigInvalidVersion(config, v))
-      }
+    }
   }
 
   override def withMavenRepositories(repositories: String*): Scalafmt =

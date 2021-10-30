@@ -48,4 +48,8 @@ object ScalafmtDynamicError {
 
   case class UnknownError(cause: Throwable)
       extends ScalafmtDynamicError("unknown error", cause)
+
+  class ScalafmtInterfaceMethodDeprecated(method: String)
+      extends Error(s"Method Scalafmt.$method is deprecated")
+
 }
