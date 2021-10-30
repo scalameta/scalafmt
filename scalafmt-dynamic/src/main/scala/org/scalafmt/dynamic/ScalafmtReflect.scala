@@ -50,10 +50,9 @@ case class ScalafmtReflect(
   // TODO: see implementation details for other versions of scalafmt, find where intellij config is kept
   lazy val intellijScalaFmtConfig: Option[ScalafmtReflectConfig] = {
     if (version == ScalafmtVersion(1, 5, 1)) {
-      val scalaFmtConfigCls =
-        classLoader.loadClass("org.scalafmt.config.ScalafmtConfig")
+      val scalaFmtConfigCls = loadClass("org.scalafmt.config.ScalafmtConfig")
       val configTarget = scalaFmtConfigCls.invokeStatic("intellij")
-      Some(new ScalafmtReflectConfig(this, configTarget, classLoader))
+      Some(new ScalafmtReflectConfig(this)(configTarget))
     } else {
       None
     }
@@ -62,7 +61,7 @@ case class ScalafmtReflect(
   def parseConfig(path: Path): Try[ScalafmtReflectConfig] =
     parseConfigPost300(path)
       .map { configured =>
-        new ScalafmtReflectConfig(this, configured.invoke("get"), classLoader)
+        new ScalafmtReflectConfig(this)(configured.invoke("get"))
       }
       .recoverWith { case ReflectionException(e) =>
         Failure(new ScalafmtDynamicError.ConfigParseError(path, e.getMessage))
@@ -162,8 +161,7 @@ case class ScalafmtReflect(
   }
 
   private def moduleInstance(fqn: String): Object = {
-    val cls = classLoader.loadClass(fqn)
-    val module = cls.getField("MODULE$")
+    val module = loadClass(fqn).getField("MODULE$")
     module.setAccessible(true)
     module.get(null)
   }
