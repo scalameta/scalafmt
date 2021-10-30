@@ -1,6 +1,6 @@
 package org.scalafmt.dynamic
 
-import scala.util.control.NonFatal
+import scala.util.Try
 
 case class ScalafmtVersion(
     major: Int,
@@ -29,36 +29,22 @@ object ScalafmtVersion {
 
   val current = ScalafmtVersion(Int.MaxValue / 100, 0, 0)
 
-  private val versionRegex = """(\d)\.(\d)\.(\d)(-RC(\d))?(-SNAPSHOT)?""".r
+  private val versionRegex = """(\d)\.(\d)\.(\d)(?:-RC(\d))?(-SNAPSHOT)?""".r
 
   def parse(version: String): Option[ScalafmtVersion] =
-    try {
-      version match {
-        case "current" => Some(current)
-        case versionRegex(major, minor, patch, null, null, snapshot) =>
-          Some(
-            ScalafmtVersion(
-              positiveInt(major),
-              positiveInt(minor),
-              positiveInt(patch),
-              0,
-              snapshot != null
-            )
+    version match {
+      case "current" => Some(current)
+      case versionRegex(major, minor, patch, rc, snapshot) =>
+        Try {
+          ScalafmtVersion(
+            positiveInt(major),
+            positiveInt(minor),
+            positiveInt(patch),
+            if (rc == null) 0 else positiveInt(rc),
+            snapshot != null
           )
-        case versionRegex(major, minor, patch, _, rc, snapshot) =>
-          Some(
-            ScalafmtVersion(
-              positiveInt(major),
-              positiveInt(minor),
-              positiveInt(patch),
-              positiveInt(rc),
-              snapshot != null
-            )
-          )
-        case _ => None
-      }
-    } catch {
-      case e if NonFatal(e) => None
+        }.toOption
+      case _ => None
     }
 
   private def positiveInt(s: String): Int = {
