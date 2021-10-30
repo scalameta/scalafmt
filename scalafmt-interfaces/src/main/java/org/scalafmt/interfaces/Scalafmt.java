@@ -62,6 +62,7 @@ public interface Scalafmt {
      * @return an updated interface instance controlling whether to respect the
      *         'version' setting in .scalafmt.conf.
      */
+    @Deprecated
     Scalafmt withRespectVersion(boolean respectVersion);
 
     /**
@@ -72,6 +73,7 @@ public interface Scalafmt {
      *                       {@link #withRespectVersion(boolean)} is true
      * @return an updated interface instance with the default version set
      */
+    @Deprecated
     Scalafmt withDefaultVersion(String defaultVersion);
 
     /**

@@ -458,16 +458,6 @@ declared in `.scalafmt.conf`. If the `version` setting is not declared, the
 original file contents are returned unchanged and an error is reported with
 instructions how to fix the problem.
 
-Use `withRespectVersion(false)` to fall back to a default Scalafmt version when
-its not declared in `.scalafmt.conf`. Use `withDefaultVersion(version)` to
-customize the fallback version.
-
-```scala mdoc:silent
-val scalafmtThatDoesntRequireVersionSetting = scalafmt
-  .withRespectVersion(false)
-  .withDefaultVersion("@STABLE_VERSION@")
-```
-
 ### Error reporting
 
 By default, Scalafmt errors are reported to `System.err`. Extend
