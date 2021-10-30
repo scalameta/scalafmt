@@ -60,7 +60,7 @@ case class ScalafmtReflect(
     }
   }
 
-  def parseConfig(path: Path): ScalafmtReflectConfig = {
+  def parseConfig(path: Path): Try[ScalafmtReflectConfig] =
     parseConfigPost300(path)
       .map { configured =>
         new ScalafmtReflectConfig(this, configured.invoke("get"), classLoader)
@@ -68,8 +68,6 @@ case class ScalafmtReflect(
       .recoverWith { case ReflectionException(e) =>
         Failure(new ScalafmtDynamicError.ConfigParseError(path, e.getMessage))
       }
-      .get
-  }
 
   private def parseConfigPost300(path: Path): Try[Object] = {
     // scalafmt >= 3.0.0
