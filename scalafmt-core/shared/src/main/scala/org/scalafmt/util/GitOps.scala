@@ -5,6 +5,19 @@ import scala.util.Try
 import scala.util.control.NonFatal
 import java.io.File
 
+object GitOps {
+
+  trait Factory {
+    def apply(workingDirectory: AbsoluteFile): GitOps
+  }
+
+  object FactoryImpl extends Factory {
+    def apply(workingDirectory: AbsoluteFile): GitOps =
+      new GitOpsImpl(workingDirectory)
+  }
+
+}
+
 trait GitOps {
   def status: Seq[AbsoluteFile]
   def diff(branch: String, cwd: Option[AbsoluteFile]): Seq[AbsoluteFile]
@@ -12,8 +25,7 @@ trait GitOps {
   def rootDir: Option[AbsoluteFile]
 }
 
-class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
-    extends GitOps {
+private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
   private[util] def exec(cmd: Seq[String]): Try[Seq[String]] = {
     val gitRes: Try[String] = Try {
