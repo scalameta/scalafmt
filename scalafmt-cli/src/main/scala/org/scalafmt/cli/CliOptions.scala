@@ -6,7 +6,7 @@ import java.nio.file.{Files, Path}
 import metaconfig.{Conf, ConfDecoderEx, ConfDynamic, Configured}
 import org.scalafmt.Versions
 import org.scalafmt.config.{Config, ScalafmtConfig}
-import org.scalafmt.util.{AbsoluteFile, GitOps, GitOpsImpl, OsSpecific}
+import org.scalafmt.util.{AbsoluteFile, GitOps, OsSpecific}
 
 import scala.io.Codec
 import scala.util.Try
@@ -98,7 +98,7 @@ case class CliOptions(
     mode: Option[FileFetchMode] = None,
     assumeFilename: String = "stdin.scala", // used when read from stdin
     common: CommonOptions = CommonOptions(),
-    gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x),
+    gitOpsConstructor: GitOps.Factory = GitOps.FactoryImpl,
     writeModeOpt: Option[WriteMode] = None,
     debug: Boolean = false,
     quiet: Boolean = false,
