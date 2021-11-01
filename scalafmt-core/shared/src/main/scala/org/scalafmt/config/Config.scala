@@ -4,6 +4,7 @@ import java.io.File
 
 import metaconfig._
 import org.scalafmt.config.PlatformConfig._
+import org.scalafmt.Versions.{stable => stableVersion}
 
 // NOTE: these methods are intended for internal usage and are subject to
 // binary and source breaking changes between any release. For a stable API
@@ -39,6 +40,11 @@ object Config {
       default: ScalafmtConfig
   ): Configured[ScalafmtConfig] = {
     ScalafmtConfig.decoder.read(Option(default), conf) match {
+      case Configured.Ok(x)
+          if default.eq(ScalafmtConfig.uncheckedDefault) &&
+            x.version != stableVersion =>
+        val version = Option(x.version).getOrElse("missing")
+        Configured.error(s"version [expected $stableVersion]: $version")
       case Configured.Ok(x)
           if default.eq(ScalafmtConfig.uncheckedDefault) &&
             x.runner.isDefaultDialect =>

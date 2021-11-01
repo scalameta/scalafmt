@@ -15,8 +15,8 @@ import org.scalafmt.util.ValidationOps
 /** Configuration options for scalafmt.
   *
   * @param version
-  *   The version of scalafmt to use for this project. Currently not used, the
-  *   plan is to use this field for the IntelliJ+sbt integrations.
+  *   The version of scalafmt to use for this project. Must match the currently
+  *   running version of scalafmt.
   * @param maxColumn
   *   Column limit, any formatting exceeding this field is penalized heavily.
   * @param assumeStandardLibraryStripMargin
@@ -192,7 +192,7 @@ object ScalafmtConfig {
     ConfEncoder.StringEncoder.contramap(_.name)
 
   val default = ScalafmtConfig()
-  private[scalafmt] val uncheckedDefault = ScalafmtConfig()
+  private[scalafmt] val uncheckedDefault = ScalafmtConfig(version = null)
 
   val intellij: ScalafmtConfig = default.copy(
     indent = Indents(callSite = 2, defnSite = 2),
