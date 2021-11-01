@@ -36,32 +36,15 @@ object Config {
 
   def fromConf(
       conf: Configured[Conf],
-      default: ScalafmtConfig,
-      path: Option[String] = None
-  ): Configured[ScalafmtConfig] =
-    conf.andThen { baseConf =>
-      val next = path match {
-        case None => Configured.Ok(baseConf)
-        case Some(p) =>
-          baseConf match {
-            case Conf.Obj(values) =>
-              values
-                .collectFirst { case (`p`, value) => Configured.Ok(value) }
-                .getOrElse(
-                  ConfError.message(s"Config $baseConf has no field $p").notOk
-                )
-            case x =>
-              ConfError.typeMismatch("Conf.Obj", x).notOk
-          }
-      }
-      val decoded = ScalafmtConfig.decoder.read(Option(default), next)
-      decoded match {
-        case Configured.Ok(x)
-            if default.eq(ScalafmtConfig.uncheckedDefault) && path.isEmpty =>
-          x.runner.warnDefault
-        case _ =>
-      }
-      decoded
+      default: ScalafmtConfig
+  ): Configured[ScalafmtConfig] = {
+    val decoded = ScalafmtConfig.decoder.read(Option(default), conf)
+    decoded match {
+      case Configured.Ok(x) if default.eq(ScalafmtConfig.uncheckedDefault) =>
+        x.runner.warnDefault
+      case _ =>
     }
+    decoded
+  }
 
 }
