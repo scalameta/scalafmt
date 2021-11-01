@@ -49,11 +49,13 @@ import metaconfig._
   */
 case class IndentOperator(
     topLevelOnly: Boolean = true,
-    include: String = ".*",
-    exclude: String = "^(&&|\\|\\|)$"
+    @annotation.ExtraName("include")
+    includeRegex: String = ".*",
+    @annotation.ExtraName("exclude")
+    excludeRegex: String = "^(&&|\\|\\|)$"
 ) {
-  private val includeRegexp = include.r.pattern
-  private val excludeRegexp = exclude.r.pattern
+  private val includeRegexp = includeRegex.r.pattern
+  private val excludeRegexp = excludeRegex.r.pattern
 
   def noindent(op: String): Boolean =
     excludeRegexp.matcher(op).find() || !includeRegexp.matcher(op).find()
@@ -61,7 +63,7 @@ case class IndentOperator(
 
 object IndentOperator {
   private val default = IndentOperator()
-  private val akka = IndentOperator(include = "^.*=$", exclude = "^$")
+  private val akka = IndentOperator(includeRegex = "^.*=$", excludeRegex = "^$")
 
   implicit lazy val surface: generic.Surface[IndentOperator] =
     generic.deriveSurface

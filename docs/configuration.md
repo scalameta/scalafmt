@@ -539,23 +539,28 @@ function {
 }
 ```
 
-#### `indentOperator.exclude`
+#### `indentOperator.excludeRegex`
 
 Defines a regular expression for excluded infix operators. If an eligible
 operator matches, it will not be indented.
 
+In v3.1.0, this parameter was renamed from `indentOperator.exclude`.
+
 ```scala mdoc:defaults
-indentOperator.exclude
+indentOperator.excludeRegex
 ```
 
-#### `indentOperator.include`
+#### `indentOperator.includeRegex`
 
 Defines a regular expression for included infix operators. If an eligible
 operator matches and is not excluded explicitly by
-[indentOperator.exclude](#indentoperatorexclude), it be will indented.
+[indentOperator.excludeRegex](#indentoperatorexcluderegex), it be will indented.
+
+In v3.1.0, due to conflict with built-in HOCON keyword, this parameter was
+renamed from `indentOperator.include`.
 
 ```scala mdoc:defaults
-indentOperator.include
+indentOperator.includeRegex
 ```
 
 #### `indentOperator.preset`
