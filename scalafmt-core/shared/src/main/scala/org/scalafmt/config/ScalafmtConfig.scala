@@ -158,7 +158,6 @@ case class ScalafmtConfig(
     val fs = file.FileSystems.getDefault
     fileOverride.values.map { case (pattern, conf) =>
       val style = ScalafmtConfig.decoder.read(Some(this), conf).get
-      if (style.runner.getDialect ne runner.getDialect) style.runner.warnDefault
       fs.getPathMatcher(pattern.asFilename) -> style
     }
   }
