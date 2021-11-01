@@ -27,13 +27,10 @@ case class ScalafmtVersion(
 
 object ScalafmtVersion {
 
-  val current = ScalafmtVersion(Int.MaxValue / 100, 0, 0)
-
   private val versionRegex = """(\d)\.(\d)\.(\d)(?:-RC(\d))?(-SNAPSHOT)?""".r
 
   def parse(version: String): Option[ScalafmtVersion] =
     version match {
-      case "current" => Some(current)
       case versionRegex(major, minor, patch, rc, snapshot) =>
         Try {
           ScalafmtVersion(
