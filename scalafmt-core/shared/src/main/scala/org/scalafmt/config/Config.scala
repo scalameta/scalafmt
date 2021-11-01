@@ -38,13 +38,13 @@ object Config {
       conf: Configured[Conf],
       default: ScalafmtConfig
   ): Configured[ScalafmtConfig] = {
-    val decoded = ScalafmtConfig.decoder.read(Option(default), conf)
-    decoded match {
-      case Configured.Ok(x) if default.eq(ScalafmtConfig.uncheckedDefault) =>
-        x.runner.warnDefault
-      case _ =>
+    ScalafmtConfig.decoder.read(Option(default), conf) match {
+      case Configured.Ok(x)
+          if default.eq(ScalafmtConfig.uncheckedDefault) &&
+            x.runner.isDefaultDialect =>
+        Configured.error(ScalafmtRunner.Dialect.getUnknownError)
+      case x => x
     }
-    decoded
   }
 
 }

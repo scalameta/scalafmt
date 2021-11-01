@@ -89,9 +89,7 @@ The formatter supports various dialects defined and supported by `scalameta` par
 for any given file, one and only one dialect is supported, and `runner.dialect` must be
 used to select it.
 
-```scala mdoc:defaults
-runner.dialect
-```
+> Since v3.1.0, the `runner.dialect` parameter is required to be specified explicitly.
 
 Available dialects are:
 

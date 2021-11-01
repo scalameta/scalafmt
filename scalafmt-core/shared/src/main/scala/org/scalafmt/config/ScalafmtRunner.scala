@@ -45,14 +45,6 @@ case class ScalafmtRunner(
     parser.parse(input, getDialect)
 
   def isDefaultDialect = dialect.source == ScalafmtRunner.Dialect.defaultName
-  def warnDefault: Unit = if (isDefaultDialect) {
-    val known = ScalafmtRunner.Dialect.known.map(_.source).mkString(",")
-    Console.err.print(
-      s"""Default dialect is deprecated; use explicit: [$known]
-        |Also see https://scalameta.org/scalafmt/docs/configuration.html#scala-dialects"
-        |""".stripMargin
-    )
-  }
 
 }
 
@@ -103,11 +95,17 @@ object ScalafmtRunner {
 
     def getName(dialect: Dialect): Option[String] =
       known.find(_.value eq dialect).map(_.source)
+
+    def getUnknownError = {
+      val knownStr = known.map(_.source).mkString(",")
+      s"""Default dialect is deprecated; use explicit: [$knownStr]
+        |Also see https://scalameta.org/scalafmt/docs/configuration.html#scala-dialects"
+        |""".stripMargin
+    }
   }
 
   implicit val dialectCodec = {
-    val dialects = (Dialect.known :+ Dialect.default)
-      .map(x => sourcecode.Text(x, x.source))
+    val dialects = Dialect.known.map(x => sourcecode.Text(x, x.source))
     ReaderUtil.oneOf(dialects: _*)
   }
 
