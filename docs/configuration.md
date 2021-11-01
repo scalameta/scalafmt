@@ -83,6 +83,14 @@ val example2 =
   |""".stripMargin
 ```
 
+## Version
+
+The `version` parameter specifies the release of the formatter to be used.
+If the version requested is different from the version of the installed
+formatter, the correct release will be downloaded dynamically.
+
+> Since v3.1.0, the `version` parameter is required to be specified explicitly.
+
 ## Scala Dialects
 
 The formatter supports various dialects defined and supported by `scalameta` parser. However,
