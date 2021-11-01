@@ -182,6 +182,11 @@ case class ScalafmtReflect(
 }
 
 object ScalafmtReflect {
-  val current =
-    ScalafmtReflect(getClass.getClassLoader, ScalafmtVersion.current, false)
+
+  lazy val current = ScalafmtReflect(
+    getClass.getClassLoader,
+    ScalafmtVersion.parse(BuildInfo.stable).get,
+    false
+  )
+
 }

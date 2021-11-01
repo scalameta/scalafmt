@@ -133,11 +133,10 @@ final case class ScalafmtDynamic(
   ): FormatEval[ScalafmtReflectConfig] = {
     for {
       version <- readVersion(configPath)
+      current = ScalafmtReflect.current
       fmtReflect <-
-        if (version == ScalafmtVersion.current)
-          Right(ScalafmtReflect.current)
-        else
-          resolveFormatter(configPath, version)
+        if (version == current.version) Right(current)
+        else resolveFormatter(configPath, version)
       config <- fmtReflect.parseConfig(configPath).toEither.left.map {
         case ex: ScalafmtDynamicError => ex
         case ex => new UnknownConfigError(configPath, ex)
