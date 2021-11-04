@@ -70,9 +70,10 @@ class GitOpsTest extends FunSuite {
       dir.orElse(ops.rootDir).get.jfile.toPath,
       "dir_"
     )
+    val destPath = destDir.resolve("new_file")
     val dest = Files.move(
       f.jfile.toPath,
-      destDir,
+      destPath,
       java.nio.file.StandardCopyOption.REPLACE_EXISTING
     )
     rm(f)

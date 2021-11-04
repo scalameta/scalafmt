@@ -1,6 +1,7 @@
 package org.scalafmt.util
 
 import java.io.File
+import java.nio.file.Path
 
 /** Wrapper around java.io.File with an absolute path. */
 sealed abstract case class AbsoluteFile(jfile: File) {
@@ -22,10 +23,18 @@ object AbsoluteFile {
   def fromFile(file: File, workingDir: AbsoluteFile): AbsoluteFile = {
     new AbsoluteFile(FileOps.makeAbsolute(workingDir.jfile)(file)) {}
   }
+
   def fromPath(path: String): Option[AbsoluteFile] = {
     val file = new File(path)
     if (file.isAbsolute) Some(new AbsoluteFile(file) {})
     else None
   }
+
+  def fromPath(path: Path): Option[AbsoluteFile] = {
+    val file = path.toFile
+    if (file.isAbsolute) Some(new AbsoluteFile(file) {})
+    else None
+  }
+
   def userDir = new AbsoluteFile(new File(System.getProperty("user.dir"))) {}
 }

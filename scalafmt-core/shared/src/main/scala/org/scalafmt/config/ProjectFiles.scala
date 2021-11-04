@@ -40,7 +40,7 @@ object ProjectFiles {
   val defaultIncludePaths =
     Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc")
 
-  private sealed abstract class PathMatcher {
+  sealed abstract class PathMatcher {
     def matches(path: file.Path): Boolean
   }
 
@@ -59,16 +59,99 @@ object ProjectFiles {
       )
     }
 
+    def nio(glob: String) = {
+      if (PlatformConfig.isNative)
+        new Regex(createRegexFromGlob(glob))
+      else
+        new Nio(glob)
+    }
+
     private def create(seq: Seq[String], f: String => PathMatcher) =
       seq.map(_.asFilename).distinct.map(f)
-    private def nio(seq: Seq[String]) = create(seq, new Nio(_))
+    private def nio(seq: Seq[String]) = {
+      if (PlatformConfig.isNative)
+        create(seq, p => new Regex(createRegexFromGlob(p)))
+      else
+        create(seq, new Nio(_))
+    }
     private def regex(seq: Seq[String]) = create(seq, new Regex(_))
 
-    private final class Nio(pattern: String) extends PathMatcher {
+    // Copy/pasted from https://stackoverflow.com/questions/1247772/is-there-an-equivalent-of-java-util-regex-for-glob-type-patterns
+    def createRegexFromGlob(glob: String): String = {
+      var line = glob.stripPrefix("glob:")
+      line = line.trim()
+      var strLen = line.length()
+      val sb = new StringBuilder
+      // Remove beginning and ending * globs because they're useless
+      // if (line.startsWith("*")) {
+      //   line = line.substring(1);
+      //   strLen -= 1;
+      // }
+      // if (line.endsWith("*")) {
+      //   line = line.substring(0, strLen-1);
+      //   strLen -= 1;
+      // }
+      var escaping = false
+      var inCurlies = 0
+      for (currentChar <- line.toCharArray()) {
+        currentChar match {
+          case '*' =>
+            if (escaping) sb.append("\\*")
+            else sb.append(".*")
+            escaping = false
+          case '?' =>
+            if (escaping)
+              sb.append("\\?")
+            else
+              sb.append('.')
+            escaping = false
+          case '.' | '(' | ')' | '+' | '|' | '^' | '$' | '@' | '%' =>
+            sb.append('\\')
+            sb.append(currentChar)
+            escaping = false
+          case '\\' =>
+            if (escaping) {
+              sb.append("\\\\")
+              escaping = false
+            } else escaping = true
+          case '{' =>
+            if (escaping) {
+              sb.append("\\{")
+            } else {
+              sb.append('(')
+              inCurlies += 1
+            }
+            escaping = false
+          case '}' =>
+            if (inCurlies > 0 && !escaping) {
+              sb.append(')')
+              inCurlies -= 1
+            } else if (escaping)
+              sb.append("\\}")
+            else
+              sb.append("}")
+            escaping = false
+          case ',' =>
+            if (inCurlies > 0 && !escaping) {
+              sb.append('|')
+            } else if (escaping)
+              sb.append("\\,")
+            else
+              sb.append(",")
+          case _ =>
+            escaping = false
+            sb.append(currentChar)
+        }
+      }
+      sb.append('$')
+      return sb.toString()
+    }
+
+    final class Nio(pattern: String) extends PathMatcher {
       private val matcher = fs.getPathMatcher(pattern)
       def matches(path: file.Path): Boolean = matcher.matches(path)
     }
-    private final class Regex(regex: String) extends PathMatcher {
+    final class Regex(regex: String) extends PathMatcher {
       private val pattern = java.util.regex.Pattern.compile(regex)
       def matches(path: file.Path): Boolean =
         pattern.matcher(path.toString).find()

@@ -4,7 +4,7 @@ import scala.collection.mutable
 import scala.meta._
 import scala.meta.testkit._
 
-import org.scalafmt.CompatCollections.ParConverters._
+import org.scalafmt.CompatCollections.CompatParConverters._
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
@@ -28,7 +28,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
       )
       .take(count)
       .toBuffer
-      .par
+      .compatPar
     SyntaxAnalysis.run[Observation[Bug]](corpus) { file =>
       val code = file.read
       try {

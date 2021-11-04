@@ -14,8 +14,12 @@ import scala.reflect.ClassTag
 import scala.{meta => m}
 import munit.FunSuite
 import munit.Location
+import org.scalafmt.config.PlatformConfig
 
 class DynamicSuite extends FunSuite {
+
+  override def munitIgnore: Boolean = PlatformConfig.isNative
+
   class Format(name: String, cfgFunc: ScalafmtDynamic => ScalafmtDynamic) {
     val download = new ByteArrayOutputStream()
     def downloadLogs: String = download.toString()

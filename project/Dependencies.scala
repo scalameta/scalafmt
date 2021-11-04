@@ -18,13 +18,14 @@ object Dependencies {
     )
   }
 
-  val scalametaTestkit = "org.scalameta" %% "testkit" % scalametaV
+  val scalametaTestkit = Def.setting("org.scalameta" %%% "testkit" % scalametaV)
 
   val scalacheck = "org.scalacheck" %% "scalacheck" % scalacheckV
   val munit      = Def.setting("org.scalameta" %%% "munit" % munitV)
   val scalameta  = Def.setting("org.scalameta" %%% "scalameta" % scalametaV excludeAll scalapb.value)
 
   val metaconfig         = Def.setting("com.geirsson" %%% "metaconfig-core" % metaconfigV)
+  val metaconfigSconfig  = Def.setting("com.geirsson" %%% "metaconfig-sconfig" % metaconfigV)
   val metaconfigTypesafe = Def.setting("com.geirsson" %%% "metaconfig-typesafe-config" % metaconfigV)
   val metaconfigHocon    = Def.setting("com.geirsson" %%% "metaconfig-hocon" % metaconfigV)
 

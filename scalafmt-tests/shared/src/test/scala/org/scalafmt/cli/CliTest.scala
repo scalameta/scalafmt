@@ -17,6 +17,7 @@ import org.scalafmt.cli.FileTestOps._
 import org.scalafmt.config.{Config, ProjectFiles, ScalafmtConfig}
 import org.scalafmt.util.{AbsoluteFile, FileOps}
 import org.scalafmt.util.OsSpecific._
+import org.scalafmt.config.PlatformConfig
 
 abstract class AbstractCliTest extends FunSuite {
   def mkArgs(str: String): Array[String] =
@@ -103,10 +104,17 @@ abstract class AbstractCliTest extends FunSuite {
 
 trait CliTestBehavior { this: AbstractCliTest =>
   def testCli(version: String) {
-    val label = if (version == Versions.version) "core" else "dynamic"
+    val (label, isDynamic) =
+      if (version == Versions.version) ("core", false) else ("dynamic", true)
+    def assumeNotDynamicOnNative(): Unit =
+      assume(
+        !(isDynamic && PlatformConfig.isNative),
+        "Dynamic module is incompatible with Scala Native"
+      )
     val dialectError =
       if (version == Versions.version) " [dialect default]" else ""
     test(s"scalafmt tmpFile tmpFile2: $label") {
+      assumeNotDynamicOnNative()
       val originalTmpFile = Files.createTempFile("prefix", ".scala")
       val originalTmpFile2 = Files.createTempFile("prefix2", ".scala")
       val scalafmtConfig = Files.createTempFile("scalafmtConfig", ".scala")
@@ -133,6 +141,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"scalafmt --stdout tmpFile prints to stdout: $label") {
+      assumeNotDynamicOnNative()
       val originalTmpFile = Files.createTempFile("prefix", ".scala")
       Files.write(originalTmpFile, unformatted.getBytes)
       val args = Array(
@@ -154,6 +163,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"scalafmt --stdin --assume-filename: $label") {
+      assumeNotDynamicOnNative()
       val scalafmtConfig = Files.createTempFile(".scalafmt", ".conf")
       val config = s"""
         |version="$version"
@@ -187,6 +197,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"scalafmt --test tmpFile is left unformatted: $label") {
+      assumeNotDynamicOnNative()
       val tmpFile = Files.createTempFile("prefix", ".scala")
       Files.write(tmpFile, unformatted.getBytes)
       val args = Array(
@@ -202,6 +213,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
       assertNoDiff(str, unformatted)
     }
     test(s"scalafmt --test fails with non zero exit code $label") {
+      assumeNotDynamicOnNative()
       val tmpFile = Files.createTempFile("prefix", ".scala")
       Files.write(tmpFile, unformatted.getBytes)
       val args = Array(
@@ -216,6 +228,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"scalafmt foo.randomsuffix is formatted: $label") {
+      assumeNotDynamicOnNative()
       val tmpFile = Files.createTempFile("prefix", "randomsuffix")
       Files.write(tmpFile, unformatted.getBytes)
       val args = Array(
@@ -230,6 +243,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"handles .scala, .sbt, and .sc files: $label") {
+      assumeNotDynamicOnNative()
       val input = string2dir(
         s"""|/foobar.scala
           |object    A {  }
@@ -262,6 +276,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"excludefilters are respected: $label") {
+      assumeNotDynamicOnNative()
       val input = string2dir(
         s"""|/foo.sbt
           |lazy   val x   = project
@@ -313,6 +328,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"scalafmt doesnotexist.scala throws error: $label") {
+      assumeNotDynamicOnNative()
       def check(filename: String): Unit = {
         val args = Array(
           s"$filename.scala".asFilename,
@@ -328,6 +344,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"scalafmt (no matching files) throws error: $label") {
+      assumeNotDynamicOnNative()
       val scalafmtConfig: Path = Files.createTempFile(".scalafmt", ".conf")
       val config: String = s"""
         |version="$version"
@@ -342,6 +359,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     test(
       s"scalafmt (no matching files) is okay with --mode diff and --stdin: $label"
     ) {
+      assumeNotDynamicOnNative()
       val diff = getConfig(
         Array(
           "--mode",
@@ -364,6 +382,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"scalafmt (no arg) read config from git repo: $label") {
+      assumeNotDynamicOnNative()
       val input = string2dir(
         s"""|/foo.scala
           |object    FormatMe {
@@ -402,6 +421,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"scalafmt (no arg, no config): $label") {
+      assumeNotDynamicOnNative()
       noArgTest(
         string2dir(
           """|/foo.scala
@@ -423,6 +443,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"config is read even from nested dir: $label") {
+      assumeNotDynamicOnNative()
       val original = "object a { val x = 1 }"
       val expected =
         """|object a {
@@ -452,6 +473,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     test(
       s"if project.includeFilters isn't modified (and files aren't passed manually), it should ONLY accept scala and sbt files: $label"
     ) {
+      assumeNotDynamicOnNative()
       val root =
         string2dir(
           s"""
@@ -489,6 +511,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     test(
       s"includeFilters are ignored for full paths but NOT test for passed directories: $label"
     ) {
+      assumeNotDynamicOnNative()
       val root =
         string2dir(
           s"""
@@ -521,6 +544,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     test(
       s"includeFilters are respected for full paths but NOT test for passed directories: $label"
     ) {
+      assumeNotDynamicOnNative()
       val root =
         string2dir(
           s"""
@@ -552,6 +576,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"--config accepts absolute paths: $label") {
+      assumeNotDynamicOnNative()
       val root = string2dir(
         s"""/scalafmt.conf
           |version = "$version"
@@ -574,6 +599,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
 
     // These are tests for deprecated flags
     test(s"scalafmt -i -f file1,file2,file3 should still work: $label") {
+      assumeNotDynamicOnNative()
       val file1 = Files.createTempFile("prefix", ".scala")
       val file2 = Files.createTempFile("prefix2", ".scala")
       val file3 = Files.createTempFile("prefix3", ".scala")
@@ -599,6 +625,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"parse error is formatted nicely: $label") {
+      assumeNotDynamicOnNative()
       val input =
         """|/foo.scala
           |object    A { foo( }
@@ -625,6 +652,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"command line argument error: $label") {
+      assumeNotDynamicOnNative()
       val exit = Console.withErr(NoopOutputStream.printStream) {
         Cli.mainWithOptions(
           Array("--foobar"),
@@ -635,6 +663,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"--test failure prints out unified diff: $label") {
+      assumeNotDynamicOnNative()
       val fooFile = "foo.scala"
       val input =
         s"""|/.scalafmt.conf
@@ -666,6 +695,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"--test succeeds even with parse error: $label") {
+      assumeNotDynamicOnNative()
       val input =
         """|/foo.scala
           |object A {
@@ -689,6 +719,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"--test fails with parse error if fatalWarnings=true: $label") {
+      assumeNotDynamicOnNative()
       val input =
         s"""|/.scalafmt.conf
           |runner.fatalWarnings = true
@@ -714,6 +745,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"exception is thrown on invalid .scalafmt.conf: $label") {
+      assumeNotDynamicOnNative()
       val input =
         s"""/.scalafmt.conf
           |version="$version"
@@ -737,6 +769,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"eof: $label") {
+      assumeNotDynamicOnNative()
       val in = Files.createTempFile("scalafmt", "Foo.scala")
       Files.write(in, "object A".getBytes(StandardCharsets.UTF_8))
       val exit = Cli.mainWithOptions(Array(in.toString), baseCliOptions)
@@ -746,6 +779,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(s"--config-str should be used if it is specified: $label") {
+      assumeNotDynamicOnNative()
       val expected = "This message should be shown"
       val unexpected = "This message should not be shown"
       val input =
@@ -779,6 +813,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     test(
       s"--list enable scalafmt to output a list of unformatted files with ExitCode.TestError: $label"
     ) {
+      assumeNotDynamicOnNative()
       val input =
         s"""|/.scalafmt.conf
           |version = "$version"

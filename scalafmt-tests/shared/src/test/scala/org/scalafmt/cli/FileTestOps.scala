@@ -6,6 +6,7 @@ import java.nio.file.Files
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
+import org.scalafmt.internal.RegexCompat
 
 object FileTestOps {
 
@@ -14,7 +15,7 @@ object FileTestOps {
     */
   def string2dir(layout: String): AbsoluteFile = {
     val root = Files.createTempDirectory("root").toFile
-    layout.split("(?=\n/)").foreach { row =>
+    RegexCompat.splitByBeforeTextMatching(layout, "\n/").foreach { row =>
       val path :: contents :: Nil =
         row.stripPrefix("\n").split("\n", 2).toList
       val file = new File(root, path)

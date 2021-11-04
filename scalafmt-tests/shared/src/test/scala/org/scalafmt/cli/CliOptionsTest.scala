@@ -10,6 +10,7 @@ import org.scalafmt.Versions
 
 import metaconfig.Configured
 import munit.FunSuite
+import java.io.FileNotFoundException
 
 class CliOptionsTest extends FunSuite {
 
@@ -104,7 +105,13 @@ class CliOptionsTest extends FunSuite {
     val opt = baseCliOptions.copy(config = Some(configPath.toFile))
     assert(opt.scalafmtConfig.isInstanceOf[Configured.NotOk])
     val confError = opt.scalafmtConfig.asInstanceOf[Configured.NotOk].error
-    assert(confError.cause.exists(_.isInstanceOf[NoSuchFileException]))
+    // native - FileNotFoundException, JVM - NoSuchFileException
+    assert(
+      confError.cause.exists(err =>
+        err.isInstanceOf[NoSuchFileException] || err
+          .isInstanceOf[FileNotFoundException]
+      )
+    )
   }
 
   test(".scalafmtConfig returns Configured.NotOk for invalid configuration") {

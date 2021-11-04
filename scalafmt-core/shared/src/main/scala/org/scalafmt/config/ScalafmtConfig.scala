@@ -157,8 +157,11 @@ case class ScalafmtConfig(
   private lazy val expandedFileOverride = Try {
     val fs = file.FileSystems.getDefault
     fileOverride.values.map { case (pattern, conf) =>
+      val regex = "regex:" + ProjectFiles.FileMatcher.createRegexFromGlob(
+        pattern.asFilename
+      )
       val style = ScalafmtConfig.decoder.read(Some(this), conf).get
-      fs.getPathMatcher(pattern.asFilename) -> style
+      fs.getPathMatcher(regex) -> style
     }
   }
   def getConfigFor(filename: String): ScalafmtConfig = {
