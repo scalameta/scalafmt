@@ -4,6 +4,7 @@ import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.GitOps
 
 class FakeGitOps(root: AbsoluteFile) extends GitOps {
+  override val workingDirectory: AbsoluteFile = root
   override def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile] = dir.listFiles
   override def rootDir: Option[AbsoluteFile] = Some(root)
   override def status: Seq[AbsoluteFile] = lsTree(root)

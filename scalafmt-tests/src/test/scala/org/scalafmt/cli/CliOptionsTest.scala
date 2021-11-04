@@ -63,10 +63,9 @@ class CliOptionsTest extends FunSuite {
   test(
     ".configPath returns path to workingDirectory's .scalafmt.conf by default, if exists"
   ) {
-    val opt = baseCliOptions
     assertEquals(baseCliOptions.config, None)
     assertEquals(baseCliOptions.configStr, None)
-    assertEquals(baseCliOptions.configPathOpt, None)
+    intercept[NoSuchFileException](baseCliOptions.configPath)
   }
 
   test(
