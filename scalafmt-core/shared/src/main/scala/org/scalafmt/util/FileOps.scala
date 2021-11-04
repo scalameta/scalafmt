@@ -11,6 +11,10 @@ object FileOps {
     Files.getLastModifiedTime(file, LinkOption.NOFOLLOW_LINKS).toMillis
 
   @inline
+  def isDirectory(file: Path): Boolean =
+    Files.isDirectory(file, LinkOption.NOFOLLOW_LINKS)
+
+  @inline
   def isRegularFile(file: Path): Boolean =
     Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)
 
