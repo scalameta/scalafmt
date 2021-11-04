@@ -1,7 +1,7 @@
 package org.scalafmt.cli
 
 import java.io.{InputStream, OutputStream, PrintStream}
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, NoSuchFileException, Path}
 
 import metaconfig.{Conf, ConfDecoderEx, ConfDynamic, Configured}
 import org.scalafmt.Versions
@@ -56,11 +56,6 @@ object CliOptions {
   )(candidate: PrintStream): PrintStream =
     if (p) NoopOutputStream.printStream else candidate
 
-  private def tryGetConfigFile(dir: AbsoluteFile): Option[Path] = {
-    val file = dir / ".scalafmt.conf"
-    if (file.isRegularFile) Some(file.path) else None
-  }
-
 }
 
 object NoopOutputStream extends OutputStream { self =>
@@ -107,8 +102,6 @@ case class CliOptions(
     error: Boolean = false,
     check: Boolean = false
 ) {
-  import CliOptions._
-
   val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
 
   /** Create a temporary file that contains configuration string specified by
@@ -129,16 +122,13 @@ case class CliOptions(
     * @return
     *   A path to a configuration file
     */
-  def configPath: Path =
-    configPathOpt.get
+  def configPath: Path = tempConfigPath.getOrElse {
+    canonicalConfigFile
+      .fold(throw new NoSuchFileException("Config file not found"))(_.get)
+  }
 
-  private[cli] def configPathOpt: Option[Path] =
-    tempConfigPath.orElse(canonicalConfigFile)
-
-  private lazy val canonicalConfigFile = config
-    .map(common.workingDirectory.join(_).path)
-    .orElse(tryGetConfigFile(common.workingDirectory))
-    .orElse(gitOps.rootDir.flatMap(tryGetConfigFile))
+  private lazy val canonicalConfigFile: Option[Try[Path]] =
+    gitOps.getCanonicalConfigFile(config)
 
   /** Parse the scalafmt configuration and try to encode it to `ScalafmtConfig`.
     * If `--config-str` is specified, this will parse the configuration string
@@ -152,9 +142,9 @@ case class CliOptions(
     hoconOpt.fold(Configured.ok(baseConfig))(Config.fromConf(_, baseConfig))
 
   private lazy val hoconOpt: Option[Configured[Conf]] =
-    configStr match {
-      case Some(contents) => Some(Config.hoconStringToConf(contents, None))
-      case None => canonicalConfigFile.map(Config.hoconFileToConf(_, None))
+    configStr.map(Config.hoconStringToConf(_, None)).orElse {
+      canonicalConfigFile
+        .map(_.fold(Configured.exception(_), Config.hoconFileToConf(_, None)))
     }
 
   lazy val fileFetchMode: FileFetchMode =

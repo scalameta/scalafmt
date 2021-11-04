@@ -1,8 +1,10 @@
 package org.scalafmt.util
 
 import java.io._
+import java.nio.file.{AccessDeniedException, NoSuchFileException}
 import java.nio.file.{Files, LinkOption, Path, Paths}
 import scala.io.Codec
+import scala.util.{Failure, Success, Try}
 
 object FileOps {
 
@@ -74,5 +76,24 @@ object FileOps {
 
   @inline
   def isSbt(filename: String): Boolean = filename.endsWith(".sbt")
+
+  def getCanonicalConfigFile(
+      workingDirectory: AbsoluteFile,
+      config: Option[Path] = None
+  ): Option[Try[Path]] =
+    config.fold(tryGetConfigInDir(workingDirectory)) { x =>
+      val file = workingDirectory.join(x)
+      tryCheckConfigFile(file).orElse(
+        Some(Failure(new NoSuchFileException(s"Config missing: $file")))
+      )
+    }
+
+  def tryGetConfigInDir(dir: AbsoluteFile): Option[Try[Path]] =
+    tryCheckConfigFile(dir / ".scalafmt.conf")
+
+  private def tryCheckConfigFile(file: AbsoluteFile): Option[Try[Path]] =
+    if (!file.exists) None
+    else if (file.isRegularFile) Some(Success(file.path))
+    else Some(Failure(new AccessDeniedException(s"Config not a file: $file")))
 
 }

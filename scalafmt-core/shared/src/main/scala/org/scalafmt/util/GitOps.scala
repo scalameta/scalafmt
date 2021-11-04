@@ -16,9 +16,19 @@ object GitOps {
       new GitOpsImpl(workingDirectory)
   }
 
+  implicit class Implicit(obj: GitOps) {
+
+    def getCanonicalConfigFile(config: Option[Path] = None): Option[Try[Path]] =
+      FileOps
+        .getCanonicalConfigFile(obj.workingDirectory, config)
+        .orElse(obj.rootDir.flatMap(FileOps.tryGetConfigInDir))
+
+  }
+
 }
 
 trait GitOps {
+  val workingDirectory: AbsoluteFile
   def status: Seq[AbsoluteFile]
   def diff(branch: String, cwd: Option[AbsoluteFile]): Seq[AbsoluteFile]
   def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile]
