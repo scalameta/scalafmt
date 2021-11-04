@@ -154,9 +154,6 @@ case class CliOptions(
     if (customFiles.isEmpty) None
     else Some(common.workingDirectory.join(customFiles))
 
-  def files: Seq[AbsoluteFile] =
-    customFilesOpt.getOrElse(Seq(common.workingDirectory))
-
   lazy val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
 
   def addFile(file: Path): CliOptions = withFiles(customFiles :+ file)

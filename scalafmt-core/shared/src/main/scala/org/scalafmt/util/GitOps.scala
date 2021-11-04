@@ -16,12 +16,74 @@ object GitOps {
       new GitOpsImpl(workingDirectory)
   }
 
+  private def getMatchingFiles(
+      files: Seq[AbsoluteFile],
+      respectProjectFilters: Boolean,
+      matches: AbsoluteFile => Boolean
+  )(listDir: AbsoluteFile => Seq[AbsoluteFile]): Seq[AbsoluteFile] =
+    files.flatMap {
+      case d if d.isDirectory => listDir(d).filter(matches)
+      // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
+      // formatted regardless of what it is or where it is.
+      // NB: Unless respectProjectFilters is also specified.
+      case f if respectProjectFilters && !matches(f) => Seq.empty
+      case f => Seq(f)
+    }
+
   implicit class Implicit(obj: GitOps) {
 
     def getCanonicalConfigFile(config: Option[Path] = None): Option[Try[Path]] =
       FileOps
         .getCanonicalConfigFile(obj.workingDirectory, config)
         .orElse(obj.rootDir.flatMap(FileOps.tryGetConfigInDir))
+
+    def getFiles(matches: AbsoluteFile => Boolean): Seq[AbsoluteFile] =
+      obj.lsTree(obj.workingDirectory).filter(matches)
+
+    def getFiles(
+        files: Seq[AbsoluteFile],
+        respectProjectFilters: Boolean,
+        matches: AbsoluteFile => Boolean
+    ): Seq[AbsoluteFile] =
+      getMatchingFiles(files, respectProjectFilters, matches)(obj.lsTree)
+
+    def getDirFiles(matches: AbsoluteFile => Boolean): Seq[AbsoluteFile] =
+      obj.workingDirectory.listFiles.filter(matches)
+
+    def getDirFiles(
+        files: Seq[AbsoluteFile],
+        respectProjectFilters: Boolean,
+        matches: AbsoluteFile => Boolean
+    ): Seq[AbsoluteFile] =
+      getMatchingFiles(files, respectProjectFilters, matches)(_.listFiles)
+
+    def getDiffFiles(
+        branch: String,
+        matches: AbsoluteFile => Boolean
+    ): Seq[AbsoluteFile] =
+      obj.diff(branch, None).filter(matches)
+
+    def getDiffFiles(
+        branch: String,
+        respectProjectFilters: Boolean,
+        matches: AbsoluteFile => Boolean
+    )(files: Seq[AbsoluteFile]): Seq[AbsoluteFile] =
+      getMatchingFiles(files, respectProjectFilters, matches)(x =>
+        obj.diff(branch, Some(x))
+      )
+
+    def getDiffFiles(
+        branch: String,
+        files: Seq[Path],
+        respectProjectFilters: Boolean,
+        matches: AbsoluteFile => Boolean
+    ): Seq[AbsoluteFile] =
+      getDiffFiles(branch, respectProjectFilters, matches)(
+        obj.workingDirectory.join(files)
+      )
+
+    def getChangedFiles(matches: AbsoluteFile => Boolean): Seq[AbsoluteFile] =
+      obj.status.filter(matches)
 
   }
 
