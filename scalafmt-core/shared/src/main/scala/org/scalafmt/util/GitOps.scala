@@ -58,7 +58,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
     rootDir.fold(Seq.empty[AbsoluteFile]) { rtDir =>
       exec(cmd)
         .getOrElse(Seq.empty)
-        .map(f => rtDir / f)
+        .map(rtDir.join)
         .filter(_.isRegularFile)
     }
   }
@@ -90,7 +90,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
     for {
       root <- rootDir.toSeq
       path <- exec(cmd).getOrElse(Seq.empty)
-    } yield root / path
+    } yield root.join(path)
   }
 
   override def status: Seq[AbsoluteFile] = {
