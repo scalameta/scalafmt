@@ -1,7 +1,6 @@
 package org.scalafmt.internal
 
 import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 import scala.annotation.tailrec
 import scala.meta.tokens.Token
@@ -315,10 +314,9 @@ object State {
     }
   }
 
-  private val stripMarginPattern =
-    Pattern.compile("\n(\\h*+\\|)?([^\n]*+)")
+  private val stripMarginPattern = RegexCompat.stripMarginPattern
 
-  private val slcLine = Pattern.compile("^/\\/\\/*+\\h*+(.*?)\\h*+$")
+  private val slcLine = RegexCompat.srcLine
 
   def getColumns(
       ft: FormatToken,

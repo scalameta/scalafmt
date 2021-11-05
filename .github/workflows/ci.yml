@@ -29,9 +29,38 @@ jobs:
       - run:
           # for GitOps tests
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: TEST="2.12" sbt ci-test
+      - run: TEST="2.12" sbt ci-test-jvm
         shell: bash
-      - run: TEST="2.13" sbt ci-test
+      - run: TEST="2.13" sbt ci-test-jvm
+        shell: bash
+  test-scala-native:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macOS-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: olafurpg/setup-scala@v13
+        with:
+          java-version: adopt@1.8
+      - if: matrix.os == 'windows-latest'
+        name: setup windows environment
+        run: ./bin/scala-native-setup/windows-setup.sh
+      - if: matrix.os == 'macOS-latest'
+        name: setup macOS environment
+        run: ./bin/scala-native-setup/macos-setup.sh
+      - if: matrix.os == 'ubuntu-latest'
+        name: setup ubuntu environment
+        run: ./bin/scala-native-setup/ubuntu-setup.sh
+      - name: run tests
+        run: |
+          git fetch --tags -f
+          # for GitOps tests	
+          git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
+      - run: TEST="2.12" sbt ci-test-native
+        shell: bash
+      - run: TEST="2.13" sbt ci-test-native
         shell: bash
   formatting:
     runs-on: ubuntu-latest

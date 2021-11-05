@@ -10,7 +10,6 @@ import scala.meta.parsers.ParseException
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-import scala.util.matching.Regex
 
 import org.scalafmt.config.Config
 import org.scalafmt.Error.PreciseIncomplete
@@ -22,6 +21,7 @@ import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.util.{FileOps, MarkdownFile, MarkdownPart}
+import org.scalafmt.internal.RegexCompat
 
 /** WARNING. This API is discouraged when integrating with Scalafmt from a build
   * tool or editor plugin. It is recommended to use the `scalafmt-dynamic`
@@ -99,9 +99,6 @@ object Scalafmt {
     iter(Seq.empty)
   }
 
-  // see: https://ammonite.io/#Save/LoadSession
-  private val ammonitePattern: Regex = "(?:\\s*\\n@(?=\\s))+".r
-
   private def doFormat(
       code: String,
       style: ScalafmtConfig,
@@ -110,7 +107,7 @@ object Scalafmt {
   ): Try[String] =
     if (FileOps.isAmmonite(file)) {
       // XXX: we won't support ranges as we don't keep track of lines
-      val chunks = ammonitePattern.split(code)
+      val chunks = RegexCompat.splitByAmmonitePattern(code)
       if (chunks.length <= 1) doFormatOne(code, style, file, range)
       else
         flatMapAll(chunks.iterator)(doFormatOne(_, style, file))

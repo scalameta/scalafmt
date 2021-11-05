@@ -5,6 +5,7 @@ import java.io.File
 import metaconfig._
 import org.scalafmt.config.PlatformConfig._
 import org.scalafmt.Versions.{stable => stableVersion}
+import org.scalafmt.internal.PlatformCompat
 
 // NOTE: these methods are intended for internal usage and are subject to
 // binary and source breaking changes between any release. For a stable API
@@ -15,10 +16,13 @@ object Config {
   def hoconStringToConf(input: String, path: Option[String]): Configured[Conf] =
     Input.String(input).parse(path)
 
-  def hoconFileToConf(input: File, path: Option[String]): Configured[Conf] =
+  def hoconFileToConf(input: File, path: Option[String]): Configured[Conf] = {
     Configured
-      .fromExceptionThrowing(Input.File(input))
+      .fromExceptionThrowing(
+        PlatformCompat.metaconfigInputFromFile(input)
+      )
       .andThen(_.parse(path))
+  }
 
   def fromHoconString(
       string: String,
