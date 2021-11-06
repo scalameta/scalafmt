@@ -441,7 +441,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
       val workingDir = input / "nested"
       val options: CliOptions = {
         val mock = getMockOptions(input, workingDir)
-        mock.copy(common = mock.common.copy(cwd = workingDir))
+        mock.copy(common = mock.common.copy(cwd = Some(workingDir)))
       }
       val config = Cli.getConfig(Array("foo.scala"), options).get
       Cli.run(config)

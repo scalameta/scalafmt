@@ -54,7 +54,7 @@ object FileTestOps {
       baseConfig = ScalafmtConfig.default,
       gitOpsConstructor = _ => new FakeGitOps(baseDir),
       common = CliOptions.default.common.copy(
-        cwd = workingDir,
+        cwd = Some(workingDir),
         out = out,
         err = out
       )

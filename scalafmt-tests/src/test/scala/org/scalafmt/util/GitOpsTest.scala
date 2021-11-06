@@ -44,9 +44,9 @@ class GitOpsTest extends FunSuite {
   }
   def touch(
       name: String = Random.alphanumeric.take(10).mkString,
-      dir: AbsoluteFile = null
+      dir: Option[AbsoluteFile] = None
   ): AbsoluteFile = {
-    val d = Option(dir).orElse(ops.rootDir).get.jfile
+    val d = dir.orElse(ops.rootDir).get.jfile
     val f = File.createTempFile(name, ".ext", d)
     f.deleteOnExit()
     AbsoluteFile.fromPath(f.toString).get
@@ -107,7 +107,8 @@ class GitOpsTest extends FunSuite {
   test("#1010: lsTree should return staged files") {
     val f = touch()
     add(f)
-    assert(ls.toSet == Set(f))
+    val q = ls
+    assert(q.toSet == Set(f), q.mkString + " != " + f.toString())
   }
 
   test("lsTree should return committed files") {
@@ -141,7 +142,7 @@ class GitOpsTest extends FunSuite {
     add(f1)
 
     val innerDir = mkDir()
-    val f2 = touch(dir = innerDir)
+    val f2 = touch(dir = Some(innerDir))
     add(f2)
 
     val innerGitOps = new GitOpsImpl(innerDir)
@@ -156,10 +157,10 @@ class GitOpsTest extends FunSuite {
     assert(ls.toSet == Set(f))
   }
 
-  def diff(br: String = "HEAD", cwd: AbsoluteFile = null)(implicit
+  def diff(br: String = "HEAD", cwd: Option[AbsoluteFile] = None)(implicit
       ops: GitOpsImpl
   ): Seq[AbsoluteFile] =
-    ops.diff(br, Option(cwd))
+    ops.diff(br, cwd)
 
   def status(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
     ops.status
@@ -190,7 +191,7 @@ class GitOpsTest extends FunSuite {
   }
 
   test("diff should return added files against HEAD") {
-    val dir = mkDir("dir 1")
+    val dir = Some(mkDir("dir 1"))
     val f1 = touch()
     val f2 = touch(dir = dir)
     add(f1)
@@ -204,7 +205,7 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     checkoutBr("other")
-    val dir = mkDir("dir 1")
+    val dir = Some(mkDir("dir 1"))
     val f1 = touch()
     val f2 = touch(dir = dir)
     add(f1)
@@ -221,7 +222,7 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     checkoutBr("other")
-    val dir = mkDir("dir 1")
+    val dir = Some(mkDir("dir 1"))
     val f1 = touch()
     val f2 = touch(dir = dir)
     add(f1)
@@ -275,7 +276,7 @@ class GitOpsTest extends FunSuite {
   }
 
   test("status should return files with spaces in the path") {
-    val dir = mkDir("dir 1")
+    val dir = Some(mkDir("dir 1"))
     val f = touch(dir = dir)
     add(f)
     assert(status.toSet == Set(f))
