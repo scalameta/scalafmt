@@ -94,9 +94,9 @@ class GitOpsTest extends FunSuite {
   def mkDir(
       dirName: String = Random.alphanumeric.take(10).mkString
   ): AbsoluteFile = {
-    val file = new File(ops.rootDir.get.jfile, dirName)
-    file.mkdir()
-    AbsoluteFile.fromFile(file, ops.workingDirectory)
+    val file = ops.rootDir.getOrElse(ops.workingDirectory) / dirName
+    file.jfile.mkdir()
+    file
   }
 
   test("lsTree should not return files not added to the index") {

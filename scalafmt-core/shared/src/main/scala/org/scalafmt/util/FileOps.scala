@@ -6,10 +6,6 @@ import scala.io.Codec
 
 object FileOps {
 
-  def makeAbsolute(workingDir: File)(file: File): File =
-    if (file.isAbsolute) file
-    else new File(workingDir, file.getPath)
-
   @inline
   def getLastModifiedMsec(file: Path): Long =
     Files.getLastModifiedTime(file, LinkOption.NOFOLLOW_LINKS).toMillis
@@ -23,7 +19,7 @@ object FileOps {
   }
 
   def listFiles(file: AbsoluteFile): Vector[AbsoluteFile] = {
-    listFiles(file.jfile).map(x => AbsoluteFile.fromFile(new File(x), file))
+    listFiles(file.jfile).map(file./)
   }
 
   def listFiles(file: File): Vector[String] = {
