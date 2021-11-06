@@ -62,9 +62,8 @@ object FileOps {
     new String(Files.readAllBytes(file), codec.charSet)
   }
 
-  def getFile(path: String*): File = {
-    new File(path.mkString(File.separator))
-  }
+  def getFile(path: String*): Path =
+    Paths.get(path.head, path.tail: _*)
 
   def writeFile(file: AbsoluteFile, content: String)(implicit
       codec: Codec
