@@ -56,9 +56,9 @@ object CliOptions {
   )(candidate: PrintStream): PrintStream =
     if (p) NoopOutputStream.printStream else candidate
 
-  private def tryGetConfigFile(dir: AbsoluteFile): Option[File] = {
-    val file = (dir / ".scalafmt.conf").jfile
-    if (file.isFile) Some(file) else None
+  private def tryGetConfigFile(dir: AbsoluteFile): Option[Path] = {
+    val file = dir / ".scalafmt.conf"
+    if (file.isRegularFile) Some(file.asPath) else None
   }
 
 }
@@ -133,10 +133,10 @@ case class CliOptions(
     configPathOpt.get
 
   private[cli] def configPathOpt: Option[Path] =
-    tempConfigPath.orElse(canonicalConfigFile.map(_.toPath))
+    tempConfigPath.orElse(canonicalConfigFile)
 
   private lazy val canonicalConfigFile = config
-    .map(AbsoluteFile.fromFile(_, common.workingDirectory).jfile)
+    .map(AbsoluteFile.fromFile(_, common.workingDirectory).asPath)
     .orElse(tryGetConfigFile(common.workingDirectory))
     .orElse(gitOps.rootDir.flatMap(tryGetConfigFile))
 

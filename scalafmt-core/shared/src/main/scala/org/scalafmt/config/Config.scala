@@ -1,6 +1,6 @@
 package org.scalafmt.config
 
-import java.io.File
+import java.nio.file.Path
 
 import metaconfig._
 import org.scalafmt.config.PlatformConfig._
@@ -15,7 +15,7 @@ object Config {
   def hoconStringToConf(input: String, path: Option[String]): Configured[Conf] =
     Input.String(input).parse(path)
 
-  def hoconFileToConf(input: File, path: Option[String]): Configured[Conf] =
+  def hoconFileToConf(input: Path, path: Option[String]): Configured[Conf] =
     Configured
       .fromExceptionThrowing(Input.File(input))
       .andThen(_.parse(path))
@@ -29,7 +29,7 @@ object Config {
 
   /** Read ScalafmtConfig from String contents from an optional HOCON path. */
   def fromHoconFile(
-      file: File,
+      file: Path,
       default: ScalafmtConfig = ScalafmtConfig.default,
       path: Option[String] = None
   ): Configured[ScalafmtConfig] =

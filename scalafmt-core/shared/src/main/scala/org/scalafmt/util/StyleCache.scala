@@ -2,7 +2,7 @@ package org.scalafmt.util
 
 import scala.collection.mutable
 
-import java.io.File
+import java.nio.file.Paths
 
 import metaconfig.Configured
 import metaconfig.Configured.Ok
@@ -22,8 +22,8 @@ object StyleCache {
   }
 
   def getStyleForFileOrError(filename: String): Configured[ScalafmtConfig] = {
-    val file = new File(filename)
-    val lastModified = file.lastModified()
+    val file = Paths.get(filename)
+    val lastModified = FileOps.getLastModifiedMsec(file)
     val configUnchanged = timeStamps.get(filename).contains(lastModified)
     timeStamps.update(filename, lastModified)
     styleCache.get(filename) match {
