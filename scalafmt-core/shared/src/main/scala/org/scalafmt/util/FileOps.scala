@@ -10,6 +10,11 @@ object FileOps {
     if (file.isAbsolute) file
     else new File(workingDir, file.getPath)
 
+  @inline
+  def getLastModifiedMsec(file: Path): Long =
+    Files.getLastModifiedTime(file, LinkOption.NOFOLLOW_LINKS).toMillis
+
+  @inline
   def isRegularFile(file: File): Boolean =
     Files.isRegularFile(file.toPath, LinkOption.NOFOLLOW_LINKS)
 

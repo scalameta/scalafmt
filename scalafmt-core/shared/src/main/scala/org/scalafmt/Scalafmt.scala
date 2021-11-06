@@ -181,7 +181,7 @@ object Scalafmt {
 
   // used by ScalafmtReflect.parseConfig
   def parseHoconConfigFile(configPath: Path): Configured[ScalafmtConfig] =
-    Config.fromHoconFile(configPath.toFile, ScalafmtConfig.uncheckedDefault)
+    Config.fromHoconFile(configPath, ScalafmtConfig.uncheckedDefault)
 
   // used by ScalafmtReflect.parseConfig
   def parseHoconConfig(configString: String): Configured[ScalafmtConfig] =

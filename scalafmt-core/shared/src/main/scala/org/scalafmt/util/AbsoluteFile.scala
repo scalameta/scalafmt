@@ -1,12 +1,19 @@
 package org.scalafmt.util
 
 import java.io.File
+import java.nio.file.Path
 
 /** Wrapper around java.io.File with an absolute path. */
 sealed abstract case class AbsoluteFile(jfile: File) {
   def path: String = jfile.getAbsolutePath
   def exists: Boolean = jfile.exists()
   def /(other: String) = new AbsoluteFile(new File(jfile, other)) {}
+
+  @inline
+  def asPath: Path = jfile.toPath
+
+  @inline
+  def isRegularFile: Boolean = FileOps.isRegularFile(jfile)
 
   override def toString(): String = path
 }

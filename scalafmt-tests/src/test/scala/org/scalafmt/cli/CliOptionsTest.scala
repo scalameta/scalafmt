@@ -50,7 +50,7 @@ class CliOptionsTest extends FunSuite {
         )
       )
       .configPath
-    val config = Config.fromHoconFile(path.toFile).get
+    val config = Config.fromHoconFile(path).get
     assert(config.onTestFailure == expected)
   }
 
