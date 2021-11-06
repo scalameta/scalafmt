@@ -4,6 +4,7 @@ import scala.sys.process.ProcessLogger
 import scala.util.Try
 import scala.util.control.NonFatal
 import java.io.File
+import java.nio.file.Path
 
 object GitOps {
 
@@ -103,7 +104,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
       root <- rootDir.toSeq
       statusLine <- exec(cmd).getOrElse(Seq.empty)
       file <- getFileFromGitStatusLine(statusLine).toOption.toSeq
-    } yield AbsoluteFile.fromFile(file, root)
+    } yield root.join(file)
   }.filter(_.exists)
 
   private final val renameStatusCode = "R"
@@ -130,7 +131,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
   private def trimQuotes(s: String): String =
     s.replaceAll("^\"|\"$", "")
 
-  private def getFileFromGitStatusLine(s: String): Try[File] =
+  private def getFileFromGitStatusLine(s: String): Try[Path] =
     extractPathPart(s)
-      .map(pathRaw => new File(trimQuotes(pathRaw)))
+      .map(pathRaw => FileOps.getFile(trimQuotes(pathRaw)))
 }
