@@ -16,7 +16,7 @@ sealed abstract case class AbsoluteFile(jfile: File) {
   def asPath: Path = jfile.toPath
 
   @inline
-  def isRegularFile: Boolean = FileOps.isRegularFile(jfile)
+  def isRegularFile: Boolean = FileOps.isRegularFile(asPath)
 
   override def toString(): String = path
 }

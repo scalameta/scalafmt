@@ -59,7 +59,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
       exec(cmd)
         .getOrElse(Seq.empty)
         .map(f => rtDir / f)
-        .filter(file => FileOps.isRegularFile(file.jfile))
+        .filter(_.isRegularFile)
     }
   }
 
