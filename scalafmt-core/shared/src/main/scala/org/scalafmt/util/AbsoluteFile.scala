@@ -6,12 +6,12 @@ import java.nio.file.Path
 import scala.io.Codec
 
 /** Wrapper around java.io.File with an absolute path. */
-sealed abstract case class AbsoluteFile(jfile: File) {
+final class AbsoluteFile(val jfile: File) extends AnyVal {
   def path: String = jfile.getPath
   def exists: Boolean = jfile.exists()
   def /(other: String) = join(FileOps.getFile(other))
 
-  def join(other: Path) = new AbsoluteFile(asPath.resolve(other).toFile) {}
+  def join(other: Path) = new AbsoluteFile(asPath.resolve(other).toFile)
   def join(files: Seq[Path]): Seq[AbsoluteFile] = files.map(join)
 
   @inline
@@ -31,8 +31,8 @@ sealed abstract case class AbsoluteFile(jfile: File) {
 object AbsoluteFile {
   def fromPath(path: String): Option[AbsoluteFile] = {
     val file = new File(path)
-    if (file.isAbsolute) Some(new AbsoluteFile(file) {})
+    if (file.isAbsolute) Some(new AbsoluteFile(file))
     else None
   }
-  def userDir = new AbsoluteFile(new File(System.getProperty("user.dir"))) {}
+  def userDir = new AbsoluteFile(new File(System.getProperty("user.dir")))
 }
