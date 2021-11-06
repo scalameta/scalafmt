@@ -18,10 +18,6 @@ object FileOps {
     listFiles(new File(path))
   }
 
-  def listFiles(file: AbsoluteFile): Vector[AbsoluteFile] = {
-    listFiles(file.jfile).map(file./)
-  }
-
   def listFiles(file: File): Vector[String] = {
     if (file.isFile) {
       Vector(file.getAbsolutePath)
@@ -50,22 +46,12 @@ object FileOps {
     }
   }
 
-  def readFile(file: AbsoluteFile)(implicit codec: Codec): String = {
-    readFile(file.asPath)
-  }
-
   def readFile(file: Path)(implicit codec: Codec): String = {
     new String(Files.readAllBytes(file), codec.charSet)
   }
 
   def getFile(path: String*): Path =
     Paths.get(path.head, path.tail: _*)
-
-  def writeFile(file: AbsoluteFile, content: String)(implicit
-      codec: Codec
-  ): Unit = {
-    writeFile(file.asPath, content)
-  }
 
   def writeFile(path: Path, content: String)(implicit codec: Codec): Unit = {
     val bytes = content.getBytes(codec.charSet)

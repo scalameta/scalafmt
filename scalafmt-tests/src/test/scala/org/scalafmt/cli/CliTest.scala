@@ -445,7 +445,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
       }
       val config = Cli.getConfig(Array("foo.scala"), options).get
       Cli.run(config)
-      val obtained = FileOps.readFile(workingDir / "foo.scala")
+      val obtained = (workingDir / "foo.scala").readFile
       assertNoDiff(obtained, expected)
     }
 

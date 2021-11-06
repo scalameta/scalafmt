@@ -2,7 +2,7 @@ package org.scalafmt.cli
 
 import java.io.OutputStreamWriter
 
-import org.scalafmt.util.{AbsoluteFile, FileOps}
+import org.scalafmt.util.AbsoluteFile
 
 trait ScalafmtRunner {
   private[cli] def run(
@@ -65,7 +65,7 @@ trait ScalafmtRunner {
         filesWithFetch(
           options.files,
           if (m == GitFiles) options.gitOps.lsTree
-          else FileOps.listFiles
+          else _.listFiles
         )
 
       case DiffFiles(branch) =>

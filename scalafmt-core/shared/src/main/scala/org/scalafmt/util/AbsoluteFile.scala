@@ -3,6 +3,8 @@ package org.scalafmt.util
 import java.io.File
 import java.nio.file.Path
 
+import scala.io.Codec
+
 /** Wrapper around java.io.File with an absolute path. */
 sealed abstract case class AbsoluteFile(jfile: File) {
   def path: String = jfile.getPath
@@ -17,6 +19,11 @@ sealed abstract case class AbsoluteFile(jfile: File) {
 
   @inline
   def isRegularFile: Boolean = FileOps.isRegularFile(asPath)
+
+  @inline def listFiles: Seq[AbsoluteFile] = FileOps.listFiles(jfile).map(/)
+  @inline def readFile(implicit codec: Codec): String = FileOps.readFile(asPath)
+  @inline def writeFile(content: String)(implicit codec: Codec): Unit =
+    FileOps.writeFile(asPath, content)
 
   override def toString(): String = path
 }
