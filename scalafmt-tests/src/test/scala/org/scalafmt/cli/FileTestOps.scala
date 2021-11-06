@@ -30,13 +30,14 @@ object FileTestOps {
     * = Unit } /target/scala-2.11/foo.class ^!*@#@!*#&@*!&#^
     */
   def dir2string(file: AbsoluteFile): String = {
+    val rootPath = file.asPath
+    val prefix = rootPath.toString
     FileOps
       .listFiles(file.jfile)
-      .sorted
+      .sortBy(_.toString)
       .map { path =>
-        val contents = FileOps.readFile(path)
-        s"""|${path.stripPrefix(file.jfile.getPath)}
-          |$contents""".stripMargin
+        s"""|${path.toString.stripPrefix(prefix)}
+          |${FileOps.readFile(path)}""".stripMargin
       }
       .mkString("\n")
       .replace(File.separator, "/") // ensure original separators

@@ -12,10 +12,12 @@ object ManualTests extends HasTests {
   lazy val tests: Seq[DiffTest] = {
     import FileOps._
     val testPrefix = testDir + File.separator
+    val testFiles = listFiles(testDir).map(x => (x, x.toString))
     val manualFiles = for {
-      filename <- listFiles(testDir) if filename.endsWith(manual)
+      (path, filename) <- testFiles
+      if filename.endsWith(manual)
       test <- {
-        readFile(filename).linesIterator
+        readFile(path).linesIterator
           .withFilter(_.startsWith("ONLY"))
           .map { name =>
             val testPath = stripPrefix(name)
@@ -35,9 +37,10 @@ object ManualTests extends HasTests {
       }
     } yield test
     val scalaFiles = for {
-      filename <- listFiles(testDir) if filename.endsWith(".scala")
+      (path, filename) <- testFiles
+      if filename.endsWith(".scala")
     } yield {
-      val content = readFile(filename)
+      val content = readFile(path)
       DiffTest(
         filename,
         filename,
