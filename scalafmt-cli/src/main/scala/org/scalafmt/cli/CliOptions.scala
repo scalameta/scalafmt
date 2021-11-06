@@ -1,6 +1,6 @@
 package org.scalafmt.cli
 
-import java.io.{File, InputStream, OutputStream, PrintStream}
+import java.io.{InputStream, OutputStream, PrintStream}
 import java.nio.file.{Files, Path}
 
 import metaconfig.{Conf, ConfDecoderEx, ConfDynamic, Configured}
@@ -86,12 +86,12 @@ case class CommonOptions(
 }
 
 case class CliOptions(
-    private[cli] val config: Option[File] = None,
+    private[cli] val config: Option[Path] = None,
     private[cli] val baseConfig: ScalafmtConfig =
       ScalafmtConfig.uncheckedDefault,
     configStr: Option[String] = None,
     range: Set[Range] = Set.empty[Range],
-    private val customFiles: Seq[File] = Nil,
+    private[cli] val customFiles: Seq[Path] = Nil,
     customExcludes: Seq[String] = Nil,
     respectProjectFilters: Boolean = false,
     nonInteractive: Boolean = false,
@@ -136,7 +136,7 @@ case class CliOptions(
     tempConfigPath.orElse(canonicalConfigFile)
 
   private lazy val canonicalConfigFile = config
-    .map(AbsoluteFile.fromFile(_, common.workingDirectory).asPath)
+    .map(common.workingDirectory.join(_).asPath)
     .orElse(tryGetConfigFile(common.workingDirectory))
     .orElse(gitOps.rootDir.flatMap(tryGetConfigFile))
 
@@ -162,16 +162,16 @@ case class CliOptions(
 
   lazy val customFilesOpt =
     if (customFiles.isEmpty) None
-    else Some(AbsoluteFile.fromFiles(customFiles, common.workingDirectory))
+    else Some(common.workingDirectory.join(customFiles))
 
   def files: Seq[AbsoluteFile] =
     customFilesOpt.getOrElse(Seq(common.workingDirectory))
 
   lazy val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
 
-  def addFile(file: File): CliOptions = withFiles(customFiles :+ file)
+  def addFile(file: Path): CliOptions = withFiles(customFiles :+ file)
 
-  def withFiles(files: Seq[File]): CliOptions = this.copy(customFiles = files)
+  def withFiles(files: Seq[Path]): CliOptions = this.copy(customFiles = files)
 
   def excludeFilterRegexp: Regex =
     mkRegexp(customExcludes.map(OsSpecific.fixSeparatorsInPathPattern))

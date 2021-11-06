@@ -333,7 +333,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         |version="$version"
                """.stripMargin
       Files.write(scalafmtConfig, config.getBytes)
-      val options = baseCliOptions.copy(config = Some(scalafmtConfig.toFile))
+      val options = baseCliOptions.copy(config = Some(scalafmtConfig))
       intercept[NoMatchingFiles.type] {
         Cli.run(options)
       }

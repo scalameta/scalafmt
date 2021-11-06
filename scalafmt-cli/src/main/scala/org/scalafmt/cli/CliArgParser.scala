@@ -1,12 +1,14 @@
 package org.scalafmt.cli
 
-import java.io.File
+import java.nio.file.{Path, Paths}
 import java.util.Date
 
 import org.scalafmt.Versions
 import scopt.OptionParser
 
 object CliArgParser {
+
+  implicit val readPath: scopt.Read[Path] = scopt.Read.reads { Paths.get(_) }
 
   val usageExamples: String =
     """|scalafmt # Format all files in the current project, configuration is determined in this order:
@@ -50,7 +52,7 @@ object CliArgParser {
         .action(printAndExit(includeUsage = false))
         .text("print version ")
 
-      arg[File]("<file>...")
+      arg[Path]("<file>...")
         .optional()
         .unbounded()
         .action((file, c) => c.addFile(file))
@@ -60,7 +62,7 @@ object CliArgParser {
             |(with "@-" referring to standard input as a special case)""".stripMargin
         )
 
-      opt[Seq[File]]('f', "files")
+      opt[Seq[Path]]('f', "files")
         .action((files, c) => c.withFiles(files))
         .hidden() // this option isn't needed anymore. Simply pass the files as
         // arguments. Keeping for backwards compatibility
@@ -89,7 +91,7 @@ object CliArgParser {
         .text(
           "use project filters even when specific files to format are provided"
         )
-      opt[File]('c', "config")
+      opt[Path]('c', "config")
         .action((file, c) => c.copy(config = Some(file)))
         .text("a file path to .scalafmt.conf.")
       opt[String]("config-str")
