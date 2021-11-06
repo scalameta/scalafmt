@@ -9,6 +9,9 @@ sealed abstract case class AbsoluteFile(jfile: File) {
   def exists: Boolean = jfile.exists()
   def /(other: String) = new AbsoluteFile(new File(jfile, other)) {}
 
+  def join(other: Path) = new AbsoluteFile(asPath.resolve(other).toFile) {}
+  def join(files: Seq[Path]): Seq[AbsoluteFile] = files.map(join)
+
   @inline
   def asPath: Path = jfile.toPath
 
@@ -19,12 +22,6 @@ sealed abstract case class AbsoluteFile(jfile: File) {
 }
 
 object AbsoluteFile {
-  def fromFiles(
-      files: Seq[File],
-      workingDir: AbsoluteFile
-  ): Seq[AbsoluteFile] = {
-    files.map(x => fromFile(x, workingDir))
-  }
   // If file is already absolute, then workingDir is not used.
   def fromFile(file: File, workingDir: AbsoluteFile): AbsoluteFile = {
     new AbsoluteFile(FileOps.makeAbsolute(workingDir.jfile)(file)) {}
