@@ -7,7 +7,6 @@ import scala.meta.testkit._
 import org.scalafmt.CompatCollections.ParConverters._
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.AbsoluteFile
-import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
 import org.scalameta.logger
 import munit.FunSuite
@@ -102,10 +101,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
     logger.elem(summary)
     logger.elem(report)
     logger.elem(summary)
-    FileOps.writeFile(
-      AbsoluteFile.userDir / "target" / "scalafmt-props.md",
-      report
-    )
+    (AbsoluteFile.userDir / "target" / "scalafmt-props.md").writeFile(report)
   }
 }
 
