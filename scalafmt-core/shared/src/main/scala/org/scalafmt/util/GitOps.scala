@@ -3,7 +3,6 @@ package org.scalafmt.util
 import scala.sys.process.ProcessLogger
 import scala.util.Try
 import scala.util.control.NonFatal
-import java.io.File
 import java.nio.file.Path
 
 object GitOps {
@@ -91,7 +90,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
     for {
       root <- rootDir.toSeq
       path <- exec(cmd).getOrElse(Seq.empty)
-    } yield AbsoluteFile.fromFile(new File(path), root)
+    } yield root / path
   }
 
   override def status: Seq[AbsoluteFile] = {
