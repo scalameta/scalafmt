@@ -6,7 +6,7 @@ import java.nio.file.{Files, NoSuchFileException, Path}
 import metaconfig.{Conf, ConfDecoderEx, ConfDynamic, Configured}
 import org.scalafmt.Versions
 import org.scalafmt.config.{Config, ScalafmtConfig}
-import org.scalafmt.util.{AbsoluteFile, GitOps, OsSpecific}
+import org.scalafmt.sysops.{AbsoluteFile, GitOps, OsSpecific}
 
 import scala.io.Codec
 import scala.util.Try

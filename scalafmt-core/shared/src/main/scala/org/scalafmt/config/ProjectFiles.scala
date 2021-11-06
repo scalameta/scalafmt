@@ -2,8 +2,8 @@ package org.scalafmt.config
 
 import java.nio.file
 
-import org.scalafmt.util.AbsoluteFile
-import org.scalafmt.util.OsSpecific._
+import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.OsSpecific._
 
 import metaconfig._
 import metaconfig.annotation.DeprecatedName

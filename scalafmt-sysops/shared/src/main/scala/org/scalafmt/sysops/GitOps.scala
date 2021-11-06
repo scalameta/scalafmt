@@ -1,4 +1,4 @@
-package org.scalafmt.util
+package org.scalafmt.sysops
 
 import scala.sys.process.ProcessLogger
 import scala.util.Try
@@ -99,7 +99,7 @@ trait GitOps {
 
 private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
-  private[util] def exec(cmd: Seq[String]): Try[Seq[String]] = {
+  private[scalafmt] def exec(cmd: Seq[String]): Try[Seq[String]] = {
     val gitRes: Try[String] = Try {
       val lastError = new StringBuilder
       val swallowStderr = ProcessLogger(_ => (), err => lastError.append(err))

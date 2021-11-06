@@ -100,6 +100,26 @@ lazy val interfaces = project
     }
   )
 
+lazy val sysops = crossProject(JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .in(file("scalafmt-sysops"))
+  .settings(
+    moduleName := "scalafmt-sysops",
+    description := "Scalafmt systems operations",
+    scalacOptions ++= scalacJvmOptions.value,
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) =>
+          Seq(
+            "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4"
+          )
+        case _ =>
+          Seq(
+          )
+      }
+    }
+  )
+
 lazy val core = crossProject(JVMPlatform)
   .in(file("scalafmt-core"))
   .settings(
@@ -117,7 +137,6 @@ lazy val core = crossProject(JVMPlatform)
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 13)) =>
           Seq(
-            "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4"
           )
         case _ =>
           Seq(
@@ -140,6 +159,7 @@ lazy val core = crossProject(JVMPlatform)
       metaconfigTypesafe.value
     )
   )
+  .dependsOn(sysops)
   .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm
 // lazy val coreJS = core.js

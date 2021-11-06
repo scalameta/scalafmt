@@ -1,4 +1,4 @@
-package org.scalafmt.util
+package org.scalafmt.sysops
 
 import java.io.File
 import java.net.URI

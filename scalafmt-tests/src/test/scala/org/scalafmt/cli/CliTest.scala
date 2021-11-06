@@ -15,8 +15,8 @@ import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Versions
 import org.scalafmt.cli.FileTestOps._
 import org.scalafmt.config.{Config, ProjectFiles, ScalafmtConfig}
-import org.scalafmt.util.{AbsoluteFile, FileOps}
-import org.scalafmt.util.OsSpecific._
+import org.scalafmt.sysops.{AbsoluteFile, FileOps}
+import org.scalafmt.sysops.OsSpecific._
 
 abstract class AbstractCliTest extends FunSuite {
   def mkArgs(str: String): Array[String] =

@@ -1,4 +1,4 @@
-package org.scalafmt.util
+package org.scalafmt.sysops
 
 /** Utils related to differences between various operating systems. */
 object OsSpecific {

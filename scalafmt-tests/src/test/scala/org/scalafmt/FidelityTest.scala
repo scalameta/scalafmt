@@ -6,7 +6,7 @@ import java.io.File
 import java.nio.file.Path
 
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.FileOps
+import org.scalafmt.sysops.FileOps
 import org.scalafmt.util.FormatAssertions
 import munit.FunSuite
 

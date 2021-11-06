@@ -2,8 +2,8 @@ package org.scalafmt.cli
 
 import java.io.OutputStreamWriter
 
-import org.scalafmt.util.AbsoluteFile
-import org.scalafmt.util.GitOps.Implicit
+import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.GitOps.Implicit
 
 trait ScalafmtRunner {
   private[cli] def run(

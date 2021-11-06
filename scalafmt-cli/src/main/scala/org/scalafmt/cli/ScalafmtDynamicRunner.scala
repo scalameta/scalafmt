@@ -10,7 +10,7 @@ import org.scalafmt.dynamic.ScalafmtDynamicError
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtSession
 import org.scalafmt.interfaces.ScalafmtSessionFactory
-import org.scalafmt.util.AbsoluteFile
+import org.scalafmt.sysops.AbsoluteFile
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
 import util.control.Breaks._

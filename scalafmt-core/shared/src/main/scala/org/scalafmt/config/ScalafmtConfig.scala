@@ -8,8 +8,8 @@ import scala.meta.Dialect
 import scala.util.Try
 
 import metaconfig._
+import org.scalafmt.sysops.OsSpecific._
 import org.scalafmt.util.LoggerOps
-import org.scalafmt.util.OsSpecific._
 import org.scalafmt.util.ValidationOps
 
 /** Configuration options for scalafmt.

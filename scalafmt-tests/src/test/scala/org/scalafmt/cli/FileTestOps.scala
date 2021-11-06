@@ -4,8 +4,7 @@ import java.io.{File, PrintStream}
 import java.nio.file.Files
 
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.AbsoluteFile
-import org.scalafmt.util.FileOps
+import org.scalafmt.sysops.{AbsoluteFile, FileOps}
 
 object FileTestOps {
 
