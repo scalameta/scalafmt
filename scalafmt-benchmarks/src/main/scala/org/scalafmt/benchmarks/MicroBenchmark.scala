@@ -1,6 +1,6 @@
 package org.scalafmt.benchmarks
 
-import java.io.File
+import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 
 import org.openjdk.jmh.annotations._
@@ -28,14 +28,14 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
 
   @Setup
   def setup(): Unit = {
-    code = FileOps.readFile(getPath.getAbsolutePath)
+    code = FileOps.readFile(getPath)
   }
 
-  def getPath: File = {
+  def getPath: Path = {
     val filename = FileOps.getFile(Seq("src", "resources") ++ path: _*)
     // jmh runs from benchmarks directory while tests run from from root.
     // Can't bother to find more generic solution
-    if (filename.isFile) filename
+    if (FileOps.isRegularFile(filename)) filename
     else
       FileOps.getFile(
         Seq("scalafmt-benchmarks", "src", "resources") ++ path: _*

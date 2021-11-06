@@ -15,8 +15,8 @@ object FileOps {
     Files.getLastModifiedTime(file, LinkOption.NOFOLLOW_LINKS).toMillis
 
   @inline
-  def isRegularFile(file: File): Boolean =
-    Files.isRegularFile(file.toPath, LinkOption.NOFOLLOW_LINKS)
+  def isRegularFile(file: Path): Boolean =
+    Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)
 
   def listFiles(path: String): Vector[String] = {
     listFiles(new File(path))
