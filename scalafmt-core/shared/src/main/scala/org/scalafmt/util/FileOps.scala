@@ -14,26 +14,24 @@ object FileOps {
   def isRegularFile(file: Path): Boolean =
     Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)
 
-  def listFiles(path: String): Vector[String] = {
+  def listFiles(path: String): Seq[Path] =
     listFiles(new File(path))
-  }
 
-  def listFiles(file: File): Vector[String] = {
+  def listFiles(file: File): Seq[Path] =
     if (file.isFile) {
-      Vector(file.getAbsolutePath)
+      Seq(file.toPath)
     } else {
-      def listFilesIter(s: File): Iterable[String] = {
+      def listFilesIter(s: File): Iterable[Path] = {
         val (dirs, files) = Option(s.listFiles()).toIterable
           .flatMap(_.toIterator)
           .partition(_.isDirectory)
-        files.map(_.getPath) ++ dirs.flatMap(listFilesIter)
+        files.map(_.toPath) ++ dirs.flatMap(listFilesIter)
       }
       for {
         f0 <- Option(listFilesIter(file)).toVector
         filename <- f0
       } yield filename
     }
-  }
 
   // TODO(olafur) allow user to specify encoding through CLI.
   /** Reads file from file system or from http url.

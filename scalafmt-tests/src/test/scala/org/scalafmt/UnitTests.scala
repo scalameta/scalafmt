@@ -9,8 +9,9 @@ object UnitTests extends HasTests {
 
   /** Avoids parsing all files if some tests are marked ONLY.
     */
-  def getTestFiles: Vector[String] = {
-    val testsFiles = listFiles(testDir).filter(filename2parse(_).isDefined)
+  def getTestFiles: Seq[String] = {
+    val testsFiles =
+      listFiles(testDir).map(_.toString).filter(filename2parse(_).isDefined)
     val onlyTests = testsFiles.filter(_.contains("\n<<< ONLY"))
     if (onlyTests.nonEmpty) onlyTests
     else testsFiles

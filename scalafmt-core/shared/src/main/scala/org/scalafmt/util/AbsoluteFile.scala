@@ -20,7 +20,7 @@ final class AbsoluteFile(val jfile: File) extends AnyVal {
   @inline
   def isRegularFile: Boolean = FileOps.isRegularFile(asPath)
 
-  @inline def listFiles: Seq[AbsoluteFile] = FileOps.listFiles(jfile).map(/)
+  @inline def listFiles: Seq[AbsoluteFile] = join(FileOps.listFiles(jfile))
   @inline def readFile(implicit codec: Codec): String = FileOps.readFile(asPath)
   @inline def writeFile(content: String)(implicit codec: Codec): Unit =
     FileOps.writeFile(asPath, content)
