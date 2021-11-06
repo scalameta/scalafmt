@@ -3,8 +3,8 @@ package org.scalafmt
 import java.io.File
 
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.sysops.FileOps
 import org.scalafmt.util.DiffTest
-import org.scalafmt.util.FileOps
 import org.scalafmt.util.HasTests
 import munit.Location
 

@@ -5,6 +5,7 @@ import java.io.File
 import munit.FunSuite
 import org.scalafmt.Error.{Incomplete, SearchStateExploded}
 import org.scalafmt.rewrite.FormatTokensRewrite
+import org.scalafmt.sysops.FileOps
 import org.scalafmt.util._
 
 import scala.concurrent.ExecutionContext.Implicits.global

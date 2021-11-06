@@ -6,7 +6,7 @@ import scala.meta.testkit._
 
 import org.scalafmt.CompatCollections.ParConverters._
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.AbsoluteFile
+import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.util.FormatAssertions
 import org.scalameta.logger
 import munit.FunSuite

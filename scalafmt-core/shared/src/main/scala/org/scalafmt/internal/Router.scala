@@ -6,6 +6,7 @@ import org.scalafmt.config.{ImportSelectors, Newlines, ScalafmtConfig, Spaces}
 import org.scalafmt.internal.ExpiresOn.{After, Before}
 import org.scalafmt.internal.Length.{Num, StateColumn}
 import org.scalafmt.internal.Policy.NoPolicy
+import org.scalafmt.sysops.FileOps
 import org.scalafmt.util._
 import org.scalameta.FileLine
 

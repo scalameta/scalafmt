@@ -1,5 +1,7 @@
 package org.scalafmt.util
 
+import org.scalafmt.sysops.FileOps
+
 import scala.annotation.tailrec
 import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens

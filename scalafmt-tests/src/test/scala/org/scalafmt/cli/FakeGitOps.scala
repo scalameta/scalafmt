@@ -1,7 +1,6 @@
 package org.scalafmt.cli
 
-import org.scalafmt.util.AbsoluteFile
-import org.scalafmt.util.GitOps
+import org.scalafmt.sysops.{AbsoluteFile, GitOps}
 
 class FakeGitOps(root: AbsoluteFile) extends GitOps {
   override val workingDirectory: AbsoluteFile = root

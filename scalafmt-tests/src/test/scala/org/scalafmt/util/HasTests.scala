@@ -16,6 +16,7 @@ import org.scalafmt.config.{
   ScalafmtParser,
   ScalafmtRunner
 }
+import org.scalafmt.sysops.FileOps
 import org.scalafmt.tests.BuildInfo
 import scala.collection.mutable
 

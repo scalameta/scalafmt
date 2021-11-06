@@ -1,4 +1,4 @@
-package org.scalafmt.util
+package org.scalafmt.sysops
 
 import java.nio.file.{AccessDeniedException, NoSuchFileException}
 import java.nio.file.{Files, LinkOption, Path, Paths}

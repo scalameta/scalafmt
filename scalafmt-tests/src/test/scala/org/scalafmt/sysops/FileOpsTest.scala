@@ -1,4 +1,4 @@
-package org.scalafmt.util
+package org.scalafmt.sysops
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}

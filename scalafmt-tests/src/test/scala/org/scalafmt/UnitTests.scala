@@ -1,7 +1,7 @@
 package org.scalafmt
 
+import org.scalafmt.sysops.FileOps
 import org.scalafmt.util.DiffTest
-import org.scalafmt.util.FileOps
 import org.scalafmt.util.HasTests
 
 object UnitTests extends HasTests {

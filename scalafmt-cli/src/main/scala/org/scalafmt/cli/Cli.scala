@@ -4,7 +4,7 @@ import com.martiansoftware.nailgun.NGContext
 import java.nio.file.{Files, Paths}
 
 import org.scalafmt.Versions
-import org.scalafmt.util.AbsoluteFile
+import org.scalafmt.sysops.AbsoluteFile
 
 import scala.io.Source
 import scala.util.control.NoStackTrace

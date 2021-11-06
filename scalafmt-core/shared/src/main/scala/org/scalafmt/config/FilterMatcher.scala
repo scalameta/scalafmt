@@ -2,7 +2,7 @@ package org.scalafmt.config
 
 import scala.util.matching.Regex
 
-import org.scalafmt.util.AbsoluteFile
+import org.scalafmt.sysops.AbsoluteFile
 
 case class FilterMatcher(include: Regex, exclude: Regex) {
   def matchesFile(file: AbsoluteFile): Boolean = matches(file.toString())

@@ -6,7 +6,7 @@ import java.io.InputStream
 import java.nio.file.{Path, Paths}
 
 import org.scalafmt.Error.MisformattedFile
-import org.scalafmt.util.AbsoluteFile
+import org.scalafmt.sysops.AbsoluteFile
 
 sealed abstract class InputMethod {
   def readInput(options: CliOptions): String

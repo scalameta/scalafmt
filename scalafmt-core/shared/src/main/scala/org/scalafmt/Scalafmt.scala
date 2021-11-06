@@ -21,7 +21,8 @@ import org.scalafmt.internal.BestFirstSearch
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
-import org.scalafmt.util.{FileOps, MarkdownFile, MarkdownPart}
+import org.scalafmt.sysops.FileOps
+import org.scalafmt.util.{MarkdownFile, MarkdownPart}
 
 /** WARNING. This API is discouraged when integrating with Scalafmt from a build
   * tool or editor plugin. It is recommended to use the `scalafmt-dynamic`
