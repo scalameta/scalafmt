@@ -19,7 +19,7 @@ object FileTestOps {
         row.stripPrefix("\n").split("\n", 2).toList
       val file = new File(root, path)
       file.getParentFile.mkdirs()
-      FileOps.writeFile(file, contents)
+      FileOps.writeFile(file.toPath, contents)
     }
     AbsoluteFile.fromPath(root.getAbsolutePath).get
   }
