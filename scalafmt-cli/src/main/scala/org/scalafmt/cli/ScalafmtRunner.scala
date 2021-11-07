@@ -52,7 +52,7 @@ trait ScalafmtRunner {
         fetchFiles: AbsoluteFile => Seq[AbsoluteFile]
     ): Seq[AbsoluteFile] =
       filesToProcess.flatMap {
-        case d if d.jfile.isDirectory => fetchFiles(d).filter(canFormat)
+        case d if d.isDirectory => fetchFiles(d).filter(canFormat)
         // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
         // formatted regardless of what it is or where it is.
         // NB: Unless respectProjectFilters is also specified.
