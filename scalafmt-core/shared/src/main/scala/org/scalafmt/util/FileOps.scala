@@ -1,10 +1,11 @@
 package org.scalafmt.util
 
-import java.io._
 import java.nio.file.{AccessDeniedException, NoSuchFileException}
 import java.nio.file.{Files, LinkOption, Path, Paths}
 import scala.io.Codec
 import scala.util.{Failure, Success, Try}
+
+import org.scalafmt.CompatCollections.JavaConverters._
 
 object FileOps {
 
@@ -21,23 +22,13 @@ object FileOps {
     Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)
 
   def listFiles(path: String): Seq[Path] =
-    listFiles(new File(path))
+    listFiles(getFile(path))
 
-  def listFiles(file: File): Seq[Path] =
-    if (file.isFile) {
-      Seq(file.toPath)
-    } else {
-      def listFilesIter(s: File): Iterable[Path] = {
-        val (dirs, files) = Option(s.listFiles()).toIterable
-          .flatMap(_.toIterator)
-          .partition(_.isDirectory)
-        files.map(_.toPath) ++ dirs.flatMap(listFilesIter)
-      }
-      for {
-        f0 <- Option(listFilesIter(file)).toVector
-        filename <- f0
-      } yield filename
-    }
+  def listFiles(file: Path): Seq[Path] = {
+    val iter = Files.find(file, Integer.MAX_VALUE, (_, a) => a.isRegularFile)
+    try iter.iterator().asScala.toList
+    finally iter.close()
+  }
 
   // TODO(olafur) allow user to specify encoding through CLI.
   /** Reads file from file system or from http url.
