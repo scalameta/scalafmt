@@ -40,7 +40,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       }
 
     def sessionMatcher(x: AbsoluteFile): Boolean =
-      session.matchesProjectFilters(x.jfile.toPath)
+      session.matchesProjectFilters(x.path)
     val filterMatcher: AbsoluteFile => Boolean =
       options.customFilesOpt.fold(sessionMatcher _) { customFiles =>
         val customMatcher = getFileMatcher(customFiles)
@@ -85,8 +85,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       if (opts.respectProjectFilters) Seq.empty
       else
         opts.customFilesOpt.getOrElse(Seq.empty).flatMap { x =>
-          val file = x.jfile
-          if (file.isFile) Some(file.toPath) else None
+          if (x.isRegularFile) Some(x.path) else None
         }
     override def format(file: Path, code: String): String = {
       // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
@@ -119,7 +118,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       paths: Seq[AbsoluteFile]
   ): AbsoluteFile => Boolean = {
     require(paths.nonEmpty)
-    val (files, dirs) = paths.partition(_.jfile.isFile)
+    val (files, dirs) = paths.partition(_.isRegularFile)
     (x: AbsoluteFile) =>
       files.contains(x) || {
         val filename = x.toString()
