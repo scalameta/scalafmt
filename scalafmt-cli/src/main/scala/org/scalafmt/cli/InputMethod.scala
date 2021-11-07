@@ -61,7 +61,7 @@ object InputMethod {
   }
 
   case class FileContents(file: AbsoluteFile) extends InputMethod {
-    override def filename = file.path
+    override def filename = file.toString()
     def readInput(options: CliOptions): String =
       file.readFile(options.encoding)
 

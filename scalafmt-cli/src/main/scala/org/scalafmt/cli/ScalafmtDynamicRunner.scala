@@ -122,9 +122,9 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
     val (files, dirs) = paths.partition(_.jfile.isFile)
     (x: AbsoluteFile) =>
       files.contains(x) || {
-        val filename = x.path
+        val filename = x.toString()
         dirs.exists { dir =>
-          val dirname = dir.path
+          val dirname = dir.toString()
           filename.startsWith(dirname) && (
             filename.length == dirname.length ||
               filename.charAt(dirname.length) == File.separatorChar

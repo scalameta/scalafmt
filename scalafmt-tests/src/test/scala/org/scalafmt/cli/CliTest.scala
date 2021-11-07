@@ -251,7 +251,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
           |""".stripMargin
       val options = getConfig(
         Array(
-          input.path,
+          input.toString(),
           "--config-str",
           s"""{version="$version",style=IntelliJ}"""
         )
@@ -299,7 +299,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         Array(
           "--config-str",
           s"""{version="$version",style=IntelliJ}""",
-          input.path,
+          input.toString(),
           "--exclude",
           "target/nested".asFilename
         )
@@ -560,8 +560,8 @@ trait CliTestBehavior { this: AbstractCliTest =>
           |object    A
       """.stripMargin
       )
-      val config = (root / "scalafmt.conf").path
-      val toFormat = (root / "foo.scala").path
+      val config = (root / "scalafmt.conf").toString()
+      val toFormat = (root / "foo.scala").toString()
       val args = Array[String](
         "--config",
         config,
@@ -1155,7 +1155,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |""".stripMargin
     val options = getConfig(
       Array(
-        input.path,
+        input.toString(),
         "--config-str",
         s"""{project.includePaths."+" = ["glob:**.md"]}"""
       )
@@ -1184,7 +1184,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |""".stripMargin
     val options = getConfig(
       Array(
-        input.path,
+        input.toString(),
         "--config-str",
         s"""{project.includePaths."+" = ["glob:**.md"]}"""
       )
@@ -1223,7 +1223,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |""".stripMargin
     val options = getConfig(
       Array(
-        input.path,
+        input.toString(),
         "--config-str",
         s"""{project.includePaths."+" = ["glob:**.md"]}"""
       )
