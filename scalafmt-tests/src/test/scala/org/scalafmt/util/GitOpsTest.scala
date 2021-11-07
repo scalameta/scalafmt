@@ -24,7 +24,7 @@ class GitOpsTest extends FunSuite {
 
   override def beforeEach(context: BeforeEach): Unit = {
     path = Files.createTempDirectory(dirName)
-    val absFile = AbsoluteFile.fromPath(path.toString).get
+    val absFile = AbsoluteFile(path)
     ops = new GitOpsImpl(absFile)
     init(ops)
     // initial commit is needed
@@ -49,7 +49,7 @@ class GitOpsTest extends FunSuite {
     val d = dir.orElse(ops.rootDir).get.jfile
     val f = File.createTempFile(name, ".ext", d)
     f.deleteOnExit()
-    AbsoluteFile.fromPath(f.toString).get
+    AbsoluteFile(f)
   }
 
   def symbolicLinkTo(
@@ -60,7 +60,7 @@ class GitOpsTest extends FunSuite {
     val linkFile =
       File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
     linkFile.delete()
-    val link = AbsoluteFile.fromPath(linkFile.toString).get
+    val link = AbsoluteFile(linkFile)
     Files.createSymbolicLink(link.path, file.path)
     link
   }
@@ -76,7 +76,7 @@ class GitOpsTest extends FunSuite {
       java.nio.file.StandardCopyOption.REPLACE_EXISTING
     )
     rm(f)
-    AbsoluteFile.fromPath(dest.toString).get
+    AbsoluteFile(dest)
   }
 
   def modify(f: AbsoluteFile): Unit = {

@@ -71,7 +71,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
     )
     for {
       Seq(rootPath) <- exec(cmd).toOption
-      file <- AbsoluteFile.fromPath(rootPath)
+      file <- AbsoluteFile.fromPathIfAbsolute(rootPath)
       if file.jfile.isDirectory
     } yield file
   }
