@@ -2,7 +2,7 @@ package org.scalafmt.util
 
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 
 import munit.{Assertions, FunSuite}
 import org.scalafmt.util.DeleteTree.deleteTree
@@ -81,7 +81,7 @@ class GitOpsTest extends FunSuite {
 
   def modify(f: AbsoluteFile): Unit = {
     val text = Random.alphanumeric.take(10).mkString
-    Files.write(Paths.get(f.path), text.getBytes(StandardCharsets.UTF_8))
+    f.writeFile(text)(StandardCharsets.UTF_8)
   }
 
   def ls(implicit ops: GitOpsImpl) =

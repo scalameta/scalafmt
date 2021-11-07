@@ -5,7 +5,7 @@ import scala.util.matching.Regex
 import org.scalafmt.util.AbsoluteFile
 
 case class FilterMatcher(include: Regex, exclude: Regex) {
-  def matchesFile(file: AbsoluteFile): Boolean = matches(file.path)
+  def matchesFile(file: AbsoluteFile): Boolean = matches(file.toString())
   def matches(input: String): Boolean =
     include.findFirstIn(input).isDefined &&
       exclude.findFirstIn(input).isEmpty

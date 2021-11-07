@@ -53,7 +53,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
       "git",
       "ls-files",
       "--full-name",
-      dir.path
+      dir.toString()
     )
     rootDir.fold(Seq.empty[AbsoluteFile]) { rtDir =>
       exec(cmd)
@@ -86,7 +86,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
       "--name-only",
       "--diff-filter=d",
       branch
-    ) ++ cwd.map(x => Seq("--", x.path)).getOrElse(Seq.empty)
+    ) ++ cwd.map(x => Seq("--", x.toString())).getOrElse(Seq.empty)
     for {
       root <- rootDir.toSeq
       path <- exec(cmd).getOrElse(Seq.empty)
