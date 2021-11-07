@@ -41,7 +41,7 @@ trait HasTests extends FormatAssertions {
     )
 
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
-  val testDir = BuildInfo.resourceDirectory
+  val testDir = BuildInfo.resourceDirectory.toPath
 
   def tests: Seq[DiffTest]
 

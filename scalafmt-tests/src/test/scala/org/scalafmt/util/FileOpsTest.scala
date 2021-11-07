@@ -3,7 +3,6 @@ package org.scalafmt.util
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
-import scala.language.implicitConversions
 import scala.util.Random
 
 import org.scalafmt.util.DeleteTree.deleteTree
@@ -51,8 +50,6 @@ class FileOpsTest extends munit.FunSuite {
 }
 
 object FileOpsTest {
-
-  implicit def implicitToFile(path: Path): java.io.File = path.toFile
 
   private def subpath(path: Path): Path =
     path.resolve(Random.alphanumeric.take(10).mkString)

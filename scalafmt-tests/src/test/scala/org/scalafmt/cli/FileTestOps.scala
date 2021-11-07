@@ -33,7 +33,7 @@ object FileTestOps {
     val rootPath = file.path
     val prefix = rootPath.toString
     FileOps
-      .listFiles(file.jfile)
+      .listFiles(rootPath)
       .sortBy(_.toString)
       .map { path =>
         s"""|${path.toString.stripPrefix(prefix)}
