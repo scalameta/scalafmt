@@ -58,7 +58,7 @@ object CliOptions {
 
   private def tryGetConfigFile(dir: AbsoluteFile): Option[Path] = {
     val file = dir / ".scalafmt.conf"
-    if (file.isRegularFile) Some(file.asPath) else None
+    if (file.isRegularFile) Some(file.path) else None
   }
 
 }
@@ -136,7 +136,7 @@ case class CliOptions(
     tempConfigPath.orElse(canonicalConfigFile)
 
   private lazy val canonicalConfigFile = config
-    .map(common.workingDirectory.join(_).asPath)
+    .map(common.workingDirectory.join(_).path)
     .orElse(tryGetConfigFile(common.workingDirectory))
     .orElse(gitOps.rootDir.flatMap(tryGetConfigFile))
 
