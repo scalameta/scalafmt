@@ -17,6 +17,7 @@ final class AbsoluteFile(val jfile: File) extends AnyVal {
   @inline def toUri: URI = jfile.toURI
   @inline def path: Path = jfile.toPath
 
+  @inline def isDirectory: Boolean = jfile.isDirectory
   @inline def isRegularFile: Boolean = FileOps.isRegularFile(path)
 
   @inline def listFiles: Seq[AbsoluteFile] = join(FileOps.listFiles(jfile))
@@ -25,6 +26,8 @@ final class AbsoluteFile(val jfile: File) extends AnyVal {
     FileOps.writeFile(path, content)
 
   @inline def parent: AbsoluteFile = new AbsoluteFile(jfile.getParentFile)
+  @inline def delete: Unit = jfile.delete()
+  @inline def mkdir: Unit = jfile.mkdir()
   @inline def mkdirs: Unit = jfile.mkdirs()
 
   override def toString(): String = jfile.getPath
