@@ -24,15 +24,23 @@ final class AbsoluteFile(val jfile: File) extends AnyVal {
   @inline def writeFile(content: String)(implicit codec: Codec): Unit =
     FileOps.writeFile(path, content)
 
+  @inline def parent: AbsoluteFile = new AbsoluteFile(jfile.getParentFile)
+  @inline def mkdirs: Unit = jfile.mkdirs()
+
   override def toString(): String = jfile.getPath
   @inline def getFileName: String = jfile.getName()
 }
 
 object AbsoluteFile {
-  def fromPath(path: String): Option[AbsoluteFile] = {
+
+  def apply(file: File): AbsoluteFile = new AbsoluteFile(file.getAbsoluteFile)
+  def apply(path: Path): AbsoluteFile = apply(path.toFile)
+
+  def fromPathIfAbsolute(path: String): Option[AbsoluteFile] = {
     val file = new File(path)
     if (file.isAbsolute) Some(new AbsoluteFile(file))
     else None
   }
+
   def userDir = new AbsoluteFile(new File(System.getProperty("user.dir")))
 }

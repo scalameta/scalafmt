@@ -12,7 +12,7 @@ import scala.util.control.NoStackTrace
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
     val workingDirectory =
-      AbsoluteFile.fromPath(nGContext.getWorkingDirectory).getOrElse {
+      AbsoluteFile.fromPathIfAbsolute(nGContext.getWorkingDirectory).getOrElse {
         throw new IllegalStateException(
           s"Expected absolute path, " +
             s"obtained nGContext.getWorkingDirectory = ${nGContext.getWorkingDirectory}"

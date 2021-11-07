@@ -13,15 +13,15 @@ object FileTestOps {
     * necessary files/directories with respective file contents.
     */
   def string2dir(layout: String): AbsoluteFile = {
-    val root = Files.createTempDirectory("root").toFile
+    val root = AbsoluteFile(Files.createTempDirectory("root"))
     layout.split("(?=\n/)").foreach { row =>
       val path :: contents :: Nil =
         row.stripPrefix("\n").split("\n", 2).toList
-      val file = new File(root, path)
-      file.getParentFile.mkdirs()
-      FileOps.writeFile(file.toPath, contents)
+      val file = root / path.stripPrefix("/")
+      file.parent.mkdirs
+      file.writeFile(contents)
     }
-    AbsoluteFile.fromPath(root.getAbsolutePath).get
+    root
   }
 
   /** Gives a string representation of a directory. For example
@@ -63,8 +63,6 @@ object FileTestOps {
   }
 
   val baseCliOptions: CliOptions = getMockOptions(
-    AbsoluteFile
-      .fromPath(Files.createTempDirectory("base-dir").toString)
-      .get
+    AbsoluteFile(Files.createTempDirectory("base-dir"))
   )
 }
