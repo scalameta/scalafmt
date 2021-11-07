@@ -10,19 +10,19 @@ final class AbsoluteFile(val jfile: File) extends AnyVal {
   def exists: Boolean = jfile.exists()
   def /(other: String) = join(FileOps.getFile(other))
 
-  def join(other: Path) = new AbsoluteFile(asPath.resolve(other).toFile)
+  def join(other: Path) = new AbsoluteFile(path.resolve(other).toFile)
   def join(files: Seq[Path]): Seq[AbsoluteFile] = files.map(join)
 
   @inline
-  def asPath: Path = jfile.toPath
+  def path: Path = jfile.toPath
 
   @inline
-  def isRegularFile: Boolean = FileOps.isRegularFile(asPath)
+  def isRegularFile: Boolean = FileOps.isRegularFile(path)
 
   @inline def listFiles: Seq[AbsoluteFile] = join(FileOps.listFiles(jfile))
-  @inline def readFile(implicit codec: Codec): String = FileOps.readFile(asPath)
+  @inline def readFile(implicit codec: Codec): String = FileOps.readFile(path)
   @inline def writeFile(content: String)(implicit codec: Codec): Unit =
-    FileOps.writeFile(asPath, content)
+    FileOps.writeFile(path, content)
 
   override def toString(): String = jfile.getPath
 }

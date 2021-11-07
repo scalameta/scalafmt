@@ -30,7 +30,7 @@ object FileTestOps {
     * = Unit } /target/scala-2.11/foo.class ^!*@#@!*#&@*!&#^
     */
   def dir2string(file: AbsoluteFile): String = {
-    val rootPath = file.asPath
+    val rootPath = file.path
     val prefix = rootPath.toString
     FileOps
       .listFiles(file.jfile)
