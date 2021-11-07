@@ -134,7 +134,7 @@ object Cli {
         "Looking for unformatted files..."
       else "Reformatting..."
     options.common.debug.println(
-      "Working directory: " + options.common.workingDirectory.jfile.getPath
+      "Working directory: " + options.common.workingDirectory
     )
 
     val exit = runner.run(options, termDisplayMessage)
