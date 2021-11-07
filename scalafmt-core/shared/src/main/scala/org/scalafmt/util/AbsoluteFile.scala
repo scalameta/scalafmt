@@ -1,6 +1,7 @@
 package org.scalafmt.util
 
 import java.io.File
+import java.net.URI
 import java.nio.file.Path
 
 import scala.io.Codec
@@ -13,11 +14,10 @@ final class AbsoluteFile(val jfile: File) extends AnyVal {
   def join(other: Path) = new AbsoluteFile(path.resolve(other).toFile)
   def join(files: Seq[Path]): Seq[AbsoluteFile] = files.map(join)
 
-  @inline
-  def path: Path = jfile.toPath
+  @inline def toUri: URI = jfile.toURI
+  @inline def path: Path = jfile.toPath
 
-  @inline
-  def isRegularFile: Boolean = FileOps.isRegularFile(path)
+  @inline def isRegularFile: Boolean = FileOps.isRegularFile(path)
 
   @inline def listFiles: Seq[AbsoluteFile] = join(FileOps.listFiles(jfile))
   @inline def readFile(implicit codec: Codec): String = FileOps.readFile(path)

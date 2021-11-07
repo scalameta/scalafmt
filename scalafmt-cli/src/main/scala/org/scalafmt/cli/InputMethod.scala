@@ -72,8 +72,8 @@ object InputMethod {
       file.writeFile(text)(options.encoding)
 
     override protected def list(options: CliOptions): Unit = {
-      val cwd = options.common.workingDirectory.jfile
-      options.common.out.println(cwd.toURI().relativize(file.jfile.toURI()))
+      val cwd = options.common.workingDirectory.toUri
+      options.common.out.println(cwd.relativize(file.toUri))
     }
   }
 

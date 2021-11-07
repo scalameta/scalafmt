@@ -81,7 +81,7 @@ object ProjectFiles {
     def matches(filename: String): Boolean =
       matchesPath(fs.getPath(filename))
     def matchesFile(file: AbsoluteFile): Boolean =
-      matchesPath(file.jfile.toPath)
+      matchesPath(file.path)
   }
 
 }

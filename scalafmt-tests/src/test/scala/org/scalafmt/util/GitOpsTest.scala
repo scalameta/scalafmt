@@ -61,17 +61,17 @@ class GitOpsTest extends FunSuite {
       File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
     linkFile.delete()
     val link = AbsoluteFile.fromPath(linkFile.toString).get
-    Files.createSymbolicLink(linkFile.toPath, file.jfile.toPath)
+    Files.createSymbolicLink(link.path, file.path)
     link
   }
 
   def mv(f: AbsoluteFile, dir: Option[AbsoluteFile] = None): AbsoluteFile = {
     val destDir = Files.createTempDirectory(
-      dir.orElse(ops.rootDir).get.jfile.toPath,
+      dir.orElse(ops.rootDir).get.path,
       "dir_"
     )
     val dest = Files.move(
-      f.jfile.toPath,
+      f.path,
       destDir,
       java.nio.file.StandardCopyOption.REPLACE_EXISTING
     )
