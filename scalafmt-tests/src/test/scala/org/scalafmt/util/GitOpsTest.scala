@@ -89,7 +89,7 @@ class GitOpsTest extends FunSuite {
     // just annoy us in the tests below
     ops
       .lsTree(ops.workingDirectory)
-      .filterNot(_.jfile.getName().contains("initialfile"))
+      .filterNot(_.getFileName.startsWith("initialfile"))
 
   def mkDir(
       dirName: String = Random.alphanumeric.take(10).mkString

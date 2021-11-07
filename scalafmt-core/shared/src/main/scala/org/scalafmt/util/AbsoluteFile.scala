@@ -25,6 +25,7 @@ final class AbsoluteFile(val jfile: File) extends AnyVal {
     FileOps.writeFile(path, content)
 
   override def toString(): String = jfile.getPath
+  @inline def getFileName: String = jfile.getName()
 }
 
 object AbsoluteFile {

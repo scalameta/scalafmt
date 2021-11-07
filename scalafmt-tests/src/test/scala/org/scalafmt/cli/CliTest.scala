@@ -871,7 +871,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       Cli.getConfig(Array(s"@$argumentsFile"), CliTest.defaultOptions).get
     val config = obtained.scalafmtConfig.get
     assert(config.maxColumn == 40)
-    assert(obtained.files.head.jfile.getName() == "foobar.scala")
+    assertEquals(obtained.files.head.getFileName, "foobar.scala")
   }
 
   test("can't specify both --config and --config-str") {
