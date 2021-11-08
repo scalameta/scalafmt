@@ -1,5 +1,6 @@
 package org.scalafmt.sysops
 
+import java.net.{URI, URL}
 import java.nio.file.{AccessDeniedException, NoSuchFileException}
 import java.nio.file.{Files, LinkOption, Path, Paths}
 import scala.io.Codec
@@ -30,16 +31,26 @@ object FileOps {
     finally iter.close()
   }
 
-  // TODO(olafur) allow user to specify encoding through CLI.
-  /** Reads file from file system or from http url.
-    */
+  /** Reads file from file system or from http url */
   def readFile(filename: String)(implicit codec: Codec): String = {
-    if (filename matches "https?://.*") {
-      scala.io.Source.fromURL(filename)("UTF-8").getLines().mkString("\n")
-    } else {
-      readFile(getFile(filename))
+    Try(new URL(filename)) match {
+      case Success(url) => readFile(url)
+      case _ => readFile(getFile(filename))
     }
   }
+
+  def readFile(url: URL)(implicit codec: Codec): String = {
+    val isFile = Option(url.getProtocol).forall("file".equalsIgnoreCase)
+    if (isFile) readAsURI(url.toURI) else readAsURL(url)
+  }
+
+  @inline
+  private[sysops] def readAsURL(url: URL)(implicit codec: Codec): String =
+    scala.io.Source.fromURL(url).getLines().mkString("", "\n", "\n")
+
+  @inline
+  private[sysops] def readAsURI(uri: URI)(implicit codec: Codec): String =
+    readFile(Paths.get(uri))
 
   def readFile(file: Path)(implicit codec: Codec): String = {
     new String(Files.readAllBytes(file), codec.charSet)
