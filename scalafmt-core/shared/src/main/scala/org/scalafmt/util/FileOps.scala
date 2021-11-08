@@ -44,7 +44,7 @@ object FileOps {
     if (filename matches "https?://.*") {
       scala.io.Source.fromURL(filename)("UTF-8").getLines().mkString("\n")
     } else {
-      readFile(Paths.get(filename))
+      readFile(getFile(filename))
     }
   }
 
@@ -52,8 +52,13 @@ object FileOps {
     new String(Files.readAllBytes(file), codec.charSet)
   }
 
-  def getFile(path: String*): Path =
-    Paths.get(path.head, path.tail: _*)
+  @inline def getFile(path: String): Path = getPath(path)
+
+  @inline def getFile(path: Seq[String]): Path =
+    getPath(path.head, path.tail: _*)
+
+  @inline def getPath(head: String, tail: String*): Path =
+    Paths.get(head, tail: _*)
 
   def writeFile(path: Path, content: String)(implicit codec: Codec): Unit = {
     val bytes = content.getBytes(codec.charSet)
@@ -63,7 +68,7 @@ object FileOps {
   def writeFile(filename: String, content: String)(implicit
       codec: Codec
   ): Unit = {
-    writeFile(Paths.get(filename), content)
+    writeFile(getFile(filename), content)
   }
 
   @inline

@@ -32,14 +32,11 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
   }
 
   def getPath: Path = {
-    val filename = FileOps.getFile(Seq("src", "resources") ++ path: _*)
+    val filename = FileOps.getFile(Seq("src", "resources") ++ path)
     // jmh runs from benchmarks directory while tests run from from root.
     // Can't bother to find more generic solution
     if (FileOps.isRegularFile(filename)) filename
-    else
-      FileOps.getFile(
-        Seq("scalafmt-benchmarks", "src", "resources") ++ path: _*
-      )
+    else FileOps.getFile(Seq("scalafmt-benchmarks", "src", "resources") ++ path)
   }
 
   def scalametaParser(): Unit = {
