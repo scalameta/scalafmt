@@ -3,7 +3,7 @@ package org.scalafmt.cli
 import com.martiansoftware.nailgun.NGContext
 import java.nio.file.{Files, Paths}
 
-import org.scalafmt.Versions
+import org.scalafmt.Versions.{stable => stableVersion}
 import org.scalafmt.sysops.AbsoluteFile
 
 import scala.io.Source
@@ -105,22 +105,23 @@ object Cli {
     // - `scalafmt-dynamic` if the specified `version` setting doesn't match build version.
     // - `scalafmt-core` if the specified `version` setting match with build version
     //   (or if the `version` is not specified).
-    options.getVersionIfDifferent match {
+    options.getVersionOpt match {
+      case None => Left(s"error: missing version (current $stableVersion)")
+      case Some(`stableVersion`) => Right(ScalafmtCoreRunner)
       case Some(v) if isNativeImage =>
         Left(
           s"""error: invalid Scalafmt version.
             |
-            |This Scalafmt installation has version '${Versions.version}' and the version configured in '${options.configPath}' is '${v}'.
+            |This Scalafmt installation has version '$stableVersion' and the version configured in '${options.configPath}' is '${v}'.
             |To fix this problem, add the following line to .scalafmt.conf:
             |```
-            |version = '${Versions.version}'
+            |version = '$stableVersion'
             |```
             |
             |NOTE: this error happens only when running a native Scalafmt binary.
             |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
             |""".stripMargin
         )
-      case None => Right(ScalafmtCoreRunner)
       case _ => Right(ScalafmtDynamicRunner)
     }
   }
