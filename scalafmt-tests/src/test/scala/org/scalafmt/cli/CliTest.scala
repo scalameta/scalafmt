@@ -12,7 +12,7 @@ import java.nio.file.{Files, Path}
 import scala.collection.JavaConverters._
 import munit.FunSuite
 import org.scalafmt.Error.NoMatchingFiles
-import org.scalafmt.Versions
+import org.scalafmt.Versions.{stable => stableVersion}
 import org.scalafmt.cli.FileTestOps._
 import org.scalafmt.config.{Config, ProjectFiles, ScalafmtConfig}
 import org.scalafmt.sysops.{AbsoluteFile, FileOps}
@@ -103,9 +103,9 @@ abstract class AbstractCliTest extends FunSuite {
 
 trait CliTestBehavior { this: AbstractCliTest =>
   def testCli(version: String) {
-    val label = if (version == Versions.version) "core" else "dynamic"
-    val dialectError =
-      if (version == Versions.version) " [dialect default]" else ""
+    val isCore = version == stableVersion
+    val label = if (isCore) "core" else "dynamic"
+    val dialectError = if (isCore) " [dialect default]" else ""
     test(s"scalafmt tmpFile tmpFile2: $label") {
       val originalTmpFile = Files.createTempFile("prefix", ".scala")
       val originalTmpFile2 = Files.createTempFile("prefix2", ".scala")
@@ -739,7 +739,8 @@ trait CliTestBehavior { this: AbstractCliTest =>
     test(s"eof: $label") {
       val in = Files.createTempFile("scalafmt", "Foo.scala")
       Files.write(in, "object A".getBytes(StandardCharsets.UTF_8))
-      val exit = Cli.mainWithOptions(Array(in.toString), baseCliOptions)
+      val args = Array("--config-str", s"""{version="$version"}""", in.toString)
+      val exit = Cli.mainWithOptions(args, baseCliOptions)
       assert(exit.isOk)
       val obtained = new String(Files.readAllBytes(in), StandardCharsets.UTF_8)
       assert(obtained == "object A\n")
@@ -812,11 +813,9 @@ trait CliTestBehavior { this: AbstractCliTest =>
 
 class CliTest extends AbstractCliTest with CliTestBehavior {
   testCli("1.6.0-RC4") // test for runDynamic
-  testCli(Versions.version) // test for runScalafmt
+  testCli(stableVersion) // test for runScalafmt
 
-  test(
-    "Running pre-resolved version of scalafmt if .scalafmt.conf is missing."
-  ) {
+  test("Fail if .scalafmt.conf is missing.") {
     val input =
       s"""|/foo.scala
         |object A {}
@@ -829,16 +828,16 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           "--debug"
         ) // debug options is needed to output running scalafmt version
       ),
-      assertExit = { exit => assert(exit.isOk, exit) },
+      assertExit = { x => assertEquals(x, ExitCode.UnsupportedVersion, x) },
       assertOut = out => {
-        assert(out.contains(Versions.version))
+        val eol = System.lineSeparator()
+        val msg = s"error: missing version (current $stableVersion)$eol"
+        assertEquals(out, msg + msg) // two invocations
       }
     )
   }
 
-  test(
-    "Running pre-resolved version of scalafmt if `version` setting is missing."
-  ) {
+  test("Fail if `version` setting is missing.") {
     val input =
       s"""|/.scalafmt.conf
         |maxColumn = 10
@@ -854,9 +853,11 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           "--debug"
         ) // debug options is needed to output running scalafmt version
       ),
-      assertExit = { exit => assert(exit.isOk, exit) },
+      assertExit = { x => assertEquals(x, ExitCode.UnsupportedVersion, x) },
       assertOut = out => {
-        assert(out.contains(Versions.version))
+        val eol = System.lineSeparator()
+        val msg = s"error: missing version (current $stableVersion)$eol"
+        assertEquals(out, msg + msg) // two invocations
       }
     )
   }
@@ -903,6 +904,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |object A   { }
         |
         |/.scalafmt.conf
+        |version = $stableVersion
         |maxColumn = 2
         |project { includePaths = ["glob:**/bar.scala"] }
         |""".stripMargin
@@ -910,6 +912,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
 
     val expected =
       s"""|/.scalafmt.conf
+        |version = $stableVersion
         |maxColumn = 2
         |project { includePaths = ["glob:**/bar.scala"] }
         |
@@ -940,6 +943,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |object A   { }
         |
         |/.scalafmt.conf
+        |version = $stableVersion
         |maxColumn = 2
         |project { excludePaths = ["glob:**target**"] }
         |""".stripMargin
@@ -947,6 +951,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
 
     val expected =
       s"""|/.scalafmt.conf
+        |version = $stableVersion
         |maxColumn = 2
         |project { excludePaths = ["glob:**target**"] }
         |
@@ -977,6 +982,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |object A   { }
         |
         |/.scalafmt.conf
+        |version = $stableVersion
         |maxColumn = 2
         |project { includeFilters = ["bar"] }
         |""".stripMargin
@@ -984,6 +990,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
 
     val expected =
       s"""|/.scalafmt.conf
+        |version = $stableVersion
         |maxColumn = 2
         |project { includeFilters = ["bar"] }
         |
@@ -1016,6 +1023,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |object A   { }
         |
         |/.scalafmt.conf
+        |version = $stableVersion
         |maxColumn = 2
         |project {
         |  includePaths = $defaultIncludePathsJson
@@ -1026,6 +1034,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
 
     val expected =
       s"""|/.scalafmt.conf
+        |version = $stableVersion
         |maxColumn = 2
         |project {
         |  includePaths = $defaultIncludePathsJson
@@ -1061,6 +1070,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |val  x   =   42
         |```
         |/.scalafmt.conf
+        |version = $stableVersion
         |maxColumn   = 8
         |project.includePaths."+" = ["glob:**.md"]
         |""".stripMargin
@@ -1068,6 +1078,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     val expected =
       s"""|
         |/.scalafmt.conf
+        |version = $stableVersion
         |maxColumn   = 8
         |project.includePaths."+" = ["glob:**.md"]
         |
@@ -1100,11 +1111,13 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |val  x   =   42
         |```
         |/.scalafmt.conf
+        |version = $stableVersion
         |""".stripMargin
     )
     val expected =
       s"""|
         |/.scalafmt.conf
+        |version = $stableVersion
         |
         |/foobar.md
         |# Hello
@@ -1160,7 +1173,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       Array(
         input.toString(),
         "--config-str",
-        s"""{project.includePaths."+" = ["glob:**.md"]}"""
+        s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}"""
       )
     )
     Cli.run(options)
@@ -1249,6 +1262,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |val  x   =   42
         |```
         |/.scalafmt.conf
+        |version = $stableVersion
         |maxColumn   = 8
         |project.includePaths."+" = ["glob:**.md"]
         |""".stripMargin
@@ -1256,6 +1270,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     val expected =
       s"""|
         |/.scalafmt.conf
+        |version = $stableVersion
         |maxColumn   = 8
         |project.includePaths."+" = ["glob:**.md"]
         |
@@ -1291,6 +1306,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       Console.withErr(err) {
         val options = getConfig(Array("--stdin", "--test"))
         val options2 = options.copy(
+          configStr = Some(s"{version = $stableVersion}"),
           common = options.common.copy(
             in = new ByteArrayInputStream(codeNoEol.getBytes),
             out = Console.out,

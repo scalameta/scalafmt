@@ -4,7 +4,6 @@ import java.io.{InputStream, OutputStream, PrintStream}
 import java.nio.file.{Files, NoSuchFileException, Path}
 
 import metaconfig.{Conf, ConfDecoderEx, ConfDynamic, Configured}
-import org.scalafmt.Versions
 import org.scalafmt.config.{Config, ScalafmtConfig}
 import org.scalafmt.sysops.{AbsoluteFile, GitOps, OsSpecific}
 
@@ -212,7 +211,7 @@ case class CliOptions(
 
   /** Returns None if .scalafmt.conf is not found or version setting is missing.
     */
-  private[cli] def getVersionIfDifferent: Option[String] =
-    getHoconValueOpt[String]("version").filter(_ != Versions.version)
+  private[cli] def getVersionOpt: Option[String] =
+    getHoconValueOpt[String]("version")
 
 }
