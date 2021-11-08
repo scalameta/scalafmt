@@ -2,7 +2,6 @@ package org.scalafmt.cli
 
 import java.io.File
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 
 import org.scalafmt.CompatCollections.ParConverters._
@@ -61,7 +60,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
           exitCode.getAndUpdate(ExitCode.merge(code, _))
         } catch {
           case e: MisformattedFile =>
-            reporter.error(e.file.toPath, e)
+            reporter.error(e.file, e)
             if (options.check) break
         }
         PlatformTokenizerCache.megaCache.clear()
@@ -106,11 +105,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
   ): ExitCode = {
     val input = inputMethod.readInput(options)
 
-    val formatResult = session
-      .format(
-        Paths.get(inputMethod.filename),
-        input
-      )
+    val formatResult = session.format(inputMethod.path, input)
     inputMethod.write(formatResult, input, options)
   }
 

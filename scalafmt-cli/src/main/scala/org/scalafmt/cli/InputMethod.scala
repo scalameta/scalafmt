@@ -2,15 +2,15 @@ package org.scalafmt.cli
 
 import scala.io.Source
 
-import java.io.File
 import java.io.InputStream
+import java.nio.file.{Path, Paths}
 
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.util.AbsoluteFile
 
 sealed abstract class InputMethod {
   def readInput(options: CliOptions): String
-  def filename: String
+  def path: Path
 
   protected def print(text: String, options: CliOptions): Unit
   protected def list(options: CliOptions): Unit
@@ -26,8 +26,8 @@ sealed abstract class InputMethod {
     else if (codeChanged)
       options.writeMode match {
         case WriteMode.Test =>
-          val diff = InputMethod.unifiedDiff(filename, original, formatted)
-          throw MisformattedFile(new File(filename), diff)
+          val diff = InputMethod.unifiedDiff(path.toString, original, formatted)
+          throw MisformattedFile(path, diff)
         case WriteMode.Override => overwrite(formatted, options)
         case WriteMode.List => list(options)
         case _ =>
@@ -48,6 +48,8 @@ object InputMethod {
     }
   }
   case class StdinCode(filename: String, input: String) extends InputMethod {
+    override def path: Path = Paths.get(filename)
+
     def readInput(options: CliOptions): String = input
 
     override protected def print(text: String, options: CliOptions): Unit =
@@ -61,7 +63,7 @@ object InputMethod {
   }
 
   case class FileContents(file: AbsoluteFile) extends InputMethod {
-    override def filename = file.toString()
+    override def path = file.path
     def readInput(options: CliOptions): String =
       file.readFile(options.encoding)
 

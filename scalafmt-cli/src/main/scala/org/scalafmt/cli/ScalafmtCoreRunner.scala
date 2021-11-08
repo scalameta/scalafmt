@@ -71,29 +71,20 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
       scalafmtConfig: ScalafmtConfig
   ): ExitCode = {
     val input = inputMethod.readInput(options)
-    val formatResult = Scalafmt.formatCode(
-      input,
-      scalafmtConfig,
-      options.range,
-      inputMethod.filename
-    )
+    val filename = inputMethod.path.toString
+    val formatResult =
+      Scalafmt.formatCode(input, scalafmtConfig, options.range, filename)
     formatResult.formatted match {
       case Formatted.Success(formatted) =>
         inputMethod.write(formatted, input, options)
+      case _: Formatted.Failure if scalafmtConfig.runner.ignoreWarnings =>
+        ExitCode.Ok // do nothing
+      case Formatted.Failure(e @ (_: ParseException | _: TokenizeException)) =>
+        options.common.err.println(e.toString)
+        ExitCode.ParseError
       case Formatted.Failure(e) =>
-        if (scalafmtConfig.runner.ignoreWarnings) {
-          ExitCode.Ok // do nothing
-        } else {
-          e match {
-            case e @ (_: ParseException | _: TokenizeException) =>
-              options.common.err.println(e.toString)
-              ExitCode.ParseError
-            case _ =>
-              new FailedToFormat(inputMethod.filename, e)
-                .printStackTrace(options.common.out)
-              ExitCode.UnexpectedError
-          }
-        }
+        new FailedToFormat(filename, e).printStackTrace(options.common.out)
+        ExitCode.UnexpectedError
     }
   }
 }

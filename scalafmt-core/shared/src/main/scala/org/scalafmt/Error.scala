@@ -4,7 +4,7 @@ import scala.meta.Case
 import scala.meta.Tree
 import scala.reflect.ClassTag
 import scala.reflect.classTag
-import java.io.File
+import java.nio.file.Path
 import scala.meta.inputs.Position
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
@@ -70,8 +70,8 @@ object Error {
   case class UnableToFindStyle(filename: String, e: Throwable)
       extends Error(s"Unable to find style for file $filename. $e")
 
-  case class MisformattedFile(file: File, customMessage: String)
-      extends Error(s"${file.getPath} is mis-formatted. $customMessage")
+  case class MisformattedFile(file: Path, customMessage: String)
+      extends Error(s"${file} is mis-formatted. $customMessage")
 
   case class SearchStateExploded(
       deepestState: State,
