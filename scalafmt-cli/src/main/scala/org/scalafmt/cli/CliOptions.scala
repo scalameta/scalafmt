@@ -3,7 +3,7 @@ package org.scalafmt.cli
 import java.io.{InputStream, OutputStream, PrintStream}
 import java.nio.file.{Files, NoSuchFileException, Path}
 
-import metaconfig.{ConfDecoderEx, ConfDynamic, Configured}
+import metaconfig.Configured
 import org.scalafmt.config.{Config, ConfParsed, ScalafmtConfig}
 import org.scalafmt.sysops.{AbsoluteFile, GitOps, OsSpecific}
 
@@ -174,48 +174,30 @@ case class CliOptions(
       case _ => filters.mkString("(", "|", ")").r
     }
 
-  private def getHoconValueOpt[A](
-      path: String*
-  )(implicit ev: ConfDecoderEx[A]): Option[A] =
-    hoconOpt.flatMap { x =>
-      val conf = path.foldLeft(ConfDynamic(x.conf))(_ selectDynamic _)
-      conf.asConf.andThen(ev.read(None, _)) match {
-        case Configured.Ok(x) => Some(x)
-        case _ => None
-      }
-    }
+  private def getHoconValueOpt[A](f: ConfParsed => Option[A]): Option[A] =
+    hoconOpt.flatMap(f)
 
-  private def getHoconValue[A: ConfDecoderEx](default: A, path: String*): A =
-    getHoconValueOpt[A](path: _*).getOrElse(default)
+  private def getHoconValue[A](default: A, f: ConfParsed => Option[A]): A =
+    getHoconValueOpt[A](f).getOrElse(default)
 
   private[cli] def isGit: Boolean =
-    getHoconValue(baseConfig.project.git, "project", "git")
+    getHoconValue(baseConfig.project.git, _.isGit)
 
   private[cli] def fatalWarnings: Boolean =
-    getHoconValue(
-      baseConfig.runner.fatalWarnings,
-      "runner",
-      "fatalWarnings"
-    )
+    getHoconValue(baseConfig.runner.fatalWarnings, _.fatalWarnings)
 
   private[cli] def ignoreWarnings: Boolean =
-    getHoconValue(
-      baseConfig.runner.ignoreWarnings,
-      "runner",
-      "ignoreWarnings"
-    )
+    getHoconValue(baseConfig.runner.ignoreWarnings, _.ignoreWarnings)
 
   private[cli] def onTestFailure: Option[String] =
-    getHoconValueOpt[String]("onTestFailure")
+    getHoconValueOpt(_.onTestFailure)
 
   private[cli] def encoding: Codec =
-    getHoconValueOpt[String]("encoding")
-      .flatMap(x => Try(Codec(x)).toOption)
-      .getOrElse(baseConfig.encoding)
+    getHoconValueOpt(_.encoding).getOrElse(baseConfig.encoding)
 
   /** Returns None if .scalafmt.conf is not found or version setting is missing.
     */
   private[cli] def getVersionOpt: Option[String] =
-    getHoconValueOpt[String]("version")
+    getHoconValueOpt(_.version)
 
 }

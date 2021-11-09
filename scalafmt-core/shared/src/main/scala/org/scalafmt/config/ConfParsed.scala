@@ -2,10 +2,43 @@ package org.scalafmt.config
 
 import java.nio.file.Path
 
+import scala.io.Codec
+import scala.util.Try
+
 import metaconfig._
 import org.scalafmt.config.PlatformConfig._
 
-class ConfParsed(val conf: Configured[Conf]) extends AnyVal
+class ConfParsed(val conf: Configured[Conf]) extends AnyVal {
+
+  def getHoconValueOpt[A](
+      path: String*
+  )(implicit ev: ConfDecoderEx[A]): Option[A] = {
+    val dynamic = path.foldLeft(ConfDynamic(conf))(_ selectDynamic _)
+    dynamic.asConf.andThen(ev.read(None, _)).map(Some(_)).getOrElse(None)
+  }
+
+  def getHoconValue[A: ConfDecoderEx](default: A, path: String*): A =
+    getHoconValueOpt[A](path: _*).getOrElse(default)
+
+  def isGit: Option[Boolean] =
+    getHoconValueOpt[Boolean]("project", "git")
+
+  def fatalWarnings: Option[Boolean] =
+    getHoconValueOpt[Boolean]("runner", "fatalWarnings")
+
+  def ignoreWarnings: Option[Boolean] =
+    getHoconValueOpt[Boolean]("runner", "ignoreWarnings")
+
+  def onTestFailure: Option[String] =
+    getHoconValueOpt[String]("onTestFailure")
+
+  def encoding: Option[Codec] =
+    getHoconValueOpt[String]("encoding").flatMap(x => Try(Codec(x)).toOption)
+
+  def version: Option[String] =
+    getHoconValueOpt[String]("version")
+
+}
 
 object ConfParsed {
 
