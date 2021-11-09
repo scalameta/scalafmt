@@ -41,8 +41,7 @@ object Config {
   ): Configured[ScalafmtConfig] = {
     ScalafmtConfig.decoder.read(Option(default), conf) match {
       case Configured.Ok(x)
-          if default.eq(ScalafmtConfig.uncheckedDefault) &&
-            x.version != stableVersion =>
+          if default.version == null && x.version != stableVersion =>
         val version = Option(x.version).getOrElse("missing")
         Configured.error(s"version [expected $stableVersion]: $version")
       case Configured.Ok(x)
