@@ -1161,3 +1161,44 @@ class a(vi: Int, vs: String) {
   def this(vi: Int) =
     this(vi, "")
 }
+<<< procedure-style secondary ctors
+class a(vi: Int, vs: String) {
+  def this() {
+
+    this(0, "")
+
+  }
+  def this(vi: Int) {
+    this(vi, "")
+  }
+}
+>>>
+class a(vi: Int, vs: String) {
+  def this() =
+    this(0, "")
+
+  def this(vi: Int) =
+    this(vi, "")
+}
+<<< procedure-style method
+class a(vi: Int, vs: String) {
+  def foo() {
+
+    bar
+
+  }
+  def foo(vi: Int) {
+    bar(vi, "")
+  }
+}
+>>>
+class a(vi: Int, vs: String) {
+  def foo() {
+
+    bar
+
+  }
+  def foo(vi: Int) {
+    bar(vi, "")
+  }
+}
