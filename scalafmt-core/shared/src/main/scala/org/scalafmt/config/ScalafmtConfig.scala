@@ -384,7 +384,10 @@ object ScalafmtConfig {
               val isDefaultDialect = x.runner.isDefaultDialect
               val dialect = (if (isDefaultDialect) state else x).runner.dialect
               val parser = state.runner.parser
-              x.copy(runner = x.runner.copy(parser = parser, dialect = dialect))
+              x.copy(
+                version = state.version,
+                runner = x.runner.copy(parser = parser, dialect = dialect)
+              )
             }
             baseDecoder.read(Some(preset), restConf)
           }
