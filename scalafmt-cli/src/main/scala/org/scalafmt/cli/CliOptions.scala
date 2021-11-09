@@ -3,8 +3,8 @@ package org.scalafmt.cli
 import java.io.{InputStream, OutputStream, PrintStream}
 import java.nio.file.{Files, NoSuchFileException, Path}
 
-import metaconfig.{Conf, ConfDecoderEx, ConfDynamic, Configured}
-import org.scalafmt.config.{Config, ScalafmtConfig}
+import metaconfig.{ConfDecoderEx, ConfDynamic, Configured}
+import org.scalafmt.config.{Config, ConfParsed, ScalafmtConfig}
 import org.scalafmt.sysops.{AbsoluteFile, GitOps, OsSpecific}
 
 import scala.io.Codec
@@ -140,10 +140,14 @@ case class CliOptions(
   def scalafmtConfig: Configured[ScalafmtConfig] =
     hoconOpt.fold(Configured.ok(baseConfig))(Config.fromConf(_, baseConfig))
 
-  private lazy val hoconOpt: Option[Configured[Conf]] =
-    configStr.map(Config.hoconStringToConf(_, None)).orElse {
-      canonicalConfigFile
-        .map(_.fold(Configured.exception(_), Config.hoconFileToConf(_, None)))
+  private lazy val hoconOpt: Option[ConfParsed] =
+    configStr.map(ConfParsed.fromString(_)).orElse {
+      canonicalConfigFile.map(
+        _.fold(
+          x => new ConfParsed(Configured.exception(x)),
+          ConfParsed.fromPath(_)
+        )
+      )
     }
 
   lazy val fileFetchMode: FileFetchMode =
@@ -174,7 +178,7 @@ case class CliOptions(
       path: String*
   )(implicit ev: ConfDecoderEx[A]): Option[A] =
     hoconOpt.flatMap { x =>
-      val conf = path.foldLeft(ConfDynamic(x))(_ selectDynamic _)
+      val conf = path.foldLeft(ConfDynamic(x.conf))(_ selectDynamic _)
       conf.asConf.andThen(ev.read(None, _)) match {
         case Configured.Ok(x) => Some(x)
         case _ => None

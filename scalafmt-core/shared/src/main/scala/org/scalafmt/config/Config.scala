@@ -3,7 +3,6 @@ package org.scalafmt.config
 import java.nio.file.Path
 
 import metaconfig._
-import org.scalafmt.config.PlatformConfig._
 import org.scalafmt.Versions.{stable => stableVersion}
 
 // NOTE: these methods are intended for internal usage and are subject to
@@ -12,20 +11,12 @@ import org.scalafmt.Versions.{stable => stableVersion}
 // can be seen here https://scalameta.org/scalafmt/#Standalonelibrary
 object Config {
 
-  def hoconStringToConf(input: String, path: Option[String]): Configured[Conf] =
-    Input.String(input).parse(path)
-
-  def hoconFileToConf(input: Path, path: Option[String]): Configured[Conf] =
-    Configured
-      .fromExceptionThrowing(Input.File(input))
-      .andThen(_.parse(path))
-
   def fromHoconString(
       string: String,
       default: ScalafmtConfig = ScalafmtConfig.default,
       path: Option[String] = None
   ): Configured[ScalafmtConfig] =
-    fromConf(hoconStringToConf(string, path), default = default)
+    fromConf(ConfParsed.fromString(string, path), default = default)
 
   /** Read ScalafmtConfig from String contents from an optional HOCON path. */
   def fromHoconFile(
@@ -33,13 +24,13 @@ object Config {
       default: ScalafmtConfig = ScalafmtConfig.default,
       path: Option[String] = None
   ): Configured[ScalafmtConfig] =
-    fromConf(hoconFileToConf(file, path), default = default)
+    fromConf(ConfParsed.fromPath(file, path), default = default)
 
   def fromConf(
-      conf: Configured[Conf],
+      parsed: ConfParsed,
       default: ScalafmtConfig
   ): Configured[ScalafmtConfig] = {
-    ScalafmtConfig.decoder.read(Option(default), conf) match {
+    ScalafmtConfig.decoder.read(Option(default), parsed.conf) match {
       case Configured.Ok(x)
           if default.version == null && x.version != stableVersion =>
         val version = Option(x.version).getOrElse("missing")
