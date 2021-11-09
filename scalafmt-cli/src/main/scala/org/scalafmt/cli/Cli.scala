@@ -107,7 +107,9 @@ object Cli {
     //   (or if the `version` is not specified).
     options.getVersionOpt match {
       case None => Left(s"error: missing version (current $stableVersion)")
-      case Some(`stableVersion`) => Right(ScalafmtCoreRunner)
+      case Some(`stableVersion`) =>
+        options.common.debug.println(s"Using core runner [$stableVersion]")
+        Right(ScalafmtCoreRunner)
       case Some(v) if isNativeImage =>
         Left(
           s"""error: invalid Scalafmt version.
@@ -122,7 +124,9 @@ object Cli {
             |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
             |""".stripMargin
         )
-      case _ => Right(ScalafmtDynamicRunner)
+      case Some(v) =>
+        options.common.debug.println(s"Using dynamic runner [$v]")
+        Right(ScalafmtDynamicRunner)
     }
   }
 
