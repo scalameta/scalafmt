@@ -460,7 +460,7 @@ class FormatWriter(formatOps: FormatOps) {
         def offset = style.indent.main
         val tupleOpt = tok.left match {
           case _ if !style.assumeStandardLibraryStripMargin => None
-          case _ if tok.meta.left.firstNL < 0 => None
+          case _ if !tok.meta.left.hasNL => None
           case _: T.Constant.String =>
             TreeOps.getStripMarginChar(tok.meta.leftOwner).map { pipe =>
               def isPipeFirstChar = text.find(_ != '"').contains(pipe)

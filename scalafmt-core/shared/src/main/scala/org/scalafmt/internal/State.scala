@@ -89,7 +89,7 @@ final case class State(
               (style.docstrings.wrap ne Docstrings.Wrap.no) && nextSplit.isNL
             else
               (style.comments.wrap eq Comments.Wrap.trailing) ||
-              (style.comments.wrap ne Comments.Wrap.no) && nextSplit.isNL
+              style.comments.willWrap && nextSplit.isNL
           }
         }
       ) {
@@ -163,7 +163,7 @@ final case class State(
         if (!delay) getFullPenalty
         else result(10 + indentation * 3 / 2 + tokLength, false)
       }
-      if (ft.meta.right.firstNL >= 0) getFullPenalty
+      if (ft.meta.right.hasNL) getFullPenalty
       else if (
         style.newlines.avoidForSimpleOverflowTooLong &&
         State.isWithinInterpolation(ft.meta.rightOwner)
@@ -212,7 +212,7 @@ final case class State(
       tokens: FormatTokens
   ): Option[(FormatToken, meta.Tree)] = {
     val ft = tokens(depth)
-    if (ft.meta.left.firstNL >= 0) None
+    if (ft.meta.left.hasNL) None
     else if (!split.isNL) {
       val ok = (prev ne State.start) &&
         State.allowSplitForLineStart(split, ft, isComment)

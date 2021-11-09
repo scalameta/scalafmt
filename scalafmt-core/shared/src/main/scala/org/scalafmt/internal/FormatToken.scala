@@ -42,7 +42,7 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
   @inline def hasBreak: Boolean = !noBreak
   @inline def hasBlankLine: Boolean = FormatToken.hasBlankLine(newlinesBetween)
 
-  @inline def leftHasNewline = meta.left.firstNL >= 0
+  @inline def leftHasNewline = meta.left.hasNL
 
   /** A format token is uniquely identified by its left token.
     */
@@ -95,7 +95,8 @@ object FormatToken {
       text: String
   ) {
     lazy val firstNL = text.indexOf('\n')
-    def countNL: Int = if (firstNL < 0) 0 else text.count(_ == '\n')
+    @inline def hasNL: Boolean = firstNL >= 0
+    def countNL: Int = if (hasNL) text.count(_ == '\n') else 0
   }
 
   class ExtractFromMeta[A](f: FormatToken.Meta => Option[A]) {
