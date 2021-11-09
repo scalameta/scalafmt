@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 
 import org.openjdk.jmh.annotations._
 import org.scalafmt.Scalafmt
-import org.scalafmt.util.FileOps
+import org.scalafmt.sysops.FileOps
 
 /** Formats some files with scalafmt.
   *
