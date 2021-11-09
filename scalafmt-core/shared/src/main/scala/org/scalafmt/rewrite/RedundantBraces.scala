@@ -11,9 +11,11 @@ import org.scalafmt.util.TreeOps._
 
 object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
 
+  import FormatTokensRewrite._
+
   override def enabled(implicit style: ScalafmtConfig): Boolean = true
 
-  override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
+  override def create(ftoks: FormatTokens): Rule =
     new RedundantBraces(ftoks)
 
   def needParensAroundParams(f: Term.Function): Boolean =
@@ -44,6 +46,12 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       case Some(_: Defn) => false
       case x => nested || x.isDefined
     })
+
+  // we might not keep it but will hint to onRight
+  private def replaceWithLeftParen(implicit ft: FormatToken): Replacement =
+    replaceTokenBy("(") { x =>
+      new Token.LeftParen(x.input, x.dialect, x.start)
+    }
 
 }
 
@@ -115,18 +123,14 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       ft: FormatToken,
       style: ScalafmtConfig
   ): Replacement = {
-    def replace = replaceToken("(") {
-      val rt = ft.right
-      new Token.LeftParen(rt.input, rt.dialect, rt.start)
-    } // we will not keep it but will hint to onRight
     ft.meta.rightOwner match {
       case t: Term.Function if t.tokens.last.is[Token.RightBrace] =>
         if (!okToRemoveFunctionInApplyOrInit(t)) null
-        else if (okToReplaceFunctionInSingleArgApply(t)) replace
+        else if (okToReplaceFunctionInSingleArgApply(t)) replaceWithLeftParen
         else removeToken
       case t: Term.Block =>
         if (getBlockNestedPartialFunction(t).isDefined) removeToken
-        else if (okToReplaceBlockInSingleArgApply(t)) replace
+        else if (okToReplaceBlockInSingleArgApply(t)) replaceWithLeftParen
         else if (processBlock(t)) removeToken
         else null
       case _: Term.Interpolate
@@ -151,8 +155,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   )(implicit ft: FormatToken): (Replacement, Replacement) =
     left match {
       case Right(lft @ FormatToken(_, _: Token.LeftParen, _)) =>
-        val rt = ft.right
-        val right = replaceToken("}", ft.meta.rightOwner.parent) {
+        val right = replaceTokenBy("}", ft.meta.rightOwner.parent) { rt =>
           // shifted right
           new Token.RightBrace(rt.input, rt.dialect, rt.start + 1)
         }

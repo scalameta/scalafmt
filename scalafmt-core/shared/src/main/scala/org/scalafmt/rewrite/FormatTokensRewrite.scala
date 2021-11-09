@@ -245,6 +245,12 @@ object FormatTokensRewrite {
     Right(ft.copy(right = tok, meta = ft.meta.copy(right = mNew)))
   }
 
+  private[rewrite] def replaceTokenBy(
+      text: String,
+      owner: Option[Tree] = None
+  )(f: T => T)(implicit ft: FormatToken): Replacement =
+    replaceToken(text, owner)(f(ft.right))
+
   private[rewrite] def replaceTokenIdent(text: String, t: T)(implicit
       ft: FormatToken
   ): Replacement = replaceToken(text)(
