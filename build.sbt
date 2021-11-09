@@ -120,6 +120,28 @@ lazy val sysops = crossProject(JVMPlatform)
     }
   )
 
+lazy val config = crossProject(JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .in(file("scalafmt-config"))
+  .settings(
+    moduleName := "scalafmt-config",
+    description := "Scalafmt config parsing",
+    scalacOptions ++= scalacJvmOptions.value,
+    libraryDependencies ++= Seq(
+      metaconfig.value
+    )
+  )
+  .jvmSettings(
+    libraryDependencies ++= Seq(
+      metaconfigTypesafe.value
+    )
+  )
+// .jsSettings(
+//   libraryDependencies ++= Seq(
+//     metaconfigHocon.value,
+//   )
+// )
+
 lazy val core = crossProject(JVMPlatform)
   .in(file("scalafmt-core"))
   .settings(
@@ -127,7 +149,6 @@ lazy val core = crossProject(JVMPlatform)
     buildInfoSettings,
     scalacOptions ++= scalacJvmOptions.value,
     libraryDependencies ++= Seq(
-      metaconfig.value,
       scalameta.value,
       // scala-reflect is an undeclared dependency of fansi, see #1252.
       // Scalafmt itself does not require scala-reflect.
@@ -149,17 +170,13 @@ lazy val core = crossProject(JVMPlatform)
   )
   // .jsSettings(
   //   libraryDependencies ++= List(
-  //     metaconfigHocon.value,
   //     scalatest.value % Test // must be here for coreJS/test to run anything
   //   )
   // )
   .jvmSettings(
-    Test / run / fork := true,
-    libraryDependencies ++= List(
-      metaconfigTypesafe.value
-    )
+    Test / run / fork := true
   )
-  .dependsOn(sysops)
+  .dependsOn(sysops, config)
   .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm
 // lazy val coreJS = core.js
