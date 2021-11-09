@@ -1173,9 +1173,13 @@ class a(vi: Int, vs: String) {
   }
 }
 >>>
-test does not parse
 class a(vi: Int, vs: String) {
-  def this() this(0, "")
+  def this() =
+    this(0, "")
+
+  def this(vi: Int) =
+    this(vi, "")
+}
 <<< procedure-style method
 class a(vi: Int, vs: String) {
   def foo() {

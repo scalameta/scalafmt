@@ -53,6 +53,11 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       new Token.LeftParen(x.input, x.dialect, x.start)
     }
 
+  private def replaceWithEquals(implicit ft: FormatToken): Replacement =
+    replaceTokenBy("=") { x =>
+      new Token.Equals(x.input, x.dialect, x.start)
+    }
+
 }
 
 /** Removes/adds curly braces where desired.
@@ -145,7 +150,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         removeToken
       case t: Ctor.Secondary
           if t.stats.isEmpty && style.rewrite.redundantBraces.methodBodies =>
-        removeToken
+        val prevIsEquals = ftoks.prevNonComment(ft).left.is[Token.Equals]
+        if (prevIsEquals) removeToken else replaceWithEquals
       case _ => null
     }
   }
