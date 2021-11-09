@@ -1370,7 +1370,10 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(left: T.Comma, c: T.Comment, _) =>
         if (isSingleLineComment(c))
           Seq(Split(getModCheckIndent(tok, newlines), 0))
-        else if (tok.meta.right.hasNL) Seq(Split(Newline, 0))
+        else if (tok.hasBlankLine) Seq(Split(NewlineT(isDouble = true), 0))
+        else if (
+          newlines != 0 && style.comments.willWrap || tok.meta.right.hasNL
+        ) Seq(Split(Newline, 0))
         else {
           val noNewline = newlines == 0 && // perhaps left is a trailing comma
             rightIsCloseDelimToAddTrailingComma(left, nextNonComment(next(tok)))
