@@ -78,7 +78,7 @@ object ScalafmtRunner {
       .withAllowTrailingCommas(true)
     val scala3 = Scala3
 
-    private[ScalafmtRunner] val known: Seq[WithName] = Seq(
+    private[ScalafmtRunner] val known: Seq[WithName] = Seq[WithName](
       Scala211,
       scala212,
       Scala212Source3,
@@ -87,7 +87,7 @@ object ScalafmtRunner {
       Sbt0137,
       Sbt1,
       scala3
-    )
+    ).map(x => withName(x.source.toLowerCase, x.value)).sortBy(_.source)
 
     private[ScalafmtRunner] val defaultName = "default"
     // current default is 213
