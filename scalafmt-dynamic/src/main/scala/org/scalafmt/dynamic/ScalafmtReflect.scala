@@ -166,12 +166,3 @@ case class ScalafmtReflect(
     module.get(null)
   }
 }
-
-object ScalafmtReflect {
-
-  lazy val current = ScalafmtReflect(
-    getClass.getClassLoader,
-    ScalafmtVersion.parse(BuildInfo.stable).get
-  )
-
-}
