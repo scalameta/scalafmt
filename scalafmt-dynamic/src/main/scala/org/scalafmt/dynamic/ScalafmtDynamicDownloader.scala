@@ -47,7 +47,7 @@ class ScalafmtDynamicDownloader(
     List(
       Dependency.of(
         organization(version),
-        s"scalafmt-cli_${scalaBinaryVersion(version)}",
+        s"scalafmt-core_${scalaBinaryVersion(version)}",
         version.toString
       ),
       Dependency.of(
