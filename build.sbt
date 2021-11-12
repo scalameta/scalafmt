@@ -311,6 +311,8 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "scalameta" -> scalametaV,
     "nightly" -> version.value,
     "stable" -> stableVersion.value,
+    "previousStable" ->
+      previousStableVersion.value.getOrElse(stableVersion.value),
     "scala" -> scalaVersion.value,
     "scala212" -> scala212,
     "coursier" -> coursier,

@@ -194,7 +194,7 @@ class DynamicSuite extends FunSuite {
     }
   }
 
-  def latest = BuildInfo.stable
+  def latest = BuildInfo.previousStable
 
   def checkVersion(version: String, dialect: String): Unit = {
     check(s"v$version") { f =>
