@@ -2,7 +2,7 @@ package org.scalafmt.dynamic
 
 import java.io.{ByteArrayOutputStream, PrintStream, PrintWriter}
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths, StandardOpenOption}
+import java.nio.file.{Files, Path, Paths}
 import java.nio.file.attribute.FileTime
 
 import org.scalafmt.interfaces.{PositionException, Scalafmt, ScalafmtReporter}
@@ -16,6 +16,9 @@ import munit.FunSuite
 import munit.Location
 
 class DynamicSuite extends FunSuite {
+
+  import DynamicSuite._
+
   class Format(name: String, cfgFunc: ScalafmtDynamic => ScalafmtDynamic) {
     val download = new ByteArrayOutputStream()
     def downloadLogs: String = download.toString()
@@ -77,15 +80,13 @@ class DynamicSuite extends FunSuite {
       timestamps += 100000
       Files.setLastModifiedTime(this.config, FileTime.fromMillis(timestamps))
     }
-    def setVersion(newVersion: String): Unit = {
-      addConfig(s"version=$newVersion")
-    }
-    def addConfig(newConfig: String): Unit = {
-      Files.write(
-        this.config,
-        ("\n" + newConfig + "\n").getBytes(StandardCharsets.UTF_8),
-        StandardOpenOption.APPEND
-      )
+    def setVersion(newVersion: String, dialect: String, rest: String*): Unit = {
+      val dialectLine = Option(dialect).fold("")(x => s"runner.dialect = $x")
+      setConfig(s"""
+        |version=$newVersion
+        |$dialectLine
+        |${rest.mkString("\n")}
+        |""".stripMargin)
     }
     def relevant: String = {
       out.toString.replaceAllLiterally(config.toString, "path/.scalafmt.conf")
@@ -195,50 +196,47 @@ class DynamicSuite extends FunSuite {
 
   def latest = "2.5.3"
 
-  def checkVersion(version: String): Unit = {
+  def checkVersion(version: String, dialect: String): Unit = {
     check(s"v$version") { f =>
-      f.setConfig(
-        s"""|version=$version
-          |""".stripMargin
-      )
+      f.setVersion(version, dialect)
       f.assertFormat("object A  {  }", "object A {}\n")
     }
   }
 
-  checkVersion(latest)
-  checkVersion("1.5.1")
-  checkVersion("1.0.0")
+  checkVersion(latest, "scala212")
+  checkVersion("1.5.1", "scala211")
+  checkVersion("1.0.0", "scala211")
   //checkVersion("0.2.8") // fails for now
 
   check("parse-error") { f =>
-    def check(version: String): Unit = {
-      f.setVersion(version)
+    def check(version: String, dialect: String): Unit = {
+      f.setVersion(version, dialect)
+      val dialectError = getDialectError(version, dialect)
+      val code = s"""object object A { val version = "$version" }"""
       f.assertError(
-        "object object A",
-        """|parse-error.scala:1:8: error: identifier expected but object found
-          |object object A
+        code,
+        s"""|parse-error.scala:1:8: error:$dialectError identifier expected but object found
+          |$code
           |       ^^^^^^""".stripMargin
       )
     }
-    check(latest)
-    check("1.0.0")
+    check(latest, "scala212")
+    check("1.0.0", "Scala211")
   }
 
   check("missing-version") { f => f.assertMissingVersion() }
 
   check("excluded-file") { f =>
-    f.setConfig(
-      """
-        |project.includeFilters = [
-        |  ".*Spec\\.scala$"
-        |]
-        |project.excludeFilters = [
-        |  "UserSpec\\.scala$"
-        |]
-        |""".stripMargin
-    )
+    val config = """
+      |project.includeFilters = [
+      |  ".*Spec\\.scala$"
+      |]
+      |project.excludeFilters = [
+      |  "UserSpec\\.scala$"
+      |]
+      |""".stripMargin
     def check(version: String): Unit = {
-      f.setVersion(version)
+      f.setVersion(version, "scala211", config)
       f.assertNotIgnored("path/FooSpec.scala")
       f.assertIgnored("path/App.scala")
       f.assertIgnored("path/UserSpec.scala")
@@ -248,18 +246,16 @@ class DynamicSuite extends FunSuite {
   }
 
   check("ignore-exclude-filters", _.withRespectProjectFilters(false)) { f =>
-    f.setConfig(
-      """
-        |project.includeFilters = [
-        |  ".*Spec\\.scala$"
-        |]
-        |project.excludeFilters = [
-        |  "UserSpec\\.scala$"
-        |]
-        |""".stripMargin
-    )
+    val config = """
+      |project.includeFilters = [
+      |  ".*Spec\\.scala$"
+      |]
+      |project.excludeFilters = [
+      |  "UserSpec\\.scala$"
+      |]
+      |""".stripMargin
     def check(version: String): Unit = {
-      f.setVersion(version)
+      f.setVersion(version, "scala211", config)
       f.assertNotIgnored("path/App.pm")
       f.assertNotIgnored("path/App.scala")
       f.assertNotIgnored("path/UserSpec.scala")
@@ -268,17 +264,13 @@ class DynamicSuite extends FunSuite {
   }
 
   check("config-error") { f =>
-    f.setConfig(
-      s"""max=70
-        |version=$latest
-        |""".stripMargin
-    )
+    f.setVersion(latest, "scala212", "max = 70")
     val thrown = f.assertThrows[ScalafmtDynamicError.ConfigParseError]()
     assert(thrown.getMessage.contains("Invalid config: Invalid field: max."))
   }
 
   check("config-cache") { f =>
-    f.setVersion(latest)
+    f.setVersion(latest, "scala211")
     f.assertFormat()
     f.assertFormat()
     assertEquals(f.parsedCount, 1, f.parsed)
@@ -293,21 +285,13 @@ class DynamicSuite extends FunSuite {
     f.setConfig("maxColumn = 40")
     f.assertMissingVersion()
 
-    f.setConfig(
-      s"""version=$latest
-        |maxColumn = 40
-        |""".stripMargin
-    )
+    f.setVersion(latest, "scala212", "maxColumn = 40")
     f.assertFormat()
     assertEquals(f.parsedCount, 2, f.parsed)
     f.assertFormat()
     assertEquals(f.parsedCount, 2, f.parsed)
 
-    f.setConfig(
-      """version=1.0.0
-        |maxColumn = 40
-        |""".stripMargin
-    )
+    f.setVersion("1.0.0", "scala211", "maxColumn = 40")
     f.assertFormat()
     assertEquals(f.parsedCount, 3, f.parsed)
     f.assertFormat()
@@ -317,27 +301,28 @@ class DynamicSuite extends FunSuite {
   }
 
   check("wrong-version") { f =>
-    f.setVersion("1.0")
+    f.setVersion("1.0", "scala211")
     val error = f.assertThrows[ScalafmtDynamicError.ConfigInvalidVersion]()
     assert(error.getMessage == "Invalid version: 1.0")
     assert(f.downloadLogs.isEmpty)
   }
 
   check("sbt") { f =>
-    def check(version: String): Unit = {
-      f.setVersion(version)
+    def check(version: String, dialect: String): Unit = {
+      f.setVersion(version, dialect, """project.includeFilters = [ ".*" ]""")
+      val dialectError = getDialectError(version, dialect)
       List("build.sbt", "build.sc").foreach { filename =>
         val path = Paths.get(filename)
         // test sbt allows top-level terms
         f.assertFormat(
-          "lazy   val   x =  project",
-          "lazy val x = project\n",
+          s"""lazy   val   x =  "$version"""",
+          s"""lazy val x = "$version"\n""",
           path
         )
         // test scala doesn't allow top-level terms (not passing path here)
         f.assertError(
           "lazy   val   x =  project",
-          """|sbt.scala:1:1: error: classes cannot be lazy
+          s"""|sbt.scala:1:1: error:$dialectError classes cannot be lazy
             |lazy   val   x =  project
             |^^^^""".stripMargin
         )
@@ -363,12 +348,8 @@ class DynamicSuite extends FunSuite {
           isWrappedLiteralFailure
       }
     }
-    f.setConfig(
-      """|project.includeFilters = [ ".*" ]
-        |""".stripMargin
-    )
-    check(latest)
-    check("1.2.0")
+    check(latest, null)
+    check("1.2.0", "Scala211")
   }
 
   check("no-config") { f =>
@@ -379,7 +360,7 @@ class DynamicSuite extends FunSuite {
 
   check("intellij-default-config") { f: Format =>
     val version = ScalafmtVersion(1, 5, 1)
-    f.setVersion(version.toString)
+    f.setVersion(version.toString, "Scala211")
     f.assertFormat()
 
     val reflect = f.dynamic.formatCache.getFromCache(version)
@@ -495,5 +476,12 @@ class DynamicSuite extends FunSuite {
       f.assertThrows[ScalafmtDynamicError.ConfigMissingVersion]().getMessage
     assertEquals(error, "Missing version")
   }
+
+}
+
+private object DynamicSuite {
+
+  def getDialectError(version: String, dialect: String) =
+    if (version >= "3.1.0") s" [dialect $dialect]" else ""
 
 }
