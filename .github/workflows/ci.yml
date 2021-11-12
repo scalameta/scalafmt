@@ -25,7 +25,8 @@ jobs:
       - uses: olafurpg/setup-scala@v13
         with:
           java-version: ${{ matrix.java }}
-      - run: git fetch --tags -f
+      # https://github.com/dwijnand/sbt-dynver#setup
+      - run: git fetch --tags --unshallow -f
       - run:
           # for GitOps tests
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
