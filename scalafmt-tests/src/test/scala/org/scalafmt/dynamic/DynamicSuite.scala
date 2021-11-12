@@ -194,7 +194,7 @@ class DynamicSuite extends FunSuite {
     }
   }
 
-  def latest = "2.5.3"
+  def latest = BuildInfo.stable
 
   def checkVersion(version: String, dialect: String): Unit = {
     check(s"v$version") { f =>
@@ -265,8 +265,11 @@ class DynamicSuite extends FunSuite {
 
   check("config-error") { f =>
     f.setVersion(latest, "scala212", "max = 70")
-    val thrown = f.assertThrows[ScalafmtDynamicError.ConfigParseError]()
-    assert(thrown.getMessage.contains("Invalid config: Invalid field: max."))
+    val err = f.assertThrows[ScalafmtDynamicError.ConfigParseError]().getMessage
+    assert(
+      err.contains("error: found option 'max' which wasn't expected"),
+      err
+    )
   }
 
   check("config-cache") { f =>
@@ -348,7 +351,7 @@ class DynamicSuite extends FunSuite {
           isWrappedLiteralFailure
       }
     }
-    check(latest, null)
+    check(latest, "scala213")
     check("1.2.0", "Scala211")
   }
 
