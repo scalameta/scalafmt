@@ -477,6 +477,14 @@ class DynamicSuite extends FunSuite {
     assertEquals(error, "Missing version")
   }
 
+  private def assertDynamicConfig(
+      fmt: Format
+  )(f: ScalafmtReflectConfig => Unit): Unit =
+    fmt.dynamic.resolveConfig(fmt.config) match {
+      case Left(e) => fail("failed to load config", e)
+      case Right(cfg) => f(cfg)
+    }
+
   private def checkDynamicConfig(
       name: String,
       version: String,
@@ -485,11 +493,20 @@ class DynamicSuite extends FunSuite {
   )(f: ScalafmtReflectConfig => Unit): Unit = {
     check(s"$name [v=$version d=$dialect]") { fmt =>
       fmt.setVersion(version, dialect, rest: _*)
-      fmt.dynamic.resolveConfig(fmt.config) match {
-        case Left(e) => fail("failed to load config", e)
-        case Right(cfg) => f(cfg)
-      }
+      assertDynamicConfig(fmt)(f)
     }
+  }
+
+  checkExhaustive("check project.git=true") { _ => "project.git = true" } {
+    (f, _) => assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, true))
+  }
+
+  checkExhaustive("check project.git=false") { _ => "project.git = false" } {
+    (f, _) => assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, false))
+  }
+
+  checkExhaustive("check project.git missing") { _ => "" } { (f, _) =>
+    assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, false))
   }
 
   checkDynamicConfig(

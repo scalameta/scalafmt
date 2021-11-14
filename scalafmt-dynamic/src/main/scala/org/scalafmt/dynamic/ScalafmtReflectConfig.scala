@@ -29,6 +29,9 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
       target.invoke("indent")
   }
 
+  lazy val projectIsGit =
+    Try(projectField.invokeAs[Boolean]("git")).getOrElse(false)
+
   @inline def getVersion = fmtReflect.version
 
   @inline def isIncludedInProject(path: Path): Boolean =
