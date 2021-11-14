@@ -21,6 +21,8 @@ final case class ScalafmtDynamicSession(
   override def matchesProjectFilters(file: Path): Boolean =
     cfg.isIncludedInProject(file)
 
+  override def isGitOnly: Boolean = cfg.projectIsGit
+
   private def tryFormat(
       file: Path,
       code: String

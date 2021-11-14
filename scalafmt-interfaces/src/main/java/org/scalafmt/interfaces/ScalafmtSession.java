@@ -26,4 +26,9 @@ public interface ScalafmtSession {
      */
     boolean matchesProjectFilters(Path file);
 
+    /**
+     * Whether this configuration intends to limit files to those managed by git.
+     */
+    boolean isGitOnly();
+
 }
