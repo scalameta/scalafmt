@@ -825,3 +825,433 @@ object Foo {
     new SomePropertyBuilder(someProperty)
 
 }
+<<< #2888 [,]
+newlines.topLevelStatements = []
+newlines.topLevelStatementBlankLines = []
+===
+object A {
+
+
+  val a1 = 0
+
+
+  object B {
+
+
+    val b1 = 0
+
+
+    object C {
+
+
+      val c1 = 0
+
+
+      object D {
+
+        val d1 = 0
+
+
+        val d2 = 1
+
+      }
+
+
+      val c2 = 1
+
+
+    }
+
+
+    val b2 = 0
+
+
+  }
+
+  val a2 = 1
+
+}
+>>>
+object A {
+
+  val a1 = 0
+
+  object B {
+
+    val b1 = 0
+
+    object C {
+
+      val c1 = 0
+
+      object D {
+
+        val d1 = 0
+
+        val d2 = 1
+
+      }
+
+      val c2 = 1
+
+    }
+
+    val b2 = 0
+
+  }
+
+  val a2 = 1
+
+}
+<<< #2888 [,0]
+newlines.topLevelStatements = []
+newlines.topLevelStatementBlankLines = [
+  {
+    maxNest = 0
+    minBreaks = 0
+    blanks = {
+      before = 1
+      after = 1
+      beforeAll = -1
+      afterAll = -1
+    }
+  }
+]
+===
+object A {
+
+
+  val a1 = 0
+
+
+  object B {
+
+
+    val b1 = 0
+
+
+    object C {
+
+
+      val c1 = 0
+
+
+      object D {
+
+        val d1 = 0
+
+
+        val d2 = 1
+
+      }
+
+
+      val c2 = 1
+
+
+    }
+
+
+    val b2 = 0
+
+
+  }
+
+  val a2 = 1
+
+}
+>>>
+object A {
+
+  val a1 = 0
+
+  object B {
+
+    val b1 = 0
+
+    object C {
+
+      val c1 = 0
+
+      object D {
+
+        val d1 = 0
+
+        val d2 = 1
+
+      }
+
+      val c2 = 1
+
+    }
+
+    val b2 = 0
+
+  }
+
+  val a2 = 1
+
+}
+<<< #2888 [,1]
+newlines.topLevelStatements = []
+newlines.topLevelStatementBlankLines = [
+  {
+    maxNest = 1
+    minBreaks = 0
+    blanks = {
+      before = 1
+      after = 1
+      beforeAll = -1
+      afterAll = -1
+    }
+  }
+]
+===
+object A {
+
+
+  val a1 = 0
+
+
+  object B {
+
+
+    val b1 = 0
+
+
+    object C {
+
+
+      val c1 = 0
+
+
+      object D {
+
+        val d1 = 0
+
+
+        val d2 = 1
+
+      }
+
+
+      val c2 = 1
+
+
+    }
+
+
+    val b2 = 0
+
+
+  }
+
+  val a2 = 1
+
+}
+>>>
+object A {
+
+  val a1 = 0
+
+  object B {
+
+    val b1 = 0
+
+    object C {
+
+      val c1 = 0
+
+      object D {
+
+        val d1 = 0
+
+        val d2 = 1
+
+      }
+
+      val c2 = 1
+
+    }
+
+    val b2 = 0
+
+  }
+
+  val a2 = 1
+
+}
+<<< #2888 [,2]
+newlines.topLevelStatements = []
+newlines.topLevelStatementBlankLines = [
+  {
+    maxNest = 2
+    minBreaks = 0
+    blanks = {
+      before = 1
+      after = 1
+      beforeAll = -1
+      afterAll = -1
+    }
+  }
+]
+===
+object A {
+
+
+  val a1 = 0
+
+
+  object B {
+
+
+    val b1 = 0
+
+
+    object C {
+
+
+      val c1 = 0
+
+
+      object D {
+
+        val d1 = 0
+
+
+        val d2 = 1
+
+      }
+
+
+      val c2 = 1
+
+
+    }
+
+
+    val b2 = 0
+
+
+  }
+
+  val a2 = 1
+
+}
+>>>
+object A {
+  val a1 = 0
+
+  object B {
+
+    val b1 = 0
+
+    object C {
+
+      val c1 = 0
+
+      object D {
+
+        val d1 = 0
+
+        val d2 = 1
+
+      }
+
+      val c2 = 1
+
+    }
+
+    val b2 = 0
+
+  }
+
+  val a2 = 1
+}
+<<< #2888 [,3]
+newlines.topLevelStatements = []
+newlines.topLevelStatementBlankLines = [
+  {
+    maxNest = 3
+    minBreaks = 0
+    blanks = {
+      before = 1
+      after = 1
+      beforeAll = -1
+      afterAll = -1
+    }
+  }
+]
+===
+object A {
+
+
+  val a1 = 0
+
+
+  object B {
+
+
+    val b1 = 0
+
+
+    object C {
+
+
+      val c1 = 0
+
+
+      object D {
+
+        val d1 = 0
+
+
+        val d2 = 1
+
+      }
+
+
+      val c2 = 1
+
+
+    }
+
+
+    val b2 = 0
+
+
+  }
+
+  val a2 = 1
+
+}
+>>>
+object A {
+  val a1 = 0
+
+  object B {
+
+    val b1 = 0
+
+    object C {
+
+      val c1 = 0
+
+      object D {
+
+        val d1 = 0
+
+        val d2 = 1
+
+      }
+
+      val c2 = 1
+
+    }
+
+    val b2 = 0
+
+  }
+
+  val a2 = 1
+}
