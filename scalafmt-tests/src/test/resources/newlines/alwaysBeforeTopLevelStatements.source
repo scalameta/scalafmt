@@ -1051,7 +1051,6 @@ object A {
 }
 >>>
 object A {
-
   val a1 = 0
 
   object B {
@@ -1079,7 +1078,6 @@ object A {
   }
 
   val a2 = 1
-
 }
 <<< #2888 [,2]
 newlines.topLevelStatements = []
@@ -1143,7 +1141,6 @@ object A {
   val a1 = 0
 
   object B {
-
     val b1 = 0
 
     object C {
@@ -1163,7 +1160,6 @@ object A {
     }
 
     val b2 = 0
-
   }
 
   val a2 = 1
@@ -1230,11 +1226,9 @@ object A {
   val a1 = 0
 
   object B {
-
     val b1 = 0
 
     object C {
-
       val c1 = 0
 
       object D {
@@ -1246,11 +1240,9 @@ object A {
       }
 
       val c2 = 1
-
     }
 
     val b2 = 0
-
   }
 
   val a2 = 1
@@ -1315,7 +1307,6 @@ object A {
 }
 >>>
 object A {
-
   val a1 = 0
 
   object B {
@@ -1343,7 +1334,6 @@ object A {
   }
 
   val a2 = 1
-
 }
 <<< #2888 [2,2]
 newlines.topLevelStatements = []
@@ -1405,10 +1395,10 @@ object A {
 }
 >>>
 object A {
+
   val a1 = 0
 
   object B {
-
     val b1 = 0
 
     object C {
@@ -1428,10 +1418,10 @@ object A {
     }
 
     val b2 = 0
-
   }
 
   val a2 = 1
+
 }
 <<< #2888 [3,3]
 newlines.topLevelStatements = []
@@ -1501,7 +1491,6 @@ object A {
     val b1 = 0
 
     object C {
-
       val c1 = 0
 
       object D {
@@ -1513,7 +1502,6 @@ object A {
       }
 
       val c2 = 1
-
     }
 
     val b2 = 0
@@ -1663,6 +1651,7 @@ object A {
 }
 >>>
 object A {
+
   val a1 = 0
 
   object B {
@@ -1684,6 +1673,7 @@ object A {
   }
 
   val a2 = 1
+
 }
 <<< #2888 [3,]
 newlines.topLevelStatements = []
@@ -1748,6 +1738,7 @@ object A {
   val a1 = 0
 
   object B {
+
     val b1 = 0
 
     object C {
@@ -1763,6 +1754,7 @@ object A {
     }
 
     val b2 = 0
+
   }
 
   val a2 = 1
