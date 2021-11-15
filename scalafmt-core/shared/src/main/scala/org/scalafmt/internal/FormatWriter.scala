@@ -1330,49 +1330,48 @@ class FormatWriter(formatOps: FormatOps) {
             setFt(trailingComment(ft, owner.pos.end))
         }
       val trav = new Traverser {
-        override def apply(tree: Tree): Unit =
-          tree match {
-            case _: Term.Block =>
-            case t: Source =>
-              setTopStats(t, t.stats)
-              super.apply(t.stats)
-            case t: Template =>
-              beforeBody(t.stats) {
-                _.beforeTemplateBodyIfBreakInParentCtors && {
-                  val beg = leadingComment(t).meta.idx
-                  val end = tokens(templateCurlyOrLastNonTrivial(t)).meta.idx
-                  locations(beg).leftLineId != locations(end).leftLineId
-                }
+        override def apply(tree: Tree): Unit = tree match {
+          case _: Term.Block =>
+          case t: Source =>
+            setTopStats(t, t.stats)
+            super.apply(t.stats)
+          case t: Template =>
+            beforeBody(t.stats) {
+              _.beforeTemplateBodyIfBreakInParentCtors && {
+                val beg = leadingComment(t).meta.idx
+                val end = tokens(templateCurlyOrLastNonTrivial(t)).meta.idx
+                locations(beg).leftLineId != locations(end).leftLineId
               }
-              afterBody(t, t.stats)
-              setTopStats(t, t.stats)
-              super.apply(t.stats) // skip inits
-            case t: Defn.ExtensionGroup =>
-              val stats = t.body match {
-                case b: Term.Block => b.stats
-                case b => List(b)
-              }
-              beforeBody(stats)(_ => false)
-              afterBody(t, stats)
-              setTopStats(t, stats)
-              super.apply(stats)
-            case t: Pkg if indentedPackage(t) =>
-              beforeBody(t.stats)(_ => false)
-              afterBody(t, t.stats)
-              setTopStats(t, t.stats)
-              super.apply(t.stats) // skip ref
-            case t: Pkg =>
-              val isBeforeBody = t.stats.headOption.exists {
-                case pkg: Pkg => indentedPackage(pkg)
-                case _ => true
-              }
-              if (isBeforeBody)
-                beforeBody(t.stats)(_.forceBlankBeforeMultilineTopLevelStmt)
-              setTopStats(t, t.stats, 0)
-              super.apply(t.stats) // skip ref
-            case _ =>
-              super.apply(tree)
-          }
+            }
+            afterBody(t, t.stats)
+            setTopStats(t, t.stats)
+            super.apply(t.stats) // skip inits
+          case t: Defn.ExtensionGroup =>
+            val stats = t.body match {
+              case b: Term.Block => b.stats
+              case b => List(b)
+            }
+            beforeBody(stats)(_ => false)
+            afterBody(t, stats)
+            setTopStats(t, stats)
+            super.apply(stats)
+          case t: Pkg if indentedPackage(t) =>
+            beforeBody(t.stats)(_ => false)
+            afterBody(t, t.stats)
+            setTopStats(t, t.stats)
+            super.apply(t.stats) // skip ref
+          case t: Pkg =>
+            val isBeforeBody = t.stats.headOption.exists {
+              case pkg: Pkg => indentedPackage(pkg)
+              case _ => true
+            }
+            if (isBeforeBody)
+              beforeBody(t.stats)(_.forceBlankBeforeMultilineTopLevelStmt)
+            setTopStats(t, t.stats, 0)
+            super.apply(t.stats) // skip ref
+          case _ =>
+            super.apply(tree)
+        }
       }
 
       if (locations.length == tokens.length)
