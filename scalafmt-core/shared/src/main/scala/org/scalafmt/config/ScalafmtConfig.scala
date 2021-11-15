@@ -8,6 +8,8 @@ import scala.meta.Dialect
 import scala.util.Try
 
 import metaconfig._
+import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.FileOps
 import org.scalafmt.sysops.OsSpecific._
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ValidationOps
@@ -162,9 +164,9 @@ case class ScalafmtConfig(
     }
   }
   def getConfigFor(filename: String): ScalafmtConfig = {
-    val path = file.FileSystems.getDefault.getPath(filename)
+    val absfile = AbsoluteFile(FileOps.getFile(filename))
     expandedFileOverride.get
-      .collectFirst { case (pm, style) if pm.matches(path) => style }
+      .collectFirst { case (pm, style) if pm.matches(absfile.path) => style }
       .getOrElse(this)
   }
 
