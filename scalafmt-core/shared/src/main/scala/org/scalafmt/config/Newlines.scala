@@ -482,6 +482,8 @@ object Newlines {
     * @param minBreaks
     *   Minimum span (number of line breaks between first and last line) to
     *   start forcing blank lines.
+    * @param minNest
+    *   Minimum amount of nesting (indentation level) of a statement
     * @param maxNest
     *   Maximum amount of nesting (indentation level) of a statement
     */
@@ -489,6 +491,7 @@ object Newlines {
       regex: Option[String] = None,
       minBreaks: Int = 1,
       blanks: Option[NumBlanks] = None,
+      minNest: Int = 0,
       maxNest: Int = Int.MaxValue
   ) {
     lazy val pattern = regex.map(_.r.pattern)

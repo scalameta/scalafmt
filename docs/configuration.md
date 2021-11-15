@@ -1100,7 +1100,7 @@ Each entry on this list consists of the following fields:
   - a regular expression to match the type of the statement
   - if unspecified, will match all valid statements
   - see [align.tokens](#aligntokens) for instructions on how to find the type
-- `maxNest`
+- `maxNest` and (since v3.1.2) `minNest`
   - basically, limits indentation level (not actual indentation) of a statement
   - unindented statements (under source-level unindented package) have
     nest level of 0, those under them are 1 etc.
