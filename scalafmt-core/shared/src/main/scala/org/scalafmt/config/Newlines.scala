@@ -291,9 +291,9 @@ case class Newlines(
       /* minBreaks has to come first; since we'll be adding blanks, this could
        * potentially move us into another setting which didn't match before we
        * we added the blanks; the rest are sorted to put more specific first */
-      topLevelStatementBlankLines.sortBy(x =>
-        (x.minBreaks, x.maxNest, x.regex.fold(0)(-_.length))
-      )
+      topLevelStatementBlankLines.filter(x => x.minNest <= x.maxNest).sortBy {
+        x => (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length))
+      }
     }
   }
   def getTopStatBlankLines(
@@ -304,7 +304,7 @@ case class Newlines(
     topStatBlankLinesSorted.iterator
       .takeWhile(_.minBreaks <= numBreaks)
       .find { x =>
-        x.maxNest >= nest &&
+        x.minNest <= nest && x.maxNest >= nest &&
         x.pattern.forall(_.matcher(tree.productPrefix).find())
       }
       .flatMap(_.blanks)
