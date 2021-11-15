@@ -1493,6 +1493,7 @@ object A {
 }
 >>>
 object A {
+
   val a1 = 0
 
   object B {
@@ -1520,6 +1521,7 @@ object A {
   }
 
   val a2 = 1
+
 }
 <<< #2888 [1,]
 newlines.topLevelStatements = []
@@ -1742,6 +1744,7 @@ object A {
 }
 >>>
 object A {
+
   val a1 = 0
 
   object B {
@@ -1763,4 +1766,5 @@ object A {
   }
 
   val a2 = 1
+
 }
