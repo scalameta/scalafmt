@@ -1217,9 +1217,9 @@ class FormatWriter(formatOps: FormatOps) {
       @inline def setFt(ft: FormatToken) = setIdx(ft.meta.idx, 1)
       @inline def setFtCheck(ft: FormatToken, cnt: Int, force: => Boolean) =
         setIdxCheck(ft.meta.idx, cnt, force)
-      def setTopStats(owner: Tree, stats: Seq[Stat], curNest: Int = 1): Unit = {
+      def setTopStats(owner: Tree, stats: Seq[Stat]): Unit = {
         if (stats.isEmpty) return
-        val nest = getNest(owner, curNest)
+        val nest = getNest(stats.head)
         if (nest < 0) return
         val end = owner.pos.end
         val notUnindentedPkg = owner match {
@@ -1367,7 +1367,7 @@ class FormatWriter(formatOps: FormatOps) {
             }
             if (isBeforeBody)
               beforeBody(t.stats)(_.forceBlankBeforeMultilineTopLevelStmt)
-            setTopStats(t, t.stats, 0)
+            setTopStats(t, t.stats)
             super.apply(t.stats) // skip ref
           case _ =>
             super.apply(tree)
@@ -1384,17 +1384,10 @@ class FormatWriter(formatOps: FormatOps) {
       case _ => false
     }
 
-    final def getNest(tree: Tree): Int = {
-      val initNest = tree match {
-        case t: Pkg if !indentedPackage(t) => 0
-        case _ => 1
-      }
-      getNest(tree, initNest)
-    }
-
     @tailrec
-    private def getNest(tree: Tree, curNest: Int): Int = tree.parent match {
+    final def getNest(tree: Tree, curNest: Int = 0): Int = tree.parent match {
       case Some(_: Source) | None => curNest
+      case Some(t: Template) => getNest(t, curNest)
       case Some(t: Pkg) if !indentedPackage(t) => getNest(t, curNest)
       case Some(t) => getNest(t, curNest + 1)
     }
