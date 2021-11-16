@@ -67,14 +67,26 @@ object Scalafmt {
       range: Set[Range] = Set.empty,
       filename: String = defaultFilename
   ): Formatted.Result = {
-    val style =
-      if (filename == defaultFilename) baseStyle
-      else { // might throw for invalid conf
-        val style = baseStyle.getConfigFor(filename)
-        val isSbt = FileOps.isAmmonite(filename) || FileOps.isSbt(filename) ||
-          FileOps.isMarkdown(filename)
-        if (isSbt) style.forSbt else style
-      }
+    def getStyleByFile(style: ScalafmtConfig) = {
+      val isSbt = FileOps.isAmmonite(filename) || FileOps.isSbt(filename) ||
+        FileOps.isMarkdown(filename)
+      if (isSbt) style.forSbt else style
+    }
+    val styleTry =
+      if (filename == defaultFilename) Success(baseStyle)
+      else baseStyle.getConfigFor(filename).map(getStyleByFile)
+    styleTry.fold(
+      x => Formatted.Result(Formatted.Failure(x), baseStyle),
+      formatCodeWithStyle(code, _, range, filename)
+    )
+  }
+
+  private def formatCodeWithStyle(
+      code: String,
+      style: ScalafmtConfig,
+      range: Set[Range],
+      filename: String
+  ): Formatted.Result = {
     val isWin = code.contains(WinLineEnding)
     val unixCode =
       if (isWin) code.replaceAll(WinLineEnding, UnixLineEnding) else code

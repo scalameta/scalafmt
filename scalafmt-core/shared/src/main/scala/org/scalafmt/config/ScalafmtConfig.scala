@@ -163,11 +163,13 @@ case class ScalafmtConfig(
       fs.getPathMatcher(pattern.asFilename) -> style
     }
   }
-  def getConfigFor(filename: String): ScalafmtConfig = {
+  def getConfigFor(filename: String): Try[ScalafmtConfig] = {
     val absfile = AbsoluteFile(FileOps.getFile(filename))
-    expandedFileOverride.get
-      .collectFirst { case (pm, style) if pm.matches(absfile.path) => style }
-      .getOrElse(this)
+    expandedFileOverride.map { x =>
+      x
+        .collectFirst { case (pm, style) if pm.matches(absfile.path) => style }
+        .getOrElse(this)
+    }
   }
 
   private[scalafmt] lazy val encloseSelectChains =
