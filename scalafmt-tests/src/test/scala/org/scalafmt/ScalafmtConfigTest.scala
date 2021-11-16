@@ -38,8 +38,8 @@ class ScalafmtConfigTest extends FunSuite {
       """.stripMargin
       )
       .get
-    val nlCfg1 = config.getConfigFor("/x/src/main/scala/foo.scala").newlines
-    val nlCfg2 = config.getConfigFor("/x/src/test/scala/bar.scala").newlines
+    val nlCfg1 = config.getConfigFor("/x/src/main/scala/foo.scala").get.newlines
+    val nlCfg2 = config.getConfigFor("/x/src/test/scala/bar.scala").get.newlines
     assert(nlCfg1.source == Newlines.fold)
     assert(nlCfg2.source == Newlines.unfold)
     assert(nlCfg1.topLevelStatements == Seq(Newlines.before, Newlines.after))
