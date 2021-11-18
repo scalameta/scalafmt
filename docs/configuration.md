@@ -2113,6 +2113,25 @@ It takes the same values as [newlines.source](#newlinessource); use `null`
 - `classic` (i.e., `null` and `newlines.source` is not specified):
   see [Classic select chains](#classic-select-chains).
 
+### `optIn.annotationNewlines`
+
+This boolean parameter controls newlines after annotations.
+
+```scala mdoc:defaults
+optIn.annotationNewlines
+```
+
+Its behaviour depends on [newlines.source](#newlinessource):
+
+- `optIn.annotationNewlines = true`:
+  - `newlines.source=fold`: allows space before another annotation
+  - `newlines.source=unfold`: forces break
+  - otherwise: preserves space _before_ or after an annotation
+- `optIn.annotationNewlines = false`:
+  - `newlines.source=fold`: allows space before a keyword or another annotation
+  - `newlines.source=unfold`: allows space before another annotation
+  - otherwise: allows space before a keyword
+
 ## Newlines: `danglingParentheses`
 
 While this parameter is not technically under the `newlines` section, it
