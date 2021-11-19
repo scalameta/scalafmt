@@ -3,6 +3,9 @@ id: changelog
 title: Changelog
 ---
 
+> For more recent entries, please see
+> [Scalafmt Releases](https://github.com/scalameta/scalafmt/releases).
+
 ## [v2.6.3](https://github.com/scalameta/scalafmt/tree/v2.6.3) (2020-07-10)
 
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.6.2...v2.6.3)
