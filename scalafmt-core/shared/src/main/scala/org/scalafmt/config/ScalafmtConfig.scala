@@ -136,6 +136,8 @@ case class ScalafmtConfig(
     fileOverride: Conf.Obj = Conf.Obj.empty,
     xmlLiterals: XmlLiterals = XmlLiterals()
 ) {
+  import ScalafmtConfig._
+
   private[scalafmt] lazy val alignMap: Map[String, Seq[AlignToken.Matcher]] =
     align.tokens.map(x => x.code -> x).toMap.map { case (k, v) =>
       k -> v.getMatcher
@@ -159,7 +161,7 @@ case class ScalafmtConfig(
   private lazy val expandedFileOverride = Try {
     val fs = file.FileSystems.getDefault
     fileOverride.values.map { case (pattern, conf) =>
-      val style = ScalafmtConfig.decoder.read(Some(this), conf).get
+      val style = decoder.read(Some(this), conf).get
       fs.getPathMatcher(pattern.asFilename) -> style
     }
   }
@@ -383,7 +385,7 @@ object ScalafmtConfig {
       }
       val parsed = stylePreset match {
         case Some((styleConf, restConf)) =>
-          ScalafmtConfig.readActiveStylePresets(styleConf).andThen { x =>
+          readActiveStylePresets(styleConf).andThen { x =>
             val preset = stateOpt.fold(x) { state =>
               val isDefaultDialect = x.runner.isDefaultDialect
               val dialect = (if (isDefaultDialect) state else x).runner.dialect
@@ -404,7 +406,7 @@ object ScalafmtConfig {
             cfg.copy(rewrite = cfg.rewrite.copy(trailingCommas = rt))
           }
         }
-        .andThen(ScalafmtConfig.validate)
+        .andThen(validate)
     }
 
 }
