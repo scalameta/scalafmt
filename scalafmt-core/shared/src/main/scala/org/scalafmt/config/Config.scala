@@ -38,7 +38,7 @@ object Config {
       case Configured.Ok(x)
           if default.eq(ScalafmtConfig.uncheckedDefault) &&
             x.runner.isDefaultDialect =>
-        Configured.error(ScalafmtRunner.Dialect.getUnknownError)
+        Configured.error(NamedDialect.getUnknownError)
       case x => x
     }
   }

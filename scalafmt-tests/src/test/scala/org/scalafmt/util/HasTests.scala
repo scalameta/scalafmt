@@ -12,6 +12,7 @@ import org.scalafmt.config.{
   Config,
   DanglingParentheses,
   Indents,
+  NamedDialect,
   ScalafmtConfig,
   ScalafmtParser,
   ScalafmtRunner
@@ -153,8 +154,7 @@ trait HasTests extends FormatAssertions {
       case "scalajs" =>
         ScalafmtConfig.scalaJs.copy(maxColumn = 79).withDialect(defaultDialect)
       case "scala3" =>
-        ScalafmtConfig.default
-          .withDialect(ScalafmtRunner.Dialect.scala3, "scala3")
+        ScalafmtConfig.default.withDialect(NamedDialect.scala3, "scala3")
       case _ =>
         ScalafmtConfig.default.withDialect(defaultDialect)
     }
@@ -209,8 +209,7 @@ trait HasTests extends FormatAssertions {
 
 object HasTests {
 
-  private val defaultDialect =
-    ScalafmtRunner.Dialect.withName("scala213", ScalafmtRunner.Dialect.scala213)
+  private val defaultDialect = NamedDialect("scala213", NamedDialect.scala213)
 
   private val testing = ScalafmtConfig.default.copy(
     maxColumn = 79,

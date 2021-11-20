@@ -150,7 +150,7 @@ object Scalafmt {
       parsed.fold(
         _.details match {
           case ed: ParseException =>
-            val dialect = runner.dialect.source
+            val dialect = runner.dialect.name
             val msg = s"[dialect $dialect] ${ed.shortMessage}"
             Failure(new ParseException(ed.pos, msg))
           case ed => Failure(ed)
