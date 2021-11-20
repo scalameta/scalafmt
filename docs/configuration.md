@@ -3466,6 +3466,25 @@ project {
 }
 ```
 
+#### `project.layout`
+
+Allows specifying a project structure naming convention which can be used to
+select an appropriate dialect for cross-building if one is explicitly selected
+via [`fileOverride`](#fileoverride). By default, it's disabled (`null`).
+
+Currently, the following options are supported:
+
+- (since v3.2.0) `StandardConvention`: this is the usual naming convention
+  putting scala source code under `src/main/scala` or `src/test/scala`, with
+  alternate cross-build dialects in `src/main/scala-2.13`
+
+If this parameter is set, some supported dialects will be determined automatically;
+if the detected dialect is compatible with the overall one (`runner.dialect`),
+no change will be applied.
+
+Currently, supports scala binary versions 2.10-2.13 as well as 3; also, if the version
+is major scala 2 (i.e., `scala-2`), will select the scala 2.13 dialect.
+
 ### `fileOverride`
 
 > Since v2.5.0.
@@ -3477,10 +3496,10 @@ pattern. For instance,
 ```
 align.preset = none
 fileOverride {
-  "glob:**/*.sbt" {
+  "glob:**.sbt" {
     align.preset = most
   }
-  "glob:**/src/test/scala/**/*.scala" {
+  "glob:**/src/test/scala/**.scala" {
     maxColumn = 120
     binPack.unsafeCallSite = true
   }
@@ -3492,6 +3511,21 @@ uses `align.preset=none` for all files except `.sbt` for which
 suites.
 
 > This parameter does not modify which files are formatted.
+
+File names will be matched against the patterns in the order in which they are
+specified in the configuration file, in case multiple patterns match a given file.
+
+The parameter also allows the following shortcuts:
+
+- (since v3.2.0) setting only the dialect:
+  - `fileOverride { "glob:**/*.sbt" = sbt1 }`
+- (since v3.2.0) setting based on the file extension:
+  - `fileOverride { ".sbt" { runner.dialect = sbt1 } }`
+  - this is simply a shortcut for `glob:**.ext`
+- (since v3.2.0) setting based on the language:
+  - `fileOverride { "lang:scala-2" = scala213 }`
+  - requires [project.layout](#projectlayout) (sets dialect for minor versions)
+  - these patterns will be matched last
 
 ## Spaces
 

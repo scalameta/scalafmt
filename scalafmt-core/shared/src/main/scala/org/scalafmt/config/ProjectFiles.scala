@@ -10,6 +10,7 @@ import metaconfig.annotation.DeprecatedName
 
 case class ProjectFiles(
     git: Boolean = false,
+    layout: Option[ProjectFiles.Layout] = None,
     includePaths: Seq[String] = ProjectFiles.defaultIncludePaths,
     excludePaths: Seq[String] = Nil,
     @DeprecatedName(
@@ -82,6 +83,23 @@ object ProjectFiles {
       matchesPath(fs.getPath(filename))
     def matchesFile(file: AbsoluteFile): Boolean =
       matchesPath(file.path)
+  }
+
+  sealed abstract class Layout {
+    // TODO
+  }
+
+  object Layout {
+
+    case object StandardConvention extends Layout {
+      // TODO
+    }
+
+    implicit val reader: ConfCodecEx[Layout] =
+      ReaderUtil.oneOf[Layout](
+        StandardConvention
+      )
+
   }
 
 }
