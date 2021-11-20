@@ -1,10 +1,9 @@
 package docs
 
-import metaconfig.Configured
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.Config
+import org.scalafmt.config.NamedDialect
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.ScalafmtRunner
 import scala.meta.inputs.Input
 import scala.meta.inputs.Position
 import scala.meta.parsers.ParseException
@@ -71,7 +70,7 @@ object ScalafmtModifier {
 
   private val defaultConfig = ScalafmtConfig.default
     .copy(maxColumn = 40)
-    .withDialect(ScalafmtRunner.Dialect.scala213, "scala213")
+    .withDialect(NamedDialect.scala213, "scala213")
 
   private val defaultSbtConfig = defaultConfig.forSbt
 

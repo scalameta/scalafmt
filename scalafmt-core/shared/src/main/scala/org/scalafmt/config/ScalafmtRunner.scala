@@ -1,7 +1,6 @@
 package org.scalafmt.config
 
 import metaconfig._
-import scala.meta.Dialect
 import scala.meta.Tree
 import scala.meta.parsers.Parsed
 
@@ -21,14 +20,14 @@ case class ScalafmtRunner(
     parser: ScalafmtParser = ScalafmtParser.Source,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
-    dialect: ScalafmtRunner.Dialect.WithName = ScalafmtRunner.Dialect.default,
+    dialect: NamedDialect = NamedDialect.default,
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
-  @inline def getDialect = dialect.value
+  @inline def getDialect = dialect.dialect
 
-  def topLevelDialect = dialect.copy(
-    value = getDialect
+  @inline def topLevelDialect = dialect.copy(
+    dialect = getDialect
       .withAllowToplevelTerms(true)
       .withToplevelSeparator("")
   )
@@ -44,7 +43,7 @@ case class ScalafmtRunner(
   def parse(input: meta.inputs.Input): Parsed[_ <: Tree] =
     parser.parse(input, getDialect)
 
-  def isDefaultDialect = dialect.source == ScalafmtRunner.Dialect.defaultName
+  @inline def isDefaultDialect = dialect.name == NamedDialect.defaultName
 
 }
 
@@ -64,50 +63,6 @@ object ScalafmtRunner {
   )
 
   val sbt = default.forSbt
-
-  object Dialect {
-    type WithName = sourcecode.Text[Dialect]
-    def withName(name: String, dialect: Dialect): WithName =
-      sourcecode.Text(dialect, name)
-
-    import scala.meta.dialects._
-
-    val scala212 = Scala212
-      .withAllowTrailingCommas(true) // SIP-27, 2.12.2
-    val scala213 = Scala213
-      .withAllowTrailingCommas(true)
-    val scala3 = Scala3
-
-    private[ScalafmtRunner] val known: Seq[WithName] = Seq[WithName](
-      Scala211,
-      scala212,
-      Scala212Source3,
-      scala213,
-      Scala213Source3,
-      Sbt0137,
-      Sbt1,
-      scala3
-    ).map(x => withName(x.source.toLowerCase, x.value)).sortBy(_.source)
-
-    private[ScalafmtRunner] val defaultName = "default"
-    // current default is 213
-    private[ScalafmtRunner] val default = withName(defaultName, scala213)
-
-    def getName(dialect: Dialect): Option[String] =
-      known.find(_.value eq dialect).map(_.source)
-
-    def getUnknownError = {
-      val knownStr = known.map(_.source).mkString(",")
-      s"""Default dialect is deprecated; use explicit: [$knownStr]
-        |Also see https://scalameta.org/scalafmt/docs/configuration.html#scala-dialects"
-        |""".stripMargin
-    }
-  }
-
-  implicit val dialectCodec = {
-    val dialects = Dialect.known.map(x => sourcecode.Text(x, x.source))
-    ReaderUtil.oneOf(dialects: _*)
-  }
 
   implicit val codec: ConfCodecEx[ScalafmtRunner] =
     generic.deriveCodecEx(default).noTypos

@@ -144,16 +144,16 @@ case class ScalafmtConfig(
     }
 
   private[scalafmt] def withDialect(
-      dialect: ScalafmtRunner.Dialect.WithName
+      dialect: NamedDialect
   ): ScalafmtConfig =
     copy(runner = runner.copy(dialect = dialect))
 
   def withDialect(dialect: Dialect, name: String): ScalafmtConfig =
-    withDialect(ScalafmtRunner.Dialect.withName(name, dialect))
+    withDialect(NamedDialect(name, dialect))
 
   def withDialect(dialect: Dialect): ScalafmtConfig = withDialect(
     dialect,
-    ScalafmtRunner.Dialect.getName(dialect).getOrElse("unknown dialect")
+    NamedDialect.getName(dialect).getOrElse("unknown dialect")
   )
 
   def forSbt: ScalafmtConfig = copy(runner = runner.forSbt)
@@ -288,7 +288,7 @@ object ScalafmtConfig {
     // scalafmt: { maxColumn = 200 }
     import cfg._
     import ValidationOps._
-    val errDialect = " (no support in Scala dialect)"
+    val errDialect = s" (no support in Scala dialect ${runner.dialect.name})"
     val allErrors = new mutable.ArrayBuffer[String]
     locally {
       implicit val errors = new mutable.ArrayBuffer[String]
