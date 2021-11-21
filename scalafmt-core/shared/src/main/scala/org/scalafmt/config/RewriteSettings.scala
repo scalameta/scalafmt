@@ -28,13 +28,16 @@ case class RewriteSettings(
 }
 
 object RewriteSettings {
+
+  val default = RewriteSettings()
+
   implicit lazy val surface: generic.Surface[RewriteSettings] =
     generic.deriveSurface
   implicit lazy val encoder: ConfEncoder[RewriteSettings] =
     generic.deriveEncoder
 
   implicit lazy val decoder: ConfDecoderEx[RewriteSettings] =
-    generic.deriveDecoderEx(RewriteSettings()).noTypos.flatMap {
+    generic.deriveDecoderEx(default).noTypos.flatMap {
       Imports.validateImports
     }
 

@@ -8,6 +8,7 @@ import scala.meta.Dialect
 import scala.util.Try
 
 import metaconfig._
+import org.scalafmt.rewrite.FormatTokensRewrite
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.FileOps
 import org.scalafmt.sysops.OsSpecific._
@@ -98,7 +99,7 @@ case class ScalafmtConfig(
     literals: Literals = Literals(),
     lineEndings: LineEndings = LineEndings.unix,
     rewriteTokens: Map[String, String] = Map.empty[String, String],
-    rewrite: RewriteSettings = RewriteSettings(),
+    rewrite: RewriteSettings = RewriteSettings.default,
     indentOperator: IndentOperator = IndentOperator(),
     newlines: Newlines = Newlines(),
     runner: ScalafmtRunner = ScalafmtRunner.default,
@@ -186,6 +187,19 @@ case class ScalafmtConfig(
   private[scalafmt] lazy val dialect = runner.getDialect
 
   private[scalafmt] def getTrailingCommas = rewrite.trailingCommas.style
+
+  // used in ScalafmtReflectConfig
+  def hasRewrites: Boolean = {
+    rewrite.rewriteFactoryRules.nonEmpty ||
+    FormatTokensRewrite.getEnabledFactories(this).nonEmpty
+  }
+
+  // used in ScalafmtReflectConfig
+  def withoutRewrites: ScalafmtConfig = copy(
+    trailingCommas = None,
+    rewrite = RewriteSettings.default
+  )
+
 }
 
 object ScalafmtConfig {
