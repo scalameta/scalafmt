@@ -26,6 +26,8 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
 
   private val rewriteRulesMethod = Try(targetCls.getMethod("rewrite")).toOption
 
+  @inline def getVersion = fmtReflect.version
+
   def isIncludedInProject(filename: String): Boolean = {
     val matcher = target.invoke("project").invoke("matcher")
     matcher.invokeAs[java.lang.Boolean]("matches", filename.asParam)

@@ -116,10 +116,7 @@ final case class ScalafmtDynamic(
           _.fold(_ => true, _._2.compareTo(currentTimestamp) != 0)
         ) { () =>
           resolveConfigWithScalafmt(configPath).map { config =>
-            reporter.parsedConfig(
-              configPath,
-              config.fmtReflect.version.toString
-            )
+            reporter.parsedConfig(configPath, config.getVersion.toString)
             (config, currentTimestamp)
           }
         }
@@ -185,7 +182,7 @@ final case class ScalafmtDynamic(
       val filename = file.toString
       val configWithDialect: ScalafmtReflectConfig =
         if (
-          config.fmtReflect.version < ScalafmtVersion(2, 6, 3) &&
+          config.getVersion < ScalafmtVersion(2, 6, 3) &&
           (filename.endsWith(".sbt") || filename.endsWith(".sc") ||
             filename.endsWith(".md"))
         ) {
