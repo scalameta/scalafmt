@@ -12,19 +12,12 @@ import scala.util.Try
 class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
     private[dynamic] val target: Object
 ) {
+  import ScalafmtReflectConfig._
   import fmtReflect.classLoader
   private val targetCls = target.getClass
-  private val constructor: Constructor[_] = targetCls.getConstructors()(0)
-  private val constructorParams = constructor.getParameters.map(_.getName)
-  private val rewriteParamIdx =
-    constructorParams.indexOf("rewrite").ensuring(_ >= 0)
-  private val emptyRewrites =
-    target.invoke("apply$default$" + (rewriteParamIdx + 1))
 
   private val dialectCls = classLoader.loadClass("scala.meta.Dialect")
   private val dialectsCls = classLoader.loadClass("scala.meta.dialects.package")
-
-  private val rewriteRulesMethod = Try(targetCls.getMethod("rewrite")).toOption
 
   @inline def getVersion = fmtReflect.version
 
@@ -51,28 +44,37 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
     )
 
   def withoutRewriteRules: ScalafmtReflectConfig = {
-    if (hasRewriteRules) {
+    if (getVersion < ScalafmtVersion(3, 2, 0)) withoutRewriteRulesPre320
+    else new ScalafmtReflectConfig(fmtReflect)(target.invoke("withoutRewrites"))
+  }
+
+  private def withoutRewriteRulesPre320: ScalafmtReflectConfig =
+    if (!hasRewriteRulesPre320) this
+    else {
       // emulating this.copy(rewrite = RewriteSettings())
+      val constructor: Constructor[_] = targetCls.getConstructors()(0)
+      val constructorParams = constructor.getParameters.map(_.getName)
+      val rewriteParamIdx =
+        constructorParams.indexOf(rewriteFieldName).ensuring(_ >= 0)
+      val emptyRewrites =
+        target.invoke("apply$default$" + (rewriteParamIdx + 1))
       val fieldsValues = constructorParams.map(param => target.invoke(param))
       fieldsValues(rewriteParamIdx) = emptyRewrites
       new ScalafmtReflectConfig(fmtReflect)(
         constructor.newInstance(fieldsValues: _*).asInstanceOf[Object]
       )
-    } else {
-      this
     }
-  }
 
   def hasRewriteRules: Boolean = {
-    rewriteRulesMethod match {
-      case Some(method) =>
-        // scalafmt >= v0.4.1
-        val rewriteSettings = method.invoke(target)
-        !rewriteSettings.invoke("rules").invokeAs[Boolean]("isEmpty")
-      case None =>
-        false
-    }
+    if (getVersion < ScalafmtVersion(3, 2, 0)) hasRewriteRulesPre320
+    else target.invokeAs[Boolean]("hasRewrites")
   }
+
+  private def hasRewriteRulesPre320: Boolean = // scalafmt >= v0.4.1
+    Try {
+      val rules = target.invoke(rewriteFieldName).invoke("rules")
+      !rules.invokeAs[Boolean]("isEmpty")
+    }.getOrElse(false)
 
   def format(code: String, file: Option[Path]): String =
     fmtReflect.format(code, this, file)
@@ -80,4 +82,10 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
   override def equals(obj: Any): Boolean = target.equals(obj)
 
   override def hashCode(): Int = target.hashCode()
+}
+
+private object ScalafmtReflectConfig {
+
+  val rewriteFieldName = "rewrite"
+
 }
