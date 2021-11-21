@@ -1,7 +1,6 @@
 package org.scalafmt.cli
 
 import java.io.File
-import java.nio.file.Path
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 
 import org.scalafmt.CompatCollections.ParConverters._
@@ -9,7 +8,6 @@ import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
 import org.scalafmt.dynamic.ScalafmtDynamicError
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtSession
-import org.scalafmt.interfaces.ScalafmtSessionFactory
 import org.scalafmt.sysops.AbsoluteFile
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
@@ -28,11 +26,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
 
     val session =
       try {
-        scalafmtInstance match {
-          case t: ScalafmtSessionFactory =>
-            t.createSession(options.configPath)
-          case _ => new MyInstanceSession(options, scalafmtInstance)
-        }
+        scalafmtInstance.createSession(options.configPath)
       } catch {
         case _: ScalafmtDynamicError.ConfigError =>
           return reporter.getExitCode // XXX: returning
@@ -74,28 +68,6 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
     termDisplay.stop()
 
     exit
-  }
-
-  private final class MyInstanceSession(opts: CliOptions, instance: Scalafmt)
-      extends ScalafmtSession {
-    // check config first
-    instance.format(opts.configPath, opts.configPath, "")
-    private val customFiles =
-      if (opts.respectProjectFilters) Seq.empty
-      else
-        opts.customFilesOpt.getOrElse(Seq.empty).flatMap { x =>
-          if (x.isRegularFile) Some(x.path) else None
-        }
-    override def format(file: Path, code: String): String = {
-      // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
-      // formatted regardless of what it is or where it is.
-      // NB: Unless respectProjectFilters is also specified.
-      val formatter =
-        if (customFiles.contains(file)) instance
-        else instance.withRespectProjectFilters(true)
-      formatter.format(opts.configPath, file, code)
-    }
-    override def matchesProjectFilters(file: Path): Boolean = true
   }
 
   private[this] def handleFile(
