@@ -55,22 +55,33 @@ case class ScalafmtReflect(
       Some(new ScalafmtReflectConfig(this)(configTarget))
     }
 
+  private def parseConfigWith(
+      f: => Try[Object]
+  )(g: Throwable => ScalafmtDynamicError): Try[ScalafmtReflectConfig] =
+    f.map { configured =>
+      new ScalafmtReflectConfig(this)(configured.invoke("get"))
+    }.recoverWith { case ReflectionException(e) => Failure(g(e)) }
+
   def parseConfig(path: Path): Try[ScalafmtReflectConfig] =
-    parseConfigPost300(path)
-      .map { configured =>
-        new ScalafmtReflectConfig(this)(configured.invoke("get"))
-      }
-      .recoverWith { case ReflectionException(e) =>
-        Failure(new ScalafmtDynamicError.ConfigParseError(path, e.getMessage))
-      }
+    parseConfigWith(parseConfigPost300(path)) { e =>
+      new ScalafmtDynamicError.ConfigParseError(path, e.getMessage)
+    }
+
+  def parseConfigFromString(text: String): Try[ScalafmtReflectConfig] =
+    parseConfigWith(parseConfigPre300(text))(
+      ScalafmtDynamicError.UnknownError.apply
+    )
 
   private def parseConfigPost300(path: Path): Try[Object] = {
     if (version < ScalafmtVersion(3, 0, 0, 7)) parseConfigPre300(path)
     else Try(scalafmtCls.invokeStatic("parseHoconConfigFile", path.asParam))
   }
 
-  private def parseConfigPre300(path: Path): Try[Object] = {
-    val textParam = ConfigFactory.parseFile(path.toFile).root.render().asParam
+  private def parseConfigPre300(path: Path): Try[Object] =
+    parseConfigPre300(ConfigFactory.parseFile(path.toFile).root.render())
+
+  private def parseConfigPre300(text: String): Try[Object] = {
+    val textParam = text.asParam
     if (version < ScalafmtVersion(1, 6, 0, 1)) parseConfigPre160(textParam)
     else Try(scalafmtCls.invokeStatic("parseHoconConfig", textParam))
   }
