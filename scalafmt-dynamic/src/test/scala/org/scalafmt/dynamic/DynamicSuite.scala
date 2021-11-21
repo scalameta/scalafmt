@@ -467,6 +467,47 @@ class DynamicSuite extends FunSuite {
     assertEquals(error, "Missing version")
   }
 
+  private def checkDynamicConfig(
+      name: String,
+      version: String,
+      dialect: String,
+      rest: String*
+  )(f: ScalafmtReflectConfig => Unit): Unit = {
+    check(s"$name [v=$version d=$dialect]") { fmt =>
+      fmt.setVersion(version, dialect, rest: _*)
+      fmt.dynamic.resolveConfig(fmt.config) match {
+        case Left(e) => fail("failed to load config", e)
+        case Right(cfg) => f(cfg)
+      }
+    }
+  }
+
+  checkDynamicConfig(
+    s"check indent.main",
+    "3.0.0",
+    "scala211",
+    s"indent.main = 3"
+  ) { cfg =>
+    assertEquals(cfg.indentMain, Some(3))
+    assertEquals(cfg.indentCallSite, Some(2))
+    assertEquals(cfg.indentDefnSite, Some(4))
+  }
+
+  Seq(("3.0.0", "indent"), ("2.5.3", "continuationIndent"))
+    .foreach { case (version, section) =>
+      checkDynamicConfig(
+        s"check $section.{call,defn}Site",
+        version,
+        "scala211",
+        s"$section.callSite = 3",
+        s"$section.defnSite = 5"
+      ) { cfg =>
+        assertEquals(cfg.indentMain, Some(2))
+        assertEquals(cfg.indentCallSite, Some(3))
+        assertEquals(cfg.indentDefnSite, Some(5))
+      }
+    }
+
 }
 
 private object DynamicSuite {
