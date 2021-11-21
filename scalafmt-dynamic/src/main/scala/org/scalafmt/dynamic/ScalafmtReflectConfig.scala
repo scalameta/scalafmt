@@ -22,6 +22,13 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
   private val projectField = target.invoke("project")
   private val projectMatcherField = projectField.invoke("matcher")
 
+  private lazy val indentField = Try {
+    if (getVersion < ScalafmtVersion(3, 0, 0))
+      target.invoke("continuationIndent")
+    else
+      target.invoke("indent")
+  }
+
   @inline def getVersion = fmtReflect.version
 
   @inline def isIncludedInProject(path: Path): Boolean =
@@ -82,6 +89,16 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
 
   def format(code: String, file: Option[Path]): String =
     fmtReflect.format(code, this, file)
+
+  def indentMain: Option[Int] =
+    if (getVersion < ScalafmtVersion(3, 0, 0)) Some(2)
+    else indentField.map(_.invokeAs[Int]("main")).toOption
+
+  def indentCallSite: Option[Int] =
+    indentField.map(_.invokeAs[Int]("callSite")).toOption
+
+  def indentDefnSite: Option[Int] =
+    indentField.map(_.invokeAs[Int]("defnSite")).toOption
 
   override def equals(obj: Any): Boolean = target.equals(obj)
 

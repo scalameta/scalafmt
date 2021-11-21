@@ -103,7 +103,7 @@ final case class ScalafmtDynamic(
     } yield codeFormatted
   }
 
-  private def resolveConfig(
+  private[dynamic] def resolveConfig(
       configPath: Path
   ): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
     if (!Files.exists(configPath)) {
