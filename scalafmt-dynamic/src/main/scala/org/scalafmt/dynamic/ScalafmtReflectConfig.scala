@@ -19,12 +19,13 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
   private val dialectCls = classLoader.loadClass("scala.meta.Dialect")
   private val dialectsCls = classLoader.loadClass("scala.meta.dialects.package")
 
+  private val projectField = target.invoke("project")
+  private val projectMatcherField = projectField.invoke("matcher")
+
   @inline def getVersion = fmtReflect.version
 
-  def isIncludedInProject(filename: String): Boolean = {
-    val matcher = target.invoke("project").invoke("matcher")
-    matcher.invokeAs[java.lang.Boolean]("matches", filename.asParam)
-  }
+  def isIncludedInProject(filename: String): Boolean =
+    projectMatcherField.invokeAs[Boolean]("matches", filename.asParam)
 
   private def sbtDialect: Object = {
     try dialectsCls.invokeStatic("Sbt")
