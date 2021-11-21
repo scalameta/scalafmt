@@ -22,13 +22,18 @@ abstract class AbstractCliTest extends FunSuite {
   def mkArgs(str: String): Array[String] =
     str.split(' ')
 
-  def runWith(root: AbsoluteFile, argStr: String): Unit = {
-    val args = mkArgs(argStr)
-    val opts = getMockOptions(root)
+  def runWith(root: AbsoluteFile, argStr: String): Unit =
+    runArgs(mkArgs(argStr), getMockOptions(root))
 
-    val conf = Cli.getConfig(args, opts)
-    Cli.run(conf.get)
-  }
+  def runArgs(
+      args: Array[String],
+      init: CliOptions = baseCliOptions,
+      exitCode: ExitCode = ExitCode.Ok
+  ): Unit =
+    run(Cli.getConfig(args, init).get, exitCode)
+
+  def run(options: CliOptions, exitCode: ExitCode = ExitCode.Ok) =
+    assertEquals(Cli.run(options), exitCode)
 
   def getConfig(args: Array[String]): CliOptions = {
     Cli.getConfig(args, baseCliOptions).get
@@ -81,19 +86,19 @@ abstract class AbstractCliTest extends FunSuite {
       input: AbsoluteFile,
       expected: String,
       cmds: Seq[Array[String]],
-      assertExit: ExitCode => Unit = { exit => assert(exit.isOk, exit) },
-      assertOut: String => Unit = { _ => {} }
+      exitCode: ExitCode = ExitCode.Ok,
+      assertOut: String => Unit = { _ => {} },
+      testExitCode: Option[ExitCode] = None
   ): Unit = {
     cmds.foreach { args =>
       val out = new ByteArrayOutputStream()
       val init: CliOptions = getMockOptions(input, input, new PrintStream(out))
       val config = Cli.getConfig(args, init).get
-      val exit = Cli.run(config)
-      assertExit(exit)
+      run(config, exitCode)
       val obtained = dir2string(input)
       assertNoDiff(obtained, expected)
       val testConfig = config.copy(writeModeOpt = None)
-      Cli.run(Cli.getConfig(Array("--test"), testConfig).get)
+      runArgs(Array("--test"), testConfig, testExitCode.getOrElse(exitCode))
       assertOut(out.toString())
     }
 
@@ -124,8 +129,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         originalTmpFile.toFile.getPath,
         originalTmpFile2.toFile.getPath
       )
-      val formatInPlace = getConfig(args)
-      Cli.run(formatInPlace)
+      runArgs(args)
       val obtained = FileOps.readFile(originalTmpFile.toString)
       val obtained2 = FileOps.readFile(originalTmpFile2.toString)
       assertNoDiff(obtained, expected10)
@@ -146,8 +150,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
       val init = baseCliOptions.copy(
         common = baseCliOptions.common.copy(out = ps)
       )
-      val auto = Cli.getConfig(args, init).get
-      Cli.run(auto)
+      runArgs(args, init)
       val obtained = new String(baos.toByteArray, StandardCharsets.UTF_8)
       assertNoDiff(obtained, formatted)
       assert(obtained.length == formatted.length)
@@ -173,14 +176,8 @@ trait CliTestBehavior { this: AbstractCliTest =>
       val bais = new ByteArrayInputStream(sbtOriginal.getBytes)
       val baos = new ByteArrayOutputStream()
       val ps = new PrintStream(baos)
-      Cli.run(
-        printToStdout.copy(
-          common = printToStdout.common.copy(
-            out = ps,
-            in = bais
-          )
-        )
-      )
+      val common = printToStdout.common.copy(out = ps, in = bais)
+      run(printToStdout.copy(common = common))
       val obtained = new String(baos.toByteArray, StandardCharsets.UTF_8)
       assertNoDiff(obtained, sbtExpected)
       assert(obtained.size == sbtExpected.size)
@@ -195,9 +192,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         "--config-str",
         s"""{version="$version",style=IntelliJ}"""
       )
-      val formatInPlace = getConfig(args)
-      val exit = Cli.run(formatInPlace)
-      assert(exit.is(ExitCode.TestError))
+      runArgs(args, exitCode = ExitCode.TestError)
       val str = FileOps.readFile(tmpFile.toString)
       assertNoDiff(str, unformatted)
     }
@@ -210,9 +205,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         "--config-str",
         s"""{version="$version",style=IntelliJ, docstring = Asterisk}"""
       )
-      val formatInPlace = getConfig(args)
-      val exit = Cli.run(formatInPlace)
-      assert(exit.is(ExitCode.UnexpectedError))
+      runArgs(args, exitCode = ExitCode.UnexpectedError)
     }
 
     test(s"scalafmt foo.randomsuffix is formatted: $label") {
@@ -249,14 +242,13 @@ trait CliTestBehavior { this: AbstractCliTest =>
           |/foobar.scala
           |object A {}
           |""".stripMargin
-      val options = getConfig(
+      runArgs(
         Array(
           input.toString(),
           "--config-str",
           s"""{version="$version",style=IntelliJ}"""
         )
       )
-      Cli.run(options)
       val obtained = dir2string(input)
       assertNoDiff(obtained, expected)
     }
@@ -295,7 +287,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
           |/target/nested3/DoNotFormatMe.scala
           |object    CIgnoreME   {  }
           |""".stripMargin
-      val options = getConfig(
+      runArgs(
         Array(
           "--config-str",
           s"""{version="$version",style=IntelliJ}""",
@@ -304,8 +296,6 @@ trait CliTestBehavior { this: AbstractCliTest =>
           "target/nested".asFilename
         )
       )
-
-      Cli.run(options)
 
       val obtained = dir2string(input)
       assertNoDiff(obtained, expected)
@@ -342,7 +332,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     test(
       s"scalafmt (no matching files) is okay with --mode diff and --stdin: $label"
     ) {
-      val diff = getConfig(
+      runArgs(
         Array(
           "--mode",
           "diff",
@@ -359,8 +349,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
       ).copy(
         common = CommonOptions(in = new ByteArrayInputStream("".getBytes))
       )
-      Cli.run(diff)
-      Cli.run(stdin)
+      run(stdin)
     }
 
     test(s"scalafmt (no arg) read config from git repo: $label") {
@@ -443,8 +432,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         val mock = getMockOptions(input, workingDir)
         mock.copy(common = mock.common.copy(cwd = Some(workingDir)))
       }
-      val config = Cli.getConfig(Array("foo.scala"), options).get
-      Cli.run(config)
+      runArgs(Array("foo.scala"), options)
       val obtained = (workingDir / "foo.scala").readFile
       assertNoDiff(obtained, expected)
     }
@@ -469,11 +457,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         )
 
       val config = root / "scalafmt.conf"
-      val args = mkArgs(s"--config $config")
-      val opts = getMockOptions(root)
-
-      val conf = Cli.getConfig(args, opts)
-      Cli.run(conf.get)
+      runWith(root, s"--config $config")
 
       assertNoDiff(dir2string(root / "scalatex.scalatex"), unformatted)
       assertNoDiff(dir2string(root / "sbt.sbtfile"), sbtOriginal)
@@ -588,8 +572,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         "-f",
         fileStr(file1, file2, file3)
       )
-      val formatInPlace = getConfig(args)
-      Cli.run(formatInPlace)
+      runArgs(args)
       val obtained = FileOps.readFile(file1.toString)
       val obtained2 = FileOps.readFile(file2.toString)
       val obtained3 = FileOps.readFile(file3.toString)
@@ -612,7 +595,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
             s"""{version="$version",style=IntelliJ}"""
           )
         ),
-        assertExit = { exit => assert(exit.is(ExitCode.ParseError)) },
+        ExitCode.ParseError,
         assertOut = out => {
           assertContains(
             out,
@@ -620,7 +603,8 @@ trait CliTestBehavior { this: AbstractCliTest =>
               |object    A { foo( }
               |                   ^""".stripMargin
           )
-        }
+        },
+        Some(ExitCode.Ok)
       )
     }
 
@@ -650,7 +634,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         dir,
         input,
         Seq(Array("--test")),
-        assertExit = { exit => assert(exit.is(ExitCode.TestError)) },
+        ExitCode.TestError,
         assertOut = out => {
           assertContains(
             out,
@@ -674,7 +658,6 @@ trait CliTestBehavior { this: AbstractCliTest =>
         string2dir(input),
         input,
         Seq(Array("--test", "--config-str", s"""{version="$version"}""")),
-        assertExit = { exit => assert(exit.isOk) },
         assertOut = out => {
           assert(
             out.contains(
@@ -700,7 +683,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         string2dir(input),
         input,
         Seq(Array("--test")),
-        assertExit = { exit => assert(exit == ExitCode.ParseError) },
+        ExitCode.ParseError,
         assertOut = out => {
           assert(
             out.contains(
@@ -725,7 +708,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         string2dir(input),
         input,
         Seq(Array.empty),
-        assertExit = { exit => assert(exit == ExitCode.UnexpectedError) },
+        ExitCode.UnexpectedError,
         assertOut = out => {
           assert(
             out.contains("Invalid field: blah") ||
@@ -767,7 +750,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
             "--test"
           )
         ),
-        assertExit = { exit => assert(exit.is(ExitCode.TestError)) },
+        ExitCode.TestError,
         assertOut = out => {
           assert(
             out.contains(expected) &&
@@ -798,7 +781,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         dir,
         input,
         Seq(Array("--list")),
-        assertExit = { exit => assert(exit.is(ExitCode.TestError)) },
+        ExitCode.TestError,
         assertOut = out => {
           assert(
             out.contains("bar.scala") &&
@@ -828,7 +811,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           "--debug"
         ) // debug options is needed to output running scalafmt version
       ),
-      assertExit = { x => assertEquals(x, ExitCode.UnsupportedVersion, x) },
+      ExitCode.UnsupportedVersion,
       assertOut = out => {
         val eol = System.lineSeparator()
         val msg = s"error: missing version (current $stableVersion)$eol"
@@ -853,7 +836,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           "--debug"
         ) // debug options is needed to output running scalafmt version
       ),
-      assertExit = { x => assertEquals(x, ExitCode.UnsupportedVersion, x) },
+      ExitCode.UnsupportedVersion,
       assertOut = out => {
         val eol = System.lineSeparator()
         val msg = s"error: missing version (current $stableVersion)$eol"
@@ -1169,14 +1152,13 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |}
         |```
         |""".stripMargin
-    val options = getConfig(
+    runArgs(
       Array(
         input.toString(),
         "--config-str",
         s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}"""
       )
     )
-    Cli.run(options)
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
   }
@@ -1198,14 +1180,13 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |        object    A {      }
         |  ```
         |""".stripMargin
-    val options = getConfig(
+    runArgs(
       Array(
         input.toString(),
         "--config-str",
-        s"""{project.includePaths."+" = ["glob:**.md"]}"""
+        s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}"""
       )
     )
-    Cli.run(options)
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
   }
@@ -1237,14 +1218,14 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |  }
         |```
         |""".stripMargin
-    val options = getConfig(
+    runArgs(
       Array(
         input.toString(),
         "--config-str",
-        s"""{project.includePaths."+" = ["glob:**.md"]}"""
-      )
+        s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}"""
+      ),
+      exitCode = ExitCode.ParseError
     )
-    Cli.run(options)
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
   }
@@ -1302,7 +1283,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         |  val x =
         |    1
         |}""".stripMargin
-    val res = Console.withOut(out) {
+    Console.withOut(out) {
       Console.withErr(err) {
         val options = getConfig(Array("--stdin", "--test"))
         val options2 = options.copy(
@@ -1313,10 +1294,9 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
             err = Console.err
           )
         )
-        Cli.run(options2)
+        run(options2, ExitCode.TestError)
       }
     }
-    assertEquals(res.code, 1)
     assertEquals(
       CliTest.stripCR(out.toString),
       "error: --test failed\n"
