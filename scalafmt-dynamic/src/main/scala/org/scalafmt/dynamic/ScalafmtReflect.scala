@@ -47,16 +47,13 @@ case class ScalafmtReflect(
     )
   ).toOption
 
-  // TODO: see implementation details for other versions of scalafmt, find where intellij config is kept
-  lazy val intellijScalaFmtConfig: Option[ScalafmtReflectConfig] = {
-    if (version == ScalafmtVersion(1, 5, 1)) {
+  lazy val intellijScalaFmtConfig: Option[ScalafmtReflectConfig] =
+    if (version < ScalafmtVersion(1, 5, 1)) None
+    else {
       val scalaFmtConfigCls = loadClass("org.scalafmt.config.ScalafmtConfig")
       val configTarget = scalaFmtConfigCls.invokeStatic("intellij")
       Some(new ScalafmtReflectConfig(this)(configTarget))
-    } else {
-      None
     }
-  }
 
   def parseConfig(path: Path): Try[ScalafmtReflectConfig] =
     parseConfigPost300(path)
@@ -68,20 +65,14 @@ case class ScalafmtReflect(
       }
 
   private def parseConfigPost300(path: Path): Try[Object] = {
-    // scalafmt >= 3.0.0
-    Try(scalafmtCls.invokeStatic("parseHoconConfigFile", path.asParam))
-      .recoverWith { case _: NoSuchMethodException =>
-        parseConfigPre300(path)
-      }
+    if (version < ScalafmtVersion(3, 0, 0, 7)) parseConfigPre300(path)
+    else Try(scalafmtCls.invokeStatic("parseHoconConfigFile", path.asParam))
   }
 
   private def parseConfigPre300(path: Path): Try[Object] = {
     val textParam = ConfigFactory.parseFile(path.toFile).root.render().asParam
-    // scalafmt >= 1.6.0
-    Try(scalafmtCls.invokeStatic("parseHoconConfig", textParam))
-      .recoverWith { case _: NoSuchMethodException =>
-        parseConfigPre160(textParam)
-      }
+    if (version < ScalafmtVersion(1, 6, 0, 1)) parseConfigPre160(textParam)
+    else Try(scalafmtCls.invokeStatic("parseHoconConfig", textParam))
   }
 
   private def parseConfigPre160(textParam: (Class[_], String)): Try[Object] = {
