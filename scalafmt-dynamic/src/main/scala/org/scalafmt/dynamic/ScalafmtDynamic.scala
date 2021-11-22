@@ -7,7 +7,7 @@ import java.nio.file.attribute.FileTime
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import coursierapi.{MavenRepository, Repository}
-import org.scalafmt.dynamic.ScalafmtDynamic.{FormatEval, FormatResult}
+import org.scalafmt.dynamic.ScalafmtDynamic.FormatEval
 import org.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.scalafmt.dynamic.ScalafmtDynamicError._
 import org.scalafmt.dynamic.exceptions._
@@ -28,6 +28,8 @@ final case class ScalafmtDynamic(
     ]]
 ) extends Scalafmt
     with ScalafmtSessionFactory {
+
+  import ScalafmtDynamic._
 
   def this() =
     this(
@@ -189,18 +191,15 @@ final case class ScalafmtDynamic(
       code: String,
       config: ScalafmtReflectConfig
   ): FormatResult = {
+    val needSbt = config.getVersion < ScalafmtVersion(3, 0, 0, 7) && {
+      val extension = getExtension(file.toString)
+      extension == "md" || // added in 3.0.0-RC7
+      config.getVersion < ScalafmtVersion(2, 6, 3) &&
+      extension == "sbt" || extension == "sc" // added in 2.6.3
+    }
     Try {
-      val filename = file.toString
       val configWithDialect: ScalafmtReflectConfig =
-        if (
-          config.getVersion < ScalafmtVersion(2, 6, 3) &&
-          (filename.endsWith(".sbt") || filename.endsWith(".sc") ||
-            filename.endsWith(".md"))
-        ) {
-          config.withSbtDialect
-        } else {
-          config
-        }
+        if (needSbt) config.withSbtDialect else config
       configWithDialect.format(code, Some(file))
     }.toEither.left.map {
       case ReflectionException(e) => UnknownError(e)
@@ -247,4 +246,9 @@ final case class ScalafmtDynamic(
 object ScalafmtDynamic {
   type FormatResult = Either[ScalafmtDynamicError, String]
   private type FormatEval[T] = Either[ScalafmtDynamicError, T]
+
+  def getExtension(path: String): String = {
+    val dotIndex = path.lastIndexOf('.')
+    if (dotIndex < 0) "" else path.substring(dotIndex + 1)
+  }
 }
