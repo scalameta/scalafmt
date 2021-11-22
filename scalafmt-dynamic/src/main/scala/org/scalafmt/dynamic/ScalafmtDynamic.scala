@@ -177,6 +177,17 @@ final case class ScalafmtDynamic(
       file: Path,
       code: String,
       config: ScalafmtReflectConfig
+  ): FormatResult =
+    if (respectExcludeFilters && !config.isIncludedInProject(file)) {
+      reporter.excluded(file)
+      Right(code)
+    } else
+      tryForceFormat(file, code, config)
+
+  private def tryForceFormat(
+      file: Path,
+      code: String,
+      config: ScalafmtReflectConfig
   ): FormatResult = {
     Try {
       val filename = file.toString
@@ -190,14 +201,7 @@ final case class ScalafmtDynamic(
         } else {
           config
         }
-      if (
-        respectExcludeFilters && !configWithDialect.isIncludedInProject(file)
-      ) {
-        reporter.excluded(file)
-        code
-      } else {
-        configWithDialect.format(code, Some(file))
-      }
+      configWithDialect.format(code, Some(file))
     }.toEither.left.map {
       case ReflectionException(e) => UnknownError(e)
       case e => UnknownError(e)
