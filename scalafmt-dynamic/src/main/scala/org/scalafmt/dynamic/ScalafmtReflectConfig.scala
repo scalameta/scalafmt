@@ -24,6 +24,9 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
 
   @inline def getVersion = fmtReflect.version
 
+  @inline def isIncludedInProject(path: Path): Boolean =
+    isIncludedInProject(path.toString)
+
   def isIncludedInProject(filename: String): Boolean =
     projectMatcherField.invokeAs[Boolean]("matches", filename.asParam)
 

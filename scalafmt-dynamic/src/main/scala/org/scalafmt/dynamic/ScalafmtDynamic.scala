@@ -190,7 +190,9 @@ final case class ScalafmtDynamic(
         } else {
           config
         }
-      if (isIgnoredFile(filename, configWithDialect)) {
+      if (
+        respectExcludeFilters && !configWithDialect.isIncludedInProject(file)
+      ) {
         reporter.excluded(file)
         code
       } else {
@@ -200,13 +202,6 @@ final case class ScalafmtDynamic(
       case ReflectionException(e) => UnknownError(e)
       case e => UnknownError(e)
     }
-  }
-
-  private def isIgnoredFile(
-      filename: String,
-      config: ScalafmtReflectConfig
-  ): Boolean = {
-    respectExcludeFilters && !config.isIncludedInProject(filename)
   }
 
   private def readVersion(config: Path): FormatEval[ScalafmtVersion] = {
@@ -240,7 +235,7 @@ final case class ScalafmtDynamic(
         formatted => formatted
       )
     override def matchesProjectFilters(file: Path): Boolean =
-      cfg.isIncludedInProject(file.toString)
+      cfg.isIncludedInProject(file)
   }
 
 }
