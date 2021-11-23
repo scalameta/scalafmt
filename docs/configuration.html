@@ -4577,6 +4577,21 @@ path).</p>
   ]
 }
 </code></pre>
+<h4><a class="anchor" aria-hidden="true" id="projectlayout"></a><a href="#projectlayout" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>project.layout</code></h4>
+<p>Allows specifying a project structure naming convention which can be used to
+select an appropriate dialect for cross-building if one is explicitly selected
+via <a href="#fileoverride"><code>fileOverride</code></a>. By default, it's disabled (<code>null</code>).</p>
+<p>Currently, the following options are supported:</p>
+<ul>
+<li>(since v3.2.0) <code>StandardConvention</code>: this is the usual naming convention
+putting scala source code under <code>src/main/scala</code> or <code>src/test/scala</code>, with
+alternate cross-build dialects in <code>src/main/scala-2.13</code></li>
+</ul>
+<p>If this parameter is set, some supported dialects will be determined automatically;
+if the detected dialect is compatible with the overall one (<code>runner.dialect</code>),
+no change will be applied.</p>
+<p>Currently, supports scala binary versions 2.10-2.13 as well as 3; also, if the version
+is major scala 2 (i.e., <code>scala-2</code>), will select the scala 2.13 dialect.</p>
 <h3><a class="anchor" aria-hidden="true" id="fileoverride"></a><a href="#fileoverride" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>fileOverride</code></h3>
 <blockquote>
 <p>Since v2.5.0.</p>
@@ -4586,10 +4601,10 @@ path).</p>
 pattern. For instance,</p>
 <pre><code class="hljs">align.<span class="hljs-attr">preset</span> = none
 fileOverride {
-  <span class="hljs-string">"glob:**/*.sbt"</span> {
+  <span class="hljs-string">"glob:**.sbt"</span> {
     align.<span class="hljs-attr">preset</span> = most
   }
-  <span class="hljs-string">"glob:**/src/test/scala/**/*.scala"</span> {
+  <span class="hljs-string">"glob:**/src/test/scala/**.scala"</span> {
     <span class="hljs-attr">maxColumn</span> = <span class="hljs-number">120</span>
     binPack.<span class="hljs-attr">unsafeCallSite</span> = <span class="hljs-literal">true</span>
   }
@@ -4601,6 +4616,26 @@ suites.</p>
 <blockquote>
 <p>This parameter does not modify which files are formatted.</p>
 </blockquote>
+<p>File names will be matched against the patterns in the order in which they are
+specified in the configuration file, in case multiple patterns match a given file.</p>
+<p>The parameter also allows the following shortcuts:</p>
+<ul>
+<li>(since v3.2.0) setting only the dialect:
+<ul>
+<li><code>fileOverride { &quot;glob:**/*.sbt&quot; = sbt1 }</code></li>
+</ul></li>
+<li>(since v3.2.0) setting based on the file extension:
+<ul>
+<li><code>fileOverride { &quot;.sbt&quot; { runner.dialect = sbt1 } }</code></li>
+<li>this is simply a shortcut for <code>glob:**.ext</code></li>
+</ul></li>
+<li>(since v3.2.0) setting based on the language:
+<ul>
+<li><code>fileOverride { &quot;lang:scala-2&quot; = scala213 }</code></li>
+<li>requires <a href="#projectlayout">project.layout</a> (sets dialect for minor versions)</li>
+<li>these patterns will be matched last</li>
+</ul></li>
+</ul>
 <h2><a class="anchor" aria-hidden="true" id="spaces"></a><a href="#spaces" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Spaces</h2>
 <h3><a class="anchor" aria-hidden="true" id="spacesbeforecontextboundcolon"></a><a href="#spacesbeforecontextboundcolon" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.beforeContextBoundColon</code></h3>
 <p>Default: <code>spaces.beforeContextBoundColon = &quot;Never&quot;</code></p>
@@ -5659,6 +5694,7 @@ verticalMultiline.<span class="hljs-attr">excludeDanglingParens</span> = [
 <span class="hljs-attr">onTestFailure</span> = <span class="hljs-string">""</span>
 <span class="hljs-attr">encoding</span> = <span class="hljs-string">"UTF-8"</span>
 project.<span class="hljs-attr">git</span> = <span class="hljs-literal">false</span>
+project.<span class="hljs-attr">layout</span> = <span class="hljs-literal">null</span>
 project.<span class="hljs-attr">includePaths</span> = [
   <span class="hljs-string">"glob:**.scala"</span>
   <span class="hljs-string">"glob:**.sbt"</span>
