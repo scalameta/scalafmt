@@ -149,6 +149,11 @@ case class ScalafmtConfig(
   ): ScalafmtConfig =
     copy(runner = runner.copy(dialect = dialect))
 
+  private[scalafmt] def withDialect(
+      dialect: Option[NamedDialect]
+  ): ScalafmtConfig =
+    dialect.fold(this)(withDialect)
+
   def withDialect(dialect: Dialect, name: String): ScalafmtConfig =
     withDialect(NamedDialect(name, dialect))
 
@@ -160,18 +165,54 @@ case class ScalafmtConfig(
   def forSbt: ScalafmtConfig = copy(runner = runner.forSbt)
 
   private lazy val expandedFileOverride = Try {
-    val fs = file.FileSystems.getDefault
-    fileOverride.values.map { case (pattern, conf) =>
-      val style = decoder.read(Some(this), conf).get
-      fs.getPathMatcher(pattern.asFilename) -> style
+    val langPrefix = "lang:"
+    val param = fileOverride.values.filter(_._1.nonEmpty)
+    val hasLayout = project.layout.isDefined
+    val patStyles = param.map { case (pat, conf) =>
+      val isLang = hasLayout && pat.startsWith(langPrefix)
+      val eitherPat =
+        if (isLang) Left(pat.substring(langPrefix.length)) else Right(pat)
+      val cfg = conf match {
+        case x: Conf.Str => withDialect(NamedDialect.codec.read(None, x).get)
+        case x =>
+          val dialectOpt = eitherPat.left.toOption.flatMap { lang =>
+            project.layout.flatMap(_.getDialectByLang(lang)(dialect))
+          }
+          decoder.read(Some(withDialect(dialectOpt)), x).get
+      }
+      eitherPat -> cfg
     }
+    val langResult = patStyles.collect { case (Left(lang), cfg) => lang -> cfg }
+    val fs = file.FileSystems.getDefault
+    val pmResult = patStyles.collect { case (Right(pat), cfg) =>
+      val pattern = if (pat(0) == '.') "glob:**" + pat else pat.asFilename
+      fs.getPathMatcher(pattern) -> cfg
+    }
+    (langResult, pmResult)
   }
+
   def getConfigFor(filename: String): Try[ScalafmtConfig] = {
     val absfile = AbsoluteFile(FileOps.getFile(filename))
-    expandedFileOverride.map { x =>
-      x
-        .collectFirst { case (pm, style) if pm.matches(absfile.path) => style }
-        .getOrElse(this)
+    @inline def otherDialect(style: ScalafmtConfig): Boolean =
+      style.runner.getDialect ne runner.getDialect
+    def onLang[A](f: (ProjectFiles.Layout, String) => A): Option[A] =
+      project.layout.flatMap { layout =>
+        layout.getLang(absfile).map { lang => f(layout, lang) }
+      }
+    expandedFileOverride.map { case (langStyles, pmStyles) =>
+      def langStyle = onLang { (layout, lang) =>
+        val style = langStyles.collectFirst { case (`lang`, style) => style }
+        style.getOrElse(withDialect(layout.getDialectByLang(lang)(dialect)))
+      }
+      val pmStyle = pmStyles.collectFirst {
+        case (pm, style) if pm.matches(absfile.path) =>
+          if (otherDialect(style)) style
+          else
+            style.withDialect(onLang {
+              _.getDialectByLang(_)(style.dialect)
+            }.flatten)
+      }
+      pmStyle.orElse(langStyle).getOrElse(this)
     }
   }
 
