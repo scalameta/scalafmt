@@ -8,7 +8,8 @@ case class NamedDialect(name: String, dialect: Dialect)
 object NamedDialect {
 
   def apply(pair: sourcecode.Text[Dialect]): NamedDialect = {
-    apply(pair.source.toLowerCase, pair.value)
+    val name = pair.source.substring(pair.source.lastIndexOf('.') + 1)
+    apply(name.toLowerCase, pair.value)
   }
 
   val scala212 = Scala212

@@ -87,6 +87,7 @@ def anotherMethod(): Unit = doOtherStuff()
 <<< #2882 scala-3, explicit
 runner.dialect = scala213
 project.layout = StandardConvention
+fileOverride { "lang:scala-3" = scala3 }
 ===
 trait A /* comm */ :
   val cond =
@@ -99,10 +100,16 @@ trait A /* comm */ :
      }
    end if
 >>> foo/src/main/scala-3/bar.scala
-test does not parse
-trait A /* comm */ :
-                 ^
-foo/src/main/scala-3/bar.scala:1: error: [dialect scala213] ; expected but : found
+trait A /* comm */:
+  val cond =
+    if true then
+      stat1
+      stat2
+    else { // c1
+      stat3
+      stat4
+    }
+    end if
 <<< #2882 scala-3, implicit
 runner.dialect = scala213
 project.layout = StandardConvention
@@ -118,13 +125,20 @@ trait A /* comm */ :
      }
    end if
 >>> foo/src/main/scala-3/bar.scala
-test does not parse
-trait A /* comm */ :
-                 ^
-foo/src/main/scala-3/bar.scala:1: error: [dialect scala213] ; expected but : found
+trait A /* comm */:
+  val cond =
+    if true then
+      stat1
+      stat2
+    else { // c1
+      stat3
+      stat4
+    }
+    end if
 <<< #2882 scala-2, explicit
 runner.dialect = scala211
 project.layout = StandardConvention
+fileOverride { "lang:scala-2" = scala213 }
 ===
 object a {
     foo(
@@ -133,13 +147,12 @@ object a {
     )
 }
 >>> foo/src/main/scala-2/bar.scala
-test does not parse
-    foo(
-      bar,
-      baz, // trailing comma
-    )
-  ^
-foo/src/main/scala-2/bar.scala:5: error: [dialect scala211] illegal start of simple expression
+object a {
+  foo(
+    bar,
+    baz // trailing comma
+  )
+}
 <<< #2882 scala-2, implicit with 3
 runner.dialect = scala3
 project.layout = StandardConvention
@@ -148,11 +161,9 @@ object a {
   do { foo } while (bar) // unsupported in scala3
 }
 >>> foo/src/main/scala-2/bar.scala
-test does not parse
 object a {
   do { foo } while (bar) // unsupported in scala3
-^
-foo/src/main/scala-2/bar.scala:2: error: [dialect scala3] do {...} while (...) syntax is no longer supported
+}
 <<< #2882 scala-2, implicit with 213
 runner.dialect = scala213
 project.layout = StandardConvention
@@ -178,13 +189,13 @@ case class a { // unsupported since 2.11
   def foo = 1
 }
 >>> foo/src/main/scala-2.10/bar.scala
-test does not parse
 case class a { // unsupported since 2.11
-           ^
-foo/src/main/scala-2.10/bar.scala:1: error: [dialect scala211] case classes must have a parameter list; try 'case class a()' or 'case object a'
+  def foo = 1
+}
 <<< #2882 scala-2.13, implicit
 runner.dialect = scala211
 project.layout = StandardConvention
+fileOverride { "lang:scala-2.13" = { trailingCommas = always } }
 ===
 object a {
     foo(
@@ -193,25 +204,22 @@ object a {
     )
 }
 >>> foo/src/main/scala-2.13/bar.scala
-test does not parse
-    foo(
-      bar,
-      baz, // trailing comma
-    )
-  ^
-foo/src/main/scala-2.13/bar.scala:5: error: [dialect scala211] illegal start of simple expression
+object a {
+  foo(
+    bar,
+    baz, // trailing comma
+  )
+}
 <<< #2882 .sbt
 runner.dialect = scala211
+fileOverride { ".sbt" = scala213 }
 ===
 foo(
   bar,
   baz, // trailing comma
 )
 >>> foo/bar/baz.sbt
-test does not parse
 foo(
   bar,
-  baz, // trailing comma
+  baz // trailing comma
 )
-^
-foo/bar/baz.sbt:4: error: [dialect scala211] illegal start of simple expression
