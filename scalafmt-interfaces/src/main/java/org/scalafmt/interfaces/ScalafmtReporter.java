@@ -35,7 +35,7 @@ public interface ScalafmtReporter {
      *          when the error appeared as a position.
      */
     default void error(Path file, String message, Throwable e) {
-        error(file, new RuntimeException(message, e));
+        error(file, new ScalafmtException(message, e));
     }
 
     /**
