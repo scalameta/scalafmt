@@ -171,6 +171,8 @@ class DynamicSuite extends FunSuite {
   }
 
   private val testedVersions = Seq(
+    "3.1.2",
+    "2.7.5",
     "2.5.3",
     "2.0.0-RC4",
     "1.6.0-RC4",
@@ -190,8 +192,9 @@ class DynamicSuite extends FunSuite {
     testedVersions.foreach { version =>
       test(s"$name [v=$version]") {
         val format = new Format(name, identity)
+        val dialect = if (version < "3.0.0") null else "scala213"
         try {
-          format.setVersion(version, null, config(version))
+          format.setVersion(version, dialect, config(version))
           fn(format, version)
         } finally format.dynamic.clear()
       }
