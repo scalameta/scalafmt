@@ -63,16 +63,17 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
     if (!hasRewriteRulesPre320) this
     else {
       // emulating this.copy(rewrite = RewriteSettings())
-      val constructor: Constructor[_] = targetCls.getConstructors()(0)
-      val constructorParams = constructor.getParameters.map(_.getName)
-      val rewriteParamIdx =
-        constructorParams.indexOf(rewriteFieldName).ensuring(_ >= 0)
-      val emptyRewrites =
-        target.invoke("apply$default$" + (rewriteParamIdx + 1))
-      val fieldsValues = constructorParams.map(param => target.invoke(param))
-      fieldsValues(rewriteParamIdx) = emptyRewrites
+      val ctor: Constructor[_] = targetCls.getConstructors()(0)
+      val params = ctor.getParameters.map(_.getName)
+      val rewriteParamIdx = params.indexOf(rewriteFieldName).ensuring(_ >= 0)
+      val fieldValues = params.zipWithIndex.map { case (p, i) =>
+        target.invoke(
+          if (i == rewriteParamIdx) "apply$default$" + (rewriteParamIdx + 1)
+          else p
+        )
+      }
       new ScalafmtReflectConfig(fmtReflect)(
-        constructor.newInstance(fieldsValues: _*).asInstanceOf[Object]
+        ctor.newInstance(fieldValues: _*).asInstanceOf[Object]
       )
     }
 
