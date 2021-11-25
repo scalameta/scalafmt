@@ -66,10 +66,12 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
       val ctor: Constructor[_] = targetCls.getConstructors()(0)
       val params = ctor.getParameters.map(_.getName)
       val rewriteParamIdx = params.indexOf(rewriteFieldName).ensuring(_ >= 0)
+      val publicMethodNames = targetCls.getMethods.view.map(_.getName)
+      val publicParams = publicMethodNames.filter(params.contains).toSet
       val fieldValues = params.zipWithIndex.map { case (p, i) =>
         target.invoke(
           if (i == rewriteParamIdx) "apply$default$" + (rewriteParamIdx + 1)
-          else p
+          else { if (publicParams.contains(p)) p else p + "$access$" + i }
         )
       }
       new ScalafmtReflectConfig(fmtReflect)(
