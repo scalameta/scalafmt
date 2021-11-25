@@ -1,6 +1,7 @@
 package org.scalafmt.dynamic
 
 import com.typesafe.config.ConfigFactory
+import java.io.Closeable
 import java.nio.file.Path
 import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.dynamic.utils.ReflectUtils._
@@ -10,7 +11,7 @@ import scala.util.Try
 case class ScalafmtReflect(
     classLoader: ClassLoader,
     version: ScalafmtVersion
-) {
+) extends Closeable {
   import classLoader.loadClass
 
   // FIXME: the class does not exist for version old versions, e.g. v0.2.8
@@ -166,5 +167,10 @@ case class ScalafmtReflect(
     val module = loadClass(fqn).getField("MODULE$")
     module.setAccessible(true)
     module.get(null)
+  }
+
+  override def close(): Unit = classLoader match {
+    case x: Closeable => x.close()
+    case _ =>
   }
 }

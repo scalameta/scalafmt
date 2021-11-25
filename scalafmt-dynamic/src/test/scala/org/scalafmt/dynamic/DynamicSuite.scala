@@ -373,7 +373,12 @@ class DynamicSuite extends FunSuite {
     f.setVersion(version.toString, "Scala211")
     f.assertFormat()
 
-    val reflect = f.dynamic.formatCache.getFromCache(version)
+    val cache = f.dynamic.moduleLoader match {
+      case x: ScalafmtModuleLoader.CachedProxy => x.cache
+      case x =>
+        fail("ReflectResolver is not cached: " + x.getClass.getSimpleName)
+    }
+    val reflect = cache.getFromCache(version)
     assert(reflect.nonEmpty)
     assert(reflect.get.right.get.intellijScalaFmtConfig.nonEmpty)
   }
@@ -412,7 +417,12 @@ class DynamicSuite extends FunSuite {
     "rewrite.rules = [RedundantBraces]"
   } { (f, version) =>
     f.assertFormat()
-    val configOpt = f.dynamic.configsCache
+    val cache = f.dynamic.configLoader match {
+      case x: ScalafmtConfigLoader.CachedProxy => x.cache
+      case x =>
+        fail("ReflectConfigResolver is not cached: " + x.getClass.getSimpleName)
+    }
+    val configOpt = cache
       .getFromCache(f.config)
       .collect { case Right((cfg, _)) => cfg }
     assert(configOpt.nonEmpty)
