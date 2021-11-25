@@ -184,12 +184,16 @@ class DynamicSuite extends FunSuite {
     "1.0.0"
   )
 
-  def checkExhaustive(name: String)(fn: (Format, String) => Unit): Unit = {
+  def checkExhaustive(name: String)(config: String => String)(
+      fn: (Format, String) => Unit
+  ): Unit = {
     testedVersions.foreach { version =>
-      test(s"$name (version: $version)") {
+      test(s"$name [v=$version]") {
         val format = new Format(name, identity)
-        try fn(format, version)
-        finally format.dynamic.clear()
+        try {
+          format.setVersion(version, null, config(version))
+          fn(format, version)
+        } finally format.dynamic.clear()
       }
     }
   }
@@ -371,13 +375,9 @@ class DynamicSuite extends FunSuite {
     assert(reflect.get.right.get.intellijScalaFmtConfig.nonEmpty)
   }
 
-  checkExhaustive("continuation-indent-callSite-and-defnSite") { (f, version) =>
-    f.setConfig(
-      s"""version=$version
-        |continuationIndent.callSite = 5
-        |continuationIndent.defnSite = 3
-      """.stripMargin
-    )
+  checkExhaustive("continuation-indent-callSite-and-defnSite") { _ =>
+    "continuationIndent { callSite = 5, defnSite = 3 }"
+  } { (f, _) =>
     val original =
       """class A {
         |  function1(
@@ -405,12 +405,9 @@ class DynamicSuite extends FunSuite {
     f.assertFormat(original, expected)
   }
 
-  checkExhaustive("hasRewriteRules-and-withoutRewriteRules") { (f, version) =>
-    f.setConfig(
-      s"""version=$version
-        |rewrite.rules = [RedundantBraces]
-        """.stripMargin
-    )
+  checkExhaustive("hasRewriteRules-and-withoutRewriteRules") { _ =>
+    "rewrite.rules = [RedundantBraces]"
+  } { (f, version) =>
     f.assertFormat()
     val configOpt = f.dynamic.configsCache
       .getFromCache(f.config)
