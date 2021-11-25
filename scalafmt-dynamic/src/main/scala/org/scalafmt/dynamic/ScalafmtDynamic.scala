@@ -201,9 +201,8 @@ final case class ScalafmtDynamic(
       val configWithDialect: ScalafmtReflectConfig =
         if (needSbt) config.withSbtDialect else config
       configWithDialect.format(code, Some(file))
-    }.toEither.left.map {
-      case ReflectionException(e) => UnknownError(e)
-      case e => UnknownError(e)
+    }.toEither.left.map { x =>
+      UnknownError(ReflectionException.flatten(x))
     }
   }
 
