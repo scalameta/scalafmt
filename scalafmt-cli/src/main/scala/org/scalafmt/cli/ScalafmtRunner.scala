@@ -4,7 +4,7 @@ import java.io.OutputStreamWriter
 import java.nio.file.Path
 
 import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.GitOps.Implicit
+import org.scalafmt.sysops.BatchPathFinder
 
 trait ScalafmtRunner {
   private[cli] def run(
@@ -50,25 +50,20 @@ trait ScalafmtRunner {
       canFormat: Path => Boolean
   ): Seq[AbsoluteFile] = {
     val gitOps = options.gitOps
-    val files = options.fileFetchMode match {
+    val finder = options.fileFetchMode match {
       case GitFiles =>
-        options.customFilesOpt.fold(gitOps.getFiles(canFormat))(
-          gitOps.getFiles(_, options.respectProjectFilters, canFormat)
-        )
-
+        new BatchPathFinder.GitFiles(gitOps)(canFormat)
       case RecursiveSearch =>
-        options.customFilesOpt
-          .map(gitOps.getDirFiles(_, options.respectProjectFilters, canFormat))
-          .getOrElse(gitOps.getDirFiles(options.cwd, canFormat))
-
+        new BatchPathFinder.DirFiles(options.cwd)(canFormat)
       case DiffFiles(branch) =>
-        options.customFilesOpt.fold(gitOps.getDiffFiles(branch, canFormat))(
-          gitOps.getDiffFiles(branch, options.respectProjectFilters, canFormat)
-        )
-
+        new BatchPathFinder.GitBranchFiles(gitOps, branch)(canFormat)
       case ChangedFiles =>
-        gitOps.getChangedFiles(canFormat)
+        new BatchPathFinder.GitDirtyFiles(gitOps)(canFormat)
     }
+    val files = finder.findMatchingFiles(
+      options.respectProjectFilters,
+      options.customFilesOpt.getOrElse(Seq.empty): _*
+    )
     val excludeRegexp = options.excludeFilterRegexp
     files.filter { f => excludeRegexp.findFirstIn(f.toString()).isEmpty }
   }
