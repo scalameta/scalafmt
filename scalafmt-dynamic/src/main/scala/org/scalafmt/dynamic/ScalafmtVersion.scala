@@ -7,27 +7,34 @@ case class ScalafmtVersion(
     minor: Int,
     patch: Int,
     rc: Int = 0,
-    snapshot: Boolean = false
-) {
-  private val integerRepr: Int =
-    major * 100 + minor * 10 + patch
+    snapshot: String = ""
+) extends Comparable[ScalafmtVersion] {
+  private val integerRepr: Int = {
+    val max = 100
+    val rcval = (rc + max - 1) % max // 0 -> 99, everything else is less
+    Seq(major, minor, patch, rcval).reduce(_ * max + _)
+  }
 
-  def <(other: ScalafmtVersion): Boolean =
-    if (integerRepr == other.integerRepr)
-      rc != 0 && (other.rc == 0 || rc < other.rc)
-    else integerRepr < other.integerRepr
+  def <(other: ScalafmtVersion): Boolean = compareTo(other) < 0
 
   def >(other: ScalafmtVersion): Boolean = other < this
 
   override def toString: String =
     s"$major.$minor.$patch" +
       (if (rc > 0) s"-RC$rc" else "") +
-      (if (snapshot) "-SNAPSHOT" else "")
+      snapshot
+
+  override def compareTo(o: ScalafmtVersion): Int = {
+    val cmp = Integer.compare(integerRepr, o.integerRepr)
+    if (cmp != 0) cmp
+    else snapshot.compareTo(o.snapshot)
+  }
 }
 
 object ScalafmtVersion {
 
-  private val versionRegex = """(\d)\.(\d)\.(\d)(?:-RC(\d))?(-SNAPSHOT)?""".r
+  private val versionRegex =
+    """(\d{1,2})\.(\d{1,2})\.(\d{1,2})(?:-RC(\d{1,2}))?([+].*|-SNAPSHOT)?""".r
 
   def parse(version: String): Option[ScalafmtVersion] =
     version match {
@@ -38,7 +45,7 @@ object ScalafmtVersion {
             positiveInt(minor),
             positiveInt(patch),
             if (rc == null) 0 else positiveInt(rc),
-            snapshot != null
+            if (snapshot == null) "" else snapshot
           )
         }.toOption
       case _ => None
