@@ -19,15 +19,18 @@ object GitOps {
       files: Seq[AbsoluteFile],
       respectProjectFilters: Boolean,
       matches: AbsoluteFile => Boolean
-  )(listDir: AbsoluteFile => Seq[AbsoluteFile]): Seq[AbsoluteFile] =
-    files.flatMap {
-      case d if d.isDirectory => listDir(d).filter(matches)
+  )(listDir: Seq[AbsoluteFile] => Seq[AbsoluteFile]): Seq[AbsoluteFile] = {
+    val matchingFiles = Seq.newBuilder[AbsoluteFile]
+    val dirs = Seq.newBuilder[AbsoluteFile]
+    files.foreach { x =>
+      if (x.isDirectory) dirs += x
       // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
       // formatted regardless of what it is or where it is.
       // NB: Unless respectProjectFilters is also specified.
-      case f if respectProjectFilters && !matches(f) => Seq.empty
-      case f => Seq(f)
+      else if (!respectProjectFilters || matches(x)) matchingFiles += x
     }
+    matchingFiles.result() ++ listDir(dirs.result()).filter(matches)
+  }
 
   implicit class Implicit(obj: GitOps) {
 
@@ -54,13 +57,15 @@ object GitOps {
         respectProjectFilters: Boolean,
         matches: AbsoluteFile => Boolean
     ): Seq[AbsoluteFile] =
-      getMatchingFiles(files, respectProjectFilters, matches)(_.listFiles)
+      getMatchingFiles(files, respectProjectFilters, matches)(
+        _.flatMap(_.listFiles)
+      )
 
     def getDiffFiles(
         branch: String,
         matches: AbsoluteFile => Boolean
     ): Seq[AbsoluteFile] =
-      obj.diff(branch, None).filter(matches)
+      obj.diff(branch).filter(matches)
 
     def getDiffFiles(
         branch: String,
@@ -68,7 +73,7 @@ object GitOps {
         matches: AbsoluteFile => Boolean
     )(files: Seq[AbsoluteFile]): Seq[AbsoluteFile] =
       getMatchingFiles(files, respectProjectFilters, matches)(x =>
-        obj.diff(branch, Some(x))
+        obj.diff(branch, x: _*)
       )
 
     def getDiffFiles(
@@ -82,7 +87,7 @@ object GitOps {
       )
 
     def getChangedFiles(matches: AbsoluteFile => Boolean): Seq[AbsoluteFile] =
-      obj.status.filter(matches)
+      obj.status().filter(matches)
 
   }
 
@@ -90,9 +95,9 @@ object GitOps {
 
 trait GitOps {
   val workingDirectory: AbsoluteFile
-  def status: Seq[AbsoluteFile]
-  def diff(branch: String, cwd: Option[AbsoluteFile]): Seq[AbsoluteFile]
-  def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile]
+  def status(dir: AbsoluteFile*): Seq[AbsoluteFile]
+  def diff(branch: String, dir: AbsoluteFile*): Seq[AbsoluteFile]
+  def lsTree(dir: AbsoluteFile*): Seq[AbsoluteFile]
   def rootDir: Option[AbsoluteFile]
 }
 
@@ -113,8 +118,8 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
     )
   }
 
-  override def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile] = {
-    val cmd = Seq("git", "ls-files", "--full-name", dir.toString())
+  override def lsTree(dir: AbsoluteFile*): Seq[AbsoluteFile] = {
+    val cmd = Seq("git", "ls-files", "--full-name") ++ dir.map(_.toString())
     rootDir.fold(Seq.empty[AbsoluteFile]) { rtDir =>
       exec(cmd)
         .map(_.map(rtDir.join).filter(_.isRegularFile))
@@ -131,20 +136,18 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
     } yield file
   }
 
-  override def diff(
-      branch: String,
-      cwd: Option[AbsoluteFile]
-  ): Seq[AbsoluteFile] = {
+  override def diff(branch: String, dir: AbsoluteFile*): Seq[AbsoluteFile] = {
     val cmd = Seq("git", "diff", "--name-only", "--diff-filter=d", branch) ++
-      cwd.map(x => Seq("--", x.toString())).getOrElse(Seq.empty)
+      (if (dir.isEmpty) Seq.empty else "--" +: dir.map(_.toString()))
     for {
       root <- rootDir.toSeq
       path <- exec(cmd).getOrElse(Seq.empty)
     } yield root.join(path)
   }
 
-  override def status: Seq[AbsoluteFile] = {
-    val cmd = Seq("git", "status", "--porcelain")
+  override def status(dir: AbsoluteFile*): Seq[AbsoluteFile] = {
+    val cmd = Seq("git", "status", "--porcelain") ++
+      (if (dir.isEmpty) Seq.empty else "--" +: dir.map(_.toString()))
     for {
       root <- rootDir.toSeq
       statusLine <- exec(cmd).getOrElse(Seq.empty)
