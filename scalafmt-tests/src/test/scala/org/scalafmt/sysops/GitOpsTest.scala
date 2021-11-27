@@ -162,13 +162,13 @@ class GitOpsTest extends FunSuite {
   def diff(br: String, cwd: AbsoluteFile*)(implicit
       ops: GitOpsImpl
   ): Seq[AbsoluteFile] =
-    ops.diff(br, cwd.headOption)
+    ops.diff(br, cwd: _*)
 
   def diff(cwd: AbsoluteFile*)(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
     diff("HEAD", cwd: _*)
 
-  def status()(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
-    ops.status
+  def status(cwd: AbsoluteFile*)(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
+    ops.status(cwd: _*)
 
   // diff
   test("diff should return modified committed files") {
@@ -177,6 +177,22 @@ class GitOpsTest extends FunSuite {
     commit
     modify(f)
     assert(diff().toSet == Set(f))
+  }
+
+  test("diff should return modified files from specific subdirs") {
+    val d1 = mkDir()
+    val d2 = mkDir()
+    val d3 = mkDir()
+
+    val f0 = touch()
+    val f1 = touch(dir = d1)
+    val f2 = touch(dir = d2)
+    val f3 = touch(dir = d3)
+
+    add(f0, f1, f2, f3)
+    assertEquals(diff(d1, d2).toSet, Set(f1, f2))
+    assertEquals(diff().toSet, Set(f0, f1, f2, f3))
+    assertEquals(diff(path).toSet, Set(f0, f1, f2, f3))
   }
 
   test("#1000: diff should not return git deleted files") {
@@ -259,6 +275,22 @@ class GitOpsTest extends FunSuite {
     assert(status().toSet == Set(f1))
   }
 
+  test("status should return modified files from specific subdirs") {
+    val d1 = mkDir()
+    val d2 = mkDir()
+    val d3 = mkDir()
+
+    val f0 = touch()
+    val f1 = touch(dir = d1)
+    val f2 = touch(dir = d2)
+    val f3 = touch(dir = d3)
+
+    add(f0, f1, f2, f3)
+    assertEquals(status(d1, d2).toSet, Set(f1, f2))
+    assertEquals(status().toSet, Set(f0, f1, f2, f3))
+    assertEquals(status(path).toSet, Set(f0, f1, f2, f3))
+  }
+
   test("status should return moved") {
     val f = touch()
     add(f)
@@ -285,6 +317,21 @@ class GitOpsTest extends FunSuite {
     val f = touch(dir = dir)
     add(f)
     assert(status().toSet == Set(f))
+  }
+
+  test("lsTree should return files from specific subdirs") {
+    val d1 = mkDir()
+    val d2 = mkDir()
+    val d3 = mkDir()
+
+    val f1 = touch(dir = d1)
+    val f2 = touch(dir = d2)
+    val f3 = touch(dir = d3)
+
+    add(f1, f2, f3)
+    assertEquals(ops.lsTree(d1, d2).toSet, Set(f1, f2))
+    assertEquals(ops.lsTree().toSet, Set(initFile, f1, f2, f3))
+    assertEquals(ops.lsTree(path).toSet, Set(initFile, f1, f2, f3))
   }
 
 }
