@@ -2,7 +2,7 @@ package org.scalafmt.sysops
 
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path}
+import java.nio.file.Files
 
 import munit.{Assertions, FunSuite, Location}
 import org.scalafmt.util.DeleteTree.deleteTree
@@ -19,29 +19,32 @@ class GitOpsTest extends FunSuite {
   // DESNOTE(2017-08-16, pjrt): Create a temporary git directory for each
   // test.
   private implicit var ops: GitOpsImpl = _
-  private var path: Path = _
+  private var path: AbsoluteFile = _
+  private var initFile: AbsoluteFile = _
 
   override def beforeEach(context: BeforeEach): Unit = {
-    path = Files.createTempDirectory(dirName)
-    val absFile = AbsoluteFile(path)
-    ops = new GitOpsImpl(absFile)
+    path = AbsoluteFile(Files.createTempDirectory(dirName))
+    ops = new GitOpsImpl(path)
     init(ops)
     // initial commit is needed
-    val initF = touch("initialfile")
-    add(initF)(ops)
+    initFile = touch("initialfile")
+    add(initFile)(ops)
     commit(ops)
   }
 
   override def afterEach(context: AfterEach): Unit = {
     try {
-      deleteTree(path)
+      deleteTree(path.path)
     } catch {
       case e: Throwable =>
         println("Unable to delete test files")
         e.printStackTrace()
     }
   }
-  def touch(
+
+  private def touch(dir: AbsoluteFile): AbsoluteFile = touch(dir = Some(dir))
+
+  private def touch(
       name: String = Random.alphanumeric.take(10).mkString,
       dir: Option[AbsoluteFile] = None
   ): AbsoluteFile = {
@@ -88,7 +91,7 @@ class GitOpsTest extends FunSuite {
     // just annoy us in the tests below
     ops
       .lsTree(ops.workingDirectory)
-      .filterNot(_.getFileName.startsWith("initialfile"))
+      .filterNot(_ == initFile)
 
   def mkDir(
       dirName: String = Random.alphanumeric.take(10).mkString
@@ -141,7 +144,7 @@ class GitOpsTest extends FunSuite {
     add(f1)
 
     val innerDir = mkDir()
-    val f2 = touch(dir = Some(innerDir))
+    val f2 = touch(innerDir)
     add(f2)
 
     val innerGitOps = new GitOpsImpl(innerDir)
@@ -156,12 +159,15 @@ class GitOpsTest extends FunSuite {
     assert(ls.toSet == Set(f))
   }
 
-  def diff(br: String = "HEAD", cwd: Option[AbsoluteFile] = None)(implicit
+  def diff(br: String, cwd: AbsoluteFile*)(implicit
       ops: GitOpsImpl
   ): Seq[AbsoluteFile] =
-    ops.diff(br, cwd)
+    ops.diff(br, cwd.headOption)
 
-  def status(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
+  def diff(cwd: AbsoluteFile*)(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
+    diff("HEAD", cwd: _*)
+
+  def status()(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
     ops.status
 
   // diff
@@ -190,7 +196,7 @@ class GitOpsTest extends FunSuite {
   }
 
   test("diff should return added files against HEAD") {
-    val dir = Some(mkDir("dir 1"))
+    val dir = mkDir("dir 1")
     val f1 = touch()
     val f2 = touch(dir = dir)
     add(f1)
@@ -204,7 +210,7 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     checkoutBr("other")
-    val dir = Some(mkDir("dir 1"))
+    val dir = mkDir("dir 1")
     val f1 = touch()
     val f2 = touch(dir = dir)
     add(f1)
@@ -221,7 +227,7 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     checkoutBr("other")
-    val dir = Some(mkDir("dir 1"))
+    val dir = mkDir("dir 1")
     val f1 = touch()
     val f2 = touch(dir = dir)
     add(f1)
@@ -250,7 +256,7 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     val f1 = touch()
-    assert(status.toSet == Set(f1))
+    assert(status().toSet == Set(f1))
   }
 
   test("status should return moved") {
@@ -259,7 +265,7 @@ class GitOpsTest extends FunSuite {
     commit
     val f1 = mv(f)
     add(f1)
-    assert(status.toSet == Set(f1))
+    assert(status().toSet == Set(f1))
   }
 
   test("status should not return deleted files") {
@@ -271,14 +277,14 @@ class GitOpsTest extends FunSuite {
     modify(f1)
     add(f1)
     rm(f)
-    assert(status.toSet == Set(f1))
+    assert(status().toSet == Set(f1))
   }
 
   test("status should return files with spaces in the path") {
-    val dir = Some(mkDir("dir 1"))
+    val dir = mkDir("dir 1")
     val f = touch(dir = dir)
     add(f)
-    assert(status.toSet == Set(f))
+    assert(status().toSet == Set(f))
   }
 
 }
@@ -290,8 +296,11 @@ private object GitOpsTest {
     file.delete
 
   // Git commands
-  def git(str: String*)(implicit ops: GitOpsImpl, loc: Location): Seq[String] =
-    ops.exec("git" +: str) match {
+  def git(cmd: String, args: String*)(implicit
+      ops: GitOpsImpl,
+      loc: Location
+  ): Seq[String] =
+    ops.exec("git" +: cmd +: args) match {
       case Failure(f) => Assertions.fail(s"Failed git command. Got: $f")
       case Success(s) => s
     }
@@ -299,11 +308,11 @@ private object GitOpsTest {
   def init(implicit ops: GitOpsImpl): Unit =
     git("init")
 
-  def add(file: AbsoluteFile)(implicit ops: GitOpsImpl): Unit =
-    git("add", file.toString())
+  def add(file: AbsoluteFile*)(implicit ops: GitOpsImpl): Unit =
+    git("add", file.map(_.toString()): _*)
 
-  def rm(file: AbsoluteFile)(implicit ops: GitOpsImpl): Unit =
-    git("rm", file.toString())
+  def rm(file: AbsoluteFile*)(implicit ops: GitOpsImpl): Unit =
+    git("rm", file.map(_.toString()): _*)
 
   def commit(implicit ops: GitOpsImpl): Unit =
     git("commit", "-m", "'some-message'")
