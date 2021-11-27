@@ -2,6 +2,7 @@ package org.scalafmt.sysops
 
 import java.io.File
 import java.net.URI
+import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{Files, Path}
 
 import scala.io.Codec
@@ -21,6 +22,7 @@ final class AbsoluteFile(val path: Path) extends AnyVal {
 
   @inline def isDirectory: Boolean = FileOps.isDirectory(path)
   @inline def isRegularFile: Boolean = FileOps.isRegularFile(path)
+  @inline def attributes: BasicFileAttributes = FileOps.getAttributes(path)
 
   @inline def listFiles: Seq[AbsoluteFile] = join(FileOps.listFiles(path))
   @inline def readFile(implicit codec: Codec): String = FileOps.readFile(path)
