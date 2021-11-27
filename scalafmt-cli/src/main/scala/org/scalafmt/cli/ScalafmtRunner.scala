@@ -57,9 +57,9 @@ trait ScalafmtRunner {
         )
 
       case RecursiveSearch =>
-        options.customFilesOpt.fold(gitOps.getDirFiles(canFormat))(
-          gitOps.getDirFiles(_, options.respectProjectFilters, canFormat)
-        )
+        options.customFilesOpt
+          .map(gitOps.getDirFiles(_, options.respectProjectFilters, canFormat))
+          .getOrElse(gitOps.getDirFiles(options.cwd, canFormat))
 
       case DiffFiles(branch) =>
         options.customFilesOpt.fold(gitOps.getDiffFiles(branch, canFormat))(

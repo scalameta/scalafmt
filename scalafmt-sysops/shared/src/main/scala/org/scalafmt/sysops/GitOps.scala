@@ -39,13 +39,17 @@ object GitOps {
 
   implicit class Implicit(obj: GitOps) {
 
-    def getCanonicalConfigFile(config: Option[Path] = None): Option[Try[Path]] =
-      FileOps
-        .getCanonicalConfigFile(obj.workingDirectory, config)
-        .orElse(obj.rootDir.flatMap(FileOps.tryGetConfigInDir))
+    def getCanonicalConfigFile(
+        cwd: AbsoluteFile,
+        config: Option[Path] = None
+    ): Option[Try[Path]] =
+      FileOps.getCanonicalConfigFile(cwd, config).orElse(getRootConfigFile)
+
+    def getRootConfigFile: Option[Try[Path]] =
+      obj.rootDir.flatMap(FileOps.tryGetConfigInDir)
 
     def getFiles(matches: Path => Boolean): Seq[AbsoluteFile] =
-      obj.lsTree(obj.workingDirectory).filter(matches)
+      obj.lsTree().filter(matches)
 
     def getFiles(
         files: Seq[AbsoluteFile],
@@ -54,8 +58,11 @@ object GitOps {
     ): Seq[AbsoluteFile] =
       getMatchingFiles(files, respectProjectFilters, matches)(obj.lsTree)
 
-    def getDirFiles(matches: Path => Boolean): Seq[AbsoluteFile] =
-      obj.workingDirectory.listFiles.filter(matches)
+    def getDirFiles(
+        cwd: AbsoluteFile,
+        matches: Path => Boolean
+    ): Seq[AbsoluteFile] =
+      cwd.listFiles.filter(matches)
 
     def getDirFiles(
         files: Seq[AbsoluteFile],
@@ -81,16 +88,6 @@ object GitOps {
         obj.diff(branch, x: _*)
       )
 
-    def getDiffFiles(
-        branch: String,
-        files: Seq[Path],
-        respectProjectFilters: Boolean,
-        matches: Path => Boolean
-    ): Seq[AbsoluteFile] =
-      getDiffFiles(branch, respectProjectFilters, matches)(
-        obj.workingDirectory.join(files)
-      )
-
     def getChangedFiles(matches: Path => Boolean): Seq[AbsoluteFile] =
       obj.status().filter(matches)
 
@@ -99,7 +96,6 @@ object GitOps {
 }
 
 trait GitOps {
-  val workingDirectory: AbsoluteFile
   def status(dir: AbsoluteFile*): Seq[AbsoluteFile]
   def diff(branch: String, dir: AbsoluteFile*): Seq[AbsoluteFile]
   def lsTree(dir: AbsoluteFile*): Seq[AbsoluteFile]

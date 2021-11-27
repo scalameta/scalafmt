@@ -129,7 +129,7 @@ case class CliOptions(
   }
 
   private lazy val canonicalConfigFile: Option[Try[Path]] =
-    gitOps.getCanonicalConfigFile(config)
+    gitOps.getCanonicalConfigFile(cwd, config)
 
   /** Parse the scalafmt configuration and try to encode it to `ScalafmtConfig`.
     * If `--config-str` is specified, this will parse the configuration string
