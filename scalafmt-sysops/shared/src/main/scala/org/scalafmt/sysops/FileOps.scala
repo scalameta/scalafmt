@@ -1,6 +1,7 @@
 package org.scalafmt.sysops
 
 import java.net.{URI, URL}
+import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{AccessDeniedException, NoSuchFileException}
 import java.nio.file.{Files, LinkOption, Path, Paths}
 import scala.io.Codec
@@ -22,11 +23,25 @@ object FileOps {
   def isRegularFile(file: Path): Boolean =
     Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)
 
+  @inline
+  def getAttributes(file: Path): BasicFileAttributes =
+    Files.readAttributes(
+      file,
+      classOf[BasicFileAttributes],
+      LinkOption.NOFOLLOW_LINKS
+    )
+
   def listFiles(path: String): Seq[Path] =
     listFiles(getFile(path))
 
-  def listFiles(file: Path): Seq[Path] = {
-    val iter = Files.find(file, Integer.MAX_VALUE, (_, a) => a.isRegularFile)
+  def listFiles(file: Path): Seq[Path] =
+    listFiles(file, (_, a) => a.isRegularFile)
+
+  def listFiles(
+      file: Path,
+      matches: (Path, BasicFileAttributes) => Boolean
+  ): Seq[Path] = {
+    val iter = Files.find(file, Integer.MAX_VALUE, (p, a) => matches(p, a))
     try iter.iterator().asScala.toList
     finally iter.close()
   }
