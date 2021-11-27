@@ -114,26 +114,16 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
   }
 
   override def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile] = {
-    val cmd = Seq(
-      "git",
-      "ls-files",
-      "--full-name",
-      dir.toString()
-    )
+    val cmd = Seq("git", "ls-files", "--full-name", dir.toString())
     rootDir.fold(Seq.empty[AbsoluteFile]) { rtDir =>
       exec(cmd)
+        .map(_.map(rtDir.join).filter(_.isRegularFile))
         .getOrElse(Seq.empty)
-        .map(rtDir.join)
-        .filter(_.isRegularFile)
     }
   }
 
   override def rootDir: Option[AbsoluteFile] = {
-    val cmd = Seq(
-      "git",
-      "rev-parse",
-      "--show-toplevel"
-    )
+    val cmd = Seq("git", "rev-parse", "--show-toplevel")
     for {
       Seq(rootPath) <- exec(cmd).toOption
       file <- AbsoluteFile.fromPathIfAbsolute(rootPath)
@@ -145,13 +135,8 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
       branch: String,
       cwd: Option[AbsoluteFile]
   ): Seq[AbsoluteFile] = {
-    val cmd = Seq(
-      "git",
-      "diff",
-      "--name-only",
-      "--diff-filter=d",
-      branch
-    ) ++ cwd.map(x => Seq("--", x.toString())).getOrElse(Seq.empty)
+    val cmd = Seq("git", "diff", "--name-only", "--diff-filter=d", branch) ++
+      cwd.map(x => Seq("--", x.toString())).getOrElse(Seq.empty)
     for {
       root <- rootDir.toSeq
       path <- exec(cmd).getOrElse(Seq.empty)
@@ -159,11 +144,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
   }
 
   override def status: Seq[AbsoluteFile] = {
-    val cmd = Seq(
-      "git",
-      "status",
-      "--porcelain"
-    )
+    val cmd = Seq("git", "status", "--porcelain")
     for {
       root <- rootDir.toSeq
       statusLine <- exec(cmd).getOrElse(Seq.empty)
