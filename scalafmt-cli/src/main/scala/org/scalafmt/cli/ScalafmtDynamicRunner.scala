@@ -1,6 +1,7 @@
 package org.scalafmt.cli
 
 import java.io.File
+import java.nio.file.Path
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 
 import org.scalafmt.CompatCollections.ParConverters._
@@ -8,7 +9,7 @@ import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
 import org.scalafmt.dynamic.ScalafmtDynamicError
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtSession
-import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.FileOps
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
 import util.control.Breaks._
@@ -32,11 +33,10 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
           return reporter.getExitCode // XXX: returning
       }
 
-    def sessionMatcher(x: AbsoluteFile): Boolean =
-      session.matchesProjectFilters(x.path)
-    val filterMatcher: AbsoluteFile => Boolean =
-      options.customFilesOpt.fold(sessionMatcher _) { customFiles =>
-        val customMatcher = getFileMatcher(customFiles)
+    val sessionMatcher = session.matchesProjectFilters _
+    val filterMatcher: Path => Boolean =
+      options.customFilesOpt.fold(sessionMatcher) { customFiles =>
+        val customMatcher = getFileMatcher(customFiles.map(_.path))
         x => customMatcher(x) && sessionMatcher(x)
       }
     val inputMethods = getInputMethods(options, filterMatcher)
@@ -81,12 +81,10 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
     inputMethod.write(formatResult, input, options)
   }
 
-  private def getFileMatcher(
-      paths: Seq[AbsoluteFile]
-  ): AbsoluteFile => Boolean = {
+  private def getFileMatcher(paths: Seq[Path]): Path => Boolean = {
     require(paths.nonEmpty)
-    val (files, dirs) = paths.partition(_.isRegularFile)
-    (x: AbsoluteFile) =>
+    val (files, dirs) = paths.partition(FileOps.isRegularFile)
+    (x: Path) =>
       files.contains(x) || {
         val filename = x.toString()
         dirs.exists { dir =>

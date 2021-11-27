@@ -27,7 +27,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         options.customExcludes
       )
 
-      val inputMethods = getInputMethods(options, filterMatcher.matchesFile)
+      val inputMethods = getInputMethods(options, filterMatcher.matchesPath)
       if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
         throw NoMatchingFiles
 
