@@ -1,5 +1,6 @@
 package org.scalafmt.sysops
 
+import scala.language.implicitConversions
 import scala.sys.process.ProcessLogger
 import scala.util.{Failure, Success, Try}
 import java.nio.file.Path
@@ -15,10 +16,14 @@ object GitOps {
       new GitOpsImpl(workingDirectory)
   }
 
+  private implicit def implicitPathToAbsoluteFileMatcher(
+      f: Path => Boolean
+  ): AbsoluteFile => Boolean = (x: AbsoluteFile) => f(x.path)
+
   private def getMatchingFiles(
       files: Seq[AbsoluteFile],
       respectProjectFilters: Boolean,
-      matches: AbsoluteFile => Boolean
+      matches: Path => Boolean
   )(listDir: Seq[AbsoluteFile] => Seq[AbsoluteFile]): Seq[AbsoluteFile] = {
     val matchingFiles = Seq.newBuilder[AbsoluteFile]
     val dirs = Seq.newBuilder[AbsoluteFile]
@@ -27,7 +32,7 @@ object GitOps {
       // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
       // formatted regardless of what it is or where it is.
       // NB: Unless respectProjectFilters is also specified.
-      else if (!respectProjectFilters || matches(x)) matchingFiles += x
+      else if (!respectProjectFilters || matches(x.path)) matchingFiles += x
     }
     matchingFiles.result() ++ listDir(dirs.result()).filter(matches)
   }
@@ -39,23 +44,23 @@ object GitOps {
         .getCanonicalConfigFile(obj.workingDirectory, config)
         .orElse(obj.rootDir.flatMap(FileOps.tryGetConfigInDir))
 
-    def getFiles(matches: AbsoluteFile => Boolean): Seq[AbsoluteFile] =
+    def getFiles(matches: Path => Boolean): Seq[AbsoluteFile] =
       obj.lsTree(obj.workingDirectory).filter(matches)
 
     def getFiles(
         files: Seq[AbsoluteFile],
         respectProjectFilters: Boolean,
-        matches: AbsoluteFile => Boolean
+        matches: Path => Boolean
     ): Seq[AbsoluteFile] =
       getMatchingFiles(files, respectProjectFilters, matches)(obj.lsTree)
 
-    def getDirFiles(matches: AbsoluteFile => Boolean): Seq[AbsoluteFile] =
+    def getDirFiles(matches: Path => Boolean): Seq[AbsoluteFile] =
       obj.workingDirectory.listFiles.filter(matches)
 
     def getDirFiles(
         files: Seq[AbsoluteFile],
         respectProjectFilters: Boolean,
-        matches: AbsoluteFile => Boolean
+        matches: Path => Boolean
     ): Seq[AbsoluteFile] =
       getMatchingFiles(files, respectProjectFilters, matches)(
         _.flatMap(_.listFiles)
@@ -63,14 +68,14 @@ object GitOps {
 
     def getDiffFiles(
         branch: String,
-        matches: AbsoluteFile => Boolean
+        matches: Path => Boolean
     ): Seq[AbsoluteFile] =
       obj.diff(branch).filter(matches)
 
     def getDiffFiles(
         branch: String,
         respectProjectFilters: Boolean,
-        matches: AbsoluteFile => Boolean
+        matches: Path => Boolean
     )(files: Seq[AbsoluteFile]): Seq[AbsoluteFile] =
       getMatchingFiles(files, respectProjectFilters, matches)(x =>
         obj.diff(branch, x: _*)
@@ -80,13 +85,13 @@ object GitOps {
         branch: String,
         files: Seq[Path],
         respectProjectFilters: Boolean,
-        matches: AbsoluteFile => Boolean
+        matches: Path => Boolean
     ): Seq[AbsoluteFile] =
       getDiffFiles(branch, respectProjectFilters, matches)(
         obj.workingDirectory.join(files)
       )
 
-    def getChangedFiles(matches: AbsoluteFile => Boolean): Seq[AbsoluteFile] =
+    def getChangedFiles(matches: Path => Boolean): Seq[AbsoluteFile] =
       obj.status().filter(matches)
 
   }

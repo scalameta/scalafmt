@@ -1,6 +1,7 @@
 package org.scalafmt.cli
 
 import java.io.OutputStreamWriter
+import java.nio.file.Path
 
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.GitOps.Implicit
@@ -30,7 +31,7 @@ trait ScalafmtRunner {
 
   protected def getInputMethods(
       options: CliOptions,
-      filter: AbsoluteFile => Boolean
+      filter: Path => Boolean
   ): Seq[InputMethod] = {
     if (options.stdIn) {
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
@@ -46,7 +47,7 @@ trait ScalafmtRunner {
   /** Returns file paths defined via options.{customFiles,customExclude} */
   private[this] def getFilesFromCliOptions(
       options: CliOptions,
-      canFormat: AbsoluteFile => Boolean
+      canFormat: Path => Boolean
   ): Seq[AbsoluteFile] = {
     val gitOps = options.gitOps
     val files = options.fileFetchMode match {
