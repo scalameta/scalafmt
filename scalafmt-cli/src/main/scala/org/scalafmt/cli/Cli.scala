@@ -138,9 +138,7 @@ object Cli {
       if (options.writeMode == WriteMode.Test)
         "Looking for unformatted files..."
       else "Reformatting..."
-    options.common.debug.println(
-      "Working directory: " + options.common.workingDirectory
-    )
+    options.common.debug.println("Working directory: " + options.cwd)
 
     val exit = runner.run(options, termDisplayMessage)
 

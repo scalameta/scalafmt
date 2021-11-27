@@ -75,7 +75,7 @@ case class CommonOptions(
     debug: PrintStream = NoopOutputStream.printStream,
     info: PrintStream = NoopOutputStream.printStream
 ) {
-  lazy val workingDirectory: AbsoluteFile =
+  private[cli] lazy val workingDirectory: AbsoluteFile =
     cwd.getOrElse(AbsoluteFile.userDir)
 }
 
@@ -102,6 +102,8 @@ case class CliOptions(
     check: Boolean = false
 ) {
   val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
+
+  def cwd: AbsoluteFile = common.workingDirectory
 
   /** Create a temporary file that contains configuration string specified by
     * `--config-str`. This temporary file will be passed to `scalafmt-dynamic`.
@@ -154,10 +156,9 @@ case class CliOptions(
     mode.getOrElse(if (isGit) GitFiles else RecursiveSearch)
 
   lazy val customFilesOpt =
-    if (customFiles.isEmpty) None
-    else Some(common.workingDirectory.join(customFiles))
+    if (customFiles.isEmpty) None else Some(cwd.join(customFiles))
 
-  lazy val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
+  lazy val gitOps: GitOps = gitOpsConstructor(cwd)
 
   def addFile(file: Path): CliOptions = withFiles(customFiles :+ file)
 

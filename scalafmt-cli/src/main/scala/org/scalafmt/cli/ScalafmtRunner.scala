@@ -22,7 +22,7 @@ trait ScalafmtRunner {
     )
     if (options.writeMode != WriteMode.Stdout && inputMethods.length > 5) {
       termDisplay.init()
-      termDisplay.startTask(msg, options.common.workingDirectory.jfile)
+      termDisplay.startTask(msg, options.cwd.jfile)
       termDisplay.taskLength(msg, inputMethods.length, 0)
     }
     termDisplay
