@@ -1,8 +1,7 @@
 package org.scalafmt.sysops
 
 import scala.sys.process.ProcessLogger
-import scala.util.Try
-import scala.util.control.NonFatal
+import scala.util.{Failure, Success, Try}
 import java.nio.file.Path
 
 object GitOps {
@@ -100,24 +99,18 @@ trait GitOps {
 private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
   private[scalafmt] def exec(cmd: Seq[String]): Try[Seq[String]] = {
-    val gitRes: Try[String] = Try {
-      val lastError = new StringBuilder
-      val swallowStderr = ProcessLogger(_ => (), err => lastError.append(err))
-      try {
-        sys.process
-          .Process(cmd, workingDirectory.jfile)
-          .!!(swallowStderr)
-          .trim
-      } catch {
-        case NonFatal(e) =>
-          throw new IllegalStateException(
-            s"Failed to run command ${cmd.mkString(" ")}. " +
-              s"Error: ${lastError.toString()}",
-            e
-          )
-      }
-    }
-    gitRes.map(_.linesIterator.toSeq)
+    val errors = Seq.newBuilder[String]
+    Try {
+      val swallowStderr = ProcessLogger(_ => (), errors += _)
+      sys.process.Process(cmd, workingDirectory.jfile).!!(swallowStderr)
+    }.fold(
+      e => {
+        val err = errors.result().mkString("\n> ", "\n> ", "\n")
+        val msg = s"Failed to run command ${cmd.mkString(" ")}. Error:$err"
+        Failure(new IllegalStateException(msg, e))
+      },
+      x => Success(x.trim.linesIterator.toSeq)
+    )
   }
 
   override def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile] = {
