@@ -152,6 +152,13 @@ The latest version will be used by default.
   - ⚠️ This option is **discouraged** since it messes up undo buffers in the
     editor and it slows down compilation. It is recommended to use "format on
     save" in the editor instead.
+- [since v2.4.5] `scalafmtFilter: String` (default `""`): optionally limits the
+  set of files considered for formatting:
+  - `diff-dirty`: only the files modified in the git working tree (`git status`)
+  - `diff-ref=<spec>`: only the tracked files modified since `<spec>` (`git diff`)
+  - otherwise if `project.git = true` (`.scalafmt.conf`): only files
+    tracked by git (`git ls-tree`)
+  - otherwise, no restrictions
 
 ### Enable IntegrationTest
 
