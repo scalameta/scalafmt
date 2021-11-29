@@ -1,6 +1,5 @@
 package org.scalafmt.cli
 
-import java.io.File
 import java.nio.file.Path
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 
@@ -36,7 +35,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
     val sessionMatcher = session.matchesProjectFilters _
     val filterMatcher: Path => Boolean =
       options.customFilesOpt.fold(sessionMatcher) { customFiles =>
-        val customMatcher = getFileMatcher(customFiles.map(_.path))
+        val customMatcher = FileOps.getFileMatcher(customFiles.map(_.path))
         x => customMatcher(x) && sessionMatcher(x)
       }
     val inputMethods = getInputMethods(options, filterMatcher)
@@ -79,22 +78,6 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
 
     val formatResult = session.format(inputMethod.path, input)
     inputMethod.write(formatResult, input, options)
-  }
-
-  private def getFileMatcher(paths: Seq[Path]): Path => Boolean = {
-    require(paths.nonEmpty)
-    val (files, dirs) = paths.partition(FileOps.isRegularFile)
-    (x: Path) =>
-      files.contains(x) || {
-        val filename = x.toString()
-        dirs.exists { dir =>
-          val dirname = dir.toString()
-          filename.startsWith(dirname) && (
-            filename.length == dirname.length ||
-              filename.charAt(dirname.length) == File.separatorChar
-          )
-        }
-      }
   }
 
 }
