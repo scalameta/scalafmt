@@ -139,29 +139,23 @@ The latest version will be used by default.
   formatted.
 - `scalafmtSbt`: Format `*.sbt` and `project/*.scala` files.
 - `scalafmtSbtCheck`: Check if the files have been formatted by `scalafmtSbt`.
-- `scalafmtOnly`: Format a single given file.
-- `scalafmtAll`: Execute the scalafmt task for all configurations in which it is
-  enabled. (By default this means the Compile and Test configurations.)
-  (available as of v2.0.0-RC5)
-- `scalafmtCheckAll`: Execute the scalafmtCheck task for all configurations in
-  which it is enabled. (By default this means the Compile and Test
-  configurations.) (available as of v2.0.0-RC5)
+- `scalafmtOnly <file>...`: Format specified files listed.
+- `scalafmtAll` or `scalafmtCheckAll`: Execute the `scalafmt` or `scalafmtCheck`
+  task for all configurations in which it is enabled (since v2.0.0-RC5)
 
-### Customize configuration location
+### Settings
 
 - `scalafmtConfig: File`: The location of the `.scalafmt.conf` configuration
   file. Defaults to the `.scalafmt.conf` file at the root of the project.
-
-### Format on compile
-
 - `scalafmtOnCompile: Boolean`: Defines if the sbt-scalafmt should run scalafmt
   on compile. Default `false`.
-
-> ⚠️ This option is **discouraged** since it messes up undo buffers in the
-> editor and it slows down compilation. It is recommended to use "format on
-> save" in the editor instead.
+  - ⚠️ This option is **discouraged** since it messes up undo buffers in the
+    editor and it slows down compilation. It is recommended to use "format on
+    save" in the editor instead.
 
 ### Enable IntegrationTest
+
+> Unnecessary since v2.4.4.
 
 The sbt plugin is enabled by default for the Test and Compile configurations.
 Use `scalafmtConfigSettings` to enable the plugin for integration tests and then
