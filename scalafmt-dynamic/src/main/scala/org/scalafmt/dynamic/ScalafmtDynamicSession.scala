@@ -18,6 +18,9 @@ final case class ScalafmtDynamicSession(
   override def format(file: Path, code: String): String =
     tryFormat(file, code).getOrElse(code)
 
+  override def formatOrError(file: Path, code: String): ScalafmtResult =
+    tryFormat(file, code).fold(new ScalafmtResult(_), new ScalafmtResult(_))
+
   override def matchesProjectFilters(file: Path): Boolean =
     cfg.isIncludedInProject(file)
 
