@@ -2,7 +2,7 @@ package org.scalafmt.dynamic
 
 import java.nio.file.Path
 
-import scala.util.Try
+import scala.util.Success
 
 import org.scalafmt.dynamic.ScalafmtDynamicError._
 import org.scalafmt.dynamic.exceptions._
@@ -43,11 +43,9 @@ final case class ScalafmtDynamicSession(
       cfg.getVersion < ScalafmtVersion(2, 6, 3) &&
       extension == "sbt" || extension == "sc" // added in 2.6.3
     }
-    Try {
-      val configWithDialect: ScalafmtReflectConfig =
-        if (needSbt) cfg.withSbtDialect else cfg
-      configWithDialect.format(code, Some(file))
-    }.toEither.left.map { x =>
+    val cfgWithDialect = if (needSbt) cfg.withSbtDialect else Success(cfg)
+    val formatResult = cfgWithDialect.flatMap(_.tryFormat(code, Some(file)))
+    formatResult.toEither.left.map { x =>
       val cause = ReflectionException.flatten(x)
       properties.reporter.error(file, cause)
       UnknownError(cause)

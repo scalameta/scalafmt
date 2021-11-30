@@ -48,14 +48,12 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
     }
   }
 
-  lazy val withSbtDialect: ScalafmtReflectConfig =
-    new ScalafmtReflectConfig(fmtReflect)(
-      try target.invoke("forSbt")
-      catch {
-        case ReflectionException(_: NoSuchMethodException) =>
-          target.invoke("withDialect", (dialectCls, sbtDialect))
+  lazy val withSbtDialect: Try[ScalafmtReflectConfig] =
+    Try(target.invoke("forSbt"))
+      .recover { case ReflectionException(_: NoSuchMethodException) =>
+        target.invoke("withDialect", (dialectCls, sbtDialect))
       }
-    )
+      .map(new ScalafmtReflectConfig(fmtReflect)(_))
 
   def withoutRewriteRules: ScalafmtReflectConfig = {
     if (getVersion < ScalafmtVersion(3, 2, 0)) withoutRewriteRulesPre320
@@ -93,8 +91,8 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
       !rules.invokeAs[Boolean]("isEmpty")
     }.getOrElse(false)
 
-  def format(code: String, file: Option[Path]): String =
-    fmtReflect.format(code, this, file)
+  def tryFormat(code: String, file: Option[Path]): Try[String] =
+    fmtReflect.tryFormat(code, this, file)
 
   def indentMain: Option[Int] =
     if (getVersion < ScalafmtVersion(3, 0, 0)) Some(2)
