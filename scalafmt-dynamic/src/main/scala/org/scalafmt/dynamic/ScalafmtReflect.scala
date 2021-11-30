@@ -96,31 +96,31 @@ case class ScalafmtReflect(
     }
   }
 
-  def format(
+  def tryFormat(
       code: String,
       config: ScalafmtReflectConfig,
       fileOpt: Option[Path] = None
-  ): String = {
+  ): Try[String] = {
     require(this eq config.fmtReflect)
 
-    val formatted = (formatMethodWithFilename, fileOpt) match {
-      case (Some(method), Some(file)) =>
-        val filename = file.toString
-        method.invoke(null, code, config.target, emptyRange, filename)
-      case _ =>
-        formatMethod.invoke(null, code, config.target, emptyRange)
-    }
-    clearTokenizerCache()
-    try {
+    Try {
+      val formatted = (formatMethodWithFilename, fileOpt) match {
+        case (Some(method), Some(file)) =>
+          val filename = file.toString
+          method.invoke(null, code, config.target, emptyRange, filename)
+        case _ =>
+          formatMethod.invoke(null, code, config.target, emptyRange)
+      }
+      clearTokenizerCache()
       formattedGet.invoke(formatted).asInstanceOf[String]
-    } catch {
+    }.recoverWith {
       case ReflectionException(e)
           if tokenizeExceptionCls.isInstance(e) ||
             parseExceptionCls.isInstance(e) =>
         val pos = e.invoke("pos")
         val range = positionRange(pos)
         val shortMessage = e.invokeAs[String]("shortMessage")
-        throw PositionExceptionImpl(
+        val exception = PositionExceptionImpl(
           fileOpt.orNull,
           code,
           shortMessage,
@@ -128,6 +128,7 @@ case class ScalafmtReflect(
           range,
           e
         )
+        Failure(exception)
     }
   }
 
