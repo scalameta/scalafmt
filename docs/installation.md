@@ -159,6 +159,11 @@ The latest version will be used by default.
   - otherwise if `project.git = true` (`.scalafmt.conf`): only files
     tracked by git (`git ls-tree`)
   - otherwise, no restrictions
+- [since v2.4.3] `scalafmtDetailedError: Boolean`: if set, when handling a specific error
+  (whether logging or throwing an exception), include the stacktrace as well
+- [since v2.4.5] `scalafmtLogOnEachError: Boolean`: if set, plugin will log errors
+- [since v2.4.5] `scalafmtFailOnErrors: Boolean`: if set, plugin will fail on errors
+  - depending on `scalafmtLogOnEachError`, fail on the first error or only at the end
 
 ### Enable IntegrationTest
 
