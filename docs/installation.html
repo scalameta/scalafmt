@@ -151,30 +151,42 @@ addSbtPlugin(<span class="hljs-string">"org.scalameta"</span> % <span class="hlj
 formatted.</li>
 <li><code>scalafmtSbt</code>: Format <code>*.sbt</code> and <code>project/*.scala</code> files.</li>
 <li><code>scalafmtSbtCheck</code>: Check if the files have been formatted by <code>scalafmtSbt</code>.</li>
-<li><code>scalafmtOnly</code>: Format a single given file.</li>
-<li><code>scalafmtAll</code>: Execute the scalafmt task for all configurations in which it is
-enabled. (By default this means the Compile and Test configurations.)
-(available as of v2.0.0-RC5)</li>
-<li><code>scalafmtCheckAll</code>: Execute the scalafmtCheck task for all configurations in
-which it is enabled. (By default this means the Compile and Test
-configurations.) (available as of v2.0.0-RC5)</li>
+<li><code>scalafmtOnly &lt;file&gt;...</code>: Format specified files listed.</li>
+<li><code>scalafmtAll</code> or <code>scalafmtCheckAll</code>: Execute the <code>scalafmt</code> or <code>scalafmtCheck</code>
+task for all configurations in which it is enabled (since v2.0.0-RC5)</li>
 </ul>
-<h3><a class="anchor" aria-hidden="true" id="customize-configuration-location"></a><a href="#customize-configuration-location" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Customize configuration location</h3>
+<h3><a class="anchor" aria-hidden="true" id="settings"></a><a href="#settings" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Settings</h3>
 <ul>
 <li><code>scalafmtConfig: File</code>: The location of the <code>.scalafmt.conf</code> configuration
 file. Defaults to the <code>.scalafmt.conf</code> file at the root of the project.</li>
-</ul>
-<h3><a class="anchor" aria-hidden="true" id="format-on-compile"></a><a href="#format-on-compile" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Format on compile</h3>
-<ul>
 <li><code>scalafmtOnCompile: Boolean</code>: Defines if the sbt-scalafmt should run scalafmt
-on compile. Default <code>false</code>.</li>
-</ul>
-<blockquote>
-<p>⚠️ This option is <strong>discouraged</strong> since it messes up undo buffers in the
+on compile. Default <code>false</code>.
+<ul>
+<li>⚠️ This option is <strong>discouraged</strong> since it messes up undo buffers in the
 editor and it slows down compilation. It is recommended to use &quot;format on
-save&quot; in the editor instead.</p>
-</blockquote>
+save&quot; in the editor instead.</li>
+</ul></li>
+<li>[since v2.4.5] <code>scalafmtFilter: String</code> (default <code>&quot;&quot;</code>): optionally limits the
+set of files considered for formatting:
+<ul>
+<li><code>diff-dirty</code>: only the files modified in the git working tree (<code>git status</code>)</li>
+<li><code>diff-ref=&lt;spec&gt;</code>: only the tracked files modified since <code>&lt;spec&gt;</code> (<code>git diff</code>)</li>
+<li>otherwise if <code>project.git = true</code> (<code>.scalafmt.conf</code>): only files
+tracked by git (<code>git ls-tree</code>)</li>
+<li>otherwise, no restrictions</li>
+</ul></li>
+<li>[since v2.4.3] <code>scalafmtDetailedError: Boolean</code>: if set, when handling a specific error
+(whether logging or throwing an exception), include the stacktrace as well</li>
+<li>[since v2.4.5] <code>scalafmtLogOnEachError: Boolean</code>: if set, plugin will log errors</li>
+<li>[since v2.4.5] <code>scalafmtFailOnErrors: Boolean</code>: if set, plugin will fail on errors
+<ul>
+<li>depending on <code>scalafmtLogOnEachError</code>, fail on the first error or only at the end</li>
+</ul></li>
+</ul>
 <h3><a class="anchor" aria-hidden="true" id="enable-integrationtest"></a><a href="#enable-integrationtest" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Enable IntegrationTest</h3>
+<blockquote>
+<p>Unnecessary since v2.4.4.</p>
+</blockquote>
 <p>The sbt plugin is enabled by default for the Test and Compile configurations.
 Use <code>scalafmtConfigSettings</code> to enable the plugin for integration tests and then
 use <code>it:scalafmt</code> to format.</p>
@@ -315,10 +327,10 @@ provides instant startup without Nailgun.</p>
 scalafmt --version // should be 3.2.1
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="--help"></a><a href="#--help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: <span class="hljs-number">96</span>a6a5da09511eeae95c3bde88682907aeab78d4
-build time: Fri Dec <span class="hljs-number">03</span> <span class="hljs-number">05</span>:<span class="hljs-number">56</span>:<span class="hljs-number">28</span> UTC <span class="hljs-number">2021</span>
+<pre><code class="hljs">build commit: <span class="hljs-number">54e1</span>e19f65ff9dbbcdcfd8bdd4d30bc04fca20b4
+build time: Sat Dec <span class="hljs-number">04</span> <span class="hljs-number">17</span>:<span class="hljs-number">41</span>:<span class="hljs-number">09</span> UTC <span class="hljs-number">2021</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 3.2.1
+<pre><code class="hljs">scalafmt 3.2.1+3-54e1e19f-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
@@ -539,7 +551,7 @@ classloader.</p>
 <pre><code class="hljs css language-java">Scalafmt scalafmt = Scalafmt.create(scalafmtDynamic)
 String formatted = scalafmt.format(config, file, <span class="hljs-string">"object A   { }"</span>)
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-next button" href="/scalafmt/docs/configuration.html"><span>Configuration</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#intellij">IntelliJ</a><ul class="toc-headings"><li><a href="#format-current-file">Format current file</a></li><li><a href="#format-on-save">Format on save</a></li><li><a href="#resume-using-intellij-formatter">Resume using IntelliJ formatter</a></li></ul></li><li><a href="#vs-code">VS Code</a></li><li><a href="#vim">Vim</a></li><li><a href="#emacs">Emacs</a></li><li><a href="#sublime-text">Sublime Text</a></li><li><a href="#eclipse">Eclipse</a></li><li><a href="#metals">Metals</a></li><li><a href="#sbt">sbt</a><ul class="toc-headings"><li><a href="#task-keys">Task keys</a></li><li><a href="#customize-configuration-location">Customize configuration location</a></li><li><a href="#format-on-compile">Format on compile</a></li><li><a href="#enable-integrationtest">Enable IntegrationTest</a></li><li><a href="#share-configuration-between-builds">Share configuration between builds</a></li><li><a href="#limit-parallelism">Limit parallelism</a></li></ul></li><li><a href="#cli">CLI</a><ul class="toc-headings"><li><a href="#coursier">Coursier</a></li><li><a href="#pre-release">Pre-release</a></li><li><a href="#native-image">Native image</a></li><li><a href="#nailgun">Nailgun</a></li><li><a href="#homebrew">Homebrew</a></li><li><a href="#arch-linux">Arch Linux</a></li><li><a href="#--help">--help</a></li></ul></li><li><a href="#gradle">Gradle</a></li><li><a href="#maven">Maven</a></li><li><a href="#mill">Mill</a></li><li><a href="#standalone-library">Standalone library</a><ul class="toc-headings"><li><a href="#binary-compatibility-guarantees">Binary compatibility guarantees</a></li><li><a href="#sbt-and-sc-files"><code>*.sbt</code> and <code>*.sc</code> files</a></li><li><a href="#version-handling">Version handling</a></li><li><a href="#error-reporting">Error reporting</a></li><li><a href="#project-filters">Project filters</a></li><li><a href="#clearing-resources">Clearing resources</a></li><li><a href="#calling-from-java">Calling from Java</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><a href="/scalafmt/" class="nav-home"><img src="/scalafmt/img/scalameta-logo.png" alt="Scalafmt" width="66" height="58"/></a><div><h5>Docs</h5><a href="
+</span></div></article></div><div class="docs-prevnext"><a class="docs-next button" href="/scalafmt/docs/configuration.html"><span>Configuration</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#intellij">IntelliJ</a><ul class="toc-headings"><li><a href="#format-current-file">Format current file</a></li><li><a href="#format-on-save">Format on save</a></li><li><a href="#resume-using-intellij-formatter">Resume using IntelliJ formatter</a></li></ul></li><li><a href="#vs-code">VS Code</a></li><li><a href="#vim">Vim</a></li><li><a href="#emacs">Emacs</a></li><li><a href="#sublime-text">Sublime Text</a></li><li><a href="#eclipse">Eclipse</a></li><li><a href="#metals">Metals</a></li><li><a href="#sbt">sbt</a><ul class="toc-headings"><li><a href="#task-keys">Task keys</a></li><li><a href="#settings">Settings</a></li><li><a href="#enable-integrationtest">Enable IntegrationTest</a></li><li><a href="#share-configuration-between-builds">Share configuration between builds</a></li><li><a href="#limit-parallelism">Limit parallelism</a></li></ul></li><li><a href="#cli">CLI</a><ul class="toc-headings"><li><a href="#coursier">Coursier</a></li><li><a href="#pre-release">Pre-release</a></li><li><a href="#native-image">Native image</a></li><li><a href="#nailgun">Nailgun</a></li><li><a href="#homebrew">Homebrew</a></li><li><a href="#arch-linux">Arch Linux</a></li><li><a href="#--help">--help</a></li></ul></li><li><a href="#gradle">Gradle</a></li><li><a href="#maven">Maven</a></li><li><a href="#mill">Mill</a></li><li><a href="#standalone-library">Standalone library</a><ul class="toc-headings"><li><a href="#binary-compatibility-guarantees">Binary compatibility guarantees</a></li><li><a href="#sbt-and-sc-files"><code>*.sbt</code> and <code>*.sc</code> files</a></li><li><a href="#version-handling">Version handling</a></li><li><a href="#error-reporting">Error reporting</a></li><li><a href="#project-filters">Project filters</a></li><li><a href="#clearing-resources">Clearing resources</a></li><li><a href="#calling-from-java">Calling from Java</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><a href="/scalafmt/" class="nav-home"><img src="/scalafmt/img/scalameta-logo.png" alt="Scalafmt" width="66" height="58"/></a><div><h5>Docs</h5><a href="
                 /scalafmt/docs/installation.html">Installation</a><a href="
                 /scalafmt/docs/configuration.html">Configuration</a><a href="
                 /scalafmt/docs/contributing-scalafmt.html">Contributing</a></div><div><h5>Community</h5><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2021 Scalafmt</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
