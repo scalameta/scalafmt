@@ -6,6 +6,7 @@ import org.scalafmt.rewrite._
 case class RewriteSettings(
     rules: Seq[Rewrite] = Nil,
     scala3: RewriteScala3Settings = RewriteScala3Settings.default,
+    insertBraces: RewriteSettings.InsertBraces = RewriteSettings.InsertBraces(),
     redundantBraces: RedundantBracesSettings = RedundantBracesSettings(),
     sortModifiers: SortSettings = SortSettings.default,
     imports: Imports.Settings = Imports.Settings(),
@@ -40,5 +41,16 @@ object RewriteSettings {
     generic.deriveDecoderEx(default).noTypos.flatMap {
       Imports.validateImports
     }
+
+  case class InsertBraces(
+      minLines: Int = 0,
+      allBlocks: Boolean = false
+  )
+
+  private[RewriteSettings] object InsertBraces {
+    implicit val surface: generic.Surface[InsertBraces] = generic.deriveSurface
+    implicit val codec: ConfCodecEx[InsertBraces] =
+      generic.deriveCodecEx(new InsertBraces)
+  }
 
 }
