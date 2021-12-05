@@ -252,22 +252,22 @@ class FormatWriter(formatOps: FormatOps) {
     val endMarkers = new ListBuffer[(Int, Int)]
     locations.foreach { x =>
       val idx = x.formatToken.meta.idx
-      val floc = if (removedLines > 0 && x.leftLineId >= 0) {
+      val floc = if (removedLines > 0 && x.isNotRemoved) {
         val floc = x.copy(leftLineId = x.leftLineId + removedLines)
         locations(idx) = floc
         floc
       } else x
       if (endMarkers.nonEmpty && endMarkers(0)._1 == idx) {
         val begIdx = endMarkers.remove(0)._2
-        val endIdx = locations.lastIndexWhere(_.leftLineId >= 0, idx)
+        val endIdx = locations.lastIndexWhere(_.isNotRemoved, idx)
         if (endIdx >= 0) {
           val bLoc = locations(begIdx)
           val eLoc = locations(endIdx)
           val span = getLineDiff(bLoc, eLoc)
           if (span <= bLoc.style.rewrite.scala3.removeEndMarkerMaxLines) {
             val loc2 = locations(idx + 2)
-            locations(idx + 1) = locations(idx + 1).copy(leftLineId = -1)
-            locations(idx + 2) = loc2.copy(leftLineId = -1)
+            locations(idx + 1) = locations(idx + 1).remove
+            locations(idx + 2) = loc2.remove
             locations(endIdx) = eLoc.copy(state = loc2.state)
             removedLines += 1
           }
@@ -344,7 +344,7 @@ class FormatWriter(formatOps: FormatOps) {
 
     def iterate: Iterator[Entry] = {
       val iterator = Iterator.range(0, locations.length).map(new Entry(_))
-      iterator.filter(_.curr.leftLineId >= 0)
+      iterator.filter(_.curr.isNotRemoved)
     }
 
     private def getAlign(tok: FormatToken, alignOffset: Int = 0): Int =
@@ -1480,6 +1480,8 @@ class FormatWriter(formatOps: FormatOps) {
 
 object FormatWriter {
 
+  private val NoLine = Int.MaxValue
+
   case class FormatLocation(
       formatToken: FormatToken,
       state: State,
@@ -1494,6 +1496,8 @@ object FormatWriter {
       // first token is BOF
       formatToken.meta.idx <= 1 || state.prev.split.isNL
     def isStandalone: Boolean = hasBreakAfter && hasBreakBefore
+    @inline def isNotRemoved: Boolean = leftLineId != NoLine
+    @inline def remove: FormatLocation = copy(leftLineId = NoLine)
   }
 
   class AlignStop(
