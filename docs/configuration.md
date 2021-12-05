@@ -2532,6 +2532,43 @@ def f() = {
 }
 ```
 
+### Inserting braces
+
+> Warning: this rewrite might cause non-idempotent formatting,
+> formatter might need to be run twice.
+>
+> This rule cannot be used with `rewrite.scala3.insertEndMarkerMinLines` or
+> `rewrite.scala3.removeOptionalBraces == oldSyntaxToo`.
+
+This rewrite in essence provides the opposite of what `RedundantBraces` achieves,
+and somewhat similar to Scala3's end marker rewrite rules.
+
+The rule is applied _after_ all whitespace decisions had been made and simply attempts
+to output curly braces around a single-statement block when it spans at least a given
+number of lines.
+
+The rule is enabled by configuring `rewrite.insertBraces`:
+
+- `minLines` (default: 0, or disabled): the minimum number of lines to trigger the rule
+- `allBlocks` (default: false): compute maximum span of all blocks under the parent
+  expression rather than just the statement to be enclosed in curly braces
+  - this could be used to have consistent application of curly braces in expressions
+    with multiple sub-expressions (conditions or blocks), such as `if-else`,
+    `try-finally`, `for-yield`, `do-while` etc.
+
+Here are some limitations:
+
+- the rule might occasionally lead to non-idempotent formatting (that is, applying
+  the formatter a second time would produce a different result); some examples are:
+  - adding braces might overflow a line
+  - adding braces might lead to different indentation of infix expressions
+- the rule will not be applied:
+  - unless the single statement is preceded by a newline; doing so would _definitely_
+    lead to non-idempotent formatting
+  - if the statement is an infix expression which is not enclosed in parentheses and
+    has a line break _before_ an operator
+  - if the code uses Scala3 syntax with significant indentation
+
 ### `RedundantParens`
 
 ```scala mdoc:scalafmt

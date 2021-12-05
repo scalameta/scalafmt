@@ -4775,3 +4775,484 @@ object a {
   finally
     a
 }
+<<< #2019 infix
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  def foo =
+    a +
+    b
+  val foo =
+    a +
+    b
+  var foo =
+    a +
+    b
+}
+>>>
+object a {
+  def foo =
+    a +
+      b
+  val foo =
+    a +
+      b
+  var foo =
+    a +
+      b
+}
+<<< #2019 if-else !alwaysBeforeElseAfterCurlyIf
+newlines.afterInfix = keep
+newlines.alwaysBeforeElseAfterCurlyIf = false
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  def foo = if (a)
+    a +
+    b
+  else
+    a +
+    b
+  val foo = if (a)
+    a +
+    b
+  else if (b)
+    a +
+    b
+  else if (c)
+    a +
+    b
+  var foo = if (a)
+    a +
+    b
+  else
+    a +
+    b
+}
+>>>
+object a {
+  def foo = if (a)
+    a +
+      b
+  else
+    a +
+      b
+  val foo =
+    if (a)
+      a +
+        b
+    else if (b)
+      a +
+        b
+    else if (c)
+      a +
+        b
+  var foo =
+    if (a)
+      a +
+        b
+    else
+      a +
+        b
+}
+<<< #2019 if-else alwaysBeforeElseAfterCurlyIf
+newlines.afterInfix = keep
+newlines.alwaysBeforeElseAfterCurlyIf = true
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  def foo = if (a)
+    a +
+    b
+  else
+    a +
+    b
+  val foo = if (a)
+    a +
+    b
+  else if (b)
+    a +
+    b
+  else if (c)
+    a +
+    b
+  var foo = if (a)
+    a +
+    b
+  else
+    a +
+    b
+}
+>>>
+object a {
+  def foo = if (a)
+    a +
+      b
+  else
+    a +
+      b
+  val foo =
+    if (a)
+      a +
+        b
+    else if (b)
+      a +
+        b
+    else if (c)
+      a +
+        b
+  var foo =
+    if (a)
+      a +
+        b
+    else
+      a +
+        b
+}
+<<< #2019 try !alwaysBeforeElseAfterCurlyIf !allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+newlines.alwaysBeforeElseAfterCurlyIf = false
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  def foo = try
+    a +
+      b
+  catch
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo =
+    try
+      a +
+        b
+    catch
+      bar
+    finally
+      a
+}
+<<< #2019 try !alwaysBeforeElseAfterCurlyIf allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+newlines.alwaysBeforeElseAfterCurlyIf = false
+rewrite.insertBraces.minLines = 2
+rewrite.insertBraces.allBlocks = true
+===
+object a {
+  def foo = try
+    a +
+      b
+  catch
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo =
+    try
+      a +
+        b
+    catch
+      bar
+    finally
+      a
+}
+<<< #2019 try alwaysBeforeElseAfterCurlyIf !allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+newlines.alwaysBeforeElseAfterCurlyIf = true
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  def foo = try
+    a +
+      b
+  catch
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo =
+    try
+      a +
+        b
+    catch
+      bar
+    finally
+      a
+}
+<<< #2019 try alwaysBeforeElseAfterCurlyIf allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+newlines.alwaysBeforeElseAfterCurlyIf = true
+rewrite.insertBraces.minLines = 2
+rewrite.insertBraces.allBlocks = true
+===
+object a {
+  def foo = try
+    a +
+      b
+  catch
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo =
+    try
+      a +
+        b
+    catch
+      bar
+    finally
+      a
+}
+<<< #2019 function
+maxColumn = 12
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  foo(x =>
+    a +
+      b
+  )
+  foo(x =>
+    a
+      + b
+  )
+  foo { x =>
+    a +
+      b
+  }
+}
+>>>
+object a {
+  foo(x =>
+    a +
+      b
+  )
+  foo(x =>
+    a
+      + b
+  )
+  foo { x =>
+    a +
+      b
+  }
+}
+<<< #2019 partial function
+maxColumn = 25
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  foo { case (x, y) =>
+    a +
+      b
+  }
+}
+>>>
+object a {
+  foo { case (x, y) =>
+    a +
+      b
+  }
+}
+<<< #2019 for-yield !allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  for {
+    a <- b
+    c <- d
+  } yield // c
+    a
+  for { a <- b } yield // c
+    a +
+      b
+}
+>>>
+object a {
+  for {
+    a <- b
+    c <- d
+  } yield // c
+    a
+  for {
+    a <- b
+  } yield // c
+    a +
+      b
+}
+<<< #2019 for-yield allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+rewrite.insertBraces.allBlocks = true
+===
+object a {
+  for {
+    a <- b
+    c <- d
+  } yield // c
+    a
+  for { a <- b } yield // c
+    a +
+      b
+}
+>>>
+object a {
+  for {
+    a <- b
+    c <- d
+  } yield // c
+    a
+  for {
+    a <- b
+  } yield // c
+    a +
+      b
+}
+<<< #2019 for-do !allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  for {
+    a <- b
+    c <- d
+  } // c
+    a
+  for ( a <- b ) // c
+    a +
+      b
+  for { a <- b } // c
+    a +
+      b
+  for ( a <- b )
+    a +
+      b
+  for { a <- b }
+    a +
+      b
+  for ( a <- b ) a +
+      b
+  for { a <- b } a +
+      b
+}
+>>>
+object a {
+  for {
+    a <- b
+    c <- d
+  } // c
+    a
+  for (
+    a <- b
+  ) // c
+    a +
+      b
+  for {
+    a <- b
+  } // c
+    a +
+      b
+  for (
+    a <- b
+  )
+    a +
+      b
+  for {
+    a <- b
+  }
+    a +
+      b
+  for (
+    a <- b
+  )
+    a +
+      b
+  for {
+    a <- b
+  } a +
+    b
+}
+<<< #2019 for-do allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+rewrite.insertBraces.allBlocks = true
+===
+object a {
+  for {
+    a <- b
+    c <- d
+  } // c
+    a
+  for ( a <- b ) // c
+    a +
+      b
+  for { a <- b } // c
+    a +
+      b
+  for ( a <- b )
+    a +
+      b
+  for { a <- b }
+    a +
+      b
+  for ( a <- b ) a +
+      b
+  for { a <- b } a +
+      b
+}
+>>>
+object a {
+  for {
+    a <- b
+    c <- d
+  } // c
+    a
+  for (
+    a <- b
+  ) // c
+    a +
+      b
+  for {
+    a <- b
+  } // c
+    a +
+      b
+  for (
+    a <- b
+  )
+    a +
+      b
+  for {
+    a <- b
+  }
+    a +
+      b
+  for (
+    a <- b
+  )
+    a +
+      b
+  for {
+    a <- b
+  } a +
+    b
+}
