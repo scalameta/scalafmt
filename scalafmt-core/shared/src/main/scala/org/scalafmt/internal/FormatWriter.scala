@@ -771,9 +771,14 @@ class FormatWriter(formatOps: FormatOps) {
                   t.label.foreach(x => sb.append(' ').append(x.syntax))
                   t.desc.foreach { x =>
                     val words = x.part.iterator.map(_.syntax)
-                    val tagMargin = getIndentation(2 + margin.length)
-                    // use maxLength to force a newline
-                    iterWords(words, appendBreak, maxLength, tagMargin)
+                    if (t.tag.tag == "@usecase")
+                      // scaladoc parser doesn't allow newlines in @usecase
+                      words.foreach(sb.append(' ').append(_))
+                    else {
+                      val tagMargin = getIndentation(2 + margin.length)
+                      // use maxLength to force a newline
+                      iterWords(words, appendBreak, maxLength, tagMargin)
+                    }
                   }
                   appendBreak()
                 case t: Scaladoc.ListBlock =>
