@@ -2479,8 +2479,10 @@ object a {
 object a {
   def foo =
     try a
-    catch bar
-    finally a
+    catch
+      bar
+    finally
+      a
 }
 <<< TryWithHandler: newline after catch, space comment
 object a {
@@ -2496,7 +2498,7 @@ object a {
   def foo =
     try a
     catch /* c1 */
-    bar
+      bar
     finally a
 }
 <<< TryWithHandler: newline after catch, break comment
@@ -2514,8 +2516,8 @@ object a {
   def foo =
     try a
     catch
-    /* c2 */
-    bar
+      /* c2 */
+      bar
     finally a
 }
 <<< TryWithHandler: newline after catch, comments
@@ -2533,8 +2535,8 @@ object a {
   def foo =
     try a
     catch /* c1 */
-    /* c2 */
-    bar
+      /* c2 */
+      bar
     finally a
 }
 <<< TryWithHandler: newline after catch, comments
