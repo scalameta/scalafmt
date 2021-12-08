@@ -347,7 +347,7 @@ private object GitOpsTest {
       ops: GitOpsImpl,
       loc: Location
   ): Seq[String] =
-    ops.exec("git" +: cmd +: args) match {
+    Try(ops.exec("git" +: cmd +: args)) match {
       case Failure(f) => Assertions.fail(s"Failed git command. Got: $f")
       case Success(s) => s
     }
