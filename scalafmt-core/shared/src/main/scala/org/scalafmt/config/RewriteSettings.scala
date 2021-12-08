@@ -5,7 +5,7 @@ import org.scalafmt.rewrite._
 
 case class RewriteSettings(
     rules: Seq[Rewrite] = Nil,
-    scala3: RewriteScala3Settings = new RewriteScala3Settings,
+    scala3: RewriteScala3Settings = RewriteScala3Settings.default,
     redundantBraces: RedundantBracesSettings = RedundantBracesSettings(),
     sortModifiers: SortSettings = SortSettings.default,
     imports: Imports.Settings = Imports.Settings(),
