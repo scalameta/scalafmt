@@ -91,7 +91,8 @@ object InputMethod {
       (code.linesIterator ++ last).toList.asJava
     }
     val a = jList(original, false)
-    val b = jList(revised, noEol(original.last)) // formatted always has EOL
+    // formatted always has EOL
+    val b = jList(revised, original.isEmpty || noEol(original.last))
     val diff = difflib.DiffUtils.diff(a, b)
     if (diff.getDeltas.isEmpty) ""
     else {
