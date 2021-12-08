@@ -2076,6 +2076,30 @@ class Router(formatOps: FormatOps) {
         val enumerator = leftOwner.asInstanceOf[Enumerator.Val]
         getSplitsEnumerator(tok, enumerator.rhs)
 
+      case FormatToken(_: T.KwTry | _: T.KwCatch | _: T.KwFinally, _, _) =>
+        val body = formatToken.meta.leftOwner match {
+          case t: Term.Try =>
+            formatToken.left match {
+              case _: T.KwTry => t.expr
+              case _: T.KwCatch => t
+              case _: T.KwFinally => t.finallyp.getOrElse(t)
+              case _ => t
+            }
+          case t: Term.TryWithHandler =>
+            formatToken.left match {
+              case _: T.KwTry => t.expr
+              case _: T.KwCatch => t.catchp
+              case _: T.KwFinally => t.finallyp.getOrElse(t)
+              case _ => t
+            }
+          case t => t
+        }
+        val end = getLastToken(body)
+        val indent = Indent(style.indent.main, end, ExpiresOn.After)
+        CtrlBodySplits.get(formatToken, body, Seq(indent)) {
+          Split(Space, 0).withSingleLineNoOptimal(end)
+        }(Split(Newline, _).withIndent(indent))
+
       // Union/Intersection types
       case FormatToken(_: T.Ident, _, ExtractAndOrTypeRhsIdentLeft(rhs)) =>
         val rhsEnd = getLastNonTrivialToken(rhs)
