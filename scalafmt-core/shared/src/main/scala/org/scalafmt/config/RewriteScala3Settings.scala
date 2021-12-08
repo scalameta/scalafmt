@@ -19,7 +19,7 @@ object RewriteScala3Settings {
   implicit val encoder: ConfEncoder[RewriteScala3Settings] =
     generic.deriveEncoder[RewriteScala3Settings]
 
-  private val default = new RewriteScala3Settings
+  val default = new RewriteScala3Settings
 
   implicit val decodec: ConfDecoderEx[RewriteScala3Settings] = Presets
     .mapDecoder(generic.deriveDecoderEx(default).noTypos, "rewrite.scala3") {
