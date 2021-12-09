@@ -2466,15 +2466,18 @@ object a {
 }
 >>>
 object a {
-  def foo =
+  def foo = {
     a +
       b
-  val foo =
+  }
+  val foo = {
     a +
       b
-  var foo =
+  }
+  var foo = {
     a +
       b
+  }
 }
 <<< #2019 if-else !alwaysBeforeElseAfterCurlyIf
 newlines.afterInfix = keep
@@ -2506,29 +2509,34 @@ object a {
 }
 >>>
 object a {
-  def foo = if (a)
+  def foo = if (a) {
     a +
       b
-  else
+  } else {
     a +
       b
-  val foo =
-    if (a)
+  }
+  val foo = {
+    if (a) {
       a +
         b
-    else if (b)
+    } else if (b) {
       a +
         b
-    else if (c)
+    } else if (c) {
       a +
         b
-  var foo =
-    if (a)
+    }
+  }
+  var foo = {
+    if (a) {
       a +
         b
-    else
+    } else {
       a +
         b
+    }
+  }
 }
 <<< #2019 if-else alwaysBeforeElseAfterCurlyIf
 newlines.afterInfix = keep
@@ -2560,29 +2568,38 @@ object a {
 }
 >>>
 object a {
-  def foo = if (a)
+  def foo = if (a) {
     a +
       b
-  else
+  }
+  else {
     a +
       b
-  val foo =
-    if (a)
+  }
+  val foo = {
+    if (a) {
       a +
         b
-    else if (b)
+    }
+    else if (b) {
       a +
         b
-    else if (c)
+    }
+    else if (c) {
       a +
         b
-  var foo =
-    if (a)
+    }
+  }
+  var foo = {
+    if (a) {
       a +
         b
-    else
+    }
+    else {
       a +
         b
+    }
+  }
 }
 <<< #2019 try !alwaysBeforeElseAfterCurlyIf !allBlocks
 maxColumn = 12
@@ -2601,14 +2618,15 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
+  def foo = {
+    try {
       a +
         b
-    catch
+    } catch
       bar
     finally
       a
+  }
 }
 <<< #2019 try !alwaysBeforeElseAfterCurlyIf allBlocks
 maxColumn = 12
@@ -2628,14 +2646,16 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
+  def foo = {
+    try {
       a +
         b
-    catch
+    } catch {
       bar
-    finally
+    } finally {
       a
+    }
+  }
 }
 <<< #2019 try alwaysBeforeElseAfterCurlyIf !allBlocks
 maxColumn = 12
@@ -2654,14 +2674,16 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
+  def foo = {
+    try {
       a +
         b
+    }
     catch
       bar
     finally
       a
+  }
 }
 <<< #2019 try alwaysBeforeElseAfterCurlyIf allBlocks
 maxColumn = 12
@@ -2681,14 +2703,18 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
+  def foo = {
+    try {
       a +
         b
-    catch
+    }
+    catch {
       bar
-    finally
+    }
+    finally {
       a
+    }
+  }
 }
 <<< #2019 function
 maxColumn = 12
@@ -2711,10 +2737,10 @@ object a {
 }
 >>>
 object a {
-  foo(x =>
+  foo(x => {
     a +
       b
-  )
+  })
   foo(x =>
     a
       + b
@@ -2766,9 +2792,10 @@ object a {
     a
   for {
     a <- b
-  } yield // c
+  } yield { // c
     a +
       b
+  }
 }
 <<< #2019 for-yield allBlocks
 maxColumn = 12
@@ -2791,13 +2818,15 @@ object a {
   for {
     a <- b
     c <- d
-  } yield // c
+  } yield { // c
     a
+  }
   for {
     a <- b
-  } yield // c
+  } yield { // c
     a +
       b
+  }
 }
 <<< #2019 for-do !allBlocks
 maxColumn = 12
@@ -2836,29 +2865,34 @@ object a {
     a
   for (
     a <- b
-  ) // c
+  ) { // c
     a +
       b
-  for {
-    a <- b
-  } // c
-    a +
-      b
-  for (
-    a <- b
-  )
-    a +
-      b
-  for {
-    a <- b
   }
+  for {
+    a <- b
+  } { // c
     a +
       b
+  }
   for (
     a <- b
-  )
+  ) {
     a +
       b
+  }
+  for {
+    a <- b
+  } {
+    a +
+      b
+  }
+  for (
+    a <- b
+  ) {
+    a +
+      b
+  }
   for {
     a <- b
   } a +
@@ -2898,33 +2932,39 @@ object a {
   for {
     a <- b
     c <- d
-  } // c
+  } { // c
     a
-  for (
-    a <- b
-  ) // c
-    a +
-      b
-  for {
-    a <- b
-  } // c
-    a +
-      b
-  for (
-    a <- b
-  )
-    a +
-      b
-  for {
-    a <- b
   }
-    a +
-      b
   for (
     a <- b
-  )
+  ) { // c
     a +
       b
+  }
+  for {
+    a <- b
+  } { // c
+    a +
+      b
+  }
+  for (
+    a <- b
+  ) {
+    a +
+      b
+  }
+  for {
+    a <- b
+  } {
+    a +
+      b
+  }
+  for (
+    a <- b
+  ) {
+    a +
+      b
+  }
   for {
     a <- b
   } a +

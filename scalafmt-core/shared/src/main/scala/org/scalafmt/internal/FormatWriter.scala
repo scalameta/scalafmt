@@ -51,6 +51,7 @@ class FormatWriter(formatOps: FormatOps) {
       val location = entry.curr
       implicit val style: ScalafmtConfig = location.style
       val formatToken = location.formatToken
+      var skipWs = false
 
       formatToken.left match {
         case _ if entry.previous.formatToken.meta.formatOff =>
@@ -96,7 +97,20 @@ class FormatWriter(formatOps: FormatOps) {
           }
         }
 
-      entry.formatWhitespace
+      // missing braces
+      if (location.missingBracesIndent.nonEmpty) {
+        location.missingBracesIndent.toSeq
+          .sorted(Ordering.Int.reverse)
+          .foreach(i => sb.append('\n').append(getIndentation(i)).append("}"))
+        if (location.missingBracesOpenOrTuck) {
+          skipWs = true
+          sb.append(" ")
+        } else if (formatToken.right.is[T.RightParen])
+          skipWs = true
+      } else if (location.missingBracesOpenOrTuck)
+        sb.append(" {")
+
+      if (!skipWs) entry.formatWhitespace
     }
 
     sb.toString()
@@ -129,6 +143,8 @@ class FormatWriter(formatOps: FormatOps) {
       if (initStyle.rewrite.scala3.insertEndMarkerMinLines > 0)
         checkInsertEndMarkers(result)
     }
+    if (initStyle.rewrite.insertBraces.minLines > 0)
+      checkInsertBraces(result)
     if (
       initStyle.rewrite.rules.contains(RedundantBraces) &&
       !initStyle.rewrite.redundantBraces.parensForOneLineApply.contains(false)
@@ -337,6 +353,82 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
     }
+
+  private def checkInsertBraces(locations: Array[FormatLocation]): Unit = {
+    def checkInfix(tree: Tree): Boolean = tree match {
+      case ai @ Term.ApplyInfix(lhs, op, _, rhs) => {
+        isEnclosedInMatching(ai) ||
+        tokens.prevNonCommentSameLine(tokens.tokenJustBefore(op)).noBreak &&
+        checkInfix(lhs) && (rhs.lengthCompare(1) != 0 || checkInfix(rhs.head))
+      }
+      case _ => true
+    }
+    var addedLines = 0
+    val willAddLines = new ListBuffer[Int]
+    locations.foreach { x =>
+      val idx = x.formatToken.meta.idx
+      val floc = if (addedLines > 0 && x.isNotRemoved) {
+        val floc = x.copy(leftLineId = x.leftLineId - addedLines)
+        locations(idx) = floc
+        floc
+      } else x
+      if (willAddLines.nonEmpty && willAddLines(0) == idx) {
+        addedLines += 1
+        willAddLines.remove(0)
+      }
+      @tailrec
+      def hasBreakAfter(i: Int): Boolean = i < locations.length && {
+        val x = locations(i)
+        if (!x.isNotRemoved) hasBreakAfter(i + 1)
+        else if (x.hasBreakAfter) true
+        else if (!x.formatToken.right.is[T.Comment]) false
+        else hasBreakAfter(i + 1)
+      }
+      val style = floc.style
+      val ib = style.rewrite.insertBraces
+      val ft = floc.formatToken
+      val ok = !ft.meta.formatOff && ib.minLines > 0 &&
+        floc.missingBracesIndent.isEmpty
+      val mb =
+        if (ok) formatOps.MissingBraces.getBlocks(ft, ib.allBlocks).filter {
+          case (mb, _) => checkInfix(mb) && hasBreakAfter(idx)
+        }
+        else None
+      mb.foreach { case (owner, otherBlocks) =>
+        val endFt = tokens.nextNonCommentSameLine(tokens.getLast(owner))
+        val end = endFt.meta.idx
+        val eLoc = locations(end)
+        val begIndent = floc.state.prev.indentation
+        def checkSpan: Boolean =
+          getLineDiff(floc, eLoc) + addedLines >= ib.minLines ||
+            otherBlocks.exists { case (b, e) =>
+              val bIdx = tokens.tokenJustBefore(b).meta.idx
+              val eIdx = tokens.getLast(e).meta.idx
+              val span = getLineDiff(locations(bIdx), locations(eIdx))
+              ib.minLines <=
+                (if (bIdx <= idx && eIdx > idx) span + addedLines else span)
+            }
+        if (
+          !endFt.meta.formatOff && eLoc.hasBreakAfter &&
+          !eLoc.missingBracesIndent.contains(begIndent) && checkSpan
+        ) {
+          val addLine = style.newlines.alwaysBeforeElseAfterCurlyIf ||
+            (endFt.right match {
+              case _: T.KwElse | _: T.KwCatch | _: T.KwFinally =>
+                !owner.parent.contains(endFt.meta.rightOwner)
+              case _ => true
+            })
+          if (addLine) willAddLines.prepend(end)
+          locations(idx) = floc.copy(missingBracesOpenOrTuck = true)
+          locations(end) = eLoc.copy(
+            missingBracesOpenOrTuck = !addLine &&
+              (eLoc.missingBracesIndent.isEmpty || eLoc.missingBracesOpenOrTuck),
+            missingBracesIndent = eLoc.missingBracesIndent + begIndent
+          )
+        }
+      }
+    }
+  }
 
   class FormatLocations(val locations: Array[FormatLocation]) {
 
@@ -1498,6 +1590,9 @@ object FormatWriter {
       leftLineId: Int, // counts back from the end of the file
       shift: Int = 0,
       optionalBraces: Map[Int, Tree] = Map.empty,
+      // if indent is empty, indicates open; otherwise, whether to tuck
+      missingBracesOpenOrTuck: Boolean = false,
+      missingBracesIndent: Set[Int] = Set.empty,
       replace: String = null
   ) {
     def hasBreakAfter: Boolean = state.split.isNL
