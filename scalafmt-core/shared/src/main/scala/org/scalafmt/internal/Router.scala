@@ -2131,6 +2131,20 @@ class Router(formatOps: FormatOps) {
             Seq(Split(Space, 0).withSingleLine(slbEnd), nlSplit(1))
         }
 
+      // Term.ForYield
+      case FormatToken(T.KwYield(), _, _) if leftOwner.is[Term.ForYield] =>
+        if (style.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
+          Seq(Split(Space, 0))
+        } else {
+          val lastToken =
+            getLastToken(leftOwner.asInstanceOf[Term.ForYield].body)
+          Seq(
+            // Either everything fits in one line or break on =>
+            Split(Space, 0).withSingleLineNoOptimal(lastToken),
+            Split(Newline, 1).withIndent(style.indent.main, lastToken, After)
+          )
+        }
+
       // After comment
       case FormatToken(_: T.Comment, _, _) =>
         Seq(Split(getMod(formatToken), 0))
@@ -2257,18 +2271,6 @@ class Router(formatOps: FormatOps) {
               Split(Space, 0).onlyIf(newlines == 0),
               Split(Newline, 1)
             )
-        }
-      case FormatToken(T.KwYield(), _, _) if leftOwner.is[Term.ForYield] =>
-        if (style.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
-          Seq(Split(Space, 0))
-        } else {
-          val lastToken =
-            getLastToken(leftOwner.asInstanceOf[Term.ForYield].body)
-          Seq(
-            // Either everything fits in one line or break on =>
-            Split(Space, 0).withSingleLineNoOptimal(lastToken),
-            Split(Newline, 1).withIndent(style.indent.main, lastToken, After)
-          )
         }
       // Interpolation
       case FormatToken(_, _: T.Interpolation.Id, _) =>
