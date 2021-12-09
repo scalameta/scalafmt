@@ -2133,15 +2133,18 @@ class Router(formatOps: FormatOps) {
 
       // Term.ForYield
       case FormatToken(T.KwYield(), _, _) if leftOwner.is[Term.ForYield] =>
+        val lastToken =
+          getLastToken(leftOwner.asInstanceOf[Term.ForYield].body)
+        val indent = Indent(style.indent.main, lastToken, ExpiresOn.After)
         if (style.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
-          Seq(Split(Space, 0))
+          val nextFt = nextNonCommentSameLine(formatToken)
+          val noIndent = nextFt.eq(formatToken) || nextFt.noBreak
+          Seq(Split(Space, 0).withIndent(indent, noIndent))
         } else {
-          val lastToken =
-            getLastToken(leftOwner.asInstanceOf[Term.ForYield].body)
           Seq(
             // Either everything fits in one line or break on =>
             Split(Space, 0).withSingleLineNoOptimal(lastToken),
-            Split(Newline, 1).withIndent(style.indent.main, lastToken, After)
+            Split(Newline, 1).withIndent(indent)
           )
         }
 
