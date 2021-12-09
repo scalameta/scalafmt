@@ -108,3 +108,25 @@ val sizes =
 for (x <- Nil) yield { 1 }
 >>>
 for (x <- Nil) yield { 1 }
+<<< for-yield with comments and indent
+object a {
+  for {
+    a <- b
+    c <- d
+  } yield // c
+    a
+  for { a <- b } yield // c
+    a +
+      b
+}
+>>>
+object a {
+  for {
+    a <- b
+    c <- d
+  } yield // c
+  a
+  for { a <- b } yield // c
+  a +
+    b
+}
