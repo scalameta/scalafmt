@@ -1807,11 +1807,12 @@ class FormatOps(
         nlSplitFunc: Int => Split
     )(splitsFunc: FormatToken => Seq[Split]): Seq[Split] =
       if (!ft.right.is[T.Comment]) splitsFunc(ft)
-      else if (ft.hasBreak || isSingleLineComment(ft.right))
-        Seq(nlSplitFunc(0).forThisLine)
+      else if (ft.hasBreak) Seq(nlSplitFunc(0).forThisLine)
       else {
         val nextFt = nextNonCommentSameLine(next(ft))
-        val splits = splitsFunc(nextFt)
+        val splits =
+          if (nextFt.noBreak) splitsFunc(nextFt)
+          else Seq(nlSplitFunc(0).forThisLine)
         val policy = Policy.on(nextFt.right) { case Decision(`nextFt`, _) =>
           splits
         }
