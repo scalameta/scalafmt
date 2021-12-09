@@ -4620,23 +4620,26 @@ object a {
 }
 >>>
 object a {
-  def foo =
+  def foo = {
     if (a) a +
       b
     else a +
       b
-  val foo =
+  }
+  val foo = {
     if (a) a +
       b
     else if (b) a +
       b
     else if (c) a +
       b
-  var foo =
+  }
+  var foo = {
     if (a) a +
       b
     else a +
       b
+  }
 }
 <<< #2019 if-else alwaysBeforeElseAfterCurlyIf
 newlines.afterInfix = keep
@@ -4668,23 +4671,26 @@ object a {
 }
 >>>
 object a {
-  def foo =
+  def foo = {
     if (a) a +
       b
     else a +
       b
-  val foo =
+  }
+  val foo = {
     if (a) a +
       b
     else if (b) a +
       b
     else if (c) a +
       b
-  var foo =
+  }
+  var foo = {
     if (a) a +
       b
     else a +
       b
+  }
 }
 <<< #2019 try !alwaysBeforeElseAfterCurlyIf !allBlocks
 maxColumn = 13
@@ -4703,14 +4709,15 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
+  def foo = {
+    try {
       aaaa +
         b
-    catch
+    } catch
       barbar
     finally
       aaaaa
+  }
 }
 <<< #2019 try !alwaysBeforeElseAfterCurlyIf allBlocks
 maxColumn = 13
@@ -4730,14 +4737,16 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
+  def foo = {
+    try {
       aaaa +
         b
-    catch
+    } catch {
       barbar
-    finally
+    } finally {
       aaaaa
+    }
+  }
 }
 <<< #2019 try alwaysBeforeElseAfterCurlyIf !allBlocks
 maxColumn = 13
@@ -4756,14 +4765,16 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
+  def foo = {
+    try {
       aaaa +
         b
+    }
     catch
       barbar
     finally
       aaaaa
+  }
 }
 <<< #2019 try alwaysBeforeElseAfterCurlyIf allBlocks
 maxColumn = 13
@@ -4783,14 +4794,18 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
+  def foo = {
+    try {
       aaaa +
         b
-    catch
+    }
+    catch {
       barbar
-    finally
+    }
+    finally {
       aaaaa
+    }
+  }
 }
 <<< #2019 function
 maxColumn = 12
@@ -4813,10 +4828,10 @@ object a {
 }
 >>>
 object a {
-  foo(x =>
+  foo(x => {
     a +
       b
-  )
+  })
   foo(x =>
     a
       + b
@@ -4868,9 +4883,10 @@ object a {
     a
   for {
     a <- b
-  } yield // c
+  } yield { // c
     a +
       b
+  }
 }
 <<< #2019 for-yield allBlocks
 maxColumn = 12
@@ -4893,13 +4909,15 @@ object a {
   for {
     a <- b
     c <- d
-  } yield // c
+  } yield { // c
     a
+  }
   for {
     a <- b
-  } yield // c
+  } yield { // c
     a +
       b
+  }
 }
 <<< #2019 for-do !allBlocks
 maxColumn = 12
@@ -4938,14 +4956,16 @@ object a {
     a
   for (
     a <- b
-  ) // c
+  ) { // c
     a +
       b
+  }
   for {
     a <- b
-  } // c
+  } { // c
     a +
       b
+  }
   for (
     a <- b
   ) a +
@@ -4997,18 +5017,21 @@ object a {
   for {
     a <- b
     c <- d
-  } // c
+  } { // c
     a
+  }
   for (
     a <- b
-  ) // c
+  ) { // c
     a +
       b
+  }
   for {
     a <- b
-  } // c
+  } { // c
     a +
       b
+  }
   for (
     a <- b
   ) a +

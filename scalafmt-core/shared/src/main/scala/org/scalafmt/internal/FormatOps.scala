@@ -2527,6 +2527,167 @@ class FormatOps(
 
   }
 
+  object MissingBraces {
+
+    type Ranges = Seq[(Tree, Tree)]
+    type Result = Option[(Tree, Ranges)]
+
+    private trait Factory {
+      def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result
+    }
+
+    def getBlocks(ft: FormatToken, all: Boolean): Result = {
+      val nft = nextNonComment(ft)
+      if (nft.right.is[T.LeftBrace]) None
+      else {
+        val impl = ft.left match {
+          case _: T.RightArrow => RightArrowImpl
+          case _: T.RightParen => RightParenImpl
+          case _: T.RightBrace => RightBraceImpl
+          case _: T.KwDo => DoImpl
+          case _: T.Equals => EqualsImpl
+          case _: T.KwTry => TryImpl
+          case _: T.KwCatch => CatchImpl
+          case _: T.KwFinally => FinallyImpl
+          case _: T.KwElse => ElseImpl
+          case _: T.KwYield => YieldImpl
+          case _ => null
+        }
+        Option(impl).flatMap(_.getBlocks(ft, nft, all))
+      }
+    }
+
+    private def seq(all: Boolean, t: Tree): Ranges =
+      if (all) Seq(t -> t) else Nil
+
+    private def seq(all: Boolean, t: Option[Tree]): Ranges =
+      t.map(seq(all, _)).getOrElse(Nil)
+
+    private def seq(all: Boolean, t: Seq[Tree]): Ranges =
+      if (all && t.nonEmpty) Seq(t.head -> t.last) else Nil
+
+    private def seq(all: Boolean, t: Tree, ts: Seq[Tree]): Ranges =
+      if (all) Seq(t -> ts.lastOption.getOrElse(t)) else Nil
+
+    private object BlockImpl extends Factory {
+      def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result = {
+        def ok(stat: Tree): Boolean = stat.tokens.headOption.contains(nft.right)
+        val leftOwner = ft.meta.leftOwner
+        findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
+          case Some(t: Term.Block) =>
+            if (t.stats.headOption.exists(ok)) Some((t, Nil)) else None
+          case x => x.filter(ok).map((_, Nil))
+        }
+      }
+    }
+
+    private object RightArrowImpl extends Factory {
+      def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
+        ft.meta.leftOwner match {
+          case t @ Term.Function(p, b) =>
+            val skip = t.parent.exists(_.is[Term.Block])
+            if (skip) None else Some((b, seq(all, p)))
+          case _ => None
+        }
+    }
+
+    private object RightParenImpl extends Factory {
+      def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
+        ft.meta.leftOwner match {
+          case x @ Term.If(c, t, e) if !nft.right.is[T.KwThen] =>
+            Some((t, seq(all && !ifWithoutElse(x), e) ++ seq(all, c)))
+          case Term.For(s, b) if !nft.right.is[T.KwDo] =>
+            Some(b, seq(all, s))
+          case Term.While(c, b) if !nft.right.is[T.KwDo] =>
+            Some(b, seq(all, c))
+          case _ => None
+        }
+    }
+
+    private object RightBraceImpl extends Factory {
+      def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
+        ft.meta.leftOwner match {
+          case t @ Term.For(s, b)
+              if !nft.right.is[T.KwDo] && !isLastToken(ft.left, t) =>
+            Some(b, seq(all, s))
+          case _ => None
+        }
+    }
+
+    private object DoImpl extends Factory {
+      def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
+        ft.meta.leftOwner match {
+          case Term.Do(b, c) => Some(b, seq(all, c))
+          case _ => None
+        }
+    }
+
+    private object EqualsImpl extends Factory {
+      def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
+        ft.meta.leftOwner match {
+          case t: Ctor.Secondary => Some(t, seq(all, t.init, t.stats))
+          case t: Defn.Def => Some(t.body, Nil)
+          case t: Defn.Macro => Some(t.body, Nil)
+          case t: Term.Assign => Some(t.rhs, Nil)
+          case t: Defn.Type => Some(t.body, Nil)
+          case t: Defn.Val => Some(t.rhs, Nil)
+          case t: Defn.Var => t.rhs.map(_ -> Nil)
+          case _ => BlockImpl.getBlocks(ft, nft, all)
+        }
+    }
+
+    private object TryImpl extends Factory {
+      def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
+        ft.meta.leftOwner match {
+          case t: Term.Try =>
+            Some(t.expr, seq(all, t.catchp) ++ seq(all, t.finallyp))
+          case t: Term.TryWithHandler =>
+            Some(t.expr, seq(all, t.catchp) ++ seq(all, t.finallyp))
+          case _ => None
+        }
+    }
+
+    private object CatchImpl extends Factory {
+      def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
+        ft.meta.leftOwner match {
+          case t: Term.Try =>
+            Some(t.catchp.last, seq(all, t.expr) ++ seq(all, t.finallyp))
+          case t: Term.TryWithHandler =>
+            Some(t.catchp, seq(all, t.expr) ++ seq(all, t.finallyp))
+          case _ => None
+        }
+    }
+
+    private object FinallyImpl extends Factory {
+      def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
+        ft.meta.leftOwner match {
+          case t: Term.Try =>
+            t.finallyp.map(x => (x, seq(all, t.expr) ++ seq(all, t.catchp)))
+          case t: Term.TryWithHandler =>
+            t.finallyp.map(x => (x, seq(all, t.expr) ++ seq(all, t.catchp)))
+          case _ => None
+        }
+    }
+
+    private object ElseImpl extends Factory {
+      def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
+        ft.meta.leftOwner match {
+          case Term.If(c, t, e) if !e.is[Term.If] =>
+            Some((e, seq(all, t) ++ seq(all, c)))
+          case _ => None
+        }
+    }
+
+    private object YieldImpl extends Factory {
+      def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
+        ft.meta.leftOwner match {
+          case Term.ForYield(s, b) => Some((b, seq(all, s)))
+          case _ => None
+        }
+    }
+
+  }
+
   def isBlockWithoutOptionalBraces(t: Term.Block): Boolean =
     isSingleStatBlock(t) && (
       t.tokens.head match {
