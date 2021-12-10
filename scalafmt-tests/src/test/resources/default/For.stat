@@ -149,3 +149,66 @@ for (
       ) // test Java API
     )
 ) checkOne(looker, l, r)
+<<< for {} or for ()
+maxColumn = 12
+newlines.afterInfix = keep
+===
+object a {
+  for {
+    a <- b
+    c <- d
+  } // c
+    a
+  for ( a <- b ) // c
+    a +
+      b
+  for { a <- b } // c
+    a +
+      b
+  for ( a <- b )
+    a +
+      b
+  for { a <- b }
+    a +
+      b
+  for ( a <- b ) a +
+      b
+  for { a <- b } a +
+      b
+}
+>>>
+object a {
+  for {
+    a <- b
+    c <- d
+  } // c
+  a
+  for (
+      a <- b
+  ) // c
+    a +
+      b
+  for {
+    a <- b
+  } // c
+  a +
+    b
+  for (
+      a <- b
+  )
+    a +
+      b
+  for {
+    a <- b
+  } a +
+    b
+  for (
+      a <- b
+  )
+    a +
+      b
+  for {
+    a <- b
+  } a +
+    b
+}
