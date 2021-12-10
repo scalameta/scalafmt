@@ -182,7 +182,7 @@ object a {
     a <- b
     c <- d
   } // c
-  a
+    a
   for (
       a <- b
   ) // c
@@ -191,8 +191,8 @@ object a {
   for {
     a <- b
   } // c
-  a +
-    b
+    a +
+      b
   for (
       a <- b
   )
@@ -200,8 +200,9 @@ object a {
       b
   for {
     a <- b
-  } a +
-    b
+  }
+    a +
+      b
   for (
       a <- b
   )

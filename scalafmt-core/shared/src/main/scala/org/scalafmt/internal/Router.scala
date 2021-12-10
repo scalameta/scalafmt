@@ -2148,6 +2148,15 @@ class Router(formatOps: FormatOps) {
           )
         }
 
+      // Term.For
+      case ft @ FormatToken(rb: T.RightBrace, _, _)
+          if leftOwner.is[Term.For] && !isLastToken(rb, leftOwner) &&
+            !nextNonComment(formatToken).right.is[T.KwDo] =>
+        val body = leftOwner.asInstanceOf[Term.For].body
+        def nlSplit(cost: Int) = Split(Newline, cost)
+          .withIndent(style.indent.main, getLastToken(body), After)
+        CtrlBodySplits.get(ft, body)(null)(nlSplit)
+
       // After comment
       case FormatToken(_: T.Comment, _, _) =>
         Seq(Split(getMod(formatToken), 0))
