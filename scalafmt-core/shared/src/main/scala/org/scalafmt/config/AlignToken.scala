@@ -70,7 +70,7 @@ object AlignToken {
 
   val default = Seq(
     caseArrow,
-    AlignToken("extends", "Template"),
+    AlignToken("extends", raw"Template|Defn\.EnumCase"),
     AlignToken("//"),
     AlignToken("{", "Template"),
     AlignToken("}", "Template"),

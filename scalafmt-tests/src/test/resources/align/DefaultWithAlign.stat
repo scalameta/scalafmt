@@ -1737,8 +1737,8 @@ enum Ship(val size: ShipSize) derives CanEqual:
   case Carrier extends Ship(ShipSize(5))
 >>>
 enum Ship(val size: ShipSize) derives CanEqual:
-  case Destroyer extends Ship(ShipSize(2))
-  case Submarine extends Ship(ShipSize(3))
-  case Cruiser extends Ship(ShipSize(3))
+  case Destroyer  extends Ship(ShipSize(2))
+  case Submarine  extends Ship(ShipSize(3))
+  case Cruiser    extends Ship(ShipSize(3))
   case Battleship extends Ship(ShipSize(4))
-  case Carrier extends Ship(ShipSize(5))
+  case Carrier    extends Ship(ShipSize(5))
