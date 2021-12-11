@@ -185,11 +185,13 @@ object a {
       }
       .getOrElse {
         qux
-      } catch
+      }
+  catch
     foo(bar) {
       baz
       qux
-    } finally
+    }
+  finally
     foo(bar) {
       baz
       qux
