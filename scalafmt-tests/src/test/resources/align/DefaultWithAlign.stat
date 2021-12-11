@@ -1742,3 +1742,83 @@ enum Ship(val size: ShipSize) derives CanEqual:
   case Cruiser    extends Ship(ShipSize(3))
   case Battleship extends Ship(ShipSize(4))
   case Carrier    extends Ship(ShipSize(5))
+<<< scala3 align with annotation, multiline
+runner.dialect = scala3
+align.multiline = true
+===
+extension (y: YCoord)
+    @targetName("addY")
+    def +(dy: Int): YCoord = YCoord(y + dy)
+    @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+    def <(other: YCoord): Boolean = y < other
+    @targetName("addY")
+    def toInt: Int = y.toInt
+>>>
+extension (y: YCoord)
+  @targetName("addY")
+  def +(dy: Int): YCoord = YCoord(y + dy)
+  @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+  def <(other: YCoord): Boolean              = y < other
+  @targetName("addY")
+  def toInt: Int = y.toInt
+<<< scala3 align with annotation, !multiline
+runner.dialect = scala3
+align.multiline = false
+===
+extension (y: YCoord)
+    @targetName("addY")
+    def +(dy: Int): YCoord = YCoord(y + dy)
+    @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+    def <(other: YCoord): Boolean = y < other
+    @targetName("addY")
+    def toInt: Int = y.toInt
+>>>
+extension (y: YCoord)
+  @targetName("addY")
+  def +(dy: Int): YCoord = YCoord(y + dy)
+  @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+  def <(other: YCoord): Boolean              = y < other
+  @targetName("addY")
+  def toInt: Int = y.toInt
+<<< scala2 align with annotation, multiline
+runner.dialect = scala213
+align.multiline = true
+===
+class A(y: YCoord) {
+    @targetName("addY")
+    def +(dy: Int): YCoord = YCoord(y + dy)
+    @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+    def <(other: YCoord): Boolean = y < other
+    @targetName("addY")
+    def toInt: Int = y.toInt
+}
+>>>
+class A(y: YCoord) {
+  @targetName("addY")
+  def +(dy: Int): YCoord = YCoord(y + dy)
+  @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+  def <(other: YCoord): Boolean              = y < other
+  @targetName("addY")
+  def toInt: Int = y.toInt
+}
+<<< scala2 align with annotation, !multiline
+runner.dialect = scala213
+align.multiline = false
+===
+class A(y: YCoord) {
+    @targetName("addY")
+    def +(dy: Int): YCoord = YCoord(y + dy)
+    @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+    def <(other: YCoord): Boolean = y < other
+    @targetName("addY")
+    def toInt: Int = y.toInt
+}
+>>>
+class A(y: YCoord) {
+  @targetName("addY")
+  def +(dy: Int): YCoord = YCoord(y + dy)
+  @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+  def <(other: YCoord): Boolean              = y < other
+  @targetName("addY")
+  def toInt: Int = y.toInt
+}
