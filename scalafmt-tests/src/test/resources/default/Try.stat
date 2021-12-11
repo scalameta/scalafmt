@@ -158,3 +158,40 @@ object a {
   } catch { case e => "very long statement, needs to split line very soon" };
   x = 43
 }
+<<< try with non-block expr using braces
+object a {
+  try Option.when(foo) {
+    bar
+    baz
+  }.getOrElse {
+    qux
+  }
+  catch foo(bar) {
+    baz
+    qux
+  }
+  finally foo(bar) {
+    baz
+    qux
+  }
+}
+>>>
+object a {
+  try
+    Option
+      .when(foo) {
+        bar
+        baz
+      }
+      .getOrElse {
+        qux
+      } catch
+    foo(bar) {
+      baz
+      qux
+    } finally
+    foo(bar) {
+      baz
+      qux
+    }
+}
