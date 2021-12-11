@@ -4590,11 +4590,11 @@ object a {
       baz
     }.getOrElse { qux }
   catch foo(bar) {
-      baz
-      qux
-    }
+    baz
+    qux
+  }
   finally foo(bar) {
-      baz
-      qux
-    }
+    baz
+    qux
+  }
 }

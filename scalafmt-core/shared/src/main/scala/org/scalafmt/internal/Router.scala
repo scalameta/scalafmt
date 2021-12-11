@@ -10,6 +10,7 @@ import org.scalafmt.sysops.FileOps
 import org.scalafmt.util._
 import org.scalameta.FileLine
 
+import scala.annotation.tailrec
 import scala.language.implicitConversions
 import scala.meta.Term.ApplyUsing
 import scala.meta.classifiers.Classifier
@@ -2096,7 +2097,15 @@ class Router(formatOps: FormatOps) {
         }
         val end = getLastToken(body)
         val indent = Indent(style.indent.main, end, ExpiresOn.After)
-        CtrlBodySplits.get(formatToken, body, Seq(indent)) {
+        @tailrec
+        def useSpaceIndent(t: Tree, ts: Boolean = false): Boolean = t match {
+          case x: Term.Apply => ts || useSpaceIndent(x.fun)
+          case x: Term.Select => useSpaceIndent(x.qual, true)
+          case _: Term.Name => false
+          case _ => true
+        }
+        val spaceIndents = if (useSpaceIndent(body)) Seq(indent) else Nil
+        CtrlBodySplits.get(formatToken, body, spaceIndents) {
           Split(Space, 0).withSingleLineNoOptimal(end)
         }(Split(Newline, _).withIndent(indent))
 
