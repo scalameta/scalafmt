@@ -4566,3 +4566,35 @@ object a {
     catch /* c1 */ bar
     finally a
 }
+<<< try with non-block expr using braces
+object a {
+  try Option.when(foo) {
+    bar
+    baz
+  }.getOrElse {
+    qux
+  }
+  catch foo(bar) {
+    baz
+    qux
+  }
+  finally foo(bar) {
+    baz
+    qux
+  }
+}
+>>>
+object a {
+  try Option.when(foo) {
+      bar
+      baz
+    }.getOrElse { qux }
+  catch foo(bar) {
+      baz
+      qux
+    }
+  finally foo(bar) {
+      baz
+      qux
+    }
+}
