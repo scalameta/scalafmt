@@ -2374,7 +2374,9 @@ class Router(formatOps: FormatOps) {
 
       case FormatToken(left, _: T.KwCatch | _: T.KwFinally, _)
           if style.newlines.alwaysBeforeElseAfterCurlyIf
-            || !left.is[T.RightBrace] =>
+            || !left.is[T.RightBrace] ||
+            leftOwner.ne(rightOwner) &&
+            !leftOwner.parent.contains(rightOwner) =>
         Seq(
           Split(NewlineT(formatToken.hasBlankLine), 0)
         )
