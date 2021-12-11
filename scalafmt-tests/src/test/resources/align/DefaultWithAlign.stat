@@ -1726,3 +1726,19 @@ object a {
     super.onStop()
   }
 }
+<<< scala3 align enum cases
+runner.dialect = scala3
+===
+enum Ship(val size: ShipSize) derives CanEqual:
+  case Destroyer extends Ship(ShipSize(2))
+  case Submarine extends Ship(ShipSize(3))
+  case Cruiser extends Ship(ShipSize(3))
+  case Battleship extends Ship(ShipSize(4))
+  case Carrier extends Ship(ShipSize(5))
+>>>
+enum Ship(val size: ShipSize) derives CanEqual:
+  case Destroyer extends Ship(ShipSize(2))
+  case Submarine extends Ship(ShipSize(3))
+  case Cruiser extends Ship(ShipSize(3))
+  case Battleship extends Ship(ShipSize(4))
+  case Carrier extends Ship(ShipSize(5))
