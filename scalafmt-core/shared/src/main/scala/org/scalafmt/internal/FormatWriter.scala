@@ -1022,23 +1022,23 @@ class FormatWriter(formatOps: FormatOps) {
           if (alignContainer ne null) {
             val candidates = columnCandidates.result()
             val block = getOrCreateBlock(alignContainer)
-            def appendToBlock(line: IndexedSeq[AlignStop], matches: Int = 0) = {
+            def appendToBlock(matches: Int = 0) = {
               val eolColumn = location.state.prev.column + columnShift
-              val alignLine = new AlignLine(line, eolColumn)
+              val alignLine = new AlignLine(candidates, eolColumn)
               if (!block.tryAppendToBlock(alignLine, matches)) {
                 flushAlignBlock(block)
                 block.tryAppendToBlock(alignLine, 0)
               }
             }
             if (block.isEmpty) {
-              if (!isBlankLine) appendToBlock(candidates)
+              if (!isBlankLine) appendToBlock()
             } else {
               val matches =
                 columnMatches(block.refStops, candidates, location.formatToken)
-              if (matches > 0) appendToBlock(candidates, matches)
+              if (matches > 0) appendToBlock(matches)
               if (isBlankLine || matches == 0 && shouldFlush(alignContainer)) {
                 flushAlignBlock(block)
-                if (!isBlankLine && matches == 0) appendToBlock(candidates)
+                if (!isBlankLine && matches == 0) appendToBlock()
               }
             }
 
@@ -1152,7 +1152,8 @@ class FormatWriter(formatOps: FormatOps) {
       val code = if (slc) "//" else ft.meta.right.text
 
       fl.style.alignMap.get(code).flatMap { matchers =>
-        val owner = getAlignOwner(ft)
+        // Corner case when line ends with comment
+        val owner = if (slc) ft.meta.leftOwner else getAlignOwnerNonComment(ft)
         if (matchers.nonEmpty && !matchers.exists(_.matches(owner))) None
         else if (!slc) Some(getAlignContainer(owner))
         else Some(getAlignContainer(ft.meta.rightOwner))
@@ -1426,11 +1427,6 @@ class FormatWriter(formatOps: FormatOps) {
     }
     (tokenKey, ownerKey).hashCode()
   }
-
-  private def getAlignOwner(ft: FormatToken): Tree =
-    // Corner case when line ends with comment
-    if (isSingleLineComment(ft.right)) ft.meta.leftOwner
-    else getAlignOwnerNonComment(ft)
 
   private def getAlignOwnerNonComment(ft: FormatToken): Tree =
     ft.meta.rightOwner match {
