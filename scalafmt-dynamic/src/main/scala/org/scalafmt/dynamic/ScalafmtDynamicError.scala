@@ -1,6 +1,5 @@
 package org.scalafmt.dynamic
 
-import java.net.URL
 import java.nio.file.Path
 
 import scala.util.control.NoStackTrace
@@ -30,14 +29,18 @@ object ScalafmtDynamicError {
       configPath: Path,
       version: ScalafmtVersion,
       cause: Throwable = null
-  ) extends ConfigError(configPath, s"failed to download v=$version", cause)
+  ) extends ConfigError(configPath, s"[v$version] failed to download", cause)
 
   class CorruptedClassPath(
       configPath: Path,
       version: ScalafmtVersion,
-      val urls: Seq[URL],
+      urls: Seq[String],
       cause: Throwable
-  ) extends ConfigError(configPath, s"corrupted class path v=$version", cause)
+  ) extends ConfigError(
+        configPath,
+        urls.mkString(s"[v$version] corrupted class path: [", ",", "]"),
+        cause
+      )
 
   class ConfigInvalidVersion(configPath: Path, version: String)
       extends ConfigError(configPath, s"Invalid version: $version")
