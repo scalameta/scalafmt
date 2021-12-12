@@ -1072,15 +1072,15 @@ class FormatWriter(formatOps: FormatOps) {
         }
 
       object WithBody {
-        def unapply(tree: Tree): Option[Tree] =
+        def unapply(tree: Tree): Option[(List[meta.Mod], Tree)] =
           tree match {
-            case p: Defn.Def => Some(p.body)
-            case p: Defn.Given => Some(p.templ)
-            case p: Defn.GivenAlias => Some(p.body)
-            case p: Defn.Val => Some(p.rhs)
-            case p: Defn.Trait => Some(p.templ)
-            case p: Defn.Class => Some(p.templ)
-            case p: Defn.Object => Some(p.templ)
+            case p: Defn.Def => Some(p.mods -> p.body)
+            case p: Defn.Given => Some(p.mods -> p.templ)
+            case p: Defn.GivenAlias => Some(p.mods -> p.body)
+            case p: Defn.Val => Some(p.mods -> p.rhs)
+            case p: Defn.Trait => Some(p.mods -> p.templ)
+            case p: Defn.Class => Some(p.mods -> p.templ)
+            case p: Defn.Object => Some(p.mods -> p.templ)
             case _ => None
           }
       }
@@ -1104,10 +1104,12 @@ class FormatWriter(formatOps: FormatOps) {
         case Some(p @ (_: Case | _: Enumerator)) =>
           if (isEarlierLine(p)) p else getAlignContainerParent(p)
         // containers that can be traversed further if lhs single-line
-        case Some(p @ AlignContainer.WithBody(b)) =>
+        case Some(p @ AlignContainer.WithBody(mods, b)) =>
           val keepGoing = (b.eq(child) || p.eq(child)) && {
             val ptokens = p.tokens
-            val beg = tokens.after(ptokens.head)
+            val beg = mods.lastOption.fold(tokens.after(ptokens.head)) { m =>
+              tokens.next(tokens.tokenAfter(m))
+            }
             val end = b.tokens.headOption
               .fold(tokens.before(ptokens.last))(tokens.justBefore)
             getLineDiff(locations, beg, end) == 0

@@ -1756,11 +1756,11 @@ extension (y: YCoord)
 >>>
 extension (y: YCoord)
   @targetName("addY")
-  def +(dy: Int): YCoord = YCoord(y + dy)
+  def +(dy: Int): YCoord                     = YCoord(y + dy)
   @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
   def <(other: YCoord): Boolean              = y < other
   @targetName("addY")
-  def toInt: Int = y.toInt
+  def toInt: Int                             = y.toInt
 <<< scala3 align with annotation, !multiline
 runner.dialect = scala3
 align.multiline = false
@@ -1775,7 +1775,7 @@ extension (y: YCoord)
 >>>
 extension (y: YCoord)
   @targetName("addY")
-  def +(dy: Int): YCoord = YCoord(y + dy)
+  def +(dy: Int): YCoord                     = YCoord(y + dy)
   @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
   def <(other: YCoord): Boolean              = y < other
   @targetName("addY")
@@ -1795,11 +1795,11 @@ class A(y: YCoord) {
 >>>
 class A(y: YCoord) {
   @targetName("addY")
-  def +(dy: Int): YCoord = YCoord(y + dy)
+  def +(dy: Int): YCoord                     = YCoord(y + dy)
   @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
   def <(other: YCoord): Boolean              = y < other
   @targetName("addY")
-  def toInt: Int = y.toInt
+  def toInt: Int                             = y.toInt
 }
 <<< scala2 align with annotation, !multiline
 runner.dialect = scala213
@@ -1816,7 +1816,7 @@ class A(y: YCoord) {
 >>>
 class A(y: YCoord) {
   @targetName("addY")
-  def +(dy: Int): YCoord = YCoord(y + dy)
+  def +(dy: Int): YCoord                     = YCoord(y + dy)
   @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
   def <(other: YCoord): Boolean              = y < other
   @targetName("addY")
