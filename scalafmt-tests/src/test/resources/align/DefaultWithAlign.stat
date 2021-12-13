@@ -1833,7 +1833,7 @@ val (xTranslation, yTranslation) = (isHMirror, isVMirror) match
   case (false, false) => (-(rotationWidth / 2).toInt, -(rotationHeight / 2).toInt) /* c */ // BR
 >>>
 val (xTranslation, yTranslation) = (isHMirror, isVMirror) match
-  case (true, true)  => ((rotationWidth / 2).toInt, (rotationHeight / 2).toInt) /* c */  // TL
-  case (true, false) => ((rotationHeight / 2).toInt, -(rotationWidth / 2).toInt) /* c */ // BL
-  case (false, true) => (-(rotationHeight / 2).toInt, (rotationWidth / 2).toInt) /* c */ // TR
+  case (true, true)   => ((rotationWidth / 2).toInt, (rotationHeight / 2).toInt) /* c */   // TL
+  case (true, false)  => ((rotationHeight / 2).toInt, -(rotationWidth / 2).toInt) /* c */  // BL
+  case (false, true)  => (-(rotationHeight / 2).toInt, (rotationWidth / 2).toInt) /* c */  // TR
   case (false, false) => (-(rotationWidth / 2).toInt, -(rotationHeight / 2).toInt) /* c */ // BR

@@ -990,28 +990,34 @@ class FormatWriter(formatOps: FormatOps) {
                 columnShift = 0
             }
             val floc = locations(idx)
+            val ft = floc.formatToken
             idx += 1
             columnShift += floc.shift
-            if (floc.hasBreakAfter || floc.formatToken.leftHasNewline) floc
+            if (floc.hasBreakAfter || ft.leftHasNewline) floc
             else {
               getAlignContainer(floc).foreach { container =>
+                def appendCandidate() =
+                  columnCandidates += new AlignStop(
+                    getAlignColumn(floc) + columnShift,
+                    floc,
+                    alignContainer,
+                    getAlignHashKey(floc)
+                  )
                 if (alignContainer eq null)
                   alignContainer = container
                 else if (alignContainer ne container) {
                   val pos1 = alignContainer.pos
                   val pos2 = container.pos
-                  if (pos2.start <= pos1.start && pos2.end >= pos1.end) {
+                  if (isSingleLineComment(ft.right)) {
+                    if (pos1.end >= tokens.prevNonCommentSameLine(ft).left.end)
+                      appendCandidate()
+                  } else if (pos2.start <= pos1.start && pos2.end >= pos1.end) {
                     alignContainer = container
                     columnCandidates.clear()
                   }
                 }
                 if (alignContainer eq container)
-                  columnCandidates += new AlignStop(
-                    getAlignColumn(floc) + columnShift,
-                    floc,
-                    container,
-                    getAlignHashKey(floc)
-                  )
+                  appendCandidate()
               }
               if (idx < locations.length) processLine else floc
             }
