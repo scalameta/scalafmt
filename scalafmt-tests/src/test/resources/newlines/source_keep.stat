@@ -1145,8 +1145,7 @@ object WrapperToHaveStatTestCaseParserWorking {
 }
 >>>
 object WrapperToHaveStatTestCaseParserWorking {
-  @annot
-  @deprecated
+  @annot @deprecated
   class B(
       @annot @deprecated private implicit val x: Int
   ) extends A {
@@ -1155,12 +1154,8 @@ object WrapperToHaveStatTestCaseParserWorking {
     @annot
     override def bar = { 1 }
 
-    @annot
-    @annot2
-    @annot3
-    @annot4 /*comment4*/
-    @annot5
-    @deprecated
+    @annot @annot2 @annot3 @annot4 /*comment4*/
+    @annot5 @deprecated
     def foo2(@annot @deprecated x: Int) = 1
 
     // in case of annotations with params located in many lines
@@ -1170,17 +1165,14 @@ object WrapperToHaveStatTestCaseParserWorking {
       value =
         "foo",
       someInt = 5
-    )
-    @annot3
+    ) @annot3
     @deprecated(value =
       "bar") def bar2 = 1
   }
 
-  @annot
-  @annot2
+  @annot @annot2
   @annot3
-  @annot4
-  @deprecated class C
+  @annot4 @deprecated class C
 
   @annot
   @deprecated
@@ -1200,12 +1192,11 @@ object a {
 }
 >>>
 object a {
-  @Ignore
-  @Test def foo(): Unit = {
+  @Ignore @Test def foo(): Unit = {
     val bar = baz
   }
-  @Ignore
-  @Test def fooFooFoo(): Unit = {
+  @Ignore @Test
+  def fooFooFoo(): Unit = {
     val bar = baz
   }
 }
