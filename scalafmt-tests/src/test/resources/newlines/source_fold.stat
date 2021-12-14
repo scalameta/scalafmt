@@ -2372,7 +2372,8 @@ object a {
       Seq(F(1, "v1"), F(2, "v2")),
       G(Some(Seq(h, i)),
         Some(Seq(j, k)), a.b, c.d,
-        e.f.g, h.i.j)
+        e.f.g, h.i.j
+      )
     ).foo
   }
 }
@@ -2415,7 +2416,8 @@ object a {
       Seq(F(1, "v1"), F(2, "v2")),
       G(Some(Seq(h, i)),
         Some(Seq(j, k)), a.b, c.d,
-        e.f.g, h.i.j)
+        e.f.g, h.i.j
+      )
     ).foo
   }
 }
@@ -4532,20 +4534,23 @@ object a {
 object a {
   when(
     service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-      Order.default)
+      Order.default
+    )
   ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(
     service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit),
-      Order.default)
+      Order.default
+    )
   ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+    Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
-    .thenReturn(None)
+    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))
+  ).thenReturn(None)
 }
 <<< unsafeCallSite = Oneline, nested with one arg, several options, !danglingParentheses
 maxColumn = 100
@@ -4667,20 +4672,21 @@ object a {
 }
 >>>
 object a {
-  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-      Order.default))
-    .thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+  when(service.list(
+      ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit), Order.default
+    )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit),
-      Order.default))
-    .thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
-
-  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+  when(service.list(
+      ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit), Order.default
+    )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
-    .thenReturn(None)
+    Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))
+  ).thenReturn(None)
 }
 <<< unsafeCallSite = always, nested with one arg, several options, !danglingParentheses
 maxColumn = 100

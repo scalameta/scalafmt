@@ -1102,6 +1102,9 @@ class Router(formatOps: FormatOps) {
 
           val mustDangle = onlyConfigStyle ||
             style.newlines.sourceIgnored && style.danglingParentheses.defnSite
+          val couldDangle = mustDangle ||
+            !style.optIn.configStyleArguments && style.danglingParentheses.defnSite
+
           def noSplitPolicy: Policy =
             if (mustDangle || style.newlines.source.eq(Newlines.unfold))
               slbPolicy
@@ -1118,13 +1121,15 @@ class Router(formatOps: FormatOps) {
               val argPolicy = onelinePolicy
                 .orElse(argsHeadOpt.map(x => SingleLineBlock(x.tokens.last)))
                 .getOrElse(NoPolicy)
-              argPolicy & (penalizeOpens | penalizeBrackets)
+              def danglePolicy =
+                if (couldDangle) dangleOnArg(close, leftOwner) else NoPolicy
+              argPolicy & (penalizeOpens | penalizeBrackets) & danglePolicy
             }
           val noSplitModification =
             if (right.is[T.Comment]) getMod(formatToken)
             else baseNoSplitMod
           val nlDanglePolicy =
-            if (mustDangle) decideNewlinesOnlyBeforeClose(close) else NoPolicy
+            if (couldDangle) decideNewlinesOnlyBeforeClose(close) else NoPolicy
           val mustUseNL = onlyConfigStyle || newlines != 0 &&
             (style.newlines.source.eq(Newlines.keep) ||
               isSingleLineComment(right))
@@ -1202,6 +1207,10 @@ class Router(formatOps: FormatOps) {
             new PenalizeAllNewlines(_, 3 + indentLen * bracketPenalty)
           )
 
+        val couldDangle =
+          if (isTuple(leftOwner)) style.danglingParentheses.getTupleSite
+          else style.danglingParentheses.callSite
+
         val noSplit =
           if (mustDangleForTrailingCommas || onlyConfigStyle) Split.ignored
           else if (
@@ -1228,6 +1237,7 @@ class Router(formatOps: FormatOps) {
               .withPolicy(penalizeNewlinesPolicy)
               .andPolicy(unindentPolicy, !isSingleArg || noSplitIndents.isEmpty)
               .andPolicyOpt(nextCommaOnelinePolicy)
+              .andPolicy(dangleOnArg(close, leftOwner), !couldDangle)
           }
 
         val nlPolicy = {
@@ -1241,11 +1251,8 @@ class Router(formatOps: FormatOps) {
               newlineBeforeClose & binPackOnelinePolicy
             else splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
           } else if (
-            mustDangleForTrailingCommas ||
-            style.newlines.sourceIgnored && (
-              if (isTuple(leftOwner)) style.danglingParentheses.getTupleSite
-              else style.danglingParentheses.callSite
-            )
+            mustDangleForTrailingCommas || couldDangle &&
+            (style.newlines.sourceIgnored || !style.optIn.configStyleArguments)
           )
             newlineBeforeClose & binPackOnelinePolicy
           else binPackOnelinePolicy

@@ -1,8 +1,10 @@
 package org.scalafmt.util
 
+import scala.meta.Tree
 import scala.meta.tokens.{Token => T}
 
 import org.scalafmt.internal.Decision
+import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Newline
 import org.scalafmt.internal.Policy
 import org.scalafmt.internal.Policy.End
@@ -172,5 +174,21 @@ object PolicyOps {
       case d: Decision if d.formatToken.left eq token =>
         d.onlyNewlinesWithoutFallback
     }
+
+  def dangleOnArg(close: T, owner: Tree)(implicit
+      fileLine: FileLine
+  ): Policy = {
+    val policy = decideNewlinesOnlyBeforeClose(close)
+    def changeSplits(s: Seq[Split]) =
+      s.map(x => if (x.isNL) x.andPolicy(policy) else x)
+    Policy.before(close) {
+      case Decision(FormatToken(_: T.Comma | _: T.Comment, _, m), s)
+          if m.leftOwner eq owner =>
+        changeSplits(s)
+      case Decision(FormatToken(_: T.Equals | _: T.Comment, _, m), s)
+          if m.leftOwner.parent.contains(owner) =>
+        changeSplits(s)
+    }
+  }
 
 }

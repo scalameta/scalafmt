@@ -2514,7 +2514,9 @@ object a {
       E(Seq(F(1, "v1"), F(2, "v2")),
         G(Some(Seq(h, i)),
           Some(Seq(j, k)), a.b, c.d,
-          e.f.g, h.i.j)).foo
+          e.f.g, h.i.j
+        )
+      ).foo
   }
 }
 <<< binpack call, always, !danglingParentheses
@@ -2556,7 +2558,8 @@ object a {
       E(Seq(F(1, "v1"), F(2, "v2")),
         G(Some(Seq(h, i)),
           Some(Seq(j, k)), a.b, c.d,
-          e.f.g, h.i.j)
+          e.f.g, h.i.j
+        )
       ).foo
   }
 }
@@ -2598,7 +2601,8 @@ object a {
 object a {
   val foo = bar.map(x =>
     x.copy(
-      baz = Option.when(false)(x.qux))
+      baz = Option.when(false)(x.qux)
+    )
   )
 }
 <<< binPack with named parameter values, !danglingParentheses
@@ -2670,8 +2674,8 @@ object a {
 >>>
 object a {
   protected def foo[U](bar: String,
-      baz: Seq[String] = Seq.empty)(
-      f: HttpResponse => U): U = qux
+      baz: Seq[String] = Seq.empty
+  )(f: HttpResponse => U): U = qux
 }
 <<< binPack indent expiresOn=Before when !dangle
 binPack.preset = true
@@ -4695,20 +4699,23 @@ object a {
 object a {
   when(
     service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-      Order.default)
+      Order.default
+    )
   ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(
     service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit),
-      Order.default)
+      Order.default
+    )
   ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+    Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
-    .thenReturn(None)
+    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))
+  ).thenReturn(None)
 }
 <<< unsafeCallSite = always, nested with one arg
 maxColumn = 100
@@ -4762,19 +4769,20 @@ object a {
 >>>
 object a {
   when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-      Order.default))
-    .thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+      Order.default
+    )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit),
-      Order.default))
-    .thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+      Order.default
+    )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+    Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
-    .thenReturn(None)
+    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))
+  ).thenReturn(None)
 }
 <<< #2821 default
 assembly / assemblyMergeStrategy := {
