@@ -21,6 +21,7 @@ object Pattern {
   val neverInfix = Pattern(
     Seq("[\\w\\d_]+"),
     Seq(
+      "cross",
       "until",
       "to",
       "by",
