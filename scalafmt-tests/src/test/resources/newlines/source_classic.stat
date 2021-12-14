@@ -1190,6 +1190,29 @@ object WrapperToHaveStatTestCaseParserWorking {
   @deprecated
   class D
 }
+<<< 4.2.1 annotation !annotationNewlines
+align.preset = none
+optIn.annotationNewlines = false
+===
+object a {
+  @Ignore @Test def foo(): Unit = {
+     val bar = baz
+  }
+  @Ignore @Test def fooFooFoo(): Unit = {
+     val bar = baz
+  }
+}
+>>>
+object a {
+  @Ignore
+  @Test def foo(): Unit = {
+    val bar = baz
+  }
+  @Ignore
+  @Test def fooFooFoo(): Unit = {
+    val bar = baz
+  }
+}
 <<< 4.3: #938 flag false, newline no
 optIn.selfAnnotationNewline = false
 maxColumn = 20
