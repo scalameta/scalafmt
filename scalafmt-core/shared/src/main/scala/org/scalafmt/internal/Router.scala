@@ -556,6 +556,8 @@ class Router(formatOps: FormatOps) {
               case Newlines.fold =>
                 right.is[T.Comment] || annoRight ||
                   !style.optIn.annotationNewlines && right.is[Keyword]
+              case Newlines.keep =>
+                newlines == 0 && (annoRight || right.is[Keyword])
               case _ =>
                 newlines == 0 && right.is[Keyword]
             })
