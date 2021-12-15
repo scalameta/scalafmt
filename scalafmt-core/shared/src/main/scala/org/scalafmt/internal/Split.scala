@@ -131,9 +131,12 @@ case class Split(
   }
 
   def withPolicy(newPolicy: => Policy, ignore: Boolean = false): Split = {
-    if (!policy.isEmpty)
-      throw new UnsupportedOperationException("Use orPolicy or andPolicy")
-    if (isIgnored || ignore) this else copy(policy = newPolicy)
+    if (isIgnored || ignore) this
+    else {
+      if (!policy.isEmpty)
+        throw new UnsupportedOperationException("Use orPolicy or andPolicy")
+      copy(policy = newPolicy)
+    }
   }
 
   def withSingleLine(

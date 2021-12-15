@@ -1594,7 +1594,7 @@ class FormatOps(
                 getOpenNLByTree(f, a, penalty)
               case _ => Seq.empty
             }
-            val nextPolicies = (policies :+ pnlPolicy) ++ nestedPolicies
+            val nextPolicies = policies ++ nestedPolicies :+ pnlPolicy
             getOpenNLByArgs(argLastFt, argss.tail, penalty, nextPolicies)
           }
         }
