@@ -2595,7 +2595,8 @@ object a {
 object a {
   val foo = bar.map(x =>
     x.copy(baz =
-      Option.when(false)(x.qux))
+      Option.when(false)(x.qux)
+    )
   )
 }
 <<< literalsIncludeSimpleExpr with named parameter values, !danglingParentheses
