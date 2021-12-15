@@ -176,3 +176,7 @@ object a {
 object a {
   ((a(b("c")).over(d)) / (e + 1)).as(f)
 }
+<<< exclude "cross" for sbt
+foo("bar" % "baz" % "qux" cross CrossVersion.full)
+>>> a.sbt
+foo(("bar" % "baz" % "qux").cross(CrossVersion.full))
