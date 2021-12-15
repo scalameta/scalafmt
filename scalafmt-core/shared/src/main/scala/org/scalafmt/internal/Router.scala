@@ -1009,8 +1009,7 @@ class Router(formatOps: FormatOps) {
             )
           else {
             val noSplitPolicy =
-              if (keepNoNL && splitsForAssign.isDefined) singleLine(3)
-              else if (preferNoSplit) singleLine(2)
+              if (preferNoSplit && splitsForAssign.isEmpty) singleLine(2)
               else if (wouldDangle || mustDangle && isBracket || useConfigStyle)
                 SingleLineBlock(
                   close,
