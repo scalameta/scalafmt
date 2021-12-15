@@ -2558,7 +2558,7 @@ object a {
 object a {
   val foo = bar.map(x =>
     x.copy(baz =
-        Option.when(false)(x.qux))
+      Option.when(false)(x.qux))
   )
 }
 <<< binPack with named parameter values, !danglingParentheses
@@ -2577,7 +2577,7 @@ object a {
 object a {
   val foo = bar.map(x =>
     x.copy(baz =
-        Option.when(false)(x.qux)))
+      Option.when(false)(x.qux)))
 }
 <<< literalsIncludeSimpleExpr with named parameter values, danglingParentheses
 binPack.literalsIncludeSimpleExpr = true

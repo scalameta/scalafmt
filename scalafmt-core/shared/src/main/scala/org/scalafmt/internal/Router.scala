@@ -1181,6 +1181,10 @@ class Router(formatOps: FormatOps) {
           if (style.binPack.indentCallSiteOnce) Seq.empty
           else if (isSingleArg && oneline && !needOnelinePolicy) Seq.empty
           else if (
+            !isBracket && !onlyConfigStyle &&
+            getAssignAtSingleArgCallSite(leftOwner).isDefined
+          ) Seq.empty
+          else if (
             if (isTuple(leftOwner)) style.align.getOpenParenTupleSite
             else style.align.getOpenDelimSite(false, false)
           ) getOpenParenAlignIndents(close)
