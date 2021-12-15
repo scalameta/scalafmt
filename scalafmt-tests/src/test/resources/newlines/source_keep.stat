@@ -2542,6 +2542,80 @@ object a {
       ).foo
   }
 }
+<<< binPack with named parameter values, danglingParentheses
+binPack.preset = true
+optIn.configStyleArguments = false
+danglingParentheses.callSite = true
+===
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+      Option.when(false)(x.qux)
+    )
+  )
+}
+>>>
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+        Option.when(false)(x.qux))
+  )
+}
+<<< binPack with named parameter values, !danglingParentheses
+binPack.preset = true
+optIn.configStyleArguments = false
+danglingParentheses.callSite = false
+===
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+      Option.when(false)(x.qux)
+    )
+  )
+}
+>>>
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+        Option.when(false)(x.qux)))
+}
+<<< literalsIncludeSimpleExpr with named parameter values, danglingParentheses
+binPack.literalsIncludeSimpleExpr = true
+optIn.configStyleArguments = false
+danglingParentheses.callSite = true
+===
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+      Option.when(false)(x.qux)
+    )
+  )
+}
+>>>
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+      Option.when(false)(x.qux))
+  )
+}
+<<< literalsIncludeSimpleExpr with named parameter values, !danglingParentheses
+binPack.literalsIncludeSimpleExpr = true
+optIn.configStyleArguments = false
+danglingParentheses.callSite = false
+===
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+      Option.when(false)(x.qux)
+    )
+  )
+}
+>>>
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+      Option.when(false)(x.qux)))
+}
 <<< binPack indent expiresOn=Before when dangle
 binPack.preset = true
 optIn.configStyleArguments = false
