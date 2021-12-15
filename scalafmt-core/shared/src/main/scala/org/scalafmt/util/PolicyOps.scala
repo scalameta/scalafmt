@@ -3,6 +3,7 @@ package org.scalafmt.util
 import scala.meta.tokens.{Token => T}
 
 import org.scalafmt.internal.Decision
+import org.scalafmt.internal.Newline
 import org.scalafmt.internal.Policy
 import org.scalafmt.internal.Policy.End
 import org.scalafmt.internal.Split
@@ -132,5 +133,44 @@ object PolicyOps {
       token: T
   )(f: T => Policy)(implicit fileLine: FileLine): Policy =
     delayedBreakPolicyBefore(token)(f(token))
+
+  def decideNewlinesOnlyBeforeClose(close: T)(implicit
+      fileLine: FileLine
+  ): Policy =
+    decideNewlinesOnlyBeforeClose(Split(Newline, 0))(close)
+
+  def decideNewlinesOnlyBeforeCloseOnBreak(close: T)(implicit
+      fileLine: FileLine
+  ): Policy =
+    delayedBreakPolicyFor(close)(decideNewlinesOnlyBeforeClose)
+
+  def decideNewlinesOnlyBeforeClose(
+      split: Split
+  )(close: T)(implicit fileLine: FileLine): Policy =
+    Policy.on(close) {
+      case d: Decision if d.formatToken.right eq close =>
+        d.onlyNewlinesWithFallback(split)
+    }
+
+  def decideNewlinesOnlyAfterClose(close: T)(implicit
+      fileLine: FileLine
+  ): Policy =
+    decideNewlinesOnlyAfterClose(Split(Newline, 0))(close)
+
+  def decideNewlinesOnlyAfterClose(
+      split: Split
+  )(close: T)(implicit fileLine: FileLine): Policy =
+    Policy.after(close) {
+      case d: Decision if d.formatToken.left eq close =>
+        d.onlyNewlinesWithFallback(split)
+    }
+
+  def decideNewlinesOnlyAfterToken(
+      token: T
+  )(implicit fileLine: FileLine): Policy =
+    Policy.after(token) {
+      case d: Decision if d.formatToken.left eq token =>
+        d.onlyNewlinesWithoutFallback
+    }
 
 }

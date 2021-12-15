@@ -1085,45 +1085,6 @@ class FormatOps(
     } else Seq(Split(Space, 0), Split(Newline, 1))
   }
 
-  def decideNewlinesOnlyBeforeClose(
-      close: Token
-  )(implicit fileLine: FileLine): Policy =
-    decideNewlinesOnlyBeforeClose(Split(Newline, 0))(close)
-
-  def decideNewlinesOnlyBeforeCloseOnBreak(
-      close: Token
-  )(implicit fileLine: FileLine): Policy =
-    delayedBreakPolicyFor(close)(decideNewlinesOnlyBeforeClose)
-
-  def decideNewlinesOnlyBeforeClose(
-      split: Split
-  )(close: Token)(implicit fileLine: FileLine): Policy =
-    Policy.on(close) {
-      case d: Decision if d.formatToken.right eq close =>
-        d.onlyNewlinesWithFallback(split)
-    }
-
-  def decideNewlinesOnlyAfterClose(
-      close: Token
-  )(implicit fileLine: FileLine): Policy =
-    decideNewlinesOnlyAfterClose(Split(Newline, 0))(close)
-
-  def decideNewlinesOnlyAfterClose(
-      split: Split
-  )(close: Token)(implicit fileLine: FileLine): Policy =
-    Policy.after(close) {
-      case d: Decision if d.formatToken.left eq close =>
-        d.onlyNewlinesWithFallback(split)
-    }
-
-  def decideNewlinesOnlyAfterToken(
-      token: Token
-  )(implicit fileLine: FileLine): Policy =
-    Policy.after(token) {
-      case d: Decision if d.formatToken.left eq token =>
-        d.onlyNewlinesWithoutFallback
-    }
-
   def getForceConfigStyle: (Set[Tree], Set[TokenHash]) = {
     val maxDistance = runner.optimizer.forceConfigStyleOnOffset
     if (maxDistance < 0)
