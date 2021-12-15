@@ -26,6 +26,8 @@ case class RewriteSettings(
     Some((missing ++ changed).map(_.toString).sorted).filter(_.nonEmpty)
   }
 
+  private[config] def forSbt: RewriteSettings =
+    neverInfix.forSbt.fold(this)(x => copy(neverInfix = x))
 }
 
 object RewriteSettings {
