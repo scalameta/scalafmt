@@ -164,7 +164,8 @@ case class ScalafmtConfig(
     NamedDialect.getName(dialect).getOrElse("unknown dialect")
   )
 
-  def forSbt: ScalafmtConfig = copy(runner = runner.forSbt)
+  def forSbt: ScalafmtConfig =
+    copy(runner = runner.forSbt, rewrite = rewrite.forSbt)
 
   private lazy val expandedFileOverride = Try {
     val langPrefix = "lang:"

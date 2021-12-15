@@ -11,6 +11,11 @@ case class Pattern(
     FilterMatcher.mkRegexp(includeFilters),
     FilterMatcher.mkRegexp(excludeFilters, true)
   )
+
+  private[config] def forSbt: Option[Pattern] =
+    // if the user customized these, we don't touch
+    if (excludeFilters ne Pattern.neverInfix.excludeFilters) None
+    else Some(copy(excludeFilters = Pattern.sbtExclude))
 }
 
 object Pattern {
@@ -49,4 +54,8 @@ object Pattern {
       "theSameElementsAs"
     )
   )
+
+  private val sbtExclude = Seq(
+    "cross"
+  ) ++ neverInfix.excludeFilters
 }

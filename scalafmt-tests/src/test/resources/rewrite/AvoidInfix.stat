@@ -179,4 +179,4 @@ object a {
 <<< exclude "cross" for sbt
 foo("bar" % "baz" % "qux" cross CrossVersion.full)
 >>> a.sbt
-foo(("bar" % "baz" % "qux").cross(CrossVersion.full))
+foo("bar" % "baz" % "qux" cross CrossVersion.full)
