@@ -2355,7 +2355,7 @@ object a {
     F(c.name.toString.trim, alias, sym.typeSignature)
   }
 }
-<<< binpack call, always
+<<< binpack call, always, danglingParentheses
 binPack.unsafeCallSite = always
 optIn.configStyleArguments = false
 ===
@@ -2376,9 +2376,53 @@ object a {
     ).foo
   }
 }
-<<< binpack call, oneline
+<<< binpack call, always, !danglingParentheses
+binPack.unsafeCallSite = always
+optIn.configStyleArguments = false
+danglingParentheses.callSite = false
+===
+object a {
+  test("foo") {
+    a.b(c, d) shouldBe
+      E(Seq(F(1, "v1"), F(2, "v2")), G(Some(Seq(h, i)), Some(Seq(j, k)), a.b, c.d, e.f.g, h.i.j)).foo
+  }
+}
+>>>
+object a {
+  test("foo") {
+    a.b(c, d) shouldBe E(
+      Seq(F(1, "v1"), F(2, "v2")),
+      G(Some(Seq(h, i)),
+        Some(Seq(j, k)), a.b, c.d,
+        e.f.g, h.i.j)).foo
+  }
+}
+<<< binpack call, oneline, danglingParentheses
 binPack.unsafeCallSite = oneline
 optIn.configStyleArguments = false
+danglingParentheses.callSite = true
+===
+object a {
+  test("foo") {
+    a.b(c, d) shouldBe
+      E(Seq(F(1, "v1"), F(2, "v2")), G(Some(Seq(h, i)), Some(Seq(j, k)), a.b, c.d, e.f.g, h.i.j)).foo
+  }
+}
+>>>
+object a {
+  test("foo") {
+    a.b(c, d) shouldBe E(
+      Seq(F(1, "v1"), F(2, "v2")),
+      G(Some(Seq(h, i)),
+        Some(Seq(j, k)), a.b, c.d,
+        e.f.g, h.i.j)
+    ).foo
+  }
+}
+<<< binpack call, oneline, !danglingParentheses
+binPack.unsafeCallSite = oneline
+optIn.configStyleArguments = false
+danglingParentheses.callSite = false
 ===
 object a {
   test("foo") {
@@ -2475,6 +2519,7 @@ object a {
 <<< binPack indent expiresOn=Before when dangle
 binPack.preset = true
 optIn.configStyleArguments = false
+danglingParentheses.defnSite = true
 ===
 object a {
    protected def foo[U](bar: String, baz: Seq[String] = Seq.empty)(
@@ -2487,6 +2532,22 @@ object a {
       bar: String,
       baz: Seq[String] = Seq.empty
   )(f: HttpResponse => U): U = qux
+}
+<<< binPack indent expiresOn=Before when !dangle
+binPack.preset = true
+optIn.configStyleArguments = false
+danglingParentheses.defnSite = false
+===
+object a {
+   protected def foo[U](bar: String, baz: Seq[String] = Seq.empty)(
+       f: HttpResponse => U
+  ): U = qux
+}
+>>>
+object a {
+  protected def foo[U](bar: String,
+      baz: Seq[String] = Seq.empty)(
+      f: HttpResponse => U): U = qux
 }
 <<< val formatting
 object a {
@@ -4391,9 +4452,10 @@ object a {
       apiAudience.copy(status = AudienceStatus.Pending.name)
     ))
 }
-<<< unsafeCallSite = Oneline, nested with one arg
+<<< unsafeCallSite = Oneline, nested with one arg, danglingParentheses
 maxColumn = 100
 binPack.unsafeCallSite = Oneline
+danglingParentheses.callSite = true
 runner.optimizer.forceConfigStyleMinArgCount = 100
 ===
 object a {
@@ -4417,9 +4479,36 @@ object a {
     .thenReturn(Success[NonEmptyList[String], ApiAudience](apiAudience
       .copy(status = AudienceStatus.Pending.name)))
 }
-<<< unsafeCallSite = Oneline, nested with one arg, several options
+<<< unsafeCallSite = Oneline, nested with one arg, !danglingParentheses
 maxColumn = 100
 binPack.unsafeCallSite = Oneline
+danglingParentheses.callSite = false
+runner.optimizer.forceConfigStyleMinArgCount = 100
+===
+object a {
+    binder.bind("f", params) shouldBe Some(Left(
+      s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
+    ))
+
+
+    when(audienceService.publish(any[Tenant], any[Int])).thenReturn(
+      Success[NonEmptyList[String], ApiAudience](apiAudience
+          .copy(status = AudienceStatus.Pending.name))
+    )
+}
+>>>
+object a {
+  binder.bind("f", params) shouldBe Some(Left(
+    s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"))
+
+  when(audienceService.publish(any[Tenant], any[Int]))
+    .thenReturn(Success[NonEmptyList[String], ApiAudience](
+      apiAudience.copy(status = AudienceStatus.Pending.name)))
+}
+<<< unsafeCallSite = Oneline, nested with one arg, several options, danglingParentheses
+maxColumn = 100
+binPack.unsafeCallSite = Oneline
+danglingParentheses.callSite = true
 runner.optimizer.forceConfigStyleMinArgCount = 100
 ===
 object a {
@@ -4458,9 +4547,52 @@ object a {
     Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
     .thenReturn(None)
 }
-<<< unsafeCallSite = always, nested with one arg
+<<< unsafeCallSite = Oneline, nested with one arg, several options, !danglingParentheses
+maxColumn = 100
+binPack.unsafeCallSite = Oneline
+danglingParentheses.callSite = false
+runner.optimizer.forceConfigStyleMinArgCount = 100
+===
+object a {
+  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default
+  )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)),
+    Page(0, Page.maxPageLimit), Order.default
+  )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default,
+  PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
+}
+>>>
+object a {
+  when(
+    service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+      Order.default)
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(
+    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit),
+      Order.default)
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+    .thenReturn(None)
+}
+<<< unsafeCallSite = always, nested with one arg, danglingParentheses
 maxColumn = 100
 binPack.unsafeCallSite = always
+danglingParentheses.callSite = true
 runner.optimizer.forceConfigStyleMinArgCount = 100
 ===
 object a {
@@ -4484,9 +4616,76 @@ object a {
     .thenReturn(Success[NonEmptyList[String], ApiAudience](apiAudience
           .copy(status = AudienceStatus.Pending.name)))
 }
-<<< unsafeCallSite = always, nested with one arg, several options
+<<< unsafeCallSite = always, nested with one arg, !danglingParentheses
 maxColumn = 100
 binPack.unsafeCallSite = always
+danglingParentheses.callSite = false
+runner.optimizer.forceConfigStyleMinArgCount = 100
+===
+object a {
+    binder.bind("f", params) shouldBe Some(Left(
+      s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
+    ))
+
+
+    when(audienceService.publish(any[Tenant], any[Int])).thenReturn(
+      Success[NonEmptyList[String], ApiAudience](apiAudience
+          .copy(status = AudienceStatus.Pending.name))
+    )
+}
+>>>
+object a {
+  binder.bind("f", params) shouldBe Some(Left(
+      s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"))
+
+  when(audienceService.publish(any[Tenant], any[Int]))
+    .thenReturn(Success[NonEmptyList[String], ApiAudience](
+        apiAudience.copy(status = AudienceStatus.Pending.name)))
+}
+<<< unsafeCallSite = always, nested with one arg, several options, danglingParentheses
+maxColumn = 100
+binPack.unsafeCallSite = always
+danglingParentheses.callSite = true
+runner.optimizer.forceConfigStyleMinArgCount = 100
+===
+object a {
+  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default
+  )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)),
+    Page(0, Page.maxPageLimit), Order.default
+  )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default,
+  PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
+}
+>>>
+object a {
+  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+      Order.default))
+    .thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit),
+      Order.default))
+    .thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+    .thenReturn(None)
+}
+<<< unsafeCallSite = always, nested with one arg, several options, !danglingParentheses
+maxColumn = 100
+binPack.unsafeCallSite = always
+danglingParentheses.callSite = false
 runner.optimizer.forceConfigStyleMinArgCount = 100
 ===
 object a {

@@ -2501,9 +2501,10 @@ object a {
     F(c.name.toString.trim, alias, sym.typeSignature)
   }
 }
-<<< binpack call, always
+<<< binpack call, always, danglingParentheses
 binPack.unsafeCallSite = always
 optIn.configStyleArguments = false
+danglingParentheses.callSite = true
 ===
 object a {
   test("foo") {
@@ -2521,9 +2522,53 @@ object a {
           e.f.g, h.i.j)).foo
   }
 }
-<<< binpack call, oneline
+<<< binpack call, always, !danglingParentheses
+binPack.unsafeCallSite = always
+optIn.configStyleArguments = false
+danglingParentheses.callSite = false
+===
+object a {
+  test("foo") {
+    a.b(c, d) shouldBe
+      E(Seq(F(1, "v1"), F(2, "v2")), G(Some(Seq(h, i)), Some(Seq(j, k)), a.b, c.d, e.f.g, h.i.j)).foo
+  }
+}
+>>>
+object a {
+  test("foo") {
+    a.b(c, d) shouldBe
+      E(Seq(F(1, "v1"), F(2, "v2")),
+        G(Some(Seq(h, i)),
+          Some(Seq(j, k)), a.b, c.d,
+          e.f.g, h.i.j)).foo
+  }
+}
+<<< binpack call, oneline, danglingParentheses
 binPack.unsafeCallSite = oneline
 optIn.configStyleArguments = false
+danglingParentheses.callSite = true
+===
+object a {
+  test("foo") {
+    a.b(c, d) shouldBe
+      E(Seq(F(1, "v1"), F(2, "v2")), G(Some(Seq(h, i)), Some(Seq(j, k)), a.b, c.d, e.f.g, h.i.j)).foo
+  }
+}
+>>>
+object a {
+  test("foo") {
+    a.b(c, d) shouldBe
+      E(Seq(F(1, "v1"), F(2, "v2")),
+        G(Some(Seq(h, i)),
+          Some(Seq(j, k)), a.b, c.d,
+          e.f.g, h.i.j)
+      ).foo
+  }
+}
+<<< binpack call, oneline, !danglingParentheses
+binPack.unsafeCallSite = oneline
+optIn.configStyleArguments = false
+danglingParentheses.callSite = false
 ===
 object a {
   test("foo") {
@@ -2620,6 +2665,23 @@ object a {
 <<< binPack indent expiresOn=Before when dangle
 binPack.preset = true
 optIn.configStyleArguments = false
+danglingParentheses.defnSite = true
+===
+object a {
+   protected def foo[U](bar: String, baz: Seq[String] = Seq.empty)(
+       f: HttpResponse => U
+  ): U = qux
+}
+>>>
+object a {
+  protected def foo[U](bar: String,
+      baz: Seq[String] = Seq.empty)(
+      f: HttpResponse => U): U = qux
+}
+<<< binPack indent expiresOn=Before when !dangle
+binPack.preset = true
+optIn.configStyleArguments = false
+danglingParentheses.defnSite = false
 ===
 object a {
    protected def foo[U](bar: String, baz: Seq[String] = Seq.empty)(
