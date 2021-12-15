@@ -1253,8 +1253,8 @@ class Router(formatOps: FormatOps) {
           Split(nlMod, bracketPenalty * (if (oneline) 4 else 2))
             .withIndent(indent)
             .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
-            .andPolicy(penalizeNewlinesPolicy, singleLineOnly)
             .andPolicy(nlPolicy)
+            .andPolicy(penalizeNewlinesPolicy, singleLineOnly)
         )
 
       // Closing def site ): ReturnType
