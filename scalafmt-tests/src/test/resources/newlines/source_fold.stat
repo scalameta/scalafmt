@@ -2413,7 +2413,7 @@ object a {
 object a {
   val foo = bar.map(x =>
     x.copy(baz = Option
-        .when(false)(x.qux))
+      .when(false)(x.qux))
   )
 }
 <<< binPack with named parameter values, !danglingParentheses
