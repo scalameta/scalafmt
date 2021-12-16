@@ -2617,6 +2617,61 @@ object a {
     x.copy(baz =
       Option.when(false)(x.qux)))
 }
+<<< binPack.literals, danglingParentheses
+maxColumn = 100
+binPack.literalArgumentLists = true
+binPack.literalsExclude = []
+binPack.literalsIncludeSimpleExpr = true
+optIn.configStyleArguments = false
+danglingParentheses.callSite = true
+===
+object a {
+  foo(
+    bar.baz(Seq(
+      Qux(
+        "", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
+        Some(0), Some(1), foo = Some("bar")
+      )
+    ))
+  )
+}
+>>>
+object a {
+  foo(
+    bar.baz(Seq(
+      Qux(
+        "", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
+        Some(0), Some(1), foo = Some("bar"))
+    ))
+  )
+}
+<<< binPack.literals, danglingParentheses, avoid fold
+maxColumn = 100
+binPack.literalArgumentLists = true
+binPack.literalsExclude = []
+binPack.literalsIncludeSimpleExpr = true
+optIn.configStyleArguments = false
+danglingParentheses.callSite = true
+runner.optimizer.forceConfigStyleOnOffset = 150
+===
+object a {
+  private val audience3 = apiAudience(
+    3, "b_name", Sams, Inid, "2", "created-by-user2", "updated-by-user2"
+  ).copy(
+    updatedAt = nowDate.minusDays(15),
+    audienceSizeOnsite = Some(3333),
+    audienceSizeOffsite = Some(1)
+  )
+}
+>>>
+object a {
+  private val audience3 = apiAudience(
+    3, "b_name", Sams, Inid, "2", "created-by-user2", "updated-by-user2").copy(
+    updatedAt = nowDate.minusDays(15),
+    audienceSizeOnsite = Some(3333),
+    audienceSizeOffsite = Some(1)
+  )
+}
 <<< binPack indent expiresOn=Before when dangle
 binPack.preset = true
 optIn.configStyleArguments = false
