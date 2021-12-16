@@ -118,7 +118,7 @@ case class ScalafmtConfig(
     includeCurlyBraceInSelectChains: Boolean = true,
     includeNoParensInSelectChains: Boolean = false,
     assumeStandardLibraryStripMargin: Boolean = false,
-    danglingParentheses: DanglingParentheses = DanglingParentheses(true, true),
+    danglingParentheses: DanglingParentheses = DanglingParentheses.default,
     @annotation.DeprecatedName(
       "poorMansTrailingCommasInConfigStyle",
       "Scala supports trailing commas after 2.12.2. Use trailingCommas instead",
@@ -264,7 +264,7 @@ object ScalafmtConfig {
     optIn = default.optIn.copy(
       configStyleArguments = false
     ),
-    danglingParentheses = DanglingParentheses(true, true)
+    danglingParentheses = DanglingParentheses.shortcutTrue
   )
 
   def addAlign(style: ScalafmtConfig): ScalafmtConfig =
