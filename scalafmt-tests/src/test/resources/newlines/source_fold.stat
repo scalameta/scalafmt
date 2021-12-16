@@ -5157,9 +5157,8 @@ private implicit class ApiExceptionToErrorResponseConverter(ex: ApiException) {
 }
 >>>
 private implicit class ApiExceptionToErrorResponseConverter(ex: ApiException) {
-  def toErrors: Seq[ErrorResponse] = Seq(
-    ErrorResponse(ex.errorType.code, ex.errorType.name, Option(ex.getMessage))
-  )
+  def toErrors: Seq[ErrorResponse] =
+    Seq(ErrorResponse(ex.errorType.code, ex.errorType.name, Option(ex.getMessage)))
 }
 <<< #2965-regression 2
 maxColumn = 100
@@ -5172,7 +5171,6 @@ private implicit class ApiExceptionToErrorResponseConverter(ex: ApiException) {
 }
 >>>
 private implicit class ApiExceptionToErrorResponseConverter(ex: ApiException) {
-  def toErrors: Seq[ErrorResponse] = Seq(
-    ErrorResponse(ex.errorType.code, ex.errorType.name, Option(ex.getMessage))
-  )
+  def toErrors: Seq[ErrorResponse] =
+    Seq(ErrorResponse(ex.errorType.code, ex.errorType.name, Option(ex.getMessage)))
 }
