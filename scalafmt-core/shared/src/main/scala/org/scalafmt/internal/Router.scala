@@ -1390,9 +1390,10 @@ class Router(formatOps: FormatOps) {
             else None
           binPackOpt.filter(!_.isNever).map { binPack =>
             val lastFT = tokens.getLast(nextArg)
+            val loEnd = leftOwner.tokens.last.end
             val oneline = binPack == BinPack.Unsafe.Oneline
             val nextCommaOrParenOneline = if (oneline) {
-              findFirst(lastFT, leftOwner.tokens.last) {
+              findFirst(lastFT, loEnd) {
                 case FormatToken(_, _: T.Comma, _) => true
                 case FormatToken(_, RightParenOrBracket(), _) => true
                 case _ => false
@@ -1415,7 +1416,7 @@ class Router(formatOps: FormatOps) {
               style.binPack.indentCallSiteOnce && callSite
             val indent = if (indentCallSiteOnce) style.indent.callSite else 0
             Seq(
-              Split(Space, 0).withSingleLine(rhsOptimalToken(optFT)),
+              Split(Space, 0).withSingleLine(rhsOptimalToken(optFT, loEnd)),
               Split(Newline, 1)
                 .withIndent(indent, right, After)
                 .withPolicy(nlPolicy)
