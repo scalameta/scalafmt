@@ -179,10 +179,12 @@ class FormatOps(
     findFirst(start, end.start)(x => classifier(x.right)).map(_.right)
 
   final def rhsOptimalToken(
-      start: FormatToken
+      start: FormatToken,
+      end: Int = Int.MaxValue
   )(implicit style: ScalafmtConfig): Token =
     findTokenWith(start, next) { start =>
       start.right match {
+        case t if t.end >= end => Some(start.left)
         case _ if start.hasBlankLine => Some(start.left)
         case _: T.RightParen
             if start.left.is[T.RightParen] || start.left.is[T.LeftParen] =>
