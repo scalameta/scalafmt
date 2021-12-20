@@ -9,7 +9,8 @@ case class DanglingParentheses(
     private[config] val tupleSite: Option[Boolean] = None,
     exclude: List[DanglingParentheses.Exclude] = Nil
 ) {
-  def getTupleSite = tupleSite.getOrElse(callSite)
+  @inline def tupleOrCallSite(isTuple: Boolean) =
+    if (isTuple) tupleSite.getOrElse(callSite) else callSite
 }
 
 object DanglingParentheses {

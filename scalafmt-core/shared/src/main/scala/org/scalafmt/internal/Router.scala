@@ -866,8 +866,7 @@ class Router(formatOps: FormatOps) {
           mustDangleForTrailingCommas
         val shouldDangle =
           if (defnSite) !shouldNotDangleAtDefnSite(leftOwner, false)
-          else if (tupleSite) style.danglingParentheses.getTupleSite
-          else style.danglingParentheses.callSite
+          else style.danglingParentheses.tupleOrCallSite(tupleSite)
         val wouldDangle = shouldDangle || {
           val beforeClose = prev(closeFormatToken)
           beforeClose.hasBreak && beforeClose.left.is[T.Comment]
@@ -1242,10 +1241,8 @@ class Router(formatOps: FormatOps) {
             else splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
           } else if (
             mustDangleForTrailingCommas ||
-            style.newlines.sourceIgnored && (
-              if (isTuple(leftOwner)) style.danglingParentheses.getTupleSite
-              else style.danglingParentheses.callSite
-            )
+            style.danglingParentheses.tupleOrCallSite(isTuple(leftOwner)) &&
+            style.newlines.sourceIgnored
           )
             newlineBeforeClose & binPackOnelinePolicy
           else binPackOnelinePolicy
@@ -1962,13 +1959,9 @@ class Router(formatOps: FormatOps) {
             cost: Int,
             forceDangle: Boolean
         )(implicit fileLine: FileLine) = {
-          val shouldDangle = forceDangle ||
-            style.danglingParentheses.callSite
-          val policy =
-            if (!shouldDangle) NoPolicy
-            else decideNewlinesOnlyBeforeClose(close)
+          val shouldDangle = forceDangle || style.danglingParentheses.callSite
           Split(Newline, cost)
-            .withPolicy(policy)
+            .withPolicy(decideNewlinesOnlyBeforeClose(close), !shouldDangle)
             .withIndent(style.indent.callSite, close, Before)
         }
         if (isSingleLineComment(right))
@@ -2514,10 +2507,8 @@ class Router(formatOps: FormatOps) {
       ft.meta.leftOwner.parent.exists { lop =>
         if (isDefnSite(lop)) !shouldNotDangleAtDefnSite(lop, false)
         else
-          isCallSite(lop) && (
-            if (isTuple(lop)) style.danglingParentheses.getTupleSite
-            else style.danglingParentheses.callSite
-          )
+          isCallSite(lop) &&
+          style.danglingParentheses.tupleOrCallSite(isTuple(lop))
       }
 
     val expireFt = tokens.getLast(body)
