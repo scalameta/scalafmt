@@ -72,9 +72,12 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
             replaceTokenIdent("*", ft.right)
           case _: Type.Placeholder if dialect.allowQuestionMarkPlaceholder =>
             replaceTokenIdent("?", ft.right)
-          case _: Term.Repeated | _: Pat.SeqWildcard
-              if dialect.allowPostfixStarVarargSplices =>
-            removeToken // see above, under Colon and At
+          case _: Term.Repeated if dialect.allowPostfixStarVarargSplices =>
+            removeToken // see above, under Colon
+          case t: Pat.SeqWildcard
+              if dialect.allowPostfixStarVarargSplices &&
+                t.parent.exists(_.is[Pat.Bind]) =>
+            removeToken // see above, under At
           case _ => null
         }
 
