@@ -2970,3 +2970,15 @@ object a {
   } a +
     b
 }
+<<< do not rewrite vararg-splice unless bind-wildcard
+rewrite.scala3.convertToNewSyntax = true
+===
+foo {
+  case bar @ baz(_*) => qux
+  case baz @ baz(x @ _*) => qux
+}
+>>>
+foo {
+  case bar @ baz(*)  => qux
+  case baz @ baz(x*) => qux
+}
