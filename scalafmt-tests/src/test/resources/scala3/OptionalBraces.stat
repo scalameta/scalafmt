@@ -2979,6 +2979,6 @@ foo {
 }
 >>>
 foo {
-  case bar @ baz(*)  => qux
+  case bar @ baz(_*) => qux
   case baz @ baz(x*) => qux
 }
