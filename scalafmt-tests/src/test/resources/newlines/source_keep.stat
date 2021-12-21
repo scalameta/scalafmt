@@ -2641,7 +2641,8 @@ object a {
     bar.baz(Seq(
       Qux(
         "", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
-        Some(0), Some(1), foo = Some("bar"))
+        Some(0), Some(1), foo = Some("bar")
+      )
     ))
   )
 }
@@ -2666,7 +2667,8 @@ object a {
 >>>
 object a {
   private val audience3 = apiAudience(
-    3, "b_name", Sams, Inid, "2", "created-by-user2", "updated-by-user2").copy(
+    3, "b_name", Sams, Inid, "2", "created-by-user2", "updated-by-user2"
+  ).copy(
     updatedAt = nowDate.minusDays(15),
     audienceSizeOnsite = Some(3333),
     audienceSizeOffsite = Some(1)
@@ -2683,9 +2685,12 @@ object a {
 }
 >>>
 object a {
-  protected def foo[U](bar: String,
-      baz: Seq[String] = Seq.empty)(
-      f: HttpResponse => U): U = qux
+  protected def foo[U](
+      bar: String,
+      baz: Seq[String] = Seq.empty
+  )(
+      f: HttpResponse => U
+  ): U = qux
 }
 <<< #1973 1
 maxColumn = 25

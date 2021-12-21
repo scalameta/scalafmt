@@ -2553,7 +2553,8 @@ object a {
 object a {
   val foo = bar.map(x =>
     x.copy(
-      baz = Option.when(false)(x.qux))
+      baz = Option.when(false)(x.qux)
+    )
   )
 }
 <<< binPack with named parameter values, !danglingParentheses
@@ -2679,9 +2680,10 @@ object a {
 }
 >>>
 object a {
-  protected def foo[U](bar: String,
-      baz: Seq[String] = Seq.empty)(
-      f: HttpResponse => U): U = qux
+  protected def foo[U](
+      bar: String,
+      baz: Seq[String] = Seq.empty
+  )(f: HttpResponse => U): U = qux
 }
 <<< #1973 1
 maxColumn = 25
