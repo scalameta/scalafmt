@@ -530,3 +530,64 @@ object a {
           * 'ATT' IDs is requsted for MD5 and SHA1 and not for LUID */
     )
 }
+<<< binpack=oneline, with wrapped comment, narrower
+maxColumn = 90
+indent.callSite = 2
+comments.wrap = trailing
+binPack.unsafeCallSite = oneline
+===
+object a {
+  val foo = Seq( // First 2 will not be taken into account since this app for 'Do Not Sell'
+     CcpaRequestIds("luid", "1", None, date, version, RequestType.Delete),
+    CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete), /* Next 2 will
+     * not be taken into account since 'filterDoNotSellBy' is not set */
+     CcpaRequestIds("luid", "2", date, None, version, RequestType.DoNotSell),
+     CcpaRequestIds("hemlmd5", "MD5-2", date, None, version, RequestType.DoNotSell)
+     /* Only last record will be taken into account but not the next one since filtering of 'ATT'
+      * IDs is requsted for MD5 and SHA1 and not for LUID */
+  )
+}
+>>>
+object a {
+  val foo =
+    Seq( // First 2 will not be taken into account since this app for 'Do Not Sell'
+         CcpaRequestIds("luid", "1", None, date, version, RequestType.Delete),
+         CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete),
+         /* Next 2 will not be taken into account since 'filterDoNotSellBy' is not set */
+         CcpaRequestIds("luid", "2", date, None, version, RequestType.DoNotSell),
+         CcpaRequestIds("hemlmd5", "MD5-2", date, None, version, RequestType.DoNotSell)
+         /* Only last record will be taken into account but not the next one since
+          * filtering of 'ATT' IDs is requsted for MD5 and SHA1 and not for LUID */
+    )
+}
+<<< binpack=oneline, defn, with wrapped comment, narrower
+maxColumn = 51
+indent.callSite = 2
+align.preset = none
+comments.wrap = trailing
+binPack.unsafeDefnSite = oneline
+===
+object a {
+   def foo( // First 2 will not be taken into account
+     foo1: Int,
+     foo2: String, /* Next 2 will
+     * not be taken into account since 'filterDoNotSellBy' is not set */
+     foo3: Map[Int, Int],
+     foo4: Set[Int]
+     /* Only last record will be taken into account but not the next one since filtering of 'ATT'
+      * IDs is requsted for MD5 and SHA1 and not for LUID */
+  ) = ???
+}
+>>>
+object a {
+  def foo( // First 2 will not be taken into account
+      foo1: Int, foo2: String,
+      /* Next 2 will not be taken into account
+       * since 'filterDoNotSellBy' is not set */
+      foo3: Map[Int, Int], foo4: Set[Int]
+      /* Only last record will be taken into
+       * account but not the next one since
+       * filtering of 'ATT' IDs is requsted for MD5
+       * and SHA1 and not for LUID */
+  ) = ???
+}
