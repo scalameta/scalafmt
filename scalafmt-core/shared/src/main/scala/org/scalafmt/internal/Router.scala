@@ -1066,7 +1066,7 @@ class Router(formatOps: FormatOps) {
 
         splitsNoNL ++ splitsNL ++ splitsForAssign.getOrElse(Seq.empty)
 
-      case FormatToken(open @ LeftParenOrBracket(), right, _)
+      case ft @ FormatToken(open @ LeftParenOrBracket(), right, _)
           if !style.binPack.defnSite(open).isNever && isDefnSite(leftOwner) =>
         val close = matching(open)
         def slbPolicy = SingleLineBlock(close, okSLC = true)
@@ -1119,14 +1119,16 @@ class Router(formatOps: FormatOps) {
                 .getOrElse(NoPolicy)
               argPolicy & (penalizeOpens | penalizeBrackets)
             }
+          val rightIsComment = right.is[T.Comment]
+          val mustUseNL = onlyConfigStyle ||
+            newlines != 0 && style.newlines.source.eq(Newlines.keep) ||
+            rightIsComment &&
+            (newlines != 0 || nextNonCommentSameLine(next(ft)).hasBreak)
           val noSplitModification =
-            if (right.is[T.Comment]) getMod(formatToken)
-            else baseNoSplitMod
+            if (rightIsComment && !mustUseNL) getMod(ft) else baseNoSplitMod
+          val nlMod = if (rightIsComment && mustUseNL) getMod(ft) else Newline
           val nlDanglePolicy =
             if (mustDangle) decideNewlinesOnlyBeforeClose(close) else NoPolicy
-          val mustUseNL = onlyConfigStyle || newlines != 0 &&
-            (style.newlines.source.eq(Newlines.keep) ||
-              isSingleLineComment(right))
           def nlCost = bracketPenalty.getOrElse(1)
 
           Seq(
@@ -1134,13 +1136,13 @@ class Router(formatOps: FormatOps) {
               .notIf(mustUseNL)
               .withPolicy(noSplitPolicy)
               .withIndents(noSplitIndents),
-            Split(Newline, if (mustUseNL) 0 else nlCost)
+            Split(nlMod, if (mustUseNL) 0 else nlCost)
               .withPolicy(nlDanglePolicy & onelinePolicy & penalizeBrackets)
               .withIndent(indent)
           )
         }
 
-      case FormatToken(open @ LeftParenOrBracket(), _, _)
+      case ft @ FormatToken(open @ LeftParenOrBracket(), right, _)
           if !style.binPack.callSite(open).isNever && isCallSite(leftOwner) =>
         val close = matching(open)
         val isBracket = open.is[T.LeftBracket]
@@ -1161,6 +1163,11 @@ class Router(formatOps: FormatOps) {
 
         val onlyConfigStyle = !mustDangleForTrailingCommas &&
           mustUseConfigStyle(formatToken, !opensLiteralArgumentList)
+        val rightIsComment = right.is[T.Comment]
+        val nlOnly = mustDangleForTrailingCommas || onlyConfigStyle ||
+          style.newlines.source.eq(Newlines.keep) && newlines != 0 ||
+          rightIsComment &&
+          (newlines != 0 || nextNonCommentSameLine(next(ft)).hasBreak)
 
         def findComma(ft: FormatToken) = findFirstOnRight[T.Comma](ft, close)
 
@@ -1177,10 +1184,10 @@ class Router(formatOps: FormatOps) {
         val indentLen = style.indent.callSite
         val indent = Indent(Num(indentLen), close, Before)
         val noSplitIndents =
-          if (style.binPack.indentCallSiteOnce) Seq.empty
+          if (style.binPack.indentCallSiteOnce || nlOnly) Seq.empty
           else if (isSingleArg && oneline && !needOnelinePolicy) Seq.empty
           else if (
-            !isBracket && !onlyConfigStyle &&
+            !isBracket &&
             getAssignAtSingleArgCallSite(leftOwner).isDefined
           ) Seq.empty
           else if (
@@ -1202,16 +1209,12 @@ class Router(formatOps: FormatOps) {
           )
 
         val noSplit =
-          if (mustDangleForTrailingCommas || onlyConfigStyle) Split.ignored
+          if (nlOnly) Split.ignored
           else if (
             singleLineOnly ||
             needOnelinePolicy && nextCommaOneline.isEmpty ||
-            (style.newlines.source match {
-              // multiline binpack is at odds with unfold, at least force a break
-              case Newlines.unfold => true
-              case Newlines.keep => newlines != 0
-              case _ => false
-            })
+            // multiline binpack is at odds with unfold, at least force a break
+            style.newlines.source.eq(Newlines.unfold)
           ) baseNoSplit.withSingleLine(close)
           else {
             val opt =
@@ -1247,7 +1250,9 @@ class Router(formatOps: FormatOps) {
             newlineBeforeClose & binPackOnelinePolicy
           else binPackOnelinePolicy
         }
-        val nlMod = NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None)
+        val nlMod =
+          if (rightIsComment && nlOnly) getMod(ft)
+          else NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None)
         Seq(
           noSplit,
           Split(nlMod, bracketPenalty * (if (oneline) 4 else 2))
