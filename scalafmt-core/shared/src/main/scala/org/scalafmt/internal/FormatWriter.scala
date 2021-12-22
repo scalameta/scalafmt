@@ -691,15 +691,16 @@ class FormatWriter(formatOps: FormatOps) {
           extends FormatCommentBase(style.maxColumn) {
         def format: Unit = {
           val trimmed = removeTrailingWhiteSpace(text)
-          val slcIndent = lastModification match {
-            case m: NewlineT if m.noIndent => 0
-            case _ => indent
+          val isCommentedOut = lastModification match {
+            case m: NewlineT if m.noIndent => true
+            case _ => indent == 0
           }
-          if (slcIndent == 0) sb.append(trimmed) // commented out
+          if (isCommentedOut) sb.append(trimmed)
           else {
             val hasSpace = trimmed.length <= 2 ||
               Character.isWhitespace(trimmed.charAt(2))
-            val column = slcIndent + trimmed.length + (if (hasSpace) 0 else 1)
+            val column = prevState.column - text.length +
+              trimmed.length + (if (hasSpace) 0 else 1)
             if (column > maxColumn && canRewrite) reFormat(trimmed)
             else if (hasSpace) sb.append(trimmed)
             else sb.append(s"// ${trimmed.substring(2)}")
