@@ -284,6 +284,7 @@ object ScalafmtConfig {
       unsafeCallSite = BinPack.Unsafe.Always,
       parentConstructors = BinPack.ParentCtors.Always
     ),
+    danglingParentheses = DanglingParentheses(false, false),
     indent = Indents(callSite = 4, defnSite = 4),
     importSelectors = ImportSelectors.binPack,
     newlines = default.newlines.copy(
