@@ -3974,6 +3974,10 @@ values are supported since v3.0.0:
 - `Always` enables the functionality (also takes `true`)
 - `Oneline` ensures multiline arguments are not binpacked
 
+> [`danglingParentheses.xxxSite`](#newlines-danglingparentheses) will be ignored
+> if [`optIn.configStyleArguments`](#optinconfigstylearguments) is set since binpacking
+> and listing each argument/parameter on a separate line are at odds.
+
 ### `binPack.bracketXxxSite`
 
 > Since v3.0.4.
