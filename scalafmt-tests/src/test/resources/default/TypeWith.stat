@@ -6,8 +6,8 @@
 >>>
 {
   def getAnnotationOwner(
-      annotationOwnerLookUp: ScLiteral => Option[
-          PsiAnnotationOwner with PsiElement]): Option[PsiAnnotationOwner] = 1
+      annotationOwnerLookUp: ScLiteral => Option[PsiAnnotationOwner
+        with PsiElement]): Option[PsiAnnotationOwner] = 1
 }
 <<< #1133
 indent.main = 4
