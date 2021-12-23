@@ -5247,6 +5247,6 @@ object a {
     // c2
     .bar(baz).foo(bar, baz)
   foo.bar(baz) // c1
-  // c2
+    // c2
     .foo(bar, baz)
 }

@@ -1677,6 +1677,9 @@ class Router(formatOps: FormatOps) {
             case Decision(t @ FormatToken(_, _: T.Dot, _), s)
                 if t.meta.rightOwner eq tree =>
               SplitTag.SelectChainFirstNL.activateOnly(s)
+            case Decision(t @ FormatToken(l, _: T.Comment, _), s)
+                if t.meta.rightOwner.eq(tree) && !l.is[T.Comment] =>
+              SplitTag.SelectChainFirstNL.activateOnly(s)
           }
         }
 
@@ -2166,18 +2169,20 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.Comment, _, _) =>
         Seq(Split(getMod(formatToken), 0))
       // Inline comment
-      case FormatToken(left, _: T.Comment, _) =>
+      case FormatToken(_, _: T.Comment, _) =>
         val forceBlankLine = formatToken.hasBreak &&
           blankLineBeforeDocstring(formatToken)
         val mod = if (forceBlankLine) Newline2x else getMod(formatToken)
-        val indent = formatToken.meta.rightOwner match {
-          case GetSelectLike(ts)
-              if findPrevSelect(ts, style.encloseSelectChains).isEmpty =>
+        val baseSplit = Split(mod, 0)
+        formatToken.meta.rightOwner match {
+          case GetSelectLike(t) =>
             val expire = nextNonComment(next(formatToken)).left
-            Indent(style.indent.main, expire, ExpiresOn.After)
-          case _ => Indent.Empty
+            val indent = Indent(style.indent.main, expire, ExpiresOn.After)
+            val split = baseSplit.withIndent(indent)
+            if (findPrevSelect(t, style.encloseSelectChains).isEmpty) Seq(split)
+            else Seq(baseSplit, split.onlyFor(SplitTag.SelectChainFirstNL))
+          case _ => Seq(baseSplit)
         }
-        Seq(Split(mod, 0).withIndent(indent))
 
       case FormatToken(soft.ImplicitOrUsing(), _, _)
           if style.binPack.unsafeDefnSite.isNever &&
