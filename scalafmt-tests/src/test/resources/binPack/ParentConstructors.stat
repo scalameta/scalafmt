@@ -75,7 +75,9 @@ DTDataset[
   ]
 >>>
 def method[T <: ColType](): DTDataset[
-  T with ACol with BCol with CCol with DCol with ECol with FCol with GCol with HCol with ICol
+  T with ACol with BCol with CCol
+    with DCol with ECol with FCol
+    with GCol with HCol with ICol
 ]
 <<< #2977 binpack never
 binPack.parentConstructors = never
@@ -87,7 +89,15 @@ DTDataset[
   ]
 >>>
 def method[T <: ColType](): DTDataset[
-  T with ACol with BCol with CCol with DCol with ECol with FCol with GCol with HCol with ICol
+  T with ACol
+    with BCol
+    with CCol
+    with DCol
+    with ECol
+    with FCol
+    with GCol
+    with HCol
+    with ICol
 ]
 <<< #2977 binpack keep
 binPack.parentConstructors = keep
@@ -99,5 +109,8 @@ DTDataset[
   ]
 >>>
 def method[T <: ColType](): DTDataset[
-  T with ACol with BCol with CCol with DCol with ECol with FCol with GCol with HCol with ICol
+  T with ACol with BCol with CCol
+    with DCol with ECol
+    with FCol with GCol with HCol
+    with ICol
 ]

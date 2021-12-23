@@ -71,7 +71,8 @@ object WithChain {
     // self types, params, val/def/var/type definitions or declarations
     val top = TreeOps.topTypeWith(t)
     top.parent match {
-      case Some(_: Defn | _: Decl | _: Term.Param | _: Self) => Some(top)
+      case Some(_: Defn | _: Decl | _: Term.Param | _: Self | _: Type.Apply) =>
+        Some(top)
       case _ => None
     }
   }
