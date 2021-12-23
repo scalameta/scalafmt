@@ -5226,3 +5226,27 @@ private implicit class ApiExceptionToErrorResponseConverter(ex: ApiException) {
   def toErrors: Seq[ErrorResponse] =
     Seq(ErrorResponse(ex.errorType.code, ex.errorType.name, Option(ex.getMessage)))
 }
+<<< comment in select chain
+object a {
+  foo
+    // c2
+    .bar(baz).foo(bar, baz)
+  foo // c1
+    // c2
+    .bar(baz).foo(bar, baz)
+  foo.bar(baz) // c1
+    // c2
+    .foo(bar, baz)
+}
+>>>
+object a {
+  foo
+    // c2
+    .bar(baz).foo(bar, baz)
+  foo // c1
+    // c2
+    .bar(baz).foo(bar, baz)
+  foo.bar(baz) // c1
+  // c2
+    .foo(bar, baz)
+}
