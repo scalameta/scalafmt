@@ -5452,3 +5452,31 @@ object a {
   } a +
     b
 }
+<<< comment in select chain
+optIn.breaksInsideChains = true
+optIn.breakChainOnFirstMethodDot = false
+===
+object a {
+  foo
+    // c2
+    .bar(baz).foo(bar, baz)
+  foo // c1
+    // c2
+    .bar(baz).foo(bar, baz)
+  foo.bar(baz) // c1
+    // c2
+    .foo(bar, baz)
+}
+>>>
+object a {
+  foo
+    // c2
+    .bar(baz).foo(bar, baz)
+  foo // c1
+    // c2
+    .bar(baz).foo(bar, baz)
+  foo
+    .bar(baz) // c1
+    // c2
+    .foo(bar, baz)
+}
