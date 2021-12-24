@@ -90,7 +90,15 @@ final case class State(
             else
               (style.comments.wrap eq Comments.Wrap.trailing) ||
               style.comments.willWrap && nextSplit.isNL
-          }
+          } && (nextSplit.isNL || {
+            // do not waive overflow in binpacking case
+            val owner = tok.meta.rightOwner
+            val ownerLast = tokens.getLastNonTrivial(owner).left
+            val isBracket = ownerLast.is[Token.RightBracket]
+            !(isBracket || ownerLast.is[Token.RightParen]) ||
+            style.binPack.defnSite(isBracket).isNever && isDefnSite(owner) ||
+            style.binPack.callSite(isBracket).isNever && isCallSite(owner)
+          })
         }
       ) {
         (math.max(0, delayedPenalty), 0) // fits inside column
