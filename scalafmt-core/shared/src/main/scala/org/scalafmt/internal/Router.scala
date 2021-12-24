@@ -1184,13 +1184,12 @@ class Router(formatOps: FormatOps) {
 
         val indentLen = style.indent.callSite
         val indent = Indent(Num(indentLen), close, Before)
+        val noNoSplitIndents = nlOnly ||
+          style.binPack.indentCallSiteOnce ||
+          isSingleArg && oneline && !needOnelinePolicy ||
+          !isBracket && getAssignAtSingleArgCallSite(leftOwner).isDefined
         val noSplitIndents =
-          if (style.binPack.indentCallSiteOnce || nlOnly) Seq.empty
-          else if (isSingleArg && oneline && !needOnelinePolicy) Seq.empty
-          else if (
-            !isBracket &&
-            getAssignAtSingleArgCallSite(leftOwner).isDefined
-          ) Seq.empty
+          if (noNoSplitIndents) Nil
           else if (
             if (isTuple(leftOwner)) style.align.getOpenParenTupleSite
             else style.align.getOpenDelimSite(false, false)
