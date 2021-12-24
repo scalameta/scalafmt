@@ -485,7 +485,7 @@ optDef.getOrElse {
 >>>
 optDef.getOrElse {
   abort(foo &&
-  bar)
+      bar)
   abort(foo &&
       bar,
       baz)
@@ -513,23 +513,23 @@ optDef.getOrElse {
 >>>
 optDef.getOrElse {
   abort(foo &&
-  bar)
+      bar)
   abort(foo &&
-  bar,
+      bar,
       foo &&
-  bar, baz)
+      bar, baz)
   abort(abort(foo &&
-  bar,
+      bar,
       foo &&
-  bar,
+      bar,
       abort(foo &&
-  bar,
+      bar,
       foo &&
-  bar, baz)),
+      bar, baz)),
       abort(foo &&
-  bar,
+      bar,
       foo &&
-  bar, baz))
+      bar, baz))
 }
 <<< binpack with non-top-level-only infix, afterInfix=some
 maxColumn = 20
@@ -546,7 +546,7 @@ optDef.getOrElse {
 >>>
 optDef.getOrElse {
   abort(fooFoo &&
-  barBar)
+      barBar)
   abort(fooFoo &&
       barBar,
       bazBaz)
@@ -566,7 +566,7 @@ optDef.getOrElse {
 >>>
 optDef.getOrElse {
   abort(fooFoo &&
-  barBar)
+      barBar)
   abort(fooFoo &&
       barBar,
       bazBaz)
