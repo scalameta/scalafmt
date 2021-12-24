@@ -1422,7 +1422,7 @@ class Router(formatOps: FormatOps) {
               style.binPack.indentCallSiteOnce && callSite
             val indent = if (indentCallSiteOnce) style.indent.callSite else 0
             Seq(
-              Split(Space, 0).withSingleLine(rhsOptimalToken(optFT, loEnd)),
+              Split(Space, 0).withSingleLine(endOfSingleLineBlock(optFT)),
               Split(Newline, 1)
                 .withIndent(indent, right, After)
                 .withPolicy(nlPolicy)
