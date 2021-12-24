@@ -156,6 +156,7 @@ The latest version will be used by default.
   set of files considered for formatting:
   - `diff-dirty`: only the files modified in the git working tree (`git status`)
   - `diff-ref=<spec>`: only the tracked files modified since `<spec>` (`git diff`)
+  - [since v2.4.6] `none`: no restrictions
   - otherwise if `project.git = true` (`.scalafmt.conf`): only files
     tracked by git (`git ls-tree`)
   - otherwise, no restrictions
@@ -164,6 +165,8 @@ The latest version will be used by default.
 - [since v2.4.5] `scalafmtLogOnEachError: Boolean`: if set, plugin will log errors
 - [since v2.4.5] `scalafmtFailOnErrors: Boolean`: if set, plugin will fail on errors
   - depending on `scalafmtLogOnEachError`, fail on the first error or only at the end
+- [since v2.4.6] `scalafmtPrintDiff: Boolean`: if set, `check` will display the
+  differences for incorrectly formatted files
 
 ### Enable IntegrationTest
 
