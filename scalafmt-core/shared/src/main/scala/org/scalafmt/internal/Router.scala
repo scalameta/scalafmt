@@ -1184,12 +1184,15 @@ class Router(formatOps: FormatOps) {
 
         val indentLen = style.indent.callSite
         val indent = Indent(Num(indentLen), close, Before)
+        val firstArg = argsOpt.flatMap(_.headOption)
         val noNoSplitIndents = nlOnly ||
-          style.binPack.indentCallSiteOnce ||
-          isSingleArg && oneline && !needOnelinePolicy ||
+          !firstArg.exists(isInfixApp) && (style.binPack.indentCallSiteOnce ||
+            isSingleArg && oneline && !needOnelinePolicy) ||
           !isBracket && getAssignAtSingleArgCallSite(leftOwner).isDefined
         val noSplitIndents =
           if (noNoSplitIndents) Nil
+          else if (style.binPack.indentCallSiteOnce && firstArg.isDefined)
+            Seq(Indent(Num(indentLen), firstArg.get.tokens.last, After))
           else if (
             if (isTuple(leftOwner)) style.align.getOpenParenTupleSite
             else style.align.getOpenDelimSite(false, false)
@@ -1417,14 +1420,14 @@ class Router(formatOps: FormatOps) {
                 decideNewlinesOnlyBeforeCloseOnBreak(t)
               case _ => NoPolicy
             }
-            val indentCallSiteOnce =
-              style.binPack.indentCallSiteOnce && callSite
-            val indent = if (indentCallSiteOnce) style.indent.callSite else 0
+            val indent =
+              if (style.binPack.indentCallSiteOnce && callSite) {
+                val indentEnd = if (isInfixApp(nextArg)) lastFT.left else right
+                Indent(style.indent.callSite, indentEnd, After)
+              } else Indent.Empty
             Seq(
               Split(Space, 0).withSingleLine(endOfSingleLineBlock(optFT)),
-              Split(Newline, 1)
-                .withIndent(indent, right, After)
-                .withPolicy(nlPolicy)
+              Split(Newline, 1).withIndent(indent).withPolicy(nlPolicy)
             )
           }
         }
