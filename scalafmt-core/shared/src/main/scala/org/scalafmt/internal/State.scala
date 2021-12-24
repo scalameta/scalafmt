@@ -10,7 +10,7 @@ import org.scalafmt.config.Comments
 import org.scalafmt.config.Docstrings
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TokenOps
-import org.scalafmt.util.TreeOps
+import org.scalafmt.util.TreeOps._
 
 /** A partial formatting solution up to splits.length number of tokens.
   */
@@ -230,7 +230,7 @@ final case class State(
       owner.map { x =>
         val y = x.parent.flatMap { p =>
           if (!startsWithLeft(p)) None
-          else TreeOps.findTreeWithParentSimple(p, false)(startsWithLeft)
+          else findTreeWithParentSimple(p, false)(startsWithLeft)
         }
         (ft, y.getOrElse(x))
       }
@@ -251,9 +251,7 @@ final case class State(
         isComment && ft.left.is[Token.Comma] &&
         (tokens.prev(ft).meta.leftOwner eq lineOwner)
       } ||
-        TreeOps
-          .findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner)
-          .isDefined
+        findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner).isDefined
       if (ok) Some(lineFt) else None
     }
   }
@@ -409,6 +407,6 @@ object State {
 
   @inline
   private def isWithinInterpolation(tree: meta.Tree): Boolean =
-    TreeOps.findTreeOrParentSimple(tree)(isInterpolation).isDefined
+    findTreeOrParentSimple(tree)(isInterpolation).isDefined
 
 }
