@@ -5250,3 +5250,32 @@ object a {
     // c2
     .foo(bar, baz)
 }
+<<<  try with match expr
+object a {
+  try ta match {
+    case Success(a) => bind(a); case Failure(e) => recover(e)
+  } catch { case NonFatal(e) => Failure(e) }
+}
+>>>
+object a {
+  try ta match {
+      case Success(a) => bind(a);
+      case Failure(e) => recover(e)
+    } catch {
+    case NonFatal(e) => Failure(e)
+  }
+}
+<<<  if with match expr
+object a {
+  if (checkCondition()) ta match {
+    case Success(a) => bind(a); case Failure(e) => recover(e)
+  } else doSomethingOtherwise()
+}
+>>>
+object a {
+  if (checkCondition()) ta match {
+    case Success(a) => bind(a);
+    case Failure(e) => recover(e)
+  }
+  else doSomethingOtherwise()
+}
