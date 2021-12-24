@@ -5742,7 +5742,8 @@ object a {
         bind(a);
       case Failure(e) =>
         recover(e)
-    } catch {
+    }
+  catch {
     case NonFatal(e) =>
       Failure(e)
   }
