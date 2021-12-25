@@ -481,12 +481,54 @@ optDef.getOrElse {
     bar)
   abort(foo &&
     bar, baz)
+  abort(foo &&
+    bar, foo &&
+    bar, foo && // c
+    bar, baz)
 }
 >>>
 optDef.getOrElse {
   abort(foo &&
       bar)
   abort(foo &&
+      bar,
+      baz)
+  abort(foo &&
+      bar,
+      foo &&
+      bar,
+      foo && // c
+      bar,
+      baz)
+}
+<<< binpack with non-top-level-only infix, afterInfix=many
+maxColumn = 16
+indentOperator.topLevelOnly = false
+binPack.unsafeCallSite = oneline
+newlines.afterInfix = many
+===
+foo.bar {
+  abort(foo &&
+    bar)
+  abort(foo &&
+    bar, baz)
+  abort(foo &&
+    bar, foo &&
+    bar, foo && // c
+    bar, baz)
+}
+>>>
+foo.bar {
+  abort(foo &&
+      bar)
+  abort(foo &&
+      bar,
+      baz)
+  abort(foo &&
+      bar,
+      foo &&
+      bar,
+      foo && // c
       bar,
       baz)
 }
@@ -720,4 +762,111 @@ optDef.getOrElse {
   abort(fooFoo &&
       barBar,
       bazBaz)
+}
+<<< binpack with non-top-level-only infix, single- and multi-args, fold
+maxColumn = 13
+binPack.unsafeCallSite = oneline
+newlines.source = fold
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  Seq(foo +
+    bar)
+  Seq(foo +
+    bar,
+    foo +
+    bar)
+  Seq(foo &&
+    bar)
+  Seq(foo &&
+    bar,
+    foo &&
+    bar)
+}
+>>>
+object a {
+  Seq(foo +
+      bar)
+  Seq(foo +
+      bar,
+    foo +
+      bar)
+  Seq(foo &&
+    bar)
+  Seq(foo &&
+    bar,
+    foo &&
+    bar)
+}
+<<< binpack with non-top-level-only infix, single- and multi-args, keep
+maxColumn = 100
+binPack.unsafeCallSite = oneline
+newlines.source = keep
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  Seq(foo +
+    bar)
+  Seq(foo +
+    bar,
+    foo +
+    bar)
+  Seq(foo &&
+    bar)
+  Seq(foo &&
+    bar,
+    foo &&
+    bar)
+}
+>>>
+object a {
+  Seq(foo +
+      bar)
+  Seq(foo +
+      bar,
+    foo +
+      bar)
+  Seq(foo &&
+    bar)
+  Seq(foo &&
+    bar,
+    foo &&
+    bar)
+}
+<<< binpack with non-top-level-only infix, single- and multi-args, classic
+maxColumn = 100
+binPack.unsafeCallSite = oneline
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  Seq(foo +
+    bar)
+  Seq(foo +
+    bar,
+    foo +
+    bar)
+  Seq(foo &&
+    bar)
+  Seq(foo &&
+    bar,
+    foo &&
+    bar)
+}
+>>>
+object a {
+  Seq(foo +
+      bar)
+  Seq(foo +
+      bar,
+    foo +
+      bar)
+  Seq(foo &&
+    bar)
+  Seq(foo &&
+    bar,
+    foo &&
+    bar)
 }
