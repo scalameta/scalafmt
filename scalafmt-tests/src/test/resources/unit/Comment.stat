@@ -522,8 +522,8 @@ object a {
   val requestedIds =
     Seq( // First 2 will not be taken into account since this app for 'Do Not Sell' and 'ATT' only
         CcpaRequestIds("luid", "1", None, date, version, RequestType.Delete),
-        CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete),
-        /* Next 2 will not be taken into account since 'filterDoNotSellBy' is not set */
+        CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete), /* Next 2 will
+         * not be taken into account since 'filterDoNotSellBy' is not set */
         CcpaRequestIds("luid", "2", date, None, version, RequestType.DoNotSell),
         CcpaRequestIds("hemlmd5", "MD5-2", date, None, version, RequestType.DoNotSell)
         /* Only last record will be taken into account but not the next one since filtering of 'ATT'
@@ -552,8 +552,8 @@ object a {
   val foo =
     Seq( // First 2 will not be taken into account since this app for 'Do Not Sell'
       CcpaRequestIds("luid", "1", None, date, version, RequestType.Delete),
-      CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete),
-      /* Next 2 will not be taken into account since 'filterDoNotSellBy' is not set */
+      CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete), /* Next
+       * 2 will not be taken into account since 'filterDoNotSellBy' is not set */
       CcpaRequestIds("luid", "2", date, None, version, RequestType.DoNotSell),
       CcpaRequestIds("hemlmd5", "MD5-2", date, None, version, RequestType.DoNotSell)
       /* Only last record will be taken into account but not the next one since filtering
@@ -582,8 +582,8 @@ object a {
   val foo =
     Seq( // First 2 will not be taken into account since this app for 'Do Not Sell'
       CcpaRequestIds("luid", "1", None, date, version, RequestType.Delete),
-      CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete),
-      /* Next 2 will not be taken into account since 'filterDoNotSellBy' is not set */
+      CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete), /* Next 2 will
+       * not be taken into account since 'filterDoNotSellBy' is not set */
       CcpaRequestIds("luid", "2", date, None, version, RequestType.DoNotSell),
       CcpaRequestIds("hemlmd5", "MD5-2", date, None, version, RequestType.DoNotSell)
       /* Only last record will be taken into account but not the next one since filtering
@@ -611,8 +611,7 @@ object a {
   val foo =
     Seq( // First 2 will not be taken into account since this app for 'Do Not Sell'
       CcpaRequestIds("luid", "1", None, date, version, RequestType.Delete),
-      CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete),
-      /* Next 2 will
+      CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete), /* Next 2 will
        * not be taken into account since 'filterDoNotSellBy' is not set */
       CcpaRequestIds("luid", "2", date, None, version, RequestType.DoNotSell),
       CcpaRequestIds("hemlmd5", "MD5-2", date, None, version, RequestType.DoNotSell)
@@ -642,9 +641,9 @@ object a {
 object a {
   def foo( /* First 2 will not be taken into
    * account */
-      foo1: Int, foo2: String,
-      /* Next 2 will not be taken into account
-       * since 'filterDoNotSellBy' is not set */
+      foo1: Int, foo2: String, /* Next 2 will not
+       * be taken into account since
+       * 'filterDoNotSellBy' is not set */
       foo3: Map[Int, Int], foo4: Set[Int]
       /* Only last record will be taken into
        * account but not the next one since
@@ -673,9 +672,8 @@ object a {
 >>>
 object a {
   def foo( // First 2 will not be taken into account
-      foo1: Int, foo2: String,
-      /* Next 2 will not be taken into account
-       * since 'filterDoNotSellBy' is not set */
+      foo1: Int, foo2: String, /* Next 2 will
+       * not be taken into account since 'filterDoNotSellBy' is not set */
       foo3: Map[Int, Int], foo4: Set[Int]
       /* Only last record will be taken into
        * account but not the next one since
@@ -703,8 +701,7 @@ object a {
 >>>
 object a {
   def foo( // First 2 will not be taken into account
-      foo1: Int, foo2: String,
-      /* Next 2 will
+      foo1: Int, foo2: String, /* Next 2 will
        * not be taken into account since 'filterDoNotSellBy' is not set */
       foo3: Map[Int, Int], foo4: Set[Int]
       /* Only last record will be taken into account but not the next one since filtering of 'ATT'
