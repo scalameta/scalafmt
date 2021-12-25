@@ -1388,17 +1388,17 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // These are mostly filtered out/modified by policies.
-      case tok @ FormatToken(left: T.Comma, c: T.Comment, _) =>
-        if (isSingleLineComment(c))
-          Seq(Split(getModCheckIndent(tok, newlines), 0))
-        else if (tok.hasBlankLine) Seq(Split(NewlineT(isDouble = true), 0))
-        else if (
-          newlines != 0 && style.comments.willWrap || tok.meta.right.hasNL
-        ) Seq(Split(Newline, 0))
+      case ft @ FormatToken(left: T.Comma, c: T.Comment, _) =>
+        if (ft.hasBlankLine) Seq(Split(NewlineT(isDouble = true), 0))
+        else if (isSingleLineComment(c) || ft.meta.right.hasNL)
+          Seq(Split(getModCheckIndent(ft, newlines), 0))
         else {
-          val noNewline = newlines == 0 && // perhaps left is a trailing comma
-            rightIsCloseDelimToAddTrailingComma(left, nextNonComment(next(tok)))
-          Seq(Split(Space, 0), Split(Newline, 1).notIf(noNewline))
+          val trailingComma =
+            rightIsCloseDelimToAddTrailingComma(left, nextNonComment(next(ft)))
+          Seq(
+            Split(newlines != 0 && !trailingComma, 0)(Space),
+            Split(newlines == 0 && trailingComma, 1)(Newline)
+          )
         }
       case FormatToken(_: T.Comma, right, _) if leftOwner.isNot[Template] =>
         val splitsOpt = argumentStarts.get(hash(right)).flatMap { nextArg =>
