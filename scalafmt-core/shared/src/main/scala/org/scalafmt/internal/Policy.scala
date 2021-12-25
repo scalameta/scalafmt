@@ -15,7 +15,7 @@ abstract class Policy {
   def filter(pred: Policy.Clause => Boolean): Policy
   def unexpired(ft: FormatToken): Policy
   def noDequeue: Boolean
-  def switch(trigger: Token): Policy
+  def switch(trigger: Token, on: Boolean): Policy
 
   def &(other: Policy): Policy =
     if (other.isEmpty) this else new Policy.AndThen(this, other)
@@ -53,7 +53,7 @@ object Policy {
 
     override def unexpired(ft: FormatToken): Policy = this
     override def filter(pred: Clause => Boolean): Policy = this
-    override def switch(trigger: Token): Policy = this
+    override def switch(trigger: Token, on: Boolean): Policy = this
     override def noDequeue: Boolean = false
   }
 
@@ -106,7 +106,7 @@ object Policy {
     override def filter(pred: Clause => Boolean): Policy =
       if (pred(this)) this else NoPolicy
 
-    override def switch(trigger: Token): Policy = this
+    override def switch(trigger: Token, on: Boolean): Policy = this
   }
 
   private class ClauseImpl(
@@ -125,8 +125,8 @@ object Policy {
     override def filter(pred: Clause => Boolean): Policy =
       p1.filter(pred) | p2.filter(pred)
 
-    override def switch(trigger: Token): Policy =
-      p1.switch(trigger) | p2.switch(trigger)
+    override def switch(trigger: Token, on: Boolean): Policy =
+      p1.switch(trigger, on) | p2.switch(trigger, on)
 
     override def noDequeue: Boolean =
       p1.noDequeue || p2.noDequeue
@@ -148,8 +148,8 @@ object Policy {
     override def filter(pred: Clause => Boolean): Policy =
       p1.filter(pred) & p2.filter(pred)
 
-    override def switch(trigger: Token): Policy =
-      p1.switch(trigger) & p2.switch(trigger)
+    override def switch(trigger: Token, on: Boolean): Policy =
+      p1.switch(trigger, on) & p2.switch(trigger, on)
 
     override def noDequeue: Boolean =
       p1.noDequeue || p2.noDequeue
@@ -162,8 +162,8 @@ object Policy {
   ) extends Policy {
     override def f: Pf = PartialFunction.empty
     override def filter(pred: Clause => Boolean): Policy = this
-    override def switch(trigger: Token): Policy = {
-      val switched = policy.switch(trigger)
+    override def switch(trigger: Token, on: Boolean): Policy = {
+      val switched = policy.switch(trigger, on)
       if (switched eq policy) this else new Delay(switched, begPolicy)
     }
     override def unexpired(ft: FormatToken): Policy =
@@ -177,7 +177,8 @@ object Policy {
   ) extends Policy {
     override def f: Pf = before.f
     override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
-    override def switch(trigger: Token): Policy = conv(_.switch(trigger))
+    override def switch(trigger: Token, on: Boolean): Policy =
+      conv(_.switch(trigger, on))
     override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
     override def noDequeue: Boolean = before.noDequeue
     override def toString: String = s"REL:[$fileLine]($before,$after)"
@@ -195,9 +196,9 @@ object Policy {
   ) extends Policy {
     override def f: Pf = before.f
     override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
-    override def switch(trigger: Token): Policy =
-      if (trigger ne this.trigger) conv(_.switch(trigger))
-      else after.switch(trigger)
+    override def switch(trigger: Token, on: Boolean): Policy =
+      if (trigger ne this.trigger) conv(_.switch(trigger, on))
+      else { if (on) before else after.switch(trigger, false) }
     override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
     override def noDequeue: Boolean = before.noDequeue
     override def toString: String = s"SW:[$fileLine]($before,$trigger,$after)"
@@ -230,8 +231,8 @@ object Policy {
       if (!pred(this)) NoPolicy
       else Proxy(policy.filter(pred), endPolicy)(factory)
 
-    override def switch(trigger: Token): Policy = {
-      val switched = policy.switch(trigger)
+    override def switch(trigger: Token, on: Boolean): Policy = {
+      val switched = policy.switch(trigger, on)
       if (switched eq policy) this else Proxy(switched, endPolicy)(factory)
     }
 

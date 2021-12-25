@@ -57,7 +57,7 @@ case class ActualIndent(
 }
 
 abstract class Indent {
-  def switch(trigger: Token): Indent
+  def switch(trigger: Token, on: Boolean): Indent
   def withStateOffset(offset: Int): Option[ActualIndent]
   def hasStateColumn: Boolean
 }
@@ -81,7 +81,7 @@ abstract class Indent {
 private class IndentImpl(length: Length, expire: Token, expiresAt: ExpiresOn)
     extends Indent {
   override def hasStateColumn: Boolean = length eq Length.StateColumn
-  override def switch(trigger: Token): Indent = this
+  override def switch(trigger: Token, on: Boolean): Indent = this
   override def withStateOffset(offset: Int): Option[ActualIndent] =
     Some(
       ActualIndent(
@@ -107,14 +107,15 @@ object Indent {
 
   case object Empty extends Indent {
     override def withStateOffset(offset: Int): Option[ActualIndent] = None
-    override def switch(trigger: Token): Indent = this
+    override def switch(trigger: Token, on: Boolean): Indent = this
     override def hasStateColumn: Boolean = false
   }
 
   class Switch private (before: Indent, trigger: Token, after: Indent)
       extends Indent {
-    override def switch(trigger: Token): Indent =
-      if (trigger ne this.trigger) this else after.switch(trigger)
+    override def switch(trigger: Token, on: Boolean): Indent =
+      if (trigger ne this.trigger) this
+      else { if (on) before else after.switch(trigger, false) }
     override def withStateOffset(offset: Int): Option[ActualIndent] =
       before.withStateOffset(offset)
     override def hasStateColumn: Boolean = before.hasStateColumn
