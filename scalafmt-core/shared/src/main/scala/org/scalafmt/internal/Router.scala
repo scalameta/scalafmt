@@ -1150,12 +1150,9 @@ class Router(formatOps: FormatOps) {
         val isBracket = open.is[T.LeftBracket]
         val bracketPenalty = if (isBracket) Constants.BracketPenalty else 1
 
-        val argsOpt = (leftOwner match {
-          case SplitCallIntoParts(_, args) =>
-            args.fold(Some(_), formatOps.findArgsFor(open, _))
-          case _ => None
-        }).filter(_.nonEmpty)
-        val isSingleArg = argsOpt.exists(isSeqSingle)
+        val args = getApplyArgs(ft, false).args
+        val isSingleArg = isSeqSingle(args)
+        val firstArg = args.headOption
 
         val opensLiteralArgumentList =
           styleMap.opensLiteralArgumentList(formatToken)
@@ -1176,7 +1173,7 @@ class Router(formatOps: FormatOps) {
         val oneline = style.binPack.callSite(open) == BinPack.Unsafe.Oneline
         val nextCommaOneline =
           if (!oneline || isSingleArg) None
-          else argsOpt.flatMap(x => findComma(tokens.getLast(x.head)))
+          else firstArg.map(tokens.getLast).flatMap(findComma)
         val needOnelinePolicy = oneline &&
           (nextCommaOneline.isDefined || followedBySelectOrApply(leftOwner))
         val nextCommaOnelinePolicy = if (needOnelinePolicy) {
@@ -1185,7 +1182,6 @@ class Router(formatOps: FormatOps) {
 
         val indentLen = style.indent.callSite
         val indent = Indent(Num(indentLen), close, Before)
-        val firstArg = argsOpt.flatMap(_.headOption)
         val noNoSplitIndents = nlOnly ||
           !firstArg.exists(isInfixApp) &&
           isSingleArg && oneline && !needOnelinePolicy ||
