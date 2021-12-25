@@ -10,6 +10,7 @@ import org.scalafmt.sysops.FileOps
 import org.scalafmt.util._
 import org.scalameta.FileLine
 
+import scala.annotation.tailrec
 import scala.language.implicitConversions
 import scala.meta.Term.ApplyUsing
 import scala.meta.classifiers.Classifier
@@ -1186,14 +1187,20 @@ class Router(formatOps: FormatOps) {
         val indent = Indent(Num(indentLen), close, Before)
         val firstArg = argsOpt.flatMap(_.headOption)
         val noNoSplitIndents = nlOnly ||
-          !firstArg.exists(isInfixApp) && (style.binPack.indentCallSiteOnce ||
-            isSingleArg && oneline && !needOnelinePolicy) ||
+          !firstArg.exists(isInfixApp) &&
+          isSingleArg && oneline && !needOnelinePolicy ||
           !isBracket && getAssignAtSingleArgCallSite(leftOwner).isDefined
         val noSplitIndents =
           if (noNoSplitIndents) Nil
-          else if (style.binPack.indentCallSiteOnce && firstArg.isDefined)
-            Seq(Indent(Num(indentLen), firstArg.get.tokens.last, After))
-          else if (
+          else if (style.binPack.indentCallSiteOnce) {
+            @tailrec
+            def iter(tree: Tree): Option[T] = tree.parent match {
+              case Some(p: Term.Select) => iter(p)
+              case Some(p) if isCallSite(p) => Some(getIndentTrigger(p))
+              case _ => None
+            }
+            Seq(iter(leftOwner).fold(indent)(x => Indent.before(indent, x)))
+          } else if (
             if (isTuple(leftOwner)) style.align.getOpenParenTupleSite
             else style.align.getOpenDelimSite(false, false)
           ) getOpenParenAlignIndents(close)
@@ -1228,11 +1235,21 @@ class Router(formatOps: FormatOps) {
               val excludeOpen = exclude.ranges.map(_.lt).toSet
               UnindentAtExclude(excludeOpen, Num(-indentLen))
             }
+            val indentOncePolicy =
+              if (style.binPack.indentCallSiteOnce) {
+                val trigger = getIndentTrigger(leftOwner)
+                Policy.on(close) {
+                  case Decision(FormatToken(LeftParenOrBracket(), _, m), s)
+                      if isCallSite(m.leftOwner) =>
+                    s.map { x => if (x.isNL) x else x.switch(trigger, false) }
+                }
+              } else NoPolicy
             baseNoSplit
               .withOptimalTokenOpt(opt)
               .withPolicy(penalizeNewlinesPolicy)
               .andPolicy(unindentPolicy, !isSingleArg || noSplitIndents.isEmpty)
               .andPolicyOpt(nextCommaOnelinePolicy)
+              .andPolicy(indentOncePolicy)
           }
 
         val nlPolicy = {
@@ -1330,10 +1347,6 @@ class Router(formatOps: FormatOps) {
             isCallSite(leftOwner) =>
         val close = matching(open)
         val binPackIsEnabled = !style.binPack.unsafeCallSite.isNever
-        val indent =
-          if (binPackIsEnabled && style.binPack.indentCallSiteOnce)
-            Indent(style.indent.callSite, open, ExpiresOn.After)
-          else Indent.Empty
         val useSpace = newlines == 0 || style.newlines.source.ne(Newlines.keep)
         val singleSplit =
           if (!binPackIsEnabled) Split(Space.orNL(useSpace), 0)
@@ -1342,7 +1355,7 @@ class Router(formatOps: FormatOps) {
           case _: Term.PartialFunction | Term.Block(
                 List(_: Term.Function | _: Term.PartialFunction)
               ) =>
-            Seq(Split(Newline, 0).withIndent(indent))
+            Seq(Split(Newline, 0))
           case _ =>
             val breakAfter =
               rhsOptimalToken(next(nextNonCommentSameLine(formatToken)))
@@ -1350,9 +1363,7 @@ class Router(formatOps: FormatOps) {
               decideNewlinesOnlyBeforeClose(close) |
                 decideNewlinesOnlyAfterToken(breakAfter)
             Seq(
-              Split(Newline, 0)
-                .withSingleLine(close, killOnFail = true)
-                .withIndent(indent),
+              Split(Newline, 0).withSingleLine(close, killOnFail = true),
               Split(Space, 1, policy = multiLine)
             )
         }
@@ -1420,14 +1431,18 @@ class Router(formatOps: FormatOps) {
                 decideNewlinesOnlyBeforeCloseOnBreak(t)
               case _ => NoPolicy
             }
-            val indent =
-              if (style.binPack.indentCallSiteOnce && callSite) {
-                val indentEnd = if (isInfixApp(nextArg)) lastFT.left else right
-                Indent(style.indent.callSite, indentEnd, After)
-              } else Indent.Empty
+            val indentOncePolicy =
+              if (style.binPack.indentCallSiteOnce) {
+                val trigger = getIndentTrigger(leftOwner)
+                Policy.on(lastFT.left) {
+                  case Decision(FormatToken(LeftParenOrBracket(), _, m), s)
+                      if isCallSite(m.leftOwner) =>
+                    s.map { x => if (x.isNL) x else x.switch(trigger, true) }
+                }
+              } else NoPolicy
             Seq(
               Split(Space, 0).withSingleLine(endOfSingleLineBlock(optFT)),
-              Split(Newline, 1).withIndent(indent).withPolicy(nlPolicy)
+              Split(Newline, 1).withPolicy(nlPolicy & indentOncePolicy)
             )
           }
         }
