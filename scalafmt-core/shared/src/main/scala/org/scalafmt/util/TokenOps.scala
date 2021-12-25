@@ -224,4 +224,6 @@ object TokenOps {
     }
   }
 
+  def getIndentTrigger(tree: Tree): Token = tree.tokens.head
+
 }

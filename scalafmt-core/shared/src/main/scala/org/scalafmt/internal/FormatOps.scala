@@ -529,7 +529,7 @@ class FormatOps(
 
     private def switch(splits: Seq[Split], triggers: Token*): Seq[Split] =
       splits.map { x =>
-        triggers.foldLeft(x) { case (y, trigger) => y.switch(trigger) }
+        triggers.foldLeft(x) { case (y, trigger) => y.switch(trigger, false) }
       }
 
     @tailrec
@@ -617,14 +617,14 @@ class FormatOps(
               InfixSplits.switch(s, triggers: _*)
           }
 
-      val fullTok = fullInfix.all.tokens.head
+      val fullTok = getIndentTrigger(fullInfix.all)
       val noAssign = assignBodyExpire.isEmpty
       if (!noAssign && beforeLhs) (fullIndent, policy(fullTok))
       else if (skipInfixIndent) {
         if (noAssign) (Indent.Empty, Policy.NoPolicy)
         else (Indent.before(fullIndent, fullTok), policy(fullTok))
       } else {
-        val opTok = leftInfix.op.tokens.head
+        val opTok = getIndentTrigger(leftInfix.op)
         val ind =
           if (isFirstOp) fullIndent else Indent.before(fullIndent, opTok)
         if (noAssign) (ind, policy(opTok))
