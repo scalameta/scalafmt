@@ -742,8 +742,7 @@ foo(
 )
 >>>
 foo(
-    barBarBar,
-    /* comment */
+    barBarBar, /* comment */
     qux
 )
 <<< overflow, comma, attached mlc then another arg after space
@@ -755,8 +754,7 @@ foo(
 )
 >>>
 foo(
-    barBarBar,
-    /* comment */
+    barBarBar, /* comment */
     bazBazBaz,
     /* comment */ qux
 )
