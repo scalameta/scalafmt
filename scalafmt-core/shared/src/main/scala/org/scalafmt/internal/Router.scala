@@ -14,7 +14,7 @@ import scala.annotation.tailrec
 import scala.language.implicitConversions
 import scala.meta.Term.ApplyUsing
 import scala.meta.classifiers.Classifier
-import scala.meta.tokens.{Token, Tokens}
+import scala.meta.tokens.Tokens
 import scala.meta.tokens.{Token => T}
 import scala.meta.{
   Case,
@@ -276,7 +276,7 @@ class Router(formatOps: FormatOps) {
           }
 
         def getSingleLineDecision = {
-          type Classifiers = Seq[Classifier[Token, _]]
+          type Classifiers = Seq[Classifier[T, _]]
           def classifiersByParent: Classifiers =
             leftOwner.parent match {
               case Some(_: Term.If) => Seq(T.KwElse.classifier)
@@ -761,7 +761,7 @@ class Router(formatOps: FormatOps) {
           else getNoSplit(formatToken, true)
 
         def multilineSpaceSplit(implicit fileLine: FileLine): Split = {
-          val lambdaLeft: Option[Token] =
+          val lambdaLeft: Option[T] =
             matchingOpt(functionExpire(lambda)._1).filter(_.is[T.LeftBrace])
 
           val arrowFt = getFuncArrow(lambda).get
@@ -853,7 +853,7 @@ class Router(formatOps: FormatOps) {
             style.newlines.isBeforeOpenParenDefnSite
           else
             style.newlines.isBeforeOpenParenCallSite
-        val expirationToken: Token =
+        val expirationToken: T =
           if (isBeforeOpenParen) close
           else if (defnSite && !isBracket)
             defnSiteLastToken(closeFormatToken, leftOwner)
