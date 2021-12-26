@@ -870,3 +870,47 @@ object a {
     foo &&
     bar)
 }
+<<< binpack with infix rhs in parens, 1 arg
+maxColumn = 20
+binPack.unsafeCallSite = oneline
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  val a = foo bar (baz = qux)
+}
+>>>
+FormatOps:1407 Unknown tree
+TYPE: Term$ApplyInfix$TermApplyInfixImpl
+SOURCE: foo bar (baz = qux)
+<<< binpack with infix rhs in parens, 2 args
+maxColumn = 25
+binPack.unsafeCallSite = oneline
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  val a = foo bar (baz = qux, bar = qux)
+}
+>>>
+object a {
+  val a = foo bar (baz =
+    qux, bar = qux)
+}
+<<< binpack with infix match rhs in parens
+maxColumn = 25
+binPack.unsafeCallSite = oneline
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  a match {
+     case foo bar (baz @ qux) =>
+  }
+}
+>>>
+object a {
+  a match {
+    case foo bar (baz @ qux) =>
+  }
+}
