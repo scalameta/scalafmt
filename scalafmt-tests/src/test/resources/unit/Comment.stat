@@ -827,9 +827,7 @@ for {
 for {
   foo <- bar match {
     case Right(None) => FC.raiseError(UnexpectedEnd) /* UnexpectedEnd from doobie error if not
--     * found */
-Idempotency violated
-+       * found */
+       * found */
     case Left(error) => FC.raiseError(error)
   }
 } yield foo
@@ -851,7 +849,7 @@ for {
 for {
   foo <- bar match {
     case Right(None) => FC.raiseError(UnexpectedEnd) /* UnexpectedEnd from doobie error if not
-     * found */
+       * found */
     case Left(error) => FC.raiseError(error)
   }
 } yield foo

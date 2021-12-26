@@ -2075,11 +2075,14 @@ class Router(formatOps: FormatOps) {
 
         val bodyIndent = if (bodyBlock) 0 else style.indent.main
         val arrowIndent = style.indent.caseSite - bodyIndent
+        val indents = Seq(
+          Indent(bodyIndent, expire, After),
+          Indent(arrowIndent, arrow, After)
+        )
+        val mod = ModExt(Space, indents)
         Seq(
-          Split(Space, 0).withSingleLine(expire, killOnFail = true),
-          Split(Space, 0, policy = policy)
-            .withIndent(bodyIndent, expire, After)
-            .withIndent(arrowIndent, arrow, After)
+          Split(mod, 0).withSingleLine(expire, killOnFail = true),
+          Split(mod, 0, policy = policy)
         )
 
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
