@@ -810,3 +810,48 @@ foo(
     ,
     baz /* c2 */
 )
+<<< for-yield with match and wrapped slc, fold
+maxColumn = 95
+align.preset = none
+newlines.source = fold
+comments.wrap = trailing
+includeCurlyBraceInSelectChains = true
+===
+for {
+  foo <- bar match {
+    case Right(None) => FC.raiseError(UnexpectedEnd) // UnexpectedEnd from doobie error if not found
+    case Left(error) => FC.raiseError(error)
+  }
+} yield foo
+>>>
+for {
+  foo <- bar match {
+    case Right(None) => FC.raiseError(UnexpectedEnd) /* UnexpectedEnd from doobie error if not
+-     * found */
+Idempotency violated
++       * found */
+    case Left(error) => FC.raiseError(error)
+  }
+} yield foo
+<<< for-yield with match and wrapped mlc, fold
+maxColumn = 95
+align.preset = none
+newlines.source = fold
+comments.wrap = trailing
+includeCurlyBraceInSelectChains = true
+===
+for {
+  foo <- bar match {
+    case Right(None) => FC.raiseError(UnexpectedEnd) /* UnexpectedEnd from doobie error if not
+       * found */
+    case Left(error) => FC.raiseError(error)
+  }
+} yield foo
+>>>
+for {
+  foo <- bar match {
+    case Right(None) => FC.raiseError(UnexpectedEnd) /* UnexpectedEnd from doobie error if not
+     * found */
+    case Left(error) => FC.raiseError(error)
+  }
+} yield foo
