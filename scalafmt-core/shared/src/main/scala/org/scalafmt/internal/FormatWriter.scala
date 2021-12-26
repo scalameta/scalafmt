@@ -723,8 +723,12 @@ class FormatWriter(formatOps: FormatOps) {
           val contents = text.substring(2).trim
           val wordIter = splitAsIterator(slcDelim)(contents)
           sb.append(if (useSlc) "//" else "/*")
-          iterWords(wordIter, appendLineBreak, getFirstLineLength)
-          if (!useSlc) sb.append(" */")
+          val curlen = sb.length
+          val lines = iterWords(wordIter, appendLineBreak, getFirstLineLength)
+          if (!useSlc)
+            if (lines == 0 && style.comments.wrapSingleLineMlcAsSlc)
+              sb.setCharAt(curlen - 1, '/')
+            else sb.append(" */")
         }
       }
 
@@ -773,8 +777,11 @@ class FormatWriter(formatOps: FormatOps) {
               }
             }
             sb.append("/*")
-            iterSections(sectionIter, getFirstLineLength)
-            sb.append(" */")
+            val curlen = sb.length
+            val lines = iterSections(sectionIter, getFirstLineLength)
+            if (lines == 0 && style.comments.wrapSingleLineMlcAsSlc)
+              sb.setCharAt(curlen - 1, '/')
+            else sb.append(" */")
           } else {
             val trimmed = removeTrailingWhiteSpace(text)
             sb.append(leadingAsteriskSpace.matcher(trimmed).replaceAll(spaces))
