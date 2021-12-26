@@ -1380,7 +1380,8 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Space, 0))
 
       // Delim
-      case FormatToken(_, T.Comma(), _) =>
+      case ft @ FormatToken(left, _: T.Comma, _)
+          if !left.is[T.Comment] || newlines == 0 =>
         Seq(
           Split(NoSplit, 0)
         )
