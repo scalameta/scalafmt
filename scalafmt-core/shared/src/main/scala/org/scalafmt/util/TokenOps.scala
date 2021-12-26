@@ -80,12 +80,13 @@ object TokenOps {
   def findLastVisibleToken(tokens: Tokens): Token =
     findLastVisibleTokenOpt(tokens).getOrElse(tokens.last)
 
-  def endsWithNoIndent(between: Seq[Token]): Boolean =
-    between.lastOption.exists(_.is[LF])
+  @inline
+  def withNoIndent(ft: FormatToken): Boolean =
+    ft.between.lastOption.exists(_.is[LF])
 
   def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
     isSingleLineComment(formatToken.right) &&
-      endsWithNoIndent(formatToken.between)
+      withNoIndent(formatToken)
 
   val booleanOperators = Set("&&", "||")
 
@@ -113,21 +114,12 @@ object TokenOps {
       case _ => false
     }
 
-  private def getModByNL(nl: Int, noIndent: => Boolean): Modification =
+  def getModByNL(nl: Int): Modification =
     if (FormatToken.noBreak(nl)) Space
-    else {
-      val isDouble = FormatToken.hasBlankLine(nl)
-      NewlineT(isDouble = isDouble, noIndent = noIndent)
-    }
+    else NewlineT(isDouble = FormatToken.hasBlankLine(nl))
 
-  def getMod(ft: FormatToken, noIndent: Boolean = false): Modification =
-    getModByNL(ft.newlinesBetween, noIndent)
-
-  def getModCheckIndent(ft: FormatToken): Modification =
-    getModCheckIndent(ft, ft.newlinesBetween)
-
-  def getModCheckIndent(ft: FormatToken, newlines: Int): Modification =
-    getModByNL(newlines, ft.right.is[Comment] && endsWithNoIndent(ft.between))
+  def getMod(ft: FormatToken): Modification =
+    getModByNL(ft.newlinesBetween)
 
   def isAttachedSingleLineComment(ft: FormatToken) =
     isSingleLineComment(ft.right) && ft.noBreak

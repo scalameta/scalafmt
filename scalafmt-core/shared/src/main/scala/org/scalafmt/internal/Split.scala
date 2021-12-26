@@ -4,7 +4,6 @@ import scala.meta.tokens.Token
 
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.PolicyOps
-import org.scalafmt.util.TokenOps
 import org.scalameta.FileLine
 
 case class OptimalToken(token: Token, killOnFail: Boolean = false) {
@@ -48,14 +47,12 @@ case class Split(
     optimalAt: Option[OptimalToken] = None
 )(implicit val fileLine: FileLine) {
   import PolicyOps._
-  import TokenOps._
 
-  def adapt(formatToken: FormatToken): Split =
-    modExt.mod match {
-      case n: NewlineT if !n.noIndent && rhsIsCommentedOut(formatToken) =>
-        copy(modExt = modExt.copy(mod = NewlineT(n.isDouble, noIndent = true)))
-      case _ => this
-    }
+  def withNoIndent: Split = modExt.mod match {
+    case x @ NewlineT(_, false, _) =>
+      copy(modExt = modExt.copy(mod = x.copy(noIndent = true)))
+    case _ => this
+  }
 
   @inline
   def indentation: String = modExt.indentation
