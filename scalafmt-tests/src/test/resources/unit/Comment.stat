@@ -791,7 +791,8 @@ foo(
 )
 >>>
 foo(
-    bar /* c1 */,
+    bar /* c1 */
+    ,
     baz /* c2 */
 )
 <<< comma after mlc, binpack
@@ -805,6 +806,7 @@ foo(
 )
 >>>
 foo(
-    bar /* c1 */,
+    bar /* c1 */
+    ,
     baz /* c2 */
 )
