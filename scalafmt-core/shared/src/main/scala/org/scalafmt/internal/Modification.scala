@@ -62,4 +62,7 @@ object Space extends Modification {
 
   def apply(flag: Boolean): Modification = if (flag) this else NoSplit
   def orNL(flag: Boolean): Modification = if (flag) this else Newline
+  def orNL(nl: Int): Modification =
+    if (FormatToken.noBreak(nl)) this
+    else NewlineT(isDouble = FormatToken.hasBlankLine(nl))
 }

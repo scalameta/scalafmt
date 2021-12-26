@@ -1388,7 +1388,7 @@ class Router(formatOps: FormatOps) {
       case ft @ FormatToken(left: T.Comma, c: T.Comment, _) =>
         if (ft.hasBlankLine) Seq(Split(NewlineT(isDouble = true), 0))
         else if (isSingleLineComment(c) || ft.meta.right.hasNL)
-          Seq(Split(getModByNL(newlines), 0))
+          Seq(Split(Space.orNL(newlines), 0))
         else {
           val trailingComma =
             rightIsCloseDelimToAddTrailingComma(left, nextNonComment(next(ft)))

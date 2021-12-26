@@ -697,8 +697,7 @@ class FormatOps(
         else Some(decideNewlinesOnlyAfterClose(end.left))
       }
       val nlMod = newStmtMod.getOrElse {
-        val hasAttachedComment = ft.noBreak && ft.right.is[T.Comment]
-        getModByNL(if (hasAttachedComment) 0 else 1)
+        Space.orNL(ft.noBreak && ft.right.is[T.Comment])
       }
       val delayedBreak = if (nlMod.isNewline) None else breakAfterComment(ft)
 
