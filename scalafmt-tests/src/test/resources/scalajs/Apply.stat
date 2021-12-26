@@ -489,7 +489,7 @@ optDef.getOrElse {
 >>>
 optDef.getOrElse {
   abort(foo &&
-      bar)
+    bar)
   abort(foo &&
       bar,
       baz)
@@ -520,7 +520,7 @@ foo.bar {
 >>>
 foo.bar {
   abort(foo &&
-      bar)
+    bar)
   abort(foo &&
       bar,
       baz)
@@ -576,7 +576,7 @@ optDef.getOrElse {
 >>>
 optDef.getOrElse {
   abort(foo &&
-      bar)
+    bar)
   abort(foo &&
       bar,
       foo &&
@@ -671,7 +671,7 @@ optDef.getOrElse {
 >>>
 optDef.getOrElse {
   abort(foo &&
-      bar)
+    bar)
   abort(foo &&
       bar,
       foo &&
@@ -738,7 +738,7 @@ optDef.getOrElse {
 >>>
 optDef.getOrElse {
   abort(fooFoo &&
-      barBar)
+    barBar)
   abort(fooFoo &&
       barBar,
       bazBaz)
@@ -758,7 +758,7 @@ optDef.getOrElse {
 >>>
 optDef.getOrElse {
   abort(fooFoo &&
-      barBar)
+    barBar)
   abort(fooFoo &&
       barBar,
       bazBaz)
@@ -787,7 +787,7 @@ object a {
 >>>
 object a {
   Seq(foo +
-      bar)
+    bar)
   Seq(foo +
       bar,
     foo +
@@ -823,7 +823,7 @@ object a {
 >>>
 object a {
   Seq(foo +
-      bar)
+    bar)
   Seq(foo +
       bar,
     foo +
@@ -858,7 +858,7 @@ object a {
 >>>
 object a {
   Seq(foo +
-      bar)
+    bar)
   Seq(foo +
       bar,
     foo +

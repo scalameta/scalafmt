@@ -1061,6 +1061,10 @@ class Router(formatOps: FormatOps) {
                   newlinePolicy.isEmpty || !style.optIn.configStyleArguments
                 Split(NoSplit.orNL(noSplit), cost, policy = newlinePolicy)
                   .andPolicy(singleLine(4), !noConfigStyle)
+                  .andPolicyOpt(
+                    asInfixApp(args.head).map(InfixSplits(_, tok).nlPolicy),
+                    !singleArgument
+                  )
               }
             Seq(split.withIndent(indent, close, Before))
           }
@@ -1153,6 +1157,8 @@ class Router(formatOps: FormatOps) {
         val args = getApplyArgs(ft, false).args
         val isSingleArg = isSeqSingle(args)
         val firstArg = args.headOption
+        val singleArgAsInfix =
+          if (isSingleArg) firstArg.flatMap(asInfixApp) else None
 
         val opensLiteralArgumentList =
           styleMap.opensLiteralArgumentList(formatToken)
@@ -1183,7 +1189,7 @@ class Router(formatOps: FormatOps) {
         val indentLen = style.indent.callSite
         val indent = Indent(Num(indentLen), close, Before)
         val noNoSplitIndents = nlOnly ||
-          !firstArg.exists(isInfixApp) &&
+          singleArgAsInfix.isDefined ||
           isSingleArg && oneline && !needOnelinePolicy ||
           !isBracket && getAssignAtSingleArgCallSite(leftOwner).isDefined
         val noSplitIndents =
@@ -1276,6 +1282,7 @@ class Router(formatOps: FormatOps) {
             .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
             .andPolicy(nlPolicy)
             .andPolicy(penalizeNewlinesPolicy, singleLineOnly)
+            .andPolicyOpt(singleArgAsInfix.map(InfixSplits(_, ft).nlPolicy))
         )
 
       // Closing def site ): ReturnType
