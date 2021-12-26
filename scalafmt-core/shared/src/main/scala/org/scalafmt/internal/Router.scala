@@ -14,7 +14,6 @@ import scala.annotation.tailrec
 import scala.language.implicitConversions
 import scala.meta.Term.ApplyUsing
 import scala.meta.classifiers.Classifier
-import scala.meta.tokens.Tokens
 import scala.meta.tokens.{Token => T}
 import scala.meta.{
   Case,
@@ -207,22 +206,20 @@ class Router(formatOps: FormatOps) {
         val close = matching(open)
         val closeFT = tokens(close)
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
-        val selfAnnotation: Option[Tokens] = leftOwner match {
+        val selfAnnotationLast: Option[T] = leftOwner match {
           // Self type: trait foo { self => ... }
-          case t: Template => Some(t.self.tokens).filter(_.nonEmpty)
+          case t: Template => t.self.tokens.lastOption
           case _ => None
         }
-        val isSelfAnnotationNL =
-          style.optIn.selfAnnotationNewline && selfAnnotation.nonEmpty && (
-            formatToken.hasBreak || style.newlines.sourceIgnored
-          )
+        val isSelfAnnotationNL = selfAnnotationLast.nonEmpty &&
+          style.optIn.selfAnnotationNewline &&
+          (formatToken.hasBreak || style.newlines.sourceIgnored)
         val rightIsComment = right.is[T.Comment]
         val nl: Modification =
           if (rightIsComment && tok.noBreak) Space
-          else if (isSelfAnnotationNL)
-            getModByNL(math.max(newlines, 1))
           else {
             val double = tok.hasBlankLine ||
+              !isSelfAnnotationNL &&
               rightIsComment && blankLineBeforeDocstring(tok)
             NewlineT(double)
           }
@@ -256,10 +253,10 @@ class Router(formatOps: FormatOps) {
                 else Some(false)
               (arrow, Some(arrow.left), 0, nlOnly)
             case _ =>
-              selfAnnotation match {
+              selfAnnotationLast match {
                 case Some(anno) =>
                   val arrow = leftOwner.tokens.find(_.is[T.RightArrow])
-                  val expire = arrow.getOrElse(anno.last)
+                  val expire = arrow.getOrElse(anno)
                   val indent = style.indent.main
                   (tokens(expire), arrow, indent, Some(isSelfAnnotationNL))
                 case _ =>
