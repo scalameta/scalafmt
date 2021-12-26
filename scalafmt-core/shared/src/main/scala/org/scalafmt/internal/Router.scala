@@ -1669,9 +1669,9 @@ class Router(formatOps: FormatOps) {
               val forcedBreakPolicy = nextSelect.map { selectLike =>
                 val tree = selectLike.tree
                 Policy.before(selectLike.nameToken) {
-                  case Decision(t @ FormatToken(_, _: T.Dot, _), s)
-                      if t.meta.rightOwner eq tree =>
-                    s.filter(_.isNL)
+                  case d @ Decision(FormatToken(_, _: T.Dot, m), _)
+                      if m.rightOwner eq tree =>
+                    d.onlyNewlinesWithoutFallback
                 }
               }
               Seq(
