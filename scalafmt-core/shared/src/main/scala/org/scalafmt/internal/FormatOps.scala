@@ -517,7 +517,7 @@ class FormatOps(
     new InfixSplits(app, ft, fullInfix, app).getBeforeLhsOrRhs(newStmtMod)
   }
 
-  private object InfixSplits {
+  private[internal] object InfixSplits {
 
     def apply(app: InfixApp, ft: FormatToken)(implicit
         style: ScalafmtConfig
@@ -547,7 +547,7 @@ class FormatOps(
 
   }
 
-  private class InfixSplits(
+  private[internal] class InfixSplits(
       app: InfixApp,
       ft: FormatToken,
       fullInfix: InfixApp,
@@ -558,9 +558,17 @@ class FormatOps(
     private val isFirstOp = beforeLhs || (leftInfix.op eq app.op)
 
     private val assignBodyExpire = {
-      val prevFt = tokenBefore(fullInfix.all)
-      if (!prevFt.left.is[T.Equals]) None
-      else Some(getLastToken(prevFt.meta.leftOwner))
+      val fullAll = fullInfix.all
+      val prevFt = tokenBefore(fullAll)
+      val prevOwner = prevFt.meta.leftOwner
+      prevFt.left match {
+        case _: T.Equals => Some(getLastToken(prevOwner))
+        case _: T.Comma | _: T.LeftParen | _: T.LeftBracket
+            if isCallSite(prevOwner) && fullAll.parent.contains(prevOwner) &&
+              isSeqSingle(getApplyArgs(prevFt, false).args) =>
+          Some(getLastToken(fullAll))
+        case _ => None
+      }
     }
 
     private val skipInfixIndent: Boolean = {
@@ -606,7 +614,7 @@ class FormatOps(
       Indent(Num(style.indent.main), expire, ExpiresOn.After)
     }
 
-    private val (nlIndent, nlPolicy) = {
+    val (nlIndent, nlPolicy) = {
       def policy(triggers: Token*)(implicit fileLine: FileLine) =
         if (triggers.isEmpty) Policy.NoPolicy
         else
