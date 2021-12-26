@@ -1393,7 +1393,7 @@ class FormatOps(
     def getArgs(argss: Seq[Seq[Tree]]): Seq[Tree] =
       findArgsFor(paren, argss).getOrElse(Seq.empty)
     owner match {
-      case InfixApp(ia) if style.newlines.formatInfix => TreeArgs(ia.op, ia.rhs)
+      case InfixApp(ia) => TreeArgs(ia.op, ia.rhs)
       case SplitDefnIntoParts(_, name, tparams, paramss) =>
         if (if (isRight) paren.is[T.RightParen] else paren.is[T.LeftParen])
           TreeArgs(name, getArgs(paramss))
@@ -1405,10 +1405,16 @@ class FormatOps(
           case Right(argss) => TreeArgs(tree, getArgs(argss))
         }
       case _ =>
-        logger.debug(s"""Unknown tree
-          |${log(owner.parent.get)}
-          |${isDefnSite(owner)}""".stripMargin)
-        throw UnexpectedTree[Term.Apply](owner)
+        owner.parent match {
+          case Some(Term.ApplyInfix(_, op, _, rhs @ List(`owner`))) =>
+            TreeArgs(op, rhs)
+          case p =>
+            logger.debug(s"""getApplyArgs: unknown tree
+              |Tree: ${log(owner)}
+              |Parent: ${logOpt(p)}
+              |""".stripMargin)
+            throw UnexpectedTree[Term.Apply](owner)
+        }
     }
   }
 
