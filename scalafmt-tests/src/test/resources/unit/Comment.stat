@@ -733,3 +733,54 @@ object a {
        * IDs is requsted for MD5 and SHA1 and not for LUID */
   ) = ???
 }
+<<< overflow, comma, attached mlc then another arg after break
+maxColumn = 10
+===
+foo(
+  barBarBar, /* comment */
+  qux
+)
+>>>
+foo(
+    barBarBar,
+    /* comment */
+    qux
+)
+<<< overflow, comma, attached mlc then another arg after space
+maxColumn = 10
+===
+foo(
+  barBarBar, /* comment */
+  bazBazBaz, /* comment */ qux
+)
+>>>
+foo(
+    barBarBar,
+    /* comment */
+    bazBazBaz,
+    /* comment */ qux
+)
+<<< overflow, comma, attached mlc, binpack
+maxColumn = 30
+indent.callSite = 2
+align.preset = none
+binPack.preset = true
+optIn.configStyleArguments = false
+===
+foo(barBarBarBar, /* c1 */ baz, /* c2 */ qux)
+>>>
+foo(barBarBarBar,
+  /* c1 */ baz, /* c2 */ qux)
+<<< overflow, comma, attached mlc, binpack, fold
+maxColumn = 30
+indent.callSite = 2
+align.preset = none
+binPack.preset = true
+optIn.configStyleArguments = false
+newlines.source = fold
+includeCurlyBraceInSelectChains = true
+===
+foo(barBarBarBar, /* c1 */ baz, /* c2 */ qux)
+>>>
+foo(barBarBarBar,
+  /* c1 */ baz, /* c2 */ qux)
