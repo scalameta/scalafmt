@@ -9,7 +9,6 @@ import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Modification
-import org.scalafmt.internal.NewlineT
 import org.scalafmt.internal.Space
 
 /** Stateless helper functions on [[scala.meta.Token]].
@@ -114,12 +113,8 @@ object TokenOps {
       case _ => false
     }
 
-  def getModByNL(nl: Int): Modification =
-    if (FormatToken.noBreak(nl)) Space
-    else NewlineT(isDouble = FormatToken.hasBlankLine(nl))
-
-  def getMod(ft: FormatToken): Modification =
-    getModByNL(ft.newlinesBetween)
+  @inline
+  def getMod(ft: FormatToken): Modification = Space.orNL(ft.newlinesBetween)
 
   def isAttachedSingleLineComment(ft: FormatToken) =
     isSingleLineComment(ft.right) && ft.noBreak
