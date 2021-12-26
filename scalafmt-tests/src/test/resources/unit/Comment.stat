@@ -404,6 +404,19 @@ object a {
 object a {
   /* foo bar */
 }
+<<< wrap with empty first line 1, mlc -> slc
+comments.wrap = trailing
+comments.wrapSingleLineMlcAsSlc = true
+===
+object a {
+  /* mlc */ /*
+   * foo bar
+   */
+}
+>>>
+object a {
+  /* mlc */ /* foo bar */
+}
 <<< wrap with empty first line 2
 comments.wrap = trailing
 ===
@@ -414,6 +427,18 @@ object a {
 >>>
 object a {
   /* foo bar */
+}
+<<< wrap with empty first line 2, mlc -> slc
+comments.wrap = trailing
+comments.wrapSingleLineMlcAsSlc = true
+===
+object a {
+  /* mlc */ /*
+   * foo bar   */
+}
+>>>
+object a {
+  /* mlc */ /* foo bar */
 }
 <<< #2043
 object a {
