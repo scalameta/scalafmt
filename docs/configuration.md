@@ -3200,6 +3200,27 @@ comments.wrapStandaloneSlcAsSlc = true
 val b = 2 // long singleline comment
 ```
 
+### `comments.wrapSingleLineMlcAsSlc`
+
+> Since v3.3.1.
+
+If comment wrapping is enabled ([`comments.wrap != no`](#commentswrap)), this parameter
+allows formatting a trailing or standalone multi-line comment (i.e., `/* ... */`) as a
+single-line comment (`//`) if it occupies a single line.
+
+```scala mdoc:defaults
+comments.wrapSingleLineMlcAsSlc
+```
+
+```scala mdoc:scalafmt
+maxColumn = 50
+comments.wrap = trailing
+comments.wrapSingleLineMlcAsSlc = true
+---
+/* standalone multi-line comment */
+val b = 2 /* mlc */ /* trailing mlc */
+```
+
 ### `docstrings.style`
 
 > Since v2.6.0.

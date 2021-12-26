@@ -16,6 +16,7 @@ import metaconfig._
   */
 case class Comments(
     wrap: Comments.Wrap = Comments.Wrap.no,
+    wrapSingleLineMlcAsSlc: Boolean = false,
     wrapStandaloneSlcAsSlc: Boolean = false
 ) {
   @inline def willWrap: Boolean = wrap ne Comments.Wrap.no
