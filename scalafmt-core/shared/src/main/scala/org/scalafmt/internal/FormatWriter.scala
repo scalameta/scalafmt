@@ -663,13 +663,15 @@ class FormatWriter(formatOps: FormatOps) {
             iter: WordIter,
             appendLineBreak: () => Unit,
             lineLength: Int = 0,
-            extraMargin: String = " "
-        ): Unit =
+            extraMargin: String = " ",
+            linesSoFar: Int = 0
+        ): Int =
           if (iter.hasNext) {
             val word = iter.next()
             val length = word.length
             val maybeNextLineLength = 1 + length +
               (if (lineLength == 0) leadingMargin else lineLength)
+            var lines = linesSoFar
             val nextLineLength =
               if (
                 lineLength < extraMargin.length ||
@@ -679,12 +681,13 @@ class FormatWriter(formatOps: FormatOps) {
                 maybeNextLineLength
               } else {
                 appendLineBreak()
+                lines += 1
                 sb.append(extraMargin)
                 length + extraMargin.length
               }
             sb.append(word)
-            iterWords(iter, appendLineBreak, nextLineLength, extraMargin)
-          }
+            iterWords(iter, appendLineBreak, nextLineLength, extraMargin, lines)
+          } else linesSoFar
       }
 
       private class FormatSlc(text: String)(implicit sb: StringBuilder)
@@ -783,22 +786,24 @@ class FormatWriter(formatOps: FormatOps) {
         }
 
         private type ParaIter = Iterator[WordIter]
-        private def iterParagraphs(iter: ParaIter, firstLineLen: Int): Unit = {
-          iterWords(iter.next(), appendLineBreak, firstLineLen)
+        private def iterParagraphs(iter: ParaIter, firstLineLen: Int): Int = {
+          var lines = iterWords(iter.next(), appendLineBreak, firstLineLen)
           while (iter.hasNext) {
             appendLineBreak()
-            iterWords(iter.next(), appendLineBreak)
+            lines += 1 + iterWords(iter.next(), appendLineBreak)
           }
+          lines
         }
 
         private type SectIter = Iterator[ParaIter]
-        private def iterSections(iter: SectIter, firstLineLen: Int): Unit = {
-          iterParagraphs(iter.next(), firstLineLen)
+        private def iterSections(iter: SectIter, firstLineLen: Int): Int = {
+          var lines = iterParagraphs(iter.next(), firstLineLen)
           while (iter.hasNext) {
             appendLineBreak()
             appendLineBreak()
-            iterParagraphs(iter.next(), 0)
+            lines += 2 + iterParagraphs(iter.next(), 0)
           }
+          lines
         }
       }
 
