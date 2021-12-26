@@ -880,9 +880,10 @@ object a {
   val a = foo bar (baz = qux)
 }
 >>>
-FormatOps:1407 Unknown tree
-TYPE: Term$ApplyInfix$TermApplyInfixImpl
-SOURCE: foo bar (baz = qux)
+object a {
+  val a = foo bar (
+    baz = qux)
+}
 <<< binpack with infix rhs in parens, 2 args
 maxColumn = 25
 binPack.unsafeCallSite = oneline
