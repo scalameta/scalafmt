@@ -782,3 +782,29 @@ foo(barBarBarBar, /* c1 */ baz, /* c2 */ qux)
 >>>
 foo(barBarBarBar,
   /* c1 */ baz, /* c2 */ qux)
+<<< comma after mlc
+foo(
+  bar /* c1 */
+  ,
+  baz /* c2 */
+  ,
+)
+>>>
+foo(
+    bar /* c1 */,
+    baz /* c2 */
+)
+<<< comma after mlc, binpack
+binPack.preset = true
+===
+foo(
+  bar /* c1 */
+  ,
+  baz /* c2 */
+  ,
+)
+>>>
+foo(
+    bar /* c1 */,
+    baz /* c2 */
+)
