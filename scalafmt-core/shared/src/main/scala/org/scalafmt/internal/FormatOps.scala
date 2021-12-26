@@ -500,8 +500,7 @@ class FormatOps(
       case _ =>
         // we don't modify line breaks generally around infix expressions
         // TODO: if that ever changes, modify how rewrite rules handle infix
-        val mod = getModCheckIndent(ft)
-        Seq(InfixSplits(app, ft).withNLIndent(Split(mod, 0)))
+        Seq(InfixSplits(app, ft).withNLIndent(Split(getMod(ft), 0)))
     }
 
   def getInfixSplitsBeforeLhs(
@@ -699,7 +698,7 @@ class FormatOps(
       }
       val nlMod = newStmtMod.getOrElse {
         val hasAttachedComment = ft.noBreak && ft.right.is[T.Comment]
-        getModCheckIndent(ft, if (hasAttachedComment) 0 else 1)
+        getModByNL(if (hasAttachedComment) 0 else 1)
       }
       val delayedBreak = if (nlMod.isNewline) None else breakAfterComment(ft)
 
@@ -1215,9 +1214,10 @@ class FormatOps(
           Split(NoSplit.orNL(!shouldAddNewline), 0)
             .withIndent(indentParam, close2, ExpiresOn.Before)
         )
-      case Decision(t @ FormatToken(soft.ImplicitOrUsing(), _, _), _)
-          if style.newlines.forceAfterImplicitParamListModifier ||
-            style.verticalMultiline.newlineAfterImplicitKW =>
+      case Decision(FormatToken(soft.ImplicitOrUsing(), r, _), _)
+          if (style.newlines.forceAfterImplicitParamListModifier ||
+            style.verticalMultiline.newlineAfterImplicitKW) &&
+            !isSingleLineComment(r) =>
         Seq(Split(Newline, 0))
     }
 
@@ -1786,7 +1786,10 @@ class FormatOps(
         val nextFt = nextNonCommentSameLine(next(ft))
         val splits =
           if (nextFt.noBreak) splitsFunc(nextFt)
-          else Seq(nlSplitFunc(0).forThisLine)
+          else {
+            val split = nlSplitFunc(0).forThisLine
+            Seq(if (rhsIsCommentedOut(nextFt)) split.withNoIndent else split)
+          }
         val policy = Policy.on(nextFt.right) { case Decision(`nextFt`, _) =>
           splits
         }

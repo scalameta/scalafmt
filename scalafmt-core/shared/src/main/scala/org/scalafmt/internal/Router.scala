@@ -220,7 +220,7 @@ class Router(formatOps: FormatOps) {
         val nl: Modification =
           if (rightIsComment && tok.noBreak) Space
           else if (isSelfAnnotationNL)
-            getModCheckIndent(formatToken, math.max(newlines, 1))
+            getModByNL(math.max(newlines, 1))
           else {
             val double = tok.hasBlankLine ||
               rightIsComment && blankLineBeforeDocstring(tok)
@@ -466,11 +466,8 @@ class Router(formatOps: FormatOps) {
         }
         val bodyIsEmpty = body.tokens.isEmpty
         def baseSplit = Split(Space, 0)
-        def nlSplit(ft: FormatToken)(cost: Int)(implicit l: FileLine) = {
-          val noIndent = rhsIsCommentedOut(ft)
-          val isDouble = ft.hasBlankLine && bodyIsEmpty
-          Split(NewlineT(isDouble = isDouble, noIndent = noIndent), cost)
-        }
+        def nlSplit(ft: FormatToken)(cost: Int)(implicit l: FileLine) =
+          Split(NewlineT(isDouble = ft.hasBlankLine && bodyIsEmpty), cost)
         CtrlBodySplits.checkComment(tok, nlSplit(tok)) { ft =>
           def withSlbSplit(implicit l: FileLine) = Seq(
             baseSplit.withSingleLine(getLastNonTrivialToken(body)),
@@ -1394,7 +1391,7 @@ class Router(formatOps: FormatOps) {
       case ft @ FormatToken(left: T.Comma, c: T.Comment, _) =>
         if (ft.hasBlankLine) Seq(Split(NewlineT(isDouble = true), 0))
         else if (isSingleLineComment(c) || ft.meta.right.hasNL)
-          Seq(Split(getModCheckIndent(ft, newlines), 0))
+          Seq(Split(getModByNL(newlines), 0))
         else {
           val trailingComma =
             rightIsCloseDelimToAddTrailingComma(left, nextNonComment(next(ft)))
@@ -2060,9 +2057,9 @@ class Router(formatOps: FormatOps) {
                 Indent(indent, rparen, Before),
                 Indent(-indent, expire, After)
               )
-              val split = Split(Newline, 0)
-              val lsplit = Seq(split.withIndents(lindents))
-              val rsplit = Seq(split)
+              val lmod = NewlineT(noIndent = rhsIsCommentedOut(postParenFt))
+              val lsplit = Seq(Split(lmod, 0).withIndents(lindents))
+              val rsplit = Seq(Split(Newline, 0))
               val open = Policy.after(lparen) {
                 case d: Decision if d.formatToken eq postParenFt => lsplit
               }
@@ -2455,21 +2452,22 @@ class Router(formatOps: FormatOps) {
     * edges lead out from the format token.
     */
   def getSplits(formatToken: FormatToken): Seq[Split] = {
-    val splits =
-      getSplitsImpl(formatToken).filter(!_.isIgnored).map(_.adapt(formatToken))
-    def splitsAsNewlines: Seq[Split] = {
+    val splits = getSplitsImpl(formatToken).filter(!_.isIgnored)
+    def splitsAsNewlines(splits: Seq[Split]): Seq[Split] = {
       val filtered = Decision.onlyNewlineSplits(splits)
       if (filtered.nonEmpty) filtered else splits.map(_.withMod(Newline))
     }
     formatToken match {
-      // TODO(olafur) refactor into "global policy"
+      case FormatToken(_: T.BOF, _, _) => splits
+      case FormatToken(_, c: T.Comment, _) if isSingleLineComment(c) =>
+        def adapted =
+          if (withNoIndent(formatToken)) splits.map(_.withNoIndent)
+          else splits
+        if (formatToken.hasBreak) splitsAsNewlines(adapted)
+        else splits.map(_.withMod(Space))
       // Only newlines after inline comments.
       case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
-        splitsAsNewlines
-      case FormatToken(_, c: T.Comment, _) if isSingleLineComment(c) =>
-        if (formatToken.left.is[T.BOF]) splits
-        else if (formatToken.hasBreak) splitsAsNewlines
-        else splits.map(_.withMod(Space))
+        splitsAsNewlines(splits)
       case _ => splits
     }
   }
