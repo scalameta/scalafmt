@@ -3,7 +3,6 @@ package org.scalafmt.internal
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.config.{
   BinPack,
-  Comments,
   Newlines,
   ScalafmtConfig,
   ScalafmtRunner,
@@ -193,9 +192,8 @@ class FormatOps(
             _: T.Equals if isInfixRhs(start) || !startsNewBlockOnRight(start) =>
           None
         case c: T.Comment
-            if start.noBreak &&
-              (style.comments.wrap ne Comments.Wrap.trailing) &&
-              (!start.left.is[T.LeftParen] || isSingleLineComment(c)) =>
+            if start.noBreak && (!start.left.is[T.LeftParen] ||
+              tokens.isBreakAfterRight(start)) =>
           Some(c)
         case _ => Some(start.left)
       }
@@ -211,9 +209,7 @@ class FormatOps(
           _: T.Equals =>
         None
       case _: T.RightParen if start.left.is[T.LeftParen] => None
-      case c: T.Comment
-          if isSingleLineComment(c) && start.noBreak &&
-            (style.comments.wrap ne Comments.Wrap.trailing) =>
+      case c: T.Comment if start.noBreak && tokens.isBreakAfterRight(start) =>
         Some(c)
       case _ if start.noBreak && isInfix => None
       case _ => Some(start.left)
@@ -484,7 +480,7 @@ class FormatOps(
     getOptimalTokenFor(tokens(token))
 
   def getOptimalTokenFor(ft: FormatToken): T =
-    if (isAttachedSingleLineComment(ft)) ft.right else ft.left
+    if (tokens.isAttachedCommentThenBreak(ft)) ft.right else ft.left
 
   def insideInfixSplit(
       app: InfixApp,
@@ -982,9 +978,10 @@ class FormatOps(
       case lb: T.LeftBrace if template.self.tokens.isEmpty =>
         Policy.after(lb) {
           // Force template to be multiline.
-          case d @ Decision(FormatToken(`lb`, right, _), _)
-              if !right.is[T.RightBrace] => // corner case, body is {}
-            d.forceNewline
+          case d @ Decision(ftd @ FormatToken(`lb`, right, _), s)
+              if !right.is[T.RightBrace] && // corner case, body is {}
+                !tokens.isAttachedCommentThenBreak(ftd) =>
+            d.onlyNewlinesWithoutFallback
         }
       case _ => NoPolicy
     }
@@ -1183,8 +1180,8 @@ class FormatOps(
 
     val paramGroupSplitter = Policy.on(lastParen) {
       // If this is a class, then don't dangle the last paren unless the line ends with a comment
-      case Decision(FormatToken(previous, `lastParen`, _), _)
-          if shouldNotDangle && !isSingleLineComment(previous) =>
+      case Decision(ftd @ FormatToken(_, `lastParen`, _), _)
+          if shouldNotDangle && !isLeftCommentThenBreak(ftd) =>
         Seq(Split(NoSplit, 0))
       // Indent separators `)(` and `](` by `indentSep`
       case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
@@ -1213,10 +1210,10 @@ class FormatOps(
           Split(NoSplit.orNL(!shouldAddNewline), 0)
             .withIndent(indentParam, close2, ExpiresOn.Before)
         )
-      case Decision(FormatToken(soft.ImplicitOrUsing(), r, _), _)
+      case Decision(ftd @ FormatToken(soft.ImplicitOrUsing(), _, _), _)
           if (style.newlines.forceAfterImplicitParamListModifier ||
             style.verticalMultiline.newlineAfterImplicitKW) &&
-            !isSingleLineComment(r) =>
+            !tokens.isRightCommentThenBreak(ftd) =>
         Seq(Split(Newline, 0))
     }
 
@@ -1321,9 +1318,9 @@ class FormatOps(
       spaceOk: Boolean
   )(implicit style: ScalafmtConfig): Modification =
     ft.right match {
-      case c: T.Comment =>
-        val isDetachedSlc = ft.hasBreak && isSingleLineComment(c)
-        if (isDetachedSlc || next(ft).leftHasNewline) null else Space
+      case _: T.Comment =>
+        val isDetachedSlc = ft.hasBreak && tokens.isBreakAfterRight(ft)
+        if (isDetachedSlc || ft.rightHasNewline) null else Space
       case _ =>
         Space(style.spaces.inParentheses && spaceOk)
     }

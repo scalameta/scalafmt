@@ -60,12 +60,12 @@ object PolicyOps {
       noSyntaxNL: Boolean = false
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
-    import TokenOps.isSingleLineComment
+    import TokenOps.isLeftCommentThenBreak
     override val noDequeue: Boolean = true
     override def toString: String = "SLB:" + super.toString
     override val f: Policy.Pf = {
       case Decision(ft, s)
-          if !(ft.right.is[T.EOF] || okSLC && isSingleLineComment(ft.left)) =>
+          if !(ft.right.is[T.EOF] || okSLC && isLeftCommentThenBreak(ft)) =>
         if (noSyntaxNL && ft.leftHasNewline) Seq.empty else s.filterNot(_.isNL)
     }
   }

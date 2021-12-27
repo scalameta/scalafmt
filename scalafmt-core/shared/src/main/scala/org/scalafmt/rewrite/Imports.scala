@@ -382,7 +382,7 @@ object Imports extends RewriteFactory {
       ctx.tokenTraverser.findAtOrBefore(ctx.getIndex(tok) - 1) {
         case _: Token.LF =>
           if (hadLf) Some(true) else { hadLf = true; None }
-        case t: Token.Comment if TokenOps.isSingleLineComment(t) =>
+        case t: Token.Comment if TokenOps.isSingleLineIfComment(t) =>
           slc.prepend(t); hadLf = false; None
         case Whitespace() => None
         case _ => if (!hadLf && !slc.isEmpty) slc.remove(0); Some(false)
@@ -393,7 +393,7 @@ object Imports extends RewriteFactory {
     protected final def getCommentAfter(tok: Token): Option[Token] =
       ctx.tokenTraverser.findAtOrAfter(ctx.getIndex(tok) + 1) {
         case _: Token.LF => Some(false)
-        case t: Token.Comment if TokenOps.isSingleLineComment(t) =>
+        case t: Token.Comment if TokenOps.isSingleLineIfComment(t) =>
           Some(true)
         case Whitespace() | _: Token.Comma => None
         case _ => Some(false)

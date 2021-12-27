@@ -6,7 +6,6 @@ import scala.meta.tokens.Token
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
-import org.scalafmt.util.TokenOps
 
 import metaconfig._
 
@@ -74,7 +73,7 @@ private class PreferCurlyFors(ftoks: FormatTokens)
       case _: Token.Semicolon
           if !style.rewrite.preferCurlyFors.removeTrailingSemicolonsOnly || {
             val next = ftoks.next(ft)
-            next.hasBreak || TokenOps.isSingleLineComment(next.right)
+            next.hasBreak || ftoks.isRightCommentThenBreak(next)
           } =>
         ft.meta.rightOwner match {
           case _: Term.For | _: Term.ForYield => removeToken

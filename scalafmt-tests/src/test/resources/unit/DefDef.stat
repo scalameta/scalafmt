@@ -137,8 +137,7 @@ implicit def xorBifunctor
     : Bitraverse[Xor] =
   new Bitraverse[Xor] {
     def bitraverse[G[_], A, B, C, D](
-        /*c1*/ fab: Xor[A, B])(
-        /*c2*/
+        /*c1*/ fab: Xor[A, B])( /*c2*/
         f: A => G[C],
         g: B => G[D])(implicit
         G: Applicative[G])
