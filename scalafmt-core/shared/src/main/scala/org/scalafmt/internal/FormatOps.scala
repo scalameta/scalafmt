@@ -2163,12 +2163,14 @@ class FormatOps(
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] =
         ft.meta.leftOwner match {
-          case t @ Term.While(b: Term.Block, _) =>
+          case t @ Term.While(b: Term.Block, _)
+              if tokenBefore(b).left.is[T.KwDo] =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
               def splits = Some {
                 val dangle = style.danglingParentheses.ctrlSite
-                getSplitsMaybeBlock(ft, nft, b, danglingKeyword = dangle)
+                val forceNL = !nft.right.is[T.LeftParen]
+                getSplits(ft, b, forceNL = forceNL, danglingKeyword = dangle)
               }
               def rightBrace = blockLast(b)
             })
@@ -2348,12 +2350,14 @@ class FormatOps(
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] = {
         ft.meta.leftOwner match {
-          case t @ Term.If(b: Term.Block, _, _) =>
+          case t @ Term.If(b: Term.Block, _, _)
+              if tokenBefore(b).left.is[T.KwThen] =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
               def splits = Some {
                 val dangle = style.danglingParentheses.ctrlSite
-                getSplits(ft, b, forceNL = true, danglingKeyword = dangle)
+                val forceNL = !nft.right.is[T.LeftParen]
+                getSplits(ft, b, forceNL = forceNL, danglingKeyword = dangle)
               }
               def rightBrace = blockLast(b)
             })
@@ -2489,6 +2493,7 @@ class FormatOps(
         classifier: Classifier[T, A]
     ): Split =
       if (!style.dialect.allowSignificantIndentation) split
+      else if (tree.is[Term.Block] && isEnclosedInMatching(tree)) split
       else {
         val kw = tokenAfter(tree).right
         if (kw.is[A]) {
