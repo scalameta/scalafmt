@@ -640,7 +640,7 @@ class FormatWriter(formatOps: FormatOps) {
         protected final val breakBefore = curr.hasBreakBefore
         protected final val indent =
           if (breakBefore) prevState.indentation
-          else prevState.prev.indentation
+          else math.max(prevState.indentation, prevState.prev.indentation)
         // extra 1 is for "*" (in "/*" or " *") or "/" (in "//")
         protected final val maxLength = maxColumn - indent - extraIndent - 1
 
