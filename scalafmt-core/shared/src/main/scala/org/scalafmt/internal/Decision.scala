@@ -5,19 +5,12 @@ package org.scalafmt.internal
   * Used by [[Policy]] to enforce non-local formatting.
   */
 case class Decision(formatToken: FormatToken, splits: Seq[Split]) {
-  import org.scalafmt.util.TokenOps._
 
   @inline def noNewlines: Seq[Split] =
     Decision.noNewlineSplits(splits)
 
   @inline def onlyNewlinesWithFallback(default: => Split): Seq[Split] =
     Decision.onlyNewlinesWithFallback(splits, default)
-
-  def forceNewline: Seq[Split] =
-    if (isAttachedSingleLineComment(formatToken))
-      splits
-    else
-      onlyNewlinesWithoutFallback
 
   def onlyNewlinesWithoutFallback: Seq[Split] =
     onlyNewlineSplits

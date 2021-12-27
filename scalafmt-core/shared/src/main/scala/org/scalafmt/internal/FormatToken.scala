@@ -43,6 +43,8 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
   @inline def hasBlankLine: Boolean = FormatToken.hasBlankLine(newlinesBetween)
 
   @inline def leftHasNewline = meta.left.hasNL
+  @inline def rightHasNewline = meta.right.hasNL
+  @inline def hasBreakOrEOF: Boolean = hasBreak || right.is[Token.EOF]
 
   /** A format token is uniquely identified by its left token.
     */

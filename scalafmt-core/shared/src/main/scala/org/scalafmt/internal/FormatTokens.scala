@@ -162,6 +162,22 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   @inline
   def tokenBefore(trees: Seq[Tree]): FormatToken = tokenBefore(trees.head)
 
+  @inline
+  def isBreakAfterRight(ft: FormatToken): Boolean =
+    next(ft).hasBreakOrEOF
+
+  @inline
+  def isRightCommentThenBreak(ft: FormatToken): Boolean =
+    ft.right.is[Token.Comment] && isBreakAfterRight(ft)
+
+  @inline
+  def isRightLikeSingleLineComment(ft: FormatToken): Boolean =
+    isRightCommentThenBreak(ft) && !ft.rightHasNewline
+
+  @inline
+  def isAttachedCommentThenBreak(ft: FormatToken): Boolean =
+    ft.noBreak && isRightCommentThenBreak(ft)
+
 }
 
 object FormatTokens {

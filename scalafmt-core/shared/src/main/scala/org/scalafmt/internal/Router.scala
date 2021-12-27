@@ -156,7 +156,8 @@ class Router(formatOps: FormatOps) {
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
 
         val mustDangleForTrailingCommas = getMustDangleForTrailingCommas(close)
-        val mustUseNL = newlines != 0 && isSingleLineComment(right)
+        val mustUseNL = newlines != 0 &&
+          tokens.isRightCommentThenBreak(formatToken)
         val newlinePolicy = style.importSelectors match {
           case ImportSelectors.singleLine if mustUseNL =>
             policy
@@ -397,7 +398,7 @@ class Router(formatOps: FormatOps) {
           case t => getLastNonTrivialToken(t) -> ExpiresOn.Before
         }
 
-        val hasSingleLineComment = isSingleLineComment(right)
+        val hasSingleLineComment = tokens.isRightCommentThenBreak(formatToken)
         val indent = // don't indent if the body is empty `{ x => }`
           if (isEmptyFunctionBody(leftOwner) && !right.is[T.Comment]) 0
           else if (leftOwner.is[Template]) 0 // { applied the indent
@@ -1107,10 +1108,10 @@ class Router(formatOps: FormatOps) {
             else {
               val penalizeOpens = bracketPenalty.fold(Policy.noPolicy) { p =>
                 Policy.before(close) {
-                  case Decision(FormatToken(o: T.LeftBracket, r, m), s)
+                  case Decision(ftd @ FormatToken(o: T.LeftBracket, _, m), s)
                       if isDefnSite(m.leftOwner) &&
                         !styleMap.at(o).binPack.defnSite(o).isNever =>
-                    if (isSingleLineComment(r)) s
+                    if (tokens.isRightCommentThenBreak(ftd)) s
                     else s.map(x => if (x.isNL) x.withPenalty(p) else x)
                 }
               }
@@ -1386,18 +1387,19 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // These are mostly filtered out/modified by policies.
-      case ft @ FormatToken(lc: T.Comma, c: T.Comment, _) =>
+      case ft @ FormatToken(lc: T.Comma, _: T.Comment, _) =>
+        val nextFt = next(ft)
         if (ft.hasBlankLine) Seq(Split(NewlineT(isDouble = true), 0))
-        else if (isSingleLineComment(c) || ft.meta.right.hasNL)
+        else if (nextFt.hasBreak || ft.meta.right.hasNL)
           Seq(Split(Space.orNL(newlines), 0))
         else if (newlines == 0) {
-          val endFt = nextNonCommentSameLine(next(ft))
+          val endFt = nextNonCommentSameLine(nextFt)
           val useSpaceOnly = endFt.hasBreak ||
             rightIsCloseDelimToAddTrailingComma(lc, endFt)
           Seq(Split(Space, 0), Split(useSpaceOnly, 1)(Newline))
         } else if (
           !style.comments.willWrap &&
-          rightIsCloseDelimToAddTrailingComma(lc, nextNonComment(next(ft)))
+          rightIsCloseDelimToAddTrailingComma(lc, nextNonComment(nextFt))
         ) Seq(Split(Space, 0), Split(Newline, 1))
         else Seq(Split(Newline, 0))
       case FormatToken(_: T.Comma, right, _) if leftOwner.isNot[Template] =>
@@ -1991,7 +1993,7 @@ class Router(formatOps: FormatOps) {
             .withPolicy(decideNewlinesOnlyBeforeClose(close), !shouldDangle)
             .withIndent(style.indent.callSite, close, Before)
         }
-        if (isSingleLineComment(right))
+        if (tokens.isRightCommentThenBreak(formatToken))
           Seq(newlineSplit(0, isConfig))
         else
           style.newlines.source match {
@@ -2045,7 +2047,7 @@ class Router(formatOps: FormatOps) {
         val bodyBlock = isCaseBodyABlock(arrowFt, owner)
         def defaultPolicy = decideNewlinesOnlyAfterToken(postArrowFt.left)
         val policy =
-          if (bodyBlock || isAttachedSingleLineComment(arrowFt)) NoPolicy
+          if (bodyBlock || tokens.isAttachedCommentThenBreak(arrowFt)) NoPolicy
           else if (isCaseBodyEnclosedAsBlock(postArrowFt, owner)) {
             val postParenFt = nextNonCommentSameLine(next(postArrowFt))
             val lparen = postParenFt.left
@@ -2462,14 +2464,13 @@ class Router(formatOps: FormatOps) {
     }
     formatToken match {
       case FormatToken(_: T.BOF, _, _) => splits
-      case FormatToken(_, c: T.Comment, _) if isSingleLineComment(c) =>
-        def adapted =
-          if (withNoIndent(formatToken)) splits.map(_.withNoIndent)
-          else splits
-        if (formatToken.hasBreak) splitsAsNewlines(adapted)
-        else splits.map(_.withMod(Space))
+      case ft @ FormatToken(_, c: T.Comment, _)
+          if tokens.isBreakAfterRight(ft) =>
+        if (ft.noBreak) splits.map(_.withMod(Space))
+        else if (!rhsIsCommentedOut(ft)) splitsAsNewlines(splits)
+        else splitsAsNewlines(splits.map(_.withNoIndent))
       // Only newlines after inline comments.
-      case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
+      case ft @ FormatToken(_: T.Comment, _, _) if ft.hasBreak =>
         splitsAsNewlines(splits)
       case _ => splits
     }
@@ -2569,7 +2570,7 @@ class Router(formatOps: FormatOps) {
     }
 
     def baseSpaceSplit(implicit fileLine: FileLine) =
-      Split(Space, 0).notIf(isSingleLineComment(ft.right))
+      Split(tokens.isRightCommentThenBreak(ft), 0)(Space)
     def twoBranches(implicit fileLine: FileLine) =
       baseSpaceSplit
         .withOptimalToken(optimal)

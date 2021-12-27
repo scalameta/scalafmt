@@ -719,6 +719,10 @@ the token).
 > [ScalaFiddle Playgroud](https://scalameta.org/docs/trees/scalafiddle.html) or
 > [AST Explorer](https://scalameta.org/docs/trees/astexplorer.html).
 
+> The special code `//` is used for single-line comments. Also, since v3.3.1, this
+> includes multi-line comments `/* ... */` which do not themselves contain newlines
+> but are followed by one (i.e., can trivially be changed to a `//` comment).
+
 ```scala mdoc:scalafmt
 align.tokens = [{
   code = "=>"
@@ -1971,6 +1975,7 @@ class Engine[TD, EI, PD, Q, P, A](
 
 This flag tries to avoid a newline if the line would overflow only because of
 trailing single-line comment (one which starts with `//`).
+Also, since v3.3.1, this includes a trailing `/* ... */` without embedded breaks.
 
 ```scala mdoc:scalafmt
 maxColumn = 40

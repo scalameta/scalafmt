@@ -83,9 +83,20 @@ object TokenOps {
   def withNoIndent(ft: FormatToken): Boolean =
     ft.between.lastOption.exists(_.is[LF])
 
-  def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
-    isSingleLineComment(formatToken.right) &&
-      withNoIndent(formatToken)
+  def rhsIsCommentedOut(ft: FormatToken): Boolean =
+    ft.right.is[Comment] && withNoIndent(ft) && isSingleLineIfComment(ft.right)
+
+  @inline
+  def isLeftCommentThenBreak(ft: FormatToken): Boolean =
+    ft.left.is[Token.Comment] && ft.hasBreak
+
+  def isSingleLineIfComment(c: Token): Boolean = {
+    val off = c.start
+    (c.end - off) >= 2 && {
+      val chars = c.input.chars
+      chars(off) == '/' && chars(off + 1) == '/'
+    }
+  }
 
   val booleanOperators = Set("&&", "||")
 
@@ -98,26 +109,7 @@ object TokenOps {
   }
 
   @inline
-  def isSingleLineComment(c: String): Boolean = c.startsWith("//")
-
-  @inline
-  def isSingleLineComment(c: Token.Comment): Boolean = {
-    (c.end - c.start) >= 2 &&
-    c.input.chars(c.start) == '/' &&
-    c.input.chars(c.start + 1) == '/'
-  }
-
-  def isSingleLineComment(token: Token): Boolean =
-    token match {
-      case c: Comment => isSingleLineComment(c)
-      case _ => false
-    }
-
-  @inline
   def getMod(ft: FormatToken): Modification = Space.orNL(ft.newlinesBetween)
-
-  def isAttachedSingleLineComment(ft: FormatToken) =
-    isSingleLineComment(ft.right) && ft.noBreak
 
   def defnTemplate(tree: Tree): Option[Template] =
     tree match {

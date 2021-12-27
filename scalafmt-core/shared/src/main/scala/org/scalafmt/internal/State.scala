@@ -8,7 +8,6 @@ import scala.meta.tokens.Token
 
 import org.scalafmt.config.Comments
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps._
 
 /** A partial formatting solution up to splits.length number of tokens.
@@ -191,7 +190,7 @@ final case class State(
         else prev.getOverflowPenalty(split, defaultOverflowPenalty + 1)
       } else if (
         style.newlines.avoidForSimpleOverflowSLC &&
-        TokenOps.isSingleLineComment(ft.right)
+        tokens.isRightCommentThenBreak(ft)
       ) {
         result(0, prevActive)
       } else if (

@@ -590,7 +590,7 @@ class FormatWriter(formatOps: FormatOps) {
 
       def formatComment(implicit sb: StringBuilder): Unit = {
         val text = tok.meta.left.text
-        if (isSingleLineComment(text))
+        if (text.startsWith("//"))
           new FormatSlc(text).format
         else if (text == "/**/")
           sb.append(text)
@@ -1113,7 +1113,7 @@ class FormatWriter(formatOps: FormatOps) {
                 else if (alignContainer ne container) {
                   val pos1 = alignContainer.pos
                   val pos2 = container.pos
-                  if (isSingleLineComment(ft.right)) {
+                  if (tokens.isRightLikeSingleLineComment(ft)) {
                     if (pos1.end >= tokens.prevNonCommentSameLine(ft).left.end)
                       appendCandidate()
                   } else if (pos2.start <= pos1.start && pos2.end >= pos1.end) {
@@ -1261,7 +1261,7 @@ class FormatWriter(formatOps: FormatOps) {
 
     def getAlignContainer(implicit fl: FormatLocation): Option[Tree] = {
       val ft = fl.formatToken
-      val slc = isSingleLineComment(ft.right)
+      val slc = tokens.isRightLikeSingleLineComment(ft)
       val code = if (slc) "//" else ft.meta.right.text
 
       fl.style.alignMap.get(code).flatMap { matchers =>
@@ -1559,8 +1559,8 @@ class FormatWriter(formatOps: FormatOps) {
     // skip checking if row1 and row2 matches if both of them continues to a single line of comment
     // in order to vertical align adjacent single lines of comment.
     // see: https://github.com/scalameta/scalafmt/issues/1242
-    val slc1 = isSingleLineComment(row1.floc.formatToken.right)
-    val slc2 = isSingleLineComment(row2.floc.formatToken.right)
+    val slc1 = tokens.isRightLikeSingleLineComment(row1.floc.formatToken)
+    val slc2 = tokens.isRightLikeSingleLineComment(row2.floc.formatToken)
     if (slc1 || slc2) slc1 && slc2
     else
       (row1.alignContainer eq row2.alignContainer) &&
