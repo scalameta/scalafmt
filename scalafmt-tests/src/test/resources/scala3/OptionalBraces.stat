@@ -2991,14 +2991,10 @@ object a {
   }
 }
 >>>
-test does not parse
 object a {
-  if
-     ({ !Yield(2); false
-  }) {
+  if ({ !Yield(2); false }) {
     !Yield(3)
   } else {
-  ^
     !Yield(4)
   }
 }
@@ -3013,9 +3009,7 @@ object a {
 }
 >>>
 object a {
-  if
-     ({ !Yield(2); false }
-  ) then {
+  if ({ !Yield(2); false }) then {
     !Yield(3)
   } else {
     !Yield(4)
@@ -3028,15 +3022,11 @@ object a {
   }
 }
 >>>
-test does not parse
 object a {
-  while
-     ({ !Yield(2); false
-  }) {
+  while ({ !Yield(2); false }) {
     !Yield(3)
   }
 }
-^
 <<< #3005 while-do
 object a {
   while
@@ -3046,9 +3036,7 @@ object a {
 }
 >>>
 object a {
-  while
-     ({ !Yield(2); false }
-  ) do {
+  while ({ !Yield(2); false }) do {
     !Yield(3)
   }
 }
