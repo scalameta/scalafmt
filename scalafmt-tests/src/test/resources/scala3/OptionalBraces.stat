@@ -2982,3 +2982,73 @@ foo {
   case bar @ baz(_*) => qux
   case baz @ baz(x*) => qux
 }
+<<< #3005 if
+object a {
+  if ({ !Yield(2); false }) {
+    !Yield(3)
+  } else {
+    !Yield(4)
+  }
+}
+>>>
+test does not parse
+object a {
+  if
+     ({ !Yield(2); false
+  }) {
+    !Yield(3)
+  } else {
+  ^
+    !Yield(4)
+  }
+}
+<<< #3005 if-then
+object a {
+  if
+    ({ !Yield(2); false }) then {
+    !Yield(3)
+  } else {
+    !Yield(4)
+  }
+}
+>>>
+object a {
+  if
+     ({ !Yield(2); false }
+  ) then {
+    !Yield(3)
+  } else {
+    !Yield(4)
+  }
+}
+<<< #3005 while
+object a {
+  while ({ !Yield(2); false }) {
+    !Yield(3)
+  }
+}
+>>>
+test does not parse
+object a {
+  while
+     ({ !Yield(2); false
+  }) {
+    !Yield(3)
+  }
+}
+^
+<<< #3005 while-do
+object a {
+  while
+    ({ !Yield(2); false }) do {
+    !Yield(3)
+  }
+}
+>>>
+object a {
+  while
+     ({ !Yield(2); false }
+  ) do {
+    !Yield(3)
+  }
+}
