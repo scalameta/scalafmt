@@ -665,7 +665,7 @@ object a {
 >>>
 object a {
   def foo( /* First 2 will not be taken into
-   * account */
+       * account */
       foo1: Int, foo2: String, /* Next 2 will not
        * be taken into account since
        * 'filterDoNotSellBy' is not set */
