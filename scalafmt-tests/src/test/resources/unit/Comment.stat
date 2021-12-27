@@ -512,6 +512,21 @@ private object ClientMetrics {
   private val AdapterCallType = "" // empty since it is not an adapter call
 }
 <<< #2809 wrapping with commented out
+maxColumn = 37
+comments.wrap = trailing
+===
+private object ClientMetrics {
+//empty since it is not an adapter call
+  private val AdapterCallType = ""//empty since it is not an adapter call
+}
+>>>
+private object ClientMetrics {
+//empty since it is not an adapter call
+  private val AdapterCallType = "" /*
+   * empty since it is not an adapter
+   * call */
+}
+<<< #2809 wrapping with commented out, narrower
 maxColumn = 35
 comments.wrap = trailing
 ===
@@ -526,7 +541,7 @@ private object ClientMetrics {
    * empty since it is not an
    * adapter call */
 }
-<<< binpack=oneline, with wrapped comment
+<<< binpack=oneline, with trailing-wrapped comment
 maxColumn = 100
 comments.wrap = trailing
 binPack.unsafeCallSite = oneline
@@ -585,7 +600,7 @@ object a {
        * of 'ATT' IDs is requsted for MD5 and SHA1 and not for LUID */
     )
 }
-<<< binpack=oneline, trailing-wrapped comment, narrower
+<<< binpack=oneline, standalone-wrapped comment, narrower
 maxColumn = 90
 indent.callSite = 2
 comments.wrap = standalone
@@ -893,3 +908,60 @@ object a:
     baz /* comment1
      * comment2
      * comment3 */
+<<< trailing-wrapped comments with fold, binpack(lots) and dangling
+maxColumn = 100
+indent.callSite = 2
+align.preset = none
+newlines.source = fold
+includeCurlyBraceInSelectChains = true
+comments.wrap = trailing
+danglingParentheses.preset = true
+binPack {
+  unsafeDefnSite = oneline
+  unsafeCallSite = oneline
+  literalArgumentLists = true
+  literalsExclude = []
+  literalsIncludeSimpleExpr = true
+}
+===
+object a {
+  private def salesActivity(
+      user_id: String,
+      dept_id: Option[Int],
+      catg_grp_id: Option[Int], // for store only
+      catg_id: Option[Int],
+      subcatg_id: Option[Int],
+      brand_id: Option[Int],
+      order_date: String,
+      item_id: Long
+  ) = SalesUserActivity(
+    user_id,
+    dept_id,
+    catg_grp_id,
+    catg_id,
+    subcatg_id,
+    brand_id,
+    Some(dummyBrand),
+    1f,
+    1f,
+    item_id,
+    tenant,
+    inid,
+    catalog,
+    channel,
+    order_date.split("-")(0).toInt,
+    order_date.split("-")(1).toInt,
+    "v1",
+    order_date
+  )
+}
+>>>
+object a {
+  private def salesActivity(
+      user_id: String, dept_id: Option[Int], catg_grp_id: Option[Int], // for store only
+      catg_id: Option[Int], subcatg_id: Option[Int], brand_id: Option[Int], order_date: String,
+      item_id: Long
+  ) = SalesUserActivity(user_id, dept_id, catg_grp_id, catg_id, subcatg_id, brand_id,
+    Some(dummyBrand), 1f, 1f, item_id, tenant, inid, catalog, channel,
+    order_date.split("-")(0).toInt, order_date.split("-")(1).toInt, "v1", order_date)
+}
