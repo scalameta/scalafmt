@@ -67,7 +67,28 @@ def f = {
     }
   )
 }
-<<< 1.4: multi-arg multi-stmt lambda call with multiple split comments
+<<< 1.4: multi-arg multi-stmt lambda call with attached/detached comments
+def f = {
+  something.call (
+     (x, y) =>
+     // comment
+     /* comment */ {
+       g(x)
+       g(y)
+     }
+  )
+}
+>>>
+def f = {
+  something.call((x, y) =>
+    // comment
+    /* comment */ {
+      g(x)
+      g(y)
+    }
+  )
+}
+<<< 1.4: multi-arg multi-stmt lambda call with multiple detached comments
 def f = {
   something.call (
      (x, y) =>
@@ -89,7 +110,26 @@ def f = {
     }
   )
 }
-<<< 1.5: multi-arg multi-stmt lambda call with multiple attached comments
+<<< 1.5: multi-arg multi-stmt lambda call with attached comments
+def f = {
+  something.call (
+     (x, y) =>     // comment
+     /* comment */ {
+       g(x)
+       g(y)
+     }
+  )
+}
+>>>
+def f = {
+  something.call((x, y) => // comment
+    /* comment */ {
+      g(x)
+      g(y)
+    }
+  )
+}
+<<< 1.5: multi-arg multi-stmt lambda call with attached/detached comments
 def f = {
   something.call (
      (x, y) =>     // comment
@@ -109,7 +149,27 @@ def f = {
     }
   )
 }
-<<< 1.6: multi-arg multi-stmt lambda call with multiple inline comments
+<<< 1.6: multi-arg multi-stmt lambda call with detached inline comment
+def f = {
+  something.call (
+     (x, y) =>     /* comment1 */
+     /* comment2 */
+     {
+       g(x)
+       g(y)
+     }
+  )
+}
+>>>
+def f = {
+  something.call((x, y) => /* comment1 */
+    /* comment2 */ {
+      g(x)
+      g(y)
+    }
+  )
+}
+<<< 1.6: multi-arg multi-stmt lambda call with attached/detached inline comments
 def f = {
   something.call (
      (x, y) =>     /* comment1 */
@@ -145,6 +205,26 @@ def f = {
   )
 }
 <<< 1.7: multi-arg multi-stmt lambda call with long params
+def f = {
+  something.call ((aaaaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbbbbbbbbbbbbbb) =>
+     /* comment2 */
+     {
+       g(x)
+       g(y)
+     }
+  )
+}
+>>>
+def f = {
+  something.call(
+    (aaaaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbbbbbbbbbbbbbb) =>
+      /* comment2 */ {
+        g(x)
+        g(y)
+      }
+  )
+}
+<<< 1.7: multi-arg multi-stmt lambda call with long params, attached mlc
 def f = {
   something.call ((aaaaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbbbbbbbbbbbbbb) =>     /* comment1 */
      /* comment2 */
