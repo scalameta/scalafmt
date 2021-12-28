@@ -915,3 +915,42 @@ object a {
     case foo bar (baz @ qux) =>
   }
 }
+<<< [from scala-js] changed with incorect overflow detection
+preset = default
+maxColumn = 74
+binPack.preset = true
+newlines.source = keep
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+binPack.unsafeCallSite = oneline
+===
+object a {
+  @tailrec
+  def constructOptimized(revAlts: List[(js.Tree, js.Tree)],
+      elsep: js.Tree): js.Tree = {
+    revAlts match {
+      case foo =>
+        // cannot use flatMap due to tailrec
+        foo match {
+          case bar =>
+            constructOptimized(revAltsRest,
+                js.If(cond, newBody, elsep)(tpe)(cond.pos))
+        }
+    }
+  }
+}
+>>>
+object a {
+  @tailrec
+  def constructOptimized(
+      revAlts: List[(js.Tree, js.Tree)], elsep: js.Tree): js.Tree = {
+    revAlts match {
+      case foo =>
+        // cannot use flatMap due to tailrec
+        foo match {
+          case bar =>
+            constructOptimized(revAltsRest,
+              js.If(cond, newBody, elsep)(tpe)(cond.pos))
+        }
+    }
+  }
+}
