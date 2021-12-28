@@ -3040,3 +3040,36 @@ object a {
     !Yield(3)
   }
 }
+<<< #3013 1
+newlines.beforeMultiline = keep
+===
+object a:
+  def f =
+    val received = mutable.Buffer.empty[String]
+    for (m <- 0 until 10) do
+       val msg = m.toString
+       received.addOne(msg)
+>>>
+object a:
+   def f =
+      val received = mutable.Buffer.empty[String]
+      for (m <- 0 until 10) do
+         val msg = m.toString
+         received.addOne(msg)
+<<< #3013 2
+newlines.beforeMultiline = keep
+===
+object a:
+  def g =
+    val received = mutable.Buffer.empty[String]
+    for (m <- 0 until 10) do
+       val msg = m.toString
+       received += msg
+>>>
+object a:
+   def g =
+      val received = mutable.Buffer.empty[String]
+      for (m <- 0 until 10)
+        do
+           val msg = m.toString
+           received += msg
