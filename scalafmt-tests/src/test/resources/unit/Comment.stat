@@ -853,3 +853,43 @@ for {
     case Left(error) => FC.raiseError(error)
   }
 } yield foo
+<<< wrapping in optional braces 1
+maxColumn = 20
+runner.dialect = scala3
+indent.callSite = 2
+align.preset = none
+comments.wrap = trailing
+===
+object a:
+  def foo =
+    bar
+    baz /* comment1 comment2
+     * comment3 */
+  val qux = foo
+>>>
+object a:
+  def foo =
+    bar
+    baz /* comment1
+     * comment2
+     * comment3 */
+  val qux = foo
+<<< wrapping in optional braces 2
+maxColumn = 20
+runner.dialect = scala3
+indent.callSite = 2
+align.preset = none
+comments.wrap = trailing
+===
+object a:
+  def foo =
+    bar
+    baz /* comment1 comment2
+     * comment3 */
+>>>
+object a:
+  def foo =
+    bar
+    baz /* comment1
+     * comment2
+     * comment3 */
