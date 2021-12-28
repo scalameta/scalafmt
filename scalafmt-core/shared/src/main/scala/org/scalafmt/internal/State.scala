@@ -7,7 +7,6 @@ import scala.annotation.tailrec
 import scala.meta.tokens.Token
 
 import org.scalafmt.config.Comments
-import org.scalafmt.config.Docstrings
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps._
@@ -92,28 +91,17 @@ final case class State(
     val (penalty, nextDelayedPenalty) =
       if (columnOnCurrentLine <= style.maxColumn) noOverflowPenalties
       else if (right.is[Token.Comment]) {
-        val rtext = tok.meta.right.text
-        if (nextSplit.isNL && rtext.length >= (style.maxColumn - nextIndent))
-          noOverflowPenalties
-        else {
-          val waive = nextTok.hasBreak && {
-            if (TokenOps.isDocstring(rtext))
-              (style.docstrings.wrap ne Docstrings.Wrap.no) && nextSplit.isNL
-            else
-              (style.comments.wrap eq Comments.Wrap.trailing) ||
-              style.comments.willWrap && nextSplit.isNL
-          } && (nextSplit.isNL || {
-            // do not waive overflow in binpacking case
-            val owner = tok.meta.rightOwner
-            val ownerLast = tokens.getLastNonTrivial(owner).left
-            val isBracket = ownerLast.is[Token.RightBracket]
-            !(isBracket || ownerLast.is[Token.RightParen]) ||
-            style.binPack.defnSite(isBracket).isNever && isDefnSite(owner) ||
-            style.binPack.callSite(isBracket).isNever && isCallSite(owner)
-          })
-          if (waive) noOverflowPenalties
+        def trailing = nextTok.hasBreak // newline after comment
+        if (nextSplit.isNL) { // newline before comment
+          val rtext = tok.meta.right.text
+          if (rtext.length >= (style.maxColumn - nextIndent) || trailing)
+            noOverflowPenalties
           else overflowPenalties(columnOnCurrentLine)
-        }
+        } else if (style.comments.wrap.eq(Comments.Wrap.trailing) && trailing) {
+          val minColumn = startColumn + 2 // 2 is for "/*"
+          if (minColumn <= style.maxColumn) noOverflowPenalties
+          else overflowPenalties(minColumn)
+        } else overflowPenalties(columnOnCurrentLine)
       } else overflowPenalties(columnOnCurrentLine)
 
     val splitWithPenalty = nextSplit.withPenalty(penalty)
