@@ -75,16 +75,28 @@ final case class State(
     val (columnOnCurrentLine, nextStateColumn) =
       State.getColumns(tok, nextIndent, startColumn)
 
-    val overflow = columnOnCurrentLine - style.maxColumn
-    val nextPolicy: PolicySummary =
-      policy.combine(nextSplit.policy, tokens.next(tok))
+    val nextTok = tokens.next(tok)
+    val nextPolicy: PolicySummary = policy.combine(nextSplit.policy, nextTok)
+
+    def noOverflowPenalties =
+      (math.max(0, delayedPenalty), 0) // fits inside column
+
+    def overflowPenalties(column: Int) = {
+      val defaultOverflowPenalty = Constants.ExceedColumnPenalty + column
+      if (style.newlines.avoidForSimpleOverflow.isEmpty)
+        (defaultOverflowPenalty, 0)
+      else
+        getOverflowPenalty(nextSplit, defaultOverflowPenalty)
+    }
 
     val (penalty, nextDelayedPenalty) =
-      if (
-        overflow <= 0 || right.is[Token.Comment] && {
-          val rtext = tok.meta.right.text
-          nextSplit.isNL && rtext.length >= (style.maxColumn - nextIndent) ||
-          tokens.next(tok).hasBreak && {
+      if (columnOnCurrentLine <= style.maxColumn) noOverflowPenalties
+      else if (right.is[Token.Comment]) {
+        val rtext = tok.meta.right.text
+        if (nextSplit.isNL && rtext.length >= (style.maxColumn - nextIndent))
+          noOverflowPenalties
+        else {
+          val waive = nextTok.hasBreak && {
             if (TokenOps.isDocstring(rtext))
               (style.docstrings.wrap ne Docstrings.Wrap.no) && nextSplit.isNL
             else
@@ -99,17 +111,11 @@ final case class State(
             style.binPack.defnSite(isBracket).isNever && isDefnSite(owner) ||
             style.binPack.callSite(isBracket).isNever && isCallSite(owner)
           })
+          if (waive) noOverflowPenalties
+          else overflowPenalties(columnOnCurrentLine)
         }
-      ) {
-        (math.max(0, delayedPenalty), 0) // fits inside column
-      } else {
-        val defaultOverflowPenalty =
-          Constants.ExceedColumnPenalty + columnOnCurrentLine
-        if (style.newlines.avoidForSimpleOverflow.isEmpty)
-          (defaultOverflowPenalty, 0)
-        else
-          getOverflowPenalty(nextSplit, defaultOverflowPenalty)
-      }
+      } else overflowPenalties(columnOnCurrentLine)
+
     val splitWithPenalty = nextSplit.withPenalty(penalty)
 
     State(
