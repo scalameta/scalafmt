@@ -4,7 +4,7 @@ import scala.meta.tokens.Token
 
 import org.scalafmt.util.LoggerOps
 
-class PolicySummary(val policies: Seq[Policy]) {
+class PolicySummary(val policies: Seq[Policy]) extends AnyVal {
   import LoggerOps._
 
   @inline def noDequeue = policies.exists(_.noDequeue)

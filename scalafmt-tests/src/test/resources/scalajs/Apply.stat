@@ -941,8 +941,8 @@ object a {
 >>>
 object a {
   @tailrec
-  def constructOptimized(
-      revAlts: List[(js.Tree, js.Tree)], elsep: js.Tree): js.Tree = {
+  def constructOptimized(revAlts: List[(js.Tree, js.Tree)],
+      elsep: js.Tree): js.Tree = {
     revAlts match {
       case foo =>
         // cannot use flatMap due to tailrec

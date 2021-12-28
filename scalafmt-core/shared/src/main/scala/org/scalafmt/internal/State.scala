@@ -23,6 +23,7 @@ final case class State(
     pushes: Seq[ActualIndent],
     column: Int,
     allAltAreNL: Boolean,
+    appliedPenalty: Int, // penalty applied from overflow
     delayedPenalty: Int // apply if positive, ignore otherwise
 ) {
 
@@ -117,6 +118,7 @@ final case class State(
       nextIndents,
       nextStateColumn,
       nextAllAltAreNL,
+      appliedPenalty + penalty,
       nextDelayedPenalty
     )
   }
@@ -258,7 +260,6 @@ final case class State(
     }
   }
 
-  def totalCost: Int = cost + math.max(0, delayedPenalty)
 }
 
 object State {
@@ -273,6 +274,7 @@ object State {
     Seq.empty,
     0,
     false,
+    0,
     0
   )
 
