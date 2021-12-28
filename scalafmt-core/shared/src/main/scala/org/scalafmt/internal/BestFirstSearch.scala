@@ -197,7 +197,8 @@ private class BestFirstSearch private (
                   if (null == nextNextState) null
                   else traverseSameLine(nextNextState, depth)
                 if (null != furtherState) {
-                  if (furtherState.column > style.maxColumn)
+                  val delta = furtherState.totalCost - nextNextState.totalCost
+                  if (delta > Constants.ExceedColumnPenalty)
                     Q.enqueue(nextNextState)
                   else {
                     optimalNotFound = false

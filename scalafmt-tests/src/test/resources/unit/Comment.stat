@@ -622,7 +622,8 @@ object a {
   val foo =
     Seq( // First 2 will not be taken into account since this app for 'Do Not Sell'
       CcpaRequestIds("luid", "1", None, date, version, RequestType.Delete),
-      CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete), /* Next 2 will
+      CcpaRequestIds("hemlmd5", "MD5-1", None, date, version,
+                     RequestType.Delete), /* Next 2 will
        * not be taken into account since 'filterDoNotSellBy' is not set */
       CcpaRequestIds("luid", "2", date, None, version, RequestType.DoNotSell),
       CcpaRequestIds("hemlmd5", "MD5-2", date, None, version, RequestType.DoNotSell)
@@ -651,7 +652,8 @@ object a {
   val foo =
     Seq( // First 2 will not be taken into account since this app for 'Do Not Sell'
       CcpaRequestIds("luid", "1", None, date, version, RequestType.Delete),
-      CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete), /* Next 2 will
+      CcpaRequestIds("hemlmd5", "MD5-1", None, date, version,
+                     RequestType.Delete), /* Next 2 will
        * not be taken into account since 'filterDoNotSellBy' is not set */
       CcpaRequestIds("luid", "2", date, None, version, RequestType.DoNotSell),
       CcpaRequestIds("hemlmd5", "MD5-2", date, None, version, RequestType.DoNotSell)
@@ -988,13 +990,11 @@ object a {
   )
 }
 >>>
-Idempotency violated
 object a {
   private val impressionUniqueMetricsData = Seq(
     // out of range
-    ImpUnique(
-      "2018-01-02", 102, Some("444"), Some(1), Some(2), Some(1), None, None, 2018, 1, ver
-    ) /* aggimp3 */
+    ImpUnique("2018-01-02", 102, Some("444"), Some(1), Some(2), Some(1), None, None, 2018, 1,
+      ver) /* aggimp3 */
   )
 }
 <<< trailing-wrapped comments with fold, binpack=oneline
@@ -1014,12 +1014,10 @@ object a {
   )
 }
 >>>
-Idempotency violated
 object a {
-  private val foo =
-    Seq(
-      // out of range
-      Bar("2018-01-02", 1,
-        ver) /* baz */
-    )
+  private val foo = Seq(
+    // out of range
+    Bar("2018-01-02", 1,
+      ver) /* baz */
+  )
 }

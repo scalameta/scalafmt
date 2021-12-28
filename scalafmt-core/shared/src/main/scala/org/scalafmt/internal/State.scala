@@ -258,6 +258,7 @@ final case class State(
     }
   }
 
+  def totalCost: Int = cost + math.max(0, delayedPenalty)
 }
 
 object State {
