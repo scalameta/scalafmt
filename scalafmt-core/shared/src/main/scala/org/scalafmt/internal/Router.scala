@@ -1101,9 +1101,9 @@ class Router(formatOps: FormatOps) {
           val mustDangle = onlyConfigStyle ||
             style.danglingParentheses.defnSite &&
             (style.newlines.sourceIgnored || !style.optIn.configStyleArguments)
+          val slbOnly = mustDangle || style.newlines.source.eq(Newlines.unfold)
           def noSplitPolicy: Policy =
-            if (mustDangle || style.newlines.source.eq(Newlines.unfold))
-              slbPolicy
+            if (slbOnly) slbPolicy
             else {
               val penalizeOpens = bracketPenalty.fold(Policy.noPolicy) { p =>
                 Policy.before(close) {
@@ -1132,11 +1132,11 @@ class Router(formatOps: FormatOps) {
           def nlCost = bracketPenalty.getOrElse(1)
 
           Seq(
-            Split(noSplitModification, 0)
-              .notIf(mustUseNL)
+            Split(mustUseNL, 0)(noSplitModification)
+              .withOptimalToken(close, ignore = !slbOnly, killOnFail = true)
               .withPolicy(noSplitPolicy)
               .withIndents(noSplitIndents),
-            Split(nlMod, if (mustUseNL) 0 else nlCost)
+            Split(nlMod, if (mustUseNL || slbOnly) 0 else nlCost)
               .withPolicy(nlDanglePolicy & onelinePolicy & penalizeBrackets)
               .withIndent(indent)
           )
