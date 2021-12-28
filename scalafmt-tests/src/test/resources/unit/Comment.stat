@@ -965,3 +965,61 @@ object a {
     Some(dummyBrand), 1f, 1f, item_id, tenant, inid, catalog, channel,
     order_date.split("-")(0).toInt, order_date.split("-")(1).toInt, "v1", order_date)
 }
+<<< trailing-wrapped comments with fold, binpack(lots) and dangling
+maxColumn = 100
+indent.callSite = 2
+align.preset = none
+newlines.source = fold
+includeCurlyBraceInSelectChains = true
+comments.wrap = trailing
+danglingParentheses.preset = true
+binPack {
+  unsafeCallSite = oneline
+  literalArgumentLists = true
+  literalsExclude = []
+  literalsIncludeSimpleExpr = true
+}
+===
+object a {
+  private val impressionUniqueMetricsData = Seq(
+    // out of range
+    ImpUnique("2018-01-02", 102, Some("444"), Some(1), Some(2), Some(1), None, None, 2018, 1, ver), /*
+     * aggimp3 */
+  )
+}
+>>>
+Idempotency violated
+object a {
+  private val impressionUniqueMetricsData = Seq(
+    // out of range
+    ImpUnique(
+      "2018-01-02", 102, Some("444"), Some(1), Some(2), Some(1), None, None, 2018, 1, ver
+    ) /* aggimp3 */
+  )
+}
+<<< trailing-wrapped comments with fold, binpack=oneline
+maxColumn = 29
+indent.callSite = 2
+align.preset = none
+newlines.source = fold
+includeCurlyBraceInSelectChains = true
+comments.wrap = trailing
+binPack.unsafeCallSite = oneline
+===
+object a {
+  private val foo = Seq(
+    // out of range
+    Bar("2018-01-02", 1, ver), /*
+     * baz */
+  )
+}
+>>>
+Idempotency violated
+object a {
+  private val foo =
+    Seq(
+      // out of range
+      Bar("2018-01-02", 1,
+        ver) /* baz */
+    )
+}
