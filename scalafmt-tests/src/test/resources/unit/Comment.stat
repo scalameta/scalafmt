@@ -537,9 +537,9 @@ private object ClientMetrics {
 >>>
 private object ClientMetrics {
 //empty since it is not an adapter call
-  private val AdapterCallType = "" /*
-   * empty since it is not an
-   * adapter call */
+  private val AdapterCallType =
+    "" /* empty since it is not an
+     * adapter call */
 }
 <<< binpack=oneline, with trailing-wrapped comment
 maxColumn = 100
@@ -559,16 +559,16 @@ object a {
 }
 >>>
 object a {
-  val requestedIds =
-    Seq( // First 2 will not be taken into account since this app for 'Do Not Sell' and 'ATT' only
-        CcpaRequestIds("luid", "1", None, date, version, RequestType.Delete),
-        CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete), /* Next 2 will
-         * not be taken into account since 'filterDoNotSellBy' is not set */
-        CcpaRequestIds("luid", "2", date, None, version, RequestType.DoNotSell),
-        CcpaRequestIds("hemlmd5", "MD5-2", date, None, version, RequestType.DoNotSell)
-        /* Only last record will be taken into account but not the next one since filtering of 'ATT'
-         * IDs is requsted for MD5 and SHA1 and not for LUID */
-    )
+  val requestedIds = Seq( /* First 2 will not be taken into account since this app for 'Do Not
+       * Sell' and 'ATT' only */
+      CcpaRequestIds("luid", "1", None, date, version, RequestType.Delete),
+      CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete), /* Next 2 will
+       * not be taken into account since 'filterDoNotSellBy' is not set */
+      CcpaRequestIds("luid", "2", date, None, version, RequestType.DoNotSell),
+      CcpaRequestIds("hemlmd5", "MD5-2", date, None, version, RequestType.DoNotSell)
+      /* Only last record will be taken into account but not the next one since filtering of 'ATT'
+       * IDs is requsted for MD5 and SHA1 and not for LUID */
+  )
 }
 <<< binpack=oneline, with trailing-wrapped comment, narrower
 maxColumn = 90
@@ -589,16 +589,16 @@ object a {
 }
 >>>
 object a {
-  val foo =
-    Seq( // First 2 will not be taken into account since this app for 'Do Not Sell'
-      CcpaRequestIds("luid", "1", None, date, version, RequestType.Delete),
-      CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete), /* Next
-       * 2 will not be taken into account since 'filterDoNotSellBy' is not set */
-      CcpaRequestIds("luid", "2", date, None, version, RequestType.DoNotSell),
-      CcpaRequestIds("hemlmd5", "MD5-2", date, None, version, RequestType.DoNotSell)
-      /* Only last record will be taken into account but not the next one since filtering
-       * of 'ATT' IDs is requsted for MD5 and SHA1 and not for LUID */
-    )
+  val foo = Seq( /* First 2 will not be taken into account since this app for 'Do Not
+     * Sell' */
+    CcpaRequestIds("luid", "1", None, date, version, RequestType.Delete),
+    CcpaRequestIds("hemlmd5", "MD5-1", None, date, version, RequestType.Delete), /* Next 2
+     * will not be taken into account since 'filterDoNotSellBy' is not set */
+    CcpaRequestIds("luid", "2", date, None, version, RequestType.DoNotSell),
+    CcpaRequestIds("hemlmd5", "MD5-2", date, None, version, RequestType.DoNotSell)
+    /* Only last record will be taken into account but not the next one since filtering of
+     * 'ATT' IDs is requsted for MD5 and SHA1 and not for LUID */
+  )
 }
 <<< binpack=oneline, standalone-wrapped comment, narrower
 maxColumn = 90
