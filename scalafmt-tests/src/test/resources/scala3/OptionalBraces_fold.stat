@@ -324,17 +324,15 @@ object a:
             case _ => dd
 >>>
 object a:
-   def foo =
-     this match
-        case A =>
-          that match
-             case b => bb
-             case c => cc
-          end match
-        case B =>
-          that match
-             case c => cc
-             case _ => dd
+   def foo = this match
+      case A =>
+        that match
+           case b => bb
+           case c => cc
+        end match
+      case B => that match
+           case c => cc
+           case _ => dd
 <<< match type
 object a:
   type foo[x] = x match
@@ -348,16 +346,13 @@ object a:
             case _ => dd
 >>>
 object a:
-   type foo[x] =
-     x match
-        case A =>
-          that match
-             case b => bb
-             case c => cc
-        case B =>
-          that match
-             case c => cc
-             case _ => dd
+   type foo[x] = x match
+      case A => that match
+           case b => bb
+           case c => cc
+      case B => that match
+           case c => cc
+           case _ => dd
 <<< catch one
 object a:
   def foo =
@@ -392,8 +387,7 @@ object a:
              case b => bb
              case c => cc
           end match
-        case B =>
-          that match
+        case B => that match
              case c => cc
              case _ => dd
 <<< try/finally, single
@@ -868,17 +862,15 @@ enum IndentWidth {
 }
 >>>
 enum IndentWidth:
-   def foo =
-     this match
-        case a =>
-          that match
-             case b => bb
-             case c => cc
-          end match
-        case b =>
-          that match
-             case c => cc
-             case _ => dd
+   def foo = this match
+      case a =>
+        that match
+           case b => bb
+           case c => cc
+        end match
+      case b => that match
+           case c => cc
+           case _ => dd
 <<< rewrite with catch
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -913,8 +905,7 @@ enum IndentWidth:
              case b => bb
              case c => cc
           end match
-        case b =>
-          that match
+        case b => that match
              case c => cc
              case _ => dd
 
@@ -960,8 +951,7 @@ enum IndentWidth {
           case c => cc
         }
         end match
-      case b =>
-        that match
+      case b => that match
            case c => cc
            case _ => dd
 
@@ -1006,8 +996,7 @@ enum IndentWidth:
              case b => bb
              case c => cc
           end match
-        case b =>
-          that match
+        case b => that match
            case c => cc
            case _ => dd
 
@@ -1217,14 +1206,13 @@ object a {
 }
 >>>
 object a:
-   for (a <- b; c <- d)
-     yield
-        for a <- b; c <- d yield
-           foo
-           bar
-        for a <- b; c <- d yield
-           foo
-           bar
+   for (a <- b; c <- d) yield
+      for a <- b; c <- d yield
+         foo
+         bar
+      for a <- b; c <- d yield
+         foo
+         bar
    end for
    while a > 0 do
       while a > 0 do
@@ -1423,8 +1411,7 @@ val a = List(Some(1), None, Some(3), Some(4)).map({
 })
 >>>
 val a = List(Some(1), None, Some(3), Some(4)).map({
-  case Some(x) =>
-    x match
+  case Some(x) => x match
        case 1 => "one"
        case _ => "more than one"
   case _ => "none"
