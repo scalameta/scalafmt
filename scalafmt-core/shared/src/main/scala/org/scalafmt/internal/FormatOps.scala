@@ -77,6 +77,7 @@ class FormatOps(
   import tokens.{
     matching,
     matchingOpt,
+    isEnclosedInMatching,
     findTokenWith,
     tokenBefore,
     tokenAfter,
@@ -662,7 +663,7 @@ class FormatOps(
               infixes.takeWhile { x =>
                 val close = getLastNonTrivialToken(x.lhs)
                 !close.is[T.RightParen] ||
-                !isEnclosedInMatching(owners(close), matching(close), close)
+                !tokens.isCloseMatchingHead(close)(owners(close))
               }
           if (filtered.isEmpty) None
           else {
@@ -1425,15 +1426,6 @@ class FormatOps(
       case _ => true
     } || ft.right.is[soft.KwUsing]
 
-  def isEnclosedInMatching(tree: Tree, open: T, close: T): Boolean =
-    tree.tokens.headOption.contains(open) && (tree.tokens.last eq close)
-
-  def getClosingIfEnclosedInMatching(tree: Tree): Option[T] =
-    tree.tokens.lastOption.filter(tokens.areMatching(tree.tokens.head))
-
-  def isEnclosedInMatching(tree: Tree): Boolean =
-    getClosingIfEnclosedInMatching(tree).isDefined
-
   @tailrec
   final def findPrevSelect(
       tree: Tree,
@@ -2011,8 +2003,11 @@ class FormatOps(
       val slbExpire = nextNonCommentSameLine(end).left
       val closeOpt =
         if (isTuple(tree)) None
-        else
-          getClosingIfEnclosedInMatching(tree).map(tokens.tokenBefore(_).left)
+        else {
+          val maybeClose = prevNonComment(end)
+          if (!tokens.isCloseMatchingHead(maybeClose.left)(tree)) None
+          else Some(prevNonComment(prev(maybeClose)).left)
+        }
       def nlPolicy(implicit fileLine: FileLine) =
         if (danglingKeyword)
           decideNewlinesOnlyAfterClose(closeOpt.getOrElse(slbExpire))
