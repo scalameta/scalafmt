@@ -478,6 +478,180 @@ val attributes =
         Some(c(name))
       }
     }
+<<< 2.13.2 val with for/yield, redundant braces
+maxColumn = 80
+rewrite.rules = [RedundantBraces]
+===
+val attributes = {
+ for (_ ← 1 to count)
+ yield {
+  val tag = d.readUnsignedShort()
+  val length = d.readInt()
+  if (debug) println(s"LNB:   tag ${c(tag)} ($length bytes)")
+  if (tag != s) {
+    skip(d, length)
+    None
+  } else {
+    val name = d.readUnsignedShort()
+    Some(c(name))
+  }
+ }
+}
+>>>
+val attributes = {
+  for (_ ← 1 to count)
+    yield {
+      val tag = d.readUnsignedShort()
+      val length = d.readInt()
+      if (debug)
+        println(s"LNB:   tag ${c(tag)} ($length bytes)")
+      if (tag != s) {
+        skip(d, length)
+        None
+      } else {
+        val name = d.readUnsignedShort()
+        Some(c(name))
+      }
+    }
+}
+<<< 2.13.3 val with for/yield, redundant parens
+maxColumn = 80
+rewrite.rules = [RedundantParens]
+===
+val attributes = (
+ for (_ ← 1 to count)
+ yield {
+  val tag = d.readUnsignedShort()
+  val length = d.readInt()
+  if (debug) println(s"LNB:   tag ${c(tag)} ($length bytes)")
+  if (tag != s) {
+    skip(d, length)
+    None
+  } else {
+    val name = d.readUnsignedShort()
+    Some(c(name))
+  }
+ }
+)
+>>>
+val attributes =
+  for (_ ← 1 to count)
+    yield {
+      val tag = d.readUnsignedShort()
+      val length = d.readInt()
+      if (debug)
+        println(s"LNB:   tag ${c(tag)} ($length bytes)")
+      if (tag != s) {
+        skip(d, length)
+        None
+      } else {
+        val name = d.readUnsignedShort()
+        Some(c(name))
+      }
+    }
+<<< 2.13.4 def with for/yield
+maxColumn = 80
+===
+def attributes =
+ for (_ ← 1 to count)
+ yield {
+  val tag = d.readUnsignedShort()
+  val length = d.readInt()
+  if (debug) println(s"LNB:   tag ${c(tag)} ($length bytes)")
+  if (tag != s) {
+    skip(d, length)
+    None
+  } else {
+    val name = d.readUnsignedShort()
+    Some(c(name))
+  }
+}
+>>>
+def attributes =
+  for (_ ← 1 to count)
+    yield {
+      val tag = d.readUnsignedShort()
+      val length = d.readInt()
+      if (debug)
+        println(s"LNB:   tag ${c(tag)} ($length bytes)")
+      if (tag != s) {
+        skip(d, length)
+        None
+      } else {
+        val name = d.readUnsignedShort()
+        Some(c(name))
+      }
+    }
+<<< 2.13.5 def with for/yield, redundant braces
+maxColumn = 80
+rewrite.rules = [RedundantBraces]
+===
+def attributes = {
+ for (_ ← 1 to count)
+ yield {
+  val tag = d.readUnsignedShort()
+  val length = d.readInt()
+  if (debug) println(s"LNB:   tag ${c(tag)} ($length bytes)")
+  if (tag != s) {
+    skip(d, length)
+    None
+  } else {
+    val name = d.readUnsignedShort()
+    Some(c(name))
+  }
+ }
+}
+>>>
+def attributes =
+  for (_ ← 1 to count)
+    yield {
+      val tag = d.readUnsignedShort()
+      val length = d.readInt()
+      if (debug)
+        println(s"LNB:   tag ${c(tag)} ($length bytes)")
+      if (tag != s) {
+        skip(d, length)
+        None
+      } else {
+        val name = d.readUnsignedShort()
+        Some(c(name))
+      }
+    }
+<<< 2.13.6 def with for/yield, redundant parens
+maxColumn = 80
+rewrite.rules = [RedundantParens]
+===
+def attributes = (
+ for (_ ← 1 to count)
+ yield {
+  val tag = d.readUnsignedShort()
+  val length = d.readInt()
+  if (debug) println(s"LNB:   tag ${c(tag)} ($length bytes)")
+  if (tag != s) {
+    skip(d, length)
+    None
+  } else {
+    val name = d.readUnsignedShort()
+    Some(c(name))
+  }
+ }
+)
+>>>
+def attributes =
+  for (_ ← 1 to count)
+    yield {
+      val tag = d.readUnsignedShort()
+      val length = d.readInt()
+      if (debug)
+        println(s"LNB:   tag ${c(tag)} ($length bytes)")
+      if (tag != s) {
+        skip(d, length)
+        None
+      } else {
+        val name = d.readUnsignedShort()
+        Some(c(name))
+      }
+    }
 <<< 2.14 val with short for/yield
 maxColumn = 80
 ===
