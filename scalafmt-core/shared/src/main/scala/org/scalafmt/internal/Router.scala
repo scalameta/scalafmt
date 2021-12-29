@@ -618,7 +618,7 @@ class Router(formatOps: FormatOps) {
         }
         val defn = isDefnSite(rightOwner)
         val defRhs = if (defn) defDefBody(rightOwner) else None
-        val beforeDefRhs = defRhs.flatMap(_.tokens.headOption.map(tokenBefore))
+        val beforeDefRhs = defRhs.flatMap(tokens.tokenJustBeforeOpt)
         def getSplitsBeforeOpenParen(
             src: Newlines.SourceHints,
             indentLen: Int
@@ -906,8 +906,8 @@ class Router(formatOps: FormatOps) {
           else
             getAssignAtSingleArgCallSite(leftOwner).map { assign =>
               val assignToken = assign.rhs match {
-                case b: Term.Block => b.tokens.head
-                case _ => assign.tokens.find(_.is[T.Equals]).get
+                case b: Term.Block => tokens.getHead(b)
+                case _ => tokens(assign.tokens.find(_.is[T.Equals]).get)
               }
               val breakToken = getOptimalTokenFor(assignToken)
               val newlineAfterAssignDecision =
@@ -937,7 +937,7 @@ class Router(formatOps: FormatOps) {
 
         val excludeBlocks =
           if (isBracket) {
-            val excludeBeg = if (align) tokens(args.last.tokens.head) else tok
+            val excludeBeg = if (align) tokens.getHead(args.last) else tok
             insideBlock[T.LeftBracket](excludeBeg, close)
           } else if (
             multipleArgs ||
@@ -951,7 +951,7 @@ class Router(formatOps: FormatOps) {
               singleArgument && isExcludedTree(args(0))
             }
           )
-            parensTuple(args(0).tokens.last)
+            parensTuple(tokens.getLast(args(0)).left)
           else insideBracesBlock(tok, close)
 
         def singleLine(
@@ -1319,7 +1319,7 @@ class Router(formatOps: FormatOps) {
           if style.newlines.avoidInResultType =>
         val expire = returnType match {
           case Type.Refine(_, headStat :: _) =>
-            tokens(headStat.tokens.head, -1).left
+            tokens.tokenJustBefore(headStat).left
           case t => getLastNonTrivialToken(t)
         }
         Seq(Split(Space, 0).withPolicy(SingleLineBlock(expire, okSLC = true)))

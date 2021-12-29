@@ -573,7 +573,7 @@ class FormatWriter(formatOps: FormatOps) {
                   case _ => 2
                 }
                 val tiState =
-                  locations(tokens(ti.tokens.head).meta.idx).state.prev
+                  locations(tokens.getHead(ti).meta.idx).state.prev
                 val indent =
                   if (style.align.stripMargin) tiState.column + alignPipeOffset
                   else tiState.indentation + offset
@@ -1168,7 +1168,7 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
     private def isEarlierLine(t: Tree)(implicit fl: FormatLocation): Boolean = {
-      val idx = tokens.after(t.tokens.head).meta.idx + 1
+      val idx = tokens.getHead(t).meta.idx + 1
       idx <= fl.formatToken.meta.idx && // e.g., leading comments
       locations(idx).leftLineId != fl.leftLineId
     }
@@ -1221,8 +1221,9 @@ class FormatWriter(formatOps: FormatOps) {
             val beg = mods.lastOption.fold(tokens.after(ptokens.head)) { m =>
               tokens.next(tokens.tokenAfter(m))
             }
-            val end = b.tokens.headOption
-              .fold(tokens.before(ptokens.last))(tokens.justBefore)
+            val end = tokens
+              .tokenJustBeforeOpt(b)
+              .getOrElse(tokens.before(ptokens.last))
             getLineDiff(locations, beg, end) == 0
           }
           if (keepGoing) getAlignContainerParent(p) else p

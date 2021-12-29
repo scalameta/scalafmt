@@ -125,15 +125,18 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   final def prevNonComment(curr: FormatToken): FormatToken =
     findToken(curr, prev)(!_.left.is[Token.Comment]).fold(identity, identity)
 
+  def getHead(tree: Tree): FormatToken =
+    after(tree.tokens.head)
+  def getHeadOpt(tree: Tree): Option[FormatToken] =
+    tree.tokens.headOption.map(after)
+
   def getLast(tree: Tree): FormatToken =
     apply(TokenOps.findLastVisibleToken(tree.tokens))
-
   def getLastOpt(tree: Tree): Option[FormatToken] =
     TokenOps.findLastVisibleTokenOpt(tree.tokens).map(apply)
 
   def getLastNonTrivial(tree: Tree): FormatToken =
     apply(TokenOps.findLastNonTrivialToken(tree.tokens))
-
   def getLastNonTrivialOpt(tree: Tree): Option[FormatToken] =
     TokenOps.findLastNonTrivialTokenOpt(tree.tokens).map(apply)
 
@@ -146,12 +149,22 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   @inline
   def tokenAfter(trees: Seq[Tree]): FormatToken = tokenAfter(trees.last)
 
+  def tokenAfterOpt(tree: Tree): Option[FormatToken] =
+    getLastOpt(tree).map(nextNonComment)
+  def tokenAfterOpt(trees: Seq[Tree]): Option[FormatToken] =
+    trees.lastOption.flatMap(tokenAfterOpt)
+
   /* the following methods return the last format token such that
    * its `left` is before the parameter */
   @inline
   def justBefore(token: Token): FormatToken = apply(token, -1)
   @inline
   def tokenJustBefore(tree: Tree): FormatToken = justBefore(tree.tokens.head)
+
+  def tokenJustBeforeOpt(tree: Tree): Option[FormatToken] =
+    tree.tokens.headOption.map(justBefore)
+  def tokenJustBeforeOpt(trees: Seq[Tree]): Option[FormatToken] =
+    trees.headOption.flatMap(tokenJustBeforeOpt)
 
   /* the following methods return the last format token such that
    * its `left` is before the parameter and is not a comment */
@@ -161,6 +174,11 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   def tokenBefore(tree: Tree): FormatToken = tokenBefore(tree.tokens.head)
   @inline
   def tokenBefore(trees: Seq[Tree]): FormatToken = tokenBefore(trees.head)
+
+  def tokenBeforeOpt(tree: Tree): Option[FormatToken] =
+    tokenJustBeforeOpt(tree).map(prevNonComment)
+  def tokenBeforeOpt(trees: Seq[Tree]): Option[FormatToken] =
+    trees.headOption.flatMap(tokenBeforeOpt)
 
   @inline
   def isBreakAfterRight(ft: FormatToken): Boolean =

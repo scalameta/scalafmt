@@ -222,7 +222,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     f.parent.flatMap(okToReplaceFunctionInSingleArgApply).exists(_._2 eq f)
 
   private def getOpeningParen(t: Term.Apply): Option[Token.LeftParen] =
-    ftoks.nextNonComment(ftoks(t.fun.tokens.last)).right match {
+    ftoks.tokenAfter(t.fun).right match {
       case lp: Token.LeftParen => Some(lp)
       case _ => None
     }
