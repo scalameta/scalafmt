@@ -934,6 +934,11 @@ the token).</p>
 <a href="https://scalameta.org/docs/trees/scalafiddle.html">ScalaFiddle Playgroud</a> or
 <a href="https://scalameta.org/docs/trees/astexplorer.html">AST Explorer</a>.</p>
 </blockquote>
+<blockquote>
+<p>The special code <code>//</code> is used for single-line comments. Also, since v3.3.1, this
+includes multi-line comments <code>/* ... */</code> which do not themselves contain newlines
+but are followed by one (i.e., can trivially be changed to a <code>//</code> comment).</p>
+</blockquote>
 <pre><code class="hljs css language-scala formatted">x <span class="hljs-keyword">match</span> {
   <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>  =&gt; <span class="hljs-number">1</span> -&gt; <span class="hljs-number">2</span>
   <span class="hljs-keyword">case</span> <span class="hljs-number">11</span> =&gt; <span class="hljs-number">11</span> -&gt; <span class="hljs-number">22</span>
@@ -2684,7 +2689,8 @@ newlines.avoidForSimpleOverflow = [punct]
 <p>Since v3.0.0.</p>
 </blockquote>
 <p>This flag tries to avoid a newline if the line would overflow only because of
-trailing single-line comment (one which starts with <code>//</code>).</p>
+trailing single-line comment (one which starts with <code>//</code>).
+Also, since v3.3.1, this includes a trailing <code>/* ... */</code> without embedded breaks.</p>
 <pre><code class="hljs css language-scala formatted">intercept[<span class="hljs-type">TestException</span>] {
   <span class="hljs-keyword">val</span> ct = <span class="hljs-type">Thread</span>.currentThread() <span class="hljs-comment">// comment</span>
 }
