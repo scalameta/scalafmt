@@ -1655,7 +1655,7 @@ class FormatOps(
       def getSplits(spaceSplit: Split) =
         (
           spaceSplit.withIndents(spaceIndents),
-          getNlSplit(1)(spaceSplit.fileLine)
+          getNlSplit(1)(nextLine(spaceSplit.fileLine))
         )
       def getSlb(end: T, excl: TokenRanges)(implicit fileLine: FileLine) =
         SingleLineBlock(end, exclude = excl, noSyntaxNL = true)
