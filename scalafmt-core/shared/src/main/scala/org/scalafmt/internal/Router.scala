@@ -66,6 +66,7 @@ class Router(formatOps: FormatOps) {
   import tokens.{
     matching,
     matchingOpt,
+    isEnclosedInMatching,
     prev,
     next,
     tokenBefore,

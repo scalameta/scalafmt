@@ -89,6 +89,20 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   @inline def areMatching(t1: Token)(t2: Token): Boolean =
     matchingOpt(t1).contains(t2)
 
+  def getClosingIfEnclosedInMatching(tree: Tree): Option[FormatToken] =
+    getHeadOpt(tree).flatMap { head =>
+      matchingOpt(head.left).flatMap { last =>
+        val ft = getLastNonTrivial(tree)
+        if (ft.left eq last) Some(ft) else None
+      }
+    }
+
+  def isEnclosedInMatching(tree: Tree): Boolean =
+    getClosingIfEnclosedInMatching(tree).isDefined
+
+  def isCloseMatchingHead(close: Token)(tree: => Tree): Boolean =
+    matchingOpt(close).exists(_ eq getHead(tree).left)
+
   @tailrec
   final def findTokenWith[A](
       ft: FormatToken,
