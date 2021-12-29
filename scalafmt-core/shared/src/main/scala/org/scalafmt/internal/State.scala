@@ -222,7 +222,7 @@ final case class State(
       if (ok) prev.getLineStartOwner(isComment) else None
     } else {
       def startsWithLeft(tree: meta.Tree): Boolean =
-        tree.tokens.headOption.contains(ft.left)
+        tokens.getHeadOpt(tree).contains(ft)
       val ro = ft.meta.rightOwner
       val owner =
         if (startsWithLeft(ro)) Some(ro)

@@ -111,7 +111,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   }
 
   private def breaksBeforeOp(ia: InfixApp): Boolean = {
-    val beforeOp = ftoks(ia.op.tokens.head, -1)
+    val beforeOp = ftoks.tokenJustBefore(ia.op)
     ftoks.prevNonCommentSameLine(beforeOp).hasBreak || (ia.lhs match {
       case InfixApp(lhsApp) if breaksBeforeOpAndNotEnclosed(lhsApp) => true
       case _ =>
