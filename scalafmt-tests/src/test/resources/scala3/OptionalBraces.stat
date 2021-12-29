@@ -815,11 +815,10 @@ object a {
 >>>
 object a:
    for (a <- b; c <- d) {
-     for (a <- b; c <- d)
-       do
-          while (a > 0) {
-            while (a > 0) do for (a <- b; c <- d) yield foo
-          }
+     for (a <- b; c <- d) do
+        while (a > 0) {
+          while (a > 0) do for (a <- b; c <- d) yield foo
+        }
    }
 <<< rewrite with nested if-else
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
@@ -3069,7 +3068,6 @@ object a:
 object a:
    def g =
       val received = mutable.Buffer.empty[String]
-      for (m <- 0 until 10)
-        do
-           val msg = m.toString
-           received += msg
+      for (m <- 0 until 10) do
+         val msg = m.toString
+         received += msg

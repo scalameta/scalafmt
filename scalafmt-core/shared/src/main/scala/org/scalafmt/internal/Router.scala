@@ -1876,9 +1876,9 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Space(style.spaces.isSpaceAfterKeyword(right)), 0))
       case FormatToken(close: T.RightParen, right, _) if (leftOwner match {
             case _: Term.If => !nextNonComment(formatToken).right.is[T.KwThen]
-            case _: Term.For => true
             case _: Term.ForYield => style.indentYieldKeyword
-            case _: Term.While => !nextNonComment(formatToken).right.is[T.KwDo]
+            case _: Term.While | _: Term.For =>
+              !nextNonComment(formatToken).right.is[T.KwDo]
             case _ => false
           }) && !isFirstOrLastToken(close, leftOwner) =>
         val body = leftOwner match {
