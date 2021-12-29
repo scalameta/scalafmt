@@ -310,9 +310,15 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             case _ => false
           }
         settings.methodBodies &&
-        getSingleStatIfLineSpanOk(b).exists(innerOk(b)) &&
+        checkBlockAsBody(b, d.body) &&
         !isProcedureSyntax(d) &&
         !disqualifiedByUnit
+
+      case d: Defn.Var => d.rhs.exists(checkBlockAsBody(b, _))
+      case d: Defn.Val => checkBlockAsBody(b, d.rhs)
+      case d: Defn.Type => checkBlockAsBody(b, d.body)
+      case d: Defn.Macro => checkBlockAsBody(b, d.body)
+      case d: Defn.GivenAlias => checkBlockAsBody(b, d.body)
 
       case p: Term.Function if isFunctionWithBraces(p) =>
         okToRemoveAroundFunctionBody(b, true)
@@ -328,6 +334,11 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         settings.generalExpressions && shouldRemoveSingleStatBlock(b)
     }
   }
+
+  private def checkBlockAsBody(b: Term.Block, rhs: Tree)(implicit
+      style: ScalafmtConfig
+  ): Boolean =
+    rhs.eq(b) && getSingleStatIfLineSpanOk(b).exists(innerOk(b))
 
   private def innerOk(b: Term.Block)(s: Stat): Boolean =
     s match {

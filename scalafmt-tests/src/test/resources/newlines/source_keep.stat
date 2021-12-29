@@ -438,7 +438,7 @@ val attributes = {
  }
 }
 >>>
-val attributes = {
+val attributes =
   for (_ ← 1 to count)
     yield {
       val tag = d.readUnsignedShort()
@@ -452,7 +452,6 @@ val attributes = {
         Some(c(name))
       }
     }
-}
 <<< 2.13.3 val with for/yield, redundant parens
 maxColumn = 80
 rewrite.rules = [RedundantParens]

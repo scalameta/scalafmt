@@ -395,18 +395,16 @@ val attributes = {
  }
 }
 >>>
-val attributes = {
-  for (_ ← 1 to count) yield {
-    val tag = d.readUnsignedShort()
-    val length = d.readInt()
-    if (debug) println(s"LNB:   tag ${c(tag)} ($length bytes)")
-    if (tag != s) {
-      skip(d, length)
-      None
-    } else {
-      val name = d.readUnsignedShort()
-      Some(c(name))
-    }
+val attributes = for (_ ← 1 to count) yield {
+  val tag = d.readUnsignedShort()
+  val length = d.readInt()
+  if (debug) println(s"LNB:   tag ${c(tag)} ($length bytes)")
+  if (tag != s) {
+    skip(d, length)
+    None
+  } else {
+    val name = d.readUnsignedShort()
+    Some(c(name))
   }
 }
 <<< 2.13.3 val with for/yield, redundant parens
