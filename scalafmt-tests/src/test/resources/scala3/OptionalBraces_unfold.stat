@@ -956,6 +956,7 @@ object a:
            0
 <<< rewrite with match
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
+rewrite.scala3.insertEndMarkerMinLines = 2 # will not apply, we use single-stat blocks
 ===
 enum IndentWidth {
    def foo = { this match {
@@ -972,6 +973,22 @@ enum IndentWidth {
           }
     }
   }
+   def foo = { this match {
+      case a =>
+         that match {
+            case b => bb
+            case c => cc
+         }
+         end match
+      case b =>
+         that match {
+            case c => cc
+            case _ => dd
+          }
+    }
+    end match
+  }
+  end foo
 }
 >>>
 enum IndentWidth:
@@ -990,6 +1007,23 @@ enum IndentWidth:
                cc
              case _ =>
                dd
+   def foo =
+      this match
+         case a =>
+           that match
+              case b =>
+                bb
+              case c =>
+                cc
+           end match
+         case b =>
+           that match
+              case c =>
+                cc
+              case _ =>
+                dd
+      end match
+   end foo
 <<< rewrite with catch
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
