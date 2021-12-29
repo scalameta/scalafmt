@@ -152,8 +152,8 @@ val testFilter: String => Boolean = {
 options.testFilter match {
   case UnknownTests => // inline comment
     !blacklistedTestFileNames.contains(absPath) &&
-      !whitelistedTestFileNames.contains(absPath) &&
-      !buglistedTestFileNames.contains(absPath)
+    !whitelistedTestFileNames.contains(absPath) &&
+    !buglistedTestFileNames.contains(absPath)
 }
 <<< callStatement genjscode
           callStatement = js.If(genIsInstanceOf(callTrg, rtClass.tpe), {

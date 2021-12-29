@@ -580,7 +580,7 @@ class FormatOps(
         child.parent.collect {
           case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
           case fun: Term.FunctionTerm if isBlockFunction(fun) => true
-          case t: Case => t.pat eq child
+          case t: Case => t.pat.eq(child) || t.body.eq(child)
         }
       }
       def isInfixTopLevelMatch(op: String, noindent: Boolean): Boolean = {
