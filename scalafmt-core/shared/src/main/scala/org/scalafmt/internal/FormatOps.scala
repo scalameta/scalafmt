@@ -1680,7 +1680,17 @@ class FormatOps(
           getNlSplit(if (policy.isEmpty) 0 else 1)
         )
       def hasStateColumn = spaceIndents.exists(_.hasStateColumn)
-      val (spaceSplit, nlSplit) = body match {
+      @tailrec
+      def getBlockStat(t: Tree): Tree = t match {
+        case b: Term.Block =>
+          getBlockSingleStat(b) match {
+            case Some(s) if !isEnclosedInMatching(b) => getBlockStat(s)
+            case _ => t
+          }
+        case _ => t
+      }
+      val adjustedBody = getBlockStat(body)
+      val (spaceSplit, nlSplit) = adjustedBody match {
         case t: Term.If if ifWithoutElse(t) || hasStateColumn =>
           val thenBeg = tokens.getHead(t.thenp)
           val thenHasLB = thenBeg.left.is[T.LeftBrace]
@@ -1692,8 +1702,7 @@ class FormatOps(
           else getSlbSplits()
         case _: Term.Block | _: Term.Match | _: Type.Match |
             _: Term.NewAnonymous =>
-          if (!tokens.hasMatching(blast)) getSlbSplits()
-          else getSplits(getSpaceSplit(1))
+          getSplits(getSpaceSplit(1))
         case Term.ForYield(_, b) =>
           nextNonComment(bheadFT).right match { // skipping `for`
             case x @ LeftParenOrBrace() =>
