@@ -644,6 +644,22 @@ object TreeOps {
     case _ => false
   }
 
+  /* An end marker is really more like a closing brace for formatting purposes
+   * (but not when rewriting) so we should ignore it when considering whether a
+   * block contains only a single statement. NB: in FormatWriter, when choosing
+   * to insert or remove end markers, we avoid such borderline cases.
+   */
+  def getSingleStatExceptEndMarker(s: Seq[Stat]): Option[Stat] =
+    s.headOption.filter { _ =>
+      val len2 = s.lengthCompare(2)
+      len2 < 0 || len2 == 0 && s(1).is[Term.EndMarker]
+    }
+
+  def getSingleStatExceptEndMarker(t: Tree): Option[Tree] = t match {
+    case Term.Block(s) => getSingleStatExceptEndMarker(s)
+    case _ => Some(t)
+  }
+
   def getTreeSingleStat(t: Tree): Option[Tree] =
     t match {
       case b: Term.Block => getBlockSingleStat(b)

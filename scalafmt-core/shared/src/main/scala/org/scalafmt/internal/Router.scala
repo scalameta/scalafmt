@@ -486,7 +486,7 @@ class Router(formatOps: FormatOps) {
           else if (
             condIsDefined ||
             beforeMultiline.eq(Newlines.classic) ||
-            isTreeMultiStatBlock(body)
+            getSingleStatExceptEndMarker(body).isEmpty
           ) withSlbSplit
           else CtrlBodySplits.foldedNonEmptyNonComment(body, nlSplit(ft))
         }
