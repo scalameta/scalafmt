@@ -325,8 +325,7 @@ object a:
 >>>
 object a:
    def foo = this match
-      case A =>
-        that match
+      case A => that match
            case b => bb
            case c => cc
         end match
@@ -382,8 +381,7 @@ object a:
    def foo =
      try foo
      catch
-        case A =>
-          that match
+        case A => that match
              case b => bb
              case c => cc
           end match
@@ -880,8 +878,7 @@ enum IndentWidth {
 >>>
 enum IndentWidth:
    def foo = this match
-      case a =>
-        that match
+      case a => that match
            case b => bb
            case c => cc
         end match
@@ -890,8 +887,7 @@ enum IndentWidth:
            case _ => dd
    def foo =
       this match
-         case a =>
-           that match
+         case a => that match
               case b => bb
               case c => cc
            end match
@@ -929,8 +925,7 @@ enum IndentWidth:
    def foo =
      try foo
      catch
-        case a =>
-          that match
+        case a => that match
              case b => bb
              case c => cc
           end match
@@ -972,8 +967,7 @@ enum IndentWidth {
   def foo = {
     try foo
     catch {
-      case a =>
-        that match {
+      case a => that match {
                // format: off
                   case b => bb
                // format: on
@@ -1019,8 +1013,7 @@ enum IndentWidth:
    def foo =
      try foo
      catch
-        case a =>
-          that match
+        case a => that match
              // scalafmt: { indent { significant = 1 } }
              case b => bb
              case c => cc
