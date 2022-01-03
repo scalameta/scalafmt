@@ -846,66 +846,73 @@ class FormatWriter(formatOps: FormatOps) {
             }
           val paras = doc.para.iterator
           paras.foreach { para =>
-            para.term.foreach { term =>
-              if (sb.length != sbLen) sb.append(margin)
-              term match {
-                case t: Scaladoc.CodeBlock =>
-                  sb.append("{{{")
-                  val nested = t.code.headOption.exists(_.endsWith("// scala"))
-                  if (!(nested && formatScalaCodeBlock(t.code)))
-                    formatCodeBlock(t.code, false)
-                  sb.append(margin).append("}}}")
-                  appendBreak()
-                case t: Scaladoc.MdCodeBlock =>
-                  sb.append(t.fence)
-                  if (t.info.nonEmpty) {
-                    sb.append(t.info.head)
-                    t.info.tail.foreach(x => sb.append(' ').append(x))
-                  }
-                  val nested = t.info.headOption.contains("scala")
-                  if (!(nested && formatScalaCodeBlock(t.code)))
-                    formatCodeBlock(t.code, true)
-                  sb.append(margin).append(t.fence)
-                  appendBreak()
-                case t: Scaladoc.Heading =>
-                  val delimiter = "=" * t.level
-                  sb.append(delimiter).append(t.title).append(delimiter)
-                  appendBreak()
-                case t: Scaladoc.Tag =>
-                  sb.append(t.tag.tag)
-                  t.label.foreach(x => sb.append(' ').append(x.syntax))
-                  t.desc.foreach { x =>
-                    val words = x.part.iterator.map(_.syntax)
-                    if (t.tag.tag == "@usecase")
-                      // scaladoc parser doesn't allow newlines in @usecase
-                      words.foreach(sb.append(' ').append(_))
-                    else {
-                      val tagMargin = getIndentation(2 + margin.length)
-                      // use maxLength to force a newline
-                      iterWords(words, appendBreak, maxLength, tagMargin)
-                    }
-                  }
-                  appendBreak()
-                case t: Scaladoc.ListBlock =>
-                  // outputs margin space and appends new line, too
-                  // therefore, let's start by "rewinding"
-                  if (sb.length != sbLen || leadingMargin == 0) {
-                    sb.setLength(sb.length - margin.length)
-                  } else {
-                    // don't output on top line, lists are sensitive to margin
-                    sb.setLength(sb.length - 1) // remove space
-                    appendBreak()
-                  }
-                  formatListBlock(getIndentation(margin.length + 2))(t)
-                case t: Scaladoc.Text =>
-                  formatTextAfterMargin(t.part.iterator.map(_.syntax))
-                case t: Scaladoc.Table => formatTable(t)
-              }
+            para.term.foreach {
+              formatTerm(_, sbNonEmpty = sb.length != sbLen)
             }
             if (paras.hasNext) appendBreak()
           }
           if (sb.length == sbLen) sb.append('*')
           sb.append('/')
+        }
+
+        private def formatTerm(
+            term: Scaladoc.Term,
+            sbNonEmpty: Boolean
+        ): Unit = {
+          if (sbNonEmpty) sb.append(margin)
+          term match {
+            case t: Scaladoc.CodeBlock =>
+              sb.append("{{{")
+              val nested = t.code.headOption.exists(_.endsWith("// scala"))
+              if (!(nested && formatScalaCodeBlock(t.code)))
+                formatCodeBlock(t.code, false)
+              sb.append(margin).append("}}}")
+              appendBreak()
+            case t: Scaladoc.MdCodeBlock =>
+              sb.append(t.fence)
+              if (t.info.nonEmpty) {
+                sb.append(t.info.head)
+                t.info.tail.foreach(x => sb.append(' ').append(x))
+              }
+              val nested = t.info.headOption.contains("scala")
+              if (!(nested && formatScalaCodeBlock(t.code)))
+                formatCodeBlock(t.code, true)
+              sb.append(margin).append(t.fence)
+              appendBreak()
+            case t: Scaladoc.Heading =>
+              val delimiter = "=" * t.level
+              sb.append(delimiter).append(t.title).append(delimiter)
+              appendBreak()
+            case t: Scaladoc.Tag =>
+              sb.append(t.tag.tag)
+              t.label.foreach(x => sb.append(' ').append(x.syntax))
+              t.desc.foreach { x =>
+                val words = x.part.iterator.map(_.syntax)
+                if (t.tag.tag == "@usecase")
+                  // scaladoc parser doesn't allow newlines in @usecase
+                  words.foreach(sb.append(' ').append(_))
+                else {
+                  val tagMargin = getIndentation(2 + margin.length)
+                  // use maxLength to force a newline
+                  iterWords(words, appendBreak, maxLength, tagMargin)
+                }
+              }
+              appendBreak()
+            case t: Scaladoc.ListBlock =>
+              // outputs margin space and appends new line, too
+              // therefore, let's start by "rewinding"
+              if (sbNonEmpty || leadingMargin == 0) {
+                sb.setLength(sb.length - margin.length)
+              } else {
+                // don't output on top line, lists are sensitive to margin
+                sb.setLength(sb.length - 1) // remove space
+                appendBreak()
+              }
+              formatListBlock(getIndentation(margin.length + 2))(t)
+            case t: Scaladoc.Text =>
+              formatTextAfterMargin(t.part.iterator.map(_.syntax))
+            case t: Scaladoc.Table => formatTable(t)
+          }
         }
 
         private def formatTextAfterMargin(words: WordIter): Unit = {
