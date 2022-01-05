@@ -147,7 +147,7 @@ class FormatWriter(formatOps: FormatOps) {
       checkInsertBraces(result)
     if (
       initStyle.rewrite.rules.contains(RedundantBraces) &&
-      !initStyle.rewrite.redundantBraces.parensForOneLineApply.contains(false)
+      initStyle.rewrite.redundantBraces.parensForOneLineApply
     )
       replaceRedundantBraces(result)
 
