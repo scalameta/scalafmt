@@ -230,4 +230,69 @@ object SearchStateExploded {
 }
 
 >>>
-FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '(∙foo[1510:1524]', line 55
+// format: off
+object SearchStateExploded {
+  val veryLongString =
+    s"""
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+    """
+}
