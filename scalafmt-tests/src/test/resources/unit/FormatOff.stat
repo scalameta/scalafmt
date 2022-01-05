@@ -158,3 +158,76 @@ object App {
       )
   // format: on
 }
+<<< #3027
+maxColumn = 120
+preset = default
+===
+// format: off
+object SearchStateExploded {
+  val veryLongString =
+    s"""
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+    """
+}
+
+>>>
+FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '(∙foo[1510:1524]', line 55
