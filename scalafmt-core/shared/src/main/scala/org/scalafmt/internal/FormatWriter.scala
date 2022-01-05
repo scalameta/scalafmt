@@ -881,7 +881,7 @@ class FormatWriter(formatOps: FormatOps) {
             }
           val paras = doc.para.iterator
           paras.foreach { para =>
-            para.term.foreach {
+            para.terms.foreach {
               formatTerm(_, margin, sbNonEmpty = sb.length != sbLen)
             }
             if (paras.hasNext) appendBreak()
@@ -931,18 +931,10 @@ class FormatWriter(formatOps: FormatOps) {
             case t: Scaladoc.Tag =>
               sb.append(t.tag.tag)
               t.label.foreach(x => sb.append(' ').append(x.syntax))
-              t.desc match {
-                case Some(x: Scaladoc.Text) if t.tag.tag == "@usecase" =>
-                  // scaladoc parser doesn't allow newlines in @usecase
-                  val words = x.part.iterator.map(_.syntax)
-                  words.foreach(sb.append(' ').append(_))
-                  appendBreak()
-                case Some(x: Scaladoc.Text) =>
-                  appendBreak()
-                  val tagMargin = getIndentation(2 + termIndent.length)
-                  sb.append(tagMargin)
-                  formatTextAfterMargin(x, tagMargin)
-                case _ => appendBreak()
+              appendBreak()
+              if (t.desc.nonEmpty) {
+                val tagIndent = getIndentation(2 + termIndent.length)
+                t.desc.foreach(formatTerm(_, tagIndent, sbNonEmpty = true))
               }
             case t: Scaladoc.ListBlock =>
               // outputs margin space and appends new line, too
@@ -980,7 +972,7 @@ class FormatWriter(formatOps: FormatOps) {
           }
 
           val wf = new WordFormatter(appendBreak, termIndent, prefixFirstWord)
-          val words = text.part.iterator.map(_.syntax)
+          val words = text.parts.iterator.map(_.syntax)
           wf(words, termIndent.length, true, false)
           appendBreak()
         }
@@ -1052,7 +1044,7 @@ class FormatWriter(formatOps: FormatOps) {
         )(block: Scaladoc.ListBlock): Unit = {
           val prefix = block.prefix
           val itemIndent = getIndentation(listIndent.length + prefix.length + 1)
-          block.item.foreach { x =>
+          block.items.foreach { x =>
             sb.append(listIndent).append(prefix).append(' ')
             formatListTerm(itemIndent)(x)
           }
@@ -1062,19 +1054,19 @@ class FormatWriter(formatOps: FormatOps) {
             itemIndent: String
         )(item: Scaladoc.ListItem): Unit = {
           formatTextAfterMargin(item.text, itemIndent)
-          item.nested.foreach(formatListBlock(itemIndent))
+          item.terms.foreach(formatTerm(_, itemIndent, sbNonEmpty = true))
         }
 
         private def formatTable(
             table: Scaladoc.Table,
             termIndent: String
         ): Unit = {
-          val rows = table.row.view :+ table.header
+          val rows = table.rows.view :+ table.header
           val align = table.align
-          val maxCols = rows.map(_.col.length).max
+          val maxCols = rows.map(_.cols.length).max
           val colsRange = 0 until maxCols
           val maxLengths = colsRange.map { x =>
-            rows.collect { case r if r.col.length > x => r.col(x).length }.max
+            rows.collect { case r if r.cols.length > x => r.cols(x).length }.max
           }
 
           @inline def beforeAll: Unit = sb.append(termIndent)
@@ -1090,7 +1082,7 @@ class FormatWriter(formatOps: FormatOps) {
 
           def formatRow(useMargin: Boolean)(row: Scaladoc.Table.Row): Unit =
             formatCols(useMargin) { col =>
-              val cell = if (col < row.col.length) row.col(col) else ""
+              val cell = if (col < row.cols.length) row.cols(col) else ""
               val pad = maxLengths(col) - cell.length
               val lpad = getAlign(col).leftPad(pad)
               sb.append(getIndentation(1 + lpad))
@@ -1101,7 +1093,7 @@ class FormatWriter(formatOps: FormatOps) {
           formatCols(true) { col =>
             sb.append(getAlign(col).syntax(maxLengths(col)))
           }
-          table.row.foreach(formatRow(true))
+          table.rows.foreach(formatRow(true))
         }
 
         private def formatNoWrap: Unit = {
