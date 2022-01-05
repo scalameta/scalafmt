@@ -2512,9 +2512,11 @@ s"user id is ${id}"
 
 #### `RedundantBraces`: `parensForOneLineApply`
 
-`rewrite.redundantBraces.parensForOneLineApply` is `true` by default for
-`edition` >= 2020-01. See also
-[newlines.afterCurlyLambdaParams = squash](#newlinesaftercurlylambdaparams).
+```scala mdoc:defaults
+rewrite.redundantBraces.parensForOneLineApply
+```
+
+See also [newlines.afterCurlyLambdaParams = squash](#newlinesaftercurlylambdaparams).
 
 ```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]

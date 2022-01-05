@@ -7,7 +7,7 @@ case class RedundantBracesSettings(
     includeUnitMethods: Boolean = true,
     maxLines: Int = 100,
     stringInterpolation: Boolean = false,
-    parensForOneLineApply: Option[Boolean] = None,
+    parensForOneLineApply: Boolean = true,
     generalExpressions: Boolean = true,
     ifElseExpressions: Boolean = false
 )
