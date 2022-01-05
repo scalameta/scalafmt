@@ -198,7 +198,7 @@ trait HasTests extends FormatAssertions {
       val token = entry.curr.formatToken
       builder += FormatOutput(
         token.left.syntax + entry.getWhitespace(0),
-        debug.formatTokenExplored(token.meta.idx)
+        Option(debug.formatTokenExplored).fold(-1)(_(token.meta.idx))
       )
     }
     builder.result()
