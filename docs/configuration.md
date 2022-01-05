@@ -2417,7 +2417,7 @@ List(1, 2, 3).map { x =>
 }
 ```
 
-#### Configuration options
+#### `RedundantBraces`: `generalExpressions`
 
 ```scala mdoc:defaults
 rewrite.redundantBraces.generalExpressions
@@ -2442,6 +2442,8 @@ str match {
 }
 ```
 
+#### `RedundantBraces`: `ifElseExpressions`
+
 ```scala mdoc:defaults
 rewrite.redundantBraces.ifElseExpressions
 ```
@@ -2458,6 +2460,8 @@ if (a > b) {
 }
 ```
 
+#### `RedundantBraces`: `methodBodies`
+
 ```scala mdoc:defaults
 rewrite.redundantBraces.methodBodies
 ```
@@ -2470,6 +2474,8 @@ def f() = {
   1 + 1
 }
 ```
+
+#### `RedundantBraces`: `includeUnitMethods`
 
 ```scala mdoc:defaults
 rewrite.redundantBraces.includeUnitMethods
@@ -2491,6 +2497,8 @@ def x(): Unit = {
 }
 ```
 
+#### `RedundantBraces`: `stringInterpolation`
+
 ```scala mdoc:defaults
 rewrite.redundantBraces.stringInterpolation
 ```
@@ -2502,6 +2510,8 @@ rewrite.redundantBraces.stringInterpolation = true
 s"user id is ${id}"
 ```
 
+#### `RedundantBraces`: `parensForOneLineApply`
+
 `rewrite.redundantBraces.parensForOneLineApply` is `true` by default for
 `edition` >= 2020-01. See also
 [newlines.afterCurlyLambdaParams = squash](#newlinesaftercurlylambdaparams).
@@ -2512,6 +2522,8 @@ rewrite.redundantBraces.parensForOneLineApply = true
 ---
 xs.map { x => x + 1 }
 ```
+
+#### `RedundantBraces`: `maxLines`
 
 ```scala mdoc:defaults
 rewrite.redundantBraces.maxLines
