@@ -2473,6 +2473,7 @@ class Router(formatOps: FormatOps) {
       // Only newlines after inline comments.
       case ft @ FormatToken(_: T.Comment, _, _) if ft.hasBreak =>
         splitsAsNewlines(splits)
+      case ft if ft.meta.formatOff && ft.hasBreak => splitsAsNewlines(splits)
       case _ => splits
     }
   }
