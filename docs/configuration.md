@@ -2462,6 +2462,13 @@ if (a > b) {
 
 #### `RedundantBraces`: `defnBodies`
 
+This parameter takes the following values:
+
+- `none`: rewriting of a definition body is disabled
+- `all`: applies to body of any definition (`def`, `val`, `macro` etc.)
+- `noParams`: applies to body of any definition which doesn't have parameters
+  (e.g.: `val`; `var`; parameterless `def`, without brackets or parentheses)
+
 In v3.3.2, this parameter superseded a boolean `methodBodies`.
 
 ```scala mdoc:defaults

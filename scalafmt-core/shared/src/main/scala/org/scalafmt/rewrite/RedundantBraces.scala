@@ -149,7 +149,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
               !x.tokens.exists(_.is[Token.RightArrow])) =>
         removeToken
       case t: Ctor.Secondary
-          if t.stats.isEmpty && style.rewrite.redundantBraces.defnBodies =>
+          if t.stats.isEmpty && isDefnBodiesEnabled(noParams = false) =>
         val prevIsEquals = ftoks.prevNonComment(ft).left.is[Token.Equals]
         if (prevIsEquals) removeToken else replaceWithEquals
       case _ => null
@@ -309,7 +309,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             case Type.Name("Unit") => true
             case _ => false
           }
-        settings.defnBodies &&
+        isDefnBodiesEnabled(noParams = false) &&
         checkBlockAsBody(b, d.body) &&
         !isProcedureSyntax(d) &&
         !disqualifiedByUnit
@@ -339,6 +339,15 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       style: ScalafmtConfig
   ): Boolean =
     rhs.eq(b) && getSingleStatIfLineSpanOk(b).exists(innerOk(b))
+
+  private def isDefnBodiesEnabled(
+      noParams: => Boolean
+  )(implicit style: ScalafmtConfig): Boolean =
+    settings.defnBodies match {
+      case RedundantBracesSettings.DefnBodies.all => true
+      case RedundantBracesSettings.DefnBodies.none => false
+      case RedundantBracesSettings.DefnBodies.noParams => noParams
+    }
 
   private def innerOk(b: Term.Block)(s: Stat): Boolean =
     s match {
@@ -439,7 +448,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       b: Term,
       okIfMultipleStats: => Boolean
   )(implicit style: ScalafmtConfig): Boolean =
-    settings.defnBodies && (getTreeSingleStat(b) match {
+    isDefnBodiesEnabled(noParams = false) && (getTreeSingleStat(b) match {
       case Some(_: Term.PartialFunction) => false
       case Some(_: Term.Block) => true
       case Some(s) => getTreeLineSpan(s) <= settings.maxBreaks

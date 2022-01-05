@@ -1202,3 +1202,144 @@ class a(vi: Int, vs: String) {
     bar(vi, "")
   }
 }
+<<< #3026 defnBodies all
+rewrite.redundantBraces.defnBodies = all
+===
+object a {
+  var foo = {
+    bar
+  }
+  val foo = {
+    bar
+  }
+  def foo = {
+    bar
+  }
+  def foo() = {
+    bar
+  }
+  def foo(a: Int) = {
+    bar
+  }
+  def foo = macro {
+    bar
+  }
+  def foo() = macro {
+    bar
+  }
+  def foo(a: Int) = macro {
+    bar
+  }
+}
+>>>
+object a {
+  var foo =
+    bar
+  val foo =
+    bar
+  def foo =
+    bar
+  def foo() =
+    bar
+  def foo(a: Int) =
+    bar
+  def foo = macro bar
+  def foo() = macro bar
+  def foo(a: Int) = macro bar
+}
+<<< #3026 defnBodies none
+rewrite.redundantBraces.defnBodies = none
+===
+object a {
+  var foo = {
+    bar
+  }
+  val foo = {
+    bar
+  }
+  def foo = {
+    bar
+  }
+  def foo() = {
+    bar
+  }
+  def foo(a: Int) = {
+    bar
+  }
+  def foo = macro {
+    bar
+  }
+  def foo() = macro {
+    bar
+  }
+  def foo(a: Int) = macro {
+    bar
+  }
+}
+>>>
+object a {
+  var foo =
+    bar
+  val foo =
+    bar
+  def foo = {
+    bar
+  }
+  def foo() = {
+    bar
+  }
+  def foo(a: Int) = {
+    bar
+  }
+  def foo = macro bar
+  def foo() = macro bar
+  def foo(a: Int) = macro bar
+}
+<<< #3026 defnBodies noParams
+rewrite.redundantBraces.defnBodies = noParams
+===
+object a {
+  var foo = {
+    bar
+  }
+  val foo = {
+    bar
+  }
+  def foo = {
+    bar
+  }
+  def foo() = {
+    bar
+  }
+  def foo(a: Int) = {
+    bar
+  }
+  def foo = macro {
+    bar
+  }
+  def foo() = macro {
+    bar
+  }
+  def foo(a: Int) = macro {
+    bar
+  }
+}
+>>>
+object a {
+  var foo =
+    bar
+  val foo =
+    bar
+  def foo = {
+    bar
+  }
+  def foo() = {
+    bar
+  }
+  def foo(a: Int) = {
+    bar
+  }
+  def foo = macro bar
+  def foo() = macro bar
+  def foo(a: Int) = macro bar
+}

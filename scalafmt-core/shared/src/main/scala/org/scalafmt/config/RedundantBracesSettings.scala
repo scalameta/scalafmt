@@ -5,7 +5,8 @@ import metaconfig.annotation.ExtraName
 
 case class RedundantBracesSettings(
     @ExtraName("methodBodies")
-    defnBodies: Boolean = true,
+    defnBodies: RedundantBracesSettings.DefnBodies =
+      RedundantBracesSettings.DefnBodies.all,
     includeUnitMethods: Boolean = true,
     @ExtraName("maxLines")
     maxBreaks: Int = 100,
@@ -20,4 +21,19 @@ object RedundantBracesSettings {
     generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[RedundantBracesSettings] =
     generic.deriveCodecEx(RedundantBracesSettings()).noTypos
+
+  sealed abstract class DefnBodies
+
+  object DefnBodies {
+    implicit val codec: ConfCodecEx[DefnBodies] = ReaderUtil
+      .oneOfCustom[DefnBodies](all, none, noParams) {
+        case Conf.Bool(true) => Configured.Ok(all)
+        case Conf.Bool(false) => Configured.Ok(none)
+      }
+
+    case object all extends DefnBodies
+    case object none extends DefnBodies
+    case object noParams extends DefnBodies
+  }
+
 }
