@@ -2525,15 +2525,18 @@ rewrite.redundantBraces.parensForOneLineApply = true
 xs.map { x => x + 1 }
 ```
 
-#### `RedundantBraces`: `maxLines`
+#### `RedundantBraces`: `maxBreaks`
+
+This parameter limits the number of line breaks inside the input body. Prior to
+v3.3.2, was incorrectly called `maxLines`.
 
 ```scala mdoc:defaults
-rewrite.redundantBraces.maxLines
+rewrite.redundantBraces.maxBreaks
 ```
 
 ```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
-rewrite.redundantBraces.maxLines = 3
+rewrite.redundantBraces.maxBreaks = 3
 ---
 def f() = {
   collection

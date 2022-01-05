@@ -442,7 +442,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     settings.methodBodies && (getTreeSingleStat(b) match {
       case Some(_: Term.PartialFunction) => false
       case Some(_: Term.Block) => true
-      case Some(s) => getTreeLineSpan(s) <= settings.maxLines
+      case Some(s) => getTreeLineSpan(s) <= settings.maxBreaks
       case _ => okIfMultipleStats
     })
 
@@ -466,7 +466,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   private def getSingleStatIfLineSpanOk(b: Term.Block)(implicit
       style: ScalafmtConfig
   ): Option[Stat] =
-    getBlockSingleStat(b).filter(getTreeLineSpan(_) <= settings.maxLines)
+    getBlockSingleStat(b).filter(getTreeLineSpan(_) <= settings.maxBreaks)
 
   // special case for Select which might contain a space instead of dot
   private def isPrefixExpr(expr: Tree): Boolean =
