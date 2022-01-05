@@ -2460,15 +2460,17 @@ if (a > b) {
 }
 ```
 
-#### `RedundantBraces`: `methodBodies`
+#### `RedundantBraces`: `defnBodies`
+
+In v3.3.2, this parameter superseded a boolean `methodBodies`.
 
 ```scala mdoc:defaults
-rewrite.redundantBraces.methodBodies
+rewrite.redundantBraces.defnBodies
 ```
 
 ```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
-rewrite.redundantBraces.methodBodies = true
+rewrite.redundantBraces.defnBodies = true
 ---
 def f() = {
   1 + 1
