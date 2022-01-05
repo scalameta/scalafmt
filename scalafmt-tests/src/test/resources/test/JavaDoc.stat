@@ -1036,20 +1036,26 @@ object a {
 
   /**
    *   1. foo
-   * {{{
+   *      {{{
    *         embedded code
-   * }}}
-   *   - foo1
-   * | hdr1 | hdr22 |
-   * |:-----|------:|
-   * | r1 1 |  r1 2 |
-   * foo2
-   * {{{
+   *      }}}
+   *      - foo1
+   *        | hdr1 | hdr22 |
+   *        |:-----|------:|
+   *        | r1 1 |  r1 2 |
+   *        - foo2
+   *          {{{
    *         embedded code
-   * }}}
-   * \``` code foo2 ``` ```
-   * code foo1 ``` ``` code
-   * foo ```
+   *          }}}
+   *          ```
+   *          code foo2
+   *          ```
+   *        ```
+   *         code foo1
+   *        ```
+   *      ```
+   *         code foo
+   *      ```
    *   1. bar
    */
 }
@@ -1087,20 +1093,26 @@ object a {
 object a {
 
   /**   1. foo
-    * {{{
+    *      {{{
     *         embedded code
-    * }}}
-    *   - foo1
-    * | hdr1 | hdr22 |
-    * |:-----|------:|
-    * | r1 1 |  r1 2 |
-    * foo2
-    * {{{
+    *      }}}
+    *      - foo1
+    *        | hdr1 | hdr22 |
+    *        |:-----|------:|
+    *        | r1 1 |  r1 2 |
+    *        - foo2
+    *          {{{
     *         embedded code
-    * }}}
-    * \``` code foo2 ``` ```
-    * code foo1 ``` ``` code
-    * foo ```
+    *          }}}
+    *          ```
+    *          code foo2
+    *          ```
+    *        ```
+    *         code foo1
+    *        ```
+    *      ```
+    *         code foo
+    *      ```
     *   1. bar
     */
 }
@@ -1139,20 +1151,26 @@ object a {
 
   /**
    *    1. foo
-   *  {{{
+   *       {{{
    *          embedded code
-   *  }}}
-   *    - foo1
-   *  | hdr1 | hdr22 |
-   *  |:-----|------:|
-   *  | r1 1 |  r1 2 |
-   *  foo2
-   *  {{{
+   *       }}}
+   *       - foo1
+   *         | hdr1 | hdr22 |
+   *         |:-----|------:|
+   *         | r1 1 |  r1 2 |
+   *         - foo2
+   *           {{{
    *          embedded code
-   *  }}}
-   *  \``` code foo2 ``` ```
-   *  code foo1 ``` ``` code
-   *  foo ```
+   *           }}}
+   *           ```
+   *           code foo2
+   *           ```
+   *         ```
+   *          code foo1
+   *         ```
+   *       ```
+   *          code foo
+   *       ```
    *    1. bar
    */
 }
@@ -1199,28 +1217,30 @@ object a {
 
   /**
    * @param foo
-   * {{{
+   *   {{{
    *         embedded code
-   * }}}
-   * | hdr1 | hdr22 |
-   * |:-----|------:|
-   * | r1 1 |  r1 2 |
-   * {{{
+   *   }}}
+   *   | hdr1 | hdr22 |
+   *   |:-----|------:|
+   *   | r1 1 |  r1 2 |
+   *   {{{
    *         embedded code
-   * }}}
-   * \``` code foo5 ``` ```
-   * code foo4 ``` ``` code
-   * foo3 ```
-   * ```
-   *       code foo2
-   * ```
-   * ```
-   *        code foo1
-   * ```
-   * ```
-   *         code foo0
-   * ```
-   * foo
+   *   }}}
+   *   \``` code foo5 ``` ```
+   *   code foo4 ```
+   *   ```
+   *        code foo3
+   *   ```
+   *   ```
+   *         code foo2
+   *   ```
+   *   ```
+   *          code foo1
+   *   ```
+   *   ```
+   *           code foo0
+   *   ```
+   *   foo
    * @inheritdoc
    */
 }
@@ -1266,28 +1286,30 @@ object a {
 object a {
 
   /** @param foo
-    * {{{
+    *   {{{
     *         embedded code
-    * }}}
-    * | hdr1 | hdr22 |
-    * |:-----|------:|
-    * | r1 1 |  r1 2 |
-    * {{{
+    *   }}}
+    *   | hdr1 | hdr22 |
+    *   |:-----|------:|
+    *   | r1 1 |  r1 2 |
+    *   {{{
     *         embedded code
-    * }}}
-    * \``` code foo5 ``` ```
-    * code foo4 ``` ``` code
-    * foo3 ```
-    * ```
-    *       code foo2
-    * ```
-    * ```
-    *        code foo1
-    * ```
-    * ```
-    *         code foo0
-    * ```
-    * foo
+    *   }}}
+    *   \``` code foo5 ``` ```
+    *   code foo4 ```
+    *   ```
+    *        code foo3
+    *   ```
+    *   ```
+    *         code foo2
+    *   ```
+    *   ```
+    *          code foo1
+    *   ```
+    *   ```
+    *           code foo0
+    *   ```
+    *   foo
     * @inheritdoc
     */
 }
@@ -1333,28 +1355,30 @@ object a {
 object a {
 
   /** @param foo
-   *  {{{
+   *    {{{
    *          embedded code
-   *  }}}
-   *  | hdr1 | hdr22 |
-   *  |:-----|------:|
-   *  | r1 1 |  r1 2 |
-   *  {{{
+   *    }}}
+   *    | hdr1 | hdr22 |
+   *    |:-----|------:|
+   *    | r1 1 |  r1 2 |
+   *    {{{
    *          embedded code
-   *  }}}
-   *  \``` code foo5 ``` ```
-   *  code foo4 ``` ``` code
-   *  foo3 ```
-   *  ```
-   *        code foo2
-   *  ```
-   *  ```
-   *         code foo1
-   *  ```
-   *  ```
-   *          code foo0
-   *  ```
-   *  foo
+   *    }}}
+   *    \``` code foo5 ``` ```
+   *    code foo4 ```
+   *    ```
+   *         code foo3
+   *    ```
+   *    ```
+   *          code foo2
+   *    ```
+   *    ```
+   *           code foo1
+   *    ```
+   *    ```
+   *            code foo0
+   *    ```
+   *    foo
    *  @inheritdoc
    */
 }
@@ -2438,10 +2462,10 @@ object a {
    * to help clarify.
    *
    * @example
-   * {{{
+   *   {{{
    * {"errors":["error1", "error2", "error3"]}
    * {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
-   * }}}
+   *   }}}
    */
 }
 <<< SM#2444 tag with markdown code block
@@ -2467,10 +2491,10 @@ object a {
    * to help clarify.
    *
    * @example
-   * ```scala
-   * {"errors":["error1", "error2", "error3"]}
-   * {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
-   * ```
+   *   ```scala
+   *   {"errors":["error1", "error2", "error3"]}
+   *   {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
+   *   ```
    */
 }
 <<< indents within markdown code block, Asterisk
