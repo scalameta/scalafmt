@@ -4,7 +4,8 @@ import metaconfig._
 import metaconfig.annotation.ExtraName
 
 case class RedundantBracesSettings(
-    methodBodies: Boolean = true,
+    @ExtraName("methodBodies")
+    defnBodies: Boolean = true,
     includeUnitMethods: Boolean = true,
     @ExtraName("maxLines")
     maxBreaks: Int = 100,
