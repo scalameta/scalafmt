@@ -309,16 +309,18 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             case Type.Name("Unit") => true
             case _ => false
           }
-        isDefnBodiesEnabled(noParams = false) &&
-        checkBlockAsBody(b, d.body) &&
+        checkBlockAsBody(b, d.body, noParams(d.name, d.tparams, d.paramss)) &&
         !isProcedureSyntax(d) &&
         !disqualifiedByUnit
 
-      case d: Defn.Var => d.rhs.exists(checkBlockAsBody(b, _))
-      case d: Defn.Val => checkBlockAsBody(b, d.rhs)
-      case d: Defn.Type => checkBlockAsBody(b, d.body)
-      case d: Defn.Macro => checkBlockAsBody(b, d.body)
-      case d: Defn.GivenAlias => checkBlockAsBody(b, d.body)
+      case d: Defn.Var => d.rhs.exists(checkBlockAsBody(b, _, noParams = true))
+      case d: Defn.Val => checkBlockAsBody(b, d.rhs, noParams = true)
+      case d: Defn.Type =>
+        checkBlockAsBody(b, d.body, noParams = d.tparams.isEmpty)
+      case d: Defn.Macro =>
+        checkBlockAsBody(b, d.body, noParams(d.name, d.tparams, d.paramss))
+      case d: Defn.GivenAlias =>
+        checkBlockAsBody(b, d.body, noParams(d.name, d.tparams, d.sparams))
 
       case p: Term.Function if isFunctionWithBraces(p) =>
         okToRemoveAroundFunctionBody(b, true)
@@ -335,10 +337,11 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     }
   }
 
-  private def checkBlockAsBody(b: Term.Block, rhs: Tree)(implicit
-      style: ScalafmtConfig
+  private def checkBlockAsBody(b: Term.Block, rhs: Tree, noParams: => Boolean)(
+      implicit style: ScalafmtConfig
   ): Boolean =
-    rhs.eq(b) && getSingleStatIfLineSpanOk(b).exists(innerOk(b))
+    rhs.eq(b) && getSingleStatIfLineSpanOk(b).exists(innerOk(b)) &&
+      isDefnBodiesEnabled(noParams)
 
   private def isDefnBodiesEnabled(
       noParams: => Boolean
@@ -348,6 +351,14 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case RedundantBracesSettings.DefnBodies.none => false
       case RedundantBracesSettings.DefnBodies.noParams => noParams
     }
+
+  private def noParams(
+      name: Tree,
+      tparams: Seq[Tree],
+      paramss: Seq[Seq[Tree]]
+  ): Boolean =
+    tparams.isEmpty && paramss.isEmpty &&
+      !ftoks.tokenAfter(name).right.is[Token.LeftParen]
 
   private def innerOk(b: Term.Block)(s: Stat): Boolean =
     s match {

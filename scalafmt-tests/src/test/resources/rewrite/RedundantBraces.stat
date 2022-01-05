@@ -1278,10 +1278,12 @@ object a {
 }
 >>>
 object a {
-  var foo =
+  var foo = {
     bar
-  val foo =
+  }
+  val foo = {
     bar
+  }
   def foo = {
     bar
   }
@@ -1291,9 +1293,15 @@ object a {
   def foo(a: Int) = {
     bar
   }
-  def foo = macro bar
-  def foo() = macro bar
-  def foo(a: Int) = macro bar
+  def foo = macro {
+    bar
+  }
+  def foo() = macro {
+    bar
+  }
+  def foo(a: Int) = macro {
+    bar
+  }
 }
 <<< #3026 defnBodies noParams
 rewrite.redundantBraces.defnBodies = noParams
@@ -1330,9 +1338,8 @@ object a {
     bar
   val foo =
     bar
-  def foo = {
+  def foo =
     bar
-  }
   def foo() = {
     bar
   }
@@ -1340,6 +1347,10 @@ object a {
     bar
   }
   def foo = macro bar
-  def foo() = macro bar
-  def foo(a: Int) = macro bar
+  def foo() = macro {
+    bar
+  }
+  def foo(a: Int) = macro {
+    bar
+  }
 }
