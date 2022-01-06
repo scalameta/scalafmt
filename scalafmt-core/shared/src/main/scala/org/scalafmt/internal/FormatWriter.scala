@@ -861,6 +861,12 @@ class FormatWriter(formatOps: FormatOps) {
             termIndent: String,
             sbNonEmpty: Boolean
         ): Unit = {
+          def forceFirstLine(): Unit = {
+            // don't output on top line
+            // lists/fenced code blocks are sensitive to margin
+            sb.setLength(sb.length - 1) // remove space
+            appendBreak()
+          }
           if (sbNonEmpty) sb.append(termIndent)
           term match {
             case t: Scaladoc.CodeBlock =>
@@ -870,6 +876,11 @@ class FormatWriter(formatOps: FormatOps) {
               sb.append(termIndent).append("}}}")
               appendBreak()
             case t: Scaladoc.MdCodeBlock =>
+              // first spaces (after asterisk) on all lines must align
+              if (!sbNonEmpty && leadingMargin != 0) {
+                forceFirstLine()
+                sb.append(termIndent)
+              }
               sb.append(t.fence)
               if (t.info.nonEmpty) {
                 sb.append(t.info.head)
@@ -905,9 +916,7 @@ class FormatWriter(formatOps: FormatOps) {
               if (sbNonEmpty || leadingMargin == 0) {
                 sb.setLength(sb.length - termIndent.length)
               } else {
-                // don't output on top line, lists are sensitive to margin
-                sb.setLength(sb.length - 1) // remove space
-                appendBreak()
+                forceFirstLine()
               }
               val listIndent = // shift initial only by 2
                 if (termIndent ne margin) termIndent
@@ -950,16 +959,20 @@ class FormatWriter(formatOps: FormatOps) {
           code.foreach { x =>
             if (x.nonEmpty) {
               sb.append(termIndent)
-              val matcher = docstringLeadingSpace.matcher(x)
-              if (matcher.lookingAt()) {
-                val offset = matcher.end()
-                val extra =
-                  if (isRelative) offset
-                  else math.max(0, offset - leadingMargin)
-                sb.append(getIndentation((extra >> 1) << 1))
-                sb.append(CharBuffer.wrap(x, offset, x.length))
-              } else
-                sb.append(x)
+              val offsetOpt =
+                if (isRelative) None
+                else {
+                  val matcher = docstringLeadingSpace.matcher(x)
+                  if (matcher.lookingAt()) Some(matcher.end()) else None
+                }
+              offsetOpt match {
+                case Some(offset) =>
+                  val extra = math.max(0, offset - leadingMargin)
+                  sb.append(getIndentation((extra >> 1) << 1))
+                  sb.append(CharBuffer.wrap(x, offset, x.length))
+                case _ =>
+                  sb.append(x)
+              }
             }
             appendBreak()
           }
