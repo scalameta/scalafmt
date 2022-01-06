@@ -1001,6 +1001,363 @@ object a {
 
   /** [[ref]]!.. {{{foo}}}??? */
 }
+<<< #1887 9 Asterisk: list with embedded elements
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 30
+===
+object a {
+  /** 1. foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *      - foo1
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *        - foo2
+   *   {{{
+   *         embedded code
+   *   }}}
+   *           ```
+   *         code foo2
+   *           ```
+   *        ```
+   *         code foo1
+   *        ```
+   *      ```
+   *         code foo
+   *      ```
+   * 1. bar
+   */
+}
+>>>
+object a {
+
+  /**
+   *   1. foo
+   * {{{
+   *         embedded code
+   * }}}
+   *   - foo1
+   * | hdr1 | hdr22 |
+   * |:-----|------:|
+   * | r1 1 |  r1 2 |
+   * foo2
+   * {{{
+   *         embedded code
+   * }}}
+   * ``` code foo2 ``` ```
+   * code foo1 ``` ``` code
+   * foo ```
+   *   1. bar
+   */
+}
+<<< #1887 9 SpaceAsterisk: list with embedded elements
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+object a {
+  /** 1. foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *      - foo1
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *        - foo2
+   *   {{{
+   *         embedded code
+   *   }}}
+   *           ```
+   *         code foo2
+   *           ```
+   *        ```
+   *         code foo1
+   *        ```
+   *      ```
+   *         code foo
+   *      ```
+   * 1. bar
+   */
+}
+>>>
+object a {
+
+  /**   1. foo
+    * {{{
+    *         embedded code
+    * }}}
+    *   - foo1
+    * | hdr1 | hdr22 |
+    * |:-----|------:|
+    * | r1 1 |  r1 2 |
+    * foo2
+    * {{{
+    *         embedded code
+    * }}}
+    * ``` code foo2 ``` ```
+    * code foo1 ``` ``` code
+    * foo ```
+    *   1. bar
+    */
+}
+<<< #1887 9 AsteriskSpace: list with embedded elements
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+object a {
+  /** 1. foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *      - foo1
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *        - foo2
+   *   {{{
+   *         embedded code
+   *   }}}
+   *           ```
+   *         code foo2
+   *           ```
+   *        ```
+   *         code foo1
+   *        ```
+   *      ```
+   *         code foo
+   *      ```
+   * 1. bar
+   */
+}
+>>>
+object a {
+
+  /**
+   *    1. foo
+   *  {{{
+   *          embedded code
+   *  }}}
+   *    - foo1
+   *  | hdr1 | hdr22 |
+   *  |:-----|------:|
+   *  | r1 1 |  r1 2 |
+   *  foo2
+   *  {{{
+   *          embedded code
+   *  }}}
+   *  ``` code foo2 ``` ```
+   *  code foo1 ``` ``` code
+   *  foo ```
+   *    1. bar
+   */
+}
+<<< #1887 10 Asterisk: tags with embedded elements
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 30
+===
+object a {
+  /** @param foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *   {{{
+   *         embedded code
+   *   }}}
+   *      ```
+   *         code foo5
+   *      ```
+   *     ```
+   *         code foo4
+   *     ```
+   *    ```
+   *         code foo3
+   *    ```
+   *   ```
+   *         code foo2
+   *   ```
+   *  ```
+   *         code foo1
+   *  ```
+   * ```
+   *         code foo0
+   * ```
+   * foo
+   * @inheritdoc
+   */
+}
+>>>
+Idempotency violated
+object a {
+
+  /**
+   * @param foo
+   * {{{
+   *         embedded code
+   * }}}
+   * | hdr1 | hdr22 |
+   * |:-----|------:|
+   * | r1 1 |  r1 2 |
+   * {{{
+   *         embedded code
+   * }}}
+   * ```code foo5 ``` ```
+   * code foo4 ``` ``` code
+   * foo3 ```
+   * ```
+   * code foo2
+   * ```
+   * ```
+   * code foo1
+   * ```
+   * ```
+   * code foo0
+   * ``` foo
+   * @inheritdoc
+   */
+}
+<<< #1887 10 SpaceAsterisk: tags with embedded elements
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+object a {
+  /** @param foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *   {{{
+   *         embedded code
+   *   }}}
+   *      ```
+   *         code foo5
+   *      ```
+   *     ```
+   *         code foo4
+   *     ```
+   *    ```
+   *         code foo3
+   *    ```
+   *   ```
+   *         code foo2
+   *   ```
+   *  ```
+   *         code foo1
+   *  ```
+   * ```
+   *         code foo0
+   * ```
+   * foo
+   * @inheritdoc
+   */
+}
+>>>
+Idempotency violated
+object a {
+
+  /** @param foo
+    * {{{
+    *         embedded code
+    * }}}
+    * | hdr1 | hdr22 |
+    * |:-----|------:|
+    * | r1 1 |  r1 2 |
+    * {{{
+    *         embedded code
+    * }}}
+    * ```code foo5 ``` ```
+    * code foo4 ``` ``` code
+    * foo3 ```
+    * ```
+    * code foo2
+    * ```
+    * ```
+    * code foo1
+    * ```
+    * ```
+    * code foo0
+    * ``` foo
+    * @inheritdoc
+    */
+}
+<<< #1887 10 AsteriskSpace: tags with embedded elements
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+object a {
+  /** @param foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *   {{{
+   *         embedded code
+   *   }}}
+   *      ```
+   *         code foo5
+   *      ```
+   *     ```
+   *         code foo4
+   *     ```
+   *    ```
+   *         code foo3
+   *    ```
+   *   ```
+   *         code foo2
+   *   ```
+   *  ```
+   *         code foo1
+   *  ```
+   * ```
+   *         code foo0
+   * ```
+   * foo
+   * @inheritdoc
+   */
+}
+>>>
+Idempotency violated
+object a {
+
+  /** @param foo
+   *  {{{
+   *          embedded code
+   *  }}}
+   *  | hdr1 | hdr22 |
+   *  |:-----|------:|
+   *  | r1 1 |  r1 2 |
+   *  {{{
+   *          embedded code
+   *  }}}
+   *  ```code foo5 ``` ```
+   *  code foo4 ``` ``` code
+   *  foo3 ```
+   *  ```
+   *  code foo2
+   *  ```
+   *  ```
+   *  code foo1
+   *  ```
+   *  ```
+   *  code foo0
+   *  ``` foo
+   *  @inheritdoc
+   */
+}
 <<< keep inner asterisks, Asterisk
 docstrings.style = Asterisk
 ===
