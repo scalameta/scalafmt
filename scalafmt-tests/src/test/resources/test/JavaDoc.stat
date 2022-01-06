@@ -2185,10 +2185,10 @@ object a {
    * )
    * ```
    * ```
-   * libraryDependencies ++= Seq(
-   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *   "io.get-coursier" % "interface"  % "0.0.17"
-   * )
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
    * ```
    * ```
    *   libraryDependencies ++= Seq(
@@ -2197,10 +2197,10 @@ object a {
    *   )
    * ```
    * ```
-   * libraryDependencies ++= Seq(
-   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *   "io.get-coursier" % "interface"  % "0.0.17"
-   * )
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
    * ```
    * ```scala
    * libraryDependencies ++= Seq(
@@ -2418,10 +2418,10 @@ object a {
     * )
     * ```
     * ```
-    * libraryDependencies ++= Seq(
-    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
-    *   "io.get-coursier" % "interface"  % "0.0.17"
-    * )
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
     * ```
     * ```
     *   libraryDependencies ++= Seq(
@@ -2430,10 +2430,10 @@ object a {
     *   )
     * ```
     * ```
-    * libraryDependencies ++= Seq(
-    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
-    *   "io.get-coursier" % "interface"  % "0.0.17"
-    * )
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
     * ```
     * ```scala
     * libraryDependencies ++= Seq(
@@ -2643,17 +2643,18 @@ object a {
 >>>
 object a {
 
-  /** ```
+  /**
+   *  ```
    *  libraryDependencies ++= Seq(
    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
    *    "io.get-coursier" % "interface"  % "0.0.17"
    *  )
    *  ```
    *  ```
-   *  libraryDependencies ++= Seq(
-   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *    "io.get-coursier" % "interface"  % "0.0.17"
-   *  )
+   *   libraryDependencies ++= Seq(
+   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *     "io.get-coursier" % "interface"  % "0.0.17"
+   *   )
    *  ```
    *  ```
    *    libraryDependencies ++= Seq(
@@ -2662,10 +2663,10 @@ object a {
    *    )
    *  ```
    *  ```
-   *  libraryDependencies ++= Seq(
-   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *    "io.get-coursier" % "interface"  % "0.0.17"
-   *  )
+   *   libraryDependencies ++= Seq(
+   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *     "io.get-coursier" % "interface"  % "0.0.17"
+   *   )
    *  ```
    *  ```scala
    *  libraryDependencies ++= Seq(
