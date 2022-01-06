@@ -865,8 +865,7 @@ class FormatWriter(formatOps: FormatOps) {
             case t: Scaladoc.CodeBlock =>
               sb.append("{{{")
               val nested = t.code.headOption.exists(_.endsWith("// scala"))
-              if (!(nested && formatScalaCodeBlock(t.code)))
-                formatCodeBlock(t.code, false)
+              formatCodeBlock(nested, t.code, isRelative = false)
               sb.append(margin).append("}}}")
               appendBreak()
             case t: Scaladoc.MdCodeBlock =>
@@ -876,8 +875,7 @@ class FormatWriter(formatOps: FormatOps) {
                 t.info.tail.foreach(x => sb.append(' ').append(x))
               }
               val nested = t.info.headOption.contains("scala")
-              if (!(nested && formatScalaCodeBlock(t.code)))
-                formatCodeBlock(t.code, true)
+              formatCodeBlock(nested, t.code, isRelative = true)
               sb.append(margin).append(t.fence)
               appendBreak()
             case t: Scaladoc.Heading =>
@@ -924,23 +922,32 @@ class FormatWriter(formatOps: FormatOps) {
         }
 
         private def formatCodeBlock(
+            nested: Boolean,
+            code: Seq[String],
+            isRelative: Boolean
+        ): Unit = {
+          val ok = nested && formatScalaCodeBlock(code)
+          if (!ok) formatCodeBlock(code, isRelative)
+        }
+
+        private def formatCodeBlock(
             code: Seq[String],
             isRelative: Boolean
         ): Unit = {
           appendBreak()
           code.foreach { x =>
             if (x.nonEmpty) {
+              sb.append(margin)
               val matcher = docstringLeadingSpace.matcher(x)
               if (matcher.lookingAt()) {
                 val offset = matcher.end()
                 val extra =
                   if (isRelative) offset
                   else math.max(0, offset - leadingMargin)
-                val codeIndent = 1 + leadingMargin + ((extra >> 1) << 1)
-                sb.append(getIndentation(codeIndent))
+                sb.append(getIndentation((extra >> 1) << 1))
                 sb.append(CharBuffer.wrap(x, offset, x.length))
               } else
-                sb.append(margin).append(x)
+                sb.append(x)
             }
             appendBreak()
           }
@@ -960,7 +967,7 @@ class FormatWriter(formatOps: FormatOps) {
           )
           Scalafmt.format(code.mkString("\n"), codeStyle) match {
             case Formatted.Success(formattedCode) =>
-              formatCodeBlock(formattedCode.split('\n'), true)
+              formatCodeBlock(formattedCode.split('\n'), isRelative = true)
               true
             case _ => false
           }
