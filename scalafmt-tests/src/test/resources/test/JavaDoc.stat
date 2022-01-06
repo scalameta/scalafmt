@@ -1047,7 +1047,7 @@ object a {
    * {{{
    *         embedded code
    * }}}
-   * ``` code foo2 ``` ```
+   * \``` code foo2 ``` ```
    * code foo1 ``` ``` code
    * foo ```
    *   1. bar
@@ -1098,7 +1098,7 @@ object a {
     * {{{
     *         embedded code
     * }}}
-    * ``` code foo2 ``` ```
+    * \``` code foo2 ``` ```
     * code foo1 ``` ``` code
     * foo ```
     *   1. bar
@@ -1150,7 +1150,7 @@ object a {
    *  {{{
    *          embedded code
    *  }}}
-   *  ``` code foo2 ``` ```
+   *  \``` code foo2 ``` ```
    *  code foo1 ``` ``` code
    *  foo ```
    *    1. bar
@@ -1195,7 +1195,6 @@ object a {
    */
 }
 >>>
-Idempotency violated
 object a {
 
   /**
@@ -1209,18 +1208,19 @@ object a {
    * {{{
    *         embedded code
    * }}}
-   * ```code foo5 ``` ```
+   * \``` code foo5 ``` ```
    * code foo4 ``` ``` code
    * foo3 ```
    * ```
-   * code foo2
+   *       code foo2
    * ```
    * ```
-   * code foo1
+   *        code foo1
    * ```
    * ```
-   * code foo0
-   * ``` foo
+   *         code foo0
+   * ```
+   * foo
    * @inheritdoc
    */
 }
@@ -1263,7 +1263,6 @@ object a {
    */
 }
 >>>
-Idempotency violated
 object a {
 
   /** @param foo
@@ -1276,18 +1275,19 @@ object a {
     * {{{
     *         embedded code
     * }}}
-    * ```code foo5 ``` ```
+    * \``` code foo5 ``` ```
     * code foo4 ``` ``` code
     * foo3 ```
     * ```
-    * code foo2
+    *       code foo2
     * ```
     * ```
-    * code foo1
+    *        code foo1
     * ```
     * ```
-    * code foo0
-    * ``` foo
+    *         code foo0
+    * ```
+    * foo
     * @inheritdoc
     */
 }
@@ -1330,7 +1330,6 @@ object a {
    */
 }
 >>>
-Idempotency violated
 object a {
 
   /** @param foo
@@ -1343,18 +1342,19 @@ object a {
    *  {{{
    *          embedded code
    *  }}}
-   *  ```code foo5 ``` ```
+   *  \``` code foo5 ``` ```
    *  code foo4 ``` ``` code
    *  foo3 ```
    *  ```
-   *  code foo2
+   *        code foo2
    *  ```
    *  ```
-   *  code foo1
+   *         code foo1
    *  ```
    *  ```
-   *  code foo0
-   *  ``` foo
+   *          code foo0
+   *  ```
+   *  foo
    *  @inheritdoc
    */
 }

@@ -661,7 +661,8 @@ class FormatWriter(formatOps: FormatOps) {
 
         protected class WordFormatter(
             appendLineBreak: () => Unit,
-            extraMargin: String = " "
+            extraMargin: String = " ",
+            prefixFirstWord: String => String = _ => ""
         ) {
           final def apply(
               iter: WordIter,
@@ -687,9 +688,11 @@ class FormatWriter(formatOps: FormatOps) {
             val word = iter.next()
             var lines = linesSoFar
             var nextLineBeg = lineBeg
+            def firstWordPrefix = prefixFirstWord(word)
             def nextLineLength = 1 + word.length + sb.length - lineBeg
             if (atLineBeg) {
               if (needSpaceIfAtLineBeg) sb.append(' ')
+              sb.append(firstWordPrefix)
             } else if (nextLineLength <= maxLength) {
               sb.append(' ')
             } else {
@@ -697,6 +700,7 @@ class FormatWriter(formatOps: FormatOps) {
               lines += 1
               nextLineBeg = sb.length
               sb.append(extraMargin)
+              sb.append(firstWordPrefix)
             }
             sb.append(word)
             iterate(iter, nextLineBeg, lines)
@@ -963,7 +967,19 @@ class FormatWriter(formatOps: FormatOps) {
             text: Scaladoc.Text,
             termIndent: String
         ): Unit = {
-          val wf = new WordFormatter(appendBreak, termIndent)
+          def prefixFirstWord(word: String): String = {
+            def likeNonText = {
+              word.startsWith("```") || word.startsWith("~~~") || // code fence
+              word.startsWith("@") || // tag
+              word.startsWith("=") || // heading
+              word.startsWith("|") || word.startsWith("+-") || // table
+              word == "-" || // list, this and next
+              word.length == 2 && word(1) == '.' && "1aiI".contains(word(0))
+            }
+            if (likeNonText) "\\" else "" // escape if parser can be confused
+          }
+
+          val wf = new WordFormatter(appendBreak, termIndent, prefixFirstWord)
           val words = text.part.iterator.map(_.syntax)
           wf(words, termIndent.length, true, false)
           appendBreak()
