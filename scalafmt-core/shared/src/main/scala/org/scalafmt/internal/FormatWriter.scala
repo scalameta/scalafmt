@@ -1028,10 +1028,10 @@ class FormatWriter(formatOps: FormatOps) {
             else {
               if (sb.length != sbLen) {
                 if (prevWasBlank) appendBreak()
-                appendBreakWithMargin()
+                appendBreak().append(margin)
               } else {
                 if (style.docstrings.skipFirstLineIf(prevWasBlank))
-                  appendBreakWithMargin()
+                  appendBreak().append(margin)
                 else sb.append(' ')
               }
               val extraMargin =
@@ -1047,8 +1047,6 @@ class FormatWriter(formatOps: FormatOps) {
 
         @inline private def appendBreak() =
           sb.append('\n').append(spaces).append('*')
-        @inline private def appendBreakWithMargin() =
-          appendBreak().append(margin)
       }
 
     }
