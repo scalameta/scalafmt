@@ -688,6 +688,12 @@ class FormatWriter(formatOps: FormatOps) {
             sb.append(word)
             iterWords(iter, appendLineBreak, nextLineLength, extraMargin, lines)
           } else linesSoFar
+
+        protected def terminateMlc(begpos: Int, lines: Int): Unit = {
+          if (lines == 0 && style.comments.wrapSingleLineMlcAsSlc)
+            sb.setCharAt(begpos - 1, '/')
+          else sb.append(" */")
+        }
       }
 
       private class FormatSlc(text: String)(implicit sb: StringBuilder)
@@ -725,10 +731,7 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append(if (useSlc) "//" else "/*")
           val curlen = sb.length
           val lines = iterWords(wordIter, appendLineBreak, getFirstLineLength)
-          if (!useSlc)
-            if (lines == 0 && style.comments.wrapSingleLineMlcAsSlc)
-              sb.setCharAt(curlen - 1, '/')
-            else sb.append(" */")
+          if (!useSlc) terminateMlc(curlen, lines)
         }
       }
 
@@ -779,9 +782,7 @@ class FormatWriter(formatOps: FormatOps) {
             sb.append("/*")
             val curlen = sb.length
             val lines = iterSections(sectionIter, getFirstLineLength)
-            if (lines == 0 && style.comments.wrapSingleLineMlcAsSlc)
-              sb.setCharAt(curlen - 1, '/')
-            else sb.append(" */")
+            terminateMlc(curlen, lines)
           } else {
             val trimmed = removeTrailingWhiteSpace(text)
             sb.append(leadingAsteriskSpace.matcher(trimmed).replaceAll(spaces))
