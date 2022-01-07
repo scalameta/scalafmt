@@ -1480,7 +1480,7 @@ object a:
    do
       foo
 <<< if break before then if multiline cond, !dangle
-maxColumn = 12
+maxColumn = 15
 indent.callSite = 4
 indent.ctrlSite = 6
 danglingParentheses.ctrlSite = false
@@ -1499,7 +1499,7 @@ object a:
 <<< while break before do if multiline cond, !dangle
 maxColumn = 12
 indent.callSite = 4
-indent.ctrlSite = 6
+indent.ctrlSite = 5
 danglingParentheses.ctrlSite = false
 ===
 object a:
@@ -1510,8 +1510,8 @@ object a:
 >>>
 object a:
    while a &&
-         b &&
-         c do
+        b &&
+        c do
       foo
 <<< #2495 1
 rewrite.scala3.removeOptionalBraces = yes
@@ -1931,8 +1931,7 @@ danglingParentheses.ctrlSite = false
 ===
 if // comm
     val cond1 = true
-    (a1 && a2) == cond1
-  then
+    (a1 && a2) == cond1 then
     val exitCode = 1
     exitCode
     
@@ -1946,8 +1945,7 @@ if // comm
 danglingParentheses.ctrlSite = false
 ===
 if
-    (a1 && a2) == cond1
-  then
+    (a1 && a2) == cond1 then
     val exitCode = 1
     exitCode
     
@@ -1960,8 +1958,7 @@ danglingParentheses.ctrlSite = false
 ===
 while // comm
     val cond1 = true
-    (a1 && a2) == cond1
-  do
+    (a1 && a2) == cond1 do
     val exitCode = 1
     exitCode
     
@@ -1975,8 +1972,7 @@ while // comm
 danglingParentheses.ctrlSite = false
 ===
 while
-    (a1 && a2) == cond1
-  do
+    (a1 && a2) == cond1 do
     val exitCode = 1
     exitCode
     
@@ -3067,3 +3063,193 @@ object a {
     !Yield(3)
   }
 }
+<<< #3033 if-then danglingParentheses
+danglingParentheses.ctrlSite = true
+===
+class C:
+  if true
+  then 3
+  else 4
+  if true
+  then
+    3
+  else 4
+  if
+    true
+  then
+    3
+  else 4
+>>>
+class C:
+   if true then 3
+   else 4
+   if true then
+      3
+   else 4
+   if true then
+      3
+   else 4
+<<< #3033 if-then !danglingParentheses
+danglingParentheses.ctrlSite = false
+===
+class C:
+  if true
+  then 3
+  else 4
+  if true
+  then
+    3
+  else 4
+  if
+    true
+  then
+    3
+  else 4
+>>>
+class C:
+   if true then 3
+   else 4
+   if true then
+      3
+   else 4
+   if true then
+      3
+   else 4
+<<< #3034 for-yield danglingParentheses
+danglingParentheses.ctrlSite = true
+===
+object a:
+  for x <- range
+  yield matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range
+  yield
+    matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   for x <- range
+   yield matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range
+   yield matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 for-yield !danglingParentheses
+danglingParentheses.ctrlSite = false
+===
+object a:
+  for x <- range
+  yield matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range
+  yield
+    matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   for x <- range
+   yield matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range
+   yield matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 for-do danglingParentheses
+danglingParentheses.ctrlSite = true
+===
+object a:
+  for x <- range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range do
+    matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range
+  do
+   matrix(x)(0) += matrix(x - 1)(0)
+  for
+   x <- range
+  do
+   matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   for x <- range do matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for
+      x <- range
+   do
+      matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 for-do !danglingParentheses
+danglingParentheses.ctrlSite = false
+===
+object a:
+  for x <- range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range do
+    matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range
+  do
+   matrix(x)(0) += matrix(x - 1)(0)
+  for
+   x <- range
+  do
+   matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   for x <- range do matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for
+      x <- range
+   do
+      matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 while-do danglingParentheses
+danglingParentheses.ctrlSite = true
+===
+object a:
+  while x < range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  while x < range do
+    matrix(x)(0) += matrix(x - 1)(0)
+  while
+    x < range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  while x < range
+  do
+    matrix(x)(0) += matrix(x - 1)(0)
+  while
+    x < range
+  do
+    matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   while x < range do matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 while-do !danglingParentheses
+danglingParentheses.ctrlSite = false
+===
+object a:
+  while x < range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  while x < range do
+    matrix(x)(0) += matrix(x - 1)(0)
+  while
+    x < range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  while x < range
+  do
+    matrix(x)(0) += matrix(x - 1)(0)
+  while
+    x < range
+  do
+    matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   while x < range do matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)

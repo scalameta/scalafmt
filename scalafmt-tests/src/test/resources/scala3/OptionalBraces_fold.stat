@@ -1388,24 +1388,24 @@ object a:
       b && c
    do foo
 <<< if break before then if multiline cond, !dangle
-maxColumn = 12
+maxColumn = 15
 indent.callSite = 4
 indent.ctrlSite = 6
 danglingParentheses.ctrlSite = false
 ===
 object a:
   if a &&
-     b &&
+     bb &&
      c then
       foo
 >>>
 object a:
    if a &&
-         b &&
+         bb &&
          c then
       foo
 <<< while break before do if multiline cond, !dangle
-maxColumn = 12
+maxColumn = 13
 indent.callSite = 4
 indent.ctrlSite = 6
 danglingParentheses.ctrlSite = false
@@ -2873,3 +2873,261 @@ object a {
 object a {
   while ({ !Yield(2); false }) do { !Yield(3) }
 }
+<<< #3033 if-then danglingParentheses
+maxColumn = 15
+danglingParentheses.ctrlSite = true
+===
+class C:
+  if true
+  then 3
+  else 4
+  if true
+  then
+    3
+  else 4
+  if
+    true
+  then
+    3
+  else 4
+>>>
+class C:
+   if true then
+      3
+   else 4
+   if true then
+      3
+   else 4
+   if true then
+      3
+   else 4
+<<< #3033 if-then !danglingParentheses
+maxColumn = 15
+danglingParentheses.ctrlSite = false
+===
+class C:
+  if true
+  then 3
+  else 4
+  if true
+  then
+    3
+  else 4
+  if
+    true
+  then
+    3
+  else 4
+>>>
+class C:
+   if true then
+      3
+   else 4
+   if true then
+      3
+   else 4
+   if true then
+      3
+   else 4
+<<< #3033 if-then short danglingParentheses
+maxColumn = 13
+danglingParentheses.ctrlSite = true
+===
+class C:
+  if true
+  then 3
+  else 4
+  if true
+  then
+    3
+  else 4
+  if
+    true
+  then
+    3
+  else 4
+>>>
+class C:
+   if true then
+      3
+   else 4
+   if true then
+      3
+   else 4
+   if true then
+      3
+   else 4
+<<< #3033 if-then short !danglingParentheses
+maxColumn = 13
+danglingParentheses.ctrlSite = false
+===
+class C:
+  if true
+  then 3
+  else 4
+  if true
+  then
+    3
+  else 4
+  if
+    true
+  then
+    3
+  else 4
+>>>
+class C:
+   if true then
+      3
+   else 4
+   if true then
+      3
+   else 4
+   if true then
+      3
+   else 4
+<<< #3034 for-yield danglingParentheses
+maxColumn = 50
+danglingParentheses.ctrlSite = true
+===
+object a:
+  for x <- range
+  yield matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range
+  yield
+    matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   for x <- range
+   yield matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range
+   yield matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 for-yield !danglingParentheses
+maxColumn = 50
+danglingParentheses.ctrlSite = false
+===
+object a:
+  for x <- range
+  yield matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range
+  yield
+    matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   for x <- range
+   yield matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range
+   yield matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 for-do danglingParentheses
+maxColumn = 50
+danglingParentheses.ctrlSite = true
+===
+object a:
+  for x <- range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range do
+    matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range
+  do
+   matrix(x)(0) += matrix(x - 1)(0)
+  for
+   x <- range
+  do
+   matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 for-do !danglingParentheses
+maxColumn = 50
+danglingParentheses.ctrlSite = false
+===
+object a:
+  for x <- range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range do
+    matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range
+  do
+   matrix(x)(0) += matrix(x - 1)(0)
+  for
+   x <- range
+  do
+   matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 while-do danglingParentheses
+maxColumn = 50
+danglingParentheses.ctrlSite = true
+===
+object a:
+  while x < range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  while x < range do
+    matrix(x)(0) += matrix(x - 1)(0)
+  while
+    x < range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  while x < range
+  do
+    matrix(x)(0) += matrix(x - 1)(0)
+  while
+    x < range
+  do
+    matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 while-do !danglingParentheses
+maxColumn = 50
+danglingParentheses.ctrlSite = false
+===
+object a:
+  while x < range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  while x < range do
+    matrix(x)(0) += matrix(x - 1)(0)
+  while
+    x < range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  while x < range
+  do
+    matrix(x)(0) += matrix(x - 1)(0)
+  while
+    x < range
+  do
+    matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
