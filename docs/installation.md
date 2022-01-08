@@ -113,14 +113,15 @@ editors in their respective parts of the
 ## sbt
 
 NB: keep in mind that versions of `scalafmt-core` and `sbt-scalafmt` are released
-independently and don't have to align. The version of `scalafmt-core` is defined
+independently, their versions do not align. The version of `scalafmt-core` is defined
 in the `.scalafmt.conf` configuration file and downloaded dynamically.
 
 ```scala
 // In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.x.
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.3") // "2.4.3" is just sbt plugin version
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % SBT_PLUGIN_VERSION)
 ```
 
+Latest published version of the sbt plugin:
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt)
 
 To configure the scalafmt version add the following line into `.scalafmt.conf`:
