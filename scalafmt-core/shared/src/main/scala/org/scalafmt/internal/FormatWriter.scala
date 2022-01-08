@@ -645,7 +645,7 @@ class FormatWriter(formatOps: FormatOps) {
         protected final val maxLength = maxColumn - indent - extraIndent - 1
 
         protected final def getFirstLineLength =
-          if (breakBefore) 0
+          if (breakBefore) leadingMargin
           else
             prevState.prev.column - prevState.prev.indentation +
               prevState.split.length
@@ -658,36 +658,50 @@ class FormatWriter(formatOps: FormatOps) {
           }
 
         protected final type WordIter = Iterator[String]
-        @tailrec
-        protected final def iterWords(
-            iter: WordIter,
+
+        protected class WordFormatter(
             appendLineBreak: () => Unit,
-            lineLength: Int = 0,
-            extraMargin: String = " ",
-            linesSoFar: Int = 0
-        ): Int =
-          if (iter.hasNext) {
+            extraMargin: String = " "
+        ) {
+          final def apply(
+              iter: WordIter,
+              lineLength: Int,
+              atLineBeg: Boolean,
+              needSpaceIfAtLineBeg: Boolean = true
+          ): Int = iterate(
+            iter,
+            sb.length - lineLength,
+            0,
+            atLineBeg,
+            needSpaceIfAtLineBeg
+          )
+
+          @tailrec
+          private def iterate(
+              iter: WordIter,
+              lineBeg: Int,
+              linesSoFar: Int,
+              atLineBeg: Boolean = false,
+              needSpaceIfAtLineBeg: Boolean = false
+          ): Int = if (iter.hasNext) {
             val word = iter.next()
-            val length = word.length
-            val maybeNextLineLength = 1 + length +
-              (if (lineLength == 0) leadingMargin else lineLength)
             var lines = linesSoFar
-            val nextLineLength =
-              if (
-                lineLength < extraMargin.length ||
-                maybeNextLineLength <= maxLength
-              ) {
-                sb.append(' ')
-                maybeNextLineLength
-              } else {
-                appendLineBreak()
-                lines += 1
-                sb.append(extraMargin)
-                length + extraMargin.length
-              }
+            var nextLineBeg = lineBeg
+            def nextLineLength = 1 + word.length + sb.length - lineBeg
+            if (atLineBeg) {
+              if (needSpaceIfAtLineBeg) sb.append(' ')
+            } else if (nextLineLength <= maxLength) {
+              sb.append(' ')
+            } else {
+              appendLineBreak()
+              lines += 1
+              nextLineBeg = sb.length
+              sb.append(extraMargin)
+            }
             sb.append(word)
-            iterWords(iter, appendLineBreak, nextLineLength, extraMargin, lines)
+            iterate(iter, nextLineBeg, lines)
           } else linesSoFar
+        }
 
         protected def terminateMlc(begpos: Int, lines: Int): Unit = {
           if (lines == 0 && style.comments.wrapSingleLineMlcAsSlc)
@@ -738,7 +752,8 @@ class FormatWriter(formatOps: FormatOps) {
           val wordIter = splitAsIterator(slcDelim)(contents)
           sb.append(if (useSlc) "//" else "/*")
           val curlen = sb.length
-          val lines = iterWords(wordIter, appendLineBreak, getFirstLineLength)
+          val wf = new WordFormatter(appendLineBreak)
+          val lines = wf(wordIter, getFirstLineLength, false)
           if (!useSlc) terminateMlc(curlen, lines)
         }
       }
@@ -789,7 +804,7 @@ class FormatWriter(formatOps: FormatOps) {
             }
             sb.append("/*")
             val curlen = sb.length
-            val lines = iterSections(sectionIter, getFirstLineLength)
+            val lines = iterSections(sectionIter)
             terminateMlc(curlen, lines)
           } else {
             val trimmed = removeTrailingWhiteSpace(text)
@@ -801,23 +816,30 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append('\n').append(spaces).append('*')
         }
 
+        private val wf = new WordFormatter(appendLineBreak)
+
         private type ParaIter = Iterator[WordIter]
-        private def iterParagraphs(iter: ParaIter, firstLineLen: Int): Int = {
-          var lines = iterWords(iter.next(), appendLineBreak, firstLineLen)
+        private def iterParagraphs(
+            iter: ParaIter,
+            firstLineLen: Int,
+            atLineBeg: Boolean
+        ): Int = {
+          var lines = wf(iter.next(), firstLineLen, atLineBeg)
           while (iter.hasNext) {
             appendLineBreak()
-            lines += 1 + iterWords(iter.next(), appendLineBreak)
+            lines += 1 + wf(iter.next(), leadingMargin, true)
           }
           lines
         }
 
         private type SectIter = Iterator[ParaIter]
-        private def iterSections(iter: SectIter, firstLineLen: Int): Int = {
-          var lines = iterParagraphs(iter.next(), firstLineLen)
+        private def iterSections(iter: SectIter): Int = {
+          var lines =
+            iterParagraphs(iter.next(), getFirstLineLength, breakBefore)
           while (iter.hasNext) {
             appendLineBreak()
             appendLineBreak()
-            lines += 2 + iterParagraphs(iter.next(), 0)
+            lines += 2 + iterParagraphs(iter.next(), leadingMargin, true)
           }
           lines
         }
@@ -941,10 +963,9 @@ class FormatWriter(formatOps: FormatOps) {
             text: Scaladoc.Text,
             termIndent: String
         ): Unit = {
-          // remove space as iterWords adds it
-          sb.setLength(sb.length - 1)
+          val wf = new WordFormatter(appendBreak, termIndent)
           val words = text.part.iterator.map(_.syntax)
-          iterWords(words, appendBreak, termIndent.length - 1, termIndent)
+          wf(words, termIndent.length, true, false)
           appendBreak()
         }
 
