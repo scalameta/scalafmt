@@ -848,7 +848,7 @@ class FormatWriter(formatOps: FormatOps) {
           val paras = doc.para.iterator
           paras.foreach { para =>
             para.term.foreach {
-              formatTerm(_, sbNonEmpty = sb.length != sbLen)
+              formatTerm(_, margin, sbNonEmpty = sb.length != sbLen)
             }
             if (paras.hasNext) appendBreak()
           }
@@ -858,15 +858,16 @@ class FormatWriter(formatOps: FormatOps) {
 
         private def formatTerm(
             term: Scaladoc.Term,
+            termIndent: String,
             sbNonEmpty: Boolean
         ): Unit = {
-          if (sbNonEmpty) sb.append(margin)
+          if (sbNonEmpty) sb.append(termIndent)
           term match {
             case t: Scaladoc.CodeBlock =>
               sb.append("{{{")
               val nested = t.code.headOption.exists(_.endsWith("// scala"))
-              formatCodeBlock(nested, t.code, isRelative = false)
-              sb.append(margin).append("}}}")
+              formatCodeBlock(nested, t.code, margin, isRelative = false)
+              sb.append(termIndent).append("}}}")
               appendBreak()
             case t: Scaladoc.MdCodeBlock =>
               sb.append(t.fence)
@@ -875,8 +876,8 @@ class FormatWriter(formatOps: FormatOps) {
                 t.info.tail.foreach(x => sb.append(' ').append(x))
               }
               val nested = t.info.headOption.contains("scala")
-              formatCodeBlock(nested, t.code, isRelative = true)
-              sb.append(margin).append(t.fence)
+              formatCodeBlock(nested, t.code, termIndent, isRelative = true)
+              sb.append(termIndent).append(t.fence)
               appendBreak()
             case t: Scaladoc.Heading =>
               val delimiter = "=" * t.level
@@ -893,7 +894,7 @@ class FormatWriter(formatOps: FormatOps) {
                   appendBreak()
                 case Some(x: Scaladoc.Text) =>
                   appendBreak()
-                  val tagMargin = getIndentation(2 + margin.length)
+                  val tagMargin = getIndentation(2 + termIndent.length)
                   sb.append(tagMargin)
                   formatTextAfterMargin(x, tagMargin)
                 case _ => appendBreak()
@@ -902,16 +903,20 @@ class FormatWriter(formatOps: FormatOps) {
               // outputs margin space and appends new line, too
               // therefore, let's start by "rewinding"
               if (sbNonEmpty || leadingMargin == 0) {
-                sb.setLength(sb.length - margin.length)
+                sb.setLength(sb.length - termIndent.length)
               } else {
                 // don't output on top line, lists are sensitive to margin
                 sb.setLength(sb.length - 1) // remove space
                 appendBreak()
               }
-              formatListBlock(getIndentation(margin.length + 2))(t)
+              val listIndent = // shift initial only by 2
+                if (termIndent ne margin) termIndent
+                else getIndentation(margin.length + 2)
+              formatListBlock(listIndent)(t)
             case t: Scaladoc.Text =>
-              formatTextAfterMargin(t, margin)
-            case t: Scaladoc.Table => formatTable(t)
+              formatTextAfterMargin(t, termIndent)
+            case t: Scaladoc.Table =>
+              formatTable(t, termIndent)
           }
         }
 
@@ -929,20 +934,22 @@ class FormatWriter(formatOps: FormatOps) {
         private def formatCodeBlock(
             nested: Boolean,
             code: Seq[String],
+            termIndent: String,
             isRelative: Boolean
         ): Unit = {
-          val ok = nested && formatScalaCodeBlock(code)
-          if (!ok) formatCodeBlock(code, isRelative)
+          val ok = nested && formatScalaCodeBlock(code, termIndent)
+          if (!ok) formatCodeBlock(code, termIndent, isRelative)
         }
 
         private def formatCodeBlock(
             code: Seq[String],
+            termIndent: String,
             isRelative: Boolean
         ): Unit = {
           appendBreak()
           code.foreach { x =>
             if (x.nonEmpty) {
-              sb.append(margin)
+              sb.append(termIndent)
               val matcher = docstringLeadingSpace.matcher(x)
               if (matcher.lookingAt()) {
                 val offset = matcher.end()
@@ -958,7 +965,10 @@ class FormatWriter(formatOps: FormatOps) {
           }
         }
 
-        private def formatScalaCodeBlock(code: Seq[String]): Boolean = {
+        private def formatScalaCodeBlock(
+            code: Seq[String],
+            termIndent: String
+        ): Boolean = {
           val codeStyle = style.copy(
             runner = style.runner.copy(
               debug = false,
@@ -968,11 +978,12 @@ class FormatWriter(formatOps: FormatOps) {
             ),
             // let's not wrap docstrings, to avoid recursion
             docstrings = style.docstrings.copy(wrap = Docstrings.Wrap.no),
-            maxColumn = style.maxColumn - spaces.length - margin.length - 1
+            maxColumn = style.maxColumn - spaces.length - termIndent.length - 1
           )
           Scalafmt.format(code.mkString("\n"), codeStyle) match {
-            case Formatted.Success(formattedCode) =>
-              formatCodeBlock(formattedCode.split('\n'), isRelative = true)
+            case Formatted.Success(res) =>
+              val formattedCode = res.split('\n')
+              formatCodeBlock(formattedCode, termIndent, isRelative = true)
               true
             case _ => false
           }
@@ -996,7 +1007,10 @@ class FormatWriter(formatOps: FormatOps) {
           item.nested.foreach(formatListBlock(itemIndent))
         }
 
-        private def formatTable(table: Scaladoc.Table): Unit = {
+        private def formatTable(
+            table: Scaladoc.Table,
+            termIndent: String
+        ): Unit = {
           val rows = table.row.view :+ table.header
           val align = table.align
           val maxCols = rows.map(_.col.length).max
@@ -1005,7 +1019,7 @@ class FormatWriter(formatOps: FormatOps) {
             rows.collect { case r if r.col.length > x => r.col(x).length }.max
           }
 
-          @inline def beforeAll: Unit = sb.append(margin)
+          @inline def beforeAll: Unit = sb.append(termIndent)
           @inline def beforeEach: Unit = sb.append('|')
           @inline def afterAll: Unit = { sb.append('|'); appendBreak() }
           @inline def getAlign(col: Int) =
