@@ -354,18 +354,10 @@ object ScalafmtConfig {
       if (newlines.sourceIgnored) {
         addIf(optIn.configStyleArguments && align.openParenCallSite && newlines.beforeOpenParenCallSite.isEmpty)
         addIf(optIn.configStyleArguments && align.openParenDefnSite && newlines.beforeOpenParenDefnSite.isEmpty)
-        newlines.beforeMultiline.foreach { x =>
-          addIf(
-            x.eq(Newlines.classic) || x.eq(Newlines.keep),
-            s"newlines.beforeMultiline=$x"
-          )
-        }
-        newlines.beforeMultilineDef.foreach { x =>
-          addIf(
-            x.eq(Newlines.classic) || x.eq(Newlines.keep),
-            s"newlines.beforeMultilineDef=$x"
-          )
-        }
+        def mustIgnoreSourceSplit(what: sourcecode.Text[Option[Newlines.SourceHints]]) =
+          what.value.foreach(x => addIfDirect(!x.ignoreSourceSplit, s"${what.source}=$x"))
+        mustIgnoreSourceSplit(newlines.beforeMultiline)
+        mustIgnoreSourceSplit(newlines.beforeMultilineDef)
         addIf(newlines.beforeTypeBounds eq Newlines.keep)
         addIf(binPack.parentConstructors eq BinPack.ParentCtors.keep)
         addIf(newlines.beforeOpenParenCallSite.exists(_.src eq Newlines.keep))
