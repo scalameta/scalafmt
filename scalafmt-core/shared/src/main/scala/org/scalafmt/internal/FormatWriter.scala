@@ -885,18 +885,19 @@ class FormatWriter(formatOps: FormatOps) {
             case t: Scaladoc.Tag =>
               sb.append(t.tag.tag)
               t.label.foreach(x => sb.append(' ').append(x.syntax))
-              t.desc.foreach { x =>
-                val words = x.part.iterator.map(_.syntax)
-                if (t.tag.tag == "@usecase")
+              t.desc match {
+                case Some(x: Scaladoc.Text) if t.tag.tag == "@usecase" =>
                   // scaladoc parser doesn't allow newlines in @usecase
+                  val words = x.part.iterator.map(_.syntax)
                   words.foreach(sb.append(' ').append(_))
-                else {
+                  appendBreak()
+                case Some(x: Scaladoc.Text) =>
+                  appendBreak()
                   val tagMargin = getIndentation(2 + margin.length)
-                  // use maxLength to force a newline
-                  iterWords(words, appendBreak, maxLength, tagMargin)
-                }
+                  sb.append(tagMargin)
+                  formatTextAfterMargin(x, tagMargin)
+                case _ => appendBreak()
               }
-              appendBreak()
             case t: Scaladoc.ListBlock =>
               // outputs margin space and appends new line, too
               // therefore, let's start by "rewinding"
@@ -909,15 +910,19 @@ class FormatWriter(formatOps: FormatOps) {
               }
               formatListBlock(getIndentation(margin.length + 2))(t)
             case t: Scaladoc.Text =>
-              formatTextAfterMargin(t.part.iterator.map(_.syntax))
+              formatTextAfterMargin(t, margin)
             case t: Scaladoc.Table => formatTable(t)
           }
         }
 
-        private def formatTextAfterMargin(words: WordIter): Unit = {
+        private def formatTextAfterMargin(
+            text: Scaladoc.Text,
+            termIndent: String
+        ): Unit = {
           // remove space as iterWords adds it
           sb.setLength(sb.length - 1)
-          iterWords(words, appendBreak, 0, margin)
+          val words = text.part.iterator.map(_.syntax)
+          iterWords(words, appendBreak, termIndent.length - 1, termIndent)
           appendBreak()
         }
 
@@ -979,7 +984,7 @@ class FormatWriter(formatOps: FormatOps) {
           val prefix = block.prefix
           val itemIndent = getIndentation(listIndent.length + prefix.length + 1)
           block.item.foreach { x =>
-            sb.append(listIndent).append(prefix)
+            sb.append(listIndent).append(prefix).append(' ')
             formatListTerm(itemIndent)(x)
           }
         }
@@ -987,9 +992,7 @@ class FormatWriter(formatOps: FormatOps) {
         private def formatListTerm(
             itemIndent: String
         )(item: Scaladoc.ListItem): Unit = {
-          val words = item.text.part.iterator.map(_.syntax)
-          iterWords(words, appendBreak, itemIndent.length - 1, itemIndent)
-          appendBreak()
+          formatTextAfterMargin(item.text, itemIndent)
           item.nested.foreach(formatListBlock(itemIndent))
         }
 
