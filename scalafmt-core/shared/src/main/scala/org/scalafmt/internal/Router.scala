@@ -1867,20 +1867,24 @@ class Router(formatOps: FormatOps) {
         val mlSplitOpt = OptionalBraces
           .indentAndBreakBeforeCtrl[T.KwThen](owner.cond, mlSplitBase)
         Seq(slb, mlSplitOpt.getOrElse(mlSplitBase))
-      case FormatToken(_: T.KwWhile, right, _) =>
+      case FormatToken(_: T.KwWhile | _: T.KwFor, right, _) =>
         def spaceMod = Space(style.spaces.isSpaceAfterKeyword(right))
         def splitBase = {
           val onlyNL = style.newlines.source.eq(Newlines.keep) && newlines != 0
           Split(if (onlyNL) Newline else spaceMod, 0)
         }
         val split = (formatToken.meta.leftOwner match {
+          // block expr case is handled in OptionalBraces.WhileImpl
           case t: Term.While =>
             OptionalBraces.indentAndBreakBeforeCtrl[T.KwDo](t.expr, splitBase)
+          // below, multi-enum cases are handled in OptionalBraces.ForImpl
+          case Term.For(List(enum), _) =>
+            OptionalBraces.indentAndBreakBeforeCtrl[T.KwDo](enum, splitBase)
+          case Term.ForYield(List(enum), _) =>
+            OptionalBraces.indentAndBreakBeforeCtrl[T.KwYield](enum, splitBase)
           case _ => None
         }).getOrElse(Split(spaceMod, 0))
         Seq(split)
-      case FormatToken(_: T.KwFor, right, _) =>
-        Seq(Split(Space(style.spaces.isSpaceAfterKeyword(right)), 0))
       case FormatToken(close: T.RightParen, right, _) if (leftOwner match {
             case _: Term.If => !nextNonComment(formatToken).right.is[T.KwThen]
             case _: Term.ForYield => style.indentYieldKeyword
