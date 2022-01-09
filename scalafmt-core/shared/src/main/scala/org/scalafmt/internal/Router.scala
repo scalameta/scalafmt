@@ -1868,12 +1868,16 @@ class Router(formatOps: FormatOps) {
           .indentAndBreakBeforeCtrl[T.KwThen](owner.cond, mlSplitBase)
         Seq(slb, mlSplitOpt.getOrElse(mlSplitBase))
       case FormatToken(_: T.KwWhile, right, _) =>
-        val splitBase = Split(Space(style.spaces.isSpaceAfterKeyword(right)), 0)
+        def spaceMod = Space(style.spaces.isSpaceAfterKeyword(right))
+        def splitBase = {
+          val onlyNL = style.newlines.source.eq(Newlines.keep) && newlines != 0
+          Split(if (onlyNL) Newline else spaceMod, 0)
+        }
         val split = (formatToken.meta.leftOwner match {
           case t: Term.While =>
             OptionalBraces.indentAndBreakBeforeCtrl[T.KwDo](t.expr, splitBase)
           case _ => None
-        }).getOrElse(splitBase)
+        }).getOrElse(Split(spaceMod, 0))
         Seq(split)
       case FormatToken(_: T.KwFor, right, _) =>
         Seq(Split(Space(style.spaces.isSpaceAfterKeyword(right)), 0))
