@@ -1745,14 +1745,8 @@ class FormatOps(
       def slbSplit(end: T)(implicit fileLine: FileLine) =
         Split(Space, 0).withSingleLine(end, noSyntaxNL = true)
       body match {
-        case _: Term.ForYield =>
-          // unfold policy on yield forces a break
-          // revert it if we are attempting a single line
-          val noBreakOnYield = Policy.before(expire) {
-            case Decision(ft, s) if s.isEmpty && ft.right.is[T.KwYield] =>
-              Seq(Split(Space, 0))
-          }
-          slbSplit(expire).andPolicy(noBreakOnYield)
+        // we force newlines in for/yield
+        case _: Term.ForYield => Split.ignored
         // we force newlines in try/catch/finally
         case _: Term.Try | _: Term.TryWithHandler => Split.ignored
         // don't tuck curried apply

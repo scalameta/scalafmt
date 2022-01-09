@@ -657,7 +657,9 @@ maxColumn = 80
 val attributes =
   for (i ← 1 to count) yield i
 >>>
-val attributes = for (i ← 1 to count) yield i
+val attributes =
+  for (i ← 1 to count)
+    yield i
 <<< 2.14 val with short for/do
 maxColumn = 80
 ===
