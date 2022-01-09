@@ -655,10 +655,18 @@ def attributes =
 maxColumn = 80
 ===
 val attributes =
- for (i ← 1 to count)
- yield i
+  for (i ← 1 to count) yield i
 >>>
 val attributes = for (i ← 1 to count) yield i
+<<< 2.14 val with short for/do
+maxColumn = 80
+===
+val attributes =
+  for (i ← 1 to count) i * i
+>>>
+val attributes =
+  for (i ← 1 to count)
+    i * i
 <<< 2.15 val with literal apply
 object a {
    val a = b(0x1F, // ID1
