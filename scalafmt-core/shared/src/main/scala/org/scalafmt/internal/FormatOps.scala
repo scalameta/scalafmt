@@ -2487,12 +2487,12 @@ class FormatOps(
     def indentAndBreakBeforeCtrl[A](tree: Tree, split: Split)(implicit
         style: ScalafmtConfig,
         classifier: Classifier[T, A]
-    ): Split =
-      if (!style.dialect.allowSignificantIndentation) split
-      else if (tree.is[Term.Block] && isEnclosedInMatching(tree)) split
+    ): Option[Split] =
+      if (!style.dialect.allowSignificantIndentation) None
+      else if (tree.is[Term.Block] && isEnclosedInMatching(tree)) None
       else {
         val kw = tokenAfter(tree).right
-        if (kw.is[A]) {
+        if (kw.is[A]) Some {
           val indent =
             style.indent.ctrlSite.getOrElse(style.indent.getSignificant)
           split
@@ -2501,7 +2501,8 @@ class FormatOps(
               decideNewlinesOnlyBeforeCloseOnBreak(kw),
               !style.danglingParentheses.ctrlSite
             )
-        } else split
+        }
+        else None
       }
 
   }
