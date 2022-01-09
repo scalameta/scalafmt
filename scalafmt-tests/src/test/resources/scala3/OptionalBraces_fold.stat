@@ -2948,14 +2948,14 @@ class C:
   else 4
 >>>
 class C:
-   if true then
-      3
+   if true
+   then 3
    else 4
-   if true then
-      3
+   if true
+   then 3
    else 4
-   if true then
-      3
+   if true
+   then 3
    else 4
 <<< #3033 if-then short !danglingParentheses
 maxColumn = 13
@@ -2976,14 +2976,14 @@ class C:
   else 4
 >>>
 class C:
-   if true then
-      3
+   if true
+   then 3
    else 4
-   if true then
-      3
+   if true
+   then 3
    else 4
-   if true then
-      3
+   if true
+   then 3
    else 4
 <<< #3034 for-yield danglingParentheses
 maxColumn = 50

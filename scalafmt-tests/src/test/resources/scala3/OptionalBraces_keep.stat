@@ -3081,12 +3081,15 @@ class C:
   else 4
 >>>
 class C:
-   if true then 3
+   if true
+   then 3
    else 4
-   if true then
+   if true
+   then
       3
    else 4
-   if true then
+   if true
+   then
       3
    else 4
 <<< #3033 if-then !danglingParentheses
@@ -3107,12 +3110,15 @@ class C:
   else 4
 >>>
 class C:
-   if true then 3
+   if true
+   then 3
    else 4
-   if true then
+   if true
+   then
       3
    else 4
-   if true then
+   if true
+   then
       3
    else 4
 <<< #3034 for-yield danglingParentheses
@@ -3162,10 +3168,12 @@ object a:
    matrix(x)(0) += matrix(x - 1)(0)
 >>>
 object a:
-   for x <- range do matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range
+   do matrix(x)(0) += matrix(x - 1)(0)
    for x <- range do
       matrix(x)(0) += matrix(x - 1)(0)
-   for x <- range do
+   for x <- range
+   do
       matrix(x)(0) += matrix(x - 1)(0)
    for
       x <- range
@@ -3188,10 +3196,12 @@ object a:
    matrix(x)(0) += matrix(x - 1)(0)
 >>>
 object a:
-   for x <- range do matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range
+   do matrix(x)(0) += matrix(x - 1)(0)
    for x <- range do
       matrix(x)(0) += matrix(x - 1)(0)
-   for x <- range do
+   for x <- range
+   do
       matrix(x)(0) += matrix(x - 1)(0)
    for
       x <- range
@@ -3217,13 +3227,17 @@ object a:
     matrix(x)(0) += matrix(x - 1)(0)
 >>>
 object a:
-   while x < range do matrix(x)(0) += matrix(x - 1)(0)
+   while x < range
+   do matrix(x)(0) += matrix(x - 1)(0)
    while x < range do
       matrix(x)(0) += matrix(x - 1)(0)
-   while x < range do matrix(x)(0) += matrix(x - 1)(0)
-   while x < range do
+   while x < range
+   do matrix(x)(0) += matrix(x - 1)(0)
+   while x < range
+   do
       matrix(x)(0) += matrix(x - 1)(0)
-   while x < range do
+   while x < range
+   do
       matrix(x)(0) += matrix(x - 1)(0)
 <<< #3034 while-do !danglingParentheses
 danglingParentheses.ctrlSite = false
@@ -3245,11 +3259,15 @@ object a:
     matrix(x)(0) += matrix(x - 1)(0)
 >>>
 object a:
-   while x < range do matrix(x)(0) += matrix(x - 1)(0)
+   while x < range
+   do matrix(x)(0) += matrix(x - 1)(0)
    while x < range do
       matrix(x)(0) += matrix(x - 1)(0)
-   while x < range do matrix(x)(0) += matrix(x - 1)(0)
-   while x < range do
+   while x < range
+   do matrix(x)(0) += matrix(x - 1)(0)
+   while x < range
+   do
       matrix(x)(0) += matrix(x - 1)(0)
-   while x < range do
+   while x < range
+   do
       matrix(x)(0) += matrix(x - 1)(0)
