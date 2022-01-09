@@ -2132,13 +2132,13 @@ class FormatOps(
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] =
         ft.meta.leftOwner match {
-          case t @ Term.For(enums, _) =>
+          case t @ Term.For(enums, _) if isSeqMulti(enums) =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
               def splits = getSplitsForStats(ft, nft, enums)
               def rightBrace = seqLast(enums)
             })
-          case t @ Term.ForYield(enums, _) =>
+          case t @ Term.ForYield(enums, _) if isSeqMulti(enums) =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
               def splits = getSplitsForStats(ft, nft, enums)

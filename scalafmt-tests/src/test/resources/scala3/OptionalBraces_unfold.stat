@@ -494,9 +494,7 @@ object a:
         foo
         bar
    def foo =
-     for
-        x <- y
-     do
+     for x <- y do
         bar
 <<< for-yield
 object a:
@@ -524,8 +522,7 @@ object a:
         foo
         bar
    def foo =
-     for
-        x <- y
+     for x <- y
      yield foo
 <<< complex "block" expression
 object a:
@@ -1301,7 +1298,7 @@ object a:
 end a
 <<< rewrite to new syntax with for-do, single
 runner.parser = source
-rewrite.scala3.insertEndMarkerMinLines = 6
+rewrite.scala3.insertEndMarkerMinLines = 3
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
 rewrite.rules = [RedundantParens]
@@ -1331,26 +1328,18 @@ object a {
 >>>
 object a:
    for (a <- b)
-     yield for
-        a <- b
+     yield for a <- b
      yield foo
    while a > 0 do
       while a > 0 do
          foo
-   for
-      a <- b
-   do
-      for
-         a <- b
-      do
+   end while
+   for a <- b do
+      for a <- b do
          foo
    end for
-   for
-      a <- b
-   do
-      for
-         a <- b
-      do
+   for a <- b do
+      for a <- b do
          foo
    end for
 end a
@@ -3258,11 +3247,9 @@ object a:
     matrix(x)(0) += matrix(x - 1)(0)
 >>>
 object a:
-   for
-      x <- range
+   for x <- range
    yield matrix(x)(0) += matrix(x - 1)(0)
-   for
-      x <- range
+   for x <- range
    yield matrix(x)(0) += matrix(x - 1)(0)
 <<< #3034 for-yield !danglingParentheses
 danglingParentheses.ctrlSite = false
@@ -3275,11 +3262,9 @@ object a:
     matrix(x)(0) += matrix(x - 1)(0)
 >>>
 object a:
-   for
-      x <- range
+   for x <- range
    yield matrix(x)(0) += matrix(x - 1)(0)
-   for
-      x <- range
+   for x <- range
    yield matrix(x)(0) += matrix(x - 1)(0)
 <<< #3034 for-do danglingParentheses
 danglingParentheses.ctrlSite = true
@@ -3298,21 +3283,13 @@ object a:
    matrix(x)(0) += matrix(x - 1)(0)
 >>>
 object a:
-   for
-      x <- range
-   do
+   for x <- range do
       matrix(x)(0) += matrix(x - 1)(0)
-   for
-      x <- range
-   do
+   for x <- range do
       matrix(x)(0) += matrix(x - 1)(0)
-   for
-      x <- range
-   do
+   for x <- range do
       matrix(x)(0) += matrix(x - 1)(0)
-   for
-      x <- range
-   do
+   for x <- range do
       matrix(x)(0) += matrix(x - 1)(0)
 <<< #3034 for-do !danglingParentheses
 danglingParentheses.ctrlSite = false
@@ -3331,21 +3308,13 @@ object a:
    matrix(x)(0) += matrix(x - 1)(0)
 >>>
 object a:
-   for
-      x <- range
-   do
+   for x <- range do
       matrix(x)(0) += matrix(x - 1)(0)
-   for
-      x <- range
-   do
+   for x <- range do
       matrix(x)(0) += matrix(x - 1)(0)
-   for
-      x <- range
-   do
+   for x <- range do
       matrix(x)(0) += matrix(x - 1)(0)
-   for
-      x <- range
-   do
+   for x <- range do
       matrix(x)(0) += matrix(x - 1)(0)
 <<< #3034 while-do danglingParentheses
 danglingParentheses.ctrlSite = true
