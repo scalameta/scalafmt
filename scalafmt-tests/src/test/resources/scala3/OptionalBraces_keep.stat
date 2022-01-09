@@ -1977,7 +1977,8 @@ while
     exitCode
     
 >>>
-while (a1 && a2) == cond1 do
+while
+   (a1 && a2) == cond1 do
    val exitCode = 1
    exitCode
 <<< if redundant parens
@@ -3231,12 +3232,14 @@ object a:
    do matrix(x)(0) += matrix(x - 1)(0)
    while x < range do
       matrix(x)(0) += matrix(x - 1)(0)
-   while x < range
+   while
+      x < range
    do matrix(x)(0) += matrix(x - 1)(0)
    while x < range
    do
       matrix(x)(0) += matrix(x - 1)(0)
-   while x < range
+   while
+      x < range
    do
       matrix(x)(0) += matrix(x - 1)(0)
 <<< #3034 while-do !danglingParentheses
@@ -3263,11 +3266,13 @@ object a:
    do matrix(x)(0) += matrix(x - 1)(0)
    while x < range do
       matrix(x)(0) += matrix(x - 1)(0)
-   while x < range
+   while
+      x < range
    do matrix(x)(0) += matrix(x - 1)(0)
    while x < range
    do
       matrix(x)(0) += matrix(x - 1)(0)
-   while x < range
+   while
+      x < range
    do
       matrix(x)(0) += matrix(x - 1)(0)
