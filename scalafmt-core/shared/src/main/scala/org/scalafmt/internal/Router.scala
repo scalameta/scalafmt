@@ -1932,6 +1932,15 @@ class Router(formatOps: FormatOps) {
             .withSingleLineNoOptimal(expire, exclude, noSyntaxNL = noSyntaxNL),
           Split(Newline, 1)
         )
+      case ft @ FormatToken(_, _: T.KwThen | _: T.KwDo, _) =>
+        if (style.newlines.sourceIgnored || newlines == 0)
+          Seq(
+            Split(Space, 0)
+              .withOptimalToken(nextNonCommentSameLine(next(ft)).left),
+            Split(Newline, 1)
+          )
+        else
+          Seq(Split(Newline, 0))
       // Last else branch
       case FormatToken(_: T.KwElse, _, _) if (leftOwner match {
             case t: Term.If => !t.elsep.is[Term.If]
