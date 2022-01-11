@@ -472,7 +472,8 @@ object TreeOps {
       case _ => false
     }
 
-  type CallParts = (Tree, Either[Seq[Tree], Seq[Seq[Tree]]])
+  type CallArgs = Either[Seq[Tree], Seq[Seq[Tree]]]
+  type CallParts = (Tree, CallArgs)
   val splitCallIntoParts: PartialFunction[Tree, CallParts] = {
     case t: Term.Apply => (t.fun, Left(t.args))
     case t: Term.Super => (t, Left(Seq(t.superp)))

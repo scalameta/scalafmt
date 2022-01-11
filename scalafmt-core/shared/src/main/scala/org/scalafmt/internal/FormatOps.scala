@@ -1600,7 +1600,7 @@ class FormatOps(
 
       private def getOpenNLByTree(
           fun: Tree,
-          argsOrArgss: Either[Seq[Tree], Seq[Seq[Tree]]],
+          argsOrArgss: CallArgs,
           penalty: Int
       ): Seq[Policy] = {
         val argss = argsOrArgss match {
