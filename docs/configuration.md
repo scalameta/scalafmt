@@ -975,6 +975,19 @@ object a {
 }
 ```
 
+### `align.beforeOpenParenXxxSite`
+
+Aligns parameter groups (not parameters within a group) if using
+[`newlines.beforeOpenParenXxxSite`](#newlinesbeforeopenparenxxxsite).
+Requires [`align.closeParenSite`](#aligncloseparensite).
+
+> Since v3.3.2.
+
+```scala mdoc:defaults
+align.beforeOpenParenCallSite
+align.beforeOpenParenDefnSite
+```
+
 ### `align.stripMargin`
 
 See [assumeStandardLibraryStripMargin](#assumestandardlibrarystripmargin).
@@ -2068,6 +2081,9 @@ Additional nuances:
 - if the corresponding `align.openParenXxxSite` is true, multi-line parameters
   will start on the same line as the opening parenthesis and align; otherwise,
   formatting will use a newline and an appropriate continuation indent.
+- if the corresponding [`align.beforeOpenParenXxxSite`](#alignbeforeopenparenxxxsite)
+  is true, when the first parameter group starts without a line break, subsequent
+  parameter groups will be aligned to it.
 
 ```scala mdoc:defaults
 newlines.beforeOpenParenDefnSite

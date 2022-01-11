@@ -415,6 +415,8 @@ object ScalafmtConfig {
       addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.removeOptionalBraces == RemoveOptionalBraces.oldSyntaxToo)
       if (rewrite.insertBraces.minLines != 0 && rewrite.rules.contains(RedundantBraces))
         addIf(rewrite.insertBraces.minLines < rewrite.redundantBraces.maxBreaks)
+      addIf(align.beforeOpenParenDefnSite && !align.closeParenSite)
+      addIf(align.beforeOpenParenCallSite && !align.closeParenSite)
     }
     // scalafmt: {}
     if (allErrors.isEmpty) Configured.ok(cfg)

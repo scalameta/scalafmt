@@ -3376,3 +3376,30 @@ object a:
       matrix(x)(0) += matrix(x - 1)(0)
    while x < range do
       matrix(x)(0) += matrix(x - 1)(0)
+<<< align.beforeOpenParenCallSite
+maxColumn = 30
+align.closeParenSite = true
+align.beforeOpenParenCallSite = true
+newlines.beforeOpenParenCallSite = source
+===
+allMatching(versionString)
+                 (partialFunctions)
+>>>
+allMatching
+   (versionString)
+   (partialFunctions)
+<<< align.beforeOpenParenCallSite + align.openParenCallSite
+maxColumn = 30
+align.closeParenSite = true
+align.openParenCallSite = true
+align.beforeOpenParenCallSite = true
+newlines.beforeOpenParenCallSite = source
+===
+allMatching(versionString, partialFunctions)
+                 (partialFunctions)
+>>>
+allMatching
+   (versionString,
+    partialFunctions
+   )
+   (partialFunctions)

@@ -67,6 +67,8 @@ case class Align(
     private val openBracketDefnSite: Option[Boolean] = None,
     openParenDefnSite: Boolean = false,
     private[config] val openParenTupleSite: Option[Boolean] = None,
+    beforeOpenParenDefnSite: Boolean = false,
+    beforeOpenParenCallSite: Boolean = false,
     tokens: Seq[AlignToken] = Seq(AlignToken.caseArrow),
     arrowEnumeratorGenerator: Boolean = false,
     tokenCategory: Map[String, String] = Map(),

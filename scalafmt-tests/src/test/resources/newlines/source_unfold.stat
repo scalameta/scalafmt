@@ -5949,3 +5949,36 @@ object a {
   else
     doSomethingOtherwise()
 }
+<<< align.beforeOpenParenDefnSite
+maxColumn = 100
+align.closeParenSite = true
+align.beforeOpenParenDefnSite = true
+newlines.beforeOpenParenDefnSite = source
+===
+def allMatching(versionString: String)
+                 (partialFunctions: PartialFunction[options.Common, List[String]]*): List[String] = {
+
+                 }
+>>>
+def allMatching
+  (versionString: String)
+  (partialFunctions: PartialFunction[options.Common, List[String]]*)
+  : List[String] = {}
+<<< align.beforeOpenParenDefnSite + align.openParenDefnSite
+maxColumn = 85
+danglingParentheses.defnSite = false
+align.closeParenSite = true
+align.openParenDefnSite = true
+align.beforeOpenParenDefnSite = true
+newlines.beforeOpenParenDefnSite = source
+===
+def allMatching(versionString: String, partialFunctions: PartialFunction[options.Common, List[String]]*)
+                 (partialFunctions: PartialFunction[options.Common, List[String]]*): List[String] = {
+
+                 }
+>>>
+def allMatching
+  (versionString: String,
+   partialFunctions: PartialFunction[options.Common, List[String]]*)
+  (partialFunctions: PartialFunction[options.Common, List[String]]*)
+  : List[String] = {}
