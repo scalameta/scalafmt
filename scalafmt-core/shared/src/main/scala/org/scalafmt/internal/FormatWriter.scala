@@ -710,13 +710,17 @@ class FormatWriter(formatOps: FormatOps) {
           }
           if (isCommentedOut) sb.append(trimmed)
           else {
-            val hasSpace = trimmed.length <= 2 ||
-              Character.isWhitespace(trimmed.charAt(2))
+            val nonSlash = trimmed.indexWhere(_ != '/')
+            val hasSpace = nonSlash < 0 || // else space not needed
+              Character.isWhitespace(trimmed.charAt(nonSlash))
             val column = prevState.column - text.length +
               trimmed.length + (if (hasSpace) 0 else 1)
             if (column > maxColumn && canRewrite) reFormat(trimmed)
             else if (hasSpace) sb.append(trimmed)
-            else sb.append(s"// ${trimmed.substring(2)}")
+            else {
+              append(trimmed, 0, nonSlash).append(' ')
+              append(trimmed, nonSlash, trimmed.length)
+            }
           }
         }
         private def reFormat(text: String): Unit = {
