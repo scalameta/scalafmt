@@ -694,6 +694,10 @@ class FormatWriter(formatOps: FormatOps) {
             sb.setCharAt(begpos - 1, '/')
           else sb.append(" */")
         }
+
+        protected def append(csq: CharSequence, beg: Int, end: Int) =
+          sb.append(CharBuffer.wrap(csq, beg, end))
+
       }
 
       private class FormatSlc(text: String)(implicit sb: StringBuilder)
@@ -969,7 +973,7 @@ class FormatWriter(formatOps: FormatOps) {
                 case Some(offset) =>
                   val extra = math.max(0, offset - leadingMargin)
                   sb.append(getIndentation((extra >> 1) << 1))
-                  sb.append(CharBuffer.wrap(x, offset, x.length))
+                  append(x, offset, x.length)
                 case _ =>
                   sb.append(x)
               }
@@ -1082,7 +1086,7 @@ class FormatWriter(formatOps: FormatOps) {
               val extraMargin =
                 matcher.end(1) - matcher.start(1) - margin.length
               if (extraMargin > 0) sb.append(getIndentation(extraMargin))
-              sb.append(CharBuffer.wrap(trimmed, contentBeg, contentEnd))
+              append(trimmed, contentBeg, contentEnd)
               iter(false)
             }
           }
