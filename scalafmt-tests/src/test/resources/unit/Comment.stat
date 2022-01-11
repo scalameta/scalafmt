@@ -490,12 +490,12 @@ comments.wrap = trailing
 maxColumn = 80
 ===
 private object ClientMetrics {
-  //empty since it is not an adapter call
+  ///empty since it is not an adapter call
   private val AdapterCallType = ""//empty since it is not an adapter call
 }
 >>>
 private object ClientMetrics {
-  // empty since it is not an adapter call
+  // /empty since it is not an adapter call
   private val AdapterCallType = "" // empty since it is not an adapter call
 }
 <<< #2246 standalone
