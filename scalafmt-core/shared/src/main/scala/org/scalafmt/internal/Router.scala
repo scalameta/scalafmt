@@ -1,7 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.BinPack
+import org.scalafmt.config.{Align, BinPack}
 import org.scalafmt.config.{ImportSelectors, Newlines, ScalafmtConfig, Spaces}
 import org.scalafmt.internal.ExpiresOn.{After, Before}
 import org.scalafmt.internal.Length.{Num, StateColumn}
@@ -622,11 +622,17 @@ class Router(formatOps: FormatOps) {
         val beforeDefRhs = defRhs.flatMap(tokens.tokenJustBeforeOpt)
         def getSplitsBeforeOpenParen(
             src: Newlines.SourceHints,
-            indentLen: Int
-        ) = {
+            indentLen: Int,
+            shouldAlignBefore: Align => Boolean
+        )(getArgsOpt: => Option[Seq[Tree]]) = {
           val close = matching(open)
           val indent = Indent(indentLen, close, ExpiresOn.After)
-          src match {
+          val isAlignFirstParen = shouldAlignBefore(style.align) &&
+            !prevNonComment(ft).left.is[T.RightParen]
+          def noSplitSplit(implicit fileLine: FileLine) =
+            if (isAlignFirstParen) Split(NoSplit, 0)
+            else Split(NoSplit, 0).withSingleLine(close)
+          val splits = src match {
             case Newlines.unfold =>
               val slbEnd =
                 if (defn) beforeDefRhs.fold(getLastToken(rightOwner))(_.left)
@@ -657,7 +663,7 @@ class Router(formatOps: FormatOps) {
                 Seq(Split(Newline, 0).withIndent(indent))
               else
                 Seq(
-                  Split(NoSplit, 0).withSingleLine(close),
+                  noSplitSplit,
                   Split(Newline, 1).withIndent(indent)
                 )
             case _ =>
@@ -672,11 +678,21 @@ class Router(formatOps: FormatOps) {
                     }
                   }
               Seq(
-                Split(NoSplit, 0).withSingleLine(close),
+                noSplitSplit,
                 Split(Newline, 1)
                   .withIndent(indent)
                   .withPolicyOpt(nlColonPolicy)
               )
+          }
+          val argsOpt = if (isAlignFirstParen) getArgsOpt else None
+          argsOpt.map(x => tokens.tokenAfter(x).right).fold(splits) { x =>
+            val noSplitIndents = Seq(
+              Indent(StateColumn, x, ExpiresOn.Before),
+              Indent(-indentLen, x, ExpiresOn.Before)
+            )
+            splits.map { s =>
+              if (s.isNL) s else s.withIndents(noSplitIndents)
+            }
           }
         }
         val beforeOpenParenSplits =
@@ -692,12 +708,31 @@ class Router(formatOps: FormatOps) {
                 style.indent.extraBeforeOpenParenDefnSite +
                   (if (ob) style.indent.getSignificant else style.indent.main)
               }
-              getSplitsBeforeOpenParen(x, indent)
+              getSplitsBeforeOpenParen(x, indent, _.beforeOpenParenDefnSite) {
+                rightOwner match {
+                  case SplitDefnIntoParts(_, _, _, args) => Some(args.last)
+                  case _ => None
+                }
+              }
             }
           else if (style.dialect.allowSignificantIndentation)
-            style.newlines.getBeforeOpenParenCallSite.map(
-              getSplitsBeforeOpenParen(_, style.indent.getSignificant)
-            )
+            style.newlines.getBeforeOpenParenCallSite.map { x =>
+              val indent = style.indent.getSignificant
+              @tailrec
+              def findLastCallArgs(tree: Tree, ca: CallArgs): CallArgs =
+                tree match {
+                  case SplitCallIntoParts(_, pca) =>
+                    tree.parent match {
+                      case Some(p) => findLastCallArgs(p, pca)
+                      case _ => pca
+                    }
+                  case _ => ca
+                }
+              getSplitsBeforeOpenParen(x, indent, _.beforeOpenParenCallSite) {
+                Option(findLastCallArgs(rightOwner, null))
+                  .map(_.fold(identity, _.last))
+              }
+            }
           else None
         beforeOpenParenSplits.getOrElse(Seq(Split(modification, 0)))
 

@@ -3298,7 +3298,7 @@ allMatching(versionString)
                  (partialFunctions)
 >>>
 allMatching(versionString)
-   (partialFunctions)
+           (partialFunctions)
 <<< align.beforeOpenParenCallSite + align.openParenCallSite
 maxColumn = 30
 align.closeParenSite = true
@@ -3309,7 +3309,6 @@ newlines.beforeOpenParenCallSite = source
 allMatching(versionString, partialFunctions)
                  (partialFunctions)
 >>>
-allMatching
-   (versionString,
-    partialFunctions
-   )(partialFunctions)
+allMatching(versionString,
+            partialFunctions
+           )(partialFunctions)
