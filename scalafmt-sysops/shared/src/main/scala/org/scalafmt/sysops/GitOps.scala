@@ -59,7 +59,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
   override def lsTree(dir: AbsoluteFile*): Seq[AbsoluteFile] = {
     val cmd = Seq("git", "ls-files", "--full-name") ++ dir.map(_.toString())
-    withRoot(exec(cmd)).filter(_.isRegularFile)
+    withRoot(exec(cmd)).filter(_.isRegularFileNoLinks)
   }
 
   override def rootDir: Option[AbsoluteFile] = tryRoot.toOption
