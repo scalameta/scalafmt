@@ -22,6 +22,7 @@ final class AbsoluteFile(val path: Path) extends AnyVal {
 
   @inline def isDirectory: Boolean = FileOps.isDirectory(path)
   @inline def isRegularFile: Boolean = FileOps.isRegularFile(path)
+  @inline def isRegularFileNoLinks: Boolean = FileOps.isRegularFileNoLinks(path)
   @inline def attributes: BasicFileAttributes = FileOps.getAttributes(path)
 
   @inline def listFiles: Seq[AbsoluteFile] = join(FileOps.listFiles(path))
