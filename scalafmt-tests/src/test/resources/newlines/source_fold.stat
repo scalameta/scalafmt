@@ -5450,7 +5450,7 @@ def allMatching(versionString: String)
                  }
 >>>
 def allMatching(versionString: String)
-  (partialFunctions: PartialFunction[options.Common, List[String]]*)
+               (partialFunctions: PartialFunction[options.Common, List[String]]*)
   : List[String] = {}
 <<< align.beforeOpenParenDefnSite + align.openParenDefnSite
 maxColumn = 85
@@ -5465,8 +5465,7 @@ def allMatching(versionString: String, partialFunctions: PartialFunction[options
 
                  }
 >>>
-def allMatching
-  (versionString: String,
-   partialFunctions: PartialFunction[options.Common, List[String]]*)
-  (partialFunctions: PartialFunction[options.Common, List[String]]*)
+def allMatching(versionString: String,
+                partialFunctions: PartialFunction[options.Common, List[String]]*)
+               (partialFunctions: PartialFunction[options.Common, List[String]]*)
   : List[String] = {}
