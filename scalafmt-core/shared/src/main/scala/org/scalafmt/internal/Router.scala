@@ -2085,6 +2085,12 @@ class Router(formatOps: FormatOps) {
         insideInfixSplit(app, formatToken)
 
       // Case
+      case FormatToken(_: T.KwCase, _, _)
+          if leftOwner.is[Defn.RepeatedEnumCase] =>
+        val indent =
+          Indent(style.indent.main, leftOwner.tokens.last, ExpiresOn.After)
+        Seq(Split(Space, 0).withIndent(indent))
+
       case FormatToken(_: T.KwCase, _, _) if leftOwner.is[CaseTree] =>
         val owner = leftOwner.asInstanceOf[CaseTree]
         val body = owner.body
