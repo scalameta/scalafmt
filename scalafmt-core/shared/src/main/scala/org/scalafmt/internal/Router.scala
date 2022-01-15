@@ -1494,6 +1494,11 @@ class Router(formatOps: FormatOps) {
               Split(Space, 0),
               Split(Newline, 1).withIndent(indent, right, After)
             )
+          case _: Defn.RepeatedEnumCase if {
+                if (!style.newlines.sourceIgnored) newlines != 0
+                else style.newlines.source eq Newlines.unfold
+              } =>
+            Seq(Split(Newline, 0))
           case _ =>
             Seq(Split(Space, 0), Split(Newline, 1))
         }
