@@ -1484,25 +1484,20 @@ class Router(formatOps: FormatOps) {
             )
           }
         }
-        splitsOpt.getOrElse {
-          if (!style.newlines.formatInfix && leftOwner.is[Term.ApplyInfix])
-            Seq(
-              // Do whatever the user did if infix.
-              Split(Space.orNL(newlines == 0), 0)
-            )
-          else {
-            val indent = leftOwner match {
-              case _: Defn.Val | _: Defn.Var =>
-                style.indent.getDefnSite(leftOwner)
-              case _ =>
-                0
-            }
+        def altSplits = leftOwner match {
+          case _: Term.ApplyInfix if !style.newlines.formatInfix =>
+            // Do whatever the user did if infix.
+            Seq(Split(Space.orNL(newlines == 0), 0))
+          case _: Defn.Val | _: Defn.Var =>
+            val indent = style.indent.getDefnSite(leftOwner)
             Seq(
               Split(Space, 0),
               Split(Newline, 1).withIndent(indent, right, After)
             )
-          }
+          case _ =>
+            Seq(Split(Space, 0), Split(Newline, 1))
         }
+        splitsOpt.getOrElse(altSplits)
       case FormatToken(_, T.Semicolon(), _) =>
         Seq(
           Split(NoSplit, 0)
