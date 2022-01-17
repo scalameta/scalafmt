@@ -2426,7 +2426,7 @@ class FormatOps(
       def nestedIf(x: Term.If) = {
         val forceNL = shouldBreakInOptionalBraces(nft) ||
           !ifWithoutElse(t) && existsIfWithoutElse(x)
-        getSplits(ft, x, forceNL)
+        getSplits(ft, t.thenp, forceNL)
       }
       t.thenp match {
         case x: Term.If => nestedIf(x)

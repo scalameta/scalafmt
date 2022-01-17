@@ -555,7 +555,7 @@ object a:
      if (a)
         if (aa)
           aaa
-     // c1
+        // c1
      else
        b
    if (a)
@@ -652,12 +652,14 @@ object a:
 object a:
    val a =
      if a then
-        if aa then aaa
-        // c1
+        if aa then
+           aaa
+           // c1
         if aa then aaa
      else
-        if aa then aaa
-        // c1
+        if aa then
+           aaa
+           // c1
         if aa then aaa
 <<< nested if-else chained
 object a:
@@ -698,10 +700,12 @@ object a:
 object a:
    val a =
      if a then
-        if aa then aaa
-     // c1
-     else if aa then aaa
-// c1
+        if aa then
+           aaa
+           // c1
+     else if aa then
+        aaa
+        // c1
 <<< #2448
 object Foo:
   def bar = process(arg match
@@ -839,7 +843,7 @@ object a:
      if (a)
         if (aa)
           aaa
-     // c1
+        // c1
      else
        b
 <<< rewrite with val and if-else
@@ -1582,7 +1586,7 @@ object a:
       val c =
         d
    end b
-// c
+   // c
 end a
 <<< 1 end marker at end of file
 runner.parser = source
@@ -1613,7 +1617,7 @@ object a:
    class b:
       val c =
         d
-// c
+   // c
 end a
 <<< no end markers at end of file
 runner.parser = source
