@@ -2667,7 +2667,7 @@ class FormatOps(
   def isBlockWithoutBraces(t: Term.Block): Boolean =
     t.tokens.head match {
       case lb: T.LeftBrace => lb ne tokens(lb).left
-      case _ => false
+      case _ => true
     }
 
   def existsBlockIfWithoutElse(t: Term.If): Boolean =
