@@ -2085,7 +2085,7 @@ class FormatOps(
             })
           case t @ Term.If(_, thenp, _) if !nft.right.is[T.KwThen] && {
                 isTreeMultiStatBlock(thenp) || isElsePWithOptionalBraces(t) ||
-                !ifWithoutElse(t) && existsBlockIfWithoutElse(thenp)
+                !ifWithoutElse(t) && existsBlockIfWithoutElse(thenp, false)
               } =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
@@ -2673,18 +2673,14 @@ class FormatOps(
     )
 
   def existsBlockIfWithoutElse(t: Term.If): Boolean =
-    existsBlockIfWithoutElse(t.thenp) || (t.elsep match {
-      case x: Term.If => existsBlockIfWithoutElse(x)
-      case t @ Term.Block(List(x: Term.If)) =>
-        isBlockWithoutOptionalBraces(t) && existsBlockIfWithoutElse(x)
-      case _ => ifWithoutElse(t)
-    })
+    existsBlockIfWithoutElse(t.thenp, false) ||
+      existsBlockIfWithoutElse(t.elsep, ifWithoutElse(t))
 
-  def existsBlockIfWithoutElse(tree: Tree): Boolean = tree match {
+  def existsBlockIfWithoutElse(t: Tree, other: => Boolean): Boolean = t match {
     case x: Term.If => existsBlockIfWithoutElse(x)
-    case t @ Term.Block(List(x: Term.If)) =>
-      isBlockWithoutOptionalBraces(t) && existsBlockIfWithoutElse(x)
-    case _ => false
+    case b @ Term.Block(List(x: Term.If)) =>
+      isBlockWithoutOptionalBraces(b) && existsBlockIfWithoutElse(x)
+    case _ => other
   }
 
   def getLastToken(tree: Tree): T =
