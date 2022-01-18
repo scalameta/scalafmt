@@ -2664,13 +2664,11 @@ class FormatOps(
 
   }
 
-  def isBlockWithoutOptionalBraces(t: Term.Block): Boolean =
-    isSingleStatBlock(t) && (
-      t.tokens.head match {
-        case lb: T.LeftBrace => lb ne tokens(lb).left
-        case _ => false
-      }
-    )
+  def isBlockWithoutBraces(t: Term.Block): Boolean =
+    t.tokens.head match {
+      case lb: T.LeftBrace => lb ne tokens(lb).left
+      case _ => false
+    }
 
   def existsBlockIfWithoutElse(t: Term.If): Boolean =
     existsBlockIfWithoutElse(t.thenp, false) ||
@@ -2679,7 +2677,7 @@ class FormatOps(
   def existsBlockIfWithoutElse(t: Tree, other: => Boolean): Boolean = t match {
     case x: Term.If => existsBlockIfWithoutElse(x)
     case b @ Term.Block(List(x: Term.If)) =>
-      isBlockWithoutOptionalBraces(b) && existsBlockIfWithoutElse(x)
+      isBlockWithoutBraces(b) && existsBlockIfWithoutElse(x)
     case _ => other
   }
 
