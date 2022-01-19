@@ -165,20 +165,6 @@ object a {
 }
 >>>
 object a {
-  val save = A(
-    1,
-    tenant,
-    "name",
-    None,
-    Type,
-    foo,
-    1,
-    "bar",
-    "baz",
-    "1",
-    null,
-    null,
-    new foo(bar(baz.qux)),
-    foo(new bar(baz.qux))
-  )
+  val save = A(1, tenant, "name", None, Type, foo, 1, "bar", "baz", "1", null,
+    null, new foo(bar(baz.qux)), foo(new bar(baz.qux)))
 }

@@ -118,6 +118,12 @@ class StyleMap(
             case arg :: Nil => isLiteral(arg)
             case _ => false
           })
+        case Term.New(t) =>
+          isBasicLiteral(t.name) && (t.argss match {
+            case Nil => true
+            case (arg :: Nil) :: Nil => isLiteral(arg)
+            case _ => false
+          })
         case _ =>
           tree.children match {
             case Nil => true
