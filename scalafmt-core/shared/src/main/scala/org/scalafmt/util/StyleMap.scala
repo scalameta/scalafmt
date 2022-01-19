@@ -134,7 +134,7 @@ class StyleMap(
         eitherArgs
           .fold(Some(_), TokenOps.findArgsFor(ft.left, _, tokens.matchingOpt))
           .exists { args =>
-            args.length > style.binPack.literalsMinArgCount &&
+            args.length >= style.binPack.literalsMinArgCount &&
             args.forall(isLiteral)
           }
       case _ => false
