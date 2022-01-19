@@ -3920,10 +3920,28 @@ object Example2 {
 
 ## Binpacking
 
-### `binPack.literalArgumentLists`
+### Literal argument lists
+
+This group of parameters controls binpacking of an argument list if _all_ arguments are
+considered to be literals.
+
+The following parameters affect this behaviour:
+
+- `binPack.literalArgumentLists`: if false, this behaviour is disabled, other parameters ignored
+- `binPack.literalsMinArgCount`: doesn't apply binpacking to calls with fewer arguments
+- `binPack.literals{Include,Exclude}`: lists of regular expressions which define a literal
+- [since v2.5.0] `binPack.literalsIncludeSimpleExpr`: allows a few selects (i.e. `a.b`),
+  followed by a few nested single-argument apply calls, with literals as arguments
+- [since v2.5.0] `binPack.literalsSingleLine`: the entire argument list will be formatted on
+  one line, regardless of `maxColumn`
 
 ```scala mdoc:defaults
 binPack.literalArgumentLists
+binPack.literalsMinArgCount
+binPack.literalsInclude
+binPack.literalsExclude
+binPack.literalsIncludeSimpleExpr
+binPack.literalsSingleLine
 ```
 
 ```scala mdoc:scalafmt
@@ -3946,14 +3964,6 @@ binPack.literalsSingleLine = true
 val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
   0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1)
 ```
-
-See also:
-
-- `binPack.literalsIncludeSimpleExpr` (to allow a few select methods followed by
-  a few nested single-argument apply calls, with literals as arguments); added
-  in v2.5.0
-- all other `binPack.literalXXX` parameters (see list at the bottom) are
-  self-explanatory.
 
 ### `binPack.parentConstructors`
 
