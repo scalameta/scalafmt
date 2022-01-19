@@ -156,3 +156,29 @@ object a {
     "h" -> 1
   )
 }
+<<< literalsIncludeSimpleApply 4, with new
+binPack.literalsIncludeSimpleExpr = true
+===
+object a {
+    val save = A(1, tenant, "name", None, Type, foo, 1, "bar",
+     "baz","1", null, null, new foo(bar(baz.qux)), foo(new bar(baz.qux)))
+}
+>>>
+object a {
+  val save = A(
+    1,
+    tenant,
+    "name",
+    None,
+    Type,
+    foo,
+    1,
+    "bar",
+    "baz",
+    "1",
+    null,
+    null,
+    new foo(bar(baz.qux)),
+    foo(new bar(baz.qux))
+  )
+}
