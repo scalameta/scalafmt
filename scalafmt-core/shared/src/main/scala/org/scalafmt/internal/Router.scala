@@ -1478,8 +1478,11 @@ class Router(formatOps: FormatOps) {
                     s.map { x => if (x.isNL) x else x.switch(trigger, true) }
                 }
               } else NoPolicy
+            val noSpace =
+              style.newlines.source.eq(Newlines.keep) && newlines != 0
             Seq(
-              Split(Space, 0).withSingleLine(endOfSingleLineBlock(optFT)),
+              Split(noSpace, 0)(Space)
+                .withSingleLine(endOfSingleLineBlock(optFT)),
               Split(Newline, 1).withPolicy(nlPolicy & indentOncePolicy)
             )
           }

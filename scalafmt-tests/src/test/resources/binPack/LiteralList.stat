@@ -230,6 +230,8 @@ object a {
 >>>
 object a {
   val foo = app.search(
-    bar.baz, qux.foo, bar.qux, baz, bar
+    bar.baz,
+    qux.foo, bar.qux,
+    baz, bar
   )
 }
