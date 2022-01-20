@@ -1105,7 +1105,7 @@ class Router(formatOps: FormatOps) {
       case ft @ FormatToken(open @ LeftParenOrBracket(), right, _)
           if !style.binPack.defnSite(open).isNever && isDefnSite(leftOwner) =>
         val close = matching(open)
-        def slbPolicy = SingleLineBlock(close, okSLC = true)
+        def slbPolicy = SingleLineBlock(close, okSLC = true, noSyntaxNL = true)
         val baseNoSplitMod = Space(style.spaces.inParentheses)
         if (close eq right)
           Seq(Split(baseNoSplitMod, 0))
@@ -1127,13 +1127,15 @@ class Router(formatOps: FormatOps) {
             getMustDangleForTrailingCommas(close)
 
           val argsHeadOpt = argumentStarts.get(hash(right))
-          val onelinePolicy =
-            if (style.binPack.defnSite(isBracket) == BinPack.Unsafe.Oneline)
-              argsHeadOpt.flatMap { x =>
-                findFirstOnRight[T.Comma](tokens.getLast(x), close)
-                  .map(splitOneArgPerLineAfterCommaOnBreak)
-              }
-            else None
+          val isSingleArg = isSeqSingle(getApplyArgs(ft, false).args)
+          val oneline =
+            style.binPack.defnSite(isBracket) == BinPack.Unsafe.Oneline
+          val nlOnelinePolicy = argsHeadOpt.flatMap { x =>
+            if (isSingleArg || !oneline) None
+            else
+              findFirstOnRight[T.Comma](tokens.getLast(x), close)
+                .map(splitOneArgPerLineAfterCommaOnBreak)
+          }
 
           val mustDangle = onlyConfigStyle ||
             style.danglingParentheses.defnSite &&
@@ -1151,9 +1153,10 @@ class Router(formatOps: FormatOps) {
                     else s.map(x => if (x.isNL) x.withPenalty(p) else x)
                 }
               }
-              val argPolicy = onelinePolicy
-                .orElse(argsHeadOpt.map(x => SingleLineBlock(x.tokens.last)))
-                .getOrElse(NoPolicy)
+              val argPolicy = argsHeadOpt.fold(Policy.noPolicy) { x =>
+                if (oneline && isSingleArg) NoPolicy
+                else SingleLineBlock(x.tokens.last, noSyntaxNL = true)
+              }
               argPolicy & (penalizeOpens | penalizeBrackets)
             }
           val rightIsComment = right.is[T.Comment]
@@ -1174,7 +1177,7 @@ class Router(formatOps: FormatOps) {
               .withPolicy(noSplitPolicy)
               .withIndents(noSplitIndents),
             Split(nlMod, if (mustUseNL || slbOnly) 0 else nlCost)
-              .withPolicy(nlDanglePolicy & onelinePolicy & penalizeBrackets)
+              .withPolicy(nlDanglePolicy & nlOnelinePolicy & penalizeBrackets)
               .withIndent(indent)
           )
         }
@@ -1258,7 +1261,7 @@ class Router(formatOps: FormatOps) {
             needOnelinePolicy && nextCommaOneline.isEmpty ||
             // multiline binpack is at odds with unfold, at least force a break
             style.newlines.source.eq(Newlines.unfold)
-          ) baseNoSplit.withSingleLine(close)
+          ) baseNoSplit.withSingleLine(close, noSyntaxNL = true)
           else {
             val opt =
               if (oneline) nextCommaOneline.orElse(Some(close))
@@ -1268,6 +1271,15 @@ class Router(formatOps: FormatOps) {
               val excludeOpen = exclude.ranges.map(_.lt).toSet
               UnindentAtExclude(excludeOpen, Num(-indentLen))
             }
+            val noSplitPolicy = if (needOnelinePolicy) {
+              val alignPolicy = if (noSplitIndents.exists(_.hasStateColumn)) {
+                nextCommaOnelinePolicy.map(_ & penalizeNewlinesPolicy)
+              } else None
+              alignPolicy.getOrElse {
+                val slbEnd = nextCommaOneline.getOrElse(close)
+                SingleLineBlock(slbEnd, noSyntaxNL = true)
+              }
+            } else penalizeNewlinesPolicy
             val indentOncePolicy =
               if (style.binPack.indentCallSiteOnce) {
                 val trigger = getIndentTrigger(leftOwner)
@@ -1279,9 +1291,8 @@ class Router(formatOps: FormatOps) {
               } else NoPolicy
             baseNoSplit
               .withOptimalTokenOpt(opt)
-              .withPolicy(penalizeNewlinesPolicy)
+              .withPolicy(noSplitPolicy)
               .andPolicy(unindentPolicy, !isSingleArg || noSplitIndents.isEmpty)
-              .andPolicyOpt(nextCommaOnelinePolicy)
               .andPolicy(indentOncePolicy)
           }
 
@@ -1482,7 +1493,7 @@ class Router(formatOps: FormatOps) {
               style.newlines.source.eq(Newlines.keep) && newlines != 0
             Seq(
               Split(noSpace, 0)(Space)
-                .withSingleLine(endOfSingleLineBlock(optFT)),
+                .withSingleLine(endOfSingleLineBlock(optFT), noSyntaxNL = true),
               Split(Newline, 1).withPolicy(nlPolicy & indentOncePolicy)
             )
           }
