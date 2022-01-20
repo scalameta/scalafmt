@@ -2547,12 +2547,12 @@ object a {
 >>>
 object a {
   test("foo") {
-    a.b(c, d) shouldBe E(
-      Seq(F(1, "v1"), F(2, "v2")),
-      G(Some(Seq(h, i)),
-        Some(Seq(j, k)), a.b, c.d,
-        e.f.g, h.i.j)
-    ).foo
+    a.b(c, d) shouldBe
+      E(Seq(F(1, "v1"), F(2, "v2")),
+        G(Some(Seq(h, i)),
+          Some(Seq(j, k)), a.b, c.d,
+          e.f.g, h.i.j)
+      ).foo
   }
 }
 <<< binpack call, oneline, with syntaxNL, single arg
@@ -2593,15 +2593,17 @@ object a {
 }
 >>>
 object a {
-  val readOut =
-    new ReadOnlyOutputDirectory("main.js" -> raw"""
+  val readOut = new ReadOnlyOutputDirectory(
+    "main.js" -> raw"""
           |console.log("hello");
           |//# sourceMappingURL=main.js.map
           |// some other comment
-          |""".stripMargin, "main.js.map" -> raw"""{
+          |""".stripMargin,
+    "main.js.map" -> raw"""{
           |  "file": "main.js",
           |  "other key": 1
-          |}""".stripMargin)
+          |}""".stripMargin
+  )
 }
 <<< binPack with named parameter values, danglingParentheses
 binPack.preset = true
@@ -4649,9 +4651,8 @@ object a {
 }
 >>>
 object a {
-  def foo(
-      dd: DD[AA[BB], CC] =
-        DDDD.dddd) = {
+  def foo(dd: DD[AA[BB], CC] =
+            DDDD.dddd) = {
     // c
     qux
   }
@@ -4672,9 +4673,8 @@ object a {
 }
 >>>
 object a {
-  def foo(
-      dd: DD[AA[BB], CC] =
-        DDDD.dddd) = {
+  def foo(dd: DD[AA[BB], CC] =
+            DDDD.dddd) = {
     // c
     qux
   }
@@ -4755,9 +4755,8 @@ object a {
     s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
   ))
 
-  when(audienceService.publish(any[Tenant], any[Int]))
-    .thenReturn(Success[NonEmptyList[String], ApiAudience](apiAudience
-      .copy(status = AudienceStatus.Pending.name)))
+  when(audienceService.publish(any[Tenant], any[Int])).thenReturn(Success[NonEmptyList[String],
+    ApiAudience](apiAudience.copy(status = AudienceStatus.Pending.name)))
 }
 <<< unsafeCallSite = Oneline, nested with one arg, several options
 maxColumn = 100

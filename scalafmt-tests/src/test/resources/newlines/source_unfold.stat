@@ -2884,11 +2884,13 @@ object a {
 >>>
 object a {
   val readOut =
-    new ReadOnlyOutputDirectory("main.js" -> raw"""
+    new ReadOnlyOutputDirectory(
+      "main.js" -> raw"""
           |console.log("hello");
           |//# sourceMappingURL=main.js.map
           |// some other comment
-          |""".stripMargin)
+          |""".stripMargin
+    )
 }
 <<< binpack call, oneline, with syntaxNL, multiple args
 maxColumn = 60
@@ -2908,14 +2910,17 @@ object a {
 >>>
 object a {
   val readOut =
-    new ReadOnlyOutputDirectory("main.js" -> raw"""
+    new ReadOnlyOutputDirectory(
+      "main.js" -> raw"""
           |console.log("hello");
           |//# sourceMappingURL=main.js.map
           |// some other comment
-          |""".stripMargin, "main.js.map" -> raw"""{
+          |""".stripMargin,
+      "main.js.map" -> raw"""{
           |  "file": "main.js",
           |  "other key": 1
-          |}""".stripMargin)
+          |}""".stripMargin
+    )
 }
 <<< binPack with named parameter values, danglingParentheses
 binPack.preset = true

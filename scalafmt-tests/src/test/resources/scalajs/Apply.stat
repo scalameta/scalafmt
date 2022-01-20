@@ -241,7 +241,8 @@ object a {
 }
 >>>
 object a {
-  foo(new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+  foo(
+      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
           0, len, openAngleBracketOK = false))),
       new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
           0, len, openAngleBracketOK = false))))
@@ -490,10 +491,12 @@ optDef.getOrElse {
 optDef.getOrElse {
   abort(foo &&
     bar)
-  abort(foo &&
+  abort(
+      foo &&
       bar,
       baz)
-  abort(foo &&
+  abort(
+      foo &&
       bar,
       foo &&
       bar,
@@ -521,10 +524,12 @@ foo.bar {
 foo.bar {
   abort(foo &&
     bar)
-  abort(foo &&
+  abort(
+      foo &&
       bar,
       baz)
-  abort(foo &&
+  abort(
+      foo &&
       bar,
       foo &&
       bar,
@@ -739,7 +744,8 @@ optDef.getOrElse {
 optDef.getOrElse {
   abort(fooFoo &&
     barBar)
-  abort(fooFoo &&
+  abort(
+      fooFoo &&
       barBar,
       bazBaz)
 }
@@ -759,7 +765,8 @@ optDef.getOrElse {
 optDef.getOrElse {
   abort(fooFoo &&
     barBar)
-  abort(fooFoo &&
+  abort(
+      fooFoo &&
       barBar,
       bazBaz)
 }
@@ -788,13 +795,15 @@ object a {
 object a {
   Seq(foo +
     bar)
-  Seq(foo +
+  Seq(
+    foo +
       bar,
     foo +
       bar)
   Seq(foo &&
     bar)
-  Seq(foo &&
+  Seq(
+    foo &&
     bar,
     foo &&
     bar)
@@ -824,13 +833,15 @@ object a {
 object a {
   Seq(foo +
     bar)
-  Seq(foo +
+  Seq(
+    foo +
       bar,
     foo +
       bar)
   Seq(foo &&
     bar)
-  Seq(foo &&
+  Seq(
+    foo &&
     bar,
     foo &&
     bar)
@@ -859,13 +870,15 @@ object a {
 object a {
   Seq(foo +
     bar)
-  Seq(foo +
+  Seq(
+    foo +
       bar,
     foo +
       bar)
   Seq(foo &&
     bar)
-  Seq(foo &&
+  Seq(
+    foo &&
     bar,
     foo &&
     bar)
