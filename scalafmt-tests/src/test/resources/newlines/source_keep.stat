@@ -4765,8 +4765,8 @@ object a {
 }
 >>>
 object a {
-  def foo(bb: BB, cc: CC, dd: DD = DDD.ddd): Bar[
-    Baz] = {
+  def foo(bb: BB, cc: CC,
+      dd: DD = DDD.ddd): Bar[Baz] = {
     // c
     qux
   }
@@ -4877,20 +4877,21 @@ object a {
 >>>
 object a {
   when(
-    service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-      Order.default)
+    service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))),
+      Page(0, Page.maxPageLimit), Order.default)
   ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(
-    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit),
-      Order.default)
+    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)),
+      Page(0, Page.maxPageLimit), Order.default)
   ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default).thenReturn(
+    PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default,
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default,
     PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
 }
 <<< unsafeCallSite = always, nested with one arg
@@ -4944,19 +4945,20 @@ object a {
 }
 >>>
 object a {
-  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-      Order.default)).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)),
-      PageInfo(50, 0, 10)))
+  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))),
+      Page(0, Page.maxPageLimit), Order.default)).thenReturn(PageResult(Seq(audience,
+        audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit),
-      Order.default)).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)),
-      PageInfo(50, 0, 10)))
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)),
+      Page(0, Page.maxPageLimit), Order.default)).thenReturn(PageResult(Seq(audience,
+        audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default).thenReturn(PageResult(Seq(audience,
+        audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default,
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default,
     PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
 }
 <<< #2821 default
