@@ -2869,6 +2869,54 @@ object a {
       ).foo
   }
 }
+<<< binpack call, oneline, with syntaxNL, single arg
+maxColumn = 60
+binPack.unsafeCallSite = oneline
+optIn.configStyleArguments = false
+===
+object a {
+  val readOut = new ReadOnlyOutputDirectory("main.js" -> raw"""
+          |console.log("hello");
+          |//# sourceMappingURL=main.js.map
+          |// some other comment
+          |""".stripMargin)
+}
+>>>
+object a {
+  val readOut =
+    new ReadOnlyOutputDirectory("main.js" -> raw"""
+          |console.log("hello");
+          |//# sourceMappingURL=main.js.map
+          |// some other comment
+          |""".stripMargin)
+}
+<<< binpack call, oneline, with syntaxNL, multiple args
+maxColumn = 60
+binPack.unsafeCallSite = oneline
+optIn.configStyleArguments = false
+===
+object a {
+  val readOut = new ReadOnlyOutputDirectory("main.js" -> raw"""
+          |console.log("hello");
+          |//# sourceMappingURL=main.js.map
+          |// some other comment
+          |""".stripMargin, "main.js.map" -> raw"""{
+          |  "file": "main.js",
+          |  "other key": 1
+          |}""".stripMargin)
+}
+>>>
+object a {
+  val readOut =
+    new ReadOnlyOutputDirectory("main.js" -> raw"""
+          |console.log("hello");
+          |//# sourceMappingURL=main.js.map
+          |// some other comment
+          |""".stripMargin, "main.js.map" -> raw"""{
+          |  "file": "main.js",
+          |  "other key": 1
+          |}""".stripMargin)
+}
 <<< binPack with named parameter values, danglingParentheses
 binPack.preset = true
 optIn.configStyleArguments = false
@@ -4993,6 +5041,90 @@ object a {
   def foo(bb: BB, cc: CC, dd: DD = DDD.ddd): Bar[
     Baz
   ] = {
+    // c
+    qux
+  }
+}
+<<< unsafeDefnSite = Oneline, one arg
+binPack.unsafeDefnSite = Oneline
+newlines.sometimesBeforeColonInMethodReturnType = false
+===
+object a {
+  def foo(dd: DD[AA[BB], CC] = DDD.ddd): Bar[Baz] = {
+      // c
+      qux
+    }
+}
+>>>
+object a {
+  def foo(
+      dd: DD[AA[BB], CC] = DDD.ddd
+  ): Bar[Baz] = {
+    // c
+    qux
+  }
+}
+<<< unsafeDefnSite = Oneline, one arg, also bracketCallSite
+binPack.bracketCallSite = Oneline
+binPack.unsafeDefnSite = Oneline
+newlines.sometimesBeforeColonInMethodReturnType = false
+===
+object a {
+  def foo(dd: DD[AA[BB], CC] = DDD.ddd): Bar[Baz] = {
+      // c
+      qux
+    }
+}
+>>>
+object a {
+  def foo(
+      dd: DD[AA[BB], CC] = DDD.ddd
+  ): Bar[Baz] = {
+    // c
+    qux
+  }
+}
+<<< unsafeDefnSite = Oneline, one arg, also align
+align.openParenDefnSite = true
+optIn.configStyleArguments = false
+danglingParentheses.preset = false
+binPack.unsafeDefnSite = Oneline
+newlines.sometimesBeforeColonInMethodReturnType = true
+===
+object a {
+  def foo(dd: DD[AA[BB], CC] = DDDD.dddd) = {
+      // c
+      qux
+    }
+}
+>>>
+object a {
+  def foo(
+      dd: DD[AA[BB], CC] =
+        DDDD.dddd) = {
+    // c
+    qux
+  }
+}
+<<< unsafeDefnSite = Oneline, one arg, also bracketCallSite+align
+align.openParenDefnSite = true
+optIn.configStyleArguments = false
+danglingParentheses.preset = false
+binPack.bracketCallSite = Oneline
+binPack.unsafeDefnSite = Oneline
+newlines.sometimesBeforeColonInMethodReturnType = true
+===
+object a {
+  def foo(dd: DD[AA[BB], CC] = DDDD.dddd) = {
+      // c
+      qux
+    }
+}
+>>>
+object a {
+  def foo(
+      dd: DD[AA[BB], CC] =
+        DDDD.dddd) = {
     // c
     qux
   }
