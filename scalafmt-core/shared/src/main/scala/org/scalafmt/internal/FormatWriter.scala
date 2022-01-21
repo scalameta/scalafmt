@@ -757,7 +757,7 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append(if (useSlc) "//" else "/*")
           val curlen = sb.length
           val wf = new WordFormatter(appendLineBreak)
-          val lines = wf(wordIter, getFirstLineLength, false)
+          val lines = wf(wordIter, getFirstLineLength, breakBefore)
           if (!useSlc) terminateMlc(curlen, lines)
         }
       }
