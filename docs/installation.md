@@ -130,8 +130,6 @@ To configure the scalafmt version add the following line into `.scalafmt.conf`:
 version = @STABLE_VERSION@
 ```
 
-The latest version will be used by default.
-
 ### Task keys
 
 - `myproject/scalafmt`: Format main sources of `myproject` project
