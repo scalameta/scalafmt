@@ -1034,9 +1034,6 @@ object a {
 >>>
 object a {
   // https://developers.google.com/foo/bar
-Idempotency violated
-  /*
-   * https://developers.google.com/foo/bar */
   // https://developers.google.com/foo/bar
 }
 <<< wrapSingleLineMlcAsSlc, standalone
@@ -1052,8 +1049,5 @@ object a {
 >>>
 object a {
   // https://developers.google.com/foo/bar
-Idempotency violated
-  /*
-   * https://developers.google.com/foo/bar */
   // https://developers.google.com/foo/bar
 }
