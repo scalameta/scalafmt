@@ -1021,3 +1021,39 @@ object a {
       ver) /* baz */
   )
 }
+<<< wrapSingleLineMlcAsSlc, trailing
+maxColumn = 41
+comments.wrap = trailing
+comments.wrapSingleLineMlcAsSlc = true
+===
+object a {
+  // https://developers.google.com/foo/bar
+  /*
+   * https://developers.google.com/foo/bar */
+}
+>>>
+object a {
+  // https://developers.google.com/foo/bar
+Idempotency violated
+  /*
+   * https://developers.google.com/foo/bar */
+  // https://developers.google.com/foo/bar
+}
+<<< wrapSingleLineMlcAsSlc, standalone
+maxColumn = 41
+comments.wrap = standalone
+comments.wrapSingleLineMlcAsSlc = true
+===
+object a {
+  // https://developers.google.com/foo/bar
+  /*
+   * https://developers.google.com/foo/bar */
+}
+>>>
+object a {
+  // https://developers.google.com/foo/bar
+Idempotency violated
+  /*
+   * https://developers.google.com/foo/bar */
+  // https://developers.google.com/foo/bar
+}
