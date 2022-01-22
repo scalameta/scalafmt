@@ -10,22 +10,22 @@ import metaconfig._
   *   If true, formats ===( as === (
   * @param inImportCurlyBraces
   *   - If true, formats
-  * {{{
+  *     {{{
   *     import a.b.{ c, d}
-  * }}}
+  *     }}}
   *   - If false, formats
-  * {{{
+  *     {{{
   *     import a.b.{c, d}
-  * }}}
+  *     }}}
   * @param inInterpolatedStringCurlyBraces
   *   If true, formats
-  * {{{
+  *   {{{
   *     s"\${var1} \${var2.sub}"
-  * }}}
-  * as
-  * {{{
+  *   }}}
+  *   as
+  *   {{{
   *     s"\${ var1 } \${ var2.sub }"
-  * }}}
+  *   }}}
   * @param inParentheses
   *   If true, formats `foo(a, b)` as `foo( a, b )`.
   * @param neverAroundInfixTypes
@@ -34,10 +34,10 @@ import metaconfig._
   * @param afterKeywordBeforeParen
   *   if false, does not add a space between a keyword and a parenthesis. For
   *   example:
-  * {{{
+  *   {{{
   *     if(a) println("HELLO!")
   *     while(a) println("HELLO!")
-  * }}}
+  *   }}}
   * @param inByNameTypes
   *   If false, removes space in by-name parameter: {{{def foo(a: =>A)}}}
   * @param afterSymbolicDefs

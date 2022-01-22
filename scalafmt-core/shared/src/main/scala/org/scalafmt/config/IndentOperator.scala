@@ -4,18 +4,18 @@ import metaconfig._
 
 /** @param include
   *   Regexp for which infix operators should indent by 2 spaces. For example,
-  *   .*= produces this output
-  * {{{
+  *   `.*=` produces this output
+  *   {{{
   *   a &&
   *   b
   *
   *   a +=
   *     b
-  * }}}
+  *   }}}
   * @param exclude
   *   Regexp for which infix operators should not indent by 2 spaces. For
-  *   example, when [[include]] is .* and [[exclude]] is &&
-  * {{{
+  *   example, when [[include]] is `.*` and [[exclude]] is `&&`
+  *   {{{
   *   a &&
   *   b
   *
@@ -24,11 +24,11 @@ import metaconfig._
   *
   *   a +=
   *     b
-  * }}}
+  *   }}}
   * @param topLevelOnly
   *   If true, allows no indentation on infix operators in top-level functions
   *   only. For example,
-  * {{{
+  *   {{{
   *   // top-level, flag doesn't apply
   *   a &&
   *   b
@@ -42,7 +42,7 @@ import metaconfig._
   *     a &&
   *     b
   *   )
-  * }}}
+  *   }}}
   * @see
   *   For context:
   *   [[https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md#long-expressions-with-binary-operators]]

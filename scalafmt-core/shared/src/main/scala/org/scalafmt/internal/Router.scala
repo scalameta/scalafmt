@@ -324,7 +324,7 @@ class Router(formatOps: FormatOps) {
                   //   def f = x
                   // }
                   !t.parent.exists(_.is[Term.NewAnonymous]) ||
-                    t.stats.exists(_.is[Defn])
+                  t.stats.exists(_.is[Defn])
                 case _ => false
               })
 
@@ -549,10 +549,10 @@ class Router(formatOps: FormatOps) {
             val spaceCouldBeOk = annoLeft && (style.newlines.source match {
               case Newlines.unfold =>
                 right.is[T.Comment] ||
-                  !style.optIn.annotationNewlines && annoRight
+                !style.optIn.annotationNewlines && annoRight
               case Newlines.fold =>
                 right.is[T.Comment] || annoRight ||
-                  !style.optIn.annotationNewlines && right.is[Keyword]
+                !style.optIn.annotationNewlines && right.is[Keyword]
               case Newlines.keep =>
                 newlines == 0 && (annoRight || right.is[Keyword])
               case _ =>

@@ -30,18 +30,18 @@ import org.scalafmt.util.ValidationOps
   * @param danglingParentheses
   *   If true AND @binPackArguments is true AND @configStyleArguments is false,
   *   then this
-  * {{{
+  *   {{{
   *     function(
   *         longerArg1,
   *         longerArg3)
-  * }}}
-  * is formatted like this
-  * {{{
+  *   }}}
+  *   is formatted like this
+  *   {{{
   *     function(
   *         longerArg1,
   *         longerArg3
   *     )
-  * }}}
+  *   }}}
   * @param rewriteTokens
   *   Map of tokens to rewrite. For example, Map("⇒" -> "=>") will rewrite
   *   unicode arrows to regular ascii arrows.
@@ -56,15 +56,15 @@ import org.scalafmt.util.ValidationOps
   *     are kept on a single line The default setting is currently `noBinPack`.
   * @param indentYieldKeyword
   *   - If true, indents `yield` by two spaces
-  * {{{
+  *     {{{
   *       for (i <- j)
   *         yield banana
-  * }}}
+  *     }}}
   *   - If false, treats `yield` like `else`
-  * {{{
+  *     {{{
   *       for (i <- j)
   *       yield banana
-  * }}}
+  *     }}}
   * @param lineEndings
   *   - If [[LineEndings.unix]], output will include only unix line endings
   *   - If [[LineEndings.windows]], output will include only windows line
@@ -75,7 +75,7 @@ import org.scalafmt.util.ValidationOps
   * @param includeCurlyBraceInSelectChains
   *   NB: failure unless newlines.source=classic If true, includes curly brace
   *   applications in select chains/pipelines.
-  * {{{
+  *   {{{
   *     // If true
   *     List(1)
   *       .map { x =>
@@ -86,11 +86,11 @@ import org.scalafmt.util.ValidationOps
   *     List(1).map { x =>
   *         x + 2
   *     }.filter(_ > 2)
-  * }}}
+  *   }}}
   * @param includeNoParensInSelectChains
   *   NB: ignored unless newlines.source=classic If true, includes applications
   *   without parens in select chains/pipelines.
-  * {{{
+  *   {{{
   *     // If true
   *     List(1)
   *       .toIterator
@@ -101,7 +101,7 @@ import org.scalafmt.util.ValidationOps
   *     List(1).toIterator.buffered
   *       .map(_ + 2)
   *       .filter(_ > 2)
-  * }}}
+  *   }}}
   */
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,

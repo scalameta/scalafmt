@@ -1499,7 +1499,7 @@ class FormatOps(
       case Some(Term.Apply(fun, List(_)))
           if tokens.tokenAfter(fun).right.is[T.LeftBrace] =>
         style.includeCurlyBraceInSelectChains &&
-          !nextSelect.contains(lastApply) // exclude short curly
+        !nextSelect.contains(lastApply) // exclude short curly
       case Some(SplitCallIntoParts(`thisTree`, _)) => true
       case _ => false
     })
@@ -2725,7 +2725,7 @@ class FormatOps(
     style.getTrailingCommas match {
       case TrailingCommas.keep =>
         left.is[T.Comma] &&
-          TreeOps.rightIsCloseDelimForTrailingComma(left, ft)
+        TreeOps.rightIsCloseDelimForTrailingComma(left, ft)
       case TrailingCommas.always =>
         TreeOps.rightIsCloseDelimForTrailingComma(left, ft)
       case TrailingCommas.multiple =>
