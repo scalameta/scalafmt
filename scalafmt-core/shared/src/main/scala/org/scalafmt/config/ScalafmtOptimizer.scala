@@ -33,14 +33,14 @@ import metaconfig._
   *
   *   - Example: solution 1 is preferred even though both solutions cost the
   *     same:
-  * {{{
+  *     {{{
   *       // solution 1
   *       a + b +
   *       c + d
   *       // solution 2
   *       a +
   *       b + c + d
-  * }}}
+  *     }}}
   * @param recurseOnBlocks
   *   Recursively format { ... } blocks inside no optimization zones.
   *

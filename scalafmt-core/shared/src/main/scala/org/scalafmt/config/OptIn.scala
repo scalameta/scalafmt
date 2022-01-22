@@ -30,7 +30,7 @@ import metaconfig.generic.Surface
   * @param breakChainOnFirstMethodDot
   *   NB: ignored unless newlines.source=classic If true, keeps the line break
   *   before a dot if it already exists.
-  * {{{
+  *   {{{
   *     // original
   *     foo
   *       .map(_ + 1)
@@ -41,14 +41,14 @@ import metaconfig.generic.Surface
   *       .filter( > 2)
   *     // if false
   *     foo.map(_ + 1).filter( > 2)
-  * }}}
+  *   }}}
   *
   * @param encloseClassicChains
   *   NB: ignored unless newlines.source=classic. Controls what happens if a
   *   chain enclosed in parentheses is followed by additional selects. Those
   *   additional selects will be considered part of the enclosed chain if and
   *   only if this flag is false.
-  * {{{
+  *   {{{
   *     // original
   *     (foo.map(_ + 1).map(_ + 1))
   *       .filter(_ > 2)
@@ -60,7 +60,7 @@ import metaconfig.generic.Surface
   *       .map(_ + 1)
   *       .map(_ + 1))
   *       .filter(_ > 2)
-  * }}}
+  *   }}}
   *
   * @param annotationNewlines
   *   - if newlines.source is missing or keep:
@@ -79,7 +79,7 @@ import metaconfig.generic.Surface
   * @param forceBlankLineBeforeDocstring
   *   If true, always insert a blank line before docstrings, If false, preserves
   *   blank line only if one exists before. Example:
-  * {{{
+  *   {{{
   *     // before
   *     object Foo {
   *       /** Docstring */
@@ -96,7 +96,7 @@ import metaconfig.generic.Surface
   *       /** Docstring */
   *       def foo = 2
   *     }
-  * }}}
+  *   }}}
   */
 case class OptIn(
     configStyleArguments: Boolean = true,

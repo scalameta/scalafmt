@@ -7,11 +7,11 @@ import metaconfig.generic.Surface
 /** @param openParenCallSite
   *   If true AND bin-packing is true, then call-site arguments won't be aligned
   *   by the opening parenthesis. For example, this output will be disallowed
-  * {{{
+  *   {{{
   *   function1(a,
   *             b,
   *             c)
-  * }}}
+  *   }}}
   * @param openParenDefnSite
   *   Same as [[openParenCallSite]], except definition site.
   * @param tokens
@@ -19,18 +19,18 @@ import metaconfig.generic.Surface
   *   scala.meta.Tree.getClass.getName of the deepest tree node that "owns" the
   *   token to align by.
   *   - Examples:
-  * {{{
+  *     {{{
   *   align.tokens = ["="] // align = owned by any tree node (not recommended)
   *
   *   align.tokens = [
   *     { code = "=", owner = "Param" } // align = when owned by parameter tree nodes
   *   ]
-  * }}}
+  *     }}}
   *   - Pro tip. if you use for example {{{preset = defaultWithAlign}}} and want
   *     to add one extra token (for example "|>") to align by, write
-  * {{{
+  *     {{{
   *     align.tokens."+" = [ "|> ]
-  * }}}
+  *     }}}
   *   - NOTE. Adding more alignment tokens may potentially decrease the vertical
   *     alignment in formatted output. Customize at your own risk, I recommend
   *     you try and stick to the default settings.
@@ -43,18 +43,18 @@ import metaconfig.generic.Surface
   *   Customize which token kinds can align together. By default, only tokens
   *   with the same `Token.productPrefix` align. For example, to align = and <-,
   *   set the values to:
-  * {{{
+  *   {{{
   *     Map("Equals" -> "Assign", "LeftArrow" -> "Assign")
-  * }}}
-  * Note: Requires mixedTokens to be true.
+  *   }}}
+  *   Note: Requires mixedTokens to be true.
   * @param treeCategory
   *   Customize which tree kinds can align together. By default, only trees with
   *   the same `Tree.productPrefix` align. For example, to align Defn.Val and
   *   Defn.Var, set the values to:
-  * {{{
+  *   {{{
   *     Map("Defn.Var" -> "Assign", "Defn.Val" -> "Assign")
-  * }}}
-  * Note. Requires mixedOwners to be true.
+  *   }}}
+  *   Note. Requires mixedOwners to be true.
   * @param stripMargin
   *   If set, indent lines with a strip-margin character in a multiline string
   *   constant relative to the opening quotes (or the strip-margin character if

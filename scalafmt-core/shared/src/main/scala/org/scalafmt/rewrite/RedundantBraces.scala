@@ -253,7 +253,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         okToRemoveAroundFunctionBody(t.body, false)
       case Some(p: Term.Apply) =>
         getOpeningParen(p).isDefined &&
-          okToRemoveAroundFunctionBody(t.body, p.args)
+        okToRemoveAroundFunctionBody(t.body, p.args)
       case _ => false
     }
 
@@ -367,7 +367,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         // can't allow: new A with B .foo
         // can allow if: no ".foo", no "with B", or has braces
         !b.parent.exists(_.is[Term.Select]) || t.templ.inits.length <= 1 ||
-          t.templ.stats.nonEmpty || t.tokens.last.is[Token.RightBrace]
+        t.templ.stats.nonEmpty || t.tokens.last.is[Token.RightBrace]
       case tree => tree.is[Term] && tree.isNot[Term.Function]
     }
 
@@ -380,7 +380,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         // don't rewrite block if the inner block will be rewritten, too
         // sometimes a function body block doesn't have braces
         fb.tokens.headOption.exists(_.is[Token.LeftBrace]) &&
-          !okToRemoveAroundFunctionBody(fb, true)
+        !okToRemoveAroundFunctionBody(fb, true)
       case _ => true
     }
 
@@ -424,7 +424,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           //   which would be equivalent to
           // if (a) { if (b) c else d }
           (parentIf.thenp eq b) && !ifWithoutElse(parentIf) &&
-            existsIfWithoutElse(stat.asInstanceOf[Term.If])
+          existsIfWithoutElse(stat.asInstanceOf[Term.If])
 
         case p: Term.ApplyInfix =>
           stat match {

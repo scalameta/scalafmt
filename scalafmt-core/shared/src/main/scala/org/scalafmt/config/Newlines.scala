@@ -14,7 +14,7 @@ import metaconfig.generic.Surface
   *   If true, adds a penalty to newlines before a dot starting a select chain
   *   of length one and argument list. The penalty matches the number of
   *   arguments to the select chain application.
-  * {{{
+  *   {{{
   *     // If true, favor
   *     logger.elem(a,
   *                 b,
@@ -26,7 +26,7 @@ import metaconfig.generic.Surface
   *     // penalty is proportional to argument count, example:
   *     logger.elem(a, b, c)    // penalty 2
   *     logger.elem(a, b, c, d) // penalty 3, etc.
-  * }}}
+  *   }}}
   *
   * If false, matches pre-v0.5 behavior. Note. this option may be removed in a
   * future release.
@@ -42,55 +42,52 @@ import metaconfig.generic.Surface
   *     above) which can't be formatted on a single line
   *   - if Always, forces a newline in lambda and partial functions. For
   *     example:
-  * {{{
+  *     {{{
   *   something.map {
   *     n =>
   *       consume(n)
   *   }
-  * }}}
+  *     }}}
   * @param afterCurlyLambdaParams
-  *   If `never` (default), it will remove any extra lines below curly lambdas
-  * {{{
+  *   - If `never` (default), it will remove any extra lines below curly lambdas
+  *     {{{
   *   something.map { x =>
   *
   *     f(x)
   *   }
-  * }}}
-  * will become
-  * {{{
+  *     }}}
+  *     will become
+  *     {{{
   *   something.map { x =>
   *     f(x)
   *   }
-  * }}}
-  *
-  * If `always`, it will always add one empty line (opposite of `never`). If
-  * `preserve`, and there isn't an empty line, it will keep it as it is. If
-  * there is one or more empty lines, it will place a single empty line.
-  *
-  * If `squash`, it will try to squash lambda body in one line:
-  *
-  * {{{
+  *     }}}
+  *   - If `always`, it will always add one empty line (opposite of `never`). If
+  *     `preserve`, and there isn't an empty line, it will keep it as it is. If
+  *     there is one or more empty lines, it will place a single empty line.
+  *   - If `squash`, it will try to squash lambda body in one line:
+  *     {{{
   *     xs.map { x =>
   *       x + 1
   *     }
-  * }}}
-  * will become
-  * {{{
+  *     }}}
+  *     will become
+  *     {{{
   *     xs.map { x => x + 1 }
-  * }}}
+  *     }}}
   * @param alwaysBeforeElseAfterCurlyIf
   *   if true, add a new line between the end of a curly if and the following
   *   else. For example
-  * {{{
+  *   {{{
   *   if(someCond) {
   *     // ...
   *   }
   *   else //...
-  * }}}
+  *   }}}
   * @param beforeMultilineDef
   *   If unfold (or true), add a newline before the body of a multiline def
   *   without curly braces. See #1126 for discussion. For example,
-  * {{{
+  *   {{{
   *     // newlines.beforeMultilineDef = fold
   *     def foo(bar: Bar): Foo = bar
   *       .flatMap(f)
@@ -101,11 +98,11 @@ import metaconfig.generic.Surface
   *       bar
   *         .flatMap(f)
   *         .map(g)
-  * }}}
+  *   }}}
   * @param avoidAfterYield
   *   If false (legacy behavior), inserts unconditional line break after `yield`
   *   if the yield body doesn't fit on a single line. For example,
-  * {{{
+  *   {{{
   *     // newlines.avoidAfterYield = true (default)
   *     for (a <- as)
   *     yield Future {
@@ -118,7 +115,7 @@ import metaconfig.generic.Surface
   *       Future {
   *         ...
   *       }
-  * }}}
+  *   }}}
   * @param source
   *   Controls how line breaks in the input source are handled
   *   - If `classic` (default), the old mixed behaviour will be used

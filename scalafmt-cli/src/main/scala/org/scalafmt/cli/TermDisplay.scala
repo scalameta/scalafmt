@@ -379,7 +379,6 @@ object TermDisplay {
       Option(q.poll(100L, TimeUnit.MILLISECONDS)) match {
         case None => fallbackDisplayLoop(previous)
         case Some(Message.Stop) => // poison pill
-
           // clean up display
           for (_ <- 1 to 2; _ <- 0 until currentHeight) {
             out.clearLine(2)

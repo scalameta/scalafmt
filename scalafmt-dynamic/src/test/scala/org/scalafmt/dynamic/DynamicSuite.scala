@@ -213,7 +213,7 @@ class DynamicSuite extends FunSuite {
   checkVersion(latest, "scala212")
   checkVersion("1.5.1", "scala211")
   checkVersion("1.0.0", "scala211")
-  //checkVersion("0.2.8") // fails for now
+  // checkVersion("0.2.8") // fails for now
 
   check("parse-error") { f =>
     def check(version: String, dialect: String): Unit = {

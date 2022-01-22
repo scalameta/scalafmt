@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# https://scalameta.org/scalafmt/docs/installation.html#coursier
+
+version=$1
+exec \
+  coursier bootstrap \
+  org.scalameta:scalafmt-cli_2.13:$version \
+  -r sonatype:snapshots \
+  --main org.scalafmt.cli.Cli \
+  -o scalafmt-$version
