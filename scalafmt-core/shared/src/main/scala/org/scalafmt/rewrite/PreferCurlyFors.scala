@@ -38,12 +38,17 @@ object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
   * with braces and new-lines.
   *
   * For example,
-  *
-  * for(a <- as; b <- bs if b > 2) yield (a, b)
-  *
-  * becomes,
-  *
-  * for { a <- as b <- bs if b > 2 } yield (a, b)
+  * {{{
+  *   for(a <- as; b <- bs if b > 2) yield (a, b)
+  * }}}
+  * becomes
+  * {{{
+  *   for {
+  *     a <- as
+  *     b <- bs
+  *     if b > 2
+  *   } yield (a, b)
+  * }}}
   */
 private class PreferCurlyFors(ftoks: FormatTokens)
     extends FormatTokensRewrite.Rule {

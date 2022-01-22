@@ -189,10 +189,11 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       syntax.headOption.contains('`') && syntax.lastOption.contains('`')
     }
 
-    /** we need remain braces for interpolated literal identifiers: s"string
-      * ${`type`}" and identifiers started with '_': s"string %{_id}" otherwise
-      * formatting will result in compilation error (see
-      * https://github.com/scalameta/scalafmt/issues/1420)
+    /** we need to keep braces
+      *   - for interpolated literal identifiers: {{{s"string ${`type`}"}}}
+      *   - and identifiers starting with '_': {{{s"string %{_id}"}}}, otherwise
+      *     formatting will result in compilation error (see
+      *     https://github.com/scalameta/scalafmt/issues/1420)
       */
     def shouldTermBeEscaped(arg: Term.Name): Boolean =
       arg.value.head == '_' || isLiteralIdentifier(arg)

@@ -564,9 +564,18 @@ object Imports extends RewriteFactory {
     }
   }
 
-  /** convert import a.{c, b}, d.{f, e} to import a.b import a.c
+  /** convert
+    * {{{
+    *   import a.{c, b}, d.{f, e}
+    * }}}
+    * to
+    * {{{
+    *   import a.b
+    *   import a.c
     *
-    * import d.e import d.f
+    *   import d.e
+    *   import d.f
+    * }}}
     */
   private class ExpandFull(implicit ctx: RewriteCtx) extends ExpandBase {
     override protected final def addClauseToGroup(
@@ -589,9 +598,16 @@ object Imports extends RewriteFactory {
     }
   }
 
-  /** convert import a.{c, b}, d.{f, e} to import a.{b, c}
+  /** convert
+    * {{{
+    *   import a.{c, b}, d.{f, e}
+    * }}}
+    * to
+    * {{{
+    *   import a.{b, c}
     *
-    * import d.{e, f}
+    *   import d.{e, f}
+    * }}}
     */
   private class ExpandPart(implicit ctx: RewriteCtx) extends ExpandBase {
     override protected final def addClauseToGroup(
@@ -603,7 +619,14 @@ object Imports extends RewriteFactory {
       addToGroup(group, kw, ref, importer.importees, importer)
   }
 
-  /** convert import a.{c, b}, d.{f, e} to import a.{b, c}, d.{e, f}
+  /** convert
+    * {{{
+    *   import a.{c, b}, d.{f, e}
+    * }}}
+    * to
+    * {{{
+    *   import a.{b, c}, d.{e, f}
+    * }}}
     */
   private class ExpandNone(implicit ctx: RewriteCtx) extends Base {
     override protected def processImports(

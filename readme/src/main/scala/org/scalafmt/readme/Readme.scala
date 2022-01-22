@@ -43,7 +43,11 @@ object Readme {
 
   /** repl session, inspired by tut.
     *
-    * Example: code="1 + 1" returns "scala> 1 + 1 res0: Int = 2"
+    * Example: {{{code="1 + 1"}}} returns
+    * {{{
+    *   scala> 1 + 1
+    *   res0: Int = 2
+    * }}}
     */
   def repl(code: String) = {
     import scala.meta._

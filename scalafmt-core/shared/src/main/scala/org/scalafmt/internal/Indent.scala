@@ -36,8 +36,10 @@ object Length {
   /** Indent up to the column of the left token.
     *
     * Example: the opening parenthesis below indents by [[StateColumn]].
-    *
-    * foobar(arg1, arg2)
+    * {{{
+    *   foobar1(arg1,
+    *           arg2)
+    * }}}
     */
   case object StateColumn extends Length {
     override def withStateOffset(offset: Int): Int = offset

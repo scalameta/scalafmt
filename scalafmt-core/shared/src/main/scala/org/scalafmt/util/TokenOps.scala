@@ -25,10 +25,11 @@ object TokenOps {
     * from different source files. We only care about getting a unique
     * identifier for the token inside this source file.
     *
-    * The hash code works like this this: Top 8 bits go to a hashCode of
-    * productPrefix, a unique identifier for the tokens class. Next 28 bits go
-    * to the tokens **start** offset byte. Final 28 bits go to the tokens
-    * **end** offset byte.
+    * The hash code works like this this:
+    *   - Top 8 bits go to a hashCode of productPrefix, a unique identifier for
+    *     the tokens class
+    *   - Next 28 bits go to the tokens **start** offset byte
+    *   - Final 28 bits go to the tokens **end** offset byte.
     *
     * The only chance for collision is if two empty length tokens with the same
     * type lie next to each other. @xeno-by said this should not happen.
