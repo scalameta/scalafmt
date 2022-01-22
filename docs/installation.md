@@ -242,7 +242,7 @@ scalafmt --version # should be @STABLE_VERSION@
 
 #### standalone
 
-Alternatively, you can create a complete standalone executable with:
+Alternatively, you can create a complete standalone executable (40+ MB in 2022) with:
 
 ```sh
 coursier bootstrap org.scalameta:scalafmt-cli_2.13:@STABLE_VERSION@ \
@@ -254,7 +254,7 @@ coursier bootstrap org.scalameta:scalafmt-cli_2.13:@STABLE_VERSION@ \
 
 #### slim
 
-Finally, you can choose to obtain a slim 15 KiB bootstrap script instead with:
+Finally, you can choose to obtain a slim bootstrap script (100+ KB in 2022) instead with:
 
 ```sh
 coursier bootstrap org.scalameta:scalafmt-cli_2.13:@STABLE_VERSION@ \
