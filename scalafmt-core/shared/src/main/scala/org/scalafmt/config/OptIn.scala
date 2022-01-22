@@ -118,11 +118,12 @@ case class OptIn(
   /** See https://github.com/scalameta/scalafmt/issues/1712
     *
     * Setting behavior and name were mirrored. After deprecation and right
-    * naming we need to: if `forceBlankLineBeforeDocstring` (new name) has
-    * default value (true) fallback to `blankLineBeforeDocstring` (old config)
-    * which may be configured in .scalafmt.conf if
-    * `forceBlankLineBeforeDocstring` configured to non-default value don't look
-    * at the old name
+    * naming we need to:
+    *   - if `forceBlankLineBeforeDocstring` (new name) has default value
+    *     (true), fallback to `blankLineBeforeDocstring` (old config) which may
+    *     be configured in .scalafmt.conf
+    *   - if `forceBlankLineBeforeDocstring` configured to non-default value,
+    *     don't look at the old name
     */
   lazy val forceNewlineBeforeDocstringSummary: Boolean =
     forceBlankLineBeforeDocstring && !blankLineBeforeDocstring

@@ -24,17 +24,23 @@ import metaconfig._
   *   Do not optimize inside certain areas such as term apply.
   * @param pruneSlowStates
   *   Eliminate solutions that move slower than other solutions.
+  *   - If a solution reaches a point X first and other solution that reaches
+  *     the same point later, the first solution is preferred if it can be
+  *     verified to be always better (see
+  *     [[org.scalafmt.internal.State.alwaysBetter]]).
+  *   - Note. This affects the output positively because it breaks a tie between
+  *     two equally expensive solutions by eliminating the slower one.
   *
-  * If a solution reaches a point X first and other solution that reaches the
-  * same point later, the first solution is preferred if it can be verified to
-  * be always better (see [[org.scalafmt.internal.State.alwaysBetter]]).
-  *
-  * Note. This affects the output positively because it breaks a tie between two
-  * equally expensive solutions by eliminating the slower one.
-  *
-  * Example, solution 1 is preferred even though both solutions cost the same:
-  *
-  * // solution 1 a + b + c + d // solution 2 a + b + c + d
+  *   - Example: solution 1 is preferred even though both solutions cost the
+  *     same:
+  * {{{
+  *       // solution 1
+  *       a + b +
+  *       c + d
+  *       // solution 2
+  *       a +
+  *       b + c + d
+  * }}}
   * @param recurseOnBlocks
   *   Recursively format { ... } blocks inside no optimization zones.
   *

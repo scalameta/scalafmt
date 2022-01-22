@@ -30,32 +30,48 @@ import org.scalafmt.util.ValidationOps
   * @param danglingParentheses
   *   If true AND @binPackArguments is true AND @configStyleArguments is false,
   *   then this
-  *
-  * function( longerArg1, longerArg3)
-  *
+  * {{{
+  *     function(
+  *         longerArg1,
+  *         longerArg3)
+  * }}}
   * is formatted like this
-  *
-  * function( longerArg1, longerArg3 )
+  * {{{
+  *     function(
+  *         longerArg1,
+  *         longerArg3
+  *     )
+  * }}}
   * @param rewriteTokens
   *   Map of tokens to rewrite. For example, Map("⇒" -> "=>") will rewrite
   *   unicode arrows to regular ascii arrows.
   * @param importSelectors
   *   Controls formatting of import selectors with multiple names from the same
-  *   package; If [[org.scalafmt.config.ImportSelectors.binPack]], import
-  *   selectors are arranged to fit within the maximum line width If
-  *   [[org.scalafmt.config.ImportSelectors.noBinPack]], import selectors are
-  *   broken to one per line If
-  *   [[org.scalafmt.config.ImportSelectors.singleLine]], import selectors are
-  *   kept on a single line The default setting is currently `noBinPack`.
+  *   package
+  *   - If [[org.scalafmt.config.ImportSelectors.binPack]], import selectors are
+  *     arranged to fit within the maximum line width
+  *   - If [[org.scalafmt.config.ImportSelectors.noBinPack]], import selectors
+  *     are broken to one per line
+  *   - If [[org.scalafmt.config.ImportSelectors.singleLine]], import selectors
+  *     are kept on a single line The default setting is currently `noBinPack`.
   * @param indentYieldKeyword
-  *   If true, indents `yield` by two spaces for (i <- j) yield banana If false,
-  *   treats `yield` like `else` for (i <- j) yield banana
+  *   - If true, indents `yield` by two spaces
+  * {{{
+  *       for (i <- j)
+  *         yield banana
+  * }}}
+  *   - If false, treats `yield` like `else`
+  * {{{
+  *       for (i <- j)
+  *       yield banana
+  * }}}
   * @param lineEndings
-  *   If [[LineEndings.unix]], output will include only unix line endings If
-  *   [[LineEndings.windows]], output will include only windows line endings If
-  *   [[LineEndings.preserve]], output will include endings included in original
-  *   file (windows if there was at least one windows line ending, unix if there
-  *   was zero occurrences of windows line endings)
+  *   - If [[LineEndings.unix]], output will include only unix line endings
+  *   - If [[LineEndings.windows]], output will include only windows line
+  *     endings
+  *   - If [[LineEndings.preserve]], output will include endings included in
+  *     original file (windows if there was at least one windows line ending,
+  *     unix if there was zero occurrences of windows line endings)
   * @param includeCurlyBraceInSelectChains
   *   NB: failure unless newlines.source=classic If true, includes curly brace
   *   applications in select chains/pipelines.

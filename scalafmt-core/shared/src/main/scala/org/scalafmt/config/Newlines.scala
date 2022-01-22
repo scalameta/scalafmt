@@ -80,7 +80,13 @@ import metaconfig.generic.Surface
   * }}}
   * @param alwaysBeforeElseAfterCurlyIf
   *   if true, add a new line between the end of a curly if and the following
-  *   else. For example if(someCond) { // ... } else //...
+  *   else. For example
+  * {{{
+  *   if(someCond) {
+  *     // ...
+  *   }
+  *   else //...
+  * }}}
   * @param beforeMultilineDef
   *   If unfold (or true), add a newline before the body of a multiline def
   *   without curly braces. See #1126 for discussion. For example,
@@ -114,15 +120,16 @@ import metaconfig.generic.Surface
   *       }
   * }}}
   * @param source
-  *   Controls how line breaks in the input source are handled If `classic`
-  *   (default), the old mixed behaviour will be used If `keep`, try to keep
-  *   source newlines If `fold`, ignore source and try to remove line breaks If
-  *   `unfold`, ignore source and try to break lines
+  *   Controls how line breaks in the input source are handled
+  *   - If `classic` (default), the old mixed behaviour will be used
+  *   - If `keep`, try to keep source newlines
+  *   - If `fold`, ignore source and try to remove line breaks
+  *   - If `unfold`, ignore source and try to break lines
   * @param afterInfix
-  *   Controls how line breaks around operations are handled If `keep` (default
-  *   for source=classic,keep), preserve existing If `some` (default for
-  *   source=fold), break after some infix ops If `many` (default for
-  *   source=unfold), break after many infix ops
+  *   Controls how line breaks around operations are handled
+  *   - If `keep` (default for source=classic,keep), preserve existing
+  *   - If `some` (default for source=fold), break after some infix ops
+  *   - If `many` (default for source=unfold), break after many infix ops
   * @param afterInfixBreakOnNested
   *   Force breaks around nested (enclosed in parentheses) expressions
   * @param afterInfixMaxCountPerFile
