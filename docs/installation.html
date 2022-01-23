@@ -239,7 +239,7 @@ of packages, the simplest approach is by running</p>
 scalafmt --version <span class="hljs-comment"># should be 3.3.3</span>
 </code></pre>
 <h4><a class="anchor" aria-hidden="true" id="standalone"></a><a href="#standalone" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>standalone</h4>
-<p>Alternatively, you can create a complete standalone executable with:</p>
+<p>Alternatively, you can create a complete standalone executable (40+ MB in 2022) with:</p>
 <pre><code class="hljs css language-sh">coursier bootstrap org.scalameta:scalafmt-cli_2.13:3.3.3 \
   -r sonatype:snapshots --main org.scalafmt.cli.Cli \
   --standalone \
@@ -247,7 +247,7 @@ scalafmt --version <span class="hljs-comment"># should be 3.3.3</span>
 ./scalafmt --version <span class="hljs-comment"># should be 3.3.3</span>
 </code></pre>
 <h4><a class="anchor" aria-hidden="true" id="slim"></a><a href="#slim" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>slim</h4>
-<p>Finally, you can choose to obtain a slim 15 KiB bootstrap script instead with:</p>
+<p>Finally, you can choose to obtain a slim bootstrap script (100+ KB in 2022) instead with:</p>
 <pre><code class="hljs css language-sh">coursier bootstrap org.scalameta:scalafmt-cli_2.13:3.3.3 \
   -r sonatype:snapshots --main org.scalafmt.cli.Cli \
   -o scalafmt
@@ -330,10 +330,10 @@ provides instant startup without Nailgun.</p>
 scalafmt --version // should be 3.3.3
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="--help"></a><a href="#--help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: e95bc86732d520b4c87a6fd31ab810af2a23407d
-build time: Sat Jan <span class="hljs-number">22</span> <span class="hljs-number">19</span>:<span class="hljs-number">39</span>:<span class="hljs-number">22</span> UTC <span class="hljs-number">2022</span>
+<pre><code class="hljs">build commit: <span class="hljs-number">3e7</span>d6d7c1dadb06dedd9b1e0c4b8e67989f93f72
+build time: Sun Jan <span class="hljs-number">23</span> <span class="hljs-number">23</span>:<span class="hljs-number">40</span>:<span class="hljs-number">20</span> UTC <span class="hljs-number">2022</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 3.3.3+1-e95bc867-SNAPSHOT
+<pre><code class="hljs">scalafmt 3.3.3+2-3e7d6d7c-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
