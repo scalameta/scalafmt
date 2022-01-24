@@ -75,6 +75,7 @@ case class Align(
     private[config] val openParenTupleSite: Option[Boolean] = None,
     beforeOpenParenDefnSite: Boolean = false,
     beforeOpenParenCallSite: Boolean = false,
+    inInterpolation: Boolean = false,
     tokens: Seq[AlignToken] = Seq(AlignToken.caseArrow),
     arrowEnumeratorGenerator: Boolean = false,
     tokenCategory: Map[String, String] = Map(),

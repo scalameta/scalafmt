@@ -1051,6 +1051,46 @@ align.allowOverflow
 
 It's also enabled by default in `align.preset = most`.
 
+### `align.inInterpolation`
+
+If this flag is set, and breaks within interpolated code are allowed
+(see [`newlines.inInterpolation`](#newlinesininterpolation), then the
+interpolated code and the closing `}` will be indented relative to the opening `${`.
+
+> Since v3.4.0.
+
+```scala mdoc:defaults
+align.inInterpolation
+```
+
+Keep in mind that this option might lead to line overflow via "stacking":
+
+```scala mdoc:scalafmt
+maxColumn = 30
+align.inInterpolation = true
+newlines.inInterpolation = oneline
+---
+object a {
+  s"""
+    |foo1 ${quxQux(bazBaz, barBar)} foo2 ${quxQux(bazBaz, barBar)} foo3 ${quxQux(bazBaz, barBar)} foo4
+    |""".stripMargin
+}
+```
+
+vs
+
+```scala mdoc:scalafmt
+maxColumn = 30
+align.inInterpolation = false
+newlines.inInterpolation = oneline
+---
+object a {
+  s"""
+    |foo1 ${quxQux(bazBaz, barBar)} foo2 ${quxQux(bazBaz, barBar)} foo3 ${quxQux(bazBaz, barBar)} foo4
+    |""".stripMargin
+}
+```
+
 ## Newlines
 
 The `newlines.*` options are used to configure when and where `scalafmt` should
@@ -2133,6 +2173,23 @@ It takes the same values as [newlines.source](#newlinessource); use `null`
 - `unfold`: forces breaks on each select unless all fit on a single line
 - `classic` (i.e., `null` and `newlines.source` is not specified):
   see [Classic select chains](#classic-select-chains).
+
+### `newlines.inInterpolation`
+
+This parameter controls how to format spliced scala code within string constants
+(e.g., `s"..."`, etc). Also see [`align.inInterpolation`](#alignininterpolation).
+
+```scala mdoc:defaults
+newlines.inInterpolation
+```
+
+> Since v3.4.0.
+
+- `allow`: allows breaks within spliced code (original)
+  - this option will not prevent line overflow even if `${` is within bounds,
+    because this option doesn't allow breaking right after `${`
+- `avoid`: attemps to avoid breaks within the spliced code, regardless of line overflow
+- `oneline`: formats the splice on a single line, or breaks after `${` if overflows
 
 ### `optIn.annotationNewlines`
 
