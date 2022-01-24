@@ -206,6 +206,7 @@ case class Newlines(
     afterInfixMaxCountPerExprForSome: Int = 10,
     afterInfixMaxCountPerFile: Int = 500,
     avoidForSimpleOverflow: Seq[AvoidForSimpleOverflow] = Seq.empty,
+    inInterpolation: InInterpolation = InInterpolation.allow,
     avoidAfterYield: Boolean = true
 ) {
   if (
@@ -374,6 +375,15 @@ object Newlines {
     case object slc extends AvoidForSimpleOverflow
     implicit val codec: ConfCodecEx[AvoidForSimpleOverflow] =
       ReaderUtil.oneOf[AvoidForSimpleOverflow](punct, tooLong, slc)
+  }
+
+  sealed abstract class InInterpolation
+  object InInterpolation {
+    case object allow extends InInterpolation
+    case object avoid extends InInterpolation
+    case object oneline extends InInterpolation
+    implicit val codec: ConfCodecEx[InInterpolation] =
+      ReaderUtil.oneOf[InInterpolation](allow, avoid, oneline)
   }
 
   sealed abstract class AfterCurlyLambdaParams

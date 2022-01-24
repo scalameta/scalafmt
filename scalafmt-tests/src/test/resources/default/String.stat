@@ -360,3 +360,171 @@ object X {
       .f("  sldkfjdslkf sdlkfj dslkfjds flkdsjf lsdkjf dslkfjds sdklfjsd sdlkjfdskj")
   }
 }
+<<< #3079 avoid
+maxColumn = 50
+newlines.inInterpolation = avoid
+===
+object a {
+  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"""
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+}
+>>>
+object a {
+  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"""
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
+      baz,
+      bar)} foo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
+                                       br)} fo4
+    |""".stripMargin
+}
+<<< #3079 allow
+maxColumn = 50
+newlines.inInterpolation = allow
+===
+object a {
+  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"""
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+}
+>>>
+object a {
+  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"""
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
+      baz,
+      bar)} foo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
+                                       br)} fo4
+    |""".stripMargin
+}
+<<< #3079 allow, source=keep
+maxColumn = 50
+newlines.source = keep
+newlines.inInterpolation = allow
+includeCurlyBraceInSelectChains = true
+===
+object a {
+  s"foo1 ${
+  bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"""
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+}
+>>>
+object a {
+  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"""
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
+      baz,
+      bar)} foo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
+                                       br)} fo4
+    |""".stripMargin
+}
+<<< #3079 allow, source=keep, align
+maxColumn = 50
+newlines.source = keep
+newlines.inInterpolation = allow
+align.inInterpolation = true
+includeCurlyBraceInSelectChains = true
+===
+object a {
+  s"foo1 ${
+  bar} foo2 ${baz(bar)} foo3 ${
+  qux(baz, bar)} foo4"
+  s"""
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+}
+>>>
+object a {
+  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"""
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
+      baz,
+      bar)} foo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
+                                       br)} fo4
+    |""".stripMargin
+}
+<<< #3079 oneline
+maxColumn = 50
+newlines.inInterpolation = oneline
+===
+object a {
+  s"foo1 ${
+  bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"""
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+}
+>>>
+object a {
+  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"""
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
+      baz,
+      bar)} foo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
+                                       br)} fo4
+    |""".stripMargin
+}
+<<< #3079 oneline, align
+maxColumn = 50
+newlines.inInterpolation = oneline
+align.inInterpolation = true
+===
+object a {
+  s"foo1 ${
+  bar} foo2 ${baz(bar)} foo3 ${
+  qux(baz, bar)} foo4"
+  s"""
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+}
+>>>
+object a {
+  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"""
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
+      baz,
+      bar)} foo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
+                                       br)} fo4
+    |""".stripMargin
+}
