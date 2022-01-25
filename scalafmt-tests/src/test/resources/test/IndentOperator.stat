@@ -2906,3 +2906,828 @@ object a {
     b
   }
 }
+<<< aloneEnclosed, if
+runner.dialect = scala3
+newlines.source = keep
+indentOperator.exemptScope = aloneEnclosed
+===
+object a {
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  } else
+    a &&
+    b
+  if (a &&
+    b) {
+    a &&
+    b
+  } else
+    a &&
+    b
+  if a &&
+    b then
+    a &&
+    b
+  else {
+    a &&
+    b
+  }
+  if
+    a &&
+    b then
+    a &&
+    b
+  else {
+    a &&
+    b
+  }
+}
+>>>
+object a {
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  } else
+    a &&
+    b
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  } else
+    a &&
+    b
+  if a &&
+    b
+  then
+    a &&
+    b
+  else {
+    a &&
+    b
+  }
+  if
+    a &&
+    b
+  then
+    a &&
+    b
+  else {
+    a &&
+    b
+  }
+}
+<<< aloneArgOrBody, if
+runner.dialect = scala3
+newlines.source = keep
+indentOperator.exemptScope = aloneArgOrBody
+===
+object a {
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  } else
+    a &&
+    b
+  if (a &&
+    b) {
+    a &&
+    b
+  } else
+    a &&
+    b
+  if a &&
+    b then
+    a &&
+    b
+  else {
+    a &&
+    b
+  }
+  if
+    a &&
+    b then
+    a &&
+    b
+  else {
+    a &&
+    b
+  }
+}
+>>>
+object a {
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  } else
+    a &&
+    b
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  } else
+    a &&
+    b
+  if a &&
+    b
+  then
+    a &&
+    b
+  else {
+    a &&
+    b
+  }
+  if
+    a &&
+    b
+  then
+    a &&
+    b
+  else {
+    a &&
+    b
+  }
+}
+<<< oldTopLevel, if
+runner.dialect = scala3
+newlines.source = keep
+indentOperator.exemptScope = oldTopLevel
+===
+object a {
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  } else
+    a &&
+    b
+  if (a &&
+    b) {
+    a &&
+    b
+  } else
+    a &&
+    b
+  if a &&
+    b then
+    a &&
+    b
+  else {
+    a &&
+    b
+  }
+  if
+    a &&
+    b then
+    a &&
+    b
+  else {
+    a &&
+    b
+  }
+}
+>>>
+object a {
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  } else
+    a &&
+    b
+  if (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  } else
+    a &&
+    b
+  if a &&
+    b
+  then
+    a &&
+    b
+  else {
+    a &&
+    b
+  }
+  if
+    a &&
+    b
+  then
+    a &&
+    b
+  else {
+    a &&
+    b
+  }
+}
+<<< aloneEnclosed, while
+runner.dialect = scala3
+newlines.source = keep
+indentOperator.exemptScope = aloneEnclosed
+===
+object a {
+  while (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  }
+  while (
+    a &&
+    b
+  )
+    a &&
+    b
+  while (a &&
+    b)
+    a &&
+    b
+  while a &&
+    b do
+    a &&
+    b
+  while
+    a &&
+    b do
+    a &&
+    b
+}
+>>>
+object a {
+  while (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  }
+  while (
+    a &&
+    b
+  )
+    a &&
+    b
+  while (
+    a &&
+    b
+  )
+    a &&
+    b
+  while a &&
+    b
+  do
+    a &&
+    b
+  while
+    a &&
+    b
+  do
+    a &&
+    b
+}
+<<< aloneArgOrBody, while
+runner.dialect = scala3
+newlines.source = keep
+indentOperator.exemptScope = aloneArgOrBody
+===
+object a {
+  while (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  }
+  while (
+    a &&
+    b
+  )
+    a &&
+    b
+  while (a &&
+    b)
+    a &&
+    b
+  while a &&
+    b do
+    a &&
+    b
+  while
+    a &&
+    b do
+    a &&
+    b
+}
+>>>
+object a {
+  while (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  }
+  while (
+    a &&
+    b
+  )
+    a &&
+    b
+  while (
+    a &&
+    b
+  )
+    a &&
+    b
+  while a &&
+    b
+  do
+    a &&
+    b
+  while
+    a &&
+    b
+  do
+    a &&
+    b
+}
+<<< oldTopLevel, while
+runner.dialect = scala3
+newlines.source = keep
+indentOperator.exemptScope = oldTopLevel
+===
+object a {
+  while (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  }
+  while (
+    a &&
+    b
+  )
+    a &&
+    b
+  while (a &&
+    b)
+    a &&
+    b
+  while a &&
+    b do
+    a &&
+    b
+  while
+    a &&
+    b do
+    a &&
+    b
+}
+>>>
+object a {
+  while (
+    a &&
+    b
+  ) {
+    a &&
+    b
+  }
+  while (
+    a &&
+    b
+  )
+    a &&
+    b
+  while (
+    a &&
+    b
+  )
+    a &&
+    b
+  while a &&
+    b
+  do
+    a &&
+    b
+  while
+    a &&
+    b
+  do
+    a &&
+    b
+}
+<<< aloneEnclosed, apply
+newlines.source = keep
+indentOperator.exemptScope = aloneEnclosed
+===
+object a {
+  foo(
+    a &&
+    b
+  )
+  foo {
+    a &&
+    b
+  }
+  foo(
+      a &&
+      b,
+      a &&
+      b
+  )
+  foo(
+      a &&
+      b
+  )(
+      a &&
+      b
+  )
+}
+>>>
+object a {
+  foo(
+    a &&
+      b
+  )
+  foo {
+    a &&
+    b
+  }
+  foo(
+    a &&
+      b,
+    a &&
+      b
+  )
+  foo(
+    a &&
+      b
+  )(
+    a &&
+      b
+  )
+}
+<<< aloneArgOrBody, apply
+newlines.source = keep
+indentOperator.exemptScope = aloneArgOrBody
+===
+object a {
+  foo(
+    a &&
+    b
+  )
+  foo {
+    a &&
+    b
+  }
+  foo(
+      a &&
+      b,
+      a &&
+      b
+  )
+  foo(
+      a &&
+      b
+  )(
+      a &&
+      b
+  )
+}
+>>>
+object a {
+  foo(
+    a &&
+      b
+  )
+  foo {
+    a &&
+    b
+  }
+  foo(
+    a &&
+      b,
+    a &&
+      b
+  )
+  foo(
+    a &&
+      b
+  )(
+    a &&
+      b
+  )
+}
+<<< oldTopLevel, apply
+newlines.source = keep
+indentOperator.exemptScope = oldTopLevel
+===
+object a {
+  foo(
+    a &&
+    b
+  )
+  foo {
+    a &&
+    b
+  }
+  foo(
+      a &&
+      b,
+      a &&
+      b
+  )
+  foo(
+      a &&
+      b
+  )(
+      a &&
+      b
+  )
+}
+>>>
+object a {
+  foo(
+    a &&
+      b
+  )
+  foo {
+    a &&
+    b
+  }
+  foo(
+    a &&
+      b,
+    a &&
+      b
+  )
+  foo(
+    a &&
+      b
+  )(
+    a &&
+      b
+  )
+}
+<<< aloneEnclosed, case
+newlines.source = keep
+indentOperator.exemptScope = aloneEnclosed
+===
+a match {
+  case foo =>
+    a &&
+      b
+  case foo =>
+    val baz = qux
+    a &&
+      b
+  case bar => {
+    val baz = qux
+    a &&
+      b
+  }
+  case bar if
+    a &&
+    b =>
+    a &&
+      b
+}
+>>>
+a match {
+  case foo =>
+    a &&
+    b
+  case foo =>
+    val baz = qux
+    a &&
+    b
+  case bar => {
+    val baz = qux
+    a &&
+    b
+  }
+  case bar if
+        a &&
+          b =>
+    a &&
+    b
+}
+<<< aloneArgOrBody, case
+newlines.source = keep
+indentOperator.exemptScope = aloneArgOrBody
+===
+a match {
+  case foo =>
+    a &&
+      b
+  case foo =>
+    val baz = qux
+    a &&
+      b
+  case bar => {
+    val baz = qux
+    a &&
+      b
+  }
+  case bar if
+    a &&
+    b =>
+    a &&
+      b
+}
+>>>
+a match {
+  case foo =>
+    a &&
+    b
+  case foo =>
+    val baz = qux
+    a &&
+    b
+  case bar => {
+    val baz = qux
+    a &&
+    b
+  }
+  case bar if
+        a &&
+          b =>
+    a &&
+    b
+}
+<<< oldTopLevel, case
+newlines.source = keep
+indentOperator.exemptScope = oldTopLevel
+===
+a match {
+  case foo =>
+    a &&
+      b
+  case foo =>
+    val baz = qux
+    a &&
+      b
+  case bar => {
+    val baz = qux
+    a &&
+      b
+  }
+  case bar if
+    a &&
+    b =>
+    a &&
+      b
+}
+>>>
+a match {
+  case foo =>
+    a &&
+    b
+  case foo =>
+    val baz = qux
+    a &&
+    b
+  case bar => {
+    val baz = qux
+    a &&
+    b
+  }
+  case bar if
+        a &&
+          b =>
+    a &&
+    b
+}
+<<< aloneEnclosed, lambda
+newlines.source = keep
+indentOperator.exemptScope = aloneEnclosed
+===
+object a {
+  foo { x =>
+    a &&
+      b
+  }
+  foo { x =>
+    val bar = qux
+    a &&
+      b
+  }
+  foo ( x =>
+    a &&
+      b
+  )
+}
+>>>
+object a {
+  foo { x =>
+    a &&
+    b
+  }
+  foo { x =>
+    val bar = qux
+    a &&
+    b
+  }
+  foo(x =>
+    a &&
+      b
+  )
+}
+<<< aloneArgOrBody, lambda
+newlines.source = keep
+indentOperator.exemptScope = aloneArgOrBody
+===
+object a {
+  foo { x =>
+    a &&
+      b
+  }
+  foo { x =>
+    val bar = qux
+    a &&
+      b
+  }
+  foo ( x =>
+    a &&
+      b
+  )
+}
+>>>
+object a {
+  foo { x =>
+    a &&
+    b
+  }
+  foo { x =>
+    val bar = qux
+    a &&
+    b
+  }
+  foo(x =>
+    a &&
+      b
+  )
+}
+<<< oldTopLevel, lambda
+newlines.source = keep
+indentOperator.exemptScope = oldTopLevel
+===
+object a {
+  foo { x =>
+    a &&
+      b
+  }
+  foo { x =>
+    val bar = qux
+    a &&
+      b
+  }
+  foo ( x =>
+    a &&
+      b
+  )
+}
+>>>
+object a {
+  foo { x =>
+    a &&
+    b
+  }
+  foo { x =>
+    val bar = qux
+    a &&
+    b
+  }
+  foo(x =>
+    a &&
+      b
+  )
+}
