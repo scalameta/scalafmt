@@ -106,10 +106,11 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(start: T.Interpolation.Start, _, _) =>
         val end = matching(start)
-        val policy =
-          if (isTripleQuote(formatToken.meta.left.text)) NoPolicy
-          else PenalizeAllNewlines(end, BreakSingleLineInterpolatedString)
-        val split = Split(NoSplit, 0).withPolicy(policy)
+        val okNewlines =
+          style.newlines.inInterpolation.ne(Newlines.InInterpolation.avoid) &&
+            isTripleQuote(formatToken.meta.left.text)
+        def policy = PenalizeAllNewlines(end, BreakSingleLineInterpolatedString)
+        val split = Split(NoSplit, 0).withPolicy(policy, okNewlines)
         Seq(
           if (getStripMarginChar(formatToken).isEmpty) split
           else if (style.align.stripMargin)
@@ -186,7 +187,49 @@ class Router(formatOps: FormatOps) {
       // Interpolated string left brace
       case FormatToken(open @ T.LeftBrace(), _, _)
           if leftOwner.is[SomeInterpolate] =>
-        Seq(Split(Space(style.spaces.inInterpolatedStringCurlyBraces), 0))
+        val close = matching(open)
+        val alignIndents =
+          if (style.align.inInterpolation) Some {
+            Seq(
+              Indent(Length.StateColumn, close, ExpiresOn.After),
+              Indent(Length.Num(style.indent.main), close, ExpiresOn.Before),
+              Indent(Length.Num(-1), close, ExpiresOn.After)
+            )
+          }
+          else None
+        def spaceSplit(implicit fileLine: FileLine) =
+          Split(Space(style.spaces.inInterpolatedStringCurlyBraces), 0)
+            .withIndents(alignIndents.getOrElse(Nil))
+        def newlineSplit(cost: Int)(implicit fileLine: FileLine) = {
+          def mainIndents = Seq(
+            Indent(style.indent.main, close, ExpiresOn.Before),
+            Indent(style.indent.main, close, ExpiresOn.After)
+          )
+          Split(Newline, cost)
+            .withIndents(alignIndents.getOrElse(mainIndents))
+            .withPolicy(decideNewlinesOnlyBeforeClose(close))
+        }
+        style.newlines.inInterpolation match {
+          case Newlines.InInterpolation.avoid => Seq(spaceSplit)
+          case _ if newlines != 0 && style.newlines.source.eq(Newlines.keep) =>
+            Seq(newlineSplit(0))
+          case Newlines.InInterpolation.oneline =>
+            /* sequence of tokens:
+             * - 0 RBrace
+             * - 1 Interpolation.SpliceEnd (empty)
+             * - 2 Interpolation.Part (next string)
+             * - 3 Interpolation.End (quotes) or Interpolation.SliceStart/LBrace (${)
+             */
+            val afterClose = tokens(close, 3)
+            val lastPart = afterClose.left.is[T.Interpolation.End]
+            val slbEnd = if (lastPart) afterClose.left else afterClose.right
+            Seq(
+              spaceSplit.withSingleLine(slbEnd),
+              newlineSplit(1)
+            )
+          case _ => Seq(spaceSplit)
+        }
+
       case FormatToken(_, close @ T.RightBrace(), _)
           if rightOwner.is[SomeInterpolate] =>
         Seq(Split(Space(style.spaces.inInterpolatedStringCurlyBraces), 0))
