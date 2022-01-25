@@ -282,7 +282,7 @@ class Abc(
 <<< #1539 2: config style, dangling
 optIn.configStyleArguments = true
 danglingParentheses.preset = true
-verticalMultiline.excludeDanglingParens = []
+danglingParentheses.exclude = []
 ===
 class Abc(
   x: Int,

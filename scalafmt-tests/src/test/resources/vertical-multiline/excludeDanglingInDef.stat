@@ -1,8 +1,5 @@
-verticalMultiline = {
-    atDefnSite = true
-    excludeDanglingParens = [class, trait, def]
-}
-
+verticalMultiline.atDefnSite = true
+danglingParentheses.exclude = [class, trait, def]
 <<< not modify single line
 optIn.configStyleArguments = false
 ===

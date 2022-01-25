@@ -44,7 +44,7 @@ object Test {
 
 }
 <<< #2044
-verticalMultiline.excludeDanglingParens = []
+danglingParentheses.exclude = []
 ===
 object a {
   final class Dummy[F[+_, +_]: BIOMonad: BIOPrimitives: Clock2](

@@ -7,10 +7,19 @@ case class DanglingParentheses(
     defnSite: Boolean,
     ctrlSite: Boolean = true,
     private[config] val tupleSite: Option[Boolean] = None,
-    exclude: List[DanglingParentheses.Exclude] = Nil
+    private val exclude: Option[List[DanglingParentheses.Exclude]] = None
 ) {
   @inline def tupleOrCallSite(isTuple: Boolean) =
     if (isTuple) tupleSite.getOrElse(callSite) else callSite
+
+  def getExclude(
+      isVerticalMultiline: Boolean
+  ): Seq[DanglingParentheses.Exclude] =
+    exclude.getOrElse {
+      if (!isVerticalMultiline) Nil
+      else DanglingParentheses.Exclude.defaultVerticalMultiline
+    }
+
 }
 
 object DanglingParentheses {
@@ -44,9 +53,10 @@ object DanglingParentheses {
     case object `def` extends Exclude
     case object `given` extends Exclude
 
-    implicit val reader: ConfCodecEx[Exclude] =
-      ReaderUtil
-        .oneOf[Exclude](`class`, `trait`, `enum`, `extension`, `def`, `given`)
+    implicit val reader: ConfCodecEx[Exclude] = ReaderUtil
+      .oneOf[Exclude](`class`, `trait`, `enum`, `extension`, `def`, `given`)
+
+    val defaultVerticalMultiline = List(`class`, `trait`)
   }
 
 }

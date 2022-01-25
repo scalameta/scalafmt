@@ -2320,9 +2320,9 @@ When the appropriate `danglingParentheses` flag (e.g., `defnSite`) has been set,
 this parameter can be used to limit contexts where dangling is applied
 (currently, `class`, `trait`, `enum`, `extension` and `def` are supported).
 
-```scala mdoc:defaults
-danglingParentheses.exclude
-```
+For backwards compatibility, the default depends on whether
+[Vertical Multiline](#vertical-multiline) mode is used. If it is, the default is
+`[class, trait]`; otherwise, it's empty.
 
 ```scala mdoc:scalafmt
 indent.defnSite = 2
@@ -3188,19 +3188,12 @@ def other(a: String, b: String)(c: String, d: String) = a + b + c
 
 ### `verticalMultiline.excludeDanglingParens`
 
-> This parameter has been deprecated, please use
-> [danglingParentheses.exclude](#danglingparenthesesexclude). Keep in mind,
-> though, that the new parameter is empty by default while the old one isn't, so
-> to use empty exclude list, one must set the old
-> `verticalMultiline.excludeDanglingParens=[]`.
-
-```scala mdoc:defaults
-verticalMultiline.excludeDanglingParens
-```
+This parameter has been removed in 3.4.0, please use
+[danglingParentheses.exclude](#danglingparenthesesexclude).
 
 ```scala mdoc:scalafmt
 indent.defnSite = 2
-verticalMultiline.excludeDanglingParens = [def]
+danglingParentheses.exclude = [def]
 verticalMultiline.atDefnSite = true
 verticalMultiline.arityThreshold = 2
 verticalMultiline.newlineAfterOpenParen = true
