@@ -567,26 +567,27 @@ class FormatOps(
     }
 
     private val skipInfixIndent: Boolean = {
-      val isTopLevel = {
-        @tailrec
-        def getLastPat(t: Pat): Tree =
-          t.parent match {
-            case Some(p: Pat) => getLastPat(p)
-            case _ => t
-          }
-        val child = fullInfix.all match {
-          case t: Pat => getLastPat(t)
-          case t => t
+      @tailrec
+      def getLastPat(t: Pat): Tree =
+        t.parent match {
+          case Some(p: Pat) => getLastPat(p)
+          case _ => t
         }
-        child.parent.collect {
-          case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
-          case fun: Term.FunctionTerm if isBlockFunction(fun) => true
-          case t: Case => t.pat.eq(child) || t.body.eq(child)
-        }
+      def getChild = fullInfix.all match {
+        case t: Pat => getLastPat(t)
+        case t => t
       }
+      def isOldTopLevel(child: Tree) = child.parent.exists {
+        case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
+        case fun: Term.FunctionTerm if isBlockFunction(fun) => true
+        case t: Case => t.pat.eq(child) || t.body.eq(child)
+        case _ => false
+      }
+      val allowNoIndent =
+        !style.indentOperator.topLevelOnly || isOldTopLevel(getChild)
       def isInfixTopLevelMatch(op: String, noindent: Boolean): Boolean = {
         noindent == style.indentOperator.noindent(op) &&
-        noindent == isTopLevel.getOrElse(!style.indentOperator.topLevelOnly)
+        noindent == allowNoIndent
       }
       if (style.verticalAlignMultilineOperators)
         !InfixApp.isAssignment(ft.meta.left.text)
