@@ -125,12 +125,6 @@ case class ScalafmtConfig(
     indentYieldKeyword: Boolean = true,
     @annotation.ExtraName("binPackImportSelectors")
     importSelectors: ImportSelectors = ImportSelectors.noBinPack,
-    @annotation.DeprecatedName(
-      "unindentTopLevelOperators",
-      "Use indentOperator.topLevelOnly instead",
-      "2.7.0"
-    )
-    private val unindentTopLevelOperators: Boolean = false,
     includeCurlyBraceInSelectChains: Boolean = true,
     includeNoParensInSelectChains: Boolean = false,
     assumeStandardLibraryStripMargin: Boolean = false,
@@ -237,9 +231,6 @@ case class ScalafmtConfig(
 
   private[scalafmt] lazy val encloseSelectChains =
     optIn.encloseClassicChains || newlines.source.ne(Newlines.classic)
-
-  private[scalafmt] def indentOperatorTopLevelOnly =
-    indentOperator.topLevelOnly && !unindentTopLevelOperators
 
   private[scalafmt] lazy val docstringsWrapMaxColumn: Int =
     docstrings.wrapMaxColumn.getOrElse(maxColumn)

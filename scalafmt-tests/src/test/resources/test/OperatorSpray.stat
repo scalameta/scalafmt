@@ -1,7 +1,7 @@
 // This is copied from UnindentTopLevelOperatorsOperatorSpray,
 // but uses the default unindentTopLevelOperators = false
 // Tests have been updated to match expected output
-unindentTopLevelOperators = false
+indentOperator.topLevelOnly = true
 indentOperator.preset = spray
 <<< Indent operators
 object TestRoutes {

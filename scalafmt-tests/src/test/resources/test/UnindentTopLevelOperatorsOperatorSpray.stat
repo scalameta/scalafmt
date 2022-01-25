@@ -1,4 +1,4 @@
-unindentTopLevelOperators = true
+indentOperator.topLevelOnly = false
 indentOperator.preset = spray
 <<< Indent operators
 object TestRoutes {

@@ -1,4 +1,4 @@
-unindentTopLevelOperators = true 
+indentOperator.topLevelOnly = false
 <<< unindentTopLevelOperators should not break code blocks
 class TestSpec extends FlatSpec with Matchers {
 
