@@ -1691,7 +1691,7 @@ else {
 
 This parameter controls whether a newline is forced between the opening curly
 brace and the parameters of a lambda or partial function. Added in 2.7.0,
-replacing boolean `alwaysBeforeCurlyBraceLambdaParams`.
+replacing boolean `alwaysBeforeCurlyBraceLambdaParams` (removed in 3.4.0).
 
 ```scala mdoc:defaults
 newlines.beforeCurlyLambdaParams

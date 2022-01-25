@@ -1,4 +1,4 @@
-newlines.alwaysBeforeCurlyBraceLambdaParams = true
+newlines.beforeCurlyLambdaParams = always
 <<< newline before lambda params
 lst.map { x =>
       println(x)

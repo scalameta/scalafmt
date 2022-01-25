@@ -153,12 +153,6 @@ case class Newlines(
     private[config] val beforeOpenParenDefnSite: Option[BeforeOpenParen] = None,
     private[config] val beforeOpenParenCallSite: Option[BeforeOpenParen] = None,
     penalizeSingleSelectMultiArgList: Boolean = true,
-    @annotation.DeprecatedName(
-      "alwaysBeforeCurlyBraceLambdaParams",
-      "Use newlines.beforeCurlyLambdaParams instead",
-      "2.7.0"
-    )
-    private val alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
     beforeCurlyLambdaParams: BeforeCurlyLambdaParams =
       BeforeCurlyLambdaParams.never,
     private val topLevelStatementBlankLines: Seq[TopStatBlanks] = Seq.empty,
@@ -267,8 +261,9 @@ case class Newlines(
   lazy val avoidForSimpleOverflowSLC: Boolean =
     avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.slc)
 
-  lazy val alwaysBeforeCurlyLambdaParams = alwaysBeforeCurlyBraceLambdaParams ||
-    (beforeCurlyLambdaParams eq BeforeCurlyLambdaParams.always)
+  @inline
+  def alwaysBeforeCurlyLambdaParams =
+    beforeCurlyLambdaParams eq BeforeCurlyLambdaParams.always
 
   lazy val getBeforeMultiline = beforeMultiline.getOrElse(source)
   lazy val shouldForceBeforeMultilineAssign = {

@@ -1,4 +1,4 @@
-newlines.alwaysBeforeCurlyBraceLambdaParams = false
+newlines.beforeCurlyLambdaParams = never
 danglingParentheses.callSite = true
 <<< 1: multi-arg multi-stmt lambda call
 def f = {
