@@ -1,6 +1,6 @@
 maxColumn = 100 # comment
 preset = defaultWithAlign
-unindentTopLevelOperators = true
+indentOperator.topLevelOnly = false
 indentOperator.exclude = ":\\+:"
 align.tokens."+" = [foo]
 danglingParentheses.preset = false

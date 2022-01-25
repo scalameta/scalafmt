@@ -586,7 +586,7 @@ class FormatOps(
       }
       def isInfixTopLevelMatch(op: String, noindent: Boolean): Boolean = {
         noindent == style.indentOperator.noindent(op) &&
-        noindent == isTopLevel.getOrElse(!style.indentOperatorTopLevelOnly)
+        noindent == isTopLevel.getOrElse(!style.indentOperator.topLevelOnly)
       }
       if (style.verticalAlignMultilineOperators)
         !InfixApp.isAssignment(ft.meta.left.text)
