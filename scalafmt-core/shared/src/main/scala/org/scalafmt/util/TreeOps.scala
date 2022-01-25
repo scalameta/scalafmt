@@ -708,10 +708,7 @@ object TreeOps {
   )(implicit style: ScalafmtConfig): Boolean =
     !style.danglingParentheses.defnSite || {
       val excludeList =
-        if (isVerticalMultiline && style.danglingParentheses.exclude.isEmpty)
-          style.verticalMultiline.excludeDanglingParens
-        else
-          style.danglingParentheses.exclude
+        style.danglingParentheses.getExclude(isVerticalMultiline)
       excludeList.nonEmpty && {
         val exclude = tree match {
           case _: Ctor.Primary | _: Defn.Class =>

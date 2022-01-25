@@ -3,8 +3,8 @@ indent.defnSite = 2
 verticalMultiline = {
     atDefnSite = true
     arityThreshold = 2
-    excludeDanglingParens = []
 }
+danglingParentheses.exclude = []
 <<< Verify that it respects dangling parens options
 sealed trait Foobar
 case class Foo(x: String) extends Foobar

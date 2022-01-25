@@ -1201,8 +1201,7 @@ class FormatOps(
 
         val shouldAddNewline = {
           if (right.is[soft.ImplicitOrUsing])
-            style.newlines.forceBeforeImplicitParamListModifier ||
-            style.verticalMultiline.newlineBeforeImplicitKW
+            style.newlines.forceBeforeImplicitParamListModifier
           else
             style.verticalMultiline.newlineAfterOpenParen && isDefinition
         } || (mixedParams && prev(t).meta.leftOwner.is[CtorModifier])
@@ -1212,8 +1211,7 @@ class FormatOps(
             .withIndent(indentParam, close2, ExpiresOn.Before)
         )
       case Decision(ftd @ FormatToken(soft.ImplicitOrUsing(), _, _), _)
-          if (style.newlines.forceAfterImplicitParamListModifier ||
-            style.verticalMultiline.newlineAfterImplicitKW) &&
+          if style.newlines.forceAfterImplicitParamListModifier &&
             !tokens.isRightCommentThenBreak(ftd) =>
         Seq(Split(Newline, 0))
     }

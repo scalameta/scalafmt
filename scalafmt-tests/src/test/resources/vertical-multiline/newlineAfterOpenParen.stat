@@ -3,11 +3,10 @@ indent.defnSite = 2
 verticalMultiline = {
     atDefnSite = true
     arityThreshold = 2 // Used here to force reformatting.
-    excludeDanglingParens = []
     newlineAfterOpenParen = true
-    newlineBeforeImplicitKW = false // make sure this is respected
-    newlineAfterImplicitKW = true
 }
+danglingParentheses.exclude = []
+newlines.implicitParamListModifierForce=[after]
 <<< It should force a newline after open paren.
 def other(a: String, b: String)(c: String) = a + b + c
 >>>
@@ -18,7 +17,7 @@ def other(
   c: String
 ) = a + b + c
 
-<<< It should still respect newlineBeforeImplicitKW
+<<< It should still respect newlines.implicitParamListModifierForce=[after]
 def other[T](a: String, b: String)(implicit c: Parse[T]) = a + b + c
 >>>
 def other[T](
