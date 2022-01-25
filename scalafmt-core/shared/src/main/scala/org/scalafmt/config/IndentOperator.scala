@@ -25,9 +25,9 @@ import metaconfig._
   *   a +=
   *     b
   *   }}}
-  * @param topLevelOnly
-  *   If true, allows no indentation on infix operators in top-level functions
-  *   only. For example,
+  * @param exemptScope
+  *   If topLevel, allows no indentation on infix operators in top-level
+  *   functions only. For example,
   *   {{{
   *   // top-level, flag doesn't apply
   *   a &&
@@ -48,6 +48,12 @@ import metaconfig._
   *   [[https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md#long-expressions-with-binary-operators]]
   */
 case class IndentOperator(
+    private val exemptScope: Option[IndentOperator.Exempt] = None,
+    @annotation.DeprecatedName(
+      "topLevelOnly",
+      "Use indentOperator.exemptScope instead (true->topLevelOnly, false->all)",
+      "3.4.0"
+    )
     topLevelOnly: Boolean = true,
     @annotation.ExtraName("include")
     includeRegex: String = ".*",
@@ -78,4 +84,14 @@ object IndentOperator {
     case Conf.Str("default") => IndentOperator.default
   }
 
+  sealed abstract class Exempt
+  object Exempt {
+    case object all extends Exempt
+    case object oldTopLevel extends Exempt
+    case object aloneEnclosed extends Exempt
+    case object aloneArgOrBody extends Exempt
+
+    implicit val reader: ConfCodecEx[Exempt] = ReaderUtil
+      .oneOf[Exempt](all, oldTopLevel, aloneEnclosed, aloneArgOrBody)
+  }
 }

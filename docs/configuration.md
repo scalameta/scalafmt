@@ -509,22 +509,55 @@ def fooDef
 Normally, the first eligible break _inside_ a chain of infix operators is
 indented by 2.
 
-This group of parameters allows overriding which infix operators are eligible
-and controls when indentation is _omitted_.
+This group of parameters allows overriding which infix operators, and in which
+context, are eligible to be exempted from this, with indentation _omitted_.
 
-#### `indentOperator.topLevelOnly`
+If you wish to disable this functionality, set `indentOperator.excludeRegex = '^$'`.
 
-If true, only top-level infix operators are eligible to be exempted from the
-default indentation rule.
+#### `indentOperator.exemptScope`
 
-```scala mdoc:defaults
-indentOperator.topLevelOnly
-```
+Added in 3.4.0, this parameter determines when an infix operator can be exempted from applying
+continuation indentation.
+
+It accepts the following values, to determine the context in which infix operators are eligible
+to be exempted from the default indentation rule:
+
+- `oldTopLevel` (default): "top-level" infix operators
+  - the definition of top-level historically refers to infix expressions whose direct parent is
+    a block (typically as the last statement in that block), `if/while` (as condition or body),
+    or case clause (as pattern or body)
+  - this value replaced deprecated `indentOperator.topLevelOnly=true`
+  - this approach is also somewhat inconsistent with what it was intended to accomplish, and
+    kept only for backwards compatibility; please consider using one of the alternatives
+- `aloneEnclosed`: infix operators which are enclosed in braces or parens as the only statement
+  in a block or body of a braces-enclosed lambda function; an `if/while` condition; the only
+  argument of a method call; or similar;
+  - it also includes a few scenarios where parens can be omitted, such case clause patterns,
+    conditions in new scala3 `if-then` and `while-do` syntax, etc.
+  - however, block braces are not optional
+- `aloneArgOrBody`: infix operators as an `if/while` condition; an argument of a method call; the
+  only statement in a block; entire body of an assignment, case clause, control statement, etc;
+  - it is intended to help implement a requirement of the
+    [scala-js coding style](https://github.com/scala-js/scala-js/blob/main/CODINGSTYLE.md#long-expressions-with-binary-operators).
+- `all`: all infix operators
+  - this value replaced deprecated `indentOperator.topLevelOnly=false`
 
 ```scala mdoc:scalafmt
-indentOperator.topLevelOnly = true
+indentOperator.exemptScope = oldTopLevel
 ---
 function(
+  a &&
+    b,
+  a &&
+    b
+)
+function(a &&
+    b)(a &&
+    b)
+function(
+  a &&
+    b
+)(
   a &&
     b
 )
@@ -535,9 +568,71 @@ function {
 ```
 
 ```scala mdoc:scalafmt
-indentOperator.topLevelOnly = false
+indentOperator.exemptScope = all
 ---
 function(
+  a &&
+    b,
+  a &&
+    b
+)
+function(a &&
+    b)(a &&
+    b)
+function(
+  a &&
+    b
+)(
+  a &&
+    b
+)
+function {
+  a &&
+    b
+}
+```
+
+```scala mdoc:scalafmt
+indentOperator.exemptScope = aloneEnclosed
+---
+function(
+  a &&
+    b,
+  a &&
+    b
+)
+function(a &&
+    b)(a &&
+    b)
+function(
+  a &&
+    b
+)(
+  a &&
+    b
+)
+function {
+  a &&
+    b
+}
+```
+
+```scala mdoc:scalafmt
+indentOperator.exemptScope = aloneArgOrBody
+---
+function(
+  a &&
+    b,
+  a &&
+    b
+)
+function(a &&
+    b)(a &&
+    b)
+function(
+  a &&
+    b
+)(
   a &&
     b
 )
