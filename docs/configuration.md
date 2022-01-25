@@ -3557,6 +3557,31 @@ maxColumn = 30
 val a = 1
 ```
 
+### `docstrings.forceBlankLineBefore`
+
+If true (default), always insert a blank line before docstrings.
+If false, preserves blank line only if one exists before.
+
+> Since v3.4.0. Replaced deprecated `optIn.forceBlankLineBeforeDocstring`.
+
+```scala mdoc:scalafmt
+docstrings.forceBlankLineBefore = true
+---
+object Stuff {
+  /** Some function */
+  def hello = ()
+}
+```
+
+```scala mdoc:scalafmt
+docstrings.forceBlankLineBefore = false
+---
+object Stuff {
+  /** Some function */
+  def hello = ()
+}
+```
+
 ## Disabling or customizing formatting
 
 ### For code block
@@ -4293,33 +4318,6 @@ maxColumn = 30
 ```
 
 ## Miscellaneous
-
-### `optIn.forceBlankLineBeforeDocstring`
-
-If true, always insert a blank line before docstrings;  
-If false, preserves blank line only if one exists before.
-
-```scala mdoc:defaults
-optIn.forceBlankLineBeforeDocstring
-```
-
-```scala mdoc:scalafmt
-optIn.forceBlankLineBeforeDocstring = true
----
-object Stuff {
-  /** Some function */
-  def hello = ()
-}
-```
-
-```scala mdoc:scalafmt
-optIn.forceBlankLineBeforeDocstring = false
----
-object Stuff {
-  /** Some function */
-  def hello = ()
-}
-```
 
 ### `rewriteTokens`
 

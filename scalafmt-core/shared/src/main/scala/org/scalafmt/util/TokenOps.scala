@@ -48,7 +48,7 @@ object TokenOps {
   def blankLineBeforeDocstring(
       ft: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
-    style.optIn.forceNewlineBeforeDocstringSummary &&
+    style.forceNewlineBeforeDocstring &&
       isDocstring(ft.meta.right.text) &&
       TreeOps
         .findTreeOrParent(ft.meta.leftOwner) {

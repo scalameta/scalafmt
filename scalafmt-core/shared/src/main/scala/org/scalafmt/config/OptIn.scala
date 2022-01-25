@@ -106,28 +106,13 @@ case class OptIn(
     selfAnnotationNewline: Boolean = true,
     annotationNewlines: Boolean = true,
     // Candidate to become default false at some point.
-    forceBlankLineBeforeDocstring: Boolean = true,
     @annotation.DeprecatedName(
-      "blankLineBeforeDocstring",
-      "Use optIn.forceBlankLineBeforeDocstring instead",
-      "2.5.0"
+      "forceBlankLineBeforeDocstring",
+      "Use docstrings.forceBlankLineBefore instead",
+      "3.4.0"
     )
-    blankLineBeforeDocstring: Boolean = false
-) {
-
-  /** See https://github.com/scalameta/scalafmt/issues/1712
-    *
-    * Setting behavior and name were mirrored. After deprecation and right
-    * naming we need to:
-    *   - if `forceBlankLineBeforeDocstring` (new name) has default value
-    *     (true), fallback to `blankLineBeforeDocstring` (old config) which may
-    *     be configured in .scalafmt.conf
-    *   - if `forceBlankLineBeforeDocstring` configured to non-default value,
-    *     don't look at the old name
-    */
-  lazy val forceNewlineBeforeDocstringSummary: Boolean =
-    forceBlankLineBeforeDocstring && !blankLineBeforeDocstring
-}
+    forceBlankLineBeforeDocstring: Boolean = true
+)
 
 object OptIn {
   implicit lazy val surface: Surface[OptIn] = generic.deriveSurface
