@@ -377,13 +377,10 @@ object a {
 object a {
   s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
   s"""
-    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
-      baz,
-      bar)} foo4
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
     |""".stripMargin
   s"""
-    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
-                                       br)} fo4
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
     |""".stripMargin
 }
 <<< #3079 allow
@@ -430,7 +427,9 @@ object a {
 }
 >>>
 object a {
-  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"foo1 ${
+      bar
+    } foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
   s"""
     |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
       baz,
@@ -461,11 +460,14 @@ object a {
 }
 >>>
 object a {
-  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"foo1 ${
+            bar
+          } foo2 ${baz(bar)} foo3 ${
+                                     qux(baz, bar)
+                                   } foo4"
   s"""
-    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
-      baz,
-      bar)} foo4
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz,
+                                             bar)} foo4
     |""".stripMargin
   s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
@@ -490,13 +492,14 @@ object a {
 object a {
   s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
   s"""
-    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
-      baz,
-      bar)} foo4
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${
+      qux(baz, bar)
+    } foo4
     |""".stripMargin
   s"""
-    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
-                                       br)} fo4
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${
+      qux(bz, br)
+    } fo4
     |""".stripMargin
 }
 <<< #3079 oneline, align
@@ -519,12 +522,14 @@ object a {
 object a {
   s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
   s"""
-    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
-      baz,
-      bar)} foo4
+    |foo1 ${bar} foo2 ${baz(bar)} foo3 ${
+                                          qux(baz,
+                                              bar)
+                                        } foo4
     |""".stripMargin
   s"""
-    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
-                                       br)} fo4
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${
+                                    qux(bz, br)
+                                  } fo4
     |""".stripMargin
 }
