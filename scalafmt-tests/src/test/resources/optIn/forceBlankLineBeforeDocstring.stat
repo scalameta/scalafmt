@@ -1,6 +1,6 @@
 preset = default
 <<< docstring does not force line break
-optIn.forceBlankLineBeforeDocstring = false
+docstrings.forceBlankLineBefore = false
 ===
 object Stuff {
   /** Some function */
@@ -12,7 +12,7 @@ object Stuff {
   def hello = ()
 }
 <<< force blank line
-optIn.forceBlankLineBeforeDocstring = true
+docstrings.forceBlankLineBefore = true
 ===
 object Stuff {
   /** Some function */
@@ -24,8 +24,8 @@ object Stuff {
   /** Some function */
   def hello = ()
 }
-<<< support deprecated name with true
-optIn.blankLineBeforeDocstring = true
+<<< support deprecated name with false
+optIn.forceBlankLineBeforeDocstring = false
 ===
 object Stuff {
   /** Some function */
@@ -36,8 +36,8 @@ object Stuff {
   /** Some function */
   def hello = ()
 }
-<<< support deprecated name with false
-optIn.blankLineBeforeDocstring = false
+<<< support deprecated name with true
+optIn.forceBlankLineBeforeDocstring = true
 ===
 object Stuff {
   /** Some function */

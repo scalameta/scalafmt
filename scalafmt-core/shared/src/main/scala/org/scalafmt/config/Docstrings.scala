@@ -25,6 +25,7 @@ case class Docstrings(
     removeEmpty: Boolean = false,
     wrap: Docstrings.Wrap = Docstrings.Wrap.yes,
     private[config] val wrapMaxColumn: Option[Int] = None,
+    forceBlankLineBefore: Option[Boolean] = None,
     blankFirstLine: Docstrings.BlankFirstLine = Docstrings.BlankFirstLine.no,
     style: Docstrings.Style = Docstrings.SpaceAsterisk
 ) {

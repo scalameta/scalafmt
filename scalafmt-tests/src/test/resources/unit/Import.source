@@ -96,8 +96,7 @@ import org.{
   L
 }
 <<< docstring: line after but not before [force]
-optIn.forceBlankLineBeforeDocstring = true
-optIn.blankLineBeforeDocstring = false
+docstrings.forceBlankLineBefore = true
 ===
 package a.b.c
 /**
@@ -113,7 +112,7 @@ package a.b.c
 
 import d.e.f
 <<< docstring: line after but not before [no force]
-optIn.forceBlankLineBeforeDocstring = false
+docstrings.forceBlankLineBefore = false
 ===
 package a.b.c
 /**

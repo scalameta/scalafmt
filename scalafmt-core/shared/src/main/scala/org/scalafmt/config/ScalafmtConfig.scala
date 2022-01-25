@@ -260,6 +260,9 @@ case class ScalafmtConfig(
     rewrite = RewriteSettings.default
   )
 
+  lazy val forceNewlineBeforeDocstring: Boolean =
+    docstrings.forceBlankLineBefore
+      .getOrElse(optIn.forceBlankLineBeforeDocstring)
 }
 
 object ScalafmtConfig {
