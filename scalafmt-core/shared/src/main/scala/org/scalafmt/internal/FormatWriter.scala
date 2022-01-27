@@ -992,21 +992,29 @@ class FormatWriter(formatOps: FormatOps) {
             termIndent: String,
             isRelative: Boolean
         ): Unit = {
+          val offsetOpt =
+            if (isRelative) None
+            else {
+              val minSpaces = code.foldLeft(Int.MaxValue) { (res, x) =>
+                val matcher = docstringLeadingSpace.matcher(x)
+                if (matcher.lookingAt()) math.min(res, matcher.end())
+                else res
+              }
+              if (minSpaces < Int.MaxValue) {
+                val offset = minSpaces - termIndent.length()
+                val spaces = if (offset > 0) getIndentation(offset) else ""
+                Some((spaces, minSpaces))
+              } else None
+            }
+
           appendBreak()
           code.foreach { x =>
             if (x.nonEmpty) {
               sb.append(termIndent)
-              val offsetOpt =
-                if (isRelative) None
-                else {
-                  val matcher = docstringLeadingSpace.matcher(x)
-                  if (matcher.lookingAt()) Some(matcher.end()) else None
-                }
               offsetOpt match {
-                case Some(offset) =>
-                  val extra = math.max(0, offset - leadingMargin)
-                  sb.append(getIndentation((extra >> 1) << 1))
-                  append(x, offset, x.length)
+                case Some((offset, lineStart)) =>
+                  sb.append(offset)
+                  append(x, lineStart, x.length)
                 case _ =>
                   sb.append(x)
               }

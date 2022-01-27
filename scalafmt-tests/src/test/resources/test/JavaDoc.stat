@@ -1152,7 +1152,7 @@ object a {
   /**
    *    1. foo
    *       {{{
-   *          embedded code
+   *         embedded code
    *       }}}
    *       - foo1
    *         | hdr1 | hdr22 |
@@ -1160,7 +1160,7 @@ object a {
    *         | r1 1 |  r1 2 |
    *         - foo2
    *           {{{
-   *          embedded code
+   *         embedded code
    *           }}}
    *           ```
    *           code foo2
@@ -1356,13 +1356,13 @@ object a {
 
   /** @param foo
    *    {{{
-   *          embedded code
+   *         embedded code
    *    }}}
    *    | hdr1 | hdr22 |
    *    |:-----|------:|
    *    | r1 1 |  r1 2 |
    *    {{{
-   *          embedded code
+   *         embedded code
    *    }}}
    *    \``` code foo5 ``` ```
    *    code foo4 ```
@@ -2683,10 +2683,10 @@ object a {
    * )
    * }}}
    * {{{
-   *   libraryDependencies ++= Seq(
-   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *     "io.get-coursier" % "interface"  % "0.0.17"
-   *   )
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
    * }}}
    * {{{
    *   libraryDependencies ++= Seq(
@@ -2915,10 +2915,10 @@ object a {
     * )
     * }}}
     * {{{
-    *   libraryDependencies ++= Seq(
-    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
-    *     "io.get-coursier" % "interface"  % "0.0.17"
-    *   )
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
     * }}}
     * {{{
     *   libraryDependencies ++= Seq(
@@ -3154,16 +3154,16 @@ object a {
    *  )
    *  }}}
    *  {{{
-   *    libraryDependencies ++= Seq(
-   *      "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *      "io.get-coursier" % "interface"  % "0.0.17"
-   *    )
+   *   libraryDependencies ++= Seq(
+   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *     "io.get-coursier" % "interface"  % "0.0.17"
+   *   )
    *  }}}
    *  {{{
-   *    libraryDependencies ++= Seq(
-   *      "org.scalacheck" %% "scalacheck" % scalacheckV,
-   *      "io.get-coursier" % "interface"  % "0.0.17"
-   *    )
+   *   libraryDependencies ++= Seq(
+   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *     "io.get-coursier" % "interface"  % "0.0.17"
+   *   )
    *  }}}
    *  {{{
    *  // scala
@@ -3215,6 +3215,94 @@ object a {
 
   /**
    * *
+   */
+  val a = 1
+}
+<<< preserve indentation in code blocks Asterisk
+docstrings.style = Asterisk
+docstrings.wrap = yes
+===
+object a {
+ /**
+   * {{{
+   *    checkPositions(
+   *       """|Type.Bounds [X@@] =>> (X, X)
+   *          |Type.Tuple (X, X)
+   *          |""".stripMargin
+   *    )
+   * }}}
+   */
+  val a = 1
+}
+>>>
+object a {
+
+  /**
+   * {{{
+   *    checkPositions(
+   *       """|Type.Bounds [X@@] =>> (X, X)
+   *          |Type.Tuple (X, X)
+   *          |""".stripMargin
+   *    )
+   * }}}
+   */
+  val a = 1
+}
+<<< preserve indentation in code blocks SpaceAsterisk
+docstrings.style = SpaceAsterisk
+docstrings.wrap = yes
+===
+object a {
+  /**
+   * {{{
+   *    checkPositions(
+   *       """|Type.Bounds [X@@] =>> (X, X)
+   *          |Type.Tuple (X, X)
+   *          |""".stripMargin
+   *    )
+   * }}}
+   */
+  val a = 1
+}
+>>>
+object a {
+
+  /** {{{
+    *    checkPositions(
+    *       """|Type.Bounds [X@@] =>> (X, X)
+    *          |Type.Tuple (X, X)
+    *          |""".stripMargin
+    *    )
+    * }}}
+    */
+  val a = 1
+}
+<<< preserve indentation in code blocks AsteriskSpace
+docstrings.style = AsteriskSpace
+docstrings.wrap = yes
+===
+object a {
+  /**
+   * {{{
+   *    checkPositions(
+   *       """|Type.Bounds [X@@] =>> (X, X)
+   *          |Type.Tuple (X, X)
+   *          |""".stripMargin
+   *    )
+   * }}}
+   */
+  val a = 1
+}
+>>>
+object a {
+
+  /** {{{
+   *    checkPositions(
+   *       """|Type.Bounds [X@@] =>> (X, X)
+   *          |Type.Tuple (X, X)
+   *          |""".stripMargin
+   *    )
+   *  }}}
    */
   val a = 1
 }
