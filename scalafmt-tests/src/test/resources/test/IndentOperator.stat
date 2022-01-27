@@ -2956,7 +2956,7 @@ object a {
     b
   } else
     a &&
-    b
+      b
   if (
     a &&
     b
@@ -2965,12 +2965,12 @@ object a {
     b
   } else
     a &&
-    b
+      b
   if a &&
     b
   then
     a &&
-    b
+      b
   else {
     a &&
     b
@@ -2980,7 +2980,7 @@ object a {
     b
   then
     a &&
-    b
+      b
   else {
     a &&
     b
@@ -3193,24 +3193,24 @@ object a {
     b
   )
     a &&
-    b
+      b
   while (
     a &&
     b
   )
     a &&
-    b
+      b
   while a &&
     b
   do
     a &&
-    b
+      b
   while
     a &&
     b
   do
     a &&
-    b
+      b
 }
 <<< aloneArgOrBody, while
 runner.dialect = scala3
@@ -3375,7 +3375,7 @@ object a {
 object a {
   foo(
     a &&
-      b
+    b
   )
   foo {
     a &&
@@ -3389,10 +3389,10 @@ object a {
   )
   foo(
     a &&
-      b
+    b
   )(
     a &&
-      b
+    b
   )
 }
 <<< aloneArgOrBody, apply
@@ -3426,7 +3426,7 @@ object a {
 object a {
   foo(
     a &&
-      b
+    b
   )
   foo {
     a &&
@@ -3434,16 +3434,16 @@ object a {
   }
   foo(
     a &&
-      b,
+    b,
     a &&
-      b
+    b
   )
   foo(
     a &&
-      b
+    b
   )(
     a &&
-      b
+    b
   )
 }
 <<< oldTopLevel, apply
@@ -3524,21 +3524,21 @@ a match {
 a match {
   case foo =>
     a &&
-    b
+      b
   case foo =>
     val baz = qux
     a &&
-    b
+      b
   case bar => {
     val baz = qux
     a &&
-    b
+      b
   }
   case bar if
         a &&
           b =>
     a &&
-    b
+      b
 }
 <<< aloneArgOrBody, case
 newlines.source = keep
@@ -3571,11 +3571,11 @@ a match {
   case foo =>
     val baz = qux
     a &&
-    b
+      b
   case bar => {
     val baz = qux
     a &&
-    b
+      b
   }
   case bar if
         a &&
@@ -3654,7 +3654,7 @@ object a {
   foo { x =>
     val bar = qux
     a &&
-    b
+      b
   }
   foo(x =>
     a &&
@@ -3689,11 +3689,11 @@ object a {
   foo { x =>
     val bar = qux
     a &&
-    b
+      b
   }
   foo(x =>
     a &&
-      b
+    b
   )
 }
 <<< oldTopLevel, lambda
