@@ -3,6 +3,7 @@ package org.scalafmt.internal
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.config.{
   BinPack,
+  IndentOperator,
   Newlines,
   ScalafmtConfig,
   ScalafmtRunner,
@@ -583,8 +584,31 @@ class FormatOps(
         case t: Case => t.pat.eq(child) || t.body.eq(child)
         case _ => false
       }
-      val allowNoIndent =
-        !style.indentOperator.topLevelOnly || isOldTopLevel(getChild)
+      def isAloneEnclosed(child: Tree) = child.parent.exists {
+        case Case(`child`, _, _) => true
+        case Term.If(`child`, _, _) => true
+        case Term.While(`child`, _) => true
+        case Term.Do(_, `child`) => true
+        case Term.Block(List(`child`)) => true
+        case fun: Term.FunctionTerm => isBlockFunction(fun)
+        case SplitCallIntoParts(_, Left(Seq(`child`))) => true
+        case _ => false
+      }
+      def isAloneArgOrBody(child: Tree) = child.parent.exists {
+        case t: Case => t.pat.eq(child) || t.body.eq(child)
+        case _: Term.If | _: Term.While | _: Term.Do => true
+        case Term.Block(List(`child`)) => true
+        case Term.ForYield(_, `child`) => true
+        case SplitAssignIntoParts(`child`, _) => true
+        case SplitCallIntoParts(_) => true
+        case _ => false
+      }
+      val allowNoIndent = style.indentOperator.getExemptScope match {
+        case IndentOperator.Exempt.all => true
+        case IndentOperator.Exempt.oldTopLevel => isOldTopLevel(getChild)
+        case IndentOperator.Exempt.aloneEnclosed => isAloneEnclosed(getChild)
+        case IndentOperator.Exempt.aloneArgOrBody => isAloneArgOrBody(getChild)
+      }
       def isInfixTopLevelMatch(op: String, noindent: Boolean): Boolean = {
         noindent == style.indentOperator.noindent(op) &&
         noindent == allowNoIndent

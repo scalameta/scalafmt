@@ -54,7 +54,7 @@ case class IndentOperator(
       "Use indentOperator.exemptScope instead (true->topLevelOnly, false->all)",
       "3.4.0"
     )
-    topLevelOnly: Boolean = true,
+    private val topLevelOnly: Boolean = true,
     @annotation.ExtraName("include")
     includeRegex: String = ".*",
     @annotation.ExtraName("exclude")
@@ -65,6 +65,12 @@ case class IndentOperator(
 
   def noindent(op: String): Boolean =
     excludeRegexp.matcher(op).find() || !includeRegexp.matcher(op).find()
+
+  lazy val getExemptScope: IndentOperator.Exempt =
+    exemptScope.getOrElse(
+      if (topLevelOnly) IndentOperator.Exempt.oldTopLevel
+      else IndentOperator.Exempt.all
+    )
 }
 
 object IndentOperator {
