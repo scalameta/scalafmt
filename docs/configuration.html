@@ -660,13 +660,60 @@ newlines.beforeOpenParenDefnSite = fold
 <h3><a class="anchor" aria-hidden="true" id="indentoperator"></a><a href="#indentoperator" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indentOperator</code></h3>
 <p>Normally, the first eligible break <em>inside</em> a chain of infix operators is
 indented by 2.</p>
-<p>This group of parameters allows overriding which infix operators are eligible
-and controls when indentation is <em>omitted</em>.</p>
-<h4><a class="anchor" aria-hidden="true" id="indentoperatortoplevelonly"></a><a href="#indentoperatortoplevelonly" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indentOperator.topLevelOnly</code></h4>
-<p>If true, only top-level infix operators are eligible to be exempted from the
-default indentation rule.</p>
-<p>Default: <code>indentOperator.topLevelOnly = true</code></p>
+<p>This group of parameters allows overriding which infix operators, and in which
+context, are eligible to be exempted from this, with indentation <em>omitted</em>.</p>
+<p>If you wish to disable this functionality, set <code>indentOperator.excludeRegex = '^$'</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="indentoperatorexemptscope"></a><a href="#indentoperatorexemptscope" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indentOperator.exemptScope</code></h4>
+<p>Added in 3.4.0, this parameter determines when an infix operator can be exempted from applying
+continuation indentation.</p>
+<p>It accepts the following values, to determine the context in which infix operators are eligible
+to be exempted from the default indentation rule:</p>
+<ul>
+<li><code>oldTopLevel</code> (default): &quot;top-level&quot; infix operators
+<ul>
+<li>the definition of top-level historically refers to infix expressions whose direct parent is
+a block (typically as the last statement in that block), <code>if/while</code> (as condition or body),
+or case clause (as pattern or body)</li>
+<li>this value replaced deprecated <code>indentOperator.topLevelOnly=true</code></li>
+<li>this approach is also somewhat inconsistent with what it was intended to accomplish, and
+kept only for backwards compatibility; please consider using one of the alternatives</li>
+</ul></li>
+<li><code>aloneEnclosed</code>: infix operators which are enclosed in braces or parens as the only statement
+in a block or body of a braces-enclosed lambda function; an <code>if/while</code> condition; the only
+argument of a method call; or similar;
+<ul>
+<li>it also includes a few scenarios where parens can be omitted, such case clause patterns,
+conditions in new scala3 <code>if-then</code> and <code>while-do</code> syntax, etc.</li>
+<li>however, block braces are not optional</li>
+</ul></li>
+<li><code>aloneArgOrBody</code>: infix operators as an <code>if/while</code> condition; an argument of a method call; the
+only statement in a block; entire body of an assignment, case clause, control statement, etc;
+<ul>
+<li>it is intended to help implement a requirement of the
+<a href="https://github.com/scala-js/scala-js/blob/main/CODINGSTYLE.md#long-expressions-with-binary-operators">scala-js coding style</a>.</li>
+</ul></li>
+<li><code>all</code>: all infix operators
+<ul>
+<li>this value replaced deprecated <code>indentOperator.topLevelOnly=false</code></li>
+</ul></li>
+</ul>
 <pre><code class="hljs css language-scala formatted">function(
+  a &amp;&amp;
+    b,
+  a &amp;&amp;
+    b
+)
+function(
+  a &amp;&amp;
+    b
+)(
+  a &amp;&amp;
+    b
+)
+function(
+  a &amp;&amp;
+    b
+)(
   a &amp;&amp;
     b
 )
@@ -677,6 +724,18 @@ function {
 </code></pre>
 <pre><code class="hljs css language-scala original">function(
   a &amp;&amp;
+    b,
+  a &amp;&amp;
+    b
+)
+function(a &amp;&amp;
+    b)(a &amp;&amp;
+    b)
+function(
+  a &amp;&amp;
+    b
+)(
+  a &amp;&amp;
     b
 )
 function {
@@ -685,11 +744,27 @@ function {
 }
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">indentOperator.topLevelOnly = <span class="hljs-literal">true</span>
+<pre><code class="hljs css language-scala config">indentOperator.exemptScope = oldTopLevel
 </code></pre>
 </p></details>
 <pre><code class="hljs css language-scala formatted">function(
   a &amp;&amp;
+  b,
+  a &amp;&amp;
+  b
+)
+function(
+  a &amp;&amp;
+  b
+)(
+  a &amp;&amp;
+  b
+)
+function(
+  a &amp;&amp;
+  b
+)(
+  a &amp;&amp;
   b
 )
 function {
@@ -699,6 +774,18 @@ function {
 </code></pre>
 <pre><code class="hljs css language-scala original">function(
   a &amp;&amp;
+    b,
+  a &amp;&amp;
+    b
+)
+function(a &amp;&amp;
+    b)(a &amp;&amp;
+    b)
+function(
+  a &amp;&amp;
+    b
+)(
+  a &amp;&amp;
     b
 )
 function {
@@ -707,7 +794,107 @@ function {
 }
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">indentOperator.topLevelOnly = <span class="hljs-literal">false</span>
+<pre><code class="hljs css language-scala config">indentOperator.exemptScope = all
+</code></pre>
+</p></details>
+<pre><code class="hljs css language-scala formatted">function(
+  a &amp;&amp;
+    b,
+  a &amp;&amp;
+    b
+)
+function(
+  a &amp;&amp;
+  b
+)(
+  a &amp;&amp;
+  b
+)
+function(
+  a &amp;&amp;
+  b
+)(
+  a &amp;&amp;
+  b
+)
+function {
+  a &amp;&amp;
+  b
+}
+</code></pre>
+<pre><code class="hljs css language-scala original">function(
+  a &amp;&amp;
+    b,
+  a &amp;&amp;
+    b
+)
+function(a &amp;&amp;
+    b)(a &amp;&amp;
+    b)
+function(
+  a &amp;&amp;
+    b
+)(
+  a &amp;&amp;
+    b
+)
+function {
+  a &amp;&amp;
+    b
+}
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">indentOperator.exemptScope = aloneEnclosed
+</code></pre>
+</p></details>
+<pre><code class="hljs css language-scala formatted">function(
+  a &amp;&amp;
+  b,
+  a &amp;&amp;
+  b
+)
+function(
+  a &amp;&amp;
+  b
+)(
+  a &amp;&amp;
+  b
+)
+function(
+  a &amp;&amp;
+  b
+)(
+  a &amp;&amp;
+  b
+)
+function {
+  a &amp;&amp;
+  b
+}
+</code></pre>
+<pre><code class="hljs css language-scala original">function(
+  a &amp;&amp;
+    b,
+  a &amp;&amp;
+    b
+)
+function(a &amp;&amp;
+    b)(a &amp;&amp;
+    b)
+function(
+  a &amp;&amp;
+    b
+)(
+  a &amp;&amp;
+    b
+)
+function {
+  a &amp;&amp;
+    b
+}
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">indentOperator.exemptScope = aloneArgOrBody
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="indentoperatorexcluderegex"></a><a href="#indentoperatorexcluderegex" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indentOperator.excludeRegex</code></h4>
@@ -5817,6 +6004,7 @@ rewrite.neverInfix.<span class="hljs-attr">excludeFilters</span> = [
   inOrderElementsOf
   theSameElementsAs
 ]
+indentOperator.<span class="hljs-attr">exemptScope</span> = <span class="hljs-literal">null</span>
 indentOperator.<span class="hljs-attr">topLevelOnly</span> = <span class="hljs-literal">true</span>
 indentOperator.<span class="hljs-attr">includeRegex</span> = <span class="hljs-string">".*"</span>
 indentOperator.<span class="hljs-attr">excludeRegex</span> = <span class="hljs-string">"^(&amp;&amp;|\|\|)$"</span>
