@@ -1952,15 +1952,19 @@ class Router(formatOps: FormatOps) {
                   if elses.contains(r) =>
                 d.onlyNewlinesWithFallback(Split(Newline, 0))
             }
-        val spaceMod = Space(style.spaces.isSpaceAfterKeyword(right))
-        val slb = Split(spaceMod, 0).withSingleLine(expire, killOnFail = true)
-        val mlSplitBase = Split(spaceMod, 1).withPolicy(breakOnlyBeforeElse)
+        val mod =
+          if (style.newlines.keepBreak(newlines)) Newline
+          else Space(style.spaces.isSpaceAfterKeyword(right))
+        val slb =
+          Split(mod.isNewline, 0)(mod).withSingleLine(expire, killOnFail = true)
+        val mlSplitBase = Split(mod, if (slb.isIgnored) 0 else 1)
+          .withPolicy(breakOnlyBeforeElse)
         val mlSplitOpt = OptionalBraces
           .indentAndBreakBeforeCtrl[T.KwThen](owner.cond, mlSplitBase)
         Seq(slb, mlSplitOpt.getOrElse(mlSplitBase))
       case FormatToken(_: T.KwWhile | _: T.KwFor, right, _) =>
         def spaceMod = Space(style.spaces.isSpaceAfterKeyword(right))
-        def splitBase = {
+        val splitBase = {
           val onlyNL = style.newlines.keepBreak(newlines)
           Split(if (onlyNL) Newline else spaceMod, 0)
         }
