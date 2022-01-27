@@ -211,7 +211,7 @@ class Router(formatOps: FormatOps) {
         }
         style.newlines.inInterpolation match {
           case Newlines.InInterpolation.avoid => Seq(spaceSplit)
-          case _ if newlines != 0 && style.newlines.source.eq(Newlines.keep) =>
+          case _ if style.newlines.keepBreak(newlines) =>
             Seq(newlineSplit(0))
           case Newlines.InInterpolation.oneline =>
             /* sequence of tokens:
@@ -396,7 +396,7 @@ class Router(formatOps: FormatOps) {
             .withIndent(style.indent.main, close, Before),
           Split(Space, 0)
             .onlyIf(lambdaNLOnly.contains(false) && lambdaPolicy != null)
-            .notIf(style.newlines.source.eq(Newlines.keep) && newlines != 0)
+            .notIf(style.newlines.keepBreak(newlines))
             .withOptimalTokenOpt(lambdaArrow)
             .withIndent(lambdaIndent, close, Before)
             .withPolicy(lambdaPolicy)
@@ -962,7 +962,7 @@ class Router(formatOps: FormatOps) {
 
         val noSplitMod =
           if (
-            style.newlines.source.eq(Newlines.keep) && tok.hasBreak || {
+            style.newlines.keepBreak(tok) || {
               if (!handleImplicit) onlyConfigStyle
               else style.newlines.forceBeforeImplicitParamListModifier
             }
@@ -1204,7 +1204,7 @@ class Router(formatOps: FormatOps) {
             }
           val rightIsComment = right.is[T.Comment]
           val mustUseNL = onlyConfigStyle ||
-            newlines != 0 && style.newlines.source.eq(Newlines.keep) ||
+            style.newlines.keepBreak(newlines) ||
             rightIsComment &&
             (newlines != 0 || nextNonCommentSameLine(next(ft)).hasBreak)
           val noSplitModification =
@@ -1247,7 +1247,7 @@ class Router(formatOps: FormatOps) {
           mustUseConfigStyle(formatToken, !opensLiteralArgumentList)
         val rightIsComment = right.is[T.Comment]
         val nlOnly = mustDangleForTrailingCommas || onlyConfigStyle ||
-          style.newlines.source.eq(Newlines.keep) && newlines != 0 ||
+          style.newlines.keepBreak(newlines) ||
           rightIsComment &&
           (newlines != 0 || nextNonCommentSameLine(next(ft)).hasBreak)
 
@@ -1435,7 +1435,7 @@ class Router(formatOps: FormatOps) {
             isCallSite(leftOwner) =>
         val close = matching(open)
         val binPackIsEnabled = !style.binPack.unsafeCallSite.isNever
-        val useSpace = newlines == 0 || style.newlines.source.ne(Newlines.keep)
+        val useSpace = !style.newlines.keepBreak(newlines)
         val singleSplit =
           if (!binPackIsEnabled) Split(Space.orNL(useSpace), 0)
           else Split(Space, 0).onlyIf(useSpace).withSingleLine(close)
@@ -1532,8 +1532,7 @@ class Router(formatOps: FormatOps) {
                     s.map { x => if (x.isNL) x else x.switch(trigger, true) }
                 }
               } else NoPolicy
-            val noSpace =
-              style.newlines.source.eq(Newlines.keep) && newlines != 0
+            val noSpace = style.newlines.keepBreak(newlines)
             Seq(
               Split(noSpace, 0)(Space)
                 .withSingleLine(endOfSingleLineBlock(optFT), noSyntaxNL = true),
@@ -1962,7 +1961,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.KwWhile | _: T.KwFor, right, _) =>
         def spaceMod = Space(style.spaces.isSpaceAfterKeyword(right))
         def splitBase = {
-          val onlyNL = style.newlines.source.eq(Newlines.keep) && newlines != 0
+          val onlyNL = style.newlines.keepBreak(newlines)
           Split(if (onlyNL) Newline else spaceMod, 0)
         }
         val split = (formatToken.meta.leftOwner match {
@@ -2375,7 +2374,7 @@ class Router(formatOps: FormatOps) {
         else
           Seq(Split(Space, 0), Split(Newline, 1))
       case FormatToken(_, T.Ident("|"), _) if rightOwner.is[Pat.Alternative] =>
-        val noNL = style.newlines.source.ne(Newlines.keep) || newlines == 0
+        val noNL = !style.newlines.keepBreak(newlines)
         Seq(Split(Space.orNL(noNL), 0))
       case FormatToken(_, T.Ident("*"), _)
           if rightOwner.is[Pat.SeqWildcard] ||
@@ -2517,7 +2516,7 @@ class Router(formatOps: FormatOps) {
           Space(style.spaces.inParentheses && allowSpace)
         }
         val isNL = rightOwner.is[Pat.Alternative] &&
-          style.newlines.source.eq(Newlines.keep) && newlines != 0
+          style.newlines.keepBreak(newlines)
         Seq(Split(if (isNL) Newline else modNoNL, 0))
 
       case FormatToken(left, _: T.KwCatch | _: T.KwFinally, _)
