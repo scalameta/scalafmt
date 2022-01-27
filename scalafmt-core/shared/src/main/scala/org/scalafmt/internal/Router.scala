@@ -2207,13 +2207,28 @@ class Router(formatOps: FormatOps) {
         )
 
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
-        val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
-        val exclude = insideBracesBlock(tok, arrow)
+        if (style.newlines.keepBreak(newlines))
+          Seq(Split(Newline, 0))
+        else {
+          val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
+          val afterIf = nextNonCommentSameLine(next(tok))
+          val noSplit =
+            if (style.newlines.keepBreak(afterIf)) {
+              val indent = Indent(style.indent.main, arrow, ExpiresOn.Before)
+              Split(Space, 0).withSingleLine(afterIf.left).withIndent(indent)
+            } else {
+              val exclude = insideBracesBlock(tok, arrow)
+              Split(Space, 0).withSingleLineNoOptimal(arrow, exclude = exclude)
+            }
+          Seq(
+            noSplit,
+            Split(Newline, 1).withPolicy(penalizeNewlineByNesting(cond, arrow))
+          )
+        }
 
-        Seq(
-          Split(Space, 0).withSingleLineNoOptimal(arrow, exclude = exclude),
-          Split(Newline, 1).withPolicy(penalizeNewlineByNesting(cond, arrow))
-        )
+      case ft @ FormatToken(_: T.KwIf, _, _) if leftOwner.is[Case] =>
+        val useNL = style.newlines.keepBreak(nextNonCommentSameLine(ft))
+        Seq(Split(Space.orNL(!useNL), 0))
 
       // ForYield
       case tok @ FormatToken(_: T.LeftArrow, _, _)
