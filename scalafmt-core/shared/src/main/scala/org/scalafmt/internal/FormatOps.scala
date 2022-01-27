@@ -2476,18 +2476,19 @@ class FormatOps(
     @inline private def seqLast(seq: Seq[Tree]): Option[T] =
       if (isSeqMulti(seq)) treeLast(seq.last) else None
 
-    def indentAndBreakBeforeCtrl[A](tree: Tree, fsplit: => Split)(implicit
+    def indentAndBreakBeforeCtrl[A](tree: Tree, split: Split)(implicit
         style: ScalafmtConfig,
         classifier: Classifier[T, A]
     ): Option[Split] =
-      if (!style.dialect.allowSignificantIndentation) None
-      else if (tree.is[Term.Block] && isEnclosedInMatching(tree)) None
+      if (
+        !style.dialect.allowSignificantIndentation ||
+        tree.is[Term.Block] && !split.isNL && isEnclosedInMatching(tree)
+      ) None
       else {
         val kw = tokenAfter(tree).right
         if (kw.is[A]) Some {
           val indent =
             style.indent.ctrlSite.getOrElse(style.indent.getSignificant)
-          val split = fsplit
           def policy =
             if (split.isNL) decideNewlinesOnlyBeforeClose(kw)
             else decideNewlinesOnlyBeforeCloseOnBreak(kw)

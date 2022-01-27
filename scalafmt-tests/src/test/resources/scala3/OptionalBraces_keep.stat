@@ -1972,7 +1972,8 @@ if
     exitCode
     
 >>>
-if (a1 && a2) == cond1 then
+if
+   (a1 && a2) == cond1 then
    val exitCode = 1
    exitCode
 <<< while indentation danglingParentheses false
@@ -3055,7 +3056,9 @@ object a {
 }
 >>>
 object a {
-  if ({ !Yield(2); false }) then {
+  if
+     ({ !Yield(2); false })
+  then {
     !Yield(3)
   } else {
     !Yield(4)
@@ -3082,7 +3085,9 @@ object a {
 }
 >>>
 object a {
-  while ({ !Yield(2); false }) do {
+  while
+     ({ !Yield(2); false })
+  do {
     !Yield(3)
   }
 }
@@ -3111,7 +3116,8 @@ class C:
    then
       3
    else 4
-   if true
+   if
+      true
    then
       3
    else 4
@@ -3140,7 +3146,8 @@ class C:
    then
       3
    else 4
-   if true
+   if
+      true
    then
       3
    else 4
