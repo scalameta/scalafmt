@@ -5,6 +5,7 @@ import scala.meta.Template
 import scala.meta.Tree
 
 import org.scalafmt.config.Newlines._
+import org.scalafmt.internal.FormatToken
 import org.scalafmt.util.TreeOps
 
 import metaconfig._
@@ -215,6 +216,14 @@ case class Newlines(
 
   @inline
   def sourceIgnored: Boolean = source.ignoreSourceSplit
+
+  @inline
+  def keepBreak(newlines: => Int): Boolean =
+    source.eq(Newlines.keep) && newlines != 0
+
+  @inline
+  def keepBreak(ft: FormatToken): Boolean =
+    keepBreak(ft.newlinesBetween)
 
   val breakAfterInfix: AfterInfix =
     afterInfix.getOrElse {
