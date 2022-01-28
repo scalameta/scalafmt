@@ -528,7 +528,7 @@ object Newlines {
       ConfDecoderEx.from {
         case (_, Conf.Str("source")) => Configured.Ok(BeforeOpenParen())
         case (_, _: Conf.Bool) =>
-          ConfError.message("beforeOpenParen can't be bool").notOk
+          Configured.error("beforeOpenParen can't be bool")
         case (_, conf) =>
           SourceHints.codec.read(None, conf).map(BeforeOpenParen.apply)
       }

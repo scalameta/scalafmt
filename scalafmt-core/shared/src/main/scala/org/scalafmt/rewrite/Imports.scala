@@ -83,7 +83,7 @@ object Imports extends RewriteFactory {
       val sortAscii = importRules.contains(AsciiSortImports)
       if (sortAscii && sortOriginal) {
         val err = "Incompatible rewrites: SortImports and AsciiSortImports"
-        Configured.NotOk(ConfError.message(err))
+        Configured.error(err)
       } else {
         val expand =
           obj.imports.expand || importRules.contains(ExpandImportSelectors)

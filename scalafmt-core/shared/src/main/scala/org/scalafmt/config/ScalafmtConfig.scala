@@ -350,7 +350,7 @@ object ScalafmtConfig {
     }).getOrElse {
       val alternatives = activeStyles.keys.mkString(", ")
       val err = s"Unknown style $conf. Expected one of: $alternatives"
-      ConfError.message(err).notOk
+      Configured.error(err)
     }
 
   private def validate(cfg: ScalafmtConfig): Configured[ScalafmtConfig] = {
@@ -430,10 +430,8 @@ object ScalafmtConfig {
     }
     // scalafmt: {}
     if (allErrors.isEmpty) Configured.ok(cfg)
-    else {
-      val msg = allErrors.mkString("can't use: [\n\t", "\n\t", "\n]")
-      Configured.notOk(ConfError.message(msg))
-    }
+    else
+      Configured.error(allErrors.mkString("can't use: [\n\t", "\n\t", "\n]"))
   }
 
   private val baseDecoder = generic.deriveDecoderEx(default).noTypos
