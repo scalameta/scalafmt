@@ -1574,7 +1574,7 @@ class FormatWriter(formatOps: FormatOps) {
               case _ => true
             }
             if (isBeforeBody)
-              beforeBody(t.stats)(_.forceBlankBeforeMultilineTopLevelStmt)
+              beforeBody(t.stats)(_.hasTopStatBlankLines)
             setTopStats(t, t.stats)
             super.apply(t.stats) // skip ref
           case _ =>

@@ -1237,8 +1237,9 @@ This parameter controls when to add blank lines before and/or after a top-level
 statement (a member of a package or template; nesting is allowed but not within
 a block). Special cases:
 
-- the rules do _not_ apply to non-indented packages (but do consider other
-  statements within those packages)
+- the rules do _not_ directly apply to package statements at the top of the source file; however,
+  if this parameter is non-empty, there will be at least one blank line before the first
+  non-package statement, and possibly more if the rules match that statement
 - end markers are handled through a setting for the statement they mark
 - imports and exports are processed as a group of consecutive statements
 - also see [Newlines around package or template body](#newlines-around-package-or-template-body)
@@ -1246,7 +1247,8 @@ a block). Special cases:
 > This parameter might reduce the number of blank lines but will not eliminate
 > them completely unless corresponding value is negative.
 
-Each entry on this list consists of the following fields:
+Each entry on this list consists of the following fields (except `blanks`, all are used to match
+whether the rule should apply):
 
 - `regex`
   - a regular expression to match the type of the statement
@@ -1428,27 +1430,6 @@ package core {
   }
 }
 ```
-
-### `newlines.topLevelStatements`
-
-> Deprecated in v3.0.0.
-
-This parameter and its companion `newlines.topLevelStatementsMinBreaks` have
-been deprecated and will be removed in a subsequent release.
-
-An equivalent setting is
-
-```
-newlines.topLevelStatementBlankLines = [
-  {
-    regex = "^Pkg|^Defn\\.|^Decl\\."
-    blanks = 1
-    minBreaks = <value of topLevelStatementsMinBreaks>
-  }
-]
-```
-
-If `newlines.topLevelStatementBlankLines` is set, this setting will be ignored.
 
 ### Newlines around package or template body
 
