@@ -1,8 +1,5 @@
-package org.scalafmt
+package org.scalafmt.config
 
-import org.scalafmt.config.Align
-import org.scalafmt.config.Config
-import org.scalafmt.config.Newlines
 import munit.FunSuite
 
 class ScalafmtConfigTest extends FunSuite {
