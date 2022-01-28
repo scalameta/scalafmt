@@ -162,13 +162,13 @@ case class Newlines(
       "Use newlines.topLevelStatementBlankLines instead",
       "3.0.0"
     )
-    topLevelStatementsMinBreaks: Int = 1,
+    private val topLevelStatementsMinBreaks: Int = 1,
     @annotation.DeprecatedName(
       "topLevelStatements",
       "Use newlines.topLevelStatementBlankLines instead",
       "3.0.0"
     )
-    topLevelStatements: Seq[BeforeAfter] = Seq.empty,
+    private val topLevelStatements: Seq[BeforeAfter] = Seq.empty,
     beforeTemplateBodyIfBreakInParentCtors: Boolean = false,
     topLevelBodyIfMinStatements: Seq[BeforeAfter] = Seq.empty,
     topLevelBodyMinStatements: Int = 2,
@@ -260,9 +260,6 @@ case class Newlines(
     else
       !forceBeforeImplicitParamListModifier
 
-  lazy val forceBlankBeforeMultilineTopLevelStmt: Boolean =
-    topLevelStatements.contains(before)
-
   lazy val avoidForSimpleOverflowPunct: Boolean =
     avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.punct)
   lazy val avoidForSimpleOverflowTooLong: Boolean =
@@ -288,7 +285,7 @@ case class Newlines(
   private lazy val topStatBlankLinesSorted = {
     if (topLevelStatementBlankLines.isEmpty) {
       val nb = NumBlanks(
-        if (forceBlankBeforeMultilineTopLevelStmt) 1 else 0,
+        if (topLevelStatements.contains(before)) 1 else 0,
         if (topLevelStatements.contains(after)) 1 else 0
       )
       if (nb.isEmpty) Seq.empty
@@ -305,6 +302,9 @@ case class Newlines(
       }
     }
   }
+
+  @inline def hasTopStatBlankLines = topStatBlankLinesSorted.nonEmpty
+
   def getTopStatBlankLines(
       tree: Tree,
       numBreaks: Int,

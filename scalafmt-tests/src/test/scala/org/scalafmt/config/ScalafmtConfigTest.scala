@@ -25,11 +25,11 @@ class ScalafmtConfigTest extends FunSuite {
       .fromHoconString(
         """
           |newlines.source = fold
-          |newlines.topLevelStatements = [before,after]
+          |newlines.topLevelBodyIfMinStatements = [before,after]
           |fileOverride {
           |  "glob:**/src/test/scala/**" {
           |    newlines.source = unfold
-          |    newlines.topLevelStatements = []
+          |    newlines.topLevelBodyIfMinStatements = []
           |  }
           |}
       """.stripMargin
@@ -40,10 +40,10 @@ class ScalafmtConfigTest extends FunSuite {
     assertEquals(nlCfg1.source, Newlines.fold)
     assertEquals(nlCfg2.source, Newlines.unfold)
     assertEquals(
-      nlCfg1.topLevelStatements,
+      nlCfg1.topLevelBodyIfMinStatements,
       Seq(Newlines.before, Newlines.after)
     )
-    assertEquals(nlCfg2.topLevelStatements, Seq.empty)
+    assertEquals(nlCfg2.topLevelBodyIfMinStatements, Seq.empty)
   }
 
   test("align preset no override") {
