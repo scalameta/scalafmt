@@ -36,13 +36,13 @@ object Presets {
             val newConf = if (filtered.isEmpty) null else Conf.Obj(filtered)
             Configured.ok((x, newConf))
           case x =>
-            ConfError.message(s"$me: unsupported preset: $x").notOk
+            Configured.error(s"$me: unsupported preset: $x")
         }
       case presetsMatch(_) =>
         val section = Option(sectionName).fold("subsection '")(x => s"'$x.")
         val err = s"$me: top-level presets removed since v3.0.0; " +
           s"use $section$presetKey = $conf' instead"
-        Some(ConfError.message(err).notOk)
+        Some(Configured.error(err))
       case _ => None
     }
   }
