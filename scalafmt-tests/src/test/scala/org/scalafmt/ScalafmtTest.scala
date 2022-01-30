@@ -13,7 +13,7 @@ class ScalafmtTest extends FunSuite {
     test(logger.revealWhitespace(original).take(30)) {
       val obtained = Scalafmt.formatCode(original, config).get
       if (obtained != expected) logger.elem(obtained)
-      assert(obtained == expected)
+      assertEquals(obtained, expected)
     }
   }
   check(

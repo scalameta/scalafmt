@@ -133,7 +133,7 @@ class DynamicSuite extends FunSuite {
       intercept[ScalafmtDynamicError.ConfigMissingVersion] {
         dynamic.format(config, filename, "object  A")
       }
-      assert(out.toString().isEmpty)
+      assertEquals(out.toString(), "")
       assert(missingVersions.nonEmpty)
     }
     def assertThrows[A <: Throwable: ClassTag](
@@ -313,8 +313,8 @@ class DynamicSuite extends FunSuite {
   check("wrong-version") { f =>
     f.setVersion("1.0", "scala211")
     val error = f.assertThrows[ScalafmtDynamicError.ConfigInvalidVersion]()
-    assert(error.getMessage == "Invalid version: 1.0")
-    assert(f.downloadLogs.isEmpty)
+    assertEquals(error.getMessage, "Invalid version: 1.0")
+    assertEquals(f.downloadLogs, "")
   }
 
   check("sbt") { f =>

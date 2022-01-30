@@ -2,8 +2,6 @@ package org.scalafmt.cli
 
 import java.nio.file.{Files, NoSuchFileException, Path, Paths}
 
-import metaconfig.Configured.NotOk
-import metaconfig.Configured.Ok
 import org.scalafmt.config.{Config, ScalafmtConfig}
 import FileTestOps._
 import org.scalafmt.Versions
@@ -15,27 +13,31 @@ class CliOptionsTest extends FunSuite {
 
   test("preset = ...") {
     import org.scalafmt.config.Config
-    val NotOk(err) = Config.fromHoconString("preset = foobar")
-    assert(
-      "Unknown style \"foobar\". Expected one of: " +
-        "Scala.js, IntelliJ, default, defaultWithAlign" == err.msg
+    assertEquals(
+      Config.fromHoconString("preset = foobar"),
+      Configured.error(
+        "Unknown style \"foobar\". Expected one of: " +
+          "Scala.js, IntelliJ, default, defaultWithAlign"
+      )
     )
 
-    val overrideOne = Config.fromHoconString("""|preset = defaultWithAlign
-      |maxColumn = 100
-      |""".stripMargin)
-    assert(
-      Ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100)) == overrideOne
+    assertEquals(
+      Config.fromHoconString("""|preset = defaultWithAlign
+        |maxColumn = 100
+        |""".stripMargin),
+      Configured.ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100))
     )
-    assert(
-      Ok(ScalafmtConfig.intellij) == Config.fromHoconString("preset = intellij")
+    assertEquals(
+      Config.fromHoconString("preset = intellij"),
+      Configured.ok(ScalafmtConfig.intellij)
     )
-    assert(
-      Ok(ScalafmtConfig.scalaJs) == Config.fromHoconString("preset = Scala.js")
+    assertEquals(
+      Config.fromHoconString("preset = Scala.js"),
+      Configured.ok(ScalafmtConfig.scalaJs)
     )
-    assert(
-      Ok(ScalafmtConfig.defaultWithAlign) == Config
-        .fromHoconString("preset = defaultWithAlign")
+    assertEquals(
+      Config.fromHoconString("preset = defaultWithAlign"),
+      Configured.ok(ScalafmtConfig.defaultWithAlign)
     )
   }
 
@@ -51,13 +53,13 @@ class CliOptionsTest extends FunSuite {
       )
       .configPath
     val config = Config.fromHoconFile(path).get
-    assert(config.onTestFailure == expected)
+    assertEquals(config.onTestFailure, expected)
   }
 
   test(".configPath returns path to specified configuration path") {
     val tempPath = Files.createTempFile(".scalafmt", ".conf")
     val opt = baseCliOptions.copy(config = Some(tempPath))
-    assert(tempPath == opt.configPath)
+    assertEquals(opt.configPath, tempPath)
   }
 
   test(
@@ -76,7 +78,7 @@ class CliOptionsTest extends FunSuite {
       configStr =
         Some(s"""{version="${Versions.version}", onTestFailure="$expected"}""")
     )
-    assert(opt.scalafmtConfig.get.onTestFailure == expected)
+    assertEquals(opt.scalafmtConfig.get.onTestFailure, expected)
   }
 
   test(
@@ -92,7 +94,7 @@ class CliOptionsTest extends FunSuite {
     Files.write(configPath, config.getBytes)
 
     val opt = baseCliOptions.copy(config = Some(configPath))
-    assert(opt.scalafmtConfig.get.onTestFailure == expected)
+    assertEquals(opt.scalafmtConfig.get.onTestFailure, expected)
   }
 
   test(
@@ -121,7 +123,7 @@ class CliOptionsTest extends FunSuite {
     val stdoutArgs = Array("--stdout")
     for (args <- Seq(stdinArgs, stdoutArgs)) {
       val options = Cli.getConfig(args, baseCliOptions).get
-      assert(options.common.info == NoopOutputStream.printStream)
+      assertEquals(options.common.info, NoopOutputStream.printStream)
     }
   }
 }

@@ -18,17 +18,19 @@ class StyleMapTest extends FunSuite {
         |}
       """.stripMargin.parse[Source].get
     val m = new FormatOps(code, ScalafmtConfig.default)
-    assert(
+    assertEquals(
       m.styleMap
         .at(m.tokens.head)
-        .maxColumn == ScalafmtConfig.default.maxColumn
+        .maxColumn,
+      ScalafmtConfig.default.maxColumn
     )
-    assert(
+    assertEquals(
       m.styleMap
         .at(m.tokens.find(_.left.syntax == "println").get)
-        .maxColumn == 100
+        .maxColumn,
+      100
     )
-    assert(m.styleMap.at(m.tokens.last).maxColumn == 110)
+    assertEquals(m.styleMap.at(m.tokens.last).maxColumn, 110)
   }
 
   test("align.tokens.+") {
@@ -94,12 +96,18 @@ class StyleMapTest extends FunSuite {
     val formatOps2 = new FormatOps(code, style2)
 
     val newStyle1 = formatOps2.styleMap.at(token1)
-    assert(style1.newlines.implicitParamListModifierForce == defaultValue)
-    assert(newStyle1.newlines.implicitParamListModifierForce == overrideValue)
+    assertEquals(style1.newlines.implicitParamListModifierForce, defaultValue)
+    assertEquals(
+      newStyle1.newlines.implicitParamListModifierForce,
+      overrideValue
+    )
 
     val newStyle2 = formatOps2.styleMap.at(token2)
-    assert(style2.newlines.implicitParamListModifierForce == overrideValue)
-    assert(newStyle2.newlines.implicitParamListModifierForce == overrideValue)
+    assertEquals(style2.newlines.implicitParamListModifierForce, overrideValue)
+    assertEquals(
+      newStyle2.newlines.implicitParamListModifierForce,
+      overrideValue
+    )
   }
 
   test("StyleMap.numEntries: unsafeCallSite for literalArgumentLists") {
