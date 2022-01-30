@@ -153,7 +153,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
       runArgs(args, init)
       val obtained = new String(baos.toByteArray, StandardCharsets.UTF_8)
       assertNoDiff(obtained, formatted)
-      assert(obtained.length == formatted.length)
+      assertEquals(obtained.length, formatted.length)
     }
 
     test(s"scalafmt --stdin --assume-filename: $label") {
@@ -180,7 +180,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
       run(printToStdout.copy(common = common))
       val obtained = new String(baos.toByteArray, StandardCharsets.UTF_8)
       assertNoDiff(obtained, sbtExpected)
-      assert(obtained.size == sbtExpected.size)
+      assertEquals(obtained.length, sbtExpected.length)
     }
 
     test(s"scalafmt --test tmpFile is left unformatted: $label") {
@@ -615,7 +615,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
           getMockOptions(AbsoluteFile.userDir)
         )
       }
-      assert(exit.is(ExitCode.CommandLineArgumentError), exit)
+      assertEquals(exit, ExitCode.CommandLineArgumentError, exit)
     }
 
     test(s"--test failure prints out unified diff: $label") {
@@ -724,9 +724,9 @@ trait CliTestBehavior { this: AbstractCliTest =>
       Files.write(in, "object A".getBytes(StandardCharsets.UTF_8))
       val args = Array("--config-str", s"""{version="$version"}""", in.toString)
       val exit = Cli.mainWithOptions(args, baseCliOptions)
-      assert(exit.isOk)
+      assertEquals(exit, ExitCode.Ok)
       val obtained = new String(Files.readAllBytes(in), StandardCharsets.UTF_8)
-      assert(obtained == "object A\n")
+      assertEquals(obtained, "object A\n")
     }
 
     test(s"--config-str should be used if it is specified: $label") {
@@ -854,7 +854,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     val obtained =
       Cli.getConfig(Array(s"@$argumentsFile"), CliTest.defaultOptions).get
     val config = obtained.scalafmtConfig.get
-    assert(config.maxColumn == 40)
+    assertEquals(config.maxColumn, 40)
     assertEquals(
       obtained.customFiles.head.getFileName().toString,
       "foobar.scala"

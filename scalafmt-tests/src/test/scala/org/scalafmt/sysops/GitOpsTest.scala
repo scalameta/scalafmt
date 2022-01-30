@@ -103,21 +103,21 @@ class GitOpsTest extends FunSuite {
 
   test("lsTree should not return files not added to the index") {
     touch()
-    assert(ls.isEmpty)
+    assertEquals(ls, Seq.empty)
   }
 
   test("#1010: lsTree should return staged files") {
     val f = touch()
     add(f)
     val q = ls
-    assert(q.toSet == Set(f), q.mkString + " != " + f.toString())
+    assertEquals(q.toSet, Set(f), q.mkString + " != " + f.toString())
   }
 
   test("lsTree should return committed files") {
     val f = touch()
     add(f)
     commit
-    assert(ls.toSet == Set(f))
+    assertEquals(ls.toSet, Set(f))
   }
 
   test("lsTree should exclude symbolic links") {
@@ -126,7 +126,7 @@ class GitOpsTest extends FunSuite {
     val g = symbolicLinkTo(f)
     add(g)
     commit
-    assert(ls.toSet == Set(f))
+    assertEquals(ls.toSet, Set(f))
   }
 
   test("lsTree should not return committed files that have been deleted") {
@@ -134,7 +134,7 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     rm(f)
-    assert(ls.isEmpty)
+    assertEquals(ls, Seq.empty)
   }
 
   test(
@@ -148,7 +148,7 @@ class GitOpsTest extends FunSuite {
     add(f2)
 
     val innerGitOps = new GitOpsImpl(innerDir)
-    assert(ls(innerGitOps).toSet == Set(f2))
+    assertEquals(ls(innerGitOps).toSet, Set(f2))
   }
 
   test("lsTree should return committed files that have been modified") {
@@ -156,7 +156,7 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     modify(f)
-    assert(ls.toSet == Set(f))
+    assertEquals(ls.toSet, Set(f))
   }
 
   def diff(br: String, cwd: AbsoluteFile*)(implicit
@@ -176,7 +176,7 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     modify(f)
-    assert(diff().toSet == Set(f))
+    assertEquals(diff().toSet, Set(f))
   }
 
   test("diff should return modified files from specific subdirs") {
@@ -200,7 +200,7 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     rm(f)
-    assert(diff().isEmpty)
+    assertEquals(diff(), Seq.empty)
   }
 
   test("#1000: diff should not return fs deleted files") {
@@ -208,7 +208,7 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     rmfs(f)
-    assert(diff().isEmpty)
+    assertEquals(diff(), Seq.empty)
   }
 
   test("diff should return added files against HEAD") {
@@ -217,8 +217,8 @@ class GitOpsTest extends FunSuite {
     val f2 = touch(dir = dir)
     add(f1)
     add(f2)
-    assert(diff().toSet == Set(f1, f2))
-    assert(diff(cwd = dir).toSet == Set(f2))
+    assertEquals(diff().toSet, Set(f1, f2))
+    assertEquals(diff(cwd = dir).toSet, Set(f2))
   }
 
   test("diff should return added files against a different branch") {
@@ -232,8 +232,8 @@ class GitOpsTest extends FunSuite {
     add(f1)
     add(f2)
     commit
-    assert(diff("master").toSet == Set(f1, f2))
-    assert(diff("master", dir).toSet == Set(f2))
+    assertEquals(diff("master").toSet, Set(f1, f2))
+    assertEquals(diff("master", dir).toSet, Set(f2))
   }
 
   test(
@@ -249,8 +249,8 @@ class GitOpsTest extends FunSuite {
     add(f1)
     add(f2)
     modify(f1)
-    assert(diff("master").toSet == Set(f1, f2))
-    assert(diff("master", dir).toSet == Set(f2))
+    assertEquals(diff("master").toSet, Set(f1, f2))
+    assertEquals(diff("master", dir).toSet, Set(f2))
   }
 
   test("diff should not return removed files against a different branch") {
@@ -264,7 +264,7 @@ class GitOpsTest extends FunSuite {
     add(f2)
     commit
     rm(f1)
-    assert(diff("master").toSet == Set(f2))
+    assertEquals(diff("master").toSet, Set(f2))
   }
 
   test("status should return only modified files") {
@@ -272,7 +272,7 @@ class GitOpsTest extends FunSuite {
     add(f)
     commit
     val f1 = touch()
-    assert(status().toSet == Set(f1))
+    assertEquals(status().toSet, Set(f1))
   }
 
   test("status should return modified files from specific subdirs") {
@@ -297,7 +297,7 @@ class GitOpsTest extends FunSuite {
     commit
     val f1 = mv(f)
     add(f1)
-    assert(status().toSet == Set(f1))
+    assertEquals(status().toSet, Set(f1))
   }
 
   test("status should not return deleted files") {
@@ -309,14 +309,14 @@ class GitOpsTest extends FunSuite {
     modify(f1)
     add(f1)
     rm(f)
-    assert(status().toSet == Set(f1))
+    assertEquals(status().toSet, Set(f1))
   }
 
   test("status should return files with spaces in the path") {
     val dir = mkDir("dir 1")
     val f = touch(dir = dir)
     add(f)
-    assert(status().toSet == Set(f))
+    assertEquals(status().toSet, Set(f))
   }
 
   test("lsTree should return files from specific subdirs") {
