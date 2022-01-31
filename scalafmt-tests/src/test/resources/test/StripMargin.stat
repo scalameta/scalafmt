@@ -314,3 +314,208 @@ final class MyClass {
   println(s"""${1}
     """.stripMargin)
 }
+<<< #3090 string without margin
+maxColumn = 100
+optIn.breaksInsideChains = true
+===
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong => """UPDATE mytable
+          |SET
+          | column = $thisvariablenameisreallylong
+          |WHERE column2 = ${foo.bar}""".stripMargin1.update.run
+    ).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+>>>
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong =>
+      """UPDATE mytable
+          |SET
+          | column = $thisvariablenameisreallylong
+          |WHERE column2 = ${foo.bar}""".stripMargin1.update.run
+    ).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+<<< #3090 string without margin, no align
+maxColumn = 100
+align.stripMargin = false
+optIn.breaksInsideChains = true
+===
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong => """UPDATE mytable
+          |SET
+          | column = $thisvariablenameisreallylong
+          |WHERE column2 = ${foo.bar}""".stripMargin1.update.run
+    ).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+>>>
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong => """UPDATE mytable
+          |SET
+          | column = $thisvariablenameisreallylong
+          |WHERE column2 = ${foo.bar}""".stripMargin1.update.run).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+<<< #3090 string with margin '|'
+maxColumn = 100
+optIn.breaksInsideChains = true
+===
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong => """UPDATE mytable
+          |SET
+          | column = $thisvariablenameisreallylong
+          |WHERE column2 = ${foo.bar}""".stripMargin.update.run
+    ).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+>>>
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong =>
+      """UPDATE mytable
+        |SET
+        | column = $thisvariablenameisreallylong
+        |WHERE column2 = ${foo.bar}""".stripMargin.update.run
+    ).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+<<< #3090 string with margin '='
+maxColumn = 100
+optIn.breaksInsideChains = true
+===
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong => """UPDATE mytable
+          =SET
+          = column = $thisvariablenameisreallylong
+          =WHERE column2 = ${foo.bar}""".stripMargin('=').update.run
+    ).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+>>>
+Idempotency violated
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong => """UPDATE mytable
+                                           =SET
+                                           = column = $thisvariablenameisreallylong
+                                           =WHERE column2 = ${foo.bar}""".stripMargin('=').update.run).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+<<< #3090 interpolation without margin
+maxColumn = 100
+optIn.breaksInsideChains = true
+===
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong =>
+      fr"""UPDATE mytable
+          |SET
+          | column = $thisvariablenameisreallylong
+          |WHERE column2 = ${foo.bar}""".stripMargin1.update.run
+    ).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+>>>
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong => fr"""UPDATE mytable
+          |SET
+          | column = $thisvariablenameisreallylong
+          |WHERE column2 = ${foo.bar}""".stripMargin1.update.run).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+<<< #3090 interpolation without margin, no align
+maxColumn = 100
+align.stripMargin = false
+optIn.breaksInsideChains = true
+===
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong =>
+      fr"""UPDATE mytable
+          |SET
+          | column = $thisvariablenameisreallylong
+          |WHERE column2 = ${foo.bar}""".stripMargin1.update.run
+    ).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+>>>
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong => fr"""UPDATE mytable
+          |SET
+          | column = $thisvariablenameisreallylong
+          |WHERE column2 = ${foo.bar}""".stripMargin1.update.run).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+<<< #3090 interpolation with margin '|'
+maxColumn = 100
+optIn.breaksInsideChains = true
+===
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong =>
+      fr"""UPDATE mytable
+          |SET
+          | column = $thisvariablenameisreallylong
+          |WHERE column2 = ${foo.bar}""".stripMargin.update.run
+    ).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+>>>
+Idempotency violated
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong => fr"""UPDATE mytable
+                                             |SET
+                                             | column = $thisvariablenameisreallylong
+                                             |WHERE column2 = ${foo.bar}""".stripMargin.update.run).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+<<< #3090 interpolation with margin '='
+maxColumn = 100
+optIn.breaksInsideChains = true
+===
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong =>
+      fr"""UPDATE mytable
+          =SET
+          = column = $thisvariablenameisreallylong
+          =WHERE column2 = ${foo.bar}""".stripMargin('=').update.run
+    ).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
+>>>
+Idempotency violated
+class Test {
+  val test = foo.bar.baz
+    .map(thisvariablenameisreallylong => fr"""UPDATE mytable
+                                             =SET
+                                             = column = $thisvariablenameisreallylong
+                                             =WHERE column2 = ${foo.bar}""".stripMargin('=').update.run).getOrElse {
+      ().pure[ConnectionIO]
+    }
+}
