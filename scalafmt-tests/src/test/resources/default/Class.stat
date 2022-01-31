@@ -551,3 +551,31 @@ object a {
   }
 
 }
+<<< early init 
+object CoreReflection extends {
+  val u: ru.type = ru
+  val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+} with scala.meta.internal.trees.Reflection with scala.meta.internal.tokens.Reflection
+>>>
+object CoreReflection extends {
+  val u: ru.type = ru
+  val mirror: u.Mirror =
+    u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+} with scala.meta.internal.trees.Reflection
+  with scala.meta.internal.tokens.Reflection
+<<< early init 2
+object CoreReflection extends {
+  val u: ru.type = ru
+  val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+} with scala.meta.internal.trees.Reflection with scala.meta.internal.tokens.Reflection {
+  def foo: Int = 42
+}
+>>>
+object CoreReflection extends {
+  val u: ru.type = ru
+  val mirror: u.Mirror =
+    u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+} with scala.meta.internal.trees.Reflection
+  with scala.meta.internal.tokens.Reflection {
+  def foo: Int = 42
+}

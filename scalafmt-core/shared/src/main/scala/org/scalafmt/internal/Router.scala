@@ -1884,7 +1884,18 @@ class Router(formatOps: FormatOps) {
             )
           // trait A extends B with C with D with E
           case template: Template =>
-            typeTemplateSplits(template, style.indent.withSiteRelativeToExtends)
+            if (template.early.nonEmpty) {
+              val expire = template.inits.last.tokens.last
+              Seq(
+                Split(Space, 0).withIndent(1, expire, ExpiresOn.After),
+                Split(Newline, 1)
+                  .withIndent(1, expire, ExpiresOn.After)
+              )
+            } else
+              typeTemplateSplits(
+                template,
+                style.indent.withSiteRelativeToExtends
+              )
           case t @ WithChain(top) =>
             binPackParentConstructorSplits(
               !t.lhs.is[Type.With],

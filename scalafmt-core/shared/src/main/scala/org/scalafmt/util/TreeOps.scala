@@ -856,7 +856,9 @@ object TreeOps {
     }
 
   def getStartOfTemplateBody(template: Template): Option[Token] =
-    template.self.tokens.headOption
+    template.early.headOption
+      .flatMap(_.tokens.headOption)
+      .orElse(template.self.tokens.headOption)
       .orElse(template.stats.headOption.flatMap(_.tokens.headOption))
 
   def getAndOrTypeRhs(tree: Tree): Option[Type] = tree match {
