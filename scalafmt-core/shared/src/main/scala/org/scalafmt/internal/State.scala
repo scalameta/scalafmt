@@ -355,6 +355,14 @@ object State {
           } else identity
           val pipe = getStripMarginChar(ft.meta.rightOwner)
           getColumnsWithStripMargin(pipe, syntax, firstNL, margin, firstLength)
+        case _: Token.Interpolation.Part =>
+          val margin: Int => Int = if (style.assumeStandardLibraryStripMargin) {
+            // 1 for '|'
+            val adjusted = 1 + indent
+            _ => adjusted
+          } else identity
+          val pipe = getStripMarginCharForInterpolate(ft.meta.rightOwner)
+          getColumnsWithStripMargin(pipe, syntax, firstNL, margin, firstLength)
         case _ =>
           val lastNewline = syntax.length - syntax.lastIndexOf('\n') - 1
           (firstLength, lastNewline)

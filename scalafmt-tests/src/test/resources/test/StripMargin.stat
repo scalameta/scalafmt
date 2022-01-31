@@ -482,13 +482,14 @@ class Test {
     }
 }
 >>>
-Idempotency violated
 class Test {
   val test = foo.bar.baz
-    .map(thisvariablenameisreallylong => fr"""UPDATE mytable
-                                             |SET
-                                             | column = $thisvariablenameisreallylong
-                                             |WHERE column2 = ${foo.bar}""".stripMargin.update.run).getOrElse {
+    .map(thisvariablenameisreallylong =>
+      fr"""UPDATE mytable
+          |SET
+          | column = $thisvariablenameisreallylong
+          |WHERE column2 = ${foo.bar}""".stripMargin.update.run
+    ).getOrElse {
       ().pure[ConnectionIO]
     }
 }
@@ -508,13 +509,14 @@ class Test {
     }
 }
 >>>
-Idempotency violated
 class Test {
   val test = foo.bar.baz
-    .map(thisvariablenameisreallylong => fr"""UPDATE mytable
-                                             =SET
-                                             = column = $thisvariablenameisreallylong
-                                             =WHERE column2 = ${foo.bar}""".stripMargin('=').update.run).getOrElse {
+    .map(thisvariablenameisreallylong =>
+      fr"""UPDATE mytable
+          =SET
+          = column = $thisvariablenameisreallylong
+          =WHERE column2 = ${foo.bar}""".stripMargin('=').update.run
+    ).getOrElse {
       ().pure[ConnectionIO]
     }
 }
