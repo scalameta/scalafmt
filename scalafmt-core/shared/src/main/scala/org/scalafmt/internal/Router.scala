@@ -111,15 +111,24 @@ class Router(formatOps: FormatOps) {
             isTripleQuote(formatToken.meta.left.text)
         def policy = PenalizeAllNewlines(end, BreakSingleLineInterpolatedString)
         val split = Split(NoSplit, 0).withPolicy(policy, okNewlines)
-        Seq(
-          if (getStripMarginChar(formatToken).isEmpty) split
-          else if (style.align.stripMargin)
-            split
-              .withIndent(StateColumn, end, After)
-              .withIndent(-1, end, After) // -1 because of margin characters |
-          else
-            split.withIndent(style.indent.main, end, After)
-        )
+        val alignIndents = if (style.align.stripMargin) {
+          findInterpolate(leftOwner).flatMap { ti =>
+            getStripMarginChar(ti).map { pipe =>
+              val startsWithPipe = ti.parts.headOption match {
+                case Some(Lit.String(x)) => x.headOption.contains(pipe)
+                case _ => false
+              }
+              Seq(
+                Indent(StateColumn, end, After),
+                // -1 because of margin characters |
+                Indent(if (startsWithPipe) -1 else -2, end, After)
+              )
+            }
+          }
+        } else None
+        val indents =
+          alignIndents.getOrElse(Seq(Indent(style.indent.main, end, After)))
+        Seq(split.withIndents(indents))
       // Interpolation
       case FormatToken(
             _: T.Interpolation.Id | _: T.Interpolation.Part |
@@ -202,8 +211,7 @@ class Router(formatOps: FormatOps) {
             .withIndents(alignIndents.getOrElse(Nil))
         def newlineSplit(cost: Int)(implicit fileLine: FileLine) = {
           def mainIndents = Seq(
-            Indent(style.indent.main, close, ExpiresOn.Before),
-            Indent(style.indent.main, close, ExpiresOn.After)
+            Indent(style.indent.main, close, ExpiresOn.Before)
           )
           Split(Newline, cost)
             .withIndents(alignIndents.getOrElse(mainIndents))
