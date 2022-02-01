@@ -1868,7 +1868,10 @@ class Router(formatOps: FormatOps) {
           template.flatMap(findTemplateGroupOnRight(_.superType)),
           lastToken,
           style.indent.extendSite,
-          template.exists(_.inits.length > 1)
+          template.exists(x =>
+            if (x.early.nonEmpty) x.inits.nonEmpty
+            else x.inits.lengthCompare(1) > 0
+          )
         )
 
       // trait A extends B, C, D, E
