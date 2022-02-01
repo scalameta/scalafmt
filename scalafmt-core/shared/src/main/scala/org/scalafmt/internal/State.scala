@@ -337,7 +337,8 @@ object State {
         } else syntax.length
       val firstLineLength = column + syntaxLen
       (firstLineLength, firstLineLength)
-    } else
+    } else {
+      val firstLength = column + firstNL
       ft.right match {
         case _: Token.Constant.String =>
           val margin: Int => Int = if (style.assumeStandardLibraryStripMargin) {
@@ -345,23 +346,23 @@ object State {
             val adjusted = 3 + (if (style.align.stripMargin) column else indent)
             _ => adjusted
           } else identity
-          getColumnsWithStripMargin(syntax, firstNL, margin, column)
+          getColumnsWithStripMargin(syntax, firstNL, margin, firstLength)
         case _ =>
           val lastNewline = syntax.length - syntax.lastIndexOf('\n') - 1
-          (column + firstNL, lastNewline)
+          (firstLength, lastNewline)
       }
+    }
   }
 
   private def getColumnsWithStripMargin(
       syntax: String,
       firstNL: Int,
       adjustMargin: Int => Int,
-      column: Int
+      firstLength: Int
   ): (Int, Int) = {
     val matcher = stripMarginPattern.matcher(syntax)
     matcher.region(firstNL, syntax.length)
-    val firstLineLength = column + firstNL
-    if (!matcher.find()) (firstLineLength, firstLineLength)
+    if (!matcher.find()) (firstLength, firstLength)
     else {
       def getMatcherLength() = {
         val margin = matcher.end(1) - matcher.start(1)
@@ -375,7 +376,7 @@ object State {
         val maxLength = math.max(prevMaxLength, length)
         if (matcher.find()) iter(maxLength) else (maxLength, length)
       }
-      iter(firstLineLength)
+      iter(firstLength)
     }
   }
 
