@@ -129,9 +129,8 @@ enum Foo(val x: Int) {
 }
 >>>
 enum Foo(val x: Int) {
-  case Bar
-      extends Foo(1) with X
-      with Y with Z
+  case Bar extends Foo(1)
+      with X with Y with Z
 }
 <<< enum case with parent constructors `oneline`
 binPack.parentConstructors = Oneline

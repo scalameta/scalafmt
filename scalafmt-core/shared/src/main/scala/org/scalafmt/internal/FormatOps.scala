@@ -1084,7 +1084,7 @@ class FormatOps(
             .withIndent(indent)
             .withSingleLine(
               slbEnd,
-              exclude = insideBlock[T.LeftParen](ft, slbEnd),
+              exclude = insideBracesBlock(ft, slbEnd, true),
               noSyntaxNL = extendsThenWith
             ),
           Split(nlMod, 1).withIndent(indent)
@@ -1101,9 +1101,17 @@ class FormatOps(
         case _ =>
           Right(style.newlines.source eq Newlines.fold)
       }
+      val exclude = style.binPack.parentConstructors match {
+        case BinPack.ParentCtors.Always
+            if ft.noBreak || style.newlines.sourceIgnored =>
+          insideBracesBlock(ft, lastToken, true)
+        case _ => TokenRanges.empty
+      }
       val noSyntaxNL = extendsThenWith
       Seq(
-        Split(Space, 0).withSingleLine(lastToken, noSyntaxNL = noSyntaxNL),
+        Split(Space, 0)
+          .withSingleLine(lastToken, exclude = exclude, noSyntaxNL = noSyntaxNL)
+          .withIndent(indent),
         Split(nlMod, 0)
           .onlyIf(nlOnelineTag != Right(false))
           .preActivateFor(nlOnelineTag.left.toOption)
