@@ -769,15 +769,18 @@ object TreeOps {
   }
 
   @tailrec
-  def findInterpolate(
-      tree: Tree,
-      res: Option[Term.Interpolate] = None
-  ): Option[Term.Interpolate] =
-    tree.parent match {
-      case Some(p: Term.Interpolate) => findInterpolate(p, Some(p))
-      case Some(p) => findInterpolate(p, res)
-      case _ => res
+  def findInterpolate(tree: Tree): Option[Term.Interpolate] =
+    tree match {
+      case ti: Term.Interpolate => Some(ti)
+      case _ =>
+        tree.parent match {
+          case Some(p) => findInterpolate(p)
+          case _ => None
+        }
     }
+
+  def getStripMarginCharForInterpolate(tree: Tree): Option[Char] =
+    findInterpolate(tree).flatMap(getStripMarginChar)
 
   def getStripMarginChar(t: Tree): Option[Char] = {
     t.parent match {
@@ -792,17 +795,6 @@ object TreeOps {
 
   @inline
   def isTripleQuote(syntax: String): Boolean = syntax.startsWith("\"\"\"")
-
-  def getStripMarginChar(ft: FormatToken): Option[Char] = {
-    ft.left match {
-      case _: Token.Interpolation.Start =>
-        val ti = TreeOps.findInterpolate(ft.meta.leftOwner)
-        ti.flatMap(TreeOps.getStripMarginChar)
-      case _: Token.Constant.String if isTripleQuote(ft.meta.left.text) =>
-        TreeOps.getStripMarginChar(ft.meta.leftOwner)
-      case _ => None
-    }
-  }
 
   @tailrec
   def findFirstTreeBetween(tree: Tree, beg: Token, end: Token): Option[Tree] = {

@@ -401,8 +401,8 @@ object a {
   s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
   s"""
     |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
-      baz,
-      bar)} foo4
+        baz,
+        bar)} foo4
     |""".stripMargin
   s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
@@ -432,8 +432,8 @@ object a {
     } foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
   s"""
     |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(
-      baz,
-      bar)} foo4
+        baz,
+        bar)} foo4
     |""".stripMargin
   s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
