@@ -114,3 +114,144 @@ def method[T <: ColType](): DTDataset[
     with FCol with GCol with HCol
     with ICol
 ]
+<<< #3091 always
+maxColumn = 100
+runner.parser = source
+binPack.parentConstructors = always
+===
+object CoreReflection extends {
+    val u: ru.type = ru
+    val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+  }
+  with scala.meta.internal.trees.Reflection(
+    u,
+    mirror
+  )
+  with scala.meta.internal.tokens.Reflection
+object CoreReflection extends {
+    val u: ru.type = ru
+    val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+  }
+  with scala.meta.internal.trees.Reflection
+>>>
+object CoreReflection
+    extends {
+      val u: ru.type = ru
+      val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+    } with scala.meta.internal.trees.Reflection(
+      u,
+      mirror
+    ) with scala.meta.internal.tokens.Reflection
+object CoreReflection
+    extends {
+      val u: ru.type = ru
+      val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+    } with scala.meta.internal.trees.Reflection
+<<< #3091 never
+maxColumn = 100
+runner.parser = source
+binPack.parentConstructors = never
+===
+object CoreReflection extends {
+    val u: ru.type = ru
+    val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+  }
+  with scala.meta.internal.trees.Reflection(
+    u,
+    mirror
+  )
+  with scala.meta.internal.tokens.Reflection
+object CoreReflection extends {
+    val u: ru.type = ru
+    val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+  }
+  with scala.meta.internal.trees.Reflection
+>>>
+object CoreReflection
+    extends {
+      val u: ru.type = ru
+      val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+    }
+    with scala.meta.internal.trees.Reflection(
+      u,
+      mirror
+    )
+    with scala.meta.internal.tokens.Reflection
+object CoreReflection
+    extends {
+      val u: ru.type = ru
+      val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+    }
+    with scala.meta.internal.trees.Reflection
+<<< #3091 oneline
+maxColumn = 100
+runner.parser = source
+binPack.parentConstructors = oneline
+===
+object CoreReflection extends {
+    val u: ru.type = ru
+    val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+  }
+  with scala.meta.internal.trees.Reflection(
+    u,
+    mirror
+  )
+  with scala.meta.internal.tokens.Reflection
+object CoreReflection extends {
+    val u: ru.type = ru
+    val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+  }
+  with scala.meta.internal.trees.Reflection
+>>>
+object CoreReflection
+    extends {
+      val u: ru.type = ru
+      val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+    }
+    with scala.meta.internal.trees.Reflection(
+      u,
+      mirror
+    )
+    with scala.meta.internal.tokens.Reflection
+object CoreReflection
+    extends {
+      val u: ru.type = ru
+      val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+    }
+    with scala.meta.internal.trees.Reflection
+<<< #3091 keep
+maxColumn = 100
+runner.parser = source
+binPack.parentConstructors = keep
+===
+object CoreReflection extends {
+    val u: ru.type = ru
+    val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+  }
+  with scala.meta.internal.trees.Reflection(
+    u,
+    mirror
+  )
+  with scala.meta.internal.tokens.Reflection
+object CoreReflection extends {
+    val u: ru.type = ru
+    val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+  }
+  with scala.meta.internal.trees.Reflection
+>>>
+object CoreReflection
+    extends {
+      val u: ru.type = ru
+      val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+    }
+    with scala.meta.internal.trees.Reflection(
+      u,
+      mirror
+    )
+    with scala.meta.internal.tokens.Reflection
+object CoreReflection
+    extends {
+      val u: ru.type = ru
+      val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
+    }
+    with scala.meta.internal.trees.Reflection
