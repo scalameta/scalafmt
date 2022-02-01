@@ -325,38 +325,38 @@ object State {
   def getColumns(
       ft: FormatToken,
       indent: Int,
-      startColumn: Int
+      column: Int
   )(implicit style: ScalafmtConfig): (Int, Int) = {
     val syntax = ft.meta.right.text
-    val firstNewline = ft.meta.right.firstNL
-    if (firstNewline == -1) {
+    val firstNL = ft.meta.right.firstNL
+    if (firstNL < 0) {
       val syntaxLen =
-        if (startColumn != 0 && ft.right.is[Token.Comment]) {
+        if (column != 0 && ft.right.is[Token.Comment]) {
           val asSlc = State.slcLine.matcher(syntax)
           if (asSlc.matches()) 3 + asSlc.end(1) - asSlc.start(1)
           else syntax.length
         } else syntax.length
-      val firstLineLength = startColumn + syntaxLen
+      val firstLineLength = column + syntaxLen
       (firstLineLength, firstLineLength)
     } else
       ft.right match {
         case _: Token.Constant.String =>
-          getColumnsWithStripMargin(syntax, firstNewline, indent, startColumn)
+          getColumnsWithStripMargin(syntax, firstNL, indent, column)
         case _ =>
           val lastNewline = syntax.length - syntax.lastIndexOf('\n') - 1
-          (startColumn + firstNewline, lastNewline)
+          (column + firstNL, lastNewline)
       }
   }
 
   private def getColumnsWithStripMargin(
       syntax: String,
-      firstNewline: Int,
+      firstNL: Int,
       indent: Int,
       column: Int
   )(implicit style: ScalafmtConfig): (Int, Int) = {
     val matcher = stripMarginPattern.matcher(syntax)
-    matcher.region(firstNewline, syntax.length)
-    val firstLineLength = column + firstNewline
+    matcher.region(firstNL, syntax.length)
+    val firstLineLength = column + firstNL
     if (!matcher.find()) (firstLineLength, firstLineLength)
     else {
       val matcherToLength = getMatcherToLength(column, indent, style)
