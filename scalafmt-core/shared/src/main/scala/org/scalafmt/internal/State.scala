@@ -316,8 +316,15 @@ object State {
     }
   }
 
-  private val stripMarginPattern =
-    Pattern.compile("\n(\\h*+\\|)?([^\n]*+)")
+  @inline
+  private def compileStripMarginPattern(pipe: Char) =
+    Pattern.compile(s"\n(\\h*+\\$pipe)?([^\n]*+)")
+
+  @inline
+  private def getStripMarginPattern(pipe: Char) =
+    if (pipe == '|') pipeStripMarginPattern else compileStripMarginPattern(pipe)
+
+  private val pipeStripMarginPattern = compileStripMarginPattern('|')
 
   private val slcLine = Pattern.compile("^/\\/\\/*+\\h*+(.*?)\\h*+$")
 
@@ -346,7 +353,8 @@ object State {
             val adjusted = 3 + (if (style.align.stripMargin) column else indent)
             _ => adjusted
           } else identity
-          getColumnsWithStripMargin(syntax, firstNL, margin, firstLength)
+          val pipe = getStripMarginChar(ft.meta.rightOwner)
+          getColumnsWithStripMargin(pipe, syntax, firstNL, margin, firstLength)
         case _ =>
           val lastNewline = syntax.length - syntax.lastIndexOf('\n') - 1
           (firstLength, lastNewline)
@@ -354,13 +362,40 @@ object State {
     }
   }
 
+  private def getColumnsFromMultiline(
+      syntax: String,
+      firstNL: Int,
+      firstLength: Int
+  ): (Int, Int) = {
+    @tailrec
+    def iter(prevMaxLength: Int, lineBeg: Int): (Int, Int) = {
+      val nextNL = syntax.indexOf('\n', lineBeg)
+      val length = (if (nextNL < 0) syntax.length else nextNL) - lineBeg
+      val maxLength = math.max(prevMaxLength, length)
+      if (nextNL < 0) (maxLength, length) else iter(maxLength, nextNL + 1)
+    }
+    iter(firstLength, firstNL + 1)
+  }
+
   private def getColumnsWithStripMargin(
+      pipeOpt: Option[Char],
+      syntax: String,
+      firstNL: Int,
+      adjustMargin: Int => Int,
+      firstLength: Int
+  ): (Int, Int) =
+    pipeOpt.fold(getColumnsFromMultiline(syntax, firstNL, firstLength))(
+      getColumnsWithStripMargin(_, syntax, firstNL, adjustMargin, firstLength)
+    )
+
+  private def getColumnsWithStripMargin(
+      pipe: Char,
       syntax: String,
       firstNL: Int,
       adjustMargin: Int => Int,
       firstLength: Int
   ): (Int, Int) = {
-    val matcher = stripMarginPattern.matcher(syntax)
+    val matcher = getStripMarginPattern(pipe).matcher(syntax)
     matcher.region(firstNL, syntax.length)
     if (!matcher.find()) (firstLength, firstLength)
     else {
