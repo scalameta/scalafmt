@@ -4119,7 +4119,7 @@ val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
 
 ### `binPack.parentConstructors`
 
-Parent constructors are `C` and `D` in `class A extends B with C and D`. Changed
+Parent constructors are `B` (since 3.4.1), `C` and `D` in `class A extends B with C and D`. Changed
 from a boolean to a wider set of options in v2.6.0.
 
 ```scala mdoc:defaults
@@ -4138,6 +4138,7 @@ object A {
   trait Foo
   extends Bar
   with Baz
+  trait Foo extends Bar with Baz
 }
 ```
 
@@ -4192,6 +4193,12 @@ object A {
     b
   ) with Baz
   with Qux
+  class Foo(a: Int, b: Int)
+    extends Bar(
+      a,
+      b
+    ) with Baz
+    with Qux
 }
 ```
 

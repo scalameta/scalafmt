@@ -134,16 +134,14 @@ object CoreReflection extends {
   }
   with scala.meta.internal.trees.Reflection
 >>>
-object CoreReflection
-    extends {
+object CoreReflection extends {
       val u: ru.type = ru
       val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
     } with scala.meta.internal.trees.Reflection(
       u,
       mirror
     ) with scala.meta.internal.tokens.Reflection
-object CoreReflection
-    extends {
+object CoreReflection extends {
       val u: ru.type = ru
       val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
     } with scala.meta.internal.trees.Reflection
@@ -239,8 +237,7 @@ object CoreReflection extends {
   }
   with scala.meta.internal.trees.Reflection
 >>>
-object CoreReflection
-    extends {
+object CoreReflection extends {
       val u: ru.type = ru
       val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
     }
@@ -249,8 +246,7 @@ object CoreReflection
       mirror
     )
     with scala.meta.internal.tokens.Reflection
-object CoreReflection
-    extends {
+object CoreReflection extends {
       val u: ru.type = ru
       val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
     }
