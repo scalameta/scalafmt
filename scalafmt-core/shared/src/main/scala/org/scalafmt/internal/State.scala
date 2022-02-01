@@ -1,6 +1,5 @@
 package org.scalafmt.internal
 
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
@@ -341,7 +340,12 @@ object State {
     } else
       ft.right match {
         case _: Token.Constant.String =>
-          getColumnsWithStripMargin(syntax, firstNL, indent, column)
+          val margin: Int => Int = if (style.assumeStandardLibraryStripMargin) {
+            // 3 for '|' + 2 spaces
+            val adjusted = 3 + (if (style.align.stripMargin) column else indent)
+            _ => adjusted
+          } else identity
+          getColumnsWithStripMargin(syntax, firstNL, margin, column)
         case _ =>
           val lastNewline = syntax.length - syntax.lastIndexOf('\n') - 1
           (column + firstNL, lastNewline)
@@ -351,42 +355,27 @@ object State {
   private def getColumnsWithStripMargin(
       syntax: String,
       firstNL: Int,
-      indent: Int,
+      adjustMargin: Int => Int,
       column: Int
-  )(implicit style: ScalafmtConfig): (Int, Int) = {
+  ): (Int, Int) = {
     val matcher = stripMarginPattern.matcher(syntax)
     matcher.region(firstNL, syntax.length)
     val firstLineLength = column + firstNL
     if (!matcher.find()) (firstLineLength, firstLineLength)
     else {
-      val matcherToLength = getMatcherToLength(column, indent, style)
+      def getMatcherLength() = {
+        val margin = matcher.end(1) - matcher.start(1)
+        val textLength = matcher.end(2) - matcher.start(2)
+        // if 0, has newline but no pipe
+        if (0 == margin) textLength else textLength + adjustMargin(margin)
+      }
       @tailrec
       def iter(prevMaxLength: Int): (Int, Int) = {
-        val length = matcherToLength(matcher)
+        val length = getMatcherLength()
         val maxLength = math.max(prevMaxLength, length)
         if (matcher.find()) iter(maxLength) else (maxLength, length)
       }
       iter(firstLineLength)
-    }
-  }
-
-  private def getMatcherToLength(
-      column: Int,
-      indent: Int,
-      style: ScalafmtConfig
-  ): Matcher => Int = {
-    val adjustMargin: Int => Int =
-      if (!style.assumeStandardLibraryStripMargin) identity[Int]
-      else {
-        // 3 for '|' + 2 spaces
-        val adjusted = 3 + (if (style.align.stripMargin) column else indent)
-        _ => adjusted
-      }
-    (matcher: Matcher) => {
-      val margin = matcher.end(1) - matcher.start(1)
-      val textLength = matcher.end(2) - matcher.start(2)
-      // if 0, has newline but no pipe
-      if (0 == margin) textLength else textLength + adjustMargin(margin)
     }
   }
 
