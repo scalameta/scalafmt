@@ -161,7 +161,7 @@ trait HasTests extends FormatAssertions {
 
   def saveResult(t: DiffTest, obtained: String, debug: Debug): Result = {
     val output = getFormatOutput(debug)
-    val obtainedHtml = Report.mkHtml(output, t.style)
+    val obtainedHtml = Report.mkHtml(output)
     Result(
       t,
       obtained,

@@ -119,7 +119,7 @@ object Scalafmt {
       code: String,
       style: ScalafmtConfig,
       file: String,
-      range: Set[Range] = Set.empty
+      range: Set[Range]
   ): Try[String] =
     if (FileOps.isAmmonite(file)) {
       // XXX: we won't support ranges as we don't keep track of lines

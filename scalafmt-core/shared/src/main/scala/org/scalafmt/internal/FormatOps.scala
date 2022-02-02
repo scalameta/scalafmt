@@ -181,7 +181,7 @@ class FormatOps(
   final def rhsOptimalToken(
       start: FormatToken,
       end: Int = Int.MaxValue
-  )(implicit style: ScalafmtConfig): T =
+  ): T =
     findTokenWith(start, next) { start =>
       start.right match {
         case t if t.end >= end => Some(start.left)
@@ -1003,7 +1003,7 @@ class FormatOps(
       case lb: T.LeftBrace if template.self.tokens.isEmpty =>
         Policy.after(lb) {
           // Force template to be multiline.
-          case d @ Decision(ftd @ FormatToken(`lb`, right, _), s)
+          case d @ Decision(ftd @ FormatToken(`lb`, right, _), _)
               if !right.is[T.RightBrace] && // corner case, body is {}
                 !tokens.isAttachedCommentThenBreak(ftd) =>
             d.onlyNewlinesWithoutFallback
@@ -1404,7 +1404,7 @@ class FormatOps(
   def getApplyArgs(
       ft: FormatToken,
       isRight: Boolean
-  )(implicit style: ScalafmtConfig): TreeArgs = {
+  ): TreeArgs = {
     val paren = if (isRight) ft.right else ft.left
     val owner = if (isRight) ft.meta.rightOwner else ft.meta.leftOwner
     def getArgs(argss: Seq[Seq[Tree]]): Seq[Tree] =
@@ -1658,7 +1658,7 @@ class FormatOps(
         body: Tree,
         nlSplitFunc: Int => Split,
         spaceIndents: Seq[Indent] = Seq.empty
-    )(implicit style: ScalafmtConfig): Seq[Split] = {
+    ): Seq[Split] = {
       def bheadFT = tokens.getHead(body)
       val blastFT = tokens.getLastNonTrivial(body)
       val blast = blastFT.left
@@ -1693,7 +1693,7 @@ class FormatOps(
       }
       def getPolicySplits(
           penalty: Int,
-          policy: Policy = Policy.NoPolicy
+          policy: Policy
       )(implicit fileLine: FileLine) =
         getSplits(getSpaceSplit(penalty, policy))
       def getSlbSplits(
@@ -1758,7 +1758,7 @@ class FormatOps(
         body: Tree,
         nlSplitFunc: Int => Split,
         spaceIndents: Seq[Indent]
-    )(implicit style: ScalafmtConfig): Seq[Split] =
+    ): Seq[Split] =
       if (body.tokens.isEmpty) Seq(Split(Space, 0))
       else foldedNonEmptyNonComment(body, nlSplitFunc, spaceIndents)
 
@@ -1786,7 +1786,7 @@ class FormatOps(
         nlSplitFunc: Int => Split,
         spaceIndents: Seq[Indent],
         slbOnly: Boolean
-    )(implicit style: ScalafmtConfig): Seq[Split] =
+    ): Seq[Split] =
       if (body.tokens.isEmpty) Seq(Split(Space, 0).withIndents(spaceIndents))
       else {
         val spaceSplit = unfoldedSpaceNonEmptyNonComment(body, slbOnly)
@@ -1817,7 +1817,7 @@ class FormatOps(
         ft: FormatToken,
         body: Tree,
         spaceIndents: Seq[Indent] = Seq.empty
-    )(nlSplitFunc: Int => Split)(implicit style: ScalafmtConfig): Seq[Split] =
+    )(nlSplitFunc: Int => Split): Seq[Split] =
       checkComment(ft, nlSplitFunc) { _ =>
         foldedNonComment(body, nlSplitFunc, spaceIndents)
       }
@@ -1826,7 +1826,7 @@ class FormatOps(
         ft: FormatToken,
         body: Tree,
         spaceIndents: Seq[Indent] = Seq.empty
-    )(nlSplitFunc: Int => Split)(implicit style: ScalafmtConfig): Seq[Split] =
+    )(nlSplitFunc: Int => Split): Seq[Split] =
       checkComment(ft, nlSplitFunc) { _ =>
         unfoldedNonComment(body, nlSplitFunc, spaceIndents, true)
       }
@@ -2024,7 +2024,7 @@ class FormatOps(
     private def getSplits(
         ft: FormatToken,
         tree: Tree,
-        forceNL: Boolean = false,
+        forceNL: Boolean,
         danglingKeyword: Boolean = true
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
       val end = tokens.getLast(tree)
@@ -2731,9 +2731,7 @@ class FormatOps(
       case _ => OptionalBraces.get(ft).flatMap(_.rightBrace)
     }
 
-  def isCloseDelimForTrailingCommasMultiple(
-      ft: FormatToken
-  )(implicit style: ScalafmtConfig): Boolean =
+  def isCloseDelimForTrailingCommasMultiple(ft: FormatToken): Boolean =
     ft.meta.rightOwner match {
       case x: Importer => x.importees.lengthCompare(1) > 0
       case _ => // take last arg when multiple

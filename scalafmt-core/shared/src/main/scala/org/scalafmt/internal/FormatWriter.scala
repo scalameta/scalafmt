@@ -59,15 +59,15 @@ class FormatWriter(formatOps: FormatOps) {
           entry.formatComment
         case _: T.Interpolation.Part | _: T.Constant.String =>
           sb.append(entry.formatMarginized)
-        case c: T.Constant.Int =>
+        case _: T.Constant.Int =>
           sb.append(LiteralOps.prettyPrintInteger(formatToken.meta.left.text))
-        case c: T.Constant.Long =>
+        case _: T.Constant.Long =>
           sb.append(LiteralOps.prettyPrintInteger(formatToken.meta.left.text))
-        case c: T.Constant.Float =>
+        case _: T.Constant.Float =>
           sb.append(LiteralOps.prettyPrintFloat(formatToken.meta.left.text))
-        case c: T.Constant.Double =>
+        case _: T.Constant.Double =>
           sb.append(LiteralOps.prettyPrintDouble(formatToken.meta.left.text))
-        case token =>
+        case _ =>
           val syntax =
             Option(location.replace).getOrElse(formatToken.meta.left.text)
           val rewrittenToken = style.rewriteTokens.getOrElse(syntax, syntax)
