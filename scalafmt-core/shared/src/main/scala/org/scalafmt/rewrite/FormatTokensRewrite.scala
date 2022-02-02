@@ -49,7 +49,7 @@ class FormatTokensRewrite(
     }
     getRewrittenTokens.foreach { repl =>
       val ft = repl match {
-        case Right(ft) => ft
+        case Right(x) => x
         case Left(idx) => arr(idx)
       }
       copySlice(ft.meta.idx)

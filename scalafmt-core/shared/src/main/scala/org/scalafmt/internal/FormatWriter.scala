@@ -389,7 +389,7 @@ class FormatWriter(formatOps: FormatOps) {
         floc.missingBracesIndent.isEmpty
       val mb =
         if (ok) formatOps.MissingBraces.getBlocks(ft, ib.allBlocks).filter {
-          case (mb, _) => checkInfix(mb) && hasBreakAfter(idx)
+          case (y, _) => checkInfix(y) && hasBreakAfter(idx)
         }
         else None
       mb.foreach { case (owner, otherBlocks) =>
@@ -1319,7 +1319,7 @@ class FormatWriter(formatOps: FormatOps) {
               else getAlignContainerParent(x)
             }
 
-        case AlignContainer(t) if fl.formatToken.right.is[T.Comment] => t
+        case AlignContainer(x) if fl.formatToken.right.is[T.Comment] => x
 
         case _: Defn | _: Case | _: Term.Apply | _: meta.Init |
             _: Ctor.Primary =>

@@ -1628,8 +1628,8 @@ class FormatOps(
           penalty: Int
       ): Seq[Policy] = {
         val argss = argsOrArgss match {
-          case Left(args) => Seq(args)
-          case Right(argss) => argss
+          case Left(x) => Seq(x)
+          case Right(x) => x
         }
         val funLastFt = tokens.getLast(fun)
         getOpenNLByArgs(funLastFt, argss, penalty)

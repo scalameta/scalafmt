@@ -90,7 +90,7 @@ case class RewriteCtx(
       case t: Term.Select if !RewriteCtx.hasPlaceholder(expr) =>
         val maybeDot = tokenTraverser.findBefore(t.name.tokens.head) {
           case Trivia() => None
-          case t => Some(t.is[Token.Dot])
+          case x => Some(x.is[Token.Dot])
         }
         maybeDot.isDefined
     }
