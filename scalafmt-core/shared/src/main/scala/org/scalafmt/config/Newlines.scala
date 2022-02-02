@@ -274,8 +274,9 @@ case class Newlines(
   lazy val getBeforeMultiline = beforeMultiline.getOrElse(source)
   lazy val shouldForceBeforeMultilineAssign = {
     forceBeforeMultilineAssign.getOrElse {
-      if (alwaysBeforeMultilineDef || beforeMultilineDef.eq(Newlines.unfold))
-        ForceBeforeMultilineAssign.`def`
+      val useDef = alwaysBeforeMultilineDef ||
+        beforeMultilineDef.contains(Newlines.unfold)
+      if (useDef) ForceBeforeMultilineAssign.`def`
       else ForceBeforeMultilineAssign.never
     }
   }
