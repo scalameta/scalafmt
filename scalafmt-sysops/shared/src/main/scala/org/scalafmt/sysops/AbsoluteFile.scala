@@ -31,12 +31,12 @@ final class AbsoluteFile(val path: Path) extends AnyVal {
     FileOps.writeFile(path, content)
 
   @inline def parent: AbsoluteFile = new AbsoluteFile(path.getParent)
-  @inline def delete: Unit = Files.delete(path)
-  @inline def mkdir: Unit = Files.createDirectory(path)
-  @inline def mkdirs: Unit = Files.createDirectories(path)
+  @inline def delete(): Unit = Files.delete(path)
+  @inline def mkdir(): Unit = Files.createDirectory(path)
+  @inline def mkdirs(): Unit = Files.createDirectories(path)
 
-  override def toString(): String = path.toString()
-  @inline def getFileName: String = path.getFileName.toString()
+  override def toString: String = path.toString
+  @inline def getFileName: String = path.getFileName.toString
 }
 
 object AbsoluteFile {

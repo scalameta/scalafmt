@@ -429,7 +429,7 @@ class FormatOps(
   def templateDerivesOrCurlyOrLastNonTrivial(
       template: Template
   )(implicit ft: FormatToken): T =
-    findTemplateGroupOnRight(_.getExpireToken())(template)
+    findTemplateGroupOnRight(_.getExpireToken)(template)
       .getOrElse(templateCurlyOrLastNonTrivial(template))
 
   private def findTreeInGroup[A](
@@ -1014,9 +1014,9 @@ class FormatOps(
       // this method is called on a `with` or comma; hence, it can
       // only refer to second or subsequent init/derive in a group
       // we'll indent only the second, but not any subsequent ones
-      val expire = x.getExpireToken()
+      val expire = x.getExpireToken
       val indent =
-        if (!x.isSecond()) Indent.Empty
+        if (!x.isSecond) Indent.Empty
         else Indent(Num(indentIfSecond), expire, ExpiresOn.After)
       def nlSplit(cost: Int) =
         Split(Newline, cost).withPolicy(getPolicy(expire)).withIndent(indent)
@@ -2795,8 +2795,8 @@ object FormatOps {
       superTypeGroup: Seq[Tree],
       expireTokenFunc: Seq[Tree] => T
   ) {
-    def getExpireToken() = expireTokenFunc(superTypeGroup)
-    def isSecond() = superTypeGroup.drop(1).headOption.contains(superType)
+    def getExpireToken = expireTokenFunc(superTypeGroup)
+    def isSecond = superTypeGroup.drop(1).headOption.contains(superType)
   }
 
   def nextLine(implicit fl: FileLine): FileLine = {

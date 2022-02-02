@@ -148,10 +148,10 @@ object FileOps {
     val files = fileBuilder.result()
     x =>
       files(x) || {
-        val filename = x.toString()
+        val filename = x.toString
         val sep = x.getFileSystem.getSeparator
         dirs.exists { dir =>
-          val dirname = dir.toString()
+          val dirname = dir.toString
           filename.startsWith(dirname) && {
             filename.length == dirname.length ||
             filename.startsWith(sep, dirname.length)

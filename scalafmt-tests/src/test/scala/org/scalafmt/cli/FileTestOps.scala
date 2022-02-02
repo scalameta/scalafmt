@@ -17,7 +17,7 @@ object FileTestOps {
       val path :: contents :: Nil =
         row.stripPrefix("\n").split("\n", 2).toList
       val file = root / path.stripPrefix("/")
-      file.parent.mkdirs
+      file.parent.mkdirs()
       file.writeFile(contents)
     }
     root

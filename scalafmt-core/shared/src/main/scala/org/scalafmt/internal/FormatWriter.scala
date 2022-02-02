@@ -329,26 +329,26 @@ class FormatWriter(formatOps: FormatOps) {
           val eLoc = locations(end)
           val bLoc = locations(tokens.tokenJustBefore(owner).meta.idx)
           val begIndent = bLoc.state.indentation
-          def appendOwner =
+          def appendOwner() =
             locations(end) = eLoc.copy(optionalBraces =
               eLoc.optionalBraces + (begIndent -> owner)
             )
-          def removeOwner =
+          def removeOwner() =
             locations(end) =
               eLoc.copy(optionalBraces = eLoc.optionalBraces - begIndent)
-          def processOwner = {
+          def processOwner() = {
             val settings = floc.style.rewrite.scala3
             def okSpan(loc: FormatLocation) =
               getLineDiff(loc, eLoc) >= settings.insertEndMarkerMinLines
             settings.countEndMarkerLines match {
               case RewriteScala3Settings.EndMarkerLines.lastBlockOnly =>
-                if (okSpan(floc)) appendOwner else removeOwner
+                if (okSpan(floc)) appendOwner() else removeOwner()
               case RewriteScala3Settings.EndMarkerLines.all =>
                 if (!eLoc.optionalBraces.contains(begIndent) && okSpan(bLoc))
-                  appendOwner
+                  appendOwner()
             }
           }
-          if (eLoc.hasBreakAfter) processOwner
+          if (eLoc.hasBreakAfter) processOwner()
         }
       }
     }
@@ -578,13 +578,13 @@ class FormatWriter(formatOps: FormatOps) {
       def formatComment(implicit sb: StringBuilder): Unit = {
         val text = tok.meta.left.text
         if (text.startsWith("//"))
-          new FormatSlc(text).format
+          new FormatSlc(text).format()
         else if (text == "/**/")
           sb.append(text)
         else if (isDocstring(text))
           formatDocstring(text)
         else
-          new FormatMlc(text).format
+          new FormatMlc(text).format()
       }
 
       private def formatOnelineDocstring(
@@ -616,7 +616,7 @@ class FormatWriter(formatOps: FormatOps) {
       )(implicit sb: StringBuilder): Unit = {
         if (style.docstrings.style eq Docstrings.Preserve) sb.append(text)
         else if (!formatOnelineDocstring(text))
-          new FormatMlDoc(text).format
+          new FormatMlDoc(text).format()
       }
 
       private abstract class FormatCommentBase(
@@ -707,7 +707,7 @@ class FormatWriter(formatOps: FormatOps) {
 
       private class FormatSlc(text: String)(implicit sb: StringBuilder)
           extends FormatCommentBase(style.maxColumn) {
-        def format: Unit = {
+        def format(): Unit = {
           val trimmed = removeTrailingWhiteSpace(text)
           val isCommentedOut = lastModification match {
             case m: NewlineT if m.noIndent => true
@@ -753,7 +753,7 @@ class FormatWriter(formatOps: FormatOps) {
           extends FormatCommentBase(style.maxColumn) {
         private val spaces: String = getIndentation(indent + 1)
 
-        def format: Unit = {
+        def format(): Unit = {
           // don't rewrite comments which contain nested comments
           if (canRewrite && text.lastIndexOf("/*") == 0) {
             val sectionIter = new SectIter {
@@ -850,10 +850,10 @@ class FormatWriter(formatOps: FormatOps) {
         private val spaces: String = getIndentation(indent + extraIndent)
         private val margin = getIndentation(1 + leadingMargin)
 
-        def format: Unit = {
+        def format(): Unit = {
           val docOpt =
             if (isWrap) ScaladocParser.parse(tok.meta.left.text) else None
-          docOpt.fold(formatNoWrap)(formatWithWrap)
+          docOpt.fold(formatNoWrap())(formatWithWrap)
         }
 
         private def formatWithWrap(doc: Scaladoc): Unit = {
@@ -1064,15 +1064,15 @@ class FormatWriter(formatOps: FormatOps) {
             rows.map(_.cols.view.drop(x).headOption.fold(0)(_.length)).max
           }
 
-          @inline def beforeAll: Unit = sb.append(termIndent)
-          @inline def beforeEach: Unit = sb.append('|')
-          @inline def afterAll: Unit = { sb.append('|'); appendBreak() }
+          @inline def beforeAll(): Unit = sb.append(termIndent)
+          @inline def beforeEach(): Unit = sb.append('|')
+          @inline def afterAll(): Unit = { sb.append('|'); appendBreak() }
           @inline def getAlign(col: Int) =
             if (col < align.length) align(col) else Scaladoc.Table.Left
           def formatCols(useMargin: Boolean)(f: Int => Unit): Unit = {
-            if (useMargin) beforeAll
-            colsRange.foreach { x => beforeEach; f(x) }
-            afterAll
+            if (useMargin) beforeAll()
+            colsRange.foreach { x => beforeEach(); f(x) }
+            afterAll()
           }
 
           def formatRow(useMargin: Boolean)(row: Scaladoc.Table.Row): Unit =
@@ -1091,7 +1091,7 @@ class FormatWriter(formatOps: FormatOps) {
           table.rows.foreach(formatRow(true))
         }
 
-        private def formatNoWrap: Unit = {
+        private def formatNoWrap(): Unit = {
           // remove "/*" (keep one asterisk) and "*/"
           val trimmed = CharBuffer.wrap(text, 2, text.length - 2)
           val matcher = docstringLine.matcher(trimmed)

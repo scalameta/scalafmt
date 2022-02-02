@@ -97,7 +97,7 @@ class GitOpsTest extends FunSuite {
       dirName: String = Random.alphanumeric.take(10).mkString
   ): AbsoluteFile = {
     val file = ops.rootDir.getOrElse(ops.workingDirectory) / dirName
-    file.mkdir
+    file.mkdir()
     file
   }
 
@@ -340,7 +340,7 @@ private object GitOpsTest {
 
   // Filesystem commands
   def rmfs(file: AbsoluteFile): Unit =
-    file.delete
+    file.delete()
 
   // Git commands
   def git(cmd: String, args: String*)(implicit
