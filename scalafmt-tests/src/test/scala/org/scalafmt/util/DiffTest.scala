@@ -16,7 +16,7 @@ case class DiffTest(
     only: Boolean,
     style: ScalafmtConfig
 ) {
-  val file = DiffTest.testDir.relativize(Paths.get(loc.path)).toString()
+  val file = DiffTest.testDir.relativize(Paths.get(loc.path)).toString
   val fullName = s"$file:${loc.line}: $name"
 }
 

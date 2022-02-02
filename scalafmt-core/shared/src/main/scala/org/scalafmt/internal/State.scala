@@ -404,7 +404,7 @@ object State {
     matcher.region(firstNL, syntax.length)
     if (!matcher.find()) (firstLength, firstLength)
     else {
-      def getMatcherLength() = {
+      def getMatcherLength = {
         val margin = matcher.end(1) - matcher.start(1)
         val textLength = matcher.end(2) - matcher.start(2)
         // if 0, has newline but no pipe
@@ -412,7 +412,7 @@ object State {
       }
       @tailrec
       def iter(prevMaxLength: Int): (Int, Int) = {
-        val length = getMatcherLength()
+        val length = getMatcherLength
         val maxLength = math.max(prevMaxLength, length)
         if (matcher.find()) iter(maxLength) else (maxLength, length)
       }

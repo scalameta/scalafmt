@@ -338,7 +338,7 @@ class DynamicSuite extends FunSuite {
         )
         // check wrapped literals, supported in sbt using scala 2.13+
         val wrappedLiteral = "object a { val  x:  Option[0]  =  Some(0) }"
-        def isWrappedLiteralFailure: Unit =
+        def assertIsWrappedLiteralFailure(): Unit =
           f.assertError(
             wrappedLiteral,
             s"""$filename:1:28: error: identifier expected but integer constant found
@@ -346,16 +346,16 @@ class DynamicSuite extends FunSuite {
               |                           ^""".stripMargin,
             path
           )
-        def isWrappedLiteralSuccess: Unit =
+        def assertIsWrappedLiteralSuccess(): Unit =
           f.assertFormat(
             wrappedLiteral,
             wrappedLiteral.replaceAll("  +", " ").trim + "\n",
             path
           )
         if (version > "2.0")
-          isWrappedLiteralSuccess
+          assertIsWrappedLiteralSuccess()
         else
-          isWrappedLiteralFailure
+          assertIsWrappedLiteralFailure()
       }
     }
     check(latest, "scala213")

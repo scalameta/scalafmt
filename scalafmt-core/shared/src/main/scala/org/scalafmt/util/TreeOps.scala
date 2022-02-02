@@ -137,7 +137,7 @@ object TreeOps {
       addDefnTokens(
         mods,
         tree,
-        runtimeClass.getSimpleName(),
+        runtimeClass.getSimpleName,
         runtimeClass.isInstance
       )
     }

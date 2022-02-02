@@ -107,7 +107,7 @@ abstract class AbstractCliTest extends FunSuite {
 }
 
 trait CliTestBehavior { this: AbstractCliTest =>
-  def testCli(version: String) {
+  def testCli(version: String): Unit = {
     val isCore = version == stableVersion
     val label = if (isCore) "core" else "dynamic"
     val dialectError = if (isCore) " [dialect default]" else ""
@@ -848,7 +848,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   test("arguments starting with @ are expanded from a file") {
     val argumentsFile = Files.createTempFile("scalafmt", "arguments")
     val configFile = Files.createTempFile("scalafmt", ".scalafmt.conf")
-    val arguments = List("--config", configFile.toString(), "foobar.scala")
+    val arguments = List("--config", configFile.toString, "foobar.scala")
     Files.write(argumentsFile, arguments.asJava)
     Files.write(configFile, List("maxColumn=40").asJava)
     val obtained =
@@ -856,7 +856,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     val config = obtained.scalafmtConfig.get
     assertEquals(config.maxColumn, 40)
     assertEquals(
-      obtained.customFiles.head.getFileName().toString,
+      obtained.customFiles.head.getFileName.toString,
       "foobar.scala"
     )
   }

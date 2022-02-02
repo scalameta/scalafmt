@@ -53,14 +53,14 @@ class FormatTokensRewrite(
         case Left(idx) => arr(idx)
       }
       copySlice(ft.meta.idx)
-      def append: Unit = {
+      def append(): Unit = {
         val oldFt = arr(ft.meta.idx)
         if (oldFt.right ne ft.right)
           tokenMap += FormatTokens.thash(oldFt.right) -> appended
         appended += 1
         result += ft
       }
-      def remove: Unit = {
+      def remove(): Unit = {
         tokenMap += FormatTokens.thash(ft.right) -> appended
         val nextFt = ftoks.next(ft)
         val rtMeta = nextFt.meta
@@ -69,7 +69,7 @@ class FormatTokensRewrite(
         }
         removed += 1
       }
-      if (repl.isLeft) remove else append
+      if (repl.isLeft) remove() else append()
     }
 
     if (appended + removed == 0) ftoks

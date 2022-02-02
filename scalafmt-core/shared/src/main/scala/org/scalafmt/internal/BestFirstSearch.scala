@@ -111,7 +111,7 @@ private class BestFirstSearch private (
     def newGeneration = new mutable.PriorityQueue[State]()
     var Q = newGeneration
     var generations: List[mutable.PriorityQueue[State]] = Nil
-    def addGeneration =
+    def addGeneration() =
       if (Q.nonEmpty) {
         generations = Q :: generations
         Q = newGeneration
@@ -153,7 +153,7 @@ private class BestFirstSearch private (
             (leftTok.is[Token.KwElse] || statementStarts.contains(tokenHash)) &&
             (depth > 0 || !isInsideNoOptZone(splitToken))
           )
-            addGeneration
+            addGeneration()
         }
 
         val blockClose =

@@ -12,7 +12,7 @@ package org.scalafmt.internal
 class PriorityQueue[T](implicit ord: Ordering[T]) {
   private[this] val q = new java.util.PriorityQueue[T](11, ord.reversed())
 
-  def dequeueAll: Unit = q.clear()
+  def dequeueAll(): Unit = q.clear()
 
   def dequeue(): T = q.poll()
 
