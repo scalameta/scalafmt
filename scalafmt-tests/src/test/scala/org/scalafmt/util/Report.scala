@@ -122,7 +122,7 @@ object Report {
                 width := testWidth(aft),
                 code(
                   heatmapBar(aft.test.style),
-                  raw(mkHtml(mergeResults(aft, bef), aft.test.style))
+                  raw(mkHtml(mergeResults(aft, bef)))
                 )
               )
             )
@@ -135,7 +135,7 @@ object Report {
       FormatOutput(aft.token, aft.visits - bef.visits)
     }
 
-  def mkHtml(output: Seq[FormatOutput], scalaStyle: ScalafmtConfig): String = {
+  def mkHtml(output: Seq[FormatOutput]): String = {
     val sb = new StringBuilder()
     output.foreach { x =>
       import scalatags.Text.all._

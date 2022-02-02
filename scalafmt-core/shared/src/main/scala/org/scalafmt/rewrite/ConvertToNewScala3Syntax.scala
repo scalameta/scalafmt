@@ -39,14 +39,14 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
 
       case _: Token.LeftParen if dialect.allowSignificantIndentation =>
         ft.meta.rightOwner match {
-          case t: Term.If if ftoks.prevNonComment(ft).left.is[Token.KwIf] =>
+          case _: Term.If if ftoks.prevNonComment(ft).left.is[Token.KwIf] =>
             removeToken
-          case t: Term.While
+          case _: Term.While
               if ftoks.prevNonComment(ft).left.is[Token.KwWhile] =>
             removeToken
-          case t: Term.For if ftoks.prevNonComment(ft).left.is[Token.KwFor] =>
+          case _: Term.For if ftoks.prevNonComment(ft).left.is[Token.KwFor] =>
             removeToken
-          case t: Term.ForYield
+          case _: Term.ForYield
               if ftoks.prevNonComment(ft).left.is[Token.KwFor] =>
             removeToken
           case _ => null

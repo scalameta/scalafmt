@@ -157,7 +157,7 @@ class Router(formatOps: FormatOps) {
           if existsParentOfType[ImportExportStat](rightOwner) =>
         Seq(Split(NoSplit, 0))
       // Import left brace
-      case FormatToken(open: T.LeftBrace, right, _)
+      case FormatToken(open: T.LeftBrace, _, _)
           if existsParentOfType[ImportExportStat](leftOwner) =>
         val close = matching(open)
         val policy = SingleLineBlock(
@@ -238,7 +238,7 @@ class Router(formatOps: FormatOps) {
           case _ => Seq(spaceSplit)
         }
 
-      case FormatToken(_, close @ T.RightBrace(), _)
+      case FormatToken(_, _: T.RightBrace, _)
           if rightOwner.is[SomeInterpolate] =>
         Seq(Split(Space(style.spaces.inInterpolatedStringCurlyBraces), 0))
 
@@ -255,7 +255,7 @@ class Router(formatOps: FormatOps) {
         splits
 
       // { ... } Blocks
-      case tok @ FormatToken(open @ T.LeftBrace(), right, between) =>
+      case tok @ FormatToken(open @ T.LeftBrace(), right, _) =>
         val close = matching(open)
         val closeFT = tokens(close)
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
@@ -556,7 +556,7 @@ class Router(formatOps: FormatOps) {
           Split(NewlineT(isDouble = tok.hasBlankLine), 0)
         )
 
-      case tok @ FormatToken(_: T.RightParen, _, _)
+      case FormatToken(_: T.RightParen, _, _)
           if leftOwner.is[Defn.ExtensionGroup] &&
             nextNonComment(formatToken).right.isNot[LeftParenOrBrace] =>
         val expireToken = getLastToken(leftOwner)
@@ -630,7 +630,7 @@ class Router(formatOps: FormatOps) {
           Split(xmlSpace(rightOwner), 0),
           Split(NewlineT(isDouble = formatToken.hasBlankLine), 0)
         )
-      case FormatToken(left @ T.KwPackage(), _, _) if leftOwner.is[Pkg] =>
+      case FormatToken(_: T.KwPackage, _, _) if leftOwner.is[Pkg] =>
         Seq(
           Split(Space, 0)
         )
@@ -790,7 +790,7 @@ class Router(formatOps: FormatOps) {
       // Defn.{Object, Class, Trait, Enum}
       case FormatToken(
             _: T.KwObject | _: T.KwClass | _: T.KwTrait | _: T.KwEnum,
-            r,
+            _,
             _
           ) =>
         def expire = defnTemplate(leftOwner)
@@ -1423,7 +1423,7 @@ class Router(formatOps: FormatOps) {
         }
         Seq(Split(Space, 0).withPolicy(SingleLineBlock(expire, okSLC = true)))
 
-      case FormatToken(T.LeftParen(), T.LeftBrace(), between) =>
+      case FormatToken(T.LeftParen(), T.LeftBrace(), _) =>
         Seq(
           Split(NoSplit, 0)
         )
@@ -1480,7 +1480,7 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Space, 0))
 
       // Delim
-      case ft @ FormatToken(left, _: T.Comma, _)
+      case FormatToken(left, _: T.Comma, _)
           if !left.is[T.Comment] || newlines == 0 =>
         Seq(
           Split(NoSplit, 0)
@@ -1815,8 +1815,7 @@ class Router(formatOps: FormatOps) {
         else baseSplits ++ splits.map(_.onlyFor(SplitTag.SelectChainFirstNL))
 
       // ApplyUnary
-      case tok @ FormatToken(T.Ident(_), Literal(), _)
-          if leftOwner == rightOwner =>
+      case FormatToken(T.Ident(_), Literal(), _) if leftOwner == rightOwner =>
         Seq(
           Split(NoSplit, 0)
         )
@@ -1829,15 +1828,15 @@ class Router(formatOps: FormatOps) {
           Split(Space(isSymbolicIdent(right)), 0)
         )
       // Annotations, see #183 for discussion on this.
-      case FormatToken(_, bind @ T.At(), _) if rightOwner.is[Pat.Bind] =>
+      case FormatToken(_, _: T.At, _) if rightOwner.is[Pat.Bind] =>
         Seq(
           Split(Space, 0)
         )
-      case FormatToken(bind @ T.At(), _, _) if leftOwner.is[Pat.Bind] =>
+      case FormatToken(_: T.At, _, _) if leftOwner.is[Pat.Bind] =>
         Seq(
           Split(Space, 0)
         )
-      case FormatToken(T.At(), right @ Delim(), _) =>
+      case FormatToken(T.At(), Delim(), _) =>
         Seq(Split(NoSplit, 0))
       case FormatToken(T.At(), right @ T.Ident(_), _) =>
         // Add space if right starts with a symbol
@@ -2429,12 +2428,12 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Space(!noSplit), 0))
 
       // Protected []
-      case tok @ FormatToken(_, T.LeftBracket(), _)
+      case FormatToken(_, T.LeftBracket(), _)
           if isModPrivateProtected(leftOwner) =>
         Seq(
           Split(NoSplit, 0)
         )
-      case tok @ FormatToken(T.LeftBracket(), _, _)
+      case FormatToken(T.LeftBracket(), _, _)
           if isModPrivateProtected(leftOwner) =>
         Seq(
           Split(NoSplit, 0)
@@ -2484,7 +2483,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(Space, 0)
         )
-      case FormatToken(T.Underscore(), asterisk @ T.Ident("*"), _)
+      case FormatToken(T.Underscore(), T.Ident("*"), _)
           if prev(formatToken).left.is[T.Colon] =>
         Seq(
           Split(NoSplit, 0)
@@ -2610,7 +2609,7 @@ class Router(formatOps: FormatOps) {
     }
     formatToken match {
       case FormatToken(_: T.BOF, _, _) => splits
-      case ft @ FormatToken(_, c: T.Comment, _)
+      case ft @ FormatToken(_, _: T.Comment, _)
           if tokens.isBreakAfterRight(ft) =>
         if (ft.noBreak) splits.map(_.withMod(Space))
         else if (!rhsIsCommentedOut(ft)) splitsAsNewlines(splits)
@@ -2709,9 +2708,9 @@ class Router(formatOps: FormatOps) {
       }
 
     val penalty = ft.meta.leftOwner match {
-      case l: Term.Assign if !style.binPack.unsafeCallSite.isNever =>
+      case _: Term.Assign if !style.binPack.unsafeCallSite.isNever =>
         Constants.BinPackAssignmentPenalty
-      case l: Term.Param if !style.binPack.unsafeDefnSite.isNever =>
+      case _: Term.Param if !style.binPack.unsafeDefnSite.isNever =>
         Constants.BinPackAssignmentPenalty
       case _ => 0
     }

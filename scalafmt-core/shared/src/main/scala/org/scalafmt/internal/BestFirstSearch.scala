@@ -13,7 +13,6 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
-import org.scalameta.FileLine
 
 /** Implements best first search to find optimal formatting.
   */
@@ -81,8 +80,11 @@ private class BestFirstSearch private (
 
   val memo = mutable.Map.empty[(Int, StateHash), State]
 
-  def shortestPathMemo(start: State, stop: Token, depth: Int, maxCost: Int)(
-      implicit fileLine: FileLine
+  def shortestPathMemo(
+      start: State,
+      stop: Token,
+      depth: Int,
+      maxCost: Int
   ): Option[State] = {
     val key = (start.depth, stateColumnKey(start))
     val cachedState = memo.get(key)

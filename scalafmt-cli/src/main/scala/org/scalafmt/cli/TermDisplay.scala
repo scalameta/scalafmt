@@ -99,34 +99,6 @@ object TermDisplay {
     /** 0.0 to 1.0 */
     def fraction: Option[Double] = length.map(downloaded.toDouble / _)
 
-    /** Byte / s */
-    def rate(): Option[Double] = {
-      val currentTime = System.currentTimeMillis()
-      if (currentTime > startTime)
-        Some(
-          (downloaded - previouslyDownloaded).toDouble /
-            (System.currentTimeMillis() - startTime) * 1000.0
-        )
-      else
-        None
-    }
-
-    // Scala version of http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java/3758880#3758880
-    private def byteCount(bytes: Long, si: Boolean = false): String = {
-      val unit = if (si) 1000 else 1024
-      if (bytes < unit)
-        bytes + " B"
-      else {
-        val exp = (math.log(bytes) / math.log(unit)).toInt
-        val pre =
-          (if (si) "kMGTPE"
-           else "KMGTPE").charAt(exp - 1) +
-            (if (si) ""
-             else "i")
-        f"${bytes / math.pow(unit, exp)}%.1f ${pre}B"
-      }
-    }
-
     def display(): String = {
       val decile = (10.0 * fraction.getOrElse(0.0)).toInt
       assert(decile >= 0)
@@ -274,7 +246,7 @@ object TermDisplay {
             s"($pctOptStr${downloadInfo.downloaded}$downloadInfoStr)"
           }
 
-        case updateInfo: CheckUpdateInfo =>
+        case _: CheckUpdateInfo =>
           "Checking for updates"
       }
 
@@ -437,7 +409,6 @@ object TermDisplay {
 
 object Cache {
   trait Logger {
-    def foundLocally(url: String, f: File): Unit = {}
     def startTask(url: String, file: File): Unit = {}
     def taskProgress(url: String): Unit = {}
     def completedTask(url: String, success: Boolean): Unit = {}
