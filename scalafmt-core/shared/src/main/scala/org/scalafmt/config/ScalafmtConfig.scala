@@ -214,7 +214,7 @@ case class ScalafmtConfig(
       }
     expandedFileOverride.map { case (langStyles, pmStyles) =>
       def langStyle = onLang { (layout, lang) =>
-        val style = langStyles.collectFirst { case (`lang`, style) => style }
+        val style = langStyles.collectFirst { case (`lang`, x) => x }
         style.getOrElse(withDialect(layout.getDialectByLang(lang)(dialect)))
       }
       val pmStyle = pmStyles.collectFirst {
