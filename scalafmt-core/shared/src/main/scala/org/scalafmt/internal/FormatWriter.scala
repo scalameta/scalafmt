@@ -1062,7 +1062,7 @@ class FormatWriter(formatOps: FormatOps) {
           val maxCols = rows.map(_.cols.length).max
           val colsRange = 0 until maxCols
           val maxLengths = colsRange.map { x =>
-            rows.collect { case r if r.cols.length > x => r.cols(x).length }.max
+            rows.map(_.cols.view.drop(x).headOption.fold(0)(_.length)).max
           }
 
           @inline def beforeAll: Unit = sb.append(termIndent)
@@ -1285,7 +1285,7 @@ class FormatWriter(formatOps: FormatOps) {
         case Some(p: Term.Apply) if p.fun eq child =>
           getAlignContainerParent(p)
         case Some(p: Term.Apply)
-            if p.args.length == 1 && child.is[Term.Apply] =>
+            if p.args.lengthCompare(1) == 0 && child.is[Term.Apply] =>
           getAlignContainerParent(p)
         // containers that can be traversed further if on same line
         case Some(p @ (_: Case | _: Enumerator)) =>
