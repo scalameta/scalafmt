@@ -7,6 +7,7 @@ import org.scalafmt.Versions.{stable => stableVersion}
 import org.scalafmt.sysops.AbsoluteFile
 
 import scala.io.Source
+import scala.util.Using
 import scala.util.control.NoStackTrace
 
 object Cli {
@@ -69,20 +70,16 @@ object Cli {
       .map(CliOptions.auto)
   }
 
-  private def expandArguments(args: Array[String]): Array[String] = {
-    args.flatMap {
-      case FileArgument(xs) => xs
-      case x => List(x)
-    }
-  }
-  private object FileArgument {
-    def unapply(arg: String): Option[Iterator[String]] = {
+  private def expandArguments(args: Seq[String]): Seq[String] = {
+    val builder = Seq.newBuilder[String]
+    args.foreach { arg =>
       val atFile = arg.stripPrefix("@")
-      if (atFile == arg) None // doesn't start with @
-      else if (atFile == "-") Some(Source.stdin.getLines())
-      else if (!Files.isRegularFile(Paths.get(atFile))) None
-      else Some(Source.fromFile(atFile).getLines())
+      if (atFile == arg) builder += arg // doesn't start with @
+      else if (atFile == "-") builder ++= Source.stdin.getLines()
+      else if (!Files.isRegularFile(Paths.get(atFile))) builder += arg
+      else Using.resource(Source.fromFile(atFile))(builder ++= _.getLines())
     }
+    builder.result()
   }
 
   private[cli] def run(options: CliOptions): ExitCode = {

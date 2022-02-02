@@ -5,6 +5,7 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{AccessDeniedException, NoSuchFileException}
 import java.nio.file.{Files, LinkOption, Path, Paths}
 import scala.io.Codec
+import scala.util.Using
 import scala.util.{Failure, Success, Try}
 
 import org.scalafmt.CompatCollections.JavaConverters._
@@ -81,7 +82,9 @@ object FileOps {
 
   @inline
   private[sysops] def readAsURL(url: URL)(implicit codec: Codec): String =
-    scala.io.Source.fromURL(url).getLines().mkString("", "\n", "\n")
+    Using.resource(scala.io.Source.fromURL(url)) {
+      _.getLines().mkString("", "\n", "\n")
+    }
 
   @inline
   private[sysops] def readAsURI(uri: URI)(implicit codec: Codec): String =
