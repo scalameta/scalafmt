@@ -366,7 +366,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case t: Term.NewAnonymous =>
         // can't allow: new A with B .foo
         // can allow if: no ".foo", no "with B", or has braces
-        !b.parent.exists(_.is[Term.Select]) || t.templ.inits.length <= 1 ||
+        !b.parent.exists(_.is[Term.Select]) ||
+        t.templ.inits.lengthCompare(1) <= 0 ||
         t.templ.stats.nonEmpty || t.tokens.last.is[Token.RightBrace]
       case tree => tree.is[Term] && tree.isNot[Term.Function]
     }

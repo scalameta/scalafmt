@@ -189,7 +189,7 @@ private class BestFirstSearch private (
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && optimalNotFound &&
-                    actualSplit.length > 1 && depth < maxDepth &&
+                    actualSplit.lengthCompare(1) > 0 && depth < maxDepth &&
                     nextState.split.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)

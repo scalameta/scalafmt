@@ -535,7 +535,8 @@ class FormatOps(
       else
         childTree.parent match {
           case Some(InfixApp(parent)) if !parent.isAssignment =>
-            if (childTree.ne(parent.lhs) && parent.rhs.length != 1) child
+            if (childTree.ne(parent.lhs) && parent.rhs.lengthCompare(1) != 0)
+              child
             else findEnclosingInfix(parent)
           case _ => child
         }
@@ -849,7 +850,7 @@ class FormatOps(
       res: mutable.Buffer[InfixApp]
   ): Unit =
     // multiple RHS parameters are always enclosed
-    if (trees.length == 1) findNestedInfixes(trees.head, res)
+    if (trees.lengthCompare(1) == 0) findNestedInfixes(trees.head, res)
 
   @tailrec
   final def findLeftInfix(app: InfixApp): InfixApp =
@@ -1120,13 +1121,14 @@ class FormatOps(
     else {
       val clearQueues = Set.newBuilder[TokenHash]
       val forces = Set.newBuilder[Tree]
+      val minArgs = runner.optimizer.forceConfigStyleMinArgCount
       tokens.foreach {
         case FormatToken(
               left: T.LeftParen,
               _,
               FormatToken.LeftOwner(app: Term.Apply)
             )
-            if app.args.length >= runner.optimizer.forceConfigStyleMinArgCount &&
+            if app.args.lengthCompare(minArgs) >= 0 &&
               distance(left, matching(left)) > maxDistance =>
           forces += app
           app.args.foreach { arg =>
@@ -2733,14 +2735,13 @@ class FormatOps(
       ft: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
     ft.meta.rightOwner match {
-      case x: Importer => x.importees.length > 1
-      case _ =>
-        val args = getApplyArgs(ft, true).args
-        args.length > 1 && (args.last match {
-          case _: Term.Repeated => false
-          case t: Term.Param => !t.decltpe.exists(_.is[Type.Repeated])
+      case x: Importer => x.importees.lengthCompare(1) > 0
+      case _ => // take last arg when multiple
+        getApplyArgs(ft, true).args.view.drop(1).lastOption match {
+          case None | Some(_: Term.Repeated) => false
+          case Some(t: Term.Param) => !t.decltpe.exists(_.is[Type.Repeated])
           case _ => true
-        })
+        }
     }
 
   def rightIsCloseDelimToAddTrailingComma(left: T, ft: => FormatToken)(implicit

@@ -442,7 +442,8 @@ object TreeOps {
           _: Pat.Tuple | _: Term.Tuple | _: Term.ApplyType | _: Term.Assign |
           _: Init | _: Term.ApplyUsing =>
         true
-      case t: Term.ApplyInfix => style.newlines.formatInfix && t.args.length > 1
+      case t: Term.ApplyInfix =>
+        style.newlines.formatInfix && t.args.lengthCompare(1) > 0
       case _ => false
     }
 

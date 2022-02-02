@@ -901,9 +901,10 @@ class Router(formatOps: FormatOps) {
         val lhsPenalty = treeDepth(lhs)
 
         // XXX: sometimes we have zero args, so multipleArgs != !singleArgument
-        val singleArgument = args.length == 1
-        val multipleArgs = args.length > 1
-        val notTooManyArgs = multipleArgs && args.length <= 100
+        val numArgs = args.length
+        val singleArgument = numArgs == 1
+        val multipleArgs = numArgs > 1
+        val notTooManyArgs = multipleArgs && numArgs <= 100
 
         val isBracket = open.is[T.LeftBracket]
         val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
@@ -1852,7 +1853,7 @@ class Router(formatOps: FormatOps) {
           enumCase.inits.headOption,
           getLastToken(rightOwner),
           style.indent.extendSite,
-          enumCase.inits.length > 1
+          enumCase.inits.lengthCompare(1) > 0
         )
 
       // Template
@@ -1891,7 +1892,7 @@ class Router(formatOps: FormatOps) {
               findTemplateGroupOnRight(_.superType)(template),
               templateCurlyOrLastNonTrivial(template),
               style.indent.main,
-              template.inits.length > 1
+              template.inits.lengthCompare(1) > 0
             )
           // trait A extends B with C with D with E
           case template: Template =>

@@ -22,7 +22,9 @@ trait ScalafmtRunner {
       new OutputStreamWriter(options.common.info),
       fallbackMode = options.nonInteractive || TermDisplay.defaultFallbackMode
     )
-    if (options.writeMode != WriteMode.Stdout && inputMethods.length > 5) {
+    if (
+      options.writeMode != WriteMode.Stdout && inputMethods.lengthCompare(5) > 0
+    ) {
       termDisplay.init()
       termDisplay.startTask(msg, options.cwd.jfile)
       termDisplay.taskLength(msg, inputMethods.length, 0)
