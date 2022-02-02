@@ -71,7 +71,7 @@ object Error {
       extends Error(s"Unable to find style for file $filename. $e")
 
   case class MisformattedFile(file: Path, customMessage: String)
-      extends Error(s"${file} is mis-formatted. $customMessage")
+      extends Error(s"$file is mis-formatted. $customMessage")
 
   case class SearchStateExploded(
       deepestState: State,
