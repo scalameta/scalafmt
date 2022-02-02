@@ -38,7 +38,7 @@ object BatchPathFinder {
   ) extends BatchPathFinder {
     private def filter(path: Path, attrs: BasicFileAttributes): Boolean =
       attrs.isRegularFile && matches(path)
-    override final def findFiles(dir: AbsoluteFile*): Seq[AbsoluteFile] = {
+    override def findFiles(dir: AbsoluteFile*): Seq[AbsoluteFile] = {
       val dirs = if (dir.isEmpty) Seq(cwd.path) else dir.map(_.path)
       dirs.flatMap(FileOps.listFiles(_, filter)).map(new AbsoluteFile(_))
     }
@@ -46,20 +46,20 @@ object BatchPathFinder {
 
   final class GitFiles(git: GitOps)(val matches: Path => Boolean)
       extends BatchPathFinder {
-    override final def findFiles(dir: AbsoluteFile*): Seq[AbsoluteFile] =
+    override def findFiles(dir: AbsoluteFile*): Seq[AbsoluteFile] =
       git.lsTree(dir: _*).filter(x => matches(x.path))
   }
 
   final class GitBranchFiles(git: GitOps, branch: String)(
       val matches: Path => Boolean
   ) extends BatchPathFinder {
-    override final def findFiles(dir: AbsoluteFile*): Seq[AbsoluteFile] =
+    override def findFiles(dir: AbsoluteFile*): Seq[AbsoluteFile] =
       git.diff(branch, dir: _*).filter(x => matches(x.path))
   }
 
   final class GitDirtyFiles(git: GitOps)(val matches: Path => Boolean)
       extends BatchPathFinder {
-    override final def findFiles(dir: AbsoluteFile*): Seq[AbsoluteFile] =
+    override def findFiles(dir: AbsoluteFile*): Seq[AbsoluteFile] =
       git.status(dir: _*).filter(x => matches(x.path))
   }
 

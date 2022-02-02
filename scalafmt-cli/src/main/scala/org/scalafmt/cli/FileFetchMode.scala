@@ -20,11 +20,11 @@ object FileFetchMode {
 
 /** A simple recursive strategy where each directory is expanded
   */
-final case object RecursiveSearch extends FileFetchMode
+case object RecursiveSearch extends FileFetchMode
 
 /** A call to `git ls-files --name-only <dir>`
   */
-final case object GitFiles extends FileFetchMode
+case object GitFiles extends FileFetchMode
 
 /** A call to `git diff --name-only --diff-filter=d <branch>`
   *
@@ -36,4 +36,4 @@ final case class DiffFiles(branch: String) extends FileFetchMode
   *
   * When this is set, files passed via the cli are ignored.
   */
-final case object ChangedFiles extends FileFetchMode
+case object ChangedFiles extends FileFetchMode
