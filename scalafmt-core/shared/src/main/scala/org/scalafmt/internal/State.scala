@@ -222,13 +222,10 @@ final case class State(
     } else {
       def startsWithLeft(tree: meta.Tree): Boolean =
         tokens.getHeadOpt(tree).contains(ft)
-      val ro = ft.meta.rightOwner
-      val owner =
-        if (startsWithLeft(ro)) Some(ro)
-        else {
-          val lo = ft.meta.leftOwner
-          if (startsWithLeft(lo)) Some(lo) else None
-        }
+      def optionIfStartsWithLeft(tree: meta.Tree): Option[meta.Tree] =
+        Some(tree).filter(startsWithLeft)
+      val owner = optionIfStartsWithLeft(ft.meta.rightOwner)
+        .orElse(optionIfStartsWithLeft(ft.meta.leftOwner))
       owner.map { x =>
         val y = x.parent.flatMap { p =>
           if (!startsWithLeft(p)) None

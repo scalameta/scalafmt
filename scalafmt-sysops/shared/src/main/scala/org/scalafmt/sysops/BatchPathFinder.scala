@@ -5,7 +5,7 @@ import java.nio.file.attribute.BasicFileAttributes
 
 trait BatchPathFinder {
 
-  val matches: Path => Boolean
+  def matches: Path => Boolean
   def findFiles(dir: AbsoluteFile*): Seq[AbsoluteFile]
 
   final def findFilesExplicit(dirs: Seq[AbsoluteFile]): Seq[AbsoluteFile] =

@@ -818,6 +818,7 @@ object TreeOps {
   @inline
   def ifWithoutElse(t: Term.If) = t.elsep.is[Lit.Unit]
 
+  @tailrec
   def existsIfWithoutElse(t: Term.If): Boolean =
     existsIfWithoutElse(t.thenp) || (t.elsep match {
       case x: Term.If => existsIfWithoutElse(x)

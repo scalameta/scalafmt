@@ -1497,8 +1497,7 @@ class FormatOps(
         prevEnclosed match {
           case Some(t) => (t, select)
           case _ =>
-            val nextEnclosed =
-              if (isEnclosedInMatching(tree)) Some(tree) else None
+            val nextEnclosed = Some(tree).filter(isEnclosedInMatching)
             findLastApplyAndNextSelectPastEnclosed(p, select, nextEnclosed)
         }
       case _ => (prevEnclosed.getOrElse(tree), select)
