@@ -71,7 +71,7 @@ object TermDisplay {
       case "true" | "enable" | "1" => true
       case "false" | "disable" | "0" => false
     }
-    def compatibilityEnv = sys.env.get("COURSIER_NO_TERM").nonEmpty
+    def compatibilityEnv = sys.env.contains("COURSIER_NO_TERM")
 
     def nonInteractive = System.console() == null
 

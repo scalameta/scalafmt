@@ -25,7 +25,7 @@ class Debug(val verbose: Boolean) {
   var state = State.start
   var locations: FormatWriter#FormatLocations = _
   def tokens = formatOps.tokens.arr
-  var startTime = System.nanoTime()
+  val startTime = System.nanoTime()
 
   def elapsedNs = System.nanoTime() - startTime
 

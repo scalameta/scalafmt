@@ -577,7 +577,7 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(left, right, StartsStatementRight(_)) =>
         val expire = rightOwner.tokens
           .find(_.is[T.Equals])
-          .map { equalsToken =>
+          .fold(getLastToken(rightOwner)) { equalsToken =>
             val equalsFormatToken = tokens(equalsToken)
             if (equalsFormatToken.right.is[T.LeftBrace]) {
               equalsFormatToken.right
@@ -585,7 +585,6 @@ class Router(formatOps: FormatOps) {
               equalsToken
             }
           }
-          .getOrElse(getLastToken(rightOwner))
 
         val annoRight = right.is[T.At]
         val annoLeft = isSingleIdentifierAnnotation(prev(tok))

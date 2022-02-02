@@ -1314,12 +1314,11 @@ class FormatWriter(formatOps: FormatOps) {
         case _: Term.ApplyInfix =>
           TreeOps
             .findTreeWithParentSimple(t)(!_.is[Term.ApplyInfix])
-            .map { x =>
+            .fold(t) { x =>
               val p = x.parent.get
               if (p.is[Term.Apply]) p.parent.getOrElse(p)
               else getAlignContainerParent(x)
             }
-            .getOrElse(t)
 
         case AlignContainer(t) if fl.formatToken.right.is[T.Comment] => t
 

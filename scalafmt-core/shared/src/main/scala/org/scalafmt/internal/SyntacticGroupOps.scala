@@ -3,6 +3,7 @@ package org.scalafmt.internal
 import org.scalafmt.internal.{SyntacticGroup => g}
 import org.scalafmt.util.InfixApp
 
+import scala.annotation.tailrec
 import scala.meta.{Lit, Term, Tree}
 import scala.meta.internal.trees._
 
@@ -44,6 +45,7 @@ object SyntacticGroupOps {
     }
   }
 
+  @tailrec
   def startsWithNumericLiteral(tree: Tree): Boolean = {
     tree match {
       case _: Lit.Int | _: Lit.Long | _: Lit.Double | _: Lit.Float |

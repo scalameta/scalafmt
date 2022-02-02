@@ -36,7 +36,7 @@ object Imports extends RewriteFactory {
     def noGroups: Boolean = sort.eq(Sort.none) && numGroups == 0
 
     def group(str: String): Int =
-      regex.find(_._1.matcher(str).matches()).map(_._2).getOrElse(numGroups)
+      regex.find(_._1.matcher(str).matches()).fold(numGroups)(_._2)
   }
 
   object Settings {
@@ -385,7 +385,7 @@ object Imports extends RewriteFactory {
         case t: Token.Comment if TokenOps.isSingleLineIfComment(t) =>
           slc.prepend(t); hadLf = false; None
         case Whitespace() => None
-        case _ => if (!hadLf && !slc.isEmpty) slc.remove(0); Some(false)
+        case _ => if (!hadLf && slc.nonEmpty) slc.remove(0); Some(false)
       }
       slc.result()
     }
