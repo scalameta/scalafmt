@@ -321,6 +321,11 @@ object TermDisplay {
         out.write(s.take(width - 1) + "…\n")
     }
 
+    private def getDownloadInfos: Vector[(String, Info)] =
+      downloads.toVector
+        .map { url => url -> infos.get(url) }
+        .sortBy { case (_, info) => -info.fraction.sum }
+
     @tailrec private def updateDisplayLoop(lineCount: Int): Unit = {
       currentHeight = lineCount
 
@@ -337,9 +342,7 @@ object TermDisplay {
 
             doneQueue.clear()
 
-            val dw = downloads.toVector
-              .map { url => url -> infos.get(url) }
-              .sortBy { case (_, info) => -info.fraction.sum }
+            val dw = getDownloadInfos
 
             (q, dw)
           }
@@ -390,9 +393,7 @@ object TermDisplay {
 
         case Some(Message.Update) =>
           val downloads0 = downloads.synchronized {
-            downloads.toVector
-              .map { url => url -> infos.get(url) }
-              .sortBy { case (_, info) => -info.fraction.sum }
+            getDownloadInfos
           }
 
           var displayedSomething = false
@@ -438,7 +439,7 @@ object Cache {
   trait Logger {
     def foundLocally(url: String, f: File): Unit = {}
     def startTask(url: String, file: File): Unit = {}
-    def taskProgress(url: String, downloaded: Long): Unit = {}
+    def taskProgress(url: String): Unit = {}
     def completedTask(url: String, success: Boolean): Unit = {}
     def checkingUpdates(url: String, currentTimeOpt: Option[Long]): Unit = {}
   }
@@ -451,6 +452,7 @@ class TermDisplay(
 
   import TermDisplay._
 
+  private val counter = new atomic.AtomicInteger()
   private val updateThread = new UpdateDisplayThread(out, fallbackMode)
 
   def init(): Unit = {
@@ -494,7 +496,8 @@ class TermDisplay(
 
     updateThread.update()
   }
-  override def taskProgress(url: String, downloaded: Long): Unit = {
+  override def taskProgress(url: String): Unit = {
+    val downloaded = counter.incrementAndGet()
     val info = updateThread.infos.get(url)
     if (info != null) { // We might not want the progress bar.
       val newInfo = info match {

@@ -1,10 +1,10 @@
 package org.scalafmt.cli
 
 import java.nio.file.Path
-import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
+import java.util.concurrent.atomic.AtomicReference
 
 import org.scalafmt.CompatCollections.ParConverters._
-import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
+import org.scalafmt.Error
 import org.scalafmt.dynamic.ScalafmtDynamicError
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtSession
@@ -39,10 +39,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
         x => customMatcher(x) && sessionMatcher(x)
       }
     val inputMethods = getInputMethods(options, filterMatcher)
-    if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
-      throw NoMatchingFiles
 
-    val counter = new AtomicInteger()
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
 
     val exitCode = new AtomicReference(ExitCode.Ok)
@@ -52,12 +49,12 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
           val code = handleFile(inputMethod, session, options)
           exitCode.getAndUpdate(ExitCode.merge(code, _))
         } catch {
-          case e: MisformattedFile =>
+          case e: Error.MisformattedFile =>
             reporter.error(e.file, e)
             if (options.check) break
         }
         PlatformTokenizerCache.megaCache.clear()
-        termDisplay.taskProgress(termDisplayMessage, counter.incrementAndGet())
+        termDisplay.taskProgress(termDisplayMessage)
       }
     }
 

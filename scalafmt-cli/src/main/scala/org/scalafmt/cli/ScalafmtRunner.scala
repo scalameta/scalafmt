@@ -3,6 +3,7 @@ package org.scalafmt.cli
 import java.io.OutputStreamWriter
 import java.nio.file.Path
 
+import org.scalafmt.Error
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.BatchPathFinder
 
@@ -38,6 +39,8 @@ trait ScalafmtRunner {
     } else {
       val projectFiles: Seq[AbsoluteFile] =
         getFilesFromCliOptions(options, filter)
+      if (projectFiles.isEmpty && options.mode.isEmpty)
+        throw Error.NoMatchingFiles
       options.common.debug
         .print(s"Files to be formatted:\n${projectFiles.mkString("\n")}\n")
       projectFiles.map(InputMethod.FileContents.apply)
