@@ -114,7 +114,7 @@ object Cli {
         Left(
           s"""error: invalid Scalafmt version.
             |
-            |This Scalafmt installation has version '$stableVersion' and the version configured in '${options.configPath}' is '${v}'.
+            |This Scalafmt installation has version '$stableVersion' and the version configured in '${options.configPath}' is '$v'.
             |To fix this problem, add the following line to .scalafmt.conf:
             |```
             |version = '$stableVersion'

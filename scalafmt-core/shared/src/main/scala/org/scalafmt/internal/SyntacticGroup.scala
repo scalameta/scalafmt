@@ -60,7 +60,7 @@ object SyntacticGroup {
       Literal.precedence == Pat.SimplePattern.precedence
   )
   case object Path extends Type with Term with Pat {
-    override def categories = List("Type", "Term", "Pat");
+    override def categories = List("Type", "Term", "Pat")
     def precedence = 6
   }
   require(

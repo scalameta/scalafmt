@@ -702,7 +702,7 @@ class FormatOps(
           }
         }
 
-      val breakPenalty = if (beforeLhs) 1 else (maxPrecedence - app.precedence)
+      val breakPenalty = if (beforeLhs) 1 else maxPrecedence - app.precedence
       val expires = expiresOpt.fold(Seq(fullExpire -> 0)) { x =>
         if (x.last._2 == 0) x else x :+ fullExpire -> 0
       }
@@ -2598,9 +2598,9 @@ class FormatOps(
           case x @ Term.If(c, t, e) if !nft.right.is[T.KwThen] =>
             Some((t, seq(all && !ifWithoutElse(x), e) ++ seq(all, c)))
           case Term.For(s, b) if !nft.right.is[T.KwDo] =>
-            Some(b, seq(all, s))
+            Some((b, seq(all, s)))
           case Term.While(c, b) if !nft.right.is[T.KwDo] =>
-            Some(b, seq(all, c))
+            Some((b, seq(all, c)))
           case _ => None
         }
     }
@@ -2610,7 +2610,7 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t @ Term.For(s, b)
               if !nft.right.is[T.KwDo] && !isLastToken(ft.left, t) =>
-            Some(b, seq(all, s))
+            Some((b, seq(all, s)))
           case _ => None
         }
     }
@@ -2618,7 +2618,7 @@ class FormatOps(
     private object DoImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case Term.Do(b, c) => Some(b, seq(all, c))
+          case Term.Do(b, c) => Some((b, seq(all, c)))
           case _ => None
         }
     }
@@ -2626,12 +2626,12 @@ class FormatOps(
     private object EqualsImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case t: Ctor.Secondary => Some(t, seq(all, t.init, t.stats))
-          case t: Defn.Def => Some(t.body, Nil)
-          case t: Defn.Macro => Some(t.body, Nil)
-          case t: Term.Assign => Some(t.rhs, Nil)
-          case t: Defn.Type => Some(t.body, Nil)
-          case t: Defn.Val => Some(t.rhs, Nil)
+          case t: Ctor.Secondary => Some((t, seq(all, t.init, t.stats)))
+          case t: Defn.Def => Some((t.body, Nil))
+          case t: Defn.Macro => Some((t.body, Nil))
+          case t: Term.Assign => Some((t.rhs, Nil))
+          case t: Defn.Type => Some((t.body, Nil))
+          case t: Defn.Val => Some((t.rhs, Nil))
           case t: Defn.Var => t.rhs.map(_ -> Nil)
           case _ => BlockImpl.getBlocks(ft, nft, all)
         }
@@ -2641,9 +2641,9 @@ class FormatOps(
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
           case t: Term.Try =>
-            Some(t.expr, seq(all, t.catchp) ++ seq(all, t.finallyp))
+            Some((t.expr, seq(all, t.catchp) ++ seq(all, t.finallyp)))
           case t: Term.TryWithHandler =>
-            Some(t.expr, seq(all, t.catchp) ++ seq(all, t.finallyp))
+            Some((t.expr, seq(all, t.catchp) ++ seq(all, t.finallyp)))
           case _ => None
         }
     }
@@ -2652,9 +2652,9 @@ class FormatOps(
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
           case t: Term.Try =>
-            Some(t.catchp.last, seq(all, t.expr) ++ seq(all, t.finallyp))
+            Some((t.catchp.last, seq(all, t.expr) ++ seq(all, t.finallyp)))
           case t: Term.TryWithHandler =>
-            Some(t.catchp, seq(all, t.expr) ++ seq(all, t.finallyp))
+            Some((t.catchp, seq(all, t.expr) ++ seq(all, t.finallyp)))
           case _ => None
         }
     }
