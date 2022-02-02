@@ -1,9 +1,9 @@
 package org.scalafmt.cli
 
-import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
+import java.util.concurrent.atomic.AtomicReference
 import util.control.Breaks
 
-import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
+import org.scalafmt.Error
 import org.scalafmt.{Formatted, Scalafmt, Versions}
 import org.scalafmt.config.{ProjectFiles, ScalafmtConfig}
 import org.scalafmt.CompatCollections.ParConverters._
@@ -26,12 +26,8 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         scalafmtConf.project,
         options.customExcludes
       )
-
       val inputMethods = getInputMethods(options, filterMatcher.matchesPath)
-      if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
-        throw NoMatchingFiles
 
-      val counter = new AtomicInteger()
       val termDisplay =
         newTermDisplay(options, inputMethods, termDisplayMessage)
       val exitCode = new AtomicReference(ExitCode.Ok)
@@ -41,10 +37,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
           exitCode.getAndUpdate(ExitCode.merge(code, _))
           if (options.check && !code.isOk) Breaks.break
           PlatformTokenizerCache.megaCache.clear()
-          termDisplay.taskProgress(
-            termDisplayMessage,
-            counter.incrementAndGet()
-          )
+          termDisplay.taskProgress(termDisplayMessage)
         }
       }
       termDisplay.completedTask(termDisplayMessage, exitCode.get.isOk)
@@ -59,7 +52,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
   ): ExitCode = {
     try unsafeHandleFile(inputMethod, options, config)
     catch {
-      case MisformattedFile(_, diff) =>
+      case Error.MisformattedFile(_, diff) =>
         options.common.err.println(diff)
         ExitCode.TestError
     }
