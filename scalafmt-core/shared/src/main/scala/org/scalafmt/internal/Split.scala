@@ -34,7 +34,7 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false) {
   *   How good is this output? Lower is better.
   * @param policy
   *   How does this split affect other later splits?
-  * @param line
+  * @param fileLine
   *   For debugging, to retrace from which case in [[Router]] this split
   *   originates.
   */

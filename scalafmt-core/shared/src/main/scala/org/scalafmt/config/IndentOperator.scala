@@ -2,7 +2,7 @@ package org.scalafmt.config
 
 import metaconfig._
 
-/** @param include
+/** @param includeRegex
   *   Regexp for which infix operators should indent by 2 spaces. For example,
   *   `.*=` produces this output
   *   {{{
@@ -12,9 +12,9 @@ import metaconfig._
   *   a +=
   *     b
   *   }}}
-  * @param exclude
+  * @param excludeRegex
   *   Regexp for which infix operators should not indent by 2 spaces. For
-  *   example, when [[include]] is `.*` and [[exclude]] is `&&`
+  *   example, when [[includeRegex]] is `.*` and [[excludeRegex]] is `&&`
   *   {{{
   *   a &&
   *   b

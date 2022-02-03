@@ -38,7 +38,7 @@ object AlignToken {
 
   /** @param regex
     *   regexp for class name of scala.meta.Tree "owner".
-    * @param parent
+    * @param parents
     *   optional regexp for class name of owner's parent.
     */
   case class Owner(
