@@ -89,7 +89,7 @@ class DynamicSuite extends FunSuite {
         |""".stripMargin)
     }
     def relevant: String = {
-      out.toString.replaceAllLiterally(config.toString, "path/.scalafmt.conf")
+      out.toString.replace(config.toString, "path/.scalafmt.conf")
     }
     def errors: String = {
       out.toString.linesIterator
@@ -378,9 +378,10 @@ class DynamicSuite extends FunSuite {
       case x =>
         fail("ReflectResolver is not cached: " + x.getClass.getSimpleName)
     }
-    val reflect = cache.getFromCache(version)
-    assert(reflect.nonEmpty)
-    assert(reflect.get.right.get.intellijScalaFmtConfig.nonEmpty)
+    cache.getFromCache(version) match {
+      case Some(Right(x)) => assert(x.intellijScalaFmtConfig.nonEmpty)
+      case _ => fail(s"failed cache.getFromCache($version)")
+    }
   }
 
   checkExhaustive("continuation-indent-callSite-and-defnSite") { _ =>

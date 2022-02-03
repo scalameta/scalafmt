@@ -80,9 +80,9 @@ class Debug(val verbose: Boolean) {
         if (state.prev ne State.start) {
           val prev = state.prev
           val tok = toks(prev.depth).left
-          val clean = LoggerOps.cleanup(tok).slice(0, 15).formatted("%-15s")
+          val clean = "%-15s".format(LoggerOps.cleanup(tok).slice(0, 15))
           stack.prepend(
-            s"${tok.end.formatted(posWidth)}: $clean" +
+            s"${posWidth.format(tok.end)}: $clean" +
               s" ${state.split} ${prev.indentation} ${prev.column} [${state.cost}]"
           )
           iter(prev)
