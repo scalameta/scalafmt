@@ -241,7 +241,7 @@ object TermDisplay {
             ""
           else {
             val pctOptStr =
-              pctOpt.map(pct => f"$pct%.2f %%, ").toIterable.mkString
+              pctOpt.map(pct => f"$pct%.2f %%, ").mkString
             val downloadInfoStr = downloadInfo.length.map(" / " + _).mkString
             s"($pctOptStr${downloadInfo.downloaded}$downloadInfoStr)"
           }

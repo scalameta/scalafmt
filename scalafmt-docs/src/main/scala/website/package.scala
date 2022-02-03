@@ -40,7 +40,7 @@ package object website {
     "```scala\n" + code + "\n```"
 
   def preProcess(code: String): String =
-    replaceMargin(code.trim).replaceAllLiterally("'''", "\"\"\"")
+    replaceMargin(code.trim).replace("'''", "\"\"\"")
 
   val logger: PrintStream = {
     val out = Files.newOutputStream(

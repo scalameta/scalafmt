@@ -9,7 +9,7 @@ object OsSpecific {
 
   // We need double backslashes here because Regex needs to be escaped.
   def fixSeparatorsInPathPattern(unixSpecificPattern: String): String =
-    if (isWindows) unixSpecificPattern.replaceAllLiterally("/", "\\\\")
+    if (isWindows) unixSpecificPattern.replace("/", "\\\\")
     else unixSpecificPattern
 
   implicit class XtensionStringAsFilename(string: String) {
