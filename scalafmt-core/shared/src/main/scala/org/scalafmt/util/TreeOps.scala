@@ -876,7 +876,7 @@ object TreeOps {
       p.lhs.eq(tree) || followedBySelectOrApply(p)
     case Some(p: Pat.ExtractInfix) =>
       p.lhs.eq(tree) || followedBySelectOrApply(p)
-    case SplitCallIntoParts(`tree`, _) => true
+    case Some(SplitCallIntoParts(`tree`, _)) => true
     case _ => false
   }
 
