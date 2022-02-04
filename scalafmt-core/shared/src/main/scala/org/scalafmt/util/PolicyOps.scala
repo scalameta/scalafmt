@@ -131,7 +131,7 @@ object PolicyOps {
       policyFunc: End.WithPos => Policy
   )(implicit fileLine: FileLine): Policy = {
     val lastPolicy = policyFunc(expire)
-    exclude.ranges.foldRight(lastPolicy) { case (range, policy) =>
+    exclude.ranges.foldLeft(lastPolicy) { case (policy, range) =>
       new Policy.Relay(
         policyFunc(endLt(range.lt)),
         new Policy.Delay(policy, endRt(range.rt))

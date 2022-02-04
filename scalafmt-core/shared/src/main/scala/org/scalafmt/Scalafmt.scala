@@ -101,15 +101,16 @@ object Scalafmt {
   }
 
   private def flatMapAll[A, B](xs: Iterator[A])(f: A => Try[B]): Try[Seq[B]] = {
+    val res = Seq.newBuilder[B]
     @tailrec
-    def iter(res: Seq[B]): Try[Seq[B]] =
-      if (!xs.hasNext) Success(res)
+    def iter: Try[Seq[B]] =
+      if (!xs.hasNext) Success(res.result())
       else
         f(xs.next()) match {
-          case Success(x) => iter(res :+ x)
+          case Success(x) => res += x; iter
           case Failure(e) => Failure(e)
         }
-    iter(Seq.empty)
+    iter
   }
 
   // see: https://ammonite.io/#Save/LoadSession

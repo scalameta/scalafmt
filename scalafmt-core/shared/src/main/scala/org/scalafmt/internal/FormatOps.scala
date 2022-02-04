@@ -296,7 +296,7 @@ class FormatOps(
       start: FormatToken,
       end: T
   ): TokenRanges = {
-    val result = Seq.newBuilder[TokenRange]
+    var result = TokenRanges.empty
 
     @tailrec
     def run(tok: FormatToken): Unit =
@@ -305,7 +305,7 @@ class FormatOps(
           val open = tok.left
           if (open.start >= close.end) None
           else {
-            result += TokenRange(open, close)
+            result = result.append(TokenRange(open, close))
             Some(tokens(close))
           }
         }
@@ -314,7 +314,7 @@ class FormatOps(
       }
 
     run(next(start))
-    TokenRanges(result.result())
+    result
   }
 
   def defnSiteLastToken(close: FormatToken, tree: Tree): T = {
@@ -459,7 +459,14 @@ class FormatOps(
   }
 
   @inline
-  def getElseChain(term: Term.If): Seq[T] = getElseChain(term, Seq.empty)
+  def getBreakBeforeElsePolicy(term: Term.If): Policy =
+    getElseChain(term, Nil).foldLeft(Policy.noPolicy) { case (res, els) =>
+      val policy = Policy.on(els) {
+        case d @ Decision(FormatToken(_, `els`, _), _) =>
+          d.onlyNewlinesWithFallback(Split(Newline, 0))
+      }
+      Policy.Relay(policy, res)
+    }
 
   @tailrec
   private final def getElseChain(term: Term.If, res: Seq[T]): Seq[T] = {
@@ -469,7 +476,7 @@ class FormatOps(
           val prev = tokens(els, -1)
           prev.left.is[T.RightBrace] && prev.meta.leftOwner != term
         }
-        val newRes = if (tuck) res else res :+ els
+        val newRes = if (tuck) res else els +: res
         term.elsep match {
           case t: Term.If => getElseChain(t, newRes)
           case _ => newRes
@@ -695,8 +702,8 @@ class FormatOps(
           else {
             val res = filtered.foldLeft(Seq.empty[(T, Int)]) { case (out, ia) =>
               val cost = maxPrecedence - ia.precedence
-              if (out.nonEmpty && out.last._2 <= cost) out
-              else out :+ getMidInfixToken(ia) -> cost
+              if (out.nonEmpty && out.head._2 <= cost) out
+              else (getMidInfixToken(ia) -> cost) +: out
             }
             Some(res)
           }
@@ -704,7 +711,7 @@ class FormatOps(
 
       val breakPenalty = if (beforeLhs) 1 else maxPrecedence - app.precedence
       val expires = expiresOpt.fold(Seq(fullExpire -> 0)) { x =>
-        if (x.last._2 == 0) x else x :+ fullExpire -> 0
+        (if (x.head._2 == 0) x else (fullExpire -> 0) +: x).reverse
       }
 
       val infixTooLong = infixSequenceLength(fullInfix) >
@@ -1600,7 +1607,7 @@ class FormatOps(
           ft: FormatToken,
           argss: Seq[Seq[Tree]],
           penalty: Int,
-          policies: Seq[Policy] = Seq.empty
+          policies: Seq[Policy]
       ): Seq[Policy] = {
         if (argss.isEmpty) policies
         else {
@@ -1615,16 +1622,15 @@ class FormatOps(
               case t => Policy.End.On(t)
             }
             val argLastFt = tokens.getLast(args.last)
-            val pnlPolicy = new Policy.Delay(
+            val withPnl = new Policy.Delay(
               new PenalizeAllNewlines(endPolicy, penalty, noSyntaxNL = true),
               Policy.End.On(openFt.right)
-            )
-            val nestedPolicies = args match {
+            ) +: policies
+            val nextPolicies = args match {
               case Seq(SplitCallIntoParts(f, a)) =>
-                getOpenNLByTree(f, a, penalty)
-              case _ => Seq.empty
+                getOpenNLByTree(f, a, withPnl, penalty)
+              case _ => withPnl
             }
-            val nextPolicies = (policies :+ pnlPolicy) ++ nestedPolicies
             getOpenNLByArgs(argLastFt, argss.tail, penalty, nextPolicies)
           }
         }
@@ -1633,6 +1639,7 @@ class FormatOps(
       private def getOpenNLByTree(
           fun: Tree,
           argsOrArgss: CallArgs,
+          policies: Seq[Policy],
           penalty: Int
       ): Seq[Policy] = {
         val argss = argsOrArgss match {
@@ -1640,23 +1647,21 @@ class FormatOps(
           case Right(x) => x
         }
         val funLastFt = tokens.getLast(fun)
-        getOpenNLByArgs(funLastFt, argss, penalty)
+        getOpenNLByArgs(funLastFt, argss, penalty, policies)
       }
 
       @tailrec
-      def getFoldedPolicies(
+      def getFoldedPolicy(
           body: Tree,
-          policies: Seq[Policy] = Seq.empty
-      ): (Policy, Boolean) =
+          policy: Policy = Policy.NoPolicy
+      ): Policy =
         body match {
           case SplitCallIntoParts(fun, args) if fun ne body =>
-            val newPolicies = getOpenNLByTree(fun, args, 1)
-            getFoldedPolicies(fun, newPolicies ++ policies)
-          case t: Term.Select => getFoldedPolicies(t.qual, policies)
-          case _ if policies.isEmpty => (Policy.NoPolicy, false)
-          case _ =>
-            val policy = policies.reduceRight(new Policy.Relay(_, _))
-            (policy, true)
+            val nextPolicy = getOpenNLByTree(fun, args, Nil, 1)
+              .foldLeft(policy) { case (res, x) => Policy.Relay(x, res) }
+            getFoldedPolicy(fun, nextPolicy)
+          case t: Term.Select => getFoldedPolicy(t.qual, policy)
+          case _ => policy
         }
 
     }
@@ -1746,16 +1751,16 @@ class FormatOps(
           }
         case InfixApp(ia) =>
           val lia = findLeftInfix(ia)
-          val (callPolicy, isCallSite) = CallSite.getFoldedPolicies(lia.lhs)
-          if (isCallSite) getPolicySplits(0, callPolicy)
+          val callPolicy = CallSite.getFoldedPolicy(lia.lhs)
+          if (callPolicy.nonEmpty) getPolicySplits(0, callPolicy)
           else {
             val lp = body.tokens.headOption.filter(_.is[T.LeftParen])
             val ok = lp.flatMap(matchingOpt).exists(_.end >= lia.op.pos.end)
             getSplits(getSlbSplit(getLastToken(if (ok) lia.lhs else lia.op)))
           }
         case _ =>
-          val (callPolicy, isCallSite) = CallSite.getFoldedPolicies(body)
-          getPolicySplits(if (isCallSite) 0 else 1, callPolicy)
+          val callPolicy = CallSite.getFoldedPolicy(body)
+          getPolicySplits(if (callPolicy.nonEmpty) 0 else 1, callPolicy)
       }
 
       Seq(spaceSplit, nlSplit)

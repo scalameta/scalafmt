@@ -160,7 +160,7 @@ case class CliOptions(
 
   lazy val gitOps: GitOps = gitOpsConstructor(cwd)
 
-  def addFile(file: Path): CliOptions = withFiles(customFiles :+ file)
+  def addFile(file: Path): CliOptions = withFiles(file +: customFiles)
 
   def withFiles(files: Seq[Path]): CliOptions = this.copy(customFiles = files)
 

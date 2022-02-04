@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import scala.annotation.tailrec
 import scala.meta.tokens.Token
 
 sealed abstract class ExpiresOn {
@@ -136,10 +137,17 @@ object Indent {
   def after(trigger: Token, indent: Indent): Indent =
     Switch(Indent.Empty, trigger, indent)
 
-  def getIndent(indents: Iterable[ActualIndent]): Int =
-    indents.foldLeft(0) { case (res, elem) =>
-      if (elem.reset) elem.length
-      else res + elem.length
-    }
+  def getIndent(indents: Iterable[ActualIndent]): Int = {
+    val iter = indents.iterator
+    @tailrec
+    def run(indent: Int): Int =
+      if (!iter.hasNext) indent
+      else {
+        val actualIndent = iter.next()
+        val nextIndent = indent + actualIndent.length
+        if (actualIndent.reset) nextIndent else run(nextIndent)
+      }
+    run(0)
+  }
 
 }
