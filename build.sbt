@@ -185,17 +185,26 @@ lazy val coreJVM = core.jvm
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
 val scalacJvmOptions = Def.setting {
-  CrossVersion.partialVersion(scalaVersion.value) match {
+  val cross = CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 11)) => Seq("-target:jvm-1.8")
     case Some((2, 13)) =>
       Seq(
         "-Ymacro-annotations",
         "-Xfatal-warnings",
-        "-Ywarn-unused:imports",
         "-deprecation:false"
       )
     case _ => Seq.empty
   }
+
+  val unused = Seq(
+    "imports",
+    "privates",
+    "locals",
+    "patvars",
+    "implicits"
+  ).map(x => s"-Ywarn-unused:$x")
+
+  cross ++ unused
 }
 
 lazy val cli = project
