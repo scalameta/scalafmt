@@ -92,7 +92,7 @@ object Imports extends RewriteFactory {
           else if (sortOriginal) Imports.Sort.original
           else obj.imports.sort
         val validated = obj.copy(
-          rules = nonImportRules :+ Imports,
+          rules = Imports +: nonImportRules,
           imports = obj.imports.copy(expand = expand, sort = sort)
         )
         Configured.Ok(validated)

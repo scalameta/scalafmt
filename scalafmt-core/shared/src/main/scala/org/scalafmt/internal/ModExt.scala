@@ -40,11 +40,13 @@ case class ModExt(
     indents.foldLeft(this)(_ withIndent _)
 
   private def withIndentImpl(indent: Indent): ModExt =
-    copy(indents = indents :+ indent)
+    copy(indents = indent +: indents)
 
   def switch(trigger: Token, on: Boolean): ModExt = {
-    val newIndents = indents.map(_.switch(trigger, on))
-    copy(indents = newIndents.filter(_ ne Indent.Empty))
+    val newIndents = indents.flatMap { x =>
+      Some(x.switch(trigger, on)).filter(_ ne Indent.Empty)
+    }
+    copy(indents = newIndents)
   }
 
   /** This gap is necessary for pretty alignment multiline expressions on the

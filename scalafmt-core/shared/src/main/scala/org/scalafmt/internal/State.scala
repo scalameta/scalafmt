@@ -49,7 +49,7 @@ final case class State(
           getUnexpired(modExt.getActualIndents(offset))
         val initialModExt = initialNextSplit.modExt
         val indents = initialModExt.indents
-        val nextPushes = getUnexpired(pushes) ++ getPushes(initialModExt)
+        val nextPushes = getPushes(initialModExt) ++ getUnexpired(pushes)
         val nextIndent = Indent.getIndent(nextPushes)
         initialNextSplit.modExt.mod match {
           case m: NewlineT

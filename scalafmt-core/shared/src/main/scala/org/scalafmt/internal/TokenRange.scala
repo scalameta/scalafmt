@@ -11,8 +11,8 @@ class TokenRange private (val lt: Token, val rt: Token) {
 class TokenRanges private (val ranges: Seq[TokenRange]) extends AnyVal {
 
   def append(range: TokenRange): TokenRanges = {
-    ranges.lastOption.foreach(range.validateAfter)
-    new TokenRanges(ranges :+ range)
+    ranges.headOption.foreach(range.validateAfter)
+    new TokenRanges(range +: ranges)
   }
 
 }
@@ -30,13 +30,5 @@ object TokenRanges {
 
   def apply(range: TokenRange): TokenRanges =
     new TokenRanges(Seq(range))
-
-  def apply(ranges: Seq[TokenRange]): TokenRanges = {
-    if (ranges.isEmpty) empty
-    else {
-      ranges.reduceLeft[TokenRange] { case (l, r) => r.validateAfter(l); r }
-      new TokenRanges(ranges)
-    }
-  }
 
 }

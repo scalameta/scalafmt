@@ -71,7 +71,7 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
         else {
           val removeOld = old.tokens.tail.map(TokenPatch.Remove)
           val addNext = TokenPatch.Replace(old.tokens.head, next.toString())
-          removeOld :+ addNext
+          addNext +: removeOld
         }
       }: _*)
     }

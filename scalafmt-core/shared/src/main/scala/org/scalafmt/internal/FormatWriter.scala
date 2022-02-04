@@ -1056,12 +1056,14 @@ class FormatWriter(formatOps: FormatOps) {
             table: Scaladoc.Table,
             termIndent: String
         ): Unit = {
-          val rows = table.rows.view :+ table.header
           val align = table.align
-          val maxCols = rows.map(_.cols.length).max
-          val colsRange = 0 until maxCols
+          def getRowMax(f: Scaladoc.Table.Row => Int): Int =
+            table.rows.foldLeft(f(table.header)) { case (out, row) =>
+              math.max(out, f(row))
+            }
+          val colsRange = 0 until getRowMax(_.cols.length)
           val maxLengths = colsRange.map { x =>
-            rows.map(_.cols.view.drop(x).headOption.fold(0)(_.length)).max
+            getRowMax(_.cols.view.drop(x).headOption.fold(0)(_.length))
           }
 
           @inline def beforeAll(): Unit = sb.append(termIndent)

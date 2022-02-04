@@ -1953,22 +1953,13 @@ class Router(formatOps: FormatOps) {
         val owner = leftOwner.asInstanceOf[Term.If]
         val expireTree = if (ifWithoutElse(owner)) owner else owner.elsep
         val expire = rhsOptimalToken(tokens.getLast(expireTree))
-        val elses = getElseChain(owner)
-        val breakOnlyBeforeElse =
-          if (elses.isEmpty) Policy.NoPolicy
-          else
-            Policy.on(elses.last) {
-              case d @ Decision(FormatToken(_, r: T.KwElse, _), _)
-                  if elses.contains(r) =>
-                d.onlyNewlinesWithFallback(Split(Newline, 0))
-            }
         val mod =
           if (style.newlines.keepBreak(newlines)) Newline
           else Space(style.spaces.isSpaceAfterKeyword(right))
         val slb =
           Split(mod.isNewline, 0)(mod).withSingleLine(expire, killOnFail = true)
         val mlSplitBase = Split(mod, if (slb.isIgnored) 0 else 1)
-          .withPolicy(breakOnlyBeforeElse)
+          .withPolicy(getBreakBeforeElsePolicy(owner))
         val mlSplitOpt = OptionalBraces
           .indentAndBreakBeforeCtrl[T.KwThen](owner.cond, mlSplitBase)
         Seq(slb, mlSplitOpt.getOrElse(mlSplitBase))

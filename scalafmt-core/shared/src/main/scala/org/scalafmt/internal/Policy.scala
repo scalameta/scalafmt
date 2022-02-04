@@ -191,6 +191,15 @@ object Policy {
     }
   }
 
+  object Relay {
+    def apply(before: Policy, after: Policy)(implicit
+        fileLine: FileLine
+    ): Policy =
+      if (before.isEmpty) after
+      else if (after.isEmpty) before
+      else new Relay(before, after)
+  }
+
   class Switch(before: Policy, trigger: Token, after: Policy)(implicit
       fileLine: FileLine
   ) extends Policy {
