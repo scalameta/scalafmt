@@ -256,6 +256,6 @@ maxColumn = 25
 ===
 object foo extends bar(baz) with foo with baz
 >>>
-object foo extends bar(
-      baz
-    ) with foo with baz
+object foo
+    extends bar(baz)
+    with foo with baz
