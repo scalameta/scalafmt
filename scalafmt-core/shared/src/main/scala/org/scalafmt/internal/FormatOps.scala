@@ -1115,16 +1115,18 @@ class FormatOps(
         case _ => TokenRanges.empty
       }
       val noSyntaxNL = extendsThenWith
+      val pnlPolicy = PenalizeAllNewlines(lastToken, 1, noSyntaxNL = noSyntaxNL)
       Seq(
         Split(Space, 0)
           .withSingleLine(lastToken, exclude = exclude, noSyntaxNL = noSyntaxNL)
+          .orPolicy(pnlPolicy)
           .withIndent(indent),
         Split(nlMod, 0)
           .onlyIf(nlOnelineTag != Right(false))
           .preActivateFor(nlOnelineTag.left.toOption)
           .withSingleLine(lastToken, noSyntaxNL = noSyntaxNL)
           .withIndent(indent),
-        Split(nlMod, 1).withPolicy(nlPolicy).withIndent(indent)
+        Split(nlMod, 1).withPolicy(nlPolicy & pnlPolicy).withIndent(indent)
       )
     } else Seq(Split(Space, 0), Split(Newline, 1))
   }
