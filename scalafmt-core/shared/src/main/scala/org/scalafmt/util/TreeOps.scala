@@ -878,7 +878,11 @@ object TreeOps {
       p.lhs.eq(tree) || followedBySelectOrApply(p)
     case Some(p: Pat.ExtractInfix) =>
       p.lhs.eq(tree) || followedBySelectOrApply(p)
-    case Some(SplitCallIntoParts(`tree`, _)) => true
+    case Some(SplitCallIntoParts(`tree`, args)) =>
+      args match {
+        case Left(Seq(_: Term.Block | _: Term.PartialFunction)) => false
+        case _ => true
+      }
     case _ => false
   }
 
