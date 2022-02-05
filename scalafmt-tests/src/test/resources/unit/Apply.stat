@@ -42,10 +42,8 @@ test("foo " +
     baz
   }
 >>>
-test(
-    "foo " +
-      "bar"
-) {
+test("foo " +
+  "bar") {
   baz
 }
 <<< binpack oneline, apply followed by partial function
@@ -59,10 +57,8 @@ test("foo " +
     case qux =>
   }
 >>>
-test(
-    "foo " +
-      "bar"
-) {
+test("foo " +
+  "bar") {
   case baz =>
   case qux =>
 }
