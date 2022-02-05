@@ -134,8 +134,8 @@ object CliArgParser {
         .text(
           s"""Sets the files to be formatted fetching mode.
             |Options:
-            |        diff - format files listed in `git diff` against master
-            |        changed - format files listed in `git status` (latest changes against previous commit)""".stripMargin
+            |${FileFetchMode.help}
+            |""".stripMargin
         )
       opt[String]("diff-branch")
         .action((branch, c) => c.copy(mode = Option(DiffFiles(branch))))
