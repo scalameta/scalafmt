@@ -771,3 +771,13 @@ class Toto() {
     a
   }
 }
+<<< #3105
+foo >>= (_.http(registry, port).map(Option.apply(_)).catchSome {
+    bar
+})
+>>>
+foo >>= _.http(registry, port)
+  .map(Option.apply(_))
+  .catchSome {
+    bar
+  }
