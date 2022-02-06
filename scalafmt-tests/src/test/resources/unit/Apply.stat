@@ -32,3 +32,37 @@ new DenseMatrix(
     rows = from.cols,
     majorStride = from.majorStride,
     isTranspose = !from.isTranspose)
+<<< binpack oneline, apply followed by block
+maxColumn = 15
+binPack.unsafeCallSite = Oneline
+optIn.configStyleArguments = false
+===
+test("foo " +
+  "bar") {
+    baz
+  }
+>>>
+test(
+    "foo " +
+      "bar"
+) {
+  baz
+}
+<<< binpack oneline, apply followed by partial function
+maxColumn = 15
+binPack.unsafeCallSite = Oneline
+optIn.configStyleArguments = false
+===
+test("foo " +
+  "bar") {
+    case baz =>
+    case qux =>
+  }
+>>>
+test(
+    "foo " +
+      "bar"
+) {
+  case baz =>
+  case qux =>
+}
