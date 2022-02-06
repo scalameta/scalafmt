@@ -1051,3 +1051,16 @@ object a {
   // https://developers.google.com/foo/bar
   // https://developers.google.com/foo/bar
 }
+<<< trailing multiline comment indent
+maxColumn = 45
+comments.wrap = trailing
+===
+object a {
+  case object Foo extends Bar("baz") /* qux =
+   * xyz */
+}
+>>>
+object a {
+  case object Foo extends Bar("baz") /* qux =
+       * xyz */
+}
