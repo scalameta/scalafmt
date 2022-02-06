@@ -251,3 +251,11 @@ object CoreReflection extends {
       val mirror: u.Mirror = u.runtimeMirror(classOf[scala.meta.Tree].getClassLoader)
     }
     with scala.meta.internal.trees.Reflection
+<<< break before extends
+maxColumn = 25
+===
+object foo extends bar(baz) with foo with baz
+>>>
+object foo extends bar(
+      baz
+    ) with foo with baz
