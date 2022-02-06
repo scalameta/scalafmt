@@ -1062,5 +1062,5 @@ object a {
 >>>
 object a {
   case object Foo extends Bar("baz") /* qux =
-       * xyz */
+   * xyz */
 }

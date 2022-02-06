@@ -1886,7 +1886,7 @@ class FormatOps(
         style: ScalafmtConfig
     ): Split =
       asInfixApp(body).fold {
-        val expire = getLastToken(body)
+        val expire = tokens.nextNonCommentSameLine(tokens.getLast(body)).left
         nlSplit.withIndent(Num(style.indent.main), expire, ExpiresOn.After)
       }(app => InfixSplits(app, ft).withNLIndent(nlSplit))
 
