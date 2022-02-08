@@ -780,6 +780,16 @@ object TreeOps {
         }
     }
 
+  def findInterpolateArgAfter(end: Int, tree: Tree): Option[Tree] =
+    tree match {
+      case t: Pat.Interpolate => findArgAfter(end, t.args)
+      case t: Term.Interpolate => findArgAfter(end, t.args)
+      case _ => None
+    }
+
+  def findArgAfter(end: Int, trees: Seq[Tree]): Option[Tree] =
+    trees.find(_.pos.start >= end)
+
   def getStripMarginCharForInterpolate(tree: Tree): Option[Char] =
     findInterpolate(tree).flatMap(getStripMarginChar)
 

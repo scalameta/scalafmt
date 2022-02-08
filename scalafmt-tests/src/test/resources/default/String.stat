@@ -549,10 +549,12 @@ val s = raw"""
         """
 >>>
 val s = raw"""
-          ${if true then
-    println()
-    "1"
-  else "2"}
+          ${
+    if true then
+      println()
+      "1"
+    else "2"
+  }
         """
 <<< #3113 allow, align with scala3 if-else: sig indent must align
 maxColumn = 50
@@ -571,8 +573,10 @@ val s = raw"""
         """
 >>>
 val s = raw"""
-          ${if true then
+          ${
+             if true then
                println()
                "1"
-             else "2"}
+             else "2"
+           }
         """
