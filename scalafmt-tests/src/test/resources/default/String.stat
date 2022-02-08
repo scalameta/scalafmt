@@ -533,3 +533,46 @@ object a {
                                   } fo4
     |""".stripMargin
 }
+<<< #3113 allow with scala3 if-else: sig indent must align
+maxColumn = 50
+runner.dialect = scala3
+newlines.inInterpolation = allow
+===
+val s = raw"""
+          ${
+            if true then
+              println()
+              "1"
+            else
+              "2"
+          }
+        """
+>>>
+val s = raw"""
+          ${if true then
+    println()
+    "1"
+  else "2"}
+        """
+<<< #3113 allow, align with scala3 if-else: sig indent must align
+maxColumn = 50
+runner.dialect = scala3
+align.inInterpolation = true
+newlines.inInterpolation = allow
+===
+val s = raw"""
+          ${
+            if true then
+              println()
+              "1"
+            else
+              "2"
+          }
+        """
+>>>
+val s = raw"""
+          ${if true then
+               println()
+               "1"
+             else "2"}
+        """
