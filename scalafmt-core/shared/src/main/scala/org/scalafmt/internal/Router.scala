@@ -217,11 +217,16 @@ class Router(formatOps: FormatOps) {
             .withIndents(alignIndents.getOrElse(mainIndents))
             .withPolicy(decideNewlinesOnlyBeforeClose(close))
         }
+        def findArg = findInterpolateArgAfter(open.end, leftOwner)
         style.newlines.inInterpolation match {
           case Newlines.InInterpolation.avoid => Seq(spaceSplit)
           case _ if style.newlines.keepBreak(newlines) =>
             Seq(newlineSplit(0))
-          case Newlines.InInterpolation.oneline =>
+          case Newlines.InInterpolation.allow
+              if !dialect.allowSignificantIndentation ||
+                !findArg.exists(_.is[Term.If]) =>
+            Seq(spaceSplit)
+          case _ =>
             /* sequence of tokens:
              * - 0 RBrace
              * - 1 Interpolation.SpliceEnd (empty)
@@ -235,7 +240,6 @@ class Router(formatOps: FormatOps) {
               spaceSplit.withSingleLine(slbEnd),
               newlineSplit(1)
             )
-          case _ => Seq(spaceSplit)
         }
 
       case FormatToken(_, _: T.RightBrace, _)
