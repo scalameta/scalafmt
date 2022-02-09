@@ -27,8 +27,8 @@ class TokenTraverser(tokens: Tokens, filename: String) {
       realTokens.headOption.foreach {
         // shebang in .sc files
         case t: Token.Ident if t.value.startsWith("#!") =>
-          realTokens.iterator.takeWhile(!_.is[Token.LF]).foreach { tok =>
-            excluded += TokenOps.hash(tok)
+          realTokens.takeWhile(!_.is[Token.LF]).foreach {
+            excluded += TokenOps.hash(_)
           }
         case _ =>
       }
