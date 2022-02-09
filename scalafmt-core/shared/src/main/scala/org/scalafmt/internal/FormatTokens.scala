@@ -30,25 +30,22 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   override def length: Int = arr.length
   override def apply(idx: Int): FormatToken = arr(idx)
 
-  private def get(tok: Token, isBefore: Boolean): FormatToken = tok match {
-    case _: Token.BOF => arr.head
-    case _: Token.EOF => arr.last
-    case _ =>
-      val idx = leftTok2tok.getOrElse(
-        FormatTokens.thash(tok),
-        throw new NoSuchElementException(
-          s"Missing token index [${tok.start}:${tok.end}]: `$tok`"
-        )
+  private def get(tok: Token, isBefore: Boolean): FormatToken = {
+    val idx = leftTok2tok.getOrElse(
+      FormatTokens.thash(tok),
+      throw new NoSuchElementException(
+        s"Missing token index [${tok.start}:${tok.end}]: `$tok`"
       )
-      if (idx >= arr.length) arr.last
-      else {
-        val ft = arr(idx)
-        if (isBefore) {
-          if (ft.left.start <= tok.start) ft else at(idx - 1)
-        } else {
-          if (ft.left.start >= tok.start) ft else at(idx + 1)
-        }
+    )
+    if (idx >= arr.length) arr.last
+    else {
+      val ft = arr(idx)
+      if (isBefore) {
+        if (ft.left.start <= tok.start) ft else at(idx - 1)
+      } else {
+        if (ft.left.start >= tok.start) ft else at(idx + 1)
       }
+    }
   }
 
   def at(off: Int): FormatToken =
