@@ -141,7 +141,11 @@ object Rewrite {
 
   val default: Seq[Rewrite] = name2rewrite.values.toSeq
 
-  def apply(input: VirtualFile, style: ScalafmtConfig): VirtualFile = {
+  def apply(
+      input: VirtualFile,
+      style: ScalafmtConfig,
+      toInput: String => Input
+  ): Input = {
     val rewrites = style.rewrite.rewriteFactoryRules
     if (rewrites.isEmpty) {
       input
@@ -157,7 +161,7 @@ object Rewrite {
             }
           }
           traverser(ast)
-          input.copy(value = ctx.applyPatches)
+          toInput(ctx.applyPatches)
         case _ => input
       }
     }
