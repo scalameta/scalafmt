@@ -159,7 +159,8 @@ object Scalafmt {
     if (code.matches("\\s*")) Try("\n")
     else {
       val runner = style.runner
-      val parsed = runner.parse(Rewrite(Input.VirtualFile(file, code), style))
+      def codeToInput(srcCode: String) = Input.VirtualFile(file, srcCode)
+      val parsed = runner.parse(Rewrite(codeToInput(code), style, codeToInput))
       parsed.fold(
         _.details match {
           case ed: ParseException =>
