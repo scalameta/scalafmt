@@ -83,6 +83,10 @@ class Router(formatOps: FormatOps) {
     val newlines = formatToken.newlinesBetween
 
     formatToken match {
+      // between sources (EOF -> @ -> BOF)
+      case FormatToken(_: T.EOF, _, _) => Seq(Split(Newline, 0))
+      case ft @ FormatToken(_, _: T.BOF, _) =>
+        Seq(Split(NoSplit.orNL(next(ft).right.is[T.EOF]), 0))
       case FormatToken(_: T.BOF, right, _) =>
         val policy = right match {
           case T.Ident(name) // shebang in .sc files
