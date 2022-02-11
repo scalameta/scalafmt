@@ -75,6 +75,7 @@ interp.repositories() =
   interp.repositories() ++ Seq(coursier.MavenRepository("https://jitpack.io"))
 
 @
+@
 import $ivy.`com.github.yyadavalli::mill-ensime:0.0.2`
 <<< #2204 annotations
 def myMethod(): Unit = doSomeStuff()

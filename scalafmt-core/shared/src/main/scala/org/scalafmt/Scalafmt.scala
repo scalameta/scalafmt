@@ -3,14 +3,12 @@ package org.scalafmt
 import java.nio.file.Path
 
 import metaconfig.Configured
-import scala.annotation.tailrec
 import scala.meta.Dialect
 import scala.meta.Input
 import scala.meta.parsers.ParseException
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-import scala.util.matching.Regex
 
 import org.scalafmt.config.Config
 import org.scalafmt.Error.PreciseIncomplete
@@ -100,36 +98,13 @@ object Scalafmt {
     }
   }
 
-  private def flatMapAll[A, B](xs: Iterator[A])(f: A => Try[B]): Try[Seq[B]] = {
-    val res = Seq.newBuilder[B]
-    @tailrec
-    def iter: Try[Seq[B]] =
-      if (!xs.hasNext) Success(res.result())
-      else
-        f(xs.next()) match {
-          case Success(x) => res += x; iter
-          case Failure(e) => Failure(e)
-        }
-    iter
-  }
-
-  // see: https://ammonite.io/#Save/LoadSession
-  private val ammonitePattern: Regex = "(?:\\s*\\n@(?=\\s))+".r
-
   private def doFormat(
       code: String,
       style: ScalafmtConfig,
       file: String,
       range: Set[Range]
   ): Try[String] =
-    if (FileOps.isAmmonite(file)) {
-      // XXX: we won't support ranges as we don't keep track of lines
-      val chunks = ammonitePattern.split(code)
-      if (chunks.length <= 1) doFormatOne(code, style, file, range)
-      else
-        flatMapAll(chunks.iterator)(doFormatOne(_, style, file))
-          .map(_.mkString("\n@\n"))
-    } else if (FileOps.isMarkdown(file)) {
+    if (FileOps.isMarkdown(file)) {
       val markdown = MarkdownFile.parse(Input.VirtualFile(file, code))
 
       val resultIterator: Iterator[Try[String]] =
@@ -150,8 +125,10 @@ object Scalafmt {
     } else
       doFormatOne(code, style, file, range)
 
-  private[scalafmt] def toInput(code: String, file: String): Input.VirtualFile =
-    Input.VirtualFile(file, code)
+  private[scalafmt] def toInput(code: String, file: String): Input = {
+    val fileInput = Input.VirtualFile(file, code)
+    if (FileOps.isAmmonite(file)) Input.Ammonite(fileInput) else fileInput
+  }
 
   private def doFormatOne(
       code: String,
@@ -162,7 +139,7 @@ object Scalafmt {
     if (code.matches("\\s*")) Try("\n")
     else {
       val runner = style.runner
-      val codeToInput: String => Input.VirtualFile = toInput(_, file)
+      val codeToInput: String => Input = toInput(_, file)
       val parsed = runner.parse(Rewrite(codeToInput(code), style, codeToInput))
       parsed.fold(
         _.details match {

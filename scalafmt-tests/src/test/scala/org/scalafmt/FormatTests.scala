@@ -61,7 +61,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
       t.style.rewrite.rules.isEmpty &&
       FormatTokensRewrite.getEnabledFactories(t.style).isEmpty &&
       !t.style.assumeStandardLibraryStripMargin &&
-      !FileOps.isAmmonite(t.filename) && !FileOps.isMarkdown(t.filename) &&
+      !FileOps.isMarkdown(t.filename) &&
       t.style.onTestFailure.isEmpty
     )
       assertFormatPreservesAst(

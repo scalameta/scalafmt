@@ -5,7 +5,6 @@ import scala.collection.mutable
 
 import metaconfig.ConfCodecEx
 import scala.meta._
-import scala.meta.Input.VirtualFile
 import scala.meta.tokens.Token.LF
 import scala.meta.transversers.SimpleTraverser
 
@@ -16,7 +15,7 @@ import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps, Trivia, Whitespace}
 
 case class RewriteCtx(
     style: ScalafmtConfig,
-    fileName: String,
+    input: Input,
     tree: Tree
 ) {
   implicit val dialect = style.dialect
@@ -24,7 +23,7 @@ case class RewriteCtx(
   private val patchBuilder = mutable.Map.empty[(Int, Int), TokenPatch]
 
   val tokens = tree.tokens
-  val tokenTraverser = new TokenTraverser(tokens, fileName)
+  val tokenTraverser = new TokenTraverser(tokens, input)
   val matchingParens = TreeOps.getMatchingParentheses(tokens)
 
   @inline def getMatching(a: Token): Token =
@@ -142,7 +141,7 @@ object Rewrite {
   val default: Seq[Rewrite] = name2rewrite.values.toSeq
 
   def apply(
-      input: VirtualFile,
+      input: Input,
       style: ScalafmtConfig,
       toInput: String => Input
   ): Input = {
@@ -152,7 +151,7 @@ object Rewrite {
     } else {
       style.runner.parse(input) match {
         case Parsed.Success(ast) =>
-          val ctx = RewriteCtx(style, input.path, ast)
+          val ctx = RewriteCtx(style, input, ast)
           val rewriteSessions = rewrites.map(_.create(ctx)).toList
           val traverser = new SimpleTraverser {
             override def apply(tree: Tree): Unit = {

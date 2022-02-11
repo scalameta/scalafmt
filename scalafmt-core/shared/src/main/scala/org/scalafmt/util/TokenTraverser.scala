@@ -1,12 +1,11 @@
 package org.scalafmt.util
 
-import org.scalafmt.sysops.FileOps
-
 import scala.annotation.tailrec
+import scala.meta.Input
 import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
 
-class TokenTraverser(tokens: Tokens, filename: String) {
+class TokenTraverser(tokens: Tokens, input: Input) {
   private[this] val (tok2idx, excludedTokens) = {
     val map = Map.newBuilder[Token, Int]
     val excluded = Set.newBuilder[TokenOps.TokenHash]
@@ -22,7 +21,7 @@ class TokenTraverser(tokens: Tokens, filename: String) {
       map += (tok -> i)
       i += 1
     }
-    if (FileOps.isAmmonite(filename)) {
+    if (input.isInstanceOf[Input.Ammonite]) {
       val realTokens = tokens.dropWhile(_.is[Token.BOF])
       realTokens.headOption.foreach {
         // shebang in .sc files
