@@ -46,7 +46,7 @@ class FidelityTest extends FunSuite with FormatAssertions {
         ScalafmtConfig.default,
         filename = example.filename
       )
-      assertFormatPreservesAst(example.code, formatted.get)(
+      assertFormatPreservesAst(example.filename, example.code, formatted.get)(
         scala.meta.parsers.Parse.parseSource,
         Scala211
       )

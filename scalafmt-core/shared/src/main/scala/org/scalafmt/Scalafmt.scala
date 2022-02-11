@@ -150,6 +150,9 @@ object Scalafmt {
     } else
       doFormatOne(code, style, file, range)
 
+  private[scalafmt] def toInput(code: String, file: String): Input.VirtualFile =
+    Input.VirtualFile(file, code)
+
   private def doFormatOne(
       code: String,
       style: ScalafmtConfig,
@@ -159,7 +162,7 @@ object Scalafmt {
     if (code.matches("\\s*")) Try("\n")
     else {
       val runner = style.runner
-      def codeToInput(srcCode: String) = Input.VirtualFile(file, srcCode)
+      val codeToInput: String => Input.VirtualFile = toInput(_, file)
       val parsed = runner.parse(Rewrite(codeToInput(code), style, codeToInput))
       parsed.fold(
         _.details match {

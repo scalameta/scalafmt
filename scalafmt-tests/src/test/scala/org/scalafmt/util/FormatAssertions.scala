@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream
 
 import munit.internal.difflib.Diffs
 import org.scalafmt.Error.{FormatterChangedAST, FormatterOutputDoesNotParse}
+import org.scalafmt.Scalafmt
 import org.scalafmt.config.ScalafmtRunner
 import org.scalameta.logger
 
@@ -14,26 +15,29 @@ import scala.meta.{Dialect, Tree}
 trait FormatAssertions {
 
   def assertFormatPreservesAst(
+      filename: String,
       original: String,
       obtained: String,
       runner: ScalafmtRunner
   ): Unit =
-    assertFormatPreservesAst(original, obtained)(
+    assertFormatPreservesAst(filename, original, obtained)(
       runner.parser.parse,
       runner.getDialect
     )
 
   def assertFormatPreservesAst[T <: Tree](
+      filename: String,
       original: String,
       obtained: String
   )(implicit ev: Parse[T], dialect: Dialect): Unit = {
     import scala.meta._
-    original.parse[T] match {
+    def toInput(code: String) = Scalafmt.toInput(code, filename)
+    toInput(original).parse[T] match {
       case Parsed.Error(_, message, _) =>
         logger.debug(original)
         logger.debug(s"original does not parse $message")
       case Parsed.Success(originalParsed) =>
-        dialect(obtained).parse[T] match {
+        toInput(obtained).parse[T] match {
           case Parsed.Success(obtainedParsed) =>
             StructurallyEqual(originalParsed, obtainedParsed) match {
               case Right(_) => // OK
