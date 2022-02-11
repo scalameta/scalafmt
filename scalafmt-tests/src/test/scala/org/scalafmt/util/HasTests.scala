@@ -188,7 +188,12 @@ trait HasTests extends FormatAssertions {
       )
     val obtained = result.formatted.get
     if (t.style.rewrite.rules.isEmpty)
-      assertFormatPreservesAst(t.original, obtained, result.config.runner)
+      assertFormatPreservesAst(
+        t.filename,
+        t.original,
+        obtained,
+        result.config.runner
+      )
     assertNoDiff(obtained, t.expected)
   }
 

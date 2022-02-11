@@ -33,7 +33,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
       try {
         Scalafmt.format(code, config) match {
           case Formatted.Success(formatted) =>
-            assertFormatPreservesAst[Source](code, formatted)
+            assertFormatPreservesAst[Source](file.filename, code, formatted)
             val formattedSecondTime = Scalafmt.format(formatted, config).get
             try assertNoDiff(formattedSecondTime, formatted, "Idempotence")
             catch {
