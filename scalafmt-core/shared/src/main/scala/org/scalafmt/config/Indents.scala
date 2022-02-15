@@ -28,6 +28,7 @@ case class Indents(
     ctrlSite: Option[Int] = None,
     defnSite: Int = 4,
     caseSite: Int = 4,
+    matchSite: Option[Int] = None,
     private[config] val ctorSite: Option[Int] = None,
     extraBeforeOpenParenDefnSite: Int = 0,
     @annotation.ExtraName("deriveSite")

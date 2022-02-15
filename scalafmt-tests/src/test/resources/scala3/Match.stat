@@ -291,3 +291,37 @@ def mtch(int: Int): String = int.hello().thisIsALongMethodName() matc {
   case "1" => 1
   case _   => 0
 }
+<<< #3123 scala3
+indent.matchSite = 0
+===
+val a = list match
+case head :: tail => fn(head) :: complex(
+       tail, parameters
+     )
+case Nil => Nil
+>>>
+val a = list match
+  case head :: tail =>
+    fn(head) :: complex(
+      tail,
+      parameters
+    )
+  case Nil => Nil
+<<< #3123 scala2
+indent.matchSite = 0
+===
+val a = list match {
+case head :: tail => fn(head) :: complex(
+       tail, parameters
+     )
+case Nil => Nil
+}
+>>>
+val a = list match {
+  case head :: tail =>
+    fn(head) :: complex(
+      tail,
+      parameters
+    )
+  case Nil => Nil
+}
