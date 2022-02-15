@@ -1483,6 +1483,10 @@ class Router(formatOps: FormatOps) {
             _
           ) =>
         Seq(Split(NoSplit, 0))
+      case FormatToken(_: T.KwMatch, _, _) =>
+        val indentLen = style.indent.matchSite.fold(0)(_ - style.indent.main)
+        def expire = getLastNonTrivialToken(leftOwner) // should rbrace
+        Seq(Split(Space, 0).withIndent(indentLen, expire, ExpiresOn.Before))
       case FormatToken(_, _: T.LeftBrace, _) =>
         Seq(Split(Space, 0))
 

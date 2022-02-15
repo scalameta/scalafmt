@@ -301,12 +301,12 @@ case head :: tail => fn(head) :: complex(
 case Nil => Nil
 >>>
 val a = list match
-  case head :: tail =>
-    fn(head) :: complex(
-      tail,
-      parameters
-    )
-  case Nil => Nil
+case head :: tail =>
+  fn(head) :: complex(
+    tail,
+    parameters
+  )
+case Nil => Nil
 <<< #3123 scala2
 indent.matchSite = 0
 ===
@@ -318,10 +318,10 @@ case Nil => Nil
 }
 >>>
 val a = list match {
-  case head :: tail =>
-    fn(head) :: complex(
-      tail,
-      parameters
-    )
-  case Nil => Nil
+case head :: tail =>
+  fn(head) :: complex(
+    tail,
+    parameters
+  )
+case Nil => Nil
 }
