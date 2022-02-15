@@ -329,11 +329,34 @@ class A(
 }
 ```
 
+### `indent.matchSite`
+
+> Since v3.4.4.
+
+If set, applies custom indentation to `case` clauses in `match` expressions.
+
+```scala mdoc:defaults
+indent.matchSite
+```
+
+```scala mdoc:scalafmt
+maxColumn = 20
+indent.matchSite = 0
+runner.dialect = scala3
+---
+object a:
+  x match
+    case _: Aaaaaa |
+      _: Bbbbbb |
+      _: Cccccc =>
+  end match
+```
+
 ### `indent.caseSite`
 
 > Since v3.0.0.
 
-Applies indentation to case values before arrow.
+Applies indentation to patterns in `case` clauses.
 
 ```scala mdoc:defaults
 indent.caseSite
