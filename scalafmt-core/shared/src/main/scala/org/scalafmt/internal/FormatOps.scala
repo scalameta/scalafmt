@@ -2039,7 +2039,8 @@ class FormatOps(
         ft: FormatToken,
         tree: Tree,
         forceNL: Boolean,
-        danglingKeyword: Boolean = true
+        danglingKeyword: Boolean = true,
+        indentOpt: Option[Int] = None
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
       val end = tokens.getLast(tree)
       val slbExpire = nextNonCommentSameLine(end).left
@@ -2054,7 +2055,7 @@ class FormatOps(
         if (danglingKeyword)
           decideNewlinesOnlyAfterClose(closeOpt.getOrElse(slbExpire))
         else NoPolicy
-      val indentLen = style.indent.getSignificant
+      val indentLen = indentOpt.getOrElse(style.indent.getSignificant)
       val indent =
         Indent(Num(indentLen), closeOpt.getOrElse(end.left), ExpiresOn.After)
       if (ft.hasBlankLine)
@@ -2337,10 +2338,10 @@ class FormatOps(
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] = {
-        def result(tree: Tree, cases: Seq[Tree]): Option[Seq[Split]] = {
-          val ok = tokens.tokenJustBeforeOpt(cases).contains(nft)
-          if (ok) Some(getSplits(ft, tree, true)) else None
-        }
+        def result(tree: Tree, cases: Seq[Tree]): Option[Seq[Split]] =
+          if (tokens.tokenJustBeforeOpt(cases).contains(nft))
+            Some(getSplits(ft, tree, true, indentOpt = style.indent.matchSite))
+          else None
         ft.meta.leftOwner match {
           case t: Term.Match =>
             Some(new OptionalBracesRegion {
