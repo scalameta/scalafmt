@@ -1,6 +1,7 @@
 package org.scalafmt.rewrite
 
 import scala.meta._
+import scala.meta.internal.trees.PlaceholderChecks
 
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.RewriteSettings
@@ -50,7 +51,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
             val last = args.head.tokens.last
             val opLast = op.tokens.last
             if (!ctx.isMatching(head, last)) {
-              if (RewriteCtx.hasPlaceholder(args.head)) return
+              if (PlaceholderChecks.hasPlaceholder(args.head)) return
               builder += TokenPatch.AddRight(opLast, "(", keepTok = true)
               builder += TokenPatch.AddRight(last, ")", keepTok = true)
             } else {
@@ -68,7 +69,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
                 head.is[Token.LeftParen] &&
                 ctx.getMatchingOpt(head).contains(lhs.tokens.last)
               } =>
-            if (RewriteCtx.hasPlaceholder(lhs)) return
+            if (PlaceholderChecks.hasPlaceholder(lhs)) return
             true
           // foo _ compose bar => (foo _).compose(bar)
           // new Foo compose bar => (new Foo).compose(bar)

@@ -429,7 +429,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
         case p: Term.ApplyInfix =>
           stat match {
-            case t: Term.ApplyInfix if !RewriteCtx.hasPlaceholder(t) =>
+            case t: Term.ApplyInfix =>
               val useRight = isSingleElement(p.args, b)
               SyntacticGroupOps.groupNeedsParenthesis(
                 TreeSyntacticGroup(p),
@@ -492,9 +492,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
   // special case for Select which might contain a space instead of dot
   private def isPrefixExpr(expr: Tree): Boolean =
-    RewriteCtx.isSimpleExprOr(expr) {
-      case t: Term.Select if !RewriteCtx.hasPlaceholder(expr) =>
-        ftoks(t.name.tokens.head, -1).left.is[Token.Dot]
+    RewriteCtx.isSimpleExprOr(expr) { case t: Term.Select =>
+      ftoks(t.name.tokens.head, -1).left.is[Token.Dot]
     }
 
 }

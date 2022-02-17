@@ -60,9 +60,9 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
       case _: Lit | _: Name | _: Term.Interpolate => true
 
-      case Term.Apply(f, List(b @ (_: Term.Block | _: Term.PartialFunction)))
+      case Term.Apply(_, List(b @ (_: Term.Block | _: Term.PartialFunction)))
           if b.tokens.headOption.exists(_.is[Token.LeftBrace]) =>
-        !RewriteCtx.hasPlaceholder(f)
+        true
 
       case _: Term.PartialFunction => true
 
