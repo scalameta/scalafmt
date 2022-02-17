@@ -1,6 +1,5 @@
 package org.scalafmt.rewrite
 
-import scala.annotation.tailrec
 import scala.collection.mutable
 
 import metaconfig.ConfCodecEx
@@ -85,13 +84,12 @@ case class RewriteCtx(
 
   // special case for Select which might contain a space instead of dot
   def isPrefixExpr(expr: Tree): Boolean =
-    RewriteCtx.isSimpleExprOr(expr) {
-      case t: Term.Select if !RewriteCtx.hasPlaceholder(expr) =>
-        val maybeDot = tokenTraverser.findBefore(t.name.tokens.head) {
-          case Trivia() => None
-          case x => Some(x.is[Token.Dot])
-        }
-        maybeDot.isDefined
+    RewriteCtx.isSimpleExprOr(expr) { case t: Term.Select =>
+      val maybeDot = tokenTraverser.findBefore(t.name.tokens.head) {
+        case Trivia() => None
+        case x => Some(x.is[Token.Dot])
+      }
+      maybeDot.isDefined
     }
 
 }
@@ -185,42 +183,16 @@ object RewriteCtx {
   )(orElse: PartialFunction[Tree, Boolean]): Boolean =
     expr match {
       case _: Lit | _: Name | _: Term.Interpolate => true
-      case _: Term.New | _: Term.NewAnonymous => !hasPlaceholder(expr)
-      case _: Term.Apply | _: Term.ApplyUnary => !hasPlaceholder(expr)
+      case _: Term.New | _: Term.NewAnonymous => true
+      case _: Term.Apply | _: Term.ApplyUnary => true
       case _ => orElse.applyOrElse(expr, (_: Tree) => false)
     }
 
   @inline
   def isPostfixExpr(expr: Tree)(implicit style: ScalafmtConfig): Boolean =
     isSimpleExprOr(expr) {
-      case _: Term.Select | _: Term.ApplyInfix =>
-        !hasPlaceholder(expr)
-      case _: Term.Match if style.dialect.allowMatchAsOperator =>
-        !hasPlaceholder(expr)
+      case _: Term.Select | _: Term.ApplyInfix => true
+      case _: Term.Match if style.dialect.allowMatchAsOperator => true
     }
-
-  def hasPlaceholder(expr: Tree): Boolean = {
-    val queue = new mutable.Queue[Tree]
-    queue += expr
-    @tailrec
-    def iter: Boolean =
-      queue.nonEmpty && {
-        queue.dequeue() match {
-          case _: Term.Placeholder => true
-          case t: Term.ApplyInfix =>
-            queue ++= (t.lhs +: t.args)
-            iter
-          case t: Term.Apply =>
-            queue ++= (t.fun +: t.args)
-            iter
-          case t: Term.Select =>
-            queue += t.qual
-            iter
-          case _ =>
-            iter
-        }
-      }
-    iter
-  }
 
 }
