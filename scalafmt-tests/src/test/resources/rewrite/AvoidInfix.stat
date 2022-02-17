@@ -75,9 +75,38 @@ cp should not contain (jar3.getPath())
 >>>
 cp should not contain (jar3.getPath())
 <<< in lambda
-_ compareTo _
+rewrite.neverInfix {
+  includeFilters = [ "[^*]+" ]
+  excludeFilters = [ "eq" ]
+}
+===
+object a {
+  _ compareTo _
+  _ compareTo _.bar
+  _ compareTo (_.bar)
+  _ compareTo (_: Int) * 2
+  list foo (_ fun _.bar)
+  list foo (_ fun (_.bar))
+  _.foo bar _.baz
+  _ eq bar baz qux
+  _ + bar baz qux
+  _ * bar baz qux
+  _ foo bar baz qux
+}
 >>>
-_ compareTo _
+object a {
+  _ compareTo _
+  _ compareTo _.bar
+  _.compareTo(_.bar)
+  _.compareTo((_: Int) * 2)
+  list.foo(_ fun _.bar)
+  list.foo(_.fun(_.bar))
+  _.foo bar _.baz
+  _ eq bar baz qux
+  _.+(bar).baz(qux)
+  _ * bar baz qux
+  _.foo(bar).baz(qux)
+}
 <<< akka.ActivatorDist 1
 PathFinder(dir) descendantsExcept ("*", gitignoreFileFilter) filter (_.isFile)
 >>>
