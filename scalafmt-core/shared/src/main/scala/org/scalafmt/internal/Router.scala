@@ -199,7 +199,7 @@ class Router(formatOps: FormatOps) {
 
       // Interpolated string left brace
       case FormatToken(open @ T.LeftBrace(), _, _)
-          if leftOwner.is[SomeInterpolate] =>
+          if prev(formatToken).left.is[T.Interpolation.SpliceStart] =>
         val close = matching(open)
         val alignIndents =
           if (style.align.inInterpolation) Some {

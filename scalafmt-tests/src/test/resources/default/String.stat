@@ -594,8 +594,8 @@ val s = raw"""${
                  }"""
 >>>
 val s = raw"""${
-    if true
-    then "then"
-    else "else"
-    end if
-  }"""
+                 if true
+                 then "then"
+                 else "else"
+                 end if
+               }"""
