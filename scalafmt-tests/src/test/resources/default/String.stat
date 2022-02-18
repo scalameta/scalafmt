@@ -580,3 +580,22 @@ val s = raw"""
              else "2"
            }
         """
+<<< #3124 with end marker
+maxColumn = 50
+runner.dialect = scala3
+align.inInterpolation = true
+newlines.inInterpolation = oneline
+===
+val s = raw"""${
+                   if true
+                   then "then"
+                   else "else"
+                   end if
+                 }"""
+>>>
+val s = raw"""${
+    if true
+    then "then"
+    else "else"
+    end if
+  }"""
