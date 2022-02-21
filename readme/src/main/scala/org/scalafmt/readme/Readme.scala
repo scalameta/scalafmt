@@ -60,8 +60,8 @@ object Readme {
       case x => x.toString
     }
     val result = s"""${expressions
-      .map(x => s"scala> ${x.toString().trim}")
-      .mkString("\n")}
+        .map(x => s"scala> ${x.toString().trim}")
+        .mkString("\n")}
       |res0: ${evaluated.getClass.getName} = $output
       |""".stripMargin
     hl.scala(result)
