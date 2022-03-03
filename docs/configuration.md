@@ -3676,6 +3676,14 @@ object Stuff {
 
 ## Disabling or customizing formatting
 
+### `Search state exploded`
+
+If this exception occurs, you can try increasing limits for the following
+parameters, globally or using any of the options further in this section:
+
+- `runner.maxStateVisits`
+- `runner.optimizer.maxVisitsPerToken`
+
 ### For code block
 
 There is a possibility to override scalafmt config for a specific code with
