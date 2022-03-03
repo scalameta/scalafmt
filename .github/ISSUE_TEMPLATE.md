@@ -1,8 +1,6 @@
 This template is mostly a guideline, not a strict requirement.
 
-Strict requirements: 
-- explicitly using the latest version of `scalafmt`
-- using the `scalafmt` CLI: `https://scalameta.org/scalafmt/docs/installation.html#cli`
+Please make sure that the issue is observable using the latest version of `scalafmt` and within the `scalafmt` CLI: `https://scalameta.org/scalafmt/docs/installation.html#cli`
 
 ## Configuration (required) ##
 ```
