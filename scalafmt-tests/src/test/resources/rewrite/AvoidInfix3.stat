@@ -31,11 +31,11 @@ object a {
 >>>
 object a {
   b.c(_.foo(0))
-  b.c(foo bar _)
+  b.c(foo.bar(_))
   b.c((foo _).bar(0))
   b.c((foo _).bar(0))
   b.c(_.foo(bar).baz(0))
-  b.c(foo bar _ baz 0)
+  b.c(foo.bar(_).baz(0))
   b.c(foo bar _ * 1 baz 0)
 }
 <<< #934 allowInfixPlaceholderArg
