@@ -98,6 +98,8 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
     val op = ai.op.value
     InfixApp.isLeftAssoc(op) && matcher.matches(op) && (ai.args match {
       case arg :: Nil if !isWrapped(arg) =>
+        !ctx.style.rewrite.allowInfixPlaceholderArg &&
+        PlaceholderChecks.isPlaceholder(arg) ||
         !PlaceholderChecks.hasPlaceholder(arg)
       case _ => true
     }) && (ai.lhs match {
