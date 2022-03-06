@@ -107,6 +107,79 @@ object a {
   _ * bar baz qux
   _.foo(bar).baz(qux)
 }
+<<< in lambda 2
+rewrite.neverInfix {
+  includeFilters = [ "[^*]+" ]
+  excludeFilters = []
+}
+===
+object a {
+  b.c(_ + _ * _)
+  b.c(1 + _ * _)
+  b.c(_ + 2 * _)
+  b.c(_ + _ * 3)
+  b.c(1 + 2 * _)
+  b.c(_ + 2 * 3)
+  b.c(1 + 2 * 3)
+
+  b.c(_ + _ / _)
+  b.c(1 + _ / _)
+  b.c(_ + 2 / _)
+  b.c(_ + _ / 3)
+  b.c(1 + 2 / _)
+  b.c(_ + 2 / 3)
+  b.c(1 + 2 / 3)
+
+  b.c(_ * _ + _)
+  b.c(1 * _ + _)
+  b.c(_ * 2 + _)
+  b.c(_ * _ + 3)
+  b.c(1 * 2 + _)
+  b.c(_ * 2 + 3)
+  b.c(1 * 2 + 3)
+
+  b.c(_ / _ + _)
+  b.c(1 / _ + _)
+  b.c(_ / 2 + _)
+  b.c(_ / _ + 3)
+  b.c(1 / 2 + _)
+  b.c(_ / 2 + 3)
+  b.c(1 / 2 + 3)
+}
+>>>
+object a {
+  b.c(_ + _ * _)
+  b.c(1 + _ * _)
+  b.c(_ + 2 * _)
+  b.c(_ + _ * 3)
+  b.c(1 + 2 * _)
+  b.c(_.+(2 * 3))
+  b.c(1.+(2 * 3))
+
+  b.c(_ + _ / _)
+  b.c(1 + _ / _)
+  b.c(_ + 2 / _)
+  b.c(_ + _./(3))
+  b.c(1 + 2 / _)
+  b.c(_.+(2./(3)))
+  b.c(1.+(2./(3)))
+
+  b.c(_ * _ + _)
+  b.c(1 * _ + _)
+  b.c(_ * 2 + _)
+  b.c(_ * _ + 3)
+  b.c(1 * 2 + _)
+  b.c(_ * 2 + 3)
+  b.c((1 * 2).+(3))
+
+  b.c(_ / _ + _)
+  b.c(1 / _ + _)
+  b.c(_./(2) + _)
+  b.c(_ / _.+(3))
+  b.c(1./(2) + _)
+  b.c(_./(2).+(3))
+  b.c(1./(2).+(3))
+}
 <<< akka.ActivatorDist 1
 PathFinder(dir) descendantsExcept ("*", gitignoreFileFilter) filter (_.isFile)
 >>>
