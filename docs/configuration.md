@@ -2523,9 +2523,15 @@ This rule replaces infix expressions `a op b` with proper method calls `a.op(b)`
 > NB: The rule currently does not support right-associative operators (i.e.,
 > those which end in `:`) which would have had to be rewritten as `b.op(a)`.
 
-The rule takes the `rewrite.neverInfix` parameter group which consists of
-`includeFilters` and `excludeFilters`, two lists of regular expressions,
-which determine which operators are eligible for this rewrite.
+The rule takes the following parameters:
+
+- `rewrite.neverInfix` parameter group which consists of `includeFilters` and `excludeFilters`,
+  two lists of regular expressions, which determine which operators are eligible for this rewrite
+- (since 3.4.4) `rewrite.allowInfixPlaceholderArg` (default: `true`) will not rewrite infix
+  expressions if the argument is a solo placeholder (`_` or `(_: Type)`)
+  - this parameter does not control any other cases with the infix argument containing a
+    placeholder character; some of them will never be rewritten as adding parentheses will
+    change their syntactic meaning, and others will be rewritten as usual
 
 ```scala mdoc:scalafmt
 rewrite.rules = [AvoidInfix]
@@ -2543,6 +2549,16 @@ future map {
 future recover {
   case e: Err => 0
 } map (_.toString)
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [AvoidInfix]
+rewrite.allowInfixPlaceholderArg = false
+---
+_ foo _
+_ bar (_: Int)
+_ baz (_.qux)
+_ baz _.qux // cannot be rewritten, not the same as previous line
 ```
 
 ### `RedundantBraces`

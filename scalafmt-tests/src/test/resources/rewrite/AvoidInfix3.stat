@@ -16,7 +16,31 @@ Project("sub", file("sub")).delegateTo(root).settings(check <<= checkTask)
 onLoad in Global := (Command.process("project server", _: State)) compose (onLoad in Global).value
 >>>
 onLoad in Global := (Command.process("project server", _: State)).compose((onLoad in Global).value)
-<<< #934
+<<< #934 !allowInfixPlaceholderArg
+rewrite.allowInfixPlaceholderArg = false
+===
+object a {
+  b.c(_ foo 0)
+  b.c(foo bar _)
+  b.c(foo _ bar 0)
+  b.c((foo _) bar 0)
+  b.c(_ foo bar baz 0)
+  b.c(foo bar _ baz 0)
+  b.c(foo bar _ * 1 baz 0)
+}
+>>>
+object a {
+  b.c(_.foo(0))
+  b.c(foo bar _)
+  b.c((foo _).bar(0))
+  b.c((foo _).bar(0))
+  b.c(_.foo(bar).baz(0))
+  b.c(foo bar _ baz 0)
+  b.c(foo bar _ * 1 baz 0)
+}
+<<< #934 allowInfixPlaceholderArg
+rewrite.allowInfixPlaceholderArg = true
+===
 object a {
   b.c(_ foo 0)
   b.c(foo bar _)
