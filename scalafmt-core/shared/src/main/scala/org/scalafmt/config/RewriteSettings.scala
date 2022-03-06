@@ -12,6 +12,7 @@ case class RewriteSettings(
     imports: Imports.Settings = Imports.Settings(),
     preferCurlyFors: PreferCurlyFors.Settings = PreferCurlyFors.Settings(),
     trailingCommas: TrailingCommas = TrailingCommas(),
+    allowInfixPlaceholderArg: Boolean = true,
     neverInfix: Pattern = Pattern.neverInfix
 ) {
   def rewriteFactoryRules: Seq[RewriteFactory] =
