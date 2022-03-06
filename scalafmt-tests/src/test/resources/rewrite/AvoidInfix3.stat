@@ -33,8 +33,8 @@ object a {
   b.c((foo _).bar(0))
   b.c(((foo _)).bar(0))
   b.c(_.foo(bar).baz(0))
-  b.c(foo bar _.baz(0))
-  b.c(foo bar _ * 1.baz(0))
+  b.c(foo bar _ baz 0)
+  b.c(foo bar _ * 1 baz 0)
 }
 <<< #2830 1
 object a {

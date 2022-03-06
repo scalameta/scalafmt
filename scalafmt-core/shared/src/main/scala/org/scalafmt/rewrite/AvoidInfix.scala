@@ -49,7 +49,6 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
               val last = rhs.tokens.last
               val opLast = op.tokens.last
               if (!ctx.isMatching(head, last)) {
-                if (PlaceholderChecks.hasPlaceholder(rhs)) return
                 builder += TokenPatch.AddRight(opLast, "(", keepTok = true)
                 builder += TokenPatch.AddRight(last, ")", keepTok = true)
               } else {
@@ -97,7 +96,11 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
   private def checkMatchingInfix(ai: Term.ApplyInfix): Boolean = {
     val op = ai.op.value
-    InfixApp.isLeftAssoc(op) && matcher.matches(op)
+    InfixApp.isLeftAssoc(op) && matcher.matches(op) && (ai.args match {
+      case arg :: Nil if !isWrapped(arg) =>
+        !PlaceholderChecks.hasPlaceholder(arg)
+      case _ => true
+    })
   }
 
   private def isWrapped(t: Tree): Boolean = t.tokens.head match {
