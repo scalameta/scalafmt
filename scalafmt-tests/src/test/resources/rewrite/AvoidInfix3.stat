@@ -16,53 +16,35 @@ Project("sub", file("sub")).delegateTo(root).settings(check <<= checkTask)
 onLoad in Global := (Command.process("project server", _: State)) compose (onLoad in Global).value
 >>>
 onLoad in Global := (Command.process("project server", _: State)).compose((onLoad in Global).value)
-<<< #934 1
+<<< #934
 object a {
   b.c(_ foo 0)
+  b.c(foo bar _)
+  b.c(foo _ bar 0)
+  b.c((foo _) bar 0)
+  b.c(_ foo bar baz 0)
+  b.c(foo bar _ baz 0)
+  b.c(foo bar _ * 1 baz 0)
 }
 >>>
 object a {
   b.c(_.foo(0))
-}
-<<< #934 2
-object a {
   b.c(foo bar _)
-}
->>>
-object a {
-  b.c(foo bar _)
-}
-<<< #934 3
-object a {
-  b.c(foo _ bar 0)
-}
->>>
-object a {
   b.c((foo _).bar(0))
-}
-<<< #934 4
-object a {
-  b.c(_ foo bar baz 0)
-}
->>>
-object a {
+  b.c(((foo _)).bar(0))
   b.c(_.foo(bar).baz(0))
-}
-<<< #934 5
-object a {
-  b.c(foo bar _ baz 0)
-}
->>>
-object a {
   b.c(foo bar _.baz(0))
+  b.c(foo bar _ * 1.baz(0))
 }
 <<< #2830 1
 object a {
   new Foo run bar
+  (new Foo) run bar
 }
 >>>
 object a {
   (new Foo).run(bar)
+  ((new Foo)).run(bar)
 }
 <<< #2830 2
 object a {
