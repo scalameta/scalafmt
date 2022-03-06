@@ -62,15 +62,15 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
           case _ => // otherwise, definitely enclosed
         }
 
-        val shouldWrapLhs = lhs match {
-          case y: Term.ApplyInfix if !isWrapped(y) && !checkMatchingInfix(y) =>
+        val shouldWrapLhs = !isWrapped(lhs) && (lhs match {
+          case y: Term.ApplyInfix if !checkMatchingInfix(y) =>
             if (PlaceholderChecks.hasPlaceholder(lhs)) return
             true
           // foo _ compose bar => (foo _).compose(bar)
           // new Foo compose bar => (new Foo).compose(bar)
           case _: Term.Eta | _: Term.New => true
           case _ => false
-        }
+        })
         if (shouldWrapLhs) {
           builder += TokenPatch.AddLeft(lhs.tokens.head, "(", keepTok = true)
           builder += TokenPatch.AddRight(lhs.tokens.last, ")", keepTok = true)
