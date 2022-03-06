@@ -6,7 +6,6 @@ import scala.meta.internal.trees.PlaceholderChecks
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.RewriteSettings
 import org.scalafmt.util.InfixApp
-import org.scalafmt.util.TreeOps
 
 object AvoidInfix extends RewriteFactory {
 
@@ -44,22 +43,23 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
         val opHead = op.tokens.head
         builder += TokenPatch.AddLeft(opHead, ".", keepTok = true)
 
-        if (TreeOps.isSeqSingle(args)) { // otherwise, definitely enclosed
-          val rhs = args.head
-          rhs.tokens.headOption.foreach { head =>
-            val last = args.head.tokens.last
-            val opLast = op.tokens.last
-            if (!ctx.isMatching(head, last)) {
-              if (PlaceholderChecks.hasPlaceholder(args.head)) return
-              builder += TokenPatch.AddRight(opLast, "(", keepTok = true)
-              builder += TokenPatch.AddRight(last, ")", keepTok = true)
-            } else {
-              // move delimiter (before comment or newline)
-              builder +=
-                TokenPatch.AddRight(opLast, head.syntax, keepTok = true)
-              builder += TokenPatch.Remove(head)
+        args match {
+          case rhs :: Nil =>
+            rhs.tokens.headOption.foreach { head =>
+              val last = rhs.tokens.last
+              val opLast = op.tokens.last
+              if (!ctx.isMatching(head, last)) {
+                if (PlaceholderChecks.hasPlaceholder(rhs)) return
+                builder += TokenPatch.AddRight(opLast, "(", keepTok = true)
+                builder += TokenPatch.AddRight(last, ")", keepTok = true)
+              } else {
+                // move delimiter (before comment or newline)
+                builder +=
+                  TokenPatch.AddRight(opLast, head.syntax, keepTok = true)
+                builder += TokenPatch.Remove(head)
+              }
             }
-          }
+          case _ => // otherwise, definitely enclosed
         }
 
         val shouldWrapLhs = lhs match {
