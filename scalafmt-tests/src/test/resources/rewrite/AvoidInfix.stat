@@ -89,6 +89,7 @@ object a {
   list foo (_ fun (_.bar))
   _.foo bar _.baz
   _ eq bar baz qux
+  _.eq(bar) baz qux
   _ + bar baz qux
   _ * bar baz qux
   _ foo bar baz qux
@@ -103,6 +104,7 @@ object a {
   list.foo(_.fun(_.bar))
   _.foo bar _.baz
   _ eq bar baz qux
+  _.eq(bar).baz(qux)
   _.+(bar).baz(qux)
   _ * bar baz qux
   _.foo(bar).baz(qux)

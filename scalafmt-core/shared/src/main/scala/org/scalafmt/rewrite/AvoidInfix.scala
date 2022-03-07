@@ -1,5 +1,6 @@
 package org.scalafmt.rewrite
 
+import scala.annotation.tailrec
 import scala.meta._
 import scala.meta.internal.trees.PlaceholderChecks
 
@@ -62,9 +63,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
         }
 
         val shouldWrapLhs = !isWrapped(lhs) && (lhs match {
-          case y: Term.ApplyInfix if !checkMatchingInfix(y) =>
-            if (PlaceholderChecks.hasPlaceholder(lhs)) return
-            true
+          case y: Term.ApplyInfix => !checkMatchingInfix(y)
           // foo _ compose bar => (foo _).compose(bar)
           // new Foo compose bar => (new Foo).compose(bar)
           case _: Term.Eta | _: Term.New => true
@@ -94,11 +93,16 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
       case _ =>
     }
 
+  @tailrec
   private def checkMatchingInfix(ai: Term.ApplyInfix): Boolean = {
     val op = ai.op.value
     InfixApp.isLeftAssoc(op) && matcher.matches(op) && (ai.args match {
       case arg :: Nil if !isWrapped(arg) =>
         !PlaceholderChecks.hasPlaceholder(arg)
+      case _ => true
+    }) && (ai.lhs match {
+      case lhs: Term.ApplyInfix if PlaceholderChecks.hasPlaceholder(lhs) =>
+        isWrapped(lhs) || checkMatchingInfix(lhs)
       case _ => true
     })
   }
