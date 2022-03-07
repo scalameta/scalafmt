@@ -3306,3 +3306,131 @@ object a {
    */
   val a = 1
 }
+<<< #3129 1 code without leading space, Asterisk
+docstrings.wrap = yes
+docstrings.style = Asterisk
+===
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  *some.example(foo)
+  *   }}}
+  */
+def foo = ()
+>>>
+/**
+ * Title
+ * @example
+ *   {{{
+ *   println("example")
+ *   e.example(foo)
+ *   }}}
+ */
+def foo = ()
+<<< #3129 1 code without leading space, SpaceAsterisk
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+===
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  *some.example(foo)
+  *   }}}
+  */
+def foo = ()
+>>>
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  *   e.example(foo)
+  *   }}}
+  */
+def foo = ()
+<<< #3129 1 code without leading space, AsteriskSpace
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+===
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  *some.example(foo)
+  *   }}}
+  */
+def foo = ()
+>>>
+/** Title
+ *  @example
+ *    {{{
+ *   println("example")
+ *   e.example(foo)
+ *    }}}
+ */
+def foo = ()
+<<< #3129 2 code without leading space, Asterisk
+docstrings.wrap = yes
+docstrings.style = Asterisk
+===
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  some.example(foo)
+  *   }}}
+  */
+def foo = ()
+>>>
+/**
+ * Title
+ * @example
+ *   {{{
+ *   println("example")
+ *   e.example(foo)
+ *   }}}
+ */
+def foo = ()
+<<< #3129 2 code without leading space, SpaceAsterisk
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+===
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  some.example(foo)
+  *   }}}
+  */
+def foo = ()
+>>>
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  *   e.example(foo)
+  *   }}}
+  */
+def foo = ()
+<<< #3129 2 code without leading space, AsteriskSpace
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+===
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  some.example(foo)
+  *   }}}
+  */
+def foo = ()
+>>>
+/** Title
+ *  @example
+ *    {{{
+ *   println("example")
+ *   e.example(foo)
+ *    }}}
+ */
+def foo = ()
