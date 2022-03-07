@@ -3323,8 +3323,8 @@ def foo = ()
  * Title
  * @example
  *   {{{
- *   println("example")
- *   e.example(foo)
+ *    println("example")
+ * some.example(foo)
  *   }}}
  */
 def foo = ()
@@ -3344,8 +3344,8 @@ def foo = ()
 /** Title
   * @example
   *   {{{
-  *   println("example")
-  *   e.example(foo)
+  *    println("example")
+  * some.example(foo)
   *   }}}
   */
 def foo = ()
@@ -3365,8 +3365,8 @@ def foo = ()
 /** Title
  *  @example
  *    {{{
- *   println("example")
- *   e.example(foo)
+ *     println("example")
+ *  some.example(foo)
  *    }}}
  */
 def foo = ()
@@ -3387,8 +3387,8 @@ def foo = ()
  * Title
  * @example
  *   {{{
- *   println("example")
- *   e.example(foo)
+ *    println("example")
+ * some.example(foo)
  *   }}}
  */
 def foo = ()
@@ -3408,8 +3408,8 @@ def foo = ()
 /** Title
   * @example
   *   {{{
-  *   println("example")
-  *   e.example(foo)
+  *    println("example")
+  * some.example(foo)
   *   }}}
   */
 def foo = ()
@@ -3429,8 +3429,8 @@ def foo = ()
 /** Title
  *  @example
  *    {{{
- *   println("example")
- *   e.example(foo)
+ *     println("example")
+ *  some.example(foo)
  *    }}}
  */
 def foo = ()
