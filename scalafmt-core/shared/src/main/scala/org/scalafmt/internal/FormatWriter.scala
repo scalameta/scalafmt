@@ -983,6 +983,7 @@ class FormatWriter(formatOps: FormatOps) {
               val minSpaces = code.foldLeft(Int.MaxValue) { (res, x) =>
                 val matcher = docstringLeadingSpace.matcher(x)
                 if (matcher.lookingAt()) math.min(res, matcher.end())
+                else if (x.nonEmpty) 0
                 else res
               }
               if (minSpaces < Int.MaxValue) {
