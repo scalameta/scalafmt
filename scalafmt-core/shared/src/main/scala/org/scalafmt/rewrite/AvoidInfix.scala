@@ -38,8 +38,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
   override def rewrite(tree: Tree): Unit =
     tree match {
-      case Term.ApplyInfix(lhs, op, _, args)
-          if InfixApp.isLeftAssoc(op.value) && matcher.matches(op.value) =>
+      case x @ Term.ApplyInfix(lhs, op, _, args) if checkMatchingInfix(x) =>
         val builder = Seq.newBuilder[TokenPatch]
 
         val opHead = op.tokens.head
@@ -64,11 +63,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
         }
 
         val shouldWrapLhs = lhs match {
-          case Term.ApplyInfix(_, o, _, _) if !matcher.matches(o.value) && ! {
-                val head = lhs.tokens.head
-                head.is[Token.LeftParen] &&
-                ctx.getMatchingOpt(head).contains(lhs.tokens.last)
-              } =>
+          case y: Term.ApplyInfix if !isWrapped(y) && !checkMatchingInfix(y) =>
             if (PlaceholderChecks.hasPlaceholder(lhs)) return
             true
           // foo _ compose bar => (foo _).compose(bar)
@@ -99,5 +94,15 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
       case _ =>
     }
+
+  private def checkMatchingInfix(ai: Term.ApplyInfix): Boolean = {
+    val op = ai.op.value
+    InfixApp.isLeftAssoc(op) && matcher.matches(op)
+  }
+
+  private def isWrapped(t: Tree): Boolean = t.tokens.head match {
+    case h: Token.LeftParen => ctx.getMatchingOpt(h).contains(t.tokens.last)
+    case _ => false
+  }
 
 }
