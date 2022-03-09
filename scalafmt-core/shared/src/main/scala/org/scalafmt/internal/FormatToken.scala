@@ -106,5 +106,6 @@ object FormatToken {
   }
 
   val LeftOwner = new ExtractFromMeta(x => Some(x.leftOwner))
+  val RightOwner = new ExtractFromMeta(x => Some(x.rightOwner))
 
 }

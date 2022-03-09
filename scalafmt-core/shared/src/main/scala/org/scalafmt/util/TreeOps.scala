@@ -575,6 +575,13 @@ object TreeOps {
       case _ => false
     }
 
+  object AsInfixOp {
+    def unapply(tree: Tree): Option[InfixApp] =
+      tree.parent.collect {
+        case InfixApp(ia) if ia.op eq tree => ia
+      }
+  }
+
   @inline
   final def asInfixApp(tree: Tree): Option[InfixApp] = InfixApp.unapply(tree)
 
