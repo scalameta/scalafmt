@@ -2158,11 +2158,9 @@ class Router(formatOps: FormatOps) {
           }
 
       // Infix operator.
-      case FormatToken(_: T.Ident, _, _) if isInfixOp(leftOwner) =>
-        val InfixApp(app) = leftOwner.parent.get
+      case FormatToken(_: T.Ident, _, FormatToken.LeftOwner(AsInfixOp(app))) =>
         insideInfixSplit(app, formatToken)
-      case FormatToken(_, _: T.Ident, _) if isInfixOp(rightOwner) =>
-        val InfixApp(app) = rightOwner.parent.get
+      case FormatToken(_, _: T.Ident, FormatToken.RightOwner(AsInfixOp(app))) =>
         insideInfixSplit(app, formatToken)
 
       // Case
