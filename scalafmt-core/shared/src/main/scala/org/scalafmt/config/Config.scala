@@ -3,7 +3,7 @@ package org.scalafmt.config
 import java.nio.file.Path
 
 import metaconfig._
-import org.scalafmt.Versions.{stable => stableVersion}
+import org.scalafmt.Versions
 
 // NOTE: these methods are intended for internal usage and are subject to
 // binary and source breaking changes between any release. For a stable API
@@ -32,9 +32,11 @@ object Config {
   ): Configured[ScalafmtConfig] = {
     ScalafmtConfig.decoder.read(Option(default), parsed.conf) match {
       case Configured.Ok(x)
-          if default.version == null && x.version != stableVersion =>
+          if default.version == null &&
+            x.version != Versions.stable && x.version != Versions.version =>
         val version = Option(x.version).getOrElse("missing")
-        Configured.error(s"version [expected $stableVersion]: $version")
+        val expected = s"${Versions.stable} or ${Versions.version}"
+        Configured.error(s"version [expected $expected]: $version")
       case Configured.Ok(x)
           if default.eq(ScalafmtConfig.uncheckedDefault) &&
             x.runner.isDefaultDialect =>
