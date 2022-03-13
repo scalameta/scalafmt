@@ -38,7 +38,72 @@ def a =
  js.native
 >>>
 def a = js.native
-<<< default penalty #247
+<<< default penalty #247, binPack=always, dangle
+binPack.unsafeDefnSite = always
+danglingParentheses.defnSite = true
+===
+{
+  def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
+}
+>>>
+{
+  def fetch(info: RequestInfo,
+      init: RequestInit = null): js.Promise[Response] = js.native
+}
+<<< default penalty #247, binPack=always, !dangle
+binPack.unsafeDefnSite = always
+danglingParentheses.defnSite = false
+===
+{
+  def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
+}
+>>>
+{
+  def fetch(info: RequestInfo,
+      init: RequestInit = null): js.Promise[Response] = js.native
+}
+<<< default penalty #247, binPack=always, !dangle, avoidInResultType
+binPack.unsafeDefnSite = always
+newlines.avoidInResultType = true
+danglingParentheses.defnSite = false
+===
+{
+  def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
+}
+>>>
+{
+  def fetch(info: RequestInfo,
+      init: RequestInit = null): js.Promise[Response] = js.native
+}
+<<< default penalty #247, binPack=oneline, dangle
+binPack.unsafeDefnSite = oneline
+danglingParentheses.defnSite = true
+===
+{
+  def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
+}
+>>>
+{
+  def fetch(info: RequestInfo,
+      init: RequestInit = null): js.Promise[Response] = js.native
+}
+<<< default penalty #247, binPack=oneline, !dangle
+binPack.unsafeDefnSite = oneline
+danglingParentheses.defnSite = false
+===
+{
+  def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
+}
+>>>
+{
+  def fetch(info: RequestInfo,
+      init: RequestInit = null): js.Promise[Response] = js.native
+}
+<<< default penalty #247, binPack=oneline, !dangle, avoidInResultType
+binPack.unsafeDefnSite = oneline
+newlines.avoidInResultType = true
+danglingParentheses.defnSite = false
+===
 {
   def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
 }
