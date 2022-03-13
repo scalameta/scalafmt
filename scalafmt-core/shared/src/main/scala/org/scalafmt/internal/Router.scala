@@ -70,6 +70,7 @@ class Router(formatOps: FormatOps) {
     prev,
     next,
     tokenBefore,
+    getLastNonTrivial,
     prevNonComment,
     nextNonComment,
     prevNonCommentSameLine,
@@ -1398,7 +1399,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(left, _: T.Colon, DefDefReturnTypeRight(returnType))
           if style.newlines.sometimesBeforeColonInMethodReturnType
             || left.is[T.Comment] && newlines != 0 =>
-        val expireFt = tokens.getLastNonTrivial(returnType)
+        val expireFt = getLastNonTrivial(returnType)
         val expire = expireFt.left
         val sameLineSplit = Space(endsWithSymbolIdent(left))
         val bopSplits = style.newlines.getBeforeOpenParenDefnSite.map { x =>
@@ -1431,12 +1432,9 @@ class Router(formatOps: FormatOps) {
         }
       case FormatToken(_: T.Colon, _, DefDefReturnTypeLeft(returnType))
           if style.newlines.avoidInResultType =>
-        val expire = returnType match {
-          case Type.Refine(_, headStat :: _) =>
-            tokens.tokenJustBefore(headStat).left
-          case t => getLastNonTrivialToken(t)
-        }
-        Seq(Split(Space, 0).withPolicy(SingleLineBlock(expire, okSLC = true)))
+        val expire = getLastNonTrivialToken(returnType)
+        val policy = PenalizeAllNewlines(expire, Constants.ShouldBeNewline)
+        Seq(Split(Space, 0).withPolicy(policy).withOptimalToken(expire))
 
       case FormatToken(T.LeftParen(), T.LeftBrace(), _) =>
         Seq(
@@ -1531,18 +1529,20 @@ class Router(formatOps: FormatOps) {
             val lastFT = tokens.getLast(nextArg)
             val loEnd = leftOwner.tokens.last.end
             val oneline = binPack == BinPack.Unsafe.Oneline
-            val nextCommaOrParenOneline = if (oneline) {
+            val nextCommaOrParen =
               findFirst(lastFT, loEnd) {
                 case FormatToken(_, _: T.Comma, _) => true
                 case FormatToken(_, RightParenOrBracket(), _) => true
                 case _ => false
               }
-            } else None
-            val optFT = nextCommaOrParenOneline match {
-              case Some(ft @ FormatToken(_, _: T.Comma, _)) => ft
+            val optFT = nextCommaOrParen match {
+              case Some(ft @ FormatToken(_, _: T.Comma, _)) if oneline => ft
+              case Some(FormatToken(_, _: T.RightParen, _))
+                  if style.newlines.avoidInResultType =>
+                defDefReturnType(leftOwner).fold(lastFT)(getLastNonTrivial)
               case _ => lastFT
             }
-            val nlPolicy = nextCommaOrParenOneline match {
+            val nlPolicy = (if (oneline) nextCommaOrParen else None) match {
               case Some(FormatToken(_, t: T.Comma, _)) =>
                 if (callSite) splitOneArgPerLineAfterCommaOnBreak(t)
                 else delayedBreakPolicyFor(t)(decideNewlinesOnlyAfterClose)
