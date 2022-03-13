@@ -207,9 +207,21 @@ object a {
   }
 }
 >>>
-BestFirstSearch:323 Failed to format
-UNABLE TO FORMAT,
-tok=[∙String[109:120]
+object a {
+  def zipMethodsWithTheirInlinedVersionsFromParent(
+      prog: EOProg[EOExprOnly]
+  ): EitherNel[
+      String,
+      Map[
+          EONamedBnd,
+          ObjectTree[
+              (AnalysisInfo, AnalysisInfo)
+          ]
+      ]
+  ] = {
+    ???
+  }
+}
 <<< #3156 avoidInResultType=true, !cfgstyle
 newlines.avoidInResultType = true
 optIn.configStyleArguments = false
