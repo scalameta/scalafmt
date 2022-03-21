@@ -2752,9 +2752,6 @@ class FormatOps(
   def getLastNonTrivialTokenOpt(tree: Tree): Option[T] =
     tokens.getLastNonTrivialOpt(tree).map(_.left)
 
-  val ExtractAndOrTypeRhsIdentLeft =
-    new ExtractFromMeta(ft => getAndOrTypeRhs(ft.meta.leftOwner))
-
   def getEndOfBlock(ft: FormatToken, parensToo: Boolean)(implicit
       style: ScalafmtConfig
   ): Option[T] =
