@@ -6,6 +6,7 @@ import scala.collection.mutable
 import scala.io.Codec
 import scala.meta.Dialect
 import scala.meta.Tree
+import scala.meta.Type
 import scala.util.Try
 
 import metaconfig._
@@ -257,7 +258,11 @@ case class ScalafmtConfig(
       .getOrElse(optIn.forceBlankLineBeforeDocstring)
 
   def breakAfterInfix(tree: => Tree): Newlines.AfterInfix =
-    newlines.breakAfterInfix
+    newlines.afterInfix.getOrElse {
+      val useSome = newlines.source == Newlines.classic &&
+        tree.is[Type.ApplyInfix] && dialect.useInfixTypePrecedence
+      if (useSome) Newlines.AfterInfix.some else newlines.breakAfterInfix
+    }
 
   def formatInfix(tree: => Tree): Boolean =
     breakAfterInfix(tree) ne Newlines.AfterInfix.keep

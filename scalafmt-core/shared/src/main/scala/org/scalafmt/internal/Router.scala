@@ -2283,37 +2283,6 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0).withSingleLineNoOptimal(end)
         }(Split(Newline, _).withIndent(indent))
 
-      // Union/Intersection types
-      case FormatToken(_: T.Ident, _, ExtractAndOrTypeRhsIdentLeft(rhs)) =>
-        val rhsEnd = getLastNonTrivialToken(rhs)
-        @inline def getBreakToken(ft: FormatToken) = nextNonCommentSameLine(ft)
-        def nlSplit(cost: Int): Split = {
-          val indent = Indent(style.indent.main, rhsEnd, After)
-          val breakToken = getBreakToken(formatToken)
-          if (breakToken eq formatToken)
-            Split(Newline, cost).withIndent(indent)
-          else
-            Split(Space, cost)
-              .withIndent(indent)
-              .withPolicy(decideNewlinesOnlyAfterClose(breakToken.left))
-        }
-        def nextRhsEnd = leftOwner.parent
-          .flatMap(getAndOrTypeRhs)
-          .map(x => getBreakToken(tokens.tokenBefore(x)).left)
-        style.newlines.source match {
-          case Newlines.unfold =>
-            val topEnd = tokens.getLastNonTrivial(getTopAndOrType(leftOwner))
-            Seq(
-              Split(Space, 0).withSingleLine(getBreakToken(topEnd).left),
-              nlSplit(1)
-                .andPolicyOpt(nextRhsEnd.map(decideNewlinesOnlyAfterToken))
-            )
-          case Newlines.keep if newlines != 0 => Seq(nlSplit(0))
-          case _ =>
-            val slbEnd = nextRhsEnd.getOrElse(rhsEnd)
-            Seq(Split(Space, 0).withSingleLine(slbEnd), nlSplit(1))
-        }
-
       // Term.ForYield
       case FormatToken(T.KwYield(), _, _) if leftOwner.is[Term.ForYield] =>
         val lastToken =

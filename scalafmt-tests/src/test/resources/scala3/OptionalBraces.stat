@@ -3385,7 +3385,6 @@ type T =
 >>>
 type T =
   Byte |
-    Short |
-    Int |
-    Long |
-    Double
+  Short |
+  Int | Long |
+  Double
