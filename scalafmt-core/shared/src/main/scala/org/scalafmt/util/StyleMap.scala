@@ -14,6 +14,7 @@ import scala.meta.tokens.Token.RightParen
 import org.scalafmt.config.BinPack
 import org.scalafmt.config.Config
 import org.scalafmt.config.FilterMatcher
+import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
@@ -38,10 +39,13 @@ class StyleMap(
     startBuilder += 0
     styleBuilder += init
     val disableBinPack = mutable.Map.empty[Token, BinPack.Unsafe]
+    var formatOffSource = init.newlines.source :: Nil
     def warn(err: String)(implicit fileLine: FileLine): Unit = logger.elem(err)
     tokens.arr.foreach { tok =>
-      def changeStyle(style: ScalafmtConfig): Option[ScalafmtConfig] = {
-        val changing = curr != style
+      def maybeChangeStyle(
+          changing: Boolean,
+          style: => ScalafmtConfig
+      ): Option[ScalafmtConfig] =
         if (!changing) None
         else {
           startBuilder += tok.left.start
@@ -50,8 +54,22 @@ class StyleMap(
           curr = style
           Some(prev)
         }
-      }
+      @inline def changeStyle(style: ScalafmtConfig): Option[ScalafmtConfig] =
+        maybeChangeStyle(curr != style, style)
+      @inline
+      def changeSource(src: Newlines.SourceHints): Option[ScalafmtConfig] =
+        maybeChangeStyle(
+          curr.newlines.source ne src,
+          curr.copy(newlines = curr.newlines.copy(source = src))
+        )
+
       tok.left match {
+        case _: Comment if tok.meta.formatOff =>
+          val prevTok = tokens.prev(tok)
+          if (!prevTok.meta.formatOff) { // switching
+            val prevSource = changeSource(Newlines.keep).map(_.newlines.source)
+            formatOffSource = prevSource.orNull :: formatOffSource
+          }
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
           val configured = Config.fromHoconString(c, init, Some("scalafmt"))
           // TODO(olafur) report error via callback
@@ -60,6 +78,13 @@ class StyleMap(
               warn(x.mkString("May not override rewrite settings: ", ",", ""))
             }
             changeStyle(style)
+          }
+        case _: Comment => // format is not off
+          val prevTok = tokens.prev(tok)
+          if (prevTok.meta.formatOff) { // switching
+            val prevSource = formatOffSource.head
+            formatOffSource = formatOffSource.tail
+            if (prevSource ne null) changeSource(prevSource)
           }
         case open @ LeftParen()
             if curr.binPack.literalArgumentLists &&
