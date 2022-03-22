@@ -5,6 +5,7 @@ import java.nio.file
 import scala.collection.mutable
 import scala.io.Codec
 import scala.meta.Dialect
+import scala.meta.Tree
 import scala.util.Try
 
 import metaconfig._
@@ -254,6 +255,12 @@ case class ScalafmtConfig(
   lazy val forceNewlineBeforeDocstring: Boolean =
     docstrings.forceBlankLineBefore
       .getOrElse(optIn.forceBlankLineBeforeDocstring)
+
+  def breakAfterInfix(tree: => Tree): Newlines.AfterInfix =
+    newlines.breakAfterInfix
+
+  def formatInfix(tree: => Tree): Boolean =
+    breakAfterInfix(tree) ne Newlines.AfterInfix.keep
 }
 
 object ScalafmtConfig {

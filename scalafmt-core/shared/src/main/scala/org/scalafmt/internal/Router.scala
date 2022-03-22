@@ -603,7 +603,13 @@ class Router(formatOps: FormatOps) {
         )
           Seq(Split(getMod(formatToken), 0))
         else {
-          asInfixApp(rightOwner, style.newlines.formatInfix).fold {
+          maybeGetInfixSplitsBeforeLhs(
+            formatToken,
+            Some(
+              if (left.is[T.Comment] && tok.noBreak) Space
+              else NewlineT(isDouble = tok.hasBlankLine)
+            )
+          ) {
             val spaceCouldBeOk = annoLeft && (style.newlines.source match {
               case Newlines.unfold =>
                 right.is[T.Comment] ||
@@ -624,11 +630,6 @@ class Router(formatOps: FormatOps) {
               // For some reason, this newline cannot cost 1.
               Split(NewlineT(isDouble = tok.hasBlankLine), 0)
             )
-          } { app =>
-            val mod =
-              if (left.is[T.Comment] && tok.noBreak) Space
-              else NewlineT(isDouble = tok.hasBlankLine)
-            getInfixSplitsBeforeLhs(app, tok, Some(mod))
           }
         }
 
@@ -824,13 +825,13 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.KwDef, _: T.Ident, _) =>
         Seq(Split(Space, 0))
       case ft @ FormatToken(_: T.Equals, _, SplitAssignIntoPartsLeft(parts)) =>
-        asInfixApp(rightOwner, style.newlines.formatInfix).fold {
+        maybeGetInfixSplitsBeforeLhs(ft) {
           val (rhs, paramss) = parts
           getSplitsDefValEquals(ft, rhs) {
             if (paramss.isDefined) getSplitsDefEquals(ft, rhs)
             else getSplitsValEquals(ft, rhs)(getSplitsValEqualsClassic(ft, rhs))
           }
-        }(getInfixSplitsBeforeLhs(_, ft))
+        }
 
       // Parameter opening for one parameter group. This format works
       // on the WHOLE defnSite (via policies)
@@ -2750,7 +2751,7 @@ class Router(formatOps: FormatOps) {
       ft: FormatToken,
       body: Tree
   )(implicit style: ScalafmtConfig): Seq[Split] =
-    asInfixApp(ft.meta.rightOwner, style.newlines.formatInfix).fold {
+    maybeGetInfixSplitsBeforeLhs(ft) {
       val expire = getLastNonTrivialToken(body)
       val spaceIndents =
         if (!style.align.arrowEnumeratorGenerator) Seq.empty
@@ -2770,6 +2771,6 @@ class Router(formatOps: FormatOps) {
           }
         }(Split(Newline, _).withIndent(style.indent.main, expire, After))
       }
-    }(getInfixSplitsBeforeLhs(_, ft))
+    }
 
 }

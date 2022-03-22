@@ -267,7 +267,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         b.tokens.lastOption.contains(rb) && b.tokens.head.is[Token.LeftBrace]
       case _ => false
     }) && okToRemoveBlock(b) && (b.parent match {
-      case Some(InfixApp(_)) =>
+      case Some(p @ InfixApp(_)) =>
         /* for infix, we will preserve the block unless the closing brace
          * follows a non-whitespace character on the same line as we don't
          * break lines around infix expressions.
@@ -277,12 +277,12 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         def checkOpen = {
           val nft = ftoks.next(ft)
           nft.noBreak ||
-          style.newlines.formatInfix && !nft.right.is[Token.Comment]
+          style.formatInfix(p) && !nft.right.is[Token.Comment]
         }
         def checkClose = {
           val nft = ftoks(ftoks.matching(ft.right), -1)
           nft.noBreak ||
-          style.newlines.formatInfix && !nft.left.is[Token.Comment]
+          style.formatInfix(p) && !nft.left.is[Token.Comment]
         }
         checkOpen && checkClose
       case _ => true

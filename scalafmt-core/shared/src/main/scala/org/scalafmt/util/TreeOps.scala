@@ -575,11 +575,8 @@ object TreeOps {
       case _ => false
     }
 
-  final def asInfixApp(tree: Tree): Option[InfixApp] = InfixApp.unapply(tree)
-
   @inline
-  final def asInfixApp(tree: Tree, flag: Boolean = true): Option[InfixApp] =
-    if (flag) asInfixApp(tree) else None
+  final def asInfixApp(tree: Tree): Option[InfixApp] = InfixApp.unapply(tree)
 
   @inline
   final def isInfixApp(tree: Tree): Boolean = asInfixApp(tree).isDefined
