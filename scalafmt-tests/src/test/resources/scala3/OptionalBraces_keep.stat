@@ -3363,3 +3363,21 @@ for { foobar <- LongClassName(database).longMethodName() } yield doSomething(foo
 for { foobar <- LongClassName(database).longMethodName() } yield doSomething(
   foobar
 )
+<<< #3153
+maxColumn = 14
+indentOperator.excludeRegex = "^(&|\\||&&|\\|\\|)$"
+indentOperator.exemptScope = aloneArgOrBody
+===
+type T =
+  Byte |
+  Short |
+  Int |
+  Long |
+  Double
+>>>
+type T =
+  Byte |
+    Short |
+    Int |
+    Long |
+    Double
