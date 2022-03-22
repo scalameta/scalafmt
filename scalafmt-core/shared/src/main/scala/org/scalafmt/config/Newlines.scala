@@ -237,11 +237,8 @@ case class Newlines(
   val formatInfix: Boolean = breakAfterInfix ne AfterInfix.keep
 
   def checkInfixConfig(infixCount: Int): Newlines = {
-    val needAfterInfix: AfterInfix =
-      if (infixCount > afterInfixMaxCountPerFile) AfterInfix.keep
-      else breakAfterInfix
-    if (needAfterInfix == breakAfterInfix) this
-    else copy(afterInfix = Some(needAfterInfix))
+    if (infixCount <= afterInfixMaxCountPerFile || !formatInfix) this
+    else copy(afterInfix = Some(AfterInfix.keep))
   }
 
   lazy val forceBeforeImplicitParamListModifier: Boolean =
