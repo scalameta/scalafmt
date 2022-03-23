@@ -3457,3 +3457,9 @@ enum SerializedField extends jl.Enum[SerializedField] {
     ORIGIN_RESOURCE,
     ORIGIN_NULL_RESOURCE
 }
+<<< #3158
+for { foobar <- LongClassName(database).longMethodName() } yield doSomething(foobar)
+>>>
+for {
+  foobar <- LongClassName(database).longMethodName()
+} yield doSomething(foobar)
