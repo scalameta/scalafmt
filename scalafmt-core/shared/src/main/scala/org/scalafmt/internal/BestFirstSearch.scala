@@ -118,6 +118,10 @@ private class BestFirstSearch private (
       }
     Q += start
 
+    def enqueue(state: State) = {
+      Q.enqueue(state)
+    }
+
     // TODO(olafur) this while loop is waaaaaaaaaaaaay tooo big.
     while (true) {
       val curr = Q.dequeue()
@@ -161,8 +165,7 @@ private class BestFirstSearch private (
           else shouldRecurseOnBlock(splitToken, stop)
         if (blockClose.nonEmpty)
           blockClose.foreach { end =>
-            shortestPathMemo(curr, end, depth + 1, maxCost)
-              .foreach(Q.enqueue(_))
+            shortestPathMemo(curr, end, depth + 1, maxCost).foreach(enqueue)
           }
         else if (
           escapeInPathologicalCases &&
@@ -202,24 +205,24 @@ private class BestFirstSearch private (
                   val overflow =
                     furtherState.appliedPenalty > nextNextState.appliedPenalty
                   if (overflow)
-                    Q.enqueue(nextNextState)
+                    enqueue(nextNextState)
                   else {
                     optimalNotFound = false
-                    Q.enqueue(furtherState)
+                    enqueue(furtherState)
                   }
                 } else if (
                   !killOnFail &&
                   nextState.cost - curr.cost <= maxCost
                 ) {
                   // TODO(olafur) DRY. This solution can still be optimal.
-                  Q.enqueue(nextState)
+                  enqueue(nextState)
                 } else { // else kill branch
                   if (updateBest) best.remove(curr.depth)
                 }
               case _
                   if optimalNotFound &&
                     nextState.cost - curr.cost <= maxCost =>
-                Q.enqueue(nextState)
+                enqueue(nextState)
               case _ => // Kill branch.
                 if (updateBest) best.remove(curr.depth)
             }
