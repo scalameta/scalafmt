@@ -390,7 +390,14 @@ class Router(formatOps: FormatOps) {
             // do not fold top-level blocks
             if (isTopLevelBlock) None
             else if (lambdaPolicy != null) getSingleLineLambdaDecisionOpt
-            else Some(getSingleLineDecision)
+            else
+              Some(getSingleLineDecision match {
+                case NoPolicy if leftOwner.is[Term.ForYield] =>
+                  val postClose = nextNonComment(closeFT).right
+                  val bodySlb = SingleLineBlock(getLastToken(leftOwner))
+                  new Policy.Delay(bodySlb, Policy.End.On(postClose))
+                case x => x
+              })
           // old behaviour
           case _ =>
             if (lambdaPolicy == null) getClassicSingleLineDecisionOpt
