@@ -2568,35 +2568,29 @@ object a {
 }
 >>>
 object a {
-  def foo = {
-    if (a) {
-      a +
-        b
-    } else {
-      a +
-        b
-    }
+  def foo = if (a) {
+    a +
+      b
+  } else {
+    a +
+      b
   }
-  val foo = {
-    if (a) {
-      a +
-        b
-    } else if (b) {
-      a +
-        b
-    } else if (c) {
-      a +
-        b
-    }
+  val foo = if (a) {
+    a +
+      b
+  } else if (b) {
+    a +
+      b
+  } else if (c) {
+    a +
+      b
   }
-  var foo = {
-    if (a) {
-      a +
-        b
-    } else {
-      a +
-        b
-    }
+  var foo = if (a) {
+    a +
+      b
+  } else {
+    a +
+      b
   }
 }
 <<< #2019 if-else alwaysBeforeElseAfterCurlyIf
@@ -2629,39 +2623,33 @@ object a {
 }
 >>>
 object a {
-  def foo = {
-    if (a) {
-      a +
-        b
-    }
-    else {
-      a +
-        b
-    }
+  def foo = if (a) {
+    a +
+      b
   }
-  val foo = {
-    if (a) {
-      a +
-        b
-    }
-    else if (b) {
-      a +
-        b
-    }
-    else if (c) {
-      a +
-        b
-    }
+  else {
+    a +
+      b
   }
-  var foo = {
-    if (a) {
-      a +
-        b
-    }
-    else {
-      a +
-        b
-    }
+  val foo = if (a) {
+    a +
+      b
+  }
+  else if (b) {
+    a +
+      b
+  }
+  else if (c) {
+    a +
+      b
+  }
+  var foo = if (a) {
+    a +
+      b
+  }
+  else {
+    a +
+      b
   }
 }
 <<< #2019 try !alwaysBeforeElseAfterCurlyIf !allBlocks

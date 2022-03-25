@@ -231,12 +231,10 @@ object a {
 >>>
 object a {
   val ok1 = if (a > 10) Some(a) else None
-  val ok2 =
-    if (a > 10) { Some(a) }
-    else { None }
-  val ok3 =
-    if (aaaa > 10000) { Some(aaaa) }
-    else { None }
+  val ok2 = if (a > 10) { Some(a) }
+  else { None }
+  val ok3 = if (aaaa > 10000) { Some(aaaa) }
+  else { None }
 }
 <<< 2.7 #1747: one line without else
 maxColumn = 60
@@ -274,23 +272,20 @@ object a {
 }
 >>>
 object a {
-  val ok1 =
-    if (a > 10)
-      Some(a)
-    else
-      None
-  val ok2 =
-    if (a > 10) {
-      Some(a)
-    } else {
-      None
-    }
-  val ok3 =
-    if (aaaa > 10000) {
-      Some(aaaa)
-    } else {
-      None
-    }
+  val ok1 = if (a > 10)
+    Some(a)
+  else
+    None
+  val ok2 = if (a > 10) {
+    Some(a)
+  } else {
+    None
+  }
+  val ok3 = if (aaaa > 10000) {
+    Some(aaaa)
+  } else {
+    None
+  }
 }
 <<< 2.9 #1747: split on else
 maxColumn = 60
@@ -307,20 +302,17 @@ object a {
 }
 >>>
 object a {
-  val ok1 =
-    if (a > 10) Some(a)
-    else
-      None
-  val ok2 =
-    if (a > 10) { Some(a) }
-    else {
-      None
-    }
-  val ok3 =
-    if (aaaa > 10000) { Some(aaaa) }
-    else {
-      None
-    }
+  val ok1 = if (a > 10) Some(a)
+  else
+    None
+  val ok2 = if (a > 10) { Some(a) }
+  else {
+    None
+  }
+  val ok3 = if (aaaa > 10000) { Some(aaaa) }
+  else {
+    None
+  }
 }
 <<< 2.10 #1747: split on then without else
 maxColumn = 60
@@ -2399,15 +2391,14 @@ val ret = (if (dailyStats.isEmpty)
                      yestNav) / nav - 1
                  })
 >>>
-val ret =
-  (if (dailyStats.isEmpty)
-     0
-   else {
-     val yestStats = dailyStats.last
-     val yestNav = yestStats.nav
-     (nav -
-       yestNav) / nav - 1
-   })
+val ret = (if (dailyStats.isEmpty)
+             0
+           else {
+             val yestStats = dailyStats.last
+             val yestNav = yestStats.nav
+             (nav -
+               yestNav) / nav - 1
+           })
 <<< 8.24
 maxColumn = 80
 ===
@@ -5324,35 +5315,29 @@ object a {
 }
 >>>
 object a {
-  def foo = {
-    if (a) {
-      a +
-        b
-    } else {
-      a +
-        b
-    }
+  def foo = if (a) {
+    a +
+      b
+  } else {
+    a +
+      b
   }
-  val foo = {
-    if (a) {
-      a +
-        b
-    } else if (b) {
-      a +
-        b
-    } else if (c) {
-      a +
-        b
-    }
+  val foo = if (a) {
+    a +
+      b
+  } else if (b) {
+    a +
+      b
+  } else if (c) {
+    a +
+      b
   }
-  var foo = {
-    if (a) {
-      a +
-        b
-    } else {
-      a +
-        b
-    }
+  var foo = if (a) {
+    a +
+      b
+  } else {
+    a +
+      b
   }
 }
 <<< #2019 if-else alwaysBeforeElseAfterCurlyIf
@@ -5385,39 +5370,33 @@ object a {
 }
 >>>
 object a {
-  def foo = {
-    if (a) {
-      a +
-        b
-    }
-    else {
-      a +
-        b
-    }
+  def foo = if (a) {
+    a +
+      b
   }
-  val foo = {
-    if (a) {
-      a +
-        b
-    }
-    else if (b) {
-      a +
-        b
-    }
-    else if (c) {
-      a +
-        b
-    }
+  else {
+    a +
+      b
   }
-  var foo = {
-    if (a) {
-      a +
-        b
-    }
-    else {
-      a +
-        b
-    }
+  val foo = if (a) {
+    a +
+      b
+  }
+  else if (b) {
+    a +
+      b
+  }
+  else if (c) {
+    a +
+      b
+  }
+  var foo = if (a) {
+    a +
+      b
+  }
+  else {
+    a +
+      b
   }
 }
 <<< #2019 try !alwaysBeforeElseAfterCurlyIf !allBlocks
@@ -5889,23 +5868,20 @@ class Foo {
 }
 >>>
 class Foo {
-  val foo =
-    if (true) {
-      ""
-    } else {
-      "a"
-    }
-  val foo =
-    if (true)
-      ""
-    else
-      "a"
+  val foo = if (true) {
+    ""
+  } else {
+    "a"
+  }
+  val foo = if (true)
+    ""
+  else
+    "a"
   val foo = if (true) "" else "a"
   val foo =
     if (true) "aaaaa" else "bbbbb"
-  val foo =
-    if (true) "aaaaa"
-    else "bbbbb"
+  val foo = if (true) "aaaaa"
+  else "bbbbb"
 }
 <<< #3173 beforeMultiline = fold
 newlines.beforeMultiline = fold

@@ -5862,23 +5862,20 @@ class Foo {
 }
 >>>
 class Foo {
-  val foo =
-    if (true) {
-      ""
-    } else {
-      "a"
-    }
-  val foo =
-    if (true)
-      ""
-    else
-      "a"
+  val foo = if (true) {
+    ""
+  } else {
+    "a"
+  }
+  val foo = if (true)
+    ""
+  else
+    "a"
   val foo = if (true) "" else "a"
   val foo =
     if (true) "aaaaa" else "bbbbb"
-  val foo =
-    if (true) "aaaaa"
-    else "bbbbb"
+  val foo = if (true) "aaaaa"
+  else "bbbbb"
 }
 <<< #3173 beforeMultiline = fold
 newlines.beforeMultiline = fold
