@@ -5602,3 +5602,33 @@ def allMatching(versionString: String,
                 partialFunctions: PartialFunction[options.Common, List[String]]*)
                (partialFunctions: PartialFunction[options.Common, List[String]]*)
   : List[String] = {}
+<<< #3173 beforeMultiline = fold
+newlines.beforeMultiline = fold
+===
+class Foo {
+  val foo = if (true) {
+    ""
+  } else {
+    "a"
+  }
+  val foo = if (true)
+    ""
+  else
+    "a"
+  val foo = if (true) "" else "a"
+  val foo = if (true) "aaaaa" else "bbbbb"
+  val foo = if (true) "aaaaa"
+  else "bbbbb"
+}
+>>>
+class Foo {
+  val foo =
+    if (true) { "" }
+    else { "a" }
+  val foo = if (true) "" else "a"
+  val foo = if (true) "" else "a"
+  val foo =
+    if (true) "aaaaa" else "bbbbb"
+  val foo =
+    if (true) "aaaaa" else "bbbbb"
+}
