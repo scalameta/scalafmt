@@ -1689,6 +1689,7 @@ class FormatOps(
     def foldedNonEmptyNonComment(
         body: Tree,
         nlSplitFunc: Int => Split,
+        isKeep: Boolean,
         spaceIndents: Seq[Indent] = Seq.empty
     ): Seq[Split] = {
       def bheadFT = tokens.getHead(body)
@@ -1748,7 +1749,7 @@ class FormatOps(
       }
       val adjustedBody = getBlockStat(body)
       val (spaceSplit, nlSplit) = adjustedBody match {
-        case t: Term.If if ifWithoutElse(t) || hasStateColumn =>
+        case t: Term.If if isKeep || ifWithoutElse(t) || hasStateColumn =>
           val thenBeg = tokens.getHead(t.thenp)
           val thenHasLB = thenBeg.left.is[T.LeftBrace]
           val end = if (thenHasLB) thenBeg else prevNonComment(prev(thenBeg))
@@ -1789,10 +1790,11 @@ class FormatOps(
     private def foldedNonComment(
         body: Tree,
         nlSplitFunc: Int => Split,
+        isKeep: Boolean,
         spaceIndents: Seq[Indent]
     ): Seq[Split] =
       if (body.tokens.isEmpty) Seq(Split(Space, 0))
-      else foldedNonEmptyNonComment(body, nlSplitFunc, spaceIndents)
+      else foldedNonEmptyNonComment(body, nlSplitFunc, isKeep, spaceIndents)
 
     private def unfoldedSpaceNonEmptyNonComment(
         body: Tree,
@@ -1848,10 +1850,11 @@ class FormatOps(
     def folded(
         ft: FormatToken,
         body: Tree,
+        isKeep: Boolean,
         spaceIndents: Seq[Indent] = Seq.empty
     )(nlSplitFunc: Int => Split): Seq[Split] =
       checkComment(ft, nlSplitFunc) { _ =>
-        foldedNonComment(body, nlSplitFunc, spaceIndents)
+        foldedNonComment(body, nlSplitFunc, isKeep, spaceIndents)
       }
 
     def slbOnly(
@@ -1878,14 +1881,15 @@ class FormatOps(
             Seq(nlSplitFunc(0).forThisLine)
           case Newlines.classic =>
             Option(classicNoBreakFunc).fold {
-              foldedNonComment(body, nlSplitFunc, spaceIndents)
+              foldedNonComment(body, nlSplitFunc, isKeep = true, spaceIndents)
             } { func =>
               val spcSplit = func.forThisLine
               val nlSplit = nlSplitFunc(spcSplit.getCost(_ + 1, 0)).forThisLine
               Seq(spcSplit, nlSplit)
             }
-          case _ => // fold or keep without break
-            foldedNonComment(body, nlSplitFunc, spaceIndents)
+          case x => // fold or keep without break
+            val isKeep = x eq Newlines.keep
+            foldedNonComment(body, nlSplitFunc, isKeep, spaceIndents)
         }
       }
 

@@ -555,7 +555,10 @@ class Router(formatOps: FormatOps) {
             beforeMultiline.eq(Newlines.classic) ||
             getSingleStatExceptEndMarker(body).isEmpty
           ) withSlbSplit
-          else CtrlBodySplits.foldedNonEmptyNonComment(body, nlSplit(ft))
+          else {
+            val isKeep = beforeMultiline.eq(Newlines.keep)
+            CtrlBodySplits.foldedNonEmptyNonComment(body, nlSplit(ft), isKeep)
+          }
         }
       // New statement
       case tok @ FormatToken(_: T.Semicolon, _, StartsStatementRight(stmt))
@@ -2648,7 +2651,8 @@ class Router(formatOps: FormatOps) {
       case Newlines.unfold =>
         Seq(baseSplit.withSingleLine(expire), newlineSplit(1))
 
-      case _ => CtrlBodySplits.folded(ft, body)(newlineSplit)
+      case x =>
+        CtrlBodySplits.folded(ft, body, x eq Newlines.keep)(newlineSplit)
     }
   }
 
