@@ -352,6 +352,28 @@ trait CliTestBehavior { this: AbstractCliTest =>
       run(stdin)
     }
 
+    test(
+      s"scalafmt (no matching files) is okay with --respect-project-filters: $label"
+    ) {
+      runArgs(
+        Array(
+          "--respect-project-filters",
+          "--config-str",
+          s"""{version="$version",style=IntelliJ}"""
+        )
+      )
+      val stdin = getConfig(
+        Array(
+          "--stdin",
+          "--config-str",
+          s"""{version="$version",style=IntelliJ}"""
+        )
+      ).copy(
+        common = CommonOptions(in = new ByteArrayInputStream("".getBytes))
+      )
+      run(stdin)
+    }
+
     test(s"scalafmt (no arg) read config from git repo: $label") {
       val input = string2dir(
         s"""|/foo.scala

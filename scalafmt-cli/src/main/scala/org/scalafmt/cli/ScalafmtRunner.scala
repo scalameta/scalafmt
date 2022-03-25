@@ -41,7 +41,7 @@ trait ScalafmtRunner {
     } else {
       val projectFiles: Seq[AbsoluteFile] =
         getFilesFromCliOptions(options, filter)
-      if (projectFiles.isEmpty && options.mode.isEmpty)
+      if (projectFiles.isEmpty && options.mode.isEmpty && !options.respectProjectFilters)
         throw Error.NoMatchingFiles
       options.common.debug
         .print(s"Files to be formatted:\n${projectFiles.mkString("\n")}\n")
