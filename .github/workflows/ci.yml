@@ -21,7 +21,7 @@ jobs:
             java: adopt@1.8
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: olafurpg/setup-scala@v13
         with:
           java-version: ${{ matrix.java }}
@@ -37,7 +37,7 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: olafurpg/setup-scala@v13
       - run: ./scalafmt --test
       - run: yarn install
@@ -70,7 +70,7 @@ jobs:
               NATIVE_IMAGE_MUSL: /home/runner/work/scalafmt/scalafmt/bundle
     env: ${{ matrix.env }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: olafurpg/setup-scala@v13
         with:
           java-version: graalvm-ce-java11@20.1.0
@@ -102,7 +102,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v') && github.event_name != 'release'
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Docker Meta
         id: meta
         uses: docker/metadata-action@v3
