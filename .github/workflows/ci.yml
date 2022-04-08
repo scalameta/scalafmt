@@ -9,6 +9,9 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     strategy:
@@ -43,6 +46,8 @@ jobs:
       - run: yarn install
       - run: yarn format-check
   native-image:
+    permissions:
+      contents: write  # for actions/upload-release-asset to upload release asset
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
