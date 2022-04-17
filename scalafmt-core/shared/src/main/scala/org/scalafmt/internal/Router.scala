@@ -1542,7 +1542,8 @@ class Router(formatOps: FormatOps) {
               case Some(ft @ FormatToken(_, _: T.Comma, _)) if oneline => ft
               case Some(FormatToken(_, _: T.RightParen, _))
                   if style.newlines.avoidInResultType =>
-                defDefReturnType(leftOwner).fold(lastFT)(getLastNonTrivial)
+                val rt = defDefReturnType(leftOwner) // could be empty tree
+                rt.flatMap(tokens.getLastNonTrivialOpt).getOrElse(lastFT)
               case _ => lastFT
             }
             val nlPolicy = (if (oneline) nextCommaOrParen else None) match {
