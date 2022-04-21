@@ -181,7 +181,7 @@ object Imports extends RewriteFactory {
       }
 
       def sortSelector(buf: Seq[Importee]): Seq[(Importee, String)] = {
-        val (wildcard, other) = buf.partition(_.is[Importee.Wildcard])
+        val (wildcard, other) = buf.partition(isWildcard)
         other.map(selectorToTuple).sortBy(_._2)(selectorOrdering) ++
           wildcard.headOption.map(selectorToTuple)
       }
@@ -245,6 +245,12 @@ object Imports extends RewriteFactory {
     }
   }
 
+  private final def isRename(importee: Importee): Boolean =
+    importee.is[Importee.Rename] || importee.is[Importee.Unimport]
+
+  private final def isWildcard(importee: Importee): Boolean =
+    importee.is[Importee.Wildcard]
+
   private abstract class Base(implicit ctx: RewriteCtx) extends RewriteSession {
 
     protected val settings = ctx.style.rewrite.imports
@@ -258,11 +264,6 @@ object Imports extends RewriteFactory {
       case t: ImportExportStat if t.parent.isEmpty => processStats(Seq(t))
       case _ =>
     }
-
-    protected final def getWildcard(
-        importees: collection.Seq[Importee]
-    ): Option[String] =
-      importees.collectFirst { case t: Importee.Wildcard => t.toString() }
 
     private def processStats(stats: Seq[Stat]): Unit = {
       val seqSeqBuilder = Seq.newBuilder[Seq[ImportExportStat]]
@@ -586,15 +587,15 @@ object Imports extends RewriteFactory {
     ): Unit = {
       // if there's a wildcard, unimports and renames must come with it, cannot be expanded
       val importees = importer.importees
-      val wildcard = getWildcard(importees)
-      val filtered = importees.filter { x =>
-        val buffering = wildcard.isDefined &&
-          (x.is[Importee.Unimport] || x.is[Importee.Rename]
-            || x.is[Importee.Wildcard])
-        if (!buffering) addToGroup(group, kw, ref, x, importer)
-        buffering
-      }
-      addToGroup(group, kw, ref, filtered, importer)
+      if (importees.exists(isWildcard) && importees.exists(isRename)) {
+        val filtered = importees.filter { x =>
+          val buffering = isRename(x) || isWildcard(x)
+          if (!buffering) addToGroup(group, kw, ref, x, importer)
+          buffering
+        }
+        addToGroup(group, kw, ref, filtered, importer)
+      } else // expand all
+        importees.foreach(addToGroup(group, kw, ref, _, importer))
     }
   }
 
