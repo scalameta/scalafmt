@@ -181,9 +181,17 @@ object Imports extends RewriteFactory {
       }
 
       def sortSelector(buf: Seq[Importee]): Seq[(Importee, String)] = {
-        val (wildcard, other) = buf.partition(isWildcard)
-        other.map(selectorToTuple).sortBy(_._2)(selectorOrdering) ++
-          wildcard.headOption.map(selectorToTuple)
+        // https://docs.scala-lang.org/scala3/reference/contextual/given-imports.html
+        val others = new ListBuffer[(Importee, String)]
+        val givens = new ListBuffer[(Importee, String)]
+        val wildcards = new ListBuffer[(Importee, String)]
+        @inline def getDstBuf(x: Importee) =
+          if (x.is[Importee.Given]) givens
+          else if (isWildcard(x)) wildcards
+          else others
+        buf.foreach(x => getDstBuf(x) += selectorToTuple(x))
+        Seq(others, givens, wildcards)
+          .flatMap(_.result().sortBy(_._2)(selectorOrdering))
       }
 
       def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] =
@@ -249,7 +257,7 @@ object Imports extends RewriteFactory {
     importee.is[Importee.Rename] || importee.is[Importee.Unimport]
 
   private final def isWildcard(importee: Importee): Boolean =
-    importee.is[Importee.Wildcard]
+    importee.is[Importee.Wildcard] || importee.is[Importee.GivenAll]
 
   private abstract class Base(implicit ctx: RewriteCtx) extends RewriteSession {
 
