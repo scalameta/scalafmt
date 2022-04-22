@@ -833,3 +833,75 @@ class B:
   import baz._
 // foo
   import foo._
+<<< #3189 ascii expand
+rewrite.imports.sort = ascii
+rewrite.imports.expand = true
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.*
+import a.given
+import a.given Z
+import a.x
+import a.{y => z}
+<<< #3189 ascii !expand
+rewrite.imports.sort = ascii
+rewrite.imports.expand = false
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{given, x, y => z}
+import a.{given, *}
+import a.{given, given Z, x}
+<<< #3189 original
+rewrite.imports.sort = original
+rewrite.imports.expand = true
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.*
+import a.{y => z}
+import a.given
+import a.given Z
+import a.x
+<<< #3189 !original
+rewrite.imports.sort = original
+rewrite.imports.expand = false
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{given, x, y => z}
+import a.{given, *}
+import a.{given, given Z, x}
+<<< #3189 scalastyle
+rewrite.imports.sort = scalastyle
+rewrite.imports.expand = true
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.*
+import a.{y => z}
+import a.given
+import a.given Z
+import a.x
+<<< #3189 !scalastyle
+rewrite.imports.sort = scalastyle
+rewrite.imports.expand = false
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{given, x, y => z}
+import a.{given, *}
+import a.{given, given Z, x}
