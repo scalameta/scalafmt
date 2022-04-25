@@ -58,7 +58,7 @@ case class ScalafmtReflect(
 
   private def parseConfigWith(
       f: => Try[Object]
-  )(g: Throwable => ScalafmtDynamicError): Try[ScalafmtReflectConfig] =
+  )(g: Throwable => Throwable): Try[ScalafmtReflectConfig] =
     f.map { configured =>
       new ScalafmtReflectConfig(this)(configured.invoke("get"))
     }.recoverWith { case ReflectionException(e) => Failure(g(e)) }
@@ -69,9 +69,7 @@ case class ScalafmtReflect(
     }
 
   def parseConfigFromString(text: String): Try[ScalafmtReflectConfig] =
-    parseConfigWith(parseConfigPre300(text))(
-      ScalafmtDynamicError.UnknownError.apply
-    )
+    parseConfigWith(parseConfigPre300(text))(identity)
 
   private def parseConfigPost300(path: Path): Try[Object] = {
     if (version < ScalafmtVersion(3, 0, 0, 7)) parseConfigPre300(path)
