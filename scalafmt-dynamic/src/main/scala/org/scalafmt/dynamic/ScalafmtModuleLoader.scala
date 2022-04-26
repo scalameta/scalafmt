@@ -73,9 +73,7 @@ object ScalafmtModuleLoader {
       ScalafmtReflect(classloader, version)
     }.toEither.left.map {
       case e: ReflectiveOperationException =>
-        val urlStrs =
-          urls.map(x => if (x.getProtocol == "file") x.getFile else x.toString)
-        new CorruptedClassPath(configPath, version, urlStrs, e)
+        new CorruptedClassPath(configPath, version, urls, e)
       case e => new UnknownConfigError(configPath, e)
     }
 
