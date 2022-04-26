@@ -53,7 +53,7 @@ object ScalafmtDynamicError {
       with NoStackTrace
 
   class UnknownConfigError(configPath: Path, cause: Throwable)
-      extends ConfigError(configPath, "unknown error", cause)
+      extends ConfigError(configPath, "Config parse error", cause)
 
   case class UnknownError(cause: Throwable)
       extends ScalafmtDynamicError("unknown error", cause)
