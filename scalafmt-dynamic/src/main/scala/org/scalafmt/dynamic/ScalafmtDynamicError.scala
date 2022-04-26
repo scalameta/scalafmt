@@ -5,7 +5,7 @@ import java.nio.file.Path
 
 import scala.util.control.NoStackTrace
 
-sealed abstract class ScalafmtDynamicError(
+sealed class ScalafmtDynamicError(
     msg: String,
     cause: Throwable = null
 ) extends Error(msg, cause)
@@ -54,9 +54,6 @@ object ScalafmtDynamicError {
 
   class UnknownConfigError(configPath: Path, cause: Throwable)
       extends ConfigError(configPath, "Config parse error", cause)
-
-  case class UnknownError(cause: Throwable)
-      extends ScalafmtDynamicError("unknown error", cause)
 
   class ScalafmtInterfaceMethodDeprecated(method: String)
       extends Error(s"Method Scalafmt.$method is deprecated")

@@ -29,8 +29,8 @@ final case class ScalafmtProperties(
           case Some(cause) => reporter.error(e.configPath, e.getMessage, cause)
           case None => reporter.error(e.configPath, e.getMessage)
         }
-      case UnknownError(cause) =>
-        reporter.error(file, cause)
+      case _ =>
+        reporter.error(file, error.getMessage, error.getCause)
     }
 
 }

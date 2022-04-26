@@ -4,7 +4,6 @@ import java.nio.file.Path
 
 import scala.util.Success
 
-import org.scalafmt.dynamic.ScalafmtDynamicError._
 import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.interfaces._
 
@@ -51,7 +50,7 @@ final case class ScalafmtDynamicSession(
     formatResult.toEither.left.map { x =>
       val cause = ReflectionException.flatten(x)
       properties.reporter.error(file, cause)
-      UnknownError(cause)
+      new ScalafmtDynamicError("Format error", cause)
     }
   }
 
