@@ -22,13 +22,8 @@ final case class ScalafmtProperties(
 
   def reportError(file: Path, error: ScalafmtDynamicError): Unit =
     error match {
-      case e: ConfigMissingVersion =>
-        reporter.missingVersion(e.configPath, BuildInfo.stable)
-      case e: ConfigError =>
-        Option(e.getCause) match {
-          case Some(cause) => reporter.error(e.configPath, e.getMessage, cause)
-          case None => reporter.error(e.configPath, e.getMessage)
-        }
+      case _: ConfigMissingVersion =>
+        reporter.missingVersion(file, BuildInfo.stable)
       case _ =>
         reporter.error(file, error.getMessage, error.getCause)
     }
