@@ -453,12 +453,12 @@ class DynamicSuite extends FunSuite {
       "Invalid config: Default dialect is deprecated; use explicit:"
     )
 
-    val thrown2 = intercept[NoSuchElementException] {
+    val thrown2 = intercept[ScalafmtDynamicError.ConfigParseError] {
       module.parseConfigFromString(config).get
     }
     assertNoDiff(
-      thrown2.getMessage.take(44),
-      "Default dialect is deprecated; use explicit:"
+      thrown2.getMessage.take(60),
+      "Invalid config: Default dialect is deprecated; use explicit:"
     )
   }
 

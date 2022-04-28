@@ -23,8 +23,8 @@ object ScalafmtDynamicError {
   class ConfigMissingVersion(configPath: Path)
       extends ConfigError(configPath, "Missing version")
 
-  class ConfigParseError(configPath: Path, why: String)
-      extends ConfigError(configPath, s"Invalid config: $why")
+  class ConfigParseError(configPath: Path, why: String, cause: Throwable = null)
+      extends ConfigError(configPath, s"Invalid config: $why", cause)
 
   class CannotDownload(
       configPath: Path,

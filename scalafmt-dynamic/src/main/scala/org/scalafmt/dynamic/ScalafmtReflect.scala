@@ -57,19 +57,32 @@ case class ScalafmtReflect(
     }
 
   private def parseConfigWith(
-      f: => Try[Object]
-  )(g: Throwable => Throwable): Try[ScalafmtReflectConfig] =
+      f: => Try[Object],
+      path: Path = null
+  ): Try[ScalafmtReflectConfig] = {
+    import ScalafmtDynamicError.ConfigParseError
+    @inline def fail(e: Throwable) =
+      Failure(new ConfigParseError(path, e.getMessage, e.getCause))
     f.map { configured =>
       new ScalafmtReflectConfig(this)(configured.invoke("get"))
-    }.recoverWith { case ReflectionException(e) => Failure(g(e)) }
+    }.recoverWith {
+      case e: ReflectiveOperationException =>
+        fail(Option(e.getCause).getOrElse(e))
+      case e => fail(e)
+    }
+  }
 
   def parseConfig(path: Path): Try[ScalafmtReflectConfig] =
-    parseConfigWith(parseConfigPost300(path)) { e =>
-      new ScalafmtDynamicError.ConfigParseError(path, e.getMessage)
-    }
+    parseConfigWith(parseConfigPost300(path), path)
+
+  def parseConfigFromString(
+      path: Path,
+      text: String
+  ): Try[ScalafmtReflectConfig] =
+    parseConfigWith(parseConfigPre300(text), path)
 
   def parseConfigFromString(text: String): Try[ScalafmtReflectConfig] =
-    parseConfigWith(parseConfigPre300(text))(identity)
+    parseConfigWith(parseConfigPre300(text))
 
   private def parseConfigPost300(path: Path): Try[Object] = {
     if (version < ScalafmtVersion(3, 0, 0, 7)) parseConfigPre300(path)
