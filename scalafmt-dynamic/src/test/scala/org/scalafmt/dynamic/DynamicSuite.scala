@@ -273,9 +273,13 @@ class DynamicSuite extends FunSuite {
   check("config-error") { f =>
     f.setVersion(latest, "scala212", "max = 70")
     val err = f.assertThrows[ScalafmtDynamicError.ConfigParseError]().getMessage
-    assert(
-      err.contains("error: found option 'max' which wasn't expected"),
-      err
+    assertNoDiff(
+      err.takeRight(120),
+      """|error: found option 'max' which wasn't expected, or isn't valid in this context.
+        |	Did you mean 'maxColumn'?
+        |max = 70
+        |^
+        |""".stripMargin
     )
   }
 
@@ -434,6 +438,30 @@ class DynamicSuite extends FunSuite {
     assert(!configWithoutRewrites.hasRewriteRules)
   }
 
+  check("fail parseConfigXxx (no dialect) in 3.1.2") { f =>
+    val version = ScalafmtVersion(3, 1, 2)
+    val config = s"version=$version"
+    f.setConfig(config)
+    val loader = f.dynamic.moduleLoader
+    val module = loader.load(f.config, version, f.dynamic.properties).right.get
+
+    val thrown1 = intercept[ScalafmtDynamicError.ConfigParseError] {
+      module.parseConfig(f.config).get
+    }
+    assertNoDiff(
+      thrown1.getMessage.take(60),
+      "Invalid config: Default dialect is deprecated; use explicit:"
+    )
+
+    val thrown2 = intercept[NoSuchElementException] {
+      module.parseConfigFromString(config).get
+    }
+    assertNoDiff(
+      thrown2.getMessage.take(44),
+      "Default dialect is deprecated; use explicit:"
+    )
+  }
+
   check("invalid config in 3.0.0-RC6") { f =>
     f.setConfig(
       s"""|version=3.0.0-RC6
@@ -441,10 +469,14 @@ class DynamicSuite extends FunSuite {
         |""".stripMargin
     )
     val thrown = f.assertThrows[ScalafmtDynamicError.ConfigParseError]()
-    assert(
-      thrown.getMessage.startsWith(
-        "Invalid config: <input>:3:0 error: Type mismatch;"
-      )
+    assertNoDiff(
+      thrown.getMessage,
+      """|Invalid config: <input>:3:0 error: Type mismatch;
+        |  found    : String (value: "does-not-exist")
+        |  expected : Object
+        |    "align" : "does-not-exist",
+        |^
+        |""".stripMargin
     )
   }
 
@@ -455,7 +487,13 @@ class DynamicSuite extends FunSuite {
         |""".stripMargin
     )
     val thrown = f.assertThrows[ScalafmtDynamicError.ConfigParseError]()
-    assert(thrown.getMessage.startsWith("Invalid config: Type mismatch;"))
+    assertNoDiff(
+      thrown.getMessage,
+      """|Invalid config: Type mismatch;
+        |  found    : String (value: "does-not-exist")
+        |  expected : Object
+        |""".stripMargin
+    )
   }
 
   check("invalid version - current") { f =>
