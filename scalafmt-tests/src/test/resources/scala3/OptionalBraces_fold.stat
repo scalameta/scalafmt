@@ -3228,3 +3228,31 @@ type T =
   Short |
   Int | Long |
   Double
+<<< #3188
+maxColumn = 60
+===
+object a {
+  implicit def generate[T](value: T): Clue[T] =
+    macro MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro
+    MacroCompatScala2.clueImpl
+  implicit def generate[T](
+    value: T
+  ): Clue[T] = macro MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T)
+    : Clue[T] = macro MacroCompatScala2.clueImpl
+}
+>>>
+object a {
+  implicit def generate[T](value: T): Clue[T] =
+    macro MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] =
+    macro MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] =
+    macro MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] =
+    macro MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] =
+    macro MacroCompatScala2.clueImpl
+}
