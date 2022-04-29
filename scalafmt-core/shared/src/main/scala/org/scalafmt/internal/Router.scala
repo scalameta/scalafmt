@@ -2599,6 +2599,13 @@ class Router(formatOps: FormatOps) {
       case ft @ FormatToken(_: T.Comment, _, _) if ft.hasBreak =>
         splitsAsNewlines(splits)
       case ft if ft.meta.formatOff && ft.hasBreak => splitsAsNewlines(splits)
+      case FormatToken(_: T.Equals, r: T.KwMacro, _)
+          if dialect.allowSignificantIndentation =>
+        // scala3 compiler doesn't allow newline before `macro`
+        splits.map { s =>
+          if (!s.isNL) s
+          else s.withMod(Space).andPolicy(decideNewlinesOnlyAfterClose(r))
+        }
       case _ => splits
     }
   }

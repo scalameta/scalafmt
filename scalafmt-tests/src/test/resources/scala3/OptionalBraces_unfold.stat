@@ -3497,14 +3497,14 @@ object a {
 }
 >>>
 object a {
-  implicit def generate[T](value: T): Clue[T] =
-    macro MacroCompatScala2.clueImpl
-  implicit def generate[T](value: T): Clue[T] =
-    macro MacroCompatScala2.clueImpl
-  implicit def generate[T](value: T): Clue[T] =
-    macro MacroCompatScala2.clueImpl
-  implicit def generate[T](value: T): Clue[T] =
-    macro MacroCompatScala2.clueImpl
-  implicit def generate[T](value: T): Clue[T] =
-    macro MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro
+    MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro
+    MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro
+    MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro
+    MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro
+    MacroCompatScala2.clueImpl
 }
