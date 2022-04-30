@@ -143,3 +143,95 @@ object a {
       )
   )(Location.apply _)
 }
+<<< args with parens
+object a {
+  b c
+    ()
+  b c
+    (())
+  b c
+    (d, e)
+  b c
+    ((d, e))
+  b c
+    (c + d).foo
+}
+>>>
+object a {
+  b.c
+  ()
+  b.c(())
+  b.c
+  (d, e)
+  b.c((d, e))
+  b.c((c + d).foo)
+}
+<<< args with parens and comments
+object a {
+  b c /* c1 */
+    ( /* c2 */ )
+  b c /* c1 */
+    ( /* c2 */ ( /* c3 */ ))
+  b c /* c1 */
+    ( /* c2 */ d, e)
+  b c /* c1 */
+    ( /* c2 */ ( /* c3 */ d, e))
+  b c /* c1 */
+    ( /* c2 */ c + d /* c3 */ ).foo
+}
+>>>
+object a {
+  b.c /* c1 */
+  (/* c2 */ )
+  b.c( /* c1 */
+    (/* c2 */ /* c3 */ )
+  )
+  b.c /* c1 */
+  ( /* c2 */ d, e)
+  b.c( /* c1 */
+    ( /* c2 */ /* c3 */ d, e)
+  )
+  b.c( /* c1 */
+    (/* c2 */ c + d /* c3 */ ).foo
+  )
+}
+<<< args with parens, targs and comments
+object a {
+  b c /* c1 */
+    [A] /* c2 */
+    ( /* c3 */ )
+  b c /* c1 */
+    [A] /* c2 */
+    ( /* c3 */ d, e)
+}
+>>>
+object a {
+  b.c /* c1 */
+  [A] /* c2 */
+  (/* c3 */ )
+  b.c /* c1 */
+  [A] /* c2 */
+  ( /* c3 */ d, e)
+}
+<<< args with unit, targs and comments
+object a {
+  b c [A] /* c1 */
+    ( /* c2 */ ( /* c3 */ ))
+}
+>>>
+test does not parse
+object a {
+  b .c( [A] /* c1 */
+        ^
+    ( /* c2 */ ( /* c3 */ ))
+<<< args with tuple, targs and comments
+object a {
+  b c [A] /* c1 */
+    ( /* c2 */ ( /* c3 */ d, e))
+}
+>>>
+test does not parse
+object a {
+  b .c( [A] /* c1 */
+        ^
+    ( /* c2 */ ( /* c3 */ d, e))
