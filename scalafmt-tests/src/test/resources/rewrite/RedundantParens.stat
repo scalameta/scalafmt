@@ -779,3 +779,55 @@ foo >>= (_.http(registry, port).map(Option.apply(_)).catchSome {
 foo >>= (_.http(registry, port).map(Option.apply(_)).catchSome {
   bar
 })
+<<< infix with parens and comments
+object a {
+  b c /* c1 */
+    ( /* c2 */ )
+  b c /* c1 */
+    ( /* c2 */ ( /* c3 */ ))
+  b c /* c1 */
+    ( /* c2 */ ( /* c3 */ ( /* c4 */ )  ))
+  b c /* c1 */
+    ( /* c2 */ d, e)
+  b c /* c1 */
+    ( /* c2 */ ( /* c3 */ d, e))
+  b c /* c1 */
+    ( /* c2 */ ( /* c3 */ ( /* c4 */ d, e)))
+  b c /* c1 */
+    ( /* c2 */ c + d /* c3 */ ).foo
+}
+>>>
+object a {
+  b c /* c1 */
+    (/* c2 */ )
+  b c /* c1 */
+    (/* c2 */ (/* c3 */ ))
+  b c /* c1 */
+    (/* c2 */ (/* c3 */ (/* c4 */ )))
+  b c /* c1 */
+    (/* c2 */ d, e)
+  b c /* c1 */
+    (/* c2 */ ( /* c3 */ d, e))
+  b c /* c1 */
+    (/* c2 */ ( /* c3 */ ( /* c4 */ d, e)))
+  b c /* c1 */
+    (/* c2 */ c + d /* c3 */ ).foo
+}
+<<< infix with parens, targs and comments
+object a {
+  b c /* c1 */
+    [A] /* c2 */
+    ( /* c3 */ )
+  b c /* c1 */
+    [A] /* c2 */
+    ( /* c3 */ d, e)
+}
+>>>
+object a {
+  b c /* c1 */
+    [A] /* c2 */
+    (/* c3 */ )
+  b c /* c1 */
+    [A] /* c2 */
+    (/* c3 */ d, e)
+}
