@@ -1941,7 +1941,7 @@ class Router(formatOps: FormatOps) {
       // If/For/While/For with (
       case FormatToken(open: T.LeftParen, _, _) if (leftOwner match {
             case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield =>
-              !isSuperfluousParenthesis(open, leftOwner)
+              !isFirstToken(open, leftOwner)
             case _ => false
           }) =>
         val close = matching(open)

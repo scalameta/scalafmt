@@ -422,7 +422,7 @@ object TreeOps {
       isSuperfluousParenthesis(open.asInstanceOf[LeftParen], owner)
 
   def isSuperfluousParenthesis(open: LeftParen, owner: Tree): Boolean =
-    !isTuple(owner) && owner.tokens.headOption.contains(open)
+    !isTuple(owner) && isFirstToken(open, owner)
 
   @inline
   def isFirstOrLastToken(token: Token, owner: Tree): Boolean =
