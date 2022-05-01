@@ -99,6 +99,11 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     val ok = ft.meta.rightOwner match {
       case Term.Apply(_, List(t @ (_: Term.Block | _: Term.PartialFunction))) =>
         t.tokens.headOption.exists(_.is[Token.LeftBrace])
+      case Term.ApplyInfix(_, op, _, List(arg)) =>
+        arg match {
+          case _: Term.Tuple | _: Lit.Unit => false
+          case _ => op.pos.end <= ft.right.start
+        }
       case _: Term.Match => style.dialect.allowMatchAsOperator
       case _ => false
     }
