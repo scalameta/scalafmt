@@ -38,28 +38,48 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
   override def rewrite(tree: Tree): Unit =
     tree match {
-      case x @ Term.ApplyInfix(lhs, op, _, args) if checkMatchingInfix(x) =>
+      case x @ Term.ApplyInfix(lhs, op, targs, args) if checkMatchingInfix(x) =>
         val builder = Seq.newBuilder[TokenPatch]
 
         val opHead = op.tokens.head
         builder += TokenPatch.AddLeft(opHead, ".", keepTok = true)
 
-        args match {
-          case rhs :: Nil =>
-            rhs.tokens.headOption.foreach { head =>
-              val last = rhs.tokens.last
-              val opLast = op.tokens.last
-              if (!ctx.isMatching(head, last)) {
-                builder += TokenPatch.AddRight(opLast, "(", keepTok = true)
-                builder += TokenPatch.AddRight(last, ")", keepTok = true)
-              } else {
-                // move delimiter (before comment or newline)
-                builder +=
-                  TokenPatch.AddRight(opLast, head.syntax, keepTok = true)
-                builder += TokenPatch.Remove(head)
+        val opLast = op.tokens.last
+        val opNextOpt = ctx.tokenTraverser.nextNonTrivialToken(opLast)
+
+        def moveOpenDelim(prev: Token, open: Token): Unit = {
+          // move delimiter (before comment or newline)
+          builder += TokenPatch.AddRight(prev, open.syntax, keepTok = true)
+          builder += TokenPatch.Remove(open)
+        }
+
+        // move the left bracket if targs
+        val argTuple =
+          if (targs.isEmpty)
+            for {
+              opNext <- opNextOpt
+            } yield (opLast, opNext)
+          else
+            for {
+              lb <- opNextOpt
+              rb <- ctx.getMatchingOpt(lb)
+              rbNext <- {
+                moveOpenDelim(opLast, lb)
+                ctx.tokenTraverser.nextNonTrivialToken(rb)
               }
+            } yield (rb, rbNext)
+        // move the left paren if enclosed, else enclose
+        argTuple.foreach { case (prev, lp) =>
+          val isEnclosed = args.lastOption.forall { arg =>
+            val last = arg.tokens.last
+            val isEnclosed = ctx.getMatchingOpt(lp).exists(last.end <= _.end)
+            if (!isEnclosed) {
+              builder += TokenPatch.AddRight(prev, "(", keepTok = true)
+              builder += TokenPatch.AddRight(last, ")", keepTok = true)
             }
-          case _ => // otherwise, definitely enclosed
+            isEnclosed
+          }
+          if (isEnclosed) moveOpenDelim(prev, lp)
         }
 
         val shouldWrapLhs = !isWrapped(lhs) && (lhs match {
