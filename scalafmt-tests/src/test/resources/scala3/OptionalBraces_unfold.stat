@@ -3516,11 +3516,14 @@ object a:
   then 5
   else 4
 >>>
-test does not parse
 object a:
    if
-   val x = 4
- ^
+      val x = 4
+      4 == 3
+   then
+      5
+   else
+      4
 <<< #3204 while
 object a:
   while
@@ -3528,8 +3531,9 @@ object a:
     4 == 3
   do 5
 >>>
-test does not parse
 object a:
    while
-   val x = 4
- ^
+      val x = 4
+      4 == 3
+   do
+      5

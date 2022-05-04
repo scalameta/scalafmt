@@ -2216,7 +2216,7 @@ class FormatOps(
       ): Option[OptionalBracesRegion] =
         ft.meta.leftOwner match {
           case t @ Term.While(b: Term.Block, _)
-              if tokenBefore(b).left.is[T.KwDo] =>
+              if !matchingOpt(nft.right).exists(_.end >= b.pos.end) =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
               def splits = Some {
@@ -2403,7 +2403,7 @@ class FormatOps(
       ): Option[OptionalBracesRegion] = {
         ft.meta.leftOwner match {
           case t @ Term.If(b: Term.Block, _, _)
-              if tokenBefore(b).left.is[T.KwThen] =>
+              if !matchingOpt(nft.right).exists(_.end >= b.pos.end) =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
               def splits = Some {
