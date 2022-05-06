@@ -442,26 +442,6 @@ object a {
         }) =>
   }
 }
-<<< #2194 6 match with parens and scala3
-runner.dialect = scala3
-===
-object a {
-  val b = c match {
-    case true if (d match (({
-      case true  => true
-      case false => false
-    }))) =>
-  }
-}
->>>
-object a {
-  val b = c match {
-    case true if d match {
-          case true  => true
-          case false => false
-        } =>
-  }
-}
 <<< #2194 6 match with parens and no braces
 runner.dialect = scala3
 ===
@@ -830,4 +810,44 @@ object a {
   b c /* c1 */
     [A] /* c2 */
     (/* c3 */ d, e)
+}
+<<< if with/without then
+runner.dialect = scala3
+===
+object a {
+  if (a > 0) then {
+    foo
+  }
+  if (a > 0) {
+    foo
+  }
+}
+>>>
+object a {
+  if a > 0 then {
+    foo
+  }
+  if (a > 0) {
+    foo
+  }
+}
+<<< while with/without do
+runner.dialect = scala3
+===
+object a {
+  while (a > 0) do {
+    foo
+  }
+  while (a > 0) {
+    foo
+  }
+}
+>>>
+object a {
+  while a > 0 do {
+    foo
+  }
+  while (a > 0) {
+    foo
+  }
 }
