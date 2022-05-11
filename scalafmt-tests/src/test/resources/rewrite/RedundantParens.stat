@@ -255,8 +255,8 @@ object a {
 }
 >>>
 object a {
-  private val foo = ((bar == baz
-    || bar == baz)
+  private val foo = (bar == baz
+    || bar == baz
     || bar == baz)
 }
 <<< #1953
@@ -783,13 +783,13 @@ object a {
   b c /* c1 */
     (/* c2 */ (/* c3 */ ))
   b c /* c1 */
-    (/* c2 */ (/* c3 */ (/* c4 */ )))
+    (/* c2 */ (/* c3 */ /* c4 */ ))
   b c /* c1 */
     (/* c2 */ d, e)
   b c /* c1 */
     (/* c2 */ ( /* c3 */ d, e))
   b c /* c1 */
-    (/* c2 */ ( /* c3 */ ( /* c4 */ d, e)))
+    (/* c2 */ ( /* c3 */ /* c4 */ d, e))
   b c /* c1 */
     (/* c2 */ c + d /* c3 */ ).foo
 }

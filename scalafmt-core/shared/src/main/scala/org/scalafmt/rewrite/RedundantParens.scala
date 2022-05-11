@@ -6,20 +6,55 @@ import scala.meta.tokens.Token
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.{FormatToken, FormatTokens}
+import org.scalafmt.internal.{Side, SyntacticGroupOps, TreeSyntacticGroup}
 import org.scalafmt.util.{InfixApp, TreeOps}
 
 object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
+
+  private type Enclosed = (Int, Tree)
 
   override def enabled(implicit style: ScalafmtConfig): Boolean = true
 
   override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new RedundantParens(ftoks)
 
+  private def findEnclosedBetweenParens(
+      lt: FormatToken,
+      rt: FormatToken,
+      tree: Tree
+  ): Option[Tree] = {
+    val beforeParens = lt.left.start
+    val afterParens = rt.right.start
+    @tailrec
+    def iter(trees: List[Tree]): Option[Tree] = trees match {
+      case head :: rest =>
+        val headStart = head.pos.start
+        if (headStart <= beforeParens) iter(rest)
+        else {
+          val ok = headStart < afterParens &&
+            rest.headOption.forall(_.pos.start >= afterParens)
+          if (ok) Some(head) else None
+        }
+      case _ => None
+    }
+    val pos = tree.pos
+    val found = beforeParens < pos.start && pos.end <= afterParens
+    if (found) Some(tree) else iter(tree.children)
+  }
+
+  private def infixNeedsParens(outer: InfixApp, inner: Tree): Boolean = {
+    val sgOuter = TreeSyntacticGroup(outer.all)
+    val sgInner = TreeSyntacticGroup(inner)
+    val side = if (outer.lhs eq inner) Side.Left else Side.Right
+    SyntacticGroupOps.groupNeedsParenthesis(sgOuter, sgInner, side)
+  }
+
 }
 
 class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
   import FormatTokensRewrite._
+  import RedundantParens._
 
   override def enabled(implicit style: ScalafmtConfig): Boolean =
     RedundantParens.enabled
@@ -27,18 +62,14 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   override def onToken(implicit
       ft: FormatToken,
       style: ScalafmtConfig
-  ): Option[Replacement] = Option {
+  ): Option[Replacement] =
     ft.right match {
       case _: Token.LeftParen =>
-        val numParens = countParens
-        if (numParens == 0)
-          replaceNotEnclosed
-        else
-          replaceEnclosed(numParens)
-
-      case _ => null
+        findEnclosed.flatMap { case (cnt, tree) =>
+          if (okToReplaceWithCount(cnt, tree)) Some(removeToken) else None
+        }
+      case _ => None
     }
-  }
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
@@ -50,30 +81,28 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case _ => None
     }
 
-  private def replaceEnclosed(
-      numParens: Int
-  )(implicit ft: FormatToken, style: ScalafmtConfig): Replacement = {
-    val ok = ft.meta.rightOwner match {
+  private def okToReplaceWithCount(numParens: Int, tree: Tree)(implicit
+      style: ScalafmtConfig
+  ): Boolean =
+    tree match {
       case _: Term.Tuple | _: Type.Tuple | _: Lit.Unit => numParens >= 3
 
       case _ if numParens >= 2 => true
 
-      case _: Lit | _: Name | _: Term.Interpolate => true
+      case _: Term.AnonymousFunction | _: Term.Param => false
 
-      case Term.Apply(_, List(b @ (_: Term.Block | _: Term.PartialFunction)))
+      case b @ (_: Term.Block | _: Term.PartialFunction)
           if b.tokens.headOption.exists(_.is[Token.LeftBrace]) =>
-        true
-
-      case _: Term.PartialFunction => true
-
-      case t: Term.Match
-          if style.dialect.allowMatchAsOperator &&
-            ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
-            ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace] =>
-        true
+        b.parent.forall {
+          case p: Term.Apply => p.fun.eq(b) || p.args.lengthCompare(1) == 0
+          case p: Term.ApplyInfix => p.lhs.eq(b) || p.args.lengthCompare(1) == 0
+          case _ => false
+        }
 
       case t =>
-        t.parent.exists {
+        t.parent.forall {
+          case TreeOps.SplitCallIntoParts(_, args) =>
+            !args.fold(_.contains(t), _.exists(_.contains(t)))
           case TreeOps.SplitAssignIntoParts((body, _)) =>
             body.eq(t) && (t match {
               case InfixApp(ia) => !breaksBeforeOp(ia)
@@ -82,33 +111,28 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           case _: Enumerator.Guard => RewriteCtx.isPostfixExpr(t)
           case p: Case =>
             p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
-          case w: Term.While =>
-            style.dialect.allowSignificantIndentation && w.expr == t
-          case i: Term.If =>
-            style.dialect.allowSignificantIndentation && i.cond == t
-          case _ => false
+          case p: Term.While =>
+            style.dialect.allowSignificantIndentation && p.expr == t &&
+            ftoks.tokenBefore(p.body).left.is[Token.KwDo]
+          case p: Term.If =>
+            style.dialect.allowSignificantIndentation && p.cond == t &&
+            ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
+          case p =>
+            t match {
+              case _: Lit | _: Name | _: Term.Interpolate => true
+              case _: Term.PartialFunction | _: Term.Apply => true
+              case t: Term.Match if style.dialect.allowMatchAsOperator =>
+                !p.is[Term.ApplyInfix] ||
+                ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
+                ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace]
+              case _ =>
+                p match {
+                  case InfixApp(pia) => !infixNeedsParens(pia, t)
+                  case _ => false
+                }
+            }
         }
     }
-    if (ok) removeToken else null
-  }
-
-  private def replaceNotEnclosed(implicit
-      ft: FormatToken,
-      style: ScalafmtConfig
-  ): Replacement = {
-    val ok = ft.meta.rightOwner match {
-      case Term.Apply(_, List(t @ (_: Term.Block | _: Term.PartialFunction))) =>
-        t.tokens.headOption.exists(_.is[Token.LeftBrace])
-      case Term.ApplyInfix(_, op, _, List(arg)) =>
-        arg match {
-          case _: Term.Tuple | _: Lit.Unit => false
-          case _ => op.pos.end <= ft.right.start
-        }
-      case _: Term.Match => style.dialect.allowMatchAsOperator
-      case _ => false
-    }
-    if (ok) removeToken else null
-  }
 
   private def breaksBeforeOpAndNotEnclosed(ia: InfixApp): Boolean = {
     val allToks = ia.all.tokens
@@ -127,24 +151,23 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     })
   }
 
-  private def countParens(implicit ft: FormatToken): Int = {
-    val tree = ft.meta.rightOwner
-    val head = tree.tokens.head
-    val last = tree.tokens.last
+  private def findEnclosed(implicit ft: FormatToken): Option[Enclosed] = {
+    // counts consecutive parent pairs starting with the given one as the innermost
+    // the parens could belong to tree they are enclosing, or its parent
     @tailrec
-    def iter(lt: FormatToken, rt: FormatToken, cnt: Int = 0): Int = {
-      if (lt.right.eq(head) && rt.left.eq(last)) cnt + 1
-      else {
-        val prev = ftoks.prevNonComment(ftoks.prev(lt))
-        if (!prev.right.is[Token.LeftParen]) 0
-        else {
-          val next = ftoks.nextNonComment(ftoks.next(rt))
-          if (!next.left.is[Token.RightParen]) 0
-          else iter(prev, next, cnt + 1)
-        }
+    def iter(lt: FormatToken, rt: FormatToken, cnt: Int): Option[Enclosed] =
+      (ftoks.prevNonComment(lt), ftoks.nextNonComment(rt)) match {
+        case (
+              prev @ FormatToken(_: Token.LeftParen, _, _),
+              next @ FormatToken(_, _: Token.RightParen, _)
+            ) =>
+          iter(ftoks.prev(prev), ftoks.next(next), cnt + 1)
+        case (prev, next) =>
+          findEnclosedBetweenParens(prev, next, ft.meta.rightOwner)
+            .map((cnt, _))
       }
-    }
-    ftoks.matchingOpt(ft.right).fold(0)(rt => iter(ft, ftoks.after(rt)))
+
+    ftoks.matchingOpt(ft.right).flatMap { rt => iter(ft, ftoks.after(rt), 1) }
   }
 
 }

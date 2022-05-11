@@ -226,7 +226,7 @@ def test(dataFrame: DataFrame) = {
   }
 >>>
 def test(dataFrame: DataFrame) = {
-  val zeroAccumulator = Array.fill(1)(((0.0, 0)))
+  val zeroAccumulator = Array.fill(1)((0.0, 0))
 
   dataFrame.rdd
     .aggregate(zeroAccumulator)(
