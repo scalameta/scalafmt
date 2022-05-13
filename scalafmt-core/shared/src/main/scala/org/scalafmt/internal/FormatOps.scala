@@ -85,6 +85,7 @@ class FormatOps(
     prev,
     next,
     prevNonComment,
+    prevNonCommentBefore,
     nextNonComment,
     nextNonCommentSameLine
   }
@@ -1752,7 +1753,7 @@ class FormatOps(
         case t: Term.If if isKeep || ifWithoutElse(t) || hasStateColumn =>
           val thenBeg = tokens.getHead(t.thenp)
           val thenHasLB = thenBeg.left.is[T.LeftBrace]
-          val end = if (thenHasLB) thenBeg else prevNonComment(prev(thenBeg))
+          val end = if (thenHasLB) thenBeg else prevNonCommentBefore(thenBeg)
           getSplits(getSlbSplit(end.left))
         case _: Term.If => getSlbSplits()
         case _: Term.Try | _: Term.TryWithHandler =>
@@ -1940,7 +1941,7 @@ class FormatOps(
       soft: SoftKeywordClasses
   ): Boolean = ft.left match {
     case _: T.KwImplicit => true
-    case soft.KwUsing() => prevNonComment(prev(ft)).left.is[T.LeftParen]
+    case soft.KwUsing() => prevNonCommentBefore(ft).left.is[T.LeftParen]
     case _ => false
   }
 
@@ -2071,7 +2072,7 @@ class FormatOps(
         else {
           val maybeClose = prevNonComment(end)
           if (!tokens.isCloseMatchingHead(maybeClose.left)(tree)) None
-          else Some(prevNonComment(prev(maybeClose)).left)
+          else Some(prevNonCommentBefore(maybeClose).left)
         }
       def nlPolicy(implicit fileLine: FileLine) =
         if (danglingKeyword)

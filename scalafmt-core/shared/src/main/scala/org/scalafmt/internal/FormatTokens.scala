@@ -136,6 +136,10 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   final def prevNonComment(curr: FormatToken): FormatToken =
     findToken(curr, prev)(!_.left.is[Token.Comment]).fold(identity, identity)
 
+  @inline
+  final def prevNonCommentBefore(curr: FormatToken): FormatToken =
+    prevNonComment(prev(curr))
+
   def getHead(tree: Tree): FormatToken =
     after(tree.tokens.head)
   def getHeadOpt(tree: Tree): Option[FormatToken] =
