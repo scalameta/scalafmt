@@ -920,8 +920,8 @@ object a {
 }
 >>>
 object a {
-  foo map _.foo[A]
-  foo map new foo(_).bar
+  foo map (_.foo[A])
+  foo map (new foo(_).bar)
 }
 <<< empty parens
 object a {
