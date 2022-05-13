@@ -72,6 +72,7 @@ class Router(formatOps: FormatOps) {
     tokenBefore,
     getLastNonTrivial,
     prevNonComment,
+    prevNonCommentBefore,
     nextNonComment,
     prevNonCommentSameLine,
     nextNonCommentSameLine
@@ -2339,7 +2340,7 @@ class Router(formatOps: FormatOps) {
         val argsOrParamsOpt = formatToken.meta.leftOwner match {
           // for the using argument list
           case _: ApplyUsing => Some(getApplyArgs(formatToken, false).args)
-          case _ => opensImplicitParamList(prevNonComment(prev(formatToken)))
+          case _ => opensImplicitParamList(prevNonCommentBefore(formatToken))
         }
         argsOrParamsOpt.fold {
           Seq(Split(Space, 0))
