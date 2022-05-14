@@ -874,9 +874,9 @@ object a {
 >>>
 object a {
   foo match {
-    case bar(baz, qux) =>
-    case bar(baz, qux) =>
-    case bar(baz, qux) =>
+    case bar((baz, qux)) =>
+    case bar((baz, qux)) =>
+    case bar((baz, qux)) =>
   }
 }
 <<< infix as new anonymous
