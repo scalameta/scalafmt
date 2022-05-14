@@ -1389,8 +1389,8 @@ class FormatOps(
 
   def getLambdaAtSingleArgCallSite(ft: FormatToken): Option[Term.FunctionTerm] =
     ft.meta.leftOwner match {
-      case ta @ Term.Apply(_, List(fun: Term.FunctionTerm))
-          if ta.fun.pos.end <= ft.left.start =>
+      case Term.Apply(before, List(fun: Term.FunctionTerm))
+          if before.pos.end <= ft.left.start =>
         Some(fun)
       case fun: Term.FunctionTerm if fun.parent.exists {
             case Term.ApplyInfix(_, _, _, List(`fun`)) => true
@@ -1446,7 +1446,8 @@ class FormatOps(
     def getArgs(argss: Seq[Seq[Tree]]): Seq[Tree] =
       findArgsFor(paren, argss).getOrElse(Seq.empty)
     owner match {
-      case InfixApp(ia) => TreeArgs(ia.op, ia.rhs)
+      case InfixApp(ia) if ia.op.pos.end <= paren.start =>
+        TreeArgs(ia.op, ia.rhs)
       case SplitDefnIntoParts(_, name, tparams, paramss) =>
         if (if (isRight) paren.is[T.RightParen] else paren.is[T.LeftParen])
           TreeArgs(name, getArgs(paramss))
