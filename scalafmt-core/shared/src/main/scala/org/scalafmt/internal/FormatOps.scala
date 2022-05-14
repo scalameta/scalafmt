@@ -838,9 +838,7 @@ class FormatOps(
   }
 
   private def getLastEnclosedToken(tree: Tree): T = {
-    val tokens = tree.tokens
-    val slice = if (isEnclosedInMatching(tree)) tokens.dropRight(1) else tokens
-    findLastNonTrivialToken(slice)
+    tokens.getLastExceptParen(tree.tokens).left
   }
 
   @tailrec
