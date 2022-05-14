@@ -61,7 +61,8 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       style: ScalafmtConfig
   ): Boolean =
     tree match {
-      case _: Term.Tuple | _: Type.Tuple | _: Lit.Unit => numParens >= 3
+      case _: Term.Tuple | _: Type.Tuple | _: Pat.Tuple | _: Lit.Unit =>
+        numParens >= 3
 
       case _ if numParens >= 2 => true
 
