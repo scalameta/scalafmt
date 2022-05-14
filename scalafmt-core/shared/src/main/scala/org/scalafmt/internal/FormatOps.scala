@@ -2057,14 +2057,16 @@ class FormatOps(
         danglingKeyword: Boolean = true,
         indentOpt: Option[Int] = None
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
-      val end = tokens.getLast(tree)
+      val treeTokens = tree.tokens
+      val end = tokens.getLast(treeTokens)
       val slbExpire = nextNonCommentSameLine(end).left
       val closeOpt =
         if (isTuple(tree)) None
         else {
           val maybeClose = prevNonComment(end)
-          if (!tokens.isCloseMatchingHead(maybeClose.left)(tree)) None
-          else Some(prevNonCommentBefore(maybeClose).left)
+          tokens
+            .getClosingIfInParens(maybeClose)(tokens.getHead(treeTokens))
+            .map(prevNonComment(_).left)
         }
       def nlPolicy(implicit fileLine: FileLine) =
         if (danglingKeyword)
