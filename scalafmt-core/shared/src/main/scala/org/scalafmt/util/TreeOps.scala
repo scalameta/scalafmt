@@ -450,7 +450,12 @@ object TreeOps {
     }
 
   def isCallSiteLeft(ft: FormatToken)(implicit style: ScalafmtConfig): Boolean =
-    isCallSite(ft.meta.leftOwner)
+    ft.meta.leftOwner match {
+      case Term.ApplyInfix(_, op, _, List(arg))
+          if op.pos.end <= ft.left.start => // parens used to belong to rhs
+        isCallSite(arg)
+      case t => isCallSite(t)
+    }
 
   def isTuple(tree: Tree): Boolean =
     tree match {

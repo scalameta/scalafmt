@@ -66,7 +66,6 @@ class Router(formatOps: FormatOps) {
   import tokens.{
     matching,
     matchingOpt,
-    isEnclosedInMatching,
     prev,
     next,
     tokenBefore,
@@ -934,7 +933,7 @@ class Router(formatOps: FormatOps) {
 
         val sourceIgnored = style.newlines.sourceIgnored
         val isSingleEnclosedArgument =
-          singleArgument && isEnclosedInMatching(args(0))
+          singleArgument && tokens.isEnclosedInMatching(args(0))
         val useConfigStyle = onlyConfigStyle || (sourceIgnored &&
           style.optIn.configStyleArguments && !isSingleEnclosedArgument)
 
@@ -2103,12 +2102,13 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: T.LeftParen, right, _) =>
         val isConfig = couldUseConfigStyle(formatToken)
         val close = matching(open)
+        val enclosed = findEnclosedBetweenParens(open, close, leftOwner)
         def spaceSplitWithoutPolicy(implicit fileLine: FileLine) = {
           val indent: Length = right match {
             case T.KwIf() => StateColumn
             case T.KwFor() if !style.indentYieldKeyword => StateColumn
             case _ =>
-              if (leftOwner.is[Term.ApplyInfix]) Num(0)
+              if (enclosed.exists(_.is[Term.ApplyInfix])) Num(0)
               else {
                 val closeFt = tokens(close, -1)
                 val willBreak = closeFt.left.is[T.Comment] &&
@@ -2139,18 +2139,19 @@ class Router(formatOps: FormatOps) {
             case Newlines.keep =>
               Seq(if (newlines != 0) newlineSplit(0, isConfig) else spaceSplit)
             case _ =>
-              val singleLine = !isSuperfluousParenthesis(open, leftOwner) ||
+              val singleLine = enclosed.forall { x =>
                 style.newlines.source.eq(Newlines.unfold) &&
-                leftOwner.parent.exists {
+                x.parent.exists {
                   case _: Template | _: Defn => false
                   case InfixApp(_) => false
                   case _ => true
                 }
+              }
               Seq(
                 if (!singleLine) spaceSplit
                 else {
                   val singleLineInfixPolicy =
-                    if (!isInfixApp(leftOwner)) None
+                    if (!enclosed.exists(isInfixApp)) None
                     else Some(getSingleLineInfixPolicy(close))
                   spaceSplitWithoutPolicy
                     .withSingleLine(close)

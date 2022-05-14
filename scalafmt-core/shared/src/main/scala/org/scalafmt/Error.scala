@@ -55,7 +55,7 @@ object Error {
       extends Error("Formatter output does not parse:\n" + msg)
 
   case class UnexpectedTree[Expected <: Tree: ClassTag](obtained: Tree)
-      extends Error(s"""Expected: ${classTag[Expected].runtimeClass.getClass}
+      extends Error(s"""Expected: ${classTag[Expected].runtimeClass.getName}
         |Obtained: ${log(obtained)}""".stripMargin)
 
   case class CantFormatFile(msg: String)
