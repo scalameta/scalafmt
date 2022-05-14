@@ -447,6 +447,9 @@ object TreeOps {
       case _ => false
     }
 
+  def isCallSiteLeft(ft: FormatToken)(implicit style: ScalafmtConfig): Boolean =
+    isCallSite(ft.meta.leftOwner)
+
   def isTuple(tree: Tree): Boolean =
     tree match {
       case _: Pat.Tuple | _: Term.Tuple | _: Type.Tuple => true

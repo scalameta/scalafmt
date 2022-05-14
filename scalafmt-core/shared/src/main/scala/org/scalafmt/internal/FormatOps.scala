@@ -586,7 +586,7 @@ class FormatOps(
       prevFt.left match {
         case _: T.Equals => Some(getLastToken(prevOwner))
         case _: T.Comma | _: T.LeftParen | _: T.LeftBracket
-            if isCallSite(prevOwner) && fullAll.parent.contains(prevOwner) &&
+            if isCallSiteLeft(prevFt) && fullAll.parent.contains(prevOwner) &&
               isSeqSingle(getApplyArgs(prevFt, false).args) =>
           Some(getLastToken(fullAll))
         case _ => None
