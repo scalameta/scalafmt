@@ -83,24 +83,31 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
     matchingParentheses.get(TokenOps.hash(token))
   @inline def hasMatching(token: Token): Boolean =
     matchingParentheses.contains(TokenOps.hash(token))
-  @inline def areMatching(t1: Token)(t2: Token): Boolean =
-    matchingOpt(t1).contains(t2)
-
-  def getClosingIfEnclosedInMatching(tokens: Tokens): Option[FormatToken] =
-    getHeadOpt(tokens).flatMap { head =>
-      matchingOpt(head.left).flatMap { last =>
-        val ft = getLastNonTrivial(tokens)
-        if (ft.left eq last) Some(ft) else None
-      }
+  @inline def areMatching(t1: Token)(t2: => Token): Boolean =
+    matchingOpt(t1) match {
+      case Some(x) => x eq t2
+      case _ => false
     }
 
   def isEnclosedInMatching(tokens: Tokens): Boolean =
-    getClosingIfEnclosedInMatching(tokens).isDefined
+    getHeadOpt(tokens).exists { head =>
+      areMatching(head.left)(getLastNonTrivial(tokens).left)
+    }
   def isEnclosedInMatching(tree: Tree): Boolean =
     isEnclosedInMatching(tree.tokens)
 
   def isCloseMatchingHead(close: Token)(tree: => Tree): Boolean =
     matchingOpt(close).exists(_ eq getHead(tree).left)
+
+  @inline private def areMatchingParens(close: Token)(open: => Token): Boolean =
+    close.is[Token.RightParen] && areMatching(close)(open)
+
+  def isEnclosedInParens(tokens: Tokens): Boolean =
+    getLastNonTrivialOpt(tokens).exists { last =>
+      areMatchingParens(last.left)(getHead(tokens).left)
+    }
+  def isEnclosedInParens(tree: Tree): Boolean =
+    isEnclosedInParens(tree.tokens)
 
   @tailrec
   final def findTokenWith[A](

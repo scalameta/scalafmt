@@ -135,8 +135,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     }
 
   private def breaksBeforeOpAndNotEnclosed(ia: InfixApp): Boolean = {
-    val allToks = ia.all.tokens
-    !ftoks.areMatching(allToks.head)(allToks.last) && breaksBeforeOp(ia)
+    !ftoks.isEnclosedInParens(ia.all) && breaksBeforeOp(ia)
   }
 
   private def breaksBeforeOp(ia: InfixApp): Boolean = {
