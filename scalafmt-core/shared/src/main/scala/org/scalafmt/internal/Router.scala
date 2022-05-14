@@ -1254,7 +1254,7 @@ class Router(formatOps: FormatOps) {
         }
 
       case ft @ FormatToken(open @ LeftParenOrBracket(), right, _)
-          if !style.binPack.callSite(open).isNever && isCallSite(leftOwner) =>
+          if !style.binPack.callSite(open).isNever && isCallSiteLeft(ft) =>
         val close = matching(open)
         val isBracket = open.is[T.LeftBracket]
         val bracketPenalty = if (isBracket) Constants.BracketPenalty else 1
@@ -1355,8 +1355,8 @@ class Router(formatOps: FormatOps) {
               if (style.binPack.indentCallSiteOnce) {
                 val trigger = getIndentTrigger(leftOwner)
                 Policy.on(close) {
-                  case Decision(FormatToken(LeftParenOrBracket(), _, m), s)
-                      if isCallSite(m.leftOwner) =>
+                  case Decision(t @ FormatToken(LeftParenOrBracket(), _, _), s)
+                      if isCallSiteLeft(t) =>
                     s.map { x => if (x.isNL) x else x.switch(trigger, false) }
                 }
               } else NoPolicy
@@ -1559,8 +1559,8 @@ class Router(formatOps: FormatOps) {
               if (style.binPack.indentCallSiteOnce) {
                 val trigger = getIndentTrigger(leftOwner)
                 Policy.on(lastFT.left) {
-                  case Decision(FormatToken(LeftParenOrBracket(), _, m), s)
-                      if isCallSite(m.leftOwner) =>
+                  case Decision(t @ FormatToken(LeftParenOrBracket(), _, _), s)
+                      if isCallSiteLeft(t) =>
                     s.map { x => if (x.isNL) x else x.switch(trigger, true) }
                 }
               } else NoPolicy
