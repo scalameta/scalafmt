@@ -79,6 +79,7 @@ class FormatOps(
     matching,
     matchingOpt,
     isEnclosedInMatching,
+    isEnclosedInParens,
     findTokenWith,
     tokenBefore,
     tokenAfter,
@@ -556,7 +557,7 @@ class FormatOps(
     @tailrec
     private def findEnclosingInfix(child: InfixApp): InfixApp = {
       val childTree = child.all
-      if (isEnclosedInMatching(childTree)) child
+      if (isEnclosedInParens(childTree)) child
       else
         childTree.parent match {
           case Some(InfixApp(parent)) if !parent.isAssignment =>
@@ -712,12 +713,7 @@ class FormatOps(
           val infixes = if (beforeLhs) res.toSeq else res.toSeq.tail
           val filtered =
             if (!style.newlines.afterInfixBreakOnNested) infixes
-            else
-              infixes.takeWhile { x =>
-                val close = getLastNonTrivialToken(x.lhs)
-                !close.is[T.RightParen] ||
-                !tokens.isCloseMatchingHead(close)(owners(close))
-              }
+            else infixes.takeWhile(x => !isEnclosedInParens(x.lhs))
           if (filtered.isEmpty) None
           else {
             val res = filtered.foldLeft(Seq.empty[(T, Int)]) { case (out, ia) =>
@@ -864,7 +860,7 @@ class FormatOps(
       tree: Tree,
       res: mutable.Buffer[InfixApp]
   ): Unit =
-    if (!isEnclosedInMatching(tree)) {
+    if (!isEnclosedInParens(tree)) {
       asInfixApp(tree).foreach { ia =>
         findNestedInfixes(ia.lhs, res)
         res += ia
@@ -881,14 +877,14 @@ class FormatOps(
   @tailrec
   final def findLeftInfix(app: InfixApp): InfixApp =
     app.lhs match {
-      case t @ InfixApp(ia) if !isEnclosedInMatching(t) =>
+      case t @ InfixApp(ia) if !isEnclosedInParens(t) =>
         findLeftInfix(ia)
       case _ => app
     }
 
   private def getInfixRhsAsInfix(app: InfixApp): Option[InfixApp] =
     app.rhs match {
-      case Seq(t @ InfixApp(ia)) if !isEnclosedInMatching(t) => Some(ia)
+      case Seq(t @ InfixApp(ia)) if !isEnclosedInParens(t) => Some(ia)
       case _ => None // multiple parameters to infix are always enclosed
     }
 
@@ -901,7 +897,7 @@ class FormatOps(
       if (maxPrecedence < elem.precedence)
         maxPrecedence = elem.precedence
       queue ++= (elem.lhs +: elem.rhs).collect {
-        case t @ InfixApp(ia) if !isEnclosedInMatching(t) => ia
+        case t @ InfixApp(ia) if !isEnclosedInParens(t) => ia
       }
     }
     maxPrecedence
@@ -1496,7 +1492,7 @@ class FormatOps(
     tree match {
       case GetSelectLike(t) => Some(t)
       case t @ SplitCallIntoParts(fun, _) if t ne fun =>
-        if (enclosed && isEnclosedInMatching(t)) None
+        if (enclosed && isEnclosedInParens(t)) None
         else findPrevSelect(fun, enclosed)
       case _ => None
     }
@@ -1511,7 +1507,7 @@ class FormatOps(
       tree: Tree,
       select: Option[SelectLike] = None
   ): (Tree, Option[SelectLike]) =
-    if (isEnclosedInMatching(tree)) (tree, select)
+    if (isEnclosedInParens(tree)) (tree, select)
     else
       tree.parent match {
         case Some(GetSelectLike(p)) =>
@@ -1534,7 +1530,7 @@ class FormatOps(
         prevEnclosed match {
           case Some(t) => (t, select)
           case _ =>
-            val nextEnclosed = Some(tree).filter(isEnclosedInMatching)
+            val nextEnclosed = Some(tree).filter(isEnclosedInParens)
             findLastApplyAndNextSelectPastEnclosed(p, select, nextEnclosed)
         }
       case _ => (prevEnclosed.getOrElse(tree), select)
@@ -1928,12 +1924,7 @@ class FormatOps(
         val op = t.op.value
         op != "->" && op != "→"
       case _ => true
-    }) && {
-      val btoks = body.tokens
-      btoks.headOption.exists { head =>
-        head.is[T.LeftParen] && tokens.areMatching(head)(btoks.last)
-      }
-    }
+    }) && isEnclosedInParens(body)
   }
 
   // For using to be the soft kw it also has to be preceded by paren

@@ -356,7 +356,7 @@ class FormatWriter(formatOps: FormatOps) {
   private def checkInsertBraces(locations: Array[FormatLocation]): Unit = {
     def checkInfix(tree: Tree): Boolean = tree match {
       case ai @ Term.ApplyInfix(lhs, op, _, rhs) =>
-        tokens.isEnclosedInMatching(ai) ||
+        tokens.isEnclosedInParens(ai) ||
         tokens.prevNonCommentSameLine(tokens.tokenJustBefore(op)).noBreak &&
         checkInfix(lhs) && (rhs.lengthCompare(1) != 0 || checkInfix(rhs.head))
       case _ => true
