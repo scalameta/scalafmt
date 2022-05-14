@@ -112,6 +112,11 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   def getClosingIfInParens(tokens: Tokens): Option[FormatToken] =
     getHeadOpt(tokens).flatMap(getClosingIfInParens(getLastNonTrivial(tokens)))
 
+  def getLastExceptParen(tokens: Tokens): FormatToken = {
+    val last = getLastNonTrivial(tokens)
+    getClosingIfInParens(last)(getHead(tokens)).getOrElse(last)
+  }
+
   @tailrec
   final def findTokenWith[A](
       ft: FormatToken,

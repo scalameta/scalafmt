@@ -1672,9 +1672,7 @@ class Router(formatOps: FormatOps) {
           case x: Term.Match => SelectLike(x, getKwMatchAfterDot(t))
         }
         val prevSelect = findPrevSelect(thisSelect, enclosed)
-        val expireDropRight = if (isEnclosedInMatching(expireTree)) 1 else 0
-        val expireTreeSlice = expireTree.tokens.dropRight(expireDropRight)
-        val expire = findLastNonTrivialToken(expireTreeSlice)
+        val expire = tokens.getLastExceptParen(expireTree.tokens).left
         val indentLen = style.indent.main
 
         def breakOnNextDot: Policy =
