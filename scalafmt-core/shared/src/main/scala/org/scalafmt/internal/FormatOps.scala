@@ -576,7 +576,7 @@ class FormatOps(
       fullInfix: InfixApp,
       leftInfix: InfixApp
   )(implicit style: ScalafmtConfig) {
-    private val beforeLhs = ft.left.start < app.all.tokens.head.start
+    private val beforeLhs = ft.left.start < app.all.pos.start
     private val fullExpire = getLastEnclosedToken(fullInfix.all)
     private val isFirstOp = beforeLhs || (leftInfix.op eq app.op)
 
@@ -586,9 +586,10 @@ class FormatOps(
       val prevOwner = prevFt.meta.leftOwner
       prevFt.left match {
         case _: T.Equals => Some(getLastToken(prevOwner))
-        case _: T.Comma | _: T.LeftParen | _: T.LeftBracket
-            if isCallSiteLeft(prevFt) && fullAll.parent.contains(prevOwner) &&
-              isSeqSingle(getApplyArgs(prevFt, false).args) =>
+        case lp @ (_: T.LeftParen | _: T.LeftBracket)
+            if fullAll.parent.contains(prevOwner) && !isInfixApp(prevOwner) &&
+              Option(getApplyArgs(lp, prevOwner, false, orNull = true))
+                .exists(x => isSeqSingle(x.args)) =>
           Some(getLastToken(fullAll))
         case _ => None
       }
@@ -1389,7 +1390,10 @@ class FormatOps(
       case fun: Term.FunctionTerm if fun.parent.exists {
             case Term.ApplyInfix(_, _, _, List(`fun`)) => true
             case _ => false
-          } =>
+          } && fun.pos.start == ft.left.start =>
+        Some(fun)
+      case Term.ApplyInfix(_, before, _, List(fun: Term.FunctionTerm))
+          if before.pos.end <= ft.left.start =>
         Some(fun)
       case t: Init =>
         findArgsFor(ft.left, t.argss).collect {
@@ -1437,6 +1441,15 @@ class FormatOps(
   ): TreeArgs = {
     val paren = if (isRight) ft.right else ft.left
     val owner = if (isRight) ft.meta.rightOwner else ft.meta.leftOwner
+    getApplyArgs(paren, owner, isRight)
+  }
+
+  def getApplyArgs(
+      paren: T,
+      owner: Tree,
+      isRight: Boolean,
+      orNull: Boolean = false
+  ): TreeArgs = {
     def getArgs(argss: Seq[Seq[Tree]]): Seq[Tree] =
       findArgsFor(paren, argss).getOrElse(Seq.empty)
     owner match {
@@ -1454,8 +1467,12 @@ class FormatOps(
         }
       case _ =>
         owner.parent match {
-          case Some(Term.ApplyInfix(_, op, _, rhs @ List(`owner`))) =>
+          case Some(Term.ApplyInfix(_, op, _, rhs @ List(`owner`))) if {
+                val ownerTokens = owner.tokens
+                ownerTokens.head == paren && isEnclosedInMatching(ownerTokens)
+              } =>
             TreeArgs(op, rhs)
+          case _ if orNull => null
           case p =>
             logger.debug(s"""getApplyArgs: unknown tree
               |Tree: ${log(owner)}
