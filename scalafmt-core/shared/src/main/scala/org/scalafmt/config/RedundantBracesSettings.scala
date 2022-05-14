@@ -17,10 +17,13 @@ case class RedundantBracesSettings(
 )
 
 object RedundantBracesSettings {
+
+  val default = RedundantBracesSettings()
+
   implicit lazy val surface: generic.Surface[RedundantBracesSettings] =
     generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[RedundantBracesSettings] =
-    generic.deriveCodecEx(RedundantBracesSettings()).noTypos
+    generic.deriveCodecEx(default).noTypos
 
   sealed abstract class DefnBodies
 
