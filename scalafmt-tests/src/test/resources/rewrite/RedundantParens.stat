@@ -918,8 +918,8 @@ object a {
 }
 >>>
 object a {
-  new foo
-  case class foo[bar](implicit baz: qux)
+  new foo()
+  case class foo[bar]()(implicit baz: qux)
 }
 <<< casting
 object a {
