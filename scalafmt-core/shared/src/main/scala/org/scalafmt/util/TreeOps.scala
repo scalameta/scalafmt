@@ -928,10 +928,11 @@ object TreeOps {
     @tailrec
     def iter(trees: List[Tree]): Option[Tree] = trees match {
       case head :: rest =>
-        val headStart = head.pos.start
+        val headPos = head.pos
+        val headStart = headPos.start
         if (headStart < beforeParens) iter(rest)
         else {
-          val ok = headStart < afterParens &&
+          val ok = headStart < afterParens && headStart < headPos.end &&
             rest.headOption.forall(_.pos.start >= afterParens)
           if (ok) Some(head) else None
         }
