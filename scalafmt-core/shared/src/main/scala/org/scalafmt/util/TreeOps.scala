@@ -916,4 +916,28 @@ object TreeOps {
     }
   }
 
+  def findEnclosedBetweenParens(
+      lt: FormatToken,
+      rt: FormatToken,
+      tree: Tree
+  ): Option[Tree] = {
+    val beforeParens = lt.left.start
+    val afterParens = rt.right.start
+    @tailrec
+    def iter(trees: List[Tree]): Option[Tree] = trees match {
+      case head :: rest =>
+        val headStart = head.pos.start
+        if (headStart <= beforeParens) iter(rest)
+        else {
+          val ok = headStart < afterParens &&
+            rest.headOption.forall(_.pos.start >= afterParens)
+          if (ok) Some(head) else None
+        }
+      case _ => None
+    }
+    val pos = tree.pos
+    val found = beforeParens < pos.start && pos.end <= afterParens
+    if (found) Some(tree) else iter(tree.children)
+  }
+
 }
