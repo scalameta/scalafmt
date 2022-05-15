@@ -106,20 +106,34 @@ object a {
 object a {
   b match { case _ if a || a => b }
 }
+<<< single-arg apply of a function not in block
+object a {
+  (a(b => c))
+}
+>>>
+Idempotency violated
+object a {
+  a(
+  b => c)
+}
 <<< single-arg apply of a block 1
 object a {
   a({ b => c })
+  (a({ b => c }))
 }
 >>>
 object a {
+  a { b => c }
   a { b => c }
 }
 <<< single-arg apply of a block 2
 object a {
   a({ b; c })
+  (a({ b; c }))
 }
 >>>
 object a {
+  a { b; c }
   a { b; c }
 }
 <<< single-arg apply of a block 3
