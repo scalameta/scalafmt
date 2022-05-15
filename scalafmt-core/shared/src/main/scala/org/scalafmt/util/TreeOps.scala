@@ -28,7 +28,7 @@ import scala.reflect.ClassTag
 
 import org.scalafmt.Error
 import org.scalafmt.config.{DanglingParentheses, ScalafmtConfig}
-import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.{FormatToken, FormatTokens}
 
 /** Stateless helper functions on `scala.meta.Tree`.
   */
@@ -98,14 +98,14 @@ object TreeOps {
 
   def getStatementStarts(
       tree: Tree,
-      replacedWith: Token => Token,
+      ftoks: FormatTokens,
       soft: SoftKeywordClasses
   ): Map[TokenHash, Tree] = {
     val ret = Map.newBuilder[TokenHash, Tree]
     ret.sizeHint(tree.tokens.length)
 
     def addTok(token: Token, tree: Tree) =
-      ret += hash(replacedWith(token)) -> tree
+      ret += hash(ftoks.after(token).left) -> tree
     def addTree(t: Tree, tree: Tree) =
       t.tokens.find(!_.is[Trivia]).foreach(addTok(_, tree))
     def addAll(trees: Seq[Tree]) = trees.foreach(x => addTree(x, x))
@@ -168,7 +168,7 @@ object TreeOps {
         // special handling for rewritten blocks
         case t @ Term.Block(List(arg)) // single-stat block
             if t.tokens.headOption // see if opening brace was removed
-              .exists(x => x.is[Token.LeftBrace] && replacedWith(x).ne(x)) =>
+              .exists(x => x.is[Token.LeftBrace] && ftoks(x).left.ne(x)) =>
           if (arg.is[Term.Function]) {
             // handle rewritten apply { { x => b } } to a { x => b }
             val parentApply = findTreeWithParent(t) {
@@ -180,8 +180,10 @@ object TreeOps {
           }
         // special handling for rewritten apply(x => { b }) to a { x => b }
         case Term.Apply(_, List(f: Term.Function))
-            if subtree.tokens.lastOption // see if closing paren was moved
-              .exists(x => x.is[Token.RightParen] && replacedWith(x).ne(x)) =>
+            if subtree.tokens.lastOption.exists { x =>
+              x.is[Token.RightParen] && // see if closing paren is now brace
+              ftoks.prevNonComment(ftoks(x)).left.is[Token.RightBrace]
+            } =>
           addAll(Seq(f))
         case t => // Nothing
           addAll(extractStatementsIfAny(t))
