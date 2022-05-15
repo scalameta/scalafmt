@@ -111,10 +111,8 @@ object a {
   (a(b => c))
 }
 >>>
-Idempotency violated
 object a {
-  a(
-  b => c)
+  a(b => c)
 }
 <<< single-arg apply of a block 1
 object a {
