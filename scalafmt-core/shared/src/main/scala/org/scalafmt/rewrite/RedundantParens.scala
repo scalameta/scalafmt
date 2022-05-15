@@ -138,9 +138,9 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
               next @ FormatToken(_, _: Token.RightParen, _)
             ) =>
           iter(ftoks.prev(prev), ftoks.next(next), cnt + 1)
-        case (prev, next) =>
+        case _ =>
           TreeOps
-            .findEnclosedBetweenParens(prev, next, ft.meta.rightOwner)
+            .findEnclosedBetweenParens(lt.right, rt.left, ft.meta.rightOwner)
             .map((cnt, _))
       }
 
