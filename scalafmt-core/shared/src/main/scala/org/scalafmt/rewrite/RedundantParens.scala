@@ -18,30 +18,6 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
   override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new RedundantParens(ftoks)
 
-  private def findEnclosedBetweenParens(
-      lt: FormatToken,
-      rt: FormatToken,
-      tree: Tree
-  ): Option[Tree] = {
-    val beforeParens = lt.left.start
-    val afterParens = rt.right.start
-    @tailrec
-    def iter(trees: List[Tree]): Option[Tree] = trees match {
-      case head :: rest =>
-        val headStart = head.pos.start
-        if (headStart <= beforeParens) iter(rest)
-        else {
-          val ok = headStart < afterParens &&
-            rest.headOption.forall(_.pos.start >= afterParens)
-          if (ok) Some(head) else None
-        }
-      case _ => None
-    }
-    val pos = tree.pos
-    val found = beforeParens < pos.start && pos.end <= afterParens
-    if (found) Some(tree) else iter(tree.children)
-  }
-
   private def infixNeedsParens(outer: InfixApp, inner: Tree): Boolean = {
     val sgOuter = TreeSyntacticGroup(outer.all)
     val sgInner = TreeSyntacticGroup(inner)
@@ -162,7 +138,8 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             ) =>
           iter(ftoks.prev(prev), ftoks.next(next), cnt + 1)
         case (prev, next) =>
-          findEnclosedBetweenParens(prev, next, ft.meta.rightOwner)
+          TreeOps
+            .findEnclosedBetweenParens(prev, next, ft.meta.rightOwner)
             .map((cnt, _))
       }
 
