@@ -863,3 +863,69 @@ object a {
     foo
   }
 }
+<<< tuple pattern
+object a {
+  foo match {
+    case bar((baz, qux)) =>
+    case bar(((baz, qux))) =>
+    case bar((((baz, qux)))) =>
+  }
+}
+>>>
+object a {
+  foo match {
+    case bar(baz, qux) =>
+    case bar(baz, qux) =>
+    case bar(baz, qux) =>
+  }
+}
+<<< infix as new anonymous
+object a {
+  new (F ~> F) { foo }
+}
+>>>
+object a {
+  new F ~> F { foo }
+}
+<<< infix with new
+object a {
+  foo * (new bar)
+  foo * (new bar(baz).qux)
+  (new foo) * bar
+  (new foo(bar).baz) * qux
+}
+>>>
+object a {
+  foo * new bar
+  foo * new bar(baz).qux
+  new foo * bar
+  new foo(bar).baz * qux
+}
+<<< infix with anonymous function
+object a {
+  foo map (_.foo[A])
+  foo map (new foo(_).bar)
+}
+>>>
+object a {
+  foo map _.foo[A]
+  foo map new foo(_).bar
+}
+<<< empty parens
+object a {
+  new foo()
+  case class foo[bar]()(implicit baz: qux)
+}
+>>>
+object a {
+  new foo
+  case class foo[bar](implicit baz: qux)
+}
+<<< casting
+object a {
+  new foo((bar: baz))
+}
+>>>
+object a {
+  new foo(bar: baz)
+}
