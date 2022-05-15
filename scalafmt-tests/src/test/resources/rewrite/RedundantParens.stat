@@ -885,7 +885,7 @@ object a {
 }
 >>>
 object a {
-  new F ~> F { foo }
+  new (F ~> F) { foo }
 }
 <<< infix with new
 object a {

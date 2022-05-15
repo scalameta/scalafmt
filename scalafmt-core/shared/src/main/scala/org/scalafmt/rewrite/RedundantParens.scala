@@ -77,9 +77,13 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         }
 
       case t =>
+        def isContains(seq: Seq[Tree]): Boolean = seq.contains(t)
         t.parent.forall {
-          case TreeOps.SplitCallIntoParts(_, args) =>
-            !args.fold(_.contains(t), _.exists(_.contains(t)))
+          case TreeOps.SplitCallIntoParts(_, args)
+              if args
+                .fold(Some(_).filter(isContains), _.find(isContains))
+                .exists(TreeOps.isSeqSingle) =>
+            false
           case TreeOps.SplitAssignIntoParts((body, _)) =>
             body.eq(t) && (t match {
               case InfixApp(ia) => !breaksBeforeOp(ia)
