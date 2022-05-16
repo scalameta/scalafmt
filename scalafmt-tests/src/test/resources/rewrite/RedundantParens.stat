@@ -911,6 +911,18 @@ object a {
   foo map _.foo[A]
   foo map new foo(_).bar
 }
+<<< infix with anonymous function, infixSide = some
+rewrite.redundantParens.infixSide = some
+===
+object a {
+  foo map (_.foo[A])
+  foo map (new foo(_).bar)
+}
+>>>
+object a {
+  foo map _.foo[A]
+  foo map new foo(_).bar
+}
 <<< empty parens
 object a {
   new foo()
@@ -928,4 +940,88 @@ object a {
 >>>
 object a {
   new foo(bar: baz)
+}
+<<< infix expressions with infixSide = null
+object a {
+  // null+
+  foo & (0) // literal
+  foo & (bar) // identifier
+  // some+
+  foo & (bar.baz) // non-infix
+  foo & (bar + baz) // very high precedence infix
+  foo or (bar < baz) // non-symbolic outer op, medium precedence infix
+}
+>>>
+object a {
+  // null+
+  foo & 0 // literal
+  foo & bar // identifier
+  // some+
+  foo & bar.baz // non-infix
+  foo & bar + baz // very high precedence infix
+  foo or bar < baz // non-symbolic outer op, medium precedence infix
+}
+<<< infix expressions with infixSide = some
+rewrite.redundantParens.infixSide = some
+===
+object a {
+  // some+
+  foo & (bar.baz) // non-infix
+  foo & (bar + baz) // very high precedence infix
+  foo or (bar < baz) // non-symbolic outer op, medium precedence infix
+  // many+
+  foo || (bar == baz) // high precedence infix
+  foo or (bar || baz) // non-symbolic outer op; low precedence infix
+  foo |: (bar |: baz) // identical op: non-symbolic; right infix, right assoc
+  (foo :| bar) :| baz // identical op: symbolic; left infix, left assoc
+  (foo or bar) or baz // identical op: non-symbolic; left infix, left assoc
+}
+>>>
+object a {
+  // some+
+  foo & bar.baz // non-infix
+  foo & bar + baz // very high precedence infix
+  foo or bar < baz // non-symbolic outer op, medium precedence infix
+  // many+
+  foo || bar == baz // high precedence infix
+  foo or bar || baz // non-symbolic outer op; low precedence infix
+  foo |: bar |: baz // identical op: non-symbolic; right infix, right assoc
+  foo :| bar :| baz // identical op: symbolic; left infix, left assoc
+  foo or bar or baz // identical op: non-symbolic; left infix, left assoc
+}
+<<< infix expressions with infixSide = many
+rewrite.redundantParens.infixSide = many
+===
+object a {
+  // many+
+  foo || (bar == baz) // high precedence infix
+  foo or (bar || baz) // non-symbolic outer op; low precedence infix
+  foo |: (bar |: baz) // identical op: non-symbolic; right infix, right assoc
+  (foo :| bar) :| baz // identical op: symbolic; left infix, left assoc
+  (foo or bar) or baz // identical op: non-symbolic; left infix, left assoc
+  // all
+  foo || (bar && baz) // low precedence infix
+}
+>>>
+object a {
+  // many+
+  foo || bar == baz // high precedence infix
+  foo or bar || baz // non-symbolic outer op; low precedence infix
+  foo |: bar |: baz // identical op: non-symbolic; right infix, right assoc
+  foo :| bar :| baz // identical op: symbolic; left infix, left assoc
+  foo or bar or baz // identical op: non-symbolic; left infix, left assoc
+  // all
+  foo || bar && baz // low precedence infix
+}
+<<< infix expressions with infixSide = all
+rewrite.redundantParens.infixSide = all
+===
+object a {
+  // all
+  foo || (bar && baz) // low precedence infix
+}
+>>>
+object a {
+  // all
+  foo || bar && baz // low precedence infix
 }
