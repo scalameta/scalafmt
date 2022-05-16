@@ -2801,6 +2801,90 @@ for {
 val z = (insertData *> readDatabase(id))
 ```
 
+#### `RedundantParens`: `infixSide`
+
+> Since v3.5.4.
+
+Parameter `rewrite.redundantParens.infixSide` controls how the rule applies
+to expressions which are part of an outer infix expression (either left- or
+right-hand side). Can take the following values:
+
+- `null` (default): rewrites only simple expressions (literals or identifiers)
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantParens]
+rewrite.redundantParens.infixSide = null
+---
+// null+
+foo & (0) // literal
+foo & (bar) // identifier
+// some+
+foo & (bar.baz) // non-infix
+foo & (bar + baz) // very high precedence infix
+foo or (bar < baz) // non-symbolic outer op, medium precedence infix
+```
+
+- `some`: additionally, rewrites
+  - all non-infix sides
+  - very-high-precedence nested infix sides
+  - medium-precedence nested infix sides if the outer infix operator is _non-symbolic_
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantParens]
+rewrite.redundantParens.infixSide = some
+---
+// some+
+foo & (bar.baz) // non-infix
+foo & (bar + baz) // very high precedence infix
+foo or (bar < baz) // non-symbolic outer op, medium precedence infix
+// many+
+foo || (bar == baz) // high precedence infix
+foo or (bar || baz) // non-symbolic outer op; low precedence infix
+foo |: (bar |: baz) // identical op: non-symbolic; right infix, right assoc
+(foo :| bar) :| baz // identical op: symbolic; left infix, left assoc
+(foo or bar) or baz // identical op: non-symbolic; left infix, left assoc
+```
+
+- `many`: additionally, rewrites
+  - high-precedence nested infix sides
+  - nested infix sides when the operator is _identical_ to the outer infix (and associativity allows)
+  - any symbolic nested infix sides if the outer infix operator is _non-symbolic_
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantParens]
+rewrite.redundantParens.infixSide = many
+---
+// many+
+foo || (bar == baz) // high precedence infix
+foo or (bar || baz) // non-symbolic outer op; low precedence infix
+foo |: (bar |: baz) // identical op: non-symbolic; right infix, right assoc
+(foo :| bar) :| baz // identical op: symbolic; left infix, left assoc
+(foo or bar) or baz // identical op: non-symbolic; left infix, left assoc
+// all
+foo || (bar && baz) // low precedence infix
+```
+
+- `all`: rewrites all expressions within an infix
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantParens]
+rewrite.redundantParens.infixSide = all
+---
+// all
+foo || (bar && baz) // low precedence infix
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantParens]
+---
+for {
+  a <- b
+  if (a.nonEmpty)
+} yield a
+
+val z = (insertData *> readDatabase(id))
+```
+
 ### `SortModifiers`
 
 Modifiers are sorted based on the given order. Affects modifiers of the
