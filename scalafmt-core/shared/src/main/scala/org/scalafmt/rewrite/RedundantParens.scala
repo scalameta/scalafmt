@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import scala.meta._
 import scala.meta.tokens.Token
 
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{RedundantParensSettings, ScalafmtConfig}
 import org.scalafmt.internal.{FormatToken, FormatTokens}
 import org.scalafmt.internal.{Side, SyntacticGroupOps, TreeSyntacticGroup}
 import org.scalafmt.util.{InfixApp, TreeOps}
@@ -24,6 +24,11 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
     val side = if (outer.lhs eq inner) Side.Left else Side.Right
     SyntacticGroupOps.groupNeedsParenthesis(sgOuter, sgInner, side)
   }
+
+  private val precedenceVeryHigh = InfixApp.getPrecedence("+")
+  private val precedenceHigh = InfixApp.getPrecedence("=")
+  private val precedenceMedium = InfixApp.getPrecedence("<")
+  private val precedenceLowest = InfixApp.getPrecedence("foo")
 
 }
 
@@ -98,6 +103,25 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           case p: Term.If =>
             style.dialect.allowSignificantIndentation && p.cond == t &&
             ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
+          case InfixApp(pia) if !infixNeedsParens(pia, t) =>
+            t match {
+              case InfixApp(tia) =>
+                style.rewrite.redundantParens.infixSide.exists {
+                  case RedundantParensSettings.InfixSide.many =>
+                    tia.op.value == pia.op.value ||
+                    tia.precedence <= precedenceHigh ||
+                    tia.precedence < precedenceLowest &&
+                    pia.precedence >= precedenceLowest
+                  case RedundantParensSettings.InfixSide.some =>
+                    tia.precedence <= precedenceVeryHigh ||
+                    tia.precedence <= precedenceMedium &&
+                    pia.precedence >= precedenceLowest
+                  case _ => true
+                }
+              case _: Lit | _: Name | _: Term.Interpolate => true
+              case _: Term.PartialFunction => true
+              case _ => style.rewrite.redundantParens.infixSide.isDefined
+            }
           case p =>
             t match {
               case _: Lit | _: Name | _: Term.Interpolate => true
@@ -106,11 +130,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
                 !p.is[Term.ApplyInfix] ||
                 ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
                 ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace]
-              case _ =>
-                p match {
-                  case InfixApp(pia) => !infixNeedsParens(pia, t)
-                  case _ => false
-                }
+              case _ => false
             }
         }
     }
