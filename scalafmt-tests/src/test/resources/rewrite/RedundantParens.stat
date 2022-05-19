@@ -1025,6 +1025,22 @@ object a {
   // all
   foo || bar && baz // low precedence infix
 }
+<<< infix expressions with infixSide = all and breaks
+rewrite.redundantParens.infixSide = all
+===
+object a {
+  foo and (
+    bar
+    + baz
+  )
+}
+>>>
+Idempotency violated
+object a {
+  foo and
+    bar
+  +baz
+}
 <<< #3222 do-while
 object a {
   do foo while (true)
