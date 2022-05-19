@@ -1049,3 +1049,77 @@ object a {
 object a {
   do foo while (true)
 }
+<<< body: if
+object a {
+  if (true) (foo)
+  if (true)
+    (
+      a
+      + b
+    )
+}
+>>>
+object a {
+  if (true) (foo)
+  if (true)
+    (
+      a
+        + b
+    )
+}
+<<< body: while
+object a {
+  while (true) (foo)
+  while (true)
+    (
+      a
+      + b
+    )
+}
+>>>
+object a {
+  while (true) (foo)
+  while (true)
+    (
+      a
+        + b
+    )
+}
+<<< body: do-while
+object a {
+  do (foo) while (true)
+  do
+    (
+      a
+      + b
+    )
+  while (true)
+}
+>>>
+object a {
+  do (foo) while (true)
+  do (
+    a
+      + b
+  ) while (true)
+}
+<<< body: case
+object a {
+  foo match {
+    case bar => (baz)
+    case bar => (
+      a
+      + b
+    )
+  }
+}
+>>>
+object a {
+  foo match {
+    case bar => (baz)
+    case bar => (
+      a
+        + b
+    )
+  }
+}
