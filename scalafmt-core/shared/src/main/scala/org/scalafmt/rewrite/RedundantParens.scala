@@ -106,7 +106,8 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             if (p.cond eq t)
               style.dialect.allowSignificantIndentation &&
               ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
-            else canRewriteBody(t)
+            else
+              !(p.thenp.eq(t) && TreeOps.ifWithoutElse(t)) && canRewriteBody(t)
           case InfixApp(pia) if !infixNeedsParens(pia, t) =>
             t match {
               case InfixApp(tia) =>
