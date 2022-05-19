@@ -853,11 +853,12 @@ object a {
   )
 }
 >>>
-Idempotency violated
 object a {
   if (foo)
-    if (bar) baz
-    else if (bar) baz
+    (
+      if (bar) baz
+    )
+  else if (bar) baz
 }
 <<< while with/without do
 runner.dialect = scala3
