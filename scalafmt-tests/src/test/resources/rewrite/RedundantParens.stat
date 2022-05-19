@@ -1044,7 +1044,7 @@ object a {
 }
 >>>
 object a {
-  if (true) (foo)
+  if (true) foo
   if (true)
     (
       a
@@ -1062,7 +1062,7 @@ object a {
 }
 >>>
 object a {
-  while (true) (foo)
+  while (true) foo
   while (true)
     (
       a
@@ -1081,7 +1081,7 @@ object a {
 }
 >>>
 object a {
-  do (foo) while (true)
+  do foo while (true)
   do (
     a
       + b
@@ -1100,7 +1100,7 @@ object a {
 >>>
 object a {
   foo match {
-    case bar => (baz)
+    case bar => baz
     case bar => (
       a
         + b
