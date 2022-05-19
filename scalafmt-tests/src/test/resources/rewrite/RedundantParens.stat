@@ -1030,7 +1030,6 @@ object a {
   do foo while (true)
 }
 >>>
-test does not parse
 object a {
-  do foo while true
-               ^
+  do foo while (true)
+}

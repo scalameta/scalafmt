@@ -97,6 +97,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           case _: Enumerator.Guard => RewriteCtx.isPostfixExpr(t)
           case p: Case =>
             p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
+          case _: Term.Do => false
           case p: Term.While =>
             style.dialect.allowSignificantIndentation && p.expr == t &&
             ftoks.tokenBefore(p.body).left.is[Token.KwDo]
