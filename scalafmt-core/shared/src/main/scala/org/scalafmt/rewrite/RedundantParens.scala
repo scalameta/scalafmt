@@ -90,20 +90,23 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
                 .exists(TreeOps.isSeqSingle) =>
             false
           case TreeOps.SplitAssignIntoParts((body, _)) =>
-            body.eq(t) && (t match {
-              case InfixApp(ia) => !breaksBeforeOp(ia)
-              case _ => true
-            })
+            body.eq(t) && canRewriteBody(t)
           case _: Enumerator.Guard => RewriteCtx.isPostfixExpr(t)
           case p: Case =>
-            p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
-          case _: Term.Do => false
+            if (p.body eq t) canRewriteBody(t)
+            else p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
+          case p: Term.Do =>
+            p.body.eq(t) && canRewriteBody(t)
           case p: Term.While =>
-            style.dialect.allowSignificantIndentation && p.expr == t &&
-            ftoks.tokenBefore(p.body).left.is[Token.KwDo]
+            if (p.expr eq t)
+              style.dialect.allowSignificantIndentation &&
+              ftoks.tokenBefore(p.body).left.is[Token.KwDo]
+            else canRewriteBody(t)
           case p: Term.If =>
-            style.dialect.allowSignificantIndentation && p.cond == t &&
-            ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
+            if (p.cond eq t)
+              style.dialect.allowSignificantIndentation &&
+              ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
+            else canRewriteBody(t)
           case InfixApp(pia) if !infixNeedsParens(pia, t) =>
             t match {
               case InfixApp(tia) =>
@@ -152,6 +155,12 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         }
     })
   }
+
+  private def canRewriteBody(tree: Tree): Boolean =
+    tree match {
+      case InfixApp(ia) => !breaksBeforeOp(ia)
+      case _ => true
+    }
 
   private def findEnclosed(implicit ft: FormatToken): Option[Enclosed] = {
     // counts consecutive parent pairs starting with the given one as the innermost
