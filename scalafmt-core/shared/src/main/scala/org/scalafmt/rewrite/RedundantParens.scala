@@ -107,6 +107,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           case InfixApp(pia) if !infixNeedsParens(pia, t) =>
             t match {
               case InfixApp(tia) =>
+                !breaksBeforeOp(tia) &&
                 style.rewrite.redundantParens.infixSide.exists {
                   case RedundantParensSettings.InfixSide.many =>
                     tia.op.value == pia.op.value ||

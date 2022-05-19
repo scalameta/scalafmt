@@ -1035,11 +1035,11 @@ object a {
   )
 }
 >>>
-Idempotency violated
 object a {
-  foo and
+  foo and (
     bar
-  +baz
+      + baz
+  )
 }
 <<< #3222 do-while
 object a {
