@@ -1025,3 +1025,12 @@ object a {
   // all
   foo || bar && baz // low precedence infix
 }
+<<< #3222 do-while
+object a {
+  do foo while (true)
+}
+>>>
+test does not parse
+object a {
+  do foo while true
+               ^
