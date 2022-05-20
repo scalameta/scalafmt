@@ -114,25 +114,23 @@ object a {
 object a {
   a(b => c)
 }
-<<< single-arg apply of a block 1
+<<< apply of a block or partial function
 object a {
   a({ b => c })
   (a({ b => c }))
-}
->>>
-object a {
-  a { b => c }
-  a { b => c }
-}
-<<< single-arg apply of a block 2
-object a {
   a({ b; c })
   (a({ b; c }))
+  a(({ b => c }), ({ b; c }))
+  (a(({ b => c }), ({ b; c })))
 }
 >>>
 object a {
+  a { b => c }
+  a { b => c }
   a { b; c }
   a { b; c }
+  a(({ b => c }), ({ b; c }))
+  a(({ b => c }), ({ b; c }))
 }
 <<< single-arg apply of a block 3
 object a {
@@ -1039,6 +1037,25 @@ object a {
   foo and (
     bar
       + baz
+  )
+}
+<<< apply with multiple args
+object a {
+  foo(bar, (baz.qux))
+  foo(bar, (
+    baz
+    + qux
+  ))
+}
+>>>
+object a {
+  foo(bar, (baz.qux))
+  foo(
+    bar,
+    (
+      baz
+        + qux
+    )
   )
 }
 <<< #3222 do-while
