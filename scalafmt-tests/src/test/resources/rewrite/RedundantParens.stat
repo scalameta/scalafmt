@@ -1155,3 +1155,63 @@ object a {
     )
   }
 }
+<<< body: try, try-with-handler
+object a {
+  try (foo + bar)
+  catch { case _ => }
+  try (foo + bar)
+  catch (bar)
+  finally (foo + bar)
+}
+>>>
+object a {
+  try (foo + bar)
+  catch { case _ => }
+  try (foo + bar)
+  catch bar
+  finally (foo + bar)
+}
+<<< body: for, for-yield
+object a {
+  for {
+    foo <- (foo + bar)
+    foo = (foo + bar)
+  } yield (foo + bar)
+  for {
+    foo <- (foo + bar)
+    foo = (foo + bar)
+  } (foo + bar)
+}
+>>>
+object a {
+  for {
+    foo <- (foo + bar)
+    foo = (foo + bar)
+  } yield (foo + bar)
+  for {
+    foo <- (foo + bar)
+    foo = (foo + bar)
+  } (foo + bar)
+}
+<<< body: return, throw
+object a {
+  def foo = {
+    throw (foo + bar)
+    return (foo + bar)
+  }
+}
+>>>
+object a {
+  def foo = {
+    throw (foo + bar)
+    return (foo + bar)
+  }
+}
+<<< body: function
+object a {
+  foo map ((x: Int) => (foo + bar))
+}
+>>>
+object a {
+  foo map ((x: Int) => (foo + bar))
+}
