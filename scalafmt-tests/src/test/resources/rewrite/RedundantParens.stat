@@ -843,6 +843,22 @@ object a {
     foo
   }
 }
+<<< if with nested if
+object a {
+  if (foo) (
+    if (bar) (baz)
+  )
+  else (
+    if (bar) (baz)
+  )
+}
+>>>
+Idempotency violated
+object a {
+  if (foo)
+    if (bar) baz
+    else if (bar) baz
+}
 <<< while with/without do
 runner.dialect = scala3
 ===
