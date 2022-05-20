@@ -129,8 +129,8 @@ object a {
   a { b => c }
   a { b; c }
   a { b; c }
-  a(({ b => c }), ({ b; c }))
-  a(({ b => c }), ({ b; c }))
+  a({ b => c }, { b; c })
+  a({ b => c }, { b; c })
 }
 <<< single-arg apply of a block 3
 object a {
@@ -1066,13 +1066,11 @@ object a {
 }
 >>>
 object a {
-  foo(bar, (baz.qux))
+  foo(bar, baz.qux)
   foo(
     bar,
-    (
-      baz
-        + qux
-    )
+    baz
+      + qux
   )
 }
 <<< #3222 do-while
