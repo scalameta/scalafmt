@@ -39,6 +39,22 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
     }
   }
 
+  object IsExprBody {
+    def unapply(t: Tree): Option[Boolean] = {
+      @inline def iff(body: Tree) = Some(body eq t)
+      @inline def okIf(body: Tree) = if (body eq t) Some(true) else None
+      t.parent.flatMap {
+        case TreeOps.SplitAssignIntoParts((body, _)) => iff(body)
+        case p: Case => okIf(p.body)
+        case p: Term.Do => iff(p.body)
+        case p: Term.If if p.cond ne t =>
+          Some(p.thenp.ne(t) || !TreeOps.ifWithoutElse(t))
+        case p: Term.While => okIf(p.body)
+        case _ => None
+      }
+    }
+  }
+
 }
 
 class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
@@ -90,28 +106,20 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         }
 
       case IsCallArg(args) => !TreeOps.isSeqSingle(args)
+      case t @ IsExprBody(ok) => ok && canRewriteBody(t)
 
       case t =>
         t.parent.forall {
-          case TreeOps.SplitAssignIntoParts((body, _)) =>
-            body.eq(t) && canRewriteBody(t)
           case _: Enumerator.Guard => RewriteCtx.isPostfixExpr(t)
-          case p: Case =>
-            if (p.body eq t) canRewriteBody(t)
-            else p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
-          case p: Term.Do =>
-            p.body.eq(t) && canRewriteBody(t)
+          case p: Case => p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
           case p: Term.While =>
-            if (p.expr eq t)
-              style.dialect.allowSignificantIndentation &&
-              ftoks.tokenBefore(p.body).left.is[Token.KwDo]
-            else canRewriteBody(t)
+            p.expr.eq(t) &&
+            style.dialect.allowSignificantIndentation &&
+            ftoks.tokenBefore(p.body).left.is[Token.KwDo]
           case p: Term.If =>
-            if (p.cond eq t)
-              style.dialect.allowSignificantIndentation &&
-              ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
-            else
-              !(p.thenp.eq(t) && TreeOps.ifWithoutElse(t)) && canRewriteBody(t)
+            p.cond.eq(t) &&
+            style.dialect.allowSignificantIndentation &&
+            ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
           case InfixApp(pia) if !infixNeedsParens(pia, t) =>
             t match {
               case InfixApp(tia) =>
