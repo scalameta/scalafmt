@@ -30,6 +30,15 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
   private val precedenceMedium = InfixApp.getPrecedence("<")
   private val precedenceLowest = InfixApp.getPrecedence("foo")
 
+  object IsCallArg {
+    def unapply(t: Tree): Option[Seq[Tree]] = {
+      def isContains(seq: Seq[Tree]): Boolean = seq.contains(t)
+      t.parent.flatMap(TreeOps.SplitCallIntoParts.unapply).flatMap {
+        _._2.fold(Some(_).filter(isContains), _.find(isContains))
+      }
+    }
+  }
+
 }
 
 class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
@@ -76,19 +85,14 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case b @ (_: Term.Block | _: Term.PartialFunction)
           if b.tokens.headOption.exists(_.is[Token.LeftBrace]) =>
         b.parent.forall {
-          case p: Term.Apply => p.fun.eq(b) || p.args.lengthCompare(1) == 0
-          case p: Term.ApplyInfix => p.lhs.eq(b) || p.args.lengthCompare(1) == 0
+          case _: Term.Apply | _: Term.ApplyInfix => true
           case _ => false
         }
 
+      case IsCallArg(args) => !TreeOps.isSeqSingle(args)
+
       case t =>
-        def isContains(seq: Seq[Tree]): Boolean = seq.contains(t)
         t.parent.forall {
-          case TreeOps.SplitCallIntoParts(_, args)
-              if args
-                .fold(Some(_).filter(isContains), _.find(isContains))
-                .exists(TreeOps.isSeqSingle) =>
-            false
           case TreeOps.SplitAssignIntoParts((body, _)) =>
             body.eq(t) && canRewriteBody(t)
           case _: Enumerator.Guard => RewriteCtx.isPostfixExpr(t)
