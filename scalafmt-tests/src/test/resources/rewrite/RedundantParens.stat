@@ -132,6 +132,24 @@ object a {
   a({ b => c }, { b; c })
   a({ b => c }, { b; c })
 }
+<<< block/partial func
+def a = {
+  foo
+  ({ bar + baz })
+  foo
+  ({ bar => baz })
+  foo = ({ bar + baz })
+  foo = ({ bar => baz })
+}
+>>>
+def a = {
+  foo
+  ({ bar + baz })
+  foo
+  ({ bar => baz })
+  foo = { bar + baz }
+  foo = { bar => baz }
+}
 <<< single-arg apply of a block 3
 object a {
   (
@@ -1214,4 +1232,18 @@ object a {
 >>>
 object a {
   foo map ((x: Int) => foo + bar)
+}
+<<< stat: block + select
+object a {
+  def foo = {
+    (bar.baz)
+    (foo.bar).baz
+  }
+}
+>>>
+object a {
+  def foo = {
+    (bar.baz)
+    (foo.bar).baz
+  }
 }
