@@ -2874,17 +2874,6 @@ rewrite.redundantParens.infixSide = all
 foo || (bar && baz) // low precedence infix
 ```
 
-```scala mdoc:scalafmt
-rewrite.rules = [RedundantParens]
----
-for {
-  a <- b
-  if (a.nonEmpty)
-} yield a
-
-val z = (insertData *> readDatabase(id))
-```
-
 ### `SortModifiers`
 
 Modifiers are sorted based on the given order. Affects modifiers of the
