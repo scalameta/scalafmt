@@ -60,10 +60,21 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
         case p: Type.FunctionType => iff(p.res)
         case p: Type.PolyFunction => iff(p.tpe)
         case _: Term.Return | _: Term.Throw | _: Term.QuotedMacroExpr |
-            _: Term.SplicedMacroExpr =>
+            _: Term.SplicedMacroExpr | _: Term.Block =>
           Some(true)
         case _ => None
       }
+    }
+  }
+
+  object IsInBraces {
+    def unapply(t: Tree): Option[Boolean] = t match {
+      case _: Term.Block | _: Term.PartialFunction =>
+        t.parent.collect {
+          case _: Term.Apply | _: Term.ApplyInfix => true
+          case _: Term.Block => false
+        }
+      case _ => None
     }
   }
 
@@ -110,13 +121,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
       case _: Term.AnonymousFunction | _: Term.Param => false
 
-      case b @ (_: Term.Block | _: Term.PartialFunction)
-          if b.tokens.headOption.exists(_.is[Token.LeftBrace]) =>
-        b.parent.forall {
-          case _: Term.Apply | _: Term.ApplyInfix => true
-          case _ => false
-        }
-
+      case IsInBraces(ok) => ok
       case IsCallArg(args) => !TreeOps.isSeqSingle(args)
       case t @ IsExprBody(ok) => ok && canRewriteBody(t)
 
@@ -162,6 +167,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             t match {
               case _: Lit | _: Name | _: Term.Interpolate => true
               case _: Term.PartialFunction | _: Term.Apply => true
+              case _: Term.Select => true
               case t: Term.Match if style.dialect.allowMatchAsOperator =>
                 !p.is[Term.ApplyInfix] ||
                 ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
