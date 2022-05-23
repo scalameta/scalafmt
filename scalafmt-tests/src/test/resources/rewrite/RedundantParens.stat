@@ -1243,7 +1243,7 @@ object a {
 >>>
 object a {
   def foo = {
-    (bar.baz)
-    (foo.bar).baz
+    bar.baz
+    foo.bar.baz
   }
 }
