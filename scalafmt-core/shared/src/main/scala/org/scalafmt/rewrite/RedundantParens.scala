@@ -46,10 +46,22 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
       t.parent.flatMap {
         case TreeOps.SplitAssignIntoParts((body, _)) => iff(body)
         case p: Case => okIf(p.body)
+        case p: Enumerator.CaseGenerator => iff(p.rhs)
+        case p: Enumerator.Generator => iff(p.rhs)
+        case p: Enumerator.Val => iff(p.rhs)
         case p: Term.Do => iff(p.body)
+        case p: Term.For => iff(p.body)
+        case p: Term.ForYield => iff(p.body)
+        case p: Term.FunctionTerm => iff(p.body)
         case p: Term.If if p.cond ne t =>
           Some(p.thenp.ne(t) || !TreeOps.ifWithoutElse(t))
+        case p: Term.PolyFunction => iff(p.body)
         case p: Term.While => okIf(p.body)
+        case p: Type.FunctionType => iff(p.res)
+        case p: Type.PolyFunction => iff(p.tpe)
+        case _: Term.Return | _: Term.Throw | _: Term.QuotedMacroExpr |
+            _: Term.SplicedMacroExpr =>
+          Some(true)
         case _ => None
       }
     }
@@ -120,6 +132,12 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             p.cond.eq(t) &&
             style.dialect.allowSignificantIndentation &&
             ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
+          case p: Term.Try =>
+            (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
+            canRewriteBody(t)
+          case p: Term.TryWithHandler =>
+            (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
+            canRewriteBody(t)
           case InfixApp(pia) if !infixNeedsParens(pia, t) =>
             t match {
               case InfixApp(tia) =>
