@@ -1256,6 +1256,6 @@ object a {
 >>>
 object a {
   foo == (a + b).c
-  foo == a + b.c(d)
-  foo == a + b.c(d).e
+  foo == (a + b).c(d)
+  foo == (a + b).c(d).e
 }
