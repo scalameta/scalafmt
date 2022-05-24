@@ -1247,3 +1247,15 @@ object a {
     foo.bar.baz
   }
 }
+<<< infix within apply in rhs of infix
+object a {
+  foo == (a + b).c
+  foo == (a + b).c(d)
+  foo == (a + b).c(d).e
+}
+>>>
+object a {
+  foo == (a + b).c
+  foo == a + b.c(d)
+  foo == a + b.c(d).e
+}
