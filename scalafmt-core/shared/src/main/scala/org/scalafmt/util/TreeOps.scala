@@ -942,8 +942,11 @@ object TreeOps {
         val headStart = headPos.start
         if (headStart < beforeParens) iter(rest)
         else {
-          val ok = headStart < afterParens && headStart < headPos.end &&
+          val ok = headStart < afterParens && {
+            val headEnd = headPos.end
+            headStart < headEnd && headEnd <= afterParens &&
             rest.headOption.forall(_.pos.start >= afterParens)
+          }
           if (ok) Some(head) else None
         }
       case _ => None
