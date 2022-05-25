@@ -1259,3 +1259,11 @@ object a {
   foo == (a + b).c(d)
   foo == (a + b).c(d).e
 }
+<<< avoid function types
+object a {
+  val compose: (B => C) => (A => B) => (A => C) = _.compose
+}
+>>>
+object a {
+  val compose: (B => C) => (A => B) => A => C = _.compose
+}
