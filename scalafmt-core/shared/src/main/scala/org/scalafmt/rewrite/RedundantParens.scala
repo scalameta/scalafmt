@@ -57,8 +57,6 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
           Some(p.thenp.ne(t) || !TreeOps.ifWithoutElse(t))
         case p: Term.PolyFunction => iff(p.body)
         case p: Term.While => okIf(p.body)
-        case p: Type.FunctionType => iff(p.res)
-        case p: Type.PolyFunction => iff(p.tpe)
         case _: Term.Return | _: Term.Throw | _: Term.QuotedMacroExpr |
             _: Term.SplicedMacroExpr | _: Term.Block =>
           Some(true)

@@ -1265,5 +1265,5 @@ object a {
 }
 >>>
 object a {
-  val compose: (B => C) => (A => B) => A => C = _.compose
+  val compose: (B => C) => (A => B) => (A => C) = _.compose
 }
