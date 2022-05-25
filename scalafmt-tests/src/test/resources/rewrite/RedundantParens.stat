@@ -1233,6 +1233,15 @@ object a {
 object a {
   foo map ((x: Int) => foo + bar)
 }
+<<< postfix select, without a dot
+object a {
+  assertEquals((f _ applyIso uncurry get)(1, 2), 3)
+}
+>>>
+Idempotency violated
+object a {
+  assertEquals(f _ applyIso uncurry get (1, 2), 3)
+}
 <<< stat: block + select
 object a {
   def foo = {
