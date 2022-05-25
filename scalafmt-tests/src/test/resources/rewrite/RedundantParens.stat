@@ -1238,9 +1238,8 @@ object a {
   assertEquals((f _ applyIso uncurry get)(1, 2), 3)
 }
 >>>
-Idempotency violated
 object a {
-  assertEquals(f _ applyIso uncurry get (1, 2), 3)
+  assertEquals((f _ applyIso uncurry get)(1, 2), 3)
 }
 <<< stat: block + select
 object a {
