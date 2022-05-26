@@ -1275,3 +1275,14 @@ object a {
 object a {
   val compose: (B => C) => (A => B) => (A => C) = _.compose
 }
+<<< #3238 match with opt braces in select
+runner.dialect = scala3
+===
+object a:
+  (foo match
+    case bar => baz
+  ).qux
+>>>
+test does not parse
+object a:
+      ^
