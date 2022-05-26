@@ -161,16 +161,17 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
               case _: Term.PartialFunction => true
               case _ => style.rewrite.redundantParens.infixSide.isDefined
             }
-          case p =>
+          case _ =>
             t match {
               case _: Lit | _: Name | _: Term.Interpolate => true
               case _: Term.PartialFunction | _: Term.Apply => true
               case t: Term.Select =>
                 ftoks.tokenBefore(t.name).left.is[Token.Dot]
-              case t: Term.Match if style.dialect.allowMatchAsOperator =>
-                !p.is[Term.ApplyInfix] ||
-                ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
-                ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace]
+              case t: Term.Match
+                  if style.dialect.allowMatchAsOperator &&
+                    ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
+                    ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace] =>
+                true
               case _ => false
             }
         }

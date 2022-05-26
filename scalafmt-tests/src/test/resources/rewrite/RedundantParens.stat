@@ -1283,6 +1283,7 @@ object a:
     case bar => baz
   ).qux
 >>>
-test does not parse
 object a:
-      ^
+  (foo match
+    case bar => baz
+  ).qux
