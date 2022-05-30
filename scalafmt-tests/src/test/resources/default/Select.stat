@@ -237,6 +237,19 @@ class TypedPipeJoinWithDescriptionJob {
   (cache.delete _).expects("123")
   Await.result(service.setActive("123", active = true))
 }
+<<< chain indent expire #194, anon func enclosed
+{
+ (playerStore
+      .updatePlayer(_))
+      .expects("123", PlayerUpdate(active = Some(true)))
+      .returning(Future.value(Unit))
+}
+>>>
+{
+  (playerStore.updatePlayer(_))
+    .expects("123", PlayerUpdate(active = Some(true)))
+    .returning(Future.value(Unit))
+}
 <<< indent expire
 Seq(
             Split()
