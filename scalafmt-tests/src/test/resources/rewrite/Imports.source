@@ -905,3 +905,29 @@ import a.{x, given, given Z}
 import a.{x, y => z, given}
 import a.{*, given}
 import a.{x, given Z, given}
+<<< #3240 expand
+rewrite.imports.sort = ascii
+rewrite.imports.expand = true
+===
+import java as j
+>>>
+test does not parse
+import .java as j
+       ^
+<<< #3240 groups
+rewrite.imports.sort = ascii
+rewrite.imports.groups = [[".*"]]
+===
+import java as j
+>>>
+test does not parse
+import .java as j
+       ^
+<<< #3240 no expand, no groups
+rewrite.imports.sort = ascii
+===
+import java as j
+>>>
+test does not parse
+import .java as j
+       ^
