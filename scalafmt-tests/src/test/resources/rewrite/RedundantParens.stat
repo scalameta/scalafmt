@@ -1291,3 +1291,11 @@ object a:
 (a + b)
 >>>
 a + b
+<<< #3241
+object a {
+  (Box.apply(_: Int, _: String)).tupled
+}
+>>>
+object a {
+  Box.apply(_: Int, _: String).tupled
+}
