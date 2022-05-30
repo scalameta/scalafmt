@@ -118,7 +118,7 @@ object Imports extends RewriteFactory {
         selectors: Selectors,
         owner: Importer
     ): Unit = {
-      val stat = s"$kw $ref.${selectors.pretty}"
+      val stat = s"$kw $ref${selectors.pretty}"
       if (stats.add(stat))
         buffer += GroupingEntry(stat, ref, selectors, owner)
     }
@@ -458,8 +458,8 @@ object Imports extends RewriteFactory {
       stats.foreach { x =>
         val kw = x.tokens.head.toString
         x.importers.foreach { importer =>
-          val ref = importer.ref.toString
-          val grp = groups(settings.group(ref + "."))
+          val ref = getRef(importer)
+          val grp = groups(settings.group(ref))
           addClauseToGroup(grp, kw, ref, importer)
         }
       }
@@ -644,9 +644,8 @@ object Imports extends RewriteFactory {
       stats.flatten.foreach { t =>
         val patchBuilder = Seq.newBuilder[TokenPatch]
         t.importers.foreach { importer =>
-          val ref = importer.ref.toString
           val selectors = getSelectors(importer.importees, false).pretty
-          val replacement = s"$ref.$selectors"
+          val replacement = getRef(importer) + selectors
           val tokens: Iterator[Token] = importer.tokens.iterator
           // replace the first token
           patchBuilder += TokenPatch.Replace(tokens.next(), replacement)
@@ -656,6 +655,11 @@ object Imports extends RewriteFactory {
         ctx.addPatchSet(patchBuilder.result(): _*)
       }
     }
+  }
+
+  private def getRef(importer: Importer): String = {
+    val ref = importer.ref.toString()
+    if (ref.isEmpty) "" else ref + "."
   }
 
 }
