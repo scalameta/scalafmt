@@ -1290,4 +1290,4 @@ object a:
 <<< rewrite entire stat
 (a + b)
 >>>
-org.scalafmt.util.FormatException: java.util.NoSuchElementException: Missing token index [0:0]: ``
+a + b
