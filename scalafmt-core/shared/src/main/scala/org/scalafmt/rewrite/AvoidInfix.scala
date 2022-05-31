@@ -41,11 +41,9 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
       case x @ Term.ApplyInfix(lhs, op, targs, args) if checkMatchingInfix(x) =>
         val builder = Seq.newBuilder[TokenPatch]
 
-        val opHead = op.tokens.head
+        val (opHead, opLast) = ends(op)
         builder += TokenPatch.AddLeft(opHead, ".", keepTok = true)
-
-        val opLast = op.tokens.last
-        val opNextOpt = ctx.tokenTraverser.nextNonTrivialToken(opLast)
+        val opNextOpt = nextNonTrivial(opLast)
 
         def moveOpenDelim(prev: Token, open: Token): Unit = {
           // move delimiter (before comment or newline)
@@ -65,7 +63,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
               rb <- ctx.getMatchingOpt(lb)
               rbNext <- {
                 moveOpenDelim(opLast, lb)
-                ctx.tokenTraverser.nextNonTrivialToken(rb)
+                nextNonTrivial(rb)
               }
             } yield (rb, rbNext)
         // move the left paren if enclosed, else enclose
@@ -82,7 +80,8 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
           if (isEnclosed) moveOpenDelim(prev, lp)
         }
 
-        val shouldWrapLhs = !isWrapped(lhs) && (lhs match {
+        val (lhsHead, lhsLast) = ends(lhs)
+        val shouldWrapLhs = !isWrapped(lhsHead, lhsLast) && (lhs match {
           case y: Term.ApplyInfix => !checkMatchingInfix(y)
           // foo _ compose bar => (foo _).compose(bar)
           // new Foo compose bar => (new Foo).compose(bar)
@@ -90,8 +89,8 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
           case _ => false
         })
         if (shouldWrapLhs) {
-          builder += TokenPatch.AddLeft(lhs.tokens.head, "(", keepTok = true)
-          builder += TokenPatch.AddRight(lhs.tokens.last, ")", keepTok = true)
+          builder += TokenPatch.AddLeft(lhsHead, "(", keepTok = true)
+          builder += TokenPatch.AddRight(lhsLast, ")", keepTok = true)
         }
 
         // remove parens if enclosed
@@ -129,9 +128,25 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
     })
   }
 
-  private def isWrapped(t: Tree): Boolean = t.tokens.head match {
-    case h: Token.LeftParen => ctx.getMatchingOpt(h).contains(t.tokens.last)
-    case _ => false
+  @inline
+  private def isMatching(head: Token, last: Token): Boolean =
+    head.is[Token.LeftParen] && ctx.isMatching(head, last)
+
+  private def isWrapped(head: Token, last: Token): Boolean =
+    isMatching(head, last)
+
+  private def ends(t: Tree): (Token, Token) = {
+    val tokens = t.tokens
+    (tokens.head, tokens.last)
   }
+
+  private def isWrapped(t: Tree): Boolean = {
+    val (head, last) = ends(t)
+    isWrapped(head, last)
+  }
+
+  @inline
+  private def nextNonTrivial(token: Token): Option[Token] =
+    ctx.tokenTraverser.nextNonTrivialToken(token)
 
 }
