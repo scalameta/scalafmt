@@ -410,3 +410,19 @@ rewrite.neverInfix.includeFilters = [ "[^*]+" ]
 foo baz (_)
 >>>
 foo.baz(_)
+<<< enclosed in parens on separate lines, with RedundantParens
+rewrite.rules = [AvoidInfix, RedundantParens]
+===
+object a {
+  val foo = bar
+  (
+    a baz b
+  )
+}
+>>>
+object a {
+  val foo = bar
+
+  a.baz(b)
+
+}
