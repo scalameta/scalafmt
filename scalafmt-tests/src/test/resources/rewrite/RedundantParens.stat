@@ -1297,5 +1297,5 @@ object a {
 }
 >>>
 object a {
-  Box.apply(_: Int, _: String).tupled
+  (Box.apply(_: Int, _: String)).tupled
 }
