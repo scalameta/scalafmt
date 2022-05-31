@@ -2,7 +2,7 @@ package org.scalafmt.rewrite
 
 import scala.annotation.tailrec
 import scala.meta._
-import scala.meta.internal.trees.PlaceholderChecks
+import scala.meta.internal.trees.PlaceholderChecks.hasPlaceholder
 
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.RewriteSettings
@@ -103,12 +103,10 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
     val op = ai.op.value
     InfixApp.isLeftAssoc(op) && matcher.matches(op) && (ai.args match {
       case arg :: Nil if !isWrapped(arg) =>
-        !ctx.style.rewrite.allowInfixPlaceholderArg &&
-        PlaceholderChecks.isPlaceholder(arg) ||
-        !PlaceholderChecks.hasPlaceholder(arg)
+        !hasPlaceholder(arg, ctx.style.rewrite.allowInfixPlaceholderArg)
       case _ => true
     }) && (ai.lhs match {
-      case lhs: Term.ApplyInfix if PlaceholderChecks.hasPlaceholder(lhs) =>
+      case lhs: Term.ApplyInfix if hasPlaceholder(lhs, true) =>
         isWrapped(lhs) || checkMatchingInfix(lhs)
       case _ => true
     })
