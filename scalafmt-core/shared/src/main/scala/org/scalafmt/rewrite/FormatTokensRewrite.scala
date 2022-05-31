@@ -80,20 +80,27 @@ class FormatTokensRewrite(
       def iter(idx: Int): Unit = {
         if (idx < newarr.length) {
           val ft = newarr(idx)
-          if (idx == 0)
-            newarr(0) = ft.copy(meta = ft.meta.copy(idx = 0))
-          else { // reset all indices and set left from previous right
-            val prevft = newarr(idx - 1)
-            val newMeta = ft.meta.copy(idx = idx, left = prevft.meta.right)
-            newarr(idx) = ft.copy(left = prevft.right, meta = newMeta)
-          }
-          tokenMap += FormatTokens.thash(newarr(idx).left) -> idx
+          // reset all indices and set left from previous right (or first left)
+          val (left, leftMeta) =
+            if (idx == 0) {
+              val headft = arr(0)
+              headft.left -> headft.meta.left
+            } else {
+              val prevft = newarr(idx - 1)
+              prevft.right -> prevft.meta.right
+            }
+          val newMeta = ft.meta.copy(idx = idx, left = leftMeta)
+          newarr(idx) = ft.copy(left = left, meta = newMeta)
+          tokenMap += FormatTokens.thash(left) -> idx
           iter(idx + 1)
         }
       }
       iter(0)
 
-      tokenMap += FormatTokens.thash(newarr.last.right) -> newarr.last.meta.idx
+      tokenMap += {
+        val ft = newarr.last
+        FormatTokens.thash(ft.right) -> ft.meta.idx
+      }
       new FormatTokens(tokenMap.result())(newarr)
     }
   }
