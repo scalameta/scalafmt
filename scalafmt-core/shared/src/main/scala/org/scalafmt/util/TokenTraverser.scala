@@ -49,15 +49,18 @@ class TokenTraverser(tokens: Tokens, input: Input) {
     }
   }
 
-  def nextNonTrivialToken(token: Token): Option[Token] =
-    findAfter(token)(x => if (x.is[Trivia]) None else Some(true))
-
   def prevToken(token: Token): Token = {
     tok2idx.get(token) match {
       case Some(i) if i > 0 => tokens(i - 1)
       case _ => token
     }
   }
+
+  def nextNonTrivialToken(token: Token): Option[Token] =
+    findAfter(token)(TokenTraverser.isTrivialPred)
+
+  def prevNonTrivialToken(token: Token): Option[Token] =
+    findBefore(token)(TokenTraverser.isTrivialPred)
 
   /** Find a token after the given one. The search stops when the predicate
     * returns Some value (or the end is reached).
@@ -117,5 +120,12 @@ class TokenTraverser(tokens: Tokens, input: Input) {
       else tail
     }
   }
+
+}
+
+object TokenTraverser {
+
+  private def isTrivialPred(token: Token): Option[Boolean] =
+    if (token.is[Trivia]) None else Some(true)
 
 }
