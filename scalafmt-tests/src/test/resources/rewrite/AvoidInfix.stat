@@ -399,14 +399,14 @@ rewrite.neverInfix.includeFilters = [ "[^*]+" ]
 ===
 1 foo (2 +: 3) / 4
 >>>
-1.foo(((2 +: 3))./(4))
+1.foo((2 +: 3)./(4))
 <<< avoid double wrap 2
 rewrite.neverInfix.includeFilters = [ "[^*]+" ]
 ===
 1 foo ((2) +: 3) / 4
 >>>
-1.foo((((2) +: 3))./(4))
+1.foo(((2) +: 3)./(4))
 <<< rewrite wrapped placeholder
 foo baz (_)
 >>>
-foo baz (_)
+foo.baz(_)

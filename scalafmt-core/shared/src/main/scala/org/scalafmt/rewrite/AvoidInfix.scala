@@ -129,11 +129,14 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
   }
 
   @inline
-  private def isMatching(head: Token, last: Token): Boolean =
+  private def isMatching(head: Token, last: => Token): Boolean =
     head.is[Token.LeftParen] && ctx.isMatching(head, last)
 
   private def isWrapped(head: Token, last: Token): Boolean =
-    isMatching(head, last)
+    isMatching(head, last) ||
+      ctx.tokenTraverser.prevNonTrivialToken(head).exists {
+        isMatching(_, nextNonTrivial(last).orNull)
+      }
 
   private def ends(t: Tree): (Token, Token) = {
     val tokens = t.tokens

@@ -31,8 +31,8 @@ case class RewriteCtx(
   @inline def getMatchingOpt(a: Token): Option[Token] =
     matchingParens.get(TokenOps.hash(a))
 
-  @inline def isMatching(a: Token, b: Token) =
-    getMatchingOpt(a).contains(b)
+  @inline def isMatching(a: Token, b: => Token) =
+    getMatchingOpt(a).exists(_ eq b)
 
   @inline def getIndex(token: Token) = tokenTraverser.getIndex(token)
 
