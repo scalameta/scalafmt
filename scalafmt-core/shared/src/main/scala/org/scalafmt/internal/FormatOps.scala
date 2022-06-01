@@ -1509,6 +1509,8 @@ class FormatOps(
       case t @ SplitCallIntoParts(fun, _) if t ne fun =>
         if (enclosed && isEnclosedInParens(t)) None
         else findPrevSelect(fun, enclosed)
+      case Term.AnonymousFunction(body) if !enclosed =>
+        findPrevSelect(body, false)
       case _ => None
     }
   def findPrevSelect(
@@ -1548,6 +1550,8 @@ class FormatOps(
             val nextEnclosed = Some(tree).filter(isEnclosedInParens)
             findLastApplyAndNextSelectPastEnclosed(p, select, nextEnclosed)
         }
+      case Some(p: Term.AnonymousFunction) =>
+        findLastApplyAndNextSelectPastEnclosed(p, select, Some(p))
       case _ => (prevEnclosed.getOrElse(tree), select)
     }
 
