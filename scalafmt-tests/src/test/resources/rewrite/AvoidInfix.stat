@@ -422,7 +422,5 @@ object a {
 >>>
 object a {
   val foo = bar
-
   a.baz(b)
-
 }

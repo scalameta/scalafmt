@@ -93,20 +93,6 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
           builder += TokenPatch.AddRight(lhsLast, ")", keepTok = true)
         }
 
-        // remove parens if enclosed
-        for {
-          parent <- tree.parent
-          if !parent.is[Term.ApplyInfix] && !parent.is[Term.Apply]
-          if ctx.style.rewrite.rules.contains(RedundantParens)
-          infixTokens = tree.tokens
-          head <- infixTokens.headOption if head.is[Token.LeftParen]
-          last <- infixTokens.lastOption if last.is[Token.RightParen]
-          if ctx.isMatching(head, last)
-        } yield {
-          builder += TokenPatch.Remove(head)
-          builder += TokenPatch.Remove(last)
-        }
-
         ctx.addPatchSet(builder.result(): _*)
 
       case _ =>
