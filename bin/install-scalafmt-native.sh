@@ -71,21 +71,21 @@ elif [ "$VERSION_COMPARE" -le 0 ]; then
 fi
 
 TMP=$(mktemp -d)
-cd $TMP
+cd "$TMP"
 if [ "$VERSION_COMPARE" -le 0 ]; then
 curl --fail -Lo $NAME https://github.com/scalameta/scalafmt/releases/download/$VERSION/$NAME
-cp $NAME $INSTALL_LOCATION
+cp $NAME "$INSTALL_LOCATION"
 else
 ZIP=$NAME.zip
 curl --fail -Lo $ZIP https://github.com/scalameta/scalafmt/releases/download/$VERSION/$ZIP
 unzip $ZIP
-cp scalafmt $INSTALL_LOCATION
+cp scalafmt "$INSTALL_LOCATION"
 fi
 
-chmod +x $INSTALL_LOCATION
+chmod +x "$INSTALL_LOCATION"
 
-cd $CWD
-rm -rf $TMP
+cd "$CWD"
+rm -rf "$TMP"
 
-echo Installed $INSTALL_LOCATION
+echo Installed "$INSTALL_LOCATION"
 
