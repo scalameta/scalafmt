@@ -230,7 +230,7 @@ lazy val cli = project
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
       "com.github.scopt" %% "scopt" % "4.0.1",
       // undeclared transitive dependency of coursier-small
-      "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
+      "org.scala-lang.modules" %% "scala-xml" % "2.1.0"
     ),
     scalacOptions ++= scalacJvmOptions.value,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
