@@ -1792,7 +1792,7 @@ object FormatWriter {
     * ```
     * libraryDependencies ++= Seq(
     *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
-    *   "io.get-coursier" % "interface"   % "0.0.17"
+    *   "io.get-coursier" % "interface"   % "0.0.25"
     * )
     * ```
     *
@@ -1800,7 +1800,7 @@ object FormatWriter {
     * ```
     * libraryDependencies ++= Seq(
     *   "org.scalacheck" %% "scalacheck" % scalacheckV,
-    *   "io.get-coursier" % "interface"  % "0.0.17"
+    *   "io.get-coursier" % "interface"  % "0.0.25"
     * )
     * ```
     */
