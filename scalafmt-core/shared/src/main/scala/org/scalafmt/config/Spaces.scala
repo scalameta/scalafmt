@@ -43,6 +43,9 @@ import metaconfig._
   * @param afterSymbolicDefs
   *   If true, adds a single space after an operator method. For example:
   *   {{{def <=> [T](that: T): Boolean}}}
+  * @param afterConstructorAnnotation
+  *   If true, adds a single space after a constructor annotation. For example:
+  *   {{{class MyClass @Inject() (param1: SomeType)}}}
   */
 case class Spaces(
     beforeContextBoundColon: Spaces.BeforeContextBound =
@@ -54,7 +57,8 @@ case class Spaces(
     neverAroundInfixTypes: Seq[String] = Nil,
     afterKeywordBeforeParen: Boolean = true,
     inByNameTypes: Boolean = true,
-    afterSymbolicDefs: Boolean = false
+    afterSymbolicDefs: Boolean = false,
+    afterConstructorAnnotation: Boolean = true
 ) {
   def isSpaceAfterKeyword(tokenAfter: Token): Boolean =
     afterKeywordBeforeParen || !tokenAfter.is[Token.LeftParen]

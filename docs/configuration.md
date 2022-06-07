@@ -4035,6 +4035,18 @@ spaces.afterSymbolicDefs=true
 def +++(a: A): F[A]
 ```
 
+### `spaces.afterConstructorAnnotation`
+
+```scala mdoc:defaults
+spaces.afterConstructorAnnotation
+```
+
+```scala mdoc:scalafmt
+spaces.afterConstructorAnnotation=true
+---
+class A @Inject() (param1: B)
+```
+
 ## Literals
 
 > Since v2.5.0.

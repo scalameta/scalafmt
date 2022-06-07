@@ -1,0 +1,24 @@
+spaces.afterConstructorAnnotation = true
+<<< Space between annotation and ctor argument list
+class A @Inject()(b: C)
+>>>
+class A @Inject() (b: C)
+
+<<< Space between annotation and ctor argument list (with multiple argument list)
+class MyComponent @Inject()(ctx: Context)(ws: WSClient)
+>>>
+class MyComponent @Inject() (ctx: Context)(ws: WSClient)
+
+<<< No space between annotation and ctor argument list
+spaces.afterConstructorAnnotation = false
+===
+class A @Inject() (b: C)
+>>>
+class A @Inject()(b: C)
+
+<<< No space between annotation and ctor argument list (with multiple argument list)
+spaces.afterConstructorAnnotation = false
+===
+class MyComponent @Inject() (ctx: Context)(ws: WSClient)
+>>>
+class MyComponent @Inject()(ctx: Context)(ws: WSClient)

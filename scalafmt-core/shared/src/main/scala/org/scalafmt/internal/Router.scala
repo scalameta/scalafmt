@@ -674,7 +674,8 @@ class Router(formatOps: FormatOps) {
           // see:
           // https://github.com/scalameta/scalafmt/pull/1516
           // https://github.com/scalameta/scalafmt/issues/1528
-          case init: Init if init.parent.forall(_.is[Mod.Annot]) => Space
+          case init: Init if init.parent.forall(_.is[Mod.Annot]) =>
+            Space(style.spaces.afterConstructorAnnotation)
           case t: Term.Name
               if style.spaces.afterTripleEquals && t.value == "===" =>
             Space
