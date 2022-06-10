@@ -382,6 +382,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         // sometimes a function body block doesn't have braces
         fb.tokens.headOption.exists(_.is[Token.LeftBrace]) &&
         !okToRemoveAroundFunctionBody(fb, true)
+      case _: Term.Assign => false // f({ a = b }) is not the same as f(a = b)
       case _ => true
     }
 
