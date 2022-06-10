@@ -1354,3 +1354,13 @@ object a {
     bar
   }
 }
+<<< #3263 assign value to var, use as arg
+object a {
+  foo({ bar = baz })
+  foo({ bar = baz }, qux)
+}
+>>>
+object a {
+  foo({ bar = baz })
+  foo(bar = baz, qux)
+}
