@@ -663,7 +663,6 @@ class B {
 import bar._
 >>>
 import bar._
-
 class A {
   import foo._
 }
@@ -771,7 +770,6 @@ class B:
 import bar._
 >>>
 import bar._
-
 class A:
   import baz._
   import foo._
@@ -793,7 +791,6 @@ class B:
 import bar._
 >>>
 import bar._
-
 class A:
   /* foo */
   import baz._
@@ -822,7 +819,6 @@ class B:
 import bar._
 >>>
 import bar._
-
 class A:
   // baz
   import baz._
