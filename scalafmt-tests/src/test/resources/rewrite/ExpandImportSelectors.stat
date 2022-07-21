@@ -141,3 +141,22 @@ import zio.prelude.<=>
 import zio.prelude.` => `
 import zio.prelude.<=>
 import zio.prelude.` => `
+<<< #3275 1
+runner.parser = source
+===
+package foo
+import scala.collection.mutable
+import scala.collection.mutable.AbstractMap
+>>>
+package foo
+import scala.collection.mutable
+import scala.collection.mutable.AbstractMap
+<<< #3275 2
+runner.parser = source
+===
+import scala.collection.mutable
+import scala.collection.mutable.AbstractMap
+>>>
+import scala.collection.mutable
+
+import scala.collection.mutable.AbstractMap
