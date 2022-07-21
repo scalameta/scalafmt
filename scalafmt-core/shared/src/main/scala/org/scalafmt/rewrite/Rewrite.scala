@@ -54,7 +54,11 @@ case class RewriteCtx(
 
   def onlyWhitespaceBefore(index: Int): Boolean =
     tokenTraverser
-      .findAtOrBefore(index - 1)(RewriteCtx.isLFSkipWhitespace)
+      .findAtOrBefore(index - 1) {
+        case _: LF | _: Token.BOF => Some(true)
+        case Whitespace() => None
+        case _ => Some(false)
+      }
       .isDefined
 
   def findNonWhitespaceWith(
@@ -78,7 +82,11 @@ case class RewriteCtx(
   )(implicit builder: Rewrite.PatchBuilder): Unit =
     if (onlyWhitespaceBefore(beg))
       tokenTraverser
-        .findAtOrAfter(end + 1)(RewriteCtx.isLFSkipWhitespace)
+        .findAtOrAfter(end + 1) {
+          case _: LF => Some(true)
+          case Whitespace() => None
+          case _ => Some(false)
+        }
         .map(TokenPatch.Remove)
         .foreach(builder += _)
 
@@ -167,15 +175,6 @@ object Rewrite {
 }
 
 object RewriteCtx {
-
-  // this is a helper function to be used with the token traverser
-  // finds a newline not blocked by any non-whitespace characters
-  private def isLFSkipWhitespace(token: Token): Option[Boolean] =
-    token match {
-      case _: LF => Some(true)
-      case Whitespace() => None
-      case _ => Some(false)
-    }
 
   // https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#prefix-infix-and-postfix-operations
   def isSimpleExprOr(

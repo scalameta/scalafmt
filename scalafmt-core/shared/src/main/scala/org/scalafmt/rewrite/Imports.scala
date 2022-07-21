@@ -420,7 +420,7 @@ object Imports extends RewriteFactory {
 
     protected val groups = Array.fill(settings.numGroups + 1)(new Grouping)
 
-    protected def addToGroup(
+    protected final def addToGroup(
         group: Grouping,
         kw: String,
         ref: String,
@@ -429,7 +429,7 @@ object Imports extends RewriteFactory {
     ): Unit =
       group.add(kw, ref, getSelector(selector, true), importer)
 
-    protected def addToGroup(
+    protected final def addToGroup(
         group: Grouping,
         kw: String,
         ref: String,
