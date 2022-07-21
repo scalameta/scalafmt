@@ -1157,12 +1157,12 @@ class FormatOps(
         case FormatToken(
               left: T.LeftParen,
               _,
-              FormatToken.LeftOwner(app: Term.Apply)
+              FormatToken.LeftOwner(app @ CallArgsForConfigStyle(args))
             )
-            if app.args.lengthCompare(minArgs) >= 0 &&
+            if args.lengthCompare(minArgs) >= 0 &&
               distance(left, matching(left)) > maxDistance =>
           forces += app
-          app.args.foreach { arg =>
+          args.foreach { arg =>
             clearQueues += hash(tokens.getHead(arg).left)
           }
         case _ =>

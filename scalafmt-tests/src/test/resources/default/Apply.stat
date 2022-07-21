@@ -1854,4 +1854,45 @@ object a {
   }
 }
 >>>
-FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on ',∙rs[750:759]', line 31
+object a {
+  def createFoo(rs: ResultSet): Foo = {
+    new Foo(
+        rs.getDouble(1),
+        rs.getDouble(2),
+        rs.getDouble(3),
+        rs.getDouble(4),
+        rs.getDouble(5),
+        rs.getDouble(6),
+        rs.getDouble(7),
+        rs.getDouble(8),
+        rs.getDouble(9),
+        rs.getDouble(10),
+        rs.getDouble(11),
+        rs.getDouble(12),
+        rs.getDouble(13),
+        rs.getDouble(14),
+        rs.getDouble(15),
+        rs.getDouble(16),
+        rs.getDouble(17),
+        rs.getDouble(18),
+        rs.getDouble(19),
+        rs.getDouble(20),
+        rs.getDouble(21),
+        rs.getDouble(22),
+        rs.getDouble(23),
+        rs.getDouble(24),
+        rs.getDouble(25),
+        rs.getDouble(26),
+        rs.getDouble(27),
+        rs.getDouble(28),
+        rs.getDouble(29),
+        rs.getDouble(30),
+        rs.getDouble(31),
+        rs.getDouble(32),
+        rs.getDouble(33),
+        rs.getDouble(34),
+        rs.getDouble(35),
+        rs.getDouble(36)
+    )
+  }
+}
