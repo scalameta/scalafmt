@@ -12,7 +12,6 @@ import org.scalameta.FileLine
 
 import scala.annotation.tailrec
 import scala.language.implicitConversions
-import scala.meta.Term.ApplyUsing
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.{Token => T}
 import scala.meta.{
@@ -2336,12 +2335,7 @@ class Router(formatOps: FormatOps) {
           if style.binPack.unsafeDefnSite.isNever &&
             !style.verticalMultiline.atDefnSite &&
             isRightImplicitOrUsingSoftKw(formatToken, soft) =>
-        val argsOrParamsOpt = formatToken.meta.leftOwner match {
-          // for the using argument list
-          case _: ApplyUsing => Some(getApplyArgs(formatToken, false).args)
-          case _ => opensImplicitParamList(prevNonCommentBefore(formatToken))
-        }
-        argsOrParamsOpt.fold {
+        opensImplicitParamList(prevNonCommentBefore(formatToken)).fold {
           Seq(Split(Space, 0))
         } { params =>
           val spaceSplit = Split(Space, 0)
