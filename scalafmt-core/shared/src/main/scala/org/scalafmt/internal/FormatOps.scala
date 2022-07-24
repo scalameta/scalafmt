@@ -1483,14 +1483,15 @@ class FormatOps(
     }
   }
 
-  def opensImplicitParamList(ft: FormatToken): Option[Seq[Term.Param]] = {
-    val paramsOpt = splitDefnIntoParts.lift(ft.meta.leftOwner).flatMap {
-      case (_, _, _, paramss) =>
+  def opensImplicitParamList(ft: FormatToken): Option[Seq[Tree]] =
+    ft.meta.leftOwner match {
+      case t: Term.ApplyUsing => Some(t.args)
+      case SplitDefnIntoParts(_, _, _, paramss) =>
         findArgsFor(ft.left, paramss)
+          // make sure there's no other param with implicit
+          .filter(!_.exists(TreeOps.hasExplicitImplicit))
+      case _ => None
     }
-    // make sure there's no other param with implicit
-    paramsOpt.filter(!_.exists(TreeOps.hasExplicitImplicit))
-  }
 
   /** Works for `using` as well */
   def opensImplicitParamList(ft: FormatToken, args: Seq[Tree]): Boolean =
