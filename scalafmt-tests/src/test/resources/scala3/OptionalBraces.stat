@@ -3443,3 +3443,63 @@ object a:
       val x = 4
       4 == 3
    do 5
+<<< #3276
+class Foo() {
+  def ok: Boolean =
+    if (1 == 1) {
+      true
+    } else
+      false
+
+  def notOK: Boolean =
+    if (1 == 1) {
+      println("Some code")
+      true
+    } else
+      false
+}
+>>>
+class Foo() {
+  def ok: Boolean =
+    if (1 == 1) {
+      true
+    } else
+      false
+
+  def notOK: Boolean =
+    if (1 == 1) {
+      println("Some code")
+      true
+    } else false
+}
+<<< #3276 2
+class Foo() {
+  def notOK: Boolean =
+    if (1 == 1)
+      {c; a + b}.foo
+    else
+      false
+}
+>>>
+class Foo() {
+  def notOK: Boolean =
+    if (1 == 1) { c; a + b }.foo
+    else
+      false
+}
+<<< #3276 3
+class Foo() {
+  def notOK: Boolean =
+    if (1 == 1)
+      {a + b}.foo
+      c
+    else
+      false
+}
+>>>
+test does not parse
+    if (1 == 1)
+    { a + b }.foo
+    c
+    else false
+  ^
