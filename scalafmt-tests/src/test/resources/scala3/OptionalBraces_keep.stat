@@ -3452,7 +3452,7 @@ class Foo() {
       println("Some code")
       true
     } else
-       false
+      false
 }
 <<< #3276 2
 class Foo() {
