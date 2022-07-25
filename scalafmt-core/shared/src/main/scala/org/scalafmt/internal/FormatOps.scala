@@ -2042,11 +2042,9 @@ class FormatOps(
     def get(ft: FormatToken)(implicit
         style: ScalafmtConfig
     ): Option[OptionalBracesRegion] = {
-      val nft = nextNonComment(ft)
-      if (nft.right.is[T.LeftBrace]) None
-      else if (!style.dialect.allowSignificantIndentation) None
-      else {
-        val impl = ft.left match {
+      if (!style.dialect.allowSignificantIndentation) None
+      else
+        Option(ft.left match {
           case _: T.Colon | _: T.KwWith => ColonEolImpl
           case _: T.RightArrow => RightArrowImpl
           case _: T.RightParen => RightParenImpl
@@ -2065,9 +2063,12 @@ class FormatOps(
               _: T.KwThrow | _: T.KwYield =>
             BlockImpl
           case _ => null
+        }).flatMap { impl =>
+          val nft = nextNonComment(ft)
+          impl.create(ft, nft).filter { ob =>
+            !nft.right.is[T.LeftBrace] || nft.meta.rightOwner.parent != ob.owner
+          }
         }
-        Option(impl).flatMap(_.create(ft, nft))
-      }
     }
 
     private def getSplits(

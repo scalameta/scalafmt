@@ -3497,9 +3497,10 @@ class Foo() {
       false
 }
 >>>
-test does not parse
+class Foo() {
+  def notOK: Boolean =
     if (1 == 1)
-    { a + b }.foo
-    c
+       { a + b }.foo
+       c
     else false
-  ^
+}
