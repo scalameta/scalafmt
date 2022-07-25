@@ -2513,12 +2513,17 @@ class FormatOps(
       }
     }
 
-    private def isThenPWithOptionalBraces(tree: Term.If): Boolean =
-      tokenBefore(tree.thenp).left match {
+    private def isThenPWithOptionalBraces(tree: Term.If): Boolean = {
+      val thenp = tree.thenp
+      val before = tokens.tokenJustBefore(thenp)
+      prevNonComment(before).left match {
         case _: T.KwThen => true
         case _: T.LeftBrace => false
-        case _ => isTreeMultiStatBlock(tree.thenp)
+        case _ =>
+          isTreeMultiStatBlock(thenp) && (!before.right.is[T.LeftBrace] ||
+            matchingOpt(before.right).exists(rb => rb.end < thenp.pos.end))
       }
+    }
 
     @tailrec
     private def isElsePWithOptionalBraces(tree: Term.If): Boolean =
