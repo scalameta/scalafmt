@@ -2008,7 +2008,7 @@ class Router(formatOps: FormatOps) {
             case _: Term.While | _: Term.For =>
               !nextNonComment(formatToken).right.is[T.KwDo]
             case _ => false
-          }) && !isFirstOrLastToken(close, leftOwner) =>
+          }) && !isLastToken(close, leftOwner) =>
         val body = leftOwner match {
           case t: Term.If => t.thenp
           case t: Term.For => t.body

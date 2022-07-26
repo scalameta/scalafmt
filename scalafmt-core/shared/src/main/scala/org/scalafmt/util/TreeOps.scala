@@ -427,10 +427,6 @@ object TreeOps {
     !isTuple(owner) && isFirstToken(open, owner)
 
   @inline
-  def isFirstOrLastToken(token: Token, owner: Tree): Boolean =
-    isFirstToken(token, owner) || isLastToken(token, owner)
-
-  @inline
   def isFirstToken(token: Token, owner: Tree): Boolean =
     owner.tokens.headOption.contains(token)
 
