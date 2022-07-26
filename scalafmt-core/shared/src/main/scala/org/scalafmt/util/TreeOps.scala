@@ -428,11 +428,19 @@ object TreeOps {
 
   @inline
   def isFirstToken(token: Token, owner: Tree): Boolean =
-    owner.tokens.headOption.contains(token)
+    isFirstToken(token, owner.tokens)
+
+  @inline
+  def isFirstToken(token: Token, owner: Tokens): Boolean =
+    owner.headOption.contains(token)
 
   @inline
   def isLastToken(token: Token, owner: Tree): Boolean =
-    owner.tokens.lastOption.contains(token)
+    isLastToken(token, owner.tokens)
+
+  @inline
+  def isLastToken(token: Token, owner: Tokens): Boolean =
+    owner.lastOption.contains(token)
 
   def isCallSite(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
     tree match {

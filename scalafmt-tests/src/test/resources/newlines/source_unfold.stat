@@ -6110,12 +6110,14 @@ class Foo() {
 >>>
 class Foo() {
   def notOK: Boolean =
-    try {
-      c;
-      a + b
-    }.foo
-    finally {
-      c;
-      a + b
-    }.foo
+    try
+      {
+        c;
+        a + b
+      }.foo
+    finally
+      {
+        c;
+        a + b
+      }.foo
 }

@@ -5954,7 +5954,8 @@ class Foo() {
 >>>
 class Foo() {
   def notOK: Boolean =
-    if (1 == 1) { c; a + b }.foo
+    if (1 == 1)
+      { c; a + b }.foo
     else
       false
 }
