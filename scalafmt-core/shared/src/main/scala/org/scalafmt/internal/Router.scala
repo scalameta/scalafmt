@@ -1495,7 +1495,22 @@ class Router(formatOps: FormatOps) {
         val indentLen = style.indent.matchSite.fold(0)(_ - style.indent.main)
         def expire = getLastNonTrivialToken(leftOwner) // should rbrace
         Seq(Split(Space, 0).withIndent(indentLen, expire, ExpiresOn.Before))
-      case FormatToken(_, _: T.LeftBrace, _) =>
+      case FormatToken(_, lb: T.LeftBrace, _) if ! { // partial initial expr
+            val roTokens = rightOwner.tokens
+            isFirstToken(lb, roTokens) && rightOwner.parent.exists {
+              case p: Term.ApplyInfix => // exclude start of infix
+                @tailrec
+                def startsInfix(ai: Term.ApplyInfix, lhs: Tree): Boolean =
+                  ai.lhs.eq(lhs) && (ai.parent match {
+                    case Some(aip: Term.ApplyInfix) => startsInfix(aip, ai)
+                    case _ => true
+                  })
+                startsInfix(p, rightOwner)
+              case p =>
+                isFirstToken(lb, p) &&
+                matchingOpt(lb).exists(isLastToken(_, roTokens))
+            }
+          } =>
         Seq(Split(Space, 0))
 
       // Delim
