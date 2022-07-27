@@ -3605,3 +3605,21 @@ class Foo() {
     else
        false
 }
+<<< #3276 4
+class Foo() {
+  def notOK: Boolean =
+    try {c; a + b}.foo
+    finally {c; a + b}.foo
+}
+>>>
+class Foo() {
+  def notOK: Boolean =
+    try {
+      c;
+      a + b
+    }.foo
+    finally {
+      c;
+      a + b
+    }.foo
+}
