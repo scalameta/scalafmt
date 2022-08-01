@@ -2640,6 +2640,8 @@ class Router(formatOps: FormatOps) {
       Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft.noBreak), 0), ft, body))
     else if (isJsNative(body))
       Seq(Split(Space, 0).withSingleLine(expire))
+    else if (style.newlines.forceBeforeAssign(ft.meta.leftOwner))
+      Seq(CtrlBodySplits.withIndent(Split(Newline, 0), ft, body))
     else if (style.newlines.shouldForceBeforeMultilineAssign(ft.meta.leftOwner))
       CtrlBodySplits.slbOnly(ft, body, spaceIndents) { x =>
         CtrlBodySplits.withIndent(Split(Newline, x), ft, body)

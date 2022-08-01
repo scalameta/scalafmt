@@ -6127,4 +6127,5 @@ newlines.forceBeforeAssign = def
 def sum(a: Int, b: Int): Int =
   a + b
 >>>
-def sum(a: Int, b: Int): Int = a + b
+def sum(a: Int, b: Int): Int =
+  a + b
