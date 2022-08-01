@@ -180,6 +180,8 @@ case class Newlines(
     @annotation.ExtraName("usingParamListModifierPrefer")
     implicitParamListModifierPrefer: Option[BeforeAfter] = None,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
+    forceBeforeAssign: ForceBeforeMultilineAssign =
+      ForceBeforeMultilineAssign.never,
     private val forceBeforeMultilineAssign: Option[ForceBeforeMultilineAssign] =
       None,
     @annotation.DeprecatedName(

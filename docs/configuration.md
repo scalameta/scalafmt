@@ -1746,6 +1746,19 @@ class A {
 }
 ```
 
+### `newlines.forceBeforeAssign`
+
+> Since v3.5.9
+
+```scala mdoc:defaults
+newlines.forceBeforeAssign
+```
+
+This parameter takes precedence over
+[`newlines.forceBeforeMultilineAssign`](#newlinesforcebeforemultilineassign)
+and uses the same values. The difference is, the rule forces a newline before a
+matching assignment expression whether or not it can be formatted on a single line.
+
 ### `newlines.beforeTypeBounds`
 
 > Since v3.0.0
