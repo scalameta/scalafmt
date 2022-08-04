@@ -1905,8 +1905,8 @@ class FormatOps(
               val nlSplit = nlSplitFunc(spcSplit.getCost(_ + 1, 0)).forThisLine
               Seq(spcSplit, nlSplit)
             }
-          case x => // fold or keep without break
-            val isKeep = x eq Newlines.keep
+          case sh => // fold or keep without break
+            val isKeep = sh eq Newlines.keep
             foldedNonComment(body, nlSplitFunc, isKeep, spaceIndents)
         }
       }
