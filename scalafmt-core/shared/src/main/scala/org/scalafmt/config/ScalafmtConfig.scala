@@ -376,7 +376,7 @@ object ScalafmtConfig {
       if (newlines.sourceIgnored) {
         addIf(optIn.configStyleArguments && align.openParenCallSite && newlines.beforeOpenParenCallSite.isEmpty)
         addIf(optIn.configStyleArguments && align.openParenDefnSite && newlines.beforeOpenParenDefnSite.isEmpty)
-        def mustIgnoreSourceSplit(what: sourcecode.Text[Option[Newlines.SourceHints]]) =
+        def mustIgnoreSourceSplit(what: sourcecode.Text[Option[Newlines.IgnoreSourceSplit]]) =
           what.value.foreach(x => addIfDirect(!x.ignoreSourceSplit, s"${what.source}=$x"))
         mustIgnoreSourceSplit(newlines.beforeMultiline)
         mustIgnoreSourceSplit(newlines.beforeMultilineDef)

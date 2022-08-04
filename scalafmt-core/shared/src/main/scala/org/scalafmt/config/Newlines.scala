@@ -333,10 +333,14 @@ object Newlines {
   implicit lazy val codec: ConfCodecEx[Newlines] =
     generic.deriveCodecEx(Newlines()).noTypos
 
-  sealed abstract class SourceHints(val ignoreSourceSplit: Boolean) {
+  sealed abstract class IgnoreSourceSplit {
+    val ignoreSourceSplit: Boolean
     @inline
-    final def in(hints: SourceHints*): Boolean = hints.contains(this)
+    final def in(hints: IgnoreSourceSplit*): Boolean = hints.contains(this)
   }
+
+  sealed abstract class SourceHints(val ignoreSourceSplit: Boolean)
+      extends IgnoreSourceSplit
   // the classic handler of source newlines
   case object classic extends SourceHints(ignoreSourceSplit = false)
   // try to keep newlines
