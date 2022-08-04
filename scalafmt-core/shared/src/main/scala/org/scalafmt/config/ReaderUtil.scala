@@ -45,4 +45,18 @@ object ReaderUtil {
     new ConfCodecEx(encoder, decoder)
   }
 
+  def oneOfEither[A: ClassTag, B: ClassTag](
+      optionsA: sourcecode.Text[A]*
+  )(
+      optionsB: sourcecode.Text[B]*
+  ): ConfCodecEx[Either[A, B]] = {
+    val options =
+      optionsA.map(x =>
+        sourcecode.Text[Either[A, B]](Left(x.value), x.source)
+      ) ++ optionsB.map(x =>
+        sourcecode.Text[Either[A, B]](Right(x.value), x.source)
+      )
+    oneOfCustomEx(options: _*)(PartialFunction.empty)
+  }
+
 }
