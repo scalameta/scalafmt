@@ -529,7 +529,10 @@ class Router(formatOps: FormatOps) {
           case c: Case => c.cond.isDefined
           case _ => false
         }
-        val bodyIsEmpty = body.tokens.isEmpty
+        val bodyIsEmpty = body match {
+          case t: Term.Block => t.stats.isEmpty
+          case t => t.tokens.isEmpty
+        }
         def baseSplit = Split(Space, 0)
         def nlSplit(ft: FormatToken)(cost: Int)(implicit l: FileLine) =
           Split(NewlineT(isDouble = ft.hasBlankLine && bodyIsEmpty), cost)
@@ -542,14 +545,13 @@ class Router(formatOps: FormatOps) {
           if (isCaseBodyABlock(ft, owner)) Seq(baseSplit)
           else if (isCaseBodyEnclosedAsBlock(ft, owner)) Seq(baseSplit)
           else if (ft.right.is[T.KwCase]) Seq(nlSplit(ft)(0))
-          else if (beforeMultiline eq Newlines.unfold) {
-            if (ft.right.is[T.Semicolon]) Seq(baseSplit, nlSplit(ft)(1))
-            else if (style.newlines.source ne Newlines.unfold) withSlbSplit
-            else Seq(nlSplit(ft)(0))
-          } else if (ft.hasBreak && !beforeMultiline.ignoreSourceSplit)
+          else if (ft.hasBreak && !beforeMultiline.ignoreSourceSplit)
             Seq(nlSplit(ft)(0))
           else if (bodyIsEmpty) Seq(baseSplit, nlSplit(ft)(1))
-          else if (
+          else if (beforeMultiline eq Newlines.unfold) {
+            if (style.newlines.source ne Newlines.unfold) withSlbSplit
+            else Seq(nlSplit(ft)(0))
+          } else if (
             condIsDefined ||
             beforeMultiline.eq(Newlines.classic) ||
             getSingleStatExceptEndMarker(body).isEmpty
