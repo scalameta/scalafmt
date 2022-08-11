@@ -6,8 +6,11 @@ import metaconfig._
 
 object ReaderUtil {
 
-  private def lowerCaseNoBackticks(s: String): String =
-    s.toLowerCase().replace("`", "")
+  private def lowerCaseNoBackticks(s: String): String = {
+    val clean = s.toLowerCase().replace("`", "")
+    val lastDot = clean.lastIndexOf('.')
+    if (lastDot < 0) clean else clean.substring(lastDot + 1)
+  }
 
   // Poor mans coproduct reader
   def oneOf[T: ClassTag](options: sourcecode.Text[T]*): ConfCodecEx[T] = {
