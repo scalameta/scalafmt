@@ -98,7 +98,7 @@ case class ScalafmtReflect(
     else Try(scalafmtCls.invokeStatic("parseHoconConfig", textParam))
   }
 
-  private def parseConfigPre160(textParam: (Class[_], String)): Try[Object] = {
+  private def parseConfigPre160(textParam: (Class[_], Object)): Try[Object] = {
     // scalafmt >= v0.7.0-RC1 && scalafmt < 1.6.0
     Try {
       val fromHoconEmptyPath =

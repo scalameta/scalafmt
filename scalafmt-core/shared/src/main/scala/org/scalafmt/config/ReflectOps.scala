@@ -1,8 +1,8 @@
-package org.scalafmt.dynamic.utils
+package org.scalafmt.config
 
 import scala.reflect.ClassTag
 
-object ReflectUtils {
+private[config] object ReflectOps {
 
   implicit class ImplicitAnyRef[T <: AnyRef](val target: T) extends AnyVal {
     def invokeAs[R](methodName: String, args: (Class[_], AnyRef)*): R = {
