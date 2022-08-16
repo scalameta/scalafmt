@@ -13,8 +13,8 @@ class ConfParsed(val conf: Configured[Conf]) extends AnyVal {
   def getHoconValueOpt[A](
       path: String*
   )(implicit ev: ConfDecoderEx[A]): Option[A] = {
-    val dynamic = path.foldLeft(ConfDynamic(conf))(_ selectDynamic _)
-    dynamic.asConf.andThen(ev.read(None, _)).map(Some(_)).getOrElse(None)
+    val nestedConf = conf.andThen(_.getNestedConf(path: _*))
+    nestedConf.andThen(ev.read(None, _)).map(Some(_)).getOrElse(None)
   }
 
   def getHoconValue[A: ConfDecoderEx](default: A, path: String*): A =
