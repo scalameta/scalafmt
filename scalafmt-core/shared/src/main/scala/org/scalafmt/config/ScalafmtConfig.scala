@@ -209,7 +209,7 @@ case class ScalafmtConfig(
   def getConfigFor(filename: String): Try[ScalafmtConfig] = {
     val absfile = AbsoluteFile(FileOps.getFile(filename))
     @inline def otherDialect(style: ScalafmtConfig): Boolean =
-      style.dialect ne dialect
+      !style.dialect.isEquivalentTo(dialect)
     def onLang[A](f: (ProjectFiles.Layout, String) => A): Option[A] =
       project.layout.flatMap { layout =>
         layout.getLang(absfile).map { lang => f(layout, lang) }
