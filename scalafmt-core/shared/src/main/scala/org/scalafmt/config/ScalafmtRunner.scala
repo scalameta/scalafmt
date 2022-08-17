@@ -43,6 +43,13 @@ case class ScalafmtRunner(
 
   def forSbt: ScalafmtRunner = withDialect(topLevelDialect)
 
+  private[scalafmt] def forCodeBlock: ScalafmtRunner = copy(
+    debug = false,
+    dialect = topLevelDialect,
+    eventCallback = null,
+    parser = ScalafmtParser.Source
+  )
+
   def event(evt: => FormatEvent): Unit =
     if (null != eventCallback) eventCallback(evt)
 
