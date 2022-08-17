@@ -25,6 +25,7 @@ case class ScalafmtRunner(
     fatalWarnings: Boolean = false
 ) {
   @inline def getDialect = dialect.dialect
+  @inline private[scalafmt] def dialectName = dialect.name
 
   @inline def topLevelDialect = dialect.copy(
     dialect = getDialect
