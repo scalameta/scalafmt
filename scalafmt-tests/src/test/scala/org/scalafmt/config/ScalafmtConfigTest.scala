@@ -67,4 +67,20 @@ class ScalafmtConfigTest extends FunSuite {
     assertEquals(config.align, Align.none.copy(stripMargin = true))
   }
 
+  test("dialect override") {
+    val config1 = Config
+      .fromHoconString("""
+        |runner.dialect = scala213
+        |""".stripMargin)
+      .get
+    assert(!config1.runner.getDialect.allowToplevelTerms)
+    val config2 = Config
+      .fromHoconString("""
+        |runner.dialectOverride.allowToplevelTerms = true
+        |runner.dialect = scala213
+        |""".stripMargin)
+      .get
+    assert(!config2.runner.getDialect.allowToplevelTerms)
+  }
+
 }
