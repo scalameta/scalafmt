@@ -2162,8 +2162,9 @@ class FormatOps(
               def rightBrace = blockLast(b)
             })
           case t @ Term.If(_, thenp, _) if !nft.right.is[T.KwThen] && {
-                isTreeMultiStatBlock(thenp) || isElsePWithOptionalBraces(t) ||
-                !ifWithoutElse(t) && existsBlockIfWithoutElse(thenp, false)
+                isTreeMultiStatBlock(thenp) || !ifWithoutElse(t) &&
+                (isElsePWithOptionalBraces(t) ||
+                  existsBlockIfWithoutElse(thenp, false))
               } =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
@@ -2526,16 +2527,18 @@ class FormatOps(
     }
 
     @tailrec
-    private def isElsePWithOptionalBraces(tree: Term.If): Boolean =
-      !ifWithoutElse(tree) &&
-        !tokenBefore(tree.elsep).left.is[T.LeftBrace] &&
-        (tree.elsep match {
-          case t: Term.If =>
-            isThenPWithOptionalBraces(t) || isElsePWithOptionalBraces(t)
-          case Term.Block(List(t: Term.If)) =>
-            isThenPWithOptionalBraces(t) || isElsePWithOptionalBraces(t)
-          case t => isTreeMultiStatBlock(t)
-        })
+    private def isElsePWithOptionalBraces(tree: Term.If): Boolean = {
+      val elsep = tree.elsep
+      !tokenBefore(elsep).left.is[T.LeftBrace] && (elsep match {
+        case t: Term.If =>
+          isThenPWithOptionalBraces(t) ||
+          !ifWithoutElse(t) && isElsePWithOptionalBraces(t)
+        case Term.Block(List(t: Term.If)) =>
+          isThenPWithOptionalBraces(t) ||
+          !ifWithoutElse(t) && isElsePWithOptionalBraces(t)
+        case t => isTreeMultiStatBlock(t)
+      })
+    }
 
     private def shouldBreakInOptionalBraces(
         ft: FormatToken
