@@ -6,7 +6,7 @@ import java.util.regex.Pattern
 import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.{Formatted, Scalafmt}
 import org.scalafmt.config.{Comments, Docstrings, Newlines, ScalafmtConfig}
-import org.scalafmt.config.{FormatEvent, RewriteScala3Settings, ScalafmtParser}
+import org.scalafmt.config.{FormatEvent, RewriteScala3Settings}
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.{LiteralOps, TreeOps}
@@ -1014,12 +1014,7 @@ class FormatWriter(formatOps: FormatOps) {
             termIndent: String
         ): Boolean = {
           val codeStyle = style.copy(
-            runner = style.runner.copy(
-              debug = false,
-              eventCallback = null,
-              dialect = style.runner.topLevelDialect,
-              parser = ScalafmtParser.Source
-            ),
+            runner = style.runner.forCodeBlock,
             // let's not wrap docstrings, to avoid recursion
             docstrings = style.docstrings.copy(wrap = Docstrings.Wrap.no),
             maxColumn = style.maxColumn - spaces.length - termIndent.length - 1
