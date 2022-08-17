@@ -21,7 +21,7 @@ trait FormatAssertions {
       runner: ScalafmtRunner
   ): Unit =
     assertFormatPreservesAst(filename, original, obtained)(
-      runner.parser.parse,
+      runner.getParser,
       runner.getDialect
     )
 

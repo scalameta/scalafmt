@@ -26,6 +26,7 @@ case class ScalafmtRunner(
 ) {
   @inline def getDialect = dialect.dialect
   @inline private[scalafmt] def dialectName = dialect.name
+  @inline private[scalafmt] def getParser = parser.parse
 
   @inline def topLevelDialect = dialect.copy(
     dialect = getDialect
@@ -57,7 +58,7 @@ case class ScalafmtRunner(
     if (null != eventCallback) evts.foreach(eventCallback)
 
   def parse(input: meta.inputs.Input): Parsed[_ <: Tree] =
-    parser.parse(input, getDialect)
+    getParser(input, getDialect)
 
   @inline def isDefaultDialect = dialect.name == NamedDialect.defaultName
 
