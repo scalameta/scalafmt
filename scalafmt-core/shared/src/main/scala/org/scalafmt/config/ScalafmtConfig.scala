@@ -369,7 +369,7 @@ object ScalafmtConfig {
     // scalafmt: { maxColumn = 200 }
     import cfg._
     import ValidationOps._
-    val errDialect = s" (no support in Scala dialect ${runner.dialect.name})"
+    val errDialect = s" (no support in Scala dialect ${runner.dialectName})"
     val allErrors = new mutable.ArrayBuffer[String]
     locally {
       implicit val errors = new mutable.ArrayBuffer[String]
