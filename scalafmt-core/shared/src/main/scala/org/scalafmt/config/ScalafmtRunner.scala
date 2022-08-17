@@ -21,6 +21,7 @@ case class ScalafmtRunner(
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
     private[config] val dialect: NamedDialect = NamedDialect.default,
+    private val dialectOverride: Conf.Obj = Conf.Obj.empty,
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
