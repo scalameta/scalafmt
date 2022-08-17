@@ -80,7 +80,7 @@ class ScalafmtConfigTest extends FunSuite {
         |runner.dialect = scala213
         |""".stripMargin)
       .get
-    assert(!config2.runner.getDialect.allowToplevelTerms)
+    assert(config2.runner.getDialect.allowToplevelTerms)
   }
 
 }

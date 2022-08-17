@@ -120,6 +120,27 @@ fileOverride {
 }
 ```
 
+### `runner.dialectOverride`
+
+> Since v3.6.0
+
+Using this section, you can explicitly set
+[scalameta Dialect fields](https://github.com/scalameta/scalameta/blob/main/scalameta/dialects/shared/src/main/scala/scala/meta/Dialect.scala)
+(directly or via their associated `withXxxYyy` methods).
+
+```scala mdoc:scalafmt
+runner.dialect = scala213
+runner.dialectOverride.withAllowToplevelTerms = true
+runner.dialectOverride.withAllowEndMarker = true
+runner.dialectOverride.allowSignificantIndentation = true
+---
+// top-level def: unsupported by scala213
+def foo = // significant indent: unsupported by scala213
+  bar
+  baz
+end foo // end marker: unsupported by scala213
+```
+
 ### Scala 3
 
 Since v3.0.0, `scalafmt` supports Scala 3 features that can be enabled by changing
