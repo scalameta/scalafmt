@@ -209,7 +209,7 @@ case class ScalafmtConfig(
   def getConfigFor(filename: String): Try[ScalafmtConfig] = {
     val absfile = AbsoluteFile(FileOps.getFile(filename))
     @inline def otherDialect(style: ScalafmtConfig): Boolean =
-      style.runner.getDialect ne runner.getDialect
+      style.dialect ne dialect
     def onLang[A](f: (ProjectFiles.Layout, String) => A): Option[A] =
       project.layout.flatMap { layout =>
         layout.getLang(absfile).map { lang => f(layout, lang) }
@@ -237,7 +237,7 @@ case class ScalafmtConfig(
   private[scalafmt] lazy val docstringsWrapMaxColumn: Int =
     docstrings.wrapMaxColumn.getOrElse(maxColumn)
 
-  private[scalafmt] lazy val dialect = runner.getDialect
+  @inline private[scalafmt] def dialect = runner.getDialect
 
   private[scalafmt] def getTrailingCommas = rewrite.trailingCommas.style
 

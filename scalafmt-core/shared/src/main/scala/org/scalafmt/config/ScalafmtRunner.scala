@@ -17,18 +17,18 @@ import scala.meta.parsers.Parsed
 case class ScalafmtRunner(
     debug: Boolean = false,
     private val eventCallback: FormatEvent => Unit = null,
-    parser: ScalafmtParser = ScalafmtParser.Source,
+    private[config] val parser: ScalafmtParser = ScalafmtParser.Source,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
-    dialect: NamedDialect = NamedDialect.default,
+    private[config] val dialect: NamedDialect = NamedDialect.default,
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
-  @inline def getDialect = dialect.dialect
+  @inline private[scalafmt] def getDialect = dialect.dialect
   @inline private[scalafmt] def dialectName = dialect.name
   @inline private[scalafmt] def getParser = parser.parse
 
-  @inline def topLevelDialect = dialect.copy(
+  @inline private def topLevelDialect = dialect.copy(
     dialect = getDialect
       .withAllowToplevelTerms(true)
       .withToplevelSeparator("")
