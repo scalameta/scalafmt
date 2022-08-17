@@ -3625,3 +3625,39 @@ class Foo() {
         a + b
       }.foo
 }
+<<< #3295 1
+maxColumn = 40
+===
+class Foo() {
+  def ok: Boolean =
+    if (1 == 1)
+      true
+    else {
+      false
+    }
+
+  def notOK: Boolean =
+    if (1 == 1)
+      true
+    else {
+      println("Some code")
+      false
+    }
+}
+>>>
+class Foo() {
+  def ok: Boolean =
+    if (1 == 1)
+      true
+    else {
+      false
+    }
+
+  def notOK: Boolean =
+    if (1 == 1)
+       true
+    else {
+      println("Some code")
+      false
+    }
+}
