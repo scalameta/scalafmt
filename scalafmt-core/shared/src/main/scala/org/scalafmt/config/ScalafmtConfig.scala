@@ -161,7 +161,7 @@ case class ScalafmtConfig(
   private[scalafmt] def withDialect(
       dialect: NamedDialect
   ): ScalafmtConfig =
-    copy(runner = runner.copy(dialect = dialect))
+    copy(runner = runner.withDialect(dialect))
 
   private[scalafmt] def withDialect(
       dialect: Option[NamedDialect]
@@ -466,10 +466,10 @@ object ScalafmtConfig {
             val preset = stateOpt.fold(x) { state =>
               val isDefaultDialect = x.runner.isDefaultDialect
               val dialect = (if (isDefaultDialect) state else x).runner.dialect
-              val parser = state.runner.parser
               x.copy(
                 version = state.version,
-                runner = x.runner.copy(parser = parser, dialect = dialect)
+                runner =
+                  x.runner.withParser(state.runner.parser).withDialect(dialect)
               )
             }
             baseDecoder.read(Some(preset), restConf)

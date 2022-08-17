@@ -32,7 +32,15 @@ case class ScalafmtRunner(
       .withToplevelSeparator("")
   )
 
-  def forSbt: ScalafmtRunner = copy(dialect = topLevelDialect)
+  @inline
+  private[scalafmt] def withDialect(dialect: NamedDialect): ScalafmtRunner =
+    copy(dialect = dialect)
+
+  @inline
+  private[scalafmt] def withParser(parser: ScalafmtParser): ScalafmtRunner =
+    copy(parser = parser)
+
+  def forSbt: ScalafmtRunner = withDialect(topLevelDialect)
 
   def event(evt: => FormatEvent): Unit =
     if (null != eventCallback) eventCallback(evt)
