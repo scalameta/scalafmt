@@ -2529,7 +2529,7 @@ class FormatOps(
     @tailrec
     private def isElsePWithOptionalBraces(tree: Term.If): Boolean = {
       val elsep = tree.elsep
-      !tokenBefore(elsep).left.is[T.LeftBrace] && (elsep match {
+      !tokens.getHead(elsep).left.is[T.LeftBrace] && (elsep match {
         case t: Term.If =>
           isThenPWithOptionalBraces(t) ||
           !ifWithoutElse(t) && isElsePWithOptionalBraces(t)
