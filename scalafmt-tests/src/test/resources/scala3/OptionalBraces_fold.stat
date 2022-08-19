@@ -3389,4 +3389,4 @@ type Inner[A] = A match
 >>>
 type Inner[A] = A match
    case Seq[x] => x
-   case ?      => A
+   case _      => A
