@@ -70,7 +70,9 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
         ft.meta.rightOwner match {
           case _: Importee.Wildcard if dialect.allowStarWildcardImport =>
             replaceTokenIdent("*", ft.right)
-          case _: Type.Placeholder if dialect.allowQuestionMarkPlaceholder =>
+          case t: Type.Placeholder
+              if dialect.allowQuestionMarkPlaceholder &&
+                t.parent.exists(_.is[Type]) =>
             replaceTokenIdent("?", ft.right)
           case _: Term.Repeated if dialect.allowPostfixStarVarargSplices =>
             removeToken // see above, under Colon

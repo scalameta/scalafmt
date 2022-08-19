@@ -3668,4 +3668,9 @@ type Inner[A] = A match
   case Seq[x] => x
   case _ => A
 >>>
-BestFirstSearch:326 Failed to format
+type Inner[A] =
+  A match
+     case Seq[x] =>
+       x
+     case _ =>
+       A
