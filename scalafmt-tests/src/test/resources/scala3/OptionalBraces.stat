@@ -3554,3 +3554,13 @@ class Foo() {
       false
     }
 }
+<<< #3302
+rewrite.scala3.convertToNewSyntax = yes
+===
+type Inner[A] = A match
+  case Seq[x] => x
+  case _ => A
+>>>
+type Inner[A] = A match
+   case Seq[x] => x
+   case ?      => A
