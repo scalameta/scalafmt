@@ -12,7 +12,8 @@ object OsSpecific {
     if (isWindows) unixSpecificPattern.replace("/", "\\\\")
     else unixSpecificPattern
 
-  implicit class XtensionStringAsFilename(string: String) {
+  implicit class XtensionStringAsFilename(private val string: String)
+      extends AnyVal {
     def asFilename: String = fixSeparatorsInPathPattern(string)
   }
 }
