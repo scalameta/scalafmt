@@ -15,7 +15,7 @@ object GitOps {
       new GitOpsImpl(workingDirectory)
   }
 
-  implicit class Implicit(obj: GitOps) {
+  implicit class Implicit(private val obj: GitOps) extends AnyVal {
 
     def getCanonicalConfigFile(
         cwd: AbsoluteFile,
