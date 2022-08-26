@@ -551,3 +551,15 @@ object a {
   }
 
 }
+<<< #3304
+align.closeParenSite = true
+align.beforeOpenParenDefnSite = true
+newlines.beforeOpenParenDefnSite = fold
+===
+object Record {
+  final case class IsOk[A](a: A) extends InvariantADT[A]
+  final case class AlsoOk[A](msg: String) extends InvariantADT[A]
+  final case class NotOk[A]() extends Record[A]
+}
+>>>
+org.scalafmt.util.FormatException: java.util.NoSuchElementException: last of empty list
