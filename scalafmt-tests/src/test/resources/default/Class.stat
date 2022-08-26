@@ -562,4 +562,8 @@ object Record {
   final case class NotOk[A]() extends Record[A]
 }
 >>>
-org.scalafmt.util.FormatException: java.util.NoSuchElementException: last of empty list
+object Record {
+  final case class IsOk[A](a: A) extends InvariantADT[A]
+  final case class AlsoOk[A](msg: String) extends InvariantADT[A]
+  final case class NotOk[A]() extends Record[A]
+}
