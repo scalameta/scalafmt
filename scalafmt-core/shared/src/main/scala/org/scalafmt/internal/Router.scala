@@ -756,7 +756,7 @@ class Router(formatOps: FormatOps) {
               )
           }
           val argsOpt = if (isAlignFirstParen) getArgsOpt else None
-          argsOpt.map(x => tokens.tokenAfter(x).right).fold(splits) { x =>
+          argsOpt.flatMap(tokens.tokenAfterOpt).map(_.right).fold(splits) { x =>
             val noSplitIndents = Seq(
               Indent(StateColumn, x, ExpiresOn.Before),
               Indent(-indentLen, x, ExpiresOn.Before)
@@ -781,7 +781,7 @@ class Router(formatOps: FormatOps) {
               }
               getSplitsBeforeOpenParen(x, indent, _.beforeOpenParenDefnSite) {
                 rightOwner match {
-                  case SplitDefnIntoParts(_, _, _, args) => Some(args.last)
+                  case SplitDefnIntoParts(_, _, _, args) => args.lastOption
                   case _ => None
                 }
               }
