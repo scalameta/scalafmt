@@ -3304,8 +3304,14 @@ This section describes rules which are applied if the appropriate dialect (e.g.,
 If this flag is enabled, the following new syntax will be applied:
 
 - [control syntax](https://dotty.epfl.ch/docs/reference/other-new-features/control-syntax.html)
+  - if dialect sets `allowSignificantIndentation`
 - [vararg splices](https://dotty.epfl.ch/docs/reference/changed-features/vararg-splices.html)
+  - vararg `: _*` or `@ _*` to `*` if dialect sets `allowPostfixStarVarargSplices`
 - [imports](https://dotty.epfl.ch/docs/reference/changed-features/imports.html)
+  - import wildcard `_` to `*` if dialect sets `allowStarWildcardImport`
+  - import rename `=>` to `as` if dialect sets `allowAsForImportRename`
+- [wildcards](https://docs.scala-lang.org/scala3/reference/changed-features/wildcards.html)
+  - type wildcard `_` to `?` if dialect sets `allowQuestionMarkPlaceholder`
 
 ### `rewrite.scala3.removeOptionalBraces`
 
