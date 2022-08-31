@@ -969,7 +969,7 @@ class FormatOps(
       ft: FormatToken,
       allowForce: => Boolean = true
   )(implicit style: ScalafmtConfig): Boolean =
-    opensConfigStyle(ft) || allowForce && forceConfigStyle(ft.meta.leftOwner)
+    opensConfigStyle(ft) || allowForce && forceConfigStyle(hash(ft.left))
 
   def opensConfigStyle(
       ft: => FormatToken,
@@ -1145,25 +1145,33 @@ class FormatOps(
     } else Seq(Split(Space, 0), Split(Newline, 1))
   }
 
-  def getForceConfigStyle: (Set[Tree], Set[TokenHash]) = {
+  def getForceConfigStyle: (Set[TokenHash], Set[TokenHash]) = {
     val maxDistance = runner.optimizer.forceConfigStyleOnOffset
     if (maxDistance < 0)
       (Set.empty, Set.empty)
     else {
       val clearQueues = Set.newBuilder[TokenHash]
-      val forces = Set.newBuilder[Tree]
+      val forces = Set.newBuilder[TokenHash]
       val minArgs = runner.optimizer.forceConfigStyleMinArgCount
-      tokens.foreach {
-        case FormatToken(
-              left: T.LeftParen,
-              _,
-              FormatToken.LeftOwner(app @ CallArgsForConfigStyle(args))
-            )
-            if args.lengthCompare(minArgs) >= 0 &&
-              distance(left, matching(left)) > maxDistance =>
-          forces += app
+      def process(args: Seq[Tree], open: T, close: T): Unit =
+        if (
+          args.lengthCompare(minArgs) >= 0 &&
+          distance(open, close) > maxDistance
+        ) {
+          forces += hash(open)
           args.foreach { arg =>
             clearQueues += hash(tokens.getHead(arg).left)
+          }
+        }
+      tokens.foreach {
+        case FormatToken(left: T.LeftParen, _, meta) =>
+          matchingOpt(left).foreach { close =>
+            (meta.leftOwner match {
+              case t: Term.Apply => Some(t.args)
+              case t: Init => TokenOps.findArgsBetween(left, close, t.argss)
+              case t: Term.ApplyUsing => Some(t.args)
+              case _ => None
+            }).foreach(process(_, left, close))
           }
         case _ =>
       }

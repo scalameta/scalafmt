@@ -1920,9 +1920,7 @@ class a {
     customDnsResolver = customDnsResolver,
     retries = 0,
     maxIdleDuration = Duration.Inf
-  )(
-    F
-  )
+  )(F)
 }
 <<< #3309 apply
 preset = default
