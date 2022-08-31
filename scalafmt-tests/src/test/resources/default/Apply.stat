@@ -1896,3 +1896,57 @@ object a {
     )
   }
 }
+<<< #3309 init
+preset = default
+align.preset = none
+danglingParentheses.preset = true
+maxColumn = 100
+runner.optimizer.forceConfigStyleMinArgCount = 5
+===
+class a {
+  private[BlazeClientBuilder] def this(foo: Int) = this(
+    asynchronousChannelGroup = asynchronousChannelGroup,
+    channelOptions = channelOptions,
+    customDnsResolver = customDnsResolver,
+    retries = 0,
+    maxIdleDuration = Duration.Inf
+  )(F)
+}
+>>>
+class a {
+  private[BlazeClientBuilder] def this(foo: Int) = this(
+    asynchronousChannelGroup = asynchronousChannelGroup,
+    channelOptions = channelOptions,
+    customDnsResolver = customDnsResolver,
+    retries = 0,
+    maxIdleDuration = Duration.Inf
+  )(
+    F
+  )
+}
+<<< #3309 apply
+preset = default
+align.preset = none
+danglingParentheses.preset = true
+maxColumn = 100
+runner.optimizer.forceConfigStyleMinArgCount = 5
+===
+class a {
+  private[BlazeClientBuilder] def thiz(foo: Int) = thiz(
+    asynchronousChannelGroup = asynchronousChannelGroup,
+    channelOptions = channelOptions,
+    customDnsResolver = customDnsResolver,
+    retries = 0,
+    maxIdleDuration = Duration.Inf
+  )(F)
+}
+>>>
+class a {
+  private[BlazeClientBuilder] def thiz(foo: Int) = thiz(
+    asynchronousChannelGroup = asynchronousChannelGroup,
+    channelOptions = channelOptions,
+    customDnsResolver = customDnsResolver,
+    retries = 0,
+    maxIdleDuration = Duration.Inf
+  )(F)
+}
