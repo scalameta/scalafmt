@@ -510,15 +510,6 @@ object TreeOps {
       splitCallIntoParts.lift(tree)
   }
 
-  object CallArgsForConfigStyle {
-    def unapply(tree: Tree): Option[Seq[Tree]] = Some(tree match {
-      case t: Term.Apply => t.args
-      case t: Init => t.argss.flatten
-      case t: Term.ApplyUsing => t.args
-      case _ => Seq.empty
-    }).filter(_.nonEmpty)
-  }
-
   type DefnParts = (Seq[Mod], Name, Seq[Type.Param], Seq[Seq[Term.Param]])
   val splitDefnIntoParts: PartialFunction[Tree, DefnParts] = {
     // types
