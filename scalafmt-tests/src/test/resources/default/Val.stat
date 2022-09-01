@@ -318,3 +318,12 @@ val currentName = currentNameOption | info.hasSimul
       if (!info.user.hasGames && info.nbImported > 0) Imported else All // c1
   )
   .name
+<<< #3313
+maxColumn = 20
+newlines.afterInfix = some
+===
+val foo :: bar :: baz :: Nil = qux
+>>>
+test does not parse
+val foo :: bar ::
+               ^
