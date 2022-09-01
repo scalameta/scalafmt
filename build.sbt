@@ -33,10 +33,8 @@ inThisBuild(
     ),
     scalaVersion := scala213,
     crossScalaVersions := List(scala213, scala212),
-    resolvers ++= Seq(
-      Resolver.sonatypeRepo("releases"),
-      Resolver.sonatypeRepo("snapshots")
-    ),
+    resolvers ++= Resolver.sonatypeOssRepos("releases"),
+    resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     libraryDependencies ++= List(
       munit.value % Test,
       scalacheck % Test,
