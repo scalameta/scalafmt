@@ -509,7 +509,7 @@ class FormatOps(
         } else {
           // we don't modify line breaks generally around infix expressions
           // TODO: if that ever changes, modify how rewrite rules handle infix
-          Seq(InfixSplits(app, ft).withNLIndent(Split(getMod(ft), 0)))
+          Seq(InfixSplits.withNLIndent(Split(getMod(ft), 0))(app, ft))
         }
     }
 
@@ -566,6 +566,16 @@ class FormatOps(
             else findEnclosingInfix(parent)
           case _ => child
         }
+    }
+
+    def withNLIndent(split: Split)(app: InfixApp, ft: FormatToken)(implicit
+        style: ScalafmtConfig
+    ): Split = {
+      val noNL = !split.isNL && {
+        val nextFt = nextNonCommentSameLine(ft)
+        nextFt.eq(ft) || nextFt.noBreak
+      }
+      if (noNL) split else apply(app, ft).withNLIndent(split)
     }
 
   }
@@ -689,13 +699,8 @@ class FormatOps(
       }
     }
 
-    def withNLIndent(split: Split): Split = {
-      val noNL = !split.isNL && {
-        val nextFt = nextNonCommentSameLine(ft)
-        nextFt.eq(ft) || nextFt.noBreak
-      }
-      if (noNL) split else split.withIndent(nlIndent).andPolicy(nlPolicy)
-    }
+    private def withNLIndent(split: Split): Split =
+      split.withIndent(nlIndent).andPolicy(nlPolicy)
 
     def getBeforeLhsOrRhs(
         afterInfix: Newlines.AfterInfix,
@@ -1936,7 +1941,7 @@ class FormatOps(
       asInfixApp(body).fold {
         val expire = tokens.nextNonCommentSameLine(tokens.getLast(body)).left
         nlSplit.withIndent(Num(style.indent.main), expire, ExpiresOn.After)
-      }(app => InfixSplits(app, ft).withNLIndent(nlSplit))
+      }(app => InfixSplits.withNLIndent(nlSplit)(app, ft))
 
   }
 
