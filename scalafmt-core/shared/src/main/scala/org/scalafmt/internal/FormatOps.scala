@@ -505,7 +505,18 @@ class FormatOps(
         val afterInfix = style.breakAfterInfix(t)
         if (afterInfix ne Newlines.AfterInfix.keep) {
           if (ft.meta.leftOwner ne app.op) Seq(Split(Space, 0))
-          else InfixSplits(app, ft).getBeforeLhsOrRhs(afterInfix)
+          else {
+            val fullInfixApp = InfixSplits.findEnclosingInfix(app)
+            val fullInfix = fullInfixApp.all
+            val ok = isEnclosedInParens(fullInfix) || fullInfix.parent.forall {
+              case t: Defn.Val => t.rhs eq fullInfix
+              case t: Defn.Var => t.rhs.contains(fullInfix)
+              case _ => true
+            }
+            if (ok)
+              InfixSplits(app, ft, fullInfixApp).getBeforeLhsOrRhs(afterInfix)
+            else Seq(Split(Space, 0))
+          }
         } else {
           // we don't modify line breaks generally around infix expressions
           // TODO: if that ever changes, modify how rewrite rules handle infix
@@ -543,8 +554,12 @@ class FormatOps(
 
     def apply(app: InfixApp, ft: FormatToken)(implicit
         style: ScalafmtConfig
+    ): InfixSplits =
+      apply(app, ft, findEnclosingInfix(app))
+
+    def apply(app: InfixApp, ft: FormatToken, fullInfix: InfixApp)(implicit
+        style: ScalafmtConfig
     ): InfixSplits = {
-      val fullInfix = findEnclosingInfix(app)
       val leftInfix = findLeftInfix(fullInfix)
       new InfixSplits(app, ft, fullInfix, leftInfix)
     }
@@ -555,7 +570,7 @@ class FormatOps(
       }
 
     @tailrec
-    private def findEnclosingInfix(child: InfixApp): InfixApp = {
+    private[FormatOps] def findEnclosingInfix(child: InfixApp): InfixApp = {
       val childTree = child.all
       if (isEnclosedInParens(childTree)) child
       else

@@ -324,6 +324,5 @@ newlines.afterInfix = some
 ===
 val foo :: bar :: baz :: Nil = qux
 >>>
-test does not parse
-val foo :: bar ::
-               ^
+val foo :: bar :: baz :: Nil =
+  qux
