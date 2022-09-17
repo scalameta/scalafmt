@@ -134,8 +134,8 @@ class t(arg: OptionT[Either[Int, -*]])
 }
 >>>
 object O {
-  class x(arg: OptionT[Either[Int, + _]])
-  class y(arg: OptionT[Either[Int, - _]])
+  class x(arg: OptionT[Either[Int, +_]])
+  class y(arg: OptionT[Either[Int, -_]])
   class z(arg: OptionT[Either[Int, +*]])
   class t(arg: OptionT[Either[Int, -*]])
 }
