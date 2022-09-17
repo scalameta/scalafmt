@@ -2106,7 +2106,7 @@ class Router(formatOps: FormatOps) {
 
       // Kind projector type lambda
       case FormatToken(T.Ident("+" | "-"), T.Underscore(), _)
-          if leftOwner.is[Type.Name] =>
+          if rightOwner.is[Type] =>
         Seq(Split(NoSplit, 0))
 
       // Var args
