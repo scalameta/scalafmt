@@ -706,20 +706,34 @@ object TreeOps {
     *   class X(
     *     implicit
     *     private[this] val i1: Int,
-    *     private[this] var i2: String
+    *     private[this] var i2: String,
+    *     implicit private[this] var i3: Boolean
     * )
     * }}}
     *
-    * `val i1`, and `var i2` have a ``Mod.Implicit`` with empty tokens.
+    * `val i1`, and `var i2` positions do not include their ``Mod.Implicit``.
+    * `var i3` has a ``Mod.Implicit`` which is included.
     */
-  def isHiddenImplicit(m: Mod): Boolean =
-    m.tokens.isEmpty && m.is[Mod.Implicit]
+  def isExplicitImplicit(m: Mod.Implicit, ownerStart: Int): Boolean = {
+    val modPos = m.pos
+    val modStart = modPos.start
+    modStart >= ownerStart && modPos.end > modStart
+  }
 
-  def isExplicitImplicit(m: Mod): Boolean =
-    m.tokens.nonEmpty && m.is[Mod.Implicit]
+  def isHiddenImplicit(ownerStart: Int)(m: Mod): Boolean = m match {
+    case m: Mod.Implicit => !isExplicitImplicit(m, ownerStart)
+    case _ => false
+  }
 
-  def hasExplicitImplicit(param: Term.Param): Boolean =
-    param.mods.exists(isExplicitImplicit)
+  def isExplicitImplicit(ownerStart: Int)(m: Mod): Boolean = m match {
+    case m: Mod.Implicit => isExplicitImplicit(m, ownerStart)
+    case _ => false
+  }
+
+  def hasExplicitImplicit(param: Term.Param): Boolean = {
+    val pStart = param.pos.start
+    param.mods.exists(isExplicitImplicit(pStart))
+  }
 
   def shouldNotDangleAtDefnSite(
       tree: Tree,
