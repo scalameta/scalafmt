@@ -56,14 +56,12 @@ object TreeSyntacticGroup {
       case _: Type.PolyFunction => g.Type.Typ
       case _: Type.Tuple => g.Type.SimpleTyp
       case _: Type.With => g.Type.WithTyp
-      case _: Type.And => g.Type.InfixTyp("&")
-      case _: Type.Or => g.Type.InfixTyp("|")
       case _: Type.Refine => g.Type.RefineTyp
       case _: Type.Existential => g.Type.Typ
       case _: Type.Annotate => g.Type.AnnotTyp
       case _: Type.Lambda => g.Type.Typ
-      case _: Type.Method => g.Type.Typ
-      case _: Type.Placeholder => g.Type.SimpleTyp
+      case _: Type.AnonymousParam => g.Type.SimpleTyp
+      case _: Type.Wildcard => g.Type.SimpleTyp
       case _: Type.Bounds => g.Path // ???
       case _: Type.Repeated => g.Type.ParamTyp
       case _: Type.ByName => g.Type.ParamTyp
