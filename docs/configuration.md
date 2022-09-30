@@ -3313,6 +3313,9 @@ If this flag is enabled, the following new syntax will be applied:
 - [wildcards](https://docs.scala-lang.org/scala3/reference/changed-features/wildcards.html)
   - type wildcard `_` to `?` if dialect sets `allowQuestionMarkPlaceholder`
 
+NB: You could control these rules individually by
+[overriding dialect properties](#runnerdialectoverride).
+
 ### `rewrite.scala3.removeOptionalBraces`
 
 If this flag is enabled,
