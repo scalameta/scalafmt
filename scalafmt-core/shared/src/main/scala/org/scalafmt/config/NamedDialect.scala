@@ -26,6 +26,7 @@ object NamedDialect {
     Scala213Source3,
     Sbt0137,
     Sbt1,
+    Scala3Future,
     scala3
   ).map(apply).sortBy(_.name)
 

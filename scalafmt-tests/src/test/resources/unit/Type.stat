@@ -123,7 +123,7 @@ object O {
   class t(arg: OptionT[Either[Int, -*]])
 }
 <<< #3319
-runner.dialect = scala3
+runner.dialect = scala3Future
 maxColumn = 80
 ===
 object O{
