@@ -70,8 +70,8 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
         ft.meta.rightOwner match {
           case _: Importee.Wildcard if dialect.allowStarWildcardImport =>
             replaceTokenIdent("*", ft.right)
-          case t: Type.Placeholder
-              if dialect.allowQuestionMarkPlaceholder &&
+          case t: Type.Wildcard
+              if dialect.allowQuestionMarkAsTypeWildcard &&
                 t.parent.exists(_.is[Type]) =>
             replaceTokenIdent("?", ft.right)
           case _: Term.Repeated if dialect.allowPostfixStarVarargSplices =>
@@ -87,6 +87,16 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
         ft.meta.rightOwner match {
           case _: Importee.Rename | _: Importee.Unimport =>
             replaceTokenIdent("as", ft.right)
+          case _ => null
+        }
+
+      case Token.Ident("*") =>
+        ft.meta.rightOwner match {
+          case _: Type.AnonymousParam
+              if dialect.allowUnderscoreAsTypePlaceholder =>
+            replaceTokenBy("_")(t =>
+              new Token.Underscore(t.input, t.dialect, t.start)
+            )
           case _ => null
         }
 

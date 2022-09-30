@@ -32,20 +32,9 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
        * }}}
        * are considered Mods, instead of being similar to `Defn.Val`, or `Defn.Var`.
        */
-      case d: Decl.Def => sortMods(d.mods)
-      case v: Decl.Val => sortMods(v.mods)
-      case v: Decl.Var => sortMods(v.mods)
-      case t: Decl.Type => sortMods(t.mods)
-      case t: Decl.Given => sortMods(t.mods)
-      case d: Defn.Def => sortMods(d.mods)
-      case d: Defn.Given => sortMods(d.mods)
-      case d: Defn.GivenAlias => sortMods(d.mods)
-      case v: Defn.Val => sortMods(v.mods)
-      case v: Defn.Var => sortMods(v.mods)
-      case t: Defn.Type => sortMods(t.mods)
       case c: Defn.Class => sortMods(c.mods.filterNot(_.is[Mod.Case]))
       case o: Defn.Object => sortMods(o.mods.filterNot(_.is[Mod.Case]))
-      case t: Defn.Trait => sortMods(t.mods)
+      case s: Stat.WithMods => sortMods(s.mods)
       case p: Term.Param =>
         val start = p.pos.start
         sortMods(p.mods.filterNot { m =>

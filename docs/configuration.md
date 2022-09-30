@@ -3311,7 +3311,8 @@ If this flag is enabled, the following new syntax will be applied:
   - import wildcard `_` to `*` if dialect sets `allowStarWildcardImport`
   - import rename `=>` to `as` if dialect sets `allowAsForImportRename`
 - [wildcards](https://docs.scala-lang.org/scala3/reference/changed-features/wildcards.html)
-  - type wildcard `_` to `?` if dialect sets `allowQuestionMarkPlaceholder`
+  - type wildcard `_` to `?` if dialect sets `allowQuestionMarkAsTypeWildcard`
+  - anonymous type param `*` to `_` if dialect sets `allowUnderscoreAsTypePlaceholder`
 
 ### `rewrite.scala3.removeOptionalBraces`
 
