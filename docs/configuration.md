@@ -3314,6 +3314,9 @@ If this flag is enabled, the following new syntax will be applied:
   - type wildcard `_` to `?` if dialect sets `allowQuestionMarkAsTypeWildcard`
   - anonymous type param `*` to `_` if dialect sets `allowUnderscoreAsTypePlaceholder`
 
+NB: You could control these rules individually by
+[overriding dialect properties](#runnerdialectoverride).
+
 ### `rewrite.scala3.removeOptionalBraces`
 
 If this flag is enabled,
