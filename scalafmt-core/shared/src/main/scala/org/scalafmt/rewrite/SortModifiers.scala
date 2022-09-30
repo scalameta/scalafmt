@@ -47,16 +47,17 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
       case o: Defn.Object => sortMods(o.mods.filterNot(_.is[Mod.Case]))
       case t: Defn.Trait => sortMods(t.mods)
       case p: Term.Param =>
-        sortMods(
-          p.mods.filterNot(m => m.is[Mod.ValParam] || m.is[Mod.VarParam])
-        )
+        val start = p.pos.start
+        sortMods(p.mods.filterNot { m =>
+          m.is[Mod.ValParam] || m.is[Mod.VarParam] ||
+          TreeOps.isHiddenImplicit(start)(m)
+        })
       case _ =>
     }
 
   private def sortMods(oldMods: Seq[Mod]): Unit = {
     if (oldMods.nonEmpty) {
-      // ignore implicit "implicit" whenever we sort, and apply patches
-      val sanitized = oldMods.filterNot(TreeOps.isHiddenImplicit)
+      val sanitized = oldMods // used to ignore "implicit" implicits
       // NOTE: modifiers with no configuration return -1 from `indexWhere` and
       // therefore sort at the front of the list. This behavior is intentional
       // in order to preserve backwards compatibility when adding support to
