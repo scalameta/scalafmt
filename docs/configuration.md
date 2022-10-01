@@ -548,6 +548,47 @@ def fooDef
 }
 ```
 
+#### `indent.relativeToLhsLastLine`
+
+When the left-hand side of an infix or `match` expression is itself broken over
+several lines, with the last line indented relative to the first line, this flag
+determines whether the indent is relative to the first or the last line.
+
+This parameter takes a list of values including:
+
+- `match`: applies to match expressions
+- `infix`: applies to infix expressions
+
+```scala mdoc:defaults
+indent.relativeToLhsLastLine
+```
+
+```scala mdoc:scalafmt
+indent.relativeToLhsLastLine = []
+---
+foo // c1
+  .bar match {
+    case baz => qux
+  }
+foo // c1
+  .bar infix {
+    case baz => qux
+  }
+```
+
+```scala mdoc:scalafmt
+indent.relativeToLhsLastLine = [match, infix]
+---
+foo // c1
+  .bar match {
+  case baz => qux
+}
+foo // c1
+  .bar infix {
+  case baz => qux
+}
+```
+
 ### `indentOperator`
 
 Normally, the first eligible break _inside_ a chain of infix operators is

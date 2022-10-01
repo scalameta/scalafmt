@@ -31,6 +31,7 @@ case class Indents(
     matchSite: Option[Int] = None,
     private[config] val ctorSite: Option[Int] = None,
     extraBeforeOpenParenDefnSite: Int = 0,
+    relativeToLhsLastLine: Seq[Indents.RelativeToLhs] = Nil,
     @annotation.ExtraName("deriveSite")
     extendSite: Int = 4,
     withSiteRelativeToExtends: Int = 0,
@@ -50,4 +51,13 @@ object Indents {
     generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[Indents] =
     generic.deriveCodecEx(Indents()).noTypos
+
+  sealed abstract class RelativeToLhs
+  object RelativeToLhs {
+    case object `match` extends RelativeToLhs
+    case object `infix` extends RelativeToLhs
+
+    implicit val reader: ConfCodecEx[RelativeToLhs] = ReaderUtil
+      .oneOf[RelativeToLhs](`match`, `infix`)
+  }
 }
