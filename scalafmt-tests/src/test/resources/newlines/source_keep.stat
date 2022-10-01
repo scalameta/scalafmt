@@ -6011,3 +6011,85 @@ class Foo() {
       false
     }
 }
+<<< #3327 match
+indent.relativeToLhsLastLine = [match]
+===
+object A {
+  private def get(ds: Any): IO[Long] =
+    IO.delay {
+      ds // c1
+        .headOption /* c1 */ match /* c2 */ {
+          case Some(Row(value: Long)) => value
+          case _                      => 0
+        }
+    }
+}
+>>>
+object A {
+  private def get(ds: Any): IO[Long] =
+    IO.delay {
+      ds // c1
+        .headOption /* c1 */ match /* c2 */ {
+        case Some(Row(value: Long)) =>
+          value
+        case _ => 0
+      }
+    }
+}
+<<< #3327 infix
+indent.relativeToLhsLastLine = [infix]
+===
+object A {
+  private def get(ds: Any): IO[Long] =
+    IO.delay {
+      ds // c1
+        .headOption /* c1 */ infix /* c2 */ {
+          case Some(Row(value: Long)) => value
+          case _                      => 0
+        }
+    }
+}
+>>>
+object A {
+  private def get(ds: Any): IO[Long] =
+    IO.delay {
+      ds // c1
+        .headOption /* c1 */ infix /* c2 */ {
+        case Some(Row(value: Long)) =>
+          value
+        case _ => 0
+      }
+    }
+}
+<<< #3327 infix 2
+indent.relativeToLhsLastLine = [infix]
+===
+object A {
+  private def get(ds: Any): IO[Long] =
+    IO.delay {
+      ds // c1
+        .headOption /* c1 */ infix /* c2 */ {
+          case Some(Row(value: Long)) => value
+          case _                      => 0
+        } /* c3 */ infix /* c4 */ {
+          case Some(Row(value: Long)) => value
+          case _                      => 0
+        }
+    }
+}
+>>>
+object A {
+  private def get(ds: Any): IO[Long] =
+    IO.delay {
+      ds // c1
+        .headOption /* c1 */ infix /* c2 */ {
+        case Some(Row(value: Long)) =>
+          value
+        case _ => 0
+      } /* c3 */ infix /* c4 */ {
+        case Some(Row(value: Long)) =>
+          value
+        case _ => 0
+      }
+    }
+}

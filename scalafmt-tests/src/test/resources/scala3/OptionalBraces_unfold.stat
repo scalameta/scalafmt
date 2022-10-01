@@ -3674,3 +3674,26 @@ type Inner[A] =
        x
      case _ =>
        A
+<<< #3327 match
+indent.relativeToLhsLastLine = [match]
+===
+object A {
+  private def get(ds: Any): IO[Long] =
+    IO.delay {
+      ds // c1
+        .headOption match
+          case Some(Row(value: Long)) => value
+          case _                      => 0
+    }
+}
+>>>
+object A {
+  private def get(ds: Any): IO[Long] = IO.delay {
+    ds // c1
+      .headOption match
+       case Some(Row(value: Long)) =>
+         value
+       case _ =>
+         0
+  }
+}
