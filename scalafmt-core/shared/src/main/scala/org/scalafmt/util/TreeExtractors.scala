@@ -22,11 +22,15 @@ case class InfixApp(lhs: Tree, op: Name, rhs: Seq[Tree], all: Tree) {
 
 object InfixApp {
 
+  def apply(t: Type.ApplyInfix): InfixApp = InfixApp(t.lhs, t.op, Seq(t.rhs), t)
+  def apply(t: Term.ApplyInfix): InfixApp = InfixApp(t.lhs, t.op, t.args, t)
+  def apply(t: Pat.ExtractInfix): InfixApp = InfixApp(t.lhs, t.op, t.rhs, t)
+
   def unapply(tree: Tree): Option[InfixApp] =
     tree match {
-      case t: Type.ApplyInfix => Some(InfixApp(t.lhs, t.op, Seq(t.rhs), t))
-      case t: Term.ApplyInfix => Some(InfixApp(t.lhs, t.op, t.args, t))
-      case t: Pat.ExtractInfix => Some(InfixApp(t.lhs, t.op, t.rhs, t))
+      case t: Type.ApplyInfix => Some(apply(t))
+      case t: Term.ApplyInfix => Some(apply(t))
+      case t: Pat.ExtractInfix => Some(apply(t))
       case _ => None
     }
 
