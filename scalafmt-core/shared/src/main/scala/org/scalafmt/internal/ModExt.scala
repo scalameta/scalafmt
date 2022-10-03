@@ -14,6 +14,9 @@ case class ModExt(
 ) {
   lazy val indentation = indents.mkString("[", ", ", "]")
 
+  @inline
+  def isNL: Boolean = mod.isNewline
+
   def withIndent(length: => Length, expire: => Token, when: ExpiresOn): ModExt =
     length match {
       case Length.Num(0, _) => this

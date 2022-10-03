@@ -3564,7 +3564,7 @@ object A {
     IO.delay {
       ds // c1
         .headOption match
-         case Some(Row(value: Long)) => value
-         case _                      => 0
+           case Some(Row(value: Long)) => value
+           case _                      => 0
     }
 }
