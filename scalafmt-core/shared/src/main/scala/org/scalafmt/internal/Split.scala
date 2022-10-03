@@ -58,7 +58,7 @@ case class Split(
   def indentation: String = modExt.indentation
 
   @inline
-  def isNL: Boolean = modExt.mod.isNewline
+  def isNL: Boolean = modExt.isNL
 
   @inline
   def length: Int = modExt.mod.length

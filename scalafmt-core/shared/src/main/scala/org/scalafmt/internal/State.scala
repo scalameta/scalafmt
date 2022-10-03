@@ -4,9 +4,9 @@ import java.util.regex.Pattern
 
 import scala.annotation.tailrec
 import scala.meta.tokens.Token
+import scala.meta.{Term, Tree}
 
-import org.scalafmt.config.Comments
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{Comments, Indents, ScalafmtConfig}
 import org.scalafmt.util.TreeOps._
 
 /** A partial formatting solution up to splits.length number of tokens.
@@ -43,20 +43,26 @@ final case class State(
       if (right.is[Token.EOF]) (initialNextSplit, 0, Seq.empty)
       else {
         val offset = column - indentation
-        def getUnexpired(indents: Seq[ActualIndent]): Seq[ActualIndent] =
-          indents.filter(_.notExpiredBy(tok))
-        def getPushes(modExt: ModExt): Seq[ActualIndent] =
-          getUnexpired(modExt.getActualIndents(offset))
+        def getUnexpired(modExt: ModExt, indents: Seq[ActualIndent] = Nil) = {
+          val extendedEnd = getRelativeToLhsLastLineEnd(modExt.isNL)
+          (modExt.getActualIndents(offset) ++ indents).flatMap { x =>
+            if (x.notExpiredBy(tok)) Some(x)
+            else
+              extendedEnd
+                .map(y => x.copy(expireEnd = y, expiresAt = ExpiresOn.After))
+          }
+        }
+
         val initialModExt = initialNextSplit.modExt
         val indents = initialModExt.indents
-        val nextPushes = getPushes(initialModExt) ++ getUnexpired(pushes)
+        val nextPushes = getUnexpired(initialModExt, pushes)
         val nextIndent = Indent.getIndent(nextPushes)
         initialNextSplit.modExt.mod match {
           case m: NewlineT
               if !tok.left.is[Token.Comment] && m.alt.isDefined &&
                 nextIndent >= m.alt.get.mod.length + column =>
             val alt = m.alt.get
-            val altPushes = getPushes(alt)
+            val altPushes = getUnexpired(alt)
             val altIndent = Indent.getIndent(altPushes)
             val split = initialNextSplit.withMod(alt.withIndents(indents))
             (split, nextIndent + altIndent, nextPushes ++ altPushes)
@@ -255,6 +261,59 @@ final case class State(
     }
   }
 
+  private def getRelativeToLhsLastLineEnd(isNL: Boolean)(implicit
+      style: ScalafmtConfig,
+      tokens: FormatTokens
+  ): Option[Int] = {
+    val allowed = style.indent.relativeToLhsLastLine
+
+    def treeEnd(x: Tree) = tokens.getLast(x).left.end
+    def indentEnd(ft: FormatToken, isNL: Boolean)(onComment: => Option[Int]) = {
+      val leftOwner = ft.meta.leftOwner
+      ft.left match {
+        case _: Token.KwMatch
+            if leftOwner.is[Term.Match] &&
+              allowed.contains(Indents.RelativeToLhs.`match`) =>
+          Some(treeEnd(leftOwner))
+        case _: Token.Ident if !isNL =>
+          leftOwner.parent match {
+            case Some(p: Term.ApplyInfix)
+                if p.op.eq(leftOwner) &&
+                  allowed.contains(Indents.RelativeToLhs.`infix`) =>
+              Some(treeEnd(p))
+            case _ => None
+          }
+        case _: Token.Comment if !isNL => onComment
+        case _ => None
+      }
+    }
+
+    val tok = tokens(depth)
+    val right = tok.right
+    if (allowed.isEmpty) None
+    else if (right.is[Token.Comment]) Some(right.end)
+    else
+      indentEnd(tok, isNL) {
+        val earlierState = prev.prevNonCommentSameLine
+        indentEnd(tokens(earlierState.depth), earlierState.split.isNL)(None)
+      }.orElse {
+        val delay = !isNL && (right match {
+          case _: Token.KwMatch =>
+            tok.meta.rightOwner.is[Term.Match] &&
+            allowed.contains(Indents.RelativeToLhs.`match`)
+          case _: Token.Ident =>
+            tok.meta.rightOwner.parent.exists(_.is[Term.ApplyInfix]) &&
+            allowed.contains(Indents.RelativeToLhs.`infix`)
+          case _ => false
+        })
+        if (delay) Some(right.end) else None
+      }
+  }
+
+  @tailrec
+  private def prevNonCommentSameLine(implicit tokens: FormatTokens): State =
+    if (split.isNL || !tokens(depth).left.is[Token.Comment]) this
+    else prev.prevNonCommentSameLine
 }
 
 object State {
