@@ -1849,6 +1849,6 @@ case class Foo() {
 >>>
 case class Foo() {
   def Foo(firstParam: Int, secondParam: String, thirdParam: Boolean) = ???
-  def Bar(abc: Int, deg: String, xyz: Boolean)                       = ???
-  def Baz(hijk: Int, lmnop: String)                                  = ???
+  def Bar(abc:        Int, deg:         String, xyz:        Boolean) = ???
+  def Baz(hijk:       Int, lmnop:       String) = ???
 }
