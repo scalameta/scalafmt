@@ -1287,14 +1287,14 @@ class FormatWriter(formatOps: FormatOps) {
           if (isEarlierLine(p)) p else getAlignContainerParent(p)
         // containers that can be traversed further if lhs single-line
         case Some(p @ AlignContainer.WithBody(mods, b)) =>
-          val keepGoing = (b.eq(child) || p.eq(child)) && {
+          val keepGoing = {
             val ptokens = p.tokens
             val beg = mods.lastOption.fold(tokens.after(ptokens.head)) { m =>
               tokens.next(tokens.tokenAfter(m))
             }
-            val end = tokens
-              .tokenJustBeforeOpt(b)
-              .getOrElse(tokens.before(ptokens.last))
+            val useBody = b.eq(child) || p.eq(child)
+            val beforeBody = if (useBody) tokens.tokenJustBeforeOpt(b) else None
+            val end = beforeBody.getOrElse(tokens.before(ptokens.last))
             getLineDiff(locations, beg, end) == 0
           }
           if (keepGoing) getAlignContainerParent(p) else p
