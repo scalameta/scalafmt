@@ -22,27 +22,35 @@ class ScalafmtVersionSuite extends FunSuite {
     )
     assertEquals(
       ScalafmtVersion.parse("2.2.3-SNAPSHOT"),
-      Some(ScalafmtVersion(2, 2, 3, 0, "-SNAPSHOT"))
+      Some(ScalafmtVersion(2, 2, 3, 0, "", "-SNAPSHOT"))
     )
     assertEquals(
       ScalafmtVersion.parse("2.0.0-RC1-SNAPSHOT"),
-      Some(ScalafmtVersion(2, 0, 0, 1, "-SNAPSHOT"))
+      Some(ScalafmtVersion(2, 0, 0, 1, "", "-SNAPSHOT"))
     )
     assertEquals(
       ScalafmtVersion.parse("2.2.2-SNAPSHOT"),
-      Some(ScalafmtVersion(2, 2, 2, 0, "-SNAPSHOT"))
+      Some(ScalafmtVersion(2, 2, 2, 0, "", "-SNAPSHOT"))
     )
     assertEquals(
       ScalafmtVersion.parse("99.99.99-RC99-SNAPSHOT"),
-      Some(ScalafmtVersion(99, 99, 99, 99, "-SNAPSHOT"))
+      Some(ScalafmtVersion(99, 99, 99, 99, "", "-SNAPSHOT"))
     )
     assertEquals(
       ScalafmtVersion.parse("99.99.99-RC99+foobar"),
-      Some(ScalafmtVersion(99, 99, 99, 99, "+foobar"))
+      Some(ScalafmtVersion(99, 99, 99, 99, "+foobar", ""))
+    )
+    assertEquals(
+      ScalafmtVersion.parse("99.99.99+foobar"),
+      Some(ScalafmtVersion(99, 99, 99, 0, "+foobar", ""))
     )
     assertEquals(
       ScalafmtVersion.parse("99.99.99+foobar"),
       Some(ScalafmtVersion(99, 99, 99, 0, "+foobar"))
+    )
+    assertEquals(
+      ScalafmtVersion.parse("3.5.9+41-60b84efb-SNAPSHOT"),
+      Some(ScalafmtVersion(3, 5, 9, 0, "+41-60b84efb", "-SNAPSHOT"))
     )
   }
 
@@ -56,6 +64,10 @@ class ScalafmtVersionSuite extends FunSuite {
     assertEquals(
       ScalafmtVersion.parse("2.2.2-RC2-SNAPSHOT").get.toString,
       "2.2.2-RC2-SNAPSHOT"
+    )
+    assertEquals(
+      ScalafmtVersion.parse("3.5.9+41-60b84efb-SNAPSHOT").get.toString,
+      "3.5.9+41-60b84efb-SNAPSHOT"
     )
   }
 

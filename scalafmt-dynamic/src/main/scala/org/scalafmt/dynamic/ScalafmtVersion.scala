@@ -7,6 +7,7 @@ case class ScalafmtVersion(
     minor: Int,
     patch: Int,
     rc: Int = 0,
+    hash: String = "",
     snapshot: String = ""
 ) extends Comparable[ScalafmtVersion] {
   private val integerRepr: Int = {
@@ -22,6 +23,7 @@ case class ScalafmtVersion(
   override def toString: String =
     s"$major.$minor.$patch" +
       (if (rc > 0) s"-RC$rc" else "") +
+      (if (hash.nonEmpty) hash else "") +
       snapshot
 
   override def compareTo(o: ScalafmtVersion): Int = {
@@ -34,17 +36,18 @@ case class ScalafmtVersion(
 object ScalafmtVersion {
 
   private val versionRegex =
-    """(\d{1,2})\.(\d{1,2})\.(\d{1,2})(?:-RC(\d{1,2}))?([+].*|-SNAPSHOT)?""".r
+    """(\d{1,2})\.(\d{1,2})\.(\d{1,2})(?:-RC(\d{1,2}))?([+].+(?<!-SNAPSHOT))?(-SNAPSHOT)?""".r
 
   def parse(version: String): Option[ScalafmtVersion] =
     version match {
-      case versionRegex(major, minor, patch, rc, snapshot) =>
+      case versionRegex(major, minor, patch, rc, hash, snapshot) =>
         Try {
           ScalafmtVersion(
             positiveInt(major),
             positiveInt(minor),
             positiveInt(patch),
             if (rc == null) 0 else positiveInt(rc),
+            if (hash == null) "" else hash,
             if (snapshot == null) "" else snapshot
           )
         }.toOption
