@@ -1,9 +1,6 @@
 package org.scalafmt.rewrite
 
-import scala.meta.Importee
-import scala.meta.Pat
-import scala.meta.Term
-import scala.meta.Type
+import scala.meta.{Importee, Pat, Term, Type}
 import scala.meta.tokens.Token
 
 import org.scalafmt.config.ScalafmtConfig
@@ -54,7 +51,7 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
 
       case _: Token.Colon if dialect.allowPostfixStarVarargSplices =>
         ft.meta.rightOwner match {
-          case _: Term.Repeated =>
+          case t: Term.Repeated if isSimpleRepeated(t) =>
             removeToken // trick: to get "*", just remove ":" and "_"
           case _ => null
         }
@@ -74,7 +71,8 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
               if dialect.allowQuestionMarkAsTypeWildcard &&
                 t.parent.exists(_.is[Type]) =>
             replaceTokenIdent("?", ft.right)
-          case _: Term.Repeated if dialect.allowPostfixStarVarargSplices =>
+          case t: Term.Repeated
+              if dialect.allowPostfixStarVarargSplices && isSimpleRepeated(t) =>
             removeToken // see above, under Colon
           case t: Pat.SeqWildcard
               if dialect.allowPostfixStarVarargSplices &&
@@ -128,5 +126,8 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
       case _ => null
     }
   }.map((left, _))
+
+  private def isSimpleRepeated(t: Term.Repeated): Boolean =
+    t.expr.isNot[Term.ApplyInfix] || ftoks.isEnclosedInParens(t.expr)
 
 }

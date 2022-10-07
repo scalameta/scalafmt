@@ -3710,7 +3710,7 @@ object a {
     "" +:
       Seq("").map {
         _ + ""
-      }*
+      }: _*
   )
   val a = test(
     (
