@@ -3697,3 +3697,27 @@ object A {
            0
   }
 }
+<<< #3337
+rewrite.scala3.convertToNewSyntax = yes
+===
+object a {
+  val a = test("" +: Seq("").map{_ + ""}: _*)
+  val a = test(("" +: Seq("").map{_ + ""}): _*)
+}
+>>>
+object a {
+  val a = test(
+    "" +:
+      Seq("").map {
+        _ + ""
+      }*
+  )
+  val a = test(
+    (
+      "" +:
+        Seq("").map {
+          _ + ""
+        }
+    )*
+  )
+}
