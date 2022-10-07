@@ -3420,6 +3420,6 @@ object a {
 }
 >>>
 object a {
-  val a = test("" +: Seq("").map { _ + "" }*)
+  val a = test("" +: Seq("").map { _ + "" }: _*)
   val a = test(("" +: Seq("").map { _ + "" })*)
 }
