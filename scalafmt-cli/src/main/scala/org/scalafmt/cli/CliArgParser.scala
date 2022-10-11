@@ -123,12 +123,6 @@ object CliArgParser {
         .text(
           "test for mis-formatted code only, exits with status 1 on first failure."
         )
-      opt[Unit]("diff")
-        .action((_, c) => c.copy(mode = Option(DiffFiles("master"))))
-        .text(
-          s"""Format files listed in `git diff` against master.
-            |Deprecated: use --mode diff instead""".stripMargin
-        )
       opt[FileFetchMode]("mode")
         .action((m, c) => c.copy(mode = Option(m)))
         .text(
@@ -137,10 +131,17 @@ object CliArgParser {
             |${FileFetchMode.help}
             |""".stripMargin
         )
+      opt[Unit]("diff")
+        .action((_, c) => c.copy(mode = Option(DiffFiles("master"))))
+        .text(
+          s"""Format files listed in `git diff` against master.
+            |Deprecated: use --mode diff instead""".stripMargin
+        )
       opt[String]("diff-branch")
         .action((branch, c) => c.copy(mode = Option(DiffFiles(branch))))
         .text(
-          "If set, only format edited files in git diff against provided branch. Has no effect if mode set to `changed`."
+          s"""Format files listed in `git diff` against given git ref.
+            |Deprecated: use --mode diff-ref=<ref> instead""".stripMargin
         )
       opt[Unit]("build-info")
         .action((_, _) => { println(buildInfo); sys.exit })
