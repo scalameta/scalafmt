@@ -390,15 +390,6 @@ class FormatOps(
     if (r.is[T.LeftBrace]) SplitTag.OneArgPerLine.activateOnly(s)
     else Decision.onlyNewlineSplits(s)
 
-  def UnindentAtExclude(
-      exclude: Set[T],
-      indent: Length
-  ): Policy.Pf = {
-    case Decision(t, s) if exclude.contains(t.left) =>
-      val close = matching(t.left)
-      s.map(_.withIndent(indent, close, ExpiresOn.After))
-  }
-
   def penalizeNewlineByNesting(from: T, to: T)(implicit
       fileLine: FileLine
   ): Policy = {

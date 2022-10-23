@@ -1339,10 +1339,7 @@ class Router(formatOps: FormatOps) {
               if (oneline) nextCommaOneline.orElse(Some(close))
               else if (style.newlines.source.eq(Newlines.fold)) None
               else findComma(formatToken).orElse(Some(close))
-            def unindentPolicy = Policy.on(close) {
-              val excludeOpen = exclude.ranges.map(_.lt).toSet
-              UnindentAtExclude(excludeOpen, Num(-indentLen))
-            }
+            def unindentPolicy = unindentAtExclude(exclude, Num(-indentLen))
             val noSplitPolicy = if (needOnelinePolicy) {
               val alignPolicy = if (noSplitIndents.exists(_.hasStateColumn)) {
                 nextCommaOnelinePolicy.map(_ & penalizeNewlinesPolicy)
