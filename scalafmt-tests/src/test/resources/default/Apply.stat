@@ -1971,15 +1971,15 @@ object a {
 object a {
   val ref = foo(bar((_, _) =>
       baz1 { qux1 =>
-      noop1
-    } baz2 { qux2 =>
-      noop2
-    } baz3 //
+        noop1
+      } baz2 { qux2 =>
+        noop2
+      } baz3 //
         { qux3 =>
-        noop3
-      } baz4 { qux4 =>
-        noop4
-      }))
+          noop3
+        } baz4 { qux4 =>
+          noop4
+        }))
 }
 <<< binPack unsafeCallSite, indentOnce
 binPack.unsafeCallSite = always
@@ -2004,13 +2004,13 @@ object a {
 object a {
   val ref = foo(bar((_, _) =>
       baz1 { qux1 =>
-      noop1
-    } baz2 { qux2 =>
-      noop2
-    } baz3 //
+        noop1
+      } baz2 { qux2 =>
+        noop2
+      } baz3 //
         { qux3 =>
-        noop3
-      } baz4 { qux4 =>
-        noop4
-      }))
+          noop3
+        } baz4 { qux4 =>
+          noop4
+        }))
 }

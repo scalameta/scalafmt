@@ -2,11 +2,7 @@ package org.scalafmt.util
 
 import scala.meta.tokens.{Token => T}
 
-import org.scalafmt.internal.Decision
-import org.scalafmt.internal.Newline
-import org.scalafmt.internal.Policy
-import org.scalafmt.internal.Split
-import org.scalafmt.internal.TokenRanges
+import org.scalafmt.internal._
 import org.scalameta.FileLine
 
 object PolicyOps {
@@ -208,5 +204,28 @@ object PolicyOps {
       token: T
   )(implicit fileLine: FileLine): Policy =
     new DecideNewlinesOnlyAfterToken(token, None)
+
+  def unindentAtExclude(
+      exclude: TokenRanges,
+      indent: Length
+  ): Policy = {
+    exclude.ranges.foldLeft(Policy.noPolicy) { case (policy, range) =>
+      val (lt, rt) = (range.lt, range.rt)
+      val trigger = rt
+      val unindent = Indent(indent, rt, ExpiresOn.After)
+      val triggeredIndent = Indent.before(unindent, trigger)
+      val triggerUnindent = Policy.on(rt) {
+        case Decision(FormatToken(`lt`, _, _), s) =>
+          s.map(_.withIndent(triggeredIndent))
+      }
+      val cancelUnindent = delayedBreakPolicy(Policy.End.On(lt)) {
+        Policy.after(lt, rank = 1) { // use rank to apply after policy above
+          case Decision(FormatToken(`lt`, _, _), s) =>
+            s.map(_.switch(trigger, false))
+        }
+      }
+      Policy.Relay(policy, triggerUnindent & cancelUnindent)
+    }
+  }
 
 }
