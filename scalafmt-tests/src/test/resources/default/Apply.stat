@@ -2039,14 +2039,14 @@ object a {
 >>>
 object a {
   val ref = foo(bar((_, _) =>
-      baz1 { qux1 =>
-        noop1
-      } baz2 { qux2 =>
-        noop2
-      } baz3 //
-        { qux3 =>
-          noop3
-        } baz4 { qux4 =>
-          noop4
-        }))
+    baz1 { qux1 =>
+      noop1
+    } baz2 { qux2 =>
+      noop2
+    } baz3 //
+      { qux3 =>
+        noop3
+      } baz4 { qux4 =>
+        noop4
+      }))
 }
