@@ -35,6 +35,7 @@ case class BinPack(
     private val bracketCallSite: Option[BinPack.Unsafe] = None,
     private val bracketDefnSite: Option[BinPack.Unsafe] = None,
     indentCallSiteOnce: Boolean = false,
+    indentCallSiteSingleArg: Boolean = true,
     parentConstructors: BinPack.ParentCtors = BinPack.ParentCtors.source,
     literalArgumentLists: Boolean = true,
     literalsIncludeSimpleExpr: Boolean = false,
