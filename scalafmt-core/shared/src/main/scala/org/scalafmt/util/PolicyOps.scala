@@ -5,8 +5,6 @@ import scala.meta.tokens.{Token => T}
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.Newline
 import org.scalafmt.internal.Policy
-import org.scalafmt.internal.Policy.End
-import org.scalafmt.internal.Policy.Pf
 import org.scalafmt.internal.Split
 import org.scalafmt.internal.TokenRanges
 import org.scalameta.FileLine
@@ -17,7 +15,7 @@ object PolicyOps {
     *   do not allow newlines in token syntax
     */
   class PenalizeAllNewlines(
-      val endPolicy: End.WithPos,
+      val endPolicy: Policy.End.WithPos,
       penalty: Int,
       penalizeLambdas: Boolean = true,
       noSyntaxNL: Boolean = false,
@@ -56,7 +54,7 @@ object PolicyOps {
     *   if false, allow newlines in token syntax
     */
   class SingleLineBlock(
-      val endPolicy: End.WithPos,
+      val endPolicy: Policy.End.WithPos,
       okSLC: Boolean = false,
       noSyntaxNL: Boolean = false,
       val rank: Int = 0
@@ -80,8 +78,8 @@ object PolicyOps {
         okSLC: Boolean = false,
         noSyntaxNL: Boolean = false
     )(implicit fileLine: FileLine): Policy =
-      policyWithExclude(exclude, End.On, End.After)(
-        End.On(expire),
+      policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
+        Policy.End.On(expire),
         new SingleLineBlock(_, okSLC = okSLC, noSyntaxNL = noSyntaxNL)
       )
   }
@@ -92,9 +90,9 @@ object PolicyOps {
       val rank: Int = 0
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
-    override val endPolicy: End.WithPos = End.On(token)
+    override val endPolicy: Policy.End.WithPos = Policy.End.On(token)
     override val noDequeue: Boolean = false
-    override val f: Pf = split.fold[Pf] {
+    override val f: Policy.Pf = split.fold[Policy.Pf] {
       {
         case d: Decision if d.formatToken.right eq token =>
           d.onlyNewlinesWithoutFallback
@@ -114,9 +112,9 @@ object PolicyOps {
       val rank: Int = 0
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
-    override val endPolicy: End.WithPos = End.After(token)
+    override val endPolicy: Policy.End.WithPos = Policy.End.After(token)
     override val noDequeue: Boolean = false
-    override val f: Pf = split.fold[Pf] {
+    override val f: Policy.Pf = split.fold[Policy.Pf] {
       {
         case d: Decision if d.formatToken.left eq token =>
           d.onlyNewlinesWithoutFallback
@@ -132,11 +130,11 @@ object PolicyOps {
 
   def policyWithExclude(
       exclude: TokenRanges,
-      endLt: T => End.WithPos,
-      endRt: T => End.WithPos
+      endLt: T => Policy.End.WithPos,
+      endRt: T => Policy.End.WithPos
   )(
-      expire: End.WithPos,
-      policyFunc: End.WithPos => Policy
+      expire: Policy.End.WithPos,
+      policyFunc: Policy.End.WithPos => Policy
   )(implicit fileLine: FileLine): Policy = {
     val lastPolicy = policyFunc(expire)
     exclude.ranges.foldLeft(lastPolicy) { case (policy, range) =>
