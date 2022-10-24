@@ -1948,9 +1948,10 @@ class a {
     maxIdleDuration = Duration.Inf
   )(F)
 }
-<<< binPack unsafeCallSite, !indentOnce
+<<< binPack unsafeCallSite, !indentOnce, indentCallSiteSingleArg
 binPack.unsafeCallSite = always
 binPack.indentCallSiteOnce = false
+binPack.indentCallSiteSingleArg = true
 indent.callSite = 2
 align.preset = none
 ===
@@ -1981,9 +1982,44 @@ object a {
           noop4
         }))
 }
-<<< binPack unsafeCallSite, indentOnce
+<<< binPack unsafeCallSite, indentOnce, indentCallSiteSingleArg
 binPack.unsafeCallSite = always
 binPack.indentCallSiteOnce = true
+binPack.indentCallSiteSingleArg = true
+indent.callSite = 2
+align.preset = none
+===
+object a {
+  val ref = foo(bar((_, _) =>
+    baz1 { qux1 =>
+      noop1
+    } baz2 { qux2 =>
+      noop2
+    } baz3 //
+      { qux3 =>
+        noop3
+      } baz4 { qux4 =>
+        noop4
+      }))
+}
+>>>
+object a {
+  val ref = foo(bar((_, _) =>
+      baz1 { qux1 =>
+        noop1
+      } baz2 { qux2 =>
+        noop2
+      } baz3 //
+        { qux3 =>
+          noop3
+        } baz4 { qux4 =>
+          noop4
+        }))
+}
+<<< binPack unsafeCallSite, indentOnce, !indentCallSiteSingleArg
+binPack.unsafeCallSite = always
+binPack.indentCallSiteOnce = true
+binPack.indentCallSiteSingleArg = false
 indent.callSite = 2
 align.preset = none
 ===

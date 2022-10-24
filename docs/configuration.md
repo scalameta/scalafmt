@@ -627,6 +627,60 @@ maxColumn = 20
 foo(bar1(baz1(qux1, qux2), baz2), bar2(baz3, baz4))
 ```
 
+#### `binPack.indentCallSiteSingleArg`
+
+When this parameter is disabled, no indentation is added for same-line single-arg
+cases; the assumption is that if the argument expression spans multiple lines,
+it will introduce its own indentation.
+
+```scala mdoc:defaults
+binPack.indentCallSiteSingleArg
+```
+
+With the parameter enabled:
+
+```scala mdoc:scalafmt
+binPack.unsafeCallSite = true
+binPack.indentCallSiteSingleArg = true
+indent.callSite = 2
+maxColumn = 20
+---
+foo(bar(baz.qux(xyz + zyx)))
+foo(bar((_, _) =>
+  baz { qux =>
+    noop
+  } baz { qux =>
+    noop
+  } baz //
+    { qux =>
+      noop
+    } baz { qux =>
+      noop
+    }))
+```
+
+With the parameter disabled:
+
+```scala mdoc:scalafmt
+binPack.unsafeCallSite = true
+binPack.indentCallSiteSingleArg = false
+indent.callSite = 2
+maxColumn = 20
+---
+foo(bar(baz.qux(xyz + zyx)))
+foo(bar((_, _) =>
+  baz { qux =>
+    noop
+  } baz { qux =>
+    noop
+  } baz //
+    { qux =>
+      noop
+    } baz { qux =>
+      noop
+    }))
+```
+
 ### `indentOperator`
 
 Normally, the first eligible break _inside_ a chain of infix operators is
