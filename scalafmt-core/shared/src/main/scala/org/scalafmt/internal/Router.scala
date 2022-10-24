@@ -1300,6 +1300,7 @@ class Router(formatOps: FormatOps) {
           !isBracket && getAssignAtSingleArgCallSite(leftOwner).isDefined
         val noSplitIndents =
           if (noNoSplitIndents) Nil
+          else if (isSingleArg && !style.binPack.indentCallSiteSingleArg) Nil
           else if (style.binPack.indentCallSiteOnce) {
             @tailrec
             def iter(tree: Tree): Option[T] = tree.parent match {
@@ -1349,7 +1350,7 @@ class Router(formatOps: FormatOps) {
                 SingleLineBlock(slbEnd, noSyntaxNL = true)
               }
             } else penalizeNewlinesPolicy
-            val indentOncePolicy =
+            def indentOncePolicy =
               if (style.binPack.indentCallSiteOnce) {
                 val trigger = getIndentTrigger(leftOwner)
                 Policy.on(close) {
@@ -1362,7 +1363,7 @@ class Router(formatOps: FormatOps) {
               .withOptimalTokenOpt(opt)
               .withPolicy(noSplitPolicy)
               .andPolicy(unindentPolicy, !isSingleArg || noSplitIndents.isEmpty)
-              .andPolicy(indentOncePolicy)
+              .andPolicy(indentOncePolicy, noSplitIndents.isEmpty)
           }
 
         val nlPolicy = {
