@@ -11,6 +11,7 @@ abstract class Policy {
 
   /** applied to every decision until expire */
   def f: Policy.Pf
+  def rank: Int
 
   def filter(pred: Policy.Clause => Boolean): Policy
   def unexpired(ft: FormatToken): Policy
@@ -51,6 +52,7 @@ object Policy {
     override def |(other: Policy): Policy = other
     override def &(other: Policy): Policy = other
 
+    override def rank: Int = 0
     override def unexpired(ft: FormatToken): Policy = this
     override def filter(pred: Clause => Boolean): Policy = this
     override def switch(trigger: Token, on: Boolean): Policy = this
@@ -59,21 +61,24 @@ object Policy {
 
   def apply(
       endPolicy: End.WithPos,
-      noDequeue: Boolean = false
+      noDequeue: Boolean = false,
+      rank: Int = 0
   )(f: Pf)(implicit fileLine: FileLine): Policy =
-    new ClauseImpl(f, endPolicy, noDequeue)
+    new ClauseImpl(f, endPolicy, noDequeue, rank)
 
   def after(
       token: Token,
-      noDequeue: Boolean = false
+      noDequeue: Boolean = false,
+      rank: Int = 0
   )(f: Pf)(implicit fileLine: FileLine): Policy =
-    apply(End.After(token), noDequeue)(f)
+    apply(End.After(token), noDequeue, rank)(f)
 
   def before(
       token: Token,
-      noDequeue: Boolean = false
+      noDequeue: Boolean = false,
+      rank: Int = 0
   )(f: Pf)(implicit fileLine: FileLine): Policy =
-    apply(End.Before(token), noDequeue)(f)
+    apply(End.Before(token), noDequeue, rank)(f)
 
   def after(trigger: Token, policy: Policy)(implicit
       fileLine: FileLine
@@ -92,7 +97,6 @@ object Policy {
     apply(End.On(token), noDequeue)(f)
 
   abstract class Clause(implicit val fileLine: FileLine) extends Policy {
-    val f: Policy.Pf
     val endPolicy: End.WithPos
 
     override def toString = {
@@ -112,12 +116,15 @@ object Policy {
   private class ClauseImpl(
       val f: Policy.Pf,
       val endPolicy: End.WithPos,
-      val noDequeue: Boolean
+      val noDequeue: Boolean,
+      val rank: Int = 0
   )(implicit fileLine: FileLine)
       extends Clause
 
   private class OrElse(p1: Policy, p2: Policy) extends Policy {
     override lazy val f: Pf = p1.f.orElse(p2.f)
+
+    override def rank: Int = math.min(p1.rank, p2.rank)
 
     override def unexpired(ft: FormatToken): Policy =
       p1.unexpired(ft) | p2.unexpired(ft)
@@ -142,6 +149,8 @@ object Policy {
       )
     }
 
+    override def rank: Int = math.min(p1.rank, p2.rank)
+
     override def unexpired(ft: FormatToken): Policy =
       p1.unexpired(ft) & p2.unexpired(ft)
 
@@ -161,6 +170,7 @@ object Policy {
       fileLine: FileLine
   ) extends Policy {
     override def f: Pf = PartialFunction.empty
+    override def rank: Int = 0
     override def filter(pred: Clause => Boolean): Policy = this
     override def switch(trigger: Token, on: Boolean): Policy = {
       val switched = policy.switch(trigger, on)
@@ -176,6 +186,7 @@ object Policy {
       fileLine: FileLine
   ) extends Policy {
     override def f: Pf = before.f
+    override def rank: Int = before.rank
     override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
     override def switch(trigger: Token, on: Boolean): Policy =
       conv(_.switch(trigger, on))
@@ -204,6 +215,7 @@ object Policy {
       fileLine: FileLine
   ) extends Policy {
     override def f: Pf = before.f
+    override def rank: Int = before.rank
     override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
     override def switch(trigger: Token, on: Boolean): Policy =
       if (trigger ne this.trigger) conv(_.switch(trigger, on))
@@ -235,6 +247,7 @@ object Policy {
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
     override val f: Pf = factory(policy)
+    override def rank: Int = policy.rank
 
     override def filter(pred: Clause => Boolean): Policy =
       if (!pred(this)) NoPolicy

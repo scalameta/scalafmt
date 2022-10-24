@@ -20,7 +20,8 @@ object PolicyOps {
       val endPolicy: End.WithPos,
       penalty: Int,
       penalizeLambdas: Boolean = true,
-      noSyntaxNL: Boolean = false
+      noSyntaxNL: Boolean = false,
+      val rank: Int = 0
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
     override val noDequeue: Boolean = false
@@ -57,7 +58,8 @@ object PolicyOps {
   class SingleLineBlock(
       val endPolicy: End.WithPos,
       okSLC: Boolean = false,
-      noSyntaxNL: Boolean = false
+      noSyntaxNL: Boolean = false,
+      val rank: Int = 0
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
     import TokenOps.isLeftCommentThenBreak
@@ -84,9 +86,12 @@ object PolicyOps {
       )
   }
 
-  final class DecideNewlinesOnlyBeforeToken(val token: T, split: Option[Split])(
-      implicit fileLine: FileLine
-  ) extends Policy.Clause {
+  final class DecideNewlinesOnlyBeforeToken(
+      val token: T,
+      split: Option[Split],
+      val rank: Int = 0
+  )(implicit fileLine: FileLine)
+      extends Policy.Clause {
     override val endPolicy: End.WithPos = End.On(token)
     override val noDequeue: Boolean = false
     override val f: Pf = split.fold[Pf] {
@@ -103,9 +108,12 @@ object PolicyOps {
     override def toString: String = "NB:" + super.toString
   }
 
-  final class DecideNewlinesOnlyAfterToken(val token: T, split: Option[Split])(
-      implicit fileLine: FileLine
-  ) extends Policy.Clause {
+  final class DecideNewlinesOnlyAfterToken(
+      val token: T,
+      split: Option[Split],
+      val rank: Int = 0
+  )(implicit fileLine: FileLine)
+      extends Policy.Clause {
     override val endPolicy: End.WithPos = End.After(token)
     override val noDequeue: Boolean = false
     override val f: Pf = split.fold[Pf] {
