@@ -6,7 +6,6 @@ import org.scalafmt.config.{ImportSelectors, Newlines, ScalafmtConfig, Spaces}
 import org.scalafmt.internal.ExpiresOn.{After, Before}
 import org.scalafmt.internal.Length.{Num, StateColumn}
 import org.scalafmt.internal.Policy.NoPolicy
-import org.scalafmt.sysops.FileOps
 import org.scalafmt.util._
 import org.scalameta.FileLine
 
@@ -89,8 +88,7 @@ class Router(formatOps: FormatOps) {
         Seq(Split(NoSplit.orNL(next(ft).right.is[T.EOF]), 0))
       case FormatToken(_: T.BOF, right, _) =>
         val policy = right match {
-          case T.Ident(name) // shebang in .sc files
-              if FileOps.isAmmonite(filename) && name.startsWith("#!") =>
+          case T.Ident(name) if name.startsWith("#!") =>
             val nl = findFirst(next(formatToken), Int.MaxValue) { x =>
               x.hasBreak || x.right.is[T.EOF]
             }
