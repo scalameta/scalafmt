@@ -177,7 +177,7 @@ case class ScalafmtConfig(
   )
 
   def forSbt: ScalafmtConfig =
-    copy(runner = runner.forSbt, rewrite = rewrite.forSbt)
+    copy(rewrite = rewrite.forSbt)
 
   private lazy val expandedFileOverride = Try {
     val langPrefix = "lang:"
@@ -237,7 +237,7 @@ case class ScalafmtConfig(
   private[scalafmt] lazy val docstringsWrapMaxColumn: Int =
     docstrings.wrapMaxColumn.getOrElse(maxColumn)
 
-  @inline private[scalafmt] def dialect = runner.getDialect
+  @inline private[scalafmt] def dialect = runner.getDialectForParser
 
   private[scalafmt] def getTrailingCommas = rewrite.trailingCommas.style
 
