@@ -22,7 +22,7 @@ trait FormatAssertions {
   ): Unit =
     assertFormatPreservesAst(filename, original, obtained)(
       runner.getParser,
-      runner.getDialect
+      runner.getDialectForParser
     )
 
   def assertFormatPreservesAst[T <: Tree](

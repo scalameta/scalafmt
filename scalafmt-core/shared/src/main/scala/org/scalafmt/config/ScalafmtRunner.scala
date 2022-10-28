@@ -28,17 +28,17 @@ case class ScalafmtRunner(
     fatalWarnings: Boolean = false
 ) {
   @inline private[scalafmt] def getDialect = dialect.dialect
+  private[scalafmt] lazy val getDialectForParser: Dialect =
+    getDialect.withAllowToplevelTerms(true).withAllowToplevelStatements(true)
   @inline private[scalafmt] def dialectName = {
     val name = dialect.name
     if (dialectOverride.values.isEmpty) name else s"$name [with overrides]"
   }
   @inline private[scalafmt] def getParser = parser.parse
 
-  @inline private def topLevelDialect = dialect.copy(
-    dialect = getDialect
-      .withAllowToplevelTerms(true)
-      .withToplevelSeparator("")
-  )
+  @inline
+  def withDialect(dialect: sourcecode.Text[Dialect]): ScalafmtRunner =
+    withDialect(NamedDialect(dialect))
 
   @inline
   private[scalafmt] def withDialect(dialect: NamedDialect): ScalafmtRunner =
@@ -48,11 +48,8 @@ case class ScalafmtRunner(
   private[scalafmt] def withParser(parser: ScalafmtParser): ScalafmtRunner =
     copy(parser = parser)
 
-  def forSbt: ScalafmtRunner = withDialect(topLevelDialect)
-
   private[scalafmt] def forCodeBlock: ScalafmtRunner = copy(
     debug = false,
-    dialect = topLevelDialect,
     eventCallback = null,
     parser = ScalafmtParser.Source
   )
@@ -64,7 +61,7 @@ case class ScalafmtRunner(
     if (null != eventCallback) evts.foreach(eventCallback)
 
   def parse(input: meta.inputs.Input): Parsed[_ <: Tree] =
-    getParser(input, getDialect)
+    getParser(input, getDialectForParser)
 
   @inline def isDefaultDialect = dialect.name == NamedDialect.defaultName
 
@@ -85,7 +82,7 @@ object ScalafmtRunner {
     maxStateVisits = 1000000
   )
 
-  val sbt = default.forSbt
+  val sbt = default.withDialect(meta.dialects.Sbt)
 
   implicit val encoder: ConfEncoder[ScalafmtRunner] =
     generic.deriveEncoder
