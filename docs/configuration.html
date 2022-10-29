@@ -800,6 +800,83 @@ indent.callSite = <span class="hljs-number">2</span>
 maxColumn = <span class="hljs-number">20</span>
 </code></pre>
 </p></details>
+<h4><a class="anchor" aria-hidden="true" id="binpackindentcallsitesinglearg"></a><a href="#binpackindentcallsitesinglearg" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>binPack.indentCallSiteSingleArg</code></h4>
+<p>When this parameter is disabled, no indentation is added for same-line single-arg
+cases; the assumption is that if the argument expression spans multiple lines,
+it will introduce its own indentation.</p>
+<p>Default: <code>binPack.indentCallSiteSingleArg = true</code></p>
+<p>With the parameter enabled:</p>
+<pre><code class="hljs css language-scala formatted">foo(bar(baz.qux(
+      xyz + zyx)))
+foo(bar((_, _) =&gt;
+    baz { qux =&gt;
+      noop
+    } baz { qux =&gt;
+      noop
+    } baz <span class="hljs-comment">//</span>
+      { qux =&gt;
+        noop
+      } baz { qux =&gt;
+      noop
+    }
+  ))
+</code></pre>
+<pre><code class="hljs css language-scala original">foo(bar(baz.qux(xyz + zyx)))
+foo(bar((_, _) =&gt;
+  baz { qux =&gt;
+    noop
+  } baz { qux =&gt;
+    noop
+  } baz <span class="hljs-comment">//</span>
+    { qux =&gt;
+      noop
+    } baz { qux =&gt;
+      noop
+    }))
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">binPack.unsafeCallSite = <span class="hljs-literal">true</span>
+binPack.indentCallSiteSingleArg = <span class="hljs-literal">true</span>
+indent.callSite = <span class="hljs-number">2</span>
+maxColumn = <span class="hljs-number">20</span>
+</code></pre>
+</p></details>
+<p>With the parameter disabled:</p>
+<pre><code class="hljs css language-scala formatted">foo(bar(baz.qux(
+  xyz + zyx)))
+foo(bar((_, _) =&gt;
+  baz { qux =&gt;
+    noop
+  } baz { qux =&gt;
+    noop
+  } baz <span class="hljs-comment">//</span>
+    { qux =&gt;
+      noop
+    } baz { qux =&gt;
+      noop
+    }
+))
+</code></pre>
+<pre><code class="hljs css language-scala original">foo(bar(baz.qux(xyz + zyx)))
+foo(bar((_, _) =&gt;
+  baz { qux =&gt;
+    noop
+  } baz { qux =&gt;
+    noop
+  } baz <span class="hljs-comment">//</span>
+    { qux =&gt;
+      noop
+    } baz { qux =&gt;
+      noop
+    }))
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">binPack.unsafeCallSite = <span class="hljs-literal">true</span>
+binPack.indentCallSiteSingleArg = <span class="hljs-literal">false</span>
+indent.callSite = <span class="hljs-number">2</span>
+maxColumn = <span class="hljs-number">20</span>
+</code></pre>
+</p></details>
 <h3><a class="anchor" aria-hidden="true" id="indentoperator"></a><a href="#indentoperator" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indentOperator</code></h3>
 <p>Normally, the first eligible break <em>inside</em> a chain of infix operators is
 indented by 2.</p>
@@ -6179,6 +6256,7 @@ binPack.<span class="hljs-attr">unsafeDefnSite</span> = Never
 binPack.<span class="hljs-attr">bracketCallSite</span> = <span class="hljs-literal">null</span>
 binPack.<span class="hljs-attr">bracketDefnSite</span> = <span class="hljs-literal">null</span>
 binPack.<span class="hljs-attr">indentCallSiteOnce</span> = <span class="hljs-literal">false</span>
+binPack.<span class="hljs-attr">indentCallSiteSingleArg</span> = <span class="hljs-literal">true</span>
 binPack.<span class="hljs-attr">parentConstructors</span> = source
 binPack.<span class="hljs-attr">literalArgumentLists</span> = <span class="hljs-literal">true</span>
 binPack.<span class="hljs-attr">literalsIncludeSimpleExpr</span> = <span class="hljs-literal">false</span>
