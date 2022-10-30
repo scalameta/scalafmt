@@ -363,3 +363,21 @@ if (host.indexOf(':') != -1 && host.indexOf(']') == -1 &&
       host.indexOf('[') == -1) {
   hostVar = "[" + host + "]"
 }
+<<< body starts with lparen
+object a {
+  if (true) (d(e))
+  if (true) (d.e(f))
+  if (true) (d(e)) + f
+  while (true) (d(e))
+  while (true) (d.e(f))
+  while (true) (d(e)) + f
+}
+>>>
+object a {
+  if (true)(d(e))
+  if (true)(d.e(f))
+  if (true)(d(e)) + f
+  while (true)(d(e))
+  while (true)(d.e(f))
+  while (true)(d(e)) + f
+}
