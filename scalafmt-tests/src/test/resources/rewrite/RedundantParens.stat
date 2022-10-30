@@ -807,19 +807,19 @@ object a {
 >>>
 object a {
   b c /* c1 */
-    (/* c2 */ )
+    ( /* c2 */ )
   b c /* c1 */
-    (/* c2 */ (/* c3 */ ))
+    ( /* c2 */ ( /* c3 */ ))
   b c /* c1 */
-    (/* c2 */ (/* c3 */ /* c4 */ ))
+    ( /* c2 */ ( /* c3 */ /* c4 */ ))
   b c /* c1 */
-    (/* c2 */ d, e)
+    ( /* c2 */ d, e)
   b c /* c1 */
-    (/* c2 */ ( /* c3 */ d, e))
+    ( /* c2 */ ( /* c3 */ d, e))
   b c /* c1 */
-    (/* c2 */ ( /* c3 */ /* c4 */ d, e))
+    ( /* c2 */ ( /* c3 */ /* c4 */ d, e))
   b c /* c1 */
-    (/* c2 */ c + d /* c3 */ ).foo
+    ( /* c2 */ c + d /* c3 */ ).foo
 }
 <<< infix with parens, targs and comments
 object a {
@@ -834,10 +834,10 @@ object a {
 object a {
   b c /* c1 */
     [A] /* c2 */
-    (/* c3 */ )
+    ( /* c3 */ )
   b c /* c1 */
     [A] /* c2 */
-    (/* c3 */ d, e)
+    ( /* c3 */ d, e)
 }
 <<< if with/without then
 runner.dialect = scala3

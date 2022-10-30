@@ -97,7 +97,7 @@ for ((l, r) ← /* c1 */ ( /* c2 */ Seq(
 ) checkOne(looker, l, r)
 >>>
 for (
-    (l, r) ← /* c1 */ (/* c2 */ Seq(
+    (l, r) ← /* c1 */ ( /* c2 */ Seq(
           SelectString("a/b/c") -> None,
           SelectString("akka://all-systems/Nobody") -> None,
           SelectPath(system / "hallo") -> None,
@@ -140,7 +140,7 @@ for ((l, r) ← /* c1 */ ( /* c2 */Seq(
 ) checkOne(looker, l, r)
 >>>
 for (
-    (l, r) ← /* c1 */ (/* c2 */ Seq(
+    (l, r) ← /* c1 */ ( /* c2 */ Seq(
           SelectString("a/b/c") -> None,
           SelectString("akka://all-systems/Nobody") -> None,
           SelectPath(system / "hallo") -> None,

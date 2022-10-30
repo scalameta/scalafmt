@@ -2129,7 +2129,7 @@ class Router(formatOps: FormatOps) {
                 Num(if (willBreak) style.indent.main else 0)
               }
           }
-          val useSpace = style.spaces.inParentheses
+          val useSpace = style.spaces.inParentheses || right.is[T.Comment]
           Split(Space(useSpace), 0).withIndent(indent, close, Before)
         }
         def spaceSplit(implicit fileLine: FileLine) =
