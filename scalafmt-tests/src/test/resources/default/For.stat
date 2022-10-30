@@ -213,3 +213,21 @@ object a {
   } a +
     b
 }
+<<< body starts with lparen
+object a {
+  for (b <- c) (d(e))
+  for (b <- c) (d.e(f))
+  for (b <- c) (d(e)) + f
+  for {b <- c} (d(e))
+  for {b <- c} (d.e(f))
+  for {b <- c} (d(e)) + f
+}
+>>>
+object a {
+  for (b <- c)(d(e))
+  for (b <- c)(d.e(f))
+  for (b <- c)(d(e)) + f
+  for { b <- c }(d(e))
+  for { b <- c }(d.e(f))
+  for { b <- c }(d(e)) + f
+}
