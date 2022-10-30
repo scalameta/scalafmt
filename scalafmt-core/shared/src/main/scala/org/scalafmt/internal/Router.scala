@@ -660,13 +660,20 @@ class Router(formatOps: FormatOps) {
               // infix applications have no space.
               case _: Type.ApplyInfix | _: Term.ApplyInfix => false
               case _ => true
-            } && (prevNonComment(formatToken).left match {
-              case RightParenOrBracket() | T.KwSuper() | T.KwThis() |
-                  T.Ident(_) | T.RightBrace() | T.Underscore() |
-                  T.Constant.Symbol(_) =>
-                true
-              case _ => false
-            }) =>
+            } && {
+              val prevFt = prevNonComment(formatToken)
+              prevFt.left match {
+                case _: T.RightParen | _: T.RightBrace =>
+                  prevFt.meta.leftOwner match {
+                    case _: Term.For | _: Term.If | _: Term.While => false
+                    case _ => true
+                  }
+                case _: T.RightBracket | _: T.KwSuper | _: T.KwThis |
+                    _: T.Ident | _: T.Underscore | _: T.Constant.Symbol =>
+                  true
+                case _ => false
+              }
+            } =>
         def modification: Modification = leftOwner match {
           case _: Mod => Space
           // Add a space between constructor annotations and their parameter lists
