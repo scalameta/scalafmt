@@ -224,10 +224,10 @@ object a {
 }
 >>>
 object a {
-  for (b <- c)(d(e))
-  for (b <- c)(d.e(f))
-  for (b <- c)(d(e)) + f
-  for { b <- c }(d(e))
-  for { b <- c }(d.e(f))
-  for { b <- c }(d(e)) + f
+  for (b <- c) (d(e))
+  for (b <- c) (d.e(f))
+  for (b <- c) (d(e)) + f
+  for { b <- c } (d(e))
+  for { b <- c } (d.e(f))
+  for { b <- c } (d(e)) + f
 }

@@ -1359,8 +1359,8 @@ object a {
   val boss = system.actorOf(Props(new Actor {
     def receive = {
       case "run" ⇒
-        for (_ ← 1 to num)(context.watch(
-            context.actorOf(props))) ! cachedMessage
+        for (_ ← 1 to num)
+          (context.watch(context.actorOf(props))) ! cachedMessage
       case Terminated(child) ⇒ stopLatch.countDown()
     }
   }).withDispatcher("boss"))
