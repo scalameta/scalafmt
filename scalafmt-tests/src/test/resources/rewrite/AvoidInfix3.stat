@@ -184,7 +184,7 @@ object a {
     /* c2 */
   )
   b.c( /* c1 */
-    /* c2 */ (/* c3 */ )
+    /* c2 */ ( /* c3 */ )
   )
   b.c( /* c1 */
     /* c2 */ d,
@@ -194,7 +194,7 @@ object a {
     /* c2 */ ( /* c3 */ d, e)
   )
   b.c( /* c1 */
-    (/* c2 */ c + d /* c3 */ ).foo
+    ( /* c2 */ c + d /* c3 */ ).foo
   )
 }
 <<< args with parens, targs and comments
@@ -228,7 +228,7 @@ object a {
 >>>
 object a {
   b.c[A]( /* c1 */
-    /* c2 */ (/* c3 */ )
+    /* c2 */ ( /* c3 */ )
   )
 }
 <<< args with tuple, targs and comments
