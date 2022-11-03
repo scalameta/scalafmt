@@ -4005,3 +4005,30 @@ object A {
         }
     }
 }
+<<< #3327 with comment on separate line
+maxColumn = 100
+indent.relativeToLhsLastLine = [match]
+===
+object A {
+  protected def test(): IO[Test] =
+    test(test, test, None)
+      .flatMap {
+        case Some(test) => test(test).map(_.filter(_.test > test))
+        case None               => test(dataSetId)
+      }
+      .map(_.test())
+
+/* Some comment */
+}
+>>>
+object A {
+  protected def test(): IO[Test] =
+    test(test, test, None)
+      .flatMap {
+        case Some(test) => test(test).map(_.filter(_.test > test))
+        case None       => test(dataSetId)
+      }
+      .map(_.test())
+
+      /* Some comment */
+}
