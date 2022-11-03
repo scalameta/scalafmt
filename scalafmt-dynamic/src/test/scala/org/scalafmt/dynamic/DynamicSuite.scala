@@ -334,12 +334,18 @@ class DynamicSuite extends FunSuite {
           path
         )
         // test scala doesn't allow top-level terms (not passing path here)
-        f.assertError(
-          "lazy   val   x =  project",
-          s"""|sbt.scala:1:1: error:$dialectError classes cannot be lazy
-            |lazy   val   x =  project
-            |^^^^""".stripMargin
-        )
+        if (version == latest)
+          f.assertFormat(
+            "lazy   val   x =  project",
+            "lazy val x = project\n"
+          )
+        else
+          f.assertError(
+            "lazy   val   x =  project",
+            s"""|sbt.scala:1:1: error:$dialectError classes cannot be lazy
+              |lazy   val   x =  project
+              |^^^^""".stripMargin
+          )
         // check wrapped literals, supported in sbt using scala 2.13+
         val wrappedLiteral = "object a { val  x:  Option[0]  =  Some(0) }"
         def assertIsWrappedLiteralFailure(): Unit =
