@@ -4030,5 +4030,5 @@ object A {
       }
       .map(_.test())
 
-      /* Some comment */
+  /* Some comment */
 }

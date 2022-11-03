@@ -291,7 +291,7 @@ final case class State(
     val tok = tokens(depth)
     val right = tok.right
     if (allowed.isEmpty) None
-    else if (right.is[Token.Comment]) Some(right.end)
+    else if (!isNL && right.is[Token.Comment]) Some(right.end)
     else
       indentEnd(tok, isNL) {
         val earlierState = prev.prevNonCommentSameLine
