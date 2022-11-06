@@ -19,21 +19,7 @@ import scala.meta.internal.Scaladoc
 import scala.meta.internal.parsers.ScaladocParser
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
-import scala.meta.{
-  Case,
-  Ctor,
-  Defn,
-  Enumerator,
-  ImportExportStat,
-  Pat,
-  Pkg,
-  Source,
-  Stat,
-  Template,
-  Term,
-  Tree,
-  Type
-}
+import scala.meta._
 
 /** Produces formatted output from sequence of splits.
   */
@@ -1317,11 +1303,10 @@ class FormatWriter(formatOps: FormatOps) {
 
         case AlignContainer(x) if fl.formatToken.right.is[T.Comment] => x
 
-        case _: Defn | _: Case | _: Term.Apply | _: meta.Init |
-            _: Ctor.Primary =>
+        case _: Defn | _: Case | _: Term.Apply | _: Init | _: Ctor.Primary =>
           getAlignContainerParent(t, Some(t))
 
-        case _: meta.Mod =>
+        case _: Mod =>
           t.parent match {
             case Some(p) => getAlignContainer(p)
             case None => t

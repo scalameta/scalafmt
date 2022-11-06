@@ -2,10 +2,7 @@ package org.scalafmt.util
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.meta.Lit
-import scala.meta.Name
-import scala.meta.Term
-import scala.meta.Tree
+import scala.meta._
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
 import scala.meta.tokens.Token.LeftParen

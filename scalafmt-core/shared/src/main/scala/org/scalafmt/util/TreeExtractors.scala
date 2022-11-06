@@ -1,14 +1,6 @@
 package org.scalafmt.util
 
-import scala.collection.immutable.Seq
-import scala.meta.Decl
-import scala.meta.Defn
-import scala.meta.Name
-import scala.meta.Pat
-import scala.meta.Self
-import scala.meta.Term
-import scala.meta.Tree
-import scala.meta.Type
+import scala.meta._
 
 case class InfixApp(lhs: Tree, op: Name, rhs: Seq[Tree], all: Tree) {
 
@@ -76,10 +68,9 @@ object WithChain {
   def unapply(t: Type.With): Option[Type.With] = {
     // self types, params, val/def/var/type definitions or declarations
     val top = TreeOps.topTypeWith(t)
-    top.parent match {
-      case Some(_: Defn | _: Decl | _: Term.Param | _: Self | _: Type.Apply) =>
-        Some(top)
-      case _ => None
+    top.parent.collect {
+      case _: Defn | _: Decl | _: Term.Param | _: Self | _: Type.Apply =>
+        top
     }
   }
 }

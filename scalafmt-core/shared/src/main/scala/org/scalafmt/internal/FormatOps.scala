@@ -19,24 +19,7 @@ import scala.annotation.tailrec
 import scala.collection.immutable.HashMap
 import scala.collection.mutable
 import scala.meta.classifiers.Classifier
-import scala.meta.{
-  Case,
-  CaseTree,
-  Ctor,
-  Decl,
-  Defn,
-  Importer,
-  Init,
-  Lit,
-  Pat,
-  Pkg,
-  Source,
-  Template,
-  Term,
-  Tree,
-  Type,
-  TypeCase
-}
+import scala.meta._
 import scala.meta.tokens.{Token => T}
 
 /** Helper functions for generating splits/policies for a given tree.
