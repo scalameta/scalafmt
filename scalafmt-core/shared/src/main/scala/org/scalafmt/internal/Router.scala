@@ -13,24 +13,7 @@ import scala.annotation.tailrec
 import scala.language.implicitConversions
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.{Token => T}
-import scala.meta.{
-  Case,
-  CaseTree,
-  Defn,
-  Enumerator,
-  ImportExportStat,
-  Importer,
-  Init,
-  Lit,
-  Mod,
-  Pat,
-  Pkg,
-  Template,
-  Term,
-  Tree,
-  Type,
-  TypeCase
-}
+import scala.meta._
 
 object Constants {
   val ShouldBeNewline = 100000

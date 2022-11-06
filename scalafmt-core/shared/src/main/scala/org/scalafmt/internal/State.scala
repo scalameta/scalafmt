@@ -218,7 +218,7 @@ final case class State(
   private def getLineStartOwner(isComment: Boolean)(implicit
       style: ScalafmtConfig,
       tokens: FormatTokens
-  ): Option[(FormatToken, meta.Tree)] = {
+  ): Option[(FormatToken, Tree)] = {
     val ft = tokens(depth)
     if (ft.meta.left.hasNL) None
     else if (!split.isNL) {
@@ -226,9 +226,9 @@ final case class State(
         State.allowSplitForLineStart(split, ft, isComment)
       if (ok) prev.getLineStartOwner(isComment) else None
     } else {
-      def startsWithLeft(tree: meta.Tree): Boolean =
+      def startsWithLeft(tree: Tree): Boolean =
         tokens.getHeadOpt(tree).contains(ft)
-      def optionIfStartsWithLeft(tree: meta.Tree): Option[meta.Tree] =
+      def optionIfStartsWithLeft(tree: Tree): Option[Tree] =
         Some(tree).filter(startsWithLeft)
       val owner = optionIfStartsWithLeft(ft.meta.rightOwner)
         .orElse(optionIfStartsWithLeft(ft.meta.leftOwner))
@@ -495,11 +495,11 @@ object State {
   }
 
   @inline
-  private def isInterpolation(tree: meta.Tree): Boolean =
-    tree.is[meta.Term.Interpolate]
+  private def isInterpolation(tree: Tree): Boolean =
+    tree.is[Term.Interpolate]
 
   @inline
-  private def isWithinInterpolation(tree: meta.Tree): Boolean =
+  private def isWithinInterpolation(tree: Tree): Boolean =
     findTreeOrParentSimple(tree)(isInterpolation).isDefined
 
 }

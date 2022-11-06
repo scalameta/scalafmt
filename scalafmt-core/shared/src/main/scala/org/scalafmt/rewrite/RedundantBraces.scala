@@ -142,7 +142,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           if style.rewrite.redundantBraces.stringInterpolation &&
             processInterpolation =>
         removeToken
-      case meta.Importer(_, List(x))
+      case Importer(_, List(x))
           if !(x.is[Importee.Rename] || x.is[Importee.Unimport]) ||
             style.dialect.allowAsForImportRename &&
             (ConvertToNewScala3Syntax.enabled ||

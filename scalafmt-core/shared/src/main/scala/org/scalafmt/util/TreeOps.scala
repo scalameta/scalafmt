@@ -2,24 +2,7 @@ package org.scalafmt.util
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.meta.Case
-import scala.meta.CaseTree
-import scala.meta.Ctor
-import scala.meta.Decl
-import scala.meta.Defn
-import scala.meta.Enumerator
-import scala.meta.Importer
-import scala.meta.Init
-import scala.meta.Lit
-import scala.meta.Mod
-import scala.meta.Name
-import scala.meta.Pat
-import scala.meta.Pkg
-import scala.meta.Stat
-import scala.meta.Template
-import scala.meta.Term
-import scala.meta.Tree
-import scala.meta.Type
+import scala.meta._
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -90,7 +73,7 @@ object TreeOps {
       case t: Term.PartialFunction => t.cases
       case t: Term.Try => t.catchp
       case t: Type.Refine => t.stats
-      case t: scala.meta.Source => t.stats
+      case t: Source => t.stats
       case t: Template => t.stats
       case t: CaseTree if t.body.tokens.nonEmpty => Seq(t.body)
       case _ => Seq.empty[Tree]
