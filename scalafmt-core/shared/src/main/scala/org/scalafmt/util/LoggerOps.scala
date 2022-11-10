@@ -55,7 +55,8 @@ object LoggerOps {
   private def getTokenClass(token: Token) =
     token.getClass.getName.stripPrefix("scala.meta.tokens.Token$")
 
-  def log(t: Tree, tokensOnly: Boolean = false): String = {
+  def log(t: Tree): String = log(t, false)
+  def log(t: Tree, tokensOnly: Boolean): String = {
     val tokens =
       s"TOKENS: ${t.tokens.map(x => reveal(x.syntax)).mkString(",")}"
     if (tokensOnly) tokens
@@ -66,10 +67,9 @@ object LoggerOps {
       |""".stripMargin
   }
 
-  def logOpt(t: Option[Tree], tokensOnly: Boolean = false): String =
+  def log(t: Option[Tree]): String = log(t, false)
+  def log(t: Option[Tree], tokensOnly: Boolean): String =
     t.fold("")(log(_, tokensOnly))
-
-  def stripTrailingSpace(s: String): String = s.replaceAll("\\s+\n", "\n")
 
   def reveal(s: String): String =
     s.map {

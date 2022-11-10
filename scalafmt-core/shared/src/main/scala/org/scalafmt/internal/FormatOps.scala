@@ -1478,7 +1478,7 @@ class FormatOps(
           case p =>
             logger.debug(s"""getApplyArgs: unknown tree
               |Tree: ${log(owner)}
-              |Parent: ${logOpt(p)}
+              |Parent: ${log(p)}
               |""".stripMargin)
             throw UnexpectedTree[Term.Apply](owner)
         }
