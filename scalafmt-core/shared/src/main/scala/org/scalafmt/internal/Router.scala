@@ -1902,14 +1902,14 @@ class Router(formatOps: FormatOps) {
         val template = leftOwner.asInstanceOf[Template]
         typeTemplateSplits(template, style.indent.commaSiteRelativeToExtends)
 
-      case FormatToken(_, _: T.KwWith, _) =>
+      case FormatToken(_, r: T.KwWith, _) =>
         rightOwner match {
           // something like new A with B with C
           case template: Template if template.parent.exists { p =>
                 p.is[Term.New] || p.is[Term.NewAnonymous] || p.is[Defn.Given]
               } =>
             binPackParentConstructorSplits(
-              isFirstInit(template, leftOwner),
+              template.inits.lift(1).exists(_.pos.start > r.start),
               Set(template),
               findTemplateGroupOnRight(_.superType)(template),
               templateCurlyOrLastNonTrivial(template),
