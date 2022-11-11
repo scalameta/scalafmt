@@ -1169,8 +1169,6 @@ class Router(formatOps: FormatOps) {
         val baseNoSplitMod = Space(style.spaces.inParentheses)
         if (close eq right)
           Seq(Split(baseNoSplitMod, 0))
-        else if (isTuple(leftOwner))
-          Seq(Split(baseNoSplitMod, 0).withPolicy(slbPolicy))
         else {
           val isBracket = open.is[T.LeftBracket]
           val indent =
