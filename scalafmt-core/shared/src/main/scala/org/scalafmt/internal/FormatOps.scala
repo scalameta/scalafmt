@@ -644,7 +644,7 @@ class FormatOps(
         !InfixApp.isAssignment(ft.meta.left.text)
       else if (beforeLhs) assignBodyExpire.isEmpty
       else if (
-        !app.rhs.headOption.exists { x =>
+        !app.singleArg.exists { x =>
           x.is[Term.Block] || x.is[Term.NewAnonymous]
         } && isInfixTopLevelMatch(ft.meta.left.text, false)
       ) false
@@ -841,10 +841,13 @@ class FormatOps(
       fullTree: Tree,
       tree: Tree,
       res: mutable.Buffer[InfixApp]
-  ): Unit =
+  ): Unit = if (tree ne fullTree)
     tree.parent match {
-      case Some(p @ InfixApp(ia)) if tree ne fullTree =>
-        if (ia.lhs eq tree) findNestedInfixes(ia.rhs, res += ia)
+      case Some(p @ InfixApp(ia)) =>
+        if (ia.lhs eq tree) {
+          res += ia
+          ia.singleArg.foreach(findNestedInfixes(_, res))
+        }
         findNextInfixes(fullTree, p, res)
       case _ =>
     }
@@ -852,20 +855,13 @@ class FormatOps(
   private def findNestedInfixes(
       tree: Tree,
       res: mutable.Buffer[InfixApp]
-  ): Unit =
-    if (!isEnclosedInParens(tree)) {
-      asInfixApp(tree).foreach { ia =>
-        findNestedInfixes(ia.lhs, res)
-        res += ia
-        findNestedInfixes(ia.rhs, res)
-      }
-    }
-  private def findNestedInfixes(
-      trees: Seq[Tree],
-      res: mutable.Buffer[InfixApp]
-  ): Unit =
-    // multiple RHS parameters are always enclosed
-    if (trees.lengthCompare(1) == 0) findNestedInfixes(trees.head, res)
+  ): Unit = tree match {
+    case InfixApp(ia) if !isEnclosedInParens(tree) =>
+      findNestedInfixes(ia.lhs, res)
+      res += ia
+      ia.singleArg.foreach(findNestedInfixes(_, res))
+    case _ =>
+  }
 
   @tailrec
   final def findLeftInfix(app: InfixApp): InfixApp =
@@ -876,8 +872,8 @@ class FormatOps(
     }
 
   private def getInfixRhsAsInfix(app: InfixApp): Option[InfixApp] =
-    app.rhs match {
-      case Seq(t @ InfixApp(ia)) if !isEnclosedInParens(t) => Some(ia)
+    app.singleArg match {
+      case Some(t @ InfixApp(ia)) if !isEnclosedInParens(t) => Some(ia)
       case _ => None // multiple parameters to infix are always enclosed
     }
 
@@ -889,9 +885,7 @@ class FormatOps(
       val elem = queue.dequeue()
       if (maxPrecedence < elem.precedence)
         maxPrecedence = elem.precedence
-      queue ++= (elem.lhs +: elem.rhs).collect {
-        case t @ InfixApp(ia) if !isEnclosedInParens(t) => ia
-      }
+      queue ++= elem.nestedInfixApps.filter(x => !isEnclosedInParens(x.all))
     }
     maxPrecedence
   }
