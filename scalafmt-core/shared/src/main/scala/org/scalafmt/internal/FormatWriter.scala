@@ -1262,7 +1262,7 @@ class FormatWriter(formatOps: FormatOps) {
     )(implicit fl: FormatLocation): Tree =
       maybeParent.orElse(child.parent) match {
         case Some(AlignContainer(p)) => p
-        case Some(p @ (_: Term.Select | _: Pat.Var)) =>
+        case Some(p @ (_: Term.Select | _: Pat.Var | _: Term.ApplyInfix)) =>
           getAlignContainerParent(p)
         case Some(p: Term.Apply) if p.fun eq child =>
           getAlignContainerParent(p)
@@ -1293,15 +1293,6 @@ class FormatWriter(formatOps: FormatOps) {
     @tailrec
     private def getAlignContainer(t: Tree)(implicit fl: FormatLocation): Tree =
       t match {
-        case _: Term.ApplyInfix =>
-          TreeOps
-            .findTreeWithParentSimple(t)(!_.is[Term.ApplyInfix])
-            .fold(t) { x =>
-              val p = x.parent.get
-              if (p.is[Term.Apply]) p.parent.getOrElse(p)
-              else getAlignContainerParent(x)
-            }
-
         case AlignContainer(x) if fl.formatToken.right.is[T.Comment] => x
 
         case _: Defn | _: Case | _: Term.Apply | _: Init | _: Ctor.Primary =>
