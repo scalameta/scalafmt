@@ -930,16 +930,13 @@ object TreeOps {
     def iter(trees: List[Tree]): Option[Tree] = trees match {
       case head :: rest =>
         val headPos = head.pos
-        val headStart = headPos.start
-        if (headStart < beforeParens) iter(rest)
-        else {
-          val ok = headStart < afterParens && {
-            val headEnd = headPos.end
-            headStart < headEnd && headEnd <= afterParens &&
-            rest.headOption.forall(_.pos.start >= afterParens)
-          }
-          if (ok) Some(head) else None
-        }
+        val headEnd = headPos.end
+        if (headEnd <= beforeParens) iter(rest)
+        else if (
+          headEnd <= afterParens && headPos.start < headEnd &&
+          rest.headOption.forall(_.pos.start >= afterParens)
+        ) Some(head)
+        else None
       case _ => None
     }
     val pos = tree.pos
