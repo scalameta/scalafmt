@@ -39,7 +39,7 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
         val start = p.pos.start
         sortMods(p.mods.filterNot { m =>
           m.is[Mod.ValParam] || m.is[Mod.VarParam] ||
-          TreeOps.isHiddenImplicit(start)(m)
+          TreeOps.noExplicitImplicit(start, false)(m)
         })
       case _ =>
     }
