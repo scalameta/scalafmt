@@ -127,8 +127,7 @@ object Indent {
 
   object Switch {
     def apply(before: Indent, trigger: Token, after: Indent): Indent =
-      if (before.eq(Indent.Empty) && after.eq(Indent.Empty)) Indent.Empty
-      else new Switch(before, trigger, after)
+      if (before eq after) before else new Switch(before, trigger, after)
   }
 
   def before(indent: Indent, trigger: Token): Indent =
