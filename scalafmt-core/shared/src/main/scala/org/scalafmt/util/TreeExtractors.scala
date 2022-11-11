@@ -10,6 +10,15 @@ case class InfixApp(lhs: Tree, op: Name, rhs: Seq[Tree], all: Tree) {
   @inline
   lazy val precedence: Int = InfixApp.getPrecedence(op.value)
 
+  def singleArg: Option[Tree] =
+    rhs match {
+      case v :: Nil => Some(v)
+      case _ => None
+    }
+
+  def nestedInfixApps: Seq[InfixApp] =
+    (lhs :: singleArg.toList).collect { case InfixApp(nested) => nested }
+
 }
 
 object InfixApp {

@@ -198,14 +198,8 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
   private def breaksBeforeOp(ia: InfixApp): Boolean = {
     val beforeOp = ftoks.tokenJustBefore(ia.op)
-    ftoks.prevNonCommentSameLine(beforeOp).hasBreak || (ia.lhs match {
-      case InfixApp(lhsApp) if breaksBeforeOpAndNotEnclosed(lhsApp) => true
-      case _ =>
-        ia.rhs match {
-          case Seq(InfixApp(rhsApp)) => breaksBeforeOpAndNotEnclosed(rhsApp)
-          case _ => false
-        }
-    })
+    ftoks.prevNonCommentSameLine(beforeOp).hasBreak ||
+    ia.nestedInfixApps.exists(breaksBeforeOpAndNotEnclosed)
   }
 
   private def canRewriteBody(tree: Tree): Boolean =
