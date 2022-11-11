@@ -873,13 +873,6 @@ object TreeOps {
   def isCaseBodyABlock(ft: FormatToken, caseStat: CaseTree): Boolean =
     ft.right.is[Token.LeftBrace] && (caseStat.body eq ft.meta.rightOwner)
 
-  def isFirstInit(t: Template, owner: Tree) =
-    t.inits.headOption.exists { init =>
-      // [init.tpe == leftOwner] part is about expressions like [new A with B]
-      // [leftOwner.is[Init] && init == leftOwner] part is about expressions like [new A(x) with B]
-      owner.is[Init] && init == owner || init.tpe == owner
-    }
-
   def getStartOfTemplateBody(template: Template): Option[Token] =
     template.self.tokens.headOption
       .orElse(template.stats.headOption.flatMap(_.tokens.headOption))
