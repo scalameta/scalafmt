@@ -303,25 +303,27 @@ class FormatOps(
     result
   }
 
-  def defnSiteLastToken(close: FormatToken, tree: Tree): T = {
-    tree match {
-      // TODO(olafur) scala.meta should make this easier.
-      case procedure: Defn.Def if procedure.decltpe.exists(_.tokens.isEmpty) =>
-        procedure.body.tokens.find(_.is[T.LeftBrace])
-      case t: Defn.Def if t.body.is[Term.Block] =>
-        t.body.tokens.headOption
+  // invoked on closing paren, part of ParamClause
+  final def defnSiteLastToken(close: FormatToken, t: Tree): T = {
+    def alt = getLastToken(t)
+    t match {
+      case t: Defn.Def =>
+        t.body.tokens.headOption.fold(alt) {
+          case head: T.LeftBrace if t.body.is[Term.Block] => head
+          case head => tokenBefore(head).left
+        }
       case _: Ctor.Primary =>
         close match {
           // This is a terrible terrible hack. Please consider removing this.
           // The RightParen() LeftBrace() pair is presumably a ") {" combination
           // at a class definition
-          case FormatToken(_: T.RightParen, b: T.LeftBrace, _) => Some(b)
-          case _ => Some(close.left)
+          case FormatToken(_: T.RightParen, b: T.LeftBrace, _) => b
+          case _ => close.left
         }
-      case _ =>
-        tree.tokens.find(t => t.is[T.Equals] && owners(t) == tree)
+      case t =>
+        t.tokens.find(x => x.is[T.Equals] && owners(x) == t).getOrElse(alt)
     }
-  }.getOrElse(getLastToken(tree))
+  }
 
   @inline
   def splitOneArgOneLine(close: T, owner: Tree)(implicit
