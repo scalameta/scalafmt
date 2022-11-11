@@ -545,18 +545,22 @@ class FormatOps(
       }
 
     @tailrec
-    private[FormatOps] def findEnclosingInfix(child: InfixApp): InfixApp = {
-      val childTree = child.all
+    private def findEnclosingInfix(
+        child: InfixApp,
+        childTree: Tree
+    ): InfixApp =
       if (isEnclosedInParens(childTree)) child
       else
         childTree.parent match {
-          case Some(InfixApp(parent)) if !parent.isAssignment =>
-            if (childTree.ne(parent.lhs) && parent.rhs.lengthCompare(1) != 0)
+          case Some(p @ InfixApp(pia)) if !pia.isAssignment =>
+            if (childTree.ne(pia.lhs) && pia.rhs.lengthCompare(1) != 0)
               child
-            else findEnclosingInfix(parent)
+            else findEnclosingInfix(pia, p)
           case _ => child
         }
-    }
+
+    private[FormatOps] def findEnclosingInfix(child: InfixApp): InfixApp =
+      findEnclosingInfix(child, child.all)
 
     def withNLIndent(split: Split)(app: InfixApp, ft: FormatToken)(implicit
         style: ScalafmtConfig
