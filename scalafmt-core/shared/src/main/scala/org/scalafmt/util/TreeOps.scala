@@ -343,6 +343,7 @@ object TreeOps {
       case _ => None
     }
 
+  @tailrec
   def defDefReturnType(tree: Tree): Option[Type] =
     tree match {
       case d: Decl.Def => Some(d.decltpe)
@@ -352,8 +353,11 @@ object TreeOps {
       case d: Decl.Given => Some(d.decltpe)
       case d: Defn.Val => d.decltpe
       case d: Defn.Var => d.decltpe
-      case pat: Pat.Var => pat.parent.flatMap(defDefReturnType)
-      case name: Term.Name => name.parent.flatMap(defDefReturnType)
+      case _: Pat.Var | _: Term.Name =>
+        tree.parent match {
+          case Some(p) => defDefReturnType(p)
+          case _ => None
+        }
       case _ => None
     }
   val DefDefReturnTypeLeft =
@@ -566,11 +570,8 @@ object TreeOps {
       case _ => first
     }
 
-  final def isInfixOp(tree: Tree): Boolean =
-    tree.parent.exists {
-      case InfixApp(ia) => ia.op eq tree
-      case _ => false
-    }
+  @inline final def isInfixOp(tree: Tree): Boolean =
+    AsInfixOp.unapply(tree).isDefined
 
   object AsInfixOp {
     def unapply(tree: Tree): Option[InfixApp] =
@@ -733,8 +734,8 @@ object TreeOps {
           case _: Defn.Enum => DanglingParentheses.Exclude.`enum`
           case _: Defn.ExtensionGroup => DanglingParentheses.Exclude.`extension`
           case _: Defn.Def => DanglingParentheses.Exclude.`def`
-          case _: Defn.Given => DanglingParentheses.Exclude.`given`
-          case _: Defn.GivenAlias => DanglingParentheses.Exclude.`given`
+          case _: Defn.Given | _: Defn.GivenAlias =>
+            DanglingParentheses.Exclude.`given`
           case _ => null
         }
         null != exclude && excludeList.contains(exclude)

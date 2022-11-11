@@ -391,7 +391,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       b: Term.Block
   )(implicit style: ScalafmtConfig): Boolean =
     getSingleStatIfLineSpanOk(b).exists { stat =>
-      innerOk(b)(stat) && !b.parent.exists {
+      def checkParent(tree: Tree): Boolean = tree match {
         case _: Term.Try | _: Term.TryWithHandler =>
           // "try (x).y" or "try { x }.y" isn't supported until scala 2.13
           // inside exists, return true if rewrite is OK
@@ -450,6 +450,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             Side.Left
           )
       }
+
+      innerOk(b)(stat) && !b.parent.exists(checkParent)
     }
 
   @inline

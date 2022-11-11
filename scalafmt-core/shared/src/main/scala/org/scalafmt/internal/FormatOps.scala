@@ -213,10 +213,11 @@ class FormatOps(
 
   final def isInfixRhs(ft: FormatToken): Boolean = {
     val tree = ft.meta.rightOwner
+    @inline def checkToken = tokens.tokenJustBeforeOpt(tree).contains(ft)
     tree.parent.exists {
       case InfixApp(ia) =>
         (ia.op eq tree) || ia.rhs.headOption.forall { arg =>
-          (arg eq tree) && tokens.tokenJustBeforeOpt(arg).contains(ft)
+          (arg eq tree) && checkToken
         }
       case _ => false
     }
@@ -352,8 +353,8 @@ class FormatOps(
 
   def splitOneArgPerLineAfterComma(owner: Tree): Policy.Pf = {
     // Newline on every comma.
-    case Decision(t @ FormatToken(_: T.Comma, right, _), splits)
-        if owner == t.meta.leftOwner &&
+    case Decision(t @ FormatToken(_: T.Comma, right, m), splits)
+        if owner == m.leftOwner &&
           // TODO(olafur) what the right { decides to be single line?
           // If comment is bound to comma, see unit/Comment.
           (!right.is[T.Comment] || t.hasBreak) =>
@@ -612,20 +613,20 @@ class FormatOps(
         case _ => false
       }
       def isAloneEnclosed(child: Tree) = child.parent.exists {
-        case Case(`child`, _, _) => true
-        case Term.If(`child`, _, _) => true
-        case Term.While(`child`, _) => true
-        case Term.Do(_, `child`) => true
-        case Term.Block(List(`child`)) => true
-        case fun: Term.FunctionTerm => isBlockFunction(fun)
+        case p: Case => p.pat eq child
+        case p: Term.If => p.cond eq child
+        case p: Term.While => p.expr eq child
+        case p: Term.Do => p.expr eq child
+        case p: Term.Block => isSingleElement(p.stats, child)
+        case p: Term.FunctionTerm => isBlockFunction(p)
         case SplitCallIntoParts(_, Left(Seq(`child`))) => true
         case _ => false
       }
       def isAloneArgOrBody(child: Tree) = child.parent.exists {
         case t: Case => t.pat.eq(child) || t.body.eq(child)
         case _: Term.If | _: Term.While | _: Term.Do => true
-        case Term.Block(List(`child`)) => true
-        case Term.ForYield(_, `child`) => true
+        case p: Term.Block => isSingleElement(p.stats, child)
+        case p: Term.ForYield => p.body eq child
         case SplitAssignIntoParts(`child`, _) => true
         case SplitCallIntoParts(_) => true
         case _ => false
@@ -936,14 +937,14 @@ class FormatOps(
     tokens.foreach {
       case FormatToken(x, _, _) if expire ne null =>
         if (x eq expire) expire = null else result += x
-      case x @ FormatToken(t: T.LeftParen, _, _) =>
-        x.meta.leftOwner match {
+      case FormatToken(t: T.LeftParen, _, m) =>
+        m.leftOwner match {
           // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
           case _: Term.Apply | _: Init => expire = matching(t)
           case _ =>
         }
-      case x @ FormatToken(t: T.LeftBrace, _, _) =>
-        x.meta.leftOwner match {
+      case FormatToken(t: T.LeftBrace, _, m) =>
+        m.leftOwner match {
           // Type compounds can be inside defn.defs
           case _: Type.Refine => expire = matching(t)
           case _ =>
@@ -1245,16 +1246,16 @@ class FormatOps(
           if shouldNotDangle && !isLeftCommentThenBreak(ftd) =>
         Seq(Split(NoSplit, 0))
       // Indent separators `)(` and `](` by `indentSep`
-      case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
-          if ownerCheck(t.meta.rightOwner) =>
+      case Decision(FormatToken(_, rp @ RightParenOrBracket(), m), _)
+          if ownerCheck(m.rightOwner) =>
         Seq(Split(Newline, 0).withIndent(indentSep, rp, ExpiresOn.After))
       // Add a newline after left paren if:
       // - There's an implicit keyword and newlineBeforeImplicitKW is enabled
       // - newlineAfterOpenParen is enabled
       // - Mixed-params case with constructor modifier `] private (`
-      case Decision(t @ FormatToken(open2 @ T.LeftParen(), right, _), _)
-          if ownerCheck(t.meta.leftOwner) =>
-        val close2 = matching(open2)
+      case Decision(t @ FormatToken(lp: T.LeftParen, right, m), _)
+          if ownerCheck(m.leftOwner) =>
+        val close2 = matching(lp)
 
         // We don't want to create newlines for default values.
         def isDefinition = ownerCheck(owners(close2))
@@ -1829,7 +1830,7 @@ class FormatOps(
         // we force newlines in try/catch/finally
         case _: Term.Try | _: Term.TryWithHandler => Split.ignored
         // don't tuck curried apply
-        case Term.Apply(_: Term.Apply, _) => slbSplit(expire)
+        case t: Term.Apply if t.fun.is[Term.Apply] => slbSplit(expire)
         case EndOfFirstCall(end) if !slbOnly => slbSplit(end)
         case _ => slbSplit(expire)
       }
@@ -2649,9 +2650,9 @@ class FormatOps(
     private object RightArrowImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case t @ Term.Function(p, b) =>
+          case t: Term.Function =>
             val skip = t.parent.exists(_.is[Term.Block])
-            if (skip) None else Some((b, seq(all, p)))
+            if (skip) None else Some((t.body, seq(all, t.params)))
           case _ => None
         }
     }

@@ -142,40 +142,55 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
             canRewriteBody(t)
           case InfixApp(pia) if !infixNeedsParens(pia, t) =>
-            t match {
-              case InfixApp(tia) =>
-                !breaksBeforeOp(tia) &&
-                style.rewrite.redundantParens.infixSide.exists {
-                  case RedundantParensSettings.InfixSide.many =>
-                    tia.op.value == pia.op.value ||
-                    tia.precedence <= precedenceHigh ||
-                    tia.precedence < precedenceLowest &&
-                    pia.precedence >= precedenceLowest
-                  case RedundantParensSettings.InfixSide.some =>
-                    tia.precedence <= precedenceVeryHigh ||
-                    tia.precedence <= precedenceMedium &&
-                    pia.precedence >= precedenceLowest
-                  case _ => true
-                }
-              case _: Lit | _: Name | _: Term.Interpolate => true
-              case _: Term.PartialFunction => true
-              case _ => style.rewrite.redundantParens.infixSide.isDefined
-            }
+            okToReplaceInfix(pia, t)
           case _ =>
-            t match {
-              case _: Lit | _: Name | _: Term.Interpolate => true
-              case _: Term.PartialFunction | _: Term.Apply => true
-              case t: Term.Select =>
-                ftoks.tokenBefore(t.name).left.is[Token.Dot]
-              case t: Term.Match
-                  if style.dialect.allowMatchAsOperator &&
-                    ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
-                    ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace] =>
-                true
-              case _ => false
-            }
+            okToReplaceOther(t)
         }
     }
+
+  private def okToReplaceOther(t: Tree)(implicit
+      style: ScalafmtConfig
+  ): Boolean =
+    t match {
+      case _: Lit | _: Name | _: Term.Interpolate => true
+      case _: Term.PartialFunction | _: Term.Apply => true
+      case t: Term.Select =>
+        ftoks.tokenBefore(t.name).left.is[Token.Dot]
+      case t: Term.Match
+          if style.dialect.allowMatchAsOperator &&
+            ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
+            ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace] =>
+        true
+      case _ => false
+    }
+
+  private def okToReplaceInfix(pia: InfixApp, tia: InfixApp)(implicit
+      style: ScalafmtConfig
+  ): Boolean = {
+    !breaksBeforeOp(tia) &&
+    style.rewrite.redundantParens.infixSide.exists {
+      case RedundantParensSettings.InfixSide.many =>
+        tia.op.value == pia.op.value ||
+        tia.precedence <= precedenceHigh ||
+        tia.precedence < precedenceLowest &&
+        pia.precedence >= precedenceLowest
+      case RedundantParensSettings.InfixSide.some =>
+        tia.precedence <= precedenceVeryHigh ||
+        tia.precedence <= precedenceMedium &&
+        pia.precedence >= precedenceLowest
+      case _ => true
+    }
+  }
+
+  private def okToReplaceInfix(pia: InfixApp, t: Tree)(implicit
+      style: ScalafmtConfig
+  ): Boolean = t match {
+    case InfixApp(tia) => okToReplaceInfix(pia, tia)
+    case _: Lit | _: Name | _: Term.Interpolate => true
+    case _: Term.PartialFunction => true
+    case _: Term.AnonymousFunction => false
+    case _ => style.rewrite.redundantParens.infixSide.isDefined
+  }
 
   private def breaksBeforeOpAndNotEnclosed(ia: InfixApp): Boolean = {
     !ftoks.isEnclosedInParens(ia.all) && breaksBeforeOp(ia)

@@ -143,6 +143,11 @@ class FormatWriter(formatOps: FormatOps) {
     // will map closing brace to opening brace and its line offset
     val lookup = mutable.Map.empty[Int, (Int, Int)]
 
+    def checkApply(t: Tree): Boolean = t.parent match {
+      case Some(Term.Apply(_, List(`t`))) => true
+      case _ => false
+    }
+
     // iterate backwards, to encounter closing braces first
     var idx = locations.length - 1
     while (0 <= idx) {
@@ -151,10 +156,6 @@ class FormatWriter(formatOps: FormatOps) {
       val state = loc.state
       tok.left match {
         case rb: T.RightBrace => // look for "foo { bar }"
-          def checkApply(t: Tree): Boolean = t.parent match {
-            case Some(Term.Apply(_, List(`t`))) => true
-            case _ => false
-          }
           val ok = tok.meta.leftOwner match {
             case b: Term.Block =>
               checkApply(b) && RedundantBraces.canRewriteWithParens(b) &&
