@@ -697,25 +697,21 @@ object TreeOps {
     * `val i1`, and `var i2` positions do not include their ``Mod.Implicit``.
     * `var i3` has a ``Mod.Implicit`` which is included.
     */
-  def isExplicitImplicit(m: Mod.Implicit, ownerStart: Int): Boolean = {
+  def noExplicitImplicit(m: Mod.Implicit, ownerStart: Int): Boolean = {
     val modPos = m.pos
     val modStart = modPos.start
-    modStart >= ownerStart && modPos.end > modStart
+    modStart < ownerStart || modPos.end <= modStart
   }
 
-  def isHiddenImplicit(ownerStart: Int)(m: Mod): Boolean = m match {
-    case m: Mod.Implicit => !isExplicitImplicit(m, ownerStart)
-    case _ => false
-  }
+  def noExplicitImplicit(ownerStart: Int, orElse: Boolean)(m: Mod): Boolean =
+    m match {
+      case m: Mod.Implicit => noExplicitImplicit(m, ownerStart)
+      case _ => orElse
+    }
 
-  def isExplicitImplicit(ownerStart: Int)(m: Mod): Boolean = m match {
-    case m: Mod.Implicit => isExplicitImplicit(m, ownerStart)
-    case _ => false
-  }
-
-  def hasExplicitImplicit(param: Term.Param): Boolean = {
+  def noExplicitImplicit(param: Term.Param): Boolean = {
     val pStart = param.pos.start
-    param.mods.exists(isExplicitImplicit(pStart))
+    param.mods.forall(noExplicitImplicit(pStart, true))
   }
 
   def shouldNotDangleAtDefnSite(

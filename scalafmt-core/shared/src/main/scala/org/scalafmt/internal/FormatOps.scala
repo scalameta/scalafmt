@@ -1491,14 +1491,14 @@ class FormatOps(
       case SplitDefnIntoParts(_, _, _, paramss) =>
         findArgsFor(ft.left, paramss)
           // make sure there's no other param with implicit
-          .filter(!_.exists(TreeOps.hasExplicitImplicit))
+          .filter(_.forall(TreeOps.noExplicitImplicit))
       case _ => None
     }
 
   /** Works for `using` as well */
   def opensImplicitParamList(ft: FormatToken, args: Seq[Tree]): Boolean =
     ft.right.is[T.KwImplicit] && args.forall {
-      case t: Term.Param => !hasExplicitImplicit(t)
+      case t: Term.Param => noExplicitImplicit(t)
       case _ => true
     } || ft.right.is[soft.KwUsing]
 
