@@ -1,6 +1,7 @@
 package org.scalafmt.util
 
 import scala.annotation.tailrec
+import scala.collection.immutable.HashMap
 import scala.collection.mutable
 import scala.meta._
 import scala.meta.classifiers.Classifier
@@ -933,6 +934,86 @@ object TreeOps {
     val pos = tree.pos
     val found = beforeParens <= pos.start && pos.end <= afterParens
     if (found) Some(tree) else iter(tree.children)
+  }
+
+  def getStyleAndOwners(
+      topSourceTree: Tree,
+      baseStyle: ScalafmtConfig
+  ): (ScalafmtConfig, collection.Map[TokenHash, Tree]) = {
+    var infixCount = 0
+    // Creates lookup table from token offset to its closest scala.meta tree
+    val ownersMap = HashMap.newBuilder[TokenHash, Tree]
+    @inline def setOwner(tok: Token, tree: Tree): Unit =
+      ownersMap += hash(tok) -> tree
+
+    val allTokens = topSourceTree.tokens(baseStyle.dialect)
+
+    def treeAt(elemIdx: Int, elem: Tree): Int = {
+      if (TreeOps.isInfixApp(elem)) infixCount += 1
+
+      val endPos = elem.pos.end
+      val allChildren: List[(Tree, Int)] = elem.children
+        .flatMap { x =>
+          val pos = x.pos
+          val startPos = pos.start
+          if (startPos == pos.end) None else Some((x, startPos))
+        }
+        .sortBy(_._2)
+
+      allChildren match {
+        case Nil =>
+          @tailrec
+          def tokenAt(idx: Int): Int =
+            if (idx == allTokens.length) idx
+            else {
+              val tok = allTokens(idx)
+              if (tok.start >= endPos && elemIdx != 0) idx
+              else {
+                setOwner(tok, elem)
+                tokenAt(idx + 1)
+              }
+            }
+          tokenAt(elemIdx)
+
+        case (firstChild, firstChildStart) :: rest =>
+          var nextChild = firstChild
+          var nextChildStart = firstChildStart
+          var children = rest
+
+          @tailrec
+          def tokenAt(idx: Int): Int = {
+            if (idx == allTokens.length) idx
+            else {
+              val tok = allTokens(idx)
+              if (nextChild == null && elemIdx != 0 && tok.start >= endPos) idx
+              else if (nextChild != null && tok.end > nextChildStart) {
+                val nextIdx = treeAt(idx, nextChild)
+                children match {
+                  case Nil =>
+                    nextChild = null
+                  case (head, start) :: rest =>
+                    nextChild = head
+                    children = rest
+                    nextChildStart = start
+                }
+                tokenAt(nextIdx)
+              } else {
+                setOwner(tok, elem)
+                tokenAt(idx + 1)
+              }
+            }
+          }
+          tokenAt(elemIdx)
+      }
+    }
+
+    treeAt(0, topSourceTree)
+
+    val checkedNewlines = baseStyle.newlines.checkInfixConfig(infixCount)
+    val initStyle =
+      if (checkedNewlines eq baseStyle.newlines) baseStyle
+      else baseStyle.copy(newlines = checkedNewlines)
+    (initStyle, ownersMap.result())
   }
 
 }
