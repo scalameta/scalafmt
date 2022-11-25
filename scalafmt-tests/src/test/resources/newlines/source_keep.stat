@@ -1848,6 +1848,72 @@ for {
   else
     mean * mean / x
 }
+<<< 7.8: for-yield partially enclosed in parens
+for {
+  nu <- rand.gaussian(0, 1)
+  y = nu * nu
+  x = (mean
+        + mean * mean * y * 0.5 / shape) -
+        0.5 * mean / shape * math
+          .sqrt(4 * mean * shape * y + mean * mean * y * y)
+  z <- rand.uniform
+} yield {
+  if (z <= mean / (mean + x))
+    x
+  else
+    mean * mean / x
+}
+>>>
+for {
+  nu <- rand.gaussian(0, 1)
+  y = nu * nu
+  x =
+    (mean
+      + mean * mean * y * 0.5 / shape) -
+      0.5 * mean / shape * math
+        .sqrt(
+          4 * mean * shape * y + mean * mean * y * y
+        )
+  z <- rand.uniform
+} yield {
+  if (z <= mean / (mean + x))
+    x
+  else
+    mean * mean / x
+}
+<<< 7.9: for-yield fully and partially enclosed in parens
+for {
+  nu <- rand.gaussian(0, 1)
+  y = nu * nu
+  x = ((mean
+        + mean * mean * y * 0.5 / shape) -
+        0.5 * mean / shape * math
+          .sqrt(4 * mean * shape * y + mean * mean * y * y))
+  z <- rand.uniform
+} yield {
+  if (z <= mean / (mean + x))
+    x
+  else
+    mean * mean / x
+}
+>>>
+for {
+  nu <- rand.gaussian(0, 1)
+  y = nu * nu
+  x =
+    ((mean
+      + mean * mean * y * 0.5 / shape) -
+      0.5 * mean / shape * math
+        .sqrt(
+          4 * mean * shape * y + mean * mean * y * y
+        ))
+  z <- rand.uniform
+} yield {
+  if (z <= mean / (mean + x))
+    x
+  else
+    mean * mean / x
+}
 <<< keep ctor body with zero args
 val foo = new Bar { () =>
   f(42)
