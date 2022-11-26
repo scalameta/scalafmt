@@ -922,7 +922,7 @@ class FormatOps(
 
     def getRToks = dropWS(function.tokens.reverse)
     function.parent match {
-      case Some(b: Term.Block) if isSingleStatBlock(b) =>
+      case Some(b @ Term.Block(_ :: Nil)) =>
         getLastToken(b) -> ExpiresOn.Before
       case Some(Case(_, _, `function`)) =>
         orElse(dropComment(getRToks))

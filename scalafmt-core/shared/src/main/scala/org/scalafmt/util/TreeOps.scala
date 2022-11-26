@@ -49,14 +49,14 @@ object TreeOps {
   @tailrec
   def isBlockFunction(fun: Term.FunctionTerm): Boolean =
     fun.parent match {
-      case Some(b: Term.Block) => isSingleElement(b.stats, fun)
+      case Some(Term.Block(`fun` :: Nil)) => true
       case Some(next: Term.FunctionTerm) => isBlockFunction(next)
       case _ => false
     }
 
   def isFunctionWithBraces(fun: Term.Function): Boolean =
     fun.parent match {
-      case Some(b: Term.Block) => isSingleElement(b.stats, fun)
+      case Some(Term.Block(`fun` :: Nil)) => true
       case _ => false
     }
 
@@ -149,7 +149,7 @@ object TreeOps {
           addDefn[KwDef](t.mods, t)
           addAll(t.stats)
         // special handling for rewritten blocks
-        case t @ Term.Block(List(arg)) // single-stat block
+        case t @ Term.Block(arg :: Nil) // single-stat block
             if t.tokens.headOption // see if opening brace was removed
               .exists(x => x.is[Token.LeftBrace] && ftoks(x).left.ne(x)) =>
           if (arg.is[Term.Function]) {
@@ -636,10 +636,15 @@ object TreeOps {
   def isMultiStatBlock(tree: Term.Block): Boolean = isSeqMulti(tree.stats)
 
   def isSingleElement(elements: List[Tree], value: Tree): Boolean =
-    isSeqSingle(elements) && (value eq elements.head)
+    elements match {
+      case `value` :: Nil => true
+      case _ => false
+    }
 
-  def getBlockSingleStat(b: Term.Block): Option[Stat] =
-    if (isSingleStatBlock(b)) Some(b.stats.head) else None
+  def getBlockSingleStat(b: Term.Block): Option[Stat] = b.stats match {
+    case stat :: Nil => Some(stat)
+    case _ => None
+  }
 
   def isTreeMultiStatBlock(tree: Tree): Boolean = tree match {
     case t: Term.Block => isMultiStatBlock(t)
@@ -668,12 +673,9 @@ object TreeOps {
       case _ => Some(t)
     }
 
-  def getTreeLineSpan(b: Tree): Int =
-    if (b.tokens.isEmpty) 0
-    else {
-      val pos = b.pos
-      pos.endLine - pos.startLine
-    }
+  def getTreeLineSpan(b: Tree): Int = getTreeLineSpan(b.pos)
+  def getTreeLineSpan(pos: Position): Int =
+    if (pos.start == pos.end) 0 else pos.endLine - pos.startLine
 
   def hasSingleTermStat(t: Term.Block): Boolean =
     getBlockSingleStat(t).exists(_.is[Term])
