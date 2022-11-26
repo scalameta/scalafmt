@@ -1489,13 +1489,13 @@ class Router(formatOps: FormatOps) {
                 case Some(p: Term.ApplyInfix) => startsInfix(p, ai)
                 case _ => true
               })
-            val roTokens = rightOwner.tokens
-            isFirstToken(lb, roTokens) && rightOwner.parent.exists {
+            val roPos = rightOwner.pos
+            isTokenHeadOrBefore(lb, roPos) && rightOwner.parent.exists {
               case p: Term.ApplyInfix => // exclude start of infix
                 startsInfix(p, rightOwner)
               case p =>
-                isFirstToken(lb, p) &&
-                matchingOpt(lb).exists(isLastToken(_, roTokens))
+                isTokenHeadOrBefore(lb, p) &&
+                matchingOpt(lb).exists(isTokenLastOrAfter(_, roPos))
             }
           } =>
         Seq(Split(Space, 0))
@@ -1672,7 +1672,7 @@ class Router(formatOps: FormatOps) {
           case x: Term.Match => SelectLike(x, getKwMatchAfterDot(t))
         }
         val prevSelect = findPrevSelect(thisSelect, enclosed)
-        val expire = tokens.getLastExceptParen(expireTree.tokens).left
+        val expire = getLastEnclosedToken(expireTree)
         val indentLen = style.indent.main
 
         def breakOnNextDot: Policy =
@@ -1940,7 +1940,7 @@ class Router(formatOps: FormatOps) {
       // If/For/While/For with (
       case FormatToken(open: T.LeftParen, _, _) if (leftOwner match {
             case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield =>
-              !isFirstToken(open, leftOwner)
+              !isTokenHeadOrBefore(open, leftOwner)
             case _ => false
           }) =>
         val close = matching(open)
@@ -2010,7 +2010,7 @@ class Router(formatOps: FormatOps) {
             case _: Term.While | _: Term.For =>
               !nextNonComment(formatToken).right.is[T.KwDo]
             case _ => false
-          }) && !isLastToken(close, leftOwner) =>
+          }) && !isTokenLastOrAfter(close, leftOwner) =>
         val body = leftOwner match {
           case t: Term.If => t.thenp
           case t: Term.For => t.body
@@ -2307,7 +2307,7 @@ class Router(formatOps: FormatOps) {
 
       // Term.For
       case ft @ FormatToken(rb: T.RightBrace, _, _)
-          if leftOwner.is[Term.For] && !isLastToken(rb, leftOwner) &&
+          if leftOwner.is[Term.For] && !isTokenLastOrAfter(rb, leftOwner) &&
             !nextNonComment(formatToken).right.is[T.KwDo] =>
         val body = leftOwner.asInstanceOf[Term.For].body
         def nlSplit(cost: Int) = Split(Newline, cost)
@@ -2517,7 +2517,7 @@ class Router(formatOps: FormatOps) {
         def modNoNL = {
           def allowSpace = rightOwner match {
             case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield =>
-              isLastToken(close, rightOwner)
+              isTokenLastOrAfter(close, rightOwner)
             case _ => true
           }
           Space(style.spaces.inParentheses && allowSpace)

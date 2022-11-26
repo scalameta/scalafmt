@@ -7,10 +7,7 @@ import scala.meta.tokens.Tokens
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.FormatTokensRewrite
-import org.scalafmt.util.StyleMap
-import org.scalafmt.util.TokenOps
-import org.scalafmt.util.TreeOps
-import org.scalafmt.util.Whitespace
+import org.scalafmt.util._
 
 class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
     val arr: Array[FormatToken]
@@ -99,10 +96,8 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   @inline private def areMatchingParens(close: Token)(open: => Token): Boolean =
     close.is[Token.RightParen] && areMatching(close)(open)
 
-  def isEnclosedInParens(tokens: Tokens): Boolean =
-    getClosingIfInParens(tokens).isDefined
   def isEnclosedInParens(tree: Tree): Boolean =
-    isEnclosedInParens(tree.tokens)
+    getClosingIfInParens(tree).isDefined
 
   def getClosingIfInParens(
       last: FormatToken
@@ -114,8 +109,10 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
         Some(afterLast)
       else None
     }
-  def getClosingIfInParens(tokens: Tokens): Option[FormatToken] =
+  def getClosingIfInParens(tree: Tree): Option[FormatToken] = {
+    val tokens = tree.tokens
     getHeadOpt(tokens).flatMap(getClosingIfInParens(getLastNonTrivial(tokens)))
+  }
 
   def getLastExceptParen(tokens: Tokens): FormatToken = {
     val last = getLastNonTrivial(tokens)
@@ -166,6 +163,7 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
     after(tokens.head)
   def getHead(tree: Tree): FormatToken =
     getHead(tree.tokens)
+
   def getHeadOpt(tokens: Tokens): Option[FormatToken] =
     tokens.headOption.map(after)
   def getHeadOpt(tree: Tree): Option[FormatToken] =
@@ -175,6 +173,7 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
     apply(TokenOps.findLastVisibleToken(tokens))
   def getLast(tree: Tree): FormatToken =
     getLast(tree.tokens)
+
   def getLastOpt(tokens: Tokens): Option[FormatToken] =
     TokenOps.findLastVisibleTokenOpt(tokens).map(apply)
   def getLastOpt(tree: Tree): Option[FormatToken] =
@@ -184,6 +183,7 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
     apply(TokenOps.findLastNonTrivialToken(tokens))
   def getLastNonTrivial(tree: Tree): FormatToken =
     getLastNonTrivial(tree.tokens)
+
   def getLastNonTrivialOpt(tokens: Tokens): Option[FormatToken] =
     TokenOps.findLastNonTrivialTokenOpt(tokens).map(apply)
   def getLastNonTrivialOpt(tree: Tree): Option[FormatToken] =
@@ -208,10 +208,10 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   @inline
   def justBefore(token: Token): FormatToken = apply(token, -1)
   @inline
-  def tokenJustBefore(tree: Tree): FormatToken = justBefore(tree.tokens.head)
+  def tokenJustBefore(tree: Tree): FormatToken = prev(getHead(tree))
 
   def tokenJustBeforeOpt(tree: Tree): Option[FormatToken] =
-    tree.tokens.headOption.map(justBefore)
+    getHeadOpt(tree).map(prev)
   def tokenJustBeforeOpt(trees: Seq[Tree]): Option[FormatToken] =
     trees.headOption.flatMap(tokenJustBeforeOpt)
 
@@ -220,7 +220,8 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   @inline
   def tokenBefore(token: Token): FormatToken = prevNonComment(justBefore(token))
   @inline
-  def tokenBefore(tree: Tree): FormatToken = tokenBefore(tree.tokens.head)
+  def tokenBefore(tree: Tree): FormatToken =
+    prevNonComment(tokenJustBefore(tree))
   @inline
   def tokenBefore(trees: Seq[Tree]): FormatToken = tokenBefore(trees.head)
 
