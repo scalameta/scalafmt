@@ -946,8 +946,9 @@ object TreeOps {
       ownersMap += hash(tok) -> tree
 
     val allTokens = topSourceTree.tokens(baseStyle.dialect)
+    var prevParens: List[Token] = Nil
 
-    def treeAt(elemIdx: Int, elem: Tree): Int = {
+    def treeAt(elemIdx: Int, elem: Tree, outerPrevLPs: Int): Int = {
       if (TreeOps.isInfixApp(elem)) infixCount += 1
 
       val endPos = elem.pos.end
@@ -978,6 +979,8 @@ object TreeOps {
           var nextChild = firstChild
           var nextChildStart = firstChildStart
           var children = rest
+          var prevChild: Tree = null
+          var prevLPs = outerPrevLPs
 
           @tailrec
           def tokenAt(idx: Int): Int = {
@@ -986,7 +989,9 @@ object TreeOps {
               val tok = allTokens(idx)
               if (nextChild == null && elemIdx != 0 && tok.start >= endPos) idx
               else if (nextChild != null && tok.end > nextChildStart) {
-                val nextIdx = treeAt(idx, nextChild)
+                if (prevChild != null) prevLPs = 0
+                prevChild = nextChild
+                val nextIdx = treeAt(idx, nextChild, prevLPs)
                 children match {
                   case Nil =>
                     nextChild = null
@@ -997,7 +1002,41 @@ object TreeOps {
                 }
                 tokenAt(nextIdx)
               } else {
-                setOwner(tok, elem)
+                def excludeRightParen: Boolean = elem match {
+                  case t: Term.If => prevChild eq t.cond // `expr` after `mods`
+                  case _: Term.While | _: Term.For | _: Term.ForYield =>
+                    prevChild eq firstChild // `expr` is first
+                  case _: Term.Tuple | _: Type.Tuple | _: Pat.Tuple |
+                      _: Term.ApplyInfix | _: Pat.ExtractInfix | _: Term.Apply |
+                      _: Pat.Extract | _: Term.Do | _: Term.AnonymousFunction =>
+                    nextChild == null
+                  case _: Decl.Def | _: Decl.Given | _: Type.FunctionType |
+                      _: Defn.Def | _: Defn.Macro | _: Defn.Given |
+                      _: Defn.GivenAlias | _: Defn.ExtensionGroup =>
+                    nextChild != null // body is next
+                  case _: Init | _: Ctor => true
+                  case _ => false
+                }
+
+                if (prevParens.nonEmpty && tok.is[RightParen]) {
+                  if (prevChild == null || prevLPs == 0 || excludeRightParen)
+                    setOwner(tok, elem)
+                  else {
+                    prevLPs -= 1
+                    setOwner(tok, prevChild)
+                    setOwner(prevParens.head, prevChild)
+                  }
+                  prevParens = prevParens.tail
+                } else {
+                  setOwner(tok, elem)
+                  if (!tok.is[Trivia] && nextChild != null) {
+                    prevChild = null
+                    if (tok.is[LeftParen]) {
+                      prevLPs += 1
+                      prevParens = tok :: prevParens
+                    } else prevLPs = 0
+                  }
+                }
                 tokenAt(idx + 1)
               }
             }
@@ -1006,7 +1045,7 @@ object TreeOps {
       }
     }
 
-    treeAt(0, topSourceTree)
+    treeAt(0, topSourceTree, 0)
 
     val checkedNewlines = baseStyle.newlines.checkInfixConfig(infixCount)
     val initStyle =
