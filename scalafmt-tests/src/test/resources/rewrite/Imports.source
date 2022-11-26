@@ -937,7 +937,8 @@ rewrite.imports.expand = true
 import java as j
 import j.collections as collections
 >>>
-org.scalafmt.util.FormatException: java.util.NoSuchElementException: head of empty String
+import java as j
+import j.collections as collections
 <<< #3384 groups, ascii
 rewrite.imports.sort = ascii
 rewrite.imports.groups = [[".*"]]
@@ -954,7 +955,8 @@ rewrite.imports.groups = [[".*"]]
 import java as j
 import j.collections as collections
 >>>
-org.scalafmt.util.FormatException: java.util.NoSuchElementException: head of empty String
+import java as j
+import j.collections as collections
 <<< #3384 no expand, no groups, ascii
 rewrite.imports.sort = ascii
 ===
