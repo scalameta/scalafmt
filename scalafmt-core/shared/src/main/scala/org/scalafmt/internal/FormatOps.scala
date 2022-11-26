@@ -2063,14 +2063,14 @@ class FormatOps(
         indentOpt: Option[Int] = None
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
       val treeTokens = tree.tokens
-      val end = tokens.getLast(treeTokens)
+      val end = tokens.getLast(treeTokens, tree)
       val slbExpire = nextNonCommentSameLine(end).left
       val closeOpt =
         if (isTuple(tree)) None
         else {
           val maybeClose = prevNonComment(end)
           tokens
-            .getClosingIfInParens(maybeClose)(tokens.getHead(treeTokens))
+            .getClosingIfInParens(maybeClose)(tokens.getHead(treeTokens, tree))
             .map(prevNonComment(_).left)
         }
       def nlPolicy(implicit fileLine: FileLine) =
