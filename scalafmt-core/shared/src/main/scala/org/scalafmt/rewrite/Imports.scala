@@ -12,9 +12,7 @@ import scala.meta.tokens.Token
 
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.RewriteSettings
-import org.scalafmt.util.TokenOps
-import org.scalafmt.util.TreeOps
-import org.scalafmt.util.Whitespace
+import org.scalafmt.util._
 
 import metaconfig._
 
@@ -173,7 +171,12 @@ object Imports extends RewriteFactory {
           def iter(i: Int): Int =
             if (i == cnt) lencmp
             else {
-              val cmp = groupingOrdering.compare(xarr(i), yarr(i))
+              val xlabel = xarr(i)
+              val ylabel = yarr(i)
+              val cmp =
+                if (xlabel.isEmpty) if (ylabel.isEmpty) 0 else -1
+                else if (ylabel.isEmpty) 1
+                else groupingOrdering.compare(xlabel, ylabel)
               if (cmp != 0) cmp else iter(i + 1)
             }
           iter(0)
