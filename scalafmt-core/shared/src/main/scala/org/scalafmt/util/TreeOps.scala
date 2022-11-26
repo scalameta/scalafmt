@@ -88,10 +88,9 @@ object TreeOps {
     val ret = Map.newBuilder[TokenHash, Tree]
     ret.sizeHint(tree.tokens.length)
 
-    def addTok(token: Token, tree: Tree) =
-      ret += hash(ftoks.after(token).left) -> tree
-    def addTree(t: Tree, tree: Tree) =
-      t.tokens.find(!_.is[Trivia]).foreach(addTok(_, tree))
+    def addFT(ft: FormatToken, tree: Tree): Unit = ret += hash(ft.left) -> tree
+    def addTok(token: Token, tree: Tree) = addFT(ftoks.after(token), tree)
+    def addTree(t: Tree, o: Tree) = ftoks.getHeadOpt(t).foreach(addFT(_, o))
     def addAll(trees: Seq[Tree]) = trees.foreach(x => addTree(x, x))
 
     def addDefnTokens(
@@ -412,23 +411,23 @@ object TreeOps {
       isSuperfluousParenthesis(open.asInstanceOf[LeftParen], owner)
 
   def isSuperfluousParenthesis(open: LeftParen, owner: Tree): Boolean =
-    !isTuple(owner) && isFirstToken(open, owner)
+    !isTuple(owner) && isTokenHeadOrBefore(open, owner)
 
   @inline
-  def isFirstToken(token: Token, owner: Tree): Boolean =
-    isFirstToken(token, owner.tokens)
+  def isTokenHeadOrBefore(token: Token, owner: Tree): Boolean =
+    isTokenHeadOrBefore(token, owner.pos)
 
   @inline
-  def isFirstToken(token: Token, owner: Tokens): Boolean =
-    owner.headOption.contains(token)
+  def isTokenHeadOrBefore(token: Token, pos: Position): Boolean =
+    pos.start >= token.start
 
   @inline
-  def isLastToken(token: Token, owner: Tree): Boolean =
-    isLastToken(token, owner.tokens)
+  def isTokenLastOrAfter(token: Token, owner: Tree): Boolean =
+    isTokenLastOrAfter(token, owner.pos)
 
   @inline
-  def isLastToken(token: Token, owner: Tokens): Boolean =
-    owner.lastOption.contains(token)
+  def isTokenLastOrAfter(token: Token, pos: Position): Boolean =
+    pos.end <= token.end
 
   def isCallSite(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
     tree match {

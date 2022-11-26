@@ -289,9 +289,9 @@ class FormatOps(
     def alt = getLastToken(t)
     t match {
       case t: Defn.Def =>
-        t.body.tokens.headOption.fold(alt) {
-          case head: T.LeftBrace if t.body.is[Term.Block] => head
-          case head => tokenBefore(head).left
+        tokens.getHeadOpt(t.body).fold(alt) { ft =>
+          if (ft.left.is[T.LeftBrace] && t.body.is[Term.Block]) ft.left
+          else prevNonCommentBefore(ft).left
         }
       case _: Ctor.Primary =>
         close match {
@@ -820,7 +820,7 @@ class FormatOps(
     if (opFollowsComment) getLastNonTrivialToken(app.lhs) else opToken
   }
 
-  private def getLastEnclosedToken(tree: Tree): T = {
+  def getLastEnclosedToken(tree: Tree): T = {
     tokens.getLastExceptParen(tree.tokens).left
   }
 
@@ -1777,8 +1777,8 @@ class FormatOps(
           val callPolicy = CallSite.getFoldedPolicy(lia.lhs)
           if (callPolicy.nonEmpty) getPolicySplits(0, callPolicy)
           else {
-            val lp = body.tokens.headOption.filter(_.is[T.LeftParen])
-            val ok = lp.flatMap(matchingOpt).exists(_.end >= lia.op.pos.end)
+            // lia is enclosed in parens if and only if lia == ia (== body)
+            val ok = isEnclosedInParens(body)
             getSplits(getSlbSplit(getLastToken(if (ok) lia.lhs else lia.op)))
           }
         case _ =>
@@ -2655,7 +2655,7 @@ class FormatOps(
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
           case t @ Term.For(s, b)
-              if !nft.right.is[T.KwDo] && !isLastToken(ft.left, t) =>
+              if !nft.right.is[T.KwDo] && !isTokenLastOrAfter(ft.left, t) =>
             Some((b, seq(all, s)))
           case _ => None
         }
