@@ -921,3 +921,53 @@ rewrite.imports.sort = ascii
 import java as j
 >>>
 import java as j
+<<< #3384 ascii
+rewrite.imports.sort = ascii
+rewrite.imports.expand = true
+===
+import java as j
+import j.collections as collections
+>>>
+import java as j
+import j.collections as collections
+<<< #3384 original
+rewrite.imports.sort = original
+rewrite.imports.expand = true
+===
+import java as j
+import j.collections as collections
+>>>
+org.scalafmt.util.FormatException: java.util.NoSuchElementException: head of empty String
+<<< #3384 groups, ascii
+rewrite.imports.sort = ascii
+rewrite.imports.groups = [[".*"]]
+===
+import java as j
+import j.collections as collections
+>>>
+import java as j
+import j.collections as collections
+<<< #3384 groups, original
+rewrite.imports.sort = original
+rewrite.imports.groups = [[".*"]]
+===
+import java as j
+import j.collections as collections
+>>>
+org.scalafmt.util.FormatException: java.util.NoSuchElementException: head of empty String
+<<< #3384 no expand, no groups, ascii
+rewrite.imports.sort = ascii
+===
+import java as j
+import j.collections as collections
+>>>
+import java as j
+import j.collections as collections
+<<< #3384 no expand, no groups, original
+rewrite.imports.sort = original
+===
+import java as j
+import j.collections as collections
+>>>
+import java as j
+import j.collections as collections
