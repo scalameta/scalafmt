@@ -558,9 +558,6 @@ object TreeOps {
   final def lastLambda(first: Term.FunctionTerm): Term.FunctionTerm =
     first.body match {
       case child: Term.FunctionTerm => lastLambda(child)
-      case block: Term.Block
-          if block.stats.headOption.exists(_.is[Term.FunctionTerm]) =>
-        lastLambda(block.stats.head.asInstanceOf[Term.FunctionTerm])
       case _ => first
     }
 
