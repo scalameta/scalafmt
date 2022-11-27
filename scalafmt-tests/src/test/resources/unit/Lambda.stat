@@ -44,11 +44,10 @@ Thing() { implicit ctx => { j =>
       ???
 }}
 >>>
-Thing() {
-  implicit ctx =>
-    { j =>
-      ???
-    }
+Thing() { implicit ctx =>
+  { j =>
+    ???
+  }
 }
 <<< curried break before first
 Thing() { implicit ctx => j => kkkkkkkkkk =>
@@ -64,11 +63,10 @@ Thing() { implicit ctx => j => { kkkkkkkkkk =>
       ???
 }}
 >>>
-Thing() {
-  implicit ctx => j =>
-    { kkkkkkkkkk =>
-      ???
-    }
+Thing() { implicit ctx => j =>
+  { kkkkkkkkkk =>
+    ???
+  }
 }
 <<< curried insanity, fit as much on line as possible
 Thing() { implicit ctx => j => kkkkkkkkkkkkkkkkkkk => llllllllllll => mmmmmmmmmmmmmmmmmmm =>
