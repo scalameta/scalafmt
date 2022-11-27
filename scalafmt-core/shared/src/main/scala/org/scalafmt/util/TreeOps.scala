@@ -468,12 +468,6 @@ object TreeOps {
       case _ => false
     }
 
-  def isTypeVariant(tree: Tree): Boolean =
-    tree match {
-      case _: Mod.Contravariant | _: Mod.Covariant => true
-      case _ => false
-    }
-
   type CallArgs = Either[Seq[Tree], Seq[Seq[Tree]]]
   type CallParts = (Tree, CallArgs)
   val splitCallIntoParts: PartialFunction[Tree, CallParts] = {
