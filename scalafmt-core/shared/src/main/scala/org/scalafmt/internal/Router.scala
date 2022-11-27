@@ -410,13 +410,14 @@ class Router(formatOps: FormatOps) {
           case _ => splits
         }
 
-      case FormatToken(T.RightArrow() | T.ContextArrow(), right, _)
-          if startsStatement(right).isDefined &&
-            leftOwner.isInstanceOf[Term.FunctionTerm] =>
+      case FormatToken(
+            T.RightArrow() | T.ContextArrow(),
+            _,
+            StartsStatementRight(stmt)
+          ) if leftOwner.isInstanceOf[Term.FunctionTerm] =>
         val leftFuncBody = leftOwner.asInstanceOf[Term.FunctionTerm].body
         val endOfFunction = getLastNonTrivialToken(leftFuncBody)
-        val canBeSpace =
-          startsStatement(right).get.isInstanceOf[Term.FunctionTerm]
+        val canBeSpace = stmt.isInstanceOf[Term.FunctionTerm]
         val (afterCurlySpace, afterCurlyNewlines) =
           getSpaceAndNewlineAfterCurlyLambda(newlines)
         val spaceSplit =
