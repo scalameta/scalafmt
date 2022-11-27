@@ -2085,7 +2085,7 @@ class Router(formatOps: FormatOps) {
 
       // Type variance
       case tok @ FormatToken(T.Ident(_), T.Ident(_) | T.Underscore(), _)
-          if isTypeVariant(leftOwner) =>
+          if leftOwner.is[Mod.Variant] =>
         Seq(Split(Space(isSymbolicIdent(tok.right)), 0))
 
       // Kind projector type lambda
