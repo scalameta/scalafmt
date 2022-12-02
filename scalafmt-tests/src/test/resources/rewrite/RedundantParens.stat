@@ -109,15 +109,27 @@ object a {
 <<< single-arg apply of a function not in block
 object a {
   (a(b => c))
+  (a((b) => c))
+  (a(((b)) => c))
+  (a((b: Int) => c))
+  (a(((b): Int) => c))
+  (a(((b: Int)) => c))
 }
 >>>
 object a {
   a(b => c)
+  a(b => c)
+  a(b => c)
+  a((b: Int) => c)
+  a((b: Int) => c)
+  a((b: Int) => c)
 }
 <<< apply of a block or partial function
 object a {
   a({ b => c })
   (a({ b => c }))
+  (a({ (b) => c }))
+  (a({ (b: Int) => c }))
   a({ b; c })
   (a({ b; c }))
   a(({ b => c }), ({ b; c }))
@@ -127,6 +139,8 @@ object a {
 object a {
   a { b => c }
   a { b => c }
+  a { b => c }
+  a { (b: Int) => c }
   a { b; c }
   a { b; c }
   a({ b => c }, { b; c })
