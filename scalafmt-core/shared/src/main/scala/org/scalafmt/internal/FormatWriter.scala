@@ -1244,6 +1244,7 @@ class FormatWriter(formatOps: FormatOps) {
         def unapply(tree: Tree): Option[(List[meta.Mod], Tree)] =
           tree match {
             case p: Defn.Def => Some(p.mods -> p.body)
+            case p: Defn.Macro => Some(p.mods -> p.body)
             case p: Defn.Given => Some(p.mods -> p.templ)
             case p: Defn.GivenAlias => Some(p.mods -> p.body)
             case p: Defn.Val => Some(p.mods -> p.rhs)
@@ -1863,6 +1864,7 @@ object FormatWriter {
     case t: Pkg.Object => t.name.toString
     // definitions
     case t: Defn.Def => t.name.toString
+    case t: Defn.Macro => t.name.toString
     case t: Defn.GivenAlias =>
       val label = t.name.toString
       if (label.isEmpty) "given" else label
