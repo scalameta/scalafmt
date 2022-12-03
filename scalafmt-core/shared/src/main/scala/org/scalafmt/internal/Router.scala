@@ -686,7 +686,7 @@ class Router(formatOps: FormatOps) {
             src: Newlines.SourceHints,
             indentLen: Int,
             shouldAlignBefore: Align => Boolean
-        )(getArgsOpt: => Option[Seq[Tree]]) = {
+        )(lastSyntaxClause: => Option[Member.SyntaxValuesClause]) = {
           val close = matching(open)
           val indent = Indent(indentLen, close, ExpiresOn.After)
           val isAlignFirstParen = shouldAlignBefore(style.align) &&
@@ -747,8 +747,8 @@ class Router(formatOps: FormatOps) {
                   .withPolicyOpt(nlColonPolicy)
               )
           }
-          val argsOpt = if (isAlignFirstParen) getArgsOpt else None
-          argsOpt.flatMap(tokens.tokenAfterOpt).map(_.right).fold(splits) { x =>
+          val argsOpt = if (isAlignFirstParen) lastSyntaxClause else None
+          argsOpt.flatMap(tokens.getLastOpt).map(_.left).fold(splits) { x =>
             val noSplitIndents = Seq(
               Indent(StateColumn, x, ExpiresOn.Before),
               Indent(-indentLen, x, ExpiresOn.Before)
@@ -773,14 +773,13 @@ class Router(formatOps: FormatOps) {
               }
               getSplitsBeforeOpenParen(x, indent, _.beforeOpenParenDefnSite) {
                 @tailrec
-                def iter(tree: Tree): Option[List[Tree]] = tree match {
+                def iter(tree: Tree): Option[Member.ParamClause] = tree match {
                   case _: Member.ParamClause =>
                     tree.parent match {
                       case Some(p) => iter(p)
                       case None => None
                     }
-                  case p: Tree.WithParamClauses =>
-                    p.paramClauses.lastOption.map(_.values)
+                  case p: Tree.WithParamClauses => p.paramClauses.lastOption
                   case _ => None
                 }
                 iter(rightOwner)
@@ -790,23 +789,14 @@ class Router(formatOps: FormatOps) {
             style.newlines.getBeforeOpenParenCallSite.map { x =>
               val indent = style.indent.getSignificant
               @tailrec
-              def findLastCallArgs(tree: Tree, ca: CallArgs): CallArgs =
-                tree match {
-                  case SplitCallIntoParts(_, pca) =>
-                    tree.parent match {
-                      case Some(p) => findLastCallArgs(p, pca)
-                      case _ => pca
-                    }
-                  case _ => ca
+              def findLastCallArgs(t: Member.Apply): Member.ArgClause =
+                t.parent match {
+                  case Some(p: Member.Apply) => findLastCallArgs(p)
+                  case _ => t.argClause
                 }
               getSplitsBeforeOpenParen(x, indent, _.beforeOpenParenCallSite) {
-                rightOwner match {
-                  case t: Member.ArgClause =>
-                    t.parent
-                      .flatMap(p => Option(findLastCallArgs(p, null)))
-                      .map(_.fold(identity, _.last))
-                  case _ => None
-                }
+                rightOwner.parent
+                  .collect { case p: Member.Apply => findLastCallArgs(p) }
               }
             }
           else None
