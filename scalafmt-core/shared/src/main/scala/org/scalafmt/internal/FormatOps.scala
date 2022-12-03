@@ -620,9 +620,9 @@ class FormatOps(
         case _: Term.If | _: Term.While | _: Term.Do => true
         case _: Member.ArgClause => true
         case p: Term.Block => isSingleElement(p.stats, child)
-        case p: Term.ForYield => p.body eq child
-        case SplitAssignIntoParts(`child`, _) => true
         case SplitCallIntoParts(_) => true
+        case t: Tree.WithBody => t.body eq child
+        case t: Term.Param => t.default.contains(child)
         case _ => false
       }
       val allowNoIndent = style.indentOperator.getExemptScope match {
@@ -2201,7 +2201,7 @@ class FormatOps(
                 else getSplitsForStatsImpl(ft, nft, t.init, t.stats)
               def rightBrace = treeLast(t)
             })
-          case t @ SplitAssignIntoParts((x: Term.PartialFunction, _)) =>
+          case t @ Tree.WithBody(x: Term.PartialFunction) =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
               def splits = getSplitsForStats(ft, nft, x.cases, nlOnly = true)
@@ -2609,12 +2609,8 @@ class FormatOps(
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
           case t: Ctor.Secondary => Some((t, seq(all, t.init, t.stats)))
-          case t: Defn.Def => Some((t.body, Nil))
-          case t: Defn.Macro => Some((t.body, Nil))
-          case t: Term.Assign => Some((t.rhs, Nil))
-          case t: Defn.Type => Some((t.body, Nil))
-          case t: Defn.Val => Some((t.rhs, Nil))
           case t: Defn.Var => t.rhs.map(_ -> Nil)
+          case t: Tree.WithBody => Some((t.body, Nil))
           case _ => BlockImpl.getBlocks(ft, nft, all)
         }
     }

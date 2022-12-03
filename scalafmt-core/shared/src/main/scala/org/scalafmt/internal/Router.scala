@@ -841,11 +841,10 @@ class Router(formatOps: FormatOps) {
       // DefDef
       case FormatToken(_: T.KwDef, _: T.Ident, _) =>
         Seq(Split(Space, 0))
-      case ft @ FormatToken(_: T.Equals, _, SplitAssignIntoPartsLeft(parts)) =>
+      case ft @ FormatToken(_: T.Equals, _, DefValAssignLeft(rhs)) =>
         maybeGetInfixSplitsBeforeLhs(ft) {
-          val (rhs, paramss) = parts
           getSplitsDefValEquals(ft, rhs) {
-            if (paramss.isDefined) getSplitsDefEquals(ft, rhs)
+            if (leftOwner.is[Tree.WithParamClauses]) getSplitsDefEquals(ft, rhs)
             else getSplitsValEquals(ft, rhs)(getSplitsValEqualsClassic(ft, rhs))
           }
         }

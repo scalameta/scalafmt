@@ -32,22 +32,13 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   object IsExprBody {
     def unapply(t: Tree): Option[Boolean] = {
-      @inline def iff(body: Tree) = Some(body eq t)
       @inline def okIf(body: Tree) = if (body eq t) Some(true) else None
       t.parent.flatMap {
-        case TreeOps.SplitAssignIntoParts((body, _)) => iff(body)
         case p: Case => okIf(p.body)
-        case p: Enumerator.CaseGenerator => iff(p.rhs)
-        case p: Enumerator.Generator => iff(p.rhs)
-        case p: Enumerator.Val => iff(p.rhs)
-        case p: Term.Do => iff(p.body)
-        case p: Term.For => iff(p.body)
-        case p: Term.ForYield => iff(p.body)
-        case p: Term.FunctionTerm => iff(p.body)
         case p: Term.If if p.cond ne t =>
           Some(p.thenp.ne(t) || !TreeOps.ifWithoutElse(t))
-        case p: Term.PolyFunction => iff(p.body)
         case p: Term.While => okIf(p.body)
+        case p: Tree.WithBody => Some(t eq p.body)
         case _: Term.Return | _: Term.Throw | _: Term.QuotedMacroExpr |
             _: Term.SplicedMacroExpr | _: Term.Block =>
           Some(true)
@@ -107,6 +98,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case _ if numParens >= 2 => true
 
       case _: Term.AnonymousFunction | _: Term.Param => false
+      case _: Type.FunctionType => false
 
       case t: Member.ArgClause => okToReplaceArgClause(t)
       case Term.ParamClause(t :: Nil, _) =>
