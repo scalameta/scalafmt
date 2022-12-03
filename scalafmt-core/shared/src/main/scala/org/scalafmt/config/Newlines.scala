@@ -1,8 +1,6 @@
 package org.scalafmt.config
 
-import scala.meta.Pkg
-import scala.meta.Template
-import scala.meta.Tree
+import scala.meta._
 
 import org.scalafmt.config.Newlines._
 import org.scalafmt.internal.FormatToken
@@ -451,8 +449,10 @@ object Newlines {
       def apply(tree: Tree): Boolean = true
     }
     case object `def` extends ForceBeforeMultilineAssign {
-      def apply(tree: Tree): Boolean =
-        TreeOps.splitAssignIntoParts.lift(tree).exists(_._2.isDefined)
+      def apply(tree: Tree): Boolean = tree match {
+        case _: Tree.WithParamClauses with Stat.WithMods => true
+        case _ => false
+      }
     }
     case object anyMember extends ForceBeforeMultilineAssign {
       def apply(tree: Tree): Boolean = tree.parent.exists(_.is[Template])

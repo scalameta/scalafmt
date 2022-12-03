@@ -124,8 +124,7 @@ private class RemoveScala3OptionalBraces(ftoks: FormatTokens)
         if (tree ne t.body) null
         else if (ftoks.prevNonComment(ft).left.is[Token.Equals]) removeToken
         else null
-      case TreeOps.SplitAssignIntoParts(parts) =>
-        if (tree.eq(parts._1)) removeToken else null
+      case p: Tree.WithBody => if (p.body eq tree) removeToken else null
       case _ => null
     }
 

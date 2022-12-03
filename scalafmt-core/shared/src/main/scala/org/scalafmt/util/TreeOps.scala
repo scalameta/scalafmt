@@ -419,10 +419,7 @@ object TreeOps {
     }
 
   def isTuple(tree: Tree): Boolean =
-    tree match {
-      case _: Pat.Tuple | _: Term.Tuple | _: Type.Tuple => true
-      case _ => false
-    }
+    tree.is[Member.Tuple]
 
   def noSpaceBeforeOpeningParen(
       tree: Tree
@@ -469,24 +466,15 @@ object TreeOps {
       splitCallIntoParts.lift(tree)
   }
 
-  type AssignParts = (Tree, Option[Seq[Seq[Term.Param]]])
-  val splitAssignIntoParts: PartialFunction[Tree, AssignParts] = {
-    case t: Defn.Def => (t.body, Some(t.paramss))
-    case t: Defn.Macro => (t.body, Some(t.paramss))
-    case t: Defn.GivenAlias => (t.body, Some(t.sparams))
-    case t: Ctor.Secondary => (t.init, Some(t.paramss))
-    case t: Term.Param if t.default.isDefined => (t.default.get, None)
-    case t: Term.Assign => (t.rhs, None)
-    case t: Defn.Type => (t.body, None)
-    case t: Defn.Val => (t.rhs, None)
-    case t: Defn.Var => (t.rhs.getOrElse(t), None) // var x: Int = _, no policy
-  }
-  object SplitAssignIntoParts {
-    def unapply(tree: Tree): Option[AssignParts] =
-      splitAssignIntoParts.lift(tree)
-  }
-  val SplitAssignIntoPartsLeft =
-    new FormatToken.ExtractFromMeta(x => splitAssignIntoParts.lift(x.leftOwner))
+  val DefValAssignLeft =
+    new FormatToken.ExtractFromMeta(_.leftOwner match {
+      case _: Enumerator => None // it's WithBody
+      case t: Ctor.Secondary => Some(t.init)
+      case t: Defn.Var => t.rhs.orElse(Some(t)) // `_` replaced with None
+      case t: Tree.WithBody => Some(t.body)
+      case t: Term.Param => t.default
+      case _ => None
+    })
 
   /** How many parents of tree are Term.Apply?
     */
