@@ -1263,7 +1263,8 @@ object WrapperToHaveStatTestCaseParserWorking {
       someInt = 5
     ) @annot3
     @deprecated(value =
-      "bar") def bar2 = 1
+      "bar"
+    ) def bar2 = 1
   }
 
   @annot @annot2
@@ -1327,7 +1328,8 @@ object WrapperToHaveStatTestCaseParserWorking {
       someInt = 5
     ) @annot3
     @deprecated(value =
-      "bar") def bar2 = 1
+      "bar"
+    ) def bar2 = 1
   }
 
   @annot @annot2

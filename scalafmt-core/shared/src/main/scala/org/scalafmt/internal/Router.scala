@@ -1001,7 +1001,7 @@ class Router(formatOps: FormatOps) {
         val splitsForAssign =
           if (defnSite || isBracket || keepConfigStyleSplit) None
           else
-            getAssignAtSingleArgCallSite(leftOwner).map { assign =>
+            getAssignAtSingleArgCallSite(args).map { assign =>
               val assignToken = assign.rhs match {
                 case b: Term.Block => tokens.getHead(b)
                 case _ => tokens(assign.tokens.find(_.is[T.Equals]).get)
@@ -1284,7 +1284,7 @@ class Router(formatOps: FormatOps) {
         val noNoSplitIndents = nlOnly ||
           singleArgAsInfix.isDefined ||
           isSingleArg && oneline && !needOnelinePolicy ||
-          !isBracket && getAssignAtSingleArgCallSite(leftOwner).isDefined
+          !isBracket && getAssignAtSingleArgCallSite(args).isDefined
         val noSplitIndents =
           if (noNoSplitIndents) Nil
           else if (isSingleArg && !style.binPack.indentCallSiteSingleArg) Nil

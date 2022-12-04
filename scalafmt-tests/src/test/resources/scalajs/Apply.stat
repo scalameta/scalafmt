@@ -925,7 +925,8 @@ object a {
 >>>
 object a {
   a match {
-    case foo bar (baz @ qux) =>
+    case foo bar (
+          baz @ qux) =>
   }
 }
 <<< [from scala-js] changed with incorect overflow detection
