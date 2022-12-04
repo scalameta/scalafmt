@@ -446,6 +446,7 @@ object TreeOps {
       case Term.ApplyInfix(_, op, _, List(arg))
           if op.pos.end <= ft.left.start => // parens used to belong to rhs
         isCallSite(arg)
+      case Pat.ExtractInfix(_, op, _ :: Nil) => op.pos.end <= ft.left.start
       case t => isCallSite(t)
     }
 
@@ -609,9 +610,9 @@ object TreeOps {
       case _ => false
     }
 
-  def getAssignAtSingleArgCallSite(tree: Tree): Option[Term.Assign] =
-    tree match {
-      case Term.Apply(_, List(fun: Term.Assign)) => Some(fun)
+  def getAssignAtSingleArgCallSite(args: Seq[Tree]): Option[Term.Assign] =
+    args match {
+      case Seq(fun: Term.Assign) => Some(fun)
       case _ => None
     }
 
