@@ -6195,3 +6195,367 @@ object Test {
     (source, control, sink, factory)
   }
 }
+<<< SM 4.7.0: 1
+object a {
+  @volatile private var _foo: Bar =
+    _ // This must be volatile since it isn't protected by the mailbox status
+}
+>>>
+object a {
+  @volatile private var _foo: Bar =
+    _ // This must be volatile since it isn't protected by the mailbox status
+}
+<<< SM 4.7.0: 2
+object a {
+  private[this] var _mailboxDoNotCallMeDirectly
+      : Bar =
+    _
+}
+>>>
+object a {
+  private[this] var _mailboxDoNotCallMeDirectly
+      : Bar =
+    _
+}
+<<< SM 4.7.0: 3
+object a {
+  if ((a > b && c > 0)) {
+    true // Allow messages larger than capacity through, it will be recorded as negative tokens
+  }
+}
+>>>
+object a {
+  if ((a > b && c > 0)) {
+    true // Allow messages larger than capacity through, it will be recorded as negative tokens
+  }
+}
+<<< SM 4.7.0: 4
+object a {
+  (
+    registry ⇒
+      Props(classOf[TcpOutgoingConnection], tcp, registry, commander, c)
+  )
+}
+>>>
+object a {
+  (
+      registry ⇒
+        Props(
+          classOf[
+            TcpOutgoingConnection
+          ],
+          tcp,
+          registry,
+          commander,
+          c
+        )
+  )
+}
+<<< SM 4.7.0: 5
+object a {
+  ((
+    server,
+    serverSet.join(
+      server.address,
+      Map[String, InetSocketAddress](),
+      shardId)))
+}
+>>>
+object a {
+  (
+    (
+      server,
+      serverSet.join(
+        server.address,
+        Map[
+          String,
+          InetSocketAddress
+        ](),
+        shardId
+      )
+    )
+  )
+}
+<<< SM 4.7.0: 6
+object a {
+  val expected = Map(
+    "foos" -> ((
+      "xyz",
+      "1"
+    )), // the "cas unique" values are predictable from a fresh memcached
+    a -> b)
+}
+>>>
+object a {
+  val expected = Map(
+    "foos" -> ((
+      "xyz",
+      "1"
+    )), // the "cas unique" values are predictable from a fresh memcached
+    a -> b
+  )
+}
+<<< SM 4.7.0: 7
+maxColumn = 100
+===
+object a {
+  foo match {
+    case f: Float if f == 42f => (<float>perfect</float>: Elem)
+    case f: Float if f == 0f  => (<float>zero</float>: Node)
+    case f: Float if f > 0f   => (<float>positive</float>: NodeSeq)
+    case f: Float if f < 0f   => (<float>negative</float>: Seq[Node])
+  }
+}
+>>>
+object a {
+  foo match {
+    case f: Float if f == 42f => (<float>perfect</float>: Elem)
+    case f: Float if f == 0f => (<float>zero</float>: Node)
+    case f: Float if f > 0f => (<float>positive</float>: NodeSeq)
+    case f: Float if f < 0f => (<float>negative</float>: Seq[Node])
+  }
+}
+<<< SM 4.7.0: 8
+maxColumn = 80
+===
+foo match {
+      case (exp: ScReferenceExpression) childOf ((_: ScGenericCall) childOf (_: ScMethodCall)) =>
+}
+>>>
+foo match {
+  case (exp: ScReferenceExpression) childOf ((_: ScGenericCall) childOf (_: ScMethodCall)) =>
+}
+<<< SM 4.7.0: 9
+maxColumn = 100
+===
+object a {
+    val ui = LiftRules.jsArtifacts
+    (<span>{
+      rs % ("onclick" -> (ui.hide(sid).cmd &
+        ui.showAndFocus(hid).cmd & JsRaw("return false;")))
+    }</span>)
+}
+>>>
+object a {
+  val ui = LiftRules.jsArtifacts
+  (<span>{
+    rs % ("onclick" -> (ui.hide(sid).cmd &
+      ui.showAndFocus(hid).cmd & JsRaw("return false;")))
+  }</span>)
+}
+<<< SM 4.7.0: 10
+object a {
+  XhtmlResponse(
+    (<html> <body>Exception occured while processing {r.uri}<pre>{
+      showException(e)
+    }</pre> </body> </html>),
+    foo
+  )
+}
+>>>
+object a {
+  XhtmlResponse(
+    (<html> <body>Exception occured while processing {
+      r.uri
+    }<pre>{
+      showException(e)
+    }</pre> </body> </html>),
+    foo
+  )
+}
+<<< SM 4.7.0: 11
+foo match {
+    case ScWhileStmt(
+          Some(
+            ScInfixExpr(
+              (ref: ScReferenceExpression) && (ResolvesTo(
+                target @ Parent(Parent(entity: ScVariable))
+              )),
+              ElementText(operator),
+              _
+            )
+          ),
+          Some(body)
+        ) =>
+}
+>>>
+foo match {
+  case ScWhileStmt(
+        Some(
+          ScInfixExpr(
+            (ref: ScReferenceExpression) && (ResolvesTo(
+              target @ Parent(Parent(
+                entity: ScVariable
+              ))
+            )),
+            ElementText(operator),
+            _
+          )
+        ),
+        Some(body)
+      ) =>
+}
+<<< SM 4.7.0: 12
+object a {
+  case class MaxReusableBufferSize(maxReusableBufferSize: Int)
+  implicit
+  object MaxReusableBufferSize extends Stack.Param[MaxReusableBufferSize] {
+  }
+}
+>>>
+object a {
+  case class MaxReusableBufferSize(
+      maxReusableBufferSize: Int
+  )
+  implicit object MaxReusableBufferSize
+      extends Stack.Param[
+        MaxReusableBufferSize
+      ] {}
+}
+<<< SM 4.7.0: 13
+runner.parser = source
+===
+/*ref*/be()
+/*
+import scala.collection.immutable
+
+immutable.HashSet
+*/
+>>>
+/*ref*/
+be()
+/*
+import scala.collection.immutable
+
+immutable.HashSet
+ */
+<<< SM 4.7.0: 14
+maxColumn = 100
+===
+object a {
+ foldedTopics + shortStringLength(topic) + 4 + /* partition count */
+   partitionFetchInfos.size *
+   (4 + /* partition id */
+     8 + /* offset */
+     4 /* fetch size */
+   )
+}
+>>>
+object a {
+  foldedTopics + shortStringLength(topic) + 4 + /* partition count */
+    partitionFetchInfos.size *
+    (4 + /* partition id */
+      8 + /* offset */
+      4 /* fetch size */
+    )
+}
+<<< SM 4.7.0: 15
+class a {
+  def this(x: Int) {
+    this()
+    class Q
+    trait R
+    object S
+    new T {}
+    (() => () => "5")
+  }
+}
+>>>
+class a {
+  def this(x: Int) {
+    this()
+    class Q
+    trait R
+    object S
+    new T {}
+    (() => () => "5")
+  }
+}
+<<< SM 4.7.0: 16
+maxColumn = 80
+===
+object a {
+  jID =
+    new SerializableWritable[JobID](SparkHadoopWriter.createJobID(now, jobid))
+}
+>>>
+object a {
+  jID =
+    new SerializableWritable[JobID](SparkHadoopWriter.createJobID(now, jobid))
+}
+<<< SM 4.7.0: 17
+object a {
+  info(
+    "ZKConsumerConnector shutdown completed in " +
+     (System.nanoTime() - startTime) / 1000000 + " ms"
+  )
+}
+>>>
+object a {
+  info (
+    "ZKConsumerConnector shutdown completed in " +
+      (System.nanoTime() - startTime) / 1000000 + " ms"
+  )
+}
+<<< SM 4.7.0: 18
+maxColumn = 80
+===
+object a {
+  @(SourceAnnotation @getter)("http://apple.com")
+  val x = 0
+}
+>>>
+object a {
+  @(SourceAnnotation @getter)("http://apple.com")
+  val x = 0
+}
+<<< SM 4.7.0: 19
+maxColumn = 80
+===
+object a {
+  val d = foo.< ref > pal (42) ("abc")
+}
+>>>
+object a {
+  val d = foo.< ref > pal (42)("abc")
+}
+<<< SM 4.7.0: 20
+maxColumn = 80
+===
+object a {
+  def step: (Input[I] => IterateeT[I, F, A]) => (
+    Input[O] => IterateeT[O, F, StepT[I, F, A]]
+  ) = ???
+}
+>>>
+object a {
+  def step: (Input[I] => IterateeT[I, F, A]) => (
+      Input[O] => IterateeT[O, F, StepT[I, F, A]]
+  ) = ???
+}
+<<< SM 4.7.0: 21
+maxColumn = 50
+===
+object a {
+  avgMem.add(
+    heapUsed.used / nrOfActors
+  ) // average actor size, over nrOfRepeats
+}
+>>>
+object a {
+  avgMem.add(
+    heapUsed.used / nrOfActors
+  ) // average actor size, over nrOfRepeats
+}
+<<< SM 4.7.0: 22
+maxColumn = 60
+===
+object CapabilityFlag {
+  def on(): CapabilityFlag =
+    new CapabilityFlag { override def value = true }
+}
+>>>
+object CapabilityFlag {
+  def on(): CapabilityFlag =
+    new CapabilityFlag { override def value = true }
+}
