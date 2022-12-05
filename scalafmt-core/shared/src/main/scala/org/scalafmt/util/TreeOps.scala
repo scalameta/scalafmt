@@ -971,7 +971,7 @@ object TreeOps {
             if (idx == allTokens.length) idx
             else {
               val tok = allTokens(idx)
-              if (tok.start >= endPos && elemIdx != 0) idx
+              if (elem != topSourceTree && tok.start >= endPos) idx
               else {
                 setOwner(tok, elem)
                 tokenAt(idx + 1)
@@ -991,14 +991,16 @@ object TreeOps {
             if (idx == allTokens.length) idx
             else {
               val tok = allTokens(idx)
-              if (nextChild == null && elemIdx != 0 && tok.start >= endPos) idx
-              else if (nextChild != null && tok.end > nextChildStart) {
+              val tokStart = tok.start
+              if (elem != topSourceTree && tokStart >= endPos) idx
+              else if (nextChild != null && tokStart >= nextChildStart) {
                 if (prevChild != null) prevLPs = 0
                 prevChild = nextChild
                 val nextIdx = treeAt(idx, nextChild, prevLPs)
                 children match {
                   case Nil =>
                     nextChild = null
+                    nextChildStart = endPos
                   case (head, start) :: rest =>
                     nextChild = head
                     children = rest
@@ -1007,33 +1009,44 @@ object TreeOps {
                 tokenAt(nextIdx)
               } else {
                 def excludeRightParen: Boolean = elem match {
-                  case t: Term.If => prevChild eq t.cond // `expr` after `mods`
+                  case t: Term.If =>
+                    prevLPs == 1 && prevChild == t.cond // `expr` after `mods`
                   case _: Term.While | _: Term.For | _: Term.ForYield =>
-                    prevChild eq firstChild // `expr` is first
+                    prevLPs == 1 && prevChild == firstChild // `expr` is first
                   case _: Term.Tuple | _: Type.Tuple | _: Pat.Tuple |
                       _: Term.ApplyInfix | _: Pat.ExtractInfix | _: Term.Apply |
                       _: Pat.Extract | _: Term.Do | _: Term.AnonymousFunction =>
                     nextChild == null
-                  case _: Decl.Def | _: Decl.Given | _: Type.FunctionType |
-                      _: Defn.Def | _: Defn.Macro | _: Defn.Given |
-                      _: Defn.GivenAlias | _: Defn.ExtensionGroup =>
-                    nextChild != null // body is next
-                  case _: Init | _: Ctor => true
+                  case t: Decl.Def => // only decltpe can have owners modified
+                    nextChild != null || t.decltpe != prevChild
+                  case t: Decl.Given => // only decltpe can have owners modified
+                    nextChild != null || t.decltpe != prevChild
+                  case t: Defn.Def => // only decltpe/body can be modified
+                    nextChild != null && !t.decltpe.contains(prevChild)
+                  case t: Defn.Macro => // only decltpe/body can be modified
+                    nextChild != null && !t.decltpe.contains(prevChild)
+                  case t: Defn.GivenAlias => // only decltpe/body can be modified
+                    nextChild == null && t.decltpe != prevChild
+                  case _: Type.FunctionType | _: Defn.Given |
+                      _: Defn.ExtensionGroup =>
+                    nextChild != null // only body can have owners modified
+                  case t: Init => prevChild ne t.tpe // include tpe
+                  case _: Ctor => true
                   case _ => false
                 }
 
                 if (prevParens.nonEmpty && tok.is[RightParen]) {
-                  if (prevChild == null || prevLPs == 0 || excludeRightParen)
+                  if (prevChild == null || prevLPs <= 0 || excludeRightParen)
                     setOwner(tok, elem)
                   else {
-                    prevLPs -= 1
                     setOwner(tok, prevChild)
                     setOwner(prevParens.head, prevChild)
                   }
+                  prevLPs -= 1
                   prevParens = prevParens.tail
                 } else {
                   setOwner(tok, elem)
-                  if (!tok.is[Trivia] && nextChild != null) {
+                  if (!tok.is[Trivia] && tokStart != tok.end) {
                     prevChild = null
                     if (tok.is[LeftParen]) {
                       prevLPs += 1

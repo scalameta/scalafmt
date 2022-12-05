@@ -6492,7 +6492,7 @@ object a {
 }
 >>>
 object a {
-  info (
+  info(
     "ZKConsumerConnector shutdown completed in " +
       (System.nanoTime() - startTime) / 1000000 + " ms"
   )
