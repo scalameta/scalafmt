@@ -1588,6 +1588,9 @@ class Router(formatOps: FormatOps) {
                 else style.newlines.source eq Newlines.unfold
               } =>
             Seq(Split(Newline, 0))
+          case _: ImportExportStat =>
+            val indent = Indent(style.indent.main, right, ExpiresOn.After)
+            Seq(Split(Space, 0), Split(Newline, 1).withIndent(indent))
           case _ =>
             Seq(Split(Space, 0), Split(Newline, 1))
         }
