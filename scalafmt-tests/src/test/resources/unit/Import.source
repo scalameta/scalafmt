@@ -198,3 +198,20 @@ object blah {
         baz
     }
 }
+<<< long import, spans multiple lines
+import scala.collection.BitSet, scala.collection.mutable.DefaultEntry, mutable.bt.SourceInside
+import collection.mutable.ArrayBuffer, mutable.bt.SourceInside1
+import collection.mutable.{
+  ArrayBuffer,
+  ListBuffer
+}
+>>>
+import scala.collection.BitSet,
+scala.collection.mutable.DefaultEntry,
+mutable.bt.SourceInside
+import collection.mutable.ArrayBuffer,
+mutable.bt.SourceInside1
+import collection.mutable.{
+  ArrayBuffer,
+  ListBuffer
+}
