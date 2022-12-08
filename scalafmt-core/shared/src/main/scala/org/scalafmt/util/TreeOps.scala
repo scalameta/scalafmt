@@ -446,7 +446,8 @@ object TreeOps {
       case Term.ApplyInfix(_, op, _, List(arg))
           if op.pos.end <= ft.left.start => // parens used to belong to rhs
         isCallSite(arg)
-      case Pat.ExtractInfix(_, op, _ :: Nil) => op.pos.end <= ft.left.start
+      case t @ Pat.ExtractInfix(_, op, arg :: Nil) =>
+        isCallSite(if (op.pos.end <= ft.left.start) arg else t)
       case t => isCallSite(t)
     }
 
