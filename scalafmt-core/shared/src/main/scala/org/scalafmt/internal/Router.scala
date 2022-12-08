@@ -642,7 +642,10 @@ class Router(formatOps: FormatOps) {
           if noSpaceBeforeOpeningParen(rightOwner) &&
             leftOwner.parent.forall {
               // infix applications have no space.
-              case _: Type.ApplyInfix | _: Term.ApplyInfix => false
+              case InfixApp(ia) =>
+                val tokPos = open.start
+                tokPos < ia.op.pos.end ||
+                ia.rhs.headOption.forall(x => tokPos > x.pos.start)
               case _ => true
             } && {
               val prevFt = prevNonComment(formatToken)
