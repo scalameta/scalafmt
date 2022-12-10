@@ -72,18 +72,18 @@ jobs:
             artifact: scalafmt-linux-musl
             env:
               NATIVE_IMAGE_STATIC: true
-              NATIVE_IMAGE_MUSL: /home/runner/work/scalafmt/scalafmt/bundle
+              NATIVE_IMAGE_MUSL: true
     env: ${{ matrix.env }}
     steps:
       - uses: actions/checkout@v3
-      - uses: olafurpg/setup-scala@v13
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
         with:
-          java-version: graalvm-ce-java11@20.1.0
-      - if: matrix.libc == 'musl'
-        name: Install musl bundle
-        run: |
-          wget https://github.com/gradinac/musl-bundle-example/releases/download/v1.0/musl.tar.gz
-          tar xvf musl.tar.gz
+          version: '22.3.0'
+          java-version: '11'
+          components: 'native-image'
+          native-image-musl: ${{ matrix.libc == 'musl' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - run: bin/build-native-image.sh
         env:
           CI: true

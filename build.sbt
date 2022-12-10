@@ -232,18 +232,15 @@ lazy val cli = project
     ),
     scalacOptions ++= scalacJvmOptions.value,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
-    nativeImageVersion := "20.1.0",
+    nativeImageVersion := "22.3.0",
+    nativeImageInstalled := isCI,
     nativeImageOptions ++= {
-      sys.env
-        .get("NATIVE_IMAGE_MUSL")
-        .map(path => s"-H:UseMuslC=$path")
-        .toSeq ++
-        sys.env
-          .get("NATIVE_IMAGE_STATIC")
-          .map(_.toBoolean)
-          .filter(identity)
-          .map(_ => "--static")
-          .toSeq
+      val isMusl = sys.env.get("NATIVE_IMAGE_MUSL").exists(_.toBoolean)
+      if (isMusl) Seq("--libc=musl") else Nil
+    },
+    nativeImageOptions ++= {
+      val isStatic = sys.env.get("NATIVE_IMAGE_STATIC").exists(_.toBoolean)
+      if (isStatic) Seq("--static") else Nil
     }
   )
   .dependsOn(coreJVM, dynamic)
