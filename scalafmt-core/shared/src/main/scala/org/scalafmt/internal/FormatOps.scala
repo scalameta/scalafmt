@@ -1451,10 +1451,8 @@ class FormatOps(
         }
       case _ =>
         owner.parent match {
-          case Some(Term.ApplyInfix(_, op, _, rhs @ List(`owner`))) if {
-                val ownerTokens = owner.tokens
-                ownerTokens.head == paren && isEnclosedInMatching(ownerTokens)
-              } =>
+          case Some(Term.ApplyInfix(_, op, _, rhs @ List(`owner`)))
+              if tokens.getHeadIfEnclosed(owner).exists(_.left eq paren) =>
             TreeArgs(op, rhs)
           case _ if orNull => null
           case p =>
