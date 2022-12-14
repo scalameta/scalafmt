@@ -2359,9 +2359,13 @@ class Router(formatOps: FormatOps) {
         }
 
       case FormatToken(_, r, _) if optionalNewlines(hash(r)) =>
-        def noAnnoLeft =
-          leftOwner.is[Mod] ||
-            !leftOwner.parent.exists(_.parent.exists(_.is[Mod.Annot]))
+        @tailrec
+        def noAnnoLeftFor(tree: Tree): Boolean = tree.parent match {
+          case Some(_: Mod.Annot) => false
+          case Some(p: Init) => noAnnoLeftFor(p)
+          case _ => true
+        }
+        def noAnnoLeft = leftOwner.is[Mod] || noAnnoLeftFor(leftOwner)
         def newlineOrBoth = {
           val spaceOk = !style.optIn.annotationNewlines
           Seq(Split(Space.orNL(spaceOk), 0), Split(Newline, 1).onlyIf(spaceOk))

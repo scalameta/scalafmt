@@ -6287,7 +6287,10 @@ def using(@foo @bar('nextStateDate) nextStateData: D): State[S, D] = {
   copy(stateData = nextStateData)
 }
 >>>
-def using(@foo @bar('nextStateDate) nextStateData: D): State[S, D] = {
+def using(
+    @foo @bar('nextStateDate)
+    nextStateData: D
+): State[S, D] = {
   copy(stateData = nextStateData)
 }
 <<< SM 4.7.0: 24.2
