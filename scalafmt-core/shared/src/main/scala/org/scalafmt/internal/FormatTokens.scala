@@ -86,12 +86,17 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
       case _ => false
     }
 
-  def isEnclosedInMatching(tokens: Tokens): Boolean =
-    getHeadOpt(tokens).exists { head =>
-      areMatching(head.left)(getLastNonTrivial(tokens).left)
+  def getHeadIfEnclosed(tokens: Tokens, tree: Tree): Option[FormatToken] =
+    getHeadOpt(tokens, tree).filter { head =>
+      areMatching(head.left)(getLastNonTrivial(tokens, tree).left)
     }
+  def getHeadIfEnclosed(tree: Tree): Option[FormatToken] =
+    getHeadIfEnclosed(tree.tokens, tree)
+
+  def isEnclosedInMatching(tokens: Tokens, tree: Tree): Boolean =
+    getHeadIfEnclosed(tokens, tree).isDefined
   def isEnclosedInMatching(tree: Tree): Boolean =
-    isEnclosedInMatching(tree.tokens)
+    isEnclosedInMatching(tree.tokens, tree)
 
   @inline private def areMatchingParens(close: Token)(open: => Token): Boolean =
     close.is[Token.RightParen] && areMatching(close)(open)
