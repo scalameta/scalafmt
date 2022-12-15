@@ -269,7 +269,12 @@ class Router(formatOps: FormatOps) {
         // lambdaNLOnly: None for single line only
         val (lambdaExpire, lambdaArrow, lambdaIndent, lambdaNLOnly) =
           startsStatement(right) match {
-            case Some(owner: Term.FunctionTerm) =>
+            case Some(owner: Term.FunctionTerm) if (leftOwner match {
+                  case t: Template =>
+                    t.parent.exists(_.is[Term.NewAnonymous]) &&
+                    isSingleElement(t.stats, owner)
+                  case _ => true
+                }) =>
               val arrow = getFuncArrow(lastLambda(owner))
               val expire = arrow.getOrElse(tokens.getLast(owner))
               val nlOnly =

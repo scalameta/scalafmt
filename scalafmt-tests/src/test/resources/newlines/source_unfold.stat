@@ -7035,36 +7035,37 @@ object Test { (tree: Tree) =>
 (tree: Tree) => tree match { case LetL(CharLit) => ??? }
 }
 >>>
-object Test { (tree: Tree) =>
-  tree match {
-    case LetL(CharLit) =>
-      ???
-  }
-(tree: Tree) =>
-  tree match {
-    case LetL(CharLit) =>
-      ???
-  }
-(tree: Tree) =>
-  tree match {
-    case LetL(CharLit) =>
-      ???
-  }
-(tree: Tree) =>
-  tree match {
-    case LetL(CharLit) =>
-      ???
-  }
-(tree: Tree) =>
-  tree match {
-    case LetL(CharLit) =>
-      ???
-  }
-(tree: Tree) =>
-  tree match {
-    case LetL(CharLit) =>
-      ???
-  }
+object Test {
+  (tree: Tree) =>
+    tree match {
+      case LetL(CharLit) =>
+        ???
+    }
+  (tree: Tree) =>
+    tree match {
+      case LetL(CharLit) =>
+        ???
+    }
+  (tree: Tree) =>
+    tree match {
+      case LetL(CharLit) =>
+        ???
+    }
+  (tree: Tree) =>
+    tree match {
+      case LetL(CharLit) =>
+        ???
+    }
+  (tree: Tree) =>
+    tree match {
+      case LetL(CharLit) =>
+        ???
+    }
+  (tree: Tree) =>
+    tree match {
+      case LetL(CharLit) =>
+        ???
+    }
 }
 <<< SM 7.4.0: 31
 maxColumn = 80
