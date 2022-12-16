@@ -41,6 +41,8 @@ case class Indents(
 
   def getDefnSite(tree: meta.Tree): Int =
     (tree match {
+      case _: meta.Member.ParamClause | _: meta.Member.ParamClauseGroup =>
+        tree.parent.map(getDefnSite)
       case _: meta.Ctor => ctorSite
       case _ => None
     }).getOrElse(defnSite)

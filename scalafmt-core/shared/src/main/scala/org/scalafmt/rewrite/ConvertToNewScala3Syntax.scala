@@ -69,7 +69,7 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
             replaceTokenIdent("*", ft.right)
           case t: Type.Wildcard
               if dialect.allowQuestionMarkAsTypeWildcard &&
-                t.parent.exists(_.is[Type]) =>
+                t.parent.exists(_.is[Type.ArgClause]) =>
             replaceTokenIdent("?", ft.right)
           case t: Term.Repeated
               if dialect.allowPostfixStarVarargSplices && isSimpleRepeated(t) =>

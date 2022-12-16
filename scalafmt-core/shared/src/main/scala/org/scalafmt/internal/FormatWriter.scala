@@ -144,7 +144,8 @@ class FormatWriter(formatOps: FormatOps) {
     val lookup = mutable.Map.empty[Int, (Int, Int)]
 
     def checkApply(t: Tree): Boolean = t.parent match {
-      case Some(Term.Apply(_, List(`t`))) => true
+      case Some(p @ Term.ArgClause(`t` :: Nil, _)) =>
+        p.parent.exists(_.is[Term.Apply])
       case _ => false
     }
 
@@ -1287,6 +1288,8 @@ class FormatWriter(formatOps: FormatOps) {
           }
           if (keepGoing) getAlignContainerParent(p) else p
         case Some(p: Term.ForYield) if child ne p.body => p
+        case Some(p: Member.SyntaxValuesClause) => getAlignContainerParent(p)
+        case Some(p: Member.ParamClauseGroup) => getAlignContainerParent(p)
         case Some(p) => p.parent.getOrElse(p)
         case _ => child
       }

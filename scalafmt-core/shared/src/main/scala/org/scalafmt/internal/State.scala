@@ -4,7 +4,7 @@ import java.util.regex.Pattern
 
 import scala.annotation.tailrec
 import scala.meta.tokens.Token
-import scala.meta.{Term, Tree}
+import scala.meta._
 
 import org.scalafmt.config.{Comments, Indents, ScalafmtConfig}
 import org.scalafmt.util.TreeOps._
@@ -254,7 +254,11 @@ final case class State(
       val ok = {
         // comment could be preceded by a comma
         isComment && ft.left.is[Token.Comma] &&
-        (tokens.prev(ft).meta.leftOwner eq lineOwner)
+        (tokens.prev(ft).meta.leftOwner match {
+          case `lineOwner` => true
+          case t: Member.SyntaxValuesClause => t.parent.contains(lineOwner)
+          case _ => false
+        })
       } ||
         findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner).isDefined
       if (ok) Some(lineFt) else None

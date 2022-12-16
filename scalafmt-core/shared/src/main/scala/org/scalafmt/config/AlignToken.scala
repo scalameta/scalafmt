@@ -89,7 +89,13 @@ object AlignToken {
   class Matcher(val owner: Option[jurPattern], val parents: Seq[jurPattern]) {
     def matches(tree: meta.Tree): Boolean =
       owner.forall(check(tree)) &&
-        (parents.isEmpty || tree.parent.exists(x => parents.forall(check(x))))
+        (parents.isEmpty || tree.parent.exists { p =>
+          parents.forall(check(p)) || (p match {
+            case _: meta.Member.SyntaxValuesClause =>
+              p.parent.exists { pp => parents.forall(check(pp)) }
+            case _ => false
+          })
+        })
   }
 
   @inline

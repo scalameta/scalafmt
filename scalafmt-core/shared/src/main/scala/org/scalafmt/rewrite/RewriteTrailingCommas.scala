@@ -7,7 +7,6 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.TrailingCommas
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
-import org.scalafmt.util.TreeOps
 
 object RewriteTrailingCommas extends FormatTokensRewrite.RuleFactory {
 
@@ -43,24 +42,11 @@ private class RewriteTrailingCommas(ftoks: FormatTokens)
 
       // comma and paren/bracket/brace need to have the same owner
       (rightOwner eq nft.meta.rightOwner) && (nft.right match {
-        case _: Token.RightBracket =>
-          rightOwner match {
-            case TreeOps.SplitDefnIntoParts(_) => true
-            case _ => false
-          }
-
-        case _: Token.RightParen =>
-          rightOwner match {
-            case TreeOps.SplitDefnIntoParts(_) => true
-            case TreeOps.SplitCallIntoParts(_) => true
-            case _ => false
-          }
+        case _: Token.RightBracket | _: Token.RightParen =>
+          rightOwner.is[Member.SyntaxValuesClause]
 
         case _: Token.RightBrace =>
-          rightOwner match {
-            case _: Importer => true
-            case _ => false
-          }
+          rightOwner.is[Importer]
 
         case _ => false
       })

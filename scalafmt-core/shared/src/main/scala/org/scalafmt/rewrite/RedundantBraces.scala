@@ -6,7 +6,6 @@ import scala.meta.tokens.Token
 
 import org.scalafmt.config.{RedundantBracesSettings, ScalafmtConfig}
 import org.scalafmt.internal._
-import org.scalafmt.util.InfixApp
 import org.scalafmt.util.TreeOps._
 
 object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
@@ -108,7 +107,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     // single-arg apply of a partial function
     // a({ case b => c; d }) change to a { case b => c; d }
     def lpPartialFunction = rtOwner match {
-      case ta @ Term.Apply(_, List(arg)) =>
+      case ta @ Term.ArgClause(arg :: Nil, _) =>
         getOpeningParen(ta).map { lp =>
           val ko = lp.ne(rt) || getBlockNestedPartialFunction(arg).isEmpty
           if (ko) null else removeToken
@@ -128,7 +127,20 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       ft: FormatToken,
       style: ScalafmtConfig
   ): Replacement = {
-    ft.meta.rightOwner match {
+    onLeftBrace(ft.meta.rightOwner)
+  }
+
+  @tailrec
+  private def onLeftBrace(owner: Tree)(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig
+  ): Replacement = {
+    owner match {
+      case t: Term.ArgClause =>
+        t.values match {
+          case arg :: Nil if t.pos.start == arg.pos.start => onLeftBrace(arg)
+          case _ => null
+        }
       case t: Term.Function if t.tokens.last.is[Token.RightBrace] =>
         if (!okToRemoveFunctionInApplyOrInit(t)) null
         else if (okToReplaceFunctionInSingleArgApply(t)) replaceWithLeftParen
@@ -222,8 +234,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   ): Boolean =
     f.parent.flatMap(okToReplaceFunctionInSingleArgApply).exists(_._2 eq f)
 
-  private def getOpeningParen(t: Term.Apply): Option[Token.LeftParen] =
-    ftoks.tokenAfter(t.fun).right match {
+  private def getOpeningParen(t: Term.ArgClause): Option[Token.LeftParen] =
+    ftoks.getHead(t).left match {
       case lp: Token.LeftParen => Some(lp)
       case _ => None
     }
@@ -234,9 +246,12 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       tree: Tree
   )(implicit style: ScalafmtConfig): Option[(Token.LeftParen, Term.Function)] =
     tree match {
-      case ta @ Term.Apply(_, List(func @ Term.Function(_, body)))
-          if (body.is[Term.Block] || func.tokens.last.ne(body.tokens.last)) &&
-            okToRemoveAroundFunctionBody(body, true) =>
+      case ta @ Term.ArgClause((func: Term.Function) :: Nil, _) if {
+            val body = func.body
+            (body.is[Term.Block] || func.tokens.last.ne(body.tokens.last)) &&
+            ta.parent.exists(_.is[Term.Apply]) &&
+            okToRemoveAroundFunctionBody(body, true)
+          } =>
         getOpeningParen(ta).map((_, func))
       case _ => None
     }
@@ -249,11 +264,15 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       t: Term.Function
   )(implicit style: ScalafmtConfig): Boolean =
     t.parent match {
-      case Some(_: Init) =>
-        okToRemoveAroundFunctionBody(t.body, false)
-      case Some(p: Term.Apply) =>
-        getOpeningParen(p).isDefined &&
-        okToRemoveAroundFunctionBody(t.body, p.args)
+      case Some(p: Term.ArgClause) =>
+        p.parent match {
+          case Some(_: Init) =>
+            okToRemoveAroundFunctionBody(t.body, false)
+          case Some(_: Term.Apply) =>
+            getOpeningParen(p).isDefined &&
+            okToRemoveAroundFunctionBody(t.body, p.values)
+          case _ => false
+        }
       case _ => false
     }
 
@@ -267,7 +286,16 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         b.tokens.lastOption.contains(rb) && b.tokens.head.is[Token.LeftBrace]
       case _ => false
     }) && okToRemoveBlock(b) && (b.parent match {
-      case Some(p @ InfixApp(_)) =>
+      case Some(p: Term.ArgClause) => p.parent.exists(checkValidInfixParent)
+      case Some(p) => checkValidInfixParent(p)
+      case _ => true
+    })
+
+  private def checkValidInfixParent(
+      p: Tree
+  )(implicit ft: FormatToken, style: ScalafmtConfig): Boolean =
+    p match {
+      case _: Member.Infix =>
         /* for infix, we will preserve the block unless the closing brace
          * follows a non-whitespace character on the same line as we don't
          * break lines around infix expressions.
@@ -286,7 +314,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         }
         checkOpen && checkClose
       case _ => true
-    })
+    }
 
   private def okToRemoveBlock(
       b: Term.Block
@@ -298,11 +326,11 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           (p.body eq b) || shouldRemoveSingleStatBlock(b)
         }
 
-      case t: Term.Apply =>
+      case t: Term.ArgClause if t.parent.exists(_.is[Term.Apply]) =>
         // Example: as.map { _.toString }
         // Leave this alone for now.
         // In future there should be an option to surround such expressions with parens instead of braces
-        isSeqMulti(t.args) && okToRemoveBlockWithinApply(b)
+        isSeqMulti(t.values) && okToRemoveBlockWithinApply(b)
 
       case d: Defn.Def =>
         def disqualifiedByUnit =
@@ -391,7 +419,13 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       b: Term.Block
   )(implicit style: ScalafmtConfig): Boolean =
     getSingleStatIfLineSpanOk(b).exists { stat =>
+      @tailrec
       def checkParent(tree: Tree): Boolean = tree match {
+        case t: Term.ArgClause =>
+          t.parent match {
+            case Some(p) => checkParent(p)
+            case _ => true
+          }
         case _: Term.Try | _: Term.TryWithHandler =>
           // "try (x).y" or "try { x }.y" isn't supported until scala 2.13
           // inside exists, return true if rewrite is OK

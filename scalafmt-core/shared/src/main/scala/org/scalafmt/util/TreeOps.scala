@@ -156,14 +156,17 @@ object TreeOps {
             // handle rewritten apply { { x => b } } to a { x => b }
             val parentApply = findTreeWithParent(t) {
               case Term.Block(_) => None
-              case Term.Apply(_, List(_)) => Some(true)
+              case p @ Term.ArgClause(_ :: Nil, _)
+                  if p.parent.exists(_.is[Term.Apply]) =>
+                Some(true)
               case _ => Some(false)
             }
             if (parentApply.isDefined) addAll(Seq(arg))
           }
         // special handling for rewritten apply(x => { b }) to a { x => b }
-        case Term.Apply(_, List(f: Term.Function))
-            if subtree.tokens.lastOption.exists { x =>
+        case Term.Apply.internal
+              .Impl(_, ac @ Term.ArgClause((f: Term.Function) :: Nil, _))
+            if ac.tokens.lastOption.exists { x =>
               x.is[Token.RightParen] && // see if closing paren is now brace
               ftoks.prevNonComment(ftoks(x)).left.is[Token.RightBrace]
             } =>
@@ -342,6 +345,12 @@ object TreeOps {
         }
       case _ => None
     }
+  @tailrec
+  def defDefBodyParent(tree: Tree): Option[Tree] = tree.parent match {
+    case Some(p: Member.ParamClauseGroup) => defDefBodyParent(p)
+    case Some(p) => defDefBody(p)
+    case None => None
+  }
 
   @tailrec
   def defDefReturnType(tree: Tree): Option[Type] =
@@ -354,7 +363,8 @@ object TreeOps {
       case d: Decl.Given => Some(d.decltpe)
       case d: Defn.Val => d.decltpe
       case d: Defn.Var => d.decltpe
-      case _: Pat.Var | _: Term.Name =>
+      case _: Pat.Var | _: Term.Name | _: Member.ParamClause |
+          _: Member.ParamClauseGroup =>
         tree.parent match {
           case Some(p) => defDefReturnType(p)
           case _ => None
@@ -366,53 +376,18 @@ object TreeOps {
   val DefDefReturnTypeRight =
     new FormatToken.ExtractFromMeta(x => defDefReturnType(x.rightOwner))
 
-  /** Returns `true` if the `scala.meta.Tree` is a class, trait, enum or def
-    *
-    * For classes this includes primary and secondary Ctors.
-    */
-  def isDefnSiteWithParams(tree: Tree): Boolean =
+  def isParamClauseSite(tree: Tree): Boolean =
     tree match {
-      case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
-          _: Defn.Trait | _: Defn.Enum | _: Defn.EnumCase |
-          _: Defn.ExtensionGroup | _: Ctor.Secondary =>
-        true
-      case x: Ctor.Primary =>
-        x.parent.exists(isDefnSiteWithParams)
+      case _: Type.ParamClause => !tree.parent.exists(_.is[Type.Lambda])
+      case _: Term.ParamClause =>
+        tree.parent match {
+          case Some(p: Term.FunctionTerm) => !isSeqSingle(p.paramClause.values)
+          case _ => true
+        }
+      case _: Type.FuncParamClause | _: Type.Tuple => true
+      case _: Member.Function => true // enclosed
       case _ => false
     }
-
-  /** Returns `true` if the `scala.meta.Tree` is a definition site
-    *
-    * Currently, this includes everything from classes and defs to type
-    * applications
-    */
-  def isDefnSite(tree: Tree): Boolean =
-    tree match {
-      case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
-          _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type | _: Defn.Type |
-          _: Type.Param | _: Type.Tuple | _: Defn.Enum | _: Defn.EnumCase |
-          _: Defn.ExtensionGroup | _: Decl.Given | _: Defn.Given |
-          _: Defn.GivenAlias =>
-        true
-      case _: Term.FunctionTerm | _: Type.FunctionType => true
-      case _: Term.PolyFunction | _: Type.PolyFunction => true
-      case x: Ctor.Primary => x.parent.exists(isDefnSite)
-      case _ => false
-    }
-
-  /** Returns true if open is "unnecessary".
-    *
-    * An opening parenthesis is unnecessary if without it and its closing
-    * parenthesis can be removed without changing the AST. For example:
-    *
-    * `(a(1))` will parse into the same tree as `a(1)`.
-    */
-  def isSuperfluousParenthesis(open: Token, owner: Tree): Boolean =
-    open.is[LeftParen] &&
-      isSuperfluousParenthesis(open.asInstanceOf[LeftParen], owner)
-
-  def isSuperfluousParenthesis(open: LeftParen, owner: Tree): Boolean =
-    !isTuple(owner) && isTokenHeadOrBefore(open, owner)
 
   @inline
   def isTokenHeadOrBefore(token: Token, owner: Tree): Boolean =
@@ -430,25 +405,16 @@ object TreeOps {
   def isTokenLastOrAfter(token: Token, pos: Position): Boolean =
     pos.end <= token.end
 
-  def isCallSite(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
+  def isArgClauseSite(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
     tree match {
-      case _: Term.Apply | _: Type.Apply | _: Pat.Extract | _: Term.Super |
-          _: Pat.Tuple | _: Term.Tuple | _: Term.ApplyType | _: Term.Assign |
-          _: Init | _: Term.ApplyUsing =>
-        true
-      case t: Term.ApplyInfix =>
-        style.newlines.formatInfix && t.args.lengthCompare(1) > 0
+      case t: Member.ArgClause =>
+        !t.parent.exists(_.is[Member.Infix]) || (t.values match {
+          case (_: Term.Assign | _: Lit.Unit) :: Nil => true
+          case Nil | _ :: Nil => false
+          case _ => style.newlines.formatInfix
+        })
+      case _: Term.Super | _: Lit.Unit | _: Term.Tuple | _: Pat.Tuple => true
       case _ => false
-    }
-
-  def isCallSiteLeft(ft: FormatToken)(implicit style: ScalafmtConfig): Boolean =
-    ft.meta.leftOwner match {
-      case Term.ApplyInfix(_, op, _, List(arg))
-          if op.pos.end <= ft.left.start => // parens used to belong to rhs
-        isCallSite(arg)
-      case t @ Pat.ExtractInfix(_, op, arg :: Nil) =>
-        isCallSite(if (op.pos.end <= ft.left.start) arg else t)
-      case t => isCallSite(t)
     }
 
   def isTuple(tree: Tree): Boolean =
@@ -457,13 +423,21 @@ object TreeOps {
       case _ => false
     }
 
-  def isDefnOrCallSite(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
-    isDefnSite(tree) || isCallSite(tree)
-
   def noSpaceBeforeOpeningParen(
       tree: Tree
-  )(implicit style: ScalafmtConfig): Boolean =
-    !isTuple(tree) && isDefnOrCallSite(tree) && !tree.is[Term.Function]
+  ): Boolean =
+    tree match {
+      case _: Term.Super => true
+      case t: Member.ArgClause => !t.parent.exists(_.is[Member.Infix])
+      case _: Member.ParamClause =>
+        tree.parent.exists {
+          case _: Term.FunctionTerm => false
+          case t: Ctor.Primary =>
+            t.mods.isEmpty || !t.paramClauses.headOption.contains(tree)
+          case _ => true
+        }
+      case _ => false
+    }
 
   def isModPrivateProtected(tree: Tree): Boolean =
     tree match {
@@ -494,32 +468,6 @@ object TreeOps {
       splitCallIntoParts.lift(tree)
   }
 
-  type DefnParts = (Seq[Mod], Name, Seq[Type.Param], Seq[Seq[Term.Param]])
-  val splitDefnIntoParts: PartialFunction[Tree, DefnParts] = {
-    // types
-    case t: Type.Param => (t.mods, t.name, t.tparams, Seq.empty)
-    case t: Decl.Type => (t.mods, t.name, t.tparams, Seq.empty)
-    case t: Defn.Type => (t.mods, t.name, t.tparams, Seq.empty)
-    // definitions
-    case t: Defn.Def => (t.mods, t.name, t.tparams, t.paramss)
-    case t: Defn.Given => (t.mods, t.name, t.tparams, t.sparams)
-    case t: Decl.Given => (t.mods, t.name, t.tparams, t.sparams)
-    case t: Defn.GivenAlias => (t.mods, t.name, t.tparams, t.sparams)
-    case t: Defn.Macro => (t.mods, t.name, t.tparams, t.paramss)
-    case t: Decl.Def => (t.mods, t.name, t.tparams, t.paramss)
-    case t: Defn.Class => (t.mods, t.name, t.tparams, t.ctor.paramss)
-    case t: Defn.Trait => (t.mods, t.name, t.tparams, t.ctor.paramss)
-    case t: Defn.Enum => (t.mods, t.name, t.tparams, t.ctor.paramss)
-    case t: Defn.EnumCase => (t.mods, t.name, t.tparams, t.ctor.paramss)
-    case t: Defn.ExtensionGroup => (Nil, Name.Anonymous(), t.tparams, t.paramss)
-    case t: Ctor.Primary => (t.mods, t.name, Seq.empty, t.paramss)
-    case t: Ctor.Secondary => (t.mods, t.name, Seq.empty, t.paramss)
-  }
-  object SplitDefnIntoParts {
-    def unapply(tree: Tree): Option[DefnParts] =
-      splitDefnIntoParts.lift(tree)
-  }
-
   type AssignParts = (Tree, Option[Seq[Seq[Term.Param]]])
   val splitAssignIntoParts: PartialFunction[Tree, AssignParts] = {
     case t: Defn.Def => (t.body, Some(t.paramss))
@@ -541,11 +489,19 @@ object TreeOps {
 
   /** How many parents of tree are Term.Apply?
     */
-  def nestedApplies(tree: Tree): Int =
-    numParents(tree) {
-      case _: Term.Apply | _: Term.ApplyInfix | _: Type.Apply => true
-      case _ => false
-    }
+  @tailrec
+  def nestedApplies(tree: Tree): Int = tree match {
+    case _: Member.SyntaxValuesClause | _: Member.ParamClauseGroup =>
+      tree.parent match {
+        case Some(p) => nestedApplies(p)
+        case _ => 0
+      }
+    case _ =>
+      numParents(tree) {
+        case _: Term.Apply | _: Term.ApplyInfix | _: Type.Apply => true
+        case _ => false
+      }
+  }
 
   def nestedSelect(tree: Tree): Int = numParents(tree)(_.is[Term.Select])
 
@@ -553,9 +509,13 @@ object TreeOps {
     */
   // TODO(olafur) inefficient, precalculate?
 
-  def treeDepth(tree: Tree): Int = {
-    val children = tree.children
-    if (children.isEmpty) 0 else 1 + maxTreeDepth(children)
+  def treeDepth(tree: Tree): Int = tree match {
+    case Member.ParamClauseGroup(tparams, paramss) =>
+      maxTreeDepth(tparams +: paramss)
+    case Member.SyntaxValuesClause(v) => maxTreeDepth(v)
+    case _ =>
+      val children = tree.children
+      if (children.isEmpty) 0 else 1 + maxTreeDepth(children)
   }
 
   def maxTreeDepth(trees: Seq[Tree]): Int =
@@ -587,6 +547,7 @@ object TreeOps {
   @tailrec
   def findNextInfixInParent(tree: Tree, scope: Tree): Option[Name] =
     tree.parent match {
+      case Some(t: Member.ArgClause) => findNextInfixInParent(t, scope)
       case Some(t @ InfixApp(ia)) if tree ne scope =>
         if (ia.lhs eq tree) Some(ia.op) else findNextInfixInParent(t, scope)
       case _ => None
@@ -714,33 +675,35 @@ object TreeOps {
   }
 
   def shouldNotDangleAtDefnSite(
-      tree: Tree,
+      tree: Option[Tree],
       isVerticalMultiline: Boolean
   )(implicit style: ScalafmtConfig): Boolean =
     !style.danglingParentheses.defnSite || {
-      val excludeList =
-        style.danglingParentheses.getExclude(isVerticalMultiline)
-      excludeList.nonEmpty && {
-        val exclude = tree match {
+      val excludes = style.danglingParentheses.getExclude(isVerticalMultiline)
+      excludes.nonEmpty && tree
+        .flatMap {
           case _: Ctor.Primary | _: Defn.Class =>
-            DanglingParentheses.Exclude.`class`
-          case _: Defn.Trait => DanglingParentheses.Exclude.`trait`
-          case _: Defn.Enum => DanglingParentheses.Exclude.`enum`
-          case _: Defn.ExtensionGroup => DanglingParentheses.Exclude.`extension`
-          case _: Decl.Def | _: Defn.Def | _: Defn.Macro =>
-            DanglingParentheses.Exclude.`def`
-          case _: Decl.Given | _: Defn.Given | _: Defn.GivenAlias =>
-            DanglingParentheses.Exclude.`given`
-          case _ => null
+            Some(DanglingParentheses.Exclude.`class`)
+          case _: Defn.Trait => Some(DanglingParentheses.Exclude.`trait`)
+          case _: Defn.Enum => Some(DanglingParentheses.Exclude.`enum`)
+          case t: Member.ParamClauseGroup =>
+            t.parent.collect {
+              case _: Defn.ExtensionGroup =>
+                DanglingParentheses.Exclude.`extension`
+              case _: Decl.Def | _: Defn.Def | _: Defn.Macro =>
+                DanglingParentheses.Exclude.`def`
+              case _: Decl.Given | _: Defn.Given | _: Defn.GivenAlias =>
+                DanglingParentheses.Exclude.`given`
+            }
+          case _ => None
         }
-        null != exclude && excludeList.contains(exclude)
-      }
+        .exists(excludes.contains)
     }
 
   def isChildOfCaseClause(tree: Tree): Boolean =
     findTreeWithParent(tree) {
       case t: Case => Some(tree ne t.body)
-      case _: Pat => None
+      case _: Pat | _: Pat.ArgClause => None
       case _ => Some(false)
     }.isDefined
 
@@ -902,18 +865,21 @@ object TreeOps {
   // consider them "trailing" commas. It does not remove them
   // in the TrailingCommas.never branch, nor does it
   // try to add them in the TrainingCommas.always branch.
-  def rightIsCloseDelimForTrailingComma(left: Token, ft: FormatToken)(implicit
-      style: ScalafmtConfig
-  ): Boolean = {
+  def rightIsCloseDelimForTrailingComma(
+      left: Token,
+      ft: FormatToken
+  )(implicit style: ScalafmtConfig): Boolean = {
     def owner = ft.meta.rightOwner
+    def isArgOrParamClauseSite(tree: Tree) =
+      isArgClauseSite(tree) || isParamClauseSite(tree)
     // skip empty parens/braces/brackets
     ft.right match {
       case _: Token.RightBrace =>
         !left.is[Token.LeftBrace] && owner.is[Importer]
       case _: Token.RightParen =>
-        !left.is[Token.LeftParen] && isDefnOrCallSite(owner)
+        !left.is[Token.LeftParen] && isArgOrParamClauseSite(owner)
       case _: Token.RightBracket =>
-        !left.is[Token.LeftBracket] && isDefnOrCallSite(owner)
+        !left.is[Token.LeftBracket] && isArgOrParamClauseSite(owner)
       case _ => false
     }
   }
@@ -1017,25 +983,11 @@ object TreeOps {
                     prevLPs == 1 && prevChild == t.cond // `expr` after `mods`
                   case _: Term.While | _: Term.For | _: Term.ForYield =>
                     prevLPs == 1 && prevChild == firstChild // `expr` is first
-                  case _: Term.Tuple | _: Type.Tuple | _: Pat.Tuple |
-                      _: Term.ApplyInfix | _: Pat.ExtractInfix | _: Term.Apply |
-                      _: Pat.Extract | _: Term.Do | _: Term.AnonymousFunction =>
-                    nextChild == null
-                  case t: Decl.Def => // only decltpe can have owners modified
-                    nextChild != null || t.decltpe != prevChild
-                  case t: Decl.Given => // only decltpe can have owners modified
-                    nextChild != null || t.decltpe != prevChild
-                  case t: Defn.Def => // only decltpe/body can be modified
-                    nextChild != null && !t.decltpe.contains(prevChild)
-                  case t: Defn.Macro => // only decltpe/body can be modified
-                    nextChild != null && !t.decltpe.contains(prevChild)
-                  case t: Defn.GivenAlias => // only decltpe/body can be modified
-                    nextChild == null && t.decltpe != prevChild
-                  case _: Type.FunctionType | _: Defn.Given |
-                      _: Defn.ExtensionGroup =>
-                    nextChild != null // only body can have owners modified
+                  case _: Member.SyntaxValuesClause | _: Member.Tuple |
+                      _: Term.Do | _: Term.AnonymousFunction =>
+                    endPos == tok.end
                   case t: Init => prevChild ne t.tpe // include tpe
-                  case _: Ctor => true
+                  case _: Ctor.Primary => true
                   case _ => false
                 }
 
@@ -1074,5 +1026,17 @@ object TreeOps {
       else baseStyle.copy(newlines = checkedNewlines)
     (initStyle, ownersMap.result())
   }
+
+  val ParamClauseParentLeft =
+    new FormatToken.ExtractFromMeta(_.leftOwner match {
+      case ParamClauseParent(p) => Some(p)
+      case _ => None
+    })
+
+  val LambdaAtSingleArgCallSite =
+    new FormatToken.ExtractFromMeta(_.leftOwner match {
+      case Term.ArgClause((fun: Term.FunctionTerm) :: Nil, _) => Some(fun)
+      case _ => None
+    })
 
 }
