@@ -360,21 +360,13 @@ class FormatOps(
   def penalizeNewlineByNesting(from: T, to: T)(implicit
       fileLine: FileLine
   ): Policy = {
-    Policy.before(to) {
-      case Decision(t, s) if t.right.start >= from.start =>
-        val nonBoolPenalty =
-          if (isBoolOperator(t.left)) 0
-          else 5
-
-        val penalty =
-          nestedSelect(t.meta.leftOwner) + nestedApplies(t.meta.rightOwner) +
-            nonBoolPenalty
-        s.map {
-          case split if split.isNL =>
-            split.withPenalty(penalty)
-          case x => x
-        }
+    val policy = Policy.before(to) { case Decision(FormatToken(l, _, m), s) =>
+      val nonBoolPenalty = if (isBoolOperator(l)) 0 else 5
+      val penalty = nestedSelect(m.leftOwner) +
+        nestedApplies(m.rightOwner) + nonBoolPenalty
+      s.map { x => if (x.isNL) x.withPenalty(penalty) else x }
     }
+    new Policy.Delay(policy, Policy.End.Before(from))
   }
 
   def templateCurlyFt(template: Template): Option[FormatToken] =
