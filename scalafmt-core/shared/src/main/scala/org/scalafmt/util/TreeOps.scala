@@ -553,9 +553,13 @@ object TreeOps {
     */
   // TODO(olafur) inefficient, precalculate?
 
-  def treeDepth(tree: Tree): Int =
-    if (tree.children.isEmpty) 0
-    else 1 + tree.children.map(treeDepth).max
+  def treeDepth(tree: Tree): Int = {
+    val children = tree.children
+    if (children.isEmpty) 0 else 1 + maxTreeDepth(children)
+  }
+
+  def maxTreeDepth(trees: Seq[Tree]): Int =
+    trees.foldLeft(0) { case (res, t) => math.max(res, treeDepth(t)) }
 
   @tailrec
   final def lastLambda(first: Term.FunctionTerm): Term.FunctionTerm =
