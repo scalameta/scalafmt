@@ -133,10 +133,8 @@ class StyleMap(
       ft: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
     (ft.meta.leftOwner match {
-      case TreeOps.SplitCallIntoParts(_, eitherArgs) =>
-        eitherArgs
-          .fold(Some(_), TokenOps.findArgsFor(ft.left, _, tokens.matchingOpt))
-      case InfixApp(ia) => Some(ia.rhs)
+      case Member.Tuple(v) => Some(v)
+      case Member.SyntaxValuesClause(v) => Some(v)
       case _ => None
     }).exists { args =>
       args.lengthCompare(style.binPack.literalsMinArgCount) >= 0 &&

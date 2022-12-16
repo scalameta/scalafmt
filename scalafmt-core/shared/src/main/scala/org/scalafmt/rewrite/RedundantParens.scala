@@ -30,15 +30,6 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
   private val precedenceMedium = InfixApp.getPrecedence("<")
   private val precedenceLowest = InfixApp.getPrecedence("foo")
 
-  object IsCallArg {
-    def unapply(t: Tree): Option[Seq[Tree]] = {
-      def isContains(seq: Seq[Tree]): Boolean = seq.contains(t)
-      t.parent.flatMap(TreeOps.SplitCallIntoParts.unapply).flatMap {
-        _._2.fold(Some(_).filter(isContains), _.find(isContains))
-      }
-    }
-  }
-
   object IsExprBody {
     def unapply(t: Tree): Option[Boolean] = {
       @inline def iff(body: Tree) = Some(body eq t)
@@ -69,7 +60,7 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
     def unapply(t: Tree): Option[Boolean] = t match {
       case _: Term.Block | _: Term.PartialFunction =>
         t.parent.collect {
-          case _: Term.Apply | _: Term.ApplyInfix => true
+          case _: Term.ArgClause => true
           case _: Term.Block => false
         }
       case _ => None
@@ -112,15 +103,20 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       style: ScalafmtConfig
   ): Boolean =
     tree match {
-      case _: Term.Tuple | _: Type.Tuple | _: Pat.Tuple | _: Lit.Unit =>
-        numParens >= 3
-
+      case _: Lit.Unit | _: Member.Tuple => numParens >= 3
       case _ if numParens >= 2 => true
 
       case _: Term.AnonymousFunction | _: Term.Param => false
 
+      case t: Member.ArgClause => okToReplaceArgClause(t)
+      case Term.ParamClause(t :: Nil, _) =>
+        tree.parent.exists {
+          case _: Term.FunctionTerm => t.decltpe.isEmpty && t.mods.isEmpty
+          case _ => false
+        }
+      case _: Member.SyntaxValuesClause => false
+
       case IsInBraces(ok) => ok
-      case IsCallArg(args) => !TreeOps.isSeqSingle(args)
       case t @ IsExprBody(ok) => ok && canRewriteBody(t)
 
       case t =>
@@ -141,6 +137,12 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           case p: Term.TryWithHandler =>
             (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
             canRewriteBody(t)
+          case p: Term.ArgClause =>
+            p.parent.exists {
+              case InfixApp(pia) =>
+                !infixNeedsParens(pia, t) && okToReplaceInfix(pia, t)
+              case _ => true
+            }
           case InfixApp(pia) if !infixNeedsParens(pia, t) =>
             okToReplaceInfix(pia, t)
           case _ =>
@@ -163,6 +165,24 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         true
       case _ => false
     }
+
+  private def okToReplaceArgClause(t: Member.ArgClause)(implicit
+      style: ScalafmtConfig
+  ): Boolean = t.values match {
+    case arg :: Nil =>
+      arg match {
+        case _: Term.Block | _: Term.PartialFunction => true
+        case _: Lit.Unit | _: Member.Tuple => false
+        case _ =>
+          t.parent.exists {
+            case InfixApp(pia) =>
+              val keep = infixNeedsParens(pia, arg)
+              if (keep) okToReplaceOther(arg) else okToReplaceInfix(pia, arg)
+            case _ => false
+          }
+      }
+    case _ => false
+  }
 
   private def okToReplaceInfix(pia: InfixApp, tia: InfixApp)(implicit
       style: ScalafmtConfig

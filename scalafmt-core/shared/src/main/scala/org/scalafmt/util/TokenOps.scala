@@ -181,25 +181,6 @@ object TokenOps {
       case Newlines.unfold => true
     }
 
-  def findArgsFor[A <: Tree](
-      token: Token,
-      argss: Seq[Seq[A]],
-      matchingOpt: Token => Option[Token]
-  ): Option[Seq[A]] =
-    matchingOpt(token).flatMap(findArgsBetween(token, _, argss))
-
-  def findArgsBetween[A <: Tree](
-      token: Token,
-      other: Token,
-      argss: Seq[Seq[A]]
-  ): Option[Seq[A]] = {
-    // find the arg group starting with given format token
-    val beg = math.min(token.start, other.start)
-    argss
-      .find(_.headOption.exists(_.tokens.head.start >= beg))
-      .filter(_.head.tokens.head.start <= math.max(token.end, other.end))
-  }
-
   def getXmlLastLineIndent(tok: Xml.Part): Option[Int] = {
     val part = tok.value
     val afterLastNL = part.lastIndexOf('\n') + 1
