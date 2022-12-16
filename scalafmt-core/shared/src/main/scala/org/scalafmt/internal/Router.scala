@@ -912,10 +912,25 @@ class Router(formatOps: FormatOps) {
               isDefnSite(leftOwner)
           } =>
         val close = matching(open)
+        val tupleSite = isTuple(leftOwner)
+        val anyDefnSite = isDefnSite(leftOwner)
+        val defnSite = !tupleSite && anyDefnSite
+
         val TreeArgs(lhs, args) = getApplyArgs(formatToken, false)
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
-        val lhsPenalty = treeDepth(lhs)
+        val leftOwnerIsEnclosed = defnSite && // callSite is definitely not
+          tokens.getHeadIfEnclosed(lhs).contains(tok)
+        val lhsPenalty =
+          if (lhs == leftOwner && leftOwnerIsEnclosed) treeDepth(lhs)
+          else
+            lhs match {
+              case t: Term.FunctionTerm => maxTreeDepth(t.params)
+              case t: Term.PolyFunction => maxTreeDepth(t.tparams)
+              case t: Type.FunctionType => maxTreeDepth(t.params)
+              case t: Type.PolyFunction => maxTreeDepth(t.tparams)
+              case _ => treeDepth(lhs)
+            }
 
         // XXX: sometimes we have zero args, so multipleArgs != !singleArgument
         val numArgs = args.length
@@ -930,16 +945,15 @@ class Router(formatOps: FormatOps) {
         val onlyConfigStyle = mustUseConfigStyle(formatToken)
 
         val sourceIgnored = style.newlines.sourceIgnored
-        val isSingleEnclosedArgument =
-          singleArgument && tokens.isEnclosedInMatching(args(0))
+        val (onlyArgument, isSingleEnclosedArgument) =
+          if (singleArgument) {
+            val arg = args(0)
+            (arg, tokens.isEnclosedInMatching(arg))
+          } else (null, false)
         val useConfigStyle = onlyConfigStyle || (sourceIgnored &&
           style.optIn.configStyleArguments && !isSingleEnclosedArgument)
 
         val nestedPenalty = 1 + nestedApplies(leftOwner) + lhsPenalty
-
-        val tupleSite = isTuple(leftOwner)
-        val anyDefnSite = isDefnSite(leftOwner)
-        val defnSite = !tupleSite && anyDefnSite
 
         val indent =
           if (anyDefnSite)
@@ -1046,17 +1060,18 @@ class Router(formatOps: FormatOps) {
             insideBlock[T.LeftBracket](excludeBeg, close)
           } else if (
             multipleArgs ||
-            !isSingleEnclosedArgument &&
+            (!isSingleEnclosedArgument || leftOwnerIsEnclosed) &&
             style.newlines.source.eq(Newlines.unfold)
           )
             TokenRanges.empty
           else if (
             style.newlines.source.eq(Newlines.fold) && {
               isSingleEnclosedArgument ||
-              singleArgument && isExcludedTree(args(0))
+              singleArgument && isExcludedTree(onlyArgument)
             }
           )
-            parensTuple(tokens.getLast(args(0)).left)
+            if (onlyArgument eq leftOwner) TokenRanges(TokenRange(open, close))
+            else parensTuple(tokens.getLast(onlyArgument).left)
           else insideBracesBlock(tok, close)
 
         def singleLine(
@@ -1088,7 +1103,10 @@ class Router(formatOps: FormatOps) {
 
         val keepNoNL = style.newlines.source.eq(Newlines.keep) && tok.noBreak
         val preferNoSplit = keepNoNL && singleArgument
-        val oneArgOneLine = newlinePolicy & splitOneArgOneLine(close, leftOwner)
+        val oneArgOneLine = newlinePolicy & {
+          if (leftOwnerIsEnclosed) Policy.NoPolicy
+          else splitOneArgOneLine(close, leftOwner)
+        }
         val extraOneArgPerLineIndent =
           if (multipleArgs && style.poorMansTrailingCommasInConfigStyle)
             Indent(Num(2), right, After)
