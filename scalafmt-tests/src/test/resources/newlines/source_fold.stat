@@ -3403,7 +3403,7 @@ pubSubMessage match {
   case message: IngestionMessage =>
     (IngestionSubscriber
       .defaultServices).processEff
-    .message()
+      .message()
 }
 <<< #2137 tuple with ->, match
 maxColumn = 20
@@ -6929,11 +6929,11 @@ object a {
 >>>
 object a {
   private val capturedStack = (new Throwable().getStackTrace)
-  .filter(_.getMethodName.startsWith("supports")).find { el ⇒
-    val clazz = Class.forName(el.getClassName)
-    clazz.getDeclaredMethod(el.getMethodName).getReturnType ==
-      classOf[CapabilityFlag]
-  } map { _.getMethodName } getOrElse "[unknown]"
+    .filter(_.getMethodName.startsWith("supports")).find { el ⇒
+      val clazz = Class.forName(el.getClassName)
+      clazz.getDeclaredMethod(el.getMethodName).getReturnType ==
+        classOf[CapabilityFlag]
+    } map { _.getMethodName } getOrElse "[unknown]"
 }
 <<< SM 7.4.0: 45
 maxColumn = 76

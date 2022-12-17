@@ -1845,11 +1845,11 @@ class Router(formatOps: FormatOps) {
         val delayedBreakPolicyOpt = nextSelect.map { selectLike =>
           val tree = selectLike.tree
           Policy.before(selectLike.nameToken) {
-            case Decision(t @ FormatToken(_, _: T.Dot, _), s)
-                if t.meta.rightOwner eq tree =>
+            case Decision(FormatToken(_, _: T.Dot, m), s)
+                if m.rightOwner eq tree =>
               SplitTag.SelectChainFirstNL.activateOnly(s)
-            case Decision(t @ FormatToken(l, _: T.Comment, _), s)
-                if t.meta.rightOwner.eq(tree) && !l.is[T.Comment] =>
+            case Decision(FormatToken(l, _: T.Comment, m), s)
+                if m.rightOwner.eq(tree) && !l.is[T.Comment] =>
               SplitTag.SelectChainFirstNL.activateOnly(s)
           }
         }
