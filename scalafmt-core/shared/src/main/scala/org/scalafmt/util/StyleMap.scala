@@ -132,15 +132,15 @@ class StyleMap(
   def opensLiteralArgumentList(
       ft: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
-    ft.meta.leftOwner match {
+    (ft.meta.leftOwner match {
       case TreeOps.SplitCallIntoParts(_, eitherArgs) =>
         eitherArgs
           .fold(Some(_), TokenOps.findArgsFor(ft.left, _, tokens.matchingOpt))
-          .exists { args =>
-            args.lengthCompare(style.binPack.literalsMinArgCount) >= 0 &&
-            args.forall(isLiteral)
-          }
-      case _ => false
+      case InfixApp(ia) => Some(ia.rhs)
+      case _ => None
+    }).exists { args =>
+      args.lengthCompare(style.binPack.literalsMinArgCount) >= 0 &&
+      args.forall(isLiteral)
     }
 
   @inline
