@@ -1486,16 +1486,19 @@ class FormatOps(
   final def findPrevSelect(
       tree: Tree,
       enclosed: Boolean
-  ): Option[SelectLike] =
+  ): Option[SelectLike] = {
+    @inline def isEnclosed: Boolean = enclosed && isEnclosedInParens(tree)
     tree match {
-      case GetSelectLike(t) => Some(t)
-      case t @ SplitCallIntoParts(fun, _) if t ne fun =>
-        if (enclosed && isEnclosedInParens(t)) None
-        else findPrevSelect(fun, enclosed)
-      case Term.AnonymousFunction(body) if !enclosed =>
-        findPrevSelect(body, false)
+      case GetSelectLike(t) =>
+        if (isEnclosed) None else Some(t)
+      case SplitCallIntoParts(fun, _) if tree ne fun =>
+        if (isEnclosed) None else findPrevSelect(fun, enclosed)
+      case Term.AnonymousFunction(body) =>
+        if (enclosed) None else findPrevSelect(body, false)
       case _ => None
     }
+  }
+
   def findPrevSelect(
       tree: SelectLike,
       enclosed: Boolean = true
