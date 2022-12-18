@@ -568,7 +568,7 @@ the indentation of the body) used for parameter groups when</p>
     (
         foo2: <span class="hljs-type">String</span>,
         foo3: <span class="hljs-type">String</span>
-    ) (foo5: <span class="hljs-type">String</span>)
+    )(foo5: <span class="hljs-type">String</span>)
 }
 <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fooDef</span></span>(foo1: <span class="hljs-type">String</span>)
   (
@@ -620,7 +620,7 @@ newlines.beforeOpenParenDefnSite = fold
     (
         foo2: <span class="hljs-type">String</span>,
         foo3: <span class="hljs-type">String</span>
-    ) (foo5: <span class="hljs-type">String</span>)
+    )(foo5: <span class="hljs-type">String</span>)
 }
 <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fooDef</span></span>(foo1: <span class="hljs-type">String</span>)
     (
@@ -673,7 +673,7 @@ newlines.beforeOpenParenDefnSite = fold
     (
         foo2: <span class="hljs-type">String</span>,
         foo3: <span class="hljs-type">String</span>
-    ) (foo5: <span class="hljs-type">String</span>)
+    )(foo5: <span class="hljs-type">String</span>)
 }
 <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fooDef</span></span>(foo1: <span class="hljs-type">String</span>)
  (
@@ -6096,7 +6096,9 @@ enclosed chain if and only if this flag is false.</p>
 <p>Since v2.6.2.</p>
 </blockquote>
 <p>Default: <code>optIn.encloseClassicChains = false</code></p>
-<pre><code class="hljs css language-scala formatted">(foo.map(_ + <span class="hljs-number">1</span>).map(_ + <span class="hljs-number">1</span>))
+<pre><code class="hljs css language-scala formatted">(foo
+  .map(_ + <span class="hljs-number">1</span>)
+  .map(_ + <span class="hljs-number">1</span>))
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
 <pre><code class="hljs css language-scala original">(foo.map(_ + <span class="hljs-number">1</span>).map(_ + <span class="hljs-number">1</span>))
