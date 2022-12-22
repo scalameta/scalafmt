@@ -1698,7 +1698,7 @@ class Router(formatOps: FormatOps) {
             rightOwner.is[Term.Select] && findTreeWithParent(rightOwner) {
               case _: Term.ArgClause => None
               case _: Type.Select | _: Importer | _: Pkg => Some(true)
-              case _: Term.Select | SplitCallIntoParts(_, _) => None
+              case _: Term.Select | _: Member.Apply => None
               case _ => Some(false)
             }.isDefined =>
         Seq(Split(NoSplit, 0))

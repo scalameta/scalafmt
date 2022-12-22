@@ -443,29 +443,6 @@ object TreeOps {
       case _ => false
     }
 
-  type CallArgs = Either[Seq[Tree], Seq[Seq[Tree]]]
-  type CallParts = (Tree, CallArgs)
-  val splitCallIntoParts: PartialFunction[Tree, CallParts] = {
-    case t: Term.Apply => (t.fun, Left(t.args))
-    case t: Term.Super => (t, Left(Seq(t.superp)))
-    case t: Pat.Extract => (t.fun, Left(t.args))
-    case t: Pat.Tuple => (t, Left(t.args))
-    case t: Type.Apply => (t.tpe, Left(t.args))
-    case t: Term.ApplyType => (t.fun, Left(t.targs))
-    case t: Term.Tuple => (t, Left(t.args))
-    case t: Term.FunctionTerm => (t, Left(t.params))
-    case t: Term.PolyFunction => (t, Left(t.tparams))
-    case t: Type.FunctionType => (t, Left(t.params))
-    case t: Type.PolyFunction => (t, Left(t.tparams))
-    case t: Type.Tuple => (t, Left(t.args))
-    case t: Init => (t.tpe, Right(t.argss))
-    case t: Term.ApplyUsing => (t.fun, Left(t.args))
-  }
-  object SplitCallIntoParts {
-    def unapply(tree: Tree): Option[CallParts] =
-      splitCallIntoParts.lift(tree)
-  }
-
   val DefValAssignLeft =
     new FormatToken.ExtractFromMeta(_.leftOwner match {
       case _: Enumerator => None // it's WithBody
@@ -706,8 +683,8 @@ object TreeOps {
       tree match {
         case t: Term.Select if res.isDefined => traverse(t.qual, Some(t.qual))
         case t: Term.ApplyType => traverse(t.fun, Some(t))
-        case SplitCallIntoParts(fun, _) if fun ne tree =>
-          traverse(fun, Some(fun))
+        case t: Member.Apply => traverse(t.fun, Some(t.fun))
+        case t: Init => traverse(t.tpe, Some(t.tpe))
         case _ => res
       }
   }
@@ -718,14 +695,11 @@ object TreeOps {
   @tailrec
   private def getLastCall(tree: Tree, lastCall: Tree): Tree = {
     // this is to cover types which include one parameter group at a time
-    def body = tree match {
-      case t: Term.Apply => t.fun
-      case t: Pat.Extract => t.fun
-      case t: Term.ApplyType => t.fun
-      case t: Term.ApplyUsing => t.fun
-      case _ => tree
+    val matches = tree match {
+      case t: Member.Apply if t.fun eq lastCall => true
+      case _ => tree eq lastCall
     }
-    if (lastCall.eq(tree) || lastCall.eq(body))
+    if (matches)
       tree.parent match {
         case Some(p) => getLastCall(p, tree)
         case _ => tree
@@ -835,9 +809,9 @@ object TreeOps {
     case Some(p: Term.New) => followedBySelectOrApply(p)
     case Some(_: Term.Select) => true
     case Some(p: Member.Infix) => p.lhs.eq(tree) || followedBySelectOrApply(p)
-    case Some(SplitCallIntoParts(`tree`, args)) =>
-      args match {
-        case Left(Seq(_: Term.Block | _: Term.PartialFunction)) => false
+    case Some(p: Member.Apply) if p.fun eq tree =>
+      p.argClause.values match {
+        case (_: Term.Block | _: Term.PartialFunction) :: Nil => false
         case _ => true
       }
     case _ => false

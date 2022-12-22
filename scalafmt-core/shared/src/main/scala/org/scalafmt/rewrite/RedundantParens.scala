@@ -148,7 +148,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   ): Boolean =
     t match {
       case _: Lit | _: Name | _: Term.Interpolate => true
-      case _: Term.PartialFunction | _: Term.Apply => true
+      case _: Term.PartialFunction | _: Member.Apply => true
       case t: Term.Select =>
         ftoks.tokenBefore(t.name).left.is[Token.Dot]
       case t: Term.Match
