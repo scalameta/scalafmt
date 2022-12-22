@@ -21,10 +21,9 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
     /* either we have parens or no type; multiple params or
      * no params guarantee parens, so we look for type and
      * parens only for a single param */
-    f.params match {
-      case List(param) if param.decltpe.nonEmpty =>
-        val leftParen = f.tokens.find(_.is[Token.LeftParen])
-        !leftParen.exists(_.start <= param.tokens.head.start)
+    f.paramClause match {
+      case pc @ Term.ParamClause(param :: Nil, _) =>
+        param.decltpe.nonEmpty && !pc.tokens.head.is[Token.LeftParen]
       case _ => false
     }
 
@@ -338,18 +337,18 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             case Type.Name("Unit") => true
             case _ => false
           }
-        checkBlockAsBody(b, d.body, noParams(d.name, d.tparams, d.paramss)) &&
+        checkBlockAsBody(b, d.body, noParams(d.paramClauseGroup)) &&
         !isProcedureSyntax(d) &&
         !disqualifiedByUnit
 
       case d: Defn.Var => d.rhs.exists(checkBlockAsBody(b, _, noParams = true))
       case d: Defn.Val => checkBlockAsBody(b, d.rhs, noParams = true)
       case d: Defn.Type =>
-        checkBlockAsBody(b, d.body, noParams = d.tparams.isEmpty)
+        checkBlockAsBody(b, d.body, noParams = d.tparamClause.values.isEmpty)
       case d: Defn.Macro =>
-        checkBlockAsBody(b, d.body, noParams(d.name, d.tparams, d.paramss))
+        checkBlockAsBody(b, d.body, noParams(d.paramClauseGroup))
       case d: Defn.GivenAlias =>
-        checkBlockAsBody(b, d.body, noParams(d.name, d.tparams, d.sparams))
+        checkBlockAsBody(b, d.body, noParams(d.paramClauseGroup))
 
       case p: Term.Function if isFunctionWithBraces(p) =>
         okToRemoveAroundFunctionBody(b, true)
@@ -381,13 +380,11 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case RedundantBracesSettings.DefnBodies.noParams => noParams
     }
 
-  private def noParams(
-      name: Tree,
-      tparams: Seq[Tree],
-      paramss: Seq[Seq[Tree]]
-  ): Boolean =
-    tparams.isEmpty && paramss.isEmpty &&
-      !ftoks.tokenAfter(name).right.is[Token.LeftParen]
+  private def noParams(group: Member.ParamClauseGroup): Boolean =
+    group.tparamClause.values.isEmpty && group.paramClauses.isEmpty
+
+  private def noParams(group: Option[Member.ParamClauseGroup]): Boolean =
+    group.forall(noParams)
 
   private def innerOk(b: Term.Block)(s: Stat): Boolean =
     s match {
@@ -405,7 +402,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   )(implicit style: ScalafmtConfig): Boolean =
     getSingleStatIfLineSpanOk(b).exists {
       case f: Term.Function if needParensAroundParams(f) => false
-      case Term.Function(_, fb: Term.Block) =>
+      case f: Term.Function if f.body.is[Term.Block] =>
+        val fb = f.body
         // don't rewrite block if the inner block will be rewritten, too
         // sometimes a function body block doesn't have braces
         fb.tokens.headOption.exists(_.is[Token.LeftBrace]) &&
@@ -465,7 +463,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         case p: Term.ApplyInfix =>
           stat match {
             case t: Term.ApplyInfix =>
-              val useRight = isSingleElement(p.args, b)
+              val useRight = isSingleElement(p.argClause.values, b)
               SyntacticGroupOps.groupNeedsParenthesis(
                 TreeSyntacticGroup(p),
                 TreeSyntacticGroup(t),
@@ -474,8 +472,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             case _ => true // don't allow other non-infix
           }
 
-        case Term.Match(`b`, _) => true
-        case Type.Match(`b`, _) => true
+        case p: Term.Match => p.expr eq b
+        case p: Type.Match => p.tpe eq b
 
         case parent =>
           SyntacticGroupOps.groupNeedsParenthesis(

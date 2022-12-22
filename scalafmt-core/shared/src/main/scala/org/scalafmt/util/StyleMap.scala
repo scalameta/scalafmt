@@ -110,15 +110,15 @@ class StyleMap(
       style.binPack.literalsIncludeSimpleExpr && (tree match {
         case t: Term.Assign => isLiteral(t.rhs)
         case t: Term.Apply =>
-          isBasicLiteral(t.fun) && (t.args match {
-            case Nil => true
-            case arg :: Nil => isLiteral(arg)
+          isBasicLiteral(t.fun) && (t.argClause match {
+            case Term.ArgClause(Nil, None) => true
+            case Term.ArgClause(arg :: Nil, None) => isLiteral(arg)
             case _ => false
           })
         case Term.New(t) =>
-          isBasicLiteral(t.name) && (t.argss match {
-            case Nil => true
-            case (arg :: Nil) :: Nil => isLiteral(arg)
+          isBasicLiteral(t.name) && (t.argClauses match {
+            case Nil | Term.ArgClause(Nil, None) :: Nil => true
+            case Term.ArgClause(arg :: Nil, None) :: Nil => isLiteral(arg)
             case _ => false
           })
         case _ =>

@@ -38,12 +38,11 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
   override def rewrite(tree: Tree): Unit =
     tree match {
-      case x @ Term.ApplyInfix(lhs, op, targs, args) if checkMatchingInfix(x) =>
+      case (x: Term.ApplyInfix) if checkMatchingInfix(x) =>
         val builder = Seq.newBuilder[TokenPatch]
 
-        val (opHead, opLast) = ends(op)
+        val (opHead, opLast) = ends(x.op)
         builder += TokenPatch.AddLeft(opHead, ".", keepTok = true)
-        val opNextOpt = nextNonTrivial(opLast)
 
         def moveOpenDelim(prev: Token, open: Token): Unit = {
           // move delimiter (before comment or newline)
@@ -52,36 +51,24 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
         }
 
         // move the left bracket if targs
-        val argTuple =
-          if (targs.isEmpty)
-            for {
-              opNext <- opNextOpt
-            } yield (opLast, opNext)
-          else
-            for {
-              lb <- opNextOpt
-              rb <- ctx.getMatchingOpt(lb)
-              rbNext <- {
-                moveOpenDelim(opLast, lb)
-                nextNonTrivial(rb)
-              }
-            } yield (rb, rbNext)
-        // move the left paren if enclosed, else enclose
-        argTuple.foreach { case (prev, lp) =>
-          val isEnclosed = args.lastOption.forall { arg =>
-            val last = arg.tokens.last
-            val isEnclosed = ctx.getMatchingOpt(lp).exists(last.end <= _.end)
-            if (!isEnclosed) {
-              builder += TokenPatch.AddRight(prev, "(", keepTok = true)
-              builder += TokenPatch.AddRight(last, ")", keepTok = true)
-            }
-            isEnclosed
+        val beforeLp =
+          if (x.targClause.values.isEmpty) opLast
+          else {
+            val (targsHead, targsLast) = ends(x.targClause)
+            moveOpenDelim(opLast, targsHead)
+            targsLast
           }
-          if (isEnclosed) moveOpenDelim(prev, lp)
+        // move the left paren if enclosed, else enclose
+        val (argsHead, argsLast) = ends(x.argClause)
+        if (ctx.getMatchingOpt(argsHead).exists(argsLast.end <= _.end))
+          moveOpenDelim(beforeLp, argsHead)
+        else {
+          builder += TokenPatch.AddRight(beforeLp, "(", keepTok = true)
+          builder += TokenPatch.AddRight(argsLast, ")", keepTok = true)
         }
 
-        val (lhsHead, lhsLast) = ends(lhs)
-        val shouldWrapLhs = !isWrapped(lhsHead, lhsLast) && (lhs match {
+        val (lhsHead, lhsLast) = ends(x.lhs)
+        val shouldWrapLhs = !isWrapped(lhsHead, lhsLast) && (x.lhs match {
           case y: Term.ApplyInfix => !checkMatchingInfix(y)
           // foo _ compose bar => (foo _).compose(bar)
           // new Foo compose bar => (new Foo).compose(bar)
@@ -101,8 +88,8 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
   @tailrec
   private def checkMatchingInfix(ai: Term.ApplyInfix): Boolean = {
     val op = ai.op.value
-    InfixApp.isLeftAssoc(op) && matcher.matches(op) && (ai.args match {
-      case arg :: Nil if !isWrapped(arg) =>
+    InfixApp.isLeftAssoc(op) && matcher.matches(op) && (ai.argClause match {
+      case ac @ Term.ArgClause(arg :: Nil, _) if !isWrapped(ac) =>
         !hasPlaceholder(arg, ctx.style.rewrite.allowInfixPlaceholderArg)
       case _ => true
     }) && (ai.lhs match {
