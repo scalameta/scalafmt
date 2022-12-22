@@ -2,36 +2,32 @@ package org.scalafmt.util
 
 import scala.meta._
 
-case class InfixApp(lhs: Tree, op: Name, arg: Tree, all: Tree) {
+object InfixApp {
 
-  @inline
-  def isAssignment: Boolean = InfixApp.isAssignment(op.value)
+  implicit class XtensionInfix(private val tree: Member.Infix) extends AnyVal {
+    @inline
+    def isAssignment: Boolean = InfixApp.isAssignment(tree.op.value)
 
-  @inline
-  lazy val precedence: Int = InfixApp.getPrecedence(op.value)
+    @inline
+    def precedence: Int = InfixApp.getPrecedence(tree.op.value)
 
-  def singleArg: Option[Tree] =
-    arg match {
+    def singleArg: Option[Tree] = tree.arg match {
       case Member.ArgClause(v :: Nil) => Some(v)
       case _ => None
     }
 
-  def args: Seq[Tree] = arg match {
-    case Member.ArgClause(v) => v
-    case _ => arg :: Nil
+    def args: Seq[Tree] = tree.arg match {
+      case Member.ArgClause(v) => v
+      case arg => arg :: Nil
+    }
+
+    def nestedInfixApps: Seq[Member.Infix] =
+      (tree.lhs :: singleArg.toList).collect { case x: Member.Infix => x }
+
   }
 
-  def nestedInfixApps: Seq[InfixApp] =
-    (lhs :: singleArg.toList).collect { case InfixApp(nested) => nested }
-
-}
-
-object InfixApp {
-
-  def apply(t: Member.Infix): InfixApp = InfixApp(t.lhs, t.op, t.arg, t)
-
-  def unapply(tree: Tree): Option[InfixApp] = tree match {
-    case t: Member.Infix => Some(apply(t))
+  def unapply(tree: Tree): Option[Member.Infix] = tree match {
+    case t: Member.Infix => Some(t)
     case _ => None
   }
 

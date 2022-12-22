@@ -13,6 +13,7 @@ import scala.reflect.ClassTag
 import org.scalafmt.Error
 import org.scalafmt.config.{DanglingParentheses, ScalafmtConfig}
 import org.scalafmt.internal.{FormatToken, FormatTokens}
+import org.scalafmt.util.InfixApp._
 
 /** Stateless helper functions on `scala.meta.Tree`.
   */
@@ -532,14 +533,15 @@ object TreeOps {
     AsInfixOp.unapply(tree).isDefined
 
   object AsInfixOp {
-    def unapply(tree: Tree): Option[InfixApp] =
+    def unapply(tree: Tree): Option[Member.Infix] =
       tree.parent.collect {
-        case InfixApp(ia) if ia.op eq tree => ia
+        case ia: Member.Infix if ia.op eq tree => ia
       }
   }
 
   @inline
-  final def asInfixApp(tree: Tree): Option[InfixApp] = InfixApp.unapply(tree)
+  final def asInfixApp(tree: Tree): Option[Member.Infix] =
+    InfixApp.unapply(tree)
 
   @inline
   final def isInfixApp(tree: Tree): Boolean = asInfixApp(tree).isDefined
@@ -548,13 +550,13 @@ object TreeOps {
   def findNextInfixInParent(tree: Tree, scope: Tree): Option[Name] =
     tree.parent match {
       case Some(t: Member.ArgClause) => findNextInfixInParent(t, scope)
-      case Some(t @ InfixApp(ia)) if tree ne scope =>
-        if (ia.lhs eq tree) Some(ia.op) else findNextInfixInParent(t, scope)
+      case Some(t: Member.Infix) if tree ne scope =>
+        if (t.lhs eq tree) Some(t.op) else findNextInfixInParent(t, scope)
       case _ => None
     }
 
-  def infixSequenceLength(app: InfixApp): Int = {
-    val queue = new mutable.Queue[InfixApp]()
+  def infixSequenceLength(app: Member.Infix): Int = {
+    val queue = new mutable.Queue[Member.Infix]()
     queue += app
     var length = 0
     while (queue.nonEmpty) {
@@ -844,10 +846,7 @@ object TreeOps {
   final def followedBySelectOrApply(tree: Tree): Boolean = tree.parent match {
     case Some(p: Term.New) => followedBySelectOrApply(p)
     case Some(_: Term.Select) => true
-    case Some(p: Term.ApplyInfix) =>
-      p.lhs.eq(tree) || followedBySelectOrApply(p)
-    case Some(p: Pat.ExtractInfix) =>
-      p.lhs.eq(tree) || followedBySelectOrApply(p)
+    case Some(p: Member.Infix) => p.lhs.eq(tree) || followedBySelectOrApply(p)
     case Some(SplitCallIntoParts(`tree`, args)) =>
       args match {
         case Left(Seq(_: Term.Block | _: Term.PartialFunction)) => false

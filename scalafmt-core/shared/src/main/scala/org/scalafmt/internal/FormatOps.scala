@@ -12,6 +12,7 @@ import org.scalafmt.config.{
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
+import org.scalafmt.util.InfixApp._
 import org.scalafmt.util.LoggerOps._
 import org.scalameta.FileLine
 
@@ -196,7 +197,7 @@ class FormatOps(
     val tree = ft.meta.rightOwner
     @inline def checkToken = tokens.tokenJustBeforeOpt(tree).contains(ft)
     tree.parent.exists {
-      case InfixApp(ia) =>
+      case ia: Member.Infix =>
         (ia.op eq tree) || (ia.arg eq tree) &&
         (ft.right.is[T.LeftParen] || checkToken)
       case t: Member.ArgClause =>
@@ -455,10 +456,10 @@ class FormatOps(
     if (tokens.isAttachedCommentThenBreak(ft)) ft.right else ft.left
 
   def insideInfixSplit(
-      app: InfixApp,
+      app: Member.Infix,
       ft: FormatToken
   )(implicit style: ScalafmtConfig): Seq[Split] =
-    app.all match {
+    app match {
       case t: Type.ApplyInfix
           if style.spaces.neverAroundInfixTypes.contains(t.op.value) =>
         Seq(Split(NoSplit, 0))
@@ -467,15 +468,14 @@ class FormatOps(
         if (afterInfix ne Newlines.AfterInfix.keep) {
           if (ft.meta.leftOwner ne app.op) Seq(Split(Space, 0))
           else {
-            val fullInfixApp = InfixSplits.findEnclosingInfix(app)
-            val fullInfix = fullInfixApp.all
+            val fullInfix = InfixSplits.findEnclosingInfix(app)
             val ok = isEnclosedInParens(fullInfix) || fullInfix.parent.forall {
               case t: Defn.Val => t.rhs eq fullInfix
               case t: Defn.Var => t.rhs.contains(fullInfix)
               case _ => true
             }
             if (ok)
-              InfixSplits(app, ft, fullInfixApp).getBeforeLhsOrRhs(afterInfix)
+              InfixSplits(app, ft, fullInfix).getBeforeLhsOrRhs(afterInfix)
             else Seq(Split(Space, 0))
           }
         } else {
@@ -486,13 +486,13 @@ class FormatOps(
     }
 
   def getInfixSplitsBeforeLhs(
-      lhsApp: InfixApp,
+      lhsApp: Member.Infix,
       ft: FormatToken,
       afterInfix: Newlines.AfterInfix,
       newStmtMod: Option[Modification] = None
   )(implicit style: ScalafmtConfig): Seq[Split] = {
     val fullInfixTreeOpt =
-      findTreeWithParentSimple(lhsApp.all, false)(isInfixApp)
+      findTreeWithParentSimple(lhsApp, false)(isInfixApp)
     val fullInfix = fullInfixTreeOpt.flatMap(asInfixApp).getOrElse(lhsApp)
     val app = findLeftInfix(fullInfix)
     new InfixSplits(app, ft, fullInfix, app)
@@ -513,13 +513,13 @@ class FormatOps(
 
   private[internal] object InfixSplits {
 
-    def apply(app: InfixApp, ft: FormatToken)(implicit
+    def apply(app: Member.Infix, ft: FormatToken)(implicit
         style: ScalafmtConfig
     ): InfixSplits =
       apply(app, ft, findEnclosingInfix(app))
 
-    def apply(app: InfixApp, ft: FormatToken, fullInfix: InfixApp)(implicit
-        style: ScalafmtConfig
+    def apply(app: Member.Infix, ft: FormatToken, fullInfix: Member.Infix)(
+        implicit style: ScalafmtConfig
     ): InfixSplits = {
       val leftInfix = findLeftInfix(fullInfix)
       new InfixSplits(app, ft, fullInfix, leftInfix)
@@ -532,23 +532,23 @@ class FormatOps(
 
     @tailrec
     private def findEnclosingInfix(
-        child: InfixApp,
+        child: Member.Infix,
         childTree: Tree
-    ): InfixApp =
+    ): Member.Infix =
       if (isEnclosedInParens(childTree)) child
       else
         childTree.parent match {
-          case Some(p @ InfixApp(pia)) if !pia.isAssignment =>
-            findEnclosingInfix(pia, p)
+          case Some(p: Member.Infix) if !p.isAssignment =>
+            findEnclosingInfix(p, p)
           case Some(p @ Member.ArgClause(_ :: Nil)) =>
             findEnclosingInfix(child, p)
           case _ => child
         }
 
-    private[FormatOps] def findEnclosingInfix(child: InfixApp): InfixApp =
-      findEnclosingInfix(child, child.all)
+    private[FormatOps] def findEnclosingInfix(app: Member.Infix): Member.Infix =
+      findEnclosingInfix(app, app)
 
-    def withNLIndent(split: Split)(app: InfixApp, ft: FormatToken)(implicit
+    def withNLIndent(split: Split)(app: Member.Infix, ft: FormatToken)(implicit
         style: ScalafmtConfig
     ): Split = {
       val noNL = !split.isNL && {
@@ -561,28 +561,27 @@ class FormatOps(
   }
 
   private[internal] class InfixSplits(
-      app: InfixApp,
+      app: Member.Infix,
       ft: FormatToken,
-      fullInfix: InfixApp,
-      leftInfix: InfixApp
+      fullInfix: Member.Infix,
+      leftInfix: Member.Infix
   )(implicit style: ScalafmtConfig) {
-    private val beforeLhs = ft.left.start < app.all.pos.start
-    private val fullExpire = getLastEnclosedToken(fullInfix.all)
+    private val beforeLhs = ft.left.start < app.pos.start
+    private val fullExpire = getLastEnclosedToken(fullInfix)
     private val isFirstOp = beforeLhs || (leftInfix.op eq app.op)
 
     private val assignBodyExpire = {
-      val fullAll = fullInfix.all
-      val prevFt = tokenBefore(fullAll)
+      val prevFt = tokenBefore(fullInfix)
       val prevOwner = prevFt.meta.leftOwner
       prevFt.left match {
         case _: T.Equals => Some(getLastToken(prevOwner))
         case _: T.LeftParen | _: T.LeftBracket
-            if fullAll.parent.contains(prevOwner) && !(prevOwner match {
+            if fullInfix.parent.contains(prevOwner) && !(prevOwner match {
               case po: Member.ArgClause => po.parent.exists(isInfixApp)
               case po => isInfixApp(po)
             }) && Option(getArgs(prevOwner, orNull = true))
               .exists(isSeqSingle) =>
-          Some(getLastToken(fullAll))
+          Some(getLastToken(fullInfix))
         case _ => None
       }
     }
@@ -594,7 +593,7 @@ class FormatOps(
           case Some(p @ (_: Pat | _: Pat.ArgClause)) => getLastPat(p)
           case _ => t
         }
-      def getChild = fullInfix.all match {
+      def getChild = fullInfix match {
         case t: Pat => getLastPat(t)
         case t => t
       }
@@ -636,7 +635,7 @@ class FormatOps(
         noindent == allowNoIndent
       }
       if (style.verticalAlignMultilineOperators)
-        !InfixApp.isAssignment(ft.meta.left.text)
+        !isAssignment(ft.meta.left.text)
       else if (beforeLhs) assignBodyExpire.isEmpty
       else if (
         !app.singleArg.exists { x =>
@@ -644,7 +643,7 @@ class FormatOps(
         } && isInfixTopLevelMatch(ft.meta.left.text, false)
       ) false
       else if (isInfixTopLevelMatch(app.op.value, true)) true
-      else if (app.all.is[Pat] && isChildOfCaseClause(app.all)) true
+      else if (app.is[Pat] && isChildOfCaseClause(app)) true
       else false
     }
 
@@ -668,7 +667,7 @@ class FormatOps(
               InfixSplits.switch(s, triggers: _*)
           }
 
-      val fullTok = getIndentTrigger(fullInfix.all)
+      val fullTok = getIndentTrigger(fullInfix)
       val noAssign = assignBodyExpire.isEmpty
       if (!noAssign && beforeLhs) (fullIndent, policy(fullTok))
       else if (skipInfixIndent) {
@@ -698,8 +697,8 @@ class FormatOps(
       val expiresOpt =
         if (closeOpt.isDefined) None
         else {
-          val res = mutable.Buffer.empty[InfixApp]
-          findNextInfixes(fullInfix.all, app.lhs, res)
+          val res = mutable.Buffer.empty[Member.Infix]
+          findNextInfixes(fullInfix, app.lhs, res)
           val infixes = if (beforeLhs) res.toSeq else res.toSeq.tail
           val filtered =
             if (!style.newlines.afterInfixBreakOnNested) infixes
@@ -778,7 +777,7 @@ class FormatOps(
           else
             getInfixRhsAsInfix(app) match {
               case Some(ia) => Some(findLeftInfix(ia).op)
-              case _ => findNextInfixInParent(app.all, fullInfix.all)
+              case _ => findNextInfixInParent(app, fullInfix)
             }
         val endOfNextOp = nextOp.map(tokens.getLast)
         val breakAfterClose = endOfNextOp.flatMap(breakAfterComment)
@@ -821,7 +820,7 @@ class FormatOps(
         SplitTag.InfixChainNoNL.activateOnly(s)
     }
 
-  def getMidInfixToken(app: InfixApp): T = {
+  def getMidInfixToken(app: Member.Infix): T = {
     val opToken = app.op.tokens.head
     val opFollowsComment = tokens(opToken, -1).left.is[T.Comment]
     if (opFollowsComment) getLastNonTrivialToken(app.lhs) else opToken
@@ -835,18 +834,18 @@ class FormatOps(
   private def findNextInfixes(
       fullTree: Tree,
       tree: Tree,
-      res: mutable.Buffer[InfixApp]
+      res: mutable.Buffer[Member.Infix]
   ): Unit = if (tree ne fullTree)
     tree.parent match {
-      case Some(p @ InfixApp(ia)) =>
+      case Some(ia: Member.Infix) =>
         if (ia.lhs eq tree) {
           res += ia
           findNestedInfixes(ia.arg, res)
         }
-        findNextInfixes(fullTree, p, res)
+        findNextInfixes(fullTree, ia, res)
       case Some(p: Member.ArgClause) =>
         p.parent match {
-          case Some(pp @ InfixApp(_)) =>
+          case Some(pp: Member.Infix) =>
             findNextInfixes(fullTree, pp, res)
           case _ =>
         }
@@ -855,11 +854,11 @@ class FormatOps(
 
   private def findNestedInfixes(
       tree: Tree,
-      res: mutable.Buffer[InfixApp]
+      res: mutable.Buffer[Member.Infix]
   ): Unit = tree match {
     case Member.ArgClause(arg :: Nil) if !isEnclosedInParens(tree) =>
       findNestedInfixes(arg, res)
-    case InfixApp(ia) if !isEnclosedInParens(tree) =>
+    case ia: Member.Infix if !isEnclosedInParens(tree) =>
       findNestedInfixes(ia.lhs, res)
       res += ia
       ia.singleArg.foreach(findNestedInfixes(_, res))
@@ -867,28 +866,29 @@ class FormatOps(
   }
 
   @tailrec
-  final def findLeftInfix(app: InfixApp): InfixApp =
+  final def findLeftInfix(app: Member.Infix): Member.Infix =
     app.lhs match {
-      case t @ InfixApp(ia) if !isEnclosedInParens(t) =>
-        findLeftInfix(ia)
+      case t: Member.Infix if !isEnclosedInParens(t) =>
+        findLeftInfix(t)
       case _ => app
     }
 
-  private def getInfixRhsAsInfix(app: InfixApp): Option[InfixApp] =
+  private def getInfixRhsAsInfix(app: Member.Infix): Option[Member.Infix] =
     app.singleArg match {
-      case Some(t @ InfixApp(ia)) if !isEnclosedInParens(t) => Some(ia)
+      case Some(t: Member.Infix) if !isEnclosedInParens(t) => Some(t)
       case _ => None // multiple parameters to infix are always enclosed
     }
 
-  private def infixSequenceMaxPrecedence(app: InfixApp): Int = {
-    val queue = new mutable.Queue[InfixApp]()
+  private def infixSequenceMaxPrecedence(app: Member.Infix): Int = {
+    val queue = new mutable.Queue[Member.Infix]()
     queue += app
     var maxPrecedence = 0
     while (queue.nonEmpty) {
       val elem = queue.dequeue()
-      if (maxPrecedence < elem.precedence)
-        maxPrecedence = elem.precedence
-      queue ++= elem.nestedInfixApps.filter(x => !isEnclosedInParens(x.all))
+      val elemPrecedence = elem.precedence
+      if (maxPrecedence < elemPrecedence)
+        maxPrecedence = elemPrecedence
+      queue ++= elem.nestedInfixApps.filter(x => !isEnclosedInParens(x))
     }
     maxPrecedence
   }
@@ -1708,7 +1708,7 @@ class FormatOps(
               else getSlbSplits(exclude)
             case _ => getSlbSplits()
           }
-        case InfixApp(ia) =>
+        case ia: Member.Infix =>
           val lia = findLeftInfix(ia)
           val callPolicy = CallSite.getFoldedPolicy(lia.lhs)
           if (callPolicy.nonEmpty) getPolicySplits(0, callPolicy)
