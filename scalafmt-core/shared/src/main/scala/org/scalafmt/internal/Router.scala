@@ -2191,8 +2191,7 @@ class Router(formatOps: FormatOps) {
               val singleLine = enclosed.forall { x =>
                 style.newlines.source.eq(Newlines.unfold) &&
                 x.parent.exists {
-                  case _: Template | _: Defn => false
-                  case InfixApp(_) => false
+                  case _: Template | _: Defn | _: Member.Infix => false
                   case _ => true
                 }
               }

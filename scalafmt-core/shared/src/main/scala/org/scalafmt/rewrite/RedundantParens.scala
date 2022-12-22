@@ -7,7 +7,8 @@ import scala.meta.tokens.Token
 import org.scalafmt.config.{RedundantParensSettings, ScalafmtConfig}
 import org.scalafmt.internal.{FormatToken, FormatTokens}
 import org.scalafmt.internal.{Side, SyntacticGroupOps, TreeSyntacticGroup}
-import org.scalafmt.util.{InfixApp, TreeOps}
+import org.scalafmt.util.InfixApp._
+import org.scalafmt.util.TreeOps
 
 object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
 
@@ -18,17 +19,17 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
   override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new RedundantParens(ftoks)
 
-  private def infixNeedsParens(outer: InfixApp, inner: Tree): Boolean = {
-    val sgOuter = TreeSyntacticGroup(outer.all)
+  private def infixNeedsParens(outer: Member.Infix, inner: Tree): Boolean = {
+    val sgOuter = TreeSyntacticGroup(outer)
     val sgInner = TreeSyntacticGroup(inner)
     val side = if (outer.lhs eq inner) Side.Left else Side.Right
     SyntacticGroupOps.groupNeedsParenthesis(sgOuter, sgInner, side)
   }
 
-  private val precedenceVeryHigh = InfixApp.getPrecedence("+")
-  private val precedenceHigh = InfixApp.getPrecedence("=")
-  private val precedenceMedium = InfixApp.getPrecedence("<")
-  private val precedenceLowest = InfixApp.getPrecedence("foo")
+  private val precedenceVeryHigh = getPrecedence("+")
+  private val precedenceHigh = getPrecedence("=")
+  private val precedenceMedium = getPrecedence("<")
+  private val precedenceLowest = getPrecedence("foo")
 
   object IsExprBody {
     def unapply(t: Tree): Option[Boolean] = {
@@ -139,11 +140,11 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
             canRewriteBody(t)
           case p: Term.ArgClause =>
             p.parent.exists {
-              case InfixApp(pia) =>
+              case pia: Member.Infix =>
                 !infixNeedsParens(pia, t) && okToReplaceInfix(pia, t)
               case _ => true
             }
-          case InfixApp(pia) if !infixNeedsParens(pia, t) =>
+          case pia: Member.Infix if !infixNeedsParens(pia, t) =>
             okToReplaceInfix(pia, t)
           case _ =>
             okToReplaceOther(t)
@@ -175,7 +176,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         case _: Lit.Unit | _: Member.Tuple => false
         case _ =>
           t.parent.exists {
-            case InfixApp(pia) =>
+            case pia: Member.Infix =>
               val keep = infixNeedsParens(pia, arg)
               if (keep) okToReplaceOther(arg) else okToReplaceInfix(pia, arg)
             case _ => false
@@ -184,39 +185,41 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     case _ => false
   }
 
-  private def okToReplaceInfix(pia: InfixApp, tia: InfixApp)(implicit
+  private def okToReplaceInfix(pia: Member.Infix, tia: Member.Infix)(implicit
       style: ScalafmtConfig
   ): Boolean = {
     !breaksBeforeOp(tia) &&
     style.rewrite.redundantParens.infixSide.exists {
-      case RedundantParensSettings.InfixSide.many =>
-        tia.op.value == pia.op.value ||
-        tia.precedence <= precedenceHigh ||
-        tia.precedence < precedenceLowest &&
+      case RedundantParensSettings.InfixSide.many
+          if tia.op.value != pia.op.value =>
+        val tiaPrecedence = tia.precedence
+        tiaPrecedence <= precedenceHigh ||
+        tiaPrecedence < precedenceLowest &&
         pia.precedence >= precedenceLowest
       case RedundantParensSettings.InfixSide.some =>
-        tia.precedence <= precedenceVeryHigh ||
-        tia.precedence <= precedenceMedium &&
+        val tiaPrecedence = tia.precedence
+        tiaPrecedence <= precedenceVeryHigh ||
+        tiaPrecedence <= precedenceMedium &&
         pia.precedence >= precedenceLowest
       case _ => true
     }
   }
 
-  private def okToReplaceInfix(pia: InfixApp, t: Tree)(implicit
+  private def okToReplaceInfix(pia: Member.Infix, t: Tree)(implicit
       style: ScalafmtConfig
   ): Boolean = t match {
-    case InfixApp(tia) => okToReplaceInfix(pia, tia)
+    case tia: Member.Infix => okToReplaceInfix(pia, tia)
     case _: Lit | _: Name | _: Term.Interpolate => true
     case _: Term.PartialFunction => true
     case _: Term.AnonymousFunction => false
     case _ => style.rewrite.redundantParens.infixSide.isDefined
   }
 
-  private def breaksBeforeOpAndNotEnclosed(ia: InfixApp): Boolean = {
-    !ftoks.isEnclosedInParens(ia.all) && breaksBeforeOp(ia)
+  private def breaksBeforeOpAndNotEnclosed(ia: Member.Infix): Boolean = {
+    !ftoks.isEnclosedInParens(ia) && breaksBeforeOp(ia)
   }
 
-  private def breaksBeforeOp(ia: InfixApp): Boolean = {
+  private def breaksBeforeOp(ia: Member.Infix): Boolean = {
     val beforeOp = ftoks.tokenJustBefore(ia.op)
     ftoks.prevNonCommentSameLine(beforeOp).hasBreak ||
     ia.nestedInfixApps.exists(breaksBeforeOpAndNotEnclosed)
@@ -224,7 +227,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
   private def canRewriteBody(tree: Tree): Boolean =
     tree match {
-      case InfixApp(ia) => !breaksBeforeOp(ia)
+      case ia: Member.Infix => !breaksBeforeOp(ia)
       case _ => true
     }
 
