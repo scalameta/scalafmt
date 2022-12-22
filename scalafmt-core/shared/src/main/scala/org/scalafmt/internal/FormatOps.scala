@@ -108,7 +108,7 @@ class FormatOps(
           t.mods.foreach(addOptional)
           addOptional(t.name)
         case t: Term => add(t)
-        case t: Pat.Extract => t.args.foreach(add)
+        case t: Pat.Extract => t.argClause.values.foreach(add)
         case _ =>
       }
       queue += tree.children
@@ -1359,7 +1359,7 @@ class FormatOps(
   def getFuncArrow(term: Term.FunctionTerm): Option[FormatToken] =
     tokens
       .tokenBeforeOpt(term.body)
-      .orElse(tokens.tokenAfterOpt(term.params).map(getArrowAfter))
+      .orElse(tokens.tokenAfterOpt(term.paramClause).map(getArrowAfter))
       .orElse {
         findFirst(tokens.getHead(term), term.pos.end)(_.left.is[T.RightArrow])
       }
@@ -2064,22 +2064,22 @@ class FormatOps(
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] =
         ft.meta.leftOwner match {
-          case ParamClauseParent(t @ Defn.ExtensionGroup(_, _, b: Term.Block))
-              if isBlockStart(b, nft) =>
+          case ParamClauseParent(t: Defn.ExtensionGroup)
+              if isBlockStart(t.body, nft) =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
-              def splits = Some(getSplitsMaybeBlock(ft, nft, b))
-              def rightBrace = blockLast(b)
+              def splits = Some(getSplitsMaybeBlock(ft, nft, t.body))
+              def rightBrace = blockLast(t.body)
             })
-          case t @ Term.If(_, thenp, _) if !nft.right.is[T.KwThen] && {
-                isTreeMultiStatBlock(thenp) || !ifWithoutElse(t) &&
+          case t: Term.If if !nft.right.is[T.KwThen] && {
+                isTreeMultiStatBlock(t.thenp) || !ifWithoutElse(t) &&
                 (isElsePWithOptionalBraces(t) ||
-                  existsBlockIfWithoutElse(thenp, false))
+                  existsBlockIfWithoutElse(t.thenp, false))
               } =>
             Some(new OptionalBracesRegion {
               def owner = Some(t)
               def splits = Some(getSplitsForIf(ft, nft, t))
-              def rightBrace = blockLast(thenp)
+              def rightBrace = blockLast(t.thenp)
             })
           case t @ Term.For(_, b) if !nft.right.is[T.KwDo] =>
             Some(new OptionalBracesRegion {
@@ -2329,17 +2329,21 @@ class FormatOps(
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] = {
         ft.meta.leftOwner match {
-          case t @ Term.If(b: Term.Block, _, _)
-              if !matchingOpt(nft.right).exists(_.end >= b.pos.end) =>
-            Some(new OptionalBracesRegion {
-              def owner = Some(t)
-              def splits = Some {
-                val dangle = style.danglingParentheses.ctrlSite
-                val forceNL = !nft.right.is[T.LeftParen]
-                getSplits(ft, b, forceNL = forceNL, danglingKeyword = dangle)
-              }
-              def rightBrace = blockLast(b)
-            })
+          case t: Term.If =>
+            t.cond match {
+              case b: Term.Block
+                  if !matchingOpt(nft.right).exists(_.end >= b.pos.end) =>
+                Some(new OptionalBracesRegion {
+                  def owner = Some(t)
+                  def splits = Some {
+                    val dangle = style.danglingParentheses.ctrlSite
+                    val forceNL = !nft.right.is[T.LeftParen]
+                    getSplits(ft, b, forceNL, dangle)
+                  }
+                  def rightBrace = blockLast(b)
+                })
+              case _ => None
+            }
           case _ => None
         }
       }
@@ -2465,6 +2469,12 @@ class FormatOps(
     private def isBlockStart(tree: Term.Block, ft: FormatToken): Boolean =
       tokens.tokenJustBeforeOpt(tree.stats).contains(ft)
 
+    private def isBlockStart(tree: Tree, ft: FormatToken): Boolean =
+      tree match {
+        case t: Term.Block => isBlockStart(t, ft)
+        case _ => false
+      }
+
     @inline private def treeLast(tree: Tree): Option[T] =
       tokens.getLastOpt(tree).map(_.left)
     @inline private def blockLast(tree: Tree): Option[T] =
@@ -2559,7 +2569,7 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t: Term.Function =>
             val skip = t.parent.exists(_.is[Term.Block])
-            if (skip) None else Some((t.body, seq(all, t.params)))
+            if (skip) None else Some((t.body, seq(all, t.paramClause.values)))
           case _ => None
         }
     }
@@ -2567,8 +2577,9 @@ class FormatOps(
     private object RightParenImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case x @ Term.If(c, t, e) if !nft.right.is[T.KwThen] =>
-            Some((t, seq(all && !ifWithoutElse(x), e) ++ seq(all, c)))
+          case x: Term.If if !nft.right.is[T.KwThen] =>
+            val hasElse = all && !ifWithoutElse(x)
+            Some((x.thenp, seq(hasElse, x.elsep) ++ seq(all, x.cond)))
           case Term.For(s, b) if !nft.right.is[T.KwDo] =>
             Some((b, seq(all, s)))
           case Term.While(c, b) if !nft.right.is[T.KwDo] =>
@@ -2641,8 +2652,8 @@ class FormatOps(
     private object ElseImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case Term.If(c, t, e) if !e.is[Term.If] =>
-            Some((e, seq(all, t) ++ seq(all, c)))
+          case x: Term.If if !x.elsep.is[Term.If] =>
+            Some((x.elsep, seq(all, x.thenp) ++ seq(all, x.cond)))
           case _ => None
         }
     }

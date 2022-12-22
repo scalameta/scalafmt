@@ -343,10 +343,13 @@ class FormatWriter(formatOps: FormatOps) {
 
   private def checkInsertBraces(locations: Array[FormatLocation]): Unit = {
     def checkInfix(tree: Tree): Boolean = tree match {
-      case ai @ Term.ApplyInfix(lhs, op, _, rhs) =>
+      case ai: Term.ApplyInfix =>
         tokens.isEnclosedInParens(ai) ||
-        tokens.prevNonCommentSameLine(tokens.tokenJustBefore(op)).noBreak &&
-        checkInfix(lhs) && (rhs.lengthCompare(1) != 0 || checkInfix(rhs.head))
+        tokens.prevNonCommentSameLine(tokens.tokenJustBefore(ai.op)).noBreak &&
+        checkInfix(ai.lhs) && (ai.argClause.values match {
+          case head :: Nil => checkInfix(head)
+          case _ => true
+        })
       case _ => true
     }
     var addedLines = 0
@@ -1266,10 +1269,10 @@ class FormatWriter(formatOps: FormatOps) {
         case Some(AlignContainer(p)) => p
         case Some(p @ (_: Term.Select | _: Pat.Var | _: Term.ApplyInfix)) =>
           getAlignContainerParent(p)
-        case Some(p: Term.Apply) if p.fun eq child =>
-          getAlignContainerParent(p)
-        case Some(p: Term.Apply)
-            if p.args.lengthCompare(1) == 0 && child.is[Term.Apply] =>
+        case Some(p: Term.Apply) if (p.argClause.values match {
+              case (_: Term.Apply) :: Nil => true
+              case _ => p.fun eq child
+            }) =>
           getAlignContainerParent(p)
         // containers that can be traversed further if on same line
         case Some(p @ (_: Case | _: Enumerator)) =>

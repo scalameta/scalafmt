@@ -286,8 +286,9 @@ class Router(formatOps: FormatOps) {
                 else Some(false)
               (expire, arrow.map(_.left), 0, nlOnly)
             case Some(t: Case) if t.cond.isEmpty && (leftOwner match {
-                  case Term.PartialFunction(List(`t`)) => true
-                  case x @ Term.Match(_, List(`t`)) => getMatchDot(x).isDefined
+                  case Term.PartialFunction(`t` :: Nil) => true
+                  case x: Term.Match =>
+                    isSingleElement(x.cases, t) && getMatchDot(x).isDefined
                   case _ => false
                 }) =>
               val arrow = getCaseArrow(t)
@@ -1046,12 +1047,12 @@ class Router(formatOps: FormatOps) {
 
         def isExcludedTree(tree: Tree): Boolean =
           tree match {
-            case t: Init => t.argss.nonEmpty
-            case t: Term.Apply => t.args.nonEmpty
-            case t: Term.ApplyType => t.targs.nonEmpty
+            case t: Init => t.argClauses.nonEmpty
+            case t: Term.Apply => t.argClause.nonEmpty
+            case t: Term.ApplyType => t.argClause.nonEmpty
             case t: Term.Match => t.cases.nonEmpty
             case t: Type.Match => t.cases.nonEmpty
-            case t: Term.New => t.init.argss.nonEmpty
+            case t: Term.New => t.init.argClauses.nonEmpty
             case _: Term.NewAnonymous => true
             case _ => false
           }
@@ -2776,7 +2777,7 @@ class Router(formatOps: FormatOps) {
       case _: Term.ForYield => twoBranches
       // we force newlines in try/catch/finally
       case _: Term.Try | _: Term.TryWithHandler => Split.ignored
-      case t: Term.Apply if t.args.nonEmpty =>
+      case t: Term.Apply if t.argClause.nonEmpty =>
         baseSpaceSplit.withOptimalToken(optimalWithComment)
       case _ =>
         baseSpaceSplit.withOptimalToken(optimal)
