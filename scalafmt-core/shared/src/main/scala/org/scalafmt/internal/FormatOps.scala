@@ -611,7 +611,7 @@ class FormatOps(
         case p: Term.Block => isSingleElement(p.stats, child)
         case p: Term.FunctionTerm => isBlockFunction(p)
         case p @ Member.ArgClause(`child` :: Nil) => isEnclosedInMatching(p)
-        case SplitCallIntoParts(_, Left(Seq(`child`))) => true
+        case Member.Tuple(`child` :: Nil) => true
         case _ => false
       }
       def isAloneArgOrBody(child: Tree) = child.parent.exists {
@@ -619,7 +619,7 @@ class FormatOps(
         case _: Term.If | _: Term.While | _: Term.Do => true
         case _: Member.ArgClause => true
         case p: Term.Block => isSingleElement(p.stats, child)
-        case SplitCallIntoParts(_) => true
+        case _: Init | _: Term.Super | _: Member.Tuple => true
         case t: Tree.WithBody => t.body eq child
         case t: Term.Param => t.default.contains(child)
         case _ => false
@@ -1426,8 +1426,8 @@ class FormatOps(
     tree match {
       case GetSelectLike(t) =>
         if (isEnclosed) None else Some(t)
-      case SplitCallIntoParts(fun, _) if tree ne fun =>
-        if (isEnclosed) None else findPrevSelect(fun, enclosed)
+      case t: Member.Apply =>
+        if (isEnclosed) None else findPrevSelect(t.fun, enclosed)
       case Term.AnonymousFunction(body) =>
         if (enclosed) None else findPrevSelect(body, false)
       case _ => None
@@ -1450,7 +1450,7 @@ class FormatOps(
       tree.parent match {
         case Some(GetSelectLike(p)) =>
           findLastApplyAndNextSelectEnclosed(p.tree, select.orElse(Some(p)))
-        case Some(p @ SplitCallIntoParts(`tree`, _)) =>
+        case Some(p: Member.Apply) if p.fun eq tree =>
           findLastApplyAndNextSelectEnclosed(p, select)
         case _ => (tree, select)
       }
@@ -1464,7 +1464,7 @@ class FormatOps(
     tree.parent match {
       case Some(GetSelectLike(p)) =>
         findLastApplyAndNextSelectPastEnclosed(p.tree, select.orElse(Some(p)))
-      case Some(p @ SplitCallIntoParts(`tree`, _)) =>
+      case Some(p: Member.Apply) if p.fun eq tree =>
         prevEnclosed match {
           case Some(t) => (t, select)
           case _ =>
@@ -1497,7 +1497,7 @@ class FormatOps(
           if tokens.getHead(p.argClause).left.is[T.LeftBrace] =>
         style.includeCurlyBraceInSelectChains &&
         !nextSelect.contains(lastApply) // exclude short curly
-      case Some(SplitCallIntoParts(`thisTree`, _)) => true
+      case Some(p: Member.Apply) => p.fun eq thisTree
       case _ => false
     })
   }
@@ -1563,17 +1563,17 @@ class FormatOps(
       @tailrec
       private def getOpenNLByArgs(
           ft: FormatToken,
-          argss: Seq[Seq[Tree]],
+          argClauses: Seq[Member.ArgClause],
           penalty: Int,
           policies: Seq[Policy]
       ): Seq[Policy] = {
-        if (argss.isEmpty) policies
+        if (argClauses.isEmpty) policies
         else {
-          val args = argss.head
+          val args = argClauses.head.values
           val openFt = nextNonComment(ft)
           if (args.isEmpty) {
             val nextFt = next(nextNonComment(next(openFt)))
-            getOpenNLByArgs(nextFt, argss.tail, penalty, policies)
+            getOpenNLByArgs(nextFt, argClauses.tail, penalty, policies)
           } else {
             val endPolicy = tokens.getHead(args.head).left match {
               case t: T.LeftBrace => Policy.End.After(t)
@@ -1585,27 +1585,23 @@ class FormatOps(
               Policy.End.On(openFt.right)
             ) +: policies
             val nextPolicies = args match {
-              case Seq(SplitCallIntoParts(f, a)) =>
-                getOpenNLByTree(f, a, withPnl, penalty)
+              case (t: Member.Apply) :: Nil =>
+                getOpenNLByTree(t.fun, Seq(t.argClause), withPnl, penalty)
               case _ => withPnl
             }
-            getOpenNLByArgs(argLastFt, argss.tail, penalty, nextPolicies)
+            getOpenNLByArgs(argLastFt, argClauses.tail, penalty, nextPolicies)
           }
         }
       }
 
       private def getOpenNLByTree(
           fun: Tree,
-          argsOrArgss: CallArgs,
+          argClauses: Seq[Member.ArgClause],
           policies: Seq[Policy],
           penalty: Int
       ): Seq[Policy] = {
-        val argss = argsOrArgss match {
-          case Left(x) => Seq(x)
-          case Right(x) => x
-        }
         val funLastFt = tokens.getLast(fun)
-        getOpenNLByArgs(funLastFt, argss, penalty, policies)
+        getOpenNLByArgs(funLastFt, argClauses, penalty, policies)
       }
 
       @tailrec
@@ -1614,10 +1610,13 @@ class FormatOps(
           policy: Policy = Policy.NoPolicy
       ): Policy =
         body match {
-          case SplitCallIntoParts(fun, args) if fun ne body =>
-            val nextPolicy = getOpenNLByTree(fun, args, Nil, 1)
+          case t: Member.Apply if t.fun ne body =>
+            val nextPolicy = getOpenNLByTree(t.fun, t.argClause :: Nil, Nil, 1)
               .foldLeft(policy) { case (res, x) => Policy.Relay(x, res) }
-            getFoldedPolicy(fun, nextPolicy)
+            getFoldedPolicy(t.fun, nextPolicy)
+          case t: Init =>
+            getOpenNLByTree(t.tpe, t.argClauses, Nil, 1)
+              .foldLeft(policy) { case (res, x) => Policy.Relay(x, res) }
           case t: Term.Select => getFoldedPolicy(t.qual, policy)
           case _ => policy
         }
