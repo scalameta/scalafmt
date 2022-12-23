@@ -1431,9 +1431,9 @@ but are followed by one (i.e., can trivially be changed to a <code>//</code> com
     thirdParam: <span class="hljs-type">Boolean</span>
 </span>) </span>{
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">Foo</span></span>(
-      firstParam:  <span class="hljs-type">Int</span>,
+      firstParam: <span class="hljs-type">Int</span>,
       secondParam: <span class="hljs-type">String</span>,
-      thirdParam:  <span class="hljs-type">Boolean</span>
+      thirdParam: <span class="hljs-type">Boolean</span>
   ) = ???
 }
 </code></pre>
@@ -6096,9 +6096,7 @@ enclosed chain if and only if this flag is false.</p>
 <p>Since v2.6.2.</p>
 </blockquote>
 <p>Default: <code>optIn.encloseClassicChains = false</code></p>
-<pre><code class="hljs css language-scala formatted">(foo
-  .map(_ + <span class="hljs-number">1</span>)
-  .map(_ + <span class="hljs-number">1</span>))
+<pre><code class="hljs css language-scala formatted">(foo.map(_ + <span class="hljs-number">1</span>).map(_ + <span class="hljs-number">1</span>))
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
 <pre><code class="hljs css language-scala original">(foo.map(_ + <span class="hljs-number">1</span>).map(_ + <span class="hljs-number">1</span>))
