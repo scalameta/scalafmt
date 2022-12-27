@@ -7034,8 +7034,7 @@ class a {
   )(in: Input[E]): Iteratee[E, Iteratee[E, A]] = in match {
     case Input.El(e) => Iteratee.flatten(
         Future(p(e))(pec).map(b =>
-          if (b) Done(inner, in)
-          else stepNoBreak(inner)(in)
+          if (b) Done(inner, in) else stepNoBreak(inner)(in)
         )(dec)
       )
     case _ => stepNoBreak(inner)(in)

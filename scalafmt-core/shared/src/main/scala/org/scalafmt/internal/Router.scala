@@ -2014,8 +2014,7 @@ class Router(formatOps: FormatOps) {
           )
       case FormatToken(_: T.KwIf, right, _) if leftOwner.is[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
-        val expireTree = if (ifWithoutElse(owner)) owner else owner.elsep
-        val expire = rhsOptimalToken(tokens.getLast(expireTree))
+        val expire = getLastToken(owner)
         val mod =
           if (style.newlines.keepBreak(newlines)) Newline
           else Space(style.spaces.isSpaceAfterKeyword(right))
@@ -2089,7 +2088,7 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0)
         )
       case FormatToken(_, T.KwElse() | T.KwYield(), _) =>
-        val expire = rhsOptimalToken(tokens.getLast(rightOwner))
+        val expire = getLastToken(rightOwner)
         val noSpace = shouldBreak(formatToken)
         def exclude = insideBracesBlock(formatToken, expire)
         val noSyntaxNL = formatToken.right.is[T.KwYield]
