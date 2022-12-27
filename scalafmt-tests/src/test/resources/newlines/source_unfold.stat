@@ -7473,3 +7473,164 @@ object a {
       val rest = that
     } with AbstractTransformed[B] with Appended[B]
 }
+<<< SM 7.4.0: 46
+maxColumn = 76
+===
+object a {
+  slice match {
+    case (xs, from, until) ⇒
+      likeVector(xs)({ _.drop(from).take(until - from) })
+  }
+}
+>>>
+object a {
+  slice match {
+    case (xs, from, until) ⇒
+      likeVector(xs)({
+        _.drop(from).take(until - from)
+      })
+  }
+}
+<<< SM 7.4.0: 47.1
+maxColumn = 76
+===
+class a {
+  def this(settings: Settings, eventStream: EventStream) = this(() ⇒
+    eventStream.logLevel
+  )
+}
+>>>
+class a {
+  def this(settings: Settings, eventStream: EventStream) = this(() ⇒
+    eventStream.logLevel
+  )
+}
+<<< SM 7.4.0: 47.2
+maxColumn = 76
+===
+class a {
+  def thiz(settings: Settings, eventStream: EventStream) = thiz(() ⇒
+    eventStream.logLevel
+  )
+}
+>>>
+class a {
+  def thiz(settings: Settings, eventStream: EventStream) = thiz(() ⇒
+    eventStream.logLevel
+  )
+}
+<<< SM 7.4.0: 48
+maxColumn = 76
+===
+class a {
+  val ipv4: immutable.Seq[Inet4Address] = addresses
+    .collect({ case a: Inet4Address ⇒ a })(breakOut)
+}
+>>>
+class a {
+  val ipv4: immutable.Seq[Inet4Address] =
+    addresses.collect({ case a: Inet4Address ⇒
+      a
+    })(breakOut)
+}
+<<< SM 7.4.0: 49
+maxColumn = 76
+===
+class a {
+  def this(
+    trapExit: Array[Class[_ <: Throwable]],
+    maxNrOfRetries: Int,
+    withinTimeRange: Int
+  ) = this(
+    trapExit.toList,
+    if (maxNrOfRetries < 0) None else Some(maxNrOfRetries),
+    if (withinTimeRange < 0) None else Some(withinTimeRange)
+  )
+}
+>>>
+class a {
+  def this(
+      trapExit: Array[Class[_ <: Throwable]],
+      maxNrOfRetries: Int,
+      withinTimeRange: Int
+  ) = this(
+    trapExit.toList,
+    if (maxNrOfRetries < 0)
+      None
+    else
+      Some(maxNrOfRetries),
+    if (withinTimeRange < 0)
+      None
+    else
+      Some(withinTimeRange)
+  )
+}
+<<< SM 7.4.0: 50
+maxColumn = 70
+===
+class a {
+  def step(
+      inner: Iteratee[E, A]
+  )(in: Input[E]): Iteratee[E, Iteratee[E, A]] = in match {
+    case Input.El(e) => Iteratee.flatten(
+        Future(p(e))(pec).map(b =>
+          if (b) Done(inner, in)
+          else stepNoBreak(inner)(in)
+        )(dec)
+      )
+    case _ => stepNoBreak(inner)(in)
+  }
+}
+>>>
+class a {
+  def step(
+      inner: Iteratee[E, A]
+  )(in: Input[E]): Iteratee[E, Iteratee[E, A]] =
+    in match {
+      case Input.El(e) =>
+        Iteratee.flatten(
+          Future(p(e))(pec).map(b =>
+            if (b)
+              Done(inner, in)
+            else
+              stepNoBreak(inner)(in)
+          )(dec)
+        )
+      case _ =>
+        stepNoBreak(inner)(in)
+    }
+}
+<<< SM 7.4.0: 51
+maxColumn = 76
+===
+class a {
+  atPos(body.pos)(casegen.one(substitution(
+    body
+  ))) // since SubstOnly treemakers are dropped, need to do it here
+}
+>>>
+class a {
+  atPos(body.pos)(
+    casegen.one(substitution(body))
+  ) // since SubstOnly treemakers are dropped, need to do it here
+}
+<<< SM 7.4.0: 52
+maxColumn = 76
+===
+class a {
+  val o2 =
+    v1.changes
+      .register(Witness({ i =>
+        result = result * i * i
+      })) // result = 2 * 2 * 2 = 8
+}
+>>>
+class a {
+  val o2 = v1
+    .changes
+    .register(
+      Witness({ i =>
+        result = result * i * i
+      })
+    ) // result = 2 * 2 * 2 = 8
+}
