@@ -182,6 +182,13 @@ object Policy {
     override def toString: String = s"$begPolicy:$policy"
   }
 
+  object Delay {
+    def apply(policy: Policy, begPolicy: End.WithPos)(implicit
+        fileLine: FileLine
+    ): Policy =
+      if (policy.isEmpty) policy else new Delay(policy, begPolicy)
+  }
+
   class Relay(before: Policy, after: Policy)(implicit
       fileLine: FileLine
   ) extends Policy {

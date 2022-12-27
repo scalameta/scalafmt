@@ -1560,48 +1560,38 @@ class FormatOps(
 
     private object CallSite {
 
+      private val penalizeOpenNL: Policy.Pf = { case Decision(_, s) =>
+        s.map(x => if (x.isNL) x.withPenalty(1) else x)
+      }
+
       @tailrec
-      private def getOpenNLByArgs(
-          ft: FormatToken,
-          argClauses: Seq[Member.ArgClause],
-          penalty: Int,
-          policies: Seq[Policy]
-      ): Seq[Policy] = {
-        if (argClauses.isEmpty) policies
+      private def getNestedOpens(
+          tree: Member.ArgClause,
+          res: List[FormatToken]
+      ): List[FormatToken] = {
+        val args = tree.values
+        if (args.isEmpty) res
         else {
-          val args = argClauses.head.values
-          val openFt = nextNonComment(ft)
-          if (args.isEmpty) {
-            val nextFt = next(nextNonComment(next(openFt)))
-            getOpenNLByArgs(nextFt, argClauses.tail, penalty, policies)
-          } else {
-            val endPolicy = tokens.getHead(args.head).left match {
-              case t: T.LeftBrace => Policy.End.After(t)
-              case t => Policy.End.On(t)
-            }
-            val argLastFt = tokens.getLast(args.last)
-            val withPnl = new Policy.Delay(
-              new PenalizeAllNewlines(endPolicy, penalty, noSyntaxNL = true),
-              Policy.End.On(openFt.right)
-            ) +: policies
-            val nextPolicies = args match {
-              case (t: Member.Apply) :: Nil =>
-                getOpenNLByTree(t.fun, Seq(t.argClause), withPnl, penalty)
-              case _ => withPnl
-            }
-            getOpenNLByArgs(argLastFt, argClauses.tail, penalty, nextPolicies)
+          val newres = tokens.getHead(tree) :: res
+          args match {
+            case (t: Member.Apply) :: Nil => getNestedOpens(t.argClause, newres)
+            case _ => newres
           }
         }
       }
 
-      private def getOpenNLByTree(
-          fun: Tree,
-          argClauses: Seq[Member.ArgClause],
-          policies: Seq[Policy],
-          penalty: Int
-      ): Seq[Policy] = {
-        val funLastFt = tokens.getLast(fun)
-        getOpenNLByArgs(funLastFt, argClauses, penalty, policies)
+      private def getNestedOpensPolicy(
+          opens: List[FormatToken],
+          policy: Policy
+      ): Policy = {
+        opens.foldLeft(policy) { case (res, x) =>
+          val onOpen = Policy(tokens.nextNonComment(x).right match {
+            case t: T.LeftBrace => Policy.End.After(t)
+            case t => Policy.End.On(t)
+          })(penalizeOpenNL)
+          val delayed = new Policy.Delay(onOpen, Policy.End.On(x.left))
+          new Policy.Relay(delayed, res)
+        }
       }
 
       @tailrec
@@ -1611,12 +1601,13 @@ class FormatOps(
       ): Policy =
         body match {
           case t: Member.Apply if t.fun ne body =>
-            val nextPolicy = getOpenNLByTree(t.fun, t.argClause :: Nil, Nil, 1)
-              .foldLeft(policy) { case (res, x) => Policy.Relay(x, res) }
-            getFoldedPolicy(t.fun, nextPolicy)
+            val opens = getNestedOpens(t.argClause, Nil)
+            getFoldedPolicy(t.fun, getNestedOpensPolicy(opens, policy))
           case t: Init =>
-            getOpenNLByTree(t.tpe, t.argClauses, Nil, 1)
-              .foldLeft(policy) { case (res, x) => Policy.Relay(x, res) }
+            val opens = t.argClauses.foldLeft(List.empty[FormatToken]) {
+              case (res, x) => getNestedOpens(x, res)
+            }
+            getNestedOpensPolicy(opens, policy)
           case t: Term.Select => getFoldedPolicy(t.qual, policy)
           case _ => policy
         }
