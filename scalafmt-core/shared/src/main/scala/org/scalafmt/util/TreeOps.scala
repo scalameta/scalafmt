@@ -92,7 +92,8 @@ object TreeOps {
     def addFT(ft: FormatToken, tree: Tree): Unit = ret += hash(ft.left) -> tree
     def addTok(token: Token, tree: Tree) = addFT(ftoks.after(token), tree)
     def addTree(t: Tree, o: Tree) = ftoks.getHeadOpt(t).foreach(addFT(_, o))
-    def addAll(trees: Seq[Tree]) = trees.foreach(x => addTree(x, x))
+    def addOne(t: Tree) = addTree(t, t)
+    def addAll(trees: Seq[Tree]) = trees.foreach(addOne)
 
     def addDefnTokens(
         mods: Seq[Mod],
@@ -162,16 +163,19 @@ object TreeOps {
                 Some(true)
               case _ => Some(false)
             }
-            if (parentApply.isDefined) addAll(Seq(arg))
+            if (parentApply.isDefined) addOne(arg)
           }
         // special handling for rewritten apply(x => { b }) to a { x => b }
-        case Term.Apply.internal
-              .Impl(_, ac @ Term.ArgClause((f: Term.Function) :: Nil, _))
-            if ac.tokens.lastOption.exists { x =>
-              x.is[Token.RightParen] && // see if closing paren is now brace
-              ftoks.prevNonComment(ftoks(x)).left.is[Token.RightBrace]
-            } =>
-          addAll(Seq(f))
+        case t: Term.Apply =>
+          val ac = t.argClause
+          ac.values match {
+            case (f: Term.Function) :: Nil if ac.tokens.lastOption.exists { x =>
+                  x.is[Token.RightParen] && // see if closing paren is now brace
+                  ftoks.prevNonComment(ftoks(x)).left.is[Token.RightBrace]
+                } =>
+              addOne(f)
+            case _ =>
+          }
         case t => // Nothing
           addAll(extractStatementsIfAny(t))
       }
