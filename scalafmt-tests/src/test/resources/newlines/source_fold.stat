@@ -7072,3 +7072,31 @@ class a {
       .register(Witness({ i => result = result * i * i }
       )) // result = 2 * 2 * 2 = 8
 }
+<<< SM 7.4.0: 53
+maxColumn = 76
+===
+object a {
+  def toJsCmd = """var x=document.getElementById(""" + select.encJs + """);
+    if (x) {
+    while (x.length > 0) {x.remove(0);}
+    var y = null;
+  """ + opts.map { case (value, text) =>
+    "y=document.createElement('option'); " + "y.text = " + text.encJs + "; " +
+      "y.value = " + value.encJs + "; " +
+      (if (Full(value) == dflt) "y.selected = true; " else "") +
+      " try {x.add(y, null);} catch(e) {if (typeof(e) == 'object' && typeof(e.number) == 'number' && (e.number & 0xFFFF) == 5){ x.add(y,x.options.length); } } "
+  }
+}
+>>>
+object a {
+  def toJsCmd = """var x=document.getElementById(""" + select.encJs + """);
+    if (x) {
+    while (x.length > 0) {x.remove(0);}
+    var y = null;
+  """ + opts.map { case (value, text) =>
+    "y=document.createElement('option'); " + "y.text = " + text.encJs +
+      "; " + "y.value = " + value.encJs + "; " +
+      (if (Full(value) == dflt) "y.selected = true; " else "") +
+      " try {x.add(y, null);} catch(e) {if (typeof(e) == 'object' && typeof(e.number) == 'number' && (e.number & 0xFFFF) == 5){ x.add(y,x.options.length); } } "
+  }
+}
