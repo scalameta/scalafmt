@@ -1,6 +1,6 @@
 ---
 id: faq
-title: FAQ / Troubleshooting
+title: FAQ
 ---
 
 ## Why not Scalariform?
