@@ -48,7 +48,7 @@ it, considering
 4.  code is read waaay more often outside of code reviews, for example when you
     are actually coding.
 
-## Which configuration options minimize diffs/conflicts in version control?}
+## Which configuration options minimize diffs/conflicts in version control?
 
 - `align.preset=none` If alignment is enabled a renaming of one entity can impact the
   indentation of other entities.
