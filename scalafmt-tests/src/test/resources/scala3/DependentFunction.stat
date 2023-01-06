@@ -6,7 +6,7 @@ val extractor: (e: Entry) => e.Key = extractKey
 <<< simple dependent function term
 type T = 
  (e: Entry) 
-=> e.Key
+ => e.Key
 >>>
 type T =
   (e: Entry) => e.Key
