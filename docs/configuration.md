@@ -975,8 +975,7 @@ for {
 } yield x
 ```
 
-> **Note**. Only for the truest vertical aligners. Feel free to open PR enabling
-> more crazy vertical alignment here. Expect changes.
+> **Note**. Only for the truest vertical aligners.
 
 ### `align.tokens`
 
