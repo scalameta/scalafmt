@@ -1235,6 +1235,13 @@ class FormatWriter(formatOps: FormatOps) {
       locations(idx).leftLineId != fl.leftLineId
     }
 
+    private def onSingleLine(t: Tree): Boolean = {
+      val ttokens = t.tokens
+      val beg = tokens.after(ttokens.head)
+      val end = tokens.before(ttokens.last)
+      getLineDiff(locations, beg, end) == 0
+    }
+
     object AlignContainer {
       def unapply(tree: Tree): Option[Tree] =
         tree match {
@@ -1289,6 +1296,15 @@ class FormatWriter(formatOps: FormatOps) {
           }
           if (keepGoing) getAlignContainerParent(p) else p
         case Some(p: Term.ForYield) if child ne p.body => p
+        case Some(p: Member.ParamClause) =>
+          p.parent match {
+            // if all on single line, keep going
+            case Some(q) if onSingleLine(q) => getAlignContainerParent(p)
+            // if this one not on single line, use parent as the owner
+            case Some(q) if !onSingleLine(p) => // skip ParamClauseGroup
+              if (q.is[Member.ParamClauseGroup]) q.parent.getOrElse(q) else q
+            case _ => p // this one on single line, but the rest are not
+          }
         case Some(p: Member.SyntaxValuesClause) => getAlignContainerParent(p)
         case Some(p: Member.ParamClauseGroup) => getAlignContainerParent(p)
         case Some(p) => p.parent.getOrElse(p)

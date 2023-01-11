@@ -1901,18 +1901,18 @@ object a {
 >>>
 object a {
   def longDefNameThatCausesLinesToWrap1(x: Type0)(y: Type1)(implicit
-      a:                                   Type2,
-      bb:                                  Type3,
-      ccc:                                 Type4,
-      dddd:                                Type5,
-      eeeee:                               Type6
+      a:     Type2,
+      bb:    Type3,
+      ccc:   Type4,
+      dddd:  Type5,
+      eeeee: Type6
   ): Future[Option[ReturnType]] = { ??? }
   def longDefNameThatCausesLinesToWrap1(x: Type0)(y: Type1)(implicit
-      dddd:                                Type5,
-      eeeee:                               Type6
+      dddd:  Type5,
+      eeeee: Type6
   ): Future[Option[ReturnType]] = { ??? }
   def longDefNameThatCausesLinesToWrap1(x: Type0)(y: Type1)(implicit
-      eeeee:                               Type6
+      eeeee: Type6
   ): Future[Option[ReturnType]] = { ??? }
 }
 <<< curry params before
@@ -1945,14 +1945,14 @@ object a {
       ccc:   Type4,
       dddd:  Type5,
       eeeee: Type6
-  )(x:       Type0)(y: Type1): Future[Option[ReturnType]] = { ??? }
+  )(x: Type0)(y: Type1): Future[Option[ReturnType]] = { ??? }
   def longDefNameThatCausesLinesToWrap1(
       dddd:  Type5,
       eeeee: Type6
-  )(x:       Type0)(y: Type1): Future[Option[ReturnType]] = { ??? }
+  )(x: Type0)(y: Type1): Future[Option[ReturnType]] = { ??? }
   def longDefNameThatCausesLinesToWrap1(
       eeeee: Type6
-  )(x:       Type0)(y: Type1): Future[Option[ReturnType]] = { ??? }
+  )(x: Type0)(y: Type1): Future[Option[ReturnType]] = { ??? }
 }
 <<< curry params before and after
 align.tokens."+" = [{
@@ -1978,16 +1978,16 @@ object a {
 >>>
 object a {
   def longDefNameThatCausesLinesToWrap1(
-      a:     Type2,
-      bb:    Type3,
-      ccc:   Type4
-  )(x:       Type0)(y: Type1)(
+      a:   Type2,
+      bb:  Type3,
+      ccc: Type4
+  )(x: Type0)(y: Type1)(
       dddd:  Type5,
       eeeee: Type6
   ): Future[Option[ReturnType]] = { ??? }
   def longDefNameThatCausesLinesToWrap1(
       eeeee: Type6
-  )(x:       Type0)(y: Type1)(
+  )(x: Type0)(y: Type1)(
       eeeee: Type6
   ): Future[Option[ReturnType]] = { ??? }
 }
@@ -2019,13 +2019,13 @@ object a {
       a:     Type2,
       bb:    Type3,
       ccc:   Type4
-  )(x:       Type0)(y: Type1)(
+  )(x: Type0)(y: Type1)(
       dddd:  Type5,
       eeeee: Type6
   ): Future[Option[ReturnType]] = { ??? }
   def longDefNameThatCausesLinesToWrap1(
       eeeee: Type6
-  )(x:       Type0)(y: Type1)(
+  )(x: Type0)(y: Type1)(
       eeeee: Type6
   ): Future[Option[ReturnType]] = { ??? }
 }
