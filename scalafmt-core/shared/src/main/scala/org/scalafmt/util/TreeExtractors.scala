@@ -81,7 +81,7 @@ object WithChain {
 }
 
 object ParamClauseParent {
-  def unapply(t: Term.ParamClause): Option[Tree] = t.parent match {
+  def unapply(t: Member.ParamClause): Option[Tree] = t.parent match {
     case Some(p: Member.ParamClauseGroup) => p.parent
     case p => p
   }
