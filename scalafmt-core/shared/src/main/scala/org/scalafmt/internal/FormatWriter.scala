@@ -1247,14 +1247,12 @@ class FormatWriter(formatOps: FormatOps) {
       object WithBody {
         def unapply(tree: Tree): Option[(List[meta.Mod], Tree)] =
           tree match {
-            case p: Defn.Def => Some(p.mods -> p.body)
-            case p: Defn.Macro => Some(p.mods -> p.body)
-            case p: Defn.Given => Some(p.mods -> p.templ)
-            case p: Defn.GivenAlias => Some(p.mods -> p.body)
-            case p: Defn.Val => Some(p.mods -> p.rhs)
-            case p: Defn.Trait => Some(p.mods -> p.templ)
-            case p: Defn.Class => Some(p.mods -> p.templ)
-            case p: Defn.Object => Some(p.mods -> p.templ)
+            case wm: Stat.WithMods =>
+              tree match {
+                case t: Tree.WithBody => Some(wm.mods -> t.body)
+                case t: Stat.WithTemplate => Some(wm.mods -> t.templ)
+                case _ => None
+              }
             case _ => None
           }
       }
