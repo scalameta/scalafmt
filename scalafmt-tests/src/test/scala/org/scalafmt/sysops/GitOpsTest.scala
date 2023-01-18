@@ -232,8 +232,8 @@ class GitOpsTest extends FunSuite {
     add(f1)
     add(f2)
     commit
-    assertEquals(diff("master").toSet, Set(f1, f2))
-    assertEquals(diff("master", dir).toSet, Set(f2))
+    assertEquals(diff(defaultBranch).toSet, Set(f1, f2))
+    assertEquals(diff(defaultBranch, dir).toSet, Set(f2))
   }
 
   test(
@@ -249,8 +249,8 @@ class GitOpsTest extends FunSuite {
     add(f1)
     add(f2)
     modify(f1)
-    assertEquals(diff("master").toSet, Set(f1, f2))
-    assertEquals(diff("master", dir).toSet, Set(f2))
+    assertEquals(diff(defaultBranch).toSet, Set(f1, f2))
+    assertEquals(diff(defaultBranch, dir).toSet, Set(f2))
   }
 
   test("diff should not return removed files against a different branch") {
@@ -264,7 +264,7 @@ class GitOpsTest extends FunSuite {
     add(f2)
     commit
     rm(f1)
-    assertEquals(diff("master").toSet, Set(f2))
+    assertEquals(diff(defaultBranch).toSet, Set(f2))
   }
 
   test("status should return only modified files") {
@@ -338,6 +338,8 @@ class GitOpsTest extends FunSuite {
 
 private object GitOpsTest {
 
+  private final val defaultBranch = "main"
+
   // Filesystem commands
   def rmfs(file: AbsoluteFile): Unit =
     file.delete()
@@ -353,7 +355,7 @@ private object GitOpsTest {
     }
 
   def init(implicit ops: GitOpsImpl): Unit =
-    git("init")
+    git("init", "-b", defaultBranch)
 
   def add(file: AbsoluteFile*)(implicit ops: GitOpsImpl): Unit =
     git("add", file.map(_.toString()): _*)
