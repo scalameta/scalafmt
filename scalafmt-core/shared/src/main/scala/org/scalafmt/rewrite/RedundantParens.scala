@@ -164,7 +164,8 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   ): Boolean = t.values match {
     case arg :: Nil =>
       arg match {
-        case _: Term.Block | _: Term.PartialFunction => true
+        case _: Term.Block | _: Term.PartialFunction =>
+          t.parent.exists(!_.is[Init])
         case _: Lit.Unit | _: Member.Tuple => false
         case _ =>
           t.parent.exists {

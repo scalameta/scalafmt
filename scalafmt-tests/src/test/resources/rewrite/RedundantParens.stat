@@ -1318,8 +1318,6 @@ object A {
   val a = new A({ case x => x })
 }
 >>>
-test does not parse
 object A {
-  val a = new A { case x => x }
+  val a = new A({ case x => x })
 }
-                ^
