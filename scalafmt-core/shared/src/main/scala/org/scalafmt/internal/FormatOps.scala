@@ -2611,7 +2611,7 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t: Ctor.Secondary => Some((t, seq(all, t.init, t.stats)))
           case t: Defn.Var => t.rhs.map(_ -> Nil)
-          case t: Tree.WithBody => Some((t.body, Nil))
+          case Tree.WithBody(b) => if (b eq null) None else Some((b, Nil))
           case _ => BlockImpl.getBlocks(ft, nft, all)
         }
     }

@@ -1289,7 +1289,7 @@ class FormatWriter(formatOps: FormatOps) {
             val beg = mods.lastOption.fold(tokens.after(ptokens.head)) { m =>
               tokens.next(tokens.tokenAfter(m))
             }
-            val useBody = b.eq(child) || p.eq(child)
+            val useBody = b.ne(null) && (b.eq(child) || p.eq(child))
             val beforeBody = if (useBody) tokens.tokenJustBeforeOpt(b) else None
             val end = beforeBody.getOrElse(tokens.before(ptokens.last))
             getLineDiff(locations, beg, end) == 0
