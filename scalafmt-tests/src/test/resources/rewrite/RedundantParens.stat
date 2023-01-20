@@ -1313,3 +1313,13 @@ object a {
 object a {
   (Box.apply(_: Int, _: String)).tupled
 }
+<<< #3438
+object A {
+  val a = new A({ case x => x })
+}
+>>>
+test does not parse
+object A {
+  val a = new A { case x => x }
+}
+                ^
