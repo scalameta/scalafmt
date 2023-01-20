@@ -2029,3 +2029,9 @@ object a {
       eeeee: Type6
   ): Future[Option[ReturnType]] = { ??? }
 }
+<<< #3439
+object ScalaFormatRecreator extends App {
+  private var s: String = _
+}
+>>>
+org.scalafmt.util.FormatException: java.lang.NullPointerException: Cannot invoke "scala.meta.Tree.tokens(scala.meta.Dialect)" because "tree" is null
