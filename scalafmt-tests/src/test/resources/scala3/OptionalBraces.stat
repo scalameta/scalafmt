@@ -3598,3 +3598,189 @@ object a {
   val a = test("" +: Seq("").map { _ + "" }: _*)
   val a = test(("" +: Seq("").map { _ + "" })*)
 }
+<<< coloneol in fewer braces 1
+maxColumn = 80
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).foldLeft(1):
+      case (a, b) => a + b
+>>>
+test does not parse
+object a:
+   def f(): Unit =
+     List(1, 2, 3).foldLeft(1):
+     case (a, b) => a + b
+     ^
+<<< coloneol in fewer braces 1, main > sig
+maxColumn = 80
+indent.main = 4
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).foldLeft(1):
+      case (a, b) => a + b
+>>>
+test does not parse
+object a:
+   def f(): Unit =
+       List(1, 2, 3).foldLeft(1):
+       case (a, b) => a + b
+       ^
+<<< coloneol in fewer braces 2
+maxColumn = 80
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).foo: a =>
+      a + 2
+    .foo: a =>
+      2 + a
+    .apply:
+      12 + 3
+>>>
+test does not parse
+object a:
+   def f(): Unit =
+     List(1, 2, 3)
+       .foo: a => a + 2
+               ^
+<<< coloneol in fewer braces 2, main > sig
+maxColumn = 80
+indent.main = 4
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).foo: a =>
+      a + 2
+    .foo: a =>
+      2 + a
+    .apply:
+      12 + 3
+>>>
+test does not parse
+object a:
+   def f(): Unit =
+       List(1, 2, 3)
+           .foo: a => a + 2
+                   ^
+<<< coloneol in fewer braces 3
+maxColumn = 80
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).foo:
+       case a : Int =>
+       case _ =>
+    otherTerm()
+>>>
+test does not parse
+object a:
+   def f(): Unit =
+      List(1, 2, 3).foo:
+      case a: Int =>
+      ^
+<<< coloneol in fewer braces 3, main > sig
+maxColumn = 80
+indent.main = 4
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).foo:
+       case a : Int =>
+       case _ =>
+    otherTerm()
+>>>
+test does not parse
+object a:
+   def f(): Unit =
+      List(1, 2, 3).foo:
+      case a: Int =>
+      ^
+<<< match with eol
+maxColumn = 80
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).match
+      case _ => a + 2
+    .foo: a =>
+      2 + a
+    .apply:
+      12 + 3
+>>>
+test does not parse
+object a:
+   def f(): Unit =
+     List(1, 2, 3).match
+        case _ => a + 2
+         .foo: a => 2 + a
+                 ^
+<<< match with eol, main > sig
+maxColumn = 80
+indent.main = 4
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).match
+      case _ => a + 2
+    .foo: a =>
+      2 + a
+    .apply:
+      12 + 3
+>>>
+test does not parse
+object a:
+   def f(): Unit =
+       List(1, 2, 3).match
+          case _ => a + 2
+           .foo: a => 2 + a
+                   ^
+<<< coloneol in refined types
+maxColumn = 80
+===
+object a:
+  type T = String:
+    type U = Int
+>>>
+test does not parse
+object a:
+   type T = String:
+                  ^
+<<< coloneol in refined types, main > sig
+maxColumn = 80
+indent.main = 4
+===
+object a:
+  type T = String:
+    type U = Int
+>>>
+test does not parse
+object a:
+   type T = String:
+                  ^
+<<< with in refined types
+maxColumn = 80
+===
+object a:
+  type T = String with
+    type U = Int
+>>>
+test does not parse
+object a:
+   type T = String with
+   type U = Int
+   ^
+<<< with in refined types, main > sig
+maxColumn = 80
+indent.main = 4
+===
+object a:
+  type T = String with
+    type U = Int
+>>>
+test does not parse
+object a:
+   type T = String with
+   type U = Int
+   ^
