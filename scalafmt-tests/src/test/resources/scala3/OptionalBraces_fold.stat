@@ -3432,9 +3432,8 @@ object a:
       case (a, b) => a + b
 >>>
 object a:
-   def f(): Unit = List(1, 2, 3)
-     .foldLeft(1):
-     case (a, b) => a + b
+   def f(): Unit = List(1, 2, 3).foldLeft(1):
+      case (a, b) => a + b
 <<< coloneol in fewer braces 1, main > sig
 maxColumn = 80
 indent.main = 4
@@ -3445,9 +3444,8 @@ object a:
       case (a, b) => a + b
 >>>
 object a:
-   def f(): Unit = List(1, 2, 3)
-       .foldLeft(1):
-       case (a, b) => a + b
+   def f(): Unit = List(1, 2, 3).foldLeft(1):
+      case (a, b) => a + b
 <<< coloneol in fewer braces 2
 maxColumn = 80
 ===
@@ -3460,10 +3458,13 @@ object a:
     .apply:
       12 + 3
 >>>
-test does not parse
 object a:
-   def f(): Unit = List(1, 2, 3).foo: a => a + 2.foo: a => 2 + a.apply: 12 + 3
-                                                ^
+   def f(): Unit = List(1, 2, 3).foo: a =>
+        a + 2
+     .foo: a =>
+        2 + a
+     .apply:
+        12 + 3
 <<< coloneol in fewer braces 2, main > sig
 maxColumn = 80
 indent.main = 4
@@ -3477,10 +3478,13 @@ object a:
     .apply:
       12 + 3
 >>>
-test does not parse
 object a:
-   def f(): Unit = List(1, 2, 3).foo: a => a + 2.foo: a => 2 + a.apply: 12 + 3
-                                                ^
+   def f(): Unit = List(1, 2, 3).foo: a =>
+          a + 2
+       .foo: a =>
+          2 + a
+       .apply:
+          12 + 3
 <<< coloneol in fewer braces 3
 maxColumn = 80
 ===
@@ -3491,12 +3495,12 @@ object a:
        case _ =>
     otherTerm()
 >>>
-Idempotency violated
 object a:
-   def f(): Unit = List(1, 2, 3)
-     .foo:
-     case a: Int =>
-     case _      => otherTerm()
+   def f(): Unit =
+      List(1, 2, 3).foo:
+         case a: Int =>
+         case _      =>
+      otherTerm()
 <<< coloneol in fewer braces 3, main > sig
 maxColumn = 80
 indent.main = 4
@@ -3508,12 +3512,12 @@ object a:
        case _ =>
     otherTerm()
 >>>
-Idempotency violated
 object a:
-   def f(): Unit = List(1, 2, 3)
-       .foo:
-       case a: Int =>
-       case _      => otherTerm()
+   def f(): Unit =
+      List(1, 2, 3).foo:
+         case a: Int =>
+         case _      =>
+      otherTerm()
 <<< match with eol
 maxColumn = 80
 ===
@@ -3526,12 +3530,13 @@ object a:
     .apply:
       12 + 3
 >>>
-test does not parse
 object a:
    def f(): Unit = List(1, 2, 3).match
-      case _ => a + 2
-       .foo: a => 2 + a.apply: 12 + 3
-               ^
+        case _ => a + 2
+     .foo: a =>
+        2 + a
+     .apply:
+        12 + 3
 <<< match with eol, main > sig
 maxColumn = 80
 indent.main = 4
@@ -3545,12 +3550,13 @@ object a:
     .apply:
       12 + 3
 >>>
-test does not parse
 object a:
    def f(): Unit = List(1, 2, 3).match
-      case _ => a + 2
-       .foo: a => 2 + a.apply: 12 + 3
-               ^
+          case _ => a + 2
+       .foo: a =>
+          2 + a
+       .apply:
+          12 + 3
 <<< coloneol in refined types
 maxColumn = 80
 ===
@@ -3558,10 +3564,9 @@ object a:
   type T = String:
     type U = Int
 >>>
-test does not parse
 object a:
    type T = String:
-                  ^
+      type U = Int
 <<< coloneol in refined types, main > sig
 maxColumn = 80
 indent.main = 4
@@ -3570,10 +3575,9 @@ object a:
   type T = String:
     type U = Int
 >>>
-test does not parse
 object a:
    type T = String:
-                  ^
+      type U = Int
 <<< with in refined types
 maxColumn = 80
 ===
@@ -3581,11 +3585,9 @@ object a:
   type T = String with
     type U = Int
 >>>
-test does not parse
 object a:
    type T = String with
-   type U = Int
-   ^
+      type U = Int
 <<< with in refined types, main > sig
 maxColumn = 80
 indent.main = 4
@@ -3594,8 +3596,6 @@ object a:
   type T = String with
     type U = Int
 >>>
-test does not parse
 object a:
    type T = String with
-   type U = Int
-   ^
+      type U = Int

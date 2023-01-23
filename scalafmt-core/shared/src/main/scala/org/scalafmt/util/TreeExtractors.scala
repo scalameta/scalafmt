@@ -86,3 +86,7 @@ object ParamClauseParent {
     case p => p
   }
 }
+
+object ArgClauseParent {
+  def unapply(t: Member.ArgClause): Option[Tree] = t.parent
+}

@@ -457,7 +457,12 @@ class Router(formatOps: FormatOps) {
         val indent = // don't indent if the body is empty `{ x => }`
           if (isEmptyFunctionBody(leftOwner) && !right.is[T.Comment]) 0
           else if (leftOwner.is[Template]) 0 // { applied the indent
-          else style.indent.main
+          else
+            leftOwner.parent match {
+              case Some(ArgClauseParent(p: Term.Apply)) if isFewerBraces(p) =>
+                style.indent.getSignificant
+              case _ => style.indent.main
+            }
 
         def noSingleLine = {
           // for constructors with empty args lambda
@@ -1718,6 +1723,23 @@ class Router(formatOps: FormatOps) {
         val expire = getLastEnclosedToken(expireTree)
         val indentLen = style.indent.main
 
+        val nextDotIfSig = nextSelect.flatMap { ns =>
+          val ok = ns.qual match {
+            case p: Term.Apply => isFewerBraces(p)
+            case p: Term.Match => !tokenBefore(p.cases).left.is[T.LeftBrace]
+            case _ => false
+          }
+          if (ok) Some(tokenBefore(ns.nameToken)) else None
+        }
+        def forcedBreakOnNextDotPolicy = nextSelect.map { selectLike =>
+          val tree = selectLike.tree
+          Policy.before(selectLike.nameToken) {
+            case d @ Decision(FormatToken(_, _: T.Dot, m), _)
+                if m.rightOwner eq tree =>
+              d.onlyNewlinesWithoutFallback
+          }
+        }
+
         def breakOnNextDot: Policy =
           nextSelect.fold(Policy.noPolicy) { selectLike =>
             val tree = selectLike.tree
@@ -1828,29 +1850,29 @@ class Router(formatOps: FormatOps) {
             if (prevSelect.isEmpty && nextSelect.isEmpty)
               Seq(Split(NoSplit, 0), Split(Newline, 1))
             else {
-              val forcedBreakPolicy = nextSelect.map { selectLike =>
-                val tree = selectLike.tree
-                Policy.before(selectLike.nameToken) {
-                  case d @ Decision(FormatToken(_, _: T.Dot, m), _)
-                      if m.rightOwner eq tree =>
-                    d.onlyNewlinesWithoutFallback
-                }
-              }
               Seq(
                 Split(NoSplit, 0).withSingleLine(expire, noSyntaxNL = true),
                 Split(NewlineT(alt = Some(NoSplit)), 1)
-                  .withPolicyOpt(forcedBreakPolicy)
+                  .withPolicyOpt(forcedBreakOnNextDotPolicy)
               )
             }
 
           case Newlines.fold =>
-            val end =
-              nextSelect.fold(expire)(x => getLastNonTrivialToken(x.qual))
-            def exclude = insideBracesBlock(t, end, true)
-            Seq(
-              Split(NoSplit, 0).withSingleLine(end, exclude),
-              Split(NewlineT(alt = Some(NoSplit)), 1)
-            )
+            if (nextDotIfSig.isEmpty) {
+              val end =
+                nextSelect.fold(expire)(x => getLastNonTrivialToken(x.qual))
+              def exclude = insideBracesBlock(t, end, true)
+              Seq(
+                Split(NoSplit, 0).withSingleLine(end, exclude),
+                Split(NewlineT(alt = Some(NoSplit)), 1)
+              )
+            } else {
+              val policy = forcedBreakOnNextDotPolicy
+              Seq(
+                Split(NoSplit, 0).withPolicyOpt(policy),
+                Split(NewlineT(alt = Some(NoSplit)), 1).withPolicyOpt(policy)
+              )
+            }
         }
 
         val delayedBreakPolicyOpt = nextSelect.map { selectLike =>
@@ -1866,11 +1888,13 @@ class Router(formatOps: FormatOps) {
         }
 
         // trigger indent only on the first newline
-        val indent = Indent(indentLen, expire, After)
+        val nlIndent = Indent(indentLen, expire, After)
+        val spcIndent = nextDotIfSig
+          .fold(Indent.empty)(x => Indent(indentLen, x.left, ExpiresOn.Before))
         val willBreak = nextNonCommentSameLine(tokens(t, 2)).right.is[T.Comment]
         val splits = baseSplits.map { s =>
-          if (willBreak || s.isNL) s.withIndent(indent)
-          else s.andFirstPolicyOpt(delayedBreakPolicyOpt)
+          if (willBreak || s.isNL) s.withIndent(nlIndent)
+          else s.andFirstPolicyOpt(delayedBreakPolicyOpt).withIndent(spcIndent)
         }
 
         if (prevSelect.isEmpty) splits

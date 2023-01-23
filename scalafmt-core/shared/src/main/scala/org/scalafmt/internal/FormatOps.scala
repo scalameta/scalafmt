@@ -2037,6 +2037,34 @@ class FormatOps(
               def splits = Some(getSplits(ft, t, forceNL = true))
               def rightBrace = if (isSeqMulti(t.stats)) treeLast(t) else None
             })
+          case t: Type.Refine =>
+            Some(new OptionalBracesRegion {
+              def owner = Some(t)
+              def splits = Some(getSplits(ft, t, forceNL = true))
+              def rightBrace = treeLast(t)
+            })
+          case t: Term.ArgClause if tokens.getHead(t) eq ft =>
+            def funcSplit(arg: Term.FunctionTerm)(implicit fl: FileLine) = {
+              val end = tokens.getLast(arg)
+              val opt = getOptimalTokenFor(getFuncArrow(arg).getOrElse(end))
+              Split(Space, 0)
+                .withSingleLine(opt)
+                .andPolicy(decideNewlinesOnlyAfterToken(opt))
+            }
+            Some(new OptionalBracesRegion {
+              def owner = t.parent
+              def splits = Some(t.values match {
+                case (tf: Term.FunctionTerm) :: Nil
+                    if !style.newlines.alwaysBeforeCurlyLambdaParams &&
+                      t.parent.exists(_.is[Term.Apply]) =>
+                  getSplits(ft, t, forceNL = false) match {
+                    case s +: rs if !s.isNL => funcSplit(tf)(s.fileLine) +: rs
+                    case ss => ss
+                  }
+                case _ => getSplits(ft, t, forceNL = true)
+              })
+              def rightBrace = treeLast(t)
+            })
           case _ => None
         }
     }
