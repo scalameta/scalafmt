@@ -1004,4 +1004,7 @@ object TreeOps {
       case _ => None
     })
 
+  def isFewerBraces(tree: Term.Apply)(implicit dialect: Dialect): Boolean =
+    dialect.allowFewerBraces && tree.argClause.tokens.head.is[Colon]
+
 }

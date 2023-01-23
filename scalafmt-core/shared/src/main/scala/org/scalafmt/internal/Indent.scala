@@ -108,6 +108,7 @@ object Indent {
       case x => new IndentImpl(x, expire, expiresAt)
     }
 
+  @inline def empty: Indent = Empty
   case object Empty extends Indent {
     override def withStateOffset(offset: Int): Option[ActualIndent] = None
     override def switch(trigger: Token, on: Boolean): Indent = this
