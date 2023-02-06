@@ -138,7 +138,7 @@ version = @STABLE_VERSION@
   formatted.
 - `scalafmtSbt`: Format `*.sbt` and `project/*.scala` files.
 - `scalafmtSbtCheck`: Check if the files have been formatted by `scalafmtSbt`.
-- `scalafmtOnly <file>...`: Format specified files listed. It's important to pass as parameters as a single string, example: `sbt 'scalafmtOnly src/scala/mypkg/MyClass1.scala'`
+- `scalafmtOnly <file>...`: Format specified files listed. It's important to pass all parameters as a single string, example: `sbt 'scalafmtOnly src/scala/mypkg/MyClass1.scala'`
 - `scalafmtAll` or `scalafmtCheckAll`: Execute the `scalafmt` or `scalafmtCheck`
   task for all configurations in which it is enabled (since v2.0.0-RC5)
 
