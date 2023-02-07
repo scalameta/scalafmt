@@ -3599,3 +3599,66 @@ object a:
 object a:
    type T = String with
       type U = Int
+<<< #3448 1
+def test(): String =
+  Block:
+    2 + 2
+  .toString
+>>>
+def test(): String = Block:
+   2 + 2
+  .toString
+<<< #3448 2
+indent.significant = 1
+===
+def test(): String =
+  Block:
+    2 + 2
+  .toString
+>>>
+Idempotency violated
+def test(): String = Block:
+ 2 + 2
+  .toString
+<<< #3448 3
+indent.significant = 1
+===
+def test(): String =
+  foo.bar:
+   2 + 2
+  .baz.qux:
+   3 + 3
+>>>
+def test(): String = foo.bar:
+   2 + 2
+  .baz.qux:
+   3 + 3
+<<< #3448 4
+indent.significant = 1
+===
+def test(): String =
+  bar:
+    2 + 2
+  .baz.qux:
+    3 + 3
+>>>
+Idempotency violated
+def test(): String = bar:
+ 2 + 2
+  .baz.qux:
+   3 + 3
+<<< #3448 5
+indent.significant = 1
+===
+class test:
+  bar:
+    2 + 2
+  .baz.qux:
+    3 + 3
+>>>
+Idempotency violated
+class test:
+ bar:
+  2 + 2
+   .baz.qux:
+    3 + 3
