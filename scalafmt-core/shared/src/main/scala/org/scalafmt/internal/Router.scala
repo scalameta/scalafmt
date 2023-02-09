@@ -1719,7 +1719,9 @@ class Router(formatOps: FormatOps) {
           case x: Term.Select => SelectLike(x)
           case x: Term.Match => SelectLike(x, getKwMatchAfterDot(t))
         }
-        val prevSelect = findPrevSelect(thisSelect, enclosed)
+        val (prevSelect, prevApply) =
+          findPrevSelectAndApply(thisSelect.qual, enclosed)
+        val nlOnly = prevApply.exists(_.argClause.tokens.head.is[T.Colon])
         val expire = getLastEnclosedToken(expireTree)
         val indentLen = style.indent.main
 
@@ -1787,7 +1789,7 @@ class Router(formatOps: FormatOps) {
                   noSyntaxNL = true
                 )
               val newlinePolicy = breakOnNextDot & penalizeBreaks
-              val ignoreNoSplit = t.hasBreak &&
+              val ignoreNoSplit = nlOnly || t.hasBreak &&
                 (left.is[T.Comment] || style.optIn.breakChainOnFirstMethodDot)
               val chainLengthPenalty =
                 if (
@@ -1827,7 +1829,7 @@ class Router(formatOps: FormatOps) {
               )
             } else {
               val isComment = left.is[T.Comment]
-              val doBreak = isComment && t.hasBreak
+              val doBreak = nlOnly || isComment && t.hasBreak
               Seq(
                 Split(!prevChain, 1) {
                   if (style.optIn.breaksInsideChains) NoSplit.orNL(t.noBreak)
@@ -1847,30 +1849,37 @@ class Router(formatOps: FormatOps) {
             Seq(Split(NoSplit.orNL(t.noBreak), 0))
 
           case Newlines.unfold =>
+            val nlCost = if (nlOnly) 0 else 1
             if (prevSelect.isEmpty && nextSelect.isEmpty)
-              Seq(Split(NoSplit, 0), Split(Newline, 1))
+              Seq(Split(nlOnly, 0)(NoSplit), Split(Newline, nlCost))
             else {
               Seq(
-                Split(NoSplit, 0).withSingleLine(expire, noSyntaxNL = true),
-                Split(NewlineT(alt = Some(NoSplit)), 1)
+                Split(nlOnly, 0)(NoSplit)
+                  .withSingleLine(expire, noSyntaxNL = true),
+                Split(NewlineT(alt = Some(NoSplit)), nlCost)
                   .withPolicyOpt(forcedBreakOnNextDotPolicy)
               )
             }
 
           case Newlines.fold =>
+            val nlCost = if (nlOnly) 0 else 1
+            val noSplitBase = Split(nlOnly, 0)(NoSplit)
+            val nlSplitBase = Split(NewlineT(alt = Some(NoSplit)), nlCost)
             if (nextDotIfSig.isEmpty) {
-              val end =
-                nextSelect.fold(expire)(x => getLastNonTrivialToken(x.qual))
-              def exclude = insideBracesBlock(t, end, true)
-              Seq(
-                Split(NoSplit, 0).withSingleLine(end, exclude),
-                Split(NewlineT(alt = Some(NoSplit)), 1)
-              )
+              val noSplit =
+                if (nlOnly) noSplitBase
+                else {
+                  val end =
+                    nextSelect.fold(expire)(x => getLastNonTrivialToken(x.qual))
+                  def exclude = insideBracesBlock(t, end, true)
+                  noSplitBase.withSingleLine(end, exclude)
+                }
+              Seq(noSplit, nlSplitBase)
             } else {
               val policy = forcedBreakOnNextDotPolicy
               Seq(
-                Split(NoSplit, 0).withPolicyOpt(policy),
-                Split(NewlineT(alt = Some(NoSplit)), 1).withPolicyOpt(policy)
+                noSplitBase.withPolicyOpt(policy),
+                nlSplitBase.withPolicyOpt(policy)
               )
             }
         }
