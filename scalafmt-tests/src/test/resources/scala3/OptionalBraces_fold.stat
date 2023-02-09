@@ -3606,7 +3606,7 @@ def test(): String =
   .toString
 >>>
 def test(): String = Block:
-   2 + 2
+     2 + 2
   .toString
 <<< #3448 2
 indent.significant = 1
@@ -3616,9 +3616,8 @@ def test(): String =
     2 + 2
   .toString
 >>>
-Idempotency violated
 def test(): String = Block:
- 2 + 2
+   2 + 2
   .toString
 <<< #3448 3
 indent.significant = 1
@@ -3642,9 +3641,8 @@ def test(): String =
   .baz.qux:
     3 + 3
 >>>
-Idempotency violated
 def test(): String = bar:
- 2 + 2
+   2 + 2
   .baz.qux:
    3 + 3
 <<< #3448 5
@@ -3656,9 +3654,8 @@ class test:
   .baz.qux:
     3 + 3
 >>>
-Idempotency violated
 class test:
  bar:
-  2 + 2
+    2 + 2
    .baz.qux:
     3 + 3
