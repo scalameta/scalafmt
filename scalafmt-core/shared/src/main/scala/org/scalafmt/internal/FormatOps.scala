@@ -1418,19 +1418,20 @@ class FormatOps(
     } || ft.right.is[soft.KwUsing]
 
   @tailrec
-  final def findPrevSelect(
+  final def findPrevSelectAndApply(
       tree: Tree,
-      enclosed: Boolean
-  ): Option[SelectLike] = {
+      enclosed: Boolean,
+      applyTree: Option[Member.Apply] = None
+  ): (Option[SelectLike], Option[Member.Apply]) = {
     @inline def isEnclosed: Boolean = enclosed && isEnclosedInParens(tree)
     tree match {
-      case GetSelectLike(t) =>
-        if (isEnclosed) None else Some(t)
-      case t: Member.Apply =>
-        if (isEnclosed) None else findPrevSelect(t.fun, enclosed)
-      case Term.AnonymousFunction(body) =>
-        if (enclosed) None else findPrevSelect(body, false)
-      case _ => None
+      case GetSelectLike(t) if !isEnclosed =>
+        (Some(t), applyTree)
+      case t: Member.Apply if !isEnclosed =>
+        findPrevSelectAndApply(t.fun, enclosed, applyTree.orElse(Some(t)))
+      case Term.AnonymousFunction(body) if !enclosed =>
+        findPrevSelectAndApply(body, false, applyTree)
+      case _ => (None, applyTree)
     }
   }
 
@@ -1438,7 +1439,7 @@ class FormatOps(
       tree: SelectLike,
       enclosed: Boolean = true
   ): Option[SelectLike] =
-    findPrevSelect(tree.qual, enclosed)
+    findPrevSelectAndApply(tree.qual, enclosed)._1
 
   @tailrec
   private def findLastApplyAndNextSelectEnclosed(
