@@ -102,7 +102,7 @@ class FormatWriter(formatOps: FormatOps) {
   }
 
   private def getFormatLocations(state: State): FormatLocations = {
-    val toks = formatOps.tokens.arr
+    val toks = tokens.arr
     require(toks.length >= state.depth, "splits !=")
     val result = new Array[FormatLocation](state.depth)
 
@@ -121,20 +121,22 @@ class FormatWriter(formatOps: FormatOps) {
       }
     iter(state, 0)
 
-    val initStyle = styleMap.init
-    if (initStyle.dialect.allowSignificantIndentation) {
-      if (initStyle.rewrite.scala3.removeEndMarkerMaxLines > 0)
-        checkRemoveEndMarkers(result)
-      if (initStyle.rewrite.scala3.insertEndMarkerMinLines > 0)
-        checkInsertEndMarkers(result)
+    if (state.depth == toks.length) { // format completed
+      val initStyle = styleMap.init
+      if (initStyle.dialect.allowSignificantIndentation) {
+        if (initStyle.rewrite.scala3.removeEndMarkerMaxLines > 0)
+          checkRemoveEndMarkers(result)
+        if (initStyle.rewrite.scala3.insertEndMarkerMinLines > 0)
+          checkInsertEndMarkers(result)
+      }
+      if (initStyle.rewrite.insertBraces.minLines > 0)
+        checkInsertBraces(result)
+      if (
+        initStyle.rewrite.rules.contains(RedundantBraces) &&
+        initStyle.rewrite.redundantBraces.parensForOneLineApply
+      )
+        replaceRedundantBraces(result)
     }
-    if (initStyle.rewrite.insertBraces.minLines > 0)
-      checkInsertBraces(result)
-    if (
-      initStyle.rewrite.rules.contains(RedundantBraces) &&
-      initStyle.rewrite.redundantBraces.parensForOneLineApply
-    )
-      replaceRedundantBraces(result)
 
     new FormatLocations(result)
   }
