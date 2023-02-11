@@ -3663,4 +3663,55 @@ class test:
 object types:
   type GOutputStreamClass = CStruct21[GObjectClass, CFuncPtr5[Ptr[GOutputStream], Ptr[Byte], gsize, Ptr[GCancellable], Ptr[Ptr[GError]], gssize], CFuncPtr5[Ptr[GOutputStream], Ptr[GInputStream], GOutputStreamSpliceFlags, Ptr[GCancellable], Ptr[Ptr[GError]], gssize], CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr7[Ptr[GOutputStream], Ptr[Byte], gsize, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize], CFuncPtr7[Ptr[GOutputStream], Ptr[GInputStream], GOutputStreamSpliceFlags, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize], CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gboolean], CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gboolean], CFuncPtr6[Ptr[GOutputStream], Ptr[GOutputVector], gsize, Ptr[gsize], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr7[Ptr[GOutputStream], Ptr[GOutputVector], gsize, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr4[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[gsize], Ptr[Ptr[GError]], gboolean], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit]]
 >>>
-FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on ',∙CFuncPtr6[1179:1189]', line 1
+object types:
+   type GOutputStreamClass = CStruct21[
+     GObjectClass,
+     CFuncPtr5[Ptr[GOutputStream], Ptr[Byte], gsize, Ptr[GCancellable], Ptr[
+       Ptr[GError]
+     ], gssize],
+     CFuncPtr5[Ptr[GOutputStream], Ptr[
+       GInputStream
+     ], GOutputStreamSpliceFlags, Ptr[GCancellable], Ptr[Ptr[GError]], gssize],
+     CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[
+       Ptr[GError]
+     ], gboolean],
+     CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[
+       Ptr[GError]
+     ], gboolean],
+     CFuncPtr7[Ptr[GOutputStream], Ptr[Byte], gsize, CInt, Ptr[
+       GCancellable
+     ], GAsyncReadyCallback, gpointer, Unit],
+     CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize],
+     CFuncPtr7[Ptr[GOutputStream], Ptr[
+       GInputStream
+     ], GOutputStreamSpliceFlags, CInt, Ptr[
+       GCancellable
+     ], GAsyncReadyCallback, gpointer, Unit],
+     CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize],
+     CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[
+       GCancellable
+     ], GAsyncReadyCallback, gpointer, Unit],
+     CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[
+       Ptr[GError]
+     ], gboolean],
+     CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[
+       GCancellable
+     ], GAsyncReadyCallback, gpointer, Unit],
+     CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[
+       Ptr[GError]
+     ], gboolean],
+     CFuncPtr6[Ptr[GOutputStream], Ptr[GOutputVector], gsize, Ptr[gsize], Ptr[
+       GCancellable
+     ], Ptr[Ptr[GError]], gboolean],
+     CFuncPtr7[Ptr[GOutputStream], Ptr[GOutputVector], gsize, CInt, Ptr[
+       GCancellable
+     ], GAsyncReadyCallback, gpointer, Unit],
+     CFuncPtr4[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[gsize], Ptr[
+       Ptr[GError]
+     ], gboolean],
+     CFuncPtr0[Unit],
+     CFuncPtr0[Unit],
+     CFuncPtr0[Unit],
+     CFuncPtr0[Unit],
+     CFuncPtr0[Unit]
+   ]
