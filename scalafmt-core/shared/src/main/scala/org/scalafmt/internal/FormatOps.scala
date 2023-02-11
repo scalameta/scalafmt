@@ -1162,6 +1162,12 @@ class FormatOps(
               matchingOpt(left).foreach(process(t.values, left, _))
             case _ =>
           }
+        case FormatToken(left: T.LeftBracket, _, meta) =>
+          meta.leftOwner match {
+            case t: Type.ArgClause =>
+              matchingOpt(left).foreach(process(t.values, left, _))
+            case _ =>
+          }
         case _ =>
       }
       (forces.result(), clearQueues.result())
