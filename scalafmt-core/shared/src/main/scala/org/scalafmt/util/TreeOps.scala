@@ -332,16 +332,8 @@ object TreeOps {
   @tailrec
   def defDefBody(tree: Tree): Option[Tree] =
     tree match {
-      case d: Defn.Def => Some(d.body)
-      case d: Defn.Macro => Some(d.body)
-      case d: Defn.Given => Some(d.templ)
-      case d: Defn.GivenAlias => Some(d.body)
-      case d: Defn.Val => Some(d.rhs)
-      case d: Defn.Var => d.rhs
-      case t: Defn.Class => Some(t.templ)
-      case t: Defn.Trait => Some(t.templ)
-      case t: Defn.Enum => Some(t.templ)
-      case t: Defn.ExtensionGroup => Some(t.body)
+      case d: Defn with Tree.WithBody => Some(d.body)
+      case d: Defn with Stat.WithTemplate => Some(d.templ)
       case t: Ctor.Secondary => Some(t.init)
       case _: Ctor.Primary | _: Pat.Var | _: Term.Name =>
         tree.parent match {
@@ -451,7 +443,6 @@ object TreeOps {
     new FormatToken.ExtractFromMeta(_.leftOwner match {
       case _: Enumerator => None // it's WithBody
       case t: Ctor.Secondary => Some(t.init)
-      case t: Defn.Var => t.rhs.orElse(Some(t)) // `_` replaced with None
       case t: Tree.WithBody => Some(t.body)
       case t: Term.Param => t.default
       case _ => None
@@ -739,7 +730,8 @@ object TreeOps {
     t.parent match {
       case Some(ts: Term.Select) if ts.name.value == "stripMargin" =>
         ts.parent match {
-          case Some(Term.Apply(_, List(arg: Lit.Char))) => Some(arg.value)
+          case Some(Term.Apply.Initial(_, List(arg: Lit.Char))) =>
+            Some(arg.value)
           case _ => Some('|')
         }
       case _ => None
