@@ -4035,3 +4035,166 @@ object types:
      CFuncPtr0[Unit],
      CFuncPtr0[Unit]
    ]
+<<< interleaved
+maxColumn = 40
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )(implicit c: C): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )[C](implicit c: C): B = ???
+<<< interleaved, vertical multiline
+maxColumn = 40
+verticalMultiline.atDefnSite = true
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+     )(implicit c: C
+     ): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+     )[C](implicit c: C): B = ???
+<<< interleaved, vertical multiline, implicitParamListModifierPrefer = after
+maxColumn = 40
+verticalMultiline.atDefnSite = true
+newlines.implicitParamListModifierPrefer = after
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+     )(implicit c: C
+     ): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+     )[C](implicit c: C): B = ???
+<<< interleaved, vertical multiline, implicitParamListModifierForce = [after]
+maxColumn = 40
+verticalMultiline.atDefnSite = true
+newlines.implicitParamListModifierForce = [after]
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+     )(implicit
+       c: C
+     ): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+     )[C](implicit c: C): B = ???
+<<< interleaved, vertical multiline, implicitParamListModifierForce = [before]
+maxColumn = 40
+verticalMultiline.atDefnSite = true
+newlines.implicitParamListModifierForce = [before]
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+     )(
+       implicit c: C
+     ): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+     )[C](implicit c: C): B = ???
+<<< interleaved, vertical multiline, implicitParamListModifierForce = [before,after]
+maxColumn = 40
+verticalMultiline.atDefnSite = true
+newlines.implicitParamListModifierForce = [before,after]
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+     )(
+       implicit
+       c: C
+     ): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+     )[C](implicit c: C): B = ???
+<<< interleaved, short
+maxColumn = 23
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+   )[B](b: B, bs: B*)(
+       implicit c: C
+   ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+   )[B](
+       b: B,
+       bs: B*
+   )[C](implicit
+       c: C
+   ): B = ???
+<<< interleaved, short, vertical multiline
+maxColumn = 23
+verticalMultiline.atDefnSite = true
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )(implicit c: C
+     ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )[C](
+       implicit c: C
+     ): B = ???

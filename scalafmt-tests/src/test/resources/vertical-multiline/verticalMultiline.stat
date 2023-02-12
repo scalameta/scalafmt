@@ -126,6 +126,8 @@ final class UserProfile(
   with SomethingElse
 
 <<< should work with an empty first param group
+maxColumn = 65
+===
 override def load()(implicit taskCtx: Context,
       ec: ExecutionContext
     ): Future[Seq[A] Or B]
