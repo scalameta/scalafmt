@@ -471,7 +471,7 @@ class FormatOps(
             val fullInfix = InfixSplits.findEnclosingInfix(app)
             val ok = isEnclosedInParens(fullInfix) || fullInfix.parent.forall {
               case t: Defn.Val => t.rhs eq fullInfix
-              case t: Defn.Var => t.rhs.contains(fullInfix)
+              case t: Defn.Var => t.body eq fullInfix
               case _ => true
             }
             if (ok)
@@ -2656,7 +2656,6 @@ class FormatOps(
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
           case t: Ctor.Secondary => Some((t, seq(all, t.init, t.stats)))
-          case t: Defn.Var => t.rhs.map(_ -> Nil)
           case t: Tree.WithBody => Some((t.body, Nil))
           case _ => BlockImpl.getBlocks(ft, nft, all)
         }
