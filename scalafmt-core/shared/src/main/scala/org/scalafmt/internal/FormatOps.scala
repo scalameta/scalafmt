@@ -1269,27 +1269,68 @@ class FormatOps(
       else
         Indent(indentParam, close, ExpiresOn.Before)
 
-    val singleLineExpire =
-      if (isBracket) close // If we can fit the type params, make it so
-      else lastParen // If we can fit all in one block, make it so
+    def aboveArityThreshold = {
+      val threshold = style.verticalMultiline.arityThreshold
+      allOwners.exists {
+        case Member.ParamClause(v) => v.lengthCompare(threshold) >= 0
+        case _ => false
+      }
+    }
 
-    def maxArity = allOwners.map {
-      case Member.ParamClause(v) => v.length
-      case _ => 0
-    }.max
+    val space = Space(style.spaces.inParentheses)
+    val slbEnd =
+      if (style.newlines.sometimesBeforeColonInMethodReturnType) lastParen
+      else {
+        val afterLastParen = tokens.before(lastParen).right
+        if (afterLastParen.is[T.Colon]) afterLastParen else lastParen
+      }
+    val slbSplit = Split(space, 0)
+      .withSingleLine(slbEnd, killOnFail = true)
 
-    def configStyle = style.optIn.configStyleArguments && ft.hasBreak
-
-    def belowArityThreshold =
-      maxArity < style.verticalMultiline.arityThreshold
-
-    Seq(
-      Split(Space(style.spaces.inParentheses), 0)
-        .onlyIf(isBracket || !configStyle && belowArityThreshold)
-        .withPolicy(SingleLineBlock(singleLineExpire)),
-      // Otherwise split vertically
-      Split(Newline, 1).withIndent(firstIndent).withPolicy(policy)
-    )
+    if (isBracket) {
+      val noSplit =
+        if (allParenOwners.isEmpty)
+          Split(space, 0).withSingleLine(close)
+        else {
+          val lpNext = tokens.getHead(allParenOwners.head)
+          val lpNextLeft = lpNext.left
+          val slbPolicy =
+            if (tokens.isRightCommentThenBreak(lpNext)) Policy.NoPolicy
+            else decideNewlinesOnlyAfterToken(lpNextLeft)
+          // If we can fit the type params, make it so
+          Split(space, 0).withSingleLine(lpNextLeft).orPolicy(slbPolicy)
+        }
+      val nlSplit = Split(Newline, 1, policy = policy).withIndent(firstIndent)
+      Seq(slbSplit, noSplit, nlSplit)
+    } else {
+      val rightIsImplicit = r.is[soft.ImplicitOrUsing]
+      val opensImplicit = rightIsImplicit &&
+        opensImplicitParamList(ft).exists(_.lengthCompare(1) > 0)
+      val nlOnly =
+        if (rightIsImplicit)
+          style.newlines.forceBeforeImplicitParamListModifier
+        else
+          style.verticalMultiline.newlineAfterOpenParen
+      val noSlb = nlOnly || aboveArityThreshold || ft.hasBreak &&
+        !style.newlines.sourceIgnored && style.optIn.configStyleArguments ||
+        opensImplicit && style.newlines.forceAfterImplicitParamListModifier
+      val nlMod = NewlineT(alt = if (nlOnly) None else Some(slbSplit.modExt))
+      val spaceImplicit =
+        opensImplicit && style.newlines.notBeforeImplicitParamListModifier
+      Seq(
+        // If we can fit all in one block, make it so
+        slbSplit.notIf(noSlb),
+        Split(space, 0, policy = policy)
+          .onlyIf(spaceImplicit)
+          .andPolicy(
+            decideNewlinesOnlyAfterClose(r),
+            tokens.isRightCommentThenBreak(next(ft))
+          )
+          .withIndent(firstIndent),
+        // Otherwise split vertically
+        Split(nlMod, 1, policy = policy).withIndent(firstIndent)
+      )
+    }
 
   }
 

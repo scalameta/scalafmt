@@ -4035,7 +4035,9 @@ object a:
    def f[A](a: A, as: A*)[B](
        b: B,
        bs: B*
-     )[C](implicit c: C): B = ???
+     )[C](
+       implicit c: C
+     ): B = ???
 <<< interleaved, vertical multiline, implicitParamListModifierForce = [before,after]
 maxColumn = 40
 verticalMultiline.atDefnSite = true
@@ -4056,7 +4058,10 @@ object a:
    def f[A](a: A, as: A*)[B](
        b: B,
        bs: B*
-     )[C](implicit c: C): B = ???
+     )[C](
+       implicit
+       c: C
+     ): B = ???
 <<< interleaved, short
 maxColumn = 23
 ===
