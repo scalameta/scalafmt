@@ -1191,12 +1191,28 @@ class FormatOps(
     val indentSep = Num((indentParam.n - 2).max(0))
     val isBracket = open.is[T.LeftBracket]
 
-    val allParenOwners = (lpParent match {
-      case Some(t: Tree.WithParamClauses) => t.paramClauses
-      case Some(t: Stat.WithCtor) => t.ctor.paramClauses
+    def getClausesFromClauseGroup(tree: Member.ParamClauseGroup) = {
+      val tparams = tree.tparamClause
+      val params = tree.paramClauses
+      if (tparams.isEmpty) params else tparams :: params
+    }
+    val allClauses = lpOwner match {
+      case ParamClauseParent(p) =>
+        p match {
+          case t: Tree.WithParamClauseGroups =>
+            t.paramClauseGroups.flatMap(getClausesFromClauseGroup)
+          case t: Tree.WithParamClauseGroup =>
+            t.paramClauseGroup.map(getClausesFromClauseGroup).getOrElse(Nil)
+          case t: Stat.WithCtor with Tree.WithTParamClause =>
+            t.tparamClause +: t.ctor.paramClauses
+          case t: Tree.WithParamClauses => t.paramClauses
+          case t: Stat.WithCtor => t.ctor.paramClauses
+          case t: Tree.WithTParamClause => t.tparamClause :: Nil
+          case _ => Nil
+        }
       case _ => Nil
-    }).filter(_.pos.start > open.start)
-
+    }
+    val allParenOwners = allClauses.filter(_.pos.start > open.start)
     val allOwners = lpOwner +: allParenOwners
 
     // find the last param on the defn so that we can apply our `policy`
