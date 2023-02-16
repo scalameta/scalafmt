@@ -1192,24 +1192,25 @@ class FormatOps(
       case Some(t: Tree.WithParamClauses) => t.paramClauses
       case Some(t: Stat.WithCtor) => t.ctor.paramClauses
       case _ => Nil
-    }).filter(_ ne lpOwner)
+    }).filter(_.pos.start > open.start)
 
     val mixedParams = isBracket && allParenOwners.nonEmpty
     val allOwners = lpOwner +: allParenOwners
 
     // find the last param on the defn so that we can apply our `policy`
     // till the end.
-    val lastParen = allParenOwners.lastOption.fold(close)(getLastToken)
+    val lastParens = allParenOwners.map(getLastToken)
+    val lastParen = lastParens.lastOption.getOrElse(close)
 
     val shouldNotDangle = shouldNotDangleAtDefnSite(lpParent, true)
 
     // Since classes and defs aren't the same (see below), we need to
     // create two (2) OneArgOneLineSplit when dealing with classes. One
     // deals with the type params and the other with the value params.
-    val oneLinePerArg = allParenOwners
-      .filter(_.pos.start >= open.start)
-      .map(owner => splitOneArgOneLine(getLastToken(owner), owner))
-      .foldLeft(splitOneArgOneLine(close, lpOwner))(new Policy.Relay(_, _))
+    val oneLinePerArg = allOwners
+      .zip(close +: lastParens)
+      .map { case (owner, end) => splitOneArgOneLine(end, owner) }
+      .reduceRight(new Policy.Relay(_, _))
 
     // DESNOTE(2017-03-28, pjrt) Classes and defs aren't the same.
     // For defs, type params and value param have the same `owners`. However
