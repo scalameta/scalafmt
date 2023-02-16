@@ -4166,15 +4166,23 @@ object a:
   class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
 >>>
 object a:
-   def f[A](a: A, as: A*)[B](
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
        b: B,
        bs: B*
      )(implicit c: C
      ): B = ???
-   def f[A](a: A, as: A*)[B](
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
        b: B,
        bs: B*
-     )[C](implicit c: C): B = ???
+     )[C](
+       implicit c: C
+     ): B = ???
    class F(
        a: A,
        as: A*
@@ -4210,15 +4218,23 @@ object a:
   class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
 >>>
 object a:
-   def f[A](a: A, as: A*)[B](
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
        b: B,
        bs: B*
      )(implicit c: C
      ): B = ???
-   def f[A](a: A, as: A*)[B](
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
        b: B,
        bs: B*
-     )[C](implicit c: C): B = ???
+     )[C](
+       implicit c: C
+     ): B = ???
    class F(
        a: A,
        as: A*
@@ -4253,15 +4269,23 @@ object a:
   class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
 >>>
 object a:
-   def f[A](a: A, as: A*)[B](
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
        b: B,
        bs: B*
      )(implicit c: C
      ): B = ???
-   def f[A](a: A, as: A*)[B](
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
        b: B,
        bs: B*
-     )[C](implicit c: C): B = ???
+     )[C](
+       implicit c: C
+     ): B = ???
    class F(
        a: A,
        as: A*
@@ -4297,13 +4321,19 @@ object a:
   class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
 >>>
 object a:
-   def f[A](a: A, as: A*)[B](
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
        b: B,
        bs: B*
      )(implicit
        c: C
      ): B = ???
-   def f[A](a: A, as: A*)[B](
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
        b: B,
        bs: B*
      )[C](
@@ -4346,13 +4376,19 @@ object a:
   class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
 >>>
 object a:
-   def f[A](a: A, as: A*)[B](
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
        b: B,
        bs: B*
      )(
        implicit c: C
      ): B = ???
-   def f[A](a: A, as: A*)[B](
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
        b: B,
        bs: B*
      )[C](
@@ -4395,14 +4431,20 @@ object a:
   class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
 >>>
 object a:
-   def f[A](a: A, as: A*)[B](
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
        b: B,
        bs: B*
      )(
        implicit
        c: C
      ): B = ???
-   def f[A](a: A, as: A*)[B](
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
        b: B,
        bs: B*
      )[C](
