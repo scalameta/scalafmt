@@ -4408,17 +4408,14 @@ object a:
      )(b: B,
        bs: B*
      )(implicit
-       implicit
-       c: C) {}
+       implicit c: C) {}
    class F(
        a: A,
        as: A*
      )(b: B,
        bs: B*
-     )(implicit
-       c: C,
-       implicit
-       d: D) {}
+     )(implicit c: C,
+       implicit d: D) {}
    class F(
        a: A,
        as: A*
@@ -4427,8 +4424,7 @@ object a:
      )(implicit
        c: C,
        d: D,
-       implicit
-       e: E) {}
+       implicit e: E) {}
 <<< interleaved, vertical multiline, implicitParamListModifierForce = [before]
 maxColumn = 40
 verticalMultiline.atDefnSite = true
@@ -4512,18 +4508,15 @@ object a:
        bs: B*
      )(
        implicit
-       implicit
-       c: C) {}
+       implicit c: C) {}
    class F(
        a: A,
        as: A*
      )(b: B,
        bs: B*
      )(
-       implicit
-       c: C,
-       implicit
-       d: D) {}
+       implicit c: C,
+       implicit d: D) {}
    class F(
        a: A,
        as: A*
@@ -4533,8 +4526,7 @@ object a:
        implicit
        c: C,
        d: D,
-       implicit
-       e: E) {}
+       implicit e: E) {}
 <<< interleaved, short
 maxColumn = 23
 ===

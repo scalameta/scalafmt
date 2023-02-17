@@ -1233,9 +1233,10 @@ class FormatOps(
       case Decision(FormatToken(LeftParenOrBracket(), _, m), ss)
           if allParenOwners.contains(m.leftOwner) =>
         ss.filter(!_.isActiveFor(SplitTag.VerticalMultilineSingleLine))
-      case Decision(ftd @ FormatToken(soft.ImplicitOrUsing(), _, _), _)
+      case Decision(ftd @ FormatToken(soft.ImplicitOrUsing(), _, m), _)
           if style.newlines.forceAfterImplicitParamListModifier &&
-            !tokens.isRightCommentThenBreak(ftd) =>
+            !tokens.isRightCommentThenBreak(ftd) &&
+            hasImplicitParamList(m.leftOwner) =>
         Seq(Split(Newline, 0))
     }
 
