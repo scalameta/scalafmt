@@ -72,7 +72,8 @@ def getListing(
     b: String,
     c: String,
     d: String
-  )(implicit e: String,
+  )(implicit
+    e: String,
     g: String,
     f: String): Future[String] = {
   a + b + c + d + e + g + f

@@ -1194,7 +1194,6 @@ class FormatOps(
       case _ => Nil
     }).filter(_.pos.start > open.start)
 
-    val mixedParams = isBracket && allParenOwners.nonEmpty
     val allOwners = lpOwner +: allParenOwners
 
     // find the last param on the defn so that we can apply our `policy`
@@ -1226,34 +1225,11 @@ class FormatOps(
           if shouldNotDangle && !isLeftCommentThenBreak(ftd) =>
         Seq(Split(NoSplit, 0))
       // Indent separators `)(` and `](` by `indentSep`
-      case Decision(FormatToken(_, rp: T.RightBracket, m), _)
-          if lpOwner eq m.rightOwner =>
-        Seq(Split(Newline, 0).withIndent(indentSep, rp, ExpiresOn.After))
-      case Decision(FormatToken(_, rp: T.RightParen, m), _)
-          if allOwners.contains(m.rightOwner) =>
-        Seq(Split(Newline, 0).withIndent(indentSep, rp, ExpiresOn.After))
-      // Add a newline after left paren if:
-      // - There's an implicit keyword and newlineBeforeImplicitKW is enabled
-      // - newlineAfterOpenParen is enabled
-      // - Mixed-params case with constructor modifier `] private (`
-      case Decision(t @ FormatToken(lp: T.LeftParen, right, m), _)
-          if allOwners.contains(m.leftOwner) =>
-        val close2 = matching(lp)
-
-        // We don't want to create newlines for default values.
-        def isDefinition = allOwners.contains(owners(close2))
-
-        val shouldAddNewline = {
-          if (right.is[soft.ImplicitOrUsing])
-            style.newlines.forceBeforeImplicitParamListModifier
-          else
-            style.verticalMultiline.newlineAfterOpenParen && isDefinition
-        } || (mixedParams && prev(t).meta.leftOwner.is[CtorModifier])
-
-        Seq(
-          Split(NoSplit.orNL(!shouldAddNewline), 0)
-            .withIndent(indentParam, close2, ExpiresOn.Before)
-        )
+      case Decision(FormatToken(_, `close`, _), _) =>
+        Seq(Split(Newline, 0).withIndent(indentSep, close, ExpiresOn.After))
+      case Decision(FormatToken(LeftParenOrBracket(), _, m), ss)
+          if allParenOwners.contains(m.leftOwner) =>
+        ss.filter(!_.isActiveFor(SplitTag.VerticalMultilineSingleLine))
       case Decision(ftd @ FormatToken(soft.ImplicitOrUsing(), _, _), _)
           if style.newlines.forceAfterImplicitParamListModifier &&
             !tokens.isRightCommentThenBreak(ftd) =>
@@ -1287,8 +1263,14 @@ class FormatOps(
       }
     val slbSplit = Split(space, 0)
       .withSingleLine(slbEnd, killOnFail = true)
+      .preActivateFor(SplitTag.VerticalMultilineSingleLine)
 
     if (isBracket) {
+      val noSlbPolicy = Policy.on(lastParen) {
+        case Decision(FormatToken(LeftParenOrBracket(), _, m), ss)
+            if allParenOwners.contains(m.leftOwner) =>
+          ss.filter(!_.isActiveFor(SplitTag.VerticalMultilineSingleLine))
+      }
       val noSplit =
         if (allParenOwners.isEmpty)
           Split(space, 0).withSingleLine(close)
@@ -1302,7 +1284,7 @@ class FormatOps(
           Split(space, 0).withSingleLine(lpNextLeft).orPolicy(slbPolicy)
         }
       val nlSplit = Split(Newline, 1, policy = policy).withIndent(firstIndent)
-      Seq(slbSplit, noSplit, nlSplit)
+      Seq(slbSplit, noSplit.andPolicy(noSlbPolicy), nlSplit)
     } else {
       val rightIsImplicit = r.is[soft.ImplicitOrUsing]
       val opensImplicit = rightIsImplicit &&
