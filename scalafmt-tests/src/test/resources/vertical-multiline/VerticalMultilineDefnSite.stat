@@ -11,7 +11,8 @@ def format_![T <: Tree](
   foo: Int
 )(f: A => B,
   k: D
-)(implicit ev: Parse[T],
+)(implicit
+  ev: Parse[T],
   ev2: EC
 ): String
 <<< #1462
