@@ -363,7 +363,8 @@ object a {
       as: A*
     )(b: B,
       bs: B*
-    )(implicit c: C,
+    )(implicit
+      c: C,
       d: D,
       implicit e: E) {}
 }

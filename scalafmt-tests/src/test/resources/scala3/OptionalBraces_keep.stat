@@ -3970,7 +3970,8 @@ object a:
        implicit d: D
    ) {}
    class F(a: A, as: A*)(b: B, bs: B*)(
-       implicit c: C,
+       implicit
+       c: C,
        d: D,
        implicit e: E
    ) {}
@@ -4034,7 +4035,8 @@ object a:
        implicit d: D
    ) {}
    class F(a: A, as: A*)(b: B, bs: B*)(
-       implicit c: C,
+       implicit
+       c: C,
        d: D,
        implicit e: E
    ) {}
@@ -4063,14 +4065,16 @@ object a:
        c: C
    ): B = ???
    class F(a: A, as: A*)(b: B, bs: B*)(
-       implicit implicit c: C
+       implicit
+       implicit c: C
    ) {}
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit c: C,
        implicit d: D
    ) {}
    class F(a: A, as: A*)(b: B, bs: B*)(
-       implicit c: C,
+       implicit
+       c: C,
        d: D,
        implicit e: E
    ) {}
@@ -4137,14 +4141,16 @@ object a:
        c: C
    ): B = ???
    class F(a: A, as: A*)(b: B, bs: B*)(
-       implicit implicit c: C
+       implicit
+       implicit c: C
    ) {}
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit c: C,
        implicit d: D
    ) {}
    class F(a: A, as: A*)(b: B, bs: B*)(
-       implicit c: C,
+       implicit
+       c: C,
        d: D,
        implicit e: E
    ) {}
@@ -4187,7 +4193,8 @@ object a:
        as: A*
      )(b: B,
        bs: B*
-     )(implicit c: C,
+     )(implicit
+       c: C,
        d: D,
        implicit e: E) {}
 <<< interleaved, vertical multiline, implicitParamListModifierPrefer = before
@@ -4273,7 +4280,8 @@ object a:
        as: A*
      )(b: B,
        bs: B*
-     )(implicit c: C,
+     )(implicit
+       c: C,
        d: D,
        implicit e: E) {}
 <<< interleaved, vertical multiline, implicitParamListModifierForce = [after]
@@ -4468,7 +4476,8 @@ object a:
        a: A,
        as: A*
    )(b: B, bs: B*)(
-       implicit implicit c: C
+       implicit
+       implicit c: C
    ) {}
    class F(
        a: A,
@@ -4481,7 +4490,8 @@ object a:
        a: A,
        as: A*
    )(b: B, bs: B*)(
-       implicit c: C,
+       implicit
+       c: C,
        d: D,
        implicit e: E
    ) {}
@@ -4532,6 +4542,7 @@ object a:
        as: A*
      )(b: B,
        bs: B*
-     )(implicit c: C,
+     )(implicit
+       c: C,
        d: D,
        implicit e: E) {}
