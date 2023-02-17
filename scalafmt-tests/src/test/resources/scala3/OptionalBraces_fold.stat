@@ -4070,7 +4070,10 @@ object a:
    def f[A](a: A, as: A*)[B](
        b: B,
        bs: B*
-     )[C](implicit c: C): B = ???
+     )[C](
+       implicit
+       c: C
+     ): B = ???
    class F(
        a: A,
        as: A*
