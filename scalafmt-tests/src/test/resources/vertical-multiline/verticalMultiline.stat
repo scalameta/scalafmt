@@ -385,17 +385,14 @@ object a {
     )(b: B,
       bs: B*
     )(implicit
-      implicit
-      c: C) {}
+      implicit c: C) {}
   class F(
       a: A,
       as: A*
     )(b: B,
       bs: B*
-    )(implicit
-      c: C,
-      implicit
-      d: D) {}
+    )(implicit c: C,
+      implicit d: D) {}
   class F(
       a: A,
       as: A*
@@ -404,8 +401,7 @@ object a {
     )(implicit
       c: C,
       d: D,
-      implicit
-      e: E) {}
+      implicit e: E) {}
 }
 <<< explicit implicits, implicitParamListModifierForce = [before]
 maxColumn = 40
@@ -461,18 +457,15 @@ object a {
       bs: B*
     )(
       implicit
-      implicit
-      c: C) {}
+      implicit c: C) {}
   class F(
       a: A,
       as: A*
     )(b: B,
       bs: B*
     )(
-      implicit
-      c: C,
-      implicit
-      d: D) {}
+      implicit c: C,
+      implicit d: D) {}
   class F(
       a: A,
       as: A*
@@ -482,6 +475,5 @@ object a {
       implicit
       c: C,
       d: D,
-      implicit
-      e: E) {}
+      implicit e: E) {}
 }
