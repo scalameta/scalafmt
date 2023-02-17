@@ -2090,3 +2090,18 @@ object a {
   def meth3    (param333333: Any   ): Any = ???
   def md4      (param4     : Any   ): Any = ???
 }
+<<< #3465
+align.tokens."+" = [
+  { code = ":", owner = "Param" }
+  { code = "=" }
+]
+===
+object a {
+  private[this] def retry_cache_key(xxx: String) = s"some_short_string$xxx"
+  private[this] val retry_timing_in_seconds = 30 seconds
+}
+>>>
+object a {
+  private[this] def retry_cache_key(xxx: String) = s"some_short_string$xxx"
+  private[this] val retry_timing_in_seconds = 30 seconds
+}
