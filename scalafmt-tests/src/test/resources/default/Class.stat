@@ -605,7 +605,8 @@ object a {
       implicit c: C,
       implicit d: D) {}
   class F(a: A, as: A*)(b: B, bs: B*)(
-      implicit c: C,
+      implicit
+      c: C,
       d: D,
       implicit e: E) {}
 }
@@ -621,12 +622,14 @@ object a {
 >>>
 object a {
   class F(a: A, as: A*)(b: B, bs: B*)(
-      implicit implicit c: C) {}
+      implicit
+      implicit c: C) {}
   class F(a: A, as: A*)(b: B, bs: B*)(
       implicit c: C,
       implicit d: D) {}
   class F(a: A, as: A*)(b: B, bs: B*)(
-      implicit c: C,
+      implicit
+      c: C,
       d: D,
       implicit e: E) {}
 }
@@ -663,12 +666,14 @@ object a {
 >>>
 object a {
   class F(a: A, as: A*)(b: B, bs: B*)(
-      implicit implicit c: C) {}
+      implicit
+      implicit c: C) {}
   class F(a: A, as: A*)(b: B, bs: B*)(
       implicit c: C,
       implicit d: D) {}
   class F(a: A, as: A*)(b: B, bs: B*)(
-      implicit c: C,
+      implicit
+      c: C,
       d: D,
       implicit e: E) {}
 }
