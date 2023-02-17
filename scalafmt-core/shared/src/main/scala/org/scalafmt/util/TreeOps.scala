@@ -636,6 +636,20 @@ object TreeOps {
     param.mods.forall(noExplicitImplicit(pStart, true))
   }
 
+  def getImplicitParamList(kwOwner: Tree): Option[Seq[Tree]] =
+    kwOwner.parent match {
+      case Some(Term.ArgClause(v, Some(`kwOwner`))) => Some(v)
+      case Some(Term.ParamClause(v, Some(`kwOwner`))) if (kwOwner match {
+            case _: Mod.Implicit => v.forall(noExplicitImplicit)
+            case _ => true
+          }) =>
+        Some(v)
+      case _ => None
+    }
+
+  def hasImplicitParamList(kwOwner: Tree): Boolean =
+    getImplicitParamList(kwOwner).isDefined
+
   def shouldNotDangleAtDefnSite(
       tree: Option[Tree],
       isVerticalMultiline: Boolean
