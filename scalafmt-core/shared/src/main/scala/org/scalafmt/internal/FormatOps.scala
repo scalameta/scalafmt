@@ -1290,19 +1290,21 @@ class FormatOps(
       Seq(slbSplit, noSplit.andPolicy(noSlbPolicy), nlSplit)
     } else {
       val rightIsImplicit = r.is[soft.ImplicitOrUsing]
-      val opensImplicit = rightIsImplicit &&
-        getImplicitParamList(ft.meta.rightOwner).exists(_.lengthCompare(1) > 0)
       val nlOnly =
         if (rightIsImplicit)
           style.newlines.forceBeforeImplicitParamListModifier
         else
           style.verticalMultiline.newlineAfterOpenParen
+      val implicitParams =
+        if (!rightIsImplicit) Nil
+        else getImplicitParamList(ft.meta.rightOwner).getOrElse(Nil)
       val noSlb = nlOnly || aboveArityThreshold || ft.hasBreak &&
         !style.newlines.sourceIgnored && style.optIn.configStyleArguments ||
-        opensImplicit && style.newlines.forceAfterImplicitParamListModifier
+        implicitParams.nonEmpty &&
+        style.newlines.forceAfterImplicitParamListModifier
       val nlMod = NewlineT(alt = if (nlOnly) None else Some(slbSplit.modExt))
-      val spaceImplicit =
-        opensImplicit && style.newlines.notBeforeImplicitParamListModifier
+      val spaceImplicit = !nlOnly && implicitParams.lengthCompare(1) > 0 &&
+        style.newlines.notBeforeImplicitParamListModifier
       Seq(
         // If we can fit all in one block, make it so
         slbSplit.notIf(noSlb),
