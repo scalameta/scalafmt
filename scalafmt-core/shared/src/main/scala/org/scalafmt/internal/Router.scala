@@ -52,7 +52,6 @@ class Router(formatOps: FormatOps) {
     tokenBefore,
     getLastNonTrivial,
     prevNonComment,
-    prevNonCommentBefore,
     nextNonComment,
     prevNonCommentSameLine,
     nextNonCommentSameLine
@@ -1005,7 +1004,7 @@ class Router(formatOps: FormatOps) {
         // covers using as well
         val handleImplicit = !tupleSite && (
           if (onlyConfigStyle) opensConfigStyleImplicitParamList(formatToken)
-          else opensImplicitParamList(formatToken, args)
+          else hasImplicitParamList(rightOwner)
         )
 
         val noSplitMod =
@@ -2412,24 +2411,19 @@ class Router(formatOps: FormatOps) {
           case _ => Seq(baseSplit)
         }
 
-      case FormatToken(soft.ImplicitOrUsing(), _, _)
+      case FormatToken(soft.ImplicitOrUsing(), _, ImplicitUsingOnLeft(params))
           if style.binPack.unsafeDefnSite.isNever &&
-            !style.verticalMultiline.atDefnSite &&
-            isRightImplicitOrUsingSoftKw(formatToken, soft) =>
-        opensImplicitParamList(prevNonCommentBefore(formatToken)).fold {
-          Seq(Split(Space, 0))
-        } { params =>
-          val spaceSplit = Split(Space, 0)
-            .notIf(style.newlines.forceAfterImplicitParamListModifier)
-            .withPolicy(
-              SingleLineBlock(params.last.tokens.last),
-              style.newlines.notPreferAfterImplicitParamListModifier
-            )
-          Seq(
-            spaceSplit,
-            Split(Newline, if (spaceSplit.isActive) 1 else 0)
+            !style.verticalMultiline.atDefnSite =>
+        val spaceSplit = Split(Space, 0)
+          .notIf(style.newlines.forceAfterImplicitParamListModifier)
+          .withPolicy(
+            SingleLineBlock(params.last.tokens.last),
+            style.newlines.notPreferAfterImplicitParamListModifier
           )
-        }
+        Seq(
+          spaceSplit,
+          Split(Newline, if (spaceSplit.isActive) 1 else 0)
+        )
 
       case FormatToken(_, r, _) if optionalNewlines(hash(r)) =>
         @tailrec

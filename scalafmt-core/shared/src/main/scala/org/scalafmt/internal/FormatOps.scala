@@ -988,7 +988,10 @@ class FormatOps(
   )(implicit style: ScalafmtConfig): Boolean =
     formatToken.right.is[soft.ImplicitOrUsing] &&
       style.newlines.notBeforeImplicitParamListModifier &&
-      opensImplicitParamList(formatToken).isDefined
+      hasImplicitParamList(formatToken.meta.rightOwner)
+
+  val ImplicitUsingOnLeft =
+    new ExtractFromMeta(ft => getImplicitParamList(ft.meta.leftOwner))
 
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
     val toMatch = if (tok.right.is[T.RightParen]) {
@@ -1288,7 +1291,7 @@ class FormatOps(
     } else {
       val rightIsImplicit = r.is[soft.ImplicitOrUsing]
       val opensImplicit = rightIsImplicit &&
-        opensImplicitParamList(ft).exists(_.lengthCompare(1) > 0)
+        getImplicitParamList(ft.meta.rightOwner).exists(_.lengthCompare(1) > 0)
       val nlOnly =
         if (rightIsImplicit)
           style.newlines.forceBeforeImplicitParamListModifier
@@ -1428,24 +1431,6 @@ class FormatOps(
         )
         throw UnexpectedTree[Member.SyntaxValuesClause](t)
     }
-
-  def opensImplicitParamList(ft: FormatToken): Option[Seq[Tree]] =
-    ft.meta.leftOwner match {
-      case Term.ArgClause(v, _: Some[_]) => Some(v)
-      case Term.ParamClause(v, Some(mod)) if (mod match {
-            case _: Mod.Implicit => v.forall(noExplicitImplicit)
-            case _ => true
-          }) =>
-        Some(v)
-      case _ => None
-    }
-
-  /** Works for `using` as well */
-  def opensImplicitParamList(ft: FormatToken, args: Seq[Tree]): Boolean =
-    ft.right.is[T.KwImplicit] && args.forall {
-      case t: Term.Param => noExplicitImplicit(t)
-      case _ => true
-    } || ft.right.is[soft.KwUsing]
 
   @tailrec
   final def findPrevSelectAndApply(
@@ -1886,16 +1871,6 @@ class FormatOps(
         op != "->" && op != "→"
       case _ => true
     }) && isEnclosedInParens(body)
-  }
-
-  // For using to be the soft kw it also has to be preceded by paren
-  def isRightImplicitOrUsingSoftKw(
-      ft: FormatToken,
-      soft: SoftKeywordClasses
-  ): Boolean = ft.left match {
-    case _: T.KwImplicit => true
-    case soft.KwUsing() => prevNonCommentBefore(ft).left.is[T.LeftParen]
-    case _ => false
   }
 
   def getMatchDot(tree: Term.Match): Option[FormatToken] =
