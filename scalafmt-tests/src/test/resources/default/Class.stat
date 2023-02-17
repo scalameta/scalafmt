@@ -567,3 +567,108 @@ object Record {
   final case class AlsoOk[A](msg: String) extends InvariantADT[A]
   final case class NotOk[A]() extends Record[A]
 }
+<<< explicit implicits, implicitParamListModifierPrefer = before
+maxColumn = 40
+newlines.implicitParamListModifierPrefer = before
+===
+object a {
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+}
+>>>
+object a {
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit c: C,
+      implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit c: C,
+      d: D,
+      implicit e: E) {}
+}
+<<< explicit implicits, implicitParamListModifierPrefer = after
+maxColumn = 40
+newlines.implicitParamListModifierPrefer = after
+===
+object a {
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+}
+>>>
+object a {
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit c: C,
+      implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit c: C,
+      d: D,
+      implicit e: E) {}
+}
+<<< explicit implicits, implicitParamListModifierForce = [after]
+maxColumn = 40
+newlines.implicitParamListModifierForce = [after]
+===
+object a {
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+}
+>>>
+object a {
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit c: C,
+      implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit c: C,
+      d: D,
+      implicit e: E) {}
+}
+<<< explicit implicits, implicitParamListModifierForce = [before]
+maxColumn = 40
+newlines.implicitParamListModifierForce = [before]
+===
+object a {
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+}
+>>>
+object a {
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit c: C,
+      implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit c: C,
+      d: D,
+      implicit e: E) {}
+}
+<<< explicit implicits, implicitParamListModifierForce = [before,after]
+maxColumn = 40
+newlines.implicitParamListModifierForce = [before,after]
+===
+object a {
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+}
+>>>
+object a {
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit c: C,
+      implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(
+      implicit c: C,
+      d: D,
+      implicit e: E) {}
+}
