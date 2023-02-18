@@ -86,10 +86,9 @@ object PositionSyntax {
         case Position.None =>
           ""
         case _ =>
+          val span = pos.end - pos.start
           val caret =
-            if (pos.start == pos.end) "^"
-            else if (pos.startLine == pos.endLine) "^" * (pos.end - pos.start)
-            else "^"
+            if (span != 0 && pos.startLine == pos.endLine) "^" * span else "^"
           (" " * pos.startColumn) + caret
       }
 

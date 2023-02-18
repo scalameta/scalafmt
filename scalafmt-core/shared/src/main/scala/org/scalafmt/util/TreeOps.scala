@@ -596,7 +596,7 @@ object TreeOps {
 
   def getTreeLineSpan(b: Tree): Int = getTreeLineSpan(b.pos)
   def getTreeLineSpan(pos: Position): Int =
-    if (pos.start == pos.end) 0 else pos.endLine - pos.startLine
+    if (pos.isEmpty) 0 else pos.endLine - pos.startLine
 
   def hasSingleTermStat(t: Term.Block): Boolean =
     getBlockSingleStat(t).exists(_.is[Term])
@@ -621,8 +621,7 @@ object TreeOps {
     */
   def noExplicitImplicit(m: Mod.Implicit, ownerStart: Int): Boolean = {
     val modPos = m.pos
-    val modStart = modPos.start
-    modStart < ownerStart || modPos.end <= modStart
+    modPos.start < ownerStart || modPos.isEmpty
   }
 
   def noExplicitImplicit(ownerStart: Int, orElse: Boolean)(m: Mod): Boolean =
