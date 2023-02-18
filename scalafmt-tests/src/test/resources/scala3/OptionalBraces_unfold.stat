@@ -4066,6 +4066,180 @@ object a:
        d: D,
        implicit e: E
    ) {}
+<<< interleaved, implicitParamListModifierPrefer = before
+maxColumn = 40
+newlines.implicitParamListModifierPrefer = before
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )(implicit c: C): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )[C](implicit c: C): B = ???
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit implicit c: C
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       implicit d: D
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       d: D,
+       implicit e: E
+   ) {}
+<<< interleaved, implicitParamListModifierPrefer = after
+maxColumn = 40
+newlines.implicitParamListModifierPrefer = after
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )(implicit c: C): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )[C](implicit c: C): B = ???
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit implicit c: C
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       implicit d: D
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       d: D,
+       implicit e: E
+   ) {}
+<<< interleaved, implicitParamListModifierForce = [after]
+maxColumn = 40
+newlines.implicitParamListModifierForce = [after]
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )(implicit
+       c: C
+   ): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )[C](implicit
+       c: C
+   ): B = ???
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit implicit c: C
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       implicit d: D
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       d: D,
+       implicit e: E
+   ) {}
+<<< interleaved, implicitParamListModifierForce = [before]
+maxColumn = 40
+newlines.implicitParamListModifierForce = [before]
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+   )[B](b: B, bs: B*)(
+       implicit c: C
+   ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+   )[B](b: B, bs: B*)[C](
+       implicit c: C
+   ): B = ???
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit implicit c: C
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       implicit d: D
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       d: D,
+       implicit e: E
+   ) {}
+<<< interleaved, implicitParamListModifierForce = [before,after]
+maxColumn = 40
+newlines.implicitParamListModifierForce = [before,after]
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit implicit c: C) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+   )[B](b: B, bs: B*)(
+       implicit
+       c: C
+   ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+   )[B](b: B, bs: B*)[C](
+       implicit
+       c: C
+   ): B = ???
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit implicit c: C
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       implicit d: D
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       d: D,
+       implicit e: E
+   ) {}
 <<< interleaved, vertical multiline
 maxColumn = 40
 verticalMultiline.atDefnSite = true
