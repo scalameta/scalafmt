@@ -14,7 +14,6 @@ import org.scalafmt.util.{LiteralOps, TreeOps}
 import scala.annotation.tailrec
 import scala.collection.AbstractIterator
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 import scala.meta.internal.Scaladoc
 import scala.meta.internal.parsers.ScaladocParser
 import scala.meta.tokens.{Token => T}
@@ -254,7 +253,7 @@ class FormatWriter(formatOps: FormatOps) {
 
   private def checkRemoveEndMarkers(locations: Array[FormatLocation]): Unit = {
     var removedLines = 0
-    val endMarkers = new ListBuffer[(Int, Int)]
+    val endMarkers = new mutable.ListBuffer[(Int, Int)]
     locations.foreach { x =>
       val idx = x.formatToken.meta.idx
       val floc = if (removedLines > 0 && x.isNotRemoved) {
@@ -355,7 +354,7 @@ class FormatWriter(formatOps: FormatOps) {
       case _ => true
     }
     var addedLines = 0
-    val willAddLines = new ListBuffer[Int]
+    val willAddLines = new mutable.ListBuffer[Int]
     locations.foreach { x =>
       val idx = x.formatToken.meta.idx
       val floc = if (addedLines > 0 && x.isNotRemoved) {
@@ -1713,7 +1712,8 @@ object FormatWriter {
       // compute new stops for the block
       var oldShift = 0
       var newShift = 0
-      val builder = IndexedSeq.newBuilder[Int]
+      val newStopCols =
+        new mutable.ArrayBuffer[Int](oldStops.length.max(newStops.length))
       // common stops first
       oldStops.zip(newStops).foreach { case (oldStopColumn, newStop) =>
         val oldStopShifted = oldShift + oldStopColumn
@@ -1721,16 +1721,15 @@ object FormatWriter {
         val diff = newStopShifted - oldStopShifted
         if (diff > 0) {
           oldShift += diff
-          builder += newStopShifted
+          newStopCols += newStopShifted
         } else {
           newShift -= diff
-          builder += oldStopShifted
+          newStopCols += oldStopShifted
         }
       }
       // whatever remains
-      oldStops.drop(newStops.length).foreach(builder += oldShift + _)
-      newStops.drop(oldStops.length).foreach(builder += newShift + _.column)
-      val newStopColumns = builder.result()
+      oldStops.drop(newStops.length).foreach(newStopCols += oldShift + _)
+      newStops.drop(oldStops.length).foreach(newStopCols += newShift + _.column)
 
       // check overflow
       val style = line.stops.last.floc.style
@@ -1742,7 +1741,7 @@ object FormatWriter {
               else x.stops.length
             }
             val lastStop = x.stops(idx)
-            val totalShift = newStopColumns(idx) - lastStop.column
+            val totalShift = newStopCols(idx) - lastStop.column
             x.eolColumn + totalShift > lastStop.floc.style.maxColumn
           }
         if (overflow) return false // RETURNING
@@ -1751,9 +1750,9 @@ object FormatWriter {
       // now we mutate
       line.stops = newStops
       if (truncate < 0) foreach(x => x.stops = x.stops.take(matches))
-      if (newStopColumns.length == newStops.length) refStops = newStops
+      if (newStopCols.length == newStops.length) refStops = newStops
       buffer += line
-      stopColumns = newStopColumns
+      stopColumns = newStopCols.toIndexedSeq
       true
     }
 
