@@ -638,9 +638,9 @@ object TreeOps {
   def getImplicitParamList(kwOwner: Tree): Option[Seq[Tree]] =
     kwOwner.parent match {
       case Some(Term.ArgClause(v, Some(`kwOwner`))) => Some(v)
-      case Some(Term.ParamClause(v @ head :: rest, Some(`kwOwner`)))
+      case Some(Term.ParamClause(v @ _ :: rest, Some(`kwOwner`)))
           if !kwOwner.is[Mod.Implicit] || rest.isEmpty ||
-            !noExplicitImplicit(head) || rest.exists(noExplicitImplicit) =>
+            rest.exists(noExplicitImplicit) =>
         Some(v)
       case _ => None
     }
