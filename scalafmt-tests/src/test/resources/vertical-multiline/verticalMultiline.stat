@@ -306,8 +306,8 @@ maxColumn = 40
 newlines.implicitParamListModifierPrefer = before
 ===
 object a {
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 }
 >>>
 object a {
@@ -317,7 +317,7 @@ object a {
     )(b: B,
       bs: B*
     )(implicit c: C,
-      implicit d: D) {}
+      implicit val d: D) {}
   class F(
       a: A,
       as: A*
@@ -325,15 +325,15 @@ object a {
       bs: B*
     )(implicit c: C,
       d: D,
-      implicit e: E) {}
+      implicit val e: E) {}
 }
 <<< explicit implicits, implicitParamListModifierPrefer = after
 maxColumn = 40
 newlines.implicitParamListModifierPrefer = after
 ===
 object a {
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 }
 >>>
 object a {
@@ -343,7 +343,7 @@ object a {
     )(b: B,
       bs: B*
     )(implicit c: C,
-      implicit d: D) {}
+      implicit val d: D) {}
   class F(
       a: A,
       as: A*
@@ -352,15 +352,15 @@ object a {
     )(implicit
       c: C,
       d: D,
-      implicit e: E) {}
+      implicit val e: E) {}
 }
 <<< explicit implicits, implicitParamListModifierForce = [after]
 maxColumn = 40
 newlines.implicitParamListModifierForce = [after]
 ===
 object a {
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 }
 >>>
 object a {
@@ -370,7 +370,7 @@ object a {
     )(b: B,
       bs: B*
     )(implicit c: C,
-      implicit d: D) {}
+      implicit val d: D) {}
   class F(
       a: A,
       as: A*
@@ -379,15 +379,15 @@ object a {
     )(implicit
       c: C,
       d: D,
-      implicit e: E) {}
+      implicit val e: E) {}
 }
 <<< explicit implicits, implicitParamListModifierForce = [before]
 maxColumn = 40
 newlines.implicitParamListModifierForce = [before]
 ===
 object a {
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 }
 >>>
 object a {
@@ -398,7 +398,7 @@ object a {
       bs: B*
     )(
       implicit c: C,
-      implicit d: D) {}
+      implicit val d: D) {}
   class F(
       a: A,
       as: A*
@@ -407,15 +407,15 @@ object a {
     )(
       implicit c: C,
       d: D,
-      implicit e: E) {}
+      implicit val e: E) {}
 }
 <<< explicit implicits, implicitParamListModifierForce = [before,after]
 maxColumn = 40
 newlines.implicitParamListModifierForce = [before,after]
 ===
 object a {
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 }
 >>>
 object a {
@@ -426,7 +426,7 @@ object a {
       bs: B*
     )(
       implicit c: C,
-      implicit d: D) {}
+      implicit val d: D) {}
   class F(
       a: A,
       as: A*
@@ -436,5 +436,5 @@ object a {
       implicit
       c: C,
       d: D,
-      implicit e: E) {}
+      implicit val e: E) {}
 }

@@ -3721,8 +3721,8 @@ maxColumn = 40
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](a: A, as: A*)[B](
@@ -3735,13 +3735,13 @@ object a:
    )[C](implicit c: C): B = ???
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit c: C,
-       implicit d: D
+       implicit val d: D
    ) {}
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit
        c: C,
        d: D,
-       implicit e: E
+       implicit val e: E
    ) {}
 <<< interleaved, implicitParamListModifierPrefer = before
 maxColumn = 40
@@ -3750,8 +3750,8 @@ newlines.implicitParamListModifierPrefer = before
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](a: A, as: A*)[B](
@@ -3764,12 +3764,12 @@ object a:
    )[C](implicit c: C): B = ???
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit c: C,
-       implicit d: D
+       implicit val d: D
    ) {}
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit c: C,
        d: D,
-       implicit e: E
+       implicit val e: E
    ) {}
 <<< interleaved, implicitParamListModifierPrefer = after
 maxColumn = 40
@@ -3778,8 +3778,8 @@ newlines.implicitParamListModifierPrefer = after
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](a: A, as: A*)[B](
@@ -3792,13 +3792,13 @@ object a:
    )[C](implicit c: C): B = ???
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit c: C,
-       implicit d: D
+       implicit val d: D
    ) {}
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit
        c: C,
        d: D,
-       implicit e: E
+       implicit val e: E
    ) {}
 <<< interleaved, implicitParamListModifierForce = [after]
 maxColumn = 40
@@ -3807,8 +3807,8 @@ newlines.implicitParamListModifierForce = [after]
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](a: A, as: A*)[B](
@@ -3825,13 +3825,13 @@ object a:
    ): B = ???
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit c: C,
-       implicit d: D
+       implicit val d: D
    ) {}
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit
        c: C,
        d: D,
-       implicit e: E
+       implicit val e: E
    ) {}
 <<< interleaved, implicitParamListModifierForce = [before]
 maxColumn = 40
@@ -3840,8 +3840,8 @@ newlines.implicitParamListModifierForce = [before]
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](
@@ -3858,12 +3858,12 @@ object a:
    ): B = ???
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit c: C,
-       implicit d: D
+       implicit val d: D
    ) {}
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit c: C,
        d: D,
-       implicit e: E
+       implicit val e: E
    ) {}
 <<< interleaved, implicitParamListModifierForce = [before,after]
 maxColumn = 40
@@ -3872,8 +3872,8 @@ newlines.implicitParamListModifierForce = [before,after]
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](
@@ -3892,13 +3892,13 @@ object a:
    ): B = ???
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit c: C,
-       implicit d: D
+       implicit val d: D
    ) {}
    class F(a: A, as: A*)(b: B, bs: B*)(
        implicit
        c: C,
        d: D,
-       implicit e: E
+       implicit val e: E
    ) {}
 <<< interleaved, vertical multiline
 maxColumn = 40
@@ -3907,8 +3907,8 @@ verticalMultiline.atDefnSite = true
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](
@@ -3934,7 +3934,7 @@ object a:
      )(b: B,
        bs: B*
      )(implicit c: C,
-       implicit d: D) {}
+       implicit val d: D) {}
    class F(
        a: A,
        as: A*
@@ -3943,7 +3943,7 @@ object a:
      )(implicit
        c: C,
        d: D,
-       implicit e: E) {}
+       implicit val e: E) {}
 <<< interleaved, vertical multiline, implicitParamListModifierPrefer = before
 maxColumn = 40
 verticalMultiline.atDefnSite = true
@@ -3952,8 +3952,8 @@ newlines.implicitParamListModifierPrefer = before
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](
@@ -3979,7 +3979,7 @@ object a:
      )(b: B,
        bs: B*
      )(implicit c: C,
-       implicit d: D) {}
+       implicit val d: D) {}
    class F(
        a: A,
        as: A*
@@ -3987,7 +3987,7 @@ object a:
        bs: B*
      )(implicit c: C,
        d: D,
-       implicit e: E) {}
+       implicit val e: E) {}
 <<< interleaved, vertical multiline, implicitParamListModifierPrefer = after
 maxColumn = 40
 verticalMultiline.atDefnSite = true
@@ -3996,8 +3996,8 @@ newlines.implicitParamListModifierPrefer = after
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](
@@ -4023,7 +4023,7 @@ object a:
      )(b: B,
        bs: B*
      )(implicit c: C,
-       implicit d: D) {}
+       implicit val d: D) {}
    class F(
        a: A,
        as: A*
@@ -4032,7 +4032,7 @@ object a:
      )(implicit
        c: C,
        d: D,
-       implicit e: E) {}
+       implicit val e: E) {}
 <<< interleaved, vertical multiline, implicitParamListModifierForce = [after]
 maxColumn = 40
 verticalMultiline.atDefnSite = true
@@ -4041,8 +4041,8 @@ newlines.implicitParamListModifierForce = [after]
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](
@@ -4070,7 +4070,7 @@ object a:
      )(b: B,
        bs: B*
      )(implicit c: C,
-       implicit d: D) {}
+       implicit val d: D) {}
    class F(
        a: A,
        as: A*
@@ -4079,7 +4079,7 @@ object a:
      )(implicit
        c: C,
        d: D,
-       implicit e: E) {}
+       implicit val e: E) {}
 <<< interleaved, vertical multiline, implicitParamListModifierForce = [before]
 maxColumn = 40
 verticalMultiline.atDefnSite = true
@@ -4088,8 +4088,8 @@ newlines.implicitParamListModifierForce = [before]
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](
@@ -4117,7 +4117,7 @@ object a:
        bs: B*
      )(
        implicit c: C,
-       implicit d: D) {}
+       implicit val d: D) {}
    class F(
        a: A,
        as: A*
@@ -4126,7 +4126,7 @@ object a:
      )(
        implicit c: C,
        d: D,
-       implicit e: E) {}
+       implicit val e: E) {}
 <<< interleaved, vertical multiline, implicitParamListModifierForce = [before,after]
 maxColumn = 40
 verticalMultiline.atDefnSite = true
@@ -4135,8 +4135,8 @@ newlines.implicitParamListModifierForce = [before,after]
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](
@@ -4166,7 +4166,7 @@ object a:
        bs: B*
      )(
        implicit c: C,
-       implicit d: D) {}
+       implicit val d: D) {}
    class F(
        a: A,
        as: A*
@@ -4176,15 +4176,15 @@ object a:
        implicit
        c: C,
        d: D,
-       implicit e: E) {}
+       implicit val e: E) {}
 <<< interleaved, short
 maxColumn = 23
 ===
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](
@@ -4207,7 +4207,7 @@ object a:
        as: A*
    )(b: B, bs: B*)(
        implicit c: C,
-       implicit d: D
+       implicit val d: D
    ) {}
    class F(
        a: A,
@@ -4216,7 +4216,7 @@ object a:
        implicit
        c: C,
        d: D,
-       implicit e: E
+       implicit val e: E
    ) {}
 <<< interleaved, short, vertical multiline
 maxColumn = 23
@@ -4225,8 +4225,8 @@ verticalMultiline.atDefnSite = true
 object a:
   def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
   def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit d: D) {}
-  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit e: E) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
 >>>
 object a:
    def f[A](
@@ -4252,7 +4252,7 @@ object a:
      )(b: B,
        bs: B*
      )(implicit c: C,
-       implicit d: D) {}
+       implicit val d: D) {}
    class F(
        a: A,
        as: A*
@@ -4261,4 +4261,4 @@ object a:
      )(implicit
        c: C,
        d: D,
-       implicit e: E) {}
+       implicit val e: E) {}
