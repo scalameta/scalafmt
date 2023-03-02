@@ -4040,10 +4040,24 @@ is major scala 2 (i.e., `scala-2`), will select the scala 2.13 dialect.
 ### `fileOverride`
 
 > Since v2.5.0.
+>
+> - This parameter does not modify which files are formatted.
+> - The match pattern will be applied to the **entire** absolute,
+>   canonical file name; it is not a suffix or a substring match.
 
 Allows specifying an additional subset of parameters for each file matching a
 [PathMatcher](https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-)
-pattern. For instance,
+pattern (e.g., a `glob` or a `regex`):
+
+```
+fileOverride {
+  "<PathMatcher pattern>" { # must match the entire filename
+    <overridden parameters>
+  }
+}
+```
+
+For instance,
 
 ```
 align.preset = none
@@ -4061,8 +4075,6 @@ fileOverride {
 uses `align.preset=none` for all files except `.sbt` for which
 `align.preset=most` will apply. It will also use different parameters for test
 suites.
-
-> This parameter does not modify which files are formatted.
 
 File names will be matched against the patterns in the order in which they are
 specified in the configuration file, in case multiple patterns match a given file.
