@@ -1781,12 +1781,12 @@ class Router(formatOps: FormatOps) {
               // This policy will apply to both the space and newline splits, otherwise
               // the newline is too cheap even it doesn't actually prevent other newlines.
               val penalizeBreaks = PenalizeAllNewlines(chainExpire, 2)
-              def slbPolicy =
-                SingleLineBlock(
-                  chainExpire,
-                  getExcludeIf(chainExpire),
-                  noSyntaxNL = true
-                )
+              def slbPolicy(implicit fileLine: FileLine) = {
+                val exclude = // allow newlines in final {} block
+                  if (chainExpire.is[T.RightBrace]) parensTuple(chainExpire)
+                  else TokenRanges.empty
+                SingleLineBlock(chainExpire, exclude, noSyntaxNL = true)
+              }
               val newlinePolicy = breakOnNextDot & penalizeBreaks
               val ignoreNoSplit = nlOnly || t.hasBreak &&
                 (left.is[T.Comment] || style.optIn.breakChainOnFirstMethodDot)
@@ -1897,13 +1897,19 @@ class Router(formatOps: FormatOps) {
 
         // trigger indent only on the first newline
         val nlIndent = Indent(indentLen, expire, After)
-        val spcIndent = nextDotIfSig
-          .fold(Indent.empty)(x => Indent(indentLen, x.left, ExpiresOn.Before))
-        val willBreak = nextNonCommentSameLine(tokens(t, 2)).right.is[T.Comment]
-        val splits = baseSplits.map { s =>
-          if (willBreak || s.isNL) s.withIndent(nlIndent)
-          else s.andFirstPolicyOpt(delayedBreakPolicyOpt).withIndent(spcIndent)
-        }
+        val splits =
+          if (nextNonCommentSameLine(tokens(t, 2)).right.is[T.Comment])
+            baseSplits.map(_.withIndent(nlIndent)) // will break
+          else {
+            val spcIndent = nextDotIfSig.fold(Indent.empty) { x =>
+              Indent(indentLen, x.left, ExpiresOn.Before)
+            }
+            baseSplits.map { s =>
+              if (s.isNL) s.withIndent(nlIndent)
+              else
+                s.andFirstPolicyOpt(delayedBreakPolicyOpt).withIndent(spcIndent)
+            }
+          }
 
         if (prevSelect.isEmpty) splits
         else baseSplits ++ splits.map(_.onlyFor(SplitTag.SelectChainFirstNL))

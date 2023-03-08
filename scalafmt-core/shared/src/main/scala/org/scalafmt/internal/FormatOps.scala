@@ -235,14 +235,6 @@ class FormatOps(
       TokenRanges(TokenRange(token, other))
     }
 
-  def getExcludeIf(
-      end: T,
-      cond: T => Boolean = _.is[T.RightBrace]
-  ): TokenRanges =
-    if (cond(end)) // allow newlines in final {} block
-      parensTuple(end)
-    else TokenRanges.empty
-
   def insideBlock[A](start: FormatToken, end: T)(implicit
       classifier: Classifier[T, A]
   ): TokenRanges =
