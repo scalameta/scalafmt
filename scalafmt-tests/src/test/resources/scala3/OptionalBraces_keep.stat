@@ -3912,6 +3912,42 @@ class test:
         2 + 2
      .qux:
         3 + 3
+<<< #3489 9
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+>>>
+class test:
+   foo.match
+      case bar => ""
+      case baz => ""
+<<< #3489 10
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+  .qux
+>>>
+class test:
+   foo.match
+        case bar => ""
+        case baz => ""
+     .qux
+<<< #3489 11
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+  .qux:
+       3 + 3
+>>>
+class test:
+   foo.match
+        case bar => ""
+        case baz => ""
+     .qux:
+        3 + 3
 <<< overflowing type
 object types:
   type GOutputStreamClass = CStruct21[GObjectClass, CFuncPtr5[Ptr[GOutputStream], Ptr[Byte], gsize, Ptr[GCancellable], Ptr[Ptr[GError]], gssize], CFuncPtr5[Ptr[GOutputStream], Ptr[GInputStream], GOutputStreamSpliceFlags, Ptr[GCancellable], Ptr[Ptr[GError]], gssize], CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr7[Ptr[GOutputStream], Ptr[Byte], gsize, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize], CFuncPtr7[Ptr[GOutputStream], Ptr[GInputStream], GOutputStreamSpliceFlags, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize], CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gboolean], CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gboolean], CFuncPtr6[Ptr[GOutputStream], Ptr[GOutputVector], gsize, Ptr[gsize], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr7[Ptr[GOutputStream], Ptr[GOutputVector], gsize, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr4[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[gsize], Ptr[Ptr[GError]], gboolean], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit]]
