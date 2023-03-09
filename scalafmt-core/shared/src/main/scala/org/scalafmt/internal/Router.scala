@@ -1899,21 +1899,20 @@ class Router(formatOps: FormatOps) {
         }
 
         // trigger indent only on the first newline
-        val nlIndent = Indent(indentLen, expire, After)
+        val noIndent =
+          checkFewerBraces(thisSelect.qual)
+        val nlIndent =
+          if (noIndent) Indent.Empty else Indent(indentLen, expire, After)
+        val spcPolicy = delayedBreakPolicyOpt
+        val nlPolicy = if (noIndent) spcPolicy else None
         val splits =
           if (nextNonCommentSameLine(tokens(t, 2)).right.is[T.Comment])
-            baseSplits.map(_.withIndent(nlIndent)) // will break
+            // will break
+            baseSplits.map(_.withIndent(nlIndent).andFirstPolicyOpt(nlPolicy))
           else {
-            val spcIndent = nextDotIfSig.fold {
-              val ok = nextSelect.isEmpty && checkFewerBraces(expireTree)
-              if (ok) nlIndent else Indent.empty
-            } { x =>
-              Indent(indentLen, x.left, ExpiresOn.Before)
-            }
             baseSplits.map { s =>
-              if (s.isNL) s.withIndent(nlIndent)
-              else
-                s.andFirstPolicyOpt(delayedBreakPolicyOpt).withIndent(spcIndent)
+              if (s.isNL) s.withIndent(nlIndent).andFirstPolicyOpt(nlPolicy)
+              else s.andFirstPolicyOpt(spcPolicy)
             }
           }
 

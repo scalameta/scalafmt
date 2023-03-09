@@ -554,12 +554,12 @@ object a {
 >>>
 object a {
   val b = c + (d.match
-      case true  => true
-      case false => false
+    case true  => true
+    case false => false
   )
   val b = c + (d.match
-      case true  => true
-      case false => false
+    case true  => true
+    case false => false
   ) + e
   val b = c + (d match
     case true  => true

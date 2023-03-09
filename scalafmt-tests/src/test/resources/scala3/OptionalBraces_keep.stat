@@ -3591,7 +3591,7 @@ object a:
 object a:
    def f(): Unit =
      List(1, 2, 3).foldLeft(1):
-          case (a, b) => a + b
+        case (a, b) => a + b
 <<< coloneol in fewer braces 1, main > sig
 maxColumn = 80
 indent.main = 4
@@ -3604,7 +3604,7 @@ object a:
 object a:
    def f(): Unit =
        List(1, 2, 3).foldLeft(1):
-              case (a, b) => a + b
+          case (a, b) => a + b
 <<< coloneol in fewer braces 2
 maxColumn = 80
 ===
@@ -3620,11 +3620,11 @@ object a:
 object a:
    def f(): Unit =
      List(1, 2, 3).foo: a =>
-          a + 2
-       .foo: a =>
-          2 + a
-       .apply:
-          12 + 3
+        a + 2
+     .foo: a =>
+        2 + a
+     .apply:
+        12 + 3
 <<< coloneol in fewer braces 2, main > sig
 maxColumn = 80
 indent.main = 4
@@ -3641,11 +3641,11 @@ object a:
 object a:
    def f(): Unit =
        List(1, 2, 3).foo: a =>
-              a + 2
-           .foo: a =>
-              2 + a
-           .apply:
-              12 + 3
+          a + 2
+       .foo: a =>
+          2 + a
+       .apply:
+          12 + 3
 <<< coloneol in fewer braces 3
 maxColumn = 80
 ===
@@ -3659,8 +3659,8 @@ object a:
 object a:
    def f(): Unit =
       List(1, 2, 3).foo:
-           case a: Int =>
-           case _      =>
+         case a: Int =>
+         case _      =>
       otherTerm()
 <<< coloneol in fewer braces 3, main > sig
 maxColumn = 80
@@ -3676,8 +3676,8 @@ object a:
 object a:
    def f(): Unit =
       List(1, 2, 3).foo:
-             case a: Int =>
-             case _      =>
+         case a: Int =>
+         case _      =>
       otherTerm()
 <<< match with eol
 maxColumn = 80
@@ -3694,11 +3694,11 @@ object a:
 object a:
    def f(): Unit =
      List(1, 2, 3).match
-          case _ => a + 2
-       .foo: a =>
-          2 + a
-       .apply:
-          12 + 3
+        case _ => a + 2
+     .foo: a =>
+        2 + a
+     .apply:
+        12 + 3
 <<< match with eol, main > sig
 maxColumn = 80
 indent.main = 4
@@ -3715,11 +3715,11 @@ object a:
 object a:
    def f(): Unit =
        List(1, 2, 3).match
-              case _ => a + 2
-           .foo: a =>
-              2 + a
-           .apply:
-              12 + 3
+          case _ => a + 2
+       .foo: a =>
+          2 + a
+       .apply:
+          12 + 3
 <<< coloneol in refined types
 maxColumn = 80
 ===
@@ -3770,8 +3770,8 @@ def test(): String =
 >>>
 def test(): String =
   Block:
-       2 + 2
-    .toString
+     2 + 2
+  .toString
 <<< #3448 2
 indent.significant = 1
 ===
@@ -3782,8 +3782,8 @@ def test(): String =
 >>>
 def test(): String =
   Block:
-     2 + 2
-    .toString
+   2 + 2
+  .toString
 <<< #3448 3
 indent.significant = 1
 ===
@@ -3795,9 +3795,9 @@ def test(): String =
 >>>
 def test(): String =
   foo.bar:
-     2 + 2
-    .baz.qux:
-     3 + 3
+   2 + 2
+  .baz.qux:
+   3 + 3
 <<< #3448 4
 indent.significant = 1
 ===
@@ -3809,9 +3809,9 @@ def test(): String =
 >>>
 def test(): String =
   bar:
-     2 + 2
-    .baz.qux:
-     3 + 3
+   2 + 2
+  .baz.qux:
+   3 + 3
 <<< #3448 5
 indent.significant = 1
 ===
@@ -3823,9 +3823,9 @@ class test:
 >>>
 class test:
  bar:
-    2 + 2
-   .baz.qux:
-    3 + 3
+  2 + 2
+ .baz.qux:
+  3 + 3
 <<< #3489 1
 class test:
   bar:
@@ -3833,7 +3833,7 @@ class test:
 >>>
 class test:
    bar:
-        2 + 2
+      2 + 2
 <<< #3489 2
 class test:
   baz.qux:
@@ -3841,27 +3841,31 @@ class test:
 >>>
 class test:
    baz.qux:
-        2 + 2
+      2 + 2
 <<< #3489 3
 class test:
   foo.bar:
     2 + 2
   .baz
+  .qux
 >>>
 class test:
    foo.bar:
-        2 + 2
-     .baz
+      2 + 2
+   .baz
+     .qux
 <<< #3489 4
 class test:
   bar:
      2 + 2
     .baz
+  .qux
 >>>
 class test:
    bar:
-        2 + 2
-     .baz
+      2 + 2
+   .baz
+     .qux
 <<< #3489 5
 class test:
   bar:
@@ -3871,20 +3875,22 @@ class test:
 >>>
 class test:
    bar:
-        2 + 2
-     .baz:
-        3 + 3
+      2 + 2
+   .baz:
+      3 + 3
 <<< #3489 6
 class test:
   bar:
      2 + 2
-    .baz.qux:
+    .baz
+    .qux:
        3 + 3
 >>>
 class test:
    bar:
-        2 + 2
-     .baz.qux:
+      2 + 2
+   .baz
+     .qux:
         3 + 3
 <<< #3489 7
 class test:
@@ -3909,9 +3915,9 @@ class test:
 >>>
 class test:
    bar.baz:
-        2 + 2
-     .qux:
-        3 + 3
+      2 + 2
+   .qux:
+      3 + 3
 <<< #3489 9
 class test:
   foo.match
@@ -3920,8 +3926,8 @@ class test:
 >>>
 class test:
    foo.match
-        case bar => ""
-        case baz => ""
+      case bar => ""
+      case baz => ""
 <<< #3489 10
 class test:
   foo.match
@@ -3931,9 +3937,9 @@ class test:
 >>>
 class test:
    foo.match
-        case bar => ""
-        case baz => ""
-     .qux
+      case bar => ""
+      case baz => ""
+   .qux
 <<< #3489 11
 class test:
   foo.match
@@ -3944,10 +3950,10 @@ class test:
 >>>
 class test:
    foo.match
-        case bar => ""
-        case baz => ""
-     .qux:
-        3 + 3
+      case bar => ""
+      case baz => ""
+   .qux:
+      3 + 3
 <<< overflowing type
 object types:
   type GOutputStreamClass = CStruct21[GObjectClass, CFuncPtr5[Ptr[GOutputStream], Ptr[Byte], gsize, Ptr[GCancellable], Ptr[Ptr[GError]], gssize], CFuncPtr5[Ptr[GOutputStream], Ptr[GInputStream], GOutputStreamSpliceFlags, Ptr[GCancellable], Ptr[Ptr[GError]], gssize], CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr7[Ptr[GOutputStream], Ptr[Byte], gsize, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize], CFuncPtr7[Ptr[GOutputStream], Ptr[GInputStream], GOutputStreamSpliceFlags, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize], CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gboolean], CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gboolean], CFuncPtr6[Ptr[GOutputStream], Ptr[GOutputVector], gsize, Ptr[gsize], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr7[Ptr[GOutputStream], Ptr[GOutputVector], gsize, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr4[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[gsize], Ptr[Ptr[GError]], gboolean], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit]]
