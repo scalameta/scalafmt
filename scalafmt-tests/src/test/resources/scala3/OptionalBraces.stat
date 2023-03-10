@@ -3713,7 +3713,8 @@ object a:
 >>>
 object a:
    def f(): Unit =
-     List(1, 2, 3).match
+     List(1, 2, 3)
+       .match
           case _ => a + 2
        .foo: a =>
           2 + a
@@ -3734,7 +3735,8 @@ object a:
 >>>
 object a:
    def f(): Unit =
-       List(1, 2, 3).match
+       List(1, 2, 3)
+           .match
               case _ => a + 2
            .foo: a =>
               2 + a
@@ -3945,18 +3947,19 @@ class test:
    foo.match
       case bar => ""
       case baz => ""
-<<< SKIP #3489 10
+<<< #3489 10
 class test:
   foo.match
      case bar => ""
      case baz => ""
   .qux
 >>>
-BestFirstSearch:326 Failed to format
-UNABLE TO FORMAT,
-tok=""∙.[63:67]
-toks.length=17
-deepestYet.length=14
+class test:
+   foo
+     .match
+        case bar => ""
+        case baz => ""
+     .qux
 <<< #3489 11
 class test:
   foo.match
@@ -3966,7 +3969,8 @@ class test:
        3 + 3
 >>>
 class test:
-   foo.match
+   foo
+     .match
         case bar => ""
         case baz => ""
      .qux:
