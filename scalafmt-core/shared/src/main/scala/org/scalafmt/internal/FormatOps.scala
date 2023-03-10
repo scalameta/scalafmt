@@ -1517,7 +1517,7 @@ class FormatOps(
     val thisTree = thisSelectLike.tree
     val ok = thisTree.ne(lastApply) &&
       !cannotStartSelectChainOnExpr(thisSelectLike.qual)
-    ok && (thisTree.parent match {
+    def checkParent = thisTree.parent match {
       case `nextSelect` => style.includeNoParensInSelectChains
       case Some(p: Term.Apply)
           if tokens.getHead(p.argClause).left.is[T.LeftBrace] =>
@@ -1525,6 +1525,15 @@ class FormatOps(
         !nextSelect.contains(lastApply) // exclude short curly
       case Some(p: Member.Apply) => p.fun eq thisTree
       case _ => false
+    }
+    ok && (thisTree match {
+      case _: Term.Match => // like select and apply in one
+        val hasBrace =
+          nextNonComment(tokens(thisSelectLike.nameToken)).right.is[T.LeftBrace]
+        !hasBrace ||
+        style.includeCurlyBraceInSelectChains &&
+        nextSelect.isDefined && !nextSelect.contains(lastApply)
+      case _ => checkParent
     })
   }
 
