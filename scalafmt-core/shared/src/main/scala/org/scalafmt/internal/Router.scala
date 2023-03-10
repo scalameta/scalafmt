@@ -1726,12 +1726,13 @@ class Router(formatOps: FormatOps) {
         val expire = getLastEnclosedToken(expireTree)
         val indentLen = style.indent.main
 
+        def checkFewerBraces(tree: Tree) = tree match {
+          case p: Term.Apply => isFewerBraces(p)
+          case p: Term.Match => !tokenBefore(p.cases).left.is[T.LeftBrace]
+          case _ => false
+        }
         val nextDotIfSig = nextSelect.flatMap { ns =>
-          val ok = ns.qual match {
-            case p: Term.Apply => isFewerBraces(p)
-            case p: Term.Match => !tokenBefore(p.cases).left.is[T.LeftBrace]
-            case _ => false
-          }
+          val ok = checkFewerBraces(ns.qual)
           if (ok) Some(tokenBefore(ns.nameToken)) else None
         }
         def forcedBreakOnNextDotPolicy = nextSelect.map { selectLike =>
@@ -1903,7 +1904,10 @@ class Router(formatOps: FormatOps) {
           if (nextNonCommentSameLine(tokens(t, 2)).right.is[T.Comment])
             baseSplits.map(_.withIndent(nlIndent)) // will break
           else {
-            val spcIndent = nextDotIfSig.fold(Indent.empty) { x =>
+            val spcIndent = nextDotIfSig.fold {
+              val ok = nextSelect.isEmpty && checkFewerBraces(expireTree)
+              if (ok) nlIndent else Indent.empty
+            } { x =>
               Indent(indentLen, x.left, ExpiresOn.Before)
             }
             baseSplits.map { s =>
