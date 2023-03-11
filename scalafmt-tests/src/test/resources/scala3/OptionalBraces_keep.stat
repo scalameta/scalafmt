@@ -4615,3 +4615,19 @@ object a:
        c: C,
        d: D,
        implicit val e: E) {}
+<<< #3492
+object Test:
+  def test =
+    try
+      1; 2
+    catch
+      case _: RuntimeException => 2
+      case _: Exception        => 3
+>>>
+object Test:
+   def test =
+     try
+        1; 2
+     catch
+        case _: RuntimeException => 2
+        case _: Exception        => 3
