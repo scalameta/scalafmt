@@ -1364,3 +1364,19 @@ object a {
   foo({ bar = baz })
   foo({ bar = baz }, qux)
 }
+<<< #3296
+preset = default
+runner.dialect = scala3
+rewrite.rules = [RedundantBraces]
+rewrite.scala3.removeOptionalBraces = true
+===
+object A {
+  implicit def map: Array[Any] => List[String] = a =>
+    a.map (ae => {
+      ae match
+        case s: String => s
+        case _ => ae.toString
+    }).toList
+}
+>>>
+org.scalafmt.util.FormatException: java.lang.IllegalArgumentException: Orphan parens ([76]()
