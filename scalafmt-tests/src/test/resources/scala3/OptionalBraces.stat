@@ -4583,9 +4583,10 @@ object Test:
       case _: RuntimeException => 2
       case _: Exception        => 3
 >>>
-test does not parse
 object Test:
    def test =
-     try 1; 2
+     try
+        1; 2
      catch
-     ^
+        case _: RuntimeException => 2
+        case _: Exception        => 3

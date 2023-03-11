@@ -2261,25 +2261,23 @@ class FormatOps(
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] = {
-        def forceNL = shouldBreakInOptionalBraces(nft)
+        def trySplits(expr: Term, finallyp: Option[Term], usesOB: => Boolean) =
+          if (isTreeMultiStatBlock(expr)) Some(getSplits(ft, expr, true))
+          else if (finallyp.exists(isTreeUsingOptionalBraces) || usesOB)
+            Some(getSplits(ft, expr, shouldBreakInOptionalBraces(nft)))
+          else None
         ft.meta.leftOwner match {
           case t @ Term.Try(expr, _, finallyp) =>
-            def usesOB = isTreeMultiStatBlock(expr) ||
-              isCatchUsingOptionalBraces(t) ||
-              finallyp.exists(isTreeUsingOptionalBraces)
             Some(new OptionalBracesRegion {
               def owner = Some(t)
               def splits =
-                if (usesOB) Some(getSplits(ft, expr, forceNL)) else None
+                trySplits(expr, finallyp, isCatchUsingOptionalBraces(t))
               def rightBrace = blockLast(expr)
             })
           case t @ Term.TryWithHandler(expr, _, finallyp) =>
-            def usesOB = isTreeMultiStatBlock(expr) ||
-              finallyp.exists(isTreeUsingOptionalBraces)
             Some(new OptionalBracesRegion {
               def owner = Some(t)
-              def splits =
-                if (usesOB) Some(getSplits(ft, expr, forceNL)) else None
+              def splits = trySplits(expr, finallyp, false)
               def rightBrace = blockLast(expr)
             })
           case _ => None
