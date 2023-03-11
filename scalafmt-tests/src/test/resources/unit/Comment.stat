@@ -1064,3 +1064,11 @@ object a {
   case object Foo extends Bar("baz") /* qux =
    * xyz */
 }
+<<< #3493
+object a {
+  // Note: '\u000A' = '\n'
+}
+>>>
+org.scalafmt.util.FormatException: .../unit/Comment.stat:2: error: unclosed character literal
+  // Note: '\u000A' = '\n'
+                  ^
