@@ -108,7 +108,7 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
   ): Option[(Replacement, Replacement)] = Option {
     ft.right match {
 
-      case x: Token.RightParen if left.isLeft =>
+      case x: Token.RightParen if left.how eq ReplacementType.Remove =>
         ft.meta.rightOwner match {
           case _: Term.If =>
             if (!ftoks.nextNonComment(ftoks.next(ft)).right.is[Token.KwThen])

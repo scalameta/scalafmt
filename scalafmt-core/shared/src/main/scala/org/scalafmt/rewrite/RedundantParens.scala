@@ -86,7 +86,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       style: ScalafmtConfig
   ): Option[(Replacement, Replacement)] =
     ft.right match {
-      case _: Token.RightParen if left.isLeft =>
+      case _: Token.RightParen if left.how eq ReplacementType.Remove =>
         Some((left, removeToken))
       case _ => None
     }
