@@ -125,8 +125,9 @@ class FormatTokensRewrite(
       ft.right match {
         case _: T.LeftBrace | _: T.LeftParen | _: T.LeftBracket =>
           val ldelimIdx = tokens.length
-          val ruleOpt = if (ft.meta.formatOff) None else applyRules
-          formatOffStack.prepend(ft.meta.formatOff)
+          val formatOff = ft.meta.formatOff
+          formatOffStack.prepend(formatOff)
+          val ruleOpt = if (formatOff) None else applyRules
           leftDelimIndex.prepend((ldelimIdx, ruleOpt))
           if (ruleOpt.isEmpty) tokens.append(null)
 
@@ -135,14 +136,13 @@ class FormatTokensRewrite(
           val (ldelimIdx, ruleOpt) = leftDelimIndex.remove(0)
           if (formatOff && formatOffStack.nonEmpty)
             formatOffStack.update(0, true)
-          val replacement =
-            if (ft.meta.formatOff) None
-            else
-              ruleOpt.flatMap { rule =>
-                implicit val style = styleMap.at(ft.right)
-                if (rule.enabled) rule.onRight(tokens(ldelimIdx), formatOff)
-                else None
-              }
+          val replacement = ruleOpt match {
+            case Some(rule) if !ft.meta.formatOff =>
+              implicit val style = styleMap.at(ft.right)
+              if (rule.enabled) rule.onRight(tokens(ldelimIdx), formatOff)
+              else None
+            case _ => None
+          }
           replacement match {
             case None => tokens(ldelimIdx) = null
             case Some((ltRepl, rtRepl)) =>
@@ -173,20 +173,7 @@ class FormatTokensRewrite(
       tokens: mutable.ArrayBuffer[Replacement]
   ): Option[Rule] = {
     implicit val style = styleMap.at(ft.right)
-    @tailrec
-    def iter(remainingRules: Seq[Rule]): Option[Rule] =
-      remainingRules.headOption match {
-        case None => None
-        case Some(rule) =>
-          val res = if (rule.enabled) rule.onToken else None
-          res match {
-            case None => iter(remainingRules.tail)
-            case Some(repl) =>
-              tokens.append(repl)
-              Some(rule)
-          }
-      }
-    iter(rules)
+    FormatTokensRewrite.applyRules(rules)
   }
 
 }
@@ -292,6 +279,36 @@ object FormatTokensRewrite {
         }
       }
     }
+  }
+
+  private def onReplacement(repl: Replacement)(implicit
+      tokens: mutable.ArrayBuffer[Replacement]
+  ): Unit = {
+    tokens.append(repl)
+  }
+
+  private def applyRule(rule: Rule)(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig,
+      tokens: mutable.ArrayBuffer[Replacement]
+  ): Boolean =
+    rule.enabled && {
+      val res = rule.onToken
+      res.foreach(onReplacement(_))
+      res.isDefined
+    }
+
+  private def applyRules(rules: Seq[Rule])(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig,
+      tokens: mutable.ArrayBuffer[Replacement]
+  ): Option[Rule] = {
+    @tailrec
+    def iter(remainingRules: Seq[Rule]): Option[Rule] = remainingRules match {
+      case r +: rs => if (applyRule(r)) Some(r) else iter(rs)
+      case _ => None
+    }
+    iter(rules)
   }
 
 }
