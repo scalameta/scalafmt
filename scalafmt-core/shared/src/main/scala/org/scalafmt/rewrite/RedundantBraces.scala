@@ -170,8 +170,9 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   private def onRightBrace(
       left: Replacement
   )(implicit ft: FormatToken): (Replacement, Replacement) =
-    left match {
-      case Right(lft @ FormatToken(_, _: Token.LeftParen, _)) =>
+    left.ft match {
+      case lft @ FormatToken(_, _: Token.LeftParen, _)
+          if left.how eq ReplacementType.Replace =>
         val right = replaceTokenBy("}", ft.meta.rightOwner.parent) { rt =>
           // shifted right
           new Token.RightBrace(rt.input, rt.dialect, rt.start + 1)
@@ -432,7 +433,9 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
               ftoks.matchingOpt(x) match {
                 case Some(y) if y ne stat.tokens.last =>
                   redundantParensFunc.exists { parensRule =>
-                    parensRule.onToken(ftoks(x, -1), style).exists(_.isLeft)
+                    parensRule.onToken(ftoks(x, -1), style).exists {
+                      _.how eq ReplacementType.Remove
+                    }
                   }
                 case _ => true
               }

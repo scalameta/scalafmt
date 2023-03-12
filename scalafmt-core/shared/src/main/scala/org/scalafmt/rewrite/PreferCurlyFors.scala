@@ -94,7 +94,9 @@ private class PreferCurlyFors(ftoks: FormatTokens)
       style: ScalafmtConfig
   ): Option[(Replacement, Replacement)] =
     ft.right match {
-      case x: Token.RightParen if left.exists(_.right.is[Token.LeftBrace]) =>
+      case x: Token.RightParen
+          if left.how == ReplacementType.Replace &&
+            left.ft.right.is[Token.LeftBrace] =>
         val right =
           replaceToken("}")(new Token.RightBrace(x.input, x.dialect, x.start))
         Some((left, right))

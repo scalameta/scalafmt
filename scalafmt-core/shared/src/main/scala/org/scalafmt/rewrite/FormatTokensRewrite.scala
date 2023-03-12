@@ -47,28 +47,28 @@ class FormatTokensRewrite(
       result ++= arr.view.slice(beg, end)
     }
     getRewrittenTokens.foreach { repl =>
-      val ft = repl match {
-        case Right(x) => x
-        case Left(idx) => arr(idx)
-      }
-      copySlice(ft.meta.idx)
+      val ft = repl.ft
+      val idx = ft.meta.idx
+      val ftOld = arr(idx)
+      val rtOld = ftOld.right
+      @inline def mapOld() = tokenMap += FormatTokens.thash(rtOld) -> appended
+      copySlice(idx)
       def append(): Unit = {
-        val oldFt = arr(ft.meta.idx)
-        if (oldFt.right ne ft.right)
-          tokenMap += FormatTokens.thash(oldFt.right) -> appended
+        if (rtOld ne ft.right) mapOld()
         appended += 1
         result += ft
       }
       def remove(): Unit = {
-        tokenMap += FormatTokens.thash(ft.right) -> appended
-        val nextFt = ftoks.next(ft)
+        mapOld()
+        val nextIdx = idx + 1
+        val nextFt = ftoks.at(nextIdx)
         val rtMeta = nextFt.meta
-        mergeWhitespaceLeftToRight(ft.meta, rtMeta).foreach { bw =>
-          arr(nextFt.meta.idx) = nextFt.copy(meta = rtMeta.copy(between = bw))
+        mergeWhitespaceLeftToRight(ftOld.meta, rtMeta).foreach { bw =>
+          arr(nextIdx) = nextFt.copy(meta = rtMeta.copy(between = bw))
         }
         removed += 1
       }
-      if (repl.isLeft) remove() else append()
+      if (repl.how eq ReplacementType.Remove) remove() else append()
     }
 
     if (appended + removed == 0) ftoks
@@ -221,10 +221,19 @@ object FormatTokensRewrite {
     else new FormatTokensRewrite(ftoks, styleMap, rules).rewrite
   }
 
-  private[rewrite] type Replacement = Either[Int, FormatToken]
+  private[rewrite] class Replacement(
+      val ft: FormatToken,
+      val how: ReplacementType
+  )
+
+  private[rewrite] sealed trait ReplacementType
+  private[rewrite] object ReplacementType {
+    object Remove extends ReplacementType
+    object Replace extends ReplacementType
+  }
 
   private[rewrite] def removeToken(implicit ft: FormatToken): Replacement =
-    Left(ft.meta.idx)
+    new Replacement(ft, ReplacementType.Remove)
 
   private[rewrite] def replaceToken(
       text: String,
@@ -232,7 +241,8 @@ object FormatTokensRewrite {
   )(tok: T)(implicit ft: FormatToken): Replacement = {
     val mOld = ft.meta.right
     val mNew = mOld.copy(text = text, owner = owner.getOrElse(mOld.owner))
-    Right(ft.copy(right = tok, meta = ft.meta.copy(right = mNew)))
+    val ftNew = ft.copy(right = tok, meta = ft.meta.copy(right = mNew))
+    new Replacement(ftNew, ReplacementType.Replace)
   }
 
   private[rewrite] def replaceTokenBy(
