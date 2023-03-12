@@ -1,8 +1,7 @@
 package org.scalafmt.rewrite
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.tokens.{Token => T}
 
@@ -119,9 +118,9 @@ class FormatTokensRewrite(
    * - for standalone tokens, simply invoke the rule and record any rewrites
    */
   private def getRewrittenTokens: Iterable[Replacement] = {
-    implicit val tokens = new ArrayBuffer[Replacement]()
-    val leftDelimIndex = new ListBuffer[(Int, Option[Rule])]()
-    val formatOffStack = new ListBuffer[Boolean]()
+    implicit val tokens = new mutable.ArrayBuffer[Replacement]()
+    val leftDelimIndex = new mutable.ListBuffer[(Int, Option[Rule])]()
+    val formatOffStack = new mutable.ListBuffer[Boolean]()
     arr.foreach { implicit ft =>
       ft.right match {
         case _: T.LeftBrace | _: T.LeftParen | _: T.LeftBracket =>
@@ -171,7 +170,7 @@ class FormatTokensRewrite(
 
   private def applyRules(implicit
       ft: FormatToken,
-      tokens: ArrayBuffer[Replacement]
+      tokens: mutable.ArrayBuffer[Replacement]
   ): Option[Rule] = {
     implicit val style = styleMap.at(ft.right)
     @tailrec
@@ -239,9 +238,6 @@ object FormatTokensRewrite {
 
   private[rewrite] def removeToken(implicit ft: FormatToken): Replacement =
     Left(ft.meta.idx)
-
-  private[rewrite] def keepToken(implicit ft: FormatToken): Replacement =
-    Right(ft)
 
   private[rewrite] def replaceToken(
       text: String,
