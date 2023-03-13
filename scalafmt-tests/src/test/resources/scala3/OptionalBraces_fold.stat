@@ -4397,3 +4397,15 @@ object Test:
      catch
         case _: RuntimeException => 2
         case _: Exception        => 3
+<<< #3497
+newlines.beforeOpenParenDefnSite = fold
+===
+extension (s: String)
+  /** ... */
+  def foo(): Unit = ???
+  def bar(): Unit = ???
+>>>
+extension(s: String)
+   /** ... */
+   def foo(): Unit = ???
+   def bar(): Unit = ???
