@@ -118,6 +118,8 @@ class FormatTokensRewrite(
    * - for standalone tokens, simply invoke the rule and record any rewrites
    */
   private def getRewrittenTokens: Iterable[Replacement] = {
+    implicit val claimed = new mutable.HashMap[Int, Rule]()
+    def claimedRule(implicit ft: FormatToken) = claimed.get(ft.meta.idx)
     implicit val tokens = new mutable.ArrayBuffer[Replacement]()
     val leftDelimIndex = new mutable.ListBuffer[(Int, Option[Rule])]()
     val formatOffStack = new mutable.ListBuffer[Boolean]()
@@ -127,7 +129,13 @@ class FormatTokensRewrite(
           val ldelimIdx = tokens.length
           val formatOff = ft.meta.formatOff
           formatOffStack.prepend(formatOff)
-          val ruleOpt = if (formatOff) None else applyRules
+          val ruleOpt =
+            if (formatOff) None
+            else
+              claimedRule match {
+                case x @ Some(rule) => if (applyRule(rule)) x else None
+                case _ => applyRules
+              }
           leftDelimIndex.prepend((ldelimIdx, ruleOpt))
           if (ruleOpt.isEmpty) tokens.append(null)
 
@@ -137,7 +145,8 @@ class FormatTokensRewrite(
           if (formatOff && formatOffStack.nonEmpty)
             formatOffStack.update(0, true)
           val replacement = ruleOpt match {
-            case Some(rule) if !ft.meta.formatOff =>
+            case Some(rule)
+                if !ft.meta.formatOff && claimedRule.forall(_ eq rule) =>
               implicit val style = styleMap.at(ft.right)
               if (rule.enabled) rule.onRight(tokens(ldelimIdx), formatOff)
               else None
@@ -170,10 +179,20 @@ class FormatTokensRewrite(
 
   private def applyRules(implicit
       ft: FormatToken,
+      claimed: mutable.HashMap[Int, Rule],
       tokens: mutable.ArrayBuffer[Replacement]
   ): Option[Rule] = {
     implicit val style = styleMap.at(ft.right)
     FormatTokensRewrite.applyRules(rules)
+  }
+
+  private def applyRule(rule: Rule)(implicit
+      ft: FormatToken,
+      claimed: mutable.HashMap[Int, Rule],
+      tokens: mutable.ArrayBuffer[Replacement]
+  ): Boolean = {
+    implicit val style = styleMap.at(ft.right)
+    FormatTokensRewrite.applyRule(rule)
   }
 
 }
@@ -223,7 +242,9 @@ object FormatTokensRewrite {
 
   private[rewrite] class Replacement(
       val ft: FormatToken,
-      val how: ReplacementType
+      val how: ReplacementType,
+      // list of FormatToken indices, with the claimed token on the **right**
+      val claim: Iterable[Int] = Nil
   )
 
   private[rewrite] sealed trait ReplacementType
@@ -237,19 +258,21 @@ object FormatTokensRewrite {
 
   private[rewrite] def replaceToken(
       text: String,
-      owner: Option[Tree] = None
+      owner: Option[Tree] = None,
+      claim: Iterable[Int] = Nil
   )(tok: T)(implicit ft: FormatToken): Replacement = {
     val mOld = ft.meta.right
     val mNew = mOld.copy(text = text, owner = owner.getOrElse(mOld.owner))
     val ftNew = ft.copy(right = tok, meta = ft.meta.copy(right = mNew))
-    new Replacement(ftNew, ReplacementType.Replace)
+    new Replacement(ftNew, ReplacementType.Replace, claim)
   }
 
   private[rewrite] def replaceTokenBy(
       text: String,
-      owner: Option[Tree] = None
+      owner: Option[Tree] = None,
+      claim: Iterable[Int] = Nil
   )(f: T => T)(implicit ft: FormatToken): Replacement =
-    replaceToken(text, owner)(f(ft.right))
+    replaceToken(text, owner, claim)(f(ft.right))
 
   private[rewrite] def replaceTokenIdent(text: String, t: T)(implicit
       ft: FormatToken
@@ -291,26 +314,30 @@ object FormatTokensRewrite {
     }
   }
 
-  private def onReplacement(repl: Replacement)(implicit
+  private def onReplacement(repl: Replacement, rule: Rule)(implicit
+      claimed: mutable.HashMap[Int, Rule],
       tokens: mutable.ArrayBuffer[Replacement]
   ): Unit = {
+    repl.claim.foreach { claimed.getOrElseUpdate(_, rule) }
     tokens.append(repl)
   }
 
   private def applyRule(rule: Rule)(implicit
       ft: FormatToken,
       style: ScalafmtConfig,
+      claimed: mutable.HashMap[Int, Rule],
       tokens: mutable.ArrayBuffer[Replacement]
   ): Boolean =
     rule.enabled && {
       val res = rule.onToken
-      res.foreach(onReplacement(_))
+      res.foreach(onReplacement(_, rule))
       res.isDefined
     }
 
   private def applyRules(rules: Seq[Rule])(implicit
       ft: FormatToken,
       style: ScalafmtConfig,
+      claimed: mutable.HashMap[Int, Rule],
       tokens: mutable.ArrayBuffer[Replacement]
   ): Option[Rule] = {
     @tailrec

@@ -102,7 +102,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           case b: Term.Block =>
             ftoks.getHead(b) match {
               case FormatToken(_: Token.LeftBrace, _, lbm) =>
-                replaceToken(lbm.left.text, Some(rtOwner)) {
+                replaceToken(lbm.left.text, Some(rtOwner), lbm.idx - 1 :: Nil) {
                   new Token.LeftBrace(rt.input, rt.dialect, rt.start)
                 }
               case _ => null
