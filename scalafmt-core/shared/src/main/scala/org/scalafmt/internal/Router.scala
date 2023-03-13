@@ -683,6 +683,7 @@ class Router(formatOps: FormatOps) {
             Space
           case _ => Space(left.is[T.Comment])
         }
+        def baseNoSplit(implicit fileLine: FileLine) = Split(modification, 0)
         val defn = isParamClauseSite(rightOwner)
         val defRhs = if (defn) defDefBodyParent(rightOwner) else None
         val beforeDefRhs = defRhs.flatMap(tokens.tokenJustBeforeOpt)
@@ -696,8 +697,8 @@ class Router(formatOps: FormatOps) {
           val isAlignFirstParen = shouldAlignBefore(style.align) &&
             !prevNonComment(ft).left.is[T.RightParen]
           def noSplitSplit(implicit fileLine: FileLine) =
-            if (isAlignFirstParen) Split(NoSplit, 0)
-            else Split(NoSplit, 0).withSingleLine(close)
+            if (isAlignFirstParen) baseNoSplit
+            else baseNoSplit.withSingleLine(close)
           val splits = src match {
             case Newlines.unfold =>
               val rightParent = rightOwner.parent.get
@@ -718,7 +719,7 @@ class Router(formatOps: FormatOps) {
                 case _ => NoPolicy
               }
               Seq(
-                Split(NoSplit, 0).withSingleLine(slbEnd),
+                baseNoSplit.withSingleLine(slbEnd),
                 Split(Newline, 1)
                   .withIndent(indent)
                   .withPolicy(
@@ -806,7 +807,7 @@ class Router(formatOps: FormatOps) {
               }
             }
           else None
-        beforeOpenParenSplits.getOrElse(Seq(Split(modification, 0)))
+        beforeOpenParenSplits.getOrElse(Seq(baseNoSplit))
 
       // Defn.{Object, Class, Trait, Enum}
       case FormatToken(
