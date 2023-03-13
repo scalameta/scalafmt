@@ -4741,8 +4741,7 @@ extension (s: String)
   def foo(): Unit = ???
   def bar(): Unit = ???
 >>>
-extension
-  (s: String)
+extension(s: String)
    /** ... */
    def foo(): Unit = ???
    def bar(): Unit = ???
