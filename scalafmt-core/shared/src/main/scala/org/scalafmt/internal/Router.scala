@@ -702,7 +702,9 @@ class Router(formatOps: FormatOps) {
             case Newlines.unfold =>
               val rightParent = rightOwner.parent.get
               val slbEnd =
-                if (defn) beforeDefRhs.fold(getLastToken(rightParent))(_.left)
+                if (defn)
+                  beforeDefRhs
+                    .fold(getLastToken(rightParent))(prevNonComment(_).left)
                 else getLastToken(getLastCall(rightParent))
               val multipleArgs = isSeqMulti(getArgs(next(ft).meta.leftOwner))
               val nft = tokens.tokenAfter(close)
