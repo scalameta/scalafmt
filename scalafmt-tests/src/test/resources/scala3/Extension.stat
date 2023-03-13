@@ -293,7 +293,7 @@ newlines.beforeOpenParenDefnSite = unfold
 extension (s: String)
   def foo(): Unit = ???
 >>>
-extension(s: String) def foo(): Unit = ???
+extension (s: String) def foo(): Unit = ???
 <<< #3499 3
 spaces.afterKeywordBeforeParen = false
 ===
@@ -308,4 +308,4 @@ newlines.beforeOpenParenDefnSite = unfold
 extension (s: String)
   def foo(): Unit = ???
 >>>
-extension(s: String) def foo(): Unit = ???
+extension (s: String) def foo(): Unit = ???
