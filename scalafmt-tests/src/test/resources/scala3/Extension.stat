@@ -279,3 +279,33 @@ object Dictionary:
       dict.selectDynamic(key).asInstanceOf[A]
     def update(key: String, value: A): Unit =
       dict.updateDynamic(key)(value.asInstanceOf[js.Any])
+<<< #3499 1
+spaces.afterKeywordBeforeParen = true
+===
+extension (s: String)
+  def foo(): Unit = ???
+>>>
+extension (s: String) def foo(): Unit = ???
+<<< #3499 2
+spaces.afterKeywordBeforeParen = true
+newlines.beforeOpenParenDefnSite = unfold
+===
+extension (s: String)
+  def foo(): Unit = ???
+>>>
+extension(s: String) def foo(): Unit = ???
+<<< #3499 3
+spaces.afterKeywordBeforeParen = false
+===
+extension (s: String)
+  def foo(): Unit = ???
+>>>
+extension (s: String) def foo(): Unit = ???
+<<< #3499 4
+spaces.afterKeywordBeforeParen = false
+newlines.beforeOpenParenDefnSite = unfold
+===
+extension (s: String)
+  def foo(): Unit = ???
+>>>
+extension(s: String) def foo(): Unit = ???
