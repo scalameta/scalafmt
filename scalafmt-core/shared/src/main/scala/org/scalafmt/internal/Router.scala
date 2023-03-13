@@ -680,7 +680,7 @@ class Router(formatOps: FormatOps) {
                 isSymbolicName(name.value) && name.parent.exists(isDefDef) =>
             Space
           case _: Defn.ExtensionGroup if left.is[soft.KwExtension] =>
-            Space
+            Space(style.spaces.afterKeywordBeforeParen)
           case _ => Space(left.is[T.Comment])
         }
         def baseNoSplit(implicit fileLine: FileLine) = Split(modification, 0)
