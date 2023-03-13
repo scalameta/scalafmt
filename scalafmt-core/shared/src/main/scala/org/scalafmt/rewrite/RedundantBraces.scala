@@ -97,9 +97,17 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     val rt = ft.right
     val rtOwner = ft.meta.rightOwner
     def lpFunction = okToReplaceFunctionInSingleArgApply(rtOwner).map {
-      case (lp, f) if lp.eq(rt) && f.tokens.last.is[Token.RightBrace] =>
-        replaceToken("{", Some(rtOwner)) {
-          new Token.LeftBrace(rt.input, rt.dialect, rt.start)
+      case (`rt`, f) =>
+        f.body match {
+          case b: Term.Block =>
+            ftoks.getHead(b) match {
+              case FormatToken(_: Token.LeftBrace, _, lbm) =>
+                replaceToken(lbm.left.text, Some(rtOwner)) {
+                  new Token.LeftBrace(rt.input, rt.dialect, rt.start)
+                }
+              case _ => null
+            }
+          case _ => null
         }
       case _ => null
     }
