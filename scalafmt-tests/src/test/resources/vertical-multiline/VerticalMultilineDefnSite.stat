@@ -62,3 +62,27 @@ object a {
         F.mkRef(Map.empty[Key, Item]).map(new Dummy.Impl(_))
       )
 }
+<<< #3509 1
+verticalMultiline.arityThreshold = 5
+verticalMultiline.newlineAfterOpenParen = true
+===
+object Log {
+  def redactIds(s: String): String = s.replaceAll("\\d{5,}", "<redacted>")
+}
+>>>
+object Log {
+  def redactIds(
+    s: String
+  ): String = s.replaceAll("\\d{5,}", "<redacted>")
+}
+<<< #3509 2
+verticalMultiline.arityThreshold = 5
+verticalMultiline.newlineAfterOpenParen = false
+===
+object Log {
+  def redactIds(s: String): String = s.replaceAll("\\d{5,}", "<redacted>")
+}
+>>>
+object Log {
+  def redactIds(s: String): String = s.replaceAll("\\d{5,}", "<redacted>")
+}
