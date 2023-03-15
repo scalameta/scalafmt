@@ -71,9 +71,7 @@ object Log {
 }
 >>>
 object Log {
-  def redactIds(
-    s: String
-  ): String = s.replaceAll("\\d{5,}", "<redacted>")
+  def redactIds(s: String): String = s.replaceAll("\\d{5,}", "<redacted>")
 }
 <<< #3509 2
 verticalMultiline.arityThreshold = 5
