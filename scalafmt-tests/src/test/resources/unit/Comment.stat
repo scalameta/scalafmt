@@ -1069,6 +1069,6 @@ object a {
   // Note: '\u000A' = '\n'
 }
 >>>
-org.scalafmt.util.FormatException: .../unit/Comment.stat:2: error: unclosed character literal
+object a {
   // Note: '\u000A' = '\n'
-                  ^
+}
