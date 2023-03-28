@@ -3988,7 +3988,7 @@ class test:
 >>>
 class test:
    bar:
-      2 + 2
+        2 + 2
 <<< #3489 2 fewerBraces = always
 indent.fewerBraces = always
 ===
@@ -3998,7 +3998,7 @@ class test:
 >>>
 class test:
    baz.qux:
-      2 + 2
+        2 + 2
 <<< #3489 3 fewerBraces = always
 indent.fewerBraces = always
 ===
@@ -4022,8 +4022,8 @@ class test:
 >>>
 class test:
    bar:
-      2 + 2
-   .baz
+        2 + 2
+     .baz
 <<< #3489 5 fewerBraces = always
 indent.fewerBraces = always
 ===
@@ -4035,9 +4035,9 @@ class test:
 >>>
 class test:
    bar:
-      2 + 2
-   .baz:
-      3 + 3
+        2 + 2
+     .baz:
+        3 + 3
 <<< #3489 6 fewerBraces = always
 indent.fewerBraces = always
 ===
@@ -4049,8 +4049,8 @@ class test:
 >>>
 class test:
    bar:
-      2 + 2
-   .baz
+        2 + 2
+     .baz
      .qux:
         3 + 3
 <<< #3489 7 fewerBraces = always
@@ -4093,10 +4093,10 @@ class test:
 >>>
 class test:
    foo.match
-      case bar =>
-        ""
-      case baz =>
-        ""
+        case bar =>
+          ""
+        case baz =>
+          ""
 <<< #3489 10 fewerBraces = always
 indent.fewerBraces = always
 ===
@@ -4176,8 +4176,8 @@ class test:
 >>>
 class test:
    bar:
-      2 + 2
-   .baz
+        2 + 2
+     .baz
 <<< #3489 5 fewerBraces = beforeSelect
 indent.fewerBraces = beforeSelect
 ===
@@ -4189,9 +4189,9 @@ class test:
 >>>
 class test:
    bar:
-      2 + 2
-   .baz:
-      3 + 3
+        2 + 2
+     .baz:
+        3 + 3
 <<< #3489 6 fewerBraces = beforeSelect
 indent.fewerBraces = beforeSelect
 ===
@@ -4203,8 +4203,8 @@ class test:
 >>>
 class test:
    bar:
-      2 + 2
-   .baz
+        2 + 2
+     .baz
      .qux:
         3 + 3
 <<< #3489 7 fewerBraces = beforeSelect

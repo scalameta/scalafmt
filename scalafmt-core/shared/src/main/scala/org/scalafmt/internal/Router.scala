@@ -1,7 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{Align, BinPack}
+import org.scalafmt.config.{Align, BinPack, Indents}
 import org.scalafmt.config.{ImportSelectors, Newlines, ScalafmtConfig, Spaces}
 import org.scalafmt.internal.ExpiresOn.{After, Before}
 import org.scalafmt.internal.Length.{Num, StateColumn}
@@ -1774,11 +1774,18 @@ class Router(formatOps: FormatOps) {
         val baseSplits = style.newlines.getSelectChains match {
           case Newlines.classic =>
             def getNlMod = {
-              val endSelect = nextSelect.fold(expire) { x =>
-                nextDotIfSig.fold(getLastNonTrivialToken(x.qual))(_.left)
+              val endSelect = nextDotIfSig.fold {
+                nextSelect.fold {
+                  val ko = style.indent.fewerBraces ==
+                    Indents.FewerBraces.always && checkFewerBraces(expireTree)
+                  if (ko) None else Some(expire)
+                } { ns => Some(getLastNonTrivialToken(ns.qual)) }
+              } { nd =>
+                val ok = style.indent.fewerBraces == Indents.FewerBraces.never
+                if (ok) Some(nd.left) else None
               }
-              val altIndent = Indent(-indentLen, endSelect, After)
-              NewlineT(alt = Some(ModExt(NoSplit).withIndent(altIndent)))
+              val altIndent = endSelect.map(Indent(-indentLen, _, After))
+              NewlineT(alt = Some(ModExt(NoSplit).withIndentOpt(altIndent)))
             }
 
             val prevChain = inSelectChain(prevSelect, thisSelect, expireTree)
@@ -1906,8 +1913,8 @@ class Router(formatOps: FormatOps) {
         }
 
         // trigger indent only on the first newline
-        val noIndent =
-          checkFewerBraces(thisSelect.qual)
+        val fbIndent = style.indent.fewerBraces != Indents.FewerBraces.never
+        val noIndent = !fbIndent && checkFewerBraces(thisSelect.qual)
         val nlIndent =
           if (noIndent) Indent.Empty else Indent(indentLen, expire, After)
         val spcPolicy = delayedBreakPolicyOpt
@@ -1917,9 +1924,16 @@ class Router(formatOps: FormatOps) {
             // will break
             baseSplits.map(_.withIndent(nlIndent).andFirstPolicyOpt(nlPolicy))
           else {
+            val spcIndent = nextDotIfSig.fold {
+              val ok = style.indent.fewerBraces == Indents.FewerBraces.always &&
+                nextSelect.isEmpty && checkFewerBraces(expireTree)
+              if (ok) nlIndent else Indent.empty
+            } { x =>
+              if (fbIndent) Indent(indentLen, x.left, Before) else Indent.Empty
+            }
             baseSplits.map { s =>
               if (s.isNL) s.withIndent(nlIndent).andFirstPolicyOpt(nlPolicy)
-              else s.andFirstPolicyOpt(spcPolicy)
+              else s.withIndent(spcIndent).andFirstPolicyOpt(spcPolicy)
             }
           }
 
