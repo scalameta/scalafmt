@@ -589,6 +589,82 @@ foo // c1
 }
 ```
 
+#### `indent.fewerBraces`
+
+This parameter controls whether extra `indent.main` is added
+to the sole argument of a method call using the "fewer braces"
+syntax. The following values are supported:
+
+- `always`: always applies extra indent
+- `never`: doesn't apply any extra indent
+- `beforeSelect`: applies extra indent only to fewer-braces
+  expressions followed by a `.select`
+
+```scala mdoc:defaults
+indent.fewerBraces
+```
+
+> In Scala 3.3.0, only `never` provides compiler-compatible code.
+> Other options will work in 3.3.1-RC1 and later
+> (see [Parser section](https://github.com/lampepfl/dotty/releases/tag/3.3.1-RC1)).
+
+```scala mdoc:scalafmt
+runner.dialect = Scala3
+indent.significant = 3
+indent.fewerBraces = always
+---
+bar:
+  2 + 2
+
+foo.bar:
+  2 + 2
+
+foo:
+  2 + 2
+.bar:
+  3 + 3
+.baz // c
+.qux
+```
+
+```scala mdoc:scalafmt
+runner.dialect = Scala3
+indent.significant = 3
+indent.fewerBraces = never
+---
+bar:
+  2 + 2
+
+foo.bar:
+  2 + 2
+
+foo:
+  2 + 2
+.bar:
+  3 + 3
+.baz // c
+.qux
+```
+
+```scala mdoc:scalafmt
+runner.dialect = Scala3
+indent.significant = 3
+indent.fewerBraces = beforeSelect
+---
+bar:
+  2 + 2
+
+foo.bar:
+  2 + 2
+
+foo:
+  2 + 2
+.bar:
+  3 + 3
+.baz // c
+.qux
+```
+
 ### Indent for `binPack.unsafeCallSite`
 
 Normally, even when binpacking, there's a new level of indentation added for

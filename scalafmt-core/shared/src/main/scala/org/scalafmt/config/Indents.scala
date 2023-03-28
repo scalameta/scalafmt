@@ -32,6 +32,7 @@ case class Indents(
     private[config] val ctorSite: Option[Int] = None,
     extraBeforeOpenParenDefnSite: Int = 0,
     relativeToLhsLastLine: Seq[Indents.RelativeToLhs] = Nil,
+    fewerBraces: Indents.FewerBraces = Indents.FewerBraces.never,
     @annotation.ExtraName("deriveSite")
     extendSite: Int = 4,
     withSiteRelativeToExtends: Int = 0,
@@ -62,4 +63,15 @@ object Indents {
     implicit val reader: ConfCodecEx[RelativeToLhs] = ReaderUtil
       .oneOf[RelativeToLhs](`match`, `infix`)
   }
+
+  sealed abstract class FewerBraces
+  object FewerBraces {
+    case object never extends FewerBraces
+    case object always extends FewerBraces
+    case object beforeSelect extends FewerBraces
+
+    implicit val reader: ConfCodecEx[FewerBraces] = ReaderUtil
+      .oneOf[FewerBraces](never, always, beforeSelect)
+  }
+
 }
