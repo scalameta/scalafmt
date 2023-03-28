@@ -3979,7 +3979,9 @@ class test:
  .baz
    .qux:
     3 + 3
-<<< #3489 1
+<<< #3489 1 fewerBraces = always
+indent.fewerBraces = always
+===
 class test:
   bar:
     2 + 2
@@ -3987,7 +3989,9 @@ class test:
 class test:
    bar:
       2 + 2
-<<< #3489 2
+<<< #3489 2 fewerBraces = always
+indent.fewerBraces = always
+===
 class test:
   baz.qux:
     2 + 2
@@ -3995,32 +3999,34 @@ class test:
 class test:
    baz.qux:
       2 + 2
-<<< #3489 3
+<<< #3489 3 fewerBraces = always
+indent.fewerBraces = always
+===
 class test:
   foo.bar:
     2 + 2
   .baz
-  .qux
 >>>
 class test:
    foo
      .bar:
         2 + 2
      .baz
-     .qux
-<<< #3489 4
+<<< #3489 4 fewerBraces = always
+indent.fewerBraces = always
+===
 class test:
   bar:
      2 + 2
     .baz
-  .qux
 >>>
 class test:
    bar:
       2 + 2
    .baz
-     .qux
-<<< #3489 5
+<<< #3489 5 fewerBraces = always
+indent.fewerBraces = always
+===
 class test:
   bar:
      2 + 2
@@ -4032,12 +4038,13 @@ class test:
       2 + 2
    .baz:
       3 + 3
-<<< #3489 6
+<<< #3489 6 fewerBraces = always
+indent.fewerBraces = always
+===
 class test:
   bar:
      2 + 2
-    .baz
-    .qux:
+    .baz.qux:
        3 + 3
 >>>
 class test:
@@ -4046,7 +4053,9 @@ class test:
    .baz
      .qux:
         3 + 3
-<<< #3489 7
+<<< #3489 7 fewerBraces = always
+indent.fewerBraces = always
+===
 class test:
   bar (
      2 + 2
@@ -4059,7 +4068,9 @@ class test:
      .baz
      .qux:
         3 + 3
-<<< #3489 8
+<<< #3489 8 fewerBraces = always
+indent.fewerBraces = always
+===
 class test:
   bar.baz:
      2 + 2
@@ -4072,7 +4083,9 @@ class test:
         2 + 2
      .qux:
         3 + 3
-<<< #3489 9
+<<< #3489 9 fewerBraces = always
+indent.fewerBraces = always
+===
 class test:
   foo.match
      case bar => ""
@@ -4084,7 +4097,9 @@ class test:
         ""
       case baz =>
         ""
-<<< #3489 10
+<<< #3489 10 fewerBraces = always
+indent.fewerBraces = always
+===
 class test:
   foo.match
      case bar => ""
@@ -4099,7 +4114,322 @@ class test:
         case baz =>
           ""
      .qux
-<<< #3489 11
+<<< #3489 11 fewerBraces = always
+indent.fewerBraces = always
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+  .qux:
+       3 + 3
+>>>
+class test:
+   foo
+     .match
+        case bar =>
+          ""
+        case baz =>
+          ""
+     .qux:
+        3 + 3
+<<< #3489 1 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  bar:
+    2 + 2
+>>>
+class test:
+   bar:
+      2 + 2
+<<< #3489 2 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  baz.qux:
+    2 + 2
+>>>
+class test:
+   baz.qux:
+      2 + 2
+<<< #3489 3 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  foo.bar:
+    2 + 2
+  .baz
+>>>
+class test:
+   foo
+     .bar:
+        2 + 2
+     .baz
+<<< #3489 4 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  bar:
+     2 + 2
+    .baz
+>>>
+class test:
+   bar:
+      2 + 2
+   .baz
+<<< #3489 5 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  bar:
+     2 + 2
+    .baz:
+       3 + 3
+>>>
+class test:
+   bar:
+      2 + 2
+   .baz:
+      3 + 3
+<<< #3489 6 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  bar:
+     2 + 2
+    .baz.qux:
+       3 + 3
+>>>
+class test:
+   bar:
+      2 + 2
+   .baz
+     .qux:
+        3 + 3
+<<< #3489 7 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  bar (
+     2 + 2
+     )
+    .baz.qux:
+       3 + 3
+>>>
+class test:
+   bar(2 + 2)
+     .baz
+     .qux:
+        3 + 3
+<<< #3489 8 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  bar.baz:
+     2 + 2
+    .qux:
+       3 + 3
+>>>
+class test:
+   bar
+     .baz:
+        2 + 2
+     .qux:
+        3 + 3
+<<< #3489 9 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+>>>
+class test:
+   foo.match
+      case bar =>
+        ""
+      case baz =>
+        ""
+<<< #3489 10 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+  .qux
+>>>
+class test:
+   foo
+     .match
+        case bar =>
+          ""
+        case baz =>
+          ""
+     .qux
+<<< #3489 11 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+  .qux:
+       3 + 3
+>>>
+class test:
+   foo
+     .match
+        case bar =>
+          ""
+        case baz =>
+          ""
+     .qux:
+        3 + 3
+<<< #3489 1 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  bar:
+    2 + 2
+>>>
+class test:
+   bar:
+      2 + 2
+<<< #3489 2 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  baz.qux:
+    2 + 2
+>>>
+class test:
+   baz.qux:
+      2 + 2
+<<< #3489 3 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  foo.bar:
+    2 + 2
+  .baz
+  .qux
+>>>
+class test:
+   foo
+     .bar:
+        2 + 2
+     .baz
+     .qux
+<<< #3489 4 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  bar:
+     2 + 2
+    .baz
+  .qux
+>>>
+class test:
+   bar:
+      2 + 2
+   .baz
+     .qux
+<<< #3489 5 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  bar:
+     2 + 2
+    .baz:
+       3 + 3
+>>>
+class test:
+   bar:
+      2 + 2
+   .baz:
+      3 + 3
+<<< #3489 6 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  bar:
+     2 + 2
+    .baz
+    .qux:
+       3 + 3
+>>>
+class test:
+   bar:
+      2 + 2
+   .baz
+     .qux:
+        3 + 3
+<<< #3489 7 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  bar (
+     2 + 2
+     )
+    .baz.qux:
+       3 + 3
+>>>
+class test:
+   bar(2 + 2)
+     .baz
+     .qux:
+        3 + 3
+<<< #3489 8 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  bar.baz:
+     2 + 2
+    .qux:
+       3 + 3
+>>>
+class test:
+   bar
+     .baz:
+        2 + 2
+     .qux:
+        3 + 3
+<<< #3489 9 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+>>>
+class test:
+   foo.match
+      case bar =>
+        ""
+      case baz =>
+        ""
+<<< #3489 10 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+  .qux
+>>>
+class test:
+   foo
+     .match
+        case bar =>
+          ""
+        case baz =>
+          ""
+     .qux
+<<< #3489 11 fewerBraces = never
+indent.fewerBraces = never
+===
 class test:
   foo.match
      case bar => ""
@@ -4750,7 +5080,45 @@ extension (s: String)
    /** ... */
    def foo(): Unit = ???
    def bar(): Unit = ???
-<<< #3527
+<<< #3527 fewerBraces = always
+indent.fewerBraces = always
+===
+def foo(xs: List[Int]) =
+  xs.map: x =>
+    x + 1
+  .toSet
+  .filter: x =>
+    x > 0
+  .toList
+>>>
+def foo(xs: List[Int]) =
+  xs.map: x =>
+       x + 1
+    .toSet
+    .filter: x =>
+       x > 0
+    .toList
+<<< #3527 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+def foo(xs: List[Int]) =
+  xs.map: x =>
+    x + 1
+  .toSet
+  .filter: x =>
+    x > 0
+  .toList
+>>>
+def foo(xs: List[Int]) =
+  xs.map: x =>
+       x + 1
+    .toSet
+    .filter: x =>
+       x > 0
+    .toList
+<<< #3527 fewerBraces = never
+indent.fewerBraces = never
+===
 def foo(xs: List[Int]) =
   xs.map: x =>
     x + 1
