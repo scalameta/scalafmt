@@ -4,6 +4,7 @@ import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.config.{
   BinPack,
   IndentOperator,
+  Indents,
   Newlines,
   ScalafmtConfig,
   ScalafmtRunner,
@@ -2076,17 +2077,34 @@ class FormatOps(
                 .withSingleLine(opt)
                 .andPolicy(decideNewlinesOnlyAfterToken(opt))
             }
+            val indent = t.parent match {
+              case Some(p: Term.Apply) =>
+                @tailrec
+                def isSelect(ma: Member.Apply): Boolean = ma.fun match {
+                  case x: Member.Apply => isSelect(x)
+                  case x => x.is[Term.Select]
+                }
+                val ok = (style.indent.fewerBraces match {
+                  case Indents.FewerBraces.never => true
+                  case Indents.FewerBraces.always => false
+                  case Indents.FewerBraces.beforeSelect =>
+                    !p.parent.exists(_.is[Term.Select])
+                }) || isSelect(p)
+                if (ok) None // select is taken care off elsewhere
+                else Some(style.indent.main + style.indent.getSignificant)
+              case _ => None
+            }
             Some(new OptionalBracesRegion {
               def owner = t.parent
               def splits = Some(t.values match {
                 case (tf: Term.FunctionTerm) :: Nil
                     if !style.newlines.alwaysBeforeCurlyLambdaParams &&
                       t.parent.exists(_.is[Term.Apply]) =>
-                  getSplits(ft, t, forceNL = false) match {
+                  getSplits(ft, t, forceNL = false, indentOpt = indent) match {
                     case s +: rs if !s.isNL => funcSplit(tf)(s.fileLine) +: rs
                     case ss => ss
                   }
-                case _ => getSplits(ft, t, forceNL = true)
+                case _ => getSplits(ft, t, forceNL = true, indentOpt = indent)
               })
               def rightBrace = treeLast(t)
             })
