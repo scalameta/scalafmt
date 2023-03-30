@@ -2427,12 +2427,11 @@ class Router(formatOps: FormatOps) {
         }
 
       case FormatToken(soft.ImplicitOrUsing(), _, ImplicitUsingOnLeft(params))
-          if style.binPack.unsafeDefnSite.isNever &&
-            !style.verticalMultiline.atDefnSite =>
+          if style.binPack.unsafeDefnSite.isNever =>
         val spaceSplit = Split(Space, 0)
           .notIf(style.newlines.forceAfterImplicitParamListModifier)
           .withPolicy(
-            SingleLineBlock(params.tokens.last),
+            SingleLineBlock(params.tokens.last, rank = 1),
             style.newlines.notPreferAfterImplicitParamListModifier
           )
         Seq(

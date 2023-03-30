@@ -568,7 +568,8 @@ object Foo {
     a + b
   def bar(
       a: Int
-    )(implicit b: Int // c
+    )(implicit
+      b: Int // c
     ): Int =
     a + b
 }
