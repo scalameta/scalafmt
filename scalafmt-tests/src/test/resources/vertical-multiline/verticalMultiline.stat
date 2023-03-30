@@ -438,3 +438,177 @@ object a {
       d: D,
       implicit val e: E) {}
 }
+<<< #3520 implicitParamListModifierForce = [after], no VML
+verticalMultiline.atDefnSite = no
+newlines.implicitParamListModifierForce = [after]
+===
+object Foo {
+  def bar(a: Int)(implicit b: Int): Int =
+    a + b
+  def bar(a: Int)(implicit b: Int  // c
+  ): Int =
+    a + b
+}
+>>>
+object Foo {
+  def bar(a: Int)(implicit
+      b: Int
+  ): Int =
+    a + b
+  def bar(a: Int)(implicit
+      b: Int // c
+  ): Int =
+    a + b
+}
+<<< #3520 implicitParamListModifierForce = [after]
+newlines.implicitParamListModifierForce = [after]
+===
+object Foo {
+  def bar(a: Int)(implicit b: Int): Int =
+    a + b
+  def bar(a: Int)(implicit b: Int  // c
+  ): Int =
+    a + b
+}
+>>>
+object Foo {
+  def bar(
+      a: Int
+    )(implicit
+      b: Int
+    ): Int =
+    a + b
+  def bar(
+      a: Int
+    )(implicit
+      b: Int // c
+    ): Int =
+    a + b
+}
+<<< #3520 implicitParamListModifierForce = [before], no VML
+verticalMultiline.atDefnSite = no
+newlines.implicitParamListModifierForce = [before]
+===
+object Foo {
+  def bar(a: Int)(implicit b: Int): Int =
+    a + b
+  def bar(a: Int)(implicit b: Int  // c
+  ): Int =
+    a + b
+}
+>>>
+object Foo {
+  def bar(a: Int)(
+      implicit b: Int
+  ): Int =
+    a + b
+  def bar(a: Int)(
+      implicit b: Int // c
+  ): Int =
+    a + b
+}
+<<< #3520 implicitParamListModifierForce = [before]
+newlines.implicitParamListModifierForce = [before]
+===
+object Foo {
+  def bar(a: Int)(implicit b: Int): Int =
+    a + b
+  def bar(a: Int)(implicit b: Int  // c
+  ): Int =
+    a + b
+}
+>>>
+object Foo {
+  def bar(
+      a: Int
+    )(
+      implicit b: Int
+    ): Int =
+    a + b
+  def bar(
+      a: Int
+    )(
+      implicit b: Int // c
+    ): Int =
+    a + b
+}
+<<< #3520 implicitParamListModifierPrefer = after, no VML
+verticalMultiline.atDefnSite = no
+newlines.implicitParamListModifierPrefer = after
+===
+object Foo {
+  def bar(a: Int)(implicit b: Int): Int =
+    a + b
+  def bar(a: Int)(implicit b: Int  // c
+  ): Int =
+    a + b
+}
+>>>
+object Foo {
+  def bar(a: Int)(implicit b: Int): Int =
+    a + b
+  def bar(a: Int)(implicit
+      b: Int // c
+  ): Int =
+    a + b
+}
+<<< #3520 implicitParamListModifierPrefer = after
+newlines.implicitParamListModifierPrefer = after
+===
+object Foo {
+  def bar(a: Int)(implicit b: Int): Int =
+    a + b
+  def bar(a: Int)(implicit b: Int  // c
+  ): Int =
+    a + b
+}
+>>>
+object Foo {
+  def bar(a: Int)(implicit b: Int): Int =
+    a + b
+  def bar(
+      a: Int
+    )(implicit b: Int // c
+    ): Int =
+    a + b
+}
+<<< #3520 implicitParamListModifierPrefer = before, no VML
+verticalMultiline.atDefnSite = no
+newlines.implicitParamListModifierPrefer = before
+===
+object Foo {
+  def bar(a: Int)(implicit b: Int): Int =
+    a + b
+  def bar(a: Int)(implicit b: Int  // c
+  ): Int =
+    a + b
+}
+>>>
+object Foo {
+  def bar(a: Int)(implicit b: Int): Int =
+    a + b
+  def bar(a: Int)(
+      implicit b: Int // c
+  ): Int =
+    a + b
+}
+<<< #3520 implicitParamListModifierPrefer = before
+newlines.implicitParamListModifierPrefer = before
+===
+object Foo {
+  def bar(a: Int)(implicit b: Int): Int =
+    a + b
+  def bar(a: Int)(implicit b: Int  // c
+  ): Int =
+    a + b
+}
+>>>
+object Foo {
+  def bar(a: Int)(implicit b: Int): Int =
+    a + b
+  def bar(
+      a: Int
+    )(implicit b: Int // c
+    ): Int =
+    a + b
+}
