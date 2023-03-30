@@ -1301,9 +1301,9 @@ class FormatOps(
       val rightIsImplicit = r.is[soft.ImplicitOrUsing]
       val implicitNL = rightIsImplicit &&
         style.newlines.forceBeforeImplicitParamListModifier
-      val implicitParams =
-        if (!rightIsImplicit) Nil
-        else getImplicitParamList(ft.meta.rightOwner).getOrElse(Nil)
+      val implicitParams = if (rightIsImplicit) {
+        getImplicitParamList(ft.meta.rightOwner).fold(Nil: List[Tree])(_.values)
+      } else Nil
       val noSlb = implicitNL || aboveArityThreshold || ft.hasBreak &&
         !style.newlines.sourceIgnored && style.optIn.configStyleArguments ||
         implicitParams.nonEmpty &&
