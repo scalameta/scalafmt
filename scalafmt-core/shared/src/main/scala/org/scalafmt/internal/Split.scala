@@ -140,24 +140,27 @@ case class Split(
       expire: Token,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
-      killOnFail: Boolean = false
+      killOnFail: Boolean = false,
+      rank: Int = 0
   )(implicit fileLine: FileLine): Split =
     withSingleLineAndOptimal(
       expire,
       expire,
       exclude,
       noSyntaxNL,
-      killOnFail
+      killOnFail,
+      rank
     )
 
   def withSingleLineOpt(
       expire: Option[Token],
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
-      killOnFail: Boolean = false
+      killOnFail: Boolean = false,
+      rank: Int = 0
   )(implicit fileLine: FileLine): Split =
     expire.fold(this)(
-      withSingleLine(_, exclude, noSyntaxNL, killOnFail)
+      withSingleLine(_, exclude, noSyntaxNL, killOnFail, rank)
     )
 
   def withSingleLineAndOptimal(
@@ -165,17 +168,21 @@ case class Split(
       optimal: Token,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
-      killOnFail: Boolean = false
+      killOnFail: Boolean = false,
+      rank: Int = 0
   )(implicit fileLine: FileLine): Split =
     withOptimalToken(optimal, killOnFail)
-      .withSingleLineNoOptimal(expire, exclude, noSyntaxNL)
+      .withSingleLineNoOptimal(expire, exclude, noSyntaxNL, rank)
 
   def withSingleLineNoOptimal(
       expire: Token,
       exclude: => TokenRanges = TokenRanges.empty,
-      noSyntaxNL: Boolean = false
+      noSyntaxNL: Boolean = false,
+      rank: Int = 0
   )(implicit fileLine: FileLine): Split =
-    withPolicy(SingleLineBlock(expire, exclude, noSyntaxNL = noSyntaxNL))
+    withPolicy(
+      SingleLineBlock(expire, exclude, noSyntaxNL = noSyntaxNL, rank = rank)
+    )
 
   def withPolicyOpt(newPolicy: => Option[Policy]): Split =
     if (isIgnored) this else newPolicy.fold(this)(withPolicy(_))

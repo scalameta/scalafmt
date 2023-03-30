@@ -72,11 +72,17 @@ object PolicyOps {
         expire: T,
         exclude: TokenRanges = TokenRanges.empty,
         okSLC: Boolean = false,
-        noSyntaxNL: Boolean = false
+        noSyntaxNL: Boolean = false,
+        rank: Int = 0
     )(implicit fileLine: FileLine): Policy =
       policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
         Policy.End.On(expire),
-        new SingleLineBlock(_, okSLC = okSLC, noSyntaxNL = noSyntaxNL)
+        new SingleLineBlock(
+          _,
+          okSLC = okSLC,
+          noSyntaxNL = noSyntaxNL,
+          rank = rank
+        )
       )
   }
 
