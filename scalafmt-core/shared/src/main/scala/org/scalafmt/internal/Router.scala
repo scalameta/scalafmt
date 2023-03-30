@@ -2432,7 +2432,7 @@ class Router(formatOps: FormatOps) {
         val spaceSplit = Split(Space, 0)
           .notIf(style.newlines.forceAfterImplicitParamListModifier)
           .withPolicy(
-            SingleLineBlock(params.last.tokens.last),
+            SingleLineBlock(params.tokens.last),
             style.newlines.notPreferAfterImplicitParamListModifier
           )
         Seq(
