@@ -2134,8 +2134,9 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 
 #### Force Before
 
-> If set, forces newline before `implicit`. Otherwise, newline can still be
-> added if the keyword would overflow the line.
+> If set, forces newline before `implicit` (even if the parameter list would
+> fit on one line). Otherwise, newline can still be added if the keyword would
+> overflow the line.
 
 ```scala mdoc:scalafmt
 maxColumn = 60
@@ -2146,9 +2147,10 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 
 #### Force After
 
-> If set, forces newline after `implicit`. Otherwise, newline can still be added
-> unless `before` is true, or the entire implicit parameter list fits on a line,
-> or config style is false.
+> If set, forces newline after `implicit` (even if the parameter list would
+> fit on one line). Otherwise, newline can still be added unless `before` is
+> true, or the entire implicit parameter list fits on a line, or config style
+> is false.
 
 ```scala mdoc:scalafmt
 maxColumn = 60
