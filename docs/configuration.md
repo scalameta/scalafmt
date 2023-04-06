@@ -848,7 +848,7 @@ indentOperator.includeRegex
 - `default`
   - use defaults for all fields
 - `spray` (also `akka`)
-  - set `include = "^.*=$"`, `exclude = "^$"`
+  - set `indentOperator.excludeRegex = "^$"` and `indentOperator.includeRegex = "^.*=$"`
 
 ## Alignment
 
