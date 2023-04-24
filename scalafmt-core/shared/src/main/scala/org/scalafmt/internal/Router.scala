@@ -1768,8 +1768,9 @@ class Router(formatOps: FormatOps) {
         val baseSplits = style.newlines.getSelectChains match {
           case Newlines.classic =>
             def getNlMod = {
-              val endSelect =
-                nextSelect.fold(expire)(x => getLastNonTrivialToken(x.qual))
+              val endSelect = nextSelect.fold(expire) { x =>
+                nextDotIfSig.fold(getLastNonTrivialToken(x.qual))(_.left)
+              }
               val altIndent = Indent(-indentLen, endSelect, After)
               NewlineT(alt = Some(ModExt(NoSplit).withIndent(altIndent)))
             }
