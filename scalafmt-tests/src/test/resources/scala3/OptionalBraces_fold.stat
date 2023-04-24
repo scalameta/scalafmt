@@ -4414,3 +4414,17 @@ extension (s: String)
    /** ... */
    def foo(): Unit = ???
    def bar(): Unit = ???
+<<< #3527
+def foo(xs: List[Int]) =
+  xs.map: x =>
+    x + 1
+  .toSet
+  .filter: x =>
+    x > 0
+  .toList
+>>>
+def foo(xs: List[Int]) = xs.map: x =>
+   x + 1
+.toSet.filter: x =>
+   x > 0
+.toList
