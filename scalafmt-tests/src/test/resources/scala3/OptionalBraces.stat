@@ -4623,7 +4623,7 @@ def foo(xs: List[Int]) =
 def foo(xs: List[Int]) =
   xs.map: x =>
      x + 1
-    .toSet
+  .toSet
     .filter: x =>
        x > 0
     .toList
