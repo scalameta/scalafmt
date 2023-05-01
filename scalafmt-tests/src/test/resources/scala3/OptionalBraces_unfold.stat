@@ -4778,7 +4778,7 @@ object A:
 object A:
    new Foo("xyz"):
       print("msg")
-     .bar()
+   .bar()
 <<< #3537 2
 object A:
   new Foo("xyz"):
@@ -4788,4 +4788,4 @@ object A:
 object A:
    new Foo("xyz"):
       print("msg")
-     .bar()
+   .bar()
