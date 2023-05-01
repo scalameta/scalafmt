@@ -1729,6 +1729,8 @@ class Router(formatOps: FormatOps) {
         def checkFewerBraces(tree: Tree) = tree match {
           case p: Term.Apply => isFewerBraces(p)
           case p: Term.Match => !tokenBefore(p.cases).left.is[T.LeftBrace]
+          case p: Term.NewAnonymous =>
+            templateCurly(p.templ).exists(_.is[T.Colon])
           case _ => false
         }
         val nextDotIfSig = nextSelect.flatMap { ns =>
