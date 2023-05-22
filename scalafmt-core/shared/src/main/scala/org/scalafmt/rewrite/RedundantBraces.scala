@@ -114,7 +114,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     // single-arg apply of a partial function
     // a({ case b => c; d }) change to a { case b => c; d }
     def lpPartialFunction = rtOwner match {
-      case ta @ Term.ArgClause(arg :: Nil, _) =>
+      case ta @ Term.ArgClause(arg :: Nil, _)
+          if !ta.parent.exists(_.is[Init]) =>
         getOpeningParen(ta).map { lp =>
           val ko = lp.ne(rt) || getBlockNestedPartialFunction(arg).isEmpty
           if (ko) null else removeToken
