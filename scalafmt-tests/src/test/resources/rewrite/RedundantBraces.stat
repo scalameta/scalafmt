@@ -1386,3 +1386,9 @@ object A:
         case s: String => s
         case _         => ae.toString
     }.toList
+<<< #3540
+object Bar extends Foo[(Int, String)]({ case (i, s) => () })
+>>>
+test does not parse
+object Bar extends Foo[(Int, String)] { case (i, s) => () }
+                                      ^
