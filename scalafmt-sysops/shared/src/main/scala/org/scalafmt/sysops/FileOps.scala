@@ -12,6 +12,8 @@ import org.scalafmt.CompatCollections.JavaConverters._
 
 object FileOps {
 
+  val defaultConfigFileName = ".scalafmt.conf"
+
   def getLastModifiedMsec(file: Path): Long = {
     val attributes = getAttributesNoLinks(file)
     val mtime = attributes.lastModifiedTime().toMillis
@@ -134,7 +136,7 @@ object FileOps {
     }
 
   def tryGetConfigInDir(dir: AbsoluteFile): Option[Try[Path]] =
-    tryCheckConfigFile(dir / ".scalafmt.conf")
+    tryCheckConfigFile(dir / defaultConfigFileName)
 
   private def tryCheckConfigFile(file: AbsoluteFile): Option[Try[Path]] =
     if (!file.exists) None

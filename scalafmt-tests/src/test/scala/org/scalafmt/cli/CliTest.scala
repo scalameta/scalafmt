@@ -813,9 +813,11 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       ),
       ExitCode.UnsupportedVersion,
       assertOut = out => {
-        val eol = System.lineSeparator()
-        val msg = s"error: missing version (current $stableVersion)$eol"
-        assertEquals(out, msg + msg) // two invocations
+        val out1 = out.substring(0, out.length / 2)
+        val out2 = out.substring(out1.length)
+        assertEquals(out1, out2) // two invocations
+        val msg = s"error: missing Scalafmt configuration file."
+        assertEquals(out1.substring(0, msg.length), msg)
       }
     )
   }
@@ -838,9 +840,11 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       ),
       ExitCode.UnsupportedVersion,
       assertOut = out => {
-        val eol = System.lineSeparator()
-        val msg = s"error: missing version (current $stableVersion)$eol"
-        assertEquals(out, msg + msg) // two invocations
+        val out1 = out.substring(0, out.length / 2)
+        val out2 = out.substring(out1.length)
+        assertEquals(out1, out2) // two invocations
+        val msg = s"error: missing Scalafmt version."
+        assertEquals(out1.substring(0, msg.length), msg)
       }
     )
   }

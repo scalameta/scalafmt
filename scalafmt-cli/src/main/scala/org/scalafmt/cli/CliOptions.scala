@@ -128,8 +128,13 @@ case class CliOptions(
       .fold(throw new NoSuchFileException("Config file not found"))(_.get)
   }
 
-  private lazy val canonicalConfigFile: Option[Try[Path]] =
+  private[cli] lazy val canonicalConfigFile: Option[Try[Path]] =
     gitOps.getCanonicalConfigFile(cwd, config)
+
+  private[cli] def getProposedConfigFile: Path =
+    canonicalConfigFile.flatMap(_.toOption).getOrElse {
+      gitOps.getProposedConfigFile(cwd, config).path
+    }
 
   /** Parse the scalafmt configuration and try to encode it to `ScalafmtConfig`.
     * If `--config-str` is specified, this will parse the configuration string
@@ -142,7 +147,7 @@ case class CliOptions(
   def scalafmtConfig: Configured[ScalafmtConfig] =
     hoconOpt.fold(Configured.ok(baseConfig))(Config.fromConf(_, baseConfig))
 
-  private lazy val hoconOpt: Option[ConfParsed] =
+  private[cli] lazy val hoconOpt: Option[ConfParsed] =
     configStr.map(ConfParsed.fromString(_)).orElse {
       canonicalConfigFile.map(
         _.fold(
