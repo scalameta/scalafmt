@@ -95,6 +95,9 @@ object Cli {
   private val isNativeImage: Boolean =
     "true" == System.getProperty("scalafmt.native-image", "false")
 
+  private def getProposedConfigVersion(options: CliOptions): String =
+    s"version = '$stableVersion'"
+
   private def findRunner(
       options: CliOptions
   ): Either[String, ScalafmtRunner] = {
@@ -102,8 +105,25 @@ object Cli {
     // - `scalafmt-dynamic` if the specified `version` setting doesn't match build version.
     // - `scalafmt-core` if the specified `version` setting match with build version
     //   (or if the `version` is not specified).
-    options.getVersionOpt match {
-      case None => Left(s"error: missing version (current $stableVersion)")
+    val versionOpt = options.hoconOpt.map(x => Right(x.version)).getOrElse {
+      Left(s"""error: missing Scalafmt configuration file.
+        |Consider creating '${options.getProposedConfigFile}' with the following:
+        |${getProposedConfigVersion(options)}
+        |""".stripMargin)
+    }
+    versionOpt.flatMap {
+      case None =>
+        val where = options.configStr match {
+          case None =>
+            options.canonicalConfigFile
+              .fold(options.getProposedConfigFile)(_.get)
+              .toString
+          case _ => "--config-str option"
+        }
+        Left(s"""error: missing Scalafmt version.
+          |Consider adding the following to $where:
+          |${getProposedConfigVersion(options)}
+          |""".stripMargin)
       case Some(`stableVersion`) =>
         options.common.debug.println(s"Using core runner [$stableVersion]")
         Right(ScalafmtCoreRunner)
