@@ -1389,6 +1389,4 @@ object A:
 <<< #3540
 object Bar extends Foo[(Int, String)]({ case (i, s) => () })
 >>>
-test does not parse
-object Bar extends Foo[(Int, String)] { case (i, s) => () }
-                                      ^
+object Bar extends Foo[(Int, String)]({ case (i, s) => () })
