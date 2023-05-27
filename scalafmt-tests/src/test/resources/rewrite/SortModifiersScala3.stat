@@ -60,6 +60,5 @@ rewrite.sortModifiers.order = [ "private" ]
 final class Test[F[_]](using private val F: Concurrent[F]) extends AnyVal:
   def both[A](fa1: F[A], fa2: F[A]): F[(A, A)] = F.both(fa1, fa2)
 >>>
-test does not parse
-final class Test[F[_]](private using val F: Concurrent[F]) extends AnyVal:
-                               ^
+final class Test[F[_]](using private val F: Concurrent[F]) extends AnyVal:
+  def both[A](fa1: F[A], fa2: F[A]): F[(A, A)] = F.both(fa1, fa2)
