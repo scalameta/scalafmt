@@ -1379,10 +1379,6 @@ into account existing newlines in the source. The default value (if the
 parameter is not specified) is the _classic_, original way. Below are the
 alternatives.
 
-> These alternatives are EXPERIMENTAL and might change in the future without
-> regard to any `edition` settings, until fully released (and this message
-> deleted).
-
 #### `newlines.source=keep`
 
 This approach attempts to preserve line breaks in the input whenever possible.
