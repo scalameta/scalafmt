@@ -134,7 +134,7 @@ object Cli {
             |This Scalafmt installation has version '$stableVersion' and the version configured in '${options.configPath}' is '$v'.
             |To fix this problem, add the following line to .scalafmt.conf:
             |```
-            |version = '$stableVersion'
+            |version = $stableVersion
             |```
             |
             |NOTE: this error happens only when running a native Scalafmt binary.
