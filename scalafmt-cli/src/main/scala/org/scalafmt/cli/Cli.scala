@@ -96,7 +96,7 @@ object Cli {
     "true" == System.getProperty("scalafmt.native-image", "false")
 
   private def getProposedConfigVersion(options: CliOptions): String =
-    s"version = '$stableVersion'"
+    s"version = $stableVersion"
 
   private def findRunner(
       options: CliOptions
