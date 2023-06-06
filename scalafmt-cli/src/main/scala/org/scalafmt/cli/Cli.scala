@@ -96,7 +96,7 @@ object Cli {
     "true" == System.getProperty("scalafmt.native-image", "false")
 
   private def getProposedConfigVersion(options: CliOptions): String =
-    s"version = '$stableVersion'"
+    s"version = $stableVersion"
 
   private def findRunner(
       options: CliOptions
@@ -134,7 +134,7 @@ object Cli {
             |This Scalafmt installation has version '$stableVersion' and the version configured in '${options.configPath}' is '$v'.
             |To fix this problem, add the following line to .scalafmt.conf:
             |```
-            |version = '$stableVersion'
+            |version = $stableVersion
             |```
             |
             |NOTE: this error happens only when running a native Scalafmt binary.
