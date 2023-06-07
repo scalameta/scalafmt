@@ -2213,7 +2213,7 @@ class Router(formatOps: FormatOps) {
               !isTokenLastOrAfter(close, t)
             case t: Term.EnumeratorsBlock => t.parent match {
                 case Some(_: Term.For) => !nextNonComment(ft).right.is[T.KwDo]
-                case Some(_: Term.ForYield) => style.indentYieldKeyword
+                case Some(_: Term.ForYield) => style.indent.yieldKeyword
                 case _ => false
               }
             case _ => false
@@ -2305,7 +2305,7 @@ class Router(formatOps: FormatOps) {
         def spaceSplitWithoutPolicy(implicit fileLine: FileLine) = {
           val indent: Length = right match {
             case _: T.KwIf => StateColumn
-            case _: T.KwFor if !style.indentYieldKeyword => StateColumn
+            case _: T.KwFor if !style.indent.yieldKeyword => StateColumn
             case _ =>
               val needIndent = enclosed.forall {
                 case _: Term.ApplyInfix | _: Term.NewAnonymous => false

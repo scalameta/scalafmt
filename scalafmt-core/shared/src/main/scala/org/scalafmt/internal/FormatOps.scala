@@ -569,16 +569,16 @@ class FormatOps(
         case t: Term.Param => t.default.contains(child)
         case _ => false
       }
-      val allowNoIndent = style.indentOperator.exemptScope match {
+      val cfg = style.indent.infix
+      val allowNoIndent = cfg.exemptScope match {
         case IndentOperator.Exempt.all => true
         case IndentOperator.Exempt.oldTopLevel => isOldTopLevel(getChild)
         case IndentOperator.Exempt.aloneEnclosed => isAloneEnclosed(getChild)
         case IndentOperator.Exempt.aloneArgOrBody => isAloneArgOrBody(getChild)
       }
       def isInfixTopLevelMatch(op: String, noindent: Boolean): Boolean =
-        noindent == style.indentOperator.noindent(op) &&
-          noindent == allowNoIndent
-      if (style.verticalAlignMultilineOperators) isAfterAssignmentOp(false)
+        noindent == cfg.noindent(op) && noindent == allowNoIndent
+      if (cfg.assignmentOnly) isAfterAssignmentOp(false)
       else if (beforeLhs) assignBodyExpire.isEmpty
       else if (
         !app.singleArg

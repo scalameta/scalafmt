@@ -54,17 +54,6 @@ import metaconfig._
   *     are broken to one per line
   *   - If [[org.scalafmt.config.ImportSelectors.singleLine]], import selectors
   *     are kept on a single line The default setting is currently `noBinPack`.
-  * @param indentYieldKeyword
-  *   - If true, indents `yield` by two spaces
-  *     {{{
-  *       for (i <- j)
-  *         yield banana
-  *     }}}
-  *   - If false, treats `yield` like `else`
-  *     {{{
-  *       for (i <- j)
-  *       yield banana
-  *     }}}
   * @param lineEndings
   *   - If [[LineEndings.unix]], output will include only unix line endings
   *   - If [[LineEndings.windows]], output will include only windows line
@@ -107,6 +96,9 @@ import metaconfig._
 @annotation.SectionRename("optIn.configStyleArguments", "newlines.configStyle.fallBack.prefer") // v3.8.2
 @annotation.SectionRename("trailingCommas", "rewrite.trailingCommas.style") // v3.0.5
 @annotation.SectionRename("optIn.forceBlankLineBeforeDocstring", "docstrings.forceBlankLineBefore") // v3.4.0
+@annotation.SectionRename("indentOperator", "indent.infix") // v3.8.4
+@annotation.SectionRename("verticalAlignMultilineOperators", "indent.infix.assignmentOnly") // v3.8.4
+@annotation.SectionRename("indentYieldKeyword", "indent.yieldKeyword") // v3.8.4
 // scalafmt: { maxColumn = 80 }
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
@@ -123,11 +115,8 @@ case class ScalafmtConfig(
     lineEndings: Option[LineEndings] = None,
     rewriteTokens: Map[String, String] = Map.empty[String, String],
     rewrite: RewriteSettings = RewriteSettings.default,
-    indentOperator: IndentOperator = IndentOperator(),
     newlines: Newlines = Newlines(),
     runner: ScalafmtRunner = ScalafmtRunner.default,
-    // Settings which belong to no group
-    indentYieldKeyword: Boolean = true,
     @annotation.ExtraName("binPackImportSelectors")
     importSelectors: ImportSelectors = ImportSelectors.noBinPack,
     includeCurlyBraceInSelectChains: Boolean = true,
@@ -141,7 +130,6 @@ case class ScalafmtConfig(
     )
     poorMansTrailingCommasInConfigStyle: Boolean = false,
     verticalMultiline: VerticalMultiline = VerticalMultiline(),
-    verticalAlignMultilineOperators: Boolean = false,
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
     project: ProjectFiles = ProjectFiles(),

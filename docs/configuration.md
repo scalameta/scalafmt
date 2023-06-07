@@ -862,7 +862,9 @@ foo(bar((_, _) =>
     }))
 ```
 
-### `indentOperator`
+### `indent.infix`
+
+> Prior to v3.8.4, this section was called `indentOperator`.
 
 Normally, the first eligible break _inside_ a chain of infix operators is
 indented by 2.
@@ -870,9 +872,10 @@ indented by 2.
 This group of parameters allows overriding which infix operators, and in which
 context, are eligible to be exempted from this, with indentation _omitted_.
 
-If you wish to disable this functionality, set `indentOperator.excludeRegex = '^$'`.
+If you wish to disable this functionality, set
+`indent.infix.excludeRegex = '^$'`.
 
-#### `indentOperator.exemptScope`
+#### `indent.infix.exemptScope`
 
 Added in 3.4.0, this parameter determines when an infix operator can be exempted from applying
 continuation indentation.
@@ -901,7 +904,7 @@ to be exempted from the default indentation rule:
   - this value replaced deprecated `indentOperator.topLevelOnly=false`
 
 ```scala mdoc:scalafmt
-indentOperator.exemptScope = oldTopLevel
+indent.infix.exemptScope = oldTopLevel
 ---
 function(
   a &&
@@ -926,7 +929,7 @@ function {
 ```
 
 ```scala mdoc:scalafmt
-indentOperator.exemptScope = all
+indent.infix.exemptScope = all
 ---
 function(
   a &&
@@ -951,7 +954,7 @@ function {
 ```
 
 ```scala mdoc:scalafmt
-indentOperator.exemptScope = aloneEnclosed
+indent.infix.exemptScope = aloneEnclosed
 ---
 function(
   a &&
@@ -976,7 +979,7 @@ function {
 ```
 
 ```scala mdoc:scalafmt
-indentOperator.exemptScope = aloneArgOrBody
+indent.infix.exemptScope = aloneArgOrBody
 ---
 function(
   a &&
@@ -1000,7 +1003,7 @@ function {
 }
 ```
 
-#### `indentOperator.excludeRegex`
+#### `indent.infix.excludeRegex`
 
 Defines a regular expression for excluded infix operators. If an eligible
 operator matches, it will not be indented.
@@ -1008,28 +1011,34 @@ operator matches, it will not be indented.
 In v3.1.0, this parameter was renamed from `indentOperator.exclude`.
 
 ```scala mdoc:defaults
-indentOperator.excludeRegex
+indent.infix.excludeRegex
 ```
 
-#### `indentOperator.includeRegex`
+#### `indent.infix.includeRegex`
 
 Defines a regular expression for included infix operators. If an eligible
 operator matches and is not excluded explicitly by
-[indentOperator.excludeRegex](#indentoperatorexcluderegex), it be will indented.
+[indent.infix.excludeRegex](#indentinfixexcluderegex), it be will indented.
 
 In v3.1.0, due to conflict with built-in HOCON keyword, this parameter was
 renamed from `indentOperator.include`.
 
 ```scala mdoc:defaults
-indentOperator.includeRegex
+indent.infix.includeRegex
 ```
 
-#### `indentOperator.preset`
+#### `indent.infix.assignmentOnly`
+
+Indents only after an assignment operator. Prior to v3.8.4, was called
+`verticalAlignMultilineOperators`.
+
+#### `indent.infix.preset`
 
 - `default`
   - use defaults for all fields
 - `spray` (also `akka`)
-  - set `indentOperator.excludeRegex = "^$"` and `indentOperator.includeRegex = "^.*=$"`
+  - set `indent.infix.excludeRegex = "^$"`
+    and `indent.infix.includeRegex = "^.*=$"`
 
 ## Alignment
 
