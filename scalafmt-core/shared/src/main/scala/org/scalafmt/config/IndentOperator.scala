@@ -56,6 +56,7 @@ case class IndentOperator(
     includeRegex: String = ".*",
     @annotation.ExtraName("exclude")
     excludeRegex: String = "^(&&|\\|\\|)$",
+    assignmentOnly: Boolean = false,
 ) {
   private val includeRegexp = includeRegex.r.pattern
   private val excludeRegexp = excludeRegex.r.pattern

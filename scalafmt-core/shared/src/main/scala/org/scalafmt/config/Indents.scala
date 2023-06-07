@@ -20,6 +20,17 @@ import metaconfig._
   *   additional indentation before `with`
   * @param commaSiteRelativeToExtends
   *   additional indentation before in the line after extends with a comma
+  * @param yieldKeyword
+  *   - If true, indents `yield` by two spaces
+  *     {{{
+  *       for (i <- j)
+  *         yield banana
+  *     }}}
+  *   - If false, treats `yield` like `else`
+  *     {{{
+  *       for (i <- j)
+  *       yield banana
+  *     }}}
   */
 case class Indents(
     main: Int = 2,
@@ -41,6 +52,8 @@ case class Indents(
     extendSite: Int = 4,
     withSiteRelativeToExtends: Int = 0,
     commaSiteRelativeToExtends: Int = 2,
+    yieldKeyword: Boolean = true,
+    infix: IndentOperator = IndentOperator(),
 ) {
   lazy val getSignificant = significant.getOrElse(main)
 
