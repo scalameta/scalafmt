@@ -487,6 +487,6 @@ object a {
 object a {
   And("foo") { () =>
     baz
-  // bar
+    // bar
   }
 }
