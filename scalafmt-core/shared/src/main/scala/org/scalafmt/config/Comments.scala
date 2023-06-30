@@ -26,7 +26,8 @@ object Comments {
 
   implicit val surface: generic.Surface[Comments] =
     generic.deriveSurface[Comments]
-  implicit val codec = generic.deriveCodecEx(Comments()).noTypos
+  implicit val codec: ConfCodecEx[Comments] =
+    generic.deriveCodecEx(Comments()).noTypos
 
   sealed abstract class Wrap
   object Wrap {

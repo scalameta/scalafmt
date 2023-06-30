@@ -39,7 +39,7 @@ class FormatOps(
     getStyleAndOwners(topSourceTree, baseStyle)
 
   val runner: ScalafmtRunner = initStyle.runner
-  implicit val dialect = initStyle.dialect
+  implicit val dialect: Dialect = initStyle.dialect
   val (tokens, styleMap) = FormatTokens(topSourceTree.tokens, owners)(initStyle)
   import tokens.{
     matching,

@@ -434,7 +434,7 @@ class FormatWriter(formatOps: FormatOps) {
 
     class Entry(val i: Int) {
       val curr = locations(i)
-      private implicit val style = curr.style
+      private implicit val style: ScalafmtConfig = curr.style
       def previous = locations(math.max(i - 1, 0))
 
       @inline def tok = curr.formatToken

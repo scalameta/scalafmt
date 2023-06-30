@@ -49,8 +49,8 @@ object AlignToken {
     def getMatcher: Matcher =
       new Matcher(regex.map(pattern), parents.map(pattern))
   }
-  implicit val ownerSurface = generic.deriveSurface[Owner]
-  implicit val ownerCodec = generic.deriveCodecEx(Owner())
+  implicit val ownerSurface: Surface[Owner] = generic.deriveSurface[Owner]
+  implicit val ownerCodec: ConfCodecEx[Owner] = generic.deriveCodecEx(Owner())
 
   implicit lazy val surface: Surface[AlignToken] =
     generic.deriveSurface[AlignToken]

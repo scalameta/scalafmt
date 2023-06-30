@@ -122,7 +122,7 @@ object Align {
   val more: Align = some.copy(tokens = AlignToken.default)
   implicit lazy val surface: Surface[Align] = generic.deriveSurface[Align]
   implicit lazy val encoder: ConfEncoder[Align] = generic.deriveEncoder
-  implicit lazy val decoder =
+  implicit lazy val decoder: ConfDecoderEx[Align] =
     Presets.mapDecoder(generic.deriveDecoderEx(default).noTypos, "align")
 
   // only for the truest vertical aligners, this setting is open for changes,

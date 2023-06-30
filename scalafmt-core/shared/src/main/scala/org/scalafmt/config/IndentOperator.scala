@@ -82,7 +82,7 @@ object IndentOperator {
   implicit lazy val encoder: ConfEncoder[IndentOperator] =
     generic.deriveEncoder
 
-  implicit val decoder = Presets.mapDecoder(
+  implicit val decoder: ConfDecoderEx[IndentOperator] = Presets.mapDecoder(
     generic.deriveDecoderEx(default).noTypos,
     "indentOperator"
   ) {
