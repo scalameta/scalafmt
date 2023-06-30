@@ -9,7 +9,7 @@ def parseTagVersion: String = {
 def localSnapshotVersion: String = s"$parseTagVersion-SNAPSHOT"
 def isCI = System.getenv("CI") != null
 
-def scala212 = "2.12.17"
+def scala212 = "2.12.18"
 def scala213 = "2.13.10"
 
 inThisBuild(
