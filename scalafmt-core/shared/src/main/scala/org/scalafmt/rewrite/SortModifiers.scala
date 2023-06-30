@@ -1,6 +1,6 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.config.RewriteSettings
+import org.scalafmt.config.{RewriteSettings, SortSettings}
 import org.scalafmt.util.TreeOps
 
 import scala.meta._
@@ -16,7 +16,8 @@ object SortModifiers extends RewriteFactory {
 
 class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
 
-  private implicit val order = ctx.style.rewrite.sortModifiers.order
+  private val order: Seq[SortSettings.ModKey] =
+    ctx.style.rewrite.sortModifiers.order
 
   override def rewrite(tree: Tree): Unit =
     tree match {

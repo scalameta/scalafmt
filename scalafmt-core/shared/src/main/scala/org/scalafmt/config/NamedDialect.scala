@@ -1,5 +1,7 @@
 package org.scalafmt.config
 
+import metaconfig.ConfCodecEx
+
 import scala.meta.Dialect
 import scala.meta.dialects._
 
@@ -44,7 +46,7 @@ object NamedDialect {
       |""".stripMargin
   }
 
-  implicit val codec =
+  implicit val codec: ConfCodecEx[NamedDialect] =
     ReaderUtil.oneOf(known.map(x => sourcecode.Text(x, x.name)): _*)
 
 }

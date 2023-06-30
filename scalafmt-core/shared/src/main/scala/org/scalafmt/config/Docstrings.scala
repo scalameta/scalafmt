@@ -51,7 +51,8 @@ object Docstrings {
 
   implicit val surface: generic.Surface[Docstrings] =
     generic.deriveSurface[Docstrings]
-  implicit val codec = generic.deriveCodecEx(Docstrings()).noTypos
+  implicit val codec: ConfCodecEx[Docstrings] =
+    generic.deriveCodecEx(Docstrings()).noTypos
 
   sealed abstract class Style {
     def skipFirstLine: Boolean
