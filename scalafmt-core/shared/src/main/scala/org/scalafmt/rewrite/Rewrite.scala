@@ -17,7 +17,7 @@ case class RewriteCtx(
     input: Input,
     tree: Tree
 ) {
-  implicit val dialect = style.dialect
+  implicit val dialect: Dialect = style.dialect
 
   private val patchBuilder = mutable.Map.empty[(Int, Int), TokenPatch]
 
@@ -111,7 +111,7 @@ abstract class RewriteFactory extends Rewrite {
 
 abstract class RewriteSession(implicit ctx: RewriteCtx) {
   def rewrite(tree: Tree): Unit
-  implicit val dialect = ctx.dialect
+  implicit val dialect: Dialect = ctx.dialect
 }
 
 object RewriteSession {

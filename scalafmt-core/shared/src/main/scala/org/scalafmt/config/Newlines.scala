@@ -486,9 +486,10 @@ object Newlines {
     def isEmpty: Boolean = before == 0 && after == 0
   }
   object NumBlanks {
-    implicit val surface = generic.deriveSurface[NumBlanks]
-    implicit val encoder = generic.deriveEncoder[NumBlanks]
-    implicit val decoder = {
+    implicit val surface: Surface[NumBlanks] = generic.deriveSurface[NumBlanks]
+    implicit val encoder: ConfEncoder[NumBlanks] =
+      generic.deriveEncoder[NumBlanks]
+    implicit val decoder: ConfDecoderEx[NumBlanks] = {
       val base = generic.deriveDecoderEx(NumBlanks()).noTypos
       ConfDecoderEx.from[NumBlanks] {
         case (_, Conf.Num(num)) if num.isWhole =>
@@ -519,7 +520,8 @@ object Newlines {
     lazy val pattern = regex.map(_.r.pattern)
   }
   object TopStatBlanks {
-    implicit val surface = generic.deriveSurface[TopStatBlanks]
+    implicit val surface: Surface[TopStatBlanks] =
+      generic.deriveSurface[TopStatBlanks]
     implicit val codec: ConfCodecEx[TopStatBlanks] =
       generic.deriveCodecEx(TopStatBlanks()).noTypos
   }

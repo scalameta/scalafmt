@@ -75,7 +75,7 @@ object BinPack {
     parentConstructors = ParentCtors.Always
   )
 
-  implicit val decoder =
+  implicit val decoder: ConfDecoderEx[BinPack] =
     Presets.mapDecoder(generic.deriveDecoderEx(BinPack()).noTypos, "binPack") {
       case Conf.Bool(true) => enabled
       case Conf.Bool(false) => BinPack()
