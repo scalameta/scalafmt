@@ -53,7 +53,8 @@ private class RemoveScala3OptionalBraces(ftoks: FormatTokens)
               } =>
             removeToken
           case _: Term.ForYield => removeToken
-          case _: Term.Match => removeToken
+          case t: Term.Match if t.parent.exists(_.isNot[Term.ApplyInfix]) =>
+            removeToken
           case _: Type.Match => removeToken
           case _: Term.Try => removeToken
           case _: Ctor.Secondary
