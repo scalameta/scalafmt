@@ -337,12 +337,11 @@ def foo(url: String) = {
   }
 }
 >>>
-Idempotency violated
 def foo(url: String) =
-  url match
+  url match {
     case "foo" => Some("")
     case _     => None
-  map { img =>
+  } map { img =>
     Html(s"""<img class="embed" src="$img" alt="$url"/>""")
   }
 <<< match as select lhs, with rewrite
