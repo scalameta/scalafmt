@@ -427,13 +427,16 @@ class FormatOps(
 
   @tailrec
   private final def getElseChain(term: Term.If, res: Seq[T]): Seq[T] = {
-    term.tokens.find(x => x.is[T.KwElse] && owners(x) == term) match {
-      case Some(els @ T.KwElse()) =>
-        val tuck = !initStyle.newlines.alwaysBeforeElseAfterCurlyIf && {
-          val prev = tokens(els, -1)
-          prev.left.is[T.RightBrace] && prev.meta.leftOwner != term
+    tokens.getHeadOpt(term.elsep) match {
+      case Some(ftElsep) =>
+        val beforeElsep = prevNonCommentBefore(ftElsep)
+        val newRes = beforeElsep.left match {
+          case els: T.KwElse
+              if initStyle.newlines.alwaysBeforeElseAfterCurlyIf ||
+                !prev(beforeElsep).left.is[T.RightBrace] =>
+            els +: res
+          case _ => res
         }
-        val newRes = if (tuck) res else els +: res
         term.elsep match {
           case t: Term.If => getElseChain(t, newRes)
           case _ => newRes
