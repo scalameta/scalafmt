@@ -53,8 +53,7 @@ private class RemoveScala3OptionalBraces(ftoks: FormatTokens)
               } =>
             removeToken
           case _: Term.ForYield => removeToken
-          case t: Term.Match if t.parent.exists(_.isNot[Term.ApplyInfix]) =>
-            removeToken
+          case _: Term.Match => removeToken
           case _: Type.Match => removeToken
           case _: Term.Try => removeToken
           case _: Ctor.Secondary
@@ -70,21 +69,30 @@ private class RemoveScala3OptionalBraces(ftoks: FormatTokens)
       ft: FormatToken,
       style: ScalafmtConfig
   ): Option[(Replacement, Replacement)] =
-    if (hasFormatOff) None // can't guarantee significant indentation
-    else
-      ft.right match {
-        case x: Token.RightBrace =>
+    ft.right match {
+      case _ if hasFormatOff => None // can't guarantee significant indentation
+      case x: Token.RightBrace =>
+        val nextFt = ftoks.nextNonComment(ftoks.next(ft))
+        val ok = nextFt.meta.rightOwner match {
+          case t: Term.Name =>
+            t.parent.exists {
+              case p: Term.Select => p.name ne t
+              case p: Term.ApplyInfix => p.op ne t
+              case _ => true
+            }
+          case _ => true
+        }
+        if (ok) {
           val replacement = ft.meta.rightOwner match {
             case _: Term.For
-                if allowOldSyntax &&
-                  !ftoks.nextNonComment(ftoks.next(ft)).right.is[Token.KwDo] =>
+                if allowOldSyntax && !nextFt.right.is[Token.KwDo] =>
               replaceToken("do")(new Token.KwDo(x.input, x.dialect, x.start))
             case _ => removeToken
           }
-
           Some((left, replacement))
-        case _ => None
-      }
+        } else None
+      case _ => None
+    }
 
   private def onLeftForBlock(
       tree: Term.Block
