@@ -1148,7 +1148,7 @@ class FormatOps(
         ) {
           forces += hash(open)
           args.foreach { arg =>
-            clearQueues += hash(tokens.getHead(arg).left)
+            clearQueues += hash(getHeadToken(arg))
           }
         }
       tokens.foreach {
@@ -1520,8 +1520,7 @@ class FormatOps(
       !cannotStartSelectChainOnExpr(thisSelectLike.qual)
     def checkParent = thisTree.parent match {
       case `nextSelect` => style.includeNoParensInSelectChains
-      case Some(p: Term.Apply)
-          if tokens.getHead(p.argClause).left.is[T.LeftBrace] =>
+      case Some(p: Term.Apply) if getHeadToken(p.argClause).is[T.LeftBrace] =>
         style.includeCurlyBraceInSelectChains &&
         !nextSelect.contains(lastApply) // exclude short curly
       case Some(p: Member.Apply) => p.fun eq thisTree
@@ -2512,7 +2511,7 @@ class FormatOps(
     @tailrec
     private def isElsePWithOptionalBraces(tree: Term.If): Boolean = {
       val elsep = tree.elsep
-      !tokens.getHead(elsep).left.is[T.LeftBrace] && (elsep match {
+      !getHeadToken(elsep).is[T.LeftBrace] && (elsep match {
         case t: Term.If =>
           isThenPWithOptionalBraces(t) ||
           !ifWithoutElse(t) && isElsePWithOptionalBraces(t)
@@ -2545,7 +2544,7 @@ class FormatOps(
       }
 
     @inline private def treeLast(tree: Tree): Option[T] =
-      tokens.getLastOpt(tree).map(_.left)
+      getLastTokenOpt(tree)
     @inline private def blockLast(tree: Tree): Option[T] =
       if (isTreeMultiStatBlock(tree)) treeLast(tree) else None
     @inline private def blockLast(tree: Term.Block): Option[T] =
@@ -2752,6 +2751,9 @@ class FormatOps(
       isBlockWithoutBraces(b) && existsBlockIfWithoutElse(x)
     case _ => other
   }
+
+  def getHeadToken(tree: Tree): T =
+    tokens.getHead(tree).left
 
   def getLastToken(tree: Tree): T =
     tokens.getLast(tree).left

@@ -759,7 +759,7 @@ class Router(formatOps: FormatOps) {
               )
           }
           val argsOpt = if (isAlignFirstParen) lastSyntaxClause else None
-          argsOpt.flatMap(tokens.getLastOpt).map(_.left).fold(splits) { x =>
+          argsOpt.flatMap(getLastTokenOpt).fold(splits) { x =>
             val noSplitIndents = Seq(
               Indent(StateColumn, x, ExpiresOn.Before),
               Indent(-indentLen, x, ExpiresOn.Before)
