@@ -5004,3 +5004,42 @@ object A:
    new Foo("xyz"):
       print("msg")
    .bar()
+<<< match as infix lhs, with rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+def foo(url: String) = {
+  url match {
+    case "foo" => Some("")
+    case _ => None
+  } map { img =>
+    Html(s"""<img class="embed" src="$img" alt="$url"/>""")
+  }
+}
+>>>
+def foo(url: String) =
+  url match {
+    case "foo" => Some("")
+    case _     => None
+  } map { img =>
+    Html(s"""<img class="embed" src="$img" alt="$url"/>""")
+  }
+<<< match as select lhs, with rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+def foo(url: String) = {
+  url.match {
+    case "foo" => Some("")
+    case _ => None
+  }.map { img =>
+    Html(s"""<img class="embed" src="$img" alt="$url"/>""")
+  }
+}
+>>>
+def foo(url: String) =
+  url
+    .match
+       case "foo" => Some("")
+       case _     => None
+    .map { img =>
+      Html(s"""<img class="embed" src="$img" alt="$url"/>""")
+    }
