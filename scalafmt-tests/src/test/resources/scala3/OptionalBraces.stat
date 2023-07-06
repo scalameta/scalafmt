@@ -5004,6 +5004,27 @@ object A:
    new Foo("xyz"):
       print("msg")
    .bar()
+<<< match inside infix chain, with rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  withEval.so(evalComment so { c =>
+    s"($c) "
+  }) +
+  this.match {
+    case MateAdvice(seq, _, _, _) => seq.desc
+    case CpAdvice(judgment, _, _) => judgment.toString
+  } + "."
+}
+>>>
+object a:
+   withEval.so(evalComment so { c =>
+     s"($c) "
+   }) +
+     this.match
+        case MateAdvice(seq, _, _, _) => seq.desc
+        case CpAdvice(judgment, _, _) => judgment.toString
+     + "."
 <<< match as infix lhs, with rewrite
 rewrite.scala3.removeOptionalBraces = yes
 ===
@@ -5043,3 +5064,59 @@ def foo(url: String) =
     .map { img =>
       Html(s"""<img class="embed" src="$img" alt="$url"/>""")
     }
+<<< new anon as infix lhs, with rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  new AdapterLike[Study] {
+    def query                           = Query(text take 100, me.map(_.id))
+    def nbResults                       = api count query
+    def slice(offset: Int, length: Int) = api.search(query, From(offset), Size(length))
+  } mapFutureList pager.withChaptersAndLiking(me)
+}
+>>>
+test does not parse
+object a:
+   new AdapterLike[Study]:
+      def query = Query(text take 100, me.map(_.id))
+      def nbResults = api count query
+      def slice(offset: Int, length: Int) =
+        api.search(query, From(offset), Size(length))
+     mapFutureList pager.withChaptersAndLiking(me)
+                        ^
+<<< new anon as postfix lhs, with rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  new AdapterLike[Study] {
+    def query                           = Query(text take 100, me.map(_.id))
+    def nbResults                       = api count query
+    def slice(offset: Int, length: Int) = api.search(query, From(offset), Size(length))
+  } mapFutureList
+}
+>>>
+object a:
+   new AdapterLike[Study]:
+      def query = Query(text take 100, me.map(_.id))
+      def nbResults = api count query
+      def slice(offset: Int, length: Int) =
+        api.search(query, From(offset), Size(length))
+   mapFutureList
+<<< new anon as select lhs, with rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  new AdapterLike[Study] {
+    def query                           = Query(text take 100, me.map(_.id))
+    def nbResults                       = api count query
+    def slice(offset: Int, length: Int) = api.search(query, From(offset), Size(length))
+  }.mapFutureList
+}
+>>>
+object a:
+   new AdapterLike[Study]:
+      def query = Query(text take 100, me.map(_.id))
+      def nbResults = api count query
+      def slice(offset: Int, length: Int) =
+        api.search(query, From(offset), Size(length))
+   .mapFutureList
