@@ -381,6 +381,13 @@ class FormatOps(
     }
   )
 
+  val TemplateOnRight = new ExtractFromMeta(ft =>
+    ft.meta.rightOwner match {
+      case ro: Template => Some(ro)
+      case _ => None
+    }
+  )
+
   def templateCurlyFt(template: Template): Option[FormatToken] =
     getStartOfTemplateBody(template).map(tokenBefore)
 

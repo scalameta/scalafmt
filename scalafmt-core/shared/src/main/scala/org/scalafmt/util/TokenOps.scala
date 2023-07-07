@@ -1,6 +1,6 @@
 package org.scalafmt.util
 
-import scala.meta.{Defn, Pkg, Source, Template, Term, Tree}
+import scala.meta._
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
@@ -111,17 +111,6 @@ object TokenOps {
 
   @inline
   def getMod(ft: FormatToken): Modification = Space.orNL(ft.newlinesBetween)
-
-  def defnTemplate(tree: Tree): Option[Template] =
-    tree match {
-      case t: Defn.Object => Some(t.templ)
-      case t: Defn.Class => Some(t.templ)
-      case t: Defn.Trait => Some(t.templ)
-      case t: Defn.Enum => Some(t.templ)
-      case t: Pkg.Object => Some(t.templ)
-      case t: Template => Some(t)
-      case _ => None
-    }
 
   val formatOnCode = Set(
     "@formatter:on", // IntelliJ
