@@ -439,6 +439,9 @@ class FormatOps(
         }
         term.elsep match {
           case t: Term.If => getElseChain(t, newRes)
+          case b @ Term.Block(List(t: Term.If))
+              if !tokens.areMatching(ftElsep.left)(getLastToken(b)) =>
+            getElseChain(t, newRes)
           case _ => newRes
         }
       case _ => res
@@ -2401,14 +2404,17 @@ class FormatOps(
       ): Option[OptionalBracesRegion] = {
         ft.meta.leftOwner match {
           case t: Term.If =>
+            val nr = nft.right
             t.cond match {
-              case b: Term.Block
-                  if !matchingOpt(nft.right).exists(_.end >= b.pos.end) =>
+              case b: Term.Block if (matchingOpt(nr) match {
+                    case Some(t) => t.end < b.pos.end
+                    case None => isMultiStatBlock(b)
+                  }) =>
                 Some(new OptionalBracesRegion {
                   def owner = Some(t)
                   def splits = Some {
                     val dangle = style.danglingParentheses.ctrlSite
-                    val forceNL = !nft.right.is[T.LeftParen]
+                    val forceNL = !nr.is[T.LeftParen]
                     getSplits(ft, b, forceNL, dangle)
                   }
                   def rightBrace = blockLast(b)
@@ -2429,6 +2435,12 @@ class FormatOps(
             (t.elsep match {
               case _: Term.If => None
               case x if isTreeMultiStatBlock(x) => Some(true)
+              case b @ Term.Block(List(_: Term.If))
+                  if (matchingOpt(nft.right) match {
+                    case Some(t) => t.end < b.pos.end
+                    case None => true
+                  }) =>
+                None
               case _ if isThenPWithOptionalBraces(t) =>
                 Some(shouldBreakInOptionalBraces(nft))
               case _ => None

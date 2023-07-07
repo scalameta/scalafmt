@@ -929,14 +929,9 @@ private def mtd: Res =
   } then
      foo
 >>>
-Idempotency violated
 private def mtd: Res =
--  if bar && baz then
-+  if
-+     bar && baz
-+  then
-     baz
-  then foo
+  if bar && baz then
+     foo
 <<< remove optional braces within else-if
 rewrite.scala3.removeOptionalBraces = yes
 ===
@@ -948,18 +943,13 @@ private def mtd: Res =
     else bazBody
   }
 >>>
-Idempotency violated
 private def mtd: Res =
   if foo then
      fooBody
--  else if bar then
--     barBody
-   else
--     bazBody
-+     if bar then
-+        barBody
-+     else
-+        bazBody
+  else if bar then
+     barBody
+  else
+     bazBody
 <<< remove optional braces within else-if 2
 rewrite.scala3.removeOptionalBraces = yes
 ===
