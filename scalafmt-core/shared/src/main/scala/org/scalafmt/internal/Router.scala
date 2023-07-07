@@ -2173,7 +2173,14 @@ class Router(formatOps: FormatOps) {
           Seq(Split(Newline, 0))
       // Last else branch
       case FormatToken(_: T.KwElse, _, _) if (leftOwner match {
-            case t: Term.If => !t.elsep.is[Term.If]
+            case t: Term.If =>
+              t.elsep match {
+                case _: Term.If => false
+                case b @ Term.Block(List(_: Term.If)) =>
+                  matchingOpt(nextNonComment(formatToken).right)
+                    .exists(_.end >= b.pos.end)
+                case _ => true
+              }
             case x => throw new UnexpectedTree[Term.If](x)
           }) =>
         val body = leftOwner.asInstanceOf[Term.If].elsep
