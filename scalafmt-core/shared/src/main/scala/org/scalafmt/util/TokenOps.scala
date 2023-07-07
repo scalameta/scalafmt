@@ -123,16 +123,6 @@ object TokenOps {
       case _ => None
     }
 
-  def defnBeforeTemplate(tree: Tree): Option[Tree] =
-    tree match {
-      case t: Defn.Object => Some(t.name)
-      case t: Defn.Class => Some(t.ctor)
-      case t: Defn.Trait => Some(t.ctor)
-      case t: Defn.Enum => Some(t.ctor)
-      case t: Pkg.Object => Some(t.name)
-      case _ => None
-    }
-
   val formatOnCode = Set(
     "@formatter:on", // IntelliJ
     "format: on" // scalariform

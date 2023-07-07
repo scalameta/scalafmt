@@ -374,6 +374,13 @@ class FormatOps(
     new Policy.Delay(policy, Policy.End.Before(from))
   }
 
+  val WithTemplateOnLeft = new ExtractFromMeta(ft =>
+    ft.meta.leftOwner match {
+      case lo: Stat.WithTemplate => Some(lo.templ)
+      case _ => None
+    }
+  )
+
   def templateCurlyFt(template: Template): Option[FormatToken] =
     getStartOfTemplateBody(template).map(tokenBefore)
 
