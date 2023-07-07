@@ -1978,22 +1978,17 @@ class Router(formatOps: FormatOps) {
         )
 
       // Template
-      case FormatToken(_, soft.ExtendsOrDerives(), _) =>
-        val template = defnTemplate(rightOwner)
-        def lastToken = template.fold(getLastNonTrivialToken(rightOwner)) { x =>
-          templateDerivesOrCurlyOrLastNonTrivial(x)
-        }
+      case FormatToken(_, soft.ExtendsOrDerives(), TemplateOnRight(template)) =>
+        def lastToken = templateDerivesOrCurlyOrLastNonTrivial(template)
 
         binPackParentConstructorSplits(
           true,
-          template.toSet,
-          template.flatMap(findTemplateGroupOnRight(_.superType)),
+          Set(template),
+          findTemplateGroupOnRight(_.superType)(template),
           lastToken,
           style.indent.extendSite,
-          template.exists(x =>
-            if (x.early.nonEmpty) x.inits.nonEmpty
-            else x.inits.lengthCompare(1) > 0
-          )
+          if (template.early.nonEmpty) template.inits.nonEmpty
+          else template.inits.lengthCompare(1) > 0
         )
 
       // trait A extends B, C, D, E
