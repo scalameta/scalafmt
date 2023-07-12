@@ -2,7 +2,8 @@ import sbt._
 import sbt.Keys._
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
-// scalafmt: { maxColumn = 120, style = defaultWithAlign }
+
+// scalafmt: { maxColumn = 120, align.preset = more }
 
 object Dependencies {
   val metaconfigV = "0.11.1"
