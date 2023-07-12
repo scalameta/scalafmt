@@ -11,6 +11,7 @@ import org.scalameta.logger
 import scala.meta.parsers.{Parse, ParseException}
 import scala.meta.testkit.StructurallyEqual
 import scala.meta.{Dialect, Tree}
+import scala.meta.internal.inputs._
 
 trait FormatAssertions {
 
@@ -33,9 +34,11 @@ trait FormatAssertions {
     import scala.meta._
     def toInput(code: String) = Scalafmt.toInput(code, filename)
     toInput(original).parse[T] match {
-      case Parsed.Error(_, message, _) =>
-        logger.debug(original)
-        logger.debug(s"original does not parse $message")
+      case Parsed.Error(pos, message, _) =>
+        val msgWithPos = pos.formatMessage("error", message)
+        val error = s"original does not parse ($msgWithPos) [$filename]"
+        logger.debug(error)
+        throw FormatterOutputDoesNotParse(error, pos.startLine)
       case Parsed.Success(originalParsed) =>
         toInput(obtained).parse[T] match {
           case Parsed.Success(obtainedParsed) =>
