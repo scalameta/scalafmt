@@ -25,7 +25,8 @@ case class RewriteSettings(
     val intersection = v1rules & v2rules
     val missing = (v1rules | v2rules).diff(intersection).toSeq
     val changed = intersection.toSeq.filter(_.hasChanged(this, v2))
-    Some((missing ++ changed).map(_.toString).sorted).filter(_.nonEmpty)
+    Some((missing ++ changed).map(_.getClass.getSimpleName).sorted)
+      .filter(_.nonEmpty)
   }
 
   private[config] def forSbt: RewriteSettings =

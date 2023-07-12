@@ -54,7 +54,8 @@ class StyleMap(
           // TODO(olafur) report error via callback
           configured.foreach(logger.elem(_)) { style =>
             init.rewrite.rulesChanged(style.rewrite).foreach { x =>
-              warn(x.mkString("May not override rewrite settings: ", ",", ""))
+              val rules = x.mkString(",")
+              warn(s"May not override rewrite settings; changed=[$rules]: $c")
             }
             changeStyle(style)
           }
