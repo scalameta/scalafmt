@@ -32,7 +32,8 @@ case class Indents(
     private[config] val ctorSite: Option[Int] = None,
     extraBeforeOpenParenDefnSite: Int = 0,
     relativeToLhsLastLine: Seq[Indents.RelativeToLhs] = Nil,
-    fewerBraces: Indents.FewerBraces = Indents.FewerBraces.never,
+    private[config] val fewerBraces: Indents.FewerBraces =
+      Indents.FewerBraces.never,
     @annotation.ExtraName("deriveSite")
     extendSite: Int = 4,
     withSiteRelativeToExtends: Int = 0,

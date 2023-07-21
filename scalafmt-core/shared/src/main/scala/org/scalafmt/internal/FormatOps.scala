@@ -2103,7 +2103,7 @@ class FormatOps(
                   case x: Member.Apply => isSelect(x)
                   case x => x.is[Term.Select]
                 }
-                val ok = (style.indent.fewerBraces match {
+                val ok = (style.getFewerBraces() match {
                   case Indents.FewerBraces.never => true
                   case Indents.FewerBraces.always => false
                   case Indents.FewerBraces.beforeSelect =>
