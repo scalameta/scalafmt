@@ -266,6 +266,10 @@ case class ScalafmtConfig(
 
   def formatInfix(tree: => Tree): Boolean =
     breakAfterInfix(tree) ne Newlines.AfterInfix.keep
+
+  def getFewerBraces(): Indents.FewerBraces =
+    if (indent.getSignificant < 2) Indents.FewerBraces.never
+    else indent.fewerBraces
 }
 
 object ScalafmtConfig {

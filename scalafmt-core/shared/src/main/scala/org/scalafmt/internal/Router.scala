@@ -1772,12 +1772,12 @@ class Router(formatOps: FormatOps) {
             def getNlMod = {
               val endSelect = nextDotIfSig.fold {
                 nextSelect.fold {
-                  val ko = style.indent.fewerBraces ==
+                  val ko = style.getFewerBraces() ==
                     Indents.FewerBraces.always && checkFewerBraces(expireTree)
                   if (ko) None else Some(expire)
                 } { ns => Some(getLastNonTrivialToken(ns.qual)) }
               } { nd =>
-                val ok = style.indent.fewerBraces == Indents.FewerBraces.never
+                val ok = style.getFewerBraces() == Indents.FewerBraces.never
                 if (ok) Some(nd.left) else None
               }
               val altIndent = endSelect.map(Indent(-indentLen, _, After))
@@ -1909,7 +1909,7 @@ class Router(formatOps: FormatOps) {
         }
 
         // trigger indent only on the first newline
-        val fbIndent = style.indent.fewerBraces != Indents.FewerBraces.never
+        val fbIndent = style.getFewerBraces() != Indents.FewerBraces.never
         val noIndent = !fbIndent && checkFewerBraces(thisSelect.qual)
         val nlIndent =
           if (noIndent) Indent.Empty else Indent(indentLen, expire, After)
@@ -1921,7 +1921,7 @@ class Router(formatOps: FormatOps) {
             baseSplits.map(_.withIndent(nlIndent).andFirstPolicyOpt(nlPolicy))
           else {
             val spcIndent = nextDotIfSig.fold {
-              val ok = style.indent.fewerBraces == Indents.FewerBraces.always &&
+              val ok = style.getFewerBraces() == Indents.FewerBraces.always &&
                 nextSelect.isEmpty && checkFewerBraces(expireTree)
               if (ok) nlIndent else Indent.empty
             } { x =>

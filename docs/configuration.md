@@ -607,6 +607,7 @@ indent.fewerBraces
 > In Scala 3.3.0, only `never` provides compiler-compatible code.
 > Other options will work in 3.3.1-RC1 and later
 > (see [Parser section](https://github.com/lampepfl/dotty/releases/tag/3.3.1-RC1)).
+> Also, `never` is implicitly forced if indentation width is less than 2.
 
 ```scala mdoc:scalafmt
 runner.dialect = Scala3
