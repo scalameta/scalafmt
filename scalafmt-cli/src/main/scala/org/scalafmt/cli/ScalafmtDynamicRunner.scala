@@ -10,7 +10,6 @@ import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtSession
 import org.scalafmt.sysops.FileOps
 
-import scala.meta.internal.tokenizers.PlatformTokenizerCache
 import util.control.Breaks._
 
 object ScalafmtDynamicRunner extends ScalafmtRunner {
@@ -53,7 +52,6 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
             reporter.error(e.file, e)
             if (options.check) break
         }
-        PlatformTokenizerCache.megaCache.clear()
         termDisplay.taskProgress(termDisplayMessage)
       }
     }

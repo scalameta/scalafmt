@@ -8,7 +8,6 @@ import org.scalafmt.{Formatted, Scalafmt, Versions}
 import org.scalafmt.config.{ProjectFiles, ScalafmtConfig}
 import org.scalafmt.CompatCollections.ParConverters._
 
-import scala.meta.internal.tokenizers.PlatformTokenizerCache
 import scala.meta.parsers.ParseException
 import scala.meta.tokenizers.TokenizeException
 
@@ -36,7 +35,6 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
           val code = handleFile(inputMethod, options, scalafmtConf)
           exitCode.getAndUpdate(ExitCode.merge(code, _))
           if (options.check && !code.isOk) Breaks.break
-          PlatformTokenizerCache.megaCache.clear()
           termDisplay.taskProgress(termDisplayMessage)
         }
       }
