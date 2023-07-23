@@ -122,7 +122,10 @@ case class ScalafmtReflect(
         case _ =>
           formatMethod.invoke(null, code, config.target, emptyRange)
       }
-      clearTokenizerCache()
+      if (version < ScalafmtVersion(2, 3, 0))
+        moduleInstance("scala.meta.internal.tokenizers.PlatformTokenizerCache$")
+          .invoke("megaCache")
+          .invoke("clear")
       formattedGet.invoke(formatted).asInstanceOf[String]
     }.recoverWith {
       case ReflectionException(e)
@@ -166,13 +169,6 @@ case class ScalafmtReflect(
           end.invokeAs[Int]("column")
         )
     }
-  }
-
-  private def clearTokenizerCache(): Unit = {
-    val cache = moduleInstance(
-      "scala.meta.internal.tokenizers.PlatformTokenizerCache$"
-    )
-    cache.invoke("megaCache").invoke("clear")
   }
 
   private def moduleInstance(fqn: String): Object = {
