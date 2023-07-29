@@ -25,7 +25,7 @@ maxColumn
   regular resolution.
 - GitHub mobile view only shows 80 characters and sometimes you might review
   code on your phone.
-- Consider refactoring your code before of choosing a value above 100.
+- Consider refactoring your code before choosing a value above 100.
 
 ### `assumeStandardLibraryStripMargin`
 
