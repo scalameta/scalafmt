@@ -141,25 +141,23 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   final def findToken(
       ft: FormatToken,
       iter: FormatToken => FormatToken
-  )(f: FormatToken => Boolean): Either[FormatToken, FormatToken] =
-    findTokenWith(ft, iter)(Some(_).filter(f))
+  )(f: FormatToken => Boolean): FormatToken =
+    findTokenWith(ft, iter)(Some(_).filter(f)).merge
 
   final def nextNonCommentSameLine(curr: FormatToken): FormatToken =
     findToken(curr, next)(ft => ft.hasBreak || !ft.right.is[Token.Comment])
-      .fold(identity, identity)
 
   final def nextNonComment(curr: FormatToken): FormatToken =
-    findToken(curr, next)(!_.right.is[Token.Comment]).fold(identity, identity)
+    findToken(curr, next)(!_.right.is[Token.Comment])
 
   final def nextNonComment(curr: FormatToken.Meta): FormatToken =
     nextNonComment(arr(curr.idx))
 
   final def prevNonCommentSameLine(curr: FormatToken): FormatToken =
     findToken(curr, prev)(ft => ft.hasBreak || !ft.left.is[Token.Comment])
-      .fold(identity, identity)
 
   final def prevNonComment(curr: FormatToken): FormatToken =
-    findToken(curr, prev)(!_.left.is[Token.Comment]).fold(identity, identity)
+    findToken(curr, prev)(!_.left.is[Token.Comment])
 
   @inline
   final def prevNonCommentBefore(curr: FormatToken): FormatToken =
