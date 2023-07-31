@@ -300,15 +300,14 @@ class Router(formatOps: FormatOps) {
                 else Some(false)
               (arrow, Some(arrow.left), 0, nlOnly)
             case _ =>
-              selfAnnotationLast match {
-                case Some(anno) =>
-                  val arrow = leftOwner.tokens.find(_.is[T.RightArrow])
-                  val expire = arrow.getOrElse(anno)
-                  val indent = style.indent.main
-                  (tokens(expire), arrow, indent, Some(isSelfAnnotationNL))
-                case _ =>
-                  (null, None, 0, None)
+              val annoOpt = selfAnnotationLast.map { anno =>
+                val indent = style.indent.main
+                val annoFT = tokens(anno)
+                val arrow = annoFT.left.is[T.RightArrow]
+                val expire = if (arrow) annoFT else next(nextNonComment(annoFT))
+                (expire, Some(expire.left), indent, Some(isSelfAnnotationNL))
               }
+              annoOpt.getOrElse { (null, None, 0, None) }
           }
         val lambdaPolicy =
           if (lambdaExpire == null) null
@@ -446,11 +445,14 @@ class Router(formatOps: FormatOps) {
             .withIndent(style.indent.main, endIndent, After)
         )
 
-      case FormatToken(T.RightArrow() | T.ContextArrow(), right, _)
-          if leftOwner.is[Term.FunctionTerm] ||
-            leftOwner.is[Term.PolyFunction] ||
-            (leftOwner.is[Template] &&
-              leftOwner.parent.exists(_.is[Term.NewAnonymous])) =>
+      case FormatToken(_: T.RightArrow | _: T.ContextArrow, right, _)
+          if (leftOwner match {
+            case _: Term.FunctionTerm | _: Term.PolyFunction => true
+            case t: Template => t.parent.exists(_.is[Term.NewAnonymous])
+            case t: Self =>
+              t.parent.exists(_.parent.exists(_.is[Term.NewAnonymous]))
+            case _ => false
+          }) =>
         val (endOfFunction, expiresOn) = leftOwner match {
           case t: Term.FunctionTerm => functionExpire(t)
           case t => getLastNonTrivialToken(t) -> ExpiresOn.Before
