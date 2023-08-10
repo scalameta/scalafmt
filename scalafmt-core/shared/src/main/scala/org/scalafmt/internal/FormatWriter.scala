@@ -1198,13 +1198,14 @@ class FormatWriter(formatOps: FormatOps) {
           if (alignContainer ne null) {
             val candidates = columnCandidates.result()
             val block = getOrCreateBlock(alignContainer)
-            def appendToBlock(matches: Int = 0) = {
+            def appendToBlock(matches: Int = 0): Unit = {
               val eolColumn = location.state.prev.column + columnShift
               val alignLine = new AlignLine(candidates, eolColumn)
-              if (!block.tryAppendToBlock(alignLine, matches)) {
+              if (!block.isEmpty) {
+                if (block.tryAppendToBlock(alignLine, matches)) return
                 flushAlignBlock(block)
-                block.tryAppendToBlock(alignLine, 0)
               }
+              block.appendToEmptyBlock(alignLine)
             }
             if (block.isEmpty) {
               if (!isBlankLine) appendToBlock()
@@ -1697,6 +1698,13 @@ object FormatWriter {
       var refStops: Seq[AlignStop] = Seq.empty,
       var stopColumns: IndexedSeq[Int] = IndexedSeq.empty
   ) {
+    def appendToEmptyBlock(line: AlignLine): Unit = {
+      val stops = line.stops
+      refStops = stops
+      buffer += line
+      stopColumns = stops.map(_.column)
+    }
+
     def tryAppendToBlock(line: AlignLine, matches: Int): Boolean = {
       // truncate if matches are shorter than both lists
       val truncate = shouldTruncate(line, matches)
