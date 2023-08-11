@@ -201,8 +201,11 @@ trait HasTests extends FormatAssertions {
     val builder = mutable.ArrayBuilder.make[FormatOutput]
     debug.locations.foreach { entry =>
       val token = entry.curr.formatToken
+      implicit val sb = new StringBuilder()
+      sb.append(token.left.syntax)
+      entry.formatWhitespace(0)
       builder += FormatOutput(
-        token.left.syntax + entry.getWhitespace(0),
+        sb.result(),
         Option(debug.formatTokenExplored).fold(-1)(_(token.meta.idx))
       )
     }

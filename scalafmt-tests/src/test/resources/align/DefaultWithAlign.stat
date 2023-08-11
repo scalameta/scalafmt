@@ -2067,7 +2067,7 @@ object a {
 >>>
 object a {
   def meeethod1(pram1:       AnyRef): Any = ???
-  def methd2(paaaaaram2:  Any): Any = ???
-  def meth3(param333333: Any): Any = ???
-  def md4(param4:      Any): Any = ???
+  def methd2(paaaaaram2:     Any):    Any = ???
+  def meth3(param333333:     Any):    Any = ???
+  def md4(param4:            Any):    Any = ???
 }
