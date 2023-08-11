@@ -2054,8 +2054,27 @@ object a {
   def meth3(     param333333: Any    ): Any = ???
   def md4(       param4:      Any    ): Any = ???
 }
-<<< #3614 !spaces.inParentheses
+<<< #3614 !spaces.inParentheses align.delayUntilSpace
 spaces.inParentheses = false
+align.delayUntilSpace = true
+align.tokens."+" = [ { code = ":" }, { code = "(" }, { code = ")" }, { code = "=" } ]
+===
+object a {
+  def meeethod1(pram1: AnyRef): Any = ???
+  def methd2(paaaaaram2: Any): Any = ???
+  def meth3(param333333: Any): Any = ???
+  def md4(param4: Any): Any = ???
+}
+>>>
+object a {
+  def meeethod1(pram1:       AnyRef): Any = ???
+  def methd2(paaaaaram2:     Any):    Any = ???
+  def meth3(param333333:     Any):    Any = ???
+  def md4(param4:            Any):    Any = ???
+}
+<<< #3614 !spaces.inParentheses !align.delayUntilSpace
+spaces.inParentheses = false
+align.delayUntilSpace = false
 align.tokens."+" = [ { code = ":" }, { code = "(" }, { code = ")" }, { code = "=" } ]
 ===
 object a {
