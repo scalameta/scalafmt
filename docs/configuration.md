@@ -2576,6 +2576,44 @@ newlines.inInterpolation
 - `avoid`: attemps to avoid breaks within the spliced code, regardless of line overflow
 - `oneline`: formats the splice on a single line, or breaks after `${` if overflows
 
+### `newlines.ignoreInSyntax`
+
+The formatter frequently chooses between adding a newline and continuing the
+same line but either prohibiting or heavily discouraging subsequent newlines
+_between_ tokens, to fit the rest of the expression on the same line.
+
+However, in many cases and, for historical reasons, intentionally, newlines
+_within_ tokens have been frequently ignored, leading to "single-line" blocks
+which actually span multiple lines.
+
+This boolean parameter now allows controlling whether to ignore newlines found
+in syntax of strings or other possibly multi-line tokens when newlines are
+otherwise prohibited or undesirable (such as for single-line formatting).
+
+```scala mdoc:defaults
+newlines.ignoreInSyntax
+```
+
+> Since v3.7.13. Prior to that, this behaviour was always enabled.
+
+```scala mdoc:scalafmt
+newlines.ignoreInSyntax = true
+---
+// ignores newline in string, pretends everything fits on one line
+println(s"""${1}
+    """.stripMargin
+)
+```
+
+```scala mdoc:scalafmt
+newlines.ignoreInSyntax = false
+---
+// detects newline in string, forces proper multi-line formatting
+println(s"""${1}
+    """.stripMargin
+)
+```
+
 ### `optIn.annotationNewlines`
 
 This boolean parameter controls newlines after annotations.

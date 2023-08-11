@@ -314,6 +314,18 @@ final class MyClass {
   println(s"""${1}
     """.stripMargin)
 }
+<<< #2025 3 !ignoreInSyntax
+newlines.ignoreInSyntax = false
+===
+final class MyClass {
+    println(s"""${1}
+    """.stripMargin)
+}
+>>>
+final class MyClass {
+  println(s"""${1}
+    """.stripMargin)
+}
 <<< #3090 string without margin
 maxColumn = 100
 optIn.breaksInsideChains = true

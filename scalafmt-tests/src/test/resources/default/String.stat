@@ -599,3 +599,33 @@ val s = raw"""${
                  else "else"
                  end if
                }"""
+<<< #3608 ignoreInSyntax
+maxColumn = 30
+assumeStandardLibraryStripMargin = true
+newlines.ignoreInSyntax = true
+===
+println("""|
+  |A very long string
+  |with multiple lines
+  |""".stripMargin
+)
+>>>
+println("""|
+           |A very long string
+           |with multiple lines
+           |""".stripMargin)
+<<< #3608 !ignoreInSyntax
+maxColumn = 30
+assumeStandardLibraryStripMargin = true
+newlines.ignoreInSyntax = false
+===
+println("""|
+  |A very long string
+  |with multiple lines
+  |""".stripMargin
+)
+>>>
+println("""|
+           |A very long string
+           |with multiple lines
+           |""".stripMargin)
