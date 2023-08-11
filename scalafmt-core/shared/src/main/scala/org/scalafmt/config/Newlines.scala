@@ -202,6 +202,7 @@ case class Newlines(
     afterInfixMaxCountPerFile: Int = 500,
     avoidForSimpleOverflow: Seq[AvoidForSimpleOverflow] = Seq.empty,
     inInterpolation: InInterpolation = InInterpolation.allow,
+    ignoreInSyntax: Boolean = true,
     avoidAfterYield: Boolean = true
 ) {
   if (
