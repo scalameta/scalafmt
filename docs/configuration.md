@@ -951,8 +951,9 @@ Apart from a few special cases, the way alignment works is as follows:
 - for each token that has matches in the surrounding lines:
   - we'll determine the amount of extra space needed to be added _before_
     that token, to align it _on the right_ with matching tokens
-  - however, if there was no space before the token, that extra space will be
-    added to the next space on its line, aligning subsequent token _on the left_.
+  - however, if there was no space before the token, and `align.delayUntilSpace`
+    is set, that extra space will be added to the next space on its line, thus
+    aligning subsequent token _on the left_.
 
 Align has several nested fields, which you can customize. However, it comes with
 four possible presets: none, some, more, & most.
@@ -1438,6 +1439,48 @@ object a {
   s"""
     |foo1 ${quxQux(bazBaz, barBar)} foo2 ${quxQux(bazBaz, barBar)} foo3 ${quxQux(bazBaz, barBar)} foo4
     |""".stripMargin
+}
+```
+
+### `align.delayUntilSpace`
+
+If this flag is set, the formatter will not forcefully pull apart two successive
+non-whitespace tokens that would otherwise be formatted without a space between
+them.
+
+Instead, the extra alignment spaces will be added to the next space on the same line.
+
+> Since v3.7.13. Prior to that, this behaviour was always enabled.
+
+```scala mdoc:defaults
+align.delayUntilSpace
+```
+
+```scala mdoc:scalafmt
+align.preset = more
+align.delayUntilSpace = true
+align.tokens."+" = [ { code = ":" }, { code = "(" }, { code = ")" }, { code = "=" } ]
+---
+object a {
+  def meeethod1(pram1: AnyRef): Any = ???
+  def methd2(paaaaaram2: Any): Any = ???
+  def meth3(param333333: Any): Any = ???
+  def md4(param4: Any): Any = ???
+}
+```
+
+vs
+
+```scala mdoc:scalafmt
+align.preset = more
+align.delayUntilSpace = false
+align.tokens."+" = [ { code = ":" }, { code = "(" }, { code = ")" }, { code = "=" } ]
+---
+object a {
+  def meeethod1(pram1: AnyRef): Any = ???
+  def methd2(paaaaaram2: Any): Any = ???
+  def meth3(param333333: Any): Any = ???
+  def md4(param4: Any): Any = ???
 }
 ```
 

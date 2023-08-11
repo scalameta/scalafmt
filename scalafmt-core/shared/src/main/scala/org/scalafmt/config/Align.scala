@@ -63,6 +63,7 @@ import metaconfig.generic.Surface
   */
 case class Align(
     allowOverflow: Boolean = false,
+    delayUntilSpace: Boolean = true,
     multiline: Boolean = false,
     stripMargin: Boolean = true,
     closeParenSite: Boolean = false,
