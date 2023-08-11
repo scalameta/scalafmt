@@ -948,9 +948,11 @@ Apart from a few special cases, the way alignment works is as follows:
   - both owners belong to the same "statement container"; this is determined
     internally and usually selects the nearest containing block, template,
     match, argument or parameter group.
-- if two tokens match:
-  - if there's a space before them, they themselves will be aligned on the right
-  - if there's a space after them, the next tokens will be aligned on the left
+- for each token that has matches in the surrounding lines:
+  - we'll determine the amount of extra space needed to be added _before_
+    that token, to align it _on the right_ with matching tokens
+  - however, if there was no space before the token, that extra space will be
+    added to the next space on its line, aligning subsequent token _on the left_.
 
 Align has several nested fields, which you can customize. However, it comes with
 four possible presets: none, some, more, & most.

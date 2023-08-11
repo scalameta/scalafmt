@@ -31,6 +31,7 @@ class FormatWriter(formatOps: FormatOps) {
     val locations = getFormatLocations(state)
     styleMap.init.runner.event(FormatEvent.Written(locations))
 
+    var delayedAlign = 0
     locations.foreach { entry =>
       val location = entry.curr
       implicit val style: ScalafmtConfig = location.style
@@ -94,7 +95,7 @@ class FormatWriter(formatOps: FormatOps) {
       } else if (location.missingBracesOpenOrTuck)
         sb.append(" {")
 
-      if (!skipWs) entry.formatWhitespace
+      if (!skipWs) delayedAlign = entry.formatWhitespace(delayedAlign)
     }
 
     sb.toString()
@@ -425,12 +426,11 @@ class FormatWriter(formatOps: FormatOps) {
     val tokenAligns: Map[Int, Int] = alignmentTokens
 
     def foreach(f: Entry => Unit): Unit = {
-      val iterator = Iterator.range(0, locations.length).map(new Entry(_))
-      iterator.filter(_.curr.isNotRemoved).foreach(f)
+      Iterator.range(0, locations.length).foreach { i =>
+        val entry = new Entry(i)
+        if (entry.curr.isNotRemoved) f(entry)
+      }
     }
-
-    private def getAlign(tok: FormatToken, alignOffset: Int = 0): Int =
-      tokenAligns.get(tok.meta.idx).fold(0)(_ + alignOffset)
 
     class Entry(val i: Int) {
       val curr = locations(i)
@@ -440,17 +440,13 @@ class FormatWriter(formatOps: FormatOps) {
       @inline def tok = curr.formatToken
       @inline def state = curr.state
       @inline def prevState = curr.state.prev
-      @inline def lastModification = prevState.split.modExt.mod
 
-      def getWhitespace(alignOffset: Int): String = {
-        state.split.modExt.mod match {
-          case Space =>
-            val previousAlign =
-              if (lastModification != NoSplit) 0
-              else getAlign(previous.formatToken)
-            val currentAlign = getAlign(tok, alignOffset)
-            getIndentation(1 + currentAlign + previousAlign)
-
+      private def appendWhitespace(alignOffset: Int, delayedAlign: Int)(implicit
+          sb: StringBuilder
+      ): Int = {
+        val mod = state.split.modExt.mod
+        def currentAlign = tokenAligns.get(i).fold(0)(_ + alignOffset)
+        val ws = mod match {
           case nl: NewlineT =>
             val extraBlanks =
               if (i == locations.length - 1) 0
@@ -461,11 +457,18 @@ class FormatWriter(formatOps: FormatOps) {
 
           case p: Provided => p.betweenText
 
-          case NoSplit => ""
+          case NoSplit =>
+            return delayedAlign + currentAlign // RETURNING!
+
+          case _ => getIndentation(mod.length + currentAlign + delayedAlign)
         }
+        sb.append(ws)
+        0
       }
 
-      def formatWhitespace(implicit sb: StringBuilder): Unit = {
+      def formatWhitespace(delayedAlign: Int)(implicit
+          sb: StringBuilder
+      ): Int = {
 
         import org.scalafmt.config.TrailingCommas
 
@@ -505,7 +508,7 @@ class FormatWriter(formatOps: FormatOps) {
           iter(curr, false)
         }
 
-        @inline def ws(offset: Int): Unit = sb.append(getWhitespace(offset))
+        @inline def ws(offset: Int) = appendWhitespace(offset, delayedAlign)
 
         val noExtraOffset =
           !dialect.allowTrailingCommas ||
@@ -521,7 +524,9 @@ class FormatWriter(formatOps: FormatOps) {
                 if tok.left.is[T.Comma] && isClosedDelimWithNewline(false) =>
               sb.setLength(sb.length - 1)
               if (!tok.right.is[T.RightParen]) ws(1)
-              else if (style.spaces.inParentheses) sb.append(' ')
+              else if (style.spaces.inParentheses) {
+                sb.append(getIndentation(1 + delayedAlign)); 0
+              } else delayedAlign
             // append comma if newline
             case TrailingCommas.always
                 if !tok.left.is[T.Comma] && isClosedDelimWithNewline(true) =>
@@ -699,7 +704,7 @@ class FormatWriter(formatOps: FormatOps) {
           extends FormatCommentBase(style.maxColumn) {
         def format(): Unit = {
           val trimmed = removeTrailingWhiteSpace(text)
-          val isCommentedOut = lastModification match {
+          val isCommentedOut = prevState.split.modExt.mod match {
             case m: NewlineT if m.noIndent => true
             case _ => indent == 0
           }
