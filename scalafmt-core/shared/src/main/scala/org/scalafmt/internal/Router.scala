@@ -671,24 +671,21 @@ class Router(formatOps: FormatOps) {
               case _ => false
             }
           } =>
-        def modification: Modification = leftOwner match {
-          case _: Mod => Space
+        def modification: Modification = Space(leftOwner match {
+          case _ if left.is[T.Comment] => true
+          case _: Mod => true
           // Add a space between constructor annotations and their parameter lists
           // see:
           // https://github.com/scalameta/scalafmt/pull/1516
           // https://github.com/scalameta/scalafmt/issues/1528
-          case init: Init if init.parent.forall(_.is[Mod.Annot]) => Space
-          case t: Term.Name
-              if style.spaces.afterTripleEquals && t.value == "===" =>
-            Space
-          case name: Term.Name
-              if style.spaces.afterSymbolicDefs &&
-                isSymbolicName(name.value) && name.parent.exists(isDefDef) =>
-            Space
-          case _: Defn.ExtensionGroup if left.is[soft.KwExtension] =>
-            Space(style.spaces.afterKeywordBeforeParen)
-          case _ => Space(left.is[T.Comment])
-        }
+          case t: Init => t.parent.forall(_.is[Mod.Annot])
+          case t @ Term.Name(name) if isSymbolicName(name) =>
+            style.spaces.afterTripleEquals && name == "===" ||
+            style.spaces.afterSymbolicDefs && t.parent.exists(isDefDef)
+          case _: Defn.ExtensionGroup =>
+            style.spaces.afterKeywordBeforeParen && left.is[soft.KwExtension]
+          case _ => false
+        })
         def baseNoSplit(implicit fileLine: FileLine) = Split(modification, 0)
         val defn = isParamClauseSite(rightOwner)
         val defRhs = if (defn) defDefBodyParent(rightOwner) else None
