@@ -2037,3 +2037,37 @@ object ScalaFormatRecreator extends App {
 object ScalaFormatRecreator extends App {
   private var s: String = _
 }
+<<< #3614 spaces.inParentheses
+spaces.inParentheses = true
+align.tokens."+" = [ { code = ":" }, { code = "(" }, { code = ")" }, { code = "=" } ]
+===
+object a {
+  def meeethod1(pram1: AnyRef): Any = ???
+  def methd2(paaaaaram2: Any): Any = ???
+  def meth3(param333333: Any): Any = ???
+  def md4(param4: Any): Any = ???
+}
+>>>
+object a {
+  def meeethod1( pram1:       AnyRef ): Any = ???
+  def methd2(    paaaaaram2:  Any    ): Any = ???
+  def meth3(     param333333: Any    ): Any = ???
+  def md4(       param4:      Any    ): Any = ???
+}
+<<< #3614 !spaces.inParentheses
+spaces.inParentheses = false
+align.tokens."+" = [ { code = ":" }, { code = "(" }, { code = ")" }, { code = "=" } ]
+===
+object a {
+  def meeethod1(pram1: AnyRef): Any = ???
+  def methd2(paaaaaram2: Any): Any = ???
+  def meth3(param333333: Any): Any = ???
+  def md4(param4: Any): Any = ???
+}
+>>>
+object a {
+  def meeethod1(pram1:       AnyRef): Any = ???
+  def methd2(paaaaaram2:  Any): Any = ???
+  def meth3(param333333: Any): Any = ???
+  def md4(param4:      Any): Any = ???
+}
