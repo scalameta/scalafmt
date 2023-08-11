@@ -457,7 +457,7 @@ class FormatWriter(formatOps: FormatOps) {
 
           case p: Provided => p.betweenText
 
-          case NoSplit =>
+          case NoSplit if style.align.delayUntilSpace =>
             return delayedAlign + currentAlign // RETURNING!
 
           case _ => getIndentation(mod.length + currentAlign + delayedAlign)
