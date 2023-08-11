@@ -31,7 +31,7 @@ class FormatWriter(formatOps: FormatOps) {
     val locations = getFormatLocations(state)
     styleMap.init.runner.event(FormatEvent.Written(locations))
 
-    locations.iterate.foreach { entry =>
+    locations.foreach { entry =>
       val location = entry.curr
       implicit val style: ScalafmtConfig = location.style
       val formatToken = location.formatToken
@@ -424,9 +424,9 @@ class FormatWriter(formatOps: FormatOps) {
 
     val tokenAligns: Map[Int, Int] = alignmentTokens
 
-    def iterate: Iterator[Entry] = {
+    def foreach(f: Entry => Unit): Unit = {
       val iterator = Iterator.range(0, locations.length).map(new Entry(_))
-      iterator.filter(_.curr.isNotRemoved)
+      iterator.filter(_.curr.isNotRemoved).foreach(f)
     }
 
     private def getAlign(tok: FormatToken, alignOffset: Int = 0): Int =
