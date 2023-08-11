@@ -400,8 +400,9 @@ object ScalafmtConfig {
       }
       docstrings.validate
       if (errors.nonEmpty) {
-        val prefix = s"newlines.source=${newlines.source} and ["
-        allErrors += errors.mkString(prefix, ",", "]")
+        allErrors += s"newlines.source=${newlines.source} and ["
+        errors.foreach(x => allErrors += "\t" + x)
+        allErrors += "]"
       }
     }
     locally {
