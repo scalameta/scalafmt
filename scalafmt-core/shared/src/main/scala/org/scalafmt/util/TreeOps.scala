@@ -323,12 +323,6 @@ object TreeOps {
   )(implicit classifier: Classifier[Tree, A]): Boolean =
     findTreeWithParentOfType[A](tree).isDefined
 
-  def isDefDef(tree: Tree): Boolean =
-    tree match {
-      case _: Decl.Def | _: Defn.Def | _: Defn.Macro => true
-      case _ => false
-    }
-
   @tailrec
   def defDefBody(tree: Tree): Option[Tree] =
     tree match {

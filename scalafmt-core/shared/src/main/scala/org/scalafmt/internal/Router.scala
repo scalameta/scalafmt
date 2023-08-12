@@ -679,9 +679,13 @@ class Router(formatOps: FormatOps) {
           // https://github.com/scalameta/scalafmt/pull/1516
           // https://github.com/scalameta/scalafmt/issues/1528
           case t: Init => t.parent.forall(_.is[Mod.Annot])
-          case t @ Term.Name(name) if isSymbolicName(name) =>
+          case Term.Name(name) =>
             style.spaces.afterTripleEquals && name == "===" ||
-            style.spaces.afterSymbolicDefs && t.parent.exists(isDefDef)
+            (rightOwner match {
+              case _: Member.ParamClause =>
+                style.spaces.afterSymbolicDefs && isSymbolicName(name)
+              case _ => false
+            })
           case _: Defn.ExtensionGroup =>
             style.spaces.afterKeywordBeforeParen && left.is[soft.KwExtension]
           case _ => false
