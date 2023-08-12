@@ -62,3 +62,81 @@ test("foo " +
   case baz =>
   case qux =>
 }
+<<< #3607 beforeApplyArgInParens=always
+spaces.beforeApplyArgInParens = always
+===
+object a {
+  + ()
+  === ()
+  bar ()
+  + (baz)
+  === (baz)
+  bar (baz)
+  + (baz, qux)
+  === (baz, qux)
+  bar (baz, qux)
+}
+>>>
+object a {
+  +()
+  ===()
+  bar()
+  +(baz)
+  ===(baz)
+  bar(baz)
+  +(baz, qux)
+  ===(baz, qux)
+  bar(baz, qux)
+}
+<<< #3607 beforeApplyArgInParens=never
+spaces.beforeApplyArgInParens = never
+===
+object a {
+  + ()
+  === ()
+  bar ()
+  + (baz)
+  === (baz)
+  bar (baz)
+  + (baz, qux)
+  === (baz, qux)
+  bar (baz, qux)
+}
+>>>
+object a {
+  +()
+  ===()
+  bar()
+  +(baz)
+  ===(baz)
+  bar(baz)
+  +(baz, qux)
+  ===(baz, qux)
+  bar(baz, qux)
+}
+<<< #3607 beforeApplyArgInParens=aftersymbolic
+spaces.beforeApplyArgInParens = aftersymbolic
+===
+object a {
+  + ()
+  === ()
+  bar ()
+  + (baz)
+  === (baz)
+  bar (baz)
+  + (baz, qux)
+  === (baz, qux)
+  bar (baz, qux)
+}
+>>>
+object a {
+  +()
+  ===()
+  bar()
+  +(baz)
+  ===(baz)
+  bar(baz)
+  +(baz, qux)
+  ===(baz, qux)
+  bar(baz, qux)
+}

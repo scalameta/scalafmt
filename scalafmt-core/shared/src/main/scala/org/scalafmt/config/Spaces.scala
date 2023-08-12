@@ -3,6 +3,7 @@ package org.scalafmt.config
 import scala.meta.tokens.Token
 
 import metaconfig._
+import org.scalafmt.util.TokenOps
 
 /** @param beforeContextBoundColon
   *   formats [A: T] as [A : T]
@@ -47,6 +48,10 @@ import metaconfig._
 case class Spaces(
     beforeContextBoundColon: Spaces.BeforeContextBound =
       Spaces.BeforeContextBound.Never,
+    beforeApplyArgInParens: Spaces.BeforeArgInParens =
+      Spaces.BeforeArgInParens.Never,
+    beforeInfixArgInParens: Spaces.BeforeArgInParens =
+      Spaces.BeforeArgInParens.Always,
     afterTripleEquals: Boolean = false,
     inImportCurlyBraces: Boolean = false,
     inInterpolatedStringCurlyBraces: Boolean = false,
@@ -76,6 +81,27 @@ object Spaces {
     case object Always extends BeforeContextBound
     case object Never extends BeforeContextBound
     case object IfMultipleBounds extends BeforeContextBound
+  }
+
+  sealed abstract class BeforeArgInParens {
+    def apply(name: => String): Boolean
+  }
+  private object BeforeArgInParens {
+    implicit val codec: ConfCodecEx[BeforeArgInParens] = ReaderUtil
+      .oneOfCustom[BeforeArgInParens](Never, Always, AfterSymbolic) {
+        case Conf.Bool(true) => Configured.ok(Always)
+        case Conf.Bool(false) => Configured.ok(Never)
+      }
+
+    case object Never extends BeforeArgInParens {
+      def apply(name: => String): Boolean = false
+    }
+    case object Always extends BeforeArgInParens {
+      def apply(name: => String): Boolean = true
+    }
+    case object AfterSymbolic extends BeforeArgInParens {
+      def apply(name: => String): Boolean = TokenOps.isSymbolicName(name)
+    }
   }
 
 }

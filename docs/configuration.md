@@ -4343,6 +4343,71 @@ spaces.afterSymbolicDefs=true
 def +++(a: A): F[A]
 ```
 
+### `spaces.beforeXxxArgInParens`
+
+> Since v3.7.13.
+
+These parameters control whether a space should be added before an argument of
+a function call or infix expression, if the argument is enclosed in parentheses.
+
+They take the following values:
+
+- `Never`: no space is added
+- `Always`: space is added
+- `AfterSymbolic`: space is added if the infix operator or function name is
+  symbolic (doesn't start with a letter or underscore)
+
+Please note that these parameters will not affect spacing after an
+[unary operator](https://docs.scala-lang.org/scala3/reference/changed-features/operators.html#unary-operators)
+(i.e., one of `+`, `-`, `!`, `~`), as it's neither a function call nor an infix.
+
+Also, `spaces.beforeApplyArgInParens` generalizes the special-case parameter
+`spaces.afterTripleEquals` which only applies to a `===` function call.
+
+```scala mdoc:defaults
+spaces.beforeApplyArgInParens
+spaces.beforeInfixArgInParens
+```
+
+```scala mdoc:scalafmt
+spaces.beforeApplyArgInParens = Always
+spaces.beforeInfixArgInParens = Always
+---
++(baz)
+===(baz)
+bar(baz)
+
+foo +(baz)
+foo ===(baz)
+foo bar(baz)
+```
+
+```scala mdoc:scalafmt
+spaces.beforeApplyArgInParens = Never
+spaces.beforeInfixArgInParens = Never
+---
++ (baz)
+=== (baz)
+bar (baz)
+
+foo + (baz)
+foo === (baz)
+foo bar (baz)
+```
+
+```scala mdoc:scalafmt
+spaces.beforeApplyArgInParens = AfterSymbolic
+spaces.beforeInfixArgInParens = AfterSymbolic
+---
++ (baz)
+===(baz)
+bar (baz)
+
+foo +(baz)
+foo ===(baz)
+foo bar (baz)
+```
+
 ## Literals
 
 > Since v2.5.0.
