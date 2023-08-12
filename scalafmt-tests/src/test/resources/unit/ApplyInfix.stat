@@ -181,3 +181,99 @@ type x = (X
 type x = (X
   :: Y
   :: Z)
+<<< #3607 beforeInfixArgInParens=always
+spaces.beforeInfixArgInParens = always
+===
+object a {
+  foo + baz
+  foo === baz
+  foo bar baz
+  foo + ()
+  foo === ()
+  foo bar ()
+  foo + (baz)
+  foo === (baz)
+  foo bar (baz)
+  foo + (baz, qux)
+  foo === (baz, qux)
+  foo bar (baz, qux)
+}
+>>>
+object a {
+  foo + baz
+  foo === baz
+  foo bar baz
+  foo + ()
+  foo === ()
+  foo bar ()
+  foo + (baz)
+  foo === (baz)
+  foo bar (baz)
+  foo + (baz, qux)
+  foo === (baz, qux)
+  foo bar (baz, qux)
+}
+<<< #3607 beforeInfixArgInParens=never
+spaces.beforeInfixArgInParens = never
+===
+object a {
+  foo + baz
+  foo === baz
+  foo bar baz
+  foo + ()
+  foo === ()
+  foo bar ()
+  foo + (baz)
+  foo === (baz)
+  foo bar (baz)
+  foo + (baz, qux)
+  foo === (baz, qux)
+  foo bar (baz, qux)
+}
+>>>
+object a {
+  foo + baz
+  foo === baz
+  foo bar baz
+  foo + ()
+  foo === ()
+  foo bar ()
+  foo + (baz)
+  foo === (baz)
+  foo bar (baz)
+  foo + (baz, qux)
+  foo === (baz, qux)
+  foo bar (baz, qux)
+}
+<<< #3607 beforeInfixArgInParens=aftersymbolic
+spaces.beforeInfixArgInParens = aftersymbolic
+===
+object a {
+  foo + baz
+  foo === baz
+  foo bar baz
+  foo + ()
+  foo === ()
+  foo bar ()
+  foo + (baz)
+  foo === (baz)
+  foo bar (baz)
+  foo + (baz, qux)
+  foo === (baz, qux)
+  foo bar (baz, qux)
+}
+>>>
+object a {
+  foo + baz
+  foo === baz
+  foo bar baz
+  foo + ()
+  foo === ()
+  foo bar ()
+  foo + (baz)
+  foo === (baz)
+  foo bar (baz)
+  foo + (baz, qux)
+  foo === (baz, qux)
+  foo bar (baz, qux)
+}
