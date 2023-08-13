@@ -235,15 +235,15 @@ object a {
   foo + baz
   foo === baz
   foo bar baz
-  foo + ()
-  foo === ()
-  foo bar ()
-  foo + (baz)
-  foo === (baz)
-  foo bar (baz)
-  foo + (baz, qux)
-  foo === (baz, qux)
-  foo bar (baz, qux)
+  foo +()
+  foo ===()
+  foo bar()
+  foo +(baz)
+  foo ===(baz)
+  foo bar(baz)
+  foo +(baz, qux)
+  foo ===(baz, qux)
+  foo bar(baz, qux)
 }
 <<< #3607 beforeInfixArgInParens=aftersymbolic
 spaces.beforeInfixArgInParens = aftersymbolic
@@ -269,11 +269,11 @@ object a {
   foo bar baz
   foo + ()
   foo === ()
-  foo bar ()
+  foo bar()
   foo + (baz)
   foo === (baz)
-  foo bar (baz)
+  foo bar(baz)
   foo + (baz, qux)
   foo === (baz, qux)
-  foo bar (baz, qux)
+  foo bar(baz, qux)
 }

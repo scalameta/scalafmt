@@ -682,6 +682,8 @@ class Router(formatOps: FormatOps) {
           case Term.Name(name) =>
             style.spaces.afterTripleEquals && name == "===" ||
             (rightOwner match {
+              case _: Term.ArgClause =>
+                style.spaces.beforeApplyArgInParens(name)
               case _: Member.ParamClause =>
                 style.spaces.afterSymbolicDefs && isSymbolicName(name)
               case _ => false
@@ -1944,7 +1946,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
-      case FormatToken(op @ T.Ident(_), right, _) if leftOwner.parent.exists {
+      case FormatToken(op: T.Ident, right, _) if leftOwner.parent.exists {
             case unary: Term.ApplyUnary =>
               unary.op.tokens.head == op
             case _ => false

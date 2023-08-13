@@ -477,10 +477,18 @@ class FormatOps(
           if style.spaces.neverAroundInfixTypes.contains(t.op.value) =>
         Seq(Split(NoSplit, 0))
       case t =>
+        val isBeforeOp = ft.meta.leftOwner ne app.op
+        def useSpace = style.spaces.beforeInfixArgInParens(app.op.value) ||
+          (app.arg match {
+            case _: Lit.Unit => false
+            case x: Member.ArgClause if x.values.lengthCompare(1) != 0 => false
+            case x => !isEnclosedInParens(x)
+          })
         val afterInfix = style.breakAfterInfix(t)
         if (afterInfix ne Newlines.AfterInfix.keep) {
-          if (ft.meta.leftOwner ne app.op) Seq(Split(Space, 0))
+          if (isBeforeOp) Seq(Split(Space, 0))
           else {
+            val spaceMod = Space(useSpace)
             val fullInfix = InfixSplits.findEnclosingInfix(app)
             val ok = isEnclosedInParens(fullInfix) || fullInfix.parent.forall {
               case t: Defn.Val => t.rhs eq fullInfix
@@ -488,13 +496,17 @@ class FormatOps(
               case _ => true
             }
             if (ok)
-              InfixSplits(app, ft, fullInfix).getBeforeLhsOrRhs(afterInfix)
-            else Seq(Split(Space, 0))
+              InfixSplits(app, ft, fullInfix)
+                .getBeforeLhsOrRhs(afterInfix, spaceMod = spaceMod)
+            else Seq(Split(spaceMod, 0))
           }
         } else {
           // we don't modify line breaks generally around infix expressions
           // TODO: if that ever changes, modify how rewrite rules handle infix
-          Seq(InfixSplits.withNLIndent(Split(getMod(ft), 0))(app, ft))
+          val mod = getMod(ft)
+          val modOrNoSplit =
+            if (mod != Space || isBeforeOp || useSpace) mod else NoSplit
+          Seq(InfixSplits.withNLIndent(Split(modOrNoSplit, 0))(app, ft))
         }
     }
 
@@ -700,7 +712,8 @@ class FormatOps(
 
     def getBeforeLhsOrRhs(
         afterInfix: Newlines.AfterInfix,
-        newStmtMod: Option[Modification] = None
+        newStmtMod: Option[Modification] = None,
+        spaceMod: Modification = Space
     ): Seq[Split] = {
       val beforeLhs = ft.meta.leftOwner ne app.op
       val maxPrecedence =
@@ -768,7 +781,7 @@ class FormatOps(
         .withSingleLine(singleLineExpire)
         .andPolicyOpt(singleLinePolicy)
         .andPolicyOpt(delayedBreak)
-      val spaceSingleLine = Split(Space, 0)
+      val spaceSingleLine = Split(spaceMod, 0)
         .onlyIf(newStmtMod.isEmpty)
         .withSingleLine(singleLineExpire)
         .andPolicyOpt(singleLinePolicy)
@@ -799,7 +812,7 @@ class FormatOps(
           .andPolicyOpt(breakAfterClose)
           .withIndent(nlIndent)
           .withPolicy(nlPolicy)
-        val singleLineSplit = Split(Space, 0)
+        val singleLineSplit = Split(spaceMod, 0)
           .notIf(noSingleLine)
           .withSingleLine(endOfNextOp.fold(close)(_.left))
           .andPolicyOpt(breakAfterClose)
@@ -817,7 +830,7 @@ class FormatOps(
               val exclude =
                 if (breakMany) TokenRanges.empty
                 else insideBracesBlock(nextFT, expire, true)
-              Split(ModExt(newStmtMod.getOrElse(Space)), cost)
+              Split(ModExt(newStmtMod.getOrElse(spaceMod)), cost)
                 .withSingleLine(expire, exclude)
           }
         }
