@@ -625,7 +625,8 @@ println("""|
   |""".stripMargin
 )
 >>>
-println("""|
-           |A very long string
-           |with multiple lines
-           |""".stripMargin)
+println(
+    """|
+       |A very long string
+       |with multiple lines
+       |""".stripMargin)

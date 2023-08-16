@@ -1687,7 +1687,7 @@ class FormatOps(
         nlSplitFunc: Int => Split,
         isKeep: Boolean,
         spaceIndents: Seq[Indent] = Seq.empty
-    ): Seq[Split] = {
+    )(implicit style: ScalafmtConfig): Seq[Split] = {
       def bheadFT = tokens.getHead(body)
       val blastFT = tokens.getLastNonTrivial(body)
       val blast = blastFT.left
@@ -1788,14 +1788,14 @@ class FormatOps(
         nlSplitFunc: Int => Split,
         isKeep: Boolean,
         spaceIndents: Seq[Indent]
-    ): Seq[Split] =
+    )(implicit style: ScalafmtConfig): Seq[Split] =
       if (body.tokens.isEmpty) Seq(Split(Space, 0))
       else foldedNonEmptyNonComment(body, nlSplitFunc, isKeep, spaceIndents)
 
     private def unfoldedSpaceNonEmptyNonComment(
         body: Tree,
         slbOnly: Boolean
-    ): Split = {
+    )(implicit style: ScalafmtConfig): Split = {
       val expire = nextNonCommentSameLine(tokens.getLastNonTrivial(body)).left
       def slbSplit(end: T)(implicit fileLine: FileLine) =
         Split(Space, 0).withSingleLine(end, noSyntaxNL = true)
@@ -1816,7 +1816,7 @@ class FormatOps(
         nlSplitFunc: Int => Split,
         spaceIndents: Seq[Indent],
         slbOnly: Boolean
-    ): Seq[Split] =
+    )(implicit style: ScalafmtConfig): Seq[Split] =
       if (body.tokens.isEmpty) Seq(Split(Space, 0).withIndents(spaceIndents))
       else {
         val spaceSplit = unfoldedSpaceNonEmptyNonComment(body, slbOnly)
@@ -1848,7 +1848,7 @@ class FormatOps(
         body: Tree,
         isKeep: Boolean,
         spaceIndents: Seq[Indent] = Seq.empty
-    )(nlSplitFunc: Int => Split): Seq[Split] =
+    )(nlSplitFunc: Int => Split)(implicit style: ScalafmtConfig): Seq[Split] =
       checkComment(ft, nlSplitFunc) { _ =>
         foldedNonComment(body, nlSplitFunc, isKeep, spaceIndents)
       }
@@ -1857,7 +1857,7 @@ class FormatOps(
         ft: FormatToken,
         body: Tree,
         spaceIndents: Seq[Indent] = Seq.empty
-    )(nlSplitFunc: Int => Split): Seq[Split] =
+    )(nlSplitFunc: Int => Split)(implicit style: ScalafmtConfig): Seq[Split] =
       checkComment(ft, nlSplitFunc) { _ =>
         unfoldedNonComment(body, nlSplitFunc, spaceIndents, true)
       }

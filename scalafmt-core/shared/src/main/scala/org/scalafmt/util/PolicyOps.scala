@@ -2,6 +2,7 @@ package org.scalafmt.util
 
 import scala.meta.tokens.{Token => T}
 
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal._
 import org.scalameta.FileLine
 
@@ -16,12 +17,13 @@ object PolicyOps {
       penalizeLambdas: Boolean = true,
       noSyntaxNL: Boolean = false,
       val rank: Int = 0
-  )(implicit fileLine: FileLine)
+  )(implicit fileLine: FileLine, style: ScalafmtConfig)
       extends Policy.Clause {
     override val noDequeue: Boolean = false
+    private val checkSyntax = noSyntaxNL || !style.newlines.ignoreInSyntax
     override val f: Policy.Pf = {
       case Decision(ft, s) if penalizeLambdas || !ft.left.is[T.RightArrow] =>
-        if (noSyntaxNL && ft.leftHasNewline) s.map(_.withPenalty(penalty))
+        if (checkSyntax && ft.leftHasNewline) s.map(_.withPenalty(penalty))
         else s.map(x => if (x.isNL) x.withPenalty(penalty) else x)
     }
     override def toString: String = s"PNL:${super.toString}+$penalty"
@@ -33,7 +35,7 @@ object PolicyOps {
         penalty: Int,
         penalizeLambdas: Boolean = true,
         noSyntaxNL: Boolean = false
-    )(implicit fileLine: FileLine): Policy = {
+    )(implicit fileLine: FileLine, style: ScalafmtConfig): Policy = {
       new PenalizeAllNewlines(
         Policy.End.Before(expire),
         penalty,
@@ -54,15 +56,16 @@ object PolicyOps {
       okSLC: Boolean = false,
       noSyntaxNL: Boolean = false,
       val rank: Int = 0
-  )(implicit fileLine: FileLine)
+  )(implicit fileLine: FileLine, style: ScalafmtConfig)
       extends Policy.Clause {
     import TokenOps.isLeftCommentThenBreak
     override val noDequeue: Boolean = true
     override def toString: String = "SLB:" + super.toString
+    private val checkSyntax = noSyntaxNL || !style.newlines.ignoreInSyntax
     override val f: Policy.Pf = {
       case Decision(ft, s)
           if !(ft.right.is[T.EOF] || okSLC && isLeftCommentThenBreak(ft)) =>
-        if (noSyntaxNL && ft.leftHasNewline) Seq.empty else s.filterNot(_.isNL)
+        if (checkSyntax && ft.leftHasNewline) Seq.empty else s.filterNot(_.isNL)
     }
   }
 
@@ -74,7 +77,7 @@ object PolicyOps {
         okSLC: Boolean = false,
         noSyntaxNL: Boolean = false,
         rank: Int = 0
-    )(implicit fileLine: FileLine): Policy =
+    )(implicit fileLine: FileLine, style: ScalafmtConfig): Policy =
       policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
         Policy.End.On(expire),
         new SingleLineBlock(

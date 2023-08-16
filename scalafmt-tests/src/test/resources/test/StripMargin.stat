@@ -323,8 +323,10 @@ final class MyClass {
 }
 >>>
 final class MyClass {
-  println(s"""${1}
-    """.stripMargin)
+  println(
+    s"""${1}
+    """.stripMargin
+  )
 }
 <<< #3090 string without margin
 maxColumn = 100
