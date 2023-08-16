@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.Token
 
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.PolicyOps
 import org.scalameta.FileLine
@@ -142,7 +143,7 @@ case class Split(
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false,
       rank: Int = 0
-  )(implicit fileLine: FileLine): Split =
+  )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
     withSingleLineAndOptimal(
       expire,
       expire,
@@ -158,7 +159,7 @@ case class Split(
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false,
       rank: Int = 0
-  )(implicit fileLine: FileLine): Split =
+  )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
     expire.fold(this)(
       withSingleLine(_, exclude, noSyntaxNL, killOnFail, rank)
     )
@@ -170,7 +171,7 @@ case class Split(
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false,
       rank: Int = 0
-  )(implicit fileLine: FileLine): Split =
+  )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
     withOptimalToken(optimal, killOnFail)
       .withSingleLineNoOptimal(expire, exclude, noSyntaxNL, rank)
 
@@ -179,7 +180,7 @@ case class Split(
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       rank: Int = 0
-  )(implicit fileLine: FileLine): Split =
+  )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
     withPolicy(
       SingleLineBlock(expire, exclude, noSyntaxNL = noSyntaxNL, rank = rank)
     )
