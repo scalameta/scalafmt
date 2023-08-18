@@ -1274,10 +1274,12 @@ value for its type in <code>align.treeCategory</code> mapping or the type itself
 internally and usually selects the nearest containing block, template,
 match, argument or parameter group.</li>
 </ul></li>
-<li>if two tokens match:
+<li>for each token that has matches in the surrounding lines:
 <ul>
-<li>if there's a space before them, they themselves will be aligned on the right</li>
-<li>if there's a space after them, the next tokens will be aligned on the left</li>
+<li>we'll determine the amount of extra space needed to be added <em>before</em>
+that token, to align it <em>on the right</em> with matching tokens</li>
+<li>however, if there was no space before the token, that extra space will be
+added to the next space on its line, aligning subsequent token <em>on the left</em>.</li>
 </ul></li>
 </ul>
 <p>Align has several nested fields, which you can customize. However, it comes with
