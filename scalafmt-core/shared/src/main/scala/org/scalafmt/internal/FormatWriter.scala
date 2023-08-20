@@ -1165,13 +1165,13 @@ class FormatWriter(formatOps: FormatOps) {
             }
           }
 
-          implicit val location = processLine
-          val isBlankLine = location.state.split.modExt.mod.newlines > 1
+          implicit val floc: FormatLocation = processLine
+          val isBlankLine = floc.state.split.modExt.mod.newlines > 1
           if (alignContainer ne null) {
             val candidates = columnCandidates.result()
             val block = getOrCreateBlock(alignContainer)
             def appendToBlock(matches: Int = 0): Unit = {
-              val eolColumn = location.state.prev.column + columnShift
+              val eolColumn = floc.state.prev.column + columnShift
               val alignLine = new AlignLine(candidates, eolColumn)
               if (!block.isEmpty) {
                 if (block.tryAppendToBlock(alignLine, matches)) return
@@ -1185,7 +1185,7 @@ class FormatWriter(formatOps: FormatOps) {
                 wasSameContainer(alignContainer),
                 block.refStops,
                 candidates,
-                location.formatToken,
+                floc.formatToken,
               )
               if (matches > 0) appendToBlock(matches)
               if (isBlankLine || matches == 0 && shouldFlush(alignContainer)) {
@@ -1198,7 +1198,7 @@ class FormatWriter(formatOps: FormatOps) {
             prevBlock = block
           }
           if (isBlankLine || alignContainer.eq(null)) getBlockToFlush(
-            getAlignContainer(location.formatToken.meta.rightOwner),
+            getAlignContainer(floc.formatToken.meta.rightOwner),
             isBlankLine,
           ).foreach(flushAlignBlock)
         }
