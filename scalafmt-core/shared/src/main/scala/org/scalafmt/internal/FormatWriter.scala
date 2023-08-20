@@ -1170,28 +1170,29 @@ class FormatWriter(formatOps: FormatOps) {
           if (alignContainer ne null) {
             val candidates = columnCandidates.result()
             val block = getOrCreateBlock(alignContainer)
-            def appendToBlock(matches: Int = 0): Unit = {
-              val eolColumn = floc.state.prev.column + columnShift
-              val alignLine = new AlignLine(candidates, eolColumn)
-              if (!block.isEmpty) {
-                if (block.tryAppendToBlock(alignLine, matches)) return
-                flushAlignBlock(block)
+            val blockWasEmpty = block.isEmpty
+            if (!blockWasEmpty || !isBlankLine) {
+              val alignLine =
+                new AlignLine(candidates, floc.state.prev.column + columnShift)
+              val appendToEmptyBlock = blockWasEmpty || {
+                val matches = columnMatches(
+                  wasSameContainer(alignContainer),
+                  block.refStops,
+                  candidates,
+                  floc.formatToken,
+                )
+
+                val flush =
+                  if (matches == 0) shouldFlush(alignContainer)
+                  else !block.tryAppendToBlock(alignLine, matches)
+
+                (isBlankLine || flush) && {
+                  flushAlignBlock(block)
+                  !isBlankLine
+                }
               }
-              block.appendToEmptyBlock(alignLine)
-            }
-            if (block.isEmpty) { if (!isBlankLine) appendToBlock() }
-            else {
-              val matches = columnMatches(
-                wasSameContainer(alignContainer),
-                block.refStops,
-                candidates,
-                floc.formatToken,
-              )
-              if (matches > 0) appendToBlock(matches)
-              if (isBlankLine || matches == 0 && shouldFlush(alignContainer)) {
-                flushAlignBlock(block)
-                if (!isBlankLine && matches == 0) appendToBlock()
-              }
+
+              if (appendToEmptyBlock) block.appendToEmptyBlock(alignLine)
             }
 
             prevAlignContainer = alignContainer
