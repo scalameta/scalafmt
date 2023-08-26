@@ -133,7 +133,7 @@ version = @STABLE_VERSION@
 ### Task keys
 
 - `myproject/scalafmt`: Format main sources of `myproject` project
-- `myproject/test:scalafmt`: Format test sources of `myproject` project
+- `myproject/Test/scalafmt`: Format test sources of `myproject` project
 - `scalafmtCheck`: Check if the scala sources under the project have been
   formatted.
 - `scalafmtSbt`: Format `*.sbt` and `project/*.scala` files.
