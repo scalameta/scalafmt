@@ -93,6 +93,14 @@ public interface Scalafmt {
     Scalafmt withMavenRepositories(String ... repositories);
 
     /**
+     * Builder method.
+     *
+     * @param credentials repository credentials to use when resolving
+     * @return an updated interface instance.
+     */
+    Scalafmt withRepositoryCredentials(RepositoryCredential... credentials);
+
+    /**
      * Clear internal caches such as classloaded Scalafmt instances.
      */
     void clear();

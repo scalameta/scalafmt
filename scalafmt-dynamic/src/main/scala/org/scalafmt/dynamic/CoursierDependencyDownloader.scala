@@ -1,14 +1,14 @@
 package org.scalafmt.dynamic
 
 import java.io.OutputStreamWriter
-import java.net.URL
+import java.net.{URI, URL}
 
 import scala.collection.JavaConverters._
 import scala.util.Try
 
 import coursierapi.{Dependency => CoursierDependency, _}
 
-class CoursierDependencyDownloader(
+private class CoursierDependencyDownloader(
     downloadProgressWriter: OutputStreamWriter,
     customRepositories: Seq[Repository]
 ) extends DependencyDownloader {
@@ -38,7 +38,13 @@ object CoursierDependencyDownloader extends DependencyDownloaderFactory {
 
   override def create(properties: ScalafmtProperties): DependencyDownloader = {
     val writer = properties.reporter.downloadOutputStreamWriter()
-    val repositories = properties.repositories.map(MavenRepository.of)
+    val repositories = properties.repositories.map { x =>
+      val host = new URI(x).getHost
+      val repo = MavenRepository.of(x)
+      properties.repositoryCredentials.find(_.host == host).fold(repo) { cred =>
+        repo.withCredentials(Credentials.of(cred.username, cred.password))
+      }
+    }
     new CoursierDependencyDownloader(writer, repositories)
   }
 

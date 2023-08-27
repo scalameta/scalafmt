@@ -10,6 +10,7 @@ final case class ScalafmtDynamic(
     moduleLoader: ScalafmtModuleLoader,
     configLoader: ScalafmtConfigLoader
 ) extends Scalafmt
+    with RepositoryCredential.ScalafmtExtension
     with ScalafmtSessionFactory {
 
   def this() = this(
@@ -39,6 +40,11 @@ final case class ScalafmtDynamic(
 
   override def withMavenRepositories(value: String*): Scalafmt =
     copy(properties = properties.withMavenRepositories(value))
+
+  override def withRepositoryCredentials(
+      value: RepositoryCredential*
+  ): Scalafmt =
+    copy(properties = properties.withRepositoryCredentials(value))
 
   override def format(config: Path, file: Path, code: String): String =
     createSession(config).format(file, code)

@@ -526,6 +526,39 @@ By default, `scalafmt` only formats files that match the
 val scalafmtThatIgnoresProjectSettings = scalafmt.withRespectProjectFilters(false)
 ```
 
+### Alternate repositories and credentials
+
+`scalafmt` uses some default repositories to download the version specified in
+`.scalafmt.conf`; these repositories could be hardcoded or potentially specified
+via the environment variables.
+
+In order to specify explicit repositories as well, one could use
+
+```scala mdoc:silent
+val scalafmtWithRepos = scalafmt.withMavenRepositories(
+  "https://repo-1/snapshots",
+  "https://repo-2/public"
+)
+```
+
+In addition, if some of the default or custom repositories require access credentials,
+they could be specified via
+
+```scala mdoc:silent
+import org.scalafmt.interfaces._
+
+val scalafmtWithCreds = scalafmtWithRepos match {
+  case x: RepositoryCredential.ScalafmtExtension =>
+    x.withRepositoryCredentials(
+      new RepositoryCredential("repo-1", "username", "password")
+    )
+  case x => x
+}
+```
+
+This capability was added to the public interface as an extension method, accessible
+via a separate sub-interface.
+
 ### Clearing resources
 
 Use the `clear()` method to clear up resources of the `scalafmt` instance.
