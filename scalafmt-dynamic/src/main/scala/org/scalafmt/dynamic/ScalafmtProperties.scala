@@ -8,6 +8,7 @@ import org.scalafmt.interfaces._
 final case class ScalafmtProperties(
     reporter: ScalafmtReporter = ConsoleScalafmtReporter,
     repositories: Seq[String] = Nil,
+    repositoryCredentials: Seq[RepositoryCredential] = Nil,
     respectExcludeFilters: Boolean = true
 ) {
 
@@ -19,6 +20,11 @@ final case class ScalafmtProperties(
 
   def withMavenRepositories(value: Seq[String]): ScalafmtProperties =
     copy(repositories = value)
+
+  def withRepositoryCredentials(
+      value: Seq[RepositoryCredential]
+  ): ScalafmtProperties =
+    copy(repositoryCredentials = value)
 
   def reportError(file: Path, error: ScalafmtDynamicError): Unit =
     error match {
