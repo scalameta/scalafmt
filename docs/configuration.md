@@ -91,6 +91,9 @@ formatter, the correct release will be downloaded dynamically.
 
 > Since v3.1.0, the `version` parameter is required to be specified explicitly.
 
+Since that requires access to artifact repositories, please see more on that on the
+[Installation](installation.md#using-custom-repositories-with-cli) page.
+
 ## Scala Dialects
 
 The formatter supports various dialects defined and supported by `scalameta` parser. However,
