@@ -5160,3 +5160,23 @@ object a:
       def slice(offset: Int, length: Int) =
         api.search(query, From(offset), Size(length))
    .mapFutureList
+<<< #3623 beforeCurlyLambdaParams
+newlines.beforeCurlyLambdaParams = true
+===
+object a:
+  List(1, 2, 3) map: x =>
+    x + 1
+>>>
+object a:
+   List(1, 2, 3) map:
+      x => x + 1
+<<< #3623 !beforeCurlyLambdaParams
+newlines.beforeCurlyLambdaParams = false
+===
+object a:
+  List(1, 2, 3) map: x =>
+    x + 1
+>>>
+object a:
+   List(1, 2, 3) map:
+      x => x + 1
