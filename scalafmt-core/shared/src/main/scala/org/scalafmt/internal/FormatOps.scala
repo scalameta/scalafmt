@@ -2130,8 +2130,7 @@ class FormatOps(
               def owner = t.parent
               def splits = Some(t.values match {
                 case (tf: Term.FunctionTerm) :: Nil
-                    if !style.newlines.alwaysBeforeCurlyLambdaParams &&
-                      t.parent.exists(_.is[Term.Apply]) =>
+                    if !style.newlines.alwaysBeforeCurlyLambdaParams =>
                   getSplits(ft, t, forceNL = false, indentOpt = indent) match {
                     case s +: rs if !s.isNL => funcSplit(tf)(s.fileLine) +: rs
                     case ss => ss
