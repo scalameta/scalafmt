@@ -5344,5 +5344,5 @@ object a:
     x + 1
 >>>
 object a:
-   List(1, 2, 3) map:
-      x => x + 1
+   List(1, 2, 3) map: x =>
+     x + 1
