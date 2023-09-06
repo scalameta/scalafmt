@@ -19,7 +19,7 @@ object CliArgParser {
       |scalafmt --mode diff # Format all files that were edited in git diff against master branch.
       |scalafmt --mode changed # Format files listed in `git status` (latest changes against previous commit.
       |scalafmt --diff-branch 2.x # same as --diff, except against branch 2.x
-      |scalafmt --stdin # read from stdin and print to stdout
+      |scalafmt --stdin # read from stdin (doesn't imply --stdout)
       |scalafmt --stdin --assume-filename foo.sbt < foo.sbt # required when using --stdin to format .sbt files.
       |scalafmt Code1.scala A.scala       # write formatted contents to file.
       |scalafmt --stdout Code.scala       # print formatted contents to stdout.
