@@ -18,13 +18,13 @@ println(s"\u001b[1;${color}m${message}\u001b[m")
 object Foo {
    // format: off
    val nbsp = "\u00A0"
-   val test = s"${nbsp}\uD83D"
+   val test = s"${nbsp}\uc83D"
    // format: on
 }
 >>>
 object Foo {
    // format: off
    val nbsp = "\u00A0"
-   val test = s"${nbsp}\uD83D"
+   val test = s"${nbsp}\uc83D"
    // format: on
 }
