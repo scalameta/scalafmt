@@ -16,6 +16,9 @@ case class RewriteSettings(
     allowInfixPlaceholderArg: Boolean = true,
     neverInfix: Pattern = Pattern.neverInfix
 ) {
+  def withoutRewrites: RewriteSettings =
+    copy(rules = Nil, trailingCommas = trailingCommas.withoutRewrites)
+
   def rewriteFactoryRules: Seq[RewriteFactory] =
     rules.collect { case x: RewriteFactory => x }
 
