@@ -92,7 +92,7 @@ class ScalafmtConfigTest extends FunSuite {
       .get
     assert(config1.hasRewrites)
     val config2 = config1.withoutRewrites
-    assert(config2.hasRewrites) // XXX: this is incorrect
+    assert(!config2.hasRewrites)
   }
 
   test("hasRewriteRules-and-withoutRewriteRules docstrings") {

@@ -250,7 +250,7 @@ case class ScalafmtConfig(
   // used in ScalafmtReflectConfig
   def withoutRewrites: ScalafmtConfig = copy(
     trailingCommas = None,
-    rewrite = RewriteSettings.default
+    rewrite = rewrite.withoutRewrites
   )
 
   lazy val forceNewlineBeforeDocstring: Boolean =
