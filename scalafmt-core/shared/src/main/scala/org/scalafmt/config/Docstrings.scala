@@ -31,6 +31,9 @@ case class Docstrings(
 ) {
   import Docstrings._
 
+  def withoutRewrites: Docstrings =
+    copy(removeEmpty = false, wrap = Wrap.no, style = Preserve)
+
   def skipFirstLineIf(wasBlank: Boolean): Boolean = blankFirstLine match {
     case BlankFirstLine.yes => true
     case BlankFirstLine.no => style.skipFirstLine

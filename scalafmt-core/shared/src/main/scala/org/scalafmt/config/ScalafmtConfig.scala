@@ -250,6 +250,7 @@ case class ScalafmtConfig(
   // used in ScalafmtReflectConfig
   def withoutRewrites: ScalafmtConfig = copy(
     trailingCommas = None,
+    docstrings = docstrings.withoutRewrites,
     rewrite = rewrite.withoutRewrites
   )
 
