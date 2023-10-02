@@ -1013,7 +1013,7 @@ class FormatWriter(formatOps: FormatOps) {
           val codeStyle = style.copy(
             runner = style.runner.forCodeBlock,
             // let's not wrap docstrings, to avoid recursion
-            docstrings = style.docstrings.copy(wrap = Docstrings.Wrap.no),
+            docstrings = style.docstrings.withoutRewrites,
             maxColumn = style.maxColumn - spaces.length - termIndent.length - 1
           )
           Scalafmt.format(code.mkString("\n"), codeStyle) match {
