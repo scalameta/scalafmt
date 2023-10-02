@@ -83,4 +83,29 @@ class ScalafmtConfigTest extends FunSuite {
     assert(config2.runner.getDialect.allowToplevelTerms)
   }
 
+  test("hasRewriteRules-and-withoutRewriteRules trailingCommas") {
+    val config1 = Config
+      .fromHoconString("""
+        |runner.dialect = scala213
+        |rewrite.trailingCommas = never
+        |""".stripMargin)
+      .get
+    assert(config1.hasRewrites)
+    val config2 = config1.withoutRewrites
+    assert(config2.hasRewrites) // XXX: this is incorrect
+  }
+
+  test("hasRewriteRules-and-withoutRewriteRules docstrings") {
+    val config1 = Config
+      .fromHoconString("""
+        |runner.dialect = scala213
+        |rewrite.trailingCommas = keep
+        |docstrings.removeEmpty = true
+        |""".stripMargin)
+      .get
+    assert(config1.hasRewrites)
+    val config2 = config1.withoutRewrites
+    assert(config2.hasRewrites) // XXX: this is incorrect
+  }
+
 }
