@@ -5215,3 +5215,35 @@ object a:
 object a:
    List(1, 2, 3) map: x =>
      x + 1
+<<< #3653 try
+object a:
+  try
+    val x = 3 / 0
+  catch
+    case e: Throwable =>
+>>>
+object a:
+   try
+      val x = 3 / 0
+   catch
+      case e: Throwable =>
+<<< #3653 if-!then
+object a:
+  if (true)
+    val x = 3 / 0
+>>>
+test does not parse
+object a:
+   if (true)
+   val x = 3 / 0
+   ^
+<<< #3653 for-!do
+object a:
+  for (a <- b)
+    val x = 3 / 0
+>>>
+test does not parse
+object a:
+   for (a <- b)
+   val x = 3 / 0
+   ^
