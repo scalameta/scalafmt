@@ -79,6 +79,19 @@ object Scalafmt {
     )
   }
 
+  private[scalafmt] def splitCodePrefix(input: String): (String, String) =
+    if (!input.startsWith("#!")) ("", input)
+    else {
+      val beforeNL = input.indexOf(UnixLineEnding, 2)
+      if (beforeNL < 0) (input + UnixLineEnding, "")
+      else {
+        val afterNL = beforeNL + UnixLineEnding.length
+        val hasBlank = input.startsWith(UnixLineEnding, afterNL)
+        val idx = if (hasBlank) afterNL + UnixLineEnding.length else afterNL
+        (input.substring(0, idx), input.substring(idx))
+      }
+    }
+
   private def formatCodeWithStyle(
       code: String,
       style: ScalafmtConfig,
@@ -86,12 +99,13 @@ object Scalafmt {
       filename: String
   ): Formatted.Result = {
     val isWin = code.contains(WinLineEnding)
-    val unixCode =
+    val (prefix, unixCode) = splitCodePrefix(
       if (isWin) code.replaceAll(WinLineEnding, UnixLineEnding) else code
+    )
     doFormat(unixCode, style, filename, range) match {
       case Failure(e) => Formatted.Result(Formatted.Failure(e), style)
       case Success(x) =>
-        val s = if (x.isEmpty) UnixLineEnding else x
+        val s = if (prefix.isEmpty && x.isEmpty) UnixLineEnding else prefix + x
         val asWin = style.lineEndings == LineEndings.windows ||
           (isWin && style.lineEndings == LineEndings.preserve)
         val res = if (asWin) s.replaceAll(UnixLineEnding, WinLineEnding) else s

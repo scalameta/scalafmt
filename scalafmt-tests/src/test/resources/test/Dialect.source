@@ -40,7 +40,7 @@ addSbtPlugin( "io.get-coursier" % "sbt-coursier" %  "1.0.0-M14")
 addSbtPlugin( "com.eed3si9n" % "sbt-assembly" %  "0.14.3")
 addSbtPlugin( "org.brianmckenna" % "sbt-wartremover" % "0.14")
 >>> foo.sc
-#!/usr/bin/env amm
+#!/usr/bin/env   amm
 
 addSbtPlugin("io.get-coursier"  % "sbt-coursier"    % "1.0.0-M14")
 addSbtPlugin("com.eed3si9n"     % "sbt-assembly"    % "0.14.3")
@@ -51,7 +51,7 @@ rewrite.rules = [AvoidInfix]
 ===
 #!/usr/bin/env   amm
 >>> foo.sc
-#!/usr/bin/env amm
+#!/usr/bin/env   amm
 <<< #2104
 runner.dialect = scala3
 ===
@@ -232,6 +232,6 @@ foo(
 def main(args: Array[String]): Unit =
    println("hello")
 >>>
-test does not parse
 #!/usr/bin/env -S scala @classpathAtfile
-                        ^
+def main(args: Array[String]): Unit =
+  println("hello")

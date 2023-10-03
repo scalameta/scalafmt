@@ -32,7 +32,8 @@ trait FormatAssertions {
       obtained: String
   )(implicit ev: Parse[T], dialect: Dialect): Unit = {
     import scala.meta._
-    def toInput(code: String) = Scalafmt.toInput(code, filename)
+    def toInput(code: String) =
+      Scalafmt.toInput(Scalafmt.splitCodePrefix(code)._2, filename)
     toInput(original).parse[T] match {
       case Parsed.Error(pos, message, _) =>
         val msgWithPos = pos.formatMessage("error", message)
