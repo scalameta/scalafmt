@@ -569,6 +569,17 @@ object TreeOps {
     case _ => false
   }
 
+  @tailrec
+  def isTreeSingleExpr(tree: Tree): Boolean = tree match {
+    case t: Term.Block =>
+      t.stats match {
+        case stat :: Nil => isTreeSingleExpr(stat)
+        case _ => false
+      }
+    case _: Defn => false
+    case _ => true
+  }
+
   /* An end marker is really more like a closing brace for formatting purposes
    * (but not when rewriting) so we should ignore it when considering whether a
    * block contains only a single statement. NB: in FormatWriter, when choosing

@@ -5363,18 +5363,14 @@ object a:
   if (true)
     val x = 3 / 0
 >>>
-test does not parse
 object a:
    if (true)
-   val x = 3 / 0
-   ^
+      val x = 3 / 0
 <<< #3653 for-!do
 object a:
   for (a <- b)
     val x = 3 / 0
 >>>
-test does not parse
 object a:
    for (a <- b)
-   val x = 3 / 0
-   ^
+      val x = 3 / 0
