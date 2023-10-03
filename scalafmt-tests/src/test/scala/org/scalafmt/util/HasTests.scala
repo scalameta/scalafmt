@@ -199,7 +199,7 @@ trait HasTests extends FormatAssertions {
 
   def getFormatOutput(debug: Debug): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]
-    debug.locations.foreach { entry =>
+    Option(debug.locations).foreach(_.foreach { entry =>
       val token = entry.curr.formatToken
       implicit val sb = new StringBuilder()
       sb.append(token.left.syntax)
@@ -208,7 +208,7 @@ trait HasTests extends FormatAssertions {
         sb.result(),
         Option(debug.formatTokenExplored).fold(-1)(_(token.meta.idx))
       )
-    }
+    })
     builder.result()
   }
 
