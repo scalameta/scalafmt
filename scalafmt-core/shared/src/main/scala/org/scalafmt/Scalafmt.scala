@@ -90,7 +90,8 @@ object Scalafmt {
       if (isWin) code.replaceAll(WinLineEnding, UnixLineEnding) else code
     doFormat(unixCode, style, filename, range) match {
       case Failure(e) => Formatted.Result(Formatted.Failure(e), style)
-      case Success(s) =>
+      case Success(x) =>
+        val s = if (x.isEmpty) UnixLineEnding else x
         val asWin = style.lineEndings == LineEndings.windows ||
           (isWin && style.lineEndings == LineEndings.preserve)
         val res = if (asWin) s.replaceAll(UnixLineEnding, WinLineEnding) else s
@@ -136,7 +137,7 @@ object Scalafmt {
       file: String,
       range: Set[Range] = Set.empty
   ): Try[String] =
-    if (code.matches("\\s*")) Try("\n")
+    if (code.matches("\\s*")) Try("")
     else {
       val runner = style.runner
       val codeToInput: String => Input = toInput(_, file)
