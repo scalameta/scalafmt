@@ -68,21 +68,9 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.EOF, _, _) => Seq(Split(Newline, 0))
       case ft @ FormatToken(_, _: T.BOF, _) =>
         Seq(Split(NoSplit.orNL(next(ft).right.is[T.EOF]), 0))
-      case FormatToken(_: T.BOF, right, _) =>
-        val policy = right match {
-          case T.Ident(name) if name.startsWith("#!") =>
-            val nl = findFirst(next(formatToken), Int.MaxValue) { x =>
-              x.hasBreak || x.right.is[T.EOF]
-            }
-            nl.fold(Policy.noPolicy) { ft =>
-              Policy.on(ft.left) { case Decision(t, _) =>
-                Seq(Split(Space(t.between.nonEmpty), 0))
-              }
-            }
-          case _ => Policy.NoPolicy
-        }
+      case FormatToken(_: T.BOF, _, _) =>
         Seq(
-          Split(NoSplit, 0).withPolicy(policy)
+          Split(NoSplit, 0)
         )
       case FormatToken(_, _: T.EOF, _) =>
         Seq(
