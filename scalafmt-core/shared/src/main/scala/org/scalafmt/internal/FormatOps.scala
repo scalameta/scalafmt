@@ -2174,7 +2174,7 @@ class FormatOps(
               def rightBrace = blockLast(t.body)
             })
           case t: Term.If if !nft.right.is[T.KwThen] && {
-                isTreeMultiStatBlock(t.thenp) || !ifWithoutElse(t) &&
+                !isTreeSingleExpr(t.thenp) || !ifWithoutElse(t) &&
                 (isElsePWithOptionalBraces(t) ||
                   existsBlockIfWithoutElse(t.thenp, false))
               } =>
@@ -2187,7 +2187,7 @@ class FormatOps(
             Some(new OptionalBracesRegion {
               def owner = Some(t)
               def splits =
-                if (!isTreeMultiStatBlock(b)) None
+                if (isTreeSingleExpr(b)) None
                 else Some(getSplits(ft, b, true))
               def rightBrace = blockLast(b)
             })
@@ -2195,7 +2195,7 @@ class FormatOps(
             Some(new OptionalBracesRegion {
               def owner = Some(t)
               def splits =
-                if (!isTreeMultiStatBlock(b)) None
+                if (isTreeSingleExpr(b)) None
                 else Some(getSplits(ft, b, true))
               def rightBrace = blockLast(b)
             })
@@ -2308,7 +2308,7 @@ class FormatOps(
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] = {
         def trySplits(expr: Term, finallyp: Option[Term], usesOB: => Boolean) =
-          if (isTreeMultiStatBlock(expr)) Some(getSplits(ft, expr, true))
+          if (!isTreeSingleExpr(expr)) Some(getSplits(ft, expr, true))
           else if (finallyp.exists(isTreeUsingOptionalBraces) || usesOB)
             Some(getSplits(ft, expr, shouldBreakInOptionalBraces(nft)))
           else None
@@ -2357,7 +2357,7 @@ class FormatOps(
         ft.meta.leftOwner match {
           case t: Term.Try =>
             t.finallyp.map { x =>
-              val usesOB = isTreeMultiStatBlock(x) ||
+              val usesOB = !isTreeSingleExpr(x) ||
                 isCatchUsingOptionalBraces(t) ||
                 isTreeUsingOptionalBraces(t.expr)
               new OptionalBracesRegion {
@@ -2369,7 +2369,7 @@ class FormatOps(
             }
           case t: Term.TryWithHandler =>
             t.finallyp.map { x =>
-              val usesOB = isTreeMultiStatBlock(x) ||
+              val usesOB = !isTreeSingleExpr(x) ||
                 isTreeUsingOptionalBraces(t.expr)
               new OptionalBracesRegion {
                 def owner = Some(t)
@@ -2460,7 +2460,7 @@ class FormatOps(
           case t: Term.If =>
             (t.elsep match {
               case _: Term.If => None
-              case x if isTreeMultiStatBlock(x) => Some(true)
+              case x if !isTreeSingleExpr(x) => Some(true)
               case b @ Term.Block(List(_: Term.If))
                   if (matchingOpt(nft.right) match {
                     case Some(t) => t.end < b.pos.end
@@ -2544,7 +2544,7 @@ class FormatOps(
         case _: T.KwThen => true
         case _: T.LeftBrace => false
         case _ =>
-          isTreeMultiStatBlock(thenp) && (!before.right.is[T.LeftBrace] ||
+          !isTreeSingleExpr(thenp) && (!before.right.is[T.LeftBrace] ||
             matchingOpt(before.right).exists(rb => rb.end < thenp.pos.end))
       }
     }
@@ -2559,7 +2559,7 @@ class FormatOps(
         case Term.Block(List(t: Term.If)) =>
           isThenPWithOptionalBraces(t) ||
           !ifWithoutElse(t) && isElsePWithOptionalBraces(t)
-        case t => isTreeMultiStatBlock(t)
+        case t => !isTreeSingleExpr(t)
       })
     }
 
@@ -2573,7 +2573,7 @@ class FormatOps(
       }
 
     private def isTreeUsingOptionalBraces(tree: Tree): Boolean =
-      isTreeMultiStatBlock(tree) && !tokenBefore(tree).left.is[T.LeftBrace]
+      !isTreeSingleExpr(tree) && !tokenBefore(tree).left.is[T.LeftBrace]
 
     private def isBlockStart(tree: Term.Block, ft: FormatToken): Boolean =
       tokens.tokenJustBeforeOpt(tree.stats).contains(ft)
