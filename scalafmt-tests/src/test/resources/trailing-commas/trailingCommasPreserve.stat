@@ -353,3 +353,13 @@ object a {
       b: Int /* c */
   ) = a + b
 }
+<<< #3663 tuple
+val x = (
+  "a", 
+  "b",
+)
+>>>
+val x = (
+  "a",
+  "b",
+)

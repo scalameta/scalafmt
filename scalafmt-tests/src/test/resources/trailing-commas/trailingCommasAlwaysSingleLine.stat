@@ -15,3 +15,12 @@ foo(
 )
 >>>
 foo(a)
+<<< #3663 tuple
+val x = (
+  "a", 
+  "b",
+)
+>>>
+test does not parse
+val x = ("a", "b", )
+                   ^
