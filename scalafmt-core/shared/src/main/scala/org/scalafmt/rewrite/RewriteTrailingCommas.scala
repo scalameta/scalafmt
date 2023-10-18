@@ -42,7 +42,10 @@ private class RewriteTrailingCommas(ftoks: FormatTokens)
 
       // comma and paren/bracket/brace need to have the same owner
       (rightOwner eq nft.meta.rightOwner) && (nft.right match {
-        case _: Token.RightBracket | _: Token.RightParen =>
+        case _: Token.RightParen =>
+          rightOwner.isAny[Member.SyntaxValuesClause, Member.Tuple]
+
+        case _: Token.RightBracket =>
           rightOwner.is[Member.SyntaxValuesClause]
 
         case _: Token.RightBrace =>

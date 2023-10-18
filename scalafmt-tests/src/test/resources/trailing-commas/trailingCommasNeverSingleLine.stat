@@ -21,6 +21,4 @@ val x = (
   "b",
 )
 >>>
-test does not parse
-val x = ("a", "b", )
-                   ^
+val x = ("a", "b")
