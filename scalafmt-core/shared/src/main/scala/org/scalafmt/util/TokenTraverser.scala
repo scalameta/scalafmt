@@ -126,6 +126,6 @@ class TokenTraverser(tokens: Tokens, input: Input) {
 object TokenTraverser {
 
   private def isTrivialPred(token: Token): Option[Boolean] =
-    if (token.is[Trivia]) None else Some(true)
+    if (token.is[Token.Trivia]) None else Some(true)
 
 }

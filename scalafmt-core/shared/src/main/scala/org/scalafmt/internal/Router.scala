@@ -566,7 +566,7 @@ class Router(formatOps: FormatOps) {
             _: T.RightParen,
             _,
             ParamClauseParentLeft(extGroup: Defn.ExtensionGroup)
-          ) if nextNonComment(formatToken).right.isNot[LeftParenOrBrace] =>
+          ) if !LeftParenOrBrace.unapply(nextNonComment(formatToken).right) =>
         val expireToken = getLastToken(extGroup)
         def nlSplit(cost: Int = 0)(implicit fileLine: FileLine) =
           Split(Newline, cost).withIndent(style.indent.main, expireToken, After)
@@ -616,11 +616,11 @@ class Router(formatOps: FormatOps) {
                 !style.optIn.annotationNewlines && annoRight
               case Newlines.fold =>
                 right.is[T.Comment] || annoRight ||
-                !style.optIn.annotationNewlines && right.is[Keyword]
+                !style.optIn.annotationNewlines && Reserved.unapply(right)
               case Newlines.keep =>
-                newlines == 0 && (annoRight || right.is[Keyword])
+                newlines == 0 && (annoRight || Reserved.unapply(right))
               case _ =>
-                newlines == 0 && right.is[Keyword]
+                newlines == 0 && Reserved.unapply(right)
             })
             Seq(
               // This split needs to have an optimalAt field.
@@ -677,7 +677,8 @@ class Router(formatOps: FormatOps) {
               case _ => false
             })
           case _: Defn.ExtensionGroup =>
-            style.spaces.afterKeywordBeforeParen && left.is[soft.KwExtension]
+            style.spaces.afterKeywordBeforeParen &&
+            soft.KwExtension.unapply(left)
           case _ => false
         })
         def baseNoSplit(implicit fileLine: FileLine) = Split(modification, 0)
@@ -1930,7 +1931,7 @@ class Router(formatOps: FormatOps) {
         else baseSplits ++ splits.map(_.onlyFor(SplitTag.SelectChainFirstNL))
 
       // ApplyUnary
-      case FormatToken(T.Ident(_), Literal(), _) if leftOwner == rightOwner =>
+      case FormatToken(T.Ident(_), T.Literal(), _) if leftOwner == rightOwner =>
         Seq(
           Split(NoSplit, 0)
         )
@@ -1951,7 +1952,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(Space, 0)
         )
-      case FormatToken(T.At(), Delim(), _) =>
+      case FormatToken(T.At(), _: T.Symbolic, _) =>
         Seq(Split(NoSplit, 0))
       case FormatToken(T.At(), right @ T.Ident(_), _) =>
         // Add space if right starts with a symbol
@@ -2494,8 +2495,8 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       case FormatToken(
-            T.Ident(_) | Literal() | T.Interpolation.End() | T.Xml.End(),
-            T.Ident(_) | Literal() | T.Xml.Start(),
+            T.Ident(_) | T.Literal() | T.Interpolation.End() | T.Xml.End(),
+            T.Ident(_) | T.Literal() | T.Xml.Start(),
             _
           ) =>
         Seq(
@@ -2640,12 +2641,12 @@ class Router(formatOps: FormatOps) {
           Split(NewlineT(formatToken.hasBlankLine), 0)
         )
 
-      case FormatToken(_, Keyword(), _) =>
+      case FormatToken(_, Reserved(), _) =>
         Seq(
           Split(Space, 0)
         )
 
-      case FormatToken(Keyword() | Modifier(), _, _) =>
+      case FormatToken(Reserved(), _, _) =>
         Seq(
           Split(Space, 0)
         )
@@ -2653,7 +2654,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
-      case FormatToken(_, Delim(), _) =>
+      case FormatToken(_, _: T.Symbolic, _) =>
         Seq(
           Split(Space, 0)
         )
@@ -2666,7 +2667,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(mod, 0)
         )
-      case FormatToken(Delim(), _, _) =>
+      case FormatToken(_: T.Symbolic, _, _) =>
         Seq(
           Split(Space, 0)
         )

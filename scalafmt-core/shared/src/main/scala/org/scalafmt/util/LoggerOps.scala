@@ -42,7 +42,7 @@ object LoggerOps {
 
   def cleanup(token: Token): String =
     token match {
-      case Literal() | Interpolation.Part(_) =>
+      case Token.Literal() | Interpolation.Part(_) =>
         escape(token.syntax).stripPrefix("\"").stripSuffix("\"")
       case _ => token.syntax.replace("\n", "")
     }
