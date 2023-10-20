@@ -314,7 +314,7 @@ object FormatTokens {
     val tokCnt = arr.length
     while (tokIdx < tokCnt)
       arr(tokIdx) match {
-        case Whitespace() => tokIdx += 1
+        case _: Token.Whitespace => tokIdx += 1
         case right =>
           process(right)
           tokIdx += 1

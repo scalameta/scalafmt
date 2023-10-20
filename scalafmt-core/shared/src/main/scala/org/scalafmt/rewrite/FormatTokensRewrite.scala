@@ -10,7 +10,6 @@ import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
 import org.scalafmt.util.StyleMap
 import org.scalafmt.util.TokenOps
-import org.scalafmt.util.Whitespace
 
 class FormatTokensRewrite(
     ftoks: FormatTokens,
@@ -169,7 +168,7 @@ class FormatTokensRewrite(
 
         case _ if ft.meta.formatOff =>
 
-        case Whitespace() =>
+        case _: T.Whitespace =>
 
         case _ => applyRules
       }

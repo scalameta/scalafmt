@@ -931,11 +931,11 @@ class FormatOps(
 
   def functionExpire(function: Term.FunctionTerm): (T, ExpiresOn) = {
     def dropWS(rtoks: Seq[T]): Seq[T] =
-      rtoks.dropWhile(_.is[Whitespace])
+      rtoks.dropWhile(_.is[T.Whitespace])
     def orElse(rtoks: Seq[T]) = {
       val last = rtoks.head
       if (last.is[T.RightParen] && matchingOpt(last).contains(rtoks.last))
-        rtoks.tail.find(!_.is[Whitespace]).get -> ExpiresOn.After
+        rtoks.tail.find(!_.is[T.Whitespace]).get -> ExpiresOn.After
       else
         last -> ExpiresOn.After
     }
@@ -1012,7 +1012,7 @@ class FormatOps(
   def opensConfigStyleImplicitParamList(
       formatToken: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
-    formatToken.right.is[soft.ImplicitOrUsing] &&
+    soft.ImplicitOrUsing.unapply(formatToken.right) &&
       style.newlines.notBeforeImplicitParamListModifier &&
       hasImplicitParamList(formatToken.meta.rightOwner)
 
@@ -1332,7 +1332,7 @@ class FormatOps(
       val nlSplit = Split(Newline, 1, policy = policy).withIndent(firstIndent)
       Seq(slbSplit, noSplit.andPolicy(noSlbPolicy), nlSplit)
     } else {
-      val rightIsImplicit = r.is[soft.ImplicitOrUsing]
+      val rightIsImplicit = soft.ImplicitOrUsing.unapply(r)
       val implicitNL = rightIsImplicit &&
         style.newlines.forceBeforeImplicitParamListModifier
       val implicitParams = if (rightIsImplicit) {

@@ -396,7 +396,7 @@ object Imports extends RewriteFactory {
           if (hadLf) Some(true) else { hadLf = true; None }
         case t: Token.Comment if TokenOps.isSingleLineIfComment(t) =>
           slc.prepend(t); hadLf = false; None
-        case Whitespace() => None
+        case _: Token.Whitespace => None
         case _ => if (!hadLf && slc.nonEmpty) slc.remove(0); Some(false)
       }
       slc.result()
@@ -407,7 +407,7 @@ object Imports extends RewriteFactory {
         case _: Token.LF => Some(false)
         case t: Token.Comment if TokenOps.isSingleLineIfComment(t) =>
           Some(true)
-        case Whitespace() | _: Token.Comma => None
+        case _: Token.Whitespace | _: Token.Comma => None
         case _ => Some(false)
       }
   }
@@ -451,7 +451,7 @@ object Imports extends RewriteFactory {
             val nextOff = off - 1
             ctx.tokens(nextOff) match {
               case t: Token.LF => t.input.text.substring(t.end, nonWs.start)
-              case Whitespace() => iter(nextOff, nonWs)
+              case _: Token.Whitespace => iter(nextOff, nonWs)
               case t => iter(nextOff, t)
             }
           }

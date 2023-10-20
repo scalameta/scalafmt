@@ -4,13 +4,13 @@ import scala.collection.mutable
 
 import metaconfig.ConfCodecEx
 import scala.meta._
-import scala.meta.tokens.Token.LF
+import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.SimpleTraverser
 
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.RewriteSettings
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps, Trivia, Whitespace}
+import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps}
 
 case class RewriteCtx(
     style: ScalafmtConfig,
@@ -55,21 +55,21 @@ case class RewriteCtx(
   def onlyWhitespaceBefore(index: Int): Boolean =
     tokenTraverser
       .findAtOrBefore(index - 1) {
-        case _: LF | _: Token.BOF => Some(true)
-        case Whitespace() => None
+        case _: T.LF | _: T.BOF => Some(true)
+        case _: T.Whitespace => None
         case _ => Some(false)
       }
       .isDefined
 
   def findNonWhitespaceWith(
       f: (Token => Option[Boolean]) => Option[Token]
-  ): Option[(Token, Option[LF])] = {
-    var lf: Option[LF] = None
+  ): Option[(Token, Option[T.LF])] = {
+    var lf: Option[T.LF] = None
     val nonWs = f {
-      case t: LF =>
+      case t: T.LF =>
         if (lf.nonEmpty) Some(false)
         else { lf = Some(t); None }
-      case Whitespace() => None
+      case _: T.Whitespace => None
       case _ => Some(true)
     }
     nonWs.map((_, lf))
@@ -83,8 +83,8 @@ case class RewriteCtx(
     if (onlyWhitespaceBefore(beg))
       tokenTraverser
         .findAtOrAfter(end + 1) {
-          case _: LF => Some(true)
-          case Whitespace() => None
+          case _: T.LF => Some(true)
+          case _: T.Whitespace => None
           case _ => Some(false)
         }
         .map(TokenPatch.Remove)
@@ -94,8 +94,8 @@ case class RewriteCtx(
   def isPrefixExpr(expr: Tree): Boolean =
     RewriteCtx.isSimpleExprOr(expr) { case t: Term.Select =>
       val maybeDot = tokenTraverser.findBefore(t.name.tokens.head) {
-        case Trivia() => None
-        case x => Some(x.is[Token.Dot])
+        case _: T.Trivia => None
+        case x => Some(x.is[T.Dot])
       }
       maybeDot.isDefined
     }
