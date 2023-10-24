@@ -38,6 +38,8 @@ docs/xx.md
 metals.sbt
 .bloop/
 .vscode
+sbt.json
+sbt-launch.jar
 
 node_modules/
 .java-version

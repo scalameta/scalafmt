@@ -80,7 +80,7 @@ object Error {
   ) extends Error({
         val tok = LoggerOps.log2(ft)
         val line = ft.left.pos.endLine
-        s"Search state exploded on '$tok', line $line"
+        s"Search state exploded on '$tok', line $line.\nConsider increasing runner.optimizer.maxVisitsPerToken (default 10000) or even runner.maxStateVisits (default 1000000).\nSee https://scalameta.org/scalafmt/docs/configuration.html#search-state-exploded. "
       }) {
     def line: Int = ft.left.pos.endLine
   }
