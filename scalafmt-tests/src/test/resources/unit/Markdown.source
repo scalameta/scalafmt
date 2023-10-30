@@ -1,0 +1,31 @@
+#
+<<< #3672 1 unindented
+```scala mdoc
+//> using dep io.scalaland::chimney::{{ git.tag or local.tag }}
+import io.scalaland.chimney.Transformer
+
+case class Foo   (a    : String)
+```
+>>> a.md
+```scala mdoc
+//> using dep io.scalaland::chimney::{{ git.tag or local.tag }}
+import io.scalaland.chimney.Transformer
+
+case class Foo(a: String)
+```
+<<< #3672 2 indented
+* example inside a bullet point list:
+    ```scala mdoc
+    //> using dep io.scalaland::chimney::{{ git.tag or local.tag }}
+    import io.scalaland.chimney.Transformer
+
+    case class Foo   (a   : String)
+    ```
+>>> a.md
+* example inside a bullet point list:
+    ```scala mdoc
+    //> using dep io.scalaland::chimney::{{ git.tag or local.tag }}
+    import io.scalaland.chimney.Transformer
+
+    case class Foo   (a   : String)
+    ```
