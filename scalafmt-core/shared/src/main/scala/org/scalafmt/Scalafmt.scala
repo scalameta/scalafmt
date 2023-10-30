@@ -19,7 +19,7 @@ import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.sysops.FileOps
-import org.scalafmt.util.{MarkdownFile, MarkdownPart}
+import org.scalafmt.util.MarkdownParser
 
 /** WARNING. This API is discouraged when integrating with Scalafmt from a build
   * tool or editor plugin. It is recommended to use the `scalafmt-dynamic`
@@ -118,25 +118,9 @@ object Scalafmt {
       file: String,
       range: Set[Range]
   ): Try[String] =
-    if (FileOps.isMarkdown(file)) {
-      val markdown = MarkdownFile.parse(Input.VirtualFile(file, code))
-
-      val resultIterator: Iterator[Try[String]] =
-        markdown.parts.iterator.collect {
-          case fence: MarkdownPart.CodeFence
-              if fence.info.startsWith("scala mdoc") =>
-            val res = doFormatOne(fence.body, style, file)
-            res.foreach { formatted =>
-              fence.newBody = Some(formatted.trim)
-            }
-            res
-        }
-      if (resultIterator.isEmpty) Success(code)
-      else
-        resultIterator
-          .find(_.isFailure)
-          .getOrElse(Success(markdown.renderToString))
-    } else
+    if (FileOps.isMarkdown(file))
+      MarkdownParser.transformMdoc(code)(doFormatOne(_, style, file, range))
+    else
       doFormatOne(code, style, file, range)
 
   private[scalafmt] def toInput(code: String, file: String): Input = {
@@ -148,7 +132,7 @@ object Scalafmt {
       code: String,
       style: ScalafmtConfig,
       file: String,
-      range: Set[Range] = Set.empty
+      range: Set[Range]
   ): Try[String] =
     if (code.matches("\\s*")) Success("")
     else {

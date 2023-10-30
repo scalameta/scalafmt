@@ -153,6 +153,7 @@ lazy val core = crossProject(JVMPlatform)
     scalacOptions ++= scalacJvmOptions.value,
     libraryDependencies ++= Seq(
       scalameta.value,
+      "org.scalameta" %% "mdoc-parser" % mdocV,
       // scala-reflect is an undeclared dependency of fansi, see #1252.
       // Scalafmt itself does not require scala-reflect.
       "org.scala-lang" % "scala-reflect" % scalaVersion.value

@@ -1168,7 +1168,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   }
 
   // This test might need to change based on maintainer feedback/requirements
-  test(s"does not apply to .md files with indented fenced content ") {
+  test(s"does apply to .md files with indented fenced content ") {
     val input = string2dir(
       s"""|/foobar2.md
         | Intro text:
@@ -1181,7 +1181,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       s"""|/foobar2.md
         | Intro text:
         |  ```scala mdoc
-        |        object    A {      }
+        |  object A {}
         |  ```
         |""".stripMargin
     runArgs(
