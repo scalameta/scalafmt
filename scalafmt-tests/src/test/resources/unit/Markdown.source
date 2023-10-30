@@ -27,5 +27,5 @@ case class Foo(a: String)
     //> using dep io.scalaland::chimney::{{ git.tag or local.tag }}
     import io.scalaland.chimney.Transformer
 
-    case class Foo   (a   : String)
+    case class Foo(a: String)
     ```
