@@ -10,7 +10,6 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-import org.scalafmt.config.Config
 import org.scalafmt.Error.PreciseIncomplete
 import org.scalafmt.config.FormatEvent.CreateFormatOps
 import org.scalafmt.config.LineEndings
@@ -191,11 +190,14 @@ object Scalafmt {
 
   // used by ScalafmtReflect.parseConfig
   def parseHoconConfigFile(configPath: Path): Configured[ScalafmtConfig] =
-    Config.fromHoconFile(configPath, ScalafmtConfig.uncheckedDefault)
+    ScalafmtConfig.fromHoconFile(configPath, ScalafmtConfig.uncheckedDefault)
 
   // used by ScalafmtReflect.parseConfig
   def parseHoconConfig(configString: String): Configured[ScalafmtConfig] =
-    Config.fromHoconString(configString, ScalafmtConfig.uncheckedDefault)
+    ScalafmtConfig.fromHoconString(
+      configString,
+      ScalafmtConfig.uncheckedDefault
+    )
 
   /** Utility method to change dialect on ScalafmtConfig.
     *

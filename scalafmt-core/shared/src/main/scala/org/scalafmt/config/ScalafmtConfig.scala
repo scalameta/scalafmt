@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
-import java.nio.file
+import java.nio.file.FileSystems
+import java.nio.file.Path
 
 import scala.collection.mutable
 import scala.io.Codec
@@ -18,6 +19,7 @@ import org.scalafmt.sysops.FileOps
 import org.scalafmt.sysops.OsSpecific._
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ValidationOps
+import org.scalafmt.Versions
 
 /** Configuration options for scalafmt.
   *
@@ -198,7 +200,7 @@ case class ScalafmtConfig(
       eitherPat -> cfg
     }
     val langResult = patStyles.collect { case (Left(lang), cfg) => lang -> cfg }
-    val fs = file.FileSystems.getDefault
+    val fs = FileSystems.getDefault
     val pmResult = patStyles.collect { case (Right(pat), cfg) =>
       val pattern = if (pat(0) == '.') "glob:**" + pat else pat.asFilename
       fs.getPathMatcher(pattern) -> cfg
@@ -491,5 +493,39 @@ object ScalafmtConfig {
         }
         .andThen(validate)
     }
+
+  def fromHoconString(
+      string: String,
+      default: ScalafmtConfig = ScalafmtConfig.default,
+      path: Option[String] = None
+  ): Configured[ScalafmtConfig] =
+    fromConf(ConfParsed.fromString(string, path), default = default)
+
+  /** Read ScalafmtConfig from String contents from an optional HOCON path. */
+  def fromHoconFile(
+      file: Path,
+      default: ScalafmtConfig = ScalafmtConfig.default,
+      path: Option[String] = None
+  ): Configured[ScalafmtConfig] =
+    fromConf(ConfParsed.fromPath(file, path), default = default)
+
+  def fromConf(
+      parsed: ConfParsed,
+      default: ScalafmtConfig
+  ): Configured[ScalafmtConfig] = {
+    ScalafmtConfig.decoder.read(Option(default), parsed.conf) match {
+      case Configured.Ok(x)
+          if default.version == null &&
+            x.version != Versions.stable && x.version != Versions.version =>
+        val version = Option(x.version).getOrElse("missing")
+        val expected = s"${Versions.stable} or ${Versions.version}"
+        Configured.error(s"version [expected $expected]: $version")
+      case Configured.Ok(x)
+          if default.eq(ScalafmtConfig.uncheckedDefault) &&
+            x.runner.isDefaultDialect =>
+        Configured.error(NamedDialect.getUnknownError)
+      case x => x
+    }
+  }
 
 }

@@ -9,7 +9,6 @@ import scala.meta.tokens.Token.LeftParen
 import scala.meta.tokens.Token.RightParen
 
 import org.scalafmt.config.BinPack
-import org.scalafmt.config.Config
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
@@ -50,7 +49,8 @@ class StyleMap(
       }
       tok.left match {
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
-          val configured = Config.fromHoconString(c, init, Some("scalafmt"))
+          val configured =
+            ScalafmtConfig.fromHoconString(c, init, Some("scalafmt"))
           // TODO(olafur) report error via callback
           configured.foreach(logger.elem(_)) { style =>
             init.rewrite.rulesChanged(style.rewrite).foreach { x =>

@@ -2,7 +2,7 @@ package org.scalafmt.cli
 
 import java.nio.file.{Files, NoSuchFileException, Path, Paths}
 
-import org.scalafmt.config.{Config, ScalafmtConfig}
+import org.scalafmt.config.ScalafmtConfig
 import FileTestOps._
 import org.scalafmt.Versions
 
@@ -12,9 +12,8 @@ import munit.FunSuite
 class CliOptionsTest extends FunSuite {
 
   test("preset = ...") {
-    import org.scalafmt.config.Config
     assertEquals(
-      Config.fromHoconString("preset = foobar"),
+      ScalafmtConfig.fromHoconString("preset = foobar"),
       Configured.error(
         "Unknown style \"foobar\". Expected one of: " +
           "Scala.js, IntelliJ, default, defaultWithAlign"
@@ -22,21 +21,21 @@ class CliOptionsTest extends FunSuite {
     )
 
     assertEquals(
-      Config.fromHoconString("""|preset = defaultWithAlign
+      ScalafmtConfig.fromHoconString("""|preset = defaultWithAlign
         |maxColumn = 100
         |""".stripMargin),
       Configured.ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100))
     )
     assertEquals(
-      Config.fromHoconString("preset = intellij"),
+      ScalafmtConfig.fromHoconString("preset = intellij"),
       Configured.ok(ScalafmtConfig.intellij)
     )
     assertEquals(
-      Config.fromHoconString("preset = Scala.js"),
+      ScalafmtConfig.fromHoconString("preset = Scala.js"),
       Configured.ok(ScalafmtConfig.scalaJs)
     )
     assertEquals(
-      Config.fromHoconString("preset = defaultWithAlign"),
+      ScalafmtConfig.fromHoconString("preset = defaultWithAlign"),
       Configured.ok(ScalafmtConfig.defaultWithAlign)
     )
   }
@@ -52,7 +51,7 @@ class CliOptionsTest extends FunSuite {
         )
       )
       .configPath
-    val config = Config.fromHoconFile(path).get
+    val config = ScalafmtConfig.fromHoconFile(path).get
     assertEquals(config.onTestFailure, expected)
   }
 
