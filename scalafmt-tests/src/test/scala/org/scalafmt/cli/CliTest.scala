@@ -14,7 +14,7 @@ import munit.FunSuite
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Versions.{stable => stableVersion}
 import org.scalafmt.cli.FileTestOps._
-import org.scalafmt.config.{Config, ProjectFiles, ScalafmtConfig}
+import org.scalafmt.config.{ProjectFiles, ScalafmtConfig}
 import org.scalafmt.sysops.{AbsoluteFile, FileOps}
 import org.scalafmt.sysops.OsSpecific._
 
@@ -80,7 +80,7 @@ abstract class AbstractCliTest extends FunSuite {
       |""".stripMargin
 
   def gimmeConfig(string: String): ScalafmtConfig =
-    Config.fromHoconString(string).get
+    ScalafmtConfig.fromHoconString(string).get
 
   def noArgTest(
       input: AbsoluteFile,

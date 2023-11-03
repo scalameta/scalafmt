@@ -5,7 +5,6 @@ import java.nio.file.StandardOpenOption
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.Config
 
 package object website {
   def replaceMargin(s: String): String = {
@@ -70,7 +69,10 @@ package object website {
   ): Unit = {
     val processedCode = preProcess(code)
     val parsedConfig1 =
-      Config.fromHoconString(config.mkString("\n")).get.copy(runner = runner)
+      ScalafmtConfig
+        .fromHoconString(config.mkString("\n"))
+        .get
+        .copy(runner = runner)
     val isCustomMaxColumn = config.exists(_.contains("maxColumn"))
     val parsedConfig =
       if (isCustomMaxColumn) parsedConfig1
@@ -103,7 +105,7 @@ package object website {
     *   the config to format the code (defaults to `default40`)
     */
   def formatExample(code: String, config: String*): Unit = {
-    val parsedConfig = Config
+    val parsedConfig = ScalafmtConfig
       .fromHoconString(config.mkString("\n"))
       .get
       .copy(maxColumn = 40, runner = ScalafmtRunner.sbt)

@@ -9,7 +9,6 @@ import munit.Assertions._
 import org.scalafmt.{Debug, Scalafmt}
 import org.scalafmt.config.FormatEvent._
 import org.scalafmt.config.{
-  Config,
   DanglingParentheses,
   Indents,
   NamedDialect,
@@ -93,7 +92,7 @@ trait HasTests extends FormatAssertions {
     val moduleSkip = isSkip(head)
 
     def loadStyle(cfg: String, base: ScalafmtConfig): ScalafmtConfig =
-      Config.fromHoconString(cfg, base).getOrRecover { c =>
+      ScalafmtConfig.fromHoconString(cfg, base).getOrRecover { c =>
         throw new IllegalArgumentException(
           s"""Failed to parse filename $filename:
             |$cfg

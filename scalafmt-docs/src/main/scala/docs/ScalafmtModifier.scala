@@ -1,7 +1,6 @@
 package docs
 
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.Config
 import org.scalafmt.config.NamedDialect
 import org.scalafmt.config.ScalafmtConfig
 import scala.meta.inputs.Input
@@ -32,7 +31,7 @@ class ScalafmtModifier extends StringModifier {
     } else {
       val config = Input.Slice(code, 0, i)
       val program = Input.Slice(code, i + separator.length, code.chars.length)
-      val configured = Config.fromHoconString(config.text, base)
+      val configured = ScalafmtConfig.fromHoconString(config.text, base)
       configured.fold { e =>
         reporter.error(pos, e.toString())
         "fail"

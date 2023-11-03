@@ -4,7 +4,7 @@ import java.io.{InputStream, OutputStream, PrintStream}
 import java.nio.file.{Files, NoSuchFileException, Path}
 
 import metaconfig.Configured
-import org.scalafmt.config.{Config, ConfParsed, ScalafmtConfig}
+import org.scalafmt.config.{ConfParsed, ScalafmtConfig}
 import org.scalafmt.sysops.{AbsoluteFile, GitOps, OsSpecific}
 
 import scala.io.Codec
@@ -145,7 +145,9 @@ case class CliOptions(
     * will return the default configuration
     */
   def scalafmtConfig: Configured[ScalafmtConfig] =
-    hoconOpt.fold(Configured.ok(baseConfig))(Config.fromConf(_, baseConfig))
+    hoconOpt.fold(Configured.ok(baseConfig))(
+      ScalafmtConfig.fromConf(_, baseConfig)
+    )
 
   private[cli] lazy val hoconOpt: Option[ConfParsed] =
     configStr.map(ConfParsed.fromString(_)).orElse {
