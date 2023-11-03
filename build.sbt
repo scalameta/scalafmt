@@ -73,7 +73,7 @@ lazy val dynamic = project
     buildInfoObject := "BuildInfo",
     libraryDependencies ++= List(
       "io.get-coursier" % "interface" % "0.0.17",
-      "com.typesafe" % "config" % "1.4.2",
+      "com.typesafe" % "config" % "1.4.3",
       munit.value % Test,
       scalametaTestkit % Test
     ),
