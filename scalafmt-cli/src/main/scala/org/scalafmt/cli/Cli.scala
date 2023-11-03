@@ -98,36 +98,39 @@ object Cli {
   private def getProposedConfigVersion(options: CliOptions): String =
     s"version = $stableVersion"
 
+  private type MaybeRunner = Either[String, ScalafmtRunner]
+
   private def findRunner(
       options: CliOptions
-  ): Either[String, ScalafmtRunner] = {
+  ): MaybeRunner = options.hoconOpt.fold[MaybeRunner] {
+    Left(s"""error: missing Scalafmt configuration file.
+      |Consider creating '${options.getProposedConfigFile}' with the following:
+      |${getProposedConfigVersion(options)}
+      |""".stripMargin)
+  } {
     // Run format using
     // - `scalafmt-dynamic` if the specified `version` setting doesn't match build version.
     // - `scalafmt-core` if the specified `version` setting match with build version
     //   (or if the `version` is not specified).
-    val versionOpt = options.hoconOpt.map(x => Right(x.version)).getOrElse {
-      Left(s"""error: missing Scalafmt configuration file.
-        |Consider creating '${options.getProposedConfigFile}' with the following:
+    _.version.fold[MaybeRunner] {
+      val where = options.configStr match {
+        case None =>
+          options.canonicalConfigFile
+            .fold(options.getProposedConfigFile)(_.get)
+            .toString
+        case _ => "--config-str option"
+      }
+      Left(s"""error: missing Scalafmt version.
+        |Consider adding the following to $where:
         |${getProposedConfigVersion(options)}
         |""".stripMargin)
-    }
-    versionOpt.flatMap {
-      case None =>
-        val where = options.configStr match {
-          case None =>
-            options.canonicalConfigFile
-              .fold(options.getProposedConfigFile)(_.get)
-              .toString
-          case _ => "--config-str option"
-        }
-        Left(s"""error: missing Scalafmt version.
-          |Consider adding the following to $where:
-          |${getProposedConfigVersion(options)}
-          |""".stripMargin)
-      case Some(`stableVersion`) =>
+    } {
+      case Left(error) =>
+        Left(s"error: invalid configuration: ${error}")
+      case Right(`stableVersion`) =>
         options.common.debug.println(s"Using core runner [$stableVersion]")
         Right(ScalafmtCoreRunner)
-      case Some(v) if isNativeImage =>
+      case Right(v) if isNativeImage =>
         Left(
           s"""error: invalid Scalafmt version.
             |
@@ -141,7 +144,7 @@ object Cli {
             |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
             |""".stripMargin
         )
-      case Some(v) =>
+      case Right(v) =>
         options.common.debug.println(s"Using dynamic runner [$v]")
         Right(ScalafmtDynamicRunner)
     }

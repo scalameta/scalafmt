@@ -4,7 +4,7 @@ import java.io.{InputStream, OutputStream, PrintStream}
 import java.nio.file.{Files, NoSuchFileException, Path}
 
 import metaconfig.Configured
-import org.scalafmt.config.{ConfParsed, ScalafmtConfig}
+import org.scalafmt.config.{ConfParsed, ScalafmtConfig, ScalafmtConfigException}
 import org.scalafmt.sysops.{AbsoluteFile, GitOps, OsSpecific}
 
 import scala.io.Codec
@@ -182,10 +182,18 @@ case class CliOptions(
       case _ => filters.mkString("(", "|", ")").r
     }
 
-  private def getHoconValueOpt[A](f: ConfParsed => Option[A]): Option[A] =
-    hoconOpt.flatMap(f)
+  private def getHoconValueOpt[A](
+      f: ConfParsed => Option[Either[String, A]]
+  ): Option[A] =
+    hoconOpt.flatMap(f).map {
+      case Right(x) => x
+      case Left(x) => throw new ScalafmtConfigException(x)
+    }
 
-  private def getHoconValue[A](default: A, f: ConfParsed => Option[A]): A =
+  private def getHoconValue[A](
+      default: A,
+      f: ConfParsed => Option[Either[String, A]]
+  ): A =
     getHoconValueOpt[A](f).getOrElse(default)
 
   private[cli] def isGit: Boolean =
