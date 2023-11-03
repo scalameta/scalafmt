@@ -12,30 +12,31 @@ class ConfParsed(val conf: Configured[Conf]) extends AnyVal {
 
   def getHoconValueOpt[A](
       path: String*
-  )(implicit ev: ConfDecoderEx[A]): Option[A] = {
-    val nestedConf = conf.andThen(_.getNestedConf(path: _*))
-    nestedConf.andThen(ev.read(None, _)).map(Some(_)).getOrElse(None)
+  )(implicit ev: ConfDecoderEx[A]): Option[Either[String, A]] = {
+    val res = conf.andThen(_.getNestedConf(path: _*)).andThen(ev.read(None, _))
+    res.fold[Option[Either[String, A]]](x =>
+      if (x.isMissingField) None else Some(Left(x.msg))
+    )(x => Some(Right(x)))
   }
 
-  def getHoconValue[A: ConfDecoderEx](default: A, path: String*): A =
-    getHoconValueOpt[A](path: _*).getOrElse(default)
-
-  def isGit: Option[Boolean] =
+  def isGit: Option[Either[String, Boolean]] =
     getHoconValueOpt[Boolean]("project", "git")
 
-  def fatalWarnings: Option[Boolean] =
+  def fatalWarnings: Option[Either[String, Boolean]] =
     getHoconValueOpt[Boolean]("runner", "fatalWarnings")
 
-  def ignoreWarnings: Option[Boolean] =
+  def ignoreWarnings: Option[Either[String, Boolean]] =
     getHoconValueOpt[Boolean]("runner", "ignoreWarnings")
 
-  def onTestFailure: Option[String] =
+  def onTestFailure: Option[Either[String, String]] =
     getHoconValueOpt[String]("onTestFailure")
 
-  def encoding: Option[Codec] =
-    getHoconValueOpt[String]("encoding").flatMap(x => Try(Codec(x)).toOption)
+  def encoding: Option[Either[String, Codec]] =
+    getHoconValueOpt[String]("encoding").map {
+      _.flatMap(x => Try(Codec(x)).toEither.left.map(_.getMessage))
+    }
 
-  def version: Option[String] =
+  def version: Option[Either[String, String]] =
     getHoconValueOpt[String]("version")
 
 }
