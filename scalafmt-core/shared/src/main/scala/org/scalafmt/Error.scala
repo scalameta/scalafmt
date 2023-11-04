@@ -20,6 +20,8 @@ object Error {
 
   def reportIssue: String =
     "Please file an issue on https://github.com/scalameta/scalafmt/issues"
+  val cfgUrl = "https://scalameta.org/scalafmt/docs/configuration.html"
+
   case object UnableToParseCliOptions
       extends Error("Failed to parse CLI options")
 
@@ -80,7 +82,8 @@ object Error {
   ) extends Error({
         val tok = LoggerOps.log2(ft)
         val line = ft.left.pos.endLine
-        s"Search state exploded on '$tok', line $line"
+        val frag = "#search-state-exploded"
+        s"Search state exploded on '$tok', line $line [see $cfgUrl$frag]"
       }) {
     def line: Int = ft.left.pos.endLine
   }
