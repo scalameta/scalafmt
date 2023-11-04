@@ -26,8 +26,12 @@ sealed abstract class InputMethod {
     else if (codeChanged)
       options.writeMode match {
         case WriteMode.Test =>
-          val diff = InputMethod.unifiedDiff(path.toString, original, formatted)
-          throw MisformattedFile(path, diff)
+          val pathStr = path.toString
+          val diff = InputMethod.unifiedDiff(pathStr, original, formatted)
+          val msg =
+            if (diff.nonEmpty) diff
+            else s"--- +$pathStr\n    => modified line endings only"
+          throw MisformattedFile(path, msg)
         case WriteMode.Override => overwrite(formatted, options)
         case WriteMode.List => list(options)
         case _ =>
