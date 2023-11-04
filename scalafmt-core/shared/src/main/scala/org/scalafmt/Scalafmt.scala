@@ -150,7 +150,7 @@ object Scalafmt {
       file: String,
       range: Set[Range] = Set.empty
   ): Try[String] =
-    if (code.matches("\\s*")) Try("")
+    if (code.matches("\\s*")) Success("")
     else {
       val runner = style.runner
       val codeToInput: String => Input = toInput(_, file)
