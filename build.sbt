@@ -188,7 +188,6 @@ import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
 val scalacJvmOptions = Def.setting {
   val cross = CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 11)) => Seq("-target:jvm-1.8")
     case Some((2, 13)) =>
       Seq(
         "-Ymacro-annotations",
