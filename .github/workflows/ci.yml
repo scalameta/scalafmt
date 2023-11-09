@@ -17,11 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ '8', '11' ]
+        java: [ '11' ]
         os: [windows-latest, ubuntu-latest]
-        exclude:
-          - os: windows-latest
-            java: '8'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
