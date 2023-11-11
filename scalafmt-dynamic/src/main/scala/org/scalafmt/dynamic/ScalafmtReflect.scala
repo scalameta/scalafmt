@@ -18,7 +18,7 @@ case class ScalafmtReflect(
   private val formattedCls = loadClass("org.scalafmt.Formatted")
   private val scalaSetCls = loadClass("scala.collection.immutable.Set")
   private val optionCls = loadClass("scala.Option")
-  private val configCls = loadClass("org.scalafmt.config.Config")
+  private lazy val configCls = loadClass("org.scalafmt.config.Config")
   private val scalafmtCls = loadClass("org.scalafmt.Scalafmt")
 
   private val parseExceptionCls =
