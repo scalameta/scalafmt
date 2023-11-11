@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
 import java.nio.file.attribute.FileTime
 
-import org.scalafmt.interfaces.{PositionException, Scalafmt, ScalafmtReporter}
+import org.scalafmt.interfaces.{PositionException, ScalafmtReporter}
 import PositionSyntax._
 
 import scala.collection.mutable
@@ -66,12 +66,14 @@ class DynamicSuite extends FunSuite {
           )
         }
       }
-    val dynamic: ScalafmtDynamic = cfgFunc(
-      Scalafmt
-        .create(this.getClass.getClassLoader)
-        .withReporter(reporter)
-        .asInstanceOf[ScalafmtDynamic]
-    )
+    val dynamic: ScalafmtDynamic = cfgFunc {
+      val configLoader = ScalafmtDynamic.defaultUncachedConfigLoader
+      new ScalafmtDynamic(
+        properties = ScalafmtProperties(reporter = reporter),
+        moduleLoader = new ScalafmtModuleLoader.CachedProxy(getModuleLoader),
+        configLoader = new ScalafmtConfigLoader.CachedProxy(configLoader)
+      )
+    }
     val config = Files.createTempFile("scalafmt", ".scalafmt.conf")
     val filename = Paths.get(name + ".scala")
     var timestamps = 100L
@@ -83,7 +85,7 @@ class DynamicSuite extends FunSuite {
     def setVersion(newVersion: String, dialect: String, rest: String*): Unit = {
       val dialectLine = Option(dialect).fold("")(x => s"runner.dialect = $x")
       setConfig(s"""
-        |version=$newVersion
+        |version="$newVersion"
         |$dialectLine
         |${rest.mkString("\n")}
         |""".stripMargin)
@@ -171,6 +173,7 @@ class DynamicSuite extends FunSuite {
   }
 
   private val testedVersions = Seq(
+    nightly,
     latest,
     "3.1.2",
     "2.7.5",
@@ -202,8 +205,6 @@ class DynamicSuite extends FunSuite {
     }
   }
 
-  def latest = BuildInfo.previousStable
-
   def checkVersion(version: String, dialect: String): Unit = {
     check(s"v$version") { f =>
       f.setVersion(version, dialect)
@@ -211,6 +212,7 @@ class DynamicSuite extends FunSuite {
     }
   }
 
+  checkVersion(nightly, "scala212")
   checkVersion(latest, "scala212")
   checkVersion("1.5.1", "scala211")
   checkVersion("1.0.0", "scala211")
@@ -585,7 +587,24 @@ class DynamicSuite extends FunSuite {
 
 private object DynamicSuite {
 
+  def nightly = BuildInfo.nightly
+  def latest = BuildInfo.previousStable
+
   def getDialectError(version: String, dialect: String) =
     if (version >= "3.1.0") s" [dialect $dialect]" else ""
+
+  // in tests, let's not try to download current version
+  def getModuleLoader = new ScalafmtModuleLoader {
+    private val downloader = ScalafmtDynamic.defaultUncachedModuleLoader
+    private val clsLoader = org.scalafmt.Scalafmt.getClass.getClassLoader
+    override def load(
+        cfg: Path,
+        ver: ScalafmtVersion,
+        props: ScalafmtProperties
+    ): FormatEval[ScalafmtReflect] =
+      if (ver.toString == nightly) Right(ScalafmtReflect(clsLoader, ver))
+      else downloader.load(cfg, ver, props)
+    override def close(): Unit = downloader.close()
+  }
 
 }

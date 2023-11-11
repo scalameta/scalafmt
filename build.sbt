@@ -80,6 +80,7 @@ lazy val dynamic = project
     scalacOptions ++= scalacJvmOptions.value
   )
   .dependsOn(interfaces)
+  .dependsOn(core.jvm % "test")
   .enablePlugins(BuildInfoPlugin)
 
 lazy val interfaces = project

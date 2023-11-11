@@ -16,9 +16,11 @@ final case class ScalafmtDynamic(
   def this() = this(
     ScalafmtProperties(),
     new ScalafmtModuleLoader.CachedProxy(
-      new ScalafmtModuleLoader.WithDownloader(CoursierDependencyDownloader)
+      ScalafmtDynamic.defaultUncachedModuleLoader
     ),
-    new ScalafmtConfigLoader.CachedProxy(ScalafmtConfigLoader)
+    new ScalafmtConfigLoader.CachedProxy(
+      ScalafmtDynamic.defaultUncachedConfigLoader
+    )
   )
 
   override def clear(): Unit = {
@@ -57,5 +59,14 @@ final case class ScalafmtDynamic(
 
   def resolveConfig(configPath: Path): FormatEval[ScalafmtReflectConfig] =
     configLoader.load(configPath, properties, moduleLoader)
+
+}
+
+private[dynamic] object ScalafmtDynamic {
+
+  def defaultUncachedModuleLoader =
+    new ScalafmtModuleLoader.WithDownloader(CoursierDependencyDownloader)
+
+  def defaultUncachedConfigLoader = ScalafmtConfigLoader
 
 }
