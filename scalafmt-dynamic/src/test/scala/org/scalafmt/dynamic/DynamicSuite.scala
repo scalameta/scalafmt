@@ -171,6 +171,7 @@ class DynamicSuite extends FunSuite {
   }
 
   private val testedVersions = Seq(
+    latest,
     "3.1.2",
     "2.7.5",
     "2.5.3",
