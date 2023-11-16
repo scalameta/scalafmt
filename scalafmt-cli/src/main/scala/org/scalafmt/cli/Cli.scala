@@ -104,7 +104,8 @@ object Cli {
       options: CliOptions
   ): MaybeRunner = options.hoconOpt.fold[MaybeRunner] {
     Left(s"""error: missing Scalafmt configuration file.
-      |Consider creating '${options.getProposedConfigFile}' with the following:
+      |Consider creating '${options.getProposedConfigFile}'
+      |with the following (other parameters may also be required):
       |${getProposedConfigVersion(options)}
       |""".stripMargin)
   } {
