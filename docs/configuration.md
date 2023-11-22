@@ -10,7 +10,7 @@ Here is an example `.scalafmt.conf`:
 
 ```scala config
 align.preset = more    // For pretty alignment.
-maxColumn = 100 // For my wide 30" display.
+maxColumn = 120 // For my wide 30" display.
 ```
 
 ## Most popular
