@@ -2854,6 +2854,9 @@ The rule takes the following parameters:
 
 - `rewrite.neverInfix` parameter group which consists of `includeFilters` and `excludeFilters`,
   two lists of regular expressions, which determine which operators are eligible for this rewrite
+  - (since 3.7.18) if a regular expression contains `\\.`, matching will be against
+    not only the infix operator but also its left-hand-side expression (with the
+    non-empty operator part following the last `\\.` in the pattern)
 - (since 3.4.4) `rewrite.allowInfixPlaceholderArg` (default: `true`) will not rewrite infix
   expressions if the argument is a solo placeholder (`_` or `(_: Type)`)
   - this parameter does not control any other cases with the infix argument containing a

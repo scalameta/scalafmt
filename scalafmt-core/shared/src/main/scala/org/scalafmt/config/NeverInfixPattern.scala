@@ -14,23 +14,25 @@ case class NeverInfixPattern(
     if (excludeFilters ne NeverInfixPattern.default.excludeFilters) None
     else Some(copy(excludeFilters = NeverInfixPattern.sbtExclude))
 
-  def matches(op: String): Boolean =
-    includeFilters.forall(_.matches(op)(_.find())) &&
-      !excludeFilters.exists(_.matches(op)(_.matches()))
+  def matches(lhs: String, op: String): Boolean =
+    includeFilters.forall(_.matches(lhs, op)(_.find())) &&
+      !excludeFilters.exists(_.matches(lhs, op)(_.matches()))
 }
 
 object NeverInfixPattern {
 
   private[config] case class Filter(
+      lhs: Option[Pattern],
       op: Pattern
   ) {
     private def pattern: String = {
-      op.pattern()
+      val opPat = op.pattern()
+      lhs.fold(opPat) { lhs => s"${lhs.pattern()}\\.$opPat" }
     }
-    def matches(op: String)(
+    def matches(lhs: String, op: String)(
         f: Matcher => Boolean
     ): Boolean =
-      f(this.op.matcher(op))
+      f(this.op.matcher(op)) && this.lhs.forall(r => f(r.matcher(lhs)))
   }
 
   private object Filter {
@@ -41,10 +43,12 @@ object NeverInfixPattern {
       ConfDecoderEx.fromPartial("String") { case (_, Conf.Str(x)) => parse(x) }
 
     private def parse(str: String): Configured[Filter] = {
-      val op = str
+      val idx = str.lastIndexOf("\\.")
+      val op = if (idx < 0) str else str.substring(idx + 2)
       if (op.isEmpty) Configured.error(s"empty infix op [$str]")
       else {
-        Configured.Ok(Filter(op.r.pattern))
+        val lhs = if (idx <= 0) None else Some(str.substring(0, idx).r.pattern)
+        Configured.Ok(Filter(lhs, op.r.pattern))
       }
     }
 
