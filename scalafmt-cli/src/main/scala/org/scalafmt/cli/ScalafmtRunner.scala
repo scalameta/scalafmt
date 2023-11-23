@@ -69,7 +69,7 @@ trait ScalafmtRunner {
       options.respectProjectFilters,
       options.customFilesOpt.getOrElse(Seq.empty): _*
     )
-    val excludeRegexp = options.excludeFilterRegexp
-    files.filter { f => excludeRegexp.findFirstIn(f.toString()).isEmpty }
+    val excludeRegexp = options.excludeFilterRegexp.pattern
+    files.filter { f => !excludeRegexp.matcher(f.toString()).find() }
   }
 }
