@@ -16,6 +16,30 @@ lst :+ foo
 // format: off
 lst :+ foo
 <<< default scalatest
+runner.parser = source
+===
+behavior of "..." {
+  a shouldBe b
+}
+behaviour of "..." {
+  a shouldBe b
+}
+behavi.or of "..." {
+  a shouldBe b
+}
+>>>
+behavior.of("..." {
+  a shouldBe b
+})
+behaviour.of("..." {
+  a shouldBe b
+})
+behavi.or.of("..." {
+  a shouldBe b
+})
+<<< #3699 1
+rewrite.neverInfix.excludeFilters = [ "shouldBe" ]
+===
 behavior of "..." {
   a shouldBe b
 }
@@ -23,13 +47,30 @@ behavior of "..." {
 behavior.of("..." {
   a shouldBe b
 })
-<<< default scalatest with appended excludeFilters
-rewrite.neverInfix.excludeFilters."+" = [ "of" ]
+<<< #3699 2
+rewrite.neverInfix.excludeFilters = [ "of" ]
 ===
 behavior of "..." {
   a shouldBe b
 }
 >>>
 behavior of "..." {
+  a.shouldBe(b)
+}
+<<< #3699 3
+runner.parser = source
+rewrite.neverInfix.excludeFilters = [ "behaviour\\.of" ]
+===
+behavior of "..." {
   a shouldBe b
 }
+behaviour of "..." {
+  a shouldBe b
+}
+>>>
+behavior.of("..." {
+  a.shouldBe(b)
+})
+behaviour.of("..." {
+  a.shouldBe(b)
+})
