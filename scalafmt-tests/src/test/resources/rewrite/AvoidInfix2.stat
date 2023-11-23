@@ -28,9 +28,9 @@ behavi.or of "..." {
   a shouldBe b
 }
 >>>
-behavior.of("..." {
+behavior of "..." {
   a shouldBe b
-})
+}
 behaviour.of("..." {
   a shouldBe b
 })

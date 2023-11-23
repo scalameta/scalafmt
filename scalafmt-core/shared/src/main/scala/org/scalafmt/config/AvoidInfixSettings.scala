@@ -74,6 +74,7 @@ object AvoidInfixSettings {
       "in",
       "ignore",
       "be",
+      "behavior\\.of",
       "taggedAs",
       "thrownBy",
       "synchronized",
