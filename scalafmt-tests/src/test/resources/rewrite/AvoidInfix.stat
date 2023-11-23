@@ -71,9 +71,19 @@ a banana walked have ordered a martini
 >>>
 (a.banana(walked) have ordered).a(martini)
 <<< more scalatest
-cp should not contain (jar3.getPath())
+class SomeScalaTest {
+  behavior of "XYZ"
+  it should "pass" in {
+    cp should not contain (jar3.getPath())
+  }
+}
 >>>
-cp should not contain (jar3.getPath())
+class SomeScalaTest {
+  behavior of "XYZ"
+  it should "pass" in {
+    cp should not contain (jar3.getPath())
+  }
+}
 <<< in lambda !allowInfixPlaceholderArg
 rewrite.allowInfixPlaceholderArg = false
 rewrite.neverInfix {

@@ -15,21 +15,13 @@ lst :+ foo
 >>>
 // format: off
 lst :+ foo
-<<< default scalatest
-behavior of "..." {
-  a shouldBe b
-}
+<<< default AvoidInfix configuration
+a multiply b
 >>>
-behavior.of("..." {
-  a shouldBe b
-})
-<<< default scalatest with appended excludeFilters
-rewrite.neverInfix.excludeFilters."+" = [ "of" ]
+a.multiply(b)
+<<< default AvoidInfix configuration with appended excludeFilters
+rewrite.neverInfix.excludeFilters."+" = [ "multiply" ]
 ===
-behavior of "..." {
-  a shouldBe b
-}
+a multiply b
 >>>
-behavior of "..." {
-  a shouldBe b
-}
+a multiply b

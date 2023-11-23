@@ -37,6 +37,7 @@ object Pattern {
       "in",
       "ignore",
       "be",
+      "of",
       "taggedAs",
       "thrownBy",
       "synchronized",
