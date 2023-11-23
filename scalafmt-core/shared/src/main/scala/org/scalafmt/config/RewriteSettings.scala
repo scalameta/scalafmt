@@ -14,7 +14,7 @@ case class RewriteSettings(
     preferCurlyFors: PreferCurlyFors.Settings = PreferCurlyFors.Settings(),
     trailingCommas: TrailingCommas = TrailingCommas(),
     allowInfixPlaceholderArg: Boolean = true,
-    neverInfix: Pattern = Pattern.neverInfix
+    neverInfix: NeverInfixPattern = NeverInfixPattern.default
 ) {
   def withoutRewrites: RewriteSettings =
     copy(rules = Nil, trailingCommas = trailingCommas.withoutRewrites)
