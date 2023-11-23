@@ -71,6 +71,6 @@ behaviour of "..." {
 behavior.of("..." {
   a.shouldBe(b)
 })
-behaviour.of("..." {
+behaviour of "..." {
   a.shouldBe(b)
-})
+}
