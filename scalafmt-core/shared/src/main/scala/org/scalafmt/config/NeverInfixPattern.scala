@@ -3,7 +3,7 @@ package org.scalafmt.config
 import metaconfig._
 import metaconfig.generic.Surface
 
-case class Pattern(
+case class NeverInfixPattern(
     includeFilters: Seq[String],
     excludeFilters: Seq[String]
 ) {
@@ -12,18 +12,18 @@ case class Pattern(
     FilterMatcher.mkRegexp(excludeFilters, true)
   )
 
-  private[config] def forSbt: Option[Pattern] =
+  private[config] def forSbt: Option[NeverInfixPattern] =
     // if the user customized these, we don't touch
-    if (excludeFilters ne Pattern.neverInfix.excludeFilters) None
-    else Some(copy(excludeFilters = Pattern.sbtExclude))
+    if (excludeFilters ne NeverInfixPattern.default.excludeFilters) None
+    else Some(copy(excludeFilters = NeverInfixPattern.sbtExclude))
 }
 
-object Pattern {
-  implicit lazy val surface: Surface[Pattern] =
+object NeverInfixPattern {
+  implicit lazy val surface: Surface[NeverInfixPattern] =
     generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[Pattern] =
-    generic.deriveCodecEx(neverInfix).noTypos
-  val neverInfix = Pattern(
+  implicit lazy val codec: ConfCodecEx[NeverInfixPattern] =
+    generic.deriveCodecEx(default).noTypos
+  val default = NeverInfixPattern(
     Seq("[\\w\\d_]+"),
     Seq(
       "until",
@@ -57,5 +57,5 @@ object Pattern {
 
   private val sbtExclude = Seq(
     "cross"
-  ) ++ neverInfix.excludeFilters
+  ) ++ default.excludeFilters
 }
