@@ -7,8 +7,8 @@ import org.scalafmt.sysops.AbsoluteFile
 case class FilterMatcher(include: Regex, exclude: Regex) {
   def matchesFile(file: AbsoluteFile): Boolean = matches(file.toString())
   def matches(input: String): Boolean =
-    include.findFirstIn(input).isDefined &&
-      exclude.findFirstIn(input).isEmpty
+    include.pattern.matcher(input).find() &&
+      !exclude.pattern.matcher(input).find()
 }
 
 object FilterMatcher {
