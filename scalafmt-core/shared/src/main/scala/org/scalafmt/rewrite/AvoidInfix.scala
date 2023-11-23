@@ -4,7 +4,6 @@ import scala.annotation.tailrec
 import scala.meta._
 import scala.meta.internal.trees.PlaceholderChecks.hasPlaceholder
 
-import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.RewriteSettings
 import org.scalafmt.util.InfixApp
 
@@ -16,18 +15,11 @@ object AvoidInfix extends RewriteFactory {
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new AvoidInfix
 
-  def getMatcher(ctx: RewriteCtx): FilterMatcher =
-    ctx.style.rewrite.neverInfix.matcher
-
-  def getMatcherIfEnabled(ctx: RewriteCtx): Option[FilterMatcher] =
-    if (ctx.style.rewrite.rules.contains(AvoidInfix)) Some(getMatcher(ctx))
-    else None
-
 }
 
 class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
-  private val matcher = AvoidInfix.getMatcher(ctx)
+  private val matcher = ctx.style.rewrite.neverInfix
 
   // In a perfect world, we could just use
   // Tree.transform {
@@ -88,7 +80,8 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
   @tailrec
   private def checkMatchingInfix(ai: Term.ApplyInfix): Boolean = {
     val op = ai.op.value
-    InfixApp.isLeftAssoc(op) && matcher.matches(op) && (ai.argClause match {
+    InfixApp.isLeftAssoc(op) && matcher.matches(op) &&
+    (ai.argClause match {
       case ac @ Term.ArgClause(arg :: Nil, _) if !isWrapped(ac) =>
         !hasPlaceholder(arg, ctx.style.rewrite.allowInfixPlaceholderArg)
       case _ => true
