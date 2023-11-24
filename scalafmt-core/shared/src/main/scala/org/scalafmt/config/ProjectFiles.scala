@@ -128,13 +128,13 @@ object ProjectFiles {
       @inline private def is3(implicit dialect: Dialect) =
         dialect.allowSignificantIndentation
 
-      @inline private def nd(text: sourcecode.Text[Dialect]) =
+      @inline private[config] def nd(text: sourcecode.Text[Dialect]) =
         Some(NamedDialect(text))
-      private val s210 = nd(dialects.Scala210)
-      private val s211 = nd(dialects.Scala211)
-      private val s212 = nd(NamedDialect.scala212)
-      private val s213 = nd(NamedDialect.scala213)
-      private val s3 = nd(NamedDialect.scala3)
+      private[config] val s210 = nd(dialects.Scala210)
+      private[config] val s211 = nd(dialects.Scala211)
+      private[config] val s212 = nd(NamedDialect.scala212)
+      private[config] val s213 = nd(NamedDialect.scala213)
+      private[config] val s3 = nd(NamedDialect.scala3)
 
       override def getDialectByLang(lang: String)(implicit
           dialect: Dialect
