@@ -75,7 +75,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
   private lazy val tryRoot: Try[AbsoluteFile] = {
     val cmd = Seq("git", "rev-parse", "--show-toplevel")
     Try(execImpl(cmd)).flatMap { x =>
-      val file = AbsoluteFile(FileOps.getFile(x))
+      val file = AbsoluteFile(x)
       if (file.isDirectory) Success(file)
       else Failure(new InvalidPathException(x, "not a directory"))
     }

@@ -15,7 +15,6 @@ import org.scalafmt.config.RewriteScala3Settings._
 import org.scalafmt.rewrite.FormatTokensRewrite
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.FileOps
 import org.scalafmt.sysops.OsSpecific._
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ValidationOps
@@ -209,9 +208,7 @@ case class ScalafmtConfig(
   }
 
   def getConfigFor(filename: String): Try[ScalafmtConfig] = {
-    val absfile = AbsoluteFile(FileOps.getFile(filename))
-    @inline def otherDialect(style: ScalafmtConfig): Boolean =
-      !style.dialect.isEquivalentTo(dialect)
+    val absfile = AbsoluteFile(filename)
     def onLang[A](f: (ProjectFiles.Layout, String) => A): Option[A] =
       project.layout.flatMap { layout =>
         layout.getLang(absfile).map { lang => f(layout, lang) }
@@ -223,7 +220,7 @@ case class ScalafmtConfig(
       }
       val pmStyle = pmStyles.collectFirst {
         case (pm, style) if pm.matches(absfile.path) =>
-          if (otherDialect(style)) style
+          if (!style.dialect.isEquivalentTo(dialect)) style
           else
             style.withDialect(onLang {
               _.getDialectByLang(_)(style.dialect)
