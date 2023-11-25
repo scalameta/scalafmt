@@ -44,10 +44,15 @@ object AbsoluteFile {
   def apply(file: File): AbsoluteFile = apply(file.toPath)
   def apply(path: Path): AbsoluteFile = new AbsoluteFile(path.toAbsolutePath)
 
+  @inline def apply(path: Seq[String]): AbsoluteFile =
+    apply(FileOps.getFile(path))
+  @inline def apply(head: String, tail: String*): AbsoluteFile =
+    apply(FileOps.getPath(head, tail: _*))
+
   def fromPathIfAbsolute(path: String): Option[AbsoluteFile] = {
     val file = FileOps.getFile(path)
     if (file.isAbsolute) Some(new AbsoluteFile(file)) else None
   }
 
-  def userDir = AbsoluteFile(FileOps.getFile(System.getProperty("user.dir")))
+  def userDir = AbsoluteFile(System.getProperty("user.dir"))
 }
