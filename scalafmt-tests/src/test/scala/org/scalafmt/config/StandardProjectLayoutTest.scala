@@ -4,7 +4,7 @@ import scala.meta.dialects
 
 import org.scalafmt.sysops.AbsoluteFile
 
-class StandordProjectLayoutTest extends munit.FunSuite {
+class StandardProjectLayoutTest extends munit.FunSuite {
 
   import ProjectFiles.Layout.StandardConvention._
 
