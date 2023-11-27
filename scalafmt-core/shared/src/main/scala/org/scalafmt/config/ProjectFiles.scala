@@ -118,7 +118,7 @@ object ProjectFiles {
         else {
           val langIdx = srcIdx + 2
           val found = phaseLabels.contains(dirs(srcIdx + 1))
-          if (found) Some(dirs(langIdx)) else getLang(dirs, langIdx)
+          if (found) Some(dirs(langIdx)) else getLang(dirs, srcIdx)
         }
       }
 
