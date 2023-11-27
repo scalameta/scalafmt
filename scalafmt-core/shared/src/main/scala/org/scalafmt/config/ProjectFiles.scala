@@ -6,7 +6,6 @@ import scala.annotation.tailrec
 import scala.meta.Dialect
 import scala.meta.dialects
 
-import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.OsSpecific._
 
@@ -102,10 +101,12 @@ object ProjectFiles {
     case object StandardConvention extends Layout {
       private val phaseLabels = Seq("main", "test", "it")
 
-      override def getLang(path: AbsoluteFile): Option[String] = {
-        val dirsIter = path.path.getParent.iterator().asScala
-        val dirs = dirsIter.map(_.toString).toArray
-        getLang(dirs, dirs.length)
+      override def getLang(af: AbsoluteFile): Option[String] = {
+        val parent = af.path.getParent
+        val depth = parent.getNameCount()
+        val dirs = new Array[String](depth)
+        for (i <- 0 until depth) dirs(i) = parent.getName(i).toString
+        getLang(dirs, depth)
       }
 
       @tailrec
