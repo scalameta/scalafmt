@@ -2852,22 +2852,27 @@ This rule replaces infix expressions `a op b` with proper method calls `a.op(b)`
 > NB: The rule currently does not support right-associative operators (i.e.,
 > those which end in `:`) which would have had to be rewritten as `b.op(a)`.
 
-The rule takes the following parameters:
+The rule takes the following parameters under `rewrite.avoidInfix`:
 
-- `rewrite.neverInfix` parameter group which consists of `includeFilters` and `excludeFilters`,
-  two lists of regular expressions, which determine which operators are eligible for this rewrite
-  - (since 3.7.18) if a regular expression contains `\\.`, matching will be against
+- `includeFilters` and `excludeFilters`, two lists of regular expressions, which
+  determine which operators are eligible for this rewrite
+  - for this rule to be enabled (that is, for the rewrite to be applied), an infix
+    expression must match `includeFilters` and not match `excludeFilters`
+  - (since 3.8.0) if a regular expression contains `\\.`, matching will be against
     not only the infix operator but also its left-hand-side expression (with the
     non-empty operator part following the last `\\.` in the pattern)
-- (since 3.4.4) `rewrite.allowInfixPlaceholderArg` (default: `true`) will not rewrite infix
+  - (before 3.8.0) these two parameters were nested under `rewrite.neverInfix`
+- `excludePlaceholderArg` (default: `true`) will not rewrite infix
   expressions if the argument is a solo placeholder (`_` or `(_: Type)`)
   - this parameter does not control any other cases with the infix argument containing a
     placeholder character; some of them will never be rewritten as adding parentheses will
     change their syntactic meaning, and others will be rewritten as usual
+  - (before 3.8.0 and since 3.4.4) this parameter was named
+    `rewrite.allowInfixPlaceholderArg`
 
 ```scala mdoc:scalafmt
 rewrite.rules = [AvoidInfix]
-rewrite.neverInfix.excludeFilters."+" = [ "map" ]
+rewrite.avoidInfix.excludeFilters."+" = [ "map" ]
 ---
 a success b
 a error (b, c)
@@ -2885,7 +2890,7 @@ future recover {
 
 ```scala mdoc:scalafmt
 rewrite.rules = [AvoidInfix]
-rewrite.allowInfixPlaceholderArg = false
+rewrite.avoidInfix.excludePlaceholderArg = false
 ---
 _ foo _
 _ bar (_: Int)

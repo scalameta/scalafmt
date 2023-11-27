@@ -145,8 +145,8 @@ object a {
   _.foo(bar).baz(qux)
 }
 <<< in lambda 2, !allowInfixPlaceholderArg
-rewrite.allowInfixPlaceholderArg = false
-rewrite.neverInfix {
+rewrite.avoidInfix {
+  excludePlaceholderArg = false
   includeFilters = [ "[^*]+" ]
   excludeFilters = []
 }
@@ -219,8 +219,8 @@ object a {
   b.c(1./(2).+(3))
 }
 <<< in lambda 2, allowInfixPlaceholderArg
-rewrite.allowInfixPlaceholderArg = true
-rewrite.neverInfix {
+rewrite.avoidInfix {
+  excludePlaceholderArg = true
   includeFilters = [ "[^*]+" ]
   excludeFilters = []
 }

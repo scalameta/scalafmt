@@ -11,7 +11,7 @@ import org.scalafmt.util.InfixApp
 object AvoidInfix extends RewriteFactory {
 
   override def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean =
-    v2.neverInfix ne v1.neverInfix
+    v2.avoidInfix ne v1.avoidInfix
 
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new AvoidInfix
@@ -20,7 +20,7 @@ object AvoidInfix extends RewriteFactory {
 
 class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
-  private val matcher = ctx.style.rewrite.neverInfix
+  private val matcher = ctx.style.rewrite.avoidInfix
 
   // In a perfect world, we could just use
   // Tree.transform {
@@ -88,7 +88,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
     InfixApp.isLeftAssoc(op) && matcher.matches(lhs, op) &&
     (ai.argClause match {
       case ac @ Term.ArgClause(arg :: Nil, _) if !isWrapped(ac) =>
-        !hasPlaceholder(arg, ctx.style.rewrite.allowInfixPlaceholderArg)
+        !hasPlaceholder(arg, ctx.style.rewrite.isAllowInfixPlaceholderArg)
       case _ => true
     }) && (ai.lhs match {
       case lhs: Term.ApplyInfix if hasPlaceholder(lhs, true) =>

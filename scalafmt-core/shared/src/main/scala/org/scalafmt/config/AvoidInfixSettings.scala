@@ -5,21 +5,22 @@ import metaconfig.generic.Surface
 
 import java.util.regex.{Matcher, Pattern}
 
-case class NeverInfixPattern(
-    private val includeFilters: Seq[NeverInfixPattern.Filter], // partial match
-    private val excludeFilters: Seq[NeverInfixPattern.Filter] // strict match
+case class AvoidInfixSettings(
+    private val includeFilters: Seq[AvoidInfixSettings.Filter], // partial match
+    private val excludeFilters: Seq[AvoidInfixSettings.Filter], // strict match
+    excludePlaceholderArg: Option[Boolean] = None
 ) {
-  private[config] def forSbt: Option[NeverInfixPattern] =
+  private[config] def forSbt: Option[AvoidInfixSettings] =
     // if the user customized these, we don't touch
-    if (excludeFilters ne NeverInfixPattern.default.excludeFilters) None
-    else Some(copy(excludeFilters = NeverInfixPattern.sbtExclude))
+    if (excludeFilters ne AvoidInfixSettings.default.excludeFilters) None
+    else Some(copy(excludeFilters = AvoidInfixSettings.sbtExclude))
 
   def matches(lhs: String, op: String): Boolean =
     includeFilters.forall(_.matches(lhs, op)(_.find())) &&
       !excludeFilters.exists(_.matches(lhs, op)(_.matches()))
 }
 
-object NeverInfixPattern {
+object AvoidInfixSettings {
 
   private[config] case class Filter(
       lhs: Option[Pattern],
@@ -55,11 +56,11 @@ object NeverInfixPattern {
     def apply(value: String): Filter = parse(value).get
   }
 
-  implicit lazy val surface: Surface[NeverInfixPattern] =
+  implicit lazy val surface: Surface[AvoidInfixSettings] =
     generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[NeverInfixPattern] =
+  implicit lazy val codec: ConfCodecEx[AvoidInfixSettings] =
     generic.deriveCodecEx(default).noTypos
-  val default = NeverInfixPattern(
+  val default = AvoidInfixSettings(
     Seq("[\\w\\d_]+").map(Filter.apply),
     Seq(
       "until",
