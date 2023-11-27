@@ -211,7 +211,7 @@ case class ScalafmtConfig(
     val absfile = AbsoluteFile(filename)
     def onLang[A](f: (ProjectFiles.Layout, String) => A): Option[A] =
       project.layout.flatMap { layout =>
-        layout.getLang(absfile).map { lang => f(layout, lang) }
+        layout.getInfo(absfile).map { x => f(layout, x.lang) }
       }
     expandedFileOverride.map { case (langStyles, pmStyles) =>
       def langStyle = onLang { (layout, lang) =>

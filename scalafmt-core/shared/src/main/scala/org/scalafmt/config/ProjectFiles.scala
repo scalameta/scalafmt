@@ -89,11 +89,15 @@ object ProjectFiles {
       matchesPath(file.path)
   }
 
+  case class FileInfo(lang: String, isTest: Boolean)
+
   sealed abstract class Layout {
-    def getLang(path: AbsoluteFile): Option[String]
+    def getInfo(path: AbsoluteFile): Option[FileInfo]
     protected[config] def getDialectByLang(lang: String)(implicit
         dialect: Dialect
     ): Option[NamedDialect]
+    final def getLang(path: AbsoluteFile): Option[String] =
+      getInfo(path).map(_.lang)
     final def withLang(lang: String, style: ScalafmtConfig): ScalafmtConfig =
       style.withDialect(getDialectByLang(lang)(style.dialect))
   }
@@ -101,24 +105,31 @@ object ProjectFiles {
   object Layout {
 
     case object StandardConvention extends Layout {
-      private val phaseLabels = Seq("main", "test", "it")
+      private val mainLabels = Seq("main")
+      private val testLabels = Seq("test", "it")
 
-      override def getLang(af: AbsoluteFile): Option[String] = {
+      override def getInfo(af: AbsoluteFile): Option[FileInfo] = {
         val parent = af.path.getParent
         val depth = parent.getNameCount()
         val dirs = new Array[String](depth)
         for (i <- 0 until depth) dirs(i) = parent.getName(i).toString
-        getLang(dirs, depth)
+        getInfo(dirs, depth)
       }
 
       @tailrec
-      private def getLang(dirs: Array[String], len: Int): Option[String] = {
+      private def getInfo(
+          dirs: Array[String],
+          len: Int
+      ): Option[FileInfo] = {
+        // src/phase/lang
         val srcIdx = dirs.lastIndexOf("src", len - 3)
         if (srcIdx < 0) None
         else {
-          val langIdx = srcIdx + 2
-          val found = phaseLabels.contains(dirs(srcIdx + 1))
-          if (found) Some(dirs(langIdx)) else getLang(dirs, srcIdx)
+          val phase = dirs(srcIdx + 1)
+          def lang = dirs(srcIdx + 2)
+          if (mainLabels.contains(phase)) Some(FileInfo(lang, false))
+          else if (testLabels.contains(phase)) Some(FileInfo(lang, true))
+          else getInfo(dirs, srcIdx)
         }
       }
 
