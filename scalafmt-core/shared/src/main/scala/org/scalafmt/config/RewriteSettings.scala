@@ -13,9 +13,18 @@ case class RewriteSettings(
     imports: Imports.Settings = Imports.Settings(),
     preferCurlyFors: PreferCurlyFors.Settings = PreferCurlyFors.Settings(),
     trailingCommas: TrailingCommas = TrailingCommas(),
-    allowInfixPlaceholderArg: Boolean = true,
-    neverInfix: NeverInfixPattern = NeverInfixPattern.default
+    @annotation.DeprecatedName(
+      "allowInfixPlaceholderArg",
+      "Use `avoidInfix.excludePlaceholderArg` instead",
+      "3.8.0"
+    )
+    private val allowInfixPlaceholderArg: Boolean = true,
+    @annotation.ExtraName("neverInfix")
+    avoidInfix: AvoidInfixSettings = AvoidInfixSettings.default
 ) {
+  def isAllowInfixPlaceholderArg: Boolean =
+    avoidInfix.excludePlaceholderArg.getOrElse(allowInfixPlaceholderArg)
+
   def withoutRewrites: RewriteSettings =
     copy(rules = Nil, trailingCommas = trailingCommas.withoutRewrites)
 
@@ -33,7 +42,7 @@ case class RewriteSettings(
   }
 
   private[config] def forSbt: RewriteSettings =
-    neverInfix.forSbt.fold(this)(x => copy(neverInfix = x))
+    avoidInfix.forSbt.fold(this)(x => copy(avoidInfix = x))
 }
 
 object RewriteSettings {
