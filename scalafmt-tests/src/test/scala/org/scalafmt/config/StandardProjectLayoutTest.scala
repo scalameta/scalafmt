@@ -45,6 +45,28 @@ class StandardProjectLayoutTest extends munit.FunSuite {
   }
 
   Seq(
+    "/prj/src/main/scalaX" -> None,
+    "/prj/src/test/scalaX" -> None,
+    "/prj/src/none/scalaX" -> None,
+    "/prj/src/main/scalaX/foo" -> Some(false),
+    "/prj/src/test/scalaX/foo" -> Some(true),
+    "/prj/src/none/scalaX/foo" -> None,
+    "/prj/src/main/scalaX/src/test/scalaY" -> Some(false),
+    "/prj/src/test/scalaX/src/main/scalaY" -> Some(true),
+    "/prj/src/none/scalaX/src/main/scalaY" -> None,
+    "/prj/src/none/scalaX/src/test/scalaY" -> None,
+    "/prj/src/main/scalaX/src/test/scalaY/foo" -> Some(true),
+    "/prj/src/test/scalaX/src/main/scalaY/foo" -> Some(false),
+    "/prj/src/none/scalaX/src/main/scalaY/foo" -> Some(false),
+    "/prj/src/none/scalaX/src/test/scalaY/foo" -> Some(true)
+  ).foreach { case (path, expectedTest) =>
+    test(s"StandardConvention.isTest($path) == $expectedTest") {
+      val actualTest = getInfo(AbsoluteFile(path)).map(_.isTest)
+      assertEquals(actualTest, expectedTest)
+    }
+  }
+
+  Seq(
     (s210, "scala-2.10", None),
     (s211, "scala-2.10", s210),
     (s210, "scala-2.11", s211),
