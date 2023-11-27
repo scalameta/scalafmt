@@ -191,10 +191,10 @@ case class ScalafmtConfig(
       val cfg = conf match {
         case x: Conf.Str => withDialect(NamedDialect.codec.read(None, x).get)
         case x =>
-          val dialectOpt = eitherPat.left.toOption.flatMap { lang =>
-            project.layout.flatMap(_.getDialectByLang(lang)(dialect))
+          val styleOpt = eitherPat.left.toOption.flatMap { lang =>
+            project.layout.map(_.withLang(lang, this))
           }
-          decoder.read(Some(withDialect(dialectOpt)), x).get
+          decoder.read(styleOpt.orElse(Some(this)), x).get
       }
       eitherPat -> cfg
     }
@@ -216,15 +216,12 @@ case class ScalafmtConfig(
     expandedFileOverride.map { case (langStyles, pmStyles) =>
       def langStyle = onLang { (layout, lang) =>
         val style = langStyles.collectFirst { case (`lang`, x) => x }
-        style.getOrElse(withDialect(layout.getDialectByLang(lang)(dialect)))
+        style.getOrElse(layout.withLang(lang, this))
       }
       val pmStyle = pmStyles.collectFirst {
         case (pm, style) if pm.matches(absfile.path) =>
           if (!style.dialect.isEquivalentTo(dialect)) style
-          else
-            style.withDialect(onLang {
-              _.getDialectByLang(_)(style.dialect)
-            }.flatten)
+          else onLang(_.withLang(_, style)).getOrElse(style)
       }
       pmStyle.orElse(langStyle).getOrElse(this)
     }
