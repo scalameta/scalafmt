@@ -10,8 +10,10 @@ Here is an example `.scalafmt.conf`:
 
 ```scala config
 align.preset = more    // For pretty alignment.
-maxColumn = 100 // For my wide 30" display.
+maxColumn = 1234
 ```
+
+> 🚧 Before using specific configuration make sure that your project agrees on the standards. Settings such as `maxColumn` could be a source of issues if different tools such as an IDE uses a different default value.
 
 ## Most popular
 
