@@ -12,7 +12,7 @@ case class AvoidInfixSettings(
 ) {
   private[config] def forSbt: Option[AvoidInfixSettings] =
     // if the user customized these, we don't touch
-    if (excludeFilters ne AvoidInfixSettings.default.excludeFilters) None
+    if (excludeFilters ne AvoidInfixSettings.mainExclude) None
     else Some(copy(excludeFilters = AvoidInfixSettings.sbtExclude))
 
   def matches(lhs: String, op: String): Boolean =
@@ -60,8 +60,13 @@ object AvoidInfixSettings {
     generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[AvoidInfixSettings] =
     generic.deriveCodecEx(default).noTypos
-  val default = AvoidInfixSettings(
-    Seq("[\\w\\d_]+").map(Filter.apply),
+
+  private def mainInclude =
+    Seq(
+      "[\\w\\d_]+"
+    ).map(Filter.apply)
+
+  private val mainExclude =
     Seq(
       "until",
       "to",
@@ -91,9 +96,14 @@ object AvoidInfixSettings {
       "inOrderElementsOf",
       "theSameElementsAs"
     ).map(Filter.apply)
-  )
 
   private val sbtExclude = Seq(
     "cross"
-  ).map(Filter.apply) ++ default.excludeFilters
+  ).map(Filter.apply) ++ mainExclude
+
+  private[config] val default = AvoidInfixSettings(
+    includeFilters = mainInclude,
+    excludeFilters = mainExclude
+  )
+
 }
