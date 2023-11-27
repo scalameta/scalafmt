@@ -3864,7 +3864,12 @@ those which end in <code>:</code>) which would have had to be rewritten as <code
 <p>The rule takes the following parameters:</p>
 <ul>
 <li><code>rewrite.neverInfix</code> parameter group which consists of <code>includeFilters</code> and <code>excludeFilters</code>,
-two lists of regular expressions, which determine which operators are eligible for this rewrite</li>
+two lists of regular expressions, which determine which operators are eligible for this rewrite
+<ul>
+<li>(since 3.7.18) if a regular expression contains <code>\\.</code>, matching will be against
+not only the infix operator but also its left-hand-side expression (with the
+non-empty operator part following the last <code>\\.</code> in the pattern)</li>
+</ul></li>
 <li>(since 3.4.4) <code>rewrite.allowInfixPlaceholderArg</code> (default: <code>true</code>) will not rewrite infix
 expressions if the argument is a solo placeholder (<code>_</code> or <code>(_: Type)</code>)
 <ul>
