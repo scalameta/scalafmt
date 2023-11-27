@@ -92,9 +92,11 @@ object ProjectFiles {
 
   sealed abstract class Layout {
     def getLang(path: AbsoluteFile): Option[String]
-    def getDialectByLang(lang: String)(implicit
+    protected[config] def getDialectByLang(lang: String)(implicit
         dialect: Dialect
     ): Option[NamedDialect]
+    final def withLang(lang: String, style: ScalafmtConfig): ScalafmtConfig =
+      style.withDialect(getDialectByLang(lang)(style.dialect))
   }
 
   object Layout {
@@ -136,7 +138,7 @@ object ProjectFiles {
       private[config] val s213 = nd(NamedDialect.scala213)
       private[config] val s3 = nd(NamedDialect.scala3)
 
-      override def getDialectByLang(lang: String)(implicit
+      protected[config] override def getDialectByLang(lang: String)(implicit
           dialect: Dialect
       ): Option[NamedDialect] = lang match {
         case "scala-2.10" if is211 => s210
