@@ -3864,21 +3864,26 @@ maxColumn = <span class="hljs-number">60</span>
 <p>NB: The rule currently does not support right-associative operators (i.e.,
 those which end in <code>:</code>) which would have had to be rewritten as <code>b.op(a)</code>.</p>
 </blockquote>
-<p>The rule takes the following parameters:</p>
+<p>The rule takes the following parameters under <code>rewrite.avoidInfix</code>:</p>
 <ul>
-<li><code>rewrite.neverInfix</code> parameter group which consists of <code>includeFilters</code> and <code>excludeFilters</code>,
-two lists of regular expressions, which determine which operators are eligible for this rewrite
+<li><code>includeFilters</code> and <code>excludeFilters</code>, two lists of regular expressions, which
+determine which operators are eligible for this rewrite
 <ul>
-<li>(since 3.7.18) if a regular expression contains <code>\\.</code>, matching will be against
+<li>for this rule to be enabled (that is, for the rewrite to be applied), an infix
+expression must match <code>includeFilters</code> and not match <code>excludeFilters</code></li>
+<li>(since 3.8.0) if a regular expression contains <code>\\.</code>, matching will be against
 not only the infix operator but also its left-hand-side expression (with the
 non-empty operator part following the last <code>\\.</code> in the pattern)</li>
+<li>(before 3.8.0) these two parameters were nested under <code>rewrite.neverInfix</code></li>
 </ul></li>
-<li>(since 3.4.4) <code>rewrite.allowInfixPlaceholderArg</code> (default: <code>true</code>) will not rewrite infix
+<li><code>excludePlaceholderArg</code> (default: <code>true</code>) will not rewrite infix
 expressions if the argument is a solo placeholder (<code>_</code> or <code>(_: Type)</code>)
 <ul>
 <li>this parameter does not control any other cases with the infix argument containing a
 placeholder character; some of them will never be rewritten as adding parentheses will
 change their syntactic meaning, and others will be rewritten as usual</li>
+<li>(before 3.8.0 and since 3.4.4) this parameter was named
+<code>rewrite.allowInfixPlaceholderArg</code></li>
 </ul></li>
 </ul>
 <pre><code class="hljs css language-scala formatted">a.success(b)
@@ -3909,7 +3914,7 @@ future recover {
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">AvoidInfix</span>]
-rewrite.neverInfix.excludeFilters.<span class="hljs-string">"+"</span> = [ <span class="hljs-string">"map"</span> ]
+rewrite.avoidInfix.excludeFilters.<span class="hljs-string">"+"</span> = [ <span class="hljs-string">"map"</span> ]
 </code></pre>
 </p></details>
 <pre><code class="hljs css language-scala formatted">_.foo(_)
@@ -3924,7 +3929,7 @@ _ baz _.qux <span class="hljs-comment">// cannot be rewritten, not the same as p
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">AvoidInfix</span>]
-rewrite.allowInfixPlaceholderArg = <span class="hljs-literal">false</span>
+rewrite.avoidInfix.excludePlaceholderArg = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="redundantbraces"></a><a href="#redundantbraces" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>RedundantBraces</code></h3>
@@ -6684,10 +6689,10 @@ rewrite.preferCurlyFors.<span class="hljs-attr">removeTrailingSemicolonsOnly</sp
 rewrite.trailingCommas.<span class="hljs-attr">allowFolding</span> = <span class="hljs-literal">true</span>
 rewrite.trailingCommas.<span class="hljs-attr">style</span> = never
 rewrite.<span class="hljs-attr">allowInfixPlaceholderArg</span> = <span class="hljs-literal">true</span>
-rewrite.neverInfix.<span class="hljs-attr">includeFilters</span> = [
+rewrite.avoidInfix.<span class="hljs-attr">includeFilters</span> = [
   <span class="hljs-string">"[\w\d_]+"</span>
 ]
-rewrite.neverInfix.<span class="hljs-attr">excludeFilters</span> = [
+rewrite.avoidInfix.<span class="hljs-attr">excludeFilters</span> = [
   until
   to
   by
@@ -6715,6 +6720,7 @@ rewrite.neverInfix.<span class="hljs-attr">excludeFilters</span> = [
   inOrderElementsOf
   theSameElementsAs
 ]
+rewrite.avoidInfix.<span class="hljs-attr">excludePlaceholderArg</span> = <span class="hljs-literal">null</span>
 indentOperator.<span class="hljs-attr">exemptScope</span> = <span class="hljs-literal">null</span>
 indentOperator.<span class="hljs-attr">topLevelOnly</span> = <span class="hljs-literal">true</span>
 indentOperator.<span class="hljs-attr">includeRegex</span> = <span class="hljs-string">".*"</span>
