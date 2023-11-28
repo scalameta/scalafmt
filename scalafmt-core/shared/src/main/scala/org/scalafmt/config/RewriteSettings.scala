@@ -41,8 +41,8 @@ case class RewriteSettings(
       .filter(_.nonEmpty)
   }
 
-  private[config] def forSbt: RewriteSettings =
-    avoidInfix.forSbt.fold(this)(x => copy(avoidInfix = x))
+  private[config] def forSbtOpt: Option[RewriteSettings] =
+    avoidInfix.forSbtOpt.map(x => copy(avoidInfix = x))
 }
 
 object RewriteSettings {

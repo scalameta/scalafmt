@@ -178,7 +178,7 @@ case class ScalafmtConfig(
   )
 
   def forSbt: ScalafmtConfig =
-    copy(rewrite = rewrite.forSbt)
+    rewrite.forSbtOpt.fold(this)(x => copy(rewrite = x))
 
   private lazy val expandedFileOverride = Try {
     val langPrefix = "lang:"

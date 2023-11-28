@@ -10,7 +10,7 @@ case class AvoidInfixSettings(
     private val excludeFilters: Seq[AvoidInfixSettings.Filter], // strict match
     excludePlaceholderArg: Option[Boolean] = None
 ) {
-  private[config] def forSbt: Option[AvoidInfixSettings] =
+  private[config] def forSbtOpt: Option[AvoidInfixSettings] =
     // if the user customized these, we don't touch
     if (excludeFilters ne AvoidInfixSettings.mainExclude) None
     else Some(copy(excludeFilters = AvoidInfixSettings.sbtExclude))
