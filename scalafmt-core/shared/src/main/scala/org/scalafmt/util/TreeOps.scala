@@ -1019,4 +1019,16 @@ object TreeOps {
   def isFewerBraces(tree: Term.Apply)(implicit dialect: Dialect): Boolean =
     dialect.allowFewerBraces && tree.argClause.tokens.head.is[Colon]
 
+  @tailrec
+  def endsWithFewerBraces(tree: Tree)(implicit dialect: Dialect): Boolean =
+    tree match {
+      case t: Term.Apply => isFewerBraces(t)
+      case t: Term.ApplyInfix =>
+        t.argClause.values match {
+          case arg :: Nil => endsWithFewerBraces(arg)
+          case _ => false
+        }
+      case _ => false
+    }
+
 }
