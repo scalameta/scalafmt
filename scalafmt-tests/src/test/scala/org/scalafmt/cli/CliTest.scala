@@ -798,6 +798,64 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   testCli("1.6.0-RC4") // test for runDynamic
   testCli(stableVersion) // test for runScalafmt
 
+  test(s"path-error") {
+    val input =
+      s"""|/.scalafmt.conf
+        |version = "${stableVersion}"
+        |project.excludePaths = [
+        |    "glob:**/src/main/scala/besom/rpc/**.scala",
+        |    "foo.scala"
+        |]
+        |/foo.scala
+        |object    A { foo( }
+        |""".stripMargin
+
+    noArgTest(
+      string2dir(input),
+      input,
+      Seq(Array("--test")),
+      ExitCode.UnexpectedError,
+      assertOut = out => {
+        assertContains(
+          out,
+          s"""Illegal pattern in configuration: foo.scala""".stripMargin
+        )
+      },
+      Some(ExitCode.UnexpectedError)
+    )
+
+  }
+
+  test(s"regex-error") {
+    val input =
+      s"""|/.scalafmt.conf
+        |version = "${stableVersion}"
+        |project.excludeFilters = [
+        |    ".*foo("
+        |]
+        |/foo.scala
+        |object    A { foo( }
+        |""".stripMargin
+
+    noArgTest(
+      string2dir(input),
+      input,
+      Seq(Array("--test")),
+      ExitCode.UnexpectedError,
+      assertOut = out => {
+        assertContains(
+          out,
+          """|Illegal regex in configuration: .*foo(
+            |reason: Unclosed group near index 6
+            |.*foo(
+            |""".stripMargin
+        )
+      },
+      Some(ExitCode.UnexpectedError)
+    )
+
+  }
+
   test("Fail if .scalafmt.conf is missing.") {
     val input =
       s"""|/foo.scala

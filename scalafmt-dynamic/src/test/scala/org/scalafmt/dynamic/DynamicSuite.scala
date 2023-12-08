@@ -286,6 +286,37 @@ class DynamicSuite extends FunSuite {
     )
   }
 
+  check("regex-error") { f =>
+    f.setConfig(s"""|version = "$nightly"
+      |runner.dialect = "scala212"
+      |project.excludeFilters = [
+      |    ".*foo("
+      |]
+      |""".stripMargin)
+    val err = f.assertThrows[ScalafmtDynamicError.ConfigParseError]().getMessage
+    assertNoDiff(
+      err.takeRight(120),
+      """|Invalid config: Illegal regex in configuration: .*foo(
+        |reason: Unclosed group near index 6
+        |.*foo(
+        |""".stripMargin
+    )
+  }
+
+  check("path-error") { f =>
+    f.setConfig(s"""|version = "$nightly"
+      |runner.dialect = "scala212"
+      |project.excludePaths = [
+      |    "foo.scala"
+      |]
+      |""".stripMargin)
+    val err = f.assertThrows[ScalafmtDynamicError.ConfigParseError]().getMessage
+    assertNoDiff(
+      err.takeRight(120),
+      "Invalid config: Illegal pattern in configuration: foo.scala"
+    )
+  }
+
   check("config-cache") { f =>
     f.setVersion(latest, "scala211")
     f.assertFormat()

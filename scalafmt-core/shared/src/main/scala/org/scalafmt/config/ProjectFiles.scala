@@ -70,11 +70,27 @@ object ProjectFiles {
     private def regex(seq: Seq[String]) = create(seq, new Regex(_))
 
     private final class Nio(pattern: String) extends PathMatcher {
-      private val matcher = fs.getPathMatcher(pattern)
+      private val matcher =
+        try { fs.getPathMatcher(pattern) }
+        catch {
+          case _: IllegalArgumentException =>
+            throw new ScalafmtConfigException(
+              s"Illegal pattern in configuration: $pattern"
+            )
+        }
       def matches(path: file.Path): Boolean = matcher.matches(path)
     }
     private final class Regex(regex: String) extends PathMatcher {
-      private val pattern = java.util.regex.Pattern.compile(regex)
+      private val pattern =
+        try { java.util.regex.Pattern.compile(regex) }
+        catch {
+          case e: java.util.regex.PatternSyntaxException =>
+            throw new ScalafmtConfigException(
+              s"""|Illegal regex in configuration: $regex
+                |reason: ${e.getMessage()}""".stripMargin
+            )
+        }
+
       def matches(path: file.Path): Boolean =
         pattern.matcher(path.toString).find()
     }
