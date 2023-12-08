@@ -6,6 +6,7 @@ import util.control.Breaks
 import org.scalafmt.Error
 import org.scalafmt.{Formatted, Scalafmt, Versions}
 import org.scalafmt.config.{ProjectFiles, ScalafmtConfig}
+import org.scalafmt.config.ScalafmtConfigException
 import org.scalafmt.CompatCollections.ParConverters._
 
 import scala.meta.parsers.ParseException
@@ -21,10 +22,18 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
       ExitCode.UnexpectedError
     } { scalafmtConf =>
       options.common.debug.println(s"parsed config (v${Versions.version})")
-      val filterMatcher = ProjectFiles.FileMatcher(
-        scalafmtConf.project,
-        options.customExcludes
-      )
+      val filterMatcher =
+        try {
+          ProjectFiles.FileMatcher(
+            scalafmtConf.project,
+            options.customExcludes
+          )
+        } catch {
+          case e: ScalafmtConfigException =>
+            options.common.err.println(e.getMessage())
+            return ExitCode.UnexpectedError // RETURNING EARLY!
+        }
+
       val inputMethods = getInputMethods(options, filterMatcher.matchesPath)
 
       val termDisplay =
