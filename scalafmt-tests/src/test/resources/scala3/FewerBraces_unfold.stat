@@ -18,7 +18,6 @@ object a:
     ++
     qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo:
@@ -28,7 +27,8 @@ object a:
         argbar
       ++
       baz:
-        argbaz ++ qux
+        argbaz
+      ++ qux
 <<< #3720 fewerBraces = never || no selects, newlines
 indent.significant = 2
 indent.fewerBraces = never
@@ -73,7 +73,6 @@ object a:
       argbaz
     ++ qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo:
@@ -83,7 +82,8 @@ object a:
         argbar
       ++
       baz:
-        argbaz ++ qux
+        argbaz
+      ++ qux
 <<< #3720 fewerBraces = never || no selects, spaces
 indent.significant = 2
 indent.fewerBraces = never
@@ -244,7 +244,6 @@ object a:
     ++
     qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.sfoo:
@@ -254,7 +253,8 @@ object a:
         argbar
       ++
       baz.sbaz:
-        argbaz ++ qux
+        argbaz
+      ++ qux
 <<< #3720 fewerBraces = never || selects before, newlines
 indent.significant = 2
 indent.fewerBraces = never
@@ -299,7 +299,6 @@ object a:
       argbaz
     ++ qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.sfoo:
@@ -309,7 +308,8 @@ object a:
         argbar
       ++
       baz.sbaz:
-        argbaz ++ qux
+        argbaz
+      ++ qux
 <<< #3720 fewerBraces = never || selects before, spaces
 indent.significant = 2
 indent.fewerBraces = never
@@ -479,14 +479,14 @@ object a:
     ++
     qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.bar:
       arg
     ++
       baz:
-        arg ++ qux
+        arg
+      ++ qux
 <<< #3720 fewerBraces = never || short, newlines
 indent.significant = 2
 indent.fewerBraces = never
@@ -523,14 +523,14 @@ object a:
       arg
     ++ qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.bar:
       arg
     ++
       baz:
-        arg ++ qux
+        arg
+      ++ qux
 <<< #3720 fewerBraces = never || short, spaces
 indent.significant = 2
 indent.fewerBraces = never
@@ -570,7 +570,6 @@ object a:
     ++
     qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo:
@@ -580,7 +579,8 @@ object a:
           argbar
       ++
       baz:
-          argbaz ++ qux
+          argbaz
+      ++ qux
 <<< #3720 fewerBraces = always || no selects, newlines
 indent.significant = 2
 indent.fewerBraces = always
@@ -625,7 +625,6 @@ object a:
       argbaz
     ++ qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo:
@@ -635,7 +634,8 @@ object a:
           argbar
       ++
       baz:
-          argbaz ++ qux
+          argbaz
+      ++ qux
 <<< #3720 fewerBraces = always || no selects, spaces
 indent.significant = 2
 indent.fewerBraces = always
@@ -796,7 +796,6 @@ object a:
     ++
     qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.sfoo:
@@ -806,7 +805,8 @@ object a:
           argbar
       ++
       baz.sbaz:
-          argbaz ++ qux
+          argbaz
+      ++ qux
 <<< #3720 fewerBraces = always || selects before, newlines
 indent.significant = 2
 indent.fewerBraces = always
@@ -851,7 +851,6 @@ object a:
       argbaz
     ++ qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.sfoo:
@@ -861,7 +860,8 @@ object a:
           argbar
       ++
       baz.sbaz:
-          argbaz ++ qux
+          argbaz
+      ++ qux
 <<< #3720 fewerBraces = always || selects before, spaces
 indent.significant = 2
 indent.fewerBraces = always
@@ -1031,14 +1031,14 @@ object a:
     ++
     qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.bar:
         arg
     ++
       baz:
-          arg ++ qux
+          arg
+      ++ qux
 <<< #3720 fewerBraces = always || short, newlines
 indent.significant = 2
 indent.fewerBraces = always
@@ -1075,14 +1075,14 @@ object a:
       arg
     ++ qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.bar:
         arg
     ++
       baz:
-          arg ++ qux
+          arg
+      ++ qux
 <<< #3720 fewerBraces = always || short, spaces
 indent.significant = 2
 indent.fewerBraces = always
@@ -1122,7 +1122,6 @@ object a:
     ++
     qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo:
@@ -1132,7 +1131,8 @@ object a:
         argbar
       ++
       baz:
-        argbaz ++ qux
+        argbaz
+      ++ qux
 <<< #3720 fewerBraces = beforeSelect || no selects, newlines
 indent.significant = 2
 indent.fewerBraces = beforeSelect
@@ -1177,7 +1177,6 @@ object a:
       argbaz
     ++ qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo:
@@ -1187,7 +1186,8 @@ object a:
         argbar
       ++
       baz:
-        argbaz ++ qux
+        argbaz
+      ++ qux
 <<< #3720 fewerBraces = beforeSelect || no selects, spaces
 indent.significant = 2
 indent.fewerBraces = beforeSelect
@@ -1348,7 +1348,6 @@ object a:
     ++
     qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.sfoo:
@@ -1358,7 +1357,8 @@ object a:
         argbar
       ++
       baz.sbaz:
-        argbaz ++ qux
+        argbaz
+      ++ qux
 <<< #3720 fewerBraces = beforeSelect || selects before, newlines
 indent.significant = 2
 indent.fewerBraces = beforeSelect
@@ -1403,7 +1403,6 @@ object a:
       argbaz
     ++ qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.sfoo:
@@ -1413,7 +1412,8 @@ object a:
         argbar
       ++
       baz.sbaz:
-        argbaz ++ qux
+        argbaz
+      ++ qux
 <<< #3720 fewerBraces = beforeSelect || selects before, spaces
 indent.significant = 2
 indent.fewerBraces = beforeSelect
@@ -1586,7 +1586,6 @@ object a:
     ++
     qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.sfoo:
@@ -1596,7 +1595,8 @@ object a:
         argbar
       ++
       baz.sbaz:
-        argbaz ++ qux
+        argbaz
+      ++ qux
 <<< #3720 fewerBraces = beforeSelect || selects mixed, newlines
 indent.significant = 2
 indent.fewerBraces = beforeSelect
@@ -1641,7 +1641,6 @@ object a:
       argbaz
     ++ qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.sfoo:
@@ -1651,7 +1650,8 @@ object a:
         argbar
       ++
       baz.sbaz:
-        argbaz ++ qux
+        argbaz
+      ++ qux
 <<< #3720 fewerBraces = beforeSelect || selects mixed, spaces
 indent.significant = 2
 indent.fewerBraces = beforeSelect
@@ -1693,14 +1693,14 @@ object a:
     ++
     qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.bar:
       arg
     ++
       baz:
-        arg ++ qux
+        arg
+      ++ qux
 <<< #3720 fewerBraces = beforeSelect || short, newlines
 indent.significant = 2
 indent.fewerBraces = beforeSelect
@@ -1737,14 +1737,14 @@ object a:
       arg
     ++ qux
 >>>
-Idempotency violated
 object a:
   def mtd =
     foo.bar:
       arg
     ++
       baz:
-        arg ++ qux
+        arg
+      ++ qux
 <<< #3720 fewerBraces = beforeSelect || short, spaces
 indent.significant = 2
 indent.fewerBraces = beforeSelect
