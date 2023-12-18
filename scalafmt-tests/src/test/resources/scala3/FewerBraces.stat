@@ -1,0 +1,1794 @@
+indent.significant = 3
+<<< #3720 fewerBraces = never ++ no selects, newlines
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    ++
+    bar:
+      argbar
+    ++
+    baz:
+      argbaz
+    ++
+    qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo:
+      argfoo
+        ++
+          bar:
+            argbar
+          ++
+          baz:
+            argbaz
+          ++
+          qux
+<<< #3720 fewerBraces = never || no selects, newlines
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    ||
+    bar:
+      argbar
+    ||
+    baz:
+      argbaz
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo:
+      argfoo
+    ||
+    bar:
+      argbar
+    ||
+    baz:
+      argbaz
+    ||
+    qux
+<<< #3720 fewerBraces = never ++ no selects, spaces
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    ++ bar:
+      argbar
+    ++ baz:
+      argbaz
+    ++ qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo:
+      argfoo
+        ++ bar:
+          argbar
+        ++ baz:
+          argbaz
+        ++ qux
+<<< #3720 fewerBraces = never || no selects, spaces
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    || bar:
+      argbar
+    || baz:
+      argbaz
+    || qux
+>>>
+object a:
+  def mtd =
+    foo:
+      argfoo
+    || bar:
+      argbar
+    || baz:
+      argbaz
+    || qux
+<<< #3720 fewerBraces = never ++ selects, newlines
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo
+    ++
+    bar:
+      argbar
+    .sbar
+    ++
+    baz:
+      argbaz
+    .sbaz
+    ++
+    qux
+>>>
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo
+      ++
+        bar:
+          argbar
+        .sbar
+        ++
+        baz:
+          argbaz
+        .sbaz
+        ++
+        qux
+<<< #3720 fewerBraces = never || selects, newlines
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo
+    ||
+    bar:
+      argbar
+    .sbar
+    ||
+    baz:
+      argbaz
+    .sbaz
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo
+    ||
+    bar:
+      argbar
+    .sbar
+    ||
+    baz:
+      argbaz
+    .sbaz
+    ||
+    qux
+<<< #3720 fewerBraces = never ++ selects, spaces
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo ++ bar:
+      argbar
+    .sbar ++ baz:
+      argbaz
+    .sbaz ++ qux
+>>>
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo ++ bar:
+      argbar
+    .sbar ++ baz:
+      argbaz
+    .sbaz ++ qux
+<<< #3720 fewerBraces = never || selects, spaces
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo || bar:
+      argbar
+    .sbar || baz:
+      argbaz
+    .sbaz || qux
+>>>
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo || bar:
+      argbar
+    .sbar || baz:
+      argbaz
+    .sbaz || qux
+<<< #3720 fewerBraces = never ++ selects before, newlines
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ++
+    bar.sbar:
+      argbar
+    ++
+    baz.sbaz:
+      argbaz
+    ++
+    qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+        ++
+          bar.sbar:
+            argbar
+          ++
+          baz.sbaz:
+            argbaz
+          ++
+          qux
+<<< #3720 fewerBraces = never || selects before, newlines
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ||
+    bar.sbar:
+      argbar
+    ||
+    baz.sbaz:
+      argbaz
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ||
+    bar.sbar:
+      argbar
+    ||
+    baz.sbaz:
+      argbaz
+    ||
+    qux
+<<< #3720 fewerBraces = never ++ selects before, spaces
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ++ bar.sbar:
+      argbar
+    ++ baz.sbaz:
+      argbaz
+    ++ qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+        ++ bar.sbar:
+          argbar
+        ++ baz.sbaz:
+          argbaz
+        ++ qux
+<<< #3720 fewerBraces = never || selects before, spaces
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    || bar.sbar:
+      argbar
+    || baz.sbaz:
+      argbaz
+    || qux
+>>>
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    || bar.sbar:
+      argbar
+    || baz.sbaz:
+      argbaz
+    || qux
+<<< #3720 fewerBraces = never ++ selects both, newlines
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo1:
+      argfoo
+    .sfoo2
+    ++
+    bar.sbar1:
+      argbar
+    .sbar2
+    ++
+    baz.sbaz1:
+      argbaz
+    .sbaz2
+    ++
+    qux
+>>>
+object a:
+  def mtd =
+    foo
+      .sfoo1:
+        argfoo
+      .sfoo2
+      ++
+        bar
+          .sbar1:
+            argbar
+          .sbar2
+        ++
+        baz
+          .sbaz1:
+            argbaz
+          .sbaz2
+        ++
+        qux
+<<< #3720 fewerBraces = never || selects both, newlines
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo1:
+      argfoo
+    .sfoo2
+    ||
+    bar.sbar1:
+      argbar
+    .sbar2
+    ||
+    baz.sbaz1:
+      argbaz
+    .sbaz2
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo
+      .sfoo1:
+        argfoo
+      .sfoo2
+    ||
+    bar
+      .sbar1:
+        argbar
+      .sbar2
+    ||
+    baz
+      .sbaz1:
+        argbaz
+      .sbaz2
+    ||
+    qux
+<<< #3720 fewerBraces = never ++ selects both, spaces
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo1:
+      argfoo
+    .sfoo2 ++ bar.sbar1:
+      argbar
+    .sbar2 ++ baz.sbaz1:
+      argbaz
+    .sbaz2 ++ qux
+>>>
+object a:
+  def mtd =
+    foo
+      .sfoo1:
+        argfoo
+      .sfoo2 ++ bar
+      .sbar1:
+        argbar
+      .sbar2 ++ baz
+      .sbaz1:
+        argbaz
+      .sbaz2 ++ qux
+<<< #3720 fewerBraces = never || selects both, spaces
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo1:
+      argfoo
+    .sfoo2 || bar.sbar1:
+      argbar
+    .sbar2 || baz.sbaz1:
+      argbaz
+    .sbaz2 || qux
+>>>
+object a:
+  def mtd =
+    foo
+      .sfoo1:
+        argfoo
+      .sfoo2 || bar
+      .sbar1:
+        argbar
+      .sbar2 || baz
+      .sbaz1:
+        argbaz
+      .sbaz2 || qux
+<<< #3720 fewerBraces = never ++ short, newlines
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    ++
+    baz:
+      arg
+    ++
+    qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo.bar:
+      arg
+        ++
+          baz:
+            arg
+          ++
+          qux
+<<< #3720 fewerBraces = never || short, newlines
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    ||
+    baz:
+      arg
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    ||
+    baz:
+      arg
+    ||
+    qux
+<<< #3720 fewerBraces = never ++ short, spaces
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    ++ baz:
+      arg
+    ++ qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo.bar:
+      arg
+        ++ baz:
+          arg
+        ++ qux
+<<< #3720 fewerBraces = never || short, spaces
+indent.significant = 2
+indent.fewerBraces = never
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    || baz:
+      arg
+    || qux
+>>>
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    || baz:
+      arg
+    || qux
+<<< #3720 fewerBraces = always ++ no selects, newlines
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    ++
+    bar:
+      argbar
+    ++
+    baz:
+      argbaz
+    ++
+    qux
+>>>
+object a:
+  def mtd =
+    foo:
+        argfoo
+      ++
+        bar:
+            argbar
+        ++
+        baz:
+            argbaz
+        ++
+        qux
+<<< #3720 fewerBraces = always || no selects, newlines
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    ||
+    bar:
+      argbar
+    ||
+    baz:
+      argbaz
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo:
+        argfoo
+    ||
+    bar:
+        argbar
+    ||
+    baz:
+        argbaz
+    ||
+    qux
+<<< #3720 fewerBraces = always ++ no selects, spaces
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    ++ bar:
+      argbar
+    ++ baz:
+      argbaz
+    ++ qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo:
+        argfoo
+          ++ bar:
+              argbar
+          ++ baz:
+              argbaz
+          ++ qux
+<<< #3720 fewerBraces = always || no selects, spaces
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    || bar:
+      argbar
+    || baz:
+      argbaz
+    || qux
+>>>
+object a:
+  def mtd =
+    foo:
+        argfoo
+    || bar:
+        argbar
+    || baz:
+        argbaz
+    || qux
+<<< #3720 fewerBraces = always ++ selects, newlines
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo
+    ++
+    bar:
+      argbar
+    .sbar
+    ++
+    baz:
+      argbaz
+    .sbaz
+    ++
+    qux
+>>>
+object a:
+  def mtd =
+    foo:
+        argfoo
+      .sfoo
+      ++
+        bar:
+            argbar
+          .sbar
+        ++
+        baz:
+            argbaz
+          .sbaz
+        ++
+        qux
+<<< #3720 fewerBraces = always || selects, newlines
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo
+    ||
+    bar:
+      argbar
+    .sbar
+    ||
+    baz:
+      argbaz
+    .sbaz
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo:
+        argfoo
+      .sfoo
+    ||
+    bar:
+        argbar
+      .sbar
+    ||
+    baz:
+        argbaz
+      .sbaz
+    ||
+    qux
+<<< #3720 fewerBraces = always ++ selects, spaces
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo ++ bar:
+      argbar
+    .sbar ++ baz:
+      argbaz
+    .sbaz ++ qux
+>>>
+object a:
+  def mtd =
+    foo:
+        argfoo
+      .sfoo ++ bar:
+        argbar
+      .sbar ++ baz:
+        argbaz
+      .sbaz ++ qux
+<<< #3720 fewerBraces = always || selects, spaces
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo || bar:
+      argbar
+    .sbar || baz:
+      argbaz
+    .sbaz || qux
+>>>
+object a:
+  def mtd =
+    foo:
+        argfoo
+      .sfoo || bar:
+        argbar
+      .sbar || baz:
+        argbaz
+      .sbaz || qux
+<<< #3720 fewerBraces = always ++ selects before, newlines
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ++
+    bar.sbar:
+      argbar
+    ++
+    baz.sbaz:
+      argbaz
+    ++
+    qux
+>>>
+object a:
+  def mtd =
+    foo.sfoo:
+        argfoo
+      ++
+        bar.sbar:
+            argbar
+        ++
+        baz.sbaz:
+            argbaz
+        ++
+        qux
+<<< #3720 fewerBraces = always || selects before, newlines
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ||
+    bar.sbar:
+      argbar
+    ||
+    baz.sbaz:
+      argbaz
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo.sfoo:
+        argfoo
+    ||
+    bar.sbar:
+        argbar
+    ||
+    baz.sbaz:
+        argbaz
+    ||
+    qux
+<<< #3720 fewerBraces = always ++ selects before, spaces
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ++ bar.sbar:
+      argbar
+    ++ baz.sbaz:
+      argbaz
+    ++ qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo.sfoo:
+        argfoo
+          ++ bar.sbar:
+              argbar
+          ++ baz.sbaz:
+              argbaz
+          ++ qux
+<<< #3720 fewerBraces = always || selects before, spaces
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    || bar.sbar:
+      argbar
+    || baz.sbaz:
+      argbaz
+    || qux
+>>>
+object a:
+  def mtd =
+    foo.sfoo:
+        argfoo
+    || bar.sbar:
+        argbar
+    || baz.sbaz:
+        argbaz
+    || qux
+<<< #3720 fewerBraces = always ++ selects both, newlines
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo1:
+      argfoo
+    .sfoo2
+    ++
+    bar.sbar1:
+      argbar
+    .sbar2
+    ++
+    baz.sbaz1:
+      argbaz
+    .sbaz2
+    ++
+    qux
+>>>
+object a:
+  def mtd =
+    foo
+      .sfoo1:
+        argfoo
+      .sfoo2
+      ++
+        bar
+          .sbar1:
+            argbar
+          .sbar2
+        ++
+        baz
+          .sbaz1:
+            argbaz
+          .sbaz2
+        ++
+        qux
+<<< #3720 fewerBraces = always || selects both, newlines
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo1:
+      argfoo
+    .sfoo2
+    ||
+    bar.sbar1:
+      argbar
+    .sbar2
+    ||
+    baz.sbaz1:
+      argbaz
+    .sbaz2
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo
+      .sfoo1:
+        argfoo
+      .sfoo2
+    ||
+    bar
+      .sbar1:
+        argbar
+      .sbar2
+    ||
+    baz
+      .sbaz1:
+        argbaz
+      .sbaz2
+    ||
+    qux
+<<< #3720 fewerBraces = always ++ selects both, spaces
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo1:
+      argfoo
+    .sfoo2 ++ bar.sbar1:
+      argbar
+    .sbar2 ++ baz.sbaz1:
+      argbaz
+    .sbaz2 ++ qux
+>>>
+object a:
+  def mtd =
+    foo
+      .sfoo1:
+        argfoo
+      .sfoo2 ++ bar
+      .sbar1:
+        argbar
+      .sbar2 ++ baz
+      .sbaz1:
+        argbaz
+      .sbaz2 ++ qux
+<<< #3720 fewerBraces = always || selects both, spaces
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo1:
+      argfoo
+    .sfoo2 || bar.sbar1:
+      argbar
+    .sbar2 || baz.sbaz1:
+      argbaz
+    .sbaz2 || qux
+>>>
+object a:
+  def mtd =
+    foo
+      .sfoo1:
+        argfoo
+      .sfoo2 || bar
+      .sbar1:
+        argbar
+      .sbar2 || baz
+      .sbaz1:
+        argbaz
+      .sbaz2 || qux
+<<< #3720 fewerBraces = always ++ short, newlines
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    ++
+    baz:
+      arg
+    ++
+    qux
+>>>
+object a:
+  def mtd =
+    foo.bar:
+        arg
+      ++
+        baz:
+            arg
+        ++
+        qux
+<<< #3720 fewerBraces = always || short, newlines
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    ||
+    baz:
+      arg
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo.bar:
+        arg
+    ||
+    baz:
+        arg
+    ||
+    qux
+<<< #3720 fewerBraces = always ++ short, spaces
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    ++ baz:
+      arg
+    ++ qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo.bar:
+        arg
+          ++ baz:
+              arg
+          ++ qux
+<<< #3720 fewerBraces = always || short, spaces
+indent.significant = 2
+indent.fewerBraces = always
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    || baz:
+      arg
+    || qux
+>>>
+object a:
+  def mtd =
+    foo.bar:
+        arg
+    || baz:
+        arg
+    || qux
+<<< #3720 fewerBraces = beforeSelect ++ no selects, newlines
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    ++
+    bar:
+      argbar
+    ++
+    baz:
+      argbaz
+    ++
+    qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo:
+      argfoo
+        ++
+          bar:
+            argbar
+          ++
+          baz:
+            argbaz
+          ++
+          qux
+<<< #3720 fewerBraces = beforeSelect || no selects, newlines
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    ||
+    bar:
+      argbar
+    ||
+    baz:
+      argbaz
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo:
+      argfoo
+    ||
+    bar:
+      argbar
+    ||
+    baz:
+      argbaz
+    ||
+    qux
+<<< #3720 fewerBraces = beforeSelect ++ no selects, spaces
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    ++ bar:
+      argbar
+    ++ baz:
+      argbaz
+    ++ qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo:
+      argfoo
+        ++ bar:
+          argbar
+        ++ baz:
+          argbaz
+        ++ qux
+<<< #3720 fewerBraces = beforeSelect || no selects, spaces
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    || bar:
+      argbar
+    || baz:
+      argbaz
+    || qux
+>>>
+object a:
+  def mtd =
+    foo:
+      argfoo
+    || bar:
+      argbar
+    || baz:
+      argbaz
+    || qux
+<<< #3720 fewerBraces = beforeSelect ++ selects after, newlines
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo
+    ++
+    bar:
+      argbar
+    .sbar
+    ++
+    baz:
+      argbaz
+    .sbaz
+    ++
+    qux
+>>>
+object a:
+  def mtd =
+    foo:
+        argfoo
+      .sfoo
+      ++
+        bar:
+            argbar
+          .sbar
+        ++
+        baz:
+            argbaz
+          .sbaz
+        ++
+        qux
+<<< #3720 fewerBraces = beforeSelect || selects after, newlines
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo
+    ||
+    bar:
+      argbar
+    .sbar
+    ||
+    baz:
+      argbaz
+    .sbaz
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo:
+        argfoo
+      .sfoo
+    ||
+    bar:
+        argbar
+      .sbar
+    ||
+    baz:
+        argbaz
+      .sbaz
+    ||
+    qux
+<<< #3720 fewerBraces = beforeSelect ++ selects after, spaces
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo ++ bar:
+      argbar
+    .sbar ++ baz:
+      argbaz
+    .sbaz ++ qux
+>>>
+object a:
+  def mtd =
+    foo:
+        argfoo
+      .sfoo ++ bar:
+        argbar
+      .sbar ++ baz:
+        argbaz
+      .sbaz ++ qux
+<<< #3720 fewerBraces = beforeSelect || selects after, spaces
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo:
+      argfoo
+    .sfoo || bar:
+      argbar
+    .sbar || baz:
+      argbaz
+    .sbaz || qux
+>>>
+object a:
+  def mtd =
+    foo:
+        argfoo
+      .sfoo || bar:
+        argbar
+      .sbar || baz:
+        argbaz
+      .sbaz || qux
+<<< #3720 fewerBraces = beforeSelect ++ selects before, newlines
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ++
+    bar.sbar:
+      argbar
+    ++
+    baz.sbaz:
+      argbaz
+    ++
+    qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+        ++
+          bar.sbar:
+            argbar
+          ++
+          baz.sbaz:
+            argbaz
+          ++
+          qux
+<<< #3720 fewerBraces = beforeSelect || selects before, newlines
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ||
+    bar.sbar:
+      argbar
+    ||
+    baz.sbaz:
+      argbaz
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ||
+    bar.sbar:
+      argbar
+    ||
+    baz.sbaz:
+      argbaz
+    ||
+    qux
+<<< #3720 fewerBraces = beforeSelect ++ selects before, spaces
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ++ bar.sbar:
+      argbar
+    ++ baz.sbaz:
+      argbaz
+    ++ qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+        ++ bar.sbar:
+          argbar
+        ++ baz.sbaz:
+          argbaz
+        ++ qux
+<<< #3720 fewerBraces = beforeSelect || selects before, spaces
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    || bar.sbar:
+      argbar
+    || baz.sbaz:
+      argbaz
+    || qux
+>>>
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    || bar.sbar:
+      argbar
+    || baz.sbaz:
+      argbaz
+    || qux
+<<< #3720 fewerBraces = beforeSelect ++ selects both, newlines
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo1:
+      argfoo
+    .sfoo2
+    ++
+    bar.sbar1:
+      argbar
+    .sbar2
+    ++
+    baz.sbaz1:
+      argbaz
+    .sbaz2
+    ++
+    qux
+>>>
+object a:
+  def mtd =
+    foo
+      .sfoo1:
+        argfoo
+      .sfoo2
+      ++
+        bar
+          .sbar1:
+            argbar
+          .sbar2
+        ++
+        baz
+          .sbaz1:
+            argbaz
+          .sbaz2
+        ++
+        qux
+<<< #3720 fewerBraces = beforeSelect || selects both, newlines
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo1:
+      argfoo
+    .sfoo2
+    ||
+    bar.sbar1:
+      argbar
+    .sbar2
+    ||
+    baz.sbaz1:
+      argbaz
+    .sbaz2
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo
+      .sfoo1:
+        argfoo
+      .sfoo2
+    ||
+    bar
+      .sbar1:
+        argbar
+      .sbar2
+    ||
+    baz
+      .sbaz1:
+        argbaz
+      .sbaz2
+    ||
+    qux
+<<< #3720 fewerBraces = beforeSelect ++ selects both, spaces
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo1:
+      argfoo
+    .sfoo2 ++ bar.sbar1:
+      argbar
+    .sbar2 ++ baz.sbaz1:
+      argbaz
+    .sbaz2 ++ qux
+>>>
+object a:
+  def mtd =
+    foo
+      .sfoo1:
+        argfoo
+      .sfoo2 ++ bar
+      .sbar1:
+        argbar
+      .sbar2 ++ baz
+      .sbaz1:
+        argbaz
+      .sbaz2 ++ qux
+<<< #3720 fewerBraces = beforeSelect || selects both, spaces
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo1:
+      argfoo
+    .sfoo2 || bar.sbar1:
+      argbar
+    .sbar2 || baz.sbaz1:
+      argbaz
+    .sbaz2 || qux
+>>>
+object a:
+  def mtd =
+    foo
+      .sfoo1:
+        argfoo
+      .sfoo2 || bar
+      .sbar1:
+        argbar
+      .sbar2 || baz
+      .sbaz1:
+        argbaz
+      .sbaz2 || qux
+<<< #3720 fewerBraces = beforeSelect ++ selects mixed, newlines
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ++
+    bar:
+      argbar
+    ++
+    baz.sbaz:
+      argbaz
+    ++
+    qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+        ++
+          bar:
+            argbar
+          ++
+          baz.sbaz:
+            argbaz
+          ++
+          qux
+<<< #3720 fewerBraces = beforeSelect || selects mixed, newlines
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ||
+    bar:
+      argbar
+    ||
+    baz.sbaz:
+      argbaz
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ||
+    bar:
+      argbar
+    ||
+    baz.sbaz:
+      argbaz
+    ||
+    qux
+<<< #3720 fewerBraces = beforeSelect ++ selects mixed, spaces
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    ++ bar:
+      argbar
+    ++ baz.sbaz:
+      argbaz
+    ++ qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+        ++ bar:
+          argbar
+        ++ baz.sbaz:
+          argbaz
+        ++ qux
+<<< #3720 fewerBraces = beforeSelect || selects mixed, spaces
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    || bar:
+      argbar
+    || baz.sbaz:
+      argbaz
+    || qux
+>>>
+object a:
+  def mtd =
+    foo.sfoo:
+      argfoo
+    || bar:
+      argbar
+    || baz.sbaz:
+      argbaz
+    || qux
+<<< #3720 fewerBraces = beforeSelect ++ short, newlines
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    ++
+    baz:
+      arg
+    ++
+    qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo.bar:
+      arg
+        ++
+          baz:
+            arg
+          ++
+          qux
+<<< #3720 fewerBraces = beforeSelect || short, newlines
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    ||
+    baz:
+      arg
+    ||
+    qux
+>>>
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    ||
+    baz:
+      arg
+    ||
+    qux
+<<< #3720 fewerBraces = beforeSelect ++ short, spaces
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    ++ baz:
+      arg
+    ++ qux
+>>>
+Idempotency violated
+object a:
+  def mtd =
+    foo.bar:
+      arg
+        ++ baz:
+          arg
+        ++ qux
+<<< #3720 fewerBraces = beforeSelect || short, spaces
+indent.significant = 2
+indent.fewerBraces = beforeSelect
+indentOperator.exemptScope = all
+===
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    || baz:
+      arg
+    || qux
+>>>
+object a:
+  def mtd =
+    foo.bar:
+      arg
+    || baz:
+      arg
+    || qux
