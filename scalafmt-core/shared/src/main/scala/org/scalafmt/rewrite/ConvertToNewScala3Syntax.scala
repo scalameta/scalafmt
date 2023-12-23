@@ -65,8 +65,6 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
 
       case _: Token.Underscore =>
         ft.meta.rightOwner match {
-          case _: Importee.Wildcard if dialect.allowStarWildcardImport =>
-            replaceTokenIdent("*", ft.right)
           case t: Type.Wildcard
               if dialect.allowQuestionMarkAsTypeWildcard &&
                 t.parent.exists(_.is[Type.ArgClause]) =>

@@ -201,6 +201,7 @@ object FormatTokensRewrite {
   private val factories = Seq(
     RemoveScala3OptionalBraces,
     ConvertToNewScala3Syntax,
+    ConvertImportWildcardToStar,
     RemoveEmptyDocstrings,
     RewriteTrailingCommas
   )
