@@ -2513,14 +2513,12 @@ object a:
    def foo() =
       require(bar)
       bar
-   end foo
 
    /** c
      */
    def foo() =
       require(bar)
       bar
-   end foo
 <<< #3731 exclude leading multiline comment, body + comment length
 rewrite.scala3.insertEndMarkerMinLines = 5
 rewrite.scala3.removeEndMarkerMaxLines = 4

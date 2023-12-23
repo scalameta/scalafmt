@@ -98,7 +98,15 @@ object FormatToken {
   ) {
     lazy val firstNL = text.indexOf('\n')
     @inline def hasNL: Boolean = firstNL >= 0
-    def countNL: Int = if (hasNL) text.count(_ == '\n') else 0
+    def countNL: Int = {
+      var cnt = 0
+      var idx = firstNL
+      while (idx >= 0) {
+        cnt += 1
+        idx = text.indexOf('\n', idx + 1)
+      }
+      cnt
+    }
   }
 
   class ExtractFromMeta[A](f: FormatToken.Meta => Option[A]) {
