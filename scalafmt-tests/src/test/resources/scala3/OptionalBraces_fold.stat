@@ -2295,6 +2295,128 @@ def update(tpf: Float): Unit =
    end while
    while (true) scene.updateLogicalState(tpf, scene.updateLogicalState(tpf))
    end while
+<<< #3731 exclude leading multiline comment, one shorter
+rewrite.scala3.insertEndMarkerMinLines = 2
+rewrite.scala3.removeEndMarkerMaxLines = 1
+===
+object a:
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  end foo
+>>>
+object a:
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+   end foo
+
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+   end foo
+<<< #3731 exclude leading multiline comment, body length
+rewrite.scala3.insertEndMarkerMinLines = 3
+rewrite.scala3.removeEndMarkerMaxLines = 2
+===
+object a:
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  end foo
+>>>
+object a:
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+   end foo
+
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+   end foo
+<<< #3731 exclude leading multiline comment, one longer
+rewrite.scala3.insertEndMarkerMinLines = 4
+rewrite.scala3.removeEndMarkerMaxLines = 3
+===
+object a:
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  end foo
+>>>
+object a:
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+   end foo
+
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+   end foo
+<<< #3731 exclude leading multiline comment, body + comment length
+rewrite.scala3.insertEndMarkerMinLines = 5
+rewrite.scala3.removeEndMarkerMaxLines = 4
+===
+object a:
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  end foo
+>>>
+object a:
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
 <<< TryWithHandler: newline after catch
 object a {
   def foo = try
