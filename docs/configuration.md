@@ -1007,6 +1007,7 @@ case object BB extends A
 #### `align.preset=more`
 
 ```scala mdoc:scalafmt
+maxColumn = 80
 align.preset = more
 ---
 val x = 2 // true for assignment
