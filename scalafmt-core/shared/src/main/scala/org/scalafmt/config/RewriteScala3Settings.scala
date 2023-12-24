@@ -6,6 +6,7 @@ import metaconfig._
 
 case class RewriteScala3Settings(
     convertToNewSyntax: Boolean = false,
+    newSyntax: ConvertToNewSyntax = ConvertToNewSyntax.default,
     removeOptionalBraces: RemoveOptionalBraces = RemoveOptionalBraces.no,
     countEndMarkerLines: RewriteScala3Settings.EndMarkerLines =
       RewriteScala3Settings.EndMarkerLines.all,
@@ -24,7 +25,10 @@ object RewriteScala3Settings {
   implicit val decodec: ConfDecoderEx[RewriteScala3Settings] = Presets
     .mapDecoder(generic.deriveDecoderEx(default).noTypos, "rewrite.scala3") {
       case Conf.Bool(true) =>
-        new RewriteScala3Settings(true, RemoveOptionalBraces.yes)
+        new RewriteScala3Settings(
+          convertToNewSyntax = true,
+          removeOptionalBraces = RemoveOptionalBraces.yes
+        )
       case Conf.Bool(false) => default
     }
 
@@ -53,6 +57,26 @@ object RewriteScala3Settings {
 
     case object all extends EndMarkerLines
     case object lastBlockOnly extends EndMarkerLines
+
+  }
+
+  case class ConvertToNewSyntax(
+      // https://dotty.epfl.ch/docs/reference/other-new-features/control-syntax.html
+      control: Boolean = true,
+      // https://dotty.epfl.ch/docs/reference/changed-features/vararg-splices.html
+      // https://dotty.epfl.ch/docs/reference/changed-features/imports.html
+      // https://dotty.epfl.ch/docs/reference/changed-features/wildcards.html
+      deprecated: Boolean = true
+  )
+
+  private object ConvertToNewSyntax {
+
+    val default = new ConvertToNewSyntax
+
+    implicit val surface: generic.Surface[ConvertToNewSyntax] =
+      generic.deriveSurface
+    implicit val codec: ConfCodecEx[ConvertToNewSyntax] =
+      generic.deriveCodecEx(default).noTypos
 
   }
 

@@ -3605,18 +3605,29 @@ This section describes rules which are applied if the appropriate dialect (e.g.,
 
 ### `rewrite.scala3.convertToNewSyntax`
 
-If this flag is enabled, the following new syntax will be applied:
+If this flag is enabled, the following new syntax will be applied (also,
+**since 3.8.0**, if an appropriate flag under `rewrite.scala.newSyntax` is not
+set to `false`, see below):
 
 - [control syntax](https://dotty.epfl.ch/docs/reference/other-new-features/control-syntax.html)
   - if dialect sets `allowSignificantIndentation`
+    (any scala3 dialect) and `...newSyntax.control` is set
+    - `if (...)` to `if ... then`
+    - `while (...)` to `while ... do`
+    - `for (...)` to `for ... do` (or `for (...) yield` to `for ... yield`)
 - [vararg splices](https://dotty.epfl.ch/docs/reference/changed-features/vararg-splices.html)
   - vararg `: _*` or `@ _*` to `*` if dialect sets `allowPostfixStarVarargSplices`
+    (any scala3, or scala2xxSource3) and `...newSyntax.deprecated` is set
 - [imports](https://dotty.epfl.ch/docs/reference/changed-features/imports.html)
   - import wildcard `_` to `*` if dialect sets `allowStarWildcardImport`
+    (any scala3, or scala2xxSource3) and `...newSyntax.deprecated` is set
   - import rename `=>` to `as` if dialect sets `allowAsForImportRename`
+    (any scala3, or scala2xxSource3) and `...newSyntax.deprecated` is set
 - [wildcards](https://docs.scala-lang.org/scala3/reference/changed-features/wildcards.html)
   - type wildcard `_` to `?` if dialect sets `allowQuestionMarkAsTypeWildcard`
+    (scala212 and later) and `...newSyntax.deprecated` is set
   - anonymous type param `*` to `_` if dialect sets `allowUnderscoreAsTypePlaceholder`
+    (scala3Future only) and `...newSyntax.deprecated` is set
 
 NB: You could control these rules individually by
 [overriding dialect properties](#runnerdialectoverride).

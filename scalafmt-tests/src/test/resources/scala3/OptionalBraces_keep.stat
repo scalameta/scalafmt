@@ -1213,8 +1213,8 @@ rewrite.scala3.removeOptionalBraces = yes
 ===
 object a {
   val a = {
-    if (a) { // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
-      if (aa) {  // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
+    if (a) { // scalafmt: { rewrite.scala3.newSyntax.control = false }
+      if (aa) {  // scalafmt: { rewrite.scala3.newSyntax.control = true }
         aaa
       } // c1
     } else {
@@ -1241,10 +1241,10 @@ object a {
 >>>
 object a:
    val a =
-     if a then // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
-        if (aa) { // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
-          aaa
-        } // c1
+     if a then // scalafmt: { rewrite.scala3.newSyntax.control = false }
+        if aa then // scalafmt: { rewrite.scala3.newSyntax.control = true }
+           aaa
+        // c1
      else
         b
    val a =
@@ -1282,11 +1282,25 @@ object a {
       foo
     }
   }
+  // scalafmt: { rewrite.scala3.newSyntax.control = false }
+  while (a > 0) {
+    while (a > 0) do {
+      foo
+    }
+  }
+  // scalafmt: { rewrite.scala3.newSyntax.control = true }
   for (a <- b) {
     for (a <- b) do {
       foo
     }
   }
+  // scalafmt: { rewrite.scala3.newSyntax.control = false }
+  for (a <- b) do {
+    for (a <- b) {
+      foo
+    }
+  }
+  // scalafmt: { rewrite.scala3.newSyntax.control = true }
   for {a <- b} {
     for {a <- b} do {
       foo
@@ -1299,9 +1313,19 @@ object a:
    while a > 0 do
       while a > 0 do
          foo
+   // scalafmt: { rewrite.scala3.newSyntax.control = false }
+   while a > 0 do
+      while a > 0 do
+         foo
+   // scalafmt: { rewrite.scala3.newSyntax.control = true }
    for a <- b do
       for a <- b do
          foo
+   // scalafmt: { rewrite.scala3.newSyntax.control = false }
+   for a <- b do
+      for a <- b do
+         foo
+   // scalafmt: { rewrite.scala3.newSyntax.control = true }
    for a <- b do
       for a <- b do
          foo
@@ -1400,12 +1424,16 @@ object a:
  import scala.{annotation => ann}
  import java as j
  import Predef.{augmentString => _}
+ // scalafmt: { rewrite.scala3.newSyntax.deprecated = false }
+ import Predef.{augmentString => _}
 >>>
 object a:
    import A.{min as minimum, `*` as multiply}
    import Predef.{augmentString as _, *}
    import scala.{annotation as ann}
    import java as j
+   import Predef.{augmentString as _}
+   // scalafmt: { rewrite.scala3.newSyntax.deprecated = false }
    import Predef.{augmentString as _}
 <<< rewrite to new syntax, imports, scala2-source3
 rewrite.scala3.convertToNewSyntax = true
