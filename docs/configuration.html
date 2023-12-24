@@ -1350,17 +1350,14 @@ must explicitly enable it to get earlier behaviour of <code>align.preset=none</c
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">val</span> x  = <span class="hljs-number">2</span> <span class="hljs-comment">// true for assignment</span>
 <span class="hljs-keyword">val</span> xx = <span class="hljs-number">22</span>
 
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">B</span></span>
-    <span class="hljs-keyword">extends</span> <span class="hljs-type">A</span> <span class="hljs-comment">// true for `extends`</span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">B</span>  <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span> <span class="hljs-title">//</span> <span class="hljs-title">true</span> <span class="hljs-title">for</span> `<span class="hljs-keyword">extends</span>`</span>
 <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">BB</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span></span>
 
-q -&gt; <span class="hljs-number">22</span> <span class="hljs-comment">// true for various infix operators</span>
-qq -&gt; <span class="hljs-number">3</span> <span class="hljs-comment">// and also comments!</span>
+q  -&gt; <span class="hljs-number">22</span> <span class="hljs-comment">// true for various infix operators</span>
+qq -&gt; <span class="hljs-number">3</span>  <span class="hljs-comment">// and also comments!</span>
 
 <span class="hljs-keyword">for</span> {
-  x &lt;- <span class="hljs-type">List</span>(
-    <span class="hljs-number">1</span>
-  ) <span class="hljs-comment">// true for alignment enumerator</span>
+  x   &lt;- <span class="hljs-type">List</span>(<span class="hljs-number">1</span>) <span class="hljs-comment">// true for alignment enumerator</span>
   yyy &lt;- <span class="hljs-type">List</span>(<span class="hljs-number">2</span>)
 } <span class="hljs-keyword">yield</span> x ** yyy
 
@@ -1381,7 +1378,7 @@ x <span class="hljs-keyword">match</span> { <span class="hljs-comment">// true f
 <span class="hljs-comment">// Align sbt module IDs.</span>
 libraryDependencies ++= <span class="hljs-type">Seq</span>(
   <span class="hljs-string">"org.scala-lang"</span> % <span class="hljs-string">"scala-compiler"</span> % scalaVersion.value,
-  <span class="hljs-string">"com.lihaoyi"</span> %% <span class="hljs-string">"sourcecode"</span> % <span class="hljs-string">"0.1.1"</span>
+  <span class="hljs-string">"com.lihaoyi"</span>   %% <span class="hljs-string">"sourcecode"</span>     % <span class="hljs-string">"0.1.1"</span>
 )
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">val</span> x = <span class="hljs-number">2</span> <span class="hljs-comment">// true for assignment</span>
@@ -1419,7 +1416,8 @@ libraryDependencies ++= <span class="hljs-type">Seq</span>(
 )
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">align.preset = more
+<pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">80</span>
+align.preset = more
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="alignpresetmost"></a><a href="#alignpresetmost" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.preset=most</code></h4>
