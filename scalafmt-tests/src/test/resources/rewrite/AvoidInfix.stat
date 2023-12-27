@@ -429,7 +429,7 @@ project.layout = StandardConvention
 ===
 a shouldBe b
 >>> foo/src/main/scala/bar.scala
-a shouldBe b
+a.shouldBe(b)
 <<< #3712 scalatest usage, path test, layout standard
 project.layout = StandardConvention
 ===
@@ -491,7 +491,7 @@ rewrite.avoidInfix.excludeFilters = ["foo"]
 ===
 a shouldBe b
 >>> foo/src/main/scala/bar.scala
-a.shouldBe(b)
+a shouldBe b
 <<< #3712 scalatest usage, path test, layout standard, excludeScalaTest=true, override exclude
 project.layout = StandardConvention
 rewrite.avoidInfix.excludeScalaTest = true
@@ -499,7 +499,7 @@ rewrite.avoidInfix.excludeFilters = ["foo"]
 ===
 a shouldBe b
 >>> foo/src/test/scala/bar.scala
-a.shouldBe(b)
+a shouldBe b
 <<< #3712 scalatest usage, path unspecified, layout standard, excludeScalaTest=true, override exclude
 project.layout = StandardConvention
 rewrite.avoidInfix.excludeScalaTest = true
@@ -507,28 +507,28 @@ rewrite.avoidInfix.excludeFilters = ["foo"]
 ===
 a shouldBe b
 >>>
-a.shouldBe(b)
+a shouldBe b
 <<< #3712 scalatest usage, path main, layout standard, excludeScalaTest=false
 project.layout = StandardConvention
 rewrite.avoidInfix.excludeScalaTest = false
 ===
 a shouldBe b
 >>> foo/src/main/scala/bar.scala
-a shouldBe b
+a.shouldBe(b)
 <<< #3712 scalatest usage, path test, layout standard, excludeScalaTest=false
 project.layout = StandardConvention
 rewrite.avoidInfix.excludeScalaTest = false
 ===
 a shouldBe b
 >>> foo/src/test/scala/bar.scala
-a shouldBe b
+a.shouldBe(b)
 <<< #3712 scalatest usage, path unspecified, layout standard, excludeScalaTest=false
 project.layout = StandardConvention
 rewrite.avoidInfix.excludeScalaTest = false
 ===
 a shouldBe b
 >>>
-a shouldBe b
+a.shouldBe(b)
 <<< #3712 scalatest usage, path main, layout standard, excludeScalaTest=false, override exclude
 project.layout = StandardConvention
 rewrite.avoidInfix.excludeScalaTest = false
@@ -607,39 +607,39 @@ rewrite.avoidInfix.excludeFilters = ["foo"]
 ===
 a shouldBe b
 >>> foo/src/main/scala/bar.scala
-a.shouldBe(b)
+a shouldBe b
 <<< #3712 scalatest usage, path test, layout unspecified, excludeScalaTest=true, override exclude
 rewrite.avoidInfix.excludeScalaTest = true
 rewrite.avoidInfix.excludeFilters = ["foo"]
 ===
 a shouldBe b
 >>> foo/src/test/scala/bar.scala
-a.shouldBe(b)
+a shouldBe b
 <<< #3712 scalatest usage, path unspecified, layout unspecified, excludeScalaTest=true, override exclude
 rewrite.avoidInfix.excludeScalaTest = true
 rewrite.avoidInfix.excludeFilters = ["foo"]
 ===
 a shouldBe b
 >>>
-a.shouldBe(b)
+a shouldBe b
 <<< #3712 scalatest usage, path main, layout unspecified, excludeScalaTest=false
 rewrite.avoidInfix.excludeScalaTest = false
 ===
 a shouldBe b
 >>> foo/src/main/scala/bar.scala
-a shouldBe b
+a.shouldBe(b)
 <<< #3712 scalatest usage, path test, layout unspecified, excludeScalaTest=false
 rewrite.avoidInfix.excludeScalaTest = false
 ===
 a shouldBe b
 >>> foo/src/test/scala/bar.scala
-a shouldBe b
+a.shouldBe(b)
 <<< #3712 scalatest usage, path unspecified, layout unspecified, excludeScalaTest=false
 rewrite.avoidInfix.excludeScalaTest = false
 ===
 a shouldBe b
 >>>
-a shouldBe b
+a.shouldBe(b)
 <<< #3712 scalatest usage, path main, layout unspecified, excludeScalaTest=false, override exclude
 rewrite.avoidInfix.excludeScalaTest = false
 rewrite.avoidInfix.excludeFilters = ["foo"]
@@ -667,7 +667,7 @@ fileOverride.".scala".rewrite.avoidInfix.excludeScalaTest = false
 ===
 a shouldBe b
 >>> foo/src/main/scala/bar.scala
-a shouldBe b
+a.shouldBe(b)
 <<< #3712 scalatest usage, path main, layout standard, file override
 project.layout = StandardConvention
 rewrite.avoidInfix.excludeScalaTest = true
@@ -675,7 +675,7 @@ fileOverride.".scala".rewrite.avoidInfix.excludeScalaTest = null
 ===
 a shouldBe b
 >>> foo/src/main/scala/bar.scala
-a shouldBe b
+a.shouldBe(b)
 <<< #3712 scalatest usage, path test, layout standard, file override
 project.layout = StandardConvention
 rewrite.avoidInfix.excludeScalaTest = true
