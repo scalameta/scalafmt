@@ -21,6 +21,18 @@ case class AvoidInfixSettings(
     // if the user customized these, we don't touch
     if (isMainExclude) withExtraExclude(AvoidInfixSettings.sbtExclude) else None
 
+  private[config] def forMainOpt: Option[AvoidInfixSettings] =
+    if (excludeScalaTest.contains(true)) Some(withTestExclude) else None
+
+  private[config] def forTestOpt: Option[AvoidInfixSettings] =
+    if (excludeScalaTest.getOrElse(isMainExclude)) Some(withTestExclude)
+    else None
+
+  private def withTestExclude: AvoidInfixSettings =
+    getExcludeWithExtra(AvoidInfixSettings.testExclude).fold(
+      copy(excludeScalaTest = Some(false))
+    )(x => copy(excludeFilters = x, excludeScalaTest = Some(false)))
+
   @inline
   private def excludeStartsWith(obj: Seq[AvoidInfixSettings.Filter]): Boolean =
     excludeFilters.eq(obj) || excludeFilters.startsWith(obj)
@@ -108,7 +120,11 @@ object AvoidInfixSettings {
       "to",
       "by",
       "eq",
-      "ne",
+      "ne"
+    ).map(Filter.apply)
+
+  private val testExclude =
+    Seq(
       "should.*",
       "contain.*",
       "must.*",

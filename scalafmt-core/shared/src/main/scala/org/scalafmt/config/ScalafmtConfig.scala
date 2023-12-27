@@ -177,6 +177,13 @@ case class ScalafmtConfig(
     NamedDialect.getName(dialect).getOrElse("unknown dialect")
   )
 
+  private lazy val forMain: ScalafmtConfig =
+    if (project.layout.isEmpty) forTest
+    else rewrite.forMainOpt.fold(this)(x => copy(rewrite = x))
+
+  private lazy val forTest: ScalafmtConfig =
+    rewrite.forTestOpt.fold(this)(x => copy(rewrite = x))
+
   def forSbt: ScalafmtConfig =
     rewrite.forSbtOpt.fold(this)(x => copy(rewrite = x))
 
@@ -207,23 +214,33 @@ case class ScalafmtConfig(
     (langResult, pmResult)
   }
 
+  private def getConfigViaLayoutInfoFor(absfile: AbsoluteFile)(
+      f: (ProjectFiles.Layout, String) => ScalafmtConfig
+  ): Option[ScalafmtConfig] =
+    project.layout.flatMap { layout =>
+      layout.getInfo(absfile).map { info =>
+        val style = f(layout, info.lang)
+        if (info.isTest) style.forTest else style.forMain
+      }
+    }
+
   def getConfigFor(filename: String): Try[ScalafmtConfig] = {
     val absfile = AbsoluteFile(filename)
-    def onLang[A](f: (ProjectFiles.Layout, String) => A): Option[A] =
-      project.layout.flatMap { layout =>
-        layout.getInfo(absfile).map { x => f(layout, x.lang) }
-      }
     expandedFileOverride.map { case (langStyles, pmStyles) =>
-      def langStyle = onLang { (layout, lang) =>
+      def langStyle = getConfigViaLayoutInfoFor(absfile) { (layout, lang) =>
         val style = langStyles.collectFirst { case (`lang`, x) => x }
         style.getOrElse(layout.withLang(lang, this))
       }
       val pmStyle = pmStyles.collectFirst {
         case (pm, style) if pm.matches(absfile.path) =>
-          if (!style.dialect.isEquivalentTo(dialect)) style
-          else onLang(_.withLang(_, style)).getOrElse(style)
+          style
+            .getConfigViaLayoutInfoFor(absfile) { (layout, lang) =>
+              val sameDialect = style.dialect.isEquivalentTo(dialect)
+              if (sameDialect) layout.withLang(lang, style) else style
+            }
+            .getOrElse(style)
       }
-      pmStyle.orElse(langStyle).getOrElse(this)
+      pmStyle.orElse(langStyle).getOrElse(forTest)
     }
   }
 
