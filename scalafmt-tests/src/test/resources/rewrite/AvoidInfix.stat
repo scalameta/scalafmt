@@ -424,3 +424,271 @@ object a {
   val foo = bar
   a.baz(b)
 }
+<<< #3712 scalatest usage, path main, layout standard
+project.layout = StandardConvention
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path test, layout standard
+project.layout = StandardConvention
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout standard
+project.layout = StandardConvention
+===
+a shouldBe b
+>>>
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout standard, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout standard, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path unspecified, layout standard, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>>
+a.shouldBe(b)
+<<< #3712 scalatest usage, path main, layout standard, excludeScalaTest=true
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path test, layout standard, excludeScalaTest=true
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout standard, excludeScalaTest=true
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+===
+a shouldBe b
+>>>
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout standard, excludeScalaTest=true, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout standard, excludeScalaTest=true, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path unspecified, layout standard, excludeScalaTest=true, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>>
+a.shouldBe(b)
+<<< #3712 scalatest usage, path main, layout standard, excludeScalaTest=false
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path test, layout standard, excludeScalaTest=false
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout standard, excludeScalaTest=false
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>>
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout standard, excludeScalaTest=false, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout standard, excludeScalaTest=false, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path unspecified, layout standard, excludeScalaTest=false, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>>
+a.shouldBe(b)
+<<< #3712 scalatest usage, path main, layout unspecified
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path test, layout unspecified
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout unspecified
+a shouldBe b
+>>>
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout unspecified, override exclude
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout unspecified, override exclude
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path unspecified, layout unspecified, override exclude
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>>
+a.shouldBe(b)
+<<< #3712 scalatest usage, path main, layout unspecified, excludeScalaTest=true
+rewrite.avoidInfix.excludeScalaTest = true
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path test, layout unspecified, excludeScalaTest=true
+rewrite.avoidInfix.excludeScalaTest = true
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout unspecified, excludeScalaTest=true
+rewrite.avoidInfix.excludeScalaTest = true
+===
+a shouldBe b
+>>>
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout unspecified, excludeScalaTest=true, override exclude
+rewrite.avoidInfix.excludeScalaTest = true
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout unspecified, excludeScalaTest=true, override exclude
+rewrite.avoidInfix.excludeScalaTest = true
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path unspecified, layout unspecified, excludeScalaTest=true, override exclude
+rewrite.avoidInfix.excludeScalaTest = true
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>>
+a.shouldBe(b)
+<<< #3712 scalatest usage, path main, layout unspecified, excludeScalaTest=false
+rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path test, layout unspecified, excludeScalaTest=false
+rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout unspecified, excludeScalaTest=false
+rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>>
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout unspecified, excludeScalaTest=false, override exclude
+rewrite.avoidInfix.excludeScalaTest = false
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout unspecified, excludeScalaTest=false, override exclude
+rewrite.avoidInfix.excludeScalaTest = false
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path unspecified, layout unspecified, excludeScalaTest=false, override exclude
+rewrite.avoidInfix.excludeScalaTest = false
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>>
+a.shouldBe(b)
+<<< #3712 scalatest usage, file override
+rewrite.avoidInfix.excludeScalaTest = true
+fileOverride.".scala".rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout standard, file override
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+fileOverride.".scala".rewrite.avoidInfix.excludeScalaTest = null
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path test, layout standard, file override
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+fileOverride.".scala".rewrite.avoidInfix.excludeScalaTest = null
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout standard, file override
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+fileOverride.".scala".rewrite.avoidInfix.excludeScalaTest = null
+===
+a shouldBe b
+>>>
+a shouldBe b

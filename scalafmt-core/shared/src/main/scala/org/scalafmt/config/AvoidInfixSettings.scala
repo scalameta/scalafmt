@@ -10,6 +10,7 @@ case class AvoidInfixSettings(
     private[config] val includeFilters: Seq[AvoidInfixSettings.Filter],
     // strict match
     private[config] val excludeFilters: Seq[AvoidInfixSettings.Filter],
+    private val excludeScalaTest: Option[Boolean] = None,
     excludePlaceholderArg: Option[Boolean] = None
 ) {
   // if the user completely redefined (rather than appended), we don't touch
