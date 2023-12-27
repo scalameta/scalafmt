@@ -2870,6 +2870,11 @@ The rule takes the following parameters under `rewrite.avoidInfix`:
     change their syntactic meaning, and others will be rewritten as usual
   - (before 3.8.0 and since 3.4.4) this parameter was named
     `rewrite.allowInfixPlaceholderArg`
+- (since 3.8.0) `excludeScalaTest` controls whether the standard set of
+  `scalatest` assert methods is added to `excludeFilters`
+  - if unspecified, and `project.layout` determines that the file being
+    formatted is not a test file, then these test assert methods will not
+    be excluded
 
 ```scala mdoc:scalafmt
 rewrite.rules = [AvoidInfix]
