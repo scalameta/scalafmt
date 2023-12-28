@@ -32,38 +32,41 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
       ft: FormatToken,
       style: ScalafmtConfig
   ): Option[Replacement] = Option {
+    val flag = style.rewrite.scala3.newSyntax
+    def left = ftoks.prevNonComment(ft).left
     ft.right match {
 
-      case _: Token.LeftParen if dialect.allowSignificantIndentation =>
+      case _: Token.LeftParen
+          if flag.control && dialect.allowSignificantIndentation =>
         ft.meta.rightOwner match {
-          case _: Term.If if ftoks.prevNonComment(ft).left.is[Token.KwIf] =>
+          case _: Term.If if left.is[Token.KwIf] =>
             removeToken
-          case _: Term.While
-              if ftoks.prevNonComment(ft).left.is[Token.KwWhile] =>
+          case _: Term.While if left.is[Token.KwWhile] =>
             removeToken
-          case _: Term.For if ftoks.prevNonComment(ft).left.is[Token.KwFor] =>
+          case _: Term.For if left.is[Token.KwFor] =>
             removeToken
-          case _: Term.ForYield
-              if ftoks.prevNonComment(ft).left.is[Token.KwFor] =>
+          case _: Term.ForYield if left.is[Token.KwFor] =>
             removeToken
           case _ => null
         }
 
-      case _: Token.Colon if dialect.allowPostfixStarVarargSplices =>
+      case _: Token.Colon
+          if flag.deprecated && dialect.allowPostfixStarVarargSplices =>
         ft.meta.rightOwner match {
           case t: Term.Repeated if isSimpleRepeated(t) =>
             removeToken // trick: to get "*", just remove ":" and "_"
           case _ => null
         }
 
-      case _: Token.At if dialect.allowPostfixStarVarargSplices =>
+      case _: Token.At
+          if flag.deprecated && dialect.allowPostfixStarVarargSplices =>
         ft.meta.rightOwner match {
           case Pat.Bind(_, _: Pat.SeqWildcard) =>
             removeToken // trick: to get "*", just remove "@" and "_"
           case _ => null
         }
 
-      case _: Token.Underscore =>
+      case _: Token.Underscore if flag.deprecated =>
         ft.meta.rightOwner match {
           case _: Importee.Wildcard if dialect.allowStarWildcardImport =>
             replaceTokenIdent("*", ft.right)
@@ -81,14 +84,15 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
           case _ => null
         }
 
-      case _: Token.RightArrow if dialect.allowAsForImportRename =>
+      case _: Token.RightArrow
+          if flag.deprecated && dialect.allowAsForImportRename =>
         ft.meta.rightOwner match {
           case _: Importee.Rename | _: Importee.Unimport =>
             replaceTokenIdent("as", ft.right)
           case _ => null
         }
 
-      case Token.Ident("*") =>
+      case Token.Ident("*") if flag.deprecated =>
         ft.meta.rightOwner match {
           case _: Type.AnonymousParam
               if dialect.allowUnderscoreAsTypePlaceholder =>
@@ -106,18 +110,19 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
       ft: FormatToken,
       style: ScalafmtConfig
   ): Option[(Replacement, Replacement)] = Option {
+    def nextRight = ftoks.nextNonComment(ftoks.next(ft)).right
     ft.right match {
 
       case x: Token.RightParen if left.how eq ReplacementType.Remove =>
         ft.meta.rightOwner match {
           case _: Term.If =>
-            if (!ftoks.nextNonComment(ftoks.next(ft)).right.is[Token.KwThen])
+            if (!nextRight.is[Token.KwThen])
               replaceToken("then")(
                 new Token.KwThen(x.input, x.dialect, x.start)
               )
             else removeToken
           case _: Term.While | _: Term.For =>
-            if (!ftoks.nextNonComment(ftoks.next(ft)).right.is[Token.KwDo])
+            if (!nextRight.is[Token.KwDo])
               replaceToken("do")(new Token.KwDo(x.input, x.dialect, x.start))
             else removeToken
           case _ => null

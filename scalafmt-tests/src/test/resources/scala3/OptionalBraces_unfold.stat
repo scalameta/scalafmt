@@ -1321,8 +1321,8 @@ object a {
 object a:
    val a =
      if a then // scalafmt: { rewrite.scala3.newSyntax.control = false }
-        if aa then // scalafmt: { rewrite.scala3.newSyntax.control = true }
-           aaa
+        if (aa) // scalafmt: { rewrite.scala3.newSyntax.control = true }
+          aaa
         // c1
      else
         b
@@ -1396,9 +1396,9 @@ object a:
          foo
    end while
    // scalafmt: { rewrite.scala3.newSyntax.control = false }
-   while a > 0 do
-      while a > 0 do
-         foo
+   while (a > 0)
+     while a > 0 do
+        foo
    end while
    // scalafmt: { rewrite.scala3.newSyntax.control = true }
    for a <- b do
@@ -1406,9 +1406,9 @@ object a:
          foo
    end for
    // scalafmt: { rewrite.scala3.newSyntax.control = false }
-   for a <- b do
-      for a <- b do
-         foo
+   for (a <- b) do
+      for (a <- b)
+        foo
    end for
    // scalafmt: { rewrite.scala3.newSyntax.control = true }
    for a <- b do
@@ -1554,7 +1554,7 @@ object a:
    import java as j
    import Predef.{augmentString as _}
    // scalafmt: { rewrite.scala3.newSyntax.deprecated = false }
-   import Predef.{augmentString as _}
+   import Predef.{augmentString => _}
 <<< rewrite to new syntax, imports, scala2-source3
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
