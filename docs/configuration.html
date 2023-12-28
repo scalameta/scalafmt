@@ -3883,6 +3883,13 @@ change their syntactic meaning, and others will be rewritten as usual</li>
 <li>(before 3.8.0 and since 3.4.4) this parameter was named
 <code>rewrite.allowInfixPlaceholderArg</code></li>
 </ul></li>
+<li>(since 3.8.0) <code>excludeScalaTest</code> controls whether the standard set of
+<code>scalatest</code> assert methods is added to <code>excludeFilters</code>
+<ul>
+<li>if unspecified, and <code>project.layout</code> determines that the file being
+formatted is not a test file, then these test assert methods will not
+be excluded</li>
+</ul></li>
 </ul>
 <pre><code class="hljs css language-scala formatted">a.success(b)
 a.error(b, c)
@@ -6696,29 +6703,8 @@ rewrite.avoidInfix.<span class="hljs-attr">excludeFilters</span> = [
   by
   eq
   ne
-  <span class="hljs-string">"should.*"</span>
-  <span class="hljs-string">"contain.*"</span>
-  <span class="hljs-string">"must.*"</span>
-  <span class="hljs-keyword">in</span>
-  ignore
-  be
-  <span class="hljs-string">"behavior\.of"</span>
-  taggedAs
-  thrownBy
-  synchronized
-  have
-  when
-  size
-  only
-  noneOf
-  oneElementOf
-  noElementsOf
-  atLeastOneElementOf
-  atMostOneElementOf
-  allElementsOf
-  inOrderElementsOf
-  theSameElementsAs
 ]
+rewrite.avoidInfix.<span class="hljs-attr">excludeScalaTest</span> = <span class="hljs-literal">null</span>
 rewrite.avoidInfix.<span class="hljs-attr">excludePlaceholderArg</span> = <span class="hljs-literal">null</span>
 indentOperator.<span class="hljs-attr">exemptScope</span> = <span class="hljs-literal">null</span>
 indentOperator.<span class="hljs-attr">topLevelOnly</span> = <span class="hljs-literal">true</span>
