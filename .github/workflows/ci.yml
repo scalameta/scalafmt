@@ -119,7 +119,7 @@ jobs:
           images: scalameta/scalafmt
           tags: type=semver,pattern={{raw}}
       - name: Downloading scalafmt-linux-musl for Docker Build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: scalafmt-linux-musl
           path: tmp/scalafmt-linux-musl
