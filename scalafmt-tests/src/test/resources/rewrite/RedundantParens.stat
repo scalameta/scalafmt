@@ -1321,3 +1321,63 @@ object A {
 object A {
   val a = new A({ case x => x })
 }
+<<< #3743 trailingCommas = always
+rewrite.trailingCommas.style = always
+===
+object A {
+  def test =
+    (
+      foo,
+    )
+  def test =
+    (
+      Option(""),
+    ).map(identity)}
+>>>
+test does not parse
+object A {
+  def test =
+    foo,
+  def test =
+    Option(""), .map(identity)
+}
+<<< #3743 trailingCommas = never
+rewrite.trailingCommas.style = never
+===
+object A {
+  def test =
+    (
+      foo,
+    )
+  def test =
+    (
+      Option(""),
+    ).map(identity)}
+>>>
+test does not parse
+object A {
+  def test =
+    foo,
+  def test =
+    Option(""), .map(identity)
+}
+<<< #3743 trailingCommas = keep
+rewrite.trailingCommas.style = keep
+===
+object A {
+  def test =
+    (
+      foo,
+    )
+  def test =
+    (
+      Option(""),
+    ).map(identity)}
+>>>
+test does not parse
+object A {
+  def test =
+    foo,
+  def test =
+    Option(""), .map(identity)
+}
