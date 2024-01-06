@@ -30,6 +30,7 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
 
   override def onToken(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Option[Replacement] = Option {
     val flag = style.rewrite.scala3.newSyntax
@@ -108,6 +109,7 @@ private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Option[(Replacement, Replacement)] = Option {
     def nextRight = ftoks.nextNonComment(ftoks.next(ft)).right

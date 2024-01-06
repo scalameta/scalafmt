@@ -21,6 +21,7 @@ object RemoveEmptyDocstrings
 
   override def onToken(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Option[Replacement] = {
     val skip = ft.right.is[Token.Comment] &&
@@ -30,6 +31,7 @@ object RemoveEmptyDocstrings
 
   override def onRight(lt: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Option[(Replacement, Replacement)] = None
 

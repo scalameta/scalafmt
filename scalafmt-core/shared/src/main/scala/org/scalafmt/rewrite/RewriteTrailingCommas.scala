@@ -34,6 +34,7 @@ private class RewriteTrailingCommas(ftoks: FormatTokens)
 
   override def onToken(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Option[Replacement] = {
     val ok = ft.right.is[Token.Comma] && {
@@ -59,6 +60,7 @@ private class RewriteTrailingCommas(ftoks: FormatTokens)
 
   override def onRight(lt: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Option[(Replacement, Replacement)] = None
 

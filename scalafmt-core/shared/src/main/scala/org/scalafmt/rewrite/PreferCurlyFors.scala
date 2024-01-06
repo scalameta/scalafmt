@@ -61,6 +61,7 @@ private class PreferCurlyFors(ftoks: FormatTokens)
 
   override def onToken(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Option[Replacement] = Option {
     ft.right match {
@@ -91,6 +92,7 @@ private class PreferCurlyFors(ftoks: FormatTokens)
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Option[(Replacement, Replacement)] =
     ft.right match {
