@@ -1342,11 +1342,11 @@ object A {
   def test =
     (
       foo,
-  )
+    )
   def test =
     (
       foo,
-  )
+    )
   def test =
     (
       Option(""),
@@ -1373,11 +1373,11 @@ object A {
   def test =
     (
       foo,
-  )
+    )
   def test =
     (
       foo,
-  )
+    )
   def test =
     (
       Option(""),
@@ -1404,11 +1404,11 @@ object A {
   def test =
     (
       foo,
-  )
+    )
   def test =
     (
       foo,
-  )
+    )
   def test =
     (
       Option(""),
