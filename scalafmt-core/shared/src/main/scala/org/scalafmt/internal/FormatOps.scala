@@ -1373,7 +1373,7 @@ class FormatOps(
   final def leadingComment(ft: FormatToken): FormatToken =
     if (ft.hasBlankLine || !ft.left.is[T.Comment]) ft
     else {
-      val pft = tokens.prevNonCommentSameLine(prev(ft))
+      val pft = tokens.prevNonCommentSameLineBefore(ft)
       if (pft.noBreak) ft else leadingComment(pft)
     }
 
@@ -2858,7 +2858,7 @@ class FormatOps(
       val beforeClose =
         if (!closeFt.left.is[T.Comment]) Some(closeFt.left)
         else {
-          val tok = tokens.prevNonCommentSameLine(prev(closeFt)).left
+          val tok = tokens.prevNonCommentSameLineBefore(closeFt).left
           if (tok.is[T.Comment]) None else Some(tok)
         }
       beforeClose.exists(rightIsCloseDelimToAddTrailingComma(_, closeFt))

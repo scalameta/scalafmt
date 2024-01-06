@@ -163,6 +163,10 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   final def prevNonCommentBefore(curr: FormatToken): FormatToken =
     prevNonComment(prev(curr))
 
+  @inline
+  final def prevNonCommentSameLineBefore(curr: FormatToken): FormatToken =
+    prevNonCommentSameLine(prev(curr))
+
   @tailrec
   final def getOnOrBeforeOwned(ft: FormatToken, tree: Tree): FormatToken = {
     val prevFt = prevNonCommentBefore(ft)
