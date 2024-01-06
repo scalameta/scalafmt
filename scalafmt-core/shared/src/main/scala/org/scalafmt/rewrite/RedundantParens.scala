@@ -71,6 +71,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
   override def onToken(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Option[Replacement] =
     ft.right match {
@@ -83,6 +84,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Option[(Replacement, Replacement)] =
     ft.right match {

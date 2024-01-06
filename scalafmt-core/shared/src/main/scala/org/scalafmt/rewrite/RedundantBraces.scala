@@ -70,6 +70,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
   override def onToken(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Option[Replacement] = Option {
     ft.right match {
@@ -81,6 +82,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Option[(Replacement, Replacement)] = Option {
     ft.right match {
@@ -133,6 +135,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
   private def onLeftBrace(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Replacement = {
     onLeftBrace(ft.meta.rightOwner)
@@ -141,6 +144,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   @tailrec
   private def onLeftBrace(owner: Tree)(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): Replacement = {
     owner match {
@@ -285,9 +289,11 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case _ => false
     }
 
-  private def processBlock(
-      b: Term.Block
-  )(implicit ft: FormatToken, style: ScalafmtConfig): Boolean =
+  private def processBlock(b: Term.Block)(implicit
+      ft: FormatToken,
+      session: Session,
+      style: ScalafmtConfig
+  ): Boolean =
     (ft.right match {
       case lb: Token.LeftBrace =>
         b.tokens.headOption.contains(lb) && b.tokens.last.is[Token.RightBrace]
@@ -327,7 +333,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
   private def okToRemoveBlock(
       b: Term.Block
-  )(implicit style: ScalafmtConfig): Boolean = {
+  )(implicit style: ScalafmtConfig, session: Session): Boolean = {
     b.parent.exists {
 
       case p: Case =>
@@ -425,7 +431,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
   /** Some blocks look redundant but aren't */
   private def shouldRemoveSingleStatBlock(
       b: Term.Block
-  )(implicit style: ScalafmtConfig): Boolean =
+  )(implicit style: ScalafmtConfig, session: Session): Boolean =
     getSingleStatIfLineSpanOk(b).exists { stat =>
       @tailrec
       def checkParent(tree: Tree): Boolean = tree match {
@@ -442,7 +448,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
               ftoks.matchingOpt(x) match {
                 case Some(y) if y ne stat.tokens.last =>
                   redundantParensFunc.exists { parensRule =>
-                    parensRule.onToken(ftoks(x, -1), style).exists {
+                    parensRule.onToken(ftoks(x, -1), session, style).exists {
                       _.how eq ReplacementType.Remove
                     }
                   }
