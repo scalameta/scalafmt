@@ -113,7 +113,6 @@ val x = (
  x => x + 1,
 )
 >>>
-Idempotency violated
 val x = (
     x => x + 1
 )
