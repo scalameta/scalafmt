@@ -933,6 +933,7 @@ object TreeOps {
           var children = rest
           var prevChild: Tree = null
           var prevLPs = outerPrevLPs
+          var prevComma: Token = null
 
           @tailrec
           def tokenAt(idx: Int): Int = {
@@ -954,6 +955,7 @@ object TreeOps {
                     children = rest
                     nextChildStart = start
                 }
+                prevComma = null
                 tokenAt(nextIdx)
               } else {
                 def excludeRightParen: Boolean = elem match {
@@ -975,12 +977,19 @@ object TreeOps {
                   else {
                     setOwner(tok, prevChild)
                     setOwner(prevParens.head, prevChild)
+                    if (prevComma != null)
+                      setOwner(prevComma, prevChild)
                   }
                   prevLPs -= 1
                   prevParens = prevParens.tail
+                  prevComma = null
+                } else if (tok.is[Comma]) {
+                  prevComma = tok
+                  setOwner(tok, elem)
                 } else {
                   setOwner(tok, elem)
                   if (!tok.is[Trivia] && tokStart != tok.end) {
+                    prevComma = null
                     prevChild = null
                     if (tok.is[LeftParen]) {
                       prevLPs += 1
