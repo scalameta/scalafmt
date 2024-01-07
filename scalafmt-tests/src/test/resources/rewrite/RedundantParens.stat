@@ -1330,11 +1330,19 @@ object A {
       foo,
     )
   def test =
+    ((
+      (foo),
+    ))
+  def test =
     (
       Option(""),
     ).map(identity)}
 >>>
 object A {
+  def test =
+    (
+      foo,
+  )
   def test =
     (
       foo,
@@ -1353,11 +1361,19 @@ object A {
       foo,
     )
   def test =
+    ((
+      (foo),
+    ))
+  def test =
     (
       Option(""),
     ).map(identity)}
 >>>
 object A {
+  def test =
+    (
+      foo,
+  )
   def test =
     (
       foo,
@@ -1376,11 +1392,19 @@ object A {
       foo,
     )
   def test =
+    ((
+      (foo),
+    ))
+  def test =
     (
       Option(""),
     ).map(identity)}
 >>>
 object A {
+  def test =
+    (
+      foo,
+  )
   def test =
     (
       foo,
