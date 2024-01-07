@@ -11,6 +11,7 @@ import org.scalafmt.util._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import scala.meta.parsers.ParseException
 
 // TODO(olafur) property test: same solution without optimization or timeout.
 
@@ -76,16 +77,20 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
       t.style.copy(runner = scalafmtRunner(runner, debug2)),
       filename = t.filename
     )
-    val formattedAgain = result2.formatted match {
-      case Formatted.Failure(e) => throw FormatException(e, obtained)
-      case Formatted.Success(code) => code
-    }
     debug2.printTest()
+    val result2Either = result2.formatted.toEither
+    def getFormattedAgain(failOK: Boolean) = result2Either match {
+      case Left(e: ParseException) if !failOK =>
+        "test does not parse: " + parseException2Message(e, obtained)
+      case Left(e) => throw FormatException(e, obtained)
+      case Right(code) => code
+    }
+    val formattedAgain = getFormattedAgain(onlyManual)
     if (onlyManual)
       assertEquals(formattedAgain, obtained, "Idempotency violated")
     else {
       assertEquals(
-        if (formattedAgain == obtained) formattedAgain
+        if (formattedAgain == obtained || result2Either.isLeft) formattedAgain
         else "Idempotency violated\n" + formattedAgain,
         t.expected
       )

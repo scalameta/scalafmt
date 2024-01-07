@@ -85,16 +85,14 @@ trait FormatAssertions {
 
   def parseException2Message(e: ParseException, obtained: String): String = {
     val range = 3
-    val lines = obtained.linesIterator
-    lines.drop(e.pos.startLine - range)
-    val pre = lines.take(range).mkString("\n")
-    val post = lines.take(range).mkString("\n")
-    val arrow = (" " * (e.pos.startColumn - 2)) + "^"
-    s"""$pre
-      |$arrow
-      |${e.getMessage}
-      |$post
-      |$obtained
-      |""".stripMargin
+    val lines = obtained.linesIterator.drop(e.pos.startLine - range)
+    Seq(
+      e.shortMessage,
+      lines.take(range).mkString("\n"), // pre
+      (" " * e.pos.startColumn) + "^", // arrow
+      lines.take(range).mkString("\n"), // post
+      "====== full result: ======",
+      obtained.stripTrailing()
+    ).filter(_.nonEmpty).mkString("", "\n", "\n")
   }
 }
