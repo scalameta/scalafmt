@@ -844,11 +844,12 @@ object TreeOps {
   // try to add them in the TrainingCommas.always branch.
   def rightIsCloseDelimForTrailingComma(
       left: Token,
-      ft: FormatToken
+      ft: FormatToken,
+      whenNL: Boolean = true
   )(implicit style: ScalafmtConfig): Boolean = {
     def owner = ft.meta.rightOwner
     def isArgOrParamClauseSite(tree: Tree) =
-      isArgClauseSite(tree) || isParamClauseSite(tree)
+      !whenNL || isArgClauseSite(tree) || isParamClauseSite(tree)
     // skip empty parens/braces/brackets
     ft.right match {
       case _: Token.RightBrace =>
