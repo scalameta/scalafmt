@@ -253,6 +253,7 @@ object FormatTokensRewrite {
     )(implicit ft: FormatToken, style: ScalafmtConfig): Boolean =
       rule.enabled && (rule.onToken match {
         case Some(repl) =>
+          claimed.getOrElseUpdate(ft.meta.idx, rule)
           repl.claim.foreach { claimed.getOrElseUpdate(_, rule) }
           tokens.append(repl)
           true
