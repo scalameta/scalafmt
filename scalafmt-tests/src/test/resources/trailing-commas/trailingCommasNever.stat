@@ -102,25 +102,18 @@ object a {
 val x = ( "a", 
 )
 >>>
-test does not parse: [dialect scala213] illegal start of simple expression
-val x = ("a", )
-              ^
-====== full result: ======
-val x = ("a", )
+val x = ("a")
 <<< #3663 enclosed lambda
 val x = ( x => x + 1,
 )
 >>>
-test does not parse: [dialect scala213] illegal start of simple expression
-val x = (x => x + 1, )
-                     ^
-====== full result: ======
-val x = (x => x + 1, )
+val x = (x => x + 1)
 <<< #3663 enclosed lambda 1
 val x = (
  x => x + 1,
 )
 >>>
+Idempotency violated
 val x = (
-  x => x + 1,
-    )
+    x => x + 1
+)

@@ -1340,17 +1340,12 @@ object A {
 >>>
 object A {
   def test =
-    (
-      foo,
-    )
+    foo
   def test =
-    (
-      foo,
-    )
+    foo
   def test =
-    (
-      Option(""),
-    ).map(identity)
+    Option("")
+      .map(identity)
 }
 <<< #3743 trailingCommas = never
 rewrite.trailingCommas.style = never
@@ -1371,17 +1366,12 @@ object A {
 >>>
 object A {
   def test =
-    (
-      foo,
-    )
+    foo
   def test =
-    (
-      foo,
-    )
+    foo
   def test =
-    (
-      Option(""),
-    ).map(identity)
+    Option("")
+      .map(identity)
 }
 <<< #3743 trailingCommas = keep
 rewrite.trailingCommas.style = keep
