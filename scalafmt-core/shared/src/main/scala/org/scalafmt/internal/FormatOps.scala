@@ -605,8 +605,7 @@ class FormatOps(
             if fullInfix.parent.contains(prevOwner) && !(prevOwner match {
               case po: Member.ArgClause => po.parent.exists(isInfixApp)
               case po => isInfixApp(po)
-            }) && Option(getArgs(prevOwner, orNull = true))
-              .exists(isSeqSingle) =>
+            }) && isSeqSingle(getArgs(prevOwner, orNil = true)) =>
           Some(getLastToken(fullInfix))
         case _ => None
       }
@@ -1458,14 +1457,14 @@ class FormatOps(
     else next(nextNonComment(maybeArrow))
   }
 
-  def getArgs(owner: Tree, orNull: Boolean = false): Seq[Tree] =
+  def getArgs(owner: Tree, orNil: Boolean = false): Seq[Tree] =
     owner match {
       case _: Lit.Unit => Nil
       case t: Term.Super => t.superp :: Nil
       case Member.Tuple(v) => v
       case Member.SyntaxValuesClause(v) => v
       case t: Member.Function => t.paramClause.values
-      case _ if orNull => null
+      case _ if orNil => Nil
       case t =>
         logger.debug(
           s"""getApplyArgs: unknown tree
@@ -2822,7 +2821,7 @@ class FormatOps(
     ft.meta.rightOwner match {
       case x: Importer => x.importees.lengthCompare(1) > 0
       case x => // take last arg when multiple
-        getArgs(x).view.drop(1).lastOption match {
+        getArgs(x, orNil = true).view.drop(1).lastOption match {
           case None | Some(_: Term.Repeated) => false
           case Some(t: Term.Param) => !t.decltpe.exists(_.is[Type.Repeated])
           case _ => true
