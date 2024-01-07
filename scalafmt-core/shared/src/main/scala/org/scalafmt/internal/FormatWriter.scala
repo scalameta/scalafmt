@@ -480,16 +480,14 @@ class FormatWriter(formatOps: FormatOps) {
           getClosedDelimWithNewline(expectedNewline).isDefined
         }
 
-        def getClosedDelimWithNewline(
-            expectedNewline: Boolean
-        ): Option[FormatToken] = {
+        def getClosedDelimWithNewline(whenNL: Boolean): Option[FormatToken] = {
           @tailrec
           def iter(
               floc: FormatLocation,
               hadNL: Boolean
           ): Option[FormatToken] = {
             val isNL = floc.hasBreakAfter
-            if (isNL && !expectedNewline) None
+            if (isNL && !whenNL) None
             else {
               val ft = floc.formatToken
               def gotNL = hadNL || isNL
@@ -499,8 +497,8 @@ class FormatWriter(formatOps: FormatOps) {
                   if (idx == locations.length) None
                   else iter(locations(idx), gotNL)
                 case _ =>
-                  val ok = gotNL == expectedNewline &&
-                    TreeOps.rightIsCloseDelimForTrailingComma(tok.left, ft)
+                  val ok = gotNL == whenNL && TreeOps
+                    .rightIsCloseDelimForTrailingComma(tok.left, ft, whenNL)
                   if (ok) Some(ft) else None
               }
             }
