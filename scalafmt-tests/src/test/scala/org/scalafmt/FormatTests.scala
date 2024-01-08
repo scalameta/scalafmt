@@ -58,19 +58,6 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
       case Formatted.Success(code) => code
     }
     debugResults += saveResult(t, obtained, debug)
-    if (
-      t.style.rewrite.rules.isEmpty &&
-      FormatTokensRewrite.getEnabledFactories(t.style).isEmpty &&
-      !t.style.assumeStandardLibraryStripMargin &&
-      !FileOps.isMarkdown(t.filename) &&
-      t.style.onTestFailure.isEmpty
-    )
-      assertFormatPreservesAst(
-        t.filename,
-        t.original,
-        obtained,
-        result.config.runner
-      )
     val debug2 = new Debug(onlyOne)
     val result2 = Scalafmt.formatCode(
       obtained,
@@ -95,6 +82,20 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
         t.expected
       )
     }
+    if (
+      result2Either.isRight &&
+      t.style.rewrite.rules.isEmpty &&
+      FormatTokensRewrite.getEnabledFactories(t.style).isEmpty &&
+      !t.style.assumeStandardLibraryStripMargin &&
+      !FileOps.isMarkdown(t.filename) &&
+      t.style.onTestFailure.isEmpty
+    )
+      assertFormatPreservesAst(
+        t.filename,
+        t.original,
+        obtained,
+        result.config.runner
+      )
   }
 
   def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only
