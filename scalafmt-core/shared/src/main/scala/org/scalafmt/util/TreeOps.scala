@@ -920,7 +920,7 @@ object TreeOps {
     @inline def setOwner(tok: Token, tree: Tree): Unit =
       ownersMap += hash(tok) -> tree
 
-    val allTokens = topSourceTree.tokens(baseStyle.dialect)
+    val allTokens = topSourceTree.tokens
     var prevParens: List[Token] = Nil
 
     def treeAt(elemIdx: Int, elem: Tree, outerPrevLPs: Int): Int = {

@@ -2,7 +2,6 @@ package org.scalafmt.rewrite
 
 import scala.annotation.tailrec
 import scala.meta._
-import scala.meta.internal.prettyprinters.TreeSyntax
 import scala.meta.internal.trees.PlaceholderChecks.hasPlaceholder
 
 import org.scalafmt.config.RewriteSettings
@@ -81,11 +80,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
   @tailrec
   private def checkMatchingInfix(ai: Term.ApplyInfix): Boolean = {
     val op = ai.op.value
-    def lhs = ai.lhs.pos match {
-      case Position.None => TreeSyntax.reprint(ai.lhs).toString()
-      case pos => pos.text
-    }
-    InfixApp.isLeftAssoc(op) && matcher.matches(lhs, op) &&
+    InfixApp.isLeftAssoc(op) && matcher.matches(ai.lhs.text, op) &&
     (ai.argClause match {
       case ac @ Term.ArgClause(arg :: Nil, _) if !isWrapped(ac) =>
         !hasPlaceholder(arg, ctx.style.rewrite.isAllowInfixPlaceholderArg)
