@@ -5508,6 +5508,22 @@ object a:
       val x = 3 / 0
    catch
       case e: Throwable =>
+<<< #3653 try-finally
+object a:
+  try
+    val x = 3 / 0
+  catch
+    case e: Throwable =>
+  finally
+    val _ = 5
+>>>
+object a:
+   try
+      val x = 3 / 0
+   catch
+      case e: Throwable =>
+   finally
+      val _ = 5
 <<< #3653 if-!then
 object a:
   if (true)
