@@ -5112,16 +5112,12 @@ object a:
   finally
     val _ = 5
 >>>
-test does not parse: [dialect scala3] illegal start of simple expression
 object a:
    try
       val x = 3 / 0
-                                      ^
-====== full result: ======
-object a:
-   try
-      val x = 3 / 0
-   catch case e: Throwable => finally val _ = 5
+   catch case e: Throwable =>
+   finally
+      val _ = 5
 <<< #3653 if-!then
 object a:
   if (true)

@@ -508,7 +508,8 @@ class Router(formatOps: FormatOps) {
         singleLineSplit +: multiLineSplits
 
       // Case arrow
-      case tok @ FormatToken(_: T.RightArrow, _, _) if leftOwner.is[CaseTree] =>
+      case tok @ FormatToken(_: T.RightArrow, rt, _)
+          if leftOwner.is[CaseTree] && !rt.isAny[T.KwCatch, T.KwFinally] =>
         val owner = leftOwner.asInstanceOf[CaseTree]
         val body = owner.body
         val condIsDefined = leftOwner match {

@@ -2359,31 +2359,25 @@ class FormatOps(
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig
       ): Option[OptionalBracesRegion] = {
-        val forceNL = shouldBreakInOptionalBraces(nft)
-        ft.meta.leftOwner match {
+        val lo = ft.meta.leftOwner
+        def createImpl(usingOB: => Boolean)(finallyExpr: Tree) = {
+          val isMulti = !isTreeSingleExpr(finallyExpr)
+          def usesOB = isMulti || usingOB
+          def forceNL = isMulti || shouldBreakInOptionalBraces(nft)
+          new OptionalBracesRegion {
+            def owner = Some(lo)
+            def splits =
+              if (usesOB) Some(getSplits(ft, finallyExpr, forceNL)) else None
+            def rightBrace = blockLast(finallyExpr)
+          }
+        }
+        lo match {
           case t: Term.Try =>
-            t.finallyp.map { x =>
-              val usesOB = !isTreeSingleExpr(x) ||
-                isCatchUsingOptionalBraces(t) ||
-                isTreeUsingOptionalBraces(t.expr)
-              new OptionalBracesRegion {
-                def owner = Some(t)
-                def splits =
-                  if (usesOB) Some(getSplits(ft, x, forceNL)) else None
-                def rightBrace = blockLast(x)
-              }
-            }
+            t.finallyp.map(createImpl {
+              isCatchUsingOptionalBraces(t) || isTreeUsingOptionalBraces(t.expr)
+            })
           case t: Term.TryWithHandler =>
-            t.finallyp.map { x =>
-              val usesOB = !isTreeSingleExpr(x) ||
-                isTreeUsingOptionalBraces(t.expr)
-              new OptionalBracesRegion {
-                def owner = Some(t)
-                def splits =
-                  if (usesOB) Some(getSplits(ft, x, forceNL)) else None
-                def rightBrace = blockLast(x)
-              }
-            }
+            t.finallyp.map(createImpl(isTreeUsingOptionalBraces(t.expr)))
           case _ => None
         }
       }
