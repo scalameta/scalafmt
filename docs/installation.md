@@ -122,7 +122,7 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % SBT_PLUGIN_VERSION)
 ```
 
 Latest published version of the sbt plugin:
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt)
+[![sbt-scalafmt Scala version support](https://index.scala-lang.org/scalameta/sbt-scalafmt/sbt-scalafmt/latest.svg)](https://index.scala-lang.org/scalameta/sbt-scalafmt/sbt-scalafmt)
 
 To configure the scalafmt version add the following line into `.scalafmt.conf`:
 
