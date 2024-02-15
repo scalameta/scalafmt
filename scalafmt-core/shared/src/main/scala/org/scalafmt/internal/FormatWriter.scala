@@ -163,7 +163,7 @@ class FormatWriter(formatOps: FormatOps) {
             case b: Term.Block =>
               checkApply(b) && RedundantBraces.canRewriteWithParens(b) &&
               b.parent.exists(_.tokens.last.start == rb.start)
-            case f: Term.Function =>
+            case f: Term.FunctionTerm =>
               checkApply(f) && RedundantBraces.canRewriteWithParens(f)
             case _ => false
           }
@@ -1258,7 +1258,7 @@ class FormatWriter(formatOps: FormatOps) {
       def unapply(tree: Tree): Option[Tree] =
         tree match {
           case _: Source | _: Template | _: Term.Block | _: Term.Match |
-              _: Type.Match | _: Term.Function | _: Term.PartialFunction =>
+              _: Type.Match | _: Term.FunctionTerm | _: Term.PartialFunction =>
             Some(tree)
           case _ => None
         }

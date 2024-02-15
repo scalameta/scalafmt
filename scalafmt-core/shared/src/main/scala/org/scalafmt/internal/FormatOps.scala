@@ -624,7 +624,7 @@ class FormatOps(
       }
       def isOldTopLevel(child: Tree) = child.parent.exists {
         case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
-        case fun: Term.FunctionTerm if isBlockFunction(fun) => true
+        case fun: Term.FunctionTerm => isBlockFunction(fun)
         case t: Case => t.pat.eq(child) || t.body.eq(child)
         case _ => false
       }
@@ -921,7 +921,7 @@ class FormatOps(
 
   def isEmptyFunctionBody(tree: Tree): Boolean =
     tree match {
-      case function: Term.Function =>
+      case function: Term.FunctionTerm =>
         function.body match {
           case b: Term.Block => b.stats.isEmpty
           case _ => false
@@ -2676,7 +2676,7 @@ class FormatOps(
     private object RightArrowImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case t: Term.Function =>
+          case t: Term.FunctionTerm =>
             val skip = t.parent.exists(_.is[Term.Block])
             if (skip) None else Some((t.body, seq(all, t.paramClause.values)))
           case _ => None

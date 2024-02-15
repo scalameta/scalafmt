@@ -56,7 +56,7 @@ object TreeOps {
       case _ => false
     }
 
-  def isFunctionWithBraces(fun: Term.Function): Boolean =
+  def isFunctionWithBraces(fun: Term.FunctionTerm): Boolean =
     fun.parent match {
       case Some(Term.Block(`fun` :: Nil)) => true
       case _ => false
@@ -154,7 +154,7 @@ object TreeOps {
         case t @ Term.Block(arg :: Nil) // single-stat block
             if t.tokens.headOption // see if opening brace was removed
               .exists(x => x.is[Token.LeftBrace] && ftoks(x).left.ne(x)) =>
-          if (arg.is[Term.Function]) {
+          if (arg.is[Term.FunctionTerm]) {
             // handle rewritten apply { { x => b } } to a { x => b }
             val parentApply = findTreeWithParent(t) {
               case Term.Block(_) => None
@@ -167,9 +167,10 @@ object TreeOps {
         case t: Term.Apply =>
           val ac = t.argClause
           ac.values match {
-            case (f: Term.Function) :: Nil if ac.tokens.lastOption.exists { x =>
-                  x.is[Token.RightParen] && // see if closing paren is now brace
-                  ftoks.prevNonComment(ftoks(x)).left.is[Token.RightBrace]
+            case (f: Term.FunctionTerm) :: Nil if ac.tokens.lastOption.exists {
+                  x => // see if closing paren is now brace
+                    x.is[Token.RightParen] &&
+                    ftoks.prevNonComment(ftoks(x)).left.is[Token.RightBrace]
                 } =>
               addOne(f)
             case _ =>

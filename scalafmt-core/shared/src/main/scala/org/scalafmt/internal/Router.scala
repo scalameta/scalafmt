@@ -1486,7 +1486,7 @@ class Router(formatOps: FormatOps) {
           else Split(Space, 0).onlyIf(useSpace).withSingleLine(close)
         val otherSplits = rightOwner match {
           case _: Term.PartialFunction | Term.Block(
-                List(_: Term.Function | _: Term.PartialFunction)
+                List(_: Term.FunctionTerm | _: Term.PartialFunction)
               ) =>
             Seq(Split(Newline, 0))
           case _ =>

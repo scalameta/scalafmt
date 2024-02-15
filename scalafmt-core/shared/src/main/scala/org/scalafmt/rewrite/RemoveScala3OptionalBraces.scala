@@ -130,7 +130,7 @@ private class RemoveScala3OptionalBraces(ftoks: FormatTokens)
       case _: Term.Throw => removeToken
       case _: Term.Return => removeToken
       case _: Defn.ExtensionGroup => removeToken
-      case _: Term.Function => removeToken
+      case _: Term.FunctionTerm => removeToken
       case t: Defn.Def =>
         if (tree ne t.body) null
         else if (ftoks.prevNonComment(ft).left.is[Token.Equals]) removeToken
