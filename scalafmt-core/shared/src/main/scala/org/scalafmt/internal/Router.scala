@@ -407,30 +407,25 @@ class Router(formatOps: FormatOps) {
             _,
             StartsStatementRight(stmt)
           ) if leftOwner.isInstanceOf[Term.FunctionTerm] =>
-        val leftFuncBody = leftOwner.asInstanceOf[Term.FunctionTerm].body
-        val endOfFunction = getLastNonTrivial(leftFuncBody)
-        val endIndent = leftOwner.parent match {
-          case Some(Term.Block(_ :: Nil)) => nextNonComment(endOfFunction).left
-          case _ => endOfFunction.left
-        }
-        val canBeSpace = stmt.isInstanceOf[Term.FunctionTerm]
+        val leftFunc = leftOwner.asInstanceOf[Term.FunctionTerm]
         val (afterCurlySpace, afterCurlyNewlines) =
           getSpaceAndNewlineAfterCurlyLambda(newlines)
         val spaceSplit =
-          if (canBeSpace) Split(Space, 0)
+          if (stmt.isInstanceOf[Term.FunctionTerm]) Split(Space, 0)
           else if (
             afterCurlySpace &&
             (!rightOwner.is[Defn] || style.newlines.source.eq(Newlines.fold))
           )
             Split(Space, 0).withSingleLineNoOptimal(
-              getOptimalTokenFor(endOfFunction.left),
+              getOptimalTokenFor(getLastNonTrivial(leftFunc.body).left),
               noSyntaxNL = true
             )
           else Split.ignored
+        val (endIndent, expiresOn) = functionExpire(leftFunc)
         Seq(
           spaceSplit,
           Split(afterCurlyNewlines, 1)
-            .withIndent(style.indent.main, endIndent, After)
+            .withIndent(style.indent.main, endIndent, expiresOn)
         )
 
       case FormatToken(_: T.RightArrow | _: T.ContextArrow, right, _)
