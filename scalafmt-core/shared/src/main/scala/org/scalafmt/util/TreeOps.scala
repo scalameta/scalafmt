@@ -158,9 +158,7 @@ object TreeOps {
             // handle rewritten apply { { x => b } } to a { x => b }
             val parentApply = findTreeWithParent(t) {
               case Term.Block(_) => None
-              case p @ Term.ArgClause(_ :: Nil, _)
-                  if p.parent.exists(_.is[Term.Apply]) =>
-                Some(true)
+              case p @ Term.ArgClause(_ :: Nil, _) => Some(isParentAnApply(p))
               case _ => Some(false)
             }
             if (parentApply.isDefined) addOne(arg)
@@ -1040,5 +1038,8 @@ object TreeOps {
         }
       case _ => false
     }
+
+  def isParentAnApply(t: Tree): Boolean =
+    t.parent.exists(_.is[Term.Apply])
 
 }

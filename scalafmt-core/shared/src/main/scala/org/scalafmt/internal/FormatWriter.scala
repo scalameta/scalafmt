@@ -147,7 +147,7 @@ class FormatWriter(formatOps: FormatOps) {
 
     def checkApply(t: Tree): Boolean = t.parent match {
       case Some(p @ Term.ArgClause(`t` :: Nil, _)) =>
-        p.parent.exists(_.is[Term.Apply])
+        TreeOps.isParentAnApply(p)
       case _ => false
     }
 

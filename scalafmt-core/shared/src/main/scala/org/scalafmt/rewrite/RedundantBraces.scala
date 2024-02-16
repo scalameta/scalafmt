@@ -262,8 +262,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case ta @ Term.ArgClause((func: Term.Function) :: Nil, _) if {
             val body = func.body
             (body.is[Term.Block] || func.tokens.last.ne(body.tokens.last)) &&
-            ta.parent.exists(_.is[Term.Apply]) &&
-            okToRemoveAroundFunctionBody(body, true)
+            isParentAnApply(ta) && okToRemoveAroundFunctionBody(body, true)
           } =>
         getOpeningParen(ta).map((_, func))
       case _ => None
@@ -341,7 +340,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           (p.body eq b) || shouldRemoveSingleStatBlock(b)
         }
 
-      case t: Term.ArgClause if t.parent.exists(_.is[Term.Apply]) =>
+      case t: Term.ArgClause if isParentAnApply(t) =>
         // Example: as.map { _.toString }
         // Leave this alone for now.
         // In future there should be an option to surround such expressions with parens instead of braces
