@@ -48,6 +48,29 @@ object TreeOps {
     ret.result()
   }
 
+  object SingleArgInBraces {
+    def unapply(tree: Tree): Option[Term] = tree match {
+      case t: Term.ArgClause => unapply(t)
+      case _ => None
+    }
+    def unapply(tree: Term.ArgClause): Option[Term] = tree.values match {
+      case arg :: Nil if inBraces(tree) => Some(arg)
+      case _ => None
+    }
+    @inline def inBraces(tree: Term.ArgClause): Boolean =
+      tree.tokens.head.is[LeftBrace]
+
+    def orBlock(tree: Tree): Option[Tree] = tree match {
+      case t: Term.ArgClause => unapply(t)
+      case Term.Block(arg :: Nil) => Some(arg)
+      case _ => None
+    }
+
+    object OrBlock {
+      def unapply(tree: Tree): Option[Tree] = orBlock(tree)
+    }
+  }
+
   @tailrec
   def isBlockFunction(fun: Term.FunctionTerm): Boolean =
     fun.parent match {
@@ -59,15 +82,13 @@ object TreeOps {
   def isFunctionWithBraces(fun: Term.FunctionTerm): Boolean =
     fun.parent.exists(isExprWithParentInBraces(fun))
 
-  private def isExprWithParentInBraces(expr: Tree)(parent: Tree): Boolean =
-    parent match {
-      case Term.Block(stat :: Nil) => stat eq expr
-      case _ => false
-    }
+  def isExprWithParentInBraces(expr: Tree)(parent: Tree): Boolean =
+    SingleArgInBraces.orBlock(parent).contains(expr)
 
   def extractStatementsIfAny(tree: Tree): Seq[Tree] =
     tree match {
       case b: Term.Block => b.stats
+      case SingleArgInBraces(fun: Term.FunctionTerm) => fun :: Nil
       case b: Term.FunctionTerm if isBlockFunction(b) => b.body :: Nil
       case t: Pkg => t.stats
       // TODO(olafur) would be nice to have an abstract "For" superclass.
@@ -828,8 +849,8 @@ object TreeOps {
     case Some(_: Term.Select) => true
     case Some(p: Member.Infix) => p.lhs.eq(tree) || followedBySelectOrApply(p)
     case Some(p: Member.Apply) if p.fun eq tree =>
-      p.argClause.values match {
-        case (_: Term.Block | _: Term.PartialFunction) :: Nil => false
+      p.argClause match {
+        case SingleArgInBraces(_) => false
         case _ => true
       }
     case _ => false

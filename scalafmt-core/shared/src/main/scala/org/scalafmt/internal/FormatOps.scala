@@ -626,6 +626,7 @@ class FormatOps(
         case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
         case fun: Term.FunctionTerm => isBlockFunction(fun)
         case t: Case => t.pat.eq(child) || t.body.eq(child)
+        case SingleArgInBraces(arg) => child eq arg
         case _ => false
       }
       def isAloneEnclosed(child: Tree) = child.parent.exists {
@@ -944,7 +945,7 @@ class FormatOps(
 
     def getRToks = dropWS(function.tokens.reverse)
     function.parent match {
-      case Some(p @ Term.Block(_ :: Nil)) =>
+      case Some(p @ SingleArgInBraces.OrBlock(_)) =>
         p.tokens.last -> ExpiresOn.Before
       case Some(Case(_, _, `function`)) =>
         orElse(dropComment(getRToks))
@@ -2677,7 +2678,7 @@ class FormatOps(
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
           case t: Term.FunctionTerm =>
-            val skip = t.parent.exists(_.is[Term.Block])
+            val skip = t.parent.exists(TreeOps.isExprWithParentInBraces(t))
             if (skip) None else Some((t.body, seq(all, t.paramClause.values)))
           case _ => None
         }
