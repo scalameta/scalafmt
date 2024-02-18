@@ -27,9 +27,12 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       case _ => false
     }
 
-  def canRewriteWithParens(b: Term.Block): Boolean =
-    getBlockSingleStat(b).exists {
-      case f: Term.FunctionTerm => canRewriteWithParens(f)
+  def canRewriteBlockWithParens(b: Term.Block): Boolean =
+    getBlockSingleStat(b).exists(canRewriteStatWithParens)
+
+  def canRewriteStatWithParens(t: Stat): Boolean =
+    t match {
+      case f: Term.FunctionTerm => canRewriteFuncWithParens(f)
       case _: Term.Assign => false // disallowed in 2.13
       case _: Defn => false
       case _ => true
@@ -38,12 +41,12 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
   /* guard for statements requiring a wrapper block
    * "foo { x => y; z }" can't become "foo(x => y; z)" */
   @tailrec
-  def canRewriteWithParens(
+  def canRewriteFuncWithParens(
       f: Term.FunctionTerm,
       nested: Boolean = false
   ): Boolean =
     !needParensAroundParams(f) && (getTreeSingleStat(f.body) match {
-      case Some(t: Term.FunctionTerm) => canRewriteWithParens(t, true)
+      case Some(t: Term.FunctionTerm) => canRewriteFuncWithParens(t, true)
       case Some(_: Defn) => false
       case x => nested || x.isDefined
     })

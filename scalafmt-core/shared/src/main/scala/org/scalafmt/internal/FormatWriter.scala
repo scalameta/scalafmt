@@ -161,10 +161,10 @@ class FormatWriter(formatOps: FormatOps) {
         case rb: T.RightBrace => // look for "foo { bar }"
           val ok = tok.meta.leftOwner match {
             case b: Term.Block =>
-              checkApply(b) && RedundantBraces.canRewriteWithParens(b) &&
+              checkApply(b) && RedundantBraces.canRewriteBlockWithParens(b) &&
               b.parent.exists(_.tokens.last.start == rb.start)
             case f: Term.FunctionTerm =>
-              checkApply(f) && RedundantBraces.canRewriteWithParens(f)
+              checkApply(f) && RedundantBraces.canRewriteFuncWithParens(f)
             case _ => false
           }
           if (ok) {
