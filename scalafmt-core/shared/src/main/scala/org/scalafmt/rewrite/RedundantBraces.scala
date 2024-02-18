@@ -147,27 +147,29 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
     onLeftBrace(ft.meta.rightOwner)
   }
 
-  @tailrec
   private def onLeftBrace(owner: Tree)(implicit
       ft: FormatToken,
       session: Session,
       style: ScalafmtConfig
   ): Replacement = {
     owner match {
-      case t: Term.ArgClause =>
-        t.values match {
-          case arg :: Nil if t.pos.start == arg.pos.start => onLeftBrace(arg)
-          case _ => null
-        }
       case t: Term.FunctionTerm if t.tokens.last.is[Token.RightBrace] =>
         if (!okToRemoveFunctionInApplyOrInit(t)) null
         else if (okToReplaceFunctionInSingleArgApply(t)) replaceWithLeftParen
         else removeToken
+      case t: Term.PartialFunction if t.parent.exists { p =>
+            SingleArgInBraces.orBlock(p).contains(t) &&
+            t.pos.start != p.pos.start
+          } =>
+        removeToken
       case t: Term.Block =>
-        if (getBlockNestedPartialFunction(t).isDefined) removeToken
-        else if (okToReplaceBlockInSingleArgApply(t)) replaceWithLeftParen
-        else if (processBlock(t)) removeToken
-        else null
+        t.parent match {
+          case Some(f: Term.FunctionTerm)
+              if okToReplaceFunctionInSingleArgApply(f) =>
+            replaceWithLeftParen
+          case _ =>
+            if (processBlock(t)) removeToken else null
+        }
       case _: Term.Interpolate
           if style.rewrite.redundantBraces.stringInterpolation &&
             processInterpolation =>
@@ -238,15 +240,6 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case _ => false
     })
   }
-
-  private def okToReplaceBlockInSingleArgApply(
-      b: Term.Block
-  )(implicit style: ScalafmtConfig): Boolean =
-    b.parent.exists {
-      case f: Term.FunctionTerm =>
-        okToReplaceFunctionInSingleArgApply(f)
-      case _ => false
-    }
 
   private def okToReplaceFunctionInSingleArgApply(f: Term.FunctionTerm)(implicit
       style: ScalafmtConfig
@@ -346,7 +339,8 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
         // Example: as.map { _.toString }
         // Leave this alone for now.
         // In future there should be an option to surround such expressions with parens instead of braces
-        isSeqMulti(t.values) && okToRemoveBlockWithinApply(b)
+        if (isSeqMulti(t.values)) okToRemoveBlockWithinApply(b)
+        else (t.pos.start != b.pos.start) && SingleArgInBraces.inBraces(t)
 
       case d: Defn.Def =>
         def disqualifiedByUnit =

@@ -1135,12 +1135,24 @@ object a {
 }
 >>>
 object a {
-  val foo = bar { case x => y }
-  val foo = bar { case x => y }
-  val foo = bar { case x => y }
-  val foo = bar.baz { case x => y }
-  val foo = bar.baz { case x => y }
-  val foo = bar.baz { case x => y }
+  val foo = bar { case x =>
+    y
+  }
+  val foo = bar { case x =>
+    y
+  }
+  val foo = bar { case x =>
+    y
+  }
+  val foo = bar.baz { case x =>
+    y
+  }
+  val foo = bar.baz { case x =>
+    y
+  }
+  val foo = bar.baz { case x =>
+    y
+  }
 }
 <<< init-only secondary ctors
 class a(vi: Int, vs: String) {

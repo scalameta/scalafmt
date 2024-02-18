@@ -165,6 +165,9 @@ class FormatWriter(formatOps: FormatOps) {
               b.parent.exists(_.tokens.last.start == rb.start)
             case f: Term.FunctionTerm =>
               checkApply(f) && RedundantBraces.canRewriteFuncWithParens(f)
+            case t @ TreeOps.SingleArgInBraces(arg) =>
+              TreeOps.isParentAnApply(t) &&
+              RedundantBraces.canRewriteStatWithParens(arg)
             case _ => false
           }
           if (ok) {
