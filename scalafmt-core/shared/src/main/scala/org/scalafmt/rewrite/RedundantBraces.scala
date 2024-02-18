@@ -299,13 +299,9 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       session: Session,
       style: ScalafmtConfig
   ): Boolean =
-    (ft.right match {
-      case lb: Token.LeftBrace =>
-        b.tokens.headOption.contains(lb) && b.tokens.last.is[Token.RightBrace]
-      case rb: Token.RightBrace =>
-        b.tokens.lastOption.contains(rb) && b.tokens.head.is[Token.LeftBrace]
-      case _ => false
-    }) && okToRemoveBlock(b) && (b.parent match {
+    (b.tokens.headOption.contains(ft.right)
+      && b.tokens.last.is[Token.RightBrace]
+      && okToRemoveBlock(b)) && (b.parent match {
       case Some(p: Term.ArgClause) => p.parent.exists(checkValidInfixParent)
       case Some(p) => checkValidInfixParent(p)
       case _ => true
