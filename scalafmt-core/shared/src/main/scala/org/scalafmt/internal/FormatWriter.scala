@@ -1418,7 +1418,6 @@ class FormatWriter(formatOps: FormatOps) {
       @inline def setFtCheck(ft: FormatToken, cnt: Int, force: => Boolean) =
         setIdxCheck(ft.meta.idx, cnt, force)
       def setTopStats(owner: Tree, stats: Seq[Stat]): Unit = {
-        if (stats.isEmpty) return
         val nest = getNest(stats.head)
         if (nest < 0) return
         val end = owner.pos.end
@@ -1515,60 +1514,67 @@ class FormatWriter(formatOps: FormatOps) {
       def insideBody(stats: Seq[Stat], nl: Newlines, ba: Newlines.BeforeAfter) =
         stats.lengthCompare(nl.topLevelBodyMinStatements) >= 0 &&
           nl.topLevelBodyIfMinStatements.contains(ba)
-      def beforeBody(stats: Seq[Stat])(altOk: Newlines => Boolean): Unit =
-        stats.headOption.foreach { x =>
-          val ft = tokens.tokenJustBefore(x)
-          val nl = locations(ft.meta.idx).style.newlines
-          val ok = insideBody(stats, nl, Newlines.before) || altOk(nl)
-          if (ok) setFt(leadingComment(ft))
-        }
-      def afterBody(owner: Tree, stats: Seq[Stat]): Unit =
-        stats.lastOption.foreach { x =>
-          val ft = tokens.getLast(x)
-          val nl = locations(ft.meta.idx).style.newlines
-          if (insideBody(stats, nl, Newlines.after))
-            setFt(trailingComment(ft, owner.pos.end))
-        }
+      def beforeBody(stats: Seq[Stat])(altOk: Newlines => Boolean): Unit = {
+        val ft = tokens.tokenJustBefore(stats.head)
+        val nl = locations(ft.meta.idx).style.newlines
+        val ok = insideBody(stats, nl, Newlines.before) || altOk(nl)
+        if (ok) setFt(leadingComment(ft))
+      }
+      def afterBody(owner: Tree, stats: Seq[Stat]): Unit = {
+        val ft = tokens.getLast(stats.last)
+        val nl = locations(ft.meta.idx).style.newlines
+        if (insideBody(stats, nl, Newlines.after))
+          setFt(trailingComment(ft, owner.pos.end))
+      }
       val trav = new Traverser {
         override def apply(tree: Tree): Unit = tree match {
-          case _: Term.Block =>
           case t: Source =>
-            setTopStats(t, t.stats)
-            super.apply(t.stats)
-          case t: Template =>
-            beforeBody(t.stats) {
-              _.beforeTemplateBodyIfBreakInParentCtors && {
-                val beg = leadingComment(t).meta.idx
-                val end = tokens(templateCurlyOrLastNonTrivial(t)).meta.idx
-                locations(beg).leftLineId != locations(end).leftLineId
-              }
+            val stats = t.stats
+            if (stats.nonEmpty) {
+              setTopStats(t, stats)
+              super.apply(stats)
             }
-            afterBody(t, t.stats)
-            setTopStats(t, t.stats)
-            super.apply(t.stats) // skip inits
+          case t: Template =>
+            val stats = t.stats
+            if (stats.nonEmpty) {
+              beforeBody(stats) {
+                _.beforeTemplateBodyIfBreakInParentCtors && {
+                  val beg = leadingComment(t).meta.idx
+                  val end = tokens(templateCurlyOrLastNonTrivial(t)).meta.idx
+                  locations(beg).leftLineId != locations(end).leftLineId
+                }
+              }
+              afterBody(t, stats)
+              setTopStats(t, stats)
+              super.apply(stats) // skip inits
+            }
           case t: Defn.ExtensionGroup =>
             val stats = t.body match {
               case b: Term.Block => b.stats
               case b => List(b)
             }
-            beforeBody(stats)(_ => false)
-            afterBody(t, stats)
-            setTopStats(t, stats)
-            super.apply(stats)
-          case t: Pkg if indentedPackage(t) =>
-            beforeBody(t.stats)(_ => false)
-            afterBody(t, t.stats)
-            setTopStats(t, t.stats)
-            super.apply(t.stats) // skip ref
-          case t: Pkg =>
-            val isBeforeBody = t.stats.headOption.exists {
-              case pkg: Pkg => indentedPackage(pkg)
-              case _ => true
+            if (stats.nonEmpty) {
+              beforeBody(stats)(_ => false)
+              afterBody(t, stats)
+              setTopStats(t, stats)
+              super.apply(stats)
             }
-            if (isBeforeBody)
-              beforeBody(t.stats)(_.hasTopStatBlankLines)
-            setTopStats(t, t.stats)
-            super.apply(t.stats) // skip ref
+          case t: Pkg =>
+            val stats = t.stats
+            if (stats.nonEmpty) {
+              if (indentedPackage(t)) {
+                beforeBody(stats)(_ => false)
+                afterBody(t, stats)
+              } else if (
+                stats.head match {
+                  case pkg: Pkg => indentedPackage(pkg)
+                  case _ => true
+                }
+              )
+                beforeBody(stats)(_.hasTopStatBlankLines)
+              setTopStats(t, stats)
+              super.apply(stats) // skip ref
+            }
           case _ =>
             super.apply(tree)
         }
