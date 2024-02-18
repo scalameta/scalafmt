@@ -51,14 +51,17 @@ object TreeOps {
   @tailrec
   def isBlockFunction(fun: Term.FunctionTerm): Boolean =
     fun.parent match {
-      case Some(Term.Block(`fun` :: Nil)) => true
-      case Some(next: Term.FunctionTerm) => isBlockFunction(next)
-      case _ => false
+      case Some(p: Term.FunctionTerm) => isBlockFunction(p)
+      case Some(p) => isExprWithParentInBraces(fun)(p)
+      case None => false
     }
 
   def isFunctionWithBraces(fun: Term.FunctionTerm): Boolean =
-    fun.parent match {
-      case Some(Term.Block(`fun` :: Nil)) => true
+    fun.parent.exists(isExprWithParentInBraces(fun))
+
+  private def isExprWithParentInBraces(expr: Tree)(parent: Tree): Boolean =
+    parent match {
+      case Term.Block(stat :: Nil) => stat eq expr
       case _ => false
     }
 
@@ -77,8 +80,8 @@ object TreeOps {
       case t: Type.Refine => t.stats
       case t: Source => t.stats
       case t: Template => t.stats
-      case t: CaseTree if t.body.tokens.nonEmpty => Seq(t.body)
-      case _ => Seq.empty[Tree]
+      case t: CaseTree if t.body.tokens.nonEmpty => t.body :: Nil
+      case _ => Nil
     }
 
   def getStatementStarts(
