@@ -1781,42 +1781,24 @@ object a:
     implicit bar =>
       baz
 >>>
-test does not parse: [dialect scala3] identifier expected but implicit found
 object a:
-   foo: implicit bar =>
-      baz
-        ^
-====== full result: ======
-object a:
-   foo: implicit bar =>
-      baz
+   foo:
+      implicit bar => baz
 <<< #3763 using
 object a:
   foo:
     using bar =>
       baz
 >>>
-test does not parse: [dialect scala3] identifier expected but => found
 object a:
-   foo: using bar =>
-      baz
-                  ^
-====== full result: ======
-object a:
-   foo: using bar =>
-      baz
+   foo:
+      using bar => baz
 <<< #3763 erased
 object a:
   foo:
     erased bar =>
       baz
 >>>
-test does not parse: [dialect scala3] identifier expected but => found
 object a:
-   foo: erased bar =>
-      baz
-                   ^
-====== full result: ======
-object a:
-   foo: erased bar =>
-      baz
+   foo:
+      erased bar => baz
