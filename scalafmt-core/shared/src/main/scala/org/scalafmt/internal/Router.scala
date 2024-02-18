@@ -273,10 +273,12 @@ class Router(formatOps: FormatOps) {
                 else Some(false)
               (expire, arrow.map(_.left), 0, nlOnly)
             case Some(t: Case) if t.cond.isEmpty && (leftOwner match {
-                  case Term.PartialFunction(`t` :: Nil) => true
+                  case x: Term.PartialFunction =>
+                    isSingleElement(x.cases, t)
                   case x: Term.Match =>
                     isSingleElement(x.cases, t) && getMatchDot(x).isDefined
-                  case _ => false
+                  case _: Term.Try => false
+                  case _ => tokens.tokenAfter(t).right eq close
                 }) =>
               val arrow = getCaseArrow(t)
               val nlOnly =
