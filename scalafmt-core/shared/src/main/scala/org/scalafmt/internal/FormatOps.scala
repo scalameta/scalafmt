@@ -2137,7 +2137,14 @@ class FormatOps(
               def owner = t.parent
               def splits = Some(t.values match {
                 case (tf: Term.FunctionTerm) :: Nil
-                    if !style.newlines.alwaysBeforeCurlyLambdaParams =>
+                    if !style.newlines.alwaysBeforeCurlyLambdaParams &&
+                      // https://dotty.epfl.ch/docs/internals/syntax.html
+                      (tf.paramClause match { // LambdaStart
+                        case tpc @ Term.ParamClause(tp :: Nil, mod) =>
+                          (mod.isEmpty && tp.mods.isEmpty &&
+                            tp.decltpe.isEmpty) || isEnclosedInParens(tpc)
+                        case _ => true // multiple params are always in parens
+                      }) =>
                   getSplits(ft, t, forceNL = false, indentOpt = indent) match {
                     case s +: rs if !s.isNL => funcSplit(tf)(s.fileLine) +: rs
                     case ss => ss
