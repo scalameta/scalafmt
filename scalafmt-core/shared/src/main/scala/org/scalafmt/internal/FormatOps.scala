@@ -2852,11 +2852,6 @@ class FormatOps(
       case _ => false
     }
 
-  def getMustDangleForTrailingCommas(close: T)(implicit
-      style: ScalafmtConfig
-  ): Boolean =
-    getMustDangleForTrailingCommas(tokens.justBefore(close))
-
   def getMustDangleForTrailingCommas(getCloseFt: => FormatToken)(implicit
       style: ScalafmtConfig
   ): Boolean =
