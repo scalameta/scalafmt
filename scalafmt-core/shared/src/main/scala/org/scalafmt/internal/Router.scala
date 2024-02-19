@@ -132,13 +132,15 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: T.LeftBrace, _, _)
           if existsParentOfType[ImportExportStat](leftOwner) =>
         val close = matching(open)
+        val beforeClose = tokens.justBefore(close)
         val policy = SingleLineBlock(
           close,
           okSLC = style.importSelectors eq ImportSelectors.singleLine
         )
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
 
-        val mustDangleForTrailingCommas = getMustDangleForTrailingCommas(close)
+        val mustDangleForTrailingCommas =
+          getMustDangleForTrailingCommas(beforeClose)
         val mustUseNL = newlines != 0 &&
           tokens.isRightCommentThenBreak(formatToken)
         val newlinePolicy = style.importSelectors match {
@@ -907,6 +909,8 @@ class Router(formatOps: FormatOps) {
               isParamClauseSite(leftOwner)
           } =>
         val close = matching(open)
+        val closeFormatToken = tokens(close)
+        val beforeClose = prev(closeFormatToken)
         val tupleSite = isTuple(leftOwner)
         val anyDefnSite = isParamClauseSite(leftOwner)
         val defnSite = !tupleSite && anyDefnSite
@@ -962,7 +966,6 @@ class Router(formatOps: FormatOps) {
           else
             Num(style.indent.callSite)
 
-        val closeFormatToken = tokens(close)
         val isBeforeOpenParen =
           if (defnSite)
             style.newlines.isBeforeOpenParenDefnSite
@@ -976,17 +979,15 @@ class Router(formatOps: FormatOps) {
             rhsOptimalToken(closeFormatToken)
 
         val mustDangleForTrailingCommas =
-          getMustDangleForTrailingCommas(prev(closeFormatToken))
+          getMustDangleForTrailingCommas(beforeClose)
 
         val mustDangle = onlyConfigStyle || expirationToken.is[T.Comment] ||
           mustDangleForTrailingCommas
         val shouldDangle =
           if (defnSite) !shouldNotDangleAtDefnSite(leftOwner.parent, false)
           else style.danglingParentheses.tupleOrCallSite(tupleSite)
-        val wouldDangle = shouldDangle || {
-          val beforeClose = prev(closeFormatToken)
+        val wouldDangle = shouldDangle ||
           beforeClose.hasBreak && beforeClose.left.is[T.Comment]
-        }
 
         val newlinePolicy: Policy =
           if (wouldDangle || mustDangle) {
@@ -1211,8 +1212,9 @@ class Router(formatOps: FormatOps) {
             if (isBracket) Some(Constants.BracketPenalty) else None
           val penalizeBrackets =
             bracketPenalty.map(p => PenalizeAllNewlines(close, p + 3))
+          val beforeClose = tokens.justBefore(close)
           val onlyConfigStyle = mustUseConfigStyle(formatToken) ||
-            getMustDangleForTrailingCommas(close)
+            getMustDangleForTrailingCommas(beforeClose)
 
           val argsHeadOpt = argumentStarts.get(hash(right))
           val isSingleArg = isSeqSingle(getArgs(leftOwner))
@@ -1274,6 +1276,7 @@ class Router(formatOps: FormatOps) {
           if !style.binPack.callSite(open).isNever &&
             isArgClauseSite(leftOwner) =>
         val close = matching(open)
+        val beforeClose = tokens.justBefore(close)
         val isBracket = open.is[T.LeftBracket]
         val bracketPenalty = if (isBracket) Constants.BracketPenalty else 1
 
@@ -1287,7 +1290,8 @@ class Router(formatOps: FormatOps) {
           styleMap.opensLiteralArgumentList(formatToken)
         val singleLineOnly =
           style.binPack.literalsSingleLine && opensLiteralArgumentList
-        val mustDangleForTrailingCommas = getMustDangleForTrailingCommas(close)
+        val mustDangleForTrailingCommas =
+          getMustDangleForTrailingCommas(beforeClose)
 
         val onlyConfigStyle = !mustDangleForTrailingCommas &&
           mustUseConfigStyle(formatToken, !opensLiteralArgumentList)
