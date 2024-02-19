@@ -940,7 +940,7 @@ class Router(formatOps: FormatOps) {
         val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
 
         val rightIsComment = right.is[T.Comment]
-        val onlyConfigStyle = mustUseConfigStyle(formatToken)
+        val onlyConfigStyle = mustUseConfigStyle(formatToken, beforeClose)
 
         val sourceIgnored = style.newlines.sourceIgnored
         val (onlyArgument, isSingleEnclosedArgument) =
@@ -1213,7 +1213,7 @@ class Router(formatOps: FormatOps) {
           val penalizeBrackets =
             bracketPenalty.map(p => PenalizeAllNewlines(close, p + 3))
           val beforeClose = tokens.justBefore(close)
-          val onlyConfigStyle = mustUseConfigStyle(formatToken) ||
+          val onlyConfigStyle = mustUseConfigStyle(formatToken, beforeClose) ||
             getMustDangleForTrailingCommas(beforeClose)
 
           val argsHeadOpt = argumentStarts.get(hash(right))
@@ -1294,7 +1294,7 @@ class Router(formatOps: FormatOps) {
           getMustDangleForTrailingCommas(beforeClose)
 
         val onlyConfigStyle = !mustDangleForTrailingCommas &&
-          mustUseConfigStyle(formatToken, !opensLiteralArgumentList)
+          mustUseConfigStyle(ft, beforeClose, !opensLiteralArgumentList)
         val rightIsComment = right.is[T.Comment]
         val nlOnly = mustDangleForTrailingCommas || onlyConfigStyle ||
           style.newlines.keepBreak(newlines) ||
@@ -2198,8 +2198,9 @@ class Router(formatOps: FormatOps) {
         )
 
       case FormatToken(open: T.LeftParen, right, _) =>
-        val isConfig = couldUseConfigStyle(formatToken)
         val close = matching(open)
+        val beforeClose = tokens.justBefore(close)
+        val isConfig = couldUseConfigStyle(formatToken, beforeClose)
         val enclosed = leftOwner match {
           case t: Member.ArgClause if t.values.lengthCompare(1) > 0 => None
           case t => findEnclosedBetweenParens(open, close, t)
@@ -2216,9 +2217,8 @@ class Router(formatOps: FormatOps) {
               }
               if (isInfix) Num(0)
               else {
-                val closeFt = tokens(close, -1)
-                val willBreak = closeFt.left.is[T.Comment] &&
-                  prevNonCommentSameLine(closeFt).hasBreak
+                val willBreak = beforeClose.left.is[T.Comment] &&
+                  prevNonCommentSameLine(beforeClose).hasBreak
                 Num(if (willBreak) style.indent.main else 0)
               }
           }

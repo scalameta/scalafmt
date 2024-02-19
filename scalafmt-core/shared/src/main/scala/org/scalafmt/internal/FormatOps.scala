@@ -980,33 +980,23 @@ class FormatOps(
 
   def mustUseConfigStyle(
       ft: FormatToken,
+      beforeCloseFt: => FormatToken,
       allowForce: => Boolean = true
   )(implicit style: ScalafmtConfig): Boolean =
-    style.optIn.configStyleArguments && couldUseConfigStyle(ft, allowForce)
+    style.optIn.configStyleArguments &&
+      couldUseConfigStyle(ft, beforeCloseFt, allowForce)
 
   def couldUseConfigStyle(
       ft: FormatToken,
+      beforeCloseFt: => FormatToken,
       allowForce: => Boolean = true
-  )(implicit style: ScalafmtConfig): Boolean =
-    opensConfigStyle(ft) || allowForce && forceConfigStyle(hash(ft.left))
-
-  def opensConfigStyle(
-      ft: => FormatToken,
-      whenSourceIgnored: Boolean = false
-  )(implicit style: ScalafmtConfig): Boolean =
-    if (style.newlines.sourceIgnored) whenSourceIgnored
-    else opensConfigStyleClassic(ft)
-
-  private def opensConfigStyleClassic(
-      ft: FormatToken
   )(implicit style: ScalafmtConfig): Boolean = {
-    def opensImplicit =
-      (style.newlines.forceAfterImplicitParamListModifier ||
-        next(ft).hasBreak) && opensConfigStyleImplicitParamList(ft)
-    (ft.hasBreak || opensImplicit) && {
-      val close = matching(ft.left)
-      tokens(close, -1).hasBreak
-    }
+    def opensImplicit = (next(ft).hasBreak ||
+      style.newlines.forceAfterImplicitParamListModifier) &&
+      opensConfigStyleImplicitParamList(ft)
+    val opensConfigStyle = !style.newlines.sourceIgnored && // classic
+      (ft.hasBreak || opensImplicit) && beforeCloseFt.hasBreak
+    opensConfigStyle || allowForce && forceConfigStyle(hash(ft.left))
   }
 
   /** Works for `using` as well */
