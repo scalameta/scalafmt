@@ -114,5 +114,6 @@ lazy val versions = new {
   val cats = "2.10.0"
 }
 >>> build.sbt
-lazy val versions = new:
+lazy val versions = new {
   val cats = "2.10.0"
+}
