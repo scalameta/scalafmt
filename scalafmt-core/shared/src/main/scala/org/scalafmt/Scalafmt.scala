@@ -4,6 +4,7 @@ import java.nio.file.Path
 
 import metaconfig.Configured
 import scala.meta.Input
+import scala.meta.dialects
 import scala.meta.parsers.ParseException
 import scala.util.Failure
 import scala.util.Success
@@ -12,6 +13,7 @@ import scala.util.Try
 import org.scalafmt.Error.PreciseIncomplete
 import org.scalafmt.config.FormatEvent.CreateFormatOps
 import org.scalafmt.config.LineEndings
+import org.scalafmt.config.NamedDialect
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.BestFirstSearch
 import org.scalafmt.internal.FormatOps
@@ -65,7 +67,11 @@ object Scalafmt {
   ): Formatted.Result = {
     def getStyleByFile(style: ScalafmtConfig) = {
       val isSbt = FileOps.isSbt(filename)
-      if (isSbt) style.forSbt else style
+      if (isSbt) {
+        val sbtStyle = style.forSbt
+        if (sbtStyle.dialect ne baseStyle.dialect) sbtStyle
+        else sbtStyle.withDialect(NamedDialect(dialects.Sbt))
+      } else style
     }
     val styleTry =
       if (filename == defaultFilename) Success(baseStyle)
