@@ -65,8 +65,7 @@ object Scalafmt {
       filename: String = defaultFilename
   ): Formatted.Result = {
     def getStyleByFile(style: ScalafmtConfig) = {
-      val isSbt = FileOps.isAmmonite(filename) || FileOps.isSbt(filename) ||
-        FileOps.isMarkdown(filename)
+      val isSbt = FileOps.isSbt(filename)
       if (isSbt) style.forSbt else style
     }
     val styleTry =
