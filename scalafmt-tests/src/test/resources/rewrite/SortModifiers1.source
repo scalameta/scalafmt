@@ -75,3 +75,31 @@ private[test] final object Tests {
 
   private[test] final class Test3(override val name: String = "42")(private[this] final implicit val foo: Int) extends Test
 }
+<<< #3788 current
+final override protected def foo(): Unit = {}
+protected final override def foo(): Unit = {}
+override protected final def foo(): Unit = {}
+>>>
+protected final override def foo(): Unit = {}
+protected final override def foo(): Unit = {}
+protected final override def foo(): Unit = {}
+<<< #3788 default
+rewrite.sortModifiers.preset = default
+===
+final override protected def foo(): Unit = {}
+protected final override def foo(): Unit = {}
+override protected final def foo(): Unit = {}
+>>>
+final override protected def foo(): Unit = {}
+final override protected def foo(): Unit = {}
+final override protected def foo(): Unit = {}
+<<< #3788 styleGuide
+rewrite.sortModifiers.preset = styleGuide
+===
+final override protected def foo(): Unit = {}
+protected final override def foo(): Unit = {}
+override protected final def foo(): Unit = {}
+>>>
+final override protected def foo(): Unit = {}
+final override protected def foo(): Unit = {}
+final override protected def foo(): Unit = {}
