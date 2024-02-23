@@ -4,6 +4,8 @@ import metaconfig._
 import scala.meta.Mod
 import sourcecode.Text
 
+import scala.meta.classifiers.Classifier
+
 case class SortSettings(
     order: List[SortSettings.ModKey]
 )
@@ -14,24 +16,46 @@ object SortSettings {
       matches: Mod => Boolean
   )
 
-  val defaultOrder: List[ModKey] = List(
-    ModKey("implicit", _.is[Mod.Implicit]),
-    //
-    ModKey("final", _.is[Mod.Final]),
-    ModKey("sealed", _.is[Mod.Sealed]),
-    ModKey("abstract", _.is[Mod.Abstract]),
-    //
-    ModKey("override", _.is[Mod.Override]),
-    //
-    ModKey("private", _.is[Mod.Private]),
-    ModKey("protected", _.is[Mod.Protected]),
-    //
-    ModKey("lazy", _.is[Mod.Lazy]),
-    ModKey("open", _.is[Mod.Open]),
-    ModKey("transparent", _.is[Mod.Transparent]),
-    ModKey("inline", _.is[Mod.Inline]),
-    ModKey("infix", _.is[Mod.Infix]),
-    ModKey("opaque", _.is[Mod.Opaque])
+  object ModKey {
+    def apply[A](name: String)(implicit
+        classifier: Classifier[Mod, A]
+    ): ModKey =
+      ModKey(name, _.is[A])
+  }
+
+  private val modImplicit = ModKey[Mod.Implicit]("implicit")
+  private val modFinal = ModKey[Mod.Final]("final")
+  private val modSealed = ModKey[Mod.Sealed]("sealed")
+  private val modAbstract = ModKey[Mod.Abstract]("abstract")
+  private val modOverride = ModKey[Mod.Override]("override")
+  private val modPrivate = ModKey[Mod.Private]("private")
+  private val modProtected = ModKey[Mod.Protected]("protected")
+  private val modLazy = ModKey[Mod.Lazy]("lazy")
+  private val modOpen = ModKey[Mod.Open]("open")
+  private val modTransparent = ModKey[Mod.Transparent]("transparent")
+  private val modInline = ModKey[Mod.Inline]("inline")
+  private val modInfix = ModKey[Mod.Infix]("infix")
+  private val modOpaque = ModKey[Mod.Opaque]("opaque")
+
+  private val defaultOrder: List[ModKey] = List(
+    // implicit
+    modImplicit,
+    // final
+    modFinal,
+    modSealed,
+    modAbstract,
+    // override
+    modOverride,
+    // access
+    modPrivate,
+    modProtected,
+    // other
+    modLazy,
+    modOpen,
+    modTransparent,
+    modInline,
+    modInfix,
+    modOpaque
   )
 
   implicit val sortSettingsModKeyCodec: ConfCodecEx[ModKey] =
