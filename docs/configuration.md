@@ -3228,30 +3228,21 @@ rewrite.rules = [SortModifiers]
 ---
 final lazy private implicit val x = 42
 lazy final implicit private val y = 42
-```
 
-```scala mdoc:scalafmt
-rewrite.rules = [SortModifiers]
----
 class Test(
     implicit
     final private val i1: Int,
     private final val i2: String
 )
-```
 
-```scala mdoc:scalafmt
-rewrite.rules = [SortModifiers]
----
 sealed protected[X] trait ADT
 final private case object A1 extends ADT
 private final case class A2(a: Int)
     extends ADT
 ```
 
-If you choose the non-default sort order then you have to specify all eight
-modifiers in the order you wish to see them. Hint: since some modifiers are
-mutually exclusive, you might want to order them next to each other.
+If you choose a custom sort order, you can specify some or all modifiers
+in the desired order:
 
 ```scala mdoc:scalafmt
 rewrite.rules = [SortModifiers]
@@ -3262,6 +3253,30 @@ rewrite.sortModifiers.order = [
 ---
 override implicit final val x = 2
 ```
+
+Hint: since some modifiers are mutually exclusive, you might want to order
+them next to each other.
+
+If you fail to include some modifiers, they will be moved to the front, before
+modifiers explicitly configured, while preserving their relative order to each
+other.
+
+```scala mdoc:scalafmt
+rewrite.rules = [SortModifiers]
+rewrite.sortModifiers.order = [
+  "implicit",  "override"
+]
+---
+override implicit final val x = 2
+```
+
+The following modifiers are recognized currently:
+
+- `override`
+- `private`, `protected`
+- `implicit`
+- `final`, `sealed`, `abstract`
+- `lazy`, `open`, `transparent`, `inline`, `infix`, `opaque`
 
 ### `PreferCurlyFors`
 
