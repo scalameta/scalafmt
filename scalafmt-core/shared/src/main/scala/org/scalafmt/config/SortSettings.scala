@@ -60,6 +60,29 @@ object SortSettings {
     modOpaque
   )
 
+  // https://docs.scala-lang.org/style/declarations.html#modifiers
+  private def styleGuideOrder: List[ModKey] = List(
+    // override
+    modOverride,
+    // access
+    modPrivate,
+    modProtected,
+    // implicit
+    modImplicit,
+    // final
+    modFinal,
+    modSealed,
+    modAbstract,
+    // other
+    modErased,
+    modLazy,
+    modOpen,
+    modTransparent,
+    modInline,
+    modInfix,
+    modOpaque
+  )
+
   implicit val sortSettingsModKeyCodec: ConfCodecEx[ModKey] =
     ReaderUtil.oneOf[ModKey](defaultOrder.map(v => Text(v, v.name)): _*)
 
@@ -72,9 +95,11 @@ object SortSettings {
   // get sorted to the front of the list.
   val default: SortSettings = SortSettings(defaultOrder)
 
+  private val styleGuide = SortSettings(styleGuideOrder)
+
   private implicit val preset: PartialFunction[Conf, SortSettings] = {
     case Conf.Str("default") => default
-    case Conf.Str("styleGuide") => default
+    case Conf.Str("styleGuide") => styleGuide
   }
 
   implicit val encoder: ConfEncoder[SortSettings] =
