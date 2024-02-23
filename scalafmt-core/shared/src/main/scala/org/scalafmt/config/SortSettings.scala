@@ -24,6 +24,7 @@ object SortSettings {
   }
 
   private val modImplicit = ModKey[Mod.Implicit]("implicit")
+  private val modErased = ModKey[Mod.Erased]("erased")
   private val modFinal = ModKey[Mod.Final]("final")
   private val modSealed = ModKey[Mod.Sealed]("sealed")
   private val modAbstract = ModKey[Mod.Abstract]("abstract")
@@ -50,6 +51,7 @@ object SortSettings {
     modPrivate,
     modProtected,
     // other
+    modErased,
     modLazy,
     modOpen,
     modTransparent,
