@@ -4325,35 +4325,27 @@ following definitions: trait, class, object, type, and val+var, both as fields
 and class parameters.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">implicit</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">lazy</span> <span class="hljs-keyword">val</span> x = <span class="hljs-number">42</span>
 <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">lazy</span> <span class="hljs-keyword">val</span> y = <span class="hljs-number">42</span>
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-keyword">final</span> <span class="hljs-keyword">lazy</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">val</span> x = <span class="hljs-number">42</span>
-<span class="hljs-keyword">lazy</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">val</span> y = <span class="hljs-number">42</span>
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortModifiers</span>]
-</code></pre>
-</p></details>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Test</span>(<span class="hljs-params">implicit
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Test</span>(<span class="hljs-params">implicit
     final private val i1: <span class="hljs-type">Int</span>,
     final private val i2: <span class="hljs-type">String</span>
 </span>)</span>
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Test</span>(<span class="hljs-params">
-    implicit
-    final private val i1: <span class="hljs-type">Int</span>,
-    private final val i2: <span class="hljs-type">String</span>
-</span>)</span>
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortModifiers</span>]
-</code></pre>
-</p></details>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">sealed</span> <span class="hljs-keyword">protected</span>[<span class="hljs-type">X</span>] <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">ADT</span></span>
+
+<span class="hljs-keyword">sealed</span> <span class="hljs-keyword">protected</span>[<span class="hljs-type">X</span>] <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">ADT</span></span>
 <span class="hljs-keyword">final</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A1</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ADT</span></span>
 <span class="hljs-keyword">final</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">A2</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span></span>)</span>
     <span class="hljs-keyword">extends</span> <span class="hljs-type">ADT</span>
 </code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-keyword">sealed</span> <span class="hljs-keyword">protected</span>[<span class="hljs-type">X</span>] <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">ADT</span></span>
+<pre><code class="hljs css language-scala original"><span class="hljs-keyword">final</span> <span class="hljs-keyword">lazy</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">val</span> x = <span class="hljs-number">42</span>
+<span class="hljs-keyword">lazy</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">val</span> y = <span class="hljs-number">42</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Test</span>(<span class="hljs-params">
+    implicit
+    final private val i1: <span class="hljs-type">Int</span>,
+    private final val i2: <span class="hljs-type">String</span>
+</span>)</span>
+
+<span class="hljs-keyword">sealed</span> <span class="hljs-keyword">protected</span>[<span class="hljs-type">X</span>] <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">ADT</span></span>
 <span class="hljs-keyword">final</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A1</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ADT</span></span>
 <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">A2</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span></span>)</span>
     <span class="hljs-keyword">extends</span> <span class="hljs-type">ADT</span>
@@ -4362,9 +4354,8 @@ and class parameters.</p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortModifiers</span>]
 </code></pre>
 </p></details>
-<p>If you choose the non-default sort order then you have to specify all eight
-modifiers in the order you wish to see them. Hint: since some modifiers are
-mutually exclusive, you might want to order them next to each other.</p>
+<p>If you choose a custom sort order, you can specify some or all modifiers
+in the desired order:</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">implicit</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">val</span> x = <span class="hljs-number">2</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">override</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">val</span> x = <span class="hljs-number">2</span>
@@ -4377,6 +4368,30 @@ rewrite.sortModifiers.order = [
 ]
 </code></pre>
 </p></details>
+<p>Hint: since some modifiers are mutually exclusive, you might want to order
+them next to each other.</p>
+<p>If you fail to include some modifiers, they will be moved to the front, before
+modifiers explicitly configured, while preserving their relative order to each
+other.</p>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">final</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">val</span> x = <span class="hljs-number">2</span>
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-keyword">override</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">val</span> x = <span class="hljs-number">2</span>
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortModifiers</span>]
+rewrite.sortModifiers.order = [
+  <span class="hljs-string">"implicit"</span>,  <span class="hljs-string">"override"</span>
+]
+</code></pre>
+</p></details>
+<p>The following modifiers are recognized currently:</p>
+<ul>
+<li><code>override</code></li>
+<li><code>private</code>, <code>protected</code></li>
+<li><code>implicit</code></li>
+<li><code>final</code>, <code>sealed</code>, <code>abstract</code></li>
+<li><code>lazy</code>, <code>open</code>, <code>transparent</code>, <code>inline</code>, <code>infix</code>, <code>opaque</code></li>
+</ul>
 <h3><a class="anchor" aria-hidden="true" id="prefercurlyfors"></a><a href="#prefercurlyfors" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>PreferCurlyFors</code></h3>
 <p>Replaces parentheses into curly braces in for comprehensions that contain
 multiple enumerator generators.</p>
