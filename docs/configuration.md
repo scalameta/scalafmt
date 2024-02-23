@@ -3243,7 +3243,8 @@ private final case class A2(a: Int)
 
 If you prefer to use the order based on the one
 [partially](https://docs.scala-lang.org/style/declarations.html#modifiers)
-specified in the Scala Style Guide, you can use the corresponding preset:
+specified in the Scala Style Guide, you can use the corresponding preset
+(since v3.8.1):
 
 ```scala mdoc:scalafmt
 rewrite.rules = [SortModifiers]
