@@ -3241,6 +3241,29 @@ private final case class A2(a: Int)
     extends ADT
 ```
 
+If you prefer to use the order based on the one
+[partially](https://docs.scala-lang.org/style/declarations.html#modifiers)
+specified in the Scala Style Guide, you can use the corresponding preset:
+
+```scala mdoc:scalafmt
+rewrite.rules = [SortModifiers]
+rewrite.sortModifiers.preset = styleGuide
+---
+final lazy private implicit val x = 42
+lazy final implicit private val y = 42
+
+class Test(
+    implicit
+    final private val i1: Int,
+    private final val i2: String
+)
+
+sealed protected[X] trait ADT
+final private case object A1 extends ADT
+private final case class A2(a: Int)
+    extends ADT
+```
+
 If you choose a custom sort order, you can specify some or all modifiers
 in the desired order:
 

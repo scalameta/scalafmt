@@ -70,9 +70,20 @@ object SortSettings {
   // because it was a breaking change to add formatting support for a
   // new modifier like Scala 3 "open". Instead, modifiers with no configuration
   // get sorted to the front of the list.
-  def default: SortSettings = SortSettings(defaultOrder)
+  val default: SortSettings = SortSettings(defaultOrder)
 
-  implicit val codec: ConfCodecEx[SortSettings] =
-    generic.deriveCodecEx(default).noTypos
+  private implicit val preset: PartialFunction[Conf, SortSettings] = {
+    case Conf.Str("default") => default
+    case Conf.Str("styleGuide") => default
+  }
+
+  implicit val encoder: ConfEncoder[SortSettings] =
+    generic.deriveEncoder
+
+  implicit final val decoder: ConfDecoderEx[SortSettings] =
+    Presets.mapDecoder(
+      generic.deriveDecoderEx(default).noTypos,
+      "sortModifiers"
+    )
 
 }
