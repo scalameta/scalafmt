@@ -97,3 +97,22 @@ def g =
     val a = param + 2
     a
   }
+<<< #3787 with custom dialect via fileOverride
+rewrite.scala3.removeOptionalBraces = true
+fileOverride { ".sbt" { runner.dialect = scala3 } }
+===
+lazy val versions = new {
+  val cats = "2.10.0"
+}
+>>> build.sbt
+lazy val versions = new:
+  val cats = "2.10.0"
+<<< #3787 without fileOverride and default dialect
+rewrite.scala3.removeOptionalBraces = true
+===
+lazy val versions = new {
+  val cats = "2.10.0"
+}
+>>> build.sbt
+lazy val versions = new:
+  val cats = "2.10.0"
