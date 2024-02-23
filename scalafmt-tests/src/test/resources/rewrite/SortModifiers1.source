@@ -100,6 +100,6 @@ final override protected def foo(): Unit = {}
 protected final override def foo(): Unit = {}
 override protected final def foo(): Unit = {}
 >>>
-final override protected def foo(): Unit = {}
-final override protected def foo(): Unit = {}
-final override protected def foo(): Unit = {}
+override protected final def foo(): Unit = {}
+override protected final def foo(): Unit = {}
+override protected final def foo(): Unit = {}
