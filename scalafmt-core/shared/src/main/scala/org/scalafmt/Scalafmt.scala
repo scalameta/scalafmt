@@ -3,7 +3,6 @@ package org.scalafmt
 import java.nio.file.Path
 
 import metaconfig.Configured
-import scala.meta.Dialect
 import scala.meta.Input
 import scala.meta.parsers.ParseException
 import scala.util.Failure
@@ -183,19 +182,4 @@ object Scalafmt {
       ScalafmtConfig.uncheckedDefault
     )
 
-  /** Utility method to change dialect on ScalafmtConfig.
-    *
-    * Binary compatibility is guaranteed between releases, unlike with
-    * ScalafmtConfig.copy.
-    */
-  def configWithDialect(
-      config: ScalafmtConfig,
-      dialect: Dialect
-  ): ScalafmtConfig =
-    config.withDialect(dialect)
-
-  def configForSbt(
-      config: ScalafmtConfig
-  ): ScalafmtConfig =
-    config.forSbt
 }
