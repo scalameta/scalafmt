@@ -3276,7 +3276,7 @@ The following modifiers are recognized currently:
 - `private`, `protected`
 - `implicit`
 - `final`, `sealed`, `abstract`
-- `lazy`, `open`, `transparent`, `inline`, `infix`, `opaque`
+- `erased`, `lazy`, `open`, `transparent`, `inline`, `infix`, `opaque`
 
 ### `PreferCurlyFors`
 
