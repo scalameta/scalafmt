@@ -660,3 +660,55 @@ object a {
       d: D,
       implicit val e: E) {}
 }
+<<< #3800
+newlines.topLevelBodyMinStatements = 1
+newlines.topLevelBodyIfMinStatements = [before]
+===
+class DummyTest extends AnyWordSpecLike {
+  private class Scope {
+    val x = 1
+  }
+
+  "Test" should {
+    "example 1" in new Scope {
+      val x = 1
+    }
+
+    class Scope2 {
+      val x = 1
+    }
+
+    "example 2" in {
+      class Scope3 {
+        val x = 1
+      }
+    }
+  }
+}
+>>>
+class DummyTest extends AnyWordSpecLike {
+
+  private class Scope {
+
+    val x = 1
+  }
+
+  "Test" should {
+    "example 1" in new Scope {
+
+      val x = 1
+    }
+
+    class Scope2 {
+
+      val x = 1
+    }
+
+    "example 2" in {
+      class Scope3 {
+
+        val x = 1
+      }
+    }
+  }
+}
