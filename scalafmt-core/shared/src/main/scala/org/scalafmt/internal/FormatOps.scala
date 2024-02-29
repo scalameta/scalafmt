@@ -1382,12 +1382,6 @@ class FormatOps(
     if (!ft.right.is[T.Comment] || isDone(ft)) ft else iter(ft)
   }
 
-  def xmlSpace(owner: Tree): Modification =
-    owner match {
-      case _: Term.Xml | _: Pat.Xml => NoSplit
-      case _ => Space
-    }
-
   def getSpaceAndNewlineAfterCurlyLambda(
       newlines: Int
   )(implicit style: ScalafmtConfig): (Boolean, NewlineT) =

@@ -152,6 +152,13 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       session: Session,
       style: ScalafmtConfig
   ): Replacement = {
+    def handleInterpolation =
+      if (
+        style.rewrite.redundantBraces.stringInterpolation &&
+        processInterpolation
+      ) removeToken
+      else null
+
     owner match {
       case t: Term.FunctionTerm if t.tokens.last.is[Token.RightBrace] =>
         if (!okToRemoveFunctionInApplyOrInit(t)) null
@@ -167,13 +174,11 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
           case Some(f: Term.FunctionTerm)
               if okToReplaceFunctionInSingleArgApply(f) =>
             replaceWithLeftParen
+          case Some(_: Term.Interpolate) => handleInterpolation
           case _ =>
             if (processBlock(t)) removeToken else null
         }
-      case _: Term.Interpolate
-          if style.rewrite.redundantBraces.stringInterpolation &&
-            processInterpolation =>
-        removeToken
+      case _: Term.Interpolate => handleInterpolation
       case Importer(_, List(x))
           if !(x.is[Importee.Rename] || x.is[Importee.Unimport]) ||
             style.dialect.allowAsForImportRename &&
@@ -219,7 +224,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
 
     def isLiteralIdentifier(arg: Term.Name): Boolean = {
       val syntax = arg.toString()
-      syntax.headOption.contains('`') && syntax.lastOption.contains('`')
+      syntax.nonEmpty && syntax.head == '`' && syntax.last == '`'
     }
 
     /** we need to keep braces

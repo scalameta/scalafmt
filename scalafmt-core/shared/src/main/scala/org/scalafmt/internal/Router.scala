@@ -191,14 +191,19 @@ class Router(formatOps: FormatOps) {
             .withIndents(alignIndents.getOrElse(mainIndents))
             .withPolicy(decideNewlinesOnlyBeforeClose(close))
         }
-        def findArg = findInterpolateArgAfter(open.end, leftOwner)
+        def isSimpleInterpolate = (leftOwner match {
+          case t: Pat.Interpolate => findArgAfter(open.end, t.args)
+          case t: Term.Interpolate => findArgAfter(open.end, t.args)
+          case t: Term.Block => getBlockSingleStat(t)
+          case _ => None
+        }).exists(!_.is[Term.If])
+
         style.newlines.inInterpolation match {
           case Newlines.InInterpolation.avoid => Seq(spaceSplit)
           case _ if style.newlines.keepBreak(newlines) =>
             Seq(newlineSplit(0))
           case Newlines.InInterpolation.allow
-              if !dialect.allowSignificantIndentation ||
-                !findArg.exists(_.is[Term.If]) =>
+              if !dialect.allowSignificantIndentation || isSimpleInterpolate =>
             Seq(spaceSplit)
           case _ =>
             /* sequence of tokens:
@@ -216,8 +221,7 @@ class Router(formatOps: FormatOps) {
             )
         }
 
-      case FormatToken(_, _: T.RightBrace, _)
-          if rightOwner.is[SomeInterpolate] =>
+      case FormatToken(_, _: T.RightBrace, _) if isInterpolate(rightOwner) =>
         Seq(Split(Space(style.spaces.inInterpolatedStringCurlyBraces), 0))
 
       // optional braces: block follows
