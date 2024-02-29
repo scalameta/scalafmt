@@ -454,8 +454,16 @@ class Router(formatOps: FormatOps) {
           if (isEmptyFunctionBody(leftOwner) && !right.is[T.Comment]) 0
           else if (leftOwner.is[Template]) 0 // { applied the indent
           else
-            leftOwner.parent match {
-              case Some(ArgClauseParent(p: Term.Apply)) if isFewerBraces(p) =>
+            (leftOwner.parent match {
+              case Some(ac: Term.ArgClause) => ac.parent
+              case Some(x: Term) =>
+                x.parent.flatMap {
+                  case ac: Term.ArgClause => ac.parent
+                  case _ => None
+                }
+              case _ => None
+            }) match {
+              case Some(p: Term.Apply) if isFewerBraces(p) =>
                 style.indent.getSignificant
               case _ => style.indent.main
             }
