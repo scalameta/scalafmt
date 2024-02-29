@@ -12,6 +12,7 @@ import scala.reflect.ClassTag
 
 import org.scalafmt.Error
 import org.scalafmt.config.{DanglingParentheses, ScalafmtConfig}
+import org.scalafmt.internal.{Modification, Space}
 import org.scalafmt.internal.{FormatToken, FormatTokens}
 import org.scalafmt.util.InfixApp._
 
@@ -756,13 +757,6 @@ object TreeOps {
         }
     }
 
-  def findInterpolateArgAfter(end: Int, tree: Tree): Option[Tree] =
-    tree match {
-      case t: Pat.Interpolate => findArgAfter(end, t.args)
-      case t: Term.Interpolate => findArgAfter(end, t.args)
-      case _ => None
-    }
-
   def findArgAfter(end: Int, trees: Seq[Tree]): Option[Tree] =
     trees.find(_.pos.start >= end)
 
@@ -1066,5 +1060,14 @@ object TreeOps {
 
   def isParentAnApply(t: Tree): Boolean =
     t.parent.exists(_.is[Term.Apply])
+
+  def isTreeOrBlockParent(owner: Tree)(pred: Tree => Boolean): Boolean =
+    if (owner.is[Term.Block]) owner.parent.exists(pred) else pred(owner)
+
+  def xmlSpace(owner: Tree): Modification =
+    Space(!isTreeOrBlockParent(owner)(_.isAny[Term.Xml, Pat.Xml]))
+
+  def isInterpolate(tree: Tree): Boolean =
+    isTreeOrBlockParent(tree)(_.isAny[Term.Interpolate, Pat.Interpolate])
 
 }
