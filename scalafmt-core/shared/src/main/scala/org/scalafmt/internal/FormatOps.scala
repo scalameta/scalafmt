@@ -2084,52 +2084,72 @@ class FormatOps(
               def rightBrace = treeLast(t)
             })
           case t: Term.ArgClause if tokens.getHead(t) eq ft =>
-            def funcSplit(arg: Term.FunctionTerm)(implicit fl: FileLine) = {
-              val end = tokens.getLast(arg)
-              val opt = getOptimalTokenFor(getFuncArrow(arg).getOrElse(end))
-              Split(Space, 0)
-                .withSingleLine(opt)
-                .andPolicy(decideNewlinesOnlyAfterToken(opt))
-            }
-            val indent = t.parent match {
-              case Some(p: Term.Apply) =>
-                @tailrec
-                def isSelect(ma: Member.Apply): Boolean = ma.fun match {
-                  case x: Member.Apply => isSelect(x)
-                  case x => x.is[Term.Select]
+            onArgClause(ft, t, t.values)
+          case t: Term =>
+            t.parent match {
+              case Some(p: Term.ArgClause)
+                  if isSingleElement(p.values, t) &&
+                    (tokens.getHead(p) eq ft) =>
+                val stats = t match {
+                  case b: Term.Block => b.stats
+                  case _ => t :: Nil
                 }
-                val ok = (style.getFewerBraces() match {
-                  case Indents.FewerBraces.never => true
-                  case Indents.FewerBraces.always => false
-                  case Indents.FewerBraces.beforeSelect =>
-                    !p.parent.exists(_.is[Term.Select])
-                }) || isSelect(p)
-                if (ok) None // select is taken care off elsewhere
-                else Some(style.indent.main + style.indent.getSignificant)
+                onArgClause(ft, p, stats)
               case _ => None
             }
-            Some(new OptionalBracesRegion {
-              def owner = t.parent
-              def splits = Some(t.values match {
-                case (tf: Term.FunctionTerm) :: Nil
-                    if !style.newlines.alwaysBeforeCurlyLambdaParams &&
-                      // https://dotty.epfl.ch/docs/internals/syntax.html
-                      (tf.paramClause match { // LambdaStart
-                        case tpc @ Term.ParamClause(tp :: Nil, mod) =>
-                          (mod.isEmpty && tp.mods.isEmpty &&
-                            tp.decltpe.isEmpty) || isEnclosedInParens(tpc)
-                        case _ => true // multiple params are always in parens
-                      }) =>
-                  getSplits(ft, t, forceNL = false, indentOpt = indent) match {
-                    case s +: rs if !s.isNL => funcSplit(tf)(s.fileLine) +: rs
-                    case ss => ss
-                  }
-                case _ => getSplits(ft, t, forceNL = true, indentOpt = indent)
-              })
-              def rightBrace = treeLast(t)
-            })
           case _ => None
         }
+
+      private def onArgClause(
+          ft: FormatToken,
+          ac: Term.ArgClause,
+          args: List[Tree]
+      )(implicit style: ScalafmtConfig): Option[OptionalBracesRegion] = {
+        def funcSplit(arg: Term.FunctionTerm)(implicit fl: FileLine) = {
+          val end = tokens.getLast(arg)
+          val opt = getOptimalTokenFor(getFuncArrow(arg).getOrElse(end))
+          Split(Space, 0)
+            .withSingleLine(opt)
+            .andPolicy(decideNewlinesOnlyAfterToken(opt))
+        }
+        val indent = ac.parent match {
+          case Some(p: Term.Apply) =>
+            @tailrec
+            def isSelect(ma: Member.Apply): Boolean = ma.fun match {
+              case x: Member.Apply => isSelect(x)
+              case x => x.is[Term.Select]
+            }
+            val ok = (style.getFewerBraces() match {
+              case Indents.FewerBraces.never => true
+              case Indents.FewerBraces.always => false
+              case Indents.FewerBraces.beforeSelect =>
+                !p.parent.exists(_.is[Term.Select])
+            }) || isSelect(p)
+            if (ok) None // select is taken care off elsewhere
+            else Some(style.indent.main + style.indent.getSignificant)
+          case _ => None
+        }
+        Some(new OptionalBracesRegion {
+          def owner = ac.parent
+          def splits = Some(args match {
+            case (tf: Term.FunctionTerm) :: Nil
+                if !style.newlines.alwaysBeforeCurlyLambdaParams &&
+                  // https://dotty.epfl.ch/docs/internals/syntax.html
+                  (tf.paramClause match { // LambdaStart
+                    case tpc @ Term.ParamClause(tp :: Nil, mod) =>
+                      (mod.isEmpty && tp.mods.isEmpty &&
+                        tp.decltpe.isEmpty) || isEnclosedInParens(tpc)
+                    case _ => true // multiple params are always in parens
+                  }) =>
+              getSplits(ft, ac, forceNL = false, indentOpt = indent) match {
+                case s +: rs if !s.isNL => funcSplit(tf)(s.fileLine) +: rs
+                case ss => ss
+              }
+            case _ => getSplits(ft, ac, forceNL = true, indentOpt = indent)
+          })
+          def rightBrace = treeLast(ac)
+        })
+      }
     }
 
     private object BlockImpl extends Factory {
