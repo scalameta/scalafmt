@@ -1578,8 +1578,8 @@ class FormatWriter(formatOps: FormatOps) {
               setTopStats(t, stats)
               super.apply(stats) // skip ref
             }
-          case _ =>
-            super.apply(tree)
+          case t: Stat.WithTemplate => apply(t.templ)
+          case _ => // everything else is not "top-level"
         }
       }
 

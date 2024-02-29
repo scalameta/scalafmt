@@ -695,18 +695,15 @@ class DummyTest extends AnyWordSpecLike {
 
   "Test" should {
     "example 1" in new Scope {
-
       val x = 1
     }
 
     class Scope2 {
-
       val x = 1
     }
 
     "example 2" in {
       class Scope3 {
-
         val x = 1
       }
     }
