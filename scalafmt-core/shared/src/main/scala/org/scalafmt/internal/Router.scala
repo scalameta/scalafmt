@@ -1945,7 +1945,7 @@ class Router(formatOps: FormatOps) {
         }(nlSplitFunc)
       case FormatToken(T.RightBrace(), T.KwElse(), _) =>
         val nlOnly = style.newlines.alwaysBeforeElseAfterCurlyIf ||
-          !leftOwner.is[Term.Block] || !leftOwner.parent.forall(_ == rightOwner)
+          !leftOwner.is[Term.Block] || !leftOwner.parent.contains(rightOwner)
         Seq(Split(Space.orNL(!nlOnly), 0))
 
       case FormatToken(T.RightBrace(), T.KwYield(), _) => Seq(Split(Space, 0))

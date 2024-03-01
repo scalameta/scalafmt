@@ -121,7 +121,7 @@ class FormatWriter(formatOps: FormatOps) {
 
     if (state.depth == toks.length) { // format completed
       val initStyle = styleMap.init
-      if (initStyle.dialect.allowSignificantIndentation) {
+      if (initStyle.dialect.allowEndMarker) {
         if (initStyle.rewrite.scala3.removeEndMarkerMaxLines > 0)
           checkRemoveEndMarkers(result)
         if (initStyle.rewrite.scala3.insertEndMarkerMinLines > 0)
