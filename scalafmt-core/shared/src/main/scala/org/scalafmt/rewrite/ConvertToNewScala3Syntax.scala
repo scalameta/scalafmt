@@ -40,8 +40,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
     def left = ftoks.prevNonComment(ft).left
     ft.right match {
 
-      case _: Token.LeftParen
-          if flag.control && dialect.allowSignificantIndentation =>
+      case _: Token.LeftParen if flag.control && dialect.allowQuietSyntax =>
         ft.meta.rightOwner match {
           case _: Term.If if left.is[Token.KwIf] => removeToken
           case _: Term.While if left.is[Token.KwWhile] => removeToken

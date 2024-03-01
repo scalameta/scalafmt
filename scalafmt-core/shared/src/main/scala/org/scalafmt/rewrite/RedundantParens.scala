@@ -116,11 +116,9 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     case t => t.parent.forall {
         case _: Enumerator.Guard => RewriteCtx.isPostfixExpr(t)
         case p: Case => p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
-        case p: Term.While => p.expr.eq(t) &&
-          style.dialect.allowSignificantIndentation && ftoks.tokenBefore(p.body)
-            .left.is[Token.KwDo]
-        case p: Term.If => p.cond.eq(t) &&
-          style.dialect.allowSignificantIndentation &&
+        case p: Term.While => p.expr.eq(t) && style.dialect.allowQuietSyntax &&
+          ftoks.tokenBefore(p.body).left.is[Token.KwDo]
+        case p: Term.If => p.cond.eq(t) && style.dialect.allowQuietSyntax &&
           ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
         case p: Term.Try =>
           (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
