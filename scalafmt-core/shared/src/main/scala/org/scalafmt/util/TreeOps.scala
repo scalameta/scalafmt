@@ -1070,4 +1070,16 @@ object TreeOps {
   def isInterpolate(tree: Tree): Boolean =
     isTreeOrBlockParent(tree)(_.isAny[Term.Interpolate, Pat.Interpolate])
 
+  def isEmptyTree(tree: Tree): Boolean =
+    tree match {
+      case t: Term.Block => t.stats.isEmpty
+      case t => t.tokens.isEmpty
+    }
+
+  def isEmptyFunctionBody(tree: Tree): Boolean =
+    tree match {
+      case t: Term.FunctionTerm => isEmptyTree(t.body)
+      case _ => false
+    }
+
 }
