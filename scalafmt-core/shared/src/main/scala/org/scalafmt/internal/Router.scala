@@ -519,10 +519,7 @@ class Router(formatOps: FormatOps) {
           case c: Case => c.cond.isDefined
           case _ => false
         }
-        val bodyIsEmpty = body match {
-          case t: Term.Block => t.stats.isEmpty
-          case t => t.tokens.isEmpty
-        }
+        val bodyIsEmpty = isEmptyTree(body)
         def baseSplit = Split(Space, 0)
         def nlSplit(ft: FormatToken)(cost: Int)(implicit l: FileLine) =
           Split(NewlineT(isDouble = ft.hasBlankLine && bodyIsEmpty), cost)
