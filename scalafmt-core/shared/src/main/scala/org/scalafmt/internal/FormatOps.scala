@@ -937,7 +937,7 @@ class FormatOps(
     def getRToks = dropWS(function.tokens.reverse)
     function.parent match {
       case Some(p @ SingleArgInBraces.OrBlock(_)) =>
-        p.tokens.last -> ExpiresOn.Before
+        tokens.getLast(p).left -> ExpiresOn.Before
       case Some(Case(_, _, `function`)) =>
         orElse(dropComment(getRToks))
       case _ =>
