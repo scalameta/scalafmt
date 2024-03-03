@@ -40,7 +40,8 @@ class FormatOps(
 
   val runner: ScalafmtRunner = initStyle.runner
   implicit val dialect: Dialect = initStyle.dialect
-  val (tokens, styleMap) = FormatTokens(topSourceTree.tokens, owners)(initStyle)
+  implicit val (tokens: FormatTokens, styleMap: StyleMap) =
+    FormatTokens(topSourceTree.tokens, owners)(initStyle)
   import tokens.{
     matching,
     matchingOpt,
@@ -60,7 +61,7 @@ class FormatOps(
 
   private[internal] val soft = new SoftKeywordClasses(dialect)
   private[internal] val statementStarts =
-    getStatementStarts(topSourceTree, tokens, soft)
+    getStatementStarts(topSourceTree, soft)
   // Maps token to number of non-whitespace bytes before the token's position.
   private final val nonWhitespaceOffset: Map[T, Int] = {
     val resultB = Map.newBuilder[T, Int]

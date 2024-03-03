@@ -13,7 +13,7 @@ object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   override def enabled(implicit style: ScalafmtConfig): Boolean = true
 
-  override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
+  override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new PreferCurlyFors(ftoks)
 
   @inline

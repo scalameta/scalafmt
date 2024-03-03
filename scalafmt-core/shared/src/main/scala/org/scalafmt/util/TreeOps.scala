@@ -108,9 +108,8 @@ object TreeOps {
 
   def getStatementStarts(
       tree: Tree,
-      ftoks: FormatTokens,
       soft: SoftKeywordClasses
-  ): Map[TokenHash, Tree] = {
+  )(implicit ftoks: FormatTokens): Map[TokenHash, Tree] = {
     val ret = Map.newBuilder[TokenHash, Tree]
     ret.sizeHint(tree.tokens.length)
 

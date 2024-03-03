@@ -16,12 +16,12 @@ object RemoveScala3OptionalBraces extends FormatTokensRewrite.RuleFactory {
       style.rewrite.scala3.removeOptionalBraces
         .ne(RewriteScala3Settings.RemoveOptionalBraces.no)
 
-  override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
-    new RemoveScala3OptionalBraces(ftoks)
+  override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
+    new RemoveScala3OptionalBraces
 
 }
 
-private class RemoveScala3OptionalBraces(ftoks: FormatTokens)
+private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
     extends FormatTokensRewrite.Rule {
 
   import FormatTokensRewrite._

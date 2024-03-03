@@ -14,7 +14,7 @@ object RewriteTrailingCommas extends FormatTokensRewrite.RuleFactory {
     style.dialect.allowTrailingCommas &&
       style.getTrailingCommas.ne(TrailingCommas.keep)
 
-  override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
+  override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new RewriteTrailingCommas(ftoks)
 
 }

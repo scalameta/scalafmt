@@ -17,7 +17,8 @@ object RemoveEmptyDocstrings
   override def enabled(implicit style: ScalafmtConfig): Boolean =
     style.docstrings.removeEmpty
 
-  override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule = this
+  override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
+    this
 
   override def onToken(implicit
       ft: FormatToken,
