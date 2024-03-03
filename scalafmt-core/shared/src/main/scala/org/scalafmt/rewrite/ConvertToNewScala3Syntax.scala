@@ -12,7 +12,7 @@ object ConvertToNewScala3Syntax extends FormatTokensRewrite.RuleFactory {
   override def enabled(implicit style: ScalafmtConfig): Boolean =
     style.rewrite.scala3.convertToNewSyntax
 
-  override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
+  override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new ConvertToNewScala3Syntax(ftoks)
 
 }

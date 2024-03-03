@@ -14,8 +14,8 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   override def enabled(implicit style: ScalafmtConfig): Boolean = true
 
-  override def create(ftoks: FormatTokens): Rule =
-    new RedundantBraces(ftoks)
+  override def create(implicit ftoks: FormatTokens): Rule =
+    new RedundantBraces
 
   def needParensAroundParams(f: Term.FunctionTerm): Boolean =
     /* either we have parens or no type; multiple params or
@@ -66,7 +66,8 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
 
 /** Removes/adds curly braces where desired.
   */
-class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
+class RedundantBraces(implicit val ftoks: FormatTokens)
+    extends FormatTokensRewrite.Rule {
 
   import FormatTokensRewrite._
   import RedundantBraces._
@@ -216,7 +217,7 @@ class RedundantBraces(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       style: ScalafmtConfig
   ): Option[Rule] =
     if (!style.rewrite.rules.contains(RedundantParens)) None
-    else Some(RedundantParens.create(ftoks))
+    else Some(RedundantParens.create)
 
   private def processInterpolation(implicit ft: FormatToken): Boolean = {
     def isIdentifierAtStart(value: String) =

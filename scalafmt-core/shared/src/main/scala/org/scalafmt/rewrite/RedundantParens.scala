@@ -16,7 +16,7 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   override def enabled(implicit style: ScalafmtConfig): Boolean = true
 
-  override def create(ftoks: FormatTokens): FormatTokensRewrite.Rule =
+  override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new RedundantParens(ftoks)
 
   private def infixNeedsParens(outer: Member.Infix, inner: Tree): Boolean = {
