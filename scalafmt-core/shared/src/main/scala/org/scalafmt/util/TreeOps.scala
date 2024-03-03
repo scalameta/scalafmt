@@ -50,43 +50,61 @@ object TreeOps {
   }
 
   object SingleArgInBraces {
-    def unapply(tree: Tree): Option[Term] = tree match {
+    def unapply(tree: Tree)(implicit
+        ftoks: FormatTokens
+    ): Option[Term] = tree match {
       case t: Term.ArgClause => unapply(t)
       case _ => None
     }
-    def unapply(tree: Term.ArgClause): Option[Term] = tree.values match {
+    def unapply(tree: Term.ArgClause)(implicit
+        ftoks: FormatTokens
+    ): Option[Term] = tree.values match {
       case arg :: Nil if inBraces(tree) => Some(arg)
       case _ => None
     }
-    @inline def inBraces(tree: Term.ArgClause): Boolean =
-      tree.tokens.head.is[LeftBrace]
+    @inline def inBraces(tree: Tree)(implicit
+        ftoks: FormatTokens
+    ): Boolean =
+      ftoks.getHeadIfEnclosed(tree).exists(_.left.is[LeftBrace])
 
-    def orBlock(tree: Tree): Option[Tree] = tree match {
+    def orBlock(tree: Tree)(implicit
+        ftoks: FormatTokens
+    ): Option[Tree] = tree match {
       case t: Term.ArgClause => unapply(t)
-      case Term.Block(arg :: Nil) => Some(arg)
+      case Term.Block(arg :: Nil) if inBraces(tree) => Some(arg)
       case _ => None
     }
 
     object OrBlock {
-      def unapply(tree: Tree): Option[Tree] = orBlock(tree)
+      def unapply(tree: Tree)(implicit
+          ftoks: FormatTokens
+      ): Option[Tree] = orBlock(tree)
     }
   }
 
   @tailrec
-  def isBlockFunction(fun: Term.FunctionTerm): Boolean =
+  def isBlockFunction(fun: Term.FunctionTerm)(implicit
+      ftoks: FormatTokens
+  ): Boolean =
     fun.parent match {
       case Some(p: Term.FunctionTerm) => isBlockFunction(p)
       case Some(p) => isExprWithParentInBraces(fun)(p)
       case None => false
     }
 
-  def isFunctionWithBraces(fun: Term.FunctionTerm): Boolean =
+  def isFunctionWithBraces(fun: Term.FunctionTerm)(implicit
+      ftoks: FormatTokens
+  ): Boolean =
     fun.parent.exists(isExprWithParentInBraces(fun))
 
-  def isExprWithParentInBraces(expr: Tree)(parent: Tree): Boolean =
+  def isExprWithParentInBraces(expr: Tree)(parent: Tree)(implicit
+      ftoks: FormatTokens
+  ): Boolean =
     SingleArgInBraces.orBlock(parent).contains(expr)
 
-  def extractStatementsIfAny(tree: Tree): Seq[Tree] =
+  def extractStatementsIfAny(tree: Tree)(implicit
+      ftoks: FormatTokens
+  ): Seq[Tree] =
     tree match {
       case b: Term.Block => b.stats
       case SingleArgInBraces(fun: Term.FunctionTerm) => fun :: Nil
@@ -837,7 +855,9 @@ object TreeOps {
   }
 
   @tailrec
-  final def followedBySelectOrApply(tree: Tree): Boolean = tree.parent match {
+  final def followedBySelectOrApply(tree: Tree)(implicit
+      ftoks: FormatTokens
+  ): Boolean = tree.parent match {
     case Some(p: Term.New) => followedBySelectOrApply(p)
     case Some(_: Term.Select) => true
     case Some(p: Member.Infix) => p.lhs.eq(tree) || followedBySelectOrApply(p)
@@ -1042,11 +1062,15 @@ object TreeOps {
       case _ => None
     })
 
-  def isFewerBraces(tree: Term.Apply)(implicit dialect: Dialect): Boolean =
-    dialect.allowFewerBraces && tree.argClause.tokens.head.is[Colon]
+  def isFewerBraces(
+      tree: Term.Apply
+  )(implicit dialect: Dialect, ftoks: FormatTokens): Boolean =
+    dialect.allowFewerBraces && ftoks.getHead(tree.argClause).left.is[Colon]
 
   @tailrec
-  def endsWithFewerBraces(tree: Tree)(implicit dialect: Dialect): Boolean =
+  def endsWithFewerBraces(
+      tree: Tree
+  )(implicit dialect: Dialect, ftoks: FormatTokens): Boolean =
     tree match {
       case t: Term.Apply => isFewerBraces(t)
       case t: Term.ApplyInfix =>
