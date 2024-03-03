@@ -222,6 +222,11 @@ object FormatTokensRewrite {
   private[rewrite] trait RuleFactory {
     def enabled(implicit style: ScalafmtConfig): Boolean
     def create(implicit ftoks: FormatTokens): Rule
+    final def createIfRequested(implicit
+        ftoks: FormatTokens,
+        style: ScalafmtConfig
+    ): Option[Rule] =
+      if (getFactories.contains(this) && enabled) Some(create) else None
   }
 
   private def getFactories(implicit style: ScalafmtConfig): Seq[RuleFactory] =

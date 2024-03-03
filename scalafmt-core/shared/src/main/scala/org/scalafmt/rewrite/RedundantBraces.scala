@@ -213,12 +213,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   ): RedundantBracesSettings =
     style.rewrite.redundantBraces
 
-  private def redundantParensFunc(implicit
-      style: ScalafmtConfig
-  ): Option[Rule] =
-    if (!style.rewrite.rules.contains(RedundantParens)) None
-    else Some(RedundantParens.create)
-
   private def processInterpolation(implicit ft: FormatToken): Boolean = {
     def isIdentifierAtStart(value: String) =
       value.headOption.exists(x => Character.isLetterOrDigit(x) || x == '_')
@@ -450,8 +444,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             case x: Token.LeftParen =>
               ftoks.matchingOpt(x) match {
                 case Some(y) if y ne stat.tokens.last =>
-                  redundantParensFunc.exists { parensRule =>
-                    parensRule.onToken(ftoks(x, -1), session, style).exists {
+                  RedundantParens.createIfRequested.exists {
+                    _.onToken(ftoks(x, -1), session, style).exists {
                       _.how eq ReplacementType.Remove
                     }
                   }
