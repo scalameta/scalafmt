@@ -32,20 +32,33 @@ object RewriteScala3Settings {
       case Conf.Bool(false) => default
     }
 
-  sealed abstract class RemoveOptionalBraces
+  case class RemoveOptionalBraces(
+      enabled: Boolean = true,
+      oldSyntaxToo: Boolean = false
+  )
 
   object RemoveOptionalBraces {
 
-    implicit val codec: ConfCodecEx[RemoveOptionalBraces] = ReaderUtil
-      .oneOfCustom[RemoveOptionalBraces](yes, no, oldSyntaxToo) {
-        case Conf.Bool(true) => Configured.Ok(yes)
-        case Conf.Bool(false) => Configured.Ok(no)
-      }
+    val yes = RemoveOptionalBraces()
+    val no = RemoveOptionalBraces(enabled = false)
 
-    case object no extends RemoveOptionalBraces
-    case object yes extends RemoveOptionalBraces
-    case object oldSyntaxToo extends RemoveOptionalBraces
+    implicit val surface: generic.Surface[RemoveOptionalBraces] =
+      generic.deriveSurface
 
+    implicit val encoder: ConfEncoder[RemoveOptionalBraces] =
+      generic.deriveEncoder[RemoveOptionalBraces]
+
+    implicit final val decoder: ConfDecoderEx[RemoveOptionalBraces] = {
+      val baseDecoder = generic.deriveDecoderEx[RemoveOptionalBraces](no)
+      (stateOpt, conf) =>
+        conf match {
+          case Conf.Bool(true) | Conf.Str("yes") => Configured.Ok(yes)
+          case Conf.Bool(false) | Conf.Str("no") => Configured.Ok(no)
+          case Conf.Str("oldSyntaxToo") =>
+            Configured.Ok(RemoveOptionalBraces(oldSyntaxToo = true))
+          case _ => baseDecoder.read(stateOpt, conf)
+        }
+    }
   }
 
   sealed abstract class EndMarkerLines

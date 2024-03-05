@@ -3100,7 +3100,7 @@ def f() = {
 > formatter might need to be run twice.
 >
 > This rule cannot be used with `rewrite.scala3.insertEndMarkerMinLines` or
-> `rewrite.scala3.removeOptionalBraces == oldSyntaxToo`.
+> `rewrite.scala3.removeOptionalBraces.oldSyntaxToo == true`.
 
 This rewrite in essence provides the opposite of what `RedundantBraces` achieves,
 and somewhat similar to Scala3's end marker rewrite rules.
@@ -3678,16 +3678,33 @@ NB: You could control these rules individually by
 
 ### `rewrite.scala3.removeOptionalBraces`
 
-If this flag is enabled,
+If this section is enabled,
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
 will be removed and significant indentation applied.
 
-The flag takes the following values:
+```scala mdoc:defaults
+rewrite.scala3.removeOptionalBraces
+```
 
-- `no`: disabled
-- `yes`: applies to expressions using the new control syntax (or
-  `rewrite.scala3.convertToNewSyntax` is set)
-- `oldSyntaxToo`: applies also to expressions using deprecated syntax
+The section contains the following settings (available since v3.8.1):
+
+- `enabled`:
+  - if `false`, disables any rewriting, regardless of other
+    flags in this section
+  - if `true`, enables rewriting
+    - applies to expressions using the new control syntax
+      (or those which would rewritten to new syntax if
+      `rewrite.scala3.convertToNewSyntax` is set)
+    - other flags below might extend rewrites to other cases
+- `oldSyntaxToo`
+  - if `true`, applies also to expressions using deprecated syntax
+
+Prior to v3.8.1, `rewrite.scala3.removeOptionalBraces` was a flag which
+took three possible values (with their equivalent current settings shown):
+
+- `no`: `enabled = false`
+- `yes`: `enabled = true`
+- `oldSyntaxToo`: `enabled = true` and `oldSyntaxToo = true`
 
 ### `rewrite.scala3.insertEndMarkerMinLines`
 
