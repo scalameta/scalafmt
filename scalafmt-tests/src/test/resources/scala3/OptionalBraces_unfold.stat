@@ -5373,12 +5373,12 @@ object a:
        s"($c) "
      }
    ) +
-     this.match {
-       case MateAdvice(seq, _, _, _) =>
-         seq.desc
-       case CpAdvice(judgment, _, _) =>
-         judgment.toString
-     } + "."
+     this.match
+        case MateAdvice(seq, _, _, _) =>
+          seq.desc
+        case CpAdvice(judgment, _, _) =>
+          judgment.toString
+     + "."
 <<< match as infix lhs, with rewrite
 rewrite.scala3.removeOptionalBraces = yes
 ===

@@ -76,7 +76,9 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
         case t: Term.Name =>
           t.parent.exists {
             case p: Term.Select => p.name eq t // select without `.`
-            case p: Term.ApplyInfix => p.op eq t
+            case p: Term.ApplyInfix if p.op eq t =>
+              !style.dialect.allowInfixOperatorAfterNL ||
+              !t.tokens.head.isSymbolicInfixOperator
             case _ => false
           }
         case _ => false
