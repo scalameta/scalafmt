@@ -3,7 +3,6 @@ package org.scalafmt.rewrite
 import scala.meta._
 import scala.meta.tokens.Token
 
-import org.scalafmt.config.RewriteScala3Settings
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
@@ -13,8 +12,7 @@ object RemoveScala3OptionalBraces extends FormatTokensRewrite.RuleFactory {
 
   override def enabled(implicit style: ScalafmtConfig): Boolean =
     style.dialect.allowSignificantIndentation &&
-      style.rewrite.scala3.removeOptionalBraces
-        .ne(RewriteScala3Settings.RemoveOptionalBraces.no)
+      style.rewrite.scala3.removeOptionalBraces.enabled
 
   override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new RemoveScala3OptionalBraces
@@ -28,8 +26,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
 
   private def allowOldSyntax(implicit style: ScalafmtConfig): Boolean =
     ConvertToNewScala3Syntax.enabled ||
-      style.rewrite.scala3.removeOptionalBraces
-        .eq(RewriteScala3Settings.RemoveOptionalBraces.oldSyntaxToo)
+      style.rewrite.scala3.removeOptionalBraces.oldSyntaxToo
 
   override def enabled(implicit style: ScalafmtConfig): Boolean =
     RemoveScala3OptionalBraces.enabled

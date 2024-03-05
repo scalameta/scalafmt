@@ -11,7 +11,6 @@ import scala.meta.Type
 import scala.util.Try
 
 import metaconfig._
-import org.scalafmt.config.RewriteScala3Settings._
 import org.scalafmt.rewrite.FormatTokensRewrite
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.sysops.AbsoluteFile
@@ -453,7 +452,7 @@ object ScalafmtConfig {
       if (rewrite.scala3.insertEndMarkerMinLines != 0)
         addIf(rewrite.scala3.removeEndMarkerMaxLines >= rewrite.scala3.insertEndMarkerMinLines)
       addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.insertEndMarkerMinLines != 0)
-      addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.removeOptionalBraces == RemoveOptionalBraces.oldSyntaxToo)
+      addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.removeOptionalBraces.oldSyntaxToo)
       if (rewrite.insertBraces.minLines != 0 && rewrite.rules.contains(RedundantBraces))
         addIf(rewrite.insertBraces.minLines < rewrite.redundantBraces.maxBreaks)
       addIf(align.beforeOpenParenDefnSite && !align.closeParenSite)
