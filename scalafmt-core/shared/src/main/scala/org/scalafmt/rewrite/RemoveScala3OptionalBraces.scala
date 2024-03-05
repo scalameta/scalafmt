@@ -67,31 +67,30 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       ft: FormatToken,
       session: Session,
       style: ScalafmtConfig
-  ): Option[(Replacement, Replacement)] =
-    ft.right match {
-      case _ if hasFormatOff => None // can't guarantee significant indentation
-      case x: Token.RightBrace =>
-        val nextFt = ftoks.nextNonComment(ftoks.next(ft))
-        val ok = nextFt.meta.rightOwner match {
-          case t: Term.Name =>
-            t.parent.exists {
-              case p: Term.Select => p.name ne t
-              case p: Term.ApplyInfix => p.op ne t
-              case _ => true
-            }
-          case _ => true
-        }
-        if (ok) {
-          val replacement = ft.meta.rightOwner match {
-            case _: Term.For
-                if allowOldSyntax && !nextFt.right.is[Token.KwDo] =>
-              replaceToken("do")(new Token.KwDo(x.input, x.dialect, x.start))
-            case _ => removeToken
+  ): Option[(Replacement, Replacement)] = {
+    val nextFt = ftoks.nextNonComment(ftoks.next(ft))
+    val notOkToRewrite = hasFormatOff || // can't force significant indentation
+      (nextFt.meta.rightOwner match {
+        case t: Term.Name =>
+          t.parent.exists {
+            case p: Term.Select => p.name eq t // select without `.`
+            case p: Term.ApplyInfix => p.op eq t
+            case _ => false
           }
-          Some((left, replacement))
-        } else None
+        case _ => false
+      })
+    ft.right match {
+      case _ if notOkToRewrite => None
+      case x: Token.RightBrace =>
+        val replacement = ft.meta.rightOwner match {
+          case _: Term.For if allowOldSyntax && !nextFt.right.is[Token.KwDo] =>
+            replaceToken("do")(new Token.KwDo(x.input, x.dialect, x.start))
+          case _ => removeToken
+        }
+        Some((left, replacement))
       case _ => None
     }
+  }
 
   private def onLeftForBlock(
       tree: Term.Block
