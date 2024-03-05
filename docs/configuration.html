@@ -4154,7 +4154,7 @@ rewrite.redundantBraces.maxBreaks = <span class="hljs-number">3</span>
 <p>Warning: this rewrite might cause non-idempotent formatting,
 formatter might need to be run twice.</p>
 <p>This rule cannot be used with <code>rewrite.scala3.insertEndMarkerMinLines</code> or
-<code>rewrite.scala3.removeOptionalBraces == oldSyntaxToo</code>.</p>
+<code>rewrite.scala3.removeOptionalBraces.oldSyntaxToo == true</code>.</p>
 </blockquote>
 <p>This rewrite in essence provides the opposite of what <code>RedundantBraces</code> achieves,
 and somewhat similar to Scala3's end marker rewrite rules.</p>
@@ -4947,15 +4947,35 @@ set to <code>false</code>, see below):</p>
 <p>NB: You could control these rules individually by
 <a href="#runnerdialectoverride">overriding dialect properties</a>.</p>
 <h3><a class="anchor" aria-hidden="true" id="rewritescala3removeoptionalbraces"></a><a href="#rewritescala3removeoptionalbraces" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>rewrite.scala3.removeOptionalBraces</code></h3>
-<p>If this flag is enabled,
+<p>If this section is enabled,
 <a href="https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html">optional braces</a>
 will be removed and significant indentation applied.</p>
-<p>The flag takes the following values:</p>
+<p>Default: <code>rewrite.scala3.removeOptionalBraces = {&quot;enabled&quot;: false, &quot;oldSyntaxToo&quot;: false}</code></p>
+<p>The section contains the following settings (available since v3.8.1):</p>
 <ul>
-<li><code>no</code>: disabled</li>
-<li><code>yes</code>: applies to expressions using the new control syntax (or
+<li><code>enabled</code>:
+<ul>
+<li>if <code>false</code>, disables any rewriting, regardless of other
+flags in this section</li>
+<li>if <code>true</code>, enables rewriting
+<ul>
+<li>applies to expressions using the new control syntax
+(or those which would rewritten to new syntax if
 <code>rewrite.scala3.convertToNewSyntax</code> is set)</li>
-<li><code>oldSyntaxToo</code>: applies also to expressions using deprecated syntax</li>
+<li>other flags below might extend rewrites to other cases</li>
+</ul></li>
+</ul></li>
+<li><code>oldSyntaxToo</code>
+<ul>
+<li>if <code>true</code>, applies also to expressions using deprecated syntax</li>
+</ul></li>
+</ul>
+<p>Prior to v3.8.1, <code>rewrite.scala3.removeOptionalBraces</code> was a flag which
+took three possible values (with their equivalent current settings shown):</p>
+<ul>
+<li><code>no</code>: <code>enabled = false</code></li>
+<li><code>yes</code>: <code>enabled = true</code></li>
+<li><code>oldSyntaxToo</code>: <code>enabled = true</code> and <code>oldSyntaxToo = true</code></li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="rewritescala3insertendmarkerminlines"></a><a href="#rewritescala3insertendmarkerminlines" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>rewrite.scala3.insertEndMarkerMinLines</code></h3>
 <p>If this flag is set to a positive value, when an expression containing an
@@ -6723,7 +6743,8 @@ rewrite.<span class="hljs-attr">rules</span> = []
 rewrite.scala3.<span class="hljs-attr">convertToNewSyntax</span> = <span class="hljs-literal">false</span>
 rewrite.scala3.newSyntax.<span class="hljs-attr">control</span> = <span class="hljs-literal">true</span>
 rewrite.scala3.newSyntax.<span class="hljs-attr">deprecated</span> = <span class="hljs-literal">true</span>
-rewrite.scala3.<span class="hljs-attr">removeOptionalBraces</span> = no
+rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">enabled</span> = <span class="hljs-literal">false</span>
+rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">oldSyntaxToo</span> = <span class="hljs-literal">false</span>
 rewrite.scala3.<span class="hljs-attr">countEndMarkerLines</span> = all
 rewrite.scala3.<span class="hljs-attr">removeEndMarkerMaxLines</span> = <span class="hljs-number">0</span>
 rewrite.scala3.<span class="hljs-attr">insertEndMarkerMinLines</span> = <span class="hljs-number">0</span>
