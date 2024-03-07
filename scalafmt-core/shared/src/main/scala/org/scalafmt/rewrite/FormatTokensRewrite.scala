@@ -2,6 +2,8 @@ package org.scalafmt.rewrite
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.reflect.ClassTag
+
 import scala.meta.Tree
 import scala.meta.tokens.{Token => T}
 
@@ -117,7 +119,7 @@ class FormatTokensRewrite(
    * - for standalone tokens, simply invoke the rule and record any rewrites
    */
   private def getRewrittenTokens: Iterable[Replacement] = {
-    implicit val session: Session = new Session
+    implicit val session: Session = new Session(rules)
     val tokens = session.tokens
     val leftDelimIndex = new mutable.ListBuffer[(Int, Option[Rule])]()
     val formatOffStack = new mutable.ListBuffer[Boolean]()
@@ -222,11 +224,6 @@ object FormatTokensRewrite {
   private[rewrite] trait RuleFactory {
     def enabled(implicit style: ScalafmtConfig): Boolean
     def create(implicit ftoks: FormatTokens): Rule
-    final def createIfRequested(implicit
-        ftoks: FormatTokens,
-        style: ScalafmtConfig
-    ): Option[Rule] =
-      if (getFactories.contains(this) && enabled) Some(create) else None
   }
 
   private def getFactories(implicit style: ScalafmtConfig): Seq[RuleFactory] =
@@ -244,7 +241,7 @@ object FormatTokensRewrite {
     else new FormatTokensRewrite(ftoks, styleMap, rules).rewrite
   }
 
-  private[rewrite] class Session {
+  private[rewrite] class Session(rules: Seq[Rule]) {
     private implicit val implicitSession: Session = this
     private val claimed = new mutable.HashMap[Int, Rule]()
     private[FormatTokensRewrite] val tokens =
@@ -276,6 +273,8 @@ object FormatTokensRewrite {
       iter(rules)
     }
 
+    def rule[A](implicit tag: ClassTag[A]): Option[Rule] =
+      rules.find(tag.runtimeClass.isInstance)
   }
 
   private[rewrite] class Replacement(
