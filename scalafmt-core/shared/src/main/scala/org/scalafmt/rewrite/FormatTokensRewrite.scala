@@ -133,7 +133,7 @@ class FormatTokensRewrite(
             if (formatOff) None
             else
               session.claimedRule match {
-                case x @ Some(rule) => if (applyRule(rule)) x else None
+                case Some(c) => if (applyRule(c.rule)) Some(c.rule) else None
                 case _ => applyRules
               }
           leftDelimIndex.prepend((ldelimIdx, ruleOpt))
@@ -147,7 +147,7 @@ class FormatTokensRewrite(
           val replacement = ruleOpt match {
             case Some(rule)
                 if !ft.meta.formatOff &&
-                  session.claimedRule.forall(_ eq rule) =>
+                  session.claimedRule.forall(_.rule eq rule) =>
               implicit val style = styleMap.at(ft.right)
               if (rule.enabled) rule.onRight(tokens(ldelimIdx), formatOff)
               else None
@@ -245,20 +245,26 @@ object FormatTokensRewrite {
 
   private[rewrite] class Session(rules: Seq[Rule]) {
     private implicit val implicitSession: Session = this
-    private val claimed = new mutable.HashMap[Int, Rule]()
+    private val claimed = new mutable.HashMap[Int, Claimant]()
     private[FormatTokensRewrite] val tokens =
       new mutable.ArrayBuffer[Replacement]()
 
-    def claimedRule(implicit ft: FormatToken): Option[Rule] =
-      claimed.get(ft.meta.idx)
+    @inline
+    def claimedRule(implicit ft: FormatToken): Option[Claimant] =
+      claimedRule(ft.meta.idx)
+
+    @inline
+    private[rewrite] def claimedRule(ftIdx: Int): Option[Claimant] =
+      claimed.get(ftIdx)
 
     private[FormatTokensRewrite] def applyRule(
         rule: Rule
     )(implicit ft: FormatToken, style: ScalafmtConfig): Boolean =
       rule.enabled && (rule.onToken match {
         case Some(repl) =>
-          claimed.getOrElseUpdate(ft.meta.idx, rule)
-          repl.claim.foreach { claimed.getOrElseUpdate(_, rule) }
+          val claimant = new Claimant(rule, repl)
+          claimed.getOrElseUpdate(ft.meta.idx, claimant)
+          repl.claim.foreach { claimed.getOrElseUpdate(_, claimant) }
           tokens.append(repl)
           true
         case _ => false
@@ -278,6 +284,11 @@ object FormatTokensRewrite {
     def rule[A <: Rule](implicit tag: ClassTag[A]): Option[A] =
       rules.find(tag.runtimeClass.isInstance).map(_.asInstanceOf[A])
   }
+
+  private[rewrite] class Claimant(
+      val rule: Rule,
+      val replacement: Replacement
+  )
 
   private[rewrite] class Replacement(
       val ft: FormatToken,
