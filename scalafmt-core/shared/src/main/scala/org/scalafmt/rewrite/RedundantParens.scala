@@ -91,7 +91,7 @@ class RedundantParens(ftoks: FormatTokens) extends FormatTokensRewrite.Rule {
       case _: Token.RightParen if (left.how eq ReplacementType.Remove) && {
             val maybeCommaFt = ftoks.prevNonComment(ft)
             !maybeCommaFt.left.is[Token.Comma] ||
-            session.claimedRule(ftoks.prev(maybeCommaFt)).isDefined
+            session.claimedRule(maybeCommaFt.meta.idx - 1).isDefined
           } /* check for trailing comma */ =>
         Some((left, removeToken))
       case _ => None

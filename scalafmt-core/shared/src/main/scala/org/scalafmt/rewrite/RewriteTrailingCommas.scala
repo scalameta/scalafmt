@@ -46,8 +46,8 @@ private class RewriteTrailingCommas(ftoks: FormatTokens)
         case rp: Token.RightParen =>
           rightOwner.isAny[Member.SyntaxValuesClause, Member.Tuple] ||
           ftoks.matchingOpt(rp).exists { lp =>
-            val rule = session.claimedRule(ftoks.justBefore(lp))
-            rule.forall(_.isInstanceOf[RedundantParens])
+            val claimant = session.claimedRule(ftoks.justBefore(lp))
+            claimant.forall(_.rule.isInstanceOf[RedundantParens])
           }
 
         case _: Token.RightBracket =>
