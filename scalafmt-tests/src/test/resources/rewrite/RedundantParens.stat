@@ -1409,7 +1409,4 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 ===
 foo.mtd({ x => x + 1 })
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--foo.mtd(x => x + 1)
-+foo.mtd { x => x + 1 }
+foo.mtd(x => x + 1)
