@@ -224,6 +224,7 @@ object FormatTokensRewrite {
   private[rewrite] trait RuleFactory {
     def enabled(implicit style: ScalafmtConfig): Boolean
     def create(implicit ftoks: FormatTokens): Rule
+    def priority: Int = 0
   }
 
   private def getFactories(implicit style: ScalafmtConfig): Seq[RuleFactory] =
@@ -236,7 +237,8 @@ object FormatTokensRewrite {
       ftoks: FormatTokens,
       styleMap: StyleMap
   ): FormatTokens = {
-    val rules = getEnabledFactories(styleMap.init).map(_.create(ftoks))
+    val enabledFactories = getEnabledFactories(styleMap.init).sortBy(_.priority)
+    val rules = enabledFactories.map(_.create(ftoks))
     if (rules.isEmpty) ftoks
     else new FormatTokensRewrite(ftoks, styleMap, rules).rewrite
   }
@@ -273,8 +275,8 @@ object FormatTokensRewrite {
       iter(rules)
     }
 
-    def rule[A](implicit tag: ClassTag[A]): Option[Rule] =
-      rules.find(tag.runtimeClass.isInstance)
+    def rule[A <: Rule](implicit tag: ClassTag[A]): Option[A] =
+      rules.find(tag.runtimeClass.isInstance).map(_.asInstanceOf[A])
   }
 
   private[rewrite] class Replacement(
