@@ -56,17 +56,6 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       case x => nested || x.isDefined
     })
 
-  // we might not keep it but will hint to onRight
-  private def replaceWithLeftParen(implicit ft: FormatToken): Replacement =
-    replaceTokenBy("(") { x =>
-      new Token.LeftParen(x.input, x.dialect, x.start)
-    }
-
-  private def replaceWithEquals(implicit ft: FormatToken): Replacement =
-    replaceTokenBy("=") { x =>
-      new Token.Equals(x.input, x.dialect, x.start)
-    }
-
 }
 
 /** Removes/adds curly braces where desired.
@@ -103,6 +92,17 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       case _ => null
     }
   }
+
+  // we might not keep it but will hint to onRight
+  private def replaceWithLeftParen(implicit ft: FormatToken): Replacement =
+    replaceTokenBy("(") { x =>
+      new Token.LeftParen(x.input, x.dialect, x.start)
+    }
+
+  private def replaceWithEquals(implicit ft: FormatToken): Replacement =
+    replaceTokenBy("=") { x =>
+      new Token.Equals(x.input, x.dialect, x.start)
+    }
 
   private def onLeftParen(implicit
       ft: FormatToken,
