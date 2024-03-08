@@ -1404,3 +1404,12 @@ object A {
       Option(""),
     ).map(identity)
 }
+<<< func in parens and braces, single line
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+foo.mtd({ x => x + 1 })
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-foo.mtd(x => x + 1)
++foo.mtd { x => x + 1 }
