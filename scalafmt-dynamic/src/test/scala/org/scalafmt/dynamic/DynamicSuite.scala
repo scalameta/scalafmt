@@ -175,8 +175,8 @@ class DynamicSuite extends FunSuite {
   private val testedVersions = Seq(
     nightly,
     latest,
-    "3.1.2",
-    "2.7.5",
+    "3.8.0",
+    "3.7.15",
     "2.5.3",
     "2.0.0-RC4",
     "1.6.0-RC4",
