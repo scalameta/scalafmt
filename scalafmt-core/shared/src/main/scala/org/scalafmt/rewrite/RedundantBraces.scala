@@ -27,14 +27,19 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       case _ => false
     }
 
-  def canRewriteBlockWithParens(b: Term.Block): Boolean =
+  def canRewriteBlockWithParens(b: Term.Block)(implicit
+      ftoks: FormatTokens
+  ): Boolean =
     getBlockSingleStat(b).exists(canRewriteStatWithParens)
 
-  def canRewriteStatWithParens(t: Stat): Boolean =
+  def canRewriteStatWithParens(t: Stat)(implicit ftoks: FormatTokens): Boolean =
     t match {
       case f: Term.FunctionTerm => canRewriteFuncWithParens(f)
       case _: Term.Assign => false // disallowed in 2.13
       case _: Defn => false
+      case _: Term.PartialFunction => false
+      case b @ Term.Block(s :: Nil) if !ftoks.isEnclosedInMatching(b) =>
+        canRewriteStatWithParens(s)
       case _ => true
     }
 

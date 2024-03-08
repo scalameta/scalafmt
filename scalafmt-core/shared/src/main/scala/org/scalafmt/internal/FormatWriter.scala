@@ -162,7 +162,7 @@ class FormatWriter(formatOps: FormatOps) {
           val ok = tok.meta.leftOwner match {
             case b: Term.Block =>
               checkApply(b) && RedundantBraces.canRewriteBlockWithParens(b) &&
-              b.parent.exists(_.tokens.last.start == rb.start)
+              b.parent.exists(tokens.getLast(_) eq tok)
             case f: Term.FunctionTerm =>
               checkApply(f) && RedundantBraces.canRewriteFuncWithParens(f)
             case t @ TreeOps.SingleArgInBraces(arg) =>
