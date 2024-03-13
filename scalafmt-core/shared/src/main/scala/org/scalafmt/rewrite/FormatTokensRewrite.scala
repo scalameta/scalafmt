@@ -144,20 +144,23 @@ class FormatTokensRewrite(
           val (ldelimIdx, ruleOpt) = leftDelimIndex.remove(0)
           if (formatOff && formatOffStack.nonEmpty)
             formatOffStack.update(0, true)
-          val replacement = ruleOpt match {
-            case Some(rule)
-                if !ft.meta.formatOff &&
-                  session.claimedRule.forall(_.rule eq rule) =>
-              implicit val style = styleMap.at(ft.right)
-              if (rule.enabled) rule.onRight(tokens(ldelimIdx), formatOff)
-              else None
-            case _ => None
-          }
-          replacement match {
-            case None => tokens(ldelimIdx) = null
-            case Some((ltRepl, rtRepl)) =>
-              tokens(ldelimIdx) = ltRepl
-              tokens.append(rtRepl)
+          ruleOpt.foreach { rule =>
+            val left = tokens(ldelimIdx)
+            val replacement =
+              if (ft.meta.formatOff) None
+              else if (session.claimedRule.exists(_.rule ne rule)) None
+              else {
+                implicit val style = styleMap.at(ft.right)
+                if (rule.enabled) rule.onRight(left, formatOff) else None
+              }
+            replacement match {
+              case None =>
+                tokens(ldelimIdx) = null
+                session.claim(ft.meta.idx, null)
+              case Some((ltRepl, rtRepl)) =>
+                tokens(ldelimIdx) = ltRepl
+                session.claim(ft.meta.idx, rtRepl)
+            }
           }
 
         // above, only paired tokens
@@ -284,16 +287,22 @@ object FormatTokensRewrite {
 
     @inline
     private[rewrite] def claimedRule(ftIdx: Int): Option[Replacement] =
-      claimed.get(ftIdx).map(tokens.apply)
+      claimed.get(ftIdx).map(tokens.apply).filter(_ ne null)
+
+    @inline
+    private[rewrite] def claim(ftIdx: Int, repl: Replacement): Int = {
+      val idx = tokens.length
+      claimed.update(ftIdx, idx)
+      tokens.append(repl)
+      idx
+    }
 
     private[FormatTokensRewrite] def applyRule(
         attemptedRule: Rule
     )(implicit ft: FormatToken, style: ScalafmtConfig): Option[Rule] =
       if (attemptedRule.enabled) attemptedRule.onToken.map { repl =>
-        val idx = tokens.length
-        claimed.getOrElseUpdate(ft.meta.idx, idx)
+        val idx = claim(ft.meta.idx, repl)
         repl.claim.foreach { claimed.getOrElseUpdate(_, idx) }
-        tokens.append(repl)
         repl.rule
       }
       else None
