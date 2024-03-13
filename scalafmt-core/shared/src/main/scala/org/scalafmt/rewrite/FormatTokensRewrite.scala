@@ -223,29 +223,33 @@ object FormatTokensRewrite {
         style: ScalafmtConfig
     ): Option[(Replacement, Replacement)]
 
-    protected final def removeToken(implicit ft: FormatToken): Replacement =
-      new Replacement(this, ft, ReplacementType.Remove)
+    protected final def removeToken(implicit
+        ft: FormatToken,
+        style: ScalafmtConfig
+    ): Replacement =
+      Replacement(this, ft, ReplacementType.Remove, style)
 
     protected final def replaceToken(
         text: String,
         owner: Option[Tree] = None,
         claim: Iterable[Int] = Nil
-    )(tok: T)(implicit ft: FormatToken): Replacement = {
+    )(tok: T)(implicit ft: FormatToken, style: ScalafmtConfig): Replacement = {
       val mOld = ft.meta.right
       val mNew = mOld.copy(text = text, owner = owner.getOrElse(mOld.owner))
       val ftNew = ft.copy(right = tok, meta = ft.meta.copy(right = mNew))
-      new Replacement(this, ftNew, ReplacementType.Replace, claim)
+      Replacement(this, ftNew, ReplacementType.Replace, style, claim)
     }
 
     protected final def replaceTokenBy(
         text: String,
         owner: Option[Tree] = None,
         claim: Iterable[Int] = Nil
-    )(f: T => T)(implicit ft: FormatToken): Replacement =
+    )(f: T => T)(implicit ft: FormatToken, style: ScalafmtConfig): Replacement =
       replaceToken(text, owner, claim)(f(ft.right))
 
     protected final def replaceTokenIdent(text: String, t: T)(implicit
-        ft: FormatToken
+        ft: FormatToken,
+        style: ScalafmtConfig
     ): Replacement = replaceToken(text)(
       new T.Ident(t.input, t.dialect, t.start, t.start + text.length, text)
     )
@@ -326,12 +330,13 @@ object FormatTokensRewrite {
       rules.find(tag.runtimeClass.isInstance).map(_.asInstanceOf[A])
   }
 
-  private[rewrite] class Replacement(
-      val rule: Rule,
-      val ft: FormatToken,
-      val how: ReplacementType,
+  private[rewrite] case class Replacement(
+      rule: Rule,
+      ft: FormatToken,
+      how: ReplacementType,
+      style: ScalafmtConfig,
       // list of FormatToken indices, with the claimed token on the **right**
-      val claim: Iterable[Int] = Nil
+      claim: Iterable[Int] = Nil
   )
 
   private[rewrite] sealed trait ReplacementType

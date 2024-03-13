@@ -94,12 +94,18 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   }
 
   // we might not keep it but will hint to onRight
-  private def replaceWithLeftParen(implicit ft: FormatToken): Replacement =
+  private def replaceWithLeftParen(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig
+  ): Replacement =
     replaceTokenBy("(") { x =>
       new Token.LeftParen(x.input, x.dialect, x.start)
     }
 
-  private def replaceWithEquals(implicit ft: FormatToken): Replacement =
+  private def replaceWithEquals(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig
+  ): Replacement =
     replaceTokenBy("=") { x =>
       new Token.Equals(x.input, x.dialect, x.start)
     }
@@ -140,9 +146,10 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     lpFunction.orElse(lpPartialFunction).orNull
   }
 
-  private def onRightParen(
-      left: Replacement
-  )(implicit ft: FormatToken): (Replacement, Replacement) =
+  private def onRightParen(left: Replacement)(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig
+  ): (Replacement, Replacement) =
     (left, removeToken)
 
   private def onLeftBrace(implicit
@@ -199,9 +206,10 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     }
   }
 
-  private def onRightBrace(
-      left: Replacement
-  )(implicit ft: FormatToken): (Replacement, Replacement) =
+  private def onRightBrace(left: Replacement)(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig
+  ): (Replacement, Replacement) =
     left.ft match {
       case lft @ FormatToken(_, _: Token.LeftParen, _)
           if left.how eq ReplacementType.Replace =>
@@ -209,7 +217,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           // shifted right
           new Token.RightBrace(rt.input, rt.dialect, rt.start + 1)
         }
-        (removeToken(lft), right)
+        (removeToken(lft, style), right)
       case _ => (left, removeToken)
     }
 
