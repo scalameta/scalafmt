@@ -273,7 +273,8 @@ object FormatTokensRewrite {
 
   private[rewrite] class Session(rules: Seq[Rule]) {
     private implicit val implicitSession: Session = this
-    private val claimed = new mutable.HashMap[Int, Replacement]()
+    // map FT index to index in tokens below
+    private val claimed = new mutable.HashMap[Int, Int]()
     private[FormatTokensRewrite] val tokens =
       new mutable.ArrayBuffer[Replacement]()
 
@@ -283,14 +284,15 @@ object FormatTokensRewrite {
 
     @inline
     private[rewrite] def claimedRule(ftIdx: Int): Option[Replacement] =
-      claimed.get(ftIdx)
+      claimed.get(ftIdx).map(tokens.apply)
 
     private[FormatTokensRewrite] def applyRule(
         attemptedRule: Rule
     )(implicit ft: FormatToken, style: ScalafmtConfig): Option[Rule] =
       if (attemptedRule.enabled) attemptedRule.onToken.map { repl =>
-        claimed.getOrElseUpdate(ft.meta.idx, repl)
-        repl.claim.foreach { claimed.getOrElseUpdate(_, repl) }
+        val idx = tokens.length
+        claimed.getOrElseUpdate(ft.meta.idx, idx)
+        repl.claim.foreach { claimed.getOrElseUpdate(_, idx) }
         tokens.append(repl)
         repl.rule
       }
