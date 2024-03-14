@@ -53,6 +53,8 @@ class Router(formatOps: FormatOps) {
     getLastNonTrivial,
     prevNonComment,
     nextNonComment,
+    nextAfterNonComment,
+    nextNonCommentAfter,
     prevNonCommentSameLine,
     nextNonCommentSameLine
   }
@@ -300,7 +302,7 @@ class Router(formatOps: FormatOps) {
                 val indent = style.indent.main
                 val annoFT = tokens(anno)
                 val arrow = annoFT.left.is[T.RightArrow]
-                val expire = if (arrow) annoFT else next(nextNonComment(annoFT))
+                val expire = if (arrow) annoFT else nextAfterNonComment(annoFT)
                 (expire, Some(expire.left), indent, Some(isSelfAnnotationNL))
               }
               annoOpt.getOrElse { (null, None, 0, None) }
@@ -1436,7 +1438,7 @@ class Router(formatOps: FormatOps) {
         val expire = expireFt.left
         val sameLineSplit = Space(endsWithSymbolIdent(left))
         val bopSplits = style.newlines.getBeforeOpenParenDefnSite.map { x =>
-          val ob = OptionalBraces.get(next(nextNonComment(expireFt))).nonEmpty
+          val ob = OptionalBraces.get(nextAfterNonComment(expireFt)).nonEmpty
           def extraIfBody = style.indent.extraBeforeOpenParenDefnSite
           val indent =
             if (ob) style.indent.getSignificant + extraIfBody
@@ -2442,7 +2444,7 @@ class Router(formatOps: FormatOps) {
         val baseSplit = Split(mod, 0)
         rightOwner match {
           case GetSelectLike(t) =>
-            val expire = nextNonComment(next(formatToken)).left
+            val expire = nextNonCommentAfter(formatToken).left
             val indent = Indent(style.indent.main, expire, ExpiresOn.After)
             val split = baseSplit.withIndent(indent)
             if (findPrevSelect(t, style.encloseSelectChains).isEmpty) Seq(split)

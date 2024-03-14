@@ -1430,7 +1430,7 @@ class FormatOps(
   private def getArrowAfter(ft: FormatToken): FormatToken = {
     val maybeArrow = next(ft)
     if (maybeArrow.left.is[T.RightArrow]) maybeArrow
-    else next(nextNonComment(maybeArrow))
+    else tokens.nextAfterNonComment(maybeArrow)
   }
 
   def getArgs(owner: Tree, orNil: Boolean = false): Seq[Tree] =
@@ -1914,7 +1914,7 @@ class FormatOps(
     } else None
 
   def getKwMatchAfterDot(ft: FormatToken): T.KwMatch =
-    nextNonComment(next(ft)).right.asInstanceOf[T.KwMatch]
+    tokens.nextNonCommentAfter(ft).right.asInstanceOf[T.KwMatch]
 
   object GetSelectLike {
     def unapply(tree: Tree): Option[SelectLike] = tree match {
