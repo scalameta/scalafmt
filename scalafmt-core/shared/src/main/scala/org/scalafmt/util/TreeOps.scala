@@ -52,33 +52,38 @@ object TreeOps {
   object SingleArgInBraces {
     def unapply(tree: Tree)(implicit
         ftoks: FormatTokens
-    ): Option[Term] = tree match {
+    ): Option[(FormatToken, Term, FormatToken)] = tree match {
       case t: Term.ArgClause => unapply(t)
       case _ => None
     }
     def unapply(tree: Term.ArgClause)(implicit
         ftoks: FormatTokens
-    ): Option[Term] = tree.values match {
-      case arg :: Nil if inBraces(tree) => Some(arg)
+    ): Option[(FormatToken, Term, FormatToken)] = tree.values match {
+      case arg :: Nil => getBraces(tree).map { case (b, e) => (b, arg, e) }
       case _ => None
     }
     @inline def inBraces(tree: Tree)(implicit
         ftoks: FormatTokens
     ): Boolean =
-      ftoks.getHeadIfEnclosed(tree).exists(_.left.is[LeftBrace])
+      getBraces(tree).isDefined
+    @inline def getBraces(tree: Tree)(implicit
+        ftoks: FormatTokens
+    ): Option[(FormatToken, FormatToken)] =
+      ftoks.getDelimsIfEnclosed(tree).filter(_._1.left.is[LeftBrace])
 
     def orBlock(tree: Tree)(implicit
         ftoks: FormatTokens
-    ): Option[Tree] = tree match {
+    ): Option[(FormatToken, Stat, FormatToken)] = tree match {
       case t: Term.ArgClause => unapply(t)
-      case Term.Block(arg :: Nil) if inBraces(tree) => Some(arg)
+      case Term.Block(arg :: Nil) =>
+        getBraces(tree).map { case (b, e) => (b, arg, e) }
       case _ => None
     }
 
     object OrBlock {
       def unapply(tree: Tree)(implicit
           ftoks: FormatTokens
-      ): Option[Tree] = orBlock(tree)
+      ): Option[(FormatToken, Stat, FormatToken)] = orBlock(tree)
     }
   }
 
@@ -100,14 +105,14 @@ object TreeOps {
   def isExprWithParentInBraces(expr: Tree)(parent: Tree)(implicit
       ftoks: FormatTokens
   ): Boolean =
-    SingleArgInBraces.orBlock(parent).contains(expr)
+    SingleArgInBraces.orBlock(parent).exists(_._2 eq expr)
 
   def extractStatementsIfAny(tree: Tree)(implicit
       ftoks: FormatTokens
   ): Seq[Tree] =
     tree match {
       case b: Term.Block => b.stats
-      case SingleArgInBraces(fun: Term.FunctionTerm) => fun :: Nil
+      case SingleArgInBraces(_, fun: Term.FunctionTerm, _) => fun :: Nil
       case b: Term.FunctionTerm if isBlockFunction(b) => b.body :: Nil
       case t: Pkg => t.stats
       // TODO(olafur) would be nice to have an abstract "For" superclass.

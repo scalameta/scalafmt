@@ -171,7 +171,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         else if (okToReplaceFunctionInSingleArgApply(t)) replaceWithLeftParen
         else removeToken
       case t: Term.PartialFunction if t.parent.exists { p =>
-            SingleArgInBraces.orBlock(p).contains(t) &&
+            SingleArgInBraces.orBlock(p).exists(_._2 eq t) &&
             t.pos.start != p.pos.start
           } =>
         removeToken
