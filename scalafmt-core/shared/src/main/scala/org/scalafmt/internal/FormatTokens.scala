@@ -153,6 +153,14 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
   final def nextNonComment(curr: FormatToken.Meta): FormatToken =
     nextNonComment(arr(curr.idx))
 
+  @inline
+  final def nextNonCommentAfter(curr: FormatToken): FormatToken =
+    nextNonComment(next(curr))
+
+  @inline
+  final def nextAfterNonComment(curr: FormatToken): FormatToken =
+    next(nextNonComment(curr))
+
   final def prevNonCommentSameLine(curr: FormatToken): FormatToken =
     findToken(curr, prev)(ft => ft.hasBreak || !ft.left.is[Token.Comment])
 
@@ -176,7 +184,7 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
 
   @tailrec
   final def getOnOrAfterOwned(ft: FormatToken, tree: Tree): FormatToken = {
-    val nextFt = next(nextNonComment(ft))
+    val nextFt = nextAfterNonComment(ft)
     if (nextFt == ft || nextFt.meta.leftOwner != tree) ft
     else getOnOrAfterOwned(nextFt, tree)
   }
