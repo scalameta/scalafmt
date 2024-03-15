@@ -40,6 +40,8 @@ class FormatTokensRewrite(
     val tokenMap = Map.newBuilder[TokenOps.TokenHash, Int]
     tokenMap.sizeHint(arr.length)
 
+    val shiftedIndexMap = mutable.Map.empty[Int, Int]
+
     var appended = 0
     var removed = 0
     def copySlice(end: Int): Unit = {
@@ -52,15 +54,16 @@ class FormatTokensRewrite(
       val idx = ft.meta.idx
       val ftOld = arr(idx)
       val rtOld = ftOld.right
-      @inline def mapOld() = tokenMap += FormatTokens.thash(rtOld) -> appended
+      @inline def mapOld(dstidx: Int) =
+        tokenMap += FormatTokens.thash(rtOld) -> dstidx
       copySlice(idx)
       def append(): Unit = {
-        if (rtOld ne ft.right) mapOld()
+        if (rtOld ne ft.right) mapOld(appended)
         appended += 1
         result += ft
       }
-      def remove(): Unit = {
-        mapOld()
+      def remove(dstidx: Int): Unit = {
+        mapOld(dstidx)
         val nextIdx = idx + 1
         val nextFt = ftoks.at(nextIdx)
         val rtMeta = nextFt.meta
@@ -69,7 +72,17 @@ class FormatTokensRewrite(
         }
         removed += 1
       }
-      if (repl.how eq ReplacementType.Remove) remove() else append()
+      repl.how match {
+        case ReplacementType.Remove => remove(appended)
+        case ReplacementType.Replace => append()
+        case r: ReplacementType.RemoveAndResurrect =>
+          if (r.idx == idx) { // we moved here
+            append()
+            shiftedIndexMap.put(idx, appended)
+          } else { // we moved from here
+            remove(shiftedIndexMap.remove(r.idx).getOrElse(appended))
+          }
+      }
     }
 
     if (appended + removed == 0) ftoks
@@ -232,20 +245,22 @@ object FormatTokensRewrite {
     protected final def replaceToken(
         text: String,
         owner: Option[Tree] = None,
-        claim: Iterable[Int] = Nil
+        claim: Iterable[Int] = Nil,
+        rtype: ReplacementType = ReplacementType.Replace
     )(tok: T)(implicit ft: FormatToken, style: ScalafmtConfig): Replacement = {
       val mOld = ft.meta.right
       val mNew = mOld.copy(text = text, owner = owner.getOrElse(mOld.owner))
       val ftNew = ft.copy(right = tok, meta = ft.meta.copy(right = mNew))
-      Replacement(this, ftNew, ReplacementType.Replace, style, claim)
+      Replacement(this, ftNew, rtype, style, claim)
     }
 
     protected final def replaceTokenBy(
         text: String,
         owner: Option[Tree] = None,
-        claim: Iterable[Int] = Nil
+        claim: Iterable[Int] = Nil,
+        rtype: ReplacementType = ReplacementType.Replace
     )(f: T => T)(implicit ft: FormatToken, style: ScalafmtConfig): Replacement =
-      replaceToken(text, owner, claim)(f(ft.right))
+      replaceToken(text, owner, claim, rtype)(f(ft.right))
 
     protected final def replaceTokenIdent(text: String, t: T)(implicit
         ft: FormatToken,
@@ -297,7 +312,24 @@ object FormatTokensRewrite {
     private[rewrite] def claim(ftIdx: Int, repl: Replacement): Int = {
       val idx = tokens.length
       claimed.update(ftIdx, idx)
-      tokens.append(repl)
+      tokens.append(
+        if (repl eq null) null
+        else
+          (repl.how match {
+            case rt: ReplacementType.RemoveAndResurrect =>
+              claimed.get(rt.idx).flatMap { oldidx =>
+                val orepl = tokens(oldidx)
+                val ok = orepl != null && (orepl.rule eq repl.rule) &&
+                  (orepl.how eq ReplacementType.Remove)
+                if (ok) {
+                  tokens(oldidx) =
+                    repl.copy(ft = repl.ft.withIdx(orepl.ft.meta.idx))
+                  Some(repl.copy(ft = orepl.ft.withIdx(repl.ft.meta.idx)))
+                } else None
+              }
+            case _ => None
+          }).getOrElse(repl)
+      )
       idx
     }
 
@@ -343,6 +375,7 @@ object FormatTokensRewrite {
   private[rewrite] object ReplacementType {
     object Remove extends ReplacementType
     object Replace extends ReplacementType
+    class RemoveAndResurrect(val idx: Int) extends ReplacementType
   }
 
   private def mergeWhitespaceLeftToRight(
