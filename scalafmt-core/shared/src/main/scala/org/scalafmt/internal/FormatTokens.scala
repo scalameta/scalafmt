@@ -9,19 +9,21 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.FormatTokensRewrite
 import org.scalafmt.util._
 
-class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
+import TokenOps._
+
+class FormatTokens(leftTok2tok: Map[TokenHash, Int])(
     val arr: Array[FormatToken]
 ) extends IndexedSeq[FormatToken] {
 
   private def this(arr: Array[FormatToken]) = this {
-    val result = Map.newBuilder[TokenOps.TokenHash, Int]
+    val result = Map.newBuilder[TokenHash, Int]
     result.sizeHint(arr.length)
     arr.foreach(t => result += FormatTokens.thash(t.left) -> t.meta.idx)
     result += FormatTokens.thash(arr.last.right) -> arr.last.meta.idx
     result.result()
   }(arr)
 
-  private lazy val matchingParentheses: Map[TokenOps.TokenHash, Token] =
+  private lazy val matchingParentheses: Map[TokenHash, Token] =
     TreeOps.getMatchingParentheses(arr.view.map(_.right))
 
   override def length: Int = arr.length
@@ -71,15 +73,15 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
 
   @inline def matching(token: Token): Token =
     matchingParentheses.getOrElse(
-      TokenOps.hash(token),
+      FormatTokens.thash(token),
       throw new NoSuchElementException(
         s"Missing matching token index [${token.start}:${token.end}]: `$token`"
       )
     )
   @inline def matchingOpt(token: Token): Option[Token] =
-    matchingParentheses.get(TokenOps.hash(token))
+    matchingParentheses.get(FormatTokens.thash(token))
   @inline def hasMatching(token: Token): Boolean =
-    matchingParentheses.contains(TokenOps.hash(token))
+    matchingParentheses.contains(FormatTokens.thash(token))
   @inline def areMatching(t1: Token)(t2: => Token): Boolean =
     matchingOpt(t1) match {
       case Some(x) => x eq t2
@@ -196,28 +198,28 @@ class FormatTokens(leftTok2tok: Map[TokenOps.TokenHash, Int])(
     getHeadOpt(tree.tokens, tree)
 
   private def getLast(tokens: Tokens): FormatToken =
-    apply(TokenOps.findLastVisibleToken(tokens))
+    apply(findLastVisibleToken(tokens))
   def getLast(tokens: Tokens, tree: Tree): FormatToken =
     getOnOrAfterOwned(getLast(tokens), tree)
   @inline def getLast(tree: Tree): FormatToken =
     getLast(tree.tokens, tree)
 
   private def getLastOpt(tokens: Tokens): Option[FormatToken] =
-    TokenOps.findLastVisibleTokenOpt(tokens).map(apply)
+    findLastVisibleTokenOpt(tokens).map(apply)
   def getLastOpt(tokens: Tokens, tree: Tree): Option[FormatToken] =
     getLastOpt(tokens).map(getOnOrAfterOwned(_, tree))
   @inline def getLastOpt(tree: Tree): Option[FormatToken] =
     getLastOpt(tree.tokens, tree)
 
   private def getLastNonTrivial(tokens: Tokens): FormatToken =
-    apply(TokenOps.findLastNonTrivialToken(tokens))
+    apply(findLastNonTrivialToken(tokens))
   def getLastNonTrivial(tokens: Tokens, tree: Tree): FormatToken =
     getOnOrAfterOwned(getLastNonTrivial(tokens), tree)
   def getLastNonTrivial(tree: Tree): FormatToken =
     getLastNonTrivial(tree.tokens, tree)
 
   private def getLastNonTrivialOpt(tokens: Tokens): Option[FormatToken] =
-    TokenOps.findLastNonTrivialTokenOpt(tokens).map(apply)
+    findLastNonTrivialTokenOpt(tokens).map(apply)
   def getLastNonTrivialOpt(tokens: Tokens, tree: Tree): Option[FormatToken] =
     getLastNonTrivialOpt(tokens).map(getOnOrAfterOwned(_, tree))
   def getLastNonTrivialOpt(tree: Tree): Option[FormatToken] =
@@ -303,11 +305,11 @@ object FormatTokens {
     def process(right: Token): Unit = {
       val rmeta = FormatToken.TokenMeta(owner(right), right.syntax)
       if (left eq null) {
-        fmtWasOff = TokenOps.isFormatOff(right)
+        fmtWasOff = isFormatOff(right)
       } else {
         val between = arr.slice(wsIdx, tokIdx)
-        val fmtIsOff = fmtWasOff || TokenOps.isFormatOff(right)
-        fmtWasOff = if (fmtWasOff) !TokenOps.isFormatOn(right) else fmtIsOff
+        val fmtIsOff = fmtWasOff || isFormatOff(right)
+        fmtWasOff = if (fmtWasOff) !isFormatOn(right) else fmtIsOff
         val meta = FormatToken.Meta(between, ftIdx, fmtIsOff, lmeta, rmeta)
         result += FormatToken(left, right, meta)
         ftIdx += 1
@@ -332,6 +334,6 @@ object FormatTokens {
   }
 
   @inline
-  def thash(token: Token): TokenOps.TokenHash = TokenOps.hash(token)
+  def thash(token: Token): TokenHash = hash(token)
 
 }
