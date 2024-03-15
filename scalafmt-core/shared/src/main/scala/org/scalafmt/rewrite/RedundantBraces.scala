@@ -93,15 +93,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     }
   }
 
-  // we might not keep it but will hint to onRight
-  private def replaceWithLeftParen(implicit
-      ft: FormatToken,
-      style: ScalafmtConfig
-  ): Replacement =
-    replaceTokenBy("(") { x =>
-      new Token.LeftParen(x.input, x.dialect, x.start)
-    }
-
   private def replaceWithEquals(implicit
       ft: FormatToken,
       style: ScalafmtConfig
@@ -122,7 +113,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           case b: Term.Block =>
             ftoks.getHead(b) match {
               case FormatToken(_: Token.LeftBrace, _, lbm) =>
-                replaceToken(lbm.left.text, Some(rtOwner), lbm.idx - 1 :: Nil) {
+                replaceToken("{", claim = lbm.idx - 1 :: Nil) {
                   new Token.LeftBrace(rt.input, rt.dialect, rt.start)
                 }
               case _ => null
@@ -149,8 +140,27 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   private def onRightParen(left: Replacement)(implicit
       ft: FormatToken,
       style: ScalafmtConfig
-  ): (Replacement, Replacement) =
-    (left, removeToken)
+  ): (Replacement, Replacement) = left.how match {
+    case ReplacementType.Remove => (left, removeToken)
+    case ReplacementType.Replace if {
+          val lft = left.ft
+          val ro = ft.meta.rightOwner
+          (lft.meta.rightOwner eq ro) &&
+          lft.right.is[Token.LeftBrace] &&
+          okToReplaceFunctionInSingleArgApply(ro).isDefined
+        } =>
+      val pft = ftoks.prevNonComment(ft)
+      val rb = pft.left
+      if (rb.is[Token.RightBrace]) {
+        // move right to the end of the function
+        val rType = new ReplacementType.RemoveAndResurrect(pft.meta.idx - 1)
+        left -> replaceToken("}", rtype = rType) {
+          // create a different token so that any child tree wouldn't own it
+          new Token.RightBrace(rb.input, rb.dialect, rb.start)
+        }
+      } else null // don't know how to Replace
+    case _ => null
+  }
 
   private def onLeftBrace(implicit
       ft: FormatToken,
@@ -175,7 +185,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     owner match {
       case t: Term.FunctionTerm if t.tokens.last.is[Token.RightBrace] =>
         if (!okToRemoveFunctionInApplyOrInit(t)) null
-        else if (okToReplaceFunctionInSingleArgApply(t)) replaceWithLeftParen
         else removeToken
       case t: Term.PartialFunction if t.parent.exists { p =>
             SingleArgInBraces.orBlock(p).exists(_._2 eq t) &&
@@ -186,7 +195,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         t.parent match {
           case Some(f: Term.FunctionTerm)
               if okToReplaceFunctionInSingleArgApply(f) =>
-            replaceWithLeftParen
+            removeToken
           case Some(_: Term.Interpolate) => handleInterpolation
           case _ =>
             if (processBlock(t)) removeToken else null
@@ -210,16 +219,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       ft: FormatToken,
       style: ScalafmtConfig
   ): (Replacement, Replacement) =
-    left.ft match {
-      case lft @ FormatToken(_, _: Token.LeftParen, _)
-          if left.how eq ReplacementType.Replace =>
-        val right = replaceTokenBy("}", ft.meta.rightOwner.parent) { rt =>
-          // shifted right
-          new Token.RightBrace(rt.input, rt.dialect, rt.start + 1)
-        }
-        (removeToken(lft, style), right)
-      case _ => (left, removeToken)
-    }
+    (left, removeToken)
 
   private def settings(implicit
       style: ScalafmtConfig

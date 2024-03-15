@@ -49,6 +49,10 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
   /** A format token is uniquely identified by its left token.
     */
   override def hashCode(): Int = hash(left).##
+
+  private[scalafmt] def withIdx(idx: Int): FormatToken =
+    copy(meta = meta.copy(idx = idx))
+
 }
 
 object FormatToken {

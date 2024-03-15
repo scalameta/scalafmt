@@ -39,10 +39,11 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(
     if (idx >= arr.length) arr.last
     else {
       val ft = arr(idx)
-      if (isBefore) {
-        if (ft.left.start <= tok.start) ft else at(idx - 1)
+      if (ft.left eq tok) ft
+      else if (isBefore) {
+        if (ft.left.start < tok.start) ft else at(idx - 1)
       } else {
-        if (ft.left.start >= tok.start) ft else at(idx + 1)
+        if (ft.left.start > tok.start) ft else at(idx + 1)
       }
     }
   }
