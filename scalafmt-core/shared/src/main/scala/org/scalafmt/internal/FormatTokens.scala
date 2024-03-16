@@ -138,9 +138,10 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(
       .flatMap(getClosingIfInParens(getLastNonTrivial(tokens, tree)))
   }
 
-  def getLastExceptParen(tokens: Tokens): FormatToken = {
-    val last = getLastNonTrivial(tokens)
-    getClosingIfInParens(last)(getHead(tokens)).getOrElse(last)
+  def getLastExceptParen(tree: Tree): FormatToken = {
+    val tokens = tree.tokens
+    val last = getLastNonTrivial(tokens, tree)
+    getClosingIfInParens(last)(getHead(tokens, tree)).getOrElse(last)
   }
 
   @tailrec
@@ -207,45 +208,33 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(
     else getOnOrAfterOwned(nextFt, tree)
   }
 
-  private def getHead(tokens: Tokens): FormatToken =
-    after(tokens.head)
   def getHead(tokens: Tokens, tree: Tree): FormatToken =
-    getOnOrBeforeOwned(getHead(tokens), tree)
+    getOnOrBeforeOwned(after(tokens.head), tree)
   @inline def getHead(tree: Tree): FormatToken =
     getHead(tree.tokens, tree)
 
-  private def getHeadOpt(tokens: Tokens): Option[FormatToken] =
-    tokens.headOption.map(after)
   def getHeadOpt(tokens: Tokens, tree: Tree): Option[FormatToken] =
-    getHeadOpt(tokens).map(getOnOrBeforeOwned(_, tree))
+    tokens.headOption.map(x => getOnOrBeforeOwned(after(x), tree))
   @inline def getHeadOpt(tree: Tree): Option[FormatToken] =
     getHeadOpt(tree.tokens, tree)
 
-  private def getLast(tokens: Tokens): FormatToken =
-    apply(findLastVisibleToken(tokens))
   def getLast(tokens: Tokens, tree: Tree): FormatToken =
-    getOnOrAfterOwned(getLast(tokens), tree)
+    getOnOrAfterOwned(apply(findLastVisibleToken(tokens)), tree)
   @inline def getLast(tree: Tree): FormatToken =
     getLast(tree.tokens, tree)
 
-  private def getLastOpt(tokens: Tokens): Option[FormatToken] =
-    findLastVisibleTokenOpt(tokens).map(apply)
   def getLastOpt(tokens: Tokens, tree: Tree): Option[FormatToken] =
-    getLastOpt(tokens).map(getOnOrAfterOwned(_, tree))
+    findLastVisibleTokenOpt(tokens).map(x => getOnOrAfterOwned(apply(x), tree))
   @inline def getLastOpt(tree: Tree): Option[FormatToken] =
     getLastOpt(tree.tokens, tree)
 
-  private def getLastNonTrivial(tokens: Tokens): FormatToken =
-    apply(findLastNonTrivialToken(tokens))
   def getLastNonTrivial(tokens: Tokens, tree: Tree): FormatToken =
-    getOnOrAfterOwned(getLastNonTrivial(tokens), tree)
+    prevNonComment(getLast(tokens, tree))
   def getLastNonTrivial(tree: Tree): FormatToken =
     getLastNonTrivial(tree.tokens, tree)
 
-  private def getLastNonTrivialOpt(tokens: Tokens): Option[FormatToken] =
-    findLastNonTrivialTokenOpt(tokens).map(apply)
   def getLastNonTrivialOpt(tokens: Tokens, tree: Tree): Option[FormatToken] =
-    getLastNonTrivialOpt(tokens).map(getOnOrAfterOwned(_, tree))
+    getLastOpt(tokens, tree).map(prevNonComment)
   def getLastNonTrivialOpt(tree: Tree): Option[FormatToken] =
     getLastNonTrivialOpt(tree.tokens, tree)
 
@@ -277,6 +266,8 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(
 
   /* the following methods return the last format token such that
    * its `left` is before the parameter and is not a comment */
+  @inline
+  def tokenOnOrBefore(token: Token): FormatToken = prevNonComment(before(token))
   @inline
   def tokenBefore(token: Token): FormatToken = prevNonComment(justBefore(token))
   @inline
