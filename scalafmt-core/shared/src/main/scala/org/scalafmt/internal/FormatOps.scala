@@ -855,7 +855,7 @@ class FormatOps(
   }
 
   def getLastEnclosedToken(tree: Tree): T = {
-    tokens.getLastExceptParen(tree.tokens).left
+    tokens.getLastExceptParen(tree).left
   }
 
   @tailrec

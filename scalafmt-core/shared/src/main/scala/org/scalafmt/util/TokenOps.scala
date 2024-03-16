@@ -62,18 +62,9 @@ object TokenOps {
   def findLast[A](seq: Seq[A])(cond: A => Boolean): Option[A] =
     seq.reverseIterator.find(cond)
 
-  def findLastNonTrivialTokenOpt(tokens: Tokens): Option[Token] =
-    findLast(tokens) {
-      case Trivia() | _: EOF => false
-      case _ => true
-    }
-
-  def findLastNonTrivialToken(tokens: Tokens): Token =
-    findLastNonTrivialTokenOpt(tokens).getOrElse(tokens.last)
-
   def findLastVisibleTokenOpt(tokens: Tokens): Option[Token] =
     findLast(tokens) {
-      case Whitespace() | _: EOF => false
+      case _: Whitespace | _: EOF => false
       case _ => true
     }
 
