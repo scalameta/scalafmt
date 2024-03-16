@@ -921,29 +921,13 @@ class FormatOps(
     maxPrecedence
   }
 
-  def functionExpire(function: Term.FunctionTerm): (T, ExpiresOn) = {
-    def dropWS(rtoks: Seq[T]): Seq[T] =
-      rtoks.dropWhile(_.is[T.Whitespace])
-    def orElse(rtoks: Seq[T]) = {
-      val last = rtoks.head
-      if (last.is[T.RightParen] && matchingOpt(last).contains(rtoks.last))
-        rtoks.tail.find(!_.is[T.Whitespace]).get -> ExpiresOn.After
-      else
-        last -> ExpiresOn.After
-    }
-    def dropComment(rtoks: Seq[T]) =
-      if (rtoks.head.is[T.Comment]) dropWS(rtoks.tail) else rtoks
-
-    def getRToks = dropWS(function.tokens.reverse)
+  def functionExpire(function: Term.FunctionTerm): (T, ExpiresOn) =
     function.parent match {
       case Some(SingleArgInBraces.OrBlock(_, _, e)) =>
         e.left -> ExpiresOn.Before
-      case Some(Case(_, _, `function`)) =>
-        orElse(dropComment(getRToks))
       case _ =>
-        orElse(getRToks)
+        tokens.getLastExceptParen(function).left -> ExpiresOn.After
     }
-  }
 
   def noOptimizationZones(): Set[T] = {
     val result = Set.newBuilder[T]
