@@ -42,12 +42,12 @@ class FormatTokensRewrite(
 
     val shiftedIndexMap = mutable.Map.empty[Int, Int]
 
-    var appended = 0
     var removed = 0
+    @inline def appended = result.length
+    @inline def processed = appended + removed
+
     def copySlice(end: Int): Unit = {
-      val beg = appended + removed
-      appended += end - beg
-      result ++= arr.view.slice(beg, end)
+      result ++= arr.view.slice(processed, end)
     }
     getRewrittenTokens.foreach { repl =>
       val ft = repl.ft
@@ -59,7 +59,6 @@ class FormatTokensRewrite(
       copySlice(idx)
       def append(): Unit = {
         if (rtOld ne ft.right) mapOld(appended)
-        appended += 1
         result += ft
       }
       def remove(dstidx: Int): Unit = {
@@ -85,7 +84,7 @@ class FormatTokensRewrite(
       }
     }
 
-    if (appended + removed == 0) ftoks
+    if (processed == 0) ftoks
     else {
       copySlice(arr.length)
       val newarr = result.result()
