@@ -49,11 +49,7 @@ object LoggerOps {
 
   def log(tokens: Tokens): String = tokens.map(log).mkString("\n")
 
-  def log(token: Token): String =
-    f"[${token.end}]${cleanup(token).slice(0, 30)}%-30s ${getTokenClass(token)}"
-
-  private def getTokenClass(token: Token) =
-    token.getClass.getName.stripPrefix("scala.meta.tokens.Token$")
+  def log(token: Token): String = f"[${token.structure}%-40s"
 
   def log(t: Tree): String = log(t, false)
   def log(t: Tree, tokensOnly: Boolean): String = {
