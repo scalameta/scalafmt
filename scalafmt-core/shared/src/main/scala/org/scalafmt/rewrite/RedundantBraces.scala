@@ -155,8 +155,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         // move right to the end of the function
         val rType = new ReplacementType.RemoveAndResurrect(pft.meta.idx - 1)
         left -> replaceToken("}", rtype = rType) {
-          // create a different token so that any child tree wouldn't own it
-          new Token.RightBrace(rb.input, rb.dialect, rb.start)
+          // create a shifted token so that any child tree wouldn't own it
+          new Token.RightBrace(rb.input, rb.dialect, rb.start + 1)
         }
       } else null // don't know how to Replace
     case _ => null
