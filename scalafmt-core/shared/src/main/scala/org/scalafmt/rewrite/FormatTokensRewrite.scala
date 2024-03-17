@@ -42,21 +42,32 @@ class FormatTokensRewrite(
 
     val shiftedIndexMap = mutable.Map.empty[Int, Int]
 
-    var appended = 0
-    var removed = 0
+    var remapped = false // tokenMap doesn't have isEmpty
+    var appended = 0 // prior to scala 2.13, result didn't have length
+    var nextidxToCopy = 0
+
     def copySlice(end: Int): Unit = {
-      val beg = appended + removed
-      appended += end - beg
-      result ++= arr.view.slice(beg, end)
+      val append = end - nextidxToCopy
+      if (append > 0) {
+        appended += append
+        result ++= arr.view.slice(nextidxToCopy, end)
+        nextidxToCopy = end
+      }
     }
+
     getRewrittenTokens.foreach { repl =>
       val ft = repl.ft
       val idx = ft.meta.idx
       val ftOld = arr(idx)
       val rtOld = ftOld.right
-      @inline def mapOld(dstidx: Int) =
+      @inline def mapOld(dstidx: Int) = {
+        remapped = true
         tokenMap += FormatTokens.thash(rtOld) -> dstidx
+      }
+
       copySlice(idx)
+      nextidxToCopy += 1 // covers current element
+
       def append(): Unit = {
         appended += 1
         result += ft
@@ -70,7 +81,6 @@ class FormatTokensRewrite(
         mergeWhitespaceLeftToRight(ftOld.meta, rtMeta).foreach { bw =>
           arr(nextIdx) = nextFt.copy(meta = rtMeta.copy(between = bw))
         }
-        removed += 1
       }
       repl.how match {
         case ReplacementType.Remove => remove(appended)
@@ -86,7 +96,7 @@ class FormatTokensRewrite(
       }
     }
 
-    if (appended + removed == 0) ftoks
+    if (!remapped) ftoks
     else {
       copySlice(arr.length)
       val newarr = result.result()
