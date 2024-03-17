@@ -58,9 +58,9 @@ class FormatTokensRewrite(
         tokenMap += FormatTokens.thash(rtOld) -> dstidx
       copySlice(idx)
       def append(): Unit = {
-        if (rtOld ne ft.right) mapOld(appended)
         appended += 1
         result += ft
+        if (rtOld ne ft.right) mapOld(appended)
       }
       def remove(dstidx: Int): Unit = {
         mapOld(dstidx)
