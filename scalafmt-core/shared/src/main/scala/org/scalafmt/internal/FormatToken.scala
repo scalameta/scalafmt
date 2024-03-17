@@ -21,8 +21,14 @@ import org.scalafmt.util.TokenOps._
   */
 case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
 
-  override def toString =
-    s"${meta.left.text}∙${meta.right.text}[${left.end}:${right.end}]"
+  override def toString = {
+    val ws = newlinesBetween match {
+      case 0 => between.mkString
+      case 1 => "LF"
+      case _ => "LFLF"
+    }
+    s"${meta.left.text}∙${meta.right.text}: ${left.structure} [$ws] ${right.structure}"
+  }
 
   def inside(range: Set[Range]): Boolean = {
     if (range.isEmpty) true
