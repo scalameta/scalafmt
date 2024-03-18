@@ -397,9 +397,11 @@ foo.mtd(
     },
   )
 >>>
-foo.mtd(x => {
-  x + 1
-})
+foo.mtd(
+  x => {
+    x + 1
+  },
+)
 <<< partial func in parens, !allowFolding
 rewrite.trailingCommas.allowFolding = false
 ===
@@ -430,9 +432,11 @@ object a {
 }
 >>>
 object a {
-  foo.mtd(bar(x => {
-    x + 1
-  }))
+  foo.mtd(bar(
+      x => {
+      x + 1
+    },
+    ))
   foo.mtd(
     bar(x => {
       x + 1
@@ -445,21 +449,24 @@ binPack.indentCallSiteOnce = true
 rewrite.trailingCommas.allowFolding = false
 ===
 object a {
-    foo.mtd(bar(x => {
-          x + 1
-        },
-      ))
-    foo.mtd(bar(x => {
-          x + 1
-        }
-      ),
-    )
+  foo.mtd(bar(
+      x => {
+      x + 1
+    },
+    ))
+  foo.mtd(
+    bar(x => {
+      x + 1
+    }),
+  )
 }
 >>>
 object a {
-  foo.mtd(bar(x => {
-    x + 1
-  }))
+  foo.mtd(bar(
+      x => {
+      x + 1
+    },
+    ))
   foo.mtd(
     bar(x => {
       x + 1
