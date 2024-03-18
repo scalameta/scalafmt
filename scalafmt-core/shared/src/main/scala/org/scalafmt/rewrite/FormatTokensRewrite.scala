@@ -358,8 +358,13 @@ object FormatTokensRewrite {
       iter(rules)
     }
 
-    def rule[A <: Rule](implicit tag: ClassTag[A]): Option[A] =
-      rules.find(tag.runtimeClass.isInstance).map(_.asInstanceOf[A])
+    private[rewrite] def rule[A <: Rule](implicit
+        tag: ClassTag[A],
+        sc: ScalafmtConfig
+    ): Option[A] = {
+      val ruleOpt = rules.find(tag.runtimeClass.isInstance)
+      ruleOpt.map(_.asInstanceOf[A]).filter(_.enabled)
+    }
   }
 
   private[rewrite] case class Replacement(
