@@ -38,3 +38,24 @@ val x = (
 )
 >>>
 val x = (x => x + 1)
+<<< with braces-to-parens rewrite, allowFolding
+rewrite.rules = [ RedundantBraces ]
+rewrite.trailingCommas.allowFolding = true
+rewrite.redundantBraces.parensForOneLineApply = true
+===
+foo { bar }
+>>>
+foo(bar)
+<<< with braces-to-parens rewrite, !allowFolding
+rewrite.rules = [ RedundantBraces ]
+rewrite.trailingCommas.allowFolding = false
+rewrite.redundantBraces.parensForOneLineApply = true
+===
+foo { bar }
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-foo(
+-  bar,
+-)
++foo(bar)
