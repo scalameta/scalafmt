@@ -458,8 +458,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
               ftoks.matchingOpt(x) match {
                 case Some(y) if y ne stat.tokens.last =>
                   session.rule[RedundantParens].exists {
-                    _.onToken(ftoks(x, -1), session, style)
-                      .exists(_.how eq ReplacementType.Remove)
+                    _.onToken(ftoks(x, -1), session, style).exists(_.isRemove)
                   }
                 case _ => true
               }

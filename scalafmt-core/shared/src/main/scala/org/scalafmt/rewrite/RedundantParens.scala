@@ -89,10 +89,10 @@ class RedundantParens(implicit val ftoks: FormatTokens)
       style: ScalafmtConfig
   ): Option[(Replacement, Replacement)] =
     ft.right match {
-      case _: Token.RightParen if (left.how eq ReplacementType.Remove) && {
+      case _: Token.RightParen if left.isRemove && {
             val maybeCommaFt = ftoks.prevNonComment(ft)
             !maybeCommaFt.left.is[Token.Comma] ||
-            session.claimedRule(maybeCommaFt.meta.idx - 1).isDefined
+            session.isRemovedOnLeft(maybeCommaFt, true)
           } /* check for trailing comma */ =>
         Some((left, removeToken))
       case _ => None
