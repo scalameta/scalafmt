@@ -115,7 +115,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
     def nextRight = ftoks.nextNonComment(ftoks.next(ft)).right
     ft.right match {
 
-      case x: Token.RightParen if left.how eq ReplacementType.Remove =>
+      case x: Token.RightParen if left.isRemove =>
         ft.meta.rightOwner match {
           case _: Term.If =>
             if (!nextRight.is[Token.KwThen])

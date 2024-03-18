@@ -328,7 +328,7 @@ object FormatTokensRewrite {
             case rt: ReplacementType.RemoveAndResurrect =>
               getClaimed(rt.idx).flatMap { case (oldidx, orepl) =>
                 val ok = orepl != null && (orepl.rule eq repl.rule) &&
-                  (orepl.how eq ReplacementType.Remove)
+                  orepl.isRemove
                 if (ok) {
                   tokens(oldidx) =
                     repl.copy(ft = repl.ft.withIdx(orepl.ft.meta.idx))
@@ -373,6 +373,15 @@ object FormatTokensRewrite {
       val ruleOpt = rules.find(tag.runtimeClass.isInstance)
       ruleOpt.map(_.asInstanceOf[A]).filter(_.enabled)
     }
+
+    private[rewrite] def isRemovedOnLeftOpt(x: FormatToken): Option[Boolean] = {
+      val ftIdx = x.meta.idx - 1
+      claimedRule(ftIdx).filter(_.ft.meta.idx == ftIdx).map(_.isRemove)
+    }
+
+    private[rewrite] def isRemovedOnLeft(x: FormatToken, ok: Boolean): Boolean =
+      isRemovedOnLeftOpt(x).contains(ok)
+
   }
 
   private[rewrite] case class Replacement(
@@ -382,7 +391,9 @@ object FormatTokensRewrite {
       style: ScalafmtConfig,
       // list of FormatToken indices, with the claimed token on the **right**
       claim: Iterable[Int] = Nil
-  )
+  ) {
+    @inline def isRemove: Boolean = how eq ReplacementType.Remove
+  }
 
   private[rewrite] sealed trait ReplacementType
   private[rewrite] object ReplacementType {
