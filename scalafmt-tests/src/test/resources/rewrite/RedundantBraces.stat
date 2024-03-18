@@ -1402,3 +1402,308 @@ object A:
 object Bar extends Foo[(Int, String)]({ case (i, s) => () })
 >>>
 object Bar extends Foo[(Int, String)]({ case (i, s) => () })
+<<< rewrite with trailing commas: block simple, allowFolding
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = true
+===
+foo.mtd({
+    x + 1
+    x + 2
+  },
+)
+>>>
+foo.mtd({
+  x + 1
+  x + 2
+})
+<<< rewrite with trailing commas: block simple, !allowFolding
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = false
+===
+foo.mtd({
+    x + 1
+    x + 2
+  },
+)
+>>>
+foo.mtd({
+    x + 1
+    x + 2
+  },
+)
+<<< rewrite with trailing commas: func, allowFolding
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = true
+===
+foo.mtd1({ x =>
+    x + 1
+    x + 2
+  },
+)
+>>>
+foo.mtd1({ x =>
+  x + 1
+  x + 2
+})
+<<< rewrite with trailing commas: func, !allowFolding
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = false
+===
+foo.mtd1({ x =>
+    x + 1
+    x + 2
+  },
+)
+>>>
+foo.mtd1({ x =>
+    x + 1
+    x + 2
+  },
+)
+<<< rewrite with trailing commas: func in parens, infix after, allowFolding
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = true
+===
+object a {
+  mtd1(
+    x => {
+      x + 1
+    },
+  ) + mtd2(
+    x => {
+      x + 1
+      x + 2
+    },
+  )
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+ object a {
+-  mtd1(x => x + 1) + mtd2(x => x + 1 x +2)
++  mtd1(x => x + 1) + mtd2(x =>
++    x + 1
++    x + 2,
++  )
+ }
+<<< rewrite with trailing commas: func in parens, infix after, !allowFolding
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = false
+===
+object a {
+  mtd1(
+    x => {
+      x + 1
+    },
+  ) + mtd2(
+    x => {
+      x + 1
+      x + 2
+    },
+  )
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+ object a {
+-  mtd1(x => x + 1) + mtd2(x => x + 1 x +2)
++  mtd1(x => x + 1) + mtd2(x =>
++    x + 1
++    x + 2,
++  )
+ }
+<<< rewrite with trailing commas: func in parens and braces, allowFolding
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = true
+===
+foo.mtd(
+    { x =>
+      x + 1
+      x + 2
+    },
+  )
+>>>
+foo.mtd(
+  { x =>
+    x + 1
+    x + 2
+  },
+)
+<<< rewrite with trailing commas: func in parens and braces, !allowFolding
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = false
+===
+foo.mtd(
+    { x =>
+      x + 1
+      x + 2
+    },
+  )
+>>>
+foo.mtd(
+  { x =>
+    x + 1
+    x + 2
+  },
+)
+<<< rewrite with trailing commas: func in parens and braces, infix after, allowFolding
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = true
+===
+object a {
+  mtd1(
+    { x =>
+      x + 1
+    },
+  ) + mtd2(
+    { x =>
+      x + 1
+      x + 2
+    },
+  ) + mtd3(
+    { x =>
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+}
+>>>
+object a {
+  mtd1(
+    { x =>
+      x + 1
+    },
+  ) + mtd2(
+    { x =>
+      x + 1
+      x + 2
+    },
+  ) + mtd3(
+    { x =>
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+}
+<<< rewrite with trailing commas: func in parens and braces, infix after, !allowFolding
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = false
+===
+object a {
+  mtd1(
+    { x =>
+      x + 1
+    },
+  ) + mtd2(
+    { x =>
+      x + 1
+      x + 2
+    },
+  ) + mtd3(
+    { x =>
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+}
+>>>
+object a {
+  mtd1(
+    { x =>
+      x + 1
+    },
+  ) + mtd2(
+    { x =>
+      x + 1
+      x + 2
+    },
+  ) + mtd3(
+    { x =>
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+}
+<<< rewrite with trailing commas: partial func, allowFolding
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = true
+===
+foo.mtd({
+    case x => x + 1
+    case y => y + 1
+  },
+)
+>>>
+test does not parse: [dialect scala213] end of file expected but , found
+foo.mtd {
+  case x => x + 1
+  case y => y + 1
+ ^
+},
+====== full result: ======
+foo.mtd {
+  case x => x + 1
+  case y => y + 1
+},
+<<< rewrite with trailing commas: partial func, !allowFolding
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = false
+===
+foo.mtd({
+    case x => x + 1
+    case y => y + 1
+  },
+)
+>>>
+test does not parse: [dialect scala213] end of file expected but , found
+foo.mtd {
+  case x => x + 1
+  case y => y + 1
+ ^
+},
+====== full result: ======
+foo.mtd {
+  case x => x + 1
+  case y => y + 1
+},
+<<< rewrite with trailing commas: match, allowFolding
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = true
+===
+foo.mtd({
+    bar match {
+      case x => x + 1
+    }
+  },
+)
+>>>
+foo.mtd({
+  bar match {
+    case x => x + 1
+  }
+})
+<<< rewrite with trailing commas: match, !allowFolding
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = false
+===
+foo.mtd({
+    bar match {
+      case x => x + 1
+    }
+  },
+)
+>>>
+foo.mtd({
+    bar match {
+      case x => x + 1
+    }
+  },
+)

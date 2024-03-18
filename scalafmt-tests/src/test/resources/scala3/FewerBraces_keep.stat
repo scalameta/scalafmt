@@ -1770,3 +1770,494 @@ object a:
    foo:
       erased bar =>
          baz
+<<< rewrite to fewer braces: block simple
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+}
+===
+foo
+  .mtd1 {
+    x + 1
+  }
+  .mtd2 {
+    x + 1
+    x + 2
+  }
+  .mtd3 {
+    x + 1
+    x + 2
+    x + 3
+  }
+>>>
+foo
+  .mtd1 {
+    x + 1
+  }
+  .mtd2 {
+    x + 1
+    x + 2
+  }
+  .mtd3 {
+    x + 1
+    x + 2
+    x + 3
+  }
+<<< rewrite to fewer braces: func
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+}
+===
+foo
+  .mtd1 { x =>
+    x + 1
+  }
+  .mtd2 { x =>
+    x + 1
+    x + 2
+  }
+  .mtd3 { x =>
+    x + 1
+    x + 2
+    x + 3
+  }
+>>>
+foo
+  .mtd1 { x =>
+    x + 1
+  }
+  .mtd2 { x =>
+     x + 1
+     x + 2
+  }
+  .mtd3 { x =>
+     x + 1
+     x + 2
+     x + 3
+  }
+<<< rewrite to fewer braces: func in parens
+rewrite.rules = [RedundantBraces]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+}
+===
+foo
+  .mtd1(
+    x => {
+      x + 1
+    }
+  )
+  .mtd2(
+    x => {
+      x + 1
+      x + 2
+    }
+  )
+  .mtd3(
+    x => {
+      x + 1
+      x + 2
+      x + 3
+    }
+  )
+>>>
+foo
+  .mtd1 {
+    x =>
+      x + 1
+  }
+  .mtd2 {
+    x =>
+       x + 1
+       x + 2
+  }
+  .mtd3 {
+    x =>
+       x + 1
+       x + 2
+       x + 3
+  }
+<<< rewrite to fewer braces: func in parens, trailing comma, allowFolding
+rewrite.rules = [RedundantBraces]
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = true
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+}
+===
+foo
+  .mtd1(
+    x => {
+      x + 1
+    },
+  )
+  .mtd2(
+    x => {
+      x + 1
+      x + 2
+    },
+  )
+  .mtd3(
+    x => {
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+>>>
+foo
+  .mtd1(x =>
+    x + 1,
+  )
+  .mtd2(x =>
+     x + 1
+     x + 2
+  ,
+  )
+  .mtd3(x =>
+     x + 1
+     x + 2
+     x + 3
+  ,
+  )
+<<< rewrite to fewer braces: func in parens, trailing comma, !allowFolding
+rewrite.rules = [RedundantBraces]
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = false
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+}
+===
+foo
+  .mtd1(
+    x => {
+      x + 1
+    },
+  )
+  .mtd2(
+    x => {
+      x + 1
+      x + 2
+    },
+  )
+  .mtd3(
+    x => {
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+>>>
+foo
+  .mtd1(x =>
+    x + 1,
+  )
+  .mtd2(x =>
+     x + 1
+     x + 2
+  ,
+  )
+  .mtd3(x =>
+     x + 1
+     x + 2
+     x + 3
+  ,
+  )
+<<< rewrite to fewer braces: func in parens, infix after
+rewrite.rules = [RedundantBraces]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+}
+===
+object a {
+  mtd1(
+    x => {
+      x + 1
+    },
+  ) + mtd2(
+    x => {
+      x + 1
+      x + 2
+    },
+  ) + mtd3(
+    x => {
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+}
+>>>
+object a:
+   mtd1(x =>
+     x + 1
+   ) + mtd2(x =>
+      x + 1
+      x + 2
+   ) + mtd3(x =>
+      x + 1
+      x + 2
+      x + 3
+   )
+<<< rewrite to fewer braces: func in parens and braces
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+}
+===
+foo
+  .mtd1(
+    { x =>
+      x + 1
+    }
+  )
+  .mtd2(
+    { x =>
+      x + 1
+      x + 2
+    }
+  )
+  .mtd3(
+    { x =>
+      x + 1
+      x + 2
+      x + 3
+    }
+  )
+>>>
+foo
+  .mtd1 { x =>
+    x + 1
+  }
+  .mtd2 { x =>
+     x + 1
+     x + 2
+  }
+  .mtd3 { x =>
+     x + 1
+     x + 2
+     x + 3
+  }
+<<< rewrite to fewer braces: func in parens and braces, infix after
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+}
+===
+object a {
+  mtd1(
+    { x =>
+      x + 1
+    }
+  ) + mtd2(
+    { x =>
+      x + 1
+      x + 2
+    }
+  ) + mtd3(
+    { x =>
+      x + 1
+      x + 2
+      x + 3
+    }
+  )
+}
+>>>
+object a:
+   mtd1 { x =>
+     x + 1
+   }
+     + mtd2 { x =>
+        x + 1
+        x + 2
+     }
+     + mtd3 { x =>
+        x + 1
+        x + 2
+        x + 3
+     }
+<<< rewrite to fewer braces: partial func
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+}
+===
+foo
+  .mtd1 {
+    case x => x + 1
+  }
+  .mtd2 {
+    case x => x + 1
+    case y => y + 1
+  }
+  .mtd3 {
+    case x => x + 1
+    case y => y + 1
+    case z => z + 1
+  }
+>>>
+foo
+  .mtd1 {
+    case x => x + 1
+  }
+  .mtd2 {
+    case x => x + 1
+    case y => y + 1
+  }
+  .mtd3 {
+    case x => x + 1
+    case y => y + 1
+    case z => z + 1
+  }
+<<< rewrite to fewer braces: partial func in parens
+rewrite.rules = [RedundantBraces]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+}
+===
+foo
+  .mtd1(
+    {
+      case x => x + 1
+    }
+  )
+  .mtd2(
+    {
+      case x => x + 1
+      case y => y + 1
+    }
+  )
+  .mtd3(
+    {
+      case x => x + 1
+      case y => y + 1
+      case z => z + 1
+    }
+  )
+>>>
+foo
+  .mtd1 {
+    case x => x + 1
+  }
+  .mtd2 {
+    case x => x + 1
+    case y => y + 1
+  }
+  .mtd3 {
+    case x => x + 1
+    case y => y + 1
+    case z => z + 1
+  }
+<<< rewrite to fewer braces: match
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+}
+===
+foo
+  .mtd1 {
+    bar match {
+      case x => x + 1
+    }
+  }
+  .mtd2 {
+    bar match {
+      case x => x + 1
+      case y => y + 1
+    }
+  }
+  .mtd3 {
+    bar match {
+      case x => x + 1
+      case y => y + 1
+      case z => z + 1
+    }
+  }
+>>>
+foo
+  .mtd1 {
+    bar match
+       case x => x + 1
+  }
+  .mtd2 {
+    bar match
+       case x => x + 1
+       case y => y + 1
+  }
+  .mtd3 {
+    bar match
+       case x => x + 1
+       case y => y + 1
+       case z => z + 1
+  }
+<<< rewrite to fewer braces: block complex
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+}
+===
+foo
+  .mtd1 {
+    x + 1
+    def x = {
+      x + 3
+    }
+  }
+  .mtd2 {
+    x + 1
+    def x = {
+      x + 3
+      x + 4
+    }
+  }
+  .mtd3 {
+    x + 1
+    def x = {
+      x + 3
+      x + 4
+    }
+    x + 5
+  }
+>>>
+foo
+  .mtd1 {
+    x + 1
+    def x =
+      x + 3
+  }
+  .mtd2 {
+    x + 1
+    def x =
+       x + 3
+       x + 4
+  }
+  .mtd3 {
+    x + 1
+    def x =
+       x + 3
+       x + 4
+    x + 5
+  }
+<<< fewer braces: apply with braces and leading infix after
+object a:
+   mtd1 { x =>
+     x + 1
+   }
+   + mtd2: x =>
+      x + 1
+      x + 2
+   + mtd3 { x =>
+      x + 1
+      x + 2
+      x + 3
+   }
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+         x + 2
+-          + mtd3 { x =>
+-             x + 1
+-             x + 2
+-             x + 3
+-          }
++     + mtd3 { x =>
++        x + 1
++        x + 2
++        x + 3
++     }

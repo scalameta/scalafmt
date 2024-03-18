@@ -368,6 +368,13 @@ val x = ( "a",
 )
 >>>
 val x = ("a")
+<<< #3663 enclosed literal, !allowFolding
+rewrite.trailingCommas.allowFolding = false
+===
+val x = ( "a", 
+)
+>>>
+val x = ("a")
 <<< #3663 enclosed lambda
 val x = ( x => x + 1,
 )
@@ -381,3 +388,81 @@ val x = (
 val x = (
     x => x + 1,
 )
+<<< func in parens, !allowFolding
+rewrite.trailingCommas.allowFolding = false
+===
+foo.mtd(
+    x => {
+      x + 1
+    },
+  )
+>>>
+foo.mtd(x => {
+  x + 1
+})
+<<< partial func in parens, !allowFolding
+rewrite.trailingCommas.allowFolding = false
+===
+foo.mtd({
+    case x =>
+      x + 1
+    },
+  )
+>>>
+foo.mtd({ case x =>
+    x + 1
+  },
+)
+<<< binpack arg !indentCallSiteOnce, !allowFolding
+binPack.unsafeCallSite = true
+rewrite.trailingCommas.allowFolding = false
+===
+object a {
+    foo.mtd(bar(x => {
+          x + 1
+        },
+      ))
+    foo.mtd(bar(x => {
+          x + 1
+        }
+      ),
+    )
+}
+>>>
+object a {
+  foo.mtd(bar(x => {
+    x + 1
+  }))
+  foo.mtd(
+    bar(x => {
+      x + 1
+    }),
+  )
+}
+<<< binpack arg indentCallSiteOnce, !allowFolding
+binPack.unsafeCallSite = true
+binPack.indentCallSiteOnce = true
+rewrite.trailingCommas.allowFolding = false
+===
+object a {
+    foo.mtd(bar(x => {
+          x + 1
+        },
+      ))
+    foo.mtd(bar(x => {
+          x + 1
+        }
+      ),
+    )
+}
+>>>
+object a {
+  foo.mtd(bar(x => {
+    x + 1
+  }))
+  foo.mtd(
+    bar(x => {
+      x + 1
+    }),
+  )
+}
