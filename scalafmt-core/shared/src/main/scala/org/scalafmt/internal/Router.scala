@@ -865,7 +865,10 @@ class Router(formatOps: FormatOps) {
           if (!style.danglingParentheses.callSite) None
           else Some(decideNewlinesOnlyBeforeClose(close))
         val noSplitMod =
-          if (style.newlines.alwaysBeforeCurlyLambdaParams) null
+          if (
+            style.newlines.alwaysBeforeCurlyLambdaParams ||
+            getMustDangleForTrailingCommas(tokens.justBefore(close))
+          ) null
           else getNoSplit(formatToken, true)
 
         def multilineSpaceSplit(implicit fileLine: FileLine): Split = {

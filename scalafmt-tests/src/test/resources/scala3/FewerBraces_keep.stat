@@ -1948,19 +1948,22 @@ foo
   )
 >>>
 foo
-  .mtd1(x =>
-    x + 1,
+  .mtd1(
+    x =>
+      x + 1,
   )
-  .mtd2(x =>
-     x + 1
-     x + 2
-  ,
+  .mtd2(
+    x =>
+       x + 1
+       x + 2
+    ,
   )
-  .mtd3(x =>
-     x + 1
-     x + 2
-     x + 3
-  ,
+  .mtd3(
+    x =>
+       x + 1
+       x + 2
+       x + 3
+    ,
   )
 <<< rewrite to fewer braces: func in parens, infix after
 rewrite.rules = [RedundantBraces]
