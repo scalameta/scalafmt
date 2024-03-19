@@ -6,7 +6,7 @@ import scala.meta.tokens.Token
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
-import org.scalafmt.util.TreeOps
+import org.scalafmt.util.TreeOps._
 
 object RemoveScala3OptionalBraces extends FormatTokensRewrite.RuleFactory {
 
@@ -105,7 +105,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
           case _: Token.KwIf => true
           case _: Token.KwThen => true
           case _: Token.KwElse =>
-            !TreeOps.isTreeMultiStatBlock(t.elsep) ||
+            !isTreeMultiStatBlock(t.elsep) ||
             ftoks.tokenAfter(t.cond).right.is[Token.KwThen]
           case _: Token.RightParen => allowOldSyntax
           case _ => false
