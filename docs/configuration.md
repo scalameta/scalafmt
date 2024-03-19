@@ -3698,6 +3698,13 @@ The section contains the following settings (available since v3.8.1):
     - other flags below might extend rewrites to other cases
 - `oldSyntaxToo`
   - if `true`, applies also to expressions using deprecated syntax
+- `fewerBracesMinSpan` and `fewerBracesMaxSpan`
+  - will apply the rewrite to last curried single-argument group if
+    it is enclosed in curly braces (or would be rewritten to curly
+    braces by the `RedundantBraces` rule)
+  - will only apply the rewrite if the cumulative span of all visible
+    (non-whitespace) tokens within the argument is between the two values
+  - this rule is disabled if `fewerBracesMaxSpan == 0`
 
 Prior to v3.8.1, `rewrite.scala3.removeOptionalBraces` was a flag which
 took three possible values (with their equivalent current settings shown):

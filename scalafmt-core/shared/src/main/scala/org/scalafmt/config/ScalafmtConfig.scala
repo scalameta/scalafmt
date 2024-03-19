@@ -457,6 +457,11 @@ object ScalafmtConfig {
         addIf(rewrite.insertBraces.minLines < rewrite.redundantBraces.maxBreaks)
       addIf(align.beforeOpenParenDefnSite && !align.closeParenSite)
       addIf(align.beforeOpenParenCallSite && !align.closeParenSite)
+      addIf(rewrite.scala3.removeOptionalBraces.fewerBracesMinSpan <= 0)
+      if (rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan != 0) {
+        addIf(rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan < 0)
+        addIf(rewrite.scala3.removeOptionalBraces.fewerBracesMinSpan > rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan)
+      }
     }
     // scalafmt: {}
     if (allErrors.isEmpty) Configured.ok(cfg)

@@ -1580,6 +1580,8 @@ object a:
 <<< rewrite to fewer braces: block simple
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
+  fewerBracesMinSpan = 6
+  fewerBracesMaxSpan = 6
 }
 ===
 foo
@@ -1607,6 +1609,8 @@ foo.mtd1 { x + 1 }.mtd2 {
 <<< rewrite to fewer braces: func
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 9
 }
 ===
 foo
@@ -1635,6 +1639,8 @@ foo.mtd1 { x => x + 1 }.mtd2 { x =>
 rewrite.rules = [RedundantBraces]
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 9
 }
 ===
 foo
@@ -1671,6 +1677,8 @@ rewrite.trailingCommas.style = always
 rewrite.trailingCommas.allowFolding = true
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 9
 }
 ===
 foo
@@ -1707,6 +1715,8 @@ rewrite.trailingCommas.style = always
 rewrite.trailingCommas.allowFolding = false
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 9
 }
 ===
 foo
@@ -1741,6 +1751,8 @@ foo.mtd1 { x => x + 1 }.mtd2 { x =>
 rewrite.rules = [RedundantBraces]
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 9
 }
 ===
 object a {
@@ -1775,6 +1787,8 @@ object a:
 rewrite.rules = [RedundantBraces, RedundantParens]
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 9
 }
 ===
 foo
@@ -1809,6 +1823,8 @@ foo.mtd1(x => x + 1).mtd2 { x =>
 rewrite.rules = [RedundantBraces, RedundantParens]
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 9
 }
 ===
 object a {
@@ -1842,6 +1858,8 @@ object a:
 <<< rewrite to fewer braces: partial func
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
+  fewerBracesMinSpan = 20
+  fewerBracesMaxSpan = 20
 }
 ===
 foo
@@ -1870,6 +1888,8 @@ foo.mtd1 { case x => x + 1 }.mtd2 {
 rewrite.rules = [RedundantBraces]
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
+  fewerBracesMinSpan = 20
+  fewerBracesMaxSpan = 20
 }
 ===
 foo
@@ -1903,6 +1923,8 @@ foo.mtd1 { case x => x + 1 }.mtd2 {
 <<< rewrite to fewer braces: match
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
+  fewerBracesMinSpan = 28
+  fewerBracesMaxSpan = 28
 }
 ===
 foo
@@ -1941,6 +1963,8 @@ foo.mtd1 {
 <<< rewrite to fewer braces: block complex
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
+  fewerBracesMinSpan = 14
+  fewerBracesMaxSpan = 14
 }
 ===
 foo

@@ -34,6 +34,8 @@ object RewriteScala3Settings {
 
   case class RemoveOptionalBraces(
       enabled: Boolean = true,
+      fewerBracesMinSpan: Int = 2,
+      fewerBracesMaxSpan: Int = 0,
       oldSyntaxToo: Boolean = false
   )
 
