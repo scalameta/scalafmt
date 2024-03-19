@@ -523,7 +523,12 @@ class FormatWriter(formatOps: FormatOps) {
           style.getTrailingCommas match {
             // remove comma if no newline
             case TrailingCommas.keep
-                if tok.left.is[T.Comma] && isClosedDelimWithNewline(false) =>
+                if tok.left.is[T.Comma] && (isClosedDelimWithNewline(false) ||
+                  (tok.meta.leftOwner match {
+                    // closing paren could have been removed by rewrite
+                    case x: Term.ArgClause => tokens.getLast(x) eq tok
+                    case _ => false
+                  })) =>
               sb.setLength(sb.length - 1)
               if (!tok.right.is[T.RightParen]) ws(1)
               else if (style.spaces.inParentheses) {

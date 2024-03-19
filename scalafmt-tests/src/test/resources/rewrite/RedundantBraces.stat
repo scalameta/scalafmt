@@ -1642,17 +1642,10 @@ foo.mtd({
   },
 )
 >>>
-test does not parse: [dialect scala213] end of file expected but , found
 foo.mtd {
   case x => x + 1
   case y => y + 1
- ^
-},
-====== full result: ======
-foo.mtd {
-  case x => x + 1
-  case y => y + 1
-},
+}
 <<< rewrite with trailing commas: partial func, !allowFolding
 rewrite.trailingCommas.style = keep
 rewrite.trailingCommas.allowFolding = false
@@ -1663,17 +1656,10 @@ foo.mtd({
   },
 )
 >>>
-test does not parse: [dialect scala213] end of file expected but , found
 foo.mtd {
   case x => x + 1
   case y => y + 1
- ^
-},
-====== full result: ======
-foo.mtd {
-  case x => x + 1
-  case y => y + 1
-},
+}
 <<< rewrite with trailing commas: match, allowFolding
 rewrite.trailingCommas.style = keep
 rewrite.trailingCommas.allowFolding = true
