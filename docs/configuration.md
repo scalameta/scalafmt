@@ -1073,7 +1073,7 @@ node that owns that token), and a list of `parents` (to match the tree containin
 the token).
 
 > To find the `owner` part for a custom tree, look for its type prefix using
-> [ScalaFiddle Playgroud](https://scalameta.org/docs/trees/scalafiddle.html) or
+> [Scastie Playgroud](https://scastie.scala-lang.org/) or
 > [AST Explorer](https://scalameta.org/docs/trees/astexplorer.html).
 
 > The special code `//` is used for single-line comments. Also, since v3.3.1, this
