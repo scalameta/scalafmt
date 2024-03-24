@@ -53,9 +53,4 @@ rewrite.redundantBraces.parensForOneLineApply = true
 ===
 foo { bar }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--foo(
--  bar,
--)
-+foo(bar)
+foo { bar }

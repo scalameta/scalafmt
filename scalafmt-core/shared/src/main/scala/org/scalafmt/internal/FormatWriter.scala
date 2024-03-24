@@ -5,8 +5,8 @@ import java.util.regex.Pattern
 
 import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.{Formatted, Scalafmt}
-import org.scalafmt.config.{Comments, Docstrings, Newlines, ScalafmtConfig}
-import org.scalafmt.config.{FormatEvent, RewriteScala3Settings}
+import org.scalafmt.config.{Comments, Docstrings, FormatEvent, ScalafmtConfig}
+import org.scalafmt.config.{Newlines, RewriteScala3Settings, TrailingCommas}
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.{LiteralOps, TreeOps}
@@ -156,7 +156,6 @@ class FormatWriter(formatOps: FormatOps) {
     while (0 <= idx) {
       val loc = locations(idx)
       val tok = loc.formatToken
-      val state = loc.state
       tok.left match {
         case rb: T.RightBrace => // look for "foo { bar }"
           val ok = tok.meta.leftOwner match {
@@ -175,9 +174,14 @@ class FormatWriter(formatOps: FormatOps) {
             lookup.update(beg.meta.idx, tok.meta.idx -> loc.leftLineId)
           }
         case _: T.LeftBrace =>
+          val state = loc.state
+          val style = loc.style
           lookup.remove(idx).foreach {
-            case (end, endOffset) if endOffset == loc.leftLineId =>
-              val inParentheses = loc.style.spaces.inParentheses
+            case (end, endOffset)
+                if endOffset == loc.leftLineId &&
+                  (style.rewrite.trailingCommas.allowFolding ||
+                    style.getTrailingCommas != TrailingCommas.always) =>
+              val inParentheses = style.spaces.inParentheses
               // remove space before "{"
               val prevBegState =
                 if (0 == idx || (state.prev.split.modExt.mod ne Space))
