@@ -13,11 +13,11 @@ object ConvertToNewScala3Syntax extends FormatTokensRewrite.RuleFactory {
     style.rewrite.scala3.convertToNewSyntax
 
   override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
-    new ConvertToNewScala3Syntax(ftoks)
+    new ConvertToNewScala3Syntax
 
 }
 
-private class ConvertToNewScala3Syntax(ftoks: FormatTokens)
+private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
     extends FormatTokensRewrite.Rule {
 
   import FormatTokensRewrite._
