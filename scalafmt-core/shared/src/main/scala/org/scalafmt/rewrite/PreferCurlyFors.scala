@@ -14,7 +14,7 @@ object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
   override def enabled(implicit style: ScalafmtConfig): Boolean = true
 
   override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
-    new PreferCurlyFors(ftoks)
+    new PreferCurlyFors
 
   @inline
   private def hasMultipleNonGuardEnums(enums: Seq[Enumerator]): Boolean =
@@ -50,7 +50,7 @@ object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
   *   } yield (a, b)
   * }}}
   */
-private class PreferCurlyFors(ftoks: FormatTokens)
+private class PreferCurlyFors(implicit val ftoks: FormatTokens)
     extends FormatTokensRewrite.Rule {
 
   import FormatTokensRewrite._
