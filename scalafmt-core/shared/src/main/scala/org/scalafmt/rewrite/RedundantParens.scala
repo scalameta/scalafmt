@@ -88,15 +88,10 @@ class RedundantParens(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig
   ): Option[(Replacement, Replacement)] =
-    ft.right match {
-      case _: Token.RightParen if left.isRemove && {
-            val maybeCommaFt = ftoks.prevNonComment(ft)
-            !maybeCommaFt.left.is[Token.Comma] ||
-            session.isRemovedOnLeft(maybeCommaFt, true)
-          } /* check for trailing comma */ =>
-        Some((left, removeToken))
-      case _ => None
-    }
+    if (left.isRemove && RewriteTrailingCommas.checkIfPrevious)
+      Some((left, removeToken))
+    else
+      None
 
   private def okToReplaceWithCount(numParens: Int, tree: Tree)(implicit
       style: ScalafmtConfig

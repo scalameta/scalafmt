@@ -10,12 +10,27 @@ import org.scalafmt.internal.FormatTokens
 
 object RewriteTrailingCommas extends FormatTokensRewrite.RuleFactory {
 
+  import FormatTokensRewrite._
+
   override def enabled(implicit style: ScalafmtConfig): Boolean =
     style.dialect.allowTrailingCommas &&
       style.getTrailingCommas.ne(TrailingCommas.keep)
 
   override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new RewriteTrailingCommas
+
+  private[rewrite] def checkIfPrevious(implicit
+      ft: FormatToken,
+      session: Session,
+      ftoks: FormatTokens
+  ): Boolean =
+    ft.right match {
+      case _: Token.RightParen =>
+        val maybeCommaFt = ftoks.prevNonComment(ft)
+        !maybeCommaFt.left.is[Token.Comma] ||
+        session.isRemovedOnLeft(maybeCommaFt, true)
+      case _ => true
+    }
 
 }
 
@@ -37,9 +52,15 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig
   ): Option[Replacement] = {
-    val ok = ft.right.is[Token.Comma] && {
+    if (shouldRemove(ft)) Some(removeToken) else None
+  }
+
+  private[rewrite] def shouldRemove(
+      ft: FormatToken
+  )(implicit session: Session): Boolean = {
+    ft.right.is[Token.Comma] && {
       val rightOwner = ft.meta.rightOwner
-      val nft = ftoks.nextNonComment(ftoks.next(ft))
+      val nft = ftoks.nextNonCommentAfter(ft)
 
       // comma and paren/bracket/brace need to have the same owner
       (rightOwner eq nft.meta.rightOwner) && (nft.right match {
@@ -59,7 +80,6 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
         case _ => false
       })
     }
-    if (ok) Some(removeToken) else None
   }
 
   override def onRight(lt: Replacement, hasFormatOff: Boolean)(implicit
