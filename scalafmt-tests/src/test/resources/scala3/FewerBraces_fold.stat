@@ -1693,14 +1693,14 @@ foo
     },
   )
 >>>
-foo.mtd1(x => x + 1).mtd2(x =>
-   x + 1
-   x + 2,
-).mtd3(x =>
+foo.mtd1(x => x + 1).mtd2 { x =>
    x + 1
    x + 2
-   x + 3,
-)
+}.mtd3 { x =>
+   x + 1
+   x + 2
+   x + 3
+}
 <<< rewrite to fewer braces: func in parens, trailing comma, !allowFolding
 rewrite.rules = [RedundantBraces]
 rewrite.trailingCommas.style = always
@@ -1729,18 +1729,14 @@ foo
     },
   )
 >>>
-foo.mtd1(
-  x => x + 1,
-).mtd2(
-  x =>
-     x + 1
-     x + 2,
-).mtd3(
-  x =>
-     x + 1
-     x + 2
-     x + 3,
-)
+foo.mtd1 { x => x + 1 }.mtd2 { x =>
+   x + 1
+   x + 2
+}.mtd3 { x =>
+   x + 1
+   x + 2
+   x + 3
+}
 <<< rewrite to fewer braces: func in parens, infix after
 rewrite.rules = [RedundantBraces]
 rewrite.scala3.removeOptionalBraces = {
@@ -1767,14 +1763,14 @@ object a {
 }
 >>>
 object a:
-   mtd1(x => x + 1) + mtd2(x =>
+   mtd1(x => x + 1) + mtd2 { x =>
       x + 1
       x + 2
-   ) + mtd3(x =>
+   } + mtd3 { x =>
       x + 1
       x + 2
       x + 3
-   )
+   }
 <<< rewrite to fewer braces: func in parens and braces
 rewrite.rules = [RedundantBraces, RedundantParens]
 rewrite.scala3.removeOptionalBraces = {
