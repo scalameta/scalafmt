@@ -1083,6 +1083,17 @@ object TreeOps {
       case _ => false
     })
 
+  @tailrec
+  def isFewerBracesRhs(
+      tree: Tree
+  )(implicit dialect: Dialect, ftoks: FormatTokens): Boolean =
+    !ftoks.isEnclosedInMatching(tree) && (tree match {
+      case t: Term.Apply => isFewerBraces(t)
+      case t: Term.ApplyInfix => isFewerBracesRhs(t.lhs)
+      case Term.ArgClause(arg :: Nil, _) => isFewerBracesRhs(arg)
+      case _ => false
+    })
+
   def isParentAnApply(t: Tree): Boolean =
     t.parent.exists(_.is[Term.Apply])
 
