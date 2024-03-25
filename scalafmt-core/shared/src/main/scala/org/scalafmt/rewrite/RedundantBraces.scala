@@ -144,27 +144,58 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
   private def onRightParen(left: Replacement)(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig
   ): (Replacement, Replacement) = left.how match {
-    case ReplacementType.Remove => (left, removeToken)
+    case ReplacementType.Remove =>
+      val resOpt = getRightBraceBeforeRightParen(false).map { rb =>
+        // we'll use right brace later, when applying fewer-braces rewrite
+        (left, removeToken)
+      }
+      resOpt.orNull
+
     case ReplacementType.Replace if {
           val lft = left.ft
           val ro = ft.meta.rightOwner
           (lft.meta.rightOwner eq ro) &&
-          lft.right.is[Token.LeftBrace] &&
-          okToReplaceFunctionInSingleArgApply(ro).isDefined
+          lft.right.is[Token.LeftBrace]
         } =>
-      val pft = ftoks.prevNonComment(ft)
-      val rb = pft.left
-      if (rb.is[Token.RightBrace]) {
+      val pftOpt = getRightBraceBeforeRightParen(true)
+      def replaceIfAfterRightBrace = pftOpt.map { pft =>
+        val rb = pft.left
         // move right to the end of the function
         val rType = new ReplacementType.RemoveAndResurrect(ftoks.prev(pft))
         left -> replaceToken("}", rtype = rType) {
           // create a shifted token so that any child tree wouldn't own it
           new Token.RightBrace(rb.input, rb.dialect, rb.start + 1)
         }
-      } else null // don't know how to Replace
+      }
+      replaceIfAfterRightBrace.orNull // don't know how to Replace
     case _ => null
+  }
+
+  private def getRightBraceBeforeRightParen(shouldBeRemoved: Boolean)(implicit
+      ft: FormatToken,
+      session: Session,
+      style: ScalafmtConfig
+  ): Option[FormatToken] = {
+    val pft = ftoks.prevNonComment(ft)
+    val ok = pft.left match {
+      case _: Token.Comma => // looks like trailing comma
+        val pft2 = ftoks.prevNonCommentBefore(pft)
+        pft2.left.is[Token.RightBrace] &&
+        session.isRemovedOnLeft(pft2, true) == shouldBeRemoved &&
+        session.isRemovedOnLeftOpt(pft).getOrElse {
+          val crt = ftoks.prev(pft)
+          val crepl = Replacement(this, crt, ReplacementType.Remove, style)
+          session.claim(crepl)(crt)
+          true
+        }
+      case _: Token.RightBrace =>
+        !session.isRemovedOnLeft(pft, !shouldBeRemoved)
+      case _ => false
+    }
+    if (ok) Some(pft) else None
   }
 
   private def onLeftBrace(implicit

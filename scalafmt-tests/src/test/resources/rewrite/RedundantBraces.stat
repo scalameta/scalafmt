@@ -1477,15 +1477,14 @@ object a {
   )
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a {
--  mtd1(x => x + 1) + mtd2(x => x + 1 x +2)
-+  mtd1(x => x + 1) + mtd2(x =>
-+    x + 1
-+    x + 2,
-+  )
- }
+object a {
+  mtd1 { x =>
+    x + 1
+  } + mtd2 { x =>
+    x + 1
+    x + 2
+  }
+}
 <<< rewrite with trailing commas: func in parens, infix after, !allowFolding
 rewrite.trailingCommas.style = keep
 rewrite.trailingCommas.allowFolding = false
@@ -1503,14 +1502,14 @@ object a {
   )
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   ) + mtd2(
--    x => x + 1 x +2,
-+    x =>
-+      x + 1
-+      x + 2,
-   )
+object a {
+  mtd1 { x =>
+    x + 1
+  } + mtd2 { x =>
+    x + 1
+    x + 2
+  }
+}
 <<< rewrite with trailing commas: func in parens and braces, allowFolding
 rewrite.rules = [RedundantBraces, RedundantParens]
 rewrite.trailingCommas.style = keep
