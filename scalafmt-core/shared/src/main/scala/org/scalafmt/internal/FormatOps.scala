@@ -508,7 +508,9 @@ class FormatOps(
           val mod = getMod(ft)
           val modOrNoSplit =
             if (mod != Space || isBeforeOp || useSpace) mod else NoSplit
-          Seq(InfixSplits.withNLIndent(Split(modOrNoSplit, 0))(app, ft))
+          val split = Split(modOrNoSplit, 0)
+          if (isBeforeOp && isFewerBracesRhs(app.arg)) Seq(split)
+          else Seq(InfixSplits.withNLIndent(split)(app, ft))
         }
     }
 
