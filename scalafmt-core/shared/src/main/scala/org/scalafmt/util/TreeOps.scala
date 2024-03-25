@@ -1073,18 +1073,15 @@ object TreeOps {
     dialect.allowFewerBraces && ftoks.getHead(tree.argClause).left.is[Colon]
 
   @tailrec
-  def endsWithFewerBraces(
+  def isFewerBracesLhs(
       tree: Tree
   )(implicit dialect: Dialect, ftoks: FormatTokens): Boolean =
-    tree match {
+    !ftoks.isEnclosedInMatching(tree) && (tree match {
       case t: Term.Apply => isFewerBraces(t)
-      case t: Term.ApplyInfix =>
-        t.argClause.values match {
-          case arg :: Nil => endsWithFewerBraces(arg)
-          case _ => false
-        }
+      case t: Term.ApplyInfix => isFewerBracesLhs(t.argClause)
+      case Term.ArgClause(arg :: Nil, _) => isFewerBracesLhs(arg)
       case _ => false
-    }
+    })
 
   def isParentAnApply(t: Tree): Boolean =
     t.parent.exists(_.is[Term.Apply])

@@ -486,7 +486,7 @@ class FormatOps(
             case x => !isEnclosedInParens(x)
           })
         val afterInfix = style.breakAfterInfix(t)
-        if (isBeforeOp && endsWithFewerBraces(app.lhs)) Seq(Split(Newline, 0))
+        if (isBeforeOp && isFewerBracesLhs(app.lhs)) Seq(Split(Newline, 0))
         else if (afterInfix ne Newlines.AfterInfix.keep) {
           if (isBeforeOp) Seq(Split(Space, 0))
           else {
