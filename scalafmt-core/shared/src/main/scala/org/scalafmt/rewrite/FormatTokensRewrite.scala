@@ -76,11 +76,12 @@ class FormatTokensRewrite(
         case ReplacementType.Remove => remove(appended)
         case ReplacementType.Replace => append()
         case r: ReplacementType.RemoveAndResurrect =>
-          if (r.idx == idx) { // we moved here
+          val rtidx = r.ft.meta.idx
+          if (rtidx == idx) { // we moved here
             append()
             shiftedIndexMap.put(idx, appended)
           } else { // we moved from here
-            remove(shiftedIndexMap.remove(r.idx).getOrElse(appended))
+            remove(shiftedIndexMap.remove(rtidx).getOrElse(appended))
           }
       }
     }
@@ -324,13 +325,15 @@ object FormatTokensRewrite {
         else
           (repl.how match {
             case rt: ReplacementType.RemoveAndResurrect =>
-              getClaimed(rt.idx).flatMap { case (oldidx, orepl) =>
-                val ok = orepl != null && (orepl.rule eq repl.rule) &&
-                  orepl.isRemove
-                if (ok) {
-                  tokens(oldidx) = repl.copy(ft = repl.ft.withIdx(orepl.idx))
-                  Some(repl.copy(ft = orepl.ft.withIdx(repl.idx)))
-                } else None
+              val rtidx = rt.ft.meta.idx
+              def swapWith(oldidx: Int) = Some {
+                tokens(oldidx) = repl.copy(ft = repl.ft.withIdx(rtidx))
+                repl.copy(ft = rt.ft.withIdx(repl.idx))
+              }
+              getClaimed(rtidx) match {
+                case Some((oidx, x)) if x != null && x.isRemove =>
+                  swapWith(oidx)
+                case _ => None
               }
             case _ => None
           }).getOrElse(repl)
@@ -422,7 +425,7 @@ object FormatTokensRewrite {
   private[rewrite] object ReplacementType {
     object Remove extends ReplacementType
     object Replace extends ReplacementType
-    class RemoveAndResurrect(val idx: Int) extends ReplacementType
+    class RemoveAndResurrect(val ft: FormatToken) extends ReplacementType
   }
 
   private def mergeWhitespaceLeftToRight(
