@@ -153,7 +153,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       val rb = pft.left
       if (rb.is[Token.RightBrace]) {
         // move right to the end of the function
-        val rType = new ReplacementType.RemoveAndResurrect(pft.meta.idx - 1)
+        val rType = new ReplacementType.RemoveAndResurrect(ftoks.prev(pft))
         left -> replaceToken("}", rtype = rType) {
           // create a shifted token so that any child tree wouldn't own it
           new Token.RightBrace(rb.input, rb.dialect, rb.start + 1)
