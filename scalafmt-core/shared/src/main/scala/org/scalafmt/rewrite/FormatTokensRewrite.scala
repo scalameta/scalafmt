@@ -170,10 +170,10 @@ class FormatTokensRewrite(
             replacement match {
               case None =>
                 tokens(ldelimIdx) = null
-                session.claim(ft.meta.idx, null)
+                session.claim(null)
               case Some((ltRepl, rtRepl)) =>
                 tokens(ldelimIdx) = ltRepl
-                session.claim(ft.meta.idx, rtRepl)
+                session.claim(rtRepl)
             }
           }
 
@@ -337,6 +337,12 @@ object FormatTokensRewrite {
       }
     }
 
+    @inline
+    private[rewrite] def claim(repl: Replacement)(implicit
+        ft: FormatToken
+    ): Int =
+      claim(ft.meta.idx, repl)
+
     private def justClaim(ftIdx: Int)(repl: Replacement): Int = {
       val idx = tokens.length
       val claimedIdx = claimed.getOrElseUpdate(ftIdx, idx)
@@ -361,7 +367,7 @@ object FormatTokensRewrite {
         attemptedRule: Rule
     )(implicit ft: FormatToken, style: ScalafmtConfig): Option[Rule] =
       if (attemptedRule.enabled) attemptedRule.onToken.map { repl =>
-        val idx = claim(ft.meta.idx, repl)
+        val idx = claim(repl)
         repl.claim.foreach { claimed.getOrElseUpdate(_, idx) }
         repl.rule
       }
