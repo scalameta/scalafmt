@@ -317,11 +317,8 @@ object FormatTokensRewrite {
     private[rewrite] def claimedRule(ftIdx: Int): Option[Replacement] =
       claimed.get(ftIdx).map(tokens.apply).filter(_ ne null)
 
-    @inline
     private[rewrite] def claim(ftIdx: Int, repl: Replacement): Int = {
-      val idx = tokens.length
-      claimed.update(ftIdx, idx)
-      tokens.append(
+      justClaim(ftIdx) {
         if (repl eq null) null
         else
           (repl.how match {
@@ -336,8 +333,27 @@ object FormatTokensRewrite {
               }
             case _ => None
           }).getOrElse(repl)
-      )
-      idx
+      }
+    }
+
+    private def justClaim(ftIdx: Int)(repl: Replacement): Int = {
+      val idx = tokens.length
+      val claimedIdx = claimed.getOrElseUpdate(ftIdx, idx)
+      val preClaimed = claimedIdx < idx
+      if (
+        preClaimed && {
+          val oldrepl = tokens(claimedIdx)
+          oldrepl != null && oldrepl.idx == ftIdx
+        }
+      ) {
+        tokens(claimedIdx) = repl
+        claimedIdx
+      } else {
+        if (preClaimed)
+          claimed.update(ftIdx, idx)
+        tokens.append(repl)
+        idx
+      }
     }
 
     private[FormatTokensRewrite] def applyRule(
