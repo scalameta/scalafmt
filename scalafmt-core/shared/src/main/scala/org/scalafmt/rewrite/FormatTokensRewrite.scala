@@ -300,6 +300,15 @@ object FormatTokensRewrite {
     private[FormatTokensRewrite] val tokens =
       new mutable.ArrayBuffer[Replacement]()
 
+    private[rewrite] def getClaimed(ftIdx: Int): Option[(Int, Replacement)] =
+      claimed.get(ftIdx) match {
+        case Some(x) =>
+          val repl = tokens(x)
+          val ok = (repl eq null) || repl.ft.meta.idx == ftIdx
+          if (ok) Some((x, repl)) else None
+        case _ => None
+      }
+
     @inline
     def claimedRule(implicit ft: FormatToken): Option[Replacement] =
       claimedRule(ft.meta.idx)
@@ -317,8 +326,7 @@ object FormatTokensRewrite {
         else
           (repl.how match {
             case rt: ReplacementType.RemoveAndResurrect =>
-              claimed.get(rt.idx).flatMap { oldidx =>
-                val orepl = tokens(oldidx)
+              getClaimed(rt.idx).flatMap { case (oldidx, orepl) =>
                 val ok = orepl != null && (orepl.rule eq repl.rule) &&
                   (orepl.how eq ReplacementType.Remove)
                 if (ok) {
