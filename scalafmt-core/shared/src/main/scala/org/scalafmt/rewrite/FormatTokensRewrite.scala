@@ -140,18 +140,17 @@ class FormatTokensRewrite(
     arr.foreach { implicit ft =>
       ft.right match {
         case _: T.LeftBrace | _: T.LeftParen | _: T.LeftBracket =>
-          val ldelimIdx = tokens.length
           val formatOff = ft.meta.formatOff
           formatOffStack.prepend(formatOff)
-          val ruleOpt =
+          val ldelimIdxOpt =
             if (formatOff) None
             else
               session.claimedRule match {
                 case Some(c) => applyRule(c.rule)
                 case _ => applyRules
               }
+          val ldelimIdx = ldelimIdxOpt.getOrElse(session.claim(null))
           leftDelimIndex.prepend(ldelimIdx)
-          if (ruleOpt.isEmpty) tokens.append(null)
 
         case _: T.RightBrace | _: T.RightParen | _: T.RightBracket =>
           val formatOff = formatOffStack.remove(0)
@@ -191,7 +190,7 @@ class FormatTokensRewrite(
   private def applyRules(implicit
       ft: FormatToken,
       session: Session
-  ): Option[Rule] = {
+  ): Option[Int] = {
     implicit val style = styleMap.at(ft.right)
     session.applyRules(rules)
   }
@@ -199,7 +198,7 @@ class FormatTokensRewrite(
   private def applyRule(rule: Rule)(implicit
       ft: FormatToken,
       session: Session
-  ): Option[Rule] = {
+  ): Option[Int] = {
     implicit val style = styleMap.at(ft.right)
     session.applyRule(rule)
   }
@@ -360,19 +359,19 @@ object FormatTokensRewrite {
 
     private[FormatTokensRewrite] def applyRule(
         attemptedRule: Rule
-    )(implicit ft: FormatToken, style: ScalafmtConfig): Option[Rule] =
+    )(implicit ft: FormatToken, style: ScalafmtConfig): Option[Int] =
       if (attemptedRule.enabled) attemptedRule.onToken.map { repl =>
         val idx = claim(repl)
-        repl.claim.foreach { claimed.getOrElseUpdate(_, idx) }
-        repl.rule
+        try idx
+        finally repl.claim.foreach { claimed.getOrElseUpdate(_, idx) }
       }
       else None
 
     private[FormatTokensRewrite] def applyRules(
         rules: Seq[Rule]
-    )(implicit ft: FormatToken, style: ScalafmtConfig): Option[Rule] = {
+    )(implicit ft: FormatToken, style: ScalafmtConfig): Option[Int] = {
       @tailrec
-      def iter(remainingRules: Seq[Rule]): Option[Rule] = remainingRules match {
+      def iter(remainingRules: Seq[Rule]): Option[Int] = remainingRules match {
         case r +: rs =>
           applyRule(r) match {
             case None => iter(rs)
