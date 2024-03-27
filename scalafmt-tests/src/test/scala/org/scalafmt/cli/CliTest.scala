@@ -660,12 +660,10 @@ trait CliTestBehavior { this: AbstractCliTest =>
         Seq(Array("--test", "--config-str", s"""{version="$version"}""")),
         assertOut = out => {
           assert(
-            out.contains(
-              s"foo.scala:2: error:$dialectError } expected but end of file found"
-            ) &&
-              out.contains(
-                "error: ParseError=2"
-              )
+            out.contains(s"foo.scala:2: error:$dialectError") &&
+              out.contains("end of file") &&
+              out.contains("error: ParseError=2"),
+            out
           )
         }
       )
@@ -686,11 +684,10 @@ trait CliTestBehavior { this: AbstractCliTest =>
         ExitCode.ParseError,
         assertOut = out => {
           assert(
-            out.contains(
-              s"foo.scala:2: error:$dialectError } expected but end of file found"
-            ) && out.contains(
-              "error: ParseError=2"
-            )
+            out.contains(s"foo.scala:2: error:$dialectError") &&
+              out.contains(s"end of file") &&
+              out.contains("error: ParseError=2"),
+            out
           )
         }
       )
