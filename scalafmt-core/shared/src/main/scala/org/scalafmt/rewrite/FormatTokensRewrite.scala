@@ -134,7 +134,7 @@ class FormatTokensRewrite(
   private def getRewrittenTokens: Iterable[Replacement] = {
     implicit val session: Session = new Session(rules)
     val tokens = session.tokens
-    val leftDelimIndex = new mutable.ListBuffer[(Int, Option[Rule])]()
+    val leftDelimIndex = new mutable.ListBuffer[Int]()
     val formatOffStack = new mutable.ListBuffer[Boolean]()
     arr.foreach { implicit ft =>
       ft.right match {
@@ -149,16 +149,17 @@ class FormatTokensRewrite(
                 case Some(c) => applyRule(c.rule)
                 case _ => applyRules
               }
-          leftDelimIndex.prepend((ldelimIdx, ruleOpt))
+          leftDelimIndex.prepend(ldelimIdx)
           if (ruleOpt.isEmpty) tokens.append(null)
 
         case _: T.RightBrace | _: T.RightParen | _: T.RightBracket =>
           val formatOff = formatOffStack.remove(0)
-          val (ldelimIdx, ruleOpt) = leftDelimIndex.remove(0)
+          val ldelimIdx = leftDelimIndex.remove(0)
           if (formatOff && formatOffStack.nonEmpty)
             formatOffStack.update(0, true)
-          ruleOpt.foreach { rule =>
-            val left = tokens(ldelimIdx)
+          val left = tokens(ldelimIdx)
+          if (left ne null) {
+            val rule = left.rule
             val replacement =
               if (ft.meta.formatOff) None
               else if (session.claimedRule.exists(_.rule ne rule)) None
