@@ -160,21 +160,13 @@ class FormatTokensRewrite(
             formatOffStack.update(0, true)
           val left = tokens(ldelimIdx)
           if (left ne null) {
-            val rule = left.rule
-            val replacement =
-              if (ft.meta.formatOff) None
-              else if (session.claimedRule.exists(_.rule ne rule)) None
-              else {
-                implicit val style = styleMap.at(ft.right)
-                if (rule.enabled) rule.onRight(left, formatOff) else None
-              }
-            replacement match {
-              case None =>
-                tokens(ldelimIdx) = null
-                session.claim(null)
-              case Some((ltRepl, rtRepl)) =>
-                tokens(ldelimIdx) = ltRepl
-                session.claim(rtRepl)
+            val ko = ft.meta.formatOff ||
+              session.claimedRule.exists(_.rule ne left.rule)
+            if (ko) {
+              tokens(ldelimIdx) = null
+            } else {
+              implicit val style = styleMap.at(ft.right)
+              left.onRightAndClaim(formatOff, ldelimIdx)
             }
           }
 
@@ -419,6 +411,27 @@ object FormatTokensRewrite {
   ) {
     @inline def isRemove: Boolean = how eq ReplacementType.Remove
     @inline def idx: Int = ft.meta.idx
+
+    def onRight(hasFormatOff: Boolean)(implicit
+        ft: FormatToken,
+        session: Session,
+        style: ScalafmtConfig
+    ): Option[(Replacement, Replacement)] =
+      if (rule.enabled) rule.onRight(this, hasFormatOff) else None
+
+    def onRightAndClaim(hasFormatOff: Boolean, leftIdx: Int)(implicit
+        ft: FormatToken,
+        session: Session,
+        style: ScalafmtConfig
+    ): Unit =
+      onRight(hasFormatOff) match {
+        case None =>
+          session.claim(null)
+          session.tokens(leftIdx) = null
+        case Some((ltRepl, rtRepl)) =>
+          session.claim(rtRepl)
+          session.tokens(leftIdx) = ltRepl
+      }
   }
 
   private[rewrite] sealed trait ReplacementType
