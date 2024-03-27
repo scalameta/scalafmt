@@ -233,7 +233,13 @@ object FormatTokensRewrite {
         ft: FormatToken,
         style: ScalafmtConfig
     ): Replacement =
-      Replacement(this, ft, ReplacementType.Remove, style)
+      removeToken(Nil)
+
+    protected final def removeToken(claim: Iterable[Int] = Nil)(implicit
+        ft: FormatToken,
+        style: ScalafmtConfig
+    ): Replacement =
+      Replacement(this, ft, ReplacementType.Remove, style, claim)
 
     protected final def replaceToken(
         text: String,

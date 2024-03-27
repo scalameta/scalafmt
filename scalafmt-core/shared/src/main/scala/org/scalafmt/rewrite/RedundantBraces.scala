@@ -128,8 +128,13 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       case ta @ Term.ArgClause(arg :: Nil, _)
           if !ta.parent.exists(_.is[Init]) =>
         getOpeningParen(ta).map { lp =>
-          val ko = lp.ne(rt) || getBlockNestedPartialFunction(arg).isEmpty
-          if (ko) null else removeToken
+          if (lp.ne(rt) || getBlockNestedPartialFunction(arg).isEmpty) null
+          else
+            ftoks.nextNonCommentAfter(ft) match {
+              case FormatToken(_, _: Token.LeftBrace, lbm) =>
+                removeToken(claim = lbm.idx :: Nil)
+              case _ => null
+            }
         }
       case _ => None
     }
