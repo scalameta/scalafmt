@@ -88,7 +88,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   ): Option[(Replacement, Replacement)] = Option {
     ft.right match {
       case _: Token.RightBrace => onRightBrace(left)
-      case _: Token.RightParen => onRightParen(left)
+      case _: Token.RightParen => onRightParen(left, hasFormatOff)
       case _ => null
     }
   }
@@ -142,14 +142,28 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     lpFunction.orElse(lpPartialFunction).orNull
   }
 
-  private def onRightParen(left: Replacement)(implicit
+  private def onRightParen(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
       session: Session,
       style: ScalafmtConfig
   ): (Replacement, Replacement) = left.how match {
     case ReplacementType.Remove =>
       val resOpt = getRightBraceBeforeRightParen(false).map { rb =>
-        // we'll use right brace later, when applying fewer-braces rewrite
+        ft.meta.rightOwner match {
+          case ac: Term.ArgClause =>
+            ftoks.matchingOpt(rb.left).map(ftoks.justBefore).foreach { lb =>
+              session.rule[RemoveScala3OptionalBraces].foreach { r =>
+                session.getClaimed(lb.meta.idx).foreach { case (leftIdx, _) =>
+                  val repl = r.onLeftForArgClause(ac)(lb, left.style)
+                  if (null ne repl) {
+                    implicit val ft: FormatToken = ftoks.prev(rb)
+                    repl.onRightAndClaim(hasFormatOff, leftIdx)
+                  }
+                }
+              }
+            }
+          case _ =>
+        }
         (left, removeToken)
       }
       resOpt.orNull
@@ -170,7 +184,16 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           new Token.RightBrace(rb.input, rb.dialect, rb.start + 1)
         }
       }
-      replaceIfAfterRightBrace.orNull // don't know how to Replace
+      (ft.meta.rightOwner match {
+        case ac: Term.ArgClause =>
+          session.rule[RemoveScala3OptionalBraces].flatMap { r =>
+            val repl = r.onLeftForArgClause(ac)(left.ft, left.style)
+            if (repl eq null) None else repl.onRight(hasFormatOff)
+          }
+        case _ => None
+      }).getOrElse {
+        replaceIfAfterRightBrace.orNull // don't know how to Replace
+      }
     case _ => null
   }
 

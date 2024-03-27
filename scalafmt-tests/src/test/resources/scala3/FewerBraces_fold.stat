@@ -1598,10 +1598,10 @@ foo
     x + 3
   }
 >>>
-foo.mtd1 { x + 1 }.mtd2 {
-  x + 1
-  x + 2
-}.mtd3 {
+foo.mtd1 { x + 1 }.mtd2:
+   x + 1
+   x + 2
+.mtd3 {
   x + 1
   x + 2
   x + 3
@@ -1627,10 +1627,10 @@ foo
     x + 3
   }
 >>>
-foo.mtd1 { x => x + 1 }.mtd2 { x =>
+foo.mtd1 { x => x + 1 }.mtd2: x =>
    x + 1
    x + 2
-}.mtd3 { x =>
+.mtd3 { x =>
    x + 1
    x + 2
    x + 3
@@ -1663,10 +1663,10 @@ foo
     }
   )
 >>>
-foo.mtd1(x => x + 1).mtd2 { x =>
+foo.mtd1(x => x + 1).mtd2: x =>
    x + 1
    x + 2
-}.mtd3 { x =>
+.mtd3 { x =>
    x + 1
    x + 2
    x + 3
@@ -1701,10 +1701,10 @@ foo
     },
   )
 >>>
-foo.mtd1(x => x + 1).mtd2 { x =>
+foo.mtd1(x => x + 1).mtd2: x =>
    x + 1
    x + 2
-}.mtd3 { x =>
+.mtd3 { x =>
    x + 1
    x + 2
    x + 3
@@ -1739,10 +1739,10 @@ foo
     },
   )
 >>>
-foo.mtd1 { x => x + 1 }.mtd2 { x =>
+foo.mtd1 { x => x + 1 }.mtd2: x =>
    x + 1
    x + 2
-}.mtd3 { x =>
+.mtd3 { x =>
    x + 1
    x + 2
    x + 3
@@ -1775,10 +1775,10 @@ object a {
 }
 >>>
 object a:
-   mtd1(x => x + 1) + mtd2 { x =>
+   mtd1(x => x + 1) + mtd2: x =>
       x + 1
       x + 2
-   } + mtd3 { x =>
+   + mtd3 { x =>
       x + 1
       x + 2
       x + 3
@@ -1811,10 +1811,10 @@ foo
     }
   )
 >>>
-foo.mtd1(x => x + 1).mtd2 { x =>
+foo.mtd1(x => x + 1).mtd2: x =>
    x + 1
    x + 2
-}.mtd3 { x =>
+.mtd3 { x =>
    x + 1
    x + 2
    x + 3
@@ -1847,10 +1847,10 @@ object a {
 }
 >>>
 object a:
-   mtd1(x => x + 1) + mtd2 { x =>
+   mtd1(x => x + 1) + mtd2: x =>
       x + 1
       x + 2
-   } + mtd3 { x =>
+   + mtd3 { x =>
       x + 1
       x + 2
       x + 3
@@ -1876,10 +1876,10 @@ foo
     case z => z + 1
   }
 >>>
-foo.mtd1 { case x => x + 1 }.mtd2 {
-  case x => x + 1
-  case y => y + 1
-}.mtd3 {
+foo.mtd1 { case x => x + 1 }.mtd2:
+   case x => x + 1
+   case y => y + 1
+.mtd3 {
   case x => x + 1
   case y => y + 1
   case z => z + 1
@@ -1912,10 +1912,10 @@ foo
     }
   )
 >>>
-foo.mtd1 { case x => x + 1 }.mtd2 {
-  case x => x + 1
-  case y => y + 1
-}.mtd3 {
+foo.mtd1 { case x => x + 1 }.mtd2:
+   case x => x + 1
+   case y => y + 1
+.mtd3 {
   case x => x + 1
   case y => y + 1
   case z => z + 1
@@ -1950,11 +1950,11 @@ foo
 foo.mtd1 {
   bar match
      case x => x + 1
-}.mtd2 {
-  bar match
-     case x => x + 1
-     case y => y + 1
-}.mtd3 {
+}.mtd2:
+   bar match
+      case x => x + 1
+      case y => y + 1
+.mtd3 {
   bar match
      case x => x + 1
      case y => y + 1
@@ -1993,12 +1993,12 @@ foo
 foo.mtd1 {
   x + 1
   def x = x + 3
-}.mtd2 {
-  x + 1
-  def x =
-     x + 3
-     x + 4
-}.mtd3 {
+}.mtd2:
+   x + 1
+   def x =
+      x + 3
+      x + 4
+.mtd3 {
   x + 1
   def x =
      x + 3

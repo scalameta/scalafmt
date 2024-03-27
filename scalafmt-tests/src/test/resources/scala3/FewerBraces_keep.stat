@@ -1795,10 +1795,9 @@ foo
   .mtd1 {
     x + 1
   }
-  .mtd2 {
-    x + 1
-    x + 2
-  }
+  .mtd2:
+     x + 1
+     x + 2
   .mtd3 {
     x + 1
     x + 2
@@ -1829,10 +1828,9 @@ foo
   .mtd1 { x =>
     x + 1
   }
-  .mtd2 { x =>
+  .mtd2: x =>
      x + 1
      x + 2
-  }
   .mtd3 { x =>
      x + 1
      x + 2
@@ -1871,11 +1869,9 @@ foo
     x =>
       x + 1
   }
-  .mtd2 {
-    x =>
-       x + 1
-       x + 2
-  }
+  .mtd2: x =>
+     x + 1
+     x + 2
   .mtd3 {
     x =>
        x + 1
@@ -1917,11 +1913,9 @@ foo
     x =>
       x + 1
   }
-  .mtd2 {
-    x =>
-       x + 1
-       x + 2
-  }
+  .mtd2: x =>
+     x + 1
+     x + 2
   .mtd3 {
     x =>
        x + 1
@@ -1963,11 +1957,9 @@ foo
     x =>
       x + 1
   }
-  .mtd2 {
-    x =>
-       x + 1
-       x + 2
-  }
+  .mtd2: x =>
+     x + 1
+     x + 2
   .mtd3 {
     x =>
        x + 1
@@ -2006,17 +1998,15 @@ object a:
      x =>
        x + 1
    }
-     + mtd2 {
-       x =>
-          x + 1
-          x + 2
-     }
-     + mtd3 {
-       x =>
-          x + 1
-          x + 2
-          x + 3
-     }
+   + mtd2: x =>
+      x + 1
+      x + 2
+   + mtd3 {
+     x =>
+        x + 1
+        x + 2
+        x + 3
+   }
 <<< rewrite to fewer braces: func in parens and braces
 rewrite.rules = [RedundantBraces, RedundantParens]
 rewrite.scala3.removeOptionalBraces = {
@@ -2049,10 +2039,9 @@ foo
   .mtd1 { x =>
     x + 1
   }
-  .mtd2 { x =>
+  .mtd2: x =>
      x + 1
      x + 2
-  }
   .mtd3 { x =>
      x + 1
      x + 2
@@ -2089,15 +2078,14 @@ object a:
    mtd1 { x =>
      x + 1
    }
-     + mtd2 { x =>
-        x + 1
-        x + 2
-     }
-     + mtd3 { x =>
-        x + 1
-        x + 2
-        x + 3
-     }
+   + mtd2: x =>
+      x + 1
+      x + 2
+   + mtd3 { x =>
+      x + 1
+      x + 2
+      x + 3
+   }
 <<< rewrite to fewer braces: partial func
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
@@ -2123,10 +2111,9 @@ foo
   .mtd1 {
     case x => x + 1
   }
-  .mtd2 {
-    case x => x + 1
-    case y => y + 1
-  }
+  .mtd2:
+     case x => x + 1
+     case y => y + 1
   .mtd3 {
     case x => x + 1
     case y => y + 1
@@ -2164,10 +2151,9 @@ foo
   .mtd1 {
     case x => x + 1
   }
-  .mtd2 {
-    case x => x + 1
-    case y => y + 1
-  }
+  .mtd2:
+     case x => x + 1
+     case y => y + 1
   .mtd3 {
     case x => x + 1
     case y => y + 1
@@ -2205,11 +2191,10 @@ foo
     bar match
        case x => x + 1
   }
-  .mtd2 {
-    bar match
-       case x => x + 1
-       case y => y + 1
-  }
+  .mtd2:
+     bar match
+        case x => x + 1
+        case y => y + 1
   .mtd3 {
     bar match
        case x => x + 1
@@ -2252,12 +2237,11 @@ foo
     def x =
       x + 3
   }
-  .mtd2 {
-    x + 1
-    def x =
-       x + 3
-       x + 4
-  }
+  .mtd2:
+     x + 1
+     def x =
+        x + 3
+        x + 4
   .mtd3 {
     x + 1
     def x =
