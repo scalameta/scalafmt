@@ -304,7 +304,7 @@ object FormatTokensRewrite {
       claimed.get(ftIdx) match {
         case Some(x) =>
           val repl = tokens(x)
-          val ok = (repl eq null) || repl.ft.meta.idx == ftIdx
+          val ok = (repl eq null) || repl.idx == ftIdx
           if (ok) Some((x, repl)) else None
         case _ => None
       }
@@ -330,9 +330,8 @@ object FormatTokensRewrite {
                 val ok = orepl != null && (orepl.rule eq repl.rule) &&
                   orepl.isRemove
                 if (ok) {
-                  tokens(oldidx) =
-                    repl.copy(ft = repl.ft.withIdx(orepl.ft.meta.idx))
-                  Some(repl.copy(ft = orepl.ft.withIdx(repl.ft.meta.idx)))
+                  tokens(oldidx) = repl.copy(ft = repl.ft.withIdx(orepl.idx))
+                  Some(repl.copy(ft = orepl.ft.withIdx(repl.idx)))
                 } else None
               }
             case _ => None
@@ -376,7 +375,7 @@ object FormatTokensRewrite {
 
     private[rewrite] def isRemovedOnLeftOpt(x: FormatToken): Option[Boolean] = {
       val ftIdx = x.meta.idx - 1
-      claimedRule(ftIdx).filter(_.ft.meta.idx == ftIdx).map(_.isRemove)
+      claimedRule(ftIdx).filter(_.idx == ftIdx).map(_.isRemove)
     }
 
     private[rewrite] def isRemovedOnLeft(x: FormatToken, ok: Boolean): Boolean =
@@ -393,6 +392,7 @@ object FormatTokensRewrite {
       claim: Iterable[Int] = Nil
   ) {
     @inline def isRemove: Boolean = how eq ReplacementType.Remove
+    @inline def idx: Int = ft.meta.idx
   }
 
   private[rewrite] sealed trait ReplacementType
