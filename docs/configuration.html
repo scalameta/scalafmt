@@ -256,7 +256,7 @@ defaults.</li>
       <span class="hljs-attr">sometimesBeforeColonInMethodReturnType</span> = <span class="hljs-literal">false</span>
     }
     runner.optimizer {
-      <span class="hljs-attr">forceConfigStyleOnOffset</span> = <span class="hljs-number">500</span>
+      <span class="hljs-attr">forceConfigStyleMinSpan</span> = <span class="hljs-number">500</span>
       <span class="hljs-attr">forceConfigStyleMinArgCount</span> = <span class="hljs-number">5</span>
     }
 </code></pre>
@@ -3805,13 +3805,14 @@ maxColumn=<span class="hljs-number">45</span>
 <p>Controls parameters which trigger forced config-style formatting. All conditions
 must be satisfied in order for this rule to apply.</p>
 <pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-runner.optimizer.forceConfigStyleOnOffset = <span class="hljs-number">150</span>
+runner.optimizer.forceConfigStyleMinSpan = <span class="hljs-number">150</span>
 runner.optimizer.forceConfigStyleMinArgCount = <span class="hljs-number">2</span>
 </code></pre>
 <ul>
-<li><code>runner.optimizer.forceConfigStyleOnOffset</code>: applies to method calls; if
+<li><code>runner.optimizer.forceConfigStyleMinSpan</code>: applies to method calls; if
 positive, specifies the minimum character distance between the matching
-parentheses, excluding any whitespace</li>
+parentheses, excluding any whitespace (prior to v3.8.1, this parameter
+was called <code>forceConfigStyleOnOffset</code>)</li>
 <li><code>runner.optimizer.forceConfigStyleMinArgCount</code> applies to method calls;
 specifies the minimum number of arguments</li>
 </ul>
@@ -3848,7 +3849,7 @@ specifies the minimum number of arguments</li>
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">optIn.configStyleArguments = <span class="hljs-literal">true</span>
-runner.optimizer.forceConfigStyleOnOffset = <span class="hljs-number">5</span>
+runner.optimizer.forceConfigStyleMinSpan = <span class="hljs-number">5</span>
 runner.optimizer.forceConfigStyleMinArgCount = <span class="hljs-number">2</span>
 maxColumn = <span class="hljs-number">60</span>
 </code></pre>
@@ -6854,7 +6855,7 @@ runner.optimizer.<span class="hljs-attr">acceptOptimalAtHints</span> = <span cla
 runner.optimizer.<span class="hljs-attr">disableOptimizationsInsideSensitiveAreas</span> = <span class="hljs-literal">true</span>
 runner.optimizer.<span class="hljs-attr">pruneSlowStates</span> = <span class="hljs-literal">true</span>
 runner.optimizer.<span class="hljs-attr">recurseOnBlocks</span> = <span class="hljs-literal">true</span>
-runner.optimizer.<span class="hljs-attr">forceConfigStyleOnOffset</span> = <span class="hljs-number">150</span>
+runner.optimizer.<span class="hljs-attr">forceConfigStyleMinSpan</span> = <span class="hljs-number">150</span>
 runner.optimizer.<span class="hljs-attr">forceConfigStyleMinArgCount</span> = <span class="hljs-number">2</span>
 runner.<span class="hljs-attr">maxStateVisits</span> = <span class="hljs-number">1000000</span>
 runner.<span class="hljs-attr">dialect</span> = <span class="hljs-literal">null</span>
