@@ -364,7 +364,7 @@ object ScalafmtConfig {
     default.runner.copy(
       optimizer = default.runner.optimizer.copy(
         // The tests were not written in this style
-        forceConfigStyleOnOffset = 500,
+        forceConfigStyleMinSpan = 500,
         forceConfigStyleMinArgCount = 5
       )
     )

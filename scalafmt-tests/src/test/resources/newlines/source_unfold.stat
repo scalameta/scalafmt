@@ -1,7 +1,7 @@
 align.preset = none
 maxColumn = 40
 newlines.source = unfold
-runner.optimizer.forceConfigStyleOnOffset = 50
+runner.optimizer.forceConfigStyleMinSpan = 50
 binPack.parentConstructors = OnelineIfPrimaryOneline
 <<< 1.1: block, if-else, line too long
 if (true) {      println(aaaaaaaaaaaaaaaaaaaaaaaaaa)}

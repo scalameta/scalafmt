@@ -46,13 +46,13 @@ import metaconfig._
   *
   * By starting a new search queue, we can perform aggressive optimizations
   * inside optimizations zones.
-  * @param forceConfigStyleOnOffset
+  * @param forceConfigStyleMinSpan
   *   If negative number, does nothing. If n >= 0, then scalafmt will force
   *   "config style" on Term.Apply nodes IF it has more than
   *   [[forceConfigStyleMinArgCount]] arguments AND the non-whitespace byte
   *   offset between the opening parens and closing parens is greater than
-  *   [[forceConfigStyleOnOffset]]. By forcing config style on such
-  *   applications, the search space is greatly reduced.
+  *   [[forceConfigStyleMinSpan]]. By forcing config style on such applications,
+  *   the search space is greatly reduced.
   */
 case class ScalafmtOptimizer(
     dequeueOnNewStatements: Boolean = true,
@@ -64,7 +64,8 @@ case class ScalafmtOptimizer(
     disableOptimizationsInsideSensitiveAreas: Boolean = true,
     pruneSlowStates: Boolean = true,
     recurseOnBlocks: Boolean = true,
-    forceConfigStyleOnOffset: Int = 150,
+    @annotation.ExtraName("forceConfigStyleOnOffset")
+    forceConfigStyleMinSpan: Int = 150,
     forceConfigStyleMinArgCount: Int = 2
 )
 
