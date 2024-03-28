@@ -4950,7 +4950,7 @@ set to <code>false</code>, see below):</p>
 <p>If this section is enabled,
 <a href="https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html">optional braces</a>
 will be removed and significant indentation applied.</p>
-<p>Default: <code>rewrite.scala3.removeOptionalBraces = {&quot;enabled&quot;: false, &quot;oldSyntaxToo&quot;: false}</code></p>
+<p>Default: <code>rewrite.scala3.removeOptionalBraces = {&quot;enabled&quot;: false, &quot;fewerBracesMinSpan&quot;: 2, &quot;fewerBracesMaxSpan&quot;: 0, &quot;oldSyntaxToo&quot;: false}</code></p>
 <p>The section contains the following settings (available since v3.8.1):</p>
 <ul>
 <li><code>enabled</code>:
@@ -4968,6 +4968,15 @@ flags in this section</li>
 <li><code>oldSyntaxToo</code>
 <ul>
 <li>if <code>true</code>, applies also to expressions using deprecated syntax</li>
+</ul></li>
+<li><code>fewerBracesMinSpan</code> and <code>fewerBracesMaxSpan</code>
+<ul>
+<li>will apply the rewrite to last curried single-argument group if
+it is enclosed in curly braces (or would be rewritten to curly
+braces by the <code>RedundantBraces</code> rule)</li>
+<li>will only apply the rewrite if the cumulative span of all visible
+(non-whitespace) tokens within the argument is between the two values</li>
+<li>this rule is disabled if <code>fewerBracesMaxSpan == 0</code></li>
 </ul></li>
 </ul>
 <p>Prior to v3.8.1, <code>rewrite.scala3.removeOptionalBraces</code> was a flag which
@@ -6744,6 +6753,8 @@ rewrite.scala3.<span class="hljs-attr">convertToNewSyntax</span> = <span class="
 rewrite.scala3.newSyntax.<span class="hljs-attr">control</span> = <span class="hljs-literal">true</span>
 rewrite.scala3.newSyntax.<span class="hljs-attr">deprecated</span> = <span class="hljs-literal">true</span>
 rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">enabled</span> = <span class="hljs-literal">false</span>
+rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">fewerBracesMinSpan</span> = <span class="hljs-number">2</span>
+rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">fewerBracesMaxSpan</span> = <span class="hljs-number">0</span>
 rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">oldSyntaxToo</span> = <span class="hljs-literal">false</span>
 rewrite.scala3.<span class="hljs-attr">countEndMarkerLines</span> = all
 rewrite.scala3.<span class="hljs-attr">removeEndMarkerMaxLines</span> = <span class="hljs-number">0</span>
