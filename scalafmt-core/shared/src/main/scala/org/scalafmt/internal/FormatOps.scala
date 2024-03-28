@@ -1135,7 +1135,7 @@ class FormatOps(
   }
 
   def getForceConfigStyle: (Set[TokenHash], Set[TokenHash]) = {
-    val maxDistance = runner.optimizer.forceConfigStyleOnOffset
+    val maxDistance = runner.optimizer.forceConfigStyleMinSpan
     if (maxDistance < 0)
       (Set.empty, Set.empty)
     else {
