@@ -6118,12 +6118,12 @@ considered to be literals.</p>
 <li><code>binPack.literalArgumentLists</code>: if false, this behaviour is disabled, other parameters ignored</li>
 <li><code>binPack.literalsMinArgCount</code>: doesn't apply binpacking to calls with fewer arguments</li>
 <li><code>binPack.literals{Include,Exclude}</code>: lists of regular expressions which define a literal</li>
-<li>[since v2.5.0] <code>binPack.literalsIncludeSimpleExpr</code>: allows a few selects (i.e. <code>a.b</code>),
+<li>(since v2.5.0) <code>binPack.literalsIncludeSimpleExpr</code>: allows a few selects (i.e. <code>a.b</code>),
 followed by a few nested single-argument apply calls, with literals as arguments
 <ul>
 <li>since v3.3.2, also includes <code>new</code></li>
 </ul></li>
-<li>[since v2.5.0] <code>binPack.literalsSingleLine</code>: the entire argument list will be formatted on
+<li>(since v2.5.0) <code>binPack.literalsSingleLine</code>: the entire argument list will be formatted on
 one line, regardless of <code>maxColumn</code></li>
 </ul>
 <pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
