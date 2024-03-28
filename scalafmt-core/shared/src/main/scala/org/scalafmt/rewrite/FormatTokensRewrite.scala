@@ -48,6 +48,7 @@ class FormatTokensRewrite(
 
     def copySlice(end: Int): Unit = {
       val append = end - nextidxToCopy
+      require(append >= 0) // make sure rewritten tokens are sorted
       if (append > 0) {
         appended += append
         result ++= arr.view.slice(nextidxToCopy, end)
@@ -308,6 +309,7 @@ object FormatTokensRewrite {
     private val claimed = new mutable.HashMap[Int, Int]()
     private[FormatTokensRewrite] val tokens =
       new mutable.ArrayBuffer[Replacement]()
+    private[FormatTokensRewrite] var maxClaimed = -1
 
     private[rewrite] def getClaimed(ftIdx: Int): Option[(Int, Replacement)] =
       claimed.get(ftIdx) match {
@@ -366,6 +368,8 @@ object FormatTokensRewrite {
         tokens(claimedIdx) = repl
         claimedIdx
       } else {
+        require(ftIdx > maxClaimed, s"claiming token at $ftIdx <= $maxClaimed")
+        maxClaimed = ftIdx
         if (preClaimed)
           claimed.update(ftIdx, idx)
         tokens.append(repl)
