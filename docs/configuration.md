@@ -210,7 +210,7 @@ top-level.
       sometimesBeforeColonInMethodReturnType = false
     }
     runner.optimizer {
-      forceConfigStyleOnOffset = 500
+      forceConfigStyleMinSpan = 500
       forceConfigStyleMinArgCount = 5
     }
 ```
@@ -2810,19 +2810,20 @@ Controls parameters which trigger forced config-style formatting. All conditions
 must be satisfied in order for this rule to apply.
 
 ```scala mdoc:defaults
-runner.optimizer.forceConfigStyleOnOffset
+runner.optimizer.forceConfigStyleMinSpan
 runner.optimizer.forceConfigStyleMinArgCount
 ```
 
-- `runner.optimizer.forceConfigStyleOnOffset`: applies to method calls; if
+- `runner.optimizer.forceConfigStyleMinSpan`: applies to method calls; if
   positive, specifies the minimum character distance between the matching
-  parentheses, excluding any whitespace
+  parentheses, excluding any whitespace (prior to v3.8.1, this parameter
+  was called `forceConfigStyleOnOffset`)
 - `runner.optimizer.forceConfigStyleMinArgCount` applies to method calls;
   specifies the minimum number of arguments
 
 ```scala mdoc:scalafmt
 optIn.configStyleArguments = true
-runner.optimizer.forceConfigStyleOnOffset = 5
+runner.optimizer.forceConfigStyleMinSpan = 5
 runner.optimizer.forceConfigStyleMinArgCount = 2
 maxColumn = 60
 ---
