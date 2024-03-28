@@ -4705,10 +4705,10 @@ The following parameters affect this behaviour:
 - `binPack.literalArgumentLists`: if false, this behaviour is disabled, other parameters ignored
 - `binPack.literalsMinArgCount`: doesn't apply binpacking to calls with fewer arguments
 - `binPack.literals{Include,Exclude}`: lists of regular expressions which define a literal
-- [since v2.5.0] `binPack.literalsIncludeSimpleExpr`: allows a few selects (i.e. `a.b`),
+- (since v2.5.0) `binPack.literalsIncludeSimpleExpr`: allows a few selects (i.e. `a.b`),
   followed by a few nested single-argument apply calls, with literals as arguments
   - since v3.3.2, also includes `new`
-- [since v2.5.0] `binPack.literalsSingleLine`: the entire argument list will be formatted on
+- (since v2.5.0) `binPack.literalsSingleLine`: the entire argument list will be formatted on
   one line, regardless of `maxColumn`
 
 ```scala mdoc:defaults
