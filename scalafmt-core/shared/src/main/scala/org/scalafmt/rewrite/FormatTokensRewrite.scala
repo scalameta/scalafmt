@@ -360,7 +360,7 @@ object FormatTokensRewrite {
       if (
         preClaimed && {
           val oldrepl = tokens(claimedIdx)
-          oldrepl != null && oldrepl.idx == ftIdx
+          oldrepl == null || oldrepl.idx == ftIdx
         }
       ) {
         tokens(claimedIdx) = repl
@@ -438,15 +438,11 @@ object FormatTokensRewrite {
         ft: FormatToken,
         session: Session,
         style: ScalafmtConfig
-    ): Unit =
-      onRight(hasFormatOff) match {
-        case None =>
-          session.claim(null)
-          session.tokens(leftIdx) = null
-        case Some((ltRepl, rtRepl)) =>
-          session.claim(rtRepl)
-          session.tokens(leftIdx) = ltRepl
-      }
+    ): Unit = {
+      val (ltRepl, rtRepl) = onRight(hasFormatOff).getOrElse((null, null))
+      session.claim(rtRepl)
+      session.tokens(leftIdx) = ltRepl
+    }
   }
 
   private[rewrite] sealed trait ReplacementType
