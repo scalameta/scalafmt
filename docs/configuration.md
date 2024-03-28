@@ -3698,7 +3698,7 @@ The section contains the following settings (available since v3.8.1):
     - other flags below might extend rewrites to other cases
 - `oldSyntaxToo`
   - if `true`, applies also to expressions using deprecated syntax
-- `fewerBracesMinSpan` and `fewerBracesMaxSpan`
+- (since v3.8.1) `fewerBracesMinSpan` and `fewerBracesMaxSpan`
   - will apply the rewrite to last curried single-argument group if
     it is enclosed in curly braces (or would be rewritten to curly
     braces by the `RedundantBraces` rule)
