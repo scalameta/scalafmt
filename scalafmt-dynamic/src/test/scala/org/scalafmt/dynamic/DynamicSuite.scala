@@ -619,7 +619,7 @@ class DynamicSuite extends FunSuite {
 private object DynamicSuite {
 
   def nightly = BuildInfo.nightly
-  def latest = BuildInfo.previousStable
+  def latest = "3.8.0" // BuildInfo.previousStable
 
   def getDialectError(version: String, dialect: String) =
     if (version >= "3.1.0") s" [dialect $dialect]" else ""
