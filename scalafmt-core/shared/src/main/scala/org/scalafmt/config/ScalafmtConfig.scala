@@ -158,15 +158,12 @@ case class ScalafmtConfig(
       k -> v.getMatcher
     }
 
-  private[scalafmt] def withDialect(
-      dialect: NamedDialect
-  ): ScalafmtConfig =
+  private[scalafmt] def withDialect(dialect: NamedDialect): ScalafmtConfig =
     copy(runner = runner.withDialect(dialect))
 
   private[scalafmt] def withDialect(
       dialect: Option[NamedDialect]
-  ): ScalafmtConfig =
-    dialect.fold(this)(withDialect)
+  ): ScalafmtConfig = dialect.fold(this)(withDialect)
 
   def withDialect(dialect: Dialect, name: String): ScalafmtConfig =
     withDialect(NamedDialect(name, dialect))
@@ -180,11 +177,11 @@ case class ScalafmtConfig(
     if (project.layout.isEmpty) forTest
     else rewrite.forMainOpt.fold(this)(x => copy(rewrite = x))
 
-  private lazy val forTest: ScalafmtConfig =
-    rewrite.forTestOpt.fold(this)(x => copy(rewrite = x))
+  private lazy val forTest: ScalafmtConfig = rewrite.forTestOpt
+    .fold(this)(x => copy(rewrite = x))
 
-  def forSbt: ScalafmtConfig =
-    rewrite.forSbtOpt.fold(this)(x => copy(rewrite = x))
+  def forSbt: ScalafmtConfig = rewrite.forSbtOpt
+    .fold(this)(x => copy(rewrite = x))
 
   private lazy val expandedFileOverride = Try {
     val langPrefix = "lang:"
@@ -215,13 +212,12 @@ case class ScalafmtConfig(
 
   private def getConfigViaLayoutInfoFor(absfile: AbsoluteFile)(
       f: (ProjectFiles.Layout, String) => ScalafmtConfig
-  ): Option[ScalafmtConfig] =
-    project.layout.flatMap { layout =>
-      layout.getInfo(absfile).map { info =>
-        val style = f(layout, info.lang)
-        if (info.isTest) style.forTest else style.forMain
-      }
+  ): Option[ScalafmtConfig] = project.layout.flatMap { layout =>
+    layout.getInfo(absfile).map { info =>
+      val style = f(layout, info.lang)
+      if (info.isTest) style.forTest else style.forMain
     }
+  }
 
   def getConfigFor(filename: String): Try[ScalafmtConfig] = {
     val absfile = AbsoluteFile(filename)
@@ -232,24 +228,23 @@ case class ScalafmtConfig(
       }
       val pmStyle = pmStyles.collectFirst {
         case (pm, style) if pm.matches(absfile.path) =>
-          style
-            .getConfigViaLayoutInfoFor(absfile) { (layout, lang) =>
-              val sameDialect = style.dialect.isEquivalentTo(dialect)
-              if (sameDialect) layout.withLang(lang, style) else style
-            }
-            .getOrElse(style)
+          style.getConfigViaLayoutInfoFor(absfile) { (layout, lang) =>
+            val sameDialect = style.dialect.isEquivalentTo(dialect)
+            if (sameDialect) layout.withLang(lang, style) else style
+          }.getOrElse(style)
       }
       pmStyle.orElse(langStyle).getOrElse(forTest)
     }
   }
 
-  private[scalafmt] lazy val encloseSelectChains =
-    optIn.encloseClassicChains || newlines.source.ne(Newlines.classic)
+  private[scalafmt] lazy val encloseSelectChains = optIn.encloseClassicChains ||
+    newlines.source.ne(Newlines.classic)
 
-  private[scalafmt] lazy val docstringsWrapMaxColumn: Int =
-    docstrings.wrapMaxColumn.getOrElse(maxColumn)
+  private[scalafmt] lazy val docstringsWrapMaxColumn: Int = docstrings
+    .wrapMaxColumn.getOrElse(maxColumn)
 
-  @inline private[scalafmt] def dialect = runner.getDialectForParser
+  @inline
+  private[scalafmt] def dialect = runner.getDialectForParser
 
   private[scalafmt] def getTrailingCommas = rewrite.trailingCommas.style
 
@@ -266,19 +261,18 @@ case class ScalafmtConfig(
     rewrite = rewrite.withoutRewrites
   )
 
-  lazy val forceNewlineBeforeDocstring: Boolean =
-    docstrings.forceBlankLineBefore
-      .getOrElse(optIn.forceBlankLineBeforeDocstring)
+  lazy val forceNewlineBeforeDocstring: Boolean = docstrings
+    .forceBlankLineBefore.getOrElse(optIn.forceBlankLineBeforeDocstring)
 
-  def breakAfterInfix(tree: => Tree): Newlines.AfterInfix =
-    newlines.afterInfix.getOrElse {
+  def breakAfterInfix(tree: => Tree): Newlines.AfterInfix = newlines.afterInfix
+    .getOrElse {
       val useSome = newlines.source == Newlines.classic &&
         tree.is[Type.ApplyInfix] && dialect.useInfixTypePrecedence
       if (useSome) Newlines.AfterInfix.some else newlines.breakAfterInfix
     }
 
-  def formatInfix(tree: => Tree): Boolean =
-    breakAfterInfix(tree) ne Newlines.AfterInfix.keep
+  def formatInfix(tree: => Tree): Boolean = breakAfterInfix(tree) ne
+    Newlines.AfterInfix.keep
 
   def getFewerBraces(): Indents.FewerBraces =
     if (indent.getSignificant < 2) Indents.FewerBraces.never
@@ -288,11 +282,11 @@ case class ScalafmtConfig(
 object ScalafmtConfig {
   implicit lazy val surface: generic.Surface[ScalafmtConfig] =
     generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[ScalafmtConfig] =
-    generic.deriveEncoder[ScalafmtConfig]
+  implicit lazy val encoder: ConfEncoder[ScalafmtConfig] = generic
+    .deriveEncoder[ScalafmtConfig]
 
-  implicit lazy val codecEncoder: ConfEncoder[Codec] =
-    ConfEncoder.StringEncoder.contramap(_.name)
+  implicit lazy val codecEncoder: ConfEncoder[Codec] = ConfEncoder.StringEncoder
+    .contramap(_.name)
 
   val default = ScalafmtConfig()
   private[scalafmt] val uncheckedDefault = ScalafmtConfig(version = null)
@@ -300,18 +294,12 @@ object ScalafmtConfig {
   val intellij: ScalafmtConfig = default.copy(
     indent = Indents(callSite = 2, defnSite = 2),
     align = default.align.copy(openParenCallSite = false),
-    optIn = default.optIn.copy(
-      configStyleArguments = false
-    ),
+    optIn = default.optIn.copy(configStyleArguments = false),
     danglingParentheses = DanglingParentheses.shortcutTrue
   )
 
-  def addAlign(style: ScalafmtConfig): ScalafmtConfig =
-    style.copy(
-      align = style.align.copy(
-        tokens = AlignToken.default
-      )
-    )
+  def addAlign(style: ScalafmtConfig): ScalafmtConfig = style
+    .copy(align = style.align.copy(tokens = AlignToken.default))
   val defaultWithAlign: ScalafmtConfig = addAlign(default)
 
   /** Experimental implementation of:
@@ -346,23 +334,16 @@ object ScalafmtConfig {
   /** Ready styles provided by scalafmt.
     */
   private val activeStyles: Map[String, ScalafmtConfig] =
-    Map(
-      "Scala.js" -> scalaJs,
-      "IntelliJ" -> intellij
-    ) ++ LoggerOps.name2style(
-      default,
-      defaultWithAlign
-    )
+    Map("Scala.js" -> scalaJs, "IntelliJ" -> intellij) ++
+      LoggerOps.name2style(default, defaultWithAlign)
 
   private val availableStyles: Map[String, ScalafmtConfig] = {
-    activeStyles ++ LoggerOps.name2style(
-      scalaJs
-    )
+    activeStyles ++ LoggerOps.name2style(scalaJs)
   }.map { case (k, v) => k.toLowerCase -> v }
 
-  private[scalafmt] def conservativeRunner: ScalafmtRunner =
-    default.runner.copy(
-      optimizer = default.runner.optimizer.copy(
+  private[scalafmt] def conservativeRunner: ScalafmtRunner = default.runner
+    .copy(optimizer =
+      default.runner.optimizer.copy(
         // The tests were not written in this style
         forceConfigStyleMinSpan = 500,
         forceConfigStyleMinArgCount = 5
@@ -371,8 +352,7 @@ object ScalafmtConfig {
 
   private def readActiveStylePresets(conf: Conf): Configured[ScalafmtConfig] =
     (conf match {
-      case Conf.Str(x) =>
-        availableStyles.get(x.toLowerCase).map { style =>
+      case Conf.Str(x) => availableStyles.get(x.toLowerCase).map { style =>
           Configured.ok(style)
         }
       case _ => None
@@ -393,8 +373,7 @@ object ScalafmtConfig {
       if (newlines.sourceIgnored) {
         addIf(optIn.configStyleArguments && align.openParenCallSite && newlines.beforeOpenParenCallSite.isEmpty)
         addIf(optIn.configStyleArguments && align.openParenDefnSite && newlines.beforeOpenParenDefnSite.isEmpty)
-        def mustIgnoreSourceSplit(what: sourcecode.Text[Option[Newlines.IgnoreSourceSplit]]) =
-          what.value.foreach(x => addIfDirect(!x.ignoreSourceSplit, s"${what.source}=$x"))
+        def mustIgnoreSourceSplit(what: sourcecode.Text[Option[Newlines.IgnoreSourceSplit]]) = what.value.foreach(x => addIfDirect(!x.ignoreSourceSplit, s"${what.source}=$x"))
         mustIgnoreSourceSplit(newlines.beforeMultiline)
         mustIgnoreSourceSplit(newlines.beforeMultilineDef)
         addIf(newlines.beforeTypeBounds eq Newlines.keep)
@@ -404,9 +383,7 @@ object ScalafmtConfig {
         addIf(newlines.selectChains.exists(_ eq Newlines.keep))
         addIf(getTrailingCommas.eq(TrailingCommas.keep))
       }
-      if (newlines.source == Newlines.unfold) {
-        addIf(align.arrowEnumeratorGenerator)
-      }
+      if (newlines.source == Newlines.unfold) { addIf(align.arrowEnumeratorGenerator) }
       if (newlines.source != Newlines.classic) {
         addIf(optIn.breaksInsideChains)
         addIf(!includeCurlyBraceInSelectChains)
@@ -424,37 +401,18 @@ object ScalafmtConfig {
         addIf(getTrailingCommas eq TrailingCommas.always, errDialect)
         addIf(getTrailingCommas eq TrailingCommas.multiple, errDialect)
       }
-      if (!dialect.allowSignificantIndentation) {
-        addIf(newlines.beforeOpenParenCallSite.nonEmpty, errDialect)
-      }
+      if (!dialect.allowSignificantIndentation) { addIf(newlines.beforeOpenParenCallSite.nonEmpty, errDialect) }
       addIfDirect( // can't use addIf on multiline conditions
-        !(binPack.unsafeCallSite.isNever && binPack.unsafeDefnSite.isNever) && {
-          newlines.implicitParamListModifierForce.nonEmpty ||
-          newlines.implicitParamListModifierPrefer.nonEmpty
-        },
+        !(binPack.unsafeCallSite.isNever && binPack.unsafeDefnSite.isNever) && { newlines.implicitParamListModifierForce.nonEmpty || newlines.implicitParamListModifierPrefer.nonEmpty },
         "binPack.unsafeXXXSite && newlines.implicitParamListModifierXXX (not implemented)"
       )
-      checkPositive(
-        indent.main,
-        indent.callSite,
-        indent.defnSite,
-        indent.commaSiteRelativeToExtends
-      )
-      checkNonNeg(
-        indent.caseSite,
-        indent.extendSite,
-        indent.withSiteRelativeToExtends
-      )
-      checkPositiveOpt(
-        indent.significant,
-        indent.ctorSite
-      )
-      if (rewrite.scala3.insertEndMarkerMinLines != 0)
-        addIf(rewrite.scala3.removeEndMarkerMaxLines >= rewrite.scala3.insertEndMarkerMinLines)
+      checkPositive(indent.main, indent.callSite, indent.defnSite, indent.commaSiteRelativeToExtends)
+      checkNonNeg(indent.caseSite, indent.extendSite, indent.withSiteRelativeToExtends)
+      checkPositiveOpt(indent.significant, indent.ctorSite)
+      if (rewrite.scala3.insertEndMarkerMinLines != 0) addIf(rewrite.scala3.removeEndMarkerMaxLines >= rewrite.scala3.insertEndMarkerMinLines)
       addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.insertEndMarkerMinLines != 0)
       addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.removeOptionalBraces.oldSyntaxToo)
-      if (rewrite.insertBraces.minLines != 0 && rewrite.rules.contains(RedundantBraces))
-        addIf(rewrite.insertBraces.minLines < rewrite.redundantBraces.maxBreaks)
+      if (rewrite.insertBraces.minLines != 0 && rewrite.rules.contains(RedundantBraces)) addIf(rewrite.insertBraces.minLines < rewrite.redundantBraces.maxBreaks)
       addIf(align.beforeOpenParenDefnSite && !align.closeParenSite)
       addIf(align.beforeOpenParenCallSite && !align.closeParenSite)
       addIf(rewrite.scala3.removeOptionalBraces.fewerBracesMinSpan <= 0)
@@ -465,8 +423,7 @@ object ScalafmtConfig {
     }
     // scalafmt: {}
     if (allErrors.isEmpty) Configured.ok(cfg)
-    else
-      Configured.error(allErrors.mkString("can't use: [\n\t", "\n\t", "\n]"))
+    else Configured.error(allErrors.mkString("can't use: [\n\t", "\n\t", "\n]"))
   }
 
   private val baseDecoder = generic.deriveDecoderEx(default).noTypos
@@ -484,29 +441,28 @@ object ScalafmtConfig {
         case _ => None
       }
       val parsed = stylePreset match {
-        case Some((styleConf, restConf)) =>
-          readActiveStylePresets(styleConf).andThen { x =>
-            val preset = stateOpt.fold(x) { state =>
-              val isDefaultDialect = x.runner.isDefaultDialect
-              val dialect = (if (isDefaultDialect) state else x).runner.dialect
-              x.copy(
-                version = state.version,
-                runner =
-                  x.runner.withParser(state.runner.parser).withDialect(dialect)
-              )
+        case Some((styleConf, restConf)) => readActiveStylePresets(styleConf)
+            .andThen { x =>
+              val preset = stateOpt.fold(x) { state =>
+                val isDefaultDialect = x.runner.isDefaultDialect
+                val dialect =
+                  (if (isDefaultDialect) state else x).runner.dialect
+                x.copy(
+                  version = state.version,
+                  runner = x.runner.withParser(state.runner.parser)
+                    .withDialect(dialect)
+                )
+              }
+              baseDecoder.read(Some(preset), restConf)
             }
-            baseDecoder.read(Some(preset), restConf)
-          }
         case _ => baseDecoder.read(stateOpt, conf)
       }
-      parsed
-        .map { cfg =>
-          cfg.trailingCommas.fold(cfg) { tc =>
-            val rt = cfg.rewrite.trailingCommas.copy(style = tc)
-            cfg.copy(rewrite = cfg.rewrite.copy(trailingCommas = rt))
-          }
+      parsed.map { cfg =>
+        cfg.trailingCommas.fold(cfg) { tc =>
+          val rt = cfg.rewrite.trailingCommas.copy(style = tc)
+          cfg.copy(rewrite = cfg.rewrite.copy(trailingCommas = rt))
         }
-        .andThen(validate)
+      }.andThen(validate)
     }
 
   def fromHoconString(
@@ -530,8 +486,8 @@ object ScalafmtConfig {
   ): Configured[ScalafmtConfig] = {
     ScalafmtConfig.decoder.read(Option(default), parsed.conf) match {
       case Configured.Ok(x)
-          if default.version == null &&
-            x.version != Versions.stable && x.version != Versions.version =>
+          if default.version == null && x.version != Versions.stable &&
+            x.version != Versions.version =>
         val version = Option(x.version).getOrElse("missing")
         val expected = s"${Versions.stable} or ${Versions.version}"
         Configured.error(s"version [expected $expected]: $version")

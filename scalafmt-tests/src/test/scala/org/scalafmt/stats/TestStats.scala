@@ -13,8 +13,8 @@ case class TestStats(
     gitInfo: GitInfo
 ) {
 
-  def shortInfo: String =
-    s"TestStats(created=${new Date(createdAt)}," + s"commit=${gitInfo.commit})"
+  def shortInfo: String = s"TestStats(created=${new Date(createdAt)}," +
+    s"commit=${gitInfo.commit})"
 
   def shortCommit: String = gitInfo.commit.take(6)
 
@@ -29,13 +29,12 @@ case class TestStats(
 
 object TestStats {
 
-  def apply(results: Seq[Result]): TestStats =
-    TestStats(
-      System.currentTimeMillis(),
-      results,
-      JavaInfo(),
-      OsInfo(),
-      RuntimeInfo(),
-      GitInfo()
-    )
+  def apply(results: Seq[Result]): TestStats = TestStats(
+    System.currentTimeMillis(),
+    results,
+    JavaInfo(),
+    OsInfo(),
+    RuntimeInfo(),
+    GitInfo()
+  )
 }

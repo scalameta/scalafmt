@@ -20,16 +20,13 @@ import org.scalafmt.sysops.FileOps
 @org.openjdk.jmh.annotations.State(Scope.Benchmark)
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
-@BenchmarkMode(Array(Mode.AverageTime))
-@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@BenchmarkMode(Array(Mode.AverageTime)) @OutputTimeUnit(TimeUnit.MILLISECONDS)
 abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
   val classLoader = getClass.getClassLoader
   var code: String = _
 
   @Setup
-  def setup(): Unit = {
-    code = FileOps.readFile(getPath)
-  }
+  def setup(): Unit = { code = FileOps.readFile(getPath) }
 
   def getPath: Path = {
     val filename = FileOps.getFile(Seq("src", "resources") ++ path)
@@ -45,14 +42,10 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
   }
 
   @Benchmark
-  def scalafmt(): String = {
-    Scalafmt.format(code).get
-  }
+  def scalafmt(): String = { Scalafmt.format(code).get }
 
   @Benchmark
-  def scalafmt_rewrite(): String = {
-    formatRewrite(code)
-  }
+  def scalafmt_rewrite(): String = { formatRewrite(code) }
 
   def testMe(): Unit = {
     setup()

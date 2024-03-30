@@ -33,7 +33,8 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   object IsExprBody {
     def unapply(t: Tree): Option[Boolean] = {
-      @inline def okIf(body: Tree) = if (body eq t) Some(true) else None
+      @inline
+      def okIf(body: Tree) = if (body eq t) Some(true) else None
       t.parent.flatMap {
         case p: Case => okIf(p.body)
         case p: Term.If if p.cond ne t =>
@@ -41,8 +42,7 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
         case p: Term.While => okIf(p.body)
         case p: Tree.WithBody => Some(t eq p.body)
         case _: Term.Return | _: Term.Throw | _: Term.QuotedMacroExpr |
-            _: Term.SplicedMacroExpr | _: Term.Block =>
-          Some(true)
+            _: Term.SplicedMacroExpr | _: Term.Block => Some(true)
         case _ => None
       }
     }
@@ -50,8 +50,7 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   object IsInBraces {
     def unapply(t: Tree): Option[Boolean] = t match {
-      case _: Term.Block | _: Term.PartialFunction =>
-        t.parent.collect {
+      case _: Term.Block | _: Term.PartialFunction => t.parent.collect {
           case _: Term.ArgClause => true
           case _: Term.Block => false
         }
@@ -74,14 +73,12 @@ class RedundantParens(implicit val ftoks: FormatTokens)
       ft: FormatToken,
       session: Session,
       style: ScalafmtConfig
-  ): Option[Replacement] =
-    ft.right match {
-      case _: Token.LeftParen =>
-        findEnclosed.flatMap { case (cnt, tree) =>
-          if (okToReplaceWithCount(cnt, tree)) Some(removeToken) else None
-        }
-      case _ => None
-    }
+  ): Option[Replacement] = ft.right match {
+    case _: Token.LeftParen => findEnclosed.flatMap { case (cnt, tree) =>
+        if (okToReplaceWithCount(cnt, tree)) Some(removeToken) else None
+      }
+    case _ => None
+  }
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
@@ -90,87 +87,74 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   ): Option[(Replacement, Replacement)] =
     if (left.isRemove && RewriteTrailingCommas.checkIfPrevious)
       Some((left, removeToken))
-    else
-      None
+    else None
 
   private def okToReplaceWithCount(numParens: Int, tree: Tree)(implicit
       style: ScalafmtConfig
-  ): Boolean =
-    tree match {
-      case _: Lit.Unit | _: Member.Tuple => numParens >= 3
-      case _ if numParens >= 2 => true
+  ): Boolean = tree match {
+    case _: Lit.Unit | _: Member.Tuple => numParens >= 3
+    case _ if numParens >= 2 => true
 
-      case _: Term.AnonymousFunction | _: Term.Param => false
-      case _: Type.FunctionType => false
+    case _: Term.AnonymousFunction | _: Term.Param => false
+    case _: Type.FunctionType => false
 
-      case t: Member.ArgClause => okToReplaceArgClause(t)
-      case Term.ParamClause(t :: Nil, _) =>
-        tree.parent.exists {
-          case _: Term.FunctionTerm => t.decltpe.isEmpty && t.mods.isEmpty
-          case _ => false
-        }
-      case _: Member.SyntaxValuesClause => false
+    case t: Member.ArgClause => okToReplaceArgClause(t)
+    case Term.ParamClause(t :: Nil, _) => tree.parent.exists {
+        case _: Term.FunctionTerm => t.decltpe.isEmpty && t.mods.isEmpty
+        case _ => false
+      }
+    case _: Member.SyntaxValuesClause => false
 
-      case IsInBraces(ok) => ok
-      case t @ IsExprBody(ok) => ok && canRewriteBody(t)
+    case IsInBraces(ok) => ok
+    case t @ IsExprBody(ok) => ok && canRewriteBody(t)
 
-      case t =>
-        t.parent.forall {
-          case _: Enumerator.Guard => RewriteCtx.isPostfixExpr(t)
-          case p: Case => p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
-          case p: Term.While =>
-            p.expr.eq(t) &&
-            style.dialect.allowSignificantIndentation &&
-            ftoks.tokenBefore(p.body).left.is[Token.KwDo]
-          case p: Term.If =>
-            p.cond.eq(t) &&
-            style.dialect.allowSignificantIndentation &&
-            ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
-          case p: Term.Try =>
-            (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
-            canRewriteBody(t)
-          case p: Term.TryWithHandler =>
-            (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
-            canRewriteBody(t)
-          case p: Term.ArgClause =>
-            p.parent.exists {
-              case pia: Member.Infix =>
-                !infixNeedsParens(pia, t) && okToReplaceInfix(pia, t)
-              case _ => true
-            }
-          case pia: Member.Infix if !infixNeedsParens(pia, t) =>
-            okToReplaceInfix(pia, t)
-          case _ =>
-            okToReplaceOther(t)
-        }
-    }
+    case t => t.parent.forall {
+        case _: Enumerator.Guard => RewriteCtx.isPostfixExpr(t)
+        case p: Case => p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
+        case p: Term.While => p.expr.eq(t) &&
+          style.dialect.allowSignificantIndentation && ftoks.tokenBefore(p.body)
+            .left.is[Token.KwDo]
+        case p: Term.If => p.cond.eq(t) &&
+          style.dialect.allowSignificantIndentation &&
+          ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
+        case p: Term.Try =>
+          (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
+          canRewriteBody(t)
+        case p: Term.TryWithHandler =>
+          (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
+          canRewriteBody(t)
+        case p: Term.ArgClause => p.parent.exists {
+            case pia: Member.Infix => !infixNeedsParens(pia, t) &&
+              okToReplaceInfix(pia, t)
+            case _ => true
+          }
+        case pia: Member.Infix if !infixNeedsParens(pia, t) =>
+          okToReplaceInfix(pia, t)
+        case _ => okToReplaceOther(t)
+      }
+  }
 
-  private def okToReplaceOther(t: Tree)(implicit
-      style: ScalafmtConfig
-  ): Boolean =
-    t match {
-      case _: Lit | _: Name | _: Term.Interpolate => true
-      case _: Term.PartialFunction | _: Member.Apply => true
-      case t: Term.Select =>
-        ftoks.tokenBefore(t.name).left.is[Token.Dot]
-      case t: Term.Match
-          if style.dialect.allowMatchAsOperator &&
-            ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
-            ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace] =>
-        true
-      case _ => false
-    }
+  private def okToReplaceOther(
+      t: Tree
+  )(implicit style: ScalafmtConfig): Boolean = t match {
+    case _: Lit | _: Name | _: Term.Interpolate => true
+    case _: Term.PartialFunction | _: Member.Apply => true
+    case t: Term.Select => ftoks.tokenBefore(t.name).left.is[Token.Dot]
+    case t: Term.Match
+        if style.dialect.allowMatchAsOperator &&
+          ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
+          ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace] => true
+    case _ => false
+  }
 
-  private def okToReplaceArgClause(t: Member.ArgClause)(implicit
-      style: ScalafmtConfig
-  ): Boolean = t.values match {
-    case arg :: Nil =>
-      arg match {
-        case _: Term.Block | _: Term.PartialFunction =>
-          t.parent.exists(!_.is[Init])
+  private def okToReplaceArgClause(
+      t: Member.ArgClause
+  )(implicit style: ScalafmtConfig): Boolean = t.values match {
+    case arg :: Nil => arg match {
+        case _: Term.Block | _: Term.PartialFunction => t.parent
+            .exists(!_.is[Init])
         case _: Lit.Unit | _: Member.Tuple => false
-        case _ =>
-          t.parent.exists {
+        case _ => t.parent.exists {
             case pia: Member.Infix =>
               val keep = infixNeedsParens(pia, arg)
               if (keep) okToReplaceOther(arg) else okToReplaceInfix(pia, arg)
@@ -183,19 +167,16 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   private def okToReplaceInfix(pia: Member.Infix, tia: Member.Infix)(implicit
       style: ScalafmtConfig
   ): Boolean = {
-    !breaksBeforeOp(tia) &&
-    style.rewrite.redundantParens.infixSide.exists {
+    !breaksBeforeOp(tia) && style.rewrite.redundantParens.infixSide.exists {
       case RedundantParensSettings.InfixSide.many
           if tia.op.value != pia.op.value =>
         val tiaPrecedence = tia.precedence
         tiaPrecedence <= precedenceHigh ||
-        tiaPrecedence < precedenceLowest &&
-        pia.precedence >= precedenceLowest
+        tiaPrecedence < precedenceLowest && pia.precedence >= precedenceLowest
       case RedundantParensSettings.InfixSide.some =>
         val tiaPrecedence = tia.precedence
         tiaPrecedence <= precedenceVeryHigh ||
-        tiaPrecedence <= precedenceMedium &&
-        pia.precedence >= precedenceLowest
+        tiaPrecedence <= precedenceMedium && pia.precedence >= precedenceLowest
       case _ => true
     }
   }
@@ -220,11 +201,10 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     ia.nestedInfixApps.exists(breaksBeforeOpAndNotEnclosed)
   }
 
-  private def canRewriteBody(tree: Tree): Boolean =
-    tree match {
-      case ia: Member.Infix => !breaksBeforeOp(ia)
-      case _ => true
-    }
+  private def canRewriteBody(tree: Tree): Boolean = tree match {
+    case ia: Member.Infix => !breaksBeforeOp(ia)
+    case _ => true
+  }
 
   private def findEnclosed(implicit ft: FormatToken): Option[Enclosed] = {
     // counts consecutive parent pairs starting with the given one as the innermost
@@ -235,10 +215,8 @@ class RedundantParens(implicit val ftoks: FormatTokens)
         case (
               prev @ FormatToken(_: Token.LeftParen, _, _),
               next @ FormatToken(_, _: Token.RightParen, _)
-            ) =>
-          iter(ftoks.prev(prev), ftoks.next(next), cnt + 1)
-        case _ =>
-          TreeOps
+            ) => iter(ftoks.prev(prev), ftoks.next(next), cnt + 1)
+        case _ => TreeOps
             .findEnclosedBetweenParens(lt.right, rt.left, ft.meta.rightOwner)
             .map((cnt, _))
       }

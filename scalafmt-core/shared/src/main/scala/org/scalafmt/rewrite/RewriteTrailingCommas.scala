@@ -23,14 +23,13 @@ object RewriteTrailingCommas extends FormatTokensRewrite.RuleFactory {
       ft: FormatToken,
       session: Session,
       ftoks: FormatTokens
-  ): Boolean =
-    ft.right match {
-      case _: Token.RightParen =>
-        val maybeCommaFt = ftoks.prevNonComment(ft)
-        !maybeCommaFt.left.is[Token.Comma] ||
-        session.isRemovedOnLeft(maybeCommaFt, true)
-      case _ => true
-    }
+  ): Boolean = ft.right match {
+    case _: Token.RightParen =>
+      val maybeCommaFt = ftoks.prevNonComment(ft)
+      !maybeCommaFt.left.is[Token.Comma] ||
+      session.isRemovedOnLeft(maybeCommaFt, true)
+    case _ => true
+  }
 
 }
 
@@ -51,9 +50,7 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
       ft: FormatToken,
       session: Session,
       style: ScalafmtConfig
-  ): Option[Replacement] = {
-    if (shouldRemove(ft)) Some(removeToken) else None
-  }
+  ): Option[Replacement] = { if (shouldRemove(ft)) Some(removeToken) else None }
 
   private[rewrite] def shouldRemove(
       ft: FormatToken
@@ -63,19 +60,18 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
       val nft = ftoks.nextNonCommentAfter(ft)
 
       // comma and paren/bracket/brace need to have the same owner
-      (rightOwner eq nft.meta.rightOwner) && (nft.right match {
-        case rp: Token.RightParen =>
-          rightOwner.isAny[Member.SyntaxValuesClause, Member.Tuple] ||
+      (rightOwner eq nft.meta.rightOwner) &&
+      (nft.right match {
+        case rp: Token.RightParen => rightOwner
+            .isAny[Member.SyntaxValuesClause, Member.Tuple] ||
           ftoks.matchingOpt(rp).exists { lp =>
             val claimant = session.claimedRule(ftoks.justBefore(lp))
             claimant.forall(_.rule.isInstanceOf[RedundantParens])
           }
 
-        case _: Token.RightBracket =>
-          rightOwner.is[Member.SyntaxValuesClause]
+        case _: Token.RightBracket => rightOwner.is[Member.SyntaxValuesClause]
 
-        case _: Token.RightBrace =>
-          rightOwner.is[Importer]
+        case _: Token.RightBrace => rightOwner.is[Importer]
 
         case _ => false
       })

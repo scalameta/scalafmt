@@ -14,36 +14,29 @@ final case class ScalafmtDynamicSession(
 
   import ScalafmtDynamicSession._
 
-  override def format(file: Path, code: String): String =
-    tryFormat(file, code).getOrElse(code)
+  override def format(file: Path, code: String): String = tryFormat(file, code)
+    .getOrElse(code)
 
   override def formatOrError(file: Path, code: String): ScalafmtResult =
     tryFormat(file, code).fold(new ScalafmtResult(_), new ScalafmtResult(_))
 
-  override def matchesProjectFilters(file: Path): Boolean =
-    cfg.isIncludedInProject(file)
+  override def matchesProjectFilters(file: Path): Boolean = cfg
+    .isIncludedInProject(file)
 
   override def isGitOnly: Boolean = cfg.projectIsGit
 
-  private def tryFormat(
-      file: Path,
-      code: String
-  ): FormatResult =
+  private def tryFormat(file: Path, code: String): FormatResult =
     if (properties.respectExcludeFilters && !matchesProjectFilters(file)) {
       properties.reporter.excluded(file)
       Right(code)
-    } else
-      tryForceFormat(file, code)
+    } else tryForceFormat(file, code)
 
-  private def tryForceFormat(
-      file: Path,
-      code: String
-  ): FormatResult = {
+  private def tryForceFormat(file: Path, code: String): FormatResult = {
     val needSbt = cfg.getVersion < ScalafmtVersion(3, 0, 0, 7) && {
       val extension = getExtension(file.toString)
       extension == "md" || // added in 3.0.0-RC7
-      cfg.getVersion < ScalafmtVersion(2, 6, 3) &&
-      extension == "sbt" || extension == "sc" // added in 2.6.3
+      cfg.getVersion < ScalafmtVersion(2, 6, 3) && extension == "sbt" ||
+      extension == "sc" // added in 2.6.3
     }
     val cfgWithDialect = if (needSbt) cfg.withSbtDialect else Success(cfg)
     val formatResult = cfgWithDialect.flatMap(_.tryFormat(code, Some(file)))

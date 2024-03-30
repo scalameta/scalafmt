@@ -26,14 +26,15 @@ class FileModifier extends StringModifier {
         case _ => "text"
       }
       s"""
-File: [${file.toNIO.getFileName}](https://github.com/scalameta/mdoc/blob/master/$info)
+File: [${file.toNIO
+          .getFileName}](https://github.com/scalameta/mdoc/blob/master/$info)
 `````$language
 $text
 `````
 """
     } else {
-      val pos =
-        Position.Range(code, 0 - info.length - 1, 0 - 1).toUnslicedPosition
+      val pos = Position.Range(code, 0 - info.length - 1, 0 - 1)
+        .toUnslicedPosition
       reporter.error(pos, s"no such file: $file")
       ""
     }

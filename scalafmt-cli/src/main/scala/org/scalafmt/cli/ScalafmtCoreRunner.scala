@@ -16,41 +16,36 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
   override private[cli] def run(
       options: CliOptions,
       termDisplayMessage: String
-  ): ExitCode =
-    options.scalafmtConfig.fold { e =>
-      options.common.err.println(s"${e.msg}")
-      ExitCode.UnexpectedError
-    } { scalafmtConf =>
-      options.common.debug.println(s"parsed config (v${Versions.version})")
-      val filterMatcher =
-        try {
-          ProjectFiles.FileMatcher(
-            scalafmtConf.project,
-            options.customExcludes
-          )
-        } catch {
-          case e: ScalafmtConfigException =>
-            options.common.err.println(e.getMessage())
-            return ExitCode.UnexpectedError // RETURNING EARLY!
-        }
-
-      val inputMethods = getInputMethods(options, filterMatcher.matchesPath)
-
-      val termDisplay =
-        newTermDisplay(options, inputMethods, termDisplayMessage)
-      val exitCode = new AtomicReference(ExitCode.Ok)
-      Breaks.breakable {
-        inputMethods.par.foreach { inputMethod =>
-          val code = handleFile(inputMethod, options, scalafmtConf)
-          exitCode.getAndUpdate(ExitCode.merge(code, _))
-          if (options.check && !code.isOk) Breaks.break
-          termDisplay.taskProgress(termDisplayMessage)
-        }
+  ): ExitCode = options.scalafmtConfig.fold { e =>
+    options.common.err.println(s"${e.msg}")
+    ExitCode.UnexpectedError
+  } { scalafmtConf =>
+    options.common.debug.println(s"parsed config (v${Versions.version})")
+    val filterMatcher =
+      try {
+        ProjectFiles.FileMatcher(scalafmtConf.project, options.customExcludes)
+      } catch {
+        case e: ScalafmtConfigException =>
+          options.common.err.println(e.getMessage())
+          return ExitCode.UnexpectedError // RETURNING EARLY!
       }
-      termDisplay.completedTask(termDisplayMessage, exitCode.get.isOk)
-      termDisplay.stop()
-      exitCode.get()
+
+    val inputMethods = getInputMethods(options, filterMatcher.matchesPath)
+
+    val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
+    val exitCode = new AtomicReference(ExitCode.Ok)
+    Breaks.breakable {
+      inputMethods.par.foreach { inputMethod =>
+        val code = handleFile(inputMethod, options, scalafmtConf)
+        exitCode.getAndUpdate(ExitCode.merge(code, _))
+        if (options.check && !code.isOk) Breaks.break
+        termDisplay.taskProgress(termDisplayMessage)
+      }
     }
+    termDisplay.completedTask(termDisplayMessage, exitCode.get.isOk)
+    termDisplay.stop()
+    exitCode.get()
+  }
 
   private[this] def handleFile(
       inputMethod: InputMethod,
@@ -72,11 +67,11 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
   ): ExitCode = {
     val input = inputMethod.readInput(options)
     val filename = inputMethod.path.toString
-    val formatResult =
-      Scalafmt.formatCode(input, scalafmtConfig, options.range, filename)
+    val formatResult = Scalafmt
+      .formatCode(input, scalafmtConfig, options.range, filename)
     formatResult.formatted match {
-      case Formatted.Success(formatted) =>
-        inputMethod.write(formatted, input, options)
+      case Formatted.Success(formatted) => inputMethod
+          .write(formatted, input, options)
       case _: Formatted.Failure if scalafmtConfig.runner.ignoreWarnings =>
         ExitCode.Ok // do nothing
       case Formatted.Failure(e @ (_: ParseException | _: TokenizeException)) =>

@@ -52,10 +52,10 @@ case class Docstrings(
 
 object Docstrings {
 
-  implicit val surface: generic.Surface[Docstrings] =
-    generic.deriveSurface[Docstrings]
-  implicit val codec: ConfCodecEx[Docstrings] =
-    generic.deriveCodecEx(Docstrings()).noTypos
+  implicit val surface: generic.Surface[Docstrings] = generic
+    .deriveSurface[Docstrings]
+  implicit val codec: ConfCodecEx[Docstrings] = generic
+    .deriveCodecEx(Docstrings()).noTypos
 
   sealed abstract class Style {
     def skipFirstLine: Boolean
@@ -75,14 +75,9 @@ object Docstrings {
     override def skipFirstLine: Boolean = false
   }
 
-  implicit val reader: ConfCodecEx[Style] =
-    ReaderUtil.oneOfCustom[Style](
-      Preserve,
-      Asterisk,
-      SpaceAsterisk,
-      AsteriskSpace
-    ) { case Conf.Str("keep") =>
-      Configured.Ok(Preserve)
+  implicit val reader: ConfCodecEx[Style] = ReaderUtil
+    .oneOfCustom[Style](Preserve, Asterisk, SpaceAsterisk, AsteriskSpace) {
+      case Conf.Str("keep") => Configured.Ok(Preserve)
     }
 
   sealed abstract class Oneline
@@ -90,16 +85,16 @@ object Docstrings {
     case object keep extends Oneline
     case object fold extends Oneline
     case object unfold extends Oneline
-    implicit val reader: ConfCodecEx[Oneline] =
-      ReaderUtil.oneOf[Oneline](keep, fold, unfold)
+    implicit val reader: ConfCodecEx[Oneline] = ReaderUtil
+      .oneOf[Oneline](keep, fold, unfold)
   }
 
   sealed abstract class Wrap
   object Wrap {
     case object no extends Wrap
     case object yes extends Wrap
-    implicit val codec: ConfCodecEx[Wrap] =
-      ReaderUtil.oneOfCustom[Wrap](no, yes) {
+    implicit val codec: ConfCodecEx[Wrap] = ReaderUtil
+      .oneOfCustom[Wrap](no, yes) {
         case Conf.Bool(true) => Configured.Ok(yes)
         case Conf.Bool(false) => Configured.Ok(no)
       }
@@ -110,8 +105,8 @@ object Docstrings {
     case object yes extends BlankFirstLine
     case object no extends BlankFirstLine
     case object keep extends BlankFirstLine
-    implicit val codec: ConfCodecEx[BlankFirstLine] =
-      ReaderUtil.oneOfCustom[BlankFirstLine](yes, no, keep) {
+    implicit val codec: ConfCodecEx[BlankFirstLine] = ReaderUtil
+      .oneOfCustom[BlankFirstLine](yes, no, keep) {
         case Conf.Bool(true) => Configured.Ok(yes)
         case Conf.Bool(false) => Configured.Ok(no)
       }

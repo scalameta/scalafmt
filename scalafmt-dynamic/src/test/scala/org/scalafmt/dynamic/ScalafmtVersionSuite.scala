@@ -4,22 +4,13 @@ import munit.FunSuite
 
 class ScalafmtVersionSuite extends FunSuite {
   test("parse valid versions") {
-    assertEquals(
-      ScalafmtVersion.parse("2.0.0"),
-      Some(ScalafmtVersion(2, 0, 0))
-    )
-    assertEquals(
-      ScalafmtVersion.parse("0.1.3"),
-      Some(ScalafmtVersion(0, 1, 3))
-    )
+    assertEquals(ScalafmtVersion.parse("2.0.0"), Some(ScalafmtVersion(2, 0, 0)))
+    assertEquals(ScalafmtVersion.parse("0.1.3"), Some(ScalafmtVersion(0, 1, 3)))
     assertEquals(
       ScalafmtVersion.parse("2.0.0-RC4"),
       Some(ScalafmtVersion(2, 0, 0, 4))
     )
-    assertEquals(
-      ScalafmtVersion.parse("2.1.1"),
-      Some(ScalafmtVersion(2, 1, 1))
-    )
+    assertEquals(ScalafmtVersion.parse("2.1.1"), Some(ScalafmtVersion(2, 1, 1)))
     assertEquals(
       ScalafmtVersion.parse("2.2.3-SNAPSHOT"),
       Some(ScalafmtVersion(2, 2, 3, 0, "-SNAPSHOT"))

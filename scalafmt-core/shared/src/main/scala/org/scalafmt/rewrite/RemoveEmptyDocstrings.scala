@@ -9,8 +9,7 @@ import org.scalafmt.internal.FormatTokens
 import org.scalafmt.internal.FormatWriter
 
 object RemoveEmptyDocstrings
-    extends FormatTokensRewrite.Rule
-    with FormatTokensRewrite.RuleFactory {
+    extends FormatTokensRewrite.Rule with FormatTokensRewrite.RuleFactory {
 
   import FormatTokensRewrite._
 

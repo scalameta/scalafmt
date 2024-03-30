@@ -13,6 +13,6 @@ case class VerticalMultiline(
 object VerticalMultiline {
   implicit lazy val surface: generic.Surface[VerticalMultiline] =
     generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[VerticalMultiline] =
-    generic.deriveCodecEx(VerticalMultiline()).noTypos
+  implicit lazy val codec: ConfCodecEx[VerticalMultiline] = generic
+    .deriveCodecEx(VerticalMultiline()).noTypos
 }

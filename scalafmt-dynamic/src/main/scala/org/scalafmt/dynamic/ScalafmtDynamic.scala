@@ -23,9 +23,7 @@ final case class ScalafmtDynamic(
     )
   )
 
-  override def clear(): Unit = {
-    moduleLoader.close()
-  }
+  override def clear(): Unit = { moduleLoader.close() }
 
   override def withReporter(value: ScalafmtReporter): ScalafmtDynamic =
     copy(properties = properties.withReporter(value))
@@ -45,8 +43,7 @@ final case class ScalafmtDynamic(
 
   override def withRepositoryCredentials(
       value: RepositoryCredential*
-  ): Scalafmt =
-    copy(properties = properties.withRepositoryCredentials(value))
+  ): Scalafmt = copy(properties = properties.withRepositoryCredentials(value))
 
   override def format(config: Path, file: Path, code: String): String =
     createSession(config).format(file, code)

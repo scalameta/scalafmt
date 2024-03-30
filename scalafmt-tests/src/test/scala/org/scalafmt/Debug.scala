@@ -29,10 +29,7 @@ class Debug(val verbose: Boolean) {
 
   def elapsedNs = System.nanoTime() - startTime
 
-  def enqueued(split: Split): Unit = {
-    if (verbose)
-      enqueuedSplits += split
-  }
+  def enqueued(split: Split): Unit = { if (verbose) enqueuedSplits += split }
 
   def completed(event: CompleteFormat): Unit = {
     explored += event.totalExplored
@@ -47,18 +44,10 @@ class Debug(val verbose: Boolean) {
     // splits
     if (enqueuedSplits.nonEmpty) {
       val sb = new StringBuilder()
-      enqueuedSplits
-        .groupBy(_.fileLine.line.value)
-        .toSeq
-        .sortBy(-_._2.size)
-        .iterator
-        .take(3)
-        .foreach { case (line, group) =>
-          sb.append("Split(line=")
-            .append(line)
-            .append(" count=")
-            .append(group.size)
-            .append("=")
+      enqueuedSplits.groupBy(_.fileLine.line.value).toSeq.sortBy(-_._2.size)
+        .iterator.take(3).foreach { case (line, group) =>
+          sb.append("Split(line=").append(line).append(" count=")
+            .append(group.size).append("=")
           group.foreach(sb.append("\n\t").append(_))
           sb.append("\n")
         }
@@ -67,26 +56,24 @@ class Debug(val verbose: Boolean) {
 
     val toks = if (null == formatOps) null else formatOps.tokens.arr
     if (null != toks) {
-      if (null != formatTokenExplored)
-        formatTokenExplored.zipWithIndex.sortBy(-_._1).take(3).foreach {
-          case (visits, idx) =>
-            LoggerOps.logger.debug("Visited " + toks(idx) + ": " + visits)
+      if (null != formatTokenExplored) formatTokenExplored.zipWithIndex
+        .sortBy(-_._1).take(3).foreach { case (visits, idx) =>
+          LoggerOps.logger.debug("Visited " + toks(idx) + ": " + visits)
         }
 
       val stack = new mutable.ListBuffer[String]
       val posWidth = s"%${1 + math.log10(toks.last.left.end).toInt}d"
       @tailrec
-      def iter(state: State): Unit =
-        if (state.prev ne State.start) {
-          val prev = state.prev
-          val tok = toks(prev.depth).left
-          val clean = "%-15s".format(LoggerOps.cleanup(tok).slice(0, 15))
-          stack.prepend(
-            s"${posWidth.format(tok.end)}: $clean" +
-              s" ${state.split} ${prev.indentation} ${prev.column} [${state.cost}]"
-          )
-          iter(prev)
-        }
+      def iter(state: State): Unit = if (state.prev ne State.start) {
+        val prev = state.prev
+        val tok = toks(prev.depth).left
+        val clean = "%-15s".format(LoggerOps.cleanup(tok).slice(0, 15))
+        stack.prepend(
+          s"${posWidth.format(tok.end)}: $clean" +
+            s" ${state.split} ${prev.indentation} ${prev.column} [${state.cost}]"
+        )
+        iter(prev)
+      }
       if (state ne State.start) {
         iter(state)
         stack.foreach(LoggerOps.logger.debug)
@@ -102,7 +89,7 @@ object Debug {
 
   var explored = 0
 
-  def ns2ms(nanoseconds: Long): Long =
-    TimeUnit.MILLISECONDS.convert(nanoseconds, TimeUnit.NANOSECONDS)
+  def ns2ms(nanoseconds: Long): Long = TimeUnit.MILLISECONDS
+    .convert(nanoseconds, TimeUnit.NANOSECONDS)
 
 }

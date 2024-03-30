@@ -15,8 +15,8 @@ object Dependency {
   }
 
   @inline
-  private def getScalaBinaryVersion(scalaVersion: String): String =
-    scalaVersion.substring(0, scalaVersion.lastIndexOf('.'))
+  private def getScalaBinaryVersion(scalaVersion: String): String = scalaVersion
+    .substring(0, scalaVersion.lastIndexOf('.'))
 
   @inline
   private def getScalaVersion(version: ScalafmtVersion): String =

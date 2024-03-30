@@ -12,17 +12,18 @@ import scala.util.control.NoStackTrace
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
-    val workingDirectory =
-      AbsoluteFile.fromPathIfAbsolute(nGContext.getWorkingDirectory).getOrElse {
-        throw new IllegalStateException(
-          s"Expected absolute path, " +
-            s"obtained nGContext.getWorkingDirectory = ${nGContext.getWorkingDirectory}"
-        )
-      }
+    val workingDirectory = AbsoluteFile.fromPathIfAbsolute(
+      nGContext.getWorkingDirectory
+    ).getOrElse {
+      throw new IllegalStateException(
+        s"Expected absolute path, " +
+          s"obtained nGContext.getWorkingDirectory = ${nGContext.getWorkingDirectory}"
+      )
+    }
     val exit = mainWithOptions(
       nGContext.getArgs,
-      CliOptions.default.copy(
-        common = CliOptions.default.common.copy(
+      CliOptions.default.copy(common =
+        CliOptions.default.common.copy(
           cwd = Some(workingDirectory),
           out = nGContext.out,
           in = nGContext.in,
@@ -65,9 +66,7 @@ object Cli {
 
   def getConfig(args: Array[String], init: CliOptions): Option[CliOptions] = {
     val expandedArguments = expandArguments(args)
-    CliArgParser.scoptParser
-      .parse(expandedArguments, init)
-      .map(CliOptions.auto)
+    CliArgParser.scoptParser.parse(expandedArguments, init).map(CliOptions.auto)
   }
 
   private def expandArguments(args: Seq[String]): Seq[String] = {
@@ -87,73 +86,69 @@ object Cli {
       case Left(message) =>
         options.common.err.println(message)
         ExitCode.UnsupportedVersion
-      case Right(runner) =>
-        runWithRunner(options, runner)
+      case Right(runner) => runWithRunner(options, runner)
     }
   }
 
-  private val isNativeImage: Boolean =
-    "true" == System.getProperty("scalafmt.native-image", "false")
+  private val isNativeImage: Boolean = "true" ==
+    System.getProperty("scalafmt.native-image", "false")
 
   private def getProposedConfigVersion(options: CliOptions): String =
     s"version = $stableVersion"
 
   private type MaybeRunner = Either[String, ScalafmtRunner]
 
-  private def findRunner(
-      options: CliOptions
-  ): MaybeRunner = options.hoconOpt.fold[MaybeRunner] {
-    Left(
-      s"""error: missing Scalafmt configuration file.
-        |Consider creating '${options.getProposedConfigFile}'
-        |with the following (other parameters may also be required):
-        |${getProposedConfigVersion(options)}
-        |""".stripMargin
-    )
-  } {
-    // Run format using
-    // - `scalafmt-dynamic` if the specified `version` setting doesn't match build version.
-    // - `scalafmt-core` if the specified `version` setting match with build version
-    //   (or if the `version` is not specified).
-    _.version.fold[MaybeRunner] {
-      val where = options.configStr match {
-        case None =>
-          options.canonicalConfigFile
-            .fold(options.getProposedConfigFile)(_.get)
-            .toString
-        case _ => "--config-str option"
-      }
+  private def findRunner(options: CliOptions): MaybeRunner = options.hoconOpt
+    .fold[MaybeRunner] {
       Left(
-        s"""error: missing Scalafmt version.
-          |Consider adding the following to $where:
+        s"""error: missing Scalafmt configuration file.
+          |Consider creating '${options.getProposedConfigFile}'
+          |with the following (other parameters may also be required):
           |${getProposedConfigVersion(options)}
           |""".stripMargin
       )
     } {
-      case Left(error) =>
-        Left(s"error: invalid configuration: ${error}")
-      case Right(`stableVersion`) =>
-        options.common.debug.println(s"Using core runner [$stableVersion]")
-        Right(ScalafmtCoreRunner)
-      case Right(v) if isNativeImage =>
+      // Run format using
+      // - `scalafmt-dynamic` if the specified `version` setting doesn't match build version.
+      // - `scalafmt-core` if the specified `version` setting match with build version
+      //   (or if the `version` is not specified).
+      _.version.fold[MaybeRunner] {
+        val where = options.configStr match {
+          case None => options.canonicalConfigFile
+              .fold(options.getProposedConfigFile)(_.get).toString
+          case _ => "--config-str option"
+        }
         Left(
-          s"""error: invalid Scalafmt version.
-            |
-            |This Scalafmt installation has version '$stableVersion' and the version configured in '${options.configPath}' is '$v'.
-            |To fix this problem, add the following line to .scalafmt.conf:
-            |```
-            |version = $stableVersion
-            |```
-            |
-            |NOTE: this error happens only when running a native Scalafmt binary.
-            |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
+          s"""error: missing Scalafmt version.
+            |Consider adding the following to $where:
+            |${getProposedConfigVersion(options)}
             |""".stripMargin
         )
-      case Right(v) =>
-        options.common.debug.println(s"Using dynamic runner [$v]")
-        Right(ScalafmtDynamicRunner)
+      } {
+        case Left(error) => Left(s"error: invalid configuration: ${error}")
+        case Right(`stableVersion`) =>
+          options.common.debug.println(s"Using core runner [$stableVersion]")
+          Right(ScalafmtCoreRunner)
+        case Right(v) if isNativeImage =>
+          Left(
+            s"""error: invalid Scalafmt version.
+              |
+              |This Scalafmt installation has version '$stableVersion' and the version configured in '${options
+                .configPath}' is '$v'.
+              |To fix this problem, add the following line to .scalafmt.conf:
+              |```
+              |version = $stableVersion
+              |```
+              |
+              |NOTE: this error happens only when running a native Scalafmt binary.
+              |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
+              |""".stripMargin
+          )
+        case Right(v) =>
+          options.common.debug.println(s"Using dynamic runner [$v]")
+          Right(ScalafmtDynamicRunner)
+      }
     }
-  }
 
   private[cli] def runWithRunner(
       options: CliOptions,
@@ -171,23 +166,16 @@ object Cli {
       if (exit.isOk) {
         options.common.out.println("All files are formatted with scalafmt :)")
       } else if (exit.is(ExitCode.TestError)) {
-        options.common.out.println(
-          "error: --test failed"
-        )
+        options.common.out.println("error: --test failed")
         options.onTestFailure.foreach(options.common.out.println)
-      } else {
-        options.common.out.println(s"error: $exit")
-      }
+      } else { options.common.out.println(s"error: $exit") }
     }
     if (
-      options.writeMode == WriteMode.Test &&
-      !options.fatalWarnings &&
+      options.writeMode == WriteMode.Test && !options.fatalWarnings &&
       exit.is(ExitCode.ParseError)
     ) {
       // Ignore parse errors etc.
       ExitCode.Ok
-    } else {
-      exit
-    }
+    } else { exit }
   }
 }

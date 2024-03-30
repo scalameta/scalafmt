@@ -116,6 +116,6 @@ case class OptIn(
 
 object OptIn {
   implicit lazy val surface: Surface[OptIn] = generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[OptIn] =
-    generic.deriveCodecEx(OptIn()).noTypos
+  implicit lazy val codec: ConfCodecEx[OptIn] = generic.deriveCodecEx(OptIn())
+    .noTypos
 }

@@ -18,15 +18,11 @@ object LiteralOps {
     *   - literals.hexDigits applies to body and
     *   - literals.long applies to suffix
     */
-  def prettyPrintInteger(
-      str: String
-  )(implicit style: ScalafmtConfig): String =
+  def prettyPrintInteger(str: String)(implicit style: ScalafmtConfig): String =
     if (str.endsWith("L") || str.endsWith("l")) {
       prettyPrintHex(str.dropRight(1)) +
         style.literals.long.process(str.takeRight(1))
-    } else {
-      prettyPrintHex(str)
-    }
+    } else { prettyPrintHex(str) }
 
   def prettyPrintFloat(str: String)(implicit style: ScalafmtConfig): String =
     prettyPrintFloatingPoint(str, 'F', 'f', style.literals.float)
@@ -55,9 +51,7 @@ object LiteralOps {
     if (str.last == suffixUpper || str.last == suffixLower) {
       style.literals.scientific.process(str.dropRight(1)) +
         suffixCase.process(str.takeRight(1))
-    } else {
-      style.literals.scientific.process(str)
-    }
+    } else { style.literals.scientific.process(str) }
 
   private def prettyPrintHex(
       str: String

@@ -10,20 +10,17 @@ package object dynamic {
         case _ => target.asInstanceOf[Either[A1, B1]]
       }
 
-    def map[B1](f: B => B1): Either[A, B1] =
-      target match {
-        case Right(b) => Right(f(b))
-        case _ =>
-          target.asInstanceOf[Either[A, B1]]
-      }
+    def map[B1](f: B => B1): Either[A, B1] = target match {
+      case Right(b) => Right(f(b))
+      case _ => target.asInstanceOf[Either[A, B1]]
+    }
   }
 
   implicit class TryOps[T](val target: Try[T]) extends AnyVal {
-    def toEither: Either[Throwable, T] =
-      target match {
-        case Success(value) => Right(value)
-        case Failure(ex) => Left(ex)
-      }
+    def toEither: Either[Throwable, T] = target match {
+      case Success(value) => Right(value)
+      case Failure(ex) => Left(ex)
+    }
   }
 
 }

@@ -63,14 +63,13 @@ case class IndentOperator(
   private val includeRegexp = includeRegex.r.pattern
   private val excludeRegexp = excludeRegex.r.pattern
 
-  def noindent(op: String): Boolean =
-    excludeRegexp.matcher(op).find() || !includeRegexp.matcher(op).find()
+  def noindent(op: String): Boolean = excludeRegexp.matcher(op).find() ||
+    !includeRegexp.matcher(op).find()
 
-  lazy val getExemptScope: IndentOperator.Exempt =
-    exemptScope.getOrElse(
-      if (topLevelOnly) IndentOperator.Exempt.oldTopLevel
-      else IndentOperator.Exempt.all
-    )
+  lazy val getExemptScope: IndentOperator.Exempt = exemptScope.getOrElse(
+    if (topLevelOnly) IndentOperator.Exempt.oldTopLevel
+    else IndentOperator.Exempt.all
+  )
 }
 
 object IndentOperator {
@@ -79,16 +78,13 @@ object IndentOperator {
 
   implicit lazy val surface: generic.Surface[IndentOperator] =
     generic.deriveSurface
-  implicit lazy val encoder: ConfEncoder[IndentOperator] =
-    generic.deriveEncoder
+  implicit lazy val encoder: ConfEncoder[IndentOperator] = generic.deriveEncoder
 
-  implicit val decoder: ConfDecoderEx[IndentOperator] = Presets.mapDecoder(
-    generic.deriveDecoderEx(default).noTypos,
-    "indentOperator"
-  ) {
-    case Conf.Str("spray" | "akka" | "akka-http") => IndentOperator.akka
-    case Conf.Str("default") => IndentOperator.default
-  }
+  implicit val decoder: ConfDecoderEx[IndentOperator] = Presets
+    .mapDecoder(generic.deriveDecoderEx(default).noTypos, "indentOperator") {
+      case Conf.Str("spray" | "akka" | "akka-http") => IndentOperator.akka
+      case Conf.Str("default") => IndentOperator.default
+    }
 
   sealed abstract class Exempt
   object Exempt {

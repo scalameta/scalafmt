@@ -41,20 +41,18 @@ case class Indents(
 ) {
   lazy val getSignificant = significant.getOrElse(main)
 
-  def getDefnSite(tree: meta.Tree): Int =
-    (tree match {
-      case _: meta.Member.ParamClause | _: meta.Member.ParamClauseGroup =>
-        tree.parent.map(getDefnSite)
-      case _: meta.Ctor => ctorSite
-      case _ => None
-    }).getOrElse(defnSite)
+  def getDefnSite(tree: meta.Tree): Int = (tree match {
+    case _: meta.Member.ParamClause | _: meta.Member.ParamClauseGroup => tree
+        .parent.map(getDefnSite)
+    case _: meta.Ctor => ctorSite
+    case _ => None
+  }).getOrElse(defnSite)
 }
 
 object Indents {
-  implicit lazy val surface: generic.Surface[Indents] =
-    generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[Indents] =
-    generic.deriveCodecEx(Indents()).noTypos
+  implicit lazy val surface: generic.Surface[Indents] = generic.deriveSurface
+  implicit lazy val codec: ConfCodecEx[Indents] = generic
+    .deriveCodecEx(Indents()).noTypos
 
   sealed abstract class RelativeToLhs
   object RelativeToLhs {

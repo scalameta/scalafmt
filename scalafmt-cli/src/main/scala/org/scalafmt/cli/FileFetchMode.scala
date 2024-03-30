@@ -20,10 +20,8 @@ object FileFetchMode {
   private val availableModesMap: Map[String, FileFetchMode] =
     availableModes.toMap
 
-  def help: String =
-    (("diff-ref=xxx", DiffFiles("xxx")) +: availableModes)
-      .map { case (k, v) => s"$k: ${v.desc}" }
-      .mkString("   ", "\n   ", "")
+  def help: String = (("diff-ref=xxx", DiffFiles("xxx")) +: availableModes)
+    .map { case (k, v) => s"$k: ${v.desc}" }.mkString("   ", "\n   ", "")
 
   /** The read instance is practically is not exhaustive due to the
     * RecursiveSearch and GitFiles are the fallback used in the absence of other
@@ -32,9 +30,8 @@ object FileFetchMode {
   implicit val read: Read[FileFetchMode] = Read.reads { x =>
     if (x.startsWith(diffRefPrefix))
       DiffFiles(x.substring(diffRefPrefix.length).trim)
-    else
-      availableModesMap
-        .getOrElse(x, throw new IllegalArgumentException(s"unknown mode: $x"))
+    else availableModesMap
+      .getOrElse(x, throw new IllegalArgumentException(s"unknown mode: $x"))
   }
 
 }

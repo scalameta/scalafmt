@@ -20,19 +20,18 @@ object GitOps {
     def getCanonicalConfigFile(
         cwd: AbsoluteFile,
         config: Option[Path] = None
-    ): Option[Try[Path]] =
-      FileOps.getCanonicalConfigFile(cwd, config).orElse(getRootConfigFile)
+    ): Option[Try[Path]] = FileOps.getCanonicalConfigFile(cwd, config)
+      .orElse(getRootConfigFile)
 
-    def getRootConfigFile: Option[Try[Path]] =
-      obj.rootDir.flatMap(FileOps.tryGetConfigInDir)
+    def getRootConfigFile: Option[Try[Path]] = obj.rootDir
+      .flatMap(FileOps.tryGetConfigInDir)
 
     def getProposedConfigFile(
         cwd: AbsoluteFile,
         config: Option[Path] = None
-    ): AbsoluteFile =
-      config.fold {
-        obj.rootDir.getOrElse(cwd) / FileOps.defaultConfigFileName
-      }(cwd / _)
+    ): AbsoluteFile = config.fold {
+      obj.rootDir.getOrElse(cwd) / FileOps.defaultConfigFileName
+    }(cwd / _)
 
   }
 
@@ -105,20 +104,17 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
     Method extracts path to changed file from the singular line of the `git status --porcelain` output.
    (see https://git-scm.com/docs/git-status#_short_format)
    */
-  private def extractPathPart(s: String): String =
-    Option(s)
-      // Checks if the line status states the file was renamed (E.g: `R  ORIG_PATH -> PATH`)
-      .filter(_.substring(0, 2).contains(renameStatusCode))
-      // takes the part of the string after the `-> ` character sequence
-      .map(_.split(renameStatusArrowDelimiter).last)
-      // fallback for the regular status line (E.g.: `XY PATH`)
-      // Drops the status codes by splitting on white spaces then taking the tail of the result
-      // Restores spaces in the path by merging the tail back with white space separator
-      .getOrElse(s.trim.split(' ').tail.mkString(" "))
-      .trim
+  private def extractPathPart(s: String): String = Option(s)
+    // Checks if the line status states the file was renamed (E.g: `R  ORIG_PATH -> PATH`)
+    .filter(_.substring(0, 2).contains(renameStatusCode))
+    // takes the part of the string after the `-> ` character sequence
+    .map(_.split(renameStatusArrowDelimiter).last)
+    // fallback for the regular status line (E.g.: `XY PATH`)
+    // Drops the status codes by splitting on white spaces then taking the tail of the result
+    // Restores spaces in the path by merging the tail back with white space separator
+    .getOrElse(s.trim.split(' ').tail.mkString(" ")).trim
 
-  private def trimQuotes(s: String): String =
-    s.replaceAll("^\"|\"$", "")
+  private def trimQuotes(s: String): String = s.replaceAll("^\"|\"$", "")
 
   private def getFileFromGitStatusLine(s: String): String =
     trimQuotes(extractPathPart(s))

@@ -8,10 +8,7 @@ import scala.meta.tokens.Token
   * @param indents
   *   Does this add indentation?
   */
-case class ModExt(
-    mod: Modification,
-    indents: Seq[Indent] = Seq.empty
-) {
+case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
   lazy val indentation = indents.mkString("[", ", ", "]")
 
   @inline
@@ -27,20 +24,18 @@ case class ModExt(
       length: => Length,
       expire: Option[Token],
       when: ExpiresOn
-  ): ModExt =
-    expire.fold(this)(withIndent(length, _, when))
+  ): ModExt = expire.fold(this)(withIndent(length, _, when))
 
-  def withIndent(indent: => Indent): ModExt =
-    indent match {
-      case Indent.Empty => this
-      case x => withIndentImpl(x)
-    }
+  def withIndent(indent: => Indent): ModExt = indent match {
+    case Indent.Empty => this
+    case x => withIndentImpl(x)
+  }
 
-  def withIndentOpt(indent: => Option[Indent]): ModExt =
-    indent.fold(this)(withIndent(_))
+  def withIndentOpt(indent: => Option[Indent]): ModExt = indent
+    .fold(this)(withIndent(_))
 
-  def withIndents(indents: Seq[Indent]): ModExt =
-    indents.foldLeft(this)(_ withIndent _)
+  def withIndents(indents: Seq[Indent]): ModExt = indents
+    .foldLeft(this)(_ withIndent _)
 
   private def withIndentImpl(indent: Indent): ModExt =
     copy(indents = indent +: indents)

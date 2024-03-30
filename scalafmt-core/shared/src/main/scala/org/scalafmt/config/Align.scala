@@ -98,10 +98,10 @@ case class Align(
   def getOpenParenTupleSite = openParenTupleSite.getOrElse(openParenCallSite)
 
   def getOpenDelimSite(bracket: Boolean, defnSite: Boolean): Boolean =
-    if (defnSite)
-      (if (bracket) openBracketDefnSite else None).getOrElse(openParenDefnSite)
-    else
-      (if (bracket) openBracketCallSite else None).getOrElse(openParenCallSite)
+    if (defnSite) (if (bracket) openBracketDefnSite else None)
+      .getOrElse(openParenDefnSite)
+    else (if (bracket) openBracketCallSite else None)
+      .getOrElse(openParenCallSite)
 
 }
 
@@ -123,8 +123,8 @@ object Align {
   val more: Align = some.copy(tokens = AlignToken.default)
   implicit lazy val surface: Surface[Align] = generic.deriveSurface[Align]
   implicit lazy val encoder: ConfEncoder[Align] = generic.deriveEncoder
-  implicit lazy val decoder: ConfDecoderEx[Align] =
-    Presets.mapDecoder(generic.deriveDecoderEx(default).noTypos, "align")
+  implicit lazy val decoder: ConfDecoderEx[Align] = Presets
+    .mapDecoder(generic.deriveDecoderEx(default).noTypos, "align")
 
   // only for the truest vertical aligners, this setting is open for changes,
   // please open PR adding more stuff to it if you like.
@@ -132,10 +132,7 @@ object Align {
     allowOverflow = true,
     multiline = true,
     arrowEnumeratorGenerator = true,
-    tokenCategory = Map(
-      "Equals" -> "Assign",
-      "LeftArrow" -> "Assign"
-    )
+    tokenCategory = Map("Equals" -> "Assign", "LeftArrow" -> "Assign")
   )
   val allValues = List(default, none, some, most)
 
@@ -155,8 +152,8 @@ object Align {
           """'align.tokens.add' is deprecated; use align.tokens."+" instead."""
         )
         base.read(None, c).map(x => state.fold(x)(_ ++ x))
-      case (state, c) =>
-        preset.lift(c).fold(base.read(state, c))(x => Configured.Ok(x.tokens))
+      case (state, c) => preset.lift(c)
+          .fold(base.read(state, c))(x => Configured.Ok(x.tokens))
     }
   }
 

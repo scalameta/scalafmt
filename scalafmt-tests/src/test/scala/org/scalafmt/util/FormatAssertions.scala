@@ -20,11 +20,10 @@ trait FormatAssertions {
       original: String,
       obtained: String,
       runner: ScalafmtRunner
-  ): Unit =
-    assertFormatPreservesAst(filename, original, obtained)(
-      runner.getParser,
-      runner.getDialectForParser
-    )
+  ): Unit = assertFormatPreservesAst(filename, original, obtained)(
+    runner.getParser,
+    runner.getDialectForParser
+  )
 
   def assertFormatPreservesAst[T <: Tree](
       filename: String,
@@ -32,16 +31,15 @@ trait FormatAssertions {
       obtained: String
   )(implicit ev: Parse[T], dialect: Dialect): Unit = {
     import scala.meta._
-    def toInput(code: String) =
-      Scalafmt.toInput(Scalafmt.splitCodePrefix(code)._2, filename)
+    def toInput(code: String) = Scalafmt
+      .toInput(Scalafmt.splitCodePrefix(code)._2, filename)
     toInput(original).parse[T] match {
       case Parsed.Error(pos, message, _) =>
         val msgWithPos = pos.formatMessage("error", message)
         val error = s"original does not parse ($msgWithPos) [$filename]"
         logger.debug(error)
         throw FormatterOutputDoesNotParse(error, pos.startLine)
-      case Parsed.Success(originalParsed) =>
-        toInput(obtained).parse[T] match {
+      case Parsed.Success(originalParsed) => toInput(obtained).parse[T] match {
           case Parsed.Success(obtainedParsed) =>
             StructurallyEqual(originalParsed, obtainedParsed) match {
               case Right(_) => // OK
@@ -73,12 +71,8 @@ trait FormatAssertions {
     */
   def diffAsts(original: String, obtained: String): String = {
     Diffs
-      .unifiedDiff(
-        original.replace("(", "\n("),
-        obtained.replace("(", "\n(")
-      )
-      .linesIterator
-      .mkString("\n")
+      .unifiedDiff(original.replace("(", "\n("), obtained.replace("(", "\n("))
+      .linesIterator.mkString("\n")
   }
 
   // TODO(olafur) move this to scala.meta?

@@ -34,8 +34,7 @@ case class AlignToken(
 
 object AlignToken {
 
-  private def pattern(value: String): jurPattern =
-    value.r.pattern
+  private def pattern(value: String): jurPattern = value.r.pattern
 
   /** @param regex
     *   regexp for class name of scala.meta.Tree "owner".
@@ -52,8 +51,8 @@ object AlignToken {
   implicit val ownerSurface: Surface[Owner] = generic.deriveSurface[Owner]
   implicit val ownerCodec: ConfCodecEx[Owner] = generic.deriveCodecEx(Owner())
 
-  implicit lazy val surface: Surface[AlignToken] =
-    generic.deriveSurface[AlignToken]
+  implicit lazy val surface: Surface[AlignToken] = generic
+    .deriveSurface[AlignToken]
   implicit lazy val encoder: ConfEncoder[AlignToken] = generic.deriveEncoder
   val applyInfix = "Term.ApplyInfix"
   val caseArrow = AlignToken("=>", "Case")
@@ -88,20 +87,21 @@ object AlignToken {
   )
 
   class Matcher(val owner: Option[jurPattern], val parents: Seq[jurPattern]) {
-    def matches(tree: meta.Tree): Boolean =
-      owner.forall(check(tree)) &&
-        (parents.isEmpty || tree.parent.exists { p =>
-          parents.forall(check(p)) || (p match {
-            case ParamClauseParent(pp) => parents.forall(check(pp))
-            case _: meta.Member.SyntaxValuesClause =>
-              p.parent.exists { pp => parents.forall(check(pp)) }
-            case _ => false
-          })
+    def matches(tree: meta.Tree): Boolean = owner.forall(check(tree)) &&
+      (parents.isEmpty || tree.parent.exists { p =>
+        parents.forall(check(p)) ||
+        (p match {
+          case ParamClauseParent(pp) => parents.forall(check(pp))
+          case _: meta.Member.SyntaxValuesClause => p.parent.exists { pp =>
+              parents.forall(check(pp))
+            }
+          case _ => false
         })
+      })
   }
 
   @inline
-  private def check(tree: meta.Tree)(pattern: jurPattern): Boolean =
-    pattern.matcher(tree.productPrefix).find()
+  private def check(tree: meta.Tree)(pattern: jurPattern): Boolean = pattern
+    .matcher(tree.productPrefix).find()
 
 }

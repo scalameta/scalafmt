@@ -7,8 +7,8 @@ import metaconfig.Configured
 sealed abstract class LineEndings
 
 object LineEndings {
-  implicit val reader: ConfCodecEx[LineEndings] =
-    ReaderUtil.oneOfCustom[LineEndings](unix, windows, preserve) {
+  implicit val reader: ConfCodecEx[LineEndings] = ReaderUtil
+    .oneOfCustom[LineEndings](unix, windows, preserve) {
       case Conf.Str("keep") => Configured.Ok(preserve)
     }
   case object unix extends LineEndings

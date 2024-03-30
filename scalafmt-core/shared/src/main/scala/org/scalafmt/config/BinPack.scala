@@ -52,12 +52,14 @@ case class BinPack(
       style.newlines.source.eq(Newlines.keep) &&
       parentConstructors.eq(BinPack.ParentCtors.source)
 
-  @inline def callSite(open: Token): BinPack.Unsafe =
+  @inline
+  def callSite(open: Token): BinPack.Unsafe =
     callSite(open.is[Token.LeftBracket])
   def callSite(isBracket: Boolean): BinPack.Unsafe =
     (if (isBracket) bracketCallSite else None).getOrElse(unsafeCallSite)
 
-  @inline def defnSite(open: Token): BinPack.Unsafe =
+  @inline
+  def defnSite(open: Token): BinPack.Unsafe =
     defnSite(open.is[Token.LeftBracket])
   def defnSite(isBracket: Boolean): BinPack.Unsafe =
     (if (isBracket) bracketDefnSite else None).getOrElse(unsafeDefnSite)
@@ -65,8 +67,8 @@ case class BinPack(
 }
 
 object BinPack {
-  implicit lazy val surface: generic.Surface[BinPack] =
-    generic.deriveSurface[BinPack]
+  implicit lazy val surface: generic.Surface[BinPack] = generic
+    .deriveSurface[BinPack]
   implicit lazy val encoder: ConfEncoder[BinPack] = generic.deriveEncoder
 
   val enabled = BinPack(
@@ -75,8 +77,8 @@ object BinPack {
     parentConstructors = ParentCtors.Always
   )
 
-  implicit val decoder: ConfDecoderEx[BinPack] =
-    Presets.mapDecoder(generic.deriveDecoderEx(BinPack()).noTypos, "binPack") {
+  implicit val decoder: ConfDecoderEx[BinPack] = Presets
+    .mapDecoder(generic.deriveDecoderEx(BinPack()).noTypos, "binPack") {
       case Conf.Bool(true) => enabled
       case Conf.Bool(false) => BinPack()
     }
@@ -90,8 +92,8 @@ object BinPack {
     case object Oneline extends ParentCtors
     case object OnelineIfPrimaryOneline extends ParentCtors
 
-    implicit val oneOfReader: ConfCodecEx[ParentCtors] =
-      ReaderUtil.oneOfCustom[ParentCtors](
+    implicit val oneOfReader: ConfCodecEx[ParentCtors] = ReaderUtil
+      .oneOfCustom[ParentCtors](
         source,
         keep,
         Always,
@@ -113,8 +115,8 @@ object BinPack {
     case object Always extends Unsafe
     case object Oneline extends Unsafe
 
-    implicit val oneOfReader: ConfCodecEx[Unsafe] =
-      ReaderUtil.oneOfCustom[Unsafe](Never, Always, Oneline) {
+    implicit val oneOfReader: ConfCodecEx[Unsafe] = ReaderUtil
+      .oneOfCustom[Unsafe](Never, Always, Oneline) {
         case Conf.Bool(true) => Configured.ok(Always)
         case Conf.Bool(false) => Configured.ok(Never)
       }

@@ -14,7 +14,8 @@ case class AvoidInfixSettings(
     excludePlaceholderArg: Option[Boolean] = None
 ) {
   // if the user completely redefined (rather than appended), we don't touch
-  @inline private def isMainExclude: Boolean =
+  @inline
+  private def isMainExclude: Boolean =
     excludeStartsWith(AvoidInfixSettings.mainExclude)
 
   private[config] def forSbtOpt: Option[AvoidInfixSettings] =
@@ -28,10 +29,11 @@ case class AvoidInfixSettings(
     if (excludeScalaTest.getOrElse(isMainExclude)) Some(withTestExclude)
     else None
 
-  private def withTestExclude: AvoidInfixSettings =
-    getExcludeWithExtra(AvoidInfixSettings.testExclude).fold(
-      copy(excludeScalaTest = Some(false))
-    )(x => copy(excludeFilters = x, excludeScalaTest = Some(false)))
+  private def withTestExclude: AvoidInfixSettings = getExcludeWithExtra(
+    AvoidInfixSettings.testExclude
+  ).fold(copy(excludeScalaTest = Some(false)))(x =>
+    copy(excludeFilters = x, excludeScalaTest = Some(false))
+  )
 
   @inline
   private def excludeStartsWith(obj: Seq[AvoidInfixSettings.Filter]): Boolean =
@@ -49,47 +51,39 @@ case class AvoidInfixSettings(
 
   private[config] def withExtraExclude(
       obj: Seq[AvoidInfixSettings.Filter]
-  ): Option[AvoidInfixSettings] =
-    getExcludeWithExtra(obj).map(x => copy(excludeFilters = x))
+  ): Option[AvoidInfixSettings] = getExcludeWithExtra(obj)
+    .map(x => copy(excludeFilters = x))
 
-  def matches(lhs: String, op: String): Boolean =
-    includeFilters.forall(_.matches(lhs, op)(_.find())) &&
-      !excludeFilters.exists(_.matches(lhs, op)(_.matches()))
+  def matches(lhs: String, op: String): Boolean = includeFilters
+    .forall(_.matches(lhs, op)(_.find())) &&
+    !excludeFilters.exists(_.matches(lhs, op)(_.matches()))
 }
 
 object AvoidInfixSettings {
 
-  private[config] case class Filter(
-      lhs: Option[Pattern],
-      op: Pattern
-  ) {
+  private[config] case class Filter(lhs: Option[Pattern], op: Pattern) {
     private def pattern: String = {
       val opPat = op.pattern()
       lhs.fold(opPat) { lhs => s"${lhs.pattern()}\\.$opPat" }
     }
-    def matches(lhs: String, op: String)(
-        f: Matcher => Boolean
-    ): Boolean =
+    def matches(lhs: String, op: String)(f: Matcher => Boolean): Boolean =
       f(this.op.matcher(op)) && this.lhs.forall(r => f(r.matcher(lhs)))
 
     override def equals(obj: Any): Boolean = obj match {
-      case x: Filter =>
-        x.op.pattern() == op.pattern() && x.lhs.fold(lhs.isEmpty) { y =>
-          lhs.exists(_.pattern() == y.pattern())
-        }
+      case x: Filter => x.op.pattern() == op.pattern() &&
+        x.lhs.fold(lhs.isEmpty) { y => lhs.exists(_.pattern() == y.pattern()) }
       case _ => false
     }
 
-    override def hashCode(): Int =
-      lhs.fold(0)(_.pattern().##) ^ op.pattern().##
+    override def hashCode(): Int = lhs.fold(0)(_.pattern().##) ^ op.pattern().##
   }
 
   private[config] object Filter {
     implicit lazy val surface: Surface[Filter] = generic.deriveSurface
-    implicit lazy val encoder: ConfEncoder[Filter] =
-      ConfEncoder.instance(x => Conf.Str(x.pattern))
-    implicit lazy val decoder: ConfDecoderEx[Filter] =
-      ConfDecoderEx.fromPartial("String") { case (_, Conf.Str(x)) => parse(x) }
+    implicit lazy val encoder: ConfEncoder[Filter] = ConfEncoder
+      .instance(x => Conf.Str(x.pattern))
+    implicit lazy val decoder: ConfDecoderEx[Filter] = ConfDecoderEx
+      .fromPartial("String") { case (_, Conf.Str(x)) => parse(x) }
 
     private def parse(str: String): Configured[Filter] = {
       val idx = str.lastIndexOf("\\.")
@@ -104,54 +98,41 @@ object AvoidInfixSettings {
     def apply(value: String): Filter = parse(value).get
   }
 
-  implicit lazy val surface: Surface[AvoidInfixSettings] =
-    generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[AvoidInfixSettings] =
-    generic.deriveCodecEx(default).noTypos
+  implicit lazy val surface: Surface[AvoidInfixSettings] = generic.deriveSurface
+  implicit lazy val codec: ConfCodecEx[AvoidInfixSettings] = generic
+    .deriveCodecEx(default).noTypos
 
-  private[config] def mainInclude =
-    Seq(
-      "[\\w\\d_]+"
-    ).map(Filter.apply)
+  private[config] def mainInclude = Seq("[\\w\\d_]+").map(Filter.apply)
 
-  private[config] val mainExclude =
-    Seq(
-      "until",
-      "to",
-      "by",
-      "eq",
-      "ne"
-    ).map(Filter.apply)
+  private[config] val mainExclude = Seq("until", "to", "by", "eq", "ne")
+    .map(Filter.apply)
 
-  private val testExclude =
-    Seq(
-      "should.*",
-      "contain.*",
-      "must.*",
-      "in",
-      "ignore",
-      "be",
-      "behavior\\.of",
-      "taggedAs",
-      "thrownBy",
-      "synchronized",
-      "have",
-      "when",
-      "size",
-      "only",
-      "noneOf",
-      "oneElementOf",
-      "noElementsOf",
-      "atLeastOneElementOf",
-      "atMostOneElementOf",
-      "allElementsOf",
-      "inOrderElementsOf",
-      "theSameElementsAs"
-    ).map(Filter.apply)
-
-  private[config] val sbtExclude = Seq(
-    "cross"
+  private val testExclude = Seq(
+    "should.*",
+    "contain.*",
+    "must.*",
+    "in",
+    "ignore",
+    "be",
+    "behavior\\.of",
+    "taggedAs",
+    "thrownBy",
+    "synchronized",
+    "have",
+    "when",
+    "size",
+    "only",
+    "noneOf",
+    "oneElementOf",
+    "noElementsOf",
+    "atLeastOneElementOf",
+    "atMostOneElementOf",
+    "allElementsOf",
+    "inOrderElementsOf",
+    "theSameElementsAs"
   ).map(Filter.apply)
+
+  private[config] val sbtExclude = Seq("cross").map(Filter.apply)
 
   private[config] val default = AvoidInfixSettings(
     includeFilters = mainInclude,

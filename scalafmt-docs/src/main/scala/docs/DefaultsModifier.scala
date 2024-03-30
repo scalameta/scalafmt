@@ -11,8 +11,8 @@ import mdoc.StringModifier
 
 class DefaultsModifier extends StringModifier {
   override val name: String = "defaults"
-  private val default =
-    ConfEncoder[ScalafmtConfig].writeObj(ScalafmtConfig.default)
+  private val default = ConfEncoder[ScalafmtConfig]
+    .writeObj(ScalafmtConfig.default)
 
   override def process(
       info: String,
@@ -20,8 +20,7 @@ class DefaultsModifier extends StringModifier {
       reporter: Reporter
   ): String = {
     if (info == "all") {
-      val result =
-        Conf.printHocon(ScalafmtConfig.default)
+      val result = Conf.printHocon(ScalafmtConfig.default)
       "```\n" + result + "\n```"
     } else {
       def getDefaultValue(param: String): String = {
@@ -41,9 +40,8 @@ class DefaultsModifier extends StringModifier {
         val defaults = params.map { param =>
           s"$param = ${getDefaultValue(param)}"
         }
-        ScalafmtModifier.mdConfigCodeBlock(
-          defaults.mkString("# Defaults\n", "\n", "")
-        )
+        ScalafmtModifier
+          .mdConfigCodeBlock(defaults.mkString("# Defaults\n", "\n", ""))
       }
     }
   }

@@ -11,10 +11,7 @@ class TestMicroMedium extends ScalaJsFile("PrintStreamTest.scala")
 
 class BenchmarkOK extends FunSuite {
 
-  Seq(
-    new TestMacroP,
-    new TestMacroS
-  ).foreach { benchmark =>
+  Seq(new TestMacroP, new TestMacroS).foreach { benchmark =>
     val name = s"macroBenchmark: $benchmark"
     test(name) {
       benchmark.testMe()
@@ -22,10 +19,7 @@ class BenchmarkOK extends FunSuite {
     }
   }
 
-  Seq(
-    new TestMicroMedium,
-    new TestMicroSmall
-  ).foreach { formatBenchmark =>
+  Seq(new TestMicroMedium, new TestMicroSmall).foreach { formatBenchmark =>
     val name = s"microBenchmark: ${formatBenchmark.getClass}"
     test(name) {
       formatBenchmark.testMe()

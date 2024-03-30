@@ -19,8 +19,7 @@ import scala.util.Try
 @org.openjdk.jmh.annotations.State(Scope.Benchmark)
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
-@BenchmarkMode(Array(Mode.AverageTime))
-@OutputTimeUnit(TimeUnit.SECONDS)
+@BenchmarkMode(Array(Mode.AverageTime)) @OutputTimeUnit(TimeUnit.SECONDS)
 abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
     extends FormatBenchmark {
   var files: GenIterable[String] = _
@@ -30,19 +29,12 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
   @Setup
   def setup(): Unit = {
     files = {
-      val x = Corpus
-        .files(
-          Corpus.fastparse.copy(
-            // TODO(olafur) remove once testkit 1.7 is out
-            url = Corpus.fastparse.url.replace("olafurpg", "scalameta")
-          )
-        )
-        .filter { f => f.projectUrl.contains("scala-js") }
-        .take(maxFiles)
-        .map(_.read)
-        .toBuffer
-      if (parallel) x.par
-      else x
+      val x = Corpus.files(Corpus.fastparse.copy(
+        // TODO(olafur) remove once testkit 1.7 is out
+        url = Corpus.fastparse.url.replace("olafurpg", "scalameta")
+      )).filter { f => f.projectUrl.contains("scala-js") }.take(maxFiles)
+        .map(_.read).toBuffer
+      if (parallel) x.par else x
     }
   }
 

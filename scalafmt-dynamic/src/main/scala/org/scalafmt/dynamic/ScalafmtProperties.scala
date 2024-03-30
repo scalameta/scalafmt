@@ -23,15 +23,12 @@ final case class ScalafmtProperties(
 
   def withRepositoryCredentials(
       value: Seq[RepositoryCredential]
-  ): ScalafmtProperties =
-    copy(repositoryCredentials = value)
+  ): ScalafmtProperties = copy(repositoryCredentials = value)
 
-  def reportError(file: Path, error: ScalafmtDynamicError): Unit =
-    error match {
-      case _: ConfigMissingVersion =>
-        reporter.missingVersion(file, BuildInfo.stable)
-      case _ =>
-        reporter.error(file, error.getMessage, error.getCause)
-    }
+  def reportError(file: Path, error: ScalafmtDynamicError): Unit = error match {
+    case _: ConfigMissingVersion => reporter
+        .missingVersion(file, BuildInfo.stable)
+    case _ => reporter.error(file, error.getMessage, error.getCause)
+  }
 
 }

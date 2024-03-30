@@ -47,11 +47,8 @@ class ScalafmtModifier extends StringModifier {
               mdScalaCodeBlock("formatted", formatted.trim)
             val originalCodeBlock =
               mdScalaCodeBlock("original", program.text.trim)
-            List(
-              formattedCodeBlock,
-              originalCodeBlock,
-              configBlock
-            ).mkString("\n")
+            List(formattedCodeBlock, originalCodeBlock, configBlock)
+              .mkString("\n")
           case Left(e: ParseException) =>
             reporter.error(pos, e.toString())
             "parse error"
@@ -67,8 +64,7 @@ class ScalafmtModifier extends StringModifier {
 
 object ScalafmtModifier {
 
-  private val defaultConfig = ScalafmtConfig.default
-    .copy(maxColumn = 40)
+  private val defaultConfig = ScalafmtConfig.default.copy(maxColumn = 40)
     .withDialect(NamedDialect.scala213, "scala213")
 
   private val defaultSbtConfig = defaultConfig.forSbt

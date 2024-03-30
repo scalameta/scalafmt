@@ -2,8 +2,8 @@ package org.scalafmt.internal
 
 sealed abstract class SplitTag {
 
-  final def activateOnly(splits: Seq[Split]): Seq[Split] =
-    splits.map(_.activateFor(this))
+  final def activateOnly(splits: Seq[Split]): Seq[Split] = splits
+    .map(_.activateFor(this))
 
 }
 

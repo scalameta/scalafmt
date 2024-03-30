@@ -56,14 +56,12 @@ trait ScalafmtRunner {
   ): Seq[AbsoluteFile] = {
     val gitOps = options.gitOps
     val finder = options.fileFetchMode match {
-      case GitFiles =>
-        new BatchPathFinder.GitFiles(gitOps)(canFormat)
+      case GitFiles => new BatchPathFinder.GitFiles(gitOps)(canFormat)
       case RecursiveSearch =>
         new BatchPathFinder.DirFiles(options.cwd)(canFormat)
       case DiffFiles(branch) =>
         new BatchPathFinder.GitBranchFiles(gitOps, branch)(canFormat)
-      case ChangedFiles =>
-        new BatchPathFinder.GitDirtyFiles(gitOps)(canFormat)
+      case ChangedFiles => new BatchPathFinder.GitDirtyFiles(gitOps)(canFormat)
     }
     val files = finder.findMatchingFiles(
       options.respectProjectFilters,

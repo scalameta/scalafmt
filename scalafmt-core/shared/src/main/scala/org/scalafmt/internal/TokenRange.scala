@@ -28,7 +28,6 @@ object TokenRanges {
 
   val empty = new TokenRanges(Seq.empty)
 
-  def apply(range: TokenRange): TokenRanges =
-    new TokenRanges(Seq(range))
+  def apply(range: TokenRange): TokenRanges = new TokenRanges(Seq(range))
 
 }
