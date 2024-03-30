@@ -160,10 +160,10 @@ object CliArgParser {
         .text("list files that are different from scalafmt formatting")
       opt[(Int, Int)]("range")
         .hidden()
-        .action({ case ((from, to), c) =>
+        .action { case ((from, to), c) =>
           val offset = if (from == to) 0 else -1
           c.copy(range = c.range + Range(from - 1, to + offset))
-        })
+        }
         .text("(experimental) only format line range from=to")
 
       note(s"""|Examples:
