@@ -132,7 +132,7 @@ case class CliOptions(
 
   private[cli] def getProposedConfigFile: Path = canonicalConfigFile
     .flatMap(_.toOption)
-    .getOrElse { gitOps.getProposedConfigFile(cwd, config).path }
+    .getOrElse(gitOps.getProposedConfigFile(cwd, config).path)
 
   /** Parse the scalafmt configuration and try to encode it to `ScalafmtConfig`.
     * If `--config-str` is specified, this will parse the configuration string

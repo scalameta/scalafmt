@@ -70,9 +70,8 @@ trait HasTests extends FormatAssertions {
 
   def parseDiffTests(filename: String): Seq[DiffTest] = {
     val content = FileOps.readFile(filename)
-    val sep = {
+    val sep =
       if (content.contains(System.lineSeparator)) System.lineSeparator else "\n"
-    }
     val spec = BuildInfo.resourceDirectory.toPath
       .relativize(Paths.get(filename)).getName(0).toString
 

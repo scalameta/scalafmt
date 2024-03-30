@@ -316,15 +316,13 @@ object Imports extends RewriteFactory {
           if (needRaw && hadComments) s"{$selector}" else pretty,
           1
         )
-      } else {
-        Selectors(
-          selectorString,
-          selectorString,
-          1,
-          commentsBefore,
-          commentAfter
-        )
-      }
+      } else Selectors(
+        selectorString,
+        selectorString,
+        1,
+        commentsBefore,
+        commentAfter
+      )
     }
 
     protected final def getSelectors(
@@ -630,20 +628,18 @@ object Imports extends RewriteFactory {
   private class ExpandNone(implicit ctx: RewriteCtx) extends Base {
     override protected def processImports(
         stats: Seq[Seq[ImportExportStat]]
-    ): Unit = {
-      stats.flatten.foreach { t =>
-        val patchBuilder = Seq.newBuilder[TokenPatch]
-        t.importers.foreach { importer =>
-          val selectors = getSelectors(importer.importees, false).pretty
-          val replacement = getRef(importer) + selectors
-          val tokens: Iterator[Token] = importer.tokens.iterator
-          // replace the first token
-          patchBuilder += TokenPatch.Replace(tokens.next(), replacement)
-          // remove all tokens except first
-          tokens.foreach(patchBuilder += TokenPatch.Remove(_))
-        }
-        ctx.addPatchSet(patchBuilder.result(): _*)
+    ): Unit = stats.flatten.foreach { t =>
+      val patchBuilder = Seq.newBuilder[TokenPatch]
+      t.importers.foreach { importer =>
+        val selectors = getSelectors(importer.importees, false).pretty
+        val replacement = getRef(importer) + selectors
+        val tokens: Iterator[Token] = importer.tokens.iterator
+        // replace the first token
+        patchBuilder += TokenPatch.Replace(tokens.next(), replacement)
+        // remove all tokens except first
+        tokens.foreach(patchBuilder += TokenPatch.Remove(_))
       }
+      ctx.addPatchSet(patchBuilder.result(): _*)
     }
   }
 

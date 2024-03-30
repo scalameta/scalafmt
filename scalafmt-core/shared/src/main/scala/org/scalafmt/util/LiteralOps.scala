@@ -19,10 +19,9 @@ object LiteralOps {
     *   - literals.long applies to suffix
     */
   def prettyPrintInteger(str: String)(implicit style: ScalafmtConfig): String =
-    if (str.endsWith("L") || str.endsWith("l")) {
-      prettyPrintHex(str.dropRight(1)) +
-        style.literals.long.process(str.takeRight(1))
-    } else { prettyPrintHex(str) }
+    if (str.endsWith("L") || str.endsWith("l")) prettyPrintHex(str.dropRight(1)) +
+      style.literals.long.process(str.takeRight(1))
+    else prettyPrintHex(str)
 
   def prettyPrintFloat(str: String)(implicit style: ScalafmtConfig): String =
     prettyPrintFloatingPoint(str, 'F', 'f', style.literals.float)
@@ -48,18 +47,15 @@ object LiteralOps {
       suffixLower: Char,
       suffixCase: Case
   )(implicit style: ScalafmtConfig): String =
-    if (str.last == suffixUpper || str.last == suffixLower) {
-      style.literals.scientific.process(str.dropRight(1)) +
-        suffixCase.process(str.takeRight(1))
-    } else { style.literals.scientific.process(str) }
+    if (str.last == suffixUpper || str.last == suffixLower) style.literals
+      .scientific.process(str.dropRight(1)) +
+      suffixCase.process(str.takeRight(1))
+    else style.literals.scientific.process(str)
 
   private def prettyPrintHex(
       str: String
   )(implicit style: ScalafmtConfig): String =
-    if (str.startsWith("0x") || str.startsWith("0X")) {
-      style.literals.hexPrefix.process(str.take(2)) +
-        style.literals.hexDigits.process(str.drop(2))
-    } else {
-      str // not a hex literal
-    }
+    if (str.startsWith("0x") || str.startsWith("0X")) style.literals.hexPrefix
+      .process(str.take(2)) + style.literals.hexDigits.process(str.drop(2))
+    else str // not a hex literal
 }

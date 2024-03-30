@@ -35,10 +35,10 @@ trait ScalafmtRunner {
   protected def getInputMethods(
       options: CliOptions,
       filter: Path => Boolean
-  ): Seq[InputMethod] = {
-    if (options.stdIn) {
+  ): Seq[InputMethod] =
+    if (options.stdIn)
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
-    } else {
+    else {
       val projectFiles: Seq[AbsoluteFile] =
         getFilesFromCliOptions(options, filter)
       if (projectFiles.isEmpty && options.mode.isEmpty)
@@ -47,7 +47,6 @@ trait ScalafmtRunner {
         .print(s"Files to be formatted:\n${projectFiles.mkString("\n")}\n")
       projectFiles.map(InputMethod.FileContents.apply)
     }
-  }
 
   /** Returns file paths defined via options.{customFiles,customExclude} */
   private[this] def getFilesFromCliOptions(
@@ -68,6 +67,6 @@ trait ScalafmtRunner {
       options.customFilesOpt.getOrElse(Seq.empty): _*
     )
     val excludeRegexp = options.excludeFilterRegexp.pattern
-    files.filter { f => !excludeRegexp.matcher(f.toString()).find() }
+    files.filter(f => !excludeRegexp.matcher(f.toString()).find())
   }
 }

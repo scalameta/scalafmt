@@ -14,11 +14,7 @@ class DefaultsModifier extends StringModifier {
   private val default = ConfEncoder[ScalafmtConfig]
     .writeObj(ScalafmtConfig.default)
 
-  override def process(
-      info: String,
-      code: Input,
-      reporter: Reporter
-  ): String = {
+  override def process(info: String, code: Input, reporter: Reporter): String =
     if (info == "all") {
       val result = Conf.printHocon(ScalafmtConfig.default)
       "```\n" + result + "\n```"
@@ -44,5 +40,4 @@ class DefaultsModifier extends StringModifier {
           .mdConfigCodeBlock(defaults.mkString("# Defaults\n", "\n", ""))
       }
     }
-  }
 }

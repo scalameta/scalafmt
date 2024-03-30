@@ -34,20 +34,16 @@ object Cli {
     nGContext.exit(exit.code)
   }
 
-  private def throwIfError(exit: ExitCode): Unit = {
-    if (exit != ExitCode.Ok) {
-      throw new RuntimeException(exit.toString) with NoStackTrace
-    }
-  }
+  private def throwIfError(exit: ExitCode): Unit = if (exit != ExitCode.Ok)
+    throw new RuntimeException(exit.toString) with NoStackTrace
 
   def main(args: Array[String]): Unit = {
     val exit = mainWithOptions(args, CliOptions.default)
     sys.exit(exit.code)
   }
 
-  def exceptionThrowingMain(args: Array[String]): Unit = {
+  def exceptionThrowingMain(args: Array[String]): Unit =
     exceptionThrowingMainWithOptions(args, CliOptions.default)
-  }
 
   def exceptionThrowingMainWithOptions(
       args: Array[String],
@@ -57,12 +53,11 @@ object Cli {
     throwIfError(exit)
   }
 
-  def mainWithOptions(args: Array[String], options: CliOptions): ExitCode = {
+  def mainWithOptions(args: Array[String], options: CliOptions): ExitCode =
     getConfig(args, options) match {
       case Some(x) => run(x)
       case None => ExitCode.CommandLineArgumentError
     }
-  }
 
   def getConfig(args: Array[String], init: CliOptions): Option[CliOptions] = {
     val expandedArguments = expandArguments(args)
@@ -81,14 +76,13 @@ object Cli {
     builder.result()
   }
 
-  private[cli] def run(options: CliOptions): ExitCode = {
+  private[cli] def run(options: CliOptions): ExitCode =
     findRunner(options) match {
       case Left(message) =>
         options.common.err.println(message)
         ExitCode.UnsupportedVersion
       case Right(runner) => runWithRunner(options, runner)
     }
-  }
 
   private val isNativeImage: Boolean = "true" ==
     System.getProperty("scalafmt.native-image", "false")
@@ -125,7 +119,7 @@ object Cli {
               |""".stripMargin
         )
       } {
-        case Left(error) => Left(s"error: invalid configuration: ${error}")
+        case Left(error) => Left(s"error: invalid configuration: $error")
         case Right(`stableVersion`) =>
           options.common.debug.println(s"Using core runner [$stableVersion]")
           Right(ScalafmtCoreRunner)
@@ -162,20 +156,19 @@ object Cli {
 
     val exit = runner.run(options, termDisplayMessage)
 
-    if (options.writeMode == WriteMode.Test) {
-      if (exit.isOk) {
-        options.common.out.println("All files are formatted with scalafmt :)")
-      } else if (exit.is(ExitCode.TestError)) {
+    if (options.writeMode == WriteMode.Test)
+      if (exit.isOk) options.common.out
+        .println("All files are formatted with scalafmt :)")
+      else if (exit.is(ExitCode.TestError)) {
         options.common.out.println("error: --test failed")
         options.onTestFailure.foreach(options.common.out.println)
-      } else { options.common.out.println(s"error: $exit") }
-    }
+      } else options.common.out.println(s"error: $exit")
     if (
       options.writeMode == WriteMode.Test && !options.fatalWarnings &&
       exit.is(ExitCode.ParseError)
-    ) {
+    )
       // Ignore parse errors etc.
       ExitCode.Ok
-    } else { exit }
+    else exit
   }
 }

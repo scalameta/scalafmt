@@ -40,7 +40,7 @@ object TreeOps {
       case (x, 0) => x
       case (enum: Enumerator.Guard, i) =>
         // Only guard that follows another guards starts a statement.
-        if (enums(i - 1).is[Enumerator.Guard]) { ret += enum }
+        if (enums(i - 1).is[Enumerator.Guard]) ret += enum
       case (x, _) => ret += x
     }
     ret.result()
@@ -249,17 +249,15 @@ object TreeOps {
     result
   }
 
-  def assertValidParens(open: Token, close: Token): Unit = {
-    (open, close) match {
-      case (Interpolation.Start(), Interpolation.End()) =>
-      case (Xml.Start(), Xml.End()) =>
-      case (Xml.SpliceStart(), Xml.SpliceEnd()) =>
-      case (LeftBrace(), RightBrace()) =>
-      case (LeftBracket(), RightBracket()) =>
-      case (LeftParen(), RightParen()) =>
-      case (o, c) =>
-        throw new IllegalArgumentException(s"Mismatching parens ($o, $c)")
-    }
+  def assertValidParens(open: Token, close: Token): Unit = (open, close) match {
+    case (Interpolation.Start(), Interpolation.End()) =>
+    case (Xml.Start(), Xml.End()) =>
+    case (Xml.SpliceStart(), Xml.SpliceEnd()) =>
+    case (LeftBrace(), RightBrace()) =>
+    case (LeftBracket(), RightBracket()) =>
+    case (LeftParen(), RightParen()) =>
+    case (o, c) =>
+      throw new IllegalArgumentException(s"Mismatching parens ($o, $c)")
   }
 
   final def childOf(child: Tree, tree: Tree): Boolean =
@@ -735,16 +733,13 @@ object TreeOps {
   def getStripMarginCharForInterpolate(tree: Tree): Option[Char] =
     findInterpolate(tree).flatMap(getStripMarginChar)
 
-  def getStripMarginChar(t: Tree): Option[Char] = {
-    t.parent match {
-      case Some(ts: Term.Select) if ts.name.value == "stripMargin" =>
-        ts.parent match {
-          case Some(Term.Apply.Initial(_, List(arg: Lit.Char))) =>
-            Some(arg.value)
-          case _ => Some('|')
-        }
-      case _ => None
-    }
+  def getStripMarginChar(t: Tree): Option[Char] = t.parent match {
+    case Some(ts: Term.Select) if ts.name.value == "stripMargin" =>
+      ts.parent match {
+        case Some(Term.Apply.Initial(_, List(arg: Lit.Char))) => Some(arg.value)
+        case _ => Some('|')
+      }
+    case _ => None
   }
 
   @inline
@@ -752,9 +747,8 @@ object TreeOps {
 
   @tailrec
   def findFirstTreeBetween(tree: Tree, beg: Token, end: Token): Option[Tree] = {
-    def isWithinRange(x: Tokens): Boolean = {
-      x.nonEmpty && x.head.start >= beg.start && x.last.end <= end.end
-    }
+    def isWithinRange(x: Tokens): Boolean = x.nonEmpty &&
+      x.head.start >= beg.start && x.last.end <= end.end
     def matches(tree: Tree): Boolean = {
       val x = tree.tokens
       isWithinRange(x) ||
@@ -922,7 +916,7 @@ object TreeOps {
           var prevComma: Token = null
 
           @tailrec
-          def tokenAt(idx: Int): Int = {
+          def tokenAt(idx: Int): Int =
             if (idx == allTokens.length) idx
             else {
               val tok = allTokens(idx)
@@ -984,7 +978,6 @@ object TreeOps {
                 tokenAt(idx + 1)
               }
             }
-          }
           tokenAt(elemIdx)
       }
     }

@@ -47,16 +47,14 @@ class DynamicSuite extends FunSuite {
         override def missingVersion(
             config: Path,
             defaultVersion: String
-        ): Unit = { missingVersions += defaultVersion }
+        ): Unit = missingVersions += defaultVersion
         override def parsedConfig(config: Path, scalafmtVersion: String): Unit = {
           val n = parsed.getOrElse(scalafmtVersion, 0)
           parsed(scalafmtVersion) = n + 1
         }
-        override def trimStacktrace(e: Throwable): Unit = {
-          e.setStackTrace(
-            e.getStackTrace.takeWhile(!_.getClassName.contains("DynamicSuite"))
-          )
-        }
+        override def trimStacktrace(e: Throwable): Unit = e.setStackTrace(
+          e.getStackTrace.takeWhile(!_.getClassName.contains("DynamicSuite"))
+        )
       }
     val dynamic: ScalafmtDynamic = cfgFunc {
       val configLoader = ScalafmtDynamic.defaultUncachedConfigLoader
@@ -84,15 +82,12 @@ class DynamicSuite extends FunSuite {
             |""".stripMargin
       )
     }
-    def relevant: String = {
-      out.toString.replace(config.toString, "path/.scalafmt.conf")
-    }
-    def errors: String = {
-      out.toString.linesIterator.filter(_.startsWith("error")).mkString("\n")
-    }
-    def assertNotIgnored(filename: String)(implicit loc: Location): Unit = {
+    def relevant: String = out.toString
+      .replace(config.toString, "path/.scalafmt.conf")
+    def errors: String = out.toString.linesIterator
+      .filter(_.startsWith("error")).mkString("\n")
+    def assertNotIgnored(filename: String)(implicit loc: Location): Unit =
       assertFormat("object A  {  }", "object A {}\n", Paths.get(filename))
-    }
     def assertIgnored(filename: String): Unit = {
       out.reset()
       val file = Paths.get(filename)
@@ -102,17 +97,15 @@ class DynamicSuite extends FunSuite {
       assert(outString.contains(s"file excluded: $filename"))
       assertNoDiff(obtained, original)
     }
-    def assertFormat()(implicit loc: Location): Unit = {
+    def assertFormat()(implicit loc: Location): Unit =
       assertFormat("object A  {  }", "object A {}\n")
-    }
     def assertFormat(original: String, expected: String, file: Path = filename)(
         implicit loc: Location
     ): Unit = {
       out.reset()
       val obtained = dynamic.format(config, file, original)
-      if (errors.nonEmpty) {
+      if (errors.nonEmpty)
         assertNoDiff(out.toString(), "", "Reporter had errors")
-      }
       assertNoDiff(obtained, expected)
     }
     def assertMissingVersion()(implicit loc: Location): Unit = {
@@ -128,11 +121,10 @@ class DynamicSuite extends FunSuite {
         code: String = "object A  {  }"
     )(implicit loc: Location): A = {
       out.reset()
-      intercept[A] { dynamic.format(config, filename, code) }
+      intercept[A](dynamic.format(config, filename, code))
     }
-    def assertError(expected: String)(implicit loc: Location): Unit = {
+    def assertError(expected: String)(implicit loc: Location): Unit =
       assertError("object A  {  }", expected)
-    }
     def assertError(code: String, expected: String, path: Path = filename)(
         implicit loc: Location
     ): Unit = {
@@ -149,12 +141,10 @@ class DynamicSuite extends FunSuite {
 
   def check(name: String, cfgFunc: ScalafmtDynamic => ScalafmtDynamic = identity)(
       fn: Format => Unit
-  ): Unit = {
-    test(name) {
-      val format = new Format(name, cfgFunc)
-      try fn(format)
-      finally format.dynamic.clear()
-    }
+  ): Unit = test(name) {
+    val format = new Format(name, cfgFunc)
+    try fn(format)
+    finally format.dynamic.clear()
   }
 
   private val testedVersions = Seq(
@@ -175,27 +165,24 @@ class DynamicSuite extends FunSuite {
     "1.0.0"
   )
 
-  def checkExhaustive(
-      name: String
-  )(config: String => String)(fn: (Format, String) => Unit): Unit = {
-    testedVersions.foreach { version =>
-      test(s"$name [v=$version]") {
-        val format = new Format(name, identity)
-        val dialect = if (version < "3.0.0") null else "scala213"
-        try {
-          format.setVersion(version, dialect, config(version))
-          fn(format, version)
-        } finally format.dynamic.clear()
-      }
+  def checkExhaustive(name: String)(
+      config: String => String
+  )(fn: (Format, String) => Unit): Unit = testedVersions.foreach { version =>
+    test(s"$name [v=$version]") {
+      val format = new Format(name, identity)
+      val dialect = if (version < "3.0.0") null else "scala213"
+      try {
+        format.setVersion(version, dialect, config(version))
+        fn(format, version)
+      } finally format.dynamic.clear()
     }
   }
 
-  def checkVersion(version: String, dialect: String): Unit = {
+  def checkVersion(version: String, dialect: String): Unit =
     check(s"v$version") { f =>
       f.setVersion(version, dialect)
       f.assertFormat("object A  {  }", "object A {}\n")
     }
-  }
 
   checkVersion(nightly, "scala212")
   checkVersion(latest, "scala212")
@@ -221,7 +208,7 @@ class DynamicSuite extends FunSuite {
   checkParseError(latest, "scala212")
   checkParseError("1.0.0", "Scala211")
 
-  check("missing-version") { f => f.assertMissingVersion() }
+  check("missing-version")(f => f.assertMissingVersion())
 
   check("excluded-file") { f =>
     val config = """|
@@ -559,22 +546,21 @@ class DynamicSuite extends FunSuite {
       version: String,
       dialect: String,
       rest: String*
-  )(f: ScalafmtReflectConfig => Unit): Unit = {
+  )(f: ScalafmtReflectConfig => Unit): Unit =
     check(s"$name [v=$version d=$dialect]") { fmt =>
       fmt.setVersion(version, dialect, rest: _*)
       assertDynamicConfig(fmt)(f)
     }
-  }
 
-  checkExhaustive("check project.git=true") { _ => "project.git = true" } {
+  checkExhaustive("check project.git=true")(_ => "project.git = true") {
     (f, _) => assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, true))
   }
 
-  checkExhaustive("check project.git=false") { _ => "project.git = false" } {
+  checkExhaustive("check project.git=false")(_ => "project.git = false") {
     (f, _) => assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, false))
   }
 
-  checkExhaustive("check project.git missing") { _ => "" } { (f, _) =>
+  checkExhaustive("check project.git missing")(_ => "") { (f, _) =>
     assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, false))
   }
 

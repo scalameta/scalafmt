@@ -11,18 +11,16 @@ trait CanRunTests extends FunSuite with HasTests {
 
     if (ignore(t)) {
       // Not even ignore(t), save console space.
-    } else if (t.skip) { test(paddedName.ignore) {} }
-    else {
-      test(paddedName) {
-        try { run(t) }
-        catch {
-          case FormatException(e: ParseException, code) =>
-            fail("test does not parse\n" + parseException2Message(e, code), e)
-        }
+    } else if (t.skip) test(paddedName.ignore) {}
+    else test(paddedName) {
+      try run(t)
+      catch {
+        case FormatException(e: ParseException, code) =>
+          fail("test does not parse\n" + parseException2Message(e, code), e)
       }
     }
   }
 
-  def runTestsDefault(): Unit = { testsToRun.foreach(runTest(defaultRun)) }
+  def runTestsDefault(): Unit = testsToRun.foreach(runTest(defaultRun))
 
 }

@@ -217,7 +217,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       ft: FormatToken,
       session: Session,
       style: ScalafmtConfig
-  ): Replacement = { onLeftBrace(ft.meta.rightOwner) }
+  ): Replacement = onLeftBrace(ft.meta.rightOwner)
 
   private def onLeftBrace(owner: Tree)(implicit
       ft: FormatToken,
@@ -374,8 +374,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
   private def okToRemoveBlock(
       b: Term.Block
-  )(implicit style: ScalafmtConfig, session: Session): Boolean = {
-    b.parent.exists {
+  )(implicit style: ScalafmtConfig, session: Session): Boolean = b.parent
+    .exists {
 
       case p: Case => settings.generalExpressions && {
           (p.body eq b) || shouldRemoveSingleStatBlock(b)
@@ -418,7 +418,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
       case _ => settings.generalExpressions && shouldRemoveSingleStatBlock(b)
     }
-  }
 
   private def checkBlockAsBody(b: Term.Block, rhs: Tree, noParams: => Boolean)(
       implicit style: ScalafmtConfig

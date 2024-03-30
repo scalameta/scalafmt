@@ -19,9 +19,8 @@ object PositionSyntax {
   implicit class XtensionPositionsScalafix(private val pos: Position)
       extends AnyVal {
 
-    def contains(other: Position): Boolean = {
-      pos.start <= other.start && pos.end >= other.end
-    }
+    def contains(other: Position): Boolean = pos.start <= other.start &&
+      pos.end >= other.end
 
     def formatMessage(severity: String, message: String): String =
       PositionSyntax.formatMessage(pos, severity, message)
@@ -40,10 +39,8 @@ object PositionSyntax {
       case _ =>
         if (pos.startLine != pos.endLine) multilines else lineTextAndCaret
     }
-    def lineTextAndCaret: String = {
-      new StringBuilder().append("\n").append(lineContent).append("\n")
-        .append(pos.lineCaret).toString()
-    }
+    def lineTextAndCaret: String = new StringBuilder().append("\n")
+      .append(lineContent).append("\n").append(pos.lineCaret).toString()
     def multilines: String = {
       var i = pos.startLine
       val sb = new StringBuilder()

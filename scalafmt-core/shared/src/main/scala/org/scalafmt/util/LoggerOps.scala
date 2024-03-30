@@ -35,7 +35,7 @@ object LoggerOps {
 
   def log2(formatToken: FormatToken): String = formatToken.toString
 
-  def escape(raw: String): String = { raw }
+  def escape(raw: String): String = raw
 
   def log(tokens: Token*): String = tokens.map(log).mkString("\n")
 

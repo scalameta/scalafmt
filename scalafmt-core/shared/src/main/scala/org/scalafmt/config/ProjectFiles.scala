@@ -70,7 +70,7 @@ object ProjectFiles {
 
     private final class Nio(pattern: String) extends PathMatcher {
       private val matcher =
-        try { fs.getPathMatcher(pattern) }
+        try fs.getPathMatcher(pattern)
         catch {
           case _: IllegalArgumentException => throw new ScalafmtConfigException(
               s"Illegal pattern in configuration: $pattern"
@@ -80,7 +80,7 @@ object ProjectFiles {
     }
     private final class Regex(regex: String) extends PathMatcher {
       private val pattern =
-        try { java.util.regex.Pattern.compile(regex) }
+        try java.util.regex.Pattern.compile(regex)
         catch {
           case e: java.util.regex.PatternSyntaxException =>
             throw new ScalafmtConfigException(

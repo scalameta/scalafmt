@@ -92,9 +92,8 @@ object AlignToken {
         parents.forall(check(p)) ||
         (p match {
           case ParamClauseParent(pp) => parents.forall(check(pp))
-          case _: meta.Member.SyntaxValuesClause => p.parent.exists { pp =>
-              parents.forall(check(pp))
-            }
+          case _: meta.Member.SyntaxValuesClause => p.parent
+              .exists(pp => parents.forall(check(pp)))
           case _ => false
         })
       })

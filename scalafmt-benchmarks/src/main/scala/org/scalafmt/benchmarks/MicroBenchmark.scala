@@ -26,7 +26,7 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
   var code: String = _
 
   @Setup
-  def setup(): Unit = { code = FileOps.readFile(getPath) }
+  def setup(): Unit = code = FileOps.readFile(getPath)
 
   def getPath: Path = {
     val filename = FileOps.getFile(Seq("src", "resources") ++ path)
@@ -42,10 +42,10 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
   }
 
   @Benchmark
-  def scalafmt(): String = { Scalafmt.format(code).get }
+  def scalafmt(): String = Scalafmt.format(code).get
 
   @Benchmark
-  def scalafmt_rewrite(): String = { formatRewrite(code) }
+  def scalafmt_rewrite(): String = formatRewrite(code)
 
   def testMe(): Unit = {
     setup()

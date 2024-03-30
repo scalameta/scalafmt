@@ -22,9 +22,8 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
   } { scalafmtConf =>
     options.common.debug.println(s"parsed config (v${Versions.version})")
     val filterMatcher =
-      try {
-        ProjectFiles.FileMatcher(scalafmtConf.project, options.customExcludes)
-      } catch {
+      try ProjectFiles.FileMatcher(scalafmtConf.project, options.customExcludes)
+      catch {
         case e: ScalafmtConfigException =>
           options.common.err.println(e.getMessage())
           return ExitCode.UnexpectedError // RETURNING EARLY!
@@ -51,14 +50,13 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
       inputMethod: InputMethod,
       options: CliOptions,
       config: ScalafmtConfig
-  ): ExitCode = {
+  ): ExitCode =
     try unsafeHandleFile(inputMethod, options, config)
     catch {
       case Error.MisformattedFile(_, diff) =>
         options.common.err.println(diff)
         ExitCode.TestError
     }
-  }
 
   private[this] def unsafeHandleFile(
       inputMethod: InputMethod,

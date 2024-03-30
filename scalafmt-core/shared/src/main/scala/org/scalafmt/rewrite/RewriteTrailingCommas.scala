@@ -50,32 +50,30 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
       ft: FormatToken,
       session: Session,
       style: ScalafmtConfig
-  ): Option[Replacement] = { if (shouldRemove(ft)) Some(removeToken) else None }
+  ): Option[Replacement] = if (shouldRemove(ft)) Some(removeToken) else None
 
   private[rewrite] def shouldRemove(
       ft: FormatToken
-  )(implicit session: Session): Boolean = {
-    ft.right.is[Token.Comma] && {
-      val rightOwner = ft.meta.rightOwner
-      val nft = ftoks.nextNonCommentAfter(ft)
+  )(implicit session: Session): Boolean = ft.right.is[Token.Comma] && {
+    val rightOwner = ft.meta.rightOwner
+    val nft = ftoks.nextNonCommentAfter(ft)
 
-      // comma and paren/bracket/brace need to have the same owner
-      (rightOwner eq nft.meta.rightOwner) &&
-      (nft.right match {
-        case rp: Token.RightParen => rightOwner
-            .isAny[Member.SyntaxValuesClause, Member.Tuple] ||
-          ftoks.matchingOpt(rp).exists { lp =>
-            val claimant = session.claimedRule(ftoks.justBefore(lp))
-            claimant.forall(_.rule.isInstanceOf[RedundantParens])
-          }
+    // comma and paren/bracket/brace need to have the same owner
+    (rightOwner eq nft.meta.rightOwner) &&
+    (nft.right match {
+      case rp: Token.RightParen => rightOwner
+          .isAny[Member.SyntaxValuesClause, Member.Tuple] ||
+        ftoks.matchingOpt(rp).exists { lp =>
+          val claimant = session.claimedRule(ftoks.justBefore(lp))
+          claimant.forall(_.rule.isInstanceOf[RedundantParens])
+        }
 
-        case _: Token.RightBracket => rightOwner.is[Member.SyntaxValuesClause]
+      case _: Token.RightBracket => rightOwner.is[Member.SyntaxValuesClause]
 
-        case _: Token.RightBrace => rightOwner.is[Importer]
+      case _: Token.RightBrace => rightOwner.is[Importer]
 
-        case _ => false
-      })
-    }
+      case _ => false
+    })
   }
 
   override def onRight(lt: Replacement, hasFormatOff: Boolean)(implicit

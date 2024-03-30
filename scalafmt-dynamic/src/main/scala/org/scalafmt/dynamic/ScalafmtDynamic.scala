@@ -23,7 +23,7 @@ final case class ScalafmtDynamic(
     )
   )
 
-  override def clear(): Unit = { moduleLoader.close() }
+  override def clear(): Unit = moduleLoader.close()
 
   override def withReporter(value: ScalafmtReporter): ScalafmtDynamic =
     copy(properties = properties.withReporter(value))

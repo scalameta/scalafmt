@@ -30,7 +30,7 @@ class ReentrantCache[K, V] {
       val result = Await.result(fut, 10.minute)
 
       if (shouldEvict(result)) {
-        synchronized { cache -= key }
+        synchronized(cache -= key)
         getOrAddToCache(key, shouldEvict)(get)
       } else result
     case Left(p) =>

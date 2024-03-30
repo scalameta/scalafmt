@@ -208,12 +208,10 @@ case class Newlines(
   if (
     implicitParamListModifierForce.nonEmpty &&
     implicitParamListModifierPrefer.nonEmpty
-  ) {
-    throw new ScalafmtConfigException(
-      "can't specify both " +
-        "implicitParamListModifierForce and implicitParamListModifierPrefer"
-    )
-  }
+  ) throw new ScalafmtConfigException(
+    "can't specify both " +
+      "implicitParamListModifierForce and implicitParamListModifierPrefer"
+  )
 
   @inline
   def sourceIgnored: Boolean = source.ignoreSourceSplit
@@ -235,10 +233,9 @@ case class Newlines(
   }
   val formatInfix: Boolean = breakAfterInfix ne AfterInfix.keep
 
-  def checkInfixConfig(infixCount: Int): Newlines = {
+  def checkInfixConfig(infixCount: Int): Newlines =
     if (infixCount <= afterInfixMaxCountPerFile || !formatInfix) this
     else copy(afterInfix = Some(AfterInfix.keep))
-  }
 
   lazy val forceBeforeImplicitParamListModifier: Boolean =
     implicitParamListModifierForce.contains(before)
@@ -267,18 +264,17 @@ case class Newlines(
     BeforeCurlyLambdaParams.always
 
   lazy val getBeforeMultiline = beforeMultiline.getOrElse(source)
-  lazy val shouldForceBeforeMultilineAssign = {
-    forceBeforeMultilineAssign.getOrElse {
+  lazy val shouldForceBeforeMultilineAssign = forceBeforeMultilineAssign
+    .getOrElse {
       val useDef = alwaysBeforeMultilineDef ||
         beforeMultilineDef.contains(Newlines.unfold)
       if (useDef) ForceBeforeMultilineAssign.`def`
       else ForceBeforeMultilineAssign.never
     }
-  }
 
   lazy val getSelectChains = selectChains.getOrElse(source)
 
-  private lazy val topStatBlankLinesSorted = {
+  private lazy val topStatBlankLinesSorted =
     if (topLevelStatementBlankLines.isEmpty) {
       val nb = NumBlanks(
         if (topLevelStatements.contains(before)) 1 else 0,
@@ -289,15 +285,13 @@ case class Newlines(
         val pattern = Some("^Pkg|^Defn\\.|^Decl\\.")
         Seq(TopStatBlanks(pattern, topLevelStatementsMinBreaks, Some(nb)))
       }
-    } else {
+    } else
       /* minBreaks has to come first; since we'll be adding blanks, this could
        * potentially move us into another setting which didn't match before we
        * we added the blanks; the rest are sorted to put more specific first */
       topLevelStatementBlankLines.filter(x => x.minNest <= x.maxNest).sortBy {
         x => (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length))
       }
-    }
-  }
 
   @inline
   def hasTopStatBlankLines = topStatBlankLinesSorted.nonEmpty

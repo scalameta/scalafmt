@@ -95,8 +95,7 @@ class FormatOps(
     def add(tree: Tree): Unit = getHeadHash(tree).foreach { x =>
       if (!arguments.contains(x)) arguments += x -> tree
     }
-    def addOptional(tree: Tree): Unit = getHeadHash(tree)
-      .foreach { optional += _ }
+    def addOptional(tree: Tree): Unit = getHeadHash(tree).foreach(optional += _)
 
     val queue = new mutable.ListBuffer[Seq[Tree]]
     queue += topSourceTree :: Nil
@@ -123,19 +122,18 @@ class FormatOps(
   @inline
   final def findFirst(start: FormatToken, end: T)(
       f: FormatToken => Boolean
-  ): Option[FormatToken] = { findFirst(start, end.end)(f) }
+  ): Option[FormatToken] = findFirst(start, end.end)(f)
 
   @tailrec
   final def findFirst(start: FormatToken, end: Int)(
       f: FormatToken => Boolean
-  ): Option[FormatToken] = {
+  ): Option[FormatToken] =
     if (start.left.end >= end) None
     else if (f(start)) Some(start)
     else {
       val next_ = next(start)
       if (next_ == start) None else findFirst(next_, end)(f)
     }
-  }
 
   def findFirstOnRight[A](start: FormatToken, end: T)(implicit
       classifier: Classifier[T, A]
@@ -224,7 +222,7 @@ class FormatOps(
   val StartsStatementRight = new ExtractFromMeta[Tree](startsStatement)
 
   def parensTuple(token: T): TokenRanges = matchingOpt(token)
-    .fold(TokenRanges.empty) { other => TokenRanges(TokenRange(token, other)) }
+    .fold(TokenRanges.empty)(other => TokenRanges(TokenRange(token, other)))
 
   def insideBlock[A](start: FormatToken, end: T)(implicit
       classifier: Classifier[T, A]
@@ -347,7 +345,7 @@ class FormatOps(
       val nonBoolPenalty = if (isBoolOperator(l)) 0 else 5
       val penalty = nestedSelect(m.leftOwner) + nestedApplies(m.rightOwner) +
         nonBoolPenalty
-      s.map { x => if (x.isNL) x.withPenalty(penalty) else x }
+      s.map(x => if (x.isNL) x.withPenalty(penalty) else x)
     }
     new Policy.Delay(policy, Policy.End.Before(from))
   }
@@ -417,7 +415,7 @@ class FormatOps(
     }
 
   @tailrec
-  private final def getElseChain(term: Term.If, res: Seq[T]): Seq[T] = {
+  private final def getElseChain(term: Term.If, res: Seq[T]): Seq[T] =
     tokens.getHeadOpt(term.elsep) match {
       case Some(ftElsep) =>
         val beforeElsep = prevNonCommentBefore(ftElsep)
@@ -436,7 +434,6 @@ class FormatOps(
         }
       case _ => res
     }
-  }
 
   def getOptimalTokenFor(token: T): T = getOptimalTokenFor(tokens(token))
 
@@ -459,7 +456,7 @@ class FormatOps(
         })
       val afterInfix = style.breakAfterInfix(t)
       if (isBeforeOp && isFewerBracesLhs(app.lhs)) Seq(Split(Newline, 0))
-      else if (afterInfix ne Newlines.AfterInfix.keep) {
+      else if (afterInfix ne Newlines.AfterInfix.keep)
         if (isBeforeOp) Seq(Split(Space, 0))
         else {
           val spaceMod = Space(useSpace)
@@ -473,7 +470,7 @@ class FormatOps(
             .getBeforeLhsOrRhs(afterInfix, spaceMod = spaceMod)
           else Seq(Split(spaceMod, 0))
         }
-      } else {
+      else {
         // we don't modify line breaks generally around infix expressions
         // TODO: if that ever changes, modify how rewrite rules handle infix
         val mod = getMod(ft)
@@ -622,10 +619,9 @@ class FormatOps(
         case IndentOperator.Exempt.aloneEnclosed => isAloneEnclosed(getChild)
         case IndentOperator.Exempt.aloneArgOrBody => isAloneArgOrBody(getChild)
       }
-      def isInfixTopLevelMatch(op: String, noindent: Boolean): Boolean = {
+      def isInfixTopLevelMatch(op: String, noindent: Boolean): Boolean =
         noindent == style.indentOperator.noindent(op) &&
-        noindent == allowNoIndent
-      }
+          noindent == allowNoIndent
       if (style.verticalAlignMultilineOperators)
         !isAssignment(ft.meta.left.text)
       else if (beforeLhs) assignBodyExpire.isEmpty
@@ -661,10 +657,10 @@ class FormatOps(
       val fullTok = getIndentTrigger(fullInfix)
       val noAssign = assignBodyExpire.isEmpty
       if (!noAssign && beforeLhs) (fullIndent, policy(fullTok))
-      else if (skipInfixIndent) {
+      else if (skipInfixIndent)
         if (noAssign) (Indent.Empty, Policy.NoPolicy)
         else (Indent.before(fullIndent, fullTok), policy(fullTok))
-      } else {
+      else {
         val opTok = getIndentTrigger(leftInfix.op)
         val ind =
           if (isFirstOp) fullIndent else Indent.before(fullIndent, opTok)
@@ -723,7 +719,7 @@ class FormatOps(
         else Some(decideNewlinesOnlyAfterClose(end.left))
       }
       val nlMod = newStmtMod
-        .getOrElse { Space.orNL(ft.noBreak && ft.right.is[T.Comment]) }
+        .getOrElse(Space.orNL(ft.noBreak && ft.right.is[T.Comment]))
       val delayedBreak = if (nlMod.isNewline) None else breakAfterComment(ft)
 
       val (singleLineExpire, singleLineIndent) = {
@@ -808,9 +804,7 @@ class FormatOps(
     if (opFollowsComment) getLastNonTrivialToken(app.lhs) else opToken
   }
 
-  def getLastEnclosedToken(tree: Tree): T = {
-    tokens.getLastExceptParen(tree).left
-  }
+  def getLastEnclosedToken(tree: Tree): T = tokens.getLastExceptParen(tree).left
 
   @tailrec
   private def findNextInfixes(
@@ -931,19 +925,18 @@ class FormatOps(
 
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
     val toMatch =
-      if (tok.right.is[T.RightParen]) {
+      if (tok.right.is[T.RightParen])
         // Hack to allow any annotations with arguments like @foo(1)
         tokens(matching(tok.right), -2)
-      } else { tok }
+      else tok
     toMatch match {
       case FormatToken(T.At(), _: T.Ident, _) => true
       case _ => false
     }
   }
 
-  def distance(left: T, right: T): Int = {
-    nonWhitespaceOffset(right) - nonWhitespaceOffset(left)
-  }
+  def distance(left: T, right: T): Int = nonWhitespaceOffset(right) -
+    nonWhitespaceOffset(left)
 
   def typeTemplateSplits(template: Template, indentIfSecond: Int)(implicit
       fileLine: FileLine,
@@ -1020,7 +1013,7 @@ class FormatOps(
     val indent =
       if (!isFirstCtor) Indent.Empty
       else Indent(Num(indentLen), lastToken, ExpiresOn.After)
-    if (style.binPack.keepParentConstructors) {
+    if (style.binPack.keepParentConstructors)
       if (ft.hasBreak) Seq(Split(nlMod, 0).withIndent(indent))
       else {
         val slbEnd = rhs.fold(lastToken)(getLastToken)
@@ -1033,7 +1026,7 @@ class FormatOps(
           Split(nlMod, 1).withIndent(indent)
         )
       }
-    } else if (isFirstCtor) {
+    else if (isFirstCtor) {
       val nlPolicy = ctorWithChain(owners, lastToken)
       val nlOnelineTag = style.binPack.parentConstructors match {
         case BinPack.ParentCtors.Oneline => Right(true)
@@ -1077,7 +1070,7 @@ class FormatOps(
           distance(open, close) > maxDistance
         ) {
           forces += hash(open)
-          args.foreach { arg => clearQueues += hash(getHeadToken(arg)) }
+          args.foreach(arg => clearQueues += hash(getHeadToken(arg)))
         }
       tokens.foreach {
         case FormatToken(left: T.LeftParen, _, meta) => meta.leftOwner match {
@@ -1223,10 +1216,9 @@ class FormatOps(
       val implicitNL = rightIsImplicit &&
         style.newlines.forceBeforeImplicitParamListModifier
       val implicitParams =
-        if (rightIsImplicit) {
-          getImplicitParamList(ft.meta.rightOwner)
-            .fold(Nil: List[Tree])(_.values)
-        } else Nil
+        if (rightIsImplicit) getImplicitParamList(ft.meta.rightOwner)
+          .fold(Nil: List[Tree])(_.values)
+        else Nil
       val noSlb = implicitNL || aboveArityThreshold ||
         ft.hasBreak &&
         !style.newlines.sourceIgnored && style.optIn.configStyleArguments ||
@@ -1469,24 +1461,21 @@ class FormatOps(
 
   def withIndentOnXmlStart(tok: T.Xml.Start, splits: Seq[Split])(implicit
       style: ScalafmtConfig
-  ): Seq[Split] = {
+  ): Seq[Split] =
     if (style.xmlLiterals.assumeFormatted) {
       val end = matching(tok)
       val indent = Num(findXmlLastLineIndent(tokens(end, -1)), true)
       splits.map(_.withIndent(indent, end, ExpiresOn.After))
     } else splits
-  }
 
   def withIndentOnXmlSpliceStart(ft: FormatToken, splits: Seq[Split])(implicit
       style: ScalafmtConfig
-  ): Seq[Split] = {
-    ft.left match {
-      case t: T.Xml.SpliceStart if style.xmlLiterals.assumeFormatted =>
-        val end = matching(t)
-        val indent = Num(findXmlLastLineIndent(prev(ft)), true)
-        splits.map(_.withIndent(indent, end, ExpiresOn.After))
-      case _ => splits
-    }
+  ): Seq[Split] = ft.left match {
+    case t: T.Xml.SpliceStart if style.xmlLiterals.assumeFormatted =>
+      val end = matching(t)
+      val indent = Num(findXmlLastLineIndent(prev(ft)), true)
+      splits.map(_.withIndent(indent, end, ExpiresOn.After))
+    case _ => splits
   }
 
   object CtrlBodySplits {
@@ -1516,15 +1505,13 @@ class FormatOps(
       private def getNestedOpensPolicy(
           opens: List[FormatToken],
           policy: Policy
-      ): Policy = {
-        opens.foldLeft(policy) { case (res, x) =>
-          val onOpen = Policy(tokens.nextNonComment(x).right match {
-            case t: T.LeftBrace => Policy.End.After(t)
-            case t => Policy.End.On(t)
-          })(penalizeOpenNL)
-          val delayed = new Policy.Delay(onOpen, Policy.End.On(x.left))
-          new Policy.Relay(delayed, res)
-        }
+      ): Policy = opens.foldLeft(policy) { case (res, x) =>
+        val onOpen = Policy(tokens.nextNonComment(x).right match {
+          case t: T.LeftBrace => Policy.End.After(t)
+          case t => Policy.End.On(t)
+        })(penalizeOpenNL)
+        val delayed = new Policy.Delay(onOpen, Policy.End.On(x.left))
+        new Policy.Relay(delayed, res)
       }
 
       @tailrec
@@ -1559,9 +1546,8 @@ class FormatOps(
       def penalize(penalty: Int) =
         if (penalty <= 0) Policy.NoPolicy
         else new PolicyOps.PenalizeAllNewlines(Policy.End.On(blast), penalty)
-      def getNlSplit(penalty: Int)(implicit fileLine: FileLine): Split = {
+      def getNlSplit(penalty: Int)(implicit fileLine: FileLine): Split =
         nlSplitFunc(1).andPolicy(penalize(penalty)).forThisLine(nextLine)
-      }
       def getSplits(spaceSplit: Split) = (
         spaceSplit.withIndents(spaceIndents),
         getNlSplit(1)(nextLine(spaceSplit.fileLine))
@@ -1789,9 +1775,8 @@ class FormatOps(
   object GetSelectLike {
     def unapply(tree: Tree): Option[SelectLike] = tree match {
       case t: Term.Select => Some(SelectLike(t))
-      case t: Term.Match => getMatchDot(t).map { ft =>
-          SelectLike(t, getKwMatchAfterDot(ft))
-        }
+      case t: Term.Match => getMatchDot(t)
+          .map(ft => SelectLike(t, getKwMatchAfterDot(ft)))
       case _ => None
     }
   }
@@ -1856,7 +1841,7 @@ class FormatOps(
 
     def get(
         ft: FormatToken
-    )(implicit style: ScalafmtConfig): Option[OptionalBracesRegion] = {
+    )(implicit style: ScalafmtConfig): Option[OptionalBracesRegion] =
       if (!style.dialect.allowSignificantIndentation) None
       else Option(ft.left match {
         case _: T.Colon | _: T.KwWith => ColonEolImpl
@@ -1882,7 +1867,6 @@ class FormatOps(
           !nft.right.is[T.LeftBrace] || nft.meta.rightOwner.parent != ob.owner
         }
       }
-    }
 
     private def getSplits(
         ft: FormatToken,
@@ -1913,12 +1897,10 @@ class FormatOps(
         Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
       else if (forceNL)
         Seq(Split(Newline, 0).withIndent(indent).withPolicy(nlPolicy))
-      else {
-        Seq(
-          Split(Space, 0).withSingleLine(slbExpire),
-          Split(Newline, 1)(nextLine).withIndent(indent).withPolicy(nlPolicy)
-        )
-      }
+      else Seq(
+        Split(Space, 0).withSingleLine(slbExpire),
+        Split(Newline, 1)(nextLine).withIndent(indent).withPolicy(nlPolicy)
+      )
     }
 
     // https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html#variant-indentation-marker-
@@ -2275,28 +2257,26 @@ class FormatOps(
     private object IfImpl extends Factory {
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig
-      ): Option[OptionalBracesRegion] = {
-        ft.meta.leftOwner match {
-          case t: Term.If =>
-            val nr = nft.right
-            t.cond match {
-              case b: Term.Block if (matchingOpt(nr) match {
-                    case Some(t) => t.end < b.pos.end
-                    case None => isMultiStatBlock(b)
-                  }) =>
-                Some(new OptionalBracesRegion {
-                  def owner = Some(t)
-                  def splits = Some {
-                    val dangle = style.danglingParentheses.ctrlSite
-                    val forceNL = !nr.is[T.LeftParen]
-                    getSplits(ft, b, forceNL, dangle)
-                  }
-                  def rightBrace = blockLast(b)
-                })
-              case _ => None
-            }
-          case _ => None
-        }
+      ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
+        case t: Term.If =>
+          val nr = nft.right
+          t.cond match {
+            case b: Term.Block if (matchingOpt(nr) match {
+                  case Some(t) => t.end < b.pos.end
+                  case None => isMultiStatBlock(b)
+                }) =>
+              Some(new OptionalBracesRegion {
+                def owner = Some(t)
+                def splits = Some {
+                  val dangle = style.danglingParentheses.ctrlSite
+                  val forceNL = !nr.is[T.LeftParen]
+                  getSplits(ft, b, forceNL, dangle)
+                }
+                def rightBrace = blockLast(b)
+              })
+            case _ => None
+          }
+        case _ => None
       }
     }
 

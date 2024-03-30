@@ -10,9 +10,8 @@ object ReaderUtil {
     .replace("`", "")
 
   // Poor mans coproduct reader
-  def oneOf[T: ClassTag](options: sourcecode.Text[T]*): ConfCodecEx[T] = {
+  def oneOf[T: ClassTag](options: sourcecode.Text[T]*): ConfCodecEx[T] =
     oneOfCustomEx(options: _*)(PartialFunction.empty)
-  }
 
   def oneOfCustom[T: ClassTag](
       options: sourcecode.Text[T]*

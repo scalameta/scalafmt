@@ -139,22 +139,20 @@ object Rewrite {
       toInput: String => Input
   ): Input = {
     val rewrites = style.rewrite.rewriteFactoryRules
-    if (rewrites.isEmpty) { input }
-    else {
-      style.runner.parse(input) match {
-        case Parsed.Success(ast) =>
-          val ctx = RewriteCtx(style, input, ast)
-          val rewriteSessions = rewrites.map(_.create(ctx)).toList
-          val traverser = new SimpleTraverser {
-            override def apply(tree: Tree): Unit = {
-              rewriteSessions.foreach(_.rewrite(tree))
-              super.apply(tree)
-            }
+    if (rewrites.isEmpty) input
+    else style.runner.parse(input) match {
+      case Parsed.Success(ast) =>
+        val ctx = RewriteCtx(style, input, ast)
+        val rewriteSessions = rewrites.map(_.create(ctx)).toList
+        val traverser = new SimpleTraverser {
+          override def apply(tree: Tree): Unit = {
+            rewriteSessions.foreach(_.rewrite(tree))
+            super.apply(tree)
           }
-          traverser(ast)
-          toInput(ctx.applyPatches)
-        case _ => input
-      }
+        }
+        traverser(ast)
+        toInput(ctx.applyPatches)
+      case _ => input
     }
   }
 

@@ -17,19 +17,15 @@ object UnitTests extends HasTests {
   }
 
   // TODO(olafur) make possible to limit states per unit test.
-  override lazy val tests: Seq[DiffTest] = {
-    for {
-      filename <- getTestFiles
-      test <- parseDiffTests(filename)
-    } yield {
-      if (sys.env.contains("CI") && test.only) {
-        sys.error(
-          s"""|Please remove ONLY from test '${test.name}' in file '$filename'.
-              |Tests with ONLY will not be merged, this feature is only meant to be used for local development.
-              |           """.stripMargin
-        )
-      }
-      test
-    }
+  override lazy val tests: Seq[DiffTest] = for {
+    filename <- getTestFiles
+    test <- parseDiffTests(filename)
+  } yield {
+    if (sys.env.contains("CI") && test.only) sys.error(
+      s"""|Please remove ONLY from test '${test.name}' in file '$filename'.
+          |Tests with ONLY will not be merged, this feature is only meant to be used for local development.
+          |           """.stripMargin
+    )
+    test
   }
 }

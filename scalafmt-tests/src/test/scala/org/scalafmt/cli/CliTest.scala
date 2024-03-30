@@ -33,16 +33,13 @@ abstract class AbstractCliTest extends FunSuite {
   def run(options: CliOptions, exitCode: ExitCode = ExitCode.Ok) =
     assertEquals(Cli.run(options), exitCode)
 
-  def getConfig(args: Array[String]): CliOptions = {
-    Cli.getConfig(args, baseCliOptions).get
-  }
+  def getConfig(args: Array[String]): CliOptions = Cli
+    .getConfig(args, baseCliOptions).get
 
-  def assertContains(out: String, expected: String) = {
-    assert(
-      CliTest.stripCR(out).contains(CliTest.stripCR(expected)),
-      out + "\n should have contained \n" + expected
-    )
-  }
+  def assertContains(out: String, expected: String) = assert(
+    CliTest.stripCR(out).contains(CliTest.stripCR(expected)),
+    out + "\n should have contained \n" + expected
+  )
 
   val unformatted = """|
                        |object a    extends   App {
@@ -82,21 +79,18 @@ abstract class AbstractCliTest extends FunSuite {
       expected: String,
       cmds: Seq[Array[String]],
       exitCode: ExitCode = ExitCode.Ok,
-      assertOut: String => Unit = { _ => {} },
+      assertOut: String => Unit = { _ => },
       testExitCode: Option[ExitCode] = None
-  ): Unit = {
-    cmds.foreach { args =>
-      val out = new ByteArrayOutputStream()
-      val init: CliOptions = getMockOptions(input, input, new PrintStream(out))
-      val config = Cli.getConfig(args, init).get
-      run(config, exitCode)
-      val obtained = dir2string(input)
-      assertNoDiff(obtained, expected)
-      val testConfig = config.copy(writeModeOpt = None)
-      runArgs(Array("--test"), testConfig, testExitCode.getOrElse(exitCode))
-      assertOut(out.toString())
-    }
-
+  ): Unit = cmds.foreach { args =>
+    val out = new ByteArrayOutputStream()
+    val init: CliOptions = getMockOptions(input, input, new PrintStream(out))
+    val config = Cli.getConfig(args, init).get
+    run(config, exitCode)
+    val obtained = dir2string(input)
+    assertNoDiff(obtained, expected)
+    val testConfig = config.copy(writeModeOpt = None)
+    runArgs(Array("--test"), testConfig, testExitCode.getOrElse(exitCode))
+    assertOut(out.toString())
   }
 
 }
@@ -313,7 +307,7 @@ trait CliTestBehavior {
                                |               """.stripMargin
       Files.write(scalafmtConfig, config.getBytes)
       val options = baseCliOptions.copy(config = Some(scalafmtConfig))
-      intercept[NoMatchingFiles.type] { Cli.run(options) }
+      intercept[NoMatchingFiles.type](Cli.run(options))
     }
 
     test(s"scalafmt (no matching files) is okay with --mode diff and --stdin: $label") {
@@ -546,14 +540,13 @@ trait CliTestBehavior {
         input,
         Seq(Array("--config-str", s"""{version="$version",style=IntelliJ}""")),
         ExitCode.ParseError,
-        assertOut = out => {
+        assertOut = out =>
           assertContains(
             out,
-            s"""|foo.scala:1: error:$dialectError illegal start of simple expression
-                |object    A { foo( }
-                |                   ^""".stripMargin
-          )
-        },
+            s"""foo.scala:1: error:$dialectError illegal start of simple expression
+               |object    A { foo( }
+               |                   ^""".stripMargin
+          ),
         Some(ExitCode.Ok)
       )
     }
@@ -584,7 +577,7 @@ trait CliTestBehavior {
         input,
         Seq(Array("--test")),
         ExitCode.TestError,
-        assertOut = out => {
+        assertOut = out =>
           assertContains(
             out,
             s"""|b$fooPath
@@ -594,7 +587,6 @@ trait CliTestBehavior {
                 |error: --test failed
                 |To fix this ...""".stripMargin
           )
-        }
       )
     }
 
@@ -606,13 +598,12 @@ trait CliTestBehavior {
         string2dir(input),
         input,
         Seq(Array("--test", "--config-str", s"""{version="$version"}""")),
-        assertOut = out => {
+        assertOut = out =>
           assert(
             out.contains(s"foo.scala:2: error:$dialectError") &&
               out.contains("end of file") && out.contains("error: ParseError=2"),
             out
           )
-        }
       )
     }
 
@@ -628,13 +619,12 @@ trait CliTestBehavior {
         input,
         Seq(Array("--test")),
         ExitCode.ParseError,
-        assertOut = out => {
+        assertOut = out =>
           assert(
             out.contains(s"foo.scala:2: error:$dialectError") &&
               out.contains(s"end of file") && out.contains("error: ParseError=2"),
             out
           )
-        }
       )
     }
 
@@ -650,13 +640,12 @@ trait CliTestBehavior {
         input,
         Seq(Array.empty),
         ExitCode.UnexpectedError,
-        assertOut = out => {
+        assertOut = out =>
           assert(
             out.contains("Invalid field: blah") ||
               out.contains("found option 'blah' which wasn't expected"),
             s"assertion failed [$out]"
           )
-        }
       )
     }
 
@@ -690,7 +679,7 @@ trait CliTestBehavior {
         )),
         ExitCode.TestError,
         assertOut =
-          out => { assert(out.contains(expected) && !out.contains(unexpected)) }
+          out => assert(out.contains(expected) && !out.contains(unexpected))
       )
     }
 
@@ -713,12 +702,11 @@ trait CliTestBehavior {
         input,
         Seq(Array("--list")),
         ExitCode.TestError,
-        assertOut = out => {
+        assertOut = out =>
           assert(
             out.contains("bar.scala") && !out.contains("baz.scala") &&
               out.contains("dir/foo.scala")
           )
-        }
       )
     }
   }
@@ -730,7 +718,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
 
   test(s"path-error") {
     val input = s"""|/.scalafmt.conf
-                    |version = "${stableVersion}"
+                    |version = "$stableVersion"
                     |project.excludePaths = [
                     |    "glob:**/src/main/scala/besom/rpc/**.scala",
                     |    "foo.scala"
@@ -744,12 +732,11 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       input,
       Seq(Array("--test")),
       ExitCode.UnexpectedError,
-      assertOut = out => {
+      assertOut = out =>
         assertContains(
           out,
           s"""Illegal pattern in configuration: foo.scala""".stripMargin
-        )
-      },
+        ),
       Some(ExitCode.UnexpectedError)
     )
 
@@ -757,7 +744,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
 
   test(s"regex-error") {
     val input = s"""|/.scalafmt.conf
-                    |version = "${stableVersion}"
+                    |version = "$stableVersion"
                     |project.excludeFilters = [
                     |    ".*foo("
                     |]
@@ -770,15 +757,14 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       input,
       Seq(Array("--test")),
       ExitCode.UnexpectedError,
-      assertOut = out => {
+      assertOut = out =>
         assertContains(
           out,
           """|Illegal regex in configuration: .*foo(
              |reason: Unclosed group near index 6
              |.*foo(
              |""".stripMargin
-        )
-      },
+        ),
       Some(ExitCode.UnexpectedError)
     )
 

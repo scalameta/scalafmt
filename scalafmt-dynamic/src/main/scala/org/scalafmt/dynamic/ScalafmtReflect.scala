@@ -76,10 +76,9 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
   def parseConfigFromString(text: String): Try[ScalafmtReflectConfig] =
     parseConfigWith(parseConfigPre300(text))
 
-  private def parseConfigPost300(path: Path): Try[Object] = {
+  private def parseConfigPost300(path: Path): Try[Object] =
     if (version < ScalafmtVersion(3, 0, 0, 7)) parseConfigPre300(path)
     else Try(scalafmtCls.invokeStatic("parseHoconConfigFile", path.asParam))
-  }
 
   private def parseConfigPre300(path: Path): Try[Object] =
     parseConfigPre300(ConfigFactory.parseFile(path.toFile).root.render())
@@ -90,14 +89,13 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
     else Try(scalafmtCls.invokeStatic("parseHoconConfig", textParam))
   }
 
-  private def parseConfigPre160(textParam: (Class[_], Object)): Try[Object] = {
+  private def parseConfigPre160(textParam: (Class[_], Object)): Try[Object] =
     // scalafmt >= v0.7.0-RC1 && scalafmt < 1.6.0
     Try {
       val fromHoconEmptyPath = configCls
         .invokeStatic("fromHoconString$default$2").asParam(optionCls)
       configCls.invokeStatic("fromHoconString", textParam, fromHoconEmptyPath)
     }
-  }
 
   def tryFormat(
       code: String,
@@ -136,9 +134,8 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
     }
   }
 
-  private def positionRange(pos: Object): RangePosition = {
-    try {
-      RangePosition(
+  private def positionRange(pos: Object): RangePosition =
+    try RangePosition(
         pos.invokeAs[Int]("start"),
         pos.invokeAs[Int]("startLine"),
         pos.invokeAs[Int]("startColumn"),
@@ -146,7 +143,7 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
         pos.invokeAs[Int]("endLine"),
         pos.invokeAs[Int]("endColumn")
       )
-    } catch {
+    catch {
       case _: ReflectiveOperationException | _: ClassCastException =>
         val start = pos.invoke("start")
         val end = pos.invoke("end")
@@ -159,7 +156,6 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
           end.invokeAs[Int]("column")
         )
     }
-  }
 
   private def moduleInstance(fqn: String): Object = {
     val module = loadClass(fqn).getField("MODULE$")

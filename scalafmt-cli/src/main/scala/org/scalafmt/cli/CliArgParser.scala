@@ -8,7 +8,7 @@ import scopt.OptionParser
 
 object CliArgParser {
 
-  implicit val readPath: scopt.Read[Path] = scopt.Read.reads { Paths.get(_) }
+  implicit val readPath: scopt.Read[Path] = scopt.Read.reads(Paths.get(_))
 
   val usageExamples: String =
     """|scalafmt # Format all files in the current project, configuration is determined in this order:
@@ -40,9 +40,8 @@ object CliArgParser {
         c
       }
 
-      private def readConfig(contents: String, c: CliOptions): CliOptions = {
-        c.copy(configStr = Some(contents))
-      }
+      private def readConfig(contents: String, c: CliOptions): CliOptions = c
+        .copy(configStr = Some(contents))
 
       head("scalafmt", Versions.nightly)
       opt[Unit]('h', "help").action(printAndExit(includeUsage = true))
@@ -114,7 +113,7 @@ object CliArgParser {
           s"""|Format files listed in `git diff` against given git ref.
               |Deprecated: use --mode diff-ref=<ref> instead""".stripMargin
         )
-      opt[Unit]("build-info").action((_, _) => { println(buildInfo); sys.exit })
+      opt[Unit]("build-info").action { (_, _) => println(buildInfo); sys.exit }
         .text("prints build information")
       opt[Unit]("quiet").action((_, c) => c.copy(quiet = true))
         .text("don't print out stuff to console.")
@@ -148,7 +147,7 @@ object CliArgParser {
         |build time: ${new Date(Versions.timestamp.toLong)}""".stripMargin
 
   private def writeMode(c: CliOptions, writeMode: WriteMode): CliOptions = c
-    .writeModeOpt.fold { c.copy(writeModeOpt = Some(writeMode)) } { x =>
+    .writeModeOpt.fold(c.copy(writeModeOpt = Some(writeMode))) { x =>
       if (x != writeMode)
         throw new Conflict(s"writeMode changing from $x to $writeMode")
       c

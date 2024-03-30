@@ -26,14 +26,11 @@ object LeftParenOrBrace {
 
 class SoftKeywordClasses(dialect: Dialect) extends SoftKeywords(dialect) {
   object ImplicitOrUsing {
-    def unapply(tok: Token): Boolean = {
-      tok.is[KwImplicit] || KwUsing.unapply(tok)
-    }
+    def unapply(tok: Token): Boolean = tok.is[KwImplicit] || KwUsing.unapply(tok)
   }
 
   object ExtendsOrDerives {
-    def unapply(tok: Token): Boolean = {
-      tok.is[KwExtends] || KwDerives.unapply(tok)
-    }
+    def unapply(tok: Token): Boolean = tok.is[KwExtends] ||
+      KwDerives.unapply(tok)
   }
 }

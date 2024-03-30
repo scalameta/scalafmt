@@ -15,17 +15,14 @@ class ConsoleScalafmtReporter(out: PrintStream) extends ScalafmtReporter {
     e.printStackTrace(out)
   }
 
-  override def error(path: Path, message: String): Unit = {
-    out.println(s"error: $path: $message")
-  }
+  override def error(path: Path, message: String): Unit = out
+    .println(s"error: $path: $message")
 
-  override def excluded(filename: Path): Unit = {
-    out.println(s"file excluded: $filename")
-  }
+  override def excluded(filename: Path): Unit = out
+    .println(s"file excluded: $filename")
 
-  override def parsedConfig(config: Path, scalafmtVersion: String): Unit = {
-    out.println(s"parsed config (v$scalafmtVersion): $config")
-  }
+  override def parsedConfig(config: Path, scalafmtVersion: String): Unit = out
+    .println(s"parsed config (v$scalafmtVersion): $config")
 
   override def downloadWriter(): PrintWriter = new PrintWriter(out)
 

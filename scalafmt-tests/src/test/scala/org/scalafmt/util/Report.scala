@@ -15,22 +15,20 @@ object Report {
     for (
       result <- results.sortBy(-_.maxVisitsOnSingleToken)
       if result.test.name != "Warmup"
-    ) yield {
-      div(
-        h2(result.title),
-        pre(
-          fontFamily := "monospace",
-          background := "#fff",
-          fontSize := "16px",
-          width := testWidth(result),
-          code(
-            heatmapBar(result.test.style),
-            raw(result.obtainedHtml),
-            span("\n" + ("‾" * result.test.style.maxColumn))
-          )
+    ) yield div(
+      h2(result.title),
+      pre(
+        fontFamily := "monospace",
+        background := "#fff",
+        fontSize := "16px",
+        width := testWidth(result),
+        code(
+          heatmapBar(result.test.style),
+          raw(result.obtainedHtml),
+          span("\n" + ("‾" * result.test.style.maxColumn))
         )
       )
-    }
+    )
   )).render
 
   def heatmapBar(scalaStyle: ScalafmtConfig): Seq[Text.Modifier] =
@@ -47,7 +45,7 @@ object Report {
     result
   }
 
-  def log(x: Int, base: Int): Double = { Math.log(x) / Math.log(base) }
+  def log(x: Int, base: Int): Double = Math.log(x) / Math.log(base)
 
   def explanation = div(
     p(

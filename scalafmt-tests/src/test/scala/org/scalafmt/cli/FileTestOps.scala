@@ -48,14 +48,12 @@ object FileTestOps {
       baseDir: AbsoluteFile,
       workingDir: AbsoluteFile,
       out: PrintStream = NoopOutputStream.printStream
-  ): CliOptions = {
-    CliOptions.default.copy(
-      baseConfig = ScalafmtConfig.default,
-      gitOpsConstructor = _ => new FakeGitOps(baseDir),
-      common = CliOptions.default.common
-        .copy(cwd = Some(workingDir), out = out, err = out)
-    )
-  }
+  ): CliOptions = CliOptions.default.copy(
+    baseConfig = ScalafmtConfig.default,
+    gitOpsConstructor = _ => new FakeGitOps(baseDir),
+    common = CliOptions.default.common
+      .copy(cwd = Some(workingDir), out = out, err = out)
+  )
 
   val baseCliOptions: CliOptions =
     getMockOptions(AbsoluteFile(Files.createTempDirectory("base-dir")))

@@ -22,7 +22,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       .withReporter(reporter).withRespectProjectFilters(false)
 
     val session =
-      try { scalafmtInstance.createSession(options.configPath) }
+      try scalafmtInstance.createSession(options.configPath)
       catch {
         case _: ScalafmtDynamicError.ConfigError => return reporter.getExitCode // XXX: returning
       }

@@ -9,13 +9,12 @@ class ScalafmtTest extends FunSuite {
       original: String,
       expected: String,
       config: ScalafmtConfig = ScalafmtConfig.default
-  )(implicit loc: munit.Location): Unit = {
+  )(implicit loc: munit.Location): Unit =
     test(logger.revealWhitespace(original).take(30)) {
       val obtained = Scalafmt.formatCode(original, config).get
       if (obtained != expected) logger.elem(obtained)
       assertEquals(obtained, expected)
     }
-  }
   check(
     """|
        |object A    {  println   ("HELLO!"  )  }

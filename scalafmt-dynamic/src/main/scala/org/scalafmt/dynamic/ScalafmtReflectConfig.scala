@@ -41,13 +41,12 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
   def isIncludedInProject(filename: String): Boolean = projectMatcherField
     .invokeAs[Boolean]("matches", filename.asParam)
 
-  private def sbtDialect: Object = {
+  private def sbtDialect: Object =
     try dialectsCls.invokeStatic("Sbt")
     catch {
       case ReflectionException(_: NoSuchMethodException) => dialectsCls
           .invokeStatic("Sbt0137")
     }
-  }
 
   lazy val withSbtDialect: Try[ScalafmtReflectConfig] = Try(
     target.invoke("forSbt")
@@ -55,10 +54,9 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
     target.invoke("withDialect", (dialectCls, sbtDialect))
   }.map(new ScalafmtReflectConfig(fmtReflect)(_))
 
-  def withoutRewriteRules: ScalafmtReflectConfig = {
+  def withoutRewriteRules: ScalafmtReflectConfig =
     if (getVersion < ScalafmtVersion(3, 2, 0)) withoutRewriteRulesPre320
     else new ScalafmtReflectConfig(fmtReflect)(target.invoke("withoutRewrites"))
-  }
 
   private def withoutRewriteRulesPre320: ScalafmtReflectConfig =
     if (!hasRewriteRulesPre320) this
@@ -72,7 +70,8 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
       val fieldValues = params.zipWithIndex.map { case (p, i) =>
         target.invoke(
           if (i == rewriteParamIdx) "apply$default$" + (rewriteParamIdx + 1)
-          else { if (publicParams.contains(p)) p else p + "$access$" + i }
+          else if (publicParams.contains(p)) p
+          else p + "$access$" + i
         )
       }
       new ScalafmtReflectConfig(fmtReflect)(
@@ -80,10 +79,9 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
       )
     }
 
-  def hasRewriteRules: Boolean = {
+  def hasRewriteRules: Boolean =
     if (getVersion < ScalafmtVersion(3, 2, 0)) hasRewriteRulesPre320
     else target.invokeAs[Boolean]("hasRewrites")
-  }
 
   private def hasRewriteRulesPre320: Boolean = // scalafmt >= v0.4.1
     Try {

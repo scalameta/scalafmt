@@ -61,7 +61,7 @@ object RewriteSettings {
     generic.deriveEncoder
 
   implicit lazy val decoder: ConfDecoderEx[RewriteSettings] = generic
-    .deriveDecoderEx(default).noTypos.flatMap { Imports.validateImports }
+    .deriveDecoderEx(default).noTypos.flatMap(Imports.validateImports)
 
   case class InsertBraces(minLines: Int = 0, allBlocks: Boolean = false)
 
