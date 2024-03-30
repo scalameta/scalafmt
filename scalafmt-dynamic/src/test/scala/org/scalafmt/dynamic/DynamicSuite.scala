@@ -222,21 +222,22 @@ class DynamicSuite extends FunSuite {
   checkVersion("1.0.0", "scala211")
   // checkVersion("0.2.8") // fails for now
 
-  check("parse-error") { f =>
-    def check(version: String, dialect: String): Unit = {
+  def checkParseError(version: String, dialect: String): Unit = {
+    val name = s"parse-error-$version-$dialect"
+    check(name) { f =>
       f.setVersion(version, dialect)
       val dialectError = getDialectError(version, dialect)
       val code = s"""object object A { val version = "$version" }"""
       f.assertError(
         code,
-        s"""|parse-error.scala:1:8: error:$dialectError identifier expected but object found
+        s"""|$name.scala:1:8: error:$dialectError identifier expected but object found
           |$code
           |       ^^^^^^""".stripMargin
       )
     }
-    check(latest, "scala212")
-    check("1.0.0", "Scala211")
   }
+  checkParseError(latest, "scala212")
+  checkParseError("1.0.0", "Scala211")
 
   check("missing-version") { f => f.assertMissingVersion() }
 
@@ -359,11 +360,12 @@ class DynamicSuite extends FunSuite {
     assertEquals(f.downloadLogs, "")
   }
 
-  check("sbt") { f =>
-    def check(version: String, dialect: String): Unit = {
-      f.setVersion(version, dialect, """project.includeFilters = [ ".*" ]""")
-      val dialectError = getDialectError(version, dialect)
-      List("build.sbt", "build.sc").foreach { filename =>
+  def checkSbt(version: String, dialect: String): Unit = {
+    val dialectError = getDialectError(version, dialect)
+    List("build.sbt", "build.sc").foreach { filename =>
+      val name = s"sbt-$version-$dialect-$filename"
+      check(name) { f =>
+        f.setVersion(version, dialect, """project.includeFilters = [ ".*" ]""")
         val path = Paths.get(filename)
         // test sbt allows top-level terms
         f.assertFormat(
@@ -380,7 +382,7 @@ class DynamicSuite extends FunSuite {
         else
           f.assertError(
             "lazy   val   x =  project",
-            s"""|sbt.scala:1:1: error:$dialectError classes cannot be lazy
+            s"""|$name.scala:1:1: error:$dialectError classes cannot be lazy
               |lazy   val   x =  project
               |^^^^""".stripMargin
           )
@@ -389,7 +391,7 @@ class DynamicSuite extends FunSuite {
         def assertIsWrappedLiteralFailure(): Unit =
           f.assertError(
             wrappedLiteral,
-            s"""$filename:1:28: error: identifier expected but integer constant found
+            s"""$filename:1:28: error:$dialectError identifier expected but integer constant found
               |$wrappedLiteral
               |                           ^""".stripMargin,
             path
@@ -406,9 +408,9 @@ class DynamicSuite extends FunSuite {
           assertIsWrappedLiteralFailure()
       }
     }
-    check(latest, "scala213")
-    check("1.2.0", "Scala211")
   }
+  checkSbt(latest, "scala213")
+  checkSbt("1.2.0", "Scala211")
 
   check("no-config") { f =>
     Files.delete(f.config)
