@@ -39,9 +39,9 @@ object NamedDialect {
 
   def getUnknownError = {
     val knownStr = known.map(_.name).mkString(",")
-    s"""Default dialect is deprecated; use explicit: [$knownStr]
-      |Also see https://scalameta.org/scalafmt/docs/configuration.html#scala-dialects"
-      |""".stripMargin
+    s"""|Default dialect is deprecated; use explicit: [$knownStr]
+        |Also see https://scalameta.org/scalafmt/docs/configuration.html#scala-dialects"
+        |""".stripMargin
   }
 
   implicit val codec: ConfCodecEx[NamedDialect] = ReaderUtil

@@ -17,41 +17,41 @@ class ScalafmtTest extends FunSuite {
     }
   }
   check(
-    """
-      |object A    {  println   ("HELLO!"  )  }
-      |
-      |
-      |// comment
-      """.stripMargin,
+    """|
+       |object A    {  println   ("HELLO!"  )  }
+       |
+       |
+       |// comment
+       |      """.stripMargin,
     """|object A { println("HELLO!") }
-      |
-      |// comment
-      |""".stripMargin
+       |
+       |// comment
+       |""".stripMargin
   )
   check(
     """|object A {
-      |  val x = 2
-      |  val xx = 3
-      |}
-    """.stripMargin,
+       |  val x = 2
+       |  val xx = 3
+       |}
+       |    """.stripMargin,
     """|object A {
-      |  val x  = 2
-      |  val xx = 3
-      |}
-      |""".stripMargin,
+       |  val x  = 2
+       |  val xx = 3
+       |}
+       |""".stripMargin,
     config.ScalafmtConfig.defaultWithAlign
   )
   check(
     """|object A { function(aaaaaaaa, bbbbbbbbbb, ddddd(eeeeeeeeee, fffffff, gggggggg)) }
-    """.stripMargin,
+       |    """.stripMargin,
     """|object A {
-      |  function(
-      |    aaaaaaaa,
-      |    bbbbbbbbbb,
-      |    ddddd(eeeeeeeeee, fffffff, gggggggg)
-      |  )
-      |}
-      |""".stripMargin,
+       |  function(
+       |    aaaaaaaa,
+       |    bbbbbbbbbb,
+       |    ddddd(eeeeeeeeee, fffffff, gggggggg)
+       |  )
+       |}
+       |""".stripMargin,
     config.ScalafmtConfig.default.copy(maxColumn = 40)
   )
 

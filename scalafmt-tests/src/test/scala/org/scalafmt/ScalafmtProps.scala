@@ -73,8 +73,8 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
     val summary = bugs.groupBy(_._2.kind.toString).mapValues(_.length).toSeq
       .sortBy(_._2).map { case (a, b) => s"$a=$b" }.mkString("\n")
     val report = s"""|$summary
-      |
-      |$table """.stripMargin
+                     |
+                     |$table """.stripMargin
     logger.elem(summary)
     logger.elem(report)
     logger.elem(summary)

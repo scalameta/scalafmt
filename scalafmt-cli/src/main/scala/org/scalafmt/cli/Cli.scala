@@ -101,11 +101,11 @@ object Cli {
   private def findRunner(options: CliOptions): MaybeRunner = options.hoconOpt
     .fold[MaybeRunner] {
       Left(
-        s"""error: missing Scalafmt configuration file.
-          |Consider creating '${options.getProposedConfigFile}'
-          |with the following (other parameters may also be required):
-          |${getProposedConfigVersion(options)}
-          |""".stripMargin
+        s"""|error: missing Scalafmt configuration file.
+            |Consider creating '${options.getProposedConfigFile}'
+            |with the following (other parameters may also be required):
+            |${getProposedConfigVersion(options)}
+            |""".stripMargin
       )
     } {
       // Run format using
@@ -119,10 +119,10 @@ object Cli {
           case _ => "--config-str option"
         }
         Left(
-          s"""error: missing Scalafmt version.
-            |Consider adding the following to $where:
-            |${getProposedConfigVersion(options)}
-            |""".stripMargin
+          s"""|error: missing Scalafmt version.
+              |Consider adding the following to $where:
+              |${getProposedConfigVersion(options)}
+              |""".stripMargin
         )
       } {
         case Left(error) => Left(s"error: invalid configuration: ${error}")
@@ -131,18 +131,18 @@ object Cli {
           Right(ScalafmtCoreRunner)
         case Right(v) if isNativeImage =>
           Left(
-            s"""error: invalid Scalafmt version.
-              |
-              |This Scalafmt installation has version '$stableVersion' and the version configured in '${options
-                .configPath}' is '$v'.
-              |To fix this problem, add the following line to .scalafmt.conf:
-              |```
-              |version = $stableVersion
-              |```
-              |
-              |NOTE: this error happens only when running a native Scalafmt binary.
-              |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
-              |""".stripMargin
+            s"""|error: invalid Scalafmt version.
+                |
+                |This Scalafmt installation has version '$stableVersion' and the version configured in '${options
+                 .configPath}' is '$v'.
+                |To fix this problem, add the following line to .scalafmt.conf:
+                |```
+                |version = $stableVersion
+                |```
+                |
+                |NOTE: this error happens only when running a native Scalafmt binary.
+                |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
+                |""".stripMargin
           )
         case Right(v) =>
           options.common.debug.println(s"Using dynamic runner [$v]")

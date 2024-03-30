@@ -44,35 +44,35 @@ abstract class AbstractCliTest extends FunSuite {
     )
   }
 
-  val unformatted = """
-    |object a    extends   App {
-    |pr("h")
-    |}
-                    """.stripMargin
+  val unformatted = """|
+                       |object a    extends   App {
+                       |pr("h")
+                       |}
+                       |                    """.stripMargin
   // Using maxColumn 10 just to see the CLI uses the custom style.
   val expected10 = """|object a
-    |    extends App {
-    |  pr(
-    |    "h"
-    |  )
-    |}
-    |""".stripMargin
+                      |    extends App {
+                      |  pr(
+                      |    "h"
+                      |  )
+                      |}
+                      |""".stripMargin
   val formatted = """|object a extends App {
-    |  pr("h")
-    |}
-    |""".stripMargin
-  val customConfig = """
-    |maxColumn   = 2
-      """.stripMargin
+                     |  pr("h")
+                     |}
+                     |""".stripMargin
+  val customConfig = """|
+                        |maxColumn   = 2
+                        |      """.stripMargin
   val sbtOriginal = """|lazy val x = project
-    |   lazy val y    = project
-    |   """.stripMargin
+                       |   lazy val y    = project
+                       |   """.stripMargin
 
   val sbtExpected = """|lazy val x =
-    |  project
-    |lazy val y =
-    |  project
-    |""".stripMargin
+                       |  project
+                       |lazy val y =
+                       |  project
+                       |""".stripMargin
 
   def gimmeConfig(string: String): ScalafmtConfig = ScalafmtConfig
     .fromHoconString(string).get
@@ -111,11 +111,11 @@ trait CliTestBehavior {
       val originalTmpFile = Files.createTempFile("prefix", ".scala")
       val originalTmpFile2 = Files.createTempFile("prefix2", ".scala")
       val scalafmtConfig = Files.createTempFile("scalafmtConfig", ".scala")
-      val config = s"""
-        |version="$version"
-        |maxColumn=7
-        |style=IntelliJ
-    """.stripMargin
+      val config = s"""|
+                       |version="$version"
+                       |maxColumn=7
+                       |style=IntelliJ
+                       |    """.stripMargin
       Files.write(originalTmpFile, unformatted.getBytes)
       Files.write(originalTmpFile2, unformatted.getBytes)
       Files.write(scalafmtConfig, config.getBytes)
@@ -153,11 +153,11 @@ trait CliTestBehavior {
 
     test(s"scalafmt --stdin --assume-filename: $label") {
       val scalafmtConfig = Files.createTempFile(".scalafmt", ".conf")
-      val config = s"""
-        |version="$version"
-        |maxColumn=7
-        |style=IntelliJ
-    """.stripMargin
+      val config = s"""|
+                       |version="$version"
+                       |maxColumn=7
+                       |style=IntelliJ
+                       |    """.stripMargin
       Files.write(scalafmtConfig, config.getBytes)
 
       val args = Array(
@@ -220,22 +220,22 @@ trait CliTestBehavior {
     test(s"handles .scala, .sbt, and .sc files: $label") {
       val input = string2dir(
         s"""|/foobar.scala
-          |object    A {  }
-          |/foo.sbt
-          |lazy   val x   = project
-          |/foo.sc
-          |lazy   val x   = project
-          |""".stripMargin
+            |object    A {  }
+            |/foo.sbt
+            |lazy   val x   = project
+            |/foo.sc
+            |lazy   val x   = project
+            |""".stripMargin
       )
       val expected = s"""|/foo.sbt
-        |lazy val x = project
-        |
-        |/foo.sc
-        |lazy val x = project
-        |
-        |/foobar.scala
-        |object A {}
-        |""".stripMargin
+                         |lazy val x = project
+                         |
+                         |/foo.sc
+                         |lazy val x = project
+                         |
+                         |/foobar.scala
+                         |object A {}
+                         |""".stripMargin
       runArgs(Array(
         input.toString(),
         "--config-str",
@@ -248,36 +248,36 @@ trait CliTestBehavior {
     test(s"excludefilters are respected: $label") {
       val input = string2dir(
         s"""|/foo.sbt
-          |lazy   val x   = project
-          |
-          |/target/FormatMe.scala
-          |object    PleaseFormatMeOtherwiseIWillBeReallySad   {  }
-          |
-          |/target/nested1/DoNotFormatMe.scala
-          |object    AAAAAAIgnoreME   {  }
-          |
-          |/target/nested1/nested2/DoNotFormatMeToo.scala
-          |object    BBBBBBIgnoreME   {  }
-          |
-          |/target/nested3/DoNotFormatMe.scala
-          |object    CIgnoreME   {  }
-          |""".stripMargin
+            |lazy   val x   = project
+            |
+            |/target/FormatMe.scala
+            |object    PleaseFormatMeOtherwiseIWillBeReallySad   {  }
+            |
+            |/target/nested1/DoNotFormatMe.scala
+            |object    AAAAAAIgnoreME   {  }
+            |
+            |/target/nested1/nested2/DoNotFormatMeToo.scala
+            |object    BBBBBBIgnoreME   {  }
+            |
+            |/target/nested3/DoNotFormatMe.scala
+            |object    CIgnoreME   {  }
+            |""".stripMargin
       )
       val expected = s"""|/foo.sbt
-        |lazy val x = project
-        |
-        |/target/FormatMe.scala
-        |object PleaseFormatMeOtherwiseIWillBeReallySad {}
-        |
-        |/target/nested1/DoNotFormatMe.scala
-        |object    AAAAAAIgnoreME   {  }
-        |
-        |/target/nested1/nested2/DoNotFormatMeToo.scala
-        |object    BBBBBBIgnoreME   {  }
-        |
-        |/target/nested3/DoNotFormatMe.scala
-        |object    CIgnoreME   {  }
-        |""".stripMargin
+                         |lazy val x = project
+                         |
+                         |/target/FormatMe.scala
+                         |object PleaseFormatMeOtherwiseIWillBeReallySad {}
+                         |
+                         |/target/nested1/DoNotFormatMe.scala
+                         |object    AAAAAAIgnoreME   {  }
+                         |
+                         |/target/nested1/nested2/DoNotFormatMeToo.scala
+                         |object    BBBBBBIgnoreME   {  }
+                         |
+                         |/target/nested3/DoNotFormatMe.scala
+                         |object    CIgnoreME   {  }
+                         |""".stripMargin
       runArgs(Array(
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
@@ -308,9 +308,9 @@ trait CliTestBehavior {
 
     test(s"scalafmt (no matching files) throws error: $label") {
       val scalafmtConfig: Path = Files.createTempFile(".scalafmt", ".conf")
-      val config: String = s"""
-        |version="$version"
-               """.stripMargin
+      val config: String = s"""|
+                               |version="$version"
+                               |               """.stripMargin
       Files.write(scalafmtConfig, config.getBytes)
       val options = baseCliOptions.copy(config = Some(scalafmtConfig))
       intercept[NoMatchingFiles.type] { Cli.run(options) }
@@ -334,33 +334,33 @@ trait CliTestBehavior {
     test(s"scalafmt (no arg) read config from git repo: $label") {
       val input = string2dir(
         s"""|/foo.scala
-          |object    FormatMe {
-          |  val x = 1
-          |}
-          |/target/foo.scala
-          |object A   { }
-          |
-          |/.scalafmt.conf
-          |version = "$version"
-          |maxColumn = 2
-          |project.excludeFilters = [target]
-          |""".stripMargin
+            |object    FormatMe {
+            |  val x = 1
+            |}
+            |/target/foo.scala
+            |object A   { }
+            |
+            |/.scalafmt.conf
+            |version = "$version"
+            |maxColumn = 2
+            |project.excludeFilters = [target]
+            |""".stripMargin
       )
 
       val expected = s"""|/.scalafmt.conf
-        |version = "$version"
-        |maxColumn = 2
-        |project.excludeFilters = [target]
-        |
-        |/foo.scala
-        |object FormatMe {
-        |  val x =
-        |    1
-        |}
-        |
-        |/target/foo.scala
-        |object A   { }
-        |""".stripMargin
+                         |version = "$version"
+                         |maxColumn = 2
+                         |project.excludeFilters = [target]
+                         |
+                         |/foo.scala
+                         |object FormatMe {
+                         |  val x =
+                         |    1
+                         |}
+                         |
+                         |/target/foo.scala
+                         |object A   { }
+                         |""".stripMargin
       noArgTest(input, expected, Seq(Array.empty[String], Array("--mode", "diff")))
     }
 
@@ -368,17 +368,17 @@ trait CliTestBehavior {
       noArgTest(
         string2dir(
           """|/foo.scala
-            |object    FormatMe
-            |/foo.sc
-            |object    FormatMe
-            |""".stripMargin
+             |object    FormatMe
+             |/foo.sc
+             |object    FormatMe
+             |""".stripMargin
         ),
         """|/foo.sc
-          |object FormatMe
-          |
-          |/foo.scala
-          |object FormatMe
-          |""".stripMargin,
+           |object FormatMe
+           |
+           |/foo.scala
+           |object FormatMe
+           |""".stripMargin,
         Seq(Array("--config-str", s"""{version="$version"}"""))
       )
     }
@@ -386,17 +386,17 @@ trait CliTestBehavior {
     test(s"config is read even from nested dir: $label") {
       val original = "object a { val x = 1 }"
       val expected = """|object a {
-        |  val x =
-        |    1
-        |}
-        |""".stripMargin
+                        |  val x =
+                        |    1
+                        |}
+                        |""".stripMargin
       val input = string2dir(
         s"""|/nested/foo.scala
-          |$original
-          |/.scalafmt.conf
-          |version="$version"
-          |maxColumn = 2
-          |""".stripMargin
+            |$original
+            |/.scalafmt.conf
+            |version="$version"
+            |maxColumn = 2
+            |""".stripMargin
       )
       val workingDir = input / "nested"
       val options: CliOptions = {
@@ -410,18 +410,18 @@ trait CliTestBehavior {
 
     test(s"if project.includeFilters isn't modified (and files aren't passed manually), it should ONLY accept scala and sbt files: $label") {
       val root = string2dir(
-        s"""
-          |/scalafmt.conf
-          |style = default
-          |version="$version"
-          |/scalafile.scala
-          |$unformatted
-          |/scalatex.scalatex
-          |$unformatted
-          |/sbt.sbt
-          |$sbtOriginal
-          |/sbt.sbtfile
-          |$sbtOriginal""".stripMargin
+        s"""|
+            |/scalafmt.conf
+            |style = default
+            |version="$version"
+            |/scalafile.scala
+            |$unformatted
+            |/scalatex.scalatex
+            |$unformatted
+            |/sbt.sbt
+            |$sbtOriginal
+            |/sbt.sbtfile
+            |$sbtOriginal""".stripMargin
       )
 
       val config = root / "scalafmt.conf"
@@ -432,22 +432,22 @@ trait CliTestBehavior {
 
       assertNoDiff(dir2string(root / "scalafile.scala"), formatted)
       val sbtFormatted = """|lazy val x = project
-        |lazy val y = project
-        |""".stripMargin
+                            |lazy val y = project
+                            |""".stripMargin
       assertNoDiff(dir2string(root / "sbt.sbt"), sbtFormatted)
     }
 
     test(s"includeFilters are ignored for full paths but NOT test for passed directories: $label") {
       val root = string2dir(
-        s"""
-          |/inner1/file1.scala
-          |$unformatted
-          |/inner2/file2.scalahala
-          |$unformatted
-          |/inner3/file1.scala
-          |$unformatted
-          |/inner3/file2.scalahala
-          |$unformatted""".stripMargin
+        s"""|
+            |/inner1/file1.scala
+            |$unformatted
+            |/inner2/file2.scalahala
+            |$unformatted
+            |/inner3/file1.scala
+            |$unformatted
+            |/inner3/file2.scalahala
+            |$unformatted""".stripMargin
       )
       val inner1 = root / "inner1"
       val inner2 = root / "inner2"
@@ -467,15 +467,15 @@ trait CliTestBehavior {
 
     test(s"includeFilters are respected for full paths but NOT test for passed directories: $label") {
       val root = string2dir(
-        s"""
-          |/inner1/file1.scala
-          |$unformatted
-          |/inner2/file2.scalahala
-          |$unformatted
-          |/inner3/file1.scala
-          |$unformatted
-          |/inner3/file2.scalahala
-          |$unformatted""".stripMargin
+        s"""|
+            |/inner1/file1.scala
+            |$unformatted
+            |/inner2/file2.scalahala
+            |$unformatted
+            |/inner3/file1.scala
+            |$unformatted
+            |/inner3/file2.scalahala
+            |$unformatted""".stripMargin
       )
       val inner1 = root / "inner1"
       val inner2 = root / "inner2"
@@ -497,12 +497,12 @@ trait CliTestBehavior {
 
     test(s"--config accepts absolute paths: $label") {
       val root = string2dir(
-        s"""/scalafmt.conf
-          |version = "$version"
-          |style = intellij
-          |/foo.scala
-          |object    A
-      """.stripMargin
+        s"""|/scalafmt.conf
+            |version = "$version"
+            |style = intellij
+            |/foo.scala
+            |object    A
+            |      """.stripMargin
       )
       val config = (root / "scalafmt.conf").toString()
       val toFormat = (root / "foo.scala").toString()
@@ -539,8 +539,8 @@ trait CliTestBehavior {
 
     test(s"parse error is formatted nicely: $label") {
       val input = """|/foo.scala
-        |object    A { foo( }
-        |""".stripMargin
+                     |object    A { foo( }
+                     |""".stripMargin
       noArgTest(
         string2dir(input),
         input,
@@ -549,9 +549,9 @@ trait CliTestBehavior {
         assertOut = out => {
           assertContains(
             out,
-            s"""foo.scala:1: error:$dialectError illegal start of simple expression
-              |object    A { foo( }
-              |                   ^""".stripMargin
+            s"""|foo.scala:1: error:$dialectError illegal start of simple expression
+                |object    A { foo( }
+                |                   ^""".stripMargin
           )
         },
         Some(ExitCode.Ok)
@@ -571,12 +571,12 @@ trait CliTestBehavior {
     test(s"--test failure prints out unified diff: $label") {
       val fooFile = "foo.scala"
       val input = s"""|/.scalafmt.conf
-        |onTestFailure = "To fix this ..."
-        |version = "$version"
-        |
-        |/$fooFile
-        |object    A { }
-        |""".stripMargin
+                      |onTestFailure = "To fix this ..."
+                      |version = "$version"
+                      |
+                      |/$fooFile
+                      |object    A { }
+                      |""".stripMargin
       val dir = string2dir(input)
       val fooPath = dir / fooFile
       noArgTest(
@@ -587,12 +587,12 @@ trait CliTestBehavior {
         assertOut = out => {
           assertContains(
             out,
-            s"""b$fooPath
-              |@@ -1,1 +1,1 @@
-              |-object    A { }
-              |+object A {}
-              |error: --test failed
-              |To fix this ...""".stripMargin
+            s"""|b$fooPath
+                |@@ -1,1 +1,1 @@
+                |-object    A { }
+                |+object A {}
+                |error: --test failed
+                |To fix this ...""".stripMargin
           )
         }
       )
@@ -600,8 +600,8 @@ trait CliTestBehavior {
 
     test(s"--test succeeds even with parse error: $label") {
       val input = """|/foo.scala
-        |object A {
-        |""".stripMargin
+                     |object A {
+                     |""".stripMargin
       noArgTest(
         string2dir(input),
         input,
@@ -618,11 +618,11 @@ trait CliTestBehavior {
 
     test(s"--test fails with parse error if fatalWarnings=true: $label") {
       val input = s"""|/.scalafmt.conf
-        |runner.fatalWarnings = true
-        |version = "$version"
-        |/foo.scala
-        |object A {
-        |""".stripMargin
+                      |runner.fatalWarnings = true
+                      |version = "$version"
+                      |/foo.scala
+                      |object A {
+                      |""".stripMargin
       noArgTest(
         string2dir(input),
         input,
@@ -640,11 +640,11 @@ trait CliTestBehavior {
 
     test(s"exception is thrown on invalid .scalafmt.conf: $label") {
       val input = s"""/.scalafmt.conf
-        |version="$version"
-        |blah = intellij
-        |/foo.scala
-        |object A {}
-      """.stripMargin
+                     |version="$version"
+                     |blah = intellij
+                     |/foo.scala
+                     |object A {}
+                     |      """.stripMargin
       noArgTest(
         string2dir(input),
         input,
@@ -674,12 +674,12 @@ trait CliTestBehavior {
       val expected = "This message should be shown"
       val unexpected = "This message should not be shown"
       val input = s"""|/.scalafmt.conf
-        |onTestFailure = "$unexpected"
-        |version = "$version"
-        |
-        |/foo.scala
-        |object      A { }
-        |""".stripMargin
+                      |onTestFailure = "$unexpected"
+                      |version = "$version"
+                      |
+                      |/foo.scala
+                      |object      A { }
+                      |""".stripMargin
       noArgTest(
         string2dir(input),
         input,
@@ -696,17 +696,17 @@ trait CliTestBehavior {
 
     test(s"--list enable scalafmt to output a list of unformatted files with ExitCode.TestError: $label") {
       val input = s"""|/.scalafmt.conf
-        |version = "$version"
-        |
-        |/bar.scala
-        |object    A { }
-        |
-        |/baz.scala
-        |object A {}
-        |
-        |/dir/foo.scala
-        |object   A { }
-        |""".stripMargin
+                      |version = "$version"
+                      |
+                      |/bar.scala
+                      |object    A { }
+                      |
+                      |/baz.scala
+                      |object A {}
+                      |
+                      |/dir/foo.scala
+                      |object   A { }
+                      |""".stripMargin
       val dir = string2dir(input)
       noArgTest(
         dir,
@@ -730,14 +730,14 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
 
   test(s"path-error") {
     val input = s"""|/.scalafmt.conf
-      |version = "${stableVersion}"
-      |project.excludePaths = [
-      |    "glob:**/src/main/scala/besom/rpc/**.scala",
-      |    "foo.scala"
-      |]
-      |/foo.scala
-      |object    A { foo( }
-      |""".stripMargin
+                    |version = "${stableVersion}"
+                    |project.excludePaths = [
+                    |    "glob:**/src/main/scala/besom/rpc/**.scala",
+                    |    "foo.scala"
+                    |]
+                    |/foo.scala
+                    |object    A { foo( }
+                    |""".stripMargin
 
     noArgTest(
       string2dir(input),
@@ -757,13 +757,13 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
 
   test(s"regex-error") {
     val input = s"""|/.scalafmt.conf
-      |version = "${stableVersion}"
-      |project.excludeFilters = [
-      |    ".*foo("
-      |]
-      |/foo.scala
-      |object    A { foo( }
-      |""".stripMargin
+                    |version = "${stableVersion}"
+                    |project.excludeFilters = [
+                    |    ".*foo("
+                    |]
+                    |/foo.scala
+                    |object    A { foo( }
+                    |""".stripMargin
 
     noArgTest(
       string2dir(input),
@@ -774,9 +774,9 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         assertContains(
           out,
           """|Illegal regex in configuration: .*foo(
-            |reason: Unclosed group near index 6
-            |.*foo(
-            |""".stripMargin
+             |reason: Unclosed group near index 6
+             |.*foo(
+             |""".stripMargin
         )
       },
       Some(ExitCode.UnexpectedError)
@@ -786,8 +786,8 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
 
   test("Fail if .scalafmt.conf is missing.") {
     val input = s"""|/foo.scala
-      |object A {}
-      |""".stripMargin
+                    |object A {}
+                    |""".stripMargin
     noArgTest(
       string2dir(input),
       input,
@@ -807,11 +807,11 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
 
   test("Fail if `version` setting is missing.") {
     val input = s"""|/.scalafmt.conf
-      |maxColumn = 10
-      |
-      |/foo.scala
-      |object A {}
-      |""".stripMargin
+                    |maxColumn = 10
+                    |
+                    |/foo.scala
+                    |object A {}
+                    |""".stripMargin
     noArgTest(
       string2dir(input),
       input,
@@ -860,102 +860,102 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   test(s"scalafmt use includePaths") {
     val input = string2dir(
       s"""|/bar.scala
-        |object    FormatMe {
-        |  val x = 1
-        |}
-        |
-        |/target/foo.scala
-        |object A   { }
-        |
-        |/.scalafmt.conf
-        |version = $stableVersion
-        |maxColumn = 2
-        |project { includePaths = ["glob:**/bar.scala"] }
-        |""".stripMargin
+          |object    FormatMe {
+          |  val x = 1
+          |}
+          |
+          |/target/foo.scala
+          |object A   { }
+          |
+          |/.scalafmt.conf
+          |version = $stableVersion
+          |maxColumn = 2
+          |project { includePaths = ["glob:**/bar.scala"] }
+          |""".stripMargin
     )
 
     val expected = s"""|/.scalafmt.conf
-      |version = $stableVersion
-      |maxColumn = 2
-      |project { includePaths = ["glob:**/bar.scala"] }
-      |
-      |/bar.scala
-      |object FormatMe {
-      |  val x =
-      |    1
-      |}
-      |
-      |/target/foo.scala
-      |object A   { }
-      |""".stripMargin
+                       |version = $stableVersion
+                       |maxColumn = 2
+                       |project { includePaths = ["glob:**/bar.scala"] }
+                       |
+                       |/bar.scala
+                       |object FormatMe {
+                       |  val x =
+                       |    1
+                       |}
+                       |
+                       |/target/foo.scala
+                       |object A   { }
+                       |""".stripMargin
     noArgTest(input, expected, Seq(Array.empty[String], Array("--mode", "diff")))
   }
 
   test(s"scalafmt use excludePaths") {
     val input = string2dir(
       s"""|/foo.scala
-        |object    FormatMe {
-        |  val x = 1
-        |}
-        |
-        |/target/foo.scala
-        |object A   { }
-        |
-        |/.scalafmt.conf
-        |version = $stableVersion
-        |maxColumn = 2
-        |project { excludePaths = ["glob:**target**"] }
-        |""".stripMargin
+          |object    FormatMe {
+          |  val x = 1
+          |}
+          |
+          |/target/foo.scala
+          |object A   { }
+          |
+          |/.scalafmt.conf
+          |version = $stableVersion
+          |maxColumn = 2
+          |project { excludePaths = ["glob:**target**"] }
+          |""".stripMargin
     )
 
     val expected = s"""|/.scalafmt.conf
-      |version = $stableVersion
-      |maxColumn = 2
-      |project { excludePaths = ["glob:**target**"] }
-      |
-      |/foo.scala
-      |object FormatMe {
-      |  val x =
-      |    1
-      |}
-      |
-      |/target/foo.scala
-      |object A   { }
-      |""".stripMargin
+                       |version = $stableVersion
+                       |maxColumn = 2
+                       |project { excludePaths = ["glob:**target**"] }
+                       |
+                       |/foo.scala
+                       |object FormatMe {
+                       |  val x =
+                       |    1
+                       |}
+                       |
+                       |/target/foo.scala
+                       |object A   { }
+                       |""".stripMargin
     noArgTest(input, expected, Seq(Array.empty[String], Array("--mode", "diff")))
   }
 
   test(s"scalafmt: includeFilters overrides default includePaths") {
     val input = string2dir(
       s"""|/bar.scala
-        |object    FormatMe {
-        |  val x = 1
-        |}
-        |
-        |/target/foo.scala
-        |object A   { }
-        |
-        |/.scalafmt.conf
-        |version = $stableVersion
-        |maxColumn = 2
-        |project { includeFilters = ["bar"] }
-        |""".stripMargin
+          |object    FormatMe {
+          |  val x = 1
+          |}
+          |
+          |/target/foo.scala
+          |object A   { }
+          |
+          |/.scalafmt.conf
+          |version = $stableVersion
+          |maxColumn = 2
+          |project { includeFilters = ["bar"] }
+          |""".stripMargin
     )
 
     val expected = s"""|/.scalafmt.conf
-      |version = $stableVersion
-      |maxColumn = 2
-      |project { includeFilters = ["bar"] }
-      |
-      |/bar.scala
-      |object FormatMe {
-      |  val x =
-      |    1
-      |}
-      |
-      |/target/foo.scala
-      |object A   { }
-      |""".stripMargin
+                       |version = $stableVersion
+                       |maxColumn = 2
+                       |project { includeFilters = ["bar"] }
+                       |
+                       |/bar.scala
+                       |object FormatMe {
+                       |  val x =
+                       |    1
+                       |}
+                       |
+                       |/target/foo.scala
+                       |object A   { }
+                       |""".stripMargin
     noArgTest(input, expected, Seq(Array.empty[String], Array("--mode", "diff")))
   }
 
@@ -964,79 +964,79 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       .mkString("[\"", "\", \"", "\"]")
     val input = string2dir(
       s"""|/bar.scala
-        |object    FormatMe {
-        |  val x = 1
-        |}
-        |
-        |/target/foo.scala
-        |object A   { }
-        |
-        |/.scalafmt.conf
-        |version = $stableVersion
-        |maxColumn = 2
-        |project {
-        |  includePaths = $defaultIncludePathsJson
-        |  includeFilters = ["bar"]
-        |}
-        |""".stripMargin
+          |object    FormatMe {
+          |  val x = 1
+          |}
+          |
+          |/target/foo.scala
+          |object A   { }
+          |
+          |/.scalafmt.conf
+          |version = $stableVersion
+          |maxColumn = 2
+          |project {
+          |  includePaths = $defaultIncludePathsJson
+          |  includeFilters = ["bar"]
+          |}
+          |""".stripMargin
     )
 
     val expected = s"""|/.scalafmt.conf
-      |version = $stableVersion
-      |maxColumn = 2
-      |project {
-      |  includePaths = $defaultIncludePathsJson
-      |  includeFilters = ["bar"]
-      |}
-      |
-      |/bar.scala
-      |object FormatMe {
-      |  val x =
-      |    1
-      |}
-      |
-      |/target/foo.scala
-      |object A {}
-      |""".stripMargin
+                       |version = $stableVersion
+                       |maxColumn = 2
+                       |project {
+                       |  includePaths = $defaultIncludePathsJson
+                       |  includeFilters = ["bar"]
+                       |}
+                       |
+                       |/bar.scala
+                       |object FormatMe {
+                       |  val x =
+                       |    1
+                       |}
+                       |
+                       |/target/foo.scala
+                       |object A {}
+                       |""".stripMargin
     noArgTest(input, expected, Seq(Array.empty[String], Array("--mode", "diff")))
   }
 
   test(s"handles .md files when present in includePaths") {
     val input = string2dir(
       s"""|/foobar.md
-        |# Hello
-        |Example usage 1 with long   spaced line
-        |```scala mdoc
-        |val  x   =   42
-        |```
-        |Example usage 2
-        |```java
-        |val  x   =   42
-        |```
-        |/.scalafmt.conf
-        |version = $stableVersion
-        |maxColumn   = 8
-        |project.includePaths."+" = ["glob:**.md"]
-        |""".stripMargin
+          |# Hello
+          |Example usage 1 with long   spaced line
+          |```scala mdoc
+          |val  x   =   42
+          |```
+          |Example usage 2
+          |```java
+          |val  x   =   42
+          |```
+          |/.scalafmt.conf
+          |version = $stableVersion
+          |maxColumn   = 8
+          |project.includePaths."+" = ["glob:**.md"]
+          |""".stripMargin
     )
     val expected = s"""|
-      |/.scalafmt.conf
-      |version = $stableVersion
-      |maxColumn   = 8
-      |project.includePaths."+" = ["glob:**.md"]
-      |
-      |/foobar.md
-      |# Hello
-      |Example usage 1 with long   spaced line
-      |```scala mdoc
-      |val x =
-      |  42
-      |```
-      |Example usage 2
-      |```java
-      |val  x   =   42
-      |```
-      |""".stripMargin
+                       |/.scalafmt.conf
+                       |version = $stableVersion
+                       |maxColumn   = 8
+                       |project.includePaths."+" = ["glob:**.md"]
+                       |
+                       |/foobar.md
+                       |# Hello
+                       |Example usage 1 with long   spaced line
+                       |```scala mdoc
+                       |val x =
+                       |  42
+                       |```
+                       |Example usage 2
+                       |```java
+                       |val  x   =   42
+                       |```
+                       |""".stripMargin
 
     noArgTest(input, expected, Seq(Array.empty[String], Array("--mode", "diff")))
   }
@@ -1044,26 +1044,26 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   test(s"ignores .md files if not present in includePaths") {
     val input = string2dir(
       s"""|/foobar.md
-        |# Hello
-        |Example usage 1
-        |```scala mdoc
-        |val  x   =   42
-        |```
-        |/.scalafmt.conf
-        |version = $stableVersion
-        |""".stripMargin
+          |# Hello
+          |Example usage 1
+          |```scala mdoc
+          |val  x   =   42
+          |```
+          |/.scalafmt.conf
+          |version = $stableVersion
+          |""".stripMargin
     )
     val expected = s"""|
-      |/.scalafmt.conf
-      |version = $stableVersion
-      |
-      |/foobar.md
-      |# Hello
-      |Example usage 1
-      |```scala mdoc
-      |val x   =   42
-      |```
-      |""".stripMargin
+                       |/.scalafmt.conf
+                       |version = $stableVersion
+                       |
+                       |/foobar.md
+                       |# Hello
+                       |Example usage 1
+                       |```scala mdoc
+                       |val x   =   42
+                       |```
+                       |""".stripMargin
 
     try {
       noArgTest(input, expected, Seq(Array.empty[String], Array("--mode", "diff")))
@@ -1074,30 +1074,30 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   test(s"handles .md with normal comment that contains a nested fence") {
     val input = string2dir(
       s"""|/foobar.md
-        | Intro
-        |```scala mdoc
-        |object    A {
-        | /*
-        |  * ```scala mdoc
-        |  *    val example = "text"
-        |  * ```
-        |  */
-        |                       }
-        |```
-        |""".stripMargin
+          | Intro
+          |```scala mdoc
+          |object    A {
+          | /*
+          |  * ```scala mdoc
+          |  *    val example = "text"
+          |  * ```
+          |  */
+          |                       }
+          |```
+          |""".stripMargin
     )
     val expected = s"""|/foobar.md
-      | Intro
-      |```scala mdoc
-      |object A {
-      |  /*
-      |   * ```scala mdoc
-      |   *    val example = "text"
-      |   * ```
-      |   */
-      |}
-      |```
-      |""".stripMargin
+                       | Intro
+                       |```scala mdoc
+                       |object A {
+                       |  /*
+                       |   * ```scala mdoc
+                       |   *    val example = "text"
+                       |   * ```
+                       |   */
+                       |}
+                       |```
+                       |""".stripMargin
     runArgs(Array(
       input.toString(),
       "--config-str",
@@ -1111,18 +1111,18 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   test(s"does apply to .md files with indented fenced content ") {
     val input = string2dir(
       s"""|/foobar2.md
-        | Intro text:
-        |  ```scala mdoc
-        |        object    A {      }
-        |  ```
-        |""".stripMargin
+          | Intro text:
+          |  ```scala mdoc
+          |        object    A {      }
+          |  ```
+          |""".stripMargin
     )
     val expected = s"""|/foobar2.md
-      | Intro text:
-      |  ```scala mdoc
-      |  object A {}
-      |  ```
-      |""".stripMargin
+                       | Intro text:
+                       |  ```scala mdoc
+                       |  object A {}
+                       |  ```
+                       |""".stripMargin
     runArgs(Array(
       input.toString(),
       "--config-str",
@@ -1136,28 +1136,28 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   test(s"does not format nested fences when not inside a Scala comment") {
     val input = string2dir(
       s"""|/foobar.md
-        |```scala mdoc
-        |object    A {
-        | /*
-        |```scala mdoc
-        |   val example = "text"
-        |```
-        |  */
-        |  }
-        |```
-        |""".stripMargin
+          |```scala mdoc
+          |object    A {
+          | /*
+          |```scala mdoc
+          |   val example = "text"
+          |```
+          |  */
+          |  }
+          |```
+          |""".stripMargin
     )
     val expected = s"""|/foobar.md
-      |```scala mdoc
-      |object    A {
-      | /*
-      |```scala mdoc
-      |   val example = "text"
-      |```
-      |  */
-      |  }
-      |```
-      |""".stripMargin
+                       |```scala mdoc
+                       |object    A {
+                       | /*
+                       |```scala mdoc
+                       |   val example = "text"
+                       |```
+                       |  */
+                       |  }
+                       |```
+                       |""".stripMargin
     runArgs(
       Array(
         input.toString(),
@@ -1173,39 +1173,39 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   test(s"handles .md fences with uneven backticks") {
     val input = string2dir(
       s"""|/foobar.md
-        |# Hello
-        |Example usage 1 with long   spaced line
-        |```scala mdoc
-        |val  x   =   42
-        |`````
-        |Example usage 2
-        |```java
-        |val  x   =   42
-        |```
-        |/.scalafmt.conf
-        |version = $stableVersion
-        |maxColumn   = 8
-        |project.includePaths."+" = ["glob:**.md"]
-        |""".stripMargin
+          |# Hello
+          |Example usage 1 with long   spaced line
+          |```scala mdoc
+          |val  x   =   42
+          |`````
+          |Example usage 2
+          |```java
+          |val  x   =   42
+          |```
+          |/.scalafmt.conf
+          |version = $stableVersion
+          |maxColumn   = 8
+          |project.includePaths."+" = ["glob:**.md"]
+          |""".stripMargin
     )
     val expected = s"""|
-      |/.scalafmt.conf
-      |version = $stableVersion
-      |maxColumn   = 8
-      |project.includePaths."+" = ["glob:**.md"]
-      |
-      |/foobar.md
-      |# Hello
-      |Example usage 1 with long   spaced line
-      |```scala mdoc
-      |val x =
-      |  42
-      |`````
-      |Example usage 2
-      |```java
-      |val  x   =   42
-      |```
-      |""".stripMargin
+                       |/.scalafmt.conf
+                       |version = $stableVersion
+                       |maxColumn   = 8
+                       |project.includePaths."+" = ["glob:**.md"]
+                       |
+                       |/foobar.md
+                       |# Hello
+                       |Example usage 1 with long   spaced line
+                       |```scala mdoc
+                       |val x =
+                       |  42
+                       |`````
+                       |Example usage 2
+                       |```java
+                       |val  x   =   42
+                       |```
+                       |""".stripMargin
 
     noArgTest(input, expected, Seq(Array.empty[String], Array("--mode", "diff")))
   }
@@ -1214,9 +1214,9 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     val out = new ByteArrayOutputStream()
     val err = new ByteArrayOutputStream()
     val codeNoEol = """|object FormatMe {
-      |  val x =
-      |    1
-      |}""".stripMargin
+                       |  val x =
+                       |    1
+                       |}""".stripMargin
     Console.withOut(out) {
       Console.withErr(err) {
         val options = getConfig(Array("--stdin", "--test"))
@@ -1234,12 +1234,12 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     assertEquals(CliTest.stripCR(out.toString), "error: --test failed\n")
     assertEquals(
       CliTest.stripCR(err.toString),
-      """--- astdin.scala
-        |+++ bstdin.scala
-        |@@ -4,1 +4,2 @@
-        | }
-        |+
-        |""".stripMargin
+      """|--- astdin.scala
+         |+++ bstdin.scala
+         |@@ -4,1 +4,2 @@
+         | }
+         |+
+         |""".stripMargin
     )
   }
 

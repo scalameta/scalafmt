@@ -86,9 +86,9 @@ trait HasTests extends FormatAssertions {
     def loadStyle(cfg: String, base: ScalafmtConfig): ScalafmtConfig =
       ScalafmtConfig.fromHoconString(cfg, base).getOrRecover { c =>
         throw new IllegalArgumentException(
-          s"""Failed to parse filename $filename:
-            |$cfg
-            |$c""".stripMargin
+          s"""|Failed to parse filename $filename:
+              |$cfg
+              |$c""".stripMargin
         )
       }
     val style: ScalafmtConfig = loadStyle(

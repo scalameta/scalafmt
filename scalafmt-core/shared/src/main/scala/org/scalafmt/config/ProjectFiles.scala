@@ -85,7 +85,7 @@ object ProjectFiles {
           case e: java.util.regex.PatternSyntaxException =>
             throw new ScalafmtConfigException(
               s"""|Illegal regex in configuration: $regex
-                |reason: ${e.getMessage()}""".stripMargin
+                  |reason: ${e.getMessage()}""".stripMargin
             )
         }
 
