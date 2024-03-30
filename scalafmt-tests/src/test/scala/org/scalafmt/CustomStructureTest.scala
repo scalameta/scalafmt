@@ -16,9 +16,9 @@ class CustomStructureTest extends FunSuite {
 
   // #3634
   check(
-    """
-      |def foo(a: Foo[_]): Unit = ???
-      """.stripMargin,
+    """|
+       |def foo(a: Foo[_]): Unit = ???
+       |      """.stripMargin,
     Defn.Def(
       Nil,
       Term.Name("foo"),

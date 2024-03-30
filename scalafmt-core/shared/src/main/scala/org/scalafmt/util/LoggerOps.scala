@@ -28,9 +28,10 @@ object LoggerOps {
   }
   def log(split: Split): String = s"$split"
 
-  def log(formatToken: FormatToken): String = s"""${log(formatToken.left)}
-    |${log(formatToken.between: _*)}
-    |${log(formatToken.right)}""".stripMargin
+  def log(formatToken: FormatToken): String =
+    s"""|${log(formatToken.left)}
+        |${log(formatToken.between: _*)}
+        |${log(formatToken.right)}""".stripMargin
 
   def log2(formatToken: FormatToken): String = formatToken.toString
 
@@ -52,11 +53,11 @@ object LoggerOps {
   def log(t: Tree, tokensOnly: Boolean): String = {
     val tokens = s"TOKENS: ${t.tokens.map(x => reveal(x.syntax)).mkString(",")}"
     if (tokensOnly) tokens
-    else s"""TYPE: ${t.getClass.getName.stripPrefix("scala.meta.")}
-      |SOURCE: $t
-      |STRUCTURE: ${t.show[Structure]}
-      |$tokens
-      |""".stripMargin
+    else s"""|TYPE: ${t.getClass.getName.stripPrefix("scala.meta.")}
+             |SOURCE: $t
+             |STRUCTURE: ${t.show[Structure]}
+             |$tokens
+             |""".stripMargin
   }
 
   def log(t: Option[Tree]): String = log(t, false)

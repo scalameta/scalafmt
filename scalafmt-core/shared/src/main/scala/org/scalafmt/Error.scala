@@ -41,14 +41,14 @@ object Error {
 
   case class FormatterChangedAST(diff: String, output: String)
       extends Error(
-        s"""Formatter changed AST
-          |=====================
-          |$diff
-          |=====================
-          |${output.linesIterator.toVector.take(10).mkString("\n")}
-          |=====================
-          |Formatter changed AST
-      """.stripMargin
+        s"""|Formatter changed AST
+            |=====================
+            |$diff
+            |=====================
+            |${output.linesIterator.toVector.take(10).mkString("\n")}
+            |=====================
+            |Formatter changed AST
+            |""".stripMargin
       )
 
   case class FormatterOutputDoesNotParse(msg: String, line: Int)
@@ -56,8 +56,8 @@ object Error {
 
   case class UnexpectedTree[Expected <: Tree: ClassTag](obtained: Tree)
       extends Error(
-        s"""Expected: ${classTag[Expected].runtimeClass.getName}
-          |Obtained: ${log(obtained)}""".stripMargin
+        s"""|Expected: ${classTag[Expected].runtimeClass.getName}
+            |Obtained: ${log(obtained)}""".stripMargin
       )
 
   case class CantFormatFile(msg: String)

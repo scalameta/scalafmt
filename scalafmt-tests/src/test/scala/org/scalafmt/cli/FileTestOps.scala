@@ -37,7 +37,7 @@ object FileTestOps {
     val prefix = rootPath.toString
     FileOps.listFiles(rootPath).sortBy(_.toString).map { path =>
       s"""|${path.toString.stripPrefix(prefix)}
-        |${FileOps.readFile(path)}""".stripMargin
+          |${FileOps.readFile(path)}""".stripMargin
     }.mkString("\n").replace(File.separator, "/") // ensure original separators
   }
 

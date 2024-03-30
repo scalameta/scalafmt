@@ -1341,11 +1341,11 @@ class FormatOps(
     case _ if orNil => Nil
     case t =>
       logger.debug(
-        s"""getApplyArgs: unknown tree
-          |Tree: ${log(t)}
-          |Parent: ${log(t.parent)}
-          |GrandParent: ${log(t.parent.flatMap(_.parent))}
-          |""".stripMargin
+        s"""|getApplyArgs: unknown tree
+            |Tree: ${log(t)}
+            |Parent: ${log(t.parent)}
+            |GrandParent: ${log(t.parent.flatMap(_.parent))}
+            |""".stripMargin
       )
       throw UnexpectedTree[Member.SyntaxValuesClause](t)
   }

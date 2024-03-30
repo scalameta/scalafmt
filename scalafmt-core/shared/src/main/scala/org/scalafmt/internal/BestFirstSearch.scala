@@ -290,17 +290,17 @@ private class BestFirstSearch private (
       val tok = tokens(deepestYet.depth)
       val splitsAfterPolicy = deepestYet.policy
         .execute(Decision(tok, nextSplits))
-      val msg = s"""UNABLE TO FORMAT,
-        |tok=$tok
-        |toks.length=${tokens.length}
-        |deepestYet.length=${deepestYet.depth}
-        |policies=${deepestYet.policy.policies}
-        |nextSplits=$nextSplits
-        |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
+      val msg = s"""|UNABLE TO FORMAT,
+                    |tok=$tok
+                    |toks.length=${tokens.length}
+                    |deepestYet.length=${deepestYet.depth}
+                    |policies=${deepestYet.policy.policies}
+                    |nextSplits=$nextSplits
+                    |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
       if (runner.debug) {
         logger.debug(
-          s"""Failed to format
-            |$msg""".stripMargin
+          s"""|Failed to format
+              |$msg""".stripMargin
         )
       }
       complete(deepestYet)

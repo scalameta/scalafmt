@@ -54,14 +54,14 @@ object Readme {
     val expressions = s"{$code}".parse[Stat].get.asInstanceOf[Term.Block].stats
     val evaluated = eval[Any](code)
     val output = evaluated match {
-      case s: String => s"""
-          |"$s"""".stripMargin
+      case s: String => s"""|
+                            |"$s"""".stripMargin
       case x => x.toString
     }
-    val result =
-      s"""${expressions.map(x => s"scala> ${x.toString().trim}").mkString("\n")}
-        |res0: ${evaluated.getClass.getName} = $output
-        |""".stripMargin
+    val result = s"""|${expressions.map(x => s"scala> ${x.toString().trim}")
+                      .mkString("\n")}
+                     |res0: ${evaluated.getClass.getName} = $output
+                     |""".stripMargin
     hl.scala(result)
   }
 
