@@ -322,8 +322,10 @@ private class BestFirstSearch private (
         |nextSplits=$nextSplits
         |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
       if (runner.debug) {
-        logger.debug(s"""Failed to format
-          |$msg""".stripMargin)
+        logger.debug(
+          s"""Failed to format
+            |$msg""".stripMargin
+        )
       }
       complete(deepestYet)
       SearchResult(deepestYet, reachedEOF = false)

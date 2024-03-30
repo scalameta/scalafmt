@@ -56,11 +56,12 @@ object LoggerOps {
     val tokens =
       s"TOKENS: ${t.tokens.map(x => reveal(x.syntax)).mkString(",")}"
     if (tokensOnly) tokens
-    else s"""TYPE: ${t.getClass.getName.stripPrefix("scala.meta.")}
-      |SOURCE: $t
-      |STRUCTURE: ${t.show[Structure]}
-      |$tokens
-      |""".stripMargin
+    else
+      s"""TYPE: ${t.getClass.getName.stripPrefix("scala.meta.")}
+        |SOURCE: $t
+        |STRUCTURE: ${t.show[Structure]}
+        |$tokens
+        |""".stripMargin
   }
 
   def log(t: Option[Tree]): String = log(t, false)

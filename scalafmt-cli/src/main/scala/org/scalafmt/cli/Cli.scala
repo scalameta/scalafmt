@@ -103,11 +103,13 @@ object Cli {
   private def findRunner(
       options: CliOptions
   ): MaybeRunner = options.hoconOpt.fold[MaybeRunner] {
-    Left(s"""error: missing Scalafmt configuration file.
-      |Consider creating '${options.getProposedConfigFile}'
-      |with the following (other parameters may also be required):
-      |${getProposedConfigVersion(options)}
-      |""".stripMargin)
+    Left(
+      s"""error: missing Scalafmt configuration file.
+        |Consider creating '${options.getProposedConfigFile}'
+        |with the following (other parameters may also be required):
+        |${getProposedConfigVersion(options)}
+        |""".stripMargin
+    )
   } {
     // Run format using
     // - `scalafmt-dynamic` if the specified `version` setting doesn't match build version.
@@ -121,10 +123,12 @@ object Cli {
             .toString
         case _ => "--config-str option"
       }
-      Left(s"""error: missing Scalafmt version.
-        |Consider adding the following to $where:
-        |${getProposedConfigVersion(options)}
-        |""".stripMargin)
+      Left(
+        s"""error: missing Scalafmt version.
+          |Consider adding the following to $where:
+          |${getProposedConfigVersion(options)}
+          |""".stripMargin
+      )
     } {
       case Left(error) =>
         Left(s"error: invalid configuration: ${error}")

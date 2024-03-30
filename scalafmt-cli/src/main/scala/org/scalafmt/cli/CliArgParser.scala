@@ -166,10 +166,12 @@ object CliArgParser {
         }
         .text("(experimental) only format line range from=to")
 
-      note(s"""|Examples:
-        |$usageExamples
-        |Please file bugs to https://github.com/scalameta/scalafmt/issues
-      """.stripMargin)
+      note(
+        s"""|Examples:
+          |$usageExamples
+          |Please file bugs to https://github.com/scalameta/scalafmt/issues
+      """.stripMargin
+      )
 
       checkConfig { c =>
         if (c.config.isDefined && c.configStr.isDefined)
