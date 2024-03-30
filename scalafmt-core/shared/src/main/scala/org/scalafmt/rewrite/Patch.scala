@@ -46,9 +46,11 @@ object Patch {
       case (add: Add, _: Remove) => add.copy(keepTok = false)
       case (rem: Remove, _: Remove) => rem
       case _ =>
-        sys.error(s"""Can't merge token patches:
-          |1. $a
-          |2. $b""".stripMargin)
+        sys.error(
+          s"""Can't merge token patches:
+            |1. $a
+            |2. $b""".stripMargin
+        )
     }
 
 }

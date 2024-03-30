@@ -44,21 +44,25 @@ object Error {
       extends Error(s"Missing => in case: \n$tree")
 
   case class FormatterChangedAST(diff: String, output: String)
-      extends Error(s"""Formatter changed AST
-        |=====================
-        |$diff
-        |=====================
-        |${output.linesIterator.toVector.take(10).mkString("\n")}
-        |=====================
-        |Formatter changed AST
-      """.stripMargin)
+      extends Error(
+        s"""Formatter changed AST
+          |=====================
+          |$diff
+          |=====================
+          |${output.linesIterator.toVector.take(10).mkString("\n")}
+          |=====================
+          |Formatter changed AST
+      """.stripMargin
+      )
 
   case class FormatterOutputDoesNotParse(msg: String, line: Int)
       extends Error("Formatter output does not parse:\n" + msg)
 
   case class UnexpectedTree[Expected <: Tree: ClassTag](obtained: Tree)
-      extends Error(s"""Expected: ${classTag[Expected].runtimeClass.getName}
-        |Obtained: ${log(obtained)}""".stripMargin)
+      extends Error(
+        s"""Expected: ${classTag[Expected].runtimeClass.getName}
+          |Obtained: ${log(obtained)}""".stripMargin
+      )
 
   case class CantFormatFile(msg: String)
       extends Error("scalafmt cannot format this file:\n" + msg)

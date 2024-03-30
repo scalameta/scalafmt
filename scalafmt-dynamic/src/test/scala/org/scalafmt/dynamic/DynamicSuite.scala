@@ -84,11 +84,13 @@ class DynamicSuite extends FunSuite {
     }
     def setVersion(newVersion: String, dialect: String, rest: String*): Unit = {
       val dialectLine = Option(dialect).fold("")(x => s"runner.dialect = $x")
-      setConfig(s"""
-        |version="$newVersion"
-        |$dialectLine
-        |${rest.mkString("\n")}
-        |""".stripMargin)
+      setConfig(
+        s"""
+          |version="$newVersion"
+          |$dialectLine
+          |${rest.mkString("\n")}
+          |""".stripMargin
+      )
     }
     def relevant: String = {
       out.toString.replace(config.toString, "path/.scalafmt.conf")
@@ -293,12 +295,14 @@ class DynamicSuite extends FunSuite {
   }
 
   check("regex-error") { f =>
-    f.setConfig(s"""|version = "$nightly"
-      |runner.dialect = "scala212"
-      |project.excludeFilters = [
-      |    ".*foo("
-      |]
-      |""".stripMargin)
+    f.setConfig(
+      s"""|version = "$nightly"
+        |runner.dialect = "scala212"
+        |project.excludeFilters = [
+        |    ".*foo("
+        |]
+        |""".stripMargin
+    )
     val err = f.assertThrows[ScalafmtDynamicError.ConfigParseError]().getMessage
     assertNoDiff(
       err.takeRight(120),
@@ -310,12 +314,14 @@ class DynamicSuite extends FunSuite {
   }
 
   check("path-error") { f =>
-    f.setConfig(s"""|version = "$nightly"
-      |runner.dialect = "scala212"
-      |project.excludePaths = [
-      |    "foo.scala"
-      |]
-      |""".stripMargin)
+    f.setConfig(
+      s"""|version = "$nightly"
+        |runner.dialect = "scala212"
+        |project.excludePaths = [
+        |    "foo.scala"
+        |]
+        |""".stripMargin
+    )
     val err = f.assertThrows[ScalafmtDynamicError.ConfigParseError]().getMessage
     assertNoDiff(
       err.takeRight(120),

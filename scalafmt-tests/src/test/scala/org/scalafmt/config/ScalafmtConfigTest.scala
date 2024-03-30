@@ -48,10 +48,12 @@ class ScalafmtConfigTest extends FunSuite {
 
   test("align preset no override") {
     val config = ScalafmtConfig
-      .fromHoconString("""
-        |align = none
-        |align.stripMargin = true
-      """.stripMargin)
+      .fromHoconString(
+        """
+          |align = none
+          |align.stripMargin = true
+      """.stripMargin
+      )
       .get
     // none was ignored
     assertEquals(config.align, Align(stripMargin = true))
@@ -59,36 +61,44 @@ class ScalafmtConfigTest extends FunSuite {
 
   test("align preset with override") {
     val config = ScalafmtConfig
-      .fromHoconString("""
-        |align.preset = none
-        |align.stripMargin = true
-      """.stripMargin)
+      .fromHoconString(
+        """
+          |align.preset = none
+          |align.stripMargin = true
+      """.stripMargin
+      )
       .get
     assertEquals(config.align, Align.none.copy(stripMargin = true))
   }
 
   test("dialect override") {
     val config1 = ScalafmtConfig
-      .fromHoconString("""
-        |runner.dialect = scala213
-        |""".stripMargin)
+      .fromHoconString(
+        """
+          |runner.dialect = scala213
+          |""".stripMargin
+      )
       .get
     assert(!config1.runner.getDialect.allowToplevelTerms)
     val config2 = ScalafmtConfig
-      .fromHoconString("""
-        |runner.dialectOverride.allowToplevelTerms = true
-        |runner.dialect = scala213
-        |""".stripMargin)
+      .fromHoconString(
+        """
+          |runner.dialectOverride.allowToplevelTerms = true
+          |runner.dialect = scala213
+          |""".stripMargin
+      )
       .get
     assert(config2.runner.getDialect.allowToplevelTerms)
   }
 
   test("hasRewriteRules-and-withoutRewriteRules trailingCommas") {
     val config1 = ScalafmtConfig
-      .fromHoconString("""
-        |runner.dialect = scala213
-        |rewrite.trailingCommas = never
-        |""".stripMargin)
+      .fromHoconString(
+        """
+          |runner.dialect = scala213
+          |rewrite.trailingCommas = never
+          |""".stripMargin
+      )
       .get
     assert(config1.hasRewrites)
     val config2 = config1.withoutRewrites
@@ -97,11 +107,13 @@ class ScalafmtConfigTest extends FunSuite {
 
   test("hasRewriteRules-and-withoutRewriteRules docstrings") {
     val config1 = ScalafmtConfig
-      .fromHoconString("""
-        |runner.dialect = scala213
-        |rewrite.trailingCommas = keep
-        |docstrings.removeEmpty = true
-        |""".stripMargin)
+      .fromHoconString(
+        """
+          |runner.dialect = scala213
+          |rewrite.trailingCommas = keep
+          |docstrings.removeEmpty = true
+          |""".stripMargin
+      )
       .get
     assert(config1.hasRewrites)
     val config2 = config1.withoutRewrites

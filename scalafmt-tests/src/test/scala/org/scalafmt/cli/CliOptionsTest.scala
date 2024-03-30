@@ -21,9 +21,11 @@ class CliOptionsTest extends FunSuite {
     )
 
     assertEquals(
-      ScalafmtConfig.fromHoconString("""|preset = defaultWithAlign
-        |maxColumn = 100
-        |""".stripMargin),
+      ScalafmtConfig.fromHoconString(
+        """|preset = defaultWithAlign
+          |maxColumn = 100
+          |""".stripMargin
+      ),
       Configured.ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100))
     )
     assertEquals(
