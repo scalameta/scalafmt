@@ -37,13 +37,12 @@ case class ProjectFiles(
 object ProjectFiles {
   implicit lazy val surface: generic.Surface[ProjectFiles] =
     generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[ProjectFiles] =
-    generic.deriveCodecEx(ProjectFiles()).noTypos
+  implicit lazy val codec: ConfCodecEx[ProjectFiles] = generic
+    .deriveCodecEx(ProjectFiles()).noTypos
 
   private implicit val fs: file.FileSystem = file.FileSystems.getDefault
 
-  val defaultIncludePaths =
-    Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc")
+  val defaultIncludePaths = Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc")
 
   private sealed abstract class PathMatcher {
     def matches(path: file.Path): Boolean
@@ -55,8 +54,8 @@ object ProjectFiles {
         regexExclude: Seq[String] = Nil
     ): FileMatcher = {
       // check if includePaths were specified explicitly
-      val useIncludePaths =
-        pf.includePaths.ne(defaultIncludePaths) || pf.includeFilters.isEmpty
+      val useIncludePaths = pf.includePaths.ne(defaultIncludePaths) ||
+        pf.includeFilters.isEmpty
       val includePaths = if (useIncludePaths) pf.includePaths else Seq.empty
       new FileMatcher(
         nio(includePaths) ++ regex(pf.includeFilters),
@@ -64,8 +63,8 @@ object ProjectFiles {
       )
     }
 
-    private def create(seq: Seq[String], f: String => PathMatcher) =
-      seq.map(_.asFilename).distinct.map(f)
+    private def create(seq: Seq[String], f: String => PathMatcher) = seq
+      .map(_.asFilename).distinct.map(f)
     private def nio(seq: Seq[String]) = create(seq, new Nio(_))
     private def regex(seq: Seq[String]) = create(seq, new Regex(_))
 
@@ -73,8 +72,7 @@ object ProjectFiles {
       private val matcher =
         try { fs.getPathMatcher(pattern) }
         catch {
-          case _: IllegalArgumentException =>
-            throw new ScalafmtConfigException(
+          case _: IllegalArgumentException => throw new ScalafmtConfigException(
               s"Illegal pattern in configuration: $pattern"
             )
         }
@@ -91,18 +89,16 @@ object ProjectFiles {
             )
         }
 
-      def matches(path: file.Path): Boolean =
-        pattern.matcher(path.toString).find()
+      def matches(path: file.Path): Boolean = pattern.matcher(path.toString)
+        .find()
     }
   }
 
   class FileMatcher(include: Seq[PathMatcher], exclude: Seq[PathMatcher]) {
-    def matchesPath(path: file.Path): Boolean =
-      include.exists(_.matches(path)) && !exclude.exists(_.matches(path))
-    def matches(filename: String): Boolean =
-      matchesPath(fs.getPath(filename))
-    def matchesFile(file: AbsoluteFile): Boolean =
-      matchesPath(file.path)
+    def matchesPath(path: file.Path): Boolean = include
+      .exists(_.matches(path)) && !exclude.exists(_.matches(path))
+    def matches(filename: String): Boolean = matchesPath(fs.getPath(filename))
+    def matchesFile(file: AbsoluteFile): Boolean = matchesPath(file.path)
   }
 
   case class FileInfo(lang: String, isTest: Boolean)
@@ -112,8 +108,8 @@ object ProjectFiles {
     protected[config] def getDialectByLang(lang: String)(implicit
         dialect: Dialect
     ): Option[NamedDialect]
-    final def getLang(path: AbsoluteFile): Option[String] =
-      getInfo(path).map(_.lang)
+    final def getLang(path: AbsoluteFile): Option[String] = getInfo(path)
+      .map(_.lang)
     final def withLang(lang: String, style: ScalafmtConfig): ScalafmtConfig =
       style.withDialect(getDialectByLang(lang)(style.dialect))
   }
@@ -133,10 +129,7 @@ object ProjectFiles {
       }
 
       @tailrec
-      private def getInfo(
-          dirs: Array[String],
-          len: Int
-      ): Option[FileInfo] = {
+      private def getInfo(dirs: Array[String], len: Int): Option[FileInfo] = {
         // src/phase/lang
         val srcIdx = dirs.lastIndexOf("src", len - 3)
         if (srcIdx < 0) None
@@ -149,16 +142,19 @@ object ProjectFiles {
         }
       }
 
-      @inline private def is211(implicit dialect: Dialect) =
+      @inline
+      private def is211(implicit dialect: Dialect) =
         !dialect.allowCaseClassWithoutParameterList
-      @inline private def is212(implicit dialect: Dialect) =
-        dialect.allowTrailingCommas
-      @inline private def is213(implicit dialect: Dialect) =
-        dialect.allowLiteralTypes
-      @inline private def is3(implicit dialect: Dialect) =
+      @inline
+      private def is212(implicit dialect: Dialect) = dialect.allowTrailingCommas
+      @inline
+      private def is213(implicit dialect: Dialect) = dialect.allowLiteralTypes
+      @inline
+      private def is3(implicit dialect: Dialect) =
         dialect.allowSignificantIndentation
 
-      @inline private[config] def nd(text: sourcecode.Text[Dialect]) =
+      @inline
+      private[config] def nd(text: sourcecode.Text[Dialect]) =
         Some(NamedDialect(text))
       private[config] val s210 = nd(dialects.Scala210)
       private[config] val s211 = nd(dialects.Scala211)
@@ -166,9 +162,9 @@ object ProjectFiles {
       private[config] val s213 = nd(NamedDialect.scala213)
       private[config] val s3 = nd(NamedDialect.scala3)
 
-      override protected[config] def getDialectByLang(lang: String)(implicit
-          dialect: Dialect
-      ): Option[NamedDialect] = lang match {
+      override protected[config] def getDialectByLang(
+          lang: String
+      )(implicit dialect: Dialect): Option[NamedDialect] = lang match {
         case "scala-2.10" if is211 => s210
         case "scala-2.11" if is212 || !is211 => s211
         case "scala-2.12" if is213 || !is212 => s212
@@ -179,10 +175,8 @@ object ProjectFiles {
       }
     }
 
-    implicit val reader: ConfCodecEx[Layout] =
-      ReaderUtil.oneOf[Layout](
-        StandardConvention
-      )
+    implicit val reader: ConfCodecEx[Layout] = ReaderUtil
+      .oneOf[Layout](StandardConvention)
 
   }
 

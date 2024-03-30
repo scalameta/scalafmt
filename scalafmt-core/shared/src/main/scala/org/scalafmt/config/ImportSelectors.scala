@@ -42,8 +42,8 @@ sealed abstract class ImportSelectors
 
 object ImportSelectors {
 
-  implicit val codec: ConfCodecEx[ImportSelectors] =
-    ReaderUtil.oneOfCustom[ImportSelectors](noBinPack, binPack, singleLine) {
+  implicit val codec: ConfCodecEx[ImportSelectors] = ReaderUtil
+    .oneOfCustom[ImportSelectors](noBinPack, binPack, singleLine) {
       case Conf.Bool(true) => Configured.ok(ImportSelectors.binPack)
       case Conf.Bool(false) => Configured.ok(ImportSelectors.noBinPack)
     }

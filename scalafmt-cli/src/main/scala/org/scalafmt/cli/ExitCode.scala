@@ -4,8 +4,7 @@ import scala.collection.mutable
 
 sealed abstract case class ExitCode(code: Int, name: String) {
   def isOk: Boolean = this == ExitCode.Ok
-  def is(c: ExitCode): Boolean =
-    (code & c.code) != 0
+  def is(c: ExitCode): Boolean = (code & c.code) != 0
   override def toString: String = s"$name=$code"
 }
 
@@ -14,8 +13,7 @@ object ExitCode {
   // for example how the name is calculated for merged exit codes.
   private var counter = 0
   private val allInternal = mutable.ListBuffer.empty[ExitCode]
-  private val cache =
-    new java.util.concurrent.ConcurrentHashMap[Int, ExitCode]
+  private val cache = new java.util.concurrent.ConcurrentHashMap[Int, ExitCode]
   private def generateExitStatus(implicit name: sourcecode.Name) = {
     val code = counter
     counter = if (counter == 0) 1 else counter << 1
@@ -37,9 +35,8 @@ object ExitCode {
   private def codeToName(code: Int): String = {
     if (code == 0) Ok.name
     else {
-      val names = all.collect {
-        case exit if (exit.code & code) != 0 => exit.name
-      }
+      val names = all
+        .collect { case exit if (exit.code & code) != 0 => exit.name }
       names.mkString("+")
     }
   }

@@ -9,16 +9,16 @@ case class DanglingParentheses(
     private[config] val tupleSite: Option[Boolean] = None,
     private val exclude: Option[List[DanglingParentheses.Exclude]] = None
 ) {
-  @inline def tupleOrCallSite(isTuple: Boolean) =
+  @inline
+  def tupleOrCallSite(isTuple: Boolean) =
     if (isTuple) tupleSite.getOrElse(callSite) else callSite
 
   def getExclude(
       isVerticalMultiline: Boolean
-  ): Seq[DanglingParentheses.Exclude] =
-    exclude.getOrElse {
-      if (!isVerticalMultiline) Nil
-      else DanglingParentheses.Exclude.defaultVerticalMultiline
-    }
+  ): Seq[DanglingParentheses.Exclude] = exclude.getOrElse {
+    if (!isVerticalMultiline) Nil
+    else DanglingParentheses.Exclude.defaultVerticalMultiline
+  }
 
 }
 
@@ -32,16 +32,13 @@ object DanglingParentheses {
   implicit lazy val surface: generic.Surface[DanglingParentheses] =
     generic.deriveSurface
 
-  implicit val encoder: ConfEncoder[DanglingParentheses] =
-    generic.deriveEncoder
+  implicit val encoder: ConfEncoder[DanglingParentheses] = generic.deriveEncoder
 
-  implicit val decoder: ConfDecoderEx[DanglingParentheses] = Presets.mapDecoder(
-    generic.deriveDecoderEx(default).noTypos,
-    "danglingParentheses"
-  ) {
-    case Conf.Bool(true) => shortcutTrue
-    case Conf.Bool(false) => shortcutFalse
-  }
+  implicit val decoder: ConfDecoderEx[DanglingParentheses] = Presets
+    .mapDecoder(generic.deriveDecoderEx(default).noTypos, "danglingParentheses") {
+      case Conf.Bool(true) => shortcutTrue
+      case Conf.Bool(false) => shortcutFalse
+    }
 
   sealed abstract class Exclude
 

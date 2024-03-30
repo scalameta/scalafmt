@@ -33,9 +33,8 @@ class GitOpsTest extends FunSuite {
   }
 
   override def afterEach(context: AfterEach): Unit = {
-    try {
-      deleteTree(path.path)
-    } catch {
+    try { deleteTree(path.path) }
+    catch {
       case e: Throwable =>
         println("Unable to delete test files")
         e.printStackTrace()
@@ -59,8 +58,8 @@ class GitOpsTest extends FunSuite {
       name: String = Random.alphanumeric.take(10).mkString,
       dir: Option[AbsoluteFile] = None
   ): AbsoluteFile = {
-    val linkFile =
-      File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
+    val linkFile = File
+      .createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
     linkFile.delete()
     val link = AbsoluteFile(linkFile)
     Files.createSymbolicLink(link.path, file.path)
@@ -68,15 +67,10 @@ class GitOpsTest extends FunSuite {
   }
 
   def mv(f: AbsoluteFile, dir: Option[AbsoluteFile] = None): AbsoluteFile = {
-    val destDir = Files.createTempDirectory(
-      dir.orElse(ops.rootDir).get.path,
-      "dir_"
-    )
-    val dest = Files.move(
-      f.path,
-      destDir,
-      java.nio.file.StandardCopyOption.REPLACE_EXISTING
-    )
+    val destDir = Files
+      .createTempDirectory(dir.orElse(ops.rootDir).get.path, "dir_")
+    val dest = Files
+      .move(f.path, destDir, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
     rm(f)
     AbsoluteFile(dest)
   }
@@ -89,9 +83,7 @@ class GitOpsTest extends FunSuite {
   def ls(implicit ops: GitOpsImpl) =
     // DESNOTE(2017-08-17, pjrt): Filter out the initial file since it will
     // just annoy us in the tests below
-    ops
-      .lsTree(ops.workingDirectory)
-      .filterNot(_ == initFile)
+    ops.lsTree(ops.workingDirectory).filterNot(_ == initFile)
 
   def mkDir(
       dirName: String = Random.alphanumeric.take(10).mkString
@@ -137,9 +129,7 @@ class GitOpsTest extends FunSuite {
     assertEquals(ls, Seq.empty)
   }
 
-  test(
-    "lsTree should return files properly when the working directory is under the git root directory"
-  ) {
+  test("lsTree should return files properly when the working directory is under the git root directory") {
     val f1 = touch()
     add(f1)
 
@@ -161,8 +151,7 @@ class GitOpsTest extends FunSuite {
 
   def diff(br: String, cwd: AbsoluteFile*)(implicit
       ops: GitOpsImpl
-  ): Seq[AbsoluteFile] =
-    ops.diff(br, cwd: _*)
+  ): Seq[AbsoluteFile] = ops.diff(br, cwd: _*)
 
   def diff(cwd: AbsoluteFile*)(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
     diff("HEAD", cwd: _*)
@@ -236,9 +225,7 @@ class GitOpsTest extends FunSuite {
     assertEquals(diff(defaultBranch, dir).toSet, Set(f2))
   }
 
-  test(
-    "diff should return added files that are then modified against a different branch"
-  ) {
+  test("diff should return added files that are then modified against a different branch") {
     val f = touch()
     add(f)
     commit
@@ -341,21 +328,18 @@ private object GitOpsTest {
   private final val defaultBranch = "main"
 
   // Filesystem commands
-  def rmfs(file: AbsoluteFile): Unit =
-    file.delete()
+  def rmfs(file: AbsoluteFile): Unit = file.delete()
 
   // Git commands
   def git(cmd: String, args: String*)(implicit
       ops: GitOpsImpl,
       loc: Location
-  ): Seq[String] =
-    Try(ops.exec("git" +: cmd +: args)) match {
-      case Failure(f) => Assertions.fail(s"Failed git command. Got: $f")
-      case Success(s) => s
-    }
+  ): Seq[String] = Try(ops.exec("git" +: cmd +: args)) match {
+    case Failure(f) => Assertions.fail(s"Failed git command. Got: $f")
+    case Success(s) => s
+  }
 
-  def init(implicit ops: GitOpsImpl): Unit =
-    git("init", "-b", defaultBranch)
+  def init(implicit ops: GitOpsImpl): Unit = git("init", "-b", defaultBranch)
 
   def add(file: AbsoluteFile*)(implicit ops: GitOpsImpl): Unit =
     git("add", file.map(_.toString()): _*)

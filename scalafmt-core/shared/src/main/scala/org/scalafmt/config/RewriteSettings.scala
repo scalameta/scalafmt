@@ -22,14 +22,14 @@ case class RewriteSettings(
     @annotation.ExtraName("neverInfix")
     avoidInfix: AvoidInfixSettings = AvoidInfixSettings.default
 ) {
-  def isAllowInfixPlaceholderArg: Boolean =
-    avoidInfix.excludePlaceholderArg.getOrElse(allowInfixPlaceholderArg)
+  def isAllowInfixPlaceholderArg: Boolean = avoidInfix.excludePlaceholderArg
+    .getOrElse(allowInfixPlaceholderArg)
 
   def withoutRewrites: RewriteSettings =
     copy(rules = Nil, trailingCommas = trailingCommas.withoutRewrites)
 
-  def rewriteFactoryRules: Seq[RewriteFactory] =
-    rules.collect { case x: RewriteFactory => x }
+  def rewriteFactoryRules: Seq[RewriteFactory] = rules
+    .collect { case x: RewriteFactory => x }
 
   def rulesChanged(v2: RewriteSettings): Option[Seq[String]] = {
     val v1rules = rewriteFactoryRules.toSet
@@ -41,14 +41,14 @@ case class RewriteSettings(
       .filter(_.nonEmpty)
   }
 
-  private[config] def forSbtOpt: Option[RewriteSettings] =
-    avoidInfix.forSbtOpt.map(x => copy(avoidInfix = x))
+  private[config] def forSbtOpt: Option[RewriteSettings] = avoidInfix.forSbtOpt
+    .map(x => copy(avoidInfix = x))
 
-  private[config] def forMainOpt: Option[RewriteSettings] =
-    avoidInfix.forMainOpt.map(x => copy(avoidInfix = x))
+  private[config] def forMainOpt: Option[RewriteSettings] = avoidInfix
+    .forMainOpt.map(x => copy(avoidInfix = x))
 
-  private[config] def forTestOpt: Option[RewriteSettings] =
-    avoidInfix.forTestOpt.map(x => copy(avoidInfix = x))
+  private[config] def forTestOpt: Option[RewriteSettings] = avoidInfix
+    .forTestOpt.map(x => copy(avoidInfix = x))
 }
 
 object RewriteSettings {
@@ -60,20 +60,15 @@ object RewriteSettings {
   implicit lazy val encoder: ConfEncoder[RewriteSettings] =
     generic.deriveEncoder
 
-  implicit lazy val decoder: ConfDecoderEx[RewriteSettings] =
-    generic.deriveDecoderEx(default).noTypos.flatMap {
-      Imports.validateImports
-    }
+  implicit lazy val decoder: ConfDecoderEx[RewriteSettings] = generic
+    .deriveDecoderEx(default).noTypos.flatMap { Imports.validateImports }
 
-  case class InsertBraces(
-      minLines: Int = 0,
-      allBlocks: Boolean = false
-  )
+  case class InsertBraces(minLines: Int = 0, allBlocks: Boolean = false)
 
   private[RewriteSettings] object InsertBraces {
     implicit val surface: generic.Surface[InsertBraces] = generic.deriveSurface
-    implicit val codec: ConfCodecEx[InsertBraces] =
-      generic.deriveCodecEx(new InsertBraces)
+    implicit val codec: ConfCodecEx[InsertBraces] = generic
+      .deriveCodecEx(new InsertBraces)
   }
 
 }

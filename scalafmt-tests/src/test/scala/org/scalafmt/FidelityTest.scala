@@ -29,14 +29,10 @@ class FidelityTest extends FunSuite with FormatAssertions {
       "/resources/",
       "/gh-pages/"
     ).map(_.replace("/", File.separator))
-    FileOps
-      .listFiles(".")
-      .filter { x =>
-        val filename = x.toString
-        filename.endsWith(".scala") &&
-        !denyList.exists(filename.contains)
-      }
-      .map(x => TestCase(x, FileOps.readFile(x)))
+    FileOps.listFiles(".").filter { x =>
+      val filename = x.toString
+      filename.endsWith(".scala") && !denyList.exists(filename.contains)
+    }.map(x => TestCase(x, FileOps.readFile(x)))
   }
 
   examples.foreach { example =>

@@ -40,30 +40,24 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
       case _: Token.LeftParen
           if flag.control && dialect.allowSignificantIndentation =>
         ft.meta.rightOwner match {
-          case _: Term.If if left.is[Token.KwIf] =>
-            removeToken
-          case _: Term.While if left.is[Token.KwWhile] =>
-            removeToken
-          case _: Term.For if left.is[Token.KwFor] =>
-            removeToken
-          case _: Term.ForYield if left.is[Token.KwFor] =>
-            removeToken
+          case _: Term.If if left.is[Token.KwIf] => removeToken
+          case _: Term.While if left.is[Token.KwWhile] => removeToken
+          case _: Term.For if left.is[Token.KwFor] => removeToken
+          case _: Term.ForYield if left.is[Token.KwFor] => removeToken
           case _ => null
         }
 
       case _: Token.Colon
           if flag.deprecated && dialect.allowPostfixStarVarargSplices =>
         ft.meta.rightOwner match {
-          case t: Term.Repeated if isSimpleRepeated(t) =>
-            removeToken // trick: to get "*", just remove ":" and "_"
+          case t: Term.Repeated if isSimpleRepeated(t) => removeToken // trick: to get "*", just remove ":" and "_"
           case _ => null
         }
 
       case _: Token.At
           if flag.deprecated && dialect.allowPostfixStarVarargSplices =>
         ft.meta.rightOwner match {
-          case Pat.Bind(_, _: Pat.SeqWildcard) =>
-            removeToken // trick: to get "*", just remove "@" and "_"
+          case Pat.Bind(_, _: Pat.SeqWildcard) => removeToken // trick: to get "*", just remove "@" and "_"
           case _ => null
         }
 
@@ -80,8 +74,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
             removeToken // see above, under Colon
           case t: Pat.SeqWildcard
               if dialect.allowPostfixStarVarargSplices &&
-                t.parent.exists(_.is[Pat.Bind]) =>
-            removeToken // see above, under At
+                t.parent.exists(_.is[Pat.Bind]) => removeToken // see above, under At
           case _ => null
         }
 
@@ -119,9 +112,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
         ft.meta.rightOwner match {
           case _: Term.If =>
             if (!nextRight.is[Token.KwThen])
-              replaceToken("then")(
-                new Token.KwThen(x.input, x.dialect, x.start)
-              )
+              replaceToken("then")(new Token.KwThen(x.input, x.dialect, x.start))
             else removeToken
           case _: Term.While | _: Term.For =>
             if (!nextRight.is[Token.KwDo])
@@ -134,7 +125,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
     }
   }.map((left, _))
 
-  private def isSimpleRepeated(t: Term.Repeated): Boolean =
-    t.expr.isNot[Term.ApplyInfix] || ftoks.isEnclosedInParens(t.expr)
+  private def isSimpleRepeated(t: Term.Repeated): Boolean = t.expr
+    .isNot[Term.ApplyInfix] || ftoks.isEnclosedInParens(t.expr)
 
 }

@@ -21,15 +21,12 @@ object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
     // first one is never a guard
     enums.view.drop(1).exists(!_.is[Enumerator.Guard])
 
-  case class Settings(
-      removeTrailingSemicolonsOnly: Boolean = false
-  )
+  case class Settings(removeTrailingSemicolonsOnly: Boolean = false)
 
   object Settings {
-    implicit lazy val surface: generic.Surface[Settings] =
-      generic.deriveSurface
-    implicit lazy val codec: ConfCodecEx[Settings] =
-      generic.deriveCodecEx(Settings()).noTypos
+    implicit lazy val surface: generic.Surface[Settings] = generic.deriveSurface
+    implicit lazy val codec: ConfCodecEx[Settings] = generic
+      .deriveCodecEx(Settings()).noTypos
   }
 
 }
@@ -94,15 +91,14 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
       ft: FormatToken,
       session: Session,
       style: ScalafmtConfig
-  ): Option[(Replacement, Replacement)] =
-    ft.right match {
-      case x: Token.RightParen
-          if left.how == ReplacementType.Replace &&
-            left.ft.right.is[Token.LeftBrace] =>
-        val right =
-          replaceToken("}")(new Token.RightBrace(x.input, x.dialect, x.start))
-        Some((left, right))
-      case _ => None
-    }
+  ): Option[(Replacement, Replacement)] = ft.right match {
+    case x: Token.RightParen
+        if left.how == ReplacementType.Replace &&
+          left.ft.right.is[Token.LeftBrace] =>
+      val right =
+        replaceToken("}")(new Token.RightBrace(x.input, x.dialect, x.start))
+      Some((left, right))
+    case _ => None
+  }
 
 }

@@ -137,10 +137,9 @@ object PolicyOps {
       exclude: TokenRanges,
       endLt: T => Policy.End.WithPos,
       endRt: T => Policy.End.WithPos
-  )(
-      expire: Policy.End.WithPos,
-      policyFunc: Policy.End.WithPos => Policy
-  )(implicit fileLine: FileLine): Policy = {
+  )(expire: Policy.End.WithPos, policyFunc: Policy.End.WithPos => Policy)(
+      implicit fileLine: FileLine
+  ): Policy = {
     val lastPolicy = policyFunc(expire)
     exclude.ranges.foldLeft(lastPolicy) { case (policy, range) =>
       new Policy.Relay(
@@ -164,73 +163,59 @@ object PolicyOps {
         if (replaced) Some(splits) else None
       }
     }
-    { case OnBreakDecision(d) =>
-      d
-    }
+    { case OnBreakDecision(d) => d }
   }
 
-  def delayedBreakPolicy(
-      end: Policy.End.WithPos
-  )(onBreakPolicy: Policy)(implicit fileLine: FileLine): Policy =
-    Policy.Proxy(onBreakPolicy, end)(delayedBreakPolicyFactory)
+  def delayedBreakPolicy(end: Policy.End.WithPos)(onBreakPolicy: Policy)(
+      implicit fileLine: FileLine
+  ): Policy = Policy.Proxy(onBreakPolicy, end)(delayedBreakPolicyFactory)
 
-  def delayedBreakPolicyBefore(
-      token: T
-  )(onBreakPolicy: Policy)(implicit fileLine: FileLine): Policy =
-    delayedBreakPolicy(Policy.End.Before(token))(onBreakPolicy)
+  def delayedBreakPolicyBefore(token: T)(onBreakPolicy: Policy)(implicit
+      fileLine: FileLine
+  ): Policy = delayedBreakPolicy(Policy.End.Before(token))(onBreakPolicy)
 
-  def delayedBreakPolicyFor(
-      token: T
-  )(f: T => Policy)(implicit fileLine: FileLine): Policy =
-    delayedBreakPolicyBefore(token)(f(token))
+  def delayedBreakPolicyFor(token: T)(f: T => Policy)(implicit
+      fileLine: FileLine
+  ): Policy = delayedBreakPolicyBefore(token)(f(token))
 
   def decideNewlinesOnlyBeforeClose(close: T)(implicit
       fileLine: FileLine
-  ): Policy =
-    decideNewlinesOnlyBeforeClose(Split(Newline, 0))(close)
+  ): Policy = decideNewlinesOnlyBeforeClose(Split(Newline, 0))(close)
 
   def decideNewlinesOnlyBeforeCloseOnBreak(close: T)(implicit
       fileLine: FileLine
-  ): Policy =
-    delayedBreakPolicyFor(close)(decideNewlinesOnlyBeforeClose)
+  ): Policy = delayedBreakPolicyFor(close)(decideNewlinesOnlyBeforeClose)
 
-  def decideNewlinesOnlyBeforeClose(
-      split: Split
-  )(close: T)(implicit fileLine: FileLine): Policy =
-    new DecideNewlinesOnlyBeforeToken(close, Option(split))
+  def decideNewlinesOnlyBeforeClose(split: Split)(close: T)(implicit
+      fileLine: FileLine
+  ): Policy = new DecideNewlinesOnlyBeforeToken(close, Option(split))
 
   def decideNewlinesOnlyAfterClose(close: T)(implicit
       fileLine: FileLine
-  ): Policy =
-    decideNewlinesOnlyAfterClose(Split(Newline, 0))(close)
+  ): Policy = decideNewlinesOnlyAfterClose(Split(Newline, 0))(close)
 
-  def decideNewlinesOnlyAfterClose(
-      split: Split
-  )(close: T)(implicit fileLine: FileLine): Policy =
-    new DecideNewlinesOnlyAfterToken(close, Option(split))
+  def decideNewlinesOnlyAfterClose(split: Split)(close: T)(implicit
+      fileLine: FileLine
+  ): Policy = new DecideNewlinesOnlyAfterToken(close, Option(split))
 
-  def decideNewlinesOnlyAfterToken(
-      token: T
-  )(implicit fileLine: FileLine): Policy =
-    new DecideNewlinesOnlyAfterToken(token, None)
+  def decideNewlinesOnlyAfterToken(token: T)(implicit
+      fileLine: FileLine
+  ): Policy = new DecideNewlinesOnlyAfterToken(token, None)
 
-  def unindentAtExclude(
-      exclude: TokenRanges,
-      indent: Length
-  ): Policy = {
+  def unindentAtExclude(exclude: TokenRanges, indent: Length): Policy = {
     exclude.ranges.foldLeft(Policy.noPolicy) { case (policy, range) =>
       val (lt, rt) = (range.lt, range.rt)
       val trigger = rt
       val unindent = Indent(indent, rt, ExpiresOn.After)
       val triggeredIndent = Indent.before(unindent, trigger)
-      val triggerUnindent = Policy.on(rt) {
-        case Decision(FormatToken(`lt`, _, _), s) =>
+      val triggerUnindent = Policy
+        .on(rt) { case Decision(FormatToken(`lt`, _, _), s) =>
           s.map(_.withIndent(triggeredIndent))
-      }
+        }
       val cancelUnindent = delayedBreakPolicy(Policy.End.On(lt)) {
         Policy.after(lt, rank = 1) { // use rank to apply after policy above
-          case Decision(FormatToken(`lt`, _, _), s) =>
-            s.map(_.switch(trigger, false))
+          case Decision(FormatToken(`lt`, _, _), s) => s
+              .map(_.switch(trigger, false))
         }
       }
       Policy.Relay(policy, triggerUnindent & cancelUnindent)

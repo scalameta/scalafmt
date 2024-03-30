@@ -31,8 +31,7 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
   }
 
   def inside(range: Set[Range]): Boolean = {
-    if (range.isEmpty) true
-    else range.exists(_.contains(right.pos.endLine))
+    if (range.isEmpty) true else range.exists(_.contains(right.pos.endLine))
   }
 
   def between = meta.between
@@ -44,13 +43,19 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
     else if (right.is[Token.Comment] && isDocstring(meta.right.text)) 1
     else 0
   }
-  @inline def noBreak: Boolean = FormatToken.noBreak(newlinesBetween)
-  @inline def hasBreak: Boolean = !noBreak
-  @inline def hasBlankLine: Boolean = FormatToken.hasBlankLine(newlinesBetween)
+  @inline
+  def noBreak: Boolean = FormatToken.noBreak(newlinesBetween)
+  @inline
+  def hasBreak: Boolean = !noBreak
+  @inline
+  def hasBlankLine: Boolean = FormatToken.hasBlankLine(newlinesBetween)
 
-  @inline def leftHasNewline = meta.left.hasNL
-  @inline def rightHasNewline = meta.right.hasNL
-  @inline def hasBreakOrEOF: Boolean = hasBreak || right.is[Token.EOF]
+  @inline
+  def leftHasNewline = meta.left.hasNL
+  @inline
+  def rightHasNewline = meta.right.hasNL
+  @inline
+  def hasBreakOrEOF: Boolean = hasBreak || right.is[Token.EOF]
 
   /** A format token is uniquely identified by its left token.
     */
@@ -63,10 +68,13 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
 
 object FormatToken {
 
-  @inline def noBreak(newlines: Int): Boolean = newlines == 0
-  @inline def hasBlankLine(newlines: Int): Boolean = newlines > 1
+  @inline
+  def noBreak(newlines: Int): Boolean = newlines == 0
+  @inline
+  def hasBlankLine(newlines: Int): Boolean = newlines > 1
 
-  @inline def isNL(token: Token): Boolean = token.is[Token.LF]
+  @inline
+  def isNL(token: Token): Boolean = token.is[Token.LF]
 
   /** @param between
     *   The whitespace tokens between left and right.
@@ -82,8 +90,10 @@ object FormatToken {
       left: TokenMeta,
       right: TokenMeta
   ) {
-    @inline def leftOwner: Tree = left.owner
-    @inline def rightOwner: Tree = right.owner
+    @inline
+    def leftOwner: Tree = left.owner
+    @inline
+    def rightOwner: Tree = right.owner
 
     /** returns a value between 0 and 2 (2 for a blank line) */
     lazy val newlinesBetween: Int = {
@@ -92,22 +102,18 @@ object FormatToken {
         if (idx == between.length) maxCount
         else {
           val token = between(idx)
-          if (isNL(token))
-            if (maxCount == 0) count(idx + 1, 1) else 2
-          else
-            count(idx + 1, maxCount)
+          if (isNL(token)) if (maxCount == 0) count(idx + 1, 1) else 2
+          else count(idx + 1, maxCount)
         }
       }
       count(0, 0)
     }
   }
 
-  case class TokenMeta(
-      owner: Tree,
-      text: String
-  ) {
+  case class TokenMeta(owner: Tree, text: String) {
     lazy val firstNL = text.indexOf('\n')
-    @inline def hasNL: Boolean = firstNL >= 0
+    @inline
+    def hasNL: Boolean = firstNL >= 0
     def countNL: Int = {
       var cnt = 0
       var idx = firstNL

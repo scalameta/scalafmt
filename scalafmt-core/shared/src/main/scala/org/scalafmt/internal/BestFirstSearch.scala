@@ -52,11 +52,10 @@ private class BestFirstSearch private (
 
   /** Returns true if it's OK to skip over state.
     */
-  def shouldEnterState(curr: State): Boolean =
-    keepSlowStates || curr.policy.noDequeue ||
-      isInsideNoOptZone(tokens(curr.depth)) ||
-      // TODO(olafur) document why/how this optimization works.
-      !best.get(curr.depth).exists(_.alwaysBetter(curr))
+  def shouldEnterState(curr: State): Boolean = keepSlowStates ||
+    curr.policy.noDequeue || isInsideNoOptZone(tokens(curr.depth)) ||
+    // TODO(olafur) document why/how this optimization works.
+    !best.get(curr.depth).exists(_.alwaysBetter(curr))
 
   def shouldRecurseOnBlock(ft: FormatToken, stop: Token)(implicit
       style: ScalafmtConfig
@@ -67,8 +66,7 @@ private class BestFirstSearch private (
       val closeOpt = formatOps.getEndOfBlock(left, false)
       closeOpt.filter(close =>
         // Block must span at least 3 lines to be worth recursing.
-        close != stop &&
-          distance(left.left, close) > style.maxColumn * 3 &&
+        close != stop && distance(left.left, close) > style.maxColumn * 3 &&
           extractStatementsIfAny(left.meta.leftOwner).nonEmpty
       )
     }
@@ -110,41 +108,33 @@ private class BestFirstSearch private (
     def newGeneration = new mutable.PriorityQueue[State]()
     var Q = newGeneration
     var generations: List[mutable.PriorityQueue[State]] = Nil
-    def addGeneration() =
-      if (Q.nonEmpty) {
-        generations = Q :: generations
-        Q = newGeneration
-      }
+    def addGeneration() = if (Q.nonEmpty) {
+      generations = Q :: generations
+      Q = newGeneration
+    }
     Q += start
 
-    def enqueue(state: State) = {
-      Q.enqueue(state)
-    }
+    def enqueue(state: State) = { Q.enqueue(state) }
 
     // TODO(olafur) this while loop is waaaaaaaaaaaaay tooo big.
     while (true) {
       val curr = Q.dequeue()
-      if (curr.depth >= tokens.length)
-        return curr
+      if (curr.depth >= tokens.length) return curr
 
       val splitToken = tokens(curr.depth)
       val leftTok = splitToken.left
-      if (
-        splitToken.right.start > stop.start &&
-        leftTok.start < leftTok.end
-      ) {
+      if (splitToken.right.start > stop.start && leftTok.start < leftTok.end) {
         return curr
       }
 
       if (shouldEnterState(curr)) {
         trackState(curr, depth, Q.length)
 
-        if (explored > runner.maxStateVisits)
-          throw SearchStateExploded(
-            deepestYet,
-            formatWriter.mkString(deepestYet),
-            tokens(deepestYet.depth)
-          )
+        if (explored > runner.maxStateVisits) throw SearchStateExploded(
+          deepestYet,
+          formatWriter.mkString(deepestYet),
+          tokens(deepestYet.depth)
+        )
 
         implicit val style = styleMap.at(splitToken)
 
@@ -155,20 +145,17 @@ private class BestFirstSearch private (
             dequeueOnNewStatements && curr.allAltAreNL &&
             (leftTok.is[Token.KwElse] || statementStarts.contains(tokenHash)) &&
             (depth > 0 || !isInsideNoOptZone(splitToken))
-          )
-            addGeneration()
+          ) addGeneration()
         }
 
         val blockClose =
           if (start.eq(curr) && 0 != maxCost) None
           else shouldRecurseOnBlock(splitToken, stop)
-        if (blockClose.nonEmpty)
-          blockClose.foreach { end =>
-            shortestPathMemo(curr, end, depth + 1, maxCost).foreach(enqueue)
-          }
+        if (blockClose.nonEmpty) blockClose.foreach { end =>
+          shortestPathMemo(curr, end, depth + 1, maxCost).foreach(enqueue)
+        }
         else if (
-          escapeInPathologicalCases &&
-          isSeqMulti(routes(curr.depth)) &&
+          escapeInPathologicalCases && isSeqMulti(routes(curr.depth)) &&
           visits(curr.depth) > maxVisitsPerToken
         ) {
           complete(deepestYet)
@@ -184,11 +171,9 @@ private class BestFirstSearch private (
           var optimalNotFound = true
           actualSplit.foreach { split =>
             val nextState = curr.next(split, allAltAreNL)
-            val updateBest = !keepSlowStates && depth == 0 &&
-              split.isNL && !best.contains(curr.depth)
-            if (updateBest) {
-              best.update(curr.depth, nextState)
-            }
+            val updateBest = !keepSlowStates && depth == 0 && split.isNL &&
+              !best.contains(curr.depth)
+            if (updateBest) { best.update(curr.depth, nextState) }
             runner.event(Enqueue(split))
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
@@ -201,26 +186,21 @@ private class BestFirstSearch private (
                   if (null == nextNextState) null
                   else traverseSameLine(nextNextState, depth)
                 if (null != furtherState) {
-                  val overflow =
-                    furtherState.appliedPenalty > nextNextState.appliedPenalty
-                  if (overflow)
-                    enqueue(nextNextState)
+                  val overflow = furtherState.appliedPenalty >
+                    nextNextState.appliedPenalty
+                  if (overflow) enqueue(nextNextState)
                   else {
                     optimalNotFound = false
                     enqueue(furtherState)
                   }
-                } else if (
-                  !killOnFail &&
-                  nextState.cost - curr.cost <= maxCost
-                ) {
+                } else if (!killOnFail && nextState.cost - curr.cost <= maxCost) {
                   // TODO(olafur) DRY. This solution can still be optimal.
                   enqueue(nextState)
                 } else { // else kill branch
                   if (updateBest) best.remove(curr.depth)
                 }
               case _
-                  if optimalNotFound &&
-                    nextState.cost - curr.cost <= maxCost =>
+                  if optimalNotFound && nextState.cost - curr.cost <= maxCost =>
                 enqueue(nextState)
               case _ => // Kill branch.
                 if (updateBest) best.remove(curr.depth)
@@ -230,8 +210,7 @@ private class BestFirstSearch private (
       }
 
       if (Q.isEmpty) {
-        if (generations.isEmpty)
-          return null
+        if (generations.isEmpty) return null
 
         Q = generations.head
         generations = generations.tail
@@ -245,9 +224,7 @@ private class BestFirstSearch private (
   private def getActiveSplits(state: State, maxCost: Int): Seq[Split] = {
     val ft = tokens(state.depth)
     val useProvided = ft.meta.formatOff || !ft.inside(range)
-    val active = state.policy
-      .execute(Decision(ft, routes(state.depth)))
-      .splits
+    val active = state.policy.execute(Decision(ft, routes(state.depth))).splits
       .filter(x => x.isActive && x.cost <= maxCost)
     val splits =
       if (useProvided && active.nonEmpty) {
@@ -278,8 +255,7 @@ private class BestFirstSearch private (
       trackState(state, depth, 0)
       val activeSplits = getActiveSplits(state, Int.MaxValue)
 
-      if (!isSeqSingle(activeSplits))
-        if (activeSplits.isEmpty) null else state // dead end if empty
+      if (!isSeqSingle(activeSplits)) if (activeSplits.isEmpty) null else state // dead end if empty
       else {
         val split = activeSplits.head
         if (split.isNL) state
@@ -292,8 +268,8 @@ private class BestFirstSearch private (
       }
     }
 
-  private def complete(state: State): Unit =
-    runner.event(CompleteFormat(explored, state, visits))
+  private def complete(state: State): Unit = runner
+    .event(CompleteFormat(explored, state, visits))
 
   def getBestPath: SearchResult = {
     val state = {
@@ -312,8 +288,8 @@ private class BestFirstSearch private (
     } else {
       val nextSplits = routes(deepestYet.depth)
       val tok = tokens(deepestYet.depth)
-      val splitsAfterPolicy =
-        deepestYet.policy.execute(Decision(tok, nextSplits))
+      val splitsAfterPolicy = deepestYet.policy
+        .execute(Decision(tok, nextSplits))
       val msg = s"""UNABLE TO FORMAT,
         |tok=$tok
         |toks.length=${tokens.length}

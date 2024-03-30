@@ -27,13 +27,10 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
   override def ignore(t: DiffTest): Boolean = false
 
   override val tests = {
-    if (onlyManual) ManualTests.tests
-    else UnitTests.tests
+    if (onlyManual) ManualTests.tests else UnitTests.tests
   }
 
-  tests
-    .sortBy(x => (x.loc.path, x.loc.line))
-    .withFilter(testShouldRun)
+  tests.sortBy(x => (x.loc.path, x.loc.line)).withFilter(testShouldRun)
     .foreach(runTest(run))
 
   def run(t: DiffTest): Unit = {
@@ -83,8 +80,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
         if (onlyManual) {
           assertEquals(code, obtained, "Idempotency violated")
           assertObtained
-        } else if (code == obtained)
-          assertObtained
+        } else if (code == obtained) assertObtained
         else {
           val diff = new Diff(code, obtained)
           if (diff.isEmpty) assertObtained
@@ -92,25 +88,21 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
             val report = AnsiColors.filterAnsi(diff.createDiffOnlyReport())
             val eol = if (report.last == '\n') "" else "\n"
             val error = "Idempotency violated\n" + report + eol
-            if (error != t.expected)
-              failComparison(error, code, obtained)
+            if (error != t.expected) failComparison(error, code, obtained)
           }
         }
     }
     if (
-      result2Either.isRight &&
-      t.style.rewrite.rules.isEmpty &&
+      result2Either.isRight && t.style.rewrite.rules.isEmpty &&
       FormatTokensRewrite.getEnabledFactories(t.style).isEmpty &&
       !t.style.assumeStandardLibraryStripMargin &&
-      !FileOps.isMarkdown(t.filename) &&
-      err.isEmpty
+      !FileOps.isMarkdown(t.filename) && err.isEmpty
+    ) assertFormatPreservesAst(
+      t.filename,
+      t.original,
+      obtained,
+      result.config.runner
     )
-      assertFormatPreservesAst(
-        t.filename,
-        t.original,
-        obtained,
-        result.config.runner
-      )
   }
 
   def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only
@@ -121,12 +113,10 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     // TODO(olafur) don't block printing out test results.
     // I don't want to deal with scalaz's Tasks :'(
     val k = for {
-      _ <- Future(
-        FileOps.writeFile(
-          s"target${File.separator}index.html",
-          Report.heatmap(results)
-        )
-      )
+      _ <- Future(FileOps.writeFile(
+        s"target${File.separator}index.html",
+        Report.heatmap(results)
+      ))
     } yield ()
     // Travis exits right after running tests.
     if (sys.env.contains("TRAVIS")) Await.ready(k, 20.seconds)

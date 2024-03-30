@@ -219,22 +219,20 @@ case class Newlines(
   def sourceIgnored: Boolean = source.ignoreSourceSplit
 
   @inline
-  def keepBreak(newlines: => Int): Boolean =
-    source.eq(Newlines.keep) && newlines != 0
+  def keepBreak(newlines: => Int): Boolean = source.eq(Newlines.keep) &&
+    newlines != 0
 
   @inline
-  def keepBreak(ft: FormatToken): Boolean =
-    keepBreak(ft.newlinesBetween)
+  def keepBreak(ft: FormatToken): Boolean = keepBreak(ft.newlinesBetween)
 
-  val breakAfterInfix: AfterInfix =
-    afterInfix.getOrElse {
-      source match {
-        case Newlines.unfold => AfterInfix.many
-        case Newlines.fold => AfterInfix.some
-        case Newlines.keep => AfterInfix.keep
-        case Newlines.classic => AfterInfix.keep
-      }
+  val breakAfterInfix: AfterInfix = afterInfix.getOrElse {
+    source match {
+      case Newlines.unfold => AfterInfix.many
+      case Newlines.fold => AfterInfix.some
+      case Newlines.keep => AfterInfix.keep
+      case Newlines.classic => AfterInfix.keep
     }
+  }
   val formatInfix: Boolean = breakAfterInfix ne AfterInfix.keep
 
   def checkInfixConfig(infixCount: Int): Newlines = {
@@ -255,19 +253,18 @@ case class Newlines(
   lazy val notBeforeImplicitParamListModifier: Boolean =
     if (implicitParamListModifierForce.isEmpty)
       !preferBeforeImplicitParamListModifier
-    else
-      !forceBeforeImplicitParamListModifier
+    else !forceBeforeImplicitParamListModifier
 
-  lazy val avoidForSimpleOverflowPunct: Boolean =
-    avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.punct)
-  lazy val avoidForSimpleOverflowTooLong: Boolean =
-    avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.tooLong)
-  lazy val avoidForSimpleOverflowSLC: Boolean =
-    avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.slc)
+  lazy val avoidForSimpleOverflowPunct: Boolean = avoidForSimpleOverflow
+    .contains(AvoidForSimpleOverflow.punct)
+  lazy val avoidForSimpleOverflowTooLong: Boolean = avoidForSimpleOverflow
+    .contains(AvoidForSimpleOverflow.tooLong)
+  lazy val avoidForSimpleOverflowSLC: Boolean = avoidForSimpleOverflow
+    .contains(AvoidForSimpleOverflow.slc)
 
   @inline
-  def alwaysBeforeCurlyLambdaParams =
-    beforeCurlyLambdaParams eq BeforeCurlyLambdaParams.always
+  def alwaysBeforeCurlyLambdaParams = beforeCurlyLambdaParams eq
+    BeforeCurlyLambdaParams.always
 
   lazy val getBeforeMultiline = beforeMultiline.getOrElse(source)
   lazy val shouldForceBeforeMultilineAssign = {
@@ -302,35 +299,33 @@ case class Newlines(
     }
   }
 
-  @inline def hasTopStatBlankLines = topStatBlankLinesSorted.nonEmpty
+  @inline
+  def hasTopStatBlankLines = topStatBlankLinesSorted.nonEmpty
 
   def getTopStatBlankLines(
       tree: Tree,
       numBreaks: Int,
       nest: Int
-  ): Option[NumBlanks] =
-    topStatBlankLinesSorted.iterator
-      .takeWhile(_.minBreaks <= numBreaks)
-      .find { x =>
-        x.minNest <= nest && x.maxNest >= nest &&
-        x.pattern.forall(_.matcher(tree.productPrefix).find())
-      }
-      .flatMap(_.blanks)
+  ): Option[NumBlanks] = topStatBlankLinesSorted.iterator
+    .takeWhile(_.minBreaks <= numBreaks).find { x =>
+      x.minNest <= nest && x.maxNest >= nest &&
+      x.pattern.forall(_.matcher(tree.productPrefix).find())
+    }.flatMap(_.blanks)
 
   private def getBeforeOpenParen(bop: BeforeOpenParen): SourceHints =
     Option(bop.src).getOrElse(source)
-  def getBeforeOpenParenCallSite: Option[SourceHints] =
-    beforeOpenParenCallSite.map(getBeforeOpenParen)
-  def getBeforeOpenParenDefnSite: Option[SourceHints] =
-    beforeOpenParenDefnSite.map(getBeforeOpenParen)
+  def getBeforeOpenParenCallSite: Option[SourceHints] = beforeOpenParenCallSite
+    .map(getBeforeOpenParen)
+  def getBeforeOpenParenDefnSite: Option[SourceHints] = beforeOpenParenDefnSite
+    .map(getBeforeOpenParen)
   def isBeforeOpenParenCallSite: Boolean = beforeOpenParenCallSite.isDefined
   def isBeforeOpenParenDefnSite: Boolean = beforeOpenParenDefnSite.isDefined
 }
 
 object Newlines {
   implicit lazy val surface: Surface[Newlines] = generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[Newlines] =
-    generic.deriveCodecEx(Newlines()).noTypos
+  implicit lazy val codec: ConfCodecEx[Newlines] = generic
+    .deriveCodecEx(Newlines()).noTypos
 
   sealed abstract class IgnoreSourceSplit {
     val ignoreSourceSplit: Boolean
@@ -351,8 +346,8 @@ object Newlines {
 
   object SourceHints {
     // NB: don't allow specifying classic, only by default
-    implicit val codec: ConfCodecEx[SourceHints] =
-      ReaderUtil.oneOfCustom[SourceHints](keep, fold, unfold) {
+    implicit val codec: ConfCodecEx[SourceHints] = ReaderUtil
+      .oneOfCustom[SourceHints](keep, fold, unfold) {
         case Conf.Bool(true) => Configured.Ok(unfold)
         case Conf.Bool(false) => Configured.Ok(fold)
       }
@@ -364,24 +359,24 @@ object Newlines {
     case object some extends AfterInfix
     case object many extends AfterInfix
 
-    implicit val reader: ConfCodecEx[AfterInfix] =
-      ReaderUtil.oneOf[AfterInfix](keep, some, many)
+    implicit val reader: ConfCodecEx[AfterInfix] = ReaderUtil
+      .oneOf[AfterInfix](keep, some, many)
   }
 
   sealed abstract class BeforeAfter
   case object before extends BeforeAfter
   case object after extends BeforeAfter
 
-  implicit val beforeAfterReader: ConfCodecEx[BeforeAfter] =
-    ReaderUtil.oneOf[BeforeAfter](before, after)
+  implicit val beforeAfterReader: ConfCodecEx[BeforeAfter] = ReaderUtil
+    .oneOf[BeforeAfter](before, after)
 
   sealed abstract class AvoidForSimpleOverflow
   object AvoidForSimpleOverflow {
     case object punct extends AvoidForSimpleOverflow
     case object tooLong extends AvoidForSimpleOverflow
     case object slc extends AvoidForSimpleOverflow
-    implicit val codec: ConfCodecEx[AvoidForSimpleOverflow] =
-      ReaderUtil.oneOf[AvoidForSimpleOverflow](punct, tooLong, slc)
+    implicit val codec: ConfCodecEx[AvoidForSimpleOverflow] = ReaderUtil
+      .oneOf[AvoidForSimpleOverflow](punct, tooLong, slc)
   }
 
   sealed abstract class InInterpolation
@@ -389,8 +384,8 @@ object Newlines {
     case object allow extends InInterpolation
     case object avoid extends InInterpolation
     case object oneline extends InInterpolation
-    implicit val codec: ConfCodecEx[InInterpolation] =
-      ReaderUtil.oneOf[InInterpolation](allow, avoid, oneline)
+    implicit val codec: ConfCodecEx[InInterpolation] = ReaderUtil
+      .oneOf[InInterpolation](allow, avoid, oneline)
   }
 
   sealed abstract class AfterCurlyLambdaParams
@@ -399,14 +394,9 @@ object Newlines {
     case object always extends AfterCurlyLambdaParams
     case object never extends AfterCurlyLambdaParams
     case object squash extends AfterCurlyLambdaParams
-    implicit val codec: ConfCodecEx[AfterCurlyLambdaParams] =
-      ReaderUtil.oneOfCustom[AfterCurlyLambdaParams](
-        preserve,
-        always,
-        never,
-        squash
-      ) { case Conf.Str("keep") =>
-        Configured.Ok(preserve)
+    implicit val codec: ConfCodecEx[AfterCurlyLambdaParams] = ReaderUtil
+      .oneOfCustom[AfterCurlyLambdaParams](preserve, always, never, squash) {
+        case Conf.Str("keep") => Configured.Ok(preserve)
       }
   }
 
@@ -416,8 +406,8 @@ object Newlines {
     case object never extends BeforeCurlyLambdaParams
     case object multiline extends BeforeCurlyLambdaParams
     case object multilineWithCaseOnly extends BeforeCurlyLambdaParams
-    implicit val codec: ConfCodecEx[BeforeCurlyLambdaParams] =
-      ReaderUtil.oneOfCustom[BeforeCurlyLambdaParams](
+    implicit val codec: ConfCodecEx[BeforeCurlyLambdaParams] = ReaderUtil
+      .oneOfCustom[BeforeCurlyLambdaParams](
         never,
         always,
         multiline,
@@ -434,14 +424,8 @@ object Newlines {
 
   object ForceBeforeMultilineAssign {
 
-    implicit val codec: ConfCodecEx[ForceBeforeMultilineAssign] =
-      ReaderUtil.oneOf[ForceBeforeMultilineAssign](
-        never,
-        any,
-        `def`,
-        anyMember,
-        topMember
-      )
+    implicit val codec: ConfCodecEx[ForceBeforeMultilineAssign] = ReaderUtil
+      .oneOf[ForceBeforeMultilineAssign](never, any, `def`, anyMember, topMember)
 
     case object never extends ForceBeforeMultilineAssign {
       def apply(tree: Tree): Boolean = false
@@ -488,8 +472,8 @@ object Newlines {
   }
   object NumBlanks {
     implicit val surface: Surface[NumBlanks] = generic.deriveSurface[NumBlanks]
-    implicit val encoder: ConfEncoder[NumBlanks] =
-      generic.deriveEncoder[NumBlanks]
+    implicit val encoder: ConfEncoder[NumBlanks] = generic
+      .deriveEncoder[NumBlanks]
     implicit val decoder: ConfDecoderEx[NumBlanks] = {
       val base = generic.deriveDecoderEx(NumBlanks()).noTypos
       ConfDecoderEx.from[NumBlanks] {
@@ -521,24 +505,22 @@ object Newlines {
     lazy val pattern = regex.map(_.r.pattern)
   }
   object TopStatBlanks {
-    implicit val surface: Surface[TopStatBlanks] =
-      generic.deriveSurface[TopStatBlanks]
-    implicit val codec: ConfCodecEx[TopStatBlanks] =
-      generic.deriveCodecEx(TopStatBlanks()).noTypos
+    implicit val surface: Surface[TopStatBlanks] = generic
+      .deriveSurface[TopStatBlanks]
+    implicit val codec: ConfCodecEx[TopStatBlanks] = generic
+      .deriveCodecEx(TopStatBlanks()).noTypos
   }
 
   case class BeforeOpenParen(src: SourceHints = null)
   object BeforeOpenParen {
-    implicit val encoder: ConfEncoder[BeforeOpenParen] =
-      SourceHints.codec.contramap(_.src)
-    implicit val decoder: ConfDecoderEx[BeforeOpenParen] =
-      ConfDecoderEx.from {
-        case (_, Conf.Str("source")) => Configured.Ok(BeforeOpenParen())
-        case (_, _: Conf.Bool) =>
-          Configured.error("beforeOpenParen can't be bool")
-        case (_, conf) =>
-          SourceHints.codec.read(None, conf).map(BeforeOpenParen.apply)
-      }
+    implicit val encoder: ConfEncoder[BeforeOpenParen] = SourceHints.codec
+      .contramap(_.src)
+    implicit val decoder: ConfDecoderEx[BeforeOpenParen] = ConfDecoderEx.from {
+      case (_, Conf.Str("source")) => Configured.Ok(BeforeOpenParen())
+      case (_, _: Conf.Bool) => Configured.error("beforeOpenParen can't be bool")
+      case (_, conf) => SourceHints.codec.read(None, conf)
+          .map(BeforeOpenParen.apply)
+    }
   }
 
 }

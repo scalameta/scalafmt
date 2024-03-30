@@ -16,11 +16,7 @@ class RangeTest extends FunSuite {
       |}
       """.stripMargin
     val obtained = Scalafmt
-      .format(
-        original,
-        HasTests.unitTest40,
-        range = Set(Range(2, 2).inclusive)
-      )
+      .format(original, HasTests.unitTest40, range = Set(Range(2, 2).inclusive))
       .get
     assertNoDiff(obtained, expected)
   }

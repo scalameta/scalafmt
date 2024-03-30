@@ -22,9 +22,8 @@ trait ScalafmtModuleLoader extends Closeable {
 
 object ScalafmtModuleLoader {
 
-  class WithDownloader(
-      downloader: DependencyDownloaderFactory
-  ) extends ScalafmtModuleLoader {
+  class WithDownloader(downloader: DependencyDownloaderFactory)
+      extends ScalafmtModuleLoader {
     override def load(
         configPath: Path,
         version: ScalafmtVersion,
@@ -42,8 +41,7 @@ object ScalafmtModuleLoader {
   }
 
   class CachedProxy(loader: ScalafmtModuleLoader)
-      extends ScalafmtModuleLoader
-      with Closeable {
+      extends ScalafmtModuleLoader with Closeable {
     private[dynamic] type Value = FormatEval[ScalafmtReflect]
     private[dynamic] val cache: ReentrantCache[ScalafmtVersion, Value] =
       ReentrantCache()
@@ -67,14 +65,13 @@ object ScalafmtModuleLoader {
 
   private def loadClassPath(configPath: Path, version: ScalafmtVersion)(
       urls: Seq[URL]
-  ): FormatEval[ScalafmtReflect] =
-    Try {
-      val classloader = new URLClassLoader(urls.toArray, null)
-      ScalafmtReflect(classloader, version)
-    }.toEither.left.map {
-      case e: ReflectiveOperationException =>
-        new CorruptedClassPath(configPath, version, urls, e)
-      case e => new UnknownConfigError(configPath, e)
-    }
+  ): FormatEval[ScalafmtReflect] = Try {
+    val classloader = new URLClassLoader(urls.toArray, null)
+    ScalafmtReflect(classloader, version)
+  }.toEither.left.map {
+    case e: ReflectiveOperationException =>
+      new CorruptedClassPath(configPath, version, urls, e)
+    case e => new UnknownConfigError(configPath, e)
+  }
 
 }

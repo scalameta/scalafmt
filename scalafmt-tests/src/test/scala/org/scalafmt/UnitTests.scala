@@ -10,11 +10,10 @@ object UnitTests extends HasTests {
   /** Avoids parsing all files if some tests are marked ONLY.
     */
   def getTestFiles: Seq[String] = {
-    val testsFiles =
-      listFiles(testDir).map(_.toString).filter(filename2parse(_).isDefined)
+    val testsFiles = listFiles(testDir).map(_.toString)
+      .filter(filename2parse(_).isDefined)
     val onlyTests = testsFiles.filter(_.contains("\n<<< ONLY"))
-    if (onlyTests.nonEmpty) onlyTests
-    else testsFiles
+    if (onlyTests.nonEmpty) onlyTests else testsFiles
   }
 
   // TODO(olafur) make possible to limit states per unit test.

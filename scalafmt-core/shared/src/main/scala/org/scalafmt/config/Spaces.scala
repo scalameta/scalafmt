@@ -67,8 +67,8 @@ case class Spaces(
 
 object Spaces {
   implicit lazy val surface: generic.Surface[Spaces] = generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[Spaces] =
-    generic.deriveCodecEx(Spaces()).noTypos
+  implicit lazy val codec: ConfCodecEx[Spaces] = generic.deriveCodecEx(Spaces())
+    .noTypos
 
   sealed abstract class BeforeContextBound
   object BeforeContextBound {

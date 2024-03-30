@@ -18,22 +18,18 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       termDisplayMessage: String
   ): ExitCode = {
     val reporter = new ScalafmtCliReporter(options)
-    val scalafmtInstance = Scalafmt
-      .create(this.getClass.getClassLoader)
-      .withReporter(reporter)
-      .withRespectProjectFilters(false)
+    val scalafmtInstance = Scalafmt.create(this.getClass.getClassLoader)
+      .withReporter(reporter).withRespectProjectFilters(false)
 
     val session =
-      try {
-        scalafmtInstance.createSession(options.configPath)
-      } catch {
-        case _: ScalafmtDynamicError.ConfigError =>
-          return reporter.getExitCode // XXX: returning
+      try { scalafmtInstance.createSession(options.configPath) }
+      catch {
+        case _: ScalafmtDynamicError.ConfigError => return reporter.getExitCode // XXX: returning
       }
 
     val sessionMatcher = session.matchesProjectFilters _
-    val filterMatcher: Path => Boolean =
-      options.customFilesOpt.fold(sessionMatcher) { customFiles =>
+    val filterMatcher: Path => Boolean = options.customFilesOpt
+      .fold(sessionMatcher) { customFiles =>
         val customMatcher = FileOps.getFileMatcher(customFiles.map(_.path))
         x => customMatcher(x) && sessionMatcher(x)
       }

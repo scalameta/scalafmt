@@ -13,13 +13,11 @@ object Reserved {
 }
 
 object LeftParenOrBracket {
-  def unapply(tok: Token): Boolean =
-    tok.is[LeftParen] || tok.is[LeftBracket]
+  def unapply(tok: Token): Boolean = tok.is[LeftParen] || tok.is[LeftBracket]
 }
 
 object RightParenOrBracket {
-  def unapply(tok: Token): Boolean =
-    tok.is[RightParen] || tok.is[RightBracket]
+  def unapply(tok: Token): Boolean = tok.is[RightParen] || tok.is[RightBracket]
 }
 
 object LeftParenOrBrace {

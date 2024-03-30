@@ -14,10 +14,8 @@ object NamedDialect {
     apply(name.toLowerCase, pair.value)
   }
 
-  val scala212 = Scala212
-    .withAllowTrailingCommas(true) // SIP-27, 2.12.2
-  val scala213 = Scala213
-    .withAllowTrailingCommas(true)
+  val scala212 = Scala212.withAllowTrailingCommas(true) // SIP-27, 2.12.2
+  val scala213 = Scala213.withAllowTrailingCommas(true)
   val scala3 = Scala3
 
   private[config] val known = Seq[sourcecode.Text[Dialect]](
@@ -36,8 +34,8 @@ object NamedDialect {
   // current default is 213
   private[config] val default = apply(defaultName, scala213)
 
-  def getName(dialect: Dialect): Option[String] =
-    known.find(_.dialect eq dialect).map(_.name)
+  def getName(dialect: Dialect): Option[String] = known
+    .find(_.dialect eq dialect).map(_.name)
 
   def getUnknownError = {
     val knownStr = known.map(_.name).mkString(",")
@@ -46,7 +44,7 @@ object NamedDialect {
       |""".stripMargin
   }
 
-  implicit val codec: ConfCodecEx[NamedDialect] =
-    ReaderUtil.oneOf(known.map(x => sourcecode.Text(x, x.name)): _*)
+  implicit val codec: ConfCodecEx[NamedDialect] = ReaderUtil
+    .oneOf(known.map(x => sourcecode.Text(x, x.name)): _*)
 
 }

@@ -14,11 +14,9 @@ object ManualTests extends HasTests {
     val testPrefix = testDir + File.separator
     val testFiles = listFiles(testDir).map(x => (x, x.toString))
     val manualFiles = for {
-      (path, filename) <- testFiles
-      if filename.endsWith(manual)
+      (path, filename) <- testFiles if filename.endsWith(manual)
       test <- {
-        readFile(path).linesIterator
-          .withFilter(_.startsWith("ONLY"))
+        readFile(path).linesIterator.withFilter(_.startsWith("ONLY"))
           .map { name =>
             val testPath = stripPrefix(name)
             val original = readFile(testPath)
@@ -37,8 +35,7 @@ object ManualTests extends HasTests {
       }
     } yield test
     val scalaFiles = for {
-      (path, filename) <- testFiles
-      if filename.endsWith(".scala")
+      (path, filename) <- testFiles if filename.endsWith(".scala")
     } yield {
       val content = readFile(path)
       DiffTest(

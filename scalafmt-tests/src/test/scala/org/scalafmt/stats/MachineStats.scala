@@ -10,10 +10,5 @@ case class MachineStats(
 object MachineStats {
 
   def apply(): MachineStats =
-    MachineStats(
-      JavaInfo(),
-      OsInfo(),
-      RuntimeInfo(),
-      GitInfo()
-    )
+    MachineStats(JavaInfo(), OsInfo(), RuntimeInfo(), GitInfo())
 }

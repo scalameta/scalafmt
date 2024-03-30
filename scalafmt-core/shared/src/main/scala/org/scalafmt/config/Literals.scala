@@ -13,6 +13,6 @@ case class Literals(
 
 object Literals {
   implicit val surface: generic.Surface[Literals] = generic.deriveSurface
-  implicit val codec: ConfCodecEx[Literals] =
-    generic.deriveCodecEx(Literals()).noTypos
+  implicit val codec: ConfCodecEx[Literals] = generic.deriveCodecEx(Literals())
+    .noTypos
 }

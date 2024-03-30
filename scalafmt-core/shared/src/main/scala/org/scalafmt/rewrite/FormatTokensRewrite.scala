@@ -61,7 +61,8 @@ class FormatTokensRewrite(
       val idx = ft.meta.idx
       val ftOld = arr(idx)
       val rtOld = ftOld.right
-      @inline def mapOld(dstidx: Int) = {
+      @inline
+      def mapOld(dstidx: Int) = {
         remapped = true
         tokenMap += FormatTokens.thash(rtOld) -> dstidx
       }
@@ -155,26 +156,24 @@ class FormatTokensRewrite(
           formatOffStack.prepend(formatOff)
           val ldelimIdxOpt =
             if (formatOff) None
-            else
-              session.claimedRule match {
-                case Some(c) => applyRule(c.rule)
-                case _ => applyRules
-              }
+            else session.claimedRule match {
+              case Some(c) => applyRule(c.rule)
+              case _ => applyRules
+            }
           val ldelimIdx = ldelimIdxOpt.getOrElse(session.claim(null))
           leftDelimIndex.prepend(ldelimIdx)
 
         case _: T.RightBrace | _: T.RightParen | _: T.RightBracket =>
           val formatOff = formatOffStack.remove(0)
           val ldelimIdx = leftDelimIndex.remove(0)
-          if (formatOff && formatOffStack.nonEmpty)
-            formatOffStack.update(0, true)
+          if (formatOff && formatOffStack.nonEmpty) formatOffStack
+            .update(0, true)
           val left = tokens(ldelimIdx)
           if (left ne null) {
             val ko = ft.meta.formatOff ||
               session.claimedRule.exists(_.rule ne left.rule)
-            if (ko) {
-              tokens(ldelimIdx) = null
-            } else {
+            if (ko) { tokens(ldelimIdx) = null }
+            else {
               implicit val style = styleMap.at(ft.right)
               left.onRightAndClaim(formatOff, ldelimIdx)
             }
@@ -185,8 +184,7 @@ class FormatTokensRewrite(
 
         case _: T.Comment => // formatOff gets set only by comment
           if (!ft.meta.formatOff) applyRules
-          else if (formatOffStack.nonEmpty)
-            formatOffStack.update(0, true)
+          else if (formatOffStack.nonEmpty) formatOffStack.update(0, true)
 
         case _ if ft.meta.formatOff =>
 
@@ -206,10 +204,9 @@ class FormatTokensRewrite(
     session.applyRules(rules)
   }
 
-  private def applyRule(rule: Rule)(implicit
-      ft: FormatToken,
-      session: Session
-  ): Option[Int] = {
+  private def applyRule(
+      rule: Rule
+  )(implicit ft: FormatToken, session: Session): Option[Int] = {
     implicit val style = styleMap.at(ft.right)
     session.applyRule(rule)
   }
@@ -243,13 +240,11 @@ object FormatTokensRewrite {
     protected final def removeToken(implicit
         ft: FormatToken,
         style: ScalafmtConfig
-    ): Replacement =
-      removeToken(Nil)
+    ): Replacement = removeToken(Nil)
 
-    protected final def removeToken(claim: Iterable[Int] = Nil)(implicit
-        ft: FormatToken,
-        style: ScalafmtConfig
-    ): Replacement =
+    protected final def removeToken(
+        claim: Iterable[Int] = Nil
+    )(implicit ft: FormatToken, style: ScalafmtConfig): Replacement =
       Replacement(this, ft, ReplacementType.Remove, style, claim)
 
     protected final def replaceToken(
@@ -293,10 +288,7 @@ object FormatTokensRewrite {
   def getEnabledFactories(implicit style: ScalafmtConfig): Seq[RuleFactory] =
     getFactories.filter(_.enabled)
 
-  def apply(
-      ftoks: FormatTokens,
-      styleMap: StyleMap
-  ): FormatTokens = {
+  def apply(ftoks: FormatTokens, styleMap: StyleMap): FormatTokens = {
     val enabledFactories = getEnabledFactories(styleMap.init).sortBy(_.priority)
     val rules = enabledFactories.map(_.create(ftoks))
     if (rules.isEmpty) ftoks
@@ -325,35 +317,32 @@ object FormatTokensRewrite {
       claimedRule(ft.meta.idx)
 
     @inline
-    private[rewrite] def claimedRule(ftIdx: Int): Option[Replacement] =
-      claimed.get(ftIdx).map(tokens.apply).filter(_ ne null)
+    private[rewrite] def claimedRule(ftIdx: Int): Option[Replacement] = claimed
+      .get(ftIdx).map(tokens.apply).filter(_ ne null)
 
     private[rewrite] def claim(ftIdx: Int, repl: Replacement): Int = {
       justClaim(ftIdx) {
         if (repl eq null) null
-        else
-          (repl.how match {
-            case rt: ReplacementType.RemoveAndResurrect =>
-              val rtidx = rt.ft.meta.idx
-              def swapWith(oldidx: Int) = Some {
-                tokens(oldidx) = repl.copy(ft = repl.ft.withIdx(rtidx))
-                repl.copy(ft = rt.ft.withIdx(repl.idx))
-              }
-              getClaimed(rtidx) match {
-                case Some((oidx, x)) if x != null && x.isRemove =>
-                  swapWith(oidx)
-                case _ => None
-              }
-            case _ => None
-          }).getOrElse(repl)
+        else (repl.how match {
+          case rt: ReplacementType.RemoveAndResurrect =>
+            val rtidx = rt.ft.meta.idx
+            def swapWith(oldidx: Int) = Some {
+              tokens(oldidx) = repl.copy(ft = repl.ft.withIdx(rtidx))
+              repl.copy(ft = rt.ft.withIdx(repl.idx))
+            }
+            getClaimed(rtidx) match {
+              case Some((oidx, x)) if x != null && x.isRemove => swapWith(oidx)
+              case _ => None
+            }
+          case _ => None
+        }).getOrElse(repl)
       }
     }
 
     @inline
     private[rewrite] def claim(repl: Replacement)(implicit
         ft: FormatToken
-    ): Int =
-      claim(ft.meta.idx, repl)
+    ): Int = claim(ft.meta.idx, repl)
 
     private def justClaim(ftIdx: Int)(repl: Replacement): Int = {
       val idx = tokens.length
@@ -370,8 +359,7 @@ object FormatTokensRewrite {
       } else {
         require(ftIdx > maxClaimed, s"claiming token at $ftIdx <= $maxClaimed")
         maxClaimed = ftIdx
-        if (preClaimed)
-          claimed.update(ftIdx, idx)
+        if (preClaimed) claimed.update(ftIdx, idx)
         tokens.append(repl)
         idx
       }
@@ -392,8 +380,7 @@ object FormatTokensRewrite {
     )(implicit ft: FormatToken, style: ScalafmtConfig): Option[Int] = {
       @tailrec
       def iter(remainingRules: Seq[Rule]): Option[Int] = remainingRules match {
-        case r +: rs =>
-          applyRule(r) match {
+        case r +: rs => applyRule(r) match {
             case None => iter(rs)
             case x => x
           }
@@ -428,8 +415,10 @@ object FormatTokensRewrite {
       // list of FormatToken indices, with the claimed token on the **right**
       claim: Iterable[Int] = Nil
   ) {
-    @inline def isRemove: Boolean = how eq ReplacementType.Remove
-    @inline def idx: Int = ft.meta.idx
+    @inline
+    def isRemove: Boolean = how eq ReplacementType.Remove
+    @inline
+    def idx: Int = ft.meta.idx
 
     def onRight(hasFormatOff: Boolean)(implicit
         ft: FormatToken,

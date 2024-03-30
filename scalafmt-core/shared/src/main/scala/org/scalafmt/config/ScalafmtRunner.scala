@@ -27,14 +27,17 @@ case class ScalafmtRunner(
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
-  @inline private[scalafmt] def getDialect = dialect.dialect
-  private[scalafmt] lazy val getDialectForParser: Dialect =
-    getDialect.withAllowToplevelTerms(true).withAllowToplevelStatements(true)
-  @inline private[scalafmt] def dialectName = {
+  @inline
+  private[scalafmt] def getDialect = dialect.dialect
+  private[scalafmt] lazy val getDialectForParser: Dialect = getDialect
+    .withAllowToplevelTerms(true).withAllowToplevelStatements(true)
+  @inline
+  private[scalafmt] def dialectName = {
     val name = dialect.name
     if (dialectOverride.values.isEmpty) name else s"$name [with overrides]"
   }
-  @inline private[scalafmt] def getParser = parser.parse
+  @inline
+  private[scalafmt] def getParser = parser.parse
 
   @inline
   def withDialect(dialect: sourcecode.Text[Dialect]): ScalafmtRunner =
@@ -48,11 +51,8 @@ case class ScalafmtRunner(
   private[scalafmt] def withParser(parser: ScalafmtParser): ScalafmtRunner =
     copy(parser = parser)
 
-  private[scalafmt] def forCodeBlock: ScalafmtRunner = copy(
-    debug = false,
-    eventCallback = null,
-    parser = ScalafmtParser.Source
-  )
+  private[scalafmt] def forCodeBlock: ScalafmtRunner =
+    copy(debug = false, eventCallback = null, parser = ScalafmtParser.Source)
 
   def event(evt: => FormatEvent): Unit =
     if (null != eventCallback) eventCallback(evt)
@@ -63,7 +63,8 @@ case class ScalafmtRunner(
   def parse(input: meta.inputs.Input): Parsed[_ <: Tree] =
     getParser(input, getDialectForParser)
 
-  @inline def isDefaultDialect = dialect.name == NamedDialect.defaultName
+  @inline
+  def isDefaultDialect = dialect.name == NamedDialect.defaultName
 
 }
 
@@ -84,8 +85,7 @@ object ScalafmtRunner {
 
   val sbt = default.withDialect(meta.dialects.Sbt)
 
-  implicit val encoder: ConfEncoder[ScalafmtRunner] =
-    generic.deriveEncoder
+  implicit val encoder: ConfEncoder[ScalafmtRunner] = generic.deriveEncoder
 
   private def overrideDialect[T: ClassTag](d: Dialect, k: String, v: T) = {
     import org.scalafmt.config.ReflectOps._
@@ -95,20 +95,19 @@ object ScalafmtRunner {
     d.invokeAs[Dialect](methodName, v.asParam)
   }
 
-  implicit val decoder: ConfDecoderEx[ScalafmtRunner] =
-    generic.deriveDecoderEx(default).noTypos.flatMap { runner =>
+  implicit val decoder: ConfDecoderEx[ScalafmtRunner] = generic
+    .deriveDecoderEx(default).noTypos.flatMap { runner =>
       val overrides = runner.dialectOverride.values
       if (overrides.isEmpty) Configured.Ok(runner)
-      else
-        Configured.fromExceptionThrowing {
-          val srcDialect = runner.getDialect
-          val dialect = overrides.foldLeft(srcDialect) {
-            case (cur, (k, Conf.Bool(v))) => overrideDialect(cur, k, v)
-            case (cur, _) => cur // other config types are unsupported
-          }
-          if (dialect.isEquivalentTo(srcDialect)) runner
-          else runner.withDialect(runner.dialect.copy(dialect = dialect))
+      else Configured.fromExceptionThrowing {
+        val srcDialect = runner.getDialect
+        val dialect = overrides.foldLeft(srcDialect) {
+          case (cur, (k, Conf.Bool(v))) => overrideDialect(cur, k, v)
+          case (cur, _) => cur // other config types are unsupported
         }
+        if (dialect.isEquivalentTo(srcDialect)) runner
+        else runner.withDialect(runner.dialect.copy(dialect = dialect))
+      }
     }
 
 }

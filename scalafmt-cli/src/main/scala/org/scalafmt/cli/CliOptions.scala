@@ -31,16 +31,15 @@ object CliOptions {
       if (
         parsed.noStdErr ||
         !(parsed.stdIn || parsed.writeMode == WriteMode.Stdout)
-      )
-        parsed.common.out
+      ) parsed.common.out
       else parsed.common.err
 
-    parsed.copy(
-      common = parsed.common.copy(
-        out =
-          guardPrintStream(parsed.quiet && !parsed.stdIn)(parsed.common.out),
+    parsed.copy(common =
+      parsed.common.copy(
+        out = guardPrintStream(parsed.quiet && !parsed.stdIn)(parsed.common.out),
         info = guardPrintStream(
-          parsed.stdIn || parsed.writeMode == WriteMode.Stdout || parsed.quiet || parsed.writeMode == WriteMode.List
+          parsed.stdIn || parsed.writeMode == WriteMode.Stdout ||
+            parsed.quiet || parsed.writeMode == WriteMode.List
         )(auxOut),
         debug = guardPrintStream(parsed.quiet)(
           if (parsed.debug) auxOut else parsed.common.debug
@@ -50,14 +49,14 @@ object CliOptions {
     )
   }
 
-  private def guardPrintStream(
-      p: => Boolean
-  )(candidate: PrintStream): PrintStream =
-    if (p) NoopOutputStream.printStream else candidate
+  private def guardPrintStream(p: => Boolean)(
+      candidate: PrintStream
+  ): PrintStream = if (p) NoopOutputStream.printStream else candidate
 
 }
 
-object NoopOutputStream extends OutputStream { self =>
+object NoopOutputStream extends OutputStream {
+  self =>
   override def write(b: Int): Unit = ()
 
   override def write(b: Array[Byte]): Unit = ()
@@ -75,8 +74,8 @@ case class CommonOptions(
     debug: PrintStream = NoopOutputStream.printStream,
     info: PrintStream = NoopOutputStream.printStream
 ) {
-  private[cli] lazy val workingDirectory: AbsoluteFile =
-    cwd.getOrElse(AbsoluteFile.userDir)
+  private[cli] lazy val workingDirectory: AbsoluteFile = cwd
+    .getOrElse(AbsoluteFile.userDir)
 }
 
 case class CliOptions(
@@ -128,13 +127,12 @@ case class CliOptions(
       .fold(throw new NoSuchFileException("Config file not found"))(_.get)
   }
 
-  private[cli] lazy val canonicalConfigFile: Option[Try[Path]] =
-    gitOps.getCanonicalConfigFile(cwd, config)
+  private[cli] lazy val canonicalConfigFile: Option[Try[Path]] = gitOps
+    .getCanonicalConfigFile(cwd, config)
 
-  private[cli] def getProposedConfigFile: Path =
-    canonicalConfigFile.flatMap(_.toOption).getOrElse {
-      gitOps.getProposedConfigFile(cwd, config).path
-    }
+  private[cli] def getProposedConfigFile: Path = canonicalConfigFile
+    .flatMap(_.toOption)
+    .getOrElse { gitOps.getProposedConfigFile(cwd, config).path }
 
   /** Parse the scalafmt configuration and try to encode it to `ScalafmtConfig`.
     * If `--config-str` is specified, this will parse the configuration string
@@ -144,23 +142,18 @@ case class CliOptions(
     * If `--config-str` is not specified and configuration file is missing, this
     * will return the default configuration
     */
-  def scalafmtConfig: Configured[ScalafmtConfig] =
-    hoconOpt.fold(Configured.ok(baseConfig))(
-      ScalafmtConfig.fromConf(_, baseConfig)
-    )
+  def scalafmtConfig: Configured[ScalafmtConfig] = hoconOpt
+    .fold(Configured.ok(baseConfig))(ScalafmtConfig.fromConf(_, baseConfig))
 
-  private[cli] lazy val hoconOpt: Option[ConfParsed] =
-    configStr.map(ConfParsed.fromString(_)).orElse {
+  private[cli] lazy val hoconOpt: Option[ConfParsed] = configStr
+    .map(ConfParsed.fromString(_)).orElse {
       canonicalConfigFile.map(
-        _.fold(
-          x => new ConfParsed(Configured.exception(x)),
-          ConfParsed.fromPath(_)
-        )
+        _.fold(x => new ConfParsed(Configured.exception(x)), ConfParsed.fromPath(_))
       )
     }
 
-  lazy val fileFetchMode: FileFetchMode =
-    mode.getOrElse(if (isGit) GitFiles else RecursiveSearch)
+  lazy val fileFetchMode: FileFetchMode = mode
+    .getOrElse(if (isGit) GitFiles else RecursiveSearch)
 
   lazy val customFilesOpt =
     if (customFiles.isEmpty) None else Some(cwd.join(customFiles))
@@ -184,17 +177,15 @@ case class CliOptions(
 
   private def getHoconValueOpt[A](
       f: ConfParsed => Option[Either[String, A]]
-  ): Option[A] =
-    hoconOpt.flatMap(f).map {
-      case Right(x) => x
-      case Left(x) => throw new ScalafmtConfigException(x)
-    }
+  ): Option[A] = hoconOpt.flatMap(f).map {
+    case Right(x) => x
+    case Left(x) => throw new ScalafmtConfigException(x)
+  }
 
   private def getHoconValue[A](
       default: A,
       f: ConfParsed => Option[Either[String, A]]
-  ): A =
-    getHoconValueOpt[A](f).getOrElse(default)
+  ): A = getHoconValueOpt[A](f).getOrElse(default)
 
   private[cli] def isGit: Boolean =
     getHoconValue(baseConfig.project.git, _.isGit)
@@ -208,12 +199,11 @@ case class CliOptions(
   private[cli] def onTestFailure: Option[String] =
     getHoconValueOpt(_.onTestFailure)
 
-  private[cli] def encoding: Codec =
-    getHoconValueOpt(_.encoding).getOrElse(baseConfig.encoding)
+  private[cli] def encoding: Codec = getHoconValueOpt(_.encoding)
+    .getOrElse(baseConfig.encoding)
 
   /** Returns None if .scalafmt.conf is not found or version setting is missing.
     */
-  private[cli] def getVersionOpt: Option[String] =
-    getHoconValueOpt(_.version)
+  private[cli] def getVersionOpt: Option[String] = getHoconValueOpt(_.version)
 
 }

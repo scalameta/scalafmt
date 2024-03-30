@@ -14,8 +14,8 @@ object ExpiresOn {
   }
 
   case object Before extends ExpiresOn {
-    def notExpiredBy(ft: FormatToken, expireEnd: Int): Boolean =
-      ft.right.end < expireEnd
+    def notExpiredBy(ft: FormatToken, expireEnd: Int): Boolean = ft.right.end <
+      expireEnd
   }
 
   @inline
@@ -55,8 +55,8 @@ case class ActualIndent(
     reset: Boolean
 ) {
   @inline
-  def notExpiredBy(ft: FormatToken): Boolean =
-    expiresAt.notExpiredBy(ft, expireEnd)
+  def notExpiredBy(ft: FormatToken): Boolean = expiresAt
+    .notExpiredBy(ft, expireEnd)
 }
 
 abstract class Indent {
@@ -85,15 +85,14 @@ private class IndentImpl(length: Length, expire: Token, expiresAt: ExpiresOn)
     extends Indent {
   override def hasStateColumn: Boolean = length eq Length.StateColumn
   override def switch(trigger: Token, on: Boolean): Indent = this
-  override def withStateOffset(offset: Int): Option[ActualIndent] =
-    Some(
-      ActualIndent(
-        length.withStateOffset(offset),
-        expire.end,
-        expiresAt,
-        length.reset
-      )
+  override def withStateOffset(offset: Int): Option[ActualIndent] = Some(
+    ActualIndent(
+      length.withStateOffset(offset),
+      expire.end,
+      expiresAt,
+      length.reset
     )
+  )
   override def toString: String = {
     val when = if (expiresAt == ExpiresOn.Before) '<' else '>'
     s"$length$when$expire:${expire.end}"
@@ -108,7 +107,8 @@ object Indent {
       case x => new IndentImpl(x, expire, expiresAt)
     }
 
-  @inline def empty: Indent = Empty
+  @inline
+  def empty: Indent = Empty
   case object Empty extends Indent {
     override def withStateOffset(offset: Int): Option[ActualIndent] = None
     override def switch(trigger: Token, on: Boolean): Indent = this
@@ -120,8 +120,8 @@ object Indent {
     override def switch(trigger: Token, on: Boolean): Indent =
       if (trigger ne this.trigger) this
       else { if (on) before else after.switch(trigger, false) }
-    override def withStateOffset(offset: Int): Option[ActualIndent] =
-      before.withStateOffset(offset)
+    override def withStateOffset(offset: Int): Option[ActualIndent] = before
+      .withStateOffset(offset)
     override def hasStateColumn: Boolean = before.hasStateColumn
     override def toString: String = s"$before>($trigger:${trigger.end})?$after"
   }

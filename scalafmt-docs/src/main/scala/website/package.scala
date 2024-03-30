@@ -24,22 +24,19 @@ package object website {
         }
         index += 1
       }
-      if (index < len) {
-        buf.append(line.substring(index))
-      }
+      if (index < len) { buf.append(line.substring(index)) }
       buf.append('\n')
     }
     buf.toString
   }
 
-  def plaintext(code: String): String =
-    "```\n" + code + "\n```"
+  def plaintext(code: String): String = "```\n" + code + "\n```"
 
-  private[this] def scalaCode(code: String): String =
-    "```scala\n" + code + "\n```"
+  private[this] def scalaCode(code: String): String = "```scala\n" + code +
+    "\n```"
 
-  def preProcess(code: String): String =
-    replaceMargin(code.trim).replace("'''", "\"\"\"")
+  def preProcess(code: String): String = replaceMargin(code.trim)
+    .replace("'''", "\"\"\"")
 
   val logger: PrintStream = {
     val out = Files.newOutputStream(
@@ -62,36 +59,25 @@ package object website {
   def exampleSource(code: String, config: String*): Unit = {
     example(code, config, ScalafmtRunner.default)
   }
-  def example(
-      code: String,
-      config: Seq[String],
-      runner: ScalafmtRunner
-  ): Unit = {
+  def example(code: String, config: Seq[String], runner: ScalafmtRunner): Unit = {
     val processedCode = preProcess(code)
-    val parsedConfig1 =
-      ScalafmtConfig
-        .fromHoconString(config.mkString("\n"))
-        .get
-        .copy(runner = runner)
+    val parsedConfig1 = ScalafmtConfig.fromHoconString(config.mkString("\n"))
+      .get.copy(runner = runner)
     val isCustomMaxColumn = config.exists(_.contains("maxColumn"))
     val parsedConfig =
       if (isCustomMaxColumn) parsedConfig1
       else parsedConfig1.copy(maxColumn = 40)
     if (code.contains("validatedInstances")) {
       logger.println("=======")
-      logger.println(
-        parsedConfig.newlines.sometimesBeforeColonInMethodReturnType
-      )
+      logger
+        .println(parsedConfig.newlines.sometimesBeforeColonInMethodReturnType)
       logger.println(parsedConfig.maxColumn)
       logger.println()
       logger.println(config.mkString("\n"))
     }
     val formattedCode = Scalafmt.format(processedCode, parsedConfig).get
-    val result = new StringBuilder()
-      .append(config.mkString("// ", "\n// ", ""))
-      .append("\n\n")
-      .append(formattedCode)
-      .toString()
+    val result = new StringBuilder().append(config.mkString("// ", "\n// ", ""))
+      .append("\n\n").append(formattedCode).toString()
 
     println(scalaCode(result))
   }
@@ -105,9 +91,7 @@ package object website {
     *   the config to format the code (defaults to `default40`)
     */
   def formatExample(code: String, config: String*): Unit = {
-    val parsedConfig = ScalafmtConfig
-      .fromHoconString(config.mkString("\n"))
-      .get
+    val parsedConfig = ScalafmtConfig.fromHoconString(config.mkString("\n")).get
       .copy(maxColumn = 40, runner = ScalafmtRunner.sbt)
     val processedCode = preProcess(code)
     val formatted = Scalafmt.format(processedCode, parsedConfig).get

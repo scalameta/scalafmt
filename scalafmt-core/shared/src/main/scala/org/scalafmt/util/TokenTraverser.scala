@@ -12,9 +12,8 @@ class TokenTraverser(tokens: Tokens, input: Input) {
     var formatOff = false
     var i = 0
     tokens.foreach { tok =>
-      if (!formatOff) {
-        if (TokenOps.isFormatOff(tok)) formatOff = true
-      } else {
+      if (!formatOff) { if (TokenOps.isFormatOff(tok)) formatOff = true }
+      else {
         if (TokenOps.isFormatOn(tok)) formatOff = false
         else excluded += TokenOps.hash(tok)
       }
@@ -36,11 +35,13 @@ class TokenTraverser(tokens: Tokens, input: Input) {
     (map.result(), excluded.result())
   }
 
-  final def isExcluded(token: Token): Boolean =
-    excludedTokens.contains(TokenOps.hash(token))
+  final def isExcluded(token: Token): Boolean = excludedTokens
+    .contains(TokenOps.hash(token))
 
-  @inline def getIndex(token: Token): Int = tok2idx(token)
-  @inline def getIndexOpt(token: Token): Option[Int] = tok2idx.get(token)
+  @inline
+  def getIndex(token: Token): Int = tok2idx(token)
+  @inline
+  def getIndexOpt(token: Token): Option[Int] = tok2idx.get(token)
 
   def nextToken(token: Token): Token = {
     tok2idx.get(token) match {
@@ -69,8 +70,8 @@ class TokenTraverser(tokens: Tokens, input: Input) {
     */
   def findAfter(
       token: Token
-  )(predicate: Token => Option[Boolean]): Option[Token] =
-    tok2idx.get(token).flatMap(x => findAtOrAfter(x + 1)(predicate))
+  )(predicate: Token => Option[Boolean]): Option[Token] = tok2idx.get(token)
+    .flatMap(x => findAtOrAfter(x + 1)(predicate))
 
   /** Find a token before the given one. The search stops when the predicate
     * returns Some value (or the end is reached).
@@ -79,13 +80,13 @@ class TokenTraverser(tokens: Tokens, input: Input) {
     */
   def findBefore(
       token: Token
-  )(predicate: Token => Option[Boolean]): Option[Token] =
-    tok2idx.get(token).flatMap(x => findAtOrBefore(x - 1)(predicate))
+  )(predicate: Token => Option[Boolean]): Option[Token] = tok2idx.get(token)
+    .flatMap(x => findAtOrBefore(x - 1)(predicate))
 
   @tailrec
-  final def findAtOrAfter(off: Int)(
-      pred: Token => Option[Boolean]
-  ): Option[Token] =
+  final def findAtOrAfter(
+      off: Int
+  )(pred: Token => Option[Boolean]): Option[Token] =
     if (off >= tokens.length) None
     else {
       val token = tokens(off)
@@ -97,9 +98,9 @@ class TokenTraverser(tokens: Tokens, input: Input) {
     }
 
   @tailrec
-  final def findAtOrBefore(off: Int)(
-      pred: Token => Option[Boolean]
-  ): Option[Token] =
+  final def findAtOrBefore(
+      off: Int
+  )(pred: Token => Option[Boolean]): Option[Token] =
     if (off < 0) None
     else {
       val token = tokens(off)
@@ -116,8 +117,7 @@ class TokenTraverser(tokens: Tokens, input: Input) {
     if (start == end || nextToken(start) == start) Nil
     else {
       val tail = filter(nextToken(start), end)(predicate)
-      if (predicate(start)) start +: tail
-      else tail
+      if (predicate(start)) start +: tail else tail
     }
   }
 

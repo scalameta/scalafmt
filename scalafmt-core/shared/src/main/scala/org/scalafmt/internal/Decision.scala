@@ -6,17 +6,17 @@ package org.scalafmt.internal
   */
 case class Decision(formatToken: FormatToken, splits: Seq[Split]) {
 
-  @inline def noNewlines: Seq[Split] =
-    Decision.noNewlineSplits(splits)
+  @inline
+  def noNewlines: Seq[Split] = Decision.noNewlineSplits(splits)
 
-  @inline def onlyNewlinesWithFallback(default: => Split): Seq[Split] =
-    Decision.onlyNewlinesWithFallback(splits, default)
+  @inline
+  def onlyNewlinesWithFallback(default: => Split): Seq[Split] = Decision
+    .onlyNewlinesWithFallback(splits, default)
 
-  def onlyNewlinesWithoutFallback: Seq[Split] =
-    onlyNewlineSplits
+  def onlyNewlinesWithoutFallback: Seq[Split] = onlyNewlineSplits
 
-  @inline private def onlyNewlineSplits: Seq[Split] =
-    Decision.onlyNewlineSplits(splits)
+  @inline
+  private def onlyNewlineSplits: Seq[Split] = Decision.onlyNewlineSplits(splits)
 
   def withSplits(splits: Seq[Split]): Decision = copy(splits = splits)
 
@@ -24,14 +24,15 @@ case class Decision(formatToken: FormatToken, splits: Seq[Split]) {
 
 object Decision {
 
-  @inline def noNewlineSplits(s: Seq[Split]): Seq[Split] =
-    filterNewlineSplits(s, false)
+  @inline
+  def noNewlineSplits(s: Seq[Split]): Seq[Split] = filterNewlineSplits(s, false)
 
-  @inline def onlyNewlineSplits(s: Seq[Split]): Seq[Split] =
-    filterNewlineSplits(s, true)
+  @inline
+  def onlyNewlineSplits(s: Seq[Split]): Seq[Split] = filterNewlineSplits(s, true)
 
-  @inline def filterNewlineSplits(s: Seq[Split], isNL: Boolean): Seq[Split] =
-    s.filter(_.isNL == isNL)
+  @inline
+  def filterNewlineSplits(s: Seq[Split], isNL: Boolean): Seq[Split] = s
+    .filter(_.isNL == isNL)
 
   def onlyNewlinesWithFallback(s: Seq[Split], fb: => Split): Seq[Split] = {
     val filtered = onlyNewlineSplits(s)

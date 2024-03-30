@@ -17,45 +17,42 @@ object FileOps {
   def getLastModifiedMsec(file: Path): Long = {
     val attributes = getAttributesNoLinks(file)
     val mtime = attributes.lastModifiedTime().toMillis
-    if (attributes.isSymbolicLink)
-      math.max(mtime, Files.getLastModifiedTime(file).toMillis)
+    if (attributes.isSymbolicLink) math
+      .max(mtime, Files.getLastModifiedTime(file).toMillis)
     else mtime
   }
 
   @inline
-  def getLastModifiedMsecNoLinks(file: Path): Long =
-    Files.getLastModifiedTime(file, LinkOption.NOFOLLOW_LINKS).toMillis
+  def getLastModifiedMsecNoLinks(file: Path): Long = Files
+    .getLastModifiedTime(file, LinkOption.NOFOLLOW_LINKS).toMillis
 
   @inline
-  def isDirectory(file: Path): Boolean =
-    Files.isDirectory(file)
+  def isDirectory(file: Path): Boolean = Files.isDirectory(file)
 
   @inline
-  def isDirectoryNoLinks(file: Path): Boolean =
-    Files.isDirectory(file, LinkOption.NOFOLLOW_LINKS)
+  def isDirectoryNoLinks(file: Path): Boolean = Files
+    .isDirectory(file, LinkOption.NOFOLLOW_LINKS)
 
   @inline
-  def isRegularFile(file: Path): Boolean =
-    Files.isRegularFile(file)
+  def isRegularFile(file: Path): Boolean = Files.isRegularFile(file)
 
   @inline
-  def isRegularFileNoLinks(file: Path): Boolean =
-    Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)
+  def isRegularFileNoLinks(file: Path): Boolean = Files
+    .isRegularFile(file, LinkOption.NOFOLLOW_LINKS)
 
   @inline
-  def getAttributes(file: Path): BasicFileAttributes =
-    Files.readAttributes(file, classOf[BasicFileAttributes])
+  def getAttributes(file: Path): BasicFileAttributes = Files
+    .readAttributes(file, classOf[BasicFileAttributes])
 
   @inline
-  def getAttributesNoLinks(file: Path): BasicFileAttributes =
-    Files.readAttributes(
+  def getAttributesNoLinks(file: Path): BasicFileAttributes = Files
+    .readAttributes(
       file,
       classOf[BasicFileAttributes],
       LinkOption.NOFOLLOW_LINKS
     )
 
-  def listFiles(path: String): Seq[Path] =
-    listFiles(getFile(path))
+  def listFiles(path: String): Seq[Path] = listFiles(getFile(path))
 
   def listFiles(file: Path): Seq[Path] =
     listFiles(file, (_, a) => a.isRegularFile)
@@ -83,8 +80,8 @@ object FileOps {
   }
 
   @inline
-  private[sysops] def readAsURL(url: URL)(implicit codec: Codec): String =
-    Using.resource(scala.io.Source.fromURL(url)) {
+  private[sysops] def readAsURL(url: URL)(implicit codec: Codec): String = Using
+    .resource(scala.io.Source.fromURL(url)) {
       _.getLines().mkString("", "\n", "\n")
     }
 
@@ -96,13 +93,14 @@ object FileOps {
     new String(Files.readAllBytes(file), codec.charSet)
   }
 
-  @inline def getFile(path: String): Path = getPath(path)
+  @inline
+  def getFile(path: String): Path = getPath(path)
 
-  @inline def getFile(path: Seq[String]): Path =
-    getPath(path.head, path.tail: _*)
+  @inline
+  def getFile(path: Seq[String]): Path = getPath(path.head, path.tail: _*)
 
-  @inline def getPath(head: String, tail: String*): Path =
-    Paths.get(head, tail: _*)
+  @inline
+  def getPath(head: String, tail: String*): Path = Paths.get(head, tail: _*)
 
   def writeFile(path: Path, content: String)(implicit codec: Codec): Unit = {
     val bytes = content.getBytes(codec.charSet)
@@ -111,9 +109,7 @@ object FileOps {
 
   def writeFile(filename: String, content: String)(implicit
       codec: Codec
-  ): Unit = {
-    writeFile(getFile(filename), content)
-  }
+  ): Unit = { writeFile(getFile(filename), content) }
 
   @inline
   def isMarkdown(filename: String): Boolean = filename.endsWith(".md")
@@ -127,13 +123,11 @@ object FileOps {
   def getCanonicalConfigFile(
       workingDirectory: AbsoluteFile,
       config: Option[Path] = None
-  ): Option[Try[Path]] =
-    config.fold(tryGetConfigInDir(workingDirectory)) { x =>
-      val file = workingDirectory.join(x)
-      tryCheckConfigFile(file).orElse(
-        Some(Failure(new NoSuchFileException(s"Config missing: $file")))
-      )
-    }
+  ): Option[Try[Path]] = config.fold(tryGetConfigInDir(workingDirectory)) { x =>
+    val file = workingDirectory.join(x)
+    tryCheckConfigFile(file)
+      .orElse(Some(Failure(new NoSuchFileException(s"Config missing: $file"))))
+  }
 
   def tryGetConfigInDir(dir: AbsoluteFile): Option[Try[Path]] =
     tryCheckConfigFile(dir / defaultConfigFileName)

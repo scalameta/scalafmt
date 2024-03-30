@@ -18,16 +18,11 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
       config: ScalafmtConfig = ScalafmtConfig.default,
       count: Int = Int.MaxValue
   ): mutable.Seq[(CorpusFile, Observation[Bug])] = {
-    val corpus = Corpus
-      .files(
-        // TODO(olafur) remove once testkit 1.7 is out
-        Corpus.fastparse.copy(
-          Corpus.fastparse.url.replace("olafurpg", "scalameta")
-        )
-      )
-      .take(count)
-      .toBuffer
-      .par
+    val corpus = Corpus.files(
+      // TODO(olafur) remove once testkit 1.7 is out
+      Corpus.fastparse
+        .copy(Corpus.fastparse.url.replace("olafurpg", "scalameta"))
+    ).take(count).toBuffer.par
     SyntaxAnalysis.run[Observation[Bug]](corpus) { file =>
       val code = file.read
       try {
@@ -37,8 +32,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
             val formattedSecondTime = Scalafmt.format(formatted, config).get
             try assertNoDiff(formattedSecondTime, formatted, "Idempotence")
             catch {
-              case diff: FailException =>
-                throw DiffFailure(
+              case diff: FailException => throw DiffFailure(
                   "Idempotence",
                   formatted,
                   formattedSecondTime,
@@ -56,48 +50,31 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
       } catch {
         case e: Error.FormatterChangedAST =>
           List(Observation(e.getMessage, -1, AstChanged))
-        case e: Error.FormatterOutputDoesNotParse =>
-          List(
-            Observation(
-              e.getMessage.linesIterator.slice(1, 2).mkString(""),
-              e.line,
-              FormattedOutputDoesNotParse
-            )
-          )
-        case e: Error =>
-          List(Observation(e.getMessage, -1, Unknown(e)))
+        case e: Error.FormatterOutputDoesNotParse => List(Observation(
+            e.getMessage.linesIterator.slice(1, 2).mkString(""),
+            e.line,
+            FormattedOutputDoesNotParse
+          ))
+        case e: Error => List(Observation(e.getMessage, -1, Unknown(e)))
         case e: DiffFailure =>
-          val line = e.obtained.linesIterator
-            .zip(e.expected.linesIterator)
-            .takeWhile { case (a, b) => a == b }
-            .length
-          List(
-            Observation(
-              e.diff.linesIterator.take(3).mkString("\n"),
-              line,
-              NonIdempotent
-            )
-          )
+          val line = e.obtained.linesIterator.zip(e.expected.linesIterator)
+            .takeWhile { case (a, b) => a == b }.length
+          List(Observation(
+            e.diff.linesIterator.take(3).mkString("\n"),
+            line,
+            NonIdempotent
+          ))
       }
     }
   }
 
   def printReport(bugs: List[(CorpusFile, Observation[Bug])]): Unit = {
     val table = Observation.markdownTable(bugs)
-    val summary =
-      bugs
-        .groupBy(_._2.kind.toString)
-        .mapValues(_.length)
-        .toSeq
-        .sortBy(_._2)
-        .map { case (a, b) =>
-          s"$a=$b"
-        }
-        .mkString("\n")
-    val report =
-      s"""|$summary
-        |
-        |$table """.stripMargin
+    val summary = bugs.groupBy(_._2.kind.toString).mapValues(_.length).toSeq
+      .sortBy(_._2).map { case (a, b) => s"$a=$b" }.mkString("\n")
+    val report = s"""|$summary
+      |
+      |$table """.stripMargin
     logger.elem(summary)
     logger.elem(report)
     logger.elem(summary)

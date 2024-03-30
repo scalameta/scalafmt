@@ -23,37 +23,37 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
   private val projectMatcherField = projectField.invoke("matcher")
 
   private lazy val indentField = Try {
-    if (getVersion < ScalafmtVersion(3, 0, 0))
-      target.invoke("continuationIndent")
-    else
-      target.invoke("indent")
+    if (getVersion < ScalafmtVersion(3, 0, 0)) target
+      .invoke("continuationIndent")
+    else target.invoke("indent")
   }
 
-  lazy val projectIsGit =
-    Try(projectField.invokeAs[Boolean]("git")).getOrElse(false)
+  lazy val projectIsGit = Try(projectField.invokeAs[Boolean]("git"))
+    .getOrElse(false)
 
-  @inline def getVersion = fmtReflect.version
+  @inline
+  def getVersion = fmtReflect.version
 
-  @inline def isIncludedInProject(path: Path): Boolean =
+  @inline
+  def isIncludedInProject(path: Path): Boolean =
     isIncludedInProject(path.toString)
 
-  def isIncludedInProject(filename: String): Boolean =
-    projectMatcherField.invokeAs[Boolean]("matches", filename.asParam)
+  def isIncludedInProject(filename: String): Boolean = projectMatcherField
+    .invokeAs[Boolean]("matches", filename.asParam)
 
   private def sbtDialect: Object = {
     try dialectsCls.invokeStatic("Sbt")
     catch {
-      case ReflectionException(_: NoSuchMethodException) =>
-        dialectsCls.invokeStatic("Sbt0137")
+      case ReflectionException(_: NoSuchMethodException) => dialectsCls
+          .invokeStatic("Sbt0137")
     }
   }
 
-  lazy val withSbtDialect: Try[ScalafmtReflectConfig] =
-    Try(target.invoke("forSbt"))
-      .recover { case ReflectionException(_: NoSuchMethodException) =>
-        target.invoke("withDialect", (dialectCls, sbtDialect))
-      }
-      .map(new ScalafmtReflectConfig(fmtReflect)(_))
+  lazy val withSbtDialect: Try[ScalafmtReflectConfig] = Try(
+    target.invoke("forSbt")
+  ).recover { case ReflectionException(_: NoSuchMethodException) =>
+    target.invoke("withDialect", (dialectCls, sbtDialect))
+  }.map(new ScalafmtReflectConfig(fmtReflect)(_))
 
   def withoutRewriteRules: ScalafmtReflectConfig = {
     if (getVersion < ScalafmtVersion(3, 2, 0)) withoutRewriteRulesPre320
@@ -91,18 +91,18 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
       !rules.invokeAs[Boolean]("isEmpty")
     }.getOrElse(false)
 
-  def tryFormat(code: String, file: Option[Path]): Try[String] =
-    fmtReflect.tryFormat(code, this, file)
+  def tryFormat(code: String, file: Option[Path]): Try[String] = fmtReflect
+    .tryFormat(code, this, file)
 
   def indentMain: Option[Int] =
     if (getVersion < ScalafmtVersion(3, 0, 0)) Some(2)
     else indentField.map(_.invokeAs[Int]("main")).toOption
 
-  def indentCallSite: Option[Int] =
-    indentField.map(_.invokeAs[Int]("callSite")).toOption
+  def indentCallSite: Option[Int] = indentField.map(_.invokeAs[Int]("callSite"))
+    .toOption
 
-  def indentDefnSite: Option[Int] =
-    indentField.map(_.invokeAs[Int]("defnSite")).toOption
+  def indentDefnSite: Option[Int] = indentField.map(_.invokeAs[Int]("defnSite"))
+    .toOption
 
   override def equals(obj: Any): Boolean = target.equals(obj)
 

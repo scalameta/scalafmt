@@ -3,7 +3,8 @@ package org.scalafmt.internal
 sealed abstract class Modification {
   val newlines: Int
   val length: Int
-  @inline final def isNewline: Boolean = newlines != 0
+  @inline
+  final def isNewline: Boolean = newlines != 0
 }
 
 case class Provided(ft: FormatToken) extends Modification {

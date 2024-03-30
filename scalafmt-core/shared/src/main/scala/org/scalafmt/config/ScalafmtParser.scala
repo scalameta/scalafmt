@@ -13,8 +13,8 @@ object ScalafmtParser {
   case object Stat extends ScalafmtParser(Parse.parseStat)
   case object Source extends ScalafmtParser(SourceParser)
 
-  implicit val codec: ConfCodecEx[ScalafmtParser] =
-    ReaderUtil.oneOf[ScalafmtParser](Case, Stat, Source)
+  implicit val codec: ConfCodecEx[ScalafmtParser] = ReaderUtil
+    .oneOf[ScalafmtParser](Case, Stat, Source)
 
   private object SourceParser extends Parse[Tree] {
     override def apply(input: Input, dialect: Dialect): Parsed[Tree] = {

@@ -5,10 +5,8 @@ import java.nio.file.Path
 
 import scala.util.control.NoStackTrace
 
-sealed class ScalafmtDynamicError(
-    msg: String,
-    cause: Throwable = null
-) extends Error(msg, cause)
+sealed class ScalafmtDynamicError(msg: String, cause: Throwable = null)
+    extends Error(msg, cause)
 
 object ScalafmtDynamicError {
   sealed abstract class ConfigError(
@@ -43,8 +41,7 @@ object ScalafmtDynamicError {
       version: ScalafmtVersion,
       urls: Seq[URL]
   ): String = {
-    urls
-      .map(x => if (x.getProtocol == "file") x.getFile else x.toString)
+    urls.map(x => if (x.getProtocol == "file") x.getFile else x.toString)
       .mkString(s"[v$version] corrupted class path: [", ",", "]")
   }
 

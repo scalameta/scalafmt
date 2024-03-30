@@ -29,10 +29,8 @@ object Docusaurus {
     npm.submit(new Runnable {
       override def run(): Unit = {
         val cwd = Paths.get("website").toFile
-        process = new java.lang.ProcessBuilder("npm", "start")
-          .inheritIO()
-          .directory(cwd)
-          .start()
+        process = new java.lang.ProcessBuilder("npm", "start").inheritIO()
+          .directory(cwd).start()
       }
     })
     new Docusaurus(() => process, npm)

@@ -17,15 +17,14 @@ case class RewriteScala3Settings(
 object RewriteScala3Settings {
   implicit val surface: generic.Surface[RewriteScala3Settings] =
     generic.deriveSurface
-  implicit val encoder: ConfEncoder[RewriteScala3Settings] =
-    generic.deriveEncoder[RewriteScala3Settings]
+  implicit val encoder: ConfEncoder[RewriteScala3Settings] = generic
+    .deriveEncoder[RewriteScala3Settings]
 
   val default = new RewriteScala3Settings
 
   implicit val decodec: ConfDecoderEx[RewriteScala3Settings] = Presets
     .mapDecoder(generic.deriveDecoderEx(default).noTypos, "rewrite.scala3") {
-      case Conf.Bool(true) =>
-        new RewriteScala3Settings(
+      case Conf.Bool(true) => new RewriteScala3Settings(
           convertToNewSyntax = true,
           removeOptionalBraces = RemoveOptionalBraces.yes
         )
@@ -47,8 +46,8 @@ object RewriteScala3Settings {
     implicit val surface: generic.Surface[RemoveOptionalBraces] =
       generic.deriveSurface
 
-    implicit val encoder: ConfEncoder[RemoveOptionalBraces] =
-      generic.deriveEncoder[RemoveOptionalBraces]
+    implicit val encoder: ConfEncoder[RemoveOptionalBraces] = generic
+      .deriveEncoder[RemoveOptionalBraces]
 
     implicit final val decoder: ConfDecoderEx[RemoveOptionalBraces] = {
       val baseDecoder = generic.deriveDecoderEx[RemoveOptionalBraces](no)
@@ -56,8 +55,8 @@ object RewriteScala3Settings {
         conf match {
           case Conf.Bool(true) | Conf.Str("yes") => Configured.Ok(yes)
           case Conf.Bool(false) | Conf.Str("no") => Configured.Ok(no)
-          case Conf.Str("oldSyntaxToo") =>
-            Configured.Ok(RemoveOptionalBraces(oldSyntaxToo = true))
+          case Conf.Str("oldSyntaxToo") => Configured
+              .Ok(RemoveOptionalBraces(oldSyntaxToo = true))
           case _ => baseDecoder.read(stateOpt, conf)
         }
     }
@@ -67,8 +66,8 @@ object RewriteScala3Settings {
 
   object EndMarkerLines {
 
-    implicit val codec: ConfCodecEx[EndMarkerLines] =
-      ReaderUtil.oneOf[EndMarkerLines](all, lastBlockOnly)
+    implicit val codec: ConfCodecEx[EndMarkerLines] = ReaderUtil
+      .oneOf[EndMarkerLines](all, lastBlockOnly)
 
     case object all extends EndMarkerLines
     case object lastBlockOnly extends EndMarkerLines
@@ -90,8 +89,8 @@ object RewriteScala3Settings {
 
     implicit val surface: generic.Surface[ConvertToNewSyntax] =
       generic.deriveSurface
-    implicit val codec: ConfCodecEx[ConvertToNewSyntax] =
-      generic.deriveCodecEx(default).noTypos
+    implicit val codec: ConfCodecEx[ConvertToNewSyntax] = generic
+      .deriveCodecEx(default).noTypos
 
   }
 

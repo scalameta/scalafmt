@@ -22,8 +22,8 @@ object RedundantBracesSettings {
 
   implicit lazy val surface: generic.Surface[RedundantBracesSettings] =
     generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[RedundantBracesSettings] =
-    generic.deriveCodecEx(default).noTypos
+  implicit lazy val codec: ConfCodecEx[RedundantBracesSettings] = generic
+    .deriveCodecEx(default).noTypos
 
   sealed abstract class DefnBodies
 

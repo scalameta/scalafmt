@@ -13,8 +13,8 @@ object TrailingCommas {
 
   implicit lazy val surface: generic.Surface[TrailingCommas] =
     generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[TrailingCommas] =
-    generic.deriveCodecEx(TrailingCommas())
+  implicit lazy val codec: ConfCodecEx[TrailingCommas] = generic
+    .deriveCodecEx(TrailingCommas())
 
   /** ADT representing trailing commas settings
     *
@@ -34,8 +34,8 @@ object TrailingCommas {
   sealed abstract class Style
 
   object Style {
-    implicit val codec: ConfCodecEx[Style] =
-      ReaderUtil.oneOfCustom[Style](always, never, keep, multiple) {
+    implicit val codec: ConfCodecEx[Style] = ReaderUtil
+      .oneOfCustom[Style](always, never, keep, multiple) {
         case Conf.Str(str) if str.equalsIgnoreCase("preserve") =>
           Configured.Ok(keep)
       }

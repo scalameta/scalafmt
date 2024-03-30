@@ -3,7 +3,7 @@ import sbt.Keys._
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 
-// scalafmt: { maxColumn = 120, align.preset = more }
+// scalafmt: { maxColumn = 100, align.preset = more, align.allowOverflow = true }
 
 object Dependencies {
   val metaconfigV = "0.12.0"

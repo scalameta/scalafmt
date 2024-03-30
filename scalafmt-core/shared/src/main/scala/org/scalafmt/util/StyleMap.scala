@@ -16,18 +16,12 @@ import org.scalafmt.internal.FormatTokens
 import org.scalameta.FileLine
 import org.scalameta.logger
 
-class StyleMap(
-    tokens: FormatTokens,
-    val init: ScalafmtConfig
-) {
+class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
   import StyleMap._
   val literalR: FilterMatcher = init.binPack.literalsRegex
   private val prefix = "\\s*scalafmt: ".r.pattern
   val forcedBinPack: mutable.Set[Tree] = mutable.Set.empty
-  private val (
-    starts: Array[Int],
-    styles: Array[ScalafmtConfig]
-  ) = {
+  private val (starts: Array[Int], styles: Array[ScalafmtConfig]) = {
     var curr = init
     val startBuilder = Array.newBuilder[Int]
     val styleBuilder = Array.newBuilder[ScalafmtConfig]
@@ -49,8 +43,8 @@ class StyleMap(
       }
       tok.left match {
         case Comment(c) if prefix.matcher(c).find() =>
-          val configured =
-            ScalafmtConfig.fromHoconString(c, init, Some("scalafmt"))
+          val configured = ScalafmtConfig
+            .fromHoconString(c, init, Some("scalafmt"))
           // TODO(olafur) report error via callback
           configured.foreach(logger.elem(_)) { style =>
             init.rewrite.rulesChanged(style.rewrite).foreach { x =>
@@ -68,8 +62,7 @@ class StyleMap(
               val unsafe = x.binPack.unsafeCallSite
               tokens.matchingOpt(open).foreach(disableBinPack.update(_, unsafe))
             }
-        case close @ RightParen() =>
-          disableBinPack.remove(close).foreach { x =>
+        case close @ RightParen() => disableBinPack.remove(close).foreach { x =>
             changeStyle(setBinPack(curr, callSite = x))
           }
         case _ =>
@@ -81,49 +74,46 @@ class StyleMap(
   @tailrec
   private def isBasicLiteral(
       tree: Tree
-  )(implicit style: ScalafmtConfig): Boolean =
-    tree match {
-      case lit: Lit =>
-        val strName = tree match {
-          case t: Lit.Int
-              if 0 <= t.value && t.value < Byte.MaxValue &&
-                lit.tokens.head.toString.startsWith("0x") =>
-            "Byte"
-          case _: Lit.Null => "Null"
-          case _ => lit.value.getClass.getName
-        }
-        literalR.matches(strName)
-      case x: Name => literalR.matches(x.productPrefix)
-      case _ if !style.binPack.literalsIncludeSimpleExpr => false
-      case t: Term.Select => isBasicLiteral(t.qual)
-      case t: Term.Assign => isBasicLiteral(t.rhs)
-      case _ =>
-        tree.children match {
-          case Nil => true
-          case one :: Nil => isBasicLiteral(one)
-          case _ => false
-        }
-    }
+  )(implicit style: ScalafmtConfig): Boolean = tree match {
+    case lit: Lit =>
+      val strName = tree match {
+        case t: Lit.Int
+            if 0 <= t.value && t.value < Byte.MaxValue &&
+              lit.tokens.head.toString.startsWith("0x") => "Byte"
+        case _: Lit.Null => "Null"
+        case _ => lit.value.getClass.getName
+      }
+      literalR.matches(strName)
+    case x: Name => literalR.matches(x.productPrefix)
+    case _ if !style.binPack.literalsIncludeSimpleExpr => false
+    case t: Term.Select => isBasicLiteral(t.qual)
+    case t: Term.Assign => isBasicLiteral(t.rhs)
+    case _ => tree.children match {
+        case Nil => true
+        case one :: Nil => isBasicLiteral(one)
+        case _ => false
+      }
+  }
 
   @tailrec
   private def isLiteral(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
     isBasicLiteral(tree) ||
-      style.binPack.literalsIncludeSimpleExpr && (tree match {
+      style.binPack.literalsIncludeSimpleExpr &&
+      (tree match {
         case t: Term.Assign => isLiteral(t.rhs)
-        case t: Term.Apply =>
-          isBasicLiteral(t.fun) && (t.argClause match {
+        case t: Term.Apply => isBasicLiteral(t.fun) &&
+          (t.argClause match {
             case Term.ArgClause(Nil, None) => true
             case Term.ArgClause(arg :: Nil, None) => isLiteral(arg)
             case _ => false
           })
-        case Term.New(t) =>
-          isBasicLiteral(t.name) && (t.argClauses match {
+        case Term.New(t) => isBasicLiteral(t.name) &&
+          (t.argClauses match {
             case Nil | Term.ArgClause(Nil, None) :: Nil => true
             case Term.ArgClause(arg :: Nil, None) :: Nil => isLiteral(arg)
             case _ => false
           })
-        case _ =>
-          tree.children match {
+        case _ => tree.children match {
             case Nil => true
             case one :: Nil => isLiteral(one)
             case _ => false
@@ -132,19 +122,17 @@ class StyleMap(
 
   def opensLiteralArgumentList(
       ft: FormatToken
-  )(implicit style: ScalafmtConfig): Boolean =
-    (ft.meta.leftOwner match {
-      case Member.Tuple(v) => Some(v)
-      case Member.SyntaxValuesClause(v) => Some(v)
-      case _ => None
-    }).exists { args =>
-      args.lengthCompare(style.binPack.literalsMinArgCount) >= 0 &&
-      args.forall(isLiteral)
-    }
+  )(implicit style: ScalafmtConfig): Boolean = (ft.meta.leftOwner match {
+    case Member.Tuple(v) => Some(v)
+    case Member.SyntaxValuesClause(v) => Some(v)
+    case _ => None
+  }).exists { args =>
+    args.lengthCompare(style.binPack.literalsMinArgCount) >= 0 &&
+    args.forall(isLiteral)
+  }
 
   @inline
-  def at(token: FormatToken): ScalafmtConfig =
-    at(token.left)
+  def at(token: FormatToken): ScalafmtConfig = at(token.left)
 
   @inline
   def forall(f: ScalafmtConfig => Boolean): Boolean = styles.forall(f)
@@ -161,10 +149,7 @@ class StyleMap(
 
 object StyleMap {
 
-  def setBinPack(
-      curr: ScalafmtConfig,
-      callSite: BinPack.Unsafe
-  ): ScalafmtConfig =
+  def setBinPack(curr: ScalafmtConfig, callSite: BinPack.Unsafe): ScalafmtConfig =
     if (curr.binPack.unsafeCallSite == callSite) curr
     else curr.copy(binPack = curr.binPack.copy(unsafeCallSite = callSite))
 

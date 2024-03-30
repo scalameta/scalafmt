@@ -18,9 +18,8 @@ class FileOpsTest extends munit.FunSuite {
   }
 
   override def afterEach(context: AfterEach): Unit = {
-    try {
-      deleteTree(path)
-    } catch {
+    try { deleteTree(path) }
+    catch {
       case e: Throwable =>
         println("Unable to delete test files")
         e.printStackTrace()
@@ -62,7 +61,7 @@ class FileOpsTest extends munit.FunSuite {
 
 object FileOpsTest {
 
-  private def subpath(path: Path): Path =
-    path.resolve(Random.alphanumeric.take(10).mkString)
+  private def subpath(path: Path): Path = path
+    .resolve(Random.alphanumeric.take(10).mkString)
 
 }

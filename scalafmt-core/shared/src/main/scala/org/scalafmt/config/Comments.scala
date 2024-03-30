@@ -19,23 +19,24 @@ case class Comments(
     wrapSingleLineMlcAsSlc: Boolean = false,
     wrapStandaloneSlcAsSlc: Boolean = false
 ) {
-  @inline def willWrap: Boolean = wrap ne Comments.Wrap.no
+  @inline
+  def willWrap: Boolean = wrap ne Comments.Wrap.no
 }
 
 object Comments {
 
-  implicit val surface: generic.Surface[Comments] =
-    generic.deriveSurface[Comments]
-  implicit val codec: ConfCodecEx[Comments] =
-    generic.deriveCodecEx(Comments()).noTypos
+  implicit val surface: generic.Surface[Comments] = generic
+    .deriveSurface[Comments]
+  implicit val codec: ConfCodecEx[Comments] = generic.deriveCodecEx(Comments())
+    .noTypos
 
   sealed abstract class Wrap
   object Wrap {
     case object no extends Wrap
     case object standalone extends Wrap
     case object trailing extends Wrap
-    implicit val reader: ConfCodecEx[Wrap] =
-      ReaderUtil.oneOf[Wrap](no, standalone, trailing)
+    implicit val reader: ConfCodecEx[Wrap] = ReaderUtil
+      .oneOf[Wrap](no, standalone, trailing)
   }
 
 }

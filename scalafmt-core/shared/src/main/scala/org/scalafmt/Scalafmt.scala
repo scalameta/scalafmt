@@ -55,9 +55,7 @@ object Scalafmt {
       style: ScalafmtConfig,
       range: Set[Range],
       filename: String
-  ): Formatted = {
-    formatCode(code, style, range, filename).formatted
-  }
+  ): Formatted = { formatCode(code, style, range, filename).formatted }
 
   private[scalafmt] def formatCode(
       code: String,
@@ -122,10 +120,9 @@ object Scalafmt {
       file: String,
       range: Set[Range]
   ): Try[String] =
-    if (FileOps.isMarkdown(file))
-      MarkdownParser.transformMdoc(code)(doFormatOne(_, style, file, range))
-    else
-      doFormatOne(code, style, file, range)
+    if (FileOps.isMarkdown(file)) MarkdownParser
+      .transformMdoc(code)(doFormatOne(_, style, file, range))
+    else doFormatOne(code, style, file, range)
 
   private[scalafmt] def toInput(code: String, file: String): Input = {
     val fileInput = Input.VirtualFile(file, code)
@@ -172,9 +169,7 @@ object Scalafmt {
       code: String,
       style: ScalafmtConfig = ScalafmtConfig.default,
       range: Set[Range] = Set.empty[Range]
-  ): Formatted = {
-    formatCode(code, style, range).formatted
-  }
+  ): Formatted = { formatCode(code, style, range).formatted }
 
   // used by ScalafmtReflect.parseConfig
   def parseHoconConfigFile(configPath: Path): Configured[ScalafmtConfig] =
@@ -182,9 +177,6 @@ object Scalafmt {
 
   // used by ScalafmtReflect.parseConfig
   def parseHoconConfig(configString: String): Configured[ScalafmtConfig] =
-    ScalafmtConfig.fromHoconString(
-      configString,
-      ScalafmtConfig.uncheckedDefault
-    )
+    ScalafmtConfig.fromHoconString(configString, ScalafmtConfig.uncheckedDefault)
 
 }

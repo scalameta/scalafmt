@@ -14,8 +14,7 @@ object FileTestOps {
   def string2dir(layout: String): AbsoluteFile = {
     val root = AbsoluteFile(Files.createTempDirectory("root"))
     layout.split("(?=\n/)").foreach { row =>
-      val path :: contents :: Nil =
-        row.stripPrefix("\n").split("\n", 2).toList
+      val path :: contents :: Nil = row.stripPrefix("\n").split("\n", 2).toList
       val file = root / path.stripPrefix("/")
       file.parent.mkdirs()
       file.writeFile(contents)
@@ -36,15 +35,10 @@ object FileTestOps {
   def dir2string(file: AbsoluteFile): String = {
     val rootPath = file.path
     val prefix = rootPath.toString
-    FileOps
-      .listFiles(rootPath)
-      .sortBy(_.toString)
-      .map { path =>
-        s"""|${path.toString.stripPrefix(prefix)}
-          |${FileOps.readFile(path)}""".stripMargin
-      }
-      .mkString("\n")
-      .replace(File.separator, "/") // ensure original separators
+    FileOps.listFiles(rootPath).sortBy(_.toString).map { path =>
+      s"""|${path.toString.stripPrefix(prefix)}
+        |${FileOps.readFile(path)}""".stripMargin
+    }.mkString("\n").replace(File.separator, "/") // ensure original separators
   }
 
   def getMockOptions(baseDir: AbsoluteFile): CliOptions =
@@ -58,15 +52,11 @@ object FileTestOps {
     CliOptions.default.copy(
       baseConfig = ScalafmtConfig.default,
       gitOpsConstructor = _ => new FakeGitOps(baseDir),
-      common = CliOptions.default.common.copy(
-        cwd = Some(workingDir),
-        out = out,
-        err = out
-      )
+      common = CliOptions.default.common
+        .copy(cwd = Some(workingDir), out = out, err = out)
     )
   }
 
-  val baseCliOptions: CliOptions = getMockOptions(
-    AbsoluteFile(Files.createTempDirectory("base-dir"))
-  )
+  val baseCliOptions: CliOptions =
+    getMockOptions(AbsoluteFile(Files.createTempDirectory("base-dir")))
 }

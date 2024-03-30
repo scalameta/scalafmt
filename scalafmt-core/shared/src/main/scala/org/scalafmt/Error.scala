@@ -30,15 +30,11 @@ object Error {
 
   case class PreciseIncomplete(pos: Position, formattedCode: String)
       extends Error(
-        pos.formatMessage(
-          "error",
-          "Unable to format file due to bug in scalafmt"
-        )
+        pos
+          .formatMessage("error", "Unable to format file due to bug in scalafmt")
       )
   case class CantFindDefnToken(what: String, tree: Tree)
-      extends Error(
-        s"Expected keyword of type $what in tree $tree"
-      )
+      extends Error(s"Expected keyword of type $what in tree $tree")
 
   case class CaseMissingArrow(tree: Case)
       extends Error(s"Missing => in case: \n$tree")

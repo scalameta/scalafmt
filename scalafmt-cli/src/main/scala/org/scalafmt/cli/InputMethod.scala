@@ -23,19 +23,18 @@ sealed abstract class InputMethod {
   ): ExitCode = {
     val codeChanged = formatted != original
     if (options.writeMode == WriteMode.Stdout) print(formatted, options)
-    else if (codeChanged)
-      options.writeMode match {
-        case WriteMode.Test =>
-          val pathStr = path.toString
-          val diff = InputMethod.unifiedDiff(pathStr, original, formatted)
-          val msg =
-            if (diff.nonEmpty) diff
-            else s"--- +$pathStr\n    => modified line endings only"
-          throw MisformattedFile(path, msg)
-        case WriteMode.Override => overwrite(formatted, options)
-        case WriteMode.List => list(options)
-        case _ =>
-      }
+    else if (codeChanged) options.writeMode match {
+      case WriteMode.Test =>
+        val pathStr = path.toString
+        val diff = InputMethod.unifiedDiff(pathStr, original, formatted)
+        val msg =
+          if (diff.nonEmpty) diff
+          else s"--- +$pathStr\n    => modified line endings only"
+        throw MisformattedFile(path, msg)
+      case WriteMode.Override => overwrite(formatted, options)
+      case WriteMode.List => list(options)
+      case _ =>
+    }
     if (options.error && codeChanged) ExitCode.TestError else ExitCode.Ok
   }
 
@@ -45,10 +44,8 @@ object InputMethod {
 
   object StdinCode {
     def apply(assumeFilename: String, inputStream: InputStream): StdinCode = {
-      StdinCode.apply(
-        assumeFilename,
-        Source.fromInputStream(inputStream).mkString
-      )
+      StdinCode
+        .apply(assumeFilename, Source.fromInputStream(inputStream).mkString)
     }
   }
   case class StdinCode(filename: String, input: String) extends InputMethod {
@@ -62,14 +59,13 @@ object InputMethod {
     override protected def overwrite(text: String, options: CliOptions): Unit =
       print(text, options)
 
-    override protected def list(options: CliOptions): Unit =
-      options.common.out.println(filename)
+    override protected def list(options: CliOptions): Unit = options.common.out
+      .println(filename)
   }
 
   case class FileContents(file: AbsoluteFile) extends InputMethod {
     override def path = file.path
-    def readInput(options: CliOptions): String =
-      file.readFile(options.encoding)
+    def readInput(options: CliOptions): String = file.readFile(options.encoding)
 
     override protected def print(text: String, options: CliOptions): Unit =
       options.common.out.print(text)
@@ -83,13 +79,10 @@ object InputMethod {
     }
   }
 
-  def unifiedDiff(
-      filename: String,
-      original: String,
-      revised: String
-  ): String = {
+  def unifiedDiff(filename: String, original: String, revised: String): String = {
     import org.scalafmt.CompatCollections.JavaConverters._
-    @inline def noEol(ch: Char) = ch != '\n' && ch != '\r'
+    @inline
+    def noEol(ch: Char) = ch != '\n' && ch != '\r'
     def jList(code: String, addEol: Boolean) = {
       val last = if (addEol) Iterator.single("") else Iterator.empty
       (code.linesIterator ++ last).toList.asJava
@@ -101,16 +94,8 @@ object InputMethod {
     if (diff.getDeltas.isEmpty) ""
     else {
       difflib.DiffUtils
-        .generateUnifiedDiff(
-          s"a$filename",
-          s"b$filename",
-          a,
-          diff,
-          1
-        )
-        .iterator()
-        .asScala
-        .mkString("\n")
+        .generateUnifiedDiff(s"a$filename", s"b$filename", a, diff, 1)
+        .iterator().asScala.mkString("\n")
     }
   }
 }

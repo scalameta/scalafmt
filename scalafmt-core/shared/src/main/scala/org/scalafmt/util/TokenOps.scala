@@ -36,31 +36,27 @@ object TokenOps {
     */
   @inline
   def hash(token: Token): TokenHash = {
-    val longHash: Long =
-      (token.productPrefix.hashCode.toLong << (62 - 8)) |
-        (token.start.toLong << (62 - (8 + 28))) | token.end
+    val longHash: Long = (token.productPrefix.hashCode.toLong << (62 - 8)) |
+      (token.start.toLong << (62 - (8 + 28))) | token.end
     longHash
   }
 
-  def isDocstring(text: String): Boolean =
-    text.length > 4 && text.startsWith("/**") // excludes /**/
+  def isDocstring(text: String): Boolean = text.length > 4 &&
+    text.startsWith("/**") // excludes /**/
 
-  def blankLineBeforeDocstring(
-      ft: FormatToken
-  )(implicit style: ScalafmtConfig): Boolean =
-    style.forceNewlineBeforeDocstring &&
-      isDocstring(ft.meta.right.text) &&
-      TreeOps
-        .findTreeOrParent(ft.meta.leftOwner) {
-          case t if t.pos.end <= ft.right.start => None
-          case _: Pkg | _: Source | _: Template | _: Term.Block => Some(false)
-          case _ => Some(true)
-        }
-        .isEmpty
+  def blankLineBeforeDocstring(ft: FormatToken)(implicit
+      style: ScalafmtConfig
+  ): Boolean = style.forceNewlineBeforeDocstring &&
+    isDocstring(ft.meta.right.text) &&
+    TreeOps.findTreeOrParent(ft.meta.leftOwner) {
+      case t if t.pos.end <= ft.right.start => None
+      case _: Pkg | _: Source | _: Template | _: Term.Block => Some(false)
+      case _ => Some(true)
+    }.isEmpty
 
   // 2.13 implements SeqOps.findLast
-  def findLast[A](seq: Seq[A])(cond: A => Boolean): Option[A] =
-    seq.reverseIterator.find(cond)
+  def findLast[A](seq: Seq[A])(cond: A => Boolean): Option[A] = seq
+    .reverseIterator.find(cond)
 
   def findLastVisibleTokenOpt(tokens: Tokens): Option[Token] =
     findLast(tokens) {
@@ -72,15 +68,15 @@ object TokenOps {
     findLastVisibleTokenOpt(tokens).getOrElse(tokens.last)
 
   @inline
-  def withNoIndent(ft: FormatToken): Boolean =
-    ft.between.lastOption.exists(_.is[LF])
+  def withNoIndent(ft: FormatToken): Boolean = ft.between.lastOption
+    .exists(_.is[LF])
 
-  def rhsIsCommentedOut(ft: FormatToken): Boolean =
-    ft.right.is[Comment] && withNoIndent(ft) && isSingleLineIfComment(ft.right)
+  def rhsIsCommentedOut(ft: FormatToken): Boolean = ft.right.is[Comment] &&
+    withNoIndent(ft) && isSingleLineIfComment(ft.right)
 
   @inline
-  def isLeftCommentThenBreak(ft: FormatToken): Boolean =
-    ft.left.is[Token.Comment] && ft.hasBreak
+  def isLeftCommentThenBreak(ft: FormatToken): Boolean = ft.left
+    .is[Token.Comment] && ft.hasBreak
 
   def isSingleLineIfComment(c: Token): Boolean = {
     val off = c.start
@@ -92,8 +88,8 @@ object TokenOps {
 
   val booleanOperators = Set("&&", "||")
 
-  def isBoolOperator(token: Token): Boolean =
-    booleanOperators.contains(token.syntax)
+  def isBoolOperator(token: Token): Boolean = booleanOperators
+    .contains(token.syntax)
 
   def identModification(ident: Ident): Modification = {
     val lastCharacter = ident.syntax.last
@@ -125,17 +121,15 @@ object TokenOps {
       case _ => false
     }
 
-  def endsWithSymbolIdent(tok: Token): Boolean =
-    tok match {
-      case Ident(name) => !name.last.isLetterOrDigit
-      case _ => false
-    }
+  def endsWithSymbolIdent(tok: Token): Boolean = tok match {
+    case Ident(name) => !name.last.isLetterOrDigit
+    case _ => false
+  }
 
-  def isSymbolicIdent(tok: Token): Boolean =
-    tok match {
-      case Ident(name) => isSymbolicName(name)
-      case _ => false
-    }
+  def isSymbolicIdent(tok: Token): Boolean = tok match {
+    case Ident(name) => isSymbolicName(name)
+    case _ => false
+  }
 
   def isSymbolicName(name: String): Boolean = {
     val head = name.head

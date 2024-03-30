@@ -30,33 +30,25 @@ class DynamicSuite extends FunSuite {
       new ConsoleScalafmtReporter(new PrintStream(out)) {
         override def downloadWriter(): PrintWriter = new PrintWriter(download)
 
-        override def error(file: Path, e: Throwable): Unit =
-          e match {
-            case p: PositionException =>
-              val input = m.Input.VirtualFile(file.toString, p.code)
-              val pos =
-                m.Position.Range(
-                  input,
-                  p.startLine,
-                  p.startCharacter,
-                  p.endLine,
-                  p.endCharacter
-                )
-              val formattedMessage = pos.formatMessage("error", p.shortMessage)
-              out.write(formattedMessage.getBytes(StandardCharsets.UTF_8))
-            case _ =>
-              super.error(file, e)
-          }
+        override def error(file: Path, e: Throwable): Unit = e match {
+          case p: PositionException =>
+            val input = m.Input.VirtualFile(file.toString, p.code)
+            val pos = m.Position.Range(
+              input,
+              p.startLine,
+              p.startCharacter,
+              p.endLine,
+              p.endCharacter
+            )
+            val formattedMessage = pos.formatMessage("error", p.shortMessage)
+            out.write(formattedMessage.getBytes(StandardCharsets.UTF_8))
+          case _ => super.error(file, e)
+        }
         override def missingVersion(
             config: Path,
             defaultVersion: String
-        ): Unit = {
-          missingVersions += defaultVersion
-        }
-        override def parsedConfig(
-            config: Path,
-            scalafmtVersion: String
-        ): Unit = {
+        ): Unit = { missingVersions += defaultVersion }
+        override def parsedConfig(config: Path, scalafmtVersion: String): Unit = {
           val n = parsed.getOrElse(scalafmtVersion, 0)
           parsed(scalafmtVersion) = n + 1
         }
@@ -96,16 +88,10 @@ class DynamicSuite extends FunSuite {
       out.toString.replace(config.toString, "path/.scalafmt.conf")
     }
     def errors: String = {
-      out.toString.linesIterator
-        .filter(_.startsWith("error"))
-        .mkString("\n")
+      out.toString.linesIterator.filter(_.startsWith("error")).mkString("\n")
     }
     def assertNotIgnored(filename: String)(implicit loc: Location): Unit = {
-      assertFormat(
-        "object A  {  }",
-        "object A {}\n",
-        Paths.get(filename)
-      )
+      assertFormat("object A  {  }", "object A {}\n", Paths.get(filename))
     }
     def assertIgnored(filename: String): Unit = {
       out.reset()
@@ -119,11 +105,9 @@ class DynamicSuite extends FunSuite {
     def assertFormat()(implicit loc: Location): Unit = {
       assertFormat("object A  {  }", "object A {}\n")
     }
-    def assertFormat(
-        original: String,
-        expected: String,
-        file: Path = filename
-    )(implicit loc: Location): Unit = {
+    def assertFormat(original: String, expected: String, file: Path = filename)(
+        implicit loc: Location
+    ): Unit = {
       out.reset()
       val obtained = dynamic.format(config, file, original)
       if (errors.nonEmpty) {
@@ -144,18 +128,14 @@ class DynamicSuite extends FunSuite {
         code: String = "object A  {  }"
     )(implicit loc: Location): A = {
       out.reset()
-      intercept[A] {
-        dynamic.format(config, filename, code)
-      }
+      intercept[A] { dynamic.format(config, filename, code) }
     }
     def assertError(expected: String)(implicit loc: Location): Unit = {
       assertError("object A  {  }", expected)
     }
-    def assertError(
-        code: String,
-        expected: String,
-        path: Path = filename
-    )(implicit loc: Location): Unit = {
+    def assertError(code: String, expected: String, path: Path = filename)(
+        implicit loc: Location
+    ): Unit = {
       out.reset()
       val obtained = dynamic.format(config, path, code)
       assertNoDiff(relevant, expected)
@@ -167,10 +147,9 @@ class DynamicSuite extends FunSuite {
     }
   }
 
-  def check(
-      name: String,
-      cfgFunc: ScalafmtDynamic => ScalafmtDynamic = identity
-  )(fn: Format => Unit): Unit = {
+  def check(name: String, cfgFunc: ScalafmtDynamic => ScalafmtDynamic = identity)(
+      fn: Format => Unit
+  ): Unit = {
     test(name) {
       val format = new Format(name, cfgFunc)
       try fn(format)
@@ -196,9 +175,9 @@ class DynamicSuite extends FunSuite {
     "1.0.0"
   )
 
-  def checkExhaustive(name: String)(config: String => String)(
-      fn: (Format, String) => Unit
-  ): Unit = {
+  def checkExhaustive(
+      name: String
+  )(config: String => String)(fn: (Format, String) => Unit): Unit = {
     testedVersions.foreach { version =>
       test(s"$name [v=$version]") {
         val format = new Format(name, identity)
@@ -383,18 +362,14 @@ class DynamicSuite extends FunSuite {
           path
         )
         // test scala doesn't allow top-level terms (not passing path here)
-        if (version >= "3.0.0" || scalaVersion >= "213")
-          f.assertFormat(
-            "lazy   val   x =  project",
-            "lazy val x = project\n"
-          )
-        else
-          f.assertError(
-            "lazy   val   x =  project",
-            s"""|$name.scala:1:1: error:$dialectError classes cannot be lazy
-              |lazy   val   x =  project
-              |^^^^""".stripMargin
-          )
+        if (version >= "3.0.0" || scalaVersion >= "213") f
+          .assertFormat("lazy   val   x =  project", "lazy val x = project\n")
+        else f.assertError(
+          "lazy   val   x =  project",
+          s"""|$name.scala:1:1: error:$dialectError classes cannot be lazy
+            |lazy   val   x =  project
+            |^^^^""".stripMargin
+        )
         // check wrapped literals, supported in sbt using scala 2.13+
         val wrappedLiteral = "object a { val  x:  Option[0]  =  Some(0) }"
         def assertIsWrappedLiteralFailure(): Unit = {
@@ -408,16 +383,14 @@ class DynamicSuite extends FunSuite {
           )
         }
 
-        def assertIsWrappedLiteralSuccess(): Unit =
-          f.assertFormat(
-            wrappedLiteral,
-            wrappedLiteral.replaceAll("  +", " ").trim + "\n",
-            path
-          )
+        def assertIsWrappedLiteralSuccess(): Unit = f.assertFormat(
+          wrappedLiteral,
+          wrappedLiteral.replaceAll("  +", " ").trim + "\n",
+          path
+        )
         if (!isSbt && scalaVersion >= "213" && version > "2.0")
           assertIsWrappedLiteralSuccess()
-        else
-          assertIsWrappedLiteralFailure()
+        else assertIsWrappedLiteralFailure()
       }
     }
   }
@@ -452,30 +425,28 @@ class DynamicSuite extends FunSuite {
   checkExhaustive("continuation-indent-callSite-and-defnSite") { _ =>
     "continuationIndent { callSite = 5, defnSite = 3 }"
   } { (f, _) =>
-    val original =
-      """class A {
-        |  function1(
-        |  argument1,
-        |  ""
-        |  )
-        |
-        |  def function2(
-        |  argument1: Type1
-        |  ): ReturnType
-        |}
+    val original = """class A {
+      |  function1(
+      |  argument1,
+      |  ""
+      |  )
+      |
+      |  def function2(
+      |  argument1: Type1
+      |  ): ReturnType
+      |}
       """.stripMargin
-    val expected =
-      """class A {
-        |  function1(
-        |       argument1,
-        |       ""
-        |  )
-        |
-        |  def function2(
-        |     argument1: Type1
-        |  ): ReturnType
-        |}
-        |""".stripMargin
+    val expected = """class A {
+      |  function1(
+      |       argument1,
+      |       ""
+      |  )
+      |
+      |  def function2(
+      |     argument1: Type1
+      |  ): ReturnType
+      |}
+      |""".stripMargin
     f.assertFormat(original, expected)
   }
 
@@ -488,8 +459,7 @@ class DynamicSuite extends FunSuite {
       case x =>
         fail("ReflectConfigResolver is not cached: " + x.getClass.getSimpleName)
     }
-    val configOpt = cache
-      .getFromCache(f.config)
+    val configOpt = cache.getFromCache(f.config)
       .collect { case Right((cfg, _)) => cfg }
     assert(configOpt.nonEmpty)
     val config = configOpt.get
@@ -562,8 +532,8 @@ class DynamicSuite extends FunSuite {
       s"""|version=current
         |""".stripMargin
     )
-    val error =
-      f.assertThrows[ScalafmtDynamicError.ConfigInvalidVersion]().getMessage
+    val error = f.assertThrows[ScalafmtDynamicError.ConfigInvalidVersion]()
+      .getMessage
     assertEquals(error, "Invalid version: current")
   }
 
@@ -572,18 +542,17 @@ class DynamicSuite extends FunSuite {
       s"""|maxColumn = 40
         |""".stripMargin
     )
-    val error =
-      f.assertThrows[ScalafmtDynamicError.ConfigMissingVersion]().getMessage
+    val error = f.assertThrows[ScalafmtDynamicError.ConfigMissingVersion]()
+      .getMessage
     assertEquals(error, "Missing version")
   }
 
-  private def assertDynamicConfig(
-      fmt: Format
-  )(f: ScalafmtReflectConfig => Unit): Unit =
-    fmt.dynamic.resolveConfig(fmt.config) match {
-      case Left(e) => fail("failed to load config", e)
-      case Right(cfg) => f(cfg)
-    }
+  private def assertDynamicConfig(fmt: Format)(
+      f: ScalafmtReflectConfig => Unit
+  ): Unit = fmt.dynamic.resolveConfig(fmt.config) match {
+    case Left(e) => fail("failed to load config", e)
+    case Right(cfg) => f(cfg)
+  }
 
   private def checkDynamicConfig(
       name: String,
@@ -620,9 +589,8 @@ class DynamicSuite extends FunSuite {
     assertEquals(cfg.indentDefnSite, Some(4))
   }
 
-  Seq(("3.0.0", "indent"), ("2.5.3", "continuationIndent"))
-    .foreach { case (version, section) =>
-      checkDynamicConfig(
+  Seq(("3.0.0", "indent"), ("2.5.3", "continuationIndent")).foreach {
+    case (version, section) => checkDynamicConfig(
         s"check $section.{call,defn}Site",
         version,
         "scala211",
@@ -633,7 +601,7 @@ class DynamicSuite extends FunSuite {
         assertEquals(cfg.indentCallSite, Some(3))
         assertEquals(cfg.indentDefnSite, Some(5))
       }
-    }
+  }
 
 }
 
@@ -659,10 +627,8 @@ private object DynamicSuite {
     override def close(): Unit = downloader.close()
   }
 
-  def getBackQuote(version: String): String =
-    if (version > "3.8.0") "`" else ""
+  def getBackQuote(version: String): String = if (version > "3.8.0") "`" else ""
 
-  def sbtTreatedDifferently(version: String): Boolean =
-    version > "3.8.0"
+  def sbtTreatedDifferently(version: String): Boolean = version > "3.8.0"
 
 }

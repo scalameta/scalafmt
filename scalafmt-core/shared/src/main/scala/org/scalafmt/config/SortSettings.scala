@@ -6,21 +6,15 @@ import sourcecode.Text
 
 import scala.meta.classifiers.Classifier
 
-case class SortSettings(
-    order: List[SortSettings.ModKey]
-)
+case class SortSettings(order: List[SortSettings.ModKey])
 
 object SortSettings {
-  final case class ModKey(
-      name: String,
-      matches: Mod => Boolean
-  )
+  final case class ModKey(name: String, matches: Mod => Boolean)
 
   object ModKey {
     def apply[A](name: String)(implicit
         classifier: Classifier[Mod, A]
-    ): ModKey =
-      ModKey(name, _.is[A])
+    ): ModKey = ModKey(name, _.is[A])
   }
 
   private val modImplicit = ModKey[Mod.Implicit]("implicit")
@@ -83,8 +77,8 @@ object SortSettings {
     modOpaque
   )
 
-  implicit val sortSettingsModKeyCodec: ConfCodecEx[ModKey] =
-    ReaderUtil.oneOf[ModKey](defaultOrder.map(v => Text(v, v.name)): _*)
+  implicit val sortSettingsModKeyCodec: ConfCodecEx[ModKey] = ReaderUtil
+    .oneOf[ModKey](defaultOrder.map(v => Text(v, v.name)): _*)
 
   implicit val surface: generic.Surface[SortSettings] = generic.deriveSurface
 
@@ -102,13 +96,9 @@ object SortSettings {
     case Conf.Str("styleGuide") => styleGuide
   }
 
-  implicit val encoder: ConfEncoder[SortSettings] =
-    generic.deriveEncoder
+  implicit val encoder: ConfEncoder[SortSettings] = generic.deriveEncoder
 
-  implicit final val decoder: ConfDecoderEx[SortSettings] =
-    Presets.mapDecoder(
-      generic.deriveDecoderEx(default).noTypos,
-      "sortModifiers"
-    )
+  implicit final val decoder: ConfDecoderEx[SortSettings] = Presets
+    .mapDecoder(generic.deriveDecoderEx(default).noTypos, "sortModifiers")
 
 }
