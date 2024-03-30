@@ -8,7 +8,7 @@ import org.scalafmt.internal.State
 
 /** An event that happens while formatting a file.
   */
-abstract sealed class FormatEvent
+sealed abstract class FormatEvent
 
 object FormatEvent {
   case class CreateFormatOps(formatOps: FormatOps) extends FormatEvent
