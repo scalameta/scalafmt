@@ -25,10 +25,10 @@ object Report {
         code(
           heatmapBar(result.test.style),
           raw(result.obtainedHtml),
-          span("\n" + ("‾" * result.test.style.maxColumn))
-        )
-      )
-    )
+          span("\n" + ("‾" * result.test.style.maxColumn)),
+        ),
+      ),
+    ),
   )).render
 
   def heatmapBar(scalaStyle: ScalafmtConfig): Seq[Text.Modifier] =
@@ -53,12 +53,12 @@ object Report {
          |The formatter uses Dijkstra's shortest path to determine the
          |formatting with the "cheapest" cost. The red regions are
          |tokens the formatter visits often.
-         |        """.stripMargin
+         |        """.stripMargin,
     ),
     ul(
       li("Declaration arguments: bin packed"),
-      li("Callsite arguments: one arg per line if overflowing")
-    )
+      li("Callsite arguments: one arg per line if overflowing"),
+    ),
   )
 
   def testWidth(result: Result) = result.test.style.maxColumn.toDouble * 9.625
@@ -69,7 +69,7 @@ object Report {
     h1(
       id := "title",
       s"Compare ${after.gitInfo.branch} and" + s" ${before.gitInfo.branch}" +
-        s" (${before.shortCommit}...${after.shortCommit})"
+        s" (${before.shortCommit}...${after.shortCommit})",
     ),
     explanation,
     after.intersectResults(before).sortBy { case (aft, bef) =>
@@ -83,24 +83,24 @@ object Report {
               td("Time (ms)"),
               td(bef.timeMs),
               td(aft.timeMs),
-              td(bef.timeMs - aft.timeMs)
+              td(bef.timeMs - aft.timeMs),
             ),
             tr(
               td("States"),
               td(bef.visitedStates),
               td(aft.visitedStates),
-              td(aft.visitedStates - bef.visitedStates)
-            )
+              td(aft.visitedStates - bef.visitedStates),
+            ),
           ),
           pre(
             fontFamily := "monospace",
             background := "#fff",
             fontSize := "16px",
             width := testWidth(aft),
-            code(heatmapBar(aft.test.style), raw(mkHtml(mergeResults(aft, bef))))
-          )
+            code(heatmapBar(aft.test.style), raw(mkHtml(mergeResults(aft, bef)))),
+          ),
         )
-    }
+    },
   )).render
 
   def mergeResults(after: Result, before: Result): Seq[FormatOutput] = after

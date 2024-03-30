@@ -48,13 +48,13 @@ object TreeOps {
 
   object SingleArgInBraces {
     def unapply(tree: Tree)(implicit
-        ftoks: FormatTokens
+        ftoks: FormatTokens,
     ): Option[(FormatToken, Term, FormatToken)] = tree match {
       case t: Term.ArgClause => unapply(t)
       case _ => None
     }
     def unapply(tree: Term.ArgClause)(implicit
-        ftoks: FormatTokens
+        ftoks: FormatTokens,
     ): Option[(FormatToken, Term, FormatToken)] = tree.values match {
       case arg :: Nil => getBraces(tree).map { case (b, e) => (b, arg, e) }
       case _ => None
@@ -64,12 +64,12 @@ object TreeOps {
       getBraces(tree).isDefined
     @inline
     def getBraces(tree: Tree)(implicit
-        ftoks: FormatTokens
+        ftoks: FormatTokens,
     ): Option[(FormatToken, FormatToken)] = ftoks.getDelimsIfEnclosed(tree)
       .filter(_._1.left.is[LeftBrace])
 
     def orBlock(tree: Tree)(implicit
-        ftoks: FormatTokens
+        ftoks: FormatTokens,
     ): Option[(FormatToken, Stat, FormatToken)] = tree match {
       case t: Term.ArgClause => unapply(t)
       case Term.Block(arg :: Nil) => getBraces(tree).map { case (b, e) =>
@@ -80,14 +80,14 @@ object TreeOps {
 
     object OrBlock {
       def unapply(tree: Tree)(implicit
-          ftoks: FormatTokens
+          ftoks: FormatTokens,
       ): Option[(FormatToken, Stat, FormatToken)] = orBlock(tree)
     }
   }
 
   @tailrec
   def isBlockFunction(
-      fun: Term.FunctionTerm
+      fun: Term.FunctionTerm,
   )(implicit ftoks: FormatTokens): Boolean = fun.parent match {
     case Some(p: Term.FunctionTerm) => isBlockFunction(p)
     case Some(p) => isExprWithParentInBraces(fun)(p)
@@ -95,15 +95,15 @@ object TreeOps {
   }
 
   def isFunctionWithBraces(fun: Term.FunctionTerm)(implicit
-      ftoks: FormatTokens
+      ftoks: FormatTokens,
   ): Boolean = fun.parent.exists(isExprWithParentInBraces(fun))
 
   def isExprWithParentInBraces(expr: Tree)(parent: Tree)(implicit
-      ftoks: FormatTokens
+      ftoks: FormatTokens,
   ): Boolean = SingleArgInBraces.orBlock(parent).exists(_._2 eq expr)
 
   def extractStatementsIfAny(
-      tree: Tree
+      tree: Tree,
   )(implicit ftoks: FormatTokens): Seq[Tree] = tree match {
     case b: Term.Block => b.stats
     case SingleArgInBraces(_, fun: Term.FunctionTerm, _) => fun :: Nil
@@ -124,7 +124,7 @@ object TreeOps {
   }
 
   def getStatementStarts(tree: Tree, soft: SoftKeywordClasses)(implicit
-      ftoks: FormatTokens
+      ftoks: FormatTokens,
   ): Map[TokenHash, Tree] = {
     val ret = Map.newBuilder[TokenHash, Tree]
     ret.sizeHint(tree.tokens.length)
@@ -139,7 +139,7 @@ object TreeOps {
         mods: Seq[Mod],
         tree: Tree,
         what: String,
-        isMatch: Token => Boolean
+        isMatch: Token => Boolean,
     ): Unit = {
       // Each @annotation gets a separate line
       val annotations = mods.filter(_.is[Mod.Annot])
@@ -156,14 +156,14 @@ object TreeOps {
       }
     }
     def addDefn[T](mods: Seq[Mod], tree: Tree)(implicit
-        tag: ClassTag[T]
+        tag: ClassTag[T],
     ): Unit = {
       val runtimeClass = tag.runtimeClass
       addDefnTokens(
         mods,
         tree,
         runtimeClass.getSimpleName,
-        runtimeClass.isInstance
+        runtimeClass.isInstance,
       )
     }
 
@@ -243,7 +243,7 @@ object TreeOps {
       case _ =>
     }
     if (stack.nonEmpty) throw new IllegalArgumentException(
-      stack.map(x => s"[${x.end}]$x").mkString("Orphan parens (", ", ", ")")
+      stack.map(x => s"[${x.end}]$x").mkString("Orphan parens (", ", ", ")"),
     )
     val result = ret.result()
     result
@@ -273,7 +273,7 @@ object TreeOps {
   /** Returns first ancestor which matches the given predicate.
     */
   def findTreeOrParent(
-      tree: Tree
+      tree: Tree,
   )(pred: Tree => Option[Boolean]): Option[Tree] = findTreeEx(tree) { t =>
     pred(t) match {
       case None => t.parent
@@ -295,7 +295,7 @@ object TreeOps {
     }
 
   def findTreeOrParentSimple(tree: Tree, flag: Boolean = true)(
-      pred: Tree => Boolean
+      pred: Tree => Boolean,
   ): Option[Tree] =
     findTreeOrParent(tree)(x => if (pred(x) == flag) Some(true) else None)
 
@@ -304,7 +304,7 @@ object TreeOps {
     * flag, which terminates the search.
     */
   def findTreeWithParent(tree: Tree)(
-      pred: Tree => Option[Boolean]
+      pred: Tree => Option[Boolean],
   ): Option[Tree] = findTreeWithParentEx(tree) { t =>
     pred(t) match {
       case None => Some(t)
@@ -319,7 +319,7 @@ object TreeOps {
     */
   @tailrec
   def findTreeWithParentEx(
-      tree: Tree
+      tree: Tree,
   )(pred: Tree => Option[Tree]): Option[Tree] = tree.parent match {
     case None => None
     case Some(p) => pred(p) match {
@@ -330,21 +330,21 @@ object TreeOps {
   }
 
   def findTreeWithParentSimple(tree: Tree, flag: Boolean = true)(
-      pred: Tree => Boolean
+      pred: Tree => Boolean,
   ): Option[Tree] =
     findTreeWithParent(tree)(x => if (pred(x) == flag) Some(true) else None)
 
   /** Returns first ancestor with a parent of a given type.
     */
   def findTreeWithParentOfType[A <: Tree](tree: Tree)(implicit
-      classifier: Classifier[Tree, A]
+      classifier: Classifier[Tree, A],
   ): Option[Tree] = findTreeWithParentSimple(tree)(classifier.apply)
 
   /** Returns true if a matching ancestor of a given type exists.
     */
   @inline
   def existsParentOfType[A <: Tree](tree: Tree)(implicit
-      classifier: Classifier[Tree, A]
+      classifier: Classifier[Tree, A],
   ): Boolean = findTreeWithParentOfType[A](tree).isDefined
 
   @tailrec
@@ -661,7 +661,7 @@ object TreeOps {
     getImplicitParamList(kwOwner).isDefined
 
   def shouldNotDangleAtDefnSite(tree: Option[Tree], isVerticalMultiline: Boolean)(
-      implicit style: ScalafmtConfig
+      implicit style: ScalafmtConfig,
   ): Boolean = !style.danglingParentheses.defnSite || {
     val excludes = style.danglingParentheses.getExclude(isVerticalMultiline)
     excludes.nonEmpty && tree.flatMap {
@@ -803,7 +803,7 @@ object TreeOps {
 
   @tailrec
   final def followedBySelectOrApply(
-      tree: Tree
+      tree: Tree,
   )(implicit ftoks: FormatTokens): Boolean = tree.parent match {
     case Some(p: Term.New) => followedBySelectOrApply(p)
     case Some(_: Term.Select) => true
@@ -828,7 +828,7 @@ object TreeOps {
   def rightIsCloseDelimForTrailingComma(
       left: Token,
       ft: FormatToken,
-      whenNL: Boolean = true
+      whenNL: Boolean = true,
   )(implicit style: ScalafmtConfig): Boolean = {
     def owner = ft.meta.rightOwner
     def isArgOrParamClauseSite(tree: Tree) = !whenNL || isArgClauseSite(tree) ||
@@ -847,7 +847,7 @@ object TreeOps {
   def findEnclosedBetweenParens(
       lt: Token,
       rt: Token,
-      tree: Tree
+      tree: Tree,
   ): Option[Tree] = {
     val beforeParens = lt.start
     val afterParens = rt.end
@@ -871,7 +871,7 @@ object TreeOps {
 
   def getStyleAndOwners(
       topSourceTree: Tree,
-      baseStyle: ScalafmtConfig
+      baseStyle: ScalafmtConfig,
   ): (ScalafmtConfig, collection.Map[TokenHash, Tree]) = {
     var infixCount = 0
     // Creates lookup table from token offset to its closest scala.meta tree
@@ -1004,14 +1004,14 @@ object TreeOps {
     })
 
   def isFewerBraces(
-      tree: Term.Apply
+      tree: Term.Apply,
   )(implicit dialect: Dialect, ftoks: FormatTokens): Boolean =
     dialect.allowFewerBraces && ftoks.getHead(tree.argClause).left.is[Colon]
 
   @tailrec
   def isFewerBracesLhs(tree: Tree)(implicit
       dialect: Dialect,
-      ftoks: FormatTokens
+      ftoks: FormatTokens,
   ): Boolean = !ftoks.isEnclosedInMatching(tree) &&
     (tree match {
       case t: Term.Apply => isFewerBraces(t)
@@ -1023,7 +1023,7 @@ object TreeOps {
   @tailrec
   def isFewerBracesRhs(tree: Tree)(implicit
       dialect: Dialect,
-      ftoks: FormatTokens
+      ftoks: FormatTokens,
   ): Boolean = !ftoks.isEnclosedInMatching(tree) &&
     (tree match {
       case t: Term.Apply => isFewerBraces(t)

@@ -4,7 +4,7 @@ case class MachineStats(
     javaInfo: JavaInfo,
     osInfo: OsInfo,
     runtimeInfo: RuntimeInfo,
-    gitInfo: GitInfo
+    gitInfo: GitInfo,
 )
 
 object MachineStats {

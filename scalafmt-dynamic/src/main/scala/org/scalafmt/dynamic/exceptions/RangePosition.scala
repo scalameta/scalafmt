@@ -6,5 +6,5 @@ case class RangePosition(
     startCharacter: Int,
     end: Int,
     endLine: Int,
-    endCharacter: Int
+    endCharacter: Int,
 )

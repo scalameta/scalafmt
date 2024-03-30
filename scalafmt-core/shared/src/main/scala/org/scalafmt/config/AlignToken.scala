@@ -19,7 +19,7 @@ case class AlignToken(
     code: String,
     @DeprecatedName("owner", "use owners instead", "3.0.0")
     owner: String = null,
-    owners: Seq[AlignToken.Owner] = Seq.empty
+    owners: Seq[AlignToken.Owner] = Seq.empty,
 ) {
   def getMatcher: Seq[AlignToken.Matcher] = {
     val specs =
@@ -43,7 +43,7 @@ object AlignToken {
     */
   case class Owner(
       regex: Option[String] = None,
-      parents: Seq[String] = Seq.empty
+      parents: Seq[String] = Seq.empty,
   ) {
     def getMatcher: Matcher =
       new Matcher(regex.map(pattern), parents.map(pattern))
@@ -83,7 +83,7 @@ object AlignToken {
     AlignToken("->", applyInfix),
     AlignToken("→", applyInfix),
     AlignToken(":=", applyInfix),
-    AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|GivenAlias|Def|Type))")
+    AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|GivenAlias|Def|Type))"),
   )
 
   class Matcher(val owner: Option[jurPattern], val parents: Seq[jurPattern]) {

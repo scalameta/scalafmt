@@ -32,14 +32,14 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
     "format",
     classOf[String],
     defaultScalaFmtConfig.getClass,
-    scalaSetCls
+    scalaSetCls,
   )
   private val formatMethodWithFilename = Try(scalafmtCls.getMethod(
     "format",
     classOf[String],
     defaultScalaFmtConfig.getClass,
     scalaSetCls,
-    classOf[String]
+    classOf[String],
   )).toOption
 
   lazy val intellijScalaFmtConfig: Option[ScalafmtReflectConfig] =
@@ -52,7 +52,7 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
 
   private def parseConfigWith(
       f: => Try[Object],
-      path: Path = null
+      path: Path = null,
   ): Try[ScalafmtReflectConfig] = {
     import ScalafmtDynamicError.ConfigParseError
     @inline
@@ -100,7 +100,7 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
   def tryFormat(
       code: String,
       config: ScalafmtReflectConfig,
-      fileOpt: Option[Path] = None
+      fileOpt: Option[Path] = None,
   ): Try[String] = {
     require(this eq config.fmtReflect)
 
@@ -128,7 +128,7 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
           shortMessage,
           e.getMessage,
           range,
-          e
+          e,
         )
         Failure(exception)
     }
@@ -141,7 +141,7 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
         pos.invokeAs[Int]("startColumn"),
         pos.invokeAs[Int]("end"),
         pos.invokeAs[Int]("endLine"),
-        pos.invokeAs[Int]("endColumn")
+        pos.invokeAs[Int]("endColumn"),
       )
     catch {
       case _: ReflectiveOperationException | _: ClassCastException =>
@@ -153,7 +153,7 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
           start.invokeAs[Int]("column"),
           end.invokeAs[Int]("offset"),
           end.invokeAs[Int]("line"),
-          end.invokeAs[Int]("column")
+          end.invokeAs[Int]("column"),
         )
     }
 

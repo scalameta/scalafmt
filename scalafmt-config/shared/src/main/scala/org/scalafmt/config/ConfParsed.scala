@@ -11,11 +11,11 @@ import org.scalafmt.config.PlatformConfig._
 class ConfParsed(val conf: Configured[Conf]) extends AnyVal {
 
   def getHoconValueOpt[A](
-      path: String*
+      path: String*,
   )(implicit ev: ConfDecoderEx[A]): Option[Either[String, A]] = {
     val res = conf.andThen(_.getNestedConf(path: _*)).andThen(ev.read(None, _))
     res.fold[Option[Either[String, A]]](x =>
-      if (x.isMissingField) None else Some(Left(x.msg))
+      if (x.isMissingField) None else Some(Left(x.msg)),
     )(x => Some(Right(x)))
   }
 

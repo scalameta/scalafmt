@@ -40,7 +40,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     val result = Scalafmt.formatCode(
       t.original,
       t.style.copy(runner = scalafmtRunner(runner, debug)),
-      filename = t.filename
+      filename = t.filename,
     )
     debug.printTest()
     val resultEither = result.formatted.toEither
@@ -63,7 +63,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     val result2 = Scalafmt.formatCode(
       obtained,
       t.style.copy(runner = scalafmtRunner(runner, debug2)),
-      filename = t.filename
+      filename = t.filename,
     )
     debug2.printTest()
     val result2Either = result2.formatted.toEither
@@ -71,7 +71,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
       case Left(e: ParseException) if !onlyManual =>
         assertEquals(
           "test does not parse: " + parseException2Message(e, obtained),
-          t.expected
+          t.expected,
         )
       case Left(e) => throw FormatException(e, obtained)
       case Right(code) =>
@@ -99,7 +99,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
       t.filename,
       t.original,
       obtained,
-      result.config.runner
+      result.config.runner,
     )
   }
 
@@ -113,7 +113,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     val k = for {
       _ <- Future(FileOps.writeFile(
         s"target${File.separator}index.html",
-        Report.heatmap(results)
+        Report.heatmap(results),
       ))
     } yield ()
     // Travis exits right after running tests.

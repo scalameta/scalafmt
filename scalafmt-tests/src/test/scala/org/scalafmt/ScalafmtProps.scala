@@ -16,12 +16,12 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
   import ScalafmtProps._
   def getBugs(
       config: ScalafmtConfig = ScalafmtConfig.default,
-      count: Int = Int.MaxValue
+      count: Int = Int.MaxValue,
   ): mutable.Seq[(CorpusFile, Observation[Bug])] = {
     val corpus = Corpus.files(
       // TODO(olafur) remove once testkit 1.7 is out
       Corpus.fastparse
-        .copy(Corpus.fastparse.url.replace("olafurpg", "scalameta"))
+        .copy(Corpus.fastparse.url.replace("olafurpg", "scalameta")),
     ).take(count).toBuffer.par
     SyntaxAnalysis.run[Observation[Bug]](corpus) { file =>
       val code = file.read
@@ -35,7 +35,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
                   "Idempotence",
                   formatted,
                   formattedSecondTime,
-                  diff.getMessage
+                  diff.getMessage,
                 )
             }
             Nil
@@ -52,7 +52,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
         case e: Error.FormatterOutputDoesNotParse => List(Observation(
             e.getMessage.linesIterator.slice(1, 2).mkString(""),
             e.line,
-            FormattedOutputDoesNotParse
+            FormattedOutputDoesNotParse,
           ))
         case e: Error => List(Observation(e.getMessage, -1, Unknown(e)))
         case e: DiffFailure =>
@@ -61,7 +61,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
           List(Observation(
             e.diff.linesIterator.take(3).mkString("\n"),
             line,
-            NonIdempotent
+            NonIdempotent,
           ))
       }
     }
@@ -93,7 +93,7 @@ object ScalafmtProps {
       title: String,
       expected: String,
       obtained: String,
-      diff: String
+      diff: String,
   ) extends Exception
 
   def main(args: Array[String]): Unit = {

@@ -59,7 +59,7 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
   override def onToken(implicit
       ft: FormatToken,
       session: Session,
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Option[Replacement] = Option {
     ft.right match {
       case x: Token.LeftParen
@@ -90,7 +90,7 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
       session: Session,
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = ft.right match {
     case x: Token.RightParen
         if left.how == ReplacementType.Replace &&

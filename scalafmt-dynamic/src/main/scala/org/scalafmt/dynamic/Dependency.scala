@@ -10,7 +10,7 @@ object Dependency {
     val core = "scalafmt-core_" + scalaBinaryVersion
     Seq(
       Dependency(organization(version), core, version.toString),
-      Dependency("org.scala-lang", "scala-reflect", scalaVersion)
+      Dependency("org.scala-lang", "scala-reflect", scalaVersion),
     )
   }
 

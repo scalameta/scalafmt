@@ -20,15 +20,15 @@ case class ProjectFiles(
     @DeprecatedName(
       "includeFilters",
       "use `includePaths` with `regex:` prefix",
-      "v3.0.0"
+      "v3.0.0",
     )
     includeFilters: Seq[String] = Nil,
     @DeprecatedName(
       "excludeFilters",
       "use `excludePaths` with `regex:` prefix",
-      "v3.0.0"
+      "v3.0.0",
     )
-    excludeFilters: Seq[String] = Nil
+    excludeFilters: Seq[String] = Nil,
 ) {
   // required for ScalafmtDynamic (ScalafmtReflectConfig.isIncludedInProject)
   lazy val matcher: ProjectFiles.FileMatcher = ProjectFiles.FileMatcher(this)
@@ -51,7 +51,7 @@ object ProjectFiles {
   object FileMatcher {
     def apply(
         pf: ProjectFiles,
-        regexExclude: Seq[String] = Nil
+        regexExclude: Seq[String] = Nil,
     ): FileMatcher = {
       // check if includePaths were specified explicitly
       val useIncludePaths = pf.includePaths.ne(defaultIncludePaths) ||
@@ -59,7 +59,7 @@ object ProjectFiles {
       val includePaths = if (useIncludePaths) pf.includePaths else Seq.empty
       new FileMatcher(
         nio(includePaths) ++ regex(pf.includeFilters),
-        nio(pf.excludePaths) ++ regex(pf.excludeFilters ++ regexExclude)
+        nio(pf.excludePaths) ++ regex(pf.excludeFilters ++ regexExclude),
       )
     }
 
@@ -73,7 +73,7 @@ object ProjectFiles {
         try fs.getPathMatcher(pattern)
         catch {
           case _: IllegalArgumentException => throw new ScalafmtConfigException(
-              s"Illegal pattern in configuration: $pattern"
+              s"Illegal pattern in configuration: $pattern",
             )
         }
       def matches(path: file.Path): Boolean = matcher.matches(path)
@@ -85,7 +85,7 @@ object ProjectFiles {
           case e: java.util.regex.PatternSyntaxException =>
             throw new ScalafmtConfigException(
               s"""|Illegal regex in configuration: $regex
-                  |reason: ${e.getMessage()}""".stripMargin
+                  |reason: ${e.getMessage()}""".stripMargin,
             )
         }
 
@@ -106,7 +106,7 @@ object ProjectFiles {
   sealed abstract class Layout {
     def getInfo(path: AbsoluteFile): Option[FileInfo]
     protected[config] def getDialectByLang(lang: String)(implicit
-        dialect: Dialect
+        dialect: Dialect,
     ): Option[NamedDialect]
     final def getLang(path: AbsoluteFile): Option[String] = getInfo(path)
       .map(_.lang)
@@ -163,7 +163,7 @@ object ProjectFiles {
       private[config] val s3 = nd(NamedDialect.scala3)
 
       override protected[config] def getDialectByLang(
-          lang: String
+          lang: String,
       )(implicit dialect: Dialect): Option[NamedDialect] = lang match {
         case "scala-2.10" if is211 => s210
         case "scala-2.11" if is212 || !is211 => s211

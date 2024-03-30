@@ -15,7 +15,7 @@ class ScalafmtRunnerTest extends FunSuite {
          |
          |  b,
          |)
-         |        """.stripMargin
+         |        """.stripMargin,
     ).parse[Source].get
   }
 }

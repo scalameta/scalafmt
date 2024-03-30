@@ -8,7 +8,7 @@ import org.scalafmt.interfaces._
 final case class ScalafmtDynamic(
     properties: ScalafmtProperties,
     moduleLoader: ScalafmtModuleLoader,
-    configLoader: ScalafmtConfigLoader
+    configLoader: ScalafmtConfigLoader,
 ) extends Scalafmt
     with RepositoryCredential.ScalafmtExtension
     with ScalafmtSessionFactory {
@@ -16,11 +16,11 @@ final case class ScalafmtDynamic(
   def this() = this(
     ScalafmtProperties(),
     new ScalafmtModuleLoader.CachedProxy(
-      ScalafmtDynamic.defaultUncachedModuleLoader
+      ScalafmtDynamic.defaultUncachedModuleLoader,
     ),
     new ScalafmtConfigLoader.CachedProxy(
-      ScalafmtDynamic.defaultUncachedConfigLoader
-    )
+      ScalafmtDynamic.defaultUncachedConfigLoader,
+    ),
   )
 
   override def clear(): Unit = moduleLoader.close()
@@ -42,7 +42,7 @@ final case class ScalafmtDynamic(
     copy(properties = properties.withMavenRepositories(value))
 
   override def withRepositoryCredentials(
-      value: RepositoryCredential*
+      value: RepositoryCredential*,
   ): Scalafmt = copy(properties = properties.withRepositoryCredentials(value))
 
   override def format(config: Path, file: Path, code: String): String =
@@ -51,7 +51,7 @@ final case class ScalafmtDynamic(
   override def createSession(config: Path): ScalafmtSession =
     resolveConfig(config).fold(
       error => { properties.reportError(config, error); throw error },
-      new ScalafmtDynamicSession(properties, _)
+      new ScalafmtDynamicSession(properties, _),
     )
 
   def resolveConfig(configPath: Path): FormatEval[ScalafmtReflectConfig] =

@@ -9,7 +9,7 @@ case class PositionExceptionImpl(
     shortMessage: String,
     longMessage: String,
     pos: RangePosition,
-    cause: Throwable
+    cause: Throwable,
 ) extends PositionException(longMessage, cause) {
   def start: Int = pos.start
   def end: Int = pos.end

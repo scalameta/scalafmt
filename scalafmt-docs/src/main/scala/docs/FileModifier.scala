@@ -15,7 +15,7 @@ class FileModifier extends StringModifier {
   override def process(
       info: String,
       code: Input,
-      reporter: Reporter
+      reporter: Reporter,
   ): String = {
     val file = AbsolutePath(info)
     if (file.isFile) {

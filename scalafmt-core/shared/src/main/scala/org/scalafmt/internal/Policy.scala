@@ -60,28 +60,28 @@ object Policy {
   }
 
   def apply(endPolicy: End.WithPos, noDequeue: Boolean = false, rank: Int = 0)(
-      f: Pf
+      f: Pf,
   )(implicit fileLine: FileLine): Policy =
     new ClauseImpl(f, endPolicy, noDequeue, rank)
 
   def after(token: Token, noDequeue: Boolean = false, rank: Int = 0)(f: Pf)(
-      implicit fileLine: FileLine
+      implicit fileLine: FileLine,
   ): Policy = apply(End.After(token), noDequeue, rank)(f)
 
   def before(token: Token, noDequeue: Boolean = false, rank: Int = 0)(f: Pf)(
-      implicit fileLine: FileLine
+      implicit fileLine: FileLine,
   ): Policy = apply(End.Before(token), noDequeue, rank)(f)
 
   def after(trigger: Token, policy: Policy)(implicit
-      fileLine: FileLine
+      fileLine: FileLine,
   ): Policy = new Switch(NoPolicy, trigger, policy)
 
   def before(policy: Policy, trigger: Token)(implicit
-      fileLine: FileLine
+      fileLine: FileLine,
   ): Policy = new Switch(policy, trigger, NoPolicy)
 
   def on(token: Token, noDequeue: Boolean = false)(f: Pf)(implicit
-      fileLine: FileLine
+      fileLine: FileLine,
   ): Policy = apply(End.On(token), noDequeue)(f)
 
   abstract class Clause(implicit val fileLine: FileLine) extends Policy {
@@ -105,7 +105,7 @@ object Policy {
       val f: Policy.Pf,
       val endPolicy: End.WithPos,
       val noDequeue: Boolean,
-      val rank: Int = 0
+      val rank: Int = 0,
   )(implicit fileLine: FileLine)
       extends Clause
 
@@ -132,7 +132,7 @@ object Policy {
     override lazy val f: Pf = { case x =>
       p2.f.applyOrElse(
         p1.f.andThen(x.withSplits _).applyOrElse(x, identity[Decision]),
-        (y: Decision) => y.splits
+        (y: Decision) => y.splits,
       )
     }
 
@@ -153,7 +153,7 @@ object Policy {
   }
 
   class Delay(policy: Policy, begPolicy: End.WithPos)(implicit
-      fileLine: FileLine
+      fileLine: FileLine,
   ) extends Policy {
     override def f: Pf = PartialFunction.empty
     override def rank: Int = 0
@@ -170,7 +170,7 @@ object Policy {
 
   object Delay {
     def apply(policy: Policy, begPolicy: End.WithPos)(implicit
-        fileLine: FileLine
+        fileLine: FileLine,
     ): Policy = if (policy.isEmpty) policy else new Delay(policy, begPolicy)
   }
 
@@ -195,7 +195,7 @@ object Policy {
 
   object Relay {
     def apply(before: Policy, after: Policy)(implicit
-        fileLine: FileLine
+        fileLine: FileLine,
     ): Policy =
       if (before.isEmpty) after
       else if (after.isEmpty) before
@@ -203,7 +203,7 @@ object Policy {
   }
 
   class Switch(before: Policy, trigger: Token, after: Policy)(implicit
-      fileLine: FileLine
+      fileLine: FileLine,
   ) extends Policy {
     override def f: Pf = before.f
     override def rank: Int = before.rank
@@ -224,7 +224,7 @@ object Policy {
 
   object Proxy {
     def apply(policy: Policy, end: End.WithPos)(
-        factory: Policy => Pf
+        factory: Policy => Pf,
     )(implicit fileLine: FileLine): Policy =
       if (policy.isEmpty) NoPolicy else new Proxy(policy, factory, end)
   }
@@ -232,7 +232,7 @@ object Policy {
   private class Proxy(
       policy: Policy,
       factory: Policy => Policy.Pf,
-      override val endPolicy: End.WithPos
+      override val endPolicy: End.WithPos,
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
     override val f: Pf = factory(policy)

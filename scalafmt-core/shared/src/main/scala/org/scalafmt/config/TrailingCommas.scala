@@ -4,7 +4,7 @@ import metaconfig._
 
 case class TrailingCommas(
     allowFolding: Boolean = true,
-    style: TrailingCommas.Style = TrailingCommas.never
+    style: TrailingCommas.Style = TrailingCommas.never,
 ) {
   def withoutRewrites: TrailingCommas = copy(style = TrailingCommas.keep)
 }

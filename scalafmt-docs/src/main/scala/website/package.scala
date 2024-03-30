@@ -42,7 +42,7 @@ package object website {
     val out = Files.newOutputStream(
       Paths.get("target", "website.log"),
       StandardOpenOption.CREATE,
-      StandardOpenOption.APPEND
+      StandardOpenOption.APPEND,
     )
     new PrintStream(out)
   }
@@ -118,7 +118,7 @@ ${scalaCode(formatted)}
   </div>
 </div>
 $configString
-"""
+""",
     )
   }
 

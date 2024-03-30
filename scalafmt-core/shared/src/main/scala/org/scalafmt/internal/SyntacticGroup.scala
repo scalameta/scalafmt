@@ -101,7 +101,7 @@ object SyntacticGroup {
   }
   require(
     Literal.precedence == Term.SimpleExpr1.precedence &&
-      Literal.precedence == Pat.SimplePattern.precedence
+      Literal.precedence == Pat.SimplePattern.precedence,
   )
   case object Path extends Type with Term with Pat {
     override def categories = List("Type", "Term", "Pat")
@@ -110,6 +110,6 @@ object SyntacticGroup {
   require(
     Path.precedence == Type.SimpleTyp.precedence &&
       Path.precedence == Term.SimpleExpr1.precedence &&
-      Path.precedence == Pat.SimplePattern.precedence
+      Path.precedence == Pat.SimplePattern.precedence,
   )
 }

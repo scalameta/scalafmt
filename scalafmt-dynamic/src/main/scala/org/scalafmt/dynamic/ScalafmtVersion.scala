@@ -7,7 +7,7 @@ case class ScalafmtVersion(
     minor: Int,
     patch: Int,
     rc: Int = 0,
-    snapshot: String = ""
+    snapshot: String = "",
 ) extends Comparable[ScalafmtVersion] {
   private val integerRepr: Int = {
     val max = 100
@@ -40,7 +40,7 @@ object ScalafmtVersion {
           positiveInt(minor),
           positiveInt(patch),
           if (rc == null) 0 else positiveInt(rc),
-          if (snapshot == null) "" else snapshot
+          if (snapshot == null) "" else snapshot,
         )
       }.toOption
     case _ => None

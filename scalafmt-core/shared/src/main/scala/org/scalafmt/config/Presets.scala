@@ -8,7 +8,7 @@ object Presets {
 
   def mapDecoder[A <: Product](
       baseDecoder: ConfDecoderEx[A],
-      sectionName: String = null
+      sectionName: String = null,
   )(implicit presets: PartialFunction[Conf, A]): ConfDecoderEx[A] =
     (state, conf) =>
       decodePresets(conf, sectionName, presets) match {
@@ -21,7 +21,7 @@ object Presets {
   private def decodePresets[A](
       conf: Conf,
       sectionName: String,
-      presets: PartialFunction[Conf, A]
+      presets: PartialFunction[Conf, A],
   ): Option[Configured[(A, Conf)]] = {
     def me = getClass.getSimpleName
     object presetsMatch {

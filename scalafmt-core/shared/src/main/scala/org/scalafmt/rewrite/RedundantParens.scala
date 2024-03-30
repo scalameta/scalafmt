@@ -72,7 +72,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   override def onToken(implicit
       ft: FormatToken,
       session: Session,
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Option[Replacement] = ft.right match {
     case _: Token.LeftParen => findEnclosed.flatMap { case (cnt, tree) =>
         if (okToReplaceWithCount(cnt, tree)) Some(removeToken) else None
@@ -83,14 +83,14 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
       session: Session,
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] =
     if (left.isRemove && RewriteTrailingCommas.checkIfPrevious)
       Some((left, removeToken))
     else None
 
   private def okToReplaceWithCount(numParens: Int, tree: Tree)(implicit
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Boolean = tree match {
     case _: Lit.Unit | _: Member.Tuple => numParens >= 3
     case _ if numParens >= 2 => true
@@ -135,7 +135,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   }
 
   private def okToReplaceOther(
-      t: Tree
+      t: Tree,
   )(implicit style: ScalafmtConfig): Boolean = t match {
     case _: Lit | _: Name | _: Term.Interpolate => true
     case _: Term.PartialFunction | _: Member.Apply => true
@@ -148,7 +148,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   }
 
   private def okToReplaceArgClause(
-      t: Member.ArgClause
+      t: Member.ArgClause,
   )(implicit style: ScalafmtConfig): Boolean = t.values match {
     case arg :: Nil => arg match {
         case _: Term.Block | _: Term.PartialFunction => t.parent
@@ -165,7 +165,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   }
 
   private def okToReplaceInfix(pia: Member.Infix, tia: Member.Infix)(implicit
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Boolean = !breaksBeforeOp(tia) &&
     style.rewrite.redundantParens.infixSide.exists {
       case RedundantParensSettings.InfixSide.many
@@ -181,7 +181,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     }
 
   private def okToReplaceInfix(pia: Member.Infix, t: Tree)(implicit
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Boolean = t match {
     case tia: Member.Infix => okToReplaceInfix(pia, tia)
     case _: Lit | _: Name | _: Term.Interpolate => true
@@ -212,7 +212,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
       (ftoks.prevNonComment(lt), ftoks.nextNonComment(rt)) match {
         case (
               prev @ FormatToken(_: Token.LeftParen, _, _),
-              next @ FormatToken(_, _: Token.RightParen, _)
+              next @ FormatToken(_, _: Token.RightParen, _),
             ) => iter(ftoks.prev(prev), ftoks.next(next), cnt + 1)
         case _ => TreeOps
             .findEnclosedBetweenParens(lt.right, rt.left, ft.meta.rightOwner)

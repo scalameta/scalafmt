@@ -16,7 +16,7 @@ object Dependencies {
   val scalapb = Def.setting {
     ExclusionRule(
       organization = "com.thesamet.scalapb",
-      name = s"scalapb-runtime_${scalaBinaryVersion.value}"
+      name = s"scalapb-runtime_${scalaBinaryVersion.value}",
     )
   }
 

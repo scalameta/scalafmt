@@ -30,7 +30,7 @@ private[config] object ReflectOps {
     def invokeStaticOn(
         target: AnyRef,
         methodName: String,
-        args: (Class[_], AnyRef)*
+        args: (Class[_], AnyRef)*,
     ): AnyRef = {
       val method = clazz.getMethod(methodName, args.map(_._1): _*)
       method.invoke(target, args.map(_._2): _*)

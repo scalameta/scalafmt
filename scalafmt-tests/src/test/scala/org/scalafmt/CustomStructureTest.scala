@@ -8,7 +8,7 @@ import scala.meta.internal.parsers.ScalametaParser
 class CustomStructureTest extends FunSuite {
 
   private def check(original: String, expected: Tree, dialect: Dialect)(implicit
-      loc: munit.Location
+      loc: munit.Location,
   ): Unit = {
     val parser = new ScalametaParser(Input.String(original))(dialect)
     assertNoDiff(parser.parseStat().structure, expected.structure)
@@ -30,17 +30,17 @@ class CustomStructureTest extends FunSuite {
             Term.Name("a"),
             Some(Type.Apply(
               Type.Name("Foo"),
-              Type.ArgClause(List(Type.Wildcard(Type.Bounds(None, None))))
+              Type.ArgClause(List(Type.Wildcard(Type.Bounds(None, None)))),
             )),
-            None
+            None,
           )),
-          None
-        ))
+          None,
+        )),
       )),
       Some(Type.Name("Unit")),
-      Term.Name("???")
+      Term.Name("???"),
     ),
-    dialects.Scala3
+    dialects.Scala3,
   )
 
 }

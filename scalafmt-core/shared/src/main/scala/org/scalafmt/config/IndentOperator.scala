@@ -52,13 +52,13 @@ case class IndentOperator(
     @annotation.DeprecatedName(
       "topLevelOnly",
       "Use indentOperator.exemptScope instead (true->topLevelOnly, false->all)",
-      "3.4.0"
+      "3.4.0",
     )
     private val topLevelOnly: Boolean = true,
     @annotation.ExtraName("include")
     includeRegex: String = ".*",
     @annotation.ExtraName("exclude")
-    excludeRegex: String = "^(&&|\\|\\|)$"
+    excludeRegex: String = "^(&&|\\|\\|)$",
 ) {
   private val includeRegexp = includeRegex.r.pattern
   private val excludeRegexp = excludeRegex.r.pattern
@@ -68,7 +68,7 @@ case class IndentOperator(
 
   lazy val getExemptScope: IndentOperator.Exempt = exemptScope.getOrElse(
     if (topLevelOnly) IndentOperator.Exempt.oldTopLevel
-    else IndentOperator.Exempt.all
+    else IndentOperator.Exempt.all,
   )
 }
 

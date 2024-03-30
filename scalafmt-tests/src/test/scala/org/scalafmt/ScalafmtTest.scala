@@ -8,7 +8,7 @@ class ScalafmtTest extends FunSuite {
   def check(
       original: String,
       expected: String,
-      config: ScalafmtConfig = ScalafmtConfig.default
+      config: ScalafmtConfig = ScalafmtConfig.default,
   )(implicit loc: munit.Location): Unit =
     test(logger.revealWhitespace(original).take(30)) {
       val obtained = Scalafmt.formatCode(original, config).get
@@ -25,7 +25,7 @@ class ScalafmtTest extends FunSuite {
     """|object A { println("HELLO!") }
        |
        |// comment
-       |""".stripMargin
+       |""".stripMargin,
   )
   check(
     """|object A {
@@ -38,7 +38,7 @@ class ScalafmtTest extends FunSuite {
        |  val xx = 3
        |}
        |""".stripMargin,
-    config.ScalafmtConfig.defaultWithAlign
+    config.ScalafmtConfig.defaultWithAlign,
   )
   check(
     """|object A { function(aaaaaaaa, bbbbbbbbbb, ddddd(eeeeeeeeee, fffffff, gggggggg)) }
@@ -51,7 +51,7 @@ class ScalafmtTest extends FunSuite {
        |  )
        |}
        |""".stripMargin,
-    config.ScalafmtConfig.default.copy(maxColumn = 40)
+    config.ScalafmtConfig.default.copy(maxColumn = 40),
   )
 
 }

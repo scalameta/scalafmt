@@ -12,7 +12,7 @@ class ScalafmtConfigTest extends FunSuite {
          |  "/sbt-test/"
          |  "bin/issue"
          |]
-         |      """.stripMargin
+         |      """.stripMargin,
     ).get
     assert(config.project.matcher.matches("qux/Kazbar.scala"))
     assert(!config.project.matcher.matches("foo/sbt-test/src/main"))
@@ -29,7 +29,7 @@ class ScalafmtConfigTest extends FunSuite {
         |    newlines.topLevelBodyIfMinStatements = []
         |  }
         |}
-        |      """.stripMargin
+        |      """.stripMargin,
     ).get
     val nlCfg1 = config.getConfigFor("/x/src/main/scala/foo.scala").get.newlines
     val nlCfg2 = config.getConfigFor("/x/src/test/scala/bar.scala").get.newlines
@@ -37,7 +37,7 @@ class ScalafmtConfigTest extends FunSuite {
     assertEquals(nlCfg2.source, Newlines.unfold)
     assertEquals(
       nlCfg1.topLevelBodyIfMinStatements,
-      Seq(Newlines.before, Newlines.after)
+      Seq(Newlines.before, Newlines.after),
     )
     assertEquals(nlCfg2.topLevelBodyIfMinStatements, Seq.empty)
   }
@@ -47,7 +47,7 @@ class ScalafmtConfigTest extends FunSuite {
       """|
          |align = none
          |align.stripMargin = true
-         |      """.stripMargin
+         |      """.stripMargin,
     ).get
     // none was ignored
     assertEquals(config.align, Align(stripMargin = true))
@@ -58,7 +58,7 @@ class ScalafmtConfigTest extends FunSuite {
       """
         |align.preset = none
         |align.stripMargin = true
-      """.stripMargin
+      """.stripMargin,
     ).get
     assertEquals(config.align, Align.none.copy(stripMargin = true))
   }
@@ -67,14 +67,14 @@ class ScalafmtConfigTest extends FunSuite {
     val config1 = ScalafmtConfig.fromHoconString(
       """|
          |runner.dialect = scala213
-         |""".stripMargin
+         |""".stripMargin,
     ).get
     assert(!config1.runner.getDialect.allowToplevelTerms)
     val config2 = ScalafmtConfig.fromHoconString(
       """|
          |runner.dialectOverride.allowToplevelTerms = true
          |runner.dialect = scala213
-         |""".stripMargin
+         |""".stripMargin,
     ).get
     assert(config2.runner.getDialect.allowToplevelTerms)
   }
@@ -84,7 +84,7 @@ class ScalafmtConfigTest extends FunSuite {
       """|
          |runner.dialect = scala213
          |rewrite.trailingCommas = never
-         |""".stripMargin
+         |""".stripMargin,
     ).get
     assert(config1.hasRewrites)
     val config2 = config1.withoutRewrites
@@ -97,7 +97,7 @@ class ScalafmtConfigTest extends FunSuite {
          |runner.dialect = scala213
          |rewrite.trailingCommas = keep
          |docstrings.removeEmpty = true
-         |""".stripMargin
+         |""".stripMargin,
     ).get
     assert(config1.hasRewrites)
     val config2 = config1.withoutRewrites

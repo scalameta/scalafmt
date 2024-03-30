@@ -16,11 +16,11 @@ case class RewriteSettings(
     @annotation.DeprecatedName(
       "allowInfixPlaceholderArg",
       "Use `avoidInfix.excludePlaceholderArg` instead",
-      "3.8.0"
+      "3.8.0",
     )
     private val allowInfixPlaceholderArg: Boolean = true,
     @annotation.ExtraName("neverInfix")
-    avoidInfix: AvoidInfixSettings = AvoidInfixSettings.default
+    avoidInfix: AvoidInfixSettings = AvoidInfixSettings.default,
 ) {
   def isAllowInfixPlaceholderArg: Boolean = avoidInfix.excludePlaceholderArg
     .getOrElse(allowInfixPlaceholderArg)

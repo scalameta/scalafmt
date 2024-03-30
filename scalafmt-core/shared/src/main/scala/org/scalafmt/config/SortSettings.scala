@@ -13,7 +13,7 @@ object SortSettings {
 
   object ModKey {
     def apply[A](name: String)(implicit
-        classifier: Classifier[Mod, A]
+        classifier: Classifier[Mod, A],
     ): ModKey = ModKey(name, _.is[A])
   }
 
@@ -51,7 +51,7 @@ object SortSettings {
     modTransparent,
     modInline,
     modInfix,
-    modOpaque
+    modOpaque,
   )
 
   // https://docs.scala-lang.org/style/declarations.html#modifiers
@@ -74,7 +74,7 @@ object SortSettings {
     modTransparent,
     modInline,
     modInfix,
-    modOpaque
+    modOpaque,
   )
 
   implicit val sortSettingsModKeyCodec: ConfCodecEx[ModKey] = ReaderUtil

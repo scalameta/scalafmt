@@ -15,7 +15,7 @@ object TokenPatch {
   def AddRight(
       tok: Token,
       toAdd: String,
-      keepTok: Boolean = false
+      keepTok: Boolean = false,
   ): TokenPatch = Add(tok, "", toAdd, keepTok)
   def AddLeft(tok: Token, toAdd: String, keepTok: Boolean = false): TokenPatch =
     Add(tok, toAdd, "", keepTok)
@@ -23,7 +23,7 @@ object TokenPatch {
       override val tok: Token,
       addLeft: String,
       addRight: String,
-      keepTok: Boolean
+      keepTok: Boolean,
   ) extends TokenPatch(tok, s"""$addLeft${if (keepTok) tok else ""}$addRight""")
 
 }
@@ -34,7 +34,7 @@ object Patch {
         add1.tok,
         add1.addLeft + add2.addLeft,
         add1.addRight + add2.addRight,
-        add1.keepTok && add2.keepTok
+        add1.keepTok && add2.keepTok,
       )
     case (_: Remove, add: Add) => add.copy(keepTok = false)
     case (add: Add, _: Remove) => add.copy(keepTok = false)
@@ -42,7 +42,7 @@ object Patch {
     case _ => sys.error(
         s"""|Can't merge token patches:
             |1. $a
-            |2. $b""".stripMargin
+            |2. $b""".stripMargin,
       )
   }
 

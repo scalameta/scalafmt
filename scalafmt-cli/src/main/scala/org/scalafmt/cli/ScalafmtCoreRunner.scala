@@ -15,7 +15,7 @@ import scala.meta.tokenizers.TokenizeException
 object ScalafmtCoreRunner extends ScalafmtRunner {
   override private[cli] def run(
       options: CliOptions,
-      termDisplayMessage: String
+      termDisplayMessage: String,
   ): ExitCode = options.scalafmtConfig.fold { e =>
     options.common.err.println(s"${e.msg}")
     ExitCode.UnexpectedError
@@ -49,7 +49,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
   private[this] def handleFile(
       inputMethod: InputMethod,
       options: CliOptions,
-      config: ScalafmtConfig
+      config: ScalafmtConfig,
   ): ExitCode =
     try unsafeHandleFile(inputMethod, options, config)
     catch {
@@ -61,7 +61,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
   private[this] def unsafeHandleFile(
       inputMethod: InputMethod,
       options: CliOptions,
-      scalafmtConfig: ScalafmtConfig
+      scalafmtConfig: ScalafmtConfig,
   ): ExitCode = {
     val input = inputMethod.readInput(options)
     val filename = inputMethod.path.toString

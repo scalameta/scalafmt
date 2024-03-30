@@ -31,7 +31,7 @@ object Error {
   case class PreciseIncomplete(pos: Position, formattedCode: String)
       extends Error(
         pos
-          .formatMessage("error", "Unable to format file due to bug in scalafmt")
+          .formatMessage("error", "Unable to format file due to bug in scalafmt"),
       )
   case class CantFindDefnToken(what: String, tree: Tree)
       extends Error(s"Expected keyword of type $what in tree $tree")
@@ -48,7 +48,7 @@ object Error {
             |${output.linesIterator.toVector.take(10).mkString("\n")}
             |=====================
             |Formatter changed AST
-            |""".stripMargin
+            |""".stripMargin,
       )
 
   case class FormatterOutputDoesNotParse(msg: String, line: Int)
@@ -57,7 +57,7 @@ object Error {
   case class UnexpectedTree[Expected <: Tree: ClassTag](obtained: Tree)
       extends Error(
         s"""|Expected: ${classTag[Expected].runtimeClass.getName}
-            |Obtained: ${log(obtained)}""".stripMargin
+            |Obtained: ${log(obtained)}""".stripMargin,
       )
 
   case class CantFormatFile(msg: String)
@@ -78,7 +78,7 @@ object Error {
   case class SearchStateExploded(
       deepestState: State,
       partialOutput: String,
-      ft: FormatToken
+      ft: FormatToken,
   ) extends Error({
         val tok = LoggerOps.log2(ft)
         val line = ft.left.pos.endLine
@@ -94,7 +94,7 @@ object Error {
   case object NoMatchingFiles
       extends Error(
         "No files formatted/tested. " +
-          "Verify include/exclude filters and command line arguments."
+          "Verify include/exclude filters and command line arguments.",
       )
       with NoStackTrace
 

@@ -13,11 +13,11 @@ import scala.util.control.NoStackTrace
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
     val workingDirectory = AbsoluteFile.fromPathIfAbsolute(
-      nGContext.getWorkingDirectory
+      nGContext.getWorkingDirectory,
     ).getOrElse {
       throw new IllegalStateException(
         s"Expected absolute path, " +
-          s"obtained nGContext.getWorkingDirectory = ${nGContext.getWorkingDirectory}"
+          s"obtained nGContext.getWorkingDirectory = ${nGContext.getWorkingDirectory}",
       )
     }
     val exit = mainWithOptions(
@@ -27,9 +27,9 @@ object Cli {
           cwd = Some(workingDirectory),
           out = nGContext.out,
           in = nGContext.in,
-          err = nGContext.err
-        )
-      )
+          err = nGContext.err,
+        ),
+      ),
     )
     nGContext.exit(exit.code)
   }
@@ -47,7 +47,7 @@ object Cli {
 
   def exceptionThrowingMainWithOptions(
       args: Array[String],
-      options: CliOptions
+      options: CliOptions,
   ): Unit = {
     val exit = mainWithOptions(args, options)
     throwIfError(exit)
@@ -99,7 +99,7 @@ object Cli {
             |Consider creating '${options.getProposedConfigFile}'
             |with the following (other parameters may also be required):
             |${getProposedConfigVersion(options)}
-            |""".stripMargin
+            |""".stripMargin,
       )
     } {
       // Run format using
@@ -116,7 +116,7 @@ object Cli {
           s"""|error: missing Scalafmt version.
               |Consider adding the following to $where:
               |${getProposedConfigVersion(options)}
-              |""".stripMargin
+              |""".stripMargin,
         )
       } {
         case Left(error) => Left(s"error: invalid configuration: $error")
@@ -136,7 +136,7 @@ object Cli {
                 |
                 |NOTE: this error happens only when running a native Scalafmt binary.
                 |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
-                |""".stripMargin
+                |""".stripMargin,
           )
         case Right(v) =>
           options.common.debug.println(s"Using dynamic runner [$v]")
@@ -146,7 +146,7 @@ object Cli {
 
   private[cli] def runWithRunner(
       options: CliOptions,
-      runner: ScalafmtRunner
+      runner: ScalafmtRunner,
   ): ExitCode = {
     val termDisplayMessage =
       if (options.writeMode == WriteMode.Test)

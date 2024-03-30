@@ -18,7 +18,7 @@ import org.scalafmt.util.TreeOps
   */
 private class BestFirstSearch private (
     range: Set[Range],
-    formatWriter: FormatWriter
+    formatWriter: FormatWriter,
 )(implicit val formatOps: FormatOps) {
   import LoggerOps._
   import TokenOps._
@@ -57,7 +57,7 @@ private class BestFirstSearch private (
     !best.get(curr.depth).exists(_.alwaysBetter(curr))
 
   def shouldRecurseOnBlock(ft: FormatToken, stop: Token)(implicit
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Option[Token] =
     if (!recurseOnBlocks || !isInsideNoOptZone(ft)) None
     else {
@@ -66,7 +66,7 @@ private class BestFirstSearch private (
       closeOpt.filter(close =>
         // Block must span at least 3 lines to be worth recursing.
         close != stop && distance(left.left, close) > style.maxColumn * 3 &&
-          extractStatementsIfAny(left.meta.leftOwner).nonEmpty
+          extractStatementsIfAny(left.meta.leftOwner).nonEmpty,
       )
     }
 
@@ -79,7 +79,7 @@ private class BestFirstSearch private (
       start: State,
       stop: Token,
       depth: Int,
-      maxCost: Int
+      maxCost: Int,
   ): Option[State] = {
     val key = (start.depth, stateColumnKey(start))
     val cachedState = memo.get(key)
@@ -101,7 +101,7 @@ private class BestFirstSearch private (
       start: State,
       stop: Token,
       depth: Int = 0,
-      maxCost: Int = Integer.MAX_VALUE
+      maxCost: Int = Integer.MAX_VALUE,
   ): State = {
     def newGeneration = new mutable.PriorityQueue[State]()
     var Q = newGeneration
@@ -130,7 +130,7 @@ private class BestFirstSearch private (
         if (explored > runner.maxStateVisits) throw SearchStateExploded(
           deepestYet,
           formatWriter.mkString(deepestYet),
-          tokens(deepestYet.depth)
+          tokens(deepestYet.depth),
         )
 
         implicit val style = styleMap.at(splitToken)
@@ -159,7 +159,7 @@ private class BestFirstSearch private (
           throw SearchStateExploded(
             deepestYet,
             formatWriter.mkString(deepestYet),
-            splitToken
+            splitToken,
           )
         } else {
           val actualSplit = getActiveSplits(curr, maxCost)
@@ -295,7 +295,7 @@ private class BestFirstSearch private (
                     |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
       if (runner.debug) logger.debug(
         s"""|Failed to format
-            |$msg""".stripMargin
+            |$msg""".stripMargin,
       )
       complete(deepestYet)
       SearchResult(deepestYet, reachedEOF = false)
@@ -310,7 +310,7 @@ object BestFirstSearch {
   def apply(
       formatOps: FormatOps,
       range: Set[Range],
-      formatWriter: FormatWriter
+      formatWriter: FormatWriter,
   ): SearchResult =
     new BestFirstSearch(range, formatWriter)(formatOps).getBestPath
 

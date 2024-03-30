@@ -15,7 +15,7 @@ object SyntacticGroupOps {
       customAssociativity: Boolean,
       customPrecedence: Boolean,
       side: Side,
-      forceRight: Boolean = false
+      forceRight: Boolean = false,
   ): Boolean = {
 
     def isLeftAssociative(name: String): Boolean = !customAssociativity ||
@@ -53,7 +53,7 @@ object SyntacticGroupOps {
   def groupNeedsParenthesis(
       outerGroup: SyntacticGroup,
       innerGroup: SyntacticGroup,
-      side: Side
+      side: Side,
   ): Boolean = (outerGroup, innerGroup) match {
     case (g.Term.InfixExpr(outerOperator), g.Term.InfixExpr(innerOperator)) =>
       operatorNeedsParenthesis(
@@ -62,7 +62,7 @@ object SyntacticGroupOps {
         customAssociativity = true,
         customPrecedence = true,
         side,
-        forceRight = true
+        forceRight = true,
       )
     case (g.Type.InfixTyp(outerOperator), g.Type.InfixTyp(innerOperator)) =>
       operatorNeedsParenthesis(
@@ -70,7 +70,7 @@ object SyntacticGroupOps {
         innerOperator,
         customAssociativity = true,
         customPrecedence = false,
-        side
+        side,
       )
     case (g.Pat.Pattern3(outerOperator), g.Pat.Pattern3(innerOperator)) =>
       operatorNeedsParenthesis(
@@ -78,7 +78,7 @@ object SyntacticGroupOps {
         innerOperator,
         customAssociativity = true,
         customPrecedence = true,
-        side
+        side,
       )
 
     case (_: g.Term.PrefixExpr, g.Term.PrefixArg(_, _: g.Term.PrefixExpr)) =>

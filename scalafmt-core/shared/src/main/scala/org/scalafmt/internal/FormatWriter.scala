@@ -192,7 +192,7 @@ class FormatWriter(formatOps: FormatOps) {
                   loc.copy(
                     replace = "(",
                     shift = loc.shift - 1,
-                    state = state.copy(prev = prevBegState, split = split)
+                    state = state.copy(prev = prevBegState, split = split),
                   )
                 }
 
@@ -213,7 +213,7 @@ class FormatWriter(formatOps: FormatOps) {
               val endLoc = locations(end)
               locations(end) = endLoc.copy(
                 replace = ")",
-                state = endLoc.state.copy(prev = newPrevEndState)
+                state = endLoc.state.copy(prev = newPrevEndState),
               )
             case _ =>
           }
@@ -225,7 +225,7 @@ class FormatWriter(formatOps: FormatOps) {
 
   private def getOptionalBracesOwner(
       floc: FormatLocation,
-      minBlockStats: Int
+      minBlockStats: Int,
   ): Option[Tree] = {
     val ob = formatOps.OptionalBraces.get(floc.formatToken)(floc.style)
     ob.flatMap(_.owner).filter {
@@ -401,7 +401,7 @@ class FormatWriter(formatOps: FormatOps) {
           locations(end) = eLoc.copy(
             missingBracesOpenOrTuck = !addLine &&
               (eLoc.missingBracesIndent.isEmpty || eLoc.missingBracesOpenOrTuck),
-            missingBracesIndent = eLoc.missingBracesIndent + begIndent
+            missingBracesIndent = eLoc.missingBracesIndent + begIndent,
           )
         }
       }
@@ -431,7 +431,7 @@ class FormatWriter(formatOps: FormatOps) {
       def prevState = curr.state.prev
 
       private def appendWhitespace(alignOffset: Int, delayedAlign: Int)(implicit
-          sb: StringBuilder
+          sb: StringBuilder,
       ): Int = {
         val mod = state.split.modExt.mod
         def currentAlign = tokenAligns.get(i).fold(0)(_ + alignOffset)
@@ -469,7 +469,7 @@ class FormatWriter(formatOps: FormatOps) {
           @tailrec
           def iter(
               floc: FormatLocation,
-              hadNL: Boolean
+              hadNL: Boolean,
           ): Option[FormatToken] = {
             val isNL = floc.hasBreakAfter
             if (isNL && !whenNL) None
@@ -569,7 +569,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       private def formatOnelineDocstring(
-          text: String
+          text: String,
       )(implicit sb: StringBuilder): Boolean = curr.isStandalone && {
         val matcher = onelineDocstring.matcher(text)
         matcher.matches() &&
@@ -591,7 +591,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       private def formatDocstring(
-          text: String
+          text: String,
       )(implicit sb: StringBuilder): Unit =
         if (style.docstrings.style eq Docstrings.Preserve) sb.append(text)
         else if (!formatOnelineDocstring(text)) new FormatMlDoc(text).format()
@@ -599,7 +599,7 @@ class FormatWriter(formatOps: FormatOps) {
       private abstract class FormatCommentBase(
           protected val maxColumn: Int,
           protected val extraIndent: Int = 1,
-          protected val leadingMargin: Int = 0
+          protected val leadingMargin: Int = 0,
       )(implicit sb: StringBuilder) {
         protected final val breakBefore = curr.hasBreakBefore
         protected final val indent = prevState.indentation
@@ -622,19 +622,19 @@ class FormatWriter(formatOps: FormatOps) {
         protected class WordFormatter(
             appendLineBreak: () => Unit,
             extraMargin: String = " ",
-            prefixFirstWord: String => String = _ => ""
+            prefixFirstWord: String => String = _ => "",
         ) {
           final def apply(
               iter: WordIter,
               lineLength: Int,
               atLineBeg: Boolean,
-              needSpaceIfAtLineBeg: Boolean = true
+              needSpaceIfAtLineBeg: Boolean = true,
           ): Int = iterate(
             iter,
             sb.length - lineLength,
             0,
             atLineBeg,
-            needSpaceIfAtLineBeg
+            needSpaceIfAtLineBeg,
           )
 
           @tailrec
@@ -643,7 +643,7 @@ class FormatWriter(formatOps: FormatOps) {
               lineBeg: Int,
               linesSoFar: Int,
               atLineBeg: Boolean = false,
-              needSpaceIfAtLineBeg: Boolean = false
+              needSpaceIfAtLineBeg: Boolean = false,
           ): Int =
             if (iter.hasNext) {
               val word = iter.next()
@@ -781,7 +781,7 @@ class FormatWriter(formatOps: FormatOps) {
         private def iterParagraphs(
             iter: ParaIter,
             firstLineLen: Int,
-            atLineBeg: Boolean
+            atLineBeg: Boolean,
         ): Int = {
           var lines = wf(iter.next(), firstLineLen, atLineBeg)
           while (iter.hasNext) {
@@ -805,14 +805,14 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       private class FormatMlDoc(isWrap: Boolean)(text: String)(implicit
-          sb: StringBuilder
+          sb: StringBuilder,
       ) extends FormatCommentBase(
             if (isWrap) style.docstringsWrapMaxColumn else style.maxColumn,
             if (style.docstrings.style eq Docstrings.SpaceAsterisk) 2 else 1,
-            if (style.docstrings.style eq Docstrings.AsteriskSpace) 1 else 0
+            if (style.docstrings.style eq Docstrings.AsteriskSpace) 1 else 0,
           ) {
         def this(text: String)(implicit sb: StringBuilder) = this(
-          (style.docstrings.wrap eq Docstrings.Wrap.yes) && curr.isStandalone
+          (style.docstrings.wrap eq Docstrings.Wrap.yes) && curr.isStandalone,
         )(text)
 
         private val spaces: String = getIndentation(indent + extraIndent)
@@ -848,7 +848,7 @@ class FormatWriter(formatOps: FormatOps) {
         private def formatTerm(
             term: Scaladoc.Term,
             termIndent: String,
-            sbNonEmpty: Boolean
+            sbNonEmpty: Boolean,
         ): Unit = {
           def forceFirstLine(): Unit = {
             // don't output on top line
@@ -908,7 +908,7 @@ class FormatWriter(formatOps: FormatOps) {
 
         private def formatTextAfterMargin(
             text: Scaladoc.Text,
-            termIndent: String
+            termIndent: String,
         ): Unit = {
           def prefixFirstWord(word: String): String = {
             def likeNonText = word.startsWith("```") ||
@@ -931,7 +931,7 @@ class FormatWriter(formatOps: FormatOps) {
             nested: Boolean,
             code: Seq[String],
             termIndent: String,
-            isRelative: Boolean
+            isRelative: Boolean,
         ): Unit = {
           val ok = nested && formatScalaCodeBlock(code, termIndent)
           if (!ok) formatCodeBlock(code, termIndent, isRelative)
@@ -940,7 +940,7 @@ class FormatWriter(formatOps: FormatOps) {
         private def formatCodeBlock(
             code: Seq[String],
             termIndent: String,
-            isRelative: Boolean
+            isRelative: Boolean,
         ): Unit = {
           val offsetOpt =
             if (isRelative) None
@@ -975,13 +975,13 @@ class FormatWriter(formatOps: FormatOps) {
 
         private def formatScalaCodeBlock(
             code: Seq[String],
-            termIndent: String
+            termIndent: String,
         ): Boolean = {
           val codeStyle = style.copy(
             runner = style.runner.forCodeBlock,
             // let's not wrap docstrings, to avoid recursion
             docstrings = style.docstrings.withoutRewrites,
-            maxColumn = style.maxColumn - spaces.length - termIndent.length - 1
+            maxColumn = style.maxColumn - spaces.length - termIndent.length - 1,
           )
           Scalafmt.format(code.mkString("\n"), codeStyle) match {
             case Formatted.Success(res) =>
@@ -993,7 +993,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
 
         private def formatListBlock(
-            listIndent: String
+            listIndent: String,
         )(block: Scaladoc.ListBlock): Unit = {
           val prefix = block.prefix
           val itemIndent = getIndentation(listIndent.length + prefix.length + 1)
@@ -1004,7 +1004,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
 
         private def formatListTerm(
-            itemIndent: String
+            itemIndent: String,
         )(item: Scaladoc.ListItem): Unit = {
           formatTextAfterMargin(item.text, itemIndent)
           item.terms.foreach(formatTerm(_, itemIndent, sbNonEmpty = true))
@@ -1137,7 +1137,7 @@ class FormatWriter(formatOps: FormatOps) {
                 def appendCandidate() = columnCandidates += new AlignStop(
                   getAlignColumn(floc) + columnShift,
                   floc,
-                  getAlignHashKey(floc)
+                  getAlignHashKey(floc),
                 )
                 if (alignContainer eq null) alignContainer = container
                 else if (alignContainer ne container) {
@@ -1177,7 +1177,7 @@ class FormatWriter(formatOps: FormatOps) {
                 wasSameContainer(alignContainer),
                 block.refStops,
                 candidates,
-                location.formatToken
+                location.formatToken,
               )
               if (matches > 0) appendToBlock(matches)
               if (isBlankLine || matches == 0 && shouldFlush(alignContainer)) {
@@ -1191,7 +1191,7 @@ class FormatWriter(formatOps: FormatOps) {
           }
           if (isBlankLine || alignContainer.eq(null)) getBlockToFlush(
             getAlignContainer(location.formatToken.meta.rightOwner),
-            isBlankLine
+            isBlankLine,
           ).foreach(flushAlignBlock)
         }
         blocks.valuesIterator.foreach(flushAlignBlock)
@@ -1235,7 +1235,7 @@ class FormatWriter(formatOps: FormatOps) {
     @tailrec
     private def getAlignContainerParent(
         child: Tree,
-        maybeParent: Option[Tree] = None
+        maybeParent: Option[Tree] = None,
     )(implicit fl: FormatLocation): Tree =
       maybeParent.orElse(child.parent) match {
         case Some(AlignContainer(p)) => p
@@ -1307,14 +1307,14 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
     private def flushAlignBlock(
-        block: AlignBlock
+        block: AlignBlock,
     )(implicit builder: mutable.Builder[(Int, Int), Map[Int, Int]]): Unit = {
       if (block.hasMultiple) flushMultiEntryAlignBlock(block)
       block.clear()
     }
 
     private def flushMultiEntryAlignBlock(
-        block: AlignBlock
+        block: AlignBlock,
     )(implicit builder: mutable.Builder[(Int, Int), Map[Int, Int]]): Unit = {
       val endIndex = locations.length - 1
       block.foreach { x =>
@@ -1378,7 +1378,7 @@ class FormatWriter(formatOps: FormatOps) {
         def setStat(
             stat: Tree,
             idx: Int,
-            isLast: Boolean
+            isLast: Boolean,
         ): Option[(Int, Newlines.NumBlanks)] = setStats(idx, stat, stat, isLast)
         def blanks(cnt: => Int, edge: Boolean, edgeCnt: => Option[Int]): Int =
           if (edge) edgeCnt.getOrElse(math.min(cnt, 1)) else cnt
@@ -1392,7 +1392,7 @@ class FormatWriter(formatOps: FormatOps) {
             idx: Int,
             stat: Tree,
             statLast: Tree,
-            isLast: Boolean
+            isLast: Boolean,
         ): Option[(Int, Newlines.NumBlanks)] = getBlanks(stat, statLast, nest)
           .map { case (x, head, last) =>
             val beforeCnt = blanksBefore(x, notUnindentedPkg && idx == 0)
@@ -1408,7 +1408,7 @@ class FormatWriter(formatOps: FormatOps) {
             stat: Term.EndMarker,
             prevIdx: Int,
             prevBlanks: Newlines.NumBlanks,
-            isLast: Boolean
+            isLast: Boolean,
         ): Unit = {
           val last = tokens.getLast(stat)
           if (prevBlanks.beforeEndMarker <= 0) extraBlankMap.remove(prevIdx)
@@ -1422,7 +1422,7 @@ class FormatWriter(formatOps: FormatOps) {
             rest: Seq[Stat],
             idx: Int,
             previous: Option[(Int, Newlines.NumBlanks)],
-            imports: Option[(Int, ImportExportStat, ImportExportStat)]
+            imports: Option[(Int, ImportExportStat, ImportExportStat)],
         ): Unit = {
           val stat = rest.head
           val newRest = rest.tail
@@ -1546,7 +1546,7 @@ class FormatWriter(formatOps: FormatOps) {
     def getBlanks(
         statHead: Tree,
         statLast: Tree,
-        nest: Int
+        nest: Int,
     ): Option[(Newlines.NumBlanks, FormatToken, FormatToken)] = {
       val head = tokens.tokenJustBefore(statHead)
       val last = tokens.getLast(statLast)
@@ -1586,7 +1586,7 @@ class FormatWriter(formatOps: FormatOps) {
       sameOwner: Boolean,
       a: Seq[AlignStop],
       b: Seq[AlignStop],
-      eol: FormatToken
+      eol: FormatToken,
   ): Int = {
     val endOfLineOwner = eol.meta.rightOwner
     @tailrec
@@ -1630,7 +1630,7 @@ object FormatWriter {
       // if indent is empty, indicates open; otherwise, whether to tuck
       missingBracesOpenOrTuck: Boolean = false,
       missingBracesIndent: Set[Int] = Set.empty,
-      replace: String = null
+      replace: String = null,
   ) {
     def hasBreakAfter: Boolean = state.split.isNL
     def hasBreakBefore: Boolean =
@@ -1651,7 +1651,7 @@ object FormatWriter {
       buffer: mutable.ArrayBuffer[AlignLine] =
         new mutable.ArrayBuffer[AlignLine],
       var refStops: Seq[AlignStop] = Seq.empty,
-      var stopColumns: IndexedSeq[Int] = IndexedSeq.empty
+      var stopColumns: IndexedSeq[Int] = IndexedSeq.empty,
   ) {
     def appendToEmptyBlock(line: AlignLine): Unit = {
       val stops = line.stops
@@ -1882,7 +1882,7 @@ object FormatWriter {
   private def getLineDiff(
       toks: Array[FormatLocation],
       beg: FormatToken,
-      end: FormatToken
+      end: FormatToken,
   ): Int = getLineDiff(toks(beg.meta.idx), toks(end.meta.idx))
 
   def isEmptyDocstring(text: String): Boolean = emptyDocstring.matcher(text)

@@ -109,9 +109,9 @@ case class OptIn(
     @annotation.DeprecatedName(
       "forceBlankLineBeforeDocstring",
       "Use docstrings.forceBlankLineBefore instead",
-      "3.4.0"
+      "3.4.0",
     )
-    forceBlankLineBeforeDocstring: Boolean = true
+    forceBlankLineBeforeDocstring: Boolean = true,
 )
 
 object OptIn {

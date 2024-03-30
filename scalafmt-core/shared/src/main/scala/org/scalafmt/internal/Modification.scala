@@ -34,7 +34,7 @@ case object NoSplit extends Modification {
 case class NewlineT(
     isDouble: Boolean = false,
     noIndent: Boolean = false,
-    alt: Option[ModExt] = None
+    alt: Option[ModExt] = None,
 ) extends Modification {
   override def toString = {
     val double = if (isDouble) "Double" else ""

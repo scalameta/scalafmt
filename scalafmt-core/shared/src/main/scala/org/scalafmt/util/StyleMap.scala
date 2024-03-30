@@ -73,7 +73,7 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
 
   @tailrec
   private def isBasicLiteral(
-      tree: Tree
+      tree: Tree,
   )(implicit style: ScalafmtConfig): Boolean = tree match {
     case lit: Lit =>
       val strName = tree match {
@@ -121,7 +121,7 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
       })
 
   def opensLiteralArgumentList(
-      ft: FormatToken
+      ft: FormatToken,
   )(implicit style: ScalafmtConfig): Boolean = (ft.meta.leftOwner match {
     case Member.Tuple(v) => Some(v)
     case Member.SyntaxValuesClause(v) => Some(v)

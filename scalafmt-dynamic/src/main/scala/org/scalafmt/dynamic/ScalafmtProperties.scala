@@ -9,7 +9,7 @@ final case class ScalafmtProperties(
     reporter: ScalafmtReporter = ConsoleScalafmtReporter,
     repositories: Seq[String] = Nil,
     repositoryCredentials: Seq[RepositoryCredential] = Nil,
-    respectExcludeFilters: Boolean = true
+    respectExcludeFilters: Boolean = true,
 ) {
 
   def withReporter(value: ScalafmtReporter): ScalafmtProperties =
@@ -22,7 +22,7 @@ final case class ScalafmtProperties(
     copy(repositories = value)
 
   def withRepositoryCredentials(
-      value: Seq[RepositoryCredential]
+      value: Seq[RepositoryCredential],
   ): ScalafmtProperties = copy(repositoryCredentials = value)
 
   def reportError(file: Path, error: ScalafmtDynamicError): Unit = error match {

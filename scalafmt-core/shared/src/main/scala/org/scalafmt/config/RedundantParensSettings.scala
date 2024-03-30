@@ -3,7 +3,7 @@ package org.scalafmt.config
 import metaconfig._
 
 case class RedundantParensSettings(
-    infixSide: Option[RedundantParensSettings.InfixSide] = None
+    infixSide: Option[RedundantParensSettings.InfixSide] = None,
 )
 
 object RedundantParensSettings {

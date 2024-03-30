@@ -31,7 +31,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
   override def onToken(implicit
       ft: FormatToken,
       session: Session,
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Option[Replacement] = Option {
     val flag = style.rewrite.scala3.newSyntax
     def left = ftoks.prevNonComment(ft).left
@@ -91,7 +91,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
           case _: Type.AnonymousParam
               if dialect.allowUnderscoreAsTypePlaceholder =>
             replaceTokenBy("_")(t =>
-              new Token.Underscore(t.input, t.dialect, t.start)
+              new Token.Underscore(t.input, t.dialect, t.start),
             )
           case _ => null
         }
@@ -103,7 +103,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
       session: Session,
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = Option {
     def nextRight = ftoks.nextNonComment(ftoks.next(ft)).right
     ft.right match {

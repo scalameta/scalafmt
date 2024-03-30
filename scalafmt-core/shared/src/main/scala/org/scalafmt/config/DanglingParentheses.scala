@@ -7,14 +7,14 @@ case class DanglingParentheses(
     defnSite: Boolean,
     ctrlSite: Boolean = true,
     private[config] val tupleSite: Option[Boolean] = None,
-    private val exclude: Option[List[DanglingParentheses.Exclude]] = None
+    private val exclude: Option[List[DanglingParentheses.Exclude]] = None,
 ) {
   @inline
   def tupleOrCallSite(isTuple: Boolean) =
     if (isTuple) tupleSite.getOrElse(callSite) else callSite
 
   def getExclude(
-      isVerticalMultiline: Boolean
+      isVerticalMultiline: Boolean,
   ): Seq[DanglingParentheses.Exclude] = exclude.getOrElse {
     if (!isVerticalMultiline) Nil
     else DanglingParentheses.Exclude.defaultVerticalMultiline

@@ -44,7 +44,7 @@ class GitOpsTest extends FunSuite {
 
   private def touch(
       name: String = Random.alphanumeric.take(10).mkString,
-      dir: Option[AbsoluteFile] = None
+      dir: Option[AbsoluteFile] = None,
   ): AbsoluteFile = {
     val d = dir.orElse(ops.rootDir).get.jfile
     val f = File.createTempFile(name, ".ext", d)
@@ -55,7 +55,7 @@ class GitOpsTest extends FunSuite {
   def symbolicLinkTo(
       file: AbsoluteFile,
       name: String = Random.alphanumeric.take(10).mkString,
-      dir: Option[AbsoluteFile] = None
+      dir: Option[AbsoluteFile] = None,
   ): AbsoluteFile = {
     val linkFile = File
       .createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
@@ -85,7 +85,7 @@ class GitOpsTest extends FunSuite {
     ops.lsTree(ops.workingDirectory).filterNot(_ == initFile)
 
   def mkDir(
-      dirName: String = Random.alphanumeric.take(10).mkString
+      dirName: String = Random.alphanumeric.take(10).mkString,
   ): AbsoluteFile = {
     val file = ops.rootDir.getOrElse(ops.workingDirectory) / dirName
     file.mkdir()
@@ -149,7 +149,7 @@ class GitOpsTest extends FunSuite {
   }
 
   def diff(br: String, cwd: AbsoluteFile*)(implicit
-      ops: GitOpsImpl
+      ops: GitOpsImpl,
   ): Seq[AbsoluteFile] = ops.diff(br, cwd: _*)
 
   def diff(cwd: AbsoluteFile*)(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
@@ -332,7 +332,7 @@ private object GitOpsTest {
   // Git commands
   def git(cmd: String, args: String*)(implicit
       ops: GitOpsImpl,
-      loc: Location
+      loc: Location,
   ): Seq[String] = Try(ops.exec("git" +: cmd +: args)) match {
     case Failure(f) => Assertions.fail(s"Failed git command. Got: $f")
     case Success(s) => s

@@ -8,6 +8,6 @@ trait FormatBenchmark {
   def formatRewrite(code: String): String = Scalafmt.formatCode(
     code,
     baseStyle = ScalafmtConfig.default
-      .copy(rewrite = RewriteSettings(rules = Seq(SortImports, RedundantBraces)))
+      .copy(rewrite = RewriteSettings(rules = Seq(SortImports, RedundantBraces))),
   ).get
 }

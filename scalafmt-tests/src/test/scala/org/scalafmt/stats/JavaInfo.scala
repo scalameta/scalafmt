@@ -7,6 +7,6 @@ object JavaInfo {
   def apply(): JavaInfo = JavaInfo(
     sys.props("java.vm.name"),
     sys.props("java.vm.vendor"),
-    sys.props("java.vm.version")
+    sys.props("java.vm.version"),
   )
 }

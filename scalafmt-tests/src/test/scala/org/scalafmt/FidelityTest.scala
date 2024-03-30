@@ -1,6 +1,6 @@
 package org.scalafmt
 
-import scala.meta.dialects.Scala211
+import scala.meta.dialects.Scala213
 
 import java.io.File
 import java.nio.file.Path
@@ -27,7 +27,7 @@ class FidelityTest extends FunSuite with FormatAssertions {
       "GitCommit.scala",
       "/target/",
       "/resources/",
-      "/gh-pages/"
+      "/gh-pages/",
     ).map(_.replace("/", File.separator))
     FileOps.listFiles(".").filter { x =>
       val filename = x.toString
@@ -40,11 +40,11 @@ class FidelityTest extends FunSuite with FormatAssertions {
       val formatted = Scalafmt.formatCode(
         example.code,
         ScalafmtConfig.default,
-        filename = example.filename
+        filename = example.filename,
       )
       assertFormatPreservesAst(example.filename, example.code, formatted.get)(
         scala.meta.parsers.Parse.parseSource,
-        Scala211
+        Scala213,
       )
     }
   }

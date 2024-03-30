@@ -27,7 +27,7 @@ case class Docstrings(
     private[config] val wrapMaxColumn: Option[Int] = None,
     forceBlankLineBefore: Option[Boolean] = None,
     blankFirstLine: Docstrings.BlankFirstLine = Docstrings.BlankFirstLine.no,
-    style: Docstrings.Style = Docstrings.SpaceAsterisk
+    style: Docstrings.Style = Docstrings.SpaceAsterisk,
 ) {
   import Docstrings._
 
@@ -44,7 +44,7 @@ case class Docstrings(
     import ValidationOps._
     addIf(
       blankFirstLine.eq(BlankFirstLine.keep) && style.eq(Docstrings.Asterisk),
-      s"docstrings"
+      s"docstrings",
     )
   }
 
@@ -62,7 +62,7 @@ object Docstrings {
   }
   case object Preserve extends Style {
     override def skipFirstLine: Boolean = throw new NotImplementedError(
-      "skipFirstLine called for docstrings.style=preserve, it's a bug in scalafmt"
+      "skipFirstLine called for docstrings.style=preserve, it's a bug in scalafmt",
     )
   }
   case object Asterisk extends Style {

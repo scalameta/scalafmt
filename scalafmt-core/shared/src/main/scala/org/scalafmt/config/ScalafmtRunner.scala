@@ -25,7 +25,7 @@ case class ScalafmtRunner(
     private[config] val dialect: NamedDialect = NamedDialect.default,
     private val dialectOverride: Conf.Obj = Conf.Obj.empty,
     ignoreWarnings: Boolean = false,
-    fatalWarnings: Boolean = false
+    fatalWarnings: Boolean = false,
 ) {
   @inline
   private[scalafmt] def getDialect = dialect.dialect
@@ -80,7 +80,7 @@ object ScalafmtRunner {
     debug = false,
     parser = ScalafmtParser.Source,
     optimizer = ScalafmtOptimizer.default,
-    maxStateVisits = 1000000
+    maxStateVisits = 1000000,
   )
 
   val sbt = default.withDialect(meta.dialects.Sbt)

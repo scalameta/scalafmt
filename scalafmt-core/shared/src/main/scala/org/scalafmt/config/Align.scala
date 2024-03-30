@@ -92,8 +92,8 @@ case class Align(
       "Defn.Trait" -> "class/object/trait/enum",
       "Defn.Enum" -> "class/object/trait/enum",
       "Enumerator.Generator" -> "for",
-      "Enumerator.Val" -> "for"
-    )
+      "Enumerator.Val" -> "for",
+    ),
 ) {
   def getOpenParenTupleSite = openParenTupleSite.getOrElse(openParenCallSite)
 
@@ -115,7 +115,7 @@ object Align {
     openParenDefnSite = false,
     tokens = Seq.empty,
     tokenCategory = Map.empty,
-    treeCategory = Map.empty
+    treeCategory = Map.empty,
   )
   // stable set of alignment operators, the previous defaultWithAlign.
   val some = Align()
@@ -132,7 +132,7 @@ object Align {
     allowOverflow = true,
     multiline = true,
     arrowEnumeratorGenerator = true,
-    tokenCategory = Map("Equals" -> "Assign", "LeftArrow" -> "Assign")
+    tokenCategory = Map("Equals" -> "Assign", "LeftArrow" -> "Assign"),
   )
   val allValues = List(default, none, some, most)
 
@@ -149,7 +149,7 @@ object Align {
       // this is really no longer necessary; metaconfig supports "+" key
       case (state, Conf.Obj(List(("add", c)))) =>
         Console.err.println(
-          """'align.tokens.add' is deprecated; use align.tokens."+" instead."""
+          """'align.tokens.add' is deprecated; use align.tokens."+" instead.""",
         )
         base.read(None, c).map(x => state.fold(x)(_ ++ x))
       case (state, c) => preset.lift(c)

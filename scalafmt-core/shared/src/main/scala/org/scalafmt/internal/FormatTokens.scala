@@ -32,8 +32,8 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     val idx = leftTok2tok.getOrElse(
       FormatTokens.thash(tok),
       throw new NoSuchElementException(
-        s"Missing token index [${tok.start}:${tok.end}]: `$tok`"
-      )
+        s"Missing token index [${tok.start}:${tok.end}]: `$tok`",
+      ),
     )
     if (idx >= arr.length) arr.last
     else {
@@ -80,8 +80,8 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   def matching(token: Token): Token = matchingParentheses.getOrElse(
     FormatTokens.thash(token),
     throw new NoSuchElementException(
-      s"Missing matching token index [${token.start}:${token.end}]: `$token`"
-    )
+      s"Missing matching token index [${token.start}:${token.end}]: `$token`",
+    ),
   )
   @inline
   def matchingOpt(token: Token): Option[Token] = matchingParentheses
@@ -97,7 +97,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
 
   def getDelimsIfEnclosed(
       tokens: Tokens,
-      tree: Tree
+      tree: Tree,
   ): Option[(FormatToken, FormatToken)] = getHeadOpt(tokens, tree)
     .flatMap { head =>
       matchingOpt(head.left).flatMap { other =>
@@ -131,7 +131,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     .isDefined
 
   def getClosingIfInParens(
-      last: FormatToken
+      last: FormatToken,
   )(head: FormatToken): Option[FormatToken] =
     if (areMatchingParens(last.left)(head.left)) Some(prev(last))
     else {
@@ -154,7 +154,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
 
   @tailrec
   final def findTokenWith[A](ft: FormatToken, iter: FormatToken => FormatToken)(
-      f: FormatToken => Option[A]
+      f: FormatToken => Option[A],
   ): Either[FormatToken, A] = f(ft) match {
     case Some(a) => Right(a)
     case _ =>
@@ -163,7 +163,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   }
 
   final def findToken(ft: FormatToken, iter: FormatToken => FormatToken)(
-      f: FormatToken => Boolean
+      f: FormatToken => Boolean,
   ): FormatToken = findTokenWith(ft, iter)(Some(_).filter(f)).merge
 
   final def nextNonCommentSameLine(curr: FormatToken): FormatToken =
@@ -309,7 +309,7 @@ object FormatTokens {
     * possible.
     */
   def apply(tokens: Tokens, owner: Token => Tree)(implicit
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): (FormatTokens, StyleMap) = {
     var left: Token = null
     var lmeta: FormatToken.TokenMeta = null

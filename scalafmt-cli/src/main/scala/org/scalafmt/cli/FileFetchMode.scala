@@ -15,7 +15,7 @@ object FileFetchMode {
     "diff" -> DiffFiles("master"),
     "changed" -> ChangedFiles,
     "any" -> RecursiveSearch,
-    "anygit" -> GitFiles
+    "anygit" -> GitFiles,
   )
   private val availableModesMap: Map[String, FileFetchMode] =
     availableModes.toMap
