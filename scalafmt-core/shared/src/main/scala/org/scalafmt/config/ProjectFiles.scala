@@ -166,7 +166,7 @@ object ProjectFiles {
       private[config] val s213 = nd(NamedDialect.scala213)
       private[config] val s3 = nd(NamedDialect.scala3)
 
-      protected[config] override def getDialectByLang(lang: String)(implicit
+      override protected[config] def getDialectByLang(lang: String)(implicit
           dialect: Dialect
       ): Option[NamedDialect] = lang match {
         case "scala-2.10" if is211 => s210
