@@ -157,7 +157,11 @@ class DynamicSuite extends FunSuite {
       out.reset()
       val obtained = dynamic.format(config, path, code)
       assertNoDiff(relevant, expected)
-      assertNoDiff(obtained, obtained, "Formatter did not error")
+      assertNotEquals(
+        obtained.replaceAll("\\s*", " "),
+        expected.replaceAll("\\s*", " "),
+        s"Formatter shouldn't have produced plausible format ($path)"
+      )
     }
   }
 
