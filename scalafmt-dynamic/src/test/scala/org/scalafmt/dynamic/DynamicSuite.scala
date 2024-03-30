@@ -228,9 +228,10 @@ class DynamicSuite extends FunSuite {
       f.setVersion(version, dialect)
       val dialectError = getDialectError(version, dialect)
       val code = s"""object object A { val version = "$version" }"""
+      val bq = getBackQuote(version)
       f.assertError(
         code,
-        s"""|$name.scala:1:8: error:$dialectError identifier expected but object found
+        s"""|$name.scala:1:8: error:$dialectError ${bq}identifier$bq expected but ${bq}object$bq found
           |$code
           |       ^^^^^^""".stripMargin
       )
@@ -361,11 +362,13 @@ class DynamicSuite extends FunSuite {
   }
 
   def checkSbt(version: String, dialect: String): Unit = {
-    val dialectError = getDialectError(version, dialect)
+    val scalaVersion = dialect.toLowerCase.stripPrefix("scala")
     List("build.sbt", "build.sc").foreach { filename =>
       val name = s"sbt-$version-$dialect-$filename"
       check(name) { f =>
         f.setVersion(version, dialect, """project.includeFilters = [ ".*" ]""")
+        val isSbt = sbtTreatedDifferently(version) && filename.endsWith(".sbt")
+        val dialectError = getDialectError(version, dialect, isSbt)
         val path = Paths.get(filename)
         // test sbt allows top-level terms
         f.assertFormat(
@@ -374,7 +377,7 @@ class DynamicSuite extends FunSuite {
           path
         )
         // test scala doesn't allow top-level terms (not passing path here)
-        if (version == latest)
+        if (version >= "3.0.0" || scalaVersion >= "213")
           f.assertFormat(
             "lazy   val   x =  project",
             "lazy val x = project\n"
@@ -388,21 +391,24 @@ class DynamicSuite extends FunSuite {
           )
         // check wrapped literals, supported in sbt using scala 2.13+
         val wrappedLiteral = "object a { val  x:  Option[0]  =  Some(0) }"
-        def assertIsWrappedLiteralFailure(): Unit =
+        def assertIsWrappedLiteralFailure(): Unit = {
+          val bq = getBackQuote(version)
           f.assertError(
             wrappedLiteral,
-            s"""$filename:1:28: error:$dialectError identifier expected but integer constant found
+            s"""$filename:1:28: error:$dialectError ${bq}identifier$bq expected but ${bq}integer constant$bq found
               |$wrappedLiteral
               |                           ^""".stripMargin,
             path
           )
+        }
+
         def assertIsWrappedLiteralSuccess(): Unit =
           f.assertFormat(
             wrappedLiteral,
             wrappedLiteral.replaceAll("  +", " ").trim + "\n",
             path
           )
-        if (version > "2.0")
+        if (!isSbt && scalaVersion >= "213" && version > "2.0")
           assertIsWrappedLiteralSuccess()
         else
           assertIsWrappedLiteralFailure()
@@ -410,6 +416,9 @@ class DynamicSuite extends FunSuite {
     }
   }
   checkSbt(latest, "scala213")
+  checkSbt("3.8.0", "scala213")
+  checkSbt(latest, "scala211")
+  checkSbt("3.8.0", "scala211")
   checkSbt("1.2.0", "Scala211")
 
   check("no-config") { f =>
@@ -625,10 +634,10 @@ class DynamicSuite extends FunSuite {
 private object DynamicSuite {
 
   def nightly = BuildInfo.nightly
-  def latest = "3.8.0" // BuildInfo.previousStable
+  def latest = BuildInfo.previousStable
 
-  def getDialectError(version: String, dialect: String) =
-    if (version >= "3.1.0") s" [dialect $dialect]" else ""
+  def getDialectError(version: String, dialect: String, sbt: Boolean = false) =
+    if (version < "3.1.0") "" else s" [dialect ${if (sbt) "sbt" else dialect}]"
 
   // in tests, let's not try to download current version
   def getModuleLoader = new ScalafmtModuleLoader {
@@ -643,5 +652,11 @@ private object DynamicSuite {
       else downloader.load(cfg, ver, props)
     override def close(): Unit = downloader.close()
   }
+
+  def getBackQuote(version: String): String =
+    if (version > "3.8.0") "`" else ""
+
+  def sbtTreatedDifferently(version: String): Boolean =
+    version > "3.8.0"
 
 }
