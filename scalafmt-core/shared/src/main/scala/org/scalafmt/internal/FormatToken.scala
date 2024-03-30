@@ -87,7 +87,7 @@ object FormatToken {
       idx: Int,
       formatOff: Boolean,
       left: TokenMeta,
-      right: TokenMeta
+      right: TokenMeta,
   ) {
     @inline
     def leftOwner: Tree = left.owner

@@ -45,7 +45,7 @@ case class Split(
     neededTags: Set[SplitTag] = Set.empty,
     activeTags: Set[SplitTag] = Set.empty,
     policy: Policy = NoPolicy,
-    optimalAt: Option[OptimalToken] = None
+    optimalAt: Option[OptimalToken] = None,
 )(implicit val fileLine: FileLine) {
   import PolicyOps._
 
@@ -97,7 +97,7 @@ case class Split(
     if (isIgnored) this
     else copy(
       activeTags = activeTags + splitTag,
-      neededTags = neededTags + splitTag
+      neededTags = neededTags + splitTag,
     )
 
   def preActivateFor(splitTag: Option[SplitTag]): Split =
@@ -111,13 +111,13 @@ case class Split(
 
   def withOptimalTokenOpt(
       token: => Option[Token],
-      killOnFail: Boolean = false
+      killOnFail: Boolean = false,
   ): Split = withOptimalAt(token.map(OptimalToken(_, killOnFail)))
 
   def withOptimalToken(
       token: => Token,
       killOnFail: Boolean = false,
-      ignore: Boolean = false
+      ignore: Boolean = false,
   ): Split =
     if (ignore) this else withOptimalAt(Some(OptimalToken(token, killOnFail)))
 
@@ -139,7 +139,7 @@ case class Split(
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false,
-      rank: Int = 0
+      rank: Int = 0,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
     withSingleLineAndOptimal(
       expire,
@@ -147,7 +147,7 @@ case class Split(
       exclude,
       noSyntaxNL,
       killOnFail,
-      rank
+      rank,
     )
 
   def withSingleLineOpt(
@@ -155,7 +155,7 @@ case class Split(
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false,
-      rank: Int = 0
+      rank: Int = 0,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split = expire
     .fold(this)(withSingleLine(_, exclude, noSyntaxNL, killOnFail, rank))
 
@@ -165,7 +165,7 @@ case class Split(
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false,
-      rank: Int = 0
+      rank: Int = 0,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
     withOptimalToken(optimal, killOnFail)
       .withSingleLineNoOptimal(expire, exclude, noSyntaxNL, rank)
@@ -174,9 +174,9 @@ case class Split(
       expire: Token,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
-      rank: Int = 0
+      rank: Int = 0,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split = withPolicy(
-    SingleLineBlock(expire, exclude, noSyntaxNL = noSyntaxNL, rank = rank)
+    SingleLineBlock(expire, exclude, noSyntaxNL = noSyntaxNL, rank = rank),
   )
 
   def withPolicyOpt(newPolicy: => Option[Policy]): Split =
@@ -215,7 +215,7 @@ case class Split(
   def withIndentOpt(
       length: => Length,
       expire: Option[Token],
-      when: ExpiresOn
+      when: ExpiresOn,
   ): Split = withMod(modExt.withIndentOpt(length, expire, when))
 
   def withIndent(indent: => Indent, ignore: Boolean = false): Split =
@@ -269,7 +269,7 @@ object Split {
   def ignored(implicit fileLine: FileLine) = Split(ModExt(NoSplit), 0).ignored
 
   def apply(ignore: Boolean, cost: Int)(modExt: ModExt)(implicit
-      fileLine: FileLine
+      fileLine: FileLine,
   ): Split = if (ignore) ignored else Split(modExt, cost)
 
 }

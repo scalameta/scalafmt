@@ -18,7 +18,7 @@ object FormatEvent {
   case class CompleteFormat(
       totalExplored: Int,
       finalState: State,
-      visits: IndexedSeq[Int]
+      visits: IndexedSeq[Int],
   ) extends FormatEvent
   case class Written(formatLocations: FormatWriter#FormatLocations)
       extends FormatEvent

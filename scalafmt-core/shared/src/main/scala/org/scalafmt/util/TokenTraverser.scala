@@ -63,7 +63,7 @@ class TokenTraverser(tokens: Tokens, input: Input) {
     *   Some(token) if the predicate returned Some(true), else None.
     */
   def findAfter(
-      token: Token
+      token: Token,
   )(predicate: Token => Option[Boolean]): Option[Token] = tok2idx.get(token)
     .flatMap(x => findAtOrAfter(x + 1)(predicate))
 
@@ -73,13 +73,13 @@ class TokenTraverser(tokens: Tokens, input: Input) {
     *   Some(token) if the predicate returned Some(true), else None.
     */
   def findBefore(
-      token: Token
+      token: Token,
   )(predicate: Token => Option[Boolean]): Option[Token] = tok2idx.get(token)
     .flatMap(x => findAtOrBefore(x - 1)(predicate))
 
   @tailrec
   final def findAtOrAfter(
-      off: Int
+      off: Int,
   )(pred: Token => Option[Boolean]): Option[Token] =
     if (off >= tokens.length) None
     else {
@@ -93,7 +93,7 @@ class TokenTraverser(tokens: Tokens, input: Input) {
 
   @tailrec
   final def findAtOrBefore(
-      off: Int
+      off: Int,
   )(pred: Token => Option[Boolean]): Option[Token] =
     if (off < 0) None
     else {
@@ -106,7 +106,7 @@ class TokenTraverser(tokens: Tokens, input: Input) {
     }
 
   final def filter(start: Token, end: Token)(
-      predicate: Token => Boolean
+      predicate: Token => Boolean,
   ): Seq[Token] =
     if (start == end || nextToken(start) == start) Nil
     else {

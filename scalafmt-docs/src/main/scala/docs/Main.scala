@@ -11,11 +11,11 @@ object Main {
       .withOut(Paths.get("website", "target", "docs")).withSiteVariables(Map(
         "VERSION" -> Versions.version,
         "STABLE_VERSION" -> Versions.stable,
-        "SCALAMETA_VERSION" -> Versions.scalameta
+        "SCALAMETA_VERSION" -> Versions.scalameta,
       )).withStringModifiers(List(
         new FileModifier,
         new ScalafmtModifier,
-        new DefaultsModifier
+        new DefaultsModifier,
       )).withArgs(args.toList)
     val exit = mdoc.Main.process(settings)
 

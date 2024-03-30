@@ -45,7 +45,7 @@ object LiteralOps {
       str: String,
       suffixUpper: Char,
       suffixLower: Char,
-      suffixCase: Case
+      suffixCase: Case,
   )(implicit style: ScalafmtConfig): String =
     if (str.last == suffixUpper || str.last == suffixLower) style.literals
       .scientific.process(str.dropRight(1)) +
@@ -53,7 +53,7 @@ object LiteralOps {
     else style.literals.scientific.process(str)
 
   private def prettyPrintHex(
-      str: String
+      str: String,
   )(implicit style: ScalafmtConfig): String =
     if (str.startsWith("0x") || str.startsWith("0X")) style.literals.hexPrefix
       .process(str.take(2)) + style.literals.hexDigits.process(str.drop(2))

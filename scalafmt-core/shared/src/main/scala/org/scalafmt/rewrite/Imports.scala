@@ -22,7 +22,7 @@ object Imports extends RewriteFactory {
       sort: Sort = Sort.none,
       expand: Boolean = false,
       contiguousGroups: ContiguousGroups = ContiguousGroups.only,
-      private val groups: Seq[Seq[String]] = Nil
+      private val groups: Seq[Seq[String]] = Nil,
   ) {
     private lazy val regex = groups.zipWithIndex
       .flatMap { case (patterns, index) => patterns.map((_, index)) }
@@ -87,7 +87,7 @@ object Imports extends RewriteFactory {
           else obj.imports.sort
         val validated = obj.copy(
           rules = Imports +: nonImportRules,
-          imports = obj.imports.copy(expand = expand, sort = sort)
+          imports = obj.imports.copy(expand = expand, sort = sort),
         )
         Configured.Ok(validated)
       }
@@ -99,18 +99,18 @@ object Imports extends RewriteFactory {
       raw: String,
       cnt: Int,
       commentsBefore: Seq[Token] = Seq.empty,
-      commentAfter: Option[Token] = None
+      commentAfter: Option[Token] = None,
   )
 
   private class Grouping(
       buffer: ListBuffer[GroupingEntry] = new ListBuffer[GroupingEntry],
-      stats: HashSet[String] = new HashSet[String]
+      stats: HashSet[String] = new HashSet[String],
   ) {
     def add(
         kw: String,
         ref: String,
         selectors: Selectors,
-        owner: Importer
+        owner: Importer,
     ): Unit = {
       val stat = s"$kw $ref${selectors.pretty}"
       if (stats.add(stat)) buffer += GroupingEntry(stat, ref, selectors, owner)
@@ -127,7 +127,7 @@ object Imports extends RewriteFactory {
       stat: String,
       ref: String,
       selectors: Selectors,
-      owner: Importer
+      owner: Importer,
   ) {
     lazy val labels = ref.split('.') :+ selectors.raw
   }
@@ -295,7 +295,7 @@ object Imports extends RewriteFactory {
 
     protected final def getSelector(
         selector: Importee,
-        needRaw: Boolean
+        needRaw: Boolean,
     ): Selectors = {
       val selectorString = selector.toString()
       val (commentsBefore, commentAfter) = getCommentsAround(selector)
@@ -314,20 +314,20 @@ object Imports extends RewriteFactory {
         Selectors(
           pretty,
           if (needRaw && hadComments) s"{$selector}" else pretty,
-          1
+          1,
         )
       } else Selectors(
         selectorString,
         selectorString,
         1,
         commentsBefore,
-        commentAfter
+        commentAfter,
       )
     }
 
     protected final def getSelectors(
         selectors: Seq[Importee],
-        needRaw: Boolean
+        needRaw: Boolean,
     ): Selectors = {
       val selectorCount = selectors.length
       if (selectorCount == 1) getSelector(selectors.head, needRaw)
@@ -357,7 +357,7 @@ object Imports extends RewriteFactory {
           pretty,
           if (hadComments && needRaw) tuples.map(_._2).mkString("{", ",", "}")
           else pretty,
-          selectorCount
+          selectorCount,
         )
       }
     }
@@ -373,7 +373,7 @@ object Imports extends RewriteFactory {
     }
 
     protected final def getCommentsAround(
-        tree: Tree
+        tree: Tree,
     ): (Seq[Token], Option[Token]) = {
       val tokens = tree.tokens
       val beg = getCommentsBefore(tokens.head)
@@ -409,7 +409,7 @@ object Imports extends RewriteFactory {
         group: Grouping,
         kw: String,
         ref: String,
-        importer: Importer
+        importer: Importer,
     ): Unit
 
     protected val groups = Array.fill(settings.numGroups + 1)(new Grouping)
@@ -419,7 +419,7 @@ object Imports extends RewriteFactory {
         kw: String,
         ref: String,
         selector: Importee,
-        importer: Importer
+        importer: Importer,
     ): Unit = group.add(kw, ref, getSelector(selector, true), importer)
 
     protected final def addToGroup(
@@ -427,7 +427,7 @@ object Imports extends RewriteFactory {
         kw: String,
         ref: String,
         selectors: Seq[Importee],
-        importer: Importer
+        importer: Importer,
     ): Unit = if (selectors.nonEmpty) group
       .add(kw, ref, getSelectors(selectors, true), importer)
 
@@ -503,7 +503,7 @@ object Imports extends RewriteFactory {
     }
 
     override protected def processImports(
-        stats: Seq[Seq[ImportExportStat]]
+        stats: Seq[Seq[ImportExportStat]],
     ): Unit =
       if (settings.noGroups) processEachLine(stats)
       else if (settings.contiguousGroups eq ContiguousGroups.only)
@@ -515,7 +515,7 @@ object Imports extends RewriteFactory {
       val lastTok = x.last.tokens.last
       (
         getCommentsBefore(headTok).headOption.getOrElse(headTok),
-        getCommentAfter(lastTok).getOrElse(lastTok)
+        getCommentAfter(lastTok).getOrElse(lastTok),
       )
     }
 
@@ -541,7 +541,7 @@ object Imports extends RewriteFactory {
 
     private def processTokenRanges(
         importString: String,
-        tokenRanges: (Token, Token)*
+        tokenRanges: (Token, Token)*,
     ): Unit = {
       implicit val patchBuilder = Seq.newBuilder[TokenPatch]
 
@@ -580,7 +580,7 @@ object Imports extends RewriteFactory {
         group: Grouping,
         kw: String,
         ref: String,
-        importer: Importer
+        importer: Importer,
     ): Unit = {
       // if there's a wildcard, unimports and renames must come with it, cannot be expanded
       val importees = importer.importees
@@ -612,7 +612,7 @@ object Imports extends RewriteFactory {
         group: Grouping,
         kw: String,
         ref: String,
-        importer: Importer
+        importer: Importer,
     ): Unit = addToGroup(group, kw, ref, importer.importees, importer)
   }
 
@@ -627,7 +627,7 @@ object Imports extends RewriteFactory {
     */
   private class ExpandNone(implicit ctx: RewriteCtx) extends Base {
     override protected def processImports(
-        stats: Seq[Seq[ImportExportStat]]
+        stats: Seq[Seq[ImportExportStat]],
     ): Unit = stats.flatten.foreach { t =>
       val patchBuilder = Seq.newBuilder[TokenPatch]
       t.importers.foreach { importer =>

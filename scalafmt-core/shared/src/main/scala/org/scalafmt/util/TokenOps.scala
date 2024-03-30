@@ -45,7 +45,7 @@ object TokenOps {
     text.startsWith("/**") // excludes /**/
 
   def blankLineBeforeDocstring(ft: FormatToken)(implicit
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Boolean = style.forceNewlineBeforeDocstring &&
     isDocstring(ft.meta.right.text) &&
     TreeOps.findTreeOrParent(ft.meta.leftOwner) {
@@ -101,12 +101,12 @@ object TokenOps {
 
   val formatOnCode = Set(
     "@formatter:on", // IntelliJ
-    "format: on" // scalariform
+    "format: on", // scalariform
   )
 
   val formatOffCode = Set(
     "@formatter:off", // IntelliJ
-    "format: off" // scalariform
+    "format: off", // scalariform
   )
 
   @inline

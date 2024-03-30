@@ -36,7 +36,7 @@ class StandardProjectLayoutTest extends munit.FunSuite {
     "/prj/src/main/scalaX/src/src/x/src/src/src" -> "scalaX",
     "/prj/src/main/scalaX/src/src/src/x/src/src" -> "scalaX",
     "/prj/src/main/scalaX/src/src/src/src/x/src" -> "scalaX",
-    "/prj/src/main/scalaX/src/src/src/src/src/x" -> "scalaX"
+    "/prj/src/main/scalaX/src/src/src/src/src/x" -> "scalaX",
   ).foreach { case (path, expectedLang) =>
     test(s"StandardConvention.getLang($path) == $expectedLang") {
       val actualLang = getLang(AbsoluteFile(path))
@@ -58,7 +58,7 @@ class StandardProjectLayoutTest extends munit.FunSuite {
     "/prj/src/main/scalaX/src/test/scalaY/foo" -> Some(true),
     "/prj/src/test/scalaX/src/main/scalaY/foo" -> Some(false),
     "/prj/src/none/scalaX/src/main/scalaY/foo" -> Some(false),
-    "/prj/src/none/scalaX/src/test/scalaY/foo" -> Some(true)
+    "/prj/src/none/scalaX/src/test/scalaY/foo" -> Some(true),
   ).foreach { case (path, expectedTest) =>
     test(s"StandardConvention.isTest($path) == $expectedTest") {
       val actualTest = getInfo(AbsoluteFile(path)).map(_.isTest)
@@ -83,7 +83,7 @@ class StandardProjectLayoutTest extends munit.FunSuite {
     (s3, "scala-2", s213),
     (s213, "scala-3", s3),
     (s3, "scala-3", None),
-    (nd(dialects.Scala3Future), "scala-3", None)
+    (nd(dialects.Scala3Future), "scala-3", None),
   ).foreach { case (curDialectOpt, lang, expDialectOpt) =>
     val curName = curDialectOpt.map(_.name).orNull
     val expName = expDialectOpt.map(_.name).orNull

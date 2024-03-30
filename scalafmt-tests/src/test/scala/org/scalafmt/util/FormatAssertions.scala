@@ -19,16 +19,16 @@ trait FormatAssertions {
       filename: String,
       original: String,
       obtained: String,
-      runner: ScalafmtRunner
+      runner: ScalafmtRunner,
   ): Unit = assertFormatPreservesAst(filename, original, obtained)(
     runner.getParser,
-    runner.getDialectForParser
+    runner.getDialectForParser,
   )
 
   def assertFormatPreservesAst[T <: Tree](
       filename: String,
       original: String,
-      obtained: String
+      obtained: String,
   )(implicit ev: Parse[T], dialect: Dialect): Unit = {
     import scala.meta._
     def toInput(code: String) = Scalafmt
@@ -49,7 +49,7 @@ trait FormatAssertions {
           case Parsed.Error(pos, _, details: ParseException) =>
             throw FormatterOutputDoesNotParse(
               parseException2Message(details, obtained),
-              pos.startLine
+              pos.startLine,
             )
           case _ =>
         }
@@ -62,7 +62,7 @@ trait FormatAssertions {
     val input = new ByteArrayInputStream(ast.getBytes("UTF-8"))
     val command = List(
       "clang-format",
-      "-style={ContinuationIndentWidth: 2, ColumnLimit: 120}"
+      "-style={ContinuationIndentWidth: 2, ColumnLimit: 120}",
     )
     (command #< input).!!.trim
   }
@@ -87,7 +87,7 @@ trait FormatAssertions {
       (" " * e.pos.startColumn) + "^", // arrow
       linesAfterCaret.mkString("\n"),
       "====== full result: ======",
-      obtained.stripTrailing()
+      obtained.stripTrailing(),
     ).filter(_.nonEmpty).mkString("", "\n", "\n")
   }
 }

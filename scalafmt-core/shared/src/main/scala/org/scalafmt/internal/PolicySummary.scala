@@ -13,7 +13,7 @@ class PolicySummary(val policies: Seq[Policy]) extends AnyVal {
   def combine(other: Policy, ft: FormatToken): PolicySummary =
     if (ft.right.is[Token.EOF]) PolicySummary.empty
     else new PolicySummary(
-      (other +: policies).flatMap(_.unexpiredOpt(ft)).sortBy(_.rank)
+      (other +: policies).flatMap(_.unexpiredOpt(ft)).sortBy(_.rank),
     )
 
   def execute(decision: Decision, debug: Boolean = false): Decision = policies

@@ -54,14 +54,14 @@ object Scalafmt {
       code: String,
       style: ScalafmtConfig,
       range: Set[Range],
-      filename: String
+      filename: String,
   ): Formatted = formatCode(code, style, range, filename).formatted
 
   private[scalafmt] def formatCode(
       code: String,
       baseStyle: ScalafmtConfig = ScalafmtConfig.uncheckedDefault,
       range: Set[Range] = Set.empty,
-      filename: String = defaultFilename
+      filename: String = defaultFilename,
   ): Formatted.Result = {
     def getStyleByFile(style: ScalafmtConfig) = {
       val isSbt = FileOps.isSbt(filename)
@@ -76,7 +76,7 @@ object Scalafmt {
       else baseStyle.getConfigFor(filename).map(getStyleByFile)
     styleTry.fold(
       x => Formatted.Result(Formatted.Failure(x), baseStyle),
-      formatCodeWithStyle(code, _, range, filename)
+      formatCodeWithStyle(code, _, range, filename),
     )
   }
 
@@ -97,11 +97,11 @@ object Scalafmt {
       code: String,
       style: ScalafmtConfig,
       range: Set[Range],
-      filename: String
+      filename: String,
   ): Formatted.Result = {
     val isWin = code.contains(WinLineEnding)
     val (prefix, unixCode) = splitCodePrefix(
-      if (isWin) code.replaceAll(WinLineEnding, UnixLineEnding) else code
+      if (isWin) code.replaceAll(WinLineEnding, UnixLineEnding) else code,
     )
     doFormat(unixCode, style, filename, range) match {
       case Failure(e) => Formatted.Result(Formatted.Failure(e), style)
@@ -118,7 +118,7 @@ object Scalafmt {
       code: String,
       style: ScalafmtConfig,
       file: String,
-      range: Set[Range]
+      range: Set[Range],
   ): Try[String] =
     if (FileOps.isMarkdown(file)) MarkdownParser
       .transformMdoc(code)(doFormatOne(_, style, file, range))
@@ -133,7 +133,7 @@ object Scalafmt {
       code: String,
       style: ScalafmtConfig,
       file: String,
-      range: Set[Range]
+      range: Set[Range],
   ): Try[String] =
     if (code.matches("\\s*")) Success("")
     else {
@@ -160,7 +160,7 @@ object Scalafmt {
               Failure(PreciseIncomplete(pos, formattedString))
             }
           }
-        }
+        },
       )
     }
 
@@ -168,7 +168,7 @@ object Scalafmt {
   def format(
       code: String,
       style: ScalafmtConfig = ScalafmtConfig.default,
-      range: Set[Range] = Set.empty[Range]
+      range: Set[Range] = Set.empty[Range],
   ): Formatted = formatCode(code, style, range).formatted
 
   // used by ScalafmtReflect.parseConfig

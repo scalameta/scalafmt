@@ -8,7 +8,7 @@ case class Literals(
     double: Case = Case.Lower,
     hexDigits: Case = Case.Lower,
     hexPrefix: Case = Case.Lower,
-    scientific: Case = Case.Lower
+    scientific: Case = Case.Lower,
 )
 
 object Literals {

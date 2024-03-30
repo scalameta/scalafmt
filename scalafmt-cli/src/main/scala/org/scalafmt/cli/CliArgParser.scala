@@ -33,7 +33,7 @@ object CliArgParser {
       override def showUsageOnError: Option[Boolean] = Some(false)
 
       private def printAndExit(
-          includeUsage: Boolean
+          includeUsage: Boolean,
       )(ignore: Unit, c: CliOptions): CliOptions = {
         if (includeUsage) displayToOut(usage) else displayToOut(header)
         sys.exit
@@ -50,12 +50,12 @@ object CliArgParser {
         .text("print version ")
 
       arg[Path]("<file>...").optional().unbounded().action((file, c) =>
-        c.addFile(file)
+        c.addFile(file),
       ).text(
         """|file, or directory (in which all *.scala files are to be formatted);
            |if starts with '@', refers to path listing files to be formatted
            |(with "@-" referring to standard input as a special case)"""
-          .stripMargin
+          .stripMargin,
       )
 
       opt[Seq[Path]]('f', "files").action((files, c) => c.withFiles(files))
@@ -76,7 +76,7 @@ object CliArgParser {
         .text("file or directory, when missing all *.scala files are formatted.")
       opt[Unit]("respect-project-filters")
         .action((_, c) => c.copy(respectProjectFilters = true)).text(
-          "use project filters even when specific files to format are provided"
+          "use project filters even when specific files to format are provided",
         )
       opt[Path]('c', "config").action((file, c) => c.copy(config = Some(file)))
         .text("a file path to .scalafmt.conf.")
@@ -92,26 +92,26 @@ object CliArgParser {
       opt[Unit]("reportError").action((_, c) => c.copy(error = true))
         .text("exit with status 1 if any mis-formatted code found.")
       opt[Unit]("test").action((_, c) =>
-        writeMode(c, WriteMode.Test).copy(error = true)
+        writeMode(c, WriteMode.Test).copy(error = true),
       ).text("test for mis-formatted code only, exits with status 1 on failure.")
       opt[Unit]("check").action((_, c) =>
-        writeMode(c, WriteMode.Test).copy(error = true, check = true)
+        writeMode(c, WriteMode.Test).copy(error = true, check = true),
       ).text("test for mis-formatted code only, exits with status 1 on first failure.")
       opt[FileFetchMode]("mode").action((m, c) => c.copy(mode = Option(m))).text(
         s"""|Sets the files to be formatted fetching mode.
             |Options:
             |${FileFetchMode.help}
-            |""".stripMargin
+            |""".stripMargin,
       )
       opt[Unit]("diff")
         .action((_, c) => c.copy(mode = Option(DiffFiles("master")))).text(
           s"""|Format files listed in `git diff` against master.
-              |Deprecated: use --mode diff instead""".stripMargin
+              |Deprecated: use --mode diff instead""".stripMargin,
         )
       opt[String]("diff-branch")
         .action((branch, c) => c.copy(mode = Option(DiffFiles(branch)))).text(
           s"""|Format files listed in `git diff` against given git ref.
-              |Deprecated: use --mode diff-ref=<ref> instead""".stripMargin
+              |Deprecated: use --mode diff-ref=<ref> instead""".stripMargin,
         )
       opt[Unit]("build-info").action { (_, _) => println(buildInfo); sys.exit }
         .text("prints build information")
@@ -133,7 +133,7 @@ object CliArgParser {
         s"""|Examples:
             |$usageExamples
             |Please file bugs to https://github.com/scalameta/scalafmt/issues
-            |""".stripMargin
+            |""".stripMargin,
       )
 
       checkConfig { c =>

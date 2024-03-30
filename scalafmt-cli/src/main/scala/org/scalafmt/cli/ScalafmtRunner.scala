@@ -10,17 +10,17 @@ import org.scalafmt.sysops.BatchPathFinder
 trait ScalafmtRunner {
   private[cli] def run(
       options: CliOptions,
-      termDisplayMessage: String
+      termDisplayMessage: String,
   ): ExitCode
 
   protected def newTermDisplay(
       options: CliOptions,
       inputMethods: Seq[InputMethod],
-      msg: String
+      msg: String,
   ): TermDisplay = {
     val termDisplay = new TermDisplay(
       new OutputStreamWriter(options.common.info),
-      fallbackMode = options.nonInteractive || TermDisplay.defaultFallbackMode
+      fallbackMode = options.nonInteractive || TermDisplay.defaultFallbackMode,
     )
     if (
       options.writeMode != WriteMode.Stdout && inputMethods.lengthCompare(5) > 0
@@ -34,7 +34,7 @@ trait ScalafmtRunner {
 
   protected def getInputMethods(
       options: CliOptions,
-      filter: Path => Boolean
+      filter: Path => Boolean,
   ): Seq[InputMethod] =
     if (options.stdIn)
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
@@ -51,7 +51,7 @@ trait ScalafmtRunner {
   /** Returns file paths defined via options.{customFiles,customExclude} */
   private[this] def getFilesFromCliOptions(
       options: CliOptions,
-      canFormat: Path => Boolean
+      canFormat: Path => Boolean,
   ): Seq[AbsoluteFile] = {
     val gitOps = options.gitOps
     val finder = options.fileFetchMode match {
@@ -64,7 +64,7 @@ trait ScalafmtRunner {
     }
     val files = finder.findMatchingFiles(
       options.respectProjectFilters,
-      options.customFilesOpt.getOrElse(Seq.empty): _*
+      options.customFilesOpt.getOrElse(Seq.empty): _*,
     )
     val excludeRegexp = options.excludeFilterRegexp.pattern
     files.filter(f => !excludeRegexp.matcher(f.toString()).find())

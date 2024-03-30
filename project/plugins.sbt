@@ -1,7 +1,7 @@
 resolvers ++= Seq(
   Classpaths.sbtPluginReleases,
   Resolver.sonatypeRepo("releases"),
-  Resolver.bintrayIvyRepo("jetbrains", "sbt-plugins")
+  Resolver.bintrayIvyRepo("jetbrains", "sbt-plugins"),
 )
 
 addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.5.2")

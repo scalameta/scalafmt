@@ -19,11 +19,11 @@ class StyleMapTest extends FunSuite {
     val m = new FormatOps(code, ScalafmtConfig.default)
     assertEquals(
       m.styleMap.at(m.tokens.head).maxColumn,
-      ScalafmtConfig.default.maxColumn
+      ScalafmtConfig.default.maxColumn,
     )
     assertEquals(
       m.styleMap.at(m.tokens.find(_.left.syntax == "println").get).maxColumn,
-      100
+      100,
     )
     assertEquals(m.styleMap.at(m.tokens.last).maxColumn, 110)
   }
@@ -49,21 +49,21 @@ class StyleMapTest extends FunSuite {
     val newHeadConfig = newFormatOps.styleMap.at(headToken)
     assertEquals(
       headConfig.alignMap("=").last.owner.get.pattern(),
-      defaultEquals
+      defaultEquals,
     )
     assertEquals(
       newHeadConfig.alignMap("=").last.owner.get.pattern(),
-      overrideEquals
+      overrideEquals,
     )
 
     val newPrintlnConfig = newFormatOps.styleMap.at(printlnToken)
     assertEquals(
       printlnConfig.alignMap("=").last.owner.get.pattern(),
-      overrideEquals
+      overrideEquals,
     )
     assertEquals(
       newPrintlnConfig.alignMap("=").last.owner.get.pattern(),
-      overrideEquals
+      overrideEquals,
     )
   }
 
@@ -77,8 +77,8 @@ class StyleMapTest extends FunSuite {
     val formatOps = new FormatOps(
       code,
       ScalafmtConfig(newlines =
-        Newlines(implicitParamListModifierForce = List(Newlines.before))
-      )
+        Newlines(implicitParamListModifierForce = List(Newlines.before)),
+      ),
     )
     val token1 = formatOps.tokens.head
     val token2 = formatOps.tokens.find(_.left.syntax == "println").get
@@ -94,14 +94,14 @@ class StyleMapTest extends FunSuite {
     assertEquals(style1.newlines.implicitParamListModifierForce, defaultValue)
     assertEquals(
       newStyle1.newlines.implicitParamListModifierForce,
-      overrideValue
+      overrideValue,
     )
 
     val newStyle2 = formatOps2.styleMap.at(token2)
     assertEquals(style2.newlines.implicitParamListModifierForce, overrideValue)
     assertEquals(
       newStyle2.newlines.implicitParamListModifierForce,
-      overrideValue
+      overrideValue,
     )
   }
 

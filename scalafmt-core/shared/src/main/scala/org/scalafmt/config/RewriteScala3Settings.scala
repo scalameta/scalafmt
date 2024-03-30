@@ -11,7 +11,7 @@ case class RewriteScala3Settings(
     countEndMarkerLines: RewriteScala3Settings.EndMarkerLines =
       RewriteScala3Settings.EndMarkerLines.all,
     removeEndMarkerMaxLines: Int = 0,
-    insertEndMarkerMinLines: Int = 0
+    insertEndMarkerMinLines: Int = 0,
 )
 
 object RewriteScala3Settings {
@@ -26,7 +26,7 @@ object RewriteScala3Settings {
     .mapDecoder(generic.deriveDecoderEx(default).noTypos, "rewrite.scala3") {
       case Conf.Bool(true) => new RewriteScala3Settings(
           convertToNewSyntax = true,
-          removeOptionalBraces = RemoveOptionalBraces.yes
+          removeOptionalBraces = RemoveOptionalBraces.yes,
         )
       case Conf.Bool(false) => default
     }
@@ -35,7 +35,7 @@ object RewriteScala3Settings {
       enabled: Boolean = true,
       fewerBracesMinSpan: Int = 2,
       fewerBracesMaxSpan: Int = 0,
-      oldSyntaxToo: Boolean = false
+      oldSyntaxToo: Boolean = false,
   )
 
   object RemoveOptionalBraces {
@@ -80,7 +80,7 @@ object RewriteScala3Settings {
       // https://dotty.epfl.ch/docs/reference/changed-features/vararg-splices.html
       // https://dotty.epfl.ch/docs/reference/changed-features/imports.html
       // https://dotty.epfl.ch/docs/reference/changed-features/wildcards.html
-      deprecated: Boolean = true
+      deprecated: Boolean = true,
   )
 
   private object ConvertToNewSyntax {

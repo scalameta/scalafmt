@@ -23,7 +23,7 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
   def withIndentOpt(
       length: => Length,
       expire: Option[Token],
-      when: ExpiresOn
+      when: ExpiresOn,
   ): ModExt = expire.fold(this)(withIndent(length, _, when))
 
   def withIndent(indent: => Indent): ModExt = indent match {

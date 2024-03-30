@@ -12,7 +12,7 @@ object PositionSyntax {
             if (message.isEmpty) ""
             else if (severity.isEmpty) " "
             else if (message.startsWith("\n")) ":"
-            else ": "
+            else ": ",
           ).append(message).append(pos.rangeText).toString
     }
 
@@ -48,7 +48,7 @@ object PositionSyntax {
         val startColumn = if (i == pos.startLine) pos.startColumn else 0
         val endColumn = if (i == pos.endLine) pos.endColumn else Int.MaxValue
         sb.append("\n> ").append(
-          lineContent(i, startColumn = startColumn, endColumn = endColumn).text
+          lineContent(i, startColumn = startColumn, endColumn = endColumn).text,
         )
         i += 1
       }
@@ -66,13 +66,13 @@ object PositionSyntax {
     private def lineContent(
         line: Int,
         startColumn: Int = 0,
-        endColumn: Int = Int.MaxValue
+        endColumn: Int = Int.MaxValue,
     ): Position = Position.Range(
       pos.input,
       startLine = line,
       startColumn = startColumn,
       endLine = line,
-      endColumn = endColumn
+      endColumn = endColumn,
     )
 
     private def lineContent: String = pos match {

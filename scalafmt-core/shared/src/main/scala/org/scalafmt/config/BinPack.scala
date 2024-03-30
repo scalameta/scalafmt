@@ -42,7 +42,7 @@ case class BinPack(
     literalsSingleLine: Boolean = false,
     literalsMinArgCount: Int = 5,
     literalsInclude: Seq[String] = Seq(".*"),
-    literalsExclude: Seq[String] = Seq("String", "Term.Name")
+    literalsExclude: Seq[String] = Seq("String", "Term.Name"),
 ) {
   def literalsRegex: FilterMatcher =
     FilterMatcher(literalsInclude, literalsExclude)
@@ -74,7 +74,7 @@ object BinPack {
   val enabled = BinPack(
     unsafeDefnSite = Unsafe.Always,
     unsafeCallSite = Unsafe.Always,
-    parentConstructors = ParentCtors.Always
+    parentConstructors = ParentCtors.Always,
   )
 
   implicit val decoder: ConfDecoderEx[BinPack] = Presets
@@ -99,7 +99,7 @@ object BinPack {
         Always,
         Never,
         Oneline,
-        OnelineIfPrimaryOneline
+        OnelineIfPrimaryOneline,
       ) {
         case Conf.Bool(true) => Configured.ok(Always)
         case Conf.Bool(false) => Configured.ok(Never)

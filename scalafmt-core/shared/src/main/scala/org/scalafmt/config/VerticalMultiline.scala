@@ -7,7 +7,7 @@ import metaconfig._
 case class VerticalMultiline(
     atDefnSite: Boolean = false,
     arityThreshold: Int = 100,
-    newlineAfterOpenParen: Boolean = false
+    newlineAfterOpenParen: Boolean = false,
 )
 
 object VerticalMultiline {

@@ -14,7 +14,7 @@ object ReaderUtil {
     oneOfCustomEx(options: _*)(PartialFunction.empty)
 
   def oneOfCustom[T: ClassTag](
-      options: sourcecode.Text[T]*
+      options: sourcecode.Text[T]*,
   )(f: PartialFunction[Conf, Configured[T]]): ConfCodecEx[T] = {
     object extract {
       def unapply(conf: Conf): Option[Configured[T]] = f.lift(conf)
@@ -23,7 +23,7 @@ object ReaderUtil {
   }
 
   def oneOfCustomEx[T: ClassTag](
-      options: sourcecode.Text[T]*
+      options: sourcecode.Text[T]*,
   )(f: PartialFunction[(Option[T], Conf), Configured[T]]): ConfCodecEx[T] = {
     val m = options.map(x => lowerCaseNoBackticks(x.source) -> x.value).toMap
     val decoder = ConfDecoderEx.fromPartial[T]("String")(f.orElse {

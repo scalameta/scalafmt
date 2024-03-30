@@ -10,6 +10,6 @@ object Mima {
       ProblemFilters.exclude[Problem]("org.scalafmt.config.*"),
       ProblemFilters.exclude[Problem]("org.scalafmt.internal.*"),
       ProblemFilters.exclude[Problem]("org.scalafmt.rewrite.*"),
-      ProblemFilters.exclude[Problem]("org.scalafmt.util.*")
+      ProblemFilters.exclude[Problem]("org.scalafmt.util.*"),
     )
 }

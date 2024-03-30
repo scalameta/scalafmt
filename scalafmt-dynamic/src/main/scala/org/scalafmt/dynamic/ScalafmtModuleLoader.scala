@@ -15,7 +15,7 @@ trait ScalafmtModuleLoader extends Closeable {
   def load(
       configPath: Path,
       version: ScalafmtVersion,
-      properties: ScalafmtProperties
+      properties: ScalafmtProperties,
   ): FormatEval[ScalafmtReflect]
 
 }
@@ -27,13 +27,13 @@ object ScalafmtModuleLoader {
     override def load(
         configPath: Path,
         version: ScalafmtVersion,
-        properties: ScalafmtProperties
+        properties: ScalafmtProperties,
     ): FormatEval[ScalafmtReflect] = {
       val dependencies = Dependency.dependencies(version)
       val urls = downloader.create(properties).download(dependencies)
       urls.fold(
         x => Left(new CannotDownload(configPath, version, x)),
-        loadClassPath(configPath, version)
+        loadClassPath(configPath, version),
       )
     }
 
@@ -49,7 +49,7 @@ object ScalafmtModuleLoader {
     override def load(
         configPath: Path,
         version: ScalafmtVersion,
-        properties: ScalafmtProperties
+        properties: ScalafmtProperties,
     ): FormatEval[ScalafmtReflect] = {
       def load() = loader.load(configPath, version, properties)
       cache.getOrAddToCache(version)(load)
@@ -64,7 +64,7 @@ object ScalafmtModuleLoader {
   }
 
   private def loadClassPath(configPath: Path, version: ScalafmtVersion)(
-      urls: Seq[URL]
+      urls: Seq[URL],
   ): FormatEval[ScalafmtReflect] = Try {
     val classloader = new URLClassLoader(urls.toArray, null)
     ScalafmtReflect(classloader, version)

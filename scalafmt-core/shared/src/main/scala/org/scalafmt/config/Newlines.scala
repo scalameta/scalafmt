@@ -158,13 +158,13 @@ case class Newlines(
     @annotation.DeprecatedName(
       "topLevelStatementsMinBreaks",
       "Use newlines.topLevelStatementBlankLines instead",
-      "3.0.0"
+      "3.0.0",
     )
     private val topLevelStatementsMinBreaks: Int = 1,
     @annotation.DeprecatedName(
       "topLevelStatements",
       "Use newlines.topLevelStatementBlankLines instead",
-      "3.0.0"
+      "3.0.0",
     )
     private val topLevelStatements: Seq[BeforeAfter] = Seq.empty,
     beforeTemplateBodyIfBreakInParentCtors: Boolean = false,
@@ -185,14 +185,14 @@ case class Newlines(
     @annotation.DeprecatedName(
       "alwaysBeforeMultilineDef",
       "Use newlines.forceBeforeMultilineAssign instead",
-      "3.0.0"
+      "3.0.0",
     )
     private val alwaysBeforeMultilineDef: Boolean = false,
     private[config] val beforeMultiline: Option[SourceHints] = None,
     @annotation.DeprecatedName(
       "beforeMultilineDef",
       "Use newlines.beforeMultiline, newlines.forceBeforeMultilineAssign instead",
-      "3.0.0"
+      "3.0.0",
     )
     beforeMultilineDef: Option[SourceHints] = None,
     private[config] val selectChains: Option[SourceHints] = None,
@@ -203,14 +203,14 @@ case class Newlines(
     avoidForSimpleOverflow: Seq[AvoidForSimpleOverflow] = Seq.empty,
     inInterpolation: InInterpolation = InInterpolation.allow,
     ignoreInSyntax: Boolean = true,
-    avoidAfterYield: Boolean = true
+    avoidAfterYield: Boolean = true,
 ) {
   if (
     implicitParamListModifierForce.nonEmpty &&
     implicitParamListModifierPrefer.nonEmpty
   ) throw new ScalafmtConfigException(
     "can't specify both " +
-      "implicitParamListModifierForce and implicitParamListModifierPrefer"
+      "implicitParamListModifierForce and implicitParamListModifierPrefer",
   )
 
   @inline
@@ -278,7 +278,7 @@ case class Newlines(
     if (topLevelStatementBlankLines.isEmpty) {
       val nb = NumBlanks(
         if (topLevelStatements.contains(before)) 1 else 0,
-        if (topLevelStatements.contains(after)) 1 else 0
+        if (topLevelStatements.contains(after)) 1 else 0,
       )
       if (nb.isEmpty) Seq.empty
       else {
@@ -299,7 +299,7 @@ case class Newlines(
   def getTopStatBlankLines(
       tree: Tree,
       numBreaks: Int,
-      nest: Int
+      nest: Int,
   ): Option[NumBlanks] = topStatBlankLinesSorted.iterator
     .takeWhile(_.minBreaks <= numBreaks).find { x =>
       x.minNest <= nest && x.maxNest >= nest &&
@@ -405,7 +405,7 @@ object Newlines {
         never,
         always,
         multiline,
-        multilineWithCaseOnly
+        multilineWithCaseOnly,
       ) {
         case Conf.Bool(true) => Configured.Ok(always)
         case Conf.Bool(false) => Configured.Ok(never)
@@ -460,7 +460,7 @@ object Newlines {
       after: Int = 0,
       beforeAll: Option[Int] = None,
       afterAll: Option[Int] = None,
-      beforeEndMarker: Int = 0
+      beforeEndMarker: Int = 0,
   ) {
     def isEmpty: Boolean = before == 0 && after == 0
   }
@@ -494,7 +494,7 @@ object Newlines {
       minBreaks: Int = 1,
       blanks: Option[NumBlanks] = None,
       minNest: Int = 0,
-      maxNest: Int = Int.MaxValue
+      maxNest: Int = Int.MaxValue,
   ) {
     lazy val pattern = regex.map(_.r.pattern)
   }

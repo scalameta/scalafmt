@@ -16,29 +16,29 @@ class CliOptionsTest extends FunSuite {
       ScalafmtConfig.fromHoconString("preset = foobar"),
       Configured.error(
         "Unknown style \"foobar\". Expected one of: " +
-          "Scala.js, IntelliJ, default, defaultWithAlign"
-      )
+          "Scala.js, IntelliJ, default, defaultWithAlign",
+      ),
     )
 
     assertEquals(
       ScalafmtConfig.fromHoconString(
         """|preset = defaultWithAlign
            |maxColumn = 100
-           |""".stripMargin
+           |""".stripMargin,
       ),
-      Configured.ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100))
+      Configured.ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100)),
     )
     assertEquals(
       ScalafmtConfig.fromHoconString("preset = intellij"),
-      Configured.ok(ScalafmtConfig.intellij)
+      Configured.ok(ScalafmtConfig.intellij),
     )
     assertEquals(
       ScalafmtConfig.fromHoconString("preset = Scala.js"),
-      Configured.ok(ScalafmtConfig.scalaJs)
+      Configured.ok(ScalafmtConfig.scalaJs),
     )
     assertEquals(
       ScalafmtConfig.fromHoconString("preset = defaultWithAlign"),
-      Configured.ok(ScalafmtConfig.defaultWithAlign)
+      Configured.ok(ScalafmtConfig.defaultWithAlign),
     )
   }
 

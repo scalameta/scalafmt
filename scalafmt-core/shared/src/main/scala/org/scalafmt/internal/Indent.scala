@@ -52,7 +52,7 @@ case class ActualIndent(
     length: Int,
     expireEnd: Int,
     expiresAt: ExpiresOn,
-    reset: Boolean
+    reset: Boolean,
 ) {
   @inline
   def notExpiredBy(ft: FormatToken): Boolean = expiresAt
@@ -90,8 +90,8 @@ private class IndentImpl(length: Length, expire: Token, expiresAt: ExpiresOn)
       length.withStateOffset(offset),
       expire.end,
       expiresAt,
-      length.reset
-    )
+      length.reset,
+    ),
   )
   override def toString: String = {
     val when = if (expiresAt == ExpiresOn.Before) '<' else '>'

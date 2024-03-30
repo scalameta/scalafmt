@@ -66,7 +66,7 @@ case class ScalafmtOptimizer(
     recurseOnBlocks: Boolean = true,
     @annotation.ExtraName("forceConfigStyleOnOffset")
     forceConfigStyleMinSpan: Int = 150,
-    forceConfigStyleMinArgCount: Int = 2
+    forceConfigStyleMinArgCount: Int = 2,
 )
 
 object ScalafmtOptimizer {
@@ -83,6 +83,6 @@ object ScalafmtOptimizer {
     acceptOptimalAtHints = false,
     disableOptimizationsInsideSensitiveAreas = false,
     pruneSlowStates = false,
-    recurseOnBlocks = false
+    recurseOnBlocks = false,
   )
 }

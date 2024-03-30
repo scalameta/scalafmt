@@ -27,7 +27,7 @@ object NamedDialect {
     Sbt0137,
     Sbt1,
     Scala3Future,
-    scala3
+    scala3,
   ).map(apply).sortBy(_.name)
 
   private[config] val defaultName = "default"

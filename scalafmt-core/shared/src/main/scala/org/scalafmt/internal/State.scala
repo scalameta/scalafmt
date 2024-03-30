@@ -22,7 +22,7 @@ final case class State(
     column: Int,
     allAltAreNL: Boolean,
     appliedPenalty: Int, // penalty applied from overflow
-    delayedPenalty: Int // apply if positive, ignore otherwise
+    delayedPenalty: Int, // apply if positive, ignore otherwise
 ) {
 
   override def toString = s"State($cost, $depth)"
@@ -34,7 +34,7 @@ final case class State(
     */
   def next(initialNextSplit: Split, nextAllAltAreNL: Boolean)(implicit
       style: ScalafmtConfig,
-      tokens: FormatTokens
+      tokens: FormatTokens,
   ): State = {
     val tok = tokens(depth)
     val right = tok.right
@@ -119,7 +119,7 @@ final case class State(
       nextStateColumn,
       nextAllAltAreNL,
       appliedPenalty + penalty,
-      nextDelayedPenalty
+      nextDelayedPenalty,
     )
   }
 
@@ -133,7 +133,7 @@ final case class State(
   @tailrec
   private def getOverflowPenalty(
       nextSplit: Split,
-      defaultOverflowPenalty: Int
+      defaultOverflowPenalty: Int,
   )(implicit style: ScalafmtConfig, tokens: FormatTokens): (Int, Int) = {
     val prevActive = delayedPenalty > 0
     val fullPenalty = defaultOverflowPenalty +
@@ -205,7 +205,7 @@ final case class State(
   @tailrec
   private def getLineStartOwner(isComment: Boolean)(implicit
       style: ScalafmtConfig,
-      tokens: FormatTokens
+      tokens: FormatTokens,
   ): Option[(FormatToken, Tree)] = {
     val ft = tokens(depth)
     if (ft.meta.left.hasNL) None
@@ -235,7 +235,7 @@ final case class State(
     */
   private def lineStartsStatement(isComment: Boolean)(implicit
       style: ScalafmtConfig,
-      tokens: FormatTokens
+      tokens: FormatTokens,
   ): Option[FormatToken] = getLineStartOwner(isComment)
     .flatMap { case (lineFt, lineOwner) =>
       val ft = tokens(depth)
@@ -252,7 +252,7 @@ final case class State(
     }
 
   private def getRelativeToLhsLastLineEnd(
-      isNL: Boolean
+      isNL: Boolean,
   )(implicit style: ScalafmtConfig, tokens: FormatTokens): Option[Int] = {
     val allowed = style.indent.relativeToLhsLastLine
 
@@ -356,7 +356,7 @@ object State {
   private val slcLine = Pattern.compile("^/\\/\\/*+\\h*+(.*?)\\h*+$")
 
   def getColumns(ft: FormatToken, indent: Int, column: Int)(implicit
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): (Int, Int) = {
     val syntax = ft.meta.right.text
     val firstNL = ft.meta.right.firstNL
@@ -401,7 +401,7 @@ object State {
   private def getColumnsFromMultiline(
       syntax: String,
       firstNL: Int,
-      firstLength: Int
+      firstLength: Int,
   ): (Int, Int) = {
     @tailrec
     def iter(prevMaxLength: Int, lineBeg: Int): (Int, Int) = {
@@ -418,9 +418,9 @@ object State {
       syntax: String,
       firstNL: Int,
       adjustMargin: Int => Int,
-      firstLength: Int
+      firstLength: Int,
   ): (Int, Int) = pipeOpt.fold(
-    getColumnsFromMultiline(syntax, firstNL, firstLength)
+    getColumnsFromMultiline(syntax, firstNL, firstLength),
   )(getColumnsWithStripMargin(_, syntax, firstNL, adjustMargin, firstLength))
 
   private def getColumnsWithStripMargin(
@@ -428,7 +428,7 @@ object State {
       syntax: String,
       firstNL: Int,
       adjustMargin: Int => Int,
-      firstLength: Int
+      firstLength: Int,
   ): (Int, Int) = {
     val matcher = getStripMarginPattern(pipe).matcher(syntax)
     matcher.region(firstNL, syntax.length)
@@ -456,7 +456,7 @@ object State {
   private def allowSplitForLineStart(
       split: Split,
       ft: FormatToken,
-      isComment: Boolean
+      isComment: Boolean,
   ): Boolean = {
     split.length == 0 || isComment || isInterpolation(ft.meta.rightOwner) ||
     ft.meta.leftOwner.is[meta.Term.Assign]

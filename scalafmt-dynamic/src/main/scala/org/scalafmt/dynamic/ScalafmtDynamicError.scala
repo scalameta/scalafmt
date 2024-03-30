@@ -12,7 +12,7 @@ object ScalafmtDynamicError {
   sealed abstract class ConfigError(
       val configPath: Path,
       msg: String,
-      cause: Throwable = null
+      cause: Throwable = null,
   ) extends ScalafmtDynamicError(msg, cause)
 
   class ConfigDoesNotExist(configPath: Path)
@@ -27,14 +27,14 @@ object ScalafmtDynamicError {
   class CannotDownload(
       configPath: Path,
       version: ScalafmtVersion,
-      cause: Throwable = null
+      cause: Throwable = null,
   ) extends ConfigError(configPath, s"[v$version] failed to download", cause)
 
   class CorruptedClassPath(
       configPath: Path,
       version: ScalafmtVersion,
       urls: Seq[URL],
-      cause: Throwable
+      cause: Throwable,
   ) extends ConfigError(configPath, getCorruptedClassPath(version, urls), cause)
 
   def getCorruptedClassPath(version: ScalafmtVersion, urls: Seq[URL]): String =

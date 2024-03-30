@@ -57,7 +57,7 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
     }.isDefined
 
   def findNonWhitespaceWith(
-      f: (Token => Option[Boolean]) => Option[Token]
+      f: (Token => Option[Boolean]) => Option[Token],
   ): Option[(Token, Option[T.LF])] = {
     var lf: Option[T.LF] = None
     val nonWs = f {
@@ -70,7 +70,7 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
 
   // end is inclusive
   def removeLFToAvoidEmptyLine(beg: Int, end: Int)(implicit
-      builder: Rewrite.PatchBuilder
+      builder: Rewrite.PatchBuilder,
   ): Unit = if (onlyWhitespaceBefore(beg)) tokenTraverser.findAtOrAfter(end + 1) {
     case _: T.LF => Some(true)
     case _: T.Whitespace => None
@@ -121,7 +121,7 @@ object Rewrite {
     PreferCurlyFors,
     ExpandImportSelectors,
     AvoidInfix,
-    SortModifiers
+    SortModifiers,
   )
 
   implicit val reader: ConfCodecEx[Rewrite] = ReaderUtil.oneOf(rewrites: _*)
@@ -136,7 +136,7 @@ object Rewrite {
   def apply(
       input: Input,
       style: ScalafmtConfig,
-      toInput: String => Input
+      toInput: String => Input,
   ): Input = {
     val rewrites = style.rewrite.rewriteFactoryRules
     if (rewrites.isEmpty) input
@@ -162,7 +162,7 @@ object RewriteCtx {
 
   // https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#prefix-infix-and-postfix-operations
   def isSimpleExprOr(
-      expr: Tree
+      expr: Tree,
   )(orElse: PartialFunction[Tree, Boolean]): Boolean = expr match {
     case _: Lit | _: Name | _: Term.Interpolate => true
     case _: Term.New | _: Term.NewAnonymous => true

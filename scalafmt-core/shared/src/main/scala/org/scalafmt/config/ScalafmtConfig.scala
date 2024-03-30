@@ -134,13 +134,13 @@ case class ScalafmtConfig(
     @annotation.DeprecatedName(
       "poorMansTrailingCommasInConfigStyle",
       "Scala supports trailing commas after 2.12.2. Use trailingCommas instead",
-      "2.5.0"
+      "2.5.0",
     )
     poorMansTrailingCommasInConfigStyle: Boolean = false,
     @annotation.DeprecatedName(
       "trailingCommas",
       "use rewrite.trailingCommas.style instead",
-      "3.0.5"
+      "3.0.5",
     )
     private val trailingCommas: Option[TrailingCommas.Style] = None,
     verticalMultiline: VerticalMultiline = VerticalMultiline(),
@@ -149,7 +149,7 @@ case class ScalafmtConfig(
     encoding: Codec = "UTF-8",
     project: ProjectFiles = ProjectFiles(),
     fileOverride: Conf.Obj = Conf.Obj.empty,
-    xmlLiterals: XmlLiterals = XmlLiterals()
+    xmlLiterals: XmlLiterals = XmlLiterals(),
 ) {
   import ScalafmtConfig._
 
@@ -162,7 +162,7 @@ case class ScalafmtConfig(
     copy(runner = runner.withDialect(dialect))
 
   private[scalafmt] def withDialect(
-      dialect: Option[NamedDialect]
+      dialect: Option[NamedDialect],
   ): ScalafmtConfig = dialect.fold(this)(withDialect)
 
   def withDialect(dialect: Dialect, name: String): ScalafmtConfig =
@@ -170,7 +170,7 @@ case class ScalafmtConfig(
 
   def withDialect(dialect: Dialect): ScalafmtConfig = withDialect(
     dialect,
-    NamedDialect.getName(dialect).getOrElse("unknown dialect")
+    NamedDialect.getName(dialect).getOrElse("unknown dialect"),
   )
 
   private lazy val forMain: ScalafmtConfig =
@@ -211,7 +211,7 @@ case class ScalafmtConfig(
   }
 
   private def getConfigViaLayoutInfoFor(absfile: AbsoluteFile)(
-      f: (ProjectFiles.Layout, String) => ScalafmtConfig
+      f: (ProjectFiles.Layout, String) => ScalafmtConfig,
   ): Option[ScalafmtConfig] = project.layout.flatMap { layout =>
     layout.getInfo(absfile).map { info =>
       val style = f(layout, info.lang)
@@ -256,7 +256,7 @@ case class ScalafmtConfig(
   def withoutRewrites: ScalafmtConfig = copy(
     trailingCommas = None,
     docstrings = docstrings.withoutRewrites,
-    rewrite = rewrite.withoutRewrites
+    rewrite = rewrite.withoutRewrites,
   )
 
   lazy val forceNewlineBeforeDocstring: Boolean = docstrings
@@ -293,7 +293,7 @@ object ScalafmtConfig {
     indent = Indents(callSite = 2, defnSite = 2),
     align = default.align.copy(openParenCallSite = false),
     optIn = default.optIn.copy(configStyleArguments = false),
-    danglingParentheses = DanglingParentheses.shortcutTrue
+    danglingParentheses = DanglingParentheses.shortcutTrue,
   )
 
   def addAlign(style: ScalafmtConfig): ScalafmtConfig = style
@@ -307,7 +307,7 @@ object ScalafmtConfig {
     binPack = BinPack(
       unsafeDefnSite = BinPack.Unsafe.Always,
       unsafeCallSite = BinPack.Unsafe.Always,
-      parentConstructors = BinPack.ParentCtors.Always
+      parentConstructors = BinPack.ParentCtors.Always,
     ),
     danglingParentheses = DanglingParentheses(false, false),
     indent = Indents(callSite = 4, defnSite = 4),
@@ -315,7 +315,7 @@ object ScalafmtConfig {
     newlines = default.newlines.copy(
       avoidInResultType = true,
       neverBeforeJsNative = true,
-      sometimesBeforeColonInMethodReturnType = false
+      sometimesBeforeColonInMethodReturnType = false,
     ),
     // For some reason, the bin packing does not play nicely with forced
     // config style. It's fixable, but I don't want to spend time on it
@@ -325,8 +325,8 @@ object ScalafmtConfig {
     align = default.align.copy(
       arrowEnumeratorGenerator = false,
       tokens = Seq(AlignToken.caseArrow),
-      openParenCtrlSite = false
-    )
+      openParenCtrlSite = false,
+    ),
   )
 
   /** Ready styles provided by scalafmt.
@@ -344,8 +344,8 @@ object ScalafmtConfig {
       default.runner.optimizer.copy(
         // The tests were not written in this style
         forceConfigStyleMinSpan = 500,
-        forceConfigStyleMinArgCount = 5
-      )
+        forceConfigStyleMinArgCount = 5,
+      ),
     )
 
   private def readActiveStylePresets(conf: Conf): Configured[ScalafmtConfig] =
@@ -402,7 +402,7 @@ object ScalafmtConfig {
       if (!dialect.allowSignificantIndentation) addIf(newlines.beforeOpenParenCallSite.nonEmpty, errDialect)
       addIfDirect( // can't use addIf on multiline conditions
         !(binPack.unsafeCallSite.isNever && binPack.unsafeDefnSite.isNever) && { newlines.implicitParamListModifierForce.nonEmpty || newlines.implicitParamListModifierPrefer.nonEmpty },
-        "binPack.unsafeXXXSite && newlines.implicitParamListModifierXXX (not implemented)"
+        "binPack.unsafeXXXSite && newlines.implicitParamListModifierXXX (not implemented)",
       )
       checkPositive(indent.main, indent.callSite, indent.defnSite, indent.commaSiteRelativeToExtends)
       checkNonNeg(indent.caseSite, indent.extendSite, indent.withSiteRelativeToExtends)
@@ -448,7 +448,7 @@ object ScalafmtConfig {
                 x.copy(
                   version = state.version,
                   runner = x.runner.withParser(state.runner.parser)
-                    .withDialect(dialect)
+                    .withDialect(dialect),
                 )
               }
               baseDecoder.read(Some(preset), restConf)
@@ -466,7 +466,7 @@ object ScalafmtConfig {
   def fromHoconString(
       string: String,
       default: ScalafmtConfig = ScalafmtConfig.default,
-      path: Option[String] = None
+      path: Option[String] = None,
   ): Configured[ScalafmtConfig] =
     fromConf(ConfParsed.fromString(string, path), default = default)
 
@@ -474,13 +474,13 @@ object ScalafmtConfig {
   def fromHoconFile(
       file: Path,
       default: ScalafmtConfig = ScalafmtConfig.default,
-      path: Option[String] = None
+      path: Option[String] = None,
   ): Configured[ScalafmtConfig] =
     fromConf(ConfParsed.fromPath(file, path), default = default)
 
   def fromConf(
       parsed: ConfParsed,
-      default: ScalafmtConfig
+      default: ScalafmtConfig,
   ): Configured[ScalafmtConfig] =
     ScalafmtConfig.decoder.read(Option(default), parsed.conf) match {
       case Configured.Ok(x)

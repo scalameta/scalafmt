@@ -32,7 +32,7 @@ object Terminal {
       }
       Try(
         Process(Seq("bash", "-c", s"$pathedTput $s 2> /dev/tty")).!!(nullLog)
-          .trim.toInt
+          .trim.toInt,
       ).toOption
     }
 
@@ -91,7 +91,7 @@ object TermDisplay {
       previouslyDownloaded: Long,
       length: Option[Long],
       startTime: Long,
-      updateCheck: Boolean
+      updateCheck: Boolean,
   ) extends Info {
 
     /** 0.0 to 1.0 */
@@ -115,7 +115,7 @@ object TermDisplay {
   private case class CheckUpdateInfo(
       currentTimeOpt: Option[Long],
       remoteTimeOpt: Option[Long],
-      isDone: Boolean
+      isDone: Boolean,
   ) extends Info {
     def fraction = None
     def display(): String =
@@ -189,7 +189,7 @@ object TermDisplay {
     }
 
     def removeEntry(url: String, success: Boolean, fallbackMessage: => String)(
-        update0: Info => Info
+        update0: Info => Info,
     ): Unit = {
       downloads.synchronized {
         downloads -= url
@@ -240,7 +240,7 @@ object TermDisplay {
 
           val url0 =
             if (total0 >= width) url.take(
-              ((width - baseExtraWidth - 1) max (url.length - overflow0)) - 1
+              ((width - baseExtraWidth - 1) max (url.length - overflow0)) - 1,
             ) + "…"
             else url
 
@@ -372,7 +372,7 @@ object Cache {
 
 class TermDisplay(
     out: Writer,
-    val fallbackMode: Boolean = TermDisplay.defaultFallbackMode
+    val fallbackMode: Boolean = TermDisplay.defaultFallbackMode,
 ) extends Cache.Logger {
 
   import TermDisplay._
@@ -387,20 +387,20 @@ class TermDisplay(
   override def startTask(msg: String, file: File): Unit = updateThread.newEntry(
     msg,
     DownloadInfo(0L, 0L, None, System.currentTimeMillis(), updateCheck = false),
-    s"$msg\n"
+    s"$msg\n",
   )
 
   def taskLength(
       url: String,
       totalLength: Long,
-      alreadyDownloaded: Long
+      alreadyDownloaded: Long,
   ): Unit = {
     val info = updateThread.infos.get(url)
     assert(info != null)
     val newInfo = info match {
       case info0: DownloadInfo => info0.copy(
           length = Some(totalLength),
-          previouslyDownloaded = alreadyDownloaded
+          previouslyDownloaded = alreadyDownloaded,
         )
       case _ => throw new Exception(s"Incoherent display state for $url")
     }
@@ -427,11 +427,11 @@ class TermDisplay(
 
   override def checkingUpdates(
       url: String,
-      currentTimeOpt: Option[Long]
+      currentTimeOpt: Option[Long],
   ): Unit = updateThread.newEntry(
     url,
     CheckUpdateInfo(currentTimeOpt, None, isDone = false),
-    s"$url\n"
+    s"$url\n",
   )
 
 }

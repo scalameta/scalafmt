@@ -27,8 +27,8 @@ object Readme {
       src :=
         "https://camo.githubusercontent.com/da2edb525cde1455a622c58c0effc3a90b9a181c/68747470733a2f2f6261646765732e6769747465722e696d2f4a6f696e253230436861742e737667",
       alt := "Join the chat at https://gitter.im/scalameta/scalameta",
-      maxWidth := "100%;"
-    )
+      maxWidth := "100%;",
+    ),
   )
 
   val eval = new Eval()
@@ -83,7 +83,7 @@ object Readme {
 
   def user(name: String) = a(href := s"$github/$name", s"@$name")
   def users(names: String*) = span(
-    names.dropRight(1).map(x => span(user(x), ", ")) :+ user(names.last): _*
+    names.dropRight(1).map(x => span(user(x), ", ")) :+ user(names.last): _*,
   )
 
   def pr(id: Int) = a(href := repo + s"/pull/$id", s"#$id")
@@ -108,7 +108,7 @@ object Readme {
   def changedConfig(style: ScalafmtConfig): String = {
     val diff = Conf.patch(
       ConfEncoder[ScalafmtConfig].write(ScalafmtConfig.default),
-      ConfEncoder[ScalafmtConfig].write(style)
+      ConfEncoder[ScalafmtConfig].write(style),
     )
     Conf.printHocon(diff)
   }
@@ -117,14 +117,14 @@ object Readme {
 
   def configurationBlock(
       style: ScalafmtConfig,
-      collapsed: Boolean = false
+      collapsed: Boolean = false,
   ): TypedTag[String] = div(
     span(
       "Show/hide configuration used for this example",
-      `class` := "scalafmt-configuration-toggle"
+      `class` := "scalafmt-configuration-toggle",
     ),
     pre(changedConfig(style)),
-    `class` := "scalafmt-configuration" + (if (collapsed) " collapsed" else "")
+    `class` := "scalafmt-configuration" + (if (collapsed) " collapsed" else ""),
   )
 
   def fullWidthDemo(style: ScalafmtConfig)(code: String): TypedTag[String] = {
@@ -132,9 +132,9 @@ object Readme {
     div(
       rows(List(
         div(hl.scala(code), `class` := "before"),
-        div(hl.scala(formatted), `class` := "after")
+        div(hl.scala(formatted), `class` := "after"),
       )),
-      configurationBlock(style)
+      configurationBlock(style),
     )
   }
 
@@ -151,8 +151,8 @@ object Readme {
     val formatted = Scalafmt.format(
       code,
       ScalafmtConfig.default40.copy(align =
-        ScalafmtConfig.default40.align.copy(tokens = AlignToken.default)
-      )
+        ScalafmtConfig.default40.align.copy(tokens = AlignToken.default),
+      ),
     ).get
     hl.scala(formatted)
   }
@@ -164,30 +164,30 @@ object Readme {
     .copy(rewrite = ScalafmtConfig.default.rewrite.copy(rules = Seq(AvoidInfix)))
 
   val rewriteImportSelectors = ScalafmtConfig.default.copy(rewrite =
-    ScalafmtConfig.default.rewrite.copy(rules = Seq(ExpandImportSelectors))
+    ScalafmtConfig.default.rewrite.copy(rules = Seq(ExpandImportSelectors)),
   )
 
   val rewriteBraces = ScalafmtConfig.default.copy(rewrite =
     ScalafmtConfig.default.rewrite.copy(
       redundantBraces = ScalafmtConfig.default.rewrite.redundantBraces
         .copy(stringInterpolation = true),
-      rules = Seq(RedundantBraces)
-    )
+      rules = Seq(RedundantBraces),
+    ),
   )
 
   val rewriteParens = ScalafmtConfig.default.copy(rewrite =
-    ScalafmtConfig.default.rewrite.copy(rules = Seq(RedundantParens))
+    ScalafmtConfig.default.rewrite.copy(rules = Seq(RedundantParens)),
   )
 
   val rewriteImports = ScalafmtConfig.default
     .copy(rewrite = ScalafmtConfig.default.rewrite.copy(rules = Seq(SortImports)))
 
   val rewriteAsciiImports = ScalafmtConfig.default.copy(rewrite =
-    ScalafmtConfig.default.rewrite.copy(rules = Seq(AsciiSortImports))
+    ScalafmtConfig.default.rewrite.copy(rules = Seq(AsciiSortImports)),
   )
 
   val rewriteSortModifiers = ScalafmtConfig.default120.copy(rewrite =
-    ScalafmtConfig.default.rewrite.copy(rules = Seq(SortModifiers))
+    ScalafmtConfig.default.rewrite.copy(rules = Seq(SortModifiers)),
   )
 
   /** This looks way too hacky. But can't seem to find a typeclass that ought to
@@ -206,30 +206,30 @@ object Readme {
     .map(_.productPrefix).mkString("[\"", "\", \"", "\"]")
 
   val rewritePreferCurlyFors = ScalafmtConfig.default.copy(rewrite =
-    ScalafmtConfig.default.rewrite.copy(rules = Seq(PreferCurlyFors))
+    ScalafmtConfig.default.rewrite.copy(rules = Seq(PreferCurlyFors)),
   )
 
   val verticalAlign = ScalafmtConfig.default.copy(
     maxColumn = 60,
-    verticalMultiline = VerticalMultiline(atDefnSite = true)
+    verticalMultiline = VerticalMultiline(atDefnSite = true),
   )
 
   val verticalMultilineDefaultConfigStr = Conf.printHocon(Conf.Obj(
     "verticalMultiline" ->
       ConfEncoder[VerticalMultiline]
-        .write(ScalafmtConfig.default.verticalMultiline)
+        .write(ScalafmtConfig.default.verticalMultiline),
   ))
 
   val verticalAlignImplicitBefore = ScalafmtConfig.default.copy(
     maxColumn = 60,
     verticalMultiline =
-      VerticalMultiline(atDefnSite = true, newlineBeforeImplicitKW = true)
+      VerticalMultiline(atDefnSite = true, newlineBeforeImplicitKW = true),
   )
 
   val verticalAlignImplicitAfter = ScalafmtConfig.default.copy(
     maxColumn = 60,
     verticalMultiline =
-      VerticalMultiline(atDefnSite = true, newlineAfterImplicitKW = true)
+      VerticalMultiline(atDefnSite = true, newlineAfterImplicitKW = true),
   )
 
   val multilineNewlineAfterParen = ScalafmtConfig.default.copy(
@@ -237,8 +237,8 @@ object Readme {
     verticalMultiline = VerticalMultiline(
       atDefnSite = true,
       arityThreshold = 2,
-      newlineAfterOpenParen = true
-    )
+      newlineAfterOpenParen = true,
+    ),
   )
 
   val multilineDanglingParens = ScalafmtConfig.default.copy(
@@ -246,17 +246,17 @@ object Readme {
     verticalMultiline = VerticalMultiline(
       atDefnSite = true,
       arityThreshold = 2,
-      excludeDanglingParens = Nil
-    )
+      excludeDanglingParens = Nil,
+    ),
   )
 
   val newlineAlwaysBeforeTopLevelStatements = ScalafmtConfig.default
     .copy(newlines =
-      ScalafmtConfig.default.newlines.copy(alwaysBeforeTopLevelStatements = true)
+      ScalafmtConfig.default.newlines.copy(alwaysBeforeTopLevelStatements = true),
     )
 
   val arityThreshold = ScalafmtConfig.default.copy(verticalMultiline =
-    VerticalMultiline(atDefnSite = true, arityThreshold = 2)
+    VerticalMultiline(atDefnSite = true, arityThreshold = 2),
   )
 
   def fmt(style: ScalafmtConfig)(code: String): TypedTag[String] =

@@ -21,7 +21,7 @@ object Formatted {
 
   private[scalafmt] case class Result(
       formatted: Formatted,
-      config: ScalafmtConfig
+      config: ScalafmtConfig,
   ) {
     def get: String = formatted.get
   }

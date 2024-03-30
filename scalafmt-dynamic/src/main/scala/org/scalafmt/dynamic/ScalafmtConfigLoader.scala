@@ -16,7 +16,7 @@ trait ScalafmtConfigLoader {
   def load(
       configPath: Path,
       properties: ScalafmtProperties,
-      moduleLoader: ScalafmtModuleLoader
+      moduleLoader: ScalafmtModuleLoader,
   ): FormatEval[ScalafmtReflectConfig]
 
 }
@@ -26,7 +26,7 @@ object ScalafmtConfigLoader extends ScalafmtConfigLoader {
   override def load(
       configPath: Path,
       properties: ScalafmtProperties,
-      moduleLoader: ScalafmtModuleLoader
+      moduleLoader: ScalafmtModuleLoader,
   ): FormatEval[ScalafmtReflectConfig] = for {
     version <- readVersion(configPath)
     // can't use current build directly, -dynamic doesn't include -core
@@ -61,7 +61,7 @@ object ScalafmtConfigLoader extends ScalafmtConfigLoader {
     override def load(
         configPath: Path,
         properties: ScalafmtProperties,
-        moduleLoader: ScalafmtModuleLoader
+        moduleLoader: ScalafmtModuleLoader,
     ): FormatEval[ScalafmtReflectConfig] =
       Try(Files.getLastModifiedTime(configPath)).fold(
         _ => Left(new ConfigDoesNotExist(configPath)),
@@ -71,7 +71,7 @@ object ScalafmtConfigLoader extends ScalafmtConfigLoader {
           def load() = loader.load(configPath, properties, moduleLoader)
             .map((_, currentTimestamp))
           cache.getOrAddToCache(configPath, evict)(load).map(_._1)
-        }
+        },
       )
   }
 

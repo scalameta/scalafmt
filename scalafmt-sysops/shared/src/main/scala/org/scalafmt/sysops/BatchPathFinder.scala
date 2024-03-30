@@ -13,7 +13,7 @@ trait BatchPathFinder {
 
   final def findMatchingFiles(
       filterFilesToo: Boolean,
-      paths: AbsoluteFile*
+      paths: AbsoluteFile*,
   ): Seq[AbsoluteFile] =
     if (paths.isEmpty) findFiles()
     else {
@@ -49,7 +49,7 @@ object BatchPathFinder {
   }
 
   final class GitBranchFiles(git: GitOps, branch: String)(
-      val matches: Path => Boolean
+      val matches: Path => Boolean,
   ) extends BatchPathFinder {
     override def findFiles(dir: AbsoluteFile*): Seq[AbsoluteFile] = git
       .diff(branch, dir: _*).filter(x => matches(x.path))

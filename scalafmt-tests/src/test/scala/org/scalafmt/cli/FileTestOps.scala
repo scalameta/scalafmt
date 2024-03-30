@@ -47,12 +47,12 @@ object FileTestOps {
   def getMockOptions(
       baseDir: AbsoluteFile,
       workingDir: AbsoluteFile,
-      out: PrintStream = NoopOutputStream.printStream
+      out: PrintStream = NoopOutputStream.printStream,
   ): CliOptions = CliOptions.default.copy(
     baseConfig = ScalafmtConfig.default,
     gitOpsConstructor = _ => new FakeGitOps(baseDir),
     common = CliOptions.default.common
-      .copy(cwd = Some(workingDir), out = out, err = out)
+      .copy(cwd = Some(workingDir), out = out, err = out),
   )
 
   val baseCliOptions: CliOptions =

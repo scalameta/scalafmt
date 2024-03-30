@@ -9,7 +9,7 @@ import org.scalafmt.interfaces._
 
 final case class ScalafmtDynamicSession(
     properties: ScalafmtProperties,
-    cfg: ScalafmtReflectConfig
+    cfg: ScalafmtReflectConfig,
 ) extends ScalafmtSession {
 
   import ScalafmtDynamicSession._

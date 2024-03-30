@@ -38,7 +38,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   override def onToken(implicit
       ft: FormatToken,
       session: Session,
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Option[Replacement] = Option {
     ft.right match {
       case x: Token.LeftBrace // skip empty brace pairs
@@ -77,7 +77,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FormatToken,
       session: Session,
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = {
     val nextFt = ftoks.nextNonComment(ftoks.next(ft))
     val notOkToRewrite = hasFormatOff || // can't force significant indentation
@@ -113,7 +113,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   private def onLeftForBlock(tree: Term.Block)(implicit
       ft: FormatToken,
       session: Session,
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Replacement = tree.parent.fold(null: Replacement) {
     case t: Term.If =>
       val ok = ftoks.prevNonComment(ft).left match {
@@ -161,7 +161,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   }
 
   private def shouldRewriteArgClauseWithLeftParen[A <: Rule](
-      lp: Token
+      lp: Token,
   )(implicit ft: FormatToken, session: Session, tag: ClassTag[A]) = {
     val prevFt = ftoks.prevNonComment(ft)
     prevFt.left.eq(lp) && session.claimedRule(prevFt.meta.idx - 1)
@@ -169,7 +169,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   }
 
   private[rewrite] def onLeftForArgClause(
-      tree: Term.ArgClause
+      tree: Term.ArgClause,
   )(implicit ft: FormatToken, style: ScalafmtConfig): Replacement = {
     val ok = style.dialect.allowFewerBraces &&
       style.rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan > 0 &&
@@ -190,7 +190,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   private def shouldRewriteColonOnRight(left: Replacement)(implicit
       ft: FormatToken,
       session: Session,
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Boolean = {
     val lft = left.ft
     lft.meta.rightOwner match {
@@ -206,11 +206,11 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
 
   private def shouldRewriteArgClauseColonOnRight(
       ac: Term.ArgClause,
-      lft: FormatToken
+      lft: FormatToken,
   )(implicit
       ft: FormatToken,
       session: Session,
-      style: ScalafmtConfig
+      style: ScalafmtConfig,
   ): Boolean = ac.values match {
     case arg :: Nil =>
       val begIdx = math.max(ftoks.getHead(arg).meta.idx - 1, lft.meta.idx + 1)

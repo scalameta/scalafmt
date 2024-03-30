@@ -39,18 +39,18 @@ object CliOptions {
         out = guardPrintStream(parsed.quiet && !parsed.stdIn)(parsed.common.out),
         info = guardPrintStream(
           parsed.stdIn || parsed.writeMode == WriteMode.Stdout ||
-            parsed.quiet || parsed.writeMode == WriteMode.List
+            parsed.quiet || parsed.writeMode == WriteMode.List,
         )(auxOut),
         debug = guardPrintStream(parsed.quiet)(
-          if (parsed.debug) auxOut else parsed.common.debug
+          if (parsed.debug) auxOut else parsed.common.debug,
         ),
-        err = guardPrintStream(parsed.quiet)(parsed.common.err)
-      )
+        err = guardPrintStream(parsed.quiet)(parsed.common.err),
+      ),
     )
   }
 
   private def guardPrintStream(p: => Boolean)(
-      candidate: PrintStream
+      candidate: PrintStream,
   ): PrintStream = if (p) NoopOutputStream.printStream else candidate
 
 }
@@ -72,7 +72,7 @@ case class CommonOptions(
     in: InputStream = System.in,
     err: PrintStream = System.err,
     debug: PrintStream = NoopOutputStream.printStream,
-    info: PrintStream = NoopOutputStream.printStream
+    info: PrintStream = NoopOutputStream.printStream,
 ) {
   private[cli] lazy val workingDirectory: AbsoluteFile = cwd
     .getOrElse(AbsoluteFile.userDir)
@@ -98,7 +98,7 @@ case class CliOptions(
     stdIn: Boolean = false,
     noStdErr: Boolean = false,
     error: Boolean = false,
-    check: Boolean = false
+    check: Boolean = false,
 ) {
   val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
 
@@ -148,7 +148,7 @@ case class CliOptions(
   private[cli] lazy val hoconOpt: Option[ConfParsed] = configStr
     .map(ConfParsed.fromString(_)).orElse {
       canonicalConfigFile.map(
-        _.fold(x => new ConfParsed(Configured.exception(x)), ConfParsed.fromPath(_))
+        _.fold(x => new ConfParsed(Configured.exception(x)), ConfParsed.fromPath(_)),
       )
     }
 
@@ -176,7 +176,7 @@ case class CliOptions(
     }
 
   private def getHoconValueOpt[A](
-      f: ConfParsed => Option[Either[String, A]]
+      f: ConfParsed => Option[Either[String, A]],
   ): Option[A] = hoconOpt.flatMap(f).map {
     case Right(x) => x
     case Left(x) => throw new ScalafmtConfigException(x)
@@ -184,7 +184,7 @@ case class CliOptions(
 
   private def getHoconValue[A](
       default: A,
-      f: ConfParsed => Option[Either[String, A]]
+      f: ConfParsed => Option[Either[String, A]],
   ): A = getHoconValueOpt[A](f).getOrElse(default)
 
   private[cli] def isGit: Boolean =

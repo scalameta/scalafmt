@@ -59,7 +59,7 @@ case class Spaces(
     neverAroundInfixTypes: Seq[String] = Nil,
     afterKeywordBeforeParen: Boolean = true,
     inByNameTypes: Boolean = true,
-    afterSymbolicDefs: Boolean = false
+    afterSymbolicDefs: Boolean = false,
 ) {
   def isSpaceAfterKeyword(tokenAfter: Token): Boolean =
     afterKeywordBeforeParen || !tokenAfter.is[Token.LeftParen]

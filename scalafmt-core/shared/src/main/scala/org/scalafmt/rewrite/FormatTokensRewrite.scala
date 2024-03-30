@@ -16,7 +16,7 @@ import org.scalafmt.util.TokenOps
 class FormatTokensRewrite(
     ftoks: FormatTokens,
     styleMap: StyleMap,
-    rules: Seq[FormatTokensRewrite.Rule]
+    rules: Seq[FormatTokensRewrite.Rule],
 ) {
 
   import FormatTokensRewrite._
@@ -195,14 +195,14 @@ class FormatTokensRewrite(
 
   private def applyRules(implicit
       ft: FormatToken,
-      session: Session
+      session: Session,
   ): Option[Int] = {
     implicit val style = styleMap.at(ft.right)
     session.applyRules(rules)
   }
 
   private def applyRule(
-      rule: Rule
+      rule: Rule,
   )(implicit ft: FormatToken, session: Session): Option[Int] = {
     implicit val style = styleMap.at(ft.right)
     session.applyRule(rule)
@@ -216,7 +216,7 @@ object FormatTokensRewrite {
     RemoveScala3OptionalBraces,
     ConvertToNewScala3Syntax,
     RemoveEmptyDocstrings,
-    RewriteTrailingCommas
+    RewriteTrailingCommas,
   )
 
   private[rewrite] trait Rule {
@@ -225,22 +225,22 @@ object FormatTokensRewrite {
     def onToken(implicit
         ft: FormatToken,
         session: Session,
-        style: ScalafmtConfig
+        style: ScalafmtConfig,
     ): Option[Replacement]
     // act on or modify only ft.right; process close (right) delim
     def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
         ft: FormatToken,
         session: Session,
-        style: ScalafmtConfig
+        style: ScalafmtConfig,
     ): Option[(Replacement, Replacement)]
 
     protected final def removeToken(implicit
         ft: FormatToken,
-        style: ScalafmtConfig
+        style: ScalafmtConfig,
     ): Replacement = removeToken(Nil)
 
     protected final def removeToken(
-        claim: Iterable[Int] = Nil
+        claim: Iterable[Int] = Nil,
     )(implicit ft: FormatToken, style: ScalafmtConfig): Replacement =
       Replacement(this, ft, ReplacementType.Remove, style, claim)
 
@@ -248,7 +248,7 @@ object FormatTokensRewrite {
         text: String,
         owner: Option[Tree] = None,
         claim: Iterable[Int] = Nil,
-        rtype: ReplacementType = ReplacementType.Replace
+        rtype: ReplacementType = ReplacementType.Replace,
     )(tok: T)(implicit ft: FormatToken, style: ScalafmtConfig): Replacement = {
       val mOld = ft.meta.right
       val mNew = mOld.copy(text = text, owner = owner.getOrElse(mOld.owner))
@@ -260,15 +260,15 @@ object FormatTokensRewrite {
         text: String,
         owner: Option[Tree] = None,
         claim: Iterable[Int] = Nil,
-        rtype: ReplacementType = ReplacementType.Replace
+        rtype: ReplacementType = ReplacementType.Replace,
     )(f: T => T)(implicit ft: FormatToken, style: ScalafmtConfig): Replacement =
       replaceToken(text, owner, claim, rtype)(f(ft.right))
 
     protected final def replaceTokenIdent(text: String, t: T)(implicit
         ft: FormatToken,
-        style: ScalafmtConfig
+        style: ScalafmtConfig,
     ): Replacement = replaceToken(text)(
-      new T.Ident(t.input, t.dialect, t.start, t.start + text.length, text)
+      new T.Ident(t.input, t.dialect, t.start, t.start + text.length, text),
     )
 
   }
@@ -337,7 +337,7 @@ object FormatTokensRewrite {
 
     @inline
     private[rewrite] def claim(repl: Replacement)(implicit
-        ft: FormatToken
+        ft: FormatToken,
     ): Int = claim(ft.meta.idx, repl)
 
     private def justClaim(ftIdx: Int)(repl: Replacement): Int = {
@@ -362,7 +362,7 @@ object FormatTokensRewrite {
     }
 
     private[FormatTokensRewrite] def applyRule(
-        attemptedRule: Rule
+        attemptedRule: Rule,
     )(implicit ft: FormatToken, style: ScalafmtConfig): Option[Int] =
       if (attemptedRule.enabled) attemptedRule.onToken.map { repl =>
         val idx = claim(repl)
@@ -372,7 +372,7 @@ object FormatTokensRewrite {
       else None
 
     private[FormatTokensRewrite] def applyRules(
-        rules: Seq[Rule]
+        rules: Seq[Rule],
     )(implicit ft: FormatToken, style: ScalafmtConfig): Option[Int] = {
       @tailrec
       def iter(remainingRules: Seq[Rule]): Option[Int] = remainingRules match {
@@ -387,7 +387,7 @@ object FormatTokensRewrite {
 
     private[rewrite] def rule[A <: Rule](implicit
         tag: ClassTag[A],
-        sc: ScalafmtConfig
+        sc: ScalafmtConfig,
     ): Option[A] = {
       val ruleOpt = rules.find(tag.runtimeClass.isInstance)
       ruleOpt.map(_.asInstanceOf[A]).filter(_.enabled)
@@ -409,7 +409,7 @@ object FormatTokensRewrite {
       how: ReplacementType,
       style: ScalafmtConfig,
       // list of FormatToken indices, with the claimed token on the **right**
-      claim: Iterable[Int] = Nil
+      claim: Iterable[Int] = Nil,
   ) {
     @inline
     def isRemove: Boolean = how eq ReplacementType.Remove
@@ -419,14 +419,14 @@ object FormatTokensRewrite {
     def onRight(hasFormatOff: Boolean)(implicit
         ft: FormatToken,
         session: Session,
-        style: ScalafmtConfig
+        style: ScalafmtConfig,
     ): Option[(Replacement, Replacement)] =
       if (rule.enabled) rule.onRight(this, hasFormatOff) else None
 
     def onRightAndClaim(hasFormatOff: Boolean, leftIdx: Int)(implicit
         ft: FormatToken,
         session: Session,
-        style: ScalafmtConfig
+        style: ScalafmtConfig,
     ): Unit = {
       val (ltRepl, rtRepl) = onRight(hasFormatOff).getOrElse((null, null))
       session.claim(rtRepl)
@@ -443,7 +443,7 @@ object FormatTokensRewrite {
 
   private def mergeWhitespaceLeftToRight(
       lt: FormatToken.Meta,
-      rt: FormatToken.Meta
+      rt: FormatToken.Meta,
   ): Option[Array[T]] = {
     import FormatToken.isNL
     val rtBW = rt.between

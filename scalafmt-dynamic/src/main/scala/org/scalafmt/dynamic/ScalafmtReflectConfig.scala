@@ -10,7 +10,7 @@ import scala.util.Try
 
 //noinspection TypeAnnotation
 class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
-    private[dynamic] val target: Object
+    private[dynamic] val target: Object,
 ) {
   import ScalafmtReflectConfig._
   import fmtReflect.classLoader
@@ -49,7 +49,7 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
     }
 
   lazy val withSbtDialect: Try[ScalafmtReflectConfig] = Try(
-    target.invoke("forSbt")
+    target.invoke("forSbt"),
   ).recover { case ReflectionException(_: NoSuchMethodException) =>
     target.invoke("withDialect", (dialectCls, sbtDialect))
   }.map(new ScalafmtReflectConfig(fmtReflect)(_))
@@ -71,11 +71,11 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
         target.invoke(
           if (i == rewriteParamIdx) "apply$default$" + (rewriteParamIdx + 1)
           else if (publicParams.contains(p)) p
-          else p + "$access$" + i
+          else p + "$access$" + i,
         )
       }
       new ScalafmtReflectConfig(fmtReflect)(
-        ctor.newInstance(fieldValues: _*).asInstanceOf[Object]
+        ctor.newInstance(fieldValues: _*).asInstanceOf[Object],
       )
     }
 

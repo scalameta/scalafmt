@@ -14,12 +14,12 @@ object DeleteTree {
 class DeleteTree extends FileVisitor[Path] {
   override def preVisitDirectory(
       dir: Path,
-      attrs: BasicFileAttributes
+      attrs: BasicFileAttributes,
   ): FileVisitResult = FileVisitResult.CONTINUE
 
   override def visitFile(
       file: Path,
-      attrs: BasicFileAttributes
+      attrs: BasicFileAttributes,
   ): FileVisitResult = {
     Files.delete(file)
     FileVisitResult.CONTINUE
@@ -30,7 +30,7 @@ class DeleteTree extends FileVisitor[Path] {
 
   override def postVisitDirectory(
       dir: Path,
-      exc: IOException
+      exc: IOException,
   ): FileVisitResult = {
     Files.delete(dir)
     FileVisitResult.CONTINUE

@@ -11,7 +11,7 @@ case class AvoidInfixSettings(
     // strict match
     private[config] val excludeFilters: Seq[AvoidInfixSettings.Filter],
     private val excludeScalaTest: Option[Boolean] = None,
-    excludePlaceholderArg: Option[Boolean] = None
+    excludePlaceholderArg: Option[Boolean] = None,
 ) {
   // if the user completely redefined (rather than appended), we don't touch
   @inline
@@ -30,9 +30,9 @@ case class AvoidInfixSettings(
     else None
 
   private def withTestExclude: AvoidInfixSettings = getExcludeWithExtra(
-    AvoidInfixSettings.testExclude
+    AvoidInfixSettings.testExclude,
   ).fold(copy(excludeScalaTest = Some(false)))(x =>
-    copy(excludeFilters = x, excludeScalaTest = Some(false))
+    copy(excludeFilters = x, excludeScalaTest = Some(false)),
   )
 
   @inline
@@ -40,7 +40,7 @@ case class AvoidInfixSettings(
     excludeFilters.eq(obj) || excludeFilters.startsWith(obj)
 
   private def getExcludeWithExtra(
-      obj: Seq[AvoidInfixSettings.Filter]
+      obj: Seq[AvoidInfixSettings.Filter],
   ): Option[Seq[AvoidInfixSettings.Filter]] =
     if (obj.isEmpty) None
     else {
@@ -50,7 +50,7 @@ case class AvoidInfixSettings(
     }
 
   private[config] def withExtraExclude(
-      obj: Seq[AvoidInfixSettings.Filter]
+      obj: Seq[AvoidInfixSettings.Filter],
   ): Option[AvoidInfixSettings] = getExcludeWithExtra(obj)
     .map(x => copy(excludeFilters = x))
 
@@ -129,14 +129,14 @@ object AvoidInfixSettings {
     "atMostOneElementOf",
     "allElementsOf",
     "inOrderElementsOf",
-    "theSameElementsAs"
+    "theSameElementsAs",
   ).map(Filter.apply)
 
   private[config] val sbtExclude = Seq("cross").map(Filter.apply)
 
   private[config] val default = AvoidInfixSettings(
     includeFilters = mainInclude,
-    excludeFilters = mainExclude
+    excludeFilters = mainExclude,
   )
 
 }

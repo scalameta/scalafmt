@@ -37,7 +37,7 @@ case class Indents(
     @annotation.ExtraName("deriveSite")
     extendSite: Int = 4,
     withSiteRelativeToExtends: Int = 0,
-    commaSiteRelativeToExtends: Int = 2
+    commaSiteRelativeToExtends: Int = 2,
 ) {
   lazy val getSignificant = significant.getOrElse(main)
 

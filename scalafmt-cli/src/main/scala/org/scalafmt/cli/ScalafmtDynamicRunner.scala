@@ -15,7 +15,7 @@ import util.control.Breaks._
 object ScalafmtDynamicRunner extends ScalafmtRunner {
   override private[cli] def run(
       options: CliOptions,
-      termDisplayMessage: String
+      termDisplayMessage: String,
   ): ExitCode = {
     val reporter = new ScalafmtCliReporter(options)
     val scalafmtInstance = Scalafmt.create(this.getClass.getClassLoader)
@@ -63,7 +63,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
   private[this] def handleFile(
       inputMethod: InputMethod,
       session: ScalafmtSession,
-      options: CliOptions
+      options: CliOptions,
   ): ExitCode = {
     val input = inputMethod.readInput(options)
 

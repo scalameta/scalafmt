@@ -28,7 +28,7 @@ object ManualTests extends HasTests {
             original,
             isSkip(name),
             isOnly(name),
-            style
+            style,
           )
         }
     } yield test
@@ -44,7 +44,7 @@ object ManualTests extends HasTests {
         content,
         false,
         false,
-        style
+        style,
       )
     }
     manualFiles ++ scalaFiles

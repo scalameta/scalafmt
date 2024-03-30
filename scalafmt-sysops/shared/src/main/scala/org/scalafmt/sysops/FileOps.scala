@@ -49,7 +49,7 @@ object FileOps {
     .readAttributes(
       file,
       classOf[BasicFileAttributes],
-      LinkOption.NOFOLLOW_LINKS
+      LinkOption.NOFOLLOW_LINKS,
     )
 
   def listFiles(path: String): Seq[Path] = listFiles(getFile(path))
@@ -59,7 +59,7 @@ object FileOps {
 
   def listFiles(
       file: Path,
-      matches: (Path, BasicFileAttributes) => Boolean
+      matches: (Path, BasicFileAttributes) => Boolean,
   ): Seq[Path] = {
     val iter = Files.find(file, Integer.MAX_VALUE, (p, a) => matches(p, a))
     try iter.iterator().asScala.toList
@@ -106,7 +106,7 @@ object FileOps {
   }
 
   def writeFile(filename: String, content: String)(implicit
-      codec: Codec
+      codec: Codec,
   ): Unit = writeFile(getFile(filename), content)
 
   @inline
@@ -120,7 +120,7 @@ object FileOps {
 
   def getCanonicalConfigFile(
       workingDirectory: AbsoluteFile,
-      config: Option[Path] = None
+      config: Option[Path] = None,
   ): Option[Try[Path]] = config.fold(tryGetConfigInDir(workingDirectory)) { x =>
     val file = workingDirectory.join(x)
     tryCheckConfigFile(file)

@@ -13,7 +13,7 @@ case class RedundantBracesSettings(
     stringInterpolation: Boolean = false,
     parensForOneLineApply: Boolean = true,
     generalExpressions: Boolean = true,
-    ifElseExpressions: Boolean = false
+    ifElseExpressions: Boolean = false,
 )
 
 object RedundantBracesSettings {

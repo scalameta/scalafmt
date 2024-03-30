@@ -24,7 +24,7 @@ inThisBuild(List(
     "olafurpg",
     "Ólafur Páll Geirsson",
     "olafurpg@gmail.com",
-    url("https://geirsson.com")
+    url("https://geirsson.com"),
   )),
   scalaVersion := scala213,
   crossScalaVersions := List(scala213, scala212),
@@ -32,7 +32,7 @@ inThisBuild(List(
   resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
   libraryDependencies ++=
     List(munit.value % Test, scalacheck % Test, scalametaTestkit % Test),
-  testFrameworks += new TestFramework("munit.Framework")
+  testFrameworks += new TestFramework("munit.Framework"),
 ))
 
 name := "scalafmtRoot"
@@ -60,9 +60,9 @@ lazy val dynamic = project.in(file("scalafmt-dynamic")).settings(
     "io.get-coursier" % "interface" % "0.0.17",
     "com.typesafe" % "config" % "1.4.3",
     munit.value % Test,
-    scalametaTestkit % Test
+    scalametaTestkit % Test,
   ),
-  scalacOptions ++= scalacJvmOptions.value
+  scalacOptions ++= scalacJvmOptions.value,
 ).dependsOn(interfaces).dependsOn(core.jvm % "test")
   .enablePlugins(BuildInfoPlugin)
 
@@ -79,7 +79,7 @@ lazy val interfaces = project.in(file("scalafmt-interfaces")).settings(
     props.put("version", version.value)
     IO.write(props, "scalafmt properties", out)
     List(out)
-  }
+  },
 )
 
 lazy val sysops = crossProject(JVMPlatform).withoutSuffixFor(JVMPlatform)
@@ -95,7 +95,7 @@ lazy val sysops = crossProject(JVMPlatform).withoutSuffixFor(JVMPlatform)
           Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4")
         case _ => Seq()
       }
-    }
+    },
   )
 
 lazy val config = crossProject(JVMPlatform).withoutSuffixFor(JVMPlatform)
@@ -103,7 +103,7 @@ lazy val config = crossProject(JVMPlatform).withoutSuffixFor(JVMPlatform)
     moduleName := "scalafmt-config",
     description := "Scalafmt config parsing",
     scalacOptions ++= scalacJvmOptions.value,
-    libraryDependencies ++= Seq(metaconfig.value)
+    libraryDependencies ++= Seq(metaconfig.value),
   ).jvmSettings(libraryDependencies ++= Seq(metaconfigTypesafe.value))
 // .jsSettings(
 //   libraryDependencies ++= Seq(
@@ -120,16 +120,16 @@ lazy val core = crossProject(JVMPlatform).in(file("scalafmt-core")).settings(
     "org.scalameta" %% "mdoc-parser" % mdocV,
     // scala-reflect is an undeclared dependency of fansi, see #1252.
     // Scalafmt itself does not require scala-reflect.
-    "org.scala-lang" % "scala-reflect" % scalaVersion.value
+    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
   ),
   libraryDependencies ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 13)) => Seq()
       case _ => Seq(compilerPlugin(
-          "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full
+          "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full,
         ))
     }
-  }
+  },
 )
   // .jsSettings(
   //   libraryDependencies ++= List(
@@ -171,7 +171,7 @@ lazy val cli = project.in(file("scalafmt-cli")).settings(
   libraryDependencies ++= Seq(
     "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
     "com.martiansoftware" % "nailgun-server" % "0.9.1",
-    "com.github.scopt" %% "scopt" % "4.1.0"
+    "com.github.scopt" %% "scopt" % "4.1.0",
   ),
   scalacOptions ++= scalacJvmOptions.value,
   Compile / mainClass := Some("org.scalafmt.cli.Cli"),
@@ -184,7 +184,7 @@ lazy val cli = project.in(file("scalafmt-cli")).settings(
   nativeImageOptions ++= {
     val isStatic = sys.env.get("NATIVE_IMAGE_STATIC").exists(_.toBoolean)
     if (isStatic) Seq("--static") else Nil
-  }
+  },
 ).dependsOn(coreJVM, dynamic).enablePlugins(NativeImagePlugin)
 
 lazy val tests = project.in(file("scalafmt-tests")).settings(
@@ -193,13 +193,13 @@ lazy val tests = project.in(file("scalafmt-tests")).settings(
     // Test dependencies
     "com.lihaoyi" %% "scalatags" % "0.12.0",
     scalametaTestkit,
-    munit.value
+    munit.value,
   ),
   scalacOptions ++= scalacJvmOptions.value,
   javaOptions += "-Dfile.encoding=UTF8",
   buildInfoPackage := "org.scalafmt.tests",
   buildInfoKeys :=
-    Seq[BuildInfoKey]("resourceDirectory" -> (Test / resourceDirectory).value)
+    Seq[BuildInfoKey]("resourceDirectory" -> (Test / resourceDirectory).value),
 ).enablePlugins(BuildInfoPlugin).dependsOn(coreJVM, dynamic, cli)
 
 lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
@@ -220,14 +220,14 @@ lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
     "-Xss8M",
     "-Xms512M",
     "-Xmx2G",
-    "-server"
-  )
+    "-server",
+  ),
 ).dependsOn(coreJVM).enablePlugins(JmhPlugin)
 
 lazy val docs = project.in(file("scalafmt-docs")).settings(
   crossScalaVersions := List(scala212),
   publish / skip := true,
-  mdoc := (Compile / run).evaluated
+  mdoc := (Compile / run).evaluated,
 ).dependsOn(cli, dynamic).enablePlugins(DocusaurusPlugin)
 
 val V = "\\d+\\.\\d+\\.\\d+"
@@ -252,8 +252,8 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "commit" -> sys.process.Process("git rev-parse HEAD").lineStream_!.head,
     "timestamp" -> System.currentTimeMillis().toString,
     scalaVersion,
-    sbtVersion
+    sbtVersion,
   ),
   buildInfoPackage := "org.scalafmt",
-  buildInfoObject := "Versions"
+  buildInfoObject := "Versions",
 )

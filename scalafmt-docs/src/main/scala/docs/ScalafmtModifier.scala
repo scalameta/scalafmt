@@ -19,7 +19,7 @@ class ScalafmtModifier extends StringModifier {
   override def process(
       info: String,
       code: Input,
-      reporter: Reporter
+      reporter: Reporter,
   ): String = {
     val base =
       if (code.text.contains("package")) defaultConfig else defaultSbtConfig

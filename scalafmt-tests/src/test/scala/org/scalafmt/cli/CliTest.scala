@@ -4,7 +4,7 @@ import java.io.{
   ByteArrayInputStream,
   ByteArrayOutputStream,
   IOException,
-  PrintStream
+  PrintStream,
 }
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
@@ -27,7 +27,7 @@ abstract class AbstractCliTest extends FunSuite {
   def runArgs(
       args: Array[String],
       init: CliOptions = baseCliOptions,
-      exitCode: ExitCode = ExitCode.Ok
+      exitCode: ExitCode = ExitCode.Ok,
   ): Unit = run(Cli.getConfig(args, init).get, exitCode)
 
   def run(options: CliOptions, exitCode: ExitCode = ExitCode.Ok) =
@@ -38,7 +38,7 @@ abstract class AbstractCliTest extends FunSuite {
 
   def assertContains(out: String, expected: String) = assert(
     CliTest.stripCR(out).contains(CliTest.stripCR(expected)),
-    out + "\n should have contained \n" + expected
+    out + "\n should have contained \n" + expected,
   )
 
   val unformatted = """|
@@ -80,7 +80,7 @@ abstract class AbstractCliTest extends FunSuite {
       cmds: Seq[Array[String]],
       exitCode: ExitCode = ExitCode.Ok,
       assertOut: String => Unit = { _ => },
-      testExitCode: Option[ExitCode] = None
+      testExitCode: Option[ExitCode] = None,
   ): Unit = cmds.foreach { args =>
     val out = new ByteArrayOutputStream()
     val init: CliOptions = getMockOptions(input, input, new PrintStream(out))
@@ -117,7 +117,7 @@ trait CliTestBehavior {
         "--config",
         scalafmtConfig.toFile.getPath,
         originalTmpFile.toFile.getPath,
-        originalTmpFile2.toFile.getPath
+        originalTmpFile2.toFile.getPath,
       )
       runArgs(args)
       val obtained = FileOps.readFile(originalTmpFile.toString)
@@ -133,7 +133,7 @@ trait CliTestBehavior {
         "--stdout",
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
-        originalTmpFile.toFile.getPath
+        originalTmpFile.toFile.getPath,
       )
       val baos = new ByteArrayOutputStream()
       val ps = new PrintStream(baos)
@@ -159,7 +159,7 @@ trait CliTestBehavior {
         "--assume-filename",
         "build.sbt",
         "--config",
-        scalafmtConfig.toFile.getPath
+        scalafmtConfig.toFile.getPath,
       )
       val printToStdout = getConfig(args)
       val bais = new ByteArrayInputStream(sbtOriginal.getBytes)
@@ -179,7 +179,7 @@ trait CliTestBehavior {
         tmpFile.toFile.getPath,
         "--test",
         "--config-str",
-        s"""{version="$version",style=IntelliJ}"""
+        s"""{version="$version",style=IntelliJ}""",
       )
       runArgs(args, exitCode = ExitCode.TestError)
       val str = FileOps.readFile(tmpFile.toString)
@@ -192,7 +192,7 @@ trait CliTestBehavior {
         tmpFile.toFile.getPath,
         "--test",
         "--config-str",
-        s"""{version="$version",style=IntelliJ, docstring = Asterisk}"""
+        s"""{version="$version",style=IntelliJ, docstring = Asterisk}""",
       )
       runArgs(args, exitCode = ExitCode.UnexpectedError)
     }
@@ -203,7 +203,7 @@ trait CliTestBehavior {
       val args = Array(
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
-        tmpFile.toFile.getAbsolutePath
+        tmpFile.toFile.getAbsolutePath,
       )
       Cli.exceptionThrowingMainWithOptions(args, baseCliOptions)
       val obtained = FileOps.readFile(tmpFile.toString)
@@ -219,7 +219,7 @@ trait CliTestBehavior {
             |lazy   val x   = project
             |/foo.sc
             |lazy   val x   = project
-            |""".stripMargin
+            |""".stripMargin,
       )
       val expected = s"""|/foo.sbt
                          |lazy val x = project
@@ -233,7 +233,7 @@ trait CliTestBehavior {
       runArgs(Array(
         input.toString(),
         "--config-str",
-        s"""{version="$version",style=IntelliJ}"""
+        s"""{version="$version",style=IntelliJ}""",
       ))
       val obtained = dir2string(input)
       assertNoDiff(obtained, expected)
@@ -255,7 +255,7 @@ trait CliTestBehavior {
             |
             |/target/nested3/DoNotFormatMe.scala
             |object    CIgnoreME   {  }
-            |""".stripMargin
+            |""".stripMargin,
       )
       val expected = s"""|/foo.sbt
                          |lazy val x = project
@@ -277,7 +277,7 @@ trait CliTestBehavior {
         s"""{version="$version",style=IntelliJ}""",
         input.toString(),
         "--exclude",
-        "target/nested".asFilename
+        "target/nested".asFilename,
       ))
 
       val obtained = dir2string(input)
@@ -290,7 +290,7 @@ trait CliTestBehavior {
         val args = Array(
           s"$filename.scala".asFilename,
           "--config-str",
-          s"""{version="$version",style=IntelliJ}"""
+          s"""{version="$version",style=IntelliJ}""",
         )
         intercept[IOException] {
           Cli.exceptionThrowingMainWithOptions(args, baseCliOptions)
@@ -315,12 +315,12 @@ trait CliTestBehavior {
         "--mode",
         "diff",
         "--config-str",
-        s"""{version="$version",style=IntelliJ}"""
+        s"""{version="$version",style=IntelliJ}""",
       ))
       val stdin = getConfig(Array(
         "--stdin",
         "--config-str",
-        s"""{version="$version",style=IntelliJ}"""
+        s"""{version="$version",style=IntelliJ}""",
       )).copy(common = CommonOptions(in = new ByteArrayInputStream("".getBytes)))
       run(stdin)
     }
@@ -338,7 +338,7 @@ trait CliTestBehavior {
             |version = "$version"
             |maxColumn = 2
             |project.excludeFilters = [target]
-            |""".stripMargin
+            |""".stripMargin,
       )
 
       val expected = s"""|/.scalafmt.conf
@@ -365,7 +365,7 @@ trait CliTestBehavior {
              |object    FormatMe
              |/foo.sc
              |object    FormatMe
-             |""".stripMargin
+             |""".stripMargin,
         ),
         """|/foo.sc
            |object FormatMe
@@ -373,7 +373,7 @@ trait CliTestBehavior {
            |/foo.scala
            |object FormatMe
            |""".stripMargin,
-        Seq(Array("--config-str", s"""{version="$version"}"""))
+        Seq(Array("--config-str", s"""{version="$version"}""")),
       )
     }
 
@@ -390,7 +390,7 @@ trait CliTestBehavior {
             |/.scalafmt.conf
             |version="$version"
             |maxColumn = 2
-            |""".stripMargin
+            |""".stripMargin,
       )
       val workingDir = input / "nested"
       val options: CliOptions = {
@@ -415,7 +415,7 @@ trait CliTestBehavior {
             |/sbt.sbt
             |$sbtOriginal
             |/sbt.sbtfile
-            |$sbtOriginal""".stripMargin
+            |$sbtOriginal""".stripMargin,
       )
 
       val config = root / "scalafmt.conf"
@@ -441,7 +441,7 @@ trait CliTestBehavior {
             |/inner3/file1.scala
             |$unformatted
             |/inner3/file2.scalahala
-            |$unformatted""".stripMargin
+            |$unformatted""".stripMargin,
       )
       val inner1 = root / "inner1"
       val inner2 = root / "inner2"
@@ -469,7 +469,7 @@ trait CliTestBehavior {
             |/inner3/file1.scala
             |$unformatted
             |/inner3/file2.scalahala
-            |$unformatted""".stripMargin
+            |$unformatted""".stripMargin,
       )
       val inner1 = root / "inner1"
       val inner2 = root / "inner2"
@@ -479,7 +479,7 @@ trait CliTestBehavior {
 
       val opts = Seq(
         "--respect-project-filters",
-        s"""--config-str {version="$version"}"""
+        s"""--config-str {version="$version"}""",
       ) ++ Seq(inner1, inner2, full1, full2)
       runWith(root, opts.mkString(" "))
 
@@ -496,7 +496,7 @@ trait CliTestBehavior {
             |style = intellij
             |/foo.scala
             |object    A
-            |      """.stripMargin
+            |      """.stripMargin,
       )
       val config = (root / "scalafmt.conf").toString()
       val toFormat = (root / "foo.scala").toString()
@@ -520,7 +520,7 @@ trait CliTestBehavior {
         s"""{version="$version",style=IntelliJ}""",
         "-i",
         "-f",
-        fileStr(file1, file2, file3)
+        fileStr(file1, file2, file3),
       )
       runArgs(args)
       val obtained = FileOps.readFile(file1.toString)
@@ -545,9 +545,9 @@ trait CliTestBehavior {
             out,
             s"""foo.scala:1: error:$dialectError illegal start of simple expression
                |object    A { foo( }
-               |                   ^""".stripMargin
+               |                   ^""".stripMargin,
           ),
-        Some(ExitCode.Ok)
+        Some(ExitCode.Ok),
       )
     }
 
@@ -555,7 +555,7 @@ trait CliTestBehavior {
       val exit = Console.withErr(NoopOutputStream.printStream) {
         Cli.mainWithOptions(
           Array("--foobar"),
-          getMockOptions(AbsoluteFile.userDir)
+          getMockOptions(AbsoluteFile.userDir),
         )
       }
       assertEquals(exit, ExitCode.CommandLineArgumentError, exit)
@@ -585,8 +585,8 @@ trait CliTestBehavior {
                 |-object    A { }
                 |+object A {}
                 |error: --test failed
-                |To fix this ...""".stripMargin
-          )
+                |To fix this ...""".stripMargin,
+          ),
       )
     }
 
@@ -602,8 +602,8 @@ trait CliTestBehavior {
           assert(
             out.contains(s"foo.scala:2: error:$dialectError") &&
               out.contains("end of file") && out.contains("error: ParseError=2"),
-            out
-          )
+            out,
+          ),
       )
     }
 
@@ -623,8 +623,8 @@ trait CliTestBehavior {
           assert(
             out.contains(s"foo.scala:2: error:$dialectError") &&
               out.contains(s"end of file") && out.contains("error: ParseError=2"),
-            out
-          )
+            out,
+          ),
       )
     }
 
@@ -644,8 +644,8 @@ trait CliTestBehavior {
           assert(
             out.contains("Invalid field: blah") ||
               out.contains("found option 'blah' which wasn't expected"),
-            s"assertion failed [$out]"
-          )
+            s"assertion failed [$out]",
+          ),
       )
     }
 
@@ -675,11 +675,11 @@ trait CliTestBehavior {
         Seq(Array(
           "--config-str",
           s"""{version="$version",onTestFailure="$expected"}""",
-          "--test"
+          "--test",
         )),
         ExitCode.TestError,
         assertOut =
-          out => assert(out.contains(expected) && !out.contains(unexpected))
+          out => assert(out.contains(expected) && !out.contains(unexpected)),
       )
     }
 
@@ -705,8 +705,8 @@ trait CliTestBehavior {
         assertOut = out =>
           assert(
             out.contains("bar.scala") && !out.contains("baz.scala") &&
-              out.contains("dir/foo.scala")
-          )
+              out.contains("dir/foo.scala"),
+          ),
       )
     }
   }
@@ -735,9 +735,9 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       assertOut = out =>
         assertContains(
           out,
-          s"""Illegal pattern in configuration: foo.scala""".stripMargin
+          s"""Illegal pattern in configuration: foo.scala""".stripMargin,
         ),
-      Some(ExitCode.UnexpectedError)
+      Some(ExitCode.UnexpectedError),
     )
 
   }
@@ -763,9 +763,9 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           """|Illegal regex in configuration: .*foo(
              |reason: Unclosed group near index 6
              |.*foo(
-             |""".stripMargin
+             |""".stripMargin,
         ),
-      Some(ExitCode.UnexpectedError)
+      Some(ExitCode.UnexpectedError),
     )
 
   }
@@ -778,7 +778,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       string2dir(input),
       input,
       Seq(
-        Array("--debug") // debug options is needed to output running scalafmt version
+        Array("--debug"), // debug options is needed to output running scalafmt version
       ),
       ExitCode.UnsupportedVersion,
       assertOut = out => {
@@ -787,7 +787,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         assertEquals(out1, out2) // two invocations
         val msg = s"error: missing Scalafmt configuration file."
         assertEquals(out1.substring(0, msg.length), msg)
-      }
+      },
     )
   }
 
@@ -802,7 +802,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       string2dir(input),
       input,
       Seq(
-        Array("--debug") // debug options is needed to output running scalafmt version
+        Array("--debug"), // debug options is needed to output running scalafmt version
       ),
       ExitCode.UnsupportedVersion,
       assertOut = out => {
@@ -811,7 +811,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         assertEquals(out1, out2) // two invocations
         val msg = s"error: missing Scalafmt version."
         assertEquals(out1.substring(0, msg.length), msg)
-      }
+      },
     )
   }
 
@@ -833,12 +833,12 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     val obtained = Console.withErr(errStream) {
       Cli.getConfig(
         Array("--config", "foo", "--config-str", "bar"),
-        CliTest.defaultOptions
+        CliTest.defaultOptions,
       )
     }
     assertEquals(
       errStream.toString.trim,
-      "Error: may not specify both --config and --config-str"
+      "Error: may not specify both --config and --config-str",
     )
     assertEquals(None: Option[CliOptions], obtained)
   }
@@ -857,7 +857,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |version = $stableVersion
           |maxColumn = 2
           |project { includePaths = ["glob:**/bar.scala"] }
-          |""".stripMargin
+          |""".stripMargin,
     )
 
     val expected = s"""|/.scalafmt.conf
@@ -891,7 +891,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |version = $stableVersion
           |maxColumn = 2
           |project { excludePaths = ["glob:**target**"] }
-          |""".stripMargin
+          |""".stripMargin,
     )
 
     val expected = s"""|/.scalafmt.conf
@@ -925,7 +925,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |version = $stableVersion
           |maxColumn = 2
           |project { includeFilters = ["bar"] }
-          |""".stripMargin
+          |""".stripMargin,
     )
 
     val expected = s"""|/.scalafmt.conf
@@ -964,7 +964,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |  includePaths = $defaultIncludePathsJson
           |  includeFilters = ["bar"]
           |}
-          |""".stripMargin
+          |""".stripMargin,
     )
 
     val expected = s"""|/.scalafmt.conf
@@ -1003,7 +1003,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |version = $stableVersion
           |maxColumn   = 8
           |project.includePaths."+" = ["glob:**.md"]
-          |""".stripMargin
+          |""".stripMargin,
     )
     val expected = s"""|
                        |/.scalafmt.conf
@@ -1037,7 +1037,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |```
           |/.scalafmt.conf
           |version = $stableVersion
-          |""".stripMargin
+          |""".stripMargin,
     )
     val expected = s"""|
                        |/.scalafmt.conf
@@ -1070,7 +1070,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |  */
           |                       }
           |```
-          |""".stripMargin
+          |""".stripMargin,
     )
     val expected = s"""|/foobar.md
                        | Intro
@@ -1087,7 +1087,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     runArgs(Array(
       input.toString(),
       "--config-str",
-      s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}"""
+      s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}""",
     ))
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
@@ -1101,7 +1101,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |  ```scala mdoc
           |        object    A {      }
           |  ```
-          |""".stripMargin
+          |""".stripMargin,
     )
     val expected = s"""|/foobar2.md
                        | Intro text:
@@ -1112,7 +1112,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     runArgs(Array(
       input.toString(),
       "--config-str",
-      s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}"""
+      s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}""",
     ))
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
@@ -1131,7 +1131,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |  */
           |  }
           |```
-          |""".stripMargin
+          |""".stripMargin,
     )
     val expected = s"""|/foobar.md
                        |```scala mdoc
@@ -1148,9 +1148,9 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       Array(
         input.toString(),
         "--config-str",
-        s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}"""
+        s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}""",
       ),
-      exitCode = ExitCode.ParseError
+      exitCode = ExitCode.ParseError,
     )
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
@@ -1172,7 +1172,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |version = $stableVersion
           |maxColumn   = 8
           |project.includePaths."+" = ["glob:**.md"]
-          |""".stripMargin
+          |""".stripMargin,
     )
     val expected = s"""|
                        |/.scalafmt.conf
@@ -1211,8 +1211,8 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           common = options.common.copy(
             in = new ByteArrayInputStream(codeNoEol.getBytes),
             out = Console.out,
-            err = Console.err
-          )
+            err = Console.err,
+          ),
         )
         run(options2, ExitCode.TestError)
       }
@@ -1225,7 +1225,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
          |@@ -4,1 +4,2 @@
          | }
          |+
-         |""".stripMargin
+         |""".stripMargin,
     )
   }
 

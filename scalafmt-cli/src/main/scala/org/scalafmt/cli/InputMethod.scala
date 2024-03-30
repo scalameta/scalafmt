@@ -19,7 +19,7 @@ sealed abstract class InputMethod {
   final def write(
       formatted: String,
       original: String,
-      options: CliOptions
+      options: CliOptions,
   ): ExitCode = {
     val codeChanged = formatted != original
     if (options.writeMode == WriteMode.Stdout) print(formatted, options)
