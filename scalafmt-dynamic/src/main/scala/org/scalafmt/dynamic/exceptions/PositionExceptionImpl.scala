@@ -1,7 +1,8 @@
 package org.scalafmt.dynamic.exceptions
 
-import java.nio.file.Path
 import org.scalafmt.interfaces.PositionException
+
+import java.nio.file.Path
 
 case class PositionExceptionImpl(
     file: Path,

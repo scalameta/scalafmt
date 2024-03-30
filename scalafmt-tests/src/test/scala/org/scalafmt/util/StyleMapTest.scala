@@ -1,11 +1,12 @@
 package org.scalafmt.util
 
-import scala.meta._
-
 import org.scalafmt.config.BinPack
 import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatOps
+
+import scala.meta._
+
 import munit.FunSuite
 
 class StyleMapTest extends FunSuite {

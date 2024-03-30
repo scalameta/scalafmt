@@ -1,11 +1,11 @@
 package org.scalafmt.rewrite
 
-import scala.meta._
-import scala.meta.tokens.Token
-
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
+
+import scala.meta._
+import scala.meta.tokens.Token
 
 import metaconfig._
 

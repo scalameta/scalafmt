@@ -1,10 +1,12 @@
 package org.scalafmt.cli
 
-import java.io.{File, PrintStream}
-import java.nio.file.Files
-
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.sysops.{AbsoluteFile, FileOps}
+import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.FileOps
+
+import java.io.File
+import java.io.PrintStream
+import java.nio.file.Files
 
 object FileTestOps {
 

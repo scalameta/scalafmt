@@ -1,5 +1,12 @@
 package org.scalafmt.rewrite
 
+import org.scalafmt.config.ReaderUtil
+import org.scalafmt.config.RewriteSettings
+import org.scalafmt.util._
+
+import scala.meta._
+import scala.meta.tokens.Token
+
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
@@ -7,12 +14,6 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.HashSet
 import scala.collection.mutable.ListBuffer
-import scala.meta._
-import scala.meta.tokens.Token
-
-import org.scalafmt.config.ReaderUtil
-import org.scalafmt.config.RewriteSettings
-import org.scalafmt.util._
 
 import metaconfig._
 

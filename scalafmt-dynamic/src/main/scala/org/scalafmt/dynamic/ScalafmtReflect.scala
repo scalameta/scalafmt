@@ -1,12 +1,15 @@
 package org.scalafmt.dynamic
 
-import com.typesafe.config.ConfigFactory
-import java.io.Closeable
-import java.nio.file.Path
 import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.dynamic.utils.ReflectUtils._
+
+import java.io.Closeable
+import java.nio.file.Path
+
 import scala.util.Failure
 import scala.util.Try
+
+import com.typesafe.config.ConfigFactory
 
 case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
     extends Closeable {

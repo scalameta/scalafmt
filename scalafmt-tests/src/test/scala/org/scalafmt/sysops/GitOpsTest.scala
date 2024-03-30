@@ -1,13 +1,16 @@
 package org.scalafmt.sysops
 
+import org.scalafmt.util.DeleteTree.deleteTree
+
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
-import munit.{Assertions, FunSuite, Location}
-import org.scalafmt.util.DeleteTree.deleteTree
-
 import scala.util._
+
+import munit.Assertions
+import munit.FunSuite
+import munit.Location
 
 class GitOpsTest extends FunSuite {
 

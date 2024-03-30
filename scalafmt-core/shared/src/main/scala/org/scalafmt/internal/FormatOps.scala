@@ -1,27 +1,26 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{
-  BinPack,
-  IndentOperator,
-  Indents,
-  Newlines,
-  ScalafmtConfig,
-  ScalafmtRunner,
-  TrailingCommas,
-}
+import org.scalafmt.config.BinPack
+import org.scalafmt.config.IndentOperator
+import org.scalafmt.config.Indents
+import org.scalafmt.config.Newlines
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.TrailingCommas
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
-import org.scalafmt.util._
 import org.scalafmt.util.InfixApp._
 import org.scalafmt.util.LoggerOps._
+import org.scalafmt.util._
+
 import org.scalameta.FileLine
+import scala.meta._
+import scala.meta.classifiers.Classifier
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.meta.classifiers.Classifier
-import scala.meta._
-import scala.meta.tokens.{Token => T}
 
 /** Helper functions for generating splits/policies for a given tree.
   */
@@ -42,21 +41,19 @@ class FormatOps(
   implicit val dialect: Dialect = initStyle.dialect
   implicit val (tokens: FormatTokens, styleMap: StyleMap) =
     FormatTokens(topSourceTree.tokens, owners)(initStyle)
-  import tokens.{
-    matching,
-    matchingOpt,
-    isEnclosedInMatching,
-    isEnclosedInParens,
-    findTokenWith,
-    tokenBefore,
-    tokenAfter,
-    prev,
-    next,
-    prevNonComment,
-    prevNonCommentBefore,
-    nextNonComment,
-    nextNonCommentSameLine,
-  }
+  import tokens.findTokenWith
+  import tokens.isEnclosedInMatching
+  import tokens.isEnclosedInParens
+  import tokens.matching
+  import tokens.matchingOpt
+  import tokens.next
+  import tokens.nextNonComment
+  import tokens.nextNonCommentSameLine
+  import tokens.prev
+  import tokens.prevNonComment
+  import tokens.prevNonCommentBefore
+  import tokens.tokenAfter
+  import tokens.tokenBefore
   private val usedTokens = tokens.head.left +: tokens.map(_.right)
 
   private[internal] val soft = new SoftKeywordClasses(dialect)

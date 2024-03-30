@@ -2,6 +2,7 @@ package org.scalafmt.util
 
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
+
 import munit.FunSuite
 
 class ErrorTest extends FunSuite {

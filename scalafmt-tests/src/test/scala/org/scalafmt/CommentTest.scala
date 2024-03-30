@@ -1,7 +1,9 @@
 package org.scalafmt
 
+import org.scalafmt.config.Docstrings
+import org.scalafmt.config.ScalafmtConfig
+
 import munit.FunSuite
-import org.scalafmt.config.{Docstrings, ScalafmtConfig}
 
 class CommentTest extends FunSuite {
 

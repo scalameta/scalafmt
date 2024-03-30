@@ -1,7 +1,8 @@
 package docs
 
-import java.nio.file.Paths
 import org.scalafmt.Versions
+
+import java.nio.file.Paths
 
 object Main {
 

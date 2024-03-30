@@ -1,14 +1,22 @@
 package org.scalafmt.sysops
 
-import java.net.{URI, URL}
-import java.nio.file.attribute.BasicFileAttributes
-import java.nio.file.{AccessDeniedException, NoSuchFileException}
-import java.nio.file.{Files, LinkOption, Path, Paths}
-import scala.io.Codec
-import scala.util.Using
-import scala.util.{Failure, Success, Try}
-
 import org.scalafmt.CompatCollections.JavaConverters._
+
+import java.net.URI
+import java.net.URL
+import java.nio.file.AccessDeniedException
+import java.nio.file.Files
+import java.nio.file.LinkOption
+import java.nio.file.NoSuchFileException
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.attribute.BasicFileAttributes
+
+import scala.io.Codec
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
+import scala.util.Using
 
 object FileOps {
 

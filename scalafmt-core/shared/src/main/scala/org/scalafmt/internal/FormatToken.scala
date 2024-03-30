@@ -1,10 +1,11 @@
 package org.scalafmt.internal
 
-import scala.annotation.tailrec
+import org.scalafmt.util.TokenOps._
+
 import scala.meta.Tree
 import scala.meta.tokens.Token
 
-import org.scalafmt.util.TokenOps._
+import scala.annotation.tailrec
 
 /** Two adjacent non-whitespace tokens.
   *

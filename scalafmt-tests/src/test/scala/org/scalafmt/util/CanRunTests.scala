@@ -1,8 +1,9 @@
 package org.scalafmt.util
 
+import scala.meta.parsers.ParseException
+
 import munit.FunSuite
 import munit.Location
-import scala.meta.parsers.ParseException
 
 trait CanRunTests extends FunSuite with HasTests {
   def runTest(run: DiffTest => Unit)(t: DiffTest): Unit = {

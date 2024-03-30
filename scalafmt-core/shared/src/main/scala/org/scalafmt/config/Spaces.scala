@@ -1,9 +1,10 @@
 package org.scalafmt.config
 
+import org.scalafmt.util.TokenOps
+
 import scala.meta.tokens.Token
 
 import metaconfig._
-import org.scalafmt.util.TokenOps
 
 /** @param beforeContextBoundColon
   *   formats [A: T] as [A : T]

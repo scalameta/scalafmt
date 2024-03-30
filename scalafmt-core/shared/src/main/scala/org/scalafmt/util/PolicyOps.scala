@@ -1,10 +1,10 @@
 package org.scalafmt.util
 
-import scala.meta.tokens.{Token => T}
-
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal._
+
 import org.scalameta.FileLine
+import scala.meta.tokens.{Token => T}
 
 object PolicyOps {
 

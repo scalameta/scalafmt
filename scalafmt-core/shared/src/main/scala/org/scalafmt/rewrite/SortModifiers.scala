@@ -1,6 +1,7 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.config.{RewriteSettings, SortSettings}
+import org.scalafmt.config.RewriteSettings
+import org.scalafmt.config.SortSettings
 import org.scalafmt.util.TreeOps
 
 import scala.meta._

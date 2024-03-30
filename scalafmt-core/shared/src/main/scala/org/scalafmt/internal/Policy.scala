@@ -1,7 +1,7 @@
 package org.scalafmt.internal
 
-import scala.meta.tokens.Token
 import org.scalameta.FileLine
+import scala.meta.tokens.Token
 
 /** The decision made by [[Router]].
   *

@@ -1,9 +1,9 @@
 package org.scalafmt
 
-import munit.FunSuite
-
 import scala.meta._
 import scala.meta.internal.parsers.ScalametaParser
+
+import munit.FunSuite
 
 class CustomStructureTest extends FunSuite {
 

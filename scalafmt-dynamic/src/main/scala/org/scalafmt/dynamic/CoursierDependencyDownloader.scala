@@ -1,7 +1,8 @@
 package org.scalafmt.dynamic
 
 import java.io.OutputStreamWriter
-import java.net.{URI, URL}
+import java.net.URI
+import java.net.URL
 
 import scala.collection.JavaConverters._
 import scala.util.Try

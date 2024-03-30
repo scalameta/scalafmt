@@ -1,14 +1,14 @@
 package org.scalafmt.rewrite
 
-import scala.reflect.ClassTag
-
-import scala.meta._
-import scala.meta.tokens.Token
-
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
 import org.scalafmt.util.TreeOps._
+
+import scala.meta._
+import scala.meta.tokens.Token
+
+import scala.reflect.ClassTag
 
 object RemoveScala3OptionalBraces extends FormatTokensRewrite.RuleFactory {
 

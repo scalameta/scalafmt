@@ -1,7 +1,8 @@
 package org.scalafmt.benchmarks
 
-import benchmarks.MacroBenchmark
 import org.scalafmt.benchmarks.Micro.ScalaJsFile
+
+import benchmarks.MacroBenchmark
 import munit.FunSuite
 
 class TestMacroP extends MacroBenchmark(true, 10)

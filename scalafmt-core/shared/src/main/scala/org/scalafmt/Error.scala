@@ -1,16 +1,19 @@
 package org.scalafmt
 
-import scala.meta.Case
-import scala.meta.Tree
-import scala.reflect.ClassTag
-import scala.reflect.classTag
-import java.nio.file.Path
-import scala.meta.inputs.Position
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
+
+import scala.meta.Case
+import scala.meta.Tree
+import scala.meta.inputs.Position
 import scala.meta.internal.inputs._
+
+import java.nio.file.Path
+
+import scala.reflect.ClassTag
+import scala.reflect.classTag
 import scala.util.control.NoStackTrace
 
 sealed abstract class Error(msg: String) extends Exception(msg)

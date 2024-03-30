@@ -1,12 +1,13 @@
 package org.scalafmt.config
 
+import org.scalafmt.util.ParamClauseParent
+
 import java.util.regex.{Pattern => jurPattern}
 
 import metaconfig.Configured.Ok
 import metaconfig._
 import metaconfig.annotation.DeprecatedName
 import metaconfig.generic.Surface
-import org.scalafmt.util.ParamClauseParent
 
 /** Configuration option for aligning tokens.
   *

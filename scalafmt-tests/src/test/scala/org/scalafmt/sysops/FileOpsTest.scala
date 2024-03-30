@@ -1,11 +1,12 @@
 package org.scalafmt.sysops
 
+import org.scalafmt.util.DeleteTree.deleteTree
+
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path}
+import java.nio.file.Files
+import java.nio.file.Path
 
 import scala.util.Random
-
-import org.scalafmt.util.DeleteTree.deleteTree
 
 class FileOpsTest extends munit.FunSuite {
 

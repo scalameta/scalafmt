@@ -1,6 +1,7 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.rewrite.TokenPatch.{Add, Remove}
+import org.scalafmt.rewrite.TokenPatch.Add
+import org.scalafmt.rewrite.TokenPatch.Remove
 
 import scala.meta.tokens.Token
 

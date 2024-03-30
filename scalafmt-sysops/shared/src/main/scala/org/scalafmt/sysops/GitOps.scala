@@ -1,8 +1,12 @@
 package org.scalafmt.sysops
 
+import java.nio.file.InvalidPathException
+import java.nio.file.Path
+
 import scala.sys.process.ProcessLogger
-import scala.util.{Failure, Success, Try}
-import java.nio.file.{InvalidPathException, Path}
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
 object GitOps {
 

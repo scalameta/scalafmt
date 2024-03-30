@@ -1,9 +1,10 @@
 package org.scalafmt.util
 
-import scala.annotation.tailrec
 import scala.meta.Input
 import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
+
+import scala.annotation.tailrec
 
 class TokenTraverser(tokens: Tokens, input: Input) {
   private[this] val (tok2idx, excludedTokens) = {

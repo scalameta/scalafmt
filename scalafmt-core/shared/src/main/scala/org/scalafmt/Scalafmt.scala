@@ -1,15 +1,5 @@
 package org.scalafmt
 
-import java.nio.file.Path
-
-import metaconfig.Configured
-import scala.meta.Input
-import scala.meta.dialects
-import scala.meta.parsers.ParseException
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
-
 import org.scalafmt.Error.PreciseIncomplete
 import org.scalafmt.config.FormatEvent.CreateFormatOps
 import org.scalafmt.config.LineEndings
@@ -21,6 +11,18 @@ import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.sysops.FileOps
 import org.scalafmt.util.MarkdownParser
+
+import scala.meta.Input
+import scala.meta.dialects
+import scala.meta.parsers.ParseException
+
+import java.nio.file.Path
+
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
+
+import metaconfig.Configured
 
 /** WARNING. This API is discouraged when integrating with Scalafmt from a build
   * tool or editor plugin. It is recommended to use the `scalafmt-dynamic`

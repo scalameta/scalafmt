@@ -1,11 +1,14 @@
 package org.scalafmt.rewrite
 
-import scala.meta.{Importee, Pat, Term, Type}
-import scala.meta.tokens.Token
-
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
+
+import scala.meta.Importee
+import scala.meta.Pat
+import scala.meta.Term
+import scala.meta.Type
+import scala.meta.tokens.Token
 
 object ConvertToNewScala3Syntax extends FormatTokensRewrite.RuleFactory {
 

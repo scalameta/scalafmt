@@ -1,17 +1,23 @@
 package org.scalafmt.dynamic
 
-import java.io.{ByteArrayOutputStream, PrintStream, PrintWriter}
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths}
-import java.nio.file.attribute.FileTime
+import org.scalafmt.interfaces.PositionException
+import org.scalafmt.interfaces.ScalafmtReporter
 
-import org.scalafmt.interfaces.{PositionException, ScalafmtReporter}
-import PositionSyntax._
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
+import java.io.PrintWriter
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.attribute.FileTime
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 import scala.{meta => m}
+
+import PositionSyntax._
 import munit.FunSuite
 import munit.Location
 

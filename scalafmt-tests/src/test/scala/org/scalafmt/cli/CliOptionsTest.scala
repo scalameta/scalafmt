@@ -1,11 +1,14 @@
 package org.scalafmt.cli
 
-import java.nio.file.{Files, NoSuchFileException, Path, Paths}
-
-import org.scalafmt.config.ScalafmtConfig
-import FileTestOps._
 import org.scalafmt.Versions
+import org.scalafmt.config.ScalafmtConfig
 
+import java.nio.file.Files
+import java.nio.file.NoSuchFileException
+import java.nio.file.Path
+import java.nio.file.Paths
+
+import FileTestOps._
 import metaconfig.Configured
 import munit.FunSuite
 

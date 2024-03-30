@@ -1,12 +1,13 @@
 package org.scalafmt.config
 
+import org.scalafmt.config.PlatformConfig._
+
 import java.nio.file.Path
 
 import scala.io.Codec
 import scala.util.Try
 
 import metaconfig._
-import org.scalafmt.config.PlatformConfig._
 
 class ConfParsed(val conf: Configured[Conf]) extends AnyVal {
 

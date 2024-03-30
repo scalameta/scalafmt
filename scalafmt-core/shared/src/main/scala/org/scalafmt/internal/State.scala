@@ -1,13 +1,16 @@
 package org.scalafmt.internal
 
+import org.scalafmt.config.Comments
+import org.scalafmt.config.Indents
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.util.TreeOps._
+
+import scala.meta._
+import scala.meta.tokens.Token
+
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
-import scala.meta.tokens.Token
-import scala.meta._
-
-import org.scalafmt.config.{Comments, Indents, ScalafmtConfig}
-import org.scalafmt.util.TreeOps._
 
 /** A partial formatting solution up to splits.length number of tokens.
   */

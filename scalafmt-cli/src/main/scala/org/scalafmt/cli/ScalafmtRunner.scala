@@ -1,11 +1,11 @@
 package org.scalafmt.cli
 
-import java.io.OutputStreamWriter
-import java.nio.file.Path
-
 import org.scalafmt.Error
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.BatchPathFinder
+
+import java.io.OutputStreamWriter
+import java.nio.file.Path
 
 trait ScalafmtRunner {
   private[cli] def run(

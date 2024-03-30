@@ -1,8 +1,8 @@
 package org.scalafmt.internal
 
-import scala.meta.tokens.Token
-
 import org.scalafmt.util.LoggerOps
+
+import scala.meta.tokens.Token
 
 class PolicySummary(val policies: Seq[Policy]) extends AnyVal {
   import LoggerOps._

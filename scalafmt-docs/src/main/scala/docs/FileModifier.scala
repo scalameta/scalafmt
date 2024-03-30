@@ -1,14 +1,16 @@
 package docs
 
-import java.nio.charset.StandardCharsets
-import mdoc.Reporter
-import mdoc.StringModifier
-import mdoc.internal.pos.PositionSyntax._
 import scala.meta.inputs.Input
 import scala.meta.inputs.Position
 import scala.meta.internal.io.FileIO
 import scala.meta.internal.io.PathIO
 import scala.meta.io.AbsolutePath
+
+import java.nio.charset.StandardCharsets
+
+import mdoc.Reporter
+import mdoc.StringModifier
+import mdoc.internal.pos.PositionSyntax._
 
 class FileModifier extends StringModifier {
   val name = "file"

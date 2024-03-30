@@ -1,20 +1,21 @@
 package org.scalafmt.util
 
-import scala.annotation.tailrec
-import scala.collection.mutable
+import org.scalafmt.config.BinPack
+import org.scalafmt.config.FilterMatcher
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.FormatTokens
+
+import org.scalameta.FileLine
+import org.scalameta.logger
 import scala.meta._
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
 import scala.meta.tokens.Token.LeftParen
 import scala.meta.tokens.Token.RightParen
 
-import org.scalafmt.config.BinPack
-import org.scalafmt.config.FilterMatcher
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.FormatTokens
-import org.scalameta.FileLine
-import org.scalameta.logger
+import scala.annotation.tailrec
+import scala.collection.mutable
 
 class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
   import StyleMap._

@@ -3,9 +3,12 @@ package org.scalafmt.internal
 import org.scalafmt.internal.{SyntacticGroup => g}
 import org.scalafmt.util.InfixApp
 
-import scala.annotation.tailrec
-import scala.meta.{Lit, Term, Tree}
+import scala.meta.Lit
+import scala.meta.Term
+import scala.meta.Tree
 import scala.meta.internal.trees._
+
+import scala.annotation.tailrec
 
 object SyntacticGroupOps {
 

@@ -1,7 +1,8 @@
 package org.scalafmt.internal
 
-import scala.annotation.tailrec
 import scala.meta.tokens.Token
+
+import scala.annotation.tailrec
 
 sealed abstract class ExpiresOn {
   def notExpiredBy(ft: FormatToken, expireEnd: Int): Boolean

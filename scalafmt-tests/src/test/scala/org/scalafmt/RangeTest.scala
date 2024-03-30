@@ -1,7 +1,8 @@
 package org.scalafmt
 
-import munit.FunSuite
 import org.scalafmt.util.HasTests
+
+import munit.FunSuite
 
 class RangeTest extends FunSuite {
   test("range preserves indent") {

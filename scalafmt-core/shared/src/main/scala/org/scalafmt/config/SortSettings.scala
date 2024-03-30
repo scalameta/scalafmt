@@ -1,10 +1,10 @@
 package org.scalafmt.config
 
-import metaconfig._
 import scala.meta.Mod
-import sourcecode.Text
-
 import scala.meta.classifiers.Classifier
+
+import metaconfig._
+import sourcecode.Text
 
 case class SortSettings(order: List[SortSettings.ModKey])
 

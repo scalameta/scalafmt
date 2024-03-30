@@ -1,11 +1,11 @@
 package org.scalafmt.dynamic
 
+import org.scalafmt.dynamic.exceptions._
+import org.scalafmt.interfaces._
+
 import java.nio.file.Path
 
 import scala.util.Success
-
-import org.scalafmt.dynamic.exceptions._
-import org.scalafmt.interfaces._
 
 final case class ScalafmtDynamicSession(
     properties: ScalafmtProperties,

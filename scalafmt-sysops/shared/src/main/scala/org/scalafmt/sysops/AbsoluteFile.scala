@@ -2,8 +2,9 @@ package org.scalafmt.sysops
 
 import java.io.File
 import java.net.URI
+import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
-import java.nio.file.{Files, Path}
 
 import scala.io.Codec
 

@@ -1,10 +1,12 @@
 package org.scalafmt.config
 
-import metaconfig._
 import scala.meta.Dialect
 import scala.meta.Tree
 import scala.meta.parsers.Parsed
+
 import scala.reflect.ClassTag
+
+import metaconfig._
 
 /** A FormatRunner configures how formatting should behave.
   *

@@ -1,16 +1,19 @@
 package org.scalafmt.rewrite
 
-import scala.collection.mutable
+import org.scalafmt.config.ReaderUtil
+import org.scalafmt.config.RewriteSettings
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.util.TokenOps
+import org.scalafmt.util.TokenTraverser
+import org.scalafmt.util.TreeOps
 
-import metaconfig.ConfCodecEx
 import scala.meta._
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.SimpleTraverser
 
-import org.scalafmt.config.ReaderUtil
-import org.scalafmt.config.RewriteSettings
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps}
+import scala.collection.mutable
+
+import metaconfig.ConfCodecEx
 
 case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
   implicit val dialect: Dialect = style.dialect

@@ -1,7 +1,9 @@
 package org.scalafmt
 
-import scala.meta._
 import org.scalafmt.config._
+
+import scala.meta._
+
 import munit.FunSuite
 
 class ScalafmtRunnerTest extends FunSuite {

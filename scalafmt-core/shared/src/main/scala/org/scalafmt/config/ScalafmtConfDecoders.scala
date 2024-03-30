@@ -1,7 +1,8 @@
 package org.scalafmt.config
 
-import scala.io.Codec
 import scala.meta.parsers.Parse._
+
+import scala.io.Codec
 
 import metaconfig.Conf
 import metaconfig.ConfCodecEx

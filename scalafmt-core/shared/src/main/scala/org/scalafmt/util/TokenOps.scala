@@ -1,15 +1,15 @@
 package org.scalafmt.util
 
-import scala.meta._
-import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
-import scala.meta.tokens.Tokens
-
 import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Modification
 import org.scalafmt.internal.Space
+
+import scala.meta._
+import scala.meta.tokens.Token
+import scala.meta.tokens.Token._
+import scala.meta.tokens.Tokens
 
 /** Stateless helper functions on [[scala.meta.Token]].
   */

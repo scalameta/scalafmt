@@ -1,16 +1,18 @@
 package org.scalafmt
 
-import scala.collection.mutable
-import scala.meta._
-import scala.meta.testkit._
-
 import org.scalafmt.CompatCollections.ParConverters._
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.util.FormatAssertions
+
 import org.scalameta.logger
-import munit.FunSuite
+import scala.meta._
+import scala.meta.testkit._
+
+import scala.collection.mutable
+
 import munit.FailException
+import munit.FunSuite
 
 class ScalafmtProps extends FunSuite with FormatAssertions {
   import ScalafmtProps._

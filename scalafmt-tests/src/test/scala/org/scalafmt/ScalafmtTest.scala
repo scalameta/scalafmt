@@ -1,8 +1,10 @@
 package org.scalafmt
 
-import munit.FunSuite
 import org.scalafmt.config.ScalafmtConfig
+
 import org.scalameta.logger
+
+import munit.FunSuite
 
 class ScalafmtTest extends FunSuite {
   def check(

@@ -1,10 +1,10 @@
 package org.scalafmt.config
 
-import metaconfig.ConfCodecEx
-
 import scala.meta._
 import scala.meta.parsers.Parse
 import scala.meta.parsers.Parsed
+
+import metaconfig.ConfCodecEx
 
 sealed class ScalafmtParser(val parse: Parse[_ <: Tree])
 

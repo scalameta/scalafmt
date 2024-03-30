@@ -1,13 +1,14 @@
 package org.scalafmt.config
 
-import java.nio.file
+import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.OsSpecific._
 
-import scala.annotation.tailrec
 import scala.meta.Dialect
 import scala.meta.dialects
 
-import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.OsSpecific._
+import java.nio.file
+
+import scala.annotation.tailrec
 
 import metaconfig._
 import metaconfig.annotation.DeprecatedName

@@ -1,15 +1,24 @@
 package org.scalafmt.cli
 
-import java.io.{InputStream, OutputStream, PrintStream}
-import java.nio.file.{Files, NoSuchFileException, Path}
+import org.scalafmt.config.ConfParsed
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.ScalafmtConfigException
+import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.GitOps
+import org.scalafmt.sysops.OsSpecific
 
-import metaconfig.Configured
-import org.scalafmt.config.{ConfParsed, ScalafmtConfig, ScalafmtConfigException}
-import org.scalafmt.sysops.{AbsoluteFile, GitOps, OsSpecific}
+import java.io.InputStream
+import java.io.OutputStream
+import java.io.PrintStream
+import java.nio.file.Files
+import java.nio.file.NoSuchFileException
+import java.nio.file.Path
 
 import scala.io.Codec
 import scala.util.Try
 import scala.util.matching.Regex
+
+import metaconfig.Configured
 
 object CliOptions {
   val default = CliOptions()

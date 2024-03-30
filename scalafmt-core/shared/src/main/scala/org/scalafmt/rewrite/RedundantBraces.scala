@@ -1,12 +1,14 @@
 package org.scalafmt.rewrite
 
-import scala.annotation.tailrec
+import org.scalafmt.config.RedundantBracesSettings
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.internal._
+import org.scalafmt.util.TreeOps._
+
 import scala.meta._
 import scala.meta.tokens.Token
 
-import org.scalafmt.config.{RedundantBracesSettings, ScalafmtConfig}
-import org.scalafmt.internal._
-import org.scalafmt.util.TreeOps._
+import scala.annotation.tailrec
 
 object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
 

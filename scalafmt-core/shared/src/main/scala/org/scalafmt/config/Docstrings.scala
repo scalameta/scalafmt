@@ -1,8 +1,8 @@
 package org.scalafmt.config
 
-import scala.collection.mutable
-
 import org.scalafmt.util.ValidationOps
+
+import scala.collection.mutable
 
 import metaconfig._
 

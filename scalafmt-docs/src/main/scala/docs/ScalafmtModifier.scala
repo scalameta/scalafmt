@@ -3,9 +3,11 @@ package docs
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.NamedDialect
 import org.scalafmt.config.ScalafmtConfig
+
 import scala.meta.inputs.Input
 import scala.meta.inputs.Position
 import scala.meta.parsers.ParseException
+
 import mdoc.Reporter
 import mdoc.StringModifier
 
