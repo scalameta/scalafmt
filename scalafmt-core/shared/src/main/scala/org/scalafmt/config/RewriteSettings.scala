@@ -1,7 +1,8 @@
 package org.scalafmt.config
 
-import metaconfig._
 import org.scalafmt.rewrite._
+
+import metaconfig._
 
 case class RewriteSettings(
     rules: Seq[Rewrite] = Nil,

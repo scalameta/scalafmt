@@ -1,8 +1,9 @@
 package org.scalafmt
 
-import munit.FunSuite
 import org.scalafmt.config.LineEndings._
 import org.scalafmt.config.ScalafmtConfig
+
+import munit.FunSuite
 
 class LineEndingsTest extends FunSuite {
 

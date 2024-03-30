@@ -1,10 +1,10 @@
 package org.scalafmt.util
 
-import scalatags.Text
-import scalatags.Text.all._
-
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.stats.TestStats
+
+import scalatags.Text
+import scalatags.Text.all._
 
 object Report {
   val MaxVisits = 8 // 2 ** 6

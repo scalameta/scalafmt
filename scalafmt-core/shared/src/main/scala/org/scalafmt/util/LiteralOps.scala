@@ -1,6 +1,7 @@
 package org.scalafmt.util
 
-import org.scalafmt.config.{Case, ScalafmtConfig}
+import org.scalafmt.config.Case
+import org.scalafmt.config.ScalafmtConfig
 
 object LiteralOps {
 

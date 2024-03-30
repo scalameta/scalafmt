@@ -1,6 +1,7 @@
 package org.scalafmt.cli
 
-import org.scalafmt.sysops.{AbsoluteFile, GitOps}
+import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.GitOps
 
 class FakeGitOps(root: AbsoluteFile) extends GitOps {
   override def lsTree(dir: AbsoluteFile*): Seq[AbsoluteFile] = dir

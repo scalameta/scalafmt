@@ -1,9 +1,10 @@
 package org.scalafmt.config
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 import metaconfig._
 import metaconfig.generic.Surface
-
-import java.util.regex.{Matcher, Pattern}
 
 case class AvoidInfixSettings(
     // partial match

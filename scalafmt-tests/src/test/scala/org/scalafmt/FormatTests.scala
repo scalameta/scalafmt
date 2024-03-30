@@ -1,20 +1,23 @@
 package org.scalafmt
 
-import java.io.File
-
-import munit.FunSuite
-import munit.internal.console.AnsiColors
-import munit.internal.difflib.Diff
-
-import org.scalafmt.Error.{Incomplete, SearchStateExploded}
+import org.scalafmt.Error.Incomplete
+import org.scalafmt.Error.SearchStateExploded
 import org.scalafmt.rewrite.FormatTokensRewrite
 import org.scalafmt.sysops.FileOps
 import org.scalafmt.util._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
 import scala.meta.parsers.ParseException
+
+import java.io.File
+
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.concurrent.duration._
+
+import munit.FunSuite
+import munit.internal.console.AnsiColors
+import munit.internal.difflib.Diff
 
 // TODO(olafur) property test: same solution without optimization or timeout.
 

@@ -1,11 +1,11 @@
 package org.scalafmt.internal
 
-import scala.meta.tokens.Token
-
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.PolicyOps
+
 import org.scalameta.FileLine
+import scala.meta.tokens.Token
 
 case class OptimalToken(token: Token, killOnFail: Boolean = false) {
   override def toString: String = s"$token:${token.end}"

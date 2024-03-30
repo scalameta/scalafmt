@@ -1,12 +1,13 @@
 package org.scalafmt.cli
 
-import scala.io.Source
-
-import java.io.InputStream
-import java.nio.file.{Path, Paths}
-
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.sysops.AbsoluteFile
+
+import java.io.InputStream
+import java.nio.file.Path
+import java.nio.file.Paths
+
+import scala.io.Source
 
 sealed abstract class InputMethod {
   def readInput(options: CliOptions): String

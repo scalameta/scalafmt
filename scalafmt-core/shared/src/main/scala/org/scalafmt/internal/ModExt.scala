@@ -1,7 +1,8 @@
 package org.scalafmt.internal
 
-import scala.language.implicitConversions
 import scala.meta.tokens.Token
+
+import scala.language.implicitConversions
 
 /** @param mod
   *   Is this a space, no space, newline or 2 newlines?

@@ -1,17 +1,17 @@
 package org.scalafmt.rewrite
 
-import scala.annotation.tailrec
-import scala.collection.mutable
-import scala.reflect.ClassTag
-
-import scala.meta.Tree
-import scala.meta.tokens.{Token => T}
-
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
 import org.scalafmt.util.StyleMap
 import org.scalafmt.util.TokenOps
+
+import scala.meta.Tree
+import scala.meta.tokens.{Token => T}
+
+import scala.annotation.tailrec
+import scala.collection.mutable
+import scala.reflect.ClassTag
 
 class FormatTokensRewrite(
     ftoks: FormatTokens,

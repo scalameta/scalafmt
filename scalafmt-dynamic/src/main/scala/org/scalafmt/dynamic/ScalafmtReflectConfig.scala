@@ -1,10 +1,10 @@
 package org.scalafmt.dynamic
 
-import java.lang.reflect.Constructor
-import java.nio.file.Path
-
 import org.scalafmt.dynamic.exceptions.ReflectionException
 import org.scalafmt.dynamic.utils.ReflectUtils._
+
+import java.lang.reflect.Constructor
+import java.nio.file.Path
 
 import scala.util.Try
 

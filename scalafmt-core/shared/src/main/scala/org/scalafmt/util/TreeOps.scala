@@ -1,20 +1,24 @@
 package org.scalafmt.util
 
-import scala.annotation.tailrec
-import scala.collection.immutable.HashMap
-import scala.collection.mutable
+import org.scalafmt.Error
+import org.scalafmt.config.DanglingParentheses
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.FormatTokens
+import org.scalafmt.internal.Modification
+import org.scalafmt.internal.Space
+import org.scalafmt.util.InfixApp._
+
 import scala.meta._
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
-import scala.reflect.ClassTag
 
-import org.scalafmt.Error
-import org.scalafmt.config.{DanglingParentheses, ScalafmtConfig}
-import org.scalafmt.internal.{Modification, Space}
-import org.scalafmt.internal.{FormatToken, FormatTokens}
-import org.scalafmt.util.InfixApp._
+import scala.annotation.tailrec
+import scala.collection.immutable.HashMap
+import scala.collection.mutable
+import scala.reflect.ClassTag
 
 /** Stateless helper functions on `scala.meta.Tree`.
   */

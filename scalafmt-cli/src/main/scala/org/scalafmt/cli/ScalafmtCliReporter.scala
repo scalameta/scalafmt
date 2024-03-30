@@ -1,13 +1,14 @@
 package org.scalafmt.cli
 
-import java.io.PrintWriter
+import org.scalafmt.Error.MisformattedFile
+import org.scalafmt.dynamic.exceptions.ScalafmtException
+import org.scalafmt.interfaces.PositionException
+import org.scalafmt.interfaces.ScalafmtReporter
+
 import java.io.OutputStreamWriter
+import java.io.PrintWriter
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
-
-import org.scalafmt.Error.MisformattedFile
-import org.scalafmt.interfaces.{PositionException, ScalafmtReporter}
-import org.scalafmt.dynamic.exceptions.ScalafmtException
 
 import scala.util.control.NoStackTrace
 

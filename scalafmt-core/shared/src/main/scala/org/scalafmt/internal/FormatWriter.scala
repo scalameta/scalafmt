@@ -1,24 +1,32 @@
 package org.scalafmt.internal
 
-import java.nio.CharBuffer
-import java.util.regex.Pattern
-
 import org.scalafmt.CompatCollections.JavaConverters._
-import org.scalafmt.{Formatted, Scalafmt}
-import org.scalafmt.config.{Comments, Docstrings, FormatEvent, ScalafmtConfig}
-import org.scalafmt.config.{Newlines, RewriteScala3Settings, TrailingCommas}
+import org.scalafmt.Formatted
+import org.scalafmt.Scalafmt
+import org.scalafmt.config.Comments
+import org.scalafmt.config.Docstrings
+import org.scalafmt.config.FormatEvent
+import org.scalafmt.config.Newlines
+import org.scalafmt.config.RewriteScala3Settings
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.TrailingCommas
 import org.scalafmt.rewrite.RedundantBraces
+import org.scalafmt.util.LiteralOps
 import org.scalafmt.util.TokenOps._
-import org.scalafmt.util.{LiteralOps, TreeOps}
+import org.scalafmt.util.TreeOps
 
-import scala.annotation.tailrec
-import scala.collection.AbstractIterator
-import scala.collection.mutable
+import scala.meta._
 import scala.meta.internal.Scaladoc
 import scala.meta.internal.parsers.ScaladocParser
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
-import scala.meta._
+
+import java.nio.CharBuffer
+import java.util.regex.Pattern
+
+import scala.annotation.tailrec
+import scala.collection.AbstractIterator
+import scala.collection.mutable
 
 /** Produces formatted output from sequence of splits.
   */

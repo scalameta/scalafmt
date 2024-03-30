@@ -1,14 +1,14 @@
 package org.scalafmt.util
 
+import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.Split
+import org.scalafmt.internal.State
+
 import scala.meta.Tree
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Interpolation
 import scala.meta.tokens.Tokens
-
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.Split
-import org.scalafmt.internal.State
 
 import sourcecode.Text
 

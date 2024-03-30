@@ -1,9 +1,5 @@
 package org.scalafmt.internal
 
-import scala.annotation.tailrec
-import scala.collection.mutable
-import scala.meta.tokens.Token
-
 import org.scalafmt.Error.SearchStateExploded
 import org.scalafmt.config.FormatEvent.CompleteFormat
 import org.scalafmt.config.FormatEvent.Enqueue
@@ -13,6 +9,11 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
+
+import scala.meta.tokens.Token
+
+import scala.annotation.tailrec
+import scala.collection.mutable
 
 /** Implements best first search to find optimal formatting.
   */

@@ -1,7 +1,10 @@
 package org.scalafmt.util
 
 import java.io.IOException
-import java.nio.file.{FileVisitResult, FileVisitor, Files, Path}
+import java.nio.file.FileVisitResult
+import java.nio.file.FileVisitor
+import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
 
 object DeleteTree {

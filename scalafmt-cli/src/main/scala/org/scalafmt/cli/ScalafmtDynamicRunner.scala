@@ -1,14 +1,14 @@
 package org.scalafmt.cli
 
-import java.nio.file.Path
-import java.util.concurrent.atomic.AtomicReference
-
 import org.scalafmt.CompatCollections.ParConverters._
 import org.scalafmt.Error
 import org.scalafmt.dynamic.ScalafmtDynamicError
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtSession
 import org.scalafmt.sysops.FileOps
+
+import java.nio.file.Path
+import java.util.concurrent.atomic.AtomicReference
 
 import util.control.Breaks._
 

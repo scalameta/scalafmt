@@ -1,25 +1,24 @@
 package org.scalafmt.util
 
+import org.scalafmt.Debug
+import org.scalafmt.Scalafmt
+import org.scalafmt.config.DanglingParentheses
+import org.scalafmt.config.FormatEvent._
+import org.scalafmt.config.Indents
+import org.scalafmt.config.NamedDialect
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.ScalafmtParser
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.sysops.FileOps
+import org.scalafmt.tests.BuildInfo
+
 import java.nio.file.Paths
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
-
-import munit.Assertions._
-import org.scalafmt.{Debug, Scalafmt}
-import org.scalafmt.config.FormatEvent._
-import org.scalafmt.config.{
-  DanglingParentheses,
-  Indents,
-  NamedDialect,
-  ScalafmtConfig,
-  ScalafmtParser,
-  ScalafmtRunner,
-}
-import org.scalafmt.sysops.FileOps
-import org.scalafmt.tests.BuildInfo
 import scala.collection.mutable
 
+import munit.Assertions._
 import munit.Location
 
 trait HasTests extends FormatAssertions {

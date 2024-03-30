@@ -1,13 +1,14 @@
 package org.scalafmt.internal
 
-import scala.annotation.tailrec
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.rewrite.FormatTokensRewrite
+import org.scalafmt.util._
+
 import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
 
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.rewrite.FormatTokensRewrite
-import org.scalafmt.util._
+import scala.annotation.tailrec
 
 import TokenOps._
 

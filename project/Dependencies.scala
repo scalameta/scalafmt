@@ -1,7 +1,8 @@
-import sbt._
 import sbt.Keys._
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import sbt._
+
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 
 // scalafmt: { maxColumn = 100, align.preset = more, align.allowOverflow = true }
 

@@ -1,21 +1,24 @@
 package org.scalafmt.readme
 
-import scalatags.Text.TypedTag
-import scalatags.Text.all._
-import java.text.SimpleDateFormat
-import java.util.Date
-import com.twitter.util.Eval
-import metaconfig.Conf
-import metaconfig.ConfEncoder
-import metaconfig.generic.Settings
-import metaconfig.generic.Surface
 import org.scalafmt.Scalafmt
 import org.scalafmt.Versions
 import org.scalafmt.cli.Cli
 import org.scalafmt.cli.CliArgParser
+import org.scalafmt.config.Config
 import org.scalafmt.config._
 import org.scalafmt.rewrite._
-import org.scalafmt.config.Config
+
+import java.text.SimpleDateFormat
+import java.util.Date
+
+import com.twitter.util.Eval
+
+import metaconfig.Conf
+import metaconfig.ConfEncoder
+import metaconfig.generic.Settings
+import metaconfig.generic.Surface
+import scalatags.Text.TypedTag
+import scalatags.Text.all._
 
 object hl extends scalatex.site.Highlighter
 

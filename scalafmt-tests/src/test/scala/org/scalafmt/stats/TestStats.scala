@@ -1,8 +1,8 @@
 package org.scalafmt.stats
 
-import java.util.Date
-
 import org.scalafmt.util.Result
+
+import java.util.Date
 
 case class TestStats(
     createdAt: Long,

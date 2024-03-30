@@ -1,13 +1,15 @@
 package docs
 
+import org.scalafmt.config.ScalafmtConfig
+
+import scala.meta.inputs.Input
+import scala.meta.inputs.Position
+
+import mdoc.Reporter
+import mdoc.StringModifier
 import metaconfig.Conf
 import metaconfig.ConfEncoder
 import metaconfig.Configured
-import org.scalafmt.config.ScalafmtConfig
-import scala.meta.inputs.Input
-import scala.meta.inputs.Position
-import mdoc.Reporter
-import mdoc.StringModifier
 
 class DefaultsModifier extends StringModifier {
   override val name: String = "defaults"

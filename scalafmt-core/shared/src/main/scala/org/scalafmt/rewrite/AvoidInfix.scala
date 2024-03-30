@@ -1,11 +1,12 @@
 package org.scalafmt.rewrite
 
-import scala.annotation.tailrec
+import org.scalafmt.config.RewriteSettings
+import org.scalafmt.util.InfixApp
+
 import scala.meta._
 import scala.meta.internal.trees.PlaceholderChecks.hasPlaceholder
 
-import org.scalafmt.config.RewriteSettings
-import org.scalafmt.util.InfixApp
+import scala.annotation.tailrec
 
 object AvoidInfix extends RewriteFactory {
 

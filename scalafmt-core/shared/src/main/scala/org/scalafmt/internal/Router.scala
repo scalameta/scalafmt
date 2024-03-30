@@ -1,19 +1,27 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{Align, BinPack, Indents}
-import org.scalafmt.config.{ImportSelectors, Newlines, ScalafmtConfig, Spaces}
-import org.scalafmt.internal.ExpiresOn.{After, Before}
-import org.scalafmt.internal.Length.{Num, StateColumn}
+import org.scalafmt.config.Align
+import org.scalafmt.config.BinPack
+import org.scalafmt.config.ImportSelectors
+import org.scalafmt.config.Indents
+import org.scalafmt.config.Newlines
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.Spaces
+import org.scalafmt.internal.ExpiresOn.After
+import org.scalafmt.internal.ExpiresOn.Before
+import org.scalafmt.internal.Length.Num
+import org.scalafmt.internal.Length.StateColumn
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
+
 import org.scalameta.FileLine
+import scala.meta._
+import scala.meta.classifiers.Classifier
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 import scala.language.implicitConversions
-import scala.meta.classifiers.Classifier
-import scala.meta.tokens.{Token => T}
-import scala.meta._
 
 object Constants {
   val ShouldBeNewline = 100000
@@ -37,27 +45,24 @@ object Constants {
 class Router(formatOps: FormatOps) {
 
   import Constants._
+  import FormatOps._
   import LoggerOps._
   import PolicyOps._
   import TokenOps._
   import TreeOps._
-  import FormatOps._
   import formatOps._
-
-  import tokens.{
-    matching,
-    matchingOpt,
-    prev,
-    next,
-    tokenBefore,
-    getLastNonTrivial,
-    prevNonComment,
-    nextNonComment,
-    nextAfterNonComment,
-    nextNonCommentAfter,
-    prevNonCommentSameLine,
-    nextNonCommentSameLine,
-  }
+  import tokens.getLastNonTrivial
+  import tokens.matching
+  import tokens.matchingOpt
+  import tokens.next
+  import tokens.nextAfterNonComment
+  import tokens.nextNonComment
+  import tokens.nextNonCommentAfter
+  import tokens.nextNonCommentSameLine
+  import tokens.prev
+  import tokens.prevNonComment
+  import tokens.prevNonCommentSameLine
+  import tokens.tokenBefore
 
   private def getSplitsImpl(implicit formatToken: FormatToken): Seq[Split] = {
     implicit val style = styleMap.at(formatToken)

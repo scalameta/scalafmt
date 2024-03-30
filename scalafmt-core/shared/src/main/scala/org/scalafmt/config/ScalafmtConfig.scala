@@ -1,23 +1,25 @@
 package org.scalafmt.config
 
-import java.nio.file.FileSystems
-import java.nio.file.Path
-
-import scala.collection.mutable
-import scala.io.Codec
-import scala.meta.Dialect
-import scala.meta.Tree
-import scala.meta.Type
-import scala.util.Try
-
-import metaconfig._
+import org.scalafmt.Versions
 import org.scalafmt.rewrite.FormatTokensRewrite
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.OsSpecific._
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ValidationOps
-import org.scalafmt.Versions
+
+import scala.meta.Dialect
+import scala.meta.Tree
+import scala.meta.Type
+
+import java.nio.file.FileSystems
+import java.nio.file.Path
+
+import scala.collection.mutable
+import scala.io.Codec
+import scala.util.Try
+
+import metaconfig._
 
 /** Configuration options for scalafmt.
   *

@@ -1,9 +1,9 @@
 package org.scalafmt.dynamic
 
-import java.nio.file.Path
-
 import org.scalafmt.dynamic.ScalafmtDynamicError._
 import org.scalafmt.interfaces._
+
+import java.nio.file.Path
 
 final case class ScalafmtDynamic(
     properties: ScalafmtProperties,

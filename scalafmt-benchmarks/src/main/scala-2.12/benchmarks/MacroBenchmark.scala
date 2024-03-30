@@ -1,14 +1,16 @@
 package benchmarks
 
-import java.util.concurrent.TimeUnit
-
-import org.openjdk.jmh.annotations._
 import org.scalafmt.Scalafmt
 import org.scalafmt.benchmarks.FormatBenchmark
 
-import scala.collection.GenIterable
 import scala.meta.testkit.Corpus
+
+import java.util.concurrent.TimeUnit
+
+import scala.collection.GenIterable
 import scala.util.Try
+
+import org.openjdk.jmh.annotations._
 
 /** Formats filename at with scalafmt.
   *

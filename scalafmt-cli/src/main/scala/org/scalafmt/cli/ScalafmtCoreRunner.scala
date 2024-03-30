@@ -1,16 +1,20 @@
 package org.scalafmt.cli
 
-import java.util.concurrent.atomic.AtomicReference
-import util.control.Breaks
-
-import org.scalafmt.Error
-import org.scalafmt.{Formatted, Scalafmt, Versions}
-import org.scalafmt.config.{ProjectFiles, ScalafmtConfig}
-import org.scalafmt.config.ScalafmtConfigException
 import org.scalafmt.CompatCollections.ParConverters._
+import org.scalafmt.Error
+import org.scalafmt.Formatted
+import org.scalafmt.Scalafmt
+import org.scalafmt.Versions
+import org.scalafmt.config.ProjectFiles
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.ScalafmtConfigException
 
 import scala.meta.parsers.ParseException
 import scala.meta.tokenizers.TokenizeException
+
+import java.util.concurrent.atomic.AtomicReference
+
+import util.control.Breaks
 
 object ScalafmtCoreRunner extends ScalafmtRunner {
   override private[cli] def run(

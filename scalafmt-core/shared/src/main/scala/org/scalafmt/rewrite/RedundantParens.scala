@@ -1,14 +1,19 @@
 package org.scalafmt.rewrite
 
-import scala.annotation.tailrec
+import org.scalafmt.config.RedundantParensSettings
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.FormatTokens
+import org.scalafmt.internal.Side
+import org.scalafmt.internal.SyntacticGroupOps
+import org.scalafmt.internal.TreeSyntacticGroup
+import org.scalafmt.util.InfixApp._
+import org.scalafmt.util.TreeOps
+
 import scala.meta._
 import scala.meta.tokens.Token
 
-import org.scalafmt.config.{RedundantParensSettings, ScalafmtConfig}
-import org.scalafmt.internal.{FormatToken, FormatTokens}
-import org.scalafmt.internal.{Side, SyntacticGroupOps, TreeSyntacticGroup}
-import org.scalafmt.util.InfixApp._
-import org.scalafmt.util.TreeOps
+import scala.annotation.tailrec
 
 object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
 

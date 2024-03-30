@@ -1,16 +1,16 @@
 package org.scalafmt
 
-import scala.annotation.tailrec
-import scala.collection.mutable
-
-import java.util.concurrent.TimeUnit
-
 import org.scalafmt.config.FormatEvent.CompleteFormat
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.internal.Split
 import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
+
+import java.util.concurrent.TimeUnit
+
+import scala.annotation.tailrec
+import scala.collection.mutable
 
 /** (ugly) Utility to collect data about formatter.
   *

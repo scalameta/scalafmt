@@ -1,8 +1,8 @@
 package org.scalafmt.config
 
-import scala.meta.dialects
-
 import org.scalafmt.sysops.AbsoluteFile
+
+import scala.meta.dialects
 
 class StandardProjectLayoutTest extends munit.FunSuite {
 

@@ -1,14 +1,16 @@
 package org.scalafmt.cli
 
-import com.martiansoftware.nailgun.NGContext
-import java.nio.file.{Files, Paths}
-
 import org.scalafmt.Versions.{stable => stableVersion}
 import org.scalafmt.sysops.AbsoluteFile
+
+import java.nio.file.Files
+import java.nio.file.Paths
 
 import scala.io.Source
 import scala.util.Using
 import scala.util.control.NoStackTrace
+
+import com.martiansoftware.nailgun.NGContext
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {

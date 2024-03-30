@@ -1,13 +1,14 @@
 package org.scalafmt
 
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.sysops.FileOps
+import org.scalafmt.util.FormatAssertions
+
 import scala.meta.dialects.Scala213
 
 import java.io.File
 import java.nio.file.Path
 
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.sysops.FileOps
-import org.scalafmt.util.FormatAssertions
 import munit.FunSuite
 
 /** Asserts formatter does not alter original source file's AST.

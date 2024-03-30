@@ -1,10 +1,10 @@
 package org.scalafmt.config
 
-import scala.meta._
-
 import org.scalafmt.config.Newlines._
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.util.TreeOps
+
+import scala.meta._
 
 import metaconfig._
 import metaconfig.generic.Surface

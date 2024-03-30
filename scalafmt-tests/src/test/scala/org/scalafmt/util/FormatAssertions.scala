@@ -1,17 +1,21 @@
 package org.scalafmt.util
 
+import org.scalafmt.Error.FormatterChangedAST
+import org.scalafmt.Error.FormatterOutputDoesNotParse
+import org.scalafmt.Scalafmt
+import org.scalafmt.config.ScalafmtRunner
+
+import org.scalameta.logger
+import scala.meta.Dialect
+import scala.meta.Tree
+import scala.meta.internal.inputs._
+import scala.meta.parsers.Parse
+import scala.meta.parsers.ParseException
+import scala.meta.testkit.StructurallyEqual
+
 import java.io.ByteArrayInputStream
 
 import munit.internal.difflib.Diffs
-import org.scalafmt.Error.{FormatterChangedAST, FormatterOutputDoesNotParse}
-import org.scalafmt.Scalafmt
-import org.scalafmt.config.ScalafmtRunner
-import org.scalameta.logger
-
-import scala.meta.parsers.{Parse, ParseException}
-import scala.meta.testkit.StructurallyEqual
-import scala.meta.{Dialect, Tree}
-import scala.meta.internal.inputs._
 
 trait FormatAssertions {
 

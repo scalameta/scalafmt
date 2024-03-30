@@ -1,10 +1,11 @@
 package org.scalafmt.util
 
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.tests.BuildInfo
+
 import java.nio.file.Paths
 
 import munit.Location
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.tests.BuildInfo
 
 case class DiffTest(
     name: String,

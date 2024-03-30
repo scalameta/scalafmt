@@ -1,5 +1,9 @@
 package org.scalafmt
-import scala.util.{Either, Failure, Right, Success, Try}
+import scala.util.Either
+import scala.util.Failure
+import scala.util.Right
+import scala.util.Success
+import scala.util.Try
 
 package object dynamic {
 

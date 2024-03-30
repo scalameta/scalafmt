@@ -1,22 +1,25 @@
 package org.scalafmt.cli
 
-import java.io.{
-  ByteArrayInputStream,
-  ByteArrayOutputStream,
-  IOException,
-  PrintStream,
-}
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path}
-
-import scala.collection.JavaConverters._
-import munit.FunSuite
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Versions.{stable => stableVersion}
 import org.scalafmt.cli.FileTestOps._
-import org.scalafmt.config.{ProjectFiles, ScalafmtConfig}
-import org.scalafmt.sysops.{AbsoluteFile, FileOps}
+import org.scalafmt.config.ProjectFiles
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.FileOps
 import org.scalafmt.sysops.OsSpecific._
+
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.PrintStream
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Path
+
+import scala.collection.JavaConverters._
+
+import munit.FunSuite
 
 abstract class AbstractCliTest extends FunSuite {
   def mkArgs(str: String): Array[String] = str.split(' ')

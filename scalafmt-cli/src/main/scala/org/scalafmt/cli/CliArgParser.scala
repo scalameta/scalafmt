@@ -1,9 +1,11 @@
 package org.scalafmt.cli
 
-import java.nio.file.{Path, Paths}
+import org.scalafmt.Versions
+
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.Date
 
-import org.scalafmt.Versions
 import scopt.OptionParser
 
 object CliArgParser {

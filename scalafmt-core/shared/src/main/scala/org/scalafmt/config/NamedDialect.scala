@@ -1,9 +1,9 @@
 package org.scalafmt.config
 
-import metaconfig.ConfCodecEx
-
 import scala.meta.Dialect
 import scala.meta.dialects._
+
+import metaconfig.ConfCodecEx
 
 case class NamedDialect(name: String, dialect: Dialect)
 
