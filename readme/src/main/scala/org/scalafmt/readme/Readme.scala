@@ -65,7 +65,7 @@ object Readme {
     hl.scala(result)
   }
 
-  def config(frags: Frag*) = { cliFlags(frags.render) }
+  def config(frags: Frag*) = cliFlags(frags.render)
   def cliFlags(flags: String) = {
     Config.fromHoconString(flags).get
     hl.scala(flags)
@@ -118,18 +118,14 @@ object Readme {
   def configurationBlock(
       style: ScalafmtConfig,
       collapsed: Boolean = false
-  ): TypedTag[String] = {
-    div(
-      span(
-        "Show/hide configuration used for this example",
-        `class` := "scalafmt-configuration-toggle"
-      ),
-      pre(changedConfig(style)),
-      `class` := {
-        "scalafmt-configuration" + (if (collapsed) " collapsed" else "")
-      }
-    )
-  }
+  ): TypedTag[String] = div(
+    span(
+      "Show/hide configuration used for this example",
+      `class` := "scalafmt-configuration-toggle"
+    ),
+    pre(changedConfig(style)),
+    `class` := "scalafmt-configuration" + (if (collapsed) " collapsed" else "")
+  )
 
   def fullWidthDemo(style: ScalafmtConfig)(code: String): TypedTag[String] = {
     val formatted = Scalafmt.format(code, style).get
@@ -148,9 +144,8 @@ object Readme {
     div(sideBySide(code, formatted), configurationBlock(style))
   }
 
-  def example(code: String): TypedTag[String] = {
+  def example(code: String): TypedTag[String] =
     example(code, ScalafmtConfig.default40)
-  }
 
   def exampleAlign(code: String): TypedTag[String] = {
     val formatted = Scalafmt.format(
@@ -270,9 +265,8 @@ object Readme {
   def lastUpdated = new SimpleDateFormat("MMM d, y")
     .format(new Date(Versions.timestamp.toLong))
 
-  def format(code: String): TypedTag[String] = {
+  def format(code: String): TypedTag[String] =
     format(ScalafmtConfig.default)(code)
-  }
 
   val alignNone = ScalafmtConfig.default.copy(align = Align.none)
   val alignSome = ScalafmtConfig.default.copy(align = Align.some)
@@ -283,9 +277,8 @@ object Readme {
     .copy(align = Align.default.copy(arrowEnumeratorGenerator = true))
   val alignModuleId = ScalafmtConfig.defaultWithAlign
 
-  def format(style: ScalafmtConfig)(code: String): TypedTag[String] = {
+  def format(style: ScalafmtConfig)(code: String): TypedTag[String] =
     example(code, style.copy(runner = ScalafmtRunner.sbt))
-  }
 
   def example(code: String, style: ScalafmtConfig): TypedTag[String] = {
     val formatted = Scalafmt.format(code, style).get

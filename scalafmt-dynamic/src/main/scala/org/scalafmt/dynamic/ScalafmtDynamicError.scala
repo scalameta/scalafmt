@@ -37,13 +37,9 @@ object ScalafmtDynamicError {
       cause: Throwable
   ) extends ConfigError(configPath, getCorruptedClassPath(version, urls), cause)
 
-  def getCorruptedClassPath(
-      version: ScalafmtVersion,
-      urls: Seq[URL]
-  ): String = {
+  def getCorruptedClassPath(version: ScalafmtVersion, urls: Seq[URL]): String =
     urls.map(x => if (x.getProtocol == "file") x.getFile else x.toString)
       .mkString(s"[v$version] corrupted class path: [", ",", "]")
-  }
 
   class ConfigInvalidVersion(configPath: Path, version: String)
       extends ConfigError(configPath, s"Invalid version: $version")

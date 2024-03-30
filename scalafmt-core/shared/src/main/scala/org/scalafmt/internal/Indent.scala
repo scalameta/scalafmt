@@ -119,7 +119,8 @@ object Indent {
       extends Indent {
     override def switch(trigger: Token, on: Boolean): Indent =
       if (trigger ne this.trigger) this
-      else { if (on) before else after.switch(trigger, false) }
+      else if (on) before
+      else after.switch(trigger, false)
     override def withStateOffset(offset: Int): Option[ActualIndent] = before
       .withStateOffset(offset)
     override def hasStateColumn: Boolean = before.hasStateColumn

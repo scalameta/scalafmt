@@ -146,9 +146,9 @@ final case class State(
       (penalty, if (nextActive) nextDelayedPenalty else -nextDelayedPenalty)
     }
     val ft = tokens(depth)
-    if (nextSplit.isNL || ft.right.is[Token.EOF]) {
+    if (nextSplit.isNL || ft.right.is[Token.EOF])
       result(if (prevActive) fullPenalty else defaultOverflowPenalty, false)
-    } else {
+    else {
       val tokLength = ft.meta.right.text.length
       def getFullPenalty = result(fullPenalty, true)
       def getCustomPenalty = {
@@ -171,32 +171,29 @@ final case class State(
       else if (
         style.newlines.avoidForSimpleOverflowTooLong &&
         State.isWithinInterpolation(ft.meta.rightOwner)
-      ) {
-        ft.right match {
-          case _: Token.Interpolation.End => getCustomPenalty
-          case _: Token.Interpolation.Id if delayedPenalty != 0 =>
-            getFullPenalty // can't delay multiple times
-          case _ => // delay for intermediate interpolation tokens
-            result(tokLength, true)
-        }
-      } else if (
+      ) ft.right match {
+        case _: Token.Interpolation.End => getCustomPenalty
+        case _: Token.Interpolation.Id if delayedPenalty != 0 => getFullPenalty // can't delay multiple times
+        case _ => // delay for intermediate interpolation tokens
+          result(tokLength, true)
+      }
+      else if (
         ft.right.isInstanceOf[Product] && tokLength == 1 &&
         !ft.meta.right.text.head.isLetterOrDigit
       ) { // delimiter
-        val ok = delayedPenalty != 0 || {
+        val ok = delayedPenalty != 0 ||
           style.newlines.avoidForSimpleOverflowPunct &&
           column >= style.maxColumn
-        }
         if (ok) result(1, prevActive)
         else prev.getOverflowPenalty(split, defaultOverflowPenalty + 1)
       } else if (
         style.newlines.avoidForSimpleOverflowSLC &&
         tokens.isRightCommentThenBreak(ft)
-      ) { result(0, prevActive) }
+      ) result(0, prevActive)
       else if (
         style.newlines.avoidForSimpleOverflowTooLong && delayedPenalty == 0 // can't delay multiple times
-      ) { getCustomPenalty }
-      else { getFullPenalty }
+      ) getCustomPenalty
+      else getFullPenalty
     }
   }
 
@@ -236,10 +233,11 @@ final case class State(
   /** Check that the current line starts a statement which also contains the
     * current token.
     */
-  private def lineStartsStatement(
-      isComment: Boolean
-  )(implicit style: ScalafmtConfig, tokens: FormatTokens): Option[FormatToken] = {
-    getLineStartOwner(isComment).flatMap { case (lineFt, lineOwner) =>
+  private def lineStartsStatement(isComment: Boolean)(implicit
+      style: ScalafmtConfig,
+      tokens: FormatTokens
+  ): Option[FormatToken] = getLineStartOwner(isComment)
+    .flatMap { case (lineFt, lineOwner) =>
       val ft = tokens(depth)
       val ok = {
         // comment could be preceded by a comma
@@ -252,7 +250,6 @@ final case class State(
       } || findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner).isDefined
       if (ok) Some(lineFt) else None
     }
-  }
 
   private def getRelativeToLhsLastLineEnd(
       isNL: Boolean
@@ -461,11 +458,9 @@ object State {
       ft: FormatToken,
       isComment: Boolean
   ): Boolean = {
-    {
-      split.length == 0 || isComment || isInterpolation(ft.meta.rightOwner) ||
-      ft.meta.leftOwner.is[meta.Term.Assign]
-    } && !split.modExt.indents.exists(_.hasStateColumn)
-  }
+    split.length == 0 || isComment || isInterpolation(ft.meta.rightOwner) ||
+    ft.meta.leftOwner.is[meta.Term.Assign]
+  } && !split.modExt.indents.exists(_.hasStateColumn)
 
   @inline
   private def isInterpolation(tree: Tree): Boolean = tree.is[Term.Interpolate]

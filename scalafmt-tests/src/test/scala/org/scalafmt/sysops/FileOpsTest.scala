@@ -13,18 +13,16 @@ class FileOpsTest extends munit.FunSuite {
 
   private var path: Path = _
 
-  override def beforeEach(context: BeforeEach): Unit = {
+  override def beforeEach(context: BeforeEach): Unit =
     path = Files.createTempDirectory("FileOpsTestDir")
-  }
 
-  override def afterEach(context: AfterEach): Unit = {
-    try { deleteTree(path) }
+  override def afterEach(context: AfterEach): Unit =
+    try deleteTree(path)
     catch {
       case e: Throwable =>
         println("Unable to delete test files")
         e.printStackTrace()
     }
-  }
 
   test("listFiles") {
     assertEquals(FileOps.listFiles(path), Nil)

@@ -25,8 +25,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
     ).take(count).toBuffer.par
     SyntaxAnalysis.run[Observation[Bug]](corpus) { file =>
       val code = file.read
-      try {
-        Scalafmt.format(code, config) match {
+      try Scalafmt.format(code, config) match {
           case Formatted.Success(formatted) =>
             assertFormatPreservesAst[Source](file.filename, code, formatted)
             val formattedSecondTime = Scalafmt.format(formatted, config).get
@@ -47,7 +46,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
           case Formatted.Failure(e) =>
             List(Observation(e.getMessage, 0, Unknown(e)))
         }
-      } catch {
+      catch {
         case e: Error.FormatterChangedAST =>
           List(Observation(e.getMessage, -1, AstChanged))
         case e: Error.FormatterOutputDoesNotParse => List(Observation(

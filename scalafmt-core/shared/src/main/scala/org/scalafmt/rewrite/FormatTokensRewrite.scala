@@ -92,9 +92,8 @@ class FormatTokensRewrite(
           if (rtidx == idx) { // we moved here
             append()
             shiftedIndexMap.put(idx, appended)
-          } else { // we moved from here
+          } else // we moved from here
             remove(shiftedIndexMap.remove(rtidx).getOrElse(appended))
-          }
       }
     }
 
@@ -103,23 +102,21 @@ class FormatTokensRewrite(
       copySlice(arr.length)
       val newarr = result.result()
       @tailrec
-      def iter(idx: Int): Unit = {
-        if (idx < newarr.length) {
-          val ft = newarr(idx)
-          // reset all indices and set left from previous right (or first left)
-          val (left, leftMeta) =
-            if (idx == 0) {
-              val headft = arr(0)
-              headft.left -> headft.meta.left
-            } else {
-              val prevft = newarr(idx - 1)
-              prevft.right -> prevft.meta.right
-            }
-          val newMeta = ft.meta.copy(idx = idx, left = leftMeta)
-          newarr(idx) = ft.copy(left = left, meta = newMeta)
-          tokenMap += FormatTokens.thash(left) -> idx
-          iter(idx + 1)
-        }
+      def iter(idx: Int): Unit = if (idx < newarr.length) {
+        val ft = newarr(idx)
+        // reset all indices and set left from previous right (or first left)
+        val (left, leftMeta) =
+          if (idx == 0) {
+            val headft = arr(0)
+            headft.left -> headft.meta.left
+          } else {
+            val prevft = newarr(idx - 1)
+            prevft.right -> prevft.meta.right
+          }
+        val newMeta = ft.meta.copy(idx = idx, left = leftMeta)
+        newarr(idx) = ft.copy(left = left, meta = newMeta)
+        tokenMap += FormatTokens.thash(left) -> idx
+        iter(idx + 1)
       }
       iter(0)
 
@@ -172,7 +169,7 @@ class FormatTokensRewrite(
           if (left ne null) {
             val ko = ft.meta.formatOff ||
               session.claimedRule.exists(_.rule ne left.rule)
-            if (ko) { tokens(ldelimIdx) = null }
+            if (ko) tokens(ldelimIdx) = null
             else {
               implicit val style = styleMap.at(ft.right)
               left.onRightAndClaim(formatOff, ldelimIdx)
@@ -320,7 +317,7 @@ object FormatTokensRewrite {
     private[rewrite] def claimedRule(ftIdx: Int): Option[Replacement] = claimed
       .get(ftIdx).map(tokens.apply).filter(_ ne null)
 
-    private[rewrite] def claim(ftIdx: Int, repl: Replacement): Int = {
+    private[rewrite] def claim(ftIdx: Int, repl: Replacement): Int =
       justClaim(ftIdx) {
         if (repl eq null) null
         else (repl.how match {
@@ -337,7 +334,6 @@ object FormatTokensRewrite {
           case _ => None
         }).getOrElse(repl)
       }
-    }
 
     @inline
     private[rewrite] def claim(repl: Replacement)(implicit
@@ -371,7 +367,7 @@ object FormatTokensRewrite {
       if (attemptedRule.enabled) attemptedRule.onToken.map { repl =>
         val idx = claim(repl)
         try idx
-        finally repl.claim.foreach { claimed.getOrElseUpdate(_, idx) }
+        finally repl.claim.foreach(claimed.getOrElseUpdate(_, idx))
       }
       else None
 

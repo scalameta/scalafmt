@@ -46,9 +46,8 @@ trait GitOps {
 
 private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
-  private[scalafmt] def exec(cmd: Seq[String]): Seq[String] = {
-    execImpl(cmd).linesIterator.toSeq
-  }
+  private[scalafmt] def exec(cmd: Seq[String]): Seq[String] = execImpl(cmd)
+    .linesIterator.toSeq
 
   private def execImpl(cmd: Seq[String]): String = {
     val errors = Seq.newBuilder[String]

@@ -67,12 +67,11 @@ object FileOps {
   }
 
   /** Reads file from file system or from http url */
-  def readFile(filename: String)(implicit codec: Codec): String = {
+  def readFile(filename: String)(implicit codec: Codec): String =
     Try(new URL(filename)) match {
       case Success(url) => readFile(url)
       case _ => readFile(getFile(filename))
     }
-  }
 
   def readFile(url: URL)(implicit codec: Codec): String = {
     val isFile = Option(url.getProtocol).forall("file".equalsIgnoreCase)
@@ -89,9 +88,8 @@ object FileOps {
   private[sysops] def readAsURI(uri: URI)(implicit codec: Codec): String =
     readFile(Paths.get(uri))
 
-  def readFile(file: Path)(implicit codec: Codec): String = {
+  def readFile(file: Path)(implicit codec: Codec): String =
     new String(Files.readAllBytes(file), codec.charSet)
-  }
 
   @inline
   def getFile(path: String): Path = getPath(path)
@@ -109,7 +107,7 @@ object FileOps {
 
   def writeFile(filename: String, content: String)(implicit
       codec: Codec
-  ): Unit = { writeFile(getFile(filename), content) }
+  ): Unit = writeFile(getFile(filename), content)
 
   @inline
   def isMarkdown(filename: String): Boolean = filename.endsWith(".md")

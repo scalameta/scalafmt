@@ -210,7 +210,8 @@ object Policy {
     override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
     override def switch(trigger: Token, on: Boolean): Policy =
       if (trigger ne this.trigger) conv(_.switch(trigger, on))
-      else { if (on) before else after.switch(trigger, false) }
+      else if (on) before
+      else after.switch(trigger, false)
     override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
     override def noDequeue: Boolean = before.noDequeue
     override def toString: String = s"SW:[$fileLine]($before,$trigger,$after)"

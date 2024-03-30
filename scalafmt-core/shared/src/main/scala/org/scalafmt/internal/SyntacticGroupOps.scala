@@ -35,21 +35,19 @@ object SyntacticGroupOps {
       val outerOperatorPrecedence = precedence(outerOperator)
       val innerOperatorPrecedence = precedence(innerOperator)
 
-      if (outerOperatorPrecedence < innerOperatorPrecedence) { isRight }
-      else if (outerOperatorPrecedence == innerOperatorPrecedence) {
-        isLeft ^ side.isLeft
-      } else { isLeft || forceRight }
+      if (outerOperatorPrecedence < innerOperatorPrecedence) isRight
+      else if (outerOperatorPrecedence == innerOperatorPrecedence) isLeft ^
+        side.isLeft
+      else isLeft || forceRight
     }
   }
 
   @tailrec
-  def startsWithNumericLiteral(tree: Tree): Boolean = {
-    tree match {
-      case _: Lit.Int | _: Lit.Long | _: Lit.Double | _: Lit.Float |
-          _: Lit.Byte | _: Lit.Short => true
-      case Term.Select(tree0, _) => startsWithNumericLiteral(tree0)
-      case _ => false
-    }
+  def startsWithNumericLiteral(tree: Tree): Boolean = tree match {
+    case _: Lit.Int | _: Lit.Long | _: Lit.Double | _: Lit.Float | _: Lit.Byte |
+        _: Lit.Short => true
+    case Term.Select(tree0, _) => startsWithNumericLiteral(tree0)
+    case _ => false
   }
 
   def groupNeedsParenthesis(

@@ -16,25 +16,22 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
 
   def getExitCode: ExitCode = exitCode.get()
 
-  override def error(file: Path, message: String): Unit = {
+  override def error(file: Path, message: String): Unit =
     if (!options.ignoreWarnings) {
       options.common.err.println(s"$message: $file")
       exitCode.getAndUpdate(ExitCode.merge(ExitCode.UnexpectedError, _))
     }
-  }
-  override def error(file: Path, e: Throwable): Unit = {
-    e match {
-      case _: PositionException if !options.ignoreWarnings =>
-        options.common.err.println(s"${e.toString}: $file")
-        exitCode.getAndUpdate(ExitCode.merge(ExitCode.ParseError, _))
-      case MisformattedFile(_, diff) =>
-        options.common.err.println(diff)
-        exitCode.getAndUpdate(ExitCode.merge(ExitCode.TestError, _))
-      case ScalafmtException(_, cause) => error(file, cause)
-      case _ if !options.ignoreWarnings =>
-        new FailedToFormat(file.toString, e).printStackTrace(options.common.err)
-        exitCode.getAndUpdate(ExitCode.merge(ExitCode.UnexpectedError, _))
-    }
+  override def error(file: Path, e: Throwable): Unit = e match {
+    case _: PositionException if !options.ignoreWarnings =>
+      options.common.err.println(s"${e.toString}: $file")
+      exitCode.getAndUpdate(ExitCode.merge(ExitCode.ParseError, _))
+    case MisformattedFile(_, diff) =>
+      options.common.err.println(diff)
+      exitCode.getAndUpdate(ExitCode.merge(ExitCode.TestError, _))
+    case ScalafmtException(_, cause) => error(file, cause)
+    case _ if !options.ignoreWarnings =>
+      new FailedToFormat(file.toString, e).printStackTrace(options.common.err)
+      exitCode.getAndUpdate(ExitCode.merge(ExitCode.UnexpectedError, _))
   }
 
   override def excluded(file: Path): Unit = options.common.debug

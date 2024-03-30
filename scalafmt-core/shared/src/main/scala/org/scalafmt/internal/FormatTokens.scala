@@ -39,8 +39,9 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     else {
       val ft = arr(idx)
       if (ft.left eq tok) ft
-      else if (isBefore) { if (ft.left.start <= tok.start) ft else at(idx - 1) }
-      else { if (ft.left.start >= tok.start) ft else at(idx + 1) }
+      else if (isBefore) if (ft.left.start <= tok.start) ft else at(idx - 1)
+      else if (ft.left.start >= tok.start) ft
+      else at(idx + 1)
     }
   }
 
@@ -320,7 +321,7 @@ object FormatTokens {
     val arr = tokens.toArray
     def process(right: Token): Unit = {
       val rmeta = FormatToken.TokenMeta(owner(right), right.syntax)
-      if (left eq null) { fmtWasOff = isFormatOff(right) }
+      if (left eq null) fmtWasOff = isFormatOff(right)
       else {
         val between = arr.slice(wsIdx, tokIdx)
         val fmtIsOff = fmtWasOff || isFormatOff(right)

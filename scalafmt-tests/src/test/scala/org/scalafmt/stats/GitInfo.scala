@@ -19,10 +19,10 @@ object GitInfo {
 
   val travis: Option[GitInfo] = for {
     isCi <- sys.env.get("CI") if isCi == "true"
-  } yield { GitInfo("CI", "CI", currentBranch, currentCommit) }
+  } yield GitInfo("CI", "CI", currentBranch, currentCommit)
 
   def apply(): GitInfo = travis
-    .getOrElse { GitInfo(user, email, currentBranch, currentCommit) }
+    .getOrElse(GitInfo(user, email, currentBranch, currentCommit))
 
   def currentCommit = exec("git", "rev-parse", "HEAD")
 

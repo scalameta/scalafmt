@@ -13,10 +13,8 @@ class TokenTraverser(tokens: Tokens, input: Input) {
     var i = 0
     tokens.foreach { tok =>
       if (!formatOff) { if (TokenOps.isFormatOff(tok)) formatOff = true }
-      else {
-        if (TokenOps.isFormatOn(tok)) formatOff = false
-        else excluded += TokenOps.hash(tok)
-      }
+      else if (TokenOps.isFormatOn(tok)) formatOff = false
+      else excluded += TokenOps.hash(tok)
       map += (tok -> i)
       i += 1
     }
@@ -43,18 +41,14 @@ class TokenTraverser(tokens: Tokens, input: Input) {
   @inline
   def getIndexOpt(token: Token): Option[Int] = tok2idx.get(token)
 
-  def nextToken(token: Token): Token = {
-    tok2idx.get(token) match {
-      case Some(i) if i < tokens.length - 1 => tokens(i + 1)
-      case _ => token
-    }
+  def nextToken(token: Token): Token = tok2idx.get(token) match {
+    case Some(i) if i < tokens.length - 1 => tokens(i + 1)
+    case _ => token
   }
 
-  def prevToken(token: Token): Token = {
-    tok2idx.get(token) match {
-      case Some(i) if i > 0 => tokens(i - 1)
-      case _ => token
-    }
+  def prevToken(token: Token): Token = tok2idx.get(token) match {
+    case Some(i) if i > 0 => tokens(i - 1)
+    case _ => token
   }
 
   def nextNonTrivialToken(token: Token): Option[Token] =
@@ -113,13 +107,12 @@ class TokenTraverser(tokens: Tokens, input: Input) {
 
   final def filter(start: Token, end: Token)(
       predicate: Token => Boolean
-  ): Seq[Token] = {
+  ): Seq[Token] =
     if (start == end || nextToken(start) == start) Nil
     else {
       val tail = filter(nextToken(start), end)(predicate)
       if (predicate(start)) start +: tail else tail
     }
-  }
 
 }
 

@@ -118,7 +118,7 @@ object TermDisplay {
       isDone: Boolean
   ) extends Info {
     def fraction = None
-    def display(): String = {
+    def display(): String =
       if (isDone) (currentTimeOpt, remoteTimeOpt) match {
         case (Some(current), Some(remote)) =>
           if (current < remote)
@@ -138,7 +138,6 @@ object TermDisplay {
           s"Checking for updates since ${formatTimestamp(current)}"
         case None => "" // ???
       }
-    }
   }
 
   private sealed abstract class Message extends Product with Serializable
@@ -162,7 +161,7 @@ object TermDisplay {
 
     private val q = new LinkedBlockingDeque[Message]
 
-    def update(): Unit = { if (q.size() == 0) q.put(Message.Update) }
+    def update(): Unit = if (q.size() == 0) q.put(Message.Update)
 
     def end(): Unit = {
       q.put(Message.Stop)
@@ -184,7 +183,7 @@ object TermDisplay {
         out.flush()
       }
 
-      downloads.synchronized { downloads.append(url) }
+      downloads.synchronized(downloads.append(url))
 
       update()
     }
@@ -260,7 +259,7 @@ object TermDisplay {
     }
 
     private def getDownloadInfos: Vector[(String, Info)] = downloads.toVector
-      .map { url => url -> infos.get(url) }.sortBy { case (_, info) =>
+      .map(url => url -> infos.get(url)).sortBy { case (_, info) =>
         -info.fraction.sum
       }
 
@@ -323,10 +322,10 @@ object TermDisplay {
             out.clearLine(2)
             out.down(1)
           }
-          for (_ <- 0 until currentHeight) { out.up(2) }
+          for (_ <- 0 until currentHeight) out.up(2)
 
         case Some(Message.Update) =>
-          val downloads0 = downloads.synchronized { getDownloadInfos }
+          val downloads0 = downloads.synchronized(getDownloadInfos)
 
           var displayedSomething = false
           for ((url, info) <- downloads0 if previous(url)) {
@@ -381,9 +380,9 @@ class TermDisplay(
   private val counter = new atomic.AtomicInteger()
   private val updateThread = new UpdateDisplayThread(out, fallbackMode)
 
-  def init(): Unit = { updateThread.start() }
+  def init(): Unit = updateThread.start()
 
-  def stop(): Unit = { updateThread.end() }
+  def stop(): Unit = updateThread.end()
 
   override def startTask(msg: String, file: File): Unit = updateThread.newEntry(
     msg,

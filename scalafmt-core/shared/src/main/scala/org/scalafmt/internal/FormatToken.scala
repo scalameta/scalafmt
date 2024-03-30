@@ -30,9 +30,8 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
     s"${meta.left.text}∙${meta.right.text}: ${left.structure} [$ws] ${right.structure}"
   }
 
-  def inside(range: Set[Range]): Boolean = {
+  def inside(range: Set[Range]): Boolean =
     if (range.isEmpty) true else range.exists(_.contains(right.pos.endLine))
-  }
 
   def between = meta.between
   lazy val newlinesBetween: Int = {
@@ -98,14 +97,13 @@ object FormatToken {
     /** returns a value between 0 and 2 (2 for a blank line) */
     lazy val newlinesBetween: Int = {
       @tailrec
-      def count(idx: Int, maxCount: Int): Int = {
+      def count(idx: Int, maxCount: Int): Int =
         if (idx == between.length) maxCount
         else {
           val token = between(idx)
           if (isNL(token)) if (maxCount == 0) count(idx + 1, 1) else 2
           else count(idx + 1, maxCount)
         }
-      }
       count(0, 0)
     }
   }

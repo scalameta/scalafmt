@@ -29,7 +29,7 @@ class Debug(val verbose: Boolean) {
 
   def elapsedNs = System.nanoTime() - startTime
 
-  def enqueued(split: Split): Unit = { if (verbose) enqueuedSplits += split }
+  def enqueued(split: Split): Unit = if (verbose) enqueuedSplits += split
 
   def completed(event: CompleteFormat): Unit = {
     explored += event.totalExplored

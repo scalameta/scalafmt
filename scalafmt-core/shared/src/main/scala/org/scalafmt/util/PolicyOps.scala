@@ -35,14 +35,13 @@ object PolicyOps {
         penalty: Int,
         penalizeLambdas: Boolean = true,
         noSyntaxNL: Boolean = false
-    )(implicit fileLine: FileLine, style: ScalafmtConfig): Policy = {
+    )(implicit fileLine: FileLine, style: ScalafmtConfig): Policy =
       new PenalizeAllNewlines(
         Policy.End.Before(expire),
         penalty,
         penalizeLambdas,
         noSyntaxNL
       )
-    }
   }
 
   /** Forces all splits up to including expire to be on a single line.
@@ -98,10 +97,8 @@ object PolicyOps {
     override val endPolicy: Policy.End.WithPos = Policy.End.On(token)
     override val noDequeue: Boolean = false
     override val f: Policy.Pf = split.fold[Policy.Pf] {
-      {
-        case d: Decision if d.formatToken.right eq token =>
-          d.onlyNewlinesWithoutFallback
-      }
+      case d: Decision if d.formatToken.right eq token =>
+        d.onlyNewlinesWithoutFallback
     } { s =>
       {
         case d: Decision if d.formatToken.right eq token =>
@@ -120,10 +117,8 @@ object PolicyOps {
     override val endPolicy: Policy.End.WithPos = Policy.End.After(token)
     override val noDequeue: Boolean = false
     override val f: Policy.Pf = split.fold[Policy.Pf] {
-      {
-        case d: Decision if d.formatToken.left eq token =>
-          d.onlyNewlinesWithoutFallback
-      }
+      case d: Decision if d.formatToken.left eq token =>
+        d.onlyNewlinesWithoutFallback
     } { s =>
       {
         case d: Decision if d.formatToken.left eq token =>
@@ -202,8 +197,8 @@ object PolicyOps {
       fileLine: FileLine
   ): Policy = new DecideNewlinesOnlyAfterToken(token, None)
 
-  def unindentAtExclude(exclude: TokenRanges, indent: Length): Policy = {
-    exclude.ranges.foldLeft(Policy.noPolicy) { case (policy, range) =>
+  def unindentAtExclude(exclude: TokenRanges, indent: Length): Policy = exclude
+    .ranges.foldLeft(Policy.noPolicy) { case (policy, range) =>
       val (lt, rt) = (range.lt, range.rt)
       val trigger = rt
       val unindent = Indent(indent, rt, ExpiresOn.After)
@@ -220,6 +215,5 @@ object PolicyOps {
       }
       Policy.Relay(policy, triggerUnindent & cancelUnindent)
     }
-  }
 
 }

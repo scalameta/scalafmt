@@ -55,7 +55,7 @@ object Scalafmt {
       style: ScalafmtConfig,
       range: Set[Range],
       filename: String
-  ): Formatted = { formatCode(code, style, range, filename).formatted }
+  ): Formatted = formatCode(code, style, range, filename).formatted
 
   private[scalafmt] def formatCode(
       code: String,
@@ -169,7 +169,7 @@ object Scalafmt {
       code: String,
       style: ScalafmtConfig = ScalafmtConfig.default,
       range: Set[Range] = Set.empty[Range]
-  ): Formatted = { formatCode(code, style, range).formatted }
+  ): Formatted = formatCode(code, style, range).formatted
 
   // used by ScalafmtReflect.parseConfig
   def parseHoconConfigFile(configPath: Path): Configured[ScalafmtConfig] =

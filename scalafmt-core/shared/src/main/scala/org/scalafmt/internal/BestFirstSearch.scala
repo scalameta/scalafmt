@@ -33,7 +33,7 @@ private class BestFirstSearch private (
   val routes: Array[Seq[Split]] = {
     val router = new Router(formatOps)
     val result = Array.newBuilder[Seq[Split]]
-    tokens.foreach { t => result += router.getSplits(t) }
+    tokens.foreach(t => result += router.getSplits(t))
     result.result()
   }
   val noOptimizations = noOptimizationZones()
@@ -45,10 +45,9 @@ private class BestFirstSearch private (
 
   type StateHash = Long
 
-  def isInsideNoOptZone(token: FormatToken): Boolean = {
+  def isInsideNoOptZone(token: FormatToken): Boolean =
     !disableOptimizationsInsideSensitiveAreas ||
-    noOptimizations.contains(token.left)
-  }
+      noOptimizations.contains(token.left)
 
   /** Returns true if it's OK to skip over state.
     */
@@ -71,9 +70,8 @@ private class BestFirstSearch private (
       )
     }
 
-  def stateColumnKey(state: State): StateHash = {
-    state.column << 8 | state.indentation
-  }
+  def stateColumnKey(state: State): StateHash = state.column << 8 |
+    state.indentation
 
   val memo = mutable.Map.empty[(Int, StateHash), State]
 
@@ -114,7 +112,7 @@ private class BestFirstSearch private (
     }
     Q += start
 
-    def enqueue(state: State) = { Q.enqueue(state) }
+    def enqueue(state: State) = Q.enqueue(state)
 
     // TODO(olafur) this while loop is waaaaaaaaaaaaay tooo big.
     while (true) {
@@ -123,9 +121,8 @@ private class BestFirstSearch private (
 
       val splitToken = tokens(curr.depth)
       val leftTok = splitToken.left
-      if (splitToken.right.start > stop.start && leftTok.start < leftTok.end) {
+      if (splitToken.right.start > stop.start && leftTok.start < leftTok.end)
         return curr
-      }
 
       if (shouldEnterState(curr)) {
         trackState(curr, depth, Q.length)
@@ -173,7 +170,7 @@ private class BestFirstSearch private (
             val nextState = curr.next(split, allAltAreNL)
             val updateBest = !keepSlowStates && depth == 0 && split.isNL &&
               !best.contains(curr.depth)
-            if (updateBest) { best.update(curr.depth, nextState) }
+            if (updateBest) best.update(curr.depth, nextState)
             runner.event(Enqueue(split))
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
@@ -193,12 +190,11 @@ private class BestFirstSearch private (
                     optimalNotFound = false
                     enqueue(furtherState)
                   }
-                } else if (!killOnFail && nextState.cost - curr.cost <= maxCost) {
+                } else if (!killOnFail && nextState.cost - curr.cost <= maxCost)
                   // TODO(olafur) DRY. This solution can still be optimal.
                   enqueue(nextState)
-                } else { // else kill branch
-                  if (updateBest) best.remove(curr.depth)
-                }
+                else // else kill branch
+                if (updateBest) best.remove(curr.depth)
               case _
                   if optimalNotFound && nextState.cost - curr.cost <= maxCost =>
                 enqueue(nextState)
@@ -297,12 +293,10 @@ private class BestFirstSearch private (
                     |policies=${deepestYet.policy.policies}
                     |nextSplits=$nextSplits
                     |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
-      if (runner.debug) {
-        logger.debug(
-          s"""|Failed to format
-              |$msg""".stripMargin
-        )
-      }
+      if (runner.debug) logger.debug(
+        s"""|Failed to format
+            |$msg""".stripMargin
+      )
       complete(deepestYet)
       SearchResult(deepestYet, reachedEOF = false)
     }

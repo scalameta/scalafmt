@@ -14,7 +14,7 @@ trait BatchPathFinder {
   final def findMatchingFiles(
       filterFilesToo: Boolean,
       paths: AbsoluteFile*
-  ): Seq[AbsoluteFile] = {
+  ): Seq[AbsoluteFile] =
     if (paths.isEmpty) findFiles()
     else {
       val files = Seq.newBuilder[AbsoluteFile]
@@ -28,7 +28,6 @@ trait BatchPathFinder {
       }
       files.result() ++ findFilesExplicit(dirs.result())
     }
-  }
 }
 
 object BatchPathFinder {

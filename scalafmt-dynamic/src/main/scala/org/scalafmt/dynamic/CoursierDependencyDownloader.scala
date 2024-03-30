@@ -17,9 +17,9 @@ private class CoursierDependencyDownloader(
     val coursierDependencies = dependencies
       .map(x => CoursierDependency.of(x.group, x.artifact, x.version))
     // TODO: ttl is unavailable, see https://github.com/coursier/interface/issues/57
-    val cache = { Cache.create() }
+    val cache = Cache.create()
       .withLogger(Logger.progressBars(downloadProgressWriter))
-    val settings = { Fetch.create().withCache(cache) }
+    val settings = Fetch.create().withCache(cache)
       .withRepositories(repositories: _*)
       .withDependencies(coursierDependencies: _*)
     settings.fetch().asScala.map(_.toURI.toURL).toList

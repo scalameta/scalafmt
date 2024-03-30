@@ -64,14 +64,14 @@ object AvoidInfixSettings {
   private[config] case class Filter(lhs: Option[Pattern], op: Pattern) {
     private def pattern: String = {
       val opPat = op.pattern()
-      lhs.fold(opPat) { lhs => s"${lhs.pattern()}\\.$opPat" }
+      lhs.fold(opPat)(lhs => s"${lhs.pattern()}\\.$opPat")
     }
     def matches(lhs: String, op: String)(f: Matcher => Boolean): Boolean =
       f(this.op.matcher(op)) && this.lhs.forall(r => f(r.matcher(lhs)))
 
     override def equals(obj: Any): Boolean = obj match {
       case x: Filter => x.op.pattern() == op.pattern() &&
-        x.lhs.fold(lhs.isEmpty) { y => lhs.exists(_.pattern() == y.pattern()) }
+        x.lhs.fold(lhs.isEmpty)(y => lhs.exists(_.pattern() == y.pattern()))
       case _ => false
     }
 

@@ -43,10 +43,9 @@ sealed abstract class InputMethod {
 object InputMethod {
 
   object StdinCode {
-    def apply(assumeFilename: String, inputStream: InputStream): StdinCode = {
+    def apply(assumeFilename: String, inputStream: InputStream): StdinCode =
       StdinCode
         .apply(assumeFilename, Source.fromInputStream(inputStream).mkString)
-    }
   }
   case class StdinCode(filename: String, input: String) extends InputMethod {
     override def path: Path = Paths.get(filename)
@@ -92,10 +91,8 @@ object InputMethod {
     val b = jList(revised, original.isEmpty || noEol(original.last))
     val diff = difflib.DiffUtils.diff(a, b)
     if (diff.getDeltas.isEmpty) ""
-    else {
-      difflib.DiffUtils
-        .generateUnifiedDiff(s"a$filename", s"b$filename", a, diff, 1)
-        .iterator().asScala.mkString("\n")
-    }
+    else difflib.DiffUtils
+      .generateUnifiedDiff(s"a$filename", s"b$filename", a, diff, 1).iterator()
+      .asScala.mkString("\n")
   }
 }

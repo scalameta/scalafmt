@@ -249,10 +249,8 @@ case class ScalafmtConfig(
   private[scalafmt] def getTrailingCommas = rewrite.trailingCommas.style
 
   // used in ScalafmtReflectConfig
-  def hasRewrites: Boolean = {
-    rewrite.rewriteFactoryRules.nonEmpty ||
+  def hasRewrites: Boolean = rewrite.rewriteFactoryRules.nonEmpty ||
     FormatTokensRewrite.getEnabledFactories(this).nonEmpty
-  }
 
   // used in ScalafmtReflectConfig
   def withoutRewrites: ScalafmtConfig = copy(
@@ -383,7 +381,7 @@ object ScalafmtConfig {
         addIf(newlines.selectChains.exists(_ eq Newlines.keep))
         addIf(getTrailingCommas.eq(TrailingCommas.keep))
       }
-      if (newlines.source == Newlines.unfold) { addIf(align.arrowEnumeratorGenerator) }
+      if (newlines.source == Newlines.unfold) addIf(align.arrowEnumeratorGenerator)
       if (newlines.source != Newlines.classic) {
         addIf(optIn.breaksInsideChains)
         addIf(!includeCurlyBraceInSelectChains)
@@ -401,7 +399,7 @@ object ScalafmtConfig {
         addIf(getTrailingCommas eq TrailingCommas.always, errDialect)
         addIf(getTrailingCommas eq TrailingCommas.multiple, errDialect)
       }
-      if (!dialect.allowSignificantIndentation) { addIf(newlines.beforeOpenParenCallSite.nonEmpty, errDialect) }
+      if (!dialect.allowSignificantIndentation) addIf(newlines.beforeOpenParenCallSite.nonEmpty, errDialect)
       addIfDirect( // can't use addIf on multiline conditions
         !(binPack.unsafeCallSite.isNever && binPack.unsafeDefnSite.isNever) && { newlines.implicitParamListModifierForce.nonEmpty || newlines.implicitParamListModifierPrefer.nonEmpty },
         "binPack.unsafeXXXSite && newlines.implicitParamListModifierXXX (not implemented)"
@@ -483,7 +481,7 @@ object ScalafmtConfig {
   def fromConf(
       parsed: ConfParsed,
       default: ScalafmtConfig
-  ): Configured[ScalafmtConfig] = {
+  ): Configured[ScalafmtConfig] =
     ScalafmtConfig.decoder.read(Option(default), parsed.conf) match {
       case Configured.Ok(x)
           if default.version == null && x.version != Versions.stable &&
@@ -497,6 +495,5 @@ object ScalafmtConfig {
         Configured.error(NamedDialect.getUnknownError)
       case x => x
     }
-  }
 
 }

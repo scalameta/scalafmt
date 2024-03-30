@@ -44,27 +44,25 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
     case _ =>
   }
 
-  private def sortMods(oldMods: Seq[Mod]): Unit = {
-    if (oldMods.nonEmpty) {
-      val sanitized = oldMods // used to ignore "implicit" implicits
-      // NOTE: modifiers with no configuration return -1 from `indexWhere` and
-      // therefore sort at the front of the list. This behavior is intentional
-      // in order to preserve backwards compatibility when adding support to
-      // format new keywords. However, the choice of putting unconfigured
-      // modifiers to the front of the list instead of back of the list is
-      // mostly arbitrary.
-      val sortedMods: Seq[Mod] = sanitized
-        .sortBy(mod => order.indexWhere(_.matches(mod)))
+  private def sortMods(oldMods: Seq[Mod]): Unit = if (oldMods.nonEmpty) {
+    val sanitized = oldMods // used to ignore "implicit" implicits
+    // NOTE: modifiers with no configuration return -1 from `indexWhere` and
+    // therefore sort at the front of the list. This behavior is intentional
+    // in order to preserve backwards compatibility when adding support to
+    // format new keywords. However, the choice of putting unconfigured
+    // modifiers to the front of the list instead of back of the list is
+    // mostly arbitrary.
+    val sortedMods: Seq[Mod] = sanitized
+      .sortBy(mod => order.indexWhere(_.matches(mod)))
 
-      ctx.addPatchSet(sortedMods.zip(sanitized).flatMap { case (next, old) =>
-        if (next eq old) Seq.empty
-        else {
-          val removeOld = old.tokens.tail.map(TokenPatch.Remove)
-          val addNext = TokenPatch.Replace(old.tokens.head, next.toString())
-          addNext +: removeOld
-        }
-      }: _*)
-    }
+    ctx.addPatchSet(sortedMods.zip(sanitized).flatMap { case (next, old) =>
+      if (next eq old) Seq.empty
+      else {
+        val removeOld = old.tokens.tail.map(TokenPatch.Remove)
+        val addNext = TokenPatch.Replace(old.tokens.head, next.toString())
+        addNext +: removeOld
+      }
+    }: _*)
   }
 
 }

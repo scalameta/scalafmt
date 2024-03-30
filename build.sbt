@@ -235,7 +235,7 @@ val ReleaseCandidate = s"($V-RC\\d+).*".r
 val Milestone = s"($V-M\\d+).*".r
 
 lazy val stableVersion = Def
-  .setting { (ThisBuild / version).value.replaceAll("\\+.*", "") }
+  .setting((ThisBuild / version).value.replaceAll("\\+.*", ""))
 
 lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
   buildInfoKeys := Seq[BuildInfoKey](

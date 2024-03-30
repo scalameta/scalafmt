@@ -32,22 +32,20 @@ object ExitCode {
     : ExitCode = generateExitStatus
   // format: on
   lazy val all: List[ExitCode] = allInternal.toList
-  private def codeToName(code: Int): String = {
+  private def codeToName(code: Int): String =
     if (code == 0) Ok.name
     else {
       val names = all
         .collect { case exit if (exit.code & code) != 0 => exit.name }
       names.mkString("+")
     }
-  }
-  def apply(code: Int): ExitCode = {
+  def apply(code: Int): ExitCode =
     if (cache.contains(code)) cache.get(code)
     else {
       val result = new ExitCode(code, codeToName(code)) {}
       cache.put(code, result)
       result
     }
-  }
 
   def merge(exit1: ExitCode, exit2: ExitCode): ExitCode =
     apply(exit1.code | exit2.code)

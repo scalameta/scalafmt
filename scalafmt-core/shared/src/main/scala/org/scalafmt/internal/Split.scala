@@ -126,14 +126,13 @@ case class Split(
     if (isIgnored) this else copy(optimalAt = optimalAt)
   }
 
-  def withPolicy(newPolicy: => Policy, ignore: Boolean = false): Split = {
+  def withPolicy(newPolicy: => Policy, ignore: Boolean = false): Split =
     if (isIgnored || ignore) this
     else {
       if (!policy.isEmpty)
         throw new UnsupportedOperationException("Use orPolicy or andPolicy")
       copy(policy = newPolicy)
     }
-  }
 
   def withSingleLine(
       expire: Token,

@@ -24,7 +24,7 @@ package object website {
         }
         index += 1
       }
-      if (index < len) { buf.append(line.substring(index)) }
+      if (index < len) buf.append(line.substring(index))
       buf.append('\n')
     }
     buf.toString
@@ -53,12 +53,10 @@ package object website {
     * @param code
     *   the unformatted code * @param config the config as an HOCON string
     */
-  def exampleBlock(code: String, config: String*): Unit = {
+  def exampleBlock(code: String, config: String*): Unit =
     example(code, config, ScalafmtRunner.sbt)
-  }
-  def exampleSource(code: String, config: String*): Unit = {
+  def exampleSource(code: String, config: String*): Unit =
     example(code, config, ScalafmtRunner.default)
-  }
   def example(code: String, config: Seq[String], runner: ScalafmtRunner): Unit = {
     val processedCode = preProcess(code)
     val parsedConfig1 = ScalafmtConfig.fromHoconString(config.mkString("\n"))
@@ -97,14 +95,13 @@ package object website {
     val formatted = Scalafmt.format(processedCode, parsedConfig).get
     val configString =
       if (config.isEmpty) ""
-      else {
+      else
         // TODO: make this pretty
         s"""
 <div class="scalafmt-configuration">
 <pre><code>${config.mkString("\n").trim}</pre></code>
 </div>
 """.trim
-      }
     println(
       s"""
 <div class='scalafmt-pair'>

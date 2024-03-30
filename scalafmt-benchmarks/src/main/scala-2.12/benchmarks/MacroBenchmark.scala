@@ -27,15 +27,13 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
   override def toString = s"${this.getClass.getName}(parallel=$parallel)"
 
   @Setup
-  def setup(): Unit = {
-    files = {
-      val x = Corpus.files(Corpus.fastparse.copy(
-        // TODO(olafur) remove once testkit 1.7 is out
-        url = Corpus.fastparse.url.replace("olafurpg", "scalameta")
-      )).filter { f => f.projectUrl.contains("scala-js") }.take(maxFiles)
-        .map(_.read).toBuffer
-      if (parallel) x.par else x
-    }
+  def setup(): Unit = files = {
+    val x = Corpus.files(Corpus.fastparse.copy(
+      // TODO(olafur) remove once testkit 1.7 is out
+      url = Corpus.fastparse.url.replace("olafurpg", "scalameta")
+    )).filter(f => f.projectUrl.contains("scala-js")).take(maxFiles).map(_.read)
+      .toBuffer
+    if (parallel) x.par else x
   }
 
   def testMe(): Unit = {
@@ -44,14 +42,10 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
   }
 
   @Benchmark
-  def scalafmt(): Unit = {
-    files.foreach { file => Try(Scalafmt.format(file)) }
-  }
+  def scalafmt(): Unit = files.foreach(file => Try(Scalafmt.format(file)))
 
   @Benchmark
-  def scalafmt_rewrite(): Unit = {
-    files.foreach { file => Try(formatRewrite(file)) }
-  }
+  def scalafmt_rewrite(): Unit = files.foreach(file => Try(formatRewrite(file)))
 
 }
 

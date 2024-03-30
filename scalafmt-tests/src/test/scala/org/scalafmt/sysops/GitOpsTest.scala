@@ -32,14 +32,13 @@ class GitOpsTest extends FunSuite {
     commit(ops)
   }
 
-  override def afterEach(context: AfterEach): Unit = {
-    try { deleteTree(path.path) }
+  override def afterEach(context: AfterEach): Unit =
+    try deleteTree(path.path)
     catch {
       case e: Throwable =>
         println("Unable to delete test files")
         e.printStackTrace()
     }
-  }
 
   private def touch(dir: AbsoluteFile): AbsoluteFile = touch(dir = Some(dir))
 

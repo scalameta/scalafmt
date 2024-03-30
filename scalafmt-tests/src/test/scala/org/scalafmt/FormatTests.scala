@@ -26,9 +26,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
 
   override def ignore(t: DiffTest): Boolean = false
 
-  override val tests = {
-    if (onlyManual) ManualTests.tests else UnitTests.tests
-  }
+  override val tests = if (onlyManual) ManualTests.tests else UnitTests.tests
 
   tests.sortBy(x => (x.loc.path, x.loc.line)).withFilter(testShouldRun)
     .foreach(runTest(run))

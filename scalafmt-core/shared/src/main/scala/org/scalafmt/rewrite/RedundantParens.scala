@@ -166,8 +166,8 @@ class RedundantParens(implicit val ftoks: FormatTokens)
 
   private def okToReplaceInfix(pia: Member.Infix, tia: Member.Infix)(implicit
       style: ScalafmtConfig
-  ): Boolean = {
-    !breaksBeforeOp(tia) && style.rewrite.redundantParens.infixSide.exists {
+  ): Boolean = !breaksBeforeOp(tia) &&
+    style.rewrite.redundantParens.infixSide.exists {
       case RedundantParensSettings.InfixSide.many
           if tia.op.value != pia.op.value =>
         val tiaPrecedence = tia.precedence
@@ -179,7 +179,6 @@ class RedundantParens(implicit val ftoks: FormatTokens)
         tiaPrecedence <= precedenceMedium && pia.precedence >= precedenceLowest
       case _ => true
     }
-  }
 
   private def okToReplaceInfix(pia: Member.Infix, t: Tree)(implicit
       style: ScalafmtConfig
@@ -191,9 +190,8 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     case _ => style.rewrite.redundantParens.infixSide.isDefined
   }
 
-  private def breaksBeforeOpAndNotEnclosed(ia: Member.Infix): Boolean = {
+  private def breaksBeforeOpAndNotEnclosed(ia: Member.Infix): Boolean =
     !ftoks.isEnclosedInParens(ia) && breaksBeforeOp(ia)
-  }
 
   private def breaksBeforeOp(ia: Member.Infix): Boolean = {
     val beforeOp = ftoks.tokenJustBefore(ia.op)
@@ -221,7 +219,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
             .map((cnt, _))
       }
 
-    ftoks.matchingOpt(ft.right).flatMap { rt => iter(ft, ftoks.after(rt), 1) }
+    ftoks.matchingOpt(ft.right).flatMap(rt => iter(ft, ftoks.after(rt), 1))
   }
 
 }
