@@ -167,6 +167,44 @@ object a {
     SizeUtils.calculate(segments, "user")
   } should have message """Cannot resolve column name "user" among (segment_id);"""
 }
+<<< 1.c.1: block followed by an infix, overflowing if no break
+maxColumn = 80
+===
+object a {
+    the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should have message """Cannot resolve column name "user" among (segment_id);"""
+}
+>>>
+object a {
+  the[Exception] thrownBy {
+    SizeUtils.calculate(segments, "user")
+  } should have message """Cannot resolve column name "user" among (segment_id);"""
+}
+<<< 1.c.2: block followed by an infix, overflowing if no break
+maxColumn = 80
+===
+object a {
+    the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should
+       have message """Cannot resolve column name "user" among (segment_id);"""
+}
+>>>
+object a {
+  the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should
+    have message """Cannot resolve column name "user" among (segment_id);"""
+}
+<<< 1.c.3: block followed by an infix, overflowing if no break
+newlines.afterInfix = keep
+maxColumn = 80
+===
+object a {
+    the[Exception] thrownBy
+       { SizeUtils.calculate(segments, "user") } should
+       have message """Cannot resolve column name "user" among (segment_id);"""
+}
+>>>
+object a {
+  the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should
+    have message """Cannot resolve column name "user" among (segment_id);"""
+}
 <<< 1.d: if-else, no curlies
 if (a)
 println("bbb") else if (b) b else
