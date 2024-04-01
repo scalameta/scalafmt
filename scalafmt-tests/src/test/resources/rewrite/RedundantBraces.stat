@@ -1706,11 +1706,11 @@ object a {
     } tag (ScalafmtTagPack: _*)
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-       session: FormatSession
--  ) = Def.task(session.checkTrackedSources(sources, dirs)) tag
--    (ScalafmtTagPack: _*)
-+  ) =
-+    Def.task(session.checkTrackedSources(sources, dirs)) tag (ScalafmtTagPack: _*)
- }
+object a {
+  private def scalafmtCheckTask(
+      sources: Seq[File],
+      dirs: Seq[File],
+      session: FormatSession
+  ) = Def.task(session.checkTrackedSources(sources, dirs)) tag
+    (ScalafmtTagPack: _*)
+}
