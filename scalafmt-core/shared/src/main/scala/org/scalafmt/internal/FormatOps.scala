@@ -167,7 +167,7 @@ class FormatOps(
       case _: T.RightParen if start.left.is[T.LeftParen] => None
       case c: T.Comment if start.noBreak && tokens.isBreakAfterRight(start) =>
         Some(c)
-      case _ if start.noBreak && isInfix => None
+      case _ if !style.newlines.formatInfix && start.noBreak && isInfix => None
       case _ => Some(start.left)
     }
 
