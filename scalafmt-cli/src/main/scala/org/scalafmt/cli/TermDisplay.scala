@@ -232,7 +232,7 @@ object TermDisplay {
 
           val extra0 =
             if (extra.length > baseExtraWidth) extra
-              .take((baseExtraWidth max (extra.length - overflow)) - 1) + "…"
+              .take((baseExtraWidth.max(extra.length - overflow)) - 1) + "…"
             else extra
 
           val total0 = url.length + 1 + extra0.length
@@ -240,7 +240,7 @@ object TermDisplay {
 
           val url0 =
             if (total0 >= width) url.take(
-              ((width - baseExtraWidth - 1) max (url.length - overflow0)) - 1,
+              ((width - baseExtraWidth - 1).max(url.length - overflow0)) - 1,
             ) + "…"
             else url
 
