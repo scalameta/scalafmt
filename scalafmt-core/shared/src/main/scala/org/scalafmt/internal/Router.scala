@@ -2395,7 +2395,7 @@ class Router(formatOps: FormatOps) {
         Seq(Split(mod, 0))
       case FormatToken(_: T.Symbolic, _, _) => Seq(Split(Space, 0))
       case tok =>
-        logger.debug("MISSING CASE:\n" + log(tok))
+        logger.debug(s"MISSING CASE: $tok")
         Seq() // No solution available, partially format tree.
     }
   }
