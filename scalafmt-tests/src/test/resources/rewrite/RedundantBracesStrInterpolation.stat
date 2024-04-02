@@ -100,3 +100,9 @@ object Test {
 object Test {
   s"${foo}_${bar}"
 }
+<<< #3891 braces within xml
+<testcase id={ id }/>
+>>>
+org.scalafmt.util.FormatException: org.scalafmt.Error$PreciseIncomplete: ...: error: Unable to format file due to bug in scalafmt
+<testcase id={ id }/>
+             ^
