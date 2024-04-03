@@ -5,13 +5,9 @@ import scala.meta.tokens.Token
 import metaconfig._
 
 /** @param unsafeCallSite
-  *   DO NOT USE! This option is buggy for complicated expressions. The only
-  *   reason this option exists is to support the [[literalArgumentLists]]
-  *   option, which enables callSite only for simple expressions.
-  *
-  * If true, will fit as many arguments on each line, only breaking at commas.
-  * If false, a function call's arguments will either be all on the same line or
-  * will have one line each.
+  *   If true, will fit as many arguments on each line, only breaking at commas.
+  *   If false, a function call's arguments will either be all on the same line
+  *   or will have one line each.
   * @param unsafeDefnSite
   *   Same as [[unsafeCallSite]], except for definition site.
   * @param literalArgumentLists
