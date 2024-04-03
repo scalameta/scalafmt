@@ -1518,6 +1518,13 @@ alternatives.
 
 This approach attempts to preserve line breaks in the input whenever possible.
 
+> Keep in mind that other parameters _will_ take precedence if they require
+> (or prohibit) breaks in specific places (and that includes their default
+> values).
+>
+> For instance, default for [`binPack.unsafeCallSite`](#binpackunsafexxxsite)
+> will not allow multiple arguments per line in a multiline expression.
+
 #### `newlines.source=fold,unfold`
 
 These two approaches _completely ignore_ existing line breaks, except around
