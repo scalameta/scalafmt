@@ -3,6 +3,13 @@ id: configuration
 title: Configuration
 ---
 
+> If you have very specific preferences for configuring your formatting,
+> please make sure you have read this **entire** document, and identified every single
+> parameter available, along with their interactions.
+>
+> Many parameters do not have ultimate authority and might be overridden by
+> (possibly, default) values of other parameters.
+
 Configuration for scalafmt is defined in a plain text file `.scalafmt.conf`
 using [HOCON](https://github.com/lightbend/config) syntax.
 
