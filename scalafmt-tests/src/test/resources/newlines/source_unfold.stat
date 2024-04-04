@@ -7710,3 +7710,258 @@ object a {
           " try {x.add(y, null);} catch(e) {if (typeof(e) == 'object' && typeof(e.number) == 'number' && (e.number & 0xFFFF) == 5){ x.add(y,x.options.length); } } "
       }
 }
+<<< binPack.callSite with configStyleArguments, danglingParentheses
+optIn.configStyleArguments = true
+danglingParentheses.callSite = true
+binPack.unsafeCallSite = always
+maxColumn = 30
+runner.optimizer.forceConfigStyleMinSpan = 20
+===
+object Main {
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0
+  )
+  val bar2 = foo2(
+    0,
+    1, 2, 3,
+    4, 5, 6, 7, 8, 9, 10 + 0)
+}
+>>>
+object Main {
+  val bar1 = foo1(
+    10000, 10001, 10002 + 0
+  )
+  val bar2 = foo2(
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10 + 0
+  )
+}
+<<< binPack.defnSite with configStyleArguments, danglingParentheses
+optIn.configStyleArguments = true
+danglingParentheses.defnSite = true
+binPack.unsafeDefnSite = always
+maxColumn = 30
+runner.optimizer.forceConfigStyleMinSpan = 20
+===
+object Main {
+  def foo1(
+    x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo2(
+    x1: X, x2: X, x3: X,
+    x4: X, xs: X*
+  ): Set[Int]
+  def foo3(
+    x1: X, x2: X, x3: X,
+    x4: X, xs: X*): Set[Int]
+}
+>>>
+object Main {
+  def foo1(
+      x1: X, x2: X, xs: X*
+  ): Set[Int]
+  def foo2(
+      x1: X, x2: X, x3: X,
+      x4: X, xs: X*
+  ): Set[Int]
+  def foo3(
+      x1: X, x2: X, x3: X,
+      x4: X, xs: X*
+  ): Set[Int]
+}
+<<< binPack.callSite with !configStyleArguments, danglingParentheses
+optIn.configStyleArguments = false
+danglingParentheses.callSite = true
+binPack.unsafeCallSite = always
+maxColumn = 30
+runner.optimizer.forceConfigStyleMinSpan = 20
+===
+object Main {
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0
+  )
+  val bar2 = foo2(
+    0,
+    1, 2, 3,
+    4, 5, 6, 7, 8, 9, 10 + 0)
+}
+>>>
+object Main {
+  val bar1 = foo1(
+    10000, 10001, 10002 + 0
+  )
+  val bar2 = foo2(
+    0, 1, 2, 3, 4, 5, 6, 7, 8,
+    9, 10 + 0
+  )
+}
+<<< binPack.defnSite with !configStyleArguments, danglingParentheses
+optIn.configStyleArguments = false
+danglingParentheses.defnSite = true
+binPack.unsafeDefnSite = always
+maxColumn = 30
+runner.optimizer.forceConfigStyleMinSpan = 20
+===
+object Main {
+  def foo1(
+    x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo2(
+    x1: X, x2: X, x3: X,
+    x4: X, xs: X*
+  ): Set[Int]
+  def foo3(
+    x1: X, x2: X, x3: X,
+    x4: X, xs: X*): Set[Int]
+}
+>>>
+object Main {
+  def foo1(
+      x1: X, x2: X, xs: X*
+  ): Set[Int]
+  def foo2(
+      x1: X, x2: X, x3: X,
+      x4: X, xs: X*
+  ): Set[Int]
+  def foo3(
+      x1: X, x2: X, x3: X,
+      x4: X, xs: X*
+  ): Set[Int]
+}
+<<< binPack.callSite with configStyleArguments, !danglingParentheses
+optIn.configStyleArguments = true
+danglingParentheses.callSite = false
+binPack.unsafeCallSite = always
+maxColumn = 30
+runner.optimizer.forceConfigStyleMinSpan = 20
+===
+object Main {
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0
+  )
+  val bar2 = foo2(
+    0,
+    1, 2, 3,
+    4, 5, 6, 7, 8, 9, 10 + 0)
+}
+>>>
+object Main {
+  val bar1 = foo1(
+    10000, 10001, 10002 + 0)
+  val bar2 = foo2(
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10 + 0
+  )
+}
+<<< binPack.defnSite with configStyleArguments, !danglingParentheses
+optIn.configStyleArguments = true
+danglingParentheses.defnSite = false
+binPack.unsafeDefnSite = always
+maxColumn = 30
+runner.optimizer.forceConfigStyleMinSpan = 20
+===
+object Main {
+  def foo1(
+    x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo2(
+    x1: X, x2: X, x3: X,
+    x4: X, xs: X*
+  ): Set[Int]
+  def foo3(
+    x1: X, x2: X, x3: X,
+    x4: X, xs: X*): Set[Int]
+}
+>>>
+object Main {
+  def foo1(
+      x1: X, x2: X, xs: X*)
+      : Set[Int]
+  def foo2(
+      x1: X, x2: X, x3: X,
+      x4: X, xs: X*): Set[Int]
+  def foo3(
+      x1: X, x2: X, x3: X,
+      x4: X, xs: X*): Set[Int]
+}
+<<< binPack.callSite with !configStyleArguments, !danglingParentheses
+optIn.configStyleArguments = false
+danglingParentheses.callSite = false
+binPack.unsafeCallSite = always
+maxColumn = 30
+runner.optimizer.forceConfigStyleMinSpan = 20
+===
+object Main {
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0
+  )
+  val bar2 = foo2(
+    0,
+    1, 2, 3,
+    4, 5, 6, 7, 8, 9, 10 + 0)
+}
+>>>
+object Main {
+  val bar1 = foo1(
+    10000, 10001, 10002 + 0)
+  val bar2 = foo2(
+    0, 1, 2, 3, 4, 5, 6, 7, 8,
+    9, 10 + 0)
+}
+<<< binPack.defnSite with !configStyleArguments, !danglingParentheses
+optIn.configStyleArguments = false
+danglingParentheses.defnSite = false
+binPack.unsafeDefnSite = always
+maxColumn = 30
+runner.optimizer.forceConfigStyleMinSpan = 20
+===
+object Main {
+  def foo1(
+    x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo2(
+    x1: X, x2: X, x3: X,
+    x4: X, xs: X*
+  ): Set[Int]
+  def foo3(
+    x1: X, x2: X, x3: X,
+    x4: X, xs: X*): Set[Int]
+}
+>>>
+object Main {
+  def foo1(
+      x1: X, x2: X, xs: X*)
+      : Set[Int]
+  def foo2(
+      x1: X, x2: X, x3: X,
+      x4: X, xs: X*): Set[Int]
+  def foo3(
+      x1: X, x2: X, x3: X,
+      x4: X, xs: X*): Set[Int]
+}
