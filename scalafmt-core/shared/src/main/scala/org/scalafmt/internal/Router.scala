@@ -1288,20 +1288,19 @@ class Router(formatOps: FormatOps) {
 
         val nlPolicy = {
           def newlineBeforeClose = decideNewlinesOnlyBeforeClose(close)
-          def binPackOnelinePolicy =
-            if (needOnelinePolicy) nextCommaOnelinePolicy
-              .getOrElse(decideNewlinesOnlyBeforeCloseOnBreak(close))
-            else NoPolicy
+          def binPackOnelinePolicyOpt =
+            if (needOnelinePolicy) nextCommaOnelinePolicy else Some(NoPolicy)
+          def bothPolicies = newlineBeforeClose & binPackOnelinePolicyOpt
           if (onlyConfigStyle)
-            if (styleMap.forcedBinPack(leftOwner)) newlineBeforeClose &
-              binPackOnelinePolicy
+            if (styleMap.forcedBinPack(leftOwner)) bothPolicies
             else splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
           else if (
             mustDangleForTrailingCommas ||
             style.danglingParentheses.tupleOrCallSite(isTuple(leftOwner)) &&
             (style.newlines.sourceIgnored || !style.optIn.configStyleArguments)
-          ) newlineBeforeClose & binPackOnelinePolicy
-          else binPackOnelinePolicy
+          ) bothPolicies
+          else binPackOnelinePolicyOpt
+            .getOrElse(decideNewlinesOnlyBeforeCloseOnBreak(close))
         }
         val nlMod =
           if (rightIsComment && nlOnly) getMod(ft)
