@@ -875,7 +875,8 @@ class Router(formatOps: FormatOps) {
         val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
 
         val rightIsComment = right.is[T.Comment]
-        val onlyConfigStyle = mustUseConfigStyle(formatToken, beforeClose)
+        val onlyConfigStyle = ConfigStyle.None !=
+          mustUseConfigStyle(formatToken, beforeClose)
 
         val sourceIgnored = style.newlines.sourceIgnored
         val (onlyArgument, isSingleEnclosedArgument) =
@@ -1114,8 +1115,8 @@ class Router(formatOps: FormatOps) {
           val penalizeBrackets = bracketPenalty
             .map(p => PenalizeAllNewlines(close, p + 3))
           val beforeClose = tokens.justBefore(close)
-          val onlyConfigStyle = mustUseConfigStyle(formatToken, beforeClose) ||
-            getMustDangleForTrailingCommas(beforeClose)
+          val onlyConfigStyle = getMustDangleForTrailingCommas(beforeClose) ||
+            ConfigStyle.None != mustUseConfigStyle(formatToken, beforeClose)
 
           val argsHeadOpt = argumentStarts.get(hash(right))
           val isSingleArg = isSeqSingle(getArgs(leftOwner))
@@ -1192,10 +1193,12 @@ class Router(formatOps: FormatOps) {
         val mustDangleForTrailingCommas =
           getMustDangleForTrailingCommas(beforeClose)
 
-        val onlyConfigStyle = !mustDangleForTrailingCommas &&
-          mustUseConfigStyle(ft, beforeClose, !opensLiteralArgumentList)
+        val onlyConfigStyle =
+          if (mustDangleForTrailingCommas) ConfigStyle.None
+          else mustUseConfigStyle(ft, beforeClose, !opensLiteralArgumentList)
         val rightIsComment = right.is[T.Comment]
-        val nlOnly = mustDangleForTrailingCommas || onlyConfigStyle ||
+        val nlOnly = mustDangleForTrailingCommas ||
+          onlyConfigStyle != ConfigStyle.None ||
           style.newlines.keepBreak(newlines) ||
           rightIsComment &&
           (newlines != 0 || nextNonCommentSameLine(next(ft)).hasBreak)
@@ -1291,7 +1294,7 @@ class Router(formatOps: FormatOps) {
           def binPackOnelinePolicyOpt =
             if (needOnelinePolicy) nextCommaOnelinePolicy else Some(NoPolicy)
           def bothPolicies = newlineBeforeClose & binPackOnelinePolicyOpt
-          if (onlyConfigStyle)
+          if (onlyConfigStyle != ConfigStyle.None)
             if (styleMap.forcedBinPack(leftOwner)) bothPolicies
             else splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
           else if (
@@ -2018,7 +2021,8 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: T.LeftParen, right, _) =>
         val close = matching(open)
         val beforeClose = tokens.justBefore(close)
-        val isConfig = couldUseConfigStyle(formatToken, beforeClose)
+        val isConfig = ConfigStyle.None !=
+          couldUseConfigStyle(formatToken, beforeClose)
         val enclosed = leftOwner match {
           case t: Member.ArgClause if t.values.lengthCompare(1) > 0 => None
           case t => findEnclosedBetweenParens(open, close, t)
