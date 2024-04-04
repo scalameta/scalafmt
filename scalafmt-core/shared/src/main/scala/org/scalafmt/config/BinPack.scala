@@ -4,12 +4,12 @@ import scala.meta.tokens.Token
 
 import metaconfig._
 
-/** @param unsafeCallSite
+/** @param callSite
   *   If true, will fit as many arguments on each line, only breaking at commas.
   *   If false, a function call's arguments will either be all on the same line
   *   or will have one line each.
-  * @param unsafeDefnSite
-  *   Same as [[unsafeCallSite]], except for definition site.
+  * @param defnSite
+  *   Same as [[callSite]], except for definition site.
   * @param literalArgumentLists
   *   If true, automatically sets the style to bin-pack for argument lists that
   *   only consist of literals.
@@ -26,10 +26,12 @@ import metaconfig._
   *   If "Never", each parent constructor gets its own line.
   */
 case class BinPack(
-    unsafeCallSite: BinPack.Unsafe = BinPack.Unsafe.Never,
-    unsafeDefnSite: BinPack.Unsafe = BinPack.Unsafe.Never,
-    private val bracketCallSite: Option[BinPack.Unsafe] = None,
-    private val bracketDefnSite: Option[BinPack.Unsafe] = None,
+    @annotation.ExtraName("unsafeCallSite")
+    callSite: BinPack.Site = BinPack.Site.Never,
+    @annotation.ExtraName("unsafeDefnSite")
+    defnSite: BinPack.Site = BinPack.Site.Never,
+    private val bracketCallSite: Option[BinPack.Site] = None,
+    private val bracketDefnSite: Option[BinPack.Site] = None,
     indentCallSiteOnce: Boolean = false,
     indentCallSiteSingleArg: Boolean = true,
     parentConstructors: BinPack.ParentCtors = BinPack.ParentCtors.source,
@@ -49,16 +51,16 @@ case class BinPack(
       parentConstructors.eq(BinPack.ParentCtors.source)
 
   @inline
-  def callSite(open: Token): BinPack.Unsafe =
-    callSite(open.is[Token.LeftBracket])
-  def callSite(isBracket: Boolean): BinPack.Unsafe =
-    (if (isBracket) bracketCallSite else None).getOrElse(unsafeCallSite)
+  def callSiteFor(open: Token): BinPack.Site =
+    callSiteFor(open.is[Token.LeftBracket])
+  def callSiteFor(isBracket: Boolean): BinPack.Site =
+    (if (isBracket) bracketCallSite else None).getOrElse(callSite)
 
   @inline
-  def defnSite(open: Token): BinPack.Unsafe =
-    defnSite(open.is[Token.LeftBracket])
-  def defnSite(isBracket: Boolean): BinPack.Unsafe =
-    (if (isBracket) bracketDefnSite else None).getOrElse(unsafeDefnSite)
+  def defnSiteFor(open: Token): BinPack.Site =
+    defnSiteFor(open.is[Token.LeftBracket])
+  def defnSiteFor(isBracket: Boolean): BinPack.Site =
+    (if (isBracket) bracketDefnSite else None).getOrElse(defnSite)
 
 }
 
@@ -68,8 +70,8 @@ object BinPack {
   implicit lazy val encoder: ConfEncoder[BinPack] = generic.deriveEncoder
 
   val enabled = BinPack(
-    unsafeDefnSite = Unsafe.Always,
-    unsafeCallSite = Unsafe.Always,
+    defnSite = Site.Always,
+    callSite = Site.Always,
     parentConstructors = ParentCtors.Always,
   )
 
@@ -103,16 +105,14 @@ object BinPack {
 
   }
 
-  sealed abstract class Unsafe {
-    final def isNever: Boolean = this eq Unsafe.Never
-  }
-  object Unsafe {
-    case object Never extends Unsafe
-    case object Always extends Unsafe
-    case object Oneline extends Unsafe
+  sealed abstract class Site
+  object Site {
+    case object Never extends Site
+    case object Always extends Site
+    case object Oneline extends Site
 
-    implicit val oneOfReader: ConfCodecEx[Unsafe] = ReaderUtil
-      .oneOfCustom[Unsafe](Never, Always, Oneline) {
+    implicit val oneOfReader: ConfCodecEx[Site] = ReaderUtil
+      .oneOfCustom[Site](Never, Always, Oneline) {
         case Conf.Bool(true) => Configured.ok(Always)
         case Conf.Bool(false) => Configured.ok(Never)
       }
