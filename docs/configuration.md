@@ -4878,7 +4878,7 @@ and similarly has cross-parameter interactions:
 - interaction with `config-style` parameters:
   - when [config-style is forced](#forcing-config-style), it takes precedence
     over binpacking
-  - for `newlines.source=classic/keep`, formatting is mandated by the
+  - for `newlines.source=classic`, formatting is mandated by the
     [scala.js](https://github.com/scala-js/scala-js/pull/4522#issuecomment-879168123)
     coding style, determined by the position of the closing parenthesis; "tucked"
     parenthesis enables binpacking, while "dangling" one forces config-style

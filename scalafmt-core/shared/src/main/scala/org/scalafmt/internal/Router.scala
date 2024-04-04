@@ -1285,7 +1285,11 @@ class Router(formatOps: FormatOps) {
             if (needOnelinePolicy) nextCommaOnelinePolicy else Some(NoPolicy)
           def bothPolicies = newlineBeforeClose & binPackOnelinePolicyOpt
           if (onlyConfigStyle != ConfigStyle.None)
-            if (styleMap.forcedBinPack(leftOwner)) bothPolicies
+            if (
+              (style.newlines.source == Newlines.keep &&
+                onlyConfigStyle == ConfigStyle.Source) ||
+              styleMap.forcedBinPack(leftOwner)
+            ) bothPolicies
             else splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
           else if (
             mustDangleForTrailingCommas ||

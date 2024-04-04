@@ -7483,8 +7483,7 @@ object Main {
 object Main {
   val bar1 = foo1(
     10000,
-    10001,
-    10002 + 0
+    10001, 10002 + 0
   )
   val bar2 = foo2(
     0,
@@ -7619,8 +7618,7 @@ object Main {
 object Main {
   val bar1 = foo1(
     10000,
-    10001,
-    10002 + 0
+    10001, 10002 + 0
   )
   val bar2 = foo2(
     0,
