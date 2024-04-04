@@ -892,22 +892,25 @@ class FormatOps(
       ft: FormatToken,
       beforeCloseFt: => FormatToken,
       allowForce: => Boolean = true,
-  )(implicit style: ScalafmtConfig): Boolean =
-    style.optIn.configStyleArguments &&
+  )(implicit style: ScalafmtConfig): ConfigStyle =
+    if (style.optIn.configStyleArguments)
       couldUseConfigStyle(ft, beforeCloseFt, allowForce)
+    else ConfigStyle.None
 
   def couldUseConfigStyle(
       ft: FormatToken,
       beforeCloseFt: => FormatToken,
       allowForce: => Boolean = true,
-  )(implicit style: ScalafmtConfig): Boolean = {
+  )(implicit style: ScalafmtConfig): ConfigStyle = {
     def opensImplicit =
       (next(ft).hasBreak ||
         style.newlines.forceAfterImplicitParamListModifier) &&
         opensConfigStyleImplicitParamList(ft)
     val opensConfigStyle = !style.newlines.sourceIgnored && // classic
       (ft.hasBreak || opensImplicit) && beforeCloseFt.hasBreak
-    opensConfigStyle || allowForce && forceConfigStyle(hash(ft.left))
+    if (opensConfigStyle) ConfigStyle.Source
+    else if (allowForce && forceConfigStyle(hash(ft.left))) ConfigStyle.Forced
+    else ConfigStyle.None
   }
 
   /** Works for `using` as well */
