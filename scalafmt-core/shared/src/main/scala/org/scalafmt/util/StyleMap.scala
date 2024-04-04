@@ -28,7 +28,7 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
     val styleBuilder = Array.newBuilder[ScalafmtConfig]
     startBuilder += 0
     styleBuilder += init
-    val disableBinPack = mutable.Map.empty[Token, BinPack.Unsafe]
+    val disableBinPack = mutable.Map.empty[Token, BinPack.Site]
     def warn(err: String)(implicit fileLine: FileLine): Unit = logger.elem(err)
     tokens.arr.foreach { tok =>
       def changeStyle(style: ScalafmtConfig): Option[ScalafmtConfig] = {
@@ -58,10 +58,10 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
             if curr.binPack.literalArgumentLists &&
               opensLiteralArgumentList(tok)(curr) =>
           forcedBinPack += tok.meta.leftOwner
-          changeStyle(setBinPack(curr, callSite = BinPack.Unsafe.Always))
+          changeStyle(setBinPack(curr, callSite = BinPack.Site.Always))
             .foreach { x =>
-              val unsafe = x.binPack.unsafeCallSite
-              tokens.matchingOpt(open).foreach(disableBinPack.update(_, unsafe))
+              tokens.matchingOpt(open)
+                .foreach(disableBinPack.update(_, x.binPack.callSite))
             }
         case close @ RightParen() => disableBinPack.remove(close).foreach { x =>
             changeStyle(setBinPack(curr, callSite = x))
@@ -150,8 +150,8 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
 
 object StyleMap {
 
-  def setBinPack(curr: ScalafmtConfig, callSite: BinPack.Unsafe): ScalafmtConfig =
-    if (curr.binPack.unsafeCallSite == callSite) curr
-    else curr.copy(binPack = curr.binPack.copy(unsafeCallSite = callSite))
+  def setBinPack(curr: ScalafmtConfig, callSite: BinPack.Site): ScalafmtConfig =
+    if (curr.binPack.callSite == callSite) curr
+    else curr.copy(binPack = curr.binPack.copy(callSite = callSite))
 
 }

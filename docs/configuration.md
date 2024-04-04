@@ -678,7 +678,7 @@ foo:
 .qux
 ```
 
-### Indent for `binPack.unsafeCallSite`
+### Indent for `binPack.callSite`
 
 Normally, even when binpacking, there's a new level of indentation added for
 each opening parenthesis starting a nested argument clause (regardless whether
@@ -697,7 +697,7 @@ binPack.indentCallSiteOnce
 With the parameter enabled:
 
 ```scala mdoc:scalafmt
-binPack.unsafeCallSite = true
+binPack.callSite = true
 binPack.indentCallSiteOnce = true
 indent.callSite = 2
 maxColumn = 20
@@ -708,7 +708,7 @@ foo(bar1(baz1(qux1, qux2), baz2), bar2(baz3, baz4))
 With the parameter disabled:
 
 ```scala mdoc:scalafmt
-binPack.unsafeCallSite = true
+binPack.callSite = true
 binPack.indentCallSiteOnce = false
 indent.callSite = 2
 maxColumn = 20
@@ -729,7 +729,7 @@ binPack.indentCallSiteSingleArg
 With the parameter enabled:
 
 ```scala mdoc:scalafmt
-binPack.unsafeCallSite = true
+binPack.callSite = true
 binPack.indentCallSiteSingleArg = true
 indent.callSite = 2
 maxColumn = 20
@@ -751,7 +751,7 @@ foo(bar((_, _) =>
 With the parameter disabled:
 
 ```scala mdoc:scalafmt
-binPack.unsafeCallSite = true
+binPack.callSite = true
 binPack.indentCallSiteSingleArg = false
 indent.callSite = 2
 maxColumn = 20
@@ -1522,7 +1522,7 @@ This approach attempts to preserve line breaks in the input whenever possible.
 > (or prohibit) breaks in specific places (and that includes their default
 > values).
 >
-> For instance, default for [`binPack.unsafeCallSite`](#binpackunsafexxxsite)
+> For instance, default for [`binPack.callSite`](#binpackxxxsite)
 > will not allow multiple arguments per line in a multiline expression.
 
 #### `newlines.source=fold,unfold`
@@ -4333,7 +4333,7 @@ fileOverride {
   }
   "glob:**/src/test/scala/**.scala" {
     maxColumn = 120
-    binPack.unsafeCallSite = true
+    binPack.callSite = true
   }
 }
 ```
@@ -4841,10 +4841,11 @@ object A {
 }
 ```
 
-### `binPack.unsafeXxxSite`
+### `binPack.xxxSite`
 
 Controls binpacking around `defn` or `call` sites. The following parameter
-values are supported since v3.0.0:
+values are supported since v3.0.0 (this parameter was called `unsafeXxxSite`
+up until v3.8.1):
 
 - `Never` disables the functionality (also takes `false`)
 - `Always` enables the functionality (also takes `true`)
@@ -4854,14 +4855,14 @@ values are supported since v3.0.0:
 > if [`optIn.configStyleArguments`](#optinconfigstylearguments) is set since binpacking
 > and listing each argument/parameter on a separate line are at odds.
 
-> Please also see [callSite indentation parameters](#indent-for-binpackunsafecallsite).
+> Please also see [callSite indentation parameters](#indent-for-binpackcallsite).
 
 ### `binPack.bracketXxxSite`
 
 > Since v3.0.4.
 
 If set explicitly, will be used for type arguments or parameters,
-instead of the respective [`binPack.unsafeXxxSite`](#binpackunsafexxxsite).
+instead of the respective [`binPack.xxxSite`](#binpackxxxsite).
 
 ### binpacking of `importSelectors`
 

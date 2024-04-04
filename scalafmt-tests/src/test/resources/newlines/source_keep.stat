@@ -2767,7 +2767,7 @@ object a {
   }
 }
 <<< binpack call, always
-binPack.unsafeCallSite = always
+binPack.callSite = always
 optIn.configStyleArguments = false
 ===
 object a {
@@ -2787,7 +2787,7 @@ object a {
   }
 }
 <<< binpack call, oneline
-binPack.unsafeCallSite = oneline
+binPack.callSite = oneline
 optIn.configStyleArguments = false
 ===
 object a {
@@ -2809,7 +2809,7 @@ object a {
 }
 <<< binpack call, oneline, with syntaxNL, single arg
 maxColumn = 60
-binPack.unsafeCallSite = oneline
+binPack.callSite = oneline
 optIn.configStyleArguments = false
 ===
 object a {
@@ -2830,7 +2830,7 @@ object a {
 }
 <<< binpack call, oneline, with syntaxNL, multiple args
 maxColumn = 60
-binPack.unsafeCallSite = oneline
+binPack.callSite = oneline
 optIn.configStyleArguments = false
 ===
 object a {
@@ -4906,10 +4906,10 @@ object a {
     qux
   }
 }
-<<< unsafeXxxSite = Oneline, !sometimesBeforeColonInMethodReturnType
+<<< binPack.xxxSite = Oneline, !sometimesBeforeColonInMethodReturnType
 maxColumn = 50
-binPack.unsafeCallSite = Oneline
-binPack.unsafeDefnSite = Oneline
+binPack.callSite = Oneline
+binPack.defnSite = Oneline
 newlines.sometimesBeforeColonInMethodReturnType = false
 ===
 object a {
@@ -4927,8 +4927,8 @@ object a {
     qux
   }
 }
-<<< unsafeDefnSite = Oneline, one arg
-binPack.unsafeDefnSite = Oneline
+<<< binPack.defnSite = Oneline, one arg
+binPack.defnSite = Oneline
 newlines.sometimesBeforeColonInMethodReturnType = false
 ===
 object a {
@@ -4945,9 +4945,9 @@ object a {
     qux
   }
 }
-<<< unsafeDefnSite = Oneline, one arg, also bracketCallSite
+<<< binPack.defnSite = Oneline, one arg, also bracketCallSite
 binPack.bracketCallSite = Oneline
-binPack.unsafeDefnSite = Oneline
+binPack.defnSite = Oneline
 newlines.sometimesBeforeColonInMethodReturnType = false
 ===
 object a {
@@ -4964,11 +4964,11 @@ object a {
     qux
   }
 }
-<<< unsafeDefnSite = Oneline, one arg, also align
+<<< binPack.defnSite = Oneline, one arg, also align
 align.openParenDefnSite = true
 optIn.configStyleArguments = false
 danglingParentheses.preset = false
-binPack.unsafeDefnSite = Oneline
+binPack.defnSite = Oneline
 newlines.sometimesBeforeColonInMethodReturnType = true
 ===
 object a {
@@ -4985,12 +4985,12 @@ object a {
     qux
   }
 }
-<<< unsafeDefnSite = Oneline, one arg, also bracketCallSite+align
+<<< binPack.defnSite = Oneline, one arg, also bracketCallSite+align
 align.openParenDefnSite = true
 optIn.configStyleArguments = false
 danglingParentheses.preset = false
 binPack.bracketCallSite = Oneline
-binPack.unsafeDefnSite = Oneline
+binPack.defnSite = Oneline
 newlines.sometimesBeforeColonInMethodReturnType = true
 ===
 object a {
@@ -5061,9 +5061,9 @@ object a {
       .copy(status = AudienceStatus.Pending.name))
   )
 }
-<<< unsafeCallSite = Oneline, nested with one arg
+<<< binPack.callSite = Oneline, nested with one arg
 maxColumn = 100
-binPack.unsafeCallSite = Oneline
+binPack.callSite = Oneline
 runner.optimizer.forceConfigStyleMinArgCount = 100
 ===
 object a {
@@ -5088,9 +5088,9 @@ object a {
       .copy(status = AudienceStatus.Pending.name))
   )
 }
-<<< unsafeCallSite = Oneline, nested with one arg, several options
+<<< binPack.callSite = Oneline, nested with one arg, several options
 maxColumn = 100
-binPack.unsafeCallSite = Oneline
+binPack.callSite = Oneline
 runner.optimizer.forceConfigStyleMinArgCount = 100
 ===
 object a {
@@ -5130,9 +5130,9 @@ object a {
     Page(0, Page.maxPageLimit), Order.default,
     PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
 }
-<<< unsafeCallSite = always, nested with one arg
+<<< binPack.callSite = always, nested with one arg
 maxColumn = 100
-binPack.unsafeCallSite = always
+binPack.callSite = always
 runner.optimizer.forceConfigStyleMinArgCount = 100
 ===
 object a {
@@ -5157,9 +5157,9 @@ object a {
         .copy(status = AudienceStatus.Pending.name))
   )
 }
-<<< unsafeCallSite = always, nested with one arg, several options
+<<< binPack.callSite = always, nested with one arg, several options
 maxColumn = 100
-binPack.unsafeCallSite = always
+binPack.callSite = always
 runner.optimizer.forceConfigStyleMinArgCount = 100
 ===
 object a {
@@ -6200,7 +6200,7 @@ object A {
     }
 }
 <<< #3369
-binPack.unsafeDefnSite = always
+binPack.defnSite = always
 ===
 object Test {
   private def streamProbesWithOffsetFactory(

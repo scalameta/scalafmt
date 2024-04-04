@@ -839,8 +839,9 @@ class Router(formatOps: FormatOps) {
         Seq(Split(NoSplit.orNL(noNL), 0))
 
       case tok @ FormatToken(open @ LeftParenOrBracket(), right, _) if {
-            if (isArgClauseSite(leftOwner)) style.binPack.callSite(open).isNever
-            else style.binPack.defnSite(open).isNever &&
+            if (isArgClauseSite(leftOwner)) style.binPack.callSiteFor(open) ==
+              BinPack.Site.Never
+            else style.binPack.defnSiteFor(open) == BinPack.Site.Never &&
             isParamClauseSite(leftOwner)
           } =>
         val close = matching(open)
@@ -1095,7 +1096,7 @@ class Router(formatOps: FormatOps) {
         splitsNoNL ++ splitsNL ++ splitsForAssign.getOrElse(Seq.empty)
 
       case ft @ FormatToken(open @ LeftParenOrBracket(), right, _)
-          if !style.binPack.defnSite(open).isNever &&
+          if style.binPack.defnSiteFor(open) != BinPack.Site.Never &&
             isParamClauseSite(leftOwner) =>
         val close = matching(open)
         def slbPolicy = SingleLineBlock(close, okSLC = true, noSyntaxNL = true)
@@ -1118,8 +1119,8 @@ class Router(formatOps: FormatOps) {
 
           val argsHeadOpt = argumentStarts.get(hash(right))
           val isSingleArg = isSeqSingle(getArgs(leftOwner))
-          val oneline = style.binPack.defnSite(isBracket) ==
-            BinPack.Unsafe.Oneline
+          val oneline = style.binPack.defnSiteFor(isBracket) eq
+            BinPack.Site.Oneline
           val nlOnelinePolicy = argsHeadOpt.flatMap { x =>
             if (isSingleArg || !oneline) None
             else findFirstOnRight[T.Comma](tokens.getLast(x), close)
@@ -1136,8 +1137,8 @@ class Router(formatOps: FormatOps) {
               val penalizeOpens = bracketPenalty.fold(Policy.noPolicy) { p =>
                 Policy.before(close) {
                   case Decision(ftd @ FormatToken(o: T.LeftBracket, _, m), s)
-                      if isParamClauseSite(m.leftOwner) &&
-                        !styleMap.at(o).binPack.defnSite(o).isNever =>
+                      if isParamClauseSite(m.leftOwner) && styleMap.at(o)
+                        .binPack.defnSiteFor(o) != BinPack.Site.Never =>
                     if (tokens.isRightCommentThenBreak(ftd)) s
                     else s.map(x => if (x.isNL) x.withPenalty(p) else x)
                 }
@@ -1171,7 +1172,7 @@ class Router(formatOps: FormatOps) {
         }
 
       case ft @ FormatToken(open @ LeftParenOrBracket(), right, _)
-          if !style.binPack.callSite(open).isNever &&
+          if style.binPack.callSiteFor(open) != BinPack.Site.Never &&
             isArgClauseSite(leftOwner) =>
         val close = matching(open)
         val beforeClose = tokens.justBefore(close)
@@ -1201,7 +1202,7 @@ class Router(formatOps: FormatOps) {
 
         def findComma(ft: FormatToken) = findFirstOnRight[T.Comma](ft, close)
 
-        val oneline = style.binPack.callSite(open) == BinPack.Unsafe.Oneline
+        val oneline = style.binPack.callSiteFor(open) == BinPack.Site.Oneline
         val nextCommaOneline =
           if (!oneline || isSingleArg) None
           else firstArg.map(tokens.getLast).flatMap(findComma)
@@ -1365,7 +1366,7 @@ class Router(formatOps: FormatOps) {
           if !style.poorMansTrailingCommasInConfigStyle &&
             isArgClauseSite(leftOwner) =>
         val close = matching(open)
-        val binPackIsEnabled = !style.binPack.unsafeCallSite.isNever
+        val binPackIsEnabled = style.binPack.callSite != BinPack.Site.Never
         val useSpace = !style.newlines.keepBreak(newlines)
         val singleSplit =
           if (!binPackIsEnabled) Split(Space.orNL(useSpace), 0)
@@ -1438,15 +1439,15 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.Comma, right, _) if leftOwner.isNot[Template] =>
         val splitsOpt = argumentStarts.get(hash(right)).flatMap { nextArg =>
           val callSite = isArgClauseSite(leftOwner)
-          val binPackOpt =
-            if (callSite) Some(style.binPack.unsafeCallSite)
-            else if (isParamClauseSite(leftOwner))
-              Some(style.binPack.unsafeDefnSite)
-            else None
-          binPackOpt.filter(!_.isNever).map { binPack =>
+          val binPack =
+            if (callSite) style.binPack.callSite
+            else if (isParamClauseSite(leftOwner)) style.binPack.defnSite
+            else BinPack.Site.Never
+          if (binPack eq BinPack.Site.Never) None
+          else Some {
             val lastFT = tokens.getLast(nextArg)
             val loEnd = leftOwner.tokens.last.end
-            val oneline = binPack == BinPack.Unsafe.Oneline
+            val oneline = binPack == BinPack.Site.Oneline
             val nextCommaOrParen = findFirst(lastFT, loEnd) {
               case FormatToken(_, _: T.Comma, _) => true
               case FormatToken(_, RightParenOrBracket(), _) => true
@@ -2249,7 +2250,7 @@ class Router(formatOps: FormatOps) {
         }
 
       case FormatToken(soft.ImplicitOrUsing(), _, ImplicitUsingOnLeft(params))
-          if style.binPack.unsafeDefnSite.isNever &&
+          if style.binPack.defnSite == BinPack.Site.Never &&
             !style.verticalMultiline.atDefnSite =>
         val spaceSplit = Split(Space, 0)
           .notIf(style.newlines.forceAfterImplicitParamListModifier).withPolicy(
@@ -2520,9 +2521,9 @@ class Router(formatOps: FormatOps) {
     }
 
     val penalty = ft.meta.leftOwner match {
-      case _: Term.Assign if !style.binPack.unsafeCallSite.isNever =>
+      case _: Term.Assign if style.binPack.callSite != BinPack.Site.Never =>
         Constants.BinPackAssignmentPenalty
-      case _: Term.Param if !style.binPack.unsafeDefnSite.isNever =>
+      case _: Term.Param if style.binPack.defnSite != BinPack.Site.Never =>
         Constants.BinPackAssignmentPenalty
       case _ => 0
     }
