@@ -527,16 +527,11 @@ class Router(formatOps: FormatOps) {
           }
         }
       // New statement
-      case FormatToken(_: T.Semicolon, _, StartsStatementRight(stmt))
-          if newlines == 0 =>
-        val spaceSplit =
-          if (style.newlines.source eq Newlines.unfold) Split.ignored
-          else {
-            val expire = getLastToken(stmt)
+      case FormatToken(_: T.Semicolon, _, StartsStatementRight(stmt)) => Seq(
+          if (style.newlines.okSpaceForSource(newlines)) {
+            val expire = endOfSingleLineBlock(tokens.getLast(stmt))
             Split(Space, 0).withSingleLine(expire)
-          }
-        Seq(
-          spaceSplit,
+          } else Split.ignored,
           // For some reason, this newline cannot cost 1.
           Split(Newline2x(formatToken), 0),
         )

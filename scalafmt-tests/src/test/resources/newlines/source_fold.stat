@@ -833,8 +833,7 @@ object a {
     wrap(result ⇒
       actorOf(Props(new OuterActor(actorOf(Props(
         promiseIntercept({
-          throw new IllegalStateException("Ur state be b0rked");
-          new InnerActor
+          throw new IllegalStateException("Ur state be b0rked"); new InnerActor
         })(result)))))))
   }).getMessage should ===("Ur state be b0rked")
 }
@@ -1620,8 +1619,8 @@ object a {
 >>>
 object a {
   for (
-    i <- 0 until n;
-    j <- 0 until n if i + j == v
+    i <- 0 until n; j <- 0 until n
+    if i + j == v
   ) yield (i, j)
 }
 <<< 7.1.2: enumerator and guard short, for long, parens
@@ -7396,11 +7395,7 @@ foo match {
 }
 >>>
 foo match {
-  case a =>
-    bara;
-    baza
-  case b =>
-    barb;
-    bazb
+  case a => bara; baza
+  case b => barb; bazb
   case c => barc; bazc
 }
