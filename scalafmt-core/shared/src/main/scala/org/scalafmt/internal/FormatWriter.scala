@@ -1165,6 +1165,7 @@ class FormatWriter(formatOps: FormatOps) {
                   getAlignColumn(floc) + columnShift,
                   floc,
                   getAlignHashKey(floc),
+                  nonSlcOwner,
                 )
                 if (alignContainer eq null) alignContainer = container
                 else if (alignContainer ne container) {
@@ -1196,12 +1197,8 @@ class FormatWriter(formatOps: FormatOps) {
               val alignLine =
                 new AlignLine(candidates, floc.state.prev.column + columnShift)
               val appendToEmptyBlock = blockWasEmpty || {
-                val matches = columnMatches(
-                  wasSameContainer(alignContainer),
-                  block.refStops,
-                  candidates,
-                  floc.formatToken,
-                )
+                val sameOwner = wasSameContainer(alignContainer)
+                val matches = columnMatches(block, alignLine, sameOwner)
 
                 val flush =
                   if (matches == 0) shouldFlush(alignContainer)
@@ -1599,35 +1596,32 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
   private def columnMatches(
+      block: AlignBlock,
+      line: AlignLine,
       sameOwner: Boolean,
-      a: Seq[AlignStop],
-      b: Seq[AlignStop],
-      eol: FormatToken,
-  ): Int = {
-    val endOfLineOwner = eol.meta.rightOwner
+  )(implicit floc: FormatLocation): Int = {
+    val checkEol: (Tree => Boolean) => Boolean =
+      if (floc.style.align.multiline) _ => true
+      else {
+        val endOfLineOwner = floc.formatToken.meta.rightOwner
+        TreeOps.findTreeWithParentSimple(endOfLineOwner)(_).isEmpty
+      }
     @tailrec
     def iter(pairs: Seq[(AlignStop, AlignStop)], cnt: Int): Int = pairs match {
       case (r1, r2) +: tail =>
-        val ft1 = r1.floc.formatToken
-        val ft2 = r2.floc.formatToken
-        def checkEol = r1.floc.style.align.multiline || {
-          val row1Owner = getAlignOwnerNonComment(ft1)
-          val row2Owner = getAlignOwnerNonComment(ft2)
-          def isRowOwner(x: Tree) = (x eq row1Owner) || (x eq row2Owner)
-          TreeOps.findTreeWithParentSimple(endOfLineOwner)(isRowOwner).isEmpty
-        }
         // skip checking if row1 and row2 matches if both of them continues to a single line of comment
         // in order to vertical align adjacent single lines of comment.
         // see: https://github.com/scalameta/scalafmt/issues/1242
-        val slc1 = tokens.isRightLikeSingleLineComment(ft1)
-        val slc2 = tokens.isRightLikeSingleLineComment(ft2)
-        val ok =
-          if (slc1) slc2
-          else !slc2 && sameOwner && (r1.hashKey == r2.hashKey) && checkEol
+        val ok = (r1.nonSlcOwner, r2.nonSlcOwner) match {
+          case (Some(row1Owner), Some(row2Owner)) =>
+            def isRowOwner(x: Tree) = (x eq row1Owner) || (x eq row2Owner)
+            sameOwner && r1.hashKey == r2.hashKey && checkEol(isRowOwner)
+          case (x1, x2) => x1 eq x2
+        }
         if (ok) iter(tail, cnt + 1) else cnt
       case _ => cnt
     }
-    iter(a.zip(b), 0)
+    iter(block.refStops.zip(line.stops), 0)
   }
 
 }
@@ -1659,7 +1653,12 @@ object FormatWriter {
     def remove: FormatLocation = copy(leftLineId = NoLine)
   }
 
-  class AlignStop(val column: Int, val floc: FormatLocation, val hashKey: Int)
+  class AlignStop(
+      val column: Int,
+      val floc: FormatLocation,
+      val hashKey: Int,
+      val nonSlcOwner: Option[Tree],
+  )
 
   class AlignLine(var stops: IndexedSeq[AlignStop], val eolColumn: Int)
 
