@@ -1194,8 +1194,11 @@ class FormatWriter(formatOps: FormatOps) {
             val block = getOrCreateBlock(alignContainer)
             val blockWasEmpty = block.isEmpty
             if (!blockWasEmpty || !isBlankLine) {
-              val alignLine =
-                new AlignLine(candidates, floc.state.prev.column + columnShift)
+              val alignLine = new AlignLine(
+                candidates,
+                floc.state.prev.column + columnShift,
+                floc.style,
+              )
               val appendToEmptyBlock = blockWasEmpty || {
                 val sameOwner = wasSameContainer(alignContainer)
                 val matches = columnMatches(block, alignLine, sameOwner)
@@ -1331,11 +1334,13 @@ class FormatWriter(formatOps: FormatOps) {
     )(implicit builder: mutable.Builder[(Int, Int), Map[Int, Int]]): Unit = {
       val endIndex = locations.length - 1
       block.foreach { x =>
-        val headStop = x.stops.head
-        if (headStop.floc.style.align.multiline) {
-          val offset = block.stopColumns.head - headStop.column
+        if (x.style.align.multiline) {
+          val headStop = x.stops.head
           val ftIndex = headStop.floc.formatToken.meta.idx
-          if (ftIndex < endIndex) shiftStateColumnIndent(ftIndex + 1, offset)
+          if (ftIndex < endIndex) shiftStateColumnIndent(
+            ftIndex + 1,
+            block.stopColumns.head - headStop.column,
+          )
         }
         var previousShift = 0
         x.stops.zip(block.stopColumns).foreach { case (stop, blockStop) =>
@@ -1660,7 +1665,14 @@ object FormatWriter {
       val nonSlcOwner: Option[Tree],
   )
 
-  class AlignLine(var stops: IndexedSeq[AlignStop], val eolColumn: Int)
+  class AlignLine(
+      var stops: IndexedSeq[AlignStop],
+      val eolColumn: Int,
+      val style: ScalafmtConfig,
+  ) {
+    @inline
+    def noOverflow(shift: Int) = eolColumn + shift <= style.maxColumn
+  }
 
   class AlignBlock(
       buffer: mutable.ArrayBuffer[AlignLine] =
@@ -1704,29 +1716,25 @@ object FormatWriter {
       oldStops.drop(newStops.length).foreach(newStopCols += oldShift + _)
       newStops.drop(oldStops.length).foreach(newStopCols += newShift + _.column)
 
-      // check overflow
-      val style = line.stops.last.floc.style
-      if (!style.align.allowOverflow) {
-        val overflow = (line.eolColumn + newShift) > style.maxColumn ||
-          buffer.exists { x =>
-            val idx = -1 + {
-              if (truncate < 0) math.min(matches, x.stops.length)
-              else x.stops.length
+      def finalize() =
+        (line.style.align.allowOverflow || // check overflow
+          line.noOverflow(newShift) && buffer.forall { bl =>
+            bl.style.align.allowOverflow || {
+              val len = bl.stops.length
+              val idx = -1 + (if (truncate < 0) math.min(matches, len) else len)
+              bl.noOverflow(newStopCols(idx) - bl.stops(idx).column)
             }
-            val lastStop = x.stops(idx)
-            val totalShift = newStopCols(idx) - lastStop.column
-            x.eolColumn + totalShift > lastStop.floc.style.maxColumn
-          }
-        if (overflow) return false // RETURNING
-      }
+          }) && {
+          // now we mutate
+          line.stops = newStops
+          if (truncate < 0) foreach(x => x.stops = x.stops.take(matches))
+          if (newStopCols.length == newStops.length) refStops = newStops
+          buffer += line
+          stopColumns = newStopCols.toIndexedSeq
+          true
+        }
 
-      // now we mutate
-      line.stops = newStops
-      if (truncate < 0) foreach(x => x.stops = x.stops.take(matches))
-      if (newStopCols.length == newStops.length) refStops = newStops
-      buffer += line
-      stopColumns = newStopCols.toIndexedSeq
-      true
+      finalize()
     }
 
     // <0 old, 0 neither, >0 new
