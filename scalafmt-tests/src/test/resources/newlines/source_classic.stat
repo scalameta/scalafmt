@@ -7735,3 +7735,22 @@ object Main {
       x3: X, x4: X, xs: X*)
       : Set[Int]
 }
+<<< two statements separated by semicolon
+foo match {
+  case a =>
+    bara;
+    baza
+  case b => barb;
+    bazb
+  case c => barc; bazc
+}
+>>>
+foo match {
+  case a =>
+    bara;
+    baza
+  case b =>
+    barb;
+    bazb
+  case c => barc; bazc
+}
