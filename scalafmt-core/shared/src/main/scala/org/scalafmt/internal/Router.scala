@@ -1962,14 +1962,15 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Space.orNL(!nlOnly), 0))
 
       case FormatToken(T.RightBrace(), T.KwYield(), _) => Seq(Split(Space, 0))
-      case FormatToken(_, kw @ (_: T.KwElse | _: T.KwYield), _) =>
-        val expire = getLastToken(rightOwner)
-        val noSpace = shouldBreak(formatToken)
-        def exclude = insideBracesBlock(formatToken, expire)
-        val noSyntaxNL = kw.is[T.KwYield]
-        Seq(
-          Split(Space, 0).notIf(noSpace)
-            .withSingleLineNoOptimal(expire, exclude, noSyntaxNL = noSyntaxNL),
+      case FormatToken(_, kw @ (_: T.KwElse | _: T.KwYield), _) => Seq(
+          if (style.newlines.okSpaceForSource(newlines)) {
+            val expire = getLastToken(rightOwner)
+            Split(Space, 0).withSingleLineNoOptimal(
+              expire,
+              exclude = insideBracesBlock(formatToken, expire),
+              noSyntaxNL = kw.is[T.KwYield],
+            )
+          } else Split.ignored,
           Split(Newline, 1),
         )
       case ft @ FormatToken(_, _: T.KwThen | _: T.KwDo, _) =>

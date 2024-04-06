@@ -1,6 +1,5 @@
 package org.scalafmt.util
 
-import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Modification
@@ -137,13 +136,6 @@ object TokenOps {
     // an `_`, operators cannot. This check should suffice.
     !head.isLetter && head != '_'
   }
-
-  def shouldBreak(ft: FormatToken)(implicit style: ScalafmtConfig): Boolean =
-    style.newlines.source match {
-      case Newlines.classic | Newlines.keep => ft.hasBreak
-      case Newlines.fold => false
-      case Newlines.unfold => true
-    }
 
   def getXmlLastLineIndent(tok: Xml.Part): Option[Int] = {
     val part = tok.value
