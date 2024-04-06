@@ -46,11 +46,12 @@ case class NewlineT(
   override val length: Int = 0
 }
 
-object Newline extends NewlineT {
-  def apply: NewlineT = NewlineT()
-}
+object Newline extends NewlineT
 
-object Newline2x extends NewlineT(isDouble = true)
+object Newline2x extends NewlineT(isDouble = true) {
+  def apply(isDouble: Boolean): NewlineT = if (isDouble) this else Newline
+  def apply(ft: FormatToken): NewlineT = apply(ft.hasBlankLine)
+}
 
 object NoIndentNewline extends NewlineT(noIndent = true)
 
@@ -65,5 +66,5 @@ object Space extends Modification {
   def orNL(flag: Boolean): Modification = if (flag) this else Newline
   def orNL(nl: Int): Modification =
     if (FormatToken.noBreak(nl)) this
-    else NewlineT(isDouble = FormatToken.hasBlankLine(nl))
+    else Newline2x(FormatToken.hasBlankLine(nl))
 }
