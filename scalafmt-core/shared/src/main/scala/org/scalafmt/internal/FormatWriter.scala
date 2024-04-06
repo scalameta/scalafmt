@@ -1149,16 +1149,7 @@ class FormatWriter(formatOps: FormatOps) {
             columnShift += floc.shift
             if (floc.hasBreakAfter || ft.leftHasNewline) floc
             else {
-              val slc = tokens.isRightLikeSingleLineComment(ft)
-              val code = if (slc) "//" else ft.meta.right.text
-              floc.style.alignMap.get(code).flatMap { matchers =>
-                // Corner case when line ends with comment
-                val nonSlcOwner =
-                  if (slc) None else Some(getAlignOwnerNonComment(ft))
-                val owner = nonSlcOwner.getOrElse(ft.meta.leftOwner)
-                val ok = matchers.isEmpty || matchers.exists(_.matches(owner))
-                if (ok) Some(nonSlcOwner) else None
-              }.foreach { nonSlcOwner =>
+              getAlignNonSlcOwner(ft).foreach { nonSlcOwner =>
                 val container =
                   getAlignContainer(nonSlcOwner.getOrElse(ft.meta.rightOwner))
                 def appendCandidate() = columnCandidates += new AlignStop(
@@ -1170,7 +1161,7 @@ class FormatWriter(formatOps: FormatOps) {
                 if (alignContainer eq null) alignContainer = container
                 else if (alignContainer ne container) {
                   val pos1 = alignContainer.pos
-                  if (slc) {
+                  if (nonSlcOwner.isEmpty) {
                     val prevFt = tokens.prevNonCommentSameLine(ft)
                     if (pos1.end >= prevFt.left.end) appendCandidate()
                   } else {
@@ -1591,15 +1582,6 @@ class FormatWriter(formatOps: FormatOps) {
     (tokenKey, ownerKey).hashCode()
   }
 
-  private def getAlignOwnerNonComment(ft: FormatToken): Tree =
-    ft.meta.rightOwner match {
-      case name: Term.Name => name.parent match {
-          case Some(p: Term.ApplyInfix) => p
-          case _ => name
-        }
-      case x => x
-    }
-
   private def columnMatches(
       block: AlignBlock,
       line: AlignLine,
@@ -1786,6 +1768,28 @@ object FormatWriter {
     // if we didn't care about align token lengths, we'd always "useLeft"
     val useLeft = floc.formatToken.right.is[T.Comment]
     if (useLeft) floc.state.prev.column else floc.state.column
+  }
+
+  private def getAlignNonSlcOwner(
+      ft: FormatToken,
+  )(implicit floc: FormatLocation, tokens: FormatTokens): Option[Option[Tree]] = {
+    def getNonSlcOwner = ft.meta.rightOwner match {
+      case name: Term.Name => name.parent match {
+          case Some(p: Term.ApplyInfix) => p
+          case _ => name
+        }
+      case x => x
+    }
+
+    val slc = tokens.isRightLikeSingleLineComment(ft)
+    val code = if (slc) "//" else ft.meta.right.text
+    floc.style.alignMap.get(code).flatMap { matchers =>
+      // Corner case when line ends with comment
+      val nonSlcOwner = if (slc) None else Some(getNonSlcOwner)
+      val owner = nonSlcOwner.getOrElse(ft.meta.leftOwner)
+      val ok = matchers.isEmpty || matchers.exists(_.matches(owner))
+      if (ok) Some(nonSlcOwner) else None
+    }
   }
 
   // cache indentations to some level
