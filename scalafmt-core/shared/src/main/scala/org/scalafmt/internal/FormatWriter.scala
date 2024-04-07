@@ -1336,7 +1336,7 @@ class FormatWriter(formatOps: FormatOps) {
       block.foreach { x =>
         if (x.style.align.multiline) {
           val headStop = x.stops.head
-          val ftIndex = headStop.floc.formatToken.meta.idx
+          val ftIndex = headStop.ft.meta.idx
           if (ftIndex < endIndex) shiftStateColumnIndent(
             ftIndex + 1,
             block.stopColumns.head - headStop.column,
@@ -1347,7 +1347,7 @@ class FormatWriter(formatOps: FormatOps) {
           val currentShift = blockStop - stop.column
           val offset = currentShift - previousShift
           previousShift = currentShift
-          builder += stop.floc.formatToken.meta.idx -> offset
+          builder += stop.ft.meta.idx -> offset
         }
       }
     }
@@ -1663,7 +1663,10 @@ object FormatWriter {
       val floc: FormatLocation,
       val hashKey: Int,
       val nonSlcOwner: Option[Tree],
-  )
+  ) {
+    @inline
+    def ft = floc.formatToken
+  }
 
   class AlignLine(
       var stops: IndexedSeq[AlignStop],
@@ -1745,7 +1748,7 @@ object FormatWriter {
       if (matches == 0 || matches >= oldStops || matches >= newStops) 0
       else if (oldStops < newStops) -1 // new is longer
       else if (oldStops > newStops || hasMultiple) 1 // old is longer
-      else if (line.stops.last.floc.formatToken.right.is[T.Comment]) 1
+      else if (line.stops.last.ft.right.is[T.Comment]) 1
       else -1
     }
 
