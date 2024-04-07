@@ -50,8 +50,11 @@ class Footer extends React.Component {
           </div>
           <div>
             <h5>Community</h5>
+            <a href="https://discord.gg/N43mbnH" target="_blank">
+              Join on Discord
+            </a>
             <a href="https://gitter.im/scalameta/scalafmt" target="_blank">
-              Chat on Gitter
+              Chat on Gitter (defunct)
             </a>
           </div>
           <div>
