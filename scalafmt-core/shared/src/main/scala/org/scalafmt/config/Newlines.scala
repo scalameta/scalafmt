@@ -216,6 +216,13 @@ case class Newlines(
   @inline
   def sourceIgnored: Boolean = source.ignoreSourceSplit
 
+  def okSpaceForSource(newlines: Int, forFold: => Boolean = true): Boolean =
+    source match {
+      case Newlines.fold => forFold
+      case Newlines.unfold => false
+      case _ => newlines == 0
+    }
+
   @inline
   def keepBreak(newlines: => Int): Boolean = source.eq(Newlines.keep) &&
     newlines != 0
