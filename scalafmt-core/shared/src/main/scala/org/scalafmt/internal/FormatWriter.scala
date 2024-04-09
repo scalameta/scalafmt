@@ -1676,46 +1676,48 @@ object FormatWriter {
       // truncate if matches are shorter than both lists
       val truncate = shouldTruncate(line, matches)
       def trunc[A](s: IndexedSeq[A], c: Boolean) = if (c) s.take(matches) else s
-      val oldStops = trunc(stopColumns, truncate < 0)
-      val newStops = trunc(line.stops, truncate > 0)
+      val refColumns = trunc(stopColumns, truncate < 0)
+      val curStops = trunc(line.stops, truncate > 0)
+      val refLen = refStops.length
+      val curLen = curStops.length
+      val newStopLen = refLen.max(curLen)
 
       // compute new stops for the block
-      var oldShift = 0
-      var newShift = 0
-      val newStopCols =
-        new mutable.ArrayBuffer[Int](oldStops.length.max(newStops.length))
+      var refShift = 0
+      var curShift = 0
+      val newColumns = new mutable.ArrayBuffer[Int](newStopLen)
       // common stops first
-      oldStops.zip(newStops).foreach { case (oldStopColumn, newStop) =>
-        val oldStopShifted = oldShift + oldStopColumn
-        val newStopShifted = newShift + newStop.column
-        val diff = newStopShifted - oldStopShifted
+      refColumns.zip(curStops).foreach { case (refPrevColumn, curStop) =>
+        val refColumn = refShift + refPrevColumn
+        val curColumn = curShift + curStop.column
+        val diff = curColumn - refColumn
         if (diff > 0) {
-          oldShift += diff
-          newStopCols += newStopShifted
+          refShift += diff
+          newColumns += curColumn
         } else {
-          newShift -= diff
-          newStopCols += oldStopShifted
+          curShift -= diff
+          newColumns += refColumn
         }
       }
       // whatever remains
-      oldStops.drop(newStops.length).foreach(newStopCols += oldShift + _)
-      newStops.drop(oldStops.length).foreach(newStopCols += newShift + _.column)
+      refColumns.drop(curStops.length).foreach(newColumns += refShift + _)
+      curStops.drop(refColumns.length).foreach(newColumns += curShift + _.column)
 
       def finalize() =
         (line.style.align.allowOverflow || // check overflow
-          line.noOverflow(newShift) && buffer.forall { bl =>
+          line.noOverflow(curShift) && buffer.forall { bl =>
             bl.style.align.allowOverflow || {
               val len = bl.stops.length
               val idx = -1 + (if (truncate < 0) math.min(matches, len) else len)
-              bl.noOverflow(newStopCols(idx) - bl.stops(idx).column)
+              bl.noOverflow(newColumns(idx) - bl.stops(idx).column)
             }
           }) && {
           // now we mutate
-          line.stops = newStops
+          line.stops = curStops
           if (truncate < 0) foreach(x => x.stops = x.stops.take(matches))
-          if (newStopCols.length == newStops.length) refStops = newStops
+          if (newColumns.length == curStops.length) refStops = curStops
           buffer += line
-          stopColumns = newStopCols.toIndexedSeq
+          stopColumns = newColumns.toIndexedSeq
           true
         }
 
