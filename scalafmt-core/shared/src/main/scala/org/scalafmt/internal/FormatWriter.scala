@@ -1675,35 +1675,66 @@ object FormatWriter {
     def tryAppendToBlock(line: AlignLine, matches: Int): Boolean = {
       // truncate if matches are shorter than both lists
       val truncate = shouldTruncate(line, matches)
-      def trunc[A](s: IndexedSeq[A], c: Boolean) = if (c) s.take(matches) else s
-      val refColumns = trunc(stopColumns, truncate < 0)
-      val curStops = trunc(line.stops, truncate > 0)
-      val refLen = refStops.length
-      val curLen = curStops.length
+      val curStops = line.stops
+      val refLen = if (truncate < 0) matches else refStops.length
+      val curLen = if (truncate > 0) matches else curStops.length
       val newStopLen = refLen.max(curLen)
 
       // compute new stops for the block
       var refShift = 0
       var curShift = 0
       val newColumns = new mutable.ArrayBuffer[Int](newStopLen)
-      // common stops first
-      refColumns.zip(curStops).foreach { case (refPrevColumn, curStop) =>
-        val refColumn = refShift + refPrevColumn
-        val curColumn = curShift + curStop.column
-        val diff = curColumn - refColumn
-        if (diff > 0) {
-          refShift += diff
-          newColumns += curColumn
-        } else {
-          curShift -= diff
-          newColumns += refColumn
+
+      @tailrec
+      def iter(refIdx: Int, curIdx: Int): Boolean = {
+        val refStop = if (refIdx < refLen) refStops(refIdx) else null
+        val curStop = if (curIdx < curLen) curStops(curIdx) else null
+
+        @inline
+        def shiftRefColumn() = refShift + stopColumns(refIdx)
+        @inline
+        def shiftCurColumn() = curShift + curStop.column
+        def retainRefStop(): Unit = newColumns += shiftRefColumn()
+        def appendCurStop(): Unit = newColumns += shiftCurColumn()
+        def updateStop(): Unit = {
+          val refColumn = shiftRefColumn()
+          val curColumn = shiftCurColumn()
+          val diff = curColumn - refColumn
+          if (diff > 0) {
+            refShift += diff
+            newColumns += curColumn
+          } else {
+            curShift -= diff
+            newColumns += refColumn
+          }
+        }
+        @inline
+        def endRef() = Some((refLen, curIdx + 1))
+        @inline
+        def endCur() = Some((refIdx + 1, curLen))
+
+        def matchStops() = {
+          updateStop()
+          Some((refIdx + 1, curIdx + 1))
+        }
+
+        {
+          if (refStop == null && curStop == null) // reached end together
+            None
+          else if (refStop == null) { // refStops are shorter
+            appendCurStop()
+            endRef()
+          } else if (curStop == null) { // curStops are shorter
+            retainRefStop()
+            endCur()
+          } else matchStops()
+        } match {
+          case Some((ridx, cidx)) => iter(ridx, cidx)
+          case None => finalize()
         }
       }
-      // whatever remains
-      refColumns.drop(curStops.length).foreach(newColumns += refShift + _)
-      curStops.drop(refColumns.length).foreach(newColumns += curShift + _.column)
 
-      def finalize() =
+      def finalize(): Boolean = newColumns.nonEmpty &&
         (line.style.align.allowOverflow || // check overflow
           line.noOverflow(curShift) && buffer.forall { bl =>
             bl.style.align.allowOverflow || {
@@ -1713,7 +1744,7 @@ object FormatWriter {
             }
           }) && {
           // now we mutate
-          line.stops = curStops
+          line.stops = if (truncate > 0) curStops.take(matches) else curStops
           if (truncate < 0) foreach(x => x.stops = x.stops.take(matches))
           if (newColumns.length == curStops.length) refStops = curStops
           buffer += line
@@ -1721,7 +1752,7 @@ object FormatWriter {
           true
         }
 
-      finalize()
+      iter(0, 0)
     }
 
     // <0 old, 0 neither, >0 new
