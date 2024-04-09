@@ -371,6 +371,12 @@ class FormatWriter(formatOps: FormatOps) {
         else if (!x.formatToken.right.is[T.Comment]) false
         else hasBreakAfter(i + 1)
       }
+      @tailrec
+      def noAnnoFor(tree: Tree): Boolean = tree.parent match {
+        case Some(p @ (_: Term | _: Term.ArgClause)) => noAnnoFor(p)
+        case Some(p: Init) => !p.parent.exists(_.is[Mod.Annot])
+        case _ => true
+      }
       val style = floc.style
       val ib = style.rewrite.insertBraces
       val ft = floc.formatToken
@@ -378,7 +384,9 @@ class FormatWriter(formatOps: FormatOps) {
         floc.missingBracesIndent.isEmpty
       val mb =
         if (ok) formatOps.MissingBraces.getBlocks(ft, ib.allBlocks)
-          .filter { case (y, _) => checkInfix(y) && hasBreakAfter(idx) }
+          .filter { case (y, _) =>
+            checkInfix(y) && hasBreakAfter(idx) && noAnnoFor(y)
+          }
         else None
       mb.foreach { case (owner, otherBlocks) =>
         val endFt = tokens.nextNonCommentSameLine(tokens.getLast(owner))
