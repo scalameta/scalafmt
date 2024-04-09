@@ -1135,13 +1135,24 @@ class FormatWriter(formatOps: FormatOps) {
               if (prevFloc.hasBreakAfter || prevFloc.formatToken.leftHasNewline)
                 columnShift = 0
             }
-            val floc = locations(idx)
+            implicit val floc: FormatLocation = locations(idx)
             val ft = floc.formatToken
             idx += 1
             columnShift += floc.shift
             if (floc.hasBreakAfter || ft.leftHasNewline) floc
             else {
-              getAlignContainer(floc).foreach { container =>
+              val slc = tokens.isRightLikeSingleLineComment(ft)
+              val code = if (slc) "//" else ft.meta.right.text
+              floc.style.alignMap.get(code).flatMap { matchers =>
+                // Corner case when line ends with comment
+                val nonSlcOwner =
+                  if (slc) None else Some(getAlignOwnerNonComment(ft))
+                val owner = nonSlcOwner.getOrElse(ft.meta.leftOwner)
+                val ok = matchers.isEmpty || matchers.exists(_.matches(owner))
+                if (ok) Some(nonSlcOwner) else None
+              }.foreach { nonSlcOwner =>
+                val container =
+                  getAlignContainer(nonSlcOwner.getOrElse(ft.meta.rightOwner))
                 def appendCandidate() = columnCandidates += new AlignStop(
                   getAlignColumn(floc) + columnShift,
                   floc,
@@ -1150,13 +1161,15 @@ class FormatWriter(formatOps: FormatOps) {
                 if (alignContainer eq null) alignContainer = container
                 else if (alignContainer ne container) {
                   val pos1 = alignContainer.pos
-                  val pos2 = container.pos
-                  if (tokens.isRightLikeSingleLineComment(ft)) {
-                    if (pos1.end >= tokens.prevNonCommentSameLine(ft).left.end)
-                      appendCandidate()
-                  } else if (pos2.start <= pos1.start && pos2.end >= pos1.end) {
-                    alignContainer = container
-                    columnCandidates.clear()
+                  if (slc) {
+                    val prevFt = tokens.prevNonCommentSameLine(ft)
+                    if (pos1.end >= prevFt.left.end) appendCandidate()
+                  } else {
+                    val pos2 = container.pos
+                    if (pos2.start <= pos1.start && pos2.end >= pos1.end) {
+                      alignContainer = container
+                      columnCandidates.clear()
+                    }
                   }
                 }
                 if (alignContainer eq container) appendCandidate()
@@ -1300,20 +1313,6 @@ class FormatWriter(formatOps: FormatOps) {
 
         case _ => getAlignContainerParent(t)
       }
-
-    def getAlignContainer(implicit fl: FormatLocation): Option[Tree] = {
-      val ft = fl.formatToken
-      val slc = tokens.isRightLikeSingleLineComment(ft)
-      val code = if (slc) "//" else ft.meta.right.text
-
-      fl.style.alignMap.get(code).flatMap { matchers =>
-        // Corner case when line ends with comment
-        val owner = if (slc) ft.meta.leftOwner else getAlignOwnerNonComment(ft)
-        if (matchers.nonEmpty && !matchers.exists(_.matches(owner))) None
-        else if (!slc) Some(getAlignContainer(owner))
-        else Some(getAlignContainer(ft.meta.rightOwner))
-      }
-    }
 
     private def flushAlignBlock(
         block: AlignBlock,
