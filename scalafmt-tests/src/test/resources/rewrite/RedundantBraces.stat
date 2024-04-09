@@ -1714,3 +1714,37 @@ object a {
   ) = Def.task(session.checkTrackedSources(sources, dirs)) tag
     (ScalafmtTagPack: _*)
 }
+<<< #3912 insert braces in anno
+rewrite.insertBraces.minLines = 1
+===
+@ComponentScans(value =
+    Array(
+            new ComponentScan(
+                    value = Array("xxx.werr.werwer.fghfgfh"),
+                    nameGenerator = classOf[BeanNameGenerator],
+                    lazyInit = true,
+            ),
+            new ComponentScan(
+                    value = Array("xxx.werr.werwer.dsqrtybx"),
+                    nameGenerator = classOf[BeanNameGenerator],
+                    lazyInit = true,
+            ),
+    )
+)
+class WutAppSpringCfg extends SomeOtherStuff {}
+>>>
+@ComponentScans(value = {
+  Array(
+    new ComponentScan(
+      value = Array("xxx.werr.werwer.fghfgfh"),
+      nameGenerator = classOf[BeanNameGenerator],
+      lazyInit = true
+    ),
+    new ComponentScan(
+      value = Array("xxx.werr.werwer.dsqrtybx"),
+      nameGenerator = classOf[BeanNameGenerator],
+      lazyInit = true
+    )
+  )
+})
+class WutAppSpringCfg extends SomeOtherStuff {}
