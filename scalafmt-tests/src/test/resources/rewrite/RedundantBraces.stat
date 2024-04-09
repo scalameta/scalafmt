@@ -1733,7 +1733,7 @@ rewrite.insertBraces.minLines = 1
 )
 class WutAppSpringCfg extends SomeOtherStuff {}
 >>>
-@ComponentScans(value = {
+@ComponentScans(value =
   Array(
     new ComponentScan(
       value = Array("xxx.werr.werwer.fghfgfh"),
@@ -1746,5 +1746,5 @@ class WutAppSpringCfg extends SomeOtherStuff {}
       lazyInit = true
     )
   )
-})
+)
 class WutAppSpringCfg extends SomeOtherStuff {}
