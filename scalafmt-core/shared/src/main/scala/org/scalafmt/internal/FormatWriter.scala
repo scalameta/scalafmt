@@ -1150,10 +1150,11 @@ class FormatWriter(formatOps: FormatOps) {
             if (floc.hasBreakAfter || ft.leftHasNewline) floc
             else {
               getAlignNonSlcOwner(ft).foreach { nonSlcOwner =>
-                val container =
+                val (container, depth) =
                   getAlignContainer(nonSlcOwner.getOrElse(ft.meta.rightOwner))
                 def appendCandidate() = columnCandidates += new AlignStop(
                   getAlignColumn(floc) + columnShift,
+                  depth,
                   floc,
                   getAlignHashKey(floc),
                   nonSlcOwner,
@@ -1207,7 +1208,7 @@ class FormatWriter(formatOps: FormatOps) {
             prevBlock = block
           }
           if (isBlankLine || alignContainer.eq(null)) getBlockToFlush(
-            getAlignContainer(floc.formatToken.meta.rightOwner),
+            getAlignContainer(floc.formatToken.meta.rightOwner)._1,
             isBlankLine,
           ).foreach(flushAlignBlock)
         }
@@ -1252,19 +1253,21 @@ class FormatWriter(formatOps: FormatOps) {
     @tailrec
     private def getAlignContainerParent(
         child: Tree,
+        depth: Int,
         maybeParent: Option[Tree] = None,
-    )(implicit fl: FormatLocation): Tree =
+    )(implicit fl: FormatLocation): (Tree, Int) =
       maybeParent.orElse(child.parent) match {
-        case Some(AlignContainer(p)) => p
+        case Some(AlignContainer(p)) => (p, depth)
         case Some(p @ (_: Term.Select | _: Pat.Var | _: Term.ApplyInfix)) =>
-          getAlignContainerParent(p)
+          getAlignContainerParent(p, depth)
         case Some(p: Term.Apply) if (p.argClause.values match {
               case (_: Term.Apply) :: Nil => true
               case _ => p.fun eq child
-            }) => getAlignContainerParent(p)
+            }) => getAlignContainerParent(p, depth)
         // containers that can be traversed further if on same line
         case Some(p @ (_: Case | _: Enumerator)) =>
-          if (isEarlierLine(p)) p else getAlignContainerParent(p)
+          if (isEarlierLine(p)) (p, depth)
+          else getAlignContainerParent(p, depth)
         // containers that can be traversed further if lhs single-line
         case Some(p @ AlignContainer.WithBody(mods, b)) =>
           val keepGoing = {
@@ -1277,37 +1280,44 @@ class FormatWriter(formatOps: FormatOps) {
             val end = beforeBody.getOrElse(tokens.before(ptokens.last))
             getLineDiff(locations, beg, end) == 0
           }
-          if (keepGoing) getAlignContainerParent(p) else p
-        case Some(p: Term.ForYield) if child ne p.body => p
+          if (keepGoing) getAlignContainerParent(p, depth) else (p, depth)
+        case Some(p: Term.ForYield) if child ne p.body => (p, depth)
         case Some(p: Member.ParamClause) => p.parent match {
             // if all on single line, keep going
-            case Some(q) if onSingleLine(q) => getAlignContainerParent(p)
+            case Some(q) if onSingleLine(q) =>
+              getAlignContainerParent(p, depth + 1)
             // if this one not on single line, use parent as the owner
             case Some(q) if !onSingleLine(p) => // skip ParamClauseGroup
-              if (q.is[Member.ParamClauseGroup]) q.parent.getOrElse(q) else q
-            case _ => p // this one on single line, but the rest are not
+              val ac =
+                if (q.is[Member.ParamClauseGroup]) q.parent.getOrElse(q) else q
+              (ac, depth)
+            case _ => (p, depth) // this one on single line, but the rest are not
           }
-        case Some(p: Member.SyntaxValuesClause) => getAlignContainerParent(p)
-        case Some(p: Member.ParamClauseGroup) => getAlignContainerParent(p)
-        case Some(p) => p.parent.getOrElse(p)
-        case _ => child
+        case Some(p: Member.SyntaxValuesClause) =>
+          val isEnclosed = tokens.isEnclosedInMatching(p)
+          getAlignContainerParent(p, if (isEnclosed) depth + 1 else depth)
+        case Some(p: Member.ParamClauseGroup) =>
+          getAlignContainerParent(p, depth)
+        case Some(p) => (p.parent.getOrElse(p), depth)
+        case _ => (child, depth)
       }
 
     @tailrec
-    private def getAlignContainer(t: Tree)(implicit fl: FormatLocation): Tree =
-      t match {
-        case AlignContainer(x) if fl.formatToken.right.is[T.Comment] => x
+    private def getAlignContainer(t: Tree, depth: Int = 0)(implicit
+        fl: FormatLocation,
+    ): (Tree, Int) = t match {
+      case AlignContainer(x) if fl.formatToken.right.is[T.Comment] => (x, depth)
 
-        case _: Defn | _: Case | _: Term.Apply | _: Init | _: Ctor.Primary =>
-          getAlignContainerParent(t, Some(t))
+      case _: Defn | _: Case | _: Term.Apply | _: Init | _: Ctor.Primary =>
+        getAlignContainerParent(t, depth, Some(t))
 
-        case _: Mod => t.parent match {
-            case Some(p) => getAlignContainer(p)
-            case None => t
-          }
+      case _: Mod => t.parent match {
+          case Some(p) => getAlignContainer(p, depth)
+          case None => (t, depth)
+        }
 
-        case _ => getAlignContainerParent(t)
-      }
+      case _ => getAlignContainerParent(t, depth)
+    }
 
     private def flushAlignBlock(
         block: AlignBlock,
@@ -1615,6 +1625,7 @@ object FormatWriter {
   }
   class AlignStop(
       val column: Int,
+      val depth: Int,
       val floc: FormatLocation,
       val hashKey: Int,
       val nonSlcOwner: Option[Tree],
@@ -1732,12 +1743,19 @@ object FormatWriter {
         def matchStops() = (refStop.nonSlcOwner, curStop.nonSlcOwner) match {
           case (Some(refRowOwner), Some(curRowOwner)) =>
             def isRowOwner(x: Tree) = (x eq refRowOwner) || (x eq curRowOwner)
-            if (sameOwner && checkEol(isRowOwner))
-              if (refStop.hashKey == curStop.hashKey) {
+            if (sameOwner && checkEol(isRowOwner)) {
+              val cmpDepth = Integer.compare(refStop.depth, curStop.depth)
+              if (0 < cmpDepth) {
+                retainRefStop()
+                Some((refIdx + 1, curIdx, true))
+              } else if (0 > cmpDepth) {
+                appendCurStop()
+                Some((refIdx, curIdx + 1, true))
+              } else if (refStop.hashKey == curStop.hashKey) {
                 updateStop()
                 Some((refIdx + 1, curIdx + 1, true))
               } else noMatch()
-            else noMatch()
+            } else noMatch()
           case (None, None) => // both are comments
             updateStop()
             None
