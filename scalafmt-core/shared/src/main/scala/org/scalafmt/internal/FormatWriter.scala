@@ -1192,13 +1192,9 @@ class FormatWriter(formatOps: FormatOps) {
               )
               val appendToEmptyBlock = blockWasEmpty || {
                 val sameOwner = wasSameContainer(alignContainer)
-                val matches = columnMatches(block, alignLine, sameOwner)
+                val notAdded = !block.tryAppendToBlock(alignLine, sameOwner)
 
-                val flush =
-                  if (matches == 0) shouldFlush(alignContainer)
-                  else !block.tryAppendToBlock(alignLine, matches)
-
-                (isBlankLine || flush) && {
+                (isBlankLine || notAdded && shouldFlush(alignContainer)) && {
                   flushAlignBlock(block)
                   !isBlankLine
                 }
@@ -1584,35 +1580,6 @@ class FormatWriter(formatOps: FormatOps) {
     (tokenKey, ownerKey).hashCode()
   }
 
-  private def columnMatches(
-      block: AlignBlock,
-      line: AlignLine,
-      sameOwner: Boolean,
-  )(implicit floc: FormatLocation): Int = {
-    val checkEol: (Tree => Boolean) => Boolean =
-      if (floc.style.align.multiline) _ => true
-      else {
-        val endOfLineOwner = floc.formatToken.meta.rightOwner
-        TreeOps.findTreeWithParentSimple(endOfLineOwner)(_).isEmpty
-      }
-    @tailrec
-    def iter(pairs: Seq[(AlignStop, AlignStop)], cnt: Int): Int = pairs match {
-      case (r1, r2) +: tail =>
-        // skip checking if row1 and row2 matches if both of them continues to a single line of comment
-        // in order to vertical align adjacent single lines of comment.
-        // see: https://github.com/scalameta/scalafmt/issues/1242
-        val ok = (r1.nonSlcOwner, r2.nonSlcOwner) match {
-          case (Some(row1Owner), Some(row2Owner)) =>
-            def isRowOwner(x: Tree) = (x eq row1Owner) || (x eq row2Owner)
-            sameOwner && r1.hashKey == r2.hashKey && checkEol(isRowOwner)
-          case (x1, x2) => x1 eq x2
-        }
-        if (ok) iter(tail, cnt + 1) else cnt
-      case _ => cnt
-    }
-    iter(block.refStops.zip(line.stops), 0)
-  }
-
 }
 
 object FormatWriter {
@@ -1685,12 +1652,19 @@ object FormatWriter {
       refStops.foreach(s => s.shifted = s.column)
     }
 
-    def tryAppendToBlock(line: AlignLine, matches: Int): Boolean = {
-      // truncate if matches are shorter than both lists
-      val truncate = shouldTruncate(line, matches)
+    def tryAppendToBlock(line: AlignLine, sameOwner: Boolean)(implicit
+        floc: FormatLocation,
+    ): Boolean = {
+      val checkEol: (Tree => Boolean) => Boolean =
+        if (floc.style.align.multiline) _ => true
+        else {
+          val endOfLineOwner = floc.formatToken.meta.rightOwner
+          TreeOps.findTreeWithParentSimple(endOfLineOwner)(_).isEmpty
+        }
+
       val curStops = line.stops
-      val refLen = if (truncate < 0) matches else refStops.length
-      val curLen = if (truncate > 0) matches else curStops.length
+      val refLen = refStops.length
+      val curLen = curStops.length
       val newStopLen = refLen.max(curLen)
 
       // compute new stops for the block
@@ -1730,14 +1704,50 @@ object FormatWriter {
           curStop.shiftedColumn = refStop.shiftedColumn
           newStops += curStop
         }
+        def lastRefIsComment = refStops(refLen - 1).ft.right.is[T.Comment]
+        def lastCurIsComment = curStops(curLen - 1).ft.right.is[T.Comment]
         @inline
         def endRef() = Some((refIdx, curIdx + 1, false))
         @inline
         def endCur() = Some((refIdx + 1, curLen, true))
+        def noMatch() =
+          if (newStops.isEmpty) None
+          else {
+            val refRest = refLen - refIdx
+            val curRest = curLen - curIdx
+            val truncateCur = refRest > curRest ||
+              refRest == curRest && (hasMultiple || lastCurIsComment)
+            if (truncateCur) {
+              retainRefStop()
+              endCur()
+            } else {
+              appendCurStop()
+              endRef()
+            }
+          }
 
-        def matchStops() = {
-          updateStop()
-          Some((refIdx + 1, curIdx + 1, true))
+        // skip checking if they match if both continue to a single line of comment
+        // in order to vertical align adjacent single lines of comment
+        // see: https://github.com/scalameta/scalafmt/issues/1242
+        def matchStops() = (refStop.nonSlcOwner, curStop.nonSlcOwner) match {
+          case (Some(refRowOwner), Some(curRowOwner)) =>
+            def isRowOwner(x: Tree) = (x eq refRowOwner) || (x eq curRowOwner)
+            if (sameOwner && checkEol(isRowOwner))
+              if (refStop.hashKey == curStop.hashKey) {
+                updateStop()
+                Some((refIdx + 1, curIdx + 1, true))
+              } else noMatch()
+            else noMatch()
+          case (None, None) => // both are comments
+            updateStop()
+            None
+          case (None, _) if newStops.nonEmpty || lastCurIsComment => // ref is comment
+            appendCurStop()
+            endRef()
+          case (_, None) if newStops.nonEmpty || lastRefIsComment => // cur is comment
+            retainRefStop()
+            endCur()
+          case _ => None
         }
 
         {
@@ -1780,18 +1790,6 @@ object FormatWriter {
         }
 
       iter(0, 0)
-    }
-
-    // <0 old, 0 neither, >0 new
-    private def shouldTruncate(line: AlignLine, matches: Int): Int = {
-      // truncate if matches are shorter than both lists
-      val oldStops = refStops.length
-      val newStops = line.stops.length
-      if (matches == 0 || matches >= oldStops || matches >= newStops) 0
-      else if (oldStops < newStops) -1 // new is longer
-      else if (oldStops > newStops || hasMultiple) 1 // old is longer
-      else if (line.stops.last.ft.right.is[T.Comment]) 1
-      else -1
     }
 
     def clear(): Unit = {
