@@ -1850,7 +1850,7 @@ case class Foo() {
 case class Foo() {
   def Foo(firstParam: Int, secondParam: String, thirdParam: Boolean) = ???
   def Bar(abc:        Int, deg:         String, xyz:        Boolean) = ???
-  def Baz(hijk:       Int, lmnop:       String) = ???
+  def Baz(hijk:       Int, lmnop:       String)                      = ???
 }
 <<< align infix with breaks
 foo ++= Seq(
@@ -2103,5 +2103,5 @@ object a {
 >>>
 object a {
   private[this] def retry_cache_key(xxx: String) = s"some_short_string$xxx"
-  private[this] val retry_timing_in_seconds = 30 seconds
+  private[this] val retry_timing_in_seconds      = 30 seconds
 }
