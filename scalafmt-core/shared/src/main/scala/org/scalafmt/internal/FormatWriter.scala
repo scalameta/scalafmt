@@ -1328,17 +1328,19 @@ class FormatWriter(formatOps: FormatOps) {
         if (x.style.align.multiline) {
           val headStop = x.stops.head
           val ftIndex = headStop.ft.meta.idx
-          if (ftIndex < endIndex) shiftStateColumnIndent(
-            ftIndex + 1,
-            block.stopColumns.head - headStop.column,
-          )
+          if (ftIndex < endIndex)
+            shiftStateColumnIndent(ftIndex + 1, headStop.shift)
         }
         var previousShift = 0
-        x.stops.zip(block.stopColumns).foreach { case (stop, blockStop) =>
-          val currentShift = blockStop - stop.column
-          val offset = currentShift - previousShift
-          previousShift = currentShift
-          builder += stop.ft.meta.idx -> offset
+        x.stops.foreach { stop =>
+          if (stop.isActive) {
+            val currentShift = stop.shift
+            val offset = currentShift - previousShift
+            if (offset > 0) {
+              builder += stop.ft.meta.idx -> offset
+              previousShift = currentShift
+            }
+          }
         }
       }
     }
@@ -1640,18 +1642,31 @@ object FormatWriter {
     def remove: FormatLocation = copy(leftLineId = NoLine)
   }
 
+  class AlignStopColumn(var column: Int = -1) {
+    @inline
+    def reset(): Unit = column = -1
+  }
   class AlignStop(
       val column: Int,
       val floc: FormatLocation,
       val hashKey: Int,
       val nonSlcOwner: Option[Tree],
   ) {
+    var shiftedColumn: AlignStopColumn = new AlignStopColumn
     @inline
     def ft = floc.formatToken
+    @inline
+    def shifted = shiftedColumn.column
+    @inline
+    def shifted_=(value: Int) = shiftedColumn.column = value
+    @inline
+    def isActive = shifted >= 0
+    @inline
+    def shift = shifted - column
   }
 
   class AlignLine(
-      var stops: IndexedSeq[AlignStop],
+      val stops: IndexedSeq[AlignStop],
       val eolColumn: Int,
       val style: ScalafmtConfig,
   ) {
@@ -1662,14 +1677,12 @@ object FormatWriter {
   class AlignBlock(
       buffer: mutable.ArrayBuffer[AlignLine] =
         new mutable.ArrayBuffer[AlignLine],
-      var refStops: Seq[AlignStop] = Seq.empty,
-      var stopColumns: IndexedSeq[Int] = IndexedSeq.empty,
+      var refStops: IndexedSeq[AlignStop] = IndexedSeq.empty,
   ) {
     def appendToEmptyBlock(line: AlignLine): Unit = {
-      val stops = line.stops
-      refStops = stops
+      refStops = line.stops
       buffer += line
-      stopColumns = stops.map(_.column)
+      refStops.foreach(s => s.shifted = s.column)
     }
 
     def tryAppendToBlock(line: AlignLine, matches: Int): Boolean = {
@@ -1684,18 +1697,25 @@ object FormatWriter {
       var refShift = 0
       var curShift = 0
       val newColumns = new mutable.ArrayBuffer[Int](newStopLen)
+      val newStops = new mutable.ArrayBuffer[AlignStop](newStopLen)
 
       @tailrec
-      def iter(refIdx: Int, curIdx: Int): Boolean = {
-        val refStop = if (refIdx < refLen) refStops(refIdx) else null
+      def iter(refIdx: Int, curIdx: Int, refOk: Boolean = true): Boolean = {
+        val refStop = if (refOk && refIdx < refLen) refStops(refIdx) else null
         val curStop = if (curIdx < curLen) curStops(curIdx) else null
 
         @inline
-        def shiftRefColumn() = refShift + stopColumns(refIdx)
+        def shiftRefColumn() = refShift + refStop.shifted
         @inline
         def shiftCurColumn() = curShift + curStop.column
-        def retainRefStop(): Unit = newColumns += shiftRefColumn()
-        def appendCurStop(): Unit = newColumns += shiftCurColumn()
+        def retainRefStop(): Unit = {
+          newStops += refStop
+          newColumns += shiftRefColumn()
+        }
+        def appendCurStop(): Unit = {
+          newStops += curStop
+          newColumns += shiftCurColumn()
+        }
         def updateStop(): Unit = {
           val refColumn = shiftRefColumn()
           val curColumn = shiftCurColumn()
@@ -1707,15 +1727,17 @@ object FormatWriter {
             curShift -= diff
             newColumns += refColumn
           }
+          curStop.shiftedColumn = refStop.shiftedColumn
+          newStops += curStop
         }
         @inline
-        def endRef() = Some((refLen, curIdx + 1))
+        def endRef() = Some((refIdx, curIdx + 1, false))
         @inline
-        def endCur() = Some((refIdx + 1, curLen))
+        def endCur() = Some((refIdx + 1, curLen, true))
 
         def matchStops() = {
           updateStop()
-          Some((refIdx + 1, curIdx + 1))
+          Some((refIdx + 1, curIdx + 1, true))
         }
 
         {
@@ -1729,26 +1751,31 @@ object FormatWriter {
             endCur()
           } else matchStops()
         } match {
-          case Some((ridx, cidx)) => iter(ridx, cidx)
-          case None => finalize()
+          case Some((ridx, cidx, rok)) => iter(ridx, cidx, rok)
+          case None => finalize(if (refOk) refIdx + 1 else refIdx)
         }
       }
 
-      def finalize(): Boolean = newColumns.nonEmpty &&
+      def finalize(endRefIdx: Int): Boolean = newStops.nonEmpty &&
         (line.style.align.allowOverflow || // check overflow
           line.noOverflow(curShift) && buffer.forall { bl =>
-            bl.style.align.allowOverflow || {
-              val len = bl.stops.length
-              val idx = -1 + (if (truncate < 0) math.min(matches, len) else len)
-              bl.noOverflow(newColumns(idx) - bl.stops(idx).column)
+            bl.style.align.allowOverflow ||
+            bl.stops.reverseIterator.find(_.isActive).forall { bs =>
+              val shiftedColumn = bs.shifted
+              val idx = newStops.lastIndexWhere { ns =>
+                ns.isActive && ns.shifted <= shiftedColumn
+              }
+              idx >= 0 && bl.noOverflow(newColumns(idx) - bs.column)
             }
           }) && {
           // now we mutate
-          line.stops = if (truncate > 0) curStops.take(matches) else curStops
-          if (truncate < 0) foreach(x => x.stops = x.stops.take(matches))
-          if (newColumns.length == curStops.length) refStops = curStops
+          (0 until newStops.length)
+            .foreach(idx => newStops(idx).shifted = newColumns(idx))
+          (endRefIdx until refStops.length)
+            .foreach(refStops(_).shiftedColumn.reset())
+
           buffer += line
-          stopColumns = newColumns.toIndexedSeq
+          refStops = newStops.toIndexedSeq
           true
         }
 
@@ -1769,8 +1796,7 @@ object FormatWriter {
 
     def clear(): Unit = {
       buffer.clear()
-      refStops = Seq.empty
-      stopColumns = IndexedSeq.empty
+      refStops = IndexedSeq.empty
     }
 
     @inline
