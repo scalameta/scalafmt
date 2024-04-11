@@ -1176,19 +1176,14 @@ class Router(formatOps: FormatOps) {
         val singleArgAsInfix =
           if (isSingleArg) firstArg.flatMap(asInfixApp) else None
 
-        val opensLiteralArgumentList = styleMap
-          .opensLiteralArgumentList(formatToken)
-        val singleLineOnly = style.binPack.literalsSingleLine &&
-          opensLiteralArgumentList
-        val mustDangleForTrailingCommas =
-          getMustDangleForTrailingCommas(beforeClose)
+        val flags = getBinpackCallsiteFlags(formatToken, beforeClose)(style)
 
-        val onlyConfigStyle =
-          if (mustDangleForTrailingCommas) ConfigStyle.None
-          else mustUseConfigStyle(ft, beforeClose, !opensLiteralArgumentList)
+        val singleLineOnly = style.binPack.literalsSingleLine &&
+          flags.literalArgList
+
         val rightIsComment = right.is[T.Comment]
-        val nlOnly = mustDangleForTrailingCommas ||
-          onlyConfigStyle != ConfigStyle.None ||
+        val nlOnly = flags.dangleForTrailingCommas ||
+          flags.configStyle != ConfigStyle.None ||
           style.newlines.keepBreak(newlines) ||
           rightIsComment &&
           (newlines != 0 || nextNonCommentSameLine(next(ft)).hasBreak)
@@ -1284,16 +1279,16 @@ class Router(formatOps: FormatOps) {
           def binPackOnelinePolicyOpt =
             if (needOnelinePolicy) nextCommaOnelinePolicy else Some(NoPolicy)
           def bothPolicies = newlineBeforeClose & binPackOnelinePolicyOpt
-          if (onlyConfigStyle != ConfigStyle.None)
+          if (flags.configStyle != ConfigStyle.None)
             if (
               (style.newlines.source == Newlines.keep &&
-                onlyConfigStyle == ConfigStyle.Source) ||
+                flags.configStyle == ConfigStyle.Source) ||
               styleMap.forcedBinPack(leftOwner)
             ) bothPolicies
             else splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
           else if (
-            mustDangleForTrailingCommas ||
-            style.danglingParentheses.tupleOrCallSite(isTuple(leftOwner)) &&
+            flags.dangleForTrailingCommas ||
+            flags.shouldDangle &&
             (style.newlines.sourceIgnored || !style.optIn.configStyleArguments)
           ) bothPolicies
           else binPackOnelinePolicyOpt

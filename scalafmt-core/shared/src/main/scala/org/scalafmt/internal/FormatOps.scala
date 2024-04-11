@@ -2660,6 +2660,25 @@ class FormatOps(
     beforeClose.exists(rightIsCloseDelimToAddTrailingComma(_, closeFt))
   }
 
+  def getBinpackCallsiteFlags(
+      ftAfterOpen: FormatToken,
+      ftBeforeClose: FormatToken,
+  )(implicit style: ScalafmtConfig) = {
+    val literalArgList = styleMap.opensLiteralArgumentList(ftAfterOpen)
+    val dangleForTrailingCommas = getMustDangleForTrailingCommas(ftBeforeClose)
+    val configStyle =
+      if (dangleForTrailingCommas) ConfigStyle.None
+      else mustUseConfigStyle(ftAfterOpen, ftBeforeClose, !literalArgList)
+    val shouldDangle = style.danglingParentheses
+      .tupleOrCallSite(isTuple(ftAfterOpen.meta.leftOwner))
+    BinpackCallsiteFlags(
+      literalArgList = literalArgList,
+      dangleForTrailingCommas = dangleForTrailingCommas,
+      configStyle = configStyle,
+      shouldDangle = shouldDangle,
+    )
+  }
+
 }
 
 object FormatOps {
@@ -2701,5 +2720,12 @@ object FormatOps {
       Indent(Length.Num(-1), end, ExpiresOn.After),
     )
     else Seq(Indent(Length.StateColumn, end, ExpiresOn.Before))
+
+  case class BinpackCallsiteFlags(
+      literalArgList: Boolean,
+      dangleForTrailingCommas: Boolean,
+      configStyle: ConfigStyle,
+      shouldDangle: Boolean,
+  )
 
 }
