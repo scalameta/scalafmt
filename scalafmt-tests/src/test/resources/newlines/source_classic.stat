@@ -2857,7 +2857,44 @@ object a {
           |}""".stripMargin
   )
 }
-<<< binPack with named parameter values, danglingParentheses
+<<< binPack with named parameter values, configStyleArguments + danglingParentheses
+binPack.preset = true
+optIn.configStyleArguments = true
+danglingParentheses.callSite = true
+===
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+      Option.when(false)(x.qux)
+    )
+  )
+}
+>>>
+object a {
+  val foo = bar.map(x =>
+    x.copy(
+      baz = Option.when(false)(x.qux))
+  )
+}
+<<< binPack with named parameter values, configStyleArguments + !danglingParentheses
+binPack.preset = true
+optIn.configStyleArguments = true
+danglingParentheses.callSite = false
+===
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+      Option.when(false)(x.qux)
+    )
+  )
+}
+>>>
+object a {
+  val foo = bar.map(x =>
+    x.copy(
+      baz = Option.when(false)(x.qux)))
+}
+<<< binPack with named parameter values, !configStyleArguments + danglingParentheses
 binPack.preset = true
 optIn.configStyleArguments = false
 danglingParentheses.callSite = true
@@ -2877,7 +2914,7 @@ object a {
     )
   )
 }
-<<< binPack with named parameter values, !danglingParentheses
+<<< binPack with named parameter values, !configStyleArguments + !danglingParentheses
 binPack.preset = true
 optIn.configStyleArguments = false
 danglingParentheses.callSite = false
@@ -2895,7 +2932,45 @@ object a {
     x.copy(
       baz = Option.when(false)(x.qux)))
 }
-<<< literalsIncludeSimpleExpr with named parameter values, danglingParentheses
+<<< literalsIncludeSimpleExpr with named parameter values, configStyleArguments + danglingParentheses
+binPack.literalsIncludeSimpleExpr = true
+optIn.configStyleArguments = true
+danglingParentheses.callSite = true
+===
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+      Option.when(false)(x.qux)
+    )
+  )
+}
+>>>
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+      Option.when(false)(x.qux)
+    )
+  )
+}
+<<< literalsIncludeSimpleExpr with named parameter values, configStyleArguments + !danglingParentheses
+binPack.literalsIncludeSimpleExpr = true
+optIn.configStyleArguments = true
+danglingParentheses.callSite = false
+===
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+      Option.when(false)(x.qux)
+    )
+  )
+}
+>>>
+object a {
+  val foo = bar.map(x =>
+    x.copy(baz =
+      Option.when(false)(x.qux)))
+}
+<<< literalsIncludeSimpleExpr with named parameter values, !configStyleArguments + danglingParentheses
 binPack.literalsIncludeSimpleExpr = true
 optIn.configStyleArguments = false
 danglingParentheses.callSite = true
@@ -2915,7 +2990,7 @@ object a {
     )
   )
 }
-<<< literalsIncludeSimpleExpr with named parameter values, !danglingParentheses
+<<< literalsIncludeSimpleExpr with named parameter values, !configStyleArguments + !danglingParentheses
 binPack.literalsIncludeSimpleExpr = true
 optIn.configStyleArguments = false
 danglingParentheses.callSite = false
@@ -7492,6 +7567,14 @@ object Main {
     10000,
     10001, 10002 + 0
   )
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0
+  )
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0)
   val bar2 = foo2(
     0,
     1, 2, 3,
@@ -7504,6 +7587,12 @@ object Main {
     10001,
     10002 + 0
   )
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
   val bar2 = foo2(
     0,
     1,
@@ -7563,6 +7652,14 @@ object Main {
     10000,
     10001, 10002 + 0
   )
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0
+  )
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0)
   val bar2 = foo2(
     0,
     1, 2, 3,
@@ -7570,6 +7667,12 @@ object Main {
 }
 >>>
 object Main {
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
   val bar1 = foo1(10000,
     10001, 10002 + 0)
   val bar2 = foo2(0, 1, 2, 3,
@@ -7621,6 +7724,14 @@ object Main {
     10000,
     10001, 10002 + 0
   )
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0
+  )
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0)
   val bar2 = foo2(
     0,
     1, 2, 3,
@@ -7633,6 +7744,12 @@ object Main {
     10001,
     10002 + 0
   )
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
   val bar2 = foo2(
     0,
     1,
@@ -7692,6 +7809,14 @@ object Main {
     10000,
     10001, 10002 + 0
   )
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0
+  )
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0)
   val bar2 = foo2(
     0,
     1, 2, 3,
@@ -7699,6 +7824,12 @@ object Main {
 }
 >>>
 object Main {
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
   val bar1 = foo1(10000,
     10001, 10002 + 0)
   val bar2 = foo2(0, 1, 2, 3,
