@@ -900,16 +900,16 @@ class FormatOps(
   def couldUseConfigStyle(
       ft: FormatToken,
       beforeCloseFt: => FormatToken,
-      allowForce: => Boolean = true,
+      allowForce: Boolean = true,
   )(implicit style: ScalafmtConfig): ConfigStyle = {
     def opensImplicit =
       (next(ft).hasBreak ||
         style.newlines.forceAfterImplicitParamListModifier) &&
         opensConfigStyleImplicitParamList(ft)
-    val opensConfigStyle = !style.newlines.sourceIgnored && // classic
+    def opensConfigStyle = !style.newlines.sourceIgnored && // classic
       (ft.hasBreak || opensImplicit) && beforeCloseFt.hasBreak
-    if (opensConfigStyle) ConfigStyle.Source
-    else if (allowForce && forceConfigStyle(hash(ft.left))) ConfigStyle.Forced
+    if (allowForce && forceConfigStyle(hash(ft.left))) ConfigStyle.Forced
+    else if (opensConfigStyle) ConfigStyle.Source
     else ConfigStyle.None
   }
 
