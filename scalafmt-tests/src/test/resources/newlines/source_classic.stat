@@ -2801,10 +2801,7 @@ object a {
   test("foo") {
     a.b(c, d) shouldBe
       E(Seq(F(1, "v1"), F(2, "v2")),
-        G(Some(Seq(h, i)),
-          Some(Seq(j, k)), a.b, c.d,
-          e.f.g, h.i.j)
-      ).foo
+        G(Some(Seq(h, i)), Some(Seq(j, k)), a.b, c.d, e.f.g, h.i.j)).foo
   }
 }
 <<< binpack call, oneline, with syntaxNL, single arg
@@ -7667,12 +7664,18 @@ object Main {
 }
 >>>
 object Main {
+  val bar1 = foo1(
+    10000,
+    10001,
+    10002 + 0
+  )
   val bar1 = foo1(10000,
     10001, 10002 + 0)
-  val bar1 = foo1(10000,
-    10001, 10002 + 0)
-  val bar1 = foo1(10000,
-    10001, 10002 + 0)
+  val bar1 = foo1(
+    10000,
+    10001,
+    10002 + 0
+  )
   val bar1 = foo1(10000,
     10001, 10002 + 0)
   val bar2 = foo2(0, 1, 2, 3,

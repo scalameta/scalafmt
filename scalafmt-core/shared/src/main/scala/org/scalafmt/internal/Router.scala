@@ -1182,9 +1182,10 @@ class Router(formatOps: FormatOps) {
           flags.literalArgList
 
         val rightIsComment = right.is[T.Comment]
+        val scalaJsStyleNL = flags.scalaJsStyle && beforeClose.hasBreak
         val nlOnly = flags.dangleForTrailingCommas ||
           flags.configStyle != ConfigStyle.None ||
-          style.newlines.keepBreak(newlines) ||
+          style.newlines.keepBreak(newlines) || scalaJsStyleNL ||
           rightIsComment &&
           (newlines != 0 || nextNonCommentSameLine(next(ft)).hasBreak)
 
@@ -1244,11 +1245,15 @@ class Router(formatOps: FormatOps) {
             style.newlines.source.eq(Newlines.unfold)
           ) baseNoSplit.withSingleLine(close, noSyntaxNL = true)
           else {
+            def optClose = Some(scalaJsOptClose(beforeClose, flags))
             val opt =
-              if (oneline) nextCommaOneline.orElse(Some(close))
+              if (oneline) nextCommaOneline.orElse(optClose)
               else if (style.newlines.source.eq(Newlines.fold)) None
-              else findComma(formatToken).orElse(Some(close))
+              else findComma(formatToken).orElse(optClose)
             def unindentPolicy = unindentAtExclude(exclude, Num(-indentLen))
+            def scajaJsPolicy = Policy(Policy.End.On(close)) {
+              case d: Decision if d.formatToken.right eq close => d.noNewlines
+            }
             val noSplitPolicy =
               if (needOnelinePolicy) {
                 val alignPolicy =
@@ -1272,6 +1277,7 @@ class Router(formatOps: FormatOps) {
             baseNoSplit.withOptimalTokenOpt(opt).withPolicy(noSplitPolicy)
               .andPolicy(unindentPolicy, !isSingleArg || noSplitIndents.isEmpty)
               .andPolicy(indentOncePolicy, noSplitIndents.isEmpty)
+              .andPolicy(scajaJsPolicy, !flags.scalaJsStyle)
           }
 
         val nlPolicy = {
@@ -1291,6 +1297,7 @@ class Router(formatOps: FormatOps) {
               styleMap.forcedBinPack(leftOwner)
             ) bothPolicies
             else configStylePolicy
+          else if (scalaJsStyleNL) configStylePolicy
           else if (
             flags.dangleForTrailingCommas ||
             flags.shouldDangle &&

@@ -4878,25 +4878,25 @@ and similarly has cross-parameter interactions:
 - interaction with `config-style` parameters:
   - when [config-style is forced](#forcing-config-style), it takes precedence
     over binpacking
-  - for `newlines.source=classic`, formatting is mandated by the
-    [scala.js](https://github.com/scala-js/scala-js/pull/4522#issuecomment-879168123)
-    coding style, determined by the position of the closing parenthesis; "tucked"
-    parenthesis enables binpacking, while "dangling" one forces config-style
+  - for `newlines.source=classic`, behaviour depends on
+    [config-style](#optinconfigstylearguments):
+    - if enabled: used if [detected](#newlines-config-style-formatting), otherwise binpacked
+    - if disabled with both [`danglingParentheses.callSite`](#danglingparenthesescallsite)
+      enabled and closing parenthesis following a break: forces config-style, as described in
+      [scala.js](https://github.com/scala-js/scala-js/pull/4522#issuecomment-879168123)
+    - otherwise, uses binpacking
   - for other values of [`newlines.source`](#newlinessource),
     binpacking takes precedence
-- interaction with [`danglingParentheses.callSite``](#danglingparenthesescallsite)
-  - `newlines.source=classic`
-    - `danglingParentheses.callSite` is ignored
-    - when `config-style` is enabled: open break is preserved, close break
-      matches open break
-    - otherwise: both open and close are "tucked"
+- interaction with [`danglingParentheses.callSite`](#danglingparenthesescallsite)
+  - `newlines.source=classic`: please see above
   - `newlines.source=keep`
     - open break is preserved
-    - when both `config-style` and `danglingParentheses.callSite` are disabled,
+    - when both [config-style](#optinconfigstylearguments) and
+      [`danglingParentheses.callSite`](#danglingparenthesescallsite) are disabled,
       close break is "tucked"
     - otherwise, close break matches open break
   - `newlines.source=fold/unfold`
-    - when `danglingParentheses.callSite` is enabled,
+    - when [`danglingParentheses.callSite`](#danglingparenthesescallsite) is enabled,
       open break matches close break, and close is always dangling for `unfold`,
       and only when [config-style is forced](#forcing-config-style) for `fold`
     - otherwise, open is always dangling,
