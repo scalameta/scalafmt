@@ -1275,17 +1275,22 @@ class Router(formatOps: FormatOps) {
           }
 
         val nlPolicy = {
-          def newlineBeforeClose = decideNewlinesOnlyBeforeClose(close)
+          def newlineBeforeClose(implicit fileLine: FileLine) =
+            decideNewlinesOnlyBeforeClose(close)
           def binPackOnelinePolicyOpt =
             if (needOnelinePolicy) nextCommaOnelinePolicy else Some(NoPolicy)
-          def bothPolicies = newlineBeforeClose & binPackOnelinePolicyOpt
+          def bothPolicies(implicit fileLine: FileLine) = newlineBeforeClose &
+            binPackOnelinePolicyOpt
+          def configStylePolicy(implicit fileLine: FileLine) =
+            splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
+
           if (flags.configStyle != ConfigStyle.None)
             if (
               (style.newlines.source == Newlines.keep &&
                 flags.configStyle == ConfigStyle.Source) ||
               styleMap.forcedBinPack(leftOwner)
             ) bothPolicies
-            else splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
+            else configStylePolicy
           else if (
             flags.dangleForTrailingCommas ||
             flags.shouldDangle &&
