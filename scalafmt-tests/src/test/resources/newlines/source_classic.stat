@@ -3061,9 +3061,27 @@ object a {
       audienceSizeOffsite = Some(1)
     )
 }
-<<< binPack indent expiresOn=Before when dangle
+<<< binPack indent expiresOn=Before when dangle, configStyleArguments
+binPack.preset = true
+optIn.configStyleArguments = true
+danglingParentheses.defnSite = true
+===
+object a {
+   protected def foo[U](bar: String, baz: Seq[String] = Seq.empty)(
+       f: HttpResponse => U
+  ): U = qux
+}
+>>>
+object a {
+  protected def foo[U](bar: String,
+      baz: Seq[String] = Seq.empty)(
+      f: HttpResponse => U
+  ): U = qux
+}
+<<< binPack indent expiresOn=Before when dangle, !configStyleArguments
 binPack.preset = true
 optIn.configStyleArguments = false
+danglingParentheses.defnSite = true
 ===
 object a {
    protected def foo[U](bar: String, baz: Seq[String] = Seq.empty)(
@@ -3076,6 +3094,39 @@ object a {
       bar: String,
       baz: Seq[String] = Seq.empty
   )(f: HttpResponse => U): U = qux
+}
+<<< binPack indent expiresOn=Before when !dangle, configStyleArguments
+binPack.preset = true
+optIn.configStyleArguments = true
+danglingParentheses.defnSite = false
+===
+object a {
+   protected def foo[U](bar: String, baz: Seq[String] = Seq.empty)(
+       f: HttpResponse => U
+  ): U = qux
+}
+>>>
+object a {
+  protected def foo[U](bar: String,
+      baz: Seq[String] = Seq.empty)(
+      f: HttpResponse => U
+  ): U = qux
+}
+<<< binPack indent expiresOn=Before when !dangle, !configStyleArguments
+binPack.preset = true
+optIn.configStyleArguments = false
+danglingParentheses.defnSite = false
+===
+object a {
+   protected def foo[U](bar: String, baz: Seq[String] = Seq.empty)(
+       f: HttpResponse => U
+  ): U = qux
+}
+>>>
+object a {
+  protected def foo[U](bar: String,
+      baz: Seq[String] = Seq.empty)(
+      f: HttpResponse => U): U = qux
 }
 <<< #1973 1
 maxColumn = 25
@@ -7616,6 +7667,14 @@ object Main {
     x1: X,
     x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
   def foo2(
     x1: X, x2: X, x3: X,
     x4: X, xs: X*
@@ -7629,6 +7688,12 @@ object Main {
   def foo1(
       x1: X, x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X, x2: X,
+      xs: X*): Set[Int]
+  def foo1(x1: X, x2: X,
+      xs: X*): Set[Int]
+  def foo1(x1: X, x2: X,
+      xs: X*): Set[Int]
   def foo2(
       x1: X, x2: X, x3: X,
       x4: X, xs: X*
@@ -7693,6 +7758,14 @@ object Main {
     x1: X,
     x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
   def foo2(
     x1: X, x2: X, x3: X,
     x4: X, xs: X*
@@ -7703,6 +7776,15 @@ object Main {
 }
 >>>
 object Main {
+  def foo1(
+      x1: X, x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*
+  ): Set[Int]
   def foo1(
       x1: X, x2: X, xs: X*
   ): Set[Int]
@@ -7779,6 +7861,14 @@ object Main {
     x1: X,
     x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
   def foo2(
     x1: X, x2: X, x3: X,
     x4: X, xs: X*
@@ -7792,6 +7882,12 @@ object Main {
   def foo1(
       x1: X, x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X, x2: X,
+      xs: X*): Set[Int]
+  def foo1(x1: X, x2: X,
+      xs: X*): Set[Int]
+  def foo1(x1: X, x2: X,
+      xs: X*): Set[Int]
   def foo2(
       x1: X, x2: X, x3: X,
       x4: X, xs: X*
@@ -7850,6 +7946,14 @@ object Main {
     x1: X,
     x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
   def foo2(
     x1: X, x2: X, x3: X,
     x4: X, xs: X*
@@ -7860,6 +7964,12 @@ object Main {
 }
 >>>
 object Main {
+  def foo1(x1: X, x2: X,
+      xs: X*): Set[Int]
+  def foo1(x1: X, x2: X,
+      xs: X*): Set[Int]
+  def foo1(x1: X, x2: X,
+      xs: X*): Set[Int]
   def foo1(x1: X, x2: X,
       xs: X*): Set[Int]
   def foo2(x1: X, x2: X,

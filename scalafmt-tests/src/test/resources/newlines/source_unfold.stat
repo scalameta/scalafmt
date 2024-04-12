@@ -7775,6 +7775,14 @@ object Main {
     x1: X,
     x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
   def foo2(
     x1: X, x2: X, x3: X,
     x4: X, xs: X*
@@ -7785,6 +7793,15 @@ object Main {
 }
 >>>
 object Main {
+  def foo1(
+      x1: X, x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*
+  ): Set[Int]
   def foo1(
       x1: X, x2: X, xs: X*
   ): Set[Int]
@@ -7853,6 +7870,14 @@ object Main {
     x1: X,
     x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
   def foo2(
     x1: X, x2: X, x3: X,
     x4: X, xs: X*
@@ -7863,6 +7888,15 @@ object Main {
 }
 >>>
 object Main {
+  def foo1(
+      x1: X, x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*
+  ): Set[Int]
   def foo1(
       x1: X, x2: X, xs: X*
   ): Set[Int]
@@ -7936,6 +7970,14 @@ object Main {
     x1: X,
     x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
   def foo2(
     x1: X, x2: X, x3: X,
     x4: X, xs: X*
@@ -7946,6 +7988,15 @@ object Main {
 }
 >>>
 object Main {
+  def foo1(
+      x1: X, x2: X, xs: X*)
+      : Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*)
+      : Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*)
+      : Set[Int]
   def foo1(
       x1: X, x2: X, xs: X*)
       : Set[Int]
@@ -8007,6 +8058,14 @@ object Main {
     x1: X,
     x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
   def foo2(
     x1: X, x2: X, x3: X,
     x4: X, xs: X*
@@ -8017,6 +8076,15 @@ object Main {
 }
 >>>
 object Main {
+  def foo1(
+      x1: X, x2: X, xs: X*)
+      : Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*)
+      : Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*)
+      : Set[Int]
   def foo1(
       x1: X, x2: X, xs: X*)
       : Set[Int]
