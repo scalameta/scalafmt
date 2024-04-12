@@ -322,14 +322,15 @@ class FormatOps(
       getOneArgPerLineSplitsAfterComma(right, splits)
   }
 
-  def splitOneArgPerLineAfterCommaOnBreak(comma: T): Policy =
-    delayedBreakPolicyBefore(comma) {
-      Policy.after(comma) {
-        case Decision(t @ FormatToken(`comma`, right, _), splits)
-            if !right.is[T.Comment] || t.hasBreak =>
-          getOneArgPerLineSplitsAfterComma(right, splits)
-      }
+  def splitOneArgPerLineAfterCommaOnBreak(
+      comma: T,
+  )(implicit fileLine: FileLine): Policy = delayedBreakPolicyBefore(comma) {
+    Policy.after(comma) {
+      case Decision(t @ FormatToken(`comma`, right, _), splits)
+          if !right.is[T.Comment] || t.hasBreak =>
+        getOneArgPerLineSplitsAfterComma(right, splits)
     }
+  }
 
   private def getOneArgPerLineSplitsAfterComma(r: T, s: Seq[Split]) =
     if (r.is[T.LeftBrace]) SplitTag.OneArgPerLine.activateOnly(s)
