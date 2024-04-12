@@ -2672,13 +2672,36 @@ class FormatOps(
       else mustUseConfigStyle(ftAfterOpen, ftBeforeClose, !literalArgList)
     val shouldDangle = style.danglingParentheses
       .tupleOrCallSite(isTuple(ftAfterOpen.meta.leftOwner))
+    val scalaJsStyle = style.newlines.source == Newlines.classic &&
+      configStyle == ConfigStyle.None && !style.optIn.configStyleArguments &&
+      !literalArgList && shouldDangle
     BinpackCallsiteFlags(
       literalArgList = literalArgList,
       dangleForTrailingCommas = dangleForTrailingCommas,
       configStyle = configStyle,
       shouldDangle = shouldDangle,
+      scalaJsStyle = scalaJsStyle,
     )
   }
+
+  @tailrec
+  final def scalaJsOptClose(
+      ftBeforeClose: FormatToken,
+      bpFlags: BinpackCallsiteFlags,
+  )(implicit style: ScalafmtConfig): T =
+    if (bpFlags.scalaJsStyle) {
+      val ftAfterClose = tokens.nextNonCommentAfter(ftBeforeClose)
+      val continue = ftAfterClose != ftBeforeClose &&
+        ftAfterClose.right.is[T.RightParen] && ftAfterClose.noBreak &&
+        isArgClauseSite(ftAfterClose.meta.rightOwner)
+      if (continue) {
+        val open = tokens.matching(ftAfterClose.right)
+        val styleAtOpen = styleMap.at(open)
+        val bpFlagsAfter =
+          getBinpackCallsiteFlags(tokens(open), ftAfterClose)(styleAtOpen)
+        scalaJsOptClose(ftAfterClose, bpFlagsAfter)(styleAtOpen)
+      } else ftBeforeClose.right
+    } else ftBeforeClose.right
 
 }
 
@@ -2727,6 +2750,7 @@ object FormatOps {
       dangleForTrailingCommas: Boolean,
       configStyle: ConfigStyle,
       shouldDangle: Boolean,
+      scalaJsStyle: Boolean,
   )
 
 }
