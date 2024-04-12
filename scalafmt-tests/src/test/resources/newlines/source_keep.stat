@@ -5130,6 +5130,50 @@ object a {
     Page(0, Page.maxPageLimit), Order.default,
     PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
 }
+<<< binPack.callSite = Oneline, nested with one arg, more options
+maxColumn = 100
+binPack.callSite = Oneline
+runner.optimizer.forceConfigStyleMinArgCount = 100
+===
+object a {
+  when(
+    service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))),
+      Page(0, Page.maxPageLimit), Order.default)
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(
+    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)),
+      Page(0, Page.maxPageLimit), Order.default)
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default).thenReturn(
+    PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default,
+    PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
+}
+>>>
+object a {
+  when(
+    service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))),
+      Page(0, Page.maxPageLimit), Order.default)
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(
+    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)),
+      Page(0, Page.maxPageLimit), Order.default)
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default).thenReturn(
+    PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default,
+    PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
+}
 <<< binPack.callSite = always, nested with one arg
 maxColumn = 100
 binPack.callSite = always
@@ -5178,6 +5222,46 @@ object a {
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
     Page(0, Page.maxPageLimit), Order.default,
   PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
+}
+>>>
+object a {
+  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))),
+      Page(0, Page.maxPageLimit), Order.default)).thenReturn(PageResult(Seq(audience,
+        audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)),
+      Page(0, Page.maxPageLimit), Order.default)).thenReturn(PageResult(Seq(audience,
+        audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default).thenReturn(PageResult(Seq(audience,
+        audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default,
+    PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
+}
+<<< binPack.callSite = always, nested with one arg, no breaks
+maxColumn = 100
+binPack.callSite = always
+runner.optimizer.forceConfigStyleMinArgCount = 100
+===
+object a {
+  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))),
+      Page(0, Page.maxPageLimit), Order.default)).thenReturn(PageResult(Seq(audience,
+        audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)),
+      Page(0, Page.maxPageLimit), Order.default)).thenReturn(PageResult(Seq(audience,
+        audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default).thenReturn(PageResult(Seq(audience,
+        audience.copy(id = 2)), PageInfo(50, 0, 10)))
+
+  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
+    Page(0, Page.maxPageLimit), Order.default,
+    PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))).thenReturn(None)
 }
 >>>
 object a {
@@ -7526,6 +7610,14 @@ object Main {
     x1: X,
     x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
   def foo2(
     x1: X, x2: X, x3: X,
     x4: X, xs: X*
@@ -7540,6 +7632,13 @@ object Main {
       x1: X,
       x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+      x2: X, xs: X*): Set[Int]
+  def foo1(
+      x1: X,
+      x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+      x2: X, xs: X*): Set[Int]
   def foo2(
       x1: X, x2: X, x3: X,
       x4: X, xs: X*
@@ -7605,6 +7704,14 @@ object Main {
     x1: X,
     x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
   def foo2(
     x1: X, x2: X, x3: X,
     x4: X, xs: X*
@@ -7615,6 +7722,18 @@ object Main {
 }
 >>>
 object Main {
+  def foo1(
+      x1: X,
+      x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+      x1: X,
+      x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+      x1: X,
+      x2: X, xs: X*
+  ): Set[Int]
   def foo1(
       x1: X,
       x2: X, xs: X*
@@ -7692,6 +7811,14 @@ object Main {
     x1: X,
     x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
   def foo2(
     x1: X, x2: X, x3: X,
     x4: X, xs: X*
@@ -7706,6 +7833,13 @@ object Main {
       x1: X,
       x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+      x2: X, xs: X*): Set[Int]
+  def foo1(
+      x1: X,
+      x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+      x2: X, xs: X*): Set[Int]
   def foo2(
       x1: X, x2: X, x3: X,
       x4: X, xs: X*
@@ -7768,6 +7902,14 @@ object Main {
     x1: X,
     x2: X, xs: X*
   ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
   def foo2(
     x1: X, x2: X, x3: X,
     x4: X, xs: X*
@@ -7780,6 +7922,13 @@ object Main {
 object Main {
   def foo1(
       x1: X,
+      x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+      x2: X, xs: X*): Set[Int]
+  def foo1(
+      x1: X,
+      x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
       x2: X, xs: X*): Set[Int]
   def foo2(
       x1: X, x2: X, x3: X,
