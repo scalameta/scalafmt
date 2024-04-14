@@ -6360,32 +6360,32 @@ and similarly has cross-parameter interactions:</p>
 <ul>
 <li>when <a href="#forcing-config-style">config-style is forced</a>, it takes precedence
 over binpacking</li>
-<li>for <code>newlines.source=classic</code>, formatting is mandated by the
-<a href="https://github.com/scala-js/scala-js/pull/4522#issuecomment-879168123">scala.js</a>
-coding style, determined by the position of the closing parenthesis; &quot;tucked&quot;
-parenthesis enables binpacking, while &quot;dangling&quot; one forces config-style</li>
+<li>for <code>newlines.source=classic</code>, behaviour depends on
+<a href="#optinconfigstylearguments">config-style</a>:
+<ul>
+<li>if enabled: used if <a href="#newlines-config-style-formatting">detected</a>, otherwise binpacked</li>
+<li>if disabled with both <a href="#danglingparenthesescallsite"><code>danglingParentheses.callSite</code></a>
+enabled and closing parenthesis following a break: forces config-style, as described in
+<a href="https://github.com/scala-js/scala-js/pull/4522#issuecomment-879168123">scala.js</a></li>
+<li>otherwise, uses binpacking</li>
+</ul></li>
 <li>for other values of <a href="#newlinessource"><code>newlines.source</code></a>,
 binpacking takes precedence</li>
 </ul></li>
-<li>interaction with <a href="#danglingparenthesescallsite">`danglingParentheses.callSite``</a>
+<li>interaction with <a href="#danglingparenthesescallsite"><code>danglingParentheses.callSite</code></a>
 <ul>
-<li><code>newlines.source=classic</code>
-<ul>
-<li><code>danglingParentheses.callSite</code> is ignored</li>
-<li>when <code>config-style</code> is enabled: open break is preserved, close break
-matches open break</li>
-<li>otherwise: both open and close are &quot;tucked&quot;</li>
-</ul></li>
+<li><code>newlines.source=classic</code>: please see above</li>
 <li><code>newlines.source=keep</code>
 <ul>
 <li>open break is preserved</li>
-<li>when both <code>config-style</code> and <code>danglingParentheses.callSite</code> are disabled,
+<li>when both <a href="#optinconfigstylearguments">config-style</a> and
+<a href="#danglingparenthesescallsite"><code>danglingParentheses.callSite</code></a> are disabled,
 close break is &quot;tucked&quot;</li>
 <li>otherwise, close break matches open break</li>
 </ul></li>
 <li><code>newlines.source=fold/unfold</code>
 <ul>
-<li>when <code>danglingParentheses.callSite</code> is enabled,
+<li>when <a href="#danglingparenthesescallsite"><code>danglingParentheses.callSite</code></a> is enabled,
 open break matches close break, and close is always dangling for <code>unfold</code>,
 and only when <a href="#forcing-config-style">config-style is forced</a> for <code>fold</code></li>
 <li>otherwise, open is always dangling,
