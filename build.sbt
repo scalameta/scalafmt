@@ -191,7 +191,7 @@ lazy val tests = project.in(file("scalafmt-tests")).settings(
   publish / skip := true,
   libraryDependencies ++= Seq(
     // Test dependencies
-    "com.lihaoyi" %% "scalatags" % "0.12.0",
+    "com.lihaoyi" %% "scalatags" % "0.13.1",
     scalametaTestkit,
     munit.value,
   ),
