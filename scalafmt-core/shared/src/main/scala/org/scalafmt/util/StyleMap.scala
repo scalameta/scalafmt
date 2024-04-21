@@ -68,10 +68,7 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
     (startBuilder.result(), styleBuilder.result())
   }
 
-  @tailrec
-  private def isBasicLiteral(
-      tree: Tree,
-  )(implicit style: ScalafmtConfig): Boolean = tree match {
+  private def isBasicLiteral(tree: Tree): Boolean = tree match {
     case lit: Lit =>
       val strName = tree match {
         case t: Lit.Int
@@ -82,40 +79,43 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
       }
       literalR.matches(strName)
     case x: Name => literalR.matches(x.productPrefix)
-    case _ if !style.binPack.literalsIncludeSimpleExpr => false
-    case t: Term.Select => isBasicLiteral(t.qual)
-    case t: Term.Assign => isBasicLiteral(t.rhs)
-    case _ => tree.children match {
-        case Nil => true
-        case one :: Nil => isBasicLiteral(one)
-        case _ => false
-      }
+    case _ => false
   }
 
   @tailrec
-  private def isLiteral(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
-    isBasicLiteral(tree) ||
-      style.binPack.literalsIncludeSimpleExpr &&
-      (tree match {
-        case t: Term.Assign => isLiteral(t.rhs)
-        case t: Term.Apply => isBasicLiteral(t.fun) &&
-          (t.argClause match {
-            case Term.ArgClause(Nil, None) => true
-            case Term.ArgClause(arg :: Nil, None) => isLiteral(arg)
-            case _ => false
-          })
-        case Term.New(t) => isBasicLiteral(t.name) &&
-          (t.argClauses match {
-            case Nil | Term.ArgClause(Nil, None) :: Nil => true
-            case Term.ArgClause(arg :: Nil, None) :: Nil => isLiteral(arg)
-            case _ => false
-          })
-        case _ => tree.children match {
-            case Nil => true
-            case one :: Nil => isLiteral(one)
-            case _ => false
-          }
+  private def isSimpleLiteral(tree: Tree): Boolean = tree match {
+    case t: Term.Select => isSimpleLiteral(t.qual)
+    case t: Term.Assign => isSimpleLiteral(t.rhs)
+    case _ => isBasicLiteral(tree) ||
+      (tree.children match {
+        case Nil => true
+        case one :: Nil => isSimpleLiteral(one)
+        case _ => false
       })
+  }
+
+  @tailrec
+  private def isComplexLiteral(tree: Tree): Boolean = tree match {
+    case t: Term.Assign => isComplexLiteral(t.rhs)
+    case t: Term.Apply => isSimpleLiteral(t.fun) &&
+      (t.argClause match {
+        case Term.ArgClause(Nil, None) => true
+        case Term.ArgClause(arg :: Nil, None) => isComplexLiteral(arg)
+        case _ => false
+      })
+    case Term.New(t) => isSimpleLiteral(t.name) &&
+      (t.argClauses match {
+        case Nil | Term.ArgClause(Nil, None) :: Nil => true
+        case Term.ArgClause(arg :: Nil, None) :: Nil => isComplexLiteral(arg)
+        case _ => false
+      })
+    case _ => isSimpleLiteral(tree) ||
+      (tree.children match {
+        case Nil => true
+        case one :: Nil => isComplexLiteral(one)
+        case _ => false
+      })
+  }
 
   def opensLiteralArgumentList(
       ft: FormatToken,
@@ -124,8 +124,17 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
     case Member.SyntaxValuesClause(v) => Some(v)
     case _ => None
   }).exists { args =>
-    args.lengthCompare(style.binPack.literalsMinArgCount) >= 0 &&
-    args.forall(isLiteral)
+    implicit val pred: Tree => Boolean =
+      if (style.binPack.literalsIncludeSimpleExpr) isComplexLiteral
+      else isBasicLiteral
+    @tailrec
+    def iter(rest: List[Tree], cnt: Int)(implicit
+        pred: Tree => Boolean,
+    ): Boolean = rest match {
+      case head :: tail => pred(head) && iter(tail, cnt + 1)
+      case Nil => cnt >= style.binPack.literalsMinArgCount
+    }
+    iter(args, 0)
   }
 
   @inline
