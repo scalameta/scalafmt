@@ -10,6 +10,8 @@ import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 
+import scala.meta.Term
+import scala.meta.Type
 import scala.meta.tokens.Token
 
 import scala.annotation.tailrec
@@ -21,6 +23,7 @@ private class BestFirstSearch private (
     range: Set[Range],
     formatWriter: FormatWriter,
 )(implicit val formatOps: FormatOps) {
+  import BestFirstSearch._
   import LoggerOps._
   import TokenOps._
   import TreeOps._
@@ -37,7 +40,9 @@ private class BestFirstSearch private (
     tokens.foreach(t => result += router.getSplits(t))
     result.result()
   }
-  val noOptimizations = noOptimizationZones()
+  private val noOptZones =
+    if (useNoOptZones(initStyle)) getNoOptZones(tokens) else null
+
   var explored = 0
   var deepestYet = State.start
   val best = mutable.Map.empty[Int, State]
@@ -46,30 +51,24 @@ private class BestFirstSearch private (
 
   type StateHash = Long
 
-  def isInsideNoOptZone(token: FormatToken): Boolean =
-    !disableOptimizationsInsideSensitiveAreas ||
-      noOptimizations.contains(token.left)
-
   /** Returns true if it's OK to skip over state.
     */
   def shouldEnterState(curr: State): Boolean = keepSlowStates ||
-    curr.policy.noDequeue || isInsideNoOptZone(tokens(curr.depth)) ||
+    curr.policy.noDequeue ||
     // TODO(olafur) document why/how this optimization works.
     !best.get(curr.depth).exists(_.alwaysBetter(curr))
 
-  def shouldRecurseOnBlock(ft: FormatToken, stop: Token)(implicit
+  private def getBlockCloseToRecurse(ft: FormatToken, stop: Token)(implicit
       style: ScalafmtConfig,
   ): Option[Token] =
-    if (!recurseOnBlocks || !isInsideNoOptZone(ft)) None
-    else {
-      val left = tokens(ft, -1)
-      val closeOpt = formatOps.getEndOfBlock(left, false)
-      closeOpt.filter(close =>
+    if (recurseOnBlocks) {
+      val prev = tokens.prev(ft)
+      getEndOfBlock(prev, false).filter { close =>
         // Block must span at least 3 lines to be worth recursing.
-        close != stop && distance(left.left, close) > style.maxColumn * 3 &&
-          extractStatementsIfAny(left.meta.leftOwner).nonEmpty,
-      )
-    }
+        close != stop && distance(prev.left, close) > style.maxColumn * 3 &&
+        extractStatementsIfAny(prev.meta.leftOwner).nonEmpty
+      }
+    } else None
 
   def stateColumnKey(state: State): StateHash = state.column << 8 |
     state.indentation
@@ -125,7 +124,9 @@ private class BestFirstSearch private (
       if (splitToken.right.start > stop.start && leftTok.start < leftTok.end)
         return curr
 
-      if (shouldEnterState(curr)) {
+      val noOptZone = noOptZones == null || noOptZones.contains(leftTok)
+
+      if (noOptZone || shouldEnterState(curr)) {
         trackState(curr, depth, Q.length)
 
         if (explored > runner.maxStateVisits) throw SearchStateExploded(
@@ -141,14 +142,14 @@ private class BestFirstSearch private (
           if (
             emptyQueueSpots.contains(tokenHash) ||
             dequeueOnNewStatements && curr.allAltAreNL &&
-            (leftTok.is[Token.KwElse] || statementStarts.contains(tokenHash)) &&
-            (depth > 0 || !isInsideNoOptZone(splitToken))
+            !(depth == 0 && noOptZone) &&
+            (leftTok.is[Token.KwElse] || statementStarts.contains(tokenHash))
           ) addGeneration()
         }
 
         val blockClose =
-          if (start.eq(curr) && 0 != maxCost) None
-          else shouldRecurseOnBlock(splitToken, stop)
+          if (start == curr && 0 != maxCost || !noOptZone) None
+          else getBlockCloseToRecurse(splitToken, stop)
         if (blockClose.nonEmpty) blockClose.foreach { end =>
           shortestPathMemo(curr, end, depth + 1, maxCost).foreach(enqueue)
         }
@@ -314,5 +315,30 @@ object BestFirstSearch {
       formatWriter: FormatWriter,
   ): SearchResult =
     new BestFirstSearch(range, formatWriter)(formatOps).getBestPath
+
+  private def getNoOptZones(tokens: FormatTokens) = {
+    val result = Set.newBuilder[Token]
+    var expire: Token = null
+    tokens.foreach {
+      case FormatToken(x, _, _) if expire ne null =>
+        if (x eq expire) expire = null else result += x
+      case FormatToken(t: Token.LeftParen, _, m) if (m.leftOwner match {
+            // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
+            case lo: Term.ArgClause => !lo.parent.exists(_.is[Term.ApplyInfix])
+            case _: Term.Apply => true // legacy: when enclosed in parens
+            case _ => false
+          }) => expire = tokens.matching(t)
+      case FormatToken(t: Token.LeftBrace, _, m) if (m.leftOwner match {
+            // Type compounds can be inside defn.defs
+            case _: Type.Refine => true
+            case _ => false
+          }) => expire = tokens.matching(t)
+      case _ =>
+    }
+    result.result()
+  }
+
+  private def useNoOptZones(implicit style: ScalafmtConfig): Boolean =
+    style.runner.optimizer.disableOptimizationsInsideSensitiveAreas
 
 }
