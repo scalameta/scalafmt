@@ -34,7 +34,7 @@ class FormatOps(
   import TokenOps._
   import TreeOps._
 
-  private val (initStyle, ownersMap) =
+  private[internal] val (initStyle, ownersMap) =
     getStyleAndOwners(topSourceTree, baseStyle)
 
   val runner: ScalafmtRunner = initStyle.runner
@@ -865,28 +865,6 @@ class FormatOps(
     .parent match {
     case Some(SingleArgInBraces.OrBlock(_, _, e)) => e.left -> ExpiresOn.Before
     case _ => tokens.getLastExceptParen(function).left -> ExpiresOn.After
-  }
-
-  def noOptimizationZones(): Set[T] = {
-    val result = Set.newBuilder[T]
-    var expire: T = null
-    tokens.foreach {
-      case FormatToken(x, _, _) if expire ne null =>
-        if (x eq expire) expire = null else result += x
-      case FormatToken(t: T.LeftParen, _, m) if (m.leftOwner match {
-            // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
-            case lo: Term.ArgClause => !lo.parent.exists(_.is[Term.ApplyInfix])
-            case _: Term.Apply => true // legacy: when enclosed in parens
-            case _ => false
-          }) => expire = matching(t)
-      case FormatToken(t: T.LeftBrace, _, m) if (m.leftOwner match {
-            // Type compounds can be inside defn.defs
-            case _: Type.Refine => true
-            case _ => false
-          }) => expire = matching(t)
-      case _ =>
-    }
-    result.result()
   }
 
   def mustUseConfigStyle(
