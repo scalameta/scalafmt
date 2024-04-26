@@ -48,8 +48,6 @@ private class BestFirstSearch private (
   val visits = new Array[Int](tokens.length)
   var keepSlowStates = !initStyle.runner.optimizer.pruneSlowStates
 
-  type StateHash = Long
-
   /** Returns true if it's OK to skip over state.
     */
   def shouldEnterState(curr: State): Boolean = keepSlowStates ||
@@ -69,10 +67,7 @@ private class BestFirstSearch private (
       }
     } else None
 
-  def stateColumnKey(state: State): StateHash = state.column << 8 |
-    state.indentation
-
-  val memo = mutable.Map.empty[(Int, StateHash), State]
+  private val memo = mutable.Map.empty[Long, State]
 
   def shortestPathMemo(
       start: State,
@@ -80,10 +75,9 @@ private class BestFirstSearch private (
       depth: Int,
       maxCost: Int,
   ): Option[State] = {
-    val key = (start.depth, stateColumnKey(start))
-    val cachedState = memo.get(key)
-    if (cachedState.nonEmpty) cachedState
-    else {
+    val key = (start.indentation & 0xffL) | (start.column & 0xffffffL) << 8 |
+      (start.depth & 0xffffffffL) << 32
+    memo.get(key).orElse {
       // Only update state if it reached stop.
       val nextState = shortestPath(start, stop, depth, maxCost)
       if (null == nextState) None
