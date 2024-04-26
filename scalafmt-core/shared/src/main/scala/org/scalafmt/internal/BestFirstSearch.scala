@@ -28,7 +28,6 @@ private class BestFirstSearch private (
   import TokenOps._
   import TreeOps._
   import formatOps._
-  import formatOps.runner.optimizer._
 
   implicit val stateOrdering: Ordering[State] = State.Ordering
 
@@ -47,7 +46,7 @@ private class BestFirstSearch private (
   var deepestYet = State.start
   val best = mutable.Map.empty[Int, State]
   val visits = new Array[Int](tokens.length)
-  var keepSlowStates = !pruneSlowStates
+  var keepSlowStates = !initStyle.runner.optimizer.pruneSlowStates
 
   type StateHash = Long
 
@@ -61,7 +60,7 @@ private class BestFirstSearch private (
   private def getBlockCloseToRecurse(ft: FormatToken, stop: Token)(implicit
       style: ScalafmtConfig,
   ): Option[Token] =
-    if (recurseOnBlocks) {
+    if (style.runner.optimizer.recurseOnBlocks) {
       val prev = tokens.prev(ft)
       getEndOfBlock(prev, false).filter { close =>
         // Block must span at least 3 lines to be worth recursing.
@@ -124,18 +123,20 @@ private class BestFirstSearch private (
       if (splitToken.right.start > stop.start && leftTok.start < leftTok.end)
         return curr
 
-      val noOptZone = noOptZones == null || noOptZones.contains(leftTok)
+      implicit val style = styleMap.at(splitToken)
+      import style.runner.optimizer._
+
+      val noOptZone = noOptZones == null || !useNoOptZones ||
+        noOptZones.contains(leftTok)
 
       if (noOptZone || shouldEnterState(curr)) {
         trackState(curr, depth, Q.length)
 
-        if (explored > runner.maxStateVisits) throw SearchStateExploded(
+        if (explored > style.runner.maxStateVisits) throw SearchStateExploded(
           deepestYet,
           formatWriter.mkString(deepestYet),
           tokens(deepestYet.depth),
         )
-
-        implicit val style = styleMap.at(splitToken)
 
         if (curr.split != null && curr.split.isNL) {
           val tokenHash = hash(leftTok)
@@ -173,7 +174,7 @@ private class BestFirstSearch private (
             val updateBest = !keepSlowStates && depth == 0 && split.isNL &&
               !best.contains(curr.depth)
             if (updateBest) best.update(curr.depth, nextState)
-            runner.event(Enqueue(split))
+            style.runner.event(Enqueue(split))
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && optimalNotFound &&
@@ -236,12 +237,14 @@ private class BestFirstSearch private (
     splits.sortBy(_.cost)
   }
 
-  private def trackState(state: State, depth: Int, queueSize: Int): Unit = {
+  private def trackState(state: State, depth: Int, queueSize: Int)(implicit
+      style: ScalafmtConfig,
+  ): Unit = {
     if (state.depth > deepestYet.depth) deepestYet = state
-    runner.event(VisitToken(tokens(state.depth)))
+    style.runner.event(VisitToken(tokens(state.depth)))
     visits(state.depth) += 1
     explored += 1
-    runner.event(Explored(explored, depth, queueSize))
+    style.runner.event(Explored(explored, depth, queueSize))
   }
 
   /** Follow states having single active non-newline split
@@ -250,6 +253,7 @@ private class BestFirstSearch private (
   private def traverseSameLine(state: State, depth: Int): State =
     if (state.depth >= tokens.length) state
     else {
+      implicit val style = styleMap.at(tokens(state.depth))
       trackState(state, depth, 0)
       val activeSplits = getActiveSplits(state, Int.MaxValue)
 
@@ -258,16 +262,15 @@ private class BestFirstSearch private (
         val split = activeSplits.head
         if (split.isNL) state
         else {
-          runner.event(Enqueue(split))
-          implicit val style = styleMap.at(tokens(state.depth))
+          style.runner.event(Enqueue(split))
           val nextState = state.next(split, false)
           traverseSameLine(nextState, depth)
         }
       }
     }
 
-  private def complete(state: State): Unit = runner
-    .event(CompleteFormat(explored, state, visits))
+  private def complete(state: State)(implicit style: ScalafmtConfig): Unit =
+    style.runner.event(CompleteFormat(explored, state, visits))
 
   def getBestPath: SearchResult = {
     val state = {
@@ -281,7 +284,7 @@ private class BestFirstSearch private (
       }
     }
     if (null != state) {
-      complete(state)
+      complete(state)(initStyle)
       SearchResult(state, reachedEOF = true)
     } else {
       val nextSplits = routes(deepestYet.depth)
@@ -295,11 +298,11 @@ private class BestFirstSearch private (
                     |policies=${deepestYet.policy.policies}
                     |nextSplits=$nextSplits
                     |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
-      if (runner.debug) logger.debug(
+      if (initStyle.runner.debug) logger.debug(
         s"""|Failed to format
             |$msg""".stripMargin,
       )
-      complete(deepestYet)
+      complete(deepestYet)(initStyle)
       SearchResult(deepestYet, reachedEOF = false)
     }
   }
