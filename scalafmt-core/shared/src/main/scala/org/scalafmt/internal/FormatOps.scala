@@ -6,7 +6,6 @@ import org.scalafmt.config.IndentOperator
 import org.scalafmt.config.Indents
 import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.TrailingCommas
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
@@ -37,7 +36,6 @@ class FormatOps(
   private[internal] val (initStyle, ownersMap) =
     getStyleAndOwners(topSourceTree, baseStyle)
 
-  val runner: ScalafmtRunner = initStyle.runner
   implicit val dialect: Dialect = initStyle.dialect
   implicit val (tokens: FormatTokens, styleMap: StyleMap) =
     FormatTokens(topSourceTree.tokens, owners)(initStyle)
@@ -1037,12 +1035,12 @@ class FormatOps(
   }
 
   def getForceConfigStyle: (Set[TokenHash], Set[TokenHash]) = {
-    val maxDistance = runner.optimizer.forceConfigStyleMinSpan
+    val maxDistance = initStyle.runner.optimizer.forceConfigStyleMinSpan
     if (maxDistance < 0) (Set.empty, Set.empty)
     else {
       val clearQueues = Set.newBuilder[TokenHash]
       val forces = Set.newBuilder[TokenHash]
-      val minArgs = runner.optimizer.forceConfigStyleMinArgCount
+      val minArgs = initStyle.runner.optimizer.forceConfigStyleMinArgCount
       def process(args: Seq[Tree], open: T, close: T): Unit =
         if (
           args.lengthCompare(minArgs) >= 0 &&
