@@ -1530,9 +1530,9 @@ This approach attempts to preserve line breaks in the input whenever possible.
 These two approaches _completely ignore_ existing line breaks, except around
 comments and blank lines (i.e., multiple consecutive newlines).
 
-> Might require increasing runner limits (`runner.optimizer.maxVisitsPerToken`,
-> possibly even `runner.maxStateVisits`), to avoid _SearchStateExploded_
-> exceptions.
+> Might require increasing
+> [optimizer limits](#route-search-optimizations-giving-up),
+> to avoid _SearchStateExploded_ exceptions.
 
 `fold` attempts to remove line breaks whenever possible resulting in a more
 horizontal, or vertically compact look.
@@ -2335,9 +2335,9 @@ These approaches _completely ignore_ existing newlines around infix, always use
 a space before an infix operator and occasionally break after it. `some` is
 default for `newlines.source=fold`, and `many` for `newlines.source=unfold`.
 
-> Might require increasing runner limits (`runner.optimizer.maxVisitsPerToken`,
-> possibly even `runner.maxStateVisits`), to avoid _SearchStateExploded_
-> exceptions.
+> Might require increasing
+> [optimizer limits](#route-search-optimizations-giving-up),
+> to avoid _SearchStateExploded_ exceptions.
 
 `some` will introduce fewer line breaks than `many`. Both will attempt to break
 after
@@ -2795,8 +2795,9 @@ logically belongs there.
 If true, applies config-style formatting:
 
 - if single-line formatting is impossible
-- if the source uses config-style and `newlines.source = classic/keep`
-- if other parameters force config-style (see below)
+- if `newlines.source = fold/unfold` or the source uses config-style
+
+Please note that other parameters might also force config-style (see below).
 
 ```scala mdoc:defaults
 optIn.configStyleArguments
@@ -2822,20 +2823,9 @@ object a {
 
 ### Forcing config style
 
-Controls parameters which trigger forced config-style formatting. All conditions
-must be satisfied in order for this rule to apply.
-
-```scala mdoc:defaults
-runner.optimizer.forceConfigStyleMinSpan
-runner.optimizer.forceConfigStyleMinArgCount
-```
-
-- `runner.optimizer.forceConfigStyleMinSpan`: applies to method calls; if
-  positive, specifies the minimum character distance between the matching
-  parentheses, excluding any whitespace (prior to v3.8.1, this parameter
-  was called `forceConfigStyleOnOffset`)
-- `runner.optimizer.forceConfigStyleMinArgCount` applies to method calls;
-  specifies the minimum number of arguments
+When `optIn.configStyleArguments` is enabled and
+[call-site clause optimization](#route-search-optimizations-call-site-clause)
+is applicable to a clause, the formatter will force config-style formatting.
 
 ```scala mdoc:scalafmt
 optIn.configStyleArguments = true
@@ -4211,11 +4201,9 @@ object Stuff {
 
 ### `Search state exploded`
 
-If this exception occurs, you can try increasing limits for the following
-parameters, globally or using any of the options further in this section:
-
-- `runner.maxStateVisits`
-- `runner.optimizer.maxVisitsPerToken`
+If this exception occurs, you can try increasing
+[optimizer limits](#route-search-optimizations-giving-up),
+globally or using any of the options further in this section.
 
 ### For code block
 
@@ -5176,6 +5164,214 @@ val x = 3
 
 Markdown prose end.
 ````
+
+## Advanced: formatting process
+
+Currently, the formatting process consists of several stages:
+
+- code parsing using [scalameta parser](https://scalameta.org/)
+  - keep in mind that any parsing errors output by scalafmt are
+    in fact coming from scalameta
+- format-agnostic rewrites
+  - during this step, we apply most of the [rewrites rules](#rewrite-rules)
+    (except those which depend on how we decided to format the code)
+- preparing whitespace splits
+  - we iterate over all pairs of adjacent non-whitespace tokens and identify
+    possible options for the output whitespace between them
+  - selection is between
+    - a newline with a possible subsequent indentation
+    - a single space
+    - no space at all
+  - each option also comes with a penalty and a possible policy on how to handle
+    subsequent splits
+    - for instance, this is how we ensure single-line formatting, by adding a
+      policy which removes all newline splits before a given end token
+- route search
+  - we look for an optimal path through the space of non-whitespace tokens
+    and splits between them
+  - each partial state includes, among other things:
+    - the last token considered
+    - the split selection preceding it
+    - total cumulative penalty
+    - the partial state for the previous token
+  - we maintain a priority queue containing these partial states, by preferring
+    states with lower penalty and then higher token offset (i.e. those which are
+    closer to the completion)
+  - at each iteration, we select a state from that priority queue (we'll call
+    this event **a state visit**), apply all available non-expired policies to
+    available subsequent whitespace splits, insert the next state for each of
+    them back into the priority queue
+  - we stop as soon as the top state in the priority queue is completed (i.e.,
+    refers to the `EOF` token)
+- output
+  - after we have obtained our final formatting state, we need to write out the
+    code applying the splits selected during the route search
+  - as part of this final stage, we perform a few steps:
+    - apply format-dependent rewrites (as these frequently need to know how
+      many line breaks we have selected to output for a given code passage);
+      for instance,
+      - [inserting](#inserting-braces) braces,
+      - [adding](#rewritescala3insertendmarkerminlines) or
+        [removing](#rewritescala3removeendmarkermaxlines) end markers
+      - modifying [blank lines](#newlines-around-package-or-template-body)
+    - rewrite comments and docstrings if configured
+    - [rewrite trailing commas](#trailing-commas):
+      as part of this rule, we _remove_ any trailing commas during the
+      format-agnostic rewrites stage and _add_ them as needed during this
+      stage, if our splits solution ended up with a line break before the
+      closing paren or brace
+    - alignment: determine any additional horizontal space to be added
+      - if alignment is for some reason is not possible, we **don't** go back
+        to the previous stage (route search) to determine a different splits
+        solution which might possibly make alignment possible
+      - this might happen, for instance, if alignment leads to
+        [disallowed line overflow](#alignallowoverflow)
+
+## Advanced: Route search optimizations
+
+There are several configuration parameters (most of them under the
+`runner.optimizer` section) which control some aspects of the algorithm during
+this formatting stage.
+
+### Route search optimizations: giving up
+
+The following parameters control when we abort the search and throw a
+`SearchStateExploded` exception:
+
+- `runner.maxStateVisits`:
+  when the total number of state visits exceeds this value
+- `runner.optimizer.maxVisitsPerToken`:
+  when the number of state visits for a given token exceeds this value (also see below)
+- `runner.optimizer.escapeInPathologicalCases`:
+  if this flag is disabled, ignore `maxVisitsPerToken` above
+
+```scala mdoc:defaults
+runner.maxStateVisits
+runner.optimizer.maxVisitsPerToken
+runner.optimizer.escapeInPathologicalCases
+```
+
+### Route search optimizations: discarding some states
+
+Normally, the search algorithm considers any state as a possible intermediate
+state which might complete a valid solution.
+
+However, in some cases we might decide to require certain conditions to be met
+for a state to be considered. A state need to qualify under at least one of
+the checks controlled by these parameters:
+
+- `runner.optimizer.pruneSlowStates`:
+  - if this flag is disabled, any state qualifies
+  - if it is enabled:
+    - if the search algorithm is ultimately unable to find a completed solution
+      (because some states might be discarded), then it will disable the flag
+      and make another attempt
+    - during the first run, when the flag is enabled, a state qualifies if it
+      is not "worse" than a previously recorded "best" state for this token
+    - the "best" state is the first state with a newline split at the given
+      token (recursive calls over subsequences are excluded, see sections below)
+    - a state is "worse" when it has higher penalty and wider indentation
+- `runner.optimizer.disableOptimizationsInsideSensitiveAreas`:
+  a state qualifies if this flag is _disabled_ or the current token is within
+  a so-called no-optimization zone (and if the state satisfies these criteria,
+  we'll call it a no-optimization state):
+  - between matching parentheses of method call (either
+    those enclosing the method arguments, or the entire call itself)
+  - between matching braces of a type refinement
+
+```scala mdoc:defaults
+runner.optimizer.disableOptimizationsInsideSensitiveAreas
+runner.optimizer.pruneSlowStates
+```
+
+### Route search optimizations: preferential treatment
+
+In some cases, we modify the search logic to boost priority of some states.
+The following sections describe when and how this might be done.
+
+#### Route search optimizations: optimal hints
+
+Some splits might be marked as starting a token subsequence with an optimal end
+token (for example, a segment which must be formatted without line breaks).
+
+In such cases, if flag `runner.optimizer.acceptOptimalAtHints` is enabled and
+the hint is deemed valid (see below), the route search algorithm calls itself
+recursively with the state that ends in this "optimal" split and just on this
+shorter subsequence, returning the first state which completed this subsequence,
+with the following restrictions:
+
+- the state penalty at the end must be the same as at the beginning, so no splits
+  within the subsequence can have **non-zero** penalty
+- the so-called nested depth is incremented (set to zero initially) and then
+  must not exceed `runner.optimizer.maxDepth`
+
+There are several checks that are performed to determine validity of the hint:
+
+- no optimal subsequence has yet been identified for the current state
+- there are multiple possible next states; we don't do this if there's only one
+- the split has **zero** penalty, including from any unexpired policies
+
+```scala mdoc:defaults
+runner.optimizer.acceptOptimalAtHints
+runner.optimizer.maxDepth
+```
+
+#### Route search optimizations: longer blocks
+
+Another form of getting ahead faster is by recursing on a long-enough block
+(whether enclosed in explicit braces or by using significant indentation),
+where "long enough" is loosely defined as having sufficient non-whitespace
+characters to fill at least _three_ dense `maxColumn` lines.
+
+Unlike the case with optimal hints above, there's no restriction on the
+penalty added by the splits within the block.
+
+This optimization is enabled when:
+
+- `runner.optimizer.recurseOnBlocks` is enabled, and
+- the token is within a no-optimization zone.
+
+```scala mdoc:defaults
+runner.optimizer.recurseOnBlocks
+```
+
+#### Route search optimizations: statements
+
+Another way to boost priority is simply by adding a new priority queue,
+so that any earlier states, from the existing priority queue, wouldn't
+be considered until the new one is exhausted.
+
+We might create a new priority queue if we encounter a new block statement,
+and this optimization is enabled when:
+
+- `runner.optimizer.dequeueOnNewStatements` is enabled, and
+- we are in a recursive call on a subsequence or the token is _not_ within
+  a no-optimization zone.
+
+```scala mdoc:defaults
+runner.optimizer.dequeueOnNewStatements
+```
+
+#### Route search optimizations: call-site clause
+
+Similar to statements above, we might create a new priority queue when we
+encounter a long-enough call-site clause.
+
+```scala mdoc:defaults
+runner.optimizer.forceConfigStyleMinSpan
+runner.optimizer.forceConfigStyleMinArgCount
+```
+
+This optimization is enabled when all these criteria are satisfied:
+
+- `runner.optimizer.forceConfigStyleMinSpan`:
+  must be non-negative, and the character distance between the matching
+  parentheses, excluding any whitespace, must exceed this value
+  (prior to v3.8.1, this parameter was called `forceConfigStyleOnOffset`)
+- `runner.optimizer.forceConfigStyleMinArgCount`:
+  must be positive and may not exceed the number of arguments
+
+> These parameters cannot be [overridden within a file](#for-code-block)
 
 ## Edition
 
