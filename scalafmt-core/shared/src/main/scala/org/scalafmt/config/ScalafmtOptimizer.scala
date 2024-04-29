@@ -12,9 +12,6 @@ import metaconfig._
   *   complete in a reasonable time. Used as a last resort.
   * @param maxVisitsPerToken
   *   Visit the same formatToken at most [[maxVisitsPerToken]] times.
-  * @param maxEscapes
-  *   How often do we try to escape before giving up and use original
-  *   formatting.
   * @param maxDepth
   *   Maximum depth of recursion.
   * @param acceptOptimalAtHints
@@ -55,7 +52,6 @@ case class ScalafmtOptimizer(
     dequeueOnNewStatements: Boolean = true,
     escapeInPathologicalCases: Boolean = true,
     maxVisitsPerToken: Int = 10000,
-    maxEscapes: Int = 16,
     maxDepth: Int = 100,
     acceptOptimalAtHints: Boolean = true,
     disableOptimizationsInsideSensitiveAreas: Boolean = true,
@@ -73,13 +69,4 @@ object ScalafmtOptimizer {
     .deriveCodecEx(ScalafmtOptimizer()).noTypos
   val default = ScalafmtOptimizer()
 
-  // TODO(olafur) uncomment once scala.meta converter supports default args.
-  val noOptimizations: ScalafmtOptimizer = default.copy(
-    dequeueOnNewStatements = false,
-    escapeInPathologicalCases = false,
-    acceptOptimalAtHints = false,
-    disableOptimizationsInsideSensitiveAreas = false,
-    pruneSlowStates = false,
-    recurseOnBlocks = false,
-  )
 }
