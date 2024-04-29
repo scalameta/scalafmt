@@ -7,11 +7,11 @@ import metaconfig.generic.Surface
   *   Call-sites where there is a newline after opening ( and newline before
   *   closing ). If true, preserves the newlines and keeps one line per
   *   argument.
+  *
   * @param breaksInsideChains
   *   NB: failure unless newlines.source=classic If true, then the user can opt
   *   out of line breaks inside select chains.
-  *
-  * {{{
+  *   {{{
   *     // original
   *     foo
   *       .map(_ + 1).map(_ + 1)
@@ -25,7 +25,7 @@ import metaconfig.generic.Surface
   *       .map(_ + 1)
   *       .map(_ + 1)
   *       .filter(_ > 2)
-  * }}}
+  *   }}}
   *
   * @param breakChainOnFirstMethodDot
   *   NB: ignored unless newlines.source=classic If true, keeps the line break
@@ -76,6 +76,7 @@ import metaconfig.generic.Surface
   *   See https://github.com/scalameta/scalafmt/issues/938 If true, will force a
   *   line break before a self annotation if there was a line break there
   *   before.
+  *
   * @param forceBlankLineBeforeDocstring
   *   If true, always insert a blank line before docstrings, If false, preserves
   *   blank line only if one exists before. Example:
