@@ -10,10 +10,10 @@ import metaconfig._
 import metaconfig.generic.Surface
 
 /** @param penalizeSingleSelectMultiArgList
-  *   If true, adds a penalty to newlines before a dot starting a select chain
-  *   of length one and argument list. The penalty matches the number of
-  *   arguments to the select chain application.
-  *   {{{
+  *   - If true, adds a penalty to newlines before a dot starting a select chain
+  *     of length one and argument list. The penalty matches the number of
+  *     arguments to the select chain application.
+  *     {{{
   *     // If true, favor
   *     logger.elem(a,
   *                 b,
@@ -25,14 +25,16 @@ import metaconfig.generic.Surface
   *     // penalty is proportional to argument count, example:
   *     logger.elem(a, b, c)    // penalty 2
   *     logger.elem(a, b, c, d) // penalty 3, etc.
-  *   }}}
+  *     }}}
+  *   - If false, matches pre-v0.5 behavior. Note. this option may be removed in
+  *     a future release.
   *
-  * If false, matches pre-v0.5 behavior. Note. this option may be removed in a
-  * future release.
   * @param neverBeforeJsNative
   *   If true, a newline will never be placed in front of js.native.
+  *
   * @param sometimesBeforeColonInMethodReturnType
   *   If true, scalafmt may choose to put a newline before colon : at defs.
+  *
   * @param beforeCurlyLambdaParams
   *   - if Never, tries to use a space between the opening curly brace and the
   *     list of parameters of anonymous functions, and some partial functions
@@ -47,6 +49,7 @@ import metaconfig.generic.Surface
   *       consume(n)
   *   }
   *     }}}
+  *
   * @param afterCurlyLambdaParams
   *   - If `never` (default), it will remove any extra lines below curly lambdas
   *     {{{
@@ -74,6 +77,7 @@ import metaconfig.generic.Surface
   *     {{{
   *     xs.map { x => x + 1 }
   *     }}}
+  *
   * @param alwaysBeforeElseAfterCurlyIf
   *   if true, add a new line between the end of a curly if and the following
   *   else. For example
@@ -83,6 +87,7 @@ import metaconfig.generic.Surface
   *   }
   *   else //...
   *   }}}
+  *
   * @param beforeMultilineDef
   *   If unfold (or true), add a newline before the body of a multiline def
   *   without curly braces. See #1126 for discussion. For example,
@@ -98,6 +103,7 @@ import metaconfig.generic.Surface
   *         .flatMap(f)
   *         .map(g)
   *   }}}
+  *
   * @param avoidAfterYield
   *   If false (legacy behavior), inserts unconditional line break after `yield`
   *   if the yield body doesn't fit on a single line. For example,
@@ -115,28 +121,35 @@ import metaconfig.generic.Surface
   *         ...
   *       }
   *   }}}
+  *
   * @param source
   *   Controls how line breaks in the input source are handled
   *   - If `classic` (default), the old mixed behaviour will be used
   *   - If `keep`, try to keep source newlines
   *   - If `fold`, ignore source and try to remove line breaks
   *   - If `unfold`, ignore source and try to break lines
+  *
   * @param afterInfix
   *   Controls how line breaks around operations are handled
   *   - If `keep` (default for source=classic,keep), preserve existing
   *   - If `some` (default for source=fold), break after some infix ops
   *   - If `many` (default for source=unfold), break after many infix ops
+  *
   * @param afterInfixBreakOnNested
   *   Force breaks around nested (enclosed in parentheses) expressions
+  *
   * @param afterInfixMaxCountPerFile
   *   Switch to `keep` for a given file if the total number of infix operations
   *   in that file exceeds this value
+  *
   * @param afterInfixMaxCountPerExprForSome
   *   Switch to `many` for a given expression (possibly nested) if the number of
   *   operations in that expression exceeds this value AND `afterInfix` had been
   *   set to `some`.
+  *
   * @param topLevelStatementBlankLines
   *   Controls blank line before and/or after a top-level statement.
+  *
   * @param avoidForSimpleOverflow
   *   - punct: don't force break if overflow is only due to trailing punctuation
   *   - tooLong: don't force break if overflow is due to tokens which are too

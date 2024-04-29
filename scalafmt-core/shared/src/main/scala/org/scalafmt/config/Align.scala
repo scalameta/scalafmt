@@ -12,8 +12,10 @@ import metaconfig.generic.Surface
   *             b,
   *             c)
   *   }}}
+  *
   * @param openParenDefnSite
   *   Same as [[openParenCallSite]], except definition site.
+  *
   * @param tokens
   *   The tokens to vertically align by. The "owner" is the
   *   scala.meta.Tree.getClass.getName of the deepest tree node that "owns" the
@@ -34,11 +36,14 @@ import metaconfig.generic.Surface
   *   - NOTE. Adding more alignment tokens may potentially decrease the vertical
   *     alignment in formatted output. Customize at your own risk, I recommend
   *     you try and stick to the default settings.
+  *
   * @param arrowEnumeratorGenerator
   *   If true, aligns by `<-` in for comprehensions.
+  *
   * @param openParenCtrlSite
   *   If true, aligns by ( in if/while/for. If false, indents by continuation
   *   indent at call site.
+  *
   * @param tokenCategory
   *   Customize which token kinds can align together. By default, only tokens
   *   with the same `Token.productPrefix` align. For example, to align = and <-,
@@ -47,6 +52,7 @@ import metaconfig.generic.Surface
   *     Map("Equals" -> "Assign", "LeftArrow" -> "Assign")
   *   }}}
   *   Note: Requires mixedTokens to be true.
+  *
   * @param treeCategory
   *   Customize which tree kinds can align together. By default, only trees with
   *   the same `Tree.productPrefix` align. For example, to align Defn.Val and
@@ -55,6 +61,7 @@ import metaconfig.generic.Surface
   *     Map("Defn.Var" -> "Assign", "Defn.Val" -> "Assign")
   *   }}}
   *   Note. Requires mixedOwners to be true.
+  *
   * @param stripMargin
   *   If set, indent lines with a strip-margin character in a multiline string
   *   constant relative to the opening quotes (or the strip-margin character if

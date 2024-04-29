@@ -12,6 +12,7 @@ import metaconfig._
   *   a +=
   *     b
   *   }}}
+  *
   * @param excludeRegex
   *   Regexp for which infix operators should not indent by 2 spaces. For
   *   example, when [[includeRegex]] is `.*` and [[excludeRegex]] is `&&`
@@ -25,6 +26,7 @@ import metaconfig._
   *   a +=
   *     b
   *   }}}
+  *
   * @param exemptScope
   *   If topLevel, allows no indentation on infix operators in top-level
   *   functions only. For example,
@@ -43,6 +45,7 @@ import metaconfig._
   *     b
   *   )
   *   }}}
+  *
   * @see
   *   For context:
   *   [[https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md#long-expressions-with-binary-operators]]
