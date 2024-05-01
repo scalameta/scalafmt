@@ -1,5 +1,6 @@
 package org.scalafmt.config
 
+import ScalafmtOptimizer._
 import metaconfig._
 
 /** Configuration for scalafmt optimizations.
@@ -40,13 +41,6 @@ import metaconfig._
   *   Recursively format { ... } blocks inside no optimization zones. By
   *   starting a new search queue, we can perform aggressive optimizations
   *   inside optimizations zones.
-  * @param forceConfigStyleMinSpan
-  *   If negative number, does nothing. If n >= 0, then scalafmt will force
-  *   "config style" on Term.Apply nodes IF it has more than
-  *   [[forceConfigStyleMinArgCount]] arguments AND the non-whitespace byte
-  *   offset between the opening parens and closing parens is greater than
-  *   [[forceConfigStyleMinSpan]]. By forcing config style on such applications,
-  *   the search space is greatly reduced.
   */
 case class ScalafmtOptimizer(
     dequeueOnNewStatements: Boolean = true,
@@ -60,13 +54,39 @@ case class ScalafmtOptimizer(
     @annotation.ExtraName("forceConfigStyleOnOffset")
     forceConfigStyleMinSpan: Int = 150,
     forceConfigStyleMinArgCount: Int = 2,
-)
+) {
+  def getCallSite: ClauseElement = ClauseElement(
+    minSpan = forceConfigStyleMinSpan,
+    minCount = forceConfigStyleMinArgCount,
+  )
+
+  private[config] def conservative: ScalafmtOptimizer =
+    // The tests were not written in this style
+    copy(forceConfigStyleMinSpan = 500, forceConfigStyleMinArgCount = 5)
+
+}
 
 object ScalafmtOptimizer {
+  private[config] val default = ScalafmtOptimizer()
+
   implicit lazy val surface: generic.Surface[ScalafmtOptimizer] =
     generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[ScalafmtOptimizer] = generic
-    .deriveCodecEx(ScalafmtOptimizer()).noTypos
-  val default = ScalafmtOptimizer()
+    .deriveCodecEx(default).noTypos
+
+  /** Parameters to optimize route search and greatly reduce search space on
+    * argument clauses (all conditions must be met):
+    *
+    * @param minSpan
+    *   Disabled if negative. Otherwise, requires that the non-whitespace byte
+    *   offset between the opening parens and closing parens is greater than
+    *   this value.
+    * @param minCount
+    *   Disabled if non-positive. Otherwise, requires that the clause has at
+    *   least as many arguments/parameters.
+    */
+  case class ClauseElement(minSpan: Int = -1, minCount: Int = 0) {
+    val isEnabled: Boolean = minSpan >= 0 && minCount > 0
+  }
 
 }

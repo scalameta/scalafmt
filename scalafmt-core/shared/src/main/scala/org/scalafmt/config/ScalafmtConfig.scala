@@ -322,7 +322,7 @@ object ScalafmtConfig {
     // For some reason, the bin packing does not play nicely with forced
     // config style. It's fixable, but I don't want to spend time on it
     // right now.
-    runner = conservativeRunner,
+    runner = default.runner.conservative,
     docstrings = default.docstrings.copy(style = Docstrings.Asterisk),
     align = default.align.copy(
       arrowEnumeratorGenerator = false,
@@ -340,15 +340,6 @@ object ScalafmtConfig {
   private val availableStyles: Map[String, ScalafmtConfig] = {
     activeStyles ++ LoggerOps.name2style(scalaJs)
   }.map { case (k, v) => k.toLowerCase -> v }
-
-  private[scalafmt] def conservativeRunner: ScalafmtRunner = default.runner
-    .copy(optimizer =
-      default.runner.optimizer.copy(
-        // The tests were not written in this style
-        forceConfigStyleMinSpan = 500,
-        forceConfigStyleMinArgCount = 5,
-      ),
-    )
 
   private def readActiveStylePresets(conf: Conf): Configured[ScalafmtConfig] =
     (conf match {
@@ -371,16 +362,20 @@ object ScalafmtConfig {
     locally {
       implicit val errors = new mutable.ArrayBuffer[String]
       if (newlines.sourceIgnored) {
-        addIf(optIn.configStyleArguments && align.openParenCallSite && newlines.beforeOpenParenCallSite.isEmpty)
-        addIf(optIn.configStyleArguments && align.openParenDefnSite && newlines.beforeOpenParenDefnSite.isEmpty)
+        newlines.beforeOpenParenCallSite.fold(addIfDirect(
+          optIn.configStyleArguments && align.openParenCallSite,
+          "optIn.configStyleArguments && align.openParenCallSite && !newlines.beforeOpenParenCallSite",
+        ))(x => addIfDirect(x.src eq Newlines.keep, "newlines.beforeOpenParenCallSite.src = keep"))
+        newlines.beforeOpenParenDefnSite.fold(addIfDirect(
+          optIn.configStyleArguments && align.openParenDefnSite,
+          "optIn.configStyleArguments && align.openParenDefnSite && !newlines.beforeOpenParenDefnSite",
+        ))(x => addIfDirect(x.src eq Newlines.keep, "newlines.beforeOpenParenDefnSite.src = keep"))
         def mustIgnoreSourceSplit(what: sourcecode.Text[Option[Newlines.IgnoreSourceSplit]]) = what.value
           .foreach(x => addIfDirect(!x.ignoreSourceSplit, s"${what.source}=$x"))
         mustIgnoreSourceSplit(newlines.beforeMultiline)
         mustIgnoreSourceSplit(newlines.beforeMultilineDef)
         addIf(newlines.beforeTypeBounds eq Newlines.keep)
         addIf(binPack.parentConstructors eq BinPack.ParentCtors.keep)
-        addIf(newlines.beforeOpenParenCallSite.exists(_.src eq Newlines.keep))
-        addIf(newlines.beforeOpenParenDefnSite.exists(_.src eq Newlines.keep))
         addIf(newlines.selectChains.exists(_ eq Newlines.keep))
         addIf(getTrailingCommas.eq(TrailingCommas.keep))
       }

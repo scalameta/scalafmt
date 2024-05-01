@@ -6,6 +6,7 @@ import org.scalafmt.config.IndentOperator
 import org.scalafmt.config.Indents
 import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.ScalafmtOptimizer
 import org.scalafmt.config.TrailingCommas
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
@@ -859,7 +860,7 @@ class FormatOps(
   def mustUseConfigStyle(
       ft: FormatToken,
       beforeCloseFt: => FormatToken,
-      allowForce: => Boolean = true,
+      allowForce: Boolean = true,
   )(implicit style: ScalafmtConfig): ConfigStyle =
     if (style.optIn.configStyleArguments)
       couldUseConfigStyle(ft, beforeCloseFt, allowForce)
@@ -869,17 +870,18 @@ class FormatOps(
       ft: FormatToken,
       beforeCloseFt: => FormatToken,
       allowForce: Boolean = true,
-  )(implicit style: ScalafmtConfig): ConfigStyle = {
-    def opensImplicit =
-      (next(ft).hasBreak ||
-        style.newlines.forceAfterImplicitParamListModifier) &&
-        opensConfigStyleImplicitParamList(ft)
-    def opensConfigStyle = !style.newlines.sourceIgnored && // classic
-      (ft.hasBreak || opensImplicit) && beforeCloseFt.hasBreak
+  )(implicit style: ScalafmtConfig): ConfigStyle =
     if (allowForce && forceConfigStyle(ft.meta.idx)) ConfigStyle.Forced
-    else if (opensConfigStyle) ConfigStyle.Source
+    else if (couldPreserveConfigStyle(ft, beforeCloseFt)) ConfigStyle.Source
     else ConfigStyle.None
-  }
+
+  def couldPreserveConfigStyle(ft: FormatToken, beforeCloseFt: => FormatToken)(
+      implicit style: ScalafmtConfig,
+  ): Boolean = !style.newlines.sourceIgnored && {
+    ft.hasBreak ||
+    (next(ft).hasBreak || style.newlines.forceAfterImplicitParamListModifier) &&
+    opensConfigStyleImplicitParamList(ft)
+  } && beforeCloseFt.hasBreak
 
   /** Works for `using` as well */
   def opensConfigStyleImplicitParamList(formatToken: FormatToken)(implicit
@@ -1026,20 +1028,17 @@ class FormatOps(
   }
 
   def getForceConfigStyle: (Set[Int], Set[Int]) = {
-    val maxDistance = initStyle.runner.optimizer.forceConfigStyleMinSpan
-    if (maxDistance < 0) (Set.empty, Set.empty)
-    else {
+    val callSite = initStyle.runner.optimizer.getCallSite
+    if (callSite.isEnabled) {
       val clearQueues = Set.newBuilder[Int]
       val forces = Set.newBuilder[Int]
-      val minArgs = initStyle.runner.optimizer.forceConfigStyleMinArgCount
-      def process(
-          clause: Member.SyntaxValuesClause,
-          ftOpen: FormatToken,
+      def process(clause: Member.SyntaxValuesClause, ftOpen: FormatToken)(
+          cfg: ScalafmtOptimizer.ClauseElement,
       ): Unit = matchingOpt(ftOpen.left).foreach { close =>
         val values = clause.values
         if (
-          values.lengthCompare(minArgs) >= 0 &&
-          distance(ftOpen.left, close) > maxDistance
+          values.lengthCompare(cfg.minCount) >= 0 &&
+          (cfg.minSpan == 0 || cfg.minSpan < distance(ftOpen.left, close))
         ) {
           forces += ftOpen.meta.idx
           values.foreach(x => clearQueues += tokens.getHead(x).meta.idx)
@@ -1048,17 +1047,17 @@ class FormatOps(
       tokens.foreach {
         case ft @ FormatToken(_: T.LeftParen, _, m) => m.leftOwner match {
             case t: Term.ArgClause if !t.parent.exists(_.is[Term.ApplyInfix]) =>
-              process(t, ft)
+              process(t, ft)(callSite)
             case _ =>
           }
         case ft @ FormatToken(_: T.LeftBracket, _, m) => m.leftOwner match {
-            case t: Type.ArgClause => process(t, ft)
+            case t: Type.ArgClause => process(t, ft)(callSite)
             case _ =>
           }
         case _ =>
       }
       (forces.result(), clearQueues.result())
-    }
+    } else (Set.empty, Set.empty)
   }
 
   /** Implementation for `verticalMultiline`
