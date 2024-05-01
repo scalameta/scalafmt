@@ -865,8 +865,9 @@ class Router(formatOps: FormatOps) {
         val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
 
         val rightIsComment = right.is[T.Comment]
-        val onlyConfigStyle = ConfigStyle.None !=
-          mustUseConfigStyle(formatToken, beforeClose)
+        val configStyle = mustUseConfigStyle(formatToken, beforeClose)
+        val onlyConfigStyle = ConfigStyle.None != configStyle
+        val configStyleFlag = style.optIn.configStyleArguments
 
         val sourceIgnored = style.newlines.sourceIgnored
         val (onlyArgument, isSingleEnclosedArgument) =
@@ -880,9 +881,6 @@ class Router(formatOps: FormatOps) {
             val isEnclosed = tokens.isEnclosedInMatching(maybeEnclosed)
             if (isEnclosed) (maybeEnclosed, true) else (arg, false)
           } else (null, false)
-        val useConfigStyle = onlyConfigStyle ||
-          (sourceIgnored && style.optIn.configStyleArguments &&
-            !isSingleEnclosedArgument)
 
         val nestedPenalty = 1 + nestedApplies(leftOwner) + lhsPenalty
 
@@ -936,8 +934,8 @@ class Router(formatOps: FormatOps) {
           (!handleImplicit || style.newlines.forceAfterImplicitParamListModifier)
         val alignTuple = align && tupleSite && !onlyConfigStyle
 
-        val keepConfigStyleSplit = !sourceIgnored &&
-          style.optIn.configStyleArguments && newlines != 0
+        val keepConfigStyleSplit = !sourceIgnored && configStyleFlag &&
+          newlines != 0
         val splitsForAssign =
           if (defnSite || isBracket || keepConfigStyleSplit) None
           else getAssignAtSingleArgCallSite(args).map { assign =>
@@ -1033,12 +1031,14 @@ class Router(formatOps: FormatOps) {
           else {
             val noSplitPolicy =
               if (preferNoSplit && splitsForAssign.isEmpty) singleLine(2)
-              else if (wouldDangle || mustDangle && isBracket || useConfigStyle)
-                SingleLineBlock(
-                  close,
-                  exclude = excludeBlocks,
-                  noSyntaxNL = multipleArgs,
-                )
+              else if (
+                wouldDangle || mustDangle && isBracket || onlyConfigStyle ||
+                sourceIgnored && configStyleFlag && !isSingleEnclosedArgument
+              ) SingleLineBlock(
+                close,
+                exclude = excludeBlocks,
+                noSyntaxNL = multipleArgs,
+              )
               else if (splitsForAssign.isDefined) singleLine(3)
               else singleLine(10)
             Seq(
@@ -1074,7 +1074,7 @@ class Router(formatOps: FormatOps) {
               else {
                 val noSplit = !onlyConfigStyle && right.is[T.LeftBrace]
                 val noConfigStyle = noSplit || newlinePolicy.isEmpty ||
-                  !style.optIn.configStyleArguments
+                  !configStyleFlag
                 Split(NoSplit.orNL(noSplit), cost, policy = newlinePolicy)
                   .andPolicy(singleLine(4), !noConfigStyle).andPolicyOpt(
                     asInfixApp(args.head).map(InfixSplits(_, tok).nlPolicy),
@@ -2023,8 +2023,8 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: T.LeftParen, right, _) =>
         val close = matching(open)
         val beforeClose = tokens.justBefore(close)
-        val isConfig = ConfigStyle.None !=
-          couldUseConfigStyle(formatToken, beforeClose)
+        val isConfig = couldPreserveConfigStyle(formatToken, beforeClose)
+
         val enclosed = leftOwner match {
           case t: Member.ArgClause if t.values.lengthCompare(1) > 0 => None
           case t => findEnclosedBetweenParens(open, close, t)

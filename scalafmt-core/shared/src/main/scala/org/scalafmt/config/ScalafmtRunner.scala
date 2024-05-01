@@ -68,6 +68,9 @@ case class ScalafmtRunner(
   @inline
   def isDefaultDialect = dialect.name == NamedDialect.defaultName
 
+  private[scalafmt] def conservative: ScalafmtRunner =
+    copy(optimizer = optimizer.conservative)
+
 }
 
 object ScalafmtRunner {
