@@ -1,9 +1,5 @@
 package org.scalafmt.config
 
-import org.scalafmt.util.ValidationOps
-
-import scala.collection.mutable
-
 import metaconfig._
 
 /** @param oneline
@@ -26,7 +22,7 @@ case class Docstrings(
     wrap: Docstrings.Wrap = Docstrings.Wrap.yes,
     private[config] val wrapMaxColumn: Option[Int] = None,
     forceBlankLineBefore: Option[Boolean] = None,
-    blankFirstLine: Docstrings.BlankFirstLine = Docstrings.BlankFirstLine.no,
+    blankFirstLine: Option[Docstrings.BlankFirstLine] = None,
     style: Docstrings.Style = Docstrings.SpaceAsterisk,
 ) {
   import Docstrings._
@@ -34,19 +30,12 @@ case class Docstrings(
   def withoutRewrites: Docstrings =
     copy(removeEmpty = false, wrap = Wrap.no, style = Preserve)
 
-  def skipFirstLineIf(wasBlank: Boolean): Boolean = blankFirstLine match {
-    case BlankFirstLine.yes => true
-    case BlankFirstLine.no => style.skipFirstLine
-    case BlankFirstLine.keep => wasBlank || style.skipFirstLine
-  }
-
-  def validate(implicit errors: mutable.Buffer[String]): Unit = {
-    import ValidationOps._
-    addIf(
-      blankFirstLine.eq(BlankFirstLine.keep) && style.eq(Docstrings.Asterisk),
-      s"docstrings",
-    )
-  }
+  def skipFirstLineIf(wasBlank: Boolean): Boolean = style.skipFirstLine
+    .orElse(blankFirstLine).exists {
+      case BlankFirstLine.unfold => true
+      case BlankFirstLine.fold => false
+      case BlankFirstLine.keep => wasBlank
+    }
 
 }
 
@@ -58,21 +47,21 @@ object Docstrings {
     .deriveCodecEx(Docstrings()).noTypos
 
   sealed abstract class Style {
-    def skipFirstLine: Boolean
+    def skipFirstLine: Option[BlankFirstLine]
   }
   case object Preserve extends Style {
-    override def skipFirstLine: Boolean = throw new NotImplementedError(
-      "skipFirstLine called for docstrings.style=preserve, it's a bug in scalafmt",
-    )
+    override def skipFirstLine: Option[BlankFirstLine] =
+      Some(BlankFirstLine.keep)
   }
   case object Asterisk extends Style {
-    override def skipFirstLine: Boolean = true
+    override def skipFirstLine: Option[BlankFirstLine] =
+      Some(BlankFirstLine.unfold)
   }
   case object SpaceAsterisk extends Style {
-    override def skipFirstLine: Boolean = false
+    override def skipFirstLine: Option[BlankFirstLine] = None
   }
   case object AsteriskSpace extends Style {
-    override def skipFirstLine: Boolean = false
+    override def skipFirstLine: Option[BlankFirstLine] = None
   }
 
   implicit val reader: ConfCodecEx[Style] = ReaderUtil
@@ -102,13 +91,15 @@ object Docstrings {
 
   sealed abstract class BlankFirstLine
   object BlankFirstLine {
-    case object yes extends BlankFirstLine
-    case object no extends BlankFirstLine
+    case object unfold extends BlankFirstLine
+    case object fold extends BlankFirstLine
     case object keep extends BlankFirstLine
     implicit val codec: ConfCodecEx[BlankFirstLine] = ReaderUtil
-      .oneOfCustom[BlankFirstLine](yes, no, keep) {
-        case Conf.Bool(true) => Configured.Ok(yes)
-        case Conf.Bool(false) => Configured.Ok(no)
+      .oneOfCustom[BlankFirstLine](unfold, fold, keep) {
+        case Conf.Str("no") => Configured.Ok(fold)
+        case Conf.Bool(false) => Configured.Ok(fold)
+        case Conf.Str("yes") => Configured.Ok(unfold)
+        case Conf.Bool(true) => Configured.Ok(unfold)
       }
   }
 

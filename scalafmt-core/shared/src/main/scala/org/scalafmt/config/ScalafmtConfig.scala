@@ -388,7 +388,6 @@ object ScalafmtConfig {
         addIf(optIn.breaksInsideChains)
         addIf(!includeCurlyBraceInSelectChains)
       }
-      docstrings.validate
       if (errors.nonEmpty) {
         allErrors += s"newlines.source=${newlines.source} and ["
         errors.foreach(x => allErrors += "\t" + x)
