@@ -237,11 +237,13 @@ case class Newlines(
     }
 
   @inline
-  def keepBreak(newlines: => Int): Boolean = source.eq(Newlines.keep) &&
-    newlines != 0
-
+  def keepBreak(hasBreak: => Boolean): Boolean = source.eq(Newlines.keep) &&
+    hasBreak
   @inline
-  def keepBreak(ft: FormatToken): Boolean = keepBreak(ft.newlinesBetween)
+  def keepBreak(newlines: Int): Boolean =
+    keepBreak(!FormatToken.noBreak(newlines))
+  @inline
+  def keepBreak(implicit ft: FormatToken): Boolean = keepBreak(ft.hasBreak)
 
   val breakAfterInfix: AfterInfix = afterInfix.getOrElse {
     source match {
