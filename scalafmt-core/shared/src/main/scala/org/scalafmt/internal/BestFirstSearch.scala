@@ -166,8 +166,7 @@ private class BestFirstSearch private (
           actualSplit.foreach { split =>
             val nextState = curr.next(split, allAltAreNL)
             val updateBest = !keepSlowStates && depth == 0 && split.isNL &&
-              !best.contains(curr.depth)
-            if (updateBest) best.update(curr.depth, nextState)
+              best.getOrElseUpdate(curr.depth, nextState).eq(nextState)
             style.runner.event(Enqueue(split))
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
