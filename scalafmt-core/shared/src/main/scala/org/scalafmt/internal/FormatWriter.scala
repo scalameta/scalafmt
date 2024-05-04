@@ -818,15 +818,16 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
 
-      private class FormatMlDoc(isWrap: Boolean)(text: String)(implicit
+      private class FormatMlDoc(wrap: Docstrings.Wrap)(text: String)(implicit
           sb: StringBuilder,
       ) extends FormatCommentBase(
-            if (isWrap) style.docstringsWrapMaxColumn else style.maxColumn,
+            if (wrap eq Docstrings.Wrap.keep) style.maxColumn
+            else style.docstringsWrapMaxColumn,
             if (style.docstrings.style eq Docstrings.SpaceAsterisk) 2 else 1,
             if (style.docstrings.style eq Docstrings.AsteriskSpace) 1 else 0,
           ) {
         def this(text: String)(implicit sb: StringBuilder) = this(
-          (style.docstrings.wrap ne Docstrings.Wrap.keep) && curr.isStandalone,
+          if (curr.isStandalone) style.docstrings.wrap else Docstrings.Wrap.keep,
         )(text)
 
         private val spaces: String = getIndentation(indent + extraIndent)
@@ -834,7 +835,8 @@ class FormatWriter(formatOps: FormatOps) {
 
         def format(): Unit = {
           val docOpt =
-            if (isWrap) ScaladocParser.parse(tok.meta.left.text) else None
+            if (wrap eq Docstrings.Wrap.keep) None
+            else ScaladocParser.parse(tok.meta.left.text)
           docOpt.fold(formatNoWrap())(formatWithWrap)
         }
 
@@ -870,6 +872,7 @@ class FormatWriter(formatOps: FormatOps) {
             sb.setLength(sb.length - 1) // remove space
             appendBreak()
           }
+          val sbInit = sb.length
           if (sbNonEmpty) sb.append(termIndent)
           term match {
             case t: Scaladoc.CodeBlock =>
@@ -900,10 +903,17 @@ class FormatWriter(formatOps: FormatOps) {
             case t: Scaladoc.Tag =>
               sb.append(t.tag.tag)
               t.label.foreach(x => sb.append(' ').append(x.syntax))
-              appendBreak()
-              if (t.desc.nonEmpty) {
+              if (t.desc.isEmpty) appendBreak()
+              else {
                 val tagIndent = getIndentation(2 + termIndent.length)
-                t.desc.foreach(formatTerm(_, tagIndent, sbNonEmpty = true))
+                t.desc match {
+                  case Seq(text: Scaladoc.Text)
+                      if wrap eq Docstrings.Wrap.fold =>
+                    formatTextAfterMargin(text, tagIndent, sb.length - sbInit)
+                  case desc =>
+                    appendBreak()
+                    desc.foreach(formatTerm(_, tagIndent, sbNonEmpty = true))
+                }
               }
             case t: Scaladoc.ListBlock =>
               // outputs margin space and appends new line, too
@@ -923,6 +933,7 @@ class FormatWriter(formatOps: FormatOps) {
         private def formatTextAfterMargin(
             text: Scaladoc.Text,
             termIndent: String,
+            lineLengthSoFar: Int = 0,
         ): Unit = {
           def prefixFirstWord(word: String): String = {
             def likeNonText = word.startsWith("```") ||
@@ -937,7 +948,8 @@ class FormatWriter(formatOps: FormatOps) {
 
           val wf = new WordFormatter(appendBreak, termIndent, prefixFirstWord)
           val words = text.parts.iterator.map(_.syntax)
-          wf(words, termIndent.length, true, false)
+          val lineLength = math.max(lineLengthSoFar, termIndent.length)
+          wf(words, lineLength, lineLengthSoFar == 0, false)
           appendBreak()
         }
 

@@ -3449,11 +3449,9 @@ def foo = ()
 /**
  * Start the comment here
  *
- * @param d
- *   a b c d e f g h i jj k l
- *   m n
- * @param ee
- *   a b c d e f g h i j k l m
- *   n
+ * @param d a b c d e f g h i
+ *   jj k l m n
+ * @param ee a b c d e f g h i
+ *   j k l m n
  */
 def foo = ()
