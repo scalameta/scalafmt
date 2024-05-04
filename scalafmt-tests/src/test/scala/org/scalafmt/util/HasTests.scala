@@ -81,10 +81,10 @@ trait HasTests extends FormatAssertions {
     val moduleOnly = isOnly(head)
     val moduleSkip = isSkip(head)
 
-    def loadStyle(cfg: String, base: ScalafmtConfig): ScalafmtConfig =
+    def loadStyle(cfg: String, base: ScalafmtConfig, ln: Int): ScalafmtConfig =
       ScalafmtConfig.fromHoconString(cfg, base).getOrRecover { c =>
         throw new IllegalArgumentException(
-          s"""|Failed to parse filename $filename:
+          s"""|Failed to parse line=$ln filename $filename:
               |$cfg
               |$c""".stripMargin,
         )
@@ -96,6 +96,7 @@ trait HasTests extends FormatAssertions {
           base.copy(runner = base.runner.withParser(x))
         }
       },
+      1,
     )
 
     @tailrec
@@ -117,7 +118,7 @@ trait HasTests extends FormatAssertions {
       val original = matcher.group(3)
       val altFilename = Option(matcher.group(4))
       val expected = matcher.group(5)
-      val testStyle = extraConfig.fold(style)(loadStyle(_, style))
+      val testStyle = extraConfig.fold(style)(loadStyle(_, style, linenum))
       val actualName = stripPrefix(name)
       val test = DiffTest(
         actualName,
