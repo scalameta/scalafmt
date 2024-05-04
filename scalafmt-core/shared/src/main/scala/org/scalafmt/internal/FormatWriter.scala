@@ -596,11 +596,9 @@ class FormatWriter(formatOps: FormatOps) {
             matcher.start(3) == -1
         }) && {
           val content = matcher.group(2)
-          val folding = style.docstrings.wrap match {
-            case Docstrings.Wrap.yes => content.length <= // 7 is the length of "/** " and " */"
-                style.docstringsWrapMaxColumn - prevState.indentation - 7
-            case _ => true
-          }
+          val folding = (style.docstrings.wrap eq Docstrings.Wrap.keep) ||
+            content.length <= // 7 is the length of "/** " and " */"
+            style.docstringsWrapMaxColumn - prevState.indentation - 7
           if (folding) sb.append("/** ").append(content).append(" */")
           folding
         }
@@ -828,7 +826,7 @@ class FormatWriter(formatOps: FormatOps) {
             if (style.docstrings.style eq Docstrings.AsteriskSpace) 1 else 0,
           ) {
         def this(text: String)(implicit sb: StringBuilder) = this(
-          (style.docstrings.wrap eq Docstrings.Wrap.yes) && curr.isStandalone,
+          (style.docstrings.wrap ne Docstrings.Wrap.keep) && curr.isStandalone,
         )(text)
 
         private val spaces: String = getIndentation(indent + extraIndent)
