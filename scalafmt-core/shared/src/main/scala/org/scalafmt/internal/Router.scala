@@ -921,7 +921,7 @@ class Router(formatOps: FormatOps) {
 
         val noSplitMod =
           if (
-            style.newlines.keepBreak(tok) || {
+            style.newlines.keepBreak(newlines) || {
               if (!handleImplicit) onlyConfigStyle
               else style.newlines.forceBeforeImplicitParamListModifier
             }
@@ -1006,7 +1006,7 @@ class Router(formatOps: FormatOps) {
             )
           }
 
-        val keepNoNL = style.newlines.source.eq(Newlines.keep) && tok.noBreak
+        val keepNoNL = style.newlines.keepBreak(tok.noBreak)
         val preferNoSplit = keepNoNL && singleArgument
         val oneArgOneLine = newlinePolicy &
           (leftOwner match {
