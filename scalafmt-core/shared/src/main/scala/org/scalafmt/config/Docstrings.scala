@@ -19,7 +19,7 @@ import metaconfig._
 case class Docstrings(
     oneline: Docstrings.Oneline = Docstrings.Oneline.keep,
     removeEmpty: Boolean = false,
-    wrap: Docstrings.Wrap = Docstrings.Wrap.yes,
+    wrap: Docstrings.Wrap = Docstrings.Wrap.unfold,
     private[config] val wrapMaxColumn: Option[Int] = None,
     forceBlankLineBefore: Option[Boolean] = None,
     blankFirstLine: Option[Docstrings.BlankFirstLine] = None,
@@ -28,7 +28,7 @@ case class Docstrings(
   import Docstrings._
 
   def withoutRewrites: Docstrings =
-    copy(removeEmpty = false, wrap = Wrap.no, style = Preserve)
+    copy(removeEmpty = false, wrap = Wrap.keep, style = Preserve)
 
   def skipFirstLineIf(wasBlank: Boolean): Boolean = style.skipFirstLine
     .orElse(blankFirstLine).exists {
@@ -80,12 +80,15 @@ object Docstrings {
 
   sealed abstract class Wrap
   object Wrap {
-    case object no extends Wrap
-    case object yes extends Wrap
+    case object keep extends Wrap
+    case object fold extends Wrap
+    case object unfold extends Wrap
     implicit val codec: ConfCodecEx[Wrap] = ReaderUtil
-      .oneOfCustom[Wrap](no, yes) {
-        case Conf.Bool(true) => Configured.Ok(yes)
-        case Conf.Bool(false) => Configured.Ok(no)
+      .oneOfCustom[Wrap](keep, fold, unfold) {
+        case Conf.Str("no") => Configured.Ok(keep)
+        case Conf.Bool(false) => Configured.Ok(keep)
+        case Conf.Str("yes") => Configured.Ok(unfold)
+        case Conf.Bool(true) => Configured.Ok(unfold)
       }
   }
 

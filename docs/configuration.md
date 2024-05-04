@@ -4070,6 +4070,14 @@ val a = 1
 ### `docstrings.wrap`
 
 Will parse scaladoc comments and reformat them.
+Takes the following values:
+
+- `keep`: preserves scaladoc comments as-is and will not reformat them
+  (replaced `no` in v3.8.2)
+- `fold`: will use a more compact, horizontal formatting
+  (added in v3.8.2)
+- `unfold`: will use a more expanded, vertical formatting
+  (replaced `yes` in v3.8.2)
 
 This functionality is generally limited to
 [standard scaladoc elements](https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html)
