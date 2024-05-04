@@ -4127,19 +4127,22 @@ the default `maxColumn`.
 ### `docstrings.blankFirstLine`
 
 Controls whether to force the first line to be blank in a multiline docstring.
-Keep in mind that some combinations of parameters are prohibited (e.g.,
-`blankFirstLine=keep` contradicts with `style=Asterisk`).
+Some values of [`docstrings.style`](#docstringsstyle) might take precedence.
+Takes the following values:
+
+- `keep`: preserves the first line as-is
+- `fold`: will ensure there's no blank first line
+  (default; replaced `no` in v3.8.2)
+- `unfold`: will enforce a blank first line
+  (replaced `yes` in v3.8.2)
 
 > Since v2.7.5. Ignored for `docstrings.style = keep` or
+> `docstrings.style = Asterisk` or
 > `docstrings.wrap = no`.
-
-```scala mdoc:defaults
-docstrings.blankFirstLine
-```
 
 ```scala mdoc:scalafmt
 # do not force a blank first line
-docstrings.blankFirstLine = no
+docstrings.blankFirstLine = fold
 docstrings.style = SpaceAsterisk
 maxColumn = 30
 ---
@@ -4154,7 +4157,7 @@ val a = 1
 
 ```scala mdoc:scalafmt
 # force a blank first line
-docstrings.blankFirstLine = yes
+docstrings.blankFirstLine = unfold
 docstrings.style = SpaceAsterisk
 maxColumn = 30
 ---
