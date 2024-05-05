@@ -2306,14 +2306,14 @@ newlines.implicitParamListModifierForce = [before,after]
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
-#### Implicit with `optIn.configStyleArguments`
+#### Implicit with `newlines.configStyleDefnSite.prefer`
 
 While config-style normally requires a newline after the opening parenthesis,
 postponing that break until after the `implicit` keyword is allowed if other
 parameters require keeping this keyword attached to the opening brace.
 
 Therefore, any of the parameters described in this section will take precedence
-even when `optIn.configStyleArguments = true` is used.
+even when `newlines.configStyleDefnSite.prefer = true` is used.
 
 ### `newlines.afterInfix`
 
@@ -2787,10 +2787,12 @@ It normally involves a newline after the opening parenthesis (or after the
 As part of the formatting output, arguments are output one per line (but this is
 not used in determining whether the source uses config-style formatting).
 
-While this parameter is not technically under the `newlines` section, it
-logically belongs there.
+### `newlines.configStyleXxxSite.prefer`
 
-### `optIn.configStyleArguments`
+`CallSite` applies to argument clauses method calls, while `DefnSite` to
+parameter clauses in method or class definitions.
+In v3.8.2 replaced a single parameter `optIn.configStyleArguments` and
+falls back to its value (which is enabled by default).
 
 If true, applies config-style formatting:
 
@@ -2799,12 +2801,8 @@ If true, applies config-style formatting:
 
 Please note that other parameters might also force config-style (see below).
 
-```scala mdoc:defaults
-optIn.configStyleArguments
-```
-
 ```scala mdoc:scalafmt
-optIn.configStyleArguments = true
+newlines.configStyleDefnSite.prefer = true
 maxColumn=45
 ---
 object a {
@@ -4870,7 +4868,7 @@ and similarly has cross-parameter interactions:
   - when [config-style is forced](#forcing-config-style), it takes precedence
     over binpacking
   - for `newlines.source=classic`, behaviour depends on
-    [config-style](#optinconfigstylearguments):
+    [config-style](#newlinesconfigstylexxxsiteprefer):
     - if enabled: used if [detected](#newlines-config-style-formatting), otherwise binpacked
     - if disabled with both [`danglingParentheses.callSite`](#danglingparenthesescallsite)
       enabled and closing parenthesis following a break: forces config-style, as described in
@@ -4882,7 +4880,7 @@ and similarly has cross-parameter interactions:
   - `newlines.source=classic`: please see above
   - `newlines.source=keep`
     - open break is preserved
-    - when both [config-style](#optinconfigstylearguments) and
+    - when both [config-style](#newlinesconfigstylexxxsiteprefer) and
       [`danglingParentheses.callSite`](#danglingparenthesescallsite) are disabled,
       close break is "tucked"
     - otherwise, close break matches open break
@@ -4892,7 +4890,7 @@ and similarly has cross-parameter interactions:
       and only when [config-style is forced](#forcing-config-style) for `fold`
     - otherwise, open is always dangling,
       and close is dangling only when both
-      [`optIn.configStyleArguments=true`](#optinconfigstylearguments)
+      [`newlines.configStyleXxxSite.prefer=true`](#newlinesconfigstylexxxsiteprefer)
       and [config-style is forced](#forcing-config-style)
 
 > Please also see [callSite indentation parameters](#indent-for-binpackcallsite).

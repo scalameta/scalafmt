@@ -100,7 +100,12 @@ import metaconfig.generic.Surface
   *   }}}
   */
 case class OptIn(
-    configStyleArguments: Boolean = true,
+    @annotation.DeprecatedName(
+      "configStyleArguments",
+      "Use `newlines.configStyleCallSite` instead",
+      "3.8.2",
+    )
+    private[config] val configStyleArguments: Boolean = true,
     breaksInsideChains: Boolean = false,
     breakChainOnFirstMethodDot: Boolean = true,
     encloseClassicChains: Boolean = false,

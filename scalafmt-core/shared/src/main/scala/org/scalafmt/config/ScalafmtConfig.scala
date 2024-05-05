@@ -277,6 +277,16 @@ case class ScalafmtConfig(
   def getFewerBraces(): Indents.FewerBraces =
     if (indent.getSignificant < 2) Indents.FewerBraces.never
     else indent.fewerBraces
+
+  private def getOptInConfigStyle: Newlines.ConfigStyleElement = Newlines
+    .ConfigStyleElement(prefer = optIn.configStyleArguments)
+
+  lazy val configStyleCallSite: Newlines.ConfigStyleElement = newlines
+    .configStyleCallSite.getOrElse(getOptInConfigStyle)
+
+  lazy val configStyleDefnSite: Newlines.ConfigStyleElement = newlines
+    .configStyleDefnSite.getOrElse(getOptInConfigStyle)
+
 }
 
 object ScalafmtConfig {
@@ -363,12 +373,12 @@ object ScalafmtConfig {
       implicit val errors = new mutable.ArrayBuffer[String]
       if (newlines.sourceIgnored) {
         newlines.beforeOpenParenCallSite.fold(addIfDirect(
-          optIn.configStyleArguments && align.openParenCallSite,
-          "optIn.configStyleArguments && align.openParenCallSite && !newlines.beforeOpenParenCallSite",
+          configStyleCallSite.prefer && align.openParenCallSite,
+          "newlines.configStyleCallSite && align.openParenCallSite && !newlines.beforeOpenParenCallSite",
         ))(x => addIfDirect(x.src eq Newlines.keep, "newlines.beforeOpenParenCallSite.src = keep"))
         newlines.beforeOpenParenDefnSite.fold(addIfDirect(
-          optIn.configStyleArguments && align.openParenDefnSite,
-          "optIn.configStyleArguments && align.openParenDefnSite && !newlines.beforeOpenParenDefnSite",
+          configStyleDefnSite.prefer && align.openParenDefnSite,
+          "newlines.configStyleDefnSite && align.openParenDefnSite && !newlines.beforeOpenParenDefnSite",
         ))(x => addIfDirect(x.src eq Newlines.keep, "newlines.beforeOpenParenDefnSite.src = keep"))
         def mustIgnoreSourceSplit(what: sourcecode.Text[Option[Newlines.IgnoreSourceSplit]]) = what.value
           .foreach(x => addIfDirect(!x.ignoreSourceSplit, s"${what.source}=$x"))

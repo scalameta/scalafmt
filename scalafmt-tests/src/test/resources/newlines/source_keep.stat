@@ -7546,8 +7546,8 @@ object a {
       " try {x.add(y, null);} catch(e) {if (typeof(e) == 'object' && typeof(e.number) == 'number' && (e.number & 0xFFFF) == 5){ x.add(y,x.options.length); } } "
   }
 }
-<<< binPack.callSite with configStyleArguments, danglingParentheses
-optIn.configStyleArguments = true
+<<< binPack.callSite with configStyle, danglingParentheses
+newlines.configStyleCallSite.prefer = true
 danglingParentheses.callSite = true
 binPack.unsafeCallSite = always
 maxColumn = 30
@@ -7598,8 +7598,8 @@ object Main {
     10 + 0
   )
 }
-<<< binPack.defnSite with configStyleArguments, danglingParentheses
-optIn.configStyleArguments = true
+<<< binPack.defnSite with configStyle, danglingParentheses
+newlines.configStyleDefnSite.prefer = true
 danglingParentheses.defnSite = true
 binPack.unsafeDefnSite = always
 maxColumn = 30
@@ -7647,8 +7647,8 @@ object Main {
       x1: X, x2: X, x3: X,
       x4: X, xs: X*): Set[Int]
 }
-<<< binPack.callSite with !configStyleArguments, danglingParentheses
-optIn.configStyleArguments = false
+<<< binPack.callSite with !configStyle, danglingParentheses
+newlines.configStyleCallSite.prefer = false
 danglingParentheses.callSite = true
 binPack.unsafeCallSite = always
 maxColumn = 30
@@ -7692,8 +7692,8 @@ object Main {
     4, 5, 6, 7, 8, 9, 10 + 0
   )
 }
-<<< binPack.defnSite with !configStyleArguments, danglingParentheses
-optIn.configStyleArguments = false
+<<< binPack.defnSite with !configStyle, danglingParentheses
+newlines.configStyleDefnSite.prefer = false
 danglingParentheses.defnSite = true
 binPack.unsafeDefnSite = always
 maxColumn = 30
@@ -7747,8 +7747,8 @@ object Main {
       x4: X, xs: X*
   ): Set[Int]
 }
-<<< binPack.callSite with configStyleArguments, !danglingParentheses
-optIn.configStyleArguments = true
+<<< binPack.callSite with configStyle, !danglingParentheses
+newlines.configStyleCallSite.prefer = true
 danglingParentheses.callSite = false
 binPack.unsafeCallSite = always
 maxColumn = 30
@@ -7799,8 +7799,8 @@ object Main {
     10 + 0
   )
 }
-<<< binPack.defnSite with configStyleArguments, !danglingParentheses
-optIn.configStyleArguments = true
+<<< binPack.defnSite with configStyle, !danglingParentheses
+newlines.configStyleDefnSite.prefer = true
 danglingParentheses.defnSite = false
 binPack.unsafeDefnSite = always
 maxColumn = 30
@@ -7848,8 +7848,8 @@ object Main {
       x1: X, x2: X, x3: X,
       x4: X, xs: X*): Set[Int]
 }
-<<< binPack.callSite with !configStyleArguments, !danglingParentheses
-optIn.configStyleArguments = false
+<<< binPack.callSite with !configStyle, !danglingParentheses
+newlines.configStyleCallSite.prefer = false
 danglingParentheses.callSite = false
 binPack.unsafeCallSite = always
 maxColumn = 30
@@ -7890,8 +7890,8 @@ object Main {
     1, 2, 3,
     4, 5, 6, 7, 8, 9, 10 + 0)
 }
-<<< binPack.defnSite with !configStyleArguments, !danglingParentheses
-optIn.configStyleArguments = false
+<<< binPack.defnSite with !configStyle, !danglingParentheses
+newlines.configStyleDefnSite.prefer = false
 danglingParentheses.defnSite = false
 binPack.unsafeDefnSite = always
 maxColumn = 30
