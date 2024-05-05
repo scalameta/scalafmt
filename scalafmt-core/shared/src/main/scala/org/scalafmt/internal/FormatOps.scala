@@ -871,7 +871,7 @@ class FormatOps(
 
   def mustForceConfigStyle(ft: FormatToken)(implicit
       cfg: Newlines.ConfigStyleElement,
-  ): Boolean = cfg.prefer && forceConfigStyle(ft.meta.idx)
+  ): Boolean = cfg.getForceIfOptimized && forceConfigStyle(ft.meta.idx)
 
   def preserveConfigStyle(
       ft: FormatToken,
