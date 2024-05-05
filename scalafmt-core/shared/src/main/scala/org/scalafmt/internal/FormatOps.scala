@@ -1033,12 +1033,13 @@ class FormatOps(
 
   def getForceConfigStyle: (Set[Int], Set[Int]) = {
     val callSite = initStyle.runner.optimizer.getCallSite
-    if (callSite.isEnabled) {
+    val defnSite = initStyle.runner.optimizer.getDefnSite
+    if (callSite.isEnabled || defnSite.isEnabled) {
       val clearQueues = Set.newBuilder[Int]
       val forces = Set.newBuilder[Int]
       def process(clause: Member.SyntaxValuesClause, ftOpen: FormatToken)(
           cfg: ScalafmtOptimizer.ClauseElement,
-      ): Unit = matchingOpt(ftOpen.left).foreach { close =>
+      ): Unit = if (cfg.isEnabled) matchingOpt(ftOpen.left).foreach { close =>
         val values = clause.values
         if (
           values.lengthCompare(cfg.minCount) >= 0 &&
@@ -1052,10 +1053,13 @@ class FormatOps(
         case ft @ FormatToken(_: T.LeftParen, _, m) => m.leftOwner match {
             case t: Term.ArgClause if !t.parent.exists(_.is[Term.ApplyInfix]) =>
               process(t, ft)(callSite)
+            case t: Term.ParamClause => process(t, ft)(defnSite)
             case _ =>
           }
         case ft @ FormatToken(_: T.LeftBracket, _, m) => m.leftOwner match {
             case t: Type.ArgClause => process(t, ft)(callSite)
+            case t: Type.ParamClause => process(t, ft)(defnSite)
+            case t: Type.FuncParamClause => process(t, ft)(defnSite)
             case _ =>
           }
         case _ =>

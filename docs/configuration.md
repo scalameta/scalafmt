@@ -216,9 +216,9 @@ top-level.
       neverBeforeJsNative = true
       sometimesBeforeColonInMethodReturnType = false
     }
-    runner.optimizer {
-      forceConfigStyleMinSpan = 500
-      forceConfigStyleMinArgCount = 5
+    runner.optimizer.callSite {
+      minSpan = 500
+      minCount = 5
     }
 ```
 
@@ -2822,7 +2822,7 @@ object a {
 ### Forcing config style
 
 When `newlines.configStyleXxxSite.forceIfOptimized` is enabled and
-[call-site clause optimization](#route-search-optimizations-call-site-clause)
+[route search optimization](#route-search-optimizations-arg-or-param-clause)
 is applicable to a clause, the formatter will force config-style formatting.
 
 By default, takes the same value as
@@ -2831,8 +2831,7 @@ By default, takes the same value as
 ```scala mdoc:scalafmt
 newlines.configStyleCallSite.forceIfOptimized = true
 newlines.configStyleDefnSite.forceIfOptimized = false
-runner.optimizer.forceConfigStyleMinSpan = 5
-runner.optimizer.forceConfigStyleMinArgCount = 2
+runner.optimizer.callSite { minSpan = 5, minCount = 2 }
 maxColumn = 60
 ---
 object a {
@@ -5357,24 +5356,25 @@ and this optimization is enabled when:
 runner.optimizer.dequeueOnNewStatements
 ```
 
-#### Route search optimizations: call-site clause
+#### Route search optimizations: arg or param clause
 
 Similar to statements above, we might create a new priority queue when we
-encounter a long-enough call-site clause.
+encounter a long-enough call-site argument or defn-site parameter clause.
 
 ```scala mdoc:defaults
-runner.optimizer.forceConfigStyleMinSpan
-runner.optimizer.forceConfigStyleMinArgCount
+runner.optimizer.callSite
+runner.optimizer.defnSite
 ```
 
 This optimization is enabled when all these criteria are satisfied:
 
-- `runner.optimizer.forceConfigStyleMinSpan`:
+- `xxxSite.minSpan`:
   must be non-negative, and the character distance between the matching
   parentheses, excluding any whitespace, must exceed this value
   (prior to v3.8.1, this parameter was called `forceConfigStyleOnOffset`)
-- `runner.optimizer.forceConfigStyleMinArgCount`:
+- `xxxSite.minCount`:
   must be positive and may not exceed the number of arguments
+  (prior to v3.8.2, this parameter was called `forceConfigStyleMinCount`)
 
 > These parameters cannot be [overridden within a file](#for-code-block)
 

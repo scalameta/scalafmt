@@ -7608,7 +7608,7 @@ newlines.configStyleCallSite.prefer = true
 danglingParentheses.callSite = true
 binPack.unsafeCallSite = always
 maxColumn = 30
-runner.optimizer.forceConfigStyleMinSpan = 20
+runner.optimizer.callSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
   val bar1 = foo1(
@@ -7660,7 +7660,7 @@ newlines.configStyleDefnSite.prefer = true
 danglingParentheses.defnSite = true
 binPack.unsafeDefnSite = always
 maxColumn = 30
-runner.optimizer.forceConfigStyleMinSpan = 20
+runner.optimizer.defnSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
   def foo1(
@@ -7698,16 +7698,17 @@ object Main {
       x1: X, x2: X, x3: X,
       x4: X, xs: X*
   ): Set[Int]
-  def foo3(x1: X, x2: X,
-      x3: X, x4: X, xs: X*)
-      : Set[Int]
+  def foo3(
+      x1: X, x2: X, x3: X,
+      x4: X, xs: X*
+  ): Set[Int]
 }
 <<< binPack.callSite with !configStyle, danglingParentheses
 newlines.configStyleCallSite.prefer = false
 danglingParentheses.callSite = true
 binPack.unsafeCallSite = always
 maxColumn = 30
-runner.optimizer.forceConfigStyleMinSpan = 20
+runner.optimizer.callSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
   val bar1 = foo1(
@@ -7751,7 +7752,7 @@ newlines.configStyleDefnSite.prefer = false
 danglingParentheses.defnSite = true
 binPack.unsafeDefnSite = always
 maxColumn = 30
-runner.optimizer.forceConfigStyleMinSpan = 20
+runner.optimizer.defnSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
   def foo1(
@@ -7802,7 +7803,7 @@ newlines.configStyleCallSite.prefer = true
 danglingParentheses.callSite = false
 binPack.unsafeCallSite = always
 maxColumn = 30
-runner.optimizer.forceConfigStyleMinSpan = 20
+runner.optimizer.callSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
   val bar1 = foo1(
@@ -7854,7 +7855,7 @@ newlines.configStyleDefnSite.prefer = true
 danglingParentheses.defnSite = false
 binPack.unsafeDefnSite = always
 maxColumn = 30
-runner.optimizer.forceConfigStyleMinSpan = 20
+runner.optimizer.defnSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
   def foo1(
@@ -7892,16 +7893,17 @@ object Main {
       x1: X, x2: X, x3: X,
       x4: X, xs: X*
   ): Set[Int]
-  def foo3(x1: X, x2: X,
-      x3: X, x4: X, xs: X*)
-      : Set[Int]
+  def foo3(
+      x1: X, x2: X, x3: X,
+      x4: X, xs: X*
+  ): Set[Int]
 }
 <<< binPack.callSite with !configStyle, !danglingParentheses
 newlines.configStyleCallSite.prefer = false
 danglingParentheses.callSite = false
 binPack.unsafeCallSite = always
 maxColumn = 30
-runner.optimizer.forceConfigStyleMinSpan = 20
+runner.optimizer.callSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
   val bar1 = foo1(
@@ -7939,7 +7941,7 @@ newlines.configStyleDefnSite.prefer = false
 danglingParentheses.defnSite = false
 binPack.unsafeDefnSite = always
 maxColumn = 30
-runner.optimizer.forceConfigStyleMinSpan = 20
+runner.optimizer.defnSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
   def foo1(
