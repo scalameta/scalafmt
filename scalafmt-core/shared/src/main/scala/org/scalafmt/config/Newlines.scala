@@ -217,6 +217,8 @@ case class Newlines(
     inInterpolation: InInterpolation = InInterpolation.allow,
     ignoreInSyntax: Boolean = true,
     avoidAfterYield: Boolean = true,
+    configStyleCallSite: Option[ConfigStyleElement] = None,
+    configStyleDefnSite: Option[ConfigStyleElement] = None,
 ) {
   if (
     implicitParamListModifierForce.nonEmpty &&
@@ -537,6 +539,19 @@ object Newlines {
       case (_, conf) => SourceHints.codec.read(None, conf)
           .map(BeforeOpenParen.apply)
     }
+  }
+
+  /** Clauses where there is a newline after opening `(`` and newline before
+    * closing `)`. If true, preserves the newlines and keeps one line per
+    * argument.
+    */
+  case class ConfigStyleElement(prefer: Boolean = true)
+  private[config] object ConfigStyleElement {
+    private val default = ConfigStyleElement()
+    implicit val surface: Surface[ConfigStyleElement] = generic
+      .deriveSurface[ConfigStyleElement]
+    implicit val codec: ConfCodecEx[ConfigStyleElement] = generic
+      .deriveCodecEx(default).noTypos
   }
 
 }

@@ -865,9 +865,11 @@ class Router(formatOps: FormatOps) {
         val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
 
         val rightIsComment = right.is[T.Comment]
+        implicit val configStyleFlags =
+          if (defnSite) style.configStyleDefnSite else style.configStyleCallSite
         val configStyle = mustUseConfigStyle(formatToken, beforeClose)
         val onlyConfigStyle = ConfigStyle.None != configStyle
-        val configStyleFlag = style.optIn.configStyleArguments
+        val configStyleFlag = configStyleFlags.prefer
 
         val sourceIgnored = style.newlines.sourceIgnored
         val (onlyArgument, isSingleEnclosedArgument) =
@@ -1105,6 +1107,7 @@ class Router(formatOps: FormatOps) {
           val penalizeBrackets = bracketPenalty
             .map(p => PenalizeAllNewlines(close, p + 3))
           val beforeClose = tokens.justBefore(close)
+          implicit val configStyleFlags = style.configStyleDefnSite
           val onlyConfigStyle = getMustDangleForTrailingCommas(beforeClose) ||
             ConfigStyle.None != mustUseConfigStyle(formatToken, beforeClose)
 
@@ -1120,7 +1123,7 @@ class Router(formatOps: FormatOps) {
 
           val mustDangle = onlyConfigStyle ||
             style.danglingParentheses.defnSite &&
-            (style.newlines.sourceIgnored || !style.optIn.configStyleArguments)
+            (style.newlines.sourceIgnored || !configStyleFlags.prefer)
           val slbOnly = mustDangle || style.newlines.source.eq(Newlines.unfold)
           def noSplitPolicy: Policy =
             if (slbOnly) slbPolicy
@@ -1301,7 +1304,7 @@ class Router(formatOps: FormatOps) {
           else if (
             flags.dangleForTrailingCommas ||
             flags.shouldDangle &&
-            (style.newlines.sourceIgnored || !style.optIn.configStyleArguments)
+            (style.newlines.sourceIgnored || !style.configStyleCallSite.prefer)
           ) bothPolicies
           else binPackOnelinePolicyOpt
             .getOrElse(decideNewlinesOnlyBeforeCloseOnBreak(close))

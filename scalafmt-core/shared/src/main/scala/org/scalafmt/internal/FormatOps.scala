@@ -861,19 +861,23 @@ class FormatOps(
       ft: FormatToken,
       beforeCloseFt: => FormatToken,
       allowForce: Boolean = true,
-  )(implicit style: ScalafmtConfig): ConfigStyle =
-    if (style.optIn.configStyleArguments)
-      couldUseConfigStyle(ft, beforeCloseFt, allowForce)
+  )(implicit
+      style: ScalafmtConfig,
+      cfg: Newlines.ConfigStyleElement,
+  ): ConfigStyle =
+    if (allowForce && mustForceConfigStyle(ft)) ConfigStyle.Forced
+    else if (preserveConfigStyle(ft, beforeCloseFt)) ConfigStyle.Source
     else ConfigStyle.None
 
-  def couldUseConfigStyle(
+  def mustForceConfigStyle(ft: FormatToken)(implicit
+      cfg: Newlines.ConfigStyleElement,
+  ): Boolean = cfg.prefer && forceConfigStyle(ft.meta.idx)
+
+  def preserveConfigStyle(
       ft: FormatToken,
       beforeCloseFt: => FormatToken,
-      allowForce: Boolean = true,
-  )(implicit style: ScalafmtConfig): ConfigStyle =
-    if (allowForce && forceConfigStyle(ft.meta.idx)) ConfigStyle.Forced
-    else if (couldPreserveConfigStyle(ft, beforeCloseFt)) ConfigStyle.Source
-    else ConfigStyle.None
+  )(implicit style: ScalafmtConfig, cfg: Newlines.ConfigStyleElement): Boolean =
+    cfg.prefer && couldPreserveConfigStyle(ft, beforeCloseFt)
 
   def couldPreserveConfigStyle(ft: FormatToken, beforeCloseFt: => FormatToken)(
       implicit style: ScalafmtConfig,
@@ -1192,7 +1196,7 @@ class FormatOps(
         else Nil
       val noSlb = implicitNL || aboveArityThreshold ||
         ft.hasBreak &&
-        !style.newlines.sourceIgnored && style.optIn.configStyleArguments ||
+        !style.newlines.sourceIgnored && style.configStyleDefnSite.prefer ||
         implicitParams.nonEmpty &&
         style.newlines.forceAfterImplicitParamListModifier
       val nlNoAlt = implicitNL ||
@@ -2637,13 +2641,14 @@ class FormatOps(
   )(implicit style: ScalafmtConfig) = {
     val literalArgList = styleMap.opensLiteralArgumentList(ftAfterOpen)
     val dangleForTrailingCommas = getMustDangleForTrailingCommas(ftBeforeClose)
+    implicit val configStyleFlags = style.configStyleCallSite
     val configStyle =
       if (dangleForTrailingCommas) ConfigStyle.None
       else mustUseConfigStyle(ftAfterOpen, ftBeforeClose, !literalArgList)
     val shouldDangle = style.danglingParentheses
       .tupleOrCallSite(isTuple(ftAfterOpen.meta.leftOwner))
     val scalaJsStyle = style.newlines.source == Newlines.classic &&
-      configStyle == ConfigStyle.None && !style.optIn.configStyleArguments &&
+      configStyle == ConfigStyle.None && !configStyleFlags.prefer &&
       !literalArgList && shouldDangle
     BinpackCallsiteFlags(
       literalArgList = literalArgList,
