@@ -2821,12 +2821,16 @@ object a {
 
 ### Forcing config style
 
-When `optIn.configStyleArguments` is enabled and
+When `newlines.configStyleXxxSite.forceIfOptimized` is enabled and
 [call-site clause optimization](#route-search-optimizations-call-site-clause)
 is applicable to a clause, the formatter will force config-style formatting.
 
+By default, takes the same value as
+[`newlines.configStyleXxxSite.prefer`](#newlinesconfigstylexxxsiteprefer).
+
 ```scala mdoc:scalafmt
-optIn.configStyleArguments = true
+newlines.configStyleCallSite.forceIfOptimized = true
+newlines.configStyleDefnSite.forceIfOptimized = false
 runner.optimizer.forceConfigStyleMinSpan = 5
 runner.optimizer.forceConfigStyleMinArgCount = 2
 maxColumn = 60

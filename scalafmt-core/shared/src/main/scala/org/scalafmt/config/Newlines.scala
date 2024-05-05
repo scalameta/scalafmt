@@ -545,7 +545,13 @@ object Newlines {
     * closing `)`. If true, preserves the newlines and keeps one line per
     * argument.
     */
-  case class ConfigStyleElement(prefer: Boolean = true)
+  case class ConfigStyleElement(
+      prefer: Boolean = true,
+      private val forceIfOptimized: Option[Boolean] = None,
+  ) {
+    @inline
+    def getForceIfOptimized: Boolean = forceIfOptimized.getOrElse(prefer)
+  }
   private[config] object ConfigStyleElement {
     private val default = ConfigStyleElement()
     implicit val surface: Surface[ConfigStyleElement] = generic
