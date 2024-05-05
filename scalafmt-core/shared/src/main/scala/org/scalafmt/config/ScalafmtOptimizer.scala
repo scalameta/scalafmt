@@ -51,18 +51,32 @@ case class ScalafmtOptimizer(
     disableOptimizationsInsideSensitiveAreas: Boolean = true,
     pruneSlowStates: Boolean = true,
     recurseOnBlocks: Boolean = true,
-    @annotation.ExtraName("forceConfigStyleOnOffset")
-    forceConfigStyleMinSpan: Int = 150,
-    forceConfigStyleMinArgCount: Int = 2,
+    @annotation.ExtraName("forceConfigStyleOnOffset") @annotation.DeprecatedName(
+      "forceConfigStyleMinSpan",
+      "Use `callSite.minSpan` instead",
+      "3.8.2",
+    )
+    private val forceConfigStyleMinSpan: Int = 150,
+    @annotation.DeprecatedName(
+      "forceConfigStyleMinArgCount",
+      "Use `callSite.minCount` instead",
+      "3.8.2",
+    )
+    private val forceConfigStyleMinArgCount: Int = 2,
+    private val callSite: Option[ClauseElement] = None,
+    private val defnSite: ClauseElement = ClauseElement.default,
 ) {
-  def getCallSite: ClauseElement = ClauseElement(
+  def getCallSite: ClauseElement = callSite.getOrElse(ClauseElement(
     minSpan = forceConfigStyleMinSpan,
     minCount = forceConfigStyleMinArgCount,
-  )
+  ))
+  def getDefnSite: ClauseElement = defnSite
 
-  private[config] def conservative: ScalafmtOptimizer =
+  private[config] def conservative: ScalafmtOptimizer = {
     // The tests were not written in this style
-    copy(forceConfigStyleMinSpan = 500, forceConfigStyleMinArgCount = 5)
+    val cfg = ClauseElement(minSpan = 500, minCount = 5)
+    copy(callSite = Some(cfg), defnSite = cfg)
+  }
 
 }
 
@@ -87,6 +101,14 @@ object ScalafmtOptimizer {
     */
   case class ClauseElement(minSpan: Int = -1, minCount: Int = 0) {
     val isEnabled: Boolean = minSpan >= 0 && minCount > 0
+  }
+
+  private[config] object ClauseElement {
+    val default = ClauseElement()
+    implicit val surface: generic.Surface[ClauseElement] = generic
+      .deriveSurface[ClauseElement]
+    implicit val codec: ConfCodecEx[ClauseElement] = generic
+      .deriveCodecEx(default).noTypos
   }
 
 }
