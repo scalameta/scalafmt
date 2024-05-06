@@ -221,7 +221,7 @@ class Router(formatOps: FormatOps) {
           ) if dialect.allowSignificantIndentation => splits
 
       // { ... } Blocks
-      case tok @ FormatToken(open @ T.LeftBrace(), right, _) =>
+      case tok @ FormatToken(open @ T.LeftBrace(), right, m) =>
         val close = matching(open)
         val closeFT = tokens(close)
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
@@ -246,7 +246,7 @@ class Router(formatOps: FormatOps) {
 
         // lambdaNLOnly: None for single line only
         val (lambdaExpire, lambdaArrow, lambdaIndent, lambdaNLOnly) =
-          startsStatement(right) match {
+          statementStarts.get(m.idx + 1) match {
             case Some(owner: Term.FunctionTerm) if (leftOwner match {
                   case t: Template => t.parent
                       .exists(_.is[Term.NewAnonymous]) &&
