@@ -2039,9 +2039,9 @@ will not allow multiple arguments per line in a multiline expression.</p>
 <p>These two approaches <em>completely ignore</em> existing line breaks, except around
 comments and blank lines (i.e., multiple consecutive newlines).</p>
 <blockquote>
-<p>Might require increasing runner limits (<code>runner.optimizer.maxVisitsPerToken</code>,
-possibly even <code>runner.maxStateVisits</code>), to avoid <em>SearchStateExploded</em>
-exceptions.</p>
+<p>Might require increasing
+<a href="#route-search-optimizations-giving-up">optimizer limits</a>,
+to avoid <em>SearchStateExploded</em> exceptions.</p>
 </blockquote>
 <p><code>fold</code> attempts to remove line breaks whenever possible resulting in a more
 horizontal, or vertically compact look.</p>
@@ -3263,9 +3263,9 @@ behaviour, and default for <code>newlines.source=classic,keep</code>.</p>
 a space before an infix operator and occasionally break after it. <code>some</code> is
 default for <code>newlines.source=fold</code>, and <code>many</code> for <code>newlines.source=unfold</code>.</p>
 <blockquote>
-<p>Might require increasing runner limits (<code>runner.optimizer.maxVisitsPerToken</code>,
-possibly even <code>runner.maxStateVisits</code>), to avoid <em>SearchStateExploded</em>
-exceptions.</p>
+<p>Might require increasing
+<a href="#route-search-optimizations-giving-up">optimizer limits</a>,
+to avoid <em>SearchStateExploded</em> exceptions.</p>
 </blockquote>
 <p><code>some</code> will introduce fewer line breaks than <code>many</code>. Both will attempt to break
 after
@@ -3776,9 +3776,9 @@ logically belongs there.</p>
 <p>If true, applies config-style formatting:</p>
 <ul>
 <li>if single-line formatting is impossible</li>
-<li>if the source uses config-style and <code>newlines.source = classic/keep</code></li>
-<li>if other parameters force config-style (see below)</li>
+<li>if <code>newlines.source = fold/unfold</code> or the source uses config-style</li>
 </ul>
+<p>Please note that other parameters might also force config-style (see below).</p>
 <p>Default: <code>optIn.configStyleArguments = true</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
   <span class="hljs-comment">// keeps single line</span>
@@ -3818,20 +3818,9 @@ maxColumn=<span class="hljs-number">45</span>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="forcing-config-style"></a><a href="#forcing-config-style" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Forcing config style</h3>
-<p>Controls parameters which trigger forced config-style formatting. All conditions
-must be satisfied in order for this rule to apply.</p>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-runner.optimizer.forceConfigStyleMinSpan = <span class="hljs-number">150</span>
-runner.optimizer.forceConfigStyleMinArgCount = <span class="hljs-number">2</span>
-</code></pre>
-<ul>
-<li><code>runner.optimizer.forceConfigStyleMinSpan</code>: applies to method calls; if
-positive, specifies the minimum character distance between the matching
-parentheses, excluding any whitespace (prior to v3.8.1, this parameter
-was called <code>forceConfigStyleOnOffset</code>)</li>
-<li><code>runner.optimizer.forceConfigStyleMinArgCount</code> applies to method calls;
-specifies the minimum number of arguments</li>
-</ul>
+<p>When <code>optIn.configStyleArguments</code> is enabled and
+<a href="#route-search-optimizations-call-site-clause">call-site clause optimization</a>
+is applicable to a clause, the formatter will force config-style formatting.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
   <span class="hljs-comment">// this is a definition, not a method call</span>
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span> = <span class="hljs-literal">null</span>): <span class="hljs-type">Boolean</span>
@@ -5615,12 +5604,9 @@ If false, preserves blank line only if one exists before.</p>
 </p></details>
 <h2><a class="anchor" aria-hidden="true" id="disabling-or-customizing-formatting"></a><a href="#disabling-or-customizing-formatting" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Disabling or customizing formatting</h2>
 <h3><a class="anchor" aria-hidden="true" id="search-state-exploded"></a><a href="#search-state-exploded" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Search state exploded</code></h3>
-<p>If this exception occurs, you can try increasing limits for the following
-parameters, globally or using any of the options further in this section:</p>
-<ul>
-<li><code>runner.maxStateVisits</code></li>
-<li><code>runner.optimizer.maxVisitsPerToken</code></li>
-</ul>
+<p>If this exception occurs, you can try increasing
+<a href="#route-search-optimizations-giving-up">optimizer limits</a>,
+globally or using any of the options further in this section.</p>
 <h3><a class="anchor" aria-hidden="true" id="for-code-block"></a><a href="#for-code-block" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>For code block</h3>
 <p>There is a possibility to override scalafmt config for a specific code with
 <code>// scalafmt: {}</code> comment:</p>
@@ -6712,6 +6698,216 @@ val x = 3
 
 Markdown prose end.
 </span></code></pre>
+<h2><a class="anchor" aria-hidden="true" id="advanced-formatting-process"></a><a href="#advanced-formatting-process" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Advanced: formatting process</h2>
+<p>Currently, the formatting process consists of several stages:</p>
+<ul>
+<li>code parsing using <a href="https://scalameta.org/">scalameta parser</a>
+<ul>
+<li>keep in mind that any parsing errors output by scalafmt are
+in fact coming from scalameta</li>
+</ul></li>
+<li>format-agnostic rewrites
+<ul>
+<li>during this step, we apply most of the <a href="#rewrite-rules">rewrites rules</a>
+(except those which depend on how we decided to format the code)</li>
+</ul></li>
+<li>preparing whitespace splits
+<ul>
+<li>we iterate over all pairs of adjacent non-whitespace tokens and identify
+possible options for the output whitespace between them</li>
+<li>selection is between
+<ul>
+<li>a newline with a possible subsequent indentation</li>
+<li>a single space</li>
+<li>no space at all</li>
+</ul></li>
+<li>each option also comes with a penalty and a possible policy on how to handle
+subsequent splits
+<ul>
+<li>for instance, this is how we ensure single-line formatting, by adding a
+policy which removes all newline splits before a given end token</li>
+</ul></li>
+</ul></li>
+<li>route search
+<ul>
+<li>we look for an optimal path through the space of non-whitespace tokens
+and splits between them</li>
+<li>each partial state includes, among other things:
+<ul>
+<li>the last token considered</li>
+<li>the split selection preceding it</li>
+<li>total cumulative penalty</li>
+<li>the partial state for the previous token</li>
+</ul></li>
+<li>we maintain a priority queue containing these partial states, by preferring
+states with lower penalty and then higher token offset (i.e. those which are
+closer to the completion)</li>
+<li>at each iteration, we select a state from that priority queue (we'll call
+this event <strong>a state visit</strong>), apply all available non-expired policies to
+available subsequent whitespace splits, insert the next state for each of
+them back into the priority queue</li>
+<li>we stop as soon as the top state in the priority queue is completed (i.e.,
+refers to the <code>EOF</code> token)</li>
+</ul></li>
+<li>output
+<ul>
+<li>after we have obtained our final formatting state, we need to write out the
+code applying the splits selected during the route search</li>
+<li>as part of this final stage, we perform a few steps:
+<ul>
+<li>apply format-dependent rewrites (as these frequently need to know how
+many line breaks we have selected to output for a given code passage);
+for instance,
+<ul>
+<li><a href="#inserting-braces">inserting</a> braces,</li>
+<li><a href="#rewritescala3insertendmarkerminlines">adding</a> or
+<a href="#rewritescala3removeendmarkermaxlines">removing</a> end markers</li>
+<li>modifying <a href="#newlines-around-package-or-template-body">blank lines</a></li>
+</ul></li>
+<li>rewrite comments and docstrings if configured</li>
+<li><a href="#trailing-commas">rewrite trailing commas</a>:
+as part of this rule, we <em>remove</em> any trailing commas during the
+format-agnostic rewrites stage and <em>add</em> them as needed during this
+stage, if our splits solution ended up with a line break before the
+closing paren or brace</li>
+<li>alignment: determine any additional horizontal space to be added
+<ul>
+<li>if alignment is for some reason is not possible, we <strong>don't</strong> go back
+to the previous stage (route search) to determine a different splits
+solution which might possibly make alignment possible</li>
+<li>this might happen, for instance, if alignment leads to
+<a href="#alignallowoverflow">disallowed line overflow</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="advanced-route-search-optimizations"></a><a href="#advanced-route-search-optimizations" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Advanced: Route search optimizations</h2>
+<p>There are several configuration parameters (most of them under the
+<code>runner.optimizer</code> section) which control some aspects of the algorithm during
+this formatting stage.</p>
+<h3><a class="anchor" aria-hidden="true" id="route-search-optimizations-giving-up"></a><a href="#route-search-optimizations-giving-up" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Route search optimizations: giving up</h3>
+<p>The following parameters control when we abort the search and throw a
+<code>SearchStateExploded</code> exception:</p>
+<ul>
+<li><code>runner.maxStateVisits</code>:
+when the total number of state visits exceeds this value</li>
+<li><code>runner.optimizer.maxVisitsPerToken</code>:
+when the number of state visits for a given token exceeds this value (also see below)</li>
+<li><code>runner.optimizer.escapeInPathologicalCases</code>:
+if this flag is disabled, ignore <code>maxVisitsPerToken</code> above</li>
+</ul>
+<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
+runner.maxStateVisits = <span class="hljs-number">1000000</span>
+runner.optimizer.maxVisitsPerToken = <span class="hljs-number">10000</span>
+runner.optimizer.escapeInPathologicalCases = <span class="hljs-literal">true</span>
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="route-search-optimizations-discarding-some-states"></a><a href="#route-search-optimizations-discarding-some-states" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Route search optimizations: discarding some states</h3>
+<p>Normally, the search algorithm considers any state as a possible intermediate
+state which might complete a valid solution.</p>
+<p>However, in some cases we might decide to require certain conditions to be met
+for a state to be considered. A state need to qualify under at least one of
+the checks controlled by these parameters:</p>
+<ul>
+<li><code>runner.optimizer.pruneSlowStates</code>:
+<ul>
+<li>if this flag is disabled, any state qualifies</li>
+<li>if it is enabled:
+<ul>
+<li>if the search algorithm is ultimately unable to find a completed solution
+(because some states might be discarded), then it will disable the flag
+and make another attempt</li>
+<li>during the first run, when the flag is enabled, a state qualifies if it
+is not &quot;worse&quot; than a previously recorded &quot;best&quot; state for this token</li>
+<li>the &quot;best&quot; state is the first state with a newline split at the given
+token (recursive calls over subsequences are excluded, see sections below)</li>
+<li>a state is &quot;worse&quot; when it has higher penalty and wider indentation</li>
+</ul></li>
+</ul></li>
+<li><code>runner.optimizer.disableOptimizationsInsideSensitiveAreas</code>:
+a state qualifies if this flag is <em>disabled</em> or the current token is within
+a so-called no-optimization zone (and if the state satisfies these criteria,
+we'll call it a no-optimization state):
+<ul>
+<li>between matching parentheses of method call (either
+those enclosing the method arguments, or the entire call itself)</li>
+<li>between matching braces of a type refinement</li>
+</ul></li>
+</ul>
+<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
+runner.optimizer.disableOptimizationsInsideSensitiveAreas = <span class="hljs-literal">true</span>
+runner.optimizer.pruneSlowStates = <span class="hljs-literal">true</span>
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="route-search-optimizations-preferential-treatment"></a><a href="#route-search-optimizations-preferential-treatment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Route search optimizations: preferential treatment</h3>
+<p>In some cases, we modify the search logic to boost priority of some states.
+The following sections describe when and how this might be done.</p>
+<h4><a class="anchor" aria-hidden="true" id="route-search-optimizations-optimal-hints"></a><a href="#route-search-optimizations-optimal-hints" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Route search optimizations: optimal hints</h4>
+<p>Some splits might be marked as starting a token subsequence with an optimal end
+token (for example, a segment which must be formatted without line breaks).</p>
+<p>In such cases, if flag <code>runner.optimizer.acceptOptimalAtHints</code> is enabled and
+the hint is deemed valid (see below), the route search algorithm calls itself
+recursively with the state that ends in this &quot;optimal&quot; split and just on this
+shorter subsequence, returning the first state which completed this subsequence,
+with the following restrictions:</p>
+<ul>
+<li>the state penalty at the end must be the same as at the beginning, so no splits
+within the subsequence can have <strong>non-zero</strong> penalty</li>
+<li>the so-called nested depth is incremented (set to zero initially) and then
+must not exceed <code>runner.optimizer.maxDepth</code></li>
+</ul>
+<p>There are several checks that are performed to determine validity of the hint:</p>
+<ul>
+<li>no optimal subsequence has yet been identified for the current state</li>
+<li>there are multiple possible next states; we don't do this if there's only one</li>
+<li>the split has <strong>zero</strong> penalty, including from any unexpired policies</li>
+</ul>
+<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
+runner.optimizer.acceptOptimalAtHints = <span class="hljs-literal">true</span>
+runner.optimizer.maxDepth = <span class="hljs-number">100</span>
+</code></pre>
+<h4><a class="anchor" aria-hidden="true" id="route-search-optimizations-longer-blocks"></a><a href="#route-search-optimizations-longer-blocks" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Route search optimizations: longer blocks</h4>
+<p>Another form of getting ahead faster is by recursing on a long-enough block
+(whether enclosed in explicit braces or by using significant indentation),
+where &quot;long enough&quot; is loosely defined as having sufficient non-whitespace
+characters to fill at least <em>three</em> dense <code>maxColumn</code> lines.</p>
+<p>Unlike the case with optimal hints above, there's no restriction on the
+penalty added by the splits within the block.</p>
+<p>This optimization is enabled when:</p>
+<ul>
+<li><code>runner.optimizer.recurseOnBlocks</code> is enabled, and</li>
+<li>the token is within a no-optimization zone.</li>
+</ul>
+<p>Default: <code>runner.optimizer.recurseOnBlocks = true</code></p>
+<h4><a class="anchor" aria-hidden="true" id="route-search-optimizations-statements"></a><a href="#route-search-optimizations-statements" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Route search optimizations: statements</h4>
+<p>Another way to boost priority is simply by adding a new priority queue,
+so that any earlier states, from the existing priority queue, wouldn't
+be considered until the new one is exhausted.</p>
+<p>We might create a new priority queue if we encounter a new block statement,
+and this optimization is enabled when:</p>
+<ul>
+<li><code>runner.optimizer.dequeueOnNewStatements</code> is enabled, and</li>
+<li>we are in a recursive call on a subsequence or the token is <em>not</em> within
+a no-optimization zone.</li>
+</ul>
+<p>Default: <code>runner.optimizer.dequeueOnNewStatements = true</code></p>
+<h4><a class="anchor" aria-hidden="true" id="route-search-optimizations-call-site-clause"></a><a href="#route-search-optimizations-call-site-clause" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Route search optimizations: call-site clause</h4>
+<p>Similar to statements above, we might create a new priority queue when we
+encounter a long-enough call-site clause.</p>
+<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
+runner.optimizer.forceConfigStyleMinSpan = <span class="hljs-number">150</span>
+runner.optimizer.forceConfigStyleMinArgCount = <span class="hljs-number">2</span>
+</code></pre>
+<p>This optimization is enabled when all these criteria are satisfied:</p>
+<ul>
+<li><code>runner.optimizer.forceConfigStyleMinSpan</code>:
+must be non-negative, and the character distance between the matching
+parentheses, excluding any whitespace, must exceed this value
+(prior to v3.8.1, this parameter was called <code>forceConfigStyleOnOffset</code>)</li>
+<li><code>runner.optimizer.forceConfigStyleMinArgCount</code>:
+must be positive and may not exceed the number of arguments</li>
+</ul>
+<blockquote>
+<p>These parameters cannot be <a href="#for-code-block">overridden within a file</a></p>
+</blockquote>
 <h2><a class="anchor" aria-hidden="true" id="edition"></a><a href="#edition" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Edition</h2>
 <blockquote>
 <p>Removed in 2.7.0</p>
@@ -6973,7 +7169,7 @@ project.<span class="hljs-attr">includeFilters</span> = []
 project.<span class="hljs-attr">excludeFilters</span> = []
 xmlLiterals.<span class="hljs-attr">assumeFormatted</span> = <span class="hljs-literal">false</span>
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#version">Version</a></li><li><a href="#scala-dialects">Scala Dialects</a><ul class="toc-headings"><li><a href="#runnerdialectoverride"><code>runner.dialectOverride</code></a></li><li><a href="#scala-3">Scala 3</a></li><li><a href="#scala-2-with--xsource3">Scala 2 with <code>-Xsource:3</code></a></li></ul></li><li><a href="#presets">Presets</a><ul class="toc-headings"><li><a href="#top-level-presets">Top-level presets</a></li><li><a href="#appending-to-preset-collections">Appending to preset collections</a></li></ul></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#indentmain"><code>indent.main</code></a></li><li><a href="#indentsignificant"><code>indent.significant</code></a></li><li><a href="#indentcallsite"><code>indent.callSite</code></a></li><li><a href="#indentctrlsite"><code>indent.ctrlSite</code></a></li><li><a href="#indentdefnsite"><code>indent.defnSite</code></a></li><li><a href="#indentctorsite"><code>indent.ctorSite</code></a></li><li><a href="#indentmatchsite"><code>indent.matchSite</code></a></li><li><a href="#indentcasesite"><code>indent.caseSite</code></a></li><li><a href="#indentextendsite"><code>indent.extendSite</code></a></li><li><a href="#indentwithsiterelativetoextends"><code>indent.withSiteRelativeToExtends</code></a></li><li><a href="#indentcommasiterelativetoextends"><code>indent.commaSiteRelativeToExtends</code></a></li><li><a href="#indentextrabeforeopenparendefnsite"><code>indent.extraBeforeOpenParenDefnSite</code></a></li><li><a href="#indent-for-binpackcallsite">Indent for <code>binPack.callSite</code></a></li><li><a href="#indentoperator"><code>indentOperator</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#alignpreset"><code>align.preset</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#aligncloseparensite"><code>align.closeParenSite</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenbracketcallsite"><code>align.openBracketCallSite</code></a></li><li><a href="#alignopenparenctrlsite"><code>align.openParenCtrlSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li><li><a href="#alignopenbracketdefnsite"><code>align.openBracketDefnSite</code></a></li><li><a href="#alignopenparentuplesite"><code>align.openParenTupleSite</code></a></li><li><a href="#alignbeforeopenparenxxxsite"><code>align.beforeOpenParenXxxSite</code></a></li><li><a href="#alignstripmargin"><code>align.stripMargin</code></a></li><li><a href="#alignmultiline"><code>align.multiline</code></a></li><li><a href="#alignallowoverflow"><code>align.allowOverflow</code></a></li><li><a href="#alignininterpolation"><code>align.inInterpolation</code></a></li><li><a href="#aligndelayuntilspace"><code>align.delayUntilSpace</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinessource"><code>newlines.source</code></a></li><li><a href="#newlinestoplevelstatementblanklines"><code>newlines.topLevelStatementBlankLines</code></a></li><li><a href="#newlines-around-package-or-template-body">Newlines around package or template body</a></li><li><a href="#newlinesbeforemultiline"><code>newlines.beforeMultiline</code></a></li><li><a href="#newlinesforcebeforemultilineassign"><code>newlines.forceBeforeMultilineAssign</code></a></li><li><a href="#newlinesforcebeforeassign"><code>newlines.forceBeforeAssign</code></a></li><li><a href="#newlinesbeforetypebounds"><code>newlines.beforeTypeBounds</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li><li><a href="#newlinesbeforecurlylambdaparams"><code>newlines.beforeCurlyLambdaParams</code></a></li><li><a href="#newlinesaftercurlylambdaparams"><code>newlines.afterCurlyLambdaParams</code></a></li><li><a href="#newlinesimplicitparamlistmodifierxxx"><code>newlines.implicitParamListModifierXXX</code></a></li><li><a href="#newlinesafterinfix"><code>newlines.afterInfix</code></a></li><li><a href="#newlinesavoidforsimpleoverflow"><code>newlines.avoidForSimpleOverflow</code></a></li><li><a href="#newlinesavoidinresulttype"><code>newlines.avoidInResultType</code></a></li><li><a href="#newlinessometimesbeforecoloninmethodreturntype"><code>newlines.sometimesBeforeColonInMethodReturnType</code></a></li><li><a href="#newlinesbeforeopenparenxxxsite"><code>newlines.beforeOpenParenXxxSite</code></a></li><li><a href="#newlinesselectchains"><code>newlines.selectChains</code></a></li><li><a href="#newlinesininterpolation"><code>newlines.inInterpolation</code></a></li><li><a href="#newlinesignoreinsyntax"><code>newlines.ignoreInSyntax</code></a></li><li><a href="#optinannotationnewlines"><code>optIn.annotationNewlines</code></a></li></ul></li><li><a href="#newlines-danglingparentheses">Newlines: <code>danglingParentheses</code></a><ul class="toc-headings"><li><a href="#danglingparenthesesdefnsite"><code>danglingParentheses.defnSite</code></a></li><li><a href="#danglingparenthesescallsite"><code>danglingParentheses.callSite</code></a></li><li><a href="#danglingparenthesesctrlsite"><code>danglingParentheses.ctrlSite</code></a></li><li><a href="#danglingparenthesestuplesite"><code>danglingParentheses.tupleSite</code></a></li><li><a href="#danglingparenthesesexclude"><code>danglingParentheses.exclude</code></a></li></ul></li><li><a href="#newlines-config-style-formatting">Newlines: Config-style formatting</a><ul class="toc-headings"><li><a href="#optinconfigstylearguments"><code>optIn.configStyleArguments</code></a></li><li><a href="#forcing-config-style">Forcing config style</a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#inserting-braces">Inserting braces</a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#imports"><code>Imports</code></a></li><li><a href="#trailing-commas">Trailing commas</a></li></ul></li><li><a href="#scala3-rewrites">Scala3 rewrites</a><ul class="toc-headings"><li><a href="#rewritescala3converttonewsyntax"><code>rewrite.scala3.convertToNewSyntax</code></a></li><li><a href="#rewritescala3removeoptionalbraces"><code>rewrite.scala3.removeOptionalBraces</code></a></li><li><a href="#rewritescala3insertendmarkerminlines"><code>rewrite.scala3.insertEndMarkerMinLines</code></a></li><li><a href="#rewritescala3removeendmarkermaxlines"><code>rewrite.scala3.removeEndMarkerMaxLines</code></a></li><li><a href="#rewritescala3countendmarkerlines"><code>rewrite.scala3.countEndMarkerLines</code></a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilineexcludedanglingparens"><code>verticalMultiline.excludeDanglingParens</code></a></li><li><a href="#vertical-multiline-with-implicit-parameter-lists">Vertical multiline with <code>implicit</code> parameter lists</a></li></ul></li><li><a href="#comment-processing">Comment processing</a><ul class="toc-headings"><li><a href="#commentswrap"><code>comments.wrap</code></a></li><li><a href="#commentswrapstandaloneslcasslc"><code>comments.wrapStandaloneSlcAsSlc</code></a></li><li><a href="#commentswrapsinglelinemlcasslc"><code>comments.wrapSingleLineMlcAsSlc</code></a></li><li><a href="#docstringsstyle"><code>docstrings.style</code></a></li><li><a href="#docstringsremoveempty"><code>docstrings.removeEmpty</code></a></li><li><a href="#docstringsoneline"><code>docstrings.oneline</code></a></li><li><a href="#docstringswrap"><code>docstrings.wrap</code></a></li><li><a href="#docstringswrapmaxcolumn"><code>docstrings.wrapMaxColumn</code></a></li><li><a href="#docstringsblankfirstline"><code>docstrings.blankFirstLine</code></a></li><li><a href="#docstringsforceblanklinebefore"><code>docstrings.forceBlankLineBefore</code></a></li></ul></li><li><a href="#disabling-or-customizing-formatting">Disabling or customizing formatting</a><ul class="toc-headings"><li><a href="#search-state-exploded"><code>Search state exploded</code></a></li><li><a href="#for-code-block">For code block</a></li><li><a href="#-format-off">// format: off</a></li><li><a href="#project">Project</a></li><li><a href="#fileoverride"><code>fileOverride</code></a></li></ul></li><li><a href="#spaces">Spaces</a><ul class="toc-headings"><li><a href="#spacesbeforecontextboundcolon"><code>spaces.beforeContextBoundColon</code></a></li><li><a href="#spacesinimportcurlybraces"><code>spaces.inImportCurlyBraces</code></a></li><li><a href="#spacesininterpolatedstringcurlybraces"><code>spaces.inInterpolatedStringCurlyBraces</code></a></li><li><a href="#spacesinparentheses"><code>spaces.inParentheses</code></a></li><li><a href="#spacesneveraroundinfixtypes"><code>spaces.neverAroundInfixTypes</code></a></li><li><a href="#spacesafterkeywordbeforeparen"><code>spaces.afterKeywordBeforeParen</code></a></li><li><a href="#spacesinbynametypes"><code>spaces.inByNameTypes</code></a></li><li><a href="#spacesaftersymbolicdefs"><code>spaces.afterSymbolicDefs</code></a></li><li><a href="#spacesbeforexxxarginparens"><code>spaces.beforeXxxArgInParens</code></a></li></ul></li><li><a href="#literals">Literals</a><ul class="toc-headings"><li><a href="#literalslong"><code>literals.long</code></a></li><li><a href="#literalsfloat"><code>literals.float</code></a></li><li><a href="#literalsdouble"><code>literals.double</code></a></li><li><a href="#literalshexprefix"><code>literals.hexPrefix</code></a></li><li><a href="#literalshexdigits"><code>literals.hexDigits</code></a></li><li><a href="#literalsscientific"><code>literals.scientific</code></a></li></ul></li><li><a href="#xml">XML</a><ul class="toc-headings"><li><a href="#xmlliteralsassumeformatted"><code>xmlLiterals.assumeFormatted</code></a></li></ul></li><li><a href="#binpacking">Binpacking</a><ul class="toc-headings"><li><a href="#literal-argument-lists">Literal argument lists</a></li><li><a href="#binpackparentconstructors"><code>binPack.parentConstructors</code></a></li><li><a href="#binpackdefnsite"><code>binPack.defnSite</code></a></li><li><a href="#binpackcallsite"><code>binPack.callSite</code></a></li><li><a href="#binpackbracketxxxsite"><code>binPack.bracketXxxSite</code></a></li><li><a href="#binpacking-of-importselectors">binpacking of <code>importSelectors</code></a></li></ul></li><li><a href="#classic-select-chains">Classic select chains</a><ul class="toc-headings"><li><a href="#includecurlybraceinselectchains"><code>includeCurlyBraceInSelectChains</code></a></li><li><a href="#includenoparensinselectchains"><code>includeNoParensInSelectChains</code></a></li><li><a href="#optinbreakchainonfirstmethoddot"><code>optIn.breakChainOnFirstMethodDot</code></a></li><li><a href="#optinbreaksinsidechains"><code>optIn.breaksInsideChains</code></a></li><li><a href="#optinencloseclassicchains"><code>optIn.encloseClassicChains</code></a></li></ul></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#rewritetokens"><code>rewriteTokens</code></a></li><li><a href="#importselectors"><code>importSelectors</code></a></li></ul></li><li><a href="#markdown-formatting">Markdown Formatting</a></li><li><a href="#edition">Edition</a></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><a href="/scalafmt/" class="nav-home"><img src="/scalafmt/img/scalameta-logo.png" alt="Scalafmt" width="66" height="58"/></a><div><h5>Docs</h5><a href="
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#version">Version</a></li><li><a href="#scala-dialects">Scala Dialects</a><ul class="toc-headings"><li><a href="#runnerdialectoverride"><code>runner.dialectOverride</code></a></li><li><a href="#scala-3">Scala 3</a></li><li><a href="#scala-2-with--xsource3">Scala 2 with <code>-Xsource:3</code></a></li></ul></li><li><a href="#presets">Presets</a><ul class="toc-headings"><li><a href="#top-level-presets">Top-level presets</a></li><li><a href="#appending-to-preset-collections">Appending to preset collections</a></li></ul></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#indentmain"><code>indent.main</code></a></li><li><a href="#indentsignificant"><code>indent.significant</code></a></li><li><a href="#indentcallsite"><code>indent.callSite</code></a></li><li><a href="#indentctrlsite"><code>indent.ctrlSite</code></a></li><li><a href="#indentdefnsite"><code>indent.defnSite</code></a></li><li><a href="#indentctorsite"><code>indent.ctorSite</code></a></li><li><a href="#indentmatchsite"><code>indent.matchSite</code></a></li><li><a href="#indentcasesite"><code>indent.caseSite</code></a></li><li><a href="#indentextendsite"><code>indent.extendSite</code></a></li><li><a href="#indentwithsiterelativetoextends"><code>indent.withSiteRelativeToExtends</code></a></li><li><a href="#indentcommasiterelativetoextends"><code>indent.commaSiteRelativeToExtends</code></a></li><li><a href="#indentextrabeforeopenparendefnsite"><code>indent.extraBeforeOpenParenDefnSite</code></a></li><li><a href="#indent-for-binpackcallsite">Indent for <code>binPack.callSite</code></a></li><li><a href="#indentoperator"><code>indentOperator</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#alignpreset"><code>align.preset</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#aligncloseparensite"><code>align.closeParenSite</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenbracketcallsite"><code>align.openBracketCallSite</code></a></li><li><a href="#alignopenparenctrlsite"><code>align.openParenCtrlSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li><li><a href="#alignopenbracketdefnsite"><code>align.openBracketDefnSite</code></a></li><li><a href="#alignopenparentuplesite"><code>align.openParenTupleSite</code></a></li><li><a href="#alignbeforeopenparenxxxsite"><code>align.beforeOpenParenXxxSite</code></a></li><li><a href="#alignstripmargin"><code>align.stripMargin</code></a></li><li><a href="#alignmultiline"><code>align.multiline</code></a></li><li><a href="#alignallowoverflow"><code>align.allowOverflow</code></a></li><li><a href="#alignininterpolation"><code>align.inInterpolation</code></a></li><li><a href="#aligndelayuntilspace"><code>align.delayUntilSpace</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinessource"><code>newlines.source</code></a></li><li><a href="#newlinestoplevelstatementblanklines"><code>newlines.topLevelStatementBlankLines</code></a></li><li><a href="#newlines-around-package-or-template-body">Newlines around package or template body</a></li><li><a href="#newlinesbeforemultiline"><code>newlines.beforeMultiline</code></a></li><li><a href="#newlinesforcebeforemultilineassign"><code>newlines.forceBeforeMultilineAssign</code></a></li><li><a href="#newlinesforcebeforeassign"><code>newlines.forceBeforeAssign</code></a></li><li><a href="#newlinesbeforetypebounds"><code>newlines.beforeTypeBounds</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li><li><a href="#newlinesbeforecurlylambdaparams"><code>newlines.beforeCurlyLambdaParams</code></a></li><li><a href="#newlinesaftercurlylambdaparams"><code>newlines.afterCurlyLambdaParams</code></a></li><li><a href="#newlinesimplicitparamlistmodifierxxx"><code>newlines.implicitParamListModifierXXX</code></a></li><li><a href="#newlinesafterinfix"><code>newlines.afterInfix</code></a></li><li><a href="#newlinesavoidforsimpleoverflow"><code>newlines.avoidForSimpleOverflow</code></a></li><li><a href="#newlinesavoidinresulttype"><code>newlines.avoidInResultType</code></a></li><li><a href="#newlinessometimesbeforecoloninmethodreturntype"><code>newlines.sometimesBeforeColonInMethodReturnType</code></a></li><li><a href="#newlinesbeforeopenparenxxxsite"><code>newlines.beforeOpenParenXxxSite</code></a></li><li><a href="#newlinesselectchains"><code>newlines.selectChains</code></a></li><li><a href="#newlinesininterpolation"><code>newlines.inInterpolation</code></a></li><li><a href="#newlinesignoreinsyntax"><code>newlines.ignoreInSyntax</code></a></li><li><a href="#optinannotationnewlines"><code>optIn.annotationNewlines</code></a></li></ul></li><li><a href="#newlines-danglingparentheses">Newlines: <code>danglingParentheses</code></a><ul class="toc-headings"><li><a href="#danglingparenthesesdefnsite"><code>danglingParentheses.defnSite</code></a></li><li><a href="#danglingparenthesescallsite"><code>danglingParentheses.callSite</code></a></li><li><a href="#danglingparenthesesctrlsite"><code>danglingParentheses.ctrlSite</code></a></li><li><a href="#danglingparenthesestuplesite"><code>danglingParentheses.tupleSite</code></a></li><li><a href="#danglingparenthesesexclude"><code>danglingParentheses.exclude</code></a></li></ul></li><li><a href="#newlines-config-style-formatting">Newlines: Config-style formatting</a><ul class="toc-headings"><li><a href="#optinconfigstylearguments"><code>optIn.configStyleArguments</code></a></li><li><a href="#forcing-config-style">Forcing config style</a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#inserting-braces">Inserting braces</a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#imports"><code>Imports</code></a></li><li><a href="#trailing-commas">Trailing commas</a></li></ul></li><li><a href="#scala3-rewrites">Scala3 rewrites</a><ul class="toc-headings"><li><a href="#rewritescala3converttonewsyntax"><code>rewrite.scala3.convertToNewSyntax</code></a></li><li><a href="#rewritescala3removeoptionalbraces"><code>rewrite.scala3.removeOptionalBraces</code></a></li><li><a href="#rewritescala3insertendmarkerminlines"><code>rewrite.scala3.insertEndMarkerMinLines</code></a></li><li><a href="#rewritescala3removeendmarkermaxlines"><code>rewrite.scala3.removeEndMarkerMaxLines</code></a></li><li><a href="#rewritescala3countendmarkerlines"><code>rewrite.scala3.countEndMarkerLines</code></a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilineexcludedanglingparens"><code>verticalMultiline.excludeDanglingParens</code></a></li><li><a href="#vertical-multiline-with-implicit-parameter-lists">Vertical multiline with <code>implicit</code> parameter lists</a></li></ul></li><li><a href="#comment-processing">Comment processing</a><ul class="toc-headings"><li><a href="#commentswrap"><code>comments.wrap</code></a></li><li><a href="#commentswrapstandaloneslcasslc"><code>comments.wrapStandaloneSlcAsSlc</code></a></li><li><a href="#commentswrapsinglelinemlcasslc"><code>comments.wrapSingleLineMlcAsSlc</code></a></li><li><a href="#docstringsstyle"><code>docstrings.style</code></a></li><li><a href="#docstringsremoveempty"><code>docstrings.removeEmpty</code></a></li><li><a href="#docstringsoneline"><code>docstrings.oneline</code></a></li><li><a href="#docstringswrap"><code>docstrings.wrap</code></a></li><li><a href="#docstringswrapmaxcolumn"><code>docstrings.wrapMaxColumn</code></a></li><li><a href="#docstringsblankfirstline"><code>docstrings.blankFirstLine</code></a></li><li><a href="#docstringsforceblanklinebefore"><code>docstrings.forceBlankLineBefore</code></a></li></ul></li><li><a href="#disabling-or-customizing-formatting">Disabling or customizing formatting</a><ul class="toc-headings"><li><a href="#search-state-exploded"><code>Search state exploded</code></a></li><li><a href="#for-code-block">For code block</a></li><li><a href="#-format-off">// format: off</a></li><li><a href="#project">Project</a></li><li><a href="#fileoverride"><code>fileOverride</code></a></li></ul></li><li><a href="#spaces">Spaces</a><ul class="toc-headings"><li><a href="#spacesbeforecontextboundcolon"><code>spaces.beforeContextBoundColon</code></a></li><li><a href="#spacesinimportcurlybraces"><code>spaces.inImportCurlyBraces</code></a></li><li><a href="#spacesininterpolatedstringcurlybraces"><code>spaces.inInterpolatedStringCurlyBraces</code></a></li><li><a href="#spacesinparentheses"><code>spaces.inParentheses</code></a></li><li><a href="#spacesneveraroundinfixtypes"><code>spaces.neverAroundInfixTypes</code></a></li><li><a href="#spacesafterkeywordbeforeparen"><code>spaces.afterKeywordBeforeParen</code></a></li><li><a href="#spacesinbynametypes"><code>spaces.inByNameTypes</code></a></li><li><a href="#spacesaftersymbolicdefs"><code>spaces.afterSymbolicDefs</code></a></li><li><a href="#spacesbeforexxxarginparens"><code>spaces.beforeXxxArgInParens</code></a></li></ul></li><li><a href="#literals">Literals</a><ul class="toc-headings"><li><a href="#literalslong"><code>literals.long</code></a></li><li><a href="#literalsfloat"><code>literals.float</code></a></li><li><a href="#literalsdouble"><code>literals.double</code></a></li><li><a href="#literalshexprefix"><code>literals.hexPrefix</code></a></li><li><a href="#literalshexdigits"><code>literals.hexDigits</code></a></li><li><a href="#literalsscientific"><code>literals.scientific</code></a></li></ul></li><li><a href="#xml">XML</a><ul class="toc-headings"><li><a href="#xmlliteralsassumeformatted"><code>xmlLiterals.assumeFormatted</code></a></li></ul></li><li><a href="#binpacking">Binpacking</a><ul class="toc-headings"><li><a href="#literal-argument-lists">Literal argument lists</a></li><li><a href="#binpackparentconstructors"><code>binPack.parentConstructors</code></a></li><li><a href="#binpackdefnsite"><code>binPack.defnSite</code></a></li><li><a href="#binpackcallsite"><code>binPack.callSite</code></a></li><li><a href="#binpackbracketxxxsite"><code>binPack.bracketXxxSite</code></a></li><li><a href="#binpacking-of-importselectors">binpacking of <code>importSelectors</code></a></li></ul></li><li><a href="#classic-select-chains">Classic select chains</a><ul class="toc-headings"><li><a href="#includecurlybraceinselectchains"><code>includeCurlyBraceInSelectChains</code></a></li><li><a href="#includenoparensinselectchains"><code>includeNoParensInSelectChains</code></a></li><li><a href="#optinbreakchainonfirstmethoddot"><code>optIn.breakChainOnFirstMethodDot</code></a></li><li><a href="#optinbreaksinsidechains"><code>optIn.breaksInsideChains</code></a></li><li><a href="#optinencloseclassicchains"><code>optIn.encloseClassicChains</code></a></li></ul></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#rewritetokens"><code>rewriteTokens</code></a></li><li><a href="#importselectors"><code>importSelectors</code></a></li></ul></li><li><a href="#markdown-formatting">Markdown Formatting</a></li><li><a href="#advanced-formatting-process">Advanced: formatting process</a></li><li><a href="#advanced-route-search-optimizations">Advanced: Route search optimizations</a><ul class="toc-headings"><li><a href="#route-search-optimizations-giving-up">Route search optimizations: giving up</a></li><li><a href="#route-search-optimizations-discarding-some-states">Route search optimizations: discarding some states</a></li><li><a href="#route-search-optimizations-preferential-treatment">Route search optimizations: preferential treatment</a></li></ul></li><li><a href="#edition">Edition</a></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><a href="/scalafmt/" class="nav-home"><img src="/scalafmt/img/scalameta-logo.png" alt="Scalafmt" width="66" height="58"/></a><div><h5>Docs</h5><a href="
                 /scalafmt/docs/installation.html">Installation</a><a href="
                 /scalafmt/docs/configuration.html">Configuration</a><a href="
                 /scalafmt/docs/contributing-scalafmt.html">Contributing</a></div><div><h5>Community</h5><a href="https://discord.gg/N43mbnH" target="_blank">Join on Discord</a><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter (defunct)</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2024 Scalafmt</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
