@@ -208,11 +208,8 @@ class FormatOps(
         case _ => false
       })
 
-  @inline
-  final def startsStatement(token: T): Option[Tree] = statementStarts
-    .get(hash(token))
   val StartsStatementRight =
-    new ExtractFromMeta[Tree](meta => startsStatement(tokens(meta.idx).right))
+    new ExtractFromMeta[Tree](meta => statementStarts.get(meta.idx + 1))
 
   def parensTuple(token: T): TokenRanges = matchingOpt(token)
     .fold(TokenRanges.empty)(other => TokenRanges(TokenRange(token, other)))
@@ -879,7 +876,7 @@ class FormatOps(
         opensConfigStyleImplicitParamList(ft)
     def opensConfigStyle = !style.newlines.sourceIgnored && // classic
       (ft.hasBreak || opensImplicit) && beforeCloseFt.hasBreak
-    if (allowForce && forceConfigStyle(hash(ft.left))) ConfigStyle.Forced
+    if (allowForce && forceConfigStyle(ft.meta.idx)) ConfigStyle.Forced
     else if (opensConfigStyle) ConfigStyle.Source
     else ConfigStyle.None
   }
@@ -1028,30 +1025,34 @@ class FormatOps(
     } else Seq(Split(Space, 0), Split(Newline, 1))
   }
 
-  def getForceConfigStyle: (Set[TokenHash], Set[TokenHash]) = {
+  def getForceConfigStyle: (Set[Int], Set[Int]) = {
     val maxDistance = initStyle.runner.optimizer.forceConfigStyleMinSpan
     if (maxDistance < 0) (Set.empty, Set.empty)
     else {
-      val clearQueues = Set.newBuilder[TokenHash]
-      val forces = Set.newBuilder[TokenHash]
+      val clearQueues = Set.newBuilder[Int]
+      val forces = Set.newBuilder[Int]
       val minArgs = initStyle.runner.optimizer.forceConfigStyleMinArgCount
-      def process(args: Seq[Tree], open: T, close: T): Unit =
+      def process(
+          clause: Member.SyntaxValuesClause,
+          ftOpen: FormatToken,
+      ): Unit = matchingOpt(ftOpen.left).foreach { close =>
+        val values = clause.values
         if (
-          args.lengthCompare(minArgs) >= 0 &&
-          distance(open, close) > maxDistance
+          values.lengthCompare(minArgs) >= 0 &&
+          distance(ftOpen.left, close) > maxDistance
         ) {
-          forces += hash(open)
-          args.foreach(arg => clearQueues += hash(getHeadToken(arg)))
+          forces += ftOpen.meta.idx
+          values.foreach(x => clearQueues += tokens.getHead(x).meta.idx)
         }
+      }
       tokens.foreach {
-        case FormatToken(left: T.LeftParen, _, meta) => meta.leftOwner match {
+        case ft @ FormatToken(_: T.LeftParen, _, m) => m.leftOwner match {
             case t: Term.ArgClause if !t.parent.exists(_.is[Term.ApplyInfix]) =>
-              matchingOpt(left).foreach(process(t.values, left, _))
+              process(t, ft)
             case _ =>
           }
-        case FormatToken(left: T.LeftBracket, _, meta) => meta.leftOwner match {
-            case t: Type.ArgClause => matchingOpt(left)
-                .foreach(process(t.values, left, _))
+        case ft @ FormatToken(_: T.LeftBracket, _, m) => m.leftOwner match {
+            case t: Type.ArgClause => process(t, ft)
             case _ =>
           }
         case _ =>

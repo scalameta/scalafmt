@@ -7,7 +7,6 @@ import org.scalafmt.config.FormatEvent.Explored
 import org.scalafmt.config.FormatEvent.VisitToken
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.LoggerOps
-import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 
 import scala.meta.Term
@@ -25,7 +24,6 @@ private class BestFirstSearch private (
 )(implicit val formatOps: FormatOps) {
   import BestFirstSearch._
   import LoggerOps._
-  import TokenOps._
   import TreeOps._
   import formatOps._
 
@@ -132,15 +130,13 @@ private class BestFirstSearch private (
           tokens(deepestYet.depth),
         )
 
-        if (curr.split != null && curr.split.isNL) {
-          val tokenHash = hash(leftTok)
+        if (curr.split != null && curr.split.isNL)
           if (
-            emptyQueueSpots.contains(tokenHash) ||
+            emptyQueueSpots.contains(curr.depth) ||
             dequeueOnNewStatements && curr.allAltAreNL &&
             !(depth == 0 && noOptZone) &&
-            (leftTok.is[Token.KwElse] || statementStarts.contains(tokenHash))
+            (leftTok.is[Token.KwElse] || statementStarts.contains(curr.depth))
           ) addGeneration()
-        }
 
         val blockClose =
           if (start == curr && 0 != maxCost || !noOptZone) None

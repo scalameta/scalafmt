@@ -129,11 +129,11 @@ object TreeOps {
 
   def getStatementStarts(tree: Tree, soft: SoftKeywordClasses)(implicit
       ftoks: FormatTokens,
-  ): Map[TokenHash, Tree] = {
-    val ret = Map.newBuilder[TokenHash, Tree]
+  ): Map[Int, Tree] = {
+    val ret = Map.newBuilder[Int, Tree]
     ret.sizeHint(tree.tokens.length)
 
-    def addFT(ft: FormatToken, tree: Tree): Unit = ret += hash(ft.left) -> tree
+    def addFT(ft: FormatToken, tree: Tree): Unit = ret += ft.meta.idx -> tree
     def addTok(token: Token, tree: Tree) = addFT(ftoks.after(token), tree)
     def addTree(t: Tree, o: Tree) = ftoks.getHeadOpt(t).foreach(addFT(_, o))
     def addOne(t: Tree) = addTree(t, t)
