@@ -110,8 +110,8 @@ class FormatOps(
     (arguments.toMap, optional.result())
   }
 
-  class ExtractFromMeta[A](f: FormatToken => Option[A]) {
-    def unapply(meta: FormatToken.Meta): Option[A] = f(tokens(meta.idx))
+  class ExtractFromMeta[A](f: FormatToken.Meta => Option[A]) {
+    def unapply(meta: FormatToken.Meta): Option[A] = f(meta)
   }
 
   @inline
@@ -209,12 +209,10 @@ class FormatOps(
       })
 
   @inline
-  final def startsStatement(tok: FormatToken): Option[Tree] =
-    startsStatement(tok.right)
-  @inline
   final def startsStatement(token: T): Option[Tree] = statementStarts
     .get(hash(token))
-  val StartsStatementRight = new ExtractFromMeta[Tree](startsStatement)
+  val StartsStatementRight =
+    new ExtractFromMeta[Tree](meta => startsStatement(tokens(meta.idx).right))
 
   def parensTuple(token: T): TokenRanges = matchingOpt(token)
     .fold(TokenRanges.empty)(other => TokenRanges(TokenRange(token, other)))
@@ -346,19 +344,15 @@ class FormatOps(
     new Policy.Delay(policy, Policy.End.Before(from))
   }
 
-  val WithTemplateOnLeft = new ExtractFromMeta(ft =>
-    ft.meta.leftOwner match {
-      case lo: Stat.WithTemplate => Some(lo.templ)
-      case _ => None
-    },
-  )
+  val WithTemplateOnLeft = new ExtractFromMeta(_.leftOwner match {
+    case lo: Stat.WithTemplate => Some(lo.templ)
+    case _ => None
+  })
 
-  val TemplateOnRight = new ExtractFromMeta(ft =>
-    ft.meta.rightOwner match {
-      case ro: Template => Some(ro)
-      case _ => None
-    },
-  )
+  val TemplateOnRight = new ExtractFromMeta(_.rightOwner match {
+    case ro: Template => Some(ro)
+    case _ => None
+  })
 
   def templateCurlyFt(template: Template): Option[FormatToken] =
     getStartOfTemplateBody(template).map(tokenBefore)
@@ -898,7 +892,7 @@ class FormatOps(
     hasImplicitParamList(formatToken.meta.rightOwner)
 
   val ImplicitUsingOnLeft =
-    new ExtractFromMeta(ft => getImplicitParamList(ft.meta.leftOwner))
+    new ExtractFromMeta(meta => getImplicitParamList(meta.leftOwner))
 
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
     val toMatch =
