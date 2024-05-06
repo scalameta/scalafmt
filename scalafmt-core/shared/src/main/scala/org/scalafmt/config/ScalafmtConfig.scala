@@ -363,7 +363,7 @@ object ScalafmtConfig {
     }
 
   private def validate(cfg: ScalafmtConfig): Configured[ScalafmtConfig] = {
-    // scalafmt: { maxColumn = 200 }
+    // scalafmt: { maxColumn = 130 }
     import cfg._
     import ValidationOps._
     val errDialect = s" (no support in Scala dialect ${runner.dialectName})"
@@ -373,7 +373,8 @@ object ScalafmtConfig {
       if (newlines.sourceIgnored) {
         addIf(optIn.configStyleArguments && align.openParenCallSite && newlines.beforeOpenParenCallSite.isEmpty)
         addIf(optIn.configStyleArguments && align.openParenDefnSite && newlines.beforeOpenParenDefnSite.isEmpty)
-        def mustIgnoreSourceSplit(what: sourcecode.Text[Option[Newlines.IgnoreSourceSplit]]) = what.value.foreach(x => addIfDirect(!x.ignoreSourceSplit, s"${what.source}=$x"))
+        def mustIgnoreSourceSplit(what: sourcecode.Text[Option[Newlines.IgnoreSourceSplit]]) = what.value
+          .foreach(x => addIfDirect(!x.ignoreSourceSplit, s"${what.source}=$x"))
         mustIgnoreSourceSplit(newlines.beforeMultiline)
         mustIgnoreSourceSplit(newlines.beforeMultilineDef)
         addIf(newlines.beforeTypeBounds eq Newlines.keep)
@@ -410,10 +411,12 @@ object ScalafmtConfig {
       checkPositive(indent.main, indent.callSite, indent.defnSite, indent.commaSiteRelativeToExtends)
       checkNonNeg(indent.caseSite, indent.extendSite, indent.withSiteRelativeToExtends)
       checkPositiveOpt(indent.significant, indent.ctorSite)
-      if (rewrite.scala3.insertEndMarkerMinLines != 0) addIf(rewrite.scala3.removeEndMarkerMaxLines >= rewrite.scala3.insertEndMarkerMinLines)
+      if (rewrite.scala3.insertEndMarkerMinLines != 0)
+        addIf(rewrite.scala3.removeEndMarkerMaxLines >= rewrite.scala3.insertEndMarkerMinLines)
       addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.insertEndMarkerMinLines != 0)
       addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.removeOptionalBraces.oldSyntaxToo)
-      if (rewrite.insertBraces.minLines != 0 && rewrite.rules.contains(RedundantBraces)) addIf(rewrite.insertBraces.minLines < rewrite.redundantBraces.maxBreaks)
+      if (rewrite.insertBraces.minLines != 0 && rewrite.rules.contains(RedundantBraces))
+        addIf(rewrite.insertBraces.minLines < rewrite.redundantBraces.maxBreaks)
       addIf(align.beforeOpenParenDefnSite && !align.closeParenSite)
       addIf(align.beforeOpenParenCallSite && !align.closeParenSite)
       addIf(rewrite.scala3.removeOptionalBraces.fewerBracesMinSpan <= 0)
