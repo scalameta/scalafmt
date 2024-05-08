@@ -905,7 +905,7 @@ class Router(formatOps: FormatOps) {
         val mustDangle = onlyConfigStyle || expirationToken.is[T.Comment] ||
           mustDangleForTrailingCommas
         val shouldDangle =
-          if (defnSite) !shouldNotDangleAtDefnSite(leftOwner.parent, false)
+          if (defnSite) style.danglingParentheses.atDefnSite(leftOwner)
           else style.danglingParentheses.tupleOrCallSite(tupleSite)
         val wouldDangle = shouldDangle ||
           beforeClose.hasBreak && beforeClose.left.is[T.Comment]
@@ -1122,7 +1122,7 @@ class Router(formatOps: FormatOps) {
           }
 
           val mustDangle = onlyConfigStyle ||
-            style.danglingParentheses.defnSite &&
+            style.danglingParentheses.atDefnSite(leftOwner) &&
             (style.newlines.sourceIgnored || !configStyleFlags.prefer)
           val slbOnly = mustDangle || style.newlines.source.eq(Newlines.unfold)
           def noSplitPolicy: Policy =
@@ -2502,7 +2502,7 @@ class Router(formatOps: FormatOps) {
       style: ScalafmtConfig,
   ): Seq[Split] = {
     def wouldDangle = ft.meta.leftOwner.parent.exists {
-      case p: Member.ParamClause => !shouldNotDangleAtDefnSite(p.parent, false)
+      case p: Member.ParamClause => style.danglingParentheses.atDefnSite(p)
       case _: Member.Tuple => style.danglingParentheses.tupleOrCallSite(true)
       case p: Member.ArgClause => style.danglingParentheses
           .tupleOrCallSite(false) &&

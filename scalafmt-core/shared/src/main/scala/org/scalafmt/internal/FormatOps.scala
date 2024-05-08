@@ -1074,7 +1074,6 @@ class FormatOps(
       ft: FormatToken,
   )(implicit style: ScalafmtConfig): Seq[Split] = {
     val lpOwner = ft.meta.leftOwner
-    val lpParent = lpOwner.parent
 
     val FormatToken(open, r, _) = ft
     val close = matching(open)
@@ -1110,7 +1109,8 @@ class FormatOps(
     val lastParens = allParenOwners.map(getLastToken)
     val lastParen = lastParens.lastOption.getOrElse(close)
 
-    val shouldNotDangle = shouldNotDangleAtDefnSite(lpParent, true)
+    val shouldNotDangle =
+      !style.danglingParentheses.atVerticalMultilineSite(lpOwner)
 
     // Since classes and defs aren't the same (see below), we need to
     // create two (2) OneArgOneLineSplit when dealing with classes. One
