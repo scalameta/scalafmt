@@ -1,7 +1,6 @@
 package org.scalafmt.util
 
 import org.scalafmt.Error
-import org.scalafmt.config.DanglingParentheses
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
@@ -663,26 +662,6 @@ object TreeOps {
 
   def hasImplicitParamList(kwOwner: Tree): Boolean =
     getImplicitParamList(kwOwner).isDefined
-
-  def shouldNotDangleAtDefnSite(tree: Option[Tree], isVerticalMultiline: Boolean)(
-      implicit style: ScalafmtConfig,
-  ): Boolean = !style.danglingParentheses.defnSite || {
-    val excludes = style.danglingParentheses.getExclude(isVerticalMultiline)
-    excludes.nonEmpty && tree.flatMap {
-      case _: Ctor.Primary | _: Defn.Class =>
-        Some(DanglingParentheses.Exclude.`class`)
-      case _: Defn.Trait => Some(DanglingParentheses.Exclude.`trait`)
-      case _: Defn.Enum => Some(DanglingParentheses.Exclude.`enum`)
-      case t: Member.ParamClauseGroup => t.parent.collect {
-          case _: Defn.ExtensionGroup => DanglingParentheses.Exclude.`extension`
-          case _: Decl.Def | _: Defn.Def | _: Defn.Macro =>
-            DanglingParentheses.Exclude.`def`
-          case _: Decl.Given | _: Defn.Given | _: Defn.GivenAlias =>
-            DanglingParentheses.Exclude.`given`
-        }
-      case _ => None
-    }.exists(excludes.contains)
-  }
 
   def isChildOfCaseClause(tree: Tree): Boolean = findTreeWithParent(tree) {
     case t: Case => Some(tree ne t.body)
