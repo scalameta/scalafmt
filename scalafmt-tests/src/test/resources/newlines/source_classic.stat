@@ -3016,6 +3016,14 @@ danglingParentheses.callSite = true
 object a {
   foo(
     bar.baz(Seq(
+      Qux("", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
+        Some(0), Some(1), foo = Some("bar")),
+      Qux("", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
+        Some(0), Some(1), foo = Some("bar")
+      ),
+      Qux(
+        "", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
+        Some(0), Some(1), foo = Some("bar")),
       Qux(
         "", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
         Some(0), Some(1), foo = Some("bar")
@@ -3028,6 +3036,12 @@ object a {
   foo(
     bar.baz(
       Seq(
+        Qux("", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
+          Some(0), Some(1), foo = Some("bar")),
+        Qux("", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
+          Some(0), Some(1), foo = Some("bar")),
+        Qux("", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
+          Some(0), Some(1), foo = Some("bar")),
         Qux("", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
           Some(0), Some(1), foo = Some("bar"))
       )
@@ -3049,11 +3063,22 @@ object a {
   ).copy(
     updatedAt = nowDate.minusDays(15),
     audienceSizeOnsite = Some(3333),
+    audienceSizeOffsite = Some(1))
+  private val audience3 = apiAudience(
+    3, "b_name", Sams, Inid, "2", "created-by-user2", "updated-by-user2").copy(
+    updatedAt = nowDate.minusDays(15),
+    audienceSizeOnsite = Some(3333),
     audienceSizeOffsite = Some(1)
   )
 }
 >>>
 object a {
+  private val audience3 =
+    apiAudience(3, "b_name", Sams, Inid, "2", "created-by-user2", "updated-by-user2").copy(
+      updatedAt = nowDate.minusDays(15),
+      audienceSizeOnsite = Some(3333),
+      audienceSizeOffsite = Some(1)
+    )
   private val audience3 =
     apiAudience(3, "b_name", Sams, Inid, "2", "created-by-user2", "updated-by-user2").copy(
       updatedAt = nowDate.minusDays(15),
@@ -5021,8 +5046,49 @@ object a {
     qux
   }
 }
+<<< binPack.xxxSite = Oneline, !sometimesBeforeColonInMethodReturnType, !dangle
+maxColumn = 50
+binPack.callSite = Oneline
+binPack.defnSite = Oneline
+danglingParentheses.preset = false
+newlines.sometimesBeforeColonInMethodReturnType = false
+===
+object a {
+  def foo(bb: BB, cc: CC,
+    dd: DD = DDD.ddd): Bar[Baz] = {
+      // c
+      qux
+    }
+}
+>>>
+object a {
+  def foo(bb: BB, cc: CC, dd: DD = DDD.ddd): Bar[
+    Baz] = {
+    // c
+    qux
+  }
+}
 <<< binPack.defnSite = Oneline, one arg
 binPack.defnSite = Oneline
+newlines.sometimesBeforeColonInMethodReturnType = false
+===
+object a {
+  def foo(dd: DD[AA[BB], CC] = DDD.ddd): Bar[Baz] = {
+      // c
+      qux
+    }
+}
+>>>
+object a {
+  def foo(dd: DD[AA[BB], CC] =
+        DDD.ddd): Bar[Baz] = {
+    // c
+    qux
+  }
+}
+<<< binPack.defnSite = Oneline, one arg, !dangle
+binPack.defnSite = Oneline
+danglingParentheses.preset = false
 newlines.sometimesBeforeColonInMethodReturnType = false
 ===
 object a {

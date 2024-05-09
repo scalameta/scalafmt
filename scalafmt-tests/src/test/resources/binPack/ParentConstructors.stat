@@ -65,6 +65,21 @@ object a {
   case class TopLevelExportInfo(moduleID: String, jsName: String)(
       val pos: Position) extends ExportInfo
 }
+<<< #2633 keep with class, !dangle
+maxColumn = 70
+binPack.preset = true
+binPack.parentConstructors = keep
+danglingParentheses.preset = false
+===
+object a {
+   case class TopLevelExportInfo(moduleID: String, jsName: String)(
+      val pos: Position) extends ExportInfo
+}
+>>>
+object a {
+  case class TopLevelExportInfo(moduleID: String, jsName: String)(
+      val pos: Position) extends ExportInfo
+}
 <<< #2977 binpack always
 binPack.parentConstructors = always
 ===

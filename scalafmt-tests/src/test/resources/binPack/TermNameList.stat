@@ -55,9 +55,11 @@ val secret: List[Bit] = List(
   aaaaa,
   bbbbbbb
 )
-<<< unsafeCallSite forced newline
+<<< unsafeCallSite forced newline, cfg + dangle
 maxColumn = 20
 binPack.unsafeCallSite = true
+danglingParentheses.callSite = true
+newlines.configStyleCallSite.prefer = true
 ===
 somethingVeryLong(bar{baz(
   qux // c1
@@ -68,6 +70,57 @@ somethingVeryLong(
   bar {
     baz(
       qux // c1
+    )
+  })
+<<< unsafeCallSite forced newline, cfg + !dangle
+maxColumn = 20
+binPack.unsafeCallSite = true
+danglingParentheses.callSite = false
+newlines.configStyleCallSite.prefer = true
+===
+somethingVeryLong(bar{baz(
+  qux // c1
+  )}
+)
+>>>
+somethingVeryLong(
+  bar {
+    baz(
+      qux // c1
+    )
+  })
+<<< unsafeCallSite forced newline, !cfg + dangle
+maxColumn = 20
+binPack.unsafeCallSite = true
+danglingParentheses.callSite = true
+newlines.configStyleCallSite.prefer = false
+===
+somethingVeryLong(bar{baz(
+  qux // c1
+  )}
+)
+>>>
+somethingVeryLong(
+  bar {
+    baz(
+      qux // c1
+    )
+  }
+)
+<<< unsafeCallSite forced newline, !cfg + !dangle
+maxColumn = 20
+binPack.unsafeCallSite = true
+danglingParentheses.callSite = false
+newlines.configStyleCallSite.prefer = false
+===
+somethingVeryLong(bar{baz(
+  qux // c1
+  )}
+)
+>>>
+somethingVeryLong(
+  bar {
+    baz(qux // c1
     )
   })
 <<< unsafeCallSite no split
@@ -85,6 +138,14 @@ val a = foo(bar {
 })
 <<< literalsSingleLine=true
 binPack.literalsSingleLine = true
+===
+val secret: List[Bit] = List(select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa)
+>>>
+val secret: List[Bit] = List(
+  select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa)
+<<< literalsSingleLine=true !dangle
+binPack.literalsSingleLine = true
+danglingParentheses.preset = false
 ===
 val secret: List[Bit] = List(select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa)
 >>>

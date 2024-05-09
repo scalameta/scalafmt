@@ -327,11 +327,43 @@ class foo(
     b,
   )
 }
-<<< #2755 two, no comma, no fold, binpack
+<<< #2755 two, no comma, no fold, binpack, cfgStyle
 maxColumn = 80
 runner.parser = source
 binPack.preset = true
 importSelectors = binPack
+newlines.configStyleDefnSite.prefer = true
+rewrite.trailingCommas.allowFolding = false
+===
+import foo.{a,
+  b}
+class foo(a: String,
+  b: String) {
+  def method(a: String,
+    b: String) = ???
+  method(a,
+    b)
+}
+>>>
+import foo.{
+  a, b,
+}
+class foo(
+    a: String, b: String,
+) {
+  def method(
+      a: String, b: String,
+  ) = ???
+  method(
+    a, b,
+  )
+}
+<<< #2755 two, no comma, no fold, binpack, !cfgStyle
+maxColumn = 80
+runner.parser = source
+binPack.preset = true
+importSelectors = binPack
+newlines.configStyleDefnSite.prefer = false
 rewrite.trailingCommas.allowFolding = false
 ===
 import foo.{a,

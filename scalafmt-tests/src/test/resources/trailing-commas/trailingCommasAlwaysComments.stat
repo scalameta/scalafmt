@@ -340,11 +340,13 @@ class foo(
     b, /* c1 */ /* c2 */
   )
 }
-<<< #2755 two, no comma, no fold, binPack
+<<< #2755 two, no comma, no fold, binPack, cfgStyle
 maxColumn = 80
 runner.parser = source
 binPack.preset = true
 importSelectors = binPack
+newlines.configStyleCallSite.prefer = true
+newlines.configStyleDefnSite.prefer = true
 rewrite.trailingCommas.allowFolding = false
 ===
 import foo.{a,
@@ -370,3 +372,29 @@ class foo(
     a, b, /* c1 */ /* c2 */
   )
 }
+<<< #2755 two, no comma, no fold, binPack, !cfgStyle
+maxColumn = 80
+runner.parser = source
+binPack.preset = true
+importSelectors = binPack
+newlines.configStyleCallSite.prefer = false
+newlines.configStyleDefnSite.prefer = false
+rewrite.trailingCommas.allowFolding = false
+===
+import foo.{a,
+  b /* c1 */ /* c2 */ }
+class foo(a: String,
+  b: String /* c1 */ /* c2 */ ) {
+  def method(a: String,
+    b: String /* c1 */ /* c2 */ ) = ???
+  method(a,
+    b /* c1 */ /* c2 */ )
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+   method(
+-    a,
+-    b, /* c1 */ /* c2 */
++    a, b, /* c1 */ /* c2 */
+   )
