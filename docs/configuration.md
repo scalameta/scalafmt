@@ -2700,6 +2700,43 @@ object a {
 }
 ```
 
+### `danglingParentheses.bracketXxxSite`
+
+These control the bracketed type clauses in definitions and method calls and
+by default are equal to their non-bracket counterparts.
+
+```scala mdoc:scalafmt
+danglingParentheses.defnSite = true
+danglingParentheses.callSite = true
+danglingParentheses.bracketDefnSite = false
+danglingParentheses.bracketCallSite = false
+maxColumn=25
+---
+object a {
+  // defnSite
+  def method[A <: Any, B]: Boolean
+
+  // callSite
+  method[String, SomeOtherType]
+}
+```
+
+```scala mdoc:scalafmt
+danglingParentheses.defnSite = false
+danglingParentheses.callSite = false
+danglingParentheses.bracketDefnSite = true
+danglingParentheses.bracketCallSite = true
+maxColumn=25
+---
+object a {
+  // defnSite
+  def method[A <: Any, B]: Boolean
+
+  // callSite
+  method[String, SomeOtherType]
+}
+```
+
 ### `danglingParentheses.ctrlSite`
 
 > Since v2.5.0.

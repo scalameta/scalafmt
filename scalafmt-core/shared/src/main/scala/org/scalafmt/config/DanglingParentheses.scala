@@ -10,14 +10,29 @@ case class DanglingParentheses(
     private[config] val defnSite: Boolean,
     ctrlSite: Boolean = true,
     private[config] val tupleSite: Option[Boolean] = None,
+    private[config] val bracketCallSite: Option[Boolean] = None,
+    private[config] val bracketDefnSite: Option[Boolean] = None,
     private val exclude: Option[List[Exclude]] = None,
 ) {
   @inline
-  def tupleOrCallSite(isTuple: Boolean) =
-    if (isTuple) tupleSite.getOrElse(callSite) else callSite
+  def atTupleSite: Boolean = tupleSite.getOrElse(callSite)
 
   @inline
-  def atDefnSite(lpOwner: Tree): Boolean = defnSite && isExcluded(lpOwner)
+  def atBracketCallSite: Boolean = bracketCallSite.getOrElse(callSite)
+
+  def atCallSite(lpOwner: Tree): Boolean = lpOwner match {
+    case _: Member.Tuple => atTupleSite
+    case _: Type.ArgClause => atBracketCallSite
+    case _ => callSite
+  }
+
+  @inline
+  def atBracketDefnSite: Boolean = bracketDefnSite.getOrElse(defnSite)
+
+  @inline
+  def atDefnSite(lpOwner: Tree): Boolean =
+    (if (lpOwner.is[Type.ParamClause]) atBracketDefnSite else defnSite) &&
+      isExcluded(lpOwner)
 
   @inline
   def atVerticalMultilineSite(lpOwner: Tree): Boolean = defnSite &&

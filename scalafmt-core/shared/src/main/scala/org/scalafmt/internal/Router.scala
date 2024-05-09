@@ -903,7 +903,7 @@ class Router(formatOps: FormatOps) {
           mustDangleForTrailingCommas
         val shouldDangle =
           if (defnSite) style.danglingParentheses.atDefnSite(leftOwner)
-          else style.danglingParentheses.tupleOrCallSite(tupleSite)
+          else style.danglingParentheses.atCallSite(leftOwner)
         val wouldDangle = shouldDangle ||
           beforeClose.hasBreak && beforeClose.left.is[T.Comment]
 
@@ -2495,9 +2495,9 @@ class Router(formatOps: FormatOps) {
   ): Seq[Split] = {
     def wouldDangle = ft.meta.leftOwner.parent.exists {
       case p: Member.ParamClause => style.danglingParentheses.atDefnSite(p)
-      case _: Member.Tuple => style.danglingParentheses.tupleOrCallSite(true)
-      case p: Member.ArgClause => style.danglingParentheses
-          .tupleOrCallSite(false) &&
+      case _: Member.Tuple => style.danglingParentheses.atTupleSite
+      case _: Type.ArgClause => style.danglingParentheses.atBracketCallSite
+      case p: Member.ArgClause => style.danglingParentheses.callSite &&
         (p.parent match {
           case Some(_: Term.ApplyInfix) => style.newlines.formatInfix &&
             p.values.lengthCompare(1) > 0
