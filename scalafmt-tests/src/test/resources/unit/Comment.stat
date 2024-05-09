@@ -667,6 +667,7 @@ indent.callSite = 2
 align.preset = none
 comments.wrap = trailing
 binPack.unsafeDefnSite = oneline
+newlines.configStyleDefnSite.prefer = false
 ===
 object a {
    def foo( // First 2 will not be taken into account
@@ -699,6 +700,7 @@ indent.callSite = 2
 align.preset = none
 comments.wrap = standalone
 binPack.unsafeDefnSite = oneline
+newlines.configStyleDefnSite.prefer = false
 ===
 object a {
    def foo( // First 2 will not be taken into account
@@ -728,6 +730,7 @@ maxColumn = 51
 indent.callSite = 2
 align.preset = none
 binPack.unsafeDefnSite = oneline
+newlines.configStyleDefnSite.prefer = false
 ===
 object a {
    def foo( // First 2 will not be taken into account

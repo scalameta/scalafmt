@@ -49,9 +49,23 @@ def a(
     b: Int,
     c: Int,
 )
-<<< keep, do not fold, binpack
+<<< keep, do not fold, binpack, cfgStyle
 binPack.preset = true
 importSelectors = binPack
+newlines.configStyleDefnSite.prefer = true
+rewrite.trailingCommas.allowFolding = false
+===
+def a(b: Int,
+ c: Int,
+)
+>>>
+def a(
+    b: Int, c: Int,
+)
+<<< keep, do not fold, binpack, !cfgStyle
+binPack.preset = true
+importSelectors = binPack
+newlines.configStyleDefnSite.prefer = false
 rewrite.trailingCommas.allowFolding = false
 ===
 def a(b: Int,
@@ -82,11 +96,26 @@ def a(
     c: Int,
     /* comment */
 )
-<<< keep, do not fold, with comment after break, binpack
+<<< keep, do not fold, with comment after break, binpack, cfgStyle
 maxColumn = 40
 binPack.preset = true
 importSelectors = binPack
 danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = true
+rewrite.trailingCommas.allowFolding = false
+===
+def a(b: Int, c: Int,
+ /* comment */ )
+>>>
+def a(
+    b: Int, c: Int, /* comment */
+)
+<<< keep, do not fold, with comment after break, binpack, !cfgStyle
+maxColumn = 40
+binPack.preset = true
+importSelectors = binPack
+danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = false
 rewrite.trailingCommas.allowFolding = false
 ===
 def a(b: Int, c: Int,
@@ -113,6 +142,7 @@ binPack.preset = true
 importSelectors = binPack
 danglingParentheses.preset = false
 rewrite.trailingCommas.allowFolding = false
+newlines.configStyleDefnSite.prefer = false
 ===
 def a(b: Int, c: Int, /* comment */
 )
@@ -140,10 +170,25 @@ def a(
     b: Int,
     c: Int,
 )
-<<< keep, do not fold, with spaces, binpack
+<<< keep, do not fold, with spaces, binpack, cfgStyle
 binPack.preset = true
 importSelectors = binPack
 spaces.inParentheses = true
+newlines.configStyleDefnSite.prefer = true
+rewrite.trailingCommas.allowFolding = false
+===
+def a(b: Int,
+ c: Int,
+)
+>>>
+def a(
+    b: Int, c: Int,
+)
+<<< keep, do not fold, with spaces, binpack, !cfgStyle
+binPack.preset = true
+importSelectors = binPack
+spaces.inParentheses = true
+newlines.configStyleDefnSite.prefer = false
 rewrite.trailingCommas.allowFolding = false
 ===
 def a(b: Int,
@@ -176,12 +221,28 @@ def a(
     c: Int,
     /* comment */
 )
-<<< keep, do not fold, with spaces and comment after break, binpack
+<<< keep, do not fold, with spaces and comment after break, binpack, cfgStyle
 spaces.inParentheses = true
 maxColumn = 40
 binPack.preset = true
 importSelectors = binPack
 danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = true
+rewrite.trailingCommas.allowFolding = false
+===
+def a(b: Int, c: Int,
+ /* comment */ )
+>>>
+def a(
+    b: Int, c: Int, /* comment */
+)
+<<< keep, do not fold, with spaces and comment after break, binpack, !cfgStyle
+spaces.inParentheses = true
+maxColumn = 40
+binPack.preset = true
+importSelectors = binPack
+danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = false
 rewrite.trailingCommas.allowFolding = false
 ===
 def a(b: Int, c: Int,
@@ -210,6 +271,7 @@ binPack.preset = true
 importSelectors = binPack
 danglingParentheses.preset = false
 rewrite.trailingCommas.allowFolding = false
+newlines.configStyleDefnSite.prefer = false
 ===
 def a(b: Int, c: Int, /* comment */
 )

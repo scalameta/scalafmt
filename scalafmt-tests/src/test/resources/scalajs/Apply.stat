@@ -39,7 +39,9 @@ def iterator(): Iterator[A] =
         .bracketCall[JSIterator[A]](iteratorSymbol)(), icon = js.undefined,
       lang = js.undefined, vibrate = js.undefined)
 }
-<<< many args #248
+<<< many args #248, dangle
+danglingParentheses.preset = true
+===
 apply( body= js.undefined,
       dir= js.undefined,
       icon= js.undefined,
@@ -54,6 +56,28 @@ apply( body= js.undefined,
       onerror= js.undefined,
       vibrate= js.undefined
         )
+>>>
+apply(body = js.undefined, dir = js.undefined, icon = js.undefined,
+    lang = js.undefined, noscreen = js.undefined, renotify = js.undefined,
+    silent = js.undefined, sound = js.undefined, sticky = js.undefined,
+    tag = js.undefined, onclick = js.undefined, onerror = js.undefined,
+    vibrate = js.undefined)
+<<< many args #248, !dangling
+danglingParentheses.preset = false
+===
+apply( body= js.undefined,
+      dir= js.undefined,
+      icon= js.undefined,
+      lang= js.undefined,
+      noscreen= js.undefined,
+      renotify= js.undefined,
+      silent= js.undefined,
+      sound= js.undefined,
+      sticky= js.undefined,
+      tag= js.undefined,
+      onclick= js.undefined,
+      onerror= js.undefined,
+      vibrate= js.undefined )
 >>>
 apply(body = js.undefined, dir = js.undefined, icon = js.undefined,
     lang = js.undefined, noscreen = js.undefined, renotify = js.undefined,
