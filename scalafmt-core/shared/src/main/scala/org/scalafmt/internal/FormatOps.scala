@@ -2650,7 +2650,7 @@ class FormatOps(
       if (dangleForTrailingCommas) ConfigStyle.None
       else mustUseConfigStyle(ftAfterOpen, ftBeforeClose, !literalArgList)
     val shouldDangle = style.danglingParentheses
-      .tupleOrCallSite(isTuple(ftAfterOpen.meta.leftOwner))
+      .atCallSite(ftAfterOpen.meta.leftOwner)
     val scalaJsStyle = style.newlines.source == Newlines.classic &&
       configStyle == ConfigStyle.None && !configStyleFlags.prefer &&
       !literalArgList && shouldDangle
