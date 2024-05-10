@@ -84,14 +84,13 @@ class FormatOps(
    *
    */
   val (argumentStarts, optionalNewlines) = {
-    val arguments = mutable.Map.empty[TokenHash, Tree]
-    val optional = Set.newBuilder[TokenHash]
-    def getHeadHash(tree: Tree): Option[TokenHash] = tokens.getHeadOpt(tree)
-      .map(x => hash(x.left))
-    def add(tree: Tree): Unit = getHeadHash(tree).foreach { x =>
-      if (!arguments.contains(x)) arguments += x -> tree
-    }
-    def addOptional(tree: Tree): Unit = getHeadHash(tree).foreach(optional += _)
+    val arguments = mutable.Map.empty[Int, Tree]
+    val optional = Set.newBuilder[Int]
+    def getHeadIndex(tree: Tree): Option[Int] = tokens.getHeadOpt(tree)
+      .map(_.meta.idx - 1)
+    def add(tree: Tree): Unit = getHeadIndex(tree)
+      .foreach(arguments.getOrElseUpdate(_, tree))
+    def addOptional(tree: Tree): Unit = getHeadIndex(tree).foreach(optional += _)
 
     val queue = new mutable.ListBuffer[Seq[Tree]]
     queue += topSourceTree :: Nil
