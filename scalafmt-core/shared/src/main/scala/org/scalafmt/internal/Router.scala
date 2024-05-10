@@ -1188,7 +1188,6 @@ class Router(formatOps: FormatOps) {
         val singleLineOnly = style.binPack.literalsSingleLine &&
           flags.literalArgList
 
-        val rightIsComment = right.is[T.Comment]
         val scalaJsStyleNL = flags.scalaJsStyle && beforeClose.hasBreak
         val nlOnly = flags.dangleForTrailingCommas ||
           flags.configStyle != ConfigStyle.None ||
@@ -1318,7 +1317,7 @@ class Router(formatOps: FormatOps) {
             .getOrElse(decideNewlinesOnlyBeforeCloseOnBreak(close))
         }
         val nlMod =
-          if (rightIsComment && nlOnly) getMod(ft)
+          if (nlOnly && noBreak() && right.is[T.Comment]) Space
           else NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None)
         val nlSplit = Split(nlMod, bracketPenalty * (if (oneline) 4 else 2))
           .withIndent(indent)
