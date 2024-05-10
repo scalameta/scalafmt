@@ -74,10 +74,8 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
         else null
 
       case _: Token.Semicolon
-          if !style.rewrite.preferCurlyFors.removeTrailingSemicolonsOnly || {
-            val next = ftoks.next(ft)
-            next.hasBreak || ftoks.isRightCommentThenBreak(next)
-          } =>
+          if !style.rewrite.preferCurlyFors.removeTrailingSemicolonsOnly ||
+            ftoks.hasBreakAfterRightBeforeNonComment(ft) =>
         ft.meta.rightOwner match {
           case _: Term.For | _: Term.ForYield => removeToken
           case _ => null

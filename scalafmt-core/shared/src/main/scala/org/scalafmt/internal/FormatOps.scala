@@ -150,7 +150,7 @@ class FormatOps(
         case c: T.Comment
             if start.noBreak &&
               (!start.left.is[T.LeftParen] ||
-                tokens.isBreakAfterRight(start)) => Some(c)
+                tokens.hasBreakAfterRightBeforeNonComment(start)) => Some(c)
         case _ => Some(start.left)
       }
     }.fold(_.right, identity)
@@ -164,8 +164,9 @@ class FormatOps(
       case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
           _: T.Equals => None
       case _: T.RightParen if start.left.is[T.LeftParen] => None
-      case c: T.Comment if start.noBreak && tokens.isBreakAfterRight(start) =>
-        Some(c)
+      case c: T.Comment
+          if start.noBreak &&
+            tokens.hasBreakAfterRightBeforeNonComment(start) => Some(c)
       case _ if !style.newlines.formatInfix && start.noBreak && isInfix => None
       case _ => Some(start.left)
     }
@@ -1241,7 +1242,7 @@ class FormatOps(
     def isDone(x: FormatToken) = x.hasBlankLine || x.right.end >= end
     @tailrec
     def iter(x: FormatToken): FormatToken = {
-      val nft = tokens.nextNonCommentSameLine(next(x))
+      val nft = tokens.nextNonCommentSameLineAfter(x)
       if (isDone(nft)) nft
       else if (!nft.right.is[T.Comment]) ft // original
       else iter(nft)
@@ -1267,7 +1268,7 @@ class FormatOps(
     case _: T.Comment =>
       val isDetachedSlc = ft.hasBreak && tokens.isBreakAfterRight(ft)
       if (isDetachedSlc || ft.rightHasNewline) null else Space
-    case _ => Space(style.spaces.inParentheses && spaceOk)
+    case _ => Space(spaceOk && style.spaces.inParentheses)
   }
 
   // look for arrow before body, if any, else after params
@@ -1637,7 +1638,7 @@ class FormatOps(
       if (!ft.right.is[T.Comment]) splitsFunc(ft)
       else if (ft.hasBreak) Seq(nlSplitFunc(0).forThisLine)
       else {
-        val nextFt = nextNonCommentSameLine(next(ft))
+        val nextFt = tokens.nextNonCommentSameLineAfter(ft)
         val splits =
           if (nextFt.noBreak) splitsFunc(nextFt)
           else {

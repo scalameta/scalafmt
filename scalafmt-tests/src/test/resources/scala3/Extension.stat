@@ -126,8 +126,9 @@ maxColumn = 40
 extension [A](cat: Cat) /* new feature */ // or this
   def a = 1
 >>>
-extension [A](cat: Cat)
-  /* new feature */ // or this
+extension [A](
+    cat: Cat
+) /* new feature */ // or this
   def a = 1
 <<< extension comments with embedded NL
 maxColumn = 40
@@ -136,8 +137,7 @@ extension [A](cat: Cat) /*
  * new feature */ // or this
   def a = 1
 >>>
-extension [A](cat: Cat)
-  /*
+extension [A](cat: Cat) /*
    * new feature */ // or this
   def a = 1
 <<< extension comments brace

@@ -170,6 +170,9 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   final def nextNonCommentSameLine(curr: FormatToken): FormatToken =
     findToken(curr, next)(ft => ft.hasBreak || !ft.right.is[Token.Comment])
 
+  final def nextNonCommentSameLineAfter(curr: FormatToken): FormatToken =
+    nextNonCommentSameLine(next(curr))
+
   final def nextNonComment(curr: FormatToken): FormatToken =
     findToken(curr, next)(!_.right.is[Token.Comment])
 
@@ -289,12 +292,20 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   def isBreakAfterRight(ft: FormatToken): Boolean = next(ft).hasBreakOrEOF
 
   @inline
-  def isRightCommentThenBreak(ft: FormatToken): Boolean = ft.right
-    .is[Token.Comment] && isBreakAfterRight(ft)
+  def hasBreakAfterRightBeforeNonComment(ft: FormatToken): Boolean =
+    nextNonCommentSameLineAfter(ft).hasBreakOrEOF
 
   @inline
-  def isRightLikeSingleLineComment(ft: FormatToken): Boolean =
-    isRightCommentThenBreak(ft) && !ft.rightHasNewline
+  def hasBreakBeforeNonComment(ft: FormatToken): Boolean = ft.hasBreak ||
+    hasBreakAfterRightBeforeNonComment(ft)
+
+  @inline
+  def isRightCommentThenBreak(ft: FormatToken): Boolean = ft.right
+    .is[Token.Comment] && hasBreakAfterRightBeforeNonComment(ft)
+
+  @inline
+  def isRightCommentWithBreak(ft: FormatToken): Boolean = ft.right
+    .is[Token.Comment] && hasBreakBeforeNonComment(ft)
 
   @inline
   def isAttachedCommentThenBreak(ft: FormatToken): Boolean = ft.noBreak &&
