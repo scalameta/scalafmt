@@ -1869,7 +1869,8 @@ object FormatWriter {
       case x => x
     }
 
-    val slc = tokens.isRightLikeSingleLineComment(ft)
+    val slc = ft.right.is[T.Comment] && tokens.isBreakAfterRight(ft) &&
+      !ft.rightHasNewline
     val code = if (slc) "//" else ft.meta.right.text
     floc.style.alignMap.get(code).flatMap { matchers =>
       // Corner case when line ends with comment

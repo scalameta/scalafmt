@@ -70,8 +70,13 @@ object TokenOps {
   def withNoIndent(ft: FormatToken): Boolean = ft.between.lastOption
     .exists(_.is[LF])
 
+  @inline
   def rhsIsCommentedOut(ft: FormatToken): Boolean = ft.right.is[Comment] &&
-    withNoIndent(ft) && isSingleLineIfComment(ft.right)
+    rhsIsCommentedOutIfComment(ft)
+
+  @inline
+  def rhsIsCommentedOutIfComment(ft: FormatToken): Boolean = withNoIndent(ft) &&
+    isSingleLineIfComment(ft.right)
 
   @inline
   def isLeftCommentThenBreak(ft: FormatToken): Boolean = ft.left
