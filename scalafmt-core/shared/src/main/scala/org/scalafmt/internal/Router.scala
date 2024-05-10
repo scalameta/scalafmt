@@ -1148,22 +1148,21 @@ class Router(formatOps: FormatOps) {
               argPolicy & (opensPolicy | penalizeBrackets)
             }
           val rightIsComment = right.is[T.Comment]
-          val mustUseNL = onlyConfigStyle ||
-            style.newlines.keepBreak(newlines) ||
+          val nlOnly = onlyConfigStyle || style.newlines.keepBreak(newlines) ||
             tokens.isRightCommentWithBreak(ft)
           val noSplitModification =
-            if (rightIsComment && !mustUseNL) getMod(ft) else baseNoSplitMod
-          val nlMod = if (rightIsComment && mustUseNL) getMod(ft) else Newline
+            if (rightIsComment && !nlOnly) getMod(ft) else baseNoSplitMod
+          val nlMod = if (rightIsComment && nlOnly) getMod(ft) else Newline
           def getDanglePolicy(implicit fileLine: FileLine) =
             decideNewlinesOnlyBeforeClose(close)
           val nlPolicy = if (mustDangle) getDanglePolicy else NoPolicy
           def nlCost = bracketPenalty.getOrElse(1)
 
           Seq(
-            Split(mustUseNL, 0)(noSplitModification)
+            Split(nlOnly, 0)(noSplitModification)
               .withOptimalToken(close, ignore = !slbOnly, killOnFail = true)
               .withPolicy(noSplitPolicy).withIndents(noSplitIndents),
-            Split(nlMod, if (mustUseNL || slbOnly) 0 else nlCost)
+            Split(nlMod, if (nlOnly || slbOnly) 0 else nlCost)
               .withPolicy(nlPolicy & nlOnelinePolicy & penalizeBrackets)
               .withIndent(indent),
           )
