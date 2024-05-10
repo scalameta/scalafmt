@@ -1190,10 +1190,11 @@ class Router(formatOps: FormatOps) {
 
         val rightIsComment = right.is[T.Comment]
         val scalaJsStyleNL = flags.scalaJsStyle && beforeClose.hasBreak
-        val nlOnly = flags.dangleForTrailingCommas ||
+        val nlOpen = flags.dangleForTrailingCommas ||
           flags.configStyle != ConfigStyle.None ||
           style.newlines.keepBreak(newlines) || scalaJsStyleNL ||
           tokens.isRightCommentWithBreak(ft)
+        val nlOnly = nlOpen && !singleLineOnly
 
         def findComma(ft: FormatToken) = findFirstOnRight[T.Comma](ft, close)
 
