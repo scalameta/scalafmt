@@ -867,11 +867,15 @@ class Router(formatOps: FormatOps) {
         val isBracket = open.is[T.LeftBracket]
         val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
 
+        val mustDangleForTrailingCommas =
+          getMustDangleForTrailingCommas(beforeClose)
+
         val rightIsComment = right.is[T.Comment]
         implicit val configStyleFlags =
           if (defnSite) style.configStyleDefnSite else style.configStyleCallSite
-        val configStyle = mustUseConfigStyle(ft, beforeClose)
-        val onlyConfigStyle = ConfigStyle.None != configStyle
+        def closeBreak = mustDangleForTrailingCommas || beforeClose.hasBreak
+        val onlyConfigStyle = ConfigStyle.None !=
+          mustUseConfigStyle(ft, closeBreak)
         val configStyleFlag = configStyleFlags.prefer
 
         val sourceIgnored = style.newlines.sourceIgnored
@@ -901,9 +905,6 @@ class Router(formatOps: FormatOps) {
           else if (defnSite && !isBracket)
             defnSiteLastToken(closeFormatToken, leftOwner)
           else rhsOptimalToken(closeFormatToken)
-
-        val mustDangleForTrailingCommas =
-          getMustDangleForTrailingCommas(beforeClose)
 
         val mustDangle = onlyConfigStyle || expirationToken.is[T.Comment] ||
           mustDangleForTrailingCommas
@@ -1112,7 +1113,7 @@ class Router(formatOps: FormatOps) {
           val beforeClose = tokens.justBefore(close)
           implicit val configStyleFlags = style.configStyleDefnSite
           val onlyConfigStyle = getMustDangleForTrailingCommas(beforeClose) ||
-            ConfigStyle.None != mustUseConfigStyle(ft, beforeClose)
+            ConfigStyle.None != mustUseConfigStyle(ft, beforeClose.hasBreak)
 
           val argsHeadOpt = argumentStarts.get(ft.meta.idx)
           val isSingleArg = isSeqSingle(getArgs(leftOwner))
@@ -2026,7 +2027,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: T.LeftParen, right, _) =>
         val close = matching(open)
         val beforeClose = tokens.justBefore(close)
-        val isConfig = couldPreserveConfigStyle(ft, beforeClose)
+        val isConfig = couldPreserveConfigStyle(ft, beforeClose.hasBreak)
 
         val enclosed = leftOwner match {
           case t: Member.ArgClause if t.values.lengthCompare(1) > 0 => None

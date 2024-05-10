@@ -859,14 +859,14 @@ class FormatOps(
 
   def mustUseConfigStyle(
       ft: FormatToken,
-      beforeCloseFt: => FormatToken,
+      breakBeforeClose: => Boolean,
       allowForce: Boolean = true,
   )(implicit
       style: ScalafmtConfig,
       cfg: Newlines.ConfigStyleElement,
   ): ConfigStyle =
     if (allowForce && mustForceConfigStyle(ft)) ConfigStyle.Forced
-    else if (preserveConfigStyle(ft, beforeCloseFt)) ConfigStyle.Source
+    else if (preserveConfigStyle(ft, breakBeforeClose)) ConfigStyle.Source
     else ConfigStyle.None
 
   def mustForceConfigStyle(ft: FormatToken)(implicit
@@ -875,17 +875,17 @@ class FormatOps(
 
   def preserveConfigStyle(
       ft: FormatToken,
-      beforeCloseFt: => FormatToken,
+      breakBeforeClose: => Boolean,
   )(implicit style: ScalafmtConfig, cfg: Newlines.ConfigStyleElement): Boolean =
-    cfg.prefer && couldPreserveConfigStyle(ft, beforeCloseFt)
+    cfg.prefer && couldPreserveConfigStyle(ft, breakBeforeClose)
 
-  def couldPreserveConfigStyle(ft: FormatToken, beforeCloseFt: => FormatToken)(
+  def couldPreserveConfigStyle(ft: FormatToken, breakBeforeClose: => Boolean)(
       implicit style: ScalafmtConfig,
   ): Boolean = !style.newlines.sourceIgnored && {
     ft.hasBreak ||
     (next(ft).hasBreak || style.newlines.forceAfterImplicitParamListModifier) &&
     opensConfigStyleImplicitParamList(ft)
-  } && beforeCloseFt.hasBreak
+  } && breakBeforeClose
 
   /** Works for `using` as well */
   def opensConfigStyleImplicitParamList(formatToken: FormatToken)(implicit
@@ -2648,7 +2648,8 @@ class FormatOps(
     implicit val configStyleFlags = style.configStyleCallSite
     val configStyle =
       if (dangleForTrailingCommas) ConfigStyle.None
-      else mustUseConfigStyle(ftAfterOpen, ftBeforeClose, !literalArgList)
+      else
+        mustUseConfigStyle(ftAfterOpen, ftBeforeClose.hasBreak, !literalArgList)
     val shouldDangle = style.danglingParentheses
       .atCallSite(ftAfterOpen.meta.leftOwner)
     val scalaJsStyle = style.newlines.source == Newlines.classic &&
