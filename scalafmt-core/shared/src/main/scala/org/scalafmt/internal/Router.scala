@@ -1125,7 +1125,7 @@ class Router(formatOps: FormatOps) {
           def noSplitPolicy: Policy =
             if (slbOnly) slbPolicy
             else {
-              val penalizeOpens = bracketPenalty.fold(Policy.noPolicy) { p =>
+              val opensPolicy = bracketPenalty.fold(Policy.noPolicy) { p =>
                 Policy.before(close) {
                   case Decision(ftd @ FormatToken(o: T.LeftBracket, _, m), s)
                       if isParamClauseSite(m.leftOwner) && styleMap.at(o)
@@ -1138,7 +1138,7 @@ class Router(formatOps: FormatOps) {
                 if (oneline && isSingleArg) NoPolicy
                 else SingleLineBlock(x.tokens.last, noSyntaxNL = true)
               }
-              argPolicy & (penalizeOpens | penalizeBrackets)
+              argPolicy & (opensPolicy | penalizeBrackets)
             }
           val rightIsComment = right.is[T.Comment]
           val mustUseNL = onlyConfigStyle ||
@@ -1148,8 +1148,9 @@ class Router(formatOps: FormatOps) {
           val noSplitModification =
             if (rightIsComment && !mustUseNL) getMod(ft) else baseNoSplitMod
           val nlMod = if (rightIsComment && mustUseNL) getMod(ft) else Newline
-          val nlDanglePolicy =
-            if (mustDangle) decideNewlinesOnlyBeforeClose(close) else NoPolicy
+          def getDanglePolicy(implicit fileLine: FileLine) =
+            decideNewlinesOnlyBeforeClose(close)
+          val nlPolicy = if (mustDangle) getDanglePolicy else NoPolicy
           def nlCost = bracketPenalty.getOrElse(1)
 
           Seq(
@@ -1157,7 +1158,7 @@ class Router(formatOps: FormatOps) {
               .withOptimalToken(close, ignore = !slbOnly, killOnFail = true)
               .withPolicy(noSplitPolicy).withIndents(noSplitIndents),
             Split(nlMod, if (mustUseNL || slbOnly) 0 else nlCost)
-              .withPolicy(nlDanglePolicy & nlOnelinePolicy & penalizeBrackets)
+              .withPolicy(nlPolicy & nlOnelinePolicy & penalizeBrackets)
               .withIndent(indent),
           )
         }
@@ -1250,7 +1251,6 @@ class Router(formatOps: FormatOps) {
               if (oneline) nextCommaOneline.orElse(optClose)
               else if (style.newlines.source.eq(Newlines.fold)) None
               else findComma(ft).orElse(optClose)
-            def unindentPolicy = unindentAtExclude(exclude, Num(-indentLen))
             def scajaJsPolicy = Policy(Policy.End.On(close)) {
               case d: Decision if d.formatToken.right eq close => d.noNewlines
             }
@@ -1265,19 +1265,25 @@ class Router(formatOps: FormatOps) {
                   SingleLineBlock(slbEnd, noSyntaxNL = true)
                 }
               } else penalizeNewlinesPolicy
-            def indentOncePolicy =
-              if (style.binPack.indentCallSiteOnce) {
-                val trigger = getIndentTrigger(leftOwner)
-                Policy.on(close) {
-                  case Decision(FormatToken(LeftParenOrBracket(), _, m), s)
-                      if isArgClauseSite(m.leftOwner) =>
-                    s.map(x => if (x.isNL) x else x.switch(trigger, false))
-                }
+            val indentPolicy =
+              if (noSplitIndents.nonEmpty) {
+                def unindentPolicy =
+                  if (isSingleArg) unindentAtExclude(exclude, Num(-indentLen))
+                  else NoPolicy
+                def indentOncePolicy =
+                  if (style.binPack.indentCallSiteOnce) {
+                    val trigger = getIndentTrigger(leftOwner)
+                    Policy.on(close) {
+                      case Decision(FormatToken(LeftParenOrBracket(), _, m), s)
+                          if isArgClauseSite(m.leftOwner) =>
+                        s.map(x => if (x.isNL) x else x.switch(trigger, false))
+                    }
+                  } else NoPolicy
+                unindentPolicy & indentOncePolicy
               } else NoPolicy
             baseNoSplit.withOptimalTokenOpt(opt).withPolicy(noSplitPolicy)
-              .andPolicy(unindentPolicy, !isSingleArg || noSplitIndents.isEmpty)
-              .andPolicy(indentOncePolicy, noSplitIndents.isEmpty)
               .andPolicy(scajaJsPolicy, !flags.scalaJsStyle)
+              .andPolicy(indentPolicy)
           }
 
         val nlPolicy = {
@@ -1309,15 +1315,12 @@ class Router(formatOps: FormatOps) {
         val nlMod =
           if (rightIsComment && nlOnly) getMod(ft)
           else NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None)
-        Seq(
-          noSplit,
-          Split(nlMod, bracketPenalty * (if (oneline) 4 else 2))
-            .withIndent(indent)
-            .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
-            .andPolicy(nlPolicy)
-            .andPolicy(penalizeNewlinesPolicy, singleLineOnly)
-            .andPolicyOpt(singleArgAsInfix.map(InfixSplits(_, ft).nlPolicy)),
-        )
+        val nlSplit = Split(nlMod, bracketPenalty * (if (oneline) 4 else 2))
+          .withIndent(indent)
+          .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
+          .andPolicy(nlPolicy & penalizeNewlinesPolicy, singleLineOnly)
+          .andPolicyOpt(singleArgAsInfix.map(InfixSplits(_, ft).nlPolicy))
+        Seq(noSplit, nlSplit)
 
       // Closing def site ): ReturnType
       case FormatToken(left, _: T.Colon, DefDefReturnTypeRight(returnType))
