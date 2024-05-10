@@ -1108,7 +1108,7 @@ class Router(formatOps: FormatOps) {
           val onlyConfigStyle = getMustDangleForTrailingCommas(beforeClose) ||
             ConfigStyle.None != mustUseConfigStyle(ft, beforeClose)
 
-          val argsHeadOpt = argumentStarts.get(hash(right))
+          val argsHeadOpt = argumentStarts.get(ft.meta.idx)
           val isSingleArg = isSeqSingle(getArgs(leftOwner))
           val oneline = style.binPack.defnSiteFor(isBracket) eq
             BinPack.Site.Oneline
@@ -1438,8 +1438,8 @@ class Router(formatOps: FormatOps) {
           rightIsCloseDelimToAddTrailingComma(lc, nextNonComment(nextFt))
         ) Seq(Split(Space, 0), Split(Newline, 1))
         else Seq(Split(Newline, 0))
-      case FormatToken(_: T.Comma, right, _) if leftOwner.isNot[Template] =>
-        val splitsOpt = argumentStarts.get(hash(right)).flatMap { nextArg =>
+      case FormatToken(_: T.Comma, right, _) if !leftOwner.is[Template] =>
+        val splitsOpt = argumentStarts.get(ft.meta.idx).flatMap { nextArg =>
           val callSite = isArgClauseSite(leftOwner)
           val binPack =
             if (callSite) style.binPack.callSite
@@ -2260,7 +2260,7 @@ class Router(formatOps: FormatOps) {
           )
         Seq(spaceSplit, Split(Newline, if (spaceSplit.isActive) 1 else 0))
 
-      case FormatToken(_, r, _) if optionalNewlines(hash(r)) =>
+      case FormatToken(_, r, _) if optionalNewlines(ft.meta.idx) =>
         @tailrec
         def noAnnoLeftFor(tree: Tree): Boolean = tree.parent match {
           case Some(_: Mod.Annot) => false
