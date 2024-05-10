@@ -1125,12 +1125,15 @@ class Router(formatOps: FormatOps) {
               .map(splitOneArgPerLineAfterCommaOnBreak)
           }
 
+          val nlOnly = onlyConfigStyle || style.newlines.keepBreak(newlines) ||
+            tokens.isRightCommentWithBreak(ft)
           val mustDangle = onlyConfigStyle ||
             style.danglingParentheses.atDefnSite(leftOwner) &&
             (style.newlines.sourceIgnored || !configStyleFlags.prefer)
-          val slbOnly = mustDangle || style.newlines.source.eq(Newlines.unfold)
+          val slbOrNL = nlOnly || style.newlines.source == Newlines.unfold ||
+            mustDangle
           def noSplitPolicy: Policy =
-            if (slbOnly) slbPolicy
+            if (slbOrNL) slbPolicy
             else {
               val opensPolicy = bracketPenalty.fold(Policy.noPolicy) { p =>
                 Policy.before(close) {
@@ -1148,8 +1151,6 @@ class Router(formatOps: FormatOps) {
               argPolicy & (opensPolicy | penalizeBrackets)
             }
           val rightIsComment = right.is[T.Comment]
-          val nlOnly = onlyConfigStyle || style.newlines.keepBreak(newlines) ||
-            tokens.isRightCommentWithBreak(ft)
           val noSplitModification =
             if (rightIsComment && !nlOnly) getMod(ft) else baseNoSplitMod
           val nlMod = if (rightIsComment && nlOnly) getMod(ft) else Newline
@@ -1160,9 +1161,9 @@ class Router(formatOps: FormatOps) {
 
           Seq(
             Split(nlOnly, 0)(noSplitModification)
-              .withOptimalToken(close, ignore = !slbOnly, killOnFail = true)
+              .withOptimalToken(close, ignore = !slbOrNL, killOnFail = true)
               .withPolicy(noSplitPolicy).withIndents(noSplitIndents),
-            Split(nlMod, if (nlOnly || slbOnly) 0 else nlCost)
+            Split(nlMod, if (slbOrNL) 0 else nlCost)
               .withPolicy(nlPolicy & nlOnelinePolicy & penalizeBrackets)
               .withIndent(indent),
           )
