@@ -1183,10 +1183,10 @@ class Router(formatOps: FormatOps) {
         val singleLineOnly = style.binPack.literalsSingleLine &&
           flags.literalArgList
 
-        val scalaJsStyleNL = flags.scalaJsStyle && beforeClose.hasBreak
         val nlOpen = flags.dangleForTrailingCommas ||
           flags.configStyle != ConfigStyle.None ||
-          style.newlines.keepBreak(newlines) || scalaJsStyleNL ||
+          style.newlines.keepBreak(newlines) ||
+          flags.scalaJsStyle && beforeClose.hasBreak ||
           tokens.isRightCommentWithBreak(ft)
         val nlOnly = nlOpen && !singleLineOnly
 
@@ -1306,7 +1306,7 @@ class Router(formatOps: FormatOps) {
               styleMap.forcedBinPack(leftOwner)
             ) bothPolicies
             else configStylePolicy
-          else if (scalaJsStyleNL) configStylePolicy
+          else if (flags.scalaJsStyle) configStylePolicy
           else if (
             flags.dangleForTrailingCommas ||
             clauseSiteFlags.dangleCloseDelim &&

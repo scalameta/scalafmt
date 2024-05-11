@@ -185,9 +185,13 @@ top-level.
 
 ### Top-level presets
 
-- `preset=default`: this preset is implicit and sets all values to their
-  defaults.
-- `preset=IntelliJ`: this preset is defined as
+#### `preset=default`
+
+This preset is implicit and sets all values to their defaults.
+
+#### `preset=IntelliJ`
+
+This preset is defined as
 
 ```
     preset = default
@@ -195,30 +199,59 @@ top-level.
     optIn.configStyleArguments = false
 ```
 
-- `preset=defaultWithAlign`: this preset is defined as
+#### `preset=defaultWithAlign`
+
+This preset is defined as
 
 ```
     preset = default
     align.preset = more
 ```
 
-- `preset=Scala.js`: this preset is defined as
+#### `preset=Scala.js`
+
+This preset intends to approximate the
+[style used for `scala.js`](https://github.com/scala-js/scala-js/blob/main/CODINGSTYLE.md).
+
+It uses modified detection of [config-style formatting](#newlines-config-style-formatting):
+
+- [according to Sébastien Doeraene](https://github.com/scala-js/scala-js/pull/4522#issuecomment-879168123),
+  config-style should be driven solely by presence of a dangling closing parenthesis
+- to achieve that, use a combination of
+  [`danglingParentheses.xxxSite = false`](#danglingparenthesescallsite) and
+  [`newlines.configStyleXxxSite.prefer = true`](#newlinesconfigstylexxxsiteprefer)
+
+The preset itself is defined as:
 
 ```
     preset = default
     binPack.preset = true
-    align.openParenCtrlSite = false
-    indent.callSite = 4
+    align {
+      openParenCtrlSite = false
+      arrowEnumeratorGenerator = false
+      tokens = [ caseArrow ]
+    }
+    danglingParentheses {
+      callSite = false
+      defnSite = false
+    }
     docstrings.style = Asterisk
     importSelectors = binPack
+    indent.callSite = 4
     newlines {
-      neverInResultType = true
+      avoidInResultType = true
       neverBeforeJsNative = true
       sometimesBeforeColonInMethodReturnType = false
     }
-    runner.optimizer.callSite {
-      minSpan = 500
-      minCount = 5
+    runner.optimizer {
+      callSite {
+        minSpan = 500
+        minCount = 5
+      }
+      defnSite {
+        minSpan = 500
+        minCount = 5
+      }
     }
 ```
 
@@ -4917,10 +4950,9 @@ and similarly has cross-parameter interactions:
     over binpacking
   - for `newlines.source=classic`, behaviour depends on
     [config-style](#newlinesconfigstylexxxsiteprefer):
-    - if enabled: used if [detected](#newlines-config-style-formatting), otherwise binpacked
-    - if disabled with both [`danglingParentheses.callSite`](#danglingparenthesescallsite)
-      enabled and closing parenthesis following a break: forces config-style, as described in
-      [scala.js](https://github.com/scala-js/scala-js/pull/4522#issuecomment-879168123)
+    - if enabled, config style is used if
+      - it is [detected](#newlines-config-style-formatting), or
+      - configured to use [scala.js style](#presetscalajs)
     - otherwise, uses binpacking
   - for other values of [`newlines.source`](#newlinessource),
     binpacking takes precedence
