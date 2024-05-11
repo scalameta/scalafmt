@@ -938,8 +938,9 @@ object a {
 }
 >>>
 object a {
-  val a = foo bar (baz =
-    qux, bar = qux)
+  val a =
+    foo bar (baz = qux,
+      bar = qux)
 }
 <<< binpack with infix match rhs in parens
 maxColumn = 25

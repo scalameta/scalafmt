@@ -351,7 +351,9 @@ foo.fold(err => {
     {
       {
         {
-          compileInputs in (It, compile) <<= (compileInputs in (It, compile)) dependsOn
+          compileInputs in (It, compile) <<= (compileInputs in (
+              It,
+              compile)) dependsOn
         }
       }
     }

@@ -2666,7 +2666,7 @@ class FormatOps(
   final def scalaJsOptClose(
       ftBeforeClose: FormatToken,
       bpFlags: BinpackCallsiteFlags,
-  )(implicit style: ScalafmtConfig): T =
+  ): T =
     if (bpFlags.scalaJsStyle) {
       val ftAfterClose = tokens.nextNonCommentAfter(ftBeforeClose)
       val continue = ftAfterClose != ftBeforeClose &&
@@ -2674,7 +2674,7 @@ class FormatOps(
         isArgClauseSite(ftAfterClose.meta.rightOwner)
       if (continue) {
         val open = tokens.matching(ftAfterClose.right)
-        implicit val style: ScalafmtConfig = styleMap.at(open) // override implicit
+        implicit val style: ScalafmtConfig = styleMap.at(open)
         implicit val clauseSiteFlags: ClauseSiteFlags = ClauseSiteFlags
           .atCallSite(ftAfterClose.meta.rightOwner)
         val bpFlagsAfter = getBinpackCallsiteFlags(tokens(open), ftAfterClose)

@@ -420,17 +420,16 @@ object TreeOps {
   def isTokenLastOrAfter(token: Token, pos: Position): Boolean = pos.end <=
     token.end
 
-  def isArgClauseSite(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
-    tree match {
-      case t: Member.ArgClause => !t.parent.exists(_.is[Member.Infix]) ||
-        (t.values match {
-          case (_: Term.Assign | _: Lit.Unit) :: Nil => true
-          case Nil | _ :: Nil => false
-          case _ => style.newlines.formatInfix
-        })
-      case _: Term.Super | _: Lit.Unit | _: Term.Tuple | _: Pat.Tuple => true
-      case _ => false
-    }
+  def isArgClauseSite(tree: Tree): Boolean = tree match {
+    case t: Member.ArgClause => !t.parent.exists(_.is[Member.Infix]) ||
+      (t.values match {
+        case (_: Term.Assign | _: Lit.Unit) :: Nil => true
+        case Nil | _ :: Nil => false
+        case _ => true
+      })
+    case _: Term.Super | _: Lit.Unit | _: Term.Tuple | _: Pat.Tuple => true
+    case _ => false
+  }
 
   def isTuple(tree: Tree): Boolean = tree.is[Member.Tuple]
 
@@ -812,7 +811,7 @@ object TreeOps {
       left: Token,
       ft: FormatToken,
       whenNL: Boolean = true,
-  )(implicit style: ScalafmtConfig): Boolean = {
+  ): Boolean = {
     def owner = ft.meta.rightOwner
     def isArgOrParamClauseSite(tree: Tree) = !whenNL || isArgClauseSite(tree) ||
       isParamClauseSite(tree)

@@ -1497,11 +1497,6 @@ class Router(formatOps: FormatOps) {
           }
         }
         def altSplits = leftOwner match {
-          case t: Term.ArgClause
-              if !style.newlines.formatInfix &&
-                t.parent.exists(_.is[Term.ApplyInfix]) =>
-            // Do whatever the user did if infix.
-            Seq(Split(Space.orNL(noBreak()), 0))
           case _: Defn.Val | _: Defn.Var =>
             val indent = style.indent.getDefnSite(leftOwner)
             Seq(
@@ -2030,10 +2025,7 @@ class Router(formatOps: FormatOps) {
         val beforeClose = tokens.justBefore(close)
         val isConfig = couldPreserveConfigStyle(ft, beforeClose.hasBreak)
 
-        val enclosed = leftOwner match {
-          case t: Member.ArgClause if t.values.lengthCompare(1) > 0 => None
-          case t => findEnclosedBetweenParens(open, close, t)
-        }
+        val enclosed = findEnclosedBetweenParens(open, close, leftOwner)
         def spaceSplitWithoutPolicy(implicit fileLine: FileLine) = {
           val indent: Length = right match {
             case T.KwIf() => StateColumn
