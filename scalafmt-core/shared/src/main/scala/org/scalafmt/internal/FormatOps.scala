@@ -2653,7 +2653,7 @@ class FormatOps(
         mustUseConfigStyle(ftAfterOpen, ftBeforeClose.hasBreak, !literalArgList)
     val scalaJsStyle = style.newlines.source == Newlines.classic &&
       configStyle == ConfigStyle.None && !literalArgList &&
-      clauseSiteFlags.dangleCloseDelim && !clauseSiteFlags.configStyle.prefer
+      !clauseSiteFlags.dangleCloseDelim && clauseSiteFlags.configStyle.prefer
     BinpackCallsiteFlags(
       literalArgList = literalArgList,
       dangleForTrailingCommas = dangleForTrailingCommas,

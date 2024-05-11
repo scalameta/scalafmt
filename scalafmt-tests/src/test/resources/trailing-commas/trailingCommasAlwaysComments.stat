@@ -391,10 +391,16 @@ class foo(a: String,
     b /* c1 */ /* c2 */ )
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   method(
--    a,
--    b, /* c1 */ /* c2 */
-+    a, b, /* c1 */ /* c2 */
-   )
+import foo.{
+  a, b, /* c1 */ /* c2 */
+}
+class foo(
+    a: String, b: String, /* c1 */ /* c2 */
+) {
+  def method(
+      a: String, b: String, /* c1 */ /* c2 */
+  ) = ???
+  method(
+    a, b, /* c1 */ /* c2 */
+  )
+}

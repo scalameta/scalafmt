@@ -355,7 +355,8 @@ class foo(
       a: String, b: String,
   ) = ???
   method(
-    a, b,
+    a,
+    b,
   )
 }
 <<< #2755 two, no comma, no fold, binpack, !cfgStyle
@@ -386,7 +387,8 @@ class foo(
       a: String, b: String,
   ) = ???
   method(
-    a, b,
+    a,
+    b,
   )
 }
 <<< #3663 enclosed literal

@@ -201,8 +201,8 @@ object a {
 }
 >>>
 object a {
-  new SimpleMethodName(
-      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))
+  new SimpleMethodName(validateSimpleEncodedName(name, 0, len,
+      openAngleBracketOK = false))
 }
 <<< #2079 avoid nested indent, always; 2
 binPack.preset = true
@@ -229,8 +229,8 @@ object a {
 }
 >>>
 object a {
-  new SimpleMethodName(new SimpleMethodName(
-      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
+  new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name, 0,
+      len, openAngleBracketOK = false)))
 }
 <<< #2079 avoid nested indent, always; 3
 binPack.preset = true
@@ -269,7 +269,8 @@ object a {
       new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
           0, len, openAngleBracketOK = false))),
       new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
-          0, len, openAngleBracketOK = false))))
+          0, len, openAngleBracketOK = false)))
+  )
 }
 <<< #2079 avoid nested indent, always; 4
 binPack.preset = true
@@ -284,7 +285,8 @@ object a {
 object a {
   new SimpleMethodName(
       new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
-                  0, len, openAngleBracketOK = false)))).foo
+                  0, len, openAngleBracketOK = false)))
+  ).foo
 }
 <<< #2079 avoid nested indent, oneline; 4
 binPack.preset = true
@@ -298,8 +300,8 @@ object a {
 >>>
 object a {
   new SimpleMethodName(
-      new SimpleMethodName(new SimpleMethodName(
-          validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
+      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+          0, len, openAngleBracketOK = false)))
   ).foo
 }
 <<< binpack=oneline, nested, inner with multiple args
@@ -359,9 +361,7 @@ object a {
   foo match {
     case Apply(appMeth,
             Apply(wrapRefArrayMeth,
-                StripCast(
-                    arg @ ArrayValue(elemtpt, elems)) :: Nil
-            ) :: classTagEvidence :: Nil)
+                StripCast(arg @ ArrayValue(elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
         if WrapArray.isClassTagBasedWrapArrayMethod(wrapRefArrayMeth.symbol) &&
           appMeth.symbol == ArrayModule_genericApply =>
       bar
@@ -405,9 +405,7 @@ object a {
 object a {
   Apply(appMeth,
       Apply(wrapRefArrayMeth,
-          StripCast(
-              ArrayValue(elemtpt, elems)) :: Nil
-      ) :: classTagEvidence :: Nil)
+          StripCast(ArrayValue(elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
 }
 <<< binpack=always, with infix
 maxColumn = 80
@@ -438,7 +436,8 @@ object a {
 object a {
   val call = js.JSFunctionApply(
       js.Select(js.This()(classType), className, fFieldIdent)(jstpe.AnyType),
-      actualParams)
+      actualParams
+  )
 }
 <<< binpack=always, no break after opening, apply
 maxColumn = 80
@@ -452,9 +451,8 @@ object a {
 }
 >>>
 object a {
-  val call =
-    js.JSFunctionApply(js.Select(js.This()(classType), className, fFieldIdent)(
-            jstpe.AnyType), actualParams)
+  val call = js.JSFunctionApply(js.Select(js.This()(classType), className,
+          fFieldIdent)(jstpe.AnyType), actualParams)
 }
 <<< binpack=oneline, no break after opening, extract
 maxColumn = 80
@@ -518,7 +516,8 @@ optDef.getOrElse {
   abort(
       foo &&
       bar,
-      baz)
+      baz
+  )
   abort(
       foo &&
       bar,
@@ -526,7 +525,8 @@ optDef.getOrElse {
       bar,
       foo && // c
       bar,
-      baz)
+      baz
+  )
 }
 <<< binpack with non-top-level-only infix, afterInfix=many
 maxColumn = 16
@@ -551,7 +551,8 @@ foo.bar {
   abort(
       foo &&
       bar,
-      baz)
+      baz
+  )
   abort(
       foo &&
       bar,
@@ -559,7 +560,8 @@ foo.bar {
       bar,
       foo && // c
       bar,
-      baz)
+      baz
+  )
 }
 <<< binpack with non-top-level-only infix, afterInfix=keep, indent once
 indentOperator.topLevelOnly = false
@@ -771,7 +773,8 @@ optDef.getOrElse {
   abort(
       fooFoo &&
       barBar,
-      bazBaz)
+      bazBaz
+  )
 }
 <<< binpack with non-top-level-only infix, fold
 maxColumn = 20
@@ -898,14 +901,16 @@ object a {
     foo +
       bar,
     foo +
-      bar)
+      bar
+  )
   Seq(foo &&
     bar)
   Seq(
     foo &&
     bar,
     foo &&
-    bar)
+    bar
+  )
 }
 <<< binpack with infix rhs in parens, 1 arg
 maxColumn = 20
@@ -919,7 +924,8 @@ object a {
 >>>
 object a {
   val a = foo bar (
-    baz = qux)
+    baz = qux
+  )
 }
 <<< binpack with infix rhs in parens, 2 args
 maxColumn = 25
