@@ -1211,28 +1211,6 @@ class Router(formatOps: FormatOps) {
 
         val indentLen = style.indent.callSite
         val indent = Indent(Num(indentLen), close, Before)
-        val noNoSplitIndents = nlOnly || singleArgAsInfix.isDefined ||
-          isSingleArg && oneline && !needOnelinePolicy ||
-          !isBracket && getAssignAtSingleArgCallSite(args).isDefined
-        val noSplitIndents =
-          if (noNoSplitIndents) Nil
-          else if (isSingleArg && !style.binPack.indentCallSiteSingleArg) Nil
-          else if (style.binPack.indentCallSiteOnce) {
-            @tailrec
-            def iter(tree: Tree): Option[T] = tree.parent match {
-              case Some(p: Term.Select) => iter(p)
-              case Some(p) if isArgClauseSite(p) => Some(getIndentTrigger(p))
-              case _ => None
-            }
-            val trigger = leftOwner.parent.flatMap(iter)
-            Seq(trigger.fold(indent)(x => Indent.before(indent, x)))
-          } else if (
-            if (isTuple(leftOwner)) style.align.getOpenParenTupleSite
-            else style.align.getOpenDelimSite(false, false)
-          ) getOpenParenAlignIndents(close)
-          else Seq(indent)
-        def baseNoSplit(implicit fileLine: FileLine) =
-          Split(Space(style.spaces.inParentheses), 0).withIndents(noSplitIndents)
 
         val exclude =
           if (!isBracket) insideBracesBlock(ft, close)
@@ -1243,22 +1221,49 @@ class Router(formatOps: FormatOps) {
             new PenalizeAllNewlines(_, 3 + indentLen * bracketPenalty),
           )
 
+        def baseNoSplit(implicit fileLine: FileLine) =
+          Split(Space(style.spaces.inParentheses), 0)
+        val slbOrNL = nlOnly || singleLineOnly ||
+          needOnelinePolicy && nextCommaOneline.isEmpty ||
+          // multiline binpack is at odds with unfold, at least force a break
+          style.newlines.source.eq(Newlines.unfold)
+
         val noSplit =
           if (nlOnly) Split.ignored
-          else if (
-            singleLineOnly || needOnelinePolicy && nextCommaOneline.isEmpty ||
-            // multiline binpack is at odds with unfold, at least force a break
-            style.newlines.source.eq(Newlines.unfold)
-          ) baseNoSplit.withSingleLine(close, noSyntaxNL = true)
+          else if (slbOrNL) baseNoSplit.withSingleLine(close, noSyntaxNL = true)
           else {
+            def okSingleArgsIndents = singleArgAsInfix.isEmpty &&
+              (!oneline || needOnelinePolicy) &&
+              style.binPack.indentCallSiteSingleArg &&
+              (isBracket || getAssignAtSingleArgCallSite(args).isEmpty)
+            val noSplitIndents =
+              if (isSingleArg && !okSingleArgsIndents) Nil
+              else if (style.binPack.indentCallSiteOnce) {
+                @tailrec
+                def iter(tree: Tree): Option[T] = tree.parent match {
+                  case Some(p: Term.Select) => iter(p)
+                  case Some(p) if isArgClauseSite(p) => Some(getIndentTrigger(p))
+                  case _ => None
+                }
+                val trigger = leftOwner.parent.flatMap(iter)
+                Seq(trigger.fold(indent)(x => Indent.before(indent, x)))
+              } else if (
+                if (isTuple(leftOwner)) style.align.getOpenParenTupleSite
+                else style.align.getOpenDelimSite(false, false)
+              ) getOpenParenAlignIndents(close)
+              else Seq(indent)
+
             def optClose = Some(scalaJsOptClose(beforeClose, flags))
             val opt =
               if (oneline) nextCommaOneline.orElse(optClose)
               else if (style.newlines.source.eq(Newlines.fold)) None
               else findComma(ft).orElse(optClose)
-            def scajaJsPolicy = Policy(Policy.End.On(close)) {
-              case d: Decision if d.formatToken.right eq close => d.noNewlines
-            }
+            val scajaJsPolicy =
+              if (flags.scalaJsStyle) Policy(Policy.End.On(close)) {
+                case d: Decision if d.formatToken.right eq close => d.noNewlines
+              }
+              else NoPolicy
+
             val noSplitPolicy =
               if (needOnelinePolicy) {
                 val alignPolicy =
@@ -1286,9 +1291,9 @@ class Router(formatOps: FormatOps) {
                   } else NoPolicy
                 unindentPolicy & indentOncePolicy
               } else NoPolicy
-            baseNoSplit.withOptimalTokenOpt(opt).withPolicy(noSplitPolicy)
-              .andPolicy(scajaJsPolicy, !flags.scalaJsStyle)
-              .andPolicy(indentPolicy)
+            baseNoSplit.withOptimalTokenOpt(opt)
+              .withPolicy(noSplitPolicy & indentPolicy & scajaJsPolicy)
+              .withIndents(noSplitIndents)
           }
 
         val nlPolicy = {
