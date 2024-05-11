@@ -2483,7 +2483,9 @@ maxColumn = 40
     (
       "\n" +
         indent +
-        "   |    toDie: ", "\n" + indent + "   |           ", ""
+        "   |    toDie: ",
+      "\n" + indent + "   |           ",
+      ""
     ))
 <<< 8.23
 maxColumn = 80
@@ -7027,7 +7029,8 @@ object a {
 object a {
   val default = methodSym newValueParameter
     (
-      newTermName("default"), tree.pos.focus,
+      newTermName("default"),
+      tree.pos.focus,
       SYNTHETIC
     ) setInfo functionType(List(A1.tpe), B1.tpe)
 }
@@ -7045,7 +7048,8 @@ object a {
 object a {
   val default = methodSym newValueParameter
     (
-      newTermName("default"), tree.pos.focus,
+      newTermName("default"),
+      tree.pos.focus,
       SYNTHETIC
     ) setInfo functionType(List(A1.tpe), B1.tpe)
 }
