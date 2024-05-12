@@ -871,12 +871,11 @@ class Router(formatOps: FormatOps) {
           getMustDangleForTrailingCommas(beforeClose)
 
         val rightIsComment = right.is[T.Comment]
-        implicit val configStyleFlags =
-          if (defnSite) style.configStyleDefnSite else style.configStyleCallSite
+        implicit val clauseSiteFlags = ClauseSiteFlags(leftOwner, defnSite)
         def closeBreak = mustDangleForTrailingCommas || beforeClose.hasBreak
         val onlyConfigStyle = ConfigStyle.None !=
           mustUseConfigStyle(ft, closeBreak)
-        val configStyleFlag = configStyleFlags.prefer
+        val configStyleFlag = clauseSiteFlags.configStyle.prefer
 
         val sourceIgnored = style.newlines.sourceIgnored
         val (onlyArgument, isSingleEnclosedArgument) =
@@ -908,10 +907,7 @@ class Router(formatOps: FormatOps) {
 
         val mustDangle = onlyConfigStyle || expirationToken.is[T.Comment] ||
           mustDangleForTrailingCommas
-        val shouldDangle =
-          if (defnSite) style.danglingParentheses.atDefnSite(leftOwner)
-          else style.danglingParentheses.atCallSite(leftOwner)
-        val wouldDangle = shouldDangle ||
+        val wouldDangle = clauseSiteFlags.dangleCloseDelim ||
           beforeClose.hasBreak && beforeClose.left.is[T.Comment]
 
         val newlinePolicy: Policy =
@@ -933,10 +929,7 @@ class Router(formatOps: FormatOps) {
           else getNoSplit(ft, !isBracket)
         val noSplitIndent = if (rightIsComment) indent else Num(0)
 
-        val align = !rightIsComment && {
-          if (tupleSite) style.align.getOpenParenTupleSite
-          else style.align.getOpenDelimSite(isBracket, defnSite)
-        } &&
+        val align = !rightIsComment && clauseSiteFlags.alignOpenDelim &&
           (!handleImplicit || style.newlines.forceAfterImplicitParamListModifier)
         val alignTuple = align && tupleSite && !onlyConfigStyle
 
@@ -1100,18 +1093,19 @@ class Router(formatOps: FormatOps) {
         val baseNoSplitMod = Space(style.spaces.inParentheses)
         if (close eq right) Seq(Split(baseNoSplitMod, 0))
         else {
+          implicit val clauseSiteFlags = ClauseSiteFlags.atDefnSite(leftOwner)
+
           val isBracket = open.is[T.LeftBracket]
           val indent = Indent(style.indent.getDefnSite(leftOwner), close, Before)
-          val align = style.align.getOpenDelimSite(isBracket, true)
           val noSplitIndents =
-            if (align) getOpenParenAlignIndents(close) else Seq(indent)
+            if (clauseSiteFlags.alignOpenDelim) getOpenParenAlignIndents(close)
+            else Seq(indent)
 
           val bracketPenalty =
             if (isBracket) Some(Constants.BracketPenalty) else None
           val penalizeBrackets = bracketPenalty
             .map(p => PenalizeAllNewlines(close, p + 3))
           val beforeClose = tokens.justBefore(close)
-          implicit val configStyleFlags = style.configStyleDefnSite
           val onlyConfigStyle = getMustDangleForTrailingCommas(beforeClose) ||
             ConfigStyle.None != mustUseConfigStyle(ft, beforeClose.hasBreak)
 
@@ -1128,8 +1122,8 @@ class Router(formatOps: FormatOps) {
           val nlOnly = onlyConfigStyle || style.newlines.keepBreak(newlines) ||
             tokens.isRightCommentWithBreak(ft)
           val mustDangle = onlyConfigStyle ||
-            style.danglingParentheses.atDefnSite(leftOwner) &&
-            (style.newlines.sourceIgnored || !configStyleFlags.prefer)
+            clauseSiteFlags.dangleCloseDelim &&
+            (style.newlines.sourceIgnored || !clauseSiteFlags.configStyle.prefer)
           val slbOrNL = nlOnly || style.newlines.source == Newlines.unfold ||
             mustDangle
           def noSplitPolicy: Policy =
@@ -1183,7 +1177,8 @@ class Router(formatOps: FormatOps) {
         val singleArgAsInfix =
           if (isSingleArg) firstArg.flatMap(asInfixApp) else None
 
-        val flags = getBinpackCallsiteFlags(ft, beforeClose)(style)
+        implicit val clauseSiteFlags = ClauseSiteFlags.atCallSite(leftOwner)
+        val flags = getBinpackCallsiteFlags(ft, beforeClose)
 
         val singleLineOnly = style.binPack.literalsSingleLine &&
           flags.literalArgList
@@ -1247,10 +1242,8 @@ class Router(formatOps: FormatOps) {
                 }
                 val trigger = leftOwner.parent.flatMap(iter)
                 Seq(trigger.fold(indent)(x => Indent.before(indent, x)))
-              } else if (
-                if (isTuple(leftOwner)) style.align.getOpenParenTupleSite
-                else style.align.getOpenDelimSite(false, false)
-              ) getOpenParenAlignIndents(close)
+              } else if (clauseSiteFlags.alignOpenDelim)
+                getOpenParenAlignIndents(close)
               else Seq(indent)
 
             def optClose = Some(scalaJsOptClose(beforeClose, flags))
@@ -1316,7 +1309,7 @@ class Router(formatOps: FormatOps) {
           else if (scalaJsStyleNL) configStylePolicy
           else if (
             flags.dangleForTrailingCommas ||
-            flags.shouldDangle &&
+            clauseSiteFlags.dangleCloseDelim &&
             (style.newlines.sourceIgnored || !style.configStyleCallSite.prefer)
           ) bothPolicies
           else binPackOnelinePolicyOpt

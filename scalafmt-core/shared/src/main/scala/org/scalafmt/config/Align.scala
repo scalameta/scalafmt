@@ -1,5 +1,7 @@
 package org.scalafmt.config
 
+import scala.meta._
+
 import metaconfig._
 import metaconfig.annotation.ExtraName
 import metaconfig.generic.Surface
@@ -102,13 +104,17 @@ case class Align(
       "Enumerator.Val" -> "for",
     ),
 ) {
-  def getOpenParenTupleSite = openParenTupleSite.getOrElse(openParenCallSite)
 
-  def getOpenDelimSite(bracket: Boolean, defnSite: Boolean): Boolean =
-    if (defnSite) (if (bracket) openBracketDefnSite else None)
-      .getOrElse(openParenDefnSite)
-    else (if (bracket) openBracketCallSite else None)
-      .getOrElse(openParenCallSite)
+  def atDefnSite(owner: Tree): Boolean = (owner match {
+    case _: Type.ParamClause => openBracketDefnSite
+    case _ => None
+  }).getOrElse(openParenDefnSite)
+
+  def atCallSite(owner: Tree): Boolean = (owner match {
+    case _: Member.Tuple => openParenTupleSite
+    case _: Type.ArgClause => openBracketCallSite
+    case _ => None
+  }).getOrElse(openParenCallSite)
 
 }
 

@@ -863,9 +863,10 @@ class FormatOps(
       allowForce: Boolean = true,
   )(implicit
       style: ScalafmtConfig,
-      cfg: Newlines.ConfigStyleElement,
+      clauseSiteFlags: ClauseSiteFlags,
   ): ConfigStyle =
-    if (allowForce && mustForceConfigStyle(ft)) ConfigStyle.Forced
+    if (allowForce && mustForceConfigStyle(ft)(clauseSiteFlags.configStyle))
+      ConfigStyle.Forced
     else if (preserveConfigStyle(ft, breakBeforeClose)) ConfigStyle.Source
     else ConfigStyle.None
 
@@ -873,11 +874,12 @@ class FormatOps(
       cfg: Newlines.ConfigStyleElement,
   ): Boolean = cfg.getForceIfOptimized && forceConfigStyle(ft.meta.idx)
 
-  def preserveConfigStyle(
-      ft: FormatToken,
-      breakBeforeClose: => Boolean,
-  )(implicit style: ScalafmtConfig, cfg: Newlines.ConfigStyleElement): Boolean =
-    cfg.prefer && couldPreserveConfigStyle(ft, breakBeforeClose)
+  def preserveConfigStyle(ft: FormatToken, breakBeforeClose: => Boolean)(
+      implicit
+      style: ScalafmtConfig,
+      clauseSiteFlags: ClauseSiteFlags,
+  ): Boolean = clauseSiteFlags.configStyle.prefer &&
+    couldPreserveConfigStyle(ft, breakBeforeClose)
 
   def couldPreserveConfigStyle(ft: FormatToken, breakBeforeClose: => Boolean)(
       implicit style: ScalafmtConfig,
@@ -2642,24 +2644,20 @@ class FormatOps(
   def getBinpackCallsiteFlags(
       ftAfterOpen: FormatToken,
       ftBeforeClose: FormatToken,
-  )(implicit style: ScalafmtConfig) = {
+  )(implicit style: ScalafmtConfig, clauseSiteFlags: ClauseSiteFlags) = {
     val literalArgList = styleMap.opensLiteralArgumentList(ftAfterOpen)
     val dangleForTrailingCommas = getMustDangleForTrailingCommas(ftBeforeClose)
-    implicit val configStyleFlags = style.configStyleCallSite
     val configStyle =
       if (dangleForTrailingCommas) ConfigStyle.None
       else
         mustUseConfigStyle(ftAfterOpen, ftBeforeClose.hasBreak, !literalArgList)
-    val shouldDangle = style.danglingParentheses
-      .atCallSite(ftAfterOpen.meta.leftOwner)
     val scalaJsStyle = style.newlines.source == Newlines.classic &&
-      configStyle == ConfigStyle.None && !configStyleFlags.prefer &&
-      !literalArgList && shouldDangle
+      configStyle == ConfigStyle.None && !literalArgList &&
+      clauseSiteFlags.dangleCloseDelim && !clauseSiteFlags.configStyle.prefer
     BinpackCallsiteFlags(
       literalArgList = literalArgList,
       dangleForTrailingCommas = dangleForTrailingCommas,
       configStyle = configStyle,
-      shouldDangle = shouldDangle,
       scalaJsStyle = scalaJsStyle,
     )
   }
@@ -2676,10 +2674,11 @@ class FormatOps(
         isArgClauseSite(ftAfterClose.meta.rightOwner)
       if (continue) {
         val open = tokens.matching(ftAfterClose.right)
-        val styleAtOpen = styleMap.at(open)
-        val bpFlagsAfter =
-          getBinpackCallsiteFlags(tokens(open), ftAfterClose)(styleAtOpen)
-        scalaJsOptClose(ftAfterClose, bpFlagsAfter)(styleAtOpen)
+        implicit val style: ScalafmtConfig = styleMap.at(open) // override implicit
+        implicit val clauseSiteFlags: ClauseSiteFlags = ClauseSiteFlags
+          .atCallSite(ftAfterClose.meta.rightOwner)
+        val bpFlagsAfter = getBinpackCallsiteFlags(tokens(open), ftAfterClose)
+        scalaJsOptClose(ftAfterClose, bpFlagsAfter)
       } else ftBeforeClose.right
     } else ftBeforeClose.right
 
@@ -2729,8 +2728,35 @@ object FormatOps {
       literalArgList: Boolean,
       dangleForTrailingCommas: Boolean,
       configStyle: ConfigStyle,
-      shouldDangle: Boolean,
       scalaJsStyle: Boolean,
   )
+
+  case class ClauseSiteFlags(
+      configStyle: Newlines.ConfigStyleElement,
+      alignOpenDelim: Boolean = false,
+      dangleCloseDelim: Boolean = true,
+  )
+
+  object ClauseSiteFlags {
+    def apply(owner: Tree, defnSite: Boolean)(implicit
+        style: ScalafmtConfig,
+    ): ClauseSiteFlags = if (defnSite) atDefnSite(owner) else atCallSite(owner)
+
+    def atDefnSite(
+        owner: Tree,
+    )(implicit style: ScalafmtConfig): ClauseSiteFlags = ClauseSiteFlags(
+      configStyle = style.configStyleDefnSite,
+      alignOpenDelim = style.align.atDefnSite(owner),
+      dangleCloseDelim = style.danglingParentheses.atDefnSite(owner),
+    )
+
+    def atCallSite(
+        owner: Tree,
+    )(implicit style: ScalafmtConfig): ClauseSiteFlags = ClauseSiteFlags(
+      configStyle = style.configStyleCallSite,
+      alignOpenDelim = style.align.atCallSite(owner),
+      dangleCloseDelim = style.danglingParentheses.atCallSite(owner),
+    )
+  }
 
 }
