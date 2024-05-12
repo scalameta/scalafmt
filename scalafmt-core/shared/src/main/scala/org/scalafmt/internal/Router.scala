@@ -2023,6 +2023,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: T.LeftParen, right, _) =>
         val close = matching(open)
         val beforeClose = tokens.justBefore(close)
+        implicit val clauseSiteFlags = ClauseSiteFlags.atCallSite(leftOwner)
         val isConfig = couldPreserveConfigStyle(ft, beforeClose.hasBreak)
 
         val enclosed = findEnclosedBetweenParens(open, close, leftOwner)
@@ -2051,7 +2052,7 @@ class Router(formatOps: FormatOps) {
         def newlineSplit(cost: Int, forceDangle: Boolean)(implicit
             fileLine: FileLine,
         ) = {
-          val shouldDangle = forceDangle || style.danglingParentheses.callSite
+          val shouldDangle = forceDangle || clauseSiteFlags.dangleCloseDelim
           Split(Newline, cost)
             .withPolicy(decideNewlinesOnlyBeforeClose(close), !shouldDangle)
             .withIndent(style.indent.callSite, close, Before)

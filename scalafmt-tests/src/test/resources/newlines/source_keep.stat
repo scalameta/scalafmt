@@ -7785,8 +7785,10 @@ object Main {
   )
   val bar1 = foo1(10000,
     10001, 10002 + 0)
-  val bar1 = foo1(10000,
-    10001, 10002 + 0)
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0
+  )
   val bar1 = foo1(
     10000,
     10001, 10002 + 0)
@@ -7838,8 +7840,10 @@ object Main {
       x1: X,
       x2: X, xs: X*
   ): Set[Int]
-  def foo1(x1: X,
-      x2: X, xs: X*): Set[Int]
+  def foo1(
+      x1: X,
+      x2: X, xs: X*
+  ): Set[Int]
   def foo1(
       x1: X,
       x2: X, xs: X*): Set[Int]

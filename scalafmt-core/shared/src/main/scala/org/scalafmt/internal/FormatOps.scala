@@ -882,8 +882,11 @@ class FormatOps(
     couldPreserveConfigStyle(ft, breakBeforeClose)
 
   def couldPreserveConfigStyle(ft: FormatToken, breakBeforeClose: => Boolean)(
-      implicit style: ScalafmtConfig,
+      implicit
+      style: ScalafmtConfig,
+      clauseSiteFlags: ClauseSiteFlags,
   ): Boolean = !style.newlines.sourceIgnored && {
+    !clauseSiteFlags.dangleCloseDelim && !clauseSiteFlags.alignOpenDelim ||
     ft.hasBreak ||
     (next(ft).hasBreak || style.newlines.forceAfterImplicitParamListModifier) &&
     opensConfigStyleImplicitParamList(ft)

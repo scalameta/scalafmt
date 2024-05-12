@@ -195,9 +195,18 @@ class foo(a: String,
 }
 >>>
 import foo.{a, b}
-class foo(a: String, b: String) {
-  def method(a: String, b: String) = ???
-  method(a, b)
+class foo(
+    a: String,
+    b: String,
+) {
+  def method(
+      a: String,
+      b: String,
+  ) = ???
+  method(
+    a,
+    b,
+  )
 }
 <<< #2755 one, no comma
 maxColumn = 80
@@ -395,7 +404,9 @@ class foo(
 val x = ( "a", 
 )
 >>>
-val x = ("a")
+val x = (
+  "a"
+)
 <<< #3663 enclosed literal, open dangles
 val x = (
    "a" )
@@ -413,7 +424,9 @@ val x = (
 val x = ( x => x + 1,
 )
 >>>
-val x = (x => x + 1)
+val x = (
+    x => x + 1,
+)
 <<< #3663 enclosed lambda, open dangles
 val x = (
  x => x + 1 )

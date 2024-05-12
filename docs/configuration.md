@@ -213,7 +213,7 @@ This preset is defined as
 This preset intends to approximate the
 [style used for `scala.js`](https://github.com/scala-js/scala-js/blob/main/CODINGSTYLE.md).
 
-It uses modified detection of [config-style formatting](#newlines-config-style-formatting):
+It uses modified detection of [config-style formatting](#newlinesconfigstylexxxsiteprefer):
 
 - [according to Sébastien Doeraene](https://github.com/scala-js/scala-js/pull/4522#issuecomment-879168123),
   config-style should be driven solely by presence of a dangling closing parenthesis
@@ -2850,12 +2850,10 @@ other(a, b)(c, d)
 
 ## Newlines: Config-style formatting
 
-This formatting applies to argument lists in class definitions and method calls.
-It normally involves a newline after the opening parenthesis (or after the
-`implicit` keyword) and a newline before the closing parenthesis.
-
-As part of the formatting output, arguments are output one per line (but this is
-not used in determining whether the source uses config-style formatting).
+This formatting applies to argument clauses in method calls or parameter
+clauses in definitions. It outputs a newline after the opening parenthesis
+(or after the `implicit` keyword) and a newline before the closing parenthesis,
+with arguments or parameters listed one per line.
 
 ### `newlines.configStyleXxxSite.prefer`
 
@@ -2866,8 +2864,16 @@ falls back to its value (which is enabled by default).
 
 If true, applies config-style formatting:
 
-- if single-line formatting is impossible
-- if `newlines.source = fold/unfold` or the source uses config-style
+- `newlines.source = fold/unfold`:
+  if single-line formatting is impossible
+- `newlines.source = classic/keep`:
+  if preference for config-style is detected in the source:
+  - there's a newline present before the closing delimiter
+  - if [`danglingParentheses.xxxSite = false`](#danglingparenthesescallsite)
+    (and [`align.openParenXxxSite = false`](#alignopenparencallsite)):
+    no other condition needs to be present (the [scala.js rule](#presetscalajs))
+  - otherwise, there needs to be a newline after the opening delimiter,
+    or after the `implicit` keyword if present.
 
 Please note that other parameters might also force config-style (see below).
 
@@ -4951,7 +4957,7 @@ and similarly has cross-parameter interactions:
   - for `newlines.source=classic`, behaviour depends on
     [config-style](#newlinesconfigstylexxxsiteprefer):
     - if enabled, config style is used if
-      - it is [detected](#newlines-config-style-formatting), or
+      - it is [detected](#newlinesconfigstylexxxsiteprefer), or
       - configured to use [scala.js style](#presetscalajs)
     - otherwise, uses binpacking
   - for other values of [`newlines.source`](#newlinessource),
