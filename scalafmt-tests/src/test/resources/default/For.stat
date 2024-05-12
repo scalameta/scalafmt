@@ -126,8 +126,31 @@ for (
         SelectPath(looker.path descendant Seq("a", "b").asJava) -> None
     ))
 ) checkOne(looker, l, r)
-<<< multiline for with paren, no align
+<<< multiline for with paren, no align, !dangle
 align.preset = none
+danglingParentheses.preset = false
+===
+for ((l, r) ← /* c1 */ ( /* c2 */Seq(
+    SelectString("a/b/c") -> None,
+    SelectString("akka://all-systems/Nobody") -> None,
+    SelectPath(system / "hallo") -> None,
+    SelectPath(looker.path child "hallo") -> None, // test Java API
+    SelectPath(looker.path descendant Seq("a", "b").asJava) -> None
+  ) // test Java API
+  )
+) checkOne(looker, l, r)
+>>>
+for ((l, r) ← /* c1 */ ( /* c2 */ Seq(
+          SelectString("a/b/c") -> None,
+          SelectString("akka://all-systems/Nobody") -> None,
+          SelectPath(system / "hallo") -> None,
+          SelectPath(looker.path child "hallo") -> None, // test Java API
+          SelectPath(looker.path descendant Seq("a", "b").asJava) -> None
+      ) // test Java API
+    )) checkOne(looker, l, r)
+<<< multiline for with paren, no align, dangle
+align.preset = none
+danglingParentheses.preset = true
 ===
 for ((l, r) ← /* c1 */ ( /* c2 */Seq(
     SelectString("a/b/c") -> None,
