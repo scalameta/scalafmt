@@ -2970,8 +2970,9 @@ object a {
 >>>
 object a {
   val foo = bar.map(x =>
-    x.copy(baz =
-      Option.when(false)(x.qux)))
+    x.copy(
+      baz = Option.when(false)(x.qux)
+    ))
 }
 <<< literalsIncludeSimpleExpr with named parameter values, !configStyleArguments + danglingParentheses
 binPack.literalsIncludeSimpleExpr = true
@@ -7936,8 +7937,9 @@ object Main {
   def foo1(
       x1: X, x2: X, xs: X*
   ): Set[Int]
-  def foo1(x1: X, x2: X,
-      xs: X*): Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*
+  ): Set[Int]
   def foo1(x1: X, x2: X,
       xs: X*): Set[Int]
   def foo1(x1: X, x2: X,
