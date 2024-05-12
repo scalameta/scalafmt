@@ -838,8 +838,8 @@ class Router(formatOps: FormatOps) {
             isParamClauseSite(leftOwner)
           } =>
         val close = matching(open)
-        val closeFormatToken = tokens(close)
-        val beforeClose = prev(closeFormatToken)
+        val afterClose = tokens(close)
+        val beforeClose = prev(afterClose)
         val tupleSite = isTuple(leftOwner)
         val anyDefnSite = isParamClauseSite(leftOwner)
         val defnSite = !tupleSite && anyDefnSite
@@ -870,11 +870,10 @@ class Router(formatOps: FormatOps) {
         val mustDangleForTrailingCommas =
           getMustDangleForTrailingCommas(beforeClose)
 
-        val rightIsComment = right.is[T.Comment]
         implicit val clauseSiteFlags = ClauseSiteFlags(leftOwner, defnSite)
-        def closeBreak = mustDangleForTrailingCommas || beforeClose.hasBreak
+        val closeBreak = beforeClose.hasBreak
         val onlyConfigStyle = ConfigStyle.None !=
-          mustUseConfigStyle(ft, closeBreak)
+          mustUseConfigStyle(ft, mustDangleForTrailingCommas || closeBreak)
         val configStyleFlag = clauseSiteFlags.configStyle.prefer
 
         val sourceIgnored = style.newlines.sourceIgnored
@@ -899,20 +898,19 @@ class Router(formatOps: FormatOps) {
         val isBeforeOpenParen =
           if (defnSite) style.newlines.isBeforeOpenParenDefnSite
           else style.newlines.isBeforeOpenParenCallSite
-        val expirationToken: T =
+        val optimal: T =
           if (isBeforeOpenParen) close
-          else if (defnSite && !isBracket)
-            defnSiteLastToken(closeFormatToken, leftOwner)
-          else rhsOptimalToken(closeFormatToken)
+          else if (!defnSite || isBracket) rhsOptimalToken(afterClose)
+          else defnSiteLastToken(afterClose, leftOwner)
 
-        val mustDangle = onlyConfigStyle || expirationToken.is[T.Comment] ||
-          mustDangleForTrailingCommas
-        val wouldDangle = clauseSiteFlags.dangleCloseDelim ||
-          beforeClose.hasBreak && beforeClose.left.is[T.Comment]
+        val wouldDangle = onlyConfigStyle || mustDangleForTrailingCommas ||
+          clauseSiteFlags.dangleCloseDelim ||
+          closeBreak && beforeClose.left.is[T.Comment]
+        val optimalIsComment = optimal.is[T.Comment]
 
         val newlinePolicy: Policy =
-          if (wouldDangle || mustDangle) decideNewlinesOnlyBeforeClose(close)
-          else Policy.NoPolicy
+          if (!(wouldDangle || optimalIsComment)) NoPolicy
+          else decideNewlinesOnlyBeforeClose(close)
 
         // covers using as well
         val handleImplicit = !tupleSite &&
@@ -927,6 +925,8 @@ class Router(formatOps: FormatOps) {
             }
           ) null
           else getNoSplit(ft, !isBracket)
+
+        val rightIsComment = right.is[T.Comment]
         val noSplitIndent = if (rightIsComment) indent else Num(0)
 
         val align = !rightIsComment && clauseSiteFlags.alignOpenDelim &&
@@ -1031,7 +1031,7 @@ class Router(formatOps: FormatOps) {
             val noSplitPolicy =
               if (preferNoSplit && splitsForAssign.isEmpty) singleLine(2)
               else if (
-                wouldDangle || mustDangle && isBracket || onlyConfigStyle ||
+                wouldDangle || optimalIsComment && isBracket ||
                 sourceIgnored && configStyleFlag && !isSingleEnclosedArgument
               ) SingleLineBlock(
                 close,
@@ -1042,8 +1042,7 @@ class Router(formatOps: FormatOps) {
               else singleLine(10)
             Seq(
               Split(noSplitMod, 0, policy = noSplitPolicy)
-                .notIf(mustDangleForTrailingCommas)
-                .withOptimalToken(expirationToken)
+                .notIf(mustDangleForTrailingCommas).withOptimalToken(optimal)
                 .withIndent(noSplitIndent, close, Before),
               Split(noSplitMod, (implicitPenalty + lhsPenalty) * bracketCoef)
                 .withPolicy(oneArgOneLine & implicitPolicy).onlyIf(
