@@ -2875,7 +2875,8 @@ object a {
 object a {
   val foo = bar.map(x =>
     x.copy(baz =
-      Option.when(false)(x.qux))
+      Option.when(false)(x.qux)
+    )
   )
 }
 <<< binPack with named parameter values, !danglingParentheses
@@ -2894,7 +2895,8 @@ object a {
 object a {
   val foo = bar.map(x =>
     x.copy(baz =
-      Option.when(false)(x.qux)))
+      Option.when(false)(x.qux)
+    ))
 }
 <<< literalsIncludeSimpleExpr with named parameter values, danglingParentheses
 binPack.literalsIncludeSimpleExpr = true
@@ -3002,10 +3004,8 @@ object a {
 }
 >>>
 object a {
-  protected def foo[U](
-      bar: String,
-      baz: Seq[String] = Seq.empty
-  )(
+  protected def foo[U](bar: String,
+      baz: Seq[String] = Seq.empty)(
       f: HttpResponse => U
   ): U = qux
 }
@@ -5116,17 +5116,19 @@ object a {
 object a {
   when(
     service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))),
-      Page(0, Page.maxPageLimit), Order.default)
+      Page(0, Page.maxPageLimit), Order.default
+    )
   ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(
     service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)),
-      Page(0, Page.maxPageLimit), Order.default)
+      Page(0, Page.maxPageLimit), Order.default
+    )
   ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
-    Page(0, Page.maxPageLimit), Order.default).thenReturn(
-    PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+    Page(0, Page.maxPageLimit), Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
     Page(0, Page.maxPageLimit), Order.default,
@@ -5170,7 +5172,8 @@ object a {
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
     Page(0, Page.maxPageLimit), Order.default).thenReturn(
-    PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+    PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))
+  )
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
     Page(0, Page.maxPageLimit), Order.default,
@@ -5228,16 +5231,16 @@ object a {
 >>>
 object a {
   when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))),
-      Page(0, Page.maxPageLimit), Order.default)).thenReturn(PageResult(Seq(audience,
-        audience.copy(id = 2)), PageInfo(50, 0, 10)))
+      Page(0, Page.maxPageLimit), Order.default
+    )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)),
-      Page(0, Page.maxPageLimit), Order.default)).thenReturn(PageResult(Seq(audience,
-        audience.copy(id = 2)), PageInfo(50, 0, 10)))
+      Page(0, Page.maxPageLimit), Order.default
+    )).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
-    Page(0, Page.maxPageLimit), Order.default).thenReturn(PageResult(Seq(audience,
-        audience.copy(id = 2)), PageInfo(50, 0, 10)))
+    Page(0, Page.maxPageLimit), Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))),
     Page(0, Page.maxPageLimit), Order.default,
@@ -7579,15 +7582,19 @@ object Main {
 object Main {
   val bar1 = foo1(
     10000,
-    10001, 10002 + 0
+    10001,
+    10002 + 0
   )
   val bar1 = foo1(10000,
     10001, 10002 + 0)
   val bar1 = foo1(10000,
-    10001, 10002 + 0)
+    10001, 10002 + 0
+  )
   val bar1 = foo1(
     10000,
-    10001, 10002 + 0)
+    10001,
+    10002 + 0
+  )
   val bar2 = foo2(
     0,
     1,
@@ -7634,22 +7641,32 @@ object Main {
 object Main {
   def foo1(
       x1: X,
-      x2: X, xs: X*
+      x2: X,
+      xs: X*
   ): Set[Int]
   def foo1(x1: X,
-      x2: X, xs: X*): Set[Int]
+      x2: X, xs: X*
+  ): Set[Int]
   def foo1(
       x1: X,
-      x2: X, xs: X*): Set[Int]
+      x2: X,
+      xs: X*
+  ): Set[Int]
   def foo1(x1: X,
       x2: X, xs: X*): Set[Int]
   def foo2(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
   def foo3(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
 }
 <<< binPack.callSite with !configStyle, danglingParentheses
@@ -7686,7 +7703,8 @@ object Main {
   val bar1 = foo1(10000,
     10001, 10002 + 0)
   val bar1 = foo1(10000,
-    10001, 10002 + 0)
+    10001, 10002 + 0
+  )
   val bar1 = foo1(
     10000,
     10001, 10002 + 0
@@ -7731,18 +7749,15 @@ object Main {
       x1: X,
       x2: X, xs: X*
   ): Set[Int]
-  def foo1(
-      x1: X,
+  def foo1(x1: X,
       x2: X, xs: X*
   ): Set[Int]
   def foo1(
       x1: X,
       x2: X, xs: X*
   ): Set[Int]
-  def foo1(
-      x1: X,
-      x2: X, xs: X*
-  ): Set[Int]
+  def foo1(x1: X,
+      x2: X, xs: X*): Set[Int]
   def foo2(
       x1: X, x2: X, x3: X,
       x4: X, xs: X*
@@ -7781,16 +7796,17 @@ object Main {
 object Main {
   val bar1 = foo1(
     10000,
-    10001, 10002 + 0
+    10001,
+    10002 + 0
   )
   val bar1 = foo1(10000,
     10001, 10002 + 0)
   val bar1 = foo1(
     10000,
-    10001, 10002 + 0
+    10001,
+    10002 + 0
   )
-  val bar1 = foo1(
-    10000,
+  val bar1 = foo1(10000,
     10001, 10002 + 0)
   val bar2 = foo2(
     0,
@@ -7838,24 +7854,31 @@ object Main {
 object Main {
   def foo1(
       x1: X,
-      x2: X, xs: X*
+      x2: X,
+      xs: X*
   ): Set[Int]
   def foo1(
       x1: X,
-      x2: X, xs: X*
+      x2: X,
+      xs: X*
   ): Set[Int]
-  def foo1(
-      x1: X,
+  def foo1(x1: X,
       x2: X, xs: X*): Set[Int]
   def foo1(x1: X,
       x2: X, xs: X*): Set[Int]
   def foo2(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
   def foo3(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
 }
 <<< binPack.callSite with !configStyle, !danglingParentheses
@@ -7887,11 +7910,13 @@ object Main {
 object Main {
   val bar1 = foo1(
     10000,
-    10001, 10002 + 0)
+    10001, 10002 + 0
+  )
   val bar1 = foo1(10000,
     10001, 10002 + 0)
   val bar1 = foo1(10000,
-    10001, 10002 + 0)
+    10001, 10002 + 0
+  )
   val bar1 = foo1(
     10000,
     10001, 10002 + 0)
@@ -7932,9 +7957,11 @@ object Main {
 object Main {
   def foo1(
       x1: X,
-      x2: X, xs: X*): Set[Int]
+      x2: X, xs: X*
+  ): Set[Int]
   def foo1(x1: X,
-      x2: X, xs: X*): Set[Int]
+      x2: X, xs: X*
+  ): Set[Int]
   def foo1(
       x1: X,
       x2: X, xs: X*): Set[Int]
@@ -7942,7 +7969,8 @@ object Main {
       x2: X, xs: X*): Set[Int]
   def foo2(
       x1: X, x2: X, x3: X,
-      x4: X, xs: X*): Set[Int]
+      x4: X, xs: X*
+  ): Set[Int]
   def foo3(
       x1: X, x2: X, x3: X,
       x4: X, xs: X*): Set[Int]

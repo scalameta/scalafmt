@@ -7718,6 +7718,9 @@ maxColumn = 30
 runner.optimizer.callSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
+  val bar0 = foo0(
+    1, 2, 3 + 0
+  )
   val bar1 = foo1(
     10000,
     10001, 10002 + 0
@@ -7737,6 +7740,7 @@ object Main {
 }
 >>>
 object Main {
+  val bar0 = foo0(1, 2, 3 + 0)
   val bar1 = foo1(
     10000, 10001, 10002 + 0
   )
@@ -7806,12 +7810,18 @@ object Main {
       x1: X, x2: X, xs: X*
   ): Set[Int]
   def foo2(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
   def foo3(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
 }
 <<< binPack.callSite with !configStyle, danglingParentheses
@@ -7822,6 +7832,9 @@ maxColumn = 30
 runner.optimizer.callSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
+  val bar0 = foo0(
+    1, 2, 3 + 0
+  )
   val bar1 = foo1(
     10000,
     10001, 10002 + 0
@@ -7841,6 +7854,7 @@ object Main {
 }
 >>>
 object Main {
+  val bar0 = foo0(1, 2, 3 + 0)
   val bar1 = foo1(
     10000, 10001, 10002 + 0
   )
@@ -7917,6 +7931,9 @@ maxColumn = 30
 runner.optimizer.callSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
+  val bar0 = foo0(
+    1, 2, 3 + 0
+  )
   val bar1 = foo1(
     10000,
     10001, 10002 + 0
@@ -7936,6 +7953,7 @@ object Main {
 }
 >>>
 object Main {
+  val bar0 = foo0(1, 2, 3 + 0)
   val bar1 = foo1(
     10000, 10001, 10002 + 0)
   val bar1 = foo1(
@@ -8001,12 +8019,18 @@ object Main {
       x1: X, x2: X, xs: X*)
       : Set[Int]
   def foo2(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
   def foo3(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
 }
 <<< binPack.callSite with !configStyle, !danglingParentheses
@@ -8017,6 +8041,9 @@ maxColumn = 30
 runner.optimizer.callSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
+  val bar0 = foo0(
+    1, 2, 3 + 0
+  )
   val bar1 = foo1(
     10000,
     10001, 10002 + 0
@@ -8036,6 +8063,7 @@ object Main {
 }
 >>>
 object Main {
+  val bar0 = foo0(1, 2, 3 + 0)
   val bar1 = foo1(
     10000, 10001, 10002 + 0)
   val bar1 = foo1(

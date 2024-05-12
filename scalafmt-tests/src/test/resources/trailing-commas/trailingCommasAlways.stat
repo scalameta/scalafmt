@@ -358,10 +358,12 @@ import foo.{
   a, b,
 }
 class foo(
-    a: String, b: String,
+    a: String,
+    b: String,
 ) {
   def method(
-      a: String, b: String,
+      a: String,
+      b: String,
   ) = ???
   method(
     a,

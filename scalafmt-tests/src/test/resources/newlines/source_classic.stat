@@ -2875,7 +2875,8 @@ object a {
 object a {
   val foo = bar.map(x =>
     x.copy(
-      baz = Option.when(false)(x.qux))
+      baz = Option.when(false)(x.qux)
+    )
   )
 }
 <<< binPack with named parameter values, configStyleArguments + !danglingParentheses
@@ -3049,8 +3050,10 @@ object a {
           Some(0), Some(1), foo = Some("bar")),
         Qux("", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
           Some(0), Some(1), foo = Some("bar")),
-        Qux("", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
-          Some(0), Some(1), foo = Some("bar"))
+        Qux(
+          "", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
+          Some(0), Some(1), foo = Some("bar")
+        )
       )
     )
   )
@@ -3080,12 +3083,13 @@ object a {
 }
 >>>
 object a {
-  private val audience3 =
-    apiAudience(3, "b_name", Sams, Inid, "2", "created-by-user2", "updated-by-user2").copy(
-      updatedAt = nowDate.minusDays(15),
-      audienceSizeOnsite = Some(3333),
-      audienceSizeOffsite = Some(1)
-    )
+  private val audience3 = apiAudience(
+    3, "b_name", Sams, Inid, "2", "created-by-user2", "updated-by-user2"
+  ).copy(
+    updatedAt = nowDate.minusDays(15),
+    audienceSizeOnsite = Some(3333),
+    audienceSizeOffsite = Some(1)
+  )
   private val audience3 =
     apiAudience(3, "b_name", Sams, Inid, "2", "created-by-user2", "updated-by-user2").copy(
       updatedAt = nowDate.minusDays(15),
@@ -3122,10 +3126,10 @@ object a {
 }
 >>>
 object a {
-  protected def foo[U](
-      bar: String,
-      baz: Seq[String] = Seq.empty
-  )(f: HttpResponse => U): U = qux
+  protected def foo[U](bar: String,
+      baz: Seq[String] = Seq.empty)(
+      f: HttpResponse => U
+  ): U = qux
 }
 <<< binPack indent expiresOn=Before when !dangle, configStyleArguments
 binPack.preset = true
@@ -5047,8 +5051,11 @@ object a {
 }
 >>>
 object a {
-  def foo(bb: BB, cc: CC, dd: DD = DDD.ddd): Bar[
-    Baz] = {
+  def foo(
+      bb: BB,
+      cc: CC,
+      dd: DD = DDD.ddd
+  ): Bar[Baz] = {
     // c
     qux
   }
@@ -5070,8 +5077,7 @@ object a {
 >>>
 object a {
   def foo(bb: BB, cc: CC, dd: DD = DDD.ddd): Bar[
-    Baz
-  ] = {
+    Baz] = {
     // c
     qux
   }
@@ -5088,8 +5094,9 @@ object a {
 }
 >>>
 object a {
-  def foo(dd: DD[AA[BB], CC] =
-        DDD.ddd): Bar[Baz] = {
+  def foo(
+      dd: DD[AA[BB], CC] = DDD.ddd
+  ): Bar[Baz] = {
     // c
     qux
   }
@@ -7743,7 +7750,9 @@ object Main {
 >>>
 object Main {
   def foo1(
-      x1: X, x2: X, xs: X*
+      x1: X,
+      x2: X,
+      xs: X*
   ): Set[Int]
   def foo1(x1: X, x2: X,
       xs: X*): Set[Int]
@@ -7752,12 +7761,18 @@ object Main {
   def foo1(x1: X, x2: X,
       xs: X*): Set[Int]
   def foo2(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
   def foo3(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
 }
 <<< binPack.callSite with !configStyle, danglingParentheses
@@ -7787,8 +7802,9 @@ object Main {
 }
 >>>
 object Main {
-  val bar1 = foo1(10000,
-    10001, 10002 + 0)
+  val bar1 = foo1(
+    10000, 10001, 10002 + 0
+  )
   val bar1 = foo1(10000,
     10001, 10002 + 0)
   val bar1 = foo1(10000,
@@ -7831,23 +7847,19 @@ object Main {
   def foo1(
       x1: X, x2: X, xs: X*
   ): Set[Int]
-  def foo1(
-      x1: X, x2: X, xs: X*
-  ): Set[Int]
-  def foo1(
-      x1: X, x2: X, xs: X*
-  ): Set[Int]
-  def foo1(
-      x1: X, x2: X, xs: X*
-  ): Set[Int]
+  def foo1(x1: X, x2: X,
+      xs: X*): Set[Int]
+  def foo1(x1: X, x2: X,
+      xs: X*): Set[Int]
+  def foo1(x1: X, x2: X,
+      xs: X*): Set[Int]
   def foo2(
       x1: X, x2: X, x3: X,
       x4: X, xs: X*
   ): Set[Int]
-  def foo3(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
-  ): Set[Int]
+  def foo3(x1: X, x2: X,
+      x3: X, x4: X, xs: X*)
+      : Set[Int]
 }
 <<< binPack.callSite with configStyle, !danglingParentheses
 newlines.configStyleCallSite.prefer = true
@@ -7935,22 +7947,32 @@ object Main {
 >>>
 object Main {
   def foo1(
-      x1: X, x2: X, xs: X*
+      x1: X,
+      x2: X,
+      xs: X*
   ): Set[Int]
   def foo1(
-      x1: X, x2: X, xs: X*
+      x1: X,
+      x2: X,
+      xs: X*
   ): Set[Int]
   def foo1(x1: X, x2: X,
       xs: X*): Set[Int]
   def foo1(x1: X, x2: X,
       xs: X*): Set[Int]
   def foo2(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
   def foo3(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
 }
 <<< binPack.callSite with !configStyle, !danglingParentheses

@@ -2622,12 +2622,13 @@ object a {
 >>>
 object a {
   test("foo") {
-    a.b(c, d) shouldBe E(
-      Seq(F(1, "v1"), F(2, "v2")),
-      G(Some(Seq(h, i)),
-        Some(Seq(j, k)), a.b, c.d,
-        e.f.g, h.i.j)
-    ).foo
+    a.b(c, d) shouldBe
+      E(Seq(F(1, "v1"), F(2, "v2")),
+        G(Some(Seq(h, i)),
+          Some(Seq(j, k)), a.b, c.d,
+          e.f.g, h.i.j
+        )
+      ).foo
   }
 }
 <<< binpack call, oneline
@@ -2647,7 +2648,8 @@ object a {
       E(Seq(F(1, "v1"), F(2, "v2")),
         G(Some(Seq(h, i)),
           Some(Seq(j, k)), a.b, c.d,
-          e.f.g, h.i.j)
+          e.f.g, h.i.j
+        )
       ).foo
   }
 }
@@ -2716,8 +2718,9 @@ object a {
 >>>
 object a {
   val foo = bar.map(x =>
-    x.copy(baz = Option
-      .when(false)(x.qux))
+    x.copy(
+      baz = Option.when(false)(x.qux)
+    )
   )
 }
 <<< binPack with named parameter values, !danglingParentheses
@@ -2796,9 +2799,8 @@ object a {
 }
 >>>
 object a {
-  foo(bar.baz(Seq(Qux(
-    "", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None, None, 1000,
-    Some(0), Some(1), foo = Some("bar")
+  foo(bar.baz(Seq(Qux("", 1, "par1", "2018-01-01", "2018-12-31", "2018-01-01", "2018-02-01", None,
+    None, 1000, Some(0), Some(1), foo = Some("bar")
   ))))
 }
 <<< binPack.literals, danglingParentheses, avoid fold
@@ -2839,8 +2841,7 @@ object a {
 }
 >>>
 object a {
-  protected def foo[U](
-      bar: String,
+  protected def foo[U](bar: String,
       baz: Seq[String] = Seq.empty
   )(f: HttpResponse => U): U = qux
 }
@@ -4849,12 +4850,17 @@ object a {
 }
 >>>
 object a {
-  binder.bind("f", params) shouldBe Some(Left(
-    s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
-  ))
+  binder.bind("f", params) shouldBe Some(
+    Left(
+      s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
+    )
+  )
 
-  when(audienceService.publish(any[Tenant], any[Int])).thenReturn(Success[NonEmptyList[String],
-    ApiAudience](apiAudience.copy(status = AudienceStatus.Pending.name)))
+  when(audienceService.publish(any[Tenant], any[Int])).thenReturn(
+    Success[NonEmptyList[String], ApiAudience](
+      apiAudience.copy(status = AudienceStatus.Pending.name)
+    )
+  )
 }
 <<< binPack.callSite = Oneline, nested with one arg, several options
 maxColumn = 100
@@ -4881,21 +4887,26 @@ object a {
 >>>
 object a {
   when(
-    service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-      Order.default)
+    service.list(
+      ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit), Order.default
+    )
   ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
   when(
-    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit),
-      Order.default)
+    service.list(
+      ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit), Order.default
+    )
   ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+  when(
+    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
-    .thenReturn(None)
+  when(
+    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))
+  ).thenReturn(None)
 }
 <<< binPack.callSite = always, nested with one arg
 maxColumn = 100
@@ -4915,13 +4926,17 @@ object a {
 }
 >>>
 object a {
-  binder.bind("f", params) shouldBe Some(Left(
+  binder.bind("f", params) shouldBe Some(
+    Left(
       s"Cannot parse parameter f as DummyEnum, $wrongValue is not a member of Enum (dummy-value)"
-    ))
+    )
+  )
 
-  when(audienceService.publish(any[Tenant], any[Int]))
-    .thenReturn(Success[NonEmptyList[String], ApiAudience](apiAudience
-          .copy(status = AudienceStatus.Pending.name)))
+  when(audienceService.publish(any[Tenant], any[Int])).thenReturn(
+    Success[NonEmptyList[String], ApiAudience](
+      apiAudience.copy(status = AudienceStatus.Pending.name)
+    )
+  )
 }
 <<< binPack.callSite = always, nested with one arg, several options
 maxColumn = 100
@@ -4947,20 +4962,27 @@ object a {
 }
 >>>
 object a {
-  when(service.list(ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-      Order.default))
-    .thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+  when(
+    service.list(
+      ApiAudienceFilter(tenants = Contains(Seq(ATenant))), Page(0, Page.maxPageLimit), Order.default
+    )
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit),
-      Order.default))
-    .thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+  when(
+    service.list(
+      ApiAudienceFilter(tenants), Contains(Seq(ATenant)), Page(0, Page.maxPageLimit), Order.default
+    )
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
+  when(
+    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default
+  ).thenReturn(PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
 
-  when(service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
-    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10)))
-    .thenReturn(None)
+  when(
+    service.list(ApiAudienceFilter(tenants), Contains(Seq(ATenant))), Page(0, Page.maxPageLimit),
+    Order.default, PageResult(Seq(audience, audience.copy(id = 2)), PageInfo(50, 0, 10))
+  ).thenReturn(None)
 }
 <<< #2821 default
 assembly / assemblyMergeStrategy := {
@@ -6921,8 +6943,10 @@ object a {
 object a {
   assert(
     t21 ==
-      (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-        20, 21)
+      (
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        20, 21
+      )
   )
 }
 <<< SM 7.4.0: 44
@@ -7141,6 +7165,9 @@ maxColumn = 30
 runner.optimizer.callSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
+  val bar0 = foo0(
+    1, 2, 3 + 0
+  )
   val bar1 = foo1(
     10000,
     10001, 10002 + 0
@@ -7160,14 +7187,19 @@ object Main {
 }
 >>>
 object Main {
-  val bar1 = foo1(10000,
-    10001, 10002 + 0)
-  val bar1 = foo1(10000,
-    10001, 10002 + 0)
-  val bar1 = foo1(10000,
-    10001, 10002 + 0)
-  val bar1 = foo1(10000,
-    10001, 10002 + 0)
+  val bar0 = foo0(1, 2, 3 + 0)
+  val bar1 = foo1(
+    10000, 10001, 10002 + 0
+  )
+  val bar1 = foo1(
+    10000, 10001, 10002 + 0
+  )
+  val bar1 = foo1(
+    10000, 10001, 10002 + 0
+  )
+  val bar1 = foo1(
+    10000, 10001, 10002 + 0
+  )
   val bar2 = foo2(
     0,
     1,
@@ -7225,12 +7257,18 @@ object Main {
       x1: X, x2: X, xs: X*
   ): Set[Int]
   def foo2(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
   def foo3(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
 }
 <<< binPack.callSite with !configStyle, danglingParentheses
@@ -7241,6 +7279,9 @@ maxColumn = 30
 runner.optimizer.callSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
+  val bar0 = foo0(
+    1, 2, 3 + 0
+  )
   val bar1 = foo1(
     10000,
     10001, 10002 + 0
@@ -7260,17 +7301,21 @@ object Main {
 }
 >>>
 object Main {
+  val bar0 = foo0(1, 2, 3 + 0)
   val bar1 = foo1(10000,
-    10001, 10002 + 0)
+    10001, 10002 + 0
+  )
   val bar1 = foo1(10000,
-    10001, 10002 + 0)
+    10001, 10002 + 0
+  )
   val bar1 = foo1(10000,
-    10001, 10002 + 0)
+    10001, 10002 + 0
+  )
   val bar1 = foo1(10000,
-    10001, 10002 + 0)
-  val bar2 = foo2(
-    0, 1, 2, 3, 4, 5, 6, 7, 8,
-    9, 10 + 0
+    10001, 10002 + 0
+  )
+  val bar2 = foo2(0, 1, 2, 3,
+    4, 5, 6, 7, 8, 9, 10 + 0
   )
 }
 <<< binPack.defnSite with !configStyle, danglingParentheses
@@ -7303,25 +7348,23 @@ object Main {
 }
 >>>
 object Main {
-  def foo1(
-      x1: X, x2: X, xs: X*
+  def foo1(x1: X, x2: X,
+      xs: X*
   ): Set[Int]
-  def foo1(
-      x1: X, x2: X, xs: X*
+  def foo1(x1: X, x2: X,
+      xs: X*
   ): Set[Int]
-  def foo1(
-      x1: X, x2: X, xs: X*
+  def foo1(x1: X, x2: X,
+      xs: X*
   ): Set[Int]
-  def foo1(
-      x1: X, x2: X, xs: X*
+  def foo1(x1: X, x2: X,
+      xs: X*
   ): Set[Int]
-  def foo2(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+  def foo2(x1: X, x2: X,
+      x3: X, x4: X, xs: X*
   ): Set[Int]
-  def foo3(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+  def foo3(x1: X, x2: X,
+      x3: X, x4: X, xs: X*
   ): Set[Int]
 }
 <<< binPack.callSite with configStyle, !danglingParentheses
@@ -7332,6 +7375,9 @@ maxColumn = 30
 runner.optimizer.callSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
+  val bar0 = foo0(
+    1, 2, 3 + 0
+  )
   val bar1 = foo1(
     10000,
     10001, 10002 + 0
@@ -7351,6 +7397,7 @@ object Main {
 }
 >>>
 object Main {
+  val bar0 = foo0(1, 2, 3 + 0)
   val bar1 = foo1(
     10000, 10001, 10002 + 0)
   val bar1 = foo1(
@@ -7403,21 +7450,31 @@ object Main {
 }
 >>>
 object Main {
-  def foo1(x1: X, x2: X,
-      xs: X*): Set[Int]
-  def foo1(x1: X, x2: X,
-      xs: X*): Set[Int]
-  def foo1(x1: X, x2: X,
-      xs: X*): Set[Int]
-  def foo1(x1: X, x2: X,
-      xs: X*): Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*)
+      : Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*)
+      : Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*)
+      : Set[Int]
+  def foo1(
+      x1: X, x2: X, xs: X*)
+      : Set[Int]
   def foo2(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
   def foo3(
-      x1: X, x2: X, x3: X,
-      x4: X, xs: X*
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
   ): Set[Int]
 }
 <<< binPack.callSite with !configStyle, !danglingParentheses
@@ -7428,6 +7485,9 @@ maxColumn = 30
 runner.optimizer.callSite { minSpan = 20, minCount = 5 }
 ===
 object Main {
+  val bar0 = foo0(
+    1, 2, 3 + 0
+  )
   val bar1 = foo1(
     10000,
     10001, 10002 + 0
@@ -7447,17 +7507,17 @@ object Main {
 }
 >>>
 object Main {
-  val bar1 = foo1(
-    10000, 10001, 10002 + 0)
-  val bar1 = foo1(
-    10000, 10001, 10002 + 0)
-  val bar1 = foo1(
-    10000, 10001, 10002 + 0)
-  val bar1 = foo1(
-    10000, 10001, 10002 + 0)
-  val bar2 = foo2(
-    0, 1, 2, 3, 4, 5, 6, 7, 8,
-    9, 10 + 0)
+  val bar0 = foo0(1, 2, 3 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar2 = foo2(0, 1, 2, 3,
+    4, 5, 6, 7, 8, 9, 10 + 0)
 }
 <<< binPack.defnSite with !configStyle, !danglingParentheses
 newlines.configStyleDefnSite.prefer = false

@@ -63,7 +63,8 @@ object a {
 >>>
 object a {
   case class TopLevelExportInfo(moduleID: String, jsName: String)(
-      val pos: Position) extends ExportInfo
+      val pos: Position
+  ) extends ExportInfo
 }
 <<< #2633 keep with class, !dangle
 maxColumn = 70
