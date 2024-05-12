@@ -31,8 +31,10 @@ case class DanglingParentheses(
 
   @inline
   def atDefnSite(lpOwner: Tree): Boolean =
-    (if (lpOwner.is[Type.ParamClause]) atBracketDefnSite else defnSite) &&
-      isExcluded(lpOwner)
+    (lpOwner match {
+      case _: Type.ParamClause => atBracketDefnSite
+      case _ => defnSite
+    }) && isExcluded(lpOwner)
 
   @inline
   def atVerticalMultilineSite(lpOwner: Tree): Boolean = defnSite &&
