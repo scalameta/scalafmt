@@ -60,7 +60,8 @@ def a(b: Int,
 )
 >>>
 def a(
-    b: Int, c: Int,
+    b: Int,
+    c: Int,
 )
 <<< keep, do not fold, binpack, !cfgStyle
 binPack.preset = true
@@ -108,7 +109,9 @@ def a(b: Int, c: Int,
  /* comment */ )
 >>>
 def a(
-    b: Int, c: Int, /* comment */
+    b: Int,
+    c: Int,
+    /* comment */
 )
 <<< keep, do not fold, with comment after break, binpack, !cfgStyle
 maxColumn = 40
@@ -182,7 +185,8 @@ def a(b: Int,
 )
 >>>
 def a(
-    b: Int, c: Int,
+    b: Int,
+    c: Int,
 )
 <<< keep, do not fold, with spaces, binpack, !cfgStyle
 binPack.preset = true
@@ -234,7 +238,9 @@ def a(b: Int, c: Int,
  /* comment */ )
 >>>
 def a(
-    b: Int, c: Int, /* comment */
+    b: Int,
+    c: Int,
+    /* comment */
 )
 <<< keep, do not fold, with spaces and comment after break, binpack, !cfgStyle
 spaces.inParentheses = true

@@ -193,7 +193,8 @@ private val lengthByLeading: Array[Int] = Array(
   // 11110uuu
   4, 4, 4, 4, 4, 4, 4, 4,
   // > 11110111
-  -1, -1, -1, -1, -1, -1, -1, -1)
+  -1, -1, -1, -1, -1, -1, -1, -1
+)
 <<< native 2, !dangle
 danglingParentheses.preset = false
 ===

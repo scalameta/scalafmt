@@ -71,7 +71,8 @@ somethingVeryLong(
     baz(
       qux // c1
     )
-  })
+  }
+)
 <<< unsafeCallSite forced newline, cfg + !dangle
 maxColumn = 20
 binPack.unsafeCallSite = true
@@ -103,7 +104,8 @@ somethingVeryLong(bar{baz(
 >>>
 somethingVeryLong(
   bar {
-    baz(qux // c1
+    baz(
+      qux // c1
     )
   }
 )

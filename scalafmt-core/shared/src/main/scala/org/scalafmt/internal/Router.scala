@@ -871,10 +871,11 @@ class Router(formatOps: FormatOps) {
           getMustDangleForTrailingCommas(beforeClose)
 
         implicit val clauseSiteFlags = ClauseSiteFlags(leftOwner, defnSite)
+        implicit val configStyleFlags = clauseSiteFlags.configStyle
         val closeBreak = beforeClose.hasBreak
-        val onlyConfigStyle = ConfigStyle.None !=
-          mustUseConfigStyle(ft, mustDangleForTrailingCommas || closeBreak)
-        val configStyleFlag = clauseSiteFlags.configStyle.prefer
+        val onlyConfigStyle = mustForceConfigStyle(ft) ||
+          preserveConfigStyle(ft, mustDangleForTrailingCommas || closeBreak)
+        val configStyleFlag = configStyleFlags.prefer
 
         val sourceIgnored = style.newlines.sourceIgnored
         val (onlyArgument, isSingleEnclosedArgument) =
@@ -1105,8 +1106,6 @@ class Router(formatOps: FormatOps) {
           val penalizeBrackets = bracketPenalty
             .map(p => PenalizeAllNewlines(close, p + 3))
           val beforeClose = tokens.justBefore(close)
-          val onlyConfigStyle = getMustDangleForTrailingCommas(beforeClose) ||
-            ConfigStyle.None != mustUseConfigStyle(ft, beforeClose.hasBreak)
 
           val argsHeadOpt = argumentStarts.get(ft.meta.idx)
           val isSingleArg = isSeqSingle(getArgs(leftOwner))
@@ -1118,13 +1117,12 @@ class Router(formatOps: FormatOps) {
               .map(splitOneArgPerLineAfterCommaOnBreak)
           }
 
-          val nlOnly = onlyConfigStyle || style.newlines.keepBreak(newlines) ||
-            tokens.isRightCommentWithBreak(ft)
-          val mustDangle = onlyConfigStyle ||
-            clauseSiteFlags.dangleCloseDelim &&
-            (style.newlines.sourceIgnored || !clauseSiteFlags.configStyle.prefer)
-          val slbOrNL = nlOnly || style.newlines.source == Newlines.unfold ||
-            mustDangle
+          val flags =
+            getBinpackSiteFlags(ft, beforeClose, literalArgList = false)
+          val (nlOnly, nlCloseOnOpen) = flags.nlOpenClose()
+          val noNLPolicy = flags.noNLPolicy
+          val slbOrNL = nlOnly || noNLPolicy == null
+
           def noSplitPolicy: Policy =
             if (slbOrNL) slbPolicy
             else {
@@ -1141,7 +1139,7 @@ class Router(formatOps: FormatOps) {
                 if (oneline && isSingleArg) NoPolicy
                 else SingleLineBlock(x.tokens.last, noSyntaxNL = true)
               }
-              argPolicy & (opensPolicy | penalizeBrackets)
+              argPolicy & (opensPolicy | penalizeBrackets) & noNLPolicy()
             }
           val rightIsComment = right.is[T.Comment]
           val noSplitModification =
@@ -1149,7 +1147,13 @@ class Router(formatOps: FormatOps) {
           val nlMod = if (rightIsComment && nlOnly) getMod(ft) else Newline
           def getDanglePolicy(implicit fileLine: FileLine) =
             decideNewlinesOnlyBeforeClose(close)
-          val nlPolicy = if (mustDangle) getDanglePolicy else NoPolicy
+          val nlPolicy = nlCloseOnOpen match {
+            case NlClosedOnOpen.Cfg => getDanglePolicy |
+                splitOneArgOneLine(close, leftOwner)
+            case NlClosedOnOpen.Yes => getDanglePolicy
+            case NlClosedOnOpen.No => NoPolicy
+          }
+
           def nlCost = bracketPenalty.getOrElse(1)
 
           Seq(
@@ -1177,16 +1181,10 @@ class Router(formatOps: FormatOps) {
           if (isSingleArg) firstArg.flatMap(asInfixApp) else None
 
         implicit val clauseSiteFlags = ClauseSiteFlags.atCallSite(leftOwner)
-        val flags = getBinpackCallsiteFlags(ft, beforeClose)
-
+        val flags = getBinpackCallSiteFlags(ft, beforeClose)
+        val (nlOpen, nlCloseOnOpen) = flags.nlOpenClose()
         val singleLineOnly = style.binPack.literalsSingleLine &&
           flags.literalArgList
-
-        val nlOpen = flags.dangleForTrailingCommas ||
-          flags.configStyle != ConfigStyle.None ||
-          style.newlines.keepBreak(newlines) ||
-          flags.scalaJsStyle && beforeClose.hasBreak ||
-          tokens.isRightCommentWithBreak(ft)
         val nlOnly = nlOpen && !singleLineOnly
 
         def findComma(ft: FormatToken) = findFirstOnRight[T.Comma](ft, close)
@@ -1217,10 +1215,9 @@ class Router(formatOps: FormatOps) {
 
         def baseNoSplit(implicit fileLine: FileLine) =
           Split(Space(style.spaces.inParentheses), 0)
-        val slbOrNL = nlOnly || singleLineOnly ||
-          needOnelinePolicy && nextCommaOneline.isEmpty ||
-          // multiline binpack is at odds with unfold, at least force a break
-          style.newlines.source.eq(Newlines.unfold)
+        val noNLPolicy = flags.noNLPolicy
+        val slbOrNL = nlOnly || singleLineOnly || noNLPolicy == null ||
+          needOnelinePolicy && nextCommaOneline.isEmpty
 
         val noSplit =
           if (nlOnly) Split.ignored
@@ -1245,16 +1242,8 @@ class Router(formatOps: FormatOps) {
                 getOpenParenAlignIndents(close)
               else Seq(indent)
 
-            def optClose = Some(scalaJsOptClose(beforeClose, flags))
-            val opt =
-              if (oneline) nextCommaOneline.orElse(optClose)
-              else if (style.newlines.source.eq(Newlines.fold)) None
-              else findComma(ft).orElse(optClose)
-            val scajaJsPolicy =
-              if (flags.scalaJsStyle) Policy(Policy.End.On(close)) {
-                case d: Decision if d.formatToken.right eq close => d.noNewlines
-              }
-              else NoPolicy
+            def optClose = scalaJsOptClose(beforeClose, flags)
+            val opt = if (oneline) nextCommaOneline else findComma(ft)
 
             val noSplitPolicy =
               if (needOnelinePolicy) {
@@ -1283,8 +1272,8 @@ class Router(formatOps: FormatOps) {
                   } else NoPolicy
                 unindentPolicy & indentOncePolicy
               } else NoPolicy
-            baseNoSplit.withOptimalTokenOpt(opt)
-              .withPolicy(noSplitPolicy & indentPolicy & scajaJsPolicy)
+            baseNoSplit.withOptimalToken(opt.getOrElse(optClose))
+              .withPolicy(noSplitPolicy & indentPolicy & noNLPolicy())
               .withIndents(noSplitIndents)
           }
 
@@ -1298,22 +1287,15 @@ class Router(formatOps: FormatOps) {
           def configStylePolicy(implicit fileLine: FileLine) =
             splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
 
-          if (flags.configStyle != ConfigStyle.None)
-            if (
-              (style.newlines.source == Newlines.keep &&
-                flags.configStyle == ConfigStyle.Source) ||
-              styleMap.forcedBinPack(leftOwner)
-            ) bothPolicies
-            else configStylePolicy
-          else if (flags.scalaJsStyle) configStylePolicy
-          else if (
-            flags.dangleForTrailingCommas ||
-            clauseSiteFlags.dangleCloseDelim &&
-            (style.newlines.sourceIgnored || !style.configStyleCallSite.prefer)
-          ) bothPolicies
-          else binPackOnelinePolicyOpt
-            .getOrElse(decideNewlinesOnlyBeforeCloseOnBreak(close))
+          nlCloseOnOpen match {
+            case NlClosedOnOpen.No => binPackOnelinePolicyOpt
+                .getOrElse(decideNewlinesOnlyBeforeCloseOnBreak(close))
+            case NlClosedOnOpen.Cfg if !styleMap.forcedBinPack(leftOwner) =>
+              configStylePolicy
+            case _ => bothPolicies
+          }
         }
+
         val nlMod =
           if (nlOnly && noBreak() && right.is[T.Comment]) Space
           else NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None)

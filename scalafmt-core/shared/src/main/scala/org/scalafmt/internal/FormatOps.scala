@@ -857,19 +857,6 @@ class FormatOps(
     case _ => tokens.getLastExceptParen(function).left -> ExpiresOn.After
   }
 
-  def mustUseConfigStyle(
-      ft: FormatToken,
-      breakBeforeClose: => Boolean,
-      allowForce: Boolean = true,
-  )(implicit
-      style: ScalafmtConfig,
-      clauseSiteFlags: ClauseSiteFlags,
-  ): ConfigStyle =
-    if (allowForce && mustForceConfigStyle(ft)(clauseSiteFlags.configStyle))
-      ConfigStyle.Forced
-    else if (preserveConfigStyle(ft, breakBeforeClose)) ConfigStyle.Source
-    else ConfigStyle.None
-
   def mustForceConfigStyle(ft: FormatToken)(implicit
       cfg: Newlines.ConfigStyleElement,
   ): Boolean = cfg.getForceIfOptimized && forceConfigStyle(ft.meta.idx)
@@ -2644,31 +2631,84 @@ class FormatOps(
     beforeClose.exists(rightIsCloseDelimToAddTrailingComma(_, closeFt))
   }
 
-  def getBinpackCallsiteFlags(
+  def getBinpackCallSiteFlags(
       ftAfterOpen: FormatToken,
       ftBeforeClose: FormatToken,
   )(implicit style: ScalafmtConfig, clauseSiteFlags: ClauseSiteFlags) = {
     val literalArgList = styleMap.opensLiteralArgumentList(ftAfterOpen)
+    getBinpackSiteFlags(ftAfterOpen, ftBeforeClose, literalArgList)
+  }
+
+  def getBinpackSiteFlags(
+      ftAfterOpen: FormatToken,
+      ftBeforeClose: FormatToken,
+      literalArgList: Boolean,
+  )(implicit style: ScalafmtConfig, clauseSiteFlags: ClauseSiteFlags) = {
+    implicit val configStyle = clauseSiteFlags.configStyle
+    val configStylePrefer = configStyle.prefer
+    val shouldDangle = clauseSiteFlags.dangleCloseDelim
+    val sourceIgnored = style.newlines.sourceIgnored
+    val configStyleSource = configStylePrefer && !sourceIgnored
     val dangleForTrailingCommas = getMustDangleForTrailingCommas(ftBeforeClose)
-    val configStyle =
-      if (dangleForTrailingCommas) ConfigStyle.None
-      else
-        mustUseConfigStyle(ftAfterOpen, ftBeforeClose.hasBreak, !literalArgList)
-    val scalaJsStyle = style.newlines.source == Newlines.classic &&
-      configStyle == ConfigStyle.None && !literalArgList &&
-      !clauseSiteFlags.dangleCloseDelim && clauseSiteFlags.configStyle.prefer
-    BinpackCallsiteFlags(
+    val scalaJsStyle = configStyleSource && !shouldDangle
+    val closeBreak = dangleForTrailingCommas || ftBeforeClose.hasBreak
+
+    def noNLPolicy(): Policy = {
+      val close = ftBeforeClose.right
+      if (scalaJsStyle) Policy(Policy.End.On(close)) {
+        case d: Decision if d.formatToken.right eq close => d.noNewlines
+      }
+      else style.newlines.source match {
+        case Newlines.keep if closeBreak => decideNewlinesOnlyBeforeClose(close)
+        case Newlines.fold
+            if shouldDangle && !style.binPack.indentCallSiteOnce =>
+          decideNewlinesOnlyBeforeCloseOnBreak(close)
+        case _ => NoPolicy
+      }
+    }
+
+    def nlOpenClose(): (Boolean, NlClosedOnOpen) =
+      if (!literalArgList && mustForceConfigStyle(ftAfterOpen))
+        (true, NlClosedOnOpen.Cfg)
+      else {
+        val openBreak = ftAfterOpen.hasBreak
+        val nlOpenExcludingCfg = dangleForTrailingCommas ||
+          (style.newlines.source match {
+            case Newlines.classic => openBreak && shouldDangle && closeBreak
+            case Newlines.keep => openBreak
+            case _ => false
+          }) || tokens.isRightCommentWithBreak(ftAfterOpen)
+        val nlBothIncludingCfg = !sourceIgnored && closeBreak && {
+          scalaJsStyle || nlOpenExcludingCfg ||
+          preserveConfigStyle(ftAfterOpen, true)
+        }
+        // close on open NL; doesn't cover case with no break after open
+        val nlClose = nlBothIncludingCfg || dangleForTrailingCommas ||
+          shouldDangle || style.newlines.keepBreak(closeBreak)
+        if (!nlClose) (nlOpenExcludingCfg && !scalaJsStyle, NlClosedOnOpen.No)
+        else {
+          val cfg = !literalArgList && configStyleSource
+          val dangle = if (cfg) NlClosedOnOpen.Cfg else NlClosedOnOpen.Yes
+          (nlBothIncludingCfg || nlOpenExcludingCfg, dangle)
+        }
+      }
+
+    BinpackSiteFlags(
       literalArgList = literalArgList,
-      dangleForTrailingCommas = dangleForTrailingCommas,
-      configStyle = configStyle,
-      scalaJsStyle = scalaJsStyle,
+      nlOpenClose = nlOpenClose,
+      noNLPolicy = style.newlines.source match {
+        case Newlines.unfold => null
+        case Newlines.fold if configStylePrefer => null
+        case _ => noNLPolicy
+      },
+      scalaJsStyle = scalaJsStyle && !literalArgList,
     )
   }
 
   @tailrec
   final def scalaJsOptClose(
       ftBeforeClose: FormatToken,
-      bpFlags: BinpackCallsiteFlags,
+      bpFlags: BinpackSiteFlags,
   ): T =
     if (bpFlags.scalaJsStyle) {
       val ftAfterClose = tokens.nextNonCommentAfter(ftBeforeClose)
@@ -2680,7 +2720,7 @@ class FormatOps(
         implicit val style: ScalafmtConfig = styleMap.at(open)
         implicit val clauseSiteFlags: ClauseSiteFlags = ClauseSiteFlags
           .atCallSite(ftAfterClose.meta.rightOwner)
-        val bpFlagsAfter = getBinpackCallsiteFlags(tokens(open), ftAfterClose)
+        val bpFlagsAfter = getBinpackCallSiteFlags(tokens(open), ftAfterClose)
         scalaJsOptClose(ftAfterClose, bpFlagsAfter)
       } else ftBeforeClose.right
     } else ftBeforeClose.right
@@ -2727,10 +2767,17 @@ object FormatOps {
     )
     else Seq(Indent(Length.StateColumn, end, ExpiresOn.Before))
 
-  case class BinpackCallsiteFlags(
+  private[internal] sealed trait NlClosedOnOpen
+  private[internal] object NlClosedOnOpen {
+    case object No extends NlClosedOnOpen
+    case object Yes extends NlClosedOnOpen
+    case object Cfg extends NlClosedOnOpen
+  }
+
+  private[internal] case class BinpackSiteFlags(
       literalArgList: Boolean,
-      dangleForTrailingCommas: Boolean,
-      configStyle: ConfigStyle,
+      nlOpenClose: () => (Boolean, NlClosedOnOpen),
+      noNLPolicy: () => Policy, // nullable
       scalaJsStyle: Boolean,
   )
 

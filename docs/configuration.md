@@ -4792,6 +4792,7 @@ object Example2 {
 
 This group of parameters controls binpacking of an argument list if _all_ arguments are
 considered to be literals.
+These parameters take precedence over [forcing of config style](#forcing-config-style).
 
 The following parameters affect this behaviour:
 
@@ -4919,65 +4920,65 @@ object A {
 }
 ```
 
-### `binPack.defnSite`
+### `binPack.xxxSite`
 
-Controls binpacking around method/type definition sites (and was called
-`unsafeDefnSite` up until v3.8.1). The following parameter values are supported
+Controls binpacking around method/type definition sites (`binPack.defnSite`) or
+method call sites (`binPack.callSite`) (both were called
+`unsafeXxxSite` up until v3.8.1). The following parameter values are supported
 since v3.0.0:
 
 - `Never` disables the functionality (also takes `false`)
 - `Always` enables the functionality (also takes `true`)
 - `Oneline` ensures multiline arguments are not binpacked
 
-When not disabled, this parameter has complex interactions with
+When not disabled, these parameters have complex interactions with
 [`newline.source`](#newlinessource),
-[config-style formatting](#newlines-config-style-formatting) and
-[`danglingParentheses.defnSite`](#danglingparenthesesdefnsite).
+[`newlines.configStyleXxxSite.prefer`](#newlinesconfigstylexxxsiteprefer)
+(aka `cfgStyle` below) and
+[`danglingParentheses.xxxSite`](#newlines-danglingparentheses) (aka `dangle`).
+Keep in mind that when [config-style is forced](#forcing-config-style),
+it takes precedence over options described below.
 
-- `newlines.source=classic/keep`
-  - open break is preserved for `keep`, matches close break for `classic`
-  - when `config-style` is enabled: close break is preserved,
-    `danglingParentheses.defnSite` is ignored
-  - when `config-style` is disabled: `danglingParentheses.defnSite`
-    dictates close break
-- `newlines.source=fold/unfold`
-  - open break matches close break for `fold`, dangles for `unfold`
-  - `danglingParentheses.defnSite` dictates close break
-  - `config-style` is ignored
-
-### `binPack.callSite`
-
-Controls binpacking around method call sites (and was called `unsafeCallSite` up
-until v3.8.1). It takes the same values as [`binPack.defnSite`](#binpackdefnsite),
-and similarly has cross-parameter interactions:
-
-- interaction with `config-style` parameters:
-  - when [config-style is forced](#forcing-config-style), it takes precedence
-    over binpacking
-  - for `newlines.source=classic`, behaviour depends on
-    [config-style](#newlinesconfigstylexxxsiteprefer):
-    - if enabled, config style is used if
-      - it is [detected](#newlinesconfigstylexxxsiteprefer), or
-      - configured to use [scala.js style](#presetscalajs)
-    - otherwise, uses binpacking
-  - for other values of [`newlines.source`](#newlinessource),
-    binpacking takes precedence
-- interaction with [`danglingParentheses.callSite`](#danglingparenthesescallsite)
-  - `newlines.source=classic`: please see above
-  - `newlines.source=keep`
-    - open break is preserved
-    - when both [config-style](#newlinesconfigstylexxxsiteprefer) and
-      [`danglingParentheses.callSite`](#danglingparenthesescallsite) are disabled,
-      close break is "tucked"
-    - otherwise, close break matches open break
-  - `newlines.source=fold/unfold`
-    - when [`danglingParentheses.callSite`](#danglingparenthesescallsite) is enabled,
-      open break matches close break, and close is always dangling for `unfold`,
-      and only when [config-style is forced](#forcing-config-style) for `fold`
-    - otherwise, open is always dangling,
-      and close is dangling only when both
-      [`newlines.configStyleXxxSite.prefer=true`](#newlinesconfigstylexxxsiteprefer)
-      and [config-style is forced](#forcing-config-style)
+- `newlines.source=classic`
+  - `cfgStyle=T`, `dangle=T`:
+    use cfg-style if both parens had breaks, otherwise binpack without breaks
+    - before v3.8.2, this formatting was used for `callSite` with `dangle=F` as well
+  - `cfgStyle=T`, `dangle=F`:
+    ([scala.js](#presetscalajs))
+    use cfg-style if close paren had a break; otherwise, binpack without breaks
+  - `cfgStyle=F`, `dangle=T`:
+    binpack; if both parens had breaks, keep; otherwise, use no breaks
+    - before v3.8.2, this formatting was used for `defnSite` with
+      `cfgStyle=T` and any `dangle`
+  - `cfgStyle=F`, `dangle=F`:
+    binpack without breaks
+    - before v3.8.2, this formatting was used for `callSite` with
+      `cfgStyle=F` and any `dangle`, and for `defnSite` with
+      `cfgStyle=F` and `dangle=F`
+- `newlines.source=keep`
+  - `cfgStyle=T`, `dangle=T`:
+    use cfg-style if open paren had a break; otherwise, binpack and preserve both breaks
+  - `cfgStyle=T`, `dangle=F`:
+    ([scala.js](#presetscalajs))
+    use cfg-style if close paren had a break; otherwise, binpack without breaks
+  - `cfgStyle=F`, `dangle=T`:
+    binpack; if open paren had a break, force both breaks; otherwise, preserve both
+  - `cfgStyle=F`, `dangle=F`:
+    binpack; preserve both breaks
+- `newlines.source=fold`: if single line is not possible:
+  - `cfgStyle=T`, `dangle=T`:
+    binpack with both breaks
+  - `cfgStyle=T`, `dangle=F`:
+    binpack with dangling open and tucked close
+  - `cfgStyle=F`, `dangle=T`:
+    binpack with tucked open and dangling close
+    - if [`binPack.indentCallSiteOnce`](#binpackindentcallsiteonce) is set,
+      we will not force dangling as it might lead to consecutive lines
+      with a closing parenthesis at the same indentation level
+  - `cfgStyle=F`, `dangle=F`:
+    binpack without breaks
+- `newlines.source=unfold`: if single line is not possible:
+  - open dangles, close break matches `dangle`, `cfgStyle` is ignored
 
 > Please also see [callSite indentation parameters](#indent-for-binpackcallsite).
 

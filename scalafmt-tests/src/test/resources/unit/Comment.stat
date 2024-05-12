@@ -913,7 +913,7 @@ object a:
     baz /* comment1
      * comment2
      * comment3 */
-<<< trailing-wrapped comments with fold, binpack(lots) and dangling
+<<< trailing-wrapped comments with fold, binpack(lots) and dangling 1
 maxColumn = 100
 indent.callSite = 2
 align.preset = none
@@ -966,11 +966,13 @@ object a {
       user_id: String, dept_id: Option[Int], catg_grp_id: Option[Int], // for store only
       catg_id: Option[Int], subcatg_id: Option[Int], brand_id: Option[Int], order_date: String,
       item_id: Long
-  ) = SalesUserActivity(user_id, dept_id, catg_grp_id, catg_id, subcatg_id, brand_id,
-    Some(dummyBrand), 1f, 1f, item_id, tenant, inid, catalog, channel,
-    order_date.split("-")(0).toInt, order_date.split("-")(1).toInt, "v1", order_date)
+  ) = SalesUserActivity(
+    user_id, dept_id, catg_grp_id, catg_id, subcatg_id, brand_id, Some(dummyBrand), 1f, 1f, item_id,
+    tenant, inid, catalog, channel, order_date.split("-")(0).toInt, order_date.split("-")(1).toInt,
+    "v1", order_date
+  )
 }
-<<< trailing-wrapped comments with fold, binpack(lots) and dangling
+<<< trailing-wrapped comments with fold, binpack(lots) and dangling 2
 maxColumn = 100
 indent.callSite = 2
 align.preset = none
@@ -996,8 +998,9 @@ object a {
 object a {
   private val impressionUniqueMetricsData = Seq(
     // out of range
-    ImpUnique("2018-01-02", 102, Some("444"), Some(1), Some(2), Some(1), None, None, 2018, 1,
-      ver) /* aggimp3 */
+    ImpUnique(
+      "2018-01-02", 102, Some("444"), Some(1), Some(2), Some(1), None, None, 2018, 1, ver
+    ) /* aggimp3 */
   )
 }
 <<< trailing-wrapped comments with fold, binpack=oneline
@@ -1020,7 +1023,8 @@ object a {
 object a {
   private val foo = Seq(
     // out of range
-    Bar("2018-01-02", 1,
+    Bar(
+      "2018-01-02", 1,
       ver) /* baz */
   )
 }
