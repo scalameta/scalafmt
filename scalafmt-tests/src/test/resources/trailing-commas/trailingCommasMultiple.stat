@@ -376,17 +376,35 @@ class foo(
     a, b,
   )
 }
-<<< #3663 enclosed literal
+<<< #3663 enclosed literal, close dangles
 val x = ( "a", 
 )
 >>>
 val x = ("a")
-<<< #3663 enclosed lambda
+<<< #3663 enclosed literal, open dangles
+val x = (
+   "a" )
+>>>
+val x = ("a")
+<<< #3663 enclosed literal, both dangle
+val x = (
+     "a", 
+)
+>>>
+val x = (
+  "a"
+)
+<<< #3663 enclosed lambda, close dangles
 val x = ( x => x + 1,
 )
 >>>
 val x = (x => x + 1)
-<<< #3663 enclosed lambda 1
+<<< #3663 enclosed lambda, open dangles
+val x = (
+ x => x + 1 )
+>>>
+val x = (x => x + 1)
+<<< #3663 enclosed lambda, both dangle
 val x = (
  x => x + 1,
 )
