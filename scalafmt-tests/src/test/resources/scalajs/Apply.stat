@@ -991,3 +991,42 @@ object a {
     }
   }
 }
+<<< nested with oneline
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+===
+object a {
+  js.MethodDef(flags, methodIdent, originalName, jsParams, resultType, Some {
+             genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
+           })(OptimizerHints.empty, Unversioned)
+}
+>>>
+BestFirstSearch:290 Failed to format
+UNABLE TO FORMAT,
+tok=}∙): RightBrace [180..181) [] RightParen [181..182)
+toks.length=48
+deepestYet.length=38
+policies=List(NB:[Router:1460]@182d, NB:[Router:1460]@182d, [FormatOps:2660]@182d, NB:[Router:232]@219d)
+nextSplits=List(NoSplit:[Router:2360](cost=0, indents=[], NoPolicy))
+splitsAfterPolicy=Decision(}∙): RightBrace [180..181) [] RightParen [181..182),List())
+<<< nested with oneline, keep
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+===
+object a {
+  js.MethodDef(flags, methodIdent, originalName, jsParams, resultType, Some {
+             genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
+           })(OptimizerHints.empty, Unversioned)
+}
+>>>
+BestFirstSearch:290 Failed to format
+UNABLE TO FORMAT,
+tok=}∙): RightBrace [180..181) [] RightParen [181..182)
+toks.length=48
+deepestYet.length=38
+policies=List(NB:[Router:1460]@182d, NB:[Router:1460]@182d, [FormatOps:2660]@182d, NB:[Router:232]@219d)
+nextSplits=List(NoSplit:[Router:2360](cost=0, indents=[], NoPolicy))
+splitsAfterPolicy=Decision(}∙): RightBrace [180..181) [] RightParen [181..182),List())
