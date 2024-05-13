@@ -1184,7 +1184,7 @@ class Router(formatOps: FormatOps) {
           else firstArg.map(getLast).flatMap(findComma)
         val needOnelinePolicy = oneline &&
           (nextCommaOneline.isDefined ||
-            leftOwner.parent.exists(followedBySelectOrApply))
+            leftOwner.parent.exists(followedBySelectOrApply(_).isDefined))
         val nextCommaOnelinePolicy =
           if (needOnelinePolicy) nextCommaOneline
             .map(splitOneArgPerLineAfterCommaOnBreak)
@@ -1445,7 +1445,8 @@ class Router(formatOps: FormatOps) {
                 else delayedBreakPolicyFor(t)(decideNewlinesOnlyAfterClose)
               case Some(FormatToken(_, t, _))
                   if !callSite ||
-                    leftOwner.parent.exists(followedBySelectOrApply) =>
+                    leftOwner.parent
+                      .exists(followedBySelectOrApply(_).isDefined) =>
                 decideNewlinesOnlyBeforeCloseOnBreak(t)
               case _ => NoPolicy
             }
