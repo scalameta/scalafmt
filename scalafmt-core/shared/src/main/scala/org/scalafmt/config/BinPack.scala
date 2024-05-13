@@ -69,16 +69,20 @@ object BinPack {
     .deriveSurface[BinPack]
   implicit lazy val encoder: ConfEncoder[BinPack] = generic.deriveEncoder
 
-  val enabled = BinPack(
-    defnSite = Site.Always,
-    callSite = Site.Always,
-    parentConstructors = ParentCtors.Always,
-  )
+  def ctor(site: Site, parents: ParentCtors): BinPack =
+    BinPack(defnSite = site, callSite = site, parentConstructors = parents)
+
+  val never = BinPack.ctor(Site.Never, ParentCtors.Never)
+  val always = BinPack.ctor(Site.Always, ParentCtors.Always)
+  val oneline = BinPack.ctor(Site.Oneline, ParentCtors.Oneline)
 
   implicit val decoder: ConfDecoderEx[BinPack] = Presets
-    .mapDecoder(generic.deriveDecoderEx(BinPack()).noTypos, "binPack") {
-      case Conf.Bool(true) => enabled
-      case Conf.Bool(false) => BinPack()
+    .mapDecoder(generic.deriveDecoderEx(never).noTypos, "binPack") {
+      case Conf.Bool(true) => always
+      case Conf.Bool(false) => never
+      case Conf.Str(str) if str.equalsIgnoreCase("never") => never
+      case Conf.Str(str) if str.equalsIgnoreCase("always") => always
+      case Conf.Str(str) if str.equalsIgnoreCase("oneline") => oneline
     }
 
   sealed abstract class ParentCtors
