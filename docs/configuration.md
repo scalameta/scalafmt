@@ -4788,6 +4788,25 @@ object Example2 {
 
 ## Binpacking
 
+### `binPack` presets
+
+One can specify the following values to `binPack.preset`:
+
+- `never` or `false`:
+  - [`callSite = Never`](#binpackcallsite)
+  - [`defnSite = Never`](#binpackdefnsite)
+  - [`parentConstructors = Never`](#binpackparentconstructors)
+- `always` or `true`:
+  - [`callSite = Always`](#binpackcallsite)
+  - [`defnSite = Always`](#binpackdefnsite)
+  - [`parentConstructors = Always`](#binpackparentconstructors)
+- `oneline`:
+  - [`callSite = Oneline`](#binpackcallsite)
+  - [`defnSite = Oneline`](#binpackdefnsite)
+  - [`parentConstructors = Oneline`](#binpackparentconstructors)
+
+The rest of parameters retain their default behaviour.
+
 ### Literal argument lists
 
 This group of parameters controls binpacking of an argument list if _all_ arguments are

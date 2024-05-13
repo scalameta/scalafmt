@@ -316,7 +316,7 @@ object ScalafmtConfig {
     * https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md
     */
   val scalaJs: ScalafmtConfig = default.copy(
-    binPack = BinPack.enabled,
+    binPack = BinPack.always,
     danglingParentheses = DanglingParentheses(false, false),
     indent = Indents(callSite = 4, defnSite = 4),
     importSelectors = ImportSelectors.binPack,

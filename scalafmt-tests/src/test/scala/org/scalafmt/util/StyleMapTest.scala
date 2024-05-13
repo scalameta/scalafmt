@@ -124,7 +124,7 @@ class StyleMapTest extends FunSuite {
                   |}
                   |      """.stripMargin.parse[Source].get
     val fops1 = new FormatOps(code, ScalafmtConfig.default)
-    val fops2 = new FormatOps(code, ScalafmtConfig(binPack = BinPack.enabled))
+    val fops2 = new FormatOps(code, ScalafmtConfig(binPack = BinPack.always))
     /*
      * - 1: initial style
      * - 6: all 3 pairs of "()"
