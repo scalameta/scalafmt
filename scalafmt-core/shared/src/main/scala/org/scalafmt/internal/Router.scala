@@ -1188,8 +1188,6 @@ class Router(formatOps: FormatOps) {
         val noNextCommaOneline = oneline && nextCommaOneline.isEmpty
         val noNextCommaOnelineCurried = noNextCommaOneline &&
           leftOwner.parent.exists(followedBySelectOrApply(_).isDefined)
-        val needOnelinePolicy = nextCommaOneline.isDefined ||
-          noNextCommaOnelineCurried
 
         val indentLen = style.indent.callSite
         val indent = Indent(Num(indentLen), close, Before)
@@ -1234,17 +1232,15 @@ class Router(formatOps: FormatOps) {
             def optClose = scalaJsOptClose(beforeClose, flags)
             val opt = if (oneline) nextCommaOneline else findComma(ft)
 
-            val noSplitPolicy =
-              if (needOnelinePolicy) {
-                val alignPolicy =
-                  if (noSplitIndents.exists(_.hasStateColumn))
-                    nextCommaOnelinePolicy.map(_ & penalizeNewlinesPolicy)
-                  else None
-                alignPolicy.getOrElse {
+            val noSplitPolicy = nextCommaOnelinePolicy
+              .fold(penalizeNewlinesPolicy) { p =>
+                if (noSplitIndents.exists(_.hasStateColumn)) p &
+                  penalizeNewlinesPolicy
+                else {
                   val slbEnd = nextCommaOneline.getOrElse(close)
                   SingleLineBlock(slbEnd, noSyntaxNL = true)
                 }
-              } else penalizeNewlinesPolicy
+              }
             val indentPolicy =
               if (noSplitIndents.nonEmpty) {
                 def unindentPolicy =
@@ -1269,11 +1265,12 @@ class Router(formatOps: FormatOps) {
         val nlPolicy = {
           def newlineBeforeClose(implicit fileLine: FileLine) =
             decideNewlinesOnlyBeforeClose(close)
-          nlCloseOnOpen match {
-            case NlClosedOnOpen.No =>
-              if (needOnelinePolicy) nextCommaOnelinePolicy
-                .getOrElse(decideNewlinesOnlyBeforeCloseOnBreak(close))
-              else NoPolicy
+          val nlClosedOnOpenEffective =
+            if (!noNextCommaOnelineCurried) nlCloseOnOpen
+            else if (clauseSiteFlags.configStyle.prefer) NlClosedOnOpen.Cfg
+            else NlClosedOnOpen.Yes
+          nlClosedOnOpenEffective match {
+            case NlClosedOnOpen.No => nextCommaOnelinePolicy.getOrElse(NoPolicy)
             case NlClosedOnOpen.Cfg if !styleMap.forcedBinPack(leftOwner) =>
               splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
             case _ => newlineBeforeClose & nextCommaOnelinePolicy
@@ -1436,13 +1433,23 @@ class Router(formatOps: FormatOps) {
             }
             val nlPolicy = (if (oneline) nextCommaOrParen else None) match {
               case Some(FormatToken(_, t: T.Comma, _)) =>
-                if (callSite) splitOneArgPerLineAfterCommaOnBreak(t)
-                else delayedBreakPolicyFor(t)(decideNewlinesOnlyAfterClose)
-              case Some(FormatToken(_, t, _))
-                  if !callSite ||
-                    leftOwner.parent
-                      .exists(followedBySelectOrApply(_).isDefined) =>
-                decideNewlinesOnlyBeforeCloseOnBreak(t)
+                splitOneArgPerLineAfterCommaOnBreak(t)
+              case Some(_) if callSite =>
+                def delayBreakBefore(token: T)(implicit fileLine: FileLine) =
+                  delayedBreakPolicyFor(token)(decideNewlinesOnlyBeforeToken)
+                val endCall = leftOwner.parent.flatMap(followedBySelectOrApply)
+                endCall.fold(Policy.noPolicy) { x =>
+                  val beforeNext = nextNonCommentSameLine(getLastNonTrivial(x))
+                  beforeNext.right match {
+                    case c: T.Comma => delayBreakBefore(c)
+                    case LeftParenOrBracket() =>
+                      nextNonCommentSameLineAfter(beforeNext).right match {
+                        case _: T.Comment => NoPolicy
+                        case c => delayBreakBefore(c)
+                      }
+                    case _ => NoPolicy
+                  }
+                }
               case _ => NoPolicy
             }
             val indentOncePolicy =
@@ -1454,9 +1461,8 @@ class Router(formatOps: FormatOps) {
                     s.map(x => if (x.isNL) x else x.switch(trigger, true))
                 }
               } else NoPolicy
-            val noSpace = style.newlines.keepBreak(newlines)
             Seq(
-              Split(noSpace, 0)(Space)
+              Split(style.newlines.keepBreak(newlines), 0)(Space)
                 .withSingleLine(endOfSingleLineBlock(optFT), noSyntaxNL = true),
               Split(Newline, 1).withPolicy(nlPolicy & indentOncePolicy),
             )

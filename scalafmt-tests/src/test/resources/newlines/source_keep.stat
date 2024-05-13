@@ -2805,8 +2805,7 @@ object a {
       E(Seq(F(1, "v1"), F(2, "v2")),
         G(Some(Seq(h, i)),
           Some(Seq(j, k)), a.b, c.d,
-          e.f.g, h.i.j)
-      ).foo
+          e.f.g, h.i.j)).foo
   }
 }
 <<< binpack call, oneline, with syntaxNL, single arg
