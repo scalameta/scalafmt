@@ -185,6 +185,10 @@ object PolicyOps {
       fileLine: FileLine,
   ): Policy = new DecideNewlinesOnlyBeforeToken(close, Option(split))
 
+  def decideNewlinesOnlyBeforeToken(token: T)(implicit
+      fileLine: FileLine,
+  ): Policy = new DecideNewlinesOnlyBeforeToken(token, None)
+
   def decideNewlinesOnlyAfterClose(close: T)(implicit
       fileLine: FileLine,
   ): Policy = decideNewlinesOnlyAfterClose(Split(Newline, 0))(close)
