@@ -786,16 +786,17 @@ object TreeOps {
   @tailrec
   final def followedBySelectOrApply(
       tree: Tree,
-  )(implicit ftoks: FormatTokens): Boolean = tree.parent match {
+  )(implicit ftoks: FormatTokens): Option[Tree] = tree.parent match {
     case Some(p: Term.New) => followedBySelectOrApply(p)
-    case Some(_: Term.Select) => true
-    case Some(p: Member.Infix) => p.lhs.eq(tree) || followedBySelectOrApply(p)
+    case Some(p: Term.Select) if p.qual eq tree => Some(tree)
+    case Some(p: Member.Infix) =>
+      if (p.lhs eq tree) Some(tree) else followedBySelectOrApply(p)
     case Some(p: Member.Apply) if p.fun eq tree =>
       p.argClause match {
-        case SingleArgInBraces(_) => false
-        case _ => true
+        case SingleArgInBraces(_) => None
+        case _ => Some(tree)
       }
-    case _ => false
+    case _ => None
   }
 
   // Scala syntax allows commas before right braces in weird places,
