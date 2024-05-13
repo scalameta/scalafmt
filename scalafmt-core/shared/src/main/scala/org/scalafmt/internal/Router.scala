@@ -1269,19 +1269,14 @@ class Router(formatOps: FormatOps) {
         val nlPolicy = {
           def newlineBeforeClose(implicit fileLine: FileLine) =
             decideNewlinesOnlyBeforeClose(close)
-          def binPackOnelinePolicyOpt =
-            if (needOnelinePolicy) nextCommaOnelinePolicy else Some(NoPolicy)
-          def bothPolicies(implicit fileLine: FileLine) = newlineBeforeClose &
-            binPackOnelinePolicyOpt
-          def configStylePolicy(implicit fileLine: FileLine) =
-            splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
-
           nlCloseOnOpen match {
-            case NlClosedOnOpen.No => binPackOnelinePolicyOpt
+            case NlClosedOnOpen.No =>
+              if (needOnelinePolicy) nextCommaOnelinePolicy
                 .getOrElse(decideNewlinesOnlyBeforeCloseOnBreak(close))
+              else NoPolicy
             case NlClosedOnOpen.Cfg if !styleMap.forcedBinPack(leftOwner) =>
-              configStylePolicy
-            case _ => bothPolicies
+              splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
+            case _ => newlineBeforeClose & nextCommaOnelinePolicy
           }
         }
 
