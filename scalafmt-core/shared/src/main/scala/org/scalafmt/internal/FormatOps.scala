@@ -1866,7 +1866,7 @@ class FormatOps(
         else NoPolicy
       val indentLen = indentOpt.getOrElse(style.indent.getSignificant)
       val indent =
-        Indent(Num(indentLen), closeOpt.getOrElse(end.left), ExpiresOn.After)
+        Indent(Num(indentLen), closeOpt.getOrElse(slbExpire), ExpiresOn.After)
       if (ft.hasBlankLine)
         Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
       else if (forceNL)
