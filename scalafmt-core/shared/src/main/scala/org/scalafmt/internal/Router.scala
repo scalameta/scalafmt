@@ -1182,13 +1182,14 @@ class Router(formatOps: FormatOps) {
         val nextCommaOneline =
           if (!oneline || isSingleArg) None
           else firstArg.map(getLast).flatMap(findComma)
-        val needOnelinePolicy = oneline &&
-          (nextCommaOneline.isDefined ||
-            leftOwner.parent.exists(followedBySelectOrApply(_).isDefined))
-        val nextCommaOnelinePolicy =
-          if (needOnelinePolicy) nextCommaOneline
-            .map(splitOneArgPerLineAfterCommaOnBreak)
-          else None
+        val nextCommaOnelinePolicy = nextCommaOneline
+          .map(splitOneArgPerLineAfterCommaOnBreak)
+
+        val noNextCommaOneline = oneline && nextCommaOneline.isEmpty
+        val noNextCommaOnelineCurried = noNextCommaOneline &&
+          leftOwner.parent.exists(followedBySelectOrApply(_).isDefined)
+        val needOnelinePolicy = nextCommaOneline.isDefined ||
+          noNextCommaOnelineCurried
 
         val indentLen = style.indent.callSite
         val indent = Indent(Num(indentLen), close, Before)
@@ -1206,15 +1207,14 @@ class Router(formatOps: FormatOps) {
           Split(Space(style.spaces.inParentheses), 0)
         val noNLPolicy = flags.noNLPolicy
         val slbOrNL = nlOnly || singleLineOnly || noNLPolicy == null ||
-          needOnelinePolicy && nextCommaOneline.isEmpty
+          noNextCommaOnelineCurried
 
         val noSplit =
           if (nlOnly) Split.ignored
           else if (slbOrNL) baseNoSplit.withSingleLine(close, noSyntaxNL = true)
           else {
             def okSingleArgsIndents = singleArgAsInfix.isEmpty &&
-              (!oneline || needOnelinePolicy) &&
-              style.binPack.indentCallSiteSingleArg &&
+              !noNextCommaOneline && style.binPack.indentCallSiteSingleArg &&
               (isBracket || getAssignAtSingleArgCallSite(args).isEmpty)
             val noSplitIndents =
               if (isSingleArg && !okSingleArgsIndents) Nil
