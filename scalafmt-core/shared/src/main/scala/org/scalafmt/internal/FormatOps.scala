@@ -2391,24 +2391,26 @@ class FormatOps(
     def indentAndBreakBeforeCtrl[A](tree: Tree, split: Split)(implicit
         style: ScalafmtConfig,
         classifier: Classifier[T, A],
-    ): Option[Split] =
-      if (
-        !style.dialect.allowSignificantIndentation ||
-        tree.is[Term.Block] && !split.isNL && isEnclosedInMatching(tree)
-      ) None
-      else {
-        val kw = tokenAfter(tree).right
-        if (kw.is[A]) Some {
-          val indent = style.indent.ctrlSite
-            .getOrElse(style.indent.getSignificant)
-          def policy =
-            if (split.isNL) decideNewlinesOnlyBeforeClose(kw)
-            else decideNewlinesOnlyBeforeCloseOnBreak(kw)
-          split.withIndent(Num(indent), kw, ExpiresOn.Before)
-            .andPolicy(policy, !style.danglingParentheses.ctrlSite)
-        }
-        else None
-      }
+    ): Option[Split] = Some {
+      if (!style.dialect.allowSignificantIndentation) return None
+
+      val treeTokens = tree.tokens
+      val head = treeTokens.head
+      val hft = tokens.after(head)
+      if (hft.left.eq(head) && tree.is[Term.Block] && !split.isNL) return None
+
+      val beg = tokens.getOnOrBeforeOwned(hft, tree)
+      val end = tokens.getLastNonTrivial(treeTokens, tree)
+      val kw = tokens.getClosingIfInParens(end)(beg).fold(end)(next).right
+      if (!kw.is[A]) return None
+
+      val indent = style.indent.ctrlSite.getOrElse(style.indent.getSignificant)
+      def policy =
+        if (split.isNL) decideNewlinesOnlyBeforeClose(kw)
+        else decideNewlinesOnlyBeforeCloseOnBreak(kw)
+      split.withIndent(Num(indent), kw, ExpiresOn.Before)
+        .andPolicy(policy, !style.danglingParentheses.ctrlSite)
+    }
 
   }
 
