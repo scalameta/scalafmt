@@ -84,13 +84,13 @@ class FormatOps(
     queue += topSourceTree :: Nil
     while (queue.nonEmpty) queue.remove(0).foreach { tree =>
       tree match {
-        case _: Lit.Unit | _: Member.SyntaxValuesClause =>
-        case t: Term.Param =>
+        case _: Lit.Unit | _: Term.ArgClause | _: Term.ParamClause =>
+        case t: Member.SyntaxValuesClause => t.values.foreach(add)
+        case t: Term.Param => // includes Term.ParamClause
           add(t)
           t.mods.foreach(addOptional)
           addOptional(t.name)
-        case t: Term => add(t)
-        case t: Pat.Extract => t.argClause.values.foreach(add)
+        case t: Term => add(t) // includes Term.ArgClause
         case _ =>
       }
       queue += tree.children
