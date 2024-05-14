@@ -1073,14 +1073,14 @@ class Router(formatOps: FormatOps) {
             isParamClauseSite(leftOwner) =>
         val close = matching(open)
         def slbPolicy = SingleLineBlock(close, okSLC = true, noSyntaxNL = true)
-        val baseNoSplitMod = Space(style.spaces.inParentheses)
-        if (close eq right) Seq(Split(baseNoSplitMod, 0))
+        val noSplitMod = Space(style.spaces.inParentheses)
+        if (close eq right) Seq(Split(noSplitMod, 0))
         else {
           implicit val clauseSiteFlags = ClauseSiteFlags.atDefnSite(leftOwner)
 
           val isBracket = open.is[T.LeftBracket]
           val indent = Indent(style.indent.getDefnSite(leftOwner), close, Before)
-          val noSplitIndents =
+          def noSplitIndents =
             if (clauseSiteFlags.alignOpenDelim) getOpenParenAlignIndents(close)
             else Seq(indent)
 
@@ -1088,26 +1088,30 @@ class Router(formatOps: FormatOps) {
             if (isBracket) Some(Constants.BracketPenalty) else None
           val penalizeBrackets = bracketPenalty
             .map(p => PenalizeAllNewlines(close, p + 3))
-          val beforeClose = justBefore(close)
+          val afterClose = after(close)
 
           val argsHeadOpt = argumentStarts.get(ft.meta.idx)
           val isSingleArg = isSeqSingle(getArgs(leftOwner))
           val oneline = style.binPack.defnSiteFor(isBracket) eq
             BinPack.Site.Oneline
-          val nlOnelinePolicy = argsHeadOpt.flatMap { x =>
-            if (isSingleArg || !oneline) None
-            else findFirstOnRight[T.Comma](getLast(x), close)
-              .map(splitOneArgPerLineAfterCommaOnBreak)
-          }
+
+          val nextComma = (if (isSingleArg) None else argsHeadOpt)
+            .flatMap(x => findFirstOnRight[T.Comma](getLast(x), close))
 
           val flags =
-            getBinpackSiteFlags(ft, beforeClose, literalArgList = false)
+            getBinpackSiteFlags(ft, prev(afterClose), literalArgList = false)
           val (nlOnly, nlCloseOnOpen) = flags.nlOpenClose()
           val noNLPolicy = flags.noNLPolicy
           val slbOrNL = nlOnly || noNLPolicy == null
 
-          def noSplitPolicy: Policy =
-            if (slbOrNL) slbPolicy
+          val rightIsComment = right.is[T.Comment]
+          def baseNoSplit(implicit fileLine: FileLine) =
+            Split(if (rightIsComment) Space.orNL(noBreak()) else noSplitMod, 0)
+
+          val noSplit =
+            if (nlOnly) Split.ignored
+            else if (slbOrNL) baseNoSplit.withPolicy(slbPolicy)
+              .withOptimalToken(close, killOnFail = true)
             else {
               val opensPolicy = bracketPenalty.fold(Policy.noPolicy) { p =>
                 Policy.before(close) {
@@ -1122,12 +1126,13 @@ class Router(formatOps: FormatOps) {
                 if (oneline && isSingleArg) NoPolicy
                 else SingleLineBlock(x.tokens.last, noSyntaxNL = true)
               }
-              argPolicy & (opensPolicy | penalizeBrackets) & noNLPolicy()
+              baseNoSplit
+                .withPolicy((opensPolicy | penalizeBrackets) & noNLPolicy())
+                .andPolicy(argPolicy)
             }
-          val rightIsComment = right.is[T.Comment]
-          val noSplitModification =
-            if (rightIsComment && !nlOnly) getMod(ft) else baseNoSplitMod
-          val nlMod = if (rightIsComment && nlOnly) getMod(ft) else Newline
+
+          def nlCost = bracketPenalty.getOrElse(1)
+          val nlMod = Space.orNL(rightIsComment && nlOnly && noBreak())
           def getDanglePolicy(implicit fileLine: FileLine) =
             decideNewlinesOnlyBeforeClose(close)
           val nlPolicy = nlCloseOnOpen match {
@@ -1137,15 +1142,13 @@ class Router(formatOps: FormatOps) {
             case NlClosedOnOpen.No => NoPolicy
           }
 
-          def nlCost = bracketPenalty.getOrElse(1)
-
           Seq(
-            Split(nlOnly, 0)(noSplitModification)
-              .withOptimalToken(close, ignore = !slbOrNL, killOnFail = true)
-              .withPolicy(noSplitPolicy).withIndents(noSplitIndents),
-            Split(nlMod, if (slbOrNL) 0 else nlCost)
-              .withPolicy(nlPolicy & nlOnelinePolicy & penalizeBrackets)
-              .withIndent(indent),
+            noSplit.withIndents(noSplitIndents),
+            Split(nlMod, if (slbOrNL) 0 else nlCost).withIndent(indent)
+              .withPolicy(nlPolicy & penalizeBrackets).andPolicyOpt(
+                nextComma.map(splitOneArgPerLineAfterCommaOnBreak),
+                !oneline,
+              ),
           )
         }
 

@@ -268,7 +268,7 @@ object Split {
 
   def ignored(implicit fileLine: FileLine) = Split(ModExt(NoSplit), 0).ignored
 
-  def apply(ignore: Boolean, cost: Int)(modExt: ModExt)(implicit
+  def apply(ignore: Boolean, cost: Int)(modExt: => ModExt)(implicit
       fileLine: FileLine,
   ): Split = if (ignore) ignored else Split(modExt, cost)
 
