@@ -1423,8 +1423,10 @@ class Router(formatOps: FormatOps) {
             }
             def optFT = nextCommaOrParen.fold(lastFT) { cp =>
               if (cp.right.is[T.Comma]) if (oneline) cp else lastFT
-              else if (!cp.right.is[T.RightParen]) lastFT
-              else if (!style.newlines.avoidInResultType) lastFT
+              else if (
+                !style.newlines.avoidInResultType ||
+                style.newlines.sometimesBeforeColonInMethodReturnType
+              ) lastFT
               else {
                 val nft = findToken(next(cp), next) { x =>
                   x.right match {
