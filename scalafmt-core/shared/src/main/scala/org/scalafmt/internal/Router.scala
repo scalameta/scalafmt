@@ -636,6 +636,19 @@ class Router(formatOps: FormatOps) {
           def noSplitSplit(implicit fileLine: FileLine) =
             if (isAlignFirstParen) baseNoSplit
             else baseNoSplit.withSingleLine(close)
+          def afterClose: Option[T] = {
+            val ftAfterClose = tokenAfter(close)
+            val tokAfterClose = ftAfterClose.right
+            val matches = tokAfterClose match {
+              case _: T.LeftParen => true
+              case _: T.Colon if defn =>
+                ftAfterClose.left.is[T.Comment] ||
+                style.newlines.sometimesBeforeColonInMethodReturnType &&
+                colonDeclType(ftAfterClose.meta.rightOwner).isDefined
+              case _ => false
+            }
+            if (matches) Some(tokAfterClose) else None
+          }
           val splits = src match {
             case Newlines.unfold =>
               val rightParent = rightOwner.parent.get
@@ -643,41 +656,24 @@ class Router(formatOps: FormatOps) {
                 if (defn) beforeDefRhs
                   .fold(getLastToken(rightParent))(prevNonComment(_).left)
                 else getLastToken(getLastCall(rightParent))
-              val multipleArgs = isSeqMulti(getArgs(next(ft).meta.leftOwner))
-              val nft = tokenAfter(close)
-              val nlPolicy = nft.right match {
-                case t: T.LeftParen => decideNewlinesOnlyBeforeClose(t)
-                case t: T.Colon
-                    if defn &&
-                      (nft.left.is[T.Comment] ||
-                        style.newlines.sometimesBeforeColonInMethodReturnType &&
-                        defDefReturnType(rightOwner).isDefined) =>
-                  decideNewlinesOnlyBeforeClose(t)
-                case _ => NoPolicy
-              }
               Seq(
                 baseNoSplit.withSingleLine(slbEnd),
                 Split(Newline, 1).withIndent(indent).withPolicy(
                   penalizeNewlineByNesting(open, close),
-                  multipleArgs,
-                ).andPolicy(nlPolicy),
+                  isSeqMulti(getArgs(ft.meta.rightOwner)),
+                ).andPolicyOpt(afterClose.map(decideNewlinesOnlyBeforeClose)),
               )
             case Newlines.keep =>
               if (hasBreak()) Seq(Split(Newline, 0).withIndent(indent))
               else Seq(noSplitSplit, Split(Newline, 1).withIndent(indent))
             case _ =>
-              def nlColonPolicy =
-                if (!style.newlines.sometimesBeforeColonInMethodReturnType) None
-                else if (!defn) None
-                else defDefReturnType(rightOwner).flatMap { declTpe =>
-                  tokenBefore(declTpe).left match {
-                    case t: T.Colon => Some(decideNewlinesOnlyBeforeClose(t))
-                    case _ => None
-                  }
-                }
+              val nlColonPolicy = afterClose.fold(Policy.noPolicy) {
+                case t: T.Colon => decideNewlinesOnlyBeforeClose(t)
+                case _ => NoPolicy
+              }
               Seq(
                 noSplitSplit,
-                Split(Newline, 1).withIndent(indent).withPolicyOpt(nlColonPolicy),
+                Split(Newline, 1).withIndent(indent).withPolicy(nlColonPolicy),
               )
           }
           val argsOpt = if (isAlignFirstParen) lastSyntaxClause else None
@@ -1286,7 +1282,7 @@ class Router(formatOps: FormatOps) {
         Seq(noSplit, nlSplit)
 
       // Closing def site ): ReturnType
-      case FormatToken(left, _: T.Colon, DefDefReturnTypeRight(returnType))
+      case FormatToken(left, _: T.Colon, ColonDeclTpeRight(returnType))
           if style.newlines.sometimesBeforeColonInMethodReturnType ||
             left.is[T.Comment] && hasBreak() =>
         val expireFt = getLastNonTrivial(returnType)
@@ -1317,7 +1313,7 @@ class Router(formatOps: FormatOps) {
               .withIndent(indent, expire, After).withPolicy(penalizeNewlines),
           )
         }
-      case FormatToken(_: T.Colon, _, DefDefReturnTypeLeft(returnType))
+      case FormatToken(_: T.Colon, _, ColonDeclTpeLeft(returnType))
           if style.newlines.avoidInResultType =>
         val expire = getLastNonTrivialToken(returnType)
         val policy = PenalizeAllNewlines(expire, Constants.ShouldBeNewline)
@@ -1421,13 +1417,22 @@ class Router(formatOps: FormatOps) {
               case FormatToken(_, RightParenOrBracket(), _) => true
               case _ => false
             }
-            val optFT = nextCommaOrParen match {
-              case Some(opt @ FormatToken(_, _: T.Comma, _)) if oneline => opt
-              case Some(FormatToken(_, _: T.RightParen, _))
-                  if style.newlines.avoidInResultType =>
-                val rt = defDefReturnType(leftOwner) // could be empty tree
-                rt.flatMap(getLastNonTrivialOpt).getOrElse(lastFT)
-              case _ => lastFT
+            def optFT = nextCommaOrParen.fold(lastFT) { cp =>
+              if (cp.right.is[T.Comma]) if (oneline) cp else lastFT
+              else if (!cp.right.is[T.RightParen]) lastFT
+              else if (!style.newlines.avoidInResultType) lastFT
+              else {
+                val nft = findToken(next(cp), next) { x =>
+                  x.right match {
+                    case _: T.Comment => x.hasBreak
+                    case _: T.RightParen | _: T.RightBracket => false
+                    case _ => true
+                  }
+                }
+                if (nft.right.is[T.Colon]) colonDeclType(nft.meta.rightOwner)
+                  .flatMap(getLastNonTrivialOpt).getOrElse(lastFT) // could be empty tree
+                else lastFT
+              }
             }
             val nlPolicy = (if (oneline) nextCommaOrParen else None) match {
               case Some(FormatToken(_, t: T.Comma, _)) =>

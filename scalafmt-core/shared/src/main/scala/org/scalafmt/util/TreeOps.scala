@@ -368,8 +368,8 @@ object TreeOps {
     case None => None
   }
 
-  @tailrec
-  private def defDefReturnTypeImpl(tree: Tree): Option[Type] = tree match {
+  // invoked ONLY for colon
+  def colonDeclType(tree: Tree): Option[Type] = tree match {
     case d: Decl.Def => Some(d.decltpe)
     case d: Defn.Def => d.decltpe
     case d: Defn.Macro => d.decltpe
@@ -378,20 +378,13 @@ object TreeOps {
     case d: Decl.Given => Some(d.decltpe)
     case d: Defn.Val => d.decltpe
     case d: Defn.Var => d.decltpe
-    case _: Pat.Var | _: Term.Name | _: Member.ParamClause |
-        _: Member.ParamClauseGroup => tree.parent match {
-        case Some(p) => defDefReturnTypeImpl(p)
-        case _ => None
-      }
     case _ => None
   }
-  def defDefReturnType(tree: Tree): Option[Type] = defDefReturnTypeImpl(tree)
-    .filter(!_.pos.isEmpty)
 
-  val DefDefReturnTypeLeft =
-    new FormatToken.ExtractFromMeta(x => defDefReturnType(x.leftOwner))
-  val DefDefReturnTypeRight =
-    new FormatToken.ExtractFromMeta(x => defDefReturnType(x.rightOwner))
+  val ColonDeclTpeLeft =
+    new FormatToken.ExtractFromMeta(x => colonDeclType(x.leftOwner))
+  val ColonDeclTpeRight =
+    new FormatToken.ExtractFromMeta(x => colonDeclType(x.rightOwner))
 
   def isParamClauseSite(tree: Tree): Boolean = tree match {
     case _: Type.ParamClause => !tree.parent.exists(_.is[Type.Lambda])
