@@ -924,7 +924,7 @@ object a {
   val a = foo bar (
     baz = qux)
 }
-<<< binpack with infix rhs in parens, 2 args
+<<< binpack with infix rhs in parens, 2 args, bp=oneline
 maxColumn = 25
 binPack.unsafeCallSite = oneline
 indentOperator.topLevelOnly = false
@@ -938,6 +938,20 @@ object a {
   val a =
     foo bar (baz = qux,
       bar = qux)
+}
+<<< binpack with infix rhs in parens, 2 args, bp=always
+maxColumn = 25
+binPack.unsafeCallSite = always
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  val a = foo bar (baz = qux, bar = qux)
+}
+>>>
+object a {
+  val a = foo bar (
+    baz = qux, bar = qux)
 }
 <<< binpack with infix match rhs in parens
 maxColumn = 25
