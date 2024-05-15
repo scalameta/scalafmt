@@ -515,3 +515,46 @@ object a {
     T12, R] =
     (x1, x12) => f(x1, x12)
 }
+<<< break at maxColumn, with overflow enabled 1
+preset = default
+maxColumn = 80
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  def setTimeout(handler: js.Function0[Any], interval: Double): SetTimeoutHandle = js.native
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+ object a {
+-  def setTimeout(handler: js.Function0[Any], interval: Double): SetTimeoutHandle =
++  def setTimeout(
++      handler: js.Function0[Any], interval: Double): SetTimeoutHandle =
+     js.native
+<<< break at maxColumn, with overflow enabled 2
+preset = default
+maxColumn = 80
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = true
+# newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  def getArrayUnderlyingTypedArrayClassRef(elemTypeRef: NonArrayTypeRef)(implicit tracking: GlobalRefTracking, pos: Position): Option[WithGlobals[VarRef]] = {
+    // foo
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+ object a {
+-  def getArrayUnderlyingTypedArrayClassRef(elemTypeRef: NonArrayTypeRef)(
+-      implicit tracking: GlobalRefTracking,
++  def getArrayUnderlyingTypedArrayClassRef(
++      elemTypeRef: NonArrayTypeRef)(implicit tracking: GlobalRefTracking,
+       pos: Position): Option[WithGlobals[VarRef]] = {
