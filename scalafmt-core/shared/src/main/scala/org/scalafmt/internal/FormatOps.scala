@@ -120,8 +120,7 @@ class FormatOps(
 
   def findFirstOnRight[A](start: FormatToken, end: T)(implicit
       classifier: Classifier[T, A],
-  ): Option[T] = findFirst(start, end.start)(x => classifier(x.right))
-    .map(_.right)
+  ): Option[FormatToken] = findFirst(start, end.start)(x => classifier(x.right))
 
   final def rhsOptimalToken(start: FormatToken, end: Int = Int.MaxValue): T =
     findTokenWith(start, next) { start =>
