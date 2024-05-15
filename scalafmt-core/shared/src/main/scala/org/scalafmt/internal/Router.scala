@@ -1141,14 +1141,14 @@ class Router(formatOps: FormatOps) {
             case NlClosedOnOpen.Yes => getDanglePolicy
             case NlClosedOnOpen.No => NoPolicy
           }
+          def nlOnelinePolicy = nextComma
+            .map(x => splitOneArgPerLineAfterCommaOnBreak(x.right))
 
           Seq(
             noSplit.withIndents(noSplitIndents),
             Split(nlMod, if (slbOrNL) 0 else nlCost).withIndent(indent)
-              .withPolicy(nlPolicy & penalizeBrackets).andPolicyOpt(
-                nextComma.map(splitOneArgPerLineAfterCommaOnBreak),
-                !oneline,
-              ),
+              .withPolicy(nlPolicy & penalizeBrackets)
+              .andPolicyOpt(nlOnelinePolicy, !oneline),
           )
         }
 
@@ -1174,6 +1174,7 @@ class Router(formatOps: FormatOps) {
         val nlOnly = nlOpen && !singleLineOnly
 
         def findComma(ft: FormatToken) = findFirstOnRight[T.Comma](ft, close)
+          .map(_.right)
 
         val oneline = style.binPack.callSiteFor(open) == BinPack.Site.Oneline
         val nextCommaOneline =
