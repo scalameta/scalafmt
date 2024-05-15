@@ -1072,7 +1072,6 @@ class Router(formatOps: FormatOps) {
           if style.binPack.defnSiteFor(open) != BinPack.Site.Never &&
             isParamClauseSite(leftOwner) =>
         val close = matching(open)
-        def slbPolicy = SingleLineBlock(close, okSLC = true, noSyntaxNL = true)
         val noSplitMod = Space(style.spaces.inParentheses)
         if (close eq right) Seq(Split(noSplitMod, 0))
         else {
@@ -1090,8 +1089,7 @@ class Router(formatOps: FormatOps) {
             .map(p => PenalizeAllNewlines(close, p + 3))
           val afterClose = after(close)
 
-          val argsHeadOpt = argumentStarts.get(ft.meta.idx)
-          val nextCommaOneline = argsHeadOpt.flatMap { x =>
+          val nextCommaOneline = argumentStarts.get(ft.meta.idx).flatMap { x =>
             val noNeed = isSeqSingle(getArgs(leftOwner)) ||
               style.binPack.defnSiteFor(isBracket) != BinPack.Site.Oneline
             if (noNeed) None else findFirstOnRight[T.Comma](getLast(x), close)
@@ -1104,13 +1102,17 @@ class Router(formatOps: FormatOps) {
           val slbOrNL = nlOnly || noNLPolicy == null
 
           val rightIsComment = right.is[T.Comment]
-          def baseNoSplit(implicit fileLine: FileLine) =
-            Split(if (rightIsComment) Space.orNL(noBreak()) else noSplitMod, 0)
+          def getNoSplit(slbEnd: Option[T])(implicit fileLine: FileLine) = {
+            val mod = if (rightIsComment) Space.orNL(noBreak()) else noSplitMod
+            slbEnd.fold(Split(mod, 0)) { x =>
+              Split(mod, 0).withOptimalToken(x, killOnFail = true)
+                .withPolicy(SingleLineBlock(x, okSLC = true, noSyntaxNL = true))
+            }
+          }
 
           val noSplit =
             if (nlOnly) Split.ignored
-            else if (slbOrNL) baseNoSplit.withPolicy(slbPolicy)
-              .withOptimalToken(close, killOnFail = true)
+            else if (slbOrNL) getNoSplit(Some(close))
             else {
               val opensPolicy = bracketPenalty.fold(Policy.noPolicy) { p =>
                 Policy.before(close) {
@@ -1121,13 +1123,8 @@ class Router(formatOps: FormatOps) {
                     else s.map(x => if (x.isNL) x.withPenalty(p) else x)
                 }
               }
-              val argPolicy = argsHeadOpt.fold(Policy.noPolicy) { x =>
-                if (nextCommaOneline.isEmpty) NoPolicy
-                else SingleLineBlock(x.tokens.last, noSyntaxNL = true)
-              }
-              baseNoSplit
-                .withPolicy((opensPolicy | penalizeBrackets) & noNLPolicy())
-                .andPolicy(argPolicy)
+              getNoSplit(nextCommaOneline.map(endOfSingleLineBlock))
+                .andPolicy((opensPolicy | penalizeBrackets) & noNLPolicy())
             }
 
           def nlCost = bracketPenalty.getOrElse(1)
