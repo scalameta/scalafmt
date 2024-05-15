@@ -1030,15 +1030,11 @@ class FormatOps(
         }
       }
       tokens.foreach {
-        case ft @ FormatToken(_: T.LeftParen, _, m) => m.leftOwner match {
-            case t: Term.ArgClause if !t.parent.exists(_.is[Term.ApplyInfix]) =>
+        case ft @ FormatToken(_: T.LeftParen | _: T.LeftBracket, _, m) =>
+          m.leftOwner match {
+            case t: Member.ArgClause if !t.parent.exists(_.is[Member.Infix]) =>
               process(t, ft)(callSite)
-            case t: Term.ParamClause => process(t, ft)(defnSite)
-            case _ =>
-          }
-        case ft @ FormatToken(_: T.LeftBracket, _, m) => m.leftOwner match {
-            case t: Type.ArgClause => process(t, ft)(callSite)
-            case t: Type.ParamClause => process(t, ft)(defnSite)
+            case t: Member.ParamClause => process(t, ft)(defnSite)
             case t: Type.FuncParamClause => process(t, ft)(defnSite)
             case _ =>
           }
