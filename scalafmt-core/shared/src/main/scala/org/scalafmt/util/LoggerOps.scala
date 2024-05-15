@@ -4,27 +4,38 @@ import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Split
 import org.scalafmt.internal.State
 
+import org.scalameta.FileLine
 import scala.meta.Tree
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Interpolation
 import scala.meta.tokens.Tokens
 
+import scala.util.DynamicVariable
+
 import sourcecode.Text
 
 /** Debugging utility.
   */
 object LoggerOps {
-  val logger = org.scalameta.logger
+  private val loggerLike = new DynamicVariable[LoggerLike](Logger)
+  def logger = loggerLike.value
+  def logger(flag: Boolean): Unit =
+    loggerLike.value = if (flag) Logger else NoLogger
 
   // TODO(olafur) parameterize
   def name2style[T](styles: Text[T]*): Map[String, T] = styles
     .map(x => x.source -> x.value).toMap
 
-  def log(s: State): String = {
-    val policies = s.policy.policies.map(_.toString).mkString("P[", ",", "]")
-    s"d=${s.depth} w=${s.cost} i=${s.indentation} col=${s.column} #nl=${s
-        .lineId}; $policies; s=${log(s.split)}"
+  def log(s: State, indent: String = ""): String = {
+    val delim = s"\n$indent  "
+    val policies = s.policy.policies match {
+      case Nil => ""
+      case p :: Nil => s";${delim}P($p)"
+      case pp => pp.map(_.toString).mkString(s";${delim}P[", s",$delim  ", s"]")
+    }
+    s"d=${s.depth} w=${s.cost}[${s.appliedPenalty}] i=${s.indentation} col=${s
+        .column} #nl=${s.lineId}$policies;${delim}s=${log(s.split)}"
   }
   def log(split: Split): String = s"$split"
 
@@ -34,6 +45,7 @@ object LoggerOps {
         |${log(formatToken.right)}""".stripMargin
 
   def log2(formatToken: FormatToken): String = formatToken.toString
+  def log2(formatToken: Option[FormatToken]): String = formatToken.fold("")(log2)
 
   def escape(raw: String): String = raw
 
@@ -74,4 +86,25 @@ object LoggerOps {
     val line = s"=" * (t.toString.length + 3)
     s"$line\n=> $t\n$line"
   }
+
+  sealed trait LoggerLike {
+    def println(x: Any): Unit
+    def debug(x: Any)(implicit fileLine: FileLine): Unit
+    def elem(values: sourcecode.Text[Any]*)(implicit fileLine: FileLine): Unit
+  }
+  object Logger extends LoggerLike {
+    def println(x: Any): Unit = Console.out.println(x)
+    def debug(x: Any)(implicit fileLine: FileLine): Unit = org.scalameta.logger
+      .debug(x)
+    def elem(values: sourcecode.Text[Any]*)(implicit fileLine: FileLine): Unit =
+      org.scalameta.logger.elem(values: _*)
+  }
+  object NoLogger extends LoggerLike {
+    def println(x: Any): Unit = {}
+    def debug(x: Any)(implicit fileLine: FileLine): Unit = {}
+    def elem(values: sourcecode.Text[Any]*)(implicit
+        fileLine: FileLine,
+    ): Unit = {}
+  }
+
 }
