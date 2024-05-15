@@ -2655,14 +2655,17 @@ class FormatOps(
             case Newlines.keep => openBreak
             case _ => false
           }) || isRightCommentWithBreak(ftAfterOpen)
-        val nlBothIncludingCfg = !sourceIgnored && closeBreak && {
-          scalaJsStyle || nlOpenExcludingCfg ||
-          preserveConfigStyle(ftAfterOpen, true)
+        val nlBothIncludingCfg = !sourceIgnored && {
+          val nlBothExcludingCfg =
+            if (!shouldDangle) scalaJsStyle && closeBreak
+            else nlOpenExcludingCfg && !style.newlines.keepBreak(!closeBreak)
+          nlBothExcludingCfg ||
+          closeBreak && preserveConfigStyle(ftAfterOpen, true)
         }
         // close on open NL; doesn't cover case with no break after open
         val nlClose = nlBothIncludingCfg || dangleForTrailingCommas ||
           shouldDangle || style.newlines.keepBreak(closeBreak)
-        if (!nlClose) (nlOpenExcludingCfg && !scalaJsStyle, NlClosedOnOpen.No)
+        if (!nlClose) (nlOpenExcludingCfg, NlClosedOnOpen.No)
         else {
           val cfg = !literalArgList && configStyleSource
           val dangle = if (cfg) NlClosedOnOpen.Cfg else NlClosedOnOpen.Yes

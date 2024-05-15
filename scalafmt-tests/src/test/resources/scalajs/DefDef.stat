@@ -509,10 +509,11 @@ object a {
 }
 >>>
 object a {
-  implicit def toFunction12[VeryVeryVeryVeryVeryVeryVeryVeryVeryLongTypeParam,
-      R](f: js.Function12[VeryVeryVeryVeryVeryVeryVeryVeryVeryLongTypeParam,
-        R]): scala.Function12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
-    T12, R] =
+  implicit def toFunction12[
+      VeryVeryVeryVeryVeryVeryVeryVeryVeryLongTypeParam, R](
+      f: js.Function12[VeryVeryVeryVeryVeryVeryVeryVeryVeryLongTypeParam, R])
+      : scala.Function12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
+        R] =
     (x1, x12) => f(x1, x12)
 }
 <<< break at maxColumn, with overflow enabled 1
@@ -528,13 +529,11 @@ object a {
   def setTimeout(handler: js.Function0[Any], interval: Double): SetTimeoutHandle = js.native
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a {
--  def setTimeout(handler: js.Function0[Any], interval: Double): SetTimeoutHandle =
-+  def setTimeout(
-+      handler: js.Function0[Any], interval: Double): SetTimeoutHandle =
-     js.native
+object a {
+  def setTimeout(
+      handler: js.Function0[Any], interval: Double): SetTimeoutHandle =
+    js.native
+}
 <<< break at maxColumn, with overflow enabled 2
 preset = default
 maxColumn = 80
@@ -550,11 +549,10 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a {
--  def getArrayUnderlyingTypedArrayClassRef(elemTypeRef: NonArrayTypeRef)(
--      implicit tracking: GlobalRefTracking,
-+  def getArrayUnderlyingTypedArrayClassRef(
-+      elemTypeRef: NonArrayTypeRef)(implicit tracking: GlobalRefTracking,
-       pos: Position): Option[WithGlobals[VarRef]] = {
+object a {
+  def getArrayUnderlyingTypedArrayClassRef(
+      elemTypeRef: NonArrayTypeRef)(implicit tracking: GlobalRefTracking,
+      pos: Position): Option[WithGlobals[VarRef]] = {
+    // foo
+  }
+}

@@ -4958,6 +4958,11 @@ When not disabled, these parameters have complex interactions with
 Keep in mind that when [config-style is forced](#forcing-config-style),
 it takes precedence over options described below.
 
+The code that is being binpacked might also yield an additional force over
+the selection of breaks, such as when dealing with multiline arguments
+(they behave differently under `Oneline` setting, or depending on
+[alignment](#alignopenparencallsite)).
+
 - `newlines.source=classic`
   - `cfgStyle=T`, `dangle=T`:
     use cfg-style if both parens had breaks, otherwise binpack without breaks
@@ -4974,16 +4979,16 @@ it takes precedence over options described below.
     - before v3.8.2, this formatting was used for `callSite` with
       `cfgStyle=F` and any `dangle`, and for `defnSite` with
       `cfgStyle=F` and `dangle=F`
-- `newlines.source=keep`
+- `newlines.source=keep`: always preserve break after open paren
   - `cfgStyle=T`, `dangle=T`:
-    use cfg-style if open paren had a break; otherwise, binpack and preserve both breaks
+    use cfg-style if open paren had a break; otherwise, binpack and keep close break
   - `cfgStyle=T`, `dangle=F`:
     ([scala.js](#presetscalajs))
-    use cfg-style if close paren had a break; otherwise, binpack without breaks
+    use cfg-style if close paren had a break; otherwise, binpack and keep close break
   - `cfgStyle=F`, `dangle=T`:
-    binpack; if open paren had a break, force both breaks; otherwise, preserve both
+    binpack; force close break if open paren had a break; otherwise, preserve it
   - `cfgStyle=F`, `dangle=F`:
-    binpack; preserve both breaks
+    binpack; preserve close break
 - `newlines.source=fold`: if single line is not possible:
   - `cfgStyle=T`, `dangle=T`:
     binpack with both breaks
