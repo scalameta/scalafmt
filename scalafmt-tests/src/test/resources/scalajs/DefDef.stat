@@ -541,7 +541,7 @@ newlines.source = keep
 binPack.preset = oneline
 danglingParentheses.preset = false
 newlines.configStyleDefnSite.prefer = true
-# newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
 ===
 object a {
   def getArrayUnderlyingTypedArrayClassRef(elemTypeRef: NonArrayTypeRef)(implicit tracking: GlobalRefTracking, pos: Position): Option[WithGlobals[VarRef]] = {
@@ -556,3 +556,25 @@ object a {
     // foo
   }
 }
+<<< break at maxColumn, with overflow enabled 3
+preset = default
+maxColumn = 80
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  def foo = {
+    val registry = new js_FinalizationRegistry[js_Date, String, Any]((heldValue: String) => ())
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+     val registry =
+-      new js_FinalizationRegistry[js_Date, String, Any]((heldValue: String) =>
+-        ())
++      new js_FinalizationRegistry[js_Date, String, Any]((heldValue: String) => ())
+   }
