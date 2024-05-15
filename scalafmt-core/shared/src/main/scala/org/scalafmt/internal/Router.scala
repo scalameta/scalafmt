@@ -1091,12 +1091,11 @@ class Router(formatOps: FormatOps) {
           val afterClose = after(close)
 
           val argsHeadOpt = argumentStarts.get(ft.meta.idx)
-          val isSingleArg = isSeqSingle(getArgs(leftOwner))
-          val oneline = style.binPack.defnSiteFor(isBracket) eq
-            BinPack.Site.Oneline
-
-          val nextComma = (if (isSingleArg) None else argsHeadOpt)
-            .flatMap(x => findFirstOnRight[T.Comma](getLast(x), close))
+          val nextCommaOneline = argsHeadOpt.flatMap { x =>
+            val noNeed = isSeqSingle(getArgs(leftOwner)) ||
+              style.binPack.defnSiteFor(isBracket) != BinPack.Site.Oneline
+            if (noNeed) None else findFirstOnRight[T.Comma](getLast(x), close)
+          }
 
           val flags =
             getBinpackSiteFlags(ft, prev(afterClose), literalArgList = false)
@@ -1123,7 +1122,7 @@ class Router(formatOps: FormatOps) {
                 }
               }
               val argPolicy = argsHeadOpt.fold(Policy.noPolicy) { x =>
-                if (oneline && isSingleArg) NoPolicy
+                if (nextCommaOneline.isEmpty) NoPolicy
                 else SingleLineBlock(x.tokens.last, noSyntaxNL = true)
               }
               baseNoSplit
@@ -1141,14 +1140,13 @@ class Router(formatOps: FormatOps) {
             case NlClosedOnOpen.Yes => getDanglePolicy
             case NlClosedOnOpen.No => NoPolicy
           }
-          def nlOnelinePolicy = nextComma
+          val nlOnelinePolicy = nextCommaOneline
             .map(x => splitOneArgPerLineAfterCommaOnBreak(x.right))
 
           Seq(
             noSplit.withIndents(noSplitIndents),
             Split(nlMod, if (slbOrNL) 0 else nlCost).withIndent(indent)
-              .withPolicy(nlPolicy & penalizeBrackets)
-              .andPolicyOpt(nlOnelinePolicy, !oneline),
+              .withPolicy(nlPolicy & penalizeBrackets & nlOnelinePolicy),
           )
         }
 

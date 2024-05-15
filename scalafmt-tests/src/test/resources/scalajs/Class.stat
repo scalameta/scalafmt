@@ -42,8 +42,7 @@ class Response(content: BodyInit = null, init: ResponseInit = null)
 class Promise[+A](
     executor: js.Function2[js.Function1[A | Thenable[A], _], js.Function1[scala.Any, _], _])
 >>>
-class Promise[+A](
-    executor: js.Function2[js.Function1[A | Thenable[A], _],
+class Promise[+A](executor: js.Function2[js.Function1[A | Thenable[A], _],
         js.Function1[scala.Any, _], _])
 <<< #270
 object a {
