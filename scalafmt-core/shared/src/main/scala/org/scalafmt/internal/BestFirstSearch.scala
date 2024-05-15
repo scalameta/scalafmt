@@ -182,13 +182,12 @@ private class BestFirstSearch private (
                     optimalNotFound = false
                     enqueue(furtherState)
                   }
-                } else if (!killOnFail && nextState.cost - curr.cost <= maxCost)
+                } else if (!killOnFail && nextState.split.cost <= maxCost)
                   // TODO(olafur) DRY. This solution can still be optimal.
                   enqueue(nextState)
                 else // else kill branch
                 if (updateBest) best.remove(curr.depth)
-              case _
-                  if optimalNotFound && nextState.cost - curr.cost <= maxCost =>
+              case _ if optimalNotFound && nextState.split.cost <= maxCost =>
                 enqueue(nextState)
               case _ => // Kill branch.
                 if (updateBest) best.remove(curr.depth)
