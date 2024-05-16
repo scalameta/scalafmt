@@ -1644,21 +1644,20 @@ class FormatOps(
         classicNoBreakFunc: => Split,
     )(nlSplitFunc: Int => Split)(implicit style: ScalafmtConfig): Seq[Split] =
       checkComment(ft, nlSplitFunc) { x =>
+        def getFolded(isKeep: Boolean) =
+          foldedNonComment(body, nlSplitFunc, isKeep = isKeep, spaceIndents)
         style.newlines.getBeforeMultiline match {
+          case Newlines.fold => getFolded(false)
           case Newlines.unfold =>
             unfoldedNonComment(body, nlSplitFunc, spaceIndents, false)
-          case Newlines.classic | Newlines.keep if x.hasBreak =>
-            Seq(nlSplitFunc(0).forThisLine)
-          case Newlines.classic => Option(classicNoBreakFunc).fold {
-              foldedNonComment(body, nlSplitFunc, isKeep = true, spaceIndents)
-            } { func =>
+          case Newlines.classic if x.noBreak =>
+            Option(classicNoBreakFunc).fold(getFolded(true)) { func =>
               val spcSplit = func.forThisLine
               val nlSplit = nlSplitFunc(spcSplit.getCost(_ + 1, 0)).forThisLine
               Seq(spcSplit, nlSplit)
             }
-          case sh => // fold or keep without break
-            val isKeep = sh eq Newlines.keep
-            foldedNonComment(body, nlSplitFunc, isKeep, spaceIndents)
+          case Newlines.keep if x.noBreak => getFolded(true)
+          case _ => getFolded(true).filter(_.isNL) // keep/classic with break
         }
       }
 

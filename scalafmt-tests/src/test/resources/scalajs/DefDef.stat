@@ -570,10 +570,9 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-     val registry =
--      new js_FinalizationRegistry[js_Date, String, Any]((heldValue: String) =>
--        ())
-+      new js_FinalizationRegistry[js_Date, String, Any]((heldValue: String) => ())
-   }
+object a {
+  def foo = {
+    val registry =
+      new js_FinalizationRegistry[js_Date, String, Any]((heldValue: String) => ())
+  }
+}
