@@ -6457,6 +6457,10 @@ since v3.0.0:</p>
 <a href="#newlines-danglingparentheses"><code>danglingParentheses.xxxSite</code></a> (aka <code>dangle</code>).
 Keep in mind that when <a href="#forcing-config-style">config-style is forced</a>,
 it takes precedence over options described below.</p>
+<p>The code that is being binpacked might also yield an additional force over
+the selection of breaks, such as when dealing with multiline arguments
+(they behave differently under <code>Oneline</code> setting, or depending on
+<a href="#alignopenparencallsite">alignment</a>).</p>
 <ul>
 <li><code>newlines.source=classic</code>
 <ul>
@@ -6482,17 +6486,17 @@ binpack without breaks
 <code>cfgStyle=F</code> and <code>dangle=F</code></li>
 </ul></li>
 </ul></li>
-<li><code>newlines.source=keep</code>
+<li><code>newlines.source=keep</code>: always preserve break after open paren
 <ul>
 <li><code>cfgStyle=T</code>, <code>dangle=T</code>:
-use cfg-style if open paren had a break; otherwise, binpack and preserve both breaks</li>
+use cfg-style if open paren had a break; otherwise, binpack and keep close break</li>
 <li><code>cfgStyle=T</code>, <code>dangle=F</code>:
 (<a href="#presetscalajs">scala.js</a>)
-use cfg-style if close paren had a break; otherwise, binpack without breaks</li>
+use cfg-style if close paren had a break; otherwise, binpack and keep close break</li>
 <li><code>cfgStyle=F</code>, <code>dangle=T</code>:
-binpack; if open paren had a break, force both breaks; otherwise, preserve both</li>
+binpack; force close break if open paren had a break; otherwise, preserve it</li>
 <li><code>cfgStyle=F</code>, <code>dangle=F</code>:
-binpack; preserve both breaks</li>
+binpack; preserve close break</li>
 </ul></li>
 <li><code>newlines.source=fold</code>: if single line is not possible:
 <ul>
