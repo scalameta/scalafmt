@@ -85,20 +85,38 @@ case class Split(
   @inline
   def onlyIf(flag: Boolean): Split = if (flag) this else ignored
 
-  def onlyFor(splitTag: SplitTag, ignore: Boolean = false): Split =
-    if (isIgnored || ignore || isNeededFor(splitTag)) this
-    else copy(neededTags = neededTags + splitTag)
+  def onlyFor(splitTag: SplitTag): Split =
+    if (isIgnored) this
+    else {
+      val newNeededTags = neededTags + splitTag
+      if (newNeededTags eq neededTags) this
+      else copy(neededTags = newNeededTags)
+    }
 
   def activateFor(splitTag: SplitTag): Split =
-    if (isIgnored || isActiveFor(splitTag)) this
-    else copy(activeTags = activeTags + splitTag)
+    if (isIgnored) this
+    else {
+      val newActiveTags = activeTags + splitTag
+      if (newActiveTags eq activeTags) this
+      else copy(activeTags = newActiveTags)
+    }
+
+  def deActivateFor(splitTag: SplitTag): Split =
+    if (isIgnored) this
+    else {
+      val newActiveTags = activeTags - splitTag
+      if (newActiveTags eq activeTags) this
+      else copy(activeTags = newActiveTags)
+    }
 
   def preActivateFor(splitTag: SplitTag): Split =
     if (isIgnored) this
-    else copy(
-      activeTags = activeTags + splitTag,
-      neededTags = neededTags + splitTag,
-    )
+    else {
+      val newActiveTags = activeTags + splitTag
+      val newNeededTags = neededTags + splitTag
+      if ((newActiveTags eq activeTags) && (newNeededTags eq neededTags)) this
+      else copy(activeTags = newActiveTags, neededTags = newNeededTags)
+    }
 
   def preActivateFor(splitTag: Option[SplitTag]): Split =
     if (isIgnored) this else splitTag.fold(this)(preActivateFor)
