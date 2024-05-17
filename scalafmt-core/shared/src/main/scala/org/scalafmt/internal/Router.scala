@@ -1457,7 +1457,7 @@ class Router(formatOps: FormatOps) {
               case _ => NoPolicy
             }
             val indentOncePolicy =
-              if (style.binPack.indentCallSiteOnce) {
+              if (callSite && style.binPack.indentCallSiteOnce) {
                 val trigger = getIndentTrigger(leftOwner)
                 Policy.on(lastFT.left) {
                   case Decision(FormatToken(LeftParenOrBracket(), _, m), s)
