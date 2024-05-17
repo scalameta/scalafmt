@@ -5130,8 +5130,9 @@ object a {
 }
 >>>
 object a {
-  def foo(dd: DD[AA[BB],
-        CC] = DDD.ddd): Bar[Baz] = {
+  def foo(
+      dd: DD[AA[BB], CC] = DDD.ddd
+  ): Bar[Baz] = {
     // c
     qux
   }
@@ -5173,8 +5174,8 @@ object a {
 }
 >>>
 object a {
-  def foo(dd: DD[AA[BB],
-            CC] = DDDD.dddd) = {
+  def foo(dd: DD[AA[BB], CC] =
+            DDDD.dddd) = {
     // c
     qux
   }

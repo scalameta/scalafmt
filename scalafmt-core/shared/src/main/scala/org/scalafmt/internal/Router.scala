@@ -1231,7 +1231,8 @@ class Router(formatOps: FormatOps) {
                   penalizeNewlinesPolicy
                 else {
                   val slbEnd = nextCommaOneline.getOrElse(close)
-                  SingleLineBlock(slbEnd, noSyntaxNL = true)
+                  SingleLineBlock(slbEnd, noSyntaxNL = true) |
+                    penalizeNewlinesPolicy
                 }
               }
             val indentPolicy =
