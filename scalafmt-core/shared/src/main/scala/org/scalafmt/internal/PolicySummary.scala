@@ -10,10 +10,11 @@ class PolicySummary(val policies: Seq[Policy]) extends AnyVal {
   @inline
   def noDequeue = policies.exists(_.noDequeue)
 
-  def combine(other: Policy, ft: FormatToken): PolicySummary =
-    if (ft.right.is[Token.EOF]) PolicySummary.empty
+  def combine(split: Split, nextft: FormatToken): PolicySummary =
+    if (nextft.right.is[Token.EOF]) PolicySummary.empty
     else new PolicySummary(
-      (other +: policies).flatMap(_.unexpiredOpt(ft)).sortBy(_.rank),
+      (split.policy +: policies).flatMap(_.unexpiredOpt(split, nextft))
+        .sortBy(_.rank),
     )
 
   def execute(decision: Decision, debug: Boolean = false): Decision = policies

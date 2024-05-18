@@ -81,7 +81,7 @@ final case class State(
       .getColumns(tok, nextIndent, startColumn)
 
     val nextTok = tokens.next(tok)
-    val nextPolicy: PolicySummary = policy.combine(nextSplit.policy, nextTok)
+    val nextPolicy: PolicySummary = policy.combine(nextSplit, nextTok)
 
     def noOverflowPenalties = (math.max(0, delayedPenalty), 0) // fits inside column
 

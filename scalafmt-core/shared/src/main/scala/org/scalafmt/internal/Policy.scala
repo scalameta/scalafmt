@@ -14,7 +14,7 @@ abstract class Policy {
   def rank: Int
 
   def filter(pred: Policy.Clause => Boolean): Policy
-  def unexpired(ft: FormatToken): Policy
+  def unexpired(split: Split, nextft: FormatToken): Policy
   def noDequeue: Boolean
   def switch(trigger: Token, on: Boolean): Policy
 
@@ -24,8 +24,8 @@ abstract class Policy {
     if (other.isEmpty) this else new Policy.OrElse(this, other)
 
   @inline
-  final def unexpiredOpt(ft: FormatToken): Option[Policy] = Some(unexpired(ft))
-    .filter(_.nonEmpty)
+  final def unexpiredOpt(split: Split, nextft: FormatToken): Option[Policy] =
+    Some(unexpired(split, nextft)).filter(_.nonEmpty)
 
   @inline
   final def &(other: Option[Policy]): Policy = other.fold(this)(&)
@@ -53,7 +53,7 @@ object Policy {
     override def &(other: Policy): Policy = other
 
     override def rank: Int = 0
-    override def unexpired(ft: FormatToken): Policy = this
+    override def unexpired(split: Split, nextft: FormatToken): Policy = this
     override def filter(pred: Clause => Boolean): Policy = this
     override def switch(trigger: Token, on: Boolean): Policy = this
     override def noDequeue: Boolean = false
@@ -92,8 +92,8 @@ object Policy {
       s"[$fileLine]$endPolicy${noDeqPrefix}d"
     }
 
-    override def unexpired(ft: FormatToken): Policy =
-      if (endPolicy.notExpiredBy(ft)) this else NoPolicy
+    override def unexpired(split: Split, nextft: FormatToken): Policy =
+      if (endPolicy.notExpiredBy(nextft)) this else NoPolicy
 
     override def filter(pred: Clause => Boolean): Policy =
       if (pred(this)) this else NoPolicy
@@ -114,7 +114,8 @@ object Policy {
 
     override def rank: Int = math.min(p1.rank, p2.rank)
 
-    override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
+    override def unexpired(split: Split, nextft: FormatToken): Policy =
+      conv(_.unexpired(split, nextft))
 
     override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
 
@@ -142,7 +143,8 @@ object Policy {
 
     override def rank: Int = math.min(p1.rank, p2.rank)
 
-    override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
+    override def unexpired(split: Split, nextft: FormatToken): Policy =
+      conv(_.unexpired(split, nextft))
 
     override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
 
@@ -165,8 +167,9 @@ object Policy {
     override def rank: Int = 0
     override def filter(pred: Clause => Boolean): Policy = this
     override def switch(trigger: Token, on: Boolean): Policy = this
-    override def unexpired(ft: FormatToken): Policy =
-      if (begPolicy.notExpiredBy(ft)) this else policy.unexpired(ft)
+    override def unexpired(split: Split, nextft: FormatToken): Policy =
+      if (begPolicy.notExpiredBy(nextft)) this
+      else policy.unexpired(split, nextft)
     override def noDequeue: Boolean = policy.noDequeue
     override def toString: String = s"$begPolicy:$policy"
   }
@@ -183,7 +186,8 @@ object Policy {
     override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
     override def switch(trigger: Token, on: Boolean): Policy =
       conv(_.switch(trigger, on))
-    override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
+    override def unexpired(split: Split, nextft: FormatToken): Policy =
+      conv(_.unexpired(split, nextft))
     override def noDequeue: Boolean = before.noDequeue
     override def toString: String = s"REL:[$fileLine]($before,$after)"
 
@@ -214,7 +218,8 @@ object Policy {
       if (trigger ne this.trigger) conv(_.switch(trigger, on))
       else if (on) before
       else after.switch(trigger, false)
-    override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
+    override def unexpired(split: Split, nextft: FormatToken): Policy =
+      conv(_.unexpired(split, nextft))
     override def noDequeue: Boolean = before.noDequeue
     override def toString: String = s"SW:[$fileLine]($before,$trigger,$after)"
 
@@ -249,9 +254,9 @@ object Policy {
       if (switched eq policy) this else Proxy(switched, endPolicy)(factory)
     }
 
-    override def unexpired(ft: FormatToken): Policy =
-      if (!endPolicy.notExpiredBy(ft)) NoPolicy
-      else Proxy(policy.unexpired(ft), endPolicy)(factory)
+    override def unexpired(split: Split, nextft: FormatToken): Policy =
+      if (!endPolicy.notExpiredBy(nextft)) NoPolicy
+      else Proxy(policy.unexpired(split, nextft), endPolicy)(factory)
 
     override def noDequeue: Boolean = policy.noDequeue
 
