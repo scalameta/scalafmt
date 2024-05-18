@@ -294,6 +294,34 @@ object Policy {
     override def toString: String = s"*($policy)$endPolicy"
   }
 
+  final class Map(
+      val endPolicy: Policy.End.WithPos,
+      val noDequeue: Boolean = false,
+      val rank: Int = 0,
+      desc: => String = "",
+  )(pred: Split => Split)(implicit fileLine: FileLine)
+      extends Policy.Clause {
+    private object PredicateDecision {
+      def unapply(d: Decision): Option[Seq[Split]] = {
+        var replaced = false
+        def applyMap(s: Split): Option[Split] = Option(pred(s)).filter { ss =>
+          (s eq ss) || {
+            replaced = true
+            !ss.isIgnored
+          }
+        }
+        val splits = d.splits.flatMap(applyMap)
+        if (replaced) Some(splits) else None
+      }
+    }
+    override val f: Policy.Pf = { case PredicateDecision(ss) => ss }
+    override def toString: String = {
+      val evalDesc = desc
+      val descStr = if (evalDesc.isEmpty) "" else s"[$evalDesc]"
+      s"MAP$descStr:" + super.toString
+    }
+  }
+
   sealed trait End extends (Token => End.WithPos) {
     def apply(endPos: Int): End.WithPos
     final def apply(token: Token): End.WithPos = apply(token.end)
