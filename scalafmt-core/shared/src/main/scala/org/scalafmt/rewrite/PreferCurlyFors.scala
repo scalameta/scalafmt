@@ -52,6 +52,7 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
 
   import FormatTokensRewrite._
   import PreferCurlyFors._
+  import ftoks._
 
   override def enabled(implicit style: ScalafmtConfig): Boolean =
     PreferCurlyFors.enabled
@@ -62,8 +63,7 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
       style: ScalafmtConfig,
   ): Option[Replacement] = Option {
     ft.right match {
-      case x: Token.LeftParen
-          if ftoks.prevNonComment(ft).left.is[Token.KwFor] =>
+      case x: Token.LeftParen if prevNonComment(ft).left.is[Token.KwFor] =>
         val ok = ft.meta.rightOwner match {
           case t: Term.For => hasMultipleNonGuardEnums(t.enums)
           case t: Term.ForYield => hasMultipleNonGuardEnums(t.enums)
@@ -75,9 +75,14 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
 
       case _: Token.Semicolon
           if !style.rewrite.preferCurlyFors.removeTrailingSemicolonsOnly ||
-            ftoks.hasBreakAfterRightBeforeNonComment(ft) =>
+            hasBreakAfterRightBeforeNonComment(ft) =>
         ft.meta.rightOwner match {
-          case _: Term.For | _: Term.ForYield => removeToken
+          case t @ (_: Term.For | _: Term.ForYield)
+              if nextNonCommentAfter(ft).right.is[Token.KwIf] || {
+                val parenOrBrace = nextNonComment(getHead(t))
+                parenOrBrace.right.is[Token.LeftBrace] ||
+                session.claimedRule(parenOrBrace).exists(_.rule eq this)
+              } => removeToken
           case _ => null
         }
 
