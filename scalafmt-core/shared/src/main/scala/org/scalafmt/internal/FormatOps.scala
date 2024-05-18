@@ -423,6 +423,8 @@ class FormatOps(
       Seq(Split(NoSplit, 0))
     case t =>
       val isBeforeOp = ft.meta.leftOwner ne app.op
+      // RETURNING!!!
+      if (isBeforeOp && isFewerBracesLhs(app.lhs)) return Seq(Split(Newline, 0))
       def useSpace = style.spaces.beforeInfixArgInParens(app.op.value) ||
         (app.arg match {
           case _: Lit.Unit => false
@@ -430,8 +432,7 @@ class FormatOps(
           case x => !isEnclosedInParens(x)
         })
       val afterInfix = style.breakAfterInfix(t)
-      if (isBeforeOp && isFewerBracesLhs(app.lhs)) Seq(Split(Newline, 0))
-      else if (afterInfix ne Newlines.AfterInfix.keep)
+      if (afterInfix ne Newlines.AfterInfix.keep)
         if (isBeforeOp) Seq(Split(Space, 0))
         else {
           val spaceMod = Space(useSpace)
