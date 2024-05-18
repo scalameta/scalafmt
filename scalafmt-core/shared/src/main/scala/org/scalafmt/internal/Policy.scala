@@ -261,6 +261,15 @@ object Policy {
     final def apply(token: Token): End.WithPos = apply(token.end)
   }
   object End {
+    def <(endPos: Int): End.WithPos = Before(endPos)
+    def <(token: Token): End.WithPos = this < token.end
+
+    def >(endPos: Int): End.WithPos = After(endPos)
+    def >(token: Token): End.WithPos = this > token.end
+
+    def ==(endPos: Int): End.WithPos = On(endPos)
+    def ==(token: Token): End.WithPos = this == token.end
+
     sealed trait WithPos {
       def notExpiredBy(ft: FormatToken): Boolean
     }

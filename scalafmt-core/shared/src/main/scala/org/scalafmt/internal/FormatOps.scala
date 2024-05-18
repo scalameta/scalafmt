@@ -1448,9 +1448,9 @@ class FormatOps(
       ): Policy = opens.foldLeft(policy) { case (res, x) =>
         val onOpen = Policy(nextNonComment(x).right match {
           case t: T.LeftBrace => Policy.End.After(t)
-          case t => Policy.End.On(t)
+          case t => Policy.End == t
         })(penalizeOpenNL)
-        val delayed = new Policy.Delay(onOpen, Policy.End.On(x.left))
+        val delayed = new Policy.Delay(onOpen, Policy.End == x.left)
         new Policy.Relay(delayed, res)
       }
 
@@ -1485,7 +1485,7 @@ class FormatOps(
       val expire = nextNonCommentSameLine(blastFT).left
       def penalize(penalty: Int) =
         if (penalty <= 0) Policy.NoPolicy
-        else new PolicyOps.PenalizeAllNewlines(Policy.End.On(blast), penalty)
+        else new PolicyOps.PenalizeAllNewlines(Policy.End == blast, penalty)
       def getNlSplit(penalty: Int)(implicit fileLine: FileLine): Split =
         nlSplitFunc(1).andPolicy(penalize(penalty)).forThisLine(nextLine)
       def getSplits(spaceSplit: Split) = (
@@ -2631,7 +2631,7 @@ class FormatOps(
 
     def noNLPolicy(): Policy = {
       val close = ftBeforeClose.right
-      if (scalaJsStyle) Policy(Policy.End.On(close)) {
+      if (scalaJsStyle) Policy(Policy.End == close) {
         case d: Decision if d.formatToken.right eq close => d.noNewlines
       }
       else style.newlines.source match {
