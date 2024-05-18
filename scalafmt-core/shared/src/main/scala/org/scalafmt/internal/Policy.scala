@@ -114,18 +114,22 @@ object Policy {
 
     override def rank: Int = math.min(p1.rank, p2.rank)
 
-    override def unexpired(ft: FormatToken): Policy = p1.unexpired(ft) |
-      p2.unexpired(ft)
+    override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
 
-    override def filter(pred: Clause => Boolean): Policy = p1.filter(pred) |
-      p2.filter(pred)
+    override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
 
-    override def switch(trigger: Token, on: Boolean): Policy = p1
-      .switch(trigger, on) | p2.switch(trigger, on)
+    override def switch(trigger: Token, on: Boolean): Policy =
+      conv(_.switch(trigger, on))
 
     override def noDequeue: Boolean = p1.noDequeue || p2.noDequeue
 
     override def toString: String = s"($p1 | $p2)"
+
+    private def conv(pred: Policy => Policy): Policy = {
+      val np1 = pred(p1)
+      val np2 = pred(p2)
+      if (np1.eq(p1) && np2.eq(p2)) this else np1 | np2
+    }
   }
 
   private class AndThen(p1: Policy, p2: Policy) extends Policy {
@@ -138,30 +142,29 @@ object Policy {
 
     override def rank: Int = math.min(p1.rank, p2.rank)
 
-    override def unexpired(ft: FormatToken): Policy = p1.unexpired(ft) &
-      p2.unexpired(ft)
+    override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
 
-    override def filter(pred: Clause => Boolean): Policy = p1.filter(pred) &
-      p2.filter(pred)
+    override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
 
-    override def switch(trigger: Token, on: Boolean): Policy = p1
-      .switch(trigger, on) & p2.switch(trigger, on)
+    override def switch(trigger: Token, on: Boolean): Policy =
+      conv(_.switch(trigger, on))
 
     override def noDequeue: Boolean = p1.noDequeue || p2.noDequeue
 
     override def toString: String = s"($p1 & $p2)"
+
+    private def conv(pred: Policy => Policy): Policy = {
+      val np1 = pred(p1)
+      val np2 = pred(p2)
+      if (np1.eq(p1) && np2.eq(p2)) this else np1 & np2
+    }
   }
 
-  class Delay(policy: Policy, begPolicy: End.WithPos)(implicit
-      fileLine: FileLine,
-  ) extends Policy {
+  class Delay(policy: Policy, begPolicy: End.WithPos) extends Policy {
     override def f: Pf = PartialFunction.empty
     override def rank: Int = 0
     override def filter(pred: Clause => Boolean): Policy = this
-    override def switch(trigger: Token, on: Boolean): Policy = {
-      val switched = policy.switch(trigger, on)
-      if (switched eq policy) this else new Delay(switched, begPolicy)
-    }
+    override def switch(trigger: Token, on: Boolean): Policy = this
     override def unexpired(ft: FormatToken): Policy =
       if (begPolicy.notExpiredBy(ft)) this else policy.unexpired(ft)
     override def noDequeue: Boolean = policy.noDequeue
@@ -169,9 +172,8 @@ object Policy {
   }
 
   object Delay {
-    def apply(policy: Policy, begPolicy: End.WithPos)(implicit
-        fileLine: FileLine,
-    ): Policy = if (policy.isEmpty) policy else new Delay(policy, begPolicy)
+    def apply(policy: Policy, begPolicy: End.WithPos): Policy =
+      if (policy.isEmpty) policy else new Delay(policy, begPolicy)
   }
 
   class Relay(before: Policy, after: Policy)(implicit fileLine: FileLine)
@@ -187,8 +189,8 @@ object Policy {
 
     private def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
-      if (filtered eq before) this
-      else if (filtered.isEmpty) func(after)
+      if (filtered.isEmpty) func(after)
+      else if (filtered eq before) this
       else new Relay(filtered, after)
     }
   }
