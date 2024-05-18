@@ -66,11 +66,11 @@ object Policy {
 
   def after(token: Token, noDequeue: Boolean = false, rank: Int = 0)(f: Pf)(
       implicit fileLine: FileLine,
-  ): Policy = apply(End.After(token), noDequeue, rank)(f)
+  ): Policy = apply(End > token, noDequeue, rank)(f)
 
   def before(token: Token, noDequeue: Boolean = false, rank: Int = 0)(f: Pf)(
       implicit fileLine: FileLine,
-  ): Policy = apply(End.Before(token), noDequeue, rank)(f)
+  ): Policy = apply(End < token, noDequeue, rank)(f)
 
   def after(trigger: Token, policy: Policy)(implicit
       fileLine: FileLine,
@@ -82,7 +82,7 @@ object Policy {
 
   def on(token: Token, noDequeue: Boolean = false)(f: Pf)(implicit
       fileLine: FileLine,
-  ): Policy = apply(End.On(token), noDequeue)(f)
+  ): Policy = apply(End == token, noDequeue)(f)
 
   abstract class Clause(implicit val fileLine: FileLine) extends Policy {
     val endPolicy: End.WithPos
