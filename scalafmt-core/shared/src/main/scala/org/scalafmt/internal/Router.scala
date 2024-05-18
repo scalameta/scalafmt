@@ -1440,13 +1440,21 @@ class Router(formatOps: FormatOps) {
               case Some(FormatToken(_, t: T.Comma, _)) =>
                 splitOneArgPerLineAfterCommaOnBreak(t)
               case Some(_) if callSite =>
-                def delayBreakBefore(token: T)(implicit fileLine: FileLine) =
-                  delayedBreakPolicyFor(token)(decideNewlinesOnlyBeforeToken)
+                def delayBreakBefore(token: T): Policy = {
+                  // force break if multiline and if there's no other break
+                  val lastEnd = lastFT.left.end
+                  delayedBreakPolicy(Policy.End > lastEnd)(
+                    Policy.RelayOnSplit { case (s, nextft) =>
+                      s.isNL && nextft.left.end > lastEnd // don't need anymore
+                    }(decideNewlinesOnlyBeforeToken(token), NoPolicy),
+                  )
+                }
+
                 val endCall = leftOwner.parent.flatMap(followedBySelectOrApply)
                 endCall.fold(Policy.noPolicy) { x =>
                   val beforeNext = nextNonCommentSameLine(getLastNonTrivial(x))
                   beforeNext.right match {
-                    case c: T.Comma => delayBreakBefore(c)
+                    case c: T.Dot => delayBreakBefore(c)
                     case LeftParenOrBracket() =>
                       nextNonCommentSameLineAfter(beforeNext).right match {
                         case _: T.Comment => NoPolicy
