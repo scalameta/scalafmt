@@ -326,7 +326,7 @@ class FormatOps(
         nonBoolPenalty
       s.map(x => if (x.isNL) x.withPenalty(penalty) else x)
     }
-    new Policy.Delay(policy, Policy.End.Before(from))
+    new Policy.Delay(policy, Policy.End < from)
   }
 
   val WithTemplateOnLeft = new ExtractFromMeta(_.leftOwner match {
@@ -1447,7 +1447,7 @@ class FormatOps(
           policy: Policy,
       ): Policy = opens.foldLeft(policy) { case (res, x) =>
         val onOpen = Policy(nextNonComment(x).right match {
-          case t: T.LeftBrace => Policy.End.After(t)
+          case t: T.LeftBrace => Policy.End > t
           case t => Policy.End == t
         })(penalizeOpenNL)
         val delayed = new Policy.Delay(onOpen, Policy.End == x.left)

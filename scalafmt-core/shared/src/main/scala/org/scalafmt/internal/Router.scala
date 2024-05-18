@@ -977,7 +977,7 @@ class Router(formatOps: FormatOps) {
             val penalty =
               if (!multipleArgs) newlinePenalty else Constants.ShouldBeNewline
             policyWithExclude(excludeBlocks, Policy.End.On, Policy.End.On)(
-              Policy.End.Before(close),
+              Policy.End < close,
               new PenalizeAllNewlines(
                 _,
                 penalty = penalty,
@@ -2509,7 +2509,7 @@ class Router(formatOps: FormatOps) {
       .withOptimalToken(optimal).withPolicy {
         val exclude = insideBracesBlock(ft, expire)
         policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
-          Policy.End.Before(expire),
+          Policy.End < expire,
           new PenalizeAllNewlines(_, Constants.ShouldBeSingleLine),
         )
       }

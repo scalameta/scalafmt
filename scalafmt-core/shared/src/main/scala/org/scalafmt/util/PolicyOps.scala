@@ -37,7 +37,7 @@ object PolicyOps {
         noSyntaxNL: Boolean = false,
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Policy =
       new PenalizeAllNewlines(
-        Policy.End.Before(expire),
+        Policy.End < expire,
         penalty,
         penalizeLambdas,
         noSyntaxNL,
@@ -114,7 +114,7 @@ object PolicyOps {
       val rank: Int = 0,
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
-    override val endPolicy: Policy.End.WithPos = Policy.End.After(token)
+    override val endPolicy: Policy.End.WithPos = Policy.End > token
     override val noDequeue: Boolean = false
     override val f: Policy.Pf = split.fold[Policy.Pf] {
       case d: Decision if d.formatToken.left eq token =>
@@ -167,7 +167,7 @@ object PolicyOps {
 
   def delayedBreakPolicyBefore(token: T)(onBreakPolicy: Policy)(implicit
       fileLine: FileLine,
-  ): Policy = delayedBreakPolicy(Policy.End.Before(token))(onBreakPolicy)
+  ): Policy = delayedBreakPolicy(Policy.End < token)(onBreakPolicy)
 
   def delayedBreakPolicyFor(token: T)(f: T => Policy)(implicit
       fileLine: FileLine,
