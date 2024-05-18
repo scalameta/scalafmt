@@ -78,7 +78,7 @@ object PolicyOps {
         rank: Int = 0,
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Policy =
       policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
-        Policy.End.On(expire),
+        Policy.End == expire,
         new SingleLineBlock(
           _,
           okSLC = okSLC,
@@ -94,7 +94,7 @@ object PolicyOps {
       val rank: Int = 0,
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
-    override val endPolicy: Policy.End.WithPos = Policy.End.On(token)
+    override val endPolicy: Policy.End.WithPos = Policy.End == token
     override val noDequeue: Boolean = false
     override val f: Policy.Pf = split.fold[Policy.Pf] {
       case d: Decision if d.formatToken.right eq token =>
@@ -211,7 +211,7 @@ object PolicyOps {
         .on(rt) { case Decision(FormatToken(`lt`, _, _), s) =>
           s.map(_.withIndent(triggeredIndent))
         }
-      val cancelUnindent = delayedBreakPolicy(Policy.End.On(lt)) {
+      val cancelUnindent = delayedBreakPolicy(Policy.End == lt) {
         Policy.after(lt, rank = 1) { // use rank to apply after policy above
           case Decision(FormatToken(`lt`, _, _), s) => s
               .map(_.switch(trigger, false))

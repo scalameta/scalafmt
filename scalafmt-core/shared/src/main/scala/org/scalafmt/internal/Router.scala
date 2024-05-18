@@ -350,7 +350,7 @@ class Router(formatOps: FormatOps) {
               case NoPolicy if leftOwner.is[Term.ForYield] =>
                 val postClose = nextNonComment(closeFT).right
                 val bodySlb = SingleLineBlock(getLastToken(leftOwner))
-                new Policy.Delay(bodySlb, Policy.End.On(postClose))
+                new Policy.Delay(bodySlb, Policy.End == postClose)
               case x => x
             })
           // old behaviour
@@ -788,7 +788,7 @@ class Router(formatOps: FormatOps) {
           val spacePolicy = SingleLineBlock(lambdaToken) | {
             if (lambdaIsABlock) None
             else newlinePolicy
-              .map(delayedBreakPolicy(Policy.End.On(lambdaLeft.getOrElse(close))))
+              .map(delayedBreakPolicy(Policy.End == lambdaLeft.getOrElse(close)))
           }
           Split(noSplitMod, 0).withPolicy(spacePolicy)
             .withOptimalToken(lambdaToken)
@@ -1190,7 +1190,7 @@ class Router(formatOps: FormatOps) {
           else insideBlock[T.LeftBracket](ft, close)
         val penalizeNewlinesPolicy =
           policyWithExclude(exclude, Policy.End.Before, Policy.End.On)(
-            Policy.End.On(close),
+            Policy.End == close,
             new PenalizeAllNewlines(_, 3 + indentLen * bracketPenalty),
           )
 
