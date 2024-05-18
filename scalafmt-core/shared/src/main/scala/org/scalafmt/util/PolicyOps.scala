@@ -144,26 +144,11 @@ object PolicyOps {
     }
   }
 
-  private def delayedBreakPolicyFactory(onBreakPolicy: Policy): Policy.Pf = {
-    object OnBreakDecision {
-      def unapply(d: Decision): Option[Seq[Split]] = {
-        var replaced = false
-        def decisionPf(s: Split): Split =
-          if (!s.isNL) s
-          else {
-            replaced = true
-            s.orPolicy(onBreakPolicy)
-          }
-        val splits = d.splits.map(decisionPf)
-        if (replaced) Some(splits) else None
-      }
-    }
-    { case OnBreakDecision(d) => d }
-  }
-
   def delayedBreakPolicy(end: Policy.End.WithPos)(onBreakPolicy: Policy)(
       implicit fileLine: FileLine,
-  ): Policy = Policy.Proxy(onBreakPolicy, end)(delayedBreakPolicyFactory)
+  ): Policy = new Policy.Map(endPolicy = end, desc = onBreakPolicy.toString)({
+    s => if (s.isNL) s.orPolicy(onBreakPolicy) else s
+  })
 
   def delayedBreakPolicyBefore(token: T)(onBreakPolicy: Policy)(implicit
       fileLine: FileLine,
