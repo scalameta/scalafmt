@@ -208,6 +208,37 @@ object Policy {
       else new Relay(before, after)
   }
 
+  class RelayOnSplit(
+      before: Policy,
+      pred: (Split, FormatToken) => Boolean,
+      after: Policy,
+  )(implicit fileLine: FileLine)
+      extends Policy {
+    override def f: Pf = before.f
+    override def rank: Int = before.rank
+    override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
+    override def switch(trigger: Token, on: Boolean): Policy =
+      conv(_.switch(trigger, on))
+    override def unexpired(split: Split, ft: FormatToken): Policy =
+      if (pred(split, ft)) after.unexpired(split, ft)
+      else conv(_.unexpired(split, ft))
+
+    override def noDequeue: Boolean = before.noDequeue
+    override def toString: String = s"REL?:[$fileLine]($before,???,$after)"
+
+    private def conv(func: Policy => Policy): Policy = {
+      val filtered = func(before)
+      if (filtered eq before) this else new RelayOnSplit(filtered, pred, after)
+    }
+  }
+
+  object RelayOnSplit {
+    def apply(
+        pred: (Split, FormatToken) => Boolean,
+    )(before: Policy, after: Policy)(implicit fileLine: FileLine): Policy =
+      if (before.isEmpty) after else new RelayOnSplit(before, pred, after)
+  }
+
   class Switch(before: Policy, trigger: Token, after: Policy)(implicit
       fileLine: FileLine,
   ) extends Policy {
