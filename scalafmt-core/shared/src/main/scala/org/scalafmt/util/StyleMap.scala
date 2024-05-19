@@ -10,9 +10,6 @@ import org.scalameta.FileLine
 import org.scalameta.logger
 import scala.meta._
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token.Comment
-import scala.meta.tokens.Token.LeftParen
-import scala.meta.tokens.Token.RightParen
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -30,20 +27,20 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
     styleBuilder += init
     val disableBinPack = mutable.Map.empty[Token, BinPack.Site]
     def warn(err: String)(implicit fileLine: FileLine): Unit = logger.elem(err)
-    tokens.arr.foreach { tok =>
+    tokens.arr.foreach { ft =>
       def changeStyle(style: ScalafmtConfig): Option[ScalafmtConfig] = {
         val changing = curr != style
         if (!changing) None
         else {
-          startBuilder += tok.left.start
+          startBuilder += ft.left.start
           styleBuilder += style
           val prev = curr
           curr = style
           Some(prev)
         }
       }
-      tok.left match {
-        case Comment(c) if prefix.matcher(c).find() =>
+      ft.left match {
+        case Token.Comment(c) if prefix.matcher(c).find() =>
           val configured = ScalafmtConfig
             .fromHoconString(c, init, Some("scalafmt"))
           // TODO(olafur) report error via callback
@@ -54,18 +51,17 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
             }
             changeStyle(style)
           }
-        case open @ LeftParen()
+        case tok: Token.LeftParen
             if curr.binPack.literalArgumentLists &&
-              opensLiteralArgumentList(tok)(curr) =>
-          forcedBinPack += tok.meta.leftOwner
+              opensLiteralArgumentList(ft)(curr) =>
+          forcedBinPack += ft.meta.leftOwner
           changeStyle(setBinPack(curr, callSite = BinPack.Site.Always))
             .foreach { x =>
-              tokens.matchingOpt(open)
+              tokens.matchingOpt(tok)
                 .foreach(disableBinPack.update(_, x.binPack.callSite))
             }
-        case close @ RightParen() => disableBinPack.remove(close).foreach { x =>
-            changeStyle(setBinPack(curr, callSite = x))
-          }
+        case tok: Token.RightParen => disableBinPack.remove(tok)
+            .foreach(x => changeStyle(setBinPack(curr, callSite = x)))
         case _ =>
       }
     }
