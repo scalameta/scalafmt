@@ -139,9 +139,17 @@ case class Split(
   ): Split =
     if (ignore) this else withOptimalAt(Some(OptimalToken(token, killOnFail)))
 
-  def withOptimalAt(optimalAt: => Option[OptimalToken]): Split = {
+  def withOptimalAt(fOptimalAt: => Option[OptimalToken]): Split = {
     require(this.optimalAt.isEmpty)
-    if (isIgnored) this else copy(optimalAt = optimalAt)
+    if (isIgnored) this
+    else {
+      val optimalAt = fOptimalAt
+      if (optimalAt.isEmpty) this
+      else {
+        require(cost == 0, s"can't set optimal, cost=$cost")
+        copy(optimalAt = optimalAt)
+      }
+    }
   }
 
   def withPolicy(newPolicy: => Policy, ignore: Boolean = false): Split =
@@ -168,15 +176,6 @@ case class Split(
       rank,
     )
 
-  def withSingleLineOpt(
-      expire: Option[Token],
-      exclude: => TokenRanges = TokenRanges.empty,
-      noSyntaxNL: Boolean = false,
-      killOnFail: Boolean = false,
-      rank: Int = 0,
-  )(implicit fileLine: FileLine, style: ScalafmtConfig): Split = expire
-    .fold(this)(withSingleLine(_, exclude, noSyntaxNL, killOnFail, rank))
-
   def withSingleLineAndOptimal(
       expire: Token,
       optimal: Token,
@@ -193,8 +192,10 @@ case class Split(
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       rank: Int = 0,
+      ignore: Boolean = false,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split = withPolicy(
     SingleLineBlock(expire, exclude, noSyntaxNL = noSyntaxNL, rank = rank),
+    ignore = ignore,
   )
 
   def withPolicyOpt(newPolicy: => Option[Policy]): Split =

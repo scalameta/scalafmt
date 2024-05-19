@@ -933,7 +933,7 @@ class Router(formatOps: FormatOps) {
             Seq(
               Split(Newline, nestedPenalty + Constants.ExceedColumnPenalty)
                 .withPolicy(newlinePolicy).withIndent(indent, close, Before),
-              Split(NoSplit, nestedPenalty).withSingleLine(breakToken)
+              Split(NoSplit, nestedPenalty).withSingleLineNoOptimal(breakToken)
                 .andPolicy(newlinePolicy & newlineAfterAssignDecision),
             )
           }
@@ -1276,7 +1276,7 @@ class Router(formatOps: FormatOps) {
           else NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None)
         val nlSplit = Split(nlMod, bracketPenalty * (if (oneline) 4 else 2))
           .withIndent(indent)
-          .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
+          .withSingleLineNoOptimal(close, ignore = !singleLineOnly)
           .andPolicy(nlPolicy & penalizeNewlinesPolicy, singleLineOnly)
           .andPolicyOpt(singleArgAsInfix.map(InfixSplits(_, ft).nlPolicy))
         Seq(noSplit, nlSplit)

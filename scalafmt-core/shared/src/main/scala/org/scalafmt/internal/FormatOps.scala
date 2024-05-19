@@ -760,7 +760,8 @@ class FormatOps(
                 if (breakMany) TokenRanges.empty
                 else insideBracesBlock(nextFT, expire, true)
               Split(ModExt(newStmtMod.getOrElse(spaceMod)), cost)
-                .withSingleLine(expire, exclude)
+                .withSingleLineNoOptimal(expire, exclude)
+                .withOptimalToken(expire, ignore = cost != 0)
           }
         }
 
