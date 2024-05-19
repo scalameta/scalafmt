@@ -83,7 +83,7 @@ trait FormatAssertions {
     val range = 3
     val startLine = e.pos.startLine
     val lines = obtained.linesIterator
-    val linesBeforeCaret = lines.slice(startLine - range, startLine)
+    val linesBeforeCaret = lines.slice(startLine - range + 1, startLine + 1)
     val linesAfterCaret = lines.take(range)
     Seq(
       e.shortMessage,
