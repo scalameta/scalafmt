@@ -140,7 +140,18 @@ object O {
     c = pos.split("->")
   } yield ()
 }
-<<< #2695 generator and multiple guards
+<<< #2695 generator and multiple guards, braces but semicolons
+object O {
+  for { a <- b; if c; if d } yield ()
+}
+>>>
+object O {
+  for {
+    a <- b if c
+    if d
+  } yield ()
+}
+<<< #2695 generator and multiple guards, parens and semicolons
 object O {
   for (a <- b; if c; if d) yield ()
 }
