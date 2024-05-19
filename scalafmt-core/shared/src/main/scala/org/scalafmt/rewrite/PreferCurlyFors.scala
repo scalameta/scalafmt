@@ -65,8 +65,8 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
     ft.right match {
       case x: Token.LeftParen if prevNonComment(ft).left.is[Token.KwFor] =>
         val ok = ft.meta.rightOwner match {
-          case t: Term.For => hasMultipleNonGuardEnums(t.enums)
-          case t: Term.ForYield => hasMultipleNonGuardEnums(t.enums)
+          case t: Term.For => matches(t)
+          case t: Term.ForYield => matches(t)
           case _ => false
         }
         if (ok)
@@ -103,5 +103,27 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
       Some((left, right))
     case _ => None
   }
+
+  private def matches(
+      tree: Tree.WithEnums with Tree.WithBody,
+  )(implicit style: ScalafmtConfig): Boolean = {
+    val enums = tree.enums
+    hasMultipleNonGuardEnums(enums) &&
+    (style.dialect.allowInfixOperatorAfterNL ||
+      hasNoLeadingInfix(getHead(enums.head), tokenBefore(tree.body)))
+  }
+
+  private def hasNoLeadingInfix(head: FormatToken, last: FormatToken): Boolean =
+    findToken(head, next) { ft =>
+      ft.eq(last) ||
+      (ft.meta.rightOwner match {
+        case ro: Name => ro.parent match {
+            case Some(p: Member.Infix) if p.op eq ro =>
+              prevNonCommentSameLine(ft).hasBreak
+            case _ => false
+          }
+        case _ => false
+      }) && ft.right.is[Token.Ident]
+    } eq last
 
 }

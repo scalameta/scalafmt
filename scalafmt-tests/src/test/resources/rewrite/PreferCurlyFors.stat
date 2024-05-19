@@ -174,21 +174,13 @@ object a {
   ) yield (p.name, a.city)
 }
 >>>
-test does not parse: [dialect scala213] illegal start of simple pattern
-    a <- addresses
-    if p.addressId
-      === a.id
-           ^
-  } yield (p.name, a.city)
-}
-====== full result: ======
 object a {
-  for {
-    p <- people
+  for (
+    p <- people;
     a <- addresses
     if p.addressId
       === a.id
-  } yield (p.name, a.city)
+  ) yield (p.name, a.city)
 }
 <<< leading infix !removeTrailingSemicolonsOnly, scala2
 runner.dialect = scala213
@@ -202,21 +194,13 @@ object a {
   ) yield (p.name, a.city)
 }
 >>>
-test does not parse: [dialect scala213] illegal start of simple pattern
-    a <- addresses
-    if p.addressId
-      === a.id
-           ^
-  } yield (p.name, a.city)
-}
-====== full result: ======
 object a {
-  for {
-    p <- people
+  for (
+    p <- people;
     a <- addresses
     if p.addressId
       === a.id
-  } yield (p.name, a.city)
+  ) yield (p.name, a.city)
 }
 <<< leading infix removeTrailingSemicolonsOnly, scala3
 runner.dialect = scala3
