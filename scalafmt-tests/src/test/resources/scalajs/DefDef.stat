@@ -599,3 +599,22 @@ object a {
       new js_FinalizationRegistry[js_Date, String, Any]((heldValue: String) => ())
   }
 }
+<<< break at maxColumn, with overflow enabled 4
+preset = default
+maxColumn = 80
+newlines.source = keep
+binPack.preset = oneline
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  @inline implicit def fromScalaTuple13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](t: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)): js.Tuple13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] =
+    apply(t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10, t._11, t._12, t._13)
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+   @inline implicit def fromScalaTuple13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10,
+-      T11, T12, T13](t: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
+-          T13))
++      T11, T12, T13](t: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13))
+       : js.Tuple13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] =
