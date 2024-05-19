@@ -945,9 +945,8 @@ object a {
 }
 >>>
 object a {
-  (intercept[java.lang.IllegalStateException] {
-    in.readObject
-  }).getMessage should ===(
+  (intercept[java.lang.IllegalStateException] { in.readObject })
+    .getMessage should ===(
     "Trying to deserialize a serialized ActorRef without an ActorSystem in scope." +
       " Use 'akka.serialization.Serialization.currentSystem.withValue(system) { ... }'")
 }
@@ -2073,9 +2072,8 @@ object a {
 }
 >>>
 object a {
-  plugins(
-    service.pluginType
-  ) += service.pluginName -> service
+  plugins(service.pluginType) += service
+    .pluginName -> service
 }
 <<< 8.7
 maxColumn = 80
@@ -2803,7 +2801,10 @@ object a {
   test("foo") {
     a.b(c, d) shouldBe
       E(Seq(F(1, "v1"), F(2, "v2")),
-        G(Some(Seq(h, i)), Some(Seq(j, k)), a.b, c.d, e.f.g, h.i.j)).foo
+        G(Some(Seq(h, i)),
+          Some(Seq(j, k)), a.b, c.d,
+          e.f.g, h.i.j))
+        .foo
   }
 }
 <<< binpack call, oneline, with syntaxNL, single arg
@@ -3551,9 +3552,8 @@ pubSubMessage match {
   case message: UploadMessage => {
     val services = makeUploadServices()
 
-    UploadSubscriber(
-      services
-    ).processEff(message)
+    UploadSubscriber(services)
+      .processEff(message)
   }
   case message: IngestionMessage => (
       IngestionSubscriber.defaultServices

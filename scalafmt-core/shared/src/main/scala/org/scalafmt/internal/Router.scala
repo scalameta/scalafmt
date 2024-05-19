@@ -1700,7 +1700,12 @@ class Router(formatOps: FormatOps) {
 
           case _ if left.is[T.Comment] => Seq(Split(Space.orNL(t.noBreak), 0))
 
-          case Newlines.keep => Seq(Split(NoSplit.orNL(t.noBreak), 0))
+          case Newlines.keep =>
+            if (t.noBreak) Seq(
+              Split(NoSplit, 0),
+              Split(Newline, Constants.ExceedColumnPenalty * 3),
+            )
+            else Seq(Split(Newline, 0))
 
           case Newlines.unfold =>
             val nlCost = if (nlOnly) 0 else 1
