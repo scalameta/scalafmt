@@ -5917,7 +5917,7 @@ object A {
           }
     }
 }
-<<< #3369
+<<< #3369 always
 binPack.defnSite = always
 ===
 object Test {
@@ -5927,6 +5927,108 @@ object Test {
       Consumer.Control,
       TestSubscriber.Probe[CommittableOffsetBatch],
       TestOffsetFactory) = {
+    val (source, control, sink) = streamProbes(committerSettings)
+    val factory = TestOffsetFactory(new TestBatchCommitter(committerSettings))
+    (source, control, sink, factory)
+  }
+}
+>>>
+object Test {
+  private def streamProbesWithOffsetFactory(
+      committerSettings: CommitterSettings
+  ): (
+      TestPublisher.Probe[Committable],
+      Consumer.Control,
+      TestSubscriber.Probe[
+        CommittableOffsetBatch
+      ], TestOffsetFactory
+  ) = {
+    val (source, control, sink) =
+      streamProbes(committerSettings)
+    val factory = TestOffsetFactory(
+      new TestBatchCommitter(
+        committerSettings
+      )
+    )
+    (source, control, sink, factory)
+  }
+}
+<<< #3369 always, source folded
+binPack.defnSite = always
+===
+object Test {
+  private def
+    streamProbesWithOffsetFactory(committerSettings: CommitterSettings):
+      (TestPublisher.Probe[Committable], Consumer.Control, TestSubscriber.Probe[CommittableOffsetBatch], TestOffsetFactory) = {
+    val (source, control, sink) = streamProbes(committerSettings)
+    val factory = TestOffsetFactory(new TestBatchCommitter(committerSettings))
+    (source, control, sink, factory)
+  }
+}
+>>>
+object Test {
+  private def streamProbesWithOffsetFactory(
+      committerSettings: CommitterSettings
+  ): (
+      TestPublisher.Probe[Committable],
+      Consumer.Control,
+      TestSubscriber.Probe[
+        CommittableOffsetBatch
+      ], TestOffsetFactory
+  ) = {
+    val (source, control, sink) =
+      streamProbes(committerSettings)
+    val factory = TestOffsetFactory(
+      new TestBatchCommitter(
+        committerSettings
+      )
+    )
+    (source, control, sink, factory)
+  }
+}
+<<< #3369 oneline
+binPack.defnSite = oneline
+===
+object Test {
+  private def streamProbesWithOffsetFactory(
+      committerSettings: CommitterSettings
+  ): (TestPublisher.Probe[Committable],
+      Consumer.Control,
+      TestSubscriber.Probe[CommittableOffsetBatch],
+      TestOffsetFactory) = {
+    val (source, control, sink) = streamProbes(committerSettings)
+    val factory = TestOffsetFactory(new TestBatchCommitter(committerSettings))
+    (source, control, sink, factory)
+  }
+}
+>>>
+object Test {
+  private def streamProbesWithOffsetFactory(
+      committerSettings: CommitterSettings
+  ): (
+      TestPublisher.Probe[Committable],
+      Consumer.Control,
+      TestSubscriber.Probe[
+        CommittableOffsetBatch
+      ], TestOffsetFactory
+  ) = {
+    val (source, control, sink) =
+      streamProbes(committerSettings)
+    val factory = TestOffsetFactory(
+      new TestBatchCommitter(
+        committerSettings
+      )
+    )
+    (source, control, sink, factory)
+  }
+}
+<<< #3369 oneline, source folded
+binPack.defnSite = oneline
+===
+object Test {
+  private def
+    streamProbesWithOffsetFactory(committerSettings: CommitterSettings):
+      (TestPublisher.Probe[Committable], Consumer.Control, TestSubscriber.Probe[CommittableOffsetBatch], TestOffsetFactory) = {
     val (source, control, sink) = streamProbes(committerSettings)
     val factory = TestOffsetFactory(new TestBatchCommitter(committerSettings))
     (source, control, sink, factory)
