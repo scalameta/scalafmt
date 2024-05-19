@@ -1045,3 +1045,28 @@ object a {
       })(
       OptimizerHints.empty, Unversioned)
 }
+<<< oneline with keep and select after
+preset = default
+maxColumn = 80
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  def createResetButton(): JQuery = {
+    jQuery("<input>", js.Dynamic.literal(
+        `type` = "button", value = "Reset"
+    )).click(() => reset())
+  }
+}
+>>>
+BestFirstSearch:289 Failed to format
+UNABLE TO FORMAT,
+tok=)∙.: RightParen [139..140) [] Dot [140..141)
+toks.length=43
+deepestYet.length=30
+policies=List(REL?:[Router:1449](NB:[Router:1449]@141d,???,NoPolicy), REL?:[Router:1449](NB:[Router:1449]@141d,???,NoPolicy), REL?:[Router:1449](NB:[Router:1449]@141d,???,NoPolicy), NB:[Router:221]@165d, NB:[Router:221]@167d)
+nextSplits=List(NoSplit:[Router:1703](cost=0, indents=[], NoPolicy))
+splitsAfterPolicy=Decision()∙.: RightParen [139..140) [] Dot [140..141),List())
