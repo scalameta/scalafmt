@@ -44,6 +44,18 @@ object PolicyOps {
       )
   }
 
+  def penalizeNewlineByNesting(from: T, to: T)(implicit
+      fileLine: FileLine,
+  ): Policy = {
+    val policy = Policy.before(to) { case Decision(FormatToken(l, _, m), s) =>
+      val nonBoolPenalty = if (TokenOps.isBoolOperator(l)) 0 else 5
+      val penalty = TreeOps.nestedSelect(m.leftOwner) +
+        TreeOps.nestedApplies(m.rightOwner) + nonBoolPenalty
+      s.map(x => if (x.isNL) x.withPenalty(penalty) else x)
+    }
+    new Policy.Delay(policy, Policy.End < from)
+  }
+
   /** Forces all splits up to including expire to be on a single line.
     * @param okSLC
     *   if true, allow single-line comments

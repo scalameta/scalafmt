@@ -317,18 +317,6 @@ class FormatOps(
     if (r.is[T.LeftBrace]) SplitTag.OneArgPerLine.activateOnly(s)
     else Decision.onlyNewlineSplits(s)
 
-  def penalizeNewlineByNesting(from: T, to: T)(implicit
-      fileLine: FileLine,
-  ): Policy = {
-    val policy = Policy.before(to) { case Decision(FormatToken(l, _, m), s) =>
-      val nonBoolPenalty = if (isBoolOperator(l)) 0 else 5
-      val penalty = nestedSelect(m.leftOwner) + nestedApplies(m.rightOwner) +
-        nonBoolPenalty
-      s.map(x => if (x.isNL) x.withPenalty(penalty) else x)
-    }
-    new Policy.Delay(policy, Policy.End < from)
-  }
-
   val WithTemplateOnLeft = new ExtractFromMeta(_.leftOwner match {
     case lo: Stat.WithTemplate => Some(lo.templ)
     case _ => None
