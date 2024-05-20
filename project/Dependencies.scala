@@ -9,7 +9,7 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 object Dependencies {
   val metaconfigV = "0.12.0"
   val scalametaV  = "4.9.5"
-  val scalacheckV = "1.17.1"
+  val scalacheckV = "1.18.0"
   val coursier    = "2.1.2"
   val munitV      = "0.7.29"
   val mdocV       = "2.5.2"
