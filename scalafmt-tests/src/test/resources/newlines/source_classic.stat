@@ -6477,7 +6477,8 @@ object Test {
       Consumer.Control,
       TestSubscriber.Probe[
         CommittableOffsetBatch
-      ], TestOffsetFactory) = {
+      ],
+      TestOffsetFactory) = {
     val (source, control, sink) =
       streamProbes(committerSettings)
     val factory = TestOffsetFactory(
@@ -6508,7 +6509,8 @@ object Test {
       Consumer.Control,
       TestSubscriber.Probe[
         CommittableOffsetBatch
-      ], TestOffsetFactory) = {
+      ],
+      TestOffsetFactory) = {
     val (source, control, sink) =
       streamProbes(committerSettings)
     val factory = TestOffsetFactory(
