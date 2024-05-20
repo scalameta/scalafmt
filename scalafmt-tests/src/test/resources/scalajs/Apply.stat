@@ -1089,6 +1089,26 @@ object a {
         foo5
       }))
 }
+<<< nested labmda with onelineSjs, keep
+preset = default
+newlines.source = keep
+binPack.preset = onelineSjs
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  buildInner(localDef, { tinner =>
+          cont(addPreTransBinding(preTransBinding, tinner))
+        })
+}
+>>>
+object a {
+  buildInner(localDef,
+    { tinner =>
+      cont(addPreTransBinding(preTransBinding, tinner))
+    })
+}
 <<< oneline with keep and select after
 preset = default
 maxColumn = 80
@@ -1114,4 +1134,25 @@ object a {
         value = "Reset"
       )).click(() => reset())
   }
+}
+<<< don't dangle if not in source
+preset = default
+maxColumn = 55
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  argss.tail.foldLeft(
+    global.NewFromConstructor(ctor, argss.head: _*))(
+    Apply(_, _))
+}
+>>>
+object a {
+  argss.tail.foldLeft(
+    global.NewFromConstructor(ctor, argss.head: _*)
+  )(
+    Apply(_, _))
 }
