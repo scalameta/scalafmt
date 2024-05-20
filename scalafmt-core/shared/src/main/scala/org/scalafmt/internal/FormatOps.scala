@@ -86,6 +86,7 @@ class FormatOps(
       tree match {
         case _: Lit.Unit | _: Term.ArgClause | _: Term.ParamClause =>
         case t: Member.SyntaxValuesClause => t.values.foreach(add)
+        case t: Member.Tuple => t.args.foreach(add)
         case t: Term.Param => // includes Term.ParamClause
           add(t)
           t.mods.foreach(addOptional)
