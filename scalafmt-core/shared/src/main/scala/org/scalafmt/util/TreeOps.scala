@@ -7,6 +7,7 @@ import org.scalafmt.internal.FormatTokens
 import org.scalafmt.internal.Modification
 import org.scalafmt.internal.Space
 import org.scalafmt.util.InfixApp._
+import org.scalafmt.util.LoggerOps._
 
 import scala.meta._
 import scala.meta.classifiers.Classifier
@@ -1028,5 +1029,30 @@ object TreeOps {
     case t: Term.FunctionTerm => isEmptyTree(t.body)
     case _ => false
   }
+
+  val getArgsPartial: PartialFunction[Tree, List[Tree]] = {
+    case _: Lit.Unit => Nil
+    case t: Term.Super => t.superp :: Nil
+    case Member.Tuple(v) => v
+    case Member.SyntaxValuesClause(v) => v
+    case t: Member.Function => t.paramClause.values
+  }
+
+  def getArgsOrNil(owner: Tree): List[Tree] = getArgsPartial.lift(owner)
+    .getOrElse(Nil)
+
+  private def throwUnexpectedGetArgs(t: Tree): Nothing = {
+    logger.debug(
+      s"""|getArgs: unknown tree
+          |Tree: ${log(t)}
+          |Parent: ${log(t.parent)}
+          |GrandParent: ${log(t.parent.flatMap(_.parent))}
+          |""".stripMargin,
+    )
+    throw Error.UnexpectedTree[Member.SyntaxValuesClause](t)
+  }
+
+  def getArgs(owner: Tree): Seq[Tree] = getArgsPartial
+    .applyOrElse(owner, throwUnexpectedGetArgs)
 
 }
