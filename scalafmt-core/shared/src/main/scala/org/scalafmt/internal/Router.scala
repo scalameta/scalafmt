@@ -1118,7 +1118,7 @@ class Router(formatOps: FormatOps) {
                 Policy.before(close) {
                   case Decision(ftd @ FormatToken(o: T.LeftBracket, _, m), s)
                       if isParamClauseSite(m.leftOwner) && styleMap.at(o)
-                        .binPack.defnSiteFor(o) != BinPack.Site.Never =>
+                        .binPack.bracketDefnSite != BinPack.Site.Never =>
                     if (isRightCommentThenBreak(ftd)) s
                     else s.map(x => if (x.isNL) x.withPenalty(p) else x)
                 }
@@ -1331,7 +1331,8 @@ class Router(formatOps: FormatOps) {
           if !style.poorMansTrailingCommasInConfigStyle &&
             isArgClauseSite(leftOwner) =>
         val close = matching(open)
-        val binPackIsEnabled = style.binPack.callSite != BinPack.Site.Never
+        val binPackIsEnabled = style.binPack.callSiteFor(leftOwner) !=
+          BinPack.Site.Never
         val useSpace = !style.newlines.keepBreak(newlines)
         val singleSplit =
           if (!binPackIsEnabled) Split(Space.orNL(useSpace), 0)
@@ -1404,8 +1405,9 @@ class Router(formatOps: FormatOps) {
         val splitsOpt = argumentStarts.get(ft.meta.idx).flatMap { nextArg =>
           val callSite = isArgClauseSite(leftOwner)
           val binPack =
-            if (callSite) style.binPack.callSite
-            else if (isParamClauseSite(leftOwner)) style.binPack.defnSite
+            if (callSite) style.binPack.callSiteFor(leftOwner)
+            else if (isParamClauseSite(leftOwner)) style.binPack
+              .defnSiteFor(leftOwner)
             else BinPack.Site.Never
           if (binPack eq BinPack.Site.Never) None
           else Some {
