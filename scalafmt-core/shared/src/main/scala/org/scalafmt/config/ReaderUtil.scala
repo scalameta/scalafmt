@@ -6,7 +6,7 @@ import metaconfig._
 
 object ReaderUtil {
 
-  private def lowerCaseNoBackticks(s: String): String = s.toLowerCase()
+  private[config] def lowerCaseNoBackticks(s: String): String = s.toLowerCase()
     .replace("`", "")
 
   // Poor mans coproduct reader
@@ -22,13 +22,21 @@ object ReaderUtil {
     oneOfCustomEx(options: _*) { case (_, extract(res)) => res }
   }
 
+  class Custom[T] private (val m: Map[String, T]) extends AnyVal {
+    def unapply(tag: String): Option[T] = m.get(lowerCaseNoBackticks(tag))
+  }
+  object Custom {
+    def apply[T: ClassTag](opts: sourcecode.Text[T]*): Custom[T] =
+      new Custom(opts.map(x => lowerCaseNoBackticks(x.source) -> x.value).toMap)
+  }
+
   def oneOfCustomEx[T: ClassTag](
       options: sourcecode.Text[T]*,
   )(f: PartialFunction[(Option[T], Conf), Configured[T]]): ConfCodecEx[T] = {
-    val m = options.map(x => lowerCaseNoBackticks(x.source) -> x.value).toMap
+    val custom = Custom(options: _*)
     val decoder = ConfDecoderEx.fromPartial[T]("String")(f.orElse {
-      case (_, Conf.Str(x)) => Configured.opt(m.get(lowerCaseNoBackticks(x))) {
-          val available = m.keys.mkString(", ")
+      case (_, Conf.Str(x)) => Configured.opt(custom.unapply(x)) {
+          val available = custom.m.keys.mkString(", ")
           val msg = s"Unknown input '$x'. Expected one of: $available"
           ConfError.message(msg)
         }
