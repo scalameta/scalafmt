@@ -1,6 +1,5 @@
 package org.scalafmt.internal
 
-import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.config.BinPack
 import org.scalafmt.config.IndentOperator
 import org.scalafmt.config.Indents
@@ -11,7 +10,6 @@ import org.scalafmt.config.TrailingCommas
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.InfixApp._
-import org.scalafmt.util.LoggerOps._
 import org.scalafmt.util._
 
 import org.scalameta.FileLine
@@ -534,7 +532,7 @@ class FormatOps(
             if fullInfix.parent.contains(prevOwner) && !(prevOwner match {
               case po: Member.ArgClause => po.parent.exists(isInfixApp)
               case po => isInfixApp(po)
-            }) && isSeqSingle(getArgs(prevOwner, orNil = true)) =>
+            }) && isSeqSingle(getArgsOrNil(prevOwner)) =>
           Some(getLastToken(fullInfix))
         case _ => None
       }
@@ -1253,24 +1251,6 @@ class FormatOps(
     val maybeArrow = next(ft)
     if (maybeArrow.left.is[T.RightArrow]) maybeArrow
     else nextAfterNonComment(maybeArrow)
-  }
-
-  def getArgs(owner: Tree, orNil: Boolean = false): Seq[Tree] = owner match {
-    case _: Lit.Unit => Nil
-    case t: Term.Super => t.superp :: Nil
-    case Member.Tuple(v) => v
-    case Member.SyntaxValuesClause(v) => v
-    case t: Member.Function => t.paramClause.values
-    case _ if orNil => Nil
-    case t =>
-      logger.debug(
-        s"""|getApplyArgs: unknown tree
-            |Tree: ${log(t)}
-            |Parent: ${log(t.parent)}
-            |GrandParent: ${log(t.parent.flatMap(_.parent))}
-            |""".stripMargin,
-      )
-      throw UnexpectedTree[Member.SyntaxValuesClause](t)
   }
 
   @tailrec
@@ -2563,8 +2543,8 @@ class FormatOps(
   def isCloseDelimForTrailingCommasMultiple(ft: FormatToken): Boolean =
     ft.meta.rightOwner match {
       case x: Importer => x.importees.lengthCompare(1) > 0
-      case x => // take last arg when multiple
-        getArgs(x, orNil = true).view.drop(1).lastOption match {
+      // take last arg when multiple
+      case x => getArgsOrNil(x).view.drop(1).lastOption match {
           case None | Some(_: Term.Repeated) => false
           case Some(t: Term.Param) => !t.decltpe.exists(_.is[Type.Repeated])
           case _ => true
