@@ -74,15 +74,15 @@ object BinPack {
 
   val never = BinPack.ctor(Site.Never, ParentCtors.Never)
   val always = BinPack.ctor(Site.Always, ParentCtors.Always)
-  val oneline = BinPack.ctor(Site.Oneline, ParentCtors.Oneline)
+  private val oneline = BinPack.ctor(Site.Oneline, ParentCtors.Oneline)
+
+  private val customPresets = ReaderUtil.Custom(never, always, oneline)
 
   implicit val decoder: ConfDecoderEx[BinPack] = Presets
     .mapDecoder(generic.deriveDecoderEx(never).noTypos, "binPack") {
       case Conf.Bool(true) => always
       case Conf.Bool(false) => never
-      case Conf.Str(str) if str.equalsIgnoreCase("never") => never
-      case Conf.Str(str) if str.equalsIgnoreCase("always") => always
-      case Conf.Str(str) if str.equalsIgnoreCase("oneline") => oneline
+      case Conf.Str(customPresets(obj)) => obj
     }
 
   sealed abstract class ParentCtors
