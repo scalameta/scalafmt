@@ -1,5 +1,6 @@
 package org.scalafmt.config
 
+import scala.meta._
 import scala.meta.tokens.Token
 
 import metaconfig._
@@ -31,7 +32,7 @@ case class BinPack(
     @annotation.ExtraName("unsafeDefnSite")
     defnSite: BinPack.Site = BinPack.Site.Never,
     private val bracketCallSite: Option[BinPack.Site] = None,
-    private val bracketDefnSite: Option[BinPack.Site] = None,
+    bracketDefnSite: Option[BinPack.Site] = None,
     indentCallSiteOnce: Boolean = false,
     indentCallSiteSingleArg: Boolean = true,
     parentConstructors: BinPack.ParentCtors = BinPack.ParentCtors.source,
@@ -55,12 +56,16 @@ case class BinPack(
     callSiteFor(open.is[Token.LeftBracket])
   def callSiteFor(isBracket: Boolean): BinPack.Site =
     (if (isBracket) bracketCallSite else None).getOrElse(callSite)
+  def callSiteFor(owner: Tree): BinPack.Site =
+    callSiteFor(owner.is[Type.ArgClause])
 
   @inline
   def defnSiteFor(open: Token): BinPack.Site =
     defnSiteFor(open.is[Token.LeftBracket])
   def defnSiteFor(isBracket: Boolean): BinPack.Site =
     (if (isBracket) bracketDefnSite else None).getOrElse(defnSite)
+  def defnSiteFor(owner: Tree): BinPack.Site =
+    defnSiteFor(owner.is[Type.ParamClause])
 
 }
 
