@@ -1563,7 +1563,7 @@ class Router(formatOps: FormatOps) {
               case _ => Some(false)
             }.isDefined => Seq(Split(NoSplit, 0))
 
-      case t @ FormatToken(left, _: T.Dot, _)
+      case FormatToken(left, _: T.Dot, _)
           if rightOwner.is[Term.Select] ||
             (rightOwner.is[Term.Match] && dialect.allowMatchAsOperator) =>
         val enclosed = style.encloseSelectChains
@@ -1571,7 +1571,7 @@ class Router(formatOps: FormatOps) {
           findLastApplyAndNextSelect(rightOwner, enclosed)
         val thisSelect = rightOwner match {
           case x: Term.Select => SelectLike(x)
-          case x: Term.Match => SelectLike(x, getKwMatchAfterDot(t))
+          case x: Term.Match => SelectLike(x, getKwMatchAfterDot(ft))
         }
         val (prevSelect, prevApply) =
           findPrevSelectAndApply(thisSelect.qual, enclosed)
@@ -1618,6 +1618,7 @@ class Router(formatOps: FormatOps) {
                 }
             }
           }
+        val ftAfterRight = tokens(ft, 2)
         val baseSplits = style.newlines.getSelectChains match {
           case Newlines.classic =>
             def getNlMod = {
@@ -1653,7 +1654,7 @@ class Router(formatOps: FormatOps) {
               }
               val newlinePolicy = breakOnNextDot & penalizeBreaks
               val ignoreNoSplit = nlOnly ||
-                t.hasBreak &&
+                hasBreak &&
                 (left.is[T.Comment] || style.optIn.breakChainOnFirstMethodDot)
               val chainLengthPenalty =
                 if (
@@ -1666,7 +1667,7 @@ class Router(formatOps: FormatOps) {
                   // many arguments on the same line can be hard to read. By not
                   // putting a newline before the dot, we force the argument list
                   // to break into multiple lines.
-                  tokens(t, 2).meta.rightOwner match {
+                  ftAfterRight.meta.rightOwner match {
                     case Member.ArgClause(v) => math.max(0, v.length - 1)
                     case _ => 0
                   }
@@ -1674,13 +1675,12 @@ class Router(formatOps: FormatOps) {
               // when the flag is on, penalize break, to avoid idempotence issues;
               // otherwise, after the break is chosen, the flag prohibits nosplit
               val nlBaseCost =
-                if (style.optIn.breakChainOnFirstMethodDot && t.noBreak) 3
-                else 2
+                if (style.optIn.breakChainOnFirstMethodDot && noBreak) 3 else 2
               val nlCost = nlBaseCost + nestedPenalty + chainLengthPenalty
               val nlMod = getNlMod
               Seq(
                 Split(!prevChain, 1) { // must come first, for backwards compat
-                  if (style.optIn.breaksInsideChains) NoSplit.orNL(t.noBreak)
+                  if (style.optIn.breaksInsideChains) NoSplit.orNL(noBreak)
                   else nlMod
                 }.withPolicy(newlinePolicy)
                   .onlyFor(SplitTag.SelectChainSecondNL),
@@ -1691,10 +1691,10 @@ class Router(formatOps: FormatOps) {
               )
             } else {
               val isComment = left.is[T.Comment]
-              val doBreak = nlOnly || isComment && t.hasBreak
+              val doBreak = nlOnly || isComment && hasBreak
               Seq(
                 Split(!prevChain, 1) {
-                  if (style.optIn.breaksInsideChains) NoSplit.orNL(t.noBreak)
+                  if (style.optIn.breaksInsideChains) NoSplit.orNL(noBreak)
                   else if (doBreak) Newline
                   else getNlMod
                 }.withPolicy(breakOnNextDot)
@@ -1703,10 +1703,10 @@ class Router(formatOps: FormatOps) {
               )
             }
 
-          case _ if left.is[T.Comment] => Seq(Split(Space.orNL(t.noBreak), 0))
+          case _ if left.is[T.Comment] => Seq(Split(Space.orNL(noBreak), 0))
 
           case Newlines.keep =>
-            if (t.noBreak) Seq(
+            if (noBreak) Seq(
               Split(NoSplit, 0),
               Split(Newline, Constants.ExceedColumnPenalty * 3),
             )
@@ -1733,7 +1733,7 @@ class Router(formatOps: FormatOps) {
                 else {
                   val end = nextSelect
                     .fold(expire)(x => getLastNonTrivialToken(x.qual))
-                  def exclude = insideBracesBlock(t, end, true)
+                  def exclude = insideBracesBlock(ft, end, true)
                   noSplitBase.withSingleLine(end, exclude)
                 }
               Seq(noSplit, nlSplitBase)
@@ -1766,7 +1766,7 @@ class Router(formatOps: FormatOps) {
         val spcPolicy = delayedBreakPolicyOpt
         val nlPolicy = if (noIndent) spcPolicy else None
         val splits =
-          if (nextNonCommentSameLine(tokens(t, 2)).right.is[T.Comment])
+          if (nextNonCommentSameLine(ftAfterRight).right.is[T.Comment])
             // will break
             baseSplits.map(_.withIndent(nlIndent).andFirstPolicyOpt(nlPolicy))
           else {
