@@ -1470,8 +1470,9 @@ class FormatOps(
         isKeep: Boolean,
         spaceIndents: Seq[Indent] = Seq.empty,
     )(implicit style: ScalafmtConfig): Seq[Split] = {
-      def bheadFT = getHead(body)
-      val blastFT = getLastNonTrivial(body)
+      val btokens = body.tokens
+      def bheadFT = getHead(btokens, body)
+      val blastFT = getLastNonTrivial(btokens, body)
       val blast = blastFT.left
       val expire = nextNonCommentSameLine(blastFT).left
       def penalize(penalty: Int) =
@@ -1540,12 +1541,12 @@ class FormatOps(
         case ia: Member.Infix =>
           val lia = findLeftInfix(ia)
           val callPolicy = CallSite.getFoldedPolicy(lia.lhs)
+          // lia is enclosed in parens if and only if lia == ia (== body)
           if (callPolicy.nonEmpty) getPolicySplits(0, callPolicy)
-          else {
-            // lia is enclosed in parens if and only if lia == ia (== body)
-            val ok = isEnclosedInParens(body)
-            getSplits(getSlbSplit(getLastToken(if (ok) lia.lhs else lia.op)))
-          }
+          else if (isBodyEnclosedAsBlock(body))
+            if (isKeep) getPolicySplits(0, Policy.NoPolicy)
+            else getSplits(getSlbSplit(getLastToken(lia.lhs)))
+          else getSplits(getSlbSplit(getLastToken(lia.op)))
         case _ =>
           val callPolicy = CallSite.getFoldedPolicy(body)
           getPolicySplits(if (callPolicy.nonEmpty) 0 else 1, callPolicy)
@@ -1683,14 +1684,17 @@ class FormatOps(
   ): Boolean = {
     val body = caseStat.body
     (ft.noBreak || style.newlines.getBeforeMultiline.ignoreSourceSplit) &&
-    body.eq(ft.meta.rightOwner) &&
-    (body match {
-      case _: Lit.Unit | _: Term.Tuple => false
-      case t: Term.ApplyInfix =>
-        val op = t.op.value
-        op != "->" && op != "→"
-      case _ => true
-    }) && isEnclosedInParens(body)
+    body.eq(ft.meta.rightOwner) && isBodyEnclosedAsBlock(body)
+  }
+
+  // Redundant () delims around body
+  def isBodyEnclosedAsBlock(body: Tree): Boolean = body match {
+    case _: Lit.Unit | _: Term.Tuple => false
+    case t: Term.ApplyInfix if {
+          val op = t.op.value
+          op == "->" || op == "→"
+        } => false
+    case _ => isEnclosedInParens(body)
   }
 
   def getMatchDot(tree: Term.Match): Option[FormatToken] =
