@@ -260,7 +260,8 @@ class Router(formatOps: FormatOps) {
                   (leftOwner match {
                     case x: Term.PartialFunction => isSingleElement(x.cases, t)
                     case x: Term.Match => isSingleElement(x.cases, t) &&
-                      getMatchDot(x).isDefined
+                      dialect.allowMatchAsOperator &&
+                      tokenAfter(x.expr).right.is[T.Dot]
                     case _: Term.Try => false
                     case _ => tokenAfter(t).right eq close
                   }) =>
@@ -1563,16 +1564,10 @@ class Router(formatOps: FormatOps) {
               case _ => Some(false)
             }.isDefined => Seq(Split(NoSplit, 0))
 
-      case FormatToken(left, _: T.Dot, _)
-          if rightOwner.is[Term.Select] ||
-            (rightOwner.is[Term.Match] && dialect.allowMatchAsOperator) =>
+      case FormatToken(left, _: T.Dot, GetSelectLike.OnRight(thisSelect)) =>
         val enclosed = style.encloseSelectChains
         val (expireTree, nextSelect) =
           findLastApplyAndNextSelect(rightOwner, enclosed)
-        val thisSelect = rightOwner match {
-          case x: Term.Select => SelectLike(x)
-          case x: Term.Match => SelectLike(x, getKwMatchAfterDot(ft))
-        }
         val (prevSelect, prevApply) =
           findPrevSelectAndApply(thisSelect.qual, enclosed)
         val nlOnly = prevApply.exists(_.argClause.tokens.head.is[T.Colon])
@@ -1637,8 +1632,7 @@ class Router(formatOps: FormatOps) {
             }
 
             val prevChain = inSelectChain(prevSelect, thisSelect, expireTree)
-            val nextSelectTree = nextSelect.map(_.tree)
-            if (canStartSelectChain(thisSelect, nextSelectTree, expireTree)) {
+            if (canStartSelectChain(thisSelect, nextSelect, expireTree)) {
               val chainExpire =
                 if (nextSelect.isEmpty) thisSelect.nameToken else expire
               val nestedPenalty = nestedSelect(rightOwner) +
