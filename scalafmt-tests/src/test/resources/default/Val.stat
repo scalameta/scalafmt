@@ -326,3 +326,24 @@ val foo :: bar :: baz :: Nil = qux
 >>>
 val foo :: bar :: baz :: Nil =
   qux
+<<< infix wrapped in parens, src=keep
+preset = default
+newlines.source = keep
+danglingParentheses.preset = false
+===
+object a {
+  val shouldMarkInline = (
+      isDynamicImportThunk ||
+      sym.hasAnnotation(InlineAnnotationClass) ||
+      (sym.isAnonymousFunction && !sym.isSubClass(PartialFunctionClass)) ||
+      isStdLibClassWithAdHocInlineAnnot(sym))
+}
+>>>
+object a {
+  val shouldMarkInline =
+    (
+      isDynamicImportThunk ||
+        sym.hasAnnotation(InlineAnnotationClass) ||
+        (sym.isAnonymousFunction && !sym.isSubClass(PartialFunctionClass)) ||
+        isStdLibClassWithAdHocInlineAnnot(sym))
+}
