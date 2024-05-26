@@ -1312,10 +1312,11 @@ class FormatOps(
 
   def canStartSelectChain(
       thisSelectLike: SelectLike,
-      nextSelect: Option[Term],
+      nextSelectLike: Option[SelectLike],
       lastApply: Tree,
   )(implicit style: ScalafmtConfig): Boolean = {
     val thisTree = thisSelectLike.tree
+    val nextSelect = nextSelectLike.map(_.tree)
     val ok = thisTree.ne(lastApply) &&
       !cannotStartSelectChainOnExpr(thisSelectLike.qual)
     def checkParent = thisTree.parent match {
@@ -1345,8 +1346,7 @@ class FormatOps(
       lastApply: Tree,
   )(implicit style: ScalafmtConfig): Boolean = prevSelect match {
     case None => false
-    case Some(p) if canStartSelectChain(p, Some(thisSelect.tree), lastApply) =>
-      true
+    case Some(p) if canStartSelectChain(p, Some(thisSelect), lastApply) => true
     case Some(p) =>
       val prevPrevSelect = findPrevSelect(p, style.encloseSelectChains)
       inSelectChain(prevPrevSelect, p, lastApply)
@@ -1668,22 +1668,29 @@ class FormatOps(
     case _ => isEnclosedInParens(body)
   }
 
-  def getMatchDot(tree: Term.Match): Option[FormatToken] =
-    if (dialect.allowMatchAsOperator) {
-      val ft = tokenAfter(tree.expr)
-      if (ft.right.is[T.Dot]) Some(ft) else None
-    } else None
-
-  def getKwMatchAfterDot(ft: FormatToken): T.KwMatch = tokens
-    .nextNonCommentAfter(ft).right.asInstanceOf[T.KwMatch]
-
   object GetSelectLike {
-    def unapply(tree: Tree): Option[SelectLike] = tree match {
-      case t: Term.Select => Some(SelectLike(t))
-      case t: Term.Match => getMatchDot(t)
-          .map(ft => SelectLike(t, getKwMatchAfterDot(ft)))
+    val OnRight =
+      new ExtractFromMeta(m => onRightOpt(m.rightOwner, tokens(m.idx)))
+
+    private[FormatOps] def onRightOpt(
+        ro: Tree,
+        ftOrNull: => FormatToken,
+    ): Option[SelectLike] = ro match {
+      case x: Term.Select => Some(SelectLike(x))
+      case x: Term.Match if dialect.allowMatchAsOperator =>
+        val ft = Option(ftOrNull).getOrElse(tokenAfter(x.expr))
+        if (!ft.right.is[T.Dot]) None
+        else nextNonCommentAfter(ft).right match {
+          case kw: T.KwMatch => Some(SelectLike(x, kw))
+          case _ => None
+        }
       case _ => None
     }
+
+    def onRightOpt(ft: FormatToken): Option[SelectLike] =
+      onRightOpt(ft.meta.rightOwner, ft)
+
+    def unapply(tree: Tree): Option[SelectLike] = onRightOpt(tree, null)
   }
 
   def getSplitsForTypeBounds(
