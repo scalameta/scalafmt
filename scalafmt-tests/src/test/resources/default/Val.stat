@@ -340,10 +340,9 @@ object a {
 }
 >>>
 object a {
-  val shouldMarkInline =
-    (
-      isDynamicImportThunk ||
-        sym.hasAnnotation(InlineAnnotationClass) ||
-        (sym.isAnonymousFunction && !sym.isSubClass(PartialFunctionClass)) ||
-        isStdLibClassWithAdHocInlineAnnot(sym))
+  val shouldMarkInline = (
+    isDynamicImportThunk ||
+      sym.hasAnnotation(InlineAnnotationClass) ||
+      (sym.isAnonymousFunction && !sym.isSubClass(PartialFunctionClass)) ||
+      isStdLibClassWithAdHocInlineAnnot(sym))
 }
