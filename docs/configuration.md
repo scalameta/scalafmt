@@ -4804,6 +4804,10 @@ One can specify the following values to `binPack.preset`:
   - [`callSite = Oneline`](#binpackcallsite)
   - [`defnSite = Oneline`](#binpackdefnsite)
   - [`parentConstructors = Oneline`](#binpackparentconstructors)
+- `Onelinesjs`:
+  - [`callSite = OnelineSjs`](#binpackcallsite)
+  - [`defnSite = OnelineSjs`](#binpackdefnsite)
+  - [`parentConstructors = Oneline`](#binpackparentconstructors)
 
 The rest of parameters retain their default behaviour.
 
@@ -4953,6 +4957,8 @@ since v3.0.0:
   last and the call site is followed by either a curried argument clause or
   a chained method, it cannot be on the same line as the next identifier after
   the closing delimiter
+- `OnelineSjs` ensures multiline arguments are not binpacked, like `Oneline` above, but
+  ignores line breaks within expressions in braces
 
 Additionally, when binpacking is enabled (i.e., not `Never`), some nested
 expressions in brackets (if the binpacked clause uses brackets) or in braces
