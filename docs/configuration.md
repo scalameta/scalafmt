@@ -4796,11 +4796,11 @@ One can specify the following values to `binPack.preset`:
   - [`callSite = Never`](#binpackcallsite)
   - [`defnSite = Never`](#binpackdefnsite)
   - [`parentConstructors = Never`](#binpackparentconstructors)
-- `always` or `true`:
+- `Always` or `true`:
   - [`callSite = Always`](#binpackcallsite)
   - [`defnSite = Always`](#binpackdefnsite)
   - [`parentConstructors = Always`](#binpackparentconstructors)
-- `oneline`:
+- `Oneline`:
   - [`callSite = Oneline`](#binpackcallsite)
   - [`defnSite = Oneline`](#binpackdefnsite)
   - [`parentConstructors = Oneline`](#binpackparentconstructors)
@@ -4948,7 +4948,17 @@ since v3.0.0:
 
 - `Never` disables the functionality (also takes `false`)
 - `Always` enables the functionality (also takes `true`)
-- `Oneline` ensures multiline arguments are not binpacked
+- `Oneline` ensures multiline arguments are not binpacked, that is, they cannot
+  be on the same line as any other argument; also, if the multiline argument is
+  last and the call site is followed by either a curried argument clause or
+  a chained method, it cannot be on the same line as the next identifier after
+  the closing delimiter
+
+Additionally, when binpacking is enabled (i.e., not `Never`), some nested
+expressions in brackets (if the binpacked clause uses brackets) or in braces
+(if it uses parentheses) wouldn't be indented as would happen in usual cases;
+this logic is always used for `OnelineSjs`, and only for single-element clauses
+otherwise.
 
 When not disabled, these parameters have complex interactions with
 [`newline.source`](#newlinessource),
