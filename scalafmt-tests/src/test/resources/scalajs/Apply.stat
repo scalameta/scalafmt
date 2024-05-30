@@ -1043,6 +1043,53 @@ object a {
         genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
       })(OptimizerHints.empty, Unversioned)
 }
+<<< nested with onelineSjs, keep
+newlines.source = keep
+binPack.preset = onelineSjs
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+===
+object a {
+  js.MethodDef(flags, methodIdent, originalName, jsParams, resultType, Some {
+             genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
+           })(OptimizerHints.empty, Unversioned)
+}
+>>>
+object a {
+  js.MethodDef(flags, methodIdent, originalName, jsParams, resultType,
+      Some {
+        genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
+      })(OptimizerHints.empty, Unversioned)
+}
+<<< multi-nested with onelineSjs, keep, and mixed paren-brace args
+preset = default
+newlines.source = keep
+binPack.preset = onelineSjs
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a { 
+  If(foo1, {
+    foo2
+  }, If(foo3, Block(
+    foo4
+  ), {
+    foo5      
+  }))
+}
+>>>
+object a {
+  If(foo1, {
+      foo2
+    },
+    If(foo3,
+      Block(
+        foo4
+      ), {
+        foo5
+      }))
+}
 <<< oneline with keep and select after
 preset = default
 maxColumn = 80

@@ -88,8 +88,10 @@ object BinPack {
   val never = BinPack.ctor(Site.Never, ParentCtors.Never)
   val always = BinPack.ctor(Site.Always, ParentCtors.Always)
   private val oneline = BinPack.ctor(Site.Oneline, ParentCtors.Oneline)
+  private val onelineSjs = BinPack.ctor(Site.OnelineSjs, ParentCtors.Oneline)
 
-  private val customPresets = ReaderUtil.Custom(never, always, oneline)
+  private val customPresets = ReaderUtil
+    .Custom(never, always, oneline, onelineSjs)
 
   implicit val decoder: ConfDecoderEx[BinPack] = Presets
     .mapDecoder(generic.deriveDecoderEx(never).noTypos, "binPack") {
@@ -122,14 +124,25 @@ object BinPack {
 
   }
 
-  sealed abstract class Site
+  sealed abstract class Site {
+    def isOneline: Boolean
+  }
   object Site {
-    case object Never extends Site
-    case object Always extends Site
-    case object Oneline extends Site
+    case object Never extends Site {
+      def isOneline: Boolean = false
+    }
+    case object Always extends Site {
+      def isOneline: Boolean = false
+    }
+    case object Oneline extends Site {
+      def isOneline: Boolean = true
+    }
+    case object OnelineSjs extends Site {
+      def isOneline: Boolean = true
+    }
 
     implicit val oneOfReader: ConfCodecEx[Site] = ReaderUtil
-      .oneOfCustom[Site](Never, Always, Oneline) {
+      .oneOfCustom[Site](Never, Always, Oneline, OnelineSjs) {
         case Conf.Bool(true) => Configured.ok(Always)
         case Conf.Bool(false) => Configured.ok(Never)
       }
