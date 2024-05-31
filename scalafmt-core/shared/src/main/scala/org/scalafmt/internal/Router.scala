@@ -1474,11 +1474,14 @@ class Router(formatOps: FormatOps) {
                     s.map(x => if (x.isNL) x else x.switch(trigger, true))
                 }
               } else NoPolicy
-            Seq(
-              Split(style.newlines.keepBreak(newlines), 0)(Space)
-                .withSingleLine(endOfSingleLineBlock(optFT), noSyntaxNL = true),
-              Split(Newline, 1).withPolicy(nlPolicy & indentOncePolicy),
-            )
+            val nlSplit = Split(Newline, 1, policy = nlPolicy & indentOncePolicy)
+            val noSplit =
+              if (style.newlines.keepBreak(newlines)) Split.ignored
+              else {
+                val end = endOfSingleLineBlock(optFT)
+                Split(Space, 0).withSingleLine(end, noSyntaxNL = true)
+              }
+            Seq(noSplit, nlSplit)
           }
         }
         def altSplits = leftOwner match {
