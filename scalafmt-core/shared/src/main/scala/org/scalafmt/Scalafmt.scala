@@ -151,10 +151,10 @@ object Scalafmt {
           case ed => Failure(ed)
         },
         tree => {
-          val formatOps = new FormatOps(tree, style, file)
+          implicit val formatOps = new FormatOps(tree, style, file)
           runner.event(CreateFormatOps(formatOps))
-          val formatWriter = new FormatWriter(formatOps)
-          Try(BestFirstSearch(formatOps, range, formatWriter)).flatMap { res =>
+          implicit val formatWriter = new FormatWriter(formatOps)
+          Try(BestFirstSearch(range)).flatMap { res =>
             val formattedString = formatWriter.mkString(res.state)
             if (res.reachedEOF) Success(formattedString)
             else {
