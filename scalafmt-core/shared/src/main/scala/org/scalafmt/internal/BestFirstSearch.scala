@@ -18,10 +18,10 @@ import scala.collection.mutable
 
 /** Implements best first search to find optimal formatting.
   */
-private class BestFirstSearch private (
-    range: Set[Range],
+private class BestFirstSearch private (range: Set[Range])(implicit
+    val formatOps: FormatOps,
     formatWriter: FormatWriter,
-)(implicit val formatOps: FormatOps) {
+) {
   import BestFirstSearch._
   import LoggerOps._
   import TreeOps._
@@ -124,11 +124,8 @@ private class BestFirstSearch private (
       if (noOptZone || shouldEnterState(curr)) {
         trackState(curr, depth, Q.length)
 
-        if (explored > style.runner.maxStateVisits) throw SearchStateExploded(
-          deepestYet,
-          formatWriter.mkString(deepestYet),
-          tokens(deepestYet.depth),
-        )
+        if (explored > style.runner.maxStateVisits)
+          throw new SearchStateExploded(deepestYet)
 
         if (curr.split != null && curr.split.isNL)
           if (
@@ -149,11 +146,7 @@ private class BestFirstSearch private (
           visits(curr.depth) > maxVisitsPerToken
         ) {
           complete(deepestYet)
-          throw SearchStateExploded(
-            deepestYet,
-            formatWriter.mkString(deepestYet),
-            splitToken,
-          )
+          throw new SearchStateExploded(deepestYet, splitToken)
         } else {
           val actualSplit = getActiveSplits(curr, maxCost)
           val allAltAreNL = actualSplit.forall(_.isNL)
@@ -301,11 +294,9 @@ case class SearchResult(state: State, reachedEOF: Boolean)
 object BestFirstSearch {
 
   def apply(
-      formatOps: FormatOps,
       range: Set[Range],
-      formatWriter: FormatWriter,
-  ): SearchResult =
-    new BestFirstSearch(range, formatWriter)(formatOps).getBestPath
+  )(implicit formatOps: FormatOps, formatWriter: FormatWriter): SearchResult =
+    new BestFirstSearch(range).getBestPath
 
   private def getNoOptZones(tokens: FormatTokens) = {
     val result = Set.newBuilder[Token]

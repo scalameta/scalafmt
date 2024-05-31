@@ -1,8 +1,6 @@
 package org.scalafmt
 
-import org.scalafmt.internal.Decision
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.State
+import org.scalafmt.internal._
 import org.scalafmt.util.LoggerOps
 
 import scala.meta.Case
@@ -78,17 +76,26 @@ object Error {
   case class MisformattedFile(file: Path, customMessage: String)
       extends Error(s"$file is mis-formatted. $customMessage")
 
-  case class SearchStateExploded(
+  case class SearchStateExploded private (
       deepestState: State,
       partialOutput: String,
-      ft: FormatToken,
-  ) extends Error({
-        val tok = LoggerOps.log2(ft)
-        val line = ft.left.pos.endLine
-        val frag = "#search-state-exploded"
-        s"Search state exploded on '$tok', line $line [see $cfgUrl$frag]"
-      }) {
-    def line: Int = ft.left.pos.endLine
+      tok: String,
+      line: Int,
+  ) extends Error(
+        s"Search state exploded on '$tok', line $line [see $cfgUrl#search-state-exploded]",
+      ) {
+    def this(deepestState: State, ft: FormatToken)(implicit
+        formatWriter: FormatWriter,
+    ) = this(
+      deepestState,
+      formatWriter.mkString(deepestState),
+      LoggerOps.log2(ft),
+      ft.left.pos.endLine + 1,
+    )
+    def this(
+        deepestState: State,
+    )(implicit tokens: FormatTokens, formatWriter: FormatWriter) =
+      this(deepestState, tokens(deepestState.depth))
   }
 
   case class InvalidScalafmtConfiguration(throwable: Throwable)
