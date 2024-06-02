@@ -732,7 +732,7 @@ class Router(formatOps: FormatOps) {
         val policy = Policy ?
           (style.binPack.keepParentConstructors || template.pos.isEmpty) || {
             val expire = templateDerivesOrCurlyOrLastNonTrivial(template)
-            val forceNewlineBeforeExtends = Policy.before(expire) {
+            val forceNewlineBeforeExtends = Policy.before(expire, "NLPCTOR") {
               case Decision(FormatToken(_, soft.ExtendsOrDerives(), m), s)
                   if m.rightOwner eq template =>
                 s.filter(x => x.isNL && !x.isActiveFor(SplitTag.OnelineWithChain))
@@ -1105,7 +1105,7 @@ class Router(formatOps: FormatOps) {
             else if (slbOrNL) getNoSplit(Some(close))
             else {
               val opensPolicy = bracketPenalty.map { p =>
-                Policy.before(close) {
+                Policy.before(close, "PENBP[") {
                   case Decision(ftd @ FormatToken(o: T.LeftBracket, _, m), s)
                       if isParamClauseSite(m.leftOwner) && styleMap.at(o)
                         .binPack.bracketDefnSite != BinPack.Site.Never =>
@@ -1231,7 +1231,7 @@ class Router(formatOps: FormatOps) {
               def indentOncePolicy =
                 Policy ? style.binPack.indentCallSiteOnce && {
                   val trigger = getIndentTrigger(leftOwner)
-                  Policy.on(close) {
+                  Policy.on(close, prefix = "IND1") {
                     case Decision(FormatToken(LeftParenOrBracket(), _, m), s)
                         if isArgClauseSite(m.leftOwner) =>
                       s.map(x => if (x.isNL) x else x.switch(trigger, false))
@@ -1460,7 +1460,7 @@ class Router(formatOps: FormatOps) {
             val indentOncePolicy = Policy ?
               (callSite && style.binPack.indentCallSiteOnce) && {
                 val trigger = getIndentTrigger(leftOwner)
-                Policy.on(lastFT.left) {
+                Policy.on(lastFT.left, prefix = "IND1") {
                   case Decision(FormatToken(LeftParenOrBracket(), _, m), s)
                       if isArgClauseSite(m.leftOwner) =>
                     s.map(x => if (x.isNL) x else x.switch(trigger, true))
@@ -1582,7 +1582,7 @@ class Router(formatOps: FormatOps) {
         }
         def forcedBreakOnNextDotPolicy = nextSelect.map { selectLike =>
           val tree = selectLike.tree
-          Policy.before(selectLike.nameToken) {
+          Policy.before(selectLike.nameToken, "NEXTSELFNL") {
             case d @ Decision(FormatToken(_, _: T.Dot, m), _)
                 if m.rightOwner eq tree => d.onlyNewlinesWithoutFallback
           }
@@ -1590,7 +1590,7 @@ class Router(formatOps: FormatOps) {
 
         def breakOnNextDot: Policy = nextSelect.map { selectLike =>
           val tree = selectLike.tree
-          Policy.before(selectLike.nameToken) {
+          Policy.before(selectLike.nameToken, "NEXTSEL2NL") {
             case Decision(FormatToken(_, _: T.Dot, m), s)
                 if m.rightOwner eq tree =>
               val filtered = s.flatMap { x =>
@@ -1734,7 +1734,7 @@ class Router(formatOps: FormatOps) {
 
         val delayedBreakPolicyOpt = nextSelect.map { selectLike =>
           val tree = selectLike.tree
-          Policy.before(selectLike.nameToken) {
+          Policy.before(selectLike.nameToken, "NEXTSEL1NL") {
             case Decision(FormatToken(_, _: T.Dot, m), s)
                 if m.rightOwner eq tree =>
               SplitTag.SelectChainFirstNL.activateOnly(s)
@@ -2104,9 +2104,9 @@ class Router(formatOps: FormatOps) {
               val lmod = NewlineT(noIndent = rhsIsCommentedOut(postParenFt))
               val lsplit = Seq(Split(lmod, 0).withIndents(lindents))
               val rsplit = Seq(Split(Newline, 0))
-              Policy.after(lparen) {
+              Policy.after(lparen, prefix = "CASE[(]") {
                 case d: Decision if d.formatToken eq postParenFt => lsplit
-              } ==> Policy.on(rparen) {
+              } ==> Policy.on(rparen, prefix = "CASE[)]") {
                 case d: Decision if d.formatToken.right eq rparen => rsplit
               }
             }

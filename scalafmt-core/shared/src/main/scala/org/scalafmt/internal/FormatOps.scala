@@ -270,13 +270,11 @@ class FormatOps(
   def splitOneArgOneLine(close: T, owner: Tree)(implicit
       fileLine: FileLine,
       style: ScalafmtConfig,
-  ): Policy = {
-    val pf =
-      if (style.poorMansTrailingCommasInConfigStyle)
-        splitOneArgPerLineBeforeComma(owner)
-      else splitOneArgPerLineAfterComma(owner)
-    Policy.before(close)(pf)
-  }
+  ): Policy =
+    if (style.poorMansTrailingCommasInConfigStyle) Policy
+      .before(close, prefix = "B[,]")(splitOneArgPerLineBeforeComma(owner))
+    else Policy
+      .before(close, prefix = "A[,]")(splitOneArgPerLineAfterComma(owner))
 
   def splitOneArgPerLineBeforeComma(owner: Tree): Policy.Pf = {
     // TODO(olafur) clear queue between arguments, they are independent.
@@ -305,7 +303,7 @@ class FormatOps(
   def splitOneArgPerLineAfterCommaOnBreak(
       comma: T,
   )(implicit fileLine: FileLine): Policy = delayedBreakPolicyBefore(comma) {
-    Policy.after(comma) {
+    Policy.after(comma, prefix = "NL->A[,]") {
       case Decision(t @ FormatToken(`comma`, right, _), splits)
           if !right.is[T.Comment] || t.hasBreak =>
         getOneArgPerLineSplitsAfterComma(right, splits)
@@ -369,8 +367,9 @@ class FormatOps(
   @inline
   def getBreakBeforeElsePolicy(term: Term.If): Policy = getElseChain(term, Nil)
     .foldLeft(Policy.noPolicy) { case (res, els) =>
-      Policy.on(els) { case d @ Decision(FormatToken(_, `els`, _), _) =>
-        d.onlyNewlinesWithFallback(Split(Newline, 0))
+      Policy.on(els, prefix = "ELSE") {
+        case d @ Decision(FormatToken(_, `els`, _), _) => d
+            .onlyNewlinesWithFallback(Split(Newline, 0))
       } ==> res
     }
 
@@ -606,7 +605,7 @@ class FormatOps(
 
     val (nlIndent, nlPolicy) = {
       def policy(triggers: T*)(implicit fileLine: FileLine) =
-        Policy ? triggers.isEmpty || Policy.on(fullExpire) {
+        Policy ? triggers.isEmpty || Policy.on(fullExpire, prefix = "INF") {
           case Decision(t: FormatToken, s)
               if isInfixOp(t.meta.leftOwner) ||
                 isInfixOp(t.meta.rightOwner) &&
@@ -753,7 +752,7 @@ class FormatOps(
 
   }
 
-  def getSingleLineInfixPolicy(end: T) = Policy.on(end) {
+  def getSingleLineInfixPolicy(end: T) = Policy.on(end, prefix = "INFSLB") {
     case Decision(t: FormatToken, s) if isInfixOp(t.meta.leftOwner) =>
       SplitTag.InfixChainNoNL.activateOnly(s)
   }
@@ -883,7 +882,7 @@ class FormatOps(
   ): Seq[Split] = {
     def getPolicy(expire: T) = expire match {
       case lb: T.LeftBrace if template.self.tokens.isEmpty =>
-        Policy.after(lb) {
+        Policy.after(lb, "MLTMPL") {
           // Force template to be multiline.
           case d @ Decision(ftd @ FormatToken(`lb`, right, _), _)
               if !right.is[T.RightBrace] && // corner case, body is {}
@@ -925,7 +924,7 @@ class FormatOps(
       style: ScalafmtConfig,
   ): Policy = Policy ?
     ((style.binPack.parentConstructors eq BinPack.ParentCtors.Always) ||
-      ownerSet.isEmpty) || Policy.after(lastToken) {
+      ownerSet.isEmpty) || Policy.after(lastToken, prefix = "WITH") {
       case d @ Decision(t @ FormatToken(_, _: T.KwWith, _), _)
           if ownerSet.contains(t.meta.rightOwner) =>
         d.onlyNewlinesWithoutFallback
@@ -1086,7 +1085,7 @@ class FormatOps(
     // `lastParen` as well, which will be the same as the value param's
     // owner.
 
-    val paramGroupSplitter = Policy.on(lastParen) {
+    val paramGroupSplitter = Policy.on(lastParen, prefix = "VML") {
       // If this is a class, then don't dangle the last paren unless the line ends with a comment
       case Decision(ftd @ FormatToken(_, `lastParen`, _), _)
           if shouldNotDangle && !isLeftCommentThenBreak(ftd) =>
@@ -1131,7 +1130,7 @@ class FormatOps(
       .preActivateFor(SplitTag.VerticalMultilineSingleLine)
 
     if (isBracket) {
-      val noSlbPolicy = Policy.on(lastParen) {
+      val noSlbPolicy = Policy.on(lastParen, prefix = "VML!SLB") {
         case Decision(FormatToken(LeftParenOrBracket(), _, m), ss)
             if allParenOwners.contains(m.leftOwner) =>
           ss.filter(!_.isActiveFor(SplitTag.VerticalMultilineSingleLine))
@@ -1411,10 +1410,11 @@ class FormatOps(
           opens: List[FormatToken],
           policy: Policy,
       ): Policy = opens.foldLeft(policy) { case (res, x) =>
-        val onOpen = Policy(nextNonComment(x).right match {
+        val endPos = nextNonComment(x).right match {
           case t: T.LeftBrace => Policy.End > t
           case t => Policy.End == t
-        })(penalizeOpenNL)
+        }
+        val onOpen = Policy(endPos, "NSTOPEN")(penalizeOpenNL)
         Policy.End == x.left ==> onOpen ==> res
       }
 
@@ -1579,9 +1579,8 @@ class FormatOps(
             val split = nlSplitFunc(0).forThisLine
             Seq(if (rhsIsCommentedOut(nextFt)) split.withNoIndent else split)
           }
-        val policy = Policy.on(nextFt.right) { case Decision(`nextFt`, _) =>
-          splits
-        }
+        val policy = Policy
+          .on(nextFt.right, "CBCMT") { case Decision(`nextFt`, _) => splits }
         Seq(Split(Space, 0, policy = policy))
       }
 
@@ -1708,7 +1707,7 @@ class FormatOps(
     val boundEnd = boundEndOpt.getOrElse(typeEnd)
     def indent = Indent(Num(style.indent.main), boundEnd, ExpiresOn.After)
     def unfoldPolicy = typeOwner match {
-      case tparam: Type.Param => Policy.on(typeEnd) {
+      case tparam: Type.Param => Policy.on(typeEnd, prefix = "VB") {
           case Decision(t @ FormatToken(_, _: T.Colon | _: T.Viewbound, _), s)
               if t.meta.rightOwner eq tparam => Decision.onlyNewlineSplits(s)
         }
@@ -2596,7 +2595,7 @@ class FormatOps(
 
     def noNLPolicy(): Policy = {
       val close = ftBeforeClose.right
-      if (scalaJsStyle) Policy(Policy.End == close) {
+      if (scalaJsStyle) Policy(Policy.End == close, prefix = "tuckSJS") {
         case d: Decision if d.formatToken.right eq close => d.noNewlines
       }
       else style.newlines.source match {
