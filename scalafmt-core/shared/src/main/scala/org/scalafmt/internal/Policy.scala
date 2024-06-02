@@ -70,18 +70,29 @@ object Policy {
     override def noDequeue: Boolean = false
   }
 
-  def apply(endPolicy: End.WithPos, noDequeue: Boolean = false, rank: Int = 0)(
-      f: Pf,
-  )(implicit fileLine: FileLine): Policy =
-    new ClauseImpl(f, endPolicy, noDequeue, rank)
+  def apply(
+      endPolicy: End.WithPos,
+      prefix: String,
+      noDequeue: Boolean = false,
+      rank: Int = 0,
+  )(f: Pf)(implicit fileLine: FileLine): Policy =
+    new ClauseImpl(f, endPolicy, prefix, noDequeue, rank)
 
-  def after(token: Token, noDequeue: Boolean = false, rank: Int = 0)(f: Pf)(
-      implicit fileLine: FileLine,
-  ): Policy = apply(End > token, noDequeue, rank)(f)
+  def after(
+      token: Token,
+      prefix: String,
+      noDequeue: Boolean = false,
+      rank: Int = 0,
+  )(f: Pf)(implicit fileLine: FileLine): Policy =
+    apply(End > token, prefix, noDequeue, rank)(f)
 
-  def before(token: Token, noDequeue: Boolean = false, rank: Int = 0)(f: Pf)(
-      implicit fileLine: FileLine,
-  ): Policy = apply(End < token, noDequeue, rank)(f)
+  def before(
+      token: Token,
+      prefix: String,
+      noDequeue: Boolean = false,
+      rank: Int = 0,
+  )(f: Pf)(implicit fileLine: FileLine): Policy =
+    apply(End < token, prefix, noDequeue, rank)(f)
 
   def after(trigger: Token, policy: Policy)(implicit
       fileLine: FileLine,
@@ -91,16 +102,26 @@ object Policy {
       fileLine: FileLine,
   ): Policy = new Switch(policy, trigger, NoPolicy)
 
-  def on(token: Token, noDequeue: Boolean = false)(f: Pf)(implicit
-      fileLine: FileLine,
-  ): Policy = apply(End == token, noDequeue)(f)
+  def on(token: Token, prefix: String, noDequeue: Boolean = false)(f: Pf)(
+      implicit fileLine: FileLine,
+  ): Policy = apply(End == token, prefix, noDequeue)(f)
 
   abstract class Clause(implicit val fileLine: FileLine) extends Policy {
     val endPolicy: End.WithPos
+    def prefix: String
+    def suffix: String = ""
 
     override def toString = {
+      val prefixWithColon = prefix match {
+        case "" => ""
+        case x => s"$x:"
+      }
       val noDeqPrefix = if (noDequeue) "!" else ""
-      s"[$fileLine]$endPolicy${noDeqPrefix}d"
+      val suffixWithColon = suffix match {
+        case "" => ""
+        case x => s":$x"
+      }
+      s"$prefixWithColon[$fileLine]$endPolicy${noDeqPrefix}d$suffixWithColon"
     }
 
     override def unexpired(split: Split, nextft: FormatToken): Policy =
@@ -115,6 +136,7 @@ object Policy {
   private class ClauseImpl(
       val f: Policy.Pf,
       val endPolicy: End.WithPos,
+      val prefix: String,
       val noDequeue: Boolean,
       val rank: Int = 0,
   )(implicit fileLine: FileLine)
@@ -293,7 +315,8 @@ object Policy {
 
     override def noDequeue: Boolean = policy.noDequeue
 
-    override def toString: String = s"*($policy)$endPolicy"
+    override val prefix: String = "*"
+    override def suffix: String = s"($policy)"
   }
 
   final class Map(
@@ -317,10 +340,9 @@ object Policy {
       }
     }
     override val f: Policy.Pf = { case PredicateDecision(ss) => ss }
-    override def toString: String = {
+    override def prefix: String = {
       val evalDesc = desc
-      val descStr = if (evalDesc.isEmpty) "" else s"[$evalDesc]"
-      s"MAP$descStr:" + super.toString
+      if (evalDesc.isEmpty) "MAP" else s"MAP[$evalDesc]"
     }
   }
 

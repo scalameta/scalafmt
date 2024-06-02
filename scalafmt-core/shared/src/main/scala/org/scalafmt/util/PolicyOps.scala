@@ -26,7 +26,7 @@ object PolicyOps {
         if (checkSyntax && ft.leftHasNewline) s.map(_.withPenalty(penalty))
         else s.map(x => if (x.isNL) x.withPenalty(penalty) else x)
     }
-    override def toString: String = s"PNL:${super.toString}+$penalty"
+    override def prefix: String = s"PNL+$penalty"
   }
 
   object PenalizeAllNewlines {
@@ -46,13 +46,13 @@ object PolicyOps {
 
   def penalizeNewlineByNesting(from: T, to: T)(implicit
       fileLine: FileLine,
-  ): Policy = Policy.End < from ==>
-    Policy.before(to) { case Decision(FormatToken(l, _, m), s) =>
+  ): Policy = Policy.End < from ==> Policy.before(to, prefix = "PNL()") {
+    case Decision(FormatToken(l, _, m), s) =>
       val nonBoolPenalty = if (TokenOps.isBoolOperator(l)) 0 else 5
       val penalty = TreeOps.nestedSelect(m.leftOwner) +
         TreeOps.nestedApplies(m.rightOwner) + nonBoolPenalty
       s.map(x => if (x.isNL) x.withPenalty(penalty) else x)
-    }
+  }
 
   /** Forces all splits up to including expire to be on a single line.
     * @param okSLC
@@ -69,7 +69,7 @@ object PolicyOps {
       extends Policy.Clause {
     import TokenOps.isLeftCommentThenBreak
     override val noDequeue: Boolean = true
-    override def toString: String = "SLB:" + super.toString
+    override val prefix: String = "SLB"
     private val checkSyntax = noSyntaxNL || !style.newlines.ignoreInSyntax
     override val f: Policy.Pf = {
       case Decision(ft, s)
@@ -105,6 +105,7 @@ object PolicyOps {
       extends Policy.Clause {
     override val endPolicy: Policy.End.WithPos = Policy.End == token
     override val noDequeue: Boolean = false
+    override val prefix: String = "NB"
     override val f: Policy.Pf = split.fold[Policy.Pf] {
       case d: Decision if d.formatToken.right eq token =>
         d.onlyNewlinesWithoutFallback
@@ -114,7 +115,6 @@ object PolicyOps {
           d.onlyNewlinesWithFallback(s)
       }
     }
-    override def toString: String = "NB:" + super.toString
   }
 
   final class DecideNewlinesOnlyAfterToken(
@@ -125,6 +125,7 @@ object PolicyOps {
       extends Policy.Clause {
     override val endPolicy: Policy.End.WithPos = Policy.End > token
     override val noDequeue: Boolean = false
+    override val prefix: String = "NA"
     override val f: Policy.Pf = split.fold[Policy.Pf] {
       case d: Decision if d.formatToken.left eq token =>
         d.onlyNewlinesWithoutFallback
@@ -134,7 +135,6 @@ object PolicyOps {
           d.onlyNewlinesWithFallback(s)
       }
     }
-    override def toString: String = "NA:" + super.toString
   }
 
   def policyWithExclude(
@@ -195,12 +195,12 @@ object PolicyOps {
       val trigger = rt
       val unindent = Indent(indent, rt, ExpiresOn.After)
       val triggeredIndent = Indent.before(unindent, trigger)
-      val triggerUnindent = Policy
-        .on(rt) { case Decision(FormatToken(`lt`, _, _), s) =>
-          s.map(_.withIndent(triggeredIndent))
-        }
+      val triggerUnindent = Policy.on(rt, prefix = "UNIND{") {
+        case Decision(FormatToken(`lt`, _, _), s) => s
+            .map(_.withIndent(triggeredIndent))
+      }
       val cancelUnindent = delayedBreakPolicy(Policy.End == lt) {
-        Policy.after(lt, rank = 1) { // use rank to apply after policy above
+        Policy.after(lt, rank = 1, prefix = "UNIND}") { // use rank to apply after policy above
           case Decision(FormatToken(`lt`, _, _), s) => s
               .map(_.switch(trigger, false))
         }
