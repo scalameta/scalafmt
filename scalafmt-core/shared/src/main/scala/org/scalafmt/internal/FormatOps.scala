@@ -371,11 +371,9 @@ class FormatOps(
   @inline
   def getBreakBeforeElsePolicy(term: Term.If): Policy = getElseChain(term, Nil)
     .foldLeft(Policy.noPolicy) { case (res, els) =>
-      val policy = Policy
-        .on(els) { case d @ Decision(FormatToken(_, `els`, _), _) =>
-          d.onlyNewlinesWithFallback(Split(Newline, 0))
-        }
-      Policy.Relay(policy, res)
+      Policy.on(els) { case d @ Decision(FormatToken(_, `els`, _), _) =>
+        d.onlyNewlinesWithFallback(Split(Newline, 0))
+      } ==> res
     }
 
   @tailrec
@@ -610,8 +608,7 @@ class FormatOps(
 
     val (nlIndent, nlPolicy) = {
       def policy(triggers: T*)(implicit fileLine: FileLine) =
-        if (triggers.isEmpty) Policy.NoPolicy
-        else Policy.on(fullExpire) {
+        Policy ? triggers.isEmpty || Policy.on(fullExpire) {
           case Decision(t: FormatToken, s)
               if isInfixOp(t.meta.leftOwner) ||
                 isInfixOp(t.meta.rightOwner) &&
@@ -679,13 +676,14 @@ class FormatOps(
 
       def breakAfterComment(t: FormatToken) = {
         val end = nextNonCommentSameLine(t)
-        if (end.right.is[T.LeftBrace] || end.right.is[T.Comment]) None
-        else if (end eq t) Some(decideNewlinesOnlyAfterToken(end.left))
-        else Some(decideNewlinesOnlyAfterClose(end.left))
+        Policy ? end.right.isAny[T.LeftBrace, T.Comment] || {
+          if (end eq t) decideNewlinesOnlyAfterToken(end.left)
+          else decideNewlinesOnlyAfterClose(end.left)
+        }
       }
       val nlMod = newStmtMod
         .getOrElse(Space.orNL(ft.noBreak && ft.right.is[T.Comment]))
-      val delayedBreak = if (nlMod.isNewline) None else breakAfterComment(ft)
+      val delayedBreak = Policy ? nlMod.isNewline || breakAfterComment(ft)
 
       val (singleLineExpire, singleLineIndent) = {
         val skip = skipInfixIndent
@@ -698,18 +696,17 @@ class FormatOps(
         }
       }
 
-      val singleLinePolicy =
-        if (infixTooLong || !isFirstOp) None
-        else Some(getSingleLineInfixPolicy(fullExpire))
+      val singleLinePolicy = Policy ? (infixTooLong || !isFirstOp) ||
+        getSingleLineInfixPolicy(fullExpire)
       val nlSinglelineSplit = Split(nlMod, 0)
-        .onlyIf(singleLinePolicy.isDefined && beforeLhs)
+        .onlyIf(singleLinePolicy.nonEmpty && beforeLhs)
         .withIndent(singleLineIndent).withSingleLine(singleLineExpire)
-        .andPolicyOpt(singleLinePolicy).andPolicyOpt(delayedBreak)
+        .andPolicy(singleLinePolicy).andPolicy(delayedBreak)
       val spaceSingleLine = Split(spaceMod, 0).onlyIf(newStmtMod.isEmpty)
-        .withSingleLine(singleLineExpire).andPolicyOpt(singleLinePolicy)
+        .withSingleLine(singleLineExpire).andPolicy(singleLinePolicy)
       val singleLineSplits = Seq(
         spaceSingleLine.onlyFor(SplitTag.InfixChainNoNL),
-        spaceSingleLine.onlyIf(singleLinePolicy.isDefined),
+        spaceSingleLine.onlyIf(singleLinePolicy.nonEmpty),
         nlSinglelineSplit,
       )
 
@@ -727,14 +724,13 @@ class FormatOps(
             case _ => findNextInfixInParent(app, fullInfix)
           }
         val endOfNextOp = nextOp.map(getLast)
-        val breakAfterClose = endOfNextOp.flatMap(breakAfterComment)
+        val breakAfterClose: Policy = endOfNextOp.map(breakAfterComment)
 
-        val nlSplit = Split(nlMod, 0).andPolicyOpt(breakAfterClose)
+        val nlSplit = Split(nlMod, 0).andPolicy(breakAfterClose)
           .withIndent(nlIndent).withPolicy(nlPolicy)
         val singleLineSplit = Split(spaceMod, 0).notIf(noSingleLine)
           .withSingleLine(endOfNextOp.fold(close)(_.left))
-          .andPolicyOpt(breakAfterClose)
-          .andPolicy(getSingleLineInfixPolicy(close))
+          .andPolicy(breakAfterClose).andPolicy(getSingleLineInfixPolicy(close))
         Seq(singleLineSplit, nlSplit)
       }
 
@@ -929,10 +925,9 @@ class FormatOps(
 
   def ctorWithChain(ownerSet: Set[Tree], lastToken: T)(implicit
       style: ScalafmtConfig,
-  ): Policy =
-    if (style.binPack.parentConstructors eq BinPack.ParentCtors.Always) NoPolicy
-    else if (ownerSet.isEmpty) NoPolicy
-    else Policy.after(lastToken) {
+  ): Policy = Policy ?
+    ((style.binPack.parentConstructors eq BinPack.ParentCtors.Always) ||
+      ownerSet.isEmpty) || Policy.after(lastToken) {
       case d @ Decision(t @ FormatToken(_, _: T.KwWith, _), _)
           if ownerSet.contains(t.meta.rightOwner) =>
         d.onlyNewlinesWithoutFallback
@@ -1083,7 +1078,7 @@ class FormatOps(
     // deals with the type params and the other with the value params.
     val oneLinePerArg = allOwners.zip(close +: lastParens)
       .map { case (owner, end) => splitOneArgOneLine(end, owner) }
-      .reduceRight(new Policy.Relay(_, _))
+      .reduceRight(_ ==> _)
 
     // DESNOTE(2017-03-28, pjrt) Classes and defs aren't the same.
     // For defs, type params and value param have the same `owners`. However
@@ -1148,9 +1143,8 @@ class FormatOps(
         else {
           val lpNext = getHead(allParenOwners.head)
           val lpNextLeft = lpNext.left
-          val slbPolicy =
-            if (isRightCommentThenBreak(lpNext)) Policy.NoPolicy
-            else decideNewlinesOnlyAfterToken(lpNextLeft)
+          val slbPolicy = Policy ? isRightCommentThenBreak(lpNext) ||
+            decideNewlinesOnlyAfterToken(lpNextLeft)
           // If we can fit the type params, make it so
           Split(space, 0).withSingleLine(lpNextLeft).orPolicy(slbPolicy)
         }
@@ -1441,8 +1435,7 @@ class FormatOps(
           case t: T.LeftBrace => Policy.End > t
           case t => Policy.End == t
         })(penalizeOpenNL)
-        val delayed = new Policy.Delay(onOpen, Policy.End == x.left)
-        new Policy.Relay(delayed, res)
+        Policy.End == x.left ==> onOpen ==> res
       }
 
       @tailrec
@@ -1475,9 +1468,8 @@ class FormatOps(
       val blastFT = getLastNonTrivial(btokens, body)
       val blast = blastFT.left
       val expire = nextNonCommentSameLine(blastFT).left
-      def penalize(penalty: Int) =
-        if (penalty <= 0) Policy.NoPolicy
-        else new PolicyOps.PenalizeAllNewlines(Policy.End == blast, penalty)
+      def penalize(penalty: Int) = Policy ? (penalty > 0) &&
+        new PolicyOps.PenalizeAllNewlines(Policy.End == blast, penalty)
       def getNlSplit(penalty: Int)(implicit fileLine: FileLine): Split =
         nlSplitFunc(1).andPolicy(penalize(penalty)).forThisLine(nextLine)
       def getSplits(spaceSplit: Split) = (
@@ -1819,10 +1811,8 @@ class FormatOps(
           tokens.getClosingIfInParens(maybeClose)(getHead(treeTokens, tree))
             .map(prevNonComment(_).left)
         }
-      def nlPolicy(implicit fileLine: FileLine) =
-        if (danglingKeyword)
-          decideNewlinesOnlyAfterClose(closeOpt.getOrElse(slbExpire))
-        else NoPolicy
+      def nlPolicy(implicit fileLine: FileLine) = Policy ? danglingKeyword &&
+        decideNewlinesOnlyAfterClose(closeOpt.getOrElse(slbExpire))
       val indentLen = indentOpt.getOrElse(style.indent.getSignificant)
       val indent =
         Indent(Num(indentLen), closeOpt.getOrElse(slbExpire), ExpiresOn.After)

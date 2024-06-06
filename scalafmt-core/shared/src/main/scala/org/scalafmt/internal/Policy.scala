@@ -3,6 +3,8 @@ package org.scalafmt.internal
 import org.scalameta.FileLine
 import scala.meta.tokens.Token
 
+import scala.language.implicitConversions
+
 /** The decision made by [[Router]].
   *
   * Used by [[Policy]] to enforce non-local formatting.
@@ -22,6 +24,9 @@ abstract class Policy {
     if (other.isEmpty) this else new Policy.AndThen(this, other)
   def |(other: Policy): Policy =
     if (other.isEmpty) this else new Policy.OrElse(this, other)
+  def ==>(other: Policy)(implicit fileLine: FileLine): Policy =
+    if (other.isEmpty) this else new Policy.Relay(this, other)
+  def ?(flag: Boolean): Policy = if (flag) this else Policy.NoPolicy
 
   @inline
   final def unexpiredOpt(split: Split, nextft: FormatToken): Option[Policy] =
@@ -31,6 +36,8 @@ abstract class Policy {
   final def &(other: Option[Policy]): Policy = other.fold(this)(&)
   @inline
   final def |(other: Option[Policy]): Policy = other.fold(this)(|)
+  @inline
+  final def ==>(other: Option[Policy]): Policy = other.fold(this)(==>)
 
   @inline
   final def isEmpty: Boolean = this eq Policy.NoPolicy
@@ -51,6 +58,8 @@ object Policy {
     override def f: Pf = PartialFunction.empty
     override def |(other: Policy): Policy = other
     override def &(other: Policy): Policy = other
+    override def ==>(other: Policy)(implicit fileLine: FileLine): Policy = other
+    override def ?(flag: Boolean): Policy = this
 
     override def rank: Int = 0
     override def unexpired(split: Split, nextft: FormatToken): Policy = this
@@ -162,7 +171,7 @@ object Policy {
     }
   }
 
-  class Delay(policy: Policy, begPolicy: End.WithPos) extends Policy {
+  private class Delay(policy: Policy, begPolicy: End.WithPos) extends Policy {
     override def f: Pf = PartialFunction.empty
     override def rank: Int = 0
     override def filter(pred: Clause => Boolean): Policy = this
@@ -171,15 +180,10 @@ object Policy {
       if (begPolicy.notExpiredBy(nextft)) this
       else policy.unexpired(split, nextft)
     override def noDequeue: Boolean = policy.noDequeue
-    override def toString: String = s"$begPolicy:$policy"
+    override def toString: String = s"$begPolicy ==> $policy"
   }
 
-  object Delay {
-    def apply(policy: Policy, begPolicy: End.WithPos): Policy =
-      if (policy.isEmpty) policy else new Delay(policy, begPolicy)
-  }
-
-  class Relay(before: Policy, after: Policy)(implicit fileLine: FileLine)
+  private class Relay(before: Policy, after: Policy)(implicit fileLine: FileLine)
       extends Policy {
     override def f: Pf = before.f
     override def rank: Int = before.rank
@@ -189,7 +193,7 @@ object Policy {
     override def unexpired(split: Split, nextft: FormatToken): Policy =
       conv(_.unexpired(split, nextft))
     override def noDequeue: Boolean = before.noDequeue
-    override def toString: String = s"REL:[$fileLine]($before,$after)"
+    override def toString: String = s"REL:[$fileLine]($before ==> $after)"
 
     private def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
@@ -197,15 +201,6 @@ object Policy {
       else if (filtered eq before) this
       else new Relay(filtered, after)
     }
-  }
-
-  object Relay {
-    def apply(before: Policy, after: Policy)(implicit
-        fileLine: FileLine,
-    ): Policy =
-      if (before.isEmpty) after
-      else if (after.isEmpty) before
-      else new Relay(before, after)
   }
 
   class RelayOnSplit(
@@ -224,7 +219,7 @@ object Policy {
       else conv(_.unexpired(split, ft))
 
     override def noDequeue: Boolean = before.noDequeue
-    override def toString: String = s"REL?:[$fileLine]($before,???,$after)"
+    override def toString: String = s"REL?:[$fileLine]($before ??? $after)"
 
     private def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
@@ -338,6 +333,8 @@ object Policy {
 
     sealed trait WithPos {
       def notExpiredBy(ft: FormatToken): Boolean
+      def ==>(policy: Policy): Policy =
+        if (policy.isEmpty) NoPolicy else new Policy.Delay(policy, this)
     }
     case object After extends End {
       def apply(endPos: Int): WithPos = new End.WithPos {
@@ -358,5 +355,15 @@ object Policy {
       }
     }
   }
+
+  implicit def implicitOptionPolicyToPolicy(obj: Option[Policy]): Policy = obj
+    .getOrElse(NoPolicy)
+
+  class PolicyBoolean(private val flag: Boolean) extends AnyVal {
+    def &&(other: => Policy): Policy = if (flag) other else NoPolicy
+    def ||(other: => Policy): Policy = if (flag) NoPolicy else other
+  }
+
+  def ?(flag: Boolean) = new PolicyBoolean(flag)
 
 }

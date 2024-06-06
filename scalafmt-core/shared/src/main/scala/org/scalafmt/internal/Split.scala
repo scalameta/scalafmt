@@ -198,9 +198,6 @@ case class Split(
     ignore = ignore,
   )
 
-  def withPolicyOpt(newPolicy: => Option[Policy]): Split =
-    if (isIgnored) this else newPolicy.fold(this)(withPolicy(_))
-
   def orPolicy(newPolicy: Policy): Split =
     if (isIgnored || newPolicy.isEmpty) this
     else copy(policy = policy | newPolicy)
@@ -212,18 +209,9 @@ case class Split(
   def andPolicy(newPolicy: => Policy, ignore: Boolean): Split =
     if (ignore) this else andPolicy(newPolicy)
 
-  def andPolicyOpt(newPolicy: => Option[Policy]): Split =
-    if (isIgnored) this else newPolicy.fold(this)(andPolicy)
-
-  def andPolicyOpt(newPolicy: => Option[Policy], ignore: Boolean): Split =
-    if (ignore) this else andPolicyOpt(newPolicy)
-
   def andFirstPolicy(newPolicy: Policy): Split =
     if (isIgnored || newPolicy.isEmpty) this
     else copy(policy = newPolicy & policy)
-
-  def andFirstPolicyOpt(newPolicy: => Option[Policy]): Split =
-    if (isIgnored) this else newPolicy.fold(this)(andFirstPolicy)
 
   def withPenalty(penalty: Int): Split =
     if (isIgnored || penalty <= 0) this else copy(cost = cost + penalty)
