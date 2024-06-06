@@ -118,11 +118,7 @@ object Policy {
   )(implicit fileLine: FileLine)
       extends Clause
 
-  private class OrElse(p1: Policy, p2: Policy) extends Policy {
-    override lazy val f: Pf = p1.f.orElse(p2.f)
-
-    override def rank: Int = math.min(p1.rank, p2.rank)
-
+  abstract class WithConv extends Policy {
     override def unexpired(split: Split, nextft: FormatToken): Policy =
       conv(_.unexpired(split, nextft))
 
@@ -131,18 +127,26 @@ object Policy {
     override def switch(trigger: Token, on: Boolean): Policy =
       conv(_.switch(trigger, on))
 
+    protected def conv(pred: Policy => Policy): Policy
+  }
+
+  private class OrElse(p1: Policy, p2: Policy) extends WithConv {
+    override lazy val f: Pf = p1.f.orElse(p2.f)
+
+    override def rank: Int = math.min(p1.rank, p2.rank)
+
     override def noDequeue: Boolean = p1.noDequeue || p2.noDequeue
 
     override def toString: String = s"($p1 | $p2)"
 
-    private def conv(pred: Policy => Policy): Policy = {
+    protected def conv(pred: Policy => Policy): Policy = {
       val np1 = pred(p1)
       val np2 = pred(p2)
       if (np1.eq(p1) && np2.eq(p2)) this else np1 | np2
     }
   }
 
-  private class AndThen(p1: Policy, p2: Policy) extends Policy {
+  private class AndThen(p1: Policy, p2: Policy) extends WithConv {
     override lazy val f: Pf = { case x =>
       p2.f.applyOrElse(
         p1.f.andThen(x.withSplits _).applyOrElse(x, identity[Decision]),
@@ -152,19 +156,11 @@ object Policy {
 
     override def rank: Int = math.min(p1.rank, p2.rank)
 
-    override def unexpired(split: Split, nextft: FormatToken): Policy =
-      conv(_.unexpired(split, nextft))
-
-    override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
-
-    override def switch(trigger: Token, on: Boolean): Policy =
-      conv(_.switch(trigger, on))
-
     override def noDequeue: Boolean = p1.noDequeue || p2.noDequeue
 
     override def toString: String = s"($p1 & $p2)"
 
-    private def conv(pred: Policy => Policy): Policy = {
+    protected def conv(pred: Policy => Policy): Policy = {
       val np1 = pred(p1)
       val np2 = pred(p2)
       if (np1.eq(p1) && np2.eq(p2)) this else np1 & np2
@@ -184,18 +180,13 @@ object Policy {
   }
 
   private class Relay(before: Policy, after: Policy)(implicit fileLine: FileLine)
-      extends Policy {
+      extends WithConv {
     override def f: Pf = before.f
     override def rank: Int = before.rank
-    override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
-    override def switch(trigger: Token, on: Boolean): Policy =
-      conv(_.switch(trigger, on))
-    override def unexpired(split: Split, nextft: FormatToken): Policy =
-      conv(_.unexpired(split, nextft))
     override def noDequeue: Boolean = before.noDequeue
     override def toString: String = s"REL:[$fileLine]($before ==> $after)"
 
-    private def conv(func: Policy => Policy): Policy = {
+    protected def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
       if (filtered.isEmpty) func(after)
       else if (filtered eq before) this
@@ -208,20 +199,17 @@ object Policy {
       pred: (Split, FormatToken) => Boolean,
       after: Policy,
   )(implicit fileLine: FileLine)
-      extends Policy {
+      extends WithConv {
     override def f: Pf = before.f
     override def rank: Int = before.rank
-    override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
-    override def switch(trigger: Token, on: Boolean): Policy =
-      conv(_.switch(trigger, on))
-    override def unexpired(split: Split, ft: FormatToken): Policy =
-      if (pred(split, ft)) after.unexpired(split, ft)
-      else conv(_.unexpired(split, ft))
+    override def unexpired(split: Split, nextft: FormatToken): Policy =
+      if (pred(split, nextft)) after.unexpired(split, nextft)
+      else super.unexpired(split, nextft)
 
     override def noDequeue: Boolean = before.noDequeue
     override def toString: String = s"REL?:[$fileLine]($before ??? $after)"
 
-    private def conv(func: Policy => Policy): Policy = {
+    protected def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
       if (filtered eq before) this else new RelayOnSplit(filtered, pred, after)
     }
@@ -236,20 +224,17 @@ object Policy {
 
   class Switch(before: Policy, trigger: Token, after: Policy)(implicit
       fileLine: FileLine,
-  ) extends Policy {
+  ) extends WithConv {
     override def f: Pf = before.f
     override def rank: Int = before.rank
-    override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
     override def switch(trigger: Token, on: Boolean): Policy =
-      if (trigger ne this.trigger) conv(_.switch(trigger, on))
+      if (trigger ne this.trigger) super.switch(trigger, on)
       else if (on) before
       else after.switch(trigger, false)
-    override def unexpired(split: Split, nextft: FormatToken): Policy =
-      conv(_.unexpired(split, nextft))
     override def noDequeue: Boolean = before.noDequeue
     override def toString: String = s"SW:[$fileLine]($before,$trigger,$after)"
 
-    private def conv(func: Policy => Policy): Policy = {
+    protected def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
       if (filtered eq before) this else new Switch(filtered, trigger, after)
     }
