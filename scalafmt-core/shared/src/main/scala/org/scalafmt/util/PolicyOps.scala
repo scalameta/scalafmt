@@ -88,9 +88,8 @@ object PolicyOps {
         rank: Int = 0,
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Policy =
       policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
-        Policy.End == expire,
         new SingleLineBlock(
-          _,
+          Policy.End == expire,
           okSLC = okSLC,
           noSyntaxNL = noSyntaxNL,
           rank = rank,
@@ -142,14 +141,10 @@ object PolicyOps {
       exclude: TokenRanges,
       endLt: T => Policy.End.WithPos,
       endRt: T => Policy.End.WithPos,
-  )(expire: Policy.End.WithPos, policyFunc: Policy.End.WithPos => Policy)(
-      implicit fileLine: FileLine,
-  ): Policy = {
-    val lastPolicy = policyFunc(expire)
-    exclude.ranges.foldLeft(lastPolicy) { case (policy, range) =>
-      policyFunc(endLt(range.lt)) ==> (endRt(range.rt) ==> policy)
+  )(lastPolicy: Policy)(implicit fileLine: FileLine): Policy = exclude.ranges
+    .foldLeft(lastPolicy) { case (policy, range) =>
+      (lastPolicy <== endLt(range.lt)) ==> (endRt(range.rt) ==> policy)
     }
-  }
 
   def delayedBreakPolicy(end: Policy.End.WithPos)(
       onBreakPolicy: Policy,
