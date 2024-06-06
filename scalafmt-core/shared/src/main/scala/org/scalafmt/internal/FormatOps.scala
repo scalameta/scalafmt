@@ -2680,6 +2680,47 @@ class FormatOps(
       } else ftBeforeClose.right
     } else ftBeforeClose.right
 
+  object BinPackOneline {
+
+    private def policyOnRightDelim(
+        ft: FormatToken,
+        exclude: TokenRanges,
+    ): Policy = {
+      def policyBefore(token: T): Policy = {
+        val policy = decideNewlinesOnlyBeforeToken(token)
+        val beforeDelimsEnd = prevNonComment(ft).left.end
+        // force break if multiline and if there's no other break
+        delayedBreakPolicy(Policy.End == beforeDelimsEnd, exclude)(
+          Policy.RelayOnSplit { case (s, nextft) =>
+            s.isNL && nextft.right.end > beforeDelimsEnd // don't need anymore
+          }(policy, NoPolicy),
+        )
+      }
+
+      val endCall = ft.meta.rightOwner.parent.flatMap(followedBySelectOrApply)
+      endCall.fold(Policy.noPolicy) { x =>
+        val beforeNext = nextNonCommentSameLine(getLastNonTrivial(x))
+        beforeNext.right match {
+          case c: T.Dot => policyBefore(c)
+          case LeftParenOrBracket() =>
+            nextNonCommentSameLineAfter(beforeNext).right match {
+              case _: T.Comment => NoPolicy
+              case c => policyBefore(c)
+            }
+          case _ => NoPolicy
+        }
+      }
+    }
+
+    def getPolicy(isCallSite: Boolean, exclude: TokenRanges)(
+        afterArg: FormatToken,
+    )(implicit fileLine: FileLine): Policy = afterArg.right match {
+      case c: T.Comma => splitOneArgPerLineAfterCommaOnBreak(exclude)(c)
+      case _: T.CloseDelim if isCallSite => policyOnRightDelim(afterArg, exclude)
+      case _ => NoPolicy
+    }
+  }
+
 }
 
 object FormatOps {
