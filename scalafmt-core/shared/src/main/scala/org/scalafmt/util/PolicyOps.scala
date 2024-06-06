@@ -46,15 +46,13 @@ object PolicyOps {
 
   def penalizeNewlineByNesting(from: T, to: T)(implicit
       fileLine: FileLine,
-  ): Policy = {
-    val policy = Policy.before(to) { case Decision(FormatToken(l, _, m), s) =>
+  ): Policy = Policy.End < from ==>
+    Policy.before(to) { case Decision(FormatToken(l, _, m), s) =>
       val nonBoolPenalty = if (TokenOps.isBoolOperator(l)) 0 else 5
       val penalty = TreeOps.nestedSelect(m.leftOwner) +
         TreeOps.nestedApplies(m.rightOwner) + nonBoolPenalty
       s.map(x => if (x.isNL) x.withPenalty(penalty) else x)
     }
-    new Policy.Delay(policy, Policy.End < from)
-  }
 
   /** Forces all splits up to including expire to be on a single line.
     * @param okSLC
@@ -149,18 +147,16 @@ object PolicyOps {
   ): Policy = {
     val lastPolicy = policyFunc(expire)
     exclude.ranges.foldLeft(lastPolicy) { case (policy, range) =>
-      new Policy.Relay(
-        policyFunc(endLt(range.lt)),
-        new Policy.Delay(policy, endRt(range.rt)),
-      )
+      policyFunc(endLt(range.lt)) ==> (endRt(range.rt) ==> policy)
     }
   }
 
-  def delayedBreakPolicy(end: Policy.End.WithPos)(onBreakPolicy: Policy)(
-      implicit fileLine: FileLine,
-  ): Policy = new Policy.Map(endPolicy = end, desc = onBreakPolicy.toString)({
-    s => if (s.isNL) s.orPolicy(onBreakPolicy) else s
-  })
+  def delayedBreakPolicy(end: Policy.End.WithPos)(
+      onBreakPolicy: Policy,
+  )(implicit fileLine: FileLine): Policy = Policy ? onBreakPolicy.isEmpty ||
+    new Policy.Map(endPolicy = end, desc = onBreakPolicy.toString)({ s =>
+      if (s.isNL) s.orPolicy(onBreakPolicy) else s
+    })
 
   def delayedBreakPolicyBefore(token: T)(onBreakPolicy: Policy)(implicit
       fileLine: FileLine,
@@ -214,7 +210,7 @@ object PolicyOps {
               .map(_.switch(trigger, false))
         }
       }
-      Policy.Relay(policy, triggerUnindent & cancelUnindent)
+      policy ==> triggerUnindent & cancelUnindent
     }
 
 }
