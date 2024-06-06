@@ -968,9 +968,8 @@ class Router(formatOps: FormatOps) {
             val penalty =
               if (!multipleArgs) newlinePenalty else Constants.ShouldBeNewline
             policyWithExclude(excludeBlocks, Policy.End.On, Policy.End.On)(
-              Policy.End < close,
-              new PenalizeAllNewlines(
-                _,
+              PenalizeAllNewlines(
+                close,
                 penalty = penalty,
                 penalizeLambdas = multipleArgs,
                 noSyntaxNL = multipleArgs,
@@ -1179,10 +1178,10 @@ class Router(formatOps: FormatOps) {
         val exclude =
           if (!isBracket) insideBracesBlock(ft, close)
           else insideBlock[T.LeftBracket](ft, close)
+        val newlinesPenalty = 3 + indentLen * bracketPenalty
         val penalizeNewlinesPolicy =
           policyWithExclude(exclude, Policy.End.Before, Policy.End.On)(
-            Policy.End == close,
-            new PenalizeAllNewlines(_, 3 + indentLen * bracketPenalty),
+            new PenalizeAllNewlines(Policy.End == close, newlinesPenalty),
           )
 
         def baseNoSplit(implicit fileLine: FileLine) =
@@ -2509,8 +2508,7 @@ class Router(formatOps: FormatOps) {
       .withOptimalToken(optimal).withPolicy {
         val exclude = insideBracesBlock(ft, expire)
         policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
-          Policy.End < expire,
-          new PenalizeAllNewlines(_, Constants.ShouldBeSingleLine),
+          PenalizeAllNewlines(expire, Constants.ShouldBeSingleLine),
         )
       }
     val spaceSplit = body match {

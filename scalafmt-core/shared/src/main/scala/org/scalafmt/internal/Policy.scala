@@ -26,6 +26,7 @@ abstract class Policy {
     if (other.isEmpty) this else new Policy.OrElse(this, other)
   def ==>(other: Policy)(implicit fileLine: FileLine): Policy =
     if (other.isEmpty) this else new Policy.Relay(this, other)
+  def <==(other: Policy.End.WithPos): Policy = new Policy.Expire(this, other)
   def ?(flag: Boolean): Policy = if (flag) this else Policy.NoPolicy
 
   @inline
@@ -59,6 +60,7 @@ object Policy {
     override def |(other: Policy): Policy = other
     override def &(other: Policy): Policy = other
     override def ==>(other: Policy)(implicit fileLine: FileLine): Policy = other
+    override def <==(other: Policy.End.WithPos): Policy = this
     override def ?(flag: Boolean): Policy = this
 
     override def rank: Int = 0
@@ -164,6 +166,26 @@ object Policy {
       val np1 = pred(p1)
       val np2 = pred(p2)
       if (np1.eq(p1) && np2.eq(p2)) this else np1 & np2
+    }
+  }
+
+  private class Expire(policy: Policy, endPolicy: End.WithPos)
+      extends WithConv {
+    override def f: Pf = policy.f
+    override def rank: Int = policy.rank
+    override def switch(trigger: Token, on: Boolean): Policy = {
+      val res = policy.switch(trigger, on)
+      if (res eq policy) this else res
+    }
+    override def unexpired(split: Split, nextft: FormatToken): Policy =
+      if (!endPolicy.notExpiredBy(nextft)) NoPolicy
+      else super.unexpired(split, nextft)
+    override def noDequeue: Boolean = policy.noDequeue
+    override def toString: String = s"$policy <== $endPolicy"
+
+    protected def conv(func: Policy => Policy): Policy = {
+      val filtered = func(policy)
+      if (filtered eq policy) this else filtered <== endPolicy
     }
   }
 
