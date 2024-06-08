@@ -2682,13 +2682,33 @@ class FormatOps(
 
   object BinPackOneline {
 
+    private def noRighDelim(
+        xtok: Token,
+        xft: FormatToken,
+    ): Option[FormatToken] = xtok match {
+      case _: T.CloseDelim => None
+      case _: T.Comma => Some(null) // trailing comma, has NL
+      case _: T.Comment => if (xft.noBreak) None else Some(null)
+      case _ => Some(xft)
+    }
+
     private def policyOnRightDelim(
         ft: FormatToken,
         exclude: TokenRanges,
     ): Policy = {
+      val beforeDelims = findTokenWith(ft, prev) { xft =>
+        noRighDelim(xft.left, xft)
+      }.merge
+      if (beforeDelims eq null) return NoPolicy
+
+      val afterDelims = findTokenWith(ft, next) { xft =>
+        noRighDelim(xft.right, xft)
+      }.merge
+      if (afterDelims eq null) return NoPolicy
+
       def policyBefore(token: T): Policy = {
         val policy = decideNewlinesOnlyBeforeToken(token)
-        val beforeDelimsEnd = prevNonComment(ft).left.end
+        val beforeDelimsEnd = beforeDelims.right.end
         // force break if multiline and if there's no other break
         delayedBreakPolicy(Policy.End == beforeDelimsEnd, exclude)(
           Policy.RelayOnSplit { case (s, nextft) =>
@@ -2697,25 +2717,23 @@ class FormatOps(
         )
       }
 
-      val endCall = ft.meta.rightOwner.parent.flatMap(followedBySelectOrApply)
-      endCall.fold(Policy.noPolicy) { x =>
-        val beforeNext = nextNonCommentSameLine(getLastNonTrivial(x))
-        beforeNext.right match {
-          case c: T.Dot => policyBefore(c)
-          case LeftParenOrBracket() =>
-            nextNonCommentSameLineAfter(beforeNext).right match {
-              case _: T.Comment => NoPolicy
-              case c => policyBefore(c)
-            }
-          case _ => NoPolicy
-        }
+      afterDelims.right match {
+        case c: T.Dot => policyBefore(c)
+        case LeftParenOrBracket() =>
+          nextNonCommentSameLineAfter(afterDelims).right match {
+            case _: T.Comment => NoPolicy
+            case c => policyBefore(c)
+          }
+        case _ => NoPolicy
       }
     }
 
     def getPolicy(isCallSite: Boolean, exclude: TokenRanges)(
         afterArg: FormatToken,
     )(implicit fileLine: FileLine): Policy = afterArg.right match {
-      case c: T.Comma => splitOneArgPerLineAfterCommaOnBreak(exclude)(c)
+      case c: T.Comma // check for trailing comma, which needs no breaks
+          if !nextNonCommentAfter(afterArg).right.is[T.CloseDelim] =>
+        splitOneArgPerLineAfterCommaOnBreak(exclude)(c)
       case _: T.CloseDelim if isCallSite => policyOnRightDelim(afterArg, exclude)
       case _ => NoPolicy
     }
