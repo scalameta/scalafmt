@@ -67,6 +67,14 @@ case class BinPack(
   def defnSiteFor(owner: Tree): BinPack.Site =
     defnSiteFor(owner.is[Type.ParamClause])
 
+  def siteFor(owner: Tree): Option[(BinPack.Site, Boolean)] = owner match {
+    case _: Type.Tuple | _: Type.FuncParamClause | _: Member.ParamClause =>
+      Some(defnSiteFor(owner) -> false)
+    case _: Member.ArgClause | _: Member.Tuple =>
+      Some(callSiteFor(owner) -> true)
+    case _ => None
+  }
+
 }
 
 object BinPack {
