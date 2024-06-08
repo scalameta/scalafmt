@@ -2695,19 +2695,48 @@ class FormatOps(
     private def policyOnRightDelim(
         ft: FormatToken,
         exclude: TokenRanges,
-    ): Policy = {
+    ): (Option[T], Policy) = {
       val beforeDelims = findTokenWith(ft, prev) { xft =>
         noRighDelim(xft.left, xft)
       }.merge
-      if (beforeDelims eq null) return NoPolicy
+      if (beforeDelims eq null) return (None, NoPolicy)
 
       val afterDelims = findTokenWith(ft, next) { xft =>
         noRighDelim(xft.right, xft)
       }.merge
-      if (afterDelims eq null) return NoPolicy
+      if (afterDelims eq null) return (None, NoPolicy)
 
-      def policyBefore(token: T): Policy = {
-        val policy = decideNewlinesOnlyBeforeToken(token)
+      def closeBreakPolicy() = {
+        @tailrec
+        def iter(currft: FormatToken): Option[Policy] = {
+          val prevft = prevNonComment(currft)
+          val tok = prevft.left
+          val breakBeforeClose = matchingOpt(tok) match {
+            case Some(open) =>
+              val cfg = styleMap.at(open)
+              def cfgStyle = cfg.configStyleCallSite.prefer
+              def dangle = cfg.danglingParentheses
+                .atCallSite(prevft.meta.leftOwner)
+              cfg.newlines.source match {
+                case Newlines.unfold => true
+                case Newlines.fold => cfgStyle ||
+                  !cfg.binPack.indentCallSiteOnce
+                case _ => !cfgStyle || dangle || prev(prevft).hasBreak
+              }
+            case _ => false
+          }
+          if (breakBeforeClose) Some(decideNewlinesOnlyBeforeClose(tok))
+          else if (prevft eq beforeDelims) None
+          else iter(prev(prevft))
+        }
+
+        iter(afterDelims)
+      }
+
+      def policyBefore(token: T, mayBreakBeforeToken: Boolean) = {
+        if (mayBreakBeforeToken) Some(decideNewlinesOnlyBeforeToken(token))
+        else closeBreakPolicy()
+      }.fold(Policy.noPolicy) { policy =>
         val beforeDelimsEnd = beforeDelims.right.end
         // force break if multiline and if there's no other break
         delayedBreakPolicy(Policy.End == beforeDelimsEnd, exclude)(
@@ -2718,24 +2747,40 @@ class FormatOps(
       }
 
       afterDelims.right match {
-        case c: T.Dot => policyBefore(c)
-        case LeftParenOrBracket() =>
-          nextNonCommentSameLineAfter(afterDelims).right match {
-            case _: T.Comment => NoPolicy
-            case c => policyBefore(c)
+        case c: T.Dot => // check if Dot rule includes a break option
+          val ro = afterDelims.meta.rightOwner
+          val ok = GetSelectLike.onRightOpt(ro, afterDelims).exists { x =>
+            implicit val cfg = styleMap.at(afterDelims)
+            (cfg.newlines.getSelectChains ne Newlines.classic) || {
+              val (expireTree, nextSelect) =
+                findLastApplyAndNextSelect(ro, cfg.encloseSelectChains)
+              canStartSelectChain(x, nextSelect, expireTree)
+            }
           }
-        case _ => NoPolicy
+          (Some(c), policyBefore(c, ok))
+        case x @ LeftParenOrBracket() =>
+          nextNonCommentSameLineAfter(afterDelims).right match {
+            case _: T.Comment => (None, NoPolicy)
+            case c => // check if break would cause cfg style but not otherwise
+              val cfg = styleMap.at(x)
+              val ok = cfg.newlines.sourceIgnored || ! {
+                cfg.configStyleCallSite.prefer &&
+                cfg.danglingParentheses.atCallSite(afterDelims.meta.rightOwner)
+              } || next(afterDelims).hasBreak
+              (Some(c), policyBefore(c, ok))
+          }
+        case _ => (None, NoPolicy)
       }
     }
 
     def getPolicy(isCallSite: Boolean, exclude: TokenRanges)(
         afterArg: FormatToken,
-    )(implicit fileLine: FileLine): Policy = afterArg.right match {
+    )(implicit fileLine: FileLine): (Option[T], Policy) = afterArg.right match {
       case c: T.Comma // check for trailing comma, which needs no breaks
           if !nextNonCommentAfter(afterArg).right.is[T.CloseDelim] =>
-        splitOneArgPerLineAfterCommaOnBreak(exclude)(c)
+        (None, splitOneArgPerLineAfterCommaOnBreak(exclude)(c))
       case _: T.CloseDelim if isCallSite => policyOnRightDelim(afterArg, exclude)
-      case _ => NoPolicy
+      case _ => (None, NoPolicy)
     }
   }
 

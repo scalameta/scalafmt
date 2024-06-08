@@ -1164,13 +1164,8 @@ class Router(formatOps: FormatOps) {
 
         val binPack = style.binPack.callSiteFor(open)
         val oneline = binPack.isOneline
-        val nextCommaOneline =
-          if (!oneline || isSingleArg) None
-          else firstArg.map(getLast).flatMap(findComma)
-
-        val noNextCommaOneline = oneline && nextCommaOneline.isEmpty
-        val noNextCommaOnelineCurried = noNextCommaOneline &&
-          leftOwner.parent.exists(followedBySelectOrApply(_).isDefined)
+        val afterFirstArgOneline =
+          if (oneline) firstArg.map(tokenAfter) else None
 
         val indentLen = style.indent.callSite
         val indent = Indent(Num(indentLen), close, Before)
@@ -1181,30 +1176,30 @@ class Router(formatOps: FormatOps) {
         val sjsOneline = !isBracket && binPack == BinPack.Site.OnelineSjs
         val sjsExclude = exclude.getIf(sjsOneline)
 
-        val nextCommaOnelinePolicy = nextCommaOneline
-          .map(splitOneArgPerLineAfterCommaOnBreak(sjsExclude))
         val newlinesPenalty = 3 + indentLen * bracketPenalty
         val penalizeNewlinesPolicy =
           policyWithExclude(exclude, Policy.End.Before, Policy.End.On)(
             new PenalizeAllNewlines(Policy.End == close, newlinesPenalty),
           )
 
+        val (onelineCurryToken, onelinePolicy) = afterFirstArgOneline
+          .map(BinPackOneline.getPolicy(true, sjsExclude))
+          .getOrElse((None, NoPolicy))
+
         def baseNoSplit(implicit fileLine: FileLine) =
           Split(Space(style.spaces.inParentheses), 0)
         val noNLPolicy = flags.noNLPolicy
-        val slbOrNL = nlOnly || singleLineOnly || noNLPolicy == null ||
-          noNextCommaOnelineCurried
 
         val noSplit =
           if (nlOnly) Split.ignored
-          else if (slbOrNL) baseNoSplit
+          else if (singleLineOnly || noNLPolicy == null) baseNoSplit
             .withSingleLine(close, sjsExclude, noSyntaxNL = true)
           else {
-            def okSingleArgsIndents = singleArgAsInfix.isEmpty &&
-              !noNextCommaOneline && style.binPack.indentCallSiteSingleArg &&
-              (isBracket || getAssignAtSingleArgCallSite(args).isEmpty)
+            def noSingleArgIndents = oneline || singleArgAsInfix.isDefined ||
+              !style.binPack.indentCallSiteSingleArg ||
+              !isBracket && getAssignAtSingleArgCallSite(args).isDefined
             val noSplitIndents =
-              if (isSingleArg && !okSingleArgsIndents) Nil
+              if (isSingleArg && noSingleArgIndents) Nil
               else if (style.binPack.indentCallSiteOnce) {
                 @tailrec
                 def iter(tree: Tree): Option[T] = tree.parent match {
@@ -1218,20 +1213,18 @@ class Router(formatOps: FormatOps) {
                 getOpenParenAlignIndents(close)
               else Seq(indent)
 
-            def optClose = scalaJsOptClose(beforeClose, flags)
-            val opt = if (oneline) nextCommaOneline else findComma(ft)
+            val nextComma =
+              if (!oneline) findComma(ft)
+              else if (isSingleArg) None
+              else afterFirstArgOneline.map(_.right)
+            val opt = nextComma.getOrElse(scalaJsOptClose(beforeClose, flags))
 
-            val noSplitPolicy = nextCommaOnelinePolicy
-              .fold(penalizeNewlinesPolicy) { p =>
-                if (noSplitIndents.exists(_.hasStateColumn)) p &
-                  penalizeNewlinesPolicy
-                else {
-                  val end = nextCommaOneline.getOrElse(close)
-                  val slbPolicy =
-                    SingleLineBlock(end, noSyntaxNL = true, exclude = sjsExclude)
-                  slbPolicy ==> penalizeNewlinesPolicy
-                }
-              }
+            val slbArg = oneline && !noSplitIndents.exists(_.hasStateColumn)
+            val slbPolicy: Policy = (if (slbArg) nextComma else None).map {
+              SingleLineBlock(_, noSyntaxNL = true, exclude = sjsExclude)
+            }
+            val noSplitPolicy = slbPolicy ==> onelinePolicy &
+              penalizeNewlinesPolicy
             val indentPolicy = Policy ? noSplitIndents.isEmpty || {
               def unindentPolicy = Policy ? (isSingleArg || sjsOneline) &&
                 unindentAtExclude(exclude, Num(-indentLen))
@@ -1246,7 +1239,7 @@ class Router(formatOps: FormatOps) {
                 }
               unindentPolicy & indentOncePolicy
             }
-            baseNoSplit.withOptimalToken(opt.getOrElse(optClose))
+            baseNoSplit.withOptimalToken(opt)
               .withPolicy(noSplitPolicy & indentPolicy & noNLPolicy())
               .withIndents(noSplitIndents)
           }
@@ -1254,15 +1247,18 @@ class Router(formatOps: FormatOps) {
         val nlPolicy: Policy = {
           def newlineBeforeClose(implicit fileLine: FileLine) =
             decideNewlinesOnlyBeforeClose(close)
+          val nlClosedOnOpenOk = onelineCurryToken.forall(x =>
+            if (x.is[T.Dot]) onelinePolicy.nonEmpty else flags.scalaJsStyle,
+          )
           val nlClosedOnOpenEffective =
-            if (!noNextCommaOnelineCurried) nlCloseOnOpen
+            if (nlClosedOnOpenOk) nlCloseOnOpen
             else if (clauseSiteFlags.configStyle.prefer) NlClosedOnOpen.Cfg
             else NlClosedOnOpen.Yes
           nlClosedOnOpenEffective match {
-            case NlClosedOnOpen.No => nextCommaOnelinePolicy
+            case NlClosedOnOpen.No => onelinePolicy
             case NlClosedOnOpen.Cfg if !styleMap.forcedBinPack(leftOwner) =>
               splitOneArgOneLine(close, leftOwner) ==> newlineBeforeClose
-            case _ => newlineBeforeClose & nextCommaOnelinePolicy
+            case _ => newlineBeforeClose & onelinePolicy
           }
         }
 
@@ -1430,9 +1426,9 @@ class Router(formatOps: FormatOps) {
             val sjsExclude =
               if (binPack ne BinPack.Site.OnelineSjs) TokenRanges.empty
               else insideBracesBlock(ft, lastTok)
-            val nlPolicy = Policy ? oneline &&
+            val onelinePolicy = Policy ? oneline &&
               nextCommaOrParen
-                .map(BinPackOneline.getPolicy(callSite, sjsExclude))
+                .map(BinPackOneline.getPolicy(callSite, sjsExclude)(_)._2)
 
             val indentOncePolicy = Policy ?
               (callSite && style.binPack.indentCallSiteOnce) && {
@@ -1443,15 +1439,18 @@ class Router(formatOps: FormatOps) {
                     s.map(x => if (x.isNL) x else x.switch(trigger, true))
                 }
               }
-            val nlSplit = Split(Newline, 1, policy = nlPolicy & indentOncePolicy)
+            val nlSplit =
+              Split(Newline, 1, policy = onelinePolicy & indentOncePolicy)
             val noSplit =
               if (style.newlines.keepBreak(newlines)) Split.ignored
               else {
                 val end = endOfSingleLineBlock(
                   nextCommaOrParen.flatMap(getEndOfResultType).getOrElse(lastFT),
                 )
-                Split(Space, 0)
-                  .withSingleLine(end, noSyntaxNL = true, exclude = sjsExclude)
+                val slbPolicy =
+                  SingleLineBlock(end, exclude = sjsExclude, noSyntaxNL = true)
+                Split(Space, 0, policy = slbPolicy ==> onelinePolicy)
+                  .withOptimalToken(end)
               }
             Seq(noSplit, nlSplit)
           }

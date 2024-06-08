@@ -777,22 +777,6 @@ object TreeOps {
     if (groups.isEmpty) None else Some(groups)
   }
 
-  @tailrec
-  final def followedBySelectOrApply(
-      tree: Tree,
-  )(implicit ftoks: FormatTokens): Option[Tree] = tree.parent match {
-    case Some(p: Term.New) => followedBySelectOrApply(p)
-    case Some(p: Term.Select) if p.qual eq tree => Some(tree)
-    case Some(p: Member.Infix) =>
-      if (p.lhs eq tree) Some(tree) else followedBySelectOrApply(p)
-    case Some(p: Member.Apply) if p.fun eq tree =>
-      p.argClause match {
-        case SingleArgInBraces(_) => None
-        case _ => Some(tree)
-      }
-    case _ => None
-  }
-
   // Scala syntax allows commas before right braces in weird places,
   // like constructor bodies:
   // def this() = {

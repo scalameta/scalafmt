@@ -297,10 +297,9 @@ object a {
 }
 >>>
 object a {
-  new SimpleMethodName(
-      new SimpleMethodName(new SimpleMethodName(
-          validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
-  ).foo
+  new SimpleMethodName(new SimpleMethodName(new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)
+  ))).foo
 }
 <<< binpack=oneline, nested, inner with multiple args
 maxColumn = 72
@@ -360,8 +359,8 @@ object a {
     case Apply(appMeth,
             Apply(wrapRefArrayMeth,
                 StripCast(
-                    arg @ ArrayValue(elemtpt, elems)
-                ) :: Nil) :: classTagEvidence :: Nil)
+                    arg @ ArrayValue(elemtpt,
+                        elems)) :: Nil) :: classTagEvidence :: Nil)
         if WrapArray.isClassTagBasedWrapArrayMethod(wrapRefArrayMeth.symbol) &&
           appMeth.symbol == ArrayModule_genericApply =>
       bar
@@ -406,8 +405,7 @@ object a {
   Apply(appMeth,
       Apply(wrapRefArrayMeth,
           StripCast(
-              ArrayValue(elemtpt, elems)
-          ) :: Nil) :: classTagEvidence :: Nil)
+              ArrayValue(elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
 }
 <<< binpack=always, with infix
 maxColumn = 80
@@ -1152,7 +1150,6 @@ object a {
 >>>
 object a {
   argss.tail.foldLeft(
-    global.NewFromConstructor(ctor, argss.head: _*)
-  )(
+    global.NewFromConstructor(ctor, argss.head: _*))(
     Apply(_, _))
 }
