@@ -1391,30 +1391,23 @@ class Router(formatOps: FormatOps) {
         ) Seq(Split(Space, 0), Split(Newline, 1))
         else Seq(Split(Newline, 0))
       case FormatToken(_: T.Comma, right, _) if !leftOwner.is[Template] =>
-        val splitsOpt = argumentStarts.get(ft.meta.idx).flatMap { nextArg =>
-          val callSite = isArgClauseSite(leftOwner)
-          val binPack =
-            if (callSite) style.binPack.callSiteFor(leftOwner)
-            else if (isParamClauseSite(leftOwner)) style.binPack
-              .defnSiteFor(leftOwner)
-            else BinPack.Site.Never
+        def forBinPack(binPack: BinPack.Site, callSite: Boolean) =
           if (binPack eq BinPack.Site.Never) None
-          else Some {
+          else argumentStarts.get(ft.meta.idx).map { nextArg =>
             val lastFT = getLast(nextArg)
             val lastTok = lastFT.left
-            val loEnd = leftOwner.tokens.last.end
             val oneline = binPack == BinPack.Site.Oneline
-            val nextCommaOrParen = findFirst(lastFT, loEnd) {
-              case FormatToken(_, _: T.Comma, _) => true
-              case FormatToken(_, RightParenOrBracket(), _) => true
-              case _ => false
+            val afterNextArg = nextNonComment(lastFT)
+            val nextCommaOrParen = afterNextArg.right match {
+              case _: T.Comma | _: T.RightParen | _: T.RightBracket =>
+                Some(afterNextArg)
+              case _ => None
             }
-            def optFT = nextCommaOrParen.fold(lastFT) { cp =>
-              if (cp.right.is[T.Comma]) if (oneline) cp else lastFT
-              else if (
-                !style.newlines.avoidInResultType ||
+            def getEndOfResultType(cp: FormatToken) =
+              if (
+                cp.right.is[T.Comma] || !style.newlines.avoidInResultType ||
                 style.newlines.sometimesBeforeColonInMethodReturnType
-              ) lastFT
+              ) None
               else {
                 val nft = findToken(next(cp), next) { x =>
                   x.right match {
@@ -1424,10 +1417,9 @@ class Router(formatOps: FormatOps) {
                   }
                 }
                 if (nft.right.is[T.Colon]) colonDeclType(nft.meta.rightOwner)
-                  .flatMap(getLastNonTrivialOpt).getOrElse(lastFT) // could be empty tree
-                else lastFT
+                  .flatMap(getLastNonTrivialOpt) // could be empty tree
+                else None
               }
-            }
 
             val nlPolicy = Policy ? oneline && nextCommaOrParen.map {
               case FormatToken(_, t: T.Comma, _) =>
@@ -1472,29 +1464,40 @@ class Router(formatOps: FormatOps) {
             val noSplit =
               if (style.newlines.keepBreak(newlines)) Split.ignored
               else {
-                val end = endOfSingleLineBlock(optFT)
+                val end = endOfSingleLineBlock(
+                  nextCommaOrParen.flatMap(getEndOfResultType).getOrElse(lastFT),
+                )
                 Split(Space, 0).withSingleLine(end, noSyntaxNL = true)
               }
             Seq(noSplit, nlSplit)
           }
-        }
+
+        def defaultSplits(implicit fileLine: FileLine) =
+          Seq(Split(Space, 0), Split(Newline, 1))
+
         def altSplits = leftOwner match {
-          case _: Defn.Val | _: Defn.Var =>
-            val indent = style.indent.getDefnSite(leftOwner)
-            Seq(
+          case _: Defn.Val | _: Defn.Var => Seq(
               Split(Space, 0),
-              Split(Newline, 1).withIndent(indent, right, After),
+              Split(Newline, 1)
+                .withIndent(style.indent.getDefnSite(leftOwner), right, After),
             )
           case _: Defn.RepeatedEnumCase if {
                 if (!style.newlines.sourceIgnored) hasBreak()
                 else style.newlines.source eq Newlines.unfold
               } => Seq(Split(Newline, 0))
-          case _: ImportExportStat =>
-            val indent = Indent(style.indent.main, right, ExpiresOn.After)
-            Seq(Split(Space, 0), Split(Newline, 1).withIndent(indent))
-          case _ => Seq(Split(Space, 0), Split(Newline, 1))
+          case _: ImportExportStat => Seq(
+              Split(Space, 0),
+              Split(Newline, 1)
+                .withIndent(style.indent.main, right, ExpiresOn.After),
+            )
+          case _ => defaultSplits
         }
-        splitsOpt.getOrElse(altSplits)
+
+        style.binPack.siteFor(leftOwner).fold(altSplits) {
+          case (bp, isCallSite) => forBinPack(bp, isCallSite)
+              .getOrElse(defaultSplits)
+        }
+
       case FormatToken(_, T.Semicolon(), _) => Seq(Split(NoSplit, 0))
       case FormatToken(_: T.KwReturn, _, _) =>
         val mod =
