@@ -1056,10 +1056,9 @@ object a {
 }
 >>>
 object a {
-  js.MethodDef(flags, methodIdent, originalName, jsParams, resultType,
-      Some {
-        genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
-      })(OptimizerHints.empty, Unversioned)
+  js.MethodDef(flags, methodIdent, originalName, jsParams, resultType, Some {
+    genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
+  })(OptimizerHints.empty, Unversioned)
 }
 <<< multi-nested with onelineSjs, keep, and mixed paren-brace args
 preset = default

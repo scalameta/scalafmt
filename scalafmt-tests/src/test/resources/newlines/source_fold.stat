@@ -2737,8 +2737,8 @@ object a {
 >>>
 object a {
   assert(fastOptFile.get(scalaJSSourceMap).exists {
-      _.getPath == fastOptFile.data.getPath + ".map"
-    }, "fastOptJS does not have the correct scalaJSSourceMap attribute").foo
+    _.getPath == fastOptFile.data.getPath + ".map"
+  }, "fastOptJS does not have the correct scalaJSSourceMap attribute").foo
 }
 <<< binPack with named parameter values, danglingParentheses
 binPack.preset = true

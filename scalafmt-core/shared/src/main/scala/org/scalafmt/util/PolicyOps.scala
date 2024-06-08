@@ -146,20 +146,22 @@ object PolicyOps {
       (lastPolicy <== endLt(range.lt)) ==> (endRt(range.rt) ==> policy)
     }
 
-  def delayedBreakPolicy(end: Policy.End.WithPos)(
-      onBreakPolicy: Policy,
-  )(implicit fileLine: FileLine): Policy = Policy ? onBreakPolicy.isEmpty ||
-    new Policy.Map(endPolicy = end, desc = onBreakPolicy.toString)({ s =>
-      if (s.isNL) s.orPolicy(onBreakPolicy) else s
-    })
+  def delayedBreakPolicy(
+      end: => Policy.End.WithPos,
+      exclude: TokenRanges = TokenRanges.empty,
+  )(onBreakPolicy: Policy)(implicit fileLine: FileLine): Policy =
+    Policy ? onBreakPolicy.isEmpty ||
+      policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
+        new Policy.Map(end, desc = onBreakPolicy.toString)({ s =>
+          if (s.isNL) s.orPolicy(onBreakPolicy) else s
+        }),
+      )
 
-  def delayedBreakPolicyBefore(token: T)(onBreakPolicy: Policy)(implicit
-      fileLine: FileLine,
-  ): Policy = delayedBreakPolicy(Policy.End < token)(onBreakPolicy)
+  def delayedBreakPolicyBefore(token: T)(onBreakPolicy: Policy): Policy =
+    delayedBreakPolicy(Policy.End < token)(onBreakPolicy)
 
-  def delayedBreakPolicyFor(token: T)(f: T => Policy)(implicit
-      fileLine: FileLine,
-  ): Policy = delayedBreakPolicyBefore(token)(f(token))
+  def delayedBreakPolicyFor(token: T)(f: T => Policy): Policy =
+    delayedBreakPolicyBefore(token)(f(token))
 
   def decideNewlinesOnlyBeforeClose(close: T)(implicit
       fileLine: FileLine,

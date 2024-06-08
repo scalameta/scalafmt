@@ -10,6 +10,11 @@ class TokenRange private (val lt: Token, val rt: Token) {
 
 class TokenRanges private (val ranges: Seq[TokenRange]) extends AnyVal {
 
+  @inline
+  def isEmpty: Boolean = ranges.isEmpty
+  @inline
+  def getIf(flag: Boolean): TokenRanges = if (flag) this else TokenRanges.empty
+
   def append(range: TokenRange): TokenRanges = {
     ranges.headOption.foreach(range.validateAfter)
     new TokenRanges(range +: ranges)
