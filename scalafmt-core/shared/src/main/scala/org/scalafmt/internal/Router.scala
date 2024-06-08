@@ -1082,7 +1082,7 @@ class Router(formatOps: FormatOps) {
 
           val nextCommaOneline = argumentStarts.get(ft.meta.idx).flatMap { x =>
             val noNeed = isSeqSingle(getArgs(leftOwner)) ||
-              style.binPack.defnSiteFor(isBracket) != BinPack.Site.Oneline
+              !style.binPack.defnSiteFor(isBracket).isOneline
             if (noNeed) None else findFirstOnRight[T.Comma](getLast(x), close)
           }
 
@@ -1162,12 +1162,11 @@ class Router(formatOps: FormatOps) {
         def findComma(ft: FormatToken) = findFirstOnRight[T.Comma](ft, close)
           .map(_.right)
 
-        val oneline = style.binPack.callSiteFor(open) == BinPack.Site.Oneline
+        val binPack = style.binPack.callSiteFor(open)
+        val oneline = binPack.isOneline
         val nextCommaOneline =
           if (!oneline || isSingleArg) None
           else firstArg.map(getLast).flatMap(findComma)
-        val nextCommaOnelinePolicy = nextCommaOneline
-          .map(splitOneArgPerLineAfterCommaOnBreak)
 
         val noNextCommaOneline = oneline && nextCommaOneline.isEmpty
         val noNextCommaOnelineCurried = noNextCommaOneline &&
@@ -1179,6 +1178,11 @@ class Router(formatOps: FormatOps) {
         val exclude =
           if (!isBracket) insideBracesBlock(ft, close)
           else insideBlock[T.LeftBracket](ft, close)
+        val sjsOneline = !isBracket && binPack == BinPack.Site.OnelineSjs
+        val sjsExclude = exclude.getIf(sjsOneline)
+
+        val nextCommaOnelinePolicy = nextCommaOneline
+          .map(splitOneArgPerLineAfterCommaOnBreak(sjsExclude))
         val newlinesPenalty = 3 + indentLen * bracketPenalty
         val penalizeNewlinesPolicy =
           policyWithExclude(exclude, Policy.End.Before, Policy.End.On)(
@@ -1193,7 +1197,8 @@ class Router(formatOps: FormatOps) {
 
         val noSplit =
           if (nlOnly) Split.ignored
-          else if (slbOrNL) baseNoSplit.withSingleLine(close, noSyntaxNL = true)
+          else if (slbOrNL) baseNoSplit
+            .withSingleLine(close, sjsExclude, noSyntaxNL = true)
           else {
             def okSingleArgsIndents = singleArgAsInfix.isEmpty &&
               !noNextCommaOneline && style.binPack.indentCallSiteSingleArg &&
@@ -1221,13 +1226,14 @@ class Router(formatOps: FormatOps) {
                 if (noSplitIndents.exists(_.hasStateColumn)) p &
                   penalizeNewlinesPolicy
                 else {
-                  val slbEnd = nextCommaOneline.getOrElse(close)
-                  SingleLineBlock(slbEnd, noSyntaxNL = true) ==>
-                    penalizeNewlinesPolicy
+                  val end = nextCommaOneline.getOrElse(close)
+                  val slbPolicy =
+                    SingleLineBlock(end, noSyntaxNL = true, exclude = sjsExclude)
+                  slbPolicy ==> penalizeNewlinesPolicy
                 }
               }
             val indentPolicy = Policy ? noSplitIndents.isEmpty || {
-              def unindentPolicy = Policy ? isSingleArg &&
+              def unindentPolicy = Policy ? (isSingleArg || sjsOneline) &&
                 unindentAtExclude(exclude, Num(-indentLen))
               def indentOncePolicy =
                 Policy ? style.binPack.indentCallSiteOnce && {
@@ -1396,7 +1402,7 @@ class Router(formatOps: FormatOps) {
           else argumentStarts.get(ft.meta.idx).map { nextArg =>
             val lastFT = getLast(nextArg)
             val lastTok = lastFT.left
-            val oneline = binPack == BinPack.Site.Oneline
+            val oneline = binPack.isOneline
             val afterNextArg = nextNonComment(lastFT)
             val nextCommaOrParen = afterNextArg.right match {
               case _: T.Comma | _: T.RightParen | _: T.RightBracket =>
@@ -1421,14 +1427,17 @@ class Router(formatOps: FormatOps) {
                 else None
               }
 
+            val sjsExclude =
+              if (binPack ne BinPack.Site.OnelineSjs) TokenRanges.empty
+              else insideBracesBlock(ft, lastTok)
             val nlPolicy = Policy ? oneline && nextCommaOrParen.map {
               case FormatToken(_, t: T.Comma, _) =>
-                splitOneArgPerLineAfterCommaOnBreak(t)
+                splitOneArgPerLineAfterCommaOnBreak(sjsExclude)(t)
               case _ if callSite =>
                 def delayBreakBefore(token: T): Policy = {
                   // force break if multiline and if there's no other break
                   val lastEnd = lastTok.end
-                  delayedBreakPolicy(Policy.End == lastEnd)(
+                  delayedBreakPolicy(Policy.End == lastEnd, sjsExclude)(
                     Policy.RelayOnSplit { case (s, nextft) =>
                       s.isNL && nextft.right.end > lastEnd // don't need anymore
                     }(decideNewlinesOnlyBeforeToken(token), NoPolicy),
@@ -1467,7 +1476,8 @@ class Router(formatOps: FormatOps) {
                 val end = endOfSingleLineBlock(
                   nextCommaOrParen.flatMap(getEndOfResultType).getOrElse(lastFT),
                 )
-                Split(Space, 0).withSingleLine(end, noSyntaxNL = true)
+                Split(Space, 0)
+                  .withSingleLine(end, noSyntaxNL = true, exclude = sjsExclude)
               }
             Seq(noSplit, nlSplit)
           }

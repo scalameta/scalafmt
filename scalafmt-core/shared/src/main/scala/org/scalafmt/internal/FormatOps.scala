@@ -300,14 +300,19 @@ class FormatOps(
       getOneArgPerLineSplitsAfterComma(right, splits)
   }
 
+  def splitOneArgPerLineAfterCommaOnBreak(comma: T)(implicit
+      fileLine: FileLine,
+  ): Policy = splitOneArgPerLineAfterCommaOnBreak(TokenRanges.empty)(comma)
+
   def splitOneArgPerLineAfterCommaOnBreak(
-      comma: T,
-  )(implicit fileLine: FileLine): Policy = delayedBreakPolicyBefore(comma) {
-    Policy.after(comma, prefix = "NL->A[,]") {
+      exclude: TokenRanges,
+  )(comma: T)(implicit fileLine: FileLine): Policy = {
+    val policy = Policy.after(comma, prefix = "NL->A[,]") {
       case Decision(t @ FormatToken(`comma`, right, _), splits)
           if !right.is[T.Comment] || t.hasBreak =>
         getOneArgPerLineSplitsAfterComma(right, splits)
     }
+    delayedBreakPolicy(Policy.End < comma, exclude)(policy)
   }
 
   private def getOneArgPerLineSplitsAfterComma(r: T, s: Seq[Split]) =
