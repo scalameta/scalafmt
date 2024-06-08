@@ -6229,13 +6229,13 @@ xmlLiterals.assumeFormatted = <span class="hljs-literal">false</span>
 <li><a href="#binpackdefnsite"><code>defnSite = Never</code></a></li>
 <li><a href="#binpackparentconstructors"><code>parentConstructors = Never</code></a></li>
 </ul></li>
-<li><code>always</code> or <code>true</code>:
+<li><code>Always</code> or <code>true</code>:
 <ul>
 <li><a href="#binpackcallsite"><code>callSite = Always</code></a></li>
 <li><a href="#binpackdefnsite"><code>defnSite = Always</code></a></li>
 <li><a href="#binpackparentconstructors"><code>parentConstructors = Always</code></a></li>
 </ul></li>
-<li><code>oneline</code>:
+<li><code>Oneline</code>:
 <ul>
 <li><a href="#binpackcallsite"><code>callSite = Oneline</code></a></li>
 <li><a href="#binpackdefnsite"><code>defnSite = Oneline</code></a></li>
@@ -6447,8 +6447,17 @@ since v3.0.0:</p>
 <ul>
 <li><code>Never</code> disables the functionality (also takes <code>false</code>)</li>
 <li><code>Always</code> enables the functionality (also takes <code>true</code>)</li>
-<li><code>Oneline</code> ensures multiline arguments are not binpacked</li>
+<li><code>Oneline</code> ensures multiline arguments are not binpacked, that is, they cannot
+be on the same line as any other argument; also, if the multiline argument is
+last and the call site is followed by either a curried argument clause or
+a chained method, it cannot be on the same line as the next identifier after
+the closing delimiter</li>
 </ul>
+<p>Additionally, when binpacking is enabled (i.e., not <code>Never</code>), some nested
+expressions in brackets (if the binpacked clause uses brackets) or in braces
+(if it uses parentheses) wouldn't be indented as would happen in usual cases;
+this logic is always used for <code>OnelineSjs</code>, and only for single-element clauses
+otherwise.</p>
 <p>When not disabled, these parameters have complex interactions with
 <a href="#newlinessource"><code>newline.source</code></a>,
 <a href="#newlinesconfigstylexxxsiteprefer"><code>newlines.configStyleXxxSite.prefer</code></a>
