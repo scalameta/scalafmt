@@ -1023,8 +1023,7 @@ object a {
   js.MethodDef(flags, methodIdent, originalName, jsParams, resultType,
       Some {
         genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
-      })(
-      OptimizerHints.empty, Unversioned)
+      })(OptimizerHints.empty, Unversioned)
 }
 <<< nested with oneline, keep
 newlines.source = keep
@@ -1042,8 +1041,7 @@ object a {
   js.MethodDef(flags, methodIdent, originalName, jsParams, resultType,
       Some {
         genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
-      })(
-      OptimizerHints.empty, Unversioned)
+      })(OptimizerHints.empty, Unversioned)
 }
 <<< oneline with keep and select after
 preset = default
@@ -1068,7 +1066,6 @@ object a {
       js.Dynamic.literal(
         `type` = "button",
         value = "Reset"
-      ))
-      .click(() => reset())
+      )).click(() => reset())
   }
 }

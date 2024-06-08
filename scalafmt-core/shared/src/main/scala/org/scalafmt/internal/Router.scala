@@ -1401,6 +1401,7 @@ class Router(formatOps: FormatOps) {
           if (binPack eq BinPack.Site.Never) None
           else Some {
             val lastFT = getLast(nextArg)
+            val lastTok = lastFT.left
             val loEnd = leftOwner.tokens.last.end
             val oneline = binPack == BinPack.Site.Oneline
             val nextCommaOrParen = findFirst(lastFT, loEnd) {
@@ -1434,10 +1435,10 @@ class Router(formatOps: FormatOps) {
               case _ if callSite =>
                 def delayBreakBefore(token: T): Policy = {
                   // force break if multiline and if there's no other break
-                  val lastEnd = lastFT.left.end
-                  delayedBreakPolicy(Policy.End > lastEnd)(
+                  val lastEnd = lastTok.end
+                  delayedBreakPolicy(Policy.End == lastEnd)(
                     Policy.RelayOnSplit { case (s, nextft) =>
-                      s.isNL && nextft.left.end > lastEnd // don't need anymore
+                      s.isNL && nextft.right.end > lastEnd // don't need anymore
                     }(decideNewlinesOnlyBeforeToken(token), NoPolicy),
                   )
                 }
@@ -1461,7 +1462,7 @@ class Router(formatOps: FormatOps) {
             val indentOncePolicy = Policy ?
               (callSite && style.binPack.indentCallSiteOnce) && {
                 val trigger = getIndentTrigger(leftOwner)
-                Policy.on(lastFT.left, prefix = "IND1") {
+                Policy.on(lastTok, prefix = "IND1") {
                   case Decision(FormatToken(LeftParenOrBracket(), _, m), s)
                       if isArgClauseSite(m.leftOwner) =>
                     s.map(x => if (x.isNL) x else x.switch(trigger, true))
