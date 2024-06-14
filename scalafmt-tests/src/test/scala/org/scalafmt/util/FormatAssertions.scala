@@ -15,7 +15,7 @@ import scala.meta.testkit.StructurallyEqual
 
 import java.io.ByteArrayInputStream
 
-import munit.internal.difflib.Diffs
+import munit.diff.Diffs
 
 trait FormatAssertions {
 

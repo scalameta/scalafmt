@@ -16,8 +16,8 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 import munit.FunSuite
-import munit.internal.console.AnsiColors
-import munit.internal.difflib.Diff
+import munit.diff.Diff
+import munit.diff.console.AnsiColors
 
 // TODO(olafur) property test: same solution without optimization or timeout.
 
