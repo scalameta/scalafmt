@@ -11,7 +11,7 @@ object Dependencies {
   val scalametaV  = "4.9.5"
   val scalacheckV = "1.18.0"
   val coursier    = "2.1.2"
-  val munitV      = "0.7.29"
+  val munitV      = "1.0.0"
   val mdocV       = "2.5.2"
 
   val scalapb = Def.setting {
