@@ -1455,11 +1455,13 @@ class FormatOps(
       val expire = nextNonCommentSameLine(blastFT).left
       def penalize(penalty: Int) = Policy ? (penalty > 0) &&
         new PolicyOps.PenalizeAllNewlines(Policy.End == blast, penalty)
-      def getNlSplit(penalty: Int)(implicit fileLine: FileLine): Split =
-        nlSplitFunc(1).andPolicy(penalize(penalty)).forThisLine(nextLine)
-      def getSplits(spaceSplit: Split) = (
+      def getNlSplit(penalty: Int, nlCost: Int = 1)(implicit
+          fileLine: FileLine,
+      ): Split = nlSplitFunc(nlCost).andPolicy(penalize(penalty))
+        .forThisLine(nextLine)
+      def getSplits(spaceSplit: Split, nlCost: Int = 1) = (
         spaceSplit.withIndents(spaceIndents),
-        getNlSplit(1)(nextLine(spaceSplit.fileLine)),
+        getNlSplit(1, nlCost)(nextLine(spaceSplit.fileLine)),
       )
       def getSlb(end: T, excl: TokenRanges)(implicit fileLine: FileLine) =
         SingleLineBlock(end, exclude = excl, noSyntaxNL = true)
@@ -1476,9 +1478,9 @@ class FormatOps(
         val spacePolicy = policy | penalize(penalty)
         Split(Space, 0).withPolicy(spacePolicy).withOptimalToken(blast)
       }
-      def getPolicySplits(penalty: Int, policy: Policy)(implicit
-          fileLine: FileLine,
-      ) = getSplits(getSpaceSplit(penalty, policy))
+      def getPolicySplits(penalty: Int, policy: Policy, nlCost: Int = 1)(
+          implicit fileLine: FileLine,
+      ) = getSplits(getSpaceSplit(penalty, policy), nlCost)
       def getSlbSplits(
           exclude: TokenRanges = TokenRanges.empty,
           policy: Policy = Policy.NoPolicy,
@@ -1526,7 +1528,13 @@ class FormatOps(
           else getSplits(getSlbSplit(getLastToken(lia.op)))
         case _ =>
           val callPolicy = CallSite.getFoldedPolicy(body)
-          getPolicySplits(if (callPolicy.nonEmpty) 0 else 1, callPolicy)
+          val nlCost = body match {
+            case Member.Apply(_, ac)
+                if styleMap.at(getHead(ac)).binPack.callSiteFor(ac).isOneline =>
+              3
+            case _ => 1
+          }
+          getPolicySplits(if (callPolicy.nonEmpty) 0 else 1, callPolicy, nlCost)
       }
 
       Seq(spaceSplit, nlSplit)
