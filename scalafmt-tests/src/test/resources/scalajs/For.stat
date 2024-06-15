@@ -10,3 +10,66 @@ val k = for {
       cccccccc) if one
   _ <- Future(2)
 } yield ()
+<<< handle for-yield with multi-stat body, fold
+preset = default
+maxColumn = 85
+newlines.source = fold
+binPack.preset = onelinesjs
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+    for {
+      (errors, timeInSeconds) <- result
+    } yield {
+      failed += reportExecutionErrors(reporter, None, timeInSeconds, errors)
+      reporter.reportRunFinished(failed, ignored, total, timeInSeconds)
+    }
+}
+>>>
+BestFirstSearch:282 Failed to format
+UNABLE TO FORMAT,
+tok #27/42: )∙reporter: RightParen [150..151) [LF] Ident(reporter) [158..166)
+policies:
+  >151 ==> SLB:[FormatOps:750]@151!d
+  SLB:[Router:364]@229!d
+  SLB:[Router:359]@229!d
+  NB:[Router:220]@231d
+splits (before policy):
+  Newline:[Router:578](cost=0, indents=[], NoPolicy)
+splits (after policy):
+<<< handle for-yield with block body, fold
+preset = default
+maxColumn = 85
+newlines.source = fold
+binPack.preset = onelinesjs
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  val uncurryParams =
+    for {
+      paramUncurry <- foo
+    } yield {
+        if (isRepeated(paramUncurry))
+          Some(paramUncurry)
+        else
+          None
+    }
+}
+>>>
+BestFirstSearch:282 Failed to format
+UNABLE TO FORMAT,
+tok #25/30: )∙else: RightParen [148..149) [LF] KwElse [158..162)
+policies:
+  ELSE:[FormatOps:375]@162d
+  SLB:[Router:364]@183!d
+  SLB:[Router:359]@183!d
+  PNL+1:[FormatOps:1457]@183d
+  NB:[Router:220]@185d
+splits (before policy):
+  Space:[Router:1939](cost=0, indents=[], SLB:[Router:1939]@177!d)
+  Newline:[Router:1945](cost=1, indents=[], NoPolicy)
+splits (after policy):
