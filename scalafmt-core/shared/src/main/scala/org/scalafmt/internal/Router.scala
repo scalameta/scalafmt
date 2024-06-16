@@ -1245,20 +1245,28 @@ class Router(formatOps: FormatOps) {
               .withIndents(noSplitIndents)
           }
 
-        val nlPolicy: Policy = {
-          def newlineBeforeClose(implicit fileLine: FileLine) =
-            decideNewlinesOnlyBeforeClose(close)
+        val nlClosedOnOpenEffective = {
           val nlClosedOnOpenOk = onelineCurryToken.forall(x =>
             if (x.is[T.Dot]) onelinePolicy.nonEmpty else flags.scalaJsStyle,
           )
-          val nlClosedOnOpenEffective =
+          val res =
             if (nlClosedOnOpenOk) nlCloseOnOpen
             else if (clauseSiteFlags.configStyle.prefer) NlClosedOnOpen.Cfg
             else NlClosedOnOpen.Yes
+          res match {
+            case NlClosedOnOpen.Cfg if styleMap.forcedBinPack(leftOwner) =>
+              NlClosedOnOpen.Yes
+            case x => x
+          }
+        }
+
+        val nlPolicy: Policy = {
+          def newlineBeforeClose(implicit fileLine: FileLine) =
+            decideNewlinesOnlyBeforeClose(close)
           nlClosedOnOpenEffective match {
             case NlClosedOnOpen.No => onelinePolicy
-            case NlClosedOnOpen.Cfg if !styleMap.forcedBinPack(leftOwner) =>
-              splitOneArgOneLine(close, leftOwner) ==> newlineBeforeClose
+            case NlClosedOnOpen.Cfg => splitOneArgOneLine(close, leftOwner) ==>
+                newlineBeforeClose
             case _ => newlineBeforeClose & onelinePolicy
           }
         }
