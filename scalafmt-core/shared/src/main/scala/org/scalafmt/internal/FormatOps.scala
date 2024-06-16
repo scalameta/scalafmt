@@ -600,12 +600,12 @@ class FormatOps(
       else false
     }
 
-    private val fullIndent: Indent = {
-      val expire = assignBodyExpire match {
-        case Some(x) if beforeLhs => x
-        case _ => fullExpire
-      }
-      Indent(Num(style.indent.main), expire, ExpiresOn.After)
+    private val fullIndent: Indent = assignBodyExpire match {
+      case Some(x) if beforeLhs =>
+        Indent(Num(style.indent.main), x, ExpiresOn.After)
+      case _ =>
+        val len = style.indent.getAfterInfixSite
+        Indent(Num(len), fullExpire, ExpiresOn.After)
     }
 
     val (nlIndent, nlPolicy) = {
