@@ -291,7 +291,7 @@ class Router(formatOps: FormatOps) {
               decideNewlinesOnlyAfterToken(arrowOptimal)
           }
 
-        def getSingleLineDecision = {
+        def getSingleLinePolicy = {
           type Classifiers = Seq[Classifier[T, _]]
           def classifiersByParent: Classifiers = leftOwner.parent match {
             case Some(_: Term.If) => Seq(T.KwElse.classifier)
@@ -310,12 +310,12 @@ class Router(formatOps: FormatOps) {
           decideNewlinesOnlyAfterClose(close)
         }
         def getClassicSingleLineDecisionOpt =
-          if (hasBreak()) None else Some(getSingleLineDecision)
+          if (noBreak()) Some(true) else None
 
         def getSingleLineLambdaDecisionOpt = {
           val ok = !lambdaNLOnly.contains(true) &&
             getSpaceAndNewlineAfterCurlyLambda(newlines)._1
-          if (ok) Some(getSingleLineDecision) else None
+          if (ok) Some(true) else None
         }
 
         // null if skipping
@@ -342,13 +342,7 @@ class Router(formatOps: FormatOps) {
             // do not fold top-level blocks
             if (isTopLevelBlock) None
             else if (lambdaPolicy != null) getSingleLineLambdaDecisionOpt
-            else Some(getSingleLineDecision match {
-              case NoPolicy if leftOwner.is[Term.ForYield] =>
-                val postClose = nextNonComment(closeFT).right
-                val bodySlb = SingleLineBlock(getLastToken(leftOwner))
-                Policy.End == postClose ==> bodySlb
-              case x => x
-            })
+            else Some(false)
           // old behaviour
           case _ =>
             if (lambdaPolicy == null) getClassicSingleLineDecisionOpt
@@ -357,9 +351,18 @@ class Router(formatOps: FormatOps) {
 
         val singleLineSplit = singleLineDecisionOpt.fold(Split.ignored) { sld =>
           val expire = endOfSingleLineBlock(closeFT)
+          val sldPolicy = getSingleLinePolicy match {
+            case NoPolicy
+                if leftOwner.is[Term.ForYield] && !sld &&
+                  (style.newlines.source eq Newlines.fold) =>
+              val postClose = nextNonComment(closeFT).right
+              val bodySlb = SingleLineBlock(getLastToken(leftOwner))
+              Policy.End == postClose ==> bodySlb
+            case x => x
+          }
           Split(xmlSpace(leftOwner), 0)
             .withSingleLine(expire, noSyntaxNL = true, killOnFail = true)
-            .andPolicy(sld)
+            .andPolicy(sldPolicy)
         }
 
         val splits = Seq(
