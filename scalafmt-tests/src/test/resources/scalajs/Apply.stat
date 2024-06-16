@@ -797,57 +797,57 @@ optDef.getOrElse {
 >>>
 optDef.getOrElse {
   abort(foo &&
-    bar)
+     bar)
   abort(foo &&
-    bar,
-    foo &&
-    bar, baz)
+      bar,
+      foo &&
+      bar, baz)
   abort(abort(foo &&
-      bar,
-      foo &&
-      bar,
-      abort(foo &&
-        bar,
-        foo &&
-        bar, baz)),
-    abort(
-      foo &&
-      bar,
-      foo &&
-      bar,
-      abort(foo &&
-        bar,
-        foo &&
-        bar, baz)
-    ),
-    abort(foo &&
-      bar,
-      foo &&
-      bar, baz))
-  abort(abort(foo &&
-      bar,
-      foo &&
-      bar, {
-        abort(foo &&
           bar,
           foo &&
-          bar, baz)
-      }),
-    abort(
-      foo &&
-      bar,
-      foo &&
-      bar,
-      abort(foo &&
+          bar,
+          abort(foo &&
+              bar,
+              foo &&
+              bar, baz)),
+      abort(
+        foo &&
         bar,
         foo &&
-        bar, baz)
-    ),
-    { abort(foo && bar, abort(foo && bar, foo)) },
-    abort(foo &&
-      bar,
-      foo &&
-      bar, baz))
+        bar,
+        abort(foo &&
+            bar,
+            foo &&
+            bar, baz)
+      ),
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz))
+  abort(abort(foo &&
+          bar,
+          foo &&
+          bar, {
+            abort(foo &&
+                bar,
+                foo &&
+                bar, baz)
+          }),
+      abort(
+        foo &&
+        bar,
+        foo &&
+        bar,
+        abort(foo &&
+            bar,
+            foo &&
+            bar, baz)
+      ),
+      { abort(foo && bar, abort(foo && bar, foo)) },
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz))
 }
 <<< binpack with non-top-level-only infix, source=keep, indent once, ind=2/4
 indentOperator.topLevelOnly = false
@@ -896,57 +896,57 @@ optDef.getOrElse {
 >>>
 optDef.getOrElse {
   abort(foo &&
-    bar)
+     bar)
   abort(foo &&
-    bar,
-    foo &&
-    bar, baz)
+      bar,
+      foo &&
+      bar, baz)
   abort(abort(foo &&
-    bar,
-    foo &&
-    bar,
-    abort(foo &&
-      bar,
-      foo &&
-      bar, baz)),
-    abort(
-      foo &&
       bar,
       foo &&
       bar,
       abort(foo &&
+          bar,
+          foo &&
+          bar, baz)),
+      abort(
+        foo &&
         bar,
         foo &&
-        bar, baz)
-    ),
-    abort(foo &&
-      bar,
-      foo &&
-      bar, baz))
+        bar,
+        abort(foo &&
+            bar,
+            foo &&
+            bar, baz)
+      ),
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz))
   abort(abort(foo &&
-    bar,
-    foo &&
-    bar, {
-      abort(foo &&
+      bar,
+      foo &&
+      bar, {
+        abort(foo &&
+            bar,
+            foo &&
+            bar, baz)
+      }),
+      abort(
+        foo &&
         bar,
         foo &&
-        bar, baz)
-    }),
-    abort(
-      foo &&
-      bar,
-      foo &&
-      bar,
-      abort(foo &&
         bar,
-        foo &&
-        bar, baz)
-    ),
-    { abort(foo && bar, abort(foo && bar, foo)) },
-    abort(foo &&
-      bar,
-      foo &&
-      bar, baz))
+        abort(foo &&
+            bar,
+            foo &&
+            bar, baz)
+      ),
+      { abort(foo && bar, abort(foo && bar, foo)) },
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz))
 }
 <<< binpack with non-top-level-only infix, afterInfix=some
 maxColumn = 20

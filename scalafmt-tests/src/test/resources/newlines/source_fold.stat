@@ -7735,13 +7735,13 @@ object Main {
 >>>
 object Main {
   val bar1 = foo1(
-    10000, 10001, 10002 + 0)
+      10000, 10001, 10002 + 0)
   val bar1 = foo1(
-    10000, 10001, 10002 + 0)
+      10000, 10001, 10002 + 0)
   val bar1 = foo1(
-    10000, 10001, 10002 + 0)
+      10000, 10001, 10002 + 0)
   val bar1 = foo1(
-    10000, 10001, 10002 + 0)
+      10000, 10001, 10002 + 0)
   val bar2 = foo2(
     0,
     1,
@@ -7789,16 +7789,16 @@ object Main {
 >>>
 object Main {
   def foo1(
-      x1: X, x2: X, xs: X*)
+        x1: X, x2: X, xs: X*)
       : Set[Int]
   def foo1(
-      x1: X, x2: X, xs: X*)
+        x1: X, x2: X, xs: X*)
       : Set[Int]
   def foo1(
-      x1: X, x2: X, xs: X*)
+        x1: X, x2: X, xs: X*)
       : Set[Int]
   def foo1(
-      x1: X, x2: X, xs: X*)
+        x1: X, x2: X, xs: X*)
       : Set[Int]
   def foo2(
       x1: X,
@@ -7845,15 +7845,16 @@ object Main {
 >>>
 object Main {
   val bar1 = foo1(10000,
-    10001, 10002 + 0)
+      10001, 10002 + 0)
   val bar1 = foo1(10000,
-    10001, 10002 + 0)
+      10001, 10002 + 0)
   val bar1 = foo1(10000,
-    10001, 10002 + 0)
+      10001, 10002 + 0)
   val bar1 = foo1(10000,
-    10001, 10002 + 0)
+      10001, 10002 + 0)
   val bar2 = foo2(0, 1, 2, 3,
-    4, 5, 6, 7, 8, 9, 10 + 0)
+      4, 5, 6, 7, 8, 9,
+      10 + 0)
 }
 <<< binPack.defnSite with !configStyle, !danglingParentheses, ind=4/6
 newlines.configStyleDefnSite.prefer = false
@@ -7888,18 +7889,18 @@ object Main {
 >>>
 object Main {
   def foo1(x1: X, x2: X,
-      xs: X*): Set[Int]
+        xs: X*): Set[Int]
   def foo1(x1: X, x2: X,
-      xs: X*): Set[Int]
+        xs: X*): Set[Int]
   def foo1(x1: X, x2: X,
-      xs: X*): Set[Int]
+        xs: X*): Set[Int]
   def foo1(x1: X, x2: X,
-      xs: X*): Set[Int]
+        xs: X*): Set[Int]
   def foo2(x1: X, x2: X,
-      x3: X, x4: X, xs: X*)
+        x3: X, x4: X, xs: X*)
       : Set[Int]
   def foo3(x1: X, x2: X,
-      x3: X, x4: X, xs: X*)
+        x3: X, x4: X, xs: X*)
       : Set[Int]
 }
 <<< two statements separated by semicolon

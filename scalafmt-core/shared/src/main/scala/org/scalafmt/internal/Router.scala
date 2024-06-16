@@ -1070,11 +1070,6 @@ class Router(formatOps: FormatOps) {
           implicit val clauseSiteFlags = ClauseSiteFlags.atDefnSite(leftOwner)
 
           val isBracket = open.is[T.LeftBracket]
-          val indent = Indent(style.indent.getDefnSite(leftOwner), close, Before)
-          def noSplitIndents =
-            if (clauseSiteFlags.alignOpenDelim) getOpenParenAlignIndents(close)
-            else Seq(indent)
-
           val bracketPenalty =
             if (isBracket) Some(Constants.BracketPenalty) else None
           val penalizeBrackets = bracketPenalty
@@ -1132,9 +1127,19 @@ class Router(formatOps: FormatOps) {
           val nlOnelinePolicy = nextCommaOneline
             .map(x => splitOneArgPerLineAfterCommaOnBreak(x.right))
 
+          val (indentLen, bpIndentLen) = style.indent
+            .getBinPackDefnSites(leftOwner)
+          val nlIndentLen =
+            if (nlCloseOnOpen eq NlClosedOnOpen.Cfg) indentLen else bpIndentLen
+
+          def noSplitIndents =
+            if (clauseSiteFlags.alignOpenDelim) getOpenParenAlignIndents(close)
+            else Seq(Indent(bpIndentLen, close, Before))
+
           Seq(
             noSplit.withIndents(noSplitIndents),
-            Split(nlMod, if (slbOrNL) 0 else nlCost).withIndent(indent)
+            Split(nlMod, if (slbOrNL) 0 else nlCost)
+              .withIndent(nlIndentLen, close, Before)
               .withPolicy(nlPolicy & penalizeBrackets & nlOnelinePolicy),
           )
         }
@@ -1168,8 +1173,7 @@ class Router(formatOps: FormatOps) {
         val afterFirstArgOneline =
           if (oneline) firstArg.map(tokenAfter) else None
 
-        val indentLen = style.indent.callSite
-        val indent = Indent(Num(indentLen), close, Before)
+        val (indentLen, bpIndentLen) = style.indent.getBinPackCallSites
 
         val exclude =
           if (!isBracket) insideBracesBlock(ft, close)
@@ -1199,6 +1203,7 @@ class Router(formatOps: FormatOps) {
             def noSingleArgIndents = oneline || singleArgAsInfix.isDefined ||
               !style.binPack.indentCallSiteSingleArg ||
               !isBracket && getAssignAtSingleArgCallSite(args).isDefined
+            val indent = Indent(bpIndentLen, close, Before)
             val noSplitIndents =
               if (isSingleArg && noSingleArgIndents) Nil
               else if (style.binPack.indentCallSiteOnce) {
@@ -1228,7 +1233,7 @@ class Router(formatOps: FormatOps) {
               penalizeNewlinesPolicy
             val indentPolicy = Policy ? noSplitIndents.isEmpty || {
               def unindentPolicy = Policy ? (isSingleArg || sjsOneline) &&
-                unindentAtExclude(exclude, Num(-indentLen))
+                unindentAtExclude(exclude, Num(-bpIndentLen))
               def indentOncePolicy =
                 Policy ? style.binPack.indentCallSiteOnce && {
                   val trigger = getIndentTrigger(leftOwner)
@@ -1271,11 +1276,14 @@ class Router(formatOps: FormatOps) {
           }
         }
 
+        val nlIndentLen =
+          if (nlClosedOnOpenEffective eq NlClosedOnOpen.Cfg) indentLen
+          else bpIndentLen
         val nlMod =
           if (nlOnly && noBreak() && right.is[T.Comment]) Space
           else NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None)
         val nlSplit = Split(nlMod, bracketPenalty * (if (oneline) 4 else 2))
-          .withIndent(indent)
+          .withIndent(nlIndentLen, close, Before)
           .withSingleLineNoOptimal(close, ignore = !singleLineOnly).andPolicy(
             Policy ? singleLineOnly || nlPolicy & penalizeNewlinesPolicy,
           ).andPolicy(singleArgAsInfix.map(InfixSplits(_, ft).nlPolicy))

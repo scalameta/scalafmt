@@ -50,6 +50,14 @@ case class Indents(
     case _: meta.Ctor => ctorSite
     case _ => None
   }).getOrElse(defnSite)
+
+  def getAfterInfixSite: Int = afterInfixSite.getOrElse(main)
+  def getBinPackCallSites: (Int, Int) =
+    (callSite, binPackCallSite.getOrElse(callSite))
+  def getBinPackDefnSites(tree: meta.Tree): (Int, Int) = {
+    val len = getDefnSite(tree)
+    (len, binPackDefnSite.getOrElse(len))
+  }
 }
 
 object Indents {
