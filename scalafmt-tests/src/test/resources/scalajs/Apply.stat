@@ -750,6 +750,204 @@ optDef.getOrElse {
           foo &&
           bar, baz))
 }
+<<< binpack with non-top-level-only infix, source=keep, !indent once, ind=2/4
+indentOperator.topLevelOnly = false
+binPack.unsafeCallSite = always
+binPack.indentCallSiteOnce = false
+indent.callSite = 2
+indent.binPackCallSite = 4
+indent.afterInfixSite = 3
+newlines.source = keep
+===
+optDef.getOrElse {
+  abort(foo &&
+    bar)
+  abort(foo &&
+    bar, foo &&
+    bar, baz)
+  abort(abort(foo &&
+    bar, foo &&
+    bar, abort(foo &&
+    bar, foo &&
+    bar, baz)), abort(
+      foo &&
+      bar, foo &&
+      bar, abort(foo &&
+      bar, foo &&
+      bar, baz)
+    ), abort(foo &&
+    bar, foo &&
+    bar, baz))
+  abort(abort(foo &&
+    bar, foo &&
+    bar, { abort(foo &&
+    bar, foo &&
+    bar, baz) }), abort(
+      foo &&
+      bar, foo &&
+      bar, abort(foo &&
+      bar, foo &&
+      bar, baz)
+    ),
+    { abort(foo && bar, abort(foo && bar, foo))
+    }, abort(foo &&
+    bar, foo &&
+    bar, baz) )
+}
+>>>
+optDef.getOrElse {
+  abort(foo &&
+    bar)
+  abort(foo &&
+    bar,
+    foo &&
+    bar, baz)
+  abort(abort(foo &&
+      bar,
+      foo &&
+      bar,
+      abort(foo &&
+        bar,
+        foo &&
+        bar, baz)),
+    abort(
+      foo &&
+      bar,
+      foo &&
+      bar,
+      abort(foo &&
+        bar,
+        foo &&
+        bar, baz)
+    ),
+    abort(foo &&
+      bar,
+      foo &&
+      bar, baz))
+  abort(abort(foo &&
+      bar,
+      foo &&
+      bar, {
+        abort(foo &&
+          bar,
+          foo &&
+          bar, baz)
+      }),
+    abort(
+      foo &&
+      bar,
+      foo &&
+      bar,
+      abort(foo &&
+        bar,
+        foo &&
+        bar, baz)
+    ),
+    { abort(foo && bar, abort(foo && bar, foo)) },
+    abort(foo &&
+      bar,
+      foo &&
+      bar, baz))
+}
+<<< binpack with non-top-level-only infix, source=keep, indent once, ind=2/4
+indentOperator.topLevelOnly = false
+binPack.unsafeCallSite = always
+binPack.indentCallSiteOnce = true
+indent.callSite = 2
+indent.binPackCallSite = 4
+indent.afterInfixSite = 3
+newlines.source = keep
+===
+optDef.getOrElse {
+  abort(foo &&
+    bar)
+  abort(foo &&
+    bar, foo &&
+    bar, baz)
+  abort(abort(foo &&
+    bar, foo &&
+    bar, abort(foo &&
+    bar, foo &&
+    bar, baz)), abort(
+      foo &&
+      bar, foo &&
+      bar, abort(foo &&
+      bar, foo &&
+      bar, baz)
+    ), abort(foo &&
+    bar, foo &&
+    bar, baz))
+  abort(abort(foo &&
+    bar, foo &&
+    bar, { abort(foo &&
+    bar, foo &&
+    bar, baz) }), abort(
+      foo &&
+      bar, foo &&
+      bar, abort(foo &&
+      bar, foo &&
+      bar, baz)
+    ),
+    { abort(foo && bar, abort(foo && bar, foo))
+    }, abort(foo &&
+    bar, foo &&
+    bar, baz) )
+}
+>>>
+optDef.getOrElse {
+  abort(foo &&
+    bar)
+  abort(foo &&
+    bar,
+    foo &&
+    bar, baz)
+  abort(abort(foo &&
+    bar,
+    foo &&
+    bar,
+    abort(foo &&
+      bar,
+      foo &&
+      bar, baz)),
+    abort(
+      foo &&
+      bar,
+      foo &&
+      bar,
+      abort(foo &&
+        bar,
+        foo &&
+        bar, baz)
+    ),
+    abort(foo &&
+      bar,
+      foo &&
+      bar, baz))
+  abort(abort(foo &&
+    bar,
+    foo &&
+    bar, {
+      abort(foo &&
+        bar,
+        foo &&
+        bar, baz)
+    }),
+    abort(
+      foo &&
+      bar,
+      foo &&
+      bar,
+      abort(foo &&
+        bar,
+        foo &&
+        bar, baz)
+    ),
+    { abort(foo && bar, abort(foo && bar, foo)) },
+    abort(foo &&
+      bar,
+      foo &&
+      bar, baz))
+}
 <<< binpack with non-top-level-only infix, afterInfix=some
 maxColumn = 20
 indentOperator.topLevelOnly = false

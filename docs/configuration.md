@@ -315,6 +315,8 @@ object a {
 
 ### `indent.callSite`
 
+This parameter controls indentation of method call arguments.
+
 ```scala mdoc:defaults
 indent.callSite
 ```
@@ -328,6 +330,30 @@ function(
 argument1, // indented by 2
 ""
 )
+```
+
+### `indent.binPackCallSite`
+
+This parameter controls indentation of method call arguments when they are
+binpacked (that is, spanning multiple lines but not formatted using config
+style). Defaults to `indent.callSite`.
+
+> Since v3.8.3.
+
+Example:
+
+```scala mdoc:scalafmt
+newlines.configStyleCallSite.prefer = false
+danglingParentheses.callSite = false
+binPack.callSite = always
+indent.callSite = 2
+indent.binPackCallSite = 4
+---
+func(1, // next indented by 4
+  "")
+func( // next indented by 2
+    1,
+    "")
 ```
 
 ### `indent.ctrlSite`
@@ -374,6 +400,30 @@ indent.defnSite = 4
 def function(
 parameter1: Type1 // indented by 4
 ): ReturnType
+```
+
+### `indent.binPackDefnSite`
+
+This parameter controls indentation of method parameters when they are
+binpacked (that is, spanning multiple lines but not formatted using config
+style). Defaults to `indent.defnSite`.
+
+> Since v3.8.3.
+
+Example:
+
+```scala mdoc:scalafmt
+newlines.configStyleDefnSite.prefer = false
+danglingParentheses.defnSite = false
+binPack.defnSite = always
+indent.defnSite = 2
+indent.binPackDefnSite = 4
+---
+def func(a: Int, // next indented by 4
+  b: String)
+def func( // next indented by 2
+    a: Int,
+    b: String)
 ```
 
 ### `indent.ctorSite`
@@ -711,12 +761,21 @@ foo:
 .qux
 ```
 
+### `indent.afterInfixSite`
+
+This parameter controls indentation after an infix operator (not including
+assignments). Defaults to `indent.main`.
+
+> Since v3.8.3.
+
 ### Indent for `binPack.callSite`
 
 Normally, even when binpacking, there's a new level of indentation added for
 each opening parenthesis starting a nested argument clause (regardless whether
 the first argument follows the opening parenthesis on the same line or on a
 separate one); the parameters below modify this behaviour.
+
+See also [`indent.binPackCallSite`](#indentbinpackcallsite).
 
 #### `binPack.indentCallSiteOnce`
 

@@ -490,3 +490,29 @@ object a {
   server.out1 ~> Flow[SslTlsOutbound].collect { case SendBytes(x) ⇒ x }
     .buffer(1, OverflowStrategy.backpressure) ~> netOut.sink
 }
+<<< assignments with different infix indent
+newlines.source = keep
+indent.afterInfixSite = 4
+includeCurlyBraceInSelectChains = true
+===
+object a {
+  val foo =
+    bar + baz
+  foo =
+    bar + baz
+  foo +=
+    bar + baz
+  foo +
+    bar + baz
+}
+>>>
+object a {
+  val foo =
+    bar + baz
+  foo =
+    bar + baz
+  foo +=
+    bar + baz
+  foo +
+    bar + baz
+}

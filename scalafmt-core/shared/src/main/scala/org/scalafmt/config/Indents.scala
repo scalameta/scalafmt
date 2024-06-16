@@ -26,7 +26,9 @@ case class Indents(
     private[config] val significant: Option[Int] = None,
     callSite: Int = 2,
     ctrlSite: Option[Int] = None,
-    defnSite: Int = 4,
+    private[config] val binPackCallSite: Option[Int] = None,
+    private[config] val defnSite: Int = 4,
+    binPackDefnSite: Option[Int] = None,
     caseSite: Int = 4,
     matchSite: Option[Int] = None,
     private[config] val ctorSite: Option[Int] = None,
@@ -34,6 +36,7 @@ case class Indents(
     relativeToLhsLastLine: Seq[Indents.RelativeToLhs] = Nil,
     private[config] val fewerBraces: Indents.FewerBraces =
       Indents.FewerBraces.never,
+    private[config] val afterInfixSite: Option[Int] = None,
     @annotation.ExtraName("deriveSite")
     extendSite: Int = 4,
     withSiteRelativeToExtends: Int = 0,

@@ -8105,6 +8105,224 @@ object Main {
       x1: X, x2: X, x3: X,
       x4: X, xs: X*): Set[Int]
 }
+<<< binPack.callSite with configStyle, !danglingParentheses, ind=2/4
+newlines.configStyleCallSite.prefer = true
+danglingParentheses.callSite = false
+binPack.callSite = always
+indent.callSite = 2
+indent.binPackCallSite = 4
+maxColumn = 30
+runner.optimizer.callSite { minSpan = 20, minCount = 5 }
+===
+object Main {
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0
+  )
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0
+  )
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0)
+  val bar2 = foo2(
+    0,
+    1, 2, 3,
+    4, 5, 6, 7, 8, 9, 10 + 0)
+}
+>>>
+object Main {
+  val bar1 = foo1(
+    10000,
+    10001,
+    10002 + 0
+  )
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(
+    10000,
+    10001,
+    10002 + 0
+  )
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0)
+  val bar2 = foo2(
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10 + 0
+  )
+}
+<<< binPack.defnSite with configStyle, !danglingParentheses, ind=4/6
+newlines.configStyleDefnSite.prefer = true
+danglingParentheses.defnSite = false
+binPack.defnSite = always
+indent.defnSite = 4
+indent.binPackDefnSite = 6
+maxColumn = 32
+runner.optimizer.defnSite { minSpan = 20, minCount = 5 }
+===
+object Main {
+  def foo1(
+    x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo2(
+    x1: X, x2: X, x3: X,
+    x4: X, xs: X*
+  ): Set[Int]
+  def foo3(
+    x1: X, x2: X, x3: X,
+    x4: X, xs: X*): Set[Int]
+}
+>>>
+object Main {
+  def foo1(
+      x1: X,
+      x2: X,
+      xs: X*
+  ): Set[Int]
+  def foo1(
+      x1: X,
+      x2: X,
+      xs: X*
+  ): Set[Int]
+  def foo1(
+      x1: X,
+      x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+      x2: X, xs: X*): Set[Int]
+  def foo2(
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
+  ): Set[Int]
+  def foo3(
+      x1: X,
+      x2: X,
+      x3: X,
+      x4: X,
+      xs: X*
+  ): Set[Int]
+}
+<<< binPack.callSite with !configStyle, !danglingParentheses, ind=2/4
+newlines.configStyleCallSite.prefer = false
+danglingParentheses.callSite = false
+binPack.callSite = always
+indent.callSite = 2
+indent.binPackCallSite = 4
+maxColumn = 30
+runner.optimizer.callSite { minSpan = 20, minCount = 5 }
+===
+object Main {
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0
+  )
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0
+  )
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0)
+  val bar2 = foo2(
+    0,
+    1, 2, 3,
+    4, 5, 6, 7, 8, 9, 10 + 0)
+}
+>>>
+object Main {
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0
+  )
+  val bar1 = foo1(10000,
+    10001, 10002 + 0)
+  val bar1 = foo1(10000,
+    10001, 10002 + 0
+  )
+  val bar1 = foo1(
+    10000,
+    10001, 10002 + 0)
+  val bar2 = foo2(
+    0,
+    1, 2, 3,
+    4, 5, 6, 7, 8, 9, 10 + 0)
+}
+<<< binPack.defnSite with !configStyle, !danglingParentheses, ind=4/6
+newlines.configStyleDefnSite.prefer = false
+danglingParentheses.defnSite = false
+binPack.defnSite = always
+indent.defnSite = 4
+indent.binPackDefnSite = 6
+maxColumn = 32
+runner.optimizer.defnSite { minSpan = 20, minCount = 5 }
+===
+object Main {
+  def foo1(
+    x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+    x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+    x2: X, xs: X*): Set[Int]
+  def foo2(
+    x1: X, x2: X, x3: X,
+    x4: X, xs: X*
+  ): Set[Int]
+  def foo3(
+    x1: X, x2: X, x3: X,
+    x4: X, xs: X*): Set[Int]
+}
+>>>
+object Main {
+  def foo1(
+      x1: X,
+      x2: X, xs: X*
+  ): Set[Int]
+  def foo1(x1: X,
+      x2: X, xs: X*
+  ): Set[Int]
+  def foo1(
+      x1: X,
+      x2: X, xs: X*): Set[Int]
+  def foo1(x1: X,
+      x2: X, xs: X*): Set[Int]
+  def foo2(
+      x1: X, x2: X, x3: X,
+      x4: X, xs: X*
+  ): Set[Int]
+  def foo3(
+      x1: X, x2: X, x3: X,
+      x4: X, xs: X*): Set[Int]
+}
 <<< two statements separated by semicolon
 foo match {
   case a =>
