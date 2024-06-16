@@ -350,15 +350,13 @@ class Router(formatOps: FormatOps) {
         }
 
         val singleLineSplit = singleLineDecisionOpt.fold(Split.ignored) { sld =>
-          val expire = endOfSingleLineBlock(closeFT)
-          val sldPolicy = getSingleLinePolicy match {
-            case NoPolicy
-                if leftOwner.is[Term.ForYield] && !sld &&
+          val sldPolicy = getSingleLinePolicy
+          val expire = leftOwner match {
+            case _: Term.ForYield
+                if !sld && sldPolicy.isEmpty &&
                   (style.newlines.source eq Newlines.fold) =>
-              val postClose = nextNonComment(closeFT).right
-              val bodySlb = SingleLineBlock(getLastToken(leftOwner))
-              Policy.End == postClose ==> bodySlb
-            case x => x
+              getLastToken(leftOwner)
+            case _ => endOfSingleLineBlock(closeFT)
           }
           Split(xmlSpace(leftOwner), 0)
             .withSingleLine(expire, noSyntaxNL = true, killOnFail = true)
