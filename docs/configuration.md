@@ -4793,20 +4793,20 @@ object Example2 {
 One can specify the following values to `binPack.preset`:
 
 - `never` or `false`:
-  - [`callSite = Never`](#binpackcallsite)
-  - [`defnSite = Never`](#binpackdefnsite)
+  - [`callSite = Never`](#binpackxxxsite)
+  - [`defnSite = Never`](#binpackxxxsite)
   - [`parentConstructors = Never`](#binpackparentconstructors)
 - `Always` or `true`:
-  - [`callSite = Always`](#binpackcallsite)
-  - [`defnSite = Always`](#binpackdefnsite)
+  - [`callSite = Always`](#binpackxxxsite)
+  - [`defnSite = Always`](#binpackxxxsite)
   - [`parentConstructors = Always`](#binpackparentconstructors)
 - `Oneline`:
-  - [`callSite = Oneline`](#binpackcallsite)
-  - [`defnSite = Oneline`](#binpackdefnsite)
+  - [`callSite = Oneline`](#binpackxxxsite)
+  - [`defnSite = Oneline`](#binpackxxxsite)
   - [`parentConstructors = Oneline`](#binpackparentconstructors)
 - `Onelinesjs`:
-  - [`callSite = OnelineSjs`](#binpackcallsite)
-  - [`defnSite = OnelineSjs`](#binpackdefnsite)
+  - [`callSite = OnelineSjs`](#binpackxxxsite)
+  - [`defnSite = OnelineSjs`](#binpackxxxsite)
   - [`parentConstructors = Oneline`](#binpackparentconstructors)
 
 The rest of parameters retain their default behaviour.
