@@ -136,21 +136,22 @@ case class Split(
       token: => Token,
       killOnFail: Boolean = false,
       ignore: Boolean = false,
-  ): Split =
-    if (ignore) this else withOptimalAt(Some(OptimalToken(token, killOnFail)))
+  ): Split = withOptimalAt(Some(OptimalToken(token, killOnFail)), ignore)
 
-  def withOptimalAt(fOptimalAt: => Option[OptimalToken]): Split = {
-    require(this.optimalAt.isEmpty)
-    if (isIgnored) this
+  def withOptimalAt(
+      fOptimalAt: => Option[OptimalToken],
+      ignore: Boolean = false,
+  ): Split =
+    if (ignore || isIgnored) this
     else {
       val optimalAt = fOptimalAt
       if (optimalAt.isEmpty) this
       else {
+        require(this.optimalAt.isEmpty)
         require(cost == 0, s"can't set optimal, cost=$cost")
         copy(optimalAt = optimalAt)
       }
     }
-  }
 
   def withPolicy(newPolicy: => Policy, ignore: Boolean = false): Split =
     if (isIgnored || ignore) this
