@@ -521,9 +521,11 @@ class FormatOps(
       fullInfix: Member.Infix,
       leftInfix: Member.Infix,
   )(implicit style: ScalafmtConfig) {
-    private val beforeLhs = ft.left.start < app.pos.start
+    private val isLeftInfix = leftInfix eq app
+    private val isAfterOp = ft.meta.leftOwner eq app.op
+    private val beforeLhs = !isAfterOp && ft.left.start < app.pos.start
+    private val isFirstOp = beforeLhs || isLeftInfix
     private val fullExpire = getLastEnclosedToken(fullInfix)
-    private val isFirstOp = beforeLhs || (leftInfix.op eq app.op)
 
     private val assignBodyExpire = {
       val prevFt = tokenBefore(fullInfix)
@@ -641,17 +643,15 @@ class FormatOps(
         newStmtMod: Option[Modification] = None,
         spaceMod: Modification = Space,
     ): Seq[Split] = {
-      val beforeLhs = ft.meta.leftOwner ne app.op
       val maxPrecedence =
-        if (beforeLhs) 0 // not used
-        else infixSequenceMaxPrecedence(fullInfix)
+        if (isAfterOp) infixSequenceMaxPrecedence(fullInfix) else 0 // 0 unused
       val closeOpt = matchingOpt(ft.right)
       val expiresOpt =
         if (closeOpt.isDefined) None
         else {
           val res = mutable.Buffer.empty[Member.Infix]
           findNextInfixes(fullInfix, app.lhs, res)
-          val infixes = if (beforeLhs) res.toSeq else res.toSeq.tail
+          val infixes = if (isAfterOp) res.toSeq.tail else res.toSeq
           val filtered =
             if (!style.newlines.afterInfixBreakOnNested) infixes
             else infixes.takeWhile(x => !isEnclosedInParens(x.lhs))
@@ -666,7 +666,7 @@ class FormatOps(
           }
         }
 
-      val breakPenalty = if (beforeLhs) 1 else maxPrecedence - app.precedence
+      val breakPenalty = if (isAfterOp) maxPrecedence - app.precedence else 1
       val expires = expiresOpt.fold(Seq(fullExpire -> 0)) { x =>
         (if (x.head._2 == 0) x else (fullExpire -> 0) +: x).reverse
       }
@@ -701,7 +701,7 @@ class FormatOps(
       val singleLinePolicy = Policy ? (infixTooLong || !isFirstOp) ||
         getSingleLineInfixPolicy(fullExpire)
       val nlSinglelineSplit = Split(nlMod, 0)
-        .onlyIf(singleLinePolicy.nonEmpty && beforeLhs)
+        .onlyIf(singleLinePolicy.nonEmpty && !isAfterOp)
         .withIndent(singleLineIndent).withSingleLine(singleLineExpire)
         .andPolicy(singleLinePolicy).andPolicy(delayedBreak)
       val spaceSingleLine = Split(spaceMod, 0).onlyIf(newStmtMod.isEmpty)
@@ -720,7 +720,7 @@ class FormatOps(
           rightAsInfix.exists(10 < infixSequenceLength(_))
         val nextOp =
           if (!style.newlines.afterInfixBreakOnNested) None
-          else if (beforeLhs) Some(app.op)
+          else if (!isAfterOp) Some(app.op)
           else getInfixRhsAsInfix(app) match {
             case Some(ia) => Some(findLeftInfix(ia).op)
             case _ => findNextInfixInParent(app, fullInfix)
