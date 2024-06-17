@@ -442,3 +442,38 @@ val x = (
 val x = (
     x => x + 1,
 )
+<<< #4058 1
+maxColumn = 16
+runner.dialect = scala3
+===
+f(
+  if true then 0
+  else
+    1234567890
+  ,
+)
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+   else
+-    1234567890
+-  ,
++    1234567890,
+ )
+<<< #4058 2
+maxColumn = 16
+runner.dialect = scala3
+===
+f(
+  if true then 0
+  else
+    1234567890,
+)
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+   else
+-    1234567890,
++    1234567890
++  ,
+ )
