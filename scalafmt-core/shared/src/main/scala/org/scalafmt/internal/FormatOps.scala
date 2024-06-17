@@ -590,6 +590,8 @@ class FormatOps(
     private val fullIndent: Indent = assignBodyExpire match {
       case Some(x) if beforeLhs =>
         Indent(Num(style.indent.main), x, ExpiresOn.After)
+      case None if isLeftInfix && isAfterAssignmentOp(true) =>
+        Indent(Num(style.indent.main), fullExpire, ExpiresOn.After)
       case _ =>
         val len = style.indent.getAfterInfixSite
         Indent(Num(len), fullExpire, ExpiresOn.After)
