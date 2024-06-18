@@ -575,8 +575,7 @@ class FormatOps(
       def isInfixTopLevelMatch(op: String, noindent: Boolean): Boolean =
         noindent == style.indentOperator.noindent(op) &&
           noindent == allowNoIndent
-      if (style.verticalAlignMultilineOperators)
-        !isAssignment(ft.meta.left.text)
+      if (style.verticalAlignMultilineOperators) isAfterAssignmentOp(false)
       else if (beforeLhs) assignBodyExpire.isEmpty
       else if (
         !app.singleArg.exists { x =>
@@ -620,6 +619,10 @@ class FormatOps(
         else (Indent.Switch(fullIndent, fullTok, ind), policy(fullTok, opTok))
       }
     }
+
+    @inline
+    private def isAfterAssignmentOp(isAssignment: Boolean): Boolean =
+      isAfterOp && app.isAssignment == isAssignment
 
     private def withNLIndent(split: Split): Split = split.withIndent(nlIndent)
       .andPolicy(nlPolicy)
