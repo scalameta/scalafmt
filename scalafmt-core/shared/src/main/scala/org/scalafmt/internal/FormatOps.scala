@@ -97,10 +97,6 @@ class FormatOps(
     (arguments.toMap, optional.result())
   }
 
-  class ExtractFromMeta[A](f: FormatToken.Meta => Option[A]) {
-    def unapply(meta: FormatToken.Meta): Option[A] = f(meta)
-  }
-
   @inline
   final def findFirst(start: FormatToken, end: T)(
       f: FormatToken => Boolean,
@@ -318,16 +314,6 @@ class FormatOps(
   private def getOneArgPerLineSplitsAfterComma(r: T, s: Seq[Split]) =
     if (r.is[T.LeftBrace]) SplitTag.OneArgPerLine.activateOnly(s)
     else Decision.onlyNewlineSplits(s)
-
-  val WithTemplateOnLeft = new ExtractFromMeta(_.leftOwner match {
-    case lo: Stat.WithTemplate => Some(lo.templ)
-    case _ => None
-  })
-
-  val TemplateOnRight = new ExtractFromMeta(_.rightOwner match {
-    case ro: Template => Some(ro)
-    case _ => None
-  })
 
   def templateCurlyFt(template: Template): Option[FormatToken] =
     getStartOfTemplateBody(template).map(tokenBefore)
@@ -861,9 +847,6 @@ class FormatOps(
   ): Boolean = soft.ImplicitOrUsing.unapply(formatToken.right) &&
     style.newlines.notBeforeImplicitParamListModifier &&
     hasImplicitParamList(formatToken.meta.rightOwner)
-
-  val ImplicitUsingOnLeft =
-    new ExtractFromMeta(meta => getImplicitParamList(meta.leftOwner))
 
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
     val toMatch =
@@ -2875,5 +2858,22 @@ object FormatOps {
       dangleCloseDelim = style.danglingParentheses.atCallSite(owner),
     )
   }
+
+  class ExtractFromMeta[A](f: FormatToken.Meta => Option[A]) {
+    def unapply(meta: FormatToken.Meta): Option[A] = f(meta)
+  }
+
+  val ImplicitUsingOnLeft =
+    new ExtractFromMeta(meta => TreeOps.getImplicitParamList(meta.leftOwner))
+
+  val WithTemplateOnLeft = new ExtractFromMeta(_.leftOwner match {
+    case lo: Stat.WithTemplate => Some(lo.templ)
+    case _ => None
+  })
+
+  val TemplateOnRight = new ExtractFromMeta(_.rightOwner match {
+    case ro: Template => Some(ro)
+    case _ => None
+  })
 
 }
