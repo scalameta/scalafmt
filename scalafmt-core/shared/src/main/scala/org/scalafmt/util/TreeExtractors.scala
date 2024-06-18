@@ -1,12 +1,15 @@
 package org.scalafmt.util
 
 import scala.meta._
+import scala.meta.internal.trees._
 
 object InfixApp {
 
   implicit class XtensionInfix(private val tree: Member.Infix) extends AnyVal {
+    // https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
+    // The precedence of an assignment ... is lower than the precedence of any other ...
     @inline
-    def isAssignment: Boolean = InfixApp.isAssignment(tree.op.value)
+    def isAssignment: Boolean = tree.op.value.isAssignmentOp
 
     @inline
     def precedence: Int = InfixApp.getPrecedence(tree.op.value)
@@ -51,18 +54,10 @@ object InfixApp {
     builder.result()
   }
 
-  // https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#assignment-operators
-  private val nonAssignmentOperators = Set("<=", ">=", "!=")
-
-  // https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
-  // The precedence of an assignment ... is lower than the precedence of any other ...
-  def isAssignment(op: String): Boolean = op.lastOption.contains('=') &&
-    (op.length == 1 || op.head != '=' && !nonAssignmentOperators.contains(op))
-
   // https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
   // Operators ending in a colon `:' are right-associative. All other operators are left-associative.
   @inline
-  def isLeftAssoc(op: String): Boolean = op.last != ':'
+  def isLeftAssoc(op: String): Boolean = op.isLeftAssoc
 
   @inline
   def getPrecedence(op: String): Int = infixOpPrecedence.getOrElse(op.head, 0)
