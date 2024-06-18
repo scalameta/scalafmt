@@ -2149,13 +2149,11 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Space.orNL(!useNL), 0))
 
       // ForYield
-      case FormatToken(_: T.LeftArrow, _, _)
-          if leftOwner.is[Enumerator.Generator] =>
-        val enumerator = leftOwner.asInstanceOf[Enumerator.Generator]
-        getSplitsEnumerator(ft, enumerator.rhs)
-      case FormatToken(_: T.Equals, _, _) if leftOwner.is[Enumerator.Val] =>
-        val enumerator = leftOwner.asInstanceOf[Enumerator.Val]
-        getSplitsEnumerator(ft, enumerator.rhs)
+      case FormatToken(
+            _: T.LeftArrow | _: T.Equals,
+            _,
+            EnumeratorAssignRhsOnLeft(rhs),
+          ) => getSplitsEnumerator(ft, rhs)
 
       case FormatToken(
             kw @ (_: T.KwTry | _: T.KwCatch | _: T.KwFinally),
