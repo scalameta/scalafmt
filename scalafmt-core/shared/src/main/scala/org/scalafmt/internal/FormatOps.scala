@@ -2879,4 +2879,9 @@ object FormatOps {
     case _ => None
   })
 
+  val EnumeratorAssignRhsOnLeft = new ExtractFromMeta(_.leftOwner match {
+    case x: Tree.WithBody with Enumerator => Some(x.body)
+    case _ => None
+  })
+
 }
