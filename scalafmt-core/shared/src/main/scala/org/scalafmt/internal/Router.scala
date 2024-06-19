@@ -2366,6 +2366,8 @@ class Router(formatOps: FormatOps) {
       case FormatToken(T.RightArrow(), _, _) if leftOwner.is[Type.ByName] =>
         val mod = Space(style.spaces.inByNameTypes)
         Seq(Split(mod, 0))
+      case FormatToken(_: T.Colon, _, _)
+          if style.spaces.notAfterColon(leftOwner) => Seq(Split(NoSplit, 0))
       case FormatToken(_: T.Symbolic, _, _) => Seq(Split(Space, 0))
       case tok =>
         logger.debug(s"MISSING CASE: $tok")
