@@ -11,7 +11,8 @@ Using the CLI is _mandatory_, in one of these configurations:
 
 ## Configuration (required) ##
 
-Please paste the contents of your `.scalafmt.conf` file here:
+Please paste the **smallest** possible set of `.scalafmt.conf`
+configuration parameters that reproduces the problem:
 ```
 version = <please enter the version here and make sure it's the latest>
 ...
@@ -42,7 +43,7 @@ If you were not using CLI initially:
 
 Given code like this:
 ```scala
-ORIGINAL CODE
+THE SMALLEST POSSIBLE SNIPPET OF ORIGINAL CODE
 ```
 
 ## Problem
