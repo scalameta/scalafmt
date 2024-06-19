@@ -31,7 +31,7 @@ object Constants {
   val BracketPenalty = 20
   val ExceedColumnPenalty = 1000
   // Breaking a line like s"aaaaaaa${111111 + 22222}" should be last resort.
-  val BreakSingleLineInterpolatedString = 10 * ExceedColumnPenalty
+  val BreakSingleLineInterpolatedString = 1000 * ExceedColumnPenalty
 }
 
 /** Assigns splits to format tokens.
