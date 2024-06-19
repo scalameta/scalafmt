@@ -6,11 +6,6 @@ import scala.meta.internal.trees._
 object InfixApp {
 
   implicit class XtensionInfix(private val tree: Member.Infix) extends AnyVal {
-    // https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
-    // The precedence of an assignment ... is lower than the precedence of any other ...
-    @inline
-    def isAssignment: Boolean = tree.op.value.isAssignmentOp
-
     @inline
     def precedence: Int = InfixApp.getPrecedence(tree.op.value)
 
@@ -35,6 +30,7 @@ object InfixApp {
   }
 
   // https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
+  // The precedence of an assignment ... is lower than the precedence of any other ...
   private val infixOpPrecedence: Map[Char, Int] = {
     val builder = Map.newBuilder[Char, Int]
     def add(precedence: Int, ops: Char*): Unit = addSeq(precedence, ops)
