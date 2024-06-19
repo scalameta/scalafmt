@@ -129,8 +129,8 @@ foo match {
 }
 >>>
 foo match {
-  case e: Etype | f: Ftype =>
-  case g: Gtype =>
+  case e:Etype | f:Ftype =>
+  case g:Gtype =>
 }
 <<< pattern alternatives, afterColonInMatchPattern = noAlternatives
 spaces.afterColonInMatchPattern = noAlternatives
@@ -141,6 +141,6 @@ foo match {
 }
 >>>
 foo match {
-  case e: Etype | f: Ftype =>
+  case e:Etype | f:Ftype =>
   case g: Gtype =>
 }

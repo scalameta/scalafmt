@@ -66,6 +66,17 @@ case class Spaces(
 ) {
   def isSpaceAfterKeyword(tokenAfter: Token): Boolean =
     afterKeywordBeforeParen || !tokenAfter.is[Token.LeftParen]
+
+  def notAfterColon(owner: meta.Tree): Boolean = owner match {
+    case x: meta.Pat.Typed => afterColonInMatchPattern match {
+        case Spaces.AfterColonInMatchPattern.Never => true
+        case Spaces.AfterColonInMatchPattern.Always => false
+        case Spaces.AfterColonInMatchPattern.NoAlternatives => x.parent
+            .exists(_.is[meta.Pat.Alternative])
+      }
+    case _ => false
+  }
+
 }
 
 object Spaces {
