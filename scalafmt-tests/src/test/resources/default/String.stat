@@ -664,8 +664,7 @@ object a {
 >>>
 object a {
   throw new Exception(
-    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x
-        .maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
+    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x.maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
   )
 }
 <<< #4067 avoid fold
@@ -684,8 +683,7 @@ object a {
 >>>
 object a {
   throw new Exception(
-    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x
-        .maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
+    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x.maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
   )
 }
 <<< #4067 avoid unfold
@@ -704,7 +702,6 @@ object a {
 >>>
 object a {
   throw new Exception(
-    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x
-        .maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
+    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x.maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
   )
 }
