@@ -4691,6 +4691,50 @@ foo ===(baz)
 foo bar (baz)
 ```
 
+### `spaces.afterColonInMatchPattern`
+
+> Since v3.8.3.
+
+```scala mdoc:defaults
+spaces.afterColonInMatchPattern
+```
+
+This parameter controls whether to output a space between a colon and a type in
+typed match patterns. It takes the following values:
+
+- `Always`:
+
+```scala mdoc:scalafmt
+spaces.afterColonInMatchPattern = always
+---
+foo match {
+  case e: Etype | f: Ftype =>
+  case g: Gtype =>
+}
+```
+
+- `Never`:
+
+```scala mdoc:scalafmt
+spaces.afterColonInMatchPattern = never
+---
+foo match {
+  case e: Etype | f: Ftype =>
+  case g: Gtype =>
+}
+```
+
+- `NoAlternatives` (when there are no pipe-separated alternatives):
+
+```scala mdoc:scalafmt
+spaces.afterColonInMatchPattern = noAlternatives
+---
+foo match {
+  case e: Etype | f: Ftype =>
+  case g: Gtype =>
+}
+```
+
 ## Literals
 
 > Since v2.5.0.

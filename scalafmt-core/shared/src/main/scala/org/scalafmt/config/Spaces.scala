@@ -61,6 +61,8 @@ case class Spaces(
     afterKeywordBeforeParen: Boolean = true,
     inByNameTypes: Boolean = true,
     afterSymbolicDefs: Boolean = false,
+    private val afterColonInMatchPattern: Spaces.AfterColonInMatchPattern =
+      Spaces.AfterColonInMatchPattern.Always,
 ) {
   def isSpaceAfterKeyword(tokenAfter: Token): Boolean =
     afterKeywordBeforeParen || !tokenAfter.is[Token.LeftParen]
@@ -82,6 +84,15 @@ object Spaces {
     case object Always extends BeforeContextBound
     case object Never extends BeforeContextBound
     case object IfMultipleBounds extends BeforeContextBound
+  }
+
+  sealed abstract class AfterColonInMatchPattern
+  object AfterColonInMatchPattern {
+    implicit val codec: ConfCodecEx[AfterColonInMatchPattern] = ReaderUtil
+      .oneOf[AfterColonInMatchPattern](Always, Never, NoAlternatives)
+    case object Always extends AfterColonInMatchPattern
+    case object Never extends AfterColonInMatchPattern
+    case object NoAlternatives extends AfterColonInMatchPattern
   }
 
   sealed abstract class BeforeArgInParens {
