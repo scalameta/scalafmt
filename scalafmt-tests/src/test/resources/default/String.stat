@@ -630,3 +630,81 @@ println(
        |A very long string
        |with multiple lines
        |""".stripMargin)
+<<< #4067 avoid classic
+preset = default
+maxColumn = 120
+newlines {
+  inInterpolation = avoid
+}
+===
+object a {
+  throw new Exception(
+    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x.maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
+  )
+}
+>>>
+object a {
+  throw new Exception(
+    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x.maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
+  )
+}
+<<< #4067 avoid keep
+preset = default
+maxColumn = 120
+newlines {
+  inInterpolation = avoid
+  source = keep
+}
+===
+object a {
+  throw new Exception(
+    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x.maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
+  )
+}
+>>>
+object a {
+  throw new Exception(
+    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x
+        .maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
+  )
+}
+<<< #4067 avoid fold
+preset = default
+maxColumn = 120
+newlines {
+  inInterpolation = avoid
+  source = fold
+}
+===
+object a {
+  throw new Exception(
+    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x.maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
+  )
+}
+>>>
+object a {
+  throw new Exception(
+    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x
+        .maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
+  )
+}
+<<< #4067 avoid unfold
+preset = default
+maxColumn = 120
+newlines {
+  inInterpolation = avoid
+  source = unfold
+}
+===
+object a {
+  throw new Exception(
+    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x.maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
+  )
+}
+>>>
+object a {
+  throw new Exception(
+    s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x
+        .maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
+  )
+}
