@@ -108,3 +108,39 @@ object a {
     case e: Exception => bar; baz
   }
 }
+<<< pattern alternatives, afterColonInMatchPattern = always
+spaces.afterColonInMatchPattern = always
+===
+foo match {
+  case e: Etype | f: Ftype =>
+  case g: Gtype =>
+}
+>>>
+foo match {
+  case e: Etype | f: Ftype =>
+  case g: Gtype =>
+}
+<<< pattern alternatives, afterColonInMatchPattern = never
+spaces.afterColonInMatchPattern = never
+===
+foo match {
+  case e: Etype | f: Ftype =>
+  case g: Gtype =>
+}
+>>>
+foo match {
+  case e: Etype | f: Ftype =>
+  case g: Gtype =>
+}
+<<< pattern alternatives, afterColonInMatchPattern = noAlternatives
+spaces.afterColonInMatchPattern = noAlternatives
+===
+foo match {
+  case e: Etype | f: Ftype =>
+  case g: Gtype =>
+}
+>>>
+foo match {
+  case e: Etype | f: Ftype =>
+  case g: Gtype =>
+}
