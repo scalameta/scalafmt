@@ -103,24 +103,27 @@ class FormatWriter(formatOps: FormatOps) {
 
   private def getFormatLocations(state: State): FormatLocations = {
     val toks = tokens.arr
-    require(toks.length >= state.depth, "splits !=")
-    val result = new Array[FormatLocation](state.depth)
+    val depth = state.depth
+    require(toks.length >= depth, "splits !=")
+    val result = new Array[FormatLocation](depth)
 
     @tailrec
-    def iter(state: State, lineId: Int): Unit = if (state.depth != 0) {
-      val prev = state.prev
+    def iter(cur: State, lineId: Int): Unit = {
+      val prev = cur.prev
       val idx = prev.depth
       val ft = toks(idx)
-      val newlines =
-        if (idx == 0) 0
-        else state.split.modExt.mod.newlines + ft.meta.left.countNL
-      val newLineId = lineId + newlines
-      result(idx) = FormatLocation(ft, state, styleMap.at(ft), newLineId)
-      iter(prev, newLineId)
+      if (idx == 0) // done
+        result(idx) = FormatLocation(ft, cur, initStyle, lineId)
+      else {
+        val nl = cur.split.modExt.mod.newlines
+        val nLineId = lineId + nl + ft.meta.left.countNL
+        result(idx) = FormatLocation(ft, cur, styleMap.at(ft), nLineId)
+        iter(prev, nLineId)
+      }
     }
-    iter(state, 0)
+    if (depth != 0) iter(state, 0)
 
-    if (state.depth == toks.length) { // format completed
+    if (depth == toks.length) { // format completed
       val initStyle = styleMap.init
       if (initStyle.dialect.allowEndMarker) {
         if (initStyle.rewrite.scala3.removeEndMarkerMaxLines > 0)
@@ -1395,7 +1398,7 @@ class FormatWriter(formatOps: FormatOps) {
       @inline
       def setFtCheck(ft: FormatToken, cnt: Int, force: => Boolean) =
         setIdxCheck(ft.meta.idx, cnt, force)
-      def setTopStats(owner: Tree, stats: Seq[Stat]): Unit = {
+      def setTopStats(owner: Tree, stats: Seq[Tree]): Unit = {
         val nest = getNest(stats.head)
         if (nest < 0) return
         val end = owner.pos.end
@@ -1447,7 +1450,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
         @tailrec
         def iter(
-            rest: Seq[Stat],
+            rest: Seq[Tree],
             idx: Int,
             previous: Option[(Int, Newlines.NumBlanks)],
             imports: Option[(Int, ImportExportStat, ImportExportStat)],
@@ -1502,16 +1505,21 @@ class FormatWriter(formatOps: FormatOps) {
           setFt(trailingComment(ft, owner.pos.end))
       }
       val trav = new Traverser {
+        private def applySeq(t: Tree)(seq: Seq[Tree]): Unit =
+          if (seq.nonEmpty) {
+            setTopStats(t, seq)
+            super.apply(seq)
+          }
+        private def applySeqWith[A <: Tree](
+            t: Tree,
+        )(seq: Seq[A])(f: Seq[A] => Unit): Unit = if (seq.nonEmpty) {
+          f(seq)
+          setTopStats(t, seq)
+          super.apply(seq)
+        }
         override def apply(tree: Tree): Unit = tree match {
-          case t: Source =>
-            val stats = t.stats
-            if (stats.nonEmpty) {
-              setTopStats(t, stats)
-              super.apply(stats)
-            }
-          case t: Template =>
-            val stats = t.stats
-            if (stats.nonEmpty) {
+          case t: Source => applySeq(t)(t.stats)
+          case t: Template => applySeqWith(t)(t.stats) { stats =>
               beforeBody(stats) {
                 _.beforeTemplateBodyIfBreakInParentCtors && {
                   val beg = leadingComment(t).meta.idx
@@ -1520,23 +1528,15 @@ class FormatWriter(formatOps: FormatOps) {
                 }
               }
               afterBody(t, stats)
-              setTopStats(t, stats)
-              super.apply(stats) // skip inits
             }
-          case t: Defn.ExtensionGroup =>
-            val stats = t.body match {
+          case t: Defn.ExtensionGroup => applySeqWith(t)(t.body match {
               case b: Term.Block => b.stats
               case b => List(b)
-            }
-            if (stats.nonEmpty) {
+            }) { stats =>
               beforeBody(stats)(_ => false)
               afterBody(t, stats)
-              setTopStats(t, stats)
-              super.apply(stats)
             }
-          case t: Pkg =>
-            val stats = t.stats
-            if (stats.nonEmpty) {
+          case t: Pkg => applySeqWith(t)(t.stats) { stats =>
               if (indentedPackage(t)) {
                 beforeBody(stats)(_ => false)
                 afterBody(t, stats)
@@ -1546,8 +1546,6 @@ class FormatWriter(formatOps: FormatOps) {
                   case _ => true
                 }
               ) beforeBody(stats)(_.hasTopStatBlankLines)
-              setTopStats(t, stats)
-              super.apply(stats) // skip ref
             }
           case t: Stat.WithTemplate => apply(t.templ)
           case _ => // everything else is not "top-level"
@@ -1579,10 +1577,13 @@ class FormatWriter(formatOps: FormatOps) {
       val head = tokenJustBefore(statHead)
       val last = getLast(statLast)
       val bLoc = locations(head.meta.idx + 1)
-      val numBreaks = getLineDiff(bLoc, locations(last.meta.idx))
-      bLoc.style.newlines.getTopStatBlankLines(statHead, numBreaks, nest).map {
-        x => (x, head, last)
-      }
+      val eLoc = locations(last.meta.idx)
+      val params = Newlines.TopStatBlanksParams( // set search parameters
+        numBreaks = getLineDiff(bLoc, eLoc),
+        nest = nest,
+      )
+      bLoc.style.newlines.getTopStatBlankLines(statHead)(params)
+        .map((_, head, last))
     }
 
   }

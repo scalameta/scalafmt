@@ -322,13 +322,11 @@ case class Newlines(
 
   def getTopStatBlankLines(
       tree: Tree,
-      numBreaks: Int,
-      nest: Int,
-  ): Option[NumBlanks] = topStatBlankLinesSorted.iterator
-    .takeWhile(_.minBreaks <= numBreaks).find { x =>
-      x.minNest <= nest && x.maxNest >= nest &&
-      x.pattern.forall(_.matcher(tree.productPrefix).find())
-    }.flatMap(_.blanks)
+  )(params: TopStatBlanksParams): Option[NumBlanks] = {
+    val prefix = tree.productPrefix
+    topStatBlankLinesSorted.iterator.takeWhile(_.minBreaks <= params.numBreaks)
+      .find(x => x.checkParams(params, prefix)).flatMap(_.blanks)
+  }
 
   private def getBeforeOpenParen(bop: BeforeOpenParen): SourceHints =
     Option(bop.src).getOrElse(source)
@@ -521,6 +519,9 @@ object Newlines {
       maxNest: Int = Int.MaxValue,
   ) {
     lazy val pattern = regex.map(_.r.pattern)
+    def checkParams(v: TopStatBlanksParams, prefix: String): Boolean =
+      checkRange(v.nest, minNest, maxNest) &&
+        pattern.forall(_.matcher(prefix).find())
   }
   object TopStatBlanks {
     implicit val surface: Surface[TopStatBlanks] = generic
@@ -528,6 +529,11 @@ object Newlines {
     implicit val codec: ConfCodecEx[TopStatBlanks] = generic
       .deriveCodecEx(TopStatBlanks()).noTypos
   }
+  case class TopStatBlanksParams( // what to match against in checkParams above
+      numBreaks: Int,
+      nest: Int,
+  )
+  private def checkRange(v: Int, min: Int, max: Int) = min <= v && v <= max
 
   case class BeforeOpenParen(src: SourceHints = null)
   object BeforeOpenParen {
