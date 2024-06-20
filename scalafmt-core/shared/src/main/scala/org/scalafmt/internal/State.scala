@@ -75,7 +75,7 @@ final case class State(
     // Some tokens contain newline, like multiline strings/comments.
     val startColumn = nextSplit.modExt.mod match {
       case m: NewlineT => if (m.noIndent) 0 else nextIndent
-      case m => if (m.isNewline) nextIndent else column + m.length
+      case m => if (m.isNL) nextIndent else column + m.length
     }
     val (columnOnCurrentLine, nextStateColumn) = State
       .getColumns(tok, nextIndent, startColumn)

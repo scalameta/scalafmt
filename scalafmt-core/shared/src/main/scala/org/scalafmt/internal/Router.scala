@@ -1885,7 +1885,7 @@ class Router(formatOps: FormatOps) {
         val mod =
           if (style.newlines.keepBreak(newlines)) Newline
           else Space(style.spaces.isSpaceAfterKeyword(right))
-        val slb = Split(mod.isNewline, 0)(mod)
+        val slb = Split(mod.isNL, 0)(mod)
           .withSingleLine(expire, killOnFail = true)
         val mlSplitBase = Split(mod, if (slb.isIgnored) 0 else 1)
           .withPolicy(getBreakBeforeElsePolicy(owner))

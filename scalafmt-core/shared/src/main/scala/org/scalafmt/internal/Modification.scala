@@ -4,13 +4,15 @@ sealed abstract class Modification {
   val newlines: Int
   val length: Int
   @inline
-  final def isNewline: Boolean = newlines != 0
+  final def isNL: Boolean = newlines != 0
+  @inline
+  final def isBlankLine: Boolean = newlines > 1
 }
 
 case class Provided(ft: FormatToken) extends Modification {
   override val newlines: Int = ft.newlinesBetween
   override lazy val length: Int =
-    if (newlines == 0) betweenText.length else betweenText.indexOf('\n')
+    if (isNL) betweenText.indexOf('\n') else betweenText.length
   lazy val betweenText: String = ft.between.map(_.syntax).mkString
 }
 
