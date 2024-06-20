@@ -676,7 +676,7 @@ class FormatOps(
       }
       val nlMod = newStmtMod
         .getOrElse(Space.orNL(ft.noBreak && ft.right.is[T.Comment]))
-      val delayedBreak = Policy ? nlMod.isNewline || breakAfterComment(ft)
+      val delayedBreak = Policy ? nlMod.isNL || breakAfterComment(ft)
 
       val (singleLineExpire, singleLineIndent) = {
         val skip = skipInfixIndent

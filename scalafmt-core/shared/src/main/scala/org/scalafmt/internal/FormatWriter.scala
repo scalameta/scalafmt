@@ -1191,7 +1191,7 @@ class FormatWriter(formatOps: FormatOps) {
           }
 
           implicit val floc: FormatLocation = processLine
-          val isBlankLine = floc.state.split.modExt.mod.newlines > 1
+          val isBlankLine = floc.state.split.modExt.mod.isBlankLine
           if (alignContainer ne null) {
             val candidates = columnCandidates.result()
             val block = getOrCreateBlock(alignContainer)

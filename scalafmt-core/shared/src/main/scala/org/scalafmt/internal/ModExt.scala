@@ -13,7 +13,7 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
   lazy val indentation = indents.mkString("[", ", ", "]")
 
   @inline
-  def isNL: Boolean = mod.isNewline
+  def isNL: Boolean = mod.isNL
 
   def withIndent(length: => Length, expire: => Token, when: ExpiresOn): ModExt =
     length match {
