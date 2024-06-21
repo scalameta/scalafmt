@@ -1510,13 +1510,13 @@ class FormatOps(
           val callPolicy = CallSite.getFoldedPolicy(lia.lhs)
           // lia is enclosed in parens if and only if lia == ia (== body)
           if (callPolicy.nonEmpty) getPolicySplits(0, callPolicy)
-          else if (isBodyEnclosedAsBlock(body))
+          else if (isBodyEnclosedAsBlock(ia))
             if (isKeep) getPolicySplits(0, Policy.NoPolicy)
             else getSplits(getSlbSplit(getLastToken(lia.lhs)))
           else getSplits(getSlbSplit(getLastToken(lia.op)))
-        case _ =>
-          val callPolicy = CallSite.getFoldedPolicy(body)
-          val nlCost = body match {
+        case b =>
+          val callPolicy = CallSite.getFoldedPolicy(b)
+          val nlCost = b match {
             case Member.Apply(_, ac)
                 if styleMap.at(getHead(ac)).binPack.callSiteFor(ac).isOneline =>
               3
