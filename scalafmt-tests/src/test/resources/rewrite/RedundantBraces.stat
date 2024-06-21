@@ -1766,16 +1766,16 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-       nest: Int,
--  ): Option[NumBlanks] = topStatBlankLinesSorted.iterator
--    .takeWhile(_.minBreaks <= numBreaks).find { x =>
--      x.checkNest(nest) && x.pattern.forall(_.matcher(prefix).find())
-+  ): Option[NumBlanks] =
-+    topStatBlankLinesSorted.iterator.takeWhile(_.minBreaks <= numBreaks).find {
-+      x => x.checkNest(nest) && x.pattern.forall(_.matcher(prefix).find())
-     }.flatMap(_.blanks)
+object a {
+  def getTopStatBlankLines(
+      prefix: String,
+      numBreaks: Int,
+      nest: Int,
+  ): Option[NumBlanks] = topStatBlankLinesSorted.iterator
+    .takeWhile(_.minBreaks <= numBreaks).find { x =>
+      x.checkNest(nest) && x.pattern.forall(_.matcher(prefix).find())
+    }.flatMap(_.blanks)
+}
 <<< fold ctrl body with redundant braces, !trailing commas
 maxColumn = 80
 newlines.source = fold
@@ -1794,13 +1794,13 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-       nest: Int
--  ): Option[NumBlanks] = topStatBlankLinesSorted.iterator
--    .takeWhile(_.minBreaks <= numBreaks).find { x =>
--      x.checkNest(nest) && x.pattern.forall(_.matcher(prefix).find())
-+  ): Option[NumBlanks] =
-+    topStatBlankLinesSorted.iterator.takeWhile(_.minBreaks <= numBreaks).find {
-+      x => x.checkNest(nest) && x.pattern.forall(_.matcher(prefix).find())
-     }.flatMap(_.blanks)
+object a {
+  def getTopStatBlankLines(
+      prefix: String,
+      numBreaks: Int,
+      nest: Int
+  ): Option[NumBlanks] = topStatBlankLinesSorted.iterator
+    .takeWhile(_.minBreaks <= numBreaks).find { x =>
+      x.checkNest(nest) && x.pattern.forall(_.matcher(prefix).find())
+    }.flatMap(_.blanks)
+}
