@@ -1670,6 +1670,11 @@ whether the rule should apply):
     a statement (i.e., one less than the number of lines the statement spans).
   - for instance, `minBreaks=0` will apply to all statements, whereas 1 will
     require at least one line break (that is, a multi-line statement).
+- (since v3.8.3) `minBlankGaps` and `maxBlankGaps`
+  - sets the range on the number of blank-line gaps (regardless of the number of
+    lines in each gap) that would have been [output](#advanced-formatting-process)
+    prior to this rule.
+  - if a limit is unspecified, will not constrain on the corresponding end
 - `blanks`
   - if omitted while the entry matches, serves to exclude another entry
   - `before`: number of lines to be added before a matching statement; if
