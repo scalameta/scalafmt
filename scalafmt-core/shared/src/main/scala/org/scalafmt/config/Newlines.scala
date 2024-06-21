@@ -523,6 +523,7 @@ object Newlines {
     lazy val pattern = regex.map(_.r.pattern)
     def checkParams(v: TopStatBlanksParams, prefix: String): Boolean =
       checkRange(v.nest, minNest, maxNest) &&
+        checkRange(v.blankGaps, minBlankGaps, maxBlankGaps) &&
         pattern.forall(_.matcher(prefix).find())
   }
   object TopStatBlanks {
@@ -534,6 +535,7 @@ object Newlines {
   case class TopStatBlanksParams( // what to match against in checkParams above
       numBreaks: Int,
       nest: Int,
+      blankGaps: Int,
   )
   private def checkRange(v: Int, min: Int, max: Int) = min <= v && v <= max
 
