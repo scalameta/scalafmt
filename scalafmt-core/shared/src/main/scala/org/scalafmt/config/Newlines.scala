@@ -517,6 +517,8 @@ object Newlines {
       blanks: Option[NumBlanks] = None,
       minNest: Int = 0,
       maxNest: Int = Int.MaxValue,
+      minBlankGaps: Int = 0,
+      maxBlankGaps: Int = Int.MaxValue,
   ) {
     lazy val pattern = regex.map(_.r.pattern)
     def checkParams(v: TopStatBlanksParams, prefix: String): Boolean =

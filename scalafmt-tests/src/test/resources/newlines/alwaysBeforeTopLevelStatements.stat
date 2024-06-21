@@ -473,3 +473,117 @@ object a {
     baz
   }
 }
+<<< blank gaps range
+newlines.topLevelStatementBlankLines = [ {
+    minBlankGaps = 1
+    maxBlankGaps = 1
+    blanks = 1
+  }
+]
+===
+object aboveRange {
+    object belowRange {
+      val a = {
+        b
+        c
+      }
+    }
+    object inRange {
+      val a = {
+        b
+    
+        c
+      }
+    }
+}
+>>>
+object aboveRange {
+
+  object belowRange {
+
+    val a = {
+      b
+      c
+    }
+
+  }
+
+  object inRange {
+
+    val a = {
+      b
+
+      c
+    }
+
+  }
+
+}
+<<< case match, top-level
+newlines.topLevelStatementBlankLines = [ {
+    minBlankGaps = 1
+    maxBlankGaps = 1
+    blanks = 1
+  }
+]
+===
+object a {
+  foo match {
+    case pat1 => body1
+    case pat2 =>
+     body21
+     body22
+    case pat3 =>
+      body31
+
+      body32
+  }
+}
+>>>
+object a {
+
+  foo match {
+    case pat1 => body1
+    case pat2 =>
+      body21
+      body22
+    case pat3 =>
+      body31
+
+      body32
+  }
+
+}
+<<< case match, within def
+newlines.topLevelStatementBlankLines = [ {
+    minBlankGaps = 1
+    maxBlankGaps = 1
+    blanks = 1
+  }
+]
+===
+def a = {
+  foo match {
+    case pat1 => body1
+    case pat2 =>
+     body21
+     body22
+    case pat3 =>
+      body31
+
+      body32
+  }
+}
+>>>
+def a = {
+  foo match {
+    case pat1 => body1
+    case pat2 =>
+      body21
+      body22
+    case pat3 =>
+      body31
+
+      body32
+  }
+}
