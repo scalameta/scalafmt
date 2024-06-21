@@ -12,7 +12,7 @@ object Dependencies {
   val scalacheckV = "1.18.0"
   val coursier    = "2.1.10"
   val munitV      = "1.0.0"
-  val mdocV       = "2.5.2"
+  val mdocV       = "2.5.3"
 
   val scalapb = Def.setting {
     ExclusionRule(
