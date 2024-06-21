@@ -108,20 +108,21 @@ class FormatWriter(formatOps: FormatOps) {
     val result = new Array[FormatLocation](depth)
 
     @tailrec
-    def iter(cur: State, lineId: Int): Unit = {
+    def iter(cur: State, lineId: Int, gapId: Int): Unit = {
       val prev = cur.prev
       val idx = prev.depth
       val ft = toks(idx)
       if (idx == 0) // done
-        result(idx) = FormatLocation(ft, cur, initStyle, lineId)
+        result(idx) = FormatLocation(ft, cur, initStyle, lineId, gapId)
       else {
         val nl = cur.split.modExt.mod.newlines
         val nLineId = lineId + nl + ft.meta.left.countNL
-        result(idx) = FormatLocation(ft, cur, styleMap.at(ft), nLineId)
-        iter(prev, nLineId)
+        val nGapId = gapId + (if (nl > 1) 1 else 0)
+        result(idx) = FormatLocation(ft, cur, styleMap.at(ft), nLineId, nGapId)
+        iter(prev, nLineId, nGapId)
       }
     }
-    if (depth != 0) iter(state, 0)
+    if (depth != 0) iter(state, 0, 0)
 
     if (depth == toks.length) { // format completed
       val initStyle = styleMap.init
@@ -1581,6 +1582,7 @@ class FormatWriter(formatOps: FormatOps) {
       val params = Newlines.TopStatBlanksParams( // set search parameters
         numBreaks = getLineDiff(bLoc, eLoc),
         nest = nest,
+        blankGaps = getBlankGapsDiff(bLoc, eLoc),
       )
       bLoc.style.newlines.getTopStatBlankLines(statHead)(params)
         .map((_, head, last))
@@ -1613,6 +1615,7 @@ object FormatWriter {
       state: State,
       style: ScalafmtConfig,
       leftLineId: Int, // counts back from the end of the file
+      leftBlankGapId: Int, // accumulates number of blank gaps, also from end
       shift: Int = 0,
       optionalBraces: Map[Int, Tree] = Map.empty,
       // if indent is empty, indicates open; otherwise, whether to tuck
@@ -1995,6 +1998,10 @@ object FormatWriter {
   @inline
   private def getLineDiff(beg: FormatLocation, end: FormatLocation): Int =
     beg.leftLineId - end.leftLineId
+
+  @inline
+  private def getBlankGapsDiff(beg: FormatLocation, end: FormatLocation): Int =
+    beg.leftBlankGapId - end.leftBlankGapId
 
   @inline
   private def getLineDiff(

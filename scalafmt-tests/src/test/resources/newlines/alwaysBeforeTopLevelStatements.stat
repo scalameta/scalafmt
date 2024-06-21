@@ -498,14 +498,11 @@ object aboveRange {
 }
 >>>
 object aboveRange {
-
   object belowRange {
-
     val a = {
       b
       c
     }
-
   }
 
   object inRange {
