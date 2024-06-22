@@ -1410,3 +1410,65 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 foo.mtd({ x => x + 1 })
 >>>
 foo.mtd(x => x + 1)
+<<< type in parens, val/var
+runner.dialect = scala3
+===
+object a {
+  val (a: (Int)) = b
+  var (c: (foo.Int)) = d
+  val (a: (A | B)) = b
+  var (c: (C & D)) = d
+  val (a: (A | B), c: (C & D)) = (b, d)
+}
+>>>
+object a {
+  val (a: Int) = b
+  var (c: (foo.Int)) = d
+  val (a: (A | B)) = b
+  var (c: (C & D)) = d
+  val (a: (A | B), c: (C & D)) = (b, d)
+}
+<<< type in parens, def
+runner.dialect = scala3
+===
+object a {
+  def g(h: (Int)): (String)
+  def g(h: (Int)): (foo.String)
+  def g(h: (Int)): (foo.String[A])
+  def g(h: (Int)): (String) = ???
+  def g(h: (Int)): (foo.String) = ???
+  def g(h: (Int)): (foo.String[A]) = ???
+  def g(h: (Int | Long)): (foo & bar) = ???
+  def g(h: (A & B)): (foo | bar[A]) = ???
+}
+>>>
+object a {
+  def g(h: Int): String
+  def g(h: Int): (foo.String)
+  def g(h: Int): foo.String[A]
+  def g(h: Int): (String) = ???
+  def g(h: Int): (foo.String) = ???
+  def g(h: Int): (foo.String[A]) = ???
+  def g(h: (Int | Long)): (foo & bar) = ???
+  def g(h: (A & B)): (foo | bar[A]) = ???
+}
+<<< type in parens, typedef
+runner.dialect = scala3
+===
+object a {
+  type f = (bar.Int[baz])
+}
+>>>
+object a {
+  type f = bar.Int[baz]
+}
+<<< type in parens, pat
+runner.dialect = scala3
+===
+a match {
+  case _: (A | B) | _: (C & D) =>
+}
+>>>
+a match {
+  case _: (A | B) | _: (C & D) =>
+}
