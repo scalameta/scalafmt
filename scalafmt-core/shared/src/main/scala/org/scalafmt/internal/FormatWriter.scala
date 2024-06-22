@@ -1388,9 +1388,10 @@ class FormatWriter(formatOps: FormatOps) {
 
     lazy val extraBlankTokens = {
       val extraBlankMap = new mutable.HashMap[Int, Int]
-      def setIdx(idx: Int, cnt: Int) =
-        if (extraBlankMap.getOrElseUpdate(idx, cnt) < cnt) extraBlankMap
-          .update(idx, cnt)
+      def setIdx(idx: Int, cnt: Int) = extraBlankMap.updateWith(idx) {
+        case Some(v) if v > cnt => Some(v)
+        case _ => Some(cnt)
+      }
       @inline
       def setIdxCheck(idx: => Int, cnt: Int, force: => Boolean) =
         if (cnt > 0) setIdx(idx, cnt) else if (cnt < 0 && force) setIdx(idx, 0)
