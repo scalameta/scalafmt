@@ -1423,7 +1423,7 @@ object a {
 >>>
 object a {
   val (a: Int) = b
-  var (c: (foo.Int)) = d
+  var (c: foo.Int) = d
   val (a: (A | B)) = b
   var (c: (C & D)) = d
   val (a: (A | B), c: (C & D)) = (b, d)
@@ -1444,10 +1444,10 @@ object a {
 >>>
 object a {
   def g(h: Int): String
-  def g(h: Int): (foo.String)
+  def g(h: Int): foo.String
   def g(h: Int): foo.String[A]
   def g(h: Int): String = ???
-  def g(h: Int): (foo.String) = ???
+  def g(h: Int): foo.String = ???
   def g(h: Int): foo.String[A] = ???
   def g(h: (Int | Long)): (foo & bar) = ???
   def g(h: (A & B)): (foo | bar[A]) = ???

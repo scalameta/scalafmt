@@ -141,13 +141,13 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   private def okToReplaceOther(
       t: Tree,
   )(implicit style: ScalafmtConfig): Boolean = t match {
-    case _: Lit | _: Name | _: Term.Interpolate => true
-    case _: Term.PartialFunction | _: Member.Apply => true
+    case _: Lit | _: Member.Apply | _: Term.Interpolate |
+        _: Term.PartialFunction => true
     case t: Term.Select => ftoks.tokenBefore(t.name).left.is[Token.Dot]
-    case t: Term.Match
-        if style.dialect.allowMatchAsOperator &&
-          ftoks.tokenAfter(t.expr).right.is[Token.Dot] &&
-          ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace] => true
+    case _: Ref => true // Ref must be after Select
+    case t: Term.Match => style.dialect.allowMatchAsOperator &&
+      ftoks.tokenAfter(t.expr).right.is[Token.Dot] && // like select
+      ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace]
     case _ => false
   }
 
