@@ -75,6 +75,11 @@ object FormatToken {
 
   @inline
   def isNL(token: Token): Boolean = token.is[Token.AtEOL]
+  @inline
+  def newlines(token: Token): Int = token match {
+    case t: Token.AtEOL => t.newlines
+    case _ => 0
+  }
 
   /** @param between
     *   The whitespace tokens between left and right.
@@ -101,9 +106,8 @@ object FormatToken {
       def count(idx: Int, maxCount: Int): Int =
         if (idx == between.length) maxCount
         else {
-          val token = between(idx)
-          if (isNL(token)) if (maxCount == 0) count(idx + 1, 1) else 2
-          else count(idx + 1, maxCount)
+          val newMaxCount = maxCount + newlines(between(idx))
+          if (newMaxCount < 2) count(idx + 1, newMaxCount) else 2
         }
       count(0, 0)
     }
