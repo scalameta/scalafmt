@@ -397,17 +397,17 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             case Type.Name("Unit") => true
             case _ => false
           }
-        checkBlockAsBody(b, d.body, noParams(d.paramClauseGroup)) &&
+        checkBlockAsBody(b, d.body, noParams = d.paramClauseGroups.isEmpty) &&
         !isProcedureSyntax(d) && !disqualifiedByUnit
 
-      case d: Defn.Var => d.rhs.exists(checkBlockAsBody(b, _, noParams = true))
+      case d: Defn.Var => checkBlockAsBody(b, d.body, noParams = true)
       case d: Defn.Val => checkBlockAsBody(b, d.rhs, noParams = true)
       case d: Defn.Type =>
-        checkBlockAsBody(b, d.body, noParams = d.tparamClause.values.isEmpty)
+        checkBlockAsBody(b, d.body, noParams = d.tparamClause.isEmpty)
       case d: Defn.Macro =>
-        checkBlockAsBody(b, d.body, noParams(d.paramClauseGroup))
+        checkBlockAsBody(b, d.body, noParams = d.paramClauseGroups.isEmpty)
       case d: Defn.GivenAlias =>
-        checkBlockAsBody(b, d.body, noParams(d.paramClauseGroup))
+        checkBlockAsBody(b, d.body, noParams = d.paramClauseGroup.isEmpty)
 
       case p: Term.FunctionTerm if isFunctionWithBraces(p) =>
         okToRemoveAroundFunctionBody(b, true)
@@ -434,12 +434,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     case RedundantBracesSettings.DefnBodies.none => false
     case RedundantBracesSettings.DefnBodies.noParams => noParams
   }
-
-  private def noParams(group: Member.ParamClauseGroup): Boolean =
-    group.tparamClause.values.isEmpty && group.paramClauses.isEmpty
-
-  private def noParams(group: Option[Member.ParamClauseGroup]): Boolean = group
-    .forall(noParams)
 
   private def innerOk(b: Term.Block)(s: Stat): Boolean = s match {
     case t: Term.NewAnonymous =>
