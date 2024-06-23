@@ -134,6 +134,8 @@ class RedundantParens(implicit val ftoks: FormatTokens)
           }
         case pia: Member.Infix if !infixNeedsParens(pia, t) =>
           okToReplaceInfix(pia, t)
+        case p: Tree.WithDeclTpe if p.decltpe eq t => true
+        case p: Tree.WithDeclTpeOpt if p.decltpe.contains(t) => true
         case _ => okToReplaceOther(t)
       }
   }

@@ -1449,8 +1449,8 @@ object a {
   def g(h: Int): String = ???
   def g(h: Int): foo.String = ???
   def g(h: Int): foo.String[A] = ???
-  def g(h: (Int | Long)): (foo & bar) = ???
-  def g(h: (A & B)): (foo | bar[A]) = ???
+  def g(h: Int | Long): foo & bar = ???
+  def g(h: A & B): foo | bar[A] = ???
 }
 <<< type in parens, typedef
 runner.dialect = scala3
