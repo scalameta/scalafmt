@@ -371,14 +371,9 @@ object TreeOps {
 
   // invoked ONLY for colon
   def colonDeclType(tree: Tree): Option[Type] = tree match {
-    case d: Decl.Def => Some(d.decltpe)
-    case d: Defn.Def => d.decltpe
-    case d: Defn.Macro => d.decltpe
     case d: Defn.Given => d.templ.inits.headOption.map(_.tpe)
-    case d: Defn.GivenAlias => Some(d.decltpe)
-    case d: Decl.Given => Some(d.decltpe)
-    case d: Defn.Val => d.decltpe
-    case d: Defn.Var => d.decltpe
+    case d: Tree.WithDeclTpe => Some(d.decltpe) // all are Decl or Defn
+    case d: Tree.WithDeclTpeOpt with Defn => d.decltpe
     case _ => None
   }
 
