@@ -45,7 +45,7 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
         case p: Term.If if p.cond ne t =>
           Some(p.thenp.ne(t) || !TreeOps.ifWithoutElse(t))
         case p: Term.While => okIf(p.body)
-        case p: Tree.WithBody => Some(t eq p.body)
+        case p: Tree.WithBody if t eq p.body => Some(true)
         case _: Term.Return | _: Term.Throw | _: Term.QuotedMacroExpr |
             _: Term.SplicedMacroExpr | _: Term.Block => Some(true)
         case _ => None
@@ -116,6 +116,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     case t => t.parent.forall {
         case _: Enumerator.Guard => RewriteCtx.isPostfixExpr(t)
         case p: Case => p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
+        case _: Term.Do => false
         case p: Term.While => p.expr.eq(t) && style.dialect.allowQuietSyntax &&
           ftoks.tokenBefore(p.body).left.is[Token.KwDo]
         case p: Term.If => p.cond.eq(t) && style.dialect.allowQuietSyntax &&
