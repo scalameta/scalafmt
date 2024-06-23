@@ -2004,13 +2004,7 @@ class FormatOps(
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
-        case t @ Term.For(enums, _) if isSeqMulti(enums) =>
-          Some(new OptionalBracesRegion {
-            def owner = Some(t)
-            def splits = getSplitsForStats(ft, nft, enums)
-            def rightBrace = seqLast(enums)
-          })
-        case t @ Term.ForYield(enums, _) if isSeqMulti(enums) =>
+        case t @ Tree.WithEnums(enums) if isSeqMulti(enums) =>
           Some(new OptionalBracesRegion {
             def owner = Some(t)
             def splits = getSplitsForStats(ft, nft, enums)
@@ -2155,24 +2149,16 @@ class FormatOps(
     private object MatchImpl extends Factory {
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig,
-      ): Option[OptionalBracesRegion] = {
-        def result(tree: Tree, cases: Seq[Tree]): Option[Seq[Split]] =
-          if (tokenJustBeforeOpt(cases).contains(nft))
-            Some(getSplits(ft, tree, true, indentOpt = style.indent.matchSite))
-          else None
-        ft.meta.leftOwner match {
-          case t: Term.Match => Some(new OptionalBracesRegion {
-              def owner = Some(t)
-              def splits = result(t, t.cases)
-              def rightBrace = treeLast(t)
-            })
-          case t: Type.Match => Some(new OptionalBracesRegion {
-              def owner = Some(t)
-              def splits = result(t, t.cases)
-              def rightBrace = treeLast(t)
-            })
-          case _ => None
-        }
+      ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
+        case t: Tree.WithCases => Some(new OptionalBracesRegion {
+            def owner = Some(t)
+            def splits =
+              if (tokenJustBeforeOpt(t.cases).contains(nft))
+                Some(getSplits(ft, t, true, indentOpt = style.indent.matchSite))
+              else None
+            def rightBrace = treeLast(t)
+          })
+        case _ => None
       }
     }
 

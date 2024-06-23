@@ -4,10 +4,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
 
-import scala.meta.Importee
-import scala.meta.Pat
-import scala.meta.Term
-import scala.meta.Type
+import scala.meta._
 import scala.meta.tokens.Token
 
 object ConvertToNewScala3Syntax extends FormatTokensRewrite.RuleFactory {
@@ -44,8 +41,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
         ft.meta.rightOwner match {
           case _: Term.If if left.is[Token.KwIf] => removeToken
           case _: Term.While if left.is[Token.KwWhile] => removeToken
-          case _: Term.For if left.is[Token.KwFor] => removeToken
-          case _: Term.ForYield if left.is[Token.KwFor] => removeToken
+          case _: Tree.WithEnums if left.is[Token.KwFor] => removeToken
           case _ => null
         }
 

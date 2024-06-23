@@ -109,20 +109,11 @@ object TreeOps {
   def extractStatementsIfAny(
       tree: Tree,
   )(implicit ftoks: FormatTokens): Seq[Tree] = tree match {
-    case b: Term.Block => b.stats
     case SingleArgInBraces(_, fun: Term.FunctionTerm, _) => fun :: Nil
     case b: Term.FunctionTerm if isBlockFunction(b) => b.body :: Nil
-    case t: Pkg => t.stats
-    // TODO(olafur) would be nice to have an abstract "For" superclass.
-    case t: Term.For => getEnumStatements(t.enums)
-    case t: Term.ForYield => getEnumStatements(t.enums)
-    case t: Term.Match => t.cases
-    case t: Type.Match => t.cases
-    case t: Term.PartialFunction => t.cases
-    case t: Term.Try => t.catchp
-    case t: Type.Refine => t.stats
-    case t: Source => t.stats
-    case t: Template => t.stats
+    case t: Tree.WithEnums => getEnumStatements(t.enums)
+    case t: Tree.WithCases => t.cases
+    case t: Tree.WithStats => t.stats
     case t: CaseTree if t.body.tokens.nonEmpty => t.body :: Nil
     case _ => Nil
   }

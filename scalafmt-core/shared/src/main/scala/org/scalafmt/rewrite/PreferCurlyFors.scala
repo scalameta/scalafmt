@@ -65,8 +65,11 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
     ft.right match {
       case x: Token.LeftParen if prevNonComment(ft).left.is[Token.KwFor] =>
         val ok = ft.meta.rightOwner match {
-          case t: Term.For => matches(t)
-          case t: Term.ForYield => matches(t)
+          case t: Tree.WithEnums with Tree.WithBody =>
+            val enums = t.enums
+            hasMultipleNonGuardEnums(enums) &&
+            (style.dialect.allowInfixOperatorAfterNL ||
+              hasNoLeadingInfix(getHead(enums.head), tokenBefore(t.body)))
           case _ => false
         }
         if (ok)
@@ -77,7 +80,7 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
           if !style.rewrite.preferCurlyFors.removeTrailingSemicolonsOnly ||
             hasBreakAfterRightBeforeNonComment(ft) =>
         ft.meta.rightOwner match {
-          case t @ (_: Term.For | _: Term.ForYield)
+          case t: Tree.WithEnums
               if nextNonCommentAfter(ft).right.is[Token.KwIf] || {
                 val parenOrBrace = nextNonComment(getHead(t))
                 parenOrBrace.right.is[Token.LeftBrace] ||
@@ -102,15 +105,6 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
         replaceToken("}")(new Token.RightBrace(x.input, x.dialect, x.start))
       Some((left, right))
     case _ => None
-  }
-
-  private def matches(
-      tree: Tree.WithEnums with Tree.WithBody,
-  )(implicit style: ScalafmtConfig): Boolean = {
-    val enums = tree.enums
-    hasMultipleNonGuardEnums(enums) &&
-    (style.dialect.allowInfixOperatorAfterNL ||
-      hasNoLeadingInfix(getHead(enums.head), tokenBefore(tree.body)))
   }
 
   private def hasNoLeadingInfix(head: FormatToken, last: FormatToken): Boolean =
