@@ -2175,6 +2175,13 @@ a statement (i.e., one less than the number of lines the statement spans).</li>
 <li>for instance, <code>minBreaks=0</code> will apply to all statements, whereas 1 will
 require at least one line break (that is, a multi-line statement).</li>
 </ul></li>
+<li>(since v3.8.3) <code>minBlankGaps</code> and <code>maxBlankGaps</code>
+<ul>
+<li>sets the range on the number of blank-line gaps (regardless of the number of
+lines in each gap) that would have been <a href="#advanced-formatting-process">output</a>
+prior to this rule.</li>
+<li>if a limit is unspecified, will not constrain on the corresponding end</li>
+</ul></li>
 <li><code>blanks</code>
 <ul>
 <li>if omitted while the entry matches, serves to exclude another entry</li>
