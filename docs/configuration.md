@@ -5310,6 +5310,19 @@ maxColumn = 30
 
 ## Miscellaneous
 
+### `lineEndings`
+
+This parameter controls which end-of-line character sequences will be output,
+takes the following values:
+
+- `unix`: outputs LF (`U+000A`)
+- `windows`: uses CRLF (`U+000D U+000A`)
+- `preserve`: if an input file _contains_ CRLF anywhere, use CRLF for every line; otherwise, LF
+
+```scala mdoc:defaults
+lineEndings
+```
+
 ### `rewriteTokens`
 
 Map of tokens to rewrite. For example, Map("⇒" -> "=>") will rewrite unicode
