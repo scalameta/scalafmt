@@ -386,7 +386,7 @@ object Imports extends RewriteFactory {
       var hadLf = false
       val slc = new ListBuffer[Token]
       ctx.tokenTraverser.findAtOrBefore(ctx.getIndex(tok) - 1) {
-        case _: Token.LF => if (hadLf) Some(true) else { hadLf = true; None }
+        case _: Token.AtEOL => if (hadLf) Some(true) else { hadLf = true; None }
         case t: Token.Comment if TokenOps.isSingleLineIfComment(t) =>
           slc.prepend(t); hadLf = false; None
         case _: Token.Whitespace => None
@@ -397,7 +397,7 @@ object Imports extends RewriteFactory {
 
     protected final def getCommentAfter(tok: Token): Option[Token] = ctx
       .tokenTraverser.findAtOrAfter(ctx.getIndex(tok) + 1) {
-        case _: Token.LF => Some(false)
+        case _: Token.AtEOL => Some(false)
         case t: Token.Comment if TokenOps.isSingleLineIfComment(t) => Some(true)
         case _: Token.Whitespace | _: Token.Comma => None
         case _ => Some(false)
@@ -440,7 +440,7 @@ object Imports extends RewriteFactory {
           else {
             val nextOff = off - 1
             ctx.tokens(nextOff) match {
-              case t: Token.LF => t.input.text.substring(t.end, nonWs.start)
+              case t: Token.AtEOL => t.input.text.substring(t.end, nonWs.start)
               case _: Token.Whitespace => iter(nextOff, nonWs)
               case t => iter(nextOff, t)
             }

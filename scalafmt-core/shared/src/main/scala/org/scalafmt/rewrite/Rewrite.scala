@@ -54,17 +54,18 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
 
   def onlyWhitespaceBefore(index: Int): Boolean = tokenTraverser
     .findAtOrBefore(index - 1) {
-      case _: T.LF | _: T.BOF => Some(true)
+      case _: T.AtEOL | _: T.BOF => Some(true)
       case _: T.Whitespace => None
       case _ => Some(false)
     }.isDefined
 
   def findNonWhitespaceWith(
       f: (Token => Option[Boolean]) => Option[Token],
-  ): Option[(Token, Option[T.LF])] = {
-    var lf: Option[T.LF] = None
+  ): Option[(Token, Option[T.AtEOL])] = {
+    var lf: Option[T.AtEOL] = None
     val nonWs = f {
-      case t: T.LF => if (lf.nonEmpty) Some(false) else { lf = Some(t); None }
+      case t: T.AtEOL =>
+        if (lf.nonEmpty) Some(false) else { lf = Some(t); None }
       case _: T.Whitespace => None
       case _ => Some(true)
     }
@@ -75,8 +76,8 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
   def removeLFToAvoidEmptyLine(beg: Int, end: Int)(implicit
       builder: Rewrite.PatchBuilder,
   ): Unit = if (onlyWhitespaceBefore(beg)) tokenTraverser.findAtOrAfter(end + 1) {
-    case _: T.LF => Some(true)
-    case _: T.Whitespace => None
+    case _: T.EOL => Some(true)
+    case _: T.HSpace => None
     case _ => Some(false)
   }.map(TokenPatch.Remove).foreach(builder += _)
 

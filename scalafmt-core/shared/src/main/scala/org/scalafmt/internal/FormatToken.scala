@@ -74,7 +74,7 @@ object FormatToken {
   def hasBlankLine(newlines: Int): Boolean = newlines > 1
 
   @inline
-  def isNL(token: Token): Boolean = token.is[Token.LF]
+  def isNL(token: Token): Boolean = token.is[Token.AtEOL]
 
   /** @param between
     *   The whitespace tokens between left and right.
