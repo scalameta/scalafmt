@@ -68,7 +68,7 @@ object TokenOps {
 
   @inline
   def withNoIndent(ft: FormatToken): Boolean = ft.between.lastOption
-    .exists(_.is[LF])
+    .exists(_.is[AtEOL])
 
   @inline
   def rhsIsCommentedOut(ft: FormatToken): Boolean = ft.right.is[Comment] &&
