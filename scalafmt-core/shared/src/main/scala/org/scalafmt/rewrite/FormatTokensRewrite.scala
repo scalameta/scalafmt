@@ -4,7 +4,6 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
 import org.scalafmt.util.StyleMap
-import org.scalafmt.util.TokenOps
 
 import scala.meta.Tree
 import scala.meta.tokens.{Token => T}
@@ -37,7 +36,7 @@ class FormatTokensRewrite(
     val result = Array.newBuilder[FormatToken]
     result.sizeHint(arr.length)
 
-    val tokenMap = Map.newBuilder[TokenOps.TokenHash, Int]
+    val tokenMap = new FormatTokens.TokenToIndexMapBuilder
     tokenMap.sizeHint(arr.length)
 
     val shiftedIndexMap = mutable.Map.empty[Int, Int]
@@ -64,7 +63,7 @@ class FormatTokensRewrite(
       @inline
       def mapOld(dstidx: Int) = {
         remapped = true
-        tokenMap += FormatTokens.thash(rtOld) -> dstidx
+        tokenMap.add(dstidx)(rtOld)
       }
 
       copySlice(idx)
@@ -115,14 +114,14 @@ class FormatTokensRewrite(
           }
         val newMeta = ft.meta.copy(idx = idx, left = leftMeta)
         newarr(idx) = ft.copy(left = left, meta = newMeta)
-        tokenMap += FormatTokens.thash(left) -> idx
+        tokenMap.add(idx)(left)
         iter(idx + 1)
       }
       iter(0)
 
-      tokenMap += {
+      locally {
         val ft = newarr.last
-        FormatTokens.thash(ft.right) -> ft.meta.idx
+        tokenMap.add(ft.meta.idx)(ft.right)
       }
       new FormatTokens(tokenMap.result())(newarr)
     }
