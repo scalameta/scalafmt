@@ -16,10 +16,10 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     extends IndexedSeq[FormatToken] {
 
   private def this(arr: Array[FormatToken]) = this {
-    val result = Map.newBuilder[TokenHash, Int]
+    val result = new FormatTokens.TokenToIndexMapBuilder
     result.sizeHint(arr.length)
-    arr.foreach(t => result += FormatTokens.thash(t.left) -> t.meta.idx)
-    result += FormatTokens.thash(arr.last.right) -> arr.last.meta.idx
+    arr.foreach(t => result.add(t.meta.idx)(t.left))
+    result.add(arr.last.meta.idx)(arr.last.right)
     result.result()
   }(arr)
 
@@ -362,5 +362,12 @@ object FormatTokens {
 
   @inline
   def thash(token: Token): TokenHash = hash(token)
+
+  class TokenToIndexMapBuilder {
+    private val builder = Map.newBuilder[TokenHash, Int]
+    def sizeHint(size: Int): Unit = builder.sizeHint(size)
+    def add(idx: Int)(token: Token): Unit = builder += thash(token) -> idx
+    def result(): Map[TokenHash, Int] = builder.result()
+  }
 
 }
