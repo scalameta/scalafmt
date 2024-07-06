@@ -80,15 +80,15 @@ class FormatWriter(formatOps: FormatOps) {
                 else locations.extraBlankTokens.get(last.meta.idx)
                   .fold(0)(x => if (x > 0) 1 else 0)
               }
-            sb.append(getNewlines(numBlanks)).append(getIndentation(indent))
-              .append("end ").append(label)
+            sb.append(locations.getNewlines(numBlanks))
+              .append(getIndentation(indent)).append("end ").append(label)
           }
         }
 
       // missing braces
       if (location.missingBracesIndent.nonEmpty) {
         location.missingBracesIndent.toSeq.sorted(Ordering.Int.reverse)
-          .foreach(i => sb.append('\n').append(getIndentation(i)).append("}"))
+          .foreach(i => locations.startNewLine(getIndentation(i)).append("}"))
         if (location.missingBracesOpenOrTuck) {
           skipWs = true
           sb.append(" ")
@@ -139,7 +139,7 @@ class FormatWriter(formatOps: FormatOps) {
       ) replaceRedundantBraces(result)
     }
 
-    new FormatLocations(result)
+    new FormatLocations(result, "\n")
   }
 
   private def replaceRedundantBraces(locations: Array[FormatLocation]): Unit = {
@@ -429,9 +429,28 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  class FormatLocations(val locations: Array[FormatLocation]) {
+  class FormatLocations(val locations: Array[FormatLocation], val eol: String) {
 
     val tokenAligns: Map[Int, Int] = alignmentTokens
+
+    // cache newlines to some level
+    private val extraNewlines: IndexedSeq[String] = {
+      val size = 4
+      val buf = new mutable.ArrayBuffer[String](size)
+      buf += eol
+      // use the previous indentation to add another newline
+      (1 until size).foreach(_ => buf += eol + buf.last)
+      buf.toIndexedSeq
+    }
+
+    // see if blank level is cached first
+    private[internal] def getNewlines(extra: Int): String =
+      if (extra < extraNewlines.length) extraNewlines(extra)
+      else eol * (1 + extra)
+
+    private[internal] def startNewLine(indent: String)(implicit
+        sb: StringBuilder,
+    ) = sb.append(eol).append(indent)
 
     def foreach(f: Entry => Unit): Unit = Iterator.range(0, locations.length)
       .foreach { i =>
@@ -724,10 +743,10 @@ class FormatWriter(formatOps: FormatOps) {
           val appendLineBreak: () => Unit =
             if (useSlc) {
               val spaces: String = getIndentation(indent)
-              () => sb.append('\n').append(spaces).append("//")
+              () => startNewLine(spaces).append("//")
             } else {
               val spaces: String = getIndentation(indent + 1)
-              () => sb.append('\n').append(spaces).append('*')
+              () => startNewLine(spaces).append('*')
             }
           val contents = text.substring(2).trim
           val wordIter = splitAsIterator(slcDelim)(contents)
@@ -791,8 +810,7 @@ class FormatWriter(formatOps: FormatOps) {
             sb.append(leadingAsteriskSpace.matcher(trimmed).replaceAll(spaces))
           }
 
-        private def appendLineBreak(): Unit = sb.append('\n').append(spaces)
-          .append('*')
+        private def appendLineBreak(): Unit = startNewLine(spaces).append('*')
 
         private val wf = new WordFormatter(appendLineBreak)
 
@@ -1112,7 +1130,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
 
         @inline
-        private def appendBreak() = sb.append('\n').append(spaces).append('*')
+        private def appendBreak() = startNewLine(spaces).append('*')
       }
 
     }
@@ -1900,21 +1918,6 @@ object FormatWriter {
   // see if indentation level is cached first
   private def getIndentation(len: Int): String =
     if (len < indentations.length) indentations(len) else " " * len
-
-  // cache newlines to some level
-  private val extraNewlines: IndexedSeq[String] = {
-    val size = 4
-    val buf = new mutable.ArrayBuffer[String](size)
-    buf += "\n"
-    // use the previous indentation to add another newline
-    (1 until size).foreach(_ => buf += "\n" + buf.last)
-    buf.toIndexedSeq
-  }
-
-  // see if blank level is cached first
-  private def getNewlines(extra: Int): String =
-    if (extra < extraNewlines.length) extraNewlines(extra)
-    else "\n" * (1 + extra)
 
   private val trailingSpace = Pattern.compile("\\h++$", Pattern.MULTILINE)
   private def removeTrailingWhiteSpace(str: String): String = trailingSpace
