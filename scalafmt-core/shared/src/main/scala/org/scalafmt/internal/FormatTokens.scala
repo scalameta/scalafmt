@@ -29,13 +29,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   override def length: Int = arr.length
   override def apply(idx: Int): FormatToken = arr(idx)
 
-  private def get(tok: Token, isBefore: Boolean): FormatToken = {
-    val idx = leftTok2tok.getOrElse(
-      FormatTokens.thash(tok),
-      throw new NoSuchElementException(
-        s"Missing token index [${tok.start}:${tok.end}]: `$tok`",
-      ),
-    )
+  private def getAt(tok: Token, isBefore: Boolean)(idx: Int): FormatToken =
     if (idx >= arr.length) arr.last
     else {
       val ft = arr(idx)
@@ -44,7 +38,12 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
       else if (ft.left.start >= tok.start) ft
       else at(idx + 1)
     }
-  }
+
+  private def get(tok: Token, isBefore: Boolean): FormatToken =
+    getAt(tok, isBefore)(leftTok2tok.getOrElse(
+      FormatTokens.thash(tok),
+      FormatTokens.throwNoToken(tok, "Missing token index"),
+    ))
 
   def at(off: Int): FormatToken =
     if (off < 0) arr.head else if (off < arr.length) arr(off) else arr.last
@@ -80,9 +79,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   @inline
   def matching(token: Token): Token = matchingParentheses.getOrElse(
     FormatTokens.thash(token),
-    throw new NoSuchElementException(
-      s"Missing matching token index [${token.start}:${token.end}]: `$token`",
-    ),
+    FormatTokens.throwNoToken(token, "Missing matching token index"),
   )
   @inline
   def matchingOpt(token: Token): Option[Token] = matchingParentheses
@@ -359,6 +356,9 @@ object FormatTokens {
 
     FormatTokensRewrite(ftoks, styleMap) -> styleMap
   }
+
+  private def throwNoToken(t: Token, msg: String): Nothing =
+    throw new NoSuchElementException(s"$msg ${t.structure}: `$t`")
 
   @inline
   def thash(token: Token): TokenHash = hash(token)
