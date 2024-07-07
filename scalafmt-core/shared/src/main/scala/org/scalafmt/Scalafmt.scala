@@ -77,7 +77,7 @@ object Scalafmt {
       if (filename == defaultFilename) Success(baseStyle)
       else baseStyle.getConfigFor(filename).map(getStyleByFile)
     styleTry.fold(
-      x => Formatted.Result(Formatted.Failure(x), baseStyle),
+      Formatted.Result(_, baseStyle),
       formatCodeWithStyle(code, _, range, filename),
     )
   }
@@ -105,15 +105,13 @@ object Scalafmt {
     val (prefix, unixCode) = splitCodePrefix(
       if (isWin) code.replaceAll(WinLineEnding, UnixLineEnding) else code,
     )
-    doFormat(unixCode, style, filename, range) match {
-      case Failure(e) => Formatted.Result(Formatted.Failure(e), style)
-      case Success(x) =>
-        val s = if (prefix.isEmpty && x.isEmpty) UnixLineEnding else prefix + x
-        val asWin = style.lineEndings == LineEndings.windows ||
-          (isWin && style.lineEndings == LineEndings.preserve)
-        val res = if (asWin) s.replaceAll(UnixLineEnding, WinLineEnding) else s
-        Formatted.Result(Formatted.Success(res), style)
+    val res = doFormat(unixCode, style, filename, range).map { x =>
+      val s = if (prefix.isEmpty && x.isEmpty) UnixLineEnding else prefix + x
+      val asWin = style.lineEndings == LineEndings.windows ||
+        (isWin && style.lineEndings == LineEndings.preserve)
+      if (asWin) s.replaceAll(UnixLineEnding, WinLineEnding) else s
     }
+    Formatted.Result(res, style)
   }
 
   private def doFormat(
