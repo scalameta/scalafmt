@@ -34,12 +34,15 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
       }
 
     val inputMethods = getInputMethods(options, filterMatcher.matchesPath)
+    val adjustedScalafmtConf = {
+      if (scalafmtConf.needGitAutoCRLF) options.gitOps.getAutoCRLF else None
+    }.fold(scalafmtConf)(scalafmtConf.withGitAutoCRLF)
 
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
     val exitCode = new AtomicReference(ExitCode.Ok)
     Breaks.breakable {
       inputMethods.par.foreach { inputMethod =>
-        val code = handleFile(inputMethod, options, scalafmtConf)
+        val code = handleFile(inputMethod, options, adjustedScalafmtConf)
         exitCode.getAndUpdate(ExitCode.merge(code, _))
         if (options.check && !code.isOk) Breaks.break
         termDisplay.taskProgress(termDisplayMessage)

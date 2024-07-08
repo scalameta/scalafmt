@@ -5352,7 +5352,12 @@ takes the following values:
 - `windows`: uses CRLF (`U+000D U+000A`)
 - `preserve`: if an input file _contains_ CRLF anywhere, use CRLF for every line; otherwise, LF
 
-By default, this parameter is assumed to be set to `unix`.
+By default, this parameter is assumed to be set to `unix`. However, since
+v3.8.3, if the formatter is invoked on Windows, [`project.git`](#projectgit)
+is set and `git` parameter
+[`core.autocrlf`](https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration#_core_autocrlf)
+is configured, then default value will be changed to `windows` if
+`autocrlf=true`, and `preserve` if `false`.
 
 ### `rewriteTokens`
 

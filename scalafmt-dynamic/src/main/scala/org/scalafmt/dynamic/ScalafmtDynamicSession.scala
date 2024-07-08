@@ -2,6 +2,8 @@ package org.scalafmt.dynamic
 
 import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.interfaces._
+import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.GitOps
 
 import java.nio.file.Path
 
@@ -50,6 +52,16 @@ final case class ScalafmtDynamicSession(
 }
 
 private object ScalafmtDynamicSession {
+
+  def apply(config: Path, properties: ScalafmtProperties)(
+      cfg: ScalafmtReflectConfig,
+  ): ScalafmtDynamicSession = {
+    val newcfg = {
+      if (!cfg.needGitAutoCRLF) None
+      else GitOps.FactoryImpl(AbsoluteFile(config.getParent)).getAutoCRLF
+    }.fold(cfg)(cfg.withGitAutoCRLF)
+    new ScalafmtDynamicSession(properties, newcfg)
+  }
 
   def getExtension(path: String): String = {
     val dotIndex = path.lastIndexOf('.')

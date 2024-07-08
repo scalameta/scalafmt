@@ -63,7 +63,7 @@ lazy val dynamic = project.in(file("scalafmt-dynamic")).settings(
     scalametaTestkit % Test,
   ),
   scalacOptions ++= scalacJvmOptions.value,
-).dependsOn(interfaces).dependsOn(core.jvm % "test")
+).dependsOn(interfaces, sysops.jvm).dependsOn(core.jvm % "test")
   .enablePlugins(BuildInfoPlugin)
 
 lazy val interfaces = project.in(file("scalafmt-interfaces")).settings(
