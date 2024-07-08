@@ -51,7 +51,7 @@ final case class ScalafmtDynamic(
   override def createSession(config: Path): ScalafmtSession =
     resolveConfig(config).fold(
       error => { properties.reportError(config, error); throw error },
-      new ScalafmtDynamicSession(properties, _),
+      ScalafmtDynamicSession(config, properties),
     )
 
   def resolveConfig(configPath: Path): FormatEval[ScalafmtReflectConfig] =
