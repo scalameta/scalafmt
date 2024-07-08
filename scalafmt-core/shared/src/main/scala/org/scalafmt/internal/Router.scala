@@ -67,14 +67,13 @@ class Router(formatOps: FormatOps) {
 
     ft match {
       // between sources (EOF -> @ -> BOF)
-      case FormatToken(_: T.EOF, _, _) => Seq(Split(Newline, 0))
+      case FormatToken(_: T.EOF, _, _) =>
+        Seq(Split(NoSplit.orNL(prev(ft).left.is[T.BOF]), 0))
       case FormatToken(_, _: T.BOF, _) =>
         Seq(Split(NoSplit.orNL(next(ft).right.is[T.EOF]), 0))
+      // End files with trailing newline
+      case FormatToken(_, _: T.EOF, _) => Seq(Split(Newline, 0))
       case FormatToken(_: T.BOF, _, _) => Seq(Split(NoSplit, 0))
-      case FormatToken(_, _: T.EOF, _) => Seq(
-          Split(Newline, 0), // End files with trailing newline
-        )
-      case FormatToken(_: T.Shebang, _, _) => Seq(Split(Newline2x(ft), 0))
       case FormatToken(start: T.Interpolation.Start, _, m) =>
         val end = matching(start)
         val okNewlines = style.newlines.inInterpolation

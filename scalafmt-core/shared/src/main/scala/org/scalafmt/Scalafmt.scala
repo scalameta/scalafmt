@@ -120,35 +120,33 @@ object Scalafmt {
       style: ScalafmtConfig,
       file: String,
       range: Set[Range],
-  ): Try[String] =
-    if (code.matches("\\s*")) Success("")
-    else {
-      val runner = style.runner
-      val codeToInput: String => Input = toInput(_, file)
-      val parsed = runner.parse(Rewrite(codeToInput(code), style, codeToInput))
-      parsed.fold(
-        _.details match {
-          case ed: ParseException =>
-            val dialect = runner.dialectName
-            val msg = s"[dialect $dialect] ${ed.shortMessage}"
-            Failure(new ParseException(ed.pos, msg))
-          case ed => Failure(ed)
-        },
-        tree => {
-          implicit val formatOps = new FormatOps(tree, style, file)
-          runner.event(CreateFormatOps(formatOps))
-          implicit val formatWriter = new FormatWriter(formatOps)
-          Try(BestFirstSearch(range)).flatMap { res =>
-            val formattedString = formatWriter.mkString(res.state)
-            if (res.reachedEOF) Success(formattedString)
-            else {
-              val pos = formatOps.tokens(res.state.depth).left.pos
-              Failure(PreciseIncomplete(pos, formattedString))
-            }
+  ): Try[String] = {
+    val runner = style.runner
+    val codeToInput: String => Input = toInput(_, file)
+    val parsed = runner.parse(Rewrite(codeToInput(code), style, codeToInput))
+    parsed.fold(
+      _.details match {
+        case ed: ParseException =>
+          val dialect = runner.dialectName
+          val msg = s"[dialect $dialect] ${ed.shortMessage}"
+          Failure(new ParseException(ed.pos, msg))
+        case ed => Failure(ed)
+      },
+      tree => {
+        implicit val formatOps = new FormatOps(tree, style, file)
+        runner.event(CreateFormatOps(formatOps))
+        implicit val formatWriter = new FormatWriter(formatOps)
+        Try(BestFirstSearch(range)).flatMap { res =>
+          val formattedString = formatWriter.mkString(res.state)
+          if (res.reachedEOF) Success(formattedString)
+          else {
+            val pos = formatOps.tokens(res.state.depth).left.pos
+            Failure(PreciseIncomplete(pos, formattedString))
           }
-        },
-      )
-    }
+        }
+      },
+    )
+  }
 
   // XXX: don't modify signature, scalafmt-dynamic expects it via reflection
   def format(
