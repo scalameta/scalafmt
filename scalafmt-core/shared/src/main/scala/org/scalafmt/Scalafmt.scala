@@ -2,7 +2,6 @@ package org.scalafmt
 
 import org.scalafmt.Error.PreciseIncomplete
 import org.scalafmt.config.FormatEvent.CreateFormatOps
-import org.scalafmt.config.LineEndings
 import org.scalafmt.config.NamedDialect
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.BestFirstSearch
@@ -30,8 +29,6 @@ import metaconfig.Configured
   */
 object Scalafmt {
 
-  private val WinLineEnding = "\r\n"
-  private val UnixLineEnding = "\n"
   private val defaultFilename = "<input>"
 
   // XXX: don't modify signature, scalafmt-dynamic expects it via reflection
@@ -78,26 +75,8 @@ object Scalafmt {
       else baseStyle.getConfigFor(filename).map(getStyleByFile)
     styleTry.fold(
       Formatted.Result(_, baseStyle),
-      formatCodeWithStyle(code, _, range, filename),
+      x => Formatted.Result(doFormat(code, x, filename, range), x),
     )
-  }
-
-  private def formatCodeWithStyle(
-      code: String,
-      style: ScalafmtConfig,
-      range: Set[Range],
-      filename: String,
-  ): Formatted.Result = {
-    val isWin = code.contains(WinLineEnding)
-    val unixCode =
-      if (isWin) code.replaceAll(WinLineEnding, UnixLineEnding) else code
-    val res = doFormat(unixCode, style, filename, range).map { x =>
-      val s = if (x.isEmpty) UnixLineEnding else x
-      val asWin = style.lineEndings == LineEndings.windows ||
-        (isWin && style.lineEndings == LineEndings.preserve)
-      if (asWin) s.replaceAll(UnixLineEnding, WinLineEnding) else s
-    }
-    Formatted.Result(res, style)
   }
 
   private def doFormat(

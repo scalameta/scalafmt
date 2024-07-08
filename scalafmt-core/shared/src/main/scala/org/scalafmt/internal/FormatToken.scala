@@ -57,6 +57,12 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
   @inline
   def hasBreakOrEOF: Boolean = hasBreak || right.is[Token.EOF]
 
+  def hasCRLF: Boolean = between.exists {
+    case _: Token.CRLF => true
+    case t: Token.MultiNL => t.tokens.exists(_.is[Token.CRLF])
+    case _ => false
+  }
+
   /** A format token is uniquely identified by its left token.
     */
   override def hashCode(): Int = hash(left).##

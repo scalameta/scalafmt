@@ -5319,9 +5319,7 @@ takes the following values:
 - `windows`: uses CRLF (`U+000D U+000A`)
 - `preserve`: if an input file _contains_ CRLF anywhere, use CRLF for every line; otherwise, LF
 
-```scala mdoc:defaults
-lineEndings
-```
+By default, this parameter is assumed to be set to `unix`.
 
 ### `rewriteTokens`
 
