@@ -6,6 +6,7 @@ import org.scalafmt.Scalafmt
 import org.scalafmt.config.Comments
 import org.scalafmt.config.Docstrings
 import org.scalafmt.config.FormatEvent
+import org.scalafmt.config.LineEndings
 import org.scalafmt.config.Newlines
 import org.scalafmt.config.RewriteScala3Settings
 import org.scalafmt.config.ScalafmtConfig
@@ -106,12 +107,19 @@ class FormatWriter(formatOps: FormatOps) {
     val depth = state.depth
     require(toks.length >= depth, "splits !=")
     val result = new Array[FormatLocation](depth)
+    // 1 yes, 0 tbd, -1 no
+    var useCRLF = initStyle.lineEndings.fold(-1) {
+      case LineEndings.unix => -1
+      case LineEndings.windows => 1
+      case LineEndings.preserve => 0
+    }
 
     @tailrec
     def iter(cur: State, lineId: Int, gapId: Int): Unit = {
       val prev = cur.prev
       val idx = prev.depth
       val ft = toks(idx)
+      if (useCRLF == 0 && ft.hasCRLF) useCRLF = 1
       if (idx == 0) // done
         result(idx) = FormatLocation(ft, cur, initStyle, lineId, gapId)
       else {
@@ -139,7 +147,7 @@ class FormatWriter(formatOps: FormatOps) {
       ) replaceRedundantBraces(result)
     }
 
-    new FormatLocations(result, "\n")
+    new FormatLocations(result, if (useCRLF > 0) "\r\n" else "\n")
   }
 
   private def replaceRedundantBraces(locations: Array[FormatLocation]): Unit = {

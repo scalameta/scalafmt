@@ -119,7 +119,7 @@ case class ScalafmtConfig(
     align: Align = Align(),
     spaces: Spaces = Spaces(),
     literals: Literals = Literals(),
-    lineEndings: LineEndings = LineEndings.unix,
+    lineEndings: Option[LineEndings] = None,
     rewriteTokens: Map[String, String] = Map.empty[String, String],
     rewrite: RewriteSettings = RewriteSettings.default,
     indentOperator: IndentOperator = IndentOperator(),
@@ -174,6 +174,9 @@ case class ScalafmtConfig(
     dialect,
     NamedDialect.getName(dialect).getOrElse("unknown dialect"),
   )
+
+  def withLineEndings(value: LineEndings): ScalafmtConfig =
+    copy(lineEndings = Option(value))
 
   private lazy val forMain: ScalafmtConfig =
     if (project.layout.isEmpty) forTest
