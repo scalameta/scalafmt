@@ -392,25 +392,25 @@ class FormatOps(
 
   def insideInfixSplit(app: Member.Infix, ft: FormatToken)(implicit
       style: ScalafmtConfig,
-  ): Seq[Split] = app match {
-    case t: Type.ApplyInfix
-        if style.spaces.neverAroundInfixTypes.contains(t.op.value) =>
+  ): Seq[Split] = {
+    val op = app.op.value
+    if (app.is[Type] && style.spaces.neverAroundInfixTypes.contains(op))
       Seq(Split(NoSplit, 0))
-    case t =>
+    else {
       val isBeforeOp = ft.meta.leftOwner ne app.op
       // RETURNING!!!
       if (isBeforeOp && isFewerBracesLhs(app.lhs)) return Seq(Split(Newline, 0))
-      def useSpace = style.spaces.beforeInfixArgInParens(app.op.value) ||
+      def useSpaceBeforeArg = style.spaces.beforeInfixArgInParens(op) ||
         (app.arg match {
           case _: Lit.Unit => false
           case x: Member.ArgClause if x.values.lengthCompare(1) != 0 => false
           case x => !isEnclosedInParens(x)
         })
-      val afterInfix = style.breakAfterInfix(t)
+      val afterInfix = style.breakAfterInfix(app)
       if (afterInfix ne Newlines.AfterInfix.keep)
         if (isBeforeOp) Seq(Split(Space, 0))
         else {
-          val spaceMod = Space(useSpace)
+          val spaceMod = Space(useSpaceBeforeArg)
           val fullInfix = InfixSplits.findEnclosingInfix(app)
           val ok = isEnclosedInParens(fullInfix) || fullInfix.parent.forall {
             case t: Defn.Val => t.rhs eq fullInfix
@@ -426,11 +426,12 @@ class FormatOps(
         // TODO: if that ever changes, modify how rewrite rules handle infix
         val mod = getMod(ft)
         val modOrNoSplit =
-          if (mod != Space || isBeforeOp || useSpace) mod else NoSplit
+          if (mod != Space || isBeforeOp || useSpaceBeforeArg) mod else NoSplit
         val split = Split(modOrNoSplit, 0)
         if (isBeforeOp && isFewerBracesRhs(app.arg)) Seq(split)
         else Seq(InfixSplits.withNLIndent(split)(app, ft))
       }
+    }
   }
 
   def getInfixSplitsBeforeLhs(
