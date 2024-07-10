@@ -4594,6 +4594,39 @@ def g: Foo\/Repr
 def e = a##b
 ```
 
+### `spaces.aroundSymbolicInfixOperators`
+
+Added in v3.8.3, this parameter controls spaces around some infix operators
+(unless [`spaces.neverAroundInfixTypes`](#spacesneveraroundinfixtypes) above
+applies).
+
+This parameter contains two subparameters, `include` and `exclude`, each either
+a string containing a regex, or a list of regex alternatives. By default,
+`include` is `.*` (i.e., matches everything) and `exclude` is `^$` (matches
+nothing), thus all infix operators would use a space.
+
+The logic is applied as follows:
+
+- first, the infix operator must be symbolic (i.e., does not start with a
+  letter or underscore) and not an assignment; otherwise, space is enforced;
+- if the two characters on either side of the proposed space (i.e., the last
+  character of the left-hand side and the first character of the operator,
+  for spaces before the operator, or the last character of the operator and
+  the first character of the right-hand side for spaces after the operator)
+  can both be part of a symbolic operator, the space is enforced;
+- otherwise, if the operator doesn't match any of the `include` patterns or
+  matches one of the `exclude` patterns, the space is not output.
+
+```scala mdoc:scalafmt
+maxColumn = 80
+spaces.aroundSymbolicInfixOperators.include = ".*" # default
+spaces.aroundSymbolicInfixOperators.exclude = [ "^##$", "==" ]
+---
+def f: Foo ## Repr
+def g(a: Column, b: Column): Boolean = a === b || a###b
+def e(a: Int, b: Int) = a ## b || a == b || a!=b
+```
+
 ### `spaces.afterKeywordBeforeParen`
 
 ```scala mdoc:defaults

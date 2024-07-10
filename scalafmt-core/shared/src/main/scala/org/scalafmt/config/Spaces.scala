@@ -58,6 +58,7 @@ case class Spaces(
     inInterpolatedStringCurlyBraces: Boolean = false,
     inParentheses: Boolean = false,
     neverAroundInfixTypes: Seq[String] = Nil,
+    aroundSymbolicInfixOperators: Option[FilterMatcher] = None,
     afterKeywordBeforeParen: Boolean = true,
     inByNameTypes: Boolean = true,
     afterSymbolicDefs: Boolean = false,
