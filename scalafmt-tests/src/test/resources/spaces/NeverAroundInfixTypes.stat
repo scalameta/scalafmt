@@ -9,3 +9,19 @@ val hlistForFoo: Generic[Foo]##Repr =
 val x: F[X] ## B = f##b
 >>>
 val x: F[X]##B = f ## b
+<<< use aroundSymbolicInfixOperators
+maxColumn = 80
+spaces.neverAroundInfixTypes = []
+spaces.aroundSymbolicInfixOperators.exclude = [ "^##$", "==" ]
+===
+object a {
+  def f: Foo ## Repr
+  def g(a: Column, b: Column): Boolean = a === b || a###b
+  def e(a: Int, b: Int) = a ## b || a == b || a!=b
+}
+>>>
+object a {
+  def f: Foo ## Repr
+  def g(a: Column, b: Column): Boolean = a === b || a ### b
+  def e(a: Int, b: Int) = a ## b || a == b || a != b
+}
