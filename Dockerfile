@@ -4,12 +4,11 @@ WORKDIR /app
 
 COPY . .
 
-RUN microdnf install -y git
+RUN microdnf install -y git \
+  && bin/build-native-image.sh \
+  && mv scalafmt-cli/target/native-image/cli /bin/scalafmt
 
-RUN bin/build-native-image.sh && \
-  mv scalafmt-cli/graalvm-native-image/cli /bin/scalafmt
-
-FROM scratch
+FROM ubuntu:24.04
 
 COPY --from=builder /bin/scalafmt /bin/scalafmt
 
