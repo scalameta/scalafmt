@@ -15,6 +15,7 @@ import org.scalafmt.util._
 import org.scalameta.FileLine
 import scala.meta._
 import scala.meta.classifiers.Classifier
+import scala.meta.internal.tokens.Chars.isOperatorPart
 import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
@@ -406,11 +407,24 @@ class FormatOps(
           case x: Member.ArgClause if x.values.lengthCompare(1) != 0 => false
           case x => !isEnclosedInParens(x)
         })
+      def useSpaceAroundOp = app.isAssignment || !isOperatorPart(op.head) ||
+        op.length != 1 && !isOperatorPart(op.last) ||
+        style.spaces.aroundSymbolicInfixOperators.forall(_.matches(op)) || {
+          if (isBeforeOp) prevNonComment(ft).left match {
+            case x: T.Ident => isOperatorPart(x.value.last)
+            case _ => false
+          }
+          else nextNonComment(ft).right match {
+            case x: T.Ident => isOperatorPart(x.value.head)
+            case _ => false
+          }
+        }
+      def spaceMod = Space(useSpaceAroundOp && (isBeforeOp || useSpaceBeforeArg))
+
       val afterInfix = style.breakAfterInfix(app)
       if (afterInfix ne Newlines.AfterInfix.keep)
-        if (isBeforeOp) Seq(Split(Space, 0))
+        if (isBeforeOp) Seq(Split(spaceMod, 0))
         else {
-          val spaceMod = Space(useSpaceBeforeArg)
           val fullInfix = InfixSplits.findEnclosingInfix(app)
           val ok = isEnclosedInParens(fullInfix) || fullInfix.parent.forall {
             case t: Defn.Val => t.rhs eq fullInfix
@@ -424,10 +438,7 @@ class FormatOps(
       else {
         // we don't modify line breaks generally around infix expressions
         // TODO: if that ever changes, modify how rewrite rules handle infix
-        val mod = getMod(ft)
-        val modOrNoSplit =
-          if (mod != Space || isBeforeOp || useSpaceBeforeArg) mod else NoSplit
-        val split = Split(modOrNoSplit, 0)
+        val split = Split(if (ft.noBreak) spaceMod else Newline2x(ft), 0)
         if (isBeforeOp && isFewerBracesRhs(app.arg)) Seq(split)
         else Seq(InfixSplits.withNLIndent(split)(app, ft))
       }
