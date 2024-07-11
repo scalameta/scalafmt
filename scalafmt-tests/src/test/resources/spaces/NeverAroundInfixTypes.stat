@@ -21,7 +21,7 @@ object a {
 }
 >>>
 object a {
-  def f: Foo ## Repr
-  def g(a: Column, b: Column): Boolean = a === b || a ### b
-  def e(a: Int, b: Int) = a ## b || a == b || a != b
+  def f: Foo##Repr
+  def g(a: Column, b: Column): Boolean = a===b || a ### b
+  def e(a: Int, b: Int) = a##b || a==b || a != b
 }
