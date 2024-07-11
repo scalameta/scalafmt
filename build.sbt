@@ -10,7 +10,7 @@ def localSnapshotVersion: String = s"$parseTagVersion-SNAPSHOT"
 def isCI = System.getenv("CI") != null
 
 def scala212 = "2.12.19"
-def scala213 = "2.13.13"
+def scala213 = "2.13.14"
 
 inThisBuild(List(
   version ~= { dynVer =>
@@ -175,7 +175,8 @@ lazy val cli = project.in(file("scalafmt-cli")).settings(
   ),
   scalacOptions ++= scalacJvmOptions.value,
   Compile / mainClass := Some("org.scalafmt.cli.Cli"),
-  nativeImageVersion := "22.3.0",
+  nativeImageVersion := "22.3.3",
+  nativeImageJvm := "graalvm-java17",
   nativeImageInstalled := isCI,
   nativeImageOptions ++= {
     val isMusl = sys.env.get("NATIVE_IMAGE_MUSL").exists(_.toBoolean)

@@ -1,4 +1,4 @@
-FROM sbtscala/scala-sbt:graalvm-ce-22.3.0-b2-java11_1.9.5_3.3.1 AS builder
+FROM sbtscala/scala-sbt:graalvm-ce-22.3.3-b1-java17_1.10.1_3.4.2 AS builder
 
 WORKDIR /app
 
