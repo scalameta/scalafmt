@@ -5540,3 +5540,20 @@ object a:
 object a:
    for (a <- b)
       val x = 3 / 0
+<<< #4104
+object a:
+  if b1 then
+    if b2 then x else y
+  else
+    if b2 then p else q
+>>>
+object a:
+   if b1 then
+      if b2 then
+         x
+      else
+         y
+   else if b2 then
+      p
+   else
+      q
