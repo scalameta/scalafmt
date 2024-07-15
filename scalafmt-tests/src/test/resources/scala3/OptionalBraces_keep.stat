@@ -701,10 +701,11 @@ object a:
      if a then
         if aa then
            if bb then if cc then ccc
-        else if bb then
-           if cc then ccc
-           else ddd
-        else eee
+        else
+           if bb then
+              if cc then ccc
+              else ddd
+           else eee
      else if aa then aaa else bbb
 <<< nested if-else single
 object a:
@@ -724,9 +725,10 @@ object a:
         if aa then
            aaa
            // c1
-     else if aa then
-        aaa
-        // c1
+     else
+        if aa then
+           aaa
+           // c1
 <<< #2448
 object Foo:
   def bar = process(arg match
@@ -5415,4 +5417,5 @@ object a:
 object a:
    if b1 then
       if b2 then x else y
-   else if b2 then p else q
+   else
+      if b2 then p else q

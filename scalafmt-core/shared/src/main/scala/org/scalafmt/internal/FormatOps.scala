@@ -2220,7 +2220,11 @@ class FormatOps(
           style: ScalafmtConfig,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t: Term.If => (t.elsep match {
-            case _: Term.If => None
+            case _: Term.If
+                if !style.newlines.keepBreak(
+                  if (ft eq nft) ft.hasBreak
+                  else ft.left.pos.startLine != nft.right.pos.startLine,
+                ) => None
             case x if !isTreeSingleExpr(x) => Some(true)
             case b @ Term.Block(List(_: Term.If))
                 if (matchingOpt(nft.right) match {
