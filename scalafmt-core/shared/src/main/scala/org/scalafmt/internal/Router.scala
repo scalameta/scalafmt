@@ -1882,13 +1882,16 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.KwIf, right, _) if leftOwner.is[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
         val expire = getLastToken(owner)
+        val isKeep = style.newlines.source eq Newlines.keep
         val mod =
-          if (style.newlines.keepBreak(newlines)) Newline
+          if (isKeep && hasBreak()) Newline
           else Space(style.spaces.isSpaceAfterKeyword(right))
         val slb = Split(mod.isNL, 0)(mod)
           .withSingleLine(expire, killOnFail = true)
-        val mlSplitBase = Split(mod, if (slb.isIgnored) 0 else 1)
-          .withPolicy(getBreakBeforeElsePolicy(owner))
+        val mlSplitBase = Split(mod, if (slb.isIgnored) 0 else 1).withPolicy(
+          if (isKeep) getBreakBeforeElsePolicy(owner)
+          else getBreaksBeforeElseChainPolicy(owner),
+        )
         val mlSplitOpt = OptionalBraces
           .indentAndBreakBeforeCtrl[T.KwThen](owner.cond, mlSplitBase)
         Seq(slb, mlSplitOpt.getOrElse(mlSplitBase))

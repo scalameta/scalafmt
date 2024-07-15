@@ -705,8 +705,7 @@ object a:
            if cc then ccc
            else ddd
         else eee
-     else if aa then aaa
-     else bbb
+     else if aa then aaa else bbb
 <<< nested if-else single
 object a:
   val a =
@@ -918,8 +917,7 @@ private def mtd: Res =
 >>>
 private def mtd: Res =
   if foo then fooBody
-  else if bar then barBody
-  else bazBody
+  else if bar then barBody else bazBody
 <<< rewrite with given-with
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -5417,5 +5415,4 @@ object a:
 object a:
    if b1 then
       if b2 then x else y
-   else if b2 then p
-   else q
+   else if b2 then p else q

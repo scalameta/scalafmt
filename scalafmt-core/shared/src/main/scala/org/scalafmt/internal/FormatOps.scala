@@ -356,26 +356,39 @@ class FormatOps(
     getTemplateGroups(template).flatMap(iter)
   }
 
-  @inline
-  def getBreakBeforeElsePolicy(term: Term.If): Policy = getElseChain(term, Nil)
-    .foldLeft(Policy.noPolicy) { case (res, els) =>
-      Policy.on(els, prefix = "ELSE") {
-        case d @ Decision(FormatToken(_, `els`, _), _) => d
-            .onlyNewlinesWithFallback(Split(Newline, 0))
-      } ==> res
+  def getBreakBeforeElsePolicy(els: T): Policy = Policy
+    .on(els, prefix = "ELSE") {
+      case d @ Decision(FormatToken(_, `els`, _), _) => d
+          .onlyNewlinesWithFallback(Split(Newline, 0))
+    }
+
+  def getBreakBeforeElsePolicy(term: Term.If): Policy = getElseToken(term)
+    .flatMap { case (_, elsOpt) => elsOpt.map(getBreakBeforeElsePolicy) }
+
+  def getBreaksBeforeElseChainPolicy(term: Term.If): Policy =
+    getElseChain(term, Nil).foldLeft(Policy.noPolicy) { case (res, els) =>
+      getBreakBeforeElsePolicy(els) ==> res
+    }
+
+  private final def getElseToken(
+      term: Term.If,
+  ): Option[(FormatToken, Option[T.KwElse])] = getHeadOpt(term.elsep)
+    .map { ftElsep =>
+      val beforeElsep = prevNonCommentBefore(ftElsep)
+      val elsOpt = beforeElsep.left match {
+        case els: T.KwElse
+            if initStyle.newlines.alwaysBeforeElseAfterCurlyIf ||
+              !prev(beforeElsep).left.is[T.RightBrace] => Some(els)
+        case _ => None
+      }
+      (ftElsep, elsOpt)
     }
 
   @tailrec
-  private final def getElseChain(term: Term.If, res: Seq[T]): Seq[T] =
-    getHeadOpt(term.elsep) match {
-      case Some(ftElsep) =>
-        val beforeElsep = prevNonCommentBefore(ftElsep)
-        val newRes = beforeElsep.left match {
-          case els: T.KwElse
-              if initStyle.newlines.alwaysBeforeElseAfterCurlyIf ||
-                !prev(beforeElsep).left.is[T.RightBrace] => els +: res
-          case _ => res
-        }
+  private final def getElseChain(term: Term.If, res: List[T]): List[T] =
+    getElseToken(term) match {
+      case Some((ftElsep, elsOpt)) =>
+        val newRes = elsOpt.fold(res)(_ :: res)
         term.elsep match {
           case t: Term.If => getElseChain(t, newRes)
           case b @ Term.Block(List(t: Term.If))
