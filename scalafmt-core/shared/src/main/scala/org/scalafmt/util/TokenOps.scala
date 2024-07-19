@@ -126,7 +126,7 @@ object TokenOps {
     }
 
   def endsWithSymbolIdent(tok: Token): Boolean = tok match {
-    case Ident(name) => !name.last.isLetterOrDigit
+    case Ident(name) => !name.last.isLetterOrDigit && !tok.isBackquoted
     case _ => false
   }
 
