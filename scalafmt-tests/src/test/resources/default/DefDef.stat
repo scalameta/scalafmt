@@ -332,5 +332,5 @@ trait Test {
 }
 >>>
 trait Test {
-  def `x_` : String
+  def `x_`: String
 }
