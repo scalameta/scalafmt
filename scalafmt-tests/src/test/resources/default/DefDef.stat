@@ -326,3 +326,11 @@ object a {
       ord: Ordering[T]
   ): Seq[T]
 }
+<<< #4106
+trait Test {
+  def `x_`: String
+}
+>>>
+trait Test {
+  def `x_` : String
+}
