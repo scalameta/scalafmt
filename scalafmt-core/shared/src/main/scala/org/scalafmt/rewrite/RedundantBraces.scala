@@ -473,6 +473,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         }
       case _: Term.Try | _: Term.TryWithHandler =>
         // "try (x).y" or "try { x }.y" isn't supported until scala 2.13
+        // same is true with "try (a, b)" and "try ()"
+        // return true if rewrite is not OK
         // inside exists, return true if rewrite is OK
         !stat.tokens.headOption.exists {
           case x: Token.LeftParen => ftoks.matchingOpt(x) match {
@@ -480,6 +482,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                 session.rule[RedundantParens].exists {
                   _.onToken(ftoks(x, -1), session, style).exists(_.isRemove)
                 }
+              case Some(_) if !style.dialect.allowTryWithAnyExpr =>
+                !stat.isAny[Term.Tuple, Lit.Unit]
               case _ => true
             }
           case x: Token.LeftBrace => ftoks.matchingOpt(x) match {
