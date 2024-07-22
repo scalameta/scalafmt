@@ -1827,18 +1827,10 @@ object a {
   } finally {}
 }
 >>>
-test does not parse: [dialect scala212] `)` expected but `,` found
 object a {
-  try
+  try {
     (a, b)
-      ^
-  finally {}
-}
-====== full result: ======
-object a {
-  try
-    (a, b)
-  finally {}
+  } finally {}
 }
 <<< #4108 try with non-redundant parens (unit) in block, scala212
 runner.dialect = scala212
@@ -1849,18 +1841,10 @@ object a {
   } finally {}
 }
 >>>
-test does not parse: [dialect scala212] illegal start of simple expression
 object a {
-  try
+  try {
     ()
-     ^
-  finally {}
-}
-====== full result: ======
-object a {
-  try
-    ()
-  finally {}
+  } finally {}
 }
 <<< #4108 try with redundant parens in block, scala213
 runner.dialect = scala213
