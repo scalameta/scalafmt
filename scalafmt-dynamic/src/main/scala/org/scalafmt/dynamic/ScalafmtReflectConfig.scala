@@ -52,11 +52,11 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
     target.invoke("forSbt"),
   ).recover { case ReflectionException(_: NoSuchMethodException) =>
     target.invoke("withDialect", (dialectCls, sbtDialect))
-  }.map(new ScalafmtReflectConfig(fmtReflect)(_))
+  }.map(withTarget)
 
   def withoutRewriteRules: ScalafmtReflectConfig =
     if (getVersion < ScalafmtVersion(3, 2, 0)) withoutRewriteRulesPre320
-    else new ScalafmtReflectConfig(fmtReflect)(target.invoke("withoutRewrites"))
+    else withTarget(target.invoke("withoutRewrites"))
 
   private def withoutRewriteRulesPre320: ScalafmtReflectConfig =
     if (!hasRewriteRulesPre320) this
@@ -74,9 +74,7 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
           else p + "$access$" + i,
         )
       }
-      new ScalafmtReflectConfig(fmtReflect)(
-        ctor.newInstance(fieldValues: _*).asInstanceOf[Object],
-      )
+      withTarget(ctor.newInstance(fieldValues: _*).asInstanceOf[Object])
     }
 
   def hasRewriteRules: Boolean =
@@ -105,6 +103,9 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
   override def equals(obj: Any): Boolean = target.equals(obj)
 
   override def hashCode(): Int = target.hashCode()
+
+  private def withTarget(obj: Object): ScalafmtReflectConfig =
+    new ScalafmtReflectConfig(fmtReflect)(obj)
 }
 
 private object ScalafmtReflectConfig {
