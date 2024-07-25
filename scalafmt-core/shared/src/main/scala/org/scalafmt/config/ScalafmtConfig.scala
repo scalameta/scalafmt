@@ -175,6 +175,18 @@ case class ScalafmtConfig(
     NamedDialect.getName(dialect).getOrElse("unknown dialect"),
   )
 
+  // used by dynamic
+  def needGitAutoCRLF: Boolean = project.git && lineEndings.isEmpty &&
+    System.lineSeparator() == "\r\n"
+
+  // used by dynamic; assumes `needGitAutoCRLF` was used before
+  def withGitAutoCRLF(value: String): ScalafmtConfig = value.toLowerCase match {
+    case "input" => withLineEndings(LineEndings.unix)
+    case "true" => withLineEndings(LineEndings.windows)
+    case "false" => withLineEndings(LineEndings.preserve)
+    case _ => this
+  }
+
   def withLineEndings(value: LineEndings): ScalafmtConfig =
     copy(lineEndings = Option(value))
 

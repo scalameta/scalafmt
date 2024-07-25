@@ -100,6 +100,13 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
   def indentDefnSite: Option[Int] = indentField.map(_.invokeAs[Int]("defnSite"))
     .toOption
 
+  def needGitAutoCRLF: Boolean = getVersion > ScalafmtVersion(3, 8, 2) &&
+    target.invokeAs[Boolean]("needGitAutoCRLF")
+
+  // must invoke needGitAutoCRLF first
+  def withGitAutoCRLF(value: String): ScalafmtReflectConfig =
+    withTarget(target.invoke("withGitAutoCRLF", value.asParam))
+
   override def equals(obj: Any): Boolean = target.equals(obj)
 
   override def hashCode(): Int = target.hashCode()
