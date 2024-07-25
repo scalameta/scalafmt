@@ -10,4 +10,5 @@ class FakeGitOps(root: AbsoluteFile) extends GitOps {
   override def status(dir: AbsoluteFile*): Seq[AbsoluteFile] = lsTree(root)
   override def diff(branch: String, dir: AbsoluteFile*): Seq[AbsoluteFile] =
     lsTree(dir: _*)
+  override def getAutoCRLF: Option[String] = None
 }
