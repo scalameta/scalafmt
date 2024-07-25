@@ -1472,3 +1472,80 @@ a match {
 a match {
   case _: (A | B) | _: (C & D) =>
 }
+<<< #4116 1 val
+object a {
+  (~validByte).toByte
+  (+validByte).toByte
+  (-validByte).toByte
+}
+>>>
+object a {
+  ~validByte.toByte
+  +validByte.toByte
+  -validByte.toByte
+}
+<<< #4116 2 int literal
+object a {
+  (~1).toByte
+  (+1).toByte
+  (-1).toByte
+}
+>>>
+object a {
+  ~1.toByte
+  +1.toByte
+  -1.toByte
+}
+<<< #4116 3 bool literal
+object a {
+  (false).toByte
+  (!true).toByte
+  (~true).toByte
+}
+>>>
+object a {
+  false.toByte
+  !true.toByte
+  ~true.toByte
+}
+<<< #4116 3.1 !!bool literal
+object a {
+  (!(!true))
+  (!(!true)).toByte
+}
+>>>
+test does not parse: [dialect scala213] `;` expected but `true` found
+object a {
+  ! !true
+     ^
+  ! !true.toByte
+}
+====== full result: ======
+object a {
+  ! !true
+  ! !true.toByte
+}
+<<< #4116 4 string literal
+object a {
+  ("foo").toByte
+  (!"bar").toByte
+  (~"baz").toByte
+}
+>>>
+object a {
+  "foo".toByte
+  !"bar".toByte
+  ~"baz".toByte
+}
+<<< #4116 5 char literal
+object a {
+  ('\n').toByte
+  (!'\r').toByte
+  (~'\f').toByte
+}
+>>>
+object a {
+  '\n'.toByte
+  !'\r'.toByte
+  ~'\f'.toByte
+}
