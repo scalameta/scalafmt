@@ -1542,3 +1542,14 @@ object a {
   (!'\r').toByte
   (~'\f').toByte
 }
+<<< #4122
+runner.dialect = scala3
+===
+new (Const[String, *] ~> ([a] =>> IO[Const[Int, a]])) {
+}
+>>>
+test does not parse: [dialect scala3] `=>` expected but `=>>` found
+new Const[String, *] ~> ([a] =>> IO[Const[Int, a]]) {}
+                             ^
+====== full result: ======
+new Const[String, *] ~> ([a] =>> IO[Const[Int, a]]) {}
