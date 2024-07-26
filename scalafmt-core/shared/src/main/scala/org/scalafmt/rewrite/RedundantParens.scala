@@ -143,8 +143,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   private def okToReplaceOther(
       t: Tree,
   )(implicit style: ScalafmtConfig): Boolean = t match {
-    case _: Lit => !t.parent.exists(_.is[Term.Ref]) ||
-      !t.tokens.headOption.exists(_.is[Token.Ident]) // unary
+    case _: Lit => t.tokens.length == 1 || !t.parent.exists(_.is[Term.Ref])
     case _: Term.ApplyUnary => !t.parent.exists(_.is[Term.Ref])
     case _: Member.Apply | _: Term.Interpolate | _: Term.PartialFunction => true
     case t: Term.Select => ftoks.tokenBefore(t.name).left.is[Token.Dot]
