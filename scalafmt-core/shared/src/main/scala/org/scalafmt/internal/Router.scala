@@ -74,6 +74,7 @@ class Router(formatOps: FormatOps) {
       // End files with trailing newline
       case FormatToken(_, _: T.EOF, _) => Seq(Split(Newline, 0))
       case FormatToken(_: T.BOF, _, _) => Seq(Split(NoSplit, 0))
+      case FormatToken(_: T.Shebang, _, _) => Seq(Split(Newline2x(ft), 0))
       case FormatToken(start: T.Interpolation.Start, _, m) =>
         val end = matching(start)
         val okNewlines = style.newlines.inInterpolation
