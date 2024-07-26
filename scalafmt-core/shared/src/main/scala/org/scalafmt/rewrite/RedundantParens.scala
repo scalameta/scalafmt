@@ -102,6 +102,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
 
     case _: Term.AnonymousFunction | _: Term.Param => false
     case _: Type.FunctionType => false
+    case _: Init => false
 
     case t: Member.ArgClause => okToReplaceArgClause(t)
     case Term.ParamClause(t :: Nil, _) => tree.parent.exists {
