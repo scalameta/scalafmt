@@ -1843,37 +1843,34 @@ class FormatOps(
     private object ColonEolImpl extends Factory {
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig,
-      ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
-        case t: Template if templateCurlyFt(t).contains(ft) =>
+      ): Option[OptionalBracesRegion] = {
+        val lo = ft.meta.leftOwner
+        def createImpl(ownerOpt: => Option[Tree], okRightBrace: => Boolean) =
           Some(new OptionalBracesRegion {
-            def owner = t.parent
-            def splits = Some(getSplits(ft, t, forceNL = true))
-            def rightBrace = if (isSeqMulti(t.stats)) treeLast(t) else None
+            def owner = ownerOpt
+            def splits = Some(getSplits(ft, lo, forceNL = true))
+            def rightBrace = if (okRightBrace) treeLast(lo) else None
           })
-        case t: Pkg if tokenAfter(t.ref).right eq ft.left =>
-          Some(new OptionalBracesRegion {
-            def owner = Some(t)
-            def splits = Some(getSplits(ft, t, forceNL = true))
-            def rightBrace = if (isSeqMulti(t.stats)) treeLast(t) else None
-          })
-        case t: Type.Refine => Some(new OptionalBracesRegion {
-            def owner = Some(t)
-            def splits = Some(getSplits(ft, t, forceNL = true))
-            def rightBrace = treeLast(t)
-          })
-        case t: Term.ArgClause if getHead(t) eq ft =>
-          onArgClause(ft, t, t.values)
-        case t: Term => t.parent match {
-            case Some(p: Term.ArgClause)
-                if isSingleElement(p.values, t) && (getHead(p) eq ft) =>
-              val stats = t match {
-                case b: Term.Block => b.stats
-                case _ => t :: Nil
-              }
-              onArgClause(ft, p, stats)
-            case _ => None
-          }
-        case _ => None
+        lo match {
+          case t: Template if templateCurlyFt(t).contains(ft) =>
+            createImpl(t.parent, isSeqMulti(t.stats))
+          case t: Pkg if tokenAfter(t.ref).right eq ft.left =>
+            createImpl(Some(t), isSeqMulti(t.stats))
+          case t: Type.Refine => createImpl(Some(t), true)
+          case t: Term.ArgClause if getHead(t) eq ft =>
+            onArgClause(ft, t, t.values)
+          case t: Term => t.parent match {
+              case Some(p: Term.ArgClause)
+                  if isSingleElement(p.values, t) && (getHead(p) eq ft) =>
+                val stats = t match {
+                  case b: Term.Block => b.stats
+                  case _ => t :: Nil
+                }
+                onArgClause(ft, p, stats)
+              case _ => None
+            }
+          case _ => None
+        }
       }
 
       private def onArgClause(
@@ -1949,40 +1946,34 @@ class FormatOps(
     private object RightParenImpl extends Factory {
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig,
-      ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
-        case ParamClauseParent(t: Defn.ExtensionGroup)
-            if isBlockStart(t.body, nft) =>
-          Some(new OptionalBracesRegion {
-            def owner = Some(t)
-            def splits = Some(getSplitsMaybeBlock(ft, nft, t.body))
-            def rightBrace = blockLast(t.body)
-          })
-        case t: Term.If if !nft.right.is[T.KwThen] && {
-              !isTreeSingleExpr(t.thenp) ||
-              !ifWithoutElse(t) &&
-              (isElsePWithOptionalBraces(t) ||
-                existsBlockIfWithoutElse(t.thenp, false))
-            } =>
-          Some(new OptionalBracesRegion {
-            def owner = Some(t)
-            def splits = Some(getSplitsForIf(ft, nft, t))
-            def rightBrace = blockLast(t.thenp)
-          })
-        case t @ Term.For(_, b) if !nft.right.is[T.KwDo] =>
-          Some(new OptionalBracesRegion {
-            def owner = Some(t)
-            def splits =
-              if (isTreeSingleExpr(b)) None else Some(getSplits(ft, b, true))
-            def rightBrace = blockLast(b)
-          })
-        case t @ Term.While(_, b) if !nft.right.is[T.KwDo] =>
-          Some(new OptionalBracesRegion {
-            def owner = Some(t)
-            def splits =
-              if (isTreeSingleExpr(b)) None else Some(getSplits(ft, b, true))
-            def rightBrace = blockLast(b)
-          })
-        case _ => None
+      ): Option[OptionalBracesRegion] = {
+        def createImpl(ownerTree: => Tree, blockTree: => Tree)(
+            splitsRef: => Option[Seq[Split]],
+        ) = Some(new OptionalBracesRegion {
+          def owner = Some(ownerTree)
+          def splits = splitsRef
+          def rightBrace = blockLast(blockTree)
+        })
+        def createKwDo(ownerTree: => Tree, blockTree: => Tree) =
+          if (nft.right.is[T.KwDo]) None
+          else createImpl(ownerTree, blockTree)(
+            if (isTreeSingleExpr(blockTree)) None
+            else Some(getSplits(ft, blockTree, true)),
+          )
+        ft.meta.leftOwner match {
+          case ParamClauseParent(t: Defn.ExtensionGroup)
+              if isBlockStart(t.body, nft) =>
+            createImpl(t, t.body)(Some(getSplitsMaybeBlock(ft, nft, t.body)))
+          case t: Term.If if !nft.right.is[T.KwThen] && {
+                !isTreeSingleExpr(t.thenp) ||
+                !ifWithoutElse(t) &&
+                (isElsePWithOptionalBraces(t) ||
+                  existsBlockIfWithoutElse(t.thenp, false))
+              } => createImpl(t, t.thenp)(Some(getSplitsForIf(ft, nft, t)))
+          case t @ Term.For(_, b) => createKwDo(t, b)
+          case t @ Term.While(_, b) => createKwDo(t, b)
+          case _ => None
+        }
       }
     }
 
@@ -2036,18 +2027,18 @@ class FormatOps(
     private object DoImpl extends Factory {
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig,
-      ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
-        case t @ Term.While(_, body) => Some(new OptionalBracesRegion {
-            def owner = Some(t)
-            def splits = Some(getSplitsMaybeBlock(ft, nft, body))
-            def rightBrace = blockLast(body)
-          })
-        case t @ Term.For(_, body) => Some(new OptionalBracesRegion {
-            def owner = Some(t)
-            def splits = Some(getSplitsMaybeBlock(ft, nft, body))
-            def rightBrace = blockLast(body)
-          })
-        case _ => None
+      ): Option[OptionalBracesRegion] = {
+        val lo = ft.meta.leftOwner
+        def createImpl(body: Tree) = Some(new OptionalBracesRegion {
+          def owner = Some(lo)
+          def splits = Some(getSplitsMaybeBlock(ft, nft, body))
+          def rightBrace = blockLast(body)
+        })
+        lo match {
+          case Term.While(_, body) => createImpl(body)
+          case Term.For(_, body) => createImpl(body)
+          case _ => None
+        }
       }
     }
 
@@ -2077,27 +2068,23 @@ class FormatOps(
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig,
       ): Option[OptionalBracesRegion] = {
-        def trySplits(expr: Term, finallyp: Option[Term], usesOB: => Boolean) =
-          if (!isTreeSingleExpr(expr)) Some(getSplits(ft, expr, true))
-          else if (finallyp.exists(isTreeUsingOptionalBraces) || usesOB)
-            Some(getSplits(ft, expr, shouldBreakInOptionalBraces(nft)))
-          else None
+        val lo = ft.meta.leftOwner
+        def createImpl(expr: Term, finallyp: Option[Term], usesOB: => Boolean) =
+          Some(new OptionalBracesRegion {
+            def owner = Some(lo)
+            def splits =
+              if (!isTreeSingleExpr(expr)) Some(getSplits(ft, expr, true))
+              else if (finallyp.exists(isTreeUsingOptionalBraces) || usesOB)
+                Some(getSplits(ft, expr, shouldBreakInOptionalBraces(nft)))
+              else None
+
+            def rightBrace = blockLast(expr)
+          })
         ft.meta.leftOwner match {
-          case t @ Term.Try(expr, _, finallyp) => Some(
-              new OptionalBracesRegion {
-                def owner = Some(t)
-                def splits =
-                  trySplits(expr, finallyp, isCatchUsingOptionalBraces(t))
-                def rightBrace = blockLast(expr)
-              },
-            )
-          case t @ Term.TryWithHandler(expr, _, finallyp) => Some(
-              new OptionalBracesRegion {
-                def owner = Some(t)
-                def splits = trySplits(expr, finallyp, false)
-                def rightBrace = blockLast(expr)
-              },
-            )
+          case t @ Term.Try(expr, _, finallyp) =>
+            createImpl(expr, finallyp, isCatchUsingOptionalBraces(t))
+          case Term.TryWithHandler(expr, _, finallyp) =>
+            createImpl(expr, finallyp, false)
           case _ => None
         }
       }
