@@ -394,6 +394,9 @@ class FormatWriter(formatOps: FormatOps) {
       val ib = style.rewrite.insertBraces
       val ft = floc.formatToken
       val ok = !ft.meta.formatOff && ib.minLines > 0 &&
+        (!style.rewrite.scala3.removeOptionalBraces.enabled &&
+          style.indent.main == style.indent.getSignificant ||
+          !formatOps.OptionalBraces.at(ft)(style)) &&
         floc.missingBracesIndent.isEmpty
       val mb =
         if (ok) formatOps.MissingBraces.getBlocks(ft, ib.allBlocks)

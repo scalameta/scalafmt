@@ -2690,10 +2690,10 @@ object a {
 >>>
 object a {
   def foo = {
-    try {
+    try
       aaaa +
         b
-    } catch
+    catch
       barbar
     finally
       aaaaa
@@ -2718,14 +2718,13 @@ object a {
 >>>
 object a {
   def foo = {
-    try {
+    try
       aaaa +
         b
-    } catch {
+    catch {
       barbar
-    } finally {
+    } finally
       aaaaa
-    }
   }
 }
 <<< #2019 try alwaysBeforeElseAfterCurlyIf !allBlocks
@@ -2746,10 +2745,9 @@ object a {
 >>>
 object a {
   def foo = {
-    try {
+    try
       aaaa +
         b
-    }
     catch
       barbar
     finally
@@ -2775,16 +2773,14 @@ object a {
 >>>
 object a {
   def foo = {
-    try {
+    try
       aaaa +
         b
-    }
     catch {
       barbar
     }
-    finally {
+    finally
       aaaaa
-    }
   }
 }
 <<< #2019 function
@@ -2936,10 +2932,9 @@ object a {
     a
   for (
     a <- b
-  ) { // c
+  ) // c
     a +
       b
-  }
   for {
     a <- b
   } { // c
@@ -3002,10 +2997,9 @@ object a {
   }
   for (
     a <- b
-  ) { // c
+  ) // c
     a +
       b
-  }
   for {
     a <- b
   } { // c
