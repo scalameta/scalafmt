@@ -358,7 +358,9 @@ object FormatTokens {
   }
 
   private def throwNoToken(t: Token, msg: String): Nothing =
-    throw new NoSuchElementException(s"$msg ${t.structure}: `$t`")
+    throw new NoSuchElementException(
+      s"$msg ${t.structure} @${t.pos.startLine}:${t.pos.startColumn}: `$t`",
+    )
 
   @inline
   def thash(token: Token): TokenHash = hash(token)
