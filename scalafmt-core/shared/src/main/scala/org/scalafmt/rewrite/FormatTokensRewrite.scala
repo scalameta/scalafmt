@@ -450,8 +450,7 @@ object FormatTokensRewrite {
     if (rtNumNL >= 2) None // right has a blank line, nothing to get from left
     else {
       val ltBW = lt.between
-      val ltNumNL = lt.newlinesBetween
-      if (rtNumNL >= ltNumNL) None // right has at least as many newlines
+      if (rtNumNL >= lt.newlinesBetween) None // right has at least as many newlines
       else {
         // left has more newlines than right (so it's non-empty)
         /* for special comment handling: if right ends in a newline, we must
@@ -459,7 +458,7 @@ object FormatTokensRewrite {
         val rtEndsInNL = rtNumNL != 0 && isNL(rtBW.last)
         if (rtEndsInNL == isNL(ltBW.last)) Some(ltBW)
         else {
-          val numNL = math.min(2, ltNumNL)
+          val numNL = math.min(2, ltBW.count(isNL))
           val arr = new Array[T](numNL + (if (rtEndsInNL) 0 else 1))
           // copy just the newlines from left
           ltBW.view.filter(isNL).copyToArray(arr, 0, numNL)
