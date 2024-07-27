@@ -8,6 +8,9 @@ case class RedundantParensSettings(
 
 object RedundantParensSettings {
   val default = RedundantParensSettings()
+  private[scalafmt] val all =
+    RedundantParensSettings(infixSide = Some(InfixSide.all))
+
   implicit lazy val surface: generic.Surface[RedundantParensSettings] =
     generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[RedundantParensSettings] = generic

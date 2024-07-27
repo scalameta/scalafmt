@@ -19,6 +19,8 @@ case class RedundantBracesSettings(
 object RedundantBracesSettings {
 
   val default = RedundantBracesSettings()
+  private[scalafmt] val all =
+    RedundantBracesSettings(stringInterpolation = true, ifElseExpressions = true)
 
   implicit lazy val surface: generic.Surface[RedundantBracesSettings] =
     generic.deriveSurface

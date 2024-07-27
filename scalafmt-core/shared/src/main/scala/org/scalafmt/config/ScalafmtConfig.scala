@@ -302,6 +302,34 @@ case class ScalafmtConfig(
   lazy val configStyleDefnSite: Newlines.ConfigStyleElement = newlines
     .configStyleDefnSite.getOrElse(getOptInConfigStyle)
 
+  def forScalaJs: ScalafmtConfig = copy(
+    binPack = BinPack.always,
+    danglingParentheses = DanglingParentheses(false, false),
+    indent = Indents(callSite = 4, defnSite = 4),
+    importSelectors = ImportSelectors.binPack,
+    newlines = newlines.copy(
+      avoidInResultType = true,
+      neverBeforeJsNative = true,
+      sometimesBeforeColonInMethodReturnType = false,
+    ),
+    // For some reason, the bin packing does not play nicely with forced
+    // config style. It's fixable, but I don't want to spend time on it
+    // right now.
+    runner = runner.conservative,
+    docstrings = docstrings.copy(style = Docstrings.Asterisk),
+    align = align.copy(
+      arrowEnumeratorGenerator = false,
+      tokens = Seq(AlignToken.caseArrow),
+      openParenCtrlSite = false,
+    ),
+  )
+
+  def withAlign(align: Align): ScalafmtConfig = copy(align = align)
+
+  def withAlign(tokens: AlignToken*): ScalafmtConfig = withAlign(
+    align.copy(tokens = if (tokens.isEmpty) AlignToken.default else tokens),
+  )
+
 }
 
 object ScalafmtConfig {
@@ -323,34 +351,12 @@ object ScalafmtConfig {
     danglingParentheses = DanglingParentheses.shortcutTrue,
   )
 
-  def addAlign(style: ScalafmtConfig): ScalafmtConfig = style
-    .copy(align = style.align.copy(tokens = AlignToken.default))
-  val defaultWithAlign: ScalafmtConfig = addAlign(default)
+  val defaultWithAlign: ScalafmtConfig = default.withAlign(Align.more)
 
   /** Experimental implementation of:
     * https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md
     */
-  val scalaJs: ScalafmtConfig = default.copy(
-    binPack = BinPack.always,
-    danglingParentheses = DanglingParentheses(false, false),
-    indent = Indents(callSite = 4, defnSite = 4),
-    importSelectors = ImportSelectors.binPack,
-    newlines = default.newlines.copy(
-      avoidInResultType = true,
-      neverBeforeJsNative = true,
-      sometimesBeforeColonInMethodReturnType = false,
-    ),
-    // For some reason, the bin packing does not play nicely with forced
-    // config style. It's fixable, but I don't want to spend time on it
-    // right now.
-    runner = default.runner.conservative,
-    docstrings = default.docstrings.copy(style = Docstrings.Asterisk),
-    align = default.align.copy(
-      arrowEnumeratorGenerator = false,
-      tokens = Seq(AlignToken.caseArrow),
-      openParenCtrlSite = false,
-    ),
-  )
+  val scalaJs: ScalafmtConfig = default.forScalaJs
 
   /** Ready styles provided by scalafmt.
     */
