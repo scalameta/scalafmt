@@ -2846,6 +2846,8 @@ maxColumn = 12
 newlines.afterInfix = keep
 newlines.alwaysBeforeElseAfterCurlyIf = false
 rewrite.insertBraces.minLines = 2
+rewrite.scala3.removeOptionalBraces = no
+indent.significant = null
 ===
 object a {
   def foo = try
@@ -2859,10 +2861,10 @@ object a {
 >>>
 object a {
   def foo = {
-    try
+    try {
       a +
         b
-    catch
+    } catch
       bar
     finally
       a
@@ -2874,6 +2876,8 @@ newlines.afterInfix = keep
 newlines.alwaysBeforeElseAfterCurlyIf = false
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
+rewrite.scala3.removeOptionalBraces = no
+indent.significant = null
 ===
 object a {
   def foo = try
@@ -2887,13 +2891,14 @@ object a {
 >>>
 object a {
   def foo = {
-    try
+    try {
       a +
         b
-    catch {
+    } catch {
       bar
-    } finally
+    } finally {
       a
+    }
   }
 }
 <<< #2019 try alwaysBeforeElseAfterCurlyIf !allBlocks
@@ -2901,6 +2906,8 @@ maxColumn = 12
 newlines.afterInfix = keep
 newlines.alwaysBeforeElseAfterCurlyIf = true
 rewrite.insertBraces.minLines = 2
+rewrite.scala3.removeOptionalBraces = no
+indent.significant = null
 ===
 object a {
   def foo = try
@@ -2914,9 +2921,10 @@ object a {
 >>>
 object a {
   def foo = {
-    try
+    try {
       a +
         b
+    }
     catch
       bar
     finally
@@ -2929,6 +2937,8 @@ newlines.afterInfix = keep
 newlines.alwaysBeforeElseAfterCurlyIf = true
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
+rewrite.scala3.removeOptionalBraces = no
+indent.significant = null
 ===
 object a {
   def foo = try
@@ -2942,14 +2952,16 @@ object a {
 >>>
 object a {
   def foo = {
-    try
+    try {
       a +
         b
+    }
     catch {
       bar
     }
-    finally
+    finally {
       a
+    }
   }
 }
 <<< #2019 function
@@ -3068,6 +3080,8 @@ object a {
 maxColumn = 12
 newlines.afterInfix = keep
 rewrite.insertBraces.minLines = 2
+rewrite.scala3.removeOptionalBraces = no
+indent.significant = null
 ===
 object a {
   for {
@@ -3101,9 +3115,10 @@ object a {
     a
   for (
     a <- b
-  ) // c
+  ) { // c
     a +
       b
+  }
   for {
     a <- b
   } { // c
@@ -3112,9 +3127,10 @@ object a {
   }
   for (
     a <- b
-  )
+  ) {
     a +
       b
+  }
   for {
     a <- b
   } {
@@ -3123,9 +3139,10 @@ object a {
   }
   for (
     a <- b
-  )
+  ) {
     a +
       b
+  }
   for {
     a <- b
   } a +
@@ -3136,6 +3153,8 @@ maxColumn = 12
 newlines.afterInfix = keep
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
+rewrite.scala3.removeOptionalBraces = no
+indent.significant = null
 ===
 object a {
   for {
@@ -3170,9 +3189,10 @@ object a {
   }
   for (
     a <- b
-  ) // c
+  ) { // c
     a +
       b
+  }
   for {
     a <- b
   } { // c
@@ -3181,9 +3201,10 @@ object a {
   }
   for (
     a <- b
-  )
+  ) {
     a +
       b
+  }
   for {
     a <- b
   } {
@@ -3192,9 +3213,10 @@ object a {
   }
   for (
     a <- b
-  )
+  ) {
     a +
       b
+  }
   for {
     a <- b
   } a +
