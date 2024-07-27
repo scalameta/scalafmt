@@ -37,6 +37,24 @@ jobs:
         shell: bash
       - run: TEST="2.13" sbt ci-test
         shell: bash
+  community-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ '11' ]
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JVM
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: 'sbt'
+      - run: sbt communityTests/test
   formatting:
     runs-on: ubuntu-latest
     steps:

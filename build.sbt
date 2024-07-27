@@ -202,6 +202,19 @@ lazy val tests = project.in(file("scalafmt-tests")).settings(
     Seq[BuildInfoKey]("resourceDirectory" -> (Test / resourceDirectory).value),
 ).enablePlugins(BuildInfoPlugin).dependsOn(coreJVM, dynamic, cli)
 
+lazy val communityTests = project.in(file("scalafmt-tests-community")).settings(
+  publish / skip := true,
+  libraryDependencies ++= Seq(
+    // Test dependencies
+    "com.lihaoyi" %% "scalatags" % "0.13.1",
+    scalametaTestkit,
+    munit.value,
+  ),
+  scalacOptions ++= scalacJvmOptions.value,
+  javaOptions += "-Dfile.encoding=UTF8",
+  buildInfoPackage := "org.scalafmt.tests",
+).enablePlugins(BuildInfoPlugin).dependsOn(coreJVM)
+
 lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
   publish / skip := true,
   moduleName := "scalafmt-benchmarks",
