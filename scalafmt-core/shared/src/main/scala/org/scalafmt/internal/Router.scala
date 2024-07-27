@@ -691,7 +691,7 @@ class Router(formatOps: FormatOps) {
               case _ => beforeDefRhs
             }
             val indent = beforeBody.fold(style.indent.main) { y =>
-              val ob = OptionalBraces.get(y).nonEmpty
+              val ob = OptionalBraces.at(y)
               style.indent.extraBeforeOpenParenDefnSite +
                 (if (ob) style.indent.getSignificant else style.indent.main)
             }
@@ -1298,7 +1298,7 @@ class Router(formatOps: FormatOps) {
         val expire = expireFt.left
         val sameLineSplit = Space(endsWithSymbolIdent(left))
         val bopSplits = style.newlines.getBeforeOpenParenDefnSite.map { x =>
-          val ob = OptionalBraces.get(nextAfterNonComment(expireFt)).nonEmpty
+          val ob = OptionalBraces.at(nextAfterNonComment(expireFt))
           def extraIfBody = style.indent.extraBeforeOpenParenDefnSite
           val indent =
             if (ob) style.indent.getSignificant + extraIfBody

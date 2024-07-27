@@ -1806,6 +1806,9 @@ class FormatOps(
         }
       }
 
+    def at(ft: FormatToken)(implicit style: ScalafmtConfig): Boolean = get(ft)
+      .nonEmpty
+
     private def getSplits(
         ft: FormatToken,
         tree: Tree,
