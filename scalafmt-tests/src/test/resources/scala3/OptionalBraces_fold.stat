@@ -866,16 +866,11 @@ private def mtd: Res =
     bazBody
   }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   if foo then fooBody
--  else
--     barBody
--     bazBody
-+  else {
-+    barBody
-+    bazBody
-+  }
+private def mtd: Res =
+  if foo then fooBody
+  else
+     barBody
+     bazBody
 <<< rewrite with given-with
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
