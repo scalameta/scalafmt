@@ -1256,8 +1256,7 @@ object WrapperToHaveStatTestCaseParserWorking {
 }
 >>>
 object WrapperToHaveStatTestCaseParserWorking {
-  @annot @deprecated
-  class B(
+  @annot @deprecated class B(
       @annot @deprecated
       private implicit val x: Int
   ) extends A {

@@ -1361,8 +1361,7 @@ object WrapperToHaveStatTestCaseParserWorking {
 >>>
 object WrapperToHaveStatTestCaseParserWorking {
   @annot
-  @deprecated
-  class B(
+  @deprecated class B(
       @annot @deprecated private implicit val x: Int
   ) extends A {
     @annot override def foo = 1

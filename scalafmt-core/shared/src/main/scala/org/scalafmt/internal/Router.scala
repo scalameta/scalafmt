@@ -550,13 +550,6 @@ class Router(formatOps: FormatOps) {
         }
 
       case FormatToken(left, right, StartsStatementRight(_)) =>
-        val expire = rightOwner.tokens.find(_.is[T.Equals])
-          .fold(getLastToken(rightOwner)) { equalsToken =>
-            val equalsFormatToken = tokens(equalsToken)
-            if (equalsFormatToken.right.is[T.LeftBrace]) equalsFormatToken.right
-            else equalsToken
-          }
-
         val annoRight = right.is[T.At]
         val annoLeft = isSingleIdentifierAnnotation(prev(ft))
 
@@ -578,6 +571,13 @@ class Router(formatOps: FormatOps) {
                 (annoRight || Reserved.unapply(right))
               case _ => noBreak() && Reserved.unapply(right)
             })
+          def expire = (rightOwner match {
+            case Tree.WithBody(body) => tokenBeforeOpt(body)
+            case _ => None
+          }).fold(right) { x =>
+            val y = nextNonCommentSameLine(x)
+            if (y.noBreak && y.right.is[T.LeftBrace]) y.right else y.left
+          }
           Seq(
             // This split needs to have an optimalAt field.
             Split(Space, 0).onlyIf(spaceCouldBeOk).withSingleLine(expire),
