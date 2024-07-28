@@ -120,7 +120,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
         case _: Token.KwIf => true
         case _: Token.KwThen => true
         case _: Token.KwElse => !isTreeMultiStatBlock(t.elsep) ||
-          ftoks.tokenAfter(t.cond).right.is[Token.KwThen]
+          allowOldSyntax || ftoks.tokenAfter(t.cond).right.is[Token.KwThen]
         case _: Token.RightParen => allowOldSyntax
         case _ => false
       }
