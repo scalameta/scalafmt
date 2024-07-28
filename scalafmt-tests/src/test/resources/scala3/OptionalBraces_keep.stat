@@ -920,6 +920,28 @@ private def mtd: Res =
 private def mtd: Res =
   if foo then fooBody
   else if bar then barBody else bazBody
+<<< remove optional braces within converted if-else, multi-stat else
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+===
+private def mtd: Res =
+  if (foo)
+    fooBody
+  else {
+    barBody
+    bazBody
+  }
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+      fooBody
+-  else
+-     barBody
+-     bazBody
++  else {
++    barBody
++    bazBody
++  }
 <<< rewrite with given-with
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
