@@ -214,6 +214,14 @@ class Router(formatOps: FormatOps) {
             OptionalBraces(splits),
           ) if dialect.allowSignificantIndentation => splits
 
+      case FormatToken(_: T.Equals, _, DefValAssignLeft(rhs)) =>
+        maybeGetInfixSplitsBeforeLhs(ft) {
+          getSplitsDefValEquals(ft, rhs) {
+            if (leftOwner.is[Tree.WithParamClauses]) getSplitsDefEquals(ft, rhs)
+            else getSplitsValEquals(ft, rhs)(getSplitsValEqualsClassic(ft, rhs))
+          }
+        }
+
       // { ... } Blocks
       case FormatToken(open: T.LeftBrace, right, m) =>
         val close = matching(open)
@@ -743,15 +751,9 @@ class Router(formatOps: FormatOps) {
             delayedBreakPolicyBefore(expire)(forceNewlineBeforeExtends)
           }
         Seq(Split(Space, 0).withPolicy(policy))
+
       // DefDef
       case FormatToken(_: T.KwDef, _: T.Ident, _) => Seq(Split(Space, 0))
-      case FormatToken(_: T.Equals, _, DefValAssignLeft(rhs)) =>
-        maybeGetInfixSplitsBeforeLhs(ft) {
-          getSplitsDefValEquals(ft, rhs) {
-            if (leftOwner.is[Tree.WithParamClauses]) getSplitsDefEquals(ft, rhs)
-            else getSplitsValEquals(ft, rhs)(getSplitsValEqualsClassic(ft, rhs))
-          }
-        }
 
       // Parameter opening for one parameter group. This format works
       // on the WHOLE defnSite (via policies)
