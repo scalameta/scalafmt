@@ -5566,27 +5566,15 @@ object a:
     else sym.allOverriddenSymbols.toList.filter(_ != NoSymbol) //TODO: could also be `sym.owner.allOverrid..`
     //else sym.owner.ancestors map (sym overriddenSymbol _) filter (_ != NoSymbol)
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a:
--   private def allInheritedOverriddenSymbols(
--       sym: Symbol
--   )(using Context): List[Symbol] =
--     if (!sym.owner.isClass)
--       Nil
--     else
--       sym
--         .allOverriddenSymbols
--         .toList
--         .filter(_ != NoSymbol) // TODO: could also be `sym.owner.allOverrid..`
-+   private def allInheritedOverriddenSymbols(sym: Symbol)(using
-+       Context
-+   ): List[Symbol] =
-+   if (!sym.owner.isClass)
-+     Nil
-+   else
-+     sym
-+       .allOverriddenSymbols
-+       .toList
-+       .filter(_ != NoSymbol) // TODO: could also be `sym.owner.allOverrid..`
-    // else sym.owner.ancestors map (sym overriddenSymbol _) filter (_ != NoSymbol)
+object a:
+   private def allInheritedOverriddenSymbols(
+       sym: Symbol
+   )(using Context): List[Symbol] =
+     if (!sym.owner.isClass)
+       Nil
+     else
+       sym
+         .allOverriddenSymbols
+         .toList
+         .filter(_ != NoSymbol) // TODO: could also be `sym.owner.allOverrid..`
+     // else sym.owner.ancestors map (sym overriddenSymbol _) filter (_ != NoSymbol)
