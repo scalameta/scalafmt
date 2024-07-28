@@ -1343,8 +1343,7 @@ object WrapperToHaveStatTestCaseParserWorking {
 }
 >>>
 object WrapperToHaveStatTestCaseParserWorking {
-  @annot @deprecated
-  class B(
+  @annot @deprecated class B(
       @annot @deprecated private implicit val x: Int
   ) extends A {
     @annot override def foo = 1
@@ -1358,8 +1357,7 @@ object WrapperToHaveStatTestCaseParserWorking {
 
     // in case of annotations with params located in many lines
     // let's live with changed lines of params
-    @annot
-    @annot2(
+    @annot @annot2(
       value =
         "foo",
       someInt = 5
