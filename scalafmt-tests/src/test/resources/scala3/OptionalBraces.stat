@@ -2104,15 +2104,15 @@ maxColumn = 40
 extension (a: All) def getAll: Boolean = a
 >>>
 extension (a: All)
-  def getAll: Boolean = a
+   def getAll: Boolean = a
 <<< #2725 no newline after extension parameter long, no optional braces
 maxColumn = 40
 runner.dialectOverride.allowSignificantIndentation = false
 ===
 extension (a: All) def getAll: Boolean = a
 >>>
-extension (a: All)
-  def getAll: Boolean = a
+extension (a: All) def getAll: Boolean =
+  a
 <<< #2740
 runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 1
