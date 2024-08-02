@@ -984,5 +984,6 @@ package foo {
 >>>
 package foo {
   // c1
+
   import bar.baz
 }
