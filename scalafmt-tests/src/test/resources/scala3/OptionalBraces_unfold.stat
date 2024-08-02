@@ -430,6 +430,60 @@ object a:
                cc
              case _ =>
                dd
+<<< standalone comment at end of case body, braced match 1
+object a {
+  def foo = this match {
+      case bar =>
+        if (baz)
+          qux()
+          // c
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+         if (baz)
+-          qux()
++        qux()
+       // c
+<<< standalone comment at end of case body, braced match 2
+object a {
+  def foo = this match {
+      case bar =>
+        if (baz)
+          qux()
+          // c1
+        else
+          quux()
+          // c2
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+         if (baz)
+-          qux()
++        qux()
+         // c1
+         else
+-          quux()
++        quux()
+       // c2
+<<< standalone comment at end of case body, braceless match
+object a:
+  foo match
+    case bar =>
+      baz
+      // c1
+    case _ => qux
+>>>
+object a:
+   foo match
+      case bar =>
+        baz
+      // c1
+      case _ =>
+        qux
 <<< try/finally, single
 object a:
    def foo =
