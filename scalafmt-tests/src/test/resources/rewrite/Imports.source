@@ -973,3 +973,16 @@ import j.collections as collections
 >>>
 import java as j
 import j.collections as collections
+<<< comment and blank before import
+rewrite.imports.groups = [["qux"]]
+===
+package foo {
+  // c1
+
+  import bar.baz
+}
+>>>
+package foo {
+  // c1
+  import bar.baz
+}
