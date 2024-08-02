@@ -386,7 +386,8 @@ object Imports extends RewriteFactory {
       var hadLf = false
       val slc = new ListBuffer[Token]
       ctx.tokenTraverser.findAtOrBefore(ctx.getIndex(tok) - 1) {
-        case _: Token.AtEOL => if (hadLf) Some(true) else { hadLf = true; None }
+        case t: Token.AtEOL =>
+          if (hadLf || t.newlines > 1) Some(true) else { hadLf = true; None }
         case t: Token.Comment if TokenOps.isSingleLineIfComment(t) =>
           slc.prepend(t); hadLf = false; None
         case _: Token.Whitespace => None
