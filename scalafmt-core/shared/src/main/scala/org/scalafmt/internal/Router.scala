@@ -2083,15 +2083,14 @@ class Router(formatOps: FormatOps) {
 
       case FormatToken(_: T.KwCase, _, _) if leftOwner.is[CaseTree] =>
         val owner = leftOwner.asInstanceOf[CaseTree]
-        val body = owner.body
         val arrowFt = leftOwner match {
           case c: Case => getCaseArrow(c)
           case tc: TypeCase => getCaseArrow(tc)
         }
         val arrow = arrowFt.left
         val postArrowFt = nextNonCommentSameLine(arrowFt)
-        val bodyEnd = getLastNonTrivialOpt(body)
-        val expire = bodyEnd.fold(postArrowFt)(nextNonCommentSameLine).left
+        val ownerEnd = getLastOpt(owner)
+        val expire = ownerEnd.fold(postArrowFt)(nextNonCommentSameLine).left
 
         val bodyBlock = isCaseBodyABlock(arrowFt, owner)
         def defaultPolicy = decideNewlinesOnlyAfterToken(postArrowFt.left)
@@ -2129,10 +2128,12 @@ class Router(formatOps: FormatOps) {
           Indent(arrowIndent, arrow, After),
         )
         val mod = ModExt(Space, indents)
-        Seq(
-          Split(mod, 0).withSingleLine(expire, killOnFail = true),
-          Split(mod, 0, policy = policy),
-        )
+        val slbSplitOpt = (ownerEnd match {
+          case None => Some(postArrowFt)
+          case Some(x) => prevNotTrailingComment(x).toOption
+        }).map(x => Split(mod, 0).withSingleLine(x.left, killOnFail = true))
+        val splits = Split(mod, 0, policy = policy) :: Nil
+        slbSplitOpt.fold(splits)(_ :: splits)
 
       case FormatToken(_, cond: T.KwIf, _) if rightOwner.is[Case] =>
         if (style.newlines.keepBreak(newlines)) Seq(Split(Newline, 0))

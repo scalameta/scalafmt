@@ -198,6 +198,15 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   final def prevNonCommentSameLineBefore(curr: FormatToken): FormatToken =
     prevNonCommentSameLine(prev(curr))
 
+  def prevNotTrailingComment(
+      curr: FormatToken,
+  ): Either[FormatToken, FormatToken] = curr.left match {
+    case _: Token.Comment =>
+      val prev = prevNonCommentSameLineBefore(curr)
+      if (prev.hasBreak) Left(curr) else Right(prev)
+    case _ => Right(curr)
+  }
+
   @tailrec
   final def getOnOrBeforeOwned(ft: FormatToken, tree: Tree): FormatToken = {
     val prevFt = prevNonCommentBefore(ft)
@@ -241,6 +250,13 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     getLastOpt(tokens, tree).map(prevNonComment)
   def getLastNonTrivialOpt(tree: Tree): Option[FormatToken] =
     getLastNonTrivialOpt(tree.tokens, tree)
+
+  def getLastNotTrailingComment(tree: Tree): Either[FormatToken, FormatToken] =
+    prevNotTrailingComment(getLast(tree))
+  def getLastNotTrailingCommentOpt(
+      tree: Tree,
+  ): Option[Either[FormatToken, FormatToken]] = getLastOpt(tree)
+    .map(prevNotTrailingComment)
 
   /* the following methods return the first format token such that
    * its `right` is after the parameter and is not a comment */
