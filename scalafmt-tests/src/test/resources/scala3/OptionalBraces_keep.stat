@@ -412,12 +412,14 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-       if (baz)
--        qux()
-+      qux()
-     // c
+object a {
+  def foo = this match {
+    case bar =>
+      if (baz)
+         qux()
+         // c
+  }
+}
 <<< standalone comment at end of case body, braced match 2
 object a {
   def foo = this match {
@@ -431,16 +433,17 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-       if (baz)
--        qux()
-+      qux()
-       // c1
-       else
--        quux()
-+      quux()
-     // c2
+object a {
+  def foo = this match {
+    case bar =>
+      if (baz)
+         qux()
+         // c1
+      else
+         quux()
+         // c2
+  }
+}
 <<< standalone comment at end of case body, braceless match
 object a:
   foo match
@@ -453,7 +456,7 @@ object a:
    foo match
       case bar =>
         baz
-      // c1
+        // c1
       case _ => qux
 <<< try/finally, single
 object a:

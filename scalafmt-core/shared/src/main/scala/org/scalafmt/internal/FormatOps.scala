@@ -1969,6 +1969,7 @@ class FormatOps(
             createImpl(t, t.body)(Some(getSplitsMaybeBlock(ft, nft, t.body)))
           case t: Term.If if !nft.right.is[T.KwThen] && {
                 !isTreeSingleExpr(t.thenp) ||
+                getLastNotTrailingCommentOpt(t.thenp).exists(_.isLeft) ||
                 !ifWithoutElse(t) &&
                 (isElsePWithOptionalBraces(t) ||
                   existsBlockIfWithoutElse(t.thenp, false))
@@ -1984,10 +1985,12 @@ class FormatOps(
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
-        case t: Case => // unsupported except for right brace
+        case t: Case => // unsupported except for right brace, or when ends in comment
           Some(new OptionalBracesRegion {
             def owner = None
-            def splits = None
+            def splits =
+              if (getLastNotTrailingCommentOpt(t).forall(_.isRight)) None
+              else Some(Seq(Split(Newline2x(ft), 0)))
             def rightBrace = blockLast(t.body)
           })
         case _ => BlockImpl.create(ft, nft)
@@ -2207,6 +2210,8 @@ class FormatOps(
                   case Some(t) => t.end < b.pos.end
                   case None => true
                 }) => None
+            case x if getLastNotTrailingCommentOpt(x).exists(_.isLeft) =>
+              Some(true)
             case _ if isThenPWithOptionalBraces(t) =>
               Some(shouldBreakInOptionalBraces(nft))
             case _ => None
