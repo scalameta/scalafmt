@@ -130,36 +130,48 @@ case class Split(
   def withOptimalTokenOpt(
       token: => Option[Token],
       killOnFail: Boolean = false,
-  ): Split = withOptimalAt(token.map(OptimalToken(_, killOnFail)))
+      extend: Boolean = false,
+  ): Split =
+    withOptimalAt(token.map(OptimalToken(_, killOnFail)), extend = extend)
 
   def withOptimalToken(
       token: => Token,
       killOnFail: Boolean = false,
       ignore: Boolean = false,
-  ): Split = withOptimalAt(Some(OptimalToken(token, killOnFail)), ignore)
+      extend: Boolean = false,
+  ): Split =
+    withOptimalAt(Some(OptimalToken(token, killOnFail)), ignore, extend = extend)
 
   def withOptimalAt(
       fOptimalAt: => Option[OptimalToken],
       ignore: Boolean = false,
+      extend: Boolean = false,
   ): Split =
     if (ignore || isIgnored) this
-    else {
-      val optimalAt = fOptimalAt
-      if (optimalAt.isEmpty) this
-      else {
-        require(this.optimalAt.isEmpty)
+    else fOptimalAt match {
+      case None => this
+      case optAt @ Some(opt) =>
         require(cost == 0, s"can't set optimal, cost=$cost")
-        copy(optimalAt = optimalAt)
-      }
+        def amend() = copy(optimalAt = optAt)
+        this.optimalAt match {
+          case None => amend()
+          case Some(x) if extend =>
+            if (x.token.end < opt.token.end) amend() else this
+          case _ =>
+            throw new UnsupportedOperationException("Can't reset optimal token")
+        }
     }
 
-  def withPolicy(newPolicy: => Policy, ignore: Boolean = false): Split =
-    if (isIgnored || ignore) this
-    else {
-      if (!policy.isEmpty)
-        throw new UnsupportedOperationException("Use orPolicy or andPolicy")
-      copy(policy = newPolicy)
-    }
+  def withPolicy(
+      newPolicy: => Policy,
+      ignore: Boolean = false,
+      extend: Boolean = false,
+  ): Split =
+    if (ignore) this
+    else if (extend) andPolicy(newPolicy)
+    else if (isIgnored) this
+    else if (policy.isEmpty) copy(policy = newPolicy)
+    else throw new UnsupportedOperationException("Use orPolicy or andPolicy")
 
   def withSingleLine(
       expire: Token,
@@ -167,6 +179,7 @@ case class Split(
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false,
       rank: Int = 0,
+      extend: Boolean = false,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
     withSingleLineAndOptimal(
       expire,
@@ -175,6 +188,7 @@ case class Split(
       noSyntaxNL,
       killOnFail,
       rank,
+      extend,
     )
 
   def withSingleLineAndOptimal(
@@ -184,9 +198,16 @@ case class Split(
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false,
       rank: Int = 0,
+      extend: Boolean = false,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
-    withOptimalToken(optimal, killOnFail)
-      .withSingleLineNoOptimal(expire, exclude, noSyntaxNL, rank)
+    withOptimalToken(optimal, killOnFail, extend = extend)
+      .withSingleLineNoOptimal(
+        expire,
+        exclude,
+        noSyntaxNL,
+        rank,
+        extend = extend,
+      )
 
   def withSingleLineNoOptimal(
       expire: Token,
@@ -194,9 +215,11 @@ case class Split(
       noSyntaxNL: Boolean = false,
       rank: Int = 0,
       ignore: Boolean = false,
+      extend: Boolean = false,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split = withPolicy(
     SingleLineBlock(expire, exclude, noSyntaxNL = noSyntaxNL, rank = rank),
     ignore = ignore,
+    extend = extend,
   )
 
   def orPolicy(newPolicy: Policy): Split =
