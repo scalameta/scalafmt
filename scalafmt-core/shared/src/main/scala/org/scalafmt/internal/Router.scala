@@ -2096,12 +2096,13 @@ class Router(formatOps: FormatOps) {
         }
         val arrow = arrowFt.left
         val postArrowFt = nextNonCommentSameLine(arrowFt)
+        val postArrow = postArrowFt.left
         val ownerEnd = getLastOpt(owner)
         val expire = ownerEnd.fold(postArrowFt)(nextNonCommentSameLine).left
 
         val bodyBlock = isCaseBodyABlock(arrowFt, owner)
-        def defaultPolicy = decideNewlinesOnlyAfterToken(postArrowFt.left)
-        val policy =
+        def defaultPolicy = decideNewlinesOnlyAfterToken(postArrow)
+        val postArrowPolicy =
           if (bodyBlock || isAttachedCommentThenBreak(arrowFt)) NoPolicy
           else if (isCaseBodyEnclosedAsBlock(postArrowFt, owner)) {
             val postParenFt = nextNonCommentSameLineAfter(postArrowFt)
@@ -2135,12 +2136,23 @@ class Router(formatOps: FormatOps) {
           Indent(arrowIndent, arrow, After),
         )
         val mod = ModExt(Space, indents)
-        val slbSplitOpt = (ownerEnd match {
+        val slbExpireOpt = ownerEnd match {
           case None => Some(postArrowFt)
           case Some(x) => prevNotTrailingComment(x).toOption
-        }).map(x => Split(mod, 0).withSingleLine(x.left, killOnFail = true))
-        val splits = Split(mod, 0, policy = policy) :: Nil
-        slbSplitOpt.fold(splits)(_ :: splits)
+        }
+        val policy = slbExpireOpt.fold(postArrowPolicy) { slbExpireFt =>
+          val slbExpire = slbExpireFt.left
+          val onArrowPolicy = Policy.End == arrow ==>
+            Policy.after(postArrow, "CASESLB>ARROW") { case Decision(_, ss) =>
+              ss.flatMap { s =>
+                val nonSlbSplit = s.andPolicy(postArrowPolicy)
+                if (s.isNL) Seq(nonSlbSplit)
+                else Seq(s.withSingleLine(slbExpire, extend = true), nonSlbSplit)
+              }
+            }
+          Policy.RelayOnSplit((s, _) => s.isNL)(onArrowPolicy, postArrowPolicy)
+        }
+        Seq(Split(mod, 0, policy = policy))
 
       case FormatToken(_, cond: T.KwIf, _) if rightOwner.is[Case] =>
         if (style.newlines.keepBreak(newlines)) Seq(Split(Newline, 0))
