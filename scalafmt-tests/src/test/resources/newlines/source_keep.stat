@@ -3556,6 +3556,28 @@ object a {
     case None => Command.invalid
   }
 }
+<<< ONLY complex match case triggering SLB precedence rule
+object a {
+  val breakpoints = (breaks.map {
+      case Break(point) =>
+          s"""|send "stop at $MainObject$$:$point\\r"
+              |sleep $CommandWait
+              |expect "breakpoint $MainObject$$:$point"
+              |expect -re $$
+              """.stripMargin
+    }).mkString("\n\n")
+}
+>>>
+object a {
+  val breakpoints = (breaks.map {
+    case Break(point) =>
+      s"""|send "stop at $MainObject$$:$point\\r"
+              |sleep $CommandWait
+              |expect "breakpoint $MainObject$$:$point"
+              |expect -re $$
+              """.stripMargin
+  }).mkString("\n\n")
+}
 <<< #2137
 pubSubMessage match {
   case message: IngestionMessage => (
