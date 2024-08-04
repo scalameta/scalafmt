@@ -3701,7 +3701,7 @@ object a {
         Command.invalid
     }
 }
-<<< ONLY complex match case triggering SLB precedence rule
+<<< complex match case triggering SLB precedence rule
 object a {
   val breakpoints = (breaks.map {
       case Break(point) =>
@@ -3713,17 +3713,18 @@ object a {
     }).mkString("\n\n")
 }
 >>>
-BestFirstSearch:289 Failed to format
-UNABLE TO FORMAT,
-tok #17/52: =>∙s: RightArrow [69..71) [LF] Interpolation.Id(s) [82..83)
-policies:
-  NA:[Router:2096]>71d
-  (NB:[Router:229]@280d & NA:[Router:300]>71d)
-  SLB:[Router:2063]@281!d
-  NB:[Router:229]@300d
-splits (before policy):
-  Newline:[Router:517](cost=0, indents=[], NoPolicy)
-splits (after policy):
+object a {
+  val breakpoints =
+    (
+      breaks.map { case Break(point) =>
+        s"""|send "stop at $MainObject$$:$point\\r"
+              |sleep $CommandWait
+              |expect "breakpoint $MainObject$$:$point"
+              |expect -re $$
+              """.stripMargin
+      }
+    ).mkString("\n\n")
+}
 <<< #2137
 pubSubMessage match {
   case message: IngestionMessage => (

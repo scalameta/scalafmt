@@ -3556,7 +3556,7 @@ object a {
     case None => Command.invalid
   }
 }
-<<< ONLY complex match case triggering SLB precedence rule
+<<< complex match case triggering SLB precedence rule
 object a {
   val breakpoints = (breaks.map {
       case Break(point) =>
