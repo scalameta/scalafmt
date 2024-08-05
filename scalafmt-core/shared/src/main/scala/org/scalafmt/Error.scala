@@ -81,21 +81,23 @@ object Error {
       partialOutput: String,
       tok: String,
       line: Int,
+      why: String,
   ) extends Error(
-        s"Search state exploded on '$tok', line $line [see $cfgUrl#search-state-exploded]",
+        s"Search state exploded on '$tok', line $line: $why [see $cfgUrl#search-state-exploded]",
       ) {
-    def this(deepestState: State, ft: FormatToken)(implicit
+    def this(deepestState: State, ft: FormatToken, why: String)(implicit
         formatWriter: FormatWriter,
     ) = this(
       deepestState,
       formatWriter.mkString(deepestState),
       LoggerOps.log2(ft),
       ft.left.pos.endLine + 1,
+      why,
     )
-    def this(
-        deepestState: State,
-    )(implicit tokens: FormatTokens, formatWriter: FormatWriter) =
-      this(deepestState, tokens(deepestState.depth))
+    def this(deepestState: State, why: String)(implicit
+        tokens: FormatTokens,
+        formatWriter: FormatWriter,
+    ) = this(deepestState, tokens(deepestState.depth), why)
   }
 
   case class InvalidScalafmtConfiguration(throwable: Throwable)
