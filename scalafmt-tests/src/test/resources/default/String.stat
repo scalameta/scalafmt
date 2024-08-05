@@ -153,12 +153,25 @@ object a {
 object a {
   system.log.warning("Replicator points to dead letters: Make sure the cluster node is not terminated and has the proper role!")
 }
-<<< #1505 2
+<<< #1505 2.1 break, can fit within maxColumn
 newlines.avoidForSimpleOverflow = [toolong]
 ===
 object a {
   intercept[TestException] {
     val ct = Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+  }
+}
+>>>
+object a {
+  intercept[TestException] {
+    val ct = Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+  }
+}
+<<< #1505 2.2 don't break, overflows anyway
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+  intercept[TestException] {
     val ct =
       Thread.currentThread() // Ensure that the thunk is executed in the tests thread
   }
@@ -166,12 +179,11 @@ object a {
 >>>
 object a {
   intercept[TestException] {
-    val ct = Thread.currentThread() // Ensure that the thunk is executed in the tests thread
     val ct =
       Thread.currentThread() // Ensure that the thunk is executed in the tests thread
   }
 }
-<<< #1505 2.1
+<<< #1505 2.3 break, can fit within maxColumn
 maxColumn = 90
 newlines.avoidForSimpleOverflow = [toolong]
 ===
@@ -191,7 +203,7 @@ object a {
       Thread.currentThread() // Ensure that the thunk is executed in the tests thread
   }
 }
-<<< #1505 2.2 [#2633]
+<<< #1505 2.4 [#2633] ok to overflow for single-line comment, despite no-overflow solution
 maxColumn = 90
 newlines.avoidForSimpleOverflow = [slc]
 ===
@@ -210,7 +222,7 @@ object a {
       Thread.currentThread() // Ensure that the thunk is executed in the tests thread
   }
 }
-<<< #1505 3
+<<< #1505 3 break, can fit within maxColumn
 newlines.avoidForSimpleOverflow = [toolong]
 ===
 object a {
