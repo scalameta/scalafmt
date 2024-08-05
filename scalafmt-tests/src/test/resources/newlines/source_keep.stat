@@ -8340,3 +8340,24 @@ foo match {
     bazb
   case c => barc; bazc
 }
+<<< return type followed by various Apply and Select
+maxColumn = 77
+===
+object a {
+  val current: Map[String, Object] = template.templateFile.settings.getOrElse("page", Map.empty).asInstanceOf[Map[String, Object]]
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+ object a {
+-  val current: Map[String, Object] =
+-    template.templateFile.settings.getOrElse(
+-      "page",
+-      Map.empty
+-    ).asInstanceOf[Map[String, Object]]
++  val current
++      : Map[String, Object] = template.templateFile.settings.getOrElse(
++    "page",
++    Map.empty
++  ).asInstanceOf[Map[String, Object]]
+ }
