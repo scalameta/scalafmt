@@ -2142,6 +2142,18 @@ end f
 
 /** Some doc comment */
 def g = f("Foo")
+<<< oveflow infix assignment with trailing single-line comment
+maxColumn = 26
+===
+object a:
+  def foo =
+     bar = baz + baz(qux) // c1
+>>>
+object a:
+   def foo =
+     bar =
+       baz +
+         baz(qux) // c1
 <<< #2561 no forced dangle in tuples
 newlines {
   beforeOpenParenDefnSite = source
