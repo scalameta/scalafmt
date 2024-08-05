@@ -164,7 +164,8 @@ object a {
 >>>
 object a {
   intercept[TestException] {
-    val ct = Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+    val ct = Thread
+      .currentThread() // Ensure that the thunk is executed in the tests thread
   }
 }
 <<< #1505 2.2 don't break, overflows anyway
@@ -233,7 +234,8 @@ object a {
 >>>
 object a {
   intercept[TestException] {
-    val ct = Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+    val ct = Thread
+      .currentThread() // Ensure that the thunk is executed in the tests thread
   }
 }
 <<< #1505 4
