@@ -2002,16 +2002,11 @@ object a:
   def foo =
      bar = baz + baz(qux) // c1
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-    def foo =
--     bar = baz + baz(
--       qux
--     ) // c1
-+     bar =
-+       baz + baz(
-+         qux
-+       ) // c1
+object a:
+   def foo =
+     bar = baz + baz(
+       qux
+     ) // c1
 <<< #2561 no forced dangle in tuples
 maxColumn = 40
 newlines {

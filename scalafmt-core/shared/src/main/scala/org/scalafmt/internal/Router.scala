@@ -2529,9 +2529,7 @@ class Router(formatOps: FormatOps) {
       case _: Term.ForYield => twoBranches
       // we force newlines in try/catch/finally
       case _: Term.Try | _: Term.TryWithHandler => Split.ignored
-      case t: Term.Apply if t.argClause.nonEmpty =>
-        baseSpaceSplit.withOptimalToken(optimalWithComment)
-      case _ => baseSpaceSplit.withOptimalToken(optimal)
+      case _ => baseSpaceSplit.withOptimalToken(optimalWithComment)
     }
     Seq(
       spaceSplit,
