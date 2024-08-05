@@ -1320,7 +1320,8 @@ class Router(formatOps: FormatOps) {
             PenalizeAllNewlines(expire, Constants.BracketPenalty)
           val indent = style.indent.getDefnSite(leftOwner)
           Seq(
-            Split(sameLineSplit, 0).withPolicy(penalizeNewlines),
+            Split(style.newlines.keepBreak(hasBreak()), 0)(sameLineSplit)
+              .withPolicy(penalizeNewlines),
             // Spark style guide allows this:
             // https://github.com/databricks/scala-style-guide#indent
             Split(Newline, Constants.SparkColonNewline)

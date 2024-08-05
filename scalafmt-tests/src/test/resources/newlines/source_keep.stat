@@ -8347,17 +8347,10 @@ object a {
   val current: Map[String, Object] = template.templateFile.settings.getOrElse("page", Map.empty).asInstanceOf[Map[String, Object]]
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a {
--  val current: Map[String, Object] =
--    template.templateFile.settings.getOrElse(
--      "page",
--      Map.empty
--    ).asInstanceOf[Map[String, Object]]
-+  val current
-+      : Map[String, Object] = template.templateFile.settings.getOrElse(
-+    "page",
-+    Map.empty
-+  ).asInstanceOf[Map[String, Object]]
- }
+object a {
+  val current
+      : Map[String, Object] = template.templateFile.settings.getOrElse(
+    "page",
+    Map.empty
+  ).asInstanceOf[Map[String, Object]]
+}
