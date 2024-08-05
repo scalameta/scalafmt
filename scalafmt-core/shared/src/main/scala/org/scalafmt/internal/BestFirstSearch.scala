@@ -125,7 +125,10 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         trackState(curr, depth, Q.length)
 
         if (explored > style.runner.maxStateVisits)
-          throw new SearchStateExploded(deepestYet)
+          throw new SearchStateExploded(
+            deepestYet,
+            "exceeded `runner.maxStateVisits`",
+          )
 
         if (curr.split != null && curr.split.isNL)
           if (
@@ -146,7 +149,11 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           visits(curr.depth) > maxVisitsPerToken
         ) {
           complete(deepestYet)
-          throw new SearchStateExploded(deepestYet, splitToken)
+          throw new SearchStateExploded(
+            deepestYet,
+            splitToken,
+            "exceeded `runner.optimizer.maxVisitsPerToken`",
+          )
         } else {
           val actualSplit = getActiveSplits(curr, maxCost)
           val allAltAreNL = actualSplit.forall(_.isNL)
