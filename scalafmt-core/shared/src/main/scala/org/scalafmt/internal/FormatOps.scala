@@ -2102,7 +2102,15 @@ class FormatOps(
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t @ Term.Try(_, catchp, _) => Some(new OptionalBracesRegion {
             def owner = Some(t)
-            def splits = getSplitsForStats(ft, nft, catchp)
+            def splits = {
+              val nlOnly = catchp match {
+                case Nil => false
+                // to avoid next expression being interpreted as body
+                case head :: Nil => isEmptyTree(head.body) && t.finallyp.isEmpty
+                case _ => true
+              }
+              getSplitsForStats(ft, nft, catchp, nlOnly = nlOnly)
+            }
             def rightBrace = seqLast(catchp)
           })
         case _ => None
