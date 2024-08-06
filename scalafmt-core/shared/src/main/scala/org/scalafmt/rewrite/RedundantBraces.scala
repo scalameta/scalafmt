@@ -245,6 +245,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
               if okToReplaceFunctionInSingleArgApply(f) => removeToken
           case Some(_: Term.Interpolate) => handleInterpolation
           case Some(_: Term.Xml) => null
+          case Some(_: Term.Annotate) => null
           case _ => if (processBlock(t)) removeToken else null
         }
       case _: Term.Interpolate => handleInterpolation
