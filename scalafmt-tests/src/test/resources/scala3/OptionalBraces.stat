@@ -633,6 +633,23 @@ object a:
       while (foo) do
          foo
          bar
+<<< redundant braces and parens around while-do cond
+rewrite.rules = [RedundantParens, RedundantBraces]
+===
+object a:
+    while ({
+      i > 0 && foo
+    }) do {
+      i -= 1
+    }
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+ object a:
+-   while i > 0 && foo
++   while
++      i > 0 && foo
+    do i -= 1
 <<< nested if-else multiple
 object a:
   val a =
