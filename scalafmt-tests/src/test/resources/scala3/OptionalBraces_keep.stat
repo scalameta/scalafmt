@@ -296,6 +296,208 @@ object a {
      end cond
   end A
 }
+<<< end marker separated by blank from comment
+object a:
+  object useNew:
+    new foo
+      def bar = ???
+    end new
+
+    /* new */
+
+  object useWhile:
+    while foo
+    do bar
+    end while
+
+    /* while */
+
+  object useValMulti:
+    val (foo, bar) =
+      (fooValue, barValue)
+    end val
+
+    /* val */
+
+  object useFor:
+    for foo <- bar
+    do baz
+    end for
+
+    // for
+
+  object useMatch:
+    foo match
+      case bar =>
+    end match
+
+    // match
+
+  object useTry:
+    try
+      bar
+    end try
+
+    // try
+
+  class useThis:
+    def this(foo: Foo) =
+      this(foo)
+    end this
+
+    /* this */
+>>>
+object a:
+   object useNew:
+      new foo
+      def bar = ???
+      end new
+
+      /* new */
+
+   object useWhile:
+      while foo
+      do bar
+      end while
+      /* while */
+
+   object useValMulti:
+      val (foo, bar) =
+        (fooValue, barValue)
+      end val
+
+      /* val */
+
+   object useFor:
+      for foo <- bar
+      do baz
+      end for
+      // for
+
+   object useMatch:
+      foo match
+         case bar =>
+      end match
+      // match
+
+   object useTry:
+      try
+        bar
+      end try
+      // try
+
+   class useThis:
+      def this(foo: Foo) =
+        this(foo)
+      end this
+
+      /* this */
+<<< end marker separated by blank from next statement
+object a:
+  object useNew:
+    new foo
+      def bar = ???
+    end new
+
+    def baz = qux
+
+  object useWhile:
+    while foo
+    do bar
+    end while
+
+    val baz = qux
+
+  object useValMulti:
+    val (foo, bar) =
+      (fooValue, barValue)
+    end val
+
+    baz(qux)
+
+  object useFor:
+    for foo <- bar
+    do baz
+    end for
+
+    val qux = quux
+
+  object useMatch:
+    foo match
+      case bar =>
+    end match
+
+    baz + qux
+
+  object useTry:
+    try
+      bar
+    end try
+
+    try
+      baz
+    finally
+      qux
+
+  class useThis:
+    def this(foo: Foo) =
+      this(foo)
+    end this
+
+  end useThis
+>>>
+object a:
+   object useNew:
+      new foo
+      def bar = ???
+      end new
+
+      def baz = qux
+
+   object useWhile:
+      while foo
+      do bar
+      end while
+
+      val baz = qux
+
+   object useValMulti:
+      val (foo, bar) =
+        (fooValue, barValue)
+      end val
+
+      baz(qux)
+
+   object useFor:
+      for foo <- bar
+      do baz
+      end for
+
+      val qux = quux
+
+   object useMatch:
+      foo match
+         case bar =>
+      end match
+
+      baz + qux
+
+   object useTry:
+      try
+        bar
+      end try
+
+      try
+        baz
+      finally
+        qux
+
+   class useThis:
+      def this(foo: Foo) =
+        this(foo)
+      end this
+
+   end useThis
 <<< ctor this
 class a(vi: Int, vs: String):
   def this() =
