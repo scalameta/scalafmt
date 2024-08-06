@@ -5195,7 +5195,8 @@ object a:
 object a:
    try
       val x = 3 / 0
-   catch case e: Throwable =>
+   catch
+      case e: Throwable =>
 <<< #3653 try-finally
 object a:
   try
@@ -5265,7 +5266,10 @@ object a:
 >>>
 object a:
    try baz
-   catch case ex: Baz => val qux = quux
+   catch
+      case ex: Baz =>
+
+   val qux = quux
 <<< braceless catch, single inline case, non-empty non-indented body
 object a:
   try baz
