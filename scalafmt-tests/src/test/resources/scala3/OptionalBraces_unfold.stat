@@ -370,6 +370,7 @@ object a:
       while foo do
          bar
       end while
+
       /* while */
 
    object useValMulti:
@@ -382,17 +383,20 @@ object a:
       for foo <- bar do
          baz
       end for
+
       // for
 
    object useMatch:
       foo match
          case bar =>
       end match
+
       // match
 
    object useTry:
       try bar
       end try
+
       // try
 
    class useThis:

@@ -1379,7 +1379,7 @@ class Router(formatOps: FormatOps) {
             _: T.LeftBrace | _: T.LeftBracket,
             _,
           ) => Seq(Split(NoSplit, 0))
-      case FormatToken(_: T.KwMatch, _, _) =>
+      case FormatToken(_: T.KwMatch, _, _) if !leftOwner.is[Term.Name] => // exclude end marker
         val indentLen = style.indent.matchSite.fold(0)(_ - style.indent.main)
         def expire = getLastNonTrivialToken(leftOwner) // should rbrace
         Seq(Split(Space, 0).withIndent(indentLen, expire, ExpiresOn.Before))
@@ -1905,7 +1905,8 @@ class Router(formatOps: FormatOps) {
         val mlSplitOpt = OptionalBraces
           .indentAndBreakBeforeCtrl[T.KwThen](owner.cond, mlSplitBase)
         Seq(slb, mlSplitOpt.getOrElse(mlSplitBase))
-      case FormatToken(_: T.KwWhile | _: T.KwFor, right, _) =>
+      case FormatToken(_: T.KwWhile | _: T.KwFor, right, _)
+          if !leftOwner.is[Term.Name] => // exclude end marker
         def spaceMod = Space(style.spaces.isSpaceAfterKeyword(right))
         val splitBase = {
           val onlyNL = style.newlines.keepBreak(newlines)
@@ -2169,11 +2170,8 @@ class Router(formatOps: FormatOps) {
             EnumeratorAssignRhsOnLeft(rhs),
           ) => getSplitsEnumerator(ft, rhs)
 
-      case FormatToken(
-            kw @ (_: T.KwTry | _: T.KwCatch | _: T.KwFinally),
-            _,
-            _,
-          ) =>
+      case FormatToken(kw @ (_: T.KwTry | _: T.KwCatch | _: T.KwFinally), _, _)
+          if !leftOwner.is[Term.Name] => // exclude end marker
         val body = leftOwner match {
           case t: Term.Try => kw match {
               case _: T.KwTry => t.expr
