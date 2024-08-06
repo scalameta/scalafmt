@@ -8354,3 +8354,40 @@ object a {
     Map.empty
   ).asInstanceOf[Map[String, Object]]
 }
+<<< redundant braces around nested lambda, parens around outer
+rewrite.rules = [RedundantBraces]
+===
+object a {
+  foo := bar {
+    val baz = qux(x => {
+      plugh => xyzzy
+    })
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+   foo := bar {
+-    val baz = qux { x => plugh =>
+-      xyzzy
++    val baz = qux { x =>
++      plugh => xyzzy
+     }
+<<< no braces around nested lambda, braces around outer
+rewrite.rules = [RedundantBraces]
+===
+object a {
+  foo := bar {
+    val baz = qux { x => 
+      plugh => xyzzy
+    }
+  }
+}
+>>>
+object a {
+  foo := bar {
+    val baz = qux { x => plugh =>
+      xyzzy
+    }
+  }
+}
