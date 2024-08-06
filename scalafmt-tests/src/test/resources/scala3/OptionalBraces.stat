@@ -1711,6 +1711,34 @@ val f: Int => Int = (x: Int) => {
 val f: Int => Int = (x: Int) =>
    val y = x * x
    y
+<<< braces with an attribute, remove both optional and redundant braces
+rewrite {
+  rules = [RedundantBraces]
+  scala3.removeOptionalBraces = yes
+}
+===
+object a {
+  val delimiterRow :: dataRows = {
+    if (rows.nonEmpty) rows.toList
+    else {
+      reportError("Fixing missing delimiter row")
+      Row(Cell(Paragraph(Text("-")) :: Nil) :: Nil) :: Nil
+    } 
+  }: @unchecked
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+      if (rows.nonEmpty) rows.toList
+-     else
+-       {
+-         reportError("Fixing missing delimiter row")
+-         Row(Cell(Paragraph(Text("-")) :: Nil) :: Nil) :: Nil
+-       }: @unchecked
++     else {
++       reportError("Fixing missing delimiter row")
++       Row(Cell(Paragraph(Text("-")) :: Nil) :: Nil) :: Nil
++     }: @unchecked
 <<< 2 end markers at end of file
 runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 3
