@@ -2013,7 +2013,8 @@ class FormatOps(
           style: ScalafmtConfig,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t @ Term.While(b: Term.Block, _)
-            if !matchingOpt(nft.right).exists(_.end >= b.pos.end) =>
+            if isMultiStatBlock(b) &&
+              !matchingOpt(nft.right).exists(_.end >= b.pos.end) =>
           Some(new OptionalBracesRegion {
             def owner = Some(t)
             def splits = Some {

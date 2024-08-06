@@ -643,13 +643,9 @@ object a:
       i -= 1
     }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a:
--   while i > 0 && foo
-+   while
-+      i > 0 && foo
-    do i -= 1
+object a:
+   while i > 0 && foo
+   do i -= 1
 <<< nested if-else multiple
 object a:
   val a =
