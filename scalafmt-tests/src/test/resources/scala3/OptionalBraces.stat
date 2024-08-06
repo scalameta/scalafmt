@@ -1727,18 +1727,14 @@ object a {
   }: @unchecked
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-      if (rows.nonEmpty) rows.toList
--     else
--       {
--         reportError("Fixing missing delimiter row")
--         Row(Cell(Paragraph(Text("-")) :: Nil) :: Nil) :: Nil
--       }: @unchecked
-+     else {
-+       reportError("Fixing missing delimiter row")
-+       Row(Cell(Paragraph(Text("-")) :: Nil) :: Nil) :: Nil
-+     }: @unchecked
+object a:
+   val delimiterRow :: dataRows = {
+     if (rows.nonEmpty) rows.toList
+     else {
+       reportError("Fixing missing delimiter row")
+       Row(Cell(Paragraph(Text("-")) :: Nil) :: Nil) :: Nil
+     }
+   }: @unchecked
 <<< 2 end markers at end of file
 runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 3
