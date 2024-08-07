@@ -5780,13 +5780,16 @@ object a {
       }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-          "only in packlib classpath"
--       )
-+    )
-     else
-          "only in hashbang classpath"
--       )
-+    )
- }
+object a {
+  val (diff: Set[File], msg: String) =
+    if packlibJars.size > hashbangClasspathJars.size then
+       (
+         packlibJars.toSet -- hashbangJars.toSet,
+         "only in packlib classpath"
+       )
+    else
+       (
+         hashbangJars.toSet -- packlibJars.toSet,
+         "only in hashbang classpath"
+       )
+}
