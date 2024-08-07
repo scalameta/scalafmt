@@ -245,6 +245,14 @@ trait A extends B:
          stat3
          stat4
       end if
+<<< `end` identifier is not an end marker
+object a:
+    private def nothingButMods(end: Addr): Boolean =
+      currentAddr == end || isModifierTag(nextByte)
+>>>
+object a:
+   private def nothingButMods(end: Addr): Boolean =
+     currentAddr == end || isModifierTag(nextByte)
 <<< lots of end markers
 object a {
  trait A:
