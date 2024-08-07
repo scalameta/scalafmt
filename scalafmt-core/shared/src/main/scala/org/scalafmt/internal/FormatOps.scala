@@ -1819,18 +1819,20 @@ class FormatOps(
       val treeTokens = tree.tokens
       val end = getLast(treeTokens, tree)
       val slbExpire = nextNonCommentSameLine(end).left
-      val closeOpt =
-        if (isTuple(tree)) None
-        else {
+      def head = getHead(treeTokens, tree)
+      val close = (tree match {
+        case _: Member.Tuple => None
+        case Term.Block((_: Member.Tuple) :: Nil)
+            if !head.left.is[T.LeftBrace] => None
+        case _ =>
           val maybeClose = prevNonComment(end)
-          tokens.getClosingIfInParens(maybeClose)(getHead(treeTokens, tree))
+          tokens.getClosingIfInParens(maybeClose)(head)
             .map(prevNonComment(_).left)
-        }
+      }).getOrElse(slbExpire)
       def nlPolicy(implicit fileLine: FileLine) = Policy ? danglingKeyword &&
-        decideNewlinesOnlyAfterClose(closeOpt.getOrElse(slbExpire))
+        decideNewlinesOnlyAfterClose(close)
       val indentLen = indentOpt.getOrElse(style.indent.getSignificant)
-      val indent =
-        Indent(Num(indentLen), closeOpt.getOrElse(slbExpire), ExpiresOn.After)
+      val indent = Indent(Num(indentLen), close, ExpiresOn.After)
       if (ft.hasBlankLine)
         Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
       else if (forceNL)
