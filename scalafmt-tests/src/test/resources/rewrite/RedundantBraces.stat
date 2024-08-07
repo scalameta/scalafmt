@@ -1888,3 +1888,24 @@ object a {
     ()
   finally {}
 }
+<<< don't remove inner-block braces if outer-block become optional
+runner.dialect = scala3
+rewrite.scala3 {
+  insertEndMarkerMinLines = 5
+  removeOptionalBraces = yes
+}
+===
+object a:
+  override def didSave(params: DidSaveTextDocumentParams): Unit = {
+    /*thisServer.synchronized*/ {}
+  }
+>>>
+test does not parse: [dialect scala3] illegal start of simple expression
+object a:
+  override def didSave(params: DidSaveTextDocumentParams): Unit =
+    /*thisServer.synchronized*/
+                               ^
+====== full result: ======
+object a:
+  override def didSave(params: DidSaveTextDocumentParams): Unit =
+    /*thisServer.synchronized*/
