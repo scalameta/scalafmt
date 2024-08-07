@@ -395,16 +395,18 @@ class Router(formatOps: FormatOps) {
         val leftFunc = leftOwner.asInstanceOf[Term.FunctionTerm]
         val (afterCurlySpace, afterCurlyNewlines) =
           getSpaceAndNewlineAfterCurlyLambda(newlines)
-        val spaceSplit =
-          if (stmt.isInstanceOf[Term.FunctionTerm]) Split(Space, 0)
-          else if (
-            afterCurlySpace &&
-            (!rightOwner.is[Defn] || style.newlines.source.eq(Newlines.fold))
-          ) Split(Space, 0).withSingleLineNoOptimal(
-            getOptimalTokenFor(getLastNonTrivial(leftFunc.body).left),
-            noSyntaxNL = true,
-          )
-          else Split.ignored
+        def spaceSplitBase(implicit line: FileLine): Split = Split(Space, 0)
+        val spaceSplit = stmt match {
+          case _: Term.FunctionTerm => spaceSplitBase
+          case Term.Block((_: Term.FunctionTerm) :: Nil)
+              if !nextNonComment(ft).right.is[T.LeftBrace] => spaceSplitBase
+          case _ if afterCurlySpace && {
+                style.newlines.source.eq(Newlines.fold) || !rightOwner.is[Defn]
+              } =>
+            val exp = getOptimalTokenFor(getLastNonTrivial(leftFunc.body).left)
+            spaceSplitBase.withSingleLineNoOptimal(exp, noSyntaxNL = true)
+          case _ => Split.ignored
+        }
         val (endIndent, expiresOn) = functionExpire(leftFunc)
         Seq(
           spaceSplit,
