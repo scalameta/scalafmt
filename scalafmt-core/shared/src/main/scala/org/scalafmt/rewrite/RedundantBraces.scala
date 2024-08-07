@@ -349,14 +349,13 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       ft: FormatToken,
       session: Session,
       style: ScalafmtConfig,
-  ): Boolean =
-    (b.tokens.headOption.contains(ft.right) &&
-      b.tokens.last.is[Token.RightBrace] && okToRemoveBlock(b)) &&
-      (b.parent match {
-        case Some(p: Term.ArgClause) => p.parent.exists(checkValidInfixParent)
-        case Some(p) => checkValidInfixParent(p)
-        case _ => true
-      })
+  ): Boolean = b.stats.nonEmpty && b.tokens.headOption.contains(ft.right) &&
+    b.tokens.last.is[Token.RightBrace] && okToRemoveBlock(b) &&
+    (b.parent match {
+      case Some(p: Term.ArgClause) => p.parent.exists(checkValidInfixParent)
+      case Some(p) => checkValidInfixParent(p)
+      case _ => true
+    })
 
   private def checkValidInfixParent(
       p: Tree,
