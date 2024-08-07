@@ -7928,14 +7928,13 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   foo := bar {
--    val baz = qux { x => plugh =>
--      xyzzy
-+    val baz = qux { x =>
-+      plugh => xyzzy
-     }
+object a {
+  foo := bar {
+    val baz = qux { x => plugh =>
+      xyzzy
+    }
+  }
+}
 <<< no braces around nested lambda, braces around outer
 rewrite.rules = [RedundantBraces]
 ===

@@ -90,13 +90,14 @@ object TreeOps {
   }
 
   @tailrec
-  def isBlockFunction(
-      fun: Term.FunctionTerm,
-  )(implicit ftoks: FormatTokens): Boolean = fun.parent match {
-    case Some(p: Term.FunctionTerm) => isBlockFunction(p)
-    case Some(p) => isExprWithParentInBraces(fun)(p)
-    case None => false
-  }
+  def isBlockFunction(fun: Term)(implicit ftoks: FormatTokens): Boolean =
+    fun.parent match {
+      case Some(p: Term.FunctionTerm) => isBlockFunction(p)
+      case Some(p @ Term.Block(`fun` :: Nil)) => ftoks.getHead(p).left
+          .is[Token.LeftBrace] || isBlockFunction(p)
+      case Some(SingleArgInBraces(_, `fun`, _)) => true
+      case _ => false
+    }
 
   def isFunctionWithBraces(fun: Term.FunctionTerm)(implicit
       ftoks: FormatTokens,
@@ -192,7 +193,8 @@ object TreeOps {
           if (arg.is[Term.FunctionTerm]) {
             // handle rewritten apply { { x => b } } to a { x => b }
             val parentApply = findTreeWithParent(t) {
-              case Term.Block(_) => None
+              case _: Term.Block => None
+              case _: Term.FunctionTerm => None
               case p @ Term.ArgClause(_ :: Nil, _) => Some(isParentAnApply(p))
               case _ => Some(false)
             }
@@ -473,11 +475,14 @@ object TreeOps {
   }
 
   @tailrec
-  final def lastLambda(first: Term.FunctionTerm): Term.FunctionTerm =
-    first.body match {
-      case child: Term.FunctionTerm => lastLambda(child)
-      case _ => first
-    }
+  final def lastLambda(
+      first: Term.FunctionTerm,
+  )(implicit ftoks: FormatTokens): Term.FunctionTerm = first.body match {
+    case child: Term.FunctionTerm => lastLambda(child)
+    case b @ Term.Block((child: Term.FunctionTerm) :: Nil)
+        if !ftoks.getHead(b).left.is[Token.LeftBrace] => lastLambda(child)
+    case _ => first
+  }
 
   @inline
   final def isInfixOp(tree: Tree): Boolean = AsInfixOp.unapply(tree).isDefined
