@@ -1900,12 +1900,6 @@ object a:
     /*thisServer.synchronized*/ {}
   }
 >>>
-test does not parse: [dialect scala3] illegal start of simple expression
 object a:
   override def didSave(params: DidSaveTextDocumentParams): Unit =
-    /*thisServer.synchronized*/
-                               ^
-====== full result: ======
-object a:
-  override def didSave(params: DidSaveTextDocumentParams): Unit =
-    /*thisServer.synchronized*/
+    /*thisServer.synchronized*/ {}
