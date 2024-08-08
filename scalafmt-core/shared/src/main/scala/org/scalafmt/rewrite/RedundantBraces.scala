@@ -246,6 +246,10 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           case Some(_: Term.Interpolate) => handleInterpolation
           case Some(_: Term.Xml) => null
           case Some(_: Term.Annotate) => null
+          case Some(p: Case) =>
+            val ok = settings.generalExpressions &&
+              ((p.body eq t) || shouldRemoveSingleStatBlock(t))
+            if (ok) removeToken else null
           case _ => if (processBlock(t)) removeToken else null
         }
       case _: Term.Interpolate => handleInterpolation
@@ -380,11 +384,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       b: Term.Block,
   )(implicit style: ScalafmtConfig, session: Session): Boolean = b.parent
     .exists {
-
-      case p: Case => settings.generalExpressions && {
-          (p.body eq b) || shouldRemoveSingleStatBlock(b)
-        }
-
       case t: Term.ArgClause if isParentAnApply(t) =>
         // Example: as.map { _.toString }
         // Leave this alone for now.
