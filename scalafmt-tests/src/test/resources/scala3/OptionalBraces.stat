@@ -6001,6 +6001,57 @@ object a:
       case ex: Baz =>
 
    val qux = quux
+<<< braceless catch, single multi-line case, non-empty body, try is not last
+object a:
+  try
+    baz
+  catch
+    case ex: Baz => foo
+
+  val qux = quux
+>>>
+object a:
+   try baz
+   catch case ex: Baz => foo
+
+   val qux = quux
+<<< braceless catch, single multi-line case, non-empty body, try is not last, comment
+object a:
+  try
+    baz
+  catch
+    case ex: Baz => foo
+
+  // comment
+  val qux = quux
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+    try baz
+-   catch
+-      case ex: Baz =>
+-        foo
++   catch case ex: Baz => foo
+ ∙
+-        // comment
++   // comment
+    val qux = quux
+<<< braceless catch, single multi-line case, non-empty body, try is last
+object a:
+  object b:
+    try
+      baz
+    catch
+      case ex: Baz => foo
+
+  val qux = quux
+>>>
+object a:
+   object b:
+      try baz
+      catch case ex: Baz => foo
+
+   val qux = quux
 <<< braceless catch, single inline case, non-empty non-indented body
 object a:
   try baz
