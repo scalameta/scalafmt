@@ -3940,6 +3940,90 @@ class C:
    if true
    then 3
    else 4
+<<< #4133 for-yield with multiple semicolon-separated enumerators 1
+align.preset = some
+===
+object a:
+      val abstractTypeNames =
+        for (parent <- parents; mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol))
+        yield mbr.name.asTypeName
+>>>
+object a:
+   val abstractTypeNames =
+     for (
+       parent <- parents; mbr <- parent.abstractTypeMembers
+       if qualifies(mbr.symbol)
+     )
+       yield mbr.name.asTypeName
+<<< SKIP #4133 for-yield with multiple semicolon-separated enumerators 2
+align.preset = some
+===
+object a:
+      val abstractTypeNames =
+        for (
+          parent <-
+           parents;
+          mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol))
+        yield mbr.name.asTypeName
+>>>
+test does not parse
+[dialect scala3] `)` expected but `<-` found
+      val abstractTypeNames =
+        for (
+          parent <-
+                 ^
+           parents;
+          mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol))
+        yield mbr.name.asTypeName
+====== full result: ======
+object a:
+      val abstractTypeNames =
+        for (
+          parent <-
+           parents;
+          mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol))
+        yield mbr.name.asTypeName
+<<< #4133 for-yield with multiple semicolon-separated enumerators 3
+align.preset = some
+runner.dialect = scala213
+===
+object a {
+      val abstractTypeNames =
+        for (parent <-
+          parents;
+          mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol))
+        yield mbr.name.asTypeName
+}
+>>>
+object a {
+  val abstractTypeNames =
+    for (
+      parent <-
+        parents;
+      mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol)
+    )
+      yield mbr.name.asTypeName
+}
+<<< #4133 for-yield with multiple semicolon-separated enumerators 4
+align.preset = some
+===
+object a:
+      val abstractTypeNames =
+        for (
+          parent <- parents;
+          mbr <- parent.abstractTypeMembers
+          if qualifies(mbr.symbol)
+        )
+        yield mbr.name.asTypeName
+>>>
+object a:
+   val abstractTypeNames =
+     for (
+       parent <- parents;
+       mbr <- parent.abstractTypeMembers
+       if qualifies(mbr.symbol)
+     )
+       yield mbr.name.asTypeName
 <<< #3034 for-yield danglingParentheses
 danglingParentheses.ctrlSite = true
 ===
