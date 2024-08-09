@@ -8416,3 +8416,136 @@ object a {
     val baz = qux(x => quux => fred)
   }
 }
+<<< #4133 for-yield with multiple semicolon-separated enumerators 1
+align.preset = some
+===
+object a {
+  val foo =
+    for (barBarBarBarBarBarBarBarBar <- bars; baz <- bazs if qux)
+    yield baz
+}
+>>>
+object a {
+  val foo =
+    for (
+      barBarBarBarBarBarBarBarBar <-
+        bars; baz <- bazs if qux
+    )
+      yield baz
+}
+<<< #4133 for-yield with multiple semicolon-separated enumerators 2
+align.preset = some
+===
+object a {
+  val foo =
+    for (
+      barBarBarBarBarBarBarBarBar <- bars;
+      baz <- bazs
+      if qux
+    )
+    yield bar
+}
+>>>
+object a {
+  val foo =
+    for (
+      barBarBarBarBarBarBarBarBar <-
+        bars;
+      baz <- bazs
+      if qux
+    )
+      yield bar
+}
+<<< #4133 for-yield with multiple semicolon-separated enumerators 3
+align.preset = some
+===
+object a {
+  val foo =
+    for (
+      barBarBarBarBarBarBarBarBar <-
+        bars;
+      baz <- bazs if qux
+    )
+    yield bar
+}
+>>>
+object a {
+  val foo =
+    for (
+      barBarBarBarBarBarBarBarBar <-
+        bars;
+      baz <- bazs if qux
+    )
+      yield bar
+}
+<<< #4133 for-yield with multiple semicolon-separated enumerators 4
+align.preset = some
+===
+object a {
+  val foo =
+    for (barBarBarBarBarBarBarBarBar <-
+        bars;
+      baz <- bazs if qux)
+    yield bar
+}
+>>>
+object a {
+  val foo =
+    for (
+      barBarBarBarBarBarBarBarBar <-
+        bars;
+      baz <- bazs if qux
+    )
+      yield bar
+}
+<<< #4133 block with multiple semicolon-separated statements 1
+align.preset = some
+===
+object a {
+  val foo = barBarBarBarBarBarBarBarBarBar; val baz = foo
+}
+>>>
+object a {
+  val foo =
+    barBarBarBarBarBarBarBarBarBar;
+  val baz = foo
+}
+<<< #4133 block with multiple semicolon-separated statements 2
+align.preset = some
+===
+object a {
+  val foo = barBarBarBarBarBarBarBarBarBar;
+  val baz = foo
+}
+>>>
+object a {
+  val foo =
+    barBarBarBarBarBarBarBarBarBar;
+  val baz = foo
+}
+<<< #4133 block with multiple semicolon-separated statements 3
+align.preset = some
+===
+object a {
+  val foo =
+    barBarBarBarBarBarBarBarBarBar;
+  val baz = foo
+}
+>>>
+object a {
+  val foo =
+    barBarBarBarBarBarBarBarBarBar;
+  val baz = foo
+}
+<<< #4133 block with multiple semicolon-separated statements 4
+align.preset = some
+===
+object a {
+  val foo =
+    barBarBarBarBarBarBar; val baz = foo
+}
+>>>
+object a {
+  val foo =
+    barBarBarBarBarBarBar; val baz = foo
+}
