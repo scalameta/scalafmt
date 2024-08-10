@@ -50,6 +50,10 @@ case class RewriteSettings(
 
   private[config] def forTestOpt: Option[RewriteSettings] = avoidInfix
     .forTestOpt.map(x => copy(avoidInfix = x))
+
+  def bracesToParensForOneLineApply = redundantBraces.parensForOneLineApply &&
+    rules.contains(RedundantBraces)
+
 }
 
 object RewriteSettings {

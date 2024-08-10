@@ -18,7 +18,7 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   override def create(implicit ftoks: FormatTokens): Rule = new RedundantBraces
 
-  def needParensAroundParams(f: Term.FunctionTerm): Boolean =
+  private def needParensAroundParams(f: Term.FunctionTerm): Boolean =
     /* either we have parens or no type; multiple params or
      * no params guarantee parens, so we look for type and
      * parens only for a single param */
@@ -28,25 +28,26 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       case _ => false
     }
 
-  def canRewriteBlockWithParens(b: Term.Block)(implicit
+  private def canRewriteBlockWithParens(b: Term.Block)(implicit
       ftoks: FormatTokens,
   ): Boolean = getBlockSingleStat(b).exists(canRewriteStatWithParens)
 
-  def canRewriteStatWithParens(t: Stat)(implicit ftoks: FormatTokens): Boolean =
-    t match {
-      case f: Term.FunctionTerm => canRewriteFuncWithParens(f)
-      case _: Term.Assign => false // disallowed in 2.13
-      case _: Defn => false
-      case _: Term.PartialFunction => false
-      case b @ Term.Block(s :: Nil) if !ftoks.isEnclosedInMatching(b) =>
-        canRewriteStatWithParens(s)
-      case _ => true
-    }
+  private def canRewriteStatWithParens(
+      t: Stat,
+  )(implicit ftoks: FormatTokens): Boolean = t match {
+    case f: Term.FunctionTerm => canRewriteFuncWithParens(f)
+    case _: Term.Assign => false // disallowed in 2.13
+    case _: Defn => false
+    case _: Term.PartialFunction => false
+    case Term.Block(s :: Nil) if !ftoks.isEnclosedInMatching(t) =>
+      canRewriteStatWithParens(s)
+    case _ => true
+  }
 
   /* guard for statements requiring a wrapper block
    * "foo { x => y; z }" can't become "foo(x => y; z)" */
   @tailrec
-  def canRewriteFuncWithParens(
+  private def canRewriteFuncWithParens(
       f: Term.FunctionTerm,
       nested: Boolean = false,
   ): Boolean = !needParensAroundParams(f) &&
@@ -55,6 +56,29 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       case Some(_: Defn) => false
       case x => nested || x.isDefined
     })
+
+  private def checkApply(t: Tree): Boolean = t.parent match {
+    case Some(p @ Term.ArgClause(`t` :: Nil, _)) => isParentAnApply(p)
+    case _ => false
+  }
+
+  private[scalafmt] def canRewriteWithParensOnRightBrace(
+      rb: FormatToken,
+  )(implicit ftoks: FormatTokens): Boolean = rb.meta.leftOwner match { // look for "foo { bar }"
+    case b: Term.Block => checkApply(b) && canRewriteBlockWithParens(b) &&
+      b.parent.exists(ftoks.getLast(_) eq rb)
+    case f: Term.FunctionTerm => checkApply(f) && canRewriteFuncWithParens(f)
+    case t @ SingleArgInBraces(_, arg, _) => isParentAnApply(t) &&
+      canRewriteStatWithParens(arg)
+    case _ => false
+  }
+
+  private[scalafmt] def noSplitForParensOnRightBrace(
+      rb: => FormatToken,
+  )(implicit ftoks: FormatTokens, style: ScalafmtConfig): Option[FormatToken] =
+    if (!style.spaces.inParentheses && style.rewrite.trailingCommas.isOptional)
+      Some(rb).filter(canRewriteWithParensOnRightBrace)
+    else None
 
 }
 
