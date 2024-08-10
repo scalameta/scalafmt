@@ -659,6 +659,22 @@ object a:
         baz
         // c1
       case _ => qux
+<<< trailing comment at end of enclosed braceless match
+maxColumn = 37
+===
+object a:
+  (xs match
+    case xs: TupleXXL => xs
+    case xs => TupleXXL.fromIArray(xs) // TODO use Iterator.toIArray
+  ).asInstanceOf[Tuple]
+>>>
+object a:
+   (xs match
+        case xs: TupleXXL => xs
+        case xs =>
+          TupleXXL.fromIArray(xs)
+       // TODO use Iterator.toIArray
+   ).asInstanceOf[Tuple]
 <<< try/finally, single
 object a:
    def foo =
