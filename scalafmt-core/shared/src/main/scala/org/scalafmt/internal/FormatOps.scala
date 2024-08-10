@@ -1827,7 +1827,7 @@ class FormatOps(
         case _ =>
           val maybeClose = prevNonComment(end)
           tokens.getClosingIfInParens(maybeClose)(head)
-            .map(prevNonComment(_).left)
+            .map(prevNonCommentSameLine(_).left)
       }).getOrElse(slbExpire)
       def nlPolicy(implicit fileLine: FileLine) = Policy ? danglingKeyword &&
         decideNewlinesOnlyAfterClose(close)

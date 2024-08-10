@@ -702,8 +702,9 @@ object a:
         case xs: TupleXXL =>
           xs
         case xs =>
-          TupleXXL.fromIArray(xs)
-       // TODO use Iterator.toIArray
+          TupleXXL.fromIArray(
+            xs
+          ) // TODO use Iterator.toIArray
    ).asInstanceOf[Tuple]
 <<< try/finally, single
 object a:
