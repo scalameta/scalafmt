@@ -7,6 +7,9 @@ case class TrailingCommas(
     style: TrailingCommas.Style = TrailingCommas.never,
 ) {
   def withoutRewrites: TrailingCommas = copy(style = TrailingCommas.keep)
+
+  def isOptional: Boolean = allowFolding || style != TrailingCommas.always
+
 }
 
 object TrailingCommas {

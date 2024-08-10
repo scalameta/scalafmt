@@ -10,7 +10,6 @@ import org.scalafmt.config.LineEndings
 import org.scalafmt.config.Newlines
 import org.scalafmt.config.RewriteScala3Settings
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.TrailingCommas
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.LiteralOps
 import org.scalafmt.util.TokenOps._
@@ -141,10 +140,8 @@ class FormatWriter(formatOps: FormatOps) {
           checkInsertEndMarkers(result)
       }
       if (initStyle.rewrite.insertBraces.minLines > 0) checkInsertBraces(result)
-      if (
-        initStyle.rewrite.rules.contains(RedundantBraces) &&
-        initStyle.rewrite.redundantBraces.parensForOneLineApply
-      ) replaceRedundantBraces(result)
+      if (initStyle.rewrite.bracesToParensForOneLineApply)
+        replaceRedundantBraces(result)
     }
 
     new FormatLocations(result, if (useCRLF > 0) "\r\n" else "\n")
@@ -154,11 +151,6 @@ class FormatWriter(formatOps: FormatOps) {
     // will map closing brace to opening brace and its line offset
     val lookup = mutable.Map.empty[Int, (Int, Int)]
 
-    def checkApply(t: Tree): Boolean = t.parent match {
-      case Some(p @ Term.ArgClause(`t` :: Nil, _)) => TreeOps.isParentAnApply(p)
-      case _ => false
-    }
-
     // iterate backwards, to encounter closing braces first
     var idx = locations.length - 1
     while (0 <= idx) {
@@ -166,18 +158,7 @@ class FormatWriter(formatOps: FormatOps) {
       val tok = loc.formatToken
       tok.left match {
         case rb: T.RightBrace => // look for "foo { bar }"
-          val ok = tok.meta.leftOwner match {
-            case b: Term.Block => checkApply(b) &&
-              RedundantBraces.canRewriteBlockWithParens(b) &&
-              b.parent.exists(getLast(_) eq tok)
-            case f: Term.FunctionTerm => checkApply(f) &&
-              RedundantBraces.canRewriteFuncWithParens(f)
-            case t @ TreeOps.SingleArgInBraces(_, arg, _) => TreeOps
-                .isParentAnApply(t) &&
-              RedundantBraces.canRewriteStatWithParens(arg)
-            case _ => false
-          }
-          if (ok) {
+          if (RedundantBraces.canRewriteWithParensOnRightBrace(tok)) {
             val beg = tokens(matching(rb))
             lookup.update(beg.meta.idx, tok.meta.idx -> loc.leftLineId)
           }
@@ -187,8 +168,7 @@ class FormatWriter(formatOps: FormatOps) {
           lookup.remove(idx).foreach {
             case (end, endOffset)
                 if endOffset == loc.leftLineId &&
-                  (style.rewrite.trailingCommas.allowFolding ||
-                    style.getTrailingCommas != TrailingCommas.always) =>
+                  style.rewrite.trailingCommas.isOptional =>
               val inParentheses = style.spaces.inParentheses
               // remove space before "{"
               val prevBegState =
