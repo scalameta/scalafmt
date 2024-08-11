@@ -5856,3 +5856,15 @@ object a {
          "only in hashbang classpath"
        )
 }
+<<< braces to parens in one-line apply: overflow with braces, fit with parens
+maxColumn = 32
+rewrite.rules = [RedundantBraces]
+===
+object a:
+  def foo() =
+    if bar then baz { _ => qux() }
+>>>
+object a:
+   def foo() =
+     if bar then
+        baz(_ => qux())

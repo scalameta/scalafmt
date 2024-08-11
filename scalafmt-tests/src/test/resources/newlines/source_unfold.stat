@@ -8529,6 +8529,9 @@ object a {
     val baz = qux(x => {
       plugh => xyzzy
     })
+    val baz = qux(x => {
+      quux => fred
+    })
   }
 }
 >>>
@@ -8537,6 +8540,9 @@ object a {
     bar {
       val baz = qux { x => plugh =>
         xyzzy
+      }
+      val baz = qux { x => quux =>
+        fred
       }
     }
 }
@@ -8548,6 +8554,9 @@ object a {
     val baz = qux { x => 
       plugh => xyzzy
     }
+    val baz = qux { x => 
+      quux => fred
+    }
   }
 }
 >>>
@@ -8556,6 +8565,9 @@ object a {
     bar {
       val baz = qux { x => plugh =>
         xyzzy
+      }
+      val baz = qux { x => quux =>
+        fred
       }
     }
 }

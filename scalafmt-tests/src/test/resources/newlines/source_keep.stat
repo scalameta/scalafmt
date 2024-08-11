@@ -8384,6 +8384,9 @@ object a {
     val baz = qux(x => {
       plugh => xyzzy
     })
+    val baz = qux(x => {
+      quux => fred
+    })
   }
 }
 >>>
@@ -8392,6 +8395,7 @@ object a {
     val baz = qux { x => plugh =>
       xyzzy
     }
+    val baz = qux(x => quux => fred)
   }
 }
 <<< no braces around nested lambda, braces around outer
@@ -8402,6 +8406,9 @@ object a {
     val baz = qux { x => 
       plugh => xyzzy
     }
+    val baz = qux { x => 
+      quux => fred
+    }
   }
 }
 >>>
@@ -8410,5 +8417,6 @@ object a {
     val baz = qux { x => plugh =>
       xyzzy
     }
+    val baz = qux(x => quux => fred)
   }
 }
