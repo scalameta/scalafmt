@@ -5824,9 +5824,6 @@ object a:
     if bar then
       baz { _ => qux() }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-    def foo() =
--     if bar then baz(_ => qux())
-+     if bar then
-+        baz(_ => qux())
+object a:
+   def foo() =
+     if bar then baz(_ => qux())

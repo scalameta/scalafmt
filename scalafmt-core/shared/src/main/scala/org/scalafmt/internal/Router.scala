@@ -13,6 +13,7 @@ import org.scalafmt.internal.ExpiresOn.Before
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Length.StateColumn
 import org.scalafmt.internal.Policy.NoPolicy
+import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util._
 
 import org.scalameta.FileLine
@@ -367,9 +368,17 @@ class Router(formatOps: FormatOps) {
               getLastToken(leftOwner)
             case _ => endOfSingleLineBlock(closeFT)
           }
-          Split(xmlSpace(leftOwner), 0)
+          val toParens = initStyle.rewrite.bracesToParensForOneLineApply &&
+            RedundantBraces.noSplitForParensOnRightBrace(closeFT).isDefined
+          val noCloseSpacePolicy = Policy ? toParens &&
+            Policy.End < close ==> Policy.on(close, "PAREN1LAPPLY") {
+              case Decision(FormatToken(_, `close`, _), ss) => ss.map { s =>
+                  if (s.isNL) s else s.withMod(NoSplit)
+                }
+            }
+          Split(if (toParens) NoSplit else xmlSpace(leftOwner), 0)
             .withSingleLine(expire, noSyntaxNL = true, killOnFail = true)
-            .andPolicy(sldPolicy)
+            .andPolicy(sldPolicy).andPolicy(noCloseSpacePolicy)
         }
 
         val splits = Seq(
@@ -1400,7 +1409,14 @@ class Router(formatOps: FormatOps) {
               case p => isTokenHeadOrBefore(lb, p) && matchingOpt(lb)
                   .exists(isTokenLastOrAfter(_, roPos))
             }
-          } => Seq(Split(Space, 0))
+          } =>
+        val slbParensSplit =
+          if (!initStyle.rewrite.bracesToParensForOneLineApply) None
+          else RedundantBraces
+            .noSplitForParensOnRightBrace(tokens(matching(lb))).map { rbft =>
+              Split(NoSplit, 0).withSingleLine(rbft.left)
+            }
+        Seq(slbParensSplit.getOrElse(Split.ignored), Split(Space, 0))
 
       // Delim
       case FormatToken(left, _: T.Comma, _)
