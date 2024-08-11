@@ -5866,5 +5866,4 @@ object a:
 >>>
 object a:
    def foo() =
-     if bar then
-        baz(_ => qux())
+     if bar then baz(_ => qux())

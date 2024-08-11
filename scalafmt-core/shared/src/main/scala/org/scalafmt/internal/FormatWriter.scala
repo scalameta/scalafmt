@@ -179,7 +179,7 @@ class FormatWriter(formatOps: FormatOps) {
 
             // update "{"
             locations(beg) =
-              if (inParentheses) bloc
+              if (inParentheses || (state.mod ne Space)) bloc
                 .copy(replace = "(", state = state.copy(prev = prevBegState))
               else {
                 // remove space after "{"
@@ -194,7 +194,7 @@ class FormatWriter(formatOps: FormatOps) {
             val prevEndLoc = locations(idx - 1)
             val prevEndState = prevEndLoc.state
             val newPrevEndState =
-              if (inParentheses) prevEndState
+              if (inParentheses || (prevEndState.mod ne Space)) prevEndState
               else {
                 // remove space before "}"
                 val split = prevEndState.split.withMod(NoSplit)
