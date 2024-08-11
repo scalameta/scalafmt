@@ -123,7 +123,7 @@ class FormatWriter(formatOps: FormatOps) {
       if (idx == 0) // done
         result(idx) = FormatLocation(ft, cur, initStyle, lineId, gapId)
       else {
-        val nl = cur.split.modExt.mod.newlines
+        val nl = cur.mod.newlines
         val nLineId = lineId + nl + ft.meta.left.countNL
         val nGapId = gapId + (if (nl > 1) 1 else 0)
         result(idx) = FormatLocation(ft, cur, styleMap.at(ft), nLineId, nGapId)
@@ -192,8 +192,7 @@ class FormatWriter(formatOps: FormatOps) {
               val inParentheses = style.spaces.inParentheses
               // remove space before "{"
               val prevBegState =
-                if (0 == idx || (state.prev.split.modExt.mod ne Space))
-                  state.prev
+                if (0 == idx || (state.prev.mod ne Space)) state.prev
                 else {
                   val prevloc = locations(idx - 1)
                   val prevState = state.prev
@@ -484,7 +483,7 @@ class FormatWriter(formatOps: FormatOps) {
       private def appendWhitespace(alignOffset: Int, delayedAlign: Int)(implicit
           sb: StringBuilder,
       ): Int = {
-        val mod = state.split.modExt.mod
+        val mod = state.mod
         def currentAlign = tokenAligns.get(i).fold(0)(_ + alignOffset)
         val ws = mod match {
           case nl: NewlineT =>
@@ -730,7 +729,7 @@ class FormatWriter(formatOps: FormatOps) {
           extends FormatCommentBase(style.maxColumn) {
         def format(): Unit = {
           val trimmed = removeTrailingWhiteSpace(text)
-          val isCommentedOut = prevState.split.modExt.mod match {
+          val isCommentedOut = prevState.mod match {
             case m: NewlineT if m.noIndent => true
             case _ => indent == 0
           }
@@ -1224,7 +1223,7 @@ class FormatWriter(formatOps: FormatOps) {
           }
 
           implicit val floc: FormatLocation = processLine
-          val isBlankLine = floc.state.split.modExt.mod.isBlankLine
+          val isBlankLine = floc.state.mod.isBlankLine
           if (alignContainer ne null) {
             val candidates = columnCandidates.result()
             val block = getOrCreateBlock(alignContainer)
@@ -1397,7 +1396,7 @@ class FormatWriter(formatOps: FormatOps) {
 
     private def shiftStateColumnIndent(startIdx: Int, offset: Int): Unit = {
       // look for StateColumn; it returns indent=0 for withStateOffset(0)
-      val stateIndentOpt = locations(startIdx).state.split.modExt.indents
+      val stateIndentOpt = locations(startIdx).state.modExt.indents
         .filter(_.hasStateColumn).flatMap(_.withStateOffset(0))
       stateIndentOpt.headOption.foreach { indent =>
         @tailrec

@@ -277,7 +277,7 @@ class FormatOps(
     // TODO(olafur) clear queue between arguments, they are independent.
     case Decision(t @ FormatToken(_, _: T.Comma, _), splits)
         if owner == t.meta.rightOwner && !next(t).right.is[T.Comment] =>
-      splits.map(x => if (x.modExt.mod ne NoSplit) x else x.withMod(Newline))
+      splits.map(x => if (x.mod ne NoSplit) x else x.withMod(Newline))
 
     case Decision(t @ FormatToken(_: T.Comma, right, _), splits)
         if owner == t.meta.leftOwner && !right.is[T.LeftBrace] &&
