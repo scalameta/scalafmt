@@ -148,74 +148,65 @@ class FormatWriter(formatOps: FormatOps) {
   }
 
   private def replaceRedundantBraces(locations: Array[FormatLocation]): Unit = {
-    // will map closing brace to opening brace and its line offset
-    val lookup = mutable.Map.empty[Int, (Int, Int)]
-
     // iterate backwards, to encounter closing braces first
     var idx = locations.length - 1
     while (0 <= idx) {
       val loc = locations(idx)
       val tok = loc.formatToken
       tok.left match {
-        case rb: T.RightBrace => // look for "foo { bar }"
-          if (RedundantBraces.canRewriteWithParensOnRightBrace(tok)) {
-            val beg = tokens(matching(rb))
-            lookup.update(beg.meta.idx, tok.meta.idx -> loc.leftLineId)
-          }
-        case _: T.LeftBrace =>
-          val state = loc.state
-          val style = loc.style
-          lookup.remove(idx).foreach {
-            case (end, endOffset)
-                if endOffset == loc.leftLineId &&
-                  style.rewrite.trailingCommas.isOptional =>
-              val inParentheses = style.spaces.inParentheses
-              // remove space before "{"
-              val prevBegState =
-                if (0 == idx || (state.prev.mod ne Space)) state.prev
-                else {
-                  val prevloc = locations(idx - 1)
-                  val prevState = state.prev
-                    .copy(split = state.prev.split.withMod(NoSplit))
-                  locations(idx - 1) = prevloc
-                    .copy(shift = prevloc.shift - 1, state = prevState)
-                  prevState
-                }
+        case rb: T.RightBrace // look for "foo { bar }"
+            if RedundantBraces.canRewriteWithParensOnRightBrace(tok) =>
+          val beg = tokens(matching(rb)).meta.idx
+          val bloc = locations(beg)
+          val style = bloc.style
+          if (
+            style.rewrite.trailingCommas.isOptional &&
+            loc.leftLineId == bloc.leftLineId
+          ) {
+            val state = bloc.state
+            val inParentheses = style.spaces.inParentheses
+            // remove space before "{"
+            val prevBegState =
+              if (0 == beg || (state.prev.mod ne Space)) state.prev
+              else {
+                val prevloc = locations(beg - 1)
+                val prevState = state.prev
+                  .copy(split = state.prev.split.withMod(NoSplit))
+                locations(beg - 1) = prevloc
+                  .copy(shift = prevloc.shift - 1, state = prevState)
+                prevState
+              }
 
-              // update "{"
-              locations(idx) =
-                if (inParentheses) loc
-                  .copy(replace = "(", state = state.copy(prev = prevBegState))
-                else {
-                  // remove space after "{"
-                  val split = state.split.withMod(NoSplit)
-                  loc.copy(
-                    replace = "(",
-                    shift = loc.shift - 1,
-                    state = state.copy(prev = prevBegState, split = split),
-                  )
-                }
+            // update "{"
+            locations(beg) =
+              if (inParentheses) bloc
+                .copy(replace = "(", state = state.copy(prev = prevBegState))
+              else {
+                // remove space after "{"
+                val split = state.split.withMod(NoSplit)
+                bloc.copy(
+                  replace = "(",
+                  shift = bloc.shift - 1,
+                  state = state.copy(prev = prevBegState, split = split),
+                )
+              }
 
-              val prevEndLoc = locations(end - 1)
-              val prevEndState = prevEndLoc.state
-              val newPrevEndState =
-                if (inParentheses) prevEndState
-                else {
-                  // remove space before "}"
-                  val split = prevEndState.split.withMod(NoSplit)
-                  val newState = prevEndState.copy(split = split)
-                  locations(end - 1) = prevEndLoc
-                    .copy(shift = prevEndLoc.shift - 1, state = newState)
-                  newState
-                }
+            val prevEndLoc = locations(idx - 1)
+            val prevEndState = prevEndLoc.state
+            val newPrevEndState =
+              if (inParentheses) prevEndState
+              else {
+                // remove space before "}"
+                val split = prevEndState.split.withMod(NoSplit)
+                val newState = prevEndState.copy(split = split)
+                locations(idx - 1) = prevEndLoc
+                  .copy(shift = prevEndLoc.shift - 1, state = newState)
+                newState
+              }
 
-              // update "}"
-              val endLoc = locations(end)
-              locations(end) = endLoc.copy(
-                replace = ")",
-                state = endLoc.state.copy(prev = newPrevEndState),
-              )
-            case _ =>
+            // update "}"
+            locations(idx) = loc
+              .copy(replace = ")", state = loc.state.copy(prev = newPrevEndState))
           }
         case _ =>
       }
