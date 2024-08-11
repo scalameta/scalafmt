@@ -30,6 +30,11 @@ final case class State(
 
   override def toString = s"State($cost, $depth)"
 
+  @inline
+  def modExt: ModExt = split.modExt
+  @inline
+  def mod: Modification = modExt.mod
+
   def alwaysBetter(other: State): Boolean = this.cost <= other.cost &&
     this.indentation <= other.indentation
 
@@ -59,7 +64,7 @@ final case class State(
         val indents = initialModExt.indents
         val nextPushes = getUnexpired(initialModExt, pushes)
         val nextIndent = Indent.getIndent(nextPushes)
-        initialNextSplit.modExt.mod match {
+        initialNextSplit.mod match {
           case m: NewlineT
               if !tok.left.is[Token.Comment] && m.alt.isDefined &&
                 nextIndent >= m.alt.get.mod.length + column =>
@@ -73,7 +78,7 @@ final case class State(
       }
 
     // Some tokens contain newline, like multiline strings/comments.
-    val startColumn = nextSplit.modExt.mod match {
+    val startColumn = nextSplit.mod match {
       case m: NewlineT => if (m.noIndent) 0 else nextIndent
       case m => if (m.isNL) nextIndent else column + m.length
     }

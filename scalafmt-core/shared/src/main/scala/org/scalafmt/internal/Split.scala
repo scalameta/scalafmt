@@ -49,7 +49,7 @@ case class Split(
 )(implicit val fileLine: FileLine) {
   import PolicyOps._
 
-  def withNoIndent: Split = modExt.mod match {
+  def withNoIndent: Split = mod match {
     case x @ NewlineT(_, false, _) =>
       copy(modExt = modExt.copy(mod = x.copy(noIndent = true)))
     case _ => this
@@ -62,7 +62,10 @@ case class Split(
   def isNL: Boolean = modExt.isNL
 
   @inline
-  def length: Int = modExt.mod.length
+  def mod: Modification = modExt.mod
+
+  @inline
+  def length: Int = mod.length
 
   @inline
   def isIgnored: Boolean = neededTags eq Split.ignoredTags
@@ -268,7 +271,7 @@ case class Split(
     }
 
   def withMod(mod: Modification): Split =
-    withMod(modExt.copy(mod = mod), this.modExt.mod eq mod)
+    withMod(modExt.copy(mod = mod), this.mod eq mod)
 
   def withMod(modExtByName: => ModExt, ignore: Boolean = false): Split =
     if (ignore || isIgnored) this
