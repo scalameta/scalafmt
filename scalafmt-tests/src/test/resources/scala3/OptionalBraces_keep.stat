@@ -2074,10 +2074,11 @@ object a:
     qux
   };
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-       qux;
--   end if
+object a:
+   if foo then
+      val bar = baz
+      qux;
+   end if
 <<< insert end marker after semicolon 2
 rewrite {
   rules = [RedundantBraces]
@@ -2099,6 +2100,7 @@ object a:
    if foo then
       val bar = baz
       qux; // c1
+   end if
 <<< insert end marker after semicolon 3
 rewrite {
   rules = [RedundantBraces]
@@ -2116,11 +2118,12 @@ object a:
     qux
   } /* c1 */ ;
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-    end if
--   /* c1 */;
-+      /* c1 */;
+object a:
+   if foo then
+      val bar = baz
+      qux
+      /* c1 */;
+   end if
 <<< insert end marker, attached comment
 rewrite {
   rules = [RedundantBraces]
@@ -2138,11 +2141,12 @@ object a:
     qux
   } /* c1 */
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-    end if
--   /* c1 */
-+      /* c1 */
+object a:
+   if foo then
+      val bar = baz
+      qux
+      /* c1 */
+   end if
 <<< insert end marker, detached comment
 rewrite.scala3.insertEndMarkerMinLines = 1
 ===

@@ -289,15 +289,25 @@ class FormatWriter(formatOps: FormatOps) {
   private def checkInsertEndMarkers(locations: Array[FormatLocation]): Unit =
     locations.foreach { floc =>
       getOptionalBracesOwner(floc, 2).foreach { owner =>
-        val endFt = getLast(owner)
-        val ok = nextNonComment(endFt).meta.rightOwner match {
+        val ownerTokens = owner.tokens
+        val (endFt, maybeEndMarkerFt) = {
+          val last = nextNonCommentSameLine(getOnOrAfterLast(ownerTokens, owner))
+          last.right match {
+            case _: T.Semicolon =>
+              val newLast = nextNonCommentSameLineAfter(last)
+              (newLast, nextNonComment(newLast))
+            case _: T.Comment => (last, nextNonCommentAfter(last))
+            case _ => (last, last)
+          }
+        }
+        val ok = maybeEndMarkerFt.meta.rightOwner match {
           case em: Term.EndMarker => em.parent != owner.parent
           case _ => true
         }
         if (ok) {
           val end = endFt.meta.idx
           val eLoc = locations(end)
-          val bLoc = locations(getHead(owner).meta.idx)
+          val bLoc = locations(getHead(ownerTokens, owner).meta.idx)
           val begIndent = bLoc.state.prev.indentation
           def appendOwner() = locations(end) = eLoc
             .copy(optionalBraces = eLoc.optionalBraces + (begIndent -> owner))

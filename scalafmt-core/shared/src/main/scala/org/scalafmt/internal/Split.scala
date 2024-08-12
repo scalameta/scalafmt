@@ -177,26 +177,30 @@ case class Split(
     else throw new UnsupportedOperationException("Use orPolicy or andPolicy")
 
   def withSingleLine(
-      expire: Token,
+      fexpire: => Token,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false,
       rank: Int = 0,
       extend: Boolean = false,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
-    withSingleLineAndOptimal(
-      expire,
-      expire,
-      exclude,
-      noSyntaxNL,
-      killOnFail,
-      rank,
-      extend,
-    )
+    if (isIgnored) this
+    else {
+      val expire = fexpire
+      withSingleLineAndOptimal(
+        expire,
+        expire,
+        exclude,
+        noSyntaxNL,
+        killOnFail,
+        rank,
+        extend,
+      )
+    }
 
   def withSingleLineAndOptimal(
-      expire: Token,
-      optimal: Token,
+      expire: => Token,
+      optimal: => Token,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false,
@@ -213,7 +217,7 @@ case class Split(
       )
 
   def withSingleLineNoOptimal(
-      expire: Token,
+      expire: => Token,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       rank: Int = 0,
