@@ -2057,6 +2057,107 @@ object a:
    class a:
       val a =
         a
+<<< insert end marker after semicolon 1
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 1
+    removeOptionalBraces = yes
+  }
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a:
+  if (foo) {
+    val bar = baz
+    qux
+  };
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+       qux;
+-   end if
+<<< insert end marker after semicolon 2
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 1
+    removeOptionalBraces = yes
+  }
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a:
+  if (foo) {
+    val bar = baz
+    qux
+  }; // c1
+>>>
+object a:
+   if foo then
+      val bar = baz
+      qux; // c1
+<<< insert end marker after semicolon 3
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 1
+    removeOptionalBraces = yes
+  }
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a:
+  if (foo) {
+    val bar = baz
+    qux
+  } /* c1 */ ;
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+    end if
+-   /* c1 */;
++      /* c1 */;
+<<< insert end marker, attached comment
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 1
+    removeOptionalBraces = yes
+  }
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a:
+  if (foo) {
+    val bar = baz
+    qux
+  } /* c1 */
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+    end if
+-   /* c1 */
++      /* c1 */
+<<< insert end marker, detached comment
+rewrite.scala3.insertEndMarkerMinLines = 1
+===
+object a:
+  if foo then
+    val bar = baz
+    qux
+    /* c1 */
+>>>
+object a:
+   if foo then
+      val bar = baz
+      qux
+      /* c1 */
+   end if
 <<< ml=3 remove 0 end markers
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 3
