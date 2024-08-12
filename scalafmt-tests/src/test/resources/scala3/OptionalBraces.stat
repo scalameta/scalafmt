@@ -1070,8 +1070,9 @@ object a {
 object a:
    val a =
      if (a) {
-       if (aa) then aaa
-       // c1
+       if (aa) then
+          aaa
+          // c1
      } else
        b
 <<< rewrite with for-do, mixed syntax

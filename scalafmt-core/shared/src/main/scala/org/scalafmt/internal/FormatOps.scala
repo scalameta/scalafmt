@@ -1817,7 +1817,7 @@ class FormatOps(
         indentOpt: Option[Int] = None,
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
       val treeTokens = tree.tokens
-      val end = getLast(treeTokens, tree)
+      val end = getOnOrAfterLast(treeTokens, tree)
       val slbExpire = nextNonCommentSameLine(end).left
       def head = getHead(treeTokens, tree)
       val close = (tree match {
