@@ -1661,12 +1661,6 @@ class Router(formatOps: FormatOps) {
               // This policy will apply to both the space and newline splits, otherwise
               // the newline is too cheap even it doesn't actually prevent other newlines.
               val penalizeBreaks = PenalizeAllNewlines(chainExpire, 2)
-              def slbPolicy(implicit fileLine: FileLine) = {
-                val exclude = // allow newlines in final {} block
-                  if (chainExpire.is[T.RightBrace]) parensTuple(chainExpire)
-                  else TokenRanges.empty
-                SingleLineBlock(chainExpire, exclude, noSyntaxNL = true)
-              }
               val newlinePolicy = breakOnNextDot & penalizeBreaks
               val ignoreNoSplit = nlOnly ||
                 hasBreak &&
@@ -1697,8 +1691,18 @@ class Router(formatOps: FormatOps) {
                 if (style.optIn.breaksInsideChains) NoSplit.orNL(noBreak)
                 else nlMod
               }.withPolicy(newlinePolicy).onlyFor(SplitTag.SelectChainSecondNL)
-              val slbSplit = Split(ignoreNoSplit, 0)(NoSplit)
-                .withPolicy(slbPolicy, prevChain).andPolicy(penalizeBreaks)
+              val slbSplit =
+                if (ignoreNoSplit) Split.ignored
+                else {
+                  val noSplit = Split(NoSplit, 0)
+                  if (prevChain) noSplit
+                  else chainExpire match { // allow newlines in final {} block
+                    case x: T.RightBrace => noSplit
+                        .withSingleLine(matching(x), noSyntaxNL = true)
+                    case x => noSplit
+                        .withSingleLineNoOptimal(x, noSyntaxNL = true)
+                  }
+                }.andPolicy(penalizeBreaks)
               val nlSplit = Split(if (ignoreNoSplit) Newline else nlMod, nlCost)
                 .withPolicy(newlinePolicy)
               Seq(legacySplit, slbSplit, nlSplit)

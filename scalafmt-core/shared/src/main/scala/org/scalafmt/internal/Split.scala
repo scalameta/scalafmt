@@ -183,8 +183,9 @@ case class Split(
       killOnFail: Boolean = false,
       rank: Int = 0,
       extend: Boolean = false,
+      ignore: Boolean = false,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
-    if (isIgnored) this
+    if (isIgnored || ignore) this
     else {
       val expire = fexpire
       withSingleLineAndOptimal(
