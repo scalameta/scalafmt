@@ -5763,3 +5763,83 @@ object a:
 object a:
    def foo() =
      if bar then baz(_ => qux())
+<<< redundant block within block, outer semicolon-terminated
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 5
+    removeOptionalBraces = yes
+  }
+}
+===
+object a:
+    def writeTo(`_output__`: SemanticdbOutputStream): _root_.scala.Unit = {
+      {
+        val __v = dotty.tools.dotc.semanticdb.ConstantType._typemapper_constant.toBase(constant)
+        if (__v.serializedSize != 0) {
+          _output__.writeTag(1, 2)
+          _output__.writeUInt32NoTag(__v.serializedSize)
+          __v.writeTo(_output__)
+        }
+      };
+    }
+    def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType = copy(constant = __v)
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+    def writeTo(`_output__`: SemanticdbOutputStream): _root_.scala.Unit =
+-      val __v = dotty.tools.dotc.semanticdb.ConstantType._typemapper_constant
+-        .toBase(constant)
+-      if __v.serializedSize != 0 then
+-         _output__.writeTag(1, 2)
+-         _output__.writeUInt32NoTag(__v.serializedSize)
+-         __v.writeTo(_output__);
+-   end writeTo
++     val __v = dotty.tools.dotc.semanticdb.ConstantType._typemapper_constant
++       .toBase(constant)
++     if __v.serializedSize != 0 then
++        _output__.writeTag(1, 2)
++        _output__.writeUInt32NoTag(__v.serializedSize)
++        __v.writeTo(_output__);
+    def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType =
+<<< redundant block within block, inner semicolon-terminated
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 5
+    removeOptionalBraces = yes
+  }
+}
+===
+object a:
+    def writeTo(`_output__`: SemanticdbOutputStream): _root_.scala.Unit = {
+      {
+        val __v = dotty.tools.dotc.semanticdb.ConstantType._typemapper_constant.toBase(constant)
+        if (__v.serializedSize != 0) {
+          _output__.writeTag(1, 2)
+          _output__.writeUInt32NoTag(__v.serializedSize)
+          __v.writeTo(_output__)
+        };
+      }
+    }
+    def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType = copy(constant = __v)
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+    def writeTo(`_output__`: SemanticdbOutputStream): _root_.scala.Unit =
+-      val __v = dotty.tools.dotc.semanticdb.ConstantType._typemapper_constant
+-        .toBase(constant)
+-      if __v.serializedSize != 0 then
+-         _output__.writeTag(1, 2)
+-         _output__.writeUInt32NoTag(__v.serializedSize)
+-         __v.writeTo(_output__);
+-   end writeTo
++     val __v = dotty.tools.dotc.semanticdb.ConstantType._typemapper_constant
++       .toBase(constant)
++     if __v.serializedSize != 0 then
++        _output__.writeTag(1, 2)
++        _output__.writeUInt32NoTag(__v.serializedSize)
++        __v.writeTo(_output__);
+    def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType =
