@@ -1693,17 +1693,15 @@ class Router(formatOps: FormatOps) {
                 if (style.optIn.breakChainOnFirstMethodDot && noBreak) 3 else 2
               val nlCost = nlBaseCost + nestedPenalty + chainLengthPenalty
               val nlMod = getNlMod
-              Seq(
-                Split(!prevChain, 1) { // must come first, for backwards compat
-                  if (style.optIn.breaksInsideChains) NoSplit.orNL(noBreak)
-                  else nlMod
-                }.withPolicy(newlinePolicy)
-                  .onlyFor(SplitTag.SelectChainSecondNL),
-                Split(ignoreNoSplit, 0)(NoSplit)
-                  .withPolicy(slbPolicy, prevChain).andPolicy(penalizeBreaks),
-                Split(if (ignoreNoSplit) Newline else nlMod, nlCost)
-                  .withPolicy(newlinePolicy),
-              )
+              val legacySplit = Split(!prevChain, 1) { // must come first, for backwards compat
+                if (style.optIn.breaksInsideChains) NoSplit.orNL(noBreak)
+                else nlMod
+              }.withPolicy(newlinePolicy).onlyFor(SplitTag.SelectChainSecondNL)
+              val slbSplit = Split(ignoreNoSplit, 0)(NoSplit)
+                .withPolicy(slbPolicy, prevChain).andPolicy(penalizeBreaks)
+              val nlSplit = Split(if (ignoreNoSplit) Newline else nlMod, nlCost)
+                .withPolicy(newlinePolicy)
+              Seq(legacySplit, slbSplit, nlSplit)
             } else {
               val isComment = left.is[T.Comment]
               val doBreak = nlOnly || isComment && hasBreak
