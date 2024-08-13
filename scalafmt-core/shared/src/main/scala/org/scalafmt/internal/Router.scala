@@ -385,9 +385,8 @@ class Router(formatOps: FormatOps) {
           singleLineSplit,
           Split(nl, 1).withPolicy(newlineBeforeClosingCurly)
             .withIndent(style.indent.main, close, Before),
-          Split(Space, 0)
+          Split(style.newlines.keepBreak(newlines), 0)(Space)
             .onlyIf(lambdaNLOnly.contains(false) && lambdaPolicy != null)
-            .notIf(style.newlines.keepBreak(newlines))
             .withOptimalTokenOpt(lambdaArrow)
             .withIndent(lambdaIndent, close, Before).withPolicy(lambdaPolicy),
         )
@@ -870,7 +869,8 @@ class Router(formatOps: FormatOps) {
         implicit val clauseSiteFlags = ClauseSiteFlags(leftOwner, defnSite)
         implicit val configStyleFlags = clauseSiteFlags.configStyle
         val closeBreak = beforeClose.hasBreak
-        val onlyConfigStyle = mustForceConfigStyle(ft) ||
+        val forceConfigStyle = mustForceConfigStyle(ft)
+        val onlyConfigStyle = forceConfigStyle ||
           preserveConfigStyle(ft, mustDangleForTrailingCommas || closeBreak)
         val configStyleFlag = configStyleFlags.prefer
 
@@ -1059,7 +1059,7 @@ class Router(formatOps: FormatOps) {
           ) Seq.empty
           else {
             val cost =
-              if (onlyConfigStyle) if (splitsNoNL.isEmpty) 0 else 1
+              if (forceConfigStyle) if (splitsNoNL.isEmpty) 0 else 1
               else (if (preferNoSplit) Constants.ExceedColumnPenalty else 0) +
                 bracketCoef * (nestedPenalty + (if (multipleArgs) 2 else 0))
             val split =
@@ -1690,7 +1690,7 @@ class Router(formatOps: FormatOps) {
               // when the flag is on, penalize break, to avoid idempotence issues;
               // otherwise, after the break is chosen, the flag prohibits nosplit
               val nlBaseCost =
-                if (style.optIn.breakChainOnFirstMethodDot && noBreak) 3 else 2
+                if (style.optIn.breakChainOnFirstMethodDot) 3 else 2
               val nlCost = nlBaseCost + nestedPenalty + chainLengthPenalty
               val nlMod = getNlMod
               Seq(
