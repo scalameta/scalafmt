@@ -122,6 +122,14 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     isEnclosedInMatching(tree.tokens, tree)
 
   @inline
+  def getBracesIfEnclosed(tree: Tree): Option[(FormatToken, FormatToken)] =
+    getDelimsIfEnclosed(tree).filter(_._1.left.is[Token.LeftBrace])
+
+  @inline
+  def isEnclosedInBraces(tree: Tree): Boolean = getDelimsIfEnclosed(tree)
+    .exists(_._1.left.is[Token.LeftBrace])
+
+  @inline
   private def areMatchingParens(close: Token)(open: => Token): Boolean = close
     .is[Token.RightParen] && areMatching(close)(open)
 
