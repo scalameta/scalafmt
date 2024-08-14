@@ -1937,7 +1937,8 @@ class FormatOps(
         val leftOwner = ft.meta.leftOwner
         findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
           case Some(t: Term.Block)
-              if !hasSingleTermStat(t) && isBlockStart(t, nft) =>
+              if getBlockWithNonSingleTermStat(t)
+                .exists(isBlockStart(_, nft)) =>
             Some(new OptionalBracesRegion {
               def owner = t.parent
               def splits = Some(getSplitsMaybeBlock(ft, nft, t))
@@ -2906,5 +2907,14 @@ object FormatOps {
     case x: Enumerator.Assign => Some(x.rhs)
     case _ => None
   })
+
+  @tailrec
+  private def getBlockWithNonSingleTermStat(t: Term.Block): Option[Term.Block] =
+    t.stats match {
+      case (x: Term.Block) :: Nil => getBlockWithNonSingleTermStat(x)
+      case (_: Term) :: Nil => None
+      case _ :: _ => Some(t)
+      case _ => None
+    }
 
 }
