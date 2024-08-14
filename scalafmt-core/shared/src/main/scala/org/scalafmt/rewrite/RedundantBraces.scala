@@ -412,7 +412,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         // Leave this alone for now.
         // In future there should be an option to surround such expressions with parens instead of braces
         if (isSeqMulti(t.values)) okToRemoveBlockWithinApply(b)
-        else (t.pos.start != b.pos.start) && SingleArgInBraces.inBraces(t)
+        else (t.pos.start != b.pos.start) && ftoks.isEnclosedInBraces(t)
 
       case d: Defn.Def =>
         def disqualifiedByUnit = !settings.includeUnitMethods &&

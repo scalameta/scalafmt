@@ -64,13 +64,9 @@ object TreeOps {
       case _ => None
     }
     @inline
-    def inBraces(tree: Tree)(implicit ftoks: FormatTokens): Boolean =
-      getBraces(tree).isDefined
-    @inline
-    def getBraces(tree: Tree)(implicit
+    private def getBraces(tree: Tree)(implicit
         ftoks: FormatTokens,
-    ): Option[(FormatToken, FormatToken)] = ftoks.getDelimsIfEnclosed(tree)
-      .filter(_._1.left.is[LeftBrace])
+    ): Option[(FormatToken, FormatToken)] = ftoks.getBracesIfEnclosed(tree)
 
     def orBlock(tree: Tree)(implicit
         ftoks: FormatTokens,
