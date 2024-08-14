@@ -1940,7 +1940,7 @@ class FormatOps(
               if !hasSingleTermStat(t) && isBlockStart(t, nft) =>
             Some(new OptionalBracesRegion {
               def owner = t.parent
-              def splits = Some(getSplitsMaybeBlock(ft, nft, t))
+              def splits = Some(getSplits(ft, t, forceNL = true))
               def rightBrace = treeLast(t)
             })
           case _ => None
