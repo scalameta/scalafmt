@@ -1563,12 +1563,15 @@ object a:
          if (aa) { // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
            aaa
          } // c1
-      else /* c2 */ b
+      else
+         /* c2 */ b
+      end if
       if a then // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
          if (aa) { // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
            aaa
          } // c1
-      else /*
+      else
+         /*
           c2 */ b
       end if
    end a
