@@ -1938,7 +1938,7 @@ class FormatOps(
         findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
           case Some(t: Term.Block)
               if getBlockWithNonSingleTermStat(t)
-                .exists(isBlockStart(_, nft)) =>
+                .exists(isJustBeforeExprs(nft)) =>
             Some(new OptionalBracesRegion {
               def owner = t.parent
               def splits = Some(getSplits(ft, t, forceNL = true))
@@ -2107,11 +2107,11 @@ class FormatOps(
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
-        case t @ Term.Try(_, catchp, _) => Some(new OptionalBracesRegion {
+        case t @ Term.Try(_, catchp, _) if isJustBeforeTrees(nft)(catchp) =>
+          Some(new OptionalBracesRegion {
             def owner = Some(t)
             def splits = {
               val nlOnly = catchp match {
-                case Nil => false
                 // to avoid next expression being interpreted as body
                 case head :: Nil => isEmptyTree(head.body) && t.finallyp.isEmpty
                 case _ => true
@@ -2325,12 +2325,16 @@ class FormatOps(
     private def isTreeUsingOptionalBraces(tree: Tree): Boolean =
       !isTreeSingleExpr(tree) && !tokenBefore(tree).left.is[T.LeftBrace]
 
-    private def isBlockStart(tree: Term.Block, ft: FormatToken): Boolean =
-      tokenJustBeforeOpt(tree.stats).contains(ft)
+    private def isJustBeforeTrees(ft: FormatToken)(trees: Seq[Tree]): Boolean =
+      tokenJustBeforeOpt(trees).contains(ft)
+
+    private def isJustBeforeExprs(ft: FormatToken)(
+        tree: Tree.WithExprs,
+    ): Boolean = isJustBeforeTrees(ft)(tree.exprs)
 
     private def isBlockStart(tree: Tree, ft: FormatToken): Boolean =
       tree match {
-        case t: Term.Block => isBlockStart(t, ft)
+        case t: Term.Block => isJustBeforeExprs(ft)(t)
         case _ => false
       }
 
