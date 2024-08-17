@@ -1603,7 +1603,7 @@ object a {
       if (aa) {  // scalafmt: { rewrite.scala3.newSyntax.control = true }
         aaa
       } // c1
-    } else {
+    } else { // c2
       b
     }
   }
@@ -1613,14 +1613,15 @@ object a {
         aaa
       } // c1
     } else {
-      b
+      /* c2 */ b
     }
     if (a) { // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
       if (aa) {  // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
         aaa
       } // c1
     } else {
-      b
+       /*
+          c2 */ b
     }
   }
 }
@@ -1631,7 +1632,7 @@ object a:
         if (aa) // scalafmt: { rewrite.scala3.newSyntax.control = true }
           aaa
         // c1
-     else
+     else // c2
         b
    val a =
       if a then // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
@@ -1639,14 +1640,15 @@ object a:
            aaa
          } // c1
       else
-         b
+         /* c2 */ b
       end if
       if a then // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
          if (aa) { // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
            aaa
          } // c1
       else
-         b
+         /*
+          c2 */ b
       end if
    end a
 end a
