@@ -2185,23 +2185,15 @@ class FormatOps(
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
-        case t: Term.If => (t.elsep match {
-            case _: Term.If
-                if !style.newlines.keepBreak(
-                  if (ft eq nft) ft.hasBreak
-                  else ft.left.pos.startLine != nft.right.pos.startLine,
-                ) => None
-            case x if !isTreeSingleExpr(x) => Some(true)
-            case b @ Term.Block(List(_: Term.If))
-                if (matchingOpt(nft.right) match {
-                  case Some(t) => t.end < b.pos.end
-                  case None => true
-                }) => None
-            case x if getLastNotTrailingCommentOpt(x).exists(_.isLeft) =>
-              Some(true)
-            case _ if isThenPWithOptionalBraces(t) =>
-              Some(shouldBreakInOptionalBraces(ft, nft))
-            case _ => None
+        case t: Term.If => (getTreeSingleExpr(t.elsep) match {
+            case Some(x: Term.If) =>
+              val forceNL = isJustBeforeTree(nft)(x) && ft.hasBreak &&
+                ((ft ne nft) || (style.newlines.source eq Newlines.keep))
+              if (forceNL) Some(true) else None
+            case Some(_) if !getLastNotTrailingCommentOpt(t).exists(_.isLeft) =>
+              if (!isThenPWithOptionalBraces(t)) None
+              else Some(shouldBreakInOptionalBraces(ft, nft))
+            case _ => Some(true)
           }).map { forceNL =>
             new OptionalBracesRegion {
               def owner = Some(t)
