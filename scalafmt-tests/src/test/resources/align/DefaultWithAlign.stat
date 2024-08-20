@@ -2105,3 +2105,22 @@ object a {
   private[this] def retry_cache_key(xxx: String) = s"some_short_string$xxx"
   private[this] val retry_timing_in_seconds      = 30 seconds
 }
+<<< #4133 align with a comment, one-line source but formatted multi-line
+maxColumn = 50
+align.preset = most
+===
+object a {
+   def foo(barBarBarBar: BarBarBarBar) = barBarBarBar match {
+      case baz =>
+        val qux = Qux()
+        xyzzy(barBarBarBar, qux /* barBarBarBarBarBar */)
+        val quux = Quux()
+   }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+       case baz =>
+-        val qux = Qux()
++        val qux  = Qux()
+         xyzzy(
