@@ -575,7 +575,7 @@ class FormatOps(
         case p: Term.If => p.cond eq child
         case p: Term.While => p.expr eq child
         case p: Term.Do => p.expr eq child
-        case p: Term.Block => isSingleElement(p.stats, child)
+        case p: Term.Block => hasSingleElement(p, child)
         case p: Term.FunctionTerm => isBlockFunction(p)
         case p @ Member.ArgClause(`child` :: Nil) => isEnclosedInMatching(p)
         case Member.Tuple(`child` :: Nil) => true
@@ -585,7 +585,7 @@ class FormatOps(
         case t: Case => t.pat.eq(child) || t.body.eq(child)
         case _: Term.If | _: Term.While | _: Term.Do => true
         case _: Member.ArgClause => true
-        case p: Term.Block => isSingleElement(p.stats, child)
+        case p: Term.Block => hasSingleElement(p, child)
         case _: Init | _: Term.Super | _: Member.Tuple => true
         case t: Tree.WithBody => t.body eq child
         case t: Term.Param => t.default.contains(child)
@@ -1866,7 +1866,7 @@ class FormatOps(
             onArgClause(ft, t, t.values)
           case t: Term => t.parent match {
               case Some(p: Term.ArgClause)
-                  if isSingleElement(p.values, t) && (getHead(p) eq ft) =>
+                  if hasSingleElement(p, t) && (getHead(p) eq ft) =>
                 val stats = t match {
                   case b: Term.Block => b.stats
                   case _ => t :: Nil

@@ -549,6 +549,14 @@ object TreeOps {
       case _ => false
     }
 
+  @inline
+  def hasSingleElement(tree: Tree.WithExprs, value: Tree): Boolean =
+    isSingleElement(tree.exprs, value)
+
+  @inline
+  def hasSingleElement(tree: Member.SyntaxValuesClause, value: Tree): Boolean =
+    isSingleElement(tree.values, value)
+
   def getBlockSingleStat(b: Term.Block): Option[Stat] = b.stats match {
     case stat :: Nil => Some(stat)
     case _ => None

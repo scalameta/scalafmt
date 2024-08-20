@@ -534,7 +534,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
       case p: Term.ApplyInfix => stat match {
           case t: Term.ApplyInfix =>
-            val useRight = isSingleElement(p.argClause.values, b)
+            val useRight = hasSingleElement(p.argClause, b)
             SyntacticGroupOps.groupNeedsParenthesis(
               TreeSyntacticGroup(p),
               TreeSyntacticGroup(t),

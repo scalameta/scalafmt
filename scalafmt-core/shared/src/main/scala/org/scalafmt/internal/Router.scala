@@ -251,7 +251,7 @@ class Router(formatOps: FormatOps) {
             case Some(owner: Term.FunctionTerm) if (leftOwner match {
                   case t: Template => t.parent
                       .exists(_.is[Term.NewAnonymous]) &&
-                    isSingleElement(t.stats, owner)
+                    hasSingleElement(t, owner)
                   case _ => true
                 }) =>
               val arrow = getFuncArrow(lastLambda(owner))
@@ -267,8 +267,8 @@ class Router(formatOps: FormatOps) {
             case Some(t: Case)
                 if t.cond.isEmpty &&
                   (leftOwner match {
-                    case x: Term.PartialFunction => isSingleElement(x.cases, t)
-                    case x: Term.Match => isSingleElement(x.cases, t) &&
+                    case x: Term.PartialFunction => hasSingleElement(x, t)
+                    case x: Term.Match => hasSingleElement(x, t) &&
                       dialect.allowMatchAsOperator &&
                       tokenAfter(x.expr).right.is[T.Dot]
                     case _: Term.Try => false
