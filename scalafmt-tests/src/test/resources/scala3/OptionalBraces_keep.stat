@@ -1657,21 +1657,14 @@ object a:
     }} 
   }}
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-    else
--      // c1
-       {
--        if foo2 then
--           val bar2 = baz2
--           qux2
-+        // c1
-+        {
-+          if foo2 then
-+             val bar2 = baz2
-+             qux2
-+        }
-       }
+object a:
+   if foo1 then bar1 = baz1
+   else
+      // c1
+      if foo2 then
+         val bar2 = baz2
+         qux2
+   end if
 <<< rewrite to new syntax with for-do, single
 runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 6
