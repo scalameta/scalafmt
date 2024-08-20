@@ -1595,7 +1595,7 @@ class FormatOps(
     def checkComment(ft: FormatToken, nlSplitFunc: Int => Split)(
         splitsFunc: FormatToken => Seq[Split],
     ): Seq[Split] =
-      if (!ft.right.is[T.Comment]) splitsFunc(ft)
+      if (!ft.right.is[T.Comment] && !ft.hasBlankLine) splitsFunc(ft)
       else if (ft.hasBreak) Seq(nlSplitFunc(0).forThisLine)
       else {
         val nextFt = nextNonCommentSameLineAfter(ft)

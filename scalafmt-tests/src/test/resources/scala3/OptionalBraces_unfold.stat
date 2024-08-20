@@ -1562,7 +1562,9 @@ class a(vi: Int, vs: String):
   end this
 >>>
 class a(vi: Int, vs: String):
-   def this() = this(0, "")
+   def this() =
+
+     this(0, "")
 
    end this
    def this(vi: Int) = this(vi, "")
@@ -6165,6 +6167,7 @@ object a:
       baz
    catch
       case ex: Baz =>
+
         val qux = quux
 <<< braceless match, empty body
 object a:
