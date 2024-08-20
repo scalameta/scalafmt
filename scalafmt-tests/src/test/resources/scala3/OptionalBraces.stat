@@ -1593,10 +1593,10 @@ object a:
 object a:
    if foo1 then bar1 = baz1
    else
-   // c1
-   if foo2 then
-      val bar2 = baz2
-      qux2
+      // c1
+      if foo2 then
+         val bar2 = baz2
+         qux2
    end if
 <<< rewrite with nested if-else and detached comment within many removed braces
 rewrite {
@@ -1619,18 +1619,14 @@ object a:
     }} 
   }}
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-    else
--   // c1
--   if foo2 then
--      val bar2 = baz2
--      qux2
-+      // c1
-+      if foo2 then
-+         val bar2 = baz2
-+         qux2
-    end if
+object a:
+   if foo1 then bar1 = baz1
+   else
+      // c1
+      if foo2 then
+         val bar2 = baz2
+         qux2
+   end if
 <<< rewrite with nested if-else and detached comment within many non-removed braces
 rewrite {
   scala3 {
@@ -1650,18 +1646,14 @@ object a:
     }} 
   }}
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-    else
--   // c1
--   if foo2 then
--      val bar2 = baz2
--      qux2
-+      // c1
-+      if foo2 then
-+         val bar2 = baz2
-+         qux2
-    end if
+object a:
+   if foo1 then bar1 = baz1
+   else
+      // c1
+      if foo2 then
+         val bar2 = baz2
+         qux2
+   end if
 <<< rewrite to new syntax with for-do, single
 runner.parser = source
 rewrite.scala3.insertEndMarkerMinLines = 6

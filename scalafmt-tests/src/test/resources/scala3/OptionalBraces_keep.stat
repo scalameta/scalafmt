@@ -1197,9 +1197,10 @@ private def mtd: Res =
 >>>
 private def mtd: Res =
   if foo then fooBody
-  else if bar then
-     barBody
-  else bazBody
+  else
+     if bar then
+        barBody
+     else bazBody
 <<< remove optional braces within else-if 2
 rewrite.scala3.removeOptionalBraces = yes
 ===
@@ -1211,7 +1212,8 @@ private def mtd: Res =
 >>>
 private def mtd: Res =
   if foo then fooBody
-  else if bar then barBody else bazBody
+  else
+     if bar then barBody else bazBody
 <<< remove optional braces within converted if-else, multi-stat else
 rewrite.scala3.convertToNewSyntax = true
 rewrite.scala3.removeOptionalBraces = yes
@@ -1597,18 +1599,14 @@ object a:
     } 
   }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-    else
--      // c1
--      if foo2 then
--         val bar2 = baz2
--         qux2
-+   // c1
-+   if foo2 then
-+      val bar2 = baz2
-+      qux2
-    end if
+object a:
+   if foo1 then bar1 = baz1
+   else
+      // c1
+      if foo2 then
+         val bar2 = baz2
+         qux2
+   end if
 <<< rewrite with nested if-else and detached comment within many removed braces
 rewrite {
   rules = [RedundantBraces]
