@@ -6305,6 +6305,36 @@ object a:
         baz { _ =>
           qux()
         }
+<<< #4133 enclosed new anonymous with comments and added end marker
+rewrite.scala3 {
+  convertToNewSyntax = true
+  insertEndMarkerMinLines = 5
+  removeOptionalBraces = yes
+}
+===
+object a:
+  def foo =
+    (new Bar {
+      def baz() = {
+        this match {
+          case _ =>
+            // c1
+        }
+        qux // c2
+      }
+    })(quux)
+>>>
+object a:
+   def foo =
+     (
+       new Bar:
+          def baz() =
+             this match
+                case _ =>
+             // c1
+             qux // c2
+          end baz
+     )(quux)
 <<< redundant block within block, outer semicolon-terminated
 rewrite {
   rules = [RedundantBraces]
