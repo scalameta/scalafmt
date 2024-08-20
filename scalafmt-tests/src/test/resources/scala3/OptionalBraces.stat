@@ -6139,22 +6139,16 @@ object a:
       }
     })(quux)
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-      (new Bar:
--        def baz() =
--           this match
--              case _ =>
--           // c1
--           qux // c2
--        end baz
-+          def baz() =
-+             this match
-+                case _ =>
-+             // c1
-+             qux // c2
-+          end baz
-      )(quux)
+object a:
+   def foo =
+     (new Bar:
+        def baz() =
+           this match
+              case _ =>
+           // c1
+           qux // c2
+        end baz
+     )(quux)
 <<< redundant block within block, outer semicolon-terminated
 rewrite {
   rules = [RedundantBraces]
