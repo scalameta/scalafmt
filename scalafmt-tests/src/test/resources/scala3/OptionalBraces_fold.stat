@@ -5870,6 +5870,317 @@ object a:
 object a:
    def foo() =
      if bar then baz(_ => qux())
+<<< #4133 match with nested catch, with comment at end of last catch case
+object a:
+  def foo = {
+    bar match {
+      case none =>
+
+        def baz = {
+          // c1
+        }
+
+        try
+          qux
+        catch case ex => quux
+          // use focussed sourcePos since tree might be a large definition
+          // and a large error span would hide all errors in interior.
+          // TODO: Not clear that hiding is what we want, actually
+    }
+  }
+>>>
+object a:
+   def foo = {
+     bar match {
+       case none =>
+
+         def baz = {
+           // c1
+         }
+
+         try qux
+         catch
+            case ex =>
+              quux
+              // use focussed sourcePos since tree might be a large definition
+            // and a large error span would hide all errors in interior.
+            // TODO: Not clear that hiding is what we want, actually
+     }
+   }
+<<< case with trailing comment, followed by case class
+object a:
+  class Foo1():
+    foo1 match
+      case bar1 => baz1
+
+  // c1
+  case class Foo2() {}
+>>>
+object a:
+   class Foo1():
+      foo1 match
+         case bar1 => baz1
+
+   // c1
+   case class Foo2() {}
+<<< #4133 match with trailing comments 1
+object a:
+    foo match
+      case foo1 =>
+        bar1 match
+          case baz11 => baz11
+            // c11-1
+          // c11-2
+          case baz12 => baz12
+            // c12-1
+          // c12-2
+        // c1
+      case foo2 =>
+        bar2 match
+          case baz21 => baz21
+            // c21-1
+          // c21-2
+          case baz22 => baz22
+            // c22-1
+          // c22-2
+        // c2
+      // cc
+    // cf
+>>>
+object a:
+   foo match
+      case foo1 =>
+        bar1 match
+           case baz11 => baz11
+           // c11-1
+           // c11-2
+           case baz12 =>
+             baz12
+             // c12-1
+             // c12-2
+        // c1
+      case foo2 =>
+        bar2 match
+           case baz21 => baz21
+           // c21-1
+           // c21-2
+           case baz22 =>
+             baz22
+             // c22-1
+             // c22-2
+        // c2
+        // cc
+   // cf
+<<< #4133 match with trailing comments 2
+object a:
+    foo match
+      case foo1 =>
+        bar1 match
+          case baz11 =>
+            baz11
+            // c11-1
+          // c11-2
+          case baz12 =>
+            baz12
+            // c12-1
+          // c12-2
+        // c1
+      case foo2 =>
+        bar2 match
+          case baz21 =>
+            baz21
+            // c21-1
+          // c21-2
+          case baz22 =>
+            baz22
+            // c22-1
+          // c22-2
+        // c2
+      // cc
+    // cf
+>>>
+object a:
+   foo match
+      case foo1 =>
+        bar1 match
+           case baz11 =>
+             baz11
+             // c11-1
+           // c11-2
+           case baz12 =>
+             baz12
+             // c12-1
+             // c12-2
+        // c1
+      case foo2 =>
+        bar2 match
+           case baz21 =>
+             baz21
+             // c21-1
+           // c21-2
+           case baz22 =>
+             baz22
+             // c22-1
+             // c22-2
+        // c2
+        // cc
+   // cf
+<<< #4133 try-catch with trailing comments 1
+object a:
+    try foo
+    catch
+      case ex1 =>
+        bar1 match
+          case baz11 => baz11
+            // c11-1
+          // c11-2
+          case baz12 => baz12
+            // c12-1
+          // c12-2
+        // c1
+      case ex2 =>
+        bar2 match
+          case baz21 => baz21
+            // c21-1
+          // c21-2
+          case baz22 => baz22
+            // c22-1
+          // c22-2
+        // c2
+      // cc
+    // cf
+    finally qux
+>>>
+object a:
+   try foo
+   catch
+      case ex1 =>
+        bar1 match
+           case baz11 => baz11
+           // c11-1
+           // c11-2
+           case baz12 =>
+             baz12
+             // c12-1
+             // c12-2
+        // c1
+      case ex2 =>
+        bar2 match
+           case baz21 => baz21
+           // c21-1
+           // c21-2
+           case baz22 =>
+             baz22
+             // c22-1
+             // c22-2
+        // c2
+        // cc
+   // cf
+   finally qux
+<<< #4133 try-catch with trailing comments 2
+object a:
+    try foo
+    catch
+      case ex1 =>
+        bar1 match
+          case baz11 =>
+            baz11
+            // c11-1
+          // c11-2
+          case baz12 =>
+            baz12
+            // c12-1
+          // c12-2
+        // c1
+      case ex2 =>
+        bar2 match
+          case baz21 =>
+            baz21
+            // c21-1
+          // c21-2
+          case baz22 =>
+            baz22
+            // c22-1
+          // c22-2
+        // c2
+      // cc
+    // cf
+    finally qux
+>>>
+object a:
+   try foo
+   catch
+      case ex1 =>
+        bar1 match
+           case baz11 =>
+             baz11
+             // c11-1
+           // c11-2
+           case baz12 =>
+             baz12
+             // c12-1
+             // c12-2
+        // c1
+      case ex2 =>
+        bar2 match
+           case baz21 =>
+             baz21
+             // c21-1
+           // c21-2
+           case baz22 =>
+             baz22
+             // c22-1
+             // c22-2
+        // c2
+        // cc
+   // cf
+   finally qux
+<<< #4133 try-catch with trailing comments 3
+object a:
+    foo match {
+      case null =>
+        try
+          val bar = baz
+        catch case ex => qux
+          // c1
+          // c2
+    }
+>>>
+object a:
+   foo match {
+     case null =>
+       try
+          val bar = baz
+       catch
+          case ex =>
+            qux
+            // c1
+          // c2
+   }
+<<< #4133 try-catch with trailing comments 4
+object a:
+    foo match {
+      case null =>
+        try
+          val bar = baz
+        catch case ex => qux
+          // c1
+
+        // c2
+    }
+>>>
+object a:
+   foo match {
+     case null =>
+       try
+          val bar = baz
+       catch
+          case ex =>
+            qux
+            // c1
+
+          // c2
+   }
 <<< #4133 enclosed new anonymous with comments and added end marker
 rewrite.scala3 {
   convertToNewSyntax = true
