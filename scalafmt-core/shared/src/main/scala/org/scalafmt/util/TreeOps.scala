@@ -568,14 +568,16 @@ object TreeOps {
   }
 
   @tailrec
-  def isTreeSingleExpr(tree: Tree): Boolean = tree match {
+  def getTreeSingleExpr(tree: Tree): Option[Tree] = tree match {
     case t: Term.Block => t.stats match {
-        case stat :: Nil => isTreeSingleExpr(stat)
-        case _ => false
+        case stat :: Nil => getTreeSingleExpr(stat)
+        case _ => None
       }
-    case _: Defn => false
-    case _ => true
+    case _: Defn => None
+    case t => Some(t)
   }
+
+  def isTreeSingleExpr(tree: Tree): Boolean = getTreeSingleExpr(tree).isDefined
 
   /* An end marker is really more like a closing brace for formatting purposes
    * (but not when rewriting) so we should ignore it when considering whether a
