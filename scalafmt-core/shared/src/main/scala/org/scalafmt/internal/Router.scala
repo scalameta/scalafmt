@@ -2042,20 +2042,20 @@ class Router(formatOps: FormatOps) {
         val enclosed = findEnclosedBetweenParens(open, close, leftOwner)
         def spaceSplitWithoutPolicy(implicit fileLine: FileLine) = {
           val indent: Length = right match {
-            case T.KwIf() => StateColumn
-            case T.KwFor() if !style.indentYieldKeyword => StateColumn
+            case _: T.KwIf => StateColumn
+            case _: T.KwFor if !style.indentYieldKeyword => StateColumn
             case _ =>
-              val isInfix = enclosed.exists {
-                case _: Term.ApplyInfix => true
-                case Term.ArgClause((_: Term.ApplyInfix) :: Nil, _) => true
-                case _ => false
+              val needIndent = enclosed.forall {
+                case _: Term.ApplyInfix | _: Term.NewAnonymous => false
+                case Term.ArgClause((_: Term.ApplyInfix) :: Nil, _) => false
+                case _ => true
+              } && {
+                val pft = prevNonCommentSameLine(beforeClose)
+                (pft eq beforeClose) && beforeClose.left.is[T.Comment] ||
+                pft.meta.leftOwner.is[Term.Name] && // end marker
+                prev(pft).meta.leftOwner.is[Term.EndMarker]
               }
-              if (isInfix) Num(0)
-              else {
-                val willBreak = beforeClose.left.is[T.Comment] &&
-                  prevNonCommentSameLine(beforeClose).hasBreak
-                Num(if (willBreak) style.indent.main else 0)
-              }
+              Num(if (needIndent) style.indent.main else 0)
           }
           val useSpace = style.spaces.inParentheses || right.is[T.Comment]
           Split(Space(useSpace), 0).withIndent(indent, close, Before)
