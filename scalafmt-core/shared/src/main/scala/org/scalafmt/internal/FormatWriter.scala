@@ -1173,7 +1173,7 @@ class FormatWriter(formatOps: FormatOps) {
             columnShift += floc.shift
             if (floc.hasBreakAfter || ft.leftHasNewline) floc
             else {
-              getAlignNonSlcOwner(ft).foreach { nonSlcOwner =>
+              getAlignNonSlcOwner(ft, locations(idx)).foreach { nonSlcOwner =>
                 val (container, depth) =
                   getAlignContainer(nonSlcOwner.getOrElse(ft.meta.rightOwner))
                 def appendCandidate() = columnCandidates += new AlignStop(
@@ -1873,9 +1873,9 @@ object FormatWriter {
     if (useLeft) floc.state.prev.column else floc.state.column
   }
 
-  private def getAlignNonSlcOwner(
-      ft: FormatToken,
-  )(implicit floc: FormatLocation, tokens: FormatTokens): Option[Option[Tree]] = {
+  private def getAlignNonSlcOwner(ft: FormatToken, nextFloc: FormatLocation)(
+      implicit floc: FormatLocation,
+  ): Option[Option[Tree]] = {
     def getNonSlcOwner = ft.meta.rightOwner match {
       case name: Term.Name => name.parent match {
           case Some(p: Term.ApplyInfix) => p
@@ -1884,7 +1884,7 @@ object FormatWriter {
       case x => x
     }
 
-    val slc = ft.right.is[T.Comment] && tokens.isBreakAfterRight(ft) &&
+    val slc = ft.right.is[T.Comment] && nextFloc.hasBreakAfter &&
       !ft.rightHasNewline
     val code = if (slc) "//" else ft.meta.right.text
     floc.style.alignMap.get(code).flatMap { matchers =>
