@@ -509,7 +509,7 @@ class Router(formatOps: FormatOps) {
         val bodyIsEmpty = isEmptyTree(body)
         def baseSplit = Split(Space, 0)
         def nlSplit(ft: FormatToken)(cost: Int)(implicit l: FileLine) =
-          Split(Newline2x(isDouble = ft.hasBlankLine && bodyIsEmpty), cost)
+          Split(Newline2x(ft), cost)
         CtrlBodySplits.checkComment(ft, nlSplit(ft)) { ft =>
           def withSlbSplit(implicit l: FileLine) = Seq(
             baseSplit.withSingleLine(getLastNonTrivialToken(body)),
@@ -1959,7 +1959,7 @@ class Router(formatOps: FormatOps) {
         }
         val expire = getLastToken(body)
         def nlSplitFunc(cost: Int)(implicit l: sourcecode.Line) =
-          Split(Newline, cost).withIndent(style.indent.main, expire, After)
+          Split(Newline2x(ft), cost).withIndent(style.indent.main, expire, After)
         if (style.newlines.getBeforeMultiline eq Newlines.unfold) CtrlBodySplits
           .checkComment(ft, nlSplitFunc) { ft =>
             if (ft.right.is[T.LeftBrace]) {
@@ -2012,7 +2012,7 @@ class Router(formatOps: FormatOps) {
           }) =>
         val body = leftOwner.asInstanceOf[Term.If].elsep
         val expire = getLastToken(body)
-        def nlSplitFunc(cost: Int) = Split(Newline, cost)
+        def nlSplitFunc(cost: Int) = Split(Newline2x(ft), cost)
           .withIndent(style.indent.main, expire, After)
         if (style.newlines.getBeforeMultiline eq Newlines.unfold)
           Seq(nlSplitFunc(0))
@@ -2223,7 +2223,7 @@ class Router(formatOps: FormatOps) {
         val indent = Indent(style.indent.main, end, ExpiresOn.After)
         CtrlBodySplits.get(ft, body, Seq(indent)) {
           Split(Space, 0).withSingleLineNoOptimal(end)
-        }(Split(Newline, _).withIndent(indent))
+        }(Split(Newline2x(ft), _).withIndent(indent))
 
       // Term.ForYield
       case FormatToken(T.KwYield(), _, _) if leftOwner.is[Term.ForYield] =>
@@ -2244,7 +2244,7 @@ class Router(formatOps: FormatOps) {
           if leftOwner.is[Term.For] && !isTokenLastOrAfter(rb, leftOwner) &&
             !nextNonComment(ft).right.is[T.KwDo] =>
         val body = leftOwner.asInstanceOf[Term.For].body
-        def nlSplit(cost: Int) = Split(Newline, cost)
+        def nlSplit(cost: Int) = Split(Newline2x(ft), cost)
           .withIndent(style.indent.main, getLastToken(body), After)
         CtrlBodySplits.get(ft, body)(null)(nlSplit)
 
@@ -2464,13 +2464,13 @@ class Router(formatOps: FormatOps) {
     if (ft.right.is[T.LeftBrace]) // The block will take care of indenting by 2
       Seq(Split(Space, 0).withIndents(spaceIndents))
     else if (isRightCommentWithBreak(ft))
-      Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft.noBreak), 0), ft, body))
+      Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft), 0), ft, body))
     else if (isJsNative(body)) Seq(Split(Space, 0).withSingleLine(expire))
     else if (style.newlines.forceBeforeAssign(ft.meta.leftOwner))
-      Seq(CtrlBodySplits.withIndent(Split(Newline, 0), ft, body))
+      Seq(CtrlBodySplits.withIndent(Split(Newline2x(ft), 0), ft, body))
     else if (style.newlines.shouldForceBeforeMultilineAssign(ft.meta.leftOwner))
       CtrlBodySplits.slbOnly(ft, body, spaceIndents) { x =>
-        CtrlBodySplits.withIndent(Split(Newline, x), ft, body)
+        CtrlBodySplits.withIndent(Split(Newline2x(ft), x), ft, body)
       }
     else splits
   }
@@ -2481,7 +2481,7 @@ class Router(formatOps: FormatOps) {
     val expire = getLastToken(body)
     def baseSplit = Split(Space, 0)
     def newlineSplit(cost: Int)(implicit fileLine: FileLine) = CtrlBodySplits
-      .withIndent(Split(Newline, cost), ft, body)
+      .withIndent(Split(Newline2x(ft), cost), ft, body)
 
     def getClassicSplits =
       if (ft.hasBreak) Seq(newlineSplit(0)) else Seq(baseSplit, newlineSplit(1))
@@ -2504,7 +2504,7 @@ class Router(formatOps: FormatOps) {
       classicSplits: => Seq[Split],
   )(implicit style: ScalafmtConfig): Seq[Split] =
     if (style.newlines.getBeforeMultiline eq Newlines.classic) classicSplits
-    else CtrlBodySplits.getWithIndent(ft, body)(null)(Split(Newline, _))
+    else CtrlBodySplits.getWithIndent(ft, body)(null)(Split(Newline2x(ft), _))
 
   private def getSplitsValEqualsClassic(ft: FormatToken, body: Tree)(implicit
       style: ScalafmtConfig,
@@ -2586,7 +2586,7 @@ class Router(formatOps: FormatOps) {
           if (noSlb) Split(Space, 0).withOptimalToken(ft.right)
           else Split(Space, 0).withSingleLine(expire)
         }
-      }(Split(Newline, _).withIndent(style.indent.main, expire, After))
+      }(Split(Newline2x(ft), _).withIndent(style.indent.main, expire, After))
     }
   }
 

@@ -69,4 +69,5 @@ object Space extends Modification {
   def orNL(nl: Int): Modification =
     if (FormatToken.noBreak(nl)) this
     else Newline2x(FormatToken.hasBlankLine(nl))
+  def orNL(ft: FormatToken): Modification = orNL(ft.newlinesBetween)
 }
