@@ -2118,9 +2118,15 @@ object a {
    }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-       case baz =>
--        val qux = Qux()
-+        val qux  = Qux()
-         xyzzy(
+object a {
+  def foo(barBarBarBar: BarBarBarBar) =
+    barBarBarBar match {
+      case baz =>
+        val qux = Qux()
+        xyzzy(
+          barBarBarBar,
+          qux /* barBarBarBarBarBar */
+        )
+        val quux = Quux()
+    }
+}
