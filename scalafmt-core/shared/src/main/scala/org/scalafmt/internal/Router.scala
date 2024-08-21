@@ -217,9 +217,13 @@ class Router(formatOps: FormatOps) {
 
       case FormatToken(_: T.Equals, _, DefValAssignLeft(rhs)) =>
         maybeGetInfixSplitsBeforeLhs(ft) {
-          getSplitsDefValEquals(ft, rhs) {
-            if (leftOwner.is[Tree.WithParamClauses]) getSplitsDefEquals(ft, rhs)
-            else getSplitsValEquals(ft, rhs)(getSplitsValEqualsClassic(ft, rhs))
+          def endFt = getLast(rhs)
+          getSplitsDefValEquals(ft, rhs, endFt) {
+            if (leftOwner.is[Tree.WithParamClauses])
+              getSplitsDefEquals(ft, rhs, endFt)
+            else getSplitsValEquals(ft, rhs, endFt)(
+              getSplitsValEqualsClassic(ft, rhs, endFt),
+            )
           }
         }
 
@@ -1526,7 +1530,7 @@ class Router(formatOps: FormatOps) {
               .getOrElse(defaultSplits)
         }
 
-      case FormatToken(_, T.Semicolon(), _) => Seq(Split(NoSplit, 0))
+      case FormatToken(_, _: T.Semicolon, _) => Seq(Split(NoSplit, 0))
       case FormatToken(_: T.KwReturn, _, _) =>
         val mod =
           if (hasBlankLine) Newline2x
@@ -2458,36 +2462,35 @@ class Router(formatOps: FormatOps) {
   private def getSplitsDefValEquals(
       ft: FormatToken,
       body: Tree,
+      endFt: => FormatToken,
       spaceIndents: Seq[Indent] = Seq.empty,
-  )(splits: => Seq[Split])(implicit style: ScalafmtConfig): Seq[Split] = {
-    def expire = getLastToken(body)
+  )(splits: => Seq[Split])(implicit style: ScalafmtConfig): Seq[Split] =
     if (ft.right.is[T.LeftBrace]) // The block will take care of indenting by 2
       Seq(Split(Space, 0).withIndents(spaceIndents))
     else if (isRightCommentWithBreak(ft))
-      Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft), 0), ft, body))
-    else if (isJsNative(body)) Seq(Split(Space, 0).withSingleLine(expire))
+      Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft), 0), ft, body, endFt))
+    else if (isJsNative(body)) Seq(Split(Space, 0).withSingleLine(endFt.left))
     else if (style.newlines.forceBeforeAssign(ft.meta.leftOwner))
-      Seq(CtrlBodySplits.withIndent(Split(Newline2x(ft), 0), ft, body))
+      Seq(CtrlBodySplits.withIndent(Split(Newline2x(ft), 0), ft, body, endFt))
     else if (style.newlines.shouldForceBeforeMultilineAssign(ft.meta.leftOwner))
       CtrlBodySplits.slbOnly(ft, body, spaceIndents) { x =>
-        CtrlBodySplits.withIndent(Split(Newline2x(ft), x), ft, body)
+        CtrlBodySplits.withIndent(Split(Newline2x(ft), x), ft, body, endFt)
       }
     else splits
-  }
 
-  private def getSplitsDefEquals(ft: FormatToken, body: Tree)(implicit
-      style: ScalafmtConfig,
+  private def getSplitsDefEquals(ft: FormatToken, body: Tree, endFt: FormatToken)(
+      implicit style: ScalafmtConfig,
   ): Seq[Split] = {
-    val expire = getLastToken(body)
+    val expire = endFt.left
     def baseSplit = Split(Space, 0)
     def newlineSplit(cost: Int)(implicit fileLine: FileLine) = CtrlBodySplits
-      .withIndent(Split(Newline2x(ft), cost), ft, body)
+      .withIndent(Split(Newline2x(ft), cost), ft, body, endFt)
 
     def getClassicSplits =
       if (ft.hasBreak) Seq(newlineSplit(0)) else Seq(baseSplit, newlineSplit(1))
 
     style.newlines.beforeMultilineDef.fold {
-      getSplitsValEquals(ft, body)(getClassicSplits)
+      getSplitsValEquals(ft, body, endFt)(getClassicSplits)
     } {
       case Newlines.classic => getClassicSplits
 
@@ -2500,15 +2503,20 @@ class Router(formatOps: FormatOps) {
     }
   }
 
-  private def getSplitsValEquals(ft: FormatToken, body: Tree)(
-      classicSplits: => Seq[Split],
-  )(implicit style: ScalafmtConfig): Seq[Split] =
+  private def getSplitsValEquals(
+      ft: FormatToken,
+      body: Tree,
+      endFt: => FormatToken,
+  )(classicSplits: => Seq[Split])(implicit style: ScalafmtConfig): Seq[Split] =
     if (style.newlines.getBeforeMultiline eq Newlines.classic) classicSplits
-    else CtrlBodySplits.getWithIndent(ft, body)(null)(Split(Newline2x(ft), _))
+    else CtrlBodySplits
+      .getWithIndent(ft, body, endFt)(null)(Split(Newline2x(ft), _))
 
-  private def getSplitsValEqualsClassic(ft: FormatToken, body: Tree)(implicit
-      style: ScalafmtConfig,
-  ): Seq[Split] = {
+  private def getSplitsValEqualsClassic(
+      ft: FormatToken,
+      body: Tree,
+      endFt: FormatToken,
+  )(implicit style: ScalafmtConfig): Seq[Split] = {
     def wouldDangle = ft.meta.leftOwner.parent.exists {
       case p: Member.ParamClause => style.danglingParentheses.atDefnSite(p)
       case _: Member.Tuple => style.danglingParentheses.atTupleSite
@@ -2522,13 +2530,12 @@ class Router(formatOps: FormatOps) {
       case _ => false
     }
 
-    val expireFt = getLast(body)
-    val expire = expireFt.left
+    val expire = endFt.left
     // rhsOptimalToken is too aggressive here
-    val optimalFt = expireFt.right match {
-      case _: T.Comma => next(expireFt)
-      case RightParenOrBracket() if !wouldDangle => next(expireFt)
-      case _ => expireFt
+    val optimalFt = endFt.right match {
+      case _: T.Comma => next(endFt)
+      case RightParenOrBracket() if !wouldDangle => next(endFt)
+      case _ => endFt
     }
     val optimal = optimalFt.left
     def optimalWithComment = optimalFt.right match {
@@ -2563,18 +2570,19 @@ class Router(formatOps: FormatOps) {
     }
     Seq(
       spaceSplit,
-      CtrlBodySplits.withIndent(Split(Newline, 1 + penalty), ft, body),
+      CtrlBodySplits.withIndent(Split(Newline, 1 + penalty), ft, body, endFt),
     )
   }
 
   private def getSplitsEnumerator(ft: FormatToken, body: Tree)(implicit
       style: ScalafmtConfig,
   ): Seq[Split] = maybeGetInfixSplitsBeforeLhs(ft) {
-    val expire = getLastNonTrivialToken(body)
+    val endFt = getLastNonTrivial(body)
+    val expire = endFt.left
     val spaceIndents =
       if (!style.align.arrowEnumeratorGenerator) Seq.empty
       else Seq(Indent(StateColumn, expire, After))
-    getSplitsDefValEquals(ft, body, spaceIndents) {
+    getSplitsDefValEquals(ft, body, endFt, spaceIndents) {
       CtrlBodySplits.get(ft, body, spaceIndents) {
         if (spaceIndents.nonEmpty) Split(Space, 0).withIndents(spaceIndents)
         else {

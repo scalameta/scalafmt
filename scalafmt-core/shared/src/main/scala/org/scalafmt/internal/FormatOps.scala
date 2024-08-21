@@ -1653,25 +1653,34 @@ class FormatOps(
     def getWithIndent(
         ft: FormatToken,
         body: Tree,
+        endFt: => FormatToken,
         spaceIndents: Seq[Indent] = Seq.empty,
     )(classicNoBreakFunc: => Split)(nlSplitFunc: Int => Split)(implicit
         style: ScalafmtConfig,
     ): Seq[Split] = get(ft, body, spaceIndents)(classicNoBreakFunc)(x =>
-      withIndent(nlSplitFunc(x), ft, body),
+      withIndent(nlSplitFunc(x), ft, body, endFt),
     )
 
-    def withIndent(nlSplit: Split, ft: FormatToken, body: Tree)(implicit
+    def withIndent(nlSplit: Split, ft: FormatToken, endFt: FormatToken)(implicit
         style: ScalafmtConfig,
-    ): Split = asInfixApp(body).fold {
-      val lastFt = getLast(body)
+    ): Split = {
       val right = nextNonComment(ft).right
       val rpOpt = if (right.is[T.LeftParen]) matchingOpt(right) else None
-      val expireFt = rpOpt.fold(lastFt) { rp =>
-        if (rp.end >= lastFt.left.end) before(rp) else lastFt
+      val expire = nextNonCommentSameLine(rpOpt.fold(endFt) { rp =>
+        if (rp.end >= endFt.left.end) before(rp) else endFt
+      })
+      nlSplit.withIndent(Num(style.indent.main), expire.left, ExpiresOn.After)
+    }
+
+    def withIndent(
+        nlSplit: Split,
+        ft: FormatToken,
+        body: Tree,
+        endFt: => FormatToken,
+    )(implicit style: ScalafmtConfig): Split = asInfixApp(body)
+      .fold(withIndent(nlSplit, ft, endFt)) { app =>
+        InfixSplits.withNLIndent(nlSplit)(app, ft)
       }
-      val expire = nextNonCommentSameLine(expireFt).left
-      nlSplit.withIndent(Num(style.indent.main), expire, ExpiresOn.After)
-    }(app => InfixSplits.withNLIndent(nlSplit)(app, ft))
 
   }
 
