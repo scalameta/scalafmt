@@ -2594,7 +2594,9 @@ class Router(formatOps: FormatOps) {
           if (noSlb) Split(Space, 0).withOptimalToken(ft.right)
           else Split(Space, 0).withSingleLine(expire)
         }
-      }(Split(Newline2x(ft), _).withIndent(style.indent.main, expire, After))
+      } { cost =>
+        CtrlBodySplits.withIndent(Split(Newline2x(ft), cost), ft, endFt)
+      }
     }
   }
 
