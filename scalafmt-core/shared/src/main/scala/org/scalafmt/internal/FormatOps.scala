@@ -1663,7 +1663,7 @@ class FormatOps(
 
     def withIndent(nlSplit: Split, ft: FormatToken, endFt: FormatToken)(implicit
         style: ScalafmtConfig,
-    ): Split = {
+    ): Split = withNLPolicy(endFt) {
       val right = nextNonComment(ft).right
       val rpOpt = if (right.is[T.LeftParen]) matchingOpt(right) else None
       val expire = nextNonCommentSameLine(rpOpt.fold(endFt) { rp =>
@@ -1683,6 +1683,18 @@ class FormatOps(
       }
 
   }
+
+  def withNLPolicy(endFt: FormatToken)(nlSplit: Split): Split = nlSplit
+    .andPolicy(nextNonCommentSameLine(endFt) match {
+      case FormatToken(_, x: T.Keyword, _) => decideNewlinesOnlyBeforeToken(x)
+      case ft @ FormatToken(_, x: T.Semicolon, _) =>
+        val semiFt = nextNonCommentSameLineAfter(ft)
+        val semi = semiFt.left
+        if (semiFt.noBreak || (semi eq x) && !semiFt.right.is[T.Comment])
+          decideNewlinesOnlyAfterToken(semi)
+        else NoPolicy
+      case _ => NoPolicy
+    })
 
   // Redundant () delims around case statements
   def isCaseBodyEnclosedAsBlock(ft: FormatToken, caseStat: CaseTree)(implicit

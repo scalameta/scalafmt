@@ -8490,7 +8490,8 @@ object a {
   val foo =
     for (
       barBarBarBarBarBarBarBarBar <-
-        bars; baz <- bazs if qux
+        bars;
+      baz <- bazs if qux
     )
       yield baz
 }
@@ -8608,5 +8609,6 @@ object a {
 >>>
 object a {
   val foo =
-    barBarBarBarBarBarBar; val baz = foo
+    barBarBarBarBarBarBar;
+  val baz = foo
 }
