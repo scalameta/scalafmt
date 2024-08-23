@@ -4792,6 +4792,8 @@ Default formatting:
 0x1Abl
 10E-1
 10e-1D
+0B111
+0b111l
 ```
 
 Each `literals.*` setting has three available options: `Upper`, `Lower`,
@@ -4867,6 +4869,24 @@ literals.long=Upper
 ---
 0xaAaA
 0xaAaAl
+```
+
+### `literals.binPrefix`
+
+> Since v3.8.4.
+
+```scala mdoc:defaults
+literals.binPrefix
+```
+
+Responsible for the case of binary integer literals prefix `0b`
+
+```scala mdoc:scalafmt
+literals.binPrefix=Lower
+literals.long=Upper
+---
+0B111
+0B111l
 ```
 
 ### `literals.scientific`
