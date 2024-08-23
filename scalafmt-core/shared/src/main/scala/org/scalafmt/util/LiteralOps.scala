@@ -14,15 +14,21 @@ object LiteralOps {
     *   - FF123 is a body
     *   - L is a long suffix
     *
+    * and for 0b1010L
+    *   - 0b is a bin prefix
+    *   - 1010 is a body
+    *   - L is a long suffix
+    *
     * Then
-    *   - literals.hexPrefix applies to prefix
-    *   - literals.hexDigits applies to body and
+    *   - literals.hexPrefix or literals.binPrefix applies to prefix
+    *   - literals.hexDigits applies to body (if hex) and
     *   - literals.long applies to suffix
     */
   def prettyPrintInteger(str: String)(implicit style: ScalafmtConfig): String =
-    if (str.endsWith("L") || str.endsWith("l")) prettyPrintHex(str.dropRight(1)) +
-      style.literals.long.process(str.takeRight(1))
-    else prettyPrintHex(str)
+    if (str.endsWith("L") || str.endsWith("l"))
+      prettyPrintHexOrBin(str.dropRight(1)) +
+        style.literals.long.process(str.takeRight(1))
+    else prettyPrintHexOrBin(str)
 
   def prettyPrintFloat(str: String)(implicit style: ScalafmtConfig): String =
     prettyPrintFloatingPoint(str, 'F', 'f', style.literals.float)
@@ -53,10 +59,12 @@ object LiteralOps {
       suffixCase.process(str.takeRight(1))
     else style.literals.scientific.process(str)
 
-  private def prettyPrintHex(
+  private def prettyPrintHexOrBin(
       str: String,
   )(implicit style: ScalafmtConfig): String =
     if (str.startsWith("0x") || str.startsWith("0X")) style.literals.hexPrefix
       .process(str.take(2)) + style.literals.hexDigits.process(str.drop(2))
-    else str // not a hex literal
+    else if (str.startsWith("0b") || str.startsWith("0B")) style.literals
+      .binPrefix.process(str.take(2)) + str.drop(2)
+    else str // not a hex or bin literal
 }
