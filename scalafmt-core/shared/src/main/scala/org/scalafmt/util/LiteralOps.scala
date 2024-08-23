@@ -61,10 +61,13 @@ object LiteralOps {
 
   private def prettyPrintHexOrBin(
       str: String,
-  )(implicit style: ScalafmtConfig): String =
-    if (str.startsWith("0x") || str.startsWith("0X")) style.literals.hexPrefix
-      .process(str.take(2)) + style.literals.hexDigits.process(str.drop(2))
-    else if (str.startsWith("0b") || str.startsWith("0B")) style.literals
-      .binPrefix.process(str.take(2)) + str.drop(2)
-    else str // not a hex or bin literal
+  )(implicit style: ScalafmtConfig): String = {
+    val (prefix, body) = str.splitAt(2)
+    prefix match {
+      case "0x" | "0X" => style.literals.hexPrefix.process(prefix) +
+          style.literals.hexDigits.process(body)
+      case "0b" | "0B" => style.literals.binPrefix.process(prefix) + body
+      case _ => str
+    }
+  }
 }

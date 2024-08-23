@@ -4873,6 +4873,8 @@ literals.long=Upper
 
 ### `literals.binPrefix`
 
+> Since v3.8.4.
+
 ```scala mdoc:defaults
 literals.binPrefix
 ```
