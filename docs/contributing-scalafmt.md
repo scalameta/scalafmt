@@ -5,7 +5,6 @@ title: Contributing
 
 ## Compiling project
 
-- It's recommended to use Java 8, the project has not been tested with Java 11.
 - The project is built with `sbt`, to install sbt see https://www.scala-sbt.org/
 - Use `sbt tests/test` instead of `sbt test`, the former runs modestly fast unit
   tests for the JVM while `sbt test` is slower because it runs cross-platform
