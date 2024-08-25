@@ -58,7 +58,9 @@ private object ScalafmtDynamicSession {
   ): ScalafmtDynamicSession = {
     val newcfg = {
       if (!cfg.needGitAutoCRLF) None
-      else GitOps.FactoryImpl(AbsoluteFile(config.getParent)).getAutoCRLF
+      else GitOps.FactoryImpl(
+        Option(config.getParent).fold(AbsoluteFile.userDir)(AbsoluteFile.apply),
+      ).getAutoCRLF
     }.fold(cfg)(cfg.withGitAutoCRLF)
     new ScalafmtDynamicSession(properties, newcfg)
   }
