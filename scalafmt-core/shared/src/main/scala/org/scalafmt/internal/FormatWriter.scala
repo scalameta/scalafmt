@@ -651,7 +651,7 @@ class FormatWriter(formatOps: FormatOps) {
         protected class WordFormatter(
             appendLineBreak: () => Unit,
             extraMargin: String = " ",
-            prefixFirstWord: String => String = _ => "",
+            likeNonText: String => Boolean = _ => false,
         ) {
           final def apply(
               iter: WordIter,
@@ -678,19 +678,16 @@ class FormatWriter(formatOps: FormatOps) {
               val word = iter.next()
               var lines = linesSoFar
               var nextLineBeg = lineBeg
-              def firstWordPrefix = prefixFirstWord(word)
               def nextLineLength = 1 + word.length + sb.length - lineBeg
               if (atLineBeg) {
                 if (needSpaceIfAtLineBeg) sb.append(' ')
-                sb.append(firstWordPrefix)
-              } else if (nextLineLength <= maxLength) sb.append(' ')
-              else {
+                if (likeNonText(word)) sb.append('\\')
+              } else if (nextLineLength > maxLength && !likeNonText(word)) {
                 appendLineBreak()
                 lines += 1
                 nextLineBeg = sb.length
                 sb.append(extraMargin)
-                sb.append(firstWordPrefix)
-              }
+              } else sb.append(' ')
               sb.append(word)
               iterate(iter, nextLineBeg, lines)
             } else linesSoFar
@@ -949,18 +946,15 @@ class FormatWriter(formatOps: FormatOps) {
             termIndent: String,
             lineLengthSoFar: Int = 0,
         ): Unit = {
-          def prefixFirstWord(word: String): String = {
-            def likeNonText = word.startsWith("```") ||
-              word.startsWith("~~~") || // code fence
+          def likeNonText(word: String): Boolean = // if parser can be confused
+            word.startsWith("```") || word.startsWith("~~~") || // code fence
               word.startsWith("@") || // tag
               word.startsWith("=") || // heading
               word.startsWith("|") || word.startsWith("+-") || // table
               word == "-" || // list, this and next
               word.length == 2 && word(1) == '.' && "1aiI".contains(word(0))
-            if (likeNonText) "\\" else "" // escape if parser can be confused
-          }
 
-          val wf = new WordFormatter(appendBreak, termIndent, prefixFirstWord)
+          val wf = new WordFormatter(appendBreak, termIndent, likeNonText)
           val words = text.parts.iterator.map(_.syntax)
           val lineLength = math.max(lineLengthSoFar, termIndent.length)
           wf(words, lineLength, lineLengthSoFar == 0, false)
