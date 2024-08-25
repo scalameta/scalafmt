@@ -3455,3 +3455,21 @@ def foo = ()
  *   j k l m n
  */
 def foo = ()
+<<< don't break before words which look like a scaladoc element
+docstrings.wrap = fold
+docstrings.style = Asterisk
+maxColumn = 10
+===
+/** foo
+  * barBar - bazBaz
+  */
+def foo = ()
+>>>
+/**
+ * foo
+ * barBar
+ * \-
+ * bazBaz
+ */
+def foo =
+  ()
