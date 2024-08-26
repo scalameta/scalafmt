@@ -364,7 +364,7 @@ class FormatWriter(formatOps: FormatOps) {
       @tailrec
       def noAnnoFor(tree: Tree): Boolean = tree.parent match {
         case Some(p @ (_: Term | _: Term.ArgClause)) => noAnnoFor(p)
-        case Some(p: Init) => !p.parent.exists(_.is[Mod.Annot])
+        case Some(p: Init) => !p.parent.is[Mod.Annot]
         case _ => true
       }
       val style = floc.style

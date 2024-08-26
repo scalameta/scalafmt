@@ -64,8 +64,7 @@ object TokenOps {
     findLastVisibleTokenOpt(tokens).getOrElse(tokens.last)
 
   @inline
-  def withNoIndent(ft: FormatToken): Boolean = ft.between.lastOption
-    .exists(_.is[AtEOL])
+  def withNoIndent(ft: FormatToken): Boolean = ft.between.lastOption.is[AtEOL]
 
   @inline
   def rhsIsCommentedOut(ft: FormatToken): Boolean = ft.right.is[Comment] &&
