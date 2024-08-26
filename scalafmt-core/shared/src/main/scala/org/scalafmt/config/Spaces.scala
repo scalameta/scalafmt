@@ -73,7 +73,7 @@ case class Spaces(
         case Spaces.AfterColonInMatchPattern.Never => true
         case Spaces.AfterColonInMatchPattern.Always => false
         case Spaces.AfterColonInMatchPattern.NoAlternatives => x.parent
-            .exists(_.is[meta.Pat.Alternative])
+            .is[meta.Pat.Alternative]
       }
     case _ => false
   }

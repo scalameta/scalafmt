@@ -182,12 +182,12 @@ class Router(formatOps: FormatOps) {
           Split(Newline, cost).withIndents(alignIndents.getOrElse(mainIndents))
             .withPolicy(decideNewlinesOnlyBeforeClose(close))
         }
-        def isSimpleInterpolate = (leftOwner match {
+        def isSimpleInterpolate = !(leftOwner match {
           case t: Pat.Interpolate => findArgAfter(open.end, t.args)
           case t: Term.Interpolate => findArgAfter(open.end, t.args)
           case t: Term.Block => getBlockSingleStat(t)
           case _ => None
-        }).exists(!_.is[Term.If])
+        }).isOpt[Term.If]
 
         style.newlines.inInterpolation match {
           case Newlines.InInterpolation.avoid => Seq(spaceSplit)
@@ -639,7 +639,7 @@ class Router(formatOps: FormatOps) {
           // see:
           // https://github.com/scalameta/scalafmt/pull/1516
           // https://github.com/scalameta/scalafmt/issues/1528
-          case t: Init => t.parent.forall(_.is[Mod.Annot])
+          case t: Init => t.parent.isOpt[Mod.Annot]
           case Term.Name(name) => style.spaces.afterTripleEquals &&
             name == "===" ||
             (rightOwner match {
@@ -649,7 +649,7 @@ class Router(formatOps: FormatOps) {
               case _ => false
             })
           case _: Defn.ExtensionGroup => style.spaces.afterKeywordBeforeParen &&
-            soft.KwExtension.unapply(left)
+            soft.KwExtension.matches(left)
           case _ => false
         })
         def baseNoSplit(implicit fileLine: FileLine) = Split(modification, 0)

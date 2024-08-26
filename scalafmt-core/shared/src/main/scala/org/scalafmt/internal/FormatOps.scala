@@ -1056,7 +1056,7 @@ class FormatOps(
       tokens.foreach {
         case ft @ FormatToken(_: T.LeftParen | _: T.LeftBracket, _, m) =>
           m.leftOwner match {
-            case t: Member.ArgClause if !t.parent.exists(_.is[Member.Infix]) =>
+            case t: Member.ArgClause if !t.parent.is[Member.Infix] =>
               process(t, ft)(callSite)
             case t: Member.ParamClause => process(t, ft)(defnSite)
             case t: Type.FuncParamClause => process(t, ft)(defnSite)
@@ -1387,9 +1387,7 @@ class FormatOps(
     ok &&
     (thisTree match {
       case _: Term.Match => // like select and apply in one
-        val hasBrace = nextNonComment(tokens(thisSelectLike.nameToken)).right
-          .is[T.LeftBrace]
-        !hasBrace ||
+        !tokenAfter(thisSelectLike.nameToken).right.is[T.LeftBrace] ||
         style.includeCurlyBraceInSelectChains &&
         nextSelect.isDefined && !nextSelect.contains(lastApply)
       case _ => checkParent
@@ -1983,7 +1981,7 @@ class FormatOps(
                 case Indents.FewerBraces.never => true
                 case Indents.FewerBraces.always => false
                 case Indents.FewerBraces.beforeSelect =>
-                  !p.parent.exists(_.is[Term.Select])
+                  !p.parent.is[Term.Select]
               }) || isSelect(p)
             if (ok) None // select is taken care off elsewhere
             else Some(style.indent.main + style.indent.getSignificant)
@@ -2692,7 +2690,7 @@ class FormatOps(
       // take last arg when multiple
       case x => getArgsOrNil(x).view.drop(1).lastOption match {
           case None | Some(_: Term.Repeated) => false
-          case Some(t: Term.Param) => !t.decltpe.exists(_.is[Type.Repeated])
+          case Some(t: Term.Param) => !t.decltpe.is[Type.Repeated]
           case _ => true
         }
     }

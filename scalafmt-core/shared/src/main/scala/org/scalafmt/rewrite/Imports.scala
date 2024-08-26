@@ -368,9 +368,8 @@ object Imports extends RewriteFactory {
       case t: Importee.Unimport => Some(t.name)
       case _ => None
     }).exists { x =>
-      val tokenAfter = ctx.tokenTraverser.nextNonTrivialToken(x.tokens.last)
       // in scala3, `as` doesn't need braces
-      tokenAfter.exists(_.is[Token.RightArrow])
+      ctx.tokenTraverser.nextNonTrivialToken(x.tokens.last).is[Token.RightArrow]
     }
 
     protected final def getCommentsAround(

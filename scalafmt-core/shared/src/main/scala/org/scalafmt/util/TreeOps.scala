@@ -375,7 +375,7 @@ object TreeOps {
     new FormatToken.ExtractFromMeta(x => colonDeclType(x.rightOwner))
 
   def isParamClauseSite(tree: Tree): Boolean = tree match {
-    case _: Type.ParamClause => !tree.parent.exists(_.is[Type.Lambda])
+    case _: Type.ParamClause => !tree.parent.is[Type.Lambda]
     case _: Term.ParamClause => tree.parent match {
         case Some(p: Term.FunctionTerm) => !isSeqSingle(p.paramClause.values)
         case _ => true
@@ -402,7 +402,7 @@ object TreeOps {
     token.end
 
   def isArgClauseSite(tree: Tree): Boolean = tree match {
-    case t: Member.ArgClause => !t.parent.exists(_.is[Member.Infix]) ||
+    case t: Member.ArgClause => !t.parent.is[Member.Infix] ||
       (t.values match {
         case (_: Term.Assign | _: Lit.Unit) :: Nil => true
         case Nil | _ :: Nil => false
@@ -416,7 +416,7 @@ object TreeOps {
 
   def noSpaceBeforeOpeningParen(tree: Tree): Boolean = tree match {
     case _: Term.Super => true
-    case t: Member.ArgClause => !t.parent.exists(_.is[Member.Infix])
+    case t: Member.ArgClause => !t.parent.is[Member.Infix]
     case _: Member.ParamClause => tree.parent.exists {
         case _: Term.FunctionTerm => false
         case t: Ctor.Primary => t.mods.isEmpty ||
@@ -534,7 +534,7 @@ object TreeOps {
 
   def isXmlBrace(owner: Tree): Boolean = owner match {
     case _: Term.Xml | _: Pat.Xml => true
-    case b: Term.Block => b.parent.exists(_.isInstanceOf[Term.Xml])
+    case b: Term.Block => b.parent.is[Term.Xml]
     case _ => false
   }
 
@@ -620,8 +620,7 @@ object TreeOps {
   def getTreeLineSpan(pos: Position): Int =
     if (pos.isEmpty) 0 else pos.endLine - pos.startLine
 
-  def hasSingleTermStat(t: Term.Block): Boolean = getBlockSingleStat(t)
-    .exists(_.is[Term])
+  def hasSingleTermStat(t: Term.Block): Boolean = getBlockSingleStat(t).is[Term]
 
   def hasSingleTermStatIfBlock(t: Tree): Boolean = t match {
     case b: Term.Block => hasSingleTermStat(b)
@@ -1011,7 +1010,7 @@ object TreeOps {
       case _ => false
     })
 
-  def isParentAnApply(t: Tree): Boolean = t.parent.exists(_.is[Term.Apply])
+  def isParentAnApply(t: Tree): Boolean = t.parent.is[Term.Apply]
 
   def isTreeOrBlockParent(owner: Tree)(pred: Tree => Boolean): Boolean =
     if (owner.is[Term.Block]) owner.parent.exists(pred) else pred(owner)

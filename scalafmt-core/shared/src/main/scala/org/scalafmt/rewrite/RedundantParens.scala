@@ -144,8 +144,8 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   private def okToReplaceOther(
       t: Tree,
   )(implicit style: ScalafmtConfig): Boolean = t match {
-    case _: Lit => t.tokens.length == 1 || !t.parent.exists(_.is[Term.Ref])
-    case _: Term.ApplyUnary => !t.parent.exists(_.is[Term.Ref])
+    case _: Lit => t.tokens.length == 1 || !t.parent.is[Term.Ref]
+    case _: Term.ApplyUnary => !t.parent.is[Term.Ref]
     case _: Member.Apply | _: Term.Interpolate | _: Term.PartialFunction => true
     case t: Term.Select => isSelectWithDot(t)
     case _: Ref => true // Ref must be after Select and ApplyUnary
@@ -159,8 +159,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
       t: Member.ArgClause,
   )(implicit style: ScalafmtConfig): Boolean = t.values match {
     case arg :: Nil => arg match {
-        case _: Term.Block | _: Term.PartialFunction => t.parent
-            .exists(!_.is[Init])
+        case _: Term.Block | _: Term.PartialFunction => !t.parent.isOpt[Init]
         case _: Lit.Unit | _: Member.Tuple => false
         case t: Term.Select if !isSelectWithDot(t) => false
         case _ => t.parent.exists {

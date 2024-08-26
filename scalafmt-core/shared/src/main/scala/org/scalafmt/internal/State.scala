@@ -299,7 +299,7 @@ final case class State(
           case _: Token.KwMatch => tok.meta.rightOwner.is[Term.Match] &&
             allowed.contains(Indents.RelativeToLhs.`match`)
           case _: Token.Ident => tok.meta.rightOwner.parent
-              .exists(_.is[Term.ApplyInfix]) &&
+              .is[Term.ApplyInfix] &&
             allowed.contains(Indents.RelativeToLhs.`infix`)
           case _ => false
         })

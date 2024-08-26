@@ -65,14 +65,13 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
             replaceTokenIdent("*", ft.right)
           case t: Type.Wildcard
               if dialect.allowQuestionMarkAsTypeWildcard &&
-                t.parent.exists(_.is[Type.ArgClause]) =>
-            replaceTokenIdent("?", ft.right)
+                t.parent.is[Type.ArgClause] => replaceTokenIdent("?", ft.right)
           case t: Term.Repeated
               if dialect.allowPostfixStarVarargSplices && isSimpleRepeated(t) =>
             removeToken // see above, under Colon
           case t: Pat.SeqWildcard
               if dialect.allowPostfixStarVarargSplices &&
-                t.parent.exists(_.is[Pat.Bind]) => removeToken // see above, under At
+                t.parent.is[Pat.Bind] => removeToken // see above, under At
           case _ => null
         }
 

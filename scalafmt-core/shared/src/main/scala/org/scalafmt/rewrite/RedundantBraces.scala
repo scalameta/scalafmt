@@ -139,8 +139,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     // single-arg apply of a partial function
     // a({ case b => c; d }) change to a { case b => c; d }
     def lpPartialFunction = rtOwner match {
-      case ta @ Term.ArgClause(arg :: Nil, _)
-          if !ta.parent.exists(_.is[Init]) =>
+      case ta @ Term.ArgClause(arg :: Nil, _) if !ta.parent.is[Init] =>
         getOpeningParen(ta).map { lp =>
           if (lp.ne(rt) || getBlockNestedPartialFunction(arg).isEmpty) null
           else ftoks.nextNonCommentAfter(ft) match {
@@ -469,9 +468,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     case t: Term.NewAnonymous =>
       // can't allow: new A with B .foo
       // can allow if: no ".foo", no "with B", or has braces
-      !b.parent.exists(_.is[Term.Select]) ||
-      t.templ.inits.lengthCompare(1) <= 0 || t.templ.stats.nonEmpty ||
-      t.tokens.last.is[Token.RightBrace]
+      !b.parent.is[Term.Select] || t.templ.inits.lengthCompare(1) <= 0 ||
+      t.templ.body.stats.nonEmpty || t.tokens.last.is[Token.RightBrace]
     case _: Term => true
     case _ => false
   }
@@ -484,7 +482,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         !fb.is[Term.Block] ||
         // don't rewrite block if the inner block will be rewritten, too
         // sometimes a function body block doesn't have braces
-        fb.tokens.headOption.exists(_.is[Token.LeftBrace]) &&
+        fb.tokens.headOption.is[Token.LeftBrace] &&
         !okToRemoveAroundFunctionBody(fb, true)
       }
     case _: Term.Assign => false // f({ a = b }) is not the same as f(a = b)

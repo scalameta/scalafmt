@@ -327,7 +327,7 @@ object BestFirstSearch {
         if (x eq expire) expire = null else result += x
       case FormatToken(t: Token.LeftParen, _, m) if (m.leftOwner match {
             // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
-            case lo: Term.ArgClause => !lo.parent.exists(_.is[Term.ApplyInfix])
+            case lo: Term.ArgClause => !lo.parent.is[Term.ApplyInfix]
             case _: Term.Apply => true // legacy: when enclosed in parens
             case _ => false
           }) => expire = tokens.matching(t)

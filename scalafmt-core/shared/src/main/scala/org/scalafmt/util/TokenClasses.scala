@@ -32,11 +32,11 @@ object LeftParenOrBrace extends TokenClassifier {
 
 class SoftKeywordClasses(dialect: Dialect) extends SoftKeywords(dialect) {
   object ImplicitOrUsing extends TokenClassifier {
-    def matches(tok: Token): Boolean = tok.is[KwImplicit] || KwUsing.unapply(tok)
+    def matches(tok: Token): Boolean = tok.is[KwImplicit] || KwUsing.matches(tok)
   }
 
   object ExtendsOrDerives extends TokenClassifier {
     def matches(tok: Token): Boolean = tok.is[KwExtends] ||
-      KwDerives.unapply(tok)
+      KwDerives.matches(tok)
   }
 }

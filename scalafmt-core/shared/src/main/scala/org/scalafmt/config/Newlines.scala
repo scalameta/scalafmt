@@ -461,7 +461,7 @@ object Newlines {
       }
     }
     case object anyMember extends ForceBeforeMultilineAssign {
-      def apply(tree: Tree): Boolean = tree.parent.exists(_.is[Template.Body])
+      def apply(tree: Tree): Boolean = tree.parent.is[Template.Body]
     }
     case object topMember extends ForceBeforeMultilineAssign {
       def apply(tree: Tree): Boolean = {
