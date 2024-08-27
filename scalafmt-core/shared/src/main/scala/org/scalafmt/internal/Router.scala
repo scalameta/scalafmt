@@ -337,21 +337,24 @@ class Router(formatOps: FormatOps) {
           case Newlines.keep if hasBreak() => None
           case Newlines.unfold => None
           case Newlines.fold =>
-            val isTopLevelBlock = leftOwner.parent.exists(_.parent.isEmpty) ||
-              (leftOwner match {
-                case t: Template =>
-                  // false for
-                  // new A { () =>
-                  //   println("A")
-                  // }
-                  // but true for
-                  // new A {
-                  //   def f = x
-                  // }
-                  !t.parent.exists(_.is[Term.NewAnonymous]) ||
-                  t.stats.exists(_.is[Defn])
-                case _ => false
-              })
+            val isTopLevelBlock = leftOwner match {
+              case t: Template =>
+                // false for
+                // new A { () =>
+                //   println("A")
+                // }
+                // but true for
+                // new A {
+                //   def f = x
+                // }
+                t.parent.forall { p =>
+                  !p.is[Term.NewAnonymous] || p.parent.isEmpty
+                } || t.stats.exists(_.is[Defn])
+              case t => t.parent.forall {
+                  case _: Pkg | _: Source => true
+                  case p => p.parent.isEmpty
+                }
+            }
 
             // do not fold top-level blocks
             if (isTopLevelBlock) None
