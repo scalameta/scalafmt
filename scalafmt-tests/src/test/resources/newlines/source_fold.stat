@@ -3519,12 +3519,54 @@ a {
 a { case (k, v) =>
   (k -> v)
 }
-<<< #2137 non-matching parens
+<<< #2137 non-matching parens, top-level
 a match {
   case (k, v) => () => k(v)
 }
 >>>
 a match { case (k, v) => () => k(v) }
+<<< #2137 non-matching parens, inside object
+object foo {
+  a match {
+    case (k, v) => () => k(v)
+  }
+}
+>>>
+object foo {
+  a match { case (k, v) => () => k(v) }
+}
+<<< #2137 non-matching parens, at source level
+runner.parser = source
+===
+a match {
+  case (k, v) => () => k(v)
+}
+>>>
+a match {
+  case (k, v) => () => k(v)
+}
+<<< #2137 non-matching parens, at source level, inside top-level package
+runner.parser = source
+===
+package foo
+a match {
+  case (k, v) => () => k(v)
+}
+>>>
+package foo
+a match { case (k, v) => () => k(v) }
+<<< #2137 non-matching parens, inside indented package
+package foo {
+  a match {
+    case (k, v) => () => k(v)
+  }
+}
+>>>
+package foo {
+  a match {
+    case (k, v) => () => k(v)
+  }
+}
 <<< #2137 empty parens
 maxColumn = 17
 ===
