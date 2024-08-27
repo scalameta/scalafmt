@@ -107,8 +107,9 @@ try {
 >>>
 try {
   a
-} catch { case b => ; case c => }
-finally {
+} catch {
+  case b => ; case c =>
+} finally {
   d
 }
 <<< 1.a: block, class
@@ -3524,7 +3525,9 @@ a match {
   case (k, v) => () => k(v)
 }
 >>>
-a match { case (k, v) => () => k(v) }
+a match {
+  case (k, v) => () => k(v)
+}
 <<< #2137 non-matching parens, inside object
 object foo {
   a match {
@@ -3554,7 +3557,9 @@ a match {
 }
 >>>
 package foo
-a match { case (k, v) => () => k(v) }
+a match {
+  case (k, v) => () => k(v)
+}
 <<< #2137 non-matching parens, inside indented package
 package foo {
   a match {
