@@ -2804,6 +2804,11 @@ class FormatOps(
     }
   }
 
+  def indentedPackage(pkg: Pkg): Boolean = tokenAfter(pkg.ref).right match {
+    case _: T.LeftBrace | _: T.Colon => true
+    case _ => false
+  }
+
 }
 
 object FormatOps {
