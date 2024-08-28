@@ -70,6 +70,12 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
   private[scalafmt] def withIdx(idx: Int): FormatToken =
     copy(meta = meta.copy(idx = idx))
 
+  @inline
+  def idx: Int = meta.idx
+  @inline
+  def leftOwner: Tree = meta.leftOwner
+  @inline
+  def rightOwner: Tree = meta.rightOwner
 }
 
 object FormatToken {
