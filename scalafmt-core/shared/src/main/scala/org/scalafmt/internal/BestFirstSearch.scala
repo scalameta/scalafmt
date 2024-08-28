@@ -140,8 +140,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         val noBlockClose = start == curr && 0 != maxCost || !noOptZone ||
           !style.runner.optimizer.recurseOnBlocks
         val blockClose =
-          if (noBlockClose) None
-          else getBlockCloseToRecurse(tokens.prev(splitToken), stop)
+          if (noBlockClose) None else getBlockCloseToRecurse(splitToken, stop)
         if (blockClose.nonEmpty) blockClose.foreach { end =>
           shortestPathMemo(curr, end, depth + 1, maxCost).foreach(enqueue)
         }
