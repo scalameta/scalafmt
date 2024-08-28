@@ -2559,10 +2559,15 @@ class FormatOps(
 
   def getEndOfBlock(ft: FormatToken, parensToo: Boolean)(implicit
       style: ScalafmtConfig,
-  ): Option[T] = ft.left match {
-    case x: T.LeftBrace => matchingOpt(x)
-    case x: T.LeftParen => if (parensToo) matchingOpt(x) else None
-    case _ => OptionalBraces.get(ft).flatMap(_.rightBrace)
+  ): Option[T] = getEndOfBlockOrOptionalBraces(ft, parensToo).map(_.merge)
+
+  def getEndOfBlockOrOptionalBraces(ft: FormatToken, parensToo: Boolean = false)(
+      implicit style: ScalafmtConfig,
+  ): Option[Either[T, T]] = ft.left match {
+    case x: T.LeftBrace => matchingOpt(x).map(Right.apply)
+    case x: T.LeftParen =>
+      if (parensToo) matchingOpt(x).map(Right.apply) else None
+    case _ => OptionalBraces.get(ft).flatMap(_.rightBrace.map(Left.apply))
   }
 
   def isCloseDelimForTrailingCommasMultiple(ft: FormatToken): Boolean =

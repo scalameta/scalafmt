@@ -55,15 +55,14 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   private def getBlockCloseToRecurse(ft: FormatToken, stop: Token)(implicit
       style: ScalafmtConfig,
-  ): Option[Token] =
-    if (style.runner.optimizer.recurseOnBlocks) {
-      val prev = tokens.prev(ft)
-      getEndOfBlock(prev, false).filter { close =>
-        // Block must span at least 3 lines to be worth recursing.
-        close != stop && distance(prev.left, close) > style.maxColumn * 3 &&
-        extractStatementsIfAny(prev.meta.leftOwner).nonEmpty
-      }
-    } else None
+  ): Option[Token] = getEndOfBlockOrOptionalBraces(ft).flatMap {
+    case Left(x) => Some(x)
+    case Right(x) =>
+      if (extractStatementsIfAny(ft.meta.leftOwner).isEmpty) None else Some(x)
+  }.filter { close =>
+    // Block must span at least 3 lines to be worth recursing.
+    close != stop && distance(ft.left, close) > style.maxColumn * 3
+  }
 
   private val memo = mutable.Map.empty[Long, State]
 
@@ -138,9 +137,11 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             (leftTok.is[Token.KwElse] || statementStarts.contains(curr.depth))
           ) addGeneration()
 
+        val noBlockClose = start == curr && 0 != maxCost || !noOptZone ||
+          !style.runner.optimizer.recurseOnBlocks
         val blockClose =
-          if (start == curr && 0 != maxCost || !noOptZone) None
-          else getBlockCloseToRecurse(splitToken, stop)
+          if (noBlockClose) None
+          else getBlockCloseToRecurse(tokens.prev(splitToken), stop)
         if (blockClose.nonEmpty) blockClose.foreach { end =>
           shortestPathMemo(curr, end, depth + 1, maxCost).foreach(enqueue)
         }
