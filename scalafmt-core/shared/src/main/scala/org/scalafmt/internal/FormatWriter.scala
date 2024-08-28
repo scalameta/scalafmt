@@ -1561,11 +1561,6 @@ class FormatWriter(formatOps: FormatOps) {
       extraBlankMap.toMap
     }
 
-    def indentedPackage(pkg: Pkg) = tokenAfter(pkg.ref).right match {
-      case _: T.LeftBrace | _: T.Colon => true
-      case _ => false
-    }
-
     @tailrec
     final def getNest(tree: Tree, curNest: Int = 0): Int = tree.parent match {
       case Some(_: Source) | None => curNest
