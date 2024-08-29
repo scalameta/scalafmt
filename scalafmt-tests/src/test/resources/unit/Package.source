@@ -11,7 +11,26 @@ package foo
 /** comment
   */
 object a
+<<< separate by two newlines with docstring 2
+package foo
+/**
+ * comment 1
+ */
+object a1
+/**
+ * comment 2
+ */
+object a2
+>>>
+package foo
 
+/** comment 1
+  */
+object a1
+
+/** comment 2
+  */
+object a2
 <<< separate by two newlines
 package foo
 object a
