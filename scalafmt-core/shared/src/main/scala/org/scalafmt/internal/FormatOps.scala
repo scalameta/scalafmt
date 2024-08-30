@@ -1236,12 +1236,27 @@ class FormatOps(
       (style.newlines.okSpaceForSource(newlines, !blanks), Newline2x(blanks))
   }
 
-  def getNoSplit(ft: FormatToken, spaceOk: Boolean)(implicit
-      style: ScalafmtConfig,
-  ): Modification = ft.right match {
+  def getNoSplitAfterOpening(
+      ft: FormatToken,
+      commentNL: Modification,
+      spaceOk: Boolean = true,
+  )(implicit style: ScalafmtConfig): Modification = ft.right match {
     case _: T.Comment =>
       val isDetachedSlc = ft.hasBreak && isBreakAfterRight(ft)
-      if (isDetachedSlc || ft.rightHasNewline) null else Space
+      if (isDetachedSlc || ft.rightHasNewline) commentNL else Space
+    case _: T.LeftParen if ft.meta.rightOwner eq ft.meta.leftOwner => NoSplit
+    case _ => Space(spaceOk && style.spaces.inParentheses)
+  }
+
+  def getNoSplitBeforeClosing(
+      ft: FormatToken,
+      commentNL: Modification,
+      spaceOk: Boolean = true,
+  )(implicit style: ScalafmtConfig): Modification = ft.left match {
+    case _: T.Comment =>
+      val isDetachedSlc = ft.hasBreak && prev(ft).hasBreak
+      if (isDetachedSlc || ft.leftHasNewline) commentNL else Space
+    case _: T.RightParen if ft.meta.rightOwner eq ft.meta.leftOwner => NoSplit
     case _ => Space(spaceOk && style.spaces.inParentheses)
   }
 

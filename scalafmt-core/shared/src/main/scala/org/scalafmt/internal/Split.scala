@@ -311,4 +311,7 @@ object Split {
       fileLine: FileLine,
   ): Split = if (ignore) ignored else Split(modExt, cost)
 
+  def opt(mod: Modification, cost: Int)(implicit fileLine: FileLine): Split =
+    if (mod eq null) ignored else Split(mod, cost)
+
 }
