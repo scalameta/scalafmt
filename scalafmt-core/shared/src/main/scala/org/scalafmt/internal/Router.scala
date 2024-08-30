@@ -1976,7 +1976,7 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0).withSingleLineNoOptimal(
             expire,
             insideBracesBlock(ft, expire),
-            noSyntaxNL = leftOwner.is[Term.ForYield] && right.is[T.KwYield],
+            noSyntaxNL = right.is[T.KwYield],
           )
         }(nlSplitFunc)
       case FormatToken(T.RightBrace(), T.KwElse(), _) =>
