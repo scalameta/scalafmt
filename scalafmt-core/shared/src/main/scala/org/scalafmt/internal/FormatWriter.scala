@@ -1403,14 +1403,12 @@ class FormatWriter(formatOps: FormatOps) {
       @inline
       def setFtCheck(ft: FormatToken, cnt: Int, force: => Boolean) =
         setIdxCheck(ft.meta.idx, cnt, force)
-      def setTopStats(owner: Tree, stats: Seq[Tree]): Unit = {
+      def setTopStats(owner: Tree, notUnindentedPkg: Boolean)(
+          stats: Seq[Tree],
+      ): Unit = {
         val nest = getNest(stats.head)
         if (nest < 0) return
         val end = owner.pos.end
-        val notUnindentedPkg = owner match {
-          case t: Pkg => indentedPackage(t)
-          case _ => true
-        }
         def setStat(
             stat: Tree,
             idx: Int,
@@ -1510,16 +1508,18 @@ class FormatWriter(formatOps: FormatOps) {
           setFt(trailingComment(ft, owner.pos.end))
       }
       val trav = new Traverser {
-        private def applySeq(t: Tree)(seq: Seq[Tree]): Unit =
-          if (seq.nonEmpty) {
-            setTopStats(t, seq)
-            super.apply(seq)
-          }
+        private def applySeq(t: Tree, notUnindentedPkg: Boolean = true)(
+            seq: Seq[Tree],
+        ): Unit = if (seq.nonEmpty) {
+          setTopStats(t, notUnindentedPkg)(seq)
+          super.apply(seq)
+        }
         private def applySeqWith[A <: Tree](
             t: Tree,
+            notUnindentedPkg: Boolean = true,
         )(seq: Seq[A])(f: Seq[A] => Unit): Unit = if (seq.nonEmpty) {
           f(seq)
-          setTopStats(t, seq)
+          setTopStats(t, notUnindentedPkg)(seq)
           super.apply(seq)
         }
         override def apply(tree: Tree): Unit = tree match {
@@ -1541,16 +1541,17 @@ class FormatWriter(formatOps: FormatOps) {
               beforeBody(stats)(_ => false)
               afterBody(t, stats)
             }
-          case t: Pkg => applySeqWith(t)(t.stats) { stats =>
-              if (indentedPackage(t)) {
-                beforeBody(stats)(_ => false)
-                afterBody(t, stats)
-              } else if (
-                stats.head match {
-                  case pkg: Pkg => indentedPackage(pkg)
-                  case _ => true
-                }
-              ) beforeBody(stats)(_.hasTopStatBlankLines)
+          case t: Pkg =>
+            if (indentedPackage(t)) applySeqWith(t)(t.stats) { stats =>
+              beforeBody(stats)(_ => false)
+              afterBody(t, stats)
+            }
+            else applySeqWith(t, notUnindentedPkg = false)(t.stats) { stats =>
+              val ok = stats.head match {
+                case t: Pkg => indentedPackage(t)
+                case _ => true
+              }
+              if (ok) beforeBody(stats)(_.hasTopStatBlankLines)
             }
           case t: Stat.WithTemplate => apply(t.templ)
           case _ => // everything else is not "top-level"
@@ -1565,7 +1566,7 @@ class FormatWriter(formatOps: FormatOps) {
     final def getNest(tree: Tree, curNest: Int = 0): Int = tree.parent match {
       case Some(_: Source) | None => curNest
       case Some(t: Template) => getNest(t, curNest)
-      case Some(t: Pkg) if !indentedPackage(t) => getNest(t, curNest)
+      case Some(t: Pkg) if !indentedPackage(t) => curNest
       case Some(t) => getNest(t, curNest + 1)
     }
 
