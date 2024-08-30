@@ -18,7 +18,6 @@ import org.scalafmt.util._
 
 import org.scalameta.FileLine
 import scala.meta._
-import scala.meta.classifiers.Classifier
 import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
@@ -306,22 +305,26 @@ class Router(formatOps: FormatOps) {
           }
 
         def getSingleLinePolicy = {
-          type Classifiers = Seq[Classifier[T, _]]
-          def classifiersByParent: Classifiers = leftOwner.parent match {
-            case Some(_: Term.If) => Seq(T.KwElse.classifier)
-            case Some(_: Term.Try | _: Term.TryWithHandler) =>
-              Seq(T.KwCatch.classifier, T.KwFinally.classifier)
-            case _ => Seq.empty
+          val needBreak = closeFT.right match {
+            case _: T.KwElse => closeFT.meta.rightOwner match {
+                case p: Term.If => p.thenp eq leftOwner
+                case _ => false
+              }
+            case _: T.KwCatch => closeFT.meta.rightOwner match {
+                case p: Term.Try => p.expr eq leftOwner
+                case p: Term.TryWithHandler => p.expr eq leftOwner
+                case _ => false
+              }
+            case _: T.KwFinally => closeFT.meta.rightOwner match {
+                case p: Term.Try => (p.expr eq leftOwner) ||
+                  rightOwner.is[Case] && (p eq leftOwner)
+                case p: Term.TryWithHandler => (p.expr eq leftOwner) ||
+                  (p.catchp eq leftOwner)
+                case _ => false
+              }
+            case _ => false
           }
-          val classifiers: Classifiers = leftOwner match {
-            // for catch with case, we should go up only one level
-            case _: Term.Try if rightOwner.is[Case] =>
-              Seq(T.KwFinally.classifier)
-            case _ => classifiersByParent
-          }
-
-          Policy ? classifiers.exists(_(closeFT.right)) &&
-          decideNewlinesOnlyAfterClose(close)
+          Policy ? needBreak && decideNewlinesOnlyAfterClose(close)
         }
         def getClassicSingleLineDecisionOpt =
           if (noBreak()) Some(true) else None
