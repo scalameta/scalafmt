@@ -3948,7 +3948,7 @@ a match {
         Root / "foo" | Root / "bar" |
         Root / "baz" / _ / "qux"
       ) =>
-    ( if (foo)
+    ( if ( foo )
         ( foo ) + bar
       else
         foo + ( bar ) ) + ( baz )
@@ -3971,14 +3971,14 @@ spaces.inParentheses = true
 ===
 for ((a, b) <- c.d) (((a, b)))
 >>>
-for (( a, b ) <- c.d)
+for ( ( a, b ) <- c.d )
   ((( a, b )))
 <<< #2219 with spaces, for-do with braces
 spaces.inParentheses = true
 ===
 for ((a, b) <- c.d) {{ (((a, b))) }}
 >>>
-for (( a, b ) <- c.d) {
+for ( ( a, b ) <- c.d ) {
   {
     ((( a, b )))
   }
@@ -3988,21 +3988,21 @@ spaces.inParentheses = true
 ===
 for ((a, b) <- c.d) yield (((a, b)))
 >>>
-for (( a, b ) <- c.d)
+for ( ( a, b ) <- c.d )
   yield ((( a, b )))
 <<< #2219 with spaces, while
 spaces.inParentheses = true
 ===
 while ((((a,b) < (1,1)))) (((a, b)))
 >>>
-while ((( ( a, b ) < ( 1, 1 ) )))
+while ( (( ( a, b ) < ( 1, 1 ) )) )
   ((( a, b )))
 <<< #2219 with spaces, if
 spaces.inParentheses = true
 ===
 if ((((a,b) < (1,1)))) (((a, b)))
 >>>
-if ((( ( a, b ) < ( 1, 1 ) )))
+if ( (( ( a, b ) < ( 1, 1 ) )) )
   ((( a, b )))
 <<< #2250
 danglingParentheses.callSite = true

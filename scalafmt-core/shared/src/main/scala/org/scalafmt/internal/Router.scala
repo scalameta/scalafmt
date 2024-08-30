@@ -2028,12 +2028,16 @@ class Router(formatOps: FormatOps) {
           if (style.align.openParenCtrlSite) getOpenParenAlignIndents(close)
           else Seq(Indent(indentLen, close, ExpiresOn.Before))
         val penalizeNewlines = penalizeNewlineByNesting(open, close)
+        def baseNoSplit(commentNL: Modification = null)(implicit
+            fileLine: FileLine,
+        ) = Split.opt(getNoSplitAfterOpening(ft, commentNL = commentNL), 0)
+
         if (style.danglingParentheses.ctrlSite) {
           val noSplit =
-            if (style.align.openParenCtrlSite) Split(NoSplit, 0)
+            if (style.align.openParenCtrlSite) baseNoSplit()
               .withIndents(indents).withPolicy(penalizeNewlines)
               .andPolicy(decideNewlinesOnlyBeforeCloseOnBreak(close))
-            else Split(NoSplit, 0).withSingleLine(close)
+            else baseNoSplit().withSingleLine(close)
           Seq(
             noSplit,
             Split(Newline, 1).withIndent(indentLen, close, Before)
@@ -2041,8 +2045,9 @@ class Router(formatOps: FormatOps) {
               .andPolicy(decideNewlinesOnlyBeforeClose(close)),
           )
         } else Seq(
-          Split(NoSplit, 0).withIndents(indents).withPolicy(penalizeNewlines),
+          baseNoSplit(Newline).withIndents(indents).withPolicy(penalizeNewlines),
         )
+
       case FormatToken(_: T.KwIf, right, _) if leftOwner.is[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
         val expire = getLastToken(owner)
@@ -2544,33 +2549,11 @@ class Router(formatOps: FormatOps) {
       case FormatToken(T.Dot(), T.Ident(_) | T.KwThis() | T.KwSuper(), _) =>
         Seq(Split(NoSplit, 0))
       case FormatToken(_, T.RightBracket(), _) => Seq(Split(NoSplit, 0))
-
-      /*
-    def modNoNL = {
-      def allowSpace = rightOwner match {
-        case _: Term.EnumeratorsBlock => false
-        case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield =>
-          isTokenLastOrAfter(close, rightOwner)
-        case _ => true
-      }
-      getNoSplitBeforeClosing(ft, Newline, spaceOk = allowSpace)
-       */
-      case FormatToken(_, close: T.RightParen, _) =>
-        def modNoNL(allowSpace: Boolean) =
-          getNoSplitBeforeClosing(ft, Newline, spaceOk = allowSpace)
-        val mod = rightOwner match {
-          case _: Term.EnumeratorsBlock => modNoNL(false)
-          case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield =>
-            modNoNL(isTokenLastOrAfter(close, rightOwner))
-          case _: Pat.Alternative =>
-            if (style.newlines.keepBreak(newlines)) Newline
-            else modNoNL(allowSpace = true)
-          case t =>
-            val nlOnly = style.newlines.keepBreak(newlines) &&
-              style.binPack.siteFor(t).exists(_._1 ne BinPack.Site.Never)
-            if (nlOnly) Newline else modNoNL(allowSpace = true)
-        }
-        Seq(Split(mod, 0))
+      case FormatToken(_, _: T.RightParen, _) =>
+        val ok = !style.newlines.keepBreak(newlines) ||
+          style.binPack.siteFor(rightOwner)
+            .fold(!rightOwner.is[Pat.Alternative])(_._1 eq BinPack.Site.Never)
+        Seq(Split(if (ok) getNoSplitBeforeClosing(ft, Newline) else Newline, 0))
 
       case FormatToken(left, _: T.KwCatch | _: T.KwFinally, _)
           if style.newlines.alwaysBeforeElseAfterCurlyIf ||
