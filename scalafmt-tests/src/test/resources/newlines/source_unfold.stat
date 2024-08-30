@@ -3842,6 +3842,81 @@ object a {
       case _ =>
     }
 }
+<<< #2219
+a match {
+  case ( Root / "foo"
+       | Root / "bar"
+       | Root / "baz" / _ / "qux"
+       ) =>
+    (if (foo) (foo) + bar
+    else foo + (bar)) + (baz)
+  case ( Root / "foo"
+       | Root / "bar"
+       | Root / "baz" / _ / "qux" ) => (foo)
+}
+>>>
+a match {
+  case (
+        Root / "foo" | Root / "bar" |
+        Root / "baz" / _ / "qux"
+      ) =>
+    (if (foo)
+       (foo) + bar
+     else
+       foo + (bar)) + (baz)
+  case (
+        Root / "foo" | Root / "bar" |
+        Root / "baz" / _ / "qux"
+      ) => (
+    foo
+  )
+}
+<<< #2219 with spaces
+spaces.inParentheses = true
+===
+a match {
+  case (Root / "foo"
+       | Root / "bar"
+       | Root / "baz" / _ / "qux"
+       ) =>
+    (if (foo) (foo) + bar
+    else foo + (bar)) + (baz)
+  case (Root / "foo"
+       | Root / "bar"
+       | Root / "baz" / _ / "qux") => (foo)
+}
+>>>
+a match {
+  case (
+        Root / "foo" | Root / "bar" |
+        Root / "baz" / _ / "qux"
+      ) =>
+    ( if (foo)
+        ( foo ) + bar
+      else
+        foo + ( bar ) ) + ( baz )
+  case (
+        Root / "foo" | Root / "bar" |
+        Root / "baz" / _ / "qux"
+      ) => (
+    foo
+  )
+}
+<<< #2250
+danglingParentheses.callSite = true
+===
+object a {
+  val a = foo(
+     bar = baz =>
+       qux(b =
+         c
+      )
+   )
+}
+>>>
+object a {
+  val a = foo(bar = baz => qux(b = c))
+}
 <<< #2400 forceBeforeMultilineAssign = never
 newlines.forceBeforeMultilineAssign = never
 maxColumn = 25
