@@ -4009,42 +4009,41 @@ spaces.inParentheses = true
 ===
 foo ((((a, b) + c))) (((a, b)))
 >>>
-foo( ( ( ( a, b ) + c ) ) )( ( ( a, b ) ) )
+foo( (( ( a, b ) + c )) )( (( a, b )) )
 <<< #2219 with spaces, for-do
 spaces.inParentheses = true
 ===
 for ((a, b) <- c.d) (((a, b)))
 >>>
-for (( a, b ) <- c.d) ( ( ( a, b ) ) )
+for (( a, b ) <- c.d) ((( a, b )))
 <<< #2219 with spaces, for-do with braces
 spaces.inParentheses = true
 ===
 for ((a, b) <- c.d) {{ (((a, b))) }}
 >>>
 for (( a, b ) <- c.d) {
-  { ( ( ( a, b ) ) ) }
+  { ((( a, b ))) }
 }
 <<< #2219 with spaces, for-yield
 spaces.inParentheses = true
 ===
 for ((a, b) <- c.d) yield (((a, b)))
 >>>
-for (( a, b ) <- c.d)
-  yield ( ( ( a, b ) ) )
+for (( a, b ) <- c.d) yield ((( a, b )))
 <<< #2219 with spaces, while
 spaces.inParentheses = true
 ===
 while ((((a,b) < (1,1)))) (((a, b)))
 >>>
-while (( ( ( a, b ) < ( 1, 1 ) ) ))
-  ( ( ( a, b ) ) )
+while ((( ( a, b ) < ( 1, 1 ) )))
+  ((( a, b )))
 <<< #2219 with spaces, if
 spaces.inParentheses = true
 ===
 if ((((a,b) < (1,1)))) (((a, b)))
 >>>
-if (( ( ( a, b ) < ( 1, 1 ) ) ))
-  ( ( ( a, b ) ) )
+if ((( ( a, b ) < ( 1, 1 ) )))
+  ((( a, b )))
 <<< #2250
 danglingParentheses.callSite = true
 ===

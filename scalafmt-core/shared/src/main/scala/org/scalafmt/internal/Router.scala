@@ -791,7 +791,7 @@ class Router(formatOps: FormatOps) {
             style.newlines.alwaysBeforeCurlyLambdaParams ||
             getMustDangleForTrailingCommas(justBefore(close))
           ) null
-          else getNoSplit(ft, true)
+          else getNoSplitAfterOpening(ft, commentNL = null)
 
         def multilineSpaceSplit(implicit fileLine: FileLine): Split = {
           val lambdaLeft: Option[T] = matchingOpt(functionExpire(lambda)._1)
@@ -926,7 +926,7 @@ class Router(formatOps: FormatOps) {
               else style.newlines.forceBeforeImplicitParamListModifier
             }
           ) null
-          else getNoSplit(ft, !isBracket)
+          else getNoSplitAfterOpening(ft, commentNL = null, spaceOk = !isBracket)
 
         val rightIsComment = right.is[T.Comment]
         val noSplitIndent = if (rightIsComment) indent else Num(0)
@@ -2061,8 +2061,8 @@ class Router(formatOps: FormatOps) {
               }
               Num(if (needIndent) style.indent.main else 0)
           }
-          val useSpace = style.spaces.inParentheses || right.is[T.Comment]
-          Split(Space(useSpace), 0).withIndent(indent, close, Before)
+          Split.opt(getNoSplitAfterOpening(ft, commentNL = null), 0)
+            .withIndent(indent, close, Before)
         }
         def spaceSplit(implicit fileLine: FileLine) = spaceSplitWithoutPolicy
           .withPolicy(PenalizeAllNewlines(close, 1))
@@ -2392,7 +2392,7 @@ class Router(formatOps: FormatOps) {
               isTokenLastOrAfter(close, rightOwner)
             case _ => true
           }
-          Space(style.spaces.inParentheses && allowSpace)
+          getNoSplitBeforeClosing(ft, Newline, spaceOk = allowSpace)
         }
         val isNL = rightOwner.is[Pat.Alternative] &&
           style.newlines.keepBreak(newlines)
