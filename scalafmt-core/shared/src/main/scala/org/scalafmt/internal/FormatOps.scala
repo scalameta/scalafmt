@@ -1817,7 +1817,8 @@ class FormatOps(
     )(implicit style: ScalafmtConfig): Option[OptionalBracesRegion] =
       if (!style.dialect.allowSignificantIndentation) None
       else Option(ft.left match {
-        case _: T.Colon | _: T.KwWith => ColonEolImpl
+        case _: T.Colon => ColonEolImpl
+        case _: T.KwWith => WithImpl
         case _: T.RightArrow => RightArrowImpl
         case _: T.RightParen => RightParenImpl
         case _: T.KwFor => ForImpl
@@ -1962,6 +1963,33 @@ class FormatOps(
           })
           def rightBrace = treeLast(ac)
         })
+      }
+    }
+
+    private object WithImpl extends Factory {
+      def create(ft: FormatToken, nft: FormatToken)(implicit
+          style: ScalafmtConfig,
+      ): Option[OptionalBracesRegion] = {
+        val lo = ft.meta.leftOwner
+        def createImpl(
+            tb: Tree.WithStats,
+            ownerOpt: => Option[Tree],
+            okRightBrace: => Boolean,
+        ) =
+          if (
+            (nft.right.is[T.LeftBrace] && (nft.meta.rightOwner eq tb)) ||
+            tb.stats.isEmpty || tokenBefore(tb.stats).meta.idx > nft.meta.idx
+          ) None
+          else Some(new OptionalBracesRegion {
+            def owner = ownerOpt
+            def splits = Some(getSplits(ft, lo, forceNL = true))
+            def rightBrace = if (okRightBrace) treeLast(lo) else None
+          })
+        lo match {
+          case t: Template => createImpl(t, t.parent, isSeqMulti(t.stats))
+          case t: Type.Refine => createImpl(t, Some(t), true)
+          case _ => None
+        }
       }
     }
 
