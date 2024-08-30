@@ -1276,8 +1276,10 @@ class FormatWriter(formatOps: FormatOps) {
     )(implicit fl: FormatLocation): (Tree, Int) =
       maybeParent.orElse(child.parent) match {
         case Some(AlignContainer(p)) => (p, depth)
-        case Some(p @ (_: Term.Select | _: Pat.Var | _: Term.ApplyInfix)) =>
-          getAlignContainerParent(p, depth)
+        case Some(
+              p @ (_: Term.Select | _: Pat.Var | _: Term.ApplyInfix |
+              _: Member.ParamClauseGroup),
+            ) => getAlignContainerParent(p, depth)
         case Some(p: Term.Apply) if (p.argClause.values match {
               case (_: Term.Apply) :: Nil => true
               case _ => p.fun eq child
@@ -1314,8 +1316,6 @@ class FormatWriter(formatOps: FormatOps) {
         case Some(p: Member.SyntaxValuesClause) =>
           val isEnclosed = isEnclosedInMatching(p)
           getAlignContainerParent(p, if (isEnclosed) depth + 1 else depth)
-        case Some(p: Member.ParamClauseGroup) =>
-          getAlignContainerParent(p, depth)
         case Some(p) => (p.parent.getOrElse(p), depth)
         case _ => (child, depth)
       }
