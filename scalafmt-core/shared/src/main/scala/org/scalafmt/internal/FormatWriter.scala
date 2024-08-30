@@ -1528,7 +1528,7 @@ class FormatWriter(formatOps: FormatOps) {
               beforeBody(stats) {
                 _.beforeTemplateBodyIfBreakInParentCtors && {
                   val beg = leadingComment(t).meta.idx
-                  val end = tokens(templateCurlyOrLastNonTrivial(t)).meta.idx
+                  val end = templateCurlyOrLastNonTrivial(t).meta.idx
                   locations(beg).leftLineId != locations(end).leftLineId
                 }
               }

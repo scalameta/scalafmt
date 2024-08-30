@@ -316,19 +316,16 @@ class FormatOps(
     if (r.is[T.LeftBrace]) SplitTag.OneArgPerLine.activateOnly(s)
     else Decision.onlyNewlineSplits(s)
 
-  def templateCurlyFt(template: Template): Option[FormatToken] =
+  def templateCurly(template: Template): Option[FormatToken] =
     getStartOfTemplateBody(template).map(tokenBefore)
 
-  def templateCurly(template: Template): Option[T] = templateCurlyFt(template)
-    .map(_.left)
-
-  def templateCurlyOrLastNonTrivial(template: Template): T =
-    templateCurly(template).getOrElse(getLastNonTrivialToken(template))
+  def templateCurlyOrLastNonTrivial(tpl: Template): FormatToken =
+    templateCurly(tpl).getOrElse(getLastNonTrivial(tpl))
 
   def templateDerivesOrCurlyOrLastNonTrivial(template: Template)(implicit
       ft: FormatToken,
   ): T = findTemplateGroupOnRight(_.getExpireToken)(template)
-    .getOrElse(templateCurlyOrLastNonTrivial(template))
+    .getOrElse(templateCurlyOrLastNonTrivial(template).left)
 
   private def findTreeInGroup[A](
       trees: Seq[Tree],
@@ -346,7 +343,7 @@ class FormatOps(
       if (isSeqSingle(groups))
         // for the last group, return '{' or ':'
         findTreeInGroup(groups.head, func) { x =>
-          templateCurly(template).getOrElse(getLastNonTrivialToken(x.last))
+          templateCurly(template).getOrElse(getLastNonTrivial(x.last)).left
         }
       else {
         // for intermediate groups, return its last token
@@ -1893,7 +1890,7 @@ class FormatOps(
             def rightBrace = if (okRightBrace) treeLast(lo) else None
           })
         lo match {
-          case t: Template if templateCurlyFt(t).contains(ft) =>
+          case t: Template if templateCurly(t).contains(ft) =>
             createImpl(t.parent, isSeqMulti(t.stats))
           case t: Pkg if tokenAfter(t.ref).right eq ft.left =>
             createImpl(Some(t), isSeqMulti(t.stats))
