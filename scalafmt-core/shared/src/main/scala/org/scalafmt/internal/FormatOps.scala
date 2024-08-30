@@ -391,7 +391,7 @@ class FormatOps(
         val newRes = elsOpt.fold(res)(_ :: res)
         term.elsep match {
           case t: Term.If => getElseChain(t, newRes)
-          case b @ Term.Block(List(t: Term.If))
+          case b @ Term.Block((t: Term.If) :: Nil)
               if !areMatching(ftElsep.left)(getLastToken(b)) =>
             getElseChain(t, newRes)
           case _ => newRes
@@ -1276,8 +1276,8 @@ class FormatOps(
       case GetSelectLike(t) if !isEnclosed => (Some(t), applyTree)
       case t: Member.Apply if !isEnclosed =>
         findPrevSelectAndApply(t.fun, enclosed, applyTree.orElse(Some(t)))
-      case Term.AnonymousFunction(body) if !enclosed =>
-        findPrevSelectAndApply(body, false, applyTree)
+      case t: Term.AnonymousFunction if !enclosed =>
+        findPrevSelectAndApply(t.body, false, applyTree)
       case _ => (None, applyTree)
     }
   }
@@ -1522,12 +1522,14 @@ class FormatOps(
           if (hasStateColumn) getSplits(getSpaceSplit(1)) else getSlbSplits()
         case _: Term.Block | _: Term.Match | _: Type.Match |
             _: Term.NewAnonymous => getSplits(getSpaceSplit(1))
-        case Term.ForYield(_, b) => nextNonComment(bheadFT).right match { // skipping `for`
+        case t: Term.ForYield => nextNonComment(bheadFT).right match { // skipping `for`
             case x @ LeftParenOrBrace() =>
               val exclude = TokenRanges(TokenRange(x, matching(x)))
-              if (b.is[Term.Block])
-                getPolicySplits(1, getSlb(b.tokens.head, exclude))
-              else getSlbSplits(exclude)
+              t.body match {
+                case b: Term.Block =>
+                  getPolicySplits(1, getSlb(b.tokens.head, exclude))
+                case _ => getSlbSplits(exclude)
+              }
             case _ => getSlbSplits()
           }
         case ia: Member.Infix =>
@@ -1994,8 +1996,8 @@ class FormatOps(
                 (isElsePWithOptionalBraces(t) ||
                   existsBlockIfWithoutElse(t.thenp, false))
               } => createImpl(t, t.thenp)(Some(getSplitsForIf(ft, nft, t)))
-          case t @ Term.For(_, b) => createKwDo(t, b)
-          case t @ Term.While(_, b) => createKwDo(t, b)
+          case t: Term.For => createKwDo(t, t.body)
+          case t: Term.While => createKwDo(t, t.body)
           case _ => None
         }
       }
@@ -2031,18 +2033,21 @@ class FormatOps(
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
-        case t @ Term.While(b: Term.Block, _)
-            if isMultiStatBlock(b) &&
-              !matchingOpt(nft.right).exists(_.end >= b.pos.end) =>
-          Some(new OptionalBracesRegion {
-            def owner = Some(t)
-            def splits = Some {
-              val dangle = style.danglingParentheses.ctrlSite
-              val forceNL = !nft.right.is[T.LeftParen]
-              getSplits(ft, b, forceNL = forceNL, danglingKeyword = dangle)
-            }
-            def rightBrace = blockLast(b)
-          })
+        case t: Term.While => t.expr match {
+            case b: Term.Block
+                if isMultiStatBlock(b) &&
+                  !matchingOpt(nft.right).exists(_.end >= b.pos.end) =>
+              Some(new OptionalBracesRegion {
+                def owner = Some(t)
+                def splits = Some {
+                  val dangle = style.danglingParentheses.ctrlSite
+                  val forceNL = !nft.right.is[T.LeftParen]
+                  getSplits(ft, b, forceNL = forceNL, danglingKeyword = dangle)
+                }
+                def rightBrace = blockLast(b)
+              })
+            case _ => None
+          }
         case _ => None
       }
     }
@@ -2058,8 +2063,7 @@ class FormatOps(
           def rightBrace = blockLast(body)
         })
         lo match {
-          case Term.While(_, body) => createImpl(body)
-          case Term.For(_, body) => createImpl(body)
+          case t: Tree.WithBody => createImpl(t.body)
           case _ => None
         }
       }
@@ -2098,10 +2102,9 @@ class FormatOps(
             def rightBrace = blockLast(expr)
           })
         ft.meta.leftOwner match {
-          case t @ Term.Try(expr, _, finallyp) =>
-            createImpl(expr, finallyp, isCatchUsingOptionalBraces(t))
-          case Term.TryWithHandler(expr, _, finallyp) =>
-            createImpl(expr, finallyp, false)
+          case t: Term.Try =>
+            createImpl(t.expr, t.finallyp, isCatchUsingOptionalBraces(t))
+          case t: Term.TryWithHandler => createImpl(t.expr, t.finallyp, false)
           case _ => None
         }
       }
@@ -2114,7 +2117,8 @@ class FormatOps(
       def create(ft: FormatToken, nft: FormatToken)(implicit
           style: ScalafmtConfig,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
-        case t @ Term.Try(_, x, _) =>
+        case t: Term.Try =>
+          val x = t.catchp
           val nlOnly = x match {
             // to avoid next expression being interpreted as body
             case head :: Nil => isEmptyTree(head.body) && t.finallyp.isEmpty
@@ -2281,7 +2285,7 @@ class FormatOps(
       }
       t.thenp match {
         case x: Term.If => nestedIf(x)
-        case Term.Block(List(x: Term.If)) => nestedIf(x)
+        case Term.Block((x: Term.If) :: Nil) => nestedIf(x)
         case x => getSplitsMaybeBlock(ft, nft, x, false)
       }
     }
@@ -2305,7 +2309,7 @@ class FormatOps(
       (elsep match {
         case t: Term.If => isThenPWithOptionalBraces(t) ||
           !ifWithoutElse(t) && isElsePWithOptionalBraces(t)
-        case Term.Block(List(t: Term.If)) => isThenPWithOptionalBraces(t) ||
+        case Term.Block((t: Term.If) :: Nil) => isThenPWithOptionalBraces(t) ||
           !ifWithoutElse(t) && isElsePWithOptionalBraces(t)
         case t => !isTreeSingleExpr(t)
       })
@@ -2444,9 +2448,10 @@ class FormatOps(
           case x: Term.If if !nft.right.is[T.KwThen] =>
             val hasElse = all && !ifWithoutElse(x)
             Some((x.thenp, seq(hasElse, x.elsep) ++ seq(all, x.cond)))
-          case Term.For(s, b) if !nft.right.is[T.KwDo] => Some((b, seq(all, s)))
-          case Term.While(c, b) if !nft.right.is[T.KwDo] =>
-            Some((b, seq(all, c)))
+          case t: Term.For if !nft.right.is[T.KwDo] =>
+            Some((t.body, seq(all, t.enums)))
+          case t: Term.While if !nft.right.is[T.KwDo] =>
+            Some((t.body, seq(all, t.cond)))
           case _ => None
         }
     }
@@ -2454,9 +2459,9 @@ class FormatOps(
     private object RightBraceImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case t @ Term.For(s, b)
+          case t: Term.For
               if !nft.right.is[T.KwDo] && !isTokenLastOrAfter(ft.left, t) =>
-            Some((b, seq(all, s)))
+            Some((t.body, seq(all, t.enums)))
           case _ => None
         }
     }
@@ -2464,7 +2469,7 @@ class FormatOps(
     private object DoImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case Term.Do(b, c) => Some((b, seq(all, c)))
+          case t: Term.Do => Some((t.body, seq(all, t.expr)))
           case _ => None
         }
     }
@@ -2523,7 +2528,7 @@ class FormatOps(
     private object YieldImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case Term.ForYield(s, b) => Some((b, seq(all, s)))
+          case t: Term.ForYield => Some((t.body, seq(all, t.enums)))
           case _ => None
         }
     }
@@ -2541,7 +2546,7 @@ class FormatOps(
 
   def existsBlockIfWithoutElse(t: Tree, other: => Boolean): Boolean = t match {
     case x: Term.If => existsBlockIfWithoutElse(x)
-    case b @ Term.Block(List(x: Term.If)) => isBlockWithoutBraces(b) &&
+    case b @ Term.Block((x: Term.If) :: Nil) => isBlockWithoutBraces(b) &&
       existsBlockIfWithoutElse(x)
     case _ => other
   }

@@ -543,19 +543,18 @@ object TreeOps {
   @inline
   def isMultiStatBlock(tree: Term.Block): Boolean = isSeqMulti(tree.stats)
 
-  def isSingleElement(elements: List[Tree], value: Tree): Boolean =
-    elements match {
-      case `value` :: Nil => true
-      case _ => false
-    }
+  def getSingleElement[A](elements: List[A]): Option[A] = elements match {
+    case elem :: Nil => Some(elem)
+    case _ => None
+  }
 
   @inline
   def hasSingleElement(tree: Tree.WithExprs, value: Tree): Boolean =
-    isSingleElement(tree.exprs, value)
+    getSingleElement(tree.exprs).contains(value)
 
   @inline
   def hasSingleElement(tree: Member.SyntaxValuesClause, value: Tree): Boolean =
-    isSingleElement(tree.values, value)
+    getSingleElement(tree.values).contains(value)
 
   def getBlockSingleStat(b: Term.Block): Option[Stat] = b.stats match {
     case stat :: Nil => Some(stat)
