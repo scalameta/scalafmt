@@ -715,7 +715,7 @@ class Router(formatOps: FormatOps) {
           if (!open.is[T.LeftParen]) None
           else if (defn) style.newlines.getBeforeOpenParenDefnSite.map { x =>
             val beforeBody = defRhs.flatMap {
-              case t: Template => templateCurlyFt(t)
+              case t: Template => templateCurly(t)
               case _ => beforeDefRhs
             }
             val indent = beforeBody.fold(style.indent.main) { y =>
@@ -1604,7 +1604,7 @@ class Router(formatOps: FormatOps) {
           case p: Term.Apply => isFewerBraces(p)
           case p: Term.Match => !tokenBefore(p.cases).left.is[T.LeftBrace]
           case p: Term.NewAnonymous => templateCurly(p.templ)
-              .exists(_.is[T.Colon])
+              .exists(_.left.is[T.Colon])
           case _ => false
         }
         val nextDotIfSig = nextSelect.flatMap { ns =>
@@ -1853,18 +1853,22 @@ class Router(formatOps: FormatOps) {
         val template = leftOwner.asInstanceOf[Template]
         typeTemplateSplits(template, style.indent.commaSiteRelativeToExtends)
 
-      case FormatToken(_, r: T.KwWith, _) => rightOwner match {
+      case FormatToken(_, _: T.KwWith, _) => rightOwner match {
           // something like new A with B with C
-          case template: Template if template.parent.exists { p =>
-                p.is[Term.New] || p.is[Term.NewAnonymous] || p.is[Defn.Given]
+          case template: Template if template.parent.exists {
+                _.isAny[Term.New, Term.NewAnonymous, Defn.Given]
               } =>
+            val (isFirstCtor, extendsThenWith) = template.inits match {
+              case _ :: x :: _ => (x.pos.start > ft.right.start, true)
+              case _ => (false, false)
+            }
             binPackParentConstructorSplits(
-              template.inits.lift(1).exists(_.pos.start > r.start),
+              isFirstCtor,
               Set(template),
               findTemplateGroupOnRight(_.superType)(template),
-              templateCurlyOrLastNonTrivial(template),
+              templateCurlyOrLastNonTrivial(template).left,
               style.indent.main,
-              template.inits.lengthCompare(1) > 0,
+              extendsThenWith,
             )
           // trait A extends B with C with D with E
           case template: Template =>
