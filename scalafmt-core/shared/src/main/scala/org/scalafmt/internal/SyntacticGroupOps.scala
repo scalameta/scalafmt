@@ -49,7 +49,7 @@ object SyntacticGroupOps {
   def startsWithNumericLiteral(tree: Tree): Boolean = tree match {
     case _: Lit.Int | _: Lit.Long | _: Lit.Double | _: Lit.Float | _: Lit.Byte |
         _: Lit.Short => true
-    case Term.Select(tree0, _) => startsWithNumericLiteral(tree0)
+    case t: Term.Select => startsWithNumericLiteral(t.qual)
     case _ => false
   }
 

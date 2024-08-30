@@ -1948,10 +1948,12 @@ class Router(formatOps: FormatOps) {
           case t: Term.While => OptionalBraces
               .indentAndBreakBeforeCtrl[T.KwDo](t.expr, splitBase)
           // below, multi-enum cases are handled in OptionalBraces.ForImpl
-          case Term.For(List(enum), _) => OptionalBraces
-              .indentAndBreakBeforeCtrl[T.KwDo](enum, splitBase)
-          case Term.ForYield(List(enum), _) => OptionalBraces
-              .indentAndBreakBeforeCtrl[T.KwYield](enum, splitBase)
+          case t: Term.For => getSingleElement(t.enums).flatMap(
+              OptionalBraces.indentAndBreakBeforeCtrl[T.KwDo](_, splitBase),
+            )
+          case t: Term.ForYield => getSingleElement(t.enums).flatMap(
+              OptionalBraces.indentAndBreakBeforeCtrl[T.KwYield](_, splitBase),
+            )
           case _ => None
         }).getOrElse(Split(spaceMod, 0))
         Seq(split)
@@ -2014,7 +2016,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.KwElse, _, _) if (leftOwner match {
             case t: Term.If => t.elsep match {
                 case _: Term.If => false
-                case b @ Term.Block(List(_: Term.If)) =>
+                case b @ Term.Block((_: Term.If) :: Nil) =>
                   matchingOpt(nextNonComment(ft).right)
                     .exists(_.end >= b.pos.end)
                 case _ => true
