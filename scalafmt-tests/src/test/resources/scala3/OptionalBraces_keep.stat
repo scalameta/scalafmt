@@ -6522,30 +6522,20 @@ object a {
     }).quux
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-    (for
--        bar <- bars
--     yield
--        baz
-+      bar <- bars
-+   yield
-+      baz
- ∙
--        qux match
--           case Qux1 =>
--             qux1
-+      qux match
-+         case Qux1 =>
-+           qux1
- ∙
--           case Qux2 =>
--             qux2
--        end match
-+         case Qux2 =>
-+           qux2
-+      end match
-    ).quux
+object a:
+   (for
+      bar <- bars
+   yield
+      baz
+
+      qux match
+         case Qux1 =>
+           qux1
+
+         case Qux2 =>
+           qux2
+      end match
+   ).quux
 <<< redundant block within block, outer semicolon-terminated
 rewrite {
   rules = [RedundantBraces]
