@@ -6151,6 +6151,51 @@ object a:
            qux // c2
         end baz
      )(quux)
+<<< #4133 enclosed for-yield with added end marker
+rewrite.scala3 {
+  convertToNewSyntax = true
+  insertEndMarkerMinLines = 5
+  removeOptionalBraces = yes
+}
+===
+object a {
+    (for {
+      bar <- bars
+    } yield {
+      baz
+
+      qux match {
+        case Qux1 =>
+          qux1
+
+        case Qux2 =>
+          qux2
+      }
+    }).quux
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+    (for bar <- bars
+-     yield
+-        baz
++   yield
++      baz
+ ∙
+-        qux match
+-           case Qux1 =>
+-             qux1
++      qux match
++         case Qux1 =>
++           qux1
+ ∙
+-           case Qux2 =>
+-             qux2
+-        end match
++         case Qux2 =>
++           qux2
++      end match
+    ).quux
 <<< redundant block within block, outer semicolon-terminated
 rewrite {
   rules = [RedundantBraces]
