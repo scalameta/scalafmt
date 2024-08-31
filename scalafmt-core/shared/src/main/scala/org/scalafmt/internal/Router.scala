@@ -2067,9 +2067,7 @@ class Router(formatOps: FormatOps) {
                 case _ => true
               } && {
                 val pft = prevNonCommentSameLine(beforeClose)
-                (pft eq beforeClose) && beforeClose.left.is[T.Comment] ||
-                pft.meta.leftOwner.is[Term.Name] && // end marker
-                prev(pft).meta.leftOwner.is[Term.EndMarker]
+                (pft eq beforeClose) && beforeClose.left.is[T.Comment]
               }
               Num(if (needIndent) style.indent.main else 0)
           }
