@@ -2161,7 +2161,8 @@ class FormatOps(
           val x = t.catchp
           val nlOnly = x match {
             // to avoid next expression being interpreted as body
-            case head :: Nil => isEmptyTree(head.body) && t.finallyp.isEmpty
+            case head :: Nil => shouldBreakInOptionalBraces(ft, nft) ||
+              t.finallyp.isEmpty && isEmptyTree(head.body)
             case _ => true
           }
           WithStats(ft, nft, x.headOption, x.last, Some(t), nlOnly = nlOnly)
