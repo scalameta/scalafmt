@@ -6321,6 +6321,55 @@ object a:
 
           // c2
    }
+<<< #4133 try-catch with trailing comments 5, in braces
+object a {
+  def foo = try
+    bar
+  catch case baz => qux
+
+  /** c1 */
+  def quux = ???
+}
+>>>
+object a {
+  def foo =
+    try bar
+    catch
+       case baz =>
+         qux
+
+         /** c1 */
+  def quux = ???
+}
+<<< SKIP #4133 try-catch with trailing comments 6, insert end markers
+rewrite.scala3.insertEndMarkerMinLines = 2
+===
+object a:
+  def foo =
+    try
+      bar
+    catch case baz => qux
+
+    // c1
+    quux
+  end foo
+>>>
+test does not parse: [dialect scala3] expected template body
+object a:
+         ^
+def foo =
+   try bar
+   catch case baz => qux
+====== full result: ======
+object a:
+def foo =
+   try bar
+   catch case baz => qux
+   end try
+
+   // c1
+   quux
+end foo
 <<< #4133 enclosed new anonymous with comments and added end marker
 rewrite.scala3 {
   convertToNewSyntax = true
