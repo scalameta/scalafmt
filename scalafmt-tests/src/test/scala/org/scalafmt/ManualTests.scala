@@ -16,8 +16,8 @@ object ManualTests extends HasTests {
     val testFiles = listFiles(testDir).map(x => (x, x.toString))
     val manualFiles = for {
       (path, filename) <- testFiles if filename.endsWith(manual)
-      test <- readFile(path).linesIterator.withFilter(_.startsWith("ONLY"))
-        .map { name =>
+      test <- readFile(path).linesIterator
+        .withFilter(_.startsWith(HasTests.onlyPrefix)).map { name =>
           val testPath = stripPrefix(name)
           val original = readFile(testPath)
           val testFile = testPath.stripPrefix(testPrefix)
