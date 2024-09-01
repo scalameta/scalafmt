@@ -1853,27 +1853,28 @@ class FormatOps(
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
       val treeTokens = tree.tokens
       val end = getOnOrAfterLast(treeTokens, tree)
-      val slbExpire = nextNonCommentSameLine(end).left
+      val nonTrivialEnd = prevNonComment(end)
+      val slbExpire = nextNonCommentSameLine(nonTrivialEnd)
       def head = getHead(treeTokens, tree)
       val close = (tree match {
         case _: Member.Tuple => None
         case Term.Block((_: Member.Tuple) :: Nil)
             if !head.left.is[T.LeftBrace] => None
-        case _ =>
-          val maybeClose = prevNonComment(end)
-          tokens.getClosingIfInParens(maybeClose)(head)
-            .map(prevNonCommentSameLine(_).left)
-      }).getOrElse(slbExpire)
+        case _ => tokens.getClosingIfInParens(nonTrivialEnd)(head)
+            .map(prevNonCommentSameLine)
+      }).getOrElse(nextNonCommentSameLine(end)).left
       def nlPolicy(implicit fileLine: FileLine) = Policy ? danglingKeyword &&
         decideNewlinesOnlyAfterClose(close)
       val indentLen = indentOpt.getOrElse(style.indent.getSignificant)
       val indent = Indent(Num(indentLen), close, ExpiresOn.After)
+      def nlOnly = // forceNLIfTrailingStandaloneComments
+        slbExpire.right.is[T.Comment] && slbExpire.right.start <= close.start
       if (ft.hasBlankLine)
         Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
-      else if (forceNL)
+      else if (forceNL || nlOnly)
         Seq(Split(Newline, 0).withIndent(indent).withPolicy(nlPolicy))
       else Seq(
-        Split(Space, 0).withSingleLine(slbExpire),
+        Split(Space, 0).withSingleLine(slbExpire.left).withIndent(indent),
         Split(Newline, 1)(nextLine).withIndent(indent).withPolicy(nlPolicy),
       )
     }
