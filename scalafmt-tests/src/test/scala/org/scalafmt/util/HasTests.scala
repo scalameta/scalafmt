@@ -225,8 +225,8 @@ object HasTests {
 
   val unitTest40 = unitTest80.copy(maxColumn = 39)
 
-  private val onlyPrefix = "ONLY"
-  private val skipPrefix = "SKIP"
+  private[scalafmt] val onlyPrefix = "ONLY"
+  private[scalafmt] val skipPrefix = "SKIP"
 
   private def isPrefix(name: String, prefix: String) = name
     .startsWith(prefix) && !name.charAt(prefix.length).isLetterOrDigit
