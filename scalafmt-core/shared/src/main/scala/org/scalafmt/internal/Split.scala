@@ -263,6 +263,8 @@ case class Split(
   def withIndentOpt(indent: => Option[Indent]): Split =
     withMod(modExt.withIndentOpt(indent))
 
+  def withIndents(indents: Indent*): Split = withMod(modExt.withIndents(indents))
+
   def withIndents(indents: Seq[Indent], ignore: Boolean = false): Split =
     withMod(modExt.withIndents(indents), ignore)
 
