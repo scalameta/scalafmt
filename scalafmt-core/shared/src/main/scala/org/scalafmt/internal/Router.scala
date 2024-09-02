@@ -899,9 +899,10 @@ class Router(formatOps: FormatOps) {
 
         val nestedPenalty = 1 + nestedApplies(leftOwner) + lhsPenalty
 
-        val indent =
-          if (anyDefnSite) Num(style.indent.getDefnSite(leftOwner))
-          else Num(style.indent.callSite)
+        val indentLen =
+          if (anyDefnSite) style.indent.getDefnSite(leftOwner)
+          else style.indent.callSite
+        val indent = Indent(Num(indentLen), close, ExpiresOn.Before)
 
         val isBeforeOpenParen =
           if (defnSite) style.newlines.isBeforeOpenParenDefnSite
@@ -935,7 +936,6 @@ class Router(formatOps: FormatOps) {
           else getNoSplitAfterOpening(ft, commentNL = null, spaceOk = !isBracket)
 
         val rightIsComment = right.is[T.Comment]
-        val noSplitIndent = if (rightIsComment) indent else Num(0)
 
         val align = !rightIsComment && clauseSiteFlags.alignOpenDelim &&
           (!handleImplicit || style.newlines.forceAfterImplicitParamListModifier)
@@ -955,7 +955,7 @@ class Router(formatOps: FormatOps) {
               decideNewlinesOnlyAfterToken(breakToken)
             Seq(
               Split(Newline, nestedPenalty + Constants.ExceedColumnPenalty)
-                .withPolicy(newlinePolicy).withIndent(indent, close, Before),
+                .withPolicy(newlinePolicy).withIndent(indent),
               Split(NoSplit, nestedPenalty).withSingleLineNoOptimal(breakToken)
                 .andPolicy(newlinePolicy & newlineAfterAssignDecision),
             )
@@ -992,7 +992,7 @@ class Router(formatOps: FormatOps) {
           else insideBracesBlock(ft, close)
 
         def singleLine(newlinePenalty: Int)(implicit fileLine: FileLine): Policy =
-          if (multipleArgs && (isBracket || excludeBlocks.ranges.isEmpty))
+          if (multipleArgs && (isBracket || excludeBlocks.isEmpty))
             SingleLineBlock(close, noSyntaxNL = true)
           else if (isBracket)
             PenalizeAllNewlines(close, newlinePenalty, penalizeLambdas = false)
@@ -1030,8 +1030,7 @@ class Router(formatOps: FormatOps) {
           else if (onlyConfigStyle) Seq(
             Split(noSplitMod, 0).withPolicy(oneArgOneLine & implicitPolicy)
               .withOptimalToken(right, killOnFail = true)
-              .withIndent(extraOneArgPerLineIndent)
-              .withIndent(indent, close, Before),
+              .withIndents(extraOneArgPerLineIndent, indent),
           )
           else {
             val noSplitPolicy =
@@ -1046,18 +1045,18 @@ class Router(formatOps: FormatOps) {
               )
               else if (splitsForAssign.isDefined) singleLine(3)
               else singleLine(10)
+            val okIndent = rightIsComment || handleImplicit
             Seq(
               Split(noSplitMod, 0, policy = noSplitPolicy)
                 .notIf(mustDangleForTrailingCommas).withOptimalToken(optimal)
-                .withIndent(noSplitIndent, close, Before),
+                .withIndent(indent, ignore = !okIndent),
               Split(noSplitMod, (implicitPenalty + lhsPenalty) * bracketCoef)
                 .withPolicy(oneArgOneLine & implicitPolicy).onlyIf(
                   (notTooManyArgs && align) ||
                     (handleImplicit &&
                       style.newlines.notBeforeImplicitParamListModifier),
                 ).withIndents(
-                  if (align) getOpenParenAlignIndents(close)
-                  else Seq(Indent(indent, close, ExpiresOn.Before)),
+                  if (align) getOpenParenAlignIndents(close) else Seq(indent),
                 ),
             )
           }
@@ -1085,7 +1084,7 @@ class Router(formatOps: FormatOps) {
                       .map(InfixSplits(_, ft).nlPolicy),
                   )
               }
-            Seq(split.withIndent(indent, close, Before))
+            Seq(split.withIndent(indent))
           }
 
         splitsNoNL ++ splitsNL ++ splitsForAssign.getOrElse(Seq.empty)

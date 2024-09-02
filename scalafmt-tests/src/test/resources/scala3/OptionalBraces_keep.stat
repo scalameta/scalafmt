@@ -111,7 +111,7 @@ Idempotency violated
     if reducePattern(caseBindingMap, scrutineeSym.termRef, cdef.pat)(using
 -        gadtCtx
 -      )
-+      gadtCtx)
++        gadtCtx)
     then {
 <<< if(cond) indentation
 trait A:
