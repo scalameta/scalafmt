@@ -1602,7 +1602,7 @@ class Router(formatOps: FormatOps) {
           findLastApplyAndNextSelect(rightOwner, enclosed)
         val (prevSelect, prevApply) =
           findPrevSelectAndApply(thisSelect.qual, enclosed)
-        val nlOnly = prevApply.exists(_.argClause.tokens.head.is[T.Colon])
+        val nlOnly = prevApply.exists(x => getHeadToken(x.argClause).is[T.Colon])
         val expire = getLastEnclosedToken(expireTree)
         val indentLen = style.indent.main
 
@@ -2268,15 +2268,22 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, _: T.Comment, _) =>
         val forceBlankLine = hasBreak() && blankLineBeforeDocstring(ft)
         val mod = if (forceBlankLine) Newline2x else getMod(ft)
-        val baseSplit = Split(mod, 0)
-        rightOwner match {
-          case GetSelectLike(t) =>
-            val expire = nextNonCommentAfter(ft).left
-            val indent = Indent(style.indent.main, expire, ExpiresOn.After)
-            val split = baseSplit.withIndent(indent)
+        val nft = nextNonCommentAfter(ft)
+        def baseSplit(implicit fileLine: FileLine) = Split(mod, 0)
+        def split(implicit fileLine: FileLine) = baseSplit
+          .withIndent(style.indent.main, nft.left, ExpiresOn.After)
+
+        nft match {
+          case FormatToken(_, _: T.Dot, GetSelectLike.OnRight(t)) =>
             if (findPrevSelect(t, style.encloseSelectChains).isEmpty) Seq(split)
             else Seq(baseSplit, split.onlyFor(SplitTag.SelectChainFirstNL))
-          case _ => Seq(baseSplit)
+          case _ => prevBeforeNonComment(ft) match {
+              case FormatToken(_, _: T.Dot, GetSelectLike.OnRight(t)) =>
+                if (findPrevSelect(t, style.encloseSelectChains).isEmpty)
+                  Seq(split)
+                else Seq(baseSplit, split.onlyFor(SplitTag.SelectChainFirstNL))
+              case _ => Seq(baseSplit)
+            }
         }
 
       case FormatToken(soft.ImplicitOrUsing(), _, ImplicitUsingOnLeft(params))
