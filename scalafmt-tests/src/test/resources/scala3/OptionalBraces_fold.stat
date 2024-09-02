@@ -6445,6 +6445,93 @@ object a:
 
          case Qux2 => qux2
    ).quux
+<<< #4133 enclosed match within enclosed match, with overflow and comment
+object a:
+  def foo = (bar match
+    case _ =>
+      (baz match
+        case qux => TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[Object].toArray_asInstanceOf[IArray_Object] // TODO
+      ).asInstanceOf[Tuple]
+  )
+>>>
+object a:
+   def foo = (bar match
+      case _ => (baz match
+             case qux =>
+               TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[Object]
+                 .toArray_asInstanceOf[IArray_Object] // TODO
+        ).asInstanceOf[Tuple]
+   )
+<<< #4133 enclosed match within enclosed match, with overflow and comment, and rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a:
+  def foo = (bar match {
+    case _ =>
+      (baz match {
+        case qux => TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[Object].toArray_asInstanceOf[IArray_Object] // TODO
+      }).asInstanceOf[Tuple]
+  })
+>>>
+object a:
+   def foo = (bar match
+      case _ => (baz match
+             case qux =>
+               TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[Object]
+                 .toArray_asInstanceOf[IArray_Object] // TODO
+        ).asInstanceOf[Tuple]
+   )
+<<< #4133 complex overflow apply
+object a:
+  def load(config: Seq[String], revision: Option[String], projectRoot: Path = Paths.get("").toAbsolutePath)(using CompilerContext): SourceLinks =
+    PathBased.parse(config, projectRoot)(using SourceLinkParser(revision)) match {
+      case PathBased.ParsingResult(errors, sourceLinks) =>
+        if errors.nonEmpty then report.warning(
+          s"""Following templates has invalid format:
+            |$errors
+            |
+            |${SourceLinks.usage} 
+            |""".stripMargin
+        )
+        SourceLinks(sourceLinks)
+    }
+>>>
+object a:
+   def load(
+       config: Seq[String],
+       revision: Option[String],
+       projectRoot: Path = Paths.get("").toAbsolutePath
+   )(using CompilerContext): SourceLinks = PathBased
+     .parse(config, projectRoot)(using SourceLinkParser(revision)) match {
+     case PathBased.ParsingResult(errors, sourceLinks) =>
+       if errors.nonEmpty then
+          report.warning(s"""Following templates has invalid format:
+            |$errors
+            |
+            |${SourceLinks.usage} 
+            |""".stripMargin)
+       SourceLinks(sourceLinks)
+   }
+<<< #4133 avoid braces to parens rewrite when overflow 1
+rewrite.rules = [RedundantBraces]
+===
+object a:
+    val hashbangClasspathJars = hashbangJars.map { _.name }.sorted.distinct // get jar basenames, remove duplicates
+>>>
+object a:
+   val hashbangClasspathJars =
+     hashbangJars.map(_.name).sorted
+       .distinct // get jar basenames, remove duplicates
+<<< #4133 avoid braces to parens rewrite when overflow 2
+rewrite.rules = [RedundantBraces]
+===
+object a:
+    val hashbangClasspathJars = hashbangJars_map { _.name }.sorted_distinct // get jar basenames, remove duplicates
+>>>
+object a:
+   val hashbangClasspathJars =
+     hashbangJars_map(_.name)
+       .sorted_distinct // get jar basenames, remove duplicates
 <<< redundant block within block, outer semicolon-terminated
 rewrite {
   rules = [RedundantBraces]
