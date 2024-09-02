@@ -203,6 +203,10 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     prevNonComment(prev(curr))
 
   @inline
+  final def prevBeforeNonComment(curr: FormatToken): FormatToken =
+    prev(prevNonComment(curr))
+
+  @inline
   final def prevNonCommentSameLineBefore(curr: FormatToken): FormatToken =
     prevNonCommentSameLine(prev(curr))
 
