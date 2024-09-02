@@ -6293,7 +6293,58 @@ object a {
     // c2
     .foo(bar, baz)
 }
-<<<  try with match expr
+<<< comment in select chain, after dot 1
+object a {
+  foo.
+    // c2
+    bar(baz).foo(bar, baz)
+  foo. // c1
+    // c2
+    bar(baz).foo(bar, baz)
+  foo.bar(baz) // c1
+    . // c2
+    foo(bar, baz)
+}
+>>>
+object a {
+  foo
+    .
+      // c2
+    bar(baz)
+    .foo(bar, baz)
+  foo
+    . // c1
+      // c2
+    bar(baz)
+    .foo(bar, baz)
+  foo
+    .bar(baz) // c1
+    . // c2
+    foo(bar, baz)
+}
+<<< comment in select chain, after dot 2
+object a {
+  lazy val `scala3-sbt-bridge` = project.in(file("sbt-bridge/src")).
+    // We cannot depend on any bootstrapped project to compile the bridge, since the
+    // bridge is needed to compile these projects.
+    dependsOn(`scala3-compiler` % Provided).
+    settings(commonJavaSettings).
+    settings(foo)
+}
+>>>
+object a {
+  lazy val `scala3-sbt-bridge` = project
+    .in(file("sbt-bridge/src"))
+    .
+    // We cannot depend on any bootstrapped project to compile the bridge, since the
+    // bridge is needed to compile these projects.
+    dependsOn(
+      `scala3-compiler` % Provided
+    )
+    .settings(commonJavaSettings)
+    .settings(foo)
+}
+<<< try with match expr
 object a {
   try ta match {
     case Success(a) => bind(a); case Failure(e) => recover(e)
