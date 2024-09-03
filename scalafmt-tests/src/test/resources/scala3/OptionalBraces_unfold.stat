@@ -6664,6 +6664,22 @@ object a:
              qux // c2
           end baz
      )(quux)
+<<< #4133 for-yield with rewritten body
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a:
+    def foo = {
+      val bar = for (baz <- bazs) yield {
+        def foo = baz
+      }
+    }
+>>>
+object a:
+   def foo =
+      val bar =
+        for (baz <- bazs)
+          yield
+             def foo = baz
 <<< #4133 enclosed for-yield with added end marker
 rewrite.scala3 {
   convertToNewSyntax = true
