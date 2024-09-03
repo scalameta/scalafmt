@@ -2420,17 +2420,20 @@ class Router(formatOps: FormatOps) {
         Seq(Split(NoSplit, 0))
       case FormatToken(_, T.RightBracket(), _) => Seq(Split(NoSplit, 0))
       case FormatToken(_, close: T.RightParen, _) =>
-        def modNoNL = {
-          def allowSpace = rightOwner match {
-            case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield =>
-              isTokenLastOrAfter(close, rightOwner)
-            case _ => true
-          }
+        def modNoNL(allowSpace: Boolean) =
           getNoSplitBeforeClosing(ft, Newline, spaceOk = allowSpace)
+        val mod = rightOwner match {
+          case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield =>
+            modNoNL(isTokenLastOrAfter(close, rightOwner))
+          case _: Pat.Alternative =>
+            if (style.newlines.keepBreak(newlines)) Newline
+            else modNoNL(allowSpace = true)
+          case t =>
+            val nlOnly = style.newlines.keepBreak(newlines) &&
+              style.binPack.siteFor(t).exists(_._1 ne BinPack.Site.Never)
+            if (nlOnly) Newline else modNoNL(allowSpace = true)
         }
-        val isNL = rightOwner.is[Pat.Alternative] &&
-          style.newlines.keepBreak(newlines)
-        Seq(Split(if (isNL) Newline else modNoNL, 0))
+        Seq(Split(mod, 0))
 
       case FormatToken(left, _: T.KwCatch | _: T.KwFinally, _)
           if style.newlines.alwaysBeforeElseAfterCurlyIf ||
