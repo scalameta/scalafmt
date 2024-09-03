@@ -59,22 +59,23 @@ object TreeOps {
     }
     def unapply(tree: Term.ArgClause)(implicit
         ftoks: FormatTokens,
-    ): Option[(FormatToken, Term, FormatToken)] = tree.values match {
-      case arg :: Nil => getBraces(tree).map { case (b, e) => (b, arg, e) }
+    ): Option[(FormatToken, Term, FormatToken)] = getBraces(tree, tree.values)
+
+    @inline
+    private def getBraces[A](tree: Tree, values: List[A])(implicit
+        ftoks: FormatTokens,
+    ): Option[(FormatToken, A, FormatToken)] = values match {
+      case arg :: Nil => ftoks.getBracesIfEnclosed(tree).map { case (b, e) =>
+          (b, arg, e)
+        }
       case _ => None
     }
-    @inline
-    private def getBraces(tree: Tree)(implicit
-        ftoks: FormatTokens,
-    ): Option[(FormatToken, FormatToken)] = ftoks.getBracesIfEnclosed(tree)
 
     def orBlock(tree: Tree)(implicit
         ftoks: FormatTokens,
     ): Option[(FormatToken, Stat, FormatToken)] = tree match {
       case t: Term.ArgClause => unapply(t)
-      case Term.Block(arg :: Nil) => getBraces(tree).map { case (b, e) =>
-          (b, arg, e)
-        }
+      case t: Term.Block => getBraces(t, t.stats)
       case _ => None
     }
 
