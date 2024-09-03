@@ -1478,7 +1478,7 @@ class FormatOps(
         nlSplitFunc: Int => Split,
         isKeep: Boolean,
         spaceIndents: Seq[Indent] = Seq.empty,
-    )(implicit style: ScalafmtConfig): Seq[Split] = {
+    )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] = {
       val btokens = body.tokens
       def bheadFT = getHead(btokens, body)
       val blastFT = getLastNonTrivial(btokens, body)
@@ -1507,7 +1507,12 @@ class FormatOps(
           fileLine: FileLine,
       ) = {
         val spacePolicy = policy | penalize(penalty)
-        Split(Space, 0).withPolicy(spacePolicy).withOptimalToken(blast)
+        val miniSlbEnd = rhsOptimalToken(next(ft), blastFT.right.end)
+        val slbLite = style.newlines.keep
+        val opt = if (slbLite) miniSlbEnd else blast
+        Split(Space, 0).withSingleLineNoOptimal(miniSlbEnd, noSyntaxNL = true)
+          .andPolicy(spacePolicy)
+          .withOptimalToken(opt, killOnFail = slbLite, recurseOnly = slbLite)
       }
       def getPolicySplits(penalty: Int, policy: Policy, nlCost: Int = 1)(
           implicit fileLine: FileLine,
@@ -1578,7 +1583,7 @@ class FormatOps(
         nlSplitFunc: Int => Split,
         isKeep: Boolean,
         spaceIndents: Seq[Indent],
-    )(implicit style: ScalafmtConfig): Seq[Split] =
+    )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] =
       if (body.tokens.isEmpty) Seq(Split(Space, 0))
       else foldedNonEmptyNonComment(body, nlSplitFunc, isKeep, spaceIndents)
 

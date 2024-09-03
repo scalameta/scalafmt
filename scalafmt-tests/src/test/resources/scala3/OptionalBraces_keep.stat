@@ -6097,10 +6097,9 @@ object a:
        Context
    ): List[Symbol] =
      if (!sym.owner.isClass) Nil
-     else
-       sym.allOverriddenSymbols.toList.filter(
-         _ != NoSymbol
-       ) // TODO: could also be `sym.owner.allOverrid..`
+     else sym.allOverriddenSymbols.toList.filter(
+       _ != NoSymbol
+     ) // TODO: could also be `sym.owner.allOverrid..`
      // else sym.owner.ancestors map (sym overriddenSymbol _) filter (_ != NoSymbol)
 <<< braceless catch, single multi-line case, empty body
 object a:
@@ -6777,18 +6776,13 @@ object a:
       for template <- templates do
         val current_Map_String__Object = template_templateFile_settings_getOrElse("page", Map.empty).asInstanceOf[Map_String_Object]
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-      for template <- templates do
--        val current_Map_String__Object =
--          template_templateFile_settings_getOrElse(
--            "page",
--            Map.empty
--          ).asInstanceOf[Map_String_Object]
-+        val current_Map_String__Object = template_templateFile_settings_getOrElse(
-+          "page",
-+          Map.empty
-+        ).asInstanceOf[Map_String_Object]
+object a:
+   def foo =
+     for template <- templates do
+        val current_Map_String__Object =
+          template_templateFile_settings_getOrElse("page", Map.empty).asInstanceOf[
+            Map_String_Object
+          ]
 <<< scala.js overflow within for-yield !dangling
 binPack.preset = always
 danglingParentheses.preset = false
@@ -6798,14 +6792,12 @@ object a:
       for template <- templates do
         val current_Map_String__Object = template_templateFile_settings_getOrElse("page", Map.empty).asInstanceOf[Map_String_Object]
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-      for template <- templates do
--        val current_Map_String__Object =
--          template_templateFile_settings_getOrElse(
--            "page", Map.empty).asInstanceOf[Map_String_Object]
-+        val current_Map_String__Object = template_templateFile_settings_getOrElse(
-+          "page", Map.empty).asInstanceOf[Map_String_Object]
+object a:
+   def foo =
+     for template <- templates do
+        val current_Map_String__Object =
+          template_templateFile_settings_getOrElse("page", Map.empty).asInstanceOf[
+            Map_String_Object]
 <<< #4133 for-yield with rewritten body
 rewrite.scala3.removeOptionalBraces = yes
 ===
@@ -6939,10 +6931,9 @@ object a:
     val hashbangClasspathJars = hashbangJars.map { _.name }.sorted.distinct // get jar basenames, remove duplicates
 >>>
 object a:
-   val hashbangClasspathJars =
-     hashbangJars.map {
-       _.name
-     }.sorted.distinct // get jar basenames, remove duplicates
+   val hashbangClasspathJars = hashbangJars.map {
+     _.name
+   }.sorted.distinct // get jar basenames, remove duplicates
 <<< #4133 avoid braces to parens rewrite when overflow 2
 rewrite.rules = [RedundantBraces]
 ===
@@ -6950,10 +6941,9 @@ object a:
     val hashbangClasspathJars = hashbangJars_map { _.name }.sorted_distinct // get jar basenames, remove duplicates
 >>>
 object a:
-   val hashbangClasspathJars =
-     hashbangJars_map {
-       _.name
-     }.sorted_distinct // get jar basenames, remove duplicates
+   val hashbangClasspathJars = hashbangJars_map {
+     _.name
+   }.sorted_distinct // get jar basenames, remove duplicates
 <<< redundant block within block, outer semicolon-terminated
 rewrite {
   rules = [RedundantBraces]
@@ -7055,17 +7045,11 @@ object a {
   @threadUnsafe lazy val AnnotationRetentionSourceAttr: TermSymbol = requiredClass("java.lang.annotation.RetentionPolicy").linkedClass.requiredValue("SOURCE")
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a {
--  @threadUnsafe lazy val AnnotationRetentionSourceAttr: TermSymbol =
--    requiredClass(
--        "java.lang.annotation.RetentionPolicy").linkedClass.requiredValue(
--        "SOURCE")
-+  @threadUnsafe lazy val AnnotationRetentionSourceAttr: TermSymbol = requiredClass(
-+      "java.lang.annotation.RetentionPolicy").linkedClass.requiredValue(
-+      "SOURCE")
- }
+object a {
+  @threadUnsafe lazy val AnnotationRetentionSourceAttr: TermSymbol =
+    requiredClass("java.lang.annotation.RetentionPolicy").linkedClass.requiredValue(
+        "SOURCE")
+}
 <<< #4133 overflow apply with binpack, dangling
 maxColumn = 70
 binPack.preset = always
