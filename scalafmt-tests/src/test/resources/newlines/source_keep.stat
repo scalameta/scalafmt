@@ -945,8 +945,8 @@ object a {
 }
 >>>
 object a {
-  (intercept[java.lang.IllegalStateException] { in.readObject })
-    .getMessage should ===(
+  (intercept[
+    java.lang.IllegalStateException] { in.readObject }).getMessage should ===(
     "Trying to deserialize a serialized ActorRef without an ActorSystem in scope." +
       " Use 'akka.serialization.Serialization.currentSystem.withValue(system) { ... }'")
 }
@@ -2069,8 +2069,9 @@ object a {
 }
 >>>
 object a {
-  plugins(service.pluginType) += service
-    .pluginName -> service
+  plugins(
+    service.pluginType
+  ) += service.pluginName -> service
 }
 <<< 8.7
 maxColumn = 80
@@ -2237,9 +2238,9 @@ val a = b match {
         ) ::
         JField(
           "env",
-          Extraction.decompose(i.env)(
-            DefaultFormats
-          )
+          Extraction.decompose(
+            i.env
+          )(DefaultFormats)
         ) ::
         JField(
           "sparkConf",
@@ -3608,8 +3609,9 @@ pubSubMessage match {
   case message: UploadMessage => {
     val services = makeUploadServices()
 
-    UploadSubscriber(services)
-      .processEff(message)
+    UploadSubscriber(
+      services
+    ).processEff(message)
   }
   case message: IngestionMessage => (
       IngestionSubscriber.defaultServices
@@ -6160,8 +6162,9 @@ object a {
         // bridge is needed to compile these projects.
       dependsOn(
         `scala3-compiler` % Provided
-      ).settings(commonJavaSettings)
-      .settings(foo)
+      ).settings(
+        commonJavaSettings
+      ).settings(foo)
 }
 <<< try with match expr
 object a {
@@ -8501,11 +8504,11 @@ object a {
 }
 >>>
 object a {
-  val current
-      : Map[String, Object] = template.templateFile.settings.getOrElse(
-    "page",
-    Map.empty
-  ).asInstanceOf[Map[String, Object]]
+  val current: Map[String, Object] =
+    template.templateFile.settings.getOrElse(
+      "page",
+      Map.empty
+    ).asInstanceOf[Map[String, Object]]
 }
 <<< redundant braces around nested lambda, parens around outer
 rewrite.rules = [RedundantBraces]

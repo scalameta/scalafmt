@@ -184,6 +184,7 @@ case class Split(
       rank: Int = 0,
       extend: Boolean = false,
       ignore: Boolean = false,
+      noOptimal: Boolean = false,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
     if (isIgnored || ignore) this
     else {
@@ -196,6 +197,7 @@ case class Split(
         killOnFail,
         rank,
         extend,
+        noOptimal = noOptimal,
       )
     }
 
@@ -207,8 +209,9 @@ case class Split(
       killOnFail: Boolean = false,
       rank: Int = 0,
       extend: Boolean = false,
+      noOptimal: Boolean = false,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
-    withOptimalToken(optimal, killOnFail, extend = extend)
+    withOptimalToken(optimal, killOnFail, extend = extend, ignore = noOptimal)
       .withSingleLineNoOptimal(
         expire,
         exclude,
