@@ -95,7 +95,20 @@ extension [A](
    def add2(b: A) = a + b
 
    def add3(b: A) = a + b
-<<< if(cond) indentation 
+<<< #4133 if cond overflow before then
+object a:
+   if reducePattern(caseBindingMap, scrutineeSym.termRef, cdef.pat)(using         gadtCtx)    then {
+     // c1
+   }
+>>>
+object a:
+   if reducePattern(caseBindingMap, scrutineeSym.termRef, cdef.pat)(using
+        gadtCtx
+      )
+   then {
+     // c1
+   }
+<<< if(cond) indentation
 trait A:
   val cond =
     if (true)
