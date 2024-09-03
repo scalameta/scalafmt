@@ -6211,17 +6211,13 @@ object a {
 }
 >>>
 object a {
-  val (diff: Set[File], msg: String) =
-    if packlibJars.size > hashbangClasspathJars.size then
-       (
-         packlibJars.toSet -- hashbangJars.toSet,
-         "only in packlib classpath"
-       )
-    else
-       (
-         hashbangJars.toSet -- packlibJars.toSet,
-         "only in hashbang classpath"
-       )
+  val (
+    diff: Set[File],
+    msg: String
+  ) = if packlibJars.size > hashbangClasspathJars.size then
+     (packlibJars.toSet -- hashbangJars.toSet, "only in packlib classpath")
+  else
+     (hashbangJars.toSet -- packlibJars.toSet, "only in hashbang classpath")
 }
 <<< complex code with selects and brace lambda 1
 maxColumn = 81
@@ -6282,17 +6278,14 @@ object a:
 >>>
 object a:
    rootsForRelease_foreach(root =>
-     Files.walkingIterator().useScalaFilter(Files__Is__Directory).foreach {
-       p =>
-          val_moduleNamePathElementCount_е_0
-          if (
-            p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount
-          ) {
-            val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
-            index_getOrElseUpdate(
-              packageDotted__new_collectionMutableListBuffer
-            )
-          }
+     Files.walkingIterator().useScalaFilter(
+       Files__Is__Directory
+     ).foreach { p =>
+        val_moduleNamePathElementCount_е_0
+        if (p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount) {
+          val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
+          index_getOrElseUpdate(packageDotted__new_collectionMutableListBuffer)
+        }
      }
    )
 <<< braces to parens in one-line apply: overflow with braces, fit with parens
@@ -6759,13 +6752,16 @@ object a:
       ).asInstanceOf[Tuple]
   )
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-         (baz match
--             case qux =>
--               TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[
-+             case qux => TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[
-                  Object
+object a:
+   def foo = (bar match
+      case _ =>
+        (baz match
+             case qux =>
+               TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[
+                 Object
+               ].toArray_asInstanceOf[IArray_Object] // TODO
+        ).asInstanceOf[Tuple]
+   )
 <<< #4133 enclosed match within enclosed match, with overflow and comment, and rewrite
 rewrite.scala3.removeOptionalBraces = yes
 ===
@@ -6777,13 +6773,16 @@ object a:
       }).asInstanceOf[Tuple]
   })
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-         (baz match
--             case qux =>
--               TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[
-+             case qux => TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[
-                  Object
+object a:
+   def foo = (bar match
+      case _ =>
+        (baz match
+             case qux =>
+               TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[
+                 Object
+               ].toArray_asInstanceOf[IArray_Object] // TODO
+        ).asInstanceOf[Tuple]
+   )
 <<< #4133 complex overflow apply
 object a:
   def load(config: Seq[String], revision: Option[String], projectRoot: Path = Paths.get("").toAbsolutePath)(using CompilerContext): SourceLinks =
@@ -6806,8 +6805,7 @@ object a:
        projectRoot: Path = Paths.get("").toAbsolutePath
    )(using CompilerContext): SourceLinks =
      PathBased.parse(config, projectRoot)(using
-       SourceLinkParser(revision)
-     ) match {
+       SourceLinkParser(revision)) match {
        case PathBased.ParsingResult(errors, sourceLinks) =>
          if errors.nonEmpty then
             report.warning(
@@ -6827,7 +6825,9 @@ object a:
 >>>
 object a:
    val hashbangClasspathJars =
-     hashbangJars.map(_.name).sorted.distinct // get jar basenames, remove duplicates
+     hashbangJars.map {
+       _.name
+     }.sorted.distinct // get jar basenames, remove duplicates
 <<< #4133 avoid braces to parens rewrite when overflow 2
 rewrite.rules = [RedundantBraces]
 ===
@@ -6836,7 +6836,9 @@ object a:
 >>>
 object a:
    val hashbangClasspathJars =
-     hashbangJars_map(_.name).sorted_distinct // get jar basenames, remove duplicates
+     hashbangJars_map {
+       _.name
+     }.sorted_distinct // get jar basenames, remove duplicates
 <<< redundant block within block, outer semicolon-terminated
 rewrite {
   rules = [RedundantBraces]

@@ -380,15 +380,24 @@ class Router(formatOps: FormatOps) {
           }
           val toParens = initStyle.rewrite.bracesToParensForOneLineApply &&
             RedundantBraces.noSplitForParensOnRightBrace(closeFT).isDefined
-          val noCloseSpacePolicy = Policy ? toParens &&
-            Policy.End < close ==> Policy.on(close, "PAREN1LAPPLY") {
-              case Decision(FormatToken(_, `close`, _), ss) => ss.map { s =>
-                  if (s.isNL) s else s.withMod(NoSplit)
-                }
-            }
-          Split(if (toParens) NoSplit else xmlSpace(leftOwner), 0)
+          if (toParens) {
+            val noCloseSpacePolicy = Policy.End < close ==>
+              Policy.on(close, "PAREN1LAPPLY") {
+                case Decision(FormatToken(_, `close`, _), ss) => ss.map { s =>
+                    if (s.isNL) s else s.withMod(NoSplit)
+                  }
+              }
+            // copy logic from `( ...`, binpack=never, defining `slbSplit`
+            val isBeforeOpenParen = style.newlines.isBeforeOpenParenCallSite
+            Split(NoSplit, 0).withSingleLine(
+              if (isBeforeOpenParen) closeFT.left else rhsOptimalToken(closeFT),
+              noSyntaxNL = true,
+              killOnFail = true,
+              noOptimal = style.newlines.source eq Newlines.keep,
+            ).andPolicy(sldPolicy & noCloseSpacePolicy)
+          } else Split(xmlSpace(leftOwner), 0)
             .withSingleLine(expire, noSyntaxNL = true, killOnFail = true)
-            .andPolicy(sldPolicy).andPolicy(noCloseSpacePolicy)
+            .andPolicy(sldPolicy)
         }
 
         val splits = Seq(
@@ -1049,9 +1058,10 @@ class Router(formatOps: FormatOps) {
                   )
                   else if (splitsForAssign.isDefined) singleLine(3)
                   else singleLine(10)
+                val noOptimal = style.newlines.source eq Newlines.keep
                 val okIndent = rightIsComment || handleImplicit
                 Split(noSplitMod, 0, policy = noSplitPolicy)
-                  .withOptimalToken(optimal)
+                  .withOptimalToken(optimal, ignore = noOptimal)
                   .withIndent(indent, ignore = !okIndent)
               }
             val useoneArgPerLineSplit = (notTooManyArgs && align) ||
@@ -1429,7 +1439,12 @@ class Router(formatOps: FormatOps) {
           if (!initStyle.rewrite.bracesToParensForOneLineApply) None
           else RedundantBraces
             .noSplitForParensOnRightBrace(tokens(matching(lb))).map { rbft =>
-              Split(NoSplit, 0).withSingleLine(rbft.left)
+              // copy logic from `( ...`, binpack=never, defining `slbSplit`
+              val isBeforeOpenParen = style.newlines.isBeforeOpenParenCallSite
+              val optimal: T =
+                if (isBeforeOpenParen) rbft.left else rhsOptimalToken(rbft)
+              val noOptimal = style.newlines.source eq Newlines.keep
+              Split(NoSplit, 0).withSingleLine(optimal, noOptimal = noOptimal)
             }
         Seq(slbParensSplit.getOrElse(Split.ignored), Split(Space, 0))
 
