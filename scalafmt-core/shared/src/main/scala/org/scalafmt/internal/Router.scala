@@ -2008,12 +2008,12 @@ class Router(formatOps: FormatOps) {
           Split(Newline, 1),
         )
       case FormatToken(_, _: T.KwThen | _: T.KwDo, _) =>
-        if (style.newlines.sourceIgnored || noBreak()) Seq(
-          Split(Space, 0)
+        val okSpace = style.newlines.sourceIgnored || noBreak()
+        Seq(
+          Split(!okSpace, 0)(Space)
             .withOptimalToken(nextNonCommentSameLineAfter(ft).left),
           Split(Newline, 1),
         )
-        else Seq(Split(Newline, 0))
       // Last else branch
       case FormatToken(_: T.KwElse, _, _) if (leftOwner match {
             case t: Term.If => t.elsep match {

@@ -106,13 +106,12 @@ object a:
      // c1
    }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-    if reducePattern(caseBindingMap, scrutineeSym.termRef, cdef.pat)(using
--        gadtCtx
--      )
-+        gadtCtx)
-    then {
+object a:
+   if reducePattern(caseBindingMap, scrutineeSym.termRef, cdef.pat)(using
+        gadtCtx)
+   then {
+     // c1
+   }
 <<< if(cond) indentation
 trait A:
   val cond =
