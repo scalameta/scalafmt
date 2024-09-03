@@ -28,7 +28,7 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
       case 1 => "LF"
       case _ => "LFLF"
     }
-    s"${meta.left.text}∙${meta.right.text}: ${left.structure} [$ws] ${right.structure}"
+    s"[$idx] ${meta.left.text}∙${meta.right.text}: ${left.structure} [$ws] ${right.structure}"
   }
 
   def inside(range: Set[Range]): Boolean =

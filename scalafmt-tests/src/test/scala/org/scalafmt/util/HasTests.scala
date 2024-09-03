@@ -153,8 +153,8 @@ trait HasTests extends FormatAssertions {
       obtained,
       obtainedHtml,
       output,
-      Option(debug.formatTokenExplored).fold(0)(_.max),
-      debug.explored,
+      debug.formatTokenExplored.fold(0)(_.max),
+      debug.explored.getOrElse(0),
       debug.elapsedNs,
     )
   }
@@ -188,7 +188,7 @@ trait HasTests extends FormatAssertions {
       entry.formatWhitespace(0)
       builder += FormatOutput(
         sb.result(),
-        Option(debug.formatTokenExplored).fold(-1)(_(token.meta.idx)),
+        debug.formatTokenExplored.fold(-1)(_(token.meta.idx)),
       )
     })
     builder.result()

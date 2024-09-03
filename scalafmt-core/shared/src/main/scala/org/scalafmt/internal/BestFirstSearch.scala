@@ -123,11 +123,13 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       if (noOptZone || shouldEnterState(curr)) {
         trackState(curr, depth, Q.length)
 
-        if (explored > style.runner.maxStateVisits)
+        if (explored > style.runner.maxStateVisits) {
+          complete(deepestYet)
           throw new SearchStateExploded(
             deepestYet,
             "exceeded `runner.maxStateVisits`",
           )
+        }
 
         if (curr.split != null && curr.split.isNL)
           if (
@@ -258,7 +260,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     }
 
   private def complete(state: State)(implicit style: ScalafmtConfig): Unit =
-    style.runner.event(CompleteFormat(explored, state, visits))
+    style.runner.event(CompleteFormat(explored, state, visits, best))
 
   def getBestPath: SearchResult = {
     val state = {
