@@ -1537,11 +1537,11 @@ class FormatOps(
         case t: Term.ForYield => nextNonComment(bheadFT).right match { // skipping `for`
             case x @ LeftParenOrBrace() =>
               val exclude = TokenRanges(TokenRange(x, matching(x)))
-              t.body match {
-                case b: Term.Block =>
-                  getPolicySplits(1, getSlb(b.tokens.head, exclude))
-                case _ => getSlbSplits(exclude)
-              }
+              (t.body match {
+                case b: Term.Block => getBracesIfEnclosed(b)
+                    .map(x => getPolicySplits(1, getSlb(x._1.left, exclude)))
+                case _ => None
+              }).getOrElse(getSlbSplits(exclude))
             case _ => getSlbSplits()
           }
         case ia: Member.Infix =>
