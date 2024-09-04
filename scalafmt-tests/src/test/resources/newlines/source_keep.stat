@@ -3593,6 +3593,9 @@ pubSubMessage match {
     UploadSubscriber(services).processEff(message)
   }
   case message: IngestionMessage => (
+      IngestionSubscriber.defaultService
+    ).processEff.message()
+  case message: IngestionMessage => (
       IngestionSubscriber.defaultServices
     ).processEff.message()
 }
@@ -3613,6 +3616,9 @@ pubSubMessage match {
       services
     ).processEff(message)
   }
+  case message: IngestionMessage => (
+      IngestionSubscriber.defaultService
+    ).processEff.message()
   case message: IngestionMessage => (
       IngestionSubscriber.defaultServices
     ).processEff.message()
@@ -8684,4 +8690,143 @@ object a {
   val foo =
     barBarBarBarBarBarBar;
   val baz = foo
+}
+<<< SKIP #4133 binpack with complex nested applies and not forcing config style, !dangling
+binPack.preset = always
+danglingParentheses.preset = false
+runner.optimizer {
+  forceConfigStyleMinSpan = 500
+  forceConfigStyleMinArgCount = 5
+}
+===
+object a {
+  div(cls := "cover")(
+    div(cls := "doc")(bodyContents),
+    Option.when(full)(
+      section(id := "attributes")(
+        Option.when(memberTypeParams.nonEmpty)(Seq(
+          h2(cls := "h500")("Type parameters"),
+          dl(cls := "attributes")(memberTypeParams*)
+        )).toSeq.flatten,
+        Option.when(memberValueParams.nonEmpty)(Seq(
+          h2(cls := "h500")("Value parameters"),
+          dl(cls := "attributes")(memberValueParams*)
+        )).toSeq.flatten,
+        h2(cls := "h500")("Attributes"),
+        dl(cls := "attributes")(attributes*)
+      )
+    ).getOrElse(
+      Option.when(memberTypeParams.nonEmpty)(Seq(
+        h2(cls := "h200")("Type parameters"),
+        dl(cls := "attributes attributes-small")(memberTypeParams *)
+      )).toSeq.flatten ++
+      Option.when(memberValueParams.nonEmpty)(Seq(
+        h2(cls := "h200")("Value parameters"),
+        dl(cls := "attributes attributes-small")(memberValueParams *)
+      )).toSeq.flatten :+
+      h2(cls := "h200")("Attributes") :+
+      dl(cls := "attributes attributes-small")(attributes *)
+    )
+  )
+}
+>>>
+FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '[227] )∙(: RightParen [1072..1073) [] LeftParen [1073..1074)', line 27: exceeded `runner.maxStateVisits` [see https://scalameta.org/scalafmt/docs/configuration.html#search-state-exploded]
+<<< #4133 binpack with complex nested applies and not forcing config style, dangling
+binPack.preset = always
+danglingParentheses.preset = true
+runner.optimizer {
+  forceConfigStyleMinSpan = 500
+  forceConfigStyleMinArgCount = 5
+}
+===
+object a {
+  div(cls := "cover")(
+    div(cls := "doc")(bodyContents),
+    Option.when(full)(
+      section(id := "attributes")(
+        Option.when(memberTypeParams.nonEmpty)(Seq(
+          h2(cls := "h500")("Type parameters"),
+          dl(cls := "attributes")(memberTypeParams*)
+        )).toSeq.flatten,
+        Option.when(memberValueParams.nonEmpty)(Seq(
+          h2(cls := "h500")("Value parameters"),
+          dl(cls := "attributes")(memberValueParams*)
+        )).toSeq.flatten,
+        h2(cls := "h500")("Attributes"),
+        dl(cls := "attributes")(attributes*)
+      )
+    ).getOrElse(
+      Option.when(memberTypeParams.nonEmpty)(Seq(
+        h2(cls := "h200")("Type parameters"),
+        dl(cls := "attributes attributes-small")(memberTypeParams *)
+      )).toSeq.flatten ++
+      Option.when(memberValueParams.nonEmpty)(Seq(
+        h2(cls := "h200")("Value parameters"),
+        dl(cls := "attributes attributes-small")(memberValueParams *)
+      )).toSeq.flatten :+
+      h2(cls := "h200")("Attributes") :+
+      dl(cls := "attributes attributes-small")(attributes *)
+    )
+  )
+}
+>>>
+object a {
+  div(cls := "cover")(
+    div(cls := "doc")(bodyContents),
+    Option.when(full)(
+      section(id := "attributes")(
+        Option.when(
+          memberTypeParams.nonEmpty
+        )(Seq(
+            h2(cls := "h500")(
+              "Type parameters"
+            ),
+            dl(cls := "attributes")(
+              memberTypeParams *
+            )
+          )).toSeq.flatten,
+        Option.when(
+          memberValueParams.nonEmpty
+        )(Seq(
+            h2(cls := "h500")(
+              "Value parameters"
+            ),
+            dl(cls := "attributes")(
+              memberValueParams *
+            )
+          )).toSeq.flatten,
+        h2(cls := "h500")("Attributes"),
+        dl(cls := "attributes")(
+          attributes *
+        )
+      )
+    ).getOrElse(
+      Option.when(
+        memberTypeParams.nonEmpty
+      )(Seq(
+          h2(cls := "h200")(
+            "Type parameters"
+          ),
+          dl(
+            cls := "attributes attributes-small"
+          )(memberTypeParams *)
+        )).toSeq.flatten ++
+        Option.when(
+          memberValueParams.nonEmpty
+        )(Seq(
+            h2(cls := "h200")(
+              "Value parameters"
+            ),
+            dl(
+              cls := "attributes attributes-small"
+            )(memberValueParams *)
+          )).toSeq.flatten :+
+        h2(cls := "h200")(
+          "Attributes"
+        ) :+
+        dl(
+          cls := "attributes attributes-small"
+        )(attributes *)
+    )
+  )
 }
