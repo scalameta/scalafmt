@@ -6398,6 +6398,33 @@ object a:
          qux // c2
       end baz
    )(quux)
+<<< scala.js overflow within for-yield dangling
+binPack.preset = always
+danglingParentheses.preset = true
+===
+object a:
+    def foo =
+      for template <- templates do
+        val current_Map_String__Object = template_templateFile_settings_getOrElse("page", Map.empty).asInstanceOf[Map_String_Object]
+>>>
+object a:
+   def foo = for template <- templates do
+      val current_Map_String__Object =
+        template_templateFile_settings_getOrElse("page", Map.empty)
+          .asInstanceOf[Map_String_Object]
+<<< scala.js overflow within for-yield !dangling
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+    def foo =
+      for template <- templates do
+        val current_Map_String__Object = template_templateFile_settings_getOrElse("page", Map.empty).asInstanceOf[Map_String_Object]
+>>>
+object a:
+   def foo = for template <- templates do
+      val current_Map_String__Object = template_templateFile_settings_getOrElse(
+        "page", Map.empty).asInstanceOf[Map_String_Object]
 <<< #4133 for-yield with rewritten body
 rewrite.scala3.removeOptionalBraces = yes
 ===
@@ -6600,3 +6627,258 @@ object a:
    end writeTo
    def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType =
      copy(constant = __v)
+<<< #4133 binpack overflow assignment tupled, !dangling
+indent.callSite = 4
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a {
+  def tupledFunction18[F, G]: TupledFunction[F, G] = TupledFunction[F, G](
+    untupledImpl = (g: G) =>
+      ((x1: Any, x2: Any, x3: Any, x4: Any, x5: Any, x6: Any, x7: Any, x8: Any, x9: Any, x10: Any, x11: Any, x12: Any, x13: Any, x14: Any, x15: Any, x16: Any, x17: Any, x18: Any) =>
+        g.asInstanceOf[Tuple18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => Any].apply((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18))).asInstanceOf[F]
+  )
+}
+>>>
+object a {
+  def tupledFunction18[F, G]: TupledFunction[F, G] = TupledFunction[F, G](
+      untupledImpl = (g: G) =>
+        (
+            (
+                x1: Any, x2: Any, x3: Any, x4: Any, x5: Any, x6: Any, x7: Any,
+                x8: Any, x9: Any, x10: Any, x11: Any, x12: Any, x13: Any,
+                x14: Any, x15: Any, x16: Any, x17: Any, x18: Any) =>
+              g.asInstanceOf[
+                    Tuple18[
+                        _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+                        _] => Any].apply(
+                    (
+                        x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13,
+                        x14, x15, x16, x17, x18))).asInstanceOf[F])
+}
+<<< #4133 binpack overflow assignment with selects, attributes, !dangling
+indent.callSite = 4
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a {
+  @threadUnsafe lazy val AnnotationRetentionSourceAttr: TermSymbol = requiredClass("java.lang.annotation.RetentionPolicy").linkedClass.requiredValue("SOURCE")
+}
+>>>
+object a {
+  @threadUnsafe
+  lazy val AnnotationRetentionSourceAttr: TermSymbol =
+    requiredClass("java.lang.annotation.RetentionPolicy").linkedClass
+      .requiredValue("SOURCE")
+}
+<<< #4133 overflow apply with binpack, dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = true
+===
+object a:
+  if (args.isEmpty) {
+    run(insertClasspathInArgs(args1, List(dottyCompiler, dottyInterfaces, asm, dottyStaging, dottyTastyInspector, tastyCore, compilerInterface)))
+  } else run(args)
+>>>
+object a:
+   if (args.isEmpty) {
+     run(
+       insertClasspathInArgs(
+         args1,
+         List(
+           dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore, compilerInterface
+         )
+       )
+     )
+   } else run(args)
+<<< #4133 overflow apply/select with binpack, dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = true
+===
+object a:
+  if (args.isEmpty) {
+    run(insertClasspathInArgs(args1, List(dottyCompiler, dottyInterfaces, asm, dottyStaging, dottyTastyInspector, tastyCore, compilerInterface).mkString(File.pathSeparator)))
+  } else run(args)
+>>>
+object a:
+   if (args.isEmpty) {
+     run(
+       insertClasspathInArgs(
+         args1,
+         List(
+           dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore, compilerInterface
+         ).mkString(File.pathSeparator)
+       )
+     )
+   } else run(args)
+<<< #4133 overflow apply/selects with binpack, dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = true
+===
+object a:
+  if (args.isEmpty) {
+    run(insertClasspathInArgs(args1, List(dottyCompiler, dottyInterfaces, asm, dottyStaging, dottyTastyInspector, tastyCore, compilerInterface).mkString(File.pathSeparator).mkString(File.pathSeparator)))
+  } else run(args)
+>>>
+object a:
+   if (args.isEmpty) {
+     run(
+       insertClasspathInArgs(
+         args1,
+         List(
+           dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore, compilerInterface
+         ).mkString(File.pathSeparator).mkString(File.pathSeparator)
+       )
+     )
+   } else run(args)
+<<< #4133 overflow apply with binpack, !dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+  if (args.isEmpty) {
+    run(insertClasspathInArgs(args1, List(dottyCompiler, dottyInterfaces, asm, dottyStaging, dottyTastyInspector, tastyCore, compilerInterface)))
+  } else run(args)
+>>>
+object a:
+   if (args.isEmpty) {
+     run(
+       insertClasspathInArgs(
+         args1,
+         List(
+           dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore, compilerInterface)))
+   } else run(args)
+<<< #4133 overflow apply/select with binpack, !dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+  if (args.isEmpty) {
+    run(insertClasspathInArgs(args1, List(dottyCompiler, dottyInterfaces, asm, dottyStaging, dottyTastyInspector, tastyCore, compilerInterface).mkString(File.pathSeparator)))
+  } else run(args)
+>>>
+object a:
+   if (args.isEmpty) {
+     run(
+       insertClasspathInArgs(
+         args1,
+         List(
+           dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore, compilerInterface)
+           .mkString(File.pathSeparator)))
+   } else run(args)
+<<< #4133 overflow apply/selects with binpack, !dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+  if (args.isEmpty) {
+    run(insertClasspathInArgs(args1, List(dottyCompiler, dottyInterfaces, asm, dottyStaging, dottyTastyInspector, tastyCore, compilerInterface).mkString(File.pathSeparator).mkString(File.pathSeparator)))
+  } else run(args)
+>>>
+object a:
+   if (args.isEmpty) {
+     run(
+       insertClasspathInArgs(
+         args1,
+         List(
+           dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore, compilerInterface)
+           .mkString(File.pathSeparator).mkString(File.pathSeparator)
+       ))
+   } else run(args)
+<<< #4133 overflow select with binpack, dangling
+binPack.preset = always
+danglingParentheses.preset = true
+===
+object a:
+   val foo = map { postFile =>
+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year).resolve(month).resolve(day).resolve(name)
+   }
+>>>
+object a:
+   val foo = map { postFile =>
+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year)
+        .resolve(month).resolve(day).resolve(name)
+   }
+<<< #4133 overflow select with binpack, !dangling
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+   val foo = map { postFile =>
+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year).resolve(month).resolve(day).resolve(name)
+   }
+>>>
+object a:
+   val foo = map { postFile =>
+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year)
+        .resolve(month).resolve(day).resolve(name)
+   }
+<<< #4133 overflow selects/applies, nobreak-dot-break, binpack + !dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+  lazy val `stdlib-bootstrapped` = project.in(file("stdlib-bootstrapped")).
+    withCommonSettings(Bootstrapped).
+    dependsOn(dottyCompiler(Bootstrapped) % "provided; compile->runtime; test->test").
+    settings(
+      moduleName := "scala-library",
+    )
+>>>
+object a:
+   lazy val `stdlib-bootstrapped` = project
+     .in(file("stdlib-bootstrapped")).withCommonSettings(Bootstrapped)
+     .dependsOn(
+       dottyCompiler(Bootstrapped) %
+         "provided; compile->runtime; test->test")
+     .settings(moduleName := "scala-library")
+<<< #4133 overflow selects/applies, nobreak-dot-nobreak, binpack + !dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+  lazy val `stdlib-bootstrapped` = project.in(file("stdlib-bootstrapped")).withCommonSettings(Bootstrapped).dependsOn(dottyCompiler(Bootstrapped) % "provided; compile->runtime; test->test").settings(
+      moduleName := "scala-library",
+    )
+>>>
+object a:
+   lazy val `stdlib-bootstrapped` = project
+     .in(file("stdlib-bootstrapped")).withCommonSettings(Bootstrapped)
+     .dependsOn(
+       dottyCompiler(Bootstrapped) %
+         "provided; compile->runtime; test->test")
+     .settings(moduleName := "scala-library")
+<<< #4133 overflow selects/applies, break-dot-nobreak, binpack + !dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+  lazy val `stdlib-bootstrapped` = project.in(file("stdlib-bootstrapped"))
+    .withCommonSettings(Bootstrapped)
+    .dependsOn(dottyCompiler(Bootstrapped) % "provided; compile->runtime; test->test")
+    .settings(
+      moduleName := "scala-library",
+    )
+>>>
+object a:
+   lazy val `stdlib-bootstrapped` = project
+     .in(file("stdlib-bootstrapped")).withCommonSettings(Bootstrapped)
+     .dependsOn(
+       dottyCompiler(Bootstrapped) %
+         "provided; compile->runtime; test->test")
+     .settings(moduleName := "scala-library")
