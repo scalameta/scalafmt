@@ -401,9 +401,9 @@ class FormatOps(
   def getOptimalTokenFor(ft: FormatToken): T =
     if (isAttachedCommentThenBreak(ft)) ft.right else ft.left
 
-  def insideInfixSplit(app: Member.Infix, ft: FormatToken)(implicit
-      style: ScalafmtConfig,
-  ): Seq[Split] = {
+  def insideInfixSplit(
+      app: Member.Infix,
+  )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] = {
     val op = app.op.value
     if (app.is[Type] && style.spaces.neverAroundInfixTypes.contains(op))
       Seq(Split(NoSplit, 0))
@@ -457,10 +457,9 @@ class FormatOps(
 
   def getInfixSplitsBeforeLhs(
       lhsApp: Member.Infix,
-      ft: FormatToken,
       afterInfix: Newlines.AfterInfix,
       newStmtMod: Option[Modification] = None,
-  )(implicit style: ScalafmtConfig): Seq[Split] = {
+  )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] = {
     val fullInfixTreeOpt = findTreeWithParentSimple(lhsApp, false)(isInfixApp)
     val fullInfix = fullInfixTreeOpt.flatMap(asInfixApp).getOrElse(lhsApp)
     val app = findLeftInfix(fullInfix)
@@ -468,14 +467,13 @@ class FormatOps(
       .getBeforeLhsOrRhs(afterInfix, newStmtMod)
   }
 
-  final def maybeGetInfixSplitsBeforeLhs(
-      ft: FormatToken,
-      mod: => Option[Modification] = None,
-  )(nonInfixSplits: => Seq[Split])(implicit style: ScalafmtConfig): Seq[Split] = {
+  final def maybeGetInfixSplitsBeforeLhs(mod: => Option[Modification] = None)(
+      nonInfixSplits: => Seq[Split],
+  )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] = {
     val tree = ft.meta.rightOwner
     val ai = style.breakAfterInfix(tree)
     val app = if (ai eq Newlines.AfterInfix.keep) None else asInfixApp(tree)
-    app.fold(nonInfixSplits)(getInfixSplitsBeforeLhs(_, ft, ai, mod))
+    app.fold(nonInfixSplits)(getInfixSplitsBeforeLhs(_, ai, mod))
   }
 
   private[internal] object InfixSplits {
@@ -655,7 +653,7 @@ class FormatOps(
         afterInfix: Newlines.AfterInfix,
         newStmtMod: Option[Modification] = None,
         spaceMod: Modification = Space,
-    ): Seq[Split] = {
+    )(implicit ft: FormatToken): Seq[Split] = {
       val maxPrecedence =
         if (isAfterOp) infixSequenceMaxPrecedence(fullInfix) else 0 // 0 unused
       val closeOpt = matchingOpt(ft.right)
@@ -1043,9 +1041,10 @@ class FormatOps(
 
   /** Implementation for `verticalMultiline`
     */
-  def verticalMultiline(
+  def verticalMultiline()(implicit
+      style: ScalafmtConfig,
       ft: FormatToken,
-  )(implicit style: ScalafmtConfig): Seq[Split] = {
+  ): Seq[Split] = {
     val lpOwner = ft.meta.leftOwner
 
     val FormatToken(open, r, _) = ft
@@ -1606,9 +1605,9 @@ class FormatOps(
         Seq(spaceSplit.withIndents(spaceIndents), nlSplitFunc(1).forThisLine)
       }
 
-    def checkComment(ft: FormatToken, nlSplitFunc: Int => Split)(
+    def checkComment(nlSplitFunc: Int => Split)(
         splitsFunc: FormatToken => Seq[Split],
-    ): Seq[Split] =
+    )(implicit ft: FormatToken): Seq[Split] =
       if (!ft.right.is[T.Comment] && !ft.hasBlankLine) splitsFunc(ft)
       else if (ft.hasBreak) Seq(nlSplitFunc(0).forThisLine)
       else {
@@ -1625,53 +1624,54 @@ class FormatOps(
       }
 
     def folded(
-        ft: FormatToken,
         body: Tree,
         isKeep: Boolean,
         spaceIndents: Seq[Indent] = Seq.empty,
-    )(nlSplitFunc: Int => Split)(implicit style: ScalafmtConfig): Seq[Split] =
-      checkComment(ft, nlSplitFunc) { _ =>
-        foldedNonComment(body, nlSplitFunc, isKeep, spaceIndents)
-      }
-
-    def slbOnly(
+    )(nlSplitFunc: Int => Split)(implicit
+        style: ScalafmtConfig,
         ft: FormatToken,
-        body: Tree,
-        spaceIndents: Seq[Indent] = Seq.empty,
-    )(nlSplitFunc: Int => Split)(implicit style: ScalafmtConfig): Seq[Split] =
-      checkComment(ft, nlSplitFunc) { _ =>
+    ): Seq[Split] = checkComment(nlSplitFunc) { _ =>
+      foldedNonComment(body, nlSplitFunc, isKeep, spaceIndents)
+    }
+
+    def slbOnly(body: Tree, spaceIndents: Seq[Indent] = Seq.empty)(
+        nlSplitFunc: Int => Split,
+    )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] =
+      checkComment(nlSplitFunc) { _ =>
         unfoldedNonComment(body, nlSplitFunc, spaceIndents, true)
       }
 
-    def get(ft: FormatToken, body: Tree, spaceIndents: Seq[Indent] = Seq.empty)(
+    def get(body: Tree, spaceIndents: Seq[Indent] = Seq.empty)(
         classicNoBreakFunc: => Split,
-    )(nlSplitFunc: Int => Split)(implicit style: ScalafmtConfig): Seq[Split] =
-      checkComment(ft, nlSplitFunc) { x =>
-        def getFolded(isKeep: Boolean) =
-          foldedNonComment(body, nlSplitFunc, isKeep = isKeep, spaceIndents)
-        style.newlines.getBeforeMultiline match {
-          case Newlines.fold => getFolded(false)
-          case Newlines.unfold =>
-            unfoldedNonComment(body, nlSplitFunc, spaceIndents, false)
-          case Newlines.classic if x.noBreak =>
-            Option(classicNoBreakFunc).fold(getFolded(true)) { func =>
-              val spcSplit = func.forThisLine
-              val nlSplit = nlSplitFunc(spcSplit.getCost(_ + 1, 0)).forThisLine
-              Seq(spcSplit, nlSplit)
-            }
-          case Newlines.keep if x.noBreak => getFolded(true)
-          case _ => getFolded(true).filter(_.isNL) // keep/classic with break
-        }
+    )(nlSplitFunc: Int => Split)(implicit
+        style: ScalafmtConfig,
+        ft: FormatToken,
+    ): Seq[Split] = checkComment(nlSplitFunc) { x =>
+      def getFolded(isKeep: Boolean) =
+        foldedNonComment(body, nlSplitFunc, isKeep = isKeep, spaceIndents)
+      style.newlines.getBeforeMultiline match {
+        case Newlines.fold => getFolded(false)
+        case Newlines.unfold =>
+          unfoldedNonComment(body, nlSplitFunc, spaceIndents, false)
+        case Newlines.classic if x.noBreak =>
+          Option(classicNoBreakFunc).fold(getFolded(true)) { func =>
+            val spcSplit = func.forThisLine
+            val nlSplit = nlSplitFunc(spcSplit.getCost(_ + 1, 0)).forThisLine
+            Seq(spcSplit, nlSplit)
+          }
+        case Newlines.keep if x.noBreak => getFolded(true)
+        case _ => getFolded(true).filter(_.isNL) // keep/classic with break
       }
+    }
 
     def getWithIndent(
-        ft: FormatToken,
         body: Tree,
         endFt: => FormatToken,
         spaceIndents: Seq[Indent] = Seq.empty,
     )(classicNoBreakFunc: => Split)(nlSplitFunc: Int => Split)(implicit
         style: ScalafmtConfig,
-    ): Seq[Split] = get(ft, body, spaceIndents)(classicNoBreakFunc)(x =>
+        ft: FormatToken,
+    ): Seq[Split] = get(body, spaceIndents)(classicNoBreakFunc)(x =>
       withIndent(nlSplitFunc(x), ft, body, endFt),
     )
 
@@ -1755,22 +1755,20 @@ class FormatOps(
   }
 
   def getSplitsForTypeBounds(
-      ft: FormatToken,
       noNLMod: => Modification,
       tparam: Type.Param,
       bounds: Type.Param => Seq[Type],
-  )(implicit style: ScalafmtConfig): Seq[Split] = {
+  )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] = {
     val boundOpt = bounds(tparam).find(_.pos.start > ft.right.end)
     val expireOpt = boundOpt.map(getLastNonTrivialToken)
-    getSplitsForTypeBounds(ft, noNLMod, tparam, expireOpt)
+    getSplitsForTypeBounds(noNLMod, tparam, expireOpt)
   }
 
   def getSplitsForTypeBounds(
-      ft: FormatToken,
       noNLMod: => Modification,
       typeOwner: Tree,
       boundEndOpt: Option[T],
-  )(implicit style: ScalafmtConfig): Seq[Split] = {
+  )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] = {
     val typeEnd = getLastNonTrivialToken(typeOwner)
     val boundEnd = boundEndOpt.getOrElse(typeEnd)
     def indent = Indent(Num(style.indent.main), boundEnd, ExpiresOn.After)
@@ -1799,8 +1797,9 @@ class FormatOps(
   object OptionalBraces {
 
     private trait Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion]
     }
 
@@ -1836,8 +1835,9 @@ class FormatOps(
             _: T.KwYield => BlockImpl
         case _ => null
       }).flatMap { impl =>
+        implicit val ift: FormatToken = ft
         val nft = nextNonComment(ft)
-        impl.create(ft, nft).filter { ob =>
+        impl.create(nft).filter { ob =>
           !nft.right.is[T.LeftBrace] || nft.meta.rightOwner.parent != ob.owner
         }
       }
@@ -1846,12 +1846,15 @@ class FormatOps(
       .nonEmpty
 
     private def getSplits(
-        ft: FormatToken,
         tree: Tree,
         forceNL: Boolean,
         danglingKeyword: Boolean = true,
         indentOpt: Option[Int] = None,
-    )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
+    )(implicit
+        fileLine: FileLine,
+        style: ScalafmtConfig,
+        ft: FormatToken,
+    ): Seq[Split] = {
       val treeTokens = tree.tokens
       val end = getOnOrAfterLast(treeTokens, tree)
       val nonTrivialEnd = prevNonComment(end)
@@ -1883,14 +1886,15 @@ class FormatOps(
     // https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html#variant-indentation-marker-
     // TODO: amend for additional cases when the parser supports them
     private object ColonEolImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = {
         val lo = ft.meta.leftOwner
         def createImpl(ownerOpt: => Option[Tree], okRightBrace: => Boolean) =
           Some(new OptionalBracesRegion {
             def owner = ownerOpt
-            def splits = Some(getSplits(ft, lo, forceNL = true))
+            def splits = Some(getSplits(lo, forceNL = true))
             def rightBrace = if (okRightBrace) treeLast(lo) else None
           })
         lo match {
@@ -1899,8 +1903,7 @@ class FormatOps(
           case t: Pkg if tokenAfter(t.ref).right eq ft.left =>
             createImpl(Some(t), isSeqMulti(t.stats))
           case t: Type.Refine => createImpl(Some(t), true)
-          case t: Term.ArgClause if getHead(t) eq ft =>
-            onArgClause(ft, t, t.values)
+          case t: Term.ArgClause if getHead(t) eq ft => onArgClause(t, t.values)
           case t: Term => t.parent match {
               case Some(p: Term.ArgClause)
                   if hasSingleElement(p, t) && (getHead(p) eq ft) =>
@@ -1908,18 +1911,17 @@ class FormatOps(
                   case b: Term.Block => b.stats
                   case _ => t :: Nil
                 }
-                onArgClause(ft, p, stats)
+                onArgClause(p, stats)
               case _ => None
             }
           case _ => None
         }
       }
 
-      private def onArgClause(
+      private def onArgClause(ac: Term.ArgClause, args: List[Tree])(implicit
+          style: ScalafmtConfig,
           ft: FormatToken,
-          ac: Term.ArgClause,
-          args: List[Tree],
-      )(implicit style: ScalafmtConfig): Option[OptionalBracesRegion] = {
+      ): Option[OptionalBracesRegion] = {
         def funcSplit(arg: Term.FunctionTerm)(implicit fl: FileLine) = {
           val end = getLast(arg)
           val opt = getOptimalTokenFor(getFuncArrow(arg).getOrElse(end))
@@ -1956,11 +1958,11 @@ class FormatOps(
                       isEnclosedInParens(tpc)
                     case _ => true // multiple params are always in parens
                   }) =>
-              getSplits(ft, ac, forceNL = false, indentOpt = indent) match {
+              getSplits(ac, forceNL = false, indentOpt = indent) match {
                 case s +: rs if !s.isNL => funcSplit(tf)(s.fileLine) +: rs
                 case ss => ss
               }
-            case _ => getSplits(ft, ac, forceNL = true, indentOpt = indent)
+            case _ => getSplits(ac, forceNL = true, indentOpt = indent)
           })
           def rightBrace = treeLast(ac)
         })
@@ -1968,8 +1970,9 @@ class FormatOps(
     }
 
     private object WithImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = {
         val lo = ft.meta.leftOwner
         def createImpl(
@@ -1983,7 +1986,7 @@ class FormatOps(
           ) None
           else Some(new OptionalBracesRegion {
             def owner = ownerOpt
-            def splits = Some(getSplits(ft, lo, forceNL = true))
+            def splits = Some(getSplits(lo, forceNL = true))
             def rightBrace = if (okRightBrace) treeLast(lo) else None
           })
         lo match {
@@ -1995,23 +1998,23 @@ class FormatOps(
     }
 
     private object BlockImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = {
         val leftOwner = ft.meta.leftOwner
         findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
           case Some(t: Term.Block) => getBlockWithNonSingleTermStat(t)
-              .flatMap { b =>
-                WithStats(ft, nft, b.stats.headOption, t, t.parent)
-              }
+              .flatMap(b => WithStats(nft, b.stats.headOption, t, t.parent))
           case _ => None
         }
       }
     }
 
     private object RightParenImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = {
         def createImpl(ownerTree: => Tree, blockTree: => Tree)(
             splitsRef: => Option[Seq[Split]],
@@ -2024,19 +2027,19 @@ class FormatOps(
           if (nft.right.is[T.KwDo]) None
           else createImpl(ownerTree, blockTree)(
             if (isTreeSingleExpr(blockTree)) None
-            else Some(getSplits(ft, blockTree, true)),
+            else Some(getSplits(blockTree, true)),
           )
         ft.meta.leftOwner match {
           case ParamClauseParent(t: Defn.ExtensionGroup)
               if isBlockStart(t.body, nft) =>
-            createImpl(t, t.body)(Some(getSplitsMaybeBlock(ft, nft, t.body)))
+            createImpl(t, t.body)(Some(getSplitsMaybeBlock(nft, t.body)))
           case t: Term.If if !nft.right.is[T.KwThen] && {
                 !isTreeSingleExpr(t.thenp) ||
                 getLastNotTrailingCommentOpt(t.thenp).exists(_.isLeft) ||
                 !ifWithoutElse(t) &&
                 (isElsePWithOptionalBraces(t) ||
                   existsBlockIfWithoutElse(t.thenp, false))
-              } => createImpl(t, t.thenp)(Some(getSplitsForIf(ft, nft, t)))
+              } => createImpl(t, t.thenp)(Some(getSplitsForIf(nft, t)))
           case t: Term.For => createKwDo(t, t.body)
           case t: Term.While => createKwDo(t, t.body)
           case _ => None
@@ -2045,8 +2048,9 @@ class FormatOps(
     }
 
     private object RightArrowImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t: Case => // unsupported except for right brace, or when ends in comment
           Some(new OptionalBracesRegion {
@@ -2056,23 +2060,25 @@ class FormatOps(
               else Some(Seq(Split(Newline2x(ft), 0)))
             def rightBrace = blockLast(t.body)
           })
-        case _ => BlockImpl.create(ft, nft)
+        case _ => BlockImpl.create(nft)
       }
     }
 
     private object ForImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t @ Tree.WithEnums(x) if isSeqMulti(x) =>
-          WithStats(ft, nft, x.headOption, x.last, Some(t), nlOnly = false)
+          WithStats(nft, x.headOption, x.last, Some(t), nlOnly = false)
         case _ => None
       }
     }
 
     private object WhileImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t: Term.While => t.expr match {
             case b: Term.Block
@@ -2083,7 +2089,7 @@ class FormatOps(
                 def splits = Some {
                   val dangle = style.danglingParentheses.ctrlSite
                   val forceNL = !nft.right.is[T.LeftParen]
-                  getSplits(ft, b, forceNL = forceNL, danglingKeyword = dangle)
+                  getSplits(b, forceNL = forceNL, danglingKeyword = dangle)
                 }
                 def rightBrace = blockLast(b)
               })
@@ -2094,13 +2100,14 @@ class FormatOps(
     }
 
     private object DoImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = {
         val lo = ft.meta.leftOwner
         def createImpl(body: Tree) = Some(new OptionalBracesRegion {
           def owner = Some(lo)
-          def splits = Some(getSplitsMaybeBlock(ft, nft, body))
+          def splits = Some(getSplitsMaybeBlock(nft, body))
           def rightBrace = blockLast(body)
         })
         lo match {
@@ -2111,33 +2118,35 @@ class FormatOps(
     }
 
     private object EqualsImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t: Ctor.Secondary =>
           if (t.stats.isEmpty) None
-          else WithStats(ft, nft, Some(t.init), t, t.parent)
+          else WithStats(nft, Some(t.init), t, t.parent)
         case t @ Tree.WithBody(b) => (b match {
             case x: Term.Block => getBlockWithNonSingleTermStat(x)
             case x: Term.PartialFunction => Some(x)
             case _ => None
-          }).flatMap(x => WithStats(ft, nft, x.exprs.headOption, b, Some(t)))
-        case _ => BlockImpl.create(ft, nft)
+          }).flatMap(x => WithStats(nft, x.exprs.headOption, b, Some(t)))
+        case _ => BlockImpl.create(nft)
       }
     }
 
     private object TryImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = {
         val lo = ft.meta.leftOwner
         def createImpl(expr: Term, finallyp: Option[Term], usesOB: => Boolean) =
           Some(new OptionalBracesRegion {
             def owner = Some(lo)
             def splits =
-              if (!isTreeSingleExpr(expr)) Some(getSplits(ft, expr, true))
+              if (!isTreeSingleExpr(expr)) Some(getSplits(expr, true))
               else if (finallyp.exists(isTreeUsingOptionalBraces) || usesOB)
-                Some(getSplits(ft, expr, shouldBreakInOptionalBraces(ft, nft)))
+                Some(getSplits(expr, shouldBreakInOptionalBraces(ft, nft)))
               else None
 
             def rightBrace = blockLast(expr)
@@ -2155,8 +2164,9 @@ class FormatOps(
       .catchp.headOption.exists(x => !tokenBefore(x).left.is[T.LeftBrace])
 
     private object CatchImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t: Term.Try =>
           val x = t.catchp
@@ -2166,14 +2176,15 @@ class FormatOps(
               t.finallyp.isEmpty && isEmptyTree(head.body)
             case _ => true
           }
-          WithStats(ft, nft, x.headOption, x.last, Some(t), nlOnly = nlOnly)
+          WithStats(nft, x.headOption, x.last, Some(t), nlOnly = nlOnly)
         case _ => None
       }
     }
 
     private object FinallyImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = {
         val lo = ft.meta.leftOwner
         def createImpl(usingOB: => Boolean)(finallyExpr: Tree) = {
@@ -2183,7 +2194,7 @@ class FormatOps(
           new OptionalBracesRegion {
             def owner = Some(lo)
             def splits =
-              if (usesOB) Some(getSplits(ft, finallyExpr, forceNL)) else None
+              if (usesOB) Some(getSplits(finallyExpr, forceNL)) else None
             def rightBrace = blockLast(finallyExpr)
           }
         }
@@ -2199,23 +2210,25 @@ class FormatOps(
     }
 
     private object MatchImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t @ Tree.WithCases(x) =>
           val ind = style.indent.matchSite
-          WithStats(ft, nft, x.headOption, x.last, Some(t), indentOpt = ind)
+          WithStats(nft, x.headOption, x.last, Some(t), indentOpt = ind)
         case _ => None
       }
     }
 
     private object ThenImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t: Term.If => Some(new OptionalBracesRegion {
             def owner = Some(t)
-            def splits = Some(getSplitsForIf(ft, nft, t))
+            def splits = Some(getSplitsForIf(nft, t))
             def rightBrace = blockLast(t.thenp)
           })
         case _ => None
@@ -2223,8 +2236,9 @@ class FormatOps(
     }
 
     private object IfImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t: Term.If =>
           val nr = nft.right
@@ -2238,7 +2252,7 @@ class FormatOps(
                 def splits = Some {
                   val dangle = style.danglingParentheses.ctrlSite
                   val forceNL = !nr.is[T.LeftParen]
-                  getSplits(ft, b, forceNL, dangle)
+                  getSplits(b, forceNL, dangle)
                 }
                 def rightBrace = blockLast(b)
               })
@@ -2249,8 +2263,9 @@ class FormatOps(
     }
 
     private object ElseImpl extends Factory {
-      def create(ft: FormatToken, nft: FormatToken)(implicit
+      def create(nft: FormatToken)(implicit
           style: ScalafmtConfig,
+          ft: FormatToken,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t: Term.If => (getTreeSingleExpr(t.elsep) match {
             case Some(x: Term.If) =>
@@ -2264,7 +2279,7 @@ class FormatOps(
           }).map { forceNL =>
             new OptionalBracesRegion {
               def owner = Some(t)
-              def splits = Some(getSplits(ft, t.elsep, forceNL))
+              def splits = Some(getSplits(t.elsep, forceNL))
               def rightBrace = blockLast(t.elsep)
             }
           }
@@ -2273,62 +2288,66 @@ class FormatOps(
     }
 
     private def getSplitsMaybeBlock(
-        ft: FormatToken,
         nft: FormatToken,
         tree: Tree,
         danglingKeyword: Boolean = true,
-    )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
+    )(implicit
+        fileLine: FileLine,
+        style: ScalafmtConfig,
+        ft: FormatToken,
+    ): Seq[Split] = {
       val forceNL = !hasSingleTermStatIfBlock(tree) ||
         shouldBreakInOptionalBraces(ft, nft)
-      getSplits(ft, tree, forceNL, danglingKeyword)
+      getSplits(tree, forceNL, danglingKeyword)
     }
 
     private class WithStats private (
-        ft: FormatToken,
         nft: FormatToken,
         body: Tree,
         val owner: Option[Tree],
         nlOnly: Boolean,
         indentOpt: Option[Int],
-    )(implicit fileLine: FileLine, style: ScalafmtConfig)
+    )(implicit fileLine: FileLine, style: ScalafmtConfig, ft: FormatToken)
         extends OptionalBracesRegion {
       def splits: Option[Seq[Split]] = {
         val forceNL = nlOnly || shouldBreakInOptionalBraces(ft, nft)
-        Some(getSplits(ft, body, forceNL = forceNL, indentOpt = indentOpt))
+        Some(getSplits(body, forceNL = forceNL, indentOpt = indentOpt))
       }
       def rightBrace: Option[T] = treeLast(body)
     }
 
     private object WithStats {
       def apply(
-          ft: FormatToken,
           nft: FormatToken,
           head: Option[Tree],
           body: => Tree,
           owner: => Option[Tree],
           nlOnly: Boolean = true,
           indentOpt: Option[Int] = None,
-      )(implicit fileLine: FileLine, style: ScalafmtConfig): Option[WithStats] =
-        head.flatMap { head =>
-          if (!isJustBeforeTree(nft)(head)) None
-          else Some(new WithStats(ft, nft, body, owner, nlOnly, indentOpt))
-        }
+      )(implicit
+          fileLine: FileLine,
+          style: ScalafmtConfig,
+          ft: FormatToken,
+      ): Option[WithStats] = head.flatMap { head =>
+        if (!isJustBeforeTree(nft)(head)) None
+        else Some(new WithStats(nft, body, owner, nlOnly, indentOpt))
+      }
     }
 
-    private def getSplitsForIf(
+    private def getSplitsForIf(nft: FormatToken, t: Term.If)(implicit
+        fileLine: FileLine,
+        style: ScalafmtConfig,
         ft: FormatToken,
-        nft: FormatToken,
-        t: Term.If,
-    )(implicit fileLine: FileLine, style: ScalafmtConfig): Seq[Split] = {
+    ): Seq[Split] = {
       def nestedIf(x: Term.If) = {
         val forceNL = shouldBreakInOptionalBraces(ft, nft) ||
           !ifWithoutElse(t) && existsIfWithoutElse(x)
-        getSplits(ft, t.thenp, forceNL)
+        getSplits(t.thenp, forceNL)
       }
       t.thenp match {
         case x: Term.If => nestedIf(x)
         case Term.Block((x: Term.If) :: Nil) => nestedIf(x)
-        case x => getSplitsMaybeBlock(ft, nft, x, false)
+        case x => getSplitsMaybeBlock(nft, x, false)
       }
     }
 
