@@ -215,13 +215,13 @@ class Router(formatOps: FormatOps) {
           ) if dialect.allowSignificantIndentation => splits
 
       case FormatToken(_: T.Equals, _, DefValAssignLeft(rhs)) =>
-        maybeGetInfixSplitsBeforeLhs(ft) {
+        maybeGetInfixSplitsBeforeLhs() {
           def endFt = getLast(rhs)
-          getSplitsDefValEquals(ft, rhs, endFt) {
+          getSplitsDefValEquals(rhs, endFt) {
             if (leftOwner.is[Tree.WithParamClauses])
-              getSplitsDefEquals(ft, rhs, endFt)
-            else getSplitsValEquals(ft, rhs, endFt)(
-              getSplitsValEqualsClassic(ft, rhs, endFt),
+              getSplitsDefEquals(rhs, endFt)
+            else getSplitsValEquals(rhs, endFt)(
+              getSplitsValEqualsClassic(rhs, endFt),
             )
           }
         }
@@ -529,31 +529,31 @@ class Router(formatOps: FormatOps) {
         def baseSplit = Split(Space, 0)
         def nlSplit(ft: FormatToken)(cost: Int)(implicit l: FileLine) =
           Split(Newline2x(ft), cost)
-        CtrlBodySplits.checkComment(ft, nlSplit(ft)) { ft =>
+        CtrlBodySplits.checkComment(nlSplit(ft)) { nft =>
           def withSlbSplit(implicit l: FileLine) = Seq(
             baseSplit.withSingleLine(getLastNonTrivialToken(body)),
-            nlSplit(ft)(1)(nextLine),
+            nlSplit(nft)(1)(nextLine),
           )
           val beforeMultiline = style.newlines.getBeforeMultiline
-          if (isCaseBodyABlock(ft, owner)) Seq(baseSplit)
-          else if (isCaseBodyEnclosedAsBlock(ft, owner)) Seq(baseSplit)
-          else if (ft.right.is[T.KwCase]) Seq(nlSplit(ft)(0))
+          if (isCaseBodyABlock(nft, owner)) Seq(baseSplit)
+          else if (isCaseBodyEnclosedAsBlock(nft, owner)) Seq(baseSplit)
+          else if (nft.right.is[T.KwCase]) Seq(nlSplit(nft)(0))
           else if (hasBreak() && !beforeMultiline.ignoreSourceSplit)
-            Seq(nlSplit(ft)(0))
+            Seq(nlSplit(nft)(0))
           else if (bodyIsEmpty)
             if (rt.isAny[T.RightBrace, T.Semicolon])
-              Seq(baseSplit, nlSplit(ft)(1))
-            else Seq(nlSplit(ft)(0))
+              Seq(baseSplit, nlSplit(nft)(1))
+            else Seq(nlSplit(nft)(0))
           else if (beforeMultiline eq Newlines.unfold)
             if (style.newlines.source ne Newlines.unfold) withSlbSplit
-            else Seq(nlSplit(ft)(0))
+            else Seq(nlSplit(nft)(0))
           else if (
             condIsDefined || beforeMultiline.eq(Newlines.classic) ||
             getSingleStatExceptEndMarker(body).isEmpty
           ) withSlbSplit
           else {
             val isKeep = beforeMultiline.eq(Newlines.keep)
-            CtrlBodySplits.foldedNonEmptyNonComment(body, nlSplit(ft), isKeep)
+            CtrlBodySplits.foldedNonEmptyNonComment(body, nlSplit(nft), isKeep)
           }
         }
       // New statement
@@ -593,7 +593,6 @@ class Router(formatOps: FormatOps) {
           !style.newlines.sourceIgnored
         ) Seq(Split(getMod(ft), 0))
         else maybeGetInfixSplitsBeforeLhs(
-          ft,
           Some(if (left.is[T.Comment] && noBreak()) Space else Newline2x(ft)),
         ) {
           val spaceCouldBeOk = annoLeft &&
@@ -794,7 +793,7 @@ class Router(formatOps: FormatOps) {
       // on the WHOLE defnSite (via policies)
       case FormatToken(LeftParenOrBracket(), _, _)
           if style.verticalMultiline.atDefnSite &&
-            isParamClauseSite(leftOwner) => verticalMultiline(ft)(style)
+            isParamClauseSite(leftOwner) => verticalMultiline()
 
       // Term.Apply and friends
       case FormatToken(lp: T.LeftParen, _, LambdaAtSingleArgCallSite(lambda)) =>
@@ -1581,10 +1580,10 @@ class Router(formatOps: FormatOps) {
               tp.vbounds.length + tp.tbounds.lo.size + tp.tbounds.hi.size
           case _ => false
         })
-        getSplitsForTypeBounds(ft, noNLMod, tp, _.cbounds)
+        getSplitsForTypeBounds(noNLMod, tp, _.cbounds)
       case FormatToken(_, _: T.Viewbound, _) if rightOwner.is[Type.Param] =>
         val tp = rightOwner.asInstanceOf[Type.Param]
-        getSplitsForTypeBounds(ft, Space, tp, _.vbounds)
+        getSplitsForTypeBounds(Space, tp, _.vbounds)
       /* Type bounds in type definitions and declarations such as:
        * type `Tuple <: Alpha & Beta = Another` or `Tuple <: Alpha & Beta`
        */
@@ -1598,7 +1597,7 @@ class Router(formatOps: FormatOps) {
         }
         val boundEnd = boundOpt.map(getLastNonTrivialToken)
         val typeOwner = rightOwner.parent.get
-        getSplitsForTypeBounds(ft, Space, typeOwner, boundEnd)
+        getSplitsForTypeBounds(Space, typeOwner, boundEnd)
 
       case FormatToken(left, _: T.Colon, _) =>
         val mod = left match {
@@ -1997,14 +1996,14 @@ class Router(formatOps: FormatOps) {
         def nlSplitFunc(cost: Int)(implicit l: sourcecode.Line) =
           Split(Newline2x(ft), cost).withIndent(style.indent.main, expire, After)
         if (style.newlines.getBeforeMultiline eq Newlines.unfold) CtrlBodySplits
-          .checkComment(ft, nlSplitFunc) { ft =>
-            if (ft.right.is[T.LeftBrace]) {
-              val nextFt = nextNonCommentSameLineAfter(ft)
+          .checkComment(nlSplitFunc) { nft =>
+            if (nft.right.is[T.LeftBrace]) {
+              val nextFt = nextNonCommentSameLineAfter(nft)
               val policy = decideNewlinesOnlyAfterToken(nextFt.left)
               Seq(Split(Space, 0, policy = policy))
             } else Seq(nlSplitFunc(0))
           }
-        else CtrlBodySplits.get(ft, body) {
+        else CtrlBodySplits.get(body) {
           Split(Space, 0).withSingleLineNoOptimal(
             expire,
             insideBracesBlock(ft, expire),
@@ -2052,7 +2051,7 @@ class Router(formatOps: FormatOps) {
           .withIndent(style.indent.main, expire, After)
         if (style.newlines.getBeforeMultiline eq Newlines.unfold)
           Seq(nlSplitFunc(0))
-        else CtrlBodySplits.get(ft, body) {
+        else CtrlBodySplits.get(body) {
           Split(Space, 0).withSingleLineNoOptimal(expire)
         }(nlSplitFunc)
 
@@ -2129,9 +2128,9 @@ class Router(formatOps: FormatOps) {
 
       // Infix operator.
       case FormatToken(_: T.Ident, _, FormatToken.LeftOwner(AsInfixOp(app))) =>
-        insideInfixSplit(app, ft)
+        insideInfixSplit(app)
       case FormatToken(_, _: T.Ident, FormatToken.RightOwner(AsInfixOp(app))) =>
-        insideInfixSplit(app, ft)
+        insideInfixSplit(app)
 
       // Case
       case FormatToken(_: T.KwCase, _, _)
@@ -2234,7 +2233,7 @@ class Router(formatOps: FormatOps) {
             _: T.LeftArrow | _: T.Equals,
             _,
             EnumeratorAssignRhsOnLeft(rhs),
-          ) => getSplitsEnumerator(ft, rhs)
+          ) => getSplitsEnumerator(rhs)
 
       case FormatToken(kw @ (_: T.KwTry | _: T.KwCatch | _: T.KwFinally), _, _)
           if !leftOwner.is[Term.Name] => // exclude end marker
@@ -2255,7 +2254,7 @@ class Router(formatOps: FormatOps) {
         }
         val end = getLastToken(body)
         val indent = Indent(style.indent.main, end, ExpiresOn.After)
-        CtrlBodySplits.get(ft, body, Seq(indent)) {
+        CtrlBodySplits.get(body, Seq(indent)) {
           Split(Space, 0).withSingleLineNoOptimal(end)
         }(Split(Newline2x(ft), _).withIndent(indent))
 
@@ -2280,7 +2279,7 @@ class Router(formatOps: FormatOps) {
         val body = leftOwner.asInstanceOf[Term.For].body
         def nlSplit(cost: Int) = Split(Newline2x(ft), cost)
           .withIndent(style.indent.main, getLastToken(body), After)
-        CtrlBodySplits.get(ft, body)(null)(nlSplit)
+        CtrlBodySplits.get(body)(null)(nlSplit)
 
       // After comment
       case FormatToken(_: T.Comment, _, _) => Seq(Split(getMod(ft), 0))
@@ -2497,11 +2496,12 @@ class Router(formatOps: FormatOps) {
   private implicit def int2num(n: Int): Num = Num(n)
 
   private def getSplitsDefValEquals(
-      ft: FormatToken,
       body: Tree,
       endFt: => FormatToken,
       spaceIndents: Seq[Indent] = Seq.empty,
-  )(splits: => Seq[Split])(implicit style: ScalafmtConfig): Seq[Split] =
+  )(
+      splits: => Seq[Split],
+  )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] =
     if (ft.right.is[T.LeftBrace]) // The block will take care of indenting by 2
       Seq(Split(Space, 0).withIndents(spaceIndents))
     else if (isRightCommentWithBreak(ft))
@@ -2510,13 +2510,14 @@ class Router(formatOps: FormatOps) {
     else if (style.newlines.forceBeforeAssign(ft.meta.leftOwner))
       Seq(CtrlBodySplits.withIndent(Split(Newline2x(ft), 0), ft, body, endFt))
     else if (style.newlines.shouldForceBeforeMultilineAssign(ft.meta.leftOwner))
-      CtrlBodySplits.slbOnly(ft, body, spaceIndents) { x =>
+      CtrlBodySplits.slbOnly(body, spaceIndents) { x =>
         CtrlBodySplits.withIndent(Split(Newline2x(ft), x), ft, body, endFt)
       }
     else splits
 
-  private def getSplitsDefEquals(ft: FormatToken, body: Tree, endFt: FormatToken)(
-      implicit style: ScalafmtConfig,
+  private def getSplitsDefEquals(body: Tree, endFt: FormatToken)(implicit
+      style: ScalafmtConfig,
+      ft: FormatToken,
   ): Seq[Split] = {
     val expire = endFt.left
     def baseSplit = Split(Space, 0)
@@ -2527,7 +2528,7 @@ class Router(formatOps: FormatOps) {
       if (ft.hasBreak) Seq(newlineSplit(0)) else Seq(baseSplit, newlineSplit(1))
 
     style.newlines.beforeMultilineDef.fold {
-      getSplitsValEquals(ft, body, endFt)(getClassicSplits)
+      getSplitsValEquals(body, endFt)(getClassicSplits)
     } {
       case Newlines.classic => getClassicSplits
 
@@ -2536,24 +2537,20 @@ class Router(formatOps: FormatOps) {
       case Newlines.unfold =>
         Seq(baseSplit.withSingleLine(expire), newlineSplit(1))
 
-      case x => CtrlBodySplits.folded(ft, body, x eq Newlines.keep)(newlineSplit)
+      case x => CtrlBodySplits.folded(body, x eq Newlines.keep)(newlineSplit)
     }
   }
 
-  private def getSplitsValEquals(
-      ft: FormatToken,
-      body: Tree,
-      endFt: => FormatToken,
-  )(classicSplits: => Seq[Split])(implicit style: ScalafmtConfig): Seq[Split] =
+  private def getSplitsValEquals(body: Tree, endFt: => FormatToken)(
+      classicSplits: => Seq[Split],
+  )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] =
     if (style.newlines.getBeforeMultiline eq Newlines.classic) classicSplits
-    else CtrlBodySplits
-      .getWithIndent(ft, body, endFt)(null)(Split(Newline2x(ft), _))
+    else CtrlBodySplits.getWithIndent(body, endFt)(null)(Split(Newline2x(ft), _))
 
-  private def getSplitsValEqualsClassic(
+  private def getSplitsValEqualsClassic(body: Tree, endFt: FormatToken)(implicit
+      style: ScalafmtConfig,
       ft: FormatToken,
-      body: Tree,
-      endFt: FormatToken,
-  )(implicit style: ScalafmtConfig): Seq[Split] = {
+  ): Seq[Split] = {
     def wouldDangle = ft.meta.leftOwner.parent.exists {
       case p: Member.ParamClause => style.danglingParentheses.atDefnSite(p)
       case _: Member.Tuple => style.danglingParentheses.atTupleSite
@@ -2611,16 +2608,17 @@ class Router(formatOps: FormatOps) {
     )
   }
 
-  private def getSplitsEnumerator(ft: FormatToken, body: Tree)(implicit
+  private def getSplitsEnumerator(body: Tree)(implicit
       style: ScalafmtConfig,
-  ): Seq[Split] = maybeGetInfixSplitsBeforeLhs(ft) {
+      ft: FormatToken,
+  ): Seq[Split] = maybeGetInfixSplitsBeforeLhs() {
     val endFt = getLastNonTrivial(body)
     val expire = endFt.left
     val spaceIndents =
       if (!style.align.arrowEnumeratorGenerator) Seq.empty
       else Seq(Indent(StateColumn, expire, After))
-    getSplitsDefValEquals(ft, body, endFt, spaceIndents) {
-      CtrlBodySplits.get(ft, body, spaceIndents) {
+    getSplitsDefValEquals(body, endFt, spaceIndents) {
+      CtrlBodySplits.get(body, spaceIndents) {
         if (spaceIndents.nonEmpty) Split(Space, 0).withIndents(spaceIndents)
         else {
           val noSlb = body match {
