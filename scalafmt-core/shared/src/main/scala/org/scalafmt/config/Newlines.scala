@@ -239,8 +239,13 @@ case class Newlines(
     }
 
   @inline
-  def keepBreak(hasBreak: => Boolean): Boolean = source.eq(Newlines.keep) &&
-    hasBreak
+  def fold: Boolean = source eq Newlines.fold
+  @inline
+  def unfold: Boolean = source eq Newlines.unfold
+  @inline
+  def keep: Boolean = source eq Newlines.keep
+  @inline
+  def keepBreak(hasBreak: => Boolean): Boolean = keep && hasBreak
   @inline
   def keepBreak(newlines: Int): Boolean =
     keepBreak(!FormatToken.noBreak(newlines))

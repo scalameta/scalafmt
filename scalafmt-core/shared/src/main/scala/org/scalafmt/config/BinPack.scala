@@ -48,8 +48,7 @@ case class BinPack(
 
   def keepParentConstructors(implicit style: ScalafmtConfig): Boolean =
     parentConstructors.eq(BinPack.ParentCtors.keep) ||
-      style.newlines.source.eq(Newlines.keep) &&
-      parentConstructors.eq(BinPack.ParentCtors.source)
+      style.newlines.keep && parentConstructors.eq(BinPack.ParentCtors.source)
 
   @inline
   def callSiteFor(open: Token): BinPack.Site =
