@@ -981,7 +981,7 @@ class FormatOps(
           Left(SplitTag.OnelineWithChain)
         case BinPack.ParentCtors.Always | BinPack.ParentCtors.Never =>
           Right(false)
-        case _ => Right(style.newlines.source eq Newlines.fold)
+        case _ => Right(style.newlines.fold)
       }
       val exclude = style.binPack.parentConstructors match {
         case BinPack.ParentCtors.Always
@@ -2268,7 +2268,7 @@ class FormatOps(
         case t: Term.If => (getTreeSingleExpr(t.elsep) match {
             case Some(x: Term.If) =>
               val forceNL = isJustBeforeTree(nft)(x) && ft.hasBreak &&
-                ((ft ne nft) || (style.newlines.source eq Newlines.keep))
+                ((ft ne nft) || style.newlines.keep)
               if (forceNL) Some(true) else None
             case Some(_) if !getLastNotTrailingCommentOpt(t).exists(_.isLeft) =>
               if (!isThenPWithOptionalBraces(t)) None

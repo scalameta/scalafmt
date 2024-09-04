@@ -373,8 +373,7 @@ class Router(formatOps: FormatOps) {
           val sldPolicy = getSingleLinePolicy
           val expire = leftOwner match {
             case _: Term.ForYield
-                if !sld && sldPolicy.isEmpty &&
-                  (style.newlines.source eq Newlines.fold) =>
+                if !sld && sldPolicy.isEmpty && style.newlines.fold =>
               getLastToken(leftOwner)
             case _ => endOfSingleLineBlock(closeFT)
           }
@@ -393,7 +392,7 @@ class Router(formatOps: FormatOps) {
               if (isBeforeOpenParen) closeFT.left else rhsOptimalToken(closeFT),
               noSyntaxNL = true,
               killOnFail = true,
-              noOptimal = style.newlines.source eq Newlines.keep,
+              noOptimal = style.newlines.keep,
             ).andPolicy(sldPolicy & noCloseSpacePolicy)
           } else Split(xmlSpace(leftOwner), 0)
             .withSingleLine(expire, noSyntaxNL = true, killOnFail = true)
@@ -428,7 +427,7 @@ class Router(formatOps: FormatOps) {
           case Term.Block((_: Term.FunctionTerm) :: Nil)
               if !nextNonComment(ft).right.is[T.LeftBrace] => spaceSplitBase
           case _ if afterCurlySpace && {
-                style.newlines.source.eq(Newlines.fold) || !rightOwner.is[Defn]
+                style.newlines.fold || !rightOwner.is[Defn]
               } =>
             val exp = getOptimalTokenFor(getLastNonTrivial(leftFunc.body).left)
             spaceSplitBase.withSingleLineNoOptimal(exp, noSyntaxNL = true)
@@ -545,8 +544,7 @@ class Router(formatOps: FormatOps) {
               Seq(baseSplit, nlSplit(nft)(1))
             else Seq(nlSplit(nft)(0))
           else if (beforeMultiline eq Newlines.unfold)
-            if (style.newlines.source ne Newlines.unfold) withSlbSplit
-            else Seq(nlSplit(nft)(0))
+            if (style.newlines.unfold) Seq(nlSplit(nft)(0)) else withSlbSplit
           else if (
             condIsDefined || beforeMultiline.eq(Newlines.classic) ||
             getSingleStatExceptEndMarker(body).isEmpty
@@ -986,10 +984,10 @@ class Router(formatOps: FormatOps) {
           } else if (
             multipleArgs ||
             (!isSingleEnclosedArgument || leftOwnerIsEnclosed) &&
-            style.newlines.source.eq(Newlines.unfold)
+            style.newlines.unfold
           ) TokenRanges.empty
           else if (
-            style.newlines.source.eq(Newlines.fold) && {
+            style.newlines.fold && {
               isSingleEnclosedArgument ||
               singleArgument && isExcludedTree(onlyArgument)
             }
@@ -1056,7 +1054,7 @@ class Router(formatOps: FormatOps) {
                   )
                   else if (splitsForAssign.isDefined) singleLine(3)
                   else singleLine(10)
-                val noOptimal = style.newlines.source eq Newlines.keep
+                val noOptimal = style.newlines.keep
                 val okIndent = rightIsComment || handleImplicit
                 Split(noSplitMod, 0, policy = noSplitPolicy)
                   .withOptimalToken(optimal, ignore = noOptimal)
@@ -1440,7 +1438,7 @@ class Router(formatOps: FormatOps) {
               val isBeforeOpenParen = style.newlines.isBeforeOpenParenCallSite
               val optimal: T =
                 if (isBeforeOpenParen) rbft.left else rhsOptimalToken(rbft)
-              val noOptimal = style.newlines.source eq Newlines.keep
+              val noOptimal = style.newlines.keep
               Split(NoSplit, 0).withSingleLine(optimal, noOptimal = noOptimal)
             }
         Seq(slbParensSplit.getOrElse(Split.ignored), Split(Space, 0))
@@ -1538,7 +1536,7 @@ class Router(formatOps: FormatOps) {
             )
           case _: Defn.RepeatedEnumCase if {
                 if (!style.newlines.sourceIgnored) hasBreak()
-                else style.newlines.source eq Newlines.unfold
+                else style.newlines.unfold
               } => Seq(Split(Newline, 0))
           case _: ImportExportStat => Seq(
               Split(Space, 0),
@@ -1605,8 +1603,8 @@ class Router(formatOps: FormatOps) {
         Seq(Split(mod, 0))
 
       case FormatToken(_, _: T.Dot, _)
-          if style.newlines.source.ne(Newlines.keep) &&
-            rightOwner.is[Term.Select] && findTreeWithParent(rightOwner) {
+          if !style.newlines.keep && rightOwner.is[Term.Select] &&
+            findTreeWithParent(rightOwner) {
               case _: Term.ArgClause => None
               case _: Type.Select | _: Importer | _: Pkg => Some(true)
               case _: Term.Select | _: Member.Apply => None
@@ -1943,7 +1941,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.KwIf, right, _) if leftOwner.is[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
         val expire = getLastToken(owner)
-        val isKeep = style.newlines.source eq Newlines.keep
+        val isKeep = style.newlines.keep
         val mod =
           if (isKeep && hasBreak()) Newline
           else Space(style.spaces.isSpaceAfterKeyword(right))
@@ -2109,7 +2107,7 @@ class Router(formatOps: FormatOps) {
             Seq(if (hasBreak()) newlineSplit(0, isConfig) else spaceSplit)
           case _ =>
             val singleLine = enclosed.forall { x =>
-              style.newlines.source.eq(Newlines.unfold) && x.parent.exists {
+              style.newlines.unfold && x.parent.exists {
                 case _: Template | _: Defn | _: Member.Infix => false
                 case _ => true
               }
@@ -2341,8 +2339,7 @@ class Router(formatOps: FormatOps) {
 
       // Pattern alternatives
       case FormatToken(T.Ident("|"), _, _) if leftOwner.is[Pat.Alternative] =>
-        if (style.newlines.source eq Newlines.keep)
-          Seq(Split(Space.orNL(noBreak()), 0))
+        if (style.newlines.keep) Seq(Split(Space.orNL(noBreak()), 0))
         else Seq(Split(Space, 0), Split(Newline, 1))
       case FormatToken(_, T.Ident("|"), _) if rightOwner.is[Pat.Alternative] =>
         val noNL = !style.newlines.keepBreak(newlines)
