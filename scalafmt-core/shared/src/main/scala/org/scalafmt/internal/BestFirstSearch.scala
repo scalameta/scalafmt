@@ -21,7 +21,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   import TreeOps._
   import formatOps._
 
-  implicit val stateOrdering: Ordering[State] = State.Ordering
+  implicit val stateOrdering: Ordering[State] = State.Ordering.get(initStyle)
 
   /** Precomputed table of splits for each token.
     */

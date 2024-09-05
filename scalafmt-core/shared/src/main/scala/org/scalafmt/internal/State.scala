@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import org.scalafmt.config.Comments
 import org.scalafmt.config.Indents
+import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TreeOps._
 
@@ -26,6 +27,7 @@ final case class State(
     allAltAreNL: Boolean,
     appliedPenalty: Int, // penalty applied from overflow
     delayedPenalty: Int, // apply if positive, ignore otherwise
+    lineId: Int,
 ) {
 
   override def toString = s"State($cost, $depth)"
@@ -128,6 +130,7 @@ final case class State(
       nextAllAltAreNL,
       appliedPenalty + penalty,
       nextDelayedPenalty,
+      lineId = lineId + (if (nextSplit.isNL) 1 else 0),
     )
   }
 
@@ -315,20 +318,33 @@ final case class State(
 object State {
 
   val start =
-    State(0, PolicySummary.empty, null, 0, null, 0, Seq.empty, 0, false, 0, 0)
+    State(0, PolicySummary.empty, null, 0, null, 0, Seq.empty, 0, false, 0, 0, 0)
 
   // this is not best state, it's higher priority for search
-  object Ordering extends Ordering[State] {
-    override def compare(x: State, y: State): Int = compareAt(x, y, 0)
+  object Ordering {
+    // each comparison should compare priorities, i.e. define reverse ordering
 
-    // each should compare priorities, i.e. define reverse ordering
-    private val comparisons: Seq[(State, State) => Int] =
-      Seq(compareCost, compareDepth, compareSplitOrigin)
+    private val classicOrdering = new WithComparisons(compareCost, compareDepth)
+    private val compactOrdering =
+      new WithComparisons(compareCost, compareDepth, compareLineId)
 
-    @tailrec
-    private def compareAt(s1: State, s2: State, i: Int): Int = {
-      val r = comparisons(i)(s1, s2)
-      if (r != 0 || i == comparisons.length - 1) r else compareAt(s1, s2, i + 1)
+    def get(style: ScalafmtConfig): Ordering[State] =
+      if (style.newlines.source eq Newlines.classic) classicOrdering
+      else compactOrdering
+
+    class WithComparisons(comparisons: (State, State) => Int*)
+        extends Ordering[State] {
+      override def compare(x: State, y: State): Int = compareAt(x, y, 0)
+      @tailrec
+      private def compareAt(s1: State, s2: State, i: Int): Int = {
+        val r = comparisons(i)(s1, s2)
+        if (r != 0) r
+        else {
+          val ipp = i + 1
+          if (ipp < comparisons.length) compareAt(s1, s2, ipp)
+          else compareSplitOrigin(s1, s2)
+        }
+      }
     }
 
     // higher priority on lower cost
@@ -338,6 +354,10 @@ object State {
     // higher priority on deeper state
     private def compareDepth(s1: State, s2: State): Int = Integer
       .compare(s1.depth, s2.depth)
+
+    // higher priority on fewer lines
+    private def compareLineId(s1: State, s2: State): Int = Integer
+      .compare(s2.lineId, s1.lineId)
 
     // higher priority on later line defining the last split
     @tailrec
