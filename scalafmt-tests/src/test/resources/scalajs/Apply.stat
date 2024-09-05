@@ -1374,8 +1374,7 @@ object a {
     prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))
   val rhs = genScalaArg(sym, index, formalArgsRegistry, param, static)(
     prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))
-  val rhs = genScalaArg(prevArgsCount =>
-    varDefs.take(prevArgsCount).toList.map(_.ref))(
+  val rhs = genScalaArg(prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))(
     sym, index, formalArgsRegistry, param, static, captures = Nil)
 }
 <<< don't break after equals if bp, !overflow
