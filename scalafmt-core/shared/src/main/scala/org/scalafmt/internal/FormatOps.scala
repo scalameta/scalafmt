@@ -848,20 +848,18 @@ class FormatOps(
       cfg: Newlines.ConfigStyleElement,
   ): Boolean = cfg.getForceIfOptimized && forceConfigStyle(ft.meta.idx)
 
-  def preserveConfigStyle(ft: FormatToken, breakBeforeClose: => Boolean)(
-      implicit
-      style: ScalafmtConfig,
-      clauseSiteFlags: ClauseSiteFlags,
-  ): Boolean = clauseSiteFlags.configStyle.prefer &&
-    couldPreserveConfigStyle(ft, breakBeforeClose)
+  def preserveConfigStyle(
+      ft: FormatToken,
+      breakBeforeClose: => Boolean,
+  )(implicit style: ScalafmtConfig, clauseSiteFlags: ClauseSiteFlags): Boolean =
+    preferConfigStyle && couldPreserveConfigStyle(ft, breakBeforeClose)
 
   def couldPreserveConfigStyle(ft: FormatToken, breakBeforeClose: => Boolean)(
       implicit
       style: ScalafmtConfig,
       clauseSiteFlags: ClauseSiteFlags,
   ): Boolean = !style.newlines.sourceIgnored && {
-    !clauseSiteFlags.dangleCloseDelim && !clauseSiteFlags.alignOpenDelim ||
-    ft.hasBreak ||
+    !dangleCloseDelim && !alignOpenDelim || ft.hasBreak ||
     (next(ft).hasBreak || style.newlines.forceAfterImplicitParamListModifier) &&
     opensConfigStyleImplicitParamList(ft)
   } && breakBeforeClose
@@ -2689,7 +2687,7 @@ class FormatOps(
   )(implicit style: ScalafmtConfig, clauseSiteFlags: ClauseSiteFlags) = {
     implicit val configStyle = clauseSiteFlags.configStyle
     val configStylePrefer = configStyle.prefer
-    val shouldDangle = clauseSiteFlags.dangleCloseDelim
+    val shouldDangle = dangleCloseDelim
     val sourceIgnored = style.newlines.sourceIgnored
     val configStyleSource = configStylePrefer && !sourceIgnored
     val dangleForTrailingCommas = getMustDangleForTrailingCommas(ftBeforeClose)
@@ -2963,6 +2961,15 @@ object FormatOps {
       dangleCloseDelim = style.danglingParentheses.atCallSite(owner),
     )
   }
+
+  def preferConfigStyle(implicit clauseSiteFlags: ClauseSiteFlags): Boolean =
+    clauseSiteFlags.configStyle.prefer
+
+  def dangleCloseDelim(implicit clauseSiteFlags: ClauseSiteFlags): Boolean =
+    clauseSiteFlags.dangleCloseDelim
+
+  def alignOpenDelim(implicit clauseSiteFlags: ClauseSiteFlags): Boolean =
+    clauseSiteFlags.alignOpenDelim
 
   class ExtractFromMeta[A](f: FormatToken.Meta => Option[A]) {
     def unapply(meta: FormatToken.Meta): Option[A] = f(meta)

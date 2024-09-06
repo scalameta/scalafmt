@@ -921,8 +921,7 @@ class Router(formatOps: FormatOps) {
           else defnSiteLastToken(afterClose, leftOwner)
 
         val wouldDangle = onlyConfigStyle || mustDangleForTrailingCommas ||
-          clauseSiteFlags.dangleCloseDelim ||
-          closeBreak && beforeClose.left.is[T.Comment]
+          dangleCloseDelim || closeBreak && beforeClose.left.is[T.Comment]
         val optimalIsComment = optimal.is[T.Comment]
 
         val newlinePolicy: Policy = Policy ?
@@ -945,7 +944,7 @@ class Router(formatOps: FormatOps) {
 
         val rightIsComment = right.is[T.Comment]
 
-        val align = !rightIsComment && clauseSiteFlags.alignOpenDelim &&
+        val align = !rightIsComment && alignOpenDelim &&
           (!handleImplicit || style.newlines.forceAfterImplicitParamListModifier)
         val alignTuple = align && tupleSite && !onlyConfigStyle
 
@@ -1177,7 +1176,7 @@ class Router(formatOps: FormatOps) {
             if (nlCloseOnOpen eq NlClosedOnOpen.Cfg) indentLen else bpIndentLen
 
           def noSplitIndents =
-            if (clauseSiteFlags.alignOpenDelim) getOpenParenAlignIndents(close)
+            if (alignOpenDelim) getOpenParenAlignIndents(close)
             else Seq(Indent(bpIndentLen, close, Before))
 
           Seq(
@@ -1259,8 +1258,7 @@ class Router(formatOps: FormatOps) {
                 }
                 val trigger = leftOwner.parent.flatMap(iter)
                 Seq(trigger.fold(indent)(x => Indent.before(indent, x)))
-              } else if (clauseSiteFlags.alignOpenDelim)
-                getOpenParenAlignIndents(close)
+              } else if (alignOpenDelim) getOpenParenAlignIndents(close)
               else Seq(indent)
 
             val nextComma =
@@ -1300,7 +1298,7 @@ class Router(formatOps: FormatOps) {
           )
           val res =
             if (nlClosedOnOpenOk) nlCloseOnOpen
-            else if (clauseSiteFlags.configStyle.prefer) NlClosedOnOpen.Cfg
+            else if (preferConfigStyle) NlClosedOnOpen.Cfg
             else NlClosedOnOpen.Yes
           res match {
             case NlClosedOnOpen.Cfg if styleMap.forcedBinPack(leftOwner) =>
@@ -2098,7 +2096,7 @@ class Router(formatOps: FormatOps) {
         def newlineSplit(cost: Int, forceDangle: Boolean)(implicit
             fileLine: FileLine,
         ) = {
-          val shouldDangle = forceDangle || clauseSiteFlags.dangleCloseDelim
+          val shouldDangle = forceDangle || dangleCloseDelim
           Split(Newline, cost)
             .withPolicy(decideNewlinesOnlyBeforeClose(close), !shouldDangle)
             .withIndent(style.indent.callSite, close, Before)
