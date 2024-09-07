@@ -1850,9 +1850,9 @@ object a:
 object a:
    import A.{min as minimum, `*` as multiply}
    import Predef.{augmentString as _, *}
-   import scala.{annotation as ann}
+   import scala.annotation as ann
    import java as j
-   import Predef.{augmentString as _}
+   import Predef.augmentString as _
    // scalafmt: { rewrite.scala3.newSyntax.deprecated = false }
    import Predef.{augmentString => _}
 <<< rewrite to new syntax, imports, scala2-source3
@@ -1871,9 +1871,9 @@ object a {
 object a {
   import A.{min as minimum, `*` as multiply}
   import Predef.{augmentString as _, *}
-  import scala.{annotation as ann}
+  import scala.annotation as ann
   import java as j
-  import Predef.{augmentString as _}
+  import Predef.augmentString as _
 }
 <<< rewrite to new syntax, wildcard
 rewrite.scala3.convertToNewSyntax = true
