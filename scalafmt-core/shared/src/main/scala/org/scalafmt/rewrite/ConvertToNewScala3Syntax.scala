@@ -76,6 +76,13 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
           case _ => null
         }
 
+      case _: Token.LeftBrace
+          if flag.deprecated && dialect.allowAsForImportRename =>
+        ft.meta.rightOwner match {
+          case t: Importer if t.importees.lengthCompare(1) == 0 => removeToken
+          case _ => null
+        }
+
       case _: Token.RightArrow
           if flag.deprecated && dialect.allowAsForImportRename =>
         ft.meta.rightOwner match {
@@ -118,6 +125,8 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
             else removeToken
           case _ => null
         }
+
+      case _: Token.RightBrace if left.isRemove => removeToken
 
       case _ => null
     }

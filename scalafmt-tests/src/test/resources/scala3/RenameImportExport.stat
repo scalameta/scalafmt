@@ -100,7 +100,4 @@ rewrite.scala3.convertToNewSyntax = true
 ===
 import scala.util.{Try => T}
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--import scala.util.Try as T
-+import scala.util.{Try as T}
+import scala.util.Try as T
