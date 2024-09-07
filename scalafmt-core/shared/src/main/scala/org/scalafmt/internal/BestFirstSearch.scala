@@ -1,17 +1,11 @@
 package org.scalafmt.internal
 
-import org.scalafmt.Error.SearchStateExploded
-import org.scalafmt.config.FormatEvent.CompleteFormat
-import org.scalafmt.config.FormatEvent.Enqueue
-import org.scalafmt.config.FormatEvent.Explored
-import org.scalafmt.config.FormatEvent.VisitToken
+import org.scalafmt.Error
+import org.scalafmt.config.FormatEvent
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.LoggerOps
-import org.scalafmt.util.TreeOps
+import org.scalafmt.util._
 
-import scala.meta.Term
-import scala.meta.Type
-import scala.meta.tokens.Token
+import scala.meta._
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -125,7 +119,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
         if (explored > style.runner.maxStateVisits) {
           complete(deepestYet)
-          throw new SearchStateExploded(
+          throw new Error.SearchStateExploded(
             deepestYet,
             "exceeded `runner.maxStateVisits`",
           )
@@ -140,7 +134,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           ) addGeneration()
 
         val noBlockClose = start == curr && 0 != maxCost || !noOptZone ||
-          !style.runner.optimizer.recurseOnBlocks
+          !recurseOnBlocks
         val blockClose =
           if (noBlockClose) None else getBlockCloseToRecurse(splitToken, stop)
         if (blockClose.nonEmpty) blockClose.foreach { end =>
@@ -151,7 +145,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           visits(curr.depth) > maxVisitsPerToken
         ) {
           complete(deepestYet)
-          throw new SearchStateExploded(
+          throw new Error.SearchStateExploded(
             deepestYet,
             splitToken,
             "exceeded `runner.optimizer.maxVisitsPerToken`",
@@ -165,7 +159,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             val nextState = curr.next(split, allAltAreNL)
             val updateBest = !keepSlowStates && depth == 0 && split.isNL &&
               best.getOrElseUpdate(curr.depth, nextState).eq(nextState)
-            style.runner.event(Enqueue(split))
+            style.runner.event(FormatEvent.Enqueue(split))
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && optimalNotFound &&
@@ -231,10 +225,10 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       style: ScalafmtConfig,
   ): Unit = {
     if (state.depth > deepestYet.depth) deepestYet = state
-    style.runner.event(VisitToken(tokens(state.depth)))
+    style.runner.event(FormatEvent.VisitToken(tokens(state.depth)))
     visits(state.depth) += 1
     explored += 1
-    style.runner.event(Explored(explored, depth, queueSize))
+    style.runner.event(FormatEvent.Explored(explored, depth, queueSize))
   }
 
   /** Follow states having single active non-newline split
@@ -252,7 +246,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         val split = activeSplits.head
         if (split.isNL) state
         else {
-          style.runner.event(Enqueue(split))
+          style.runner.event(FormatEvent.Enqueue(split))
           val nextState = state.next(split, false)
           traverseSameLine(nextState, depth)
         }
@@ -260,7 +254,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     }
 
   private def complete(state: State)(implicit style: ScalafmtConfig): Unit =
-    style.runner.event(CompleteFormat(explored, state, visits, best))
+    style.runner.event(FormatEvent.CompleteFormat(explored, state, visits, best))
 
   def getBestPath: SearchResult = {
     val state = {
