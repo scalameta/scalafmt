@@ -6632,7 +6632,7 @@ object a {
          /** c1 */
   def quux = ???
 }
-<<< SKIP #4133 try-catch with trailing comments 6, insert end markers
+<<< #4133 try-catch with trailing comments 6, insert end markers
 rewrite.scala3.insertEndMarkerMinLines = 2
 ===
 object a:
@@ -6645,23 +6645,18 @@ object a:
     quux
   end foo
 >>>
-test does not parse: [dialect scala3] expected template body
 object a:
-         ^
-def foo =
-   try
-      bar
-====== full result: ======
-object a:
-def foo =
-   try
-      bar
-   catch case baz => qux
-   end try
+   def foo =
+      try
+         bar
+      catch
+         case baz =>
+           qux
 
-   // c1
-   quux
-end foo
+           // c1
+      end try
+      quux
+   end foo
 <<< #4133 enclosed new anonymous with comments and added end marker
 rewrite.scala3 {
   convertToNewSyntax = true
