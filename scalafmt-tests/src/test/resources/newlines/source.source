@@ -14,7 +14,10 @@ package a.b.c
 import a.b.c
 object a {
   val a =
-    s"${a.b.c.d}"
+    s"${a
+        .b
+        .c
+        .d}"
   val b =
     foo[
       a.b.c.d.e
