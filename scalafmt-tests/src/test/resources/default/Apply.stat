@@ -1503,8 +1503,23 @@ object a {
       ) // Very long comment here because I need to have more than 80 characters
     )
 }
-<<< #2257 oveflow with interpolation
+<<< #2257 oveflow with interpolation, long
 maxColumn = 110
+newlines.avoidForSimpleOverflow = [tooLong,punct]
+===
+val request = Request(
+  applicationid = appId.some,
+  description = s"Very ${call.session.callType.description} loooong closed with caaare request ${param(call.countt)} ${AnotherParam.code}",
+  siteinfo = None,
+)
+>>>
+val request = Request(
+    applicationid = appId.some,
+    description = s"Very ${call.session.callType.description} loooong closed with caaare request ${param(call.countt)} ${AnotherParam.code}",
+    siteinfo = None
+)
+<<< #2257 oveflow with interpolation, short
+maxColumn = 90
 newlines.avoidForSimpleOverflow = [tooLong,punct]
 ===
 val request = Request(
