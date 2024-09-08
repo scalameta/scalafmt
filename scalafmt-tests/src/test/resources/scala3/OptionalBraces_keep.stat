@@ -7053,8 +7053,8 @@ object a {
 >>>
 object a {
   @threadUnsafe lazy val AnnotationRetentionSourceAttr: TermSymbol =
-    requiredClass("java.lang.annotation.RetentionPolicy").linkedClass.requiredValue(
-        "SOURCE")
+    requiredClass("java.lang.annotation.RetentionPolicy").linkedClass
+      .requiredValue("SOURCE")
 }
 <<< #4133 overflow apply with binpack, dangling
 maxColumn = 70
@@ -7169,9 +7169,8 @@ object a:
        insertClasspathInArgs(
          args1,
          List(dottyCompiler, dottyInterfaces, asm, dottyStaging,
-           dottyTastyInspector, tastyCore, compilerInterface).mkString(
-           File.pathSeparator).mkString(
-           File.pathSeparator)
+           dottyTastyInspector, tastyCore, compilerInterface)
+           .mkString(File.pathSeparator).mkString(File.pathSeparator)
        ))
    } else run(args)
 <<< #4133 overflow select with binpack, dangling
@@ -7183,17 +7182,11 @@ object a:
       val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year).resolve(month).resolve(day).resolve(name)
    }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-    val foo = map { postFile =>
--      val destPath =
--        ctx_docsPath_resolve_defaultDirectory_resolve(year).resolve(
--          month
--        ).resolve(day).resolve(name)
-+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year).resolve(
-+        month
-+      ).resolve(day).resolve(name)
-    }
+object a:
+   val foo = map { postFile =>
+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year)
+        .resolve(month).resolve(day).resolve(name)
+   }
 <<< #4133 overflow select with binpack, !dangling
 binPack.preset = always
 danglingParentheses.preset = false
@@ -7203,15 +7196,11 @@ object a:
       val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year).resolve(month).resolve(day).resolve(name)
    }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-    val foo = map { postFile =>
--      val destPath =
--        ctx_docsPath_resolve_defaultDirectory_resolve(year).resolve(
--          month).resolve(day).resolve(name)
-+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year).resolve(
-+        month).resolve(day).resolve(name)
-    }
+object a:
+   val foo = map { postFile =>
+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year)
+        .resolve(month).resolve(day).resolve(name)
+   }
 <<< #4133 overflow selects/applies, nobreak-dot-break, binpack + !dangling
 maxColumn = 70
 binPack.preset = always
@@ -7226,12 +7215,14 @@ object a:
     )
 >>>
 object a:
-   lazy val `stdlib-bootstrapped` =
-     project.in(file("stdlib-bootstrapped")).withCommonSettings(
-       Bootstrapped).dependsOn(dottyCompiler(
-       Bootstrapped) % "provided; compile->runtime; test->test").settings(
-       moduleName := "scala-library"
-     )
+   lazy val `stdlib-bootstrapped` = project.in(
+     file("stdlib-bootstrapped")).
+   withCommonSettings(Bootstrapped).
+   dependsOn(dottyCompiler(
+     Bootstrapped) % "provided; compile->runtime; test->test").
+   settings(
+     moduleName := "scala-library"
+   )
 <<< #4133 overflow selects/applies, nobreak-dot-nobreak, binpack + !dangling
 maxColumn = 70
 binPack.preset = always
@@ -7246,9 +7237,10 @@ object a:
    lazy val `stdlib-bootstrapped` =
      project.in(file("stdlib-bootstrapped")).withCommonSettings(
        Bootstrapped).dependsOn(dottyCompiler(
-       Bootstrapped) % "provided; compile->runtime; test->test").settings(
-       moduleName := "scala-library"
-     )
+       Bootstrapped) % "provided; compile->runtime; test->test")
+       .settings(
+         moduleName := "scala-library"
+       )
 <<< #4133 overflow selects/applies, break-dot-nobreak, binpack + !dangling
 maxColumn = 70
 binPack.preset = always

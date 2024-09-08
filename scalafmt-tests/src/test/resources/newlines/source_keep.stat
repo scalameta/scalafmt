@@ -6169,9 +6169,9 @@ object a {
         // bridge is needed to compile these projects.
       dependsOn(
         `scala3-compiler` % Provided
-      ).settings(
-        commonJavaSettings
-      ).settings(foo)
+      ).
+      settings(commonJavaSettings).
+      settings(foo)
 }
 <<< try with match expr
 object a {
