@@ -2799,10 +2799,10 @@ class FormatOps(
   }
 
   @tailrec
-  final def scalaJsOptClose(
+  final def scalaJsOptCloseOnRight(
       ftBeforeClose: FormatToken,
       bpFlags: BinpackSiteFlags,
-  ): T =
+  ): FormatToken =
     if (bpFlags.scalaJsStyle) {
       val ftAfterClose = nextNonCommentAfter(ftBeforeClose)
       val continue = ftAfterClose != ftBeforeClose &&
@@ -2814,9 +2814,9 @@ class FormatOps(
         implicit val clauseSiteFlags: ClauseSiteFlags = ClauseSiteFlags
           .atCallSite(ftAfterClose.meta.rightOwner)
         val bpFlagsAfter = getBinpackCallSiteFlags(tokens(open), ftAfterClose)
-        scalaJsOptClose(ftAfterClose, bpFlagsAfter)
-      } else ftBeforeClose.right
-    } else ftBeforeClose.right
+        scalaJsOptCloseOnRight(ftAfterClose, bpFlagsAfter)
+      } else ftBeforeClose
+    } else ftBeforeClose
 
   object BinPackOneline {
 
