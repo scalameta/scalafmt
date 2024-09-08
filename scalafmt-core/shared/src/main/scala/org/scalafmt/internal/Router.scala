@@ -77,10 +77,18 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.Shebang, _, _) => Seq(Split(Newline2x(ft), 0))
       case FormatToken(start: T.Interpolation.Start, _, m) =>
         val end = matching(start)
-        val okNewlines = style.newlines.inInterpolation
-          .ne(Newlines.InInterpolation.avoid) && isTripleQuote(m.left.text)
-        def policy = PenalizeAllNewlines(end, BreakSingleLineInterpolatedString)
-        val split = Split(NoSplit, 0).withPolicy(policy, okNewlines)
+        val policy = {
+          val penalty = BreakSingleLineInterpolatedString
+          if (style.newlines.inInterpolation eq Newlines.InInterpolation.avoid)
+            PenalizeAllNewlines(end, penalty)
+          else Policy ?
+            (style.newlines.sourceIgnored || isTripleQuote(m.left.text)) ||
+            Policy.on(end, "INTERP-KEEP-NONL") {
+              case Decision(x, ss) if x.noBreak =>
+                ss.map(s => if (s.isNL) s.withPenalty(penalty) else s)
+            }
+        }
+        val split = Split(NoSplit, 0, policy = policy)
         val alignIndents =
           if (style.align.stripMargin) findInterpolate(leftOwner)
             .flatMap { ti =>

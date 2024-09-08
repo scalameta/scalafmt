@@ -9092,7 +9092,10 @@ object a {
   logWarning(
     log"Session plan cache is disabled due to non-positive cache size." +
       log" Current value of " +
-      log"'${MDC(LogKeys.CONFIG, Connect.CONNECT_SESSION_PLAN_CACHE_SIZE.key)}' is ${MDC(LogKeys.CACHE_SIZE, SparkEnv.get.conf.get(Connect.CONNECT_SESSION_PLAN_CACHE_SIZE))}"
+      log"'${MDC(LogKeys.CONFIG, Connect.CONNECT_SESSION_PLAN_CACHE_SIZE.key)}' is ${MDC(
+          LogKeys.CACHE_SIZE,
+          SparkEnv.get.conf.get(Connect.CONNECT_SESSION_PLAN_CACHE_SIZE)
+        )}"
   )
 }
 <<< #4187 !dangling
@@ -9110,9 +9113,12 @@ object a {
 }
 >>>
 object a {
-  logWarning(log"Session plan cache is disabled due to non-positive cache size." +
-    log" Current value of " +
-    log"'${MDC(LogKeys.CONFIG, Connect.CONNECT_SESSION_PLAN_CACHE_SIZE.key)}' is ${MDC(LogKeys.CACHE_SIZE, SparkEnv.get.conf.get(Connect.CONNECT_SESSION_PLAN_CACHE_SIZE))}")
+  logWarning(
+    log"Session plan cache is disabled due to non-positive cache size." +
+      log" Current value of " +
+      log"'${MDC(LogKeys.CONFIG, Connect.CONNECT_SESSION_PLAN_CACHE_SIZE.key)}' is ${MDC(
+          LogKeys.CACHE_SIZE,
+          SparkEnv.get.conf.get(Connect.CONNECT_SESSION_PLAN_CACHE_SIZE))}")
 }
 <<< #4133 overflow select within interpolate
 object a {
