@@ -196,7 +196,7 @@ case class Split(
       fexpire: => Token,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
-      killOnFail: Boolean = false,
+      killOnFail: => Boolean = false,
       rank: Int = 0,
       extend: Boolean = false,
       ignore: Boolean = false,

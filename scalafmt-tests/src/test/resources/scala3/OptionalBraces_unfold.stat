@@ -1119,10 +1119,12 @@ object Foo:
           )
 
         case a: A if a.c() =>
-          val varName = a
-            .method(a.someField.anotherField.method().map(ObjectWithLongName.A))
-          val otherVarName = varName
-            .method(a.someField.method(ObjectWithLongName.B))
+          val varName = a.method(
+            a.someField.anotherField.method().map(ObjectWithLongName.A)
+          )
+          val otherVarName = varName.method(
+            a.someField.method(ObjectWithLongName.B)
+          )
           otherVarName
 
         case a: A
@@ -6104,8 +6106,11 @@ object a:
    new AdapterLike[Study] {
      def query = Query(text take 100, me.map(_.id))
      def nbResults = api count query
-     def slice(offset: Int, length: Int) = api
-       .search(query, From(offset), Size(length))
+     def slice(offset: Int, length: Int) = api.search(
+       query,
+       From(offset),
+       Size(length)
+     )
    } mapFutureList pager.withChaptersAndLiking(me)
 <<< new anon as postfix lhs, with rewrite
 rewrite.scala3.removeOptionalBraces = yes
@@ -6122,8 +6127,11 @@ object a:
    new AdapterLike[Study] {
      def query = Query(text take 100, me.map(_.id))
      def nbResults = api count query
-     def slice(offset: Int, length: Int) = api
-       .search(query, From(offset), Size(length))
+     def slice(offset: Int, length: Int) = api.search(
+       query,
+       From(offset),
+       Size(length)
+     )
    } mapFutureList
 <<< new anon as select lhs, with rewrite
 rewrite.scala3.removeOptionalBraces = yes
@@ -6140,8 +6148,11 @@ object a:
    new AdapterLike[Study]:
       def query = Query(text take 100, me.map(_.id))
       def nbResults = api count query
-      def slice(offset: Int, length: Int) = api
-        .search(query, From(offset), Size(length))
+      def slice(offset: Int, length: Int) = api.search(
+        query,
+        From(offset),
+        Size(length)
+      )
    .mapFutureList
 <<< #3623 beforeCurlyLambdaParams
 newlines.beforeCurlyLambdaParams = true
@@ -7093,8 +7104,9 @@ object a:
        revision: Option[String],
        projectRoot: Path = Paths.get("").toAbsolutePath
    )(using CompilerContext): SourceLinks =
-     PathBased
-       .parse(config, projectRoot)(using SourceLinkParser(revision)) match {
+     PathBased.parse(config, projectRoot)(using
+       SourceLinkParser(revision)
+     ) match {
        case PathBased.ParsingResult(errors, sourceLinks) =>
          if errors.nonEmpty then
             report.warning(s"""Following templates has invalid format:

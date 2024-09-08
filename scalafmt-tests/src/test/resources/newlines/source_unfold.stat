@@ -7289,8 +7289,9 @@ object a {
 }
 >>>
 object a {
-  val pebblesAndBammBammsParents = Person
-    .findAll(("childId" -> ("$in" -> List(pebblesId, bammbammId))))
+  val pebblesAndBammBammsParents = Person.findAll(
+    ("childId" -> ("$in" -> List(pebblesId, bammbammId)))
+  )
 }
 <<< SM 4.7.0: 29.1
 maxColumn = 75
