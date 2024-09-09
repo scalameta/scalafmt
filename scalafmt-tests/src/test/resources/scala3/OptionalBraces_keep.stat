@@ -6780,9 +6780,10 @@ object a:
    def foo =
      for template <- templates do
         val current_Map_String__Object =
-          template_templateFile_settings_getOrElse("page", Map.empty).asInstanceOf[
-            Map_String_Object
-          ]
+          template_templateFile_settings_getOrElse(
+            "page",
+            Map.empty
+          ).asInstanceOf[Map_String_Object]
 <<< scala.js overflow within for-yield !dangling
 binPack.preset = always
 danglingParentheses.preset = false
@@ -6796,8 +6797,8 @@ object a:
    def foo =
      for template <- templates do
         val current_Map_String__Object =
-          template_templateFile_settings_getOrElse("page", Map.empty).asInstanceOf[
-            Map_String_Object]
+          template_templateFile_settings_getOrElse(
+            "page", Map.empty).asInstanceOf[Map_String_Object]
 <<< #4133 for-yield with rewritten body
 rewrite.scala3.removeOptionalBraces = yes
 ===
@@ -7079,10 +7080,15 @@ object a:
 object a:
    if (args.isEmpty) {
      run(insertClasspathInArgs(args1,
-         List(dottyCompiler, dottyInterfaces, asm, dottyStaging,
-           dottyTastyInspector, tastyCore, compilerInterface).mkString(
-           File.pathSeparator
-         )))
+         List(
+           dottyCompiler,
+           dottyInterfaces,
+           asm,
+           dottyStaging,
+           dottyTastyInspector,
+           tastyCore,
+           compilerInterface
+         ).mkString(File.pathSeparator)))
    } else run(args)
 <<< #4133 overflow apply/selects with binpack, dangling
 maxColumn = 70
@@ -7098,10 +7104,15 @@ object a:
    if (args.isEmpty) {
      run(insertClasspathInArgs(
          args1,
-         List(dottyCompiler, dottyInterfaces, asm, dottyStaging,
-           dottyTastyInspector, tastyCore, compilerInterface).mkString(
-           File.pathSeparator
-         ).mkString(File.pathSeparator)
+         List(
+           dottyCompiler,
+           dottyInterfaces,
+           asm,
+           dottyStaging,
+           dottyTastyInspector,
+           tastyCore,
+           compilerInterface
+         ).mkString(File.pathSeparator).mkString(File.pathSeparator)
        ))
    } else run(args)
 <<< #4133 overflow apply with binpack, !dangling
@@ -7149,11 +7160,13 @@ object a:
 >>>
 object a:
    if (args.isEmpty) {
-     run(insertClasspathInArgs(
+     run(
+       insertClasspathInArgs(
          args1,
          List(dottyCompiler, dottyInterfaces, asm, dottyStaging,
            dottyTastyInspector, tastyCore, compilerInterface).mkString(
-           File.pathSeparator).mkString(File.pathSeparator)
+           File.pathSeparator).mkString(
+           File.pathSeparator)
        ))
    } else run(args)
 <<< #4133 overflow select with binpack, dangling

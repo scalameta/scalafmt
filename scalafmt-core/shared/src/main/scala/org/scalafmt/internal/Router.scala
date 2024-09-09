@@ -1238,7 +1238,12 @@ class Router(formatOps: FormatOps) {
         val noSplit =
           if (nlOnly) Split.ignored
           else if (singleLineOnly || noNLPolicy == null) baseNoSplit
-            .withSingleLine(close, sjsExclude, noSyntaxNL = true)
+            .withSingleLine(
+              close,
+              sjsExclude,
+              noSyntaxNL = true,
+              killOnFail = !dangleCloseDelim,
+            )
           else {
             def noSingleArgIndents = oneline || singleArgAsInfix.isDefined ||
               !style.binPack.indentCallSiteSingleArg ||
@@ -1284,7 +1289,12 @@ class Router(formatOps: FormatOps) {
                 }
               unindentPolicy & indentOncePolicy
             }
-            baseNoSplit.withOptimalToken(opt)
+            val optLite = style.newlines.keep && preferConfigStyle &&
+              !isSingleArg
+            val kof = style.newlines.keep && preferConfigStyle && isSingleArg &&
+              !dangleCloseDelim && singleArgAsInfix.isEmpty
+            baseNoSplit
+              .withOptimalToken(opt, recurseOnly = optLite, killOnFail = kof)
               .withPolicy(noSplitPolicy & indentPolicy & noNLPolicy())
               .withIndents(noSplitIndents)
           }
