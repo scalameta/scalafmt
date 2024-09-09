@@ -118,23 +118,24 @@ class FormatOps(
       classifier: Classifier[T, A],
   ): Option[FormatToken] = findFirst(start, end.start)(x => classifier(x.right))
 
-  final def rhsOptimalToken(start: FormatToken, end: Int = Int.MaxValue): T =
-    findTokenWith(start, next) { start =>
-      start.right match {
-        case t if t.end >= end => Some(start.left)
-        case _ if start.hasBlankLine => Some(start.left)
-        case _: T.RightParen
-            if start.left.is[T.RightParen] || start.left.is[T.LeftParen] => None
-        case _: T.RightBracket if start.left.is[T.RightBracket] => None
-        case _: T.LeftParen if !leftParenStartsNewBlockOnRight(start) => None
-        case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals => None
-        case c: T.Comment
-            if start.noBreak &&
-              (!start.left.is[T.LeftParen] ||
-                hasBreakAfterRightBeforeNonComment(start)) => Some(c)
-        case _ => Some(start.left)
-      }
-    }.fold(_.right, identity)
+  final def rhsOptimalToken(start: FormatToken, end: Int = Int.MaxValue)(
+      implicit style: ScalafmtConfig,
+  ): T = findTokenWith(start, next) { start =>
+    start.right match {
+      case t if t.end >= end => Some(start.left)
+      case _ if start.hasBlankLine => Some(start.left)
+      case _: T.RightParen
+          if start.left.is[T.RightParen] || start.left.is[T.LeftParen] => None
+      case _: T.RightBracket if start.left.is[T.RightBracket] => None
+      case _: T.LeftParen if !leftParenStartsNewBlockOnRight(start) => None
+      case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals => None
+      case c: T.Comment
+          if start.noBreak &&
+            (!start.left.is[T.LeftParen] ||
+              hasBreakAfterRightBeforeNonComment(start)) => Some(c)
+      case _ => Some(start.left)
+    }
+  }.fold(_.right, identity)
 
   @tailrec
   final def endOfSingleLineBlockOnLeft(
@@ -180,9 +181,12 @@ class FormatOps(
     }
   }
 
-  final def leftParenStartsNewBlockOnRight(ft: FormatToken): Boolean =
+  final def leftParenStartsNewBlockOnRight(
+      ft: FormatToken,
+  )(implicit style: ScalafmtConfig): Boolean =
     (ft.meta.rightOwner match {
-      case _: Member.ArgClause => false
+      case _: Member.ArgClause => ft.right.is[T.LeftParen] &&
+        style.newlines.isBeforeOpenParenCallSite
       case t => isJustBeforeTree(ft)(t)
     }) && notInfixRhs(ft, tokenIsChecked = true)
 
