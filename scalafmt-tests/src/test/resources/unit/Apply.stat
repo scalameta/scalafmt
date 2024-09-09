@@ -32,6 +32,26 @@ new DenseMatrix(
     rows = from.cols,
     majorStride = from.majorStride,
     isTranspose = !from.isTranspose)
+<<< Init, multiline map
+new DenseMatrix(
+    data = from.data map {
+      _.conjugate
+    },
+    offset = from.offset,
+    cols = from.rows,
+    rows = from.cols,
+    majorStride = from.majorStride,
+    isTranspose = !from.isTranspose)
+>>>
+new DenseMatrix(
+    data = from.data map {
+      _.conjugate
+    },
+    offset = from.offset,
+    cols = from.rows,
+    rows = from.cols,
+    majorStride = from.majorStride,
+    isTranspose = !from.isTranspose)
 <<< binpack oneline, apply followed by block
 maxColumn = 15
 binPack.unsafeCallSite = Oneline
