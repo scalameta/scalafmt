@@ -126,9 +126,8 @@ class FormatOps(
         case _: T.RightParen
             if start.left.is[T.RightParen] || start.left.is[T.LeftParen] => None
         case _: T.RightBracket if start.left.is[T.RightBracket] => None
-        case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
-            _: T.Equals if isInfixRhs(start) || !startsNewBlockOnRight(start) =>
-          None
+        case _: T.LeftParen if !leftParenStartsNewBlockOnRight(start) => None
+        case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals => None
         case c: T.Comment
             if start.noBreak &&
               (!start.left.is[T.LeftParen] ||
@@ -145,7 +144,7 @@ class FormatOps(
       case _: T.EOF => true
       case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals => false
       case _ if start.hasBlankLine => true
-      case _: T.LeftParen => false
+      case _: T.LeftParen => leftParenStartsNewBlockOnRight(start)
       case _: T.RightParen => !start.left.is[T.LeftParen]
       case _: T.Comment =>
         if (start.noBreak) {
@@ -155,23 +154,24 @@ class FormatOps(
         }
         true
       case _ => style.newlines.formatInfix || start.hasBreak ||
-        !isInfixRhs(start)
+        notInfixRhs(start)
     }
 
-    if (endFound) start
-    else if (!isInfixRhs(start) && startsNewBlockOnRight(start)) start
-    else endOfSingleLineBlockOnLeft(next(start))
+    if (endFound) start else endOfSingleLineBlockOnLeft(next(start))
   }
 
   final def endOfSingleLineBlock(start: FormatToken)(implicit
       style: ScalafmtConfig,
   ): T = endOfSingleLineBlockOnLeft(start).left
 
-  final def isInfixRhs(ft: FormatToken): Boolean = {
+  final def notInfixRhs(
+      ft: FormatToken,
+      tokenIsChecked: Boolean = false,
+  ): Boolean = {
     val tree = ft.meta.rightOwner
     @inline
-    def checkToken = isJustBeforeTree(ft)(tree)
-    tree.parent.exists {
+    def checkToken = tokenIsChecked || isJustBeforeTree(ft)(tree)
+    !tree.parent.exists {
       case ia: Member.Infix => (ia.op eq tree) || (ia.arg eq tree) &&
         (ft.right.is[T.LeftParen] || checkToken)
       case t: Member.ArgClause => t.parent.exists(_.is[Member.Infix]) &&
@@ -180,11 +180,11 @@ class FormatOps(
     }
   }
 
-  final def startsNewBlockOnRight(ft: FormatToken): Boolean =
-    ft.meta.rightOwner match {
+  final def leftParenStartsNewBlockOnRight(ft: FormatToken): Boolean =
+    (ft.meta.rightOwner match {
       case _: Member.ArgClause => false
       case t => isJustBeforeTree(ft)(t)
-    }
+    }) && notInfixRhs(ft, tokenIsChecked = true)
 
   /** js.native is very special in Scala.js.
     *
