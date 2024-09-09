@@ -7,8 +7,16 @@ import org.scalafmt.util.PolicyOps
 import org.scalameta.FileLine
 import scala.meta.tokens.Token
 
-case class OptimalToken(token: Token, killOnFail: Boolean = false) {
-  override def toString: String = s"$token:${token.end}"
+case class OptimalToken(
+    token: Token,
+    killOnFail: Boolean = false,
+    recurseOnly: Boolean = false,
+) {
+  override def toString: String = {
+    val kof = if (killOnFail) "!" else ":"
+    val rec = if (recurseOnly) "+" else ""
+    s"$token$kof${token.end}$rec"
+  }
 }
 
 /** A Split is the whitespace between two non-whitespace tokens.
@@ -134,16 +142,24 @@ case class Split(
       token: => Option[Token],
       killOnFail: Boolean = false,
       extend: Boolean = false,
-  ): Split =
-    withOptimalAt(token.map(OptimalToken(_, killOnFail)), extend = extend)
+      recurseOnly: Boolean = false,
+  ): Split = withOptimalAt(
+    token
+      .map(OptimalToken(_, killOnFail = killOnFail, recurseOnly = recurseOnly)),
+    extend = extend,
+  )
 
   def withOptimalToken(
       token: => Token,
       killOnFail: Boolean = false,
       ignore: Boolean = false,
       extend: Boolean = false,
-  ): Split =
-    withOptimalAt(Some(OptimalToken(token, killOnFail)), ignore, extend = extend)
+      recurseOnly: Boolean = false,
+  ): Split = withOptimalAt(
+    Some(OptimalToken(token, killOnFail = killOnFail, recurseOnly = recurseOnly)),
+    ignore,
+    extend = extend,
+  )
 
   def withOptimalAt(
       fOptimalAt: => Option[OptimalToken],

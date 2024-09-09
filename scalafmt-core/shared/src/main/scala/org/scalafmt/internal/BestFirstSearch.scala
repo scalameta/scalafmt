@@ -170,7 +170,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
                 furtherState.appliedPenalty > nextNextState.appliedPenalty
               ) nextNextState
               else {
-                optimalNotFound = false
+                if (!opt.recurseOnly) optimalNotFound = false
                 furtherState
               }
             }
