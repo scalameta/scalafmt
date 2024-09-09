@@ -22,9 +22,9 @@ import metaconfig._
   * @param pruneSlowStates
   *   Eliminate solutions that move slower than other solutions.
   *   - If a solution reaches a point X first and other solution that reaches
-  *     the same point later, the first solution is preferred if it can be
-  *     verified to be always better (see
-  *     [[org.scalafmt.internal.State.alwaysBetter]]).
+  *     the same point later, the second solution is ignored unless it can be
+  *     verified not to be worse (see
+  *     [[org.scalafmt.internal.State.possiblyBetter]]).
   *   - Note. This affects the output positively because it breaks a tie between
   *     two equally expensive solutions by eliminating the slower one.
   *   - Example: solution 1 is preferred even though both solutions cost the

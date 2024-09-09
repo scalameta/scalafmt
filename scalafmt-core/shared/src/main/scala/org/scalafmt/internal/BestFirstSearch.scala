@@ -51,7 +51,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   def shouldEnterState(curr: State): Boolean = keepSlowStates ||
     curr.policy.noDequeue ||
     // TODO(olafur) document why/how this optimization works.
-    !best.get(curr.depth).exists(_.alwaysBetter(curr))
+    best.get(curr.depth).forall(curr.possiblyBetter)
 
   private def getBlockCloseToRecurse(ft: FormatToken, stop: Token)(implicit
       style: ScalafmtConfig,
