@@ -107,6 +107,30 @@ private def extractRhino(e: js.Dynamic): js.Array[String] = {
     ) // Rhino has platform-dependent EOL's
     .jsSplit("\n")
 }
+<<< rhino superfluous parenthesis, with breaks before paren/comment
+private def extractRhino(e: js.Dynamic): js.Array[String] = {
+  (e.stack
+    .asInstanceOf[js.UndefOr[String]])
+    .getOrElse("")
+    .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+    .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+    .jsReplace("""\r\n?""".re("gm"),
+               "\n"
+    ) // Rhino has platform-dependent EOL's
+    .jsSplit("\n")
+}
+>>>
+private def extractRhino(e: js.Dynamic): js.Array[String] = {
+  (e.stack
+    .asInstanceOf[js.UndefOr[String]])
+    .getOrElse("")
+    .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+    .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+    .jsReplace("""\r\n?""".re("gm"),
+               "\n"
+    ) // Rhino has platform-dependent EOL's
+    .jsSplit("\n")
+}
 <<< rhino superfluous parenthesis, align close
 align.closeParenSite = true
 ===
@@ -117,6 +141,32 @@ align.closeParenSite = true
       .jsReplace("""\r\n?""".re("gm"), "\n") // Rhino has platform-dependent EOL's
       .jsSplit("\n")
   }
+>>>
+private def extractRhino(e: js.Dynamic): js.Array[String] = {
+  (e.stack
+    .asInstanceOf[js.UndefOr[String]])
+    .getOrElse("")
+    .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+    .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+    .jsReplace("""\r\n?""".re("gm"),
+               "\n"
+              ) // Rhino has platform-dependent EOL's
+    .jsSplit("\n")
+}
+<<< rhino superfluous parenthesis, align close, with breaks before paren/comment
+align.closeParenSite = true
+===
+private def extractRhino(e: js.Dynamic): js.Array[String] = {
+  (e.stack
+    .asInstanceOf[js.UndefOr[String]])
+    .getOrElse("")
+    .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+    .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+    .jsReplace("""\r\n?""".re("gm"),
+               "\n"
+              ) // Rhino has platform-dependent EOL's
+    .jsSplit("\n")
+}
 >>>
 private def extractRhino(e: js.Dynamic): js.Array[String] = {
   (e.stack

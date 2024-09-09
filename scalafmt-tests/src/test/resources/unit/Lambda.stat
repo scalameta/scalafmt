@@ -97,6 +97,24 @@ Thing(implicit ctx =>
           cccccccccc,
           ddddddddddddddddddddj
       )) // coooooooooooooooomment
+<<< long curried with (), with breaks before paren/comment
+Thing(implicit ctx =>
+  j =>
+    k =>
+      aaaaaaaaaaaaa(
+          bbbbbbbbbbbbbbbbbbb,
+          cccccccccc,
+          ddddddddddddddddddddj
+      )) // coooooooooooooooomment
+>>>
+Thing(implicit ctx =>
+  j =>
+    k =>
+      aaaaaaaaaaaaa(
+          bbbbbbbbbbbbbbbbbbb,
+          cccccccccc,
+          ddddddddddddddddddddj
+      )) // coooooooooooooooomment
 <<< single line uncurried
 Thing() { implicit ctx =>
       ???
