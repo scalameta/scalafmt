@@ -138,29 +138,34 @@ class FormatOps(
     }.fold(_.right, identity)
 
   @tailrec
-  final def endOfSingleLineBlock(
+  final def endOfSingleLineBlockOnLeft(
       start: FormatToken,
-  )(implicit style: ScalafmtConfig): T = {
-    lazy val isInfix = isInfixRhs(start)
+  )(implicit style: ScalafmtConfig): FormatToken = {
     val endFound = start.right match {
-      case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
-          _: T.Equals => None
-      case _: T.RightParen if start.left.is[T.LeftParen] => None
-      case c: T.Comment
-          if start.noBreak && hasBreakAfterRightBeforeNonComment(start) =>
-        Some(c)
-      case _ if !style.newlines.formatInfix && start.noBreak && isInfix => None
-      case _ => Some(start.left)
+      case _: T.EOF => true
+      case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals => false
+      case _ if start.hasBlankLine => true
+      case _: T.LeftParen => false
+      case _: T.RightParen => !start.left.is[T.LeftParen]
+      case _: T.Comment =>
+        if (start.noBreak) {
+          val nft = next(start)
+          if (!start.left.is[T.LeftParen] || hasBreakBeforeNonComment(nft))
+            return nft // RETURN!!!
+        }
+        true
+      case _ => style.newlines.formatInfix || start.hasBreak ||
+        !isInfixRhs(start)
     }
 
-    endFound match {
-      case Some(t) => t
-      case None =>
-        if (!hasNext(start)) start.right
-        else if (!isInfix && startsNewBlockOnRight(start)) start.left
-        else endOfSingleLineBlock(next(start))
-    }
+    if (endFound) start
+    else if (!isInfixRhs(start) && startsNewBlockOnRight(start)) start
+    else endOfSingleLineBlockOnLeft(next(start))
   }
+
+  final def endOfSingleLineBlock(start: FormatToken)(implicit
+      style: ScalafmtConfig,
+  ): T = endOfSingleLineBlockOnLeft(start).left
 
   final def isInfixRhs(ft: FormatToken): Boolean = {
     val tree = ft.meta.rightOwner
