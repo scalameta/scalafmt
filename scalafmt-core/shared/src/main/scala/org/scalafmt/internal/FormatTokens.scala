@@ -309,6 +309,15 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   def tokenJustBeforeOpt(trees: Seq[Tree]): Option[FormatToken] = trees
     .headOption.flatMap(tokenJustBeforeOpt)
 
+  def isTokenHeadOf(tok: => Token, tree: Tree): Boolean =
+    getHeadOpt(tree) match {
+      case None => false
+      case Some(x) => x.left eq tok
+    }
+
+  def isJustBeforeTree(ft: FormatToken)(tree: Tree): Boolean =
+    isTokenHeadOf(ft.right, tree)
+
   /* the following methods return the last format token such that
    * its `left` is before the parameter and is not a comment */
   @inline

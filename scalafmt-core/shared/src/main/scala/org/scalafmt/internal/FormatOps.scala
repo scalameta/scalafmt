@@ -165,7 +165,7 @@ class FormatOps(
   final def isInfixRhs(ft: FormatToken): Boolean = {
     val tree = ft.meta.rightOwner
     @inline
-    def checkToken = tokenJustBeforeOpt(tree).contains(ft)
+    def checkToken = isJustBeforeTree(ft)(tree)
     tree.parent.exists {
       case ia: Member.Infix => (ia.op eq tree) || (ia.arg eq tree) &&
         (ft.right.is[T.LeftParen] || checkToken)
@@ -178,7 +178,7 @@ class FormatOps(
   final def startsNewBlockOnRight(ft: FormatToken): Boolean =
     ft.meta.rightOwner match {
       case _: Member.ArgClause => false
-      case t => tokenBeforeOpt(t).contains(ft)
+      case t => isJustBeforeTree(ft)(t)
     }
 
   /** js.native is very special in Scala.js.
@@ -2386,11 +2386,8 @@ class FormatOps(
     private def isTreeUsingOptionalBraces(tree: Tree): Boolean =
       !isTreeSingleExpr(tree) && !tokenBefore(tree).left.is[T.LeftBrace]
 
-    private def isJustBeforeTree(ft: FormatToken)(tree: Tree): Boolean =
-      tokenJustBeforeOpt(tree).contains(ft)
-
     private def isJustBeforeTrees(ft: FormatToken)(trees: Seq[Tree]): Boolean =
-      tokenJustBeforeOpt(trees).contains(ft)
+      trees.headOption.exists(isJustBeforeTree(ft))
 
     private def isJustBeforeExprs(ft: FormatToken)(
         tree: Tree.WithExprs,
@@ -2481,7 +2478,7 @@ class FormatOps(
 
     private object BlockImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result = {
-        def ok(stat: Tree): Boolean = tokenJustBeforeOpt(stat).contains(nft)
+        def ok(stat: Tree): Boolean = isJustBeforeTree(nft)(stat)
         val leftOwner = ft.meta.leftOwner
         findTreeWithParentSimple(nft.meta.rightOwner)(_ eq leftOwner) match {
           case Some(t: Term.Block) =>
