@@ -35,8 +35,8 @@ final case class State(
   @inline
   def mod: Modification = modExt.mod
 
-  def alwaysBetter(other: State): Boolean = this.cost <= other.cost &&
-    this.indentation <= other.indentation
+  def possiblyBetter(other: State): Boolean = this.cost < other.cost ||
+    this.indentation < other.indentation
 
   /** Calculates next State given split at tok.
     */
