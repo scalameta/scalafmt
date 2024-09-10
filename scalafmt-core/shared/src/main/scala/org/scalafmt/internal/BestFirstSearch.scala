@@ -160,6 +160,14 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             actualSplit.lengthCompare(1) > 0
 
           def processNextState(nextState: State): Unit = {
+            def killOnFail(opt: OptimalToken): Boolean = opt.killOnFail || {
+              val optFt = tokens(opt.token, 1)
+              nextState.policy.policies.exists {
+                case p: PolicyOps.SingleLineBlock => p.endPolicy
+                    .notExpiredBy(optFt)
+                case _ => false
+              }
+            }
             def processOptimal(opt: OptimalToken): State = {
               val nextNextState =
                 if (opt.token eq splitToken.right) nextState
@@ -167,7 +175,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
               val furtherState =
                 if (null == nextNextState) null
                 else traverseSameLine(nextNextState, depth)
-              if (null == furtherState) if (opt.killOnFail) null else nextState
+              if (null == furtherState) if (killOnFail(opt)) null else nextState
               else if (
                 furtherState.appliedPenalty > nextNextState.appliedPenalty
               ) nextNextState
@@ -180,7 +188,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             val stateToQueue = split.optimalAt match {
               case Some(opt) if handleOptimalTokens =>
                 if (split.cost == 0) processOptimal(opt)
-                else if (opt.killOnFail) null
+                else if (killOnFail(opt)) null
                 else nextState
               case _ => nextState
             }

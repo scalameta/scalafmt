@@ -504,7 +504,9 @@ object a {
 }
 >>>
 object a {
-  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${
+      qux(baz, bar)
+    } foo4"
   s"""
     |foo1 ${bar} foo2 ${baz(bar)} foo3 ${
       qux(baz, bar)
@@ -534,7 +536,9 @@ object a {
 }
 >>>
 object a {
-  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4"
+  s"foo1 ${bar} foo2 ${baz(bar)} foo3 ${
+                                         qux(baz, bar)
+                                       } foo4"
   s"""
     |foo1 ${bar} foo2 ${baz(bar)} foo3 ${
                                           qux(baz,

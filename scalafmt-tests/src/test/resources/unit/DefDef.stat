@@ -245,7 +245,9 @@ object a {
 object a {
   def zipMethodsWithTheirInlinedVersionsFromParent(
       prog: EOProg[EOExprOnly])
-      : EitherNel[String, Map[EONamedBnd, ObjectTree[(AnalysisInfo, AnalysisInfo)]]] = {
+      : EitherNel[String,
+                  Map[EONamedBnd,
+                      ObjectTree[(AnalysisInfo, AnalysisInfo)]]] = {
     ???
   }
 }
