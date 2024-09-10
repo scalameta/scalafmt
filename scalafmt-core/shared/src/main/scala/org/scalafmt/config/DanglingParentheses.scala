@@ -1,5 +1,7 @@
 package org.scalafmt.config
 
+import org.scalafmt.util.TreeOps
+
 import scala.meta._
 
 import DanglingParentheses.Exclude
@@ -35,6 +37,11 @@ case class DanglingParentheses(
       case _: Type.ParamClause => atBracketDefnSite
       case _ => defnSite
     }) && isExcluded(lpOwner)
+
+  def atSite(lpOwner: Tree, orElse: => Boolean): Boolean =
+    if (TreeOps.isArgClauseSite(lpOwner)) atCallSite(lpOwner)
+    else if (TreeOps.isParamClauseSite(lpOwner)) atDefnSite(lpOwner)
+    else orElse
 
   @inline
   def atVerticalMultilineSite(lpOwner: Tree): Boolean = defnSite &&

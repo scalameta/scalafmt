@@ -2545,18 +2545,8 @@ class Router(formatOps: FormatOps) {
       style: ScalafmtConfig,
       ft: FormatToken,
   ): Seq[Split] = {
-    def wouldDangle = ft.meta.leftOwner.parent.exists {
-      case p: Member.ParamClause => style.danglingParentheses.atDefnSite(p)
-      case _: Member.Tuple => style.danglingParentheses.atTupleSite
-      case _: Type.ArgClause => style.danglingParentheses.atBracketCallSite
-      case p: Member.ArgClause => style.danglingParentheses.callSite &&
-        (p.parent match {
-          case Some(_: Term.ApplyInfix) => style.newlines.formatInfix &&
-            p.values.lengthCompare(1) > 0
-          case _ => true
-        })
-      case _ => false
-    }
+    def wouldDangle = ft.meta.leftOwner.parent
+      .exists(style.danglingParentheses.atSite(_, false))
 
     val expire = endFt.left
     // rhsOptimalToken is too aggressive here
