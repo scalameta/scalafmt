@@ -7030,13 +7030,18 @@ object a {
   )
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-               g.asInstanceOf[Tuple18[_, _, _, _, _, _, _, _, _, _, _, _, _, _,
--                  _, _, _, _] => Any].apply((x1, x2, x3, x4, x5, x6, x7, x8, x9,
--                      x10,
-+                  _, _, _, _] => Any].apply((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10,
-                       x11, x12, x13, x14, x15, x16, x17, x18))).asInstanceOf[F]
+object a {
+  def tupledFunction18[F, G]: TupledFunction[F, G] = TupledFunction[F, G](
+      untupledImpl = (g: G) =>
+        ((x1: Any, x2: Any, x3: Any, x4: Any, x5: Any, x6: Any, x7: Any,
+                x8: Any, x9: Any, x10: Any, x11: Any, x12: Any, x13: Any,
+                x14: Any, x15: Any, x16: Any, x17: Any, x18: Any) =>
+              g.asInstanceOf[Tuple18[_, _, _, _, _, _, _, _, _, _, _, _, _, _,
+                  _, _, _, _] => Any].apply((x1, x2, x3, x4, x5, x6, x7, x8, x9,
+                      x10, x11, x12, x13, x14, x15, x16, x17, x18))).asInstanceOf[
+            F]
+  )
+}
 <<< #4133 binpack overflow assignment with selects, attributes, !dangling
 indent.callSite = 4
 binPack.preset = always

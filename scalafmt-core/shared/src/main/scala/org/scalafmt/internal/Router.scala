@@ -1531,7 +1531,7 @@ class Router(formatOps: FormatOps) {
                 val slbPolicy =
                   SingleLineBlock(end, exclude = sjsExclude, noSyntaxNL = true)
                 Split(Space, 0, policy = slbPolicy ==> onelinePolicy)
-                  .withOptimalToken(end)
+                  .withOptimalToken(end, killOnFail = sjsExclude.isEmpty)
               }
             Seq(noSplit, nlSplit)
           }
