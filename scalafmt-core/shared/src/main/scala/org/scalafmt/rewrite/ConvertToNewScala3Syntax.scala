@@ -41,7 +41,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
         ft.meta.rightOwner match {
           case _: Term.If if left.is[Token.KwIf] => removeToken
           case _: Term.While if left.is[Token.KwWhile] => removeToken
-          case _: Tree.WithEnums if left.is[Token.KwFor] => removeToken
+          case _: Term.EnumeratorsBlock if left.is[Token.KwFor] => removeToken
           case _ => null
         }
 
@@ -119,9 +119,14 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
             if (!nextRight.is[Token.KwThen])
               replaceToken("then")(new Token.KwThen(x.input, x.dialect, x.start))
             else removeToken
-          case _: Term.While | _: Term.For =>
+          case _: Term.While =>
             if (!nextRight.is[Token.KwDo])
               replaceToken("do")(new Token.KwDo(x.input, x.dialect, x.start))
+            else removeToken
+          case t: Term.EnumeratorsBlock if t.parent.is[Term.For] =>
+            if (!nextRight.is[Token.KwDo]) replaceToken("do", t.parent)(
+              new Token.KwDo(x.input, x.dialect, x.start),
+            )
             else removeToken
           case _ => null
         }

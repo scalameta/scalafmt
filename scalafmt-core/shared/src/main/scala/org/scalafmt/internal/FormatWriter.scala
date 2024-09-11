@@ -223,7 +223,7 @@ class FormatWriter(formatOps: FormatOps) {
        */
       _.parent match {
         case Some(t: Term.Block) => t.stats.lengthCompare(minBlockStats) >= 0
-        case Some(_: Template | _: Source | _: Pkg) => true
+        case Some(_: Template.Body | _: Source | _: Pkg.Body) => true
         case _ => false
       }
     }
@@ -1256,8 +1256,7 @@ class FormatWriter(formatOps: FormatOps) {
 
     object AlignContainer {
       def unapply(tree: Tree): Option[Tree] = tree match {
-        case _: Source | _: Template | _: Term.Block | _: Term.Match |
-            _: Type.Match | _: Term.FunctionTerm | _: Term.PartialFunction =>
+        case _: Tree.Block | _: Term.FunctionTerm | _: Term.PartialFunction =>
           Some(tree)
         case _ => None
       }
@@ -1284,7 +1283,7 @@ class FormatWriter(formatOps: FormatOps) {
         case Some(AlignContainer(p)) => (p, depth)
         case Some(
               p @ (_: Term.Select | _: Pat.Var | _: Term.ApplyInfix |
-              _: Member.ParamClauseGroup),
+              _: Template | _: Member.ParamClauseGroup),
             ) => getAlignContainerParent(p, depth)
         case Some(p: Term.Apply) if (p.argClause.values match {
               case (_: Term.Apply) :: Nil => true
@@ -1530,7 +1529,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
         override def apply(tree: Tree): Unit = tree match {
           case t: Source => applySeq(t)(t.stats)
-          case t: Template => applySeqWith(t)(t.stats) { stats =>
+          case t: Template => applySeqWith(t)(t.body.stats) { stats =>
               beforeBody(stats) {
                 _.beforeTemplateBodyIfBreakInParentCtors && {
                   val beg = leadingComment(t).meta.idx
@@ -1548,17 +1547,18 @@ class FormatWriter(formatOps: FormatOps) {
               afterBody(t, stats)
             }
           case t: Pkg =>
-            if (indentedPackage(t)) applySeqWith(t)(t.stats) { stats =>
+            if (indentedPackage(t)) applySeqWith(t)(t.body.stats) { stats =>
               beforeBody(stats)(_ => false)
               afterBody(t, stats)
             }
-            else applySeqWith(t, notUnindentedPkg = false)(t.stats) { stats =>
-              val ok = stats.head match {
-                case t: Pkg => indentedPackage(t)
-                case _ => true
+            else
+              applySeqWith(t, notUnindentedPkg = false)(t.body.stats) { stats =>
+                val ok = stats.head match {
+                  case t: Pkg => indentedPackage(t)
+                  case _ => true
+                }
+                if (ok) beforeBody(stats)(_.hasTopStatBlankLines)
               }
-              if (ok) beforeBody(stats)(_.hasTopStatBlankLines)
-            }
           case t: Stat.WithTemplate => apply(t.templ)
           case _ => // everything else is not "top-level"
         }
@@ -1571,8 +1571,9 @@ class FormatWriter(formatOps: FormatOps) {
     @tailrec
     final def getNest(tree: Tree, curNest: Int = 0): Int = tree.parent match {
       case Some(_: Source) | None => curNest
-      case Some(t: Template) => getNest(t, curNest)
-      case Some(t: Pkg) if !indentedPackage(t) => curNest
+      case Some(t: Pkg.Body) =>
+        if (indentedPackage(t)) getNest(t, curNest) else curNest
+      case Some(t @ (_: Template | _: Template.Body)) => getNest(t, curNest)
       case Some(t) => getNest(t, curNest + 1)
     }
 
@@ -1951,8 +1952,8 @@ object FormatWriter {
     case _: Term.If => "if"
     case _: Term.While => "while"
     case _: Term.Match | _: Type.Match => "match"
-    case _: Term.For | _: Term.ForYield => "for"
-    case _: Term.Try | _: Term.TryWithHandler => "try"
+    case _: Term.ForClause => "for"
+    case _: Term.TryClause => "try"
     case _ => null
   }
 

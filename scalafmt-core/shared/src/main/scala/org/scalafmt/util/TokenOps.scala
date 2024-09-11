@@ -47,11 +47,8 @@ object TokenOps {
       style: ScalafmtConfig,
   ): Boolean = style.forceNewlineBeforeDocstring &&
     isDocstring(ft.meta.right.text) &&
-    TreeOps.findTreeOrParent(ft.meta.leftOwner) {
-      case t if t.pos.end <= ft.right.start => None
-      case _: Pkg | _: Source | _: Template | _: Term.Block => Some(false)
-      case _ => Some(true)
-    }.isEmpty
+    // we need Pkg in case docstring comes before the first statement and not owned by Pkg.Body
+    ft.meta.rightOwner.isAny[Pkg, Tree.Block]
 
   // 2.13 implements SeqOps.findLast
   def findLast[A](seq: Seq[A])(cond: A => Boolean): Option[A] = seq

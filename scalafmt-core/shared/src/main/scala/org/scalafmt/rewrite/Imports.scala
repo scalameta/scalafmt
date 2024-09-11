@@ -267,8 +267,8 @@ object Imports extends RewriteFactory {
 
     override final def rewrite(tree: Tree): Unit = tree match {
       case t: Source => processStats(t.stats)
-      case t: Pkg => processStats(t.stats)
-      case t: Template => processStats(t.stats)
+      case t: Pkg.Body => processStats(t.stats)
+      case t: Template.Body => processStats(t.stats)
       case t: ImportExportStat if t.parent.isEmpty => processStats(Seq(t))
       case _ =>
     }

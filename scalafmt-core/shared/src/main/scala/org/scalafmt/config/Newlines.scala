@@ -461,14 +461,14 @@ object Newlines {
       }
     }
     case object anyMember extends ForceBeforeMultilineAssign {
-      def apply(tree: Tree): Boolean = tree.parent.exists(_.is[Template])
+      def apply(tree: Tree): Boolean = tree.parent.exists(_.is[Template.Body])
     }
     case object topMember extends ForceBeforeMultilineAssign {
       def apply(tree: Tree): Boolean = {
         // find the first invalid tree
         val nonMemberTree = TreeOps.findTreeWithParentEx(tree) {
-          case t: Template => t.parent
-          case _: Pkg => None // all trees valid, no need to go further
+          case t: Template.Body => t.parent.parent
+          case _: Pkg.Body => None // all trees valid, no need to go further
           case _ => Some(null) // reached invalid parent, no need to go further
         }
         nonMemberTree.isEmpty

@@ -333,6 +333,7 @@ object BestFirstSearch {
           }) => expire = tokens.matching(t)
       case FormatToken(t: Token.LeftBrace, _, m) if (m.leftOwner match {
             // Type compounds can be inside defn.defs
+            case lo: meta.Stat.Block => lo.parent.is[Type.Refine]
             case _: Type.Refine => true
             case _ => false
           }) => expire = tokens.matching(t)
