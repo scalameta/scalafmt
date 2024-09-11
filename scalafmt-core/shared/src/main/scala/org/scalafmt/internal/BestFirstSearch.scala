@@ -6,6 +6,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util._
 
 import scala.meta._
+import scala.meta.tokens.Token
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -151,7 +152,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             "exceeded `runner.optimizer.maxVisitsPerToken`",
           )
         } else {
-          val actualSplit = getActiveSplits(curr, maxCost)
+          val actualSplit = getActiveSplits(splitToken, curr, maxCost)
           val allAltAreNL = actualSplit.forall(_.isNL)
 
           var optimalNotFound = true
@@ -209,8 +210,11 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     null
   }
 
-  private def getActiveSplits(state: State, maxCost: Int): Seq[Split] = {
-    val ft = tokens(state.depth)
+  private def getActiveSplits(
+      ft: FormatToken,
+      state: State,
+      maxCost: Int,
+  ): Seq[Split] = {
     val useProvided = ft.meta.formatOff || !ft.inside(range)
     val active = state.policy.execute(Decision(ft, routes(state.depth)))
       .filter(x => x.isActive && x.cost <= maxCost)
@@ -242,14 +246,61 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   private def traverseSameLine(state: State, depth: Int): State =
     if (state.depth >= tokens.length) state
     else {
-      implicit val style = styleMap.at(tokens(state.depth))
+      val splitToken = tokens(state.depth)
+      implicit val style: ScalafmtConfig = styleMap.at(splitToken)
       trackState(state, depth, 0)
-      getActiveSplits(state, Int.MaxValue) match {
+      getActiveSplits(splitToken, state, Int.MaxValue) match {
         case Seq() => null // dead end if empty
+        case Seq(split) =>
+          if (split.isNL) state
+          else {
+            style.runner.event(FormatEvent.Enqueue(split))
+            val nextState = state.next(split, nextAllAltAreNL = false)
+            traverseSameLine(nextState, depth)
+          }
+        case ss
+            if state.appliedPenalty == 0 &&
+              RightParenOrBracket(splitToken.right) =>
+          traverseSameLineZeroCost(ss.filter(_.cost == 0), state, depth)
+        case _ => state
+      }
+    }
+
+  @tailrec
+  private def traverseSameLineZeroCost(
+      splits: Seq[Split],
+      state: State,
+      depth: Int,
+  )(implicit style: ScalafmtConfig): State = splits match {
+    case Seq(split) if !split.isNL =>
+      style.runner.event(FormatEvent.Enqueue(split))
+      val nextState = state.next(split, nextAllAltAreNL = false)
+      if (nextState.split.cost > 0 || nextState.depth >= tokens.length) state
+      else {
+        val nextToken = tokens(nextState.depth)
+        if (RightParenOrBracket(nextToken.right)) {
+          implicit val style: ScalafmtConfig = styleMap.at(nextToken)
+          trackState(nextState, depth, 0)
+          val nextSplits = getActiveSplits(nextToken, state, maxCost = 0)
+          traverseSameLineZeroCost(nextSplits, nextState, depth)
+        } else state
+      }
+    case _ => state
+  }
+
+  @tailrec
+  private def traverseZeroCost(state: State, depth: Int): State =
+    if (state.depth >= tokens.length) state
+    else {
+      val splitToken = tokens(state.depth)
+      implicit val style = styleMap.at(splitToken)
+      trackState(state, depth, 0)
+      getActiveSplits(splitToken, state, maxCost = 0) match {
         case Seq(split) if !split.isNL =>
           style.runner.event(FormatEvent.Enqueue(split))
           val nextState = state.next(split, nextAllAltAreNL = false)
-          traverseSameLine(nextState, depth)
+          if (nextState.split.cost > 0) state
+          else traverseZeroCost(nextState, depth)
         case _ => state
       }
     }
