@@ -305,11 +305,11 @@ class FormatOps(
     if (r.is[T.LeftBrace]) SplitTag.OneArgPerLine.activateOnly(s)
     else Decision.onlyNewlineSplits(s)
 
-  def templateCurly(template: Template): Option[FormatToken] =
-    getStartOfTemplateBody(template).map(tokenBefore)
+  def templateCurly(obj: Template.Body): Option[FormatToken] = getHeadOpt(obj)
+    .map(x => if (x.meta.leftOwner eq obj) x else prevNonCommentBefore(x))
 
   def templateCurlyOrLastNonTrivial(tpl: Template): FormatToken =
-    templateCurly(tpl).getOrElse(getLastNonTrivial(tpl))
+    templateCurly(tpl.body).getOrElse(getLastNonTrivial(tpl))
 
   def templateDerivesOrCurlyOrLastNonTrivial(template: Template)(implicit
       ft: FormatToken,
@@ -332,7 +332,7 @@ class FormatOps(
       if (isSeqSingle(groups))
         // for the last group, return '{' or ':'
         findTreeInGroup(groups.head, func) { x =>
-          templateCurly(template).getOrElse(getLastNonTrivial(x.last)).left
+          getHeadOpt(template.body).getOrElse(getLastNonTrivial(x.last)).left
         }
       else {
         // for intermediate groups, return its last token
@@ -1563,7 +1563,7 @@ class FormatOps(
           val end = if (thenHasLB) thenBeg else prevNonCommentBefore(thenBeg)
           getSplits(getSlbSplit(end.left))
         case _: Term.If => getSlbSplits()
-        case _: Term.Try | _: Term.TryWithHandler =>
+        case _: Term.TryClause =>
           if (hasStateColumn) getSplits(getSpaceSplit(1)) else getSlbSplits()
         case _: Term.Block | _: Term.Match | _: Type.Match |
             _: Term.NewAnonymous => getSplits(getSpaceSplit(1))
@@ -1619,7 +1619,7 @@ class FormatOps(
         // we force newlines in for/yield
         case _: Term.ForYield => Split.ignored
         // we force newlines in try/catch/finally
-        case _: Term.Try | _: Term.TryWithHandler => Split.ignored
+        case _: Term.TryClause => Split.ignored
         // don't tuck curried apply
         case t: Term.Apply if t.fun.is[Term.Apply] => slbSplit(expire)
         case EndOfFirstCall(end) if !slbOnly => slbSplit(end)
@@ -1886,6 +1886,7 @@ class FormatOps(
         forceNL: Boolean,
         danglingKeyword: Boolean = true,
         indentOpt: Option[Int] = None,
+        forceNLIfTrailingStandaloneComments: Boolean = true,
     )(implicit
         fileLine: FileLine,
         style: ScalafmtConfig,
@@ -1912,7 +1913,7 @@ class FormatOps(
       }
       val indentLen = indentOpt.getOrElse(style.indent.getSignificant)
       val indent = Indent(Num(indentLen), close, ExpiresOn.After)
-      def nlOnly = // forceNLIfTrailingStandaloneComments
+      def nlOnly = forceNLIfTrailingStandaloneComments &&
         slbExpire.right.is[T.Comment] && slbExpire.right.start <= close.start
       if (ft.hasBlankLine)
         Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
@@ -1939,11 +1940,12 @@ class FormatOps(
             def rightBrace = if (okRightBrace) treeLast(lo) else None
           })
         lo match {
-          case t: Template if templateCurly(t).contains(ft) =>
+          case t: Template.Body if getHeadOpt(t).contains(ft) =>
+            createImpl(t.parent.parent, isSeqMulti(t.stats))
+          case t: Pkg.Body if getHeadOpt(t).contains(ft) =>
             createImpl(t.parent, isSeqMulti(t.stats))
-          case t: Pkg if tokenAfter(t.ref).right eq ft.left =>
-            createImpl(Some(t), isSeqMulti(t.stats))
-          case t: Type.Refine => createImpl(Some(t), true)
+          case t: Stat.Block if getHeadOpt(t).contains(ft) =>
+            createImpl(t.parent, t.parent.is[Type.Refine] || isSeqMulti(t.stats))
           case t: Term.ArgClause if getHead(t) eq ft => onArgClause(t, t.values)
           case t: Term => t.parent match {
               case Some(p: Term.ArgClause)
@@ -2017,13 +2019,13 @@ class FormatOps(
       ): Option[OptionalBracesRegion] = {
         val lo = ft.meta.leftOwner
         def createImpl(
-            tb: Tree.WithStats,
+            tb: Tree.Block,
             ownerOpt: => Option[Tree],
             okRightBrace: => Boolean,
         ) =
           if (
             (nft.right.is[T.LeftBrace] && (nft.meta.rightOwner eq tb)) ||
-            tb.stats.isEmpty || tokenBefore(tb.stats).meta.idx > nft.meta.idx
+            tb.pos.start > nft.right.start
           ) None
           else Some(new OptionalBracesRegion {
             def owner = ownerOpt
@@ -2031,8 +2033,9 @@ class FormatOps(
             def rightBrace = if (okRightBrace) treeLast(lo) else None
           })
         lo match {
-          case t: Template => createImpl(t, t.parent, isSeqMulti(t.stats))
-          case t: Type.Refine => createImpl(t, Some(t), true)
+          case t: Template =>
+            createImpl(t.body, t.parent, isSeqMulti(t.body.stats))
+          case t: Type.Refine => createImpl(t.body, Some(t), true)
           case _ => None
         }
       }
@@ -2083,7 +2086,10 @@ class FormatOps(
                 (isElsePWithOptionalBraces(t) ||
                   existsBlockIfWithoutElse(t.thenp, false))
               } => createImpl(t, t.thenp)(Some(getSplitsForIf(nft, t)))
-          case t: Term.For => createKwDo(t, t.body)
+          case t: Term.EnumeratorsBlock => t.parent.flatMap {
+              case p: Term.For => createKwDo(p, p.body)
+              case _ => None
+            }
           case t: Term.While => createKwDo(t, t.body)
           case _ => None
         }
@@ -2166,8 +2172,8 @@ class FormatOps(
           ft: FormatToken,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
         case t: Ctor.Secondary =>
-          if (t.stats.isEmpty) None
-          else WithStats(nft, Some(t.init), t, t.parent)
+          if (t.body.stats.isEmpty) None
+          else WithStats(nft, Some(t.body.init), t.body, t.parent)
         case t @ Tree.WithBody(b) => (b match {
             case x: Term.Block => getBlockWithNonSingleTermStat(x)
             case x: Term.PartialFunction => Some(x)
@@ -2211,15 +2217,32 @@ class FormatOps(
           style: ScalafmtConfig,
           ft: FormatToken,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
-        case t: Term.Try =>
-          val x = t.catchp
-          val nlOnly = x match {
-            // to avoid next expression being interpreted as body
-            case head :: Nil => shouldBreakInOptionalBraces(ft, nft) ||
-              t.finallyp.isEmpty && isEmptyTree(head.body)
-            case _ => true
+        case t: Term.Try => t.catchClause match {
+            case Some(cb: Term.CasesBlock) =>
+              val nlOnly = cb.cases match {
+                // to avoid next expression being interpreted as body
+                case head :: Nil => shouldBreakInOptionalBraces(ft, nft) ||
+                  t.finallyp.isEmpty &&
+                  (isEmptyTree(head.body) || getLastOpt(cb).exists { x =>
+                    val xend = nextNonCommentSameLine(x)
+                    xend.right match {
+                      case _: T.Comment => !xend.hasBlankLine
+                      case _ => false
+                    }
+                  })
+                case _ => true
+              }
+              Some(new OptionalBracesRegion {
+                def owner = Some(t)
+                def splits = Some(getSplits(
+                  cb,
+                  forceNL = nlOnly,
+                  forceNLIfTrailingStandaloneComments = false,
+                ))
+                def rightBrace = treeLast(cb)
+              })
+            case _ => None
           }
-          WithStats(nft, x.headOption, x.last, Some(t), nlOnly = nlOnly)
         case _ => None
       }
     }
@@ -2257,9 +2280,9 @@ class FormatOps(
           style: ScalafmtConfig,
           ft: FormatToken,
       ): Option[OptionalBracesRegion] = ft.meta.leftOwner match {
-        case t @ Tree.WithCases(x) =>
+        case t @ Tree.WithCasesBlock(x) =>
           val ind = style.indent.matchSite
-          WithStats(nft, x.headOption, x.last, Some(t), indentOpt = ind)
+          WithStats(nft, x.cases.headOption, t, Some(t), indentOpt = ind)
         case _ => None
       }
     }
@@ -2505,9 +2528,6 @@ class FormatOps(
     private def seq(all: Boolean, t: Seq[Tree]): Ranges =
       if (all && t.nonEmpty) Seq(t.head -> t.last) else Nil
 
-    private def seq(all: Boolean, t: Tree, ts: Seq[Tree]): Ranges =
-      if (all) Seq(t -> ts.lastOption.getOrElse(t)) else Nil
-
     private object BlockImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result = {
         def ok(stat: Tree): Boolean = isJustBeforeTree(nft)(stat)
@@ -2536,8 +2556,12 @@ class FormatOps(
           case x: Term.If if !nft.right.is[T.KwThen] =>
             val hasElse = all && !ifWithoutElse(x)
             Some((x.thenp, seq(hasElse, x.elsep) ++ seq(all, x.cond)))
-          case t: Term.For if !nft.right.is[T.KwDo] =>
-            Some((t.body, seq(all, t.enums)))
+          case t: Term.EnumeratorsBlock
+              if !nft.right.is[T.KwDo] && getLastOpt(t).contains(ft) =>
+            t.parent match {
+              case Some(p: Term.For) => Some((p.body, seq(all, t)))
+              case _ => None
+            }
           case t: Term.While if !nft.right.is[T.KwDo] =>
             Some((t.body, seq(all, t.cond)))
           case _ => None
@@ -2547,9 +2571,12 @@ class FormatOps(
     private object RightBraceImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case t: Term.For
-              if !nft.right.is[T.KwDo] && !isTokenLastOrAfter(ft.left, t) =>
-            Some((t.body, seq(all, t.enums)))
+          case t: Term.EnumeratorsBlock
+              if !nft.right.is[T.KwDo] && getLastOpt(t).contains(ft) =>
+            t.parent match {
+              case Some(p: Term.For) => Some((p.body, seq(all, t)))
+              case _ => None
+            }
           case _ => None
         }
     }
@@ -2565,7 +2592,7 @@ class FormatOps(
     private object EqualsImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case t: Ctor.Secondary => Some((t, seq(all, t.init, t.stats)))
+          case t: Ctor.Secondary => Some((t, seq(all, t.body)))
           case t: Tree.WithBody => Some((t.body, Nil))
           case _ => BlockImpl.getBlocks(ft, nft, all)
         }
@@ -2574,10 +2601,8 @@ class FormatOps(
     private object TryImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case t: Term.Try =>
-            Some((t.expr, seq(all, t.catchp) ++ seq(all, t.finallyp)))
-          case t: Term.TryWithHandler =>
-            Some((t.expr, seq(all, t.catchp) ++ seq(all, t.finallyp)))
+          case t: Term.TryClause =>
+            Some((t.expr, seq(all, t.catchClause) ++ seq(all, t.finallyp)))
           case _ => None
         }
     }
@@ -2585,10 +2610,9 @@ class FormatOps(
     private object CatchImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case t: Term.Try =>
-            Some((t.catchp.last, seq(all, t.expr) ++ seq(all, t.finallyp)))
-          case t: Term.TryWithHandler =>
-            Some((t.catchp, seq(all, t.expr) ++ seq(all, t.finallyp)))
+          case t: Term.TryClause => t.catchClause.map { x =>
+              (x, seq(all, t.expr) ++ seq(all, t.finallyp))
+            }
           case _ => None
         }
     }
@@ -2596,10 +2620,8 @@ class FormatOps(
     private object FinallyImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case t: Term.Try => t.finallyp
-              .map(x => (x, seq(all, t.expr) ++ seq(all, t.catchp)))
-          case t: Term.TryWithHandler => t.finallyp
-              .map(x => (x, seq(all, t.expr) ++ seq(all, t.catchp)))
+          case t: Term.TryClause => t.finallyp
+              .map(x => (x, seq(all, t.expr) ++ seq(all, t.catchClause)))
           case _ => None
         }
     }
@@ -2616,7 +2638,7 @@ class FormatOps(
     private object YieldImpl extends Factory {
       def getBlocks(ft: FormatToken, nft: FormatToken, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case t: Term.ForYield => Some((t.body, seq(all, t.enums)))
+          case t: Term.ForYield => Some((t.body, seq(all, t.enumsBlock)))
           case _ => None
         }
     }
@@ -2903,10 +2925,10 @@ class FormatOps(
     }
   }
 
-  def indentedPackage(pkg: Pkg): Boolean = tokenAfter(pkg.ref).right match {
-    case _: T.LeftBrace | _: T.Colon => true
-    case _ => false
-  }
+  def indentedPackage(body: Pkg.Body): Boolean = getHeadOpt(body)
+    .exists(_.meta.leftOwner eq body)
+  @inline
+  def indentedPackage(pkg: Pkg): Boolean = indentedPackage(pkg.body)
 
 }
 

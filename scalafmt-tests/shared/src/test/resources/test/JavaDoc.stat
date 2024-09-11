@@ -626,8 +626,7 @@ object a {
 object a {
 
   /**
-   * `mono
-   * space`
+   * `mono space`
    * ''italic
    * text''
    * '''bold
@@ -664,8 +663,7 @@ object a {
 >>>
 object a {
 
-  /** `mono
-    * space`
+  /** `mono space`
     * ''italic
     * text''
     * '''bold
@@ -702,8 +700,7 @@ object a {
 >>>
 object a {
 
-  /** `mono
-   *  space`
+  /** `mono space`
    *  ''italic
    *  text''
    *  '''bold

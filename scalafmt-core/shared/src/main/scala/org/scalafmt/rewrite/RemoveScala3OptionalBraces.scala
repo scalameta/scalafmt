@@ -46,8 +46,8 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
           if !ftoks.nextNonComment(ftoks.next(ft)).right.is[Token.RightBrace] =>
         ft.meta.rightOwner match {
           case t: Term.Block if t.stats.nonEmpty => onLeftForBlock(t)
-          case t: Template if t.stats.nonEmpty || t.self.tokens.nonEmpty =>
-            if (t.parent.exists(_.is[Defn.Given])) removeToken
+          case t: Template.Body if !t.isEmpty =>
+            if (t.parent.parent.is[Defn.Given]) removeToken
             else replaceToken(":")(new Token.Colon(x.input, x.dialect, x.start))
           case t: Term.ArgClause => onLeftForArgClause(t)
           case t: Term.PartialFunction => t.parent match {
@@ -59,15 +59,13 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
                   }) => onLeftForArgClause(p)
               case _ => null
             }
-          case _: Term.For if allowOldSyntax || {
+          case t: Term.EnumeratorsBlock
+              if allowOldSyntax || !t.parent.is[Term.For] || {
                 val rbFt = ftoks(ftoks.matching(ft.right))
                 ftoks.nextNonComment(rbFt).right.is[Token.KwDo]
               } => removeToken
-          case _: Term.ForYield => removeToken
-          case _: Term.Match => removeToken
-          case _: Type.Match => removeToken
-          case _: Term.Try => removeToken
-          case _: Ctor.Secondary
+          case _: Tree.CasesBlock => removeToken
+          case _: Ctor.Block
               if ftoks.prevNonComment(ft).left.is[Token.Equals] => removeToken
           case _ => null
         }
@@ -102,8 +100,12 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
         Some((left, removeToken))
       case x: Token.RightBrace =>
         val replacement = ft.meta.rightOwner match {
-          case _: Term.For if allowOldSyntax && !nextFt.right.is[Token.KwDo] =>
-            replaceToken("do")(new Token.KwDo(x.input, x.dialect, x.start))
+          case t: Term.EnumeratorsBlock
+              if allowOldSyntax && t.parent.is[Term.For] &&
+                !nextFt.right.is[Token.KwDo] =>
+            replaceToken("do", t.parent)(
+              new Token.KwDo(x.input, x.dialect, x.start),
+            )
           case _ => removeToken
         }
         Some((left, replacement))

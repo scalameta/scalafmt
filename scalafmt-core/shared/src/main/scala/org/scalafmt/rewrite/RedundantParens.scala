@@ -122,10 +122,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
           ftoks.tokenBefore(p.body).left.is[Token.KwDo]
         case p: Term.If => p.cond.eq(t) && style.dialect.allowQuietSyntax &&
           ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
-        case p: Term.Try =>
-          (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
-          canRewriteBody(t)
-        case p: Term.TryWithHandler =>
+        case p: Term.TryClause =>
           (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
           canRewriteBody(t)
         case p: Term.ArgClause => p.parent.exists {
@@ -154,7 +151,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     case _: Ref => true // Ref must be after Select and ApplyUnary
     case t: Term.Match => style.dialect.allowMatchAsOperator &&
       ftoks.tokenAfter(t.expr).right.is[Token.Dot] && // like select
-      ftoks.tokenBefore(t.cases).left.is[Token.LeftBrace]
+      ftoks.getHead(t.casesBlock).left.is[Token.LeftBrace]
     case _ => false
   }
 

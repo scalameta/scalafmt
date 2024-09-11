@@ -109,9 +109,8 @@ object TreeOps {
   )(implicit ftoks: FormatTokens): Seq[Tree] = tree match {
     case SingleArgInBraces(_, fun: Term.FunctionTerm, _) => fun :: Nil
     case b: Term.FunctionTerm if isBlockFunction(b) => b.body :: Nil
-    case t: Tree.WithEnums => getEnumStatements(t.enums)
-    case t: Tree.WithCases => t.cases
-    case t: Tree.WithStats => t.stats
+    case t: Term.EnumeratorsBlock => getEnumStatements(t.enums)
+    case t: Tree.Block => t.stats
     case t: CaseTree if t.body.tokens.nonEmpty => t.body :: Nil
     case _ => Nil
   }
@@ -346,8 +345,9 @@ object TreeOps {
   @tailrec
   def defDefBody(tree: Tree): Option[Tree] = tree match {
     case d: Defn with Tree.WithBody => Some(d.body)
-    case d: Defn with Stat.WithTemplate => Some(d.templ)
-    case t: Ctor.Secondary => Some(t.init)
+    case d: Defn with Stat.WithTemplate => Some(d.templ.body)
+    case t: Ctor.Block => Some(t)
+    case t: Ctor.Secondary => Some(t.body)
     case _: Ctor.Primary | _: Pat.Var | _: Term.Name => tree.parent match {
         case Some(p) => defDefBody(p)
         case _ => None
@@ -433,7 +433,7 @@ object TreeOps {
 
   val DefValAssignLeft = new FormatToken.ExtractFromMeta(_.leftOwner match {
     case _: Enumerator => None // it's WithBody
-    case t: Ctor.Secondary => Some(t.init)
+    case t: Ctor.Secondary => Some(t.body.init)
     case t: Tree.WithBody => Some(t.body)
     case t: Term.Param => t.default
     case _ => None
@@ -562,8 +562,12 @@ object TreeOps {
   }
 
   @inline
-  def hasSingleElement(tree: Tree.WithExprs, value: Tree): Boolean =
-    getSingleElement(tree.exprs).contains(value)
+  def getSingleElement(tree: Tree.Block): Option[Tree] =
+    getSingleElement(tree.stats)
+
+  @inline
+  def hasSingleElement(tree: Tree.Block, value: Tree): Boolean =
+    getSingleElement(tree).contains(value)
 
   @inline
   def hasSingleElement(tree: Member.SyntaxValuesClause, value: Tree): Boolean =
@@ -777,13 +781,18 @@ object TreeOps {
   def isCaseBodyABlock(ft: FormatToken, caseStat: CaseTree): Boolean = ft.right
     .is[Token.LeftBrace] && (caseStat.body eq ft.meta.rightOwner)
 
-  def getStartOfTemplateBody(template: Template): Option[Token] = template.self
-    .tokens.headOption
-    .orElse(template.stats.headOption.flatMap(_.tokens.headOption))
-
   def getTemplateGroups(template: Template): Option[Seq[List[Tree]]] = {
     val groups = Seq(template.inits, template.derives).filter(_.nonEmpty)
     if (groups.isEmpty) None else Some(groups)
+  }
+
+  def findTemplate(t: Tree): Option[Template] = t match {
+    case t: Template => Some(t)
+    case _: Self | _: Template.Body => t.parent match {
+        case Some(p) => findTemplate(p)
+        case _ => None
+      }
+    case _ => None
   }
 
   // Scala syntax allows commas before right braces in weird places,
@@ -910,13 +919,13 @@ object TreeOps {
               } else {
                 def excludeRightParen: Boolean = elem match {
                   case t: Term.If => prevLPs == 1 && prevChild == t.cond // `expr` after `mods`
-                  case _: Term.While | _: Term.For | _: Term.ForYield =>
-                    prevLPs == 1 && prevChild == firstChild // `expr` is first
+                  case _: Term.While | _: Term.ForClause => prevLPs == 1 &&
+                    prevChild == firstChild // `expr` is first
                   case _: Member.SyntaxValuesClause | _: Member.Tuple |
                       _: Term.Do | _: Term.AnonymousFunction => endPos ==
                       tok.end
                   case t: Init => prevChild ne t.tpe // include tpe
-                  case _: Ctor.Primary => true
+                  case _: Ctor.Primary | _: Term.EnumeratorsBlock => true
                   case _ => false
                 }
 

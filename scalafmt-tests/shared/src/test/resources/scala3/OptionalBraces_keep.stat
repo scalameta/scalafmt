@@ -3927,7 +3927,7 @@ object a:
        if qualifies(mbr.symbol)
      )
        yield mbr.name.asTypeName
-<<< SKIP #4133 for-yield with multiple semicolon-separated enumerators 2
+<<< #4133 for-yield with multiple semicolon-separated enumerators 2
 align.preset = some
 ===
 object a:
@@ -3938,23 +3938,14 @@ object a:
           mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol))
         yield mbr.name.asTypeName
 >>>
-test does not parse
-[dialect scala3] `)` expected but `<-` found
-      val abstractTypeNames =
-        for (
-          parent <-
-                 ^
-           parents;
-          mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol))
-        yield mbr.name.asTypeName
-====== full result: ======
 object a:
-      val abstractTypeNames =
-        for (
-          parent <-
-           parents;
-          mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol))
-        yield mbr.name.asTypeName
+   val abstractTypeNames =
+     for (
+       parent <-
+         parents;
+       mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol)
+     )
+       yield mbr.name.asTypeName
 <<< #4133 for-yield with multiple semicolon-separated enumerators 3
 align.preset = some
 runner.dialect = scala213
@@ -6327,10 +6318,8 @@ object a:
 
          try
             qux
-         catch
-            case ex =>
-              quux
-              // use focussed sourcePos since tree might be a large definition
+         catch case ex => quux
+            // use focussed sourcePos since tree might be a large definition
             // and a large error span would hide all errors in interior.
             // TODO: Not clear that hiding is what we want, actually
      }
@@ -6382,22 +6371,20 @@ object a:
            case baz11 => baz11
            // c11-1
            // c11-2
-           case baz12 =>
-             baz12
-             // c12-1
-             // c12-2
+           case baz12 => baz12
+           // c12-1
+           // c12-2
         // c1
       case foo2 =>
         bar2 match
            case baz21 => baz21
            // c21-1
            // c21-2
-           case baz22 =>
-             baz22
-             // c22-1
-             // c22-2
+           case baz22 => baz22
+           // c22-1
+           // c22-2
         // c2
-        // cc
+      // cc
    // cf
 <<< #4133 match with trailing comments 2
 object a:
@@ -6438,7 +6425,7 @@ object a:
            case baz12 =>
              baz12
              // c12-1
-             // c12-2
+           // c12-2
         // c1
       case foo2 =>
         bar2 match
@@ -6449,9 +6436,9 @@ object a:
            case baz22 =>
              baz22
              // c22-1
-             // c22-2
+           // c22-2
         // c2
-        // cc
+      // cc
    // cf
 <<< #4133 try-catch with trailing comments 1
 object a:
@@ -6487,22 +6474,20 @@ object a:
            case baz11 => baz11
            // c11-1
            // c11-2
-           case baz12 =>
-             baz12
-             // c12-1
-             // c12-2
+           case baz12 => baz12
+           // c12-1
+           // c12-2
         // c1
       case ex2 =>
         bar2 match
            case baz21 => baz21
            // c21-1
            // c21-2
-           case baz22 =>
-             baz22
-             // c22-1
-             // c22-2
+           case baz22 => baz22
+           // c22-1
+           // c22-2
         // c2
-        // cc
+      // cc
    // cf
    finally qux
 <<< #4133 try-catch with trailing comments 2
@@ -6547,7 +6532,7 @@ object a:
            case baz12 =>
              baz12
              // c12-1
-             // c12-2
+           // c12-2
         // c1
       case ex2 =>
         bar2 match
@@ -6558,9 +6543,9 @@ object a:
            case baz22 =>
              baz22
              // c22-1
-             // c22-2
+           // c22-2
         // c2
-        // cc
+      // cc
    // cf
    finally qux
 <<< #4133 try-catch with trailing comments 3
@@ -6579,10 +6564,8 @@ object a:
      case null =>
        try
           val bar = baz
-       catch
-          case ex =>
-            qux
-            // c1
+       catch case ex => qux
+          // c1
           // c2
    }
 <<< #4133 try-catch with trailing comments 4
@@ -6602,12 +6585,10 @@ object a:
      case null =>
        try
           val bar = baz
-       catch
-          case ex =>
-            qux
-            // c1
+       catch case ex => qux
+          // c1
 
-          // c2
+     // c2
    }
 <<< #4133 try-catch with trailing comments 5, in braces
 object a {
@@ -6623,11 +6604,9 @@ object a {
   def foo =
     try
        bar
-    catch
-       case baz =>
-         qux
+    catch case baz => qux
 
-         /** c1 */
+  /** c1 */
   def quux = ???
 }
 <<< #4133 try-catch with trailing comments 6, insert end markers
@@ -6647,12 +6626,10 @@ object a:
    def foo =
       try
          bar
-      catch
-         case baz =>
-           qux
-
-           // c1
+      catch case baz => qux
       end try
+
+      // c1
       quux
    end foo
 <<< #4133 enclosed new anonymous with comments and added end marker
@@ -6680,7 +6657,7 @@ object a:
         def baz() =
            this match
               case _ =>
-           // c1
+              // c1
            qux // c2
         end baz
      )(quux)

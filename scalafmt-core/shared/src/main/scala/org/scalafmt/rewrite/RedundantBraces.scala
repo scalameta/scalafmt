@@ -117,13 +117,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     }
   }
 
-  private def replaceWithEquals(implicit
-      ft: FormatToken,
-      style: ScalafmtConfig,
-  ): Replacement = replaceTokenBy("=") { x =>
-    new Token.Equals(x.input, x.dialect, x.start)
-  }
-
   private def onLeftParen(implicit
       ft: FormatToken,
       style: ScalafmtConfig,
@@ -284,10 +277,13 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             style.dialect.allowAsForImportRename &&
             (ConvertToNewScala3Syntax.enabled ||
               !x.tokens.exists(_.is[Token.RightArrow])) => removeToken
-      case t: Ctor.Secondary
+      case t: Ctor.Block
           if t.stats.isEmpty && isDefnBodiesEnabled(noParams = false) =>
         val prevIsEquals = ftoks.prevNonComment(ft).left.is[Token.Equals]
-        if (prevIsEquals) removeToken else replaceWithEquals
+        if (prevIsEquals) removeToken
+        else replaceTokenBy("=", t.parent) { x =>
+          new Token.Equals(x.input, x.dialect, x.start)
+        }
       case _ => null
     }
   }
@@ -506,7 +502,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           case Some(p) => checkParent(p)
           case _ => true
         }
-      case _: Term.Try | _: Term.TryWithHandler =>
+      case _: Term.TryClause =>
         // "try (x).y" or "try { x }.y" isn't supported until scala 2.13
         // same is true with "try (a, b)" and "try ()"
         // return true if rewrite is not OK

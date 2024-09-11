@@ -17,9 +17,9 @@ object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
     new PreferCurlyFors
 
   @inline
-  private def hasMultipleNonGuardEnums(enums: Seq[Enumerator]): Boolean =
+  private def hasMultipleNonGuardEnums(t: Term.EnumeratorsBlock): Boolean =
     // first one is never a guard
-    enums.view.drop(1).exists(!_.is[Enumerator.Guard])
+    t.enums.view.drop(1).exists(!_.is[Enumerator.Guard])
 
   case class Settings(removeTrailingSemicolonsOnly: Boolean = false)
 
@@ -63,26 +63,20 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
       style: ScalafmtConfig,
   ): Option[Replacement] = Option {
     ft.right match {
-      case x: Token.LeftParen if prevNonComment(ft).left.is[Token.KwFor] =>
-        val ok = ft.meta.rightOwner match {
-          case t: Tree.WithEnums with Tree.WithBody =>
-            val enums = t.enums
-            hasMultipleNonGuardEnums(enums) &&
-            (style.dialect.allowInfixOperatorAfterNL ||
-              hasNoLeadingInfix(getHead(enums.head), tokenBefore(t.body)))
-          case _ => false
-        }
-        if (ok)
-          replaceToken("{")(new Token.LeftBrace(x.input, x.dialect, x.start))
-        else null
+      case x: Token.LeftParen if (ft.meta.rightOwner match {
+            case t: Term.EnumeratorsBlock if hasMultipleNonGuardEnums(t) =>
+              style.dialect.allowInfixOperatorAfterNL || hasNoLeadingInfix(t)
+            case _ => false
+          }) =>
+        replaceToken("{")(new Token.LeftBrace(x.input, x.dialect, x.start))
 
       case _: Token.Semicolon
           if !style.rewrite.preferCurlyFors.removeTrailingSemicolonsOnly ||
             hasBreakAfterRightBeforeNonComment(ft) =>
         ft.meta.rightOwner match {
-          case t: Tree.WithEnums
+          case t: Term.EnumeratorsBlock
               if nextNonCommentAfter(ft).right.is[Token.KwIf] || {
-                val parenOrBrace = nextNonComment(getHead(t))
+                val parenOrBrace = tokenJustBefore(t)
                 parenOrBrace.right.is[Token.LeftBrace] ||
                 session.claimedRule(parenOrBrace).exists(_.rule eq this)
               } => removeToken
@@ -107,17 +101,19 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
     case _ => None
   }
 
-  private def hasNoLeadingInfix(head: FormatToken, last: FormatToken): Boolean =
-    findToken(head, next) { ft =>
-      ft.eq(last) ||
-      (ft.meta.rightOwner match {
-        case ro: Name => ro.parent match {
-            case Some(p: Member.Infix) if p.op eq ro =>
+  private def hasNoLeadingInfix(t: Term.EnumeratorsBlock)(implicit
+      head: FormatToken,
+  ): Boolean = findTokenWith(nextNonCommentAfter(head), next) { ft =>
+    ft.meta.rightOwner match {
+      case ro: Name if (ro.parent match {
+            case Some(p: Member.Infix)
+                if (p.op eq ro) && ft.right.is[Token.Ident] =>
               prevNonCommentSameLine(ft).hasBreak
             case _ => false
-          }
-        case _ => false
-      }) && ft.right.is[Token.Ident]
-    } eq last
+          }) => Some(false)
+      case `t` if ft.right.is[Token.RightParen] => Some(true) // closing delimiter
+      case _ => None
+    }
+  }.contains(true)
 
 }
