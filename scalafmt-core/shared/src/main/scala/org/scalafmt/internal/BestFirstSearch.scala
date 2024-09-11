@@ -155,37 +155,43 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           val allAltAreNL = actualSplit.forall(_.isNL)
 
           var optimalNotFound = true
-          actualSplit.foreach { split =>
-            val nextState = curr.next(split, allAltAreNL)
-            style.runner.event(FormatEvent.Enqueue(split))
+          val handleOptimalTokens = acceptOptimalAtHints && depth < maxDepth &&
+            actualSplit.lengthCompare(1) > 0
+
+          def processNextState(nextState: State): Unit = {
+            def processOptimal(opt: OptimalToken): State = {
+              val nextNextState =
+                shortestPath(nextState, opt.token, depth + 1, maxCost = 0)
+              val furtherState =
+                if (null == nextNextState) null
+                else traverseSameLine(nextNextState, depth)
+              if (null == furtherState) if (opt.killOnFail) null else nextState
+              else if (
+                furtherState.appliedPenalty > nextNextState.appliedPenalty
+              ) nextNextState
+              else {
+                optimalNotFound = false
+                furtherState
+              }
+            }
+            val split = nextState.split
             val stateToQueue = split.optimalAt match {
-              case Some(OptimalToken(token, killOnFail))
-                  if acceptOptimalAtHints && optimalNotFound &&
-                    actualSplit.lengthCompare(1) > 0 && depth < maxDepth &&
-                    nextState.split.cost == 0 =>
-                val nextNextState =
-                  shortestPath(nextState, token, depth + 1, maxCost = 0)
-                val furtherState =
-                  if (null == nextNextState) null
-                  else traverseSameLine(nextNextState, depth)
-                if (null != furtherState) {
-                  val overflow = furtherState.appliedPenalty >
-                    nextNextState.appliedPenalty
-                  if (overflow) nextNextState
-                  else {
-                    optimalNotFound = false
-                    furtherState
-                  }
-                } else if (!killOnFail) nextState
-                else null // else kill branch
-              case _ if optimalNotFound && nextState.split.cost <= maxCost =>
-                nextState
-              case _ => null // Kill branch.
+              case Some(opt) if handleOptimalTokens && split.cost == 0 =>
+                processOptimal(opt)
+              case _ => nextState
             }
             if (null ne stateToQueue) {
               if (!keepSlowStates && depth == 0 && split.isNL) best
                 .getOrElseUpdate(curr.depth, nextState)
               enqueue(stateToQueue)
+            }
+          }
+
+          actualSplit.foreach { split =>
+            style.runner.event(FormatEvent.Enqueue(split))
+            if (optimalNotFound) {
+              val nextState = curr.next(split, allAltAreNL)
+              if (nextState.split.cost <= maxCost) processNextState(nextState)
             }
           }
         }
@@ -238,17 +244,13 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     else {
       implicit val style = styleMap.at(tokens(state.depth))
       trackState(state, depth, 0)
-      val activeSplits = getActiveSplits(state, Int.MaxValue)
-
-      if (!isSeqSingle(activeSplits)) if (activeSplits.isEmpty) null else state // dead end if empty
-      else {
-        val split = activeSplits.head
-        if (split.isNL) state
-        else {
+      getActiveSplits(state, Int.MaxValue) match {
+        case Seq() => null // dead end if empty
+        case Seq(split) if !split.isNL =>
           style.runner.event(FormatEvent.Enqueue(split))
-          val nextState = state.next(split, false)
+          val nextState = state.next(split, nextAllAltAreNL = false)
           traverseSameLine(nextState, depth)
-        }
+        case _ => state
       }
     }
 
