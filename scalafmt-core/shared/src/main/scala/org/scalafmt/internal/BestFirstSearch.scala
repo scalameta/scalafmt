@@ -157,10 +157,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           var optimalNotFound = true
           actualSplit.foreach { split =>
             val nextState = curr.next(split, allAltAreNL)
-            val updateBest = !keepSlowStates && depth == 0 && split.isNL &&
-              best.getOrElseUpdate(curr.depth, nextState).eq(nextState)
             style.runner.event(FormatEvent.Enqueue(split))
-            split.optimalAt match {
+            val stateToQueue = split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && optimalNotFound &&
                     actualSplit.lengthCompare(1) > 0 && depth < maxDepth &&
@@ -173,20 +171,21 @@ private class BestFirstSearch private (range: Set[Range])(implicit
                 if (null != furtherState) {
                   val overflow = furtherState.appliedPenalty >
                     nextNextState.appliedPenalty
-                  if (overflow) enqueue(nextNextState)
+                  if (overflow) nextNextState
                   else {
                     optimalNotFound = false
-                    enqueue(furtherState)
+                    furtherState
                   }
-                } else if (!killOnFail && nextState.split.cost <= maxCost)
-                  // TODO(olafur) DRY. This solution can still be optimal.
-                  enqueue(nextState)
-                else // else kill branch
-                if (updateBest) best.remove(curr.depth)
+                } else if (!killOnFail) nextState
+                else null // else kill branch
               case _ if optimalNotFound && nextState.split.cost <= maxCost =>
-                enqueue(nextState)
-              case _ => // Kill branch.
-                if (updateBest) best.remove(curr.depth)
+                nextState
+              case _ => null // Kill branch.
+            }
+            if (null ne stateToQueue) {
+              if (!keepSlowStates && depth == 0 && split.isNL) best
+                .getOrElseUpdate(curr.depth, nextState)
+              enqueue(stateToQueue)
             }
           }
         }
