@@ -570,7 +570,7 @@ class Router(formatOps: FormatOps) {
             _: T.RightParen,
             _,
             ParamClauseParentLeft(extGroup: Defn.ExtensionGroup),
-          ) if !LeftParenOrBrace.unapply(nextNonComment(ft).right) =>
+          ) if !LeftParenOrBrace(nextNonComment(ft).right) =>
         if (dialect.allowSignificantIndentation) {
           val expireToken = getLastToken(extGroup)
           def nlSplit(cost: Int = 0)(implicit fileLine: FileLine) =
@@ -600,10 +600,9 @@ class Router(formatOps: FormatOps) {
               case Newlines.unfold => right.is[T.Comment] ||
                 !style.optIn.annotationNewlines && annoRight
               case Newlines.fold => right.is[T.Comment] || annoRight ||
-                !style.optIn.annotationNewlines && Reserved.unapply(right)
-              case Newlines.keep => noBreak() &&
-                (annoRight || Reserved.unapply(right))
-              case _ => noBreak() && Reserved.unapply(right)
+                !style.optIn.annotationNewlines && Reserved(right)
+              case Newlines.keep => noBreak() && (annoRight || Reserved(right))
+              case _ => noBreak() && Reserved(right)
             })
           def expire = (rightOwner match {
             case Tree.WithBody(body) => tokenBeforeOpt(body)

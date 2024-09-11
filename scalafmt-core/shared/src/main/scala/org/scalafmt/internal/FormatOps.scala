@@ -867,7 +867,7 @@ class FormatOps(
   /** Works for `using` as well */
   def opensConfigStyleImplicitParamList(formatToken: FormatToken)(implicit
       style: ScalafmtConfig,
-  ): Boolean = soft.ImplicitOrUsing.unapply(formatToken.right) &&
+  ): Boolean = soft.ImplicitOrUsing(formatToken.right) &&
     style.newlines.notBeforeImplicitParamListModifier &&
     hasImplicitParamList(formatToken.meta.rightOwner)
 
@@ -1160,7 +1160,7 @@ class FormatOps(
       val nlSplit = Split(Newline, 1, policy = policy).withIndent(firstIndent)
       Seq(slbSplit, noSplit.andPolicy(noSlbPolicy), nlSplit)
     } else {
-      val rightIsImplicit = soft.ImplicitOrUsing.unapply(r)
+      val rightIsImplicit = soft.ImplicitOrUsing(r)
       val implicitNL = rightIsImplicit &&
         style.newlines.forceBeforeImplicitParamListModifier
       val implicitParams =
