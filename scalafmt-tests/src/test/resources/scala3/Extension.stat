@@ -290,6 +290,24 @@ object Dictionary:
       dict.selectDynamic(key).asInstanceOf[A]
     def update(key: String, value: A): Unit =
       dict.updateDynamic(key)(value.asInstanceOf[js.Any])
+<<< drop optional and redundant braces, blank before comment
+rewrite.rules = [RedundantBraces]
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  extension (foo: Foo) {
+
+    /** c1 */
+    private final def bar = ???
+
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+   extension (foo: Foo)
++
+     /** c1 */
 <<< #3499 1
 spaces.afterKeywordBeforeParen = true
 ===
