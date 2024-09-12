@@ -11,9 +11,12 @@ case class Decision(formatToken: FormatToken, splits: Seq[Split]) {
 
   @inline
   def onlyNewlinesWithFallback(default: => Split): Seq[Split] = Decision
-    .onlyNewlinesWithFallback(splits, default)
+    .onlyNewlinesWithFallback(splits, Seq(default))
 
   def onlyNewlinesWithoutFallback: Seq[Split] = onlyNewlineSplits
+
+  def onlyNewlinesIfAvailable: Seq[Split] = Decision
+    .onlyNewlinesWithFallback(splits, splits)
 
   @inline
   private def onlyNewlineSplits: Seq[Split] = Decision.onlyNewlineSplits(splits)
@@ -34,9 +37,9 @@ object Decision {
   def filterNewlineSplits(s: Seq[Split], isNL: Boolean): Seq[Split] = s
     .filter(_.isNL == isNL)
 
-  def onlyNewlinesWithFallback(s: Seq[Split], fb: => Split): Seq[Split] = {
+  def onlyNewlinesWithFallback(s: Seq[Split], fb: => Seq[Split]): Seq[Split] = {
     val filtered = onlyNewlineSplits(s)
-    if (filtered.nonEmpty) filtered else Seq(fb)
+    if (filtered.nonEmpty) filtered else fb
   }
 
 }
