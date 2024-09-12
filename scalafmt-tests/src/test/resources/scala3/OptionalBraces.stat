@@ -6870,10 +6870,9 @@ object a {
 >>>
 object a:
    def foo =
-     Try(
-       bar match
-          case baz =>
-            qux // c1
+     Try(bar match
+        case baz =>
+          qux // c1
      )
 <<< #4133 complex overflow apply
 object a:
