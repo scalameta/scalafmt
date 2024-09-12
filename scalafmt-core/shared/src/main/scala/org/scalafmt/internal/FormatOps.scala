@@ -2330,7 +2330,7 @@ class FormatOps(
         val forceNL = nlOnly || shouldBreakInOptionalBraces(ft, nft)
         Some(getSplits(body, forceNL = forceNL, indentOpt = indentOpt))
       }
-      def rightBrace: Option[T] = treeLast(body)
+      def rightBrace = treeLast(body)
     }
 
     private object WithStats {
@@ -2419,12 +2419,12 @@ class FormatOps(
       }
 
     @inline
-    private def treeLast(tree: Tree): Option[T] = getLastTokenOpt(tree)
+    private def treeLast(tree: Tree): Option[FormatToken] = getLastOpt(tree)
     @inline
-    private def blockLast(tree: Tree): Option[T] =
+    private def blockLast(tree: Tree): Option[FormatToken] =
       if (isTreeMultiStatBlock(tree)) treeLast(tree) else None
     @inline
-    private def blockLast(tree: Term.Block): Option[T] =
+    private def blockLast(tree: Term.Block): Option[FormatToken] =
       if (isMultiStatBlock(tree)) treeLast(tree) else None
 
     def indentAndBreakBeforeCtrl[A](tree: Tree, split: Split)(implicit
@@ -2647,7 +2647,8 @@ class FormatOps(
     case x: T.LeftBrace => matchingOpt(x).map(Right.apply)
     case x: T.LeftParen =>
       if (parensToo) matchingOpt(x).map(Right.apply) else None
-    case _ => OptionalBraces.get(ft).flatMap(_.rightBrace.map(Left.apply))
+    case _ => OptionalBraces.get(ft)
+        .flatMap(_.rightBrace.map(x => Left(nextNonCommentSameLine(x).left)))
   }
 
   def isCloseDelimForTrailingCommasMultiple(ft: FormatToken): Boolean =
@@ -2923,7 +2924,7 @@ object FormatOps {
   abstract class OptionalBracesRegion {
     def owner: Option[Tree]
     def splits: Option[Seq[Split]]
-    def rightBrace: Option[T]
+    def rightBrace: Option[FormatToken]
   }
 
   def getOpenParenAlignIndents(
