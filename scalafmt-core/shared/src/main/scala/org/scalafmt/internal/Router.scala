@@ -2245,7 +2245,11 @@ class Router(formatOps: FormatOps) {
               Split(Space, 0).withSingleLine(afterIf.left).withIndent(indent)
             } else {
               val exclude = insideBracesBlock(ft, arrow)
-              Split(Space, 0).withSingleLineNoOptimal(arrow, exclude = exclude)
+              Split(Space, 0).withSingleLine(
+                arrow,
+                exclude = exclude,
+                recurseOnly = !exclude.isEmpty,
+              )
             }
           Seq(
             noSplit,

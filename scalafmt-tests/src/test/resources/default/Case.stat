@@ -228,10 +228,12 @@ object a {
     }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-     if (bar) baz match {
--      case baz1 if qux == 2 =>
-+      case baz1
-+          if qux == 2 =>
-         quux(baz1, {
+object a {
+  val foo =
+    if (bar) baz match {
+      case baz1 if qux == 2 =>
+        quux(baz1, {
+               // c1
+             })
+    }
+}
