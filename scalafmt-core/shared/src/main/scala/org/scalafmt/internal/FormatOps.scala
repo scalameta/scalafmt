@@ -1863,15 +1863,20 @@ class FormatOps(
       val nonTrivialEnd = prevNonComment(end)
       val slbExpire = nextNonCommentSameLine(nonTrivialEnd)
       def head = getHead(treeTokens, tree)
-      val close = (tree match {
+      val closeFT = (tree match {
         case _: Member.Tuple => None
         case Term.Block((_: Member.Tuple) :: Nil)
             if !head.left.is[T.LeftBrace] => None
         case _ => tokens.getClosingIfInParens(nonTrivialEnd)(head)
             .map(prevNonCommentSameLine)
-      }).getOrElse(nextNonCommentSameLine(end)).left
-      def nlPolicy(implicit fileLine: FileLine) = Policy ? danglingKeyword &&
-        decideNewlinesOnlyAfterClose(close)
+      }).getOrElse(nextNonCommentSameLine(end))
+      val close = closeFT.left
+      def nlPolicy(implicit fileLine: FileLine) = Policy ? danglingKeyword && {
+        val couldBeTucked = closeFT.right.is[T.CloseDelim] &&
+          closeFT.meta.rightOwner.is[Member.SyntaxValuesClause]
+        if (!couldBeTucked) decideNewlinesOnlyAfterClose(close)
+        else decideNewlinesOnlyAfterToken(rank = 1, ifAny = true)(close)
+      }
       val indentLen = indentOpt.getOrElse(style.indent.getSignificant)
       val indent = Indent(Num(indentLen), close, ExpiresOn.After)
       def nlOnly = // forceNLIfTrailingStandaloneComments
