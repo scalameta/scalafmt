@@ -6863,6 +6863,91 @@ object a:
              qux // c2
           end baz
      )(quux)
+<<< scala.js tucked close paren after optional braces region, dangling
+binPack.preset = always
+danglingParentheses.preset = true
+runner.optimizer {
+  forceConfigStyleMinSpan = 500
+  forceConfigStyleMinArgCount = 5
+}
+===
+object a:
+    def handleNewLine(lastToken: Token) =
+      if indentIsSignificant then
+            currentRegion match
+              case r =>
+                handleNewIndentWidth(r.enclosing, ir =>
+                  if next.token == DOT
+                  then
+                    ir.otherIndentWidths += nextWidth
+                  else
+                    val lw = lastWidth
+                    errorButContinue(
+                      em"""The start of this line does not match any of the previous indentation widths.
+                          |Indentation width of current line : $nextWidth
+                          |This falls between previous widths: ${ir.width} and $lw"""))
+>>>
+object a:
+   def handleNewLine(lastToken: Token) =
+     if indentIsSignificant then
+        currentRegion match
+           case r =>
+             handleNewIndentWidth(
+               r.enclosing,
+               ir =>
+                 if next.token == DOT then
+                    ir.otherIndentWidths += nextWidth
+                 else
+                    val lw = lastWidth
+                    errorButContinue(
+                      em"""The start of this line does not match any of the previous indentation widths.
+                          |Indentation width of current line : $nextWidth
+                          |This falls between previous widths: ${ir
+                          .width} and $lw"""
+                    )
+             )
+<<< scala.js tucked close paren after optional braces region, !dangling
+binPack.preset = always
+danglingParentheses.preset = false
+runner.optimizer {
+  forceConfigStyleMinSpan = 500
+  forceConfigStyleMinArgCount = 5
+}
+===
+object a:
+    def handleNewLine(lastToken: Token) =
+      if indentIsSignificant then
+            currentRegion match
+              case r =>
+                handleNewIndentWidth(r.enclosing, ir =>
+                  if next.token == DOT
+                  then
+                    ir.otherIndentWidths += nextWidth
+                  else
+                    val lw = lastWidth
+                    errorButContinue(
+                      em"""The start of this line does not match any of the previous indentation widths.
+                          |Indentation width of current line : $nextWidth
+                          |This falls between previous widths: ${ir.width} and $lw"""))
+>>>
+object a:
+   def handleNewLine(lastToken: Token) =
+     if indentIsSignificant then
+        currentRegion match
+           case r =>
+             handleNewIndentWidth(
+               r.enclosing,
+               ir =>
+                 if next.token == DOT then
+                    ir.otherIndentWidths += nextWidth
+                 else
+                    val lw = lastWidth
+                    errorButContinue(
+                      em"""The start of this line does not match any of the previous indentation widths.
+                          |Indentation width of current line : $nextWidth
+                          |This falls between previous widths: ${ir
+                          .width} and $lw""")
+             )
 <<< scala.js overflow within for-yield dangling
 binPack.preset = always
 danglingParentheses.preset = true
