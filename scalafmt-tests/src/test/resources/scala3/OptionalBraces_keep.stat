@@ -6891,6 +6891,23 @@ object a:
                ].toArray_asInstanceOf[IArray_Object] // TODO
         ).asInstanceOf[Tuple]
    )
+<<< rewrite opt-braces match as apply arg
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+    def foo =
+      Try(bar match {
+        case baz =>
+          qux  // c1
+      })
+}
+>>>
+object a:
+   def foo =
+     Try(bar match
+        case baz =>
+          qux // c1
+     )
 <<< #4133 complex overflow apply
 object a:
   def load(config: Seq[String], revision: Option[String], projectRoot: Path = Paths.get("").toAbsolutePath)(using CompilerContext): SourceLinks =
