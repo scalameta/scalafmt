@@ -572,7 +572,7 @@ class Router(formatOps: FormatOps) {
         if (dialect.allowSignificantIndentation) {
           val expireToken = getLastToken(extGroup)
           def nlSplit(cost: Int = 0)(implicit fileLine: FileLine) =
-            Split(Newline, cost)
+            Split(Newline2x(ft), cost)
               .withIndent(style.indent.getSignificant, expireToken, After)
           style.newlines.source match {
             case Newlines.unfold => Seq(nlSplit())

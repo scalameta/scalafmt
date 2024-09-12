@@ -303,11 +303,11 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   extension (foo: Foo)
-+
-     /** c1 */
+object a:
+  extension (foo: Foo)
+
+    /** c1 */
+    private final def bar = ???
 <<< #3499 1
 spaces.afterKeywordBeforeParen = true
 ===
