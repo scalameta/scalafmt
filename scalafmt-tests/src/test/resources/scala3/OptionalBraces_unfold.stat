@@ -6946,8 +6946,7 @@ object a:
                       em"""The start of this line does not match any of the previous indentation widths.
                           |Indentation width of current line : $nextWidth
                           |This falls between previous widths: ${ir
-                          .width} and $lw""")
-             )
+                          .width} and $lw"""))
 <<< scala.js overflow within for-yield dangling
 binPack.preset = always
 danglingParentheses.preset = true

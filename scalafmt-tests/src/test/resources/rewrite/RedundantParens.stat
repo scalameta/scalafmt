@@ -555,16 +555,13 @@ object a {
 object a {
   val b = c + (d.match
     case true  => true
-    case false => false
-  )
+    case false => false)
   val b = c + (d.match
     case true  => true
-    case false => false
-  ) + e
+    case false => false) + e
   val b = c + (d match
     case true  => true
-    case false => false
-  )
+    case false => false)
 }
 <<< #2194 5 unary
 object a {
