@@ -201,6 +201,7 @@ case class Split(
       extend: Boolean = false,
       ignore: Boolean = false,
       noOptimal: Boolean = false,
+      recurseOnly: Boolean = false,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
     if (isIgnored || ignore) this
     else {
@@ -214,6 +215,7 @@ case class Split(
         rank,
         extend,
         noOptimal = noOptimal,
+        recurseOnly = recurseOnly,
       )
     }
 
@@ -226,15 +228,15 @@ case class Split(
       rank: Int = 0,
       extend: Boolean = false,
       noOptimal: Boolean = false,
+      recurseOnly: Boolean = false,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
-    withOptimalToken(optimal, killOnFail, extend = extend, ignore = noOptimal)
-      .withSingleLineNoOptimal(
-        expire,
-        exclude,
-        noSyntaxNL,
-        rank,
-        extend = extend,
-      )
+    withOptimalToken(
+      optimal,
+      killOnFail,
+      extend = extend,
+      ignore = noOptimal,
+      recurseOnly = recurseOnly,
+    ).withSingleLineNoOptimal(expire, exclude, noSyntaxNL, rank, extend = extend)
 
   def withSingleLineNoOptimal(
       expire: => Token,
