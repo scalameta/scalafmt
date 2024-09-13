@@ -575,20 +575,10 @@ class Router(formatOps: FormatOps) {
       case FormatToken(
             _: T.RightParen,
             _,
-            ParamClauseParentLeft(extGroup: Defn.ExtensionGroup),
-          ) if !LeftParenOrBrace(nextNonComment(ft).right) =>
-        if (dialect.allowSignificantIndentation) {
-          val expireToken = getLastToken(extGroup)
-          def nlSplit(cost: Int = 0)(implicit fileLine: FileLine) =
-            Split(Newline2x(ft), cost)
-              .withIndent(style.indent.getSignificant, expireToken, After)
-          style.newlines.source match {
-            case Newlines.unfold => Seq(nlSplit())
-            case Newlines.keep if hasBreak() => Seq(nlSplit())
-            case _ =>
-              Seq(Split(Space, 0).withSingleLine(expireToken), nlSplit(cost = 1))
-          }
-        } else Seq(Split(Space, 0))
+            ParamClauseParentLeft(_: Defn.ExtensionGroup),
+          )
+          if !dialect.allowSignificantIndentation &&
+            !LeftParenOrBrace(nextNonComment(ft).right) => Seq(Split(Space, 0))
 
       case FormatToken(left, right, StartsStatementRight(_)) =>
         val annoRight = right.is[T.At]

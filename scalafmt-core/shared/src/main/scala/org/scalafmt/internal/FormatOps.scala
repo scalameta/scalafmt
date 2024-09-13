@@ -2047,9 +2047,11 @@ class FormatOps(
             else Some(getSplits(blockTree, true)),
           )
         ft.meta.leftOwner match {
-          case ParamClauseParent(t: Defn.ExtensionGroup)
-              if isBlockStart(t.body, nft) =>
-            createImpl(t, t.body)(Some(getSplitsMaybeBlock(nft, t.body)))
+          case ParamClauseParent(pp: Defn.ExtensionGroup)
+              if !nft.right.is[T.LeftBrace] && (tokenBefore(pp.body) eq ft) =>
+            createImpl(pp, pp.body)(Some(
+              getSplits(pp.body, shouldBreakInOptionalBraces(ft, nft)),
+            ))
           case t: Term.If if !nft.right.is[T.KwThen] && {
                 !isTreeSingleExpr(t.thenp) ||
                 getLastNotTrailingCommentOpt(t.thenp).exists(_.isLeft) ||
@@ -2404,19 +2406,6 @@ class FormatOps(
 
     private def isTreeUsingOptionalBraces(tree: Tree): Boolean =
       !isTreeSingleExpr(tree) && !tokenBefore(tree).left.is[T.LeftBrace]
-
-    private def isJustBeforeTrees(ft: FormatToken)(trees: Seq[Tree]): Boolean =
-      trees.headOption.exists(isJustBeforeTree(ft))
-
-    private def isJustBeforeExprs(ft: FormatToken)(
-        tree: Tree.WithExprs,
-    ): Boolean = isJustBeforeTrees(ft)(tree.exprs)
-
-    private def isBlockStart(tree: Tree, ft: FormatToken): Boolean =
-      tree match {
-        case t: Term.Block => isJustBeforeExprs(ft)(t)
-        case _ => false
-      }
 
     @inline
     private def treeLast(tree: Tree): Option[FormatToken] = getLastOpt(tree)
