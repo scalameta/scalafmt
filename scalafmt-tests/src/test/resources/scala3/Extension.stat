@@ -346,9 +346,5 @@ object a:
     def asVersion: Version = Version(sv)
   }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a:
--  extension (sv: String) def asVersion: Version = Version(sv)
-+  extension (sv: String)
-+    def asVersion: Version = Version(sv)
+object a:
+  extension (sv: String) def asVersion: Version = Version(sv)
