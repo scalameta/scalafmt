@@ -45,6 +45,8 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
       })
 
     if (!checkMatchingInfix(x, Some(lhsIsOK))) return
+    if (!ctx.dialect.allowTryWithAnyExpr)
+      if (beforeLhsHead.exists(_.is[Token.KwTry])) return
 
     val builder = Seq.newBuilder[TokenPatch]
 

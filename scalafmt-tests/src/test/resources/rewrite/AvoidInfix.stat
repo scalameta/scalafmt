@@ -700,16 +700,8 @@ object a {
   catch { case ex: Throwable => }
 }
 >>>
-test does not parse
-[dialect scala211] `;` expected but `.` found
 object a {
-  try new compiler.Run compile (sourceFiles map (_.toString))
-                         ^
-  catch { case ex: Throwable => }
-}
-====== full result: ======
-object a {
-  try new compiler.Run compile (sourceFiles map (_.toString))
+  try new compiler.Run compile (sourceFiles.map(_.toString))
   catch { case ex: Throwable => }
 }
 <<< in try, with scala212
@@ -720,16 +712,8 @@ object a {
   catch { case ex: Throwable => }
 }
 >>>
-test does not parse
-[dialect scala212] `;` expected but `.` found
 object a {
-  try new compiler.Run compile (sourceFiles map (_.toString))
-                         ^
-  catch { case ex: Throwable => }
-}
-====== full result: ======
-object a {
-  try new compiler.Run compile (sourceFiles map (_.toString))
+  try new compiler.Run compile (sourceFiles.map(_.toString))
   catch { case ex: Throwable => }
 }
 <<< in try, with scala213
