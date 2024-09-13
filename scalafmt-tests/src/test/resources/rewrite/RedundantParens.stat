@@ -1557,22 +1557,17 @@ object a {
   val extModClassRef = 10 -~ nameRef ~ (symbolRef?) ~ get ^~~^ ExternalSymbol as "extModClassRef"
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   val symbolInfo =
--    nameRef ~ symbolRef ~ nat ~ symbolRef ? ~ref ~ get ^~~~~~^ SymbolInfo
-+    nameRef ~ symbolRef ~ nat ~ symbolRef ? ~ ref ~ get ^~~~~~^ SymbolInfo
-   val methodSymbol =
-     (symHeader(8) -~ /*(ref?) -~*/ symbolInfo ~ ref ? ^~^ MethodSymbol)
--    .as("method")
-+      .as("method")
-   val extRef =
--    (9 -~ nameRef ~ symbolRef ? ~get ^~~^ ExternalSymbol).as("extRef")
-+    (9 -~ nameRef ~ symbolRef ? ~ get ^~~^ ExternalSymbol).as("extRef")
-   val extModClassRef =
--    (10 -~ nameRef ~ symbolRef ? ~get ^~~^ ExternalSymbol).as("extModClassRef")
-+    (10 -~ nameRef ~ symbolRef ? ~ get ^~~^ ExternalSymbol).as("extModClassRef")
- }
+object a {
+  val symbolInfo =
+    nameRef ~ symbolRef ~ nat ~ (symbolRef ?) ~ ref ~ get ^~~~~~^ SymbolInfo
+  val methodSymbol =
+    (symHeader(8) -~ /*(ref?) -~*/ symbolInfo ~ (ref ?) ^~^ MethodSymbol)
+      .as("method")
+  val extRef =
+    (9 -~ nameRef ~ (symbolRef ?) ~ get ^~~^ ExternalSymbol).as("extRef")
+  val extModClassRef = (10 -~ nameRef ~ (symbolRef ?) ~ get ^~~^ ExternalSymbol)
+    .as("extModClassRef")
+}
 <<< select without a dot within paren, within infix, infixSide, !avoid infix
 rewrite.redundantParens.infixSide = all
 rewrite.rules = [RedundantParens]
@@ -1584,24 +1579,16 @@ object a {
   val extModClassRef = 10 -~ nameRef ~ (symbolRef?) ~ get ^~~^ ExternalSymbol as "extModClassRef"
 }
 >>>
-test does not parse: [dialect scala213] `;` expected but `string constant` found
-  val methodSymbol = symHeader(
-    8
-  ) -~ /*(ref?) -~*/ symbolInfo ~ ref ? ^~^ MethodSymbol as "method"
-                                                            ^
-  val extRef = 9 -~ nameRef ~ symbolRef ? ~ get ^~~^ ExternalSymbol as "extRef"
-  val extModClassRef =
-    10 -~ nameRef ~ symbolRef ? ~ get ^~~^ ExternalSymbol as "extModClassRef"
-====== full result: ======
 object a {
   val symbolInfo =
-    nameRef ~ symbolRef ~ nat ~ symbolRef ? ~ ref ~ get ^~~~~~^ SymbolInfo
+    nameRef ~ symbolRef ~ nat ~ (symbolRef ?) ~ ref ~ get ^~~~~~^ SymbolInfo
   val methodSymbol = symHeader(
     8
-  ) -~ /*(ref?) -~*/ symbolInfo ~ ref ? ^~^ MethodSymbol as "method"
-  val extRef = 9 -~ nameRef ~ symbolRef ? ~ get ^~~^ ExternalSymbol as "extRef"
+  ) -~ /*(ref?) -~*/ symbolInfo ~ (ref ?) ^~^ MethodSymbol as "method"
+  val extRef =
+    9 -~ nameRef ~ (symbolRef ?) ~ get ^~~^ ExternalSymbol as "extRef"
   val extModClassRef =
-    10 -~ nameRef ~ symbolRef ? ~ get ^~~^ ExternalSymbol as "extModClassRef"
+    10 -~ nameRef ~ (symbolRef ?) ~ get ^~~^ ExternalSymbol as "extModClassRef"
 }
 <<< select without a dot within paren, within infix, !infixSide, avoid infix
 rewrite.rules = [RedundantParens, AvoidInfix]
