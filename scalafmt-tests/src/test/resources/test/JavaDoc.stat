@@ -1217,30 +1217,34 @@ object a {
 
   /**
    * @param foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
    *   {{{
    *         embedded code
    *   }}}
-   *   | hdr1 | hdr22 |
-   *   |:-----|------:|
-   *   | r1 1 |  r1 2 |
-   *   {{{
-   *         embedded code
-   *   }}}
-   *   \``` code foo5 ``` ```
-   *   code foo4 ```
-   *   ```
-   *        code foo3
-   *   ```
+   *      ```
+   *         code foo5
+   *      ```
+   *     ```
+   *         code foo4
+   *     ```
+   *    ```
+   *         code foo3
+   *    ```
    *   ```
    *         code foo2
    *   ```
-   *   ```
-   *          code foo1
-   *   ```
-   *   ```
-   *           code foo0
-   *   ```
-   *   foo
+   *  ```
+   *         code foo1
+   *  ```
+   * ```
+   *         code foo0
+   * ```
+   * foo
    * @inheritdoc
    */
 }
@@ -1286,30 +1290,34 @@ object a {
 object a {
 
   /** @param foo
+    *      {{{
+    *         embedded code
+    *      }}}
+    *  | hdr1   |  hdr22 |
+    *   |:-------|-------:|
+    *    | r1 1   |   r1 2 |
     *   {{{
     *         embedded code
     *   }}}
-    *   | hdr1 | hdr22 |
-    *   |:-----|------:|
-    *   | r1 1 |  r1 2 |
-    *   {{{
-    *         embedded code
-    *   }}}
-    *   \``` code foo5 ``` ```
-    *   code foo4 ```
-    *   ```
-    *        code foo3
-    *   ```
+    *      ```
+    *         code foo5
+    *      ```
+    *     ```
+    *         code foo4
+    *     ```
+    *    ```
+    *         code foo3
+    *    ```
     *   ```
     *         code foo2
     *   ```
-    *   ```
-    *          code foo1
-    *   ```
-    *   ```
-    *           code foo0
-    *   ```
-    *   foo
+    *  ```
+    *         code foo1
+    *  ```
+    * ```
+    *         code foo0
+    * ```
+    * foo
     * @inheritdoc
     */
 }
@@ -1355,30 +1363,34 @@ object a {
 object a {
 
   /** @param foo
-   *    {{{
+   *      {{{
    *         embedded code
-   *    }}}
-   *    | hdr1 | hdr22 |
-   *    |:-----|------:|
-   *    | r1 1 |  r1 2 |
-   *    {{{
+   *      }}}
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *   {{{
    *         embedded code
-   *    }}}
-   *    \``` code foo5 ``` ```
-   *    code foo4 ```
+   *   }}}
+   *      ```
+   *         code foo5
+   *      ```
+   *     ```
+   *         code foo4
+   *     ```
    *    ```
    *         code foo3
    *    ```
-   *    ```
-   *          code foo2
-   *    ```
-   *    ```
-   *           code foo1
-   *    ```
-   *    ```
-   *            code foo0
-   *    ```
-   *    foo
+   *   ```
+   *         code foo2
+   *   ```
+   *  ```
+   *         code foo1
+   *  ```
+   *  ```
+   *         code foo0
+   *  ```
+   *  foo
    *  @inheritdoc
    */
 }
@@ -3486,13 +3498,14 @@ docstrings.wrap = fold
     */
 object a {}
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-  * in class Namer is not a legal implementation of `Deriver` in class Namer. its
-- * type dotty.tools.dotc.util.Property.Key[Namer.this.Deriver] \|* does not
-- * conform to dotty.tools.dotc.util.Property.Key[Typer.this.Deriver &
-- * Namer.this.Deriver]
-+ * type dotty.tools.dotc.util.Property.Key[Namer.this.Deriver]
-+ * \|* does not conform to dotty.tools.dotc.util.Property.Key[Typer.this.Deriver
-+ * & Namer.this.Deriver]
-  */
+/**
+ * When called from `pre1.A <:< pre2.A` does `pre1` relate to `pre2` so that
+ *  the subtype test is true? This is the case if
+ *
+ *    val Deriver         : Property.Key[typer.Deriver]       = new Property.Key
+ *        ^
+ *  value Deriver in class Namer is not a legal implementation of `Deriver` in class Namer.
+ *  its type             dotty.tools.dotc.util.Property.Key[Namer.this.Deriver]
+ *    |*  does not conform to  dotty.tools.dotc.util.Property.Key[Typer.this.Deriver & Namer.this.Deriver]
+ */
+object a {}
