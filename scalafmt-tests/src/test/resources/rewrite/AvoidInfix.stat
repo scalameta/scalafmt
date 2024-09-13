@@ -692,3 +692,55 @@ fileOverride.".scala".rewrite.avoidInfix.excludeScalaTest = null
 a shouldBe b
 >>>
 a shouldBe b
+<<< in try, with scala211
+runner.dialect = scala211
+===
+object a {
+  try new compiler.Run compile (sourceFiles map (_.toString))
+  catch { case ex: Throwable => }
+}
+>>>
+test does not parse
+[dialect scala211] `;` expected but `.` found
+object a {
+  try new compiler.Run compile (sourceFiles map (_.toString))
+                         ^
+  catch { case ex: Throwable => }
+}
+====== full result: ======
+object a {
+  try new compiler.Run compile (sourceFiles map (_.toString))
+  catch { case ex: Throwable => }
+}
+<<< in try, with scala212
+runner.dialect = scala212
+===
+object a {
+  try new compiler.Run compile (sourceFiles map (_.toString))
+  catch { case ex: Throwable => }
+}
+>>>
+test does not parse
+[dialect scala212] `;` expected but `.` found
+object a {
+  try new compiler.Run compile (sourceFiles map (_.toString))
+                         ^
+  catch { case ex: Throwable => }
+}
+====== full result: ======
+object a {
+  try new compiler.Run compile (sourceFiles map (_.toString))
+  catch { case ex: Throwable => }
+}
+<<< in try, with scala213
+runner.dialect = scala213
+===
+object a {
+  try new compiler.Run compile (sourceFiles map (_.toString))
+  catch { case ex: Throwable => }
+}
+>>>
+object a {
+  try (new compiler.Run).compile(sourceFiles.map(_.toString))
+  catch { case ex: Throwable => }
+}
