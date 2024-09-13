@@ -1,15 +1,10 @@
 package org.scalafmt.internal
 
 import org.scalafmt.CompatCollections.JavaConverters._
+import org.scalafmt.Error
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.Comments
-import org.scalafmt.config.Docstrings
-import org.scalafmt.config.FormatEvent
-import org.scalafmt.config.LineEndings
-import org.scalafmt.config.Newlines
-import org.scalafmt.config.RewriteScala3Settings
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{Case => _, _}
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.LiteralOps
 import org.scalafmt.util.TokenOps._
@@ -27,6 +22,7 @@ import java.util.regex.Pattern
 import scala.annotation.tailrec
 import scala.collection.AbstractIterator
 import scala.collection.mutable
+import scala.util.Try
 
 /** Produces formatted output from sequence of splits.
   */
@@ -680,8 +676,11 @@ class FormatWriter(formatOps: FormatOps) {
               var nextLineBeg = lineBeg
               def nextLineLength = 1 + word.length + sb.length - lineBeg
               if (atLineBeg) {
+                /* looks like a tag but not tag;
+                 * parser will interrupt text parsing but will not match tag either */
+                if (likeNonText(word)) throw Error
+                  .IdempotencyViolated("output will be parsed differently")
                 if (needSpaceIfAtLineBeg) sb.append(' ')
-                if (likeNonText(word)) sb.append('\\')
               } else if (nextLineLength > maxLength && !likeNonText(word)) {
                 appendLineBreak()
                 lines += 1
@@ -848,7 +847,12 @@ class FormatWriter(formatOps: FormatOps) {
           val docOpt =
             if (wrap eq Docstrings.Wrap.keep) None
             else ScaladocParser.parse(tok.meta.left.text)
-          docOpt.fold(formatNoWrap())(formatWithWrap)
+          docOpt.flatMap { doc =>
+            val sbLen = sb.length
+            val res = Try(formatWithWrap(doc)).toOption
+            if (res.isEmpty) sb.setLength(sbLen)
+            res
+          }.getOrElse(formatNoWrap())
         }
 
         private def formatWithWrap(doc: Scaladoc): Unit = {
@@ -948,7 +952,8 @@ class FormatWriter(formatOps: FormatOps) {
         ): Unit = {
           def likeNonText(word: String): Boolean = // if parser can be confused
             word.startsWith("```") || word.startsWith("~~~") || // code fence
-              word.startsWith("@") || // tag
+              word.length > 1 && word.charAt(0) == '@' &&
+              !Character.isWhitespace(word.charAt(1)) || // tag
               word.startsWith("=") || // heading
               word.startsWith("|") || word.startsWith("+-") || // table
               word == "-" || // list, this and next
