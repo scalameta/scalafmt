@@ -338,3 +338,17 @@ extension (s: String)
   def foo(): Unit = ???
 >>>
 extension(s: String) def foo(): Unit = ???
+<<< #4133 with removing optional braces
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a:
+  extension (sv: String) {
+    def asVersion: Version = Version(sv)
+  }
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+ object a:
+-  extension (sv: String) def asVersion: Version = Version(sv)
++  extension (sv: String)
++    def asVersion: Version = Version(sv)
