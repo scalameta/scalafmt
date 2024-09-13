@@ -140,7 +140,6 @@ lazy val core = crossProject(JVMPlatform).in(file("scalafmt-core")).settings(
   .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm
 // lazy val coreJS = core.js
-
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
 val scalacJvmOptions = Def.setting {

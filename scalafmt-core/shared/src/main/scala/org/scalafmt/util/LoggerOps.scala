@@ -23,8 +23,7 @@ object LoggerOps {
 
   def log(s: State): String = {
     val policies = s.policy.policies.map(_.toString).mkString("P[", ",", "]")
-    s"d=${s.depth} w=${s.cost} i=${s.indentation} col=${s.column} #nl=${s
-        .lineId}; $policies; s=${log(s.split)}"
+    s"d=${s.depth} w=${s.cost} i=${s.indentation} col=${s.column} #nl=${s.lineId}; $policies; s=${log(s.split)}"
   }
   def log(split: Split): String = s"$split"
 
