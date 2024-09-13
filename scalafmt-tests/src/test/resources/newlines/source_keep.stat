@@ -8946,3 +8946,18 @@ object a {
     // foo
   }
 }
+<<< #4133 case with multiple patterns, all on one line
+maxColumn = 78
+===
+object a {
+    if (foo) bar match {
+      case nme.IMPORT | nme.OUTER | nme.ANON_CLASS_NAME | nme.ANON_FUN_NAME | nme.CONSTRUCTOR => ()
+    }
+}
+>>>
+object a {
+  if (foo) bar match {
+    case nme.IMPORT | nme.OUTER | nme.ANON_CLASS_NAME | nme
+          .ANON_FUN_NAME | nme.CONSTRUCTOR => ()
+  }
+}
