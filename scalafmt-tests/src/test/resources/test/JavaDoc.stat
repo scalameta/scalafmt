@@ -3472,3 +3472,27 @@ def foo = ()
  */
 def foo =
   ()
+<<< properly escape scaladoc element at line start
+docstrings.wrap = fold
+===
+  /** When called from `pre1.A <:< pre2.A` does `pre1` relate to `pre2` so that
+    *  the subtype test is true? This is the case if
+    *
+    *    val Deriver         : Property.Key[typer.Deriver]       = new Property.Key
+    *        ^
+    *  value Deriver in class Namer is not a legal implementation of `Deriver` in class Namer.
+    *  its type             dotty.tools.dotc.util.Property.Key[Namer.this.Deriver]
+    *    |*  does not conform to  dotty.tools.dotc.util.Property.Key[Typer.this.Deriver & Namer.this.Deriver]
+    */
+object a {}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+  * in class Namer is not a legal implementation of `Deriver` in class Namer. its
+- * type dotty.tools.dotc.util.Property.Key[Namer.this.Deriver] \|* does not
+- * conform to dotty.tools.dotc.util.Property.Key[Typer.this.Deriver &
+- * Namer.this.Deriver]
++ * type dotty.tools.dotc.util.Property.Key[Namer.this.Deriver]
++ * \|* does not conform to dotty.tools.dotc.util.Property.Key[Typer.this.Deriver
++ * & Namer.this.Deriver]
+  */
