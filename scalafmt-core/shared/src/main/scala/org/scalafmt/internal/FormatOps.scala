@@ -568,7 +568,18 @@ class FormatOps(
         case t => t
       }
       def isOldTopLevel(child: Tree) = child.parent.exists {
-        case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
+        case _: Term.If | _: Term.While | _: Source => true
+        case t: Term.Block => !isSingleStatBlock(t) || t.parent.forall { p =>
+            t.tokens.head match { // check brace was not rewritten
+              case head: Token.LeftBrace =>
+                (tokens.before(head).left eq head) ||
+                (p match {
+                  case p: Tree.WithCond => p.cond eq t
+                  case _ => false
+                })
+              case _ => true
+            }
+          }
         case fun: Term.FunctionTerm => isBlockFunction(fun)
         case t: Case => t.pat.eq(child) || t.body.eq(child)
         case SingleArgInBraces(_, arg, _) => child eq arg
