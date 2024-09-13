@@ -2375,7 +2375,17 @@ class Router(formatOps: FormatOps) {
       // Pattern alternatives
       case FormatToken(T.Ident("|"), _, _) if leftOwner.is[Pat.Alternative] =>
         if (style.newlines.keep) Seq(Split(Space.orNL(noBreak()), 0))
-        else Seq(Split(Space, 0), Split(Newline, 1))
+        else {
+          val end = getLast(leftOwner.asInstanceOf[Pat.Alternative].rhs match {
+            case t: Pat.Alternative => t.lhs
+            case t => t
+          })
+          val opt = nextNonComment(end).right match {
+            case _: T.KwIf => end.left
+            case x => x
+          }
+          Seq(Split(Space, 0).withOptimalToken(opt), Split(Newline, 1))
+        }
       case FormatToken(_, T.Ident("|"), _) if rightOwner.is[Pat.Alternative] =>
         val noNL = !style.newlines.keepBreak(newlines)
         Seq(Split(Space.orNL(noNL), 0))

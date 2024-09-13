@@ -9150,11 +9150,10 @@ object a {
     }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   if (foo) bar match {
--    case nme.IMPORT | nme.OUTER | nme.ANON_CLASS_NAME | nme.ANON_FUN_NAME |
--        nme.CONSTRUCTOR =>
-+    case nme.IMPORT | nme.OUTER | nme.ANON_CLASS_NAME |
-+        nme.ANON_FUN_NAME | nme.CONSTRUCTOR =>
-       ()
+object a {
+  if (foo) bar match {
+    case nme.IMPORT | nme.OUTER | nme.ANON_CLASS_NAME | nme.ANON_FUN_NAME |
+        nme.CONSTRUCTOR =>
+      ()
+  }
+}
