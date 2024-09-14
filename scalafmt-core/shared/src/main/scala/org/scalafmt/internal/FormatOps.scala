@@ -504,28 +504,41 @@ class FormatOps(
       }
 
     @tailrec
-    private def findEnclosingInfix(
+    private def findMaybeEnclosingInfix(
         child: Member.Infix,
         childTree: Tree,
-    ): Member.Infix =
-      if (isEnclosedInParens(childTree)) child
+    ): (Member.Infix, Boolean) =
+      if (isEnclosedInParens(childTree)) (child, true)
       else childTree.parent match {
-        case Some(p: Member.Infix) if !p.isAssignment => findEnclosingInfix(p, p)
-        case Some(p @ Member.ArgClause(_ :: Nil)) => findEnclosingInfix(child, p)
-        case _ => child
+        case Some(p: Member.Infix) if !p.isAssignment =>
+          findMaybeEnclosingInfix(p, p)
+        case Some(p @ Member.ArgClause(_ :: Nil)) =>
+          findMaybeEnclosingInfix(child, p)
+        case _ => (child, false)
       }
 
+    private[FormatOps] def findMaybeEnclosingInfix(
+        app: Member.Infix,
+    ): (Member.Infix, Boolean) = findMaybeEnclosingInfix(app, app)
+
     private[FormatOps] def findEnclosingInfix(app: Member.Infix): Member.Infix =
-      findEnclosingInfix(app, app)
+      findMaybeEnclosingInfix(app)._1
 
     def withNLIndent(split: Split)(
         app: Member.Infix,
+    )(implicit ft: FormatToken, style: ScalafmtConfig): Split =
+      withNLIndent(split, app, findEnclosingInfix(app))
+
+    def withNLIndent(
+        split: Split,
+        app: Member.Infix,
+        fullInfix: => Member.Infix,
     )(implicit ft: FormatToken, style: ScalafmtConfig): Split = {
       val noNL = !split.isNL && {
         val nextFt = nextNonCommentSameLine(ft)
         nextFt.eq(ft) || nextFt.noBreak
       }
-      if (noNL) split else apply(app, ft).withNLIndent(split)
+      if (noNL) split else apply(app, ft, fullInfix).withNLIndent(split)
     }
 
   }
