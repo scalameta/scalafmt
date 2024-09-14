@@ -459,7 +459,7 @@ class FormatOps(
         // TODO: if that ever changes, modify how rewrite rules handle infix
         val split = Split(if (ft.noBreak) spaceMod else Newline2x(ft), 0)
         if (isBeforeOp && isFewerBracesRhs(app.arg)) Seq(split)
-        else Seq(InfixSplits.withNLIndent(split)(app, ft))
+        else Seq(InfixSplits.withNLIndent(split)(app))
       }
     }
   }
@@ -518,9 +518,9 @@ class FormatOps(
     private[FormatOps] def findEnclosingInfix(app: Member.Infix): Member.Infix =
       findEnclosingInfix(app, app)
 
-    def withNLIndent(split: Split)(app: Member.Infix, ft: FormatToken)(implicit
-        style: ScalafmtConfig,
-    ): Split = {
+    def withNLIndent(split: Split)(
+        app: Member.Infix,
+    )(implicit ft: FormatToken, style: ScalafmtConfig): Split = {
       val noNL = !split.isNL && {
         val nextFt = nextNonCommentSameLine(ft)
         nextFt.eq(ft) || nextFt.noBreak
@@ -1695,10 +1695,11 @@ class FormatOps(
         style: ScalafmtConfig,
         ft: FormatToken,
     ): Seq[Split] = get(body, spaceIndents)(classicNoBreakFunc)(x =>
-      withIndent(nlSplitFunc(x), ft, body, endFt),
+      withIndent(nlSplitFunc(x), body, endFt),
     )
 
-    def withIndent(nlSplit: Split, ft: FormatToken, endFt: FormatToken)(implicit
+    def withIndent(nlSplit: Split, endFt: FormatToken)(implicit
+        ft: FormatToken,
         style: ScalafmtConfig,
     ): Split = withNLPolicy(endFt) {
       val right = nextNonComment(ft).right
@@ -1709,15 +1710,11 @@ class FormatOps(
       nlSplit.withIndent(Num(style.indent.main), expire.left, ExpiresOn.After)
     }
 
-    def withIndent(
-        nlSplit: Split,
+    def withIndent(nlSplit: Split, body: Tree, endFt: => FormatToken)(implicit
         ft: FormatToken,
-        body: Tree,
-        endFt: => FormatToken,
-    )(implicit style: ScalafmtConfig): Split = asInfixApp(body)
-      .fold(withIndent(nlSplit, ft, endFt)) { app =>
-        InfixSplits.withNLIndent(nlSplit)(app, ft)
-      }
+        style: ScalafmtConfig,
+    ): Split = asInfixApp(body)
+      .fold(withIndent(nlSplit, endFt))(InfixSplits.withNLIndent(nlSplit))
 
   }
 
