@@ -457,9 +457,25 @@ class FormatOps(
       else {
         // we don't modify line breaks generally around infix expressions
         // TODO: if that ever changes, modify how rewrite rules handle infix
-        val split = Split(if (ft.noBreak) spaceMod else Newline2x(ft), 0)
+        val (fullInfix, isFullInfixEnclosed) = InfixSplits
+          .findMaybeEnclosingInfix(app)
+        def okToBreak: Boolean = !isBeforeOp || isFullInfixEnclosed ||
+          initStyle.dialect.allowInfixOperatorAfterNL ||
+          (fullInfix.parent match {
+            case Some(p: Case) => p.cond.contains(fullInfix)
+            case _ => false
+          }) || { // check if the break was in the original code
+            val atokens = app.tokens
+            val ltidx = atokens.indexOf(ft.left)
+            ltidx >= 0 && {
+              val rtidx = atokens.skipIf(_.is[T.Trivia], ltidx + 1)
+              rtidx >= 0 && (atokens(rtidx) eq ft.right) // no rewritten tokens
+            }
+          }
+        val useSpace = ft.noBreak || !okToBreak
+        val split = Split(if (useSpace) spaceMod else Newline2x(ft), 0)
         if (isBeforeOp && isFewerBracesRhs(app.arg)) Seq(split)
-        else Seq(InfixSplits.withNLIndent(split)(app))
+        else Seq(InfixSplits.withNLIndent(split, app, fullInfix))
       }
     }
   }

@@ -1651,13 +1651,6 @@ object a {
     )
 }
 >>>
-test does not parse: [dialect scala213] `;` expected but `.` found
-    "-J-Duser.country=US"
-  ) ++ toolArgsFor(files)("javac")
-    ++ files.map(_.getAbsolutePath)
-            ^
-}
-====== full result: ======
 object a {
   val args = Seq(
     javacCmdPath,
@@ -1667,6 +1660,7 @@ object a {
     joinPaths(outDir :: testClassPath),
     "-J-Duser.language=en",
     "-J-Duser.country=US"
-  ) ++ toolArgsFor(files)("javac")
-    ++ files.map(_.getAbsolutePath)
+  ) ++ toolArgsFor(files)("javac") ++ files.map(
+    _.getAbsolutePath
+  )
 }
