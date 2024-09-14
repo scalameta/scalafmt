@@ -2548,13 +2548,13 @@ class Router(formatOps: FormatOps) {
     if (ft.right.is[T.LeftBrace]) // The block will take care of indenting by 2
       Seq(Split(Space, 0).withIndents(spaceIndents))
     else if (isRightCommentWithBreak(ft))
-      Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft), 0), ft, body, endFt))
+      Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft), 0), body, endFt))
     else if (isJsNative(body)) Seq(Split(Space, 0).withSingleLine(endFt.left))
     else if (style.newlines.forceBeforeAssign(ft.meta.leftOwner))
-      Seq(CtrlBodySplits.withIndent(Split(Newline2x(ft), 0), ft, body, endFt))
+      Seq(CtrlBodySplits.withIndent(Split(Newline2x(ft), 0), body, endFt))
     else if (style.newlines.shouldForceBeforeMultilineAssign(ft.meta.leftOwner))
       CtrlBodySplits.slbOnly(body, spaceIndents) { x =>
-        CtrlBodySplits.withIndent(Split(Newline2x(ft), x), ft, body, endFt)
+        CtrlBodySplits.withIndent(Split(Newline2x(ft), x), body, endFt)
       }
     else splits
 
@@ -2565,7 +2565,7 @@ class Router(formatOps: FormatOps) {
     val expire = endFt.left
     def baseSplit = Split(Space, 0)
     def newlineSplit(cost: Int)(implicit fileLine: FileLine) = CtrlBodySplits
-      .withIndent(Split(Newline2x(ft), cost), ft, body, endFt)
+      .withIndent(Split(Newline2x(ft), cost), body, endFt)
 
     def getClassicSplits =
       if (ft.hasBreak) Seq(newlineSplit(0)) else Seq(baseSplit, newlineSplit(1))
@@ -2637,7 +2637,7 @@ class Router(formatOps: FormatOps) {
     }
     Seq(
       spaceSplit,
-      CtrlBodySplits.withIndent(Split(Newline, 1 + penalty), ft, body, endFt),
+      CtrlBodySplits.withIndent(Split(Newline, 1 + penalty), body, endFt),
     )
   }
 
@@ -2662,9 +2662,7 @@ class Router(formatOps: FormatOps) {
           if (noSlb) Split(Space, 0).withOptimalToken(ft.right)
           else Split(Space, 0).withSingleLine(expire)
         }
-      } { cost =>
-        CtrlBodySplits.withIndent(Split(Newline2x(ft), cost), ft, endFt)
-      }
+      }(cost => CtrlBodySplits.withIndent(Split(Newline2x(ft), cost), endFt))
     }
   }
 
