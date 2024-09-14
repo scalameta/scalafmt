@@ -1934,9 +1934,9 @@ object a {
     }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-     jclassAsScala(jinner) // inner class is entered as a side-effect
--  // no need to call enter explicitly
-+    // no need to call enter explicitly
- }
+object a {
+  for (jinner <- jclazz.getDeclaredClasses) {
+    jclassAsScala(jinner) // inner class is entered as a side-effect
+    // no need to call enter explicitly
+  }
+}

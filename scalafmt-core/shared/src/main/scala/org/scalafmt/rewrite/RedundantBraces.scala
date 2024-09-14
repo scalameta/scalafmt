@@ -293,7 +293,13 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   private def onRightBrace(left: Replacement)(implicit
       ft: FormatToken,
       style: ScalafmtConfig,
-  ): (Replacement, Replacement) = (left, removeToken)
+  ): (Replacement, Replacement) = {
+    val ok = ft.meta.rightOwner match {
+      case _: Term.Block => ftoks.prevNotTrailingComment(ft).isRight
+      case _ => true
+    }
+    if (ok) (left, removeToken) else null
+  }
 
   private def settings(implicit
       style: ScalafmtConfig,
@@ -374,7 +380,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig,
   ): Boolean = b.stats.nonEmpty && b.tokens.headOption.contains(ft.right) &&
-    b.tokens.last.is[Token.RightBrace] && okToRemoveBlock(b) &&
+    okToRemoveBlock(b) &&
     (b.parent match {
       case Some(p: Term.ArgClause) => p.parent.exists(checkValidInfixParent)
       case Some(p) => checkValidInfixParent(p)
