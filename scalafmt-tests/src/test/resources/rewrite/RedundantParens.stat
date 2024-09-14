@@ -1630,3 +1630,43 @@ object a {
   val extModClassRef =
     10 -~ nameRef ~ (symbolRef ?) ~ get ^~~^ ExternalSymbol as "extModClassRef"
 }
+<<< #4133 redundant parens with "leading" infix
+maxColumn = 60
+rewrite {
+  rules = [RedundantParens]
+  redundantParens.infixSide = all
+}
+===
+object a {
+    val args = Seq(
+      javacCmdPath,
+      "-d",
+      outDir.getAbsolutePath,
+      "-classpath",
+      joinPaths(outDir :: testClassPath),
+      "-J-Duser.language=en",
+      "-J-Duser.country=US"
+    ) ++ (toolArgsFor(files)("javac")
+    ) ++ (files.map(_.getAbsolutePath)
+    )
+}
+>>>
+test does not parse: [dialect scala213] `;` expected but `.` found
+    "-J-Duser.country=US"
+  ) ++ toolArgsFor(files)("javac")
+    ++ files.map(_.getAbsolutePath)
+            ^
+}
+====== full result: ======
+object a {
+  val args = Seq(
+    javacCmdPath,
+    "-d",
+    outDir.getAbsolutePath,
+    "-classpath",
+    joinPaths(outDir :: testClassPath),
+    "-J-Duser.language=en",
+    "-J-Duser.country=US"
+  ) ++ toolArgsFor(files)("javac")
+    ++ files.map(_.getAbsolutePath)
+}
