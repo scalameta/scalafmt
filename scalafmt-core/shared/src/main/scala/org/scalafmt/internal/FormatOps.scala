@@ -1532,7 +1532,7 @@ class FormatOps(
         .forThisLine(nextLine)
       def getSplits(spaceSplit: Split, nlCost: Int = 1) = (
         spaceSplit.withIndents(spaceIndents),
-        getNlSplit(1, nlCost)(nextLine(spaceSplit.fileLine)),
+        getNlSplit(1, nlCost)(spaceSplit.fileLine),
       )
       def getSlb(end: T, excl: TokenRanges)(implicit fileLine: FileLine) =
         SingleLineBlock(end, exclude = excl, noSyntaxNL = true)
@@ -1938,7 +1938,7 @@ class FormatOps(
         Seq(Split(Newline, 0).withIndent(indent).withPolicy(nlPolicy))
       else Seq(
         Split(Space, 0).withSingleLine(slbExpire.left).withIndent(indent),
-        Split(Newline, 1)(nextLine).withIndent(indent).withPolicy(nlPolicy),
+        Split(Newline, 1).withIndent(indent).withPolicy(nlPolicy),
       )
     }
 

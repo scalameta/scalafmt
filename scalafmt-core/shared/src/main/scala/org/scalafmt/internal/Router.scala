@@ -533,13 +533,13 @@ class Router(formatOps: FormatOps) {
           case _ => false
         }
         val bodyIsEmpty = isEmptyTree(body)
-        def baseSplit = Split(Space, 0)
+        def baseSplit(implicit l: FileLine) = Split(Space, 0)
         def nlSplit(ft: FormatToken)(cost: Int)(implicit l: FileLine) =
           Split(Newline2x(ft), cost)
         CtrlBodySplits.checkComment(nlSplit(ft)) { nft =>
           def withSlbSplit(implicit l: FileLine) = Seq(
             baseSplit.withSingleLine(getLastNonTrivialToken(body)),
-            nlSplit(nft)(1)(nextLine),
+            nlSplit(nft)(1),
           )
           implicit val beforeMultiline = style.newlines.getBeforeMultiline
           if (

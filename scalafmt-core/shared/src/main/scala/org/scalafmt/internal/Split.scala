@@ -54,7 +54,7 @@ case class Split(
     activeTags: Set[SplitTag] = Set.empty,
     policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None,
-)(implicit val fileLine: FileLine) {
+)(implicit val fileLineStack: FileLineStack) {
   import PolicyOps._
 
   def withNoIndent: Split = mod match {
@@ -62,6 +62,9 @@ case class Split(
       copy(modExt = modExt.copy(mod = x.copy(noIndent = true)))
     case _ => this
   }
+
+  @inline
+  def fileLine: FileLine = fileLineStack.fileLineLast
 
   @inline
   def indentation: String = modExt.indentation
@@ -133,7 +136,8 @@ case class Split(
     if (isIgnored) this else splitTag.fold(this)(preActivateFor)
 
   def forThisLine(implicit fileLine: FileLine): Split =
-    if (isIgnored) this else copy()(fileLine = fileLine)
+    if (isIgnored) this
+    else copy()(fileLineStack.forThisLine(fileLine.file, fileLine.line))
 
   def getCost(ifActive: Int => Int, ifIgnored: => Int): Int =
     if (isIgnored) ifIgnored else ifActive(cost)
@@ -319,8 +323,7 @@ case class Split(
         else ""
       }
     val opt = optimalAt.fold("")(", opt=" + _)
-    s"""$prefix${modExt
-        .mod}:[$fileLine](cost=$cost, indents=$indentation, $policy$opt)"""
+    s"""$prefix$mod:[$fileLineStack](cost=$cost, indents=$indentation, $policy$opt)"""
   }
 }
 
@@ -328,13 +331,15 @@ object Split {
 
   private val ignoredTags = Set[SplitTag](null)
 
-  def ignored(implicit fileLine: FileLine) = Split(ModExt(NoSplit), 0).ignored
+  def ignored(implicit fileLineStack: FileLineStack) = Split(ModExt(NoSplit), 0)
+    .ignored
 
   def apply(ignore: Boolean, cost: Int)(modExt: => ModExt)(implicit
-      fileLine: FileLine,
+      fileLineStack: FileLineStack,
   ): Split = if (ignore) ignored else Split(modExt, cost)
 
-  def opt(mod: Modification, cost: Int)(implicit fileLine: FileLine): Split =
-    if (mod eq null) ignored else Split(mod, cost)
+  def opt(mod: Modification, cost: Int)(implicit
+      fileLineStack: FileLineStack,
+  ): Split = if (mod eq null) ignored else Split(mod, cost)
 
 }
