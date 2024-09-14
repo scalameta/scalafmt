@@ -8535,3 +8535,36 @@ object a {
         nme.CONSTRUCTOR => ()
   }
 }
+<<< #4133 control body with complex apply/select/try 1
+maxColumn = 70
+===
+object a {
+  def fn(): Boolean =
+    try in.readYesOrNo(explain + replayQuestionMessage, { echo("\nYou must enter y or n.") ; fn() })
+    catch { case _: RuntimeException => false }
+}
+>>>
+object a {
+  def fn(): Boolean =
+    try in.readYesOrNo(
+        explain + replayQuestionMessage,
+        { echo("\nYou must enter y or n."); fn() }
+      )
+    catch { case _: RuntimeException => false }
+}
+<<< #4133 control body with complex apply/select/try 2
+maxColumn = 70
+===
+object a {
+  val altArgPts =
+    try alts.map(alt => formalTypes(alt.info.paramTypes, argslen).map(ft => (ft, alt))).transpose
+    catch { case _: IllegalArgumentException => }
+}
+>>>
+object a {
+  val altArgPts =
+    try alts.map(alt =>
+        formalTypes(alt.info.paramTypes, argslen).map(ft => (ft, alt))
+      ).transpose
+    catch { case _: IllegalArgumentException => }
+}
