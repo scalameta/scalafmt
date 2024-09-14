@@ -1924,3 +1924,19 @@ object a {
       // console accesses DynamicVariable, let's discard it too
       !t.className.startsWith("scala/util/DynamicVariable")
 }
+<<< #4133 standalone comment at end of block
+rewrite.rules = [RedundantBraces]
+===
+object a {
+    for (jinner <- jclazz.getDeclaredClasses) {
+      jclassAsScala(jinner) // inner class is entered as a side-effect
+                            // no need to call enter explicitly
+    }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+     jclassAsScala(jinner) // inner class is entered as a side-effect
+-  // no need to call enter explicitly
++    // no need to call enter explicitly
+ }
