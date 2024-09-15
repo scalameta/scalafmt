@@ -108,7 +108,7 @@ class CliOptionsTest extends FunSuite {
     val stdoutArgs = Array("--stdout")
     for (args <- Seq(stdinArgs, stdoutArgs)) {
       val options = Cli.getConfig(args, baseCliOptions).get
-      assertEquals(options.common.info, NoopOutputStream.printStream)
+      assertEquals(options.common.info, Output.NoopStream.printStream)
     }
   }
 }

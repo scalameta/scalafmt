@@ -555,7 +555,7 @@ trait CliTestBehavior {
     }
 
     test(s"command line argument error: $label") {
-      val exit = Console.withErr(NoopOutputStream.printStream) {
+      val exit = Console.withErr(Output.NoopStream.printStream) {
         Cli.mainWithOptions(
           Array("--foobar"),
           getMockOptions(AbsoluteFile.userDir),
