@@ -8568,3 +8568,88 @@ object a {
       ).transpose
     catch { case _: IllegalArgumentException => }
 }
+<<< #4133 case body enclosed, no break before lparen, no break after lparen
+object a {
+  foo match {
+    case bar => ( // c1a
+        // c2a
+        qux
+      )
+  }
+}
+>>>
+org.scalafmt.util.FormatException: java.util.NoSuchElementException: Missing matching token index Comment( c1a) [43..49) @2:18: `// c1a`
+<<< #4133 case body enclosed, no break before lparen, break after lparen
+object a {
+  foo match {
+    case bar => (
+        // c1a
+        // c2a
+        qux
+      )
+  }
+}
+>>>
+object a {
+  foo match {
+    case bar => (
+      // c1a
+      // c2a
+      qux
+    )
+  }
+}
+<<< #4133 case body enclosed, break before lparen
+object a {
+  foo match {
+    case bar =>
+      ( // c1a
+        // c2a
+        qux
+      )
+  }
+}
+>>>
+org.scalafmt.util.FormatException: java.util.NoSuchElementException: Missing matching token index Comment( c1a) [49..55) @3:8: `// c1a`
+<<< #4133 case body enclosed, break before lparen, comment after arrow
+object a {
+  foo match {
+    case bar => // c1b
+      ( // c1a
+        // c2a
+        qux
+      )
+  }
+}
+>>>
+object a {
+  foo match {
+    case bar => // c1b
+      ( // c1a
+        // c2a
+        qux
+      )
+  }
+}
+<<< #4133 case body enclosed, break before lparen, comments after arrow
+object a {
+  foo match {
+    case bar => // c1b
+      // c2b
+      ( // c1a
+        // c2a
+        qux
+      )
+  }
+}
+>>>
+object a {
+  foo match {
+    case bar => // c1b
+      // c2b
+      ( // c1a
+        // c2a
+        qux
+      )
+  }
+}
