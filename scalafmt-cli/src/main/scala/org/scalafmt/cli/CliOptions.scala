@@ -35,20 +35,14 @@ object CliOptions {
     * directly from main.
     */
   def auto(parsed: CliOptions): CliOptions = {
+    val usesOut = parsed.stdIn || parsed.writeMode.usesOut
     val auxOut =
-      if (
-        parsed.noStdErr ||
-        !(parsed.stdIn || parsed.writeMode == WriteMode.Stdout)
-      ) parsed.common.out
-      else parsed.common.err
+      if (parsed.noStdErr || !usesOut) parsed.common.out else parsed.common.err
 
     parsed.copy(common =
       parsed.common.copy(
-        out = guardPrintStream(parsed.quiet && !parsed.stdIn)(parsed.common.out),
-        info = guardPrintStream(
-          parsed.stdIn || parsed.writeMode == WriteMode.Stdout ||
-            parsed.quiet || parsed.writeMode == WriteMode.List,
-        )(auxOut),
+        out = guardPrintStream(parsed.quiet && !usesOut)(parsed.common.out),
+        info = guardPrintStream(parsed.quiet || usesOut)(auxOut),
         debug = guardPrintStream(parsed.quiet)(
           if (parsed.debug) auxOut else parsed.common.debug,
         ),
