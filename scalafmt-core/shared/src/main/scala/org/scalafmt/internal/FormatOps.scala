@@ -1701,18 +1701,17 @@ class FormatOps(
     ): Seq[Split] = checkComment(nlSplitFunc) { x =>
       def getFolded(isKeep: Boolean) =
         foldedNonComment(body, nlSplitFunc, isKeep = isKeep, spaceIndents)
+      def getFoldedKeepNLOnly = getFolded(true).filter(_.isNL)
       style.newlines.getBeforeMultiline match {
         case Newlines.fold => getFolded(false)
         case Newlines.unfold =>
           unfoldedNonComment(body, nlSplitFunc, spaceIndents, false)
         case Newlines.classic if x.noBreak =>
           Option(classicNoBreakFunc).fold(getFolded(true)) { func =>
-            val spcSplit = func.forThisLine
-            val nlSplit = nlSplitFunc(spcSplit.getCost(_ + 1, 0)).forThisLine
-            Seq(spcSplit, nlSplit)
+            func.forThisLine +: getFoldedKeepNLOnly
           }
         case Newlines.keep if x.noBreak => getFolded(true)
-        case _ => getFolded(true).filter(_.isNL) // keep/classic with break
+        case _ => getFoldedKeepNLOnly // keep/classic with break
       }
     }
 

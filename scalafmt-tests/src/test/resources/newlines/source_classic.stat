@@ -9166,15 +9166,16 @@ object a {
     catch { case _: RuntimeException => false }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-       in.readYesOrNo(
--        explain + replayQuestionMessage, {
--          echo("\nYou must enter y or n."); fn()
--        }
-+        explain + replayQuestionMessage,
-+        { echo("\nYou must enter y or n."); fn() }
-       )
+object a {
+  def fn(): Boolean =
+    try
+      in.readYesOrNo(
+        explain + replayQuestionMessage, {
+          echo("\nYou must enter y or n."); fn()
+        }
+      )
+    catch { case _: RuntimeException => false }
+}
 <<< #4133 control body with complex apply/select/try 2
 maxColumn = 70
 ===
@@ -9184,12 +9185,14 @@ object a {
     catch { case _: IllegalArgumentException => }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-         .map(alt =>
--          formalTypes(alt.info.paramTypes, argslen)
--            .map(ft => (ft, alt))
-+          formalTypes(alt.info.paramTypes, argslen).map(ft =>
-+            (ft, alt)
-+          )
-         )
+object a {
+  val altArgPts =
+    try
+      alts
+        .map(alt =>
+          formalTypes(alt.info.paramTypes, argslen)
+            .map(ft => (ft, alt))
+        )
+        .transpose
+    catch { case _: IllegalArgumentException => }
+}
