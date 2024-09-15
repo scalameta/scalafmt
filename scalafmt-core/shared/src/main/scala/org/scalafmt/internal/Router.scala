@@ -543,7 +543,8 @@ class Router(formatOps: FormatOps) {
           )
           implicit val beforeMultiline = style.newlines.getBeforeMultiline
           if (
-            isCaseBodyABlock(nft, owner) || isCaseBodyEnclosedAsBlock(nft, owner)
+            isCaseBodyABlock(nft, owner) ||
+            getClosingIfCaseBodyEnclosedAsBlock(nft, owner).isDefined
           ) Seq(baseSplit)
           else if (nft.right.is[T.KwCase]) Seq(nlSplit(nft)(0))
           else if (hasBreak() && !beforeMultiline.ignoreSourceSplit)
@@ -2185,29 +2186,30 @@ class Router(formatOps: FormatOps) {
           if (bodyBlock || (arrowFt ne postArrowFt) && postArrowFt.hasBreak)
             NoPolicy
           else {
+            // postArrowFt points to non-comment after arrowFt
+            // possibly on next line without intervening comments
             implicit val beforeMultiline = style.newlines.getBeforeMultiline
-            if (!isCaseBodyEnclosedAsBlock(postArrowFt, owner))
+            getClosingIfCaseBodyEnclosedAsBlock(postArrowFt, owner).fold {
               Policy ? beforeMultiline.in(Newlines.fold, Newlines.keep) ||
               defaultPolicy
-            else {
-              val postParenFt = nextNonCommentSameLineAfter(postArrowFt)
-              val lparen = postParenFt.left
-              val rparen = matching(lparen)
-              if (postParenFt.right.start >= rparen.start) defaultPolicy
-              else {
-                val indent = style.indent.main
-                val lindents = Seq(
-                  Indent(indent, rparen, Before),
-                  Indent(-indent, expire, After),
-                )
-                val lmod = NewlineT(noIndent = rhsIsCommentedOut(postParenFt))
-                val lsplit = Seq(Split(lmod, 0).withIndents(lindents))
-                val rsplit = Seq(Split(Newline, 0))
-                Policy.after(lparen, prefix = "CASE[(]") {
-                  case d: Decision if d.formatToken eq postParenFt => lsplit
-                } ==> Policy.on(rparen, prefix = "CASE[)]") {
-                  case d: Decision if d.formatToken.right eq rparen => rsplit
-                }
+            } { rparenFt =>
+              val lparentFt = next(postArrowFt)
+              val postParenFt = nextNonCommentSameLine(lparentFt)
+              val rparen = rparenFt.right
+              val indent = style.indent.main
+              val lindents = Seq(
+                Indent(indent, rparen, Before),
+                Indent(-indent, expire, After),
+              )
+              val lmod = NewlineT(noIndent = rhsIsCommentedOut(postParenFt))
+              val lsplit = Seq(Split(lmod, 0).withIndents(lindents))
+              val rsplit = Seq(Split(Newline, 0))
+              Policy.after(postParenFt.left, prefix = "CASE[(]") {
+                case Decision(`postParenFt`, _) => lsplit
+                // fires only if there's a comment between lparentFt and postParentFt
+                case Decision(`lparentFt`, _) => Seq(Split(Space, 0))
+              } ==> Policy.on(rparen, prefix = "CASE[)]") {
+                case Decision(`rparenFt`, _) => rsplit
               }
             }
           }
