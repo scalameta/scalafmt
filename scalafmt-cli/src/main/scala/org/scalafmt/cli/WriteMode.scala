@@ -6,15 +6,25 @@ package org.scalafmt.cli
   *   - Stdout: Print the formatted file to Stdout (leaving the original file
   *     untouched)
   */
-sealed trait WriteMode
+sealed trait WriteMode {
+  val usesOut: Boolean
+}
 
 object WriteMode {
 
-  case object Override extends WriteMode
+  case object Override extends WriteMode {
+    val usesOut: Boolean = false
+  }
 
-  case object Stdout extends WriteMode
+  case object Stdout extends WriteMode {
+    val usesOut: Boolean = true
+  }
 
-  case object List extends WriteMode
+  case object List extends WriteMode {
+    val usesOut: Boolean = true
+  }
 
-  case object Test extends WriteMode
+  case object Test extends WriteMode {
+    val usesOut: Boolean = false
+  }
 }
