@@ -4,7 +4,13 @@ import java.io._
 
 object Output {
 
-  object NoopStream extends OutputStream {
+  trait StreamOrWriter {
+    def outputStream: OutputStream
+    def printStream: PrintStream
+    def printWriter: PrintWriter
+  }
+
+  object NoopStream extends OutputStream with StreamOrWriter {
     self =>
     override def write(b: Int): Unit = ()
 
@@ -15,7 +21,12 @@ object Output {
     def outputStream: OutputStream = self
     val printStream = new PrintStream(self)
     val printWriter = new PrintWriter(self)
-    val streamWriter = new OutputStreamWriter(self)
+  }
+
+  class FromStream(val obj: PrintStream) extends StreamOrWriter {
+    override def outputStream: OutputStream = obj
+    override def printStream: PrintStream = obj
+    override def printWriter: PrintWriter = new PrintWriter(obj)
   }
 
 }
