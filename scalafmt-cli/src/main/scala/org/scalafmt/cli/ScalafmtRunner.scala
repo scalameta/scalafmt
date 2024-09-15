@@ -4,7 +4,6 @@ import org.scalafmt.Error
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.BatchPathFinder
 
-import java.io.OutputStreamWriter
 import java.nio.file.Path
 
 trait ScalafmtRunner {
@@ -19,7 +18,7 @@ trait ScalafmtRunner {
       msg: String,
   ): TermDisplay = {
     val termDisplay = new TermDisplay(
-      new OutputStreamWriter(options.common.info),
+      options.common.info.printWriter,
       fallbackMode = options.nonInteractive || TermDisplay.defaultFallbackMode,
     )
     if (

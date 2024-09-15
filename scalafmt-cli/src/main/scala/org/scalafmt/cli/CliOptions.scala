@@ -9,6 +9,7 @@ import org.scalafmt.sysops.OsSpecific
 
 import java.io.InputStream
 import java.io.PrintStream
+import java.io.PrintWriter
 import java.nio.file.Files
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
@@ -35,23 +36,26 @@ object CliOptions {
     * directly from main.
     */
   def auto(parsed: CliOptions): CliOptions = {
-    val usesOut = parsed.stdIn || parsed.writeMode.usesOut
-    val auxOut =
-      if (parsed.noStdErr || !usesOut) parsed.common.out else parsed.common.err
-
-    parsed.copy(common =
-      parsed.common.copy(
-        out = guardPrintStream(parsed.quiet && !usesOut)(parsed.common.out),
-        info = guardPrintStream(parsed.quiet || usesOut)(auxOut),
-        debug = guardPrintStream(parsed.quiet)(
-          if (parsed.debug) auxOut else parsed.common.debug,
-        ),
-        err = guardPrintStream(parsed.quiet)(parsed.common.err),
-      ),
+    val info: Output.StreamOrWriter =
+      if (parsed.quiet) Output.NoopStream
+      else {
+        val usesOut = parsed.stdIn || parsed.writeMode.usesOut
+        new Output.FromStream(
+          if (parsed.noStdErr || !usesOut) parsed.common.out
+          else parsed.common.err,
+        )
+      }
+    val common = parsed.common.copy(
+      out = guardPrintStream(parsed.quiet && !parsed.stdIn)(parsed.common.out),
+      info = info,
+      debug = (if (parsed.debug) info else Output.NoopStream).printWriter,
+      err = guardPrintStream(parsed.quiet)(parsed.common.err),
     )
+
+    parsed.copy(common = common)
   }
 
-  private def guardPrintStream(p: => Boolean)(
+  private def guardPrintStream(p: Boolean)(
       candidate: PrintStream,
   ): PrintStream = if (p) Output.NoopStream.printStream else candidate
 
@@ -62,8 +66,8 @@ case class CommonOptions(
     out: PrintStream = System.out,
     in: InputStream = System.in,
     err: PrintStream = System.err,
-    debug: PrintStream = Output.NoopStream.printStream,
-    info: PrintStream = Output.NoopStream.printStream,
+    debug: PrintWriter = Output.NoopStream.printWriter,
+    info: Output.StreamOrWriter = Output.NoopStream,
 ) {
   private[cli] lazy val workingDirectory: AbsoluteFile = cwd
     .getOrElse(AbsoluteFile.userDir)
