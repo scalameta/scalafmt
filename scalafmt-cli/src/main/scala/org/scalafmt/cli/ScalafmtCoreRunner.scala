@@ -83,7 +83,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         options.common.err.println(e.toString)
         ExitCode.ParseError
       case Formatted.Failure(e) =>
-        new FailedToFormat(filename, e).printStackTrace(options.common.out)
+        new FailedToFormat(filename, e).printStackTrace(options.common.err)
         ExitCode.UnexpectedError
     }
   }
