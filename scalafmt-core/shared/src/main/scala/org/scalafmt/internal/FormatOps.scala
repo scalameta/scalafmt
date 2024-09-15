@@ -1759,12 +1759,14 @@ class FormatOps(
     })
 
   // Redundant () delims around case statements
-  def isCaseBodyEnclosedAsBlock(ft: FormatToken, caseStat: CaseTree)(implicit
-      beforeMultiline: Newlines.SourceHints,
-  ): Boolean = {
+  def getClosingIfCaseBodyEnclosedAsBlock(
+      postArrowFt: FormatToken,
+      caseStat: CaseTree,
+  )(implicit beforeMultiline: Newlines.SourceHints): Option[FormatToken] = {
     val body = caseStat.body
-    (ft.noBreak || beforeMultiline.ignoreSourceSplit) &&
-    body.eq(ft.meta.rightOwner) && isBodyEnclosedAsBlock(body)
+    val ok = body.eq(postArrowFt.meta.rightOwner) &&
+      (beforeMultiline.ignoreSourceSplit || postArrowFt.noBreak)
+    if (ok) getClosingIfBodyEnclosedAsBlock(body) else None
   }
 
   // Redundant () delims around body

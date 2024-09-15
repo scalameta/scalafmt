@@ -9206,7 +9206,14 @@ object a {
   }
 }
 >>>
-org.scalafmt.util.FormatException: java.util.NoSuchElementException: Missing matching token index Comment( c1a) [43..49) @2:18: `// c1a`
+object a {
+  foo match {
+    case bar => ( // c1a
+      // c2a
+      qux
+    )
+  }
+}
 <<< #4133 case body enclosed, no break before lparen, break after lparen
 object a {
   foo match {
