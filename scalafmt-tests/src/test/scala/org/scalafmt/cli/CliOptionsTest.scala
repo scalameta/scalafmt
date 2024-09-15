@@ -14,6 +14,9 @@ import munit.FunSuite
 
 class CliOptionsTest extends FunSuite {
 
+  private val baseCliOptionsWithOut = baseCliOptions
+    .copy(common = baseCliOptions.common.copy(out = System.out))
+
   test("preset = ...") {
     assertEquals(
       ScalafmtConfig.fromHoconString("preset = foobar"),
@@ -103,12 +106,16 @@ class CliOptionsTest extends FunSuite {
     assert(opt.scalafmtConfig.isNotOk)
   }
 
-  test("don't write info when writing to stdout") {
-    val stdinArgs = Array("--stdin")
-    val stdoutArgs = Array("--stdout")
-    for (args <- Seq(stdinArgs, stdoutArgs)) {
-      val options = Cli.getConfig(args, baseCliOptions).get
+  test("write info to out if not writing to stdout") {
+    val options = Cli.getConfig(Array.empty[String], baseCliOptionsWithOut).get
+    assertEquals(options.common.info, System.out)
+  }
+
+  Seq("--stdin", "--stdout").foreach { arg =>
+    test(s"don't write info when using $arg") {
+      val options = Cli.getConfig(Array(arg), baseCliOptionsWithOut).get
       assertEquals(options.common.info, Output.NoopStream.printStream)
     }
   }
+
 }
