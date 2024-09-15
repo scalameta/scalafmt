@@ -8,7 +8,6 @@ import org.scalafmt.sysops.GitOps
 import org.scalafmt.sysops.OsSpecific
 
 import java.io.InputStream
-import java.io.OutputStream
 import java.io.PrintStream
 import java.nio.file.Files
 import java.nio.file.NoSuchFileException
@@ -60,19 +59,8 @@ object CliOptions {
 
   private def guardPrintStream(p: => Boolean)(
       candidate: PrintStream,
-  ): PrintStream = if (p) NoopOutputStream.printStream else candidate
+  ): PrintStream = if (p) Output.NoopStream.printStream else candidate
 
-}
-
-object NoopOutputStream extends OutputStream {
-  self =>
-  override def write(b: Int): Unit = ()
-
-  override def write(b: Array[Byte]): Unit = ()
-
-  override def write(b: Array[Byte], off: Int, len: Int): Unit = ()
-
-  val printStream = new PrintStream(self)
 }
 
 case class CommonOptions(
@@ -80,8 +68,8 @@ case class CommonOptions(
     out: PrintStream = System.out,
     in: InputStream = System.in,
     err: PrintStream = System.err,
-    debug: PrintStream = NoopOutputStream.printStream,
-    info: PrintStream = NoopOutputStream.printStream,
+    debug: PrintStream = Output.NoopStream.printStream,
+    info: PrintStream = Output.NoopStream.printStream,
 ) {
   private[cli] lazy val workingDirectory: AbsoluteFile = cwd
     .getOrElse(AbsoluteFile.userDir)
