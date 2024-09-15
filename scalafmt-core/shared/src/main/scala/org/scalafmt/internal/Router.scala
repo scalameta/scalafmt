@@ -2175,8 +2175,8 @@ class Router(formatOps: FormatOps) {
         val arrow = arrowFt.left
         val postArrowFt = nextNonCommentSameLine(arrowFt)
         val postArrow = postArrowFt.left
-        val ownerEnd = getLastOpt(owner)
-        val expire = ownerEnd.fold(postArrowFt)(nextNonCommentSameLine).left
+        val ownerEnd = getLast(owner)
+        val expire = nextNonCommentSameLine(ownerEnd).left
 
         val bodyBlock = isCaseBodyABlock(arrowFt, owner)
         def defaultPolicy = decideNewlinesOnlyAfterToken(postArrow)
@@ -2214,10 +2214,7 @@ class Router(formatOps: FormatOps) {
           Indent(arrowIndent, arrow, After),
         )
         val mod = ModExt(Space, indents)
-        val slbExpireOpt = ownerEnd match {
-          case None => Some(postArrowFt)
-          case Some(x) => prevNotTrailingComment(x).toOption
-        }
+        val slbExpireOpt = prevNotTrailingComment(ownerEnd).toOption
         val policy = slbExpireOpt.fold(postArrowPolicy) { slbExpireFt =>
           val slbExpire = slbExpireFt.left
           val onArrowPolicy = Policy.End == arrow ==>
