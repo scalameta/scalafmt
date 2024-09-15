@@ -1760,22 +1760,26 @@ class FormatOps(
 
   // Redundant () delims around case statements
   def isCaseBodyEnclosedAsBlock(ft: FormatToken, caseStat: CaseTree)(implicit
-      style: ScalafmtConfig,
+      beforeMultiline: Newlines.SourceHints,
   ): Boolean = {
     val body = caseStat.body
-    (ft.noBreak || style.newlines.getBeforeMultiline.ignoreSourceSplit) &&
+    (ft.noBreak || beforeMultiline.ignoreSourceSplit) &&
     body.eq(ft.meta.rightOwner) && isBodyEnclosedAsBlock(body)
   }
 
   // Redundant () delims around body
-  def isBodyEnclosedAsBlock(body: Tree): Boolean = body match {
-    case _: Lit.Unit | _: Term.Tuple => false
-    case t: Term.ApplyInfix if {
-          val op = t.op.value
-          op == "->" || op == "→"
-        } => false
-    case _ => isEnclosedInParens(body)
-  }
+  def getClosingIfBodyEnclosedAsBlock(body: Tree): Option[FormatToken] =
+    body match {
+      case _: Lit.Unit | _: Term.Tuple => None
+      case t: Term.ApplyInfix if {
+            val op = t.op.value
+            op == "->" || op == "→"
+          } => None
+      case _ => getClosingIfInParens(body)
+    }
+
+  def isBodyEnclosedAsBlock(body: Tree): Boolean =
+    getClosingIfBodyEnclosedAsBlock(body).isDefined
 
   object GetSelectLike {
     val OnRight =

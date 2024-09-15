@@ -541,9 +541,10 @@ class Router(formatOps: FormatOps) {
             baseSplit.withSingleLine(getLastNonTrivialToken(body)),
             nlSplit(nft)(1)(nextLine),
           )
-          val beforeMultiline = style.newlines.getBeforeMultiline
-          if (isCaseBodyABlock(nft, owner)) Seq(baseSplit)
-          else if (isCaseBodyEnclosedAsBlock(nft, owner)) Seq(baseSplit)
+          implicit val beforeMultiline = style.newlines.getBeforeMultiline
+          if (
+            isCaseBodyABlock(nft, owner) || isCaseBodyEnclosedAsBlock(nft, owner)
+          ) Seq(baseSplit)
           else if (nft.right.is[T.KwCase]) Seq(nlSplit(nft)(0))
           else if (hasBreak() && !beforeMultiline.ignoreSourceSplit)
             Seq(nlSplit(nft)(0))
@@ -2181,31 +2182,35 @@ class Router(formatOps: FormatOps) {
         val bodyBlock = isCaseBodyABlock(arrowFt, owner)
         def defaultPolicy = decideNewlinesOnlyAfterToken(postArrow)
         val postArrowPolicy =
-          if (bodyBlock || isAttachedCommentThenBreak(arrowFt)) NoPolicy
-          else if (isCaseBodyEnclosedAsBlock(postArrowFt, owner)) {
-            val postParenFt = nextNonCommentSameLineAfter(postArrowFt)
-            val lparen = postParenFt.left
-            val rparen = matching(lparen)
-            if (postParenFt.right.start >= rparen.start) defaultPolicy
+          if (bodyBlock || (arrowFt ne postArrowFt) && postArrowFt.hasBreak)
+            NoPolicy
+          else {
+            implicit val beforeMultiline = style.newlines.getBeforeMultiline
+            if (!isCaseBodyEnclosedAsBlock(postArrowFt, owner))
+              Policy ? beforeMultiline.in(Newlines.fold, Newlines.keep) ||
+              defaultPolicy
             else {
-              val indent = style.indent.main
-              val lindents = Seq(
-                Indent(indent, rparen, Before),
-                Indent(-indent, expire, After),
-              )
-              val lmod = NewlineT(noIndent = rhsIsCommentedOut(postParenFt))
-              val lsplit = Seq(Split(lmod, 0).withIndents(lindents))
-              val rsplit = Seq(Split(Newline, 0))
-              Policy.after(lparen, prefix = "CASE[(]") {
-                case d: Decision if d.formatToken eq postParenFt => lsplit
-              } ==> Policy.on(rparen, prefix = "CASE[)]") {
-                case d: Decision if d.formatToken.right eq rparen => rsplit
+              val postParenFt = nextNonCommentSameLineAfter(postArrowFt)
+              val lparen = postParenFt.left
+              val rparen = matching(lparen)
+              if (postParenFt.right.start >= rparen.start) defaultPolicy
+              else {
+                val indent = style.indent.main
+                val lindents = Seq(
+                  Indent(indent, rparen, Before),
+                  Indent(-indent, expire, After),
+                )
+                val lmod = NewlineT(noIndent = rhsIsCommentedOut(postParenFt))
+                val lsplit = Seq(Split(lmod, 0).withIndents(lindents))
+                val rsplit = Seq(Split(Newline, 0))
+                Policy.after(lparen, prefix = "CASE[(]") {
+                  case d: Decision if d.formatToken eq postParenFt => lsplit
+                } ==> Policy.on(rparen, prefix = "CASE[)]") {
+                  case d: Decision if d.formatToken.right eq rparen => rsplit
+                }
               }
             }
-          } else Policy ? style.newlines.getBeforeMultiline.in(
-            Newlines.fold,
-            Newlines.keep,
-          ) || defaultPolicy
+          }
 
         val bodyIndent = if (bodyBlock) 0 else style.indent.main
         val arrowIndent = style.indent.caseSite - bodyIndent
