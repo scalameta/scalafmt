@@ -114,7 +114,12 @@ class CliOptionsTest extends FunSuite {
   Seq("--stdin", "--stdout").foreach { arg =>
     test(s"don't write info when using $arg") {
       val options = Cli.getConfig(Array(arg), baseCliOptionsWithOut).get
-      options.common.info match {
+      val cons = System.console()
+      if (cons ne null) options.common.info match {
+        case x: Output.FromWriter if x.obj eq cons.writer() =>
+        case x => fail(s"info should be writing to console: $x")
+      }
+      else options.common.info match {
         case x: Output.FromStream if x.obj eq Output.NoopStream.printStream =>
         case x => fail(s"info should be writing to NoopStream: $x")
       }

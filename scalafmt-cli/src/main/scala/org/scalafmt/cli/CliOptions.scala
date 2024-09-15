@@ -40,7 +40,9 @@ object CliOptions {
       if (parsed.quiet) Output.NoopStream
       else {
         val usesOut = parsed.stdIn || parsed.writeMode.usesOut
-        new Output.FromStream(
+        val cons = if (usesOut) System.console() else null
+        if (cons ne null) new Output.FromWriter(cons.writer())
+        else new Output.FromStream(
           if (parsed.noStdErr || !usesOut) parsed.common.out
           else parsed.common.err,
         )
