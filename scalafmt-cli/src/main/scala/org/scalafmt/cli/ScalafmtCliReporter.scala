@@ -42,10 +42,10 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
     options.common.debug.println(s"parsed config (v$scalafmtVersion): $config")
 
   override def downloadWriter(): PrintWriter =
-    new PrintWriter(options.common.out)
+    new PrintWriter(options.common.info)
 
   override def downloadOutputStreamWriter(): OutputStreamWriter =
-    new OutputStreamWriter(options.common.out)
+    new OutputStreamWriter(options.common.info)
 }
 
 private class FailedToFormat(filename: String, cause: Throwable)
