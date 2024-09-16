@@ -295,7 +295,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       style: ScalafmtConfig,
   ): (Replacement, Replacement) = {
     val ok = ft.meta.rightOwner match {
-      case _: Term.Block => ftoks.prevNotTrailingComment(ft).isRight
+      case _: Term.Block => ftoks.prevNotTrailingComment(ft).isRight &&
+        !braceSeparatesTwoXmlTokens
       case _ => true
     }
     if (ok) (left, removeToken) else null
@@ -380,7 +381,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig,
   ): Boolean = b.stats.nonEmpty && b.tokens.headOption.contains(ft.right) &&
-    okToRemoveBlock(b) &&
+    okToRemoveBlock(b) && !braceSeparatesTwoXmlTokens &&
     (b.parent match {
       case Some(p: Term.ArgClause) => p.parent.exists(checkValidInfixParent)
       case Some(p) => checkValidInfixParent(p)
@@ -611,5 +612,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     .isSimpleExprOr(expr) { case t: Term.Select =>
       ftoks(t.name.tokens.head, -1).left.is[Token.Dot]
     }
+
+  private def braceSeparatesTwoXmlTokens(implicit ft: FormatToken): Boolean = ft
+    .left.is[Token.Xml.End] && ftoks.next(ft).right.is[Token.Xml.Start]
 
 }
