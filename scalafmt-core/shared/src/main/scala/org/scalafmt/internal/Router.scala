@@ -2237,11 +2237,11 @@ class Router(formatOps: FormatOps) {
         Seq(Split(mod, 0, policy = policy))
 
       case FormatToken(_, cond: T.KwIf, _) if rightOwner.is[Case] =>
-        if (style.newlines.keepBreak(newlines)) Seq(Split(Newline, 0))
-        else {
-          val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
-          val afterIf = nextNonCommentSameLineAfter(ft)
-          val noSplit =
+        val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
+        val noSplit =
+          if (style.newlines.keepBreak(newlines)) Split.ignored
+          else {
+            val afterIf = nextNonCommentSameLineAfter(ft)
             if (style.newlines.keepBreak(afterIf)) {
               val indent = Indent(style.indent.main, arrow, ExpiresOn.Before)
               Split(Space, 0).withSingleLine(afterIf.left).withIndent(indent)
@@ -2253,11 +2253,11 @@ class Router(formatOps: FormatOps) {
                 recurseOnly = !exclude.isEmpty,
               )
             }
-          Seq(
-            noSplit,
-            Split(Newline, 1).withPolicy(penalizeNewlineByNesting(cond, arrow)),
-          )
-        }
+          }
+        Seq(
+          noSplit,
+          Split(Newline, 1).withPolicy(penalizeNewlineByNesting(cond, arrow)),
+        )
 
       case FormatToken(_: T.KwIf, _, _) if leftOwner.is[Case] =>
         val useNL = style.newlines.keepBreak(nextNonCommentSameLine(ft))
