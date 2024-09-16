@@ -116,11 +116,18 @@ val content = {
     </body>
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   <body class={
--      tpl.kind + (if (tpl.isType) " type" else " value")
--    }>
-+    tpl.kind + (if (tpl.isType) " type" else " value")
-+  }>
-     </body>
+val content = {
+  val owner = {
+    <p id="owner">{
+      templatesToHtml(
+        tpl.inTemplate.toRoot.reverse.tail,
+        scala.xml.Text(".")
+      )
+    }</p>
+  }
+
+  <body class={
+    tpl.kind + (if (tpl.isType) " type" else " value")
+  }>
+    </body>
+}
