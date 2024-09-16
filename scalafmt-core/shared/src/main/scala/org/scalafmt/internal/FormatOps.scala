@@ -185,8 +185,7 @@ class FormatOps(
       ft: FormatToken,
   )(implicit style: ScalafmtConfig): Boolean =
     (ft.meta.rightOwner match {
-      case _: Member.ArgClause => ft.right.is[T.LeftParen] &&
-        style.newlines.isBeforeOpenParenCallSite
+      case _: Member.ArgClause => style.newlines.isBeforeOpenParenCallSite
       case t => isJustBeforeTree(ft)(t)
     }) && notInfixRhs(ft, tokenIsChecked = true)
 
