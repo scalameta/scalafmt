@@ -131,3 +131,106 @@ val content = {
   }>
     </body>
 }
+<<< braces around xml, followed by another xml 2
+maxColumn = 60
+===
+val content = {
+    val owner = {
+      if (tpl.isRootPackage || tpl.inTemplate.isRootPackage)
+        NodeSeq.Empty
+      else
+        <p id="owner">{ templatesToHtml(tpl.inTemplate.toRoot.reverse.tail, scala.xml.Text(".")) }</p>
+    }
+
+    <body class={ tpl.kind + (if (tpl.isType) " type" else " value") }>
+    </body>
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+   <body class={
+-        tpl.kind + (if (tpl.isType) " type" else " value")
+-      }>
++    tpl.kind + (if (tpl.isType) " type" else " value")
++  }>
+     </body>
+<<< braces around xml, preceded by another xml 3
+maxColumn = 60
+===
+val content = {
+    <body class={ tpl.kind + (if (tpl.isType) " type" else " value") }>
+    </body>
+
+    {
+       <p id="owner">{ templatesToHtml(tpl.inTemplate.toRoot.reverse.tail, scala.xml.Text(".")) }</p> . bar
+    }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-val content =
++val content = {
+   <body class={
+   }</p>.bar
++}
+<<< braces around xml, followed by another xml after comments 4
+maxColumn = 60
+===
+val content = {
+    val owner = {
+      if (tpl.isRootPackage || tpl.inTemplate.isRootPackage)
+        NodeSeq.Empty
+      else
+        <p id="owner">{ templatesToHtml(tpl.inTemplate.toRoot.reverse.tail, scala.xml.Text(".")) }</p>
+    }
+
+    // comment
+    <body class={ tpl.kind + (if (tpl.isType) " type" else " value") }>
+    </body>
+}
+>>>
+val content = {
+  val owner =
+    if (tpl.isRootPackage || tpl.inTemplate.isRootPackage)
+      NodeSeq.Empty
+    else
+      <p id="owner">{
+        templatesToHtml(
+          tpl.inTemplate.toRoot.reverse.tail,
+          scala.xml.Text(".")
+        )
+      }</p>
+
+  // comment
+  <body class={
+    tpl.kind + (if (tpl.isType) " type" else " value")
+  }>
+    </body>
+}
+<<< braces around xml, preceded by another xml after comments 5
+maxColumn = 60
+===
+val content = {
+    <body class={ tpl.kind + (if (tpl.isType) " type" else " value") }>
+    </body>
+
+    {
+       // comment
+       <p id="owner">{ templatesToHtml(tpl.inTemplate.toRoot.reverse.tail, scala.xml.Text(".")) }</p> . bar
+    }
+}
+>>>
+val content = {
+  <body class={
+    tpl.kind + (if (tpl.isType) " type" else " value")
+  }>
+    </body>
+
+  // comment
+  <p id="owner">{
+    templatesToHtml(
+      tpl.inTemplate.toRoot.reverse.tail,
+      scala.xml.Text(".")
+    )
+  }</p>.bar
+}
