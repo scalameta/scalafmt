@@ -9117,11 +9117,25 @@ trait Infer {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-               case _: SuperType
--                  if !sym.isConstructor && !owntype.isInstanceOf[
--                    OverloadedType
--                  ] =>
-+                  if !sym.isConstructor && !owntype.isInstanceOf[OverloadedType] =>
-                 owntype map ((tp: Type) =>
+trait Infer {
+  class Inferencer {
+    def checkAccessible() = {
+      if (sym.isError)
+        tree setSymbol sym setType ErrorType
+      else accessible match {
+        case sym =>
+          tree setSymbol sym1 setType (
+            pre match {
+              // OPT: avoid lambda allocation and Type.map for super constructor calls
+              case _: SuperType
+                  if !sym.isConstructor && !owntype.isInstanceOf[OverloadedType] =>
+                owntype map ((tp: Type) =>
+                  if (tp eq pre) site.symbol.thisType else tp
+                )
+              case _ => owntype
+            }
+          )
+      }
+    }
+  }
+}
