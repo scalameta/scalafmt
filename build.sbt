@@ -60,7 +60,7 @@ lazy val dynamic = crossProject(JVMPlatform).withoutSuffixFor(JVMPlatform)
     buildInfoPackage := "org.scalafmt.dynamic",
     buildInfoObject := "BuildInfo",
     libraryDependencies ++= List(
-      "io.get-coursier" % "interface" % "0.0.17",
+      "io.get-coursier" % "interface" % "1.0.21",
       "com.typesafe" % "config" % "1.4.3",
       munit.value % Test,
       scalametaTestkit % Test,
@@ -195,6 +195,14 @@ lazy val cli = crossProject(JVMPlatform).withoutSuffixFor(JVMPlatform)
       val isStatic = sys.env.get("NATIVE_IMAGE_STATIC").exists(_.toBoolean)
       if (isStatic) Seq("--static") else Nil
     },
+    nativeImageOptions += "--initialize-at-build-time=org.scalafmt",
+    nativeImageOptions ++= Seq(
+      "org.scalafmt.cli.ScalafmtDynamicRunner$",
+      "coursierapi.internal.jniutils.ApiInternalNativeApi",
+      "coursierapi.shaded.org.fusesource.jansi.internal.Kernel32",
+      "coursierapi.shaded.org.fusesource.jansi.internal.Kernel32$COORD",
+      "coursierapi.shaded.org.fusesource.jansi.internal.Kernel32$CONSOLE_SCREEN_BUFFER_INFO",
+    ).map(cls => s"--initialize-at-run-time=$cls"),
   ).dependsOn(core, dynamic).enablePlugins(NativeImagePlugin)
 
 lazy val tests = crossProject(JVMPlatform).withoutSuffixFor(JVMPlatform)
