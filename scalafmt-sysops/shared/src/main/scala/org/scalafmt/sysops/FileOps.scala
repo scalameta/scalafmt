@@ -1,6 +1,7 @@
 package org.scalafmt.sysops
 
 import org.scalafmt.CompatCollections.JavaConverters._
+import org.scalafmt.PlatformConfig
 
 import java.net.URI
 import java.net.URL
@@ -76,7 +77,8 @@ object FileOps {
 
   /** Reads file from file system or from http url */
   def readFile(filename: String)(implicit codec: Codec): String =
-    Try(new URL(filename)) match {
+    if (PlatformConfig.isNative) readFile(getFile(filename))
+    else Try(new URL(filename)) match {
       case Success(url) => readFile(url)
       case _ => readFile(getFile(filename))
     }

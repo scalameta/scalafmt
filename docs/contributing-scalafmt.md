@@ -80,7 +80,7 @@ To build a native image of the command-line interface using
 
 - From the project root directory,
   - run `sbt cli/assembly`
-  - run `java -jar scalafmt-cli/target/scala-2.13/scalafmt.jar`, to execute recently built artifacts
+  - run `java -jar scalafmt-cli/jvm/target/scala-2.13/scalafmt.jar`, to execute recently built artifacts
 
 ## Random stuff
 

@@ -93,11 +93,10 @@ object ScalafmtRunner {
   implicit val encoder: ConfEncoder[ScalafmtRunner] = generic.deriveEncoder
 
   private def overrideDialect[T: ClassTag](d: Dialect, k: String, v: T) = {
-    import org.scalafmt.config.ReflectOps._
     val methodName =
       if (k.isEmpty || k.startsWith("with")) k
       else "with" + Character.toUpperCase(k.head) + k.tail
-    d.invokeAs[Dialect](methodName, v.asParam)
+    DialectMacro.dialectMap(methodName)(d, v)
   }
 
   implicit val decoder: ConfDecoderEx[ScalafmtRunner] = generic

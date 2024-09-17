@@ -99,13 +99,13 @@ object TestHelpers {
       val (dirs, files) =
         try ds.iterator().asScala.toList.partition(Files.isDirectory(_))
         finally ds.close()
-      val fileStats = files.par.flatMap { x =>
+      val fileStats = files.compatPar.flatMap { x =>
         val fileStr = x.toString
         if (fileStr.endsWith(".scala") && !excluded(fileStr))
           Some(runFile(styleName, x, fileStr))
         else None
       }.reduceLeftOption(TestStats.merge)
-      val dirStats = dirs.par.flatMap(checkFilesRecursive(styleName, _))
+      val dirStats = dirs.compatPar.flatMap(checkFilesRecursive(styleName, _))
         .reduceLeftOption(TestStats.merge)
       fileStats.fold(dirStats)(x =>
         dirStats.map(TestStats.merge(_, x)).orElse(fileStats),

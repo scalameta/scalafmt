@@ -9,8 +9,6 @@ import org.scalafmt.util.TreeOps._
 import scala.meta._
 import scala.meta.tokens.Token
 
-import java.util.regex.Pattern
-
 import scala.annotation.tailrec
 
 /** A partial formatting solution up to splits.length number of tokens.
@@ -371,16 +369,11 @@ object State {
   }
 
   @inline
-  private def compileStripMarginPattern(pipe: Char) = Pattern
-    .compile(s"\n(\\h*+\\$pipe)?([^\n]*+)")
+  private def getStripMarginPatternWithLineContent(pipe: Char) =
+    if (pipe == '|') RegexCompat.stripMarginPatternWithLineContent
+    else RegexCompat.compileStripMarginPatternWithLineContent(pipe)
 
-  @inline
-  private def getStripMarginPattern(pipe: Char) =
-    if (pipe == '|') pipeStripMarginPattern else compileStripMarginPattern(pipe)
-
-  private val pipeStripMarginPattern = compileStripMarginPattern('|')
-
-  private val slcLine = Pattern.compile("^/\\/\\/*+\\h*+(.*?)\\h*+$")
+  private val slcLine = RegexCompat.slcLine
 
   def getColumns(ft: FormatToken, indent: Int, column: Int)(implicit
       style: ScalafmtConfig,
@@ -457,7 +450,7 @@ object State {
       adjustMargin: Int => Int,
       firstLength: Int,
   ): (Int, Int) = {
-    val matcher = getStripMarginPattern(pipe).matcher(syntax)
+    val matcher = getStripMarginPatternWithLineContent(pipe).matcher(syntax)
     matcher.region(firstNL, syntax.length)
     if (!matcher.find()) (firstLength, firstLength)
     else {

@@ -2,6 +2,7 @@ package org.scalafmt.config
 
 import org.scalafmt.config.PlatformConfig._
 
+import java.nio.file.Files
 import java.nio.file.Path
 
 import scala.io.Codec
@@ -58,6 +59,10 @@ object ConfParsed {
     fromInput(Input.String(input), path)
 
   def fromPath(input: Path, path: Option[String] = None): ConfParsed =
-    apply(Configured.fromExceptionThrowing(Input.File(input)), path)
+    if (isNative) {
+      val bytes = Files.readAllBytes(input)
+      val configStr = new String(bytes)
+      apply(Configured.fromExceptionThrowing(Input.String(configStr)), path)
+    } else apply(Configured.fromExceptionThrowing(Input.File(input)), path)
 
 }

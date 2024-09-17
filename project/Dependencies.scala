@@ -12,7 +12,7 @@ object Dependencies {
   val scalacheckV = "1.18.0"
   val coursier    = "2.1.10"
   val munitV      = "1.0.1"
-  val mdocV       = "2.5.4"
+  val mdocV       = "2.6.0"
 
   val scalapb = Def.setting {
     ExclusionRule(
@@ -21,7 +21,7 @@ object Dependencies {
     )
   }
 
-  val scalametaTestkit = "org.scalameta" %% "testkit" % scalametaV
+  val scalametaTestkit = Def.setting("org.scalameta" %%% "testkit" % scalametaV)
 
   val scalacheck = "org.scalacheck" %% "scalacheck" % scalacheckV
   val munit      = Def.setting("org.scalameta" %%% "munit" % munitV)
@@ -31,6 +31,7 @@ object Dependencies {
   val metaconfig = Def.setting("org.scalameta" %%% "metaconfig-core" % metaconfigV)
   val metaconfigTypesafe = Def
     .setting("org.scalameta" %%% "metaconfig-typesafe-config" % metaconfigV)
-  val metaconfigHocon = Def.setting("com.geirsson" %%% "metaconfig-hocon" % metaconfigV)
+  val metaconfigHocon   = Def.setting("com.geirsson" %%% "metaconfig-hocon" % metaconfigV)
+  val metaconfigSconfig = Def.setting("org.scalameta" %%% "metaconfig-sconfig" % metaconfigV)
 
 }

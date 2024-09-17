@@ -45,7 +45,7 @@ object ProjectFiles {
 
   val defaultIncludePaths = Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc")
 
-  private sealed abstract class PathMatcher {
+  sealed abstract class PathMatcher {
     def matches(path: file.Path): Boolean
   }
 
