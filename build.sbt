@@ -115,13 +115,7 @@ lazy val core = crossProject(JVMPlatform).in(file("scalafmt-core")).settings(
   moduleName := "scalafmt-core",
   buildInfoSettings,
   scalacOptions ++= scalacJvmOptions.value,
-  libraryDependencies ++= Seq(
-    scalameta.value,
-    "org.scalameta" %% "mdoc-parser" % mdocV,
-    // scala-reflect is an undeclared dependency of fansi, see #1252.
-    // Scalafmt itself does not require scala-reflect.
-    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-  ),
+  libraryDependencies ++= Seq("org.scalameta" %% "mdoc-parser" % mdocV),
   libraryDependencies ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 13)) => Seq()
@@ -136,10 +130,21 @@ lazy val core = crossProject(JVMPlatform).in(file("scalafmt-core")).settings(
   //     scalatest.value % Test // must be here for coreJS/test to run anything
   //   )
   // )
-  .jvmSettings(Test / run / fork := true).dependsOn(sysops, config)
+  .jvmSettings(Test / run / fork := true).dependsOn(sysops, config, macros)
   .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm
 // lazy val coreJS = core.js
+
+lazy val macros = crossProject(JVMPlatform).in(file("scalafmt-macros"))
+  .settings(
+    moduleName := "scalafmt-macros",
+    buildInfoSettings,
+    scalacOptions ++= scalacJvmOptions.value,
+    libraryDependencies ++= Seq(
+      scalameta.value,
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+    ),
+  )
 
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
