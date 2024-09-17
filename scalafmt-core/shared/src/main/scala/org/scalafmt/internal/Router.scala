@@ -1563,13 +1563,13 @@ class Router(formatOps: FormatOps) {
         }
 
       case FormatToken(_, _: T.Semicolon, _) => Seq(Split(NoSplit, 0))
-      case FormatToken(_: T.KwReturn, _, _) =>
+      case FormatToken(_: T.KwReturn, r, _) =>
         val mod =
           if (hasBlankLine) Newline2x
           else leftOwner match {
             case Term.Return(unit: Lit.Unit) if unit.tokens.isEmpty =>
-              // Always force blank line for Unit "return".
-              Newline
+              if (r.is[T.RightParen]) Space(style.spaces.inParentheses)
+              else Newline //  force blank line for Unit "return".
             case _ => Space
           }
         Seq(Split(mod, 0))
