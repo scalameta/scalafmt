@@ -1940,3 +1940,44 @@ object a {
     // no need to call enter explicitly
   }
 }
+<<< #4133 removing braces preserves "top-level" infix designation
+maxColumn = 68
+rewrite.redundantBraces.maxLines = 100
+rewrite.redundantBraces.ifElseExpressions = yes
+===
+object a {
+  if (settings.areStatisticsEnabled) stat_<:<(that)
+  else {
+    (this eq that) ||
+    (if (explainSwitch) explain("<:", isSubType(_: Type, _: Type), this, that)
+     else isSubType(this, that))
+  } 
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+     (this eq that) ||
+-    (if (explainSwitch)
+-       explain("<:", isSubType(_: Type, _: Type), this, that)
+-     else isSubType(this, that))
++      (if (explainSwitch)
++         explain("<:", isSubType(_: Type, _: Type), this, that)
++       else isSubType(this, that))
+ }
+<<< #4133 using `return` and complex interaction with RedundantParens and AvoidInfix
+maxColumn = 72
+rewrite.redundantBraces.maxLines = 100
+rewrite.rules = [RedundantBraces, RedundantParens, AvoidInfix]
+===
+object a {
+  val sym    = tree.symbol orElse { return }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+ object a {
+-  val sym = tree.symbol.orElse(
+-    return
+-  )
++  val sym = tree.symbol.orElse(return)
+ }
