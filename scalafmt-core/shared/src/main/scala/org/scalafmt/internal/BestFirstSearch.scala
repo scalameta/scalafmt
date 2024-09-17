@@ -294,23 +294,6 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     case _ => state
   }
 
-  @tailrec
-  private def traverseZeroCost(state: State, depth: Int): State =
-    if (state.depth >= tokens.length) state
-    else {
-      val splitToken = tokens(state.depth)
-      implicit val style = styleMap.at(splitToken)
-      trackState(state, depth, 0)
-      getActiveSplits(splitToken, state, maxCost = 0) match {
-        case Seq(split) if !split.isNL =>
-          style.runner.event(FormatEvent.Enqueue(split))
-          val nextState = state.next(split, nextAllAltAreNL = false)
-          if (nextState.split.cost > 0) state
-          else traverseZeroCost(nextState, depth)
-        case _ => state
-      }
-    }
-
   private def complete(state: State)(implicit style: ScalafmtConfig): Unit =
     style.runner.event(FormatEvent.CompleteFormat(explored, state, visits, best))
 
