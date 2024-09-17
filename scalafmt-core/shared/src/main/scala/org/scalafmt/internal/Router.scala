@@ -257,7 +257,7 @@ class Router(formatOps: FormatOps) {
           )
 
         // lambdaNLOnly: None for single line only
-        val (lambdaExpire, lambdaArrow, lambdaIndent, lambdaNLOnly) =
+        val (lambdaExpire, lambdaIndent, lambdaNLOnly) =
           statementStarts.get(m.idx + 1) match {
             case Some(owner: Term.FunctionTerm) if (leftOwner match {
                   case t: Template.Body => hasSingleElement(t, owner) &&
@@ -273,7 +273,7 @@ class Router(formatOps: FormatOps) {
                     Newlines.BeforeCurlyLambdaParams.multiline
                 ) None
                 else Some(false)
-              (expire, arrow.map(_.left), 0, nlOnly)
+              (expire, 0, nlOnly)
             case Some(t: Case)
                 if t.cond.isEmpty &&
                   (leftOwner match {
@@ -295,23 +295,16 @@ class Router(formatOps: FormatOps) {
                     Newlines.BeforeCurlyLambdaParams.never
                 ) None
                 else Some(false)
-              (arrow, Some(arrow.left), 0, nlOnly)
+              (arrow, 0, nlOnly)
             case _ =>
               val annoOpt = selfAnnotationLast.map { anno =>
                 val indent = style.indent.main
                 val annoFT = tokens(anno)
                 val arrow = annoFT.left.is[T.RightArrow]
                 val expire = if (arrow) annoFT else nextAfterNonComment(annoFT)
-                (expire, Some(expire.left), indent, Some(isSelfAnnotationNL))
+                (expire, indent, Some(isSelfAnnotationNL))
               }
-              annoOpt.getOrElse((null, None, 0, None))
-          }
-        val lambdaPolicy =
-          if (lambdaExpire == null) null
-          else {
-            val arrowOptimal = getOptimalTokenFor(lambdaExpire)
-            newlineBeforeClosingCurly & SingleLineBlock(arrowOptimal) &
-              decideNewlinesOnlyAfterToken(arrowOptimal)
+              annoOpt.getOrElse((null, 0, None))
           }
 
         def getSingleLinePolicy = {
@@ -365,11 +358,11 @@ class Router(formatOps: FormatOps) {
 
             // do not fold top-level blocks
             if (isTopLevelBlock) None
-            else if (lambdaPolicy != null) getSingleLineLambdaDecisionOpt
+            else if (lambdaExpire != null) getSingleLineLambdaDecisionOpt
             else Some(false)
           // old behaviour
           case _ =>
-            if (lambdaPolicy == null) getClassicSingleLineDecisionOpt
+            if (lambdaExpire == null) getClassicSingleLineDecisionOpt
             else getSingleLineLambdaDecisionOpt
         }
 
@@ -404,15 +397,23 @@ class Router(formatOps: FormatOps) {
             .andPolicy(sldPolicy)
         }
 
-        val splits = Seq(
-          singleLineSplit,
-          Split(nl, 1).withPolicy(newlineBeforeClosingCurly)
-            .withIndent(style.indent.main, close, Before),
-          Split(style.newlines.keepBreak(newlines), 0)(Space)
-            .onlyIf(lambdaNLOnly.contains(false) && lambdaPolicy != null)
-            .withOptimalTokenOpt(lambdaArrow)
-            .withIndent(lambdaIndent, close, Before).withPolicy(lambdaPolicy),
-        )
+        val nlSplit = Split(nl, 1).withPolicy(newlineBeforeClosingCurly)
+          .withIndent(style.indent.main, close, Before)
+
+        // must be after nlSplit
+        val noLambdaSplit = style.newlines.keepBreak(newlines) ||
+          lambdaExpire == null || !lambdaNLOnly.contains(false)
+        val lambdaSplit =
+          if (noLambdaSplit) Split.ignored
+          else {
+            val arrowOptimal = getOptimalTokenFor(lambdaExpire)
+            val policy = newlineBeforeClosingCurly &
+              decideNewlinesOnlyAfterToken(arrowOptimal)
+            Split(Space, 0).withSingleLine(arrowOptimal).andPolicy(policy)
+              .withIndent(lambdaIndent, close, Before)
+          }
+
+        val splits = Seq(singleLineSplit, lambdaSplit, nlSplit)
         right match {
           case t: T.Xml.Start => withIndentOnXmlStart(t, splits)
           case _ => splits
@@ -490,32 +491,26 @@ class Router(formatOps: FormatOps) {
             case Newlines.classic => isCurlyLambda && hasBreak() && noSquash
           }
         }
-        val singleLineSplit = Split(Space, 0)
-          .notIf(hasSingleLineComment || noSingleLine)
-          .withSingleLineNoOptimal(endOfFunction)
-        def newlineSplit = Split(Newline, 1 + nestedApplies(leftOwner))
-          .withIndent(indent, endOfFunction, expiresOn)
-        val multiLineSplits =
-          if (hasSingleLineComment) Seq(newlineSplit)
-          else {
-            // 2020-01: break after same-line comments, and any open brace
-            val nonComment = nextNonCommentSameLine(ft)
-            val hasBlock = nonComment.right.is[T.LeftBrace] &&
-              (matching(nonComment.right) eq endOfFunction)
-            if (!hasBlock && (nonComment eq ft)) Seq(newlineSplit)
-            else {
+        def newlineSplit(implicit fileLine: FileLine) =
+          Split(Newline, 1 + nestedApplies(leftOwner))
+            .withIndent(indent, endOfFunction, expiresOn)
+        if (hasSingleLineComment) Seq(newlineSplit)
+        else {
+          // 2020-01: break after same-line comments, and any open brace
+          val nonComment = nextNonCommentSameLine(ft)
+          val hasBlock = nonComment.right.is[T.LeftBrace] &&
+            (matching(nonComment.right) eq endOfFunction)
+          val noSplit =
+            if (!hasBlock && (nonComment eq ft)) Split(noSingleLine, 0)(Space)
+              .withSingleLine(endOfFunction)
+            else
               // break after the brace or comment if fits, or now if doesn't
               // if brace, don't add indent, the LeftBrace rule will do that
-              val spaceIndent = if (hasBlock) 0 else indent
-              Seq(
-                Split(Space, 0)
-                  .withIndent(spaceIndent, endOfFunction, expiresOn)
-                  .withOptimalToken(getOptimalTokenFor(next(nonComment))),
-                newlineSplit,
-              )
-            }
-          }
-        singleLineSplit +: multiLineSplits
+              Split(Space, 0)
+                .withIndent(indent, endOfFunction, expiresOn, hasBlock)
+                .withOptimalToken(getOptimalTokenFor(next(nonComment)))
+          Seq(noSplit, newlineSplit)
+        }
 
       // Case arrow
       case FormatToken(_: T.RightArrow, rt, _)
@@ -824,8 +819,8 @@ class Router(formatOps: FormatOps) {
           val noMultiline = style.newlines.beforeCurlyLambdaParams eq
             Newlines.BeforeCurlyLambdaParams.multiline
           Seq(
-            Split(noSplitMod, 0).withSingleLine(close),
-            if (noMultiline) Split.ignored else multilineSpaceSplit,
+            if (noMultiline) Split(noSplitMod, 0).withSingleLine(close)
+            else multilineSpaceSplit,
             Split(Newline, newlinePenalty, policy = newlinePolicy)
               .withIndent(style.indent.callSite, close, Before),
           )

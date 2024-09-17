@@ -276,7 +276,14 @@ case class Split(
     else copy(penalty = this.penalty + penalty)
 
   def withIndent(length: => Length, expire: => Token, when: ExpiresOn): Split =
-    withMod(modExt.withIndent(length, expire, when))
+    withIndent(length, expire, when, ignore = false)
+
+  def withIndent(
+      length: => Length,
+      expire: => Token,
+      when: ExpiresOn,
+      ignore: Boolean,
+  ): Split = withMod(modExt.withIndent(length, expire, when), ignore)
 
   def withIndentOpt(
       length: => Length,
