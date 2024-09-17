@@ -286,15 +286,16 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     case Seq(split) if !split.isNL =>
       style.runner.event(FormatEvent.Enqueue(split))
       val nextState = state.next(split, nextAllAltAreNL = false)
-      if (nextState.split.cost > 0 || nextState.depth >= tokens.length) state
+      if (nextState.split.cost > 0) state
+      else if (nextState.depth >= tokens.length) nextState
       else {
         val nextToken = tokens(nextState.depth)
         if (RightParenOrBracket(nextToken.right)) {
           implicit val style: ScalafmtConfig = styleMap.at(nextToken)
           trackState(nextState, depth, 0)
-          val nextSplits = getActiveSplits(nextToken, state, maxCost = 0)
+          val nextSplits = getActiveSplits(nextToken, nextState, maxCost = 0)
           traverseSameLineZeroCost(nextSplits, nextState, depth)
-        } else state
+        } else nextState
       }
     case _ => state
   }
