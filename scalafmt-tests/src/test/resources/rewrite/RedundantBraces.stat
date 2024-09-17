@@ -1973,11 +1973,6 @@ object a {
   val sym    = tree.symbol orElse { return }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a {
--  val sym = tree.symbol.orElse(
--    return
--  )
-+  val sym = tree.symbol.orElse(return)
- }
+object a {
+  val sym = tree.symbol.orElse(return)
+}
