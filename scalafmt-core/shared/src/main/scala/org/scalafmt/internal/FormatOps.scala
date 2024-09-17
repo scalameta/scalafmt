@@ -2746,7 +2746,7 @@ class FormatOps(
     def noNLPolicy(): Policy = {
       val close = ftBeforeClose.right
       if (scalaJsStyle) Policy(Policy.End == close, prefix = "tuckSJS") {
-        case d: Decision if d.formatToken.right eq close => d.noNewlines
+        case Decision(`ftBeforeClose`, ss) => Decision.noNewlineSplits(ss)
       }
       else style.newlines.source match {
         case Newlines.keep if closeBreak => decideNewlinesOnlyBeforeClose(close)
