@@ -595,24 +595,26 @@ class FormatOps(
         case t: Pat => getLastPat(t)
         case t => t
       }
-      def isOldTopLevel(child: Tree) = child.parent.exists {
+      @tailrec
+      def isOldTopLevelWithParent(child: Tree)(p: Tree): Boolean = p match {
         case _: Term.If | _: Term.While | _: Source => true
-        case t: Term.Block => !isSingleStatBlock(t) || t.parent.forall { p =>
-            t.tokens.head match { // check brace was not rewritten
-              case head: Token.LeftBrace =>
-                (tokens.before(head).left eq head) ||
-                (p match {
-                  case p: Tree.WithCond => p.cond eq t
-                  case _ => false
-                })
-              case _ => true
-            }
-          }
+        case Term.Block(_ :: rest) => rest.nonEmpty ||
+          (p.parent match {
+            case Some(pp) => p.tokens.head match { // check brace was not rewritten
+                case head: Token.LeftBrace =>
+                  (tokens.before(head).left eq head) ||
+                  isOldTopLevelWithParent(p)(pp)
+                case _ => true
+              }
+            case None => true
+          })
         case fun: Term.FunctionTerm => isBlockFunction(fun)
         case t: Case => t.pat.eq(child) || t.body.eq(child)
         case SingleArgInBraces(_, arg, _) => child eq arg
         case _ => false
       }
+      def isOldTopLevel(child: Tree) = child.parent
+        .exists(isOldTopLevelWithParent(child))
       def isAloneEnclosed(child: Tree) = child.parent.exists {
         case p: Case => p.pat eq child
         case p: Term.If => p.cond eq child
