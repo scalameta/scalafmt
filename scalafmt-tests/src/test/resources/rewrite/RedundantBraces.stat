@@ -1954,16 +1954,14 @@ object a {
   } 
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-     (this eq that) ||
--    (if (explainSwitch)
--       explain("<:", isSubType(_: Type, _: Type), this, that)
--     else isSubType(this, that))
-+      (if (explainSwitch)
-+         explain("<:", isSubType(_: Type, _: Type), this, that)
-+       else isSubType(this, that))
- }
+object a {
+  if (settings.areStatisticsEnabled) stat_<:<(that)
+  else
+    (this eq that) ||
+    (if (explainSwitch)
+       explain("<:", isSubType(_: Type, _: Type), this, that)
+     else isSubType(this, that))
+}
 <<< #4133 using `return` and complex interaction with RedundantParens and AvoidInfix
 maxColumn = 72
 rewrite.redundantBraces.maxLines = 100
