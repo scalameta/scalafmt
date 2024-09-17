@@ -174,14 +174,25 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           }
 
           actualSplit.foreach { split =>
-            style.runner.event(FormatEvent.Enqueue(split))
-            if (optimalNotFound) processNextState(curr.next(split, allAltAreNL))
+            if (optimalNotFound)
+              processNextState(getNext(curr, split, allAltAreNL))
+            else sendEvent(split)
           }
         }
       }
     }
 
     null
+  }
+
+  private def sendEvent(split: Split): Unit = initStyle.runner
+    .event(FormatEvent.Enqueue(split))
+
+  private def getNext(state: State, split: Split, allAltAreNL: Boolean)(implicit
+      style: ScalafmtConfig,
+  ): State = {
+    sendEvent(split)
+    state.next(split, nextAllAltAreNL = allAltAreNL)
   }
 
   private def killOnFail(
@@ -249,8 +260,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         case Seq(split) =>
           if (split.isNL) state
           else {
-            style.runner.event(FormatEvent.Enqueue(split))
-            val nextState = state.next(split, nextAllAltAreNL = false)
+            implicit val nextState: State =
+              getNext(state, split, allAltAreNL = false)
             traverseSameLine(nextState)
           }
         case ss
@@ -267,8 +278,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       state: State,
   )(implicit style: ScalafmtConfig, queue: StateQueue): State = splits match {
     case Seq(split) if !split.isNL =>
-      style.runner.event(FormatEvent.Enqueue(split))
-      val nextState = state.next(split, nextAllAltAreNL = false)
+      val nextState: State = getNext(state, split, allAltAreNL = false)
       if (nextState.split.cost > 0) state
       else if (nextState.depth >= tokens.length) nextState
       else {
