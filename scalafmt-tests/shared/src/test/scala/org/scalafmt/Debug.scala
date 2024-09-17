@@ -102,10 +102,11 @@ object Debug {
         )
         iter(prev)
       }
-      if (null != completedEvent.finalState) {
-        iter(completedEvent.finalState)
+      val finalState = completedEvent.finalState
+      if (null != finalState) {
+        if (finalState ne State.start) iter(finalState)
         stack.foreach(LoggerOps.logger.debug)
-        LoggerOps.logger.debug(s"Total cost: ${completedEvent.finalState.cost}")
+        LoggerOps.logger.debug(s"Total cost: ${finalState.cost}")
       }
     }
   }
