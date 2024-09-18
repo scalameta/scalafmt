@@ -160,14 +160,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             depth < optimizer.maxDepth && actualSplit.lengthCompare(1) > 0
 
           def processNextState(nextState: State): Unit = {
-            def killOnFail(opt: OptimalToken): Boolean = opt.killOnFail || {
-              val optFt = tokens(opt.token, 1)
-              nextState.policy.policies.exists {
-                case p: PolicyOps.SingleLineBlock => p.endPolicy
-                    .notExpiredBy(optFt)
-                case _ => false
-              }
-            }
+            def killOnFail(opt: OptimalToken): Boolean = opt.killOnFail ||
+              hasSlbAfter(nextState, tokens(opt.token, 1))
             def processOptimal(opt: OptimalToken): State = {
               val nextNextState =
                 if (opt.token eq splitToken.right) nextState
@@ -363,6 +357,12 @@ object BestFirstSearch {
       range: Set[Range],
   )(implicit formatOps: FormatOps, formatWriter: FormatWriter): SearchResult =
     new BestFirstSearch(range).getBestPath
+
+  private def hasSlbAfter(state: State, ft: FormatToken): Boolean = state.policy
+    .exists {
+      case p: PolicyOps.SingleLineBlock => p.endPolicy.notExpiredBy(ft)
+      case _ => false
+    }
 
   private def getNoOptZones(tokens: FormatTokens) = {
     val result = Set.newBuilder[Token]
