@@ -26,6 +26,8 @@ class PolicySummary(val policies: Seq[Policy]) extends AnyVal {
       policy.f.andThen(withSplits _).applyOrElse(result, identity[Decision])
     }.splits
 
+  @inline
+  def exists(f: Policy => Boolean): Boolean = policies.exists(f)
 }
 
 object PolicySummary {
