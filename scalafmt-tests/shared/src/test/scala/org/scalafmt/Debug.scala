@@ -1,6 +1,6 @@
 package org.scalafmt
 
-import org.scalafmt.config.FormatEvent.CompleteFormat
+import org.scalafmt.config.FormatEvent._
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.internal.Split
@@ -20,6 +20,7 @@ class Debug(val verbose: Boolean) {
 
   val enqueuedSplits = mutable.Set.empty[Split]
   var formatOps: FormatOps = _
+  var routes: IndexedSeq[Seq[Split]] = _
   var completedEvent: Option[CompleteFormat] = None
   var locations: FormatWriter#FormatLocations = _
   val startTime = System.nanoTime()
@@ -52,7 +53,7 @@ class Debug(val verbose: Boolean) {
       LoggerOps.logger.debug(sb.toString())
     }
 
-    completedEvent.foreach(x => Debug.printCompletedEvent(x, formatOps))
+    completedEvent.foreach(x => Debug.printCompletedEvent(x, routes, formatOps))
   }
 
 }
@@ -63,10 +64,13 @@ object Debug {
 
   def printCompletedEvent(
       completedEvent: CompleteFormat,
+      routes: IndexedSeq[Seq[Split]],
       formatOps: FormatOps,
   ): Unit = {
     val toks = if (null == formatOps) null else formatOps.tokens.arr
     if (null != toks) {
+      import LoggerOps._
+
       if (null != completedEvent.visits) {
         val sb = new StringBuilder()
         sb.append("Visited ").append(completedEvent.totalExplored).append(":")
@@ -75,17 +79,26 @@ object Debug {
               .append(toks(idx))
         }
         sb.append("\n")
-        LoggerOps.logger.debug(sb.toString())
+        logger.debug(sb.toString())
       }
 
       if (null != completedEvent.best) {
         val sb = new StringBuilder()
         sb.append("Best splits:")
         completedEvent.best.values.toSeq.sortBy(_.depth).take(5).foreach {
-          state => sb.append("\n\t").append(LoggerOps.log(state))
+          state => sb.append("\n\t").append(log(state))
         }
         sb.append("\n")
-        LoggerOps.logger.debug(sb.toString())
+        logger.debug(sb.toString())
+      }
+
+      if (null ne routes) {
+        var tokidx = 0
+        while (tokidx < toks.length) {
+          logger.debug(s"FT: ${log2(toks(tokidx))}")
+          routes(tokidx).foreach(s => logger.debug(s"> S: ${log(s)}"))
+          tokidx += 1
+        }
       }
 
       val stack = new mutable.ListBuffer[String]
@@ -95,7 +108,7 @@ object Debug {
         val prev = state.prev
         val idx = prev.depth
         val tok = toks(idx).left
-        val clean = "%-15s".format(LoggerOps.cleanup(tok).slice(0, 15))
+        val clean = "%-15s".format(cleanup(tok).slice(0, 15))
         stack.prepend(
           s"[$idx] ${posWidth.format(tok.end)}: $clean" +
             s" ${state.split} ${prev.indentation} ${prev.column} [${state.cost}]",
@@ -105,8 +118,8 @@ object Debug {
       val finalState = completedEvent.finalState
       if (null != finalState) {
         if (finalState ne State.start) iter(finalState)
-        stack.foreach(LoggerOps.logger.debug)
-        LoggerOps.logger.debug(s"Total cost: ${finalState.cost}")
+        stack.foreach(logger.debug)
+        logger.debug(s"Total cost: ${finalState.cost}")
       }
     }
   }
