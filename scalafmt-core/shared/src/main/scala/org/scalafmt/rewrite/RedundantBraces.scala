@@ -270,6 +270,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           case Some(_: Term.Interpolate) => handleInterpolation
           case Some(_: Term.Xml) => null
           case Some(_: Term.Annotate) => null
+          case Some(_: Term.Return) if ftoks.next(ft).right.is[Token.Comment] =>
+            null
           case Some(p: Case) =>
             val ok = settings.generalExpressions &&
               ((p.body eq t) || shouldRemoveSingleStatBlock(t))
