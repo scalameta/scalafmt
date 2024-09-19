@@ -267,23 +267,21 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-       base.info.parents.tail
--        .forall {
--          p => //  - every mixin parent is unrelated to (not a subclass of) low and high, i.e.,
--            val psym =
--              p.typeSymbol //    we're not mixing in high or low, both are coming from the superclass
--            !psym.isNonBottomSubClass(lowClass) && !psym.isNonBottomSubClass(
--              highClass
--            )
-+        .forall { p => //  - every mixin parent is unrelated to (not a subclass of) low and high, i.e.,
-+          val psym =
-+            p.typeSymbol //    we're not mixing in high or low, both are coming from the superclass
-+          !psym.isNonBottomSubClass(lowClass) && !psym.isNonBottomSubClass(
-+            highClass
-+          )
-         }
+object a {
+  lowClass.isJavaDefined && highClass.isJavaDefined && { // skip if both are java-defined, and
+    lowClass
+      .isNonBottomSubClass(highClass) || { //  - low <:< high, which means they are overrides in Java and javac is doing the check; or
+      base.info.parents.tail.forall {
+        p => //  - every mixin parent is unrelated to (not a subclass of) low and high, i.e.,
+          val psym =
+            p.typeSymbol //    we're not mixing in high or low, both are coming from the superclass
+          !psym.isNonBottomSubClass(lowClass) && !psym.isNonBottomSubClass(
+            highClass
+          )
+      }
+    }
+  }
+}
 <<< #4133 lambda body without a comment
 rewrite.redundantBraces.maxLines = 100
 ===
