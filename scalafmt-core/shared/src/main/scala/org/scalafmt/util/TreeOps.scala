@@ -122,9 +122,13 @@ object TreeOps {
     val ret = Map.newBuilder[Int, Tree]
     ret.sizeHint(tree.tokens.length)
 
-    def addFT(ft: FormatToken, tree: Tree): Unit = ret += ft.meta.idx -> tree
-    def addTok(token: Token, tree: Tree) = addFT(ftoks.after(token), tree)
-    def addTree(t: Tree, o: Tree) = ftoks.getHeadOpt(t).foreach(addFT(_, o))
+    def addFT(stmt: Tree)(ft: FormatToken): Unit = {
+      val isComment = ft.left.is[Token.Comment]
+      val nft = if (isComment) ftoks.nextAfterNonComment(ft) else ft
+      ret += nft.meta.idx -> stmt
+    }
+    def addTok(stmt: Tree)(token: Token) = addFT(stmt)(ftoks.after(token))
+    def addTree(t: Tree, stmt: Tree) = ftoks.getHeadOpt(t).foreach(addFT(stmt))
     def addOne(t: Tree) = addTree(t, t)
     def addAll(trees: Seq[Tree]) = trees.foreach(addOne)
 
@@ -142,10 +146,8 @@ object TreeOps {
         case Some(x) => addTree(x, tree)
         case _ =>
           // No non-annotation modifier exists, fallback to keyword like `object`
-          tree.tokens.find(isMatch) match {
-            case Some(x) => addTok(x, tree)
-            case None => throw Error.CantFindDefnToken(what, tree)
-          }
+          tree.tokens.find(isMatch)
+            .fold(throw Error.CantFindDefnToken(what, tree))(addTok(tree))
       }
     }
     def addDefn[T](mods: Seq[Mod], tree: Tree)(implicit
