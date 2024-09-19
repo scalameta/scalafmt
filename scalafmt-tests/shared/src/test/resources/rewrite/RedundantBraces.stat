@@ -1974,3 +1974,62 @@ object a {
 object a {
   val sym = tree.symbol.orElse(return)
 }
+<<< #4133 braces in `return` value, with leading comment
+rewrite.redundantBraces.maxLines = 100
+===
+object a {
+  if (!sameLength(hkargs, hkparams)) return {
+    // Any and Nothing are kind-overloaded
+    if (arg == AnyClass || arg == NothingClass) NoKindErrors
+    // shortcut: always set error, whether explainTypesOrNot
+    else kindErrors.arityError(arg -> param)
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+     return
+-  // Any and Nothing are kind-overloaded
+-  if (arg == AnyClass || arg == NothingClass) NoKindErrors
+-  // shortcut: always set error, whether explainTypesOrNot
+-  else kindErrors.arityError(arg -> param)
++    // Any and Nothing are kind-overloaded
++    if (arg == AnyClass || arg == NothingClass) NoKindErrors
++    // shortcut: always set error, whether explainTypesOrNot
++    else kindErrors.arityError(arg -> param)
+ }
+<<< #4133 braces in `return` value, with trailing comment
+rewrite.redundantBraces.maxLines = 100
+===
+object a {
+  if (!sameLength(hkargs, hkparams)) return {
+    if (arg == AnyClass || arg == NothingClass) NoKindErrors
+    else kindErrors.arityError(arg -> param)
+    // Any and Nothing are kind-overloaded
+    // shortcut: always set error, whether explainTypesOrNot
+  }
+}
+>>>
+object a {
+  if (!sameLength(hkargs, hkparams)) return {
+    if (arg == AnyClass || arg == NothingClass) NoKindErrors
+    else kindErrors.arityError(arg -> param)
+    // Any and Nothing are kind-overloaded
+    // shortcut: always set error, whether explainTypesOrNot
+  }
+}
+<<< #4133 braces in `return` value, without comment
+rewrite.redundantBraces.maxLines = 100
+===
+object a {
+  if (!sameLength(hkargs, hkparams)) return {
+    if (arg == AnyClass || arg == NothingClass) NoKindErrors
+    else kindErrors.arityError(arg -> param)
+  }
+}
+>>>
+object a {
+  if (!sameLength(hkargs, hkparams))
+    return if (arg == AnyClass || arg == NothingClass) NoKindErrors
+    else kindErrors.arityError(arg -> param)
+}
