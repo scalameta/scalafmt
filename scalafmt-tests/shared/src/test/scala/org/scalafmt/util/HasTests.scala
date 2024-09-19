@@ -30,8 +30,8 @@ trait HasTests extends FormatAssertions {
     maxStateVisits = 150000,
     eventCallback = {
       case CreateFormatOps(ops) => dg.formatOps = ops
-      case explored: Explored if explored.n % 10000 == 0 =>
-        logger.elem(explored)
+      case Routes(routes) => dg.routes = routes
+      case explored: Explored if explored.n % 10000 == 0 => logger.elem(explored)
       case Enqueue(split) => dg.enqueued(split)
       case evt: CompleteFormat => dg.completed(evt)
       case x: Written => dg.locations = x.formatLocations

@@ -315,6 +315,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     style.runner.event(FormatEvent.CompleteFormat(explored, state, visits, best))
 
   def getBestPath: SearchResult = {
+    initStyle.runner.event(FormatEvent.Routes(routes))
     val state = {
       def run = shortestPath(State.start, topSourceTree.tokens.last)
       val state = run
