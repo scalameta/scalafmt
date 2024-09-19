@@ -292,11 +292,12 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
   private def onRightBrace(left: Replacement)(implicit
       ft: FormatToken,
+      session: Session,
       style: ScalafmtConfig,
   ): (Replacement, Replacement) = {
     val ok = ft.meta.rightOwner match {
       case _: Term.Block => ftoks.prevNotTrailingComment(ft).isRight &&
-        !braceSeparatesTwoXmlTokens
+        !braceSeparatesTwoXmlTokens && !elseAfterRightBraceThenpOnLeft
       case _ => true
     }
     if (ok) (left, removeToken) else null
@@ -615,5 +616,28 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
   private def braceSeparatesTwoXmlTokens(implicit ft: FormatToken): Boolean = ft
     .left.is[Token.Xml.End] && ftoks.next(ft).right.is[Token.Xml.Start]
+
+  private def elseAfterRightBraceThenpOnLeft(implicit
+      ft: FormatToken,
+      ftoks: FormatTokens,
+      session: Session,
+  ): Boolean = ftoks.nextNonCommentAfter(ft).right.is[Token.KwElse] && {
+    val pft = ftoks.findToken(ft, ftoks.prev) { xft =>
+      xft.left match {
+        case _: Token.Comment => false
+        case _: Token.RightBrace => !session.isRemovedOnLeft(xft, ok = true)
+        case _ => true
+      }
+    }
+    val rbOwner = ft.rightOwner
+    findTreeWithParent(pft.leftOwner) { p =>
+      if (p eq rbOwner) Some(false)
+      else p.parent match {
+        case None => Some(false)
+        case Some(pp: Term.If) if pp.thenp eq p => Some(true)
+        case _ => None
+      }
+    }.isDefined
+  }
 
 }

@@ -299,14 +299,14 @@ object a {
     f(imported)
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-         f(sym)
--      else if (isQualifyingImplicit(name, imported, pre, imported = true))
--        f(imported)
-+  else if (isQualifyingImplicit(name, imported, pre, imported = true))
-+    f(imported)
- }
+object a {
+  if (imported.isOverloaded) {
+    for (sym <- imported.alternatives)
+      if (isQualifyingImplicit(name, sym, pre, imported = true))
+        f(sym)
+  } else if (isQualifyingImplicit(name, imported, pre, imported = true))
+    f(imported)
+}
 <<< #4133 nested braces around expression ending with `if`-without-`else`
 object a {
   if (imported.isOverloaded) {
@@ -320,11 +320,11 @@ object a {
     f(imported)
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-         f(sym)
--      else if (isQualifyingImplicit(name, imported, pre, imported = true))
--        f(imported)
-+  else if (isQualifyingImplicit(name, imported, pre, imported = true))
-+    f(imported)
- }
+object a {
+  if (imported.isOverloaded) {
+    for (sym <- imported.alternatives)
+      if (isQualifyingImplicit(name, sym, pre, imported = true))
+        f(sym)
+  } else if (isQualifyingImplicit(name, imported, pre, imported = true))
+    f(imported)
+}
