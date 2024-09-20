@@ -5335,11 +5335,16 @@ object types:
        GCancellable
      ], GAsyncReadyCallback, gpointer, Unit],
      CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize],
-     CFuncPtr7[Ptr[GOutputStream], Ptr[
-       GInputStream
-     ], GOutputStreamSpliceFlags, CInt, Ptr[
-       GCancellable
-     ], GAsyncReadyCallback, gpointer, Unit],
+     CFuncPtr7[
+       Ptr[GOutputStream],
+       Ptr[GInputStream],
+       GOutputStreamSpliceFlags,
+       CInt,
+       Ptr[GCancellable],
+       GAsyncReadyCallback,
+       gpointer,
+       Unit
+     ],
      CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize],
      CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[
        GCancellable
