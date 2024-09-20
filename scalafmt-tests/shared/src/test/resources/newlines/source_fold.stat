@@ -6726,8 +6726,26 @@ def using(@foo @bar('nextStateDate) nextStateData: D): State[S, D] = {
 def using(@foo @bar('nextStateDate) nextStateData: D): State[S, D] = {
   copy(stateData = nextStateData)
 }
-<<< SM 4.7.0: 25
+<<< SM 4.7.0: 25 long
 maxColumn = 80
+===
+if (
+  settings.fuzzingMode && !system.settings.config.hasPath(
+    "akka.stream.secret-test-fuzzing-warning-disable"
+  )
+) {
+  //
+}
+>>>
+if (
+  settings.fuzzingMode &&
+  !system.settings.config
+    .hasPath("akka.stream.secret-test-fuzzing-warning-disable")
+) {
+  //
+}
+<<< SM 4.7.0: 25 short
+maxColumn = 60
 ===
 if (
   settings.fuzzingMode && !system.settings.config.hasPath(

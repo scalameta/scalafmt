@@ -391,6 +391,8 @@ object BestFirstSearch {
     def updateBest(state: State): Boolean =
       (pruneSlowStates ne ScalafmtOptimizer.PruneSlowStates.No) &&
         state.split.isNL &&
+        !state.policy
+          .exists(_.exists(_.isInstanceOf[PolicyOps.SingleLineBlock])) &&
         (best.getOrElseUpdate(state.prev.depth, state) eq state)
 
     def checkExplored(ft: FormatToken)(implicit
