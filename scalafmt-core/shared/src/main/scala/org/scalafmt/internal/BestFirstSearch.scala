@@ -1,8 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error
-import org.scalafmt.config.FormatEvent
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config._
 import org.scalafmt.util._
 
 import scala.meta._
@@ -110,7 +109,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         return curr
 
       implicit val style = styleMap.at(splitToken)
-      import style.runner.optimizer._
+      import style.runner.optimizer
 
       val noOptZone = noOptZones == null || !useNoOptZones ||
         noOptZones.contains(leftTok)
@@ -122,42 +121,43 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           complete(deepestYet)
           throw new Error.SearchStateExploded(
             deepestYet,
-            "exceeded `runner.maxStateVisits`",
+            s"exceeded `runner.maxStateVisits`=${style.runner.maxStateVisits}",
           )
         }
 
         if (curr.split != null && curr.split.isNL)
           if (
             emptyQueueSpots.contains(curr.depth) ||
-            dequeueOnNewStatements && curr.allAltAreNL &&
+            optimizer.dequeueOnNewStatements && curr.allAltAreNL &&
             !(depth == 0 && noOptZone) &&
             (leftTok.is[Token.KwElse] || statementStarts.contains(curr.depth))
           ) addGeneration()
 
         val noBlockClose = start == curr && 0 != maxCost || !noOptZone ||
-          !recurseOnBlocks
+          !optimizer.recurseOnBlocks
         val blockClose =
           if (noBlockClose) None else getBlockCloseToRecurse(splitToken, stop)
         if (blockClose.nonEmpty) blockClose.foreach { end =>
           shortestPathMemo(curr, end, depth + 1, maxCost).foreach(enqueue)
         }
         else if (
-          escapeInPathologicalCases && isSeqMulti(routes(curr.depth)) &&
-          visits(curr.depth) > maxVisitsPerToken
+          optimizer.escapeInPathologicalCases &&
+          isSeqMulti(routes(curr.depth)) &&
+          visits(curr.depth) > optimizer.maxVisitsPerToken
         ) {
           complete(deepestYet)
           throw new Error.SearchStateExploded(
             deepestYet,
             splitToken,
-            "exceeded `runner.optimizer.maxVisitsPerToken`",
+            s"exceeded `runner.optimizer.maxVisitsPerToken`=${optimizer.maxVisitsPerToken}",
           )
         } else {
           val actualSplit = getActiveSplits(splitToken, curr, maxCost)
           val allAltAreNL = actualSplit.forall(_.isNL)
 
           var optimalNotFound = true
-          val handleOptimalTokens = acceptOptimalAtHints && depth < maxDepth &&
-            actualSplit.lengthCompare(1) > 0
+          val handleOptimalTokens = optimizer.acceptOptimalAtHints &&
+            depth < optimizer.maxDepth && actualSplit.lengthCompare(1) > 0
 
           def processNextState(nextState: State): Unit = {
             def killOnFail(opt: OptimalToken): Boolean = opt.killOnFail || {
