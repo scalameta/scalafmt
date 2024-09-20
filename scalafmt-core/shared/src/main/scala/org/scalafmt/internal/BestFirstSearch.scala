@@ -207,7 +207,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       opt: OptimalToken,
   )(implicit nextState: State, queue: StateQueue): Either[State, State] = {
     val nextNextState =
-      if (opt.token eq tokens(nextState.depth - 1).right) nextState
+      if (opt.token.end <= tokens(nextState.depth).left.end) nextState
       else shortestPath(nextState, opt.token, queue.nested + 1, maxCost = 0)
     val furtherState =
       if (null eq nextNextState) null else traverseSameLine(nextNextState)
