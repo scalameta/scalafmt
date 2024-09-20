@@ -174,7 +174,7 @@ lazy val cli = project.in(file("scalafmt-cli")).settings(
       oldStrategy(x)
   },
   libraryDependencies ++= Seq(
-    "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
+    "org.scalameta" %% "munit-diff" % "1.0.2",
     "com.martiansoftware" % "nailgun-server" % "0.9.1",
     "com.github.scopt" %% "scopt" % "4.1.0",
   ),
