@@ -16,6 +16,7 @@ abstract class Policy {
   def rank: Int
 
   def filter(pred: Policy.Clause => Boolean): Policy
+  def appliesUntil(nextft: FormatToken)(pred: Policy.Clause => Boolean): Boolean
   def unexpired(split: Split, nextft: FormatToken): Policy
   def noDequeue: Boolean
   def switch(trigger: Token, on: Boolean): Policy
@@ -65,6 +66,9 @@ object Policy {
 
     override def rank: Int = 0
     override def unexpired(split: Split, nextft: FormatToken): Policy = this
+    override def appliesUntil(nextft: FormatToken)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = false
     override def filter(pred: Clause => Boolean): Policy = this
     override def switch(trigger: Token, on: Boolean): Policy = this
     override def noDequeue: Boolean = false
@@ -131,6 +135,10 @@ object Policy {
       if (pred(this)) this else NoPolicy
 
     override def switch(trigger: Token, on: Boolean): Policy = this
+
+    override def appliesUntil(nextft: FormatToken)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = endPolicy.notExpiredBy(nextft) && pred(this)
   }
 
   private class ClauseImpl(
@@ -168,6 +176,10 @@ object Policy {
       val np2 = pred(p2)
       if (np1.eq(p1) && np2.eq(p2)) this else np1 | np2
     }
+
+    override def appliesUntil(nextft: FormatToken)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = p1.appliesUntil(nextft)(pred) && p2.appliesUntil(nextft)(pred)
   }
 
   private class AndThen(p1: Policy, p2: Policy) extends WithConv {
@@ -189,6 +201,10 @@ object Policy {
       val np2 = pred(p2)
       if (np1.eq(p1) && np2.eq(p2)) this else np1 & np2
     }
+
+    override def appliesUntil(nextft: FormatToken)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = p1.appliesUntil(nextft)(pred) || p2.appliesUntil(nextft)(pred)
   }
 
   private class Expire(policy: Policy, endPolicy: End.WithPos)
@@ -209,6 +225,11 @@ object Policy {
       val filtered = func(policy)
       if (filtered eq policy) this else filtered <== endPolicy
     }
+
+    override def appliesUntil(nextft: FormatToken)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = endPolicy.notExpiredBy(nextft) &&
+      policy.appliesUntil(nextft)(pred)
   }
 
   private class Delay(policy: Policy, begPolicy: End.WithPos) extends Policy {
@@ -221,6 +242,10 @@ object Policy {
       else policy.unexpired(split, nextft)
     override def noDequeue: Boolean = policy.noDequeue
     override def toString: String = s"$begPolicy ==> $policy"
+
+    override def appliesUntil(nextft: FormatToken)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = false
   }
 
   private class Relay(before: Policy, after: Policy)(implicit fileLine: FileLine)
@@ -236,6 +261,11 @@ object Policy {
       else if (filtered eq before) this
       else new Relay(filtered, after)
     }
+
+    override def appliesUntil(nextft: FormatToken)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = before.appliesUntil(nextft)(pred) &&
+      after.appliesUntil(nextft)(pred)
   }
 
   class RelayOnSplit(
@@ -257,6 +287,11 @@ object Policy {
       val filtered = func(before)
       if (filtered eq before) this else new RelayOnSplit(filtered, pred, after)
     }
+
+    override def appliesUntil(nextft: FormatToken)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = before.appliesUntil(nextft)(pred) &&
+      after.appliesUntil(nextft)(pred)
   }
 
   object RelayOnSplit {
@@ -282,6 +317,11 @@ object Policy {
       val filtered = func(before)
       if (filtered eq before) this else new Switch(filtered, trigger, after)
     }
+
+    override def appliesUntil(nextft: FormatToken)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = before.appliesUntil(nextft)(pred) &&
+      after.appliesUntil(nextft)(pred)
   }
 
   object Proxy {
@@ -312,6 +352,10 @@ object Policy {
     override def unexpired(split: Split, nextft: FormatToken): Policy =
       if (!endPolicy.notExpiredBy(nextft)) NoPolicy
       else Proxy(policy.unexpired(split, nextft), endPolicy)(factory)
+
+    override def appliesUntil(nextft: FormatToken)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = policy.appliesUntil(nextft)(pred)
 
     override def noDequeue: Boolean = policy.noDequeue
 
