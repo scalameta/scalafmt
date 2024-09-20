@@ -16,6 +16,7 @@ abstract class Policy {
   def rank: Int
 
   def filter(pred: Policy.Clause => Boolean): Policy
+  def exists(pred: Policy.Clause => Boolean): Boolean
   def appliesUntil(nextft: FormatToken)(pred: Policy.Clause => Boolean): Boolean
   def unexpired(split: Split, nextft: FormatToken): Policy
   def noDequeue: Boolean
@@ -70,6 +71,7 @@ object Policy {
         pred: Policy.Clause => Boolean,
     ): Boolean = false
     override def filter(pred: Clause => Boolean): Policy = this
+    override def exists(pred: Clause => Boolean): Boolean = false
     override def switch(trigger: Token, on: Boolean): Policy = this
     override def noDequeue: Boolean = false
   }
@@ -134,6 +136,8 @@ object Policy {
     override def filter(pred: Clause => Boolean): Policy =
       if (pred(this)) this else NoPolicy
 
+    override def exists(pred: Clause => Boolean): Boolean = pred(this)
+
     override def switch(trigger: Token, on: Boolean): Policy = this
 
     override def appliesUntil(nextft: FormatToken)(
@@ -180,6 +184,9 @@ object Policy {
     override def appliesUntil(nextft: FormatToken)(
         pred: Policy.Clause => Boolean,
     ): Boolean = p1.appliesUntil(nextft)(pred) && p2.appliesUntil(nextft)(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean = p1.exists(pred) ||
+      p2.exists(pred)
   }
 
   private class AndThen(p1: Policy, p2: Policy) extends WithConv {
@@ -205,6 +212,9 @@ object Policy {
     override def appliesUntil(nextft: FormatToken)(
         pred: Policy.Clause => Boolean,
     ): Boolean = p1.appliesUntil(nextft)(pred) || p2.appliesUntil(nextft)(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean = p1.exists(pred) ||
+      p2.exists(pred)
   }
 
   private class Expire(policy: Policy, endPolicy: End.WithPos)
@@ -230,12 +240,15 @@ object Policy {
         pred: Policy.Clause => Boolean,
     ): Boolean = endPolicy.notExpiredBy(nextft) &&
       policy.appliesUntil(nextft)(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
   }
 
   private class Delay(policy: Policy, begPolicy: End.WithPos) extends Policy {
     override def f: Pf = PartialFunction.empty
     override def rank: Int = 0
     override def filter(pred: Clause => Boolean): Policy = this
+    override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
     override def switch(trigger: Token, on: Boolean): Policy = this
     override def unexpired(split: Split, nextft: FormatToken): Policy =
       if (begPolicy.notExpiredBy(nextft)) this
@@ -266,6 +279,9 @@ object Policy {
         pred: Policy.Clause => Boolean,
     ): Boolean = before.appliesUntil(nextft)(pred) &&
       after.appliesUntil(nextft)(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean = before
+      .exists(pred) || after.exists(pred)
   }
 
   class RelayOnSplit(
@@ -292,6 +308,9 @@ object Policy {
         pred: Policy.Clause => Boolean,
     ): Boolean = before.appliesUntil(nextft)(pred) &&
       after.appliesUntil(nextft)(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean = before
+      .exists(pred) || after.exists(pred)
   }
 
   object RelayOnSplit {
@@ -322,6 +341,9 @@ object Policy {
         pred: Policy.Clause => Boolean,
     ): Boolean = before.appliesUntil(nextft)(pred) &&
       after.appliesUntil(nextft)(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean = before
+      .exists(pred) || after.exists(pred)
   }
 
   object Proxy {
@@ -343,6 +365,8 @@ object Policy {
     override def filter(pred: Clause => Boolean): Policy =
       if (!pred(this)) NoPolicy
       else Proxy(policy.filter(pred), endPolicy)(factory)
+
+    override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
 
     override def switch(trigger: Token, on: Boolean): Policy = {
       val switched = policy.switch(trigger, on)
