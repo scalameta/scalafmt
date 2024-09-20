@@ -327,10 +327,7 @@ object BestFirstSearch {
     new BestFirstSearch(range).getBestPath
 
   private def hasSlbAfter(state: State, ft: FormatToken): Boolean = state.policy
-    .exists {
-      case p: PolicyOps.SingleLineBlock => p.endPolicy.notExpiredBy(ft)
-      case _ => false
-    }
+    .exists(_.appliesUntil(ft)(_.isInstanceOf[PolicyOps.SingleLineBlock]))
 
   private def getNoOptZones(tokens: FormatTokens) = {
     val result = Set.newBuilder[Token]
