@@ -59,12 +59,9 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       (start.depth & 0xffffffffL) << 32
     memo.get(key).orElse {
       // Only update state if it reached stop.
-      val nextState = shortestPath(start, stop, depth, maxCost)
-      if (null == nextState) None
-      else {
-        memo.update(key, nextState)
-        Some(nextState)
-      }
+      val nextState = shortestPath(start, stop, depth, maxCost).toOption
+      nextState.foreach(memo.update(key, _))
+      nextState
     }
   }
 
@@ -75,24 +72,27 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       stop: Token,
       depth: Int = 0,
       maxCost: Int = Integer.MAX_VALUE,
-  ): State = {
+  ): Either[State, State] = {
     implicit val Q: StateQueue = new StateQueue(depth)
     def enqueue(state: State) = Q.enqueue(state)
     enqueue(start)
 
     // TODO(olafur) this while loop is waaaaaaaaaaaaay tooo big.
+    var deepestState: State = start
     while (!Q.isEmpty()) {
       val curr = Q.dequeue()
-      if (curr.depth >= tokens.length) return curr
+      val idx = curr.depth
+      if (idx >= tokens.length) return Right(curr)
 
-      val splitToken = tokens(curr.depth)
+      val splitToken = tokens(idx)
       val leftTok = splitToken.left
       if (splitToken.right.start > stop.start && leftTok.start < leftTok.end)
-        return curr
+        return Right(curr)
 
       implicit val style = styleMap.at(splitToken)
       import style.runner.optimizer
 
+      if (idx > deepestState.depth) deepestState = curr
       val noOptZone = noOptZones == null || !useNoOptZones ||
         noOptZones.contains(leftTok)
 
@@ -101,10 +101,10 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
         if (curr.split != null && curr.split.isNL)
           if (
-            emptyQueueSpots.contains(curr.depth) ||
+            emptyQueueSpots.contains(idx) ||
             optimizer.dequeueOnNewStatements && curr.allAltAreNL &&
             !(depth == 0 && noOptZone) &&
-            (leftTok.is[Token.KwElse] || statementStarts.contains(curr.depth))
+            (leftTok.is[Token.KwElse] || statementStarts.contains(idx))
           ) Q.addGeneration()
 
         val noBlockClose = start == curr && 0 != maxCost || !noOptZone ||
@@ -115,9 +115,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           shortestPathMemo(curr, end, depth + 1, maxCost).foreach(enqueue)
         }
         else if (
-          optimizer.escapeInPathologicalCases &&
-          isSeqMulti(routes(curr.depth)) &&
-          stats.visits(curr.depth) > optimizer.maxVisitsPerToken
+          optimizer.escapeInPathologicalCases && isSeqMulti(routes(idx)) &&
+          stats.visits(idx) > optimizer.maxVisitsPerToken
         ) stats.explode(splitToken)(
           s"exceeded `runner.optimizer.maxVisitsPerToken`=${optimizer.maxVisitsPerToken}",
         )
@@ -158,7 +157,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       }
     }
 
-    null
+    Left(deepestState)
   }
 
   private def sendEvent(split: Split): Unit = initStyle.runner
@@ -171,23 +170,34 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     state.next(split, nextAllAltAreNL = allAltAreNL)
   }
 
-  private def killOnFail(
-      opt: OptimalToken,
-  )(implicit nextState: State): State = {
-    val kill = opt.killOnFail || hasSlbAfter(nextState, tokens(opt.token))
+  private def killOnFail(opt: OptimalToken, nextNextState: State = null)(
+      implicit nextState: State,
+  ): State = {
+    val kill = opt.killOnFail || hasSlbAfter(nextState) {
+      if (
+        (null ne nextNextState) &&
+        nextNextState.appliedPenalty > nextState.prev.appliedPenalty
+      ) tokens(nextNextState.depth)
+      else tokens(opt.token)
+    }
     if (kill) null else nextState
   }
 
-//  @tailrec
   private def processOptimalToken(
       opt: OptimalToken,
   )(implicit nextState: State, queue: StateQueue): Either[State, State] = {
     val nextNextState =
       if (opt.token.end <= tokens(nextState.depth).left.end) nextState
-      else shortestPath(nextState, opt.token, queue.nested + 1, maxCost = 0)
-    val furtherState =
-      if (null eq nextNextState) null else traverseSameLine(nextNextState)
-    if (null eq furtherState) Left(killOnFail(opt))
+      else {
+        val res =
+          shortestPath(nextState, opt.token, queue.nested + 1, maxCost = 0)
+        res match {
+          case Right(x) => x
+          case Left(x) => return Left(killOnFail(opt, x))
+        }
+      }
+    val furtherState = traverseSameLine(nextNextState)
+    if (null eq furtherState) Left(killOnFail(opt, nextNextState))
     else if (furtherState.appliedPenalty > nextNextState.appliedPenalty)
       Left(nextNextState)
     else Either.cond(!opt.recurseOnly, furtherState, furtherState)
@@ -264,11 +274,11 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     val state = {
       val endToken = topSourceTree.tokens.last
       def run = shortestPath(State.start, endToken)
-      val state = run
-      if (null ne state) state
-      else stats.retry.fold(state) { x =>
-        stats = x
-        run
+      run.getOrElse {
+        stats.retry.flatMap { x =>
+          stats = x
+          run.toOption
+        }.orNull
       }
     }
     if (null != state) {
@@ -306,7 +316,7 @@ object BestFirstSearch {
   )(implicit formatOps: FormatOps, formatWriter: FormatWriter): SearchResult =
     new BestFirstSearch(range).getBestPath
 
-  private def hasSlbAfter(state: State, ft: FormatToken): Boolean = state.policy
+  private def hasSlbAfter(state: State)(ft: FormatToken): Boolean = state.policy
     .exists(_.appliesUntil(ft)(_.isInstanceOf[PolicyOps.SingleLineBlock]))
 
   private def getNoOptZones(tokens: FormatTokens) = {
