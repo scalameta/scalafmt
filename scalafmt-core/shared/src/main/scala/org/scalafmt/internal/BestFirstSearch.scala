@@ -150,54 +150,60 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           val handleOptimalTokens = optimizer.acceptOptimalAtHints &&
             depth < optimizer.maxDepth && actualSplit.lengthCompare(1) > 0
 
-          def processNextState(nextState: State): Unit = {
-            def killOnFail(opt: OptimalToken): Boolean = opt.killOnFail ||
-              hasSlbAfter(nextState, tokens(opt.token, 1))
-            def processOptimal(opt: OptimalToken): State = {
-              val nextNextState =
-                if (opt.token eq splitToken.right) nextState
-                else shortestPath(nextState, opt.token, depth + 1, maxCost = 0)
-              val furtherState =
-                if (null == nextNextState) null
-                else traverseSameLine(nextNextState)
-              if (null == furtherState) if (killOnFail(opt)) null else nextState
-              else if (
-                furtherState.appliedPenalty > nextNextState.appliedPenalty
-              ) nextNextState
-              else {
-                if (!opt.recurseOnly) optimalNotFound = false
-                furtherState
-              }
-            }
+          def processNextState(implicit nextState: State): Unit = {
             val split = nextState.split
-            val stateToQueue = split.optimalAt match {
-              case Some(opt) if handleOptimalTokens =>
-                if (split.cost == 0) processOptimal(opt)
-                else if (killOnFail(opt)) null
-                else nextState
-              case _ => nextState
-            }
-            if (null ne stateToQueue) {
-              if (
-                (pruneSlowStates ne ScalafmtOptimizer.PruneSlowStates.No) &&
-                depth == 0 && split.isNL
-              ) best.getOrElseUpdate(curr.depth, nextState)
-              enqueue(stateToQueue)
+            val cost = split.cost
+            if (cost <= maxCost) {
+              val stateToQueue = split.optimalAt match {
+                case Some(opt) if handleOptimalTokens =>
+                  if (cost > 0) killOnFail(opt)
+                  else processOptimalToken(opt) match {
+                    case Left(x) => x
+                    case Right(x) => optimalNotFound = false; x
+                  }
+                case _ => nextState
+              }
+              if (null ne stateToQueue) {
+                if (
+                  (pruneSlowStates ne ScalafmtOptimizer.PruneSlowStates.No) &&
+                  depth == 0 && split.isNL
+                ) best.getOrElseUpdate(curr.depth, nextState)
+                enqueue(stateToQueue)
+              }
             }
           }
 
           actualSplit.foreach { split =>
             style.runner.event(FormatEvent.Enqueue(split))
-            if (optimalNotFound) {
-              val nextState = curr.next(split, allAltAreNL)
-              if (nextState.split.cost <= maxCost) processNextState(nextState)
-            }
+            if (optimalNotFound) processNextState(curr.next(split, allAltAreNL))
           }
         }
       }
     }
 
     null
+  }
+
+  private def killOnFail(
+      opt: OptimalToken,
+  )(implicit nextState: State): State = {
+    val kill = opt.killOnFail || hasSlbAfter(nextState, tokens(opt.token))
+    if (kill) null else nextState
+  }
+
+//  @tailrec
+  private def processOptimalToken(
+      opt: OptimalToken,
+  )(implicit nextState: State, queue: StateQueue): Either[State, State] = {
+    val nextNextState =
+      if (opt.token eq tokens(nextState.depth - 1).right) nextState
+      else shortestPath(nextState, opt.token, queue.nested + 1, maxCost = 0)
+    val furtherState =
+      if (null eq nextNextState) null else traverseSameLine(nextNextState)
+    if (null eq furtherState) Left(killOnFail(opt))
+    else if (furtherState.appliedPenalty > nextNextState.appliedPenalty)
+      Left(nextNextState)
+    else Either.cond(!opt.recurseOnly, furtherState, furtherState)
   }
 
   private def getActiveSplits(ft: FormatToken, state: State, maxCost: Int)(
