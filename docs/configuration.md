@@ -5566,11 +5566,12 @@ for a state to be considered. A state need to qualify under at least one of
 the checks controlled by these parameters:
 
 - `runner.optimizer.pruneSlowStates`:
-  - if this flag is disabled, any state qualifies
+  - accepts `true` or `false`; also, since v3.8.4, `No`, `Yes` or `Only`
+  - if this flag is disabled (`false` or `No`), any state qualifies
   - if it is enabled:
     - if the search algorithm is ultimately unable to find a completed solution
-      (because some states might be discarded), then it will disable the flag
-      and make another attempt
+      (because some states might be discarded) and if the value is not `Only`,
+      then it will disable the flag and make another attempt
     - during the first run, when the flag is enabled, a state qualifies if it
       is not "worse" than a previously recorded "best" state for this token
     - the "best" state is the first state with a newline split at the given

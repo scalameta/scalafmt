@@ -38,12 +38,12 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   var deepestYet = State.start
   val best = mutable.Map.empty[Int, State]
   val visits = new Array[Int](tokens.length)
-  var keepSlowStates = !initStyle.runner.optimizer.pruneSlowStates
+  var pruneSlowStates = initStyle.runner.optimizer.pruneSlowStates
 
   /** Returns true if it's OK to skip over state.
     */
-  def shouldEnterState(curr: State): Boolean = keepSlowStates ||
-    curr.policy.noDequeue ||
+  def shouldEnterState(curr: State): Boolean = curr.policy.noDequeue ||
+    (pruneSlowStates eq ScalafmtOptimizer.PruneSlowStates.No) ||
     // TODO(olafur) document why/how this optimization works.
     best.get(curr.depth).forall(curr.possiblyBetter)
 
@@ -187,8 +187,10 @@ private class BestFirstSearch private (range: Set[Range])(implicit
               case _ => nextState
             }
             if (null ne stateToQueue) {
-              if (!keepSlowStates && depth == 0 && split.isNL) best
-                .getOrElseUpdate(curr.depth, nextState)
+              if (
+                (pruneSlowStates ne ScalafmtOptimizer.PruneSlowStates.No) &&
+                depth == 0 && split.isNL
+              ) best.getOrElseUpdate(curr.depth, nextState)
               enqueue(stateToQueue)
             }
           }
@@ -300,14 +302,15 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   def getBestPath: SearchResult = {
     initStyle.runner.event(FormatEvent.Routes(routes))
     val state = {
-      def run = shortestPath(State.start, topSourceTree.tokens.last)
+      val endToken = topSourceTree.tokens.last
+      def run = shortestPath(State.start, endToken)
       val state = run
-      if (null != state || keepSlowStates) state
-      else {
-        best.clear()
-        keepSlowStates = true
+      val retry = (null eq state) &&
+        (pruneSlowStates eq ScalafmtOptimizer.PruneSlowStates.Yes)
+      if (retry) {
+        pruneSlowStates = ScalafmtOptimizer.PruneSlowStates.No
         run
-      }
+      } else state
     }
     if (null != state) {
       complete(state)(initStyle)

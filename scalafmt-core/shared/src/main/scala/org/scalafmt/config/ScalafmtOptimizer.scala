@@ -49,9 +49,11 @@ case class ScalafmtOptimizer(
     maxDepth: Int = 100,
     acceptOptimalAtHints: Boolean = true,
     disableOptimizationsInsideSensitiveAreas: Boolean = true,
-    pruneSlowStates: Boolean = true,
+    pruneSlowStates: ScalafmtOptimizer.PruneSlowStates =
+      ScalafmtOptimizer.PruneSlowStates.Yes,
     recurseOnBlocks: Boolean = true,
-    @annotation.ExtraName("forceConfigStyleOnOffset") @annotation.DeprecatedName(
+    @annotation.ExtraName("forceConfigStyleOnOffset")
+    @annotation.DeprecatedName(
       "forceConfigStyleMinSpan",
       "Use `callSite.minSpan` instead",
       "3.8.2",
@@ -109,6 +111,18 @@ object ScalafmtOptimizer {
       .deriveSurface[ClauseElement]
     implicit val codec: ConfCodecEx[ClauseElement] = generic
       .deriveCodecEx(default).noTypos
+  }
+
+  sealed abstract class PruneSlowStates
+  object PruneSlowStates {
+    case object No extends PruneSlowStates
+    case object Yes extends PruneSlowStates
+    case object Only extends PruneSlowStates
+
+    implicit val reader: ConfCodecEx[PruneSlowStates] = ReaderUtil
+      .oneOfCustom[PruneSlowStates](No, Yes, Only) { case Conf.Bool(flag) =>
+        Configured.Ok(if (flag) Yes else No)
+      }
   }
 
 }
