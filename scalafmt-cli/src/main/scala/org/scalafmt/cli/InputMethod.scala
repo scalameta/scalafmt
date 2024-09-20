@@ -9,6 +9,8 @@ import java.nio.file.Paths
 
 import scala.io.Source
 
+import munit.{diff => difflib}
+
 sealed abstract class InputMethod {
   def readInput(options: CliOptions): String
   def path: Path
