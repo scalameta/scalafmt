@@ -21,3 +21,15 @@ private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
     genApplyForSymNonJSSuperCall(minArgc, sym)
   }
 }
+<<< overflow infix with applies
+maxColumn = 74
+newlines.source = keep
+===
+realeasy && isJavaAtLeast(9) && !perFile.exists(releaseFlag.matches) && toolArgsFor(sources)(ToolName.javaVersion).isEmpty
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-realeasy && isJavaAtLeast(9) && !perFile.exists(
+-    releaseFlag.matches) && toolArgsFor(
++realeasy && isJavaAtLeast(9) && !perFile.exists(releaseFlag.matches) && toolArgsFor(
+     sources)(ToolName.javaVersion).isEmpty
