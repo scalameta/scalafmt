@@ -1,6 +1,7 @@
 package org.scalafmt.cli
 
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.internal.RegexCompat
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.FileOps
 
@@ -15,7 +16,7 @@ object FileTestOps {
     */
   def string2dir(layout: String): AbsoluteFile = {
     val root = AbsoluteFile(Files.createTempDirectory("root"))
-    layout.split("(?=\n/)").foreach { row =>
+    RegexCompat.splitByBeforeTextMatching(layout, "\n/").foreach { row =>
       val path :: contents :: Nil = row.stripPrefix("\n").split("\n", 2).toList
       val file = root / path.stripPrefix("/")
       file.parent.mkdirs()
