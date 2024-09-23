@@ -155,7 +155,7 @@ class FormatOps(
         }
         true
       case _ => style.newlines.formatInfix || start.hasBreak ||
-        notInfixRhs(start)
+        !(isInfixOp(start.rightOwner) || isInfixOpOnLeft(start))
     }
 
     if (endFound) start else endOfSingleLineBlockOnLeft(next(start))
@@ -165,21 +165,8 @@ class FormatOps(
       style: ScalafmtConfig,
   ): T = endOfSingleLineBlockOnLeft(start).left
 
-  final def notInfixRhs(
-      ft: FormatToken,
-      tokenIsChecked: Boolean = false,
-  ): Boolean = {
-    val tree = ft.meta.rightOwner
-    @inline
-    def checkToken = tokenIsChecked || isJustBeforeTree(ft)(tree)
-    !tree.parent.exists {
-      case ia: Member.Infix => (ia.op eq tree) || (ia.arg eq tree) &&
-        (ft.right.is[T.LeftParen] || checkToken)
-      case t: Member.ArgClause => t.parent.exists(_.is[Member.Infix]) &&
-        checkToken
-      case _ => false
-    }
-  }
+  final def isInfixOpOnLeft(ft: FormatToken): Boolean =
+    isInfixOp(prevNonComment(ft).leftOwner)
 
   final def leftParenStartsNewBlockOnRight(
       ft: FormatToken,
@@ -187,7 +174,7 @@ class FormatOps(
     (ft.meta.rightOwner match {
       case _: Member.ArgClause => style.newlines.isBeforeOpenParenCallSite
       case t => isJustBeforeTree(ft)(t)
-    }) && notInfixRhs(ft, tokenIsChecked = true)
+    }) && !isInfixOpOnLeft(ft)
 
   /** js.native is very special in Scala.js.
     *
