@@ -1403,3 +1403,34 @@ object a {
     varDefs.take(prevArgsCount).toList.map(_.ref))(
     sym, index, formalArgsRegistry, param, static, captures = Nil)
 }
+<<< #4133 overflow with nested lambda and braces 1
+Block(norm.tail.map(sym => DefDef(sym, { vparamss: List[List[Symbol]] => EmptyTree })), ddef)
+>>>
+BestFirstSearch:290 Failed to format
+UNABLE TO FORMAT,
+tok #25/33: [25] =>∙EmptyTree: RightArrow [70..72) [ ] Ident(EmptyTree) [73..82)
+policies:
+  SLB:[Router:406]@84!d
+  SLB:[Router:1401]@84!d
+  (@84 ==> PNL+7:[Router:1229]@84d & tuckSJS:[FormatOps:2735]@85d)
+  SLB:[Router:501]@85!d
+  SLB:[Router:834]@86!d
+  (@84 ==> PNL+7:[Router:1229]@92d & tuckSJS:[FormatOps:2735]@93d)
+splits (before policy):
+  Space:[Router:441->Router:432](cost=0, indents=[], SLB:[Router:441]@82!d)
+  Newline:[Router:447->Router:447](cost=1, indents=[2<}:84], NoPolicy)
+splits (after policy):
+  Space:[Router:441->Router:432](cost=0, indents=[], SLB:[Router:441]@82!d)
+<<< #4133 overflow with nested lambda and braces 2
+other.exists(tpe match { case TypeRef(_, r, _) => r.isTypeParameter case _ => false })
+>>>
+BestFirstSearch:300 Failed to format
+UNABLE TO FORMAT,
+tok #20/27: [20] isTypeParameter∙case: Ident(isTypeParameter) [52..67) [ ] KwCase [68..72)
+policies:
+  REL?:[Router:2238](NoPolicy ??? NA:[Router:2187]>49d)
+  SLB:[Router:406]@85!d
+  ((@85 ==> PNL+7:[Router:1229]@85d & UNIND{:[PolicyOps:234]@85d) & tuckSJS:[FormatOps:2735]@86d)
+splits (before policy):
+  Newline:[Router:616->Router:616](cost=0, indents=[], NoPolicy)
+splits (after policy):
