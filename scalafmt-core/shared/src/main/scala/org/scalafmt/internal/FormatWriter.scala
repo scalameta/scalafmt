@@ -5,6 +5,7 @@ import org.scalafmt.Error
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.{Case => _, _}
+import org.scalafmt.internal.RegexCompat._
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.LiteralOps
 import org.scalafmt.util.TokenOps._
@@ -583,7 +584,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
         tupleOpt.fold(text) { case (pipe, indent) =>
           val spaces = getIndentation(indent)
-          getStripMarginPattern(pipe).matcher(text).replaceAll(spaces)
+          RegexCompat.replaceAllStripMargin(text, spaces, pipe)
         }
       }
 
@@ -794,7 +795,7 @@ class FormatWriter(formatOps: FormatOps) {
             terminateMlc(curlen, lines)
           } else {
             val trimmed = removeTrailingWhiteSpace(text)
-            sb.append(leadingAsteriskSpace.matcher(trimmed).replaceAll(spaces))
+            sb.append(RegexCompat.replaceAllLeadingAsterisk(trimmed, spaces))
           }
 
         private def appendLineBreak(): Unit = startNewLine(spaces).append('*')
@@ -1905,41 +1906,11 @@ object FormatWriter {
   private def getIndentation(len: Int): String =
     if (len < indentations.length) indentations(len) else " " * len
 
-  private val trailingSpace = Pattern.compile("\\h++$", Pattern.MULTILINE)
   private def removeTrailingWhiteSpace(str: String): String = trailingSpace
     .matcher(str).replaceAll("")
 
   private def splitAsIterator(regex: Pattern)(value: String): Iterator[String] =
     regex.splitAsStream(value).iterator().asScala
-
-  // "slc" stands for single-line comment
-  private val slcDelim = Pattern.compile("\\h++")
-  // "mlc" stands for multi-line comment
-  private val mlcHeader = Pattern.compile("^/\\*\\h*+(?:\n\\h*+[*]*+\\h*+)?")
-  private val mlcLineDelim = Pattern.compile("\\h*+\n\\h*+[*]*+\\h*+")
-  private val mlcParagraphEnd = Pattern.compile("[.:!?=]$")
-  private val mlcParagraphBeg = Pattern.compile("^(?:[-*@=]|\\d++[.:])")
-
-  private val leadingAsteriskSpace = Pattern.compile("(?<=\n)\\h*+(?=[*][^*])")
-  private val docstringLine = Pattern
-    .compile("^(?:\\h*+\\*)?(\\h*+)(.*?)\\h*+$", Pattern.MULTILINE)
-  private val emptyLines = "\\h*+(\n\\h*+\\*?\\h*+)*"
-  private val emptyDocstring = Pattern.compile(s"^/\\*\\*$emptyLines\\*/$$")
-  private val onelineDocstring = {
-    val oneline = "[^*\n\\h](?:[^\n]*[^\n\\h])?"
-    Pattern.compile(s"^/\\*\\*$emptyLines($oneline)$emptyLines\\*/$$")
-  }
-  private val docstringLeadingSpace = Pattern.compile("^\\h++")
-
-  @inline
-  private def getStripMarginPattern(pipe: Char) =
-    if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
-
-  @inline
-  private def compileStripMarginPattern(pipe: Char) = Pattern
-    .compile(s"(?<=\n)\\h*+(?=\\$pipe)")
-
-  private val leadingPipeSpace = compileStripMarginPattern('|')
 
   /** [[https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html#the-end-marker]]
     */
