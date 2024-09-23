@@ -1205,9 +1205,6 @@ class Router(formatOps: FormatOps) {
           flags.literalArgList
         val nlOnly = nlOpen && !singleLineOnly
 
-        def findComma(ft: FormatToken) = findFirstOnRight[T.Comma](ft, close)
-          .map(_.right)
-
         val binPack = style.binPack.callSiteFor(open)
         val oneline = binPack.isOneline
         val afterFirstArgOneline =
@@ -1266,7 +1263,15 @@ class Router(formatOps: FormatOps) {
               else Seq(indent)
 
             val nextComma =
-              if (!oneline) findComma(ft)
+              if (firstArg.isEmpty) None
+              else if (!oneline) tokens.findTokenEx(ft) { xft =>
+                xft.right match {
+                  case `close` | _: T.RightBrace | _: T.RightArrow => null
+                  case x: T.Comma => Right(x)
+                  case x: T.LeftBrace => Left(tokens(matching(x)))
+                  case _ => Left(next(xft))
+                }
+              }.toOption
               else if (isSingleArg) None
               else afterFirstArgOneline.map(_.right)
             val opt = nextComma.getOrElse(scalaJsOptClose(beforeClose, flags))
