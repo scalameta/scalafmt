@@ -1683,11 +1683,12 @@ class Router(formatOps: FormatOps) {
           val eft = if (nft.noBreak) nextNonCommentSameLineAfter(nft) else nft
           rhsOptimalToken(eft)
         }
-        def shouldKillOnFail() = !(prevSelect.isEmpty && nextSelect.isEmpty) &&
+        def shouldKillOnFail() =
           (style.binPack.callSite ne BinPack.Site.Never) &&
-          findTreeWithParentSimple(rightOwner) {
-            _.isAny[Term.Interpolate, Pat.Interpolate]
-          }.isEmpty
+            (!(prevSelect.isEmpty && nextSelect.isEmpty) &&
+              findTreeWithParentSimple(expireTree) {
+                _.isAny[Term.Interpolate, Pat.Interpolate]
+              }.isEmpty || isInfixArg(expireTree))
 
         val ftAfterRight = tokens(ft, 2)
         val baseSplits = style.newlines.getSelectChains match {

@@ -498,6 +498,16 @@ object TreeOps {
   final def isInfixApp(tree: Tree): Boolean = asInfixApp(tree).isDefined
 
   @tailrec
+  def isInfixArg(tree: Tree): Boolean = tree.parent match {
+    case None => false
+    case Some(p) => p match {
+        case _: Member.ArgClause => isInfixArg(p)
+        case p: Member.Infix => (p.arg eq tree) || isInfixArg(p)
+        case _ => false
+      }
+  }
+
+  @tailrec
   def findNextInfixInParent(tree: Tree, scope: Tree): Option[Name] =
     tree.parent match {
       case Some(t: Member.ArgClause) => findNextInfixInParent(t, scope)
