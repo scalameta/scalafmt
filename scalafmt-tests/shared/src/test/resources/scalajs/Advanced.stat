@@ -21,6 +21,20 @@ private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
     genApplyForSymNonJSSuperCall(minArgc, sym)
   }
 }
+<<< overflow infix with selects
+maxColumn = 62
+newlines.source = keep
+===
+debuglog("infer method inst " + fun + ", tparams = " + tparams + ", args = " + args1.map(_.tpe) + ", pt = " + pt + ", lobounds = " + tparams.map(_.tpe.lowerBound) + ", parambounds = " + tparams.map(_.info)) //debug
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-debuglog("infer method inst " + fun + ", tparams = " + tparams + ", args = " + args1
+-  .map(
+-      _.tpe) + ", pt = " + pt + ", lobounds = " + tparams.map(
++debuglog("infer method inst " + fun + ", tparams = " + tparams + ", args = " + args1.map(
++    _.tpe) + ", pt = " + pt + ", lobounds = " + tparams.map(
+     _.tpe.lowerBound) + ", parambounds = " + tparams.map(
 <<< overflow infix with applies
 maxColumn = 74
 newlines.source = keep
