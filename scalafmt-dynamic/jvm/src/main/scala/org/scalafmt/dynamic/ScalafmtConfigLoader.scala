@@ -48,11 +48,11 @@ object ScalafmtConfigLoader extends ScalafmtConfigLoader {
     Try(ConfigFactory.parseFile(config.toFile).getString("version")) match {
       case Failure(e: ConfigException.IO)
           if e.getCause.isInstanceOf[FileNotFoundException] =>
-        Left(new ConfigDoesNotExist(config))
+        Left(new ConfigDoesNotExist(config, e))
       case Failure(e: ConfigException.Parse) =>
-        Left(new ConfigParseError(config, e.getMessage))
-      case Failure(_: ConfigException.Missing) =>
-        Left(new ConfigMissingVersion(config))
+        Left(new ConfigParseError(config, e.getMessage, e.getCause))
+      case Failure(e: ConfigException.Missing) =>
+        Left(new ConfigMissingVersion(config, e.getCause))
       case Failure(e) => Left(new UnknownConfigError(config, e))
       case Success(v) => ScalafmtVersion.parse(v)
           .toRight(new ConfigInvalidVersion(config, v))

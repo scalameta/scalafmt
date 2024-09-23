@@ -15,11 +15,11 @@ object ScalafmtDynamicError {
       cause: Throwable = null,
   ) extends ScalafmtDynamicError(msg, cause)
 
-  class ConfigDoesNotExist(configPath: Path)
-      extends ConfigError(configPath, "Missing config")
+  class ConfigDoesNotExist(configPath: Path, cause: Throwable = null)
+      extends ConfigError(configPath, "Missing config", cause)
 
-  class ConfigMissingVersion(configPath: Path)
-      extends ConfigError(configPath, "Missing version")
+  class ConfigMissingVersion(configPath: Path, cause: Throwable = null)
+      extends ConfigError(configPath, "Missing version", cause)
 
   class ConfigParseError(configPath: Path, why: String, cause: Throwable = null)
       extends ConfigError(configPath, s"Invalid config: $why", cause)
