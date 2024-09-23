@@ -158,14 +158,17 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     getClosingIfInParens(last)(getHead(tokens, tree)).getOrElse(last)
   }
 
-  @tailrec
   final def findTokenWith[A](ft: FormatToken, iter: FormatToken => FormatToken)(
       f: FormatToken => Option[A],
+  ): Either[FormatToken, A] = findTokenEx(ft)(xft => f(xft).toRight(iter(xft)))
+
+  @tailrec
+  final def findTokenEx[A](ft: FormatToken)(
+      f: FormatToken => Either[FormatToken, A],
   ): Either[FormatToken, A] = f(ft) match {
-    case Some(a) => Right(a)
-    case _ =>
-      val nextFt = iter(ft)
-      if (nextFt eq ft) Left(ft) else findTokenWith(nextFt, iter)(f)
+    case null => Left(ft)
+    case Left(nextFt) if nextFt ne ft => findTokenEx(nextFt)(f)
+    case x => x
   }
 
   final def findToken(ft: FormatToken, iter: FormatToken => FormatToken)(
