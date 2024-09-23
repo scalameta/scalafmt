@@ -12,7 +12,7 @@ def localSnapshotVersion: String = s"$parseTagVersion-SNAPSHOT"
 def isCI = System.getenv("CI") != null
 
 def scala212 = "2.12.20"
-def scala213 = "2.13.13"
+def scala213 = "2.13.14"
 
 inThisBuild(List(
   version ~= { dynVer =>
@@ -35,6 +35,8 @@ inThisBuild(List(
   libraryDependencies ++=
     List(munit.value % Test, scalacheck % Test, scalametaTestkit % Test),
   testFrameworks += new TestFramework("munit.Framework"),
+  // causes native image issues
+  dependencyOverrides += "org.jline" % "jline" % "3.23.0",
 ))
 
 name := "scalafmtRoot"
