@@ -118,35 +118,27 @@ class FormatOps(
       classifier: Classifier[T, A],
   ): Option[FormatToken] = findFirst(start, end.start)(x => classifier(x.right))
 
-  final def rhsOptimalToken(start: FormatToken, end: Int = Int.MaxValue)(
-      implicit style: ScalafmtConfig,
-  ): T = findTokenWith(start, next) { start =>
-    start.right match {
-      case t if t.end >= end => Some(start.left)
-      case _ if start.hasBlankLine => Some(start.left)
-      case _: T.RightParen
-          if start.left.is[T.RightParen] || start.left.is[T.LeftParen] => None
-      case _: T.RightBracket if start.left.is[T.RightBracket] => None
-      case _: T.LeftParen if !leftParenStartsNewBlockOnRight(start) => None
-      case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals => None
-      case c: T.Comment
-          if start.noBreak &&
-            (!start.left.is[T.LeftParen] ||
-              hasBreakAfterRightBeforeNonComment(start)) => Some(c)
-      case _ => Some(start.left)
-    }
-  }.fold(_.right, identity)
-
   @tailrec
-  final def endOfSingleLineBlockOnLeft(
-      start: FormatToken,
-  )(implicit style: ScalafmtConfig): FormatToken = {
+  final def getSlbEndOnLeft(start: FormatToken, end: Int = Int.MaxValue)(
+      implicit style: ScalafmtConfig,
+  ): FormatToken = {
     val endFound = start.right match {
+      case t if t.end >= end => true
       case _: T.EOF => true
       case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals => false
       case _ if start.hasBlankLine => true
-      case _: T.LeftParen => leftParenStartsNewBlockOnRight(start)
-      case _: T.RightParen => !start.left.is[T.LeftParen]
+      case _
+          if !style.newlines.formatInfix &&
+            (isInfixOp(start.rightOwner) || isInfixOpOnLeft(start)) =>
+        start.hasBreak
+      case _: T.LeftParen if !leftParenStartsNewBlockOnRight(start) => false
+      case _: T.RightBracket if start.left.is[T.RightBracket] => false
+      case _: T.RightParen => start.left match {
+          case _: T.LeftParen => false
+          case _: T.RightParen => !style.newlines.fold &&
+            style.danglingParentheses.atSite(start.rightOwner, orElse = true)
+          case _ => true
+        }
       case _: T.Comment =>
         if (start.noBreak) {
           val nft = next(start)
@@ -154,16 +146,15 @@ class FormatOps(
             return nft // RETURN!!!
         }
         true
-      case _ => style.newlines.formatInfix || start.hasBreak ||
-        !(isInfixOp(start.rightOwner) || isInfixOpOnLeft(start))
+      case _ => true
     }
 
-    if (endFound) start else endOfSingleLineBlockOnLeft(next(start))
+    if (endFound) start else getSlbEndOnLeft(next(start))
   }
 
   final def endOfSingleLineBlock(start: FormatToken)(implicit
       style: ScalafmtConfig,
-  ): T = endOfSingleLineBlockOnLeft(start).left
+  ): T = getSlbEndOnLeft(start).left
 
   final def isInfixOpOnLeft(ft: FormatToken): Boolean =
     isInfixOp(prevNonComment(ft).leftOwner)
@@ -1535,7 +1526,7 @@ class FormatOps(
           fileLine: FileLine,
       ) = {
         val spacePolicy = policy | penalize(penalty)
-        val miniSlbEnd = rhsOptimalToken(next(ft), blastFT.right.end)
+        val miniSlbEnd = getSlbEndOnLeft(next(ft), blastFT.right.end).left
         val slbLite = style.newlines.keep
         val opt = if (slbLite) miniSlbEnd else blast
         Split(Space, 0).withSingleLineNoOptimal(miniSlbEnd, noSyntaxNL = true)

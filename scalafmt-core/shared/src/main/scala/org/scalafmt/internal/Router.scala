@@ -397,7 +397,8 @@ class Router(formatOps: FormatOps) {
             // copy logic from `( ...`, binpack=never, defining `slbSplit`
             val isBeforeOpenParen = style.newlines.isBeforeOpenParenCallSite
             Split(NoSplit, 0).withSingleLine(
-              if (isBeforeOpenParen) closeFT.left else rhsOptimalToken(closeFT),
+              if (isBeforeOpenParen) closeFT.left
+              else endOfSingleLineBlock(closeFT),
               noSyntaxNL = true,
               killOnFail = true,
               noOptimal = style.newlines.keep,
@@ -914,7 +915,7 @@ class Router(formatOps: FormatOps) {
           else style.newlines.isBeforeOpenParenCallSite
         val optimal: T =
           if (isBeforeOpenParen) close
-          else if (!defnSite || isBracket) rhsOptimalToken(afterClose)
+          else if (!defnSite || isBracket) endOfSingleLineBlock(afterClose)
           else defnSiteLastToken(afterClose, leftOwner)
 
         val wouldDangle = onlyConfigStyle || mustDangleForTrailingCommas ||
@@ -1409,7 +1410,8 @@ class Router(formatOps: FormatOps) {
                 .Block(List(_: Term.FunctionTerm | _: Term.PartialFunction)) =>
             Seq(Split(Newline, 0))
           case _ =>
-            val breakAfter = rhsOptimalToken(next(nextNonCommentSameLine(ft)))
+            val breakAfter =
+              endOfSingleLineBlock(next(nextNonCommentSameLine(ft)))
             val multiLine = decideNewlinesOnlyAfterToken(breakAfter) ==>
               decideNewlinesOnlyBeforeClose(close)
             Seq(
@@ -1455,7 +1457,7 @@ class Router(formatOps: FormatOps) {
               // copy logic from `( ...`, binpack=never, defining `slbSplit`
               val isBeforeOpenParen = style.newlines.isBeforeOpenParenCallSite
               val optimal: T =
-                if (isBeforeOpenParen) rbft.left else rhsOptimalToken(rbft)
+                if (isBeforeOpenParen) rbft.left else endOfSingleLineBlock(rbft)
               val noOptimal = style.newlines.keep
               Split(NoSplit, 0).withSingleLine(optimal, noOptimal = noOptimal)
             }
@@ -1681,7 +1683,7 @@ class Router(formatOps: FormatOps) {
         def getSlbEnd() = {
           val nft = nextNonCommentSameLineAfter(ft)
           val eft = if (nft.noBreak) nextNonCommentSameLineAfter(nft) else nft
-          rhsOptimalToken(eft)
+          endOfSingleLineBlock(eft)
         }
         def shouldKillOnFail() =
           (style.binPack.callSite ne BinPack.Site.Never) &&
