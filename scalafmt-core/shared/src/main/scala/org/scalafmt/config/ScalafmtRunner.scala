@@ -23,7 +23,7 @@ case class ScalafmtRunner(
     private val eventCallback: FormatEvent => Unit = null,
     private[config] val parser: ScalafmtParser = ScalafmtParser.Source,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
-    maxStateVisits: Int = 1000000,
+    maxStateVisits: Option[Int] = None,
     private[config] val dialect: NamedDialect = NamedDialect.default,
     private val dialectOverride: Conf.Obj = Conf.Obj.empty,
     ignoreWarnings: Boolean = false,
@@ -71,6 +71,9 @@ case class ScalafmtRunner(
   private[scalafmt] def conservative: ScalafmtRunner =
     copy(optimizer = optimizer.conservative)
 
+  private[scalafmt] def getMaxStateVisits: Int = maxStateVisits
+    .getOrElse(1000000)
+
 }
 
 object ScalafmtRunner {
@@ -81,12 +84,7 @@ object ScalafmtRunner {
 
   /** The default runner formats a compilation unit and listens to no events.
     */
-  val default = ScalafmtRunner(
-    debug = false,
-    parser = ScalafmtParser.Source,
-    optimizer = ScalafmtOptimizer.default,
-    maxStateVisits = 1000000,
-  )
+  val default = ScalafmtRunner()
 
   val sbt = default.withDialect(meta.dialects.Sbt)
 

@@ -28,7 +28,7 @@ trait HasTests extends FormatAssertions {
 
   def scalafmtRunner(sr: ScalafmtRunner, dg: Debug): ScalafmtRunner = sr.copy(
     debug = true,
-    maxStateVisits = 150000,
+    maxStateVisits = sr.maxStateVisits.orElse(Some(150000)),
     eventCallback = {
       case CreateFormatOps(ops) => dg.formatOps = ops
       case Routes(routes) => dg.routes = routes

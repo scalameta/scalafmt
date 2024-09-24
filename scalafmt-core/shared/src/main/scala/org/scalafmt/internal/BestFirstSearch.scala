@@ -410,7 +410,7 @@ object BestFirstSearch {
         ft: FormatToken,
     )(implicit formatWriter: FormatWriter): Unit = explode(
       ft,
-      runner.maxStateVisits,
+      runner.getMaxStateVisits,
     )(explored > _, x => s"exceeded `runner.maxStateVisits`=$x")
 
     def explode[A](ft: FormatToken, value: A)(
