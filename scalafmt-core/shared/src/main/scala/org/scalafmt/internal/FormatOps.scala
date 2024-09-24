@@ -133,6 +133,9 @@ class FormatOps(
         start.hasBreak
       case _: T.LeftParen if !leftParenStartsNewBlockOnRight(start) => false
       case _: T.RightBracket if start.left.is[T.RightBracket] => false
+      case _: T.LeftBracket => false
+      case _: T.Dot if start.rightOwner.is[Type.Select] => false
+      case _: T.Ident if start.leftOwner.is[Type.Select] => false
       case _: T.RightParen => start.left match {
           case _: T.LeftParen => false
           case _: T.RightParen => !style.newlines.fold &&
