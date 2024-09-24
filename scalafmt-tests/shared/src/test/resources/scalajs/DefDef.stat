@@ -648,21 +648,15 @@ newlines.source = keep
 ===
 @inline implicit def enrichAsScalaFromToIntFunction[T](jf: java.util.function.ToIntFunction[T]): RichToIntFunctionAsFunction1[T] = new RichToIntFunctionAsFunction1[T](jf)
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--@inline implicit def enrichAsScalaFromToIntFunction[T](
--    jf: java.util.function.ToIntFunction[
-+@inline implicit def enrichAsScalaFromToIntFunction[T](jf: java.util.function.ToIntFunction[
-         T]): RichToIntFunctionAsFunction1[T] =
+@inline implicit def enrichAsScalaFromToIntFunction[T](jf: java.util
+      .function.ToIntFunction[T]): RichToIntFunctionAsFunction1[T] =
+  new RichToIntFunctionAsFunction1[T](jf)
 <<< #4133 overflow selects with apply-type 2
 maxColumn = 70
 newlines.source = keep
 ===
 def asScalaFromDoubleFunction[R](jf: java.util.function.DoubleFunction[R]): scala.Function1[java.lang.Double, R]
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--def asScalaFromDoubleFunction[R](
--    jf: java.util.function.DoubleFunction[
-+def asScalaFromDoubleFunction[R](jf: java.util.function.DoubleFunction[
-         R]): scala.Function1[java.lang.Double, R]
+def asScalaFromDoubleFunction[R](
+    jf: java.util.function.DoubleFunction[R]): scala.Function1[
+    java.lang.Double, R]
