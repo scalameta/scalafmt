@@ -114,13 +114,13 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         if (blockClose.nonEmpty) blockClose.foreach { end =>
           shortestPathMemo(curr, end, depth + 1, maxCost).foreach(enqueue)
         }
-        else if (
-          optimizer.escapeInPathologicalCases && isSeqMulti(routes(idx)) &&
-          stats.visits(idx) > optimizer.maxVisitsPerToken
-        ) stats.explode(splitToken)(
-          s"exceeded `runner.optimizer.maxVisitsPerToken`=${optimizer.maxVisitsPerToken}",
-        )
         else {
+          if (optimizer.escapeInPathologicalCases && isSeqMulti(routes(idx)))
+            stats.explode(splitToken, optimizer.maxVisitsPerToken)(
+              stats.visits(idx) > _,
+              x => s"exceeded `runner.optimizer.maxVisitsPerToken`=$x",
+            )
+
           val actualSplit = getActiveSplits(splitToken, curr, maxCost)
           val allAltAreNL = actualSplit.forall(_.isNL)
 
@@ -406,16 +406,19 @@ object BestFirstSearch {
           .exists(_.exists(_.isInstanceOf[PolicyOps.SingleLineBlock])) &&
         (best.getOrElseUpdate(state.prev.depth, state) eq state)
 
-    def checkExplored(ft: FormatToken)(implicit
-        formatWriter: FormatWriter,
-    ): Unit = if (explored > runner.maxStateVisits)
-      explode(ft)(s"exceeded `runner.maxStateVisits`=${runner.maxStateVisits}")
-
-    def explode(
+    def checkExplored(
         ft: FormatToken,
-    )(msg: String)(implicit formatWriter: FormatWriter): Unit = {
+    )(implicit formatWriter: FormatWriter): Unit = explode(
+      ft,
+      runner.maxStateVisits,
+    )(explored > _, x => s"exceeded `runner.maxStateVisits`=$x")
+
+    def explode[A](ft: FormatToken, value: A)(
+        cond: A => Boolean,
+        msg: A => String,
+    )(implicit formatWriter: FormatWriter): Unit = if (cond(value)) {
       complete(deepestYet)
-      throw new Error.SearchStateExploded(deepestYet, ft, msg)
+      throw new Error.SearchStateExploded(deepestYet, ft, msg(value))
     }
 
     def complete(state: State): Unit = runner
