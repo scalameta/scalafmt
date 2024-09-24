@@ -269,8 +269,9 @@ object a {
 >>>
 object a {
   lowClass.isJavaDefined && highClass.isJavaDefined && { // skip if both are java-defined, and
-    lowClass
-      .isNonBottomSubClass(highClass) || { //  - low <:< high, which means they are overrides in Java and javac is doing the check; or
+    lowClass.isNonBottomSubClass(
+      highClass
+    ) || { //  - low <:< high, which means they are overrides in Java and javac is doing the check; or
       base.info.parents.tail.forall {
         p => //  - every mixin parent is unrelated to (not a subclass of) low and high, i.e.,
           val psym =
