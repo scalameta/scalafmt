@@ -16,7 +16,7 @@ object TestStyles {
         .copy(git = true, layout = Some(ProjectFiles.Layout.StandardConvention)),
       lineEndings = Some(if (isWin) LineEndings.windows else LineEndings.unix),
       runner = base.runner.copy(
-        maxStateVisits = 10000000,
+        maxStateVisits = Some(10000000),
         optimizer = base.runner.optimizer.copy(escapeInPathologicalCases = false),
       ),
     )
