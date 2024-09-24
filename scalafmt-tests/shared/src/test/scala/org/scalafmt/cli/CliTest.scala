@@ -3,16 +3,19 @@ package org.scalafmt.cli
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Versions.{stable => stableVersion}
 import org.scalafmt.cli.FileTestOps._
+import org.scalafmt.config.PlatformConfig
 import org.scalafmt.config.ProjectFiles
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.FileOps
 import org.scalafmt.sysops.OsSpecific._
+import org.scalafmt.sysops.PlatformCompat
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.PrintStream
+import java.io.UncheckedIOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
@@ -295,7 +298,11 @@ trait CliTestBehavior {
           "--config-str",
           s"""{version="$version",style=IntelliJ}""",
         )
-        intercept[IOException] {
+        if (PlatformCompat.isNativeOnWindows())
+          intercept[UncheckedIOException] {
+            Cli.exceptionThrowingMainWithOptions(args, baseCliOptions)
+          }
+        else intercept[IOException] {
           Cli.exceptionThrowingMainWithOptions(args, baseCliOptions)
         }
       }
@@ -708,7 +715,7 @@ trait CliTestBehavior {
         assertOut = out =>
           assert(
             out.contains("bar.scala") && !out.contains("baz.scala") &&
-              out.contains("dir/foo.scala"),
+              out.contains(PlatformCompat.fixPathOnNativeWindows("dir/foo.scala")),
           ),
       )
     }
@@ -716,7 +723,7 @@ trait CliTestBehavior {
 }
 
 class CliTest extends AbstractCliTest with CliTestBehavior {
-  testCli("1.6.0-RC4") // test for runDynamic
+  if (!PlatformConfig.isScalaNative) testCli("1.6.0-RC4") // test for runDynamic, incompatible with Scala Native
   testCli(stableVersion) // test for runScalafmt
 
   test(s"path-error") {

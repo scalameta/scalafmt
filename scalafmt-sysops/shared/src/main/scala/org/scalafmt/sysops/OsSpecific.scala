@@ -15,5 +15,9 @@ object OsSpecific {
   implicit class XtensionStringAsFilename(private val string: String)
       extends AnyVal {
     def asFilename: String = fixSeparatorsInPathPattern(string)
+    def inPathMatcherForm: String =
+      if (PlatformCompat.isNativeOnWindows()) string.replace("\\\\", "/")
+      else fixSeparatorsInPathPattern(string)
+
   }
 }

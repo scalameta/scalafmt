@@ -58,7 +58,9 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
     val errors = Seq.newBuilder[String]
     Try {
       val swallowStderr = ProcessLogger(_ => (), errors += _)
-      sys.process.Process(cmd, workingDirectory.jfile).!!(swallowStderr)
+      sys.process
+        .Process(PlatformCompat.prepareCommand(cmd), workingDirectory.jfile)
+        .!!(swallowStderr)
     } match {
       case Failure(e) =>
         val err = errors.result().mkString("\n> ", "\n> ", "\n")

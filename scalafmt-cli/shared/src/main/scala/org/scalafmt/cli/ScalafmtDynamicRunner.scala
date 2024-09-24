@@ -39,7 +39,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
 
     val exitCode = new AtomicReference(ExitCode.Ok)
     breakable {
-      inputMethods.par.foreach { inputMethod =>
+      inputMethods.compatPar.foreach { inputMethod =>
         try {
           val code = handleFile(inputMethod, session, options)
           exitCode.getAndUpdate(ExitCode.merge(code, _))

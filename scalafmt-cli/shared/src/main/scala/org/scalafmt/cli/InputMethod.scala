@@ -2,6 +2,7 @@ package org.scalafmt.cli
 
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.PlatformCompat
 
 import java.io.InputStream
 import java.nio.file.Path
@@ -75,10 +76,8 @@ object InputMethod {
     override protected def overwrite(text: String, options: CliOptions): Unit =
       file.writeFile(text)(options.encoding)
 
-    override protected def list(options: CliOptions): Unit = {
-      val cwd = options.cwd.toUri
-      options.common.out.println(cwd.relativize(file.toUri))
-    }
+    override protected def list(options: CliOptions): Unit = options.common.out
+      .println(PlatformCompat.relativize(options.cwd, file))
   }
 
   def unifiedDiff(filename: String, original: String, revised: String): String = {
