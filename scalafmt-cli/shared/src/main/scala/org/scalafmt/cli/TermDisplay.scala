@@ -8,7 +8,6 @@ package org.scalafmt.cli
   */
 import java.io.File
 import java.io.Writer
-import java.sql.Timestamp
 import java.util.concurrent._
 
 import scala.annotation.tailrec
@@ -62,7 +61,7 @@ object Terminal {
 
 }
 
-object TermDisplay {
+object TermDisplay extends TermUtils {
 
   def defaultFallbackMode: Boolean = {
     val env0 = sys.env.get("COURSIER_PROGRESS").map(_.toLowerCase).collect {
@@ -71,7 +70,7 @@ object TermDisplay {
     }
     def compatibilityEnv = sys.env.contains("COURSIER_NO_TERM")
 
-    def nonInteractive = System.console() == null
+    def nonInteractive = noConsole
 
     def insideEmacs = sys.env.contains("INSIDE_EMACS")
     def ci = sys.env.contains("CI")
@@ -107,10 +106,6 @@ object TermDisplay {
         " source files formatted"
     }
   }
-
-  private val format = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-  private def formatTimestamp(ts: Long): String = format
-    .format(new Timestamp(ts))
 
   private case class CheckUpdateInfo(
       currentTimeOpt: Option[Long],
@@ -159,7 +154,7 @@ object TermDisplay {
     private var width = 80
     private var currentHeight = 0
 
-    private val q = new LinkedBlockingDeque[Message]
+    private val q = new LinkedBlockingQueue[Message]
 
     def update(): Unit = if (q.size() == 0) q.put(Message.Update)
 

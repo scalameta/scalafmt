@@ -65,7 +65,7 @@ object ProjectFiles {
     }
 
     private def create(seq: Seq[String], f: String => PathMatcher) = seq
-      .map(_.asFilename).distinct.map(f)
+      .map(_.inPathMatcherForm).distinct.map(f)
     private def nio(seq: Seq[String]) = create(seq, new Nio(_))
     private def regex(seq: Seq[String]) = create(seq, new Regex(_))
 

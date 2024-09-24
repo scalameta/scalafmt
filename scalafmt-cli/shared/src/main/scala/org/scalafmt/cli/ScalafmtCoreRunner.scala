@@ -41,7 +41,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
     val exitCode = new AtomicReference(ExitCode.Ok)
     Breaks.breakable {
-      inputMethods.par.foreach { inputMethod =>
+      inputMethods.compatPar.foreach { inputMethod =>
         val code = handleFile(inputMethod, options, adjustedScalafmtConf)
         exitCode.getAndUpdate(ExitCode.merge(code, _))
         if (options.check && !code.isOk) Breaks.break

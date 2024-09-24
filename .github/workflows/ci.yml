@@ -33,9 +33,32 @@ jobs:
       - run:
           # for GitOps tests
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: TEST="2.12" sbt ci-test
+      - run: TEST="2.12" sbt ci-test-jvm
         shell: bash
-      - run: TEST="2.13" sbt ci-test
+      - run: TEST="2.13" sbt ci-test-jvm
+        shell: bash
+  test-scala-native:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JVM
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'sbt'
+      - run:
+          # for GitOps tests
+          git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
+      - run: TEST="2.12" sbt ci-test-native
+        shell: bash
+      - run: TEST="2.13" sbt ci-test-native
         shell: bash
   community-test:
     strategy:

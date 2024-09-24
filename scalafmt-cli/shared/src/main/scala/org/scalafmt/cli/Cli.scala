@@ -1,7 +1,6 @@
 package org.scalafmt.cli
 
 import org.scalafmt.Versions.{stable => stableVersion}
-import org.scalafmt.sysops.AbsoluteFile
 
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -10,31 +9,7 @@ import scala.io.Source
 import scala.util.Using
 import scala.util.control.NoStackTrace
 
-import com.martiansoftware.nailgun.NGContext
-
-object Cli {
-  def nailMain(nGContext: NGContext): Unit = {
-    val workingDirectory = AbsoluteFile.fromPathIfAbsolute(
-      nGContext.getWorkingDirectory,
-    ).getOrElse {
-      throw new IllegalStateException(
-        s"Expected absolute path, " +
-          s"obtained nGContext.getWorkingDirectory = ${nGContext.getWorkingDirectory}",
-      )
-    }
-    val exit = mainWithOptions(
-      nGContext.getArgs,
-      CliOptions.default.copy(common =
-        CliOptions.default.common.copy(
-          cwd = Some(workingDirectory),
-          out = nGContext.out,
-          in = nGContext.in,
-          err = nGContext.err,
-        ),
-      ),
-    )
-    nGContext.exit(exit.code)
-  }
+object Cli extends CliUtils {
 
   private def throwIfError(exit: ExitCode): Unit = if (exit != ExitCode.Ok)
     throw new RuntimeException(exit.toString) with NoStackTrace
@@ -86,8 +61,8 @@ object Cli {
       case Right(runner) => runWithRunner(options, runner)
     }
 
-  private val isNativeImage: Boolean = "true" ==
-    System.getProperty("scalafmt.native-image", "false")
+  private val isNative: Boolean = isScalaNative ||
+    ("true" == System.getProperty("scalafmt.native-image", "false"))
 
   private def getProposedConfigVersion(options: CliOptions): String =
     s"version = $stableVersion"
@@ -125,7 +100,7 @@ object Cli {
         case Right(`stableVersion`) =>
           options.common.debug.println(s"Using core runner [$stableVersion]")
           Right(ScalafmtCoreRunner)
-        case Right(v) if isNativeImage =>
+        case Right(v) if isNative =>
           Left(
             s"""|error: invalid Scalafmt version.
                 |
@@ -142,7 +117,7 @@ object Cli {
           )
         case Right(v) =>
           options.common.debug.println(s"Using dynamic runner [$v]")
-          Right(ScalafmtDynamicRunner)
+          Right(getDynamicRunner())
       }
     }
 

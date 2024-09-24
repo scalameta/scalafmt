@@ -221,7 +221,8 @@ case class ScalafmtConfig(
     val langResult = patStyles.collect { case (Left(lang), cfg) => lang -> cfg }
     val fs = FileSystems.getDefault
     val pmResult = patStyles.collect { case (Right(pat), cfg) =>
-      val pattern = if (pat(0) == '.') "glob:**" + pat else pat.asFilename
+      val pattern =
+        if (pat(0) == '.') "glob:**" + pat else pat.inPathMatcherForm
       fs.getPathMatcher(pattern) -> cfg
     }
     (langResult, pmResult)

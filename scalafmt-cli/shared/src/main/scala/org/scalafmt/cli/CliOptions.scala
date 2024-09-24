@@ -20,7 +20,7 @@ import scala.util.matching.Regex
 
 import metaconfig.Configured
 
-object CliOptions {
+object CliOptions extends CliOptionsUtils {
   val default = CliOptions()
 
   /** Tries to read configuration from
@@ -40,12 +40,14 @@ object CliOptions {
       if (parsed.quiet) Output.NoopStream
       else {
         val usesOut = parsed.stdIn || parsed.writeMode.usesOut
-        val cons = if (usesOut) System.console() else null
-        if (cons ne null) new Output.FromWriter(cons.writer())
-        else new Output.FromStream(
-          if (parsed.noStdErr || !usesOut) parsed.common.out
-          else parsed.common.err,
-        )
+        val consWriterOpt = if (usesOut) getConsoleWriter() else None
+        consWriterOpt match {
+          case Some(writer) => new Output.FromWriter(writer)
+          case None => new Output.FromStream(
+              if (parsed.noStdErr || !usesOut) parsed.common.out
+              else parsed.common.err,
+            )
+        }
       }
     val common = parsed.common.copy(
       out = guardPrintStream(parsed.quiet && !parsed.stdIn)(parsed.common.out),

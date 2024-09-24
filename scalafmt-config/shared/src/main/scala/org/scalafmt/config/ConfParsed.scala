@@ -58,6 +58,6 @@ object ConfParsed {
     fromInput(Input.String(input), path)
 
   def fromPath(input: Path, path: Option[String] = None): ConfParsed =
-    apply(Configured.fromExceptionThrowing(Input.File(input)), path)
+    apply(Configured.fromExceptionThrowing(metaconfigInputFromFile(input)), path)
 
 }
