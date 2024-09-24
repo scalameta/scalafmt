@@ -660,3 +660,121 @@ def asScalaFromDoubleFunction[R](jf: java.util.function.DoubleFunction[R]): scal
 def asScalaFromDoubleFunction[R](
     jf: java.util.function.DoubleFunction[R]): scala.Function1[
     java.lang.Double, R]
+<<< SKIP #4133 complex nested applies with long infix args
+maxColumn = 80
+newlines.source = keep
+runner.maxStateVisits = 10000
+===
+trait EntityPage extends HtmlPage {
+  def search =
+    Div(id="search", elems=
+        Span(id= "doc-title", elems= Txt(universe.settings.doctitle.value) :: Span(id= "doc-version", elems= Txt(universe.settings.docversion.value))) ::
+        Txt(" ") ::
+        Span(`class`= "close-results", elems= Span(`class`="left", elems= Txt("<")) :: Txt(" Back")) ::
+        Div(id="textfilter", elems=
+          Span(`class`= "input", elems=
+            Input(autocapitalize="none", placeholder="Search", id="index-input", `type`="text", accesskey="/") ::
+            I(`class`= "clear material-icons", elems=Txt("\uE14C")) ::
+            I(id="search-icon", `class`= "material-icons", elems=Txt("\uE8B6"))
+          )
+         ) :: NoElems
+       )
+
+}
+>>>
+FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '[82] )∙::: RightParen [335..336) [ ] Ident(::) [337..339)', line 6: exceeded `runner.maxStateVisits`=10000 [see https://scalameta.org/scalafmt/docs/configuration.html#search-state-exploded]
+<<< SKIP #4133 complex nested applies with long infix args 2
+maxColumn = 80
+newlines.source = keep
+runner.maxStateVisits = 100000
+===
+val memberSel: Elems =
+  if (valueMembers.forall(_.kind == "package")) NoElems
+  else List(Div(id="mbrsel", elems=
+    Div(`class`="toggle") ::
+    Div(id="memberfilter", elems=
+      I(`class`="material-icons arrow", elems= Txt("\uE037")) ::
+      Span(`class`="input", elems=
+        Input(id="mbrsel-input", placeholder="Filter all members", `type`="text", accesskey="/")
+      ) ::
+      I(`class`="clear material-icons", elems=Txt("\uE14C"))
+    ) ::
+    Div(id="filterby", elems=
+      Div(id="order", elems=
+        Span(`class`="filtertype", elems=Txt("Ordering")) ::
+        Ol(elems=
+          {
+            if (!universe.settings.docGroups.value || tpl.members.map(_.group).distinct.forall(_ == ModelFactory.defaultGroup))
+              NoElems
+            else
+              Li(`class`="group out", elems=Span(elems=Txt("Grouped"))) :: NoElems
+          } ++
+          (Li(`class`="alpha in", elems=Span(elems=Txt("Alphabetic"))) ::
+          {
+            if (tpl.linearizationTemplates.isEmpty && tpl.conversions.isEmpty)
+              NoElems
+            else
+              Li(`class`="inherit out", elems=Span(elems=Txt("By Inheritance"))) :: NoElems
+          })
+        )
+      ) ++ (
+      if (tpl.linearizationTemplates.isEmpty && tpl.conversions.isEmpty) NoElems else {
+        (if (tpl.linearizationTemplates.isEmpty) NoElems else
+          Div(`class`="ancestors", elems=
+            Span(`class`="filtertype", elems=Txt("Inherited") :: Br :: NoElems) ::
+            Ol(id="linearization", elems=
+              { (tpl :: tpl.linearizationTemplates).map(wte => Li(`class`="in", name= wte.qualifiedName, elems=Span(elems= Txt(wte.name)))) }
+            )
+          ) :: NoElems) ++
+        (if (tpl.conversions.isEmpty) NoElems else
+          Div(`class`="ancestors", elems=
+            Span(`class`="filtertype", elems=Txt("Implicitly") :: Br :: NoElems) ::
+            Ol(id="implicits", elems= {
+              tpl.conversions.map { conv =>
+                val name = conv.conversionQualifiedName
+                val hide = universe.settings.hiddenImplicits(name)
+                Li(`class`="in", name= name, `data-hidden`= hide.toString, elems= Span(elems= Txt("by " + conv.conversionShortName)))
+              }
+            }
+            )
+          ) :: NoElems) ++ List(
+        Div(`class`="ancestors", elems=
+          Span(`class`="filtertype") ::
+          Ol(elems=
+            Li(`class`="hideall out", elems= Span(elems=Txt("Hide All"))) ::
+            Li(`class`="showall in", elems= Span(elems=Txt("Show All")))
+          )
+        ))
+      }) ++ List(
+      Div(id="visbl", elems=
+          Span(`class`="filtertype", elems=Txt("Visibility")) ::
+          Ol(elems=
+            List(
+              Li(`class`="public in", elems=Span(elems=Txt("Public"))),
+              Li(`class`="protected out", elems=Span(elems=Txt("Protected")))
+            ) ++ List(Li(`class`="private out", elems=Span(elems=Txt("Private")))).filter(_ => universe.settings.visibilityPrivate.value))
+      ))
+    )
+  ))
+>>>
+FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '[221] .∙isEmpty: Dot [999..1000) [] Ident(isEmpty) [1000..1007)', line 24: exceeded `runner.maxStateVisits`=100000 [see https://scalameta.org/scalafmt/docs/configuration.html#search-state-exploded]
+<<< SKIP #4133 complex nested applies with long infix args 3
+maxColumn = 80
+newlines.source = keep
+runner.maxStateVisits = 10000
+===
+val template: Elems = List(
+ Div(id="template", elems= List(
+    Div(id="allMembers", elems=
+         memsDiv("package members", "Package Members", packageMembers, "packages")
+      ++ memsDiv("members", "Instance Constructors", constructors, "constructors")
+      ++ memsDiv("types members", "Type Members", typeMembers, "types")
+      ++ memsDiv("types members", "Deprecated Type Members", deprTypeMembers, "deprecatedTypes")
+      ++ memsDiv("values members", "Abstract Value Members", absValueMembers)
+      ++ memsDiv("values members", if (absValueMembers.isEmpty) "Value Members" else "Concrete Value Members", concValueMembers)
+      ++ memsDiv("values members", "Shadowed Implicit Value Members", shadowedImplicitMembers)
+      ++ memsDiv("values members", "Deprecated Value Members", deprValueMembers)),
+    )
+  ))
+>>>
+FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '[84] (∙absValueMembers: LeftParen [544..545) [] Ident(absValueMembers) [545..560)', line 9: exceeded `runner.maxStateVisits`=10000 [see https://scalameta.org/scalafmt/docs/configuration.html#search-state-exploded]
