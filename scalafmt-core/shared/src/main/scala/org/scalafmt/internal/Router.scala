@@ -1145,8 +1145,9 @@ class Router(formatOps: FormatOps) {
               val opensPolicy = bracketPenalty.map { p =>
                 Policy.before(close, "PENBP[") {
                   case Decision(ftd @ FormatToken(o: T.LeftBracket, _, m), s)
-                      if isParamClauseSite(m.leftOwner) && styleMap.at(o)
-                        .binPack.bracketDefnSite != BinPack.Site.Never =>
+                      if isParamClauseSite(m.leftOwner) &&
+                        styleMap.at(o).binPack.bracketDefnSite
+                          .exists(_ != BinPack.Site.Never) =>
                     if (isRightCommentThenBreak(ftd)) s
                     else s.map(x => if (x.isNL) x.withPenalty(p) else x)
                 }
