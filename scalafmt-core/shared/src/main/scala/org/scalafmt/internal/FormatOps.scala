@@ -2675,18 +2675,13 @@ class FormatOps(
   def getLastNonTrivialTokenOpt(tree: Tree): Option[T] = tokens
     .getLastNonTrivialOpt(tree).map(_.left)
 
-  def getEndOfBlock(ft: FormatToken, parensToo: Boolean)(implicit
+  def getEndOfBlock(ft: FormatToken, parensToo: => Boolean)(implicit
       style: ScalafmtConfig,
-  ): Option[T] = getEndOfBlockOrOptionalBraces(ft, parensToo).map(_.merge)
-
-  def getEndOfBlockOrOptionalBraces(ft: FormatToken, parensToo: Boolean = false)(
-      implicit style: ScalafmtConfig,
-  ): Option[Either[T, T]] = ft.left match {
-    case x: T.LeftBrace => matchingOpt(x).map(Right.apply)
-    case x: T.LeftParen =>
-      if (parensToo) matchingOpt(x).map(Right.apply) else None
+  ): Option[T] = ft.left match {
+    case x: T.LeftBrace => matchingOpt(x)
+    case x: T.LeftParen => if (parensToo) matchingOpt(x) else None
     case _ => OptionalBraces.get(ft)
-        .flatMap(_.rightBrace.map(x => Left(nextNonCommentSameLine(x).left)))
+        .flatMap(_.rightBrace.map(x => nextNonCommentSameLine(x).left))
   }
 
   def isCloseDelimForTrailingCommasMultiple(ft: FormatToken): Boolean =
