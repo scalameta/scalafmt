@@ -1527,9 +1527,14 @@ class FormatOps(
           fileLine: FileLine,
       ) = {
         val spacePolicy = policy | penalize(penalty)
-        val miniSlbEnd = getSlbEndOnLeft(next(ft), blastFT.right.end).left
-        val slbLite = style.newlines.keep
-        val opt = if (slbLite) miniSlbEnd else blast
+        val miniSlbEnd = getSlbEndOnLeft(next(ft)).left
+        val slbLite = style.newlines.keep &&
+          (body.parent match {
+            case Some(p: Term.Assign) => !p.parent.is[Term.ArgClause] ||
+              style.binPack.callSite == BinPack.Site.Never
+            case _ => true
+          })
+        val opt = if (style.newlines.keep) miniSlbEnd else blast
         Split(Space, 0).withSingleLineNoOptimal(miniSlbEnd, noSyntaxNL = true)
           .andPolicy(spacePolicy)
           .withOptimalToken(opt, killOnFail = slbLite, recurseOnly = slbLite)

@@ -660,7 +660,7 @@ def asScalaFromDoubleFunction[R](jf: java.util.function.DoubleFunction[R]): scal
 def asScalaFromDoubleFunction[R](
     jf: java.util.function.DoubleFunction[R]): scala.Function1[
     java.lang.Double, R]
-<<< SKIP #4133 complex nested applies with long infix args
+<<< #4133 complex nested applies with long infix args
 maxColumn = 80
 newlines.source = keep
 runner.maxStateVisits = 10000
@@ -682,7 +682,38 @@ trait EntityPage extends HtmlPage {
 
 }
 >>>
-FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '[82] )∙::: RightParen [335..336) [ ] Ident(::) [337..339)', line 6: exceeded `runner.maxStateVisits`=10000 [see https://scalameta.org/scalafmt/docs/configuration.html#search-state-exploded]
+trait EntityPage extends HtmlPage {
+  def search =
+    Div(
+        id = "search",
+        elems =
+          Span(id = "doc-title",
+              elems = Txt(universe.settings.doctitle.value) :: Span(
+                  id = "doc-version",
+                  elems = Txt(universe.settings.docversion.value))) ::
+            Txt(" ") ::
+            Span(`class` = "close-results",
+                elems = Span(`class` = "left", elems = Txt("<")) :: Txt(
+                    " Back")) ::
+            Div(
+                id = "textfilter",
+                elems =
+                  Span(
+                      `class` = "input",
+                      elems =
+                        Input(autocapitalize = "none", placeholder = "Search",
+                            id = "index-input", `type` = "text",
+                            accesskey = "/") ::
+                          I(`class` = "clear material-icons",
+                              elems = Txt("\uE14C")) ::
+                          I(id = "search-icon", `class` = "material-icons",
+                              elems = Txt(
+                                  "\uE8B6"))
+                  )
+            ) :: NoElems
+    )
+
+}
 <<< SKIP #4133 complex nested applies with long infix args 2
 maxColumn = 80
 newlines.source = keep
