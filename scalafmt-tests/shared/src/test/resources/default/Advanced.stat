@@ -51,10 +51,10 @@ val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
 val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
   js.Skip()
 } else {
-  envFieldDef(
-      "as",
-      className,
-      js.Function(List(objParam),
+  envFieldDef("as",
+              className,
+              js.Function(
+                  List(objParam),
                   js.Return(className match {
                     case Definitions.ObjectClass => obj
                     case _ =>

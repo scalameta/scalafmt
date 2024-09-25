@@ -38,11 +38,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   private def getBlockCloseToRecurse(ft: FormatToken, stop: Token)(implicit
       style: ScalafmtConfig,
-  ): Option[Token] = getEndOfBlockOrOptionalBraces(ft).flatMap {
-    case Left(x) => Some(x)
-    case Right(x) =>
-      if (extractStatementsIfAny(ft.meta.leftOwner).isEmpty) None else Some(x)
-  }.filter { close =>
+  ): Option[Token] = getEndOfBlock(ft, parensToo = true).filter { close =>
     // Block must span at least 3 lines to be worth recursing.
     close != stop && distance(ft.left, close) > style.maxColumn * 3
   }
