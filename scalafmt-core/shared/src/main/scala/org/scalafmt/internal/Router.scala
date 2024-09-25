@@ -1112,8 +1112,7 @@ class Router(formatOps: FormatOps) {
             if (noNeed) None else findFirstOnRight[T.Comma](getLast(x), close)
           }
 
-          val flags =
-            getBinpackSiteFlags(ft, prev(afterClose), literalArgList = false)
+          val flags = getBinpackDefnSiteFlags(ft, prev(afterClose))
           val (nlOnly, nlCloseOnOpen) = flags.nlOpenClose()
           val noNLPolicy = flags.noNLPolicy
           val slbOrNL = nlOnly || noNLPolicy == null

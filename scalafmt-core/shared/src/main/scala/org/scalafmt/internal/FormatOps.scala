@@ -2722,19 +2722,45 @@ class FormatOps(
     beforeClose.exists(rightIsCloseDelimToAddTrailingComma(_, closeFt))
   }
 
+  def getBinpackDefnSiteFlags(
+      ftAfterOpen: => FormatToken,
+      ftBeforeClose: FormatToken,
+  )(implicit
+      style: ScalafmtConfig,
+      clauseSiteFlags: ClauseSiteFlags,
+  ): BinpackSiteFlags =
+    getBinpackSiteFlags(ftAfterOpen, ftBeforeClose, literalArgList = false)
+
   def getBinpackCallSiteFlags(
       ftAfterOpen: FormatToken,
       ftBeforeClose: FormatToken,
-  )(implicit style: ScalafmtConfig, clauseSiteFlags: ClauseSiteFlags) = {
+  )(implicit
+      style: ScalafmtConfig,
+      clauseSiteFlags: ClauseSiteFlags,
+  ): BinpackSiteFlags = {
     val literalArgList = styleMap.opensLiteralArgumentList(ftAfterOpen)
     getBinpackSiteFlags(ftAfterOpen, ftBeforeClose, literalArgList)
   }
 
   def getBinpackSiteFlags(
+      defnSite: Boolean,
       ftAfterOpen: FormatToken,
       ftBeforeClose: FormatToken,
+  )(implicit
+      style: ScalafmtConfig,
+      clauseSiteFlags: ClauseSiteFlags,
+  ): BinpackSiteFlags =
+    if (defnSite) getBinpackDefnSiteFlags(ftAfterOpen, ftBeforeClose)
+    else getBinpackCallSiteFlags(ftAfterOpen, ftBeforeClose)
+
+  def getBinpackSiteFlags(
+      getFtAfterOpen: => FormatToken,
+      ftBeforeClose: FormatToken,
       literalArgList: Boolean,
-  )(implicit style: ScalafmtConfig, clauseSiteFlags: ClauseSiteFlags) = {
+  )(implicit
+      style: ScalafmtConfig,
+      clauseSiteFlags: ClauseSiteFlags,
+  ): BinpackSiteFlags = {
     implicit val configStyle = clauseSiteFlags.configStyle
     val configStylePrefer = configStyle.prefer
     val shouldDangle = dangleCloseDelim
@@ -2758,7 +2784,8 @@ class FormatOps(
       }
     }
 
-    def nlOpenClose(): (Boolean, NlClosedOnOpen) =
+    def nlOpenClose(): (Boolean, NlClosedOnOpen) = {
+      val ftAfterOpen = getFtAfterOpen
       if (!literalArgList && mustForceConfigStyle(ftAfterOpen))
         (true, NlClosedOnOpen.Cfg)
       else {
@@ -2786,6 +2813,7 @@ class FormatOps(
           (nlBothIncludingCfg || nlOpenExcludingCfg, dangle)
         }
       }
+    }
 
     BinpackSiteFlags(
       literalArgList = literalArgList,
