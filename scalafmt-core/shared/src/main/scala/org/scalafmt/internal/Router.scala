@@ -1264,9 +1264,8 @@ class Router(formatOps: FormatOps) {
               }.toOption
               else if (isSingleArg) None
               else afterFirstArgOneline.map(_.right)
-            val opt = nextComma.getOrElse(endOfSingleLineBlock(
-              next(scalaJsOptCloseOnRight(beforeClose, flags)),
-            ))
+            val opt = nextComma
+              .getOrElse(endOfSingleLineBlock(next(beforeClose)))
 
             val slbArg = oneline && !noSplitIndents.exists(_.hasStateColumn)
             val slbPolicy: Policy = (if (slbArg) nextComma else None).map {
