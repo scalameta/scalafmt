@@ -2823,7 +2823,7 @@ class FormatOps(
         case Newlines.fold if configStylePrefer => null
         case _ => noNLPolicy
       },
-      scalaJsStyle = scalaJsStyle && !literalArgList,
+      scalaJsStyle = scalaJsStyle,
     )
   }
 
