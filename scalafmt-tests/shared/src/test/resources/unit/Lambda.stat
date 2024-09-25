@@ -95,8 +95,7 @@ Thing(implicit ctx =>
       aaaaaaaaaaaaa(
           bbbbbbbbbbbbbbbbbbb,
           cccccccccc,
-          ddddddddddddddddddddj
-      )) // coooooooooooooooomment
+          ddddddddddddddddddddj)) // coooooooooooooooomment
 <<< long curried with (), with breaks before paren/comment
 Thing(implicit ctx =>
   j =>

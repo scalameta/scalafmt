@@ -707,8 +707,7 @@ trait EntityPage extends HtmlPage {
                           I(`class` = "clear material-icons",
                               elems = Txt("\uE14C")) ::
                           I(id = "search-icon", `class` = "material-icons",
-                              elems = Txt(
-                                  "\uE8B6"))
+                              elems = Txt("\uE8B6"))
                   )
             ) :: NoElems
     )
@@ -807,9 +806,7 @@ val memberSel: Elems =
                                 placeholder = "Filter all members",
                                 `type` = "text", accesskey = "/")
                       ) ::
-                      I(`class` = "clear material-icons",
-                          elems = Txt(
-                              "\uE14C"))
+                      I(`class` = "clear material-icons", elems = Txt("\uE14C"))
               ) ::
               Div(
                   id = "filterby",
@@ -929,8 +926,7 @@ val memberSel: Elems =
                                                   elems = Txt("Public"))),
                                           Li(`class` = "protected out",
                                               elems = Span(
-                                                  elems = Txt(
-                                                      "Protected")))
+                                                  elems = Txt("Protected")))
                                       ) ++ List(Li(`class` = "private out",
                                               elems = Span(
                                                   elems = Txt("Private"))))

@@ -136,13 +136,20 @@ class FormatOps(
       case _: T.LeftBracket => null
       case _: T.Dot if start.rightOwner.is[Type.Select] => null
       case _: T.Ident if start.leftOwner.is[Type.Select] => null
-      case _: T.RightParen => start.left match {
-          case _: T.LeftParen => null
-          case _: T.RightParen
-              if style.newlines.fold ||
-                !style.danglingParentheses.atSite(start.rightOwner, true) =>
-            null
-          case _ => start
+      case t: T.RightParen =>
+        if (start.left.is[T.LeftParen]) null
+        else {
+          val owner = start.rightOwner
+          val isDefnSite = isParamClauseSite(owner)
+          implicit val clauseSiteFlags: ClauseSiteFlags =
+            ClauseSiteFlags(owner, isDefnSite)
+          val bpFlags = getBinpackSiteFlags(tokens(matching(t)), start, false)
+          if (bpFlags.scalaJsStyle) scalaJsOptCloseOnRight(start, bpFlags)
+          else if (
+            !start.left.is[T.RightParen] ||
+            !style.newlines.fold && clauseSiteFlags.dangleCloseDelim
+          ) start
+          else null
         }
       case _: T.Comment =>
         if (start.noBreak) {
