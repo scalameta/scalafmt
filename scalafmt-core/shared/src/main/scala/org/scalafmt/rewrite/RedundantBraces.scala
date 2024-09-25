@@ -62,16 +62,17 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
     case _ => false
   }
 
-  private[scalafmt] def canRewriteWithParensOnRightBrace(
-      rb: FormatToken,
-  )(implicit ftoks: FormatTokens): Boolean = rb.meta.leftOwner match { // look for "foo { bar }"
-    case b: Term.Block => checkApply(b) && canRewriteBlockWithParens(b) &&
-      b.parent.exists(ftoks.getLast(_) eq rb)
-    case f: Term.FunctionTerm => checkApply(f) && canRewriteFuncWithParens(f)
-    case t @ SingleArgInBraces(_, arg, _) => isParentAnApply(t) &&
-      canRewriteStatWithParens(arg)
-    case _ => false
-  }
+  private[scalafmt] def canRewriteWithParensOnRightBrace(rb: FormatToken)(
+      implicit ftoks: FormatTokens,
+  ): Boolean = !ftoks.prevNonCommentBefore(rb).left.is[Token.Semicolon] &&
+    (rb.meta.leftOwner match { // look for "foo { bar }"
+      case b: Term.Block => checkApply(b) && canRewriteBlockWithParens(b) &&
+        b.parent.exists(ftoks.getLast(_) eq rb)
+      case f: Term.FunctionTerm => checkApply(f) && canRewriteFuncWithParens(f)
+      case t @ SingleArgInBraces(_, arg, _) => isParentAnApply(t) &&
+        canRewriteStatWithParens(arg)
+      case _ => false
+    })
 
   private[scalafmt] def noSplitForParensOnRightBrace(
       rb: => FormatToken,

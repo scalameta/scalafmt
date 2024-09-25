@@ -2034,11 +2034,7 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 ===
 run( { worklist.push(startBlock); } )
 >>>
-test does not parse: [dialect scala213] `)` expected but `;` found
-run(worklist.push(startBlock);)
-                             ^
-====== full result: ======
-run(worklist.push(startBlock);)
+run { worklist.push(startBlock); }
 <<< #4133 can't rewrite with parens if semicolon, without redundant parens
 run( { worklist.push(startBlock); } )
 >>>
