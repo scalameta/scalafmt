@@ -122,25 +122,27 @@ class FormatOps(
   final def getSlbEndOnLeft(start: FormatToken, end: Int = Int.MaxValue)(
       implicit style: ScalafmtConfig,
   ): FormatToken = {
-    val endFound = start.right match {
-      case t if t.end >= end => true
-      case _: T.EOF => true
-      case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals => false
-      case _ if start.hasBlankLine => true
+    val nft = start.right match {
+      case t if t.end >= end => start
+      case _: T.EOF => start
+      case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals => null
+      case _ if start.hasBlankLine => start
       case _
           if !style.newlines.formatInfix &&
             (isInfixOp(start.rightOwner) || isInfixOpOnLeft(start)) =>
-        start.hasBreak
-      case _: T.LeftParen if !leftParenStartsNewBlockOnRight(start) => false
-      case _: T.RightBracket if start.left.is[T.RightBracket] => false
-      case _: T.LeftBracket => false
-      case _: T.Dot if start.rightOwner.is[Type.Select] => false
-      case _: T.Ident if start.leftOwner.is[Type.Select] => false
+        if (start.hasBreak) start else null
+      case _: T.LeftParen if !leftParenStartsNewBlockOnRight(start) => null
+      case _: T.RightBracket if start.left.is[T.RightBracket] => null
+      case _: T.LeftBracket => null
+      case _: T.Dot if start.rightOwner.is[Type.Select] => null
+      case _: T.Ident if start.leftOwner.is[Type.Select] => null
       case _: T.RightParen => start.left match {
-          case _: T.LeftParen => false
-          case _: T.RightParen => !style.newlines.fold &&
-            style.danglingParentheses.atSite(start.rightOwner, orElse = true)
-          case _ => true
+          case _: T.LeftParen => null
+          case _: T.RightParen
+              if style.newlines.fold ||
+                !style.danglingParentheses.atSite(start.rightOwner, true) =>
+            null
+          case _ => start
         }
       case _: T.Comment =>
         if (start.noBreak) {
@@ -148,11 +150,12 @@ class FormatOps(
           if (!start.left.is[T.LeftParen] || hasBreakBeforeNonComment(nft))
             return nft // RETURN!!!
         }
-        true
-      case _ => true
+        start
+      case _ => start
     }
 
-    if (endFound) start else getSlbEndOnLeft(next(start))
+    if (nft eq start) start
+    else getSlbEndOnLeft(if (nft ne null) nft else next(start))
   }
 
   final def endOfSingleLineBlock(start: FormatToken)(implicit
