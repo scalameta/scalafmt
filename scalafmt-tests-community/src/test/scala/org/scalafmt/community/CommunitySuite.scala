@@ -38,7 +38,7 @@ abstract class CommunitySuite extends FunSuite {
       .round(stats.timeTaken / (stats.linesParsed / 1000.0))
 
     println("--------------------------")
-    println(build.name)
+    println(s"${build.name} [ref=${build.commit}] [style=$styleName]")
     println(s"Files parsed correctly ${stats.checkedFiles - stats.errors}")
     println(s"Files errored: ${stats.errors}")
     println(s"Time taken: ${stats.timeTaken}ms")
