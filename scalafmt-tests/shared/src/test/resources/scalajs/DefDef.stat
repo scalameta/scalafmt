@@ -240,8 +240,8 @@ object a {
 >>>
 object a {
   object b {
-    def applyDynamicNamed(name: String)(
-        fields: (String, Any)*): Object with Dynamic = sys.error("stub")
+    def applyDynamicNamed(name: String)(fields: (String,
+            Any)*): Object with Dynamic = sys.error("stub")
   }
 }
 <<< weird breaking #252, oneline
@@ -255,8 +255,8 @@ object a {
 >>>
 object a {
   object b {
-    def applyDynamicNamed(name: String)(
-        fields: (String, Any)*): Object with Dynamic = sys.error("stub")
+    def applyDynamicNamed(name: String)(fields: (String,
+            Any)*): Object with Dynamic = sys.error("stub")
   }
 }
 <<< toFunction8 #255 avoidInResultType, sometimesBeforeColonInMethodReturnType
@@ -648,8 +648,9 @@ newlines.source = keep
 ===
 @inline implicit def enrichAsScalaFromToIntFunction[T](jf: java.util.function.ToIntFunction[T]): RichToIntFunctionAsFunction1[T] = new RichToIntFunctionAsFunction1[T](jf)
 >>>
-@inline implicit def enrichAsScalaFromToIntFunction[T](jf: java.util
-      .function.ToIntFunction[T]): RichToIntFunctionAsFunction1[T] =
+@inline implicit def enrichAsScalaFromToIntFunction[T](
+    jf: java.util.function.ToIntFunction[
+        T]): RichToIntFunctionAsFunction1[T] =
   new RichToIntFunctionAsFunction1[T](jf)
 <<< #4133 overflow selects with apply-type 2
 maxColumn = 70
@@ -658,8 +659,8 @@ newlines.source = keep
 def asScalaFromDoubleFunction[R](jf: java.util.function.DoubleFunction[R]): scala.Function1[java.lang.Double, R]
 >>>
 def asScalaFromDoubleFunction[R](
-    jf: java.util.function.DoubleFunction[R]): scala.Function1[
-    java.lang.Double, R]
+    jf: java.util.function.DoubleFunction[
+        R]): scala.Function1[java.lang.Double, R]
 <<< #4133 complex nested applies with long infix args
 maxColumn = 80
 newlines.source = keep
@@ -989,12 +990,11 @@ override def flatten[B](implicit asTraversable: A => /*<:<!!!*/ GenTraversableOn
   // foo
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--override def flatten[B](
--    implicit asTraversable: A => /*<:<!!!*/ GenTraversableOnce[
-+override def flatten[B](implicit asTraversable: A => /*<:<!!!*/ GenTraversableOnce[
-         B]): Stream[B] = {
+override def flatten[B](
+    implicit asTraversable: A => /*<:<!!!*/ GenTraversableOnce[
+        B]): Stream[B] = {
+  // foo
+}
 <<< #4133 no implicit with bracket and comment in type
 maxColumn = 78
 newlines.source = keep
@@ -1003,12 +1003,11 @@ override def flatten[B](implicit_asTraversable: A => /*<:<!!!*/ GenTraversableOn
   // foo
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--override def flatten[B](
--    implicit_asTraversable: A => /*<:<!!!*/ GenTraversableOnce[
-+override def flatten[B](implicit_asTraversable: A => /*<:<!!!*/ GenTraversableOnce[
-         B]): Stream[B] = {
+override def flatten[B](
+    implicit_asTraversable: A => /*<:<!!!*/ GenTraversableOnce[
+        B]): Stream[B] = {
+  // foo
+}
 <<< #4133 no implicit with bracket and no comment in type
 maxColumn = 78
 newlines.source = keep
@@ -1017,12 +1016,11 @@ override def flatten[B](implicit_asTraversable: A => hadComment_GenTraversableOn
   // foo
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--override def flatten[B](
--    implicit_asTraversable: A => hadComment_GenTraversableOnce[
-+override def flatten[B](implicit_asTraversable: A => hadComment_GenTraversableOnce[
-         B]): Stream[B] = {
+override def flatten[B](
+    implicit_asTraversable: A => hadComment_GenTraversableOnce[
+        B]): Stream[B] = {
+  // foo
+}
 <<< #4133 no implicit with bracket and no comment in type, no arrow
 maxColumn = 78
 newlines.source = keep
@@ -1031,9 +1029,8 @@ override def flatten[B](implicit_asTraversable: A_aw_hadComment_GenTraversableOn
   // foo
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--override def flatten[B](
--    implicit_asTraversable: A_aw_hadComment_GenTraversableOnce[
-+override def flatten[B](implicit_asTraversable: A_aw_hadComment_GenTraversableOnce[
-         B]): Stream[B] = {
+override def flatten[B](
+    implicit_asTraversable: A_aw_hadComment_GenTraversableOnce[
+        B]): Stream[B] = {
+  // foo
+}

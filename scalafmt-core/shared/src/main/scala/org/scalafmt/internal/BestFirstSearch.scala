@@ -223,6 +223,13 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     splits.sortBy(_.costWithPenalty)
   }
 
+  private def stateAsOptimal(state: State, splits: Seq[Split]) = {
+    val isOptimal = splits.exists { s =>
+      s.isNL && s.penalty < Constants.ShouldBeNewline
+    } || tokens.isRightCommentWithBreak(tokens(state.depth))
+    if (isOptimal) Some(state) else None
+  }
+
   /** Follow states having single active non-newline split
     */
   @tailrec
@@ -246,7 +253,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             if state.appliedPenalty == 0 &&
               RightParenOrBracket(splitToken.right) =>
           traverseSameLineZeroCost(ss, state)
-        case _ => Right(state)
+        case ss => stateAsOptimal(state, ss).toRight(state)
       }
     }
 
@@ -254,11 +261,13 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   private def traverseSameLineZeroCost(
       splits: Seq[Split],
       state: State,
-  )(implicit style: ScalafmtConfig, queue: StateQueue): Either[State, State] =
+      nlState: => Option[State] = None,
+  )(implicit style: ScalafmtConfig, queue: StateQueue): Either[State, State] = {
+    def newNlState: Option[State] = stateAsOptimal(state, splits).orElse(nlState)
     splits.filter(_.costWithPenalty == 0) match {
       case Seq(split) if !split.isNL =>
         val nextState: State = getNext(state, split, allAltAreNL = false)
-        if (nextState.split.costWithPenalty > 0) Right(state)
+        if (nextState.split.costWithPenalty > 0) newNlState.toRight(state)
         else if (nextState.depth >= tokens.length) Right(nextState)
         else {
           val nextToken = tokens(nextState.depth)
@@ -266,11 +275,12 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             implicit val style: ScalafmtConfig = styleMap.at(nextToken)
             val nextSplits =
               getActiveSplits(nextToken, nextState, maxCost = Int.MaxValue)
-            traverseSameLineZeroCost(nextSplits, nextState)
-          } else Right(nextState)
+            traverseSameLineZeroCost(nextSplits, nextState, newNlState)
+          } else newNlState.toRight(nextState)
         }
-      case _ => Right(state)
+      case _ => newNlState.toRight(state)
     }
+  }
 
   def getBestPath: SearchResult = {
     initStyle.runner.event(FormatEvent.Routes(routes))
