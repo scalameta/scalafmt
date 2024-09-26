@@ -57,8 +57,8 @@ abstract class CommunitySuite extends FunSuite {
   }
 
   private def fetchCommunityBuild(implicit build: CommunityBuild): Path = {
-    if (!Files.exists(communityDirectory)) Files
-      .createDirectory(communityDirectory)
+    try Files.createDirectory(communityDirectory)
+    catch { case _: FileAlreadyExistsException => }
 
     val log = new StringBuilder
     val logger = ProcessLogger(s => log.append(s).append('\n'))
