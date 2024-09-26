@@ -18,7 +18,7 @@ import munit.diff.console.AnsiColors
 object TestHelpers {
 
   private[common] val communityProjectsDirectory = Paths
-    .get("scalafmt-tests-community/community-projects")
+    .get("scalafmt-tests-community/target/community-projects")
 
   private val ignoreParts = List(
     ".git/",
