@@ -138,7 +138,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
                 case _ => nextState
               }
               if (null ne stateToQueue) {
-                if (depth == 0) stats.updateBest(nextState)
+                stats.updateBest(nextState, stateToQueue)
                 enqueue(stateToQueue)
               }
             }
@@ -395,12 +395,18 @@ object BestFirstSearch {
       runner.event(FormatEvent.Explored(explored, Q.nested, Q.length))
     }
 
-    def updateBest(state: State): Boolean =
-      (pruneSlowStates ne ScalafmtOptimizer.PruneSlowStates.No) &&
-        state.split.isNL &&
-        !state.policy
-          .exists(_.exists(_.isInstanceOf[PolicyOps.SingleLineBlock])) &&
-        (best.getOrElseUpdate(state.prev.depth, state) eq state)
+    private def updateBestImpl(state: State): Boolean = state.split.isNL &&
+      !state.policy
+        .exists(_.exists(_.isInstanceOf[PolicyOps.SingleLineBlock])) &&
+      (best.getOrElseUpdate(state.prev.depth, state) eq state)
+
+    def updateBest(state: State, furtherState: State)(implicit
+        Q: StateQueue,
+    ): Boolean = (pruneSlowStates ne ScalafmtOptimizer.PruneSlowStates.No) &&
+      Q.nested == 0 && {
+        if (state ne furtherState) updateBestImpl(furtherState)
+        updateBestImpl(state)
+      }
 
     def checkExplored(
         ft: FormatToken,
