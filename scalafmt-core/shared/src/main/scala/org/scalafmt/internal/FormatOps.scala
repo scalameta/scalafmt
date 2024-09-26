@@ -75,22 +75,39 @@ class FormatOps(
     val optional = Set.newBuilder[Int]
     def getHeadIndex(tree: Tree): Option[Int] = getHeadOpt(tree)
       .map(_.meta.idx - 1)
-    def add(tree: Tree): Unit = getHeadIndex(tree)
-      .foreach(arguments.getOrElseUpdate(_, tree))
+    def addWith(key: Tree)(value: Tree): Unit = getHeadIndex(key)
+      .foreach(arguments.getOrElseUpdate(_, value))
+    def add(tree: Tree): Unit = addWith(tree)(tree)
     def addOptional(tree: Tree): Unit = getHeadIndex(tree).foreach(optional += _)
+    def addParam(t: Term.Param, key: Tree): Unit = {
+      addWith(key)(t)
+      t.mods.foreach(addOptional)
+      addOptional(t.name)
+    }
 
     val queue = new mutable.ListBuffer[Seq[Tree]]
     queue += topSourceTree :: Nil
     while (queue.nonEmpty) queue.remove(0).foreach { tree =>
       tree match {
-        case _: Lit.Unit | _: Term.ArgClause | _: Term.ParamClause =>
+        case _: Lit.Unit =>
+        case t: Term.ParamClause =>
+          val params = t.mod match {
+            case Some(mod) =>
+              addOptional(mod)
+              t.values match {
+                case head :: rest =>
+                  addParam(head, mod)
+                  rest
+                case _ => Nil
+              }
+            case _ => t.values
+          }
+          params.foreach(x => addParam(x, x))
+        case t: Term.ArgClause => add(t)
         case t: Member.SyntaxValuesClause => t.values.foreach(add)
         case t: Member.Tuple => t.args.foreach(add)
-        case t: Term.Param => // includes Term.ParamClause
-          add(t)
-          t.mods.foreach(addOptional)
-          addOptional(t.name)
-        case t: Term => add(t) // includes Term.ArgClause
+        case _: Term.Param => // covered by Term.ParamClause
+        case t: Term => add(t)
         case _ =>
       }
       queue += tree.children
