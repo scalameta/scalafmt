@@ -295,7 +295,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   ): (Replacement, Replacement) = {
     val ok = ft.meta.rightOwner match {
       case _: Term.Block => ftoks.prevNotTrailingComment(ft).isRight &&
-        !braceSeparatesTwoXmlTokens && !elseAfterRightBraceThenpOnLeft
+        !braceSeparatesTwoXmlTokens &&
+        (style.dialect.allowSignificantIndentation ||
+          !elseAfterRightBraceThenpOnLeft)
       case _ => true
     }
     if (ok) (left, removeToken) else null
