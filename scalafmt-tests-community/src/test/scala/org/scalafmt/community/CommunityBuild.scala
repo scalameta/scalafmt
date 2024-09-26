@@ -9,4 +9,6 @@ case class CommunityBuild(
     excluded: List[String],
     checkedFiles: Int,
     dialect: sourcecode.Text[Dialect],
+    styles: Set[String] = Set.empty,
+    stylesIncluded: Boolean = true,
 )
