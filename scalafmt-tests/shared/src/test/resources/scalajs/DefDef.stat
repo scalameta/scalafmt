@@ -240,8 +240,8 @@ object a {
 >>>
 object a {
   object b {
-    def applyDynamicNamed(name: String)(fields: (
-            String, Any)*): Object with Dynamic = sys.error("stub")
+    def applyDynamicNamed(name: String)(
+        fields: (String, Any)*): Object with Dynamic = sys.error("stub")
   }
 }
 <<< weird breaking #252, oneline

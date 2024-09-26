@@ -1106,11 +1106,13 @@ class Router(formatOps: FormatOps) {
             .map(p => PenalizeAllNewlines(close, p + 3))
           val afterClose = after(close)
 
-          val nextCommaOneline = argumentStarts.get(ft.meta.idx).flatMap { x =>
-            val noNeed = isSeqSingle(getArgs(leftOwner)) ||
-              !style.binPack.defnSiteFor(isBracket).isOneline
-            if (noNeed) None else findFirstOnRight[T.Comma](getLast(x), close)
+          val binpack = style.binPack.defnSiteFor(isBracket)
+          val firstArg = argumentStarts.get(ft.meta.idx)
+          val nextComma = firstArg.flatMap { x =>
+            val ok = isSeqMulti(getArgs(leftOwner))
+            if (ok) findFirstOnRight[T.Comma](getLast(x), close) else None
           }
+          val nextCommaOneline = if (binpack.isOneline) nextComma else None
 
           val flags = getBinpackDefnSiteFlags(ft, prev(afterClose))
           val (nlOnly, nlCloseOnOpen) = flags.nlOpenClose()
@@ -1140,7 +1142,7 @@ class Router(formatOps: FormatOps) {
                     else s.map(x => if (x.isNL) x.withPenalty(p) else x)
                 }
               }
-              getNoSplit(nextCommaOneline.map(endOfSingleLineBlock))
+              getNoSplit(nextComma.map(endOfSingleLineBlock))
                 .andPolicy((opensPolicy | penalizeBrackets) & noNLPolicy())
             }
 
