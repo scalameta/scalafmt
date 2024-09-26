@@ -1577,14 +1577,6 @@ class FormatOps(
         getNlSplit(if (policy.isEmpty) 0 else 1),
       )
       def hasStateColumn = spaceIndents.exists(_.hasStateColumn)
-      @tailrec
-      def getBlockStat(t: Tree): Tree = t match {
-        case b: Term.Block => getSingleStatExceptEndMarker(b.stats) match {
-            case Some(s) if !isEnclosedInMatching(b) => getBlockStat(s)
-            case _ => t
-          }
-        case _ => t
-      }
       val adjustedBody = getBlockStat(body)
       val (spaceSplit, nlSplit) = adjustedBody match {
         case t: Term.If if isKeep || ifWithoutElse(t) || hasStateColumn =>
@@ -1755,6 +1747,15 @@ class FormatOps(
         style: ScalafmtConfig,
     ): Split = asInfixApp(body)
       .fold(withIndent(nlSplit, endFt))(InfixSplits.withNLIndent(nlSplit))
+
+    @tailrec
+    def getBlockStat(t: Tree): Tree = t match {
+      case b: Term.Block => getSingleStatExceptEndMarker(b.stats) match {
+          case Some(s) if !isEnclosedInMatching(b) => getBlockStat(s)
+          case _ => t
+        }
+      case _ => t
+    }
 
   }
 
