@@ -1660,10 +1660,11 @@ class Router(formatOps: FormatOps) {
               }
               if (filtered.isEmpty) Seq.empty
               else {
-                val minCost = math.max(0, filtered.map(_.cost).min - 1)
+                val minCost = math
+                  .max(0, filtered.map(_.costWithPenalty).min - 1)
                 filtered.map { x =>
                   val p = x.policy.filter(!_.isInstanceOf[PenalizeAllNewlines])
-                  x.copy(cost = x.cost - minCost, policy = p)
+                  x.copy(penalty = x.costWithPenalty - minCost, policy = p)
                 }
               }
           }
