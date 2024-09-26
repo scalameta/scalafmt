@@ -2039,3 +2039,33 @@ run { worklist.push(startBlock); }
 run( { worklist.push(startBlock); } )
 >>>
 run({ worklist.push(startBlock); })
+<<< #4133 rewrites with assignment and infix chain
+maxColumn = 76
+rewrite.redundantBraces {
+  maxLines = 100
+  ifElseExpressions = yes
+}
+===
+hostLocalDirManager = {
+  if ((conf.get(config.SHUFFLE_HOST_LOCAL_DISK_READING_ENABLED) &&
+      !conf.get(config.SHUFFLE_USE_OLD_FETCH_PROTOCOL)) ||
+      Utils.isPushBasedShuffleEnabled(conf, isDriver)) {
+    None
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-hostLocalDirManager =
+-  if (
+-    (conf.get(config.SHUFFLE_HOST_LOCAL_DISK_READING_ENABLED) &&
+-      !conf.get(config.SHUFFLE_USE_OLD_FETCH_PROTOCOL)) ||
+-    Utils.isPushBasedShuffleEnabled(conf, isDriver)
+-  )
+-    None
++hostLocalDirManager = if (
++  (conf.get(config.SHUFFLE_HOST_LOCAL_DISK_READING_ENABLED) &&
++    !conf.get(config.SHUFFLE_USE_OLD_FETCH_PROTOCOL)) ||
++  Utils.isPushBasedShuffleEnabled(conf, isDriver)
++)
++  None
