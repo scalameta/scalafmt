@@ -66,7 +66,7 @@ jobs:
       matrix:
         java: [ '11' ]
         os: [windows-latest, ubuntu-latest]
-        group: [Scala2, Scala3, Other]
+        group: [Scala2, Scala3, Spark, Other]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
