@@ -218,18 +218,28 @@ lazy val tests = crossProject(JVMPlatform).withoutSuffixFor(JVMPlatform)
     }),
   ).enablePlugins(BuildInfoPlugin).dependsOn(core, dynamic, cli)
 
-lazy val communityTests = project.in(file("scalafmt-tests-community")).settings(
-  publish / skip := true,
-  libraryDependencies ++= Seq(
-    // Test dependencies
-    "com.lihaoyi" %% "scalatags" % "0.13.1",
-    scalametaTestkit,
-    munit.value,
-  ),
-  scalacOptions ++= scalacJvmOptions.value,
-  javaOptions += "-Dfile.encoding=UTF8",
-  buildInfoPackage := "org.scalafmt.tests",
-).enablePlugins(BuildInfoPlugin).dependsOn(coreJVM)
+lazy val communityTestsCommon = project
+  .in(file("scalafmt-tests-community/common")).settings(
+    communityTestsSettings,
+    libraryDependencies ++= Seq(
+      // Test dependencies
+      "com.lihaoyi" %% "scalatags" % "0.13.1",
+      scalametaTestkit,
+      munit.value,
+    ),
+  ).enablePlugins(BuildInfoPlugin).dependsOn(coreJVM)
+
+lazy val communityTestsScala2 = project
+  .in(file("scalafmt-tests-community/scala2")).settings(communityTestsSettings)
+  .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommon)
+
+lazy val communityTestsScala3 = project
+  .in(file("scalafmt-tests-community/scala3")).settings(communityTestsSettings)
+  .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommon)
+
+lazy val communityTestsOther = project
+  .in(file("scalafmt-tests-community/other")).settings(communityTestsSettings)
+  .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommon)
 
 lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
   publish / skip := true,
@@ -285,4 +295,11 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
   ),
   buildInfoPackage := "org.scalafmt",
   buildInfoObject := "Versions",
+)
+
+lazy val communityTestsSettings: Seq[Def.Setting[_]] = Seq(
+  publish / skip := true,
+  scalacOptions ++= scalacJvmOptions.value,
+  javaOptions += "-Dfile.encoding=UTF8",
+  buildInfoPackage := "org.scalafmt.tests",
 )

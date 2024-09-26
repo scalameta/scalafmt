@@ -1,4 +1,4 @@
-package org.scalafmt.community
+package org.scalafmt.community.common
 
 case class TestStats(
     checkedFiles: Int,

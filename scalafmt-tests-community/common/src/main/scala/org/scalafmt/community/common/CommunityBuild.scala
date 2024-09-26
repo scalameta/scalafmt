@@ -1,4 +1,4 @@
-package org.scalafmt.community
+package org.scalafmt.community.common
 
 import scala.meta._
 

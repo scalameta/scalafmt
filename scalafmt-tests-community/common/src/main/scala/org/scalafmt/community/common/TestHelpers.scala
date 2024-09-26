@@ -1,4 +1,4 @@
-package org.scalafmt.community
+package org.scalafmt.community.common
 
 import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.CompatCollections.ParConverters._
@@ -17,8 +17,8 @@ import munit.diff.console.AnsiColors
 
 object TestHelpers {
 
-  val communityDirectory = Paths
-    .get("scalafmt-tests-community/target/community-projects")
+  private[common] val communityProjectsDirectory = Paths
+    .get("scalafmt-tests-community/community-projects")
 
   private val ignoreParts = List(
     ".git/",

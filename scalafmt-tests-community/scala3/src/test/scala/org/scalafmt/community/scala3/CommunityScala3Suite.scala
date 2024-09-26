@@ -1,4 +1,6 @@
-package org.scalafmt.community
+package org.scalafmt.community.scala3
+
+import org.scalafmt.community.common.CommunityRepoSuite
 
 import scala.meta._
 

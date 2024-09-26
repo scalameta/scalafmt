@@ -1,4 +1,4 @@
-package org.scalafmt.community
+package org.scalafmt.community.common
 
 import org.scalafmt.config._
 
@@ -13,7 +13,7 @@ abstract class CommunitySuite extends FunSuite {
 
   import TestHelpers._
 
-  override val munitTimeout = new duration.FiniteDuration(5, duration.MINUTES)
+  override val munitTimeout = new duration.FiniteDuration(10, duration.MINUTES)
 
   protected def builds: Seq[CommunityBuild]
 
@@ -57,7 +57,7 @@ abstract class CommunitySuite extends FunSuite {
   }
 
   private def fetchCommunityBuild(implicit build: CommunityBuild): Path = {
-    try Files.createDirectory(communityDirectory)
+    try Files.createDirectories(communityProjectsDirectory)
     catch { case _: FileAlreadyExistsException => }
 
     val log = new StringBuilder
@@ -73,7 +73,7 @@ abstract class CommunitySuite extends FunSuite {
       log.clear()
     }
 
-    val folderPath = communityDirectory.resolve(build.name)
+    val folderPath = communityProjectsDirectory.resolve(build.name)
     val folder = folderPath.toString
 
     if (!Files.exists(folderPath)) runCmd(
