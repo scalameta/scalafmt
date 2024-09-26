@@ -328,3 +328,65 @@ object a {
   } else if (isQualifyingImplicit(name, imported, pre, imported = true))
     f(imported)
 }
+<<< #4133 `else` after unrelated `if` with optional-braces, no end marker
+runner.dialect = scala3
+rewrite.scala3 {
+  convertToNewSyntax = true
+  removeOptionalBraces = yes
+}
+===
+object a {
+  // The symbol can be annotated with @js.native. Now check its JS native loading spec.
+  if (sym.is(Trait)) {
+    for (annot <- sym.annotations) {
+      val annotSym = annot.symbol
+      if (isJSNativeLoadingSpecAnnot(annotSym))
+        report.error(i"Traits may not have an @${annotSym.name} annotation.", annot.tree)
+    }
+  } else {
+    checkJSNativeLoadSpecOf(treePos, sym)
+  }
+}
+>>>
+object a:
+  // The symbol can be annotated with @js.native. Now check its JS native loading spec.
+  if sym.is(Trait) then {
+    for annot <- sym.annotations do
+      val annotSym = annot.symbol
+      if isJSNativeLoadingSpecAnnot(annotSym) then
+        report.error(
+          i"Traits may not have an @${annotSym.name} annotation.",
+          annot.tree
+        )
+  } else checkJSNativeLoadSpecOf(treePos, sym)
+<<< #4133 `else` after unrelated `if` with optional-braces, plus end marker
+runner.dialect = scala3
+rewrite.scala3 {
+  convertToNewSyntax = true
+  insertEndMarkerMinLines = 5
+  removeOptionalBraces = yes
+}
+===
+object a {
+  // The symbol can be annotated with @js.native. Now check its JS native loading spec.
+  if (sym.is(Trait)) {
+    for (annot <- sym.annotations) {
+      val annotSym = annot.symbol
+      if (isJSNativeLoadingSpecAnnot(annotSym))
+        report.error(i"Traits may not have an @${annotSym.name} annotation.", annot.tree)
+    }
+  } else {
+    checkJSNativeLoadSpecOf(treePos, sym)
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+   // The symbol can be annotated with @js.native. Now check its JS native loading spec.
+-  if sym.is(Trait) then
++  if sym.is(Trait) then {
+     for annot <- sym.annotations do
+       end if
+-  else checkJSNativeLoadSpecOf(treePos, sym)
++  } else checkJSNativeLoadSpecOf(treePos, sym)
+   end if
