@@ -38,6 +38,8 @@ final case class State(
   def possiblyBetter(other: State): Boolean = this.cost < other.cost ||
     this.indentation < other.indentation
 
+  def costWithoutOverflowPenalty: Int = cost - appliedPenalty
+
   /** Calculates next State given split at tok.
     */
   def next(initialNextSplit: Split, nextAllAltAreNL: Boolean)(implicit
@@ -116,7 +118,7 @@ final case class State(
     val splitWithPenalty = nextSplit.withPenalty(penalty)
 
     State(
-      cost + splitWithPenalty.cost,
+      cost + splitWithPenalty.costWithPenalty,
       // TODO(olafur) expire policy, see #18.
       nextPolicy,
       splitWithPenalty,

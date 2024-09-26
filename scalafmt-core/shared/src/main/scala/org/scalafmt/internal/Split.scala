@@ -49,11 +49,12 @@ case class OptimalToken(
   */
 case class Split(
     modExt: ModExt,
-    cost: Int,
+    private val cost: Int,
     neededTags: Set[SplitTag] = Set.empty,
     activeTags: Set[SplitTag] = Set.empty,
     policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None,
+    penalty: Int = 0,
 )(implicit val fileLineStack: FileLineStack) {
   import PolicyOps._
 
@@ -62,6 +63,9 @@ case class Split(
       copy(modExt = modExt.copy(mod = x.copy(noIndent = true)))
     case _ => this
   }
+
+  @inline
+  def costWithPenalty: Int = cost + penalty
 
   @inline
   def fileLine: FileLine = fileLineStack.fileLineLast
@@ -138,9 +142,6 @@ case class Split(
   def forThisLine(implicit fileLine: FileLine): Split =
     if (isIgnored) this
     else copy()(fileLineStack.forThisLine(fileLine.file, fileLine.line))
-
-  def getCost(ifActive: Int => Int, ifIgnored: => Int): Int =
-    if (isIgnored) ifIgnored else ifActive(cost)
 
   def withOptimalTokenOpt(
       token: => Option[Token],
@@ -271,7 +272,8 @@ case class Split(
     else copy(policy = newPolicy & policy)
 
   def withPenalty(penalty: Int): Split =
-    if (isIgnored || penalty <= 0) this else copy(cost = cost + penalty)
+    if (isIgnored || penalty <= 0) this
+    else copy(penalty = this.penalty + penalty)
 
   def withIndent(length: => Length, expire: => Token, when: ExpiresOn): Split =
     withMod(modExt.withIndent(length, expire, when))
@@ -323,7 +325,7 @@ case class Split(
         else ""
       }
     val opt = optimalAt.fold("")(", opt=" + _)
-    s"""$prefix$mod:[$fileLineStack](cost=$cost, indents=$indentation, $policy$opt)"""
+    s"""$prefix$mod:[$fileLineStack](cost=$cost, pen=$penalty, indents=$indentation, $policy$opt)"""
   }
 }
 

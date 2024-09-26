@@ -126,7 +126,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
           def processNextState(implicit nextState: State): Unit = {
             val split = nextState.split
-            val cost = split.cost
+            val cost = split.costWithPenalty
             if (cost <= maxCost) {
               val stateToQueue = split.optimalAt match {
                 case Some(opt) if handleOptimalTokens =>
@@ -205,7 +205,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     stats.trackState(state)
     val useProvided = ft.meta.formatOff || !ft.inside(range)
     val active = state.policy.execute(Decision(ft, routes(state.depth)))
-      .filter(x => x.isActive && x.cost <= maxCost)
+      .filter(x => x.isActive && x.costWithPenalty <= maxCost)
     val splits =
       if (useProvided && active.nonEmpty) {
         val isNL = ft.hasBreak
@@ -215,7 +215,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           x.withMod(mod).withPenalty(penalty)
         }
       } else active
-    splits.sortBy(_.cost)
+    splits.sortBy(_.costWithPenalty)
   }
 
   /** Follow states having single active non-newline split
@@ -240,7 +240,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         case ss
             if state.appliedPenalty == 0 &&
               RightParenOrBracket(splitToken.right) =>
-          traverseSameLineZeroCost(ss.filter(_.cost == 0), state)
+          traverseSameLineZeroCost(ss.filter(_.costWithPenalty == 0), state)
         case _ => state
       }
     }
@@ -252,7 +252,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   )(implicit style: ScalafmtConfig, queue: StateQueue): State = splits match {
     case Seq(split) if !split.isNL =>
       val nextState: State = getNext(state, split, allAltAreNL = false)
-      if (nextState.split.cost > 0) state
+      if (nextState.split.costWithPenalty > 0) state
       else if (nextState.depth >= tokens.length) nextState
       else {
         val nextToken = tokens(nextState.depth)
