@@ -20,6 +20,7 @@ abstract class CommunitySuite extends FunSuite {
   for {
     build <- builds
     (k, v) <- TestStyles.styles
+    if build.styles.isEmpty || build.styles.contains(k) == build.stylesIncluded
   } {
     val prefix = s"[ref ${build.commit}, style $k]"
     val style: ScalafmtConfig = v.withDialect(NamedDialect(build.dialect))
