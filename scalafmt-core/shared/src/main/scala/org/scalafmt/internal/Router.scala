@@ -2611,10 +2611,10 @@ class Router(formatOps: FormatOps) {
     if (style.newlines.getBeforeMultiline eq Newlines.classic) classicSplits
     else CtrlBodySplits.getWithIndent(body, endFt)(null)(Split(Newline2x(ft), _))
 
-  private def getSplitsValEqualsClassic(body: Tree, endFt: FormatToken)(implicit
-      style: ScalafmtConfig,
-      ft: FormatToken,
-  ): Seq[Split] = {
+  private def getSplitsValEqualsClassic(
+      rawBody: Tree,
+      endFt: FormatToken,
+  )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] = {
     def wouldDangle = ft.meta.leftOwner.parent
       .exists(style.danglingParentheses.atSite(_, false))
 
@@ -2648,6 +2648,7 @@ class Router(formatOps: FormatOps) {
           PenalizeAllNewlines(expire, Constants.ShouldBeSingleLine),
         )
       }
+    val body = CtrlBodySplits.getBlockStat(rawBody)
     val spaceSplit = body match {
       case _ if ft.hasBreak && ft.meta.leftOwner.is[Defn] => Split.ignored
       case _: Term.If => twoBranches
