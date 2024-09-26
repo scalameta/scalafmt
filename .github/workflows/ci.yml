@@ -43,6 +43,7 @@ jobs:
       matrix:
         java: [ '11' ]
         os: [windows-latest, ubuntu-latest]
+        group: [Scala2, Scala3, Other]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -54,7 +55,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
           cache: 'sbt'
-      - run: sbt communityTests/test
+      - run: sbt communityTests${{ matrix.group }}/test
   formatting:
     runs-on: ubuntu-latest
     steps:
