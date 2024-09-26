@@ -192,11 +192,16 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           case Left(x) => return Left(killOnFail(opt, x))
         }
       }
-    val furtherState = traverseSameLine(nextNextState)
-    if (null eq furtherState) Left(killOnFail(opt, nextNextState))
-    else if (furtherState.appliedPenalty > nextNextState.appliedPenalty)
-      Left(nextNextState)
-    else Either.cond(!opt.recurseOnly, furtherState, furtherState)
+    def checkPenalty(state: State, orElse: => Either[State, State]) =
+      if (state.appliedPenalty > nextNextState.appliedPenalty)
+        Left(nextNextState)
+      else orElse
+    traverseSameLine(nextNextState) match {
+      case x @ Left(s) =>
+        if (s eq null) Left(killOnFail(opt, nextNextState))
+        else checkPenalty(s, x)
+      case x @ Right(s) => checkPenalty(s, if (opt.recurseOnly) Left(s) else x)
+    }
   }
 
   private def getActiveSplits(ft: FormatToken, state: State, maxCost: Int)(
@@ -223,15 +228,15 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   @tailrec
   private def traverseSameLine(
       state: State,
-  )(implicit queue: StateQueue): State =
-    if (state.depth >= tokens.length) state
+  )(implicit queue: StateQueue): Either[State, State] =
+    if (state.depth >= tokens.length) Right(state)
     else {
       val splitToken = tokens(state.depth)
       implicit val style: ScalafmtConfig = styleMap.at(splitToken)
       getActiveSplits(splitToken, state, Int.MaxValue) match {
-        case Seq() => null // dead end if empty
+        case Seq() => Left(null) // dead end if empty
         case Seq(split) =>
-          if (split.isNL) state
+          if (split.isNL) Right(state)
           else {
             implicit val nextState: State =
               getNext(state, split, allAltAreNL = false)
@@ -240,8 +245,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         case ss
             if state.appliedPenalty == 0 &&
               RightParenOrBracket(splitToken.right) =>
-          traverseSameLineZeroCost(ss.filter(_.costWithPenalty == 0), state)
-        case _ => state
+          traverseSameLineZeroCost(ss, state)
+        case _ => Right(state)
       }
     }
 
@@ -249,21 +254,23 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   private def traverseSameLineZeroCost(
       splits: Seq[Split],
       state: State,
-  )(implicit style: ScalafmtConfig, queue: StateQueue): State = splits match {
-    case Seq(split) if !split.isNL =>
-      val nextState: State = getNext(state, split, allAltAreNL = false)
-      if (nextState.split.costWithPenalty > 0) state
-      else if (nextState.depth >= tokens.length) nextState
-      else {
-        val nextToken = tokens(nextState.depth)
-        if (RightParenOrBracket(nextToken.right)) {
-          implicit val style: ScalafmtConfig = styleMap.at(nextToken)
-          val nextSplits = getActiveSplits(nextToken, nextState, maxCost = 0)
-          traverseSameLineZeroCost(nextSplits, nextState)
-        } else nextState
-      }
-    case _ => state
-  }
+  )(implicit style: ScalafmtConfig, queue: StateQueue): Either[State, State] =
+    splits.filter(_.costWithPenalty == 0) match {
+      case Seq(split) if !split.isNL =>
+        val nextState: State = getNext(state, split, allAltAreNL = false)
+        if (nextState.split.costWithPenalty > 0) Right(state)
+        else if (nextState.depth >= tokens.length) Right(nextState)
+        else {
+          val nextToken = tokens(nextState.depth)
+          if (RightParenOrBracket(nextToken.right)) {
+            implicit val style: ScalafmtConfig = styleMap.at(nextToken)
+            val nextSplits =
+              getActiveSplits(nextToken, nextState, maxCost = Int.MaxValue)
+            traverseSameLineZeroCost(nextSplits, nextState)
+          } else Right(nextState)
+        }
+      case _ => Right(state)
+    }
 
   def getBestPath: SearchResult = {
     initStyle.runner.event(FormatEvent.Routes(routes))
