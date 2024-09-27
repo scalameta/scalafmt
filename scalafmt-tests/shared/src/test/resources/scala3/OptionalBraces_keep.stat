@@ -6268,14 +6268,17 @@ object a:
 >>>
 object a:
    rootsForRelease_foreach(root =>
-     Files.walkingIterator().useScalaFilter(
-       Files__Is__Directory
-     ).foreach { p =>
-        val_moduleNamePathElementCount_е_0
-        if (p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount) {
-          val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
-          index_getOrElseUpdate(packageDotted__new_collectionMutableListBuffer)
-        }
+     Files.walkingIterator().useScalaFilter(Files__Is__Directory).foreach {
+       p =>
+          val_moduleNamePathElementCount_е_0
+          if (
+            p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount
+          ) {
+            val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
+            index_getOrElseUpdate(
+              packageDotted__new_collectionMutableListBuffer
+            )
+          }
      }
    )
 <<< braces to parens in one-line apply: overflow with braces, fit with parens
@@ -7030,8 +7033,8 @@ object a {
                 x14: Any, x15: Any, x16: Any, x17: Any, x18: Any) =>
               g.asInstanceOf[Tuple18[_, _, _, _, _, _, _, _, _, _, _, _, _, _,
                   _, _, _, _] => Any].apply((x1, x2, x3, x4, x5, x6, x7, x8, x9,
-                      x10, x11, x12, x13, x14, x15, x16, x17, x18))).asInstanceOf[
-            F]
+                      x10, x11, x12, x13, x14, x15, x16, x17,
+                      x18))).asInstanceOf[F]
   )
 }
 <<< #4133 binpack overflow assignment with selects, attributes, !dangling
