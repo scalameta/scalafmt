@@ -2928,10 +2928,7 @@ class FormatOps(
         iter(afterDelims)
       }
 
-      def policyBefore(token: T, mayBreakBeforeToken: Boolean) = {
-        if (mayBreakBeforeToken) Some(decideNewlinesOnlyBeforeToken(token))
-        else closeBreakPolicy()
-      }.fold(Policy.noPolicy) { policy =>
+      def policyWithDelay(policy: Policy) = {
         val beforeDelimsEnd = beforeDelims.right.end
         // force break if multiline and if there's no other break
         delayedBreakPolicy(Policy.End == beforeDelimsEnd, exclude)(
@@ -2941,30 +2938,37 @@ class FormatOps(
         )
       }
 
-      afterDelims.right match {
+      (afterDelims.right match {
         case c: T.Dot => // check if Dot rule includes a break option
-          val ro = afterDelims.meta.rightOwner
-          val ok = GetSelectLike.onRightOpt(ro, afterDelims).exists { x =>
+          c -> GetSelectLike.onRightOpt(afterDelims).exists { x =>
             implicit val cfg = styleMap.at(afterDelims)
-            (cfg.newlines.getSelectChains ne Newlines.classic) || {
-              val (expireTree, nextSelect) =
-                findLastApplyAndNextSelect(ro, cfg.encloseSelectChains)
-              canStartSelectChain(x, nextSelect, expireTree)
+            cfg.newlines.getSelectChains match {
+              case Newlines.classic =>
+                val (expireTree, nextSelect) =
+                  findLastApplyAndNextSelect(x.tree, cfg.encloseSelectChains)
+                canStartSelectChain(x, nextSelect, expireTree)
+              case _ => true
             }
           }
-          (Some(c), policyBefore(c, ok))
         case x @ LeftParenOrBracket() =>
           nextNonCommentSameLineAfter(afterDelims).right match {
-            case _: T.Comment => (None, NoPolicy)
+            case _: T.Comment => null
             case c => // check if break would cause cfg style but not otherwise
               val cfg = styleMap.at(x)
               val ok = cfg.newlines.sourceIgnored || ! {
                 cfg.configStyleCallSite.prefer &&
                 cfg.danglingParentheses.atCallSite(afterDelims.meta.rightOwner)
               } || next(afterDelims).hasBreak
-              (Some(c), policyBefore(c, ok))
+              c -> ok
           }
-        case _ => (None, NoPolicy)
+        case _ => null
+      }) match {
+        case null => (None, NoPolicy)
+        case (c, okToBreak) =>
+          val policyOpt =
+            if (!okToBreak) closeBreakPolicy()
+            else Some(decideNewlinesOnlyBeforeToken(c))
+          (Some(c), policyOpt.fold(Policy.noPolicy)(policyWithDelay))
       }
     }
 
