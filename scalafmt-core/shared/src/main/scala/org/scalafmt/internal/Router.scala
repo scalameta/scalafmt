@@ -764,7 +764,7 @@ class Router(formatOps: FormatOps) {
           ) =>
         val policy = Policy ?
           (style.binPack.keepParentConstructors || template.pos.isEmpty) || {
-            val expire = templateDerivesOrCurlyOrLastNonTrivial(template)
+            val expire = templateDerivesOrCurlyOrLastNonTrivial(template).left
             val forceNewlineBeforeExtends = Policy.before(expire, "NLPCTOR") {
               case Decision(FormatToken(_, soft.ExtendsOrDerives(), m), s)
                   if m.rightOwner eq template =>
@@ -903,10 +903,11 @@ class Router(formatOps: FormatOps) {
         val isBeforeOpenParen =
           if (defnSite) style.newlines.isBeforeOpenParenDefnSite
           else style.newlines.isBeforeOpenParenCallSite
-        val optimal: T =
-          if (isBeforeOpenParen) close
-          else if (!defnSite || isBracket) endOfSingleLineBlock(afterClose)
+        val optimalFt: FormatToken =
+          if (isBeforeOpenParen) afterClose
+          else if (!defnSite || isBracket) getSlbEndOnLeft(afterClose)
           else defnSiteLastToken(afterClose, leftOwner)
+        val optimal = optimalFt.left
 
         val wouldDangle = onlyConfigStyle || mustDangleForTrailingCommas ||
           dangleCloseDelim || closeBreak && beforeClose.left.is[T.Comment]
@@ -1892,7 +1893,7 @@ class Router(formatOps: FormatOps) {
           true,
           Set(rightOwner),
           enumCase.inits.headOption,
-          getLastToken(rightOwner),
+          getLast(rightOwner),
           style.indent.extendSite,
           enumCase.inits.lengthCompare(1) > 0,
         )
@@ -1929,7 +1930,7 @@ class Router(formatOps: FormatOps) {
               isFirstCtor,
               Set(template),
               findTemplateGroupOnRight(_.superType)(template),
-              templateCurlyOrLastNonTrivial(template).left,
+              templateCurlyOrLastNonTrivial(template),
               style.indent.main,
               extendsThenWith,
             )
@@ -1940,7 +1941,7 @@ class Router(formatOps: FormatOps) {
               !t.lhs.is[Type.With],
               withChain(top).toSet,
               Some(t.rhs),
-              top.tokens.last,
+              getLast(top),
               style.indent.main,
             )
           case enumCase: Defn.EnumCase =>
