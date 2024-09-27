@@ -7570,3 +7570,55 @@ object Streamable {
        def inputStream() = is
     .slurp(codec)
 }
+<<< #4133 overflow case body, could lead to non-idempotence
+maxColumn = 78
+===
+object a:
+  def foo = tree match {
+    case tree: untpd.TermLambdaTypeTree => typedTermLambdaTypeTree(tree)(using ctx.localContext(tree, NoSymbol).setNewScope)
+  }
+>>>
+object a:
+   def foo =
+     tree match {
+       case tree: untpd.TermLambdaTypeTree =>
+         typedTermLambdaTypeTree(tree)(using
+           ctx.localContext(tree, NoSymbol).setNewScope
+         )
+     }
+<<< #4133 case body with added end marker, could lead to non-idempotence
+maxColumn = 76
+rewrite.scala3.insertEndMarkerMinLines = 4
+===
+object a:
+  def checkImportAlternatives(previous: Type, prevPrec: BindingPrec, prevCtx: Context)(using Context): Type =
+
+    if Feature.enabled(Feature.relaxedExtensionImports) && altImports != null && ctx.isImportContext then
+      val curImport = ctx.importInfo.uncheckedNN
+      namedImportRef(curImport) match
+        case _ =>
+          checkImportAlternatives(previous, prevPrec, prevCtx)(using ctx.outer)
+    else
+      val found = findRefRecur(previous, prevPrec, prevCtx)
+  end checkImportAlternatives
+>>>
+object a:
+   def checkImportAlternatives(
+       previous: Type,
+       prevPrec: BindingPrec,
+       prevCtx: Context
+   )(using Context): Type =
+
+     if Feature.enabled(Feature.relaxedExtensionImports) &&
+        altImports != null && ctx.isImportContext
+     then
+        val curImport = ctx.importInfo.uncheckedNN
+        namedImportRef(curImport) match
+           case _ =>
+             checkImportAlternatives(previous, prevPrec, prevCtx)(using
+               ctx.outer
+             )
+        end match
+     else
+        val found = findRefRecur(previous, prevPrec, prevCtx)
+   end checkImportAlternatives
