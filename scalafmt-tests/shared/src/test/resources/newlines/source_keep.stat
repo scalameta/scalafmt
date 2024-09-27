@@ -9140,3 +9140,41 @@ trait Infer {
     }
   }
 }
+<<< SKIP #4133 very long one-liner with chain of infixes, full method
+class UDFRegistration private[sql] (functionRegistry: FunctionRegistry) extends Logging {
+  def register[RT: TypeTag, A1: TypeTag, A2: TypeTag, A3: TypeTag, A4: TypeTag, A5: TypeTag, A6: TypeTag, A7: TypeTag, A8: TypeTag, A9: TypeTag, A10: TypeTag, A11: TypeTag, A12: TypeTag, A13: TypeTag, A14: TypeTag, A15: TypeTag, A16: TypeTag, A17: TypeTag, A18: TypeTag, A19: TypeTag, A20: TypeTag, A21: TypeTag, A22: TypeTag](name: String, func: Function22[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22, RT]): UserDefinedFunction = {
+    val inputEncoders: Seq[Option[ExpressionEncoder[_]]] = Try(ExpressionEncoder[A1]()).toOption :: Try(ExpressionEncoder[A2]()).toOption :: Try(ExpressionEncoder[A3]()).toOption :: Try(ExpressionEncoder[A4]()).toOption :: Try(ExpressionEncoder[A5]()).toOption :: Try(ExpressionEncoder[A6]()).toOption :: Try(ExpressionEncoder[A7]()).toOption :: Try(ExpressionEncoder[A8]()).toOption :: Try(ExpressionEncoder[A9]()).toOption :: Try(ExpressionEncoder[A10]()).toOption :: Try(ExpressionEncoder[A11]()).toOption :: Try(ExpressionEncoder[A12]()).toOption :: Try(ExpressionEncoder[A13]()).toOption :: Try(ExpressionEncoder[A14]()).toOption :: Try(ExpressionEncoder[A15]()).toOption :: Try(ExpressionEncoder[A16]()).toOption :: Try(ExpressionEncoder[A17]()).toOption :: Try(ExpressionEncoder[A18]()).toOption :: Try(ExpressionEncoder[A19]()).toOption :: Try(ExpressionEncoder[A20]()).toOption :: Try(ExpressionEncoder[A21]()).toOption :: Try(ExpressionEncoder[A22]()).toOption :: Nil
+  }
+}
+>>>
+FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '[276] )∙.: RightParen [952..953) [] Dot [953..954)', line 3: exceeded `runner.maxStateVisits`=150000 [see https://scalameta.org/scalafmt/docs/configuration.html#search-state-exploded]
+<<< SKIP #4133 very long one-liner with chain of infixes
+runner.maxStateVisits = 1000
+===
+class UDFRegistration {
+  def foo = {
+    val inputEncoders: Seq_Option_ExpressionEncoder_____ = Try(ExpressionEncoder_A1_) :: Try(ExpressionEncoder_A2_) :: Try(ExpressionEncoder_A3_) :: Try(ExpressionEncoder_A4_) :: Try(ExpressionEncoder_A5_) :: Try(ExpressionEncoder_A6_) :: Try(ExpressionEncoder_A7_) :: Try(ExpressionEncoder_A8_) :: Try(ExpressionEncoder_A9_) :: Try(ExpressionEncoder_A10_) :: Try(ExpressionEncoder_A11_) :: Try(ExpressionEncoder_A12_) :: Try(ExpressionEncoder_A13_) :: Try(ExpressionEncoder_A14_) :: Try(ExpressionEncoder_A15_) :: Try(ExpressionEncoder_A16_) :: Try(ExpressionEncoder_A17_) :: Try(ExpressionEncoder_A18_) :: Try(ExpressionEncoder_A19_) :: Try(ExpressionEncoder_A20_) :: Try(ExpressionEncoder_A21_) :: Try(ExpressionEncoder_A22_) :: Nil
+  }
+}
+>>>
+FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '[43] Try∙(: Ident(Try) [277..280) [] LeftParen [280..281)', line 3: exceeded `runner.maxStateVisits`=1000 [see https://scalameta.org/scalafmt/docs/configuration.html#search-state-exploded]
+<<< SKIP #4133 very long one-liner with chain of infixes, with selects
+runner.maxStateVisits = 5000
+===
+class UDFRegistration {
+  def foo = {
+    val inputEncoders: Seq_Option_ExpressionEncoder_____ = Try(ExpressionEncoder_A1_).toOption :: Try(ExpressionEncoder_A2_).toOption :: Try(ExpressionEncoder_A3_).toOption :: Try(ExpressionEncoder_A4_).toOption :: Try(ExpressionEncoder_A5_).toOption :: Try(ExpressionEncoder_A6_).toOption :: Try(ExpressionEncoder_A7_).toOption :: Try(ExpressionEncoder_A8_).toOption :: Try(ExpressionEncoder_A9_).toOption :: Try(ExpressionEncoder_A10_).toOption :: Try(ExpressionEncoder_A11_).toOption :: Try(ExpressionEncoder_A12_).toOption :: Try(ExpressionEncoder_A13_).toOption :: Try(ExpressionEncoder_A14_).toOption :: Try(ExpressionEncoder_A15_).toOption :: Try(ExpressionEncoder_A16_).toOption :: Try(ExpressionEncoder_A17_).toOption :: Try(ExpressionEncoder_A18_).toOption :: Try(ExpressionEncoder_A19_).toOption :: Try(ExpressionEncoder_A20_).toOption :: Try(ExpressionEncoder_A21_).toOption :: Try(ExpressionEncoder_A22_).toOption :: Nil
+  }
+}
+>>>
+FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '[77] (∙ExpressionEncoder_A10_: LeftParen [451..452) [] Ident(ExpressionEncoder_A10_) [452..474)', line 3: exceeded `runner.maxStateVisits`=5000 [see https://scalameta.org/scalafmt/docs/configuration.html#search-state-exploded]
+<<< SKIP #4133 very long one-liner with chain of infixes, with select and types
+runner.maxStateVisits = 100000
+===
+class UDFRegistration {
+  def foo = {
+    val inputEncoders: Seq[Option[ExpressionEncoder[_]]] = Try(ExpressionEncoder[A1]).toOption :: Try(ExpressionEncoder[A2]).toOption :: Try(ExpressionEncoder[A3]).toOption :: Try(ExpressionEncoder[A4]).toOption :: Try(ExpressionEncoder[A5]).toOption :: Try(ExpressionEncoder[A6]).toOption :: Try(ExpressionEncoder[A7]).toOption :: Try(ExpressionEncoder[A8]).toOption :: Try(ExpressionEncoder[A9]).toOption :: Try(ExpressionEncoder[A10]).toOption :: Try(ExpressionEncoder[A11]).toOption :: Try(ExpressionEncoder[A12]).toOption :: Try(ExpressionEncoder[A13]).toOption :: Try(ExpressionEncoder[A14]).toOption :: Try(ExpressionEncoder[A15]).toOption :: Try(ExpressionEncoder[A16]).toOption :: Try(ExpressionEncoder[A17]).toOption :: Try(ExpressionEncoder[A18]).toOption :: Try(ExpressionEncoder[A19]).toOption :: Try(ExpressionEncoder[A20]).toOption :: Try(ExpressionEncoder[A21]).toOption :: Try(ExpressionEncoder[A22]).toOption :: Nil
+  }
+}
+>>>
+FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '[121] ::∙Try: Ident(::) [485..487) [ ] Ident(Try) [488..491)', line 3: exceeded `runner.maxStateVisits`=100000 [see https://scalameta.org/scalafmt/docs/configuration.html#search-state-exploded]
