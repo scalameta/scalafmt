@@ -7525,3 +7525,48 @@ object a:
      ) /*<|<*/ {
        // foo
      }
+<<< #4133 remove opt-braces to get fewer braces, with AvoidInfix
+rewrite {
+  rules = [AvoidInfix]
+  scala3.removeOptionalBraces = yes
+}
+===
+object Streamable {
+  def slurp(is: => InputStream)(implicit codec: Codec): String =
+    new Chars { def inputStream() = is } slurp codec
+}
+>>>
+object Streamable:
+   def slurp(is: => InputStream)(implicit codec: Codec): String =
+     new Chars:
+        def inputStream() = is
+     .slurp(codec)
+<<< #4133 remove opt-braces to get fewer braces, without AvoidInfix
+rewrite {
+  scala3.removeOptionalBraces = yes
+}
+===
+object Streamable {
+  def slurp(is: => InputStream)(implicit codec: Codec): String =
+    new Chars { def inputStream() = is }.slurp(codec)
+}
+>>>
+object Streamable:
+   def slurp(is: => InputStream)(implicit codec: Codec): String =
+     new Chars:
+        def inputStream() = is
+     .slurp(codec)
+<<< #4133 no need to remove opt-braces to get fewer braces
+object Streamable {
+  def slurp(is: => InputStream)(implicit codec: Codec): String =
+    new Chars:
+      def inputStream() = is
+    .slurp(codec)
+}
+>>>
+object Streamable {
+  def slurp(is: => InputStream)(implicit codec: Codec): String =
+    new Chars:
+       def inputStream() = is
+    .slurp(codec)
+}
