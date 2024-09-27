@@ -155,8 +155,20 @@ class FormatOps(
           }) => null
       case _: T.RightBracket if start.left.is[T.RightBracket] => null
       case _: T.LeftBracket => null
-      case _: T.Dot if start.rightOwner.is[Type.Select] => null
-      case _: T.Ident if start.leftOwner.is[Type.Select] => null
+      case _: T.Dot => start.rightOwner match {
+          case _: Type.Select => null
+          case _: Term.Select
+              if start.noBreak &&
+                (style.newlines.getSelectChains eq Newlines.keep) => null
+          case _ => start
+        }
+      case _: T.Ident => start.leftOwner match {
+          case _: Type.Select => null
+          case _: Term.Select
+              if start.noBreak &&
+                (style.newlines.getSelectChains eq Newlines.keep) => null
+          case _ => start
+        }
       case t: T.RightParen =>
         if (start.left.is[T.LeftParen]) null
         else {
