@@ -260,8 +260,8 @@ class FormatOps(
 
   // invoked on closing paren, part of ParamClause
   @tailrec
-  final def defnSiteLastToken(close: FormatToken, t: Tree): T = {
-    def alt = getLastToken(t)
+  final def defnSiteLastToken(close: FormatToken, t: Tree): FormatToken = {
+    def alt = getLast(t)
     t match {
       case _: Term.ParamClause | _: Type.FuncParamClause |
           _: Member.ParamClauseGroup => t.parent match {
@@ -269,18 +269,18 @@ class FormatOps(
           case _ => alt
         }
       case t: Defn.Def => getHeadOpt(t.body).fold(alt) { ft =>
-          if (ft.left.is[T.LeftBrace] && t.body.is[Term.Block]) ft.left
-          else prevNonCommentBefore(ft).left
+          if (ft.left.is[T.LeftBrace] && t.body.is[Term.Block]) ft
+          else prevNonCommentBefore(ft)
         }
       case _: Ctor.Primary => close match {
           // This is a terrible terrible hack. Please consider removing this.
           // The RightParen() LeftBrace() pair is presumably a ") {" combination
           // at a class definition
-          case FormatToken(_: T.RightParen, b: T.LeftBrace, _) => b
-          case _ => close.left
+          case FormatToken(_: T.RightParen, _: T.LeftBrace, _) => next(close)
+          case _ => close
         }
       case t => t.tokens.find(x => x.is[T.Equals] && owners(x) == t)
-          .getOrElse(alt)
+          .fold(alt)(before)
     }
   }
 
@@ -345,14 +345,14 @@ class FormatOps(
 
   def templateDerivesOrCurlyOrLastNonTrivial(template: Template)(implicit
       ft: FormatToken,
-  ): T = findTemplateGroupOnRight(_.getExpireToken)(template)
-    .getOrElse(templateCurlyOrLastNonTrivial(template).left)
+  ): FormatToken = findTemplateGroupOnRight(_.getExpireToken)(template)
+    .getOrElse(templateCurlyOrLastNonTrivial(template))
 
   private def findTreeInGroup[A](
       trees: Seq[Tree],
       func: TemplateSupertypeGroup => A,
-  )(expireFunc: Seq[Tree] => T)(implicit ft: FormatToken): Option[A] = trees
-    .find(_.pos.end >= ft.right.end).map { x =>
+  )(expireFunc: Seq[Tree] => FormatToken)(implicit ft: FormatToken): Option[A] =
+    trees.find(_.pos.end >= ft.right.end).map { x =>
       func(TemplateSupertypeGroup(x, trees, expireFunc))
     }
 
@@ -364,11 +364,11 @@ class FormatOps(
       if (isSeqSingle(groups))
         // for the last group, return '{' or ':'
         findTreeInGroup(groups.head, func) { x =>
-          getHeadOpt(template.body).getOrElse(getLastNonTrivial(x.last)).left
+          getHeadOpt(template.body).getOrElse(getLastNonTrivial(x.last))
         }
       else {
         // for intermediate groups, return its last token
-        val res = findTreeInGroup(groups.head, func)(x => tokenAfter(x).left)
+        val res = findTreeInGroup(groups.head, func)(tokenAfter)
         if (res.isDefined) res else iter(groups.tail)
       }
     getTemplateGroups(template).flatMap(iter)
@@ -971,7 +971,7 @@ class FormatOps(
       // this method is called on a `with` or comma; hence, it can
       // only refer to second or subsequent init/derive in a group
       // we'll indent only the second, but not any subsequent ones
-      val expire = x.getExpireToken
+      val expire = x.getExpireToken.left
       val indent =
         if (!x.isSecond) Indent.Empty
         else Indent(Num(indentIfSecond), expire, ExpiresOn.After)
@@ -1013,7 +1013,7 @@ class FormatOps(
       isFirstCtor: Boolean,
       owners: => Set[Tree],
       rhs: => Option[Tree],
-      lastToken: T,
+      lastFt: FormatToken,
       indentLen: Int,
       extendsThenWith: => Boolean = false,
   )(implicit
@@ -1021,6 +1021,7 @@ class FormatOps(
       ft: FormatToken,
       style: ScalafmtConfig,
   ): Seq[Split] = {
+    val lastToken = lastFt.left
     val nlMod = NewlineT(alt = Some(Space))
     val indent =
       if (!isFirstCtor) Indent.Empty
@@ -1028,7 +1029,7 @@ class FormatOps(
     if (style.binPack.keepParentConstructors)
       if (ft.hasBreak) Seq(Split(nlMod, 0).withIndent(indent))
       else {
-        val slbEnd = rhs.fold(lastToken)(getLastToken)
+        val slbEnd = endOfSingleLineBlock(rhs.fold(lastFt)(getLast))
         Seq(
           Split(Space, 0).withIndent(indent).withSingleLine(
             slbEnd,
@@ -3017,7 +3018,7 @@ object FormatOps {
   case class TemplateSupertypeGroup(
       superType: Tree,
       superTypeGroup: Seq[Tree],
-      expireTokenFunc: Seq[Tree] => T,
+      expireTokenFunc: Seq[Tree] => FormatToken,
   ) {
     def getExpireToken = expireTokenFunc(superTypeGroup)
     def isSecond = superTypeGroup.drop(1).headOption.contains(superType)
