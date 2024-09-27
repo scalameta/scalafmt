@@ -6700,8 +6700,7 @@ object a:
                     errorButContinue(
                       em"""The start of this line does not match any of the previous indentation widths.
                           |Indentation width of current line : $nextWidth
-                          |This falls between previous widths: ${ir
-                          .width} and $lw"""
+                          |This falls between previous widths: ${ir.width} and $lw"""
                     ))
 <<< scala.js tucked close paren after optional braces region, !dangling
 binPack.preset = always
@@ -6742,8 +6741,7 @@ object a:
                     errorButContinue(
                       em"""The start of this line does not match any of the previous indentation widths.
                           |Indentation width of current line : $nextWidth
-                          |This falls between previous widths: ${ir
-                          .width} and $lw"""))
+                          |This falls between previous widths: ${ir.width} and $lw"""))
 <<< scala.js overflow within for-yield dangling
 binPack.preset = always
 danglingParentheses.preset = true
@@ -6757,10 +6755,8 @@ object a:
    def foo =
      for template <- templates do
         val current_Map_String__Object =
-          template_templateFile_settings_getOrElse(
-            "page",
-            Map.empty
-          ).asInstanceOf[Map_String_Object]
+          template_templateFile_settings_getOrElse("page",
+            Map.empty).asInstanceOf[Map_String_Object]
 <<< scala.js overflow within for-yield !dangling
 binPack.preset = always
 danglingParentheses.preset = false
@@ -7047,8 +7043,9 @@ object a {
 >>>
 object a {
   @threadUnsafe lazy val AnnotationRetentionSourceAttr: TermSymbol =
-    requiredClass("java.lang.annotation.RetentionPolicy").linkedClass
-      .requiredValue("SOURCE")
+    requiredClass(
+        "java.lang.annotation.RetentionPolicy").linkedClass.requiredValue(
+        "SOURCE")
 }
 <<< #4133 overflow apply with binpack, dangling
 maxColumn = 70
@@ -7079,15 +7076,9 @@ object a:
 object a:
    if (args.isEmpty) {
      run(insertClasspathInArgs(args1,
-         List(
-           dottyCompiler,
-           dottyInterfaces,
-           asm,
-           dottyStaging,
-           dottyTastyInspector,
-           tastyCore,
-           compilerInterface
-         ).mkString(File.pathSeparator)))
+         List(dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore,
+           compilerInterface).mkString(File.pathSeparator)))
    } else run(args)
 <<< #4133 overflow apply/selects with binpack, dangling
 maxColumn = 70
@@ -7103,15 +7094,11 @@ object a:
    if (args.isEmpty) {
      run(insertClasspathInArgs(
          args1,
-         List(
-           dottyCompiler,
-           dottyInterfaces,
-           asm,
-           dottyStaging,
-           dottyTastyInspector,
-           tastyCore,
-           compilerInterface
-         ).mkString(File.pathSeparator).mkString(File.pathSeparator)
+         List(dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore,
+           compilerInterface).mkString(File.pathSeparator).mkString(
+           File.pathSeparator
+         )
        ))
    } else run(args)
 <<< #4133 overflow apply with binpack, !dangling
@@ -7144,8 +7131,8 @@ object a:
    if (args.isEmpty) {
      run(insertClasspathInArgs(args1,
          List(dottyCompiler, dottyInterfaces, asm, dottyStaging,
-           dottyTastyInspector, tastyCore, compilerInterface).mkString(
-           File.pathSeparator)))
+           dottyTastyInspector, tastyCore,
+           compilerInterface).mkString(File.pathSeparator)))
    } else run(args)
 <<< #4133 overflow apply/selects with binpack, !dangling
 maxColumn = 70
@@ -7163,8 +7150,9 @@ object a:
        insertClasspathInArgs(
          args1,
          List(dottyCompiler, dottyInterfaces, asm, dottyStaging,
-           dottyTastyInspector, tastyCore, compilerInterface)
-           .mkString(File.pathSeparator).mkString(File.pathSeparator)
+           dottyTastyInspector, tastyCore,
+           compilerInterface).mkString(File.pathSeparator).mkString(
+           File.pathSeparator)
        ))
    } else run(args)
 <<< #4133 overflow select with binpack, dangling
@@ -7178,8 +7166,9 @@ object a:
 >>>
 object a:
    val foo = map { postFile =>
-      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year)
-        .resolve(month).resolve(day).resolve(name)
+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(
+        year
+      ).resolve(month).resolve(day).resolve(name)
    }
 <<< #4133 overflow select with binpack, !dangling
 binPack.preset = always
@@ -7192,8 +7181,8 @@ object a:
 >>>
 object a:
    val foo = map { postFile =>
-      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year)
-        .resolve(month).resolve(day).resolve(name)
+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(
+        year).resolve(month).resolve(day).resolve(name)
    }
 <<< #4133 overflow selects/applies, nobreak-dot-break, binpack + !dangling
 maxColumn = 70
@@ -7228,13 +7217,12 @@ object a:
     )
 >>>
 object a:
-   lazy val `stdlib-bootstrapped` =
-     project.in(file("stdlib-bootstrapped")).withCommonSettings(
-       Bootstrapped).dependsOn(dottyCompiler(
-       Bootstrapped) % "provided; compile->runtime; test->test")
-       .settings(
-         moduleName := "scala-library"
-       )
+   lazy val `stdlib-bootstrapped` = project.in(
+     file("stdlib-bootstrapped")).withCommonSettings(
+     Bootstrapped).dependsOn(dottyCompiler(
+     Bootstrapped) % "provided; compile->runtime; test->test").settings(
+     moduleName := "scala-library"
+   )
 <<< #4133 overflow selects/applies, break-dot-nobreak, binpack + !dangling
 maxColumn = 70
 binPack.preset = always

@@ -820,9 +820,9 @@ val memberSel: Elems =
                             Ol(
                                 elems = {
                                   if (
-                                      !universe.settings.docGroups.value || tpl
-                                        .members.map(_.group).distinct.forall(
-                                            _ == ModelFactory.defaultGroup)
+                                      !universe.settings.docGroups.value || tpl.members.map(
+                                          _.group).distinct.forall(
+                                          _ == ModelFactory.defaultGroup)
                                   )
                                     NoElems
                                   else
@@ -834,8 +834,7 @@ val memberSel: Elems =
                                       elems = Span(
                                           elems = Txt("Alphabetic"))) :: {
                                     if (
-                                        tpl.linearizationTemplates
-                                          .isEmpty && tpl.conversions.isEmpty
+                                        tpl.linearizationTemplates.isEmpty && tpl.conversions.isEmpty
                                     )
                                       NoElems
                                     else
@@ -847,8 +846,7 @@ val memberSel: Elems =
                             )
                     ) ++ (
                         if (
-                            tpl.linearizationTemplates.isEmpty && tpl
-                              .conversions.isEmpty
+                            tpl.linearizationTemplates.isEmpty && tpl.conversions.isEmpty
                         ) NoElems
                         else {
                           (if (tpl.linearizationTemplates.isEmpty) NoElems
@@ -886,13 +884,15 @@ val memberSel: Elems =
                                              tpl.conversions.map { conv =>
                                                val name =
                                                  conv.conversionQualifiedName
-                                               val hide = universe.settings
-                                                 .hiddenImplicits(name)
+                                               val hide =
+                                                 universe.settings.hiddenImplicits(
+                                                     name)
                                                Li(`class` = "in", name = name,
-                                                   `data-hidden` = hide.toString,
+                                                   `data-hidden` =
+                                                     hide.toString,
                                                    elems = Span(
-                                                       elems = Txt("by " + conv
-                                                         .conversionShortName)))
+                                                       elems = Txt(
+                                                           "by " + conv.conversionShortName)))
                                              }
                                            }
                                        )
@@ -930,10 +930,9 @@ val memberSel: Elems =
                                                   elems = Txt("Protected")))
                                       ) ++ List(Li(`class` = "private out",
                                               elems = Span(
-                                                  elems = Txt("Private"))))
-                                        .filter(_ =>
-                                          universe.settings.visibilityPrivate
-                                            .value))
+                                                  elems = Txt(
+                                                      "Private")))).filter(_ =>
+                                        universe.settings.visibilityPrivate.value))
                         ))
               )
       ))

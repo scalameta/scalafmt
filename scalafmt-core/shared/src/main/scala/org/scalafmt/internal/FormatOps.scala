@@ -2940,16 +2940,21 @@ class FormatOps(
 
       (afterDelims.right match {
         case c: T.Dot => // check if Dot rule includes a break option
-          c -> GetSelectLike.onRightOpt(afterDelims).exists { x =>
+          c -> GetSelectLike.onRightOpt(afterDelims).map { x =>
             implicit val cfg = styleMap.at(afterDelims)
             cfg.newlines.getSelectChains match {
               case Newlines.classic =>
                 val (expireTree, nextSelect) =
                   findLastApplyAndNextSelect(x.tree, cfg.encloseSelectChains)
-                canStartSelectChain(x, nextSelect, expireTree)
-              case _ => true
+                Right(canStartSelectChain(x, nextSelect, expireTree))
+              case Newlines.keep => Left(Policy.on(c, "BP1L.NL") {
+                  case Decision(`afterDelims`, ss) => Decision
+                      .onlyNewlineSplits(ss)
+                      .map(_.preActivateFor(SplitTag.SelectChainBinPackNL))
+                })
+              case _ => Right(true)
             }
-          }
+          }.getOrElse(Right(false))
         case x @ LeftParenOrBracket() =>
           nextNonCommentSameLineAfter(afterDelims).right match {
             case _: T.Comment => null
@@ -2959,15 +2964,17 @@ class FormatOps(
                 cfg.configStyleCallSite.prefer &&
                 cfg.danglingParentheses.atCallSite(afterDelims.meta.rightOwner)
               } || next(afterDelims).hasBreak
-              c -> ok
+              c -> Right(ok)
           }
         case _ => null
       }) match {
         case null => (None, NoPolicy)
-        case (c, okToBreak) =>
-          val policyOpt =
-            if (!okToBreak) closeBreakPolicy()
-            else Some(decideNewlinesOnlyBeforeToken(c))
+        case (c, policyOrOkToBreak) =>
+          val policyOpt = policyOrOkToBreak match {
+            case Left(policy) => Some(policy)
+            case Right(okToBreak) if !okToBreak => closeBreakPolicy()
+            case _ => Some(decideNewlinesOnlyBeforeToken(c))
+          }
           (Some(c), policyOpt.fold(Policy.noPolicy)(policyWithDelay))
       }
     }
