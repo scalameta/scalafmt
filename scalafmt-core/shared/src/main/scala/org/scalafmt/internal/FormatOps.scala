@@ -144,11 +144,15 @@ class FormatOps(
       case _: T.EOF => start
       case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals => null
       case _ if start.hasBlankLine => start
-      case _
-          if !style.newlines.formatInfix &&
-            (isInfixOp(start.rightOwner) || isInfixOpOnLeft(start)) =>
-        if (start.hasBreak) start else null
-      case _: T.LeftParen if !leftParenStartsNewBlockOnRight(start) => null
+      case _ if !style.newlines.formatInfix && {
+            isInfixOp(start.rightOwner) ||
+            isInfixOp(prevNonComment(start).leftOwner)
+          } => if (start.hasBreak) start else null
+      case _: T.LeftParen if (start.rightOwner match {
+            case _: Member.ArgClause =>
+              !style.newlines.isBeforeOpenParenCallSite
+            case t => !isJustBeforeTree(start)(t)
+          }) => null
       case _: T.RightBracket if start.left.is[T.RightBracket] => null
       case _: T.LeftBracket => null
       case _: T.Dot if start.rightOwner.is[Type.Select] => null
@@ -185,17 +189,6 @@ class FormatOps(
   final def endOfSingleLineBlock(start: FormatToken)(implicit
       style: ScalafmtConfig,
   ): T = getSlbEndOnLeft(start).left
-
-  final def isInfixOpOnLeft(ft: FormatToken): Boolean =
-    isInfixOp(prevNonComment(ft).leftOwner)
-
-  final def leftParenStartsNewBlockOnRight(
-      ft: FormatToken,
-  )(implicit style: ScalafmtConfig): Boolean =
-    (ft.meta.rightOwner match {
-      case _: Member.ArgClause => style.newlines.isBeforeOpenParenCallSite
-      case t => isJustBeforeTree(ft)(t)
-    }) && !isInfixOpOnLeft(ft)
 
   /** js.native is very special in Scala.js.
     *
