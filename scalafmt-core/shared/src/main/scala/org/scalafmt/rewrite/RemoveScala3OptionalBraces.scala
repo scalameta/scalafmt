@@ -1,8 +1,7 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.FormatTokens
+import org.scalafmt.config._
+import org.scalafmt.internal._
 import org.scalafmt.util.TreeOps._
 
 import scala.meta._
@@ -78,7 +77,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = {
-    val nextFt = ftoks.nextNonComment(ftoks.next(ft))
+    val nextFt = ftoks.nextNonCommentAfter(ft)
     val notOkToRewrite = hasFormatOff || // can't force significant indentation
       (nextFt.meta.rightOwner match {
         case t: Term.Name => t.parent.exists {
@@ -88,6 +87,8 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
               !t.tokens.head.isSymbolicInfixOperator
             case _ => false
           }
+        case _: Term.Select => nextFt.noBreak &&
+          (style.newlines.getSelectChains eq Newlines.keep)
         case _ => false
       }) ||
       (left.ft.right match {

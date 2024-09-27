@@ -5871,9 +5871,9 @@ object A:
   }.bar()
 >>>
 object A:
-   new Foo("xyz"):
-      print("msg")
-   .bar()
+   new Foo("xyz") {
+     print("msg")
+   }.bar()
 <<< #3537 2
 object A:
   new Foo("xyz"):
@@ -5937,10 +5937,10 @@ def foo(url: String) = {
 }
 >>>
 def foo(url: String) =
-  url.match
-     case "foo" => Some("")
-     case _     => None
-  .map { img =>
+  url.match {
+    case "foo" => Some("")
+    case _     => None
+  }.map { img =>
     Html(s"""<img class="embed" src="$img" alt="$url"/>""")
   }
 <<< new anon as infix lhs, with rewrite
@@ -5991,12 +5991,12 @@ object a {
 }
 >>>
 object a:
-   new AdapterLike[Study]:
-      def query = Query(text take 100, me.map(_.id))
-      def nbResults = api count query
-      def slice(offset: Int, length: Int) =
-        api.search(query, From(offset), Size(length))
-   .mapFutureList
+   new AdapterLike[Study] {
+     def query = Query(text take 100, me.map(_.id))
+     def nbResults = api count query
+     def slice(offset: Int, length: Int) =
+       api.search(query, From(offset), Size(length))
+   }.mapFutureList
 <<< #3623 beforeCurlyLambdaParams
 newlines.beforeCurlyLambdaParams = true
 ===
@@ -7289,9 +7289,7 @@ object Streamable {
 >>>
 object Streamable:
    def slurp(is: => InputStream)(implicit codec: Codec): String =
-     new Chars:
-        def inputStream() = is
-     .slurp(codec)
+     new Chars { def inputStream() = is }.slurp(codec)
 <<< #4133 remove opt-braces to get fewer braces, without AvoidInfix
 rewrite {
   scala3.removeOptionalBraces = yes
@@ -7304,9 +7302,7 @@ object Streamable {
 >>>
 object Streamable:
    def slurp(is: => InputStream)(implicit codec: Codec): String =
-     new Chars:
-        def inputStream() = is
-     .slurp(codec)
+     new Chars { def inputStream() = is }.slurp(codec)
 <<< #4133 no need to remove opt-braces to get fewer braces
 object Streamable {
   def slurp(is: => InputStream)(implicit codec: Codec): String =
