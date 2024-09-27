@@ -27,9 +27,9 @@ newlines.source = keep
 ===
 debuglog("infer method inst " + fun + ", tparams = " + tparams + ", args = " + args1.map(_.tpe) + ", pt = " + pt + ", lobounds = " + tparams.map(_.tpe.lowerBound) + ", parambounds = " + tparams.map(_.info)) //debug
 >>>
-debuglog("infer method inst " + fun + ", tparams = " + tparams + ", args = " + args1
-  .map(_.tpe) + ", pt = " + pt + ", lobounds = " + tparams
-  .map(_.tpe.lowerBound) + ", parambounds = " + tparams.map(
+debuglog("infer method inst " + fun + ", tparams = " + tparams + ", args = " + args1.map(
+    _.tpe) + ", pt = " + pt + ", lobounds = " + tparams.map(
+    _.tpe.lowerBound) + ", parambounds = " + tparams.map(
     _.info)) //debug
 <<< overflow infix with applies
 maxColumn = 74
@@ -38,5 +38,5 @@ newlines.source = keep
 realeasy && isJavaAtLeast(9) && !perFile.exists(releaseFlag.matches) && toolArgsFor(sources)(ToolName.javaVersion).isEmpty
 >>>
 realeasy && isJavaAtLeast(9) && !perFile.exists(
-    releaseFlag.matches) && toolArgsFor(sources)(ToolName.javaVersion)
-  .isEmpty
+    releaseFlag.matches) && toolArgsFor(sources)(
+    ToolName.javaVersion).isEmpty

@@ -945,8 +945,9 @@ object a {
 }
 >>>
 object a {
-  (intercept[
-    java.lang.IllegalStateException] { in.readObject }).getMessage should ===(
+  (intercept[java.lang.IllegalStateException] {
+    in.readObject
+  }).getMessage should ===(
     "Trying to deserialize a serialized ActorRef without an ActorSystem in scope." +
       " Use 'akka.serialization.Serialization.currentSystem.withValue(system) { ... }'")
 }
@@ -8957,8 +8958,8 @@ object a {
 >>>
 object a {
   if (foo) bar match {
-    case nme.IMPORT | nme.OUTER | nme.ANON_CLASS_NAME | nme
-          .ANON_FUN_NAME | nme.CONSTRUCTOR => ()
+    case nme.IMPORT | nme.OUTER | nme.ANON_CLASS_NAME | nme.ANON_FUN_NAME | nme.CONSTRUCTOR =>
+      ()
   }
 }
 <<< #4133 control body with complex apply/select/try 1

@@ -1780,9 +1780,8 @@ class Router(formatOps: FormatOps) {
                 ignore = next(ft).right.is[T.Comment],
               ))
             else Seq(
-              Split(NoSplit, 0)
-                .withSingleLine(getSlbEnd(), killOnFail = shouldKillOnFail()),
-              Split(Newline, Constants.ExceedColumnPenalty * 3),
+              Split(NoSplit, 0),
+              Split(Newline, 1).onlyFor(SplitTag.SelectChainBinPackNL),
             )
 
           case Newlines.unfold =>
