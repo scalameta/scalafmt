@@ -108,7 +108,8 @@ object a:
 >>>
 object a:
    if reducePattern(caseBindingMap, scrutineeSym.termRef, cdef.pat)(using
-        gadtCtx)
+        gadtCtx
+      )
    then {
      // c1
    }
@@ -6903,7 +6904,8 @@ object a:
        projectRoot: Path = Paths.get("").toAbsolutePath
    )(using CompilerContext): SourceLinks =
      PathBased.parse(config, projectRoot)(using
-       SourceLinkParser(revision)) match {
+       SourceLinkParser(revision)
+     ) match {
        case PathBased.ParsingResult(errors, sourceLinks) =>
          if errors.nonEmpty then
             report.warning(
@@ -7317,7 +7319,8 @@ object a:
    def foo = tree match {
      case tree: untpd.TermLambdaTypeTree =>
        typedTermLambdaTypeTree(tree)(using
-         ctx.localContext(tree, NoSymbol).setNewScope)
+         ctx.localContext(tree, NoSymbol).setNewScope
+       )
    }
 <<< #4133 case body with added end marker, could lead to non-idempotence
 maxColumn = 76

@@ -1027,33 +1027,41 @@ class Router(formatOps: FormatOps) {
               .withIndents(extraOneArgPerLineIndent, indent),
           )
           else {
+            val useOneArgPerLineSplit = (notTooManyArgs && align) ||
+              (handleImplicit &&
+                style.newlines.notBeforeImplicitParamListModifier)
             val slbSplit =
               if (mustDangleForTrailingCommas) Split.ignored
               else {
+                def getSlb(implicit l: FileLine) = SingleLineBlock(
+                  close,
+                  exclude = excludeBlocks,
+                  noSyntaxNL = multipleArgs,
+                )
+                val needDifferentFromOneArgPerLine = newlinePolicy.nonEmpty &&
+                  handleImplicit && useOneArgPerLineSplit
                 val noSplitPolicy =
-                  if (preferNoSplit && splitsForAssign.isEmpty) singleLine(2)
+                  if (needDifferentFromOneArgPerLine) getSlb
+                  else if (preferNoSplit && splitsForAssign.isEmpty)
+                    singleLine(2)
                   else if (
                     wouldDangle || optimalIsComment && isBracket ||
                     sourceIgnored &&
                     configStyleFlag && !isSingleEnclosedArgument
-                  ) SingleLineBlock(
-                    close,
-                    exclude = excludeBlocks,
-                    noSyntaxNL = multipleArgs,
-                  )
+                  ) getSlb
                   else if (splitsForAssign.isDefined) singleLine(3)
                   else singleLine(10)
-                val noOptimal = style.newlines.keep
+                val kof = style.newlines.keep && needDifferentFromOneArgPerLine
+                val noOptimal = style.newlines.keep && !useOneArgPerLineSplit
                 val okIndent = rightIsComment || handleImplicit
-                Split(noSplitMod, 0, policy = noSplitPolicy)
-                  .withOptimalToken(optimal, ignore = noOptimal)
-                  .withIndent(indent, ignore = !okIndent)
+                Split(noSplitMod, 0, policy = noSplitPolicy).withOptimalToken(
+                  optimal,
+                  ignore = noOptimal,
+                  killOnFail = kof,
+                ).withIndent(indent, ignore = !okIndent)
               }
-            val useoneArgPerLineSplit = (notTooManyArgs && align) ||
-              (handleImplicit &&
-                style.newlines.notBeforeImplicitParamListModifier)
             val oneArgPerLineSplit =
-              if (useoneArgPerLineSplit)
+              if (useOneArgPerLineSplit)
                 Split(noSplitMod, (implicitPenalty + lhsPenalty) * bracketCoef)
                   .withPolicy(oneArgOneLine & implicitPolicy).withIndents(
                     if (align) getOpenParenAlignIndents(close) else Seq(indent),
