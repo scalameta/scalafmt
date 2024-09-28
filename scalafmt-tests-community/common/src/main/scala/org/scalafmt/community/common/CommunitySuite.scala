@@ -1,9 +1,11 @@
 package org.scalafmt.community.common
 
 import org.scalafmt.config._
+import org.scalafmt.sysops.OsSpecific
 
 import java.nio.file._
 
+import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration
 import scala.sys.process._
 
@@ -60,21 +62,34 @@ abstract class CommunitySuite extends FunSuite {
     try Files.createDirectories(communityProjectsDirectory)
     catch { case _: FileAlreadyExistsException => }
 
-    val log = new StringBuilder
-    val logger = ProcessLogger(s => log.append(s).append('\n'))
+    val log = new ListBuffer[String]
+    val logger = ProcessLogger(log += _)
+
+    def runCmdRaw(cmd: String): Int = {
+      log.clear()
+      Console.err.println(s"Invoking command: $cmd")
+      cmd.!(logger)
+    }
 
     def runCmd(cmd: String, what: => String): Unit = {
-      val result: Int = cmd.!(logger)
+      val result: Int = runCmdRaw(cmd)
       assertEquals(
         clue(result),
         0,
-        s"Community build ${build.name}: $what failed:\n$log",
+        log.mkString(
+          s"Community build ${build.name}: $what failed:\n",
+          "\n",
+          "\n",
+        ),
       )
-      log.clear()
     }
 
     val folderPath = communityProjectsDirectory.resolve(build.name)
     val folder = folderPath.toString
+
+    if (OsSpecific.isWindows)
+      if (0 != runCmdRaw("git config --global core.longpaths true"))
+        runCmd("git config --system core.longpaths true", "setting long paths")
 
     if (!Files.exists(folderPath)) runCmd(
       s"git clone --depth=1 --no-single-branch ${build.giturl} $folder",
