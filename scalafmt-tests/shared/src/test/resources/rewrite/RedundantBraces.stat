@@ -2061,3 +2061,51 @@ hostLocalDirManager =
     Utils.isPushBasedShuffleEnabled(conf, isDriver)
   )
     None
+<<< #4133 do-while within for
+rewrite.redundantBraces.maxLines = 100
+===
+for (taskSet <- sortedTaskSets; maxLocality <- taskSet.myLocalityLevels) {
+  do {
+    launchedTask = resourceOfferSingleTaskSet(
+        taskSet, maxLocality, shuffledOffers, availableCpus, tasks)
+  } while (launchedTask)
+}
+>>>
+test does not parse: [dialect scala213] `end of file` expected but `while` found
+  availableCpus,
+  tasks
+) while (launchedTask)
+  ^
+====== full result: ======
+for (taskSet <- sortedTaskSets; maxLocality <- taskSet.myLocalityLevels)
+do launchedTask = resourceOfferSingleTaskSet(
+  taskSet,
+  maxLocality,
+  shuffledOffers,
+  availableCpus,
+  tasks
+) while (launchedTask)
+<<< #4133 do-while within for, extra block
+rewrite.redundantBraces.maxLines = 100
+===
+for (taskSet <- sortedTaskSets; maxLocality <- taskSet.myLocalityLevels) {{
+  do {
+    launchedTask = resourceOfferSingleTaskSet(
+        taskSet, maxLocality, shuffledOffers, availableCpus, tasks)
+  } while (launchedTask)
+}}
+>>>
+test does not parse: [dialect scala213] `end of file` expected but `while` found
+  availableCpus,
+  tasks
+) while (launchedTask)
+  ^
+====== full result: ======
+for (taskSet <- sortedTaskSets; maxLocality <- taskSet.myLocalityLevels)
+do launchedTask = resourceOfferSingleTaskSet(
+  taskSet,
+  maxLocality,
+  shuffledOffers,
+  availableCpus,
+  tasks
+) while (launchedTask)
