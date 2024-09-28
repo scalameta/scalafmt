@@ -59,7 +59,9 @@ object LoggerOps {
 
   def log(tokens: Tokens): String = tokens.map(log).mkString("\n")
 
-  def log(token: Token): String = f"[${token.structure}%-40s"
+  def log(token: Token): String = logTok(token)
+  def logTok(token: Token): String = f"[${token.structure}%-40s"
+  def logTok(token: Option[Token]): String = token.fold("")(log)
 
   def log(t: Tree): String = log(t, false)
   def log(t: Tree, tokensOnly: Boolean): String = {
