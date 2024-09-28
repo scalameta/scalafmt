@@ -9473,3 +9473,45 @@ rdd.map(
     {case (id, count) => (count, id)})
 >>>
 rdd.map({ case (id, count) => (count, id) })
+<<< #4133 RedundantParens around infix with an embedded blank lin
+maxColumn = 80
+rewrite {
+  rules = [RedundantParens, RedundantBraces]
+  redundantBraces.maxLines = 100
+  redundantParens.infixSide = all
+}
+===
+class ClassEmitter {
+
+  def genScalaClassConstructor = {
+
+    if (useESClass) {
+      for {
+        chainProto <- chainProtoWithGlobals
+      } yield {
+        (
+          // Real constructor
+          js.JSDocConstructor(realCtorDef.head) ::
+          realCtorDef.tail :::
+          chainProto :::
+          (genIdentBracketSelect(prototypeFor(ctorVar), "constructor") := ctorVar) ::
+
+          // Inheritable constructor
+          js.JSDocConstructor(inheritableCtorDef.head) ::
+          inheritableCtorDef.tail :::
+          (globalVar(VarField.h, className).prototype := prototypeFor(ctorVar)) :: Nil
+        )
+      }
+    }
+  }
+
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+ ∙
+-      // Inheritable constructor
+-      js.JSDocConstructor(inheritableCtorDef.head) ::
++        // Inheritable constructor
++        js.JSDocConstructor(inheritableCtorDef.head) ::
+         inheritableCtorDef.tail :::
