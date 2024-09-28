@@ -9710,3 +9710,41 @@ class UDFRegistration {
           .toOption :: Nil
   }
 }
+<<< #4133 infix after xml block
+maxColumn = 80
+===
+object a {
+  private def waitingBatchRow(batch: BatchUIData): Seq[Node] = {
+    baseRow(batch) ++ createOutputOperationProgressBar(batch) ++ <td>queued</td>++ {
+      if (firstFailureReason.nonEmpty) {
+        // Waiting batches have not run yet, so must have no failure reasons.
+        <td>-</td>
+      } else {
+        Nil
+      }
+    }
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+   private def waitingBatchRow(batch: BatchUIData): Seq[Node] = {
+-    baseRow(batch) ++ createOutputOperationProgressBar(batch) ++ <td>queued</td>
+-    ++ {
+-      if (firstFailureReason.nonEmpty) {
+-        // Waiting batches have not run yet, so must have no failure reasons.
+-        <td>-</td>
+-      } else {
+-        Nil
++    baseRow(batch) ++ createOutputOperationProgressBar(batch) ++
++      <td>queued</td>
++      ++ {
++        if (firstFailureReason.nonEmpty) {
++          // Waiting batches have not run yet, so must have no failure reasons.
++          <td>-</td>
++        } else {
++          Nil
++        }
+       }
+-    }
+   }
