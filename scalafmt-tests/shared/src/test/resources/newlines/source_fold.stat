@@ -9156,3 +9156,19 @@ class ClassEmitter {
     }
 
 }
+<<< #4133 lambda in braces, overflow after brace
+maxColumn = 76
+===
+validateStructuralIntegrityWithReasonImpl(row, expectedSchema).map {
+  errorMessage => s"Error message is: $errorMessage, " +
+      s"UnsafeRow status: ${getStructuralIntegrityStatus(row, expectedSchema)}"
+}
+>>>
+validateStructuralIntegrityWithReasonImpl(row, expectedSchema)
+  .map { errorMessage =>
+    s"Error message is: $errorMessage, " +
+      s"UnsafeRow status: ${getStructuralIntegrityStatus(
+          row,
+          expectedSchema
+        )}"
+  }
