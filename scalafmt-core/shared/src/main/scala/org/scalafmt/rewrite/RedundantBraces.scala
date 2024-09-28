@@ -555,6 +555,15 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       case p: Term.Match => p.expr eq b
       case p: Type.Match => p.tpe eq b
 
+      case p: Term.ForClause if p.body eq b =>
+        @tailrec
+        def iter(t: Tree): Boolean = t match {
+          case _: Term.Do => true
+          case Term.Block(x :: Nil) => iter(x)
+          case _ => false
+        }
+        iter(stat)
+
       case parent => SyntacticGroupOps.groupNeedsParenthesis(
           TreeSyntacticGroup(parent),
           TreeSyntacticGroup(stat),
