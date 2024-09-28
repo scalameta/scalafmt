@@ -923,13 +923,14 @@ class Router(formatOps: FormatOps) {
           (if (onlyConfigStyle) opensConfigStyleImplicitParamList(ft)
            else hasImplicitParamList(rightOwner))
 
+        val noSplitForNL = !onlyConfigStyle && right.is[T.LeftBrace]
+        val skipNoSplit = !noSplitForNL &&
+          (style.newlines.keepBreak(newlines) || {
+            if (!handleImplicit) onlyConfigStyle
+            else style.newlines.forceBeforeImplicitParamListModifier
+          })
         val noSplitMod =
-          if (
-            style.newlines.keepBreak(newlines) || {
-              if (!handleImplicit) onlyConfigStyle
-              else style.newlines.forceBeforeImplicitParamListModifier
-            }
-          ) null
+          if (skipNoSplit) null
           else getNoSplitAfterOpening(ft, commentNL = null, spaceOk = !isBracket)
 
         val rightIsComment = right.is[T.Comment]
@@ -1086,10 +1087,9 @@ class Router(formatOps: FormatOps) {
               if (multipleArgs) Split(Newline, cost, policy = oneArgOneLine)
                 .withIndent(extraOneArgPerLineIndent)
               else {
-                val noSplit = !onlyConfigStyle && right.is[T.LeftBrace]
-                val noConfigStyle = noSplit || newlinePolicy.isEmpty ||
+                val noConfigStyle = noSplitForNL || newlinePolicy.isEmpty ||
                   !configStyleFlag
-                Split(NoSplit.orNL(noSplit), cost, policy = newlinePolicy)
+                Split(NoSplit.orNL(noSplitForNL), cost, policy = newlinePolicy)
                   .andPolicy(Policy ? noConfigStyle && singleLine(4)).andPolicy(
                     Policy ? singleArgument && asInfixApp(args.head)
                       .map(InfixSplits(_, ft).nlPolicy),

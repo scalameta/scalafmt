@@ -9463,22 +9463,13 @@ object a {
 rdd.map(
     {case (id, count) => (count, id)})
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- rdd.map({ case (id, count) =>
--  (count, id)
--})
-+    (count, id)
-+  }
-+)
+rdd.map({ case (id, count) =>
+  (count, id)
+})
 <<< #4133 partial function within apply, long
 maxColumn = 80
 ===
 rdd.map(
     {case (id, count) => (count, id)})
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--rdd.map({ case (id, count) => (count, id) })
-+rdd.map({ case (id, count) => (count, id) }
-+)
+rdd.map({ case (id, count) => (count, id) })
