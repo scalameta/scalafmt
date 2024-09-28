@@ -545,7 +545,9 @@ class Router(formatOps: FormatOps) {
           ) Seq(baseSplit)
           else if (nft.right.is[T.KwCase]) getNLOnlySplit
           else if (hasBreak() && !beforeMultiline.ignoreSourceSplit)
-            getNLOnlySplit
+            if ((beforeMultiline eq Newlines.keep) && !bodyIsEmpty)
+              getFolded(isKeep = true).filter(_.isNL)
+            else getNLOnlySplit
           else if (bodyIsEmpty)
             if (rt.isAny[T.RightBrace, T.Semicolon])
               Seq(baseSplit, nlSplit(nft)(1))
