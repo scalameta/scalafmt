@@ -860,34 +860,41 @@ object TreeOps {
     val allTokens = topSourceTree.tokens
     var prevParens: List[Token] = Nil
 
-    def treeAt(elemIdx: Int, elem: Tree, outerPrevLPs: Int): Int = {
+    def treeAt(
+        elemIdx: Int,
+        elem: Tree,
+        elemBeg: Token,
+        elemEnd: Token,
+        outerPrevLPs: Int,
+    ): Int = {
       if (TreeOps.isInfixApp(elem)) infixCount += 1
 
-      val endPos = elem.pos.end
-      val allChildren: List[(Tree, Int)] = elem.children.flatMap { x =>
-        val pos = x.pos
-        val startPos = pos.start
-        if (startPos == pos.end) None else Some((x, startPos))
-      }.sortBy(_._2)
+      val treeBeg = elemBeg.start
+      val treeEnd = elemEnd.end
+      val allChildren: List[(Tree, Token, Token)] = {
+        for {
+          x <- elem.children
+          tokens = x.tokens if tokens.nonEmpty
+          beg = tokens.head if beg.start >= treeBeg // sometimes with implicit
+          end = tokens.last if end.end <= treeEnd
+        } yield (x, beg, end)
+      }.sortBy(_._2.start)
 
       allChildren match {
         case Nil =>
           @tailrec
-          def tokenAt(idx: Int): Int =
-            if (idx == allTokens.length) idx
-            else {
-              val tok = allTokens(idx)
-              if (elem != topSourceTree && tok.start >= endPos) idx
-              else {
-                setOwner(tok, elem)
-                tokenAt(idx + 1)
-              }
-            }
+          def tokenAt(idx: Int): Int = {
+            val tok = allTokens(idx)
+            setOwner(tok, elem)
+            val nextIdx = idx + 1
+            if (tok eq elemEnd) nextIdx else tokenAt(nextIdx)
+          }
           tokenAt(elemIdx)
 
-        case (firstChild, firstChildStart) :: rest =>
+        case (firstChild, firstChildBeg, firstChildEnd) :: rest =>
           var nextChild = firstChild
-          var nextChildStart = firstChildStart
+          var nextChildBeg = firstChildBeg
+          var nextChildEnd = firstChildEnd
           var children = rest
           var prevChild: Tree = null
           var prevLPs = outerPrevLPs
@@ -895,23 +902,20 @@ object TreeOps {
 
           @tailrec
           def tokenAt(idx: Int): Int =
-            if (idx == allTokens.length) idx
+            if (idx > 0 && (elemEnd eq allTokens(idx - 1))) idx
             else {
               val tok = allTokens(idx)
-              val tokStart = tok.start
-              if (elem != topSourceTree && tokStart >= endPos) idx
-              else if (nextChild != null && tokStart >= nextChildStart) {
+              if (tok eq nextChildBeg) {
                 if (prevChild != null) prevLPs = 0
                 prevChild = nextChild
-                val nextIdx = treeAt(idx, nextChild, prevLPs)
+                val nextIdx = treeAt(idx, nextChild, tok, nextChildEnd, prevLPs)
                 children match {
-                  case Nil =>
-                    nextChild = null
-                    nextChildStart = endPos
-                  case (head, start) :: rest =>
-                    nextChild = head
+                  case Nil => nextChildBeg = null
+                  case (head, beg, end) :: rest =>
                     children = rest
-                    nextChildStart = start
+                    nextChild = head
+                    nextChildBeg = beg
+                    nextChildEnd = end
                 }
                 prevComma = null
                 tokenAt(nextIdx)
@@ -921,8 +925,7 @@ object TreeOps {
                   case _: Term.While | _: Term.ForClause => prevLPs == 1 &&
                     prevChild == firstChild // `expr` is first
                   case _: Member.SyntaxValuesClause | _: Member.Tuple |
-                      _: Term.Do | _: Term.AnonymousFunction => endPos ==
-                      tok.end
+                      _: Term.Do | _: Term.AnonymousFunction => elemEnd eq tok
                   case t: Init => prevChild ne t.tpe // include tpe
                   case _: Ctor.Primary | _: Term.EnumeratorsBlock => true
                   case _ => false
@@ -944,7 +947,7 @@ object TreeOps {
                   setOwner(tok, elem)
                 } else {
                   setOwner(tok, elem)
-                  if (!tok.is[Trivia] && tokStart != tok.end) {
+                  if (!tok.is[Trivia] && !tok.isEmpty) {
                     prevComma = null
                     prevChild = null
                     if (tok.is[LeftParen]) {
@@ -960,7 +963,7 @@ object TreeOps {
       }
     }
 
-    treeAt(0, topSourceTree, 0)
+    treeAt(0, topSourceTree, allTokens.head, allTokens.last, 0)
 
     val checkedNewlines = baseStyle.newlines.checkInfixConfig(infixCount)
     val initStyle =
