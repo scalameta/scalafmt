@@ -108,10 +108,11 @@ object TreeOps {
       tree: Tree,
   )(implicit ftoks: FormatTokens): Seq[Tree] = tree match {
     case SingleArgInBraces(_, fun: Term.FunctionTerm, _) => fun :: Nil
-    case b: Term.FunctionTerm if isBlockFunction(b) => b.body :: Nil
+    case t: Term.FunctionTerm if isBlockFunction(t) => t.body :: Nil
     case t: Term.EnumeratorsBlock => getEnumStatements(t.enums)
-    case t: Tree.Block => t.stats
-    case t: CaseTree if t.body.tokens.nonEmpty => t.body :: Nil
+    case t @ Tree.Block(s) =>
+      if (!t.parent.is[CaseTree] || getSingleStatExceptEndMarker(s).isEmpty) s
+      else s.drop(1)
     case _ => Nil
   }
 
@@ -600,10 +601,13 @@ object TreeOps {
    * block contains only a single statement. NB: in FormatWriter, when choosing
    * to insert or remove end markers, we avoid such borderline cases.
    */
-  def getSingleStatExceptEndMarker(s: Seq[Stat]): Option[Stat] = s.headOption
-    .filter { _ =>
-      val len2 = s.lengthCompare(2)
-      len2 < 0 || len2 == 0 && s(1).is[Term.EndMarker]
+  def getSingleStatExceptEndMarker[A <: Tree](ss: List[A]): Option[A] =
+    ss match {
+      case s :: rs if (rs match {
+            case Nil | (_: Term.EndMarker) :: Nil => true
+            case _ => false
+          }) => Some(s)
+      case _ => None
     }
 
   def getSingleStatExceptEndMarker(t: Tree): Option[Tree] = t match {
