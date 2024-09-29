@@ -70,8 +70,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       maxCost: Int = Integer.MAX_VALUE,
   ): Either[State, State] = {
     implicit val Q: StateQueue = new StateQueue(depth)
-    def enqueue(state: State) = Q.enqueue(state)
-    enqueue(start)
+    Q.enqueue(start)
 
     // TODO(olafur) this while loop is waaaaaaaaaaaaay tooo big.
     var deepestState: State = start
@@ -108,7 +107,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         val blockClose =
           if (noBlockClose) None else getBlockCloseToRecurse(splitToken, stop)
         if (blockClose.nonEmpty) blockClose.foreach { end =>
-          shortestPathMemo(curr, end, depth + 1, maxCost).foreach(enqueue)
+          shortestPathMemo(curr, end, depth + 1, maxCost).foreach(Q.enqueue)
         }
         else {
           if (optimizer.escapeInPathologicalCases && isSeqMulti(routes(idx)))
@@ -139,7 +138,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
               }
               if (null ne stateToQueue) {
                 stats.updateBest(nextState, stateToQueue)
-                enqueue(stateToQueue)
+                Q.enqueue(stateToQueue)
               }
             }
           }
