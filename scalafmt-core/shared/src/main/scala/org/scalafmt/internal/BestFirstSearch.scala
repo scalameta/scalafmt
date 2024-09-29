@@ -97,9 +97,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         if (curr.split != null && curr.split.isNL)
           if (
             emptyQueueSpots.contains(idx) ||
-            optimizer.dequeueOnNewStatements && curr.allAltAreNL &&
-            !(depth == 0 && noOptZone) &&
-            (leftTok.is[Token.KwElse] || statementStarts.contains(idx))
+            optimizer.dequeueOnNewStatements && !(depth == 0 &&
+              noOptZone) && statementStarts.contains(idx)
           ) Q.addGeneration()
 
         val noBlockClose = start == curr && 0 != maxCost || !noOptZone ||
@@ -117,7 +116,6 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             )
 
           val actualSplit = getActiveSplits(splitToken, curr, maxCost)
-          val allAltAreNL = actualSplit.forall(_.isNL)
 
           var optimalNotFound = true
           val handleOptimalTokens = optimizer.acceptOptimalAtHints &&
@@ -144,8 +142,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           }
 
           actualSplit.foreach { split =>
-            if (optimalNotFound)
-              processNextState(getNext(curr, split, allAltAreNL))
+            if (optimalNotFound) processNextState(getNext(curr, split))
             else sendEvent(split)
           }
         }
@@ -158,11 +155,11 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   private def sendEvent(split: Split): Unit = initStyle.runner
     .event(FormatEvent.Enqueue(split))
 
-  private def getNext(state: State, split: Split, allAltAreNL: Boolean)(implicit
+  private def getNext(state: State, split: Split)(implicit
       style: ScalafmtConfig,
   ): State = {
     sendEvent(split)
-    state.next(split, nextAllAltAreNL = allAltAreNL)
+    state.next(split)
   }
 
   private def killOnFail(opt: OptimalToken, nextNextState: State = null)(
@@ -244,8 +241,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         case Seq(split) =>
           if (split.isNL) Right(state)
           else {
-            implicit val nextState: State =
-              getNext(state, split, allAltAreNL = false)
+            implicit val nextState: State = getNext(state, split)
             traverseSameLine(nextState)
           }
         case ss
@@ -265,7 +261,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     def newNlState: Option[State] = stateAsOptimal(state, splits).orElse(nlState)
     splits.filter(_.costWithPenalty == 0) match {
       case Seq(split) if !split.isNL =>
-        val nextState: State = getNext(state, split, allAltAreNL = false)
+        val nextState: State = getNext(state, split)
         if (nextState.split.costWithPenalty > 0) newNlState.toRight(state)
         else if (nextState.depth >= tokens.length) Right(nextState)
         else {
