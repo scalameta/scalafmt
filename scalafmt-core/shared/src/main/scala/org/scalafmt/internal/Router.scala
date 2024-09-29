@@ -235,18 +235,16 @@ class Router(formatOps: FormatOps) {
         }
 
       // { ... } Blocks
-      case FormatToken(open: T.LeftBrace, right, m) =>
+      case FormatToken(open: T.LeftBrace, right, _) =>
         val close = matching(open)
         val closeFT = tokens(close)
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
-        val selfAnnotationLast: Option[T] = leftOwner match {
-          // Self type: trait foo { self => ... }
-          case t: Template.Body => t.selfOpt.flatMap(_.tokens.lastOption)
-          case _ => None
-        }
-        val isSelfAnnotationNL = selfAnnotationLast.nonEmpty &&
-          style.optIn.selfAnnotationNewline &&
-          (hasBreak() || style.newlines.sourceIgnored)
+        val isSelfAnnotationNL = style.optIn.selfAnnotationNewline &&
+          (hasBreak() || style.newlines.sourceIgnored) &&
+          (leftOwner match { // Self type: trait foo { self => ... }
+            case t: Template.Body => t.selfOpt.nonEmpty
+            case _ => false
+          })
         val rightIsComment = right.is[T.Comment]
         val nl: Modification =
           if (rightIsComment && noBreak()) Space
@@ -257,55 +255,60 @@ class Router(formatOps: FormatOps) {
           )
 
         // lambdaNLOnly: None for single line only
-        val (lambdaExpire, lambdaIndent, lambdaNLOnly) =
-          statementStarts.get(m.idx + 1) match {
-            case Some(owner: Term.FunctionTerm) if (leftOwner match {
-                  case t: Template.Body => hasSingleElement(t, owner) &&
-                    t.parent.parent.isOpt[Term.NewAnonymous]
-                  case _ => true
-                }) =>
-              val arrow = getFuncArrow(lastLambda(owner))
-              val expire = arrow.getOrElse(getLast(owner))
-              val nlOnly =
-                if (style.newlines.alwaysBeforeCurlyLambdaParams) Some(true)
-                else if (
-                  style.newlines.beforeCurlyLambdaParams eq
-                    Newlines.BeforeCurlyLambdaParams.multiline
-                ) None
-                else Some(false)
-              (expire, 0, nlOnly)
-            case Some(t: Case)
-                if t.cond.isEmpty &&
-                  (leftOwner match {
-                    case x: Term.PartialFunction => hasSingleElement(x, t)
-                    case lo: Term.CasesBlock => lo.parent match {
-                        case Some(x: Term.Match) =>
-                          dialect.allowMatchAsOperator &&
-                          hasSingleElement(lo, t) &&
-                          tokenAfter(x.expr).right.is[T.Dot]
-                        case _ => false
-                      }
-                    case _ => tokenAfter(t).right eq close
-                  }) =>
-              val arrow = getCaseArrow(t)
-              val nlOnly =
-                if (style.newlines.alwaysBeforeCurlyLambdaParams) Some(true)
-                else if (
-                  style.newlines.beforeCurlyLambdaParams ne
-                    Newlines.BeforeCurlyLambdaParams.never
-                ) None
-                else Some(false)
-              (arrow, 0, nlOnly)
-            case _ =>
-              val annoOpt = selfAnnotationLast.map { anno =>
-                val indent = style.indent.main
-                val annoFT = tokens(anno)
-                val arrow = annoFT.left.is[T.RightArrow]
-                val expire = if (arrow) annoFT else nextAfterNonComment(annoFT)
-                (expire, indent, Some(isSelfAnnotationNL))
-              }
-              annoOpt.getOrElse((null, 0, None))
-          }
+        type LambdaInfo = (FormatToken, Int, Option[Boolean])
+        def getLambdaNone: LambdaInfo = (null, 0, None)
+        @tailrec
+        def getLambdaInfo(ts: List[Tree]): LambdaInfo = ts match {
+          case (t: Case) :: Nil if t.cond.isEmpty =>
+            val arrow = getCaseArrow(t)
+            val nlOnly =
+              if (style.newlines.alwaysBeforeCurlyLambdaParams) Some(true)
+              else if (
+                style.newlines.beforeCurlyLambdaParams ne
+                  Newlines.BeforeCurlyLambdaParams.never
+              ) None
+              else Some(false)
+            (arrow, 0, nlOnly)
+          case (t: Term.FunctionTerm) :: Nil =>
+            val arrow = getFuncArrow(lastLambda(t))
+            val expire = arrow.getOrElse(getLast(t))
+            val nlOnly =
+              if (style.newlines.alwaysBeforeCurlyLambdaParams) Some(true)
+              else if (
+                style.newlines.beforeCurlyLambdaParams eq
+                  Newlines.BeforeCurlyLambdaParams.multiline
+              ) None
+              else Some(false)
+            (expire, 0, nlOnly)
+          case (t: Term.PartialFunction) :: Nil => getLambdaInfo(t.cases)
+          case (t: Term.CasesBlock) :: Nil if (t.parent match {
+                case Some(t: Term.Match)
+                    if dialect.allowMatchAsOperator &&
+                      tokenAfter(t.expr).right.is[T.Dot] => true
+                case _ => false
+              }) => getLambdaInfo(t.cases)
+          case (t: Term.Block) :: Nil if !isEnclosedInBraces(t) =>
+            getLambdaInfo(t.stats)
+          case _ => getLambdaNone
+        }
+        val (lambdaExpire, lambdaIndent, lambdaNLOnly) = leftOwner match {
+          case t: Template.Body => t.selfOpt.fold {
+              if (t.parent.parent.isOpt[Term.NewAnonymous])
+                getLambdaInfo(t.stats)
+              else getLambdaNone
+            } { owner =>
+              val anno = owner.tokens.last
+              val indent = style.indent.main
+              val annoFT = tokens(anno)
+              val arrow = annoFT.left.is[T.RightArrow]
+              val expire = if (arrow) annoFT else nextAfterNonComment(annoFT)
+              (expire, indent, Some(isSelfAnnotationNL))
+            }
+          case t: Term.ArgClause if isEnclosedInBraces(t) =>
+            getLambdaInfo(t.values)
+          case t: Term.Block => getLambdaInfo(t.stats)
+          case t => getLambdaInfo(t :: Nil)
+        }
 
         def getSingleLinePolicy = {
           val needBreak = closeFT.right match {
