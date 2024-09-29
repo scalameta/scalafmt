@@ -22,7 +22,6 @@ final case class State(
     indentation: Int,
     pushes: Seq[ActualIndent],
     column: Int,
-    allAltAreNL: Boolean,
     appliedPenalty: Int, // penalty applied from overflow
     delayedPenalty: Int, // apply if positive, ignore otherwise
     lineId: Int,
@@ -42,10 +41,9 @@ final case class State(
 
   /** Calculates next State given split at tok.
     */
-  def next(initialNextSplit: Split, nextAllAltAreNL: Boolean)(implicit
-      style: ScalafmtConfig,
-      tokens: FormatTokens,
-  ): State = {
+  def next(
+      initialNextSplit: Split,
+  )(implicit style: ScalafmtConfig, tokens: FormatTokens): State = {
     val tok = tokens(depth)
     val right = tok.right
 
@@ -118,18 +116,17 @@ final case class State(
     val splitWithPenalty = nextSplit.withPenalty(penalty)
 
     State(
-      cost + splitWithPenalty.costWithPenalty,
+      cost = cost + splitWithPenalty.costWithPenalty,
       // TODO(olafur) expire policy, see #18.
-      nextPolicy,
-      splitWithPenalty,
-      depth + 1,
-      this,
-      nextIndent,
-      nextIndents,
-      nextStateColumn,
-      nextAllAltAreNL,
-      appliedPenalty + penalty,
-      nextDelayedPenalty,
+      policy = nextPolicy,
+      split = splitWithPenalty,
+      depth = depth + 1,
+      prev = this,
+      indentation = nextIndent,
+      pushes = nextIndents,
+      column = nextStateColumn,
+      appliedPenalty = appliedPenalty + penalty,
+      delayedPenalty = nextDelayedPenalty,
       lineId = lineId + (if (nextSplit.isNL) 1 else 0),
     )
   }
@@ -318,7 +315,7 @@ final case class State(
 object State {
 
   val start =
-    State(0, PolicySummary.empty, null, 0, null, 0, Seq.empty, 0, false, 0, 0, 0)
+    State(0, PolicySummary.empty, null, 0, null, 0, Seq.empty, 0, 0, 0, 0)
 
   // this is not best state, it's higher priority for search
   object Ordering {
