@@ -836,13 +836,12 @@ object A {
       _.y(
         abcd,
         { { case ((abcdefghij, aswbasdfaw), asfda) => aswdf } },
-        {
-          { case (abcdefghij, sadfasdass) =>
-            (
-              asdfa.sadvfs(abcdefghij).get,
-              asdfasdfasfdasda.asdfas(asdfasdaas).get
-            )
-          }
+        { { case (abcdefghij, sadfasdass) =>
+          (
+            asdfa.sadvfs(abcdefghij).get,
+            asdfasdfasfdasda.asdfas(asdfasdaas).get
+          )
+        }
         },
         foo
       )
