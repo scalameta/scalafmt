@@ -418,16 +418,17 @@ class Router(formatOps: FormatOps) {
           case _ => splits
         }
 
-      case FormatToken(
-            T.RightArrow() | T.ContextArrow(),
-            _,
-            StartsStatementRight(stmt),
-          ) if leftOwner.isInstanceOf[Term.FunctionTerm] =>
+      case FormatToken(_: T.RightArrow | _: T.ContextArrow, r, _)
+          if (leftOwner match {
+            case t: Term.FunctionTerm => !r.is[T.Comment] &&
+              t.body.tokens.nonEmpty && isBlockFunction(t)
+            case _ => false
+          }) =>
         val leftFunc = leftOwner.asInstanceOf[Term.FunctionTerm]
         val (afterCurlySpace, afterCurlyNewlines) =
           getSpaceAndNewlineAfterCurlyLambda(newlines)
         def spaceSplitBase(implicit line: FileLine): Split = Split(Space, 0)
-        val spaceSplit = stmt match {
+        val spaceSplit = leftFunc.body match {
           case _: Term.FunctionTerm => spaceSplitBase
           case Term.Block((_: Term.FunctionTerm) :: Nil)
               if !nextNonComment(ft).right.is[T.LeftBrace] => spaceSplitBase
