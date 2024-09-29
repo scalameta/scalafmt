@@ -663,15 +663,6 @@ object TreeOps {
     if (groups.isEmpty) None else Some(groups)
   }
 
-  def findTemplate(t: Tree): Option[Template] = t match {
-    case t: Template => Some(t)
-    case _: Self | _: Template.Body => t.parent match {
-        case Some(p) => findTemplate(p)
-        case _ => None
-      }
-    case _ => None
-  }
-
   // Scala syntax allows commas before right braces in weird places,
   // like constructor bodies:
   // def this() = {
