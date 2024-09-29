@@ -457,7 +457,6 @@ class Router(formatOps: FormatOps) {
           case t => getLastNonTrivialToken(t) -> ExpiresOn.Before
         }
 
-        val hasSingleLineComment = isRightCommentThenBreak(ft)
         val indent = // don't indent if the body is empty `{ x => }`
           if (isEmptyFunctionBody(leftOwner) && !right.is[T.Comment]) 0
           else if (leftOwner.is[Template]) 0 // { applied the indent
@@ -492,10 +491,9 @@ class Router(formatOps: FormatOps) {
             case Newlines.classic => isCurlyLambda && hasBreak() && noSquash
           }
         }
-        def newlineSplit(implicit fileLine: FileLine) =
-          Split(Newline, 1 + nestedApplies(leftOwner))
-            .withIndent(indent, endOfFunction, expiresOn)
-        if (hasSingleLineComment) Seq(newlineSplit)
+        def newlineSplit(cost: Int)(implicit fileLine: FileLine) =
+          Split(Newline, cost).withIndent(indent, endOfFunction, expiresOn)
+        if (isRightCommentThenBreak(ft)) Seq(newlineSplit(1))
         else {
           // 2020-01: break after same-line comments, and any open brace
           val nonComment = nextNonCommentSameLine(ft)
@@ -510,7 +508,7 @@ class Router(formatOps: FormatOps) {
               Split(Space, 0)
                 .withIndent(indent, endOfFunction, expiresOn, hasBlock)
                 .withOptimalToken(getOptimalTokenFor(next(nonComment)))
-          Seq(noSplit, newlineSplit)
+          Seq(noSplit, newlineSplit(1 + nestedApplies(leftOwner)))
         }
 
       // Case arrow
