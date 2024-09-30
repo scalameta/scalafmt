@@ -9515,21 +9515,21 @@ class ClassEmitter {
       for {
         chainProto <- chainProtoWithGlobals
       } yield
-      // Real constructor
-      js.JSDocConstructor(realCtorDef.head) ::
-        realCtorDef.tail :::
-        chainProto :::
-        (genIdentBracketSelect(
-          prototypeFor(ctorVar),
-          "constructor"
-        ) := ctorVar) ::
-        // Inheritable constructor
-        js.JSDocConstructor(inheritableCtorDef.head) ::
-        inheritableCtorDef.tail :::
-        (globalVar(
-          VarField.h,
-          className
-        ).prototype := prototypeFor(ctorVar)) :: Nil
+        // Real constructor
+        js.JSDocConstructor(realCtorDef.head) ::
+          realCtorDef.tail :::
+          chainProto :::
+          (genIdentBracketSelect(
+            prototypeFor(ctorVar),
+            "constructor"
+          ) := ctorVar) ::
+          // Inheritable constructor
+          js.JSDocConstructor(inheritableCtorDef.head) ::
+          inheritableCtorDef.tail :::
+          (globalVar(
+            VarField.h,
+            className
+          ).prototype := prototypeFor(ctorVar)) :: Nil
     }
 
 }
