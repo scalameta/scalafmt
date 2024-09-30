@@ -2308,8 +2308,7 @@ class Router(formatOps: FormatOps) {
         val lastToken = getLastToken(leftOwner.asInstanceOf[Term.ForYield].body)
         val indent = Indent(style.indent.main, lastToken, ExpiresOn.After)
         if (style.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
-          val nextFt = nextNonCommentSameLine(ft)
-          val noIndent = nextFt.eq(ft) || nextFt.noBreak
+          val noIndent = !isRightCommentWithBreak(ft)
           Seq(Split(Space, 0).withIndent(indent, noIndent))
         } else Seq(
           // Either everything fits in one line or break on =>
