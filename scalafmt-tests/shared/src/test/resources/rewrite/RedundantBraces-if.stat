@@ -393,3 +393,32 @@ object a:
       end if
   else checkJSNativeLoadSpecOf(treePos, sym)
   end if
+<<< #4133 partial function within if-else
+val toIterator: Any => Iterator[_] = if (lenient) {
+  {
+    case i: scala.collection.Iterable[_] => i.iterator
+    case l: java.util.List[_] => l.iterator().asScala
+    case a: Array[_] => a.iterator
+    case o => unsupportedCollectionType(o.getClass)
+  }
+} else {
+  unsupportedCollectionType(tag.runtimeClass)
+}
+>>>
+test does not parse: [dialect scala213] illegal start of simple expression
+val toIterator: Any => Iterator[_] =
+  if (lenient)
+  case i: scala.collection.Iterable[_] => i.iterator
+  ^
+  case l: java.util.List[_]            => l.iterator().asScala
+  case a: Array[_]                     => a.iterator
+  case o                               => unsupportedCollectionType(o.getClass)
+====== full result: ======
+val toIterator: Any => Iterator[_] =
+  if (lenient)
+  case i: scala.collection.Iterable[_] => i.iterator
+  case l: java.util.List[_]            => l.iterator().asScala
+  case a: Array[_]                     => a.iterator
+  case o                               => unsupportedCollectionType(o.getClass)
+  else
+    unsupportedCollectionType(tag.runtimeClass)
