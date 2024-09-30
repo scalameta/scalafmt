@@ -9710,22 +9710,28 @@ class ClassEmitter {
 
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-         chainProto :::
--        (
--          genIdentBracketSelect(
--            prototypeFor(ctorVar),
--            "constructor"
--          ) := ctorVar
--        ) ::
-+        (genIdentBracketSelect(
-+          prototypeFor(ctorVar),
-+          "constructor"
-+        ) := ctorVar) ::
- ∙
--      // Inheritable constructor
--      js.JSDocConstructor(inheritableCtorDef.head) ::
-+        // Inheritable constructor
-+        js.JSDocConstructor(inheritableCtorDef.head) ::
-         inheritableCtorDef.tail :::
+class ClassEmitter {
+
+  def genScalaClassConstructor =
+
+    if (useESClass) {
+      for {
+        chainProto <- chainProtoWithGlobals
+      } yield
+      // Real constructor
+      js.JSDocConstructor(realCtorDef.head) ::
+        realCtorDef.tail :::
+        chainProto :::
+        (genIdentBracketSelect(
+          prototypeFor(ctorVar),
+          "constructor"
+        ) := ctorVar) ::
+        // Inheritable constructor
+        js.JSDocConstructor(inheritableCtorDef.head) ::
+        inheritableCtorDef.tail :::
+        (globalVar(VarField.h, className).prototype := prototypeFor(
+          ctorVar
+        )) :: Nil
+    }
+
+}
