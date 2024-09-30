@@ -253,10 +253,17 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     owner match {
       case t: Term.FunctionTerm if t.tokens.last.is[Token.RightBrace] =>
         if (!okToRemoveFunctionInApplyOrInit(t)) null else removeToken
-      case t: Term.PartialFunction if t.parent.exists { p =>
-            SingleArgInBraces.orBlock(p).exists(_._2 eq t) &&
-            t.pos.start != p.pos.start
-          } => removeToken
+      case t: Term.PartialFunction => t.parent match {
+          case Some(SingleArgInBraces.OrBlock(lft, `t`, _))
+              if lft.left ne ft.right =>
+            val ok = ftoks.findTokenWith(lft, ftoks.prev) { xft =>
+              if (!xft.left.is[Token.LeftBrace]) Some(false)
+              else if (session.isRemovedOnLeft(xft, ok = true)) None
+              else Some(true)
+            }.contains(true)
+            if (ok) removeToken else null
+          case _ => null
+        }
       case t: Term.Block => t.parent match {
           case Some(f: Term.FunctionTerm)
               if okToReplaceFunctionInSingleArgApply(f) => removeToken
