@@ -484,8 +484,10 @@ class FormatOps(
               rtidx >= 0 && (atokens(rtidx) eq ft.right) // no rewritten tokens
             }
           }
-        val useSpace = ft.noBreak || !okToBreak
-        val split = Split(if (useSpace) spaceMod else Newline2x(ft), 0)
+        val mod =
+          if (ft.noBreak || !okToBreak) spaceMod
+          else Newline2x(isFullInfixEnclosed && ft.hasBlankLine)
+        val split = Split(mod, 0)
         if (isBeforeOp && isFewerBracesRhs(app.arg)) Seq(split)
         else Seq(InfixSplits.withNLIndent(split, app, fullInfix))
       }
