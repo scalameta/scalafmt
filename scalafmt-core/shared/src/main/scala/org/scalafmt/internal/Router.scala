@@ -533,24 +533,25 @@ class Router(formatOps: FormatOps) {
             nlSplit(nft)(1),
           )
           implicit val beforeMultiline = style.newlines.getBeforeMultiline
-          def getNLOnlySplit(implicit l: FileLine) = Seq(nlSplit(nft)(0))
+          def getNLOnlySplit(cost: Int)(implicit l: FileLine) =
+            Seq(nlSplit(nft)(cost))
           def getFolded(isKeep: Boolean)(implicit l: FileLine) = CtrlBodySplits
             .foldedNonEmptyNonComment(body, nlSplit(nft), isKeep)
           if (
             isCaseBodyABlock(nft, owner) ||
             getClosingIfCaseBodyEnclosedAsBlock(nft, owner).isDefined
           ) Seq(baseSplit)
-          else if (nft.right.is[T.KwCase]) getNLOnlySplit
+          else if (nft.right.is[T.KwCase]) getNLOnlySplit(0)
           else if (hasBreak() && !beforeMultiline.ignoreSourceSplit)
             if ((beforeMultiline eq Newlines.keep) && !bodyIsEmpty)
               getFolded(isKeep = true).filter(_.isNL)
-            else getNLOnlySplit
+            else getNLOnlySplit(1)
           else if (bodyIsEmpty)
             if (rt.isAny[T.RightBrace, T.Semicolon])
               Seq(baseSplit, nlSplit(nft)(1))
-            else getNLOnlySplit
+            else getNLOnlySplit(1)
           else if (beforeMultiline eq Newlines.unfold)
-            if (style.newlines.unfold) getNLOnlySplit else withSlbSplit
+            if (style.newlines.unfold) getNLOnlySplit(0) else withSlbSplit
           else if (
             condIsDefined || beforeMultiline.eq(Newlines.classic) ||
             getSingleStatExceptEndMarker(body).isEmpty
