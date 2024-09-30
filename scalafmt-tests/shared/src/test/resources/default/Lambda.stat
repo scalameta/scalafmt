@@ -362,8 +362,7 @@ testAsync("Resource.make is equivalent to a partially applied bracket") { implic
 >>>
 testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
   check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String] /* c1 */ ) /* c2 */ =>
-    /*c3*/
-    acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f)
+    /*c3*/ acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f)
   }
 }
 <<< #1714 4
@@ -379,8 +378,7 @@ testAsync("Resource.make is equivalent to a partially applied bracket") { implic
 >>>
 testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
   check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String] /* c1 */ ) /* c2 */ =>
-    /*c3*/
-    { acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f) }
+    /*c3*/ { acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f) }
   }
 }
 <<< #1714 5

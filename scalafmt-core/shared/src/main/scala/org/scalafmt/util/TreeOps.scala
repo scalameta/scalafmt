@@ -104,12 +104,12 @@ object TreeOps {
       ftoks: FormatTokens,
   ): Boolean = SingleArgInBraces.orBlock(parent).exists(_._2 eq expr)
 
-  def extractStatementsIfAny(
-      tree: Tree,
-  )(implicit ftoks: FormatTokens): Seq[Tree] = tree match {
-    case SingleArgInBraces(_, fun: Term.FunctionTerm, _) => fun :: Nil
-    case t: Term.FunctionTerm if isBlockFunction(t) => t.body :: Nil
+  def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
     case t: Term.EnumeratorsBlock => getEnumStatements(t.enums)
+    case t: Term.PartialFunction => t.cases match {
+        case _ :: Nil => Nil
+        case x => x
+      }
     case t @ Tree.Block(s) =>
       if (!t.parent.is[CaseTree] || getSingleStatExceptEndMarker(s).isEmpty) s
       else s.drop(1)
