@@ -9459,6 +9459,32 @@ object a {
     }
   }
 }
+<<< #4133 applies and selects with a partial function 1
+maxColumn = 76
+runner.parser = source
+===
+val fieldsCasts = from.fields.zip(to.fields).map {
+  case (fromField, toField) => nullSafeCastFunction(fromField.dataType, toField.dataType, ctx)
+}
+>>>
+val fieldsCasts = from.fields.zip(to.fields).map {
+  case (fromField, toField) =>
+    nullSafeCastFunction(fromField.dataType, toField.dataType, ctx)
+}
+<<< #4133 applies and selects with a partial function 2
+maxColumn = 76
+===
+val stats = Profiler.getStatistics().asScala.toSeq.map {
+  case (trace, count) => MethodCallTrace(trace.className, trace.methodName, trace.methodDescriptor) -> count.intValue
+}
+>>>
+val stats = Profiler.getStatistics().asScala.toSeq.map {
+  case (trace, count) => MethodCallTrace(
+      trace.className,
+      trace.methodName,
+      trace.methodDescriptor
+    ) -> count.intValue
+}
 <<< #4133 partial function within apply, short
 rdd.map(
     {case (id, count) => (count, id)})
