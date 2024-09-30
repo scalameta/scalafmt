@@ -9770,13 +9770,7 @@ validateStructuralIntegrityWithReasonImpl(row, expectedSchema).map {
       s"UnsafeRow status: ${getStructuralIntegrityStatus(row, expectedSchema)}"
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--validateStructuralIntegrityWithReasonImpl(row, expectedSchema).map {
--  errorMessage =>
--    s"Error message is: $errorMessage, " +
--      s"UnsafeRow status: ${getStructuralIntegrityStatus(row, expectedSchema)}"
-+validateStructuralIntegrityWithReasonImpl(row, expectedSchema).map { errorMessage =>
-+  s"Error message is: $errorMessage, " +
-+    s"UnsafeRow status: ${getStructuralIntegrityStatus(row, expectedSchema)}"
- }
+validateStructuralIntegrityWithReasonImpl(row, expectedSchema).map { errorMessage =>
+  s"Error message is: $errorMessage, " +
+    s"UnsafeRow status: ${getStructuralIntegrityStatus(row, expectedSchema)}"
+}
