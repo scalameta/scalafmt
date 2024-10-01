@@ -9787,3 +9787,36 @@ val finalProperties =
       loc
     ))
   }
+<<< #4133 lambda in parens rewritten to braces
+maxColumn = 80
+rewrite.rules = [RedundantBraces]
+===
+object Build {
+  lazy val scaladoc = project.in(file("scaladoc")).
+    settings(
+      generateScalaDocumentation := Def.inputTaskDyn {
+        val outputDirOverride = extraArgs.headOption.fold(identity[GenerationConfig](_))(newDir => {
+          config: GenerationConfig => config.add(OutputDir(newDir))
+        })
+        val justAPI = justAPIArg.fold(identity[GenerationConfig](_))(_ => {
+          config: GenerationConfig => config.remove[SiteRoot]
+        })
+      }.evaluated,
+    )
+}
+>>>
+object Build {
+  lazy val scaladoc = project
+    .in(file("scaladoc"))
+    .settings(
+      generateScalaDocumentation := Def.inputTaskDyn {
+        val outputDirOverride =
+          extraArgs.headOption.fold(identity[GenerationConfig](_)) {
+            newDir => config: GenerationConfig => config.add(OutputDir(newDir))
+          }
+        val justAPI = justAPIArg.fold(identity[GenerationConfig](_)) {
+          _ => config: GenerationConfig => config.remove[SiteRoot]
+        }
+      }.evaluated
+    )
+}
