@@ -255,6 +255,11 @@ lazy val communityTestsSpark = project
   .in(file("scalafmt-tests-community/spark")).settings(communityTestsSettings)
   .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommon)
 
+lazy val communityTestsIntellij = project
+  .in(file("scalafmt-tests-community/intellij"))
+  .settings(communityTestsSettings).enablePlugins(BuildInfoPlugin)
+  .dependsOn(communityTestsCommon)
+
 lazy val communityTestsOther = project
   .in(file("scalafmt-tests-community/other")).settings(communityTestsSettings)
   .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommon)

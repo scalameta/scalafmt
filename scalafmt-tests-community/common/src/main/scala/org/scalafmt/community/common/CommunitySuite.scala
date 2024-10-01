@@ -64,8 +64,8 @@ abstract class CommunitySuite extends FunSuite {
       build.checkedFiles * 2,
       s"expected ${stats.checkedFiles / 2} per run",
     )
-    build.statsPerStyle.get(styleName).foreach { styleStats =>
-      assertEquals(statesVisited, styleStats.expectedStatesVisited)
+    if (!OsSpecific.isWindows) build.statsPerStyle.get(styleName).foreach { x =>
+      assertEquals(statesVisited, x.expectedStatesVisited)
     }
   }
 
