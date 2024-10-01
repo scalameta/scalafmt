@@ -9572,3 +9572,16 @@ validateStructuralIntegrityWithReasonImpl(row, expectedSchema).map {
     s"Error message is: $errorMessage, " +
       s"UnsafeRow status: ${getStructuralIntegrityStatus(row, expectedSchema)}"
 }
+<<< #4133 lambda in braces, overflow after brace 2
+maxColumn = 74
+===
+val finalProperties = properties.get(SupportsNamespaces.PROP_LOCATION).map { loc =>
+  properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(loc))
+}
+>>>
+val finalProperties =
+  properties.get(SupportsNamespaces.PROP_LOCATION).map { loc =>
+    properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
+      loc
+    ))
+  }
