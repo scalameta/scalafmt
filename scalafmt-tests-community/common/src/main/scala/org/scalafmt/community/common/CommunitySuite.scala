@@ -87,14 +87,22 @@ abstract class CommunitySuite extends FunSuite {
     val folderPath = communityProjectsDirectory.resolve(build.name)
     val folder = folderPath.toString
 
-    if (OsSpecific.isWindows)
-      if (0 != runCmdRaw("git config --global core.longpaths true"))
-        runCmd("git config --system core.longpaths true", "setting long paths")
-
-    if (!Files.exists(folderPath)) runCmd(
-      s"git clone --depth=1 --no-single-branch ${build.giturl} $folder",
-      "cloning",
-    )
+    if (!Files.exists(folderPath)) // clone
+      if (OsSpecific.isWindows) {
+        runCmd(s"git init $folder", "running init")
+        runCmd(
+          s"git -C $folder config core.longpaths true",
+          "setting long paths",
+        )
+        runCmd(
+          s"git -C $folder remote add origin ${build.giturl}",
+          "adding origin",
+        )
+        runCmd(s"git -C $folder fetch --tags origin", s"fetching tags")
+      } else runCmd(
+        s"git clone --depth=1 --no-single-branch ${build.giturl} $folder",
+        "cloning",
+      )
 
     val ref = build.commit
 
