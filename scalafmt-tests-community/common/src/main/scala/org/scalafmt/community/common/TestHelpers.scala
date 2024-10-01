@@ -101,9 +101,8 @@ object TestHelpers {
         finally ds.close()
       val fileStats = files.compatPar.flatMap { x =>
         val fileStr = x.toString
-        if (fileStr.endsWith(".scala") && !excluded(fileStr))
-          Some(runFile(styleName, x, fileStr))
-        else None
+        if (!fileStr.endsWith(".scala") || build.isExcluded(x)) None
+        else Some(runFile(styleName, x, fileStr))
       }.reduceLeftOption(TestStats.merge)
       val dirStats = dirs.compatPar.flatMap(checkFilesRecursive(styleName, _))
         .reduceLeftOption(TestStats.merge)
@@ -111,8 +110,5 @@ object TestHelpers {
         dirStats.map(TestStats.merge(_, x)).orElse(fileStats),
       )
     }
-
-  def excluded(path: String)(implicit build: CommunityBuild): Boolean = build
-    .excluded.exists(el => path.endsWith(el))
 
 }
