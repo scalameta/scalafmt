@@ -1050,9 +1050,7 @@ class FormatOps(
         case _ => Right(style.newlines.fold)
       }
       val exclude = style.binPack.parentConstructors match {
-        case BinPack.ParentCtors.Always
-            if ft.noBreak || style.newlines.sourceIgnored =>
-          insideBracesBlock(ft, lastToken, true)
+        case BinPack.ParentCtors.Always => insideBracesBlock(ft, lastToken, true)
         case _ => TokenRanges.empty
       }
       val noSyntaxNL = extendsThenWith
