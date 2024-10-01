@@ -25,7 +25,10 @@ abstract class CommunitySuite extends FunSuite {
     if build.styles.isEmpty || build.styles.contains(k) == build.stylesIncluded
   } {
     val prefix = s"[ref ${build.commit}, style $k]"
-    val style: ScalafmtConfig = v.withDialect(NamedDialect(build.dialect))
+    val styleWithDialect: ScalafmtConfig = v
+      .withDialect(NamedDialect(build.dialect))
+    val style = build.fileOverrideConf
+      .fold(styleWithDialect)(styleWithDialect.withFileOverride)
     test(s"community-build: ${build.name} $prefix")(check(k)(build, style))
   }
 
