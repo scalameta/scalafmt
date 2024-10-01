@@ -9,6 +9,7 @@ abstract class CommunityRepoSuite(giturl: String, name: String)
       ref: String,
       dialect: sourcecode.Text[Dialect],
       files: Int,
-  ) = CommunityBuild(giturl, ref, name, Nil, files, dialect)
+      excluded: List[String] = Nil,
+  ) = CommunityBuild(giturl, ref, name, excluded, files, dialect)
 
 }
