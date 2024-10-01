@@ -110,9 +110,14 @@ object TreeOps {
         case _ :: Nil => Nil
         case x => x
       }
-    case t @ Tree.Block(s) =>
-      if (!t.parent.is[CaseTree] || getSingleStatExceptEndMarker(s).isEmpty) s
-      else s.drop(1)
+    case t @ Term.Block(s) =>
+      if (t.parent.is[CaseTree])
+        if (getSingleStatExceptEndMarker(s).isEmpty) s else s.drop(1)
+      else s match {
+        case (_: Term.FunctionTerm) :: Nil => Nil
+        case _ => s
+      }
+    case Tree.Block(s) => s
     case _ => Nil
   }
 
