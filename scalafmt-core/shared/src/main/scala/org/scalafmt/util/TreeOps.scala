@@ -191,30 +191,10 @@ object TreeOps {
           addDefn[KwDef](t.mods, t)
           addAll(t.stats)
         // special handling for rewritten blocks
-        case t @ Term.Block(arg :: Nil) // single-stat block
-            if t.tokens.headOption // see if opening brace was removed
-              .exists(x => x.is[Token.LeftBrace] && ftoks(x).left.ne(x)) =>
-          if (arg.is[Term.FunctionTerm]) {
-            // handle rewritten apply { { x => b } } to a { x => b }
-            val parentApply = findTreeWithParent(t) {
-              case _: Term.Block => None
-              case _: Term.FunctionTerm => None
-              case p @ Term.ArgClause(_ :: Nil, _) => Some(isParentAnApply(p))
-              case _ => Some(false)
-            }
-            if (parentApply.isDefined) addOne(arg)
-          }
-        // special handling for rewritten apply(x => { b }) to a { x => b }
-        case t: Term.Apply =>
-          val ac = t.argClause
-          ac.values match {
-            case (f: Term.FunctionTerm) :: Nil if ac.tokens.lastOption.exists {
-                  x => // see if closing paren is now brace
-                    x.is[Token.RightParen] && ftoks.prevNonComment(ftoks(x))
-                      .left.is[Token.RightBrace]
-                } => addOne(f)
-            case _ =>
-          }
+        case t @ Term.Block(_ :: Nil) if t.tokens.headOption.exists { x =>
+              // ignore single-stat block if opening brace was removed
+              x.is[Token.LeftBrace] && ftoks(x).left.ne(x)
+            } =>
         case t => // Nothing
           addAll(extractStatementsIfAny(t))
       }
