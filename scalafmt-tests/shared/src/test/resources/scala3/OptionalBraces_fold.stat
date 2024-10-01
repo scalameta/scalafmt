@@ -7051,3 +7051,16 @@ object a:
      else
         val found = findRefRecur(previous, prevPrec, prevCtx)
    end checkImportAlternatives
+<<< #4133 binpack with enum cases and trailing comment
+binPack.preset = always
+===
+object Parsers:
+  enum Location(inArgs: Boolean):
+    case InPatternArgs extends Location(false, true, true) // InParens not true, since it might be an alternative
+>>>
+object Parsers:
+   enum Location(inArgs: Boolean):
+      case InPatternArgs
+          extends Location(
+            false, true, true
+          ) // InParens not true, since it might be an alternative
