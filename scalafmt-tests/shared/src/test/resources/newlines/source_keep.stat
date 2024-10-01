@@ -9632,10 +9632,12 @@ trait FunctionInstances extends FunctionInstances0 {
     }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   implicit def function6Instance[T1, T2, T3, T4, T5,
--      T6]: Monad[(T1, T2, T3, T4, T5, T6) => *] with BindRec[(T1, T2, T3, T4, T5, T6) => *] =
-+      T6]: Monad[(T1, T2, T3, T4, T5, T6) => *]
-+    with BindRec[(T1, T2, T3, T4, T5, T6) => *] =
-     new Monad[(T1, T2, T3, T4, T5, T6) => *]
+trait FunctionInstances extends FunctionInstances0 {
+  implicit def function6Instance[T1, T2, T3, T4, T5,
+      T6]: Monad[(T1, T2, T3, T4, T5, T6) => *]
+    with BindRec[(T1, T2, T3, T4, T5, T6) => *] =
+    new Monad[(T1, T2, T3, T4, T5, T6) => *]
+      with BindRec[(T1, T2, T3, T4, T5, T6) => *] {
+      //
+    }
+}
