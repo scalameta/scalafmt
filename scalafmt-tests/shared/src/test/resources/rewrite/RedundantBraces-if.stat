@@ -424,9 +424,11 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-       searchIndices()
--  // else swallow the termination and wait for pull
-+    // else swallow the termination and wait for pull
- }
+object a {
+  override def onUpstreamFinish(): Unit =
+    if (buffer.isEmpty)
+      completeStage()
+    else if (isAvailable(out)) {
+      searchIndices()
+    } // else swallow the termination and wait for pull
+}

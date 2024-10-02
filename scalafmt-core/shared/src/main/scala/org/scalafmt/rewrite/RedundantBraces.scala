@@ -300,11 +300,19 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig,
   ): (Replacement, Replacement) = {
+    @tailrec
+    def okComment(xft: FormatToken): Boolean =
+      ftoks.prevNotTrailingComment(xft) match {
+        case Right(x) =>
+          if ((x eq xft) && x.hasBreak)
+            !ftoks.isAttachedCommentThenBreak(ftoks.next(ft))
+          else !session.isRemovedOnLeft(x, true) || okComment(ftoks.prev(x))
+        case _ => false
+      }
     val ok = ft.meta.rightOwner match {
-      case _: Term.Block => ftoks.prevNotTrailingComment(ft).isRight &&
-        !braceSeparatesTwoXmlTokens &&
+      case _: Term.Block => !braceSeparatesTwoXmlTokens &&
         (style.dialect.allowSignificantIndentation ||
-          !elseAfterRightBraceThenpOnLeft)
+          okComment(ft) && !elseAfterRightBraceThenpOnLeft)
       case _ => true
     }
     if (ok) (left, removeToken) else null
