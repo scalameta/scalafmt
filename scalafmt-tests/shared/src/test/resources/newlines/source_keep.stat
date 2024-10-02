@@ -9653,17 +9653,17 @@ object Multipart {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-       //
--  ): Flow[MultipartFormData.Part[
--    Source_ByteString
--  ], ByteString, NotUsed] = {
-+  )
-+      : Flow[MultipartFormData.Part[
-+        Source_ByteString
-+      ], ByteString, NotUsed] = {
-     //
+object Multipart {
+  def format(
+      //
+  ): Flow[
+    MultipartFormData.Part[Source_ByteString],
+    ByteString,
+    NotUsed
+  ] = {
+    //
+  }
+}
 <<< #4133 overflowing complex result type 2
 preset = default
 maxColumn = 80
@@ -9677,14 +9677,16 @@ object Multipart {
     }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-       //
--  ): GraphStage[FlowShape[MultipartFormData.Part[
--    Source[ByteString, _]
--  ], Source[ByteString, Any]]] =
-+  )
-+      : GraphStage[FlowShape[MultipartFormData.Part[
-+        Source[ByteString, _]
-+      ], Source[ByteString, Any]]] =
-     new GraphStage[FlowShape[MultipartFormData.Part[
+object Multipart {
+  private def streamed(
+      //
+  ): GraphStage[FlowShape[
+    MultipartFormData.Part[Source[ByteString, _]],
+    Source[ByteString, Any]
+  ]] =
+    new GraphStage[FlowShape[MultipartFormData.Part[
+      Source[ByteString, _]
+    ], Source[ByteString, Any]]] {
+      //
+    }
+}
