@@ -1664,3 +1664,20 @@ object a {
     _.getAbsolutePath
   )
 }
+<<< #4133 keep parens around dotless select in infix, rhs
+rewrite.redundantParens.infixSide = all
+===
+def newLine: Parser[String] = namedError("\r" ~> ("\n" ?), "End of line expected")
+>>>
+def newLine: Parser[String] =
+  namedError("\r" ~> ("\n" ?), "End of line expected")
+<<< #4133 keep parens around dotless select in infix, lhs
+rewrite.redundantParens.infixSide = all
+===
+def newLine: Parser[String] = namedError(("\r" ?) ~> "\n", "End of line expected")
+>>>
+test does not parse: [dialect scala213] `)` expected but `string constant` found
+def newLine: Parser[String] = namedError("\r" ? ~> "\n", "End of line expected")
+                                                   ^
+====== full result: ======
+def newLine: Parser[String] = namedError("\r" ? ~> "\n", "End of line expected")
