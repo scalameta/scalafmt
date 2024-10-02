@@ -1676,8 +1676,5 @@ rewrite.redundantParens.infixSide = all
 ===
 def newLine: Parser[String] = namedError(("\r" ?) ~> "\n", "End of line expected")
 >>>
-test does not parse: [dialect scala213] `)` expected but `string constant` found
-def newLine: Parser[String] = namedError("\r" ? ~> "\n", "End of line expected")
-                                                   ^
-====== full result: ======
-def newLine: Parser[String] = namedError("\r" ? ~> "\n", "End of line expected")
+def newLine: Parser[String] =
+  namedError(("\r" ?) ~> "\n", "End of line expected")
