@@ -1352,6 +1352,8 @@ class FormatOps(
         findPrevSelectAndApply(t.fun, enclosed, applyTree.orElse(Some(t)))
       case t: Term.AnonymousFunction if !enclosed =>
         findPrevSelectAndApply(t.body, false, applyTree)
+      case Term.Block(t :: Nil) if !isEnclosedInBraces(tree) =>
+        findPrevSelectAndApply(t, false, applyTree)
       case _ => (None, applyTree)
     }
   }
@@ -1365,14 +1367,17 @@ class FormatOps(
   private def findLastApplyAndNextSelectEnclosed(
       tree: Tree,
       select: Option[SelectLike] = None,
+      prevApply: Option[Tree] = None,
   ): (Tree, Option[SelectLike]) =
-    if (isEnclosedInParens(tree)) (tree, select)
+    if (isEnclosedInParens(tree)) (prevApply.getOrElse(tree), select)
     else tree.parent match {
       case Some(GetSelectLike(p)) =>
         findLastApplyAndNextSelectEnclosed(p.tree, select.orElse(Some(p)))
       case Some(p: Member.Apply) if p.fun eq tree =>
         findLastApplyAndNextSelectEnclosed(p, select)
-      case _ => (tree, select)
+      case Some(p @ Term.Block(`tree` :: Nil)) if !isEnclosedInBraces(p) =>
+        findLastApplyAndNextSelectEnclosed(p, select, prevApply.orElse(Some(tree)))
+      case _ => (prevApply.getOrElse(tree), select)
     }
 
   @tailrec
@@ -1380,6 +1385,7 @@ class FormatOps(
       tree: Tree,
       select: Option[SelectLike] = None,
       prevEnclosed: Option[Tree] = None,
+      prevApply: Option[Tree] = None,
   ): (Tree, Option[SelectLike]) = tree.parent match {
     case Some(GetSelectLike(p)) =>
       findLastApplyAndNextSelectPastEnclosed(p.tree, select.orElse(Some(p)))
@@ -1387,12 +1393,16 @@ class FormatOps(
       prevEnclosed match {
         case Some(t) => (t, select)
         case _ =>
-          val nextEnclosed = Some(tree).filter(isEnclosedInParens)
+          val nextEnclosed = prevApply.orElse(Some(tree))
+            .filter(isEnclosedInParens)
           findLastApplyAndNextSelectPastEnclosed(p, select, nextEnclosed)
       }
     case Some(p: Term.AnonymousFunction) =>
       findLastApplyAndNextSelectPastEnclosed(p, select, Some(p))
-    case _ => (prevEnclosed.getOrElse(tree), select)
+    case Some(p @ Term.Block(`tree` :: Nil)) if !isEnclosedInBraces(p) =>
+      val nextApply = prevApply.orElse(Some(tree))
+      findLastApplyAndNextSelectPastEnclosed(p, select, prevEnclosed, nextApply)
+    case _ => (prevEnclosed.orElse(prevApply).getOrElse(tree), select)
   }
 
   final def findLastApplyAndNextSelect(
