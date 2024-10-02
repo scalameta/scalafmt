@@ -413,3 +413,20 @@ val toIterator: Any => Iterator[_] = if (lenient) {
 }
 else
   unsupportedCollectionType(tag.runtimeClass)
+<<< #4133 indentation with comment after removed brace
+object a {
+  override def onUpstreamFinish(): Unit = {
+    if (buffer.isEmpty) {
+      completeStage()
+    } else if (isAvailable(out)) {
+      searchIndices()
+    } // else swallow the termination and wait for pull
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+       searchIndices()
+-  // else swallow the termination and wait for pull
++    // else swallow the termination and wait for pull
+ }
