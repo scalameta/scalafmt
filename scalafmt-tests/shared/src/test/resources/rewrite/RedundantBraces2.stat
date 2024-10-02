@@ -125,24 +125,26 @@ final class RemoteSettings(val config: Config) {
   }.requiring(_ > Duration.Zero, "watch-failure-detector.expected-response-after > 0")
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   val WatchHeartBeatInterval: FiniteDuration =
--    WatchFailureDetectorConfig
--      .getMillisDuration("heartbeat-interval")
-+    WatchFailureDetectorConfig.getMillisDuration("heartbeat-interval")
-       .requiring(
-   val WatchUnreachableReaperInterval: FiniteDuration =
--    WatchFailureDetectorConfig
--      .getMillisDuration(
--        "unreachable-nodes-reaper-interval"
--      )
-+    WatchFailureDetectorConfig.getMillisDuration(
-+      "unreachable-nodes-reaper-interval"
-+    )
-       .requiring(
-   val WatchHeartbeatExpectedResponseAfter: FiniteDuration =
--    WatchFailureDetectorConfig
--      .getMillisDuration("expected-response-after")
-+    WatchFailureDetectorConfig.getMillisDuration("expected-response-after")
-       .requiring(
+final class RemoteSettings(val config: Config) {
+  val WatchHeartBeatInterval: FiniteDuration =
+    WatchFailureDetectorConfig
+      .getMillisDuration("heartbeat-interval")
+      .requiring(
+        _ > Duration.Zero,
+        "watch-failure-detector.heartbeat-interval must be > 0"
+      )
+  val WatchUnreachableReaperInterval: FiniteDuration =
+    WatchFailureDetectorConfig
+      .getMillisDuration("unreachable-nodes-reaper-interval")
+      .requiring(
+        _ > Duration.Zero,
+        "watch-failure-detector.unreachable-nodes-reaper-interval must be > 0"
+      )
+  val WatchHeartbeatExpectedResponseAfter: FiniteDuration =
+    WatchFailureDetectorConfig
+      .getMillisDuration("expected-response-after")
+      .requiring(
+        _ > Duration.Zero,
+        "watch-failure-detector.expected-response-after > 0"
+      )
+}
