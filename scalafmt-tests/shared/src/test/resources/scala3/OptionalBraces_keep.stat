@@ -7371,6 +7371,5 @@ object Parsers:
 >>>
 object Parsers:
    enum Location(inArgs: Boolean):
-      case InPatternArgs
-          extends Location(false, true,
+      case InPatternArgs extends Location(false, true,
             true) // InParens not true, since it might be an alternative

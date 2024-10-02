@@ -219,7 +219,8 @@ object literal extends scala.Dynamic { // scalastyle:ignore
     ???
 }
 >>>
-object literal extends scala.Dynamic { // scalastyle:ignore
+object literal
+    extends scala.Dynamic { // scalastyle:ignore
   ???
 }
 <<< #1234 1: single-line
