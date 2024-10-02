@@ -9986,3 +9986,277 @@ object Multipart {
       //
     }
 }
+<<< #4133 complex nested applies/lambdas with for and tuple, narrow
+private object MemoMap {
+  def make(implicit trace: Trace): UIO[MemoMap] =
+    Ref.Synchronized
+      .map { ref =>
+        new MemoMap { self =>
+          final def getOrElseMemoize[E, A, B](scope: Scope)(
+            layer: ZLayer[A, E, B]
+          ): ZIO[A, E, ZEnvironment[B]] =
+            ref.modifyZIO { map =>
+              map.get(layer) match {
+                case None =>
+                  for {
+                    memoized = (
+                                 promise.await.onExit {
+                                   case Exit.Failure(_) => ZIO.unit
+                                   case Exit.Success(_) => observers.update(_ + 1)
+                                 },
+                                 (exit: Exit[Any, Any]) => finalizerRef.get.flatMap(_(exit))
+                               )
+                  } yield (resource, if (layer.isFresh) map else map.updated(layer, memoized))
+              }
+            }.flatten
+        }
+      }
+}
+>>> { stateVisits = 369 }
+private object MemoMap {
+  def make(implicit
+      trace: Trace
+  ): UIO[MemoMap] = Ref
+    .Synchronized
+    .map { ref =>
+      new MemoMap {
+        self =>
+        final def getOrElseMemoize[
+            E,
+            A,
+            B
+        ](scope: Scope)(
+            layer: ZLayer[A, E, B]
+        ): ZIO[A, E, ZEnvironment[B]] =
+          ref
+            .modifyZIO { map =>
+              map.get(layer) match {
+                case None =>
+                  for {
+                    memoized =
+                      (
+                        promise
+                          .await
+                          .onExit {
+                            case Exit
+                                  .Failure(
+                                    _
+                                  ) =>
+                              ZIO.unit
+                            case Exit
+                                  .Success(
+                                    _
+                                  ) =>
+                              observers
+                                .update(
+                                  _ + 1
+                                )
+                          },
+                        (
+                          exit: Exit[
+                            Any,
+                            Any
+                          ]
+                        ) =>
+                          finalizerRef
+                            .get
+                            .flatMap(
+                              _(exit)
+                            )
+                      )
+                  } yield (
+                    resource,
+                    if (layer.isFresh)
+                      map
+                    else
+                      map.updated(
+                        layer,
+                        memoized
+                      )
+                  )
+              }
+            }
+            .flatten
+      }
+    }
+}
+<<< #4133 complex nested applies/lambdas with for and tuple, wide and long
+maxColumn = 80
+===
+object a {
+  private object MemoMap {
+    def make(implicit trace: Trace): UIO[MemoMap] =
+      Ref.Synchronized
+        .make[Map[ZLayer[Nothing, Any, Any], (IO[Any, Any], Exit[Any, Any] => UIO[Any])]](Map.empty)
+        .map { ref =>
+          new MemoMap { self =>
+            final def getOrElseMemoize[E, A, B](scope: Scope)(
+              layer: ZLayer[A, E, B]
+            ): ZIO[A, E, ZEnvironment[B]] =
+              ref.modifyZIO { map =>
+                map.get(layer) match {
+                  case Some((acquire, release)) =>
+                    val cached: ZIO[Any, E, ZEnvironment[B]] = acquire
+                      .asInstanceOf[IO[E, (FiberRefs.Patch, ZEnvironment[B])]]
+                      .flatMap { case (patch, b) => ZIO.patchFiberRefs(patch).as(b) }
+                      .onExit {
+                        case Exit.Success(_) => scope.addFinalizerExit(release)
+                        case Exit.Failure(_) => ZIO.unit
+                      }
+
+                    ZIO.succeed((cached, map))
+                  case None =>
+                    for {
+                      observers    <- Ref.make(0)
+                      promise      <- Promise.make[E, (FiberRefs.Patch, ZEnvironment[B])]
+                      finalizerRef <- Ref.make[Exit[Any, Any] => UIO[Any]](_ => ZIO.unit)
+
+                      resource = ZIO.uninterruptibleMask { restore =>
+                                   for {
+                                     a          <- ZIO.environment[A]
+                                     outerScope  = scope
+                                     innerScope <- Scope.make
+                                     tp <-
+                                       restore(
+                                         layer
+                                           .scope(innerScope)
+                                           .flatMap(_.apply(self).diffFiberRefs)
+                                       ).exit.flatMap {
+                                         case e @ Exit.Failure(cause) =>
+                                           promise.failCause(cause) *> innerScope.close(e) *> ZIO
+                                             .failCause(cause)
+
+                                         case Exit.Success((patch, b)) =>
+                                           for {
+                                             _ <- finalizerRef.set { (e: Exit[Any, Any]) =>
+                                                    ZIO.whenZIO(observers.modify(n => (n == 1, n - 1)))(
+                                                      innerScope.close(e)
+                                                    )
+                                                  }
+                                             _ <- observers.update(_ + 1)
+                                             outerFinalizer <-
+                                               outerScope.addFinalizerExit(e => finalizerRef.get.flatMap(_.apply(e)))
+                                             _ <- promise.succeed((patch, b))
+                                           } yield b
+                                       }
+                                   } yield tp
+                                 }
+
+                      memoized = (
+                                   promise.await.onExit {
+                                     case Exit.Failure(_) => ZIO.unit
+                                     case Exit.Success(_) => observers.update(_ + 1)
+                                   },
+                                   (exit: Exit[Any, Any]) => finalizerRef.get.flatMap(_(exit))
+                                 )
+                    } yield (resource, if (layer.isFresh) map else map.updated(layer, memoized))
+
+                }
+              }.flatten
+          }
+        }
+  }
+}
+>>> { stateVisits = 1049, stateVisits2 = 1049 }
+object a {
+  private object MemoMap {
+    def make(implicit trace: Trace): UIO[MemoMap] = Ref
+      .Synchronized
+      .make[Map[
+        ZLayer[Nothing, Any, Any],
+        (IO[Any, Any], Exit[Any, Any] => UIO[Any])
+      ]](Map.empty)
+      .map { ref =>
+        new MemoMap {
+          self =>
+          final def getOrElseMemoize[E, A, B](
+              scope: Scope
+          )(layer: ZLayer[A, E, B]): ZIO[A, E, ZEnvironment[B]] =
+            ref
+              .modifyZIO { map =>
+                map.get(layer) match {
+                  case Some((acquire, release)) =>
+                    val cached: ZIO[Any, E, ZEnvironment[B]] = acquire
+                      .asInstanceOf[IO[E, (FiberRefs.Patch, ZEnvironment[B])]]
+                      .flatMap { case (patch, b) =>
+                        ZIO.patchFiberRefs(patch).as(b)
+                      }
+                      .onExit {
+                        case Exit.Success(_) =>
+                          scope.addFinalizerExit(release)
+                        case Exit.Failure(_) =>
+                          ZIO.unit
+                      }
+
+                    ZIO.succeed((cached, map))
+                  case None =>
+                    for {
+                      observers <- Ref.make(0)
+                      promise <- Promise.make[
+                        E,
+                        (FiberRefs.Patch, ZEnvironment[B])
+                      ]
+                      finalizerRef <- Ref.make[Exit[Any, Any] => UIO[Any]](_ =>
+                        ZIO.unit
+                      )
+
+                      resource = ZIO.uninterruptibleMask { restore =>
+                        for {
+                          a <- ZIO.environment[A]
+                          outerScope = scope
+                          innerScope <- Scope.make
+                          tp <- restore(
+                            layer
+                              .scope(innerScope)
+                              .flatMap(_.apply(self).diffFiberRefs)
+                          ).exit
+                            .flatMap {
+                              case e @ Exit.Failure(cause) =>
+                                promise.failCause(cause) *>
+                                  innerScope.close(e) *> ZIO.failCause(cause)
+
+                              case Exit.Success((patch, b)) =>
+                                for {
+                                  _ <- finalizerRef.set { (e: Exit[Any, Any]) =>
+                                    ZIO.whenZIO(
+                                      observers.modify(n => (n == 1, n - 1))
+                                    )(innerScope.close(e))
+                                  }
+                                  _ <- observers.update(_ + 1)
+                                  outerFinalizer <- outerScope.addFinalizerExit(
+                                    e => finalizerRef.get.flatMap(_.apply(e))
+                                  )
+                                  _ <- promise.succeed((patch, b))
+                                } yield b
+                            }
+                        } yield tp
+                      }
+
+                      memoized =
+                        (
+                          promise
+                            .await
+                            .onExit {
+                              case Exit.Failure(_) =>
+                                ZIO.unit
+                              case Exit.Success(_) =>
+                                observers.update(_ + 1)
+                            },
+                          (exit: Exit[Any, Any]) =>
+                            finalizerRef.get.flatMap(_(exit))
+                        )
+                    } yield (
+                      resource,
+                      if (layer.isFresh)
+                        map
+                      else
+                        map.updated(layer, memoized)
+                    )
+
+                }
+              }
+              .flatten
+        }
+      }
+  }
+}
