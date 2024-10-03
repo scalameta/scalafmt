@@ -289,9 +289,11 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   /* the following methods return the first format token such that
    * its `right` is after the parameter and is not a comment */
   @inline
-  def tokenAfter(token: Token): FormatToken = nextNonComment(before(token))
+  def tokenAfter(ft: FormatToken): FormatToken = nextNonComment(ft)
   @inline
-  def tokenAfter(tree: Tree): FormatToken = nextNonComment(getLast(tree))
+  def tokenAfter(token: Token): FormatToken = tokenAfter(before(token))
+  @inline
+  def tokenAfter(tree: Tree): FormatToken = tokenAfter(getLast(tree))
   @inline
   def tokenAfter(trees: Seq[Tree]): FormatToken = tokenAfter(trees.last)
 
@@ -304,6 +306,8 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
    * its `left` is before the parameter */
   @inline
   def justBefore(token: Token): FormatToken = apply(token, -1)
+  @inline
+  def tokenJustBefore(ft: FormatToken): FormatToken = prev(ft)
   @inline
   def tokenJustBefore(tree: Tree): FormatToken = prev(getHead(tree))
 
@@ -325,6 +329,8 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
    * its `left` is before the parameter and is not a comment */
   @inline
   def tokenOnOrBefore(token: Token): FormatToken = prevNonComment(before(token))
+  @inline
+  def tokenBefore(ft: FormatToken): FormatToken = prevNonCommentBefore(ft)
   @inline
   def tokenBefore(token: Token): FormatToken = prevNonComment(justBefore(token))
   @inline
