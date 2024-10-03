@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import org.scalafmt.Error
 import org.scalafmt.config._
+import org.scalafmt.util.LoggerOps._
 import org.scalafmt.util._
 
 import scala.meta._
@@ -17,7 +18,6 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     formatWriter: FormatWriter,
 ) {
   import BestFirstSearch._
-  import LoggerOps._
   import TreeOps._
   import formatOps._
 
@@ -76,6 +76,22 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     Q.enqueue(start)
 
     val maxCost = if (isOpt) 0 else Int.MaxValue
+
+    val dd = Q.dd
+    def logKillState(nextState: State)(which: String, extra: (String, Any)*) = {
+      val pairs = extra ++ Seq(
+        "nc" -> nextState.cost,
+        "csc" -> nextState.prev.cost,
+        "; nsc" -> nextState.split.costWithPenalty,
+        "> mc" -> maxCost,
+      )
+      val message = pairs.flatMap { case (k, v) =>
+        val vstr = v.toString
+        if (vstr.isEmpty) None else Some(s"$k=$vstr")
+      }.mkString(s"$dd/// $which ${log(nextState, dd)};\n$dd   ", " ", "")
+      logger.println(message)
+    }
+
     var deepestState: State = start
     var preForkState: State = start
     var preFork = !isKillOnFail
@@ -90,10 +106,18 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       null ne curr
     }) {
       val idx = curr.depth
-      if (idx >= tokens.length) return Right(curr)
+      if (idx >= tokens.length) {
+        logger.println(s"$dd^^^ ${log(curr, dd)}")
+        return Right(curr)
+      }
 
       val splitToken = tokens(idx)
-      if (idx >= stop && !splitToken.left.isEmpty) return Right(curr)
+      def logSplitToken(): Unit = logToken(splitToken)
+      if (idx >= stop && !splitToken.left.isEmpty) {
+        logSplitToken()
+        logger.println(s"$dd--- ${tokens(stop).left.structure}")
+        return Right(curr)
+      }
 
       implicit val style = styleMap.at(splitToken)
       import style.runner.optimizer
@@ -137,38 +161,71 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
           val actualSplits = getActiveSplits(curr)(activeSplitsFilter)
 
-          var optimalFound = false
+          var optimal: State = null
+          def optimalStr =
+            if (optimal == null) ""
+            else {
+              val indent = dd + "    "
+              s"[\n$indent${log(optimal, indent)}]"
+            }
+          def logKillOptState(opt: OptimalToken, why: String)(implicit
+              nextState: State,
+          ) = logKillState(nextState)(
+            why,
+            "opt" -> opt.token.left.structure,
+            "kof" -> true,
+          )
+
           val handleOptimalTokens = optimizer.acceptOptimalAtHints &&
             depth < optimizer.maxDepth && actualSplits.lengthCompare(1) > 0
 
           def processNextState(implicit nextState: State): Unit = {
             val split = nextState.split
+            logger.println(s"$dd!!! $split")
+            logger.println(s"$dd>>> ${log(nextState, dd)}")
             val cost = split.costWithPenalty
             if (cost <= maxCost) {
               val stateToQueue = split.optimalAt match {
                 case Some(opt) if handleOptimalTokens =>
-                  if (cost > 0) killOnFail(opt)
-                  else processOptimalToken(opt) match {
-                    case Left(x) => x
-                    case Right(x) => optimalFound = true; x
+                  if (cost > 0) {
+                    val res = killOnFail(opt)
+                    if (res eq null) logKillOptState(opt, "1 [cost>0]")
+                    res
+                  } else processOptimalToken(opt) match {
+                    case Left(x) =>
+                      if (x eq null) logKillOptState(opt, "2 [optfail]")
+                      x
+                    case Right(x) => optimal = nextState; x
                   }
                 case _ => nextState
               }
               if (null ne stateToQueue) {
-                stats.updateBest(nextState, stateToQueue)
+                if (stats.updateBest(nextState, stateToQueue)) logger
+                  .println(s"$dd\\\\\\ ${log(nextState, dd)}")
                 Q.enqueue(stateToQueue)
               }
-            } else preFork = false
+            } else {
+              preFork = false
+              logKillState(nextState)("5 [>cost]")
+            }
           }
 
-          actualSplits.foreach { split =>
-            if (optimalFound) sendEvent(split)
-            else processNextState(getNext(curr, split))
+          if (actualSplits.isEmpty) logKillState(curr)("0 [nosplits]")
+          else actualSplits.foreach { split =>
+            logSplitToken()
+            if (optimal eq null) processNextState(getNext(curr, split))
+            else {
+              sendEvent(split)
+              logKillState(
+                getNext(curr, split),
+              )("3 [optfound]", "|| fopt" -> optimalStr)
+            }
           }
         }
-      }
+      } else logKillState(curr)("4 [opt zone]")
     }
 
+    logger.println(s"$dd--- EMPTY QUEUE")
     def endToken = {
       val okDeepest = deepestState.appliedPenalty > start.prev.appliedPenalty
       tokens(if (okDeepest) deepestState.depth else stop)
@@ -242,8 +299,13 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     stats.trackState(state)
     val idx = state.depth
     val ft = tokens(idx)
-    val active = state.policy.execute(Decision(ft, routes(idx)))
-      .filter(s => s.isActive && pred(s))
+    logToken(ft)
+    val active = state.policy.execute(Decision(ft, routes(idx))).filter { s =>
+      val ok = s.isActive && pred(s)
+      val prefix = if (ok) "..." else "._."
+      logger.println(s"${Q.dd}$prefix $s")
+      ok
+    }
     val splits =
       if (active.isEmpty || !ft.meta.formatOff && ft.inside(range)) active
       else {
@@ -317,6 +379,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       SearchResult(deepestYet, reachedEOF = false)
     }
   }
+
 }
 
 case class SearchResult(state: State, reachedEOF: Boolean)
@@ -362,27 +425,41 @@ object BestFirstSearch {
     style.runner.optimizer.disableOptimizationsInsideSensitiveAreas
 
   class StateQueue(val nested: Int)(implicit stateOrdering: Ordering[State]) {
+    val dd = " " * nested
     private def newGeneration = new mutable.PriorityQueue[State]()
     var generation: mutable.PriorityQueue[State] = newGeneration
     var generations: List[mutable.PriorityQueue[State]] = Nil
 
     def addGeneration(): Unit = if (generation.nonEmpty) {
+      logger.println(s"$dd+GEN=${generations.length}")
       generations = generation :: generations
       generation = newGeneration
     }
 
-    def enqueue(state: State): Unit = generation.enqueue(state)
+    def queueStats: String = s"[#que=$length][#gen=${generations.length}]"
+
+    def enqueue(state: State): Unit = if (state ne null) {
+      generation.enqueue(state)
+      logger.println(s"$dd+++ $queueStats ${log(state, dd)}")
+    }
+
     def length: Int = generation.length
+
     @tailrec
     final def dequeue(): State =
       if (generation.isEmpty) generations match {
         case head :: tail =>
           generation = head
           generations = tail
+          logger.println(s"$dd-GEN=${generations.length}")
           dequeue()
         case _ => null
       }
-      else generation.dequeue()
+      else {
+        val state = generation.dequeue()
+        logger.println(s"$dd<<< $queueStats ${log(state, dd)}")
+        state
+      }
   }
 
   class StateStats private (
@@ -449,5 +526,8 @@ object BestFirstSearch {
       else None
     }
   }
+
+  def logToken(ft: FormatToken)(implicit Q: StateQueue): Unit = logger
+    .println(s"${Q.dd}=== ${Q.queueStats} ${log2(ft)}")
 
 }
