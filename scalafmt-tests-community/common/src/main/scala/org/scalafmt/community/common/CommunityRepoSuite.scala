@@ -11,6 +11,7 @@ abstract class CommunityRepoSuite(giturl: String, name: String)
       files: Int,
       excluded: List[String] = Nil,
       fileOverride: String = null,
+      styles: Set[String] = Set.empty,
   ) = CommunityBuild(
     giturl,
     ref,
@@ -18,6 +19,7 @@ abstract class CommunityRepoSuite(giturl: String, name: String)
     excluded,
     files,
     dialect,
+    styles = styles,
     fileOverride = Option(fileOverride),
   )
 
