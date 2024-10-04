@@ -65,7 +65,7 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
       case rp: Token.RightParen => delimOwner
           .isAny[Member.SyntaxValuesClause, Member.Tuple] ||
         ftoks.matchingOpt(rp).exists { lp =>
-          val claimant = session.claimedRule(ftoks.justBefore(lp))
+          val claimant = session.claimedRule(ftoks.prev(lp))
           claimant.forall(_.rule.isInstanceOf[RedundantParens])
         }
 

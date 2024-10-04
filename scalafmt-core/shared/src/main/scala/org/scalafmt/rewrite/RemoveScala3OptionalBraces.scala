@@ -60,7 +60,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
             }
           case t: Term.EnumeratorsBlock
               if allowOldSyntax || !t.parent.is[Term.For] || {
-                val rbFt = ftoks(ftoks.matching(ft.right))
+                val rbFt = ftoks.matching(ft.right)
                 ftoks.nextNonComment(rbFt).right.is[Token.KwDo]
               } => removeToken
           case _: Tree.CasesBlock => removeToken

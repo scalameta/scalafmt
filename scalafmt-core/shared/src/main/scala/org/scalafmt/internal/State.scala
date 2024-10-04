@@ -168,7 +168,7 @@ final case class State(
           else lineStartsStatement(isComment)
         val delay = startFtOpt.exists {
           case FormatToken(_, t: Token.Interpolation.Start, _) => tokens
-              .matching(t) ne ft.right
+              .matching(t).left ne ft.right
           case _ => true
         }
         // if delaying, estimate column if the split had been a newline

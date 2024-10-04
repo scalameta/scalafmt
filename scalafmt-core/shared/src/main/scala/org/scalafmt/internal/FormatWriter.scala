@@ -153,7 +153,7 @@ class FormatWriter(formatOps: FormatOps) {
       tok.left match {
         case rb: T.RightBrace // look for "foo { bar }"
             if RedundantBraces.canRewriteWithParensOnRightBrace(tok) =>
-          val beg = tokens(matching(rb)).meta.idx
+          val beg = matching(rb).idx
           val bloc = locations(beg)
           val style = bloc.style
           if (
