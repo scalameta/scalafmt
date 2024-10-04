@@ -38,18 +38,6 @@ object TreeOps {
       case _ => res
     }
 
-  def getEnumStatements(enums: Seq[Enumerator]): Seq[Enumerator] = {
-    val ret = Seq.newBuilder[Enumerator]
-    enums.zipWithIndex.foreach {
-      case (x, 0) => x
-      case (enum: Enumerator.Guard, i) =>
-        // Only guard that follows another guards starts a statement.
-        if (enums(i - 1).is[Enumerator.Guard]) ret += enum
-      case (x, _) => ret += x
-    }
-    ret.result()
-  }
-
   object SingleArgInBraces {
     def unapply(tree: Tree)(implicit
         ftoks: FormatTokens,
@@ -178,7 +166,14 @@ object TreeOps {
               // ignore single-stat block if opening brace was removed
               x.is[Token.LeftBrace] && ftoks(x).left.ne(x)
             } =>
-        case t: Term.EnumeratorsBlock => addAll(getEnumStatements(t.enums))
+        case t: Term.EnumeratorsBlock =>
+          var wasGuard = false
+          t.enums.tail.foreach { x =>
+            val isGuard = x.is[Enumerator.Guard]
+            // Only guard that follows another guard starts a statement.
+            if (wasGuard || !isGuard) addOne(x)
+            wasGuard = isGuard
+          }
         case t: Term.PartialFunction => t.cases match {
             case _ :: Nil =>
             case x => addAll(x)
