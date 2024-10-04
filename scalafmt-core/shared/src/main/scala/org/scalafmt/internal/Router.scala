@@ -1123,7 +1123,7 @@ class Router(formatOps: FormatOps) {
             .map(p => PenalizeAllNewlines(close, p + 3))
 
           val binpack = style.binPack.defnSiteFor(isBracket)
-          val firstArg = argumentStarts.get(ft.meta.idx)
+          val firstArg = optimizationEntities.argument
           val nextComma = firstArg.flatMap { x =>
             val ok = isSeqMulti(getArgs(leftOwner))
             if (ok) findFirstOnRight[T.Comma](getLast(x), close) else None
@@ -1494,7 +1494,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.Comma, right, _) if !leftOwner.is[Template] =>
         def forBinPack(binPack: BinPack.Site, callSite: Boolean) =
           if (binPack eq BinPack.Site.Never) None
-          else argumentStarts.get(ft.meta.idx).map { nextArg =>
+          else optimizationEntities.argument.map { nextArg =>
             val lastFT = getLast(nextArg)
             val lastTok = lastFT.left
             val oneline = binPack.isOneline
@@ -2373,7 +2373,7 @@ class Router(formatOps: FormatOps) {
           )
         Seq(spaceSplit, Split(Newline, if (spaceSplit.isActive) 1 else 0))
 
-      case FormatToken(_, r, _) if optionalNewlines(ft.meta.idx) =>
+      case FormatToken(_, r, _) if optimizationEntities.optionalNL =>
         @tailrec
         def noAnnoLeftFor(tree: Tree): Boolean = tree.parent match {
           case Some(_: Mod.Annot) => false

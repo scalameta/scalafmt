@@ -57,63 +57,10 @@ class FormatOps(
 
   val (forceConfigStyle, emptyQueueSpots) = getForceConfigStyle
 
+  val optimizationEntities = OptimizationEntities(topSourceTree)
+
   @inline
   def owners(token: T): Tree = ownersMap(hash(token))
-  /*
-   * The tokens on the left hand side of Pkg
-   *
-   * For example Set(org, ., scalafmt) in:
-   *
-   * package org.scalafmt
-   *
-   * import foo.bar
-   * ...
-   *
-   */
-  val (argumentStarts, optionalNewlines) = {
-    val arguments = mutable.Map.empty[Int, Tree]
-    val optional = Set.newBuilder[Int]
-    def getHeadIndex(tree: Tree): Option[Int] = getHeadOpt(tree)
-      .map(_.meta.idx - 1)
-    def addWith(key: Tree)(value: Tree): Unit = getHeadIndex(key)
-      .foreach(arguments.getOrElseUpdate(_, value))
-    def add(tree: Tree): Unit = addWith(tree)(tree)
-    def addOptional(tree: Tree): Unit = getHeadIndex(tree).foreach(optional += _)
-    def addParam(t: Term.Param, key: Tree): Unit = {
-      addWith(key)(t)
-      t.mods.foreach(addOptional)
-      addOptional(t.name)
-    }
-
-    val queue = new mutable.ListBuffer[Seq[Tree]]
-    queue += topSourceTree :: Nil
-    while (queue.nonEmpty) queue.remove(0).foreach { tree =>
-      tree match {
-        case _: Lit.Unit =>
-        case t: Term.ParamClause =>
-          val params = t.mod match {
-            case Some(mod) =>
-              addOptional(mod)
-              t.values match {
-                case head :: rest =>
-                  addParam(head, mod)
-                  rest
-                case _ => Nil
-              }
-            case _ => t.values
-          }
-          params.foreach(x => addParam(x, x))
-        case t: Term.ArgClause => add(t)
-        case t: Member.SyntaxValuesClause => t.values.foreach(add)
-        case t: Member.Tuple => t.args.foreach(add)
-        case _: Term.Param => // covered by Term.ParamClause
-        case t: Term => add(t)
-        case _ =>
-      }
-      queue += tree.children
-    }
-    (arguments.toMap, optional.result())
-  }
 
   @inline
   final def findFirst(start: FormatToken, end: T)(
