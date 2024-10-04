@@ -1,7 +1,6 @@
 package org.scalafmt.util
 
-import org.scalafmt.config.Case
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config._
 
 object LiteralOps {
 
@@ -52,7 +51,7 @@ object LiteralOps {
       str: String,
       suffixUpper: Char,
       suffixLower: Char,
-      suffixCase: Case,
+      suffixCase: Literals.Case,
   )(implicit style: ScalafmtConfig): String =
     if (str.last == suffixUpper || str.last == suffixLower) style.literals
       .scientific.process(str.dropRight(1)) +

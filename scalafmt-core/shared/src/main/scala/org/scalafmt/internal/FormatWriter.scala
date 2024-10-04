@@ -4,7 +4,7 @@ import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.{Case => _, _}
+import org.scalafmt.config._
 import org.scalafmt.internal.RegexCompat._
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.LiteralOps
