@@ -23,8 +23,8 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     result.result()
   }(arr)
 
-  private lazy val matchingParentheses: Map[TokenHash, Token] = TreeOps
-    .getMatchingParentheses(arr.view.map(_.right))
+  private lazy val matchingParentheses: Map[TokenHash, FormatToken] = TreeOps
+    .getMatchingParentheses(arr.view)(_.left)
 
   override def length: Int = arr.length
   override def apply(idx: Int): FormatToken = arr(idx)
@@ -77,19 +77,19 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   def next(ft: FormatToken): FormatToken = apply(ft, 1)
 
   @inline
-  def matching(token: Token): Token = matchingParentheses.getOrElse(
+  def matching(token: Token): FormatToken = matchingParentheses.getOrElse(
     FormatTokens.thash(token),
     FormatTokens.throwNoToken(token, "Missing matching token index"),
   )
   @inline
-  def matchingOpt(token: Token): Option[Token] = matchingParentheses
+  def matchingOpt(token: Token): Option[FormatToken] = matchingParentheses
     .get(FormatTokens.thash(token))
   @inline
   def hasMatching(token: Token): Boolean = matchingParentheses
     .contains(FormatTokens.thash(token))
   @inline
   def areMatching(t1: Token)(t2: => Token): Boolean = matchingOpt(t1) match {
-    case Some(x) => x eq t2
+    case Some(x) => x.left eq t2
     case _ => false
   }
 
@@ -100,7 +100,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     .flatMap { head =>
       matchingOpt(head.left).flatMap { other =>
         val last = getLastNonTrivial(tokens, tree)
-        if (last.left eq other) Some((head, last)) else None
+        if (last eq other) Some((head, last)) else None
       }
     }
   def getDelimsIfEnclosed(tree: Tree): Option[(FormatToken, FormatToken)] =

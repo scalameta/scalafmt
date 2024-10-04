@@ -163,8 +163,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     case ReplacementType.Remove =>
       val resOpt = getRightBraceBeforeRightParen(false).map { rb =>
         ft.meta.rightOwner match {
-          case ac: Term.ArgClause => ftoks.matchingOpt(rb.left)
-              .map(ftoks.justBefore).foreach { lb =>
+          case ac: Term.ArgClause => ftoks.matchingOpt(rb.left).map(ftoks.prev)
+              .foreach { lb =>
                 session.rule[RemoveScala3OptionalBraces].foreach { r =>
                   session.getClaimed(lb.meta.idx).foreach { case (leftIdx, _) =>
                     val repl = r.onLeftForArgClause(ac)(lb, left.style)
@@ -419,7 +419,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         nft.noBreak || style.formatInfix(p) && !nft.right.is[Token.Comment]
       }
       def checkClose = {
-        val nft = ftoks(ftoks.matching(ft.right), -1)
+        val nft = ftoks.prev(ftoks.matching(ft.right))
         nft.noBreak || style.formatInfix(p) && !nft.left.is[Token.Comment]
       }
       checkOpen && checkClose
@@ -525,7 +525,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         // inside exists, return true if rewrite is OK
         !stat.tokens.headOption.exists {
           case x: Token.LeftParen => ftoks.matchingOpt(x) match {
-              case Some(y) if y ne stat.tokens.last =>
+              case Some(y) if y.left ne stat.tokens.last =>
                 session.rule[RedundantParens].exists {
                   _.onToken(ftoks(x, -1), session, style).exists(_.isRemove)
                 }
@@ -534,8 +534,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
               case _ => true
             }
           case x: Token.LeftBrace => ftoks.matchingOpt(x) match {
-              case Some(y) if y ne stat.tokens.last =>
-                findFirstTreeBetween(stat, x, y).exists {
+              case Some(y) if y.left ne stat.tokens.last =>
+                findFirstTreeBetween(stat, x, y.left).exists {
                   case z: Term.Block => okToRemoveBlock(z)
                   case _ => false
                 }

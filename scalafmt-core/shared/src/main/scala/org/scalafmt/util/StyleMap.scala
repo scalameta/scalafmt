@@ -25,7 +25,7 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
     val styleBuilder = Array.newBuilder[ScalafmtConfig]
     startBuilder += 0
     styleBuilder += init
-    val disableBinPack = mutable.Map.empty[Token, BinPack.Site]
+    val disableBinPack = mutable.Map.empty[Int, BinPack.Site]
     def warn(err: String)(implicit fileLine: FileLine): Unit = logger.elem(err)
     tokens.arr.foreach { ft =>
       def changeStyle(style: ScalafmtConfig): Option[ScalafmtConfig] = {
@@ -57,10 +57,11 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
           forcedBinPack += ft.meta.leftOwner
           changeStyle(setBinPack(curr, callSite = BinPack.Site.Always))
             .foreach { x =>
-              tokens.matchingOpt(tok)
-                .foreach(disableBinPack.update(_, x.binPack.callSite))
+              tokens.matchingOpt(tok).foreach { y =>
+                disableBinPack.update(y.idx, x.binPack.callSite)
+              }
             }
-        case tok: Token.RightParen => disableBinPack.remove(tok)
+        case _: Token.RightParen => disableBinPack.remove(ft.idx)
             .foreach(x => changeStyle(setBinPack(curr, callSite = x)))
         case _ =>
       }

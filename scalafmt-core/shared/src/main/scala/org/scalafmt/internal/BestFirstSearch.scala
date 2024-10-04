@@ -38,9 +38,11 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   private def getBlockCloseToRecurse(ft: FormatToken, stop: Token)(implicit
       style: ScalafmtConfig,
-  ): Option[Token] = getEndOfBlock(ft, parensToo = true).filter { close =>
-    // Block must span at least 3 lines to be worth recursing.
-    close != stop && distance(ft.left, close) > style.maxColumn * 3
+  ): Option[Token] = getEndOfBlock(ft, parensToo = true).collect {
+    case close if close.left != stop && {
+          // Block must span at least 3 lines to be worth recursing.
+          distance(ft.left, close.left) > style.maxColumn * 3
+        } => close.left
   }
 
   private val memo = mutable.Map.empty[Long, State]
@@ -338,13 +340,13 @@ object BestFirstSearch {
               !styleMap.at(t).newlines.keep
             case _: Term.Apply => true // legacy: when enclosed in parens
             case _ => false
-          }) => expire = tokens.matching(t)
+          }) => expire = tokens.matching(t).left
       case FormatToken(t: Token.LeftBrace, _, m) if (m.leftOwner match {
             // Type compounds can be inside defn.defs
             case lo: meta.Stat.Block => lo.parent.is[Type.Refine]
             case _: Type.Refine => true
             case _ => false
-          }) => expire = tokens.matching(t)
+          }) => expire = tokens.matching(t).left
       case _ =>
     }
     result.result()

@@ -208,23 +208,28 @@ object TreeOps {
     *
     * Contains lookup keys in both directions, opening [({ and closing })].
     */
-  def getMatchingParentheses(tokens: Iterable[Token]): Map[TokenHash, Token] = {
-    val ret = Map.newBuilder[TokenHash, Token]
-    var stack = List.empty[Token]
-    tokens.foreach {
-      case open @ (LeftBrace() | LeftBracket() | LeftParen() | Interpolation
-            .Start() | Xml.Start() | Xml.SpliceStart()) => stack = open :: stack
-      case close @ (RightBrace() | RightBracket() | RightParen() | Interpolation
-            .End() | Xml.End() | Xml.SpliceEnd()) =>
-        val open = stack.head
-        assertValidParens(open, close)
-        ret += hash(open) -> close
-        ret += hash(close) -> open
-        stack = stack.tail
-      case _ =>
+  def getMatchingParentheses[A](
+      coll: Iterable[A],
+  )(f: A => Token): Map[TokenHash, A] = {
+    val ret = Map.newBuilder[TokenHash, A]
+    var stack = List.empty[(Token, A)]
+    coll.foreach { elem =>
+      f(elem) match {
+        case open @ (_: Token.OpenDelim | _: Interpolation.Start |
+            _: Xml.Start | _: Xml.SpliceStart) => stack = (open, elem) :: stack
+        case close @ (_: Token.CloseDelim | _: Interpolation.End | _: Xml.End |
+            _: Xml.SpliceEnd) =>
+          val (open, openElem) = stack.head
+          assertValidParens(open, close)
+          ret += hash(open) -> elem
+          ret += hash(close) -> openElem
+          stack = stack.tail
+        case _ =>
+      }
     }
     if (stack.nonEmpty) throw new IllegalArgumentException(
-      stack.map(x => s"[${x.end}]$x").mkString("Orphan parens (", ", ", ")"),
+      stack.map { case (x, _) => s"[${x.end}]$x" }
+        .mkString("Orphan parens (", ", ", ")"),
     )
     val result = ret.result()
     result
