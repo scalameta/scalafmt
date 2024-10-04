@@ -41,8 +41,8 @@ class FormatOps(
     FormatTokens(topSourceTree.tokens, owners)(initStyle)
   import tokens._
 
-  private[internal] val soft = new SoftKeywordClasses(dialect)
-  private[internal] val statementStarts = getStatementStarts(topSourceTree, soft)
+  private[internal] implicit val soft: SoftKeywordClasses =
+    new SoftKeywordClasses(dialect)
 
   val (forceConfigStyle, emptyQueueSpots) = getForceConfigStyle
 
@@ -149,8 +149,9 @@ class FormatOps(
         case _ => false
       })
 
-  val StartsStatementRight =
-    new ExtractFromMeta[Tree](meta => statementStarts.get(meta.idx + 1))
+  val StartsStatementRight = new ExtractFromMeta[Tree](meta =>
+    optimizationEntities.statementStarts.get(meta.idx + 1),
+  )
 
   def parensTuple(token: T): TokenRanges = matchingOpt(token)
     .fold(TokenRanges.empty)(other => TokenRanges(TokenRange(token, other.left)))

@@ -1,24 +1,20 @@
 package org.scalafmt.util
 
 import org.scalafmt.Error
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.FormatTokens
-import org.scalafmt.internal.Modification
-import org.scalafmt.internal.Space
+import org.scalafmt.config._
+import org.scalafmt.internal._
 import org.scalafmt.util.InfixApp._
 import org.scalafmt.util.LoggerOps._
 
 import scala.meta._
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
+import scala.meta.tokens.Token.{Space => _, _}
 import scala.meta.tokens.Tokens
 
 import scala.annotation.tailrec
 import scala.collection.immutable.HashMap
 import scala.collection.mutable
-import scala.reflect.ClassTag
 
 /** Stateless helper functions on `scala.meta.Tree`.
   */
@@ -91,108 +87,6 @@ object TreeOps {
   def isExprWithParentInBraces(expr: Tree)(parent: Tree)(implicit
       ftoks: FormatTokens,
   ): Boolean = SingleArgInBraces.orBlock(parent).exists(_._2 eq expr)
-
-  def getStatementStarts(tree: Tree, soft: SoftKeywordClasses)(implicit
-      ftoks: FormatTokens,
-  ): Map[Int, Tree] = {
-    val ret = Map.newBuilder[Int, Tree]
-    ret.sizeHint(tree.tokens.length)
-
-    def addFT(stmt: Tree)(ft: FormatToken): Unit = {
-      val isComment = ft.left.is[Token.Comment]
-      val nft = if (isComment) ftoks.nextAfterNonComment(ft) else ft
-      ret += nft.meta.idx -> stmt
-    }
-    def addTok(stmt: Tree)(token: Token) = addFT(stmt)(ftoks.after(token))
-    def addTree(t: Tree, stmt: Tree) = ftoks.getHeadOpt(t).foreach(addFT(stmt))
-    def addOne(t: Tree) = addTree(t, t)
-    def addAll(trees: Seq[Tree]) = trees.foreach(addOne)
-
-    def addDefnTokens(
-        mods: Seq[Mod],
-        tree: Tree,
-        what: String,
-        isMatch: Token => Boolean,
-    ): Unit = {
-      // Each @annotation gets a separate line
-      val annotations = mods.filter(_.is[Mod.Annot])
-      addAll(annotations)
-      mods.find(!_.is[Mod.Annot]) match {
-        // Non-annotation modifier, for example `sealed`/`abstract`
-        case Some(x) => addTree(x, tree)
-        case _ =>
-          // No non-annotation modifier exists, fallback to keyword like `object`
-          tree.tokens.find(isMatch)
-            .fold(throw Error.CantFindDefnToken(what, tree))(addTok(tree))
-      }
-    }
-    def addDefn[T](mods: Seq[Mod], tree: Tree)(implicit
-        tag: ClassTag[T],
-    ): Unit = {
-      val runtimeClass = tag.runtimeClass
-      addDefnTokens(
-        mods,
-        tree,
-        runtimeClass.getSimpleName,
-        runtimeClass.isInstance,
-      )
-    }
-
-    def loop(subtree: Tree): Unit = {
-      subtree match {
-        case t: Defn.Class => addDefn[KwClass](t.mods, t)
-        case t: Decl.Def => addDefn[KwDef](t.mods, t)
-        case t: Defn.Def => addDefn[KwDef](t.mods, t)
-        case t: Defn.Macro => addDefn[KwDef](t.mods, t)
-        case t: Decl.Given => addDefn[KwGiven](t.mods, t)
-        case t: Defn.Given => addDefn[KwGiven](t.mods, t)
-        case t: Defn.GivenAlias => addDefn[KwGiven](t.mods, t)
-        case t: Defn.Enum => addDefn[KwEnum](t.mods, t)
-        case t: Defn.ExtensionGroup =>
-          addDefnTokens(Nil, t, "extension", soft.KwExtension.unapply)
-        case t: Defn.Object => addDefn[KwObject](t.mods, t)
-        case t: Defn.Trait => addDefn[KwTrait](t.mods, t)
-        case t: Defn.Type => addDefn[KwType](t.mods, t)
-        case t: Decl.Type => addDefn[KwType](t.mods, t)
-        case t: Defn.Val => addDefn[KwVal](t.mods, t)
-        case t: Decl.Val => addDefn[KwVal](t.mods, t)
-        case t: Defn.Var => addDefn[KwVar](t.mods, t)
-        case t: Decl.Var => addDefn[KwVar](t.mods, t)
-        case t: Ctor.Secondary =>
-          addDefn[KwDef](t.mods, t)
-          addAll(t.stats)
-        // special handling for rewritten blocks
-        case t @ Term.Block(_ :: Nil) if t.tokens.headOption.exists { x =>
-              // ignore single-stat block if opening brace was removed
-              x.is[Token.LeftBrace] && ftoks(x).left.ne(x)
-            } =>
-        case t: Term.EnumeratorsBlock =>
-          var wasGuard = false
-          t.enums.tail.foreach { x =>
-            val isGuard = x.is[Enumerator.Guard]
-            // Only guard that follows another guard starts a statement.
-            if (wasGuard || !isGuard) addOne(x)
-            wasGuard = isGuard
-          }
-        case t: Term.PartialFunction => t.cases match {
-            case _ :: Nil =>
-            case x => addAll(x)
-          }
-        case t @ Term.Block(s) =>
-          if (t.parent.is[CaseTree])
-            addAll(if (getSingleStatExceptEndMarker(s).isEmpty) s else s.drop(1))
-          else s match {
-            case (_: Term.FunctionTerm) :: Nil =>
-            case _ => addAll(s)
-          }
-        case Tree.Block(s) => addAll(s)
-        case _ => // Nothing
-      }
-      subtree.children.foreach(loop)
-    }
-    loop(tree)
-    ret.result()
-  }
 
   /** Finds matching parens [({})].
     *
