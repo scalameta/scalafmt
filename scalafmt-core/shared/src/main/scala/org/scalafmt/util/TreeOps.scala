@@ -104,23 +104,6 @@ object TreeOps {
       ftoks: FormatTokens,
   ): Boolean = SingleArgInBraces.orBlock(parent).exists(_._2 eq expr)
 
-  def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
-    case t: Term.EnumeratorsBlock => getEnumStatements(t.enums)
-    case t: Term.PartialFunction => t.cases match {
-        case _ :: Nil => Nil
-        case x => x
-      }
-    case t @ Term.Block(s) =>
-      if (t.parent.is[CaseTree])
-        if (getSingleStatExceptEndMarker(s).isEmpty) s else s.drop(1)
-      else s match {
-        case (_: Term.FunctionTerm) :: Nil => Nil
-        case _ => s
-      }
-    case Tree.Block(s) => s
-    case _ => Nil
-  }
-
   def getStatementStarts(tree: Tree, soft: SoftKeywordClasses)(implicit
       ftoks: FormatTokens,
   ): Map[Int, Tree] = {
@@ -195,8 +178,20 @@ object TreeOps {
               // ignore single-stat block if opening brace was removed
               x.is[Token.LeftBrace] && ftoks(x).left.ne(x)
             } =>
-        case t => // Nothing
-          addAll(extractStatementsIfAny(t))
+        case t: Term.EnumeratorsBlock => addAll(getEnumStatements(t.enums))
+        case t: Term.PartialFunction => t.cases match {
+            case _ :: Nil =>
+            case x => addAll(x)
+          }
+        case t @ Term.Block(s) =>
+          if (t.parent.is[CaseTree])
+            addAll(if (getSingleStatExceptEndMarker(s).isEmpty) s else s.drop(1))
+          else s match {
+            case (_: Term.FunctionTerm) :: Nil =>
+            case _ => addAll(s)
+          }
+        case Tree.Block(s) => addAll(s)
+        case _ => // Nothing
       }
       subtree.children.foreach(loop)
     }
