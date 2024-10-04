@@ -100,7 +100,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           if (
             emptyQueueSpots.contains(idx) ||
             optimizer.dequeueOnNewStatements && !(depth == 0 &&
-              noOptZone) && statementStarts.contains(idx)
+              noOptZone) && optimizationEntities.statementStarts.contains(idx)
           ) Q.addGeneration()
 
         val noBlockClose = start == curr && 0 != maxCost || !noOptZone ||
