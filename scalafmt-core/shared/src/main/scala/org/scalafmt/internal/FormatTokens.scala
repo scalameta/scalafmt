@@ -93,16 +93,26 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     case _ => false
   }
 
+  def getHeadAndLastIfEnclosed(
+      tokens: Tokens,
+      tree: Tree,
+  ): Option[(FormatToken, Option[FormatToken])] = getHeadOpt(tokens, tree)
+    .map { head =>
+      head -> matchingOpt(head.left).flatMap { other =>
+        val last = getLastNonTrivial(tokens, tree)
+        if (last eq other) Some(last) else None
+      }
+    }
+  def getHeadAndLastIfEnclosed(
+      tree: Tree,
+  ): Option[(FormatToken, Option[FormatToken])] =
+    getHeadAndLastIfEnclosed(tree.tokens, tree)
+
   def getDelimsIfEnclosed(
       tokens: Tokens,
       tree: Tree,
-  ): Option[(FormatToken, FormatToken)] = getHeadOpt(tokens, tree)
-    .flatMap { head =>
-      matchingOpt(head.left).flatMap { other =>
-        val last = getLastNonTrivial(tokens, tree)
-        if (last eq other) Some((head, last)) else None
-      }
-    }
+  ): Option[(FormatToken, FormatToken)] = getHeadAndLastIfEnclosed(tokens, tree)
+    .flatMap { case (head, lastOpt) => lastOpt.map(last => (head, last)) }
   def getDelimsIfEnclosed(tree: Tree): Option[(FormatToken, FormatToken)] =
     getDelimsIfEnclosed(tree.tokens, tree)
 
