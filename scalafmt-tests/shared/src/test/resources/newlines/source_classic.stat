@@ -1210,7 +1210,7 @@ danglingParentheses.preset = false
 ===
 case class AttributeInfo(symbol : Symbol, typeRef : Type, value : Option[Any],
   values : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
->>>
+>>> { stateVisits = 69, stateVisits2 = 69 }
 case class AttributeInfo(
     symbol: Symbol,
     typeRef: Type,
