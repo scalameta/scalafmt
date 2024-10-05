@@ -1210,13 +1210,13 @@ danglingParentheses.preset = false
 ===
 case class AttributeInfo(symbol : Symbol, typeRef : Type, value : Option[Any],
   values : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
->>> { stateVisits = 69, stateVisits2 = 69 }
+>>> { stateVisits = 62, stateVisits2 = 32 }
 case class AttributeInfo(
     symbol: Symbol,
     typeRef: Type,
     value: Option[Any],
-    values: Seq[
-      String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
+    values: Seq[String ~ Any]
+) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
 <<< 3.29 apply with optimal token
 maxColumn = 80
 ===
