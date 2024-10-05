@@ -55,14 +55,37 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
       case Left(e) => throw FormatException(e, t.original)
       case Right(code) => code
     }
-    def assertObtained(implicit loc: munit.Location) =
+    def assertVisits(
+        dbg1: Debug,
+        visitsOpt1: Option[Int],
+        dbgOpt2: Option[Debug],
+        visitsOpt2: Option[Int],
+    )(implicit loc: munit.Location) = dbg1.completedEvent
+      .foreach { completedEvent =>
+        val actual1 = completedEvent.totalExplored
+        val actual2 = dbgOpt2.flatMap(_.completedEvent)
+          .fold(actual1)(_.totalExplored)
+        val actual = (actual1, actual2)
+        def error = s"stateVisits = $actual1, stateVisits2 = $actual2"
+        visitsOpt1 match {
+          case Some(visits1) =>
+            val expected = (visits1, visitsOpt2.getOrElse(visits1))
+            assertEquals(actual, expected, error)
+          case None =>
+        }
+      }
+    var debug2Opt: Option[Debug] = None
+    def assertObtained(implicit loc: munit.Location) = {
       assertEquals(obtained, t.expected)
+      assertVisits(debug, t.stateVisits, debug2Opt, t.stateVisits2)
+    }
     debugResults += saveResult(t, obtained, debug)
     if (resultEither.isLeft) {
       assertObtained
       return
     }
     val debug2 = new Debug(onlyOne)
+    debug2Opt = Some(debug2)
     val result2 = Scalafmt.formatCode(
       obtained,
       t.style.copy(runner = scalafmtRunner(runner, debug2)),
