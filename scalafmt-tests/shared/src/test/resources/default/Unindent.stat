@@ -255,7 +255,7 @@ assertEquals(1,
                  case _ => 0
                })))
 }}
->>>
+>>> { stateVisits = 1727, stateVisits2 = 2215 }
 {
   {
     copy(user1 = user1.copy(score = user1.score + (userId match {

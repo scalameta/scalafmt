@@ -44,7 +44,7 @@ var list = List( // comment
 <<< long
 var list = List(
   function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C) );
->>>
+>>> { stateVisits = 930, stateVisits2 = 930 }
 var list = List(
     function(a: A, b: B, c: C),
     function(a: A, b: B, c: C),

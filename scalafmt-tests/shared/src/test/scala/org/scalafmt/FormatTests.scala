@@ -71,7 +71,10 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
           case Some(visits1) =>
             val expected = (visits1, visitsOpt2.getOrElse(visits1))
             assertEquals(actual, expected, error)
-          case None =>
+          case None => assert(
+              actual1 <= 800 && actual2 <= 800,
+              s"\nExpected test to assert: $error",
+            )
         }
       }
     var debug2Opt: Option[Debug] = None

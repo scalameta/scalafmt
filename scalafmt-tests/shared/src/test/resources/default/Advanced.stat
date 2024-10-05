@@ -47,7 +47,7 @@ val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
               }
         })))
       }
->>>
+>>> { stateVisits = 1351 }
 val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
   js.Skip()
 } else {
@@ -206,7 +206,7 @@ options.testFilter match {
           }, { // else
             callStatement
           })(jstpe.AnyType)
->>>
+>>> { stateVisits = 1739, stateVisits2 = 1727 }
 callStatement = js.If(
     genIsInstanceOf(callTrg, rtClass.tpe), {
       if (implMethodSym.owner == ObjectClass) {
@@ -287,7 +287,7 @@ val ctorParamDefs = usedCtorParams map { p =>
             js.Closure(ctorParamDefs, patchedParams, patchedBody, capturedArgs)
           }
         }
->>>
+>>> { stateVisits = 1259 }
 withNewLocalNameScope {
   if (isThisFunction) {
     val thisParam :: actualParams = patchedParams
@@ -377,7 +377,7 @@ private def withNewLocalDefs = {
             }))
         }))
   }
->>>
+>>> { stateVisits = 3779 }
 val createIsArrayOfStat = {
   envFieldDef(
       "isArrayOf",
@@ -456,7 +456,7 @@ js.Function(List(objParam, depthParam), js.Return {
                                     depth)
                     })
                   })
->>>
+>>> { stateVisits = 1712, stateVisits2 = 1738 }
 js.Function(List(objParam, depthParam),
             js.Return {
               js.If(js.Apply(envField("isArrayOf", className),
@@ -529,7 +529,7 @@ js.Function(List(objParam, depthParam),
         uri.getRawQuery(),
         uri.getRawFragment()).normalize()
     }
->>>
+>>> { stateVisits = 1709 }
 if (uri.isAbsolute() || this.isOpaque()) uri
 else if (
     uri._scheme.isEmpty && uri._authority.isEmpty &&

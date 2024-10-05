@@ -126,7 +126,7 @@
                        CLUSTER,
                        sysProp = "spark.jars.ivy")
     ) } }
->>>
+>>> { stateVisits = 1349 }
 {
   {
     val options = List[OptionAssigner]( // All cluster managers
@@ -353,7 +353,7 @@
         )
       )
     ))
->>>
+>>> { stateVisits = 1096 }
 EventsResponse.fromJson(json, run).success.value.events should be(Seq(
     Stored(
         timestamp = Instant.parse("2016-12-02T16:23:47.412278Z"),
@@ -465,7 +465,7 @@ EventsResponse.fromJson(json, run).success.value.events should be(Seq(
             ^.value := s.text),
           <.button("Add #", s.items.length + 1)))
     ).build
->>>
+>>> { stateVisits = 972, stateVisits2 = 863 }
 val TodoApp = ReactComponentB[Unit]("TodoApp")
   .initialState(State(Nil, ""))
   .renderS(($, s) =>
