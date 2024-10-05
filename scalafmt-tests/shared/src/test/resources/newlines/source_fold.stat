@@ -7506,8 +7506,9 @@ class a {
 class a {
   val o2 =
     v1.changes
-      .register(Witness({ i => result = result * i * i }
-      )) // result = 2 * 2 * 2 = 8
+      .register(Witness({ i =>
+        result = result * i * i
+      })) // result = 2 * 2 * 2 = 8
 }
 <<< SM 7.4.0: 53
 maxColumn = 76

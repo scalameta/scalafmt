@@ -1429,10 +1429,9 @@ foo.mtd({
 )
 >>>
 foo.mtd({
-    x + 1
-    x + 2
-  },
-)
+  x + 1
+  x + 2
+})
 <<< rewrite with trailing commas: func, allowFolding
 rewrite.trailingCommas.style = keep
 rewrite.trailingCommas.allowFolding = true
@@ -1458,10 +1457,9 @@ foo.mtd1({ x =>
 )
 >>>
 foo.mtd1({ x =>
-    x + 1
-    x + 2
-  },
-)
+  x + 1
+  x + 2
+})
 <<< rewrite with trailing commas: func in parens, infix after, allowFolding
 rewrite.trailingCommas.style = keep
 rewrite.trailingCommas.allowFolding = true
@@ -1688,11 +1686,10 @@ foo.mtd({
 )
 >>>
 foo.mtd({
-    bar match {
-      case x => x + 1
-    }
-  },
-)
+  bar match {
+    case x => x + 1
+  }
+})
 <<< with infix (from sbt-scalafmt plugin)
 maxColumn = 80
 newlines.source = fold

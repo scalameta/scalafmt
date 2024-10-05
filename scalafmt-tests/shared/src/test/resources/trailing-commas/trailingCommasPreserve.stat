@@ -480,9 +480,8 @@ foo.mtd({
   )
 >>>
 foo.mtd({ case x =>
-    x + 1
-  },
-)
+  x + 1
+})
 <<< binpack arg !indentCallSiteOnce, !allowFolding
 binPack.unsafeCallSite = true
 rewrite.trailingCommas.allowFolding = false
