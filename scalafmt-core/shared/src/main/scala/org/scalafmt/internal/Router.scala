@@ -1095,13 +1095,16 @@ class Router(formatOps: FormatOps) {
               else {
                 val noConfigStyle = noSplitForNL || newlinePolicy.isEmpty ||
                   !configStyleFlag
-                Split(NoSplit.orNL(noSplitForNL), cost, policy = newlinePolicy)
+                val policy =
+                  if (!noSplitForNL) newlinePolicy
+                  else decideNewlinesOnlyBeforeToken(matching(right).left)
+                Split(NoSplit.orNL(noSplitForNL), cost, policy = policy)
                   .andPolicy(Policy ? noConfigStyle && singleLine(4)).andPolicy(
                     Policy ? singleArgument && asInfixApp(args.head)
                       .map(InfixSplits(_, ft).nlPolicy),
                   )
               }
-            Seq(split.withIndent(indent))
+            Seq(split.withIndent(indent, ignore = !split.isNL))
           }
 
         splitsNoNL ++ splitsNL ++ splitsForAssign.getOrElse(Seq.empty)
