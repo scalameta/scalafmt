@@ -41,7 +41,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   ): Option[Token] = getEndOfBlock(ft, parensToo = true).collect {
     case close if close.left != stop && {
           // Block must span at least 3 lines to be worth recursing.
-          distance(ft.left, close.left) > style.maxColumn * 3
+          tokens.distance(ft, close) > style.maxColumn * 3
         } => close.left
   }
 
