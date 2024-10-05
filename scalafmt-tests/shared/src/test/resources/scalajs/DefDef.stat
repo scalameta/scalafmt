@@ -682,7 +682,7 @@ trait EntityPage extends HtmlPage {
        )
 
 }
->>>
+>>> { stateVisits = 1042, stateVisits2 = 379 }
 trait EntityPage extends HtmlPage {
   def search =
     Div(
@@ -787,7 +787,7 @@ val memberSel: Elems =
       ))
     )
   ))
->>>
+>>> { stateVisits = 1960, stateVisits2 = 1454 }
 val memberSel: Elems =
   if (valueMembers.forall(_.kind == "package")) NoElems
   else List(

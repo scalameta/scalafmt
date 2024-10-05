@@ -828,7 +828,7 @@ object a {
       })(result)))))))
   }).getMessage should ===("Ur state be b0rked")
 }
->>>
+>>> { stateVisits = 1071 }
 object a {
   (intercept[java.lang.IllegalStateException] {
     wrap(result ⇒
@@ -6778,7 +6778,7 @@ object a {
   sb.append((if (lsb < 10) ('0' + lsb).asInstanceOf[Char]
              else ('a' + (lsb - 10)).asInstanceOf[Char]))
 }
->>>
+>>> { stateVisits = 2279 }
 object a {
   sb.append((if (msb < 10) ('0' + msb).asInstanceOf[Char]
              else ('a' + (msb - 10)).asInstanceOf[Char]))
@@ -6835,7 +6835,7 @@ object a {
     }
   ))
 }
->>>
+>>> { stateVisits = 2057 }
 object a {
   buffer.append((
     if (!fetchContent) {
@@ -6895,7 +6895,7 @@ object a {
     }
   ))
 }
->>>
+>>> { stateVisits = 986, stateVisits2 = 986 }
 object a {
   buffer
     .append((if (!fetchContent) {
@@ -7465,7 +7465,7 @@ class a {
     case _ => stepNoBreak(inner)(in)
   }
 }
->>>
+>>> { stateVisits = 1010 }
 class a {
   def step(
       inner: Iteratee[E, A]
@@ -8356,7 +8356,7 @@ object a {
     )
   )
 }
->>>
+>>> { stateVisits = 78932 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -8441,7 +8441,7 @@ object a {
     )
   )
 }
->>>
+>>> { stateVisits = 36381 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -8774,7 +8774,7 @@ class UDFRegistration private[sql] (functionRegistry: FunctionRegistry) extends 
     val inputEncoders: Seq[Option[ExpressionEncoder[_]]] = Try(ExpressionEncoder[A1]()).toOption :: Try(ExpressionEncoder[A2]()).toOption :: Try(ExpressionEncoder[A3]()).toOption :: Try(ExpressionEncoder[A4]()).toOption :: Try(ExpressionEncoder[A5]()).toOption :: Try(ExpressionEncoder[A6]()).toOption :: Try(ExpressionEncoder[A7]()).toOption :: Try(ExpressionEncoder[A8]()).toOption :: Try(ExpressionEncoder[A9]()).toOption :: Try(ExpressionEncoder[A10]()).toOption :: Try(ExpressionEncoder[A11]()).toOption :: Try(ExpressionEncoder[A12]()).toOption :: Try(ExpressionEncoder[A13]()).toOption :: Try(ExpressionEncoder[A14]()).toOption :: Try(ExpressionEncoder[A15]()).toOption :: Try(ExpressionEncoder[A16]()).toOption :: Try(ExpressionEncoder[A17]()).toOption :: Try(ExpressionEncoder[A18]()).toOption :: Try(ExpressionEncoder[A19]()).toOption :: Try(ExpressionEncoder[A20]()).toOption :: Try(ExpressionEncoder[A21]()).toOption :: Try(ExpressionEncoder[A22]()).toOption :: Nil
   }
 }
->>>
+>>> { stateVisits = 807, stateVisits2 = 807 }
 class UDFRegistration private[sql] (
     functionRegistry: FunctionRegistry
 ) extends Logging {
@@ -9201,7 +9201,7 @@ object Build {
       }.evaluated,
     )
 }
->>>
+>>> { stateVisits = 1607 }
 object Build {
   lazy val scaladoc = project.in(file("scaladoc"))
     .settings(generateScalaDocumentation := Def.inputTaskDyn {

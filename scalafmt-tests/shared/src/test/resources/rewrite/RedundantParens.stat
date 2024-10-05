@@ -672,7 +672,7 @@ object Application {
 
   def main(args: Array[String]): Unit = app.run(args)
 }
->>>
+>>> { stateVisits = 854, stateVisits2 = 854 }
 object Application {
   val app = reactiveWebApplication(a =>
     a.beans(b => b.bean(classOf[SampleHandler]).bean(classOf[SampleService]))
@@ -733,7 +733,7 @@ object Application {
 
   def main(args: Array[String]): Unit = app.run(args)
 }
->>>
+>>> { stateVisits = 854, stateVisits2 = 854 }
 object Application {
   val app = reactiveWebApplication(a =>
     a.beans(b => b.bean(classOf[SampleHandler]).bean(classOf[SampleService]))

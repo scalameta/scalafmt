@@ -1005,7 +1005,7 @@ object Foo:
     case a: A if a.someField.otherField.function().exists(SomeObjectLongName.isTrue) =>
       None
   )
->>>
+>>> { stateVisits = 1020, stateVisits2 = 1024 }
 object Foo:
    def bar = process(
      arg match
@@ -4899,7 +4899,7 @@ class test:
 <<< overflowing type
 object types:
   type GOutputStreamClass = CStruct21[GObjectClass, CFuncPtr5[Ptr[GOutputStream], Ptr[Byte], gsize, Ptr[GCancellable], Ptr[Ptr[GError]], gssize], CFuncPtr5[Ptr[GOutputStream], Ptr[GInputStream], GOutputStreamSpliceFlags, Ptr[GCancellable], Ptr[Ptr[GError]], gssize], CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr7[Ptr[GOutputStream], Ptr[Byte], gsize, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize], CFuncPtr7[Ptr[GOutputStream], Ptr[GInputStream], GOutputStreamSpliceFlags, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize], CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gboolean], CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gboolean], CFuncPtr6[Ptr[GOutputStream], Ptr[GOutputVector], gsize, Ptr[gsize], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr7[Ptr[GOutputStream], Ptr[GOutputVector], gsize, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr4[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[gsize], Ptr[Ptr[GError]], gboolean], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit]]
->>>
+>>> { stateVisits = 835, stateVisits2 = 835 }
 object types:
    type GOutputStreamClass = CStruct21[
      GObjectClass,
@@ -5927,7 +5927,7 @@ object a:
     }) 
     index
   }
->>>
+>>> { stateVisits = 1569 }
 object a:
    private val packageIndex
        : scala.collection.Map[String, scala.collection.Seq[Path]] = {
@@ -6697,7 +6697,7 @@ object a {
         g.asInstanceOf[Tuple18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => Any].apply((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18))).asInstanceOf[F]
   )
 }
->>>
+>>> { stateVisits = 3402 }
 object a {
   def tupledFunction18[F, G]: TupledFunction[F, G] = TupledFunction[F, G](
       untupledImpl = (g: G) =>
