@@ -40,20 +40,9 @@ class FormatOps(
   implicit val (tokens: FormatTokens, styleMap: StyleMap) =
     FormatTokens(topSourceTree.tokens, owners)(initStyle)
   import tokens._
-  private val usedTokens = tokens.head.left +: tokens.map(_.right)
 
   private[internal] val soft = new SoftKeywordClasses(dialect)
   private[internal] val statementStarts = getStatementStarts(topSourceTree, soft)
-  // Maps token to number of non-whitespace bytes before the token's position.
-  private final val nonWhitespaceOffset: Map[T, Int] = {
-    val resultB = Map.newBuilder[T, Int]
-    var curr = 0
-    usedTokens.foreach { t =>
-      resultB += (t -> curr)
-      curr += (t.end - t.start)
-    }
-    resultB.result()
-  }
 
   val (forceConfigStyle, emptyQueueSpots) = getForceConfigStyle
 
@@ -897,9 +886,6 @@ class FormatOps(
     }
   }
 
-  def distance(left: T, right: T): Int = nonWhitespaceOffset(right) -
-    nonWhitespaceOffset(left)
-
   def typeTemplateSplits(template: Template, indentIfSecond: Int)(implicit
       fileLine: FileLine,
       ft: FormatToken,
@@ -1030,7 +1016,7 @@ class FormatOps(
         val values = clause.values
         if (
           values.lengthCompare(cfg.minCount) >= 0 &&
-          (cfg.minSpan == 0 || cfg.minSpan < distance(ftOpen.left, close.left))
+          (cfg.minSpan == 0 || cfg.minSpan < distance(ftOpen, close))
         ) {
           forces += ftOpen.meta.idx
           values.foreach(x => clearQueues += getHead(x).meta.idx)

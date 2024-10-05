@@ -236,8 +236,10 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     else getOnOrAfterOwned(nextFt, tree)
   }
 
+  @inline
+  private def getHeadImpl(tokens: Tokens): FormatToken = after(tokens.head)
   def getHead(tokens: Tokens, tree: Tree): FormatToken =
-    getOnOrBeforeOwned(after(tokens.head), tree)
+    getOnOrBeforeOwned(getHeadImpl(tokens), tree)
   @inline
   def getHead(tree: Tree): FormatToken = getHead(tree.tokens, tree)
 
@@ -246,8 +248,11 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   @inline
   def getHeadOpt(tree: Tree): Option[FormatToken] = getHeadOpt(tree.tokens, tree)
 
+  @inline
+  private def getLastImpl(tokens: Tokens): FormatToken =
+    apply(findLastVisibleToken(tokens))
   def getLast(tokens: Tokens, tree: Tree): FormatToken =
-    getOnOrAfterOwned(apply(findLastVisibleToken(tokens)), tree)
+    getOnOrAfterOwned(getLastImpl(tokens), tree)
   @inline
   def getLast(tree: Tree): FormatToken = getLast(tree.tokens, tree)
 
@@ -366,6 +371,25 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   @inline
   def isAttachedCommentThenBreak(ft: FormatToken): Boolean = ft.noBreak &&
     isRightCommentThenBreak(ft)
+
+  // Maps token to number of non-whitespace bytes before the token's position.
+  private final lazy val nonWhitespaceOffset: Array[Int] = {
+    val result = new Array[Int](arr.length)
+    var curr = 0
+    arr.foreach { t =>
+      result(t.idx) = curr
+      curr += t.left.len
+    }
+    result
+  }
+
+  def distance(left: FormatToken, right: FormatToken): Int =
+    nonWhitespaceOffset(right.idx) - nonWhitespaceOffset(left.idx)
+  def distance(tokens: Tokens): Int =
+    if (tokens.isEmpty) 0
+    else distance(getHeadImpl(tokens), getLastImpl(tokens))
+  @inline
+  def distance(tree: Tree): Int = distance(tree.tokens)
 
 }
 
