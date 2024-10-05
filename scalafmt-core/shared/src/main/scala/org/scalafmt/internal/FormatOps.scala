@@ -1825,8 +1825,9 @@ class FormatOps(
       case x: Term.Match if dialect.allowMatchAsOperator =>
         val ft = Option(ftOrNull).getOrElse(tokenAfter(x.expr))
         if (!ft.right.is[T.Dot]) None
-        else nextNonCommentAfter(ft).right match {
-          case kw: T.KwMatch => Some(SelectLike(x, kw))
+        else nextNonCommentAfter(ft) match {
+          case xft @ FormatToken(_, _: T.KwMatch, _) =>
+            Some(SelectLike(x, next(xft)))
           case _ => None
         }
       case _ => None
@@ -3015,12 +3016,14 @@ class FormatOps(
 }
 
 object FormatOps {
-  class SelectLike(val tree: Term, val qual: Term, val nameToken: T)
+  class SelectLike(val tree: Term, val qual: Term, val nameFt: FormatToken) {
+    def nameToken: Token = nameFt.left
+  }
 
   object SelectLike {
-    def apply(tree: Term.Select): SelectLike =
-      new SelectLike(tree, tree.qual, tree.name.tokens.head)
-    def apply(tree: Term.Match, kw: T.KwMatch): SelectLike =
+    def apply(tree: Term.Select)(implicit ftoks: FormatTokens): SelectLike =
+      new SelectLike(tree, tree.qual, ftoks.getHead(tree.name))
+    def apply(tree: Term.Match, kw: FormatToken): SelectLike =
       new SelectLike(tree, tree.expr, kw)
   }
 
