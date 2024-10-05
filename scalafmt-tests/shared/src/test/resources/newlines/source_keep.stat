@@ -1748,8 +1748,8 @@ object a {
 }
 >>>
 object a {
-  def a = for (a <- b; if cc < dd)
-    yield a
+  def a =
+    for (a <- b; if cc < dd) yield a
 }
 <<< 7.2: enumerator short, guard long
 maxColumn = 30
@@ -9851,7 +9851,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 858, stateVisits2 = 739 }
+>>> { stateVisits = 860, stateVisits2 = 741 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] =

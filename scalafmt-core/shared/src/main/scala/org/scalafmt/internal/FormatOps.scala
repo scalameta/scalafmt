@@ -1479,7 +1479,6 @@ class FormatOps(
         spaceIndents: Seq[Indent] = Seq.empty,
     )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] = {
       val btokens = body.tokens
-      def bheadFT = getHead(btokens, body)
       val blastFT = getLastNonTrivial(btokens, body)
       val blast = blastFT.left
       val expire = nextNonCommentSameLine(blastFT).left
@@ -1522,10 +1521,11 @@ class FormatOps(
           implicit fileLine: FileLine,
       ) = getSplits(getSpaceSplit(penalty, policy), nlCost)
       def getSlbSplits(
+          end: T = expire,
           exclude: TokenRanges = TokenRanges.empty,
           policy: Policy = Policy.NoPolicy,
       )(implicit fileLine: FileLine) = (
-        getSlbSplit(expire, exclude, policy),
+        getSlbSplit(end, exclude, policy),
         getNlSplit(if (policy.isEmpty) 0 else 1),
       )
       def hasStateColumn = spaceIndents.exists(_.hasStateColumn)
@@ -1541,15 +1541,21 @@ class FormatOps(
           if (hasStateColumn) getSplits(getSpaceSplit(1)) else getSlbSplits()
         case _: Term.Block | _: Term.Match | _: Type.Match |
             _: Term.NewAnonymous => getSplits(getSpaceSplit(1))
-        case t: Term.ForYield => nextNonComment(bheadFT).right match { // skipping `for`
-            case x @ LeftParenOrBrace() =>
-              val exclude = TokenRanges(TokenRange(x, matching(x).left))
-              (t.body match {
-                case b: Term.Block => getBracesIfEnclosed(b)
-                    .map(x => getPolicySplits(1, getSlb(x._1.left, exclude)))
-                case _ => None
-              }).getOrElse(getSlbSplits(exclude))
-            case _ => getSlbSplits()
+        case t: Term.ForYield => getDelimsIfEnclosed(t.enumsBlock) match {
+            case Some((forEnumHead, forEnumLast)) =>
+              val exclude =
+                TokenRanges(TokenRange(forEnumHead.left, forEnumLast.left))
+              val afterYield = (t.body match {
+                case b: Term.Block => getHeadAndLastIfEnclosed(b)
+                    .map { case (forBodyHead, forBodyLastOpt) =>
+                      if (forBodyLastOpt.isDefined) forBodyHead
+                      else prevNonCommentBefore(forBodyHead)
+                    }
+                case b => tokenBeforeOpt(b)
+              }).getOrElse(getLast(t))
+              val end = endOfSingleLineBlock(afterYield)
+              getSlbSplits(end, exclude, penalize(1))
+            case None => getSlbSplits()
           }
         case ia: Member.Infix =>
           val lia = findLeftInfix(ia)
