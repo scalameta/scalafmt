@@ -6788,9 +6788,8 @@ object a:
 >>>
 object a:
    def foo =
-      val bar =
-        for (baz <- bazs) yield
-           def foo = baz
+      val bar = for (baz <- bazs) yield
+         def foo = baz
 <<< #4133 enclosed for-yield with added end marker
 rewrite.scala3 {
   convertToNewSyntax = true
