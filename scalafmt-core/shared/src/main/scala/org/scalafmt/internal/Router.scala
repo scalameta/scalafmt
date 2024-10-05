@@ -910,10 +910,10 @@ class Router(formatOps: FormatOps) {
         val isBeforeOpenParen =
           if (defnSite) style.newlines.isBeforeOpenParenDefnSite
           else style.newlines.isBeforeOpenParenCallSite
-        val optimalFt: FormatToken =
-          if (isBeforeOpenParen) afterClose
-          else if (!defnSite || isBracket) getSlbEndOnLeft(afterClose)
-          else defnSiteLastToken(afterClose, leftOwner)
+        val optimalFt: FormatToken = getSlbEndOnLeft(
+          if (isBeforeOpenParen || !defnSite || isBracket) afterClose
+          else defnSiteLastToken(afterClose, leftOwner),
+        )
         val optimal = optimalFt.left
 
         val wouldDangle = onlyConfigStyle || mustDangleForTrailingCommas ||
