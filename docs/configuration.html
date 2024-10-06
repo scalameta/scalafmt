@@ -5826,7 +5826,7 @@ libraryDependencies ++= <span class="hljs-type">Seq</span>(
 <p>Since v3.0.0.</p>
 </blockquote>
 <pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-project.includePaths = [<span class="hljs-string">"glob:**.scala"</span>, <span class="hljs-string">"glob:**.sbt"</span>, <span class="hljs-string">"glob:**.sc"</span>]
+project.includePaths = [<span class="hljs-string">"glob:**.scala"</span>, <span class="hljs-string">"glob:**.sbt"</span>, <span class="hljs-string">"glob:**.sc"</span>, <span class="hljs-string">"glob:**.mill"</span>]
 project.excludePaths = []
 </code></pre>
 <p>Allows specifying
@@ -7523,6 +7523,7 @@ project.<span class="hljs-attr">includePaths</span> = [
   <span class="hljs-string">"glob:**.scala"</span>
   <span class="hljs-string">"glob:**.sbt"</span>
   <span class="hljs-string">"glob:**.sc"</span>
+  <span class="hljs-string">"glob:**.mill"</span>
 ]
 project.<span class="hljs-attr">excludePaths</span> = []
 project.<span class="hljs-attr">includeFilters</span> = []
