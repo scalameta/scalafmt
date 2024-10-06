@@ -76,10 +76,13 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
   def removeLFToAvoidEmptyLine(beg: Int, end: Int)(implicit
       builder: Rewrite.PatchBuilder,
   ): Unit = if (onlyWhitespaceBefore(beg)) tokenTraverser.findAtOrAfter(end + 1) {
-    case _: T.EOL => Some(true)
+    case t: T.AtEOL =>
+      if (t.newlines > 1) builder += TokenPatch.Replace(t, t.text.stripLineEnd)
+      else builder += TokenPatch.Remove(t)
+      Some(false)
     case _: T.HSpace => None
     case _ => Some(false)
-  }.map(TokenPatch.Remove).foreach(builder += _)
+  }
 
   // special case for Select which might contain a space instead of dot
   def isPrefixExpr(expr: Tree): Boolean = RewriteCtx
