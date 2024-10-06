@@ -10157,7 +10157,7 @@ object a {
       .map(filterNot(getCanonicalPath.contains("SSLOptions")))
   }
 }
-<<< SKIP #4318
+<<< #4318
 runner.dialect = scala213source3
 align.openParenCallSite = true
 ===
@@ -10168,16 +10168,10 @@ object A {
            (Seq(), Seq())): Unit = ???
 }
 >>>
-org.scalafmt.util.FormatException: java.lang.IllegalArgumentException: requirement failed: 
-FT: [9] (∙Seq: LeftParen [22..23) [LF] Ident(Seq) [37..40)
-LO: TYPE: Type$Tuple$TypeTupleImpl
-SOURCE: (
-             Seq[Int],
-               Seq[Int])
-STRUCTURE: Type.Tuple(List(Type.Apply(Type.Name("Seq"), Type.ArgClause(List(Type.Name("Int")))), Type.Apply(Type.Name("Seq"), Type.ArgClause(List(Type.Name("Int"))))))
-TOKENS: (,¶,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,Seq,[,Int,],,,¶,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,Seq,[,Int,],)
-
-RO: TYPE: Type$Name$TypeNameImpl
-SOURCE: Seq
-STRUCTURE: Type.Name("Seq")
-TOKENS: Seq
+object A {
+  def f(a: (
+      Seq[Int],
+      Seq[Int]
+  ) =
+    (Seq(), Seq())): Unit = ???
+}
