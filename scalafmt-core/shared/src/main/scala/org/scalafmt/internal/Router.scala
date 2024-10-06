@@ -965,6 +965,7 @@ class Router(formatOps: FormatOps) {
             )
           }
 
+        @tailrec
         def isExcludedTree(tree: Tree): Boolean = tree match {
           case t: Init => t.argClauses.nonEmpty
           case t: Term.Apply => t.argClause.nonEmpty
@@ -972,6 +973,7 @@ class Router(formatOps: FormatOps) {
           case t: Tree.WithCasesBlock => t.casesBlock.cases.nonEmpty
           case t: Term.New => t.init.argClauses.nonEmpty
           case _: Term.NewAnonymous => true
+          case t: Term.AnonymousFunction => isExcludedTree(t.body)
           case _ => false
         }
 
