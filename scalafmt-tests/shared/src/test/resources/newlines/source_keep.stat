@@ -10168,12 +10168,16 @@ object A {
            (Seq(), Seq())): Unit = ???
 }
 >>>
-BestFirstSearch:310 Failed to format
-UNABLE TO FORMAT,
-tok #9/36: [9] (∙Seq: LeftParen [22..23) [LF] Ident(Seq) [37..40)
-policies:
-  PNL+2:[Router:1068]<100d
-  NB:[Router:243]@114d
-splits (before policy):
-  
-splits (after policy):
+org.scalafmt.util.FormatException: java.lang.IllegalArgumentException: requirement failed: 
+FT: [9] (∙Seq: LeftParen [22..23) [LF] Ident(Seq) [37..40)
+LO: TYPE: Type$Tuple$TypeTupleImpl
+SOURCE: (
+             Seq[Int],
+               Seq[Int])
+STRUCTURE: Type.Tuple(List(Type.Apply(Type.Name("Seq"), Type.ArgClause(List(Type.Name("Int")))), Type.Apply(Type.Name("Seq"), Type.ArgClause(List(Type.Name("Int"))))))
+TOKENS: (,¶,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,Seq,[,Int,],,,¶,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,∙,Seq,[,Int,],)
+
+RO: TYPE: Type$Name$TypeNameImpl
+SOURCE: Seq
+STRUCTURE: Type.Name("Seq")
+TOKENS: Seq
