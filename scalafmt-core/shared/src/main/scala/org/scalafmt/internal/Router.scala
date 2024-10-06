@@ -2567,6 +2567,14 @@ class Router(formatOps: FormatOps) {
     */
   def getSplits(ft: FormatToken): Seq[Split] = {
     val splits = getSplitsImpl(ft).filter(!_.isIgnored)
+    require(
+      splits.nonEmpty,
+      s"""|
+          |FT: ${log2(ft)}
+          |LO: ${log(ft.leftOwner)}
+          |RO: ${log(ft.rightOwner)}
+          |""".stripMargin,
+    )
     def splitsAsNewlines(splits: Seq[Split]): Seq[Split] = {
       val filtered = Decision.onlyNewlineSplits(splits)
       if (filtered.nonEmpty) filtered else splits.map(_.withMod(Newline))
