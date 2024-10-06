@@ -9712,3 +9712,21 @@ object a {
       .map(filterNot(getCanonicalPath.contains("SSLOptions")))
   }
 }
+<<< #4318
+runner.dialect = scala213source3
+align.openParenCallSite = true
+newlines.configStyleCallSite.prefer = false
+===
+object A {
+  def f(a: (
+             Seq[Int],
+               Seq[Int]) =
+           (Seq(), Seq())): Unit = ???
+}
+>>>
+object A {
+  def f(
+      a: (Seq[Int], Seq[Int]) =
+        (Seq(), Seq())
+  ): Unit = ???
+}
