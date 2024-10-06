@@ -9316,7 +9316,7 @@ private object MemoMap {
         }
       }
 }
->>> { stateVisits = 724, stateVisits2 = 724 }
+>>> { stateVisits = 879, stateVisits2 = 879 }
 private object MemoMap {
   def make(implicit
       trace: Trace
@@ -9356,9 +9356,9 @@ private object MemoMap {
                       Any
                     ]) =>
                       finalizerRef.get
-                        .flatMap(
-                          _(exit)
-                        )
+                        .flatMap(_(
+                          exit
+                        ))
                   )
                 } yield (
                   resource,
@@ -9529,8 +9529,7 @@ object a {
 }
 <<< #4133 spark: massive chain of applies with anonymous function calls
 maxColumn = 80
-runner.maxStateVisits = 10000000
-runner.optimizer.maxVisitsPerToken=1000000
+runner.maxStateVisits = 300000
 ===
 object a {
   private def ignoreUndocumentedPackages(packages: Seq[Seq[File]]): Seq[Seq[File]] = {
@@ -9568,81 +9567,61 @@ object a {
       .map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 4496133, stateVisits2 = 4496133 }
+>>> { stateVisits = 260217, stateVisits2 = 260217 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
   ): Seq[Seq[File]] = {
-    packages.map(_.filterNot(_.getName.contains("$"))).map(
-      _.filterNot(_.getCanonicalPath.contains("org/apache/spark/deploy"))
-    ).map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/examples")))
-      .map(
-        _.filterNot(_.getCanonicalPath.contains("org/apache/spark/internal"))
-      ).map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/memory")))
+    packages.map(_.filterNot(_.getName.contains("$")))
+      .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/deploy")))
+      .map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/examples")
+      )).map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/internal")
+      ))
+      .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/memory")))
       .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/network")))
       .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/rpc")))
-      .map(
-        _.filterNot(f =>
-          f.getCanonicalPath.contains("org/apache/spark/shuffle") &&
-            !f.getCanonicalPath.contains("org/apache/spark/shuffle/api")
-        )
-      ).map(
-        _.filterNot(_.getCanonicalPath.contains("org/apache/spark/executor"))
-      ).map(
-        _.filterNot(
-          _.getCanonicalPath
-            .contains("org/apache/spark/ExecutorAllocationClient")
-        )
-      ).map(
-        _.filterNot(
-          _.getCanonicalPath.contains(
-            "org/apache/spark/scheduler/cluster/CoarseGrainedSchedulerBackend"
-          )
-        )
-      ).map(
-        _.filterNot(f =>
-          f.getCanonicalPath.contains("org/apache/spark/unsafe") &&
-            !f.getCanonicalPath
-              .contains("org/apache/spark/unsafe/types/CalendarInterval")
-        )
-      ).map(_.filterNot(_.getCanonicalPath.contains("python"))).map(
-        _.filterNot(
-          _.getCanonicalPath.contains("org/apache/spark/util/collection")
-        )
-      )
+      .map(_.filterNot(f =>
+        f.getCanonicalPath.contains("org/apache/spark/shuffle") &&
+          !f.getCanonicalPath.contains("org/apache/spark/shuffle/api")
+      )).map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/executor")
+      )).map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/ExecutorAllocationClient")
+      )).map(_.filterNot(_.getCanonicalPath.contains(
+        "org/apache/spark/scheduler/cluster/CoarseGrainedSchedulerBackend"
+      ))).map(_.filterNot(f =>
+        f.getCanonicalPath.contains("org/apache/spark/unsafe") &&
+          !f.getCanonicalPath
+            .contains("org/apache/spark/unsafe/types/CalendarInterval")
+      )).map(_.filterNot(_.getCanonicalPath.contains("python")))
+      .map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/util/collection")
+      ))
       .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/util/io")))
-      .map(
-        _.filterNot(
-          _.getCanonicalPath.contains("org/apache/spark/util/kvstore")
-        )
-      ).map(
-        _.filterNot(
-          _.getCanonicalPath.contains("org/apache/spark/sql/catalyst")
-        )
-      ).map(
-        _.filterNot(
-          _.getCanonicalPath.contains("org/apache/spark/sql/connect/")
-        )
-      ).map(
-        _.filterNot(
-          _.getCanonicalPath.contains("org/apache/spark/sql/execution")
-        )
-      ).map(
-        _.filterNot(
-          _.getCanonicalPath.contains("org/apache/spark/sql/internal")
-        )
-      ).map(
-        _.filterNot(_.getCanonicalPath.contains("org/apache/spark/sql/hive"))
-      ).map(
-        _.filterNot(
-          _.getCanonicalPath.contains("org/apache/spark/sql/catalog/v2/utils")
-        )
-      ).map(_.filterNot(_.getCanonicalPath.contains("org.apache.spark.errors")))
-      .map(
-        _.filterNot(_.getCanonicalPath.contains("org.apache.spark.sql.errors"))
-      ).map(_.filterNot(_.getCanonicalPath.contains("org/apache/hive"))).map(
-        _.filterNot(_.getCanonicalPath.contains("org/apache/spark/sql/v2/avro"))
-      ).map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
+      .map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/util/kvstore")
+      )).map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/sql/catalyst")
+      )).map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/sql/connect/")
+      )).map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/sql/execution")
+      )).map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/sql/internal")
+      )).map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/sql/hive")
+      )).map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/sql/catalog/v2/utils")
+      ))
+      .map(_.filterNot(_.getCanonicalPath.contains("org.apache.spark.errors")))
+      .map(_.filterNot(
+        _.getCanonicalPath.contains("org.apache.spark.sql.errors")
+      )).map(_.filterNot(_.getCanonicalPath.contains("org/apache/hive")))
+      .map(_.filterNot(
+        _.getCanonicalPath.contains("org/apache/spark/sql/v2/avro")
+      )).map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
 <<< #4133 #4133 spark: massive chain of applies with function calls

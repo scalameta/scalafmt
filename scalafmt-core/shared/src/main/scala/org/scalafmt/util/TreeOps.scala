@@ -876,6 +876,11 @@ object TreeOps {
       case t: Term.Apply => isFewerBraces(t)
       case t: Term.ApplyInfix => isFewerBracesLhs(t.argClause)
       case Term.ArgClause(arg :: Nil, _) => isFewerBracesLhs(arg)
+      case t: Term.AnonymousFunction => t.body match {
+          case t: Term.Apply => isFewerBraces(t)
+          case t: Term.ApplyInfix => isFewerBracesLhs(t.argClause)
+          case _ => false
+        }
       case _ => false
     })
 
@@ -888,6 +893,11 @@ object TreeOps {
       case t: Term.Apply => isFewerBraces(t)
       case t: Term.ApplyInfix => isFewerBracesRhs(t.lhs)
       case Term.ArgClause(arg :: Nil, _) => isFewerBracesRhs(arg)
+      case t: Term.AnonymousFunction => t.body match {
+          case t: Term.Apply => isFewerBraces(t)
+          case t: Term.ApplyInfix => isFewerBracesRhs(t.lhs)
+          case _ => false
+        }
       case _ => false
     })
 
