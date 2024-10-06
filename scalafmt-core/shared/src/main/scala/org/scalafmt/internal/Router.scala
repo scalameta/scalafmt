@@ -1096,8 +1096,9 @@ class Router(formatOps: FormatOps) {
 
         val splitsNL =
           if (
-            alignTuple ||
-            !(onlyConfigStyle || multipleArgs || splitsForAssign.isEmpty)
+            splitsNoNL.nonEmpty &&
+            (alignTuple ||
+              !(onlyConfigStyle || multipleArgs || splitsForAssign.isEmpty))
           ) Seq.empty
           else {
             val cost =
