@@ -14,6 +14,7 @@ import org.scalafmt.util.MarkdownParser
 import scala.meta.Input
 import scala.meta.dialects
 import scala.meta.parsers.ParseException
+import scala.meta.tokenizers.TokenizerOptions
 
 import java.nio.file.Path
 
@@ -30,6 +31,8 @@ import metaconfig.Configured
 object Scalafmt {
 
   private val defaultFilename = "<input>"
+  private implicit val tokenizerOptions: TokenizerOptions =
+    new TokenizerOptions(groupWhitespace = true)
 
   // XXX: don't modify signature, scalafmt-dynamic expects it via reflection
   /** Format Scala code using scalafmt.
@@ -90,7 +93,7 @@ object Scalafmt {
     else doFormatOne(code, style, file, range)
 
   private[scalafmt] def toInput(code: String, file: String): Input = {
-    val fileInput = Input.VirtualFile(file, code)
+    val fileInput = Input.VirtualFile(file, code).withTokenizerOptions
     if (FileOps.isAmmonite(file)) Input.Ammonite(fileInput) else fileInput
   }
 
