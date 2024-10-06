@@ -940,8 +940,13 @@ class Router(formatOps: FormatOps) {
           (if (onlyConfigStyle) opensConfigStyleImplicitParamList(ft)
            else hasImplicitParamList(rightOwner))
 
+        val rightIsComment = right.is[T.Comment]
+        val align = !rightIsComment && alignOpenDelim &&
+          (!handleImplicit || style.newlines.forceAfterImplicitParamListModifier)
+        val alignTuple = align && tupleSite && !onlyConfigStyle
+
         val noSplitForNL = !onlyConfigStyle && right.is[T.LeftBrace]
-        val skipNoSplit = !noSplitForNL &&
+        val skipNoSplit = !noSplitForNL && !alignTuple &&
           (style.newlines.keepBreak(newlines) || {
             if (!handleImplicit) onlyConfigStyle
             else style.newlines.forceBeforeImplicitParamListModifier
@@ -949,12 +954,6 @@ class Router(formatOps: FormatOps) {
         val noSplitMod =
           if (skipNoSplit) null
           else getNoSplitAfterOpening(ft, commentNL = null, spaceOk = !isBracket)
-
-        val rightIsComment = right.is[T.Comment]
-
-        val align = !rightIsComment && alignOpenDelim &&
-          (!handleImplicit || style.newlines.forceAfterImplicitParamListModifier)
-        val alignTuple = align && tupleSite && !onlyConfigStyle
 
         val keepConfigStyleSplit = !sourceIgnored && configStyleFlag &&
           hasBreak()
@@ -1025,8 +1024,8 @@ class Router(formatOps: FormatOps) {
             )
           }
 
-        val keepNoNL = style.newlines.keepBreak(noBreak())
-        val preferNoSplit = keepNoNL && singleArgument
+        val preferNoSplit = !skipNoSplit && singleArgument &&
+          style.newlines.keepBreak(noBreak())
         val oneArgOneLine = newlinePolicy &
           (leftOwner match {
             case t @ (_: Member.SyntaxValuesClause | _: Member.Tuple) =>

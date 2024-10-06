@@ -10169,9 +10169,6 @@ object A {
 }
 >>>
 object A {
-  def f(a: (
-      Seq[Int],
-      Seq[Int]
-  ) =
+  def f(a: (Seq[Int], Seq[Int]) =
     (Seq(), Seq())): Unit = ???
 }
