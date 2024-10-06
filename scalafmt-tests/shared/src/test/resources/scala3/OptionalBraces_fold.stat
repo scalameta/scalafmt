@@ -7071,8 +7071,6 @@ object a:
 >>>
 object a:
    val expression = for (
-     x <-
-       loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
-     y <-
-       loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+     x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+     y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
    ) yield x + y
