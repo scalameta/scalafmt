@@ -3942,8 +3942,7 @@ object a:
 object a:
    val abstractTypeNames =
      for (
-       parent <-
-         parents;
+       parent <- parents;
        mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol)
      )
        yield mbr.name.asTypeName
@@ -7381,8 +7380,6 @@ object a:
 >>>
 object a:
    val expression = for (
-     x <-
-       loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
-     y <-
-       loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+     x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+     y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
    ) yield x + y

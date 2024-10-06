@@ -2717,7 +2717,7 @@ class Router(formatOps: FormatOps) {
       if (!style.align.arrowEnumeratorGenerator) Seq.empty
       else Seq(Indent(StateColumn, expire, After))
     getSplitsDefValEquals(body, endFt, spaceIndents) {
-      CtrlBodySplits.get(body, spaceIndents) {
+      def splits = CtrlBodySplits.get(body, spaceIndents) {
         if (spaceIndents.nonEmpty) Split(Space, 0).withIndents(spaceIndents)
         else {
           val noSlb = body match {
@@ -2729,6 +2729,13 @@ class Router(formatOps: FormatOps) {
           else Split(Space, 0).withSingleLine(expire)
         }
       }(cost => CtrlBodySplits.withIndent(Split(Newline2x(ft), cost), endFt))
+      body.parent.parent match {
+        case Some(pp: Term.EnumeratorsBlock)
+            if style.dialect.allowSignificantIndentation &&
+              isEnclosedInParens(pp) =>
+          Seq(Split(Space, 0).withIndents(spaceIndents))
+        case _ => splits
+      }
     }
   }
 
