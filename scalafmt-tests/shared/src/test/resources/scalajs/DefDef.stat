@@ -1052,7 +1052,7 @@ abstract class GeneratedRouter extends Router {
 
   // format: on
 }
->>> { stateVisits = 936042, stateVisits2 = 936042 }
+>>> { stateVisits = 359, stateVisits2 = 359 }
 abstract class GeneratedRouter extends Router {
   // format: off
 

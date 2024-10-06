@@ -108,9 +108,10 @@ object Policy {
       fileLine: FileLine,
   ): Policy = new Switch(policy, trigger, NoPolicy)
 
-  def on(token: Token, prefix: String, noDequeue: Boolean = false)(f: Pf)(
-      implicit fileLine: FileLine,
-  ): Policy = apply(End == token, prefix, noDequeue)(f)
+  def on(token: Token, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
+      f: Pf,
+  )(implicit fileLine: FileLine): Policy =
+    apply(End == token, prefix, noDequeue, rank = rank)(f)
 
   abstract class Clause(implicit val fileLine: FileLine) extends Policy {
     val endPolicy: End.WithPos
