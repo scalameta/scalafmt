@@ -1171,7 +1171,9 @@ class FormatWriter(formatOps: FormatOps) {
             val ft = floc.formatToken
             idx += 1
             columnShift += floc.shift
-            if (floc.hasBreakAfter || ft.leftHasNewline) floc
+            if (
+              floc.hasBreakAfter || ft.leftHasNewline || idx >= locations.length
+            ) floc
             else {
               getAlignNonSlcOwner(ft, locations(idx)).foreach { nonSlcOwner =>
                 val (container, depth) =
