@@ -998,8 +998,10 @@ import scala.concurrent.Future
 // format: on
 class Test {}
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- ∙
--
- // format: off
+import scala.concurrent.Future
+
+// format: off
+/** Something
+ */
+// format: on
+class Test {}

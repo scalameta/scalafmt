@@ -397,9 +397,8 @@ object Imports extends RewriteFactory {
 
     protected final def getCommentAfter(tok: Token): Option[Token] = ctx
       .tokenTraverser.findAtOrAfter(ctx.getIndex(tok) + 1) {
-        case _: Token.AtEOL => Some(false)
-        case t: Token.Comment if TokenOps.isSingleLineIfComment(t) => Some(true)
-        case _: Token.Whitespace | _: Token.Comma => None
+        case _: Token.HSpace | _: Token.Comma => None
+        case t: Token.Comment => Some(TokenOps.isSingleLineIfComment(t))
         case _ => Some(false)
       }
   }
