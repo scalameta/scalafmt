@@ -10157,3 +10157,23 @@ object a {
       .map(filterNot(getCanonicalPath.contains("SSLOptions")))
   }
 }
+<<< SKIP #4318
+runner.dialect = scala213source3
+align.openParenCallSite = true
+===
+object A {
+  def f(a: (
+             Seq[Int],
+               Seq[Int]) =
+           (Seq(), Seq())): Unit = ???
+}
+>>>
+BestFirstSearch:310 Failed to format
+UNABLE TO FORMAT,
+tok #9/36: [9] (∙Seq: LeftParen [22..23) [LF] Ident(Seq) [37..40)
+policies:
+  PNL+2:[Router:1068]<100d
+  NB:[Router:243]@114d
+splits (before policy):
+  
+splits (after policy):
