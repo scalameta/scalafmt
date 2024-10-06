@@ -229,7 +229,7 @@ object SearchStateExploded {
     """
 }
 
->>> { stateVisits = 353, stateVisits2 = 353 }
+>>> { stateVisits = 313, stateVisits2 = 313 }
 // format: off
 object SearchStateExploded {
   val veryLongString =

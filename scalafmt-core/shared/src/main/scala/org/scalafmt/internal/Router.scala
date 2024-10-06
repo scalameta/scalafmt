@@ -780,6 +780,17 @@ class Router(formatOps: FormatOps) {
       // DefDef
       case FormatToken(_: T.KwDef, _: T.Ident, _) => Seq(Split(Space, 0))
 
+      case FormatToken(open @ LeftParenOrBracket(), _, _)
+          if ft.meta.formatOff &&
+            leftOwner.isAny[Member.SyntaxValuesClause, Member.Tuple] =>
+        val close = matching(open).left
+        def splits(xft: FormatToken, policy: Policy)(implicit l: FileLine) =
+          Seq(Split(Provided(xft), 0, policy = policy))
+        val policy = Policy.on(close, "(FMT:OFF)", rank = Int.MaxValue) {
+          case Decision(xft, _) => splits(xft, NoPolicy)
+        }
+        splits(ft, policy)
+
       // Parameter opening for one parameter group. This format works
       // on the WHOLE defnSite (via policies)
       case FormatToken(LeftParenOrBracket(), _, _)
