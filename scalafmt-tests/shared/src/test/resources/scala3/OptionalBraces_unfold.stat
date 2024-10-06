@@ -7634,3 +7634,17 @@ object Parsers:
       case InPatternArgs extends Location(
             false, true, true
           ) // InParens not true, since it might be an alternative
+<<< #4219
+object a:
+  val expression = for (
+    x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+  ) yield x + y
+>>>
+object a:
+   val expression =
+     for (
+       x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+       y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+     )
+       yield x + y

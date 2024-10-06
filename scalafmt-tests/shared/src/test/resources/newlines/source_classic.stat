@@ -10422,3 +10422,19 @@ object A {
         (Seq(), Seq())
   ): Unit = ???
 }
+<<< #4219
+object a {
+  val expression = for (
+    x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+  ) yield x + y
+}
+>>>
+object a {
+  val expression =
+    for (
+      x <-
+        loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+      y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+    ) yield x + y
+}
