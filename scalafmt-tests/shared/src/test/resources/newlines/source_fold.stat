@@ -828,7 +828,7 @@ object a {
       })(result)))))))
   }).getMessage should ===("Ur state be b0rked")
 }
->>> { stateVisits = 1071 }
+>>> { stateVisits = 652, stateVisits2 = 652 }
 object a {
   (intercept[java.lang.IllegalStateException] {
     wrap(result ⇒
@@ -6778,7 +6778,7 @@ object a {
   sb.append((if (lsb < 10) ('0' + lsb).asInstanceOf[Char]
              else ('a' + (lsb - 10)).asInstanceOf[Char]))
 }
->>> { stateVisits = 2279 }
+>>> { stateVisits = 1571, stateVisits2 = 1571 }
 object a {
   sb.append((if (msb < 10) ('0' + msb).asInstanceOf[Char]
              else ('a' + (msb - 10)).asInstanceOf[Char]))
@@ -6835,7 +6835,7 @@ object a {
     }
   ))
 }
->>> { stateVisits = 2057 }
+>>> { stateVisits = 2039, stateVisits2 = 2039 }
 object a {
   buffer.append((
     if (!fetchContent) {
@@ -6895,7 +6895,7 @@ object a {
     }
   ))
 }
->>> { stateVisits = 986, stateVisits2 = 986 }
+>>> { stateVisits = 968, stateVisits2 = 968 }
 object a {
   buffer
     .append((if (!fetchContent) {
@@ -7465,7 +7465,7 @@ class a {
     case _ => stepNoBreak(inner)(in)
   }
 }
->>> { stateVisits = 1010 }
+>>> { stateVisits = 988, stateVisits2 = 988 }
 class a {
   def step(
       inner: Iteratee[E, A]
@@ -9202,7 +9202,7 @@ object Build {
       }.evaluated,
     )
 }
->>> { stateVisits = 1607 }
+>>> { stateVisits = 1597, stateVisits2 = 1597 }
 object Build {
   lazy val scaladoc = project.in(file("scaladoc"))
     .settings(generateScalaDocumentation := Def.inputTaskDyn {
@@ -9316,7 +9316,7 @@ private object MemoMap {
         }
       }
 }
->>> { stateVisits = 879, stateVisits2 = 879 }
+>>> { stateVisits = 871, stateVisits2 = 871 }
 private object MemoMap {
   def make(implicit
       trace: Trace
@@ -9450,7 +9450,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 4731, stateVisits2 = 4731 }
+>>> { stateVisits = 4053, stateVisits2 = 4053 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref.Synchronized
@@ -9567,7 +9567,7 @@ object a {
       .map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 260217, stateVisits2 = 260217 }
+>>> { stateVisits = 194795, stateVisits2 = 194795 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
@@ -9665,7 +9665,7 @@ object a {
       .map(filterNot(getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 14057, stateVisits2 = 14057 }
+>>> { stateVisits = 12414, stateVisits2 = 12414 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
