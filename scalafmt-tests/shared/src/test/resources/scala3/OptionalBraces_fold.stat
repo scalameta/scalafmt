@@ -1005,7 +1005,7 @@ object Foo:
     case a: A if a.someField.otherField.function().exists(SomeObjectLongName.isTrue) =>
       None
   )
->>> { stateVisits = 1020, stateVisits2 = 1024 }
+>>> { stateVisits = 917, stateVisits2 = 921 }
 object Foo:
    def bar = process(
      arg match

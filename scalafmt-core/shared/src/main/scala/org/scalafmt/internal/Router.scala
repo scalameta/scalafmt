@@ -1063,7 +1063,9 @@ class Router(formatOps: FormatOps) {
                   else if (splitsForAssign.isDefined) singleLine(3)
                   else singleLine(10)
                 val kof = style.newlines.keep && needDifferentFromOneArgPerLine
-                val noOptimal = style.newlines.keep && !useOneArgPerLineSplit
+                val noOptimal = style.newlines.keep && !useOneArgPerLineSplit ||
+                  singleArgument && !excludeBlocks.isEmpty &&
+                  excludeBlocks.ranges.forall(_.lt.is[T.LeftParen])
                 val okIndent = rightIsComment || handleImplicit
                 Split(noSplitMod, 0, policy = noSplitPolicy).withOptimalToken(
                   optimal,
