@@ -762,8 +762,7 @@ class FormatOps(
                 if (breakMany) TokenRanges.empty
                 else insideBracesBlock(nextFT, expire, true)
               Split(ModExt(newStmtMod.getOrElse(spaceMod)), cost)
-                .withSingleLineNoOptimal(expire, exclude)
-                .withOptimalToken(expire, ignore = cost != 0)
+                .withSingleLine(expire, exclude, noOptimal = cost != 0)
           }
         }
 
@@ -918,12 +917,10 @@ class FormatOps(
       else if (ft.hasBreak) Seq(nlSplit(0))
       else {
         val slbEnd = getLastToken(x.superType)
+        val exclude = insideBlock[T.LeftParen](ft, slbEnd)
         Seq(
-          Split(Space, 0).withIndent(indent).withSingleLine(
-            slbEnd,
-            exclude = insideBlock[T.LeftParen](ft, slbEnd),
-            noSyntaxNL = true,
-          ),
+          Split(Space, 0).withIndent(indent)
+            .withSingleLine(slbEnd, exclude = exclude, noSyntaxNL = true),
           nlSplit(1),
         )
       }
@@ -998,7 +995,7 @@ class FormatOps(
           .orPolicy(pnlPolicy).withIndent(indent),
         Split(nlMod, 0).onlyIf(nlOnelineTag != Right(false))
           .preActivateFor(nlOnelineTag.left.toOption)
-          .withSingleLine(lastToken, noSyntaxNL = noSyntaxNL)
+          .withSingleLineNoOptimal(lastToken, noSyntaxNL = noSyntaxNL)
           .withIndent(indent),
         Split(nlMod, 1).withPolicy(nlPolicy & pnlPolicy).withIndent(indent),
       )
@@ -1139,7 +1136,7 @@ class FormatOps(
         val afterLastParen = before(lastParen).right
         if (afterLastParen.is[T.Colon]) afterLastParen else lastParen
       }
-    val slbSplit = Split(space, 0).withSingleLine(slbEnd, killOnFail = true)
+    val slbSplit = Split(space, 0).withSingleLine(slbEnd)
       .preActivateFor(SplitTag.VerticalMultilineSingleLine)
 
     if (isBracket) {
@@ -1500,8 +1497,11 @@ class FormatOps(
           exclude: TokenRanges = TokenRanges.empty,
           policy: Policy = Policy.NoPolicy,
       )(implicit fileLine: FileLine) = Split(Space, 0)
-        .withPolicy(policy | getSlb(end, exclude))
-        .withOptimalToken(end, ignore = blast.start > end.start)
+        .withPolicy(policy | getSlb(end, exclude)).withOptimalToken(
+          end,
+          killOnFail = exclude.isEmpty,
+          ignore = blast.start > end.start,
+        )
       def getSpaceSplit(penalty: Int, policy: Policy = Policy.NoPolicy)(implicit
           fileLine: FileLine,
       ) = {
