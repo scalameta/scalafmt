@@ -32,23 +32,11 @@ node match {
     false
 }
 >>>
-test does not parse: [dialect scala3] illegal start of simple pattern
-          Node3(TERMREFpkg, Seq("scala.annotation.internal"), zxc),
-          children:*
-        )
-        ^
-      ) =>
-    children.filterNot(_.tag == IMPORT).exists {
-      case Node3(TYPEDEF, Seq("SourceFile"), _) => true
-====== full result: ======
 node match {
   case Node3(
         PACKAGE,
         _,
-        Seq(
-          Node3(TERMREFpkg, Seq("scala.annotation.internal"), zxc),
-          children:*
-        )
+        Seq(Node3(TERMREFpkg, Seq("scala.annotation.internal"), zxc), children*)
       ) =>
     children.filterNot(_.tag == IMPORT).exists {
       case Node3(TYPEDEF, Seq("SourceFile"), _) => true

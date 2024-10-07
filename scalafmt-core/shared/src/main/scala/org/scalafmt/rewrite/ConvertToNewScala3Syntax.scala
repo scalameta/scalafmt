@@ -34,7 +34,16 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
       style: ScalafmtConfig,
   ): Option[Replacement] = Option {
     val flag = style.rewrite.scala3.newSyntax
-    def left = ftoks.prevNonComment(ft).left
+    def pft = ftoks.prevNonComment(ft)
+    def left = pft.left
+
+    def removeAndClaimUnderscore(): Replacement = {
+      val nft = ftoks.nextNonCommentAfter(ft)
+      if (nft.right.is[Token.Underscore]) removeToken(nft.idx :: Nil) else null
+    }
+    def removeUnderscoreIfPreviousRemoved(): Replacement =
+      if (session.isRemovedOnLeft(pft, ok = true)) removeToken else null
+
     ft.right match {
 
       case _: Token.LeftParen if flag.control && dialect.allowQuietSyntax =>
@@ -47,15 +56,19 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
 
       case _: Token.Colon
           if flag.deprecated && dialect.allowPostfixStarVarargSplices =>
+        // trick: to get "*", just remove ":" and "_"
         ft.meta.rightOwner match {
-          case t: Term.Repeated if isSimpleRepeated(t) => removeToken // trick: to get "*", just remove ":" and "_"
+          case t: Term.Repeated if isSimpleRepeated(t) =>
+            removeAndClaimUnderscore()
+          case Pat.Bind(_, _: Pat.SeqWildcard) => removeAndClaimUnderscore()
           case _ => null
         }
 
       case _: Token.At
           if flag.deprecated && dialect.allowPostfixStarVarargSplices =>
+        // trick: to get "*", just remove "@" and "_"
         ft.meta.rightOwner match {
-          case Pat.Bind(_, _: Pat.SeqWildcard) => removeToken // trick: to get "*", just remove "@" and "_"
+          case Pat.Bind(_, _: Pat.SeqWildcard) => removeAndClaimUnderscore()
           case _ => null
         }
 
@@ -68,10 +81,10 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
                 t.parent.is[Type.ArgClause] => replaceTokenIdent("?", ft.right)
           case t: Term.Repeated
               if dialect.allowPostfixStarVarargSplices && isSimpleRepeated(t) =>
-            removeToken // see above, under Colon
+            removeUnderscoreIfPreviousRemoved()
           case t: Pat.SeqWildcard
               if dialect.allowPostfixStarVarargSplices &&
-                t.parent.is[Pat.Bind] => removeToken // see above, under At
+                t.parent.is[Pat.Bind] => removeUnderscoreIfPreviousRemoved()
           case _ => null
         }
 
