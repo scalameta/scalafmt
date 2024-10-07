@@ -1034,18 +1034,10 @@ class FormatWriter(formatOps: FormatOps) {
 
         private def formatListBlock(
             listIndent: String,
-        )(block: Scaladoc.ListBlock): Unit = {
-          val prefix = block.prefix
+        )(block: Scaladoc.ListBlock): Unit = block.items.foreach { item =>
+          val prefix = item.prefix
           val itemIndent = getIndentation(listIndent.length + prefix.length + 1)
-          block.items.foreach { x =>
-            sb.append(listIndent).append(prefix).append(' ')
-            formatListTerm(itemIndent)(x)
-          }
-        }
-
-        private def formatListTerm(
-            itemIndent: String,
-        )(item: Scaladoc.ListItem): Unit = {
+          sb.append(listIndent).append(prefix).append(' ')
           formatTextAfterMargin(item.text, itemIndent)
           item.terms.foreach(formatTerm(_, itemIndent, sbNonEmpty = true))
         }
