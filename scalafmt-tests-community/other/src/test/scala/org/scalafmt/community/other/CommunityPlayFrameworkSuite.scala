@@ -10,13 +10,6 @@ abstract class CommunityPlayFrameworkSuite(name: String)
       name,
     )
 
-class CommunityPlayFramework_2_9_Suite
-    extends CommunityPlayFrameworkSuite("playframework-2.9") {
-
-  override protected def builds = Seq(getBuild("2.9.5", dialects.Scala213, 454))
-
-}
-
 class CommunityPlayFramework_3_0_Suite
     extends CommunityPlayFrameworkSuite("playframework-3.0") {
 
