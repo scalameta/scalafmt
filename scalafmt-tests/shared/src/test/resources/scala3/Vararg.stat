@@ -19,3 +19,41 @@ a match {
 val a = List(0, 1, 1*2)
 >>>
 val a = List(0, 1, 1 * 2)
+<<< #4133 intellij-scala tasty-reader TreePrinter.scala
+rewrite.scala3.convertToNewSyntax = true
+===
+node match {
+  case Node3(PACKAGE, _, Seq(Node3(TERMREFpkg, Seq("scala.annotation.internal"), zxc), children: _*)) =>
+    children.filterNot(_.tag == IMPORT).exists {
+      case Node3(TYPEDEF, Seq("SourceFile"), _) => true
+      case _ => false
+    }
+  case _ =>
+    false
+}
+>>>
+test does not parse: [dialect scala3] illegal start of simple pattern
+          Node3(TERMREFpkg, Seq("scala.annotation.internal"), zxc),
+          children:*
+        )
+        ^
+      ) =>
+    children.filterNot(_.tag == IMPORT).exists {
+      case Node3(TYPEDEF, Seq("SourceFile"), _) => true
+====== full result: ======
+node match {
+  case Node3(
+        PACKAGE,
+        _,
+        Seq(
+          Node3(TERMREFpkg, Seq("scala.annotation.internal"), zxc),
+          children:*
+        )
+      ) =>
+    children.filterNot(_.tag == IMPORT).exists {
+      case Node3(TYPEDEF, Seq("SourceFile"), _) => true
+      case _                                    => false
+    }
+  case _ =>
+    false
+}
