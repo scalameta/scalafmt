@@ -167,7 +167,7 @@ opt[File]("migrate2hocon")
             Some(AbsoluteFile.fromFile(file, c.common.workingDirectory))))
         .text("""migrate .scalafmt CLI style configuration to hocon style configuration in .scalafmt.conf""")
 }}
->>> { stateVisits = 890, stateVisits2 = 889 }
+>>> { stateVisits = 895, stateVisits2 = 894 }
 {
   {
     opt[File]("migrate2hocon")

@@ -209,28 +209,17 @@ class FormatOps(
 
   // invoked on closing paren, part of ParamClause
   @tailrec
-  final def defnSiteLastToken(close: FormatToken, t: Tree): FormatToken = {
-    def alt = getLast(t)
-    t match {
-      case _: Term.ParamClause | _: Type.FuncParamClause |
-          _: Member.ParamClauseGroup => t.parent match {
-          case Some(p) => defnSiteLastToken(close, p)
-          case _ => alt
-        }
-      case t: Defn.Def => getHeadOpt(t.body).fold(alt) { ft =>
-          if (ft.left.is[T.LeftBrace] && t.body.is[Term.Block]) ft
-          else prevNonCommentBefore(ft)
-        }
-      case _: Ctor.Primary => close match {
-          // This is a terrible terrible hack. Please consider removing this.
-          // The RightParen() LeftBrace() pair is presumably a ") {" combination
-          // at a class definition
-          case FormatToken(_: T.RightParen, _: T.LeftBrace, _) => next(close)
-          case _ => close
-        }
-      case t => t.tokens.find(x => x.is[T.Equals] && owners(x) == t)
-          .fold(alt)(before)
-    }
+  final def defnSiteLastToken(t: Tree): Option[FormatToken] = t match {
+    case _: Term.ParamClause | _: Type.FuncParamClause | _: Type.FunctionType |
+        _: Member.ParamClauseGroup => t.parent match {
+        case Some(p) => defnSiteLastToken(p)
+        case _ => None
+      }
+    case t: Defn.Macro => tokenBeforeOpt(t.body).map(prevNonCommentBefore)
+    case t: Tree.WithBody => tokenBeforeOpt(t.body)
+    case t: Stat.WithTemplate => tokenBeforeOpt(t.templ)
+    case t: Decl => getLastOpt(t)
+    case _ => None
   }
 
   @inline
