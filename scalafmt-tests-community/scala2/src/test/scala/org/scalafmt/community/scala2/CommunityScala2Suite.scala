@@ -2,7 +2,6 @@ package org.scalafmt.community.scala2
 
 import org.scalafmt.community.common.CommunityRepoSuite
 import org.scalafmt.community.common.TestStats
-import org.scalafmt.community.common.TestStyles
 
 import scala.meta._
 
