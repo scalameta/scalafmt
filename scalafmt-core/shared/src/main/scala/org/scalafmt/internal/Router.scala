@@ -415,7 +415,8 @@ class Router(formatOps: FormatOps) {
           }
         }
 
-        val nlSplit = Split(nl, 1).withPolicy(newlineBeforeClosingCurly)
+        val nlSplit = Split(nl, if (nl.isNL) 1 else 0)
+          .withPolicy(newlineBeforeClosingCurly)
           .withIndent(style.indent.main, close, Before)
 
         // must be after nlSplit
@@ -953,10 +954,11 @@ class Router(formatOps: FormatOps) {
         val isBeforeOpenParen =
           if (defnSite) style.newlines.isBeforeOpenParenDefnSite
           else style.newlines.isBeforeOpenParenCallSite
-        val optimalFt: FormatToken = getSlbEndOnLeft(
-          if (isBeforeOpenParen || !defnSite || isBracket) afterClose
-          else defnSiteLastToken(afterClose, leftOwner),
-        )
+        val optimalFtOpt =
+          if (isBeforeOpenParen || !defnSite || isBracket) None
+          else defnSiteLastToken(leftOwner)
+        val optimalFt: FormatToken =
+          getSlbEndOnLeft(optimalFtOpt.getOrElse(afterClose))
         val optimal = optimalFt.left
 
         val wouldDangle = onlyConfigStyle || mustDangleForTrailingCommas ||
@@ -2676,7 +2678,7 @@ class Router(formatOps: FormatOps) {
     def newlineSplit(cost: Int)(implicit fileLine: FileLine) = CtrlBodySplits
       .withIndent(Split(Newline2x(ft), cost), body, endFt)
 
-    def getClassicSplits =
+    def getClassicSplits(implicit fileLine: FileLine) =
       if (ft.hasBreak) Seq(newlineSplit(0)) else Seq(baseSplit, newlineSplit(1))
 
     style.newlines.beforeMultilineDef.fold {

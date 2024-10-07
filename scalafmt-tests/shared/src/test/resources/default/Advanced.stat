@@ -206,7 +206,7 @@ options.testFilter match {
           }, { // else
             callStatement
           })(jstpe.AnyType)
->>> { stateVisits = 1739, stateVisits2 = 1727 }
+>>> { stateVisits = 1740, stateVisits2 = 1728 }
 callStatement = js.If(
     genIsInstanceOf(callTrg, rtClass.tpe), {
       if (implMethodSym.owner == ObjectClass) {
