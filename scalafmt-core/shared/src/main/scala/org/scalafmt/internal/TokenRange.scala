@@ -20,6 +20,7 @@ class TokenRanges private (val ranges: Seq[TokenRange]) extends AnyVal {
     new TokenRanges(range +: ranges)
   }
 
+  def startOfFirstRange(): Option[Token] = ranges.lastOption.map(_.lt)
 }
 
 object TokenRange {
