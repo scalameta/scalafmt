@@ -206,11 +206,14 @@ class Router(formatOps: FormatOps) {
              */
             val afterClose = tokens(closeFt, 3)
             val lastPart = afterClose.left.is[T.Interpolation.End]
-            val slbEnd = if (lastPart) afterClose.left else afterClose.right
+            val slbEnd = endOfSingleLineBlock(
+              if (lastPart) afterClose else next(afterClose),
+            )
             Seq(spaceSplit.withSingleLine(slbEnd), newlineSplit(1))
         }
 
-      case FormatToken(_, _: T.RightBrace, _) if isInterpolate(rightOwner) =>
+      case FormatToken(_, _: T.RightBrace, _)
+          if next(ft).right.is[T.Interpolation.SpliceEnd] =>
         Seq(Split(Space(style.spaces.inInterpolatedStringCurlyBraces), 0))
 
       // optional braces: block follows
