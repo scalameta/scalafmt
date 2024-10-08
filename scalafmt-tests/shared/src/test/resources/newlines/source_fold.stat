@@ -9202,7 +9202,7 @@ object Build {
       }.evaluated,
     )
 }
->>> { stateVisits = 1597, stateVisits2 = 1597 }
+>>> { stateVisits = 1315, stateVisits2 = 1315 }
 object Build {
   lazy val scaladoc = project.in(file("scaladoc"))
     .settings(generateScalaDocumentation := Def.inputTaskDyn {
@@ -9316,7 +9316,7 @@ private object MemoMap {
         }
       }
 }
->>> { stateVisits = 871, stateVisits2 = 871 }
+>>> { stateVisits = 862, stateVisits2 = 862 }
 private object MemoMap {
   def make(implicit
       trace: Trace
@@ -9450,7 +9450,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 4053, stateVisits2 = 4053 }
+>>> { stateVisits = 3808, stateVisits2 = 3808 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref.Synchronized

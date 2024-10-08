@@ -371,7 +371,8 @@ class Router(formatOps: FormatOps) {
             else getSingleLineLambdaDecisionOpt
         }
 
-        val singleLineSplit = singleLineDecisionOpt.fold(Split.ignored) { sld =>
+        val noSplitMod = xmlSpace(leftOwner)
+        val singleLineSplitOpt = singleLineDecisionOpt.map { sld =>
           val sldPolicy = getSingleLinePolicy
           val expire = leftOwner.parent match {
             case Some(p: Term.ForYield)
@@ -381,7 +382,7 @@ class Router(formatOps: FormatOps) {
           }
           val toParens = initStyle.rewrite.bracesToParensForOneLineApply &&
             RedundantBraces.noSplitForParensOnRightBrace(closeFT).isDefined
-          if (toParens) {
+          if (toParens) Right {
             val noCloseSpacePolicy = Policy.End < close ==>
               Policy.on(close, "PAREN1LAPPLY") {
                 case Decision(FormatToken(_, `close`, _), ss) => ss.map { s =>
@@ -397,9 +398,12 @@ class Router(formatOps: FormatOps) {
               killOnFail = true,
               noOptimal = style.newlines.keep,
             ).andPolicy(sldPolicy & noCloseSpacePolicy)
-          } else Split(xmlSpace(leftOwner), 0)
-            .withSingleLine(expire, noSyntaxNL = true, killOnFail = true)
-            .andPolicy(sldPolicy)
+          }
+          else Left {
+            Split(noSplitMod, 0)
+              .withSingleLine(expire, noSyntaxNL = true, killOnFail = true)
+              .andPolicy(sldPolicy)
+          }
         }
 
         val nlSplit = Split(nl, 1).withPolicy(newlineBeforeClosingCurly)
@@ -412,12 +416,30 @@ class Router(formatOps: FormatOps) {
           if (noLambdaSplit) Split.ignored
           else {
             val arrowOptimal = getOptimalTokenFor(lambdaExpire)
-            val policy = newlineBeforeClosingCurly &
-              decideNewlinesOnlyAfterToken(arrowOptimal)
-            Split(Space, 0).withSingleLine(arrowOptimal).andPolicy(policy)
-              .withIndent(lambdaIndent, close, Before)
+            val policy = singleLineSplitOpt match {
+              case Some(Left(slbSplit)) => Policy.after(arrowOptimal, "FNARR") {
+                  case Decision(FormatToken(`arrowOptimal`, _, _), ss) =>
+                    val nlPolicy = newlineBeforeClosingCurly
+                    var hadNoSplit = false
+                    val nlSplits = ss.flatMap { s =>
+                      if (s.isNL) Some(s.andPolicy(nlPolicy))
+                      else { hadNoSplit = true; None }
+                    }
+                    if (hadNoSplit) slbSplit.withMod(Space) +: nlSplits
+                    else nlSplits
+                }
+              case _ => newlineBeforeClosingCurly &
+                  decideNewlinesOnlyAfterToken(arrowOptimal)
+            }
+            Split(noSplitMod, 0).withSingleLine(arrowOptimal, killOnFail = true)
+              .andPolicy(policy).withIndent(lambdaIndent, close, Before)
           }
 
+        val singleLineSplit = singleLineSplitOpt match {
+          case Some(Right(slbSplit)) => slbSplit
+          case Some(Left(slbSplit)) if lambdaSplit.isIgnored => slbSplit
+          case _ => Split.ignored
+        }
         val splits = Seq(singleLineSplit, lambdaSplit, nlSplit)
         right match {
           case t: T.Xml.Start => withIndentOnXmlStart(t, splits)
@@ -498,7 +520,8 @@ class Router(formatOps: FormatOps) {
         }
         def newlineSplit(cost: Int)(implicit fileLine: FileLine) =
           Split(Newline, cost).withIndent(indent, endOfFunction, expiresOn)
-        if (isRightCommentThenBreak(ft)) Seq(newlineSplit(1))
+        if (isRightCommentThenBreak(ft))
+          Seq(newlineSplit(if (ft.noBreak) 0 else 1))
         else {
           // 2020-01: break after same-line comments, and any open brace
           val nonComment = nextNonCommentSameLine(ft)
