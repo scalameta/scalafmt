@@ -787,7 +787,7 @@ val memberSel: Elems =
       ))
     )
   ))
->>> { stateVisits = 1960, stateVisits2 = 1454 }
+>>> { stateVisits = 1958, stateVisits2 = 1452 }
 val memberSel: Elems =
   if (valueMembers.forall(_.kind == "package")) NoElems
   else List(

@@ -5927,7 +5927,7 @@ object a:
     }) 
     index
   }
->>> { stateVisits = 1569 }
+>>> { stateVisits = 1565, stateVisits2 = 1565 }
 object a:
    private val packageIndex
        : scala.collection.Map[String, scala.collection.Seq[Path]] = {

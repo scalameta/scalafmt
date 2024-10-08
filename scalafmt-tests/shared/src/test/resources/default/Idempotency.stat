@@ -20,7 +20,7 @@ val bindingFuture = Http().bindAndHandleSync({
           upgrade.handleMessages(Flow.fromSinkAndSource(Sink.ignore, Source.fromPublisher(source)), None)
       }, interface = "localhost", port = 0)
 }}}
->>> { stateVisits = 1802, stateVisits2 = 1826 }
+>>> { stateVisits = 1702, stateVisits2 = 1581 }
 {
   {
     {
@@ -58,7 +58,7 @@ val bindingFuture = Http().bindAndHandleSync({
     }
   }
 }
->>> { stateVisits = 1826 }
+>>> { stateVisits = 1581, stateVisits2 = 1581 }
 {
   {
     {
@@ -187,7 +187,7 @@ val bindingFuture = Http().bindAndHandleSync({
     })
      }}
 
->>> { stateVisits = 2081, stateVisits2 = 2080 }
+>>> { stateVisits = 1944, stateVisits2 = 1943 }
 {
   {
     val core = BidiFlow.fromGraph(GraphDSL.create() { implicit b ⇒

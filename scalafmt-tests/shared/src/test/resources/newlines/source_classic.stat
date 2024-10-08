@@ -9770,9 +9770,10 @@ validateStructuralIntegrityWithReasonImpl(row, expectedSchema).map {
       s"UnsafeRow status: ${getStructuralIntegrityStatus(row, expectedSchema)}"
 }
 >>>
-validateStructuralIntegrityWithReasonImpl(row, expectedSchema).map { errorMessage =>
-  s"Error message is: $errorMessage, " +
-    s"UnsafeRow status: ${getStructuralIntegrityStatus(row, expectedSchema)}"
+validateStructuralIntegrityWithReasonImpl(row, expectedSchema).map {
+  errorMessage =>
+    s"Error message is: $errorMessage, " +
+      s"UnsafeRow status: ${getStructuralIntegrityStatus(row, expectedSchema)}"
 }
 <<< #4133 lambda in braces, overflow after brace 2
 maxColumn = 74
@@ -9919,7 +9920,7 @@ private object MemoMap {
         }
       }
 }
->>> { stateVisits = 311, stateVisits2 = 250 }
+>>> { stateVisits = 305, stateVisits2 = 244 }
 private object MemoMap {
   def make(implicit
       trace: Trace
@@ -10058,7 +10059,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 1062, stateVisits2 = 943 }
+>>> { stateVisits = 1003, stateVisits2 = 899 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] =

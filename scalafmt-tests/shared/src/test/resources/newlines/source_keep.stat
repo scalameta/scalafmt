@@ -9716,7 +9716,7 @@ private object MemoMap {
         }
       }
 }
->>> { stateVisits = 271, stateVisits2 = 221 }
+>>> { stateVisits = 265, stateVisits2 = 215 }
 private object MemoMap {
   def make(implicit
       trace: Trace
@@ -9851,7 +9851,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 860, stateVisits2 = 741 }
+>>> { stateVisits = 804, stateVisits2 = 702 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] =
