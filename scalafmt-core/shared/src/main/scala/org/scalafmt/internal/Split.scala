@@ -316,7 +316,7 @@ case class Split(
         else ""
       }
     val opt = optimalAt.fold("")(", opt=" + _)
-    s"""$prefix$mod:[$fileLineStack](cost=$cost, pen=$penalty, indents=$indentation, $policy$opt)"""
+    s"""${prefix}c=$cost[$penalty] $mod:[$fileLineStack](indents=$indentation, $policy$opt)"""
   }
 }
 

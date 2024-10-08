@@ -20,6 +20,7 @@ case object NoSplit extends Modification {
   override val newlines: Int = 0
   override val length: Int = 0
   def orNL(flag: Boolean): Modification = if (flag) this else Newline
+  override def toString: String = "nS"
 }
 
 /** A split representing a newline.
@@ -39,10 +40,10 @@ case class NewlineT(
     alt: Option[ModExt] = None,
 ) extends Modification {
   override def toString = {
-    val double = if (isDouble) "Double" else ""
-    val indent = if (noIndent) "NoIndent" else ""
+    val double = if (isDouble) "x2" else ""
+    val indent = if (noIndent) "[NoIndent]" else ""
     val altStr = alt.fold("")(x => "|" + x.mod.toString)
-    double + indent + "Newline" + altStr
+    "NL" + double + indent + altStr
   }
   override val newlines: Int = if (isDouble) 2 else 1
   override val length: Int = 0
@@ -62,7 +63,7 @@ object Newline2xNoIndent extends NewlineT(isDouble = true, noIndent = true)
 object Space extends Modification {
   override val newlines: Int = 0
   override val length: Int = 1
-  override def toString = "Space"
+  override def toString = "SP"
 
   def apply(flag: Boolean): Modification = if (flag) this else NoSplit
   def orNL(flag: Boolean): Modification = if (flag) this else Newline
