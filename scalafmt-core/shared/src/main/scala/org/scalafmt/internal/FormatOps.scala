@@ -78,7 +78,10 @@ class FormatOps(
     val nft = start.right match {
       case t if t.end >= end => start
       case _: T.EOF => start
-      case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals => null
+      case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals |
+          _: T.Interpolation.Start | _: T.Interpolation.SpliceEnd |
+          _: T.Interpolation.End | _: T.Interpolation.SpliceStart |
+          _: T.Interpolation.Part => null
       case _ if start.hasBlankLine => start
       case _ if !style.newlines.formatInfix && {
             isInfixOp(start.rightOwner) ||
@@ -89,6 +92,28 @@ class FormatOps(
               !style.newlines.isBeforeOpenParenCallSite
             case t => !isJustBeforeTree(start)(t)
           }) => null
+      case t: T.RightParen =>
+        if (start.left.is[T.LeftParen]) null
+        else {
+          val owner = start.rightOwner
+          val isDefnSite = isParamClauseSite(owner)
+          implicit val clauseSiteFlags: ClauseSiteFlags =
+            ClauseSiteFlags(owner, isDefnSite)
+          val bpFlags = getBinpackSiteFlags(matching(t), start, false)
+          if (bpFlags.scalaJsStyle) scalaJsOptCloseOnRight(start, bpFlags)
+          else if (
+            !start.left.is[T.RightParen] ||
+            !style.newlines.fold && clauseSiteFlags.dangleCloseDelim
+          ) start
+          else null
+        }
+      case _: T.LeftBrace
+          if start.left.is[T.RightParen] &&
+            start.leftOwner.is[Member.SyntaxValuesClause] &&
+            start.rightOwner.parent.exists {
+              case p: Tree.WithBody => p.body eq start.rightOwner
+              case _ => false
+            } => null
       case _: T.RightBracket if start.left.is[T.RightBracket] => null
       case _: T.LeftBracket => null
       case _: T.Dot => start.rightOwner match {
@@ -105,27 +130,13 @@ class FormatOps(
                 (style.newlines.getSelectChains eq Newlines.keep) => null
           case _ => start
         }
-      case t: T.RightParen =>
-        if (start.left.is[T.LeftParen]) null
-        else {
-          val owner = start.rightOwner
-          val isDefnSite = isParamClauseSite(owner)
-          implicit val clauseSiteFlags: ClauseSiteFlags =
-            ClauseSiteFlags(owner, isDefnSite)
-          val bpFlags = getBinpackSiteFlags(matching(t), start, false)
-          if (bpFlags.scalaJsStyle) scalaJsOptCloseOnRight(start, bpFlags)
-          else if (
-            !start.left.is[T.RightParen] ||
-            !style.newlines.fold && clauseSiteFlags.dangleCloseDelim
-          ) start
-          else null
-        }
-      case _: T.Comment =>
-        if (start.noBreak) {
-          val nft = next(start)
-          if (!start.left.is[T.LeftParen] || hasBreakBeforeNonComment(nft))
-            return nft // RETURN!!!
-        }
+      case _: T.Colon if {
+            !style.newlines.sometimesBeforeColonInMethodReturnType &&
+            colonDeclType(start.rightOwner).isDefined
+          } => tokens(start, 2) // can't break after colon either
+      case _: T.Comment if start.noBreak =>
+        val nft = nextNonCommentSameLineAfter(start)
+        if (!start.left.is[T.LeftParen] || nft.hasBreakOrEOF) return nft // RETURN!!!
         start
       case _ => start
     }
