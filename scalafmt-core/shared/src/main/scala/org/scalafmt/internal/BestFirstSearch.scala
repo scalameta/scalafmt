@@ -242,42 +242,10 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         case Seq() => Left(null) // dead end if empty
         case Seq(split) =>
           if (split.isNL) Right(state)
-          else {
-            implicit val nextState: State = getNext(state, split)
-            traverseSameLine(nextState)
-          }
-        case ss
-            if state.appliedPenalty == 0 &&
-              RightParenOrBracket(splitToken.right) =>
-          traverseSameLineZeroCost(ss, state)
+          else traverseSameLine(getNext(state, split))
         case ss => stateAsOptimal(state, ss).toRight(state)
       }
     }
-
-  @tailrec
-  private def traverseSameLineZeroCost(
-      splits: Seq[Split],
-      state: State,
-      nlState: => Option[State] = None,
-  )(implicit style: ScalafmtConfig, queue: StateQueue): Either[State, State] = {
-    def newNlState: Option[State] = stateAsOptimal(state, splits).orElse(nlState)
-    splits.filter(_.costWithPenalty == 0) match {
-      case Seq(split) if !split.isNL =>
-        val nextState: State = getNext(state, split)
-        if (nextState.split.costWithPenalty > 0) newNlState.toRight(state)
-        else if (nextState.depth >= tokens.length) Right(nextState)
-        else {
-          val nextToken = tokens(nextState.depth)
-          if (RightParenOrBracket(nextToken.right)) {
-            implicit val style: ScalafmtConfig = styleMap.at(nextToken)
-            val nextSplits =
-              getActiveSplits(nextToken, nextState, maxCost = Int.MaxValue)
-            traverseSameLineZeroCost(nextSplits, nextState, newNlState)
-          } else newNlState.toRight(nextState)
-        }
-      case _ => newNlState.toRight(state)
-    }
-  }
 
   def getBestPath: SearchResult = {
     initStyle.runner.event(FormatEvent.Routes(routes))
