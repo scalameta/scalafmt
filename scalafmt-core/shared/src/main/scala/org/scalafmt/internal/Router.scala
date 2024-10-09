@@ -80,7 +80,13 @@ class Router(formatOps: FormatOps) {
         val policy = {
           val penalty = BreakSingleLineInterpolatedString
           if (style.newlines.inInterpolation eq Newlines.InInterpolation.avoid)
-            PenalizeAllNewlines(end, penalty)
+            Policy.on(end, "INTERP-AVOID-NL", rank = -1) {
+              case Decision(_, ss) => ss.map { s =>
+                  if (s.isNL) s.withPenalty(penalty)
+                  else if (s.optimalAt.isEmpty) s
+                  else s.copy(optimalAt = None)
+                }
+            }
           else Policy ?
             (style.newlines.sourceIgnored || isTripleQuote(m.left.text)) ||
             Policy.on(end, "INTERP-KEEP-NONL") {
@@ -1742,10 +1748,7 @@ class Router(formatOps: FormatOps) {
         }
         def shouldKillOnFail() =
           (style.binPack.callSite ne BinPack.Site.Never) &&
-            (!(prevSelect.isEmpty && nextSelect.isEmpty) &&
-              findTreeWithParentSimple(expireTree) {
-                _.isAny[Term.Interpolate, Pat.Interpolate]
-              }.isEmpty || isInfixArg(expireTree))
+            isInfixArg(expireTree)
 
         val ftAfterRight = tokens(ft, 2)
         val baseSplits = style.newlines.getSelectChains match {
