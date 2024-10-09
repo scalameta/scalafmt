@@ -1429,16 +1429,21 @@ class Router(formatOps: FormatOps) {
           def penalizeNewlines(extra: Int)(implicit fileLine: FileLine) =
             PenalizeAllNewlines(expire, Constants.BracketPenalty + extra)
           val indent = style.indent.getDefnSite(leftOwner)
-          val nlPenalty = 2 + treeDepth(returnType)
-          Seq(
-            Split(style.newlines.keepBreak(hasBreak()), 0)(sameLineSplit)
-              .withPolicy(penalizeNewlines(0)),
-            // Spark style guide allows this:
-            // https://github.com/databricks/scala-style-guide#indent
-            Split(Newline, Constants.SparkColonNewline + nlPenalty)
-              .withIndent(indent, expire, After)
-              .withPolicy(penalizeNewlines(nlPenalty)),
+          if (style.newlines.keepBreak(hasBreak())) Seq(
+            Split(Newline, 1).withIndent(indent, expire, After)
+              .withPolicy(penalizeNewlines(1)),
           )
+          else {
+            val nlPenalty = 2 + treeDepth(returnType)
+            Seq(
+              Split(sameLineSplit, 0).withPolicy(penalizeNewlines(0)),
+              // Spark style guide allows this:
+              // https://github.com/databricks/scala-style-guide#indent
+              Split(Newline, Constants.SparkColonNewline + nlPenalty)
+                .withIndent(indent, expire, After)
+                .withPolicy(penalizeNewlines(nlPenalty)),
+            )
+          }
         }
       case FormatToken(_: T.Colon, _, ColonDeclTpeLeft(returnType))
           if style.newlines.avoidInResultType =>
