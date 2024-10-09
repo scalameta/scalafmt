@@ -177,7 +177,8 @@ final case class State(
       }
       if (ft.meta.right.hasNL) getFullPenalty
       else if (
-        style.newlines.avoidForSimpleOverflowTooLong &&
+        (style.newlines.avoidForSimpleOverflowTooLong ||
+          (style.newlines.inInterpolation eq Newlines.InInterpolation.avoid)) &&
         State.isWithinInterpolation(ft.meta.rightOwner)
       ) ft.right match {
         case _: Token.Interpolation.End => getCustomPenalty
