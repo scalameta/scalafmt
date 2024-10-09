@@ -2615,6 +2615,16 @@ class Router(formatOps: FormatOps) {
     else if (isRightCommentWithBreak(ft))
       Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft), 0), body, endFt))
     else if (isJsNative(body)) Seq(Split(Space, 0).withSingleLine(endFt.left))
+    else if (
+      style.dialect.allowSignificantIndentation &&
+      (style.newlines.sourceIgnored || ft.noBreak) && body.parent.exists {
+        case p: Enumerator.Assign => (p.body eq body) && p.parent.exists {
+            case pp: Term.EnumeratorsBlock => isEnclosedInParens(pp)
+            case _ => false
+          }
+        case _ => false
+      }
+    ) Seq(Split(Space, 0).withIndents(spaceIndents))
     else if (style.newlines.forceBeforeAssign(ft.meta.leftOwner))
       Seq(CtrlBodySplits.withIndent(Split(Newline2x(ft), 0), body, endFt))
     else if (style.newlines.shouldForceBeforeMultilineAssign(ft.meta.leftOwner))
@@ -2717,7 +2727,7 @@ class Router(formatOps: FormatOps) {
       if (!style.align.arrowEnumeratorGenerator) Seq.empty
       else Seq(Indent(StateColumn, expire, After))
     getSplitsDefValEquals(body, endFt, spaceIndents) {
-      def splits = CtrlBodySplits.get(body, spaceIndents) {
+      CtrlBodySplits.get(body, spaceIndents) {
         if (spaceIndents.nonEmpty) Split(Space, 0).withIndents(spaceIndents)
         else {
           val noSlb = body match {
@@ -2729,13 +2739,6 @@ class Router(formatOps: FormatOps) {
           else Split(Space, 0).withSingleLine(expire)
         }
       }(cost => CtrlBodySplits.withIndent(Split(Newline2x(ft), cost), endFt))
-      body.parent.parent match {
-        case Some(pp: Term.EnumeratorsBlock)
-            if style.dialect.allowSignificantIndentation &&
-              isEnclosedInParens(pp) =>
-          Seq(Split(Space, 0).withIndents(spaceIndents))
-        case _ => splits
-      }
     }
   }
 
