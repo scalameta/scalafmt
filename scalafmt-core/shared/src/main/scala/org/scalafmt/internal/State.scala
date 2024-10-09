@@ -193,7 +193,7 @@ final case class State(
         val ok = delayedPenalty != 0 ||
           style.newlines.avoidForSimpleOverflowPunct &&
           column >= style.maxColumn
-        if (ok) result(1, prevActive)
+        if (ok) result(0, prevActive)
         else prev.getOverflowPenalty(split, defaultOverflowPenalty + 1)
       } else if (
         style.newlines.avoidForSimpleOverflowSLC &&

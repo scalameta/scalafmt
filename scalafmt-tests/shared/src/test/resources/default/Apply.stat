@@ -574,7 +574,7 @@ newlines.avoidForSimpleOverflow = [punct]
         }
       }
 }}}
->>> { stateVisits = 1262, stateVisits2 = 1259 }
+>>> { stateVisits = 1126, stateVisits2 = 1123 }
 {
   {
     {
