@@ -7066,11 +7066,35 @@ object Parsers:
 object a:
   val expression = for (
     x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
-    y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+    y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    z <-
+      loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
   ) yield x + y
 >>>
 object a:
    val expression = for (
      x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
-     y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+     y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+     z <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
    ) yield x + y
+<<< #4219 forceBeforeAssign
+newlines.forceBeforeAssign = any
+===
+object a:
+  val expression = for (
+    x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    z <-
+      loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+  ) yield x + y
+>>>
+object a:
+   val expression =
+     for (
+       x <-
+         loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+       y <-
+         loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+       z <-
+         loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+     ) yield x + y
