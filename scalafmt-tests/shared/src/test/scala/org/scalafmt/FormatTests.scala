@@ -135,9 +135,10 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
   def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only
 
   override def afterAll(): Unit = {
-    logger.debug(s"Total explored: ${Debug.explored}")
+    val explored = Debug.explored.get()
+    logger.debug(s"Total explored: $explored")
     if (!onlyUnit && !onlyManual)
-      assertEquals(Debug.explored, 1775524, "total explored")
+      assertEquals(explored, 1777254, "total explored")
     val results = debugResults.result()
     // TODO(olafur) don't block printing out test results.
     // I don't want to deal with scalaz's Tasks :'(
