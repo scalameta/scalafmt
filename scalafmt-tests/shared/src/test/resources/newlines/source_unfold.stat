@@ -8975,7 +8975,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 2540 }
+>>> { stateVisits = 684, stateVisits2 = 684 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -9016,7 +9016,8 @@ object a {
               h2(cls := "h200")(
                 "Type parameters"),
               dl(
-                cls := "attributes attributes-small")(
+                cls :=
+                  "attributes attributes-small")(
                 memberTypeParams *)))
           .toSeq
           .flatten ++
@@ -9028,14 +9029,16 @@ object a {
                 h2(cls := "h200")(
                   "Value parameters"),
                 dl(
-                  cls := "attributes attributes-small")(
+                  cls :=
+                    "attributes attributes-small")(
                   memberValueParams *)))
             .toSeq
             .flatten :+
           h2(cls := "h200")(
             "Attributes") :+
           dl(
-            cls := "attributes attributes-small")(
+            cls :=
+              "attributes attributes-small")(
             attributes *)))
 }
 <<< #4133 binpack with complex nested applies and not forcing config style, dangling
@@ -9076,7 +9079,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 2346 }
+>>> { stateVisits = 708, stateVisits2 = 708 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -9131,7 +9134,8 @@ object a {
                 "Type parameters"
               ),
               dl(
-                cls := "attributes attributes-small"
+                cls :=
+                  "attributes attributes-small"
               )(memberTypeParams *)
             )
           )
@@ -9146,7 +9150,8 @@ object a {
                   "Value parameters"
                 ),
                 dl(
-                  cls := "attributes attributes-small"
+                  cls :=
+                    "attributes attributes-small"
                 )(memberValueParams *)
               )
             )
@@ -9156,7 +9161,8 @@ object a {
             "Attributes"
           ) :+
           dl(
-            cls := "attributes attributes-small"
+            cls :=
+              "attributes attributes-small"
           )(attributes *)
       )
   )
@@ -9448,7 +9454,7 @@ class UDFRegistration private[sql] (functionRegistry: FunctionRegistry) extends 
     val inputEncoders: Seq[Option[ExpressionEncoder[_]]] = Try(ExpressionEncoder[A1]()).toOption :: Try(ExpressionEncoder[A2]()).toOption :: Try(ExpressionEncoder[A3]()).toOption :: Try(ExpressionEncoder[A4]()).toOption :: Try(ExpressionEncoder[A5]()).toOption :: Try(ExpressionEncoder[A6]()).toOption :: Try(ExpressionEncoder[A7]()).toOption :: Try(ExpressionEncoder[A8]()).toOption :: Try(ExpressionEncoder[A9]()).toOption :: Try(ExpressionEncoder[A10]()).toOption :: Try(ExpressionEncoder[A11]()).toOption :: Try(ExpressionEncoder[A12]()).toOption :: Try(ExpressionEncoder[A13]()).toOption :: Try(ExpressionEncoder[A14]()).toOption :: Try(ExpressionEncoder[A15]()).toOption :: Try(ExpressionEncoder[A16]()).toOption :: Try(ExpressionEncoder[A17]()).toOption :: Try(ExpressionEncoder[A18]()).toOption :: Try(ExpressionEncoder[A19]()).toOption :: Try(ExpressionEncoder[A20]()).toOption :: Try(ExpressionEncoder[A21]()).toOption :: Try(ExpressionEncoder[A22]()).toOption :: Nil
   }
 }
->>> { stateVisits = 803, stateVisits2 = 803 }
+>>> { stateVisits = 702, stateVisits2 = 702 }
 class UDFRegistration private[sql] (
     functionRegistry: FunctionRegistry
 ) extends Logging {
@@ -10012,7 +10018,7 @@ private object MemoMap {
         }
       }
 }
->>> { stateVisits = 369 }
+>>> { stateVisits = 333, stateVisits2 = 333 }
 private object MemoMap {
   def make(implicit
       trace: Trace
@@ -10157,7 +10163,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 1049, stateVisits2 = 1049 }
+>>> { stateVisits = 970, stateVisits2 = 970 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref
@@ -10301,7 +10307,7 @@ object a {
       .map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 1237, stateVisits2 = 1237 }
+>>> { stateVisits = 1168, stateVisits2 = 1168 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
@@ -10440,7 +10446,7 @@ object a {
       .map(filterNot(getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 791, stateVisits2 = 791 }
+>>> { stateVisits = 739, stateVisits2 = 739 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
@@ -10541,8 +10547,10 @@ object a {
 object a {
   val expression =
     for (
-      x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
-      y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+      x <-
+        loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+      y <-
+        loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
     )
       yield x + y
 }

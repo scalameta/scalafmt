@@ -12,6 +12,7 @@ abstract class CommunityRepoSuite(giturl: String, name: String)
       excluded: List[String] = Nil,
       fileOverride: String = null,
       styles: Set[String] = Set.empty,
+      statsPerStyle: Map[String, TestStats.Style] = Map.empty,
   ) = CommunityBuild(
     giturl,
     ref,
@@ -21,6 +22,7 @@ abstract class CommunityRepoSuite(giturl: String, name: String)
     dialect,
     styles = styles,
     fileOverride = Option(fileOverride),
+    statsPerStyle = statsPerStyle,
   )
 
 }

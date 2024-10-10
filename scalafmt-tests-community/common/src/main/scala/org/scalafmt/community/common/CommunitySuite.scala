@@ -4,6 +4,7 @@ import org.scalafmt.config._
 import org.scalafmt.sysops.OsSpecific
 
 import java.nio.file._
+import java.util.concurrent.atomic.AtomicInteger
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration
@@ -25,27 +26,31 @@ abstract class CommunitySuite extends FunSuite {
     if build.styles.isEmpty || build.styles.contains(k) == build.stylesIncluded
   } {
     val prefix = s"[ref ${build.commit}, style $k]"
-    val styleWithDialect: ScalafmtConfig = v
+
+    val style = build.fileOverrideConf.fold(v)(v.withFileOverride)
       .withDialect(NamedDialect(build.dialect))
-    val style = build.fileOverrideConf
-      .fold(styleWithDialect)(styleWithDialect.withFileOverride)
-    test(s"community-build: ${build.name} $prefix")(check(k)(build, style))
+    test(s"community-build: ${build.name} $prefix")(check(k, style)(build))
   }
 
-  private def check(
-      styleName: String,
-  )(implicit build: CommunityBuild, style: ScalafmtConfig): Unit = {
+  private def check(styleName: String, style: ScalafmtConfig)(implicit
+      build: CommunityBuild,
+  ): Unit = {
     val folder = fetchCommunityBuild
+    val atomicStatesVisited = new AtomicInteger(0)
+    implicit val customStyle: ScalafmtConfig = style
+      .withCompleteCallback(x => atomicStatesVisited.addAndGet(x.totalExplored))
 
     val stats = checkFilesRecursive(styleName, folder.toAbsolutePath)
       .getOrElse(TestStats.init)
     val timePer1KLines = Math
       .round(stats.timeTaken / (stats.linesParsed / 1000.0))
+    val statesVisited = atomicStatesVisited.get()
 
     println("--------------------------")
     println(s"${build.name} [ref=${build.commit}] [style=$styleName]")
     println(s"Files parsed correctly ${stats.checkedFiles - stats.errors}")
     println(s"Files errored: ${stats.errors}")
+    println(s"Total states visited: $statesVisited")
     println(s"Time taken: ${stats.timeTaken}ms")
     if (stats.linesParsed < 1000) println(s"Lines parsed: ${stats.linesParsed}")
     else println(s"Lines parsed: ~${stats.linesParsed / 1000}k")
@@ -59,6 +64,9 @@ abstract class CommunitySuite extends FunSuite {
       build.checkedFiles * 2,
       s"expected ${stats.checkedFiles / 2} per run",
     )
+    build.statsPerStyle.get(styleName).foreach { styleStats =>
+      assertEquals(statesVisited, styleStats.expectedStatesVisited)
+    }
   }
 
   private def fetchCommunityBuild(implicit build: CommunityBuild): Path = {

@@ -32,12 +32,13 @@ trait HasTests extends FormatAssertions {
   def scalafmtRunner(sr: ScalafmtRunner, dg: Debug): ScalafmtRunner = sr.copy(
     debug = true,
     maxStateVisits = sr.maxStateVisits.orElse(Some(150000)),
+    completeCallback = dg.completed,
     eventCallback = {
       case CreateFormatOps(ops) => dg.formatOps = ops
       case Routes(routes) => dg.routes = routes
-      case explored: Explored if explored.n % 10000 == 0 => logger.elem(explored)
+      case explored: Explored if explored.n % 10000 == 0 =>
+        logger.elem(explored)
       case Enqueue(split) => dg.enqueued(split)
-      case evt: CompleteFormat => dg.completed(evt)
       case x: Written => dg.locations = x.formatLocations
       case _ =>
     },

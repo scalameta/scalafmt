@@ -19,6 +19,7 @@ case class CommunityBuild(
     styles: Set[String] = Set.empty,
     stylesIncluded: Boolean = true,
     fileOverride: Option[String] = null,
+    statsPerStyle: Map[String, TestStats.Style] = Map.empty,
 ) {
   private val excludedMatchers = {
     val fs = FileSystems.getDefault
