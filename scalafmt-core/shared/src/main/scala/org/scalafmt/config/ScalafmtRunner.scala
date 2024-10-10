@@ -20,6 +20,7 @@ import metaconfig._
   */
 case class ScalafmtRunner(
     debug: Boolean = false,
+    private val completeCallback: FormatEvent.CompleteFormat => Unit = _ => (),
     private val eventCallback: FormatEvent => Unit = null,
     private[config] val parser: ScalafmtParser = ScalafmtParser.Source,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
@@ -56,11 +57,14 @@ case class ScalafmtRunner(
   private[scalafmt] def forCodeBlock: ScalafmtRunner =
     copy(debug = false, eventCallback = null, parser = ScalafmtParser.Source)
 
+  private[scalafmt] def withCompleteCallback(
+      cb: FormatEvent.CompleteFormat => Unit,
+  ): ScalafmtRunner = copy(completeCallback = cb)
+
+  def event(evt: FormatEvent.CompleteFormat): Unit = completeCallback(evt)
+
   def event(evt: => FormatEvent): Unit =
     if (null != eventCallback) eventCallback(evt)
-
-  def events(evts: => Iterator[FormatEvent]): Unit =
-    if (null != eventCallback) evts.foreach(eventCallback)
 
   def parse(input: meta.inputs.Input): Parsed[_ <: Tree] =
     getParser(input, getDialectForParser)
@@ -79,7 +83,8 @@ case class ScalafmtRunner(
 object ScalafmtRunner {
   implicit lazy val surface: generic.Surface[ScalafmtRunner] =
     generic.deriveSurface
-  implicit lazy val formatEventEncoder: ConfEncoder[FormatEvent => Unit] =
+
+  implicit def formatEventEncoder[A <: FormatEvent]: ConfEncoder[A => Unit] =
     ConfEncoder.StringEncoder.contramap(_ => "<FormatEvent => Unit>")
 
   /** The default runner formats a compilation unit and listens to no events.

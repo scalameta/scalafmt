@@ -8,6 +8,7 @@ import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
 
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -31,7 +32,7 @@ class Debug(val verbose: Boolean) {
 
   def completed(event: CompleteFormat): Unit = {
     completedEvent = Option(event)
-    Debug.explored += event.totalExplored
+    Debug.explored.getAndAdd(event.totalExplored)
   }
 
   def formatTokenExplored = completedEvent.map(_.visits)
@@ -60,7 +61,7 @@ class Debug(val verbose: Boolean) {
 
 object Debug {
 
-  var explored = 0
+  val explored = new AtomicInteger(0)
 
   def printCompletedEvent(
       completedEvent: CompleteFormat,
