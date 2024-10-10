@@ -12,9 +12,9 @@ import metaconfig.Configured
 object ScalafmtConfDecoders extends ScalafmtConfDecoders
 
 trait ScalafmtConfDecoders {
-  type FormatEventCb = FormatEvent => Unit
-  implicit lazy val eventReader: ConfDecoderEx[FormatEventCb] = ConfDecoderEx
-    .from[FormatEventCb] { case _ => Configured.Ok((_: FormatEvent) => ()) }
+  implicit def eventReaderFor[A <: FormatEvent]: ConfDecoderEx[A => Unit] =
+    ConfDecoderEx.from[A => Unit] { case _ => Configured.Ok((_: A) => ()) }
+
   implicit lazy val parseReader: ConfCodecEx[MetaParser] = ReaderUtil
     .oneOf[MetaParser](parseSource, parseStat, parseCase)
 
