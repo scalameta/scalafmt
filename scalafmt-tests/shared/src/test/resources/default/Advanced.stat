@@ -206,7 +206,7 @@ options.testFilter match {
           }, { // else
             callStatement
           })(jstpe.AnyType)
->>> { stateVisits = 1740, stateVisits2 = 1728 }
+>>> { stateVisits = 1724, stateVisits2 = 1712 }
 callStatement = js.If(
     genIsInstanceOf(callTrg, rtClass.tpe), {
       if (implMethodSym.owner == ObjectClass) {
@@ -529,7 +529,7 @@ js.Function(List(objParam, depthParam),
         uri.getRawQuery(),
         uri.getRawFragment()).normalize()
     }
->>> { stateVisits = 1709 }
+>>> { stateVisits = 1697, stateVisits2 = 1697 }
 if (uri.isAbsolute() || this.isOpaque()) uri
 else if (
     uri._scheme.isEmpty && uri._authority.isEmpty &&

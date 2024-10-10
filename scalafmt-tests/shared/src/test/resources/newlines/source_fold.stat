@@ -828,7 +828,7 @@ object a {
       })(result)))))))
   }).getMessage should ===("Ur state be b0rked")
 }
->>> { stateVisits = 652, stateVisits2 = 652 }
+>>> { stateVisits = 623, stateVisits2 = 623 }
 object a {
   (intercept[java.lang.IllegalStateException] {
     wrap(result ⇒
@@ -7465,7 +7465,7 @@ class a {
     case _ => stepNoBreak(inner)(in)
   }
 }
->>> { stateVisits = 988, stateVisits2 = 988 }
+>>> { stateVisits = 868, stateVisits2 = 868 }
 class a {
   def step(
       inner: Iteratee[E, A]
@@ -8357,7 +8357,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 78932 }
+>>> { stateVisits = 6093, stateVisits2 = 6093 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -8388,7 +8388,8 @@ object a {
           h2(cls := "h200")(
             "Type parameters"),
           dl(
-            cls := "attributes attributes-small")(
+            cls :=
+              "attributes attributes-small")(
             memberTypeParams *))).toSeq
         .flatten ++ Option.when(
         memberValueParams.nonEmpty)(
@@ -8396,7 +8397,8 @@ object a {
           h2(cls := "h200")(
             "Value parameters"),
           dl(
-            cls := "attributes attributes-small")(
+            cls :=
+              "attributes attributes-small")(
             memberValueParams *)))
         .toSeq.flatten :+ h2(
         cls := "h200")("Attributes") :+ dl(
@@ -8442,7 +8444,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 36381 }
+>>> { stateVisits = 7564, stateVisits2 = 7564 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -8486,7 +8488,8 @@ object a {
             "Type parameters"
           ),
           dl(
-            cls := "attributes attributes-small"
+            cls :=
+              "attributes attributes-small"
           )(memberTypeParams *)
         )
       ).toSeq.flatten ++ Option.when(
@@ -8497,7 +8500,8 @@ object a {
             "Value parameters"
           ),
           dl(
-            cls := "attributes attributes-small"
+            cls :=
+              "attributes attributes-small"
           )(memberValueParams *)
         )
       ).toSeq.flatten :+ h2(
@@ -8775,7 +8779,7 @@ class UDFRegistration private[sql] (functionRegistry: FunctionRegistry) extends 
     val inputEncoders: Seq[Option[ExpressionEncoder[_]]] = Try(ExpressionEncoder[A1]()).toOption :: Try(ExpressionEncoder[A2]()).toOption :: Try(ExpressionEncoder[A3]()).toOption :: Try(ExpressionEncoder[A4]()).toOption :: Try(ExpressionEncoder[A5]()).toOption :: Try(ExpressionEncoder[A6]()).toOption :: Try(ExpressionEncoder[A7]()).toOption :: Try(ExpressionEncoder[A8]()).toOption :: Try(ExpressionEncoder[A9]()).toOption :: Try(ExpressionEncoder[A10]()).toOption :: Try(ExpressionEncoder[A11]()).toOption :: Try(ExpressionEncoder[A12]()).toOption :: Try(ExpressionEncoder[A13]()).toOption :: Try(ExpressionEncoder[A14]()).toOption :: Try(ExpressionEncoder[A15]()).toOption :: Try(ExpressionEncoder[A16]()).toOption :: Try(ExpressionEncoder[A17]()).toOption :: Try(ExpressionEncoder[A18]()).toOption :: Try(ExpressionEncoder[A19]()).toOption :: Try(ExpressionEncoder[A20]()).toOption :: Try(ExpressionEncoder[A21]()).toOption :: Try(ExpressionEncoder[A22]()).toOption :: Nil
   }
 }
->>> { stateVisits = 807, stateVisits2 = 807 }
+>>> { stateVisits = 732, stateVisits2 = 732 }
 class UDFRegistration private[sql] (
     functionRegistry: FunctionRegistry
 ) extends Logging {
@@ -9202,7 +9206,7 @@ object Build {
       }.evaluated,
     )
 }
->>> { stateVisits = 1315, stateVisits2 = 1315 }
+>>> { stateVisits = 1296, stateVisits2 = 1296 }
 object Build {
   lazy val scaladoc = project.in(file("scaladoc"))
     .settings(generateScalaDocumentation := Def.inputTaskDyn {
@@ -9316,7 +9320,7 @@ private object MemoMap {
         }
       }
 }
->>> { stateVisits = 862, stateVisits2 = 862 }
+>>> { stateVisits = 847, stateVisits2 = 847 }
 private object MemoMap {
   def make(implicit
       trace: Trace
@@ -9450,7 +9454,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 3808, stateVisits2 = 3808 }
+>>> { stateVisits = 3538, stateVisits2 = 3538 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref.Synchronized
@@ -9567,7 +9571,7 @@ object a {
       .map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 194795, stateVisits2 = 194795 }
+>>> { stateVisits = 187773, stateVisits2 = 187773 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
@@ -9665,7 +9669,7 @@ object a {
       .map(filterNot(getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 12414, stateVisits2 = 12414 }
+>>> { stateVisits = 12063, stateVisits2 = 12063 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
