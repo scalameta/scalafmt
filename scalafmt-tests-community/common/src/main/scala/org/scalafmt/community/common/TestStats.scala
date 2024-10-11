@@ -19,4 +19,5 @@ object TestStats {
     s1.linesParsed + s2.linesParsed,
   )
 
+  case class Style(expectedStatesVisited: Int)
 }
