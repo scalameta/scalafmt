@@ -186,10 +186,7 @@ final case class State(
         case _ => // delay for intermediate interpolation tokens
           result(tokLength, true)
       }
-      else if (
-        ft.right.isInstanceOf[Product] && tokLength == 1 &&
-        !ft.meta.right.text.head.isLetterOrDigit
-      ) { // delimiter
+      else if (ft.right.isInstanceOf[Token.Punct] && tokLength == 1) { // delimiter
         val ok = delayedPenalty != 0 ||
           style.newlines.avoidForSimpleOverflowPunct &&
           column >= style.maxColumn
