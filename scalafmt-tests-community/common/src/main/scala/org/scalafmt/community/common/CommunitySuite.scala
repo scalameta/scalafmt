@@ -25,17 +25,17 @@ abstract class CommunitySuite extends FunSuite {
     if build.styles.isEmpty || build.styles.contains(k) == build.stylesIncluded
   } {
     val prefix = s"[ref ${build.commit}, style $k]"
-    val styleWithDialect: ScalafmtConfig = v
+
+    val style = build.fileOverrideConf.fold(v)(v.withFileOverride)
       .withDialect(NamedDialect(build.dialect))
-    val style = build.fileOverrideConf
-      .fold(styleWithDialect)(styleWithDialect.withFileOverride)
-    test(s"community-build: ${build.name} $prefix")(check(k)(build, style))
+    test(s"community-build: ${build.name} $prefix")(check(k, style)(build))
   }
 
-  private def check(
-      styleName: String,
-  )(implicit build: CommunityBuild, style: ScalafmtConfig): Unit = {
+  private def check(styleName: String, style: ScalafmtConfig)(implicit
+      build: CommunityBuild,
+  ): Unit = {
     val folder = fetchCommunityBuild
+    implicit val customStyle: ScalafmtConfig = style
 
     val stats = checkFilesRecursive(styleName, folder.toAbsolutePath)
       .getOrElse(TestStats.init)
