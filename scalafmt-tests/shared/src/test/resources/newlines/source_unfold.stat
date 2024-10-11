@@ -10554,3 +10554,35 @@ object a {
     )
       yield x + y
 }
+<<< #4133 select chain with no-break comment before dot, short
+maxColumn = 37
+===
+sel.getContext /*ScImportSelectors*/ .getContext.asInstanceOf[ScImportExpr].reference
+>>>
+BestFirstSearch:278 Failed to format
+UNABLE TO FORMAT,
+tok #4/14: [4] /*ScImportSelectors*/∙.: Comment(ScImportSelectors) [15..36) [ ] Dot [37..38)
+policies:
+  (NEXTSEL1NL:[Router:1896]<48d & SLB:[Router:1868]@85!d)
+splits (before policy):
+  c=0[0] SP:[Router:1846->Router:1846](indents=[], NoPolicy)
+  [SelectChainFirstNL]c=0[0] SP:[Router:1846->Router:1846](indents=[], NEXTSEL1NL:[Router:1896]<61d)
+splits (after policy):
+  [!SelectChainFirstNL]c=0[0] SP:[Router:1846->Router:1846](indents=[], NoPolicy)
+  c=0[0] SP:[Router:1846->Router:1846](indents=[], NEXTSEL1NL:[Router:1896]<61d)
+<<< #4133 select chain with no-break comment before dot, long
+maxColumn = 80
+===
+sel.getContext /*ScImportSelectors*/ .getContext.asInstanceOf[ScImportExpr].reference
+>>>
+BestFirstSearch:278 Failed to format
+UNABLE TO FORMAT,
+tok #12/14: [12] .∙reference: Dot [75..76) [] Ident(reference) [76..85)
+policies:
+  SLB:[Router:1868]@85!d
+  SLB:[Router:1868]@85!d
+  SLB:[Router:1868]@85!d
+splits (before policy):
+  c=0[0] nS:[Router:2551->Router:2551](indents=[], NoPolicy)
+splits (after policy):
+  c=0[0] nS:[Router:2551->Router:2551](indents=[], NoPolicy)
