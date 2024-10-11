@@ -10205,3 +10205,12 @@ sel.getContext /*ScImportSelectors*/ .getContext.asInstanceOf[ScImportExpr].refe
 sel.getContext /*ScImportSelectors*/ .getContext.asInstanceOf[
   ScImportExpr
 ].reference
+<<< #4133 overflow ending in a `+`
+maxColumn = 75
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+fraction.fold(" " * 6)(p => f"${100.0 * p}%5.1f%%") + " [" + ("#" * decile) +
+  (" " * (10 - decile)) + "] " + downloaded + " source files formatted"
+>>>
+fraction.fold(" " * 6)(p => f"${100.0 * p}%5.1f%%") + " [" + ("#" * decile) +
+  (" " * (10 - decile)) + "] " + downloaded + " source files formatted"
