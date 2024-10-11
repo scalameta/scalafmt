@@ -9920,7 +9920,7 @@ private object MemoMap {
         }
       }
 }
->>> { stateVisits = 305, stateVisits2 = 244 }
+>>> { stateVisits = 296, stateVisits2 = 243 }
 private object MemoMap {
   def make(implicit
       trace: Trace
@@ -10059,7 +10059,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 1003, stateVisits2 = 899 }
+>>> { stateVisits = 991, stateVisits2 = 887 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] =
@@ -10193,7 +10193,7 @@ object a {
       .map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 1239, stateVisits2 = 699 }
+>>> { stateVisits = 1222, stateVisits2 = 682 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
@@ -10333,7 +10333,7 @@ object a {
       .map(filterNot(getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 800, stateVisits2 = 556 }
+>>> { stateVisits = 783, stateVisits2 = 539 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]

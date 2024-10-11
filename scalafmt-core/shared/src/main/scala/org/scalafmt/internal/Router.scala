@@ -399,18 +399,14 @@ class Router(formatOps: FormatOps) {
                   }
               }
             // copy logic from `( ...`, binpack=never, defining `slbSplit`
-            val isBeforeOpenParen = style.newlines.isBeforeOpenParenCallSite
-            Split(NoSplit, 0).withSingleLine(
-              if (isBeforeOpenParen) closeFT.left
-              else endOfSingleLineBlock(closeFT),
-              noSyntaxNL = true,
-              killOnFail = true,
-              noOptimal = style.newlines.keep,
-            ).andPolicy(sldPolicy & noCloseSpacePolicy)
+            val slbEnd =
+              if (style.newlines.isBeforeOpenParenCallSite) close
+              else endOfSingleLineBlock(closeFT)
+            Split(NoSplit, 0).withSingleLine(slbEnd, noSyntaxNL = true)
+              .andPolicy(sldPolicy & noCloseSpacePolicy)
           }
           else Left {
-            Split(noSplitMod, 0)
-              .withSingleLine(expire, noSyntaxNL = true, killOnFail = true)
+            Split(noSplitMod, 0).withSingleLine(expire, noSyntaxNL = true)
               .andPolicy(sldPolicy)
           }
         }
@@ -441,8 +437,8 @@ class Router(formatOps: FormatOps) {
               case _ => newlineBeforeClosingCurly &
                   decideNewlinesOnlyAfterToken(arrowOptimal)
             }
-            Split(noSplitMod, 0).withSingleLine(arrowOptimal, killOnFail = true)
-              .andPolicy(policy).withIndent(lambdaIndent, close, Before)
+            Split(noSplitMod, 0).withSingleLine(arrowOptimal).andPolicy(policy)
+              .withIndent(lambdaIndent, close, Before)
           }
 
         val singleLineSplit = singleLineSplitOpt match {
@@ -474,7 +470,7 @@ class Router(formatOps: FormatOps) {
                 style.newlines.fold || !rightOwner.is[Defn]
               } =>
             val exp = getOptimalTokenFor(getLastNonTrivial(leftFunc.body).left)
-            spaceSplitBase.withSingleLineNoOptimal(exp, noSyntaxNL = true)
+            spaceSplitBase.withSingleLine(exp, noSyntaxNL = true)
           case _ => Split.ignored
         }
         val (endIndent, expiresOn) = functionExpire(leftFunc)
@@ -545,7 +541,10 @@ class Router(formatOps: FormatOps) {
               // if brace, don't add indent, the LeftBrace rule will do that
               Split(Space, 0)
                 .withIndent(indent, endOfFunction, expiresOn, hasBlock)
-                .withOptimalToken(getOptimalTokenFor(next(nonComment)))
+                .withOptimalToken(
+                  getOptimalTokenFor(next(nonComment)),
+                  killOnFail = false,
+                )
           Seq(noSplit, newlineSplit(1 + nestedApplies(leftOwner)))
         }
 
@@ -861,7 +860,7 @@ class Router(formatOps: FormatOps) {
             )(newlinePolicy)
           }
           Split(noSplitMod, 0, policy = spacePolicy)
-            .withOptimalToken(lambdaToken)
+            .withOptimalToken(lambdaToken, killOnFail = true)
         }
 
         if (noSplitMod == null) Seq(
@@ -1106,7 +1105,8 @@ class Router(formatOps: FormatOps) {
                   ) getSlb
                   else if (splitsForAssign.isDefined) singleLine(3)
                   else singleLine(10)
-                val kof = style.newlines.keep && needDifferentFromOneArgPerLine
+                val kof = (style.newlines.keep || excludeBlocks.isEmpty) &&
+                  needDifferentFromOneArgPerLine
                 val noOptimal = style.newlines.keep && !useOneArgPerLineSplit ||
                   singleArgument && !excludeBlocks.isEmpty &&
                   excludeBlocks.ranges.forall(_.lt.is[T.LeftParen])
@@ -1300,9 +1300,9 @@ class Router(formatOps: FormatOps) {
           else if (singleLineOnly || noNLPolicy == null) baseNoSplit
             .withSingleLine(
               close,
-              sjsExclude,
+              exclude = sjsExclude,
               noSyntaxNL = true,
-              killOnFail = !dangleCloseDelim,
+              killOnFail = Some(!dangleCloseDelim || sjsExclude.isEmpty),
             )
           else {
             def noSingleArgIndents = oneline || singleArgAsInfix.isDefined ||
@@ -1451,7 +1451,10 @@ class Router(formatOps: FormatOps) {
           if style.newlines.avoidInResultType =>
         val expire = getLastNonTrivialToken(returnType)
         val policy = PenalizeAllNewlines(expire, Constants.ShouldBeNewline)
-        Seq(Split(Space, 0).withPolicy(policy).withOptimalToken(expire))
+        Seq(
+          Split(Space, 0).withPolicy(policy)
+            .withOptimalToken(expire, killOnFail = false),
+        )
 
       case FormatToken(T.LeftParen(), T.LeftBrace(), _) => Seq(Split(NoSplit, 0))
 
@@ -1481,7 +1484,7 @@ class Router(formatOps: FormatOps) {
             val multiLine = decideNewlinesOnlyAfterToken(breakAfter) ==>
               decideNewlinesOnlyBeforeClose(close)
             Seq(
-              Split(Newline, 0).withSingleLine(close, killOnFail = true),
+              Split(Newline, 0).withSingleLine(close),
               Split(Space, 1, policy = multiLine),
             )
         }
@@ -1524,8 +1527,7 @@ class Router(formatOps: FormatOps) {
               val isBeforeOpenParen = style.newlines.isBeforeOpenParenCallSite
               val optimal: T =
                 if (isBeforeOpenParen) rbft.left else endOfSingleLineBlock(rbft)
-              val noOptimal = style.newlines.keep
-              Split(NoSplit, 0).withSingleLine(optimal, noOptimal = noOptimal)
+              Split(NoSplit, 0).withSingleLine(optimal)
             }
         Seq(slbParensSplit.getOrElse(Split.ignored), Split(Space, 0))
 
@@ -1753,9 +1755,6 @@ class Router(formatOps: FormatOps) {
           val eft = if (nft.noBreak) nextNonCommentSameLineAfter(nft) else nft
           endOfSingleLineBlock(eft)
         }
-        def shouldKillOnFail() =
-          (style.binPack.callSite ne BinPack.Site.Never) &&
-            isInfixArg(expireTree)
 
         val ftAfterRight = tokens(ft, 2)
         val baseSplits = style.newlines.getSelectChains match {
@@ -1860,8 +1859,7 @@ class Router(formatOps: FormatOps) {
           case Newlines.unfold =>
             val nlCost = if (nlOnly) 0 else 1
             if (prevSelect.isEmpty && nextSelect.isEmpty) Seq(
-              Split(nlOnly, 0)(NoSplit)
-                .withSingleLine(getSlbEnd(), killOnFail = shouldKillOnFail()),
+              Split(nlOnly, 0)(NoSplit).withSingleLine(getSlbEnd()),
               Split(Newline, nlCost),
             )
             else Seq(
@@ -1882,7 +1880,7 @@ class Router(formatOps: FormatOps) {
                   val end = nextSelect
                     .fold(expire)(x => getLastNonTrivialToken(x.qual))
                   val exclude = insideBracesBlock(ft, end, parensToo = true)
-                  Split(NoSplit, 0).withSingleLine(end, exclude)
+                  Split(NoSplit, 0).withSingleLine(end, exclude = exclude)
                 }
               Seq(noSplit, nlSplitBase)
             } else {
@@ -2033,8 +2031,7 @@ class Router(formatOps: FormatOps) {
         if (style.danglingParentheses.ctrlSite) {
           val noSplit =
             if (style.align.openParenCtrlSite) Split(NoSplit, 0)
-              .withIndents(indents).withOptimalToken(close)
-              .withPolicy(penalizeNewlines)
+              .withIndents(indents).withPolicy(penalizeNewlines)
               .andPolicy(decideNewlinesOnlyBeforeCloseOnBreak(close))
             else Split(NoSplit, 0).withSingleLine(close)
           Seq(
@@ -2053,8 +2050,7 @@ class Router(formatOps: FormatOps) {
         val mod =
           if (isKeep && hasBreak()) Newline
           else Space(style.spaces.isSpaceAfterKeyword(right))
-        val slb = Split(mod.isNL, 0)(mod)
-          .withSingleLine(expire, killOnFail = true)
+        val slb = Split(mod.isNL, 0)(mod).withSingleLine(expire)
         val mlSplitBase = Split(mod, if (slb.isIgnored) 0 else 1).withPolicy(
           if (isKeep) getBreakBeforeElsePolicy(owner)
           else getBreaksBeforeElseChainPolicy(owner),
@@ -2141,8 +2137,10 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, _: T.KwThen | _: T.KwDo, _) =>
         val okSpace = style.newlines.sourceIgnored || noBreak()
         Seq(
-          Split(!okSpace, 0)(Space)
-            .withOptimalToken(nextNonCommentSameLineAfter(ft).left),
+          Split(!okSpace, 0)(Space).withOptimalToken(
+            nextNonCommentSameLineAfter(ft).left,
+            killOnFail = false,
+          ),
           Split(Newline, 1),
         )
       // Last else branch
@@ -2231,8 +2229,8 @@ class Router(formatOps: FormatOps) {
             Seq(
               if (!singleLine) spaceSplit
               else spaceSplitWithoutPolicy.withSingleLine(close).andPolicy(
-                Policy ? !enclosed.exists(isInfixApp) ||
-                  getSingleLineInfixPolicy(close),
+                getSingleLineInfixPolicy(close),
+                ignore = !enclosed.exists(isInfixApp),
               ),
               newlineSplit(10, true),
             )
@@ -2310,9 +2308,10 @@ class Router(formatOps: FormatOps) {
           val onArrowPolicy = Policy.End == arrow ==>
             Policy.after(postArrow, "CASESLB>ARROW") { case Decision(_, ss) =>
               ss.flatMap { s =>
-                val nonSlbSplit = s.andPolicy(postArrowPolicy)
-                if (s.isNL) Seq(nonSlbSplit)
-                else Seq(s.withSingleLine(slbExpire, extend = true), nonSlbSplit)
+                Seq(
+                  s.notIf(s.isNL).withSingleLine(slbExpire, extend = true),
+                  s.andPolicy(postArrowPolicy),
+                )
               }
             }
           Policy.RelayOnSplit((s, _) => s.isNL)(onArrowPolicy, postArrowPolicy)
@@ -2379,7 +2378,7 @@ class Router(formatOps: FormatOps) {
           Seq(Split(Space, 0).withIndent(indent, noIndent))
         } else Seq(
           // Either everything fits in one line or break on =>
-          Split(Space, 0).withSingleLineNoOptimal(lastToken),
+          Split(Space, 0).withSingleLine(lastToken),
           Split(Newline, 1).withIndent(indent),
         )
 
@@ -2465,7 +2464,10 @@ class Router(formatOps: FormatOps) {
             case _: T.KwIf => end.left
             case x => x
           }
-          Seq(Split(Space, 0).withOptimalToken(opt), Split(Newline, 1))
+          Seq(
+            Split(Space, 0).withOptimalToken(opt, killOnFail = false),
+            Split(Newline, 1),
+          )
         }
       case FormatToken(_, T.Ident("|"), _) if rightOwner.is[Pat.Alternative] =>
         val noNL = !style.newlines.keepBreak(newlines)
@@ -2650,7 +2652,8 @@ class Router(formatOps: FormatOps) {
       Seq(Split(Space, 0).withIndents(spaceIndents))
     else if (isRightCommentWithBreak(ft))
       Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft), 0), body, endFt))
-    else if (isJsNative(body)) Seq(Split(Space, 0).withSingleLine(endFt.left))
+    else if (isJsNative(body))
+      Seq(Split(Space, 0).withSingleLineNoOptimal(endFt.left))
     else if (
       style.dialect.allowSignificantIndentation &&
       (style.newlines.sourceIgnored || ft.noBreak) && body.parent.exists {
@@ -2732,7 +2735,7 @@ class Router(formatOps: FormatOps) {
     def baseSpaceSplit(implicit fileLine: FileLine) =
       Split(isRightCommentThenBreak(ft), 0)(Space)
     def twoBranches(implicit fileLine: FileLine) = baseSpaceSplit
-      .withOptimalToken(optimal).withPolicy {
+      .withOptimalToken(optimal, killOnFail = false).withPolicy {
         val exclude = insideBracesBlock(ft, expire)
         policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
           PenalizeAllNewlines(expire, Constants.ShouldBeSingleLine),
@@ -2745,7 +2748,8 @@ class Router(formatOps: FormatOps) {
       case _: Term.ForYield => twoBranches
       // we force newlines in try/catch/finally
       case _: Term.TryClause => Split.ignored
-      case _ => baseSpaceSplit.withOptimalToken(optimalWithComment)
+      case _ => baseSpaceSplit
+          .withOptimalToken(optimalWithComment, killOnFail = false)
     }
     Seq(
       spaceSplit,
@@ -2771,7 +2775,8 @@ class Router(formatOps: FormatOps) {
             case t: Term.If => ifWithoutElse(t)
             case _ => true
           }
-          if (noSlb) Split(Space, 0).withOptimalToken(ft.right)
+          if (noSlb) Split(Space, 0)
+            .withOptimalToken(ft.right, killOnFail = false)
           else Split(Space, 0).withSingleLine(expire)
         }
       }(cost => CtrlBodySplits.withIndent(Split(Newline2x(ft), cost), endFt))

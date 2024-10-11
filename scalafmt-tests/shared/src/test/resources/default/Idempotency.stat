@@ -187,7 +187,7 @@ val bindingFuture = Http().bindAndHandleSync({
     })
      }}
 
->>> { stateVisits = 1944, stateVisits2 = 1943 }
+>>> { stateVisits = 1900, stateVisits2 = 1899 }
 {
   {
     val core = BidiFlow.fromGraph(GraphDSL.create() { implicit b ⇒
