@@ -55,9 +55,9 @@ maxColumn = 40
 ===
 def f(u: Universe)(using ctx: u.Context)(using s: ctx.Symbol, k: ctx.Kind, o: ctx.Other) = {}
 >>>
-def f(
-    u: Universe
-)(using ctx: u.Context)(using
+def f(u: Universe)(using
+    ctx: u.Context
+)(using
     s: ctx.Symbol,
     k: ctx.Kind,
     o: ctx.Other

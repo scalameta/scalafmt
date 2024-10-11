@@ -465,7 +465,7 @@ EventsResponse.fromJson(json, run).success.value.events should be(Seq(
             ^.value := s.text),
           <.button("Add #", s.items.length + 1)))
     ).build
->>> { stateVisits = 972, stateVisits2 = 863 }
+>>> { stateVisits = 842, stateVisits2 = 725 }
 val TodoApp = ReactComponentB[Unit]("TodoApp")
   .initialState(State(Nil, ""))
   .renderS(($, s) =>

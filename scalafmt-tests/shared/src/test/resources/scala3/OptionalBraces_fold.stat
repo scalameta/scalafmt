@@ -1005,7 +1005,7 @@ object Foo:
     case a: A if a.someField.otherField.function().exists(SomeObjectLongName.isTrue) =>
       None
   )
->>> { stateVisits = 917, stateVisits2 = 921 }
+>>> { stateVisits = 790, stateVisits2 = 794 }
 object Foo:
    def bar = process(
      arg match
@@ -5927,7 +5927,7 @@ object a:
     }) 
     index
   }
->>> { stateVisits = 1565, stateVisits2 = 1565 }
+>>> { stateVisits = 1513, stateVisits2 = 1513 }
 object a:
    private val packageIndex
        : scala.collection.Map[String, scala.collection.Seq[Path]] = {
@@ -6696,7 +6696,7 @@ object a {
         g.asInstanceOf[Tuple18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => Any].apply((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18))).asInstanceOf[F]
   )
 }
->>> { stateVisits = 3402 }
+>>> { stateVisits = 2441, stateVisits2 = 2441 }
 object a {
   def tupledFunction18[F, G]: TupledFunction[F, G] = TupledFunction[F, G](
       untupledImpl = (g: G) =>
