@@ -23,7 +23,7 @@ class CommunityScala3_2Suite extends CommunityScala3Suite("scala-3.2") {
       "keepWithAlign" -> TestStats.Style(expectedStatesVisited = 3148747),
       "keepWithRewrites" -> TestStats.Style(expectedStatesVisited = 3079850),
       "keepWithScalaJS" -> TestStats.Style(expectedStatesVisited = 3631800),
-      "unfold" -> TestStats.Style(expectedStatesVisited = 3882915),
+      "unfold" -> TestStats.Style(expectedStatesVisited = 3882869),
     ),
   ))
 
@@ -44,7 +44,7 @@ class CommunityScala3_3Suite extends CommunityScala3Suite("scala-3.3") {
       "keepWithAlign" -> TestStats.Style(expectedStatesVisited = 3388188),
       "keepWithRewrites" -> TestStats.Style(expectedStatesVisited = 3321872),
       "keepWithScalaJS" -> TestStats.Style(expectedStatesVisited = 3907628),
-      "unfold" -> TestStats.Style(expectedStatesVisited = 4201569),
+      "unfold" -> TestStats.Style(expectedStatesVisited = 4201515),
     ),
   ))
 

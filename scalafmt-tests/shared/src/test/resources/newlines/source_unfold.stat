@@ -2807,7 +2807,8 @@ class Foo {
   val vv = v
     .aaa //
     //
-    .bbb.ccc()
+    .bbb
+    .ccc()
   val vv = v.aaa //
   val vv = v.aaa
 }
@@ -2827,7 +2828,8 @@ class Foo {
     .bbb //
     //
     .ccc //
-    .ddd.eee()
+    .ddd
+    .eee()
 }
 <<< #1334 3: continue chain indent after a comment with apply
 class Foo {
@@ -2885,7 +2887,8 @@ val a: Vector[Array[Double]] =
     // another comment
     .map { foo =>
       bar
-    }.tail
+    }
+    .tail
 <<< #1334 6: multiple select and a match after a comment
 val a: Vector[Array[Double]] = b.c
        // Only handle first case, others will be fixed on the next pass.
@@ -2898,7 +2901,8 @@ val a: Vector[Array[Double]] = b.c
 val a: Vector[Array[Double]] =
   b.c
     // Only handle first case, others will be fixed on the next pass.
-    .headOption.a match {
+    .headOption
+    .a match {
     case None =>
     case _ =>
   }
@@ -6291,10 +6295,12 @@ object a {
 object a {
   foo
     // c2
-    .bar(baz).foo(bar, baz)
+    .bar(baz)
+    .foo(bar, baz)
   foo // c1
     // c2
-    .bar(baz).foo(bar, baz)
+    .bar(baz)
+    .foo(bar, baz)
   foo
     .bar(baz) // c1
     // c2
@@ -10559,30 +10565,18 @@ maxColumn = 37
 ===
 sel.getContext /*ScImportSelectors*/ .getContext.asInstanceOf[ScImportExpr].reference
 >>>
-BestFirstSearch:278 Failed to format
-UNABLE TO FORMAT,
-tok #4/14: [4] /*ScImportSelectors*/∙.: Comment(ScImportSelectors) [15..36) [ ] Dot [37..38)
-policies:
-  (NEXTSEL1NL:[Router:1896]<48d & SLB:[Router:1868]@85!d)
-splits (before policy):
-  c=0[0] SP:[Router:1846->Router:1846](indents=[], NoPolicy)
-  [SelectChainFirstNL]c=0[0] SP:[Router:1846->Router:1846](indents=[], NEXTSEL1NL:[Router:1896]<61d)
-splits (after policy):
-  [!SelectChainFirstNL]c=0[0] SP:[Router:1846->Router:1846](indents=[], NoPolicy)
-  c=0[0] SP:[Router:1846->Router:1846](indents=[], NEXTSEL1NL:[Router:1896]<61d)
+sel
+  .getContext /*ScImportSelectors*/
+  .getContext
+  .asInstanceOf[ScImportExpr]
+  .reference
 <<< #4133 select chain with no-break comment before dot, long
 maxColumn = 80
 ===
 sel.getContext /*ScImportSelectors*/ .getContext.asInstanceOf[ScImportExpr].reference
 >>>
-BestFirstSearch:278 Failed to format
-UNABLE TO FORMAT,
-tok #12/14: [12] .∙reference: Dot [75..76) [] Ident(reference) [76..85)
-policies:
-  SLB:[Router:1868]@85!d
-  SLB:[Router:1868]@85!d
-  SLB:[Router:1868]@85!d
-splits (before policy):
-  c=0[0] nS:[Router:2551->Router:2551](indents=[], NoPolicy)
-splits (after policy):
-  c=0[0] nS:[Router:2551->Router:2551](indents=[], NoPolicy)
+sel
+  .getContext /*ScImportSelectors*/
+  .getContext
+  .asInstanceOf[ScImportExpr]
+  .reference

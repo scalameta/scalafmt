@@ -18,12 +18,12 @@ class CommunityScala2_12Suite extends CommunityScala2Suite("scala-2.12") {
       "classic" -> TestStats.Style(expectedStatesVisited = 3742070),
       "classicWithAlign" -> TestStats.Style(expectedStatesVisited = 3743075),
       "classicWithRewrites" -> TestStats.Style(expectedStatesVisited = 3782691),
-      "fold" -> TestStats.Style(expectedStatesVisited = 5833337),
+      "fold" -> TestStats.Style(expectedStatesVisited = 5833324),
       "keep" -> TestStats.Style(expectedStatesVisited = 3511074),
       "keepWithAlign" -> TestStats.Style(expectedStatesVisited = 3511201),
       "keepWithRewrites" -> TestStats.Style(expectedStatesVisited = 3557273),
       "keepWithScalaJS" -> TestStats.Style(expectedStatesVisited = 3976667),
-      "unfold" -> TestStats.Style(expectedStatesVisited = 4192416),
+      "unfold" -> TestStats.Style(expectedStatesVisited = 4192369),
     ),
   ))
 
@@ -36,15 +36,15 @@ class CommunityScala2_13Suite extends CommunityScala2Suite("scala-2.13") {
     dialects.Scala213,
     1287,
     statsPerStyle = Map(
-      "classic" -> TestStats.Style(expectedStatesVisited = 4633745),
-      "classicWithAlign" -> TestStats.Style(expectedStatesVisited = 4636185),
-      "classicWithRewrites" -> TestStats.Style(expectedStatesVisited = 4666467),
-      "fold" -> TestStats.Style(expectedStatesVisited = 7586090),
+      "classic" -> TestStats.Style(expectedStatesVisited = 4633753),
+      "classicWithAlign" -> TestStats.Style(expectedStatesVisited = 4636193),
+      "classicWithRewrites" -> TestStats.Style(expectedStatesVisited = 4666475),
+      "fold" -> TestStats.Style(expectedStatesVisited = 7586002),
       "keep" -> TestStats.Style(expectedStatesVisited = 4329252),
       "keepWithAlign" -> TestStats.Style(expectedStatesVisited = 4329386),
       "keepWithRewrites" -> TestStats.Style(expectedStatesVisited = 4373731),
       "keepWithScalaJS" -> TestStats.Style(expectedStatesVisited = 4928298),
-      "unfold" -> TestStats.Style(expectedStatesVisited = 5125436),
+      "unfold" -> TestStats.Style(expectedStatesVisited = 5125363),
     ),
   ))
 
