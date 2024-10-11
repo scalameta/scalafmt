@@ -23,7 +23,7 @@ class CommunitySpark3_4Suite extends CommunitySparkSuite("spark-3.4") {
       "keepWithAlign" -> TestStats.Style(expectedStatesVisited = 6827259),
       "keepWithRewrites" -> TestStats.Style(expectedStatesVisited = 6841859),
       "keepWithScalaJS" -> TestStats.Style(expectedStatesVisited = 7585082),
-      "unfold" -> TestStats.Style(expectedStatesVisited = 8655221),
+      "unfold" -> TestStats.Style(expectedStatesVisited = 8654777),
     ),
   ))
 
@@ -44,7 +44,7 @@ class CommunitySpark3_5Suite extends CommunitySparkSuite("spark-3.5") {
       "keepWithAlign" -> TestStats.Style(expectedStatesVisited = 7218811),
       "keepWithRewrites" -> TestStats.Style(expectedStatesVisited = 7237620),
       "keepWithScalaJS" -> TestStats.Style(expectedStatesVisited = 8057079),
-      "unfold" -> TestStats.Style(expectedStatesVisited = 9159697),
+      "unfold" -> TestStats.Style(expectedStatesVisited = 9159243),
     ),
   ))
 

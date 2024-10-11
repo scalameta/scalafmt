@@ -49,7 +49,10 @@ case class NewlineT(
   override val length: Int = 0
 }
 
-object Newline extends NewlineT
+object Newline extends NewlineT {
+  def orMod(flag: Boolean, mod: => Modification): Modification =
+    if (flag) this else mod
+}
 
 object Newline2x extends NewlineT(isDouble = true) {
   def apply(isDouble: Boolean): NewlineT = if (isDouble) this else Newline

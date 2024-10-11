@@ -9755,8 +9755,8 @@ maxColumn = 37
 ===
 sel.getContext /*ScImportSelectors*/ .getContext.asInstanceOf[ScImportExpr].reference
 >>>
-sel
-  .getContext /*ScImportSelectors*/ .getContext
+sel.getContext /*ScImportSelectors*/
+  .getContext
   .asInstanceOf[ScImportExpr]
   .reference
 <<< #4133 select chain with no-break comment before dot, long
