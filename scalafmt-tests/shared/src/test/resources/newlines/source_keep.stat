@@ -10189,3 +10189,19 @@ object a {
       loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
   ) yield x + y
 }
+<<< #4133 select chain with no-break comment before dot, short
+maxColumn = 37
+===
+sel.getContext /*ScImportSelectors*/ .getContext.asInstanceOf[ScImportExpr].reference
+>>>
+sel.getContext /*ScImportSelectors*/ .getContext.asInstanceOf[
+  ScImportExpr
+].reference
+<<< #4133 select chain with no-break comment before dot, long
+maxColumn = 80
+===
+sel.getContext /*ScImportSelectors*/ .getContext.asInstanceOf[ScImportExpr].reference
+>>>
+sel.getContext /*ScImportSelectors*/ .getContext.asInstanceOf[
+  ScImportExpr
+].reference
