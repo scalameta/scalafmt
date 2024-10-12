@@ -9807,8 +9807,7 @@ val output = evaluated match {
 }
 >>>
 val output = evaluated match {
-  case s: String =>
-    s"""|
+  case s: String => s"""|
         |"$s"""".stripMargin
   case x => x.toString
 }

@@ -1514,7 +1514,7 @@ class FormatOps(
             case _ => true
           })
         val opt = if (style.newlines.keep) miniSlbEnd else blast
-        Split(Space, 0).withSingleLineNoOptimal(miniSlbEnd, noSyntaxNL = true)
+        Split(Space, 0).withSingleLineNoOptimal(miniSlbEnd)
           .andPolicy(spacePolicy)
           .withOptimalToken(opt, killOnFail = slbLite, recurseOnly = slbLite)
       }
