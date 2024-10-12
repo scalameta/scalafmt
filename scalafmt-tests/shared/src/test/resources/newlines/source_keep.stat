@@ -10216,3 +10216,23 @@ fraction.fold(" " * 6)(p =>
   f"${100.0 * p}%5.1f%%"
 ) + " [" + ("#" * decile) +
   (" " * (10 - decile)) + "] " + downloaded + " source files formatted"
+<<< #4133 multiple annotations
+maxColumn = 80
+===
+@org.openjdk.jmh.annotations.State(Scope.Benchmark)
+@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@BenchmarkMode(Array(Mode.AverageTime)) @OutputTimeUnit(TimeUnit.SECONDS)
+abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
+    extends FormatBenchmark {
+  var files: GenIterable[String] = _
+  }
+>>>
+@org.openjdk.jmh.annotations.State(Scope.Benchmark)
+@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@BenchmarkMode(Array(Mode.AverageTime)) @OutputTimeUnit(TimeUnit.SECONDS)
+abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
+    extends FormatBenchmark {
+  var files: GenIterable[String] = _
+}
