@@ -9796,3 +9796,19 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
     extends FormatBenchmark {
   var files: GenIterable[String] = _
 }
+<<< #4133 multiline string as case body
+maxColumn = 80
+===
+val output = evaluated match {
+  case s: String =>
+    s"""|
+        |"$s"""".stripMargin
+  case x => x.toString
+}
+>>>
+val output = evaluated match {
+  case s: String =>
+    s"""|
+        |"$s"""".stripMargin
+  case x => x.toString
+}
