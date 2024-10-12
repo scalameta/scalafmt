@@ -6,11 +6,13 @@ import org.scalafmt.internal.State
 
 import org.scalameta.FileLine
 import scala.meta.Tree
+import scala.meta.inputs.InputRange
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Interpolation
 import scala.meta.tokens.Tokens
 
+import scala.annotation.tailrec
 import scala.util.DynamicVariable
 
 import sourcecode.Text
@@ -27,15 +29,25 @@ object LoggerOps {
   def name2style[T](styles: Text[T]*): Map[String, T] = styles
     .map(x => x.source -> x.value).toMap
 
-  def log(s: State, indent: String = ""): String = {
+  def log(s: State, indent: String = "", nlIndices: Boolean = true): String = {
     val delim = s"\n$indent  "
     val policies = s.policy.policies match {
       case Nil => ""
       case p :: Nil => s";${delim}P($p)"
       case pp => pp.map(_.toString).mkString(s";${delim}P[", s",$delim  ", s"]")
     }
+    @tailrec
+    def getNlIndices(x: State, res: List[String]): List[String] =
+      if (x.depth == 0) res
+      else getNlIndices(
+        x.prev,
+        if (x.split.isNL) s"${x.cost}@${x.depth}" :: res else res,
+      )
+    val nls =
+      if (nlIndices) getNlIndices(s, Nil).mkString(s"${delim}nl=[", ",", "]")
+      else ""
     s"d=${s.depth} w=${s.cost}[${s.appliedPenalty}] i=${s.indentation} col=${s
-        .column} #nl=${s.lineId}$policies;${delim}s=${log(s.split)}"
+        .column} #nl=${s.lineId}$policies;${delim}s=${log(s.split)}$nls"
   }
   def log(split: Split): String = s"$split"
 
@@ -63,11 +75,26 @@ object LoggerOps {
   def logTok(token: Token): String = f"[${token.structure}%-40s"
   def logTok(token: Option[Token]): String = token.fold("")(log)
 
+  def log(range: InputRange): String = s"[${range.start}..${range.end})"
+
+  def position(t: Tree): String = log(t.pos)
+
+  def treeInfo(t: Tree): String = {
+    val typeName = t.getClass.getName.stripPrefix("scala.meta.")
+    val parts = typeName.split('$')
+    val name = parts.length match {
+      case 0 => typeName
+      case 1 => parts(0)
+      case _ => s"${parts(0)}.${parts(1)}"
+    }
+    s"$name ${position(t)}"
+  }
+
   def log(t: Tree): String = log(t, false)
   def log(t: Tree, tokensOnly: Boolean): String = {
     val tokens = s"TOKENS: ${t.tokens.map(x => reveal(x.syntax)).mkString(",")}"
     if (tokensOnly) tokens
-    else s"""|TYPE: ${t.getClass.getName.stripPrefix("scala.meta.")}
+    else s"""|TYPE: ${treeInfo(t)}
              |SOURCE: $t
              |STRUCTURE: ${t.show[Structure]}
              |$tokens

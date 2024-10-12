@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps._
 
 import scala.meta.Tree
@@ -28,7 +29,13 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
       case 1 => "LF"
       case _ => "LFLF"
     }
-    s"[$idx] ${meta.left.text}∙${meta.right.text}: ${left.structure} [$ws] ${right.structure}"
+    val lt = meta.left.text
+    val rt = meta.right.text
+    val ls = left.structure
+    val rs = right.structure
+    val lo = LoggerOps.treeInfo(leftOwner)
+    val ro = LoggerOps.treeInfo(rightOwner)
+    s"[$idx] $lt $rt >>> $ls | $rs >>> $lo | $ro <<<[$ws]>>>"
   }
 
   def inside(range: Set[Range]): Boolean =
