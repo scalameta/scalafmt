@@ -632,12 +632,15 @@ class Router(formatOps: FormatOps) {
               case _ => noBreak() && Reserved(right)
             })
           def expire = (rightOwner match {
-            case Tree.WithBody(body) => tokenBeforeOpt(body)
+            case Tree.WithBody(body) => tokenBeforeOpt(body).map { x =>
+                val y = nextNonCommentSameLine(x)
+                val ok = (x ne y) && y.noBreak && y.right.is[T.LeftBrace]
+                if (ok) y.right else y.left
+              }
+            case t: Mod.Annot if !style.newlines.keep =>
+              getLastOpt(t).map(endOfSingleLineBlock)
             case _ => None
-          }).fold(right) { x =>
-            val y = nextNonCommentSameLine(x)
-            if (y.noBreak && y.right.is[T.LeftBrace]) y.right else y.left
-          }
+          }).getOrElse(right)
           Seq(
             // This split needs to have an optimalAt field.
             Split(Space, 0).onlyIf(spaceCouldBeOk).withSingleLine(expire),

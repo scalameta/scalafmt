@@ -9789,11 +9789,9 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
   }
 >>>
 @org.openjdk.jmh.annotations.State(Scope.Benchmark)
-@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS) @Measurement(
-  iterations = 5,
-  time = 1,
-  timeUnit = TimeUnit.SECONDS
-) @BenchmarkMode(Array(Mode.AverageTime)) @OutputTimeUnit(TimeUnit.SECONDS)
+@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@BenchmarkMode(Array(Mode.AverageTime)) @OutputTimeUnit(TimeUnit.SECONDS)
 abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
     extends FormatBenchmark {
   var files: GenIterable[String] = _
