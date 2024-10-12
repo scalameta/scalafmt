@@ -86,7 +86,7 @@ class CommunityIntellijScala_2024_3_Suite
       "classic" -> TestStats.Style(expectedStatesVisited = 5134862),
       "classicWithAlign" -> TestStats.Style(expectedStatesVisited = 5139218),
       "classicWithRewrites" -> TestStats.Style(expectedStatesVisited = 5134172),
-      "fold" -> TestStats.Style(expectedStatesVisited = 7953034),
+      "fold" -> TestStats.Style(expectedStatesVisited = 7953020),
       "keep" -> TestStats.Style(expectedStatesVisited = 4737913),
       "keepWithAlign" -> TestStats.Style(expectedStatesVisited = 4739065),
       "keepWithRewrites" -> TestStats.Style(expectedStatesVisited = 4748954),
