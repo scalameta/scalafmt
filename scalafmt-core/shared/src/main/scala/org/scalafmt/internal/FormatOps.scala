@@ -107,13 +107,18 @@ class FormatOps(
           ) start
           else null
         }
-      case _: T.LeftBrace
-          if start.left.is[T.RightParen] &&
-            start.leftOwner.is[Member.SyntaxValuesClause] &&
-            start.rightOwner.parent.exists {
-              case p: Tree.WithBody => p.body eq start.rightOwner
-              case _ => false
-            } => null
+      case _: T.LeftBrace => start.left match {
+          case _: T.RightParen
+              if start.leftOwner.is[Member.SyntaxValuesClause] &&
+                start.rightOwner.parent.exists {
+                  case p: Tree.WithBody => p.body eq start.rightOwner
+                  case _ => false
+                } => null
+          case _: T.Interpolation.SpliceStart
+              if style.newlines.inInterpolation eq
+                Newlines.InInterpolation.allow => null
+          case _ => start
+        }
       case _: T.RightBracket if start.left.is[T.RightBracket] => null
       case _: T.LeftBracket => null
       case _: T.Dot => start.rightOwner match {
