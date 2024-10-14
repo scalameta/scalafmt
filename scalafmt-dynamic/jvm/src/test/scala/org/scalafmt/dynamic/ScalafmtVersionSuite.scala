@@ -35,6 +35,18 @@ class ScalafmtVersionSuite extends FunSuite {
       ScalafmtVersion.parse("99.99.99+foobar"),
       Some(ScalafmtVersion(99, 99, 99, 0, "+foobar")),
     )
+    assertEquals(
+      ScalafmtVersion.parse("1.2.3-M14"),
+      Some(ScalafmtVersion(1, 2, 3, 0, "-M14")),
+    )
+    assertEquals(
+      ScalafmtVersion.parse("2.1.0-RC1-M4"),
+      Some(ScalafmtVersion(2, 1, 0, 1, "-M4")),
+    )
+    assertEquals(
+      ScalafmtVersion.parse("2.1.0-rc1"),
+      Some(ScalafmtVersion(2, 1, 0, 0, "-rc1")),
+    )
   }
 
   test("toString") {
@@ -54,15 +66,12 @@ class ScalafmtVersionSuite extends FunSuite {
     assertEquals(ScalafmtVersion.parse("2.0"), None)
     assertEquals(ScalafmtVersion.parse("v2.0.0"), None)
     assertEquals(ScalafmtVersion.parse("avs"), None)
-    assertEquals(ScalafmtVersion.parse("1.2.3-M14"), None)
     assertEquals(ScalafmtVersion.parse("1.1.1.1"), None)
     assertEquals(ScalafmtVersion.parse("2.-1.0"), None)
     assertEquals(ScalafmtVersion.parse("2.1.0."), None)
     assertEquals(ScalafmtVersion.parse(",2.1.0"), None)
     assertEquals(ScalafmtVersion.parse("2.1a.0"), None)
     assertEquals(ScalafmtVersion.parse("2.1.0-"), None)
-    assertEquals(ScalafmtVersion.parse("2.1.0-rc1"), None)
-    assertEquals(ScalafmtVersion.parse("2.1.0-RC1-M4"), None)
   }
 
   test("order versions") {
