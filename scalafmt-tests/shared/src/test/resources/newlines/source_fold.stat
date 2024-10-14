@@ -9821,8 +9821,8 @@ object a {
 }
 >>>
 object a {
-  options.common.debug.print(s"Files to be formatted:\n${projectFiles
-      .mkString("\n")}\n")
-  options.common.debug.print(s"Files to be formatted:\n${projectFiles
-      .mkString("\n")}\n")
+  options.common.debug
+    .print(s"Files to be formatted:\n${projectFiles.mkString("\n")}\n")
+  options.common.debug
+    .print(s"Files to be formatted:\n${projectFiles.mkString("\n")}\n")
 }
