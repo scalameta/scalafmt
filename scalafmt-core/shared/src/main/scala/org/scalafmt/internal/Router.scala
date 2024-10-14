@@ -87,11 +87,17 @@ class Router(formatOps: FormatOps) {
                   else s.copy(optimalAt = None)
                 }
             }
-          else Policy ?
-            (style.newlines.sourceIgnored || isTripleQuote(m.left.text)) ||
+          else if (!style.newlines.sourceIgnored && !isTripleQuote(m.left.text))
             Policy.on(end, "INTERP-KEEP-NONL") {
               case Decision(x, ss) if x.noBreak =>
                 ss.map(s => if (s.isNL) s.withPenalty(penalty) else s)
+            }
+          else Policy ?
+            (style.newlines.inInterpolation eq
+              Newlines.InInterpolation.allow) &&
+            Policy.on(end, "INTERP-ALLOW-NL", rank = -1) {
+              case Decision(_, ss) => ss
+                  .map(s => if (s.isNL) s.withPenalty(1) else s)
             }
         }
         val split = Split(NoSplit, 0, policy = policy)
