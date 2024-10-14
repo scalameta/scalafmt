@@ -19,6 +19,9 @@ abstract class CommunitySuite extends FunSuite {
   override val munitTimeout = new duration.FiniteDuration(10, duration.MINUTES)
 
   protected def builds: Seq[CommunityBuild]
+  protected def totalStatesVisited: Option[Int] = None
+
+  private val atomicTotalStatesVisited = new AtomicInteger(0)
 
   for {
     build <- builds
@@ -30,6 +33,13 @@ abstract class CommunitySuite extends FunSuite {
     val style = build.fileOverrideConf.fold(v)(v.withFileOverride)
       .withDialect(NamedDialect(build.dialect))
     test(s"community-build: ${build.name} $prefix")(check(k, style)(build))
+  }
+
+  override def afterAll(): Unit = {
+    if (!OsSpecific.isWindows) totalStatesVisited.foreach { cnt =>
+      assertEquals(atomicTotalStatesVisited.get(), cnt)
+    }
+    super.afterAll()
   }
 
   private def check(styleName: String, style: ScalafmtConfig)(implicit
@@ -64,8 +74,11 @@ abstract class CommunitySuite extends FunSuite {
       build.checkedFiles * 2,
       s"expected ${stats.checkedFiles / 2} per run",
     )
-    if (!OsSpecific.isWindows) build.statsPerStyle.get(styleName).foreach { x =>
-      assertEquals(statesVisited, x.expectedStatesVisited)
+    if (!OsSpecific.isWindows) {
+      atomicTotalStatesVisited.getAndAdd(statesVisited)
+      build.statsPerStyle.get(styleName).foreach { x =>
+        assertEquals(statesVisited, x.expectedStatesVisited)
+      }
     }
   }
 
