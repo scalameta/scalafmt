@@ -1,7 +1,6 @@
 package org.scalafmt.community.intellij
 
 import org.scalafmt.community.common.CommunityRepoSuite
-import org.scalafmt.community.common.TestStats
 
 import scala.meta._
 
@@ -13,6 +12,8 @@ abstract class CommunityIntellijScalaSuite(name: String)
 
 class CommunityIntellijScala_2024_2_Suite
     extends CommunityIntellijScalaSuite("intellij-scala-2024.2") {
+
+  override protected def totalStatesVisited: Option[Int] = Some(48186930)
 
   override protected def builds = Seq(getBuild(
     "2024.2.28",
@@ -50,6 +51,8 @@ class CommunityIntellijScala_2024_2_Suite
 class CommunityIntellijScala_2024_3_Suite
     extends CommunityIntellijScalaSuite("intellij-scala-2024.3") {
 
+  override protected def totalStatesVisited: Option[Int] = Some(48366702)
+
   override protected def builds = Seq(getBuild(
     "2024.3.4",
     dialects.Scala213,
@@ -82,17 +85,6 @@ class CommunityIntellijScala_2024_3_Suite
                       |  }
                       |}
                       |""".stripMargin,
-    statsPerStyle = Map(
-      "classic" -> TestStats.Style(expectedStatesVisited = 5134862),
-      "classicWithAlign" -> TestStats.Style(expectedStatesVisited = 5139218),
-      "classicWithRewrites" -> TestStats.Style(expectedStatesVisited = 5134172),
-      "fold" -> TestStats.Style(expectedStatesVisited = 7953354),
-      "keep" -> TestStats.Style(expectedStatesVisited = 4737912),
-      "keepWithAlign" -> TestStats.Style(expectedStatesVisited = 4739064),
-      "keepWithRewrites" -> TestStats.Style(expectedStatesVisited = 4748953),
-      "keepWithScalaJS" -> TestStats.Style(expectedStatesVisited = 5167359),
-      "unfold" -> TestStats.Style(expectedStatesVisited = 5611808),
-    ),
   ))
 
 }

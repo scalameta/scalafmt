@@ -1,7 +1,6 @@
 package org.scalafmt.community.scala2
 
 import org.scalafmt.community.common.CommunityRepoSuite
-import org.scalafmt.community.common.TestStats
 
 import scala.meta._
 
@@ -10,42 +9,18 @@ abstract class CommunityScala2Suite(name: String)
 
 class CommunityScala2_12Suite extends CommunityScala2Suite("scala-2.12") {
 
-  override protected def builds = Seq(getBuild(
-    "v2.12.20",
-    dialects.Scala212,
-    1277,
-    statsPerStyle = Map(
-      "classic" -> TestStats.Style(expectedStatesVisited = 3742070),
-      "classicWithAlign" -> TestStats.Style(expectedStatesVisited = 3743075),
-      "classicWithRewrites" -> TestStats.Style(expectedStatesVisited = 3782691),
-      "fold" -> TestStats.Style(expectedStatesVisited = 5833626),
-      "keep" -> TestStats.Style(expectedStatesVisited = 3511087),
-      "keepWithAlign" -> TestStats.Style(expectedStatesVisited = 3511214),
-      "keepWithRewrites" -> TestStats.Style(expectedStatesVisited = 3557286),
-      "keepWithScalaJS" -> TestStats.Style(expectedStatesVisited = 3976698),
-      "unfold" -> TestStats.Style(expectedStatesVisited = 4192369),
-    ),
-  ))
+  override protected def totalStatesVisited: Option[Int] = Some(35850116)
+
+  override protected def builds =
+    Seq(getBuild("v2.12.20", dialects.Scala212, 1277))
 
 }
 
 class CommunityScala2_13Suite extends CommunityScala2Suite("scala-2.13") {
 
-  override protected def builds = Seq(getBuild(
-    "v2.13.14",
-    dialects.Scala213,
-    1287,
-    statsPerStyle = Map(
-      "classic" -> TestStats.Style(expectedStatesVisited = 4633753),
-      "classicWithAlign" -> TestStats.Style(expectedStatesVisited = 4636193),
-      "classicWithRewrites" -> TestStats.Style(expectedStatesVisited = 4666475),
-      "fold" -> TestStats.Style(expectedStatesVisited = 7587352),
-      "keep" -> TestStats.Style(expectedStatesVisited = 4329334),
-      "keepWithAlign" -> TestStats.Style(expectedStatesVisited = 4329468),
-      "keepWithRewrites" -> TestStats.Style(expectedStatesVisited = 4373813),
-      "keepWithScalaJS" -> TestStats.Style(expectedStatesVisited = 4928380),
-      "unfold" -> TestStats.Style(expectedStatesVisited = 5125363),
-    ),
-  ))
+  override protected def totalStatesVisited: Option[Int] = Some(44610131)
+
+  override protected def builds =
+    Seq(getBuild("v2.13.14", dialects.Scala213, 1287))
 
 }
