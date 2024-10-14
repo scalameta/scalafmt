@@ -10629,3 +10629,22 @@ val output =
     case x =>
       x.toString
   }
+<<< #4133 breaks in overflowing interpolation, allow
+maxColumn = 76
+===
+object a {
+  options.common.debug
+    .print(s"Files to be formatted:\n${projectFiles.mkString("\n")}\n")
+  options.common.debug.print(s"Files to be formatted:\n${projectFiles.mkString("\n")}\n")
+}
+>>>
+object a {
+  options
+    .common
+    .debug
+    .print(s"Files to be formatted:\n${projectFiles.mkString("\n")}\n")
+  options
+    .common
+    .debug
+    .print(s"Files to be formatted:\n${projectFiles.mkString("\n")}\n")
+}
