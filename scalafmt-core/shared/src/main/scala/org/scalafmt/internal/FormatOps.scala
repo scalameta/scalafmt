@@ -165,7 +165,7 @@ class FormatOps(
         case _ => false
       })
 
-  val StartsStatementRight = new ExtractFromMeta[Tree](meta =>
+  val StartsStatementRight = new FormatToken.ExtractFromMeta[Tree](meta =>
     optimizationEntities.statementStarts.get(meta.idx + 1),
   )
 
@@ -1761,8 +1761,9 @@ class FormatOps(
     getClosingIfBodyEnclosedAsBlock(body).isDefined
 
   object GetSelectLike {
-    val OnRight =
-      new ExtractFromMeta(m => onRightOpt(m.rightOwner, tokens(m.idx)))
+    val OnRight = new FormatToken.ExtractFromMeta(m =>
+      onRightOpt(m.rightOwner, tokens(m.idx)),
+    )
 
     private[FormatOps] def onRightOpt(
         ro: Tree,
@@ -3055,27 +3056,25 @@ object FormatOps {
   def alignOpenDelim(implicit clauseSiteFlags: ClauseSiteFlags): Boolean =
     clauseSiteFlags.alignOpenDelim
 
-  class ExtractFromMeta[A](f: FormatToken.Meta => Option[A]) {
-    def unapply(meta: FormatToken.Meta): Option[A] = f(meta)
-  }
+  val ImplicitUsingOnLeft = new FormatToken.ExtractFromMeta(meta =>
+    TreeOps.getImplicitParamList(meta.leftOwner),
+  )
 
-  val ImplicitUsingOnLeft =
-    new ExtractFromMeta(meta => TreeOps.getImplicitParamList(meta.leftOwner))
-
-  val WithTemplateOnLeft = new ExtractFromMeta(_.leftOwner match {
+  val WithTemplateOnLeft = new FormatToken.ExtractFromMeta(_.leftOwner match {
     case lo: Stat.WithTemplate => Some(lo.templ)
     case _ => None
   })
 
-  val TemplateOnRight = new ExtractFromMeta(_.rightOwner match {
+  val TemplateOnRight = new FormatToken.ExtractFromMeta(_.rightOwner match {
     case ro: Template => Some(ro)
     case _ => None
   })
 
-  val EnumeratorAssignRhsOnLeft = new ExtractFromMeta(_.leftOwner match {
-    case x: Enumerator.Assign => Some(x.rhs)
-    case _ => None
-  })
+  val EnumeratorAssignRhsOnLeft =
+    new FormatToken.ExtractFromMeta(_.leftOwner match {
+      case x: Enumerator.Assign => Some(x.rhs)
+      case _ => None
+    })
 
   @tailrec
   private def getBlockWithNonSingleTermStat(t: Term.Block): Option[Term.Block] =
