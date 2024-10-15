@@ -435,9 +435,15 @@ object FormatTokensRewrite {
 
   private[rewrite] sealed trait ReplacementType
   private[rewrite] object ReplacementType {
-    object Remove extends ReplacementType
-    object Replace extends ReplacementType
-    class RemoveAndResurrect(val ft: FormatToken) extends ReplacementType
+    object Remove extends ReplacementType {
+      override def toString: String = "REMOVE"
+    }
+    object Replace extends ReplacementType {
+      override def toString: String = "REPLACE"
+    }
+    class RemoveAndResurrect(val ft: FormatToken) extends ReplacementType {
+      override def toString: String = s"REMOVE/RESURRECT(${ft.right.structure})"
+    }
   }
 
   private def mergeWhitespaceLeftToRight(
