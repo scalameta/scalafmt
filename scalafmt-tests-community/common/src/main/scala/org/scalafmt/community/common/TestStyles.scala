@@ -22,34 +22,40 @@ object TestStyles {
     )
   }
 
-  private def withSource(source: Newlines.SourceHints) = baseClassicStyle
-    .copy(newlines = baseClassicStyle.newlines.copy(source = source))
+  private implicit class ImplicitStyle(private val style: ScalafmtConfig)
+      extends AnyVal {
 
-  private def withRewrites(style: ScalafmtConfig) = style.copy(rewrite =
-    style.rewrite.copy(
-      rules = Seq(RedundantParens, RedundantBraces, SortModifiers, AvoidInfix),
-      scala3 = style.rewrite.scala3.copy(
-        convertToNewSyntax = true,
-        removeOptionalBraces = RewriteScala3Settings.RemoveOptionalBraces.yes,
-        insertEndMarkerMinLines = 5,
+    def withSource(source: Newlines.SourceHints): ScalafmtConfig = style
+      .copy(newlines = style.newlines.copy(source = source))
+
+    def withRewrites(): ScalafmtConfig = style.copy(rewrite =
+      style.rewrite.copy(
+        rules = Seq(RedundantParens, RedundantBraces, SortModifiers, AvoidInfix),
+        scala3 = style.rewrite.scala3.copy(
+          convertToNewSyntax = true,
+          removeOptionalBraces = RewriteScala3Settings.RemoveOptionalBraces.yes,
+          insertEndMarkerMinLines = 5,
+        ),
+        redundantBraces = RedundantBracesSettings.all,
+        redundantParens = RedundantParensSettings.all,
       ),
-      redundantBraces = RedundantBracesSettings.all,
-      redundantParens = RedundantParensSettings.all,
-    ),
-  )
+    )
 
-  private val baseKeepStyle = withSource(Newlines.keep)
+  }
 
-  val styles = SortedMap(
+  private val baseKeepStyle = baseClassicStyle.withSource(Newlines.keep)
+  private val baseFoldStyle = baseClassicStyle.withSource(Newlines.fold)
+
+  val styles: Map[String, ScalafmtConfig] = SortedMap(
     "classic" -> baseClassicStyle,
-    "classicWithRewrites" -> withRewrites(baseClassicStyle),
+    "classicWithRewrites" -> baseClassicStyle.withRewrites(),
     "classicWithAlign" -> baseClassicStyle.withAlign(Align.most),
     "keep" -> baseKeepStyle,
-    "keepWithRewrites" -> withRewrites(baseKeepStyle),
+    "keepWithRewrites" -> baseKeepStyle.withRewrites(),
     "keepWithAlign" -> baseKeepStyle.withAlign(Align.most),
     "keepWithScalaJS" -> baseKeepStyle.forScalaJs,
-    "fold" -> withSource(Newlines.fold),
-    "unfold" -> withSource(Newlines.unfold),
+    "fold" -> baseFoldStyle,
+    "unfold" -> baseClassicStyle.withSource(Newlines.unfold),
   )
 
 }
