@@ -161,7 +161,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       style: ScalafmtConfig,
   ): (Replacement, Replacement) = left.how match {
     case ReplacementType.Remove =>
-      val resOpt = getRightBraceBeforeRightParen(false).map { rb =>
+      getRightBraceBeforeRightParen(shouldBeRemoved = false).map { rb =>
         ft.meta.rightOwner match {
           case ac: Term.ArgClause => ftoks.matchingOpt(rb.left).map(ftoks.prev)
               .foreach { lb =>
@@ -178,15 +178,14 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           case _ =>
         }
         (left, removeToken)
-      }
-      resOpt.orNull
+      }.orNull
 
     case ReplacementType.Replace if {
           val lft = left.ft
           val ro = ft.meta.rightOwner
           (lft.meta.rightOwner eq ro) && lft.right.is[Token.LeftBrace]
         } =>
-      val pftOpt = getRightBraceBeforeRightParen(true)
+      val pftOpt = getRightBraceBeforeRightParen(shouldBeRemoved = true)
       def replaceIfAfterRightBrace = pftOpt.map { pft =>
         val rb = pft.left
         // move right to the end of the function
@@ -456,7 +455,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         checkBlockAsBody(b, d.body, noParams = d.paramClauseGroup.isEmpty)
 
       case p: Term.FunctionTerm if isFunctionWithBraces(p) =>
-        okToRemoveAroundFunctionBody(b, true)
+        okToRemoveAroundFunctionBody(b, okIfMultipleStats = true)
 
       case _: Term.If => settings.ifElseExpressions &&
         shouldRemoveSingleStatBlock(b)
@@ -513,9 +512,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       session: Session,
   ): Boolean = getSingleStatIfLineSpanOk(b).exists { stat =>
     @tailrec
-    def checkParent(tree: Tree): Boolean = tree match {
+    def keepForParent(tree: Tree): Boolean = tree match {
       case t: Term.ArgClause => t.parent match {
-          case Some(p) => checkParent(p)
+          case Some(p) => keepForParent(p)
           case _ => true
         }
       case _: Term.TryClause =>
@@ -586,7 +585,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         )
     }
 
-    innerOk(b)(stat) && !b.parent.exists(checkParent)
+    innerOk(b)(stat) && !b.parent.exists(keepForParent)
   }
 
   @inline
@@ -607,20 +606,12 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       case _ => okIfMultipleStats
     })
 
+  @tailrec
   private def getBlockNestedPartialFunction(
       tree: Tree,
   ): Option[Term.PartialFunction] = tree match {
     case x: Term.PartialFunction => Some(x)
-    case x: Term.Block => getBlockNestedPartialFunction(x)
-    case _ => None
-  }
-
-  @tailrec
-  private def getBlockNestedPartialFunction(
-      tree: Term.Block,
-  ): Option[Term.PartialFunction] = getBlockSingleStat(tree) match {
-    case Some(x: Term.PartialFunction) => Some(x)
-    case Some(x: Term.Block) => getBlockNestedPartialFunction(x)
+    case Term.Block(x :: Nil) => getBlockNestedPartialFunction(x)
     case _ => None
   }
 
