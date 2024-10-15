@@ -309,7 +309,13 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         case _ => false
       }
     val ok = ft.meta.rightOwner match {
-      case _: Term.Block => !braceSeparatesTwoXmlTokens &&
+      case t: Term.Block => !braceSeparatesTwoXmlTokens &&
+        (ftoks.prevNonComment(ft) match {
+          case FormatToken(_: Token.Semicolon, _, m) =>
+            val plo = m.leftOwner
+            (plo eq t) || !plo.parent.contains(t)
+          case _ => true
+        }) &&
         (style.dialect.allowSignificantIndentation ||
           okComment(ft) && !elseAfterRightBraceThenpOnLeft)
       case _ => true
