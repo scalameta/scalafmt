@@ -148,3 +148,52 @@ final class RemoteSettings(val config: Config) {
         "watch-failure-detector.expected-response-after > 0"
       )
 }
+<<< #4133 partial func in block, from spark, ifElseExpressions
+rewrite.redundantBraces.ifElseExpressions = true
+===
+object a {
+  val toIterator: Any => Iterator[_] = if (lenient) {
+    {
+      case i: scala.collection.Iterable[_] => i.iterator
+      case l: java.util.List[_] => l.iterator().asScala
+      case a: Array[_] => a.iterator
+      case o => unsupportedCollectionType(o.getClass)
+    }
+  } else {
+    unsupportedCollectionType(tag.runtimeClass)
+  }
+}
+>>>
+object a {
+  val toIterator: Any => Iterator[_] = if (lenient) {
+    case i: scala.collection.Iterable[_] => i.iterator
+    case l: java.util.List[_]            => l.iterator().asScala
+    case a: Array[_]                     => a.iterator
+    case o => unsupportedCollectionType(o.getClass)
+  }
+  else
+    unsupportedCollectionType(tag.runtimeClass)
+}
+<<< #4133 partial func in block, from spark, !ifElseExpressions
+rewrite.redundantBraces.ifElseExpressions = false
+===
+object a {
+  val toIterator: Any => Iterator[_] = if (lenient) {
+    {
+      case i: scala.collection.Iterable[_] => i.iterator
+      case l: java.util.List[_] => l.iterator().asScala
+      case a: Array[_] => a.iterator
+      case o => unsupportedCollectionType(o.getClass)
+    }
+  } else {
+    unsupportedCollectionType(tag.runtimeClass)
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+     case o => unsupportedCollectionType(o.getClass)
+-  }
+-  else {
++  } else {
+     unsupportedCollectionType(tag.runtimeClass)
