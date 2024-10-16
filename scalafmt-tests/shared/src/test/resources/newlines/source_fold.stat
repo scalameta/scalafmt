@@ -9826,3 +9826,22 @@ object a {
   options.common.debug
     .print(s"Files to be formatted:\n${projectFiles.mkString("\n")}\n")
 }
+<<< #4133 block function with rewritten empty-block body
+maxColumn = 74
+rewrite.rules = [RedundantBraces]
+===
+private def partitionsAssignedToConsumer = uninterruptibleThreadRunner.runUninterruptibly {
+  // Call `position` to wait until the potential offset request triggered by `poll(0)` is
+  // done. This is a workaround for KAFKA-7703, which an async `seekToBeginning` triggered by
+  // `poll(0)` may reset offsets that should have been set by another request.
+  partitions.asScala.map(p => p -> consumer.position(p)).foreach(_ => {})
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+     // `poll(0)` may reset offsets that should have been set by another request.
+-    partitions.asScala.map(p => p -> consumer.position(p))
+-      .foreach { _ => }
++    partitions.asScala.map(p => p -> consumer.position(p)).foreach { _ =>
++    }
+   }
