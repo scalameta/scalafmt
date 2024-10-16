@@ -1166,7 +1166,8 @@ object a {
   do (
     a
       + b
-  ) while (true)
+  )
+  while (true)
   do (
     a
       + b
@@ -1192,7 +1193,8 @@ object a {
   do {
     a +
       b
-  } while (true)
+  }
+  while (true)
   do {
     a +
       b

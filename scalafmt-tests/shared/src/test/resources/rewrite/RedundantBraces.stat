@@ -2261,7 +2261,8 @@ for (taskSet <- sortedTaskSets; maxLocality <- taskSet.myLocalityLevels) {
     shuffledOffers,
     availableCpus,
     tasks
-  ) while (launchedTask)
+  )
+  while (launchedTask)
 }
 <<< #4133 do-while within for, extra block
 rewrite.redundantBraces.maxLines = 100
@@ -2280,7 +2281,8 @@ for (taskSet <- sortedTaskSets; maxLocality <- taskSet.myLocalityLevels) {
     shuffledOffers,
     availableCpus,
     tasks
-  ) while (launchedTask)
+  )
+  while (launchedTask)
 }
 <<< body: do-while, braces, wide
 maxColumn = 25
@@ -2301,8 +2303,10 @@ object a {
 >>>
 object a {
   do foo while (true)
-  do a + b while (true)
-  do a + b while (true)
+  do a + b
+  while (true)
+  do a + b
+  while (true)
 }
 <<< body: do-while, braces, narrow
 maxColumn = 12
@@ -2322,9 +2326,10 @@ object a {
 }
 >>>
 object a {
-  do foo while (true)
-  do a +
-    b while (true)
-  do a +
-    b while (true)
+  do foo
+  while (true)
+  do a + b
+  while (true)
+  do a + b
+  while (true)
 }
