@@ -1,6 +1,6 @@
 package org.scalafmt.internal
 
-import scala.meta.Token
+import scala.meta.tokens.Token
 
 class TokenRange private (val lt: Token, val rt: Token) {
 
