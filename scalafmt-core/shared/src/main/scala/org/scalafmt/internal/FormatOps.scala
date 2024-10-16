@@ -1591,7 +1591,7 @@ class FormatOps(
         isKeep: Boolean,
         spaceIndents: Seq[Indent],
     )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] =
-      if (body.tokens.isEmpty) Seq(Split(Space, 0))
+      if (tokens.isEmpty(body)) Seq(Split(Space, 0))
       else foldedNonEmptyNonComment(body, nlSplitFunc, isKeep, spaceIndents)
 
     private def unfoldedSpaceNonEmptyNonComment(body: Tree, slbOnly: Boolean)(
@@ -1618,7 +1618,7 @@ class FormatOps(
         spaceIndents: Seq[Indent],
         slbOnly: Boolean,
     )(implicit style: ScalafmtConfig): Seq[Split] =
-      if (body.tokens.isEmpty) Seq(Split(Space, 0).withIndents(spaceIndents))
+      if (tokens.isEmpty(body)) Seq(Split(Space, 0).withIndents(spaceIndents))
       else {
         val spaceSplit = unfoldedSpaceNonEmptyNonComment(body, slbOnly)
         Seq(spaceSplit.withIndents(spaceIndents), nlSplitFunc(1).forThisLine)
