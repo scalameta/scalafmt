@@ -2076,7 +2076,7 @@ class Router(formatOps: FormatOps) {
           .indentAndBreakBeforeCtrl[T.KwThen](owner.cond, mlSplitBase)
         Seq(slb, mlSplitOpt.getOrElse(mlSplitBase))
       case FormatToken(_: T.KwWhile | _: T.KwFor, right, _)
-          if !leftOwner.is[Term.Name] => // exclude end marker
+          if leftOwner.isAny[Term.While, Term.ForClause] => // exclude end marker
         def spaceMod = Space(style.spaces.isSpaceAfterKeyword(right))
         val splitBase = {
           val onlyNL = style.newlines.keepBreak(newlines)
@@ -2567,6 +2567,37 @@ class Router(formatOps: FormatOps) {
             .fold(!rightOwner.is[Pat.Alternative])(_._1 eq BinPack.Site.Never)
         Seq(Split(if (ok) getNoSplitBeforeClosing(ft, Newline) else Newline, 0))
 
+      case FormatToken(_: T.KwDo, _, _) if leftOwner.is[Term.Do] =>
+        val owner = leftOwner.asInstanceOf[Term.Do]
+        val eft = getLast(owner.body)
+        val end = eft.left
+        val indent = Indent(style.indent.main, end, ExpiresOn.After)
+        val kwWhile = nextNonComment(eft).right
+        val noSplit =
+          if (noBreak() && isRightCommentThenBreak(ft)) Split(Space, 0)
+            .withIndents(indent)
+          else {
+            val exclude = insideBracesBlock(ft, end, parensToo = true)
+            Split(Space, 0)
+              .withSingleLine(endOfSingleLineBlock(eft), exclude = exclude)
+          }
+        val nlSplit =
+          Split(Newline, 1, policy = decideNewlinesOnlyBeforeToken(kwWhile))
+            .withIndents(indent)
+        Seq(noSplit, nlSplit)
+
+      case FormatToken(left, _: T.KwWhile, _) if rightOwner.is[Term.Do] =>
+        if (hasBlankLine) Seq(Split(Newline2x, 0))
+        else {
+          val nlOnly = left.is[T.RightBrace] &&
+            style.newlines.alwaysBeforeElseAfterCurlyIf &&
+            leftOwner.parent.contains(rightOwner) ||
+            !style.newlines.sourceIgnored && hasBreak()
+          val noSplit = Split(nlOnly, 0)(Space)
+          val nlSplit = Split(Newline, 1)
+          Seq(noSplit, nlSplit)
+        }
+
       case FormatToken(left, _: T.KwCatch | _: T.KwFinally, _)
           if style.newlines.alwaysBeforeElseAfterCurlyIf ||
             !left.is[T.RightBrace] ||
@@ -2575,8 +2606,8 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Newline2x(hasBlankLine), 0))
 
       case FormatToken(_, Reserved(), _) => Seq(Split(Space, 0))
-
       case FormatToken(Reserved(), _, _) => Seq(Split(Space, 0))
+
       case FormatToken(T.LeftBracket(), _, _) => Seq(Split(NoSplit, 0))
       case FormatToken(_, _: T.Symbolic, _) => Seq(Split(Space, 0))
       case FormatToken(T.Underscore(), T.Ident("*"), _) => Seq(Split(NoSplit, 0))
