@@ -1297,20 +1297,20 @@ object a {
 }
 >>>
 object a {
-  val foo = bar // c1
-  { // c2
+  val foo = bar { // c1
+    // c2
     case x => y
     // c3
   } // c4
-  val foo = bar // c1
-  { // c2
+  val foo = bar { // c1
+    // c2
     { // c3
       case x => y
       // c4
     } // c5
   } // c6
-  val foo = bar // c1
-  { // c2
+  val foo = bar { // c1
+    // c2
     // c3
     { // c4
       case x => y
@@ -1318,20 +1318,20 @@ object a {
     } // c6
     // c7
   } // c8
-  val foo = bar.baz // c1
-  { // c2
+  val foo = bar.baz { // c1
+    // c2
     case x => y
     // c3
   } // c4
-  val foo = bar.baz // c1
-  { // c2
+  val foo = bar.baz { // c1
+    // c2
     { // c3
       case x => y
       // c4
     } // c5
   } // c6
-  val foo = bar.baz // c1
-  { // c2
+  val foo = bar.baz { // c1
+    // c2
     // c3
     { // c4
       case x => y
