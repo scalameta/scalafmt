@@ -199,16 +199,21 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     case _ => style.rewrite.redundantParens.infixSide.isDefined
   }
 
-  private def breaksBeforeOpAndNotEnclosed(ia: Member.Infix): Boolean =
-    !ftoks.isEnclosedInParens(ia) && breaksBeforeOp(ia)
-
-  private def breaksBeforeOp(ia: Member.Infix): Boolean = {
-    val beforeOp = ftoks.tokenJustBefore(ia.op)
-    ftoks.prevNonCommentSameLine(beforeOp).hasBreak ||
-    ia.nestedInfixApps.exists(breaksBeforeOpAndNotEnclosed)
+  private def breaksBeforeOp(
+      ia: Member.Infix,
+  )(implicit style: ScalafmtConfig): Boolean = {
+    val formatInfix = style.formatInfix(ia)
+    def impl(ia: Member.Infix): Boolean = {
+      val beforeOp = ftoks.prevNonCommentSameLine(ftoks.tokenJustBefore(ia.op))
+      beforeOp.hasBreak && (!formatInfix || beforeOp.left.is[Token.Comment]) ||
+      ia.nestedInfixApps.exists(x => !ftoks.isEnclosedInParens(x) && impl(x))
+    }
+    impl(ia)
   }
 
-  private def canRewriteBody(tree: Tree): Boolean = tree match {
+  private def canRewriteBody(
+      tree: Tree,
+  )(implicit style: ScalafmtConfig): Boolean = tree match {
     case ia: Member.Infix => !breaksBeforeOp(ia)
     case _ => true
   }
