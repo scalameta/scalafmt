@@ -382,6 +382,11 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   def isAttachedCommentThenBreak(ft: FormatToken): Boolean = ft.noBreak &&
     isRightCommentThenBreak(ft)
 
+  def isEmpty(tree: Tree): Boolean = {
+    val toks = tree.tokens
+    toks.headOption.forall(after(_).left.end > toks.last.end)
+  }
+
   // Maps token to number of non-whitespace bytes before the token's position.
   private final lazy val nonWhitespaceOffset: Array[Int] = {
     val result = new Array[Int](arr.length)

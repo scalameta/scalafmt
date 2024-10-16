@@ -461,7 +461,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.RightArrow | _: T.ContextArrow, r, _)
           if (leftOwner match {
             case t: Term.FunctionTerm => !r.is[T.Comment] &&
-              t.body.tokens.nonEmpty && isBlockFunction(t)
+              !tokens.isEmpty(t.body) && isBlockFunction(t)
             case _ => false
           }) =>
         val leftFunc = leftOwner.asInstanceOf[Term.FunctionTerm]
