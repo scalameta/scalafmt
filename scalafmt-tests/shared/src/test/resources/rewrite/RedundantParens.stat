@@ -1714,3 +1714,27 @@ def newLine: Parser[String] = namedError(("\r" ?) ~> "\n", "End of line expected
 >>>
 def newLine: Parser[String] =
   namedError(("\r" ?) ~> "\n", "End of line expected")
+<<< #4133 infix in parens, single-line comment before infix op
+rewrite.redundantParens.infixSide = all
+===
+object a {
+    def stop(step: Double, ndir: Double, nx: Double): Boolean = {
+        ((step.isNaN) // NaN
+      || (step < 1e-7) // too small or negative
+      || (step > 1e40) // too small; almost certainly numerical problems
+      || (ndir < 1e-12 * nx) // gradient relatively too small
+      || (ndir < 1e-32) // gradient absolutely too small; numerical issues may lurk
+      )
+    }
+}
+>>>
+object a {
+  def stop(step: Double, ndir: Double, nx: Double): Boolean = {
+    (step.isNaN // NaN
+    || step < 1e-7 // too small or negative
+    || step > 1e40 // too small; almost certainly numerical problems
+    || ndir < 1e-12 * nx // gradient relatively too small
+    || ndir < 1e-32 // gradient absolutely too small; numerical issues may lurk
+    )
+  }
+}

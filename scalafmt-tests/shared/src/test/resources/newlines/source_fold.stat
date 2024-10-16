@@ -9845,3 +9845,25 @@ private def partitionsAssignedToConsumer = uninterruptibleThreadRunner
     partitions.asScala.map(p => p -> consumer.position(p))
       .foreach { _ => }
   }
+<<< #4133 rewritten def body as infix in parens with break before op
+maxColumn = 76
+rewrite {
+  rules = [RedundantParens, RedundantBraces]
+  redundantParens.infixSide = all
+}
+===
+// Checks if sending a new push request will exceed the max no. of blocks being pushed to a
+// given remote address.
+def isRemoteAddressMaxedOut(remoteAddress: BlockManagerId, request: PushRequest): Boolean = {
+  (numBlocksInFlightPerAddress.getOrElse(remoteAddress, 0)
+    + request.blocks.size) > maxBlocksInFlightPerAddress
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+     request: PushRequest
+-): Boolean = numBlocksInFlightPerAddress.getOrElse(remoteAddress, 0) +
+-  request.blocks.size > maxBlocksInFlightPerAddress
++): Boolean =
++  (numBlocksInFlightPerAddress.getOrElse(remoteAddress, 0) +
++    request.blocks.size) > maxBlocksInFlightPerAddress
