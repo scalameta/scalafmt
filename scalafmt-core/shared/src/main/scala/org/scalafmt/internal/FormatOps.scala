@@ -13,10 +13,10 @@ import org.scalafmt.util.InfixApp._
 import org.scalafmt.util._
 
 import org.scalameta.FileLine
-import scala.meta._
 import scala.meta.classifiers.Classifier
 import scala.meta.internal.tokens.Chars.isOperatorPart
 import scala.meta.tokens.{Token => T}
+import scala.meta.{Token => _, _}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -559,8 +559,7 @@ class FormatOps(
         case Term.Block(_ :: rest) => rest.nonEmpty ||
           (p.parent match {
             case Some(pp) => p.tokens.head match { // check brace was not rewritten
-                case head: Token.LeftBrace =>
-                  (tokens.before(head).left eq head) ||
+                case head: T.LeftBrace => (tokens.before(head).left eq head) ||
                   isOldTopLevelWithParent(p)(pp)
                 case _ => true
               }
@@ -2843,15 +2842,13 @@ class FormatOps(
 
   object BinPackOneline {
 
-    private def noRighDelim(
-        xtok: Token,
-        xft: FormatToken,
-    ): Option[FormatToken] = xtok match {
-      case _: T.CloseDelim => None
-      case _: T.Comma => Some(null) // trailing comma, has NL
-      case _: T.Comment => if (xft.noBreak) None else Some(null)
-      case _ => Some(xft)
-    }
+    private def noRighDelim(xtok: T, xft: FormatToken): Option[FormatToken] =
+      xtok match {
+        case _: T.CloseDelim => None
+        case _: T.Comma => Some(null) // trailing comma, has NL
+        case _: T.Comment => if (xft.noBreak) None else Some(null)
+        case _ => Some(xft)
+      }
 
     private def policyOnRightDelim(
         ft: FormatToken,
@@ -2965,7 +2962,7 @@ class FormatOps(
 
 object FormatOps {
   class SelectLike(val tree: Term, val qual: Term, val nameFt: FormatToken) {
-    def nameToken: Token = nameFt.left
+    def nameToken: T = nameFt.left
   }
 
   object SelectLike {

@@ -7,9 +7,9 @@ import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TokenTraverser
 import org.scalafmt.util.TreeOps
 
-import scala.meta._
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.SimpleTraverser
+import scala.meta.{Token => _, _}
 
 import scala.collection.mutable
 
@@ -25,17 +25,16 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
   val matchingParens = TreeOps.getMatchingParentheses(tokens)(identity)
 
   @inline
-  def getMatching(a: Token): Token = matchingParens(TokenOps.hash(a))
+  def getMatching(a: T): T = matchingParens(TokenOps.hash(a))
 
   @inline
-  def getMatchingOpt(a: Token): Option[Token] = matchingParens
-    .get(TokenOps.hash(a))
+  def getMatchingOpt(a: T): Option[T] = matchingParens.get(TokenOps.hash(a))
 
   @inline
-  def isMatching(a: Token, b: => Token) = getMatchingOpt(a).exists(_ eq b)
+  def isMatching(a: T, b: => T) = getMatchingOpt(a).exists(_ eq b)
 
   @inline
-  def getIndex(token: Token) = tokenTraverser.getIndex(token)
+  def getIndex(token: T) = tokenTraverser.getIndex(token)
 
   def applyPatches: String = tokens.iterator
     .map(x => patchBuilder.get(x.start -> x.end).fold(x.syntax)(_.newTok))
@@ -60,8 +59,8 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
     }.isDefined
 
   def findNonWhitespaceWith(
-      f: (Token => Option[Boolean]) => Option[Token],
-  ): Option[(Token, Option[T.AtEOL])] = {
+      f: (T => Option[Boolean]) => Option[T],
+  ): Option[(T, Option[T.AtEOL])] = {
     var lf: Option[T.AtEOL] = None
     val nonWs = f {
       case t: T.AtEOL =>

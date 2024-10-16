@@ -11,11 +11,11 @@ import org.scalafmt.util.LiteralOps
 import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.TreeOps
 
-import scala.meta._
 import scala.meta.internal.Scaladoc
 import scala.meta.internal.parsers.ScaladocParser
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
+import scala.meta.{Token => _, _}
 
 import java.nio.CharBuffer
 import java.util.regex.Pattern

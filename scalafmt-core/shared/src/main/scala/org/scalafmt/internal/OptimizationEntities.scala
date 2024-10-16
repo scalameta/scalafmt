@@ -3,8 +3,8 @@ package org.scalafmt.internal
 import org.scalafmt.Error
 import org.scalafmt.util._
 
-import scala.meta._
 import scala.meta.tokens.{Token => T}
+import scala.meta.{Token => _, _}
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
@@ -87,11 +87,11 @@ object OptimizationEntities {
     }
 
     private def addStmtFT(stmt: Tree)(ft: FormatToken): Unit = {
-      val isComment = ft.left.is[Token.Comment]
+      val isComment = ft.left.is[T.Comment]
       val nft = if (isComment) ftoks.nextAfterNonComment(ft) else ft
       statements += nft.meta.idx -> stmt
     }
-    private def addStmtTok(stmt: Tree)(token: Token) =
+    private def addStmtTok(stmt: Tree)(token: T) =
       addStmtFT(stmt)(ftoks.after(token))
     private def addStmtTree(t: Tree, stmt: Tree) = ftoks.getHeadOpt(t)
       .foreach(addStmtFT(stmt))
@@ -102,7 +102,7 @@ object OptimizationEntities {
         mods: Seq[Mod],
         tree: Tree,
         what: String,
-        isMatch: Token => Boolean,
+        isMatch: T => Boolean,
     ): Unit = {
       // Each @annotation gets a separate line
       val annotations = mods.filter(_.is[Mod.Annot])
@@ -154,7 +154,7 @@ object OptimizationEntities {
       // special handling for rewritten blocks
       case t @ Term.Block(_ :: Nil) if t.tokens.headOption.exists { x =>
             // ignore single-stat block if opening brace was removed
-            x.is[Token.LeftBrace] && ftoks(x).left.ne(x)
+            x.is[T.LeftBrace] && ftoks(x).left.ne(x)
           } =>
       case t: Term.EnumeratorsBlock =>
         var wasGuard = false
