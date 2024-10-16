@@ -313,6 +313,10 @@ object FormatTokensRewrite {
       claimedRule(ft.meta.idx)
 
     @inline
+    def claimedRuleOnLeft(ft: FormatToken): Option[Replacement] =
+      claimedRule(ft.meta.idx - 1)
+
+    @inline
     private[rewrite] def claimedRule(ftIdx: Int): Option[Replacement] = claimed
       .get(ftIdx).map(tokens.apply).filter(_ ne null)
 
