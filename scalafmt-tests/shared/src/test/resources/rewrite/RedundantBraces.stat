@@ -2282,3 +2282,49 @@ for (taskSet <- sortedTaskSets; maxLocality <- taskSet.myLocalityLevels) {
     tasks
   ) while (launchedTask)
 }
+<<< body: do-while, braces, wide
+maxColumn = 25
+===
+object a {
+  do {foo} while (true)
+  do
+    {
+      a +
+       b
+    }
+  while (true)
+  do {
+      a +
+       b
+  } while (true)
+}
+>>>
+object a {
+  do foo while (true)
+  do a + b while (true)
+  do a + b while (true)
+}
+<<< body: do-while, braces, narrow
+maxColumn = 12
+===
+object a {
+  do {foo} while (true)
+  do
+    {
+      a +
+       b
+    }
+  while (true)
+  do {
+      a +
+       b
+  } while (true)
+}
+>>>
+object a {
+  do foo while (true)
+  do a +
+    b while (true)
+  do a +
+    b while (true)
+}

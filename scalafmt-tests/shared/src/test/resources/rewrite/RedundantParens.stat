@@ -1155,6 +1155,10 @@ object a {
       + b
     )
   while (true)
+  do (
+      a
+      + b
+  ) while (true)
 }
 >>>
 object a {
@@ -1163,6 +1167,36 @@ object a {
     a
       + b
   ) while (true)
+  do (
+    a
+      + b
+  ) while (true)
+}
+<<< body: do-while, braces
+object a {
+  do {foo} while (true)
+  do
+    {
+      a +
+       b
+    }
+  while (true)
+  do {
+      a +
+       b
+  } while (true)
+}
+>>>
+object a {
+  do { foo } while (true)
+  do {
+    a +
+      b
+  } while (true)
+  do {
+    a +
+      b
+  } while (true)
 }
 <<< body: case
 object a {
