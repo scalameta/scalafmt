@@ -225,7 +225,15 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           session.claim(crepl)(crt)
           true
         }
-      case _: Token.RightBrace => !session.isRemovedOnLeft(pft, !shouldBeRemoved)
+      case _: Token.RightBrace =>
+        @tailrec
+        def shouldNotBeRemoved(xft: FormatToken): Boolean =
+          !session.isRemovedOnLeft(xft, ok = true) || {
+            val pxft = ftoks.prevNonCommentBefore(xft)
+            pxft.left.is[Token.RightBrace] && shouldNotBeRemoved(pxft)
+          }
+        if (shouldBeRemoved) session.isRemovedOnLeft(pft, ok = true)
+        else shouldNotBeRemoved(pft)
       case _ => false
     }
     if (ok) Some(pft) else None
@@ -252,17 +260,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     owner match {
       case t: Term.FunctionTerm if t.tokens.last.is[Token.RightBrace] =>
         if (!okToRemoveFunctionInApplyOrInit(t)) null else removeToken
-      case t: Term.PartialFunction => t.parent match {
-          case Some(SingleArgInBraces.OrBlock(lft, `t`, _))
-              if lft.left ne ft.right =>
-            val ok = ftoks.findTokenWith(lft, ftoks.prev) { xft =>
-              if (!xft.left.is[Token.LeftBrace]) Some(false)
-              else if (session.isRemovedOnLeft(xft, ok = true)) None
-              else Some(true)
-            }.contains(true)
-            if (ok) removeToken else null
-          case _ => null
-        }
+      case _: Term.PartialFunction => null
       case t: Term.Block => t.parent match {
           case Some(f: Term.FunctionTerm)
               if okToReplaceFunctionInSingleArgApply(f) => removeToken
@@ -425,47 +423,62 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     case _ => true
   }
 
-  private def okToRemoveBlock(
-      b: Term.Block,
-  )(implicit style: ScalafmtConfig, session: Session): Boolean = b.parent
-    .exists {
-      case t: Term.ArgClause if isParentAnApply(t) =>
-        // Example: as.map { _.toString }
-        // Leave this alone for now.
-        // In future there should be an option to surround such expressions with parens instead of braces
-        if (isSeqMulti(t.values)) okToRemoveBlockWithinApply(b)
-        else (t.pos.start != b.pos.start) && ftoks.isEnclosedInBraces(t)
-
-      case d: Defn.Def =>
-        def disqualifiedByUnit = !settings.includeUnitMethods &&
-          d.decltpe.exists {
-            case Type.Name("Unit") => true
-            case _ => false
+  private def okToRemoveBlock(b: Term.Block)(implicit
+      ft: FormatToken,
+      style: ScalafmtConfig,
+      session: Session,
+  ): Boolean = b.parent.exists {
+    case t: Term.ArgClause if isParentAnApply(t) =>
+      // Example: as.map { _.toString }
+      // Leave this alone for now.
+      // In future there should be an option to surround such expressions with parens instead of braces
+      if (isSeqMulti(t.values)) okToRemoveBlockWithinApply(b)
+      else ftoks.getDelimsIfEnclosed(t).exists { case (ldelim, _) =>
+        def isArgDelimRemoved = session.isRemovedOnLeft(ldelim, ok = true)
+        def hasExpressionWithBraces: Boolean =
+          // there's a nested expression with braces that will be kept
+          getSingleStatIfLineSpanOk(b).exists {
+            getBlockNestedPartialFunction(_).isDefined
           }
-        checkBlockAsBody(b, d.body, noParams = d.paramClauseGroups.isEmpty) &&
-        !isProcedureSyntax(d) && !disqualifiedByUnit
+        ldelim.left match {
+          case lb: Token.LeftBrace =>
+            // either arg clause has separate braces, or we guarantee braces
+            (ft.right ne lb) && !isArgDelimRemoved || hasExpressionWithBraces
+          case _: Token.LeftParen => hasExpressionWithBraces
+          case _ => false
+        }
+      }
 
-      case d: Defn.Var => checkBlockAsBody(b, d.body, noParams = true)
-      case d: Defn.Val => checkBlockAsBody(b, d.rhs, noParams = true)
-      case d: Defn.Type =>
-        checkBlockAsBody(b, d.body, noParams = d.tparamClause.isEmpty)
-      case d: Defn.Macro =>
-        checkBlockAsBody(b, d.body, noParams = d.paramClauseGroups.isEmpty)
-      case d: Defn.GivenAlias =>
-        checkBlockAsBody(b, d.body, noParams = d.paramClauseGroup.isEmpty)
+    case d: Defn.Def =>
+      def disqualifiedByUnit = !settings.includeUnitMethods &&
+        d.decltpe.exists {
+          case Type.Name("Unit") => true
+          case _ => false
+        }
+      checkBlockAsBody(b, d.body, noParams = d.paramClauseGroups.isEmpty) &&
+      !isProcedureSyntax(d) && !disqualifiedByUnit
 
-      case p: Term.FunctionTerm if isFunctionWithBraces(p) =>
-        okToRemoveAroundFunctionBody(b, okIfMultipleStats = true)
+    case d: Defn.Var => checkBlockAsBody(b, d.body, noParams = true)
+    case d: Defn.Val => checkBlockAsBody(b, d.rhs, noParams = true)
+    case d: Defn.Type =>
+      checkBlockAsBody(b, d.body, noParams = d.tparamClause.isEmpty)
+    case d: Defn.Macro =>
+      checkBlockAsBody(b, d.body, noParams = d.paramClauseGroups.isEmpty)
+    case d: Defn.GivenAlias =>
+      checkBlockAsBody(b, d.body, noParams = d.paramClauseGroup.isEmpty)
 
-      case _: Term.If => settings.ifElseExpressions &&
-        shouldRemoveSingleStatBlock(b)
+    case p: Term.FunctionTerm if isFunctionWithBraces(p) =>
+      okToRemoveAroundFunctionBody(b, okIfMultipleStats = true)
 
-      case Term.Block(List(`b`)) => true
+    case _: Term.If => settings.ifElseExpressions &&
+      shouldRemoveSingleStatBlock(b)
 
-      case _: Term.QuotedMacroExpr | _: Term.SplicedMacroExpr => false
+    case Term.Block(List(`b`)) => true
 
-      case _ => settings.generalExpressions && shouldRemoveSingleStatBlock(b)
-    }
+    case _: Term.QuotedMacroExpr | _: Term.SplicedMacroExpr => false
+
+    case _ => settings.generalExpressions && shouldRemoveSingleStatBlock(b)
+  }
 
   private def checkBlockAsBody(b: Term.Block, rhs: Tree, noParams: => Boolean)(
       implicit style: ScalafmtConfig,
@@ -508,6 +521,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
   /** Some blocks look redundant but aren't */
   private def shouldRemoveSingleStatBlock(b: Term.Block)(implicit
+      ft: FormatToken,
       style: ScalafmtConfig,
       session: Session,
   ): Boolean = getSingleStatIfLineSpanOk(b).exists { stat =>
