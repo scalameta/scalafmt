@@ -2078,7 +2078,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.KwWhile | _: T.KwFor, right, _)
           if leftOwner.isAny[Term.While, Term.ForClause] => // exclude end marker
         def spaceMod = Space(style.spaces.isSpaceAfterKeyword(right))
-        val splitBase = {
+        def splitBase(implicit fileLine: FileLine) = {
           val onlyNL = style.newlines.keepBreak(newlines)
           Split(if (onlyNL) Newline else spaceMod, 0)
         }
