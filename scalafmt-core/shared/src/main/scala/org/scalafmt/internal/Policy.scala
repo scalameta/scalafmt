@@ -416,18 +416,12 @@ object Policy {
   }
 
   sealed trait End extends (Token => End.WithPos) {
-    def apply(endPos: Int): End.WithPos
-    final def apply(token: Token): End.WithPos = apply(token.end)
+    def apply(token: Token): End.WithPos
   }
   object End {
-    def <(endPos: Int): End.WithPos = Before(endPos)
-    def <(token: Token): End.WithPos = this < token.end
-
-    def >(endPos: Int): End.WithPos = After(endPos)
-    def >(token: Token): End.WithPos = this > token.end
-
-    def ==(endPos: Int): End.WithPos = On(endPos)
-    def ==(token: Token): End.WithPos = this == token.end
+    def <(token: Token): End.WithPos = Before(token)
+    def >(token: Token): End.WithPos = After(token)
+    def ==(token: Token): End.WithPos = On(token)
 
     sealed trait WithPos {
       def notExpiredBy(ft: FormatToken): Boolean
@@ -435,21 +429,21 @@ object Policy {
         if (policy.isEmpty) NoPolicy else new Policy.Delay(policy, this)
     }
     case object After extends End {
-      def apply(endPos: Int): WithPos = new End.WithPos {
-        def notExpiredBy(ft: FormatToken): Boolean = ft.left.end <= endPos
-        override def toString: String = s">$endPos"
+      def apply(token: Token): WithPos = new End.WithPos {
+        def notExpiredBy(ft: FormatToken): Boolean = ft.left.end <= token.end
+        override def toString: String = s">${token.structure}"
       }
     }
     case object Before extends End {
-      def apply(endPos: Int): WithPos = new End.WithPos {
-        def notExpiredBy(ft: FormatToken): Boolean = ft.right.end < endPos
-        override def toString: String = s"<$endPos"
+      def apply(token: Token): WithPos = new End.WithPos {
+        def notExpiredBy(ft: FormatToken): Boolean = ft.right.end < token.end
+        override def toString: String = s"<${token.structure}"
       }
     }
     case object On extends End {
-      def apply(endPos: Int): WithPos = new End.WithPos {
-        def notExpiredBy(ft: FormatToken): Boolean = ft.right.end <= endPos
-        override def toString: String = s"@$endPos"
+      def apply(token: Token): WithPos = new End.WithPos {
+        def notExpiredBy(ft: FormatToken): Boolean = ft.right.end <= token.end
+        override def toString: String = s"@${token.structure}"
       }
     }
   }
