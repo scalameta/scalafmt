@@ -10692,3 +10692,27 @@ def isRemoteAddressMaxedOut(
 ): Boolean =
   numBlocksInFlightPerAddress.getOrElse(remoteAddress, 0) +
     request.blocks.size > maxBlocksInFlightPerAddress
+<<< #4133 redundant braces with an assign parameter
+rewrite.rules = [RedundantBraces]
+===
+tryWithSafeFinallyAndFailureCallbacks {
+  commitTask(taskContext)
+}(catchBlock = {
+  try {
+    closeWriter(taskContext)
+  } finally {
+    abortTask(taskContext)
+  }
+})
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+   commitTask(taskContext)
+-}(catchBlock =
+-  try closeWriter(taskContext)
+-  finally abortTask(taskContext)
++}(
++  catchBlock =
++    try closeWriter(taskContext)
++    finally abortTask(taskContext)
+ )
