@@ -9879,14 +9879,9 @@ tryWithSafeFinallyAndFailureCallbacks {
   }
 })
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   commitTask(taskContext)
--}(catchBlock =
--  try closeWriter(taskContext)
--  finally abortTask(taskContext)
-+}(
-+  catchBlock =
-+    try closeWriter(taskContext)
-+    finally abortTask(taskContext)
- )
+tryWithSafeFinallyAndFailureCallbacks {
+  commitTask(taskContext)
+}(catchBlock =
+  try closeWriter(taskContext)
+  finally abortTask(taskContext)
+)

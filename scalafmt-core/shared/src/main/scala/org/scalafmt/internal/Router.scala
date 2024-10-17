@@ -1003,11 +1003,10 @@ class Router(formatOps: FormatOps) {
         val splitsForAssign =
           if (defnSite || isBracket || keepConfigStyleSplit) None
           else getAssignAtSingleArgCallSite(args).map { assign =>
-            val assignToken = assign.rhs match {
-              case b: Term.Block => getHead(b)
-              case _ => tokens(assign.tokens.find(_.is[T.Equals]).get)
-            }
-            val breakToken = getOptimalTokenFor(assignToken)
+            val breakToken = getOptimalTokenFor(assign.rhs match {
+              case b: Term.Block if isEnclosedInBraces(b) => getHead(b)
+              case x => tokenBefore(x)
+            })
             val newlineAfterAssignDecision = Policy ? newlinePolicy.isEmpty ||
               decideNewlinesOnlyAfterToken(breakToken)
             Seq(
