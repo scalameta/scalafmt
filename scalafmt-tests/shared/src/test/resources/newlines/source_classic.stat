@@ -10575,10 +10575,9 @@ tryWithSafeFinallyAndFailureCallbacks {
 >>>
 tryWithSafeFinallyAndFailureCallbacks {
   commitTask(taskContext)
-}(
-  catchBlock =
-    try
-      closeWriter(taskContext)
-    finally
-      abortTask(taskContext)
+}(catchBlock =
+  try
+    closeWriter(taskContext)
+  finally
+    abortTask(taskContext)
 )
