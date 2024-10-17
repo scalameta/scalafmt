@@ -287,8 +287,7 @@ class Router(formatOps: FormatOps) {
               else Some(false)
             (arrow, 0, nlOnly)
           case (t: Term.FunctionTerm) :: Nil =>
-            val arrow = getFuncArrow(lastLambda(t))
-            val expire = arrow.getOrElse(getLast(t))
+            val arrow = getFuncArrow(lastLambda(t)).getOrElse(getLast(t))
             val nlOnly =
               if (style.newlines.alwaysBeforeCurlyLambdaParams) Some(true)
               else if (
@@ -296,7 +295,7 @@ class Router(formatOps: FormatOps) {
                   Newlines.BeforeCurlyLambdaParams.multiline
               ) None
               else Some(false)
-            (expire, 0, nlOnly)
+            (arrow, 0, nlOnly)
           case (t: Term.PartialFunction) :: Nil => getLambdaInfo(t.cases)
           case (t: Term.CasesBlock) :: Nil if (t.parent match {
                 case Some(t: Term.Match)
@@ -308,7 +307,7 @@ class Router(formatOps: FormatOps) {
             getLambdaInfo(t.stats)
           case _ => getLambdaNone
         }
-        val (lambdaExpire, lambdaIndent, lambdaNLOnly) = leftOwner match {
+        val (lambdaArrow, lambdaIndent, lambdaNLOnly) = leftOwner match {
           case t: Template.Body => t.selfOpt.fold {
               if (t.parent.parent.isOpt[Term.NewAnonymous])
                 getLambdaInfo(t.stats)
@@ -326,6 +325,10 @@ class Router(formatOps: FormatOps) {
           case t: Term.Block => getLambdaInfo(t.stats)
           case t => getLambdaInfo(t :: Nil)
         }
+        val noLambdaSplit = style.newlines.keepBreak(newlines) ||
+          lambdaArrow == null || !lambdaNLOnly.contains(false)
+        val lambdaExpire =
+          if (noLambdaSplit) null else getOptimalTokenFor(lambdaArrow)
 
         def getSingleLinePolicy = {
           val needBreak = closeFT.right match {
@@ -378,11 +381,11 @@ class Router(formatOps: FormatOps) {
 
             // do not fold top-level blocks
             if (isTopLevelBlock) None
-            else if (lambdaExpire != null) getSingleLineLambdaDecisionOpt
+            else if (lambdaArrow != null) getSingleLineLambdaDecisionOpt
             else Some(false)
           // old behaviour
           case _ =>
-            if (lambdaExpire == null) getClassicSingleLineDecisionOpt
+            if (lambdaArrow == null) getClassicSingleLineDecisionOpt
             else getSingleLineLambdaDecisionOpt
         }
 
@@ -422,15 +425,12 @@ class Router(formatOps: FormatOps) {
           .withIndent(style.indent.main, close, Before)
 
         // must be after nlSplit
-        val noLambdaSplit = style.newlines.keepBreak(newlines) ||
-          lambdaExpire == null || !lambdaNLOnly.contains(false)
         val lambdaSplit =
           if (noLambdaSplit) Split.ignored
           else {
-            val arrowOptimal = getOptimalTokenFor(lambdaExpire)
             val policy = singleLineSplitOpt match {
-              case Some(Left(slbSplit)) => Policy.after(arrowOptimal, "FNARR") {
-                  case Decision(FormatToken(`arrowOptimal`, _, _), ss) =>
+              case Some(Left(slbSplit)) => Policy.after(lambdaExpire, "FNARR") {
+                  case Decision(FormatToken(`lambdaExpire`, _, _), ss) =>
                     val nlPolicy = newlineBeforeClosingCurly
                     var hadNoSplit = false
                     val nlSplits = ss.flatMap { s =>
@@ -441,9 +441,9 @@ class Router(formatOps: FormatOps) {
                     else nlSplits
                 }
               case _ => newlineBeforeClosingCurly &
-                  decideNewlinesOnlyAfterToken(arrowOptimal)
+                  decideNewlinesOnlyAfterToken(lambdaExpire)
             }
-            Split(noSplitMod, 0).withSingleLine(arrowOptimal).andPolicy(policy)
+            Split(noSplitMod, 0).withSingleLine(lambdaExpire).andPolicy(policy)
               .withIndent(lambdaIndent, close, Before)
           }
 
