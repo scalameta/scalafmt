@@ -10581,3 +10581,40 @@ tryWithSafeFinallyAndFailureCallbacks {
   finally
     abortTask(taskContext)
 )
+<<< #4133 fold attached single-line comment, overflow
+maxColumn = 80
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+rewrite {
+  rules = [RedundantBraces]
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a {
+  if (!mapStage.isAvailable) {
+    waitingForVisit.prepend(mapStage.rdd)
+  }  // Otherwise there's no need to follow the dependency back
+}
+>>>
+object a {
+  if (!mapStage.isAvailable) {
+    waitingForVisit.prepend(mapStage.rdd)
+  } // Otherwise there's no need to follow the dependency back
+}
+<<< #4133 fold attached single-line comment, !overflow
+maxColumn = 80
+rewrite {
+  rules = [RedundantBraces]
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a {
+  if (!mapStage.isAvailable) {
+    waitingForVisit.prepend(mapStage.rdd)
+  }  // Otherwise there's no need to follow the dependency back
+}
+>>>
+object a {
+  if (!mapStage.isAvailable) {
+    waitingForVisit.prepend(mapStage.rdd)
+  } // Otherwise there's no need to follow the dependency back
+}
