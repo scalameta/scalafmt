@@ -10618,3 +10618,25 @@ object a {
     waitingForVisit.prepend(mapStage.rdd)
   // Otherwise there's no need to follow the dependency back
 }
+<<< #4133 braces to parens for single-line apply, with rewrite
+maxColumn = 76
+preset = default
+newlines.source = fold
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+convertStream(inputStream, tokenizer, handleHeader, parser.options.charset) { tokens =>
+  safeParser.parse(tokens)
+}.flatten
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-convertStream(inputStream, tokenizer, handleHeader, parser.options.charset)(
+-  tokens => safeParser.parse(tokens)
+-).flatten
++convertStream(
++  inputStream,
++  tokenizer,
++  handleHeader,
++  parser.options.charset
++)(tokens => safeParser.parse(tokens)).flatten
