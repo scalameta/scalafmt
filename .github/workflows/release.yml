@@ -15,6 +15,7 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
           cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
       - name: Publish ${{ github.ref }}
         run: sbt ci-release docs/docusaurusPublishGhpages
         env:

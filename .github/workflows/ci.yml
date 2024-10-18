@@ -30,6 +30,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
           cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
       - run:
           # for GitOps tests
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
@@ -53,6 +54,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
       - run:
           # for GitOps tests
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
@@ -78,6 +80,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
           cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
       - run: sbt communityTests${{ matrix.group }}/test
   formatting:
     runs-on: ubuntu-latest
@@ -130,6 +133,7 @@ jobs:
           components: 'native-image'
           native-image-musl: ${{ matrix.libc == 'musl' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: sbt/setup-sbt@v1
       - run: bin/build-native-image.sh
         env:
           CI: true
