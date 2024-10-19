@@ -13,18 +13,19 @@ import scala.annotation.tailrec
 
 /** A partial formatting solution up to splits.length number of tokens.
   */
-final case class State(
-    cost: Int,
-    policy: PolicySummary,
-    split: Split,
-    depth: Int,
-    prev: State,
-    indentation: Int,
+final class State(
+    val cost: Int,
+    val policy: PolicySummary,
+    var split: Split,
+    val depth: Int,
+    val prev: State,
+    var indentation: Int,
     pushes: Seq[ActualIndent],
-    column: Int,
-    appliedPenalty: Int, // penalty applied from overflow
-    delayedPenalty: Int, // apply if positive, ignore otherwise
-    lineId: Int,
+    var column: Int,
+    var pendingSpaces: List[Policy.End.WithPos],
+    val appliedPenalty: Int, // penalty applied from overflow
+    val delayedPenalty: Int, // apply if positive, ignore otherwise
+    val lineId: Int,
 ) {
 
   override def toString = s"State($cost, $depth)"
@@ -33,6 +34,17 @@ final case class State(
   def modExt: ModExt = split.modExt
   @inline
   def mod: Modification = modExt.mod
+
+  def updatedWithSubsequentEOL(ft: FormatToken): Unit = {
+    column += pendingSpaces.count(_.notExpiredBy(ft))
+    val mod = split.mod
+    val updatedMod = mod match {
+      case SpaceOrNoSplit(p) => if (p.notExpiredBy(ft)) Space else NoSplit
+      case m => m
+    }
+    pendingSpaces = Nil
+    split = split.withMod(updatedMod)
+  }
 
   def possiblyBetter(other: State): Boolean = this.cost < other.cost ||
     this.indentation < other.indentation
@@ -77,13 +89,23 @@ final case class State(
         }
       }
 
+    val (prevPendingSpaces, confirmedSpaces) =
+      if (nextSplit.isNL) Nil -> pendingSpaces.count(_.notExpiredBy(tok))
+      else pendingSpaces.filter(_.notExpiredBy(tok)) -> 0
+    val (nextPendingSpaces, modLength) = nextSplit.mod match {
+      case SpaceOrNoSplit(p) if p.notExpiredBy(tok) =>
+        (p :: prevPendingSpaces, 0)
+      case m => (prevPendingSpaces, m.length)
+    }
+
     // Some tokens contain newline, like multiline strings/comments.
     val startColumn = nextSplit.mod match {
       case m: NewlineT => if (m.noIndent) 0 else nextIndent
-      case m => if (m.isNL) nextIndent else column + m.length
+      case m => if (m.isNL) nextIndent else column + modLength
     }
-    val (columnOnCurrentLine, nextStateColumn) = State
+    val (pendingColumnOnCurrentLine, nextPendingColumn) = State
       .getColumns(tok, nextIndent, startColumn)
+    val columnOnCurrentLine = pendingColumnOnCurrentLine + confirmedSpaces
 
     val nextTok = tokens.next(tok)
     val nextPolicy: PolicySummary = policy.combine(nextSplit, nextTok)
@@ -115,7 +137,7 @@ final case class State(
 
     val splitWithPenalty = nextSplit.withPenalty(penalty)
 
-    State(
+    new State(
       cost = cost + splitWithPenalty.costWithPenalty,
       // TODO(olafur) expire policy, see #18.
       policy = nextPolicy,
@@ -124,7 +146,8 @@ final case class State(
       prev = this,
       indentation = nextIndent,
       pushes = nextIndents,
-      column = nextStateColumn,
+      column = nextPendingColumn,
+      pendingSpaces = nextPendingSpaces,
       appliedPenalty = appliedPenalty + penalty,
       delayedPenalty = nextDelayedPenalty,
       lineId = lineId + (if (nextSplit.isNL) 1 else 0),
@@ -312,8 +335,20 @@ final case class State(
 
 object State {
 
-  val start =
-    State(0, PolicySummary.empty, null, 0, null, 0, Seq.empty, 0, 0, 0, 0)
+  val start: State = new State(
+    cost = 0,
+    policy = PolicySummary.empty,
+    split = null,
+    depth = 0,
+    prev = null,
+    indentation = 0,
+    pushes = Nil,
+    column = 0,
+    pendingSpaces = Nil,
+    appliedPenalty = 0,
+    delayedPenalty = 0,
+    lineId = 0,
+  )
 
   // this is not best state, it's higher priority for search
   object Ordering {

@@ -65,16 +65,14 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
     * for {
     *   a <- new Integer {
     *           value = 1
-    *         }
+    *        }
     *   x <- if (variable) doSomething
-    *       else doAnything
+    *        else doAnything
     * }
     * ```
     */
-  def getActualIndents(offset: Int): Seq[ActualIndent] = {
-    val adjustedOffset = if (mod eq Space) offset + 1 else offset
-    indents.flatMap(_.withStateOffset(adjustedOffset))
-  }
+  def getActualIndents(offset: Int): Seq[ActualIndent] = indents
+    .flatMap(_.withStateOffset(offset + mod.length))
 
 }
 

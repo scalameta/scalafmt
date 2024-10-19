@@ -111,22 +111,30 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
     @tailrec
-    def iter(cur: State, lineId: Int, gapId: Int): Unit = {
+    def iter(
+        cur: State,
+        lineId: Int,
+        gapId: Int,
+        prevEol: FormatToken,
+    ): Unit = {
       val prev = cur.prev
       val idx = prev.depth
       val ft = toks(idx)
+      val mod = cur.mod
+      val nextEol = if (mod.isNL) ft else prevEol
+      cur.updatedWithSubsequentEOL(nextEol)
       if (useCRLF == 0 && ft.hasCRLF) useCRLF = 1
       if (idx == 0) // done
         result(idx) = FormatLocation(ft, cur, initStyle, lineId, gapId)
       else {
-        val nl = cur.mod.newlines
+        val nl = mod.newlines
         val nLineId = lineId + nl + ft.meta.left.countNL
         val nGapId = gapId + (if (nl > 1) 1 else 0)
         result(idx) = FormatLocation(ft, cur, styleMap.at(ft), nLineId, nGapId)
-        iter(prev, nLineId, nGapId)
+        iter(prev, nLineId, nGapId, nextEol)
       }
     }
-    if (depth != 0) iter(state, 0, 0)
+    if (depth != 0) iter(state, 0, 0, toks.last)
 
     if (depth == toks.length) { // format completed
       val initStyle = styleMap.init
@@ -163,47 +171,30 @@ class FormatWriter(formatOps: FormatOps) {
             val state = bloc.state
             val inParentheses = style.spaces.inParentheses
             // remove space before "{"
-            val prevBegState =
-              if (0 == beg || (state.prev.mod ne Space)) state.prev
-              else {
-                val prevloc = locations(beg - 1)
-                val prevState = state.prev
-                  .copy(split = state.prev.split.withMod(NoSplit))
-                locations(beg - 1) = prevloc
-                  .copy(shift = prevloc.shift - 1, state = prevState)
-                prevState
-              }
+            if (0 != beg && state.prev.mod.length != 0) {
+              val prevState = state.prev
+              prevState.split = prevState.split.withMod(NoSplit)
+              locations(beg - 1).shift -= 1
+            }
 
             // update "{"
-            locations(beg) =
-              if (inParentheses || (state.mod ne Space)) bloc
-                .copy(replace = "(", state = state.copy(prev = prevBegState))
-              else {
-                // remove space after "{"
-                val split = state.split.withMod(NoSplit)
-                bloc.copy(
-                  replace = "(",
-                  shift = bloc.shift - 1,
-                  state = state.copy(prev = prevBegState, split = split),
-                )
-              }
+            bloc.replace = "("
+            if (!inParentheses && state.mod.length != 0) {
+              // remove space after "{"
+              state.split = state.split.withMod(NoSplit)
+              bloc.shift -= 1
+            }
 
             val prevEndLoc = locations(idx - 1)
             val prevEndState = prevEndLoc.state
-            val newPrevEndState =
-              if (inParentheses || (prevEndState.mod ne Space)) prevEndState
-              else {
-                // remove space before "}"
-                val split = prevEndState.split.withMod(NoSplit)
-                val newState = prevEndState.copy(split = split)
-                locations(idx - 1) = prevEndLoc
-                  .copy(shift = prevEndLoc.shift - 1, state = newState)
-                newState
-              }
+            if (!inParentheses && prevEndState.mod.length != 0) {
+              // remove space before "}"
+              prevEndState.split = prevEndState.split.withMod(NoSplit)
+              prevEndLoc.shift -= 1
+            }
 
             // update "}"
-            locations(idx) = loc
-              .copy(replace = ")", state = loc.state.copy(prev = newPrevEndState))
+            loc.replace = ")"
           }
         case _ =>
       }
@@ -1378,8 +1369,7 @@ class FormatWriter(formatOps: FormatOps) {
           val floc = locations(idx)
           if (indent.notExpiredBy(floc.formatToken)) {
             val state = floc.state
-            if (state.split.isNL) locations(idx) = floc
-              .copy(state = state.copy(indentation = state.indentation + offset))
+            if (state.split.isNL) floc.state.indentation += offset
             val nextIdx = idx + 1
             if (nextIdx < locations.length) updateLocation(nextIdx)
           }
@@ -1617,12 +1607,12 @@ object FormatWriter {
       style: ScalafmtConfig,
       leftLineId: Int, // counts back from the end of the file
       leftBlankGapId: Int, // accumulates number of blank gaps, also from end
-      shift: Int = 0,
+      var shift: Int = 0,
       optionalBraces: Map[Int, Tree] = Map.empty,
       // if indent is empty, indicates open; otherwise, whether to tuck
       missingBracesOpenOrTuck: Boolean = false,
       missingBracesIndent: Set[Int] = Set.empty,
-      replace: String = null,
+      var replace: String = null,
   ) {
     def hasBreakAfter: Boolean = state.split.isNL
     def hasBreakBefore: Boolean =
