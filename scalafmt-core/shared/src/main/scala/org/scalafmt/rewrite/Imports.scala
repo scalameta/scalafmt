@@ -134,7 +134,7 @@ object Imports extends RewriteFactory {
   }
 
   sealed abstract class Sort {
-    def sortSelector(buf: Seq[Importee]): Seq[(Importee, String)]
+    def sortSelector(buf: Seq[Importee]): Iterable[(Importee, String)]
     def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry]
 
     protected final def selectorToTuple(tree: Importee): (Importee, String) =
@@ -179,7 +179,7 @@ object Imports extends RewriteFactory {
         }
       }
 
-      def sortSelector(buf: Seq[Importee]): Seq[(Importee, String)] = {
+      def sortSelector(buf: Seq[Importee]): Iterable[(Importee, String)] = {
         // https://docs.scala-lang.org/scala3/reference/contextual/given-imports.html
         val others = new ListBuffer[(Importee, String)]
         val givens = new ListBuffer[(Importee, String)]
@@ -190,8 +190,10 @@ object Imports extends RewriteFactory {
           else if (isWildcard(x)) wildcards
           else others
         buf.foreach(x => getDstBuf(x) += selectorToTuple(x))
-        Seq(others, givens, wildcards)
-          .flatMap(_.result().sortBy(_._2)(selectorOrdering))
+        def sorted(obj: ListBuffer[(Importee, String)]) = obj.result()
+          .sortBy(_._2)(selectorOrdering)
+        // don't sort wildcards
+        Iterable.concat(sorted(others), sorted(givens), wildcards)
       }
 
       def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
@@ -254,10 +256,13 @@ object Imports extends RewriteFactory {
   }
 
   private final def isRename(importee: Importee): Boolean = importee
-    .is[Importee.Rename] || importee.is[Importee.Unimport]
+    .isAny[Importee.Rename, Importee.Unimport]
 
   private final def isWildcard(importee: Importee): Boolean = importee
-    .is[Importee.Wildcard] || importee.is[Importee.GivenAll]
+    .isAny[Importee.Wildcard, Importee.GivenAll]
+
+  private final def notWildcardOrRename(importee: Importee): Boolean =
+    !isWildcard(importee) && !isRename(importee)
 
   private abstract class Base(implicit ctx: RewriteCtx) extends RewriteSession {
 
@@ -584,9 +589,9 @@ object Imports extends RewriteFactory {
     ): Unit = {
       // if there's a wildcard, unimports and renames must come with it, cannot be expanded
       val importees = importer.importees
-      if (importees.exists(isWildcard) && importees.exists(isRename)) {
+      if (importees.dropWhile(notWildcardOrRename).drop(1).exists(isWildcard)) {
         val filtered = importees.filter { x =>
-          val buffering = isRename(x) || isWildcard(x)
+          val buffering = !notWildcardOrRename(x)
           if (!buffering) addToGroup(group, kw, ref, x, importer)
           buffering
         }

@@ -837,11 +837,10 @@ import a.{x, y => z, given}
 import a.{*, given}
 import a.{x, given, given Z, _}
 >>>
-import a.*
-import a._
-import a.given
 import a.given Z
 import a.x
+import a.{*, given}
+import a.{given, _}
 import a.{y => z, given}
 <<< #3189 ascii !expand
 rewrite.imports.sort = ascii
@@ -862,7 +861,7 @@ import a.{x, y => z, given}
 import a.{*, given}
 import a.{x, given, given Z}
 >>>
-import a.*
+import a.{*, given}
 import a.{y => z, given}
 import a.given
 import a.given Z
@@ -886,7 +885,7 @@ import a.{x, y => z, given}
 import a.{*, given}
 import a.{x, given, given Z}
 >>>
-import a.*
+import a.{*, given}
 import a.{y => z, given}
 import a.given
 import a.given Z
