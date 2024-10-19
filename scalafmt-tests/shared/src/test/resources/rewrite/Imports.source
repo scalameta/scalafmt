@@ -835,9 +835,10 @@ rewrite.imports.expand = true
 ===
 import a.{x, y => z, given}
 import a.{*, given}
-import a.{x, given, given Z}
+import a.{x, given, given Z, _}
 >>>
 import a.*
+import a._
 import a.given
 import a.given Z
 import a.x
