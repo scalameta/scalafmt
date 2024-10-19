@@ -9931,14 +9931,6 @@ convertStream(inputStream, tokenizer, handleHeader, parser.options.charset) { to
   safeParser.parse(tokens)
 }.flatten
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--convertStream(inputStream, tokenizer, handleHeader, parser.options.charset)(
--  tokens => safeParser.parse(tokens)
--).flatten
-+convertStream(
-+  inputStream,
-+  tokenizer,
-+  handleHeader,
-+  parser.options.charset
-+)(tokens => safeParser.parse(tokens)).flatten
+convertStream(inputStream, tokenizer, handleHeader, parser.options.charset) {
+  tokens => safeParser.parse(tokens)
+}.flatten

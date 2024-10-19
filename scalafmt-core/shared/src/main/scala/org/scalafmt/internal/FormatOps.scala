@@ -9,6 +9,7 @@ import org.scalafmt.config.ScalafmtOptimizer
 import org.scalafmt.config.TrailingCommas
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
+import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.InfixApp._
 import org.scalafmt.util._
 
@@ -2957,6 +2958,22 @@ class FormatOps(
     .exists(_.meta.leftOwner eq body)
   @inline
   def indentedPackage(pkg: Pkg): Boolean = indentedPackage(pkg.body)
+
+  def getBracesToParensModAndPolicy(rb: FormatToken, mod: Modification)(implicit
+      style: ScalafmtConfig,
+  ): (Modification, Policy) = {
+    if ((mod eq Space) && initStyle.rewrite.bracesToParensForOneLineApply)
+      RedundantBraces.noSplitForParensOnRightBrace(rb)
+    else None
+  }.fold((mod, Policy.noPolicy)) { rb =>
+    val beforeClose = prev(rb)
+    val end = Policy.End < rb.left
+    val policy = end ==> Policy.on(rb.left, "BracesToParens") {
+      case Decision(`beforeClose`, ss) => ss
+          .flatMap(s => if (s.isNL) None else Some(s.withMod(NoSplit)))
+    }
+    SpaceOrNoSplit(end) -> policy
+  }
 
 }
 

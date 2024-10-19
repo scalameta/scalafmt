@@ -13,7 +13,6 @@ import org.scalafmt.internal.ExpiresOn.Before
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Length.StateColumn
 import org.scalafmt.internal.Policy.NoPolicy
-import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util._
 
 import org.scalameta.FileLine
@@ -390,34 +389,21 @@ class Router(formatOps: FormatOps) {
         }
 
         val noSplitMod = xmlSpace(leftOwner)
+        val (slbMod, slbParensPolicy) =
+          if (singleLineDecisionOpt.isEmpty) (noSplitMod, NoPolicy)
+          else getBracesToParensModAndPolicy(closeFT, noSplitMod)
         val singleLineSplitOpt = singleLineDecisionOpt.map { sld =>
           val sldPolicy = getSingleLinePolicy
           val expire = leftOwner.parent match {
             case Some(p: Term.ForYield)
                 if !sld && sldPolicy.isEmpty && style.newlines.fold &&
                   leftOwner.is[Term.EnumeratorsBlock] => getLastToken(p)
+            case _ if style.newlines.isBeforeOpenParenCallSite => close
             case _ => endOfSingleLineBlock(closeFT)
           }
-          val toParens = initStyle.rewrite.bracesToParensForOneLineApply &&
-            RedundantBraces.noSplitForParensOnRightBrace(closeFT).isDefined
-          if (toParens) Right {
-            val noCloseSpacePolicy = Policy.End < close ==>
-              Policy.on(close, "PAREN1LAPPLY") {
-                case Decision(FormatToken(_, `close`, _), ss) => ss.map { s =>
-                    if (s.isNL) s else s.withMod(NoSplit)
-                  }
-              }
-            // copy logic from `( ...`, binpack=never, defining `slbSplit`
-            val slbEnd =
-              if (style.newlines.isBeforeOpenParenCallSite) close
-              else endOfSingleLineBlock(closeFT)
-            Split(NoSplit, 0).withSingleLine(slbEnd, noSyntaxNL = true)
-              .andPolicy(sldPolicy & noCloseSpacePolicy)
-          }
-          else Left {
-            Split(noSplitMod, 0).withSingleLine(expire, noSyntaxNL = true)
-              .andPolicy(sldPolicy)
-          }
+          // copy logic from `( ...`, binpack=never, defining `slbSplit`
+          Split(slbMod, 0).withSingleLine(expire, noSyntaxNL = true)
+            .andPolicy(sldPolicy & slbParensPolicy)
         }
 
         val nlSplit = Split(nl, if (nl.isNL) 1 else 0)
@@ -428,10 +414,11 @@ class Router(formatOps: FormatOps) {
         val lambdaSplit =
           if (noLambdaSplit) Split.ignored
           else {
+            val nlPolicy = newlineBeforeClosingCurly
             val policy = singleLineSplitOpt match {
-              case Some(Left(slbSplit)) => Policy.after(lambdaExpire, "FNARR") {
+              case Some(slbSplit) if slbParensPolicy.isEmpty =>
+                Policy.after(lambdaExpire, "FNARR") {
                   case Decision(FormatToken(`lambdaExpire`, _, _), ss) =>
-                    val nlPolicy = newlineBeforeClosingCurly
                     var hadNoSplit = false
                     val nlSplits = ss.flatMap { s =>
                       if (s.isNL) Some(s.andPolicy(nlPolicy))
@@ -440,16 +427,15 @@ class Router(formatOps: FormatOps) {
                     if (hadNoSplit) slbSplit.withMod(Space) +: nlSplits
                     else nlSplits
                 }
-              case _ => newlineBeforeClosingCurly &
-                  decideNewlinesOnlyAfterToken(lambdaExpire)
+              case _ => decideNewlinesOnlyAfterToken(lambdaExpire) ==> nlPolicy
             }
             Split(noSplitMod, 0).withSingleLine(lambdaExpire).andPolicy(policy)
               .withIndent(lambdaIndent, close, Before)
           }
 
         val singleLineSplit = singleLineSplitOpt match {
-          case Some(Right(slbSplit)) => slbSplit
-          case Some(Left(slbSplit)) if lambdaSplit.isIgnored => slbSplit
+          case Some(slbSplit)
+              if slbParensPolicy.nonEmpty || lambdaSplit.isIgnored => slbSplit
           case _ => Split.ignored
         }
         val splits = Seq(singleLineSplit, lambdaSplit, nlSplit)
@@ -1528,17 +1514,11 @@ class Router(formatOps: FormatOps) {
                   .exists(x => isTokenLastOrAfter(x.left, roPos))
             }
           } =>
-        val slbParensSplit =
-          if (!initStyle.rewrite.bracesToParensForOneLineApply) None
-          else RedundantBraces.noSplitForParensOnRightBrace(matching(lb))
-            .map { rbft =>
-              // copy logic from `( ...`, binpack=never, defining `slbSplit`
-              val isBeforeOpenParen = style.newlines.isBeforeOpenParenCallSite
-              val optimal: T =
-                if (isBeforeOpenParen) rbft.left else endOfSingleLineBlock(rbft)
-              Split(NoSplit, 0).withSingleLine(optimal)
-            }
-        Seq(slbParensSplit.getOrElse(Split.ignored), Split(Space, 0))
+        val rb = matching(lb)
+        val (mod, toParensPolicy) = getBracesToParensModAndPolicy(rb, Space)
+        val policy = Policy
+          .RelayOnSplit { case (s, _) => s.isNL }(toParensPolicy, NoPolicy)
+        Seq(Split(mod, 0, policy = policy))
 
       // Delim
       case FormatToken(left, _: T.Comma, _)
