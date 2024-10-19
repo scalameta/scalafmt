@@ -75,3 +75,10 @@ object Space extends Modification {
     else Newline2x(FormatToken.hasBlankLine(nl))
   def orNL(ft: FormatToken): Modification = orNL(ft.newlinesBetween)
 }
+
+case class SpaceOrNoSplit(policy: Policy.End.WithPos) extends Modification {
+  override val newlines: Int = 0
+  override val length: Int = 1
+
+  override def toString: String = "SPorNS"
+}
