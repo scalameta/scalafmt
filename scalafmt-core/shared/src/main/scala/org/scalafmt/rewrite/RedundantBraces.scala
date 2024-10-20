@@ -313,10 +313,10 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     @tailrec
     def okComment(xft: FormatToken): Boolean =
       ftoks.prevNotTrailingComment(xft) match {
-        case Right(x) =>
-          if ((x eq xft) && x.hasBreak)
-            !ftoks.isAttachedCommentThenBreak(ftoks.next(ft))
-          else !session.isRemovedOnLeft(x, true) || okComment(ftoks.prev(x))
+        case Right(x) => (x eq xft) || !session.isRemovedOnLeft(x, true) || {
+            val pft = ftoks.prev(x)
+            pft.noBreak && okComment(pft)
+          }
         case _ => false
       }
     val ok = ft.meta.rightOwner match {

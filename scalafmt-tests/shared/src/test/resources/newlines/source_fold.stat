@@ -9899,12 +9899,10 @@ object a {
   }  // Otherwise there's no need to follow the dependency back
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a {
--  if (!mapStage.isAvailable) waitingForVisit.prepend(mapStage.rdd) // Otherwise there's no need to follow the dependency back
-+  if (!mapStage.isAvailable) { waitingForVisit.prepend(mapStage.rdd) } // Otherwise there's no need to follow the dependency back
- }
+object a {
+  if (!mapStage.isAvailable) waitingForVisit.prepend(mapStage.rdd)
+  // Otherwise there's no need to follow the dependency back
+}
 <<< #4133 fold attached single-line comment, !overflow
 maxColumn = 80
 rewrite {
@@ -9919,7 +9917,6 @@ object a {
 }
 >>>
 object a {
-  if (!mapStage.isAvailable) {
-    waitingForVisit.prepend(mapStage.rdd)
-  } // Otherwise there's no need to follow the dependency back
+  if (!mapStage.isAvailable) waitingForVisit.prepend(mapStage.rdd)
+  // Otherwise there's no need to follow the dependency back
 }
