@@ -402,7 +402,17 @@ class Router(formatOps: FormatOps) {
             case _ => endOfSingleLineBlock(closeFT)
           }
           // copy logic from `( ...`, binpack=never, defining `slbSplit`
-          Split(slbMod, 0).withSingleLine(expire, noSyntaxNL = true)
+          val excludeBlocks =
+            if (slbParensPolicy.isEmpty || style.newlines.unfold)
+              TokenRanges.empty
+            else leftOwner match {
+              case Tree.Block(t :: Nil)
+                  if style.newlines.fold && isTreeEndingInArgumentClause(t) =>
+                parensTuple(t)
+              case _ => insideBracesBlock(ft, close)
+            }
+          Split(slbMod, 0)
+            .withSingleLine(expire, noSyntaxNL = true, exclude = excludeBlocks)
             .andPolicy(sldPolicy & slbParensPolicy)
         }
 
@@ -1003,18 +1013,6 @@ class Router(formatOps: FormatOps) {
             )
           }
 
-        @tailrec
-        def isExcludedTree(tree: Tree): Boolean = tree match {
-          case t: Init => t.argClauses.nonEmpty
-          case t: Term.Apply => t.argClause.nonEmpty
-          case t: Term.ApplyType => t.argClause.nonEmpty
-          case t: Tree.WithCasesBlock => t.casesBlock.cases.nonEmpty
-          case t: Term.New => t.init.argClauses.nonEmpty
-          case _: Term.NewAnonymous => true
-          case t: Term.AnonymousFunction => isExcludedTree(t.body)
-          case _ => false
-        }
-
         val excludeBlocks =
           if (isBracket) {
             val excludeBeg = if (align) getHead(args.last) else ft
@@ -1027,11 +1025,11 @@ class Router(formatOps: FormatOps) {
           else if (
             style.newlines.fold && {
               isSingleEnclosedArgument ||
-              singleArgument && isExcludedTree(onlyArgument)
+              singleArgument && isTreeEndingInArgumentClause(onlyArgument)
             }
           )
             if (onlyArgument eq leftOwner) TokenRanges(TokenRange(open, close))
-            else parensTuple(getLast(onlyArgument).left)
+            else parensTuple(onlyArgument)
           else insideBracesBlock(ft, close)
 
         def singleLine(newlinePenalty: Int)(implicit fileLine: FileLine): Policy =

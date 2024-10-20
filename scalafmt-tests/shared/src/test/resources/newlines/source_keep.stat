@@ -10391,10 +10391,6 @@ val newExprs = exprs.map { _.transform {
   case a: AttributeReference => attrMap.getOrElse(a, a)
 }}
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--val newExprs = exprs.map(_.transform { case a: AttributeReference =>
--  attrMap.getOrElse(a, a)
--})
-+val newExprs = exprs
-+  .map(_.transform { case a: AttributeReference => attrMap.getOrElse(a, a) })
+val newExprs = exprs.map { _.transform { case a: AttributeReference =>
+  attrMap.getOrElse(a, a)
+}}

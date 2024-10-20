@@ -172,6 +172,7 @@ class FormatOps(
 
   def parensTuple(token: T): TokenRanges = matchingOpt(token)
     .fold(TokenRanges.empty)(other => TokenRanges(TokenRange(token, other.left)))
+  def parensTuple(tree: Tree): TokenRanges = parensTuple(getLast(tree).left)
 
   def insideBlock[A](start: FormatToken, end: T)(implicit
       classifier: Classifier[T, A],
