@@ -10726,9 +10726,9 @@ object a {
 }
 >>>
 object a {
-  if (!mapStage.isAvailable) {
+  if (!mapStage.isAvailable)
     waitingForVisit.prepend(mapStage.rdd)
-  } // Otherwise there's no need to follow the dependency back
+  // Otherwise there's no need to follow the dependency back
 }
 <<< #4133 fold attached single-line comment, !overflow
 maxColumn = 80
@@ -10744,7 +10744,7 @@ object a {
 }
 >>>
 object a {
-  if (!mapStage.isAvailable) {
+  if (!mapStage.isAvailable)
     waitingForVisit.prepend(mapStage.rdd)
-  } // Otherwise there's no need to follow the dependency back
+  // Otherwise there's no need to follow the dependency back
 }

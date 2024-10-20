@@ -1210,14 +1210,14 @@ object a {
     // c6
   }
   val foo = bar { // c1
-    // c2
-    // c3
-    { // c4
-      case x => y
-      // c5
-    } // c6
-    // c7
-    // c8
+    { // c2
+      // c3
+      { // c4
+        case x => y
+        // c5
+      } // c6
+      // c7
+    } // c8
   }
   val foo = bar.baz { // c1
     { // c2
@@ -1234,14 +1234,14 @@ object a {
     // c6
   }
   val foo = bar.baz { // c1
-    // c2
-    // c3
-    { // c4
-      case x => y
-      // c5
-    } // c6
-    // c7
-    // c8
+    { // c2
+      // c3
+      { // c4
+        case x => y
+        // c5
+      } // c6
+      // c7
+    } // c8
   }
 }
 <<< single-block partial function with block one-arg apply, with comments and parens
@@ -1309,15 +1309,16 @@ object a {
       // c4
     } // c5
   } // c6
-  val foo = bar { // c1
-    // c2
-    // c3
-    { // c4
-      case x => y
-      // c5
-    } // c6
-    // c7
-  } // c8
+  val foo = bar( // c1
+    { // c2
+      // c3
+      { // c4
+        case x => y
+        // c5
+      } // c6
+      // c7
+    } // c8
+  )
   val foo = bar.baz { // c1
     // c2
     case x => y
@@ -1330,15 +1331,16 @@ object a {
       // c4
     } // c5
   } // c6
-  val foo = bar.baz { // c1
-    // c2
-    // c3
-    { // c4
-      case x => y
-      // c5
-    } // c6
-    // c7
-  } // c8
+  val foo = bar.baz( // c1
+    { // c2
+      // c3
+      { // c4
+        case x => y
+        // c5
+      } // c6
+      // c7
+    } // c8
+  )
 }
 <<< init-only secondary ctors
 class a(vi: Int, vs: String) {

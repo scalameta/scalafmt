@@ -425,10 +425,11 @@ object a {
 }
 >>>
 object a {
-  override def onUpstreamFinish(): Unit =
+  override def onUpstreamFinish(): Unit = {
     if (buffer.isEmpty)
       completeStage()
-    else if (isAvailable(out)) {
+    else if (isAvailable(out))
       searchIndices()
-    } // else swallow the termination and wait for pull
+    // else swallow the termination and wait for pull
+  }
 }
