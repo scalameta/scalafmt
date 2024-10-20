@@ -1029,7 +1029,8 @@ class Router(formatOps: FormatOps) {
               singleArgument && isTreeEndingInArgumentClause(onlyArgument)
             }
           )
-            if (onlyArgument eq leftOwner) TokenRanges(TokenRange(open, close))
+            if (onlyArgument eq leftOwner)
+              TokenRanges(TokenRange(ft, afterClose))
             else parensTuple(onlyArgument)
           else insideBracesBlock(ft, close)
 
@@ -1103,7 +1104,7 @@ class Router(formatOps: FormatOps) {
                   needDifferentFromOneArgPerLine
                 val noOptimal = style.newlines.keep && !useOneArgPerLineSplit ||
                   singleArgument && !excludeBlocks.isEmpty &&
-                  excludeBlocks.ranges.forall(_.lt.is[T.LeftParen])
+                  excludeBlocks.ranges.forall(_.lt.left.is[T.LeftParen])
                 val okIndent = rightIsComment || handleImplicit
                 Split(noSplitMod, 0, policy = noSplitPolicy).withOptimalToken(
                   optimal,

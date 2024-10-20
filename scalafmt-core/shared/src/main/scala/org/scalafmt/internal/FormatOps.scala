@@ -170,9 +170,9 @@ class FormatOps(
     optimizationEntities.statementStarts.get(meta.idx + 1),
   )
 
-  def parensTuple(token: T): TokenRanges = matchingOpt(token)
-    .fold(TokenRanges.empty)(other => TokenRanges(TokenRange(token, other.left)))
-  def parensTuple(tree: Tree): TokenRanges = parensTuple(getLast(tree).left)
+  def parensTuple(ft: FormatToken): TokenRanges = matchingOpt(ft.left)
+    .fold(TokenRanges.empty)(other => TokenRanges(TokenRange(ft, other)))
+  def parensTuple(tree: Tree): TokenRanges = parensTuple(getLast(tree))
 
   def insideBlock[A](start: FormatToken, end: T)(implicit
       classifier: Classifier[T, A],
@@ -198,11 +198,9 @@ class FormatOps(
     @tailrec
     def run(tok: FormatToken): Unit = if (tok.left.start < end.start) {
       val nextTokOpt = matches(tok).flatMap { closeFt =>
-        val open = tok.left
-        val close = closeFt.left
-        if (open.start >= close.end) None
+        if (tok.left.start >= closeFt.left.end) None
         else {
-          result = result.append(TokenRange(open, close))
+          result = result.append(TokenRange(tok, closeFt))
           Some(closeFt)
         }
       }
@@ -1569,8 +1567,7 @@ class FormatOps(
             _: Term.NewAnonymous => getSplits(getSpaceSplit(1))
         case t: Term.ForYield => getDelimsIfEnclosed(t.enumsBlock) match {
             case Some((forEnumHead, forEnumLast)) =>
-              val exclude =
-                TokenRanges(TokenRange(forEnumHead.left, forEnumLast.left))
+              val exclude = TokenRanges(TokenRange(forEnumHead, forEnumLast))
               val afterYield = (t.body match {
                 case b: Term.Block => getHeadAndLastIfEnclosed(b)
                     .map { case (forBodyHead, forBodyLastOpt) =>
