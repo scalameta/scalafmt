@@ -155,7 +155,7 @@ object PolicyOps {
       endRt: T => Policy.End.WithPos,
   )(lastPolicy: Policy)(implicit fileLine: FileLine): Policy = exclude.ranges
     .foldLeft(lastPolicy) { case (policy, range) =>
-      (lastPolicy <== endLt(range.lt)) ==> (endRt(range.rt) ==> policy)
+      (lastPolicy <== endLt(range.lt.left)) ==> (endRt(range.rt.left) ==> policy)
     }
 
   def delayedBreakPolicy(
@@ -228,17 +228,18 @@ object PolicyOps {
   def unindentAtExclude(exclude: TokenRanges, indent: Length): Policy = exclude
     .ranges.foldLeft(Policy.noPolicy) { case (policy, range) =>
       val (lt, rt) = (range.lt, range.rt)
-      val trigger = rt
-      val unindent = Indent(indent, rt, ExpiresOn.After)
+      val ltl = lt.left
+      val rtl = rt.left
+      val trigger = rtl
+      val unindent = Indent(indent, rtl, ExpiresOn.After)
       val triggeredIndent = Indent.before(unindent, trigger)
-      val triggerUnindent = Policy.on(rt, prefix = "UNIND{") {
-        case Decision(FormatToken(`lt`, _, _), s) => s
-            .map(_.withIndent(triggeredIndent))
-      }
-      val cancelUnindent = delayedBreakPolicy(Policy.End == lt) {
-        Policy.after(lt, rank = 1, prefix = "UNIND}") { // use rank to apply after policy above
-          case Decision(FormatToken(`lt`, _, _), s) => s
-              .map(_.switch(trigger, false))
+      val triggerUnindent = Policy
+        .on(rtl, prefix = "UNIND{") { case Decision(`lt`, s) =>
+          s.map(_.withIndent(triggeredIndent))
+        }
+      val cancelUnindent = delayedBreakPolicy(Policy.End == ltl) {
+        Policy.after(ltl, rank = 1, prefix = "UNIND}") { // use rank to apply after policy above
+          case Decision(`lt`, s) => s.map(_.switch(trigger, false))
         }
       }
       policy ==> triggerUnindent & cancelUnindent

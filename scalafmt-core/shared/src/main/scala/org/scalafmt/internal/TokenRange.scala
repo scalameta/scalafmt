@@ -2,9 +2,9 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.Token
 
-class TokenRange private (val lt: Token, val rt: Token) {
+class TokenRange private (val lt: FormatToken, val rt: FormatToken) {
 
-  def validateAfter(other: TokenRange): Unit = require(lt.start >= other.rt.end)
+  def validateAfter(other: TokenRange): Unit = require(lt.idx > other.rt.idx)
 
 }
 
@@ -20,13 +20,13 @@ class TokenRanges private (val ranges: Seq[TokenRange]) extends AnyVal {
     new TokenRanges(range +: ranges)
   }
 
-  def startOfFirstRange(): Option[Token] = ranges.lastOption.map(_.lt)
+  def startOfFirstRange(): Option[Token] = ranges.lastOption.map(_.lt.left)
 }
 
 object TokenRange {
 
-  def apply(lt: Token, rt: Token): TokenRange =
-    if (lt.start < rt.start) new TokenRange(lt, rt) else new TokenRange(rt, lt)
+  def apply(lt: FormatToken, rt: FormatToken): TokenRange =
+    if (lt.idx < rt.idx) new TokenRange(lt, rt) else new TokenRange(rt, lt)
 
 }
 
