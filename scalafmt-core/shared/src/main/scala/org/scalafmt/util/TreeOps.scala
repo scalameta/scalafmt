@@ -935,4 +935,16 @@ object TreeOps {
   def getArgs(owner: Tree): Seq[Tree] = getArgsPartial
     .applyOrElse(owner, throwUnexpectedGetArgs)
 
+  @tailrec
+  def isTreeEndingInArgumentClause(tree: Tree): Boolean = tree match {
+    case t: Init => t.argClauses.nonEmpty
+    case t: Term.Apply => t.argClause.nonEmpty
+    case t: Term.ApplyType => t.argClause.nonEmpty
+    case t: Tree.WithCasesBlock => t.casesBlock.cases.nonEmpty
+    case t: Term.New => t.init.argClauses.nonEmpty
+    case _: Term.NewAnonymous => true
+    case t: Term.AnonymousFunction => isTreeEndingInArgumentClause(t.body)
+    case _ => false
+  }
+
 }
