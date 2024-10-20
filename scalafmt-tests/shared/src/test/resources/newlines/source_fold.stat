@@ -9934,3 +9934,20 @@ convertStream(inputStream, tokenizer, handleHeader, parser.options.charset) { to
 convertStream(inputStream, tokenizer, handleHeader, parser.options.charset) {
   tokens => safeParser.parse(tokens)
 }.flatten
+<<< #4133 braces to parens for single-line apply, with nested partial function
+maxColumn = 74
+newlines.source = fold
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+val newExprs = exprs.map { _.transform {
+  case a: AttributeReference => attrMap.getOrElse(a, a)
+}}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-val newExprs = exprs.map(_.transform { case a: AttributeReference =>
+-  attrMap.getOrElse(a, a)
+-})
++val newExprs = exprs
++  .map(_.transform { case a: AttributeReference => attrMap.getOrElse(a, a) })
