@@ -10775,3 +10775,52 @@ val newExprs = exprs.map { _.transform {
 val newExprs = exprs.map {
   _.transform { case a: AttributeReference => attrMap.getOrElse(a, a) }
 }
+<<< #4133 redundant braces around assignment rhs infix
+maxColumn = 70
+rewrite.rules = [RedundantBraces]
+===
+if (buf.nonEmpty || privateWithin != "")
+  buf += {"TypeName(\"" + privateWithin + "\")"}
+>>>
+if (buf.nonEmpty || privateWithin != "")
+  buf += "TypeName(\"" + privateWithin + "\")"
+<<< #4133 redundant braces around inner infix with overflow
+maxColumn = 78
+runner.dialect = scala3
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+rewrite.rules = [RedundantBraces]
+===
+override def isHidden(dia: Diagnostic)(using Context): Boolean =
+  super.isHidden(dia) || {
+      dia.msg.isNonSensical &&
+      hasErrors && // if there are no errors yet, report even if diagnostic is non-sensical
+      !ctx.settings.YshowSuppressedErrors.value
+  }
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+     dia.msg.isNonSensical && hasErrors && // if there are no errors yet, report even if diagnostic is non-sensical
+-    !ctx.settings.YshowSuppressedErrors.value
++      !ctx.settings.YshowSuppressedErrors.value
+<<< #4133 redundant braces around inner infix
+maxColumn = 78
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+lazy val defaultSettings: Seq[Setting[_]] = Def.settings(
+  Dependencies.Versions,
+  Compile / javacOptions ++= {
+    DefaultJavacOptions ++
+    JdkOptions.targetJdkJavacOptions(targetSystemJdk.value)
+  },
+  resolverSettings,
+)
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+   Dependencies.Versions,
+-  Compile / javacOptions ++= DefaultJavacOptions ++
+-    JdkOptions.targetJdkJavacOptions(targetSystemJdk.value),
++  Compile / javacOptions ++=
++    DefaultJavacOptions ++
++      JdkOptions.targetJdkJavacOptions(targetSystemJdk.value),
+   resolverSettings
