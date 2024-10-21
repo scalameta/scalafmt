@@ -767,7 +767,9 @@ class FormatOps(
               val exclude =
                 if (breakMany) TokenRanges.empty
                 else insideBracesBlock(nextFT, expire, true)
-              Split(ModExt(newStmtMod.getOrElse(spaceMod)), cost)
+              val ignore = exclude.isEmpty && singleLinePolicy.nonEmpty &&
+                expire.end == fullExpire.end
+              Split(ignore, cost)(ModExt(newStmtMod.getOrElse(spaceMod)))
                 .withSingleLine(expire, exclude, noOptimal = cost != 0)
           }
         }
