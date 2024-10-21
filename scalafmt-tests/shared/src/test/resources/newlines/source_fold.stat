@@ -1107,7 +1107,7 @@ danglingParentheses.preset = false
 ===
 case class AttributeInfo(symbol : Symbol, typeRef : Type, value : Option[Any],
   values : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
->>> { stateVisits = 63, stateVisits2 = 63 }
+>>> { stateVisits = 62, stateVisits2 = 62 }
 case class AttributeInfo(
     symbol: Symbol,
     typeRef: Type,
@@ -6779,7 +6779,7 @@ object a {
   sb.append((if (lsb < 10) ('0' + lsb).asInstanceOf[Char]
              else ('a' + (lsb - 10)).asInstanceOf[Char]))
 }
->>> { stateVisits = 1571, stateVisits2 = 1571 }
+>>> { stateVisits = 527, stateVisits2 = 527 }
 object a {
   sb.append((if (msb < 10) ('0' + msb).asInstanceOf[Char]
              else ('a' + (msb - 10)).asInstanceOf[Char]))
@@ -8358,7 +8358,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 6093, stateVisits2 = 6093 }
+>>> { stateVisits = 4946, stateVisits2 = 4946 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -8445,7 +8445,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 7564, stateVisits2 = 7564 }
+>>> { stateVisits = 5051, stateVisits2 = 5051 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -9455,7 +9455,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 3538, stateVisits2 = 3538 }
+>>> { stateVisits = 2933, stateVisits2 = 2933 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref.Synchronized
