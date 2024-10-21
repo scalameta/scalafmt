@@ -206,7 +206,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     def impl(ia: Member.Infix): Boolean = {
       val beforeOp = ftoks.prevNonCommentSameLine(ftoks.tokenJustBefore(ia.op))
       beforeOp.hasBreak && (!formatInfix || beforeOp.left.is[Token.Comment]) ||
-      ia.nestedInfixApps.exists(x => !ftoks.isEnclosedInParens(x) && impl(x))
+      ia.nestedInfixApps.exists(x => !ftoks.isEnclosedWithinParens(x) && impl(x))
     }
     impl(ia)
   }

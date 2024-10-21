@@ -381,7 +381,7 @@ class FormatOps(
         (app.arg match {
           case _: Lit.Unit => false
           case x: Member.ArgClause if x.values.lengthCompare(1) != 0 => false
-          case x => !isEnclosedInParens(x)
+          case x => !isEnclosedWithinParens(x)
         })
       def useSpaceAroundOp = app.isAssignment || !isOperatorPart(op.head) ||
         op.length != 1 && !isOperatorPart(op.last) ||
@@ -401,8 +401,8 @@ class FormatOps(
       if (afterInfix ne Newlines.AfterInfix.keep)
         if (isBeforeOp) Seq(Split(spaceMod, 0))
         else {
-          val fullInfix = InfixSplits.findEnclosingInfix(app)
-          val ok = isEnclosedInParens(fullInfix) || fullInfix.parent.forall {
+          val (fullInfix, isEnclosed) = InfixSplits.findMaybeEnclosingInfix(app)
+          val ok = isEnclosed || fullInfix.parent.forall {
             case t: Defn.Val => t.rhs eq fullInfix
             case t: Defn.Var => t.body eq fullInfix
             case _ => true
@@ -483,7 +483,7 @@ class FormatOps(
         child: Member.Infix,
         childTree: Tree,
     ): (Member.Infix, Boolean) =
-      if (isEnclosedInParens(childTree)) (child, true)
+      if (isEnclosedWithinParens(childTree)) (child, true)
       else childTree.parent match {
         case Some(p: Member.Infix) if !p.isAssignment =>
           findMaybeEnclosingInfix(p, p)
@@ -674,7 +674,7 @@ class FormatOps(
           val infixes = if (isAfterOp) res.toSeq.tail else res.toSeq
           val filtered =
             if (!style.newlines.afterInfixBreakOnNested) infixes
-            else infixes.takeWhile(x => !isEnclosedInParens(x.lhs))
+            else infixes.takeWhile(x => !isEnclosedWithinParens(x.lhs))
           if (filtered.isEmpty) None
           else {
             val res = filtered.foldLeft(Seq.empty[(T, Int)]) { case (out, ia) =>
@@ -813,9 +813,9 @@ class FormatOps(
       tree: Tree,
       res: mutable.Buffer[Member.Infix],
   ): Unit = tree match {
-    case Member.ArgClause(arg :: Nil) if !isEnclosedInParens(tree) =>
+    case Member.ArgClause(arg :: Nil) if !isEnclosedWithinParens(tree) =>
       findNestedInfixes(arg, res)
-    case ia: Member.Infix if !isEnclosedInParens(tree) =>
+    case ia: Member.Infix if !isEnclosedWithinParens(tree) =>
       findNestedInfixes(ia.lhs, res)
       res += ia
       ia.singleArg.foreach(findNestedInfixes(_, res))
@@ -824,13 +824,13 @@ class FormatOps(
 
   @tailrec
   final def findLeftInfix(app: Member.Infix): Member.Infix = app.lhs match {
-    case t: Member.Infix if !isEnclosedInParens(t) => findLeftInfix(t)
+    case ia: Member.Infix if !isEnclosedWithinParens(ia) => findLeftInfix(ia)
     case _ => app
   }
 
   private def getInfixRhsAsInfix(app: Member.Infix): Option[Member.Infix] =
     app.singleArg match {
-      case Some(t: Member.Infix) if !isEnclosedInParens(t) => Some(t)
+      case Some(t: Member.Infix) if !isEnclosedWithinParens(t) => Some(t)
       case _ => None // multiple parameters to infix are always enclosed
     }
 
@@ -842,7 +842,7 @@ class FormatOps(
       val elem = queue.dequeue()
       val elemPrecedence = elem.precedence
       if (maxPrecedence < elemPrecedence) maxPrecedence = elemPrecedence
-      queue ++= elem.nestedInfixApps.filter(x => !isEnclosedInParens(x))
+      queue ++= elem.nestedInfixApps.filter(x => !isEnclosedWithinParens(x))
     }
     maxPrecedence
   }
@@ -1284,7 +1284,7 @@ class FormatOps(
       applyTree: Option[Member.Apply] = None,
   ): (Option[SelectLike], Option[Member.Apply]) = {
     @inline
-    def isEnclosed: Boolean = enclosed && isEnclosedInParens(tree)
+    def isEnclosed: Boolean = enclosed && isEnclosedWithinParens(tree)
     tree match {
       case GetSelectLike(t) if !isEnclosed => (Some(t), applyTree)
       case t: Member.Apply if !isEnclosed =>
@@ -1308,7 +1308,7 @@ class FormatOps(
       select: Option[SelectLike] = None,
       prevApply: Option[Tree] = None,
   ): (Tree, Option[SelectLike]) =
-    if (isEnclosedInParens(tree)) (prevApply.getOrElse(tree), select)
+    if (isEnclosedWithinParens(tree)) (prevApply.getOrElse(tree), select)
     else tree.parent match {
       case Some(GetSelectLike(p)) =>
         findLastApplyAndNextSelectEnclosed(p.tree, select.orElse(Some(p)))
@@ -1333,7 +1333,7 @@ class FormatOps(
         case Some(t) => (t, select)
         case _ =>
           val nextEnclosed = prevApply.orElse(Some(tree))
-            .filter(isEnclosedInParens)
+            .filter(isEnclosedWithinParens)
           findLastApplyAndNextSelectPastEnclosed(p, select, nextEnclosed)
       }
     case Some(p: Term.AnonymousFunction) =>
@@ -1755,7 +1755,7 @@ class FormatOps(
             val op = t.op.value
             op == "->" || op == "→"
           } => None
-      case _ => getClosingIfInParens(body)
+      case _ => getClosingIfWithinParens(body).toOption
     }
 
   def isBodyEnclosedAsBlock(body: Tree): Boolean =
@@ -1899,7 +1899,7 @@ class FormatOps(
         case _: Member.Tuple => None
         case Term.Block((_: Member.Tuple) :: Nil)
             if !head.left.is[T.LeftBrace] => None
-        case _ => tokens.getClosingIfInParens(nonTrivialEnd)(head)
+        case _ => tokens.getClosingIfWithinParens(nonTrivialEnd)(head).toOption
             .map(prevNonCommentSameLine)
       }).getOrElse(nextNonCommentSameLine(end))
       val close = closeFT.left
@@ -1996,7 +1996,7 @@ class FormatOps(
                   (tf.paramClause match { // LambdaStart
                     case tpc @ Term.ParamClause(tp :: Nil, mod) =>
                       (mod.isEmpty && tp.mods.isEmpty && tp.decltpe.isEmpty) ||
-                      isEnclosedInParens(tpc)
+                      isEnclosedWithinParens(tpc)
                     case _ => true // multiple params are always in parens
                   }) =>
               getSplits(ac, forceNL = false, indentOpt = indent) match {
@@ -2474,7 +2474,7 @@ class FormatOps(
 
       val beg = getOnOrBeforeOwned(hft, tree)
       val end = getLastNonTrivial(treeTokens, tree)
-      val kw = getClosingIfInParens(end)(beg).fold(end)(next).right
+      val kw = getClosingIfWithinParens(end)(beg).toOption.fold(end)(next).right
       if (!kw.is[A]) return None
 
       val indent = style.indent.ctrlSite.getOrElse(style.indent.getSignificant)

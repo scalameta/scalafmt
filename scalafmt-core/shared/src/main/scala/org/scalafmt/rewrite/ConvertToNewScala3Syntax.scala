@@ -150,6 +150,6 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
   }.map((left, _))
 
   private def isSimpleRepeated(t: Term.Repeated): Boolean = t.expr
-    .isNot[Term.ApplyInfix] || ftoks.isEnclosedInParens(t.expr)
+    .isNot[Term.ApplyInfix] || ftoks.isEnclosedWithinParens(t.expr)
 
 }
