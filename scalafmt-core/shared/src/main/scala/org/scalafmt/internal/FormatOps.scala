@@ -670,14 +670,14 @@ class FormatOps(
         if (closeOpt.isDefined) None
         else {
           val res = mutable.Buffer.empty[Member.Infix]
-          findNextInfixes(fullInfix, app.lhs, res)
-          val infixes = if (isAfterOp) res.toSeq.tail else res.toSeq
-          val filtered =
-            if (!style.newlines.afterInfixBreakOnNested) infixes
-            else infixes.takeWhile(x => !isEnclosedWithinParens(x.lhs))
-          if (filtered.isEmpty) None
+          findNextInfixes(fullInfix, app.lhs, res)(
+            if (!style.newlines.afterInfixBreakOnNested) _ => true
+            else x => !isEnclosedWithinParens(x.lhs),
+          )
+          val infixes = if (isAfterOp) res.toSeq.drop(1) else res.toSeq
+          if (infixes.isEmpty) None
           else {
-            val res = filtered.foldLeft(Seq.empty[(T, Int)]) { case (out, ia) =>
+            val res = infixes.foldLeft(Seq.empty[(T, Int)]) { case (out, ia) =>
               val cost = maxPrecedence - ia.precedence
               if (out.nonEmpty && out.head._2 <= cost) out
               else (getMidInfixToken(ia) -> cost) +: out
@@ -795,31 +795,35 @@ class FormatOps(
       fullTree: Tree,
       tree: Tree,
       res: mutable.Buffer[Member.Infix],
-  ): Unit = if (tree ne fullTree) tree.parent match {
-    case Some(ia: Member.Infix) =>
-      if (ia.lhs eq tree) {
-        res += ia
-        findNestedInfixes(ia.arg, res)
-      }
-      findNextInfixes(fullTree, ia, res)
-    case Some(p: Member.ArgClause) => p.parent match {
-        case Some(pp: Member.Infix) => findNextInfixes(fullTree, pp, res)
-        case _ =>
-      }
-    case _ =>
-  }
+  )(pred: Member.Infix => Boolean): Boolean = (tree ne fullTree) &&
+    (tree.parent match {
+      case Some(ia: Member.Infix) =>
+        val ok = (ia.lhs ne tree) || pred(ia) && {
+          res += ia
+          findNestedInfixes(res)(pred)(ia.arg)
+        }
+        ok && findNextInfixes(fullTree, ia, res)(pred)
+      case Some(p: Member.ArgClause) => p.parent match {
+          case Some(pp: Member.Infix) => findNextInfixes(fullTree, pp, res)(pred)
+          case _ => true
+        }
+      case _ => true
+    })
 
   private def findNestedInfixes(
-      tree: Tree,
       res: mutable.Buffer[Member.Infix],
-  ): Unit = tree match {
+  )(pred: Member.Infix => Boolean)(tree: Tree): Boolean = tree match {
     case Member.ArgClause(arg :: Nil) if !isEnclosedWithinParens(tree) =>
-      findNestedInfixes(arg, res)
+      findNestedInfixes(res)(pred)(arg)
     case ia: Member.Infix if !isEnclosedWithinParens(tree) =>
-      findNestedInfixes(ia.lhs, res)
-      res += ia
-      ia.singleArg.foreach(findNestedInfixes(_, res))
-    case _ =>
+      findNestedInfixes(res)(pred)(ia.lhs) && pred(ia) && {
+        res += ia
+        ia.singleArg match {
+          case None => true
+          case Some(arg) => findNestedInfixes(res)(pred)(arg)
+        }
+      }
+    case _ => true
   }
 
   @tailrec
