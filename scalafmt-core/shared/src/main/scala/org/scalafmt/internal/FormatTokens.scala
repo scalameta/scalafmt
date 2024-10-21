@@ -139,33 +139,36 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   def isEnclosedInBraces(tree: Tree): Boolean = getDelimsIfEnclosed(tree)
     .exists(_._1.left.is[Token.LeftBrace])
 
-  @inline
-  private def areMatchingParens(close: Token)(open: => Token): Boolean = close
-    .is[Token.RightParen] && areMatching(close)(open)
+  def isEnclosedWithinParens(tree: Tree): Boolean =
+    getClosingIfWithinParens(tree).isRight
 
-  def isEnclosedInParens(tree: Tree): Boolean = getClosingIfInParens(tree)
-    .isDefined
-
-  def getClosingIfInParens(
+  def getClosingIfWithinParens(
       last: FormatToken,
-  )(head: FormatToken): Option[FormatToken] =
-    if (areMatchingParens(last.left)(head.left)) Some(prev(last))
+  )(head: FormatToken): Either[Boolean, FormatToken] = {
+    val innerMatched = areMatching(last.left)(head.left)
+    if (innerMatched && last.left.is[Token.RightParen]) Right(prev(last))
     else {
       val afterLast = nextNonComment(last)
-      if (areMatchingParens(afterLast.right)(prevNonCommentBefore(head).left))
-        Some(afterLast)
-      else None
+      if (areMatching(afterLast.right)(prevNonCommentBefore(head).left))
+        if (afterLast.right.is[Token.RightParen]) Right(afterLast)
+        else Left(true)
+      else Left(innerMatched)
     }
-  def getClosingIfInParens(tree: Tree): Option[FormatToken] = {
+  }
+
+  def getClosingIfWithinParens(tree: Tree): Either[Boolean, FormatToken] = {
     val tokens = tree.tokens
-    getHeadOpt(tokens, tree)
-      .flatMap(getClosingIfInParens(getLastNonTrivial(tokens, tree)))
+    getHeadOpt(tokens, tree) match {
+      case Some(head) =>
+        getClosingIfWithinParens(getLastNonTrivial(tokens, tree))(head)
+      case None => Left(false)
+    }
   }
 
   def getLastExceptParen(tree: Tree): FormatToken = {
     val tokens = tree.tokens
     val last = getLastNonTrivial(tokens, tree)
-    getClosingIfInParens(last)(getHead(tokens, tree)).getOrElse(last)
+    getClosingIfWithinParens(last)(getHead(tokens, tree)).getOrElse(last)
   }
 
   final def findTokenWith[A](ft: FormatToken, iter: FormatToken => FormatToken)(

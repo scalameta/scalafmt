@@ -2651,7 +2651,7 @@ class Router(formatOps: FormatOps) {
       style.dialect.allowSignificantIndentation &&
       (style.newlines.sourceIgnored || ft.noBreak) && body.parent.exists {
         case p: Enumerator.Assign => (p.body eq body) && p.parent.exists {
-            case pp: Term.EnumeratorsBlock => isEnclosedInParens(pp)
+            case pp: Term.EnumeratorsBlock => isEnclosedWithinParens(pp)
             case _ => false
           }
         case _ => false
