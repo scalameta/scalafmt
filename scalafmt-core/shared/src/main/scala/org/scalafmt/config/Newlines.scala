@@ -396,8 +396,17 @@ object Newlines {
     case object punct extends AvoidForSimpleOverflow
     case object tooLong extends AvoidForSimpleOverflow
     case object slc extends AvoidForSimpleOverflow
+
+    val all: Seq[sourcecode.Text[AvoidForSimpleOverflow]] =
+      Seq(punct, tooLong, slc)
+
     implicit val codec: ConfCodecEx[AvoidForSimpleOverflow] = ReaderUtil
-      .oneOf[AvoidForSimpleOverflow](punct, tooLong, slc)
+      .oneOf[AvoidForSimpleOverflow](all: _*)
+
+    implicit val seqDecoder: ConfDecoderEx[Seq[AvoidForSimpleOverflow]] =
+      ConfDecoderEx.fromPartial[Seq[AvoidForSimpleOverflow]]("STR") {
+        case (_, Conf.Str("all")) => Configured.ok(all.map(_.value))
+      }.orElse(ConfDecoderExT.canBuildSeq[AvoidForSimpleOverflow, Seq])
   }
 
   sealed abstract class InInterpolation
