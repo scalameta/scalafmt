@@ -1284,7 +1284,7 @@ danglingParentheses.preset = false
 ===
 case class AttributeInfo(symbol : Symbol, typeRef : Type, value : Option[Any],
   values : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
->>> { stateVisits = 63, stateVisits2 = 63 }
+>>> { stateVisits = 62, stateVisits2 = 62 }
 case class AttributeInfo(
     symbol: Symbol,
     typeRef: Type,
@@ -8981,7 +8981,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 684, stateVisits2 = 684 }
+>>> { stateVisits = 477, stateVisits2 = 477 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -9085,7 +9085,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 708, stateVisits2 = 708 }
+>>> { stateVisits = 432, stateVisits2 = 432 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -10169,7 +10169,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 970, stateVisits2 = 970 }
+>>> { stateVisits = 940, stateVisits2 = 940 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref
@@ -10313,7 +10313,7 @@ object a {
       .map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 1168, stateVisits2 = 1168 }
+>>> { stateVisits = 1162, stateVisits2 = 1162 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
@@ -10452,7 +10452,7 @@ object a {
       .map(filterNot(getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 739, stateVisits2 = 739 }
+>>> { stateVisits = 733, stateVisits2 = 733 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
