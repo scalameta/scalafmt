@@ -2973,7 +2973,8 @@ class FormatOps(
       case Decision(`beforeClose`, ss) => ss
           .flatMap(s => if (s.isNL) None else Some(s.withMod(NoSplit)))
     }
-    SpaceOrNoSplit(end) -> policy
+    SpaceOrNoSplit(end) ->
+      Policy.RelayOnSplit((s, _) => s.isNL)(policy, NoPolicy)
   }
 
 }
