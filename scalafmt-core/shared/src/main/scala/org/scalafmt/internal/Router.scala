@@ -402,17 +402,7 @@ class Router(formatOps: FormatOps) {
             case _ => endOfSingleLineBlock(closeFT)
           }
           // copy logic from `( ...`, binpack=never, defining `slbSplit`
-          val excludeBlocks =
-            if (slbParensPolicy.isEmpty || style.newlines.unfold)
-              TokenRanges.empty
-            else leftOwner match {
-              case Tree.Block(t :: Nil)
-                  if style.newlines.fold && isTreeEndingInArgumentClause(t) =>
-                parensTuple(t)
-              case _ => insideBracesBlock(ft, close)
-            }
-          Split(slbMod, 0)
-            .withSingleLine(expire, noSyntaxNL = true, exclude = excludeBlocks)
+          Split(slbMod, 0).withSingleLine(expire, noSyntaxNL = true)
             .andPolicy(sldPolicy & slbParensPolicy)
         }
 

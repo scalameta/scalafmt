@@ -7422,4 +7422,20 @@ processTreeOpt(s) { s match
       Some(parseClasslike(c))
 }
 >>>
-FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '[121] ClassDef if >>> Ident(ClassDef) [368..376) | KwIf [377..379) >>> Type.Name [368..376) | Case.CaseImpl [360..445) <<<[ ]>>>', line 8: exceeded `runner.maxStateVisits`=1000 [see https://scalameta.org/scalafmt/docs/configuration.html#search-state-exploded]
+processTreeOpt(s) {
+  s match
+     case td: TypeDef
+         if !td.symbol.flags.is(Flags.Synthetic) && (!td.symbol.flags.is(
+           Flags.Case
+         ) || !td.symbol.flags.is(Flags.Enum)) =>
+       Some(parseTypeDef(td, c))
+
+     case vd: ValDef
+         if !isSyntheticField(vd.symbol) && (!vd.symbol.flags.is(
+           Flags.Case
+         ) || !vd.symbol.flags.is(Flags.Enum)) =>
+       Some(parseValDef(c, vd))
+
+     case c: ClassDef if c.symbol.shouldDocumentClasslike =>
+       Some(parseClasslike(c))
+}

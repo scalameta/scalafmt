@@ -9944,6 +9944,6 @@ val newExprs = exprs.map { _.transform {
   case a: AttributeReference => attrMap.getOrElse(a, a)
 }}
 >>>
-val newExprs = exprs.map { _.transform { case a: AttributeReference =>
-  attrMap.getOrElse(a, a)
-}}
+val newExprs = exprs.map {
+  _.transform { case a: AttributeReference => attrMap.getOrElse(a, a) }
+}

@@ -112,15 +112,19 @@ final class State(
 
     def noOverflowPenalties = (math.max(0, delayedPenalty), 0) // fits inside column
 
-    def overflowPenalties(column: Int) = {
+    def overflowPenalties(column: Int, noDelay: Boolean = false) = {
       val defaultOverflowPenalty = Constants.ExceedColumnPenalty + column
       if (style.newlines.avoidForSimpleOverflow.isEmpty)
         (defaultOverflowPenalty, 0)
-      else getOverflowPenalty(nextSplit, defaultOverflowPenalty)
+      else getOverflowPenalty(nextSplit, defaultOverflowPenalty, noDelay)
     }
 
     val (penalty, nextDelayedPenalty) =
       if (columnOnCurrentLine <= style.maxColumn) noOverflowPenalties
+      else if (nextPendingSpaces.nonEmpty) overflowPenalties(
+        columnOnCurrentLine + nextPendingSpaces.length,
+        noDelay = true,
+      )
       else if (right.is[Token.Comment]) {
         def trailing = nextTok.hasBreak // newline after comment
         if (nextSplit.isNL) { // newline before comment
@@ -165,6 +169,7 @@ final class State(
   private def getOverflowPenalty(
       nextSplit: Split,
       defaultOverflowPenalty: Int,
+      noDelay: Boolean = false,
   )(implicit style: ScalafmtConfig, tokens: FormatTokens): (Int, Int) = {
     val prevActive = delayedPenalty > 0
     val fullPenalty = defaultOverflowPenalty +
@@ -177,7 +182,7 @@ final class State(
       (penalty, if (nextActive) nextDelayedPenalty else -nextDelayedPenalty)
     }
     val ft = tokens(depth)
-    if (nextSplit.isNL || ft.right.is[Token.EOF])
+    if (noDelay || nextSplit.isNL || ft.right.is[Token.EOF])
       result(if (prevActive) fullPenalty else defaultOverflowPenalty, false)
     else {
       val tokLength = ft.meta.right.text.length

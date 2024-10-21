@@ -7393,4 +7393,20 @@ processTreeOpt(s) { s match
       Some(parseClasslike(c))
 }
 >>>
-FormatTests:54 [e]: org.scalafmt.Error$SearchStateExploded: Search state exploded on '[131] parseClasslike ( >>> Ident(parseClasslike) [427..441) | LeftParen [441..442) >>> Term.Name [427..441) | Term.ArgClause [441..444) <<<[]>>>', line 9: exceeded `runner.maxStateVisits`=1000 [see https://scalameta.org/scalafmt/docs/configuration.html#search-state-exploded]
+processTreeOpt(s) {
+  s match
+     case td: TypeDef
+         if !td.symbol.flags.is(Flags.Synthetic) && (!td.symbol.flags.is(
+           Flags.Case
+         ) || !td.symbol.flags.is(Flags.Enum)) =>
+       Some(parseTypeDef(td, c))
+
+     case vd: ValDef
+         if !isSyntheticField(vd.symbol) && (!vd.symbol.flags.is(
+           Flags.Case
+         ) || !vd.symbol.flags.is(Flags.Enum)) =>
+       Some(parseValDef(c, vd))
+
+     case c: ClassDef if c.symbol.shouldDocumentClasslike =>
+       Some(parseClasslike(c))
+}
