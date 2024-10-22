@@ -10582,3 +10582,20 @@ system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
             }
       }
 }
+<<< #4133 redundant braces with nested partial function 
+maxColumn = 76
+rewrite.rules = [RedundantBraces]
+===
+object a {
+  val defaultMethodNames = defaultGetterNames.map { _.replace {
+    case DefaultGetterName(methName, _) => methName
+  }}
+}
+>>>
+object a {
+  val defaultMethodNames = defaultGetterNames.map {
+    _.replace {
+      case DefaultGetterName(methName, _) => methName
+    }
+  }
+}
