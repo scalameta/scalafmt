@@ -727,3 +727,17 @@ object a {
   try (new compiler.Run).compile(sourceFiles.map(_.toString))
   catch { case ex: Throwable => }
 }
+<<< #4133 avoid infix, with arg in rewritten braces just before `else`
+maxColumn = 76
+newlines.source = fold
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+rewrite.rules = [RedundantBraces, RedundantParens, AvoidInfix]
+===
+def primaryConstructor: Option[MemberImpl with Constructor] = if (isClass) constructors find { _.isPrimary } else None
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+ def primaryConstructor: Option[MemberImpl with Constructor] =
+-  if (isClass) constructors.find(_.isPrimary) else None
++  if (isClass) constructors.find(_.isPrimary)
++  else None
