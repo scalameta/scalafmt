@@ -41,6 +41,9 @@ object TestStyles {
       ),
     )
 
+    def withOverflow(types: Newlines.AvoidForSimpleOverflow*): ScalafmtConfig =
+      style.copy(newlines = style.newlines.copy(avoidForSimpleOverflow = types))
+
   }
 
   private val baseKeepStyle = baseClassicStyle.withSource(Newlines.keep)
@@ -52,9 +55,10 @@ object TestStyles {
     "classicWithAlign" -> baseClassicStyle.withAlign(Align.most),
     "keep" -> baseKeepStyle,
     "keepWithRewrites" -> baseKeepStyle.withRewrites(),
-    "keepWithAlign" -> baseKeepStyle.withAlign(Align.most),
     "keepWithScalaJS" -> baseKeepStyle.forScalaJs,
     "fold" -> baseFoldStyle,
+    "foldWithRewritesAndOverflow" -> baseFoldStyle.withRewrites()
+      .withOverflow(Newlines.AvoidForSimpleOverflow.all: _*),
     "unfold" -> baseClassicStyle.withSource(Newlines.unfold),
   )
 

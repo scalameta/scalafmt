@@ -398,6 +398,7 @@ object Newlines {
     case object slc extends AvoidForSimpleOverflow
     implicit val codec: ConfCodecEx[AvoidForSimpleOverflow] = ReaderUtil
       .oneOf[AvoidForSimpleOverflow](punct, tooLong, slc)
+    val all: List[AvoidForSimpleOverflow] = List(punct, tooLong, slc)
   }
 
   sealed abstract class InInterpolation
