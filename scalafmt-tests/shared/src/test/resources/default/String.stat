@@ -333,7 +333,8 @@ object a {
 object a {
   def b = {
     try {
-      if (false) {} else {
+      if (false) {}
+      else {
         info("Uber JAR disabled, but current working directory does not look " +
           s"like an engine project directory. Please delete lib/${core.getName} manually.")
       }

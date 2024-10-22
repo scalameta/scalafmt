@@ -337,11 +337,14 @@ class FormatOps(
       term: Term.If,
   ): Option[(FormatToken, Option[T.KwElse])] = getHeadOpt(term.elsep)
     .map { ftElsep =>
-      val beforeElsep = prevNonCommentBefore(ftElsep)
-      val elsOpt = beforeElsep.left match {
-        case els: T.KwElse
-            if initStyle.newlines.alwaysBeforeElseAfterCurlyIf ||
-              !prev(beforeElsep).left.is[T.RightBrace] => Some(els)
+      val elsOpt = prevNonCommentBefore(ftElsep) match {
+        case ft @ FormatToken(els: T.KwElse, _, _) =>
+          val ok = initStyle.newlines.alwaysBeforeElseAfterCurlyIf || ! {
+            val pft = prev(ft)
+            pft.leftOwner.is[Term.Block] && pft.left.is[T.RightBrace] &&
+            !prevNonCommentSameLineBefore(pft).left.is[T.LeftBrace]
+          }
+          if (ok) Some(els) else None
         case _ => None
       }
       (ftElsep, elsOpt)
