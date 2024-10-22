@@ -1616,7 +1616,18 @@ class Router(formatOps: FormatOps) {
               .getOrElse(defaultSplits)
         }
 
-      case FormatToken(_, _: T.Semicolon, _) => Seq(Split(NoSplit, 0))
+      case FormatToken(_, sc: T.Semicolon, _) =>
+        val forceBreak = hasBreak() && {
+          val ltoks = leftOwner.tokens
+          val maxTokens = topSourceTree.tokens.length
+          !ltoks.getWideOpt(
+            ltoks.skipWideIf(_.is[T.Whitespace], ltoks.length, maxTokens),
+          ).contains(sc) // something was removed
+        }
+        val policy = Policy ? forceBreak &&
+          decideNewlinesOnlyAfterToken(nextNonCommentSameLineAfter(ft).left)
+        Seq(Split(NoSplit, 0, policy = policy))
+
       case FormatToken(_: T.KwReturn, r, _) =>
         val mod =
           if (hasBlankLine) Newline2x
