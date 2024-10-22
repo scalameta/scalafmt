@@ -10891,3 +10891,82 @@ object a {
       events.foreach(log)
     }
 }
+<<< #4133 nested partial functions with overflow
+preset = default
+maxColumn = 80
+newlines.source = unfold
+#newlines.avoidForSimpleOverflow = all
+===
+system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
+  case _: NoSuchMethodException =>
+    system.dynamicAccess
+      .createInstanceFor[Serializer](
+        fqn,
+        List(classOf[ExtendedActorSystem] -> system, classOf[String] -> bindingName))
+      .recoverWith {
+        case _: NoSuchMethodException =>
+          system.dynamicAccess
+            .createInstanceFor[Serializer](
+              fqn,
+              List(classOf[ActorSystem] -> system, classOf[String] -> bindingName))
+            .recoverWith {
+              case _: NoSuchMethodException =>
+                system.dynamicAccess
+                  .createInstanceFor[Serializer](
+                    fqn,
+                    List(
+                      classOf[ClassicActorSystemProvider] -> system,
+                      classOf[String] -> bindingName))
+                  .recoverWith {
+                    case _: NoSuchMethodException =>
+                      Failure(new NoSuchMethodException(
+                        s"The serializer [$fqn] for binding [$bindingName] doesn't have a matching " +
+                        s"constructor, see API documentation of ${classOf[Serializer].getName}"))
+                  }
+            }
+      }
+}
+>>>
+system
+  .dynamicAccess
+  .createInstanceFor[Serializer](fqn, Nil)
+  .recoverWith { case _: NoSuchMethodException =>
+    system
+      .dynamicAccess
+      .createInstanceFor[Serializer](
+        fqn,
+        List(
+          classOf[ExtendedActorSystem] -> system,
+          classOf[String] -> bindingName
+        )
+      )
+      .recoverWith { case _: NoSuchMethodException =>
+        system
+          .dynamicAccess
+          .createInstanceFor[Serializer](
+            fqn,
+            List(classOf[ActorSystem] -> system, classOf[String] -> bindingName)
+          )
+          .recoverWith { case _: NoSuchMethodException =>
+            system
+              .dynamicAccess
+              .createInstanceFor[Serializer](
+                fqn,
+                List(
+                  classOf[ClassicActorSystemProvider] -> system,
+                  classOf[String] -> bindingName
+                )
+              )
+              .recoverWith { case _: NoSuchMethodException =>
+                Failure(
+                  new NoSuchMethodException(
+                    s"The serializer [$fqn] for binding [$bindingName] doesn't have a matching " +
+                      s"constructor, see API documentation of ${classOf[
+                          Serializer
+                        ].getName}"
+                  )
+                )
+              }
+          }
+      }
+  }
