@@ -7125,4 +7125,30 @@ processTreeOpt(s) {
      case c: ClassDef if c.symbol.shouldDocumentClasslike =>
        Some(parseClasslike(c))
 }
-
+<<< #4133 semicolon after removed brace, no folding
+maxColumn = 78
+runner.dialect = scala3
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+rewrite {
+  rules = [RedundantBraces, RedundantParens]
+  scala3 {
+    insertEndMarkerMinLines = 5
+    convertToNewSyntax = true,
+    removeOptionalBraces = yes
+  }
+  redundantBraces.ifElseExpressions = true
+}
+===
+private[this] def __computeSerializedSize(): _root_.scala.Int = {
+  var __size = 0
+  if (sealedValue.nullConstant.isDefined) {
+    val __value = sealedValue.nullConstant.get
+    __size += 1 + SemanticdbOutputStream.computeUInt32SizeNoTag(__value.serializedSize) + __value.serializedSize
+  };
+  __size
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+         __value.serializedSize; __size
+-   end if
