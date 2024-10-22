@@ -10306,3 +10306,31 @@ repeatTakeMapAndFold = fuse(
       acc.value += x.value; acc
     }.toMat(testSink)(Keep.right)
 )
+<<< #4133 parens to braces, with function as argument
+maxColumn = 72
+rewrite.rules = [RedundantBraces]
+===
+val seqArgs = map3(newPs, oldPs, isRepeated)((param, oldParam, isRep) => {
+  if (!isRep) Ident(param)
+  else {
+    val parTp = elementType(ArrayClass, param.tpe)
+    val wrap = gen.mkWrapArray(Ident(param), parTp)
+  }
+})
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-val seqArgs = map3(newPs, oldPs, isRepeated) { (param, oldParam, isRep) =>
+-  if (!isRep) Ident(param)
+-  else {
+-    val parTp = elementType(ArrayClass, param.tpe)
+-    val wrap = gen.mkWrapArray(Ident(param), parTp)
+-  }
++val seqArgs = map3(newPs, oldPs, isRepeated) {
++  (param, oldParam, isRep) =>
++    if (!isRep) Ident(param)
++    else {
++      val parTp = elementType(ArrayClass, param.tpe)
++      val wrap = gen.mkWrapArray(Ident(param), parTp)
++    }
+ }
