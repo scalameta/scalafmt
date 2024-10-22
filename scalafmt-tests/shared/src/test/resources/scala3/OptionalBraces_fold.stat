@@ -7184,3 +7184,15 @@ foo match {
          case _ => genConstant(value); generatedType = tpeTK(tree)
        }
 }
+<<< #4133 single-quote interpolation with partial function
+maxColumn = 70
+===
+names {
+  s"`$name0${index.toString.toCharArray.nn.map {x => (x - '0' + '₀').toChar}.mkString}`"
+}
+>>>
+names {
+  s"`$name0${index.toString.toCharArray.nn.map { x =>
+      (x - '0' + '₀').toChar
+    }.mkString}`"
+}
