@@ -10610,6 +10610,34 @@ object a {
       .map(_ => ())(streamDispatcher)
   }
 }
+<<< #4133 braces to parens with anon func and inner parens, possible non-idempotency
+maxColumn = 76
+rewrite.rules = [RedundantBraces]
+===
+val accumUpdatesWithTaskIds: Array[(Long, Int, Int, Seq[AccumulableInfo])] = {
+  accumUpdates { case (id, updates) =>
+    taskIdToTaskSetManager { taskSetMgr =>
+      getTaskAccumulableInfosAndProcessRate(updates)
+      if (efficientTaskCalcualtionEnabled) {
+        taskSetMgr.taskProcessRateCalculator.foreach {
+          _.updateRunningTaskProcessRate(id, taskProcessRate)
+        }
+      }
+    }
+  }
+}
+>>>
+val accumUpdatesWithTaskIds: Array[(Long, Int, Int, Seq[AccumulableInfo])] =
+  accumUpdates { case (id, updates) =>
+    taskIdToTaskSetManager { taskSetMgr =>
+      getTaskAccumulableInfosAndProcessRate(updates)
+      if (efficientTaskCalcualtionEnabled) {
+        taskSetMgr.taskProcessRateCalculator.foreach {
+          _.updateRunningTaskProcessRate(id, taskProcessRate)
+        }
+      }
+    }
+  }
 <<< #4133 redundant braces with nested partial function 
 maxColumn = 76
 rewrite.rules = [RedundantBraces]
