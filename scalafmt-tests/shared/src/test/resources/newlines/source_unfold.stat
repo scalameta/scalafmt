@@ -10875,3 +10875,19 @@ lazy val defaultSettings: Seq[Setting[_]] = Def.settings(
     JdkOptions.targetJdkJavacOptions(targetSystemJdk.value),
   resolverSettings
 )
+<<< #4133 redundant braces with overflow
+maxColumn = 80
+newlines.avoidForSimpleOverflow = all
+rewrite.rules = [RedundantBraces]
+===
+object a {
+  def logAll(events: Seq[LogEvent]) = System.out.synchronized { events.foreach(log) } 
+}
+>>>
+object a {
+  def logAll(events: Seq[LogEvent]) = System
+    .out
+    .synchronized {
+      events.foreach(log)
+    }
+}
