@@ -10671,6 +10671,53 @@ Utils.tryWithSafeFinally {
 } {
   serializeStream.close()
 }
+<<< #4133 braces to parens with two curried params 2
+maxColumn = 74
+rewrite.rules = [RedundantBraces]
+===
+adjustStart(accept(AT)) {
+  ensureApplied(parArgumentExprss(wrapNew(simpleType1())))
+}
+>>>
+adjustStart(accept(AT)) {
+  ensureApplied(parArgumentExprss(wrapNew(simpleType1())))
+}
+<<< #4133 braces to parens with two curried params, second func
+maxColumn = 76
+newlines.avoidForSimpleOverflow = all
+rewrite.rules = [RedundantBraces]
+===
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { dis =>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
+>>>
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { dis =>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
+<<< #4133 braces to parens with two curried params, second func and comment
+maxColumn = 76
+newlines.avoidForSimpleOverflow = all
+rewrite.rules = [RedundantBraces]
+===
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { dis =>
+  // dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
+>>>
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { dis =>
+  // dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
 <<< #4133 braces to parens with func
 preset = default
 newlines.source = fold
