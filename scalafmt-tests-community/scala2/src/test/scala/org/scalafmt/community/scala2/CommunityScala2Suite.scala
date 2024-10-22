@@ -9,7 +9,7 @@ abstract class CommunityScala2Suite(name: String)
 
 class CommunityScala2_12Suite extends CommunityScala2Suite("scala-2.12") {
 
-  override protected def totalStatesVisited: Option[Int] = Some(35262343)
+  override protected def totalStatesVisited: Option[Int] = Some(35262413)
 
   override protected def builds =
     Seq(getBuild("v2.12.20", dialects.Scala212, 1277))
