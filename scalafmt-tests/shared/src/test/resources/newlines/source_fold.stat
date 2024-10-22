@@ -10325,3 +10325,44 @@ val seqArgs = map3(newPs, oldPs, isRepeated) { (param, oldParam, isRep) =>
     val wrap = gen.mkWrapArray(Ident(param), parTp)
   }
 }
+<<< #4133 nested apply followed by select
+maxColumn = 80
+newlines.avoidForSimpleOverflow = all
+===
+object a {
+  def encodeCookieHeader(cookies: Seq[Cookie]): String = {
+    encoder.encode(cookies.map(cookie => new DefaultCookie(cookie.name, cookie.value)).asJava)
+  }
+}
+>>>
+object a {
+  def encodeCookieHeader(cookies: Seq[Cookie]): String = {
+    encoder.encode(
+      cookies.map(cookie => new DefaultCookie(cookie.name, cookie.value)).asJava
+    )
+  }
+}
+<<< #4133 braces-to-parens with nested apply followed by select
+maxColumn = 80
+newlines.avoidForSimpleOverflow = all
+rewrite {
+  rules = [RedundantBraces, RedundantParens]
+  redundantBraces.preset = all
+}
+===
+object a {
+  def encodeCookieHeader(cookies: Seq[Cookie]): String = {
+    encoder.encode(cookies.map { cookie => new DefaultCookie(cookie.name, cookie.value) }.asJava)
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+ object a {
+-  def encodeCookieHeader(cookies: Seq[Cookie]): String = encoder.encode(
+-    cookies.map(cookie => new DefaultCookie(cookie.name, cookie.value)).asJava
+-  )
++  def encodeCookieHeader(cookies: Seq[Cookie]): String = encoder
++    .encode(cookies.map(cookie => new DefaultCookie(cookie.name, cookie.value))
++      .asJava)
+ }
