@@ -7471,3 +7471,30 @@ private[this] def __computeSerializedSize(): _root_.scala.Int =
       ) + __value.serializedSize;
    end if
    __size
+<<< #4133 convert to new syntax: add then at possible line end
+maxColumn = 74
+rewrite.scala3.convertToNewSyntax = true
+===
+foo match {
+  case Literal(value) => 
+    if (value.tag != UnitTag) (value.tag, expectedType) match {
+      case (IntTag,   LONG  ) => bc.lconst(value.longValue);       generatedType = LONG
+      case (FloatTag, DOUBLE) => bc.dconst(value.doubleValue);     generatedType = DOUBLE
+      case (NullTag,  _     ) => bc.emit(asm.Opcodes.ACONST_NULL); generatedType = srNullRef
+      case _                  => genConstant(value);               generatedType = tpeTK(tree)
+    }
+}
+>>>
+foo match {
+  case Literal(value) =>
+    if value.tag != UnitTag then
+       (value.tag, expectedType) match {
+         case (IntTag, LONG) =>
+           bc.lconst(value.longValue); generatedType = LONG
+         case (FloatTag, DOUBLE) =>
+           bc.dconst(value.doubleValue); generatedType = DOUBLE
+         case (NullTag, _) =>
+           bc.emit(asm.Opcodes.ACONST_NULL); generatedType = srNullRef
+         case _ => genConstant(value); generatedType = tpeTK(tree)
+       }
+}
