@@ -342,7 +342,10 @@ class FormatOps(
           val ok = initStyle.newlines.alwaysBeforeElseAfterCurlyIf || ! {
             val pft = prev(ft)
             pft.leftOwner.is[Term.Block] && pft.left.is[T.RightBrace] &&
-            !prevNonCommentSameLineBefore(pft).left.is[T.LeftBrace]
+            !prevNonCommentSameLineBefore(pft).left.is[T.LeftBrace] &&
+            matchingOpt(pft.left).exists { lb =>
+              prev(lb).left.start < term.thenp.pos.start
+            }
           }
           if (ok) Some(els) else None
         case _ => None
