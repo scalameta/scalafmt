@@ -1005,7 +1005,7 @@ object Foo:
     case a: A if a.someField.otherField.function().exists(SomeObjectLongName.isTrue) =>
       None
   )
->>> { stateVisits = 790, stateVisits2 = 794 }
+>>> { stateVisits = 794, stateVisits2 = 794 }
 object Foo:
    def bar = process(
      arg match
@@ -7172,10 +7172,15 @@ foo match {
     }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- foo match {
--  case Literal(value) => if value.tag != UnitTag then
-+  case Literal(value) =>
-+    if value.tag != UnitTag then
-        (value.tag, expectedType) match {
+foo match {
+  case Literal(value) => if value.tag != UnitTag then
+       (value.tag, expectedType) match {
+         case (IntTag, LONG) =>
+           bc.lconst(value.longValue); generatedType = LONG
+         case (FloatTag, DOUBLE) =>
+           bc.dconst(value.doubleValue); generatedType = DOUBLE
+         case (NullTag, _) =>
+           bc.emit(asm.Opcodes.ACONST_NULL); generatedType = srNullRef
+         case _ => genConstant(value); generatedType = tpeTK(tree)
+       }
+}

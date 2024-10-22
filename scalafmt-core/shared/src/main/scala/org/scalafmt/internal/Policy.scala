@@ -430,19 +430,22 @@ object Policy {
     }
     case object After extends End {
       def apply(token: Token): WithPos = new End.WithPos {
-        def notExpiredBy(ft: FormatToken): Boolean = ft.left.end <= token.end
+        def notExpiredBy(ft: FormatToken): Boolean = ft.left.start <=
+          token.start
         override def toString: String = s">${token.structure}"
       }
     }
     case object Before extends End {
       def apply(token: Token): WithPos = new End.WithPos {
-        def notExpiredBy(ft: FormatToken): Boolean = ft.right.end < token.end
+        def notExpiredBy(ft: FormatToken): Boolean = ft.right.start <
+          token.start
         override def toString: String = s"<${token.structure}"
       }
     }
     case object On extends End {
       def apply(token: Token): WithPos = new End.WithPos {
-        def notExpiredBy(ft: FormatToken): Boolean = ft.right.end <= token.end
+        def notExpiredBy(ft: FormatToken): Boolean = ft.right.start <=
+          token.start
         override def toString: String = s"@${token.structure}"
       }
     }

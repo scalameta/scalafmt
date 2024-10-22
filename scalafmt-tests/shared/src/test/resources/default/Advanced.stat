@@ -456,7 +456,7 @@ js.Function(List(objParam, depthParam), js.Return {
                                     depth)
                     })
                   })
->>> { stateVisits = 1712, stateVisits2 = 1738 }
+>>> { stateVisits = 1738, stateVisits2 = 1738 }
 js.Function(List(objParam, depthParam),
             js.Return {
               js.If(js.Apply(envField("isArrayOf", className),
