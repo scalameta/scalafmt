@@ -142,6 +142,9 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   def isEnclosedWithinParens(tree: Tree): Boolean =
     getClosingIfWithinParens(tree).isRight
 
+  def isEnclosedWithinParensOrBraces(tree: Tree): Boolean =
+    getClosingIfWithinParens(tree) != Left(false)
+
   def getClosingIfWithinParens(
       last: FormatToken,
   )(head: FormatToken): Either[Boolean, FormatToken] = {

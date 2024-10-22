@@ -381,7 +381,7 @@ class FormatOps(
         (app.arg match {
           case _: Lit.Unit => false
           case x: Member.ArgClause if x.values.lengthCompare(1) != 0 => false
-          case x => !isEnclosedWithinParens(x)
+          case x => !isEnclosedWithinParensOrBraces(x)
         })
       def useSpaceAroundOp = app.isAssignment || !isOperatorPart(op.head) ||
         op.length != 1 && !isOperatorPart(op.last) ||
@@ -483,11 +483,13 @@ class FormatOps(
         child: Member.Infix,
         childTree: Tree,
     ): (Member.Infix, Boolean) =
-      if (isEnclosedWithinParens(childTree)) (child, true)
+      if (isEnclosedWithinParensOrBraces(childTree)) (child, true)
       else childTree.parent match {
         case Some(p: Member.Infix) if !p.isAssignment =>
           findMaybeEnclosingInfix(p, p)
         case Some(p @ Member.ArgClause(_ :: Nil)) =>
+          findMaybeEnclosingInfix(child, p)
+        case Some(p @ Tree.Block(`childTree` :: Nil)) =>
           findMaybeEnclosingInfix(child, p)
         case _ => (child, false)
       }
@@ -672,7 +674,7 @@ class FormatOps(
           val res = mutable.Buffer.empty[Member.Infix]
           findNextInfixes(fullInfix, app.lhs, res)(
             if (!style.newlines.afterInfixBreakOnNested) _ => true
-            else x => !isEnclosedWithinParens(x.lhs),
+            else x => !isEnclosedWithinParensOrBraces(x.lhs),
           )
           val infixes = if (isAfterOp) res.toSeq.drop(1) else res.toSeq
           if (infixes.isEmpty) None
@@ -809,14 +811,20 @@ class FormatOps(
           case Some(pp: Member.Infix) => findNextInfixes(fullTree, pp, res)(pred)
           case _ => true
         }
+      case Some(p @ Tree.Block(`tree` :: Nil)) if !isEnclosedInBraces(p) =>
+        findNextInfixes(fullTree, p, res)(pred)
       case _ => true
     })
 
   private def findNestedInfixes(
       res: mutable.Buffer[Member.Infix],
   )(pred: Member.Infix => Boolean)(tree: Tree): Boolean = tree match {
-    case Member.ArgClause(arg :: Nil) if !isEnclosedWithinParens(tree) =>
-      findNestedInfixes(res)(pred)(arg)
+    case Member.ArgClause(arg :: Nil)
+        if !isEnclosedWithinParensOrBraces(tree) =>
+      findNestedInfixes(res)(pred)(arg match {
+        case Tree.Block(x :: Nil) => x
+        case x => x
+      })
     case ia: Member.Infix if !isEnclosedWithinParens(tree) =>
       findNestedInfixes(res)(pred)(ia.lhs) && pred(ia) && {
         res += ia
@@ -825,12 +833,16 @@ class FormatOps(
           case Some(arg) => findNestedInfixes(res)(pred)(arg)
         }
       }
+    case Tree.Block(arg :: Nil) if !isEnclosedWithinParensOrBraces(tree) =>
+      findNestedInfixes(res)(pred)(arg)
     case _ => true
   }
 
   @tailrec
   final def findLeftInfix(app: Member.Infix): Member.Infix = app.lhs match {
     case ia: Member.Infix if !isEnclosedWithinParens(ia) => findLeftInfix(ia)
+    case b @ Tree.Block((ia: Member.Infix) :: Nil)
+        if !isEnclosedWithinParensOrBraces(b) => findLeftInfix(ia)
     case _ => app
   }
 
