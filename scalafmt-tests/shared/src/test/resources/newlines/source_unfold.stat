@@ -11045,3 +11045,84 @@ object a {
     }
   }
 }
+<<< #4133 braces to parens with two curried params
+maxColumn = 74
+newlines.avoidForSimpleOverflow = all
+rewrite.rules = [RedundantBraces]
+===
+Utils.tryWithSafeFinally {
+  serializeStream.writeObject(partitioner)
+} {
+  serializeStream.close()
+}
+>>>
+Utils.tryWithSafeFinally {
+  serializeStream.writeObject(partitioner)
+} {
+  serializeStream.close()
+}
+<<< #4133 braces to parens with func
+preset = default
+newlines.source = fold
+maxColumn = 80
+newlines.avoidForSimpleOverflow = all
+rewrite {
+  rules = [RedundantBraces, RedundantParens]
+  redundantBraces.preset = all
+}
+===
+object a {
+  def union(other: Dataset[T]): Dataset[T] = {
+    buildSetOp(other, proto.SetOperation.SetOpType.SET_OP_TYPE_UNION) { builder =>
+      builder.setIsAll(true)
+    }
+  }
+}
+>>>
+object a {
+  def union(other: Dataset[T]): Dataset[T] =
+    buildSetOp(other, proto.SetOperation.SetOpType.SET_OP_TYPE_UNION) {
+      builder => builder.setIsAll(true)
+    }
+}
+<<< #4133 braces to parens with func
+maxColumn = 68
+rewrite.rules = [RedundantBraces]
+===
+val worker = Flow[T]
+  .fold(new FirstCollectorState(factory): CollectorState[T, R]) { (state, elem) =>
+    state.update(elem)
+  }
+>>>
+val worker =
+  Flow[T].fold(
+    new FirstCollectorState(factory): CollectorState[T, R]
+  ) { (state, elem) =>
+    state.update(elem)
+  }
+<<< #4133 braces to parens with func, originally in parens with body block
+maxColumn = 76
+newlines.avoidForSimpleOverflow = all
+rewrite.rules = [RedundantBraces]
+===
+repeatTakeMapAndFold = fuse(
+  Source
+    .repeat(new MutableElement(0))
+    .take(ElementCount)
+    .map(addFunc)
+    .map(addFunc)
+    .fold(new MutableElement(0))((acc, x) => { acc.value += x.value; acc })
+    .toMat(testSink)(Keep.right))
+>>>
+repeatTakeMapAndFold = fuse(
+  Source
+    .repeat(new MutableElement(0))
+    .take(ElementCount)
+    .map(addFunc)
+    .map(addFunc)
+    .fold(new MutableElement(0)) { (acc, x) =>
+      acc.value += x.value;
+      acc
+    }
+    .toMat(testSink)(Keep.right)
+)
