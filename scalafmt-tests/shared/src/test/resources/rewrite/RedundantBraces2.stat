@@ -202,3 +202,126 @@ object a {
     unsupportedCollectionType(tag.runtimeClass)
   }
 }
+<<< #4133 if-else with braces, some blocks are empty, have only comment, !if-else
+object a {
+  if (sym.isClassConstructor) {
+    constructorTrees += dd
+  } else if (exposed && sym.is(Accessor, butNot = Lazy)) {
+    // Exposed accessors must not be emitted, since the field they access is enough.
+  } else if (sym.hasAnnotation(jsdefn.JSOptionalAnnot)) {
+    // Optional methods must not be emitted
+  } else {
+    generatedMethods ++= genMethod(dd)
+  }
+}
+>>>
+object a {
+  if (sym.isClassConstructor) {
+    constructorTrees += dd
+  } else if (exposed && sym.is(Accessor, butNot = Lazy)) {
+    // Exposed accessors must not be emitted, since the field they access is enough.
+  } else if (sym.hasAnnotation(jsdefn.JSOptionalAnnot)) {
+    // Optional methods must not be emitted
+  } else {
+    generatedMethods ++= genMethod(dd)
+  }
+}
+<<< #4133 if-else with braces, some blocks are empty, have only comment, scala3, !if-else
+runner.dialect = scala3
+rewrite.scala3.convertToNewSyntax = true
+===
+object a {
+  if (sym.isClassConstructor) {
+    constructorTrees += dd
+  } else if (exposed && sym.is(Accessor, butNot = Lazy)) {
+    // Exposed accessors must not be emitted, since the field they access is enough.
+  } else if (sym.hasAnnotation(jsdefn.JSOptionalAnnot)) {
+    // Optional methods must not be emitted
+  } else {
+    generatedMethods ++= genMethod(dd)
+  }
+}
+>>>
+object a {
+  if sym.isClassConstructor then {
+    constructorTrees += dd
+  } else if exposed && sym.is(Accessor, butNot = Lazy) then {
+    // Exposed accessors must not be emitted, since the field they access is enough.
+  } else if sym.hasAnnotation(jsdefn.JSOptionalAnnot) then {
+    // Optional methods must not be emitted
+  } else {
+    generatedMethods ++= genMethod(dd)
+  }
+}
+<<< #4133 if-else with braces, some blocks are empty, have only comment, scala3, if-else
+runner.dialect = scala3
+rewrite.scala3.convertToNewSyntax = true
+rewrite.redundantBraces.ifElseExpressions = true
+===
+object a {
+  if (sym.isClassConstructor) {
+    constructorTrees += dd
+  } else if (exposed && sym.is(Accessor, butNot = Lazy)) {
+    // Exposed accessors must not be emitted, since the field they access is enough.
+  } else if (sym.hasAnnotation(jsdefn.JSOptionalAnnot)) {
+    // Optional methods must not be emitted
+  } else {
+    generatedMethods ++= genMethod(dd)
+  }
+}
+>>>
+object a {
+  if sym.isClassConstructor then constructorTrees += dd
+  else if exposed && sym.is(Accessor, butNot = Lazy) then {
+    // Exposed accessors must not be emitted, since the field they access is enough.
+  } else if sym.hasAnnotation(jsdefn.JSOptionalAnnot) then {
+    // Optional methods must not be emitted
+  } else generatedMethods ++= genMethod(dd)
+}
+<<< if-else with one block completely empty, !if-else
+object a {
+  if (template.isEmpty || hasModifiers || definition.exists(it => it.contains(CASE) && !it.contains(OBJECT))) {} else {
+    if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length()) == "()" && !(sb.length > 2 && sb.charAt(sb.length - 3) == ')')) {
+      sb.delete(sb.length - 2, sb.length())
+    }
+  }
+}
+>>>
+object a {
+  if (
+    template.isEmpty || hasModifiers || definition
+      .exists(it => it.contains(CASE) && !it.contains(OBJECT))
+  ) {} else {
+    if (
+      sb.length >= 2 && sb.substring(
+        sb.length - 2,
+        sb.length()
+      ) == "()" && !(sb.length > 2 && sb.charAt(sb.length - 3) == ')')
+    ) {
+      sb.delete(sb.length - 2, sb.length())
+    }
+  }
+}
+<<< if-else with one block completely empty, if-else
+rewrite.redundantBraces.ifElseExpressions = true
+===
+object a {
+  if (template.isEmpty || hasModifiers || definition.exists(it => it.contains(CASE) && !it.contains(OBJECT))) {} else {
+    if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length()) == "()" && !(sb.length > 2 && sb.charAt(sb.length - 3) == ')')) {
+      sb.delete(sb.length - 2, sb.length())
+    }
+  }
+}
+>>>
+object a {
+  if (
+    template.isEmpty || hasModifiers || definition
+      .exists(it => it.contains(CASE) && !it.contains(OBJECT))
+  ) {} else if (
+    sb.length >= 2 && sb.substring(
+      sb.length - 2,
+      sb.length()
+    ) == "()" && !(sb.length > 2 && sb.charAt(sb.length - 3) == ')')
+  )
+    sb.delete(sb.length - 2, sb.length())
+}
