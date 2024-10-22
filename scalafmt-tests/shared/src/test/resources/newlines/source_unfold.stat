@@ -10783,13 +10783,9 @@ if (c.name == "<local child>" /*scala.tools.nsc.symtab.StdNames.LOCAL_CHILD.toSt
   print("\n")
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- if (
--  c.name == "<local child>" /*scala.tools.nsc.symtab.StdNames.LOCAL_CHILD.toString()*/
-+  c.name ==
-+    "<local child>" /*scala.tools.nsc.symtab.StdNames.LOCAL_CHILD.toString()*/
- ) {
+if (c.name == "<local child>" /*scala.tools.nsc.symtab.StdNames.LOCAL_CHILD.toString()*/ ) {
+  print("\n")
+}
 <<< #4133 overflow comment with a forced break 2
 maxColumn = 78
 newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
@@ -10797,14 +10793,10 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 ===
 def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */).toSet
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   symbols
--    .filter(x => x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */
-+    .filter(x =>
-+      x.isClass || x.isTrait ||
-+        x == AnyRefClass /* which is now a type alias */
-     )
+def templates =
+  symbols
+    .filter(x => x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */ )
+    .toSet
 <<< #4133 overflow comment with a forced break 3
 maxColumn = 76
 newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
@@ -10821,14 +10813,17 @@ def isNeverSubType(tp1: Type, tp2: Type): Boolean = /*logResult(s"isNeverSubType
   case _ => false
 })
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--def isNeverSubType(tp1: Type, tp2: Type): Boolean = /*logResult(s"isNeverSubType($tp1, $tp2)")*/
-+def isNeverSubType(
-+    tp1: Type,
-+    tp2: Type
-+): Boolean = /*logResult(s"isNeverSubType($tp1, $tp2)")*/
-   (tp1.dealias, tp2.dealias) match {
+def isNeverSubType(tp1: Type, tp2: Type): Boolean = /*logResult(s"isNeverSubType($tp1, $tp2)")*/
+  (tp1.dealias, tp2.dealias) match {
+    case (TypeRef(_, sym1, args1), TypeRef(_, sym2, args2)) =>
+      isNeverSubClass(sym1, sym2) ||
+      (sym1 isSubClass sym2) && {
+        val tp1seen = tp1 baseType sym2
+        isNeverSubArgs(tp1seen.typeArgs, args2, sym2.typeParams)
+      }
+    case _ =>
+      false
+  }
 <<< #4133 redundant braces around assignment rhs infix
 maxColumn = 70
 rewrite.rules = [RedundantBraces]

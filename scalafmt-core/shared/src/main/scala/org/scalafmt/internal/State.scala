@@ -221,8 +221,7 @@ final class State(
         if (ok) result(0, prevActive)
         else prev.getOverflowPenalty(split, defaultOverflowPenalty + 1)
       } else if (
-        style.newlines.avoidForSimpleOverflowSLC &&
-        tokens.isRightCommentThenBreak(ft)
+        style.newlines.avoidForSimpleOverflowSLC && ft.right.is[Token.Comment]
       ) result(0, prevActive)
       else if (
         style.newlines.avoidForSimpleOverflowTooLong && delayedPenalty == 0 // can't delay multiple times
