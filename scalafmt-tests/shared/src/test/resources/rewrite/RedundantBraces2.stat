@@ -291,7 +291,8 @@ object a {
   if (
     template.isEmpty || hasModifiers || definition
       .exists(it => it.contains(CASE) && !it.contains(OBJECT))
-  ) {} else {
+  ) {}
+  else {
     if (
       sb.length >= 2 && sb.substring(
         sb.length - 2,
@@ -317,7 +318,8 @@ object a {
   if (
     template.isEmpty || hasModifiers || definition
       .exists(it => it.contains(CASE) && !it.contains(OBJECT))
-  ) {} else if (
+  ) {}
+  else if (
     sb.length >= 2 && sb.substring(
       sb.length - 2,
       sb.length()
