@@ -11083,3 +11083,36 @@ object a {
       new DefaultCookie(cookie.name, cookie.value)
     }.asJava)
 }
+<<< #4133 braces-to-parens with select, apply of nested match
+maxColumn = 76
+rewrite.rules = [RedundantBraces]
+===
+val properties = propertyArgs.map {
+  _.drop(2).span(_ != '=') match {
+    case (key, v) => key -> v.tail
+  }
+}
+>>>
+val properties = propertyArgs.map {
+  _.drop(2).span(_ != '=') match {
+    case (key, v) => key -> v.tail
+  }
+}
+<<< #4133 braces-to-parens with select, apply of nested for-yield, with overflow
+maxColumn = 74
+newlines.avoidForSimpleOverflow = all
+rewrite.rules = [RedundantBraces]
+===
+runtime.unsafe.run {
+  for {
+    _ <- ZIO.foreachDiscard(1.to(n))(_ => ZIO.yieldNow)
+  } yield ()
+}.getOrThrowFiberFailure()
+>>>
+runtime.unsafe
+  .run {
+    for {
+      _ <- ZIO.foreachDiscard(1.to(n))(_ => ZIO.yieldNow)
+    } yield ()
+  }
+  .getOrThrowFiberFailure()
