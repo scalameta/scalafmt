@@ -735,9 +735,5 @@ rewrite.rules = [RedundantBraces, RedundantParens, AvoidInfix]
 ===
 def primaryConstructor: Option[MemberImpl with Constructor] = if (isClass) constructors find { _.isPrimary } else None
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- def primaryConstructor: Option[MemberImpl with Constructor] =
--  if (isClass) constructors.find(_.isPrimary) else None
-+  if (isClass) constructors.find(_.isPrimary)
-+  else None
+def primaryConstructor: Option[MemberImpl with Constructor] =
+  if (isClass) constructors.find(_.isPrimary) else None

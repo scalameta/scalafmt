@@ -2101,13 +2101,10 @@ class Router(formatOps: FormatOps) {
             noSyntaxNL = right.is[T.KwYield],
           )
         }(nlSplitFunc)
-      case FormatToken(T.RightBrace(), T.KwElse(), _) =>
-        val nlOnly = style.newlines.alwaysBeforeElseAfterCurlyIf ||
-          !leftOwner.is[Term.Block] || !leftOwner.parent.contains(rightOwner)
-        Seq(Split(Space.orNL(!nlOnly), 0))
 
-      case FormatToken(T.RightBrace(), T.KwYield(), _) => Seq(Split(Space, 0))
-      case FormatToken(_, kw @ (_: T.KwElse | _: T.KwYield), _) => Seq(
+      case FormatToken(left, kw @ (_: T.KwElse | _: T.KwYield), _) =>
+        if (left.is[T.RightBrace]) Seq(Split(Space, 0))
+        else Seq(
           if (style.newlines.okSpaceForSource(newlines)) {
             val expire = getLastToken(rightOwner)
             Split(Space, 0).withSingleLineNoOptimal(
