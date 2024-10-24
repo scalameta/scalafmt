@@ -74,13 +74,6 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       case _ => false
     })
 
-  private[scalafmt] def noSplitForParensOnRightBrace(
-      rb: => FormatToken,
-  )(implicit ftoks: FormatTokens, style: ScalafmtConfig): Option[FormatToken] =
-    if (!style.spaces.inParentheses && style.rewrite.trailingCommas.isOptional)
-      Some(rb).filter(canRewriteWithParensOnRightBrace)
-    else None
-
   private[scalafmt] def isLeftParenReplacedWithBraceOnLeft(pft: FormatToken)(
       implicit session: Session,
   ): Boolean = session.claimedRuleOnLeft(pft).exists { x =>

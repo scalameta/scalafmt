@@ -10052,10 +10052,6 @@ object a {
   def logAll(events: Seq[LogEvent]) = System.out.synchronized { events.foreach(log) } 
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a {
--  def logAll(events: Seq[LogEvent]) = System.out.synchronized(events.foreach(log))
-+  def logAll(events: Seq[LogEvent]) = System.out
-+    .synchronized(events.foreach(log))
- }
+object a {
+  def logAll(events: Seq[LogEvent]) = System.out.synchronized(events.foreach(log))
+}

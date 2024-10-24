@@ -2979,18 +2979,27 @@ class FormatOps(
 
   def getBracesToParensModAndPolicy(rb: FormatToken, mod: Modification)(implicit
       style: ScalafmtConfig,
+      ft: FormatToken,
   ): (Modification, Policy) = {
-    if ((mod eq Space) && initStyle.rewrite.bracesToParensForOneLineApply)
-      RedundantBraces.noSplitForParensOnRightBrace(rb)
-    else None
-  }.fold((mod, Policy.noPolicy)) { rb =>
-    val beforeClose = prev(rb)
-    val end = Policy.End < rb.left
-    val policy = end ==> Policy.on(rb.left, "BracesToParens") {
-      case Decision(`beforeClose`, ss) => ss
-          .flatMap(s => if (s.isNL) None else Some(s.withMod(NoSplit)))
-    }
-    SpaceOrNoSplit(end) -> policy
+    val isWithinBraces = ft.left.is[T.LeftBrace]
+    val ok = initStyle.rewrite.bracesToParensForOneLineApply &&
+      style.rewrite.trailingCommas.isOptional && (mod eq Space) &&
+      (!isWithinBraces || !style.spaces.inParentheses) &&
+      RedundantBraces.canRewriteWithParensOnRightBrace(rb) &&
+      // the rule for `(...` excludes brace blocks
+      // check if all of them can be converted to parens
+      insideBracesBlock(if (isWithinBraces) ft else next(ft), rb.left).ranges
+        .forall(x => couldHaveBracesConvertedToParens(x.lt.leftOwner))
+    if (ok) {
+      val end = Policy.End < rb.left
+      val beforeClose = prev(rb)
+      val policy = Policy ? isWithinBraces &&
+        end ==> Policy.on(rb.left, "BracesToParens") {
+          case Decision(`beforeClose`, ss) => ss
+              .flatMap(s => if (s.isNL) None else Some(s.withMod(NoSplit)))
+        }
+      SpaceOrNoSplit(end) -> policy
+    } else (mod, Policy.noPolicy)
   }
 
 }
