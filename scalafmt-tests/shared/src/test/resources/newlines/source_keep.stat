@@ -10504,6 +10504,5 @@ object a {
 }
 >>>
 object a {
-  def logAll(events: Seq[LogEvent]) =
-    System.out.synchronized(events.foreach(log))
+  def logAll(events: Seq[LogEvent]) = System.out.synchronized(events.foreach(log))
 }

@@ -936,6 +936,22 @@ object TreeOps {
     .applyOrElse(owner, throwUnexpectedGetArgs)
 
   @tailrec
+  def couldHaveBracesConvertedToParens(tree: Tree): Boolean = tree match {
+    case _: Tree.CasesBlock => false
+    case t: Term.ArgClause => t.values match {
+        case Nil => true
+        case x :: Nil => couldHaveBracesConvertedToParens(x)
+        case _ => false
+      }
+    case t: Term.Block => t.stats match {
+        case Nil => true
+        case x :: Nil => couldHaveBracesConvertedToParens(x)
+        case _ => false
+      }
+    case _ => true
+  }
+
+  @tailrec
   def isTreeEndingInArgumentClause(tree: Tree): Boolean = tree match {
     case t: Init => t.argClauses.nonEmpty
     case t: Term.Apply => t.argClause.nonEmpty
