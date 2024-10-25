@@ -13,7 +13,7 @@ addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.12.0")
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.2.0")
 addSbtPlugin("org.scalameta" % "sbt-native-image" % "0.3.4")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.4.7")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.16.0")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.17.0")
 addSbtPlugin(
   "org.portable-scala" % "sbt-scala-native-crossproject" % crossProjectV,
 )
