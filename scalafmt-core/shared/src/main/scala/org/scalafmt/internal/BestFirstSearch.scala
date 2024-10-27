@@ -45,22 +45,23 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         } => close.left
   }
 
-  private val memo = mutable.Map.empty[Long, State]
+  private val memo = mutable.Map.empty[Long, Option[State]]
 
   def shortestPathMemo(
       start: State,
       stop: Token,
       depth: Int,
       isOpt: Boolean,
-  ): Option[State] = {
+  ): Option[Option[State]] = {
     val key = (start.indentation & 0xffL) | (start.column & 0xffffffL) << 8 |
       (start.depth & 0xffffffffL) << 32
-    memo.get(key).orElse {
-      // Only update state if it reached stop.
+    def orElse = {
       val nextState = shortestPath(start, stop, depth, isOpt).toOption
-      nextState.foreach(memo.update(key, _))
-      nextState
+      if (nextState.isDefined || !isOpt && !start.hasSlb()) memo
+        .update(key, nextState)
+      Some(nextState)
     }
+    memo.get(key).orElse(orElse)
   }
 
   /** Runs best first search to find lowest penalty split.
@@ -105,11 +106,12 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
         val noBlockClose = start == curr && !isOpt || !noOptZone ||
           !optimizer.recurseOnBlocks
-        val blockClose =
-          if (noBlockClose) None else getBlockCloseToRecurse(splitToken, stop)
-        if (blockClose.nonEmpty) blockClose.foreach { end =>
-          shortestPathMemo(curr, end, depth + 1, isOpt).foreach(Q.enqueue)
-        }
+        val blockCloseState =
+          if (noBlockClose) None
+          else getBlockCloseToRecurse(splitToken, stop)
+            .flatMap(shortestPathMemo(curr, _, depth + 1, isOpt))
+        if (blockCloseState.nonEmpty) blockCloseState
+          .foreach(_.foreach(Q.enqueue))
         else {
           if (optimizer.escapeInPathologicalCases && isSeqMulti(routes(idx)))
             stats.explode(splitToken, optimizer.maxVisitsPerToken)(
