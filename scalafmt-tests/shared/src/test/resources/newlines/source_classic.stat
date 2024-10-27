@@ -9353,7 +9353,7 @@ class UDFRegistration private[sql] (functionRegistry: FunctionRegistry) extends 
     val inputEncoders: Seq[Option[ExpressionEncoder[_]]] = Try(ExpressionEncoder[A1]()).toOption :: Try(ExpressionEncoder[A2]()).toOption :: Try(ExpressionEncoder[A3]()).toOption :: Try(ExpressionEncoder[A4]()).toOption :: Try(ExpressionEncoder[A5]()).toOption :: Try(ExpressionEncoder[A6]()).toOption :: Try(ExpressionEncoder[A7]()).toOption :: Try(ExpressionEncoder[A8]()).toOption :: Try(ExpressionEncoder[A9]()).toOption :: Try(ExpressionEncoder[A10]()).toOption :: Try(ExpressionEncoder[A11]()).toOption :: Try(ExpressionEncoder[A12]()).toOption :: Try(ExpressionEncoder[A13]()).toOption :: Try(ExpressionEncoder[A14]()).toOption :: Try(ExpressionEncoder[A15]()).toOption :: Try(ExpressionEncoder[A16]()).toOption :: Try(ExpressionEncoder[A17]()).toOption :: Try(ExpressionEncoder[A18]()).toOption :: Try(ExpressionEncoder[A19]()).toOption :: Try(ExpressionEncoder[A20]()).toOption :: Try(ExpressionEncoder[A21]()).toOption :: Try(ExpressionEncoder[A22]()).toOption :: Nil
   }
 }
->>> { stateVisits = 2846, stateVisits2 = 1042 }
+>>> { stateVisits = 2768, stateVisits2 = 1038 }
 class UDFRegistration private[sql] (
     functionRegistry: FunctionRegistry
 ) extends Logging {
@@ -9584,7 +9584,7 @@ class UDFRegistration {
     val inputEncoders: Seq[Option[ExpressionEncoder[_]]] = Try(ExpressionEncoder[A1]).toOption :: Try(ExpressionEncoder[A2]).toOption :: Try(ExpressionEncoder[A3]).toOption :: Try(ExpressionEncoder[A4]).toOption :: Try(ExpressionEncoder[A5]).toOption :: Try(ExpressionEncoder[A6]).toOption :: Try(ExpressionEncoder[A7]).toOption :: Try(ExpressionEncoder[A8]).toOption :: Try(ExpressionEncoder[A9]).toOption :: Try(ExpressionEncoder[A10]).toOption :: Try(ExpressionEncoder[A11]).toOption :: Try(ExpressionEncoder[A12]).toOption :: Try(ExpressionEncoder[A13]).toOption :: Try(ExpressionEncoder[A14]).toOption :: Try(ExpressionEncoder[A15]).toOption :: Try(ExpressionEncoder[A16]).toOption :: Try(ExpressionEncoder[A17]).toOption :: Try(ExpressionEncoder[A18]).toOption :: Try(ExpressionEncoder[A19]).toOption :: Try(ExpressionEncoder[A20]).toOption :: Try(ExpressionEncoder[A21]).toOption :: Try(ExpressionEncoder[A22]).toOption :: Nil
   }
 }
->>> { stateVisits = 2347, stateVisits2 = 752 }
+>>> { stateVisits = 2292, stateVisits2 = 748 }
 class UDFRegistration {
   def foo = {
     val inputEncoders: Seq[

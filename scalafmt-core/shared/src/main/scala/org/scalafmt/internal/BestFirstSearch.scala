@@ -169,30 +169,45 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     state.next(split)
   }
 
-  private def killOnFail(opt: OptimalToken, nextNextState: State = null)(
-      implicit nextState: State,
-  ): State = {
-    val kill = opt.killOnFail || nextState.hasSlbUntil {
-      if (
-        (null ne nextNextState) &&
-        nextNextState.appliedPenalty > nextState.prev.appliedPenalty
-      ) tokens(nextNextState.depth)
-      else tokens(opt.token)
-    }
+  private def killOnFail(
+      isKillOnFail: Boolean,
+  )(end: => FormatToken)(implicit nextState: State): State = {
+    val kill = isKillOnFail || nextState.hasSlbUntil(end)
     if (kill) null else nextState
   }
 
-  private def processOptimalToken(
+  private def killOnFail(
       opt: OptimalToken,
-  )(implicit nextState: State, queue: StateQueue): Either[State, State] = {
+      end: => FormatToken = null,
+      nextNextState: State = null,
+  )(implicit nextState: State): State = killOnFail(opt.killOnFail) {
+    if (
+      (null ne nextNextState) &&
+      nextNextState.appliedPenalty > nextState.prev.appliedPenalty
+    ) tokens(nextNextState.depth)
+    else {
+      val optEnd = end
+      if (optEnd ne null) optEnd else tokens(opt.token)
+    }
+  }
+
+  private def processOptimalToken(opt: OptimalToken)(implicit
+      nextState: State,
+      queue: StateQueue,
+      style: ScalafmtConfig,
+  ): Either[State, State] = {
+    val optEnd = tokens(opt.token)
     val nextNextState =
       if (opt.token.end <= tokens(nextState.depth).left.end) nextState
+      else if (
+        tokens.width(tokens(nextState.depth), optEnd) > 3 * style.maxColumn
+      ) return Left(killOnFail(opt.killOnFail)(optEnd))
       else {
         val res =
           shortestPath(nextState, opt.token, queue.nested + 1, isOpt = true)
         res match {
           case Right(x) => x
-          case Left(x) => return Left(killOnFail(opt, x))
+          case Left(x) => return Left(killOnFail(opt, optEnd, x))
         }
       }
     def checkPenalty(state: State, orElse: => Either[State, State]) =
@@ -201,7 +216,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       else orElse
     traverseSameLine(nextNextState) match {
       case x @ Left(s) =>
-        if (s eq null) Left(killOnFail(opt, nextNextState))
+        if (s eq null) Left(killOnFail(opt, optEnd, nextNextState))
         else checkPenalty(s, x)
       case x @ Right(s) => checkPenalty(s, if (opt.recurseOnly) Left(s) else x)
     }

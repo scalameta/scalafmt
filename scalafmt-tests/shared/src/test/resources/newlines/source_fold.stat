@@ -8363,7 +8363,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 4946, stateVisits2 = 4946 }
+>>> { stateVisits = 4788, stateVisits2 = 4788 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -8450,7 +8450,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 5051, stateVisits2 = 5051 }
+>>> { stateVisits = 4849, stateVisits2 = 4849 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -9460,7 +9460,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 2821, stateVisits2 = 2821 }
+>>> { stateVisits = 2428, stateVisits2 = 2428 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref.Synchronized
@@ -9578,7 +9578,7 @@ object a {
       .map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 187773, stateVisits2 = 187773 }
+>>> { stateVisits = 187751, stateVisits2 = 187751 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
@@ -9676,7 +9676,7 @@ object a {
       .map(filterNot(getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 12063, stateVisits2 = 12063 }
+>>> { stateVisits = 12046, stateVisits2 = 12046 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
