@@ -409,14 +409,14 @@ object State {
     if (pipe == '|') RegexCompat.stripMarginPatternWithLineContent
     else RegexCompat.compileStripMarginPatternWithLineContent(pipe)
 
-  def getColumns(ft: FormatToken, indent: Int, column: Int)(implicit
-      style: ScalafmtConfig,
-  ): (Int, Int) = {
-    val syntax = ft.meta.right.text
-    val firstNL = ft.meta.right.firstNL
+  def getColumns(tok: Token, meta: FormatToken.TokenMeta, column: Int)(
+      stringMargin: Int => Int,
+  )(interpPartMargin: Int => Int): (Int, Int) = {
+    val syntax = meta.text
+    val firstNL = meta.firstNL
     if (firstNL < 0) {
       val syntaxLen =
-        if (column != 0 && ft.right.is[Token.Comment]) {
+        if (column != 0 && tok.is[Token.Comment]) {
           val asSlc = RegexCompat.slcLine.matcher(syntax)
           if (asSlc.matches()) 3 + asSlc.end(1) - asSlc.start(1)
           else syntax.length
@@ -425,31 +425,36 @@ object State {
       (firstLineLength, firstLineLength)
     } else {
       val firstLength = column + firstNL
-      ft.right match {
+      tok match {
         case _: Token.Constant.String =>
-          val margin: Int => Int =
-            if (style.assumeStandardLibraryStripMargin) {
-              // 3 for '|' + 2 spaces
-              val adjusted = 3 +
-                (if (style.align.stripMargin) column else indent)
-              _ => adjusted
-            } else identity
-          val pipe = getStripMarginChar(ft.meta.rightOwner)
+          val margin: Int => Int = stringMargin
+          val pipe = getStripMarginChar(meta.owner)
           getColumnsWithStripMargin(pipe, syntax, firstNL, margin, firstLength)
         case _: Token.Interpolation.Part =>
-          val margin: Int => Int =
-            if (style.assumeStandardLibraryStripMargin) {
-              // 1 for '|'
-              val adjusted = 1 + indent
-              _ => adjusted
-            } else identity
-          val pipe = getStripMarginCharForInterpolate(ft.meta.rightOwner)
+          val margin: Int => Int = interpPartMargin
+          val pipe = getStripMarginCharForInterpolate(meta.owner)
           getColumnsWithStripMargin(pipe, syntax, firstNL, margin, firstLength)
         case _ =>
           val lastNewline = syntax.length - syntax.lastIndexOf('\n') - 1
           (firstLength, lastNewline)
       }
     }
+  }
+
+  def getColumns(ft: FormatToken, indent: Int, column: Int)(implicit
+      style: ScalafmtConfig,
+  ): (Int, Int) = getColumns(ft.right, ft.meta.right, column) {
+    if (style.assumeStandardLibraryStripMargin) {
+      // 3 for '|' + 2 spaces
+      val adjusted = 3 + (if (style.align.stripMargin) column else indent)
+      _ => adjusted
+    } else identity
+  } {
+    if (style.assumeStandardLibraryStripMargin) {
+      // 1 for '|'
+      val adjusted = 1 + indent
+      _ => adjusted
+    } else identity
   }
 
   private def getColumnsFromMultiline(
