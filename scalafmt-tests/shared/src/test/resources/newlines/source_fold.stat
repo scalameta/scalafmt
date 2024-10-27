@@ -10059,7 +10059,6 @@ object a {
 preset = default
 maxColumn = 80
 newlines.source = fold
-runner.maxStateVisits = 80000
 #newlines.avoidForSimpleOverflow = all
 ===
 system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
@@ -10091,7 +10090,7 @@ system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
             }
       }
 }
->>> { stateVisits = 72590, stateVisits2 = 72590 }
+>>> { stateVisits = 5817, stateVisits2 = 5817 }
 system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
   case _: NoSuchMethodException => system.dynamicAccess
       .createInstanceFor[Serializer](

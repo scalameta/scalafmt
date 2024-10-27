@@ -319,6 +319,8 @@ object BestFirstSearch {
     var expire: FormatToken = null
     @inline
     def addRange(t: Token): Unit = expire = tokens.matching(t)
+    @inline
+    def addBlock(t: Token): Unit = result.getOrElseUpdate(t, false)
     tokens.foreach {
       case ft if expire ne null =>
         if (ft eq expire) expire = null else result.update(ft.left, true)
@@ -332,6 +334,9 @@ object BestFirstSearch {
           // Type compounds can be inside defn.defs
           case lo: meta.Stat.Block if lo.parent.is[Type.Refine] => addRange(t)
           case _: Type.Refine => addRange(t)
+          case lo: Term.PartialFunction
+              if lo.cases.lengthCompare(1) == 0 &&
+                styleMap.at(t).newlines.fold => addBlock(t)
           case _ =>
         }
       case _ =>
