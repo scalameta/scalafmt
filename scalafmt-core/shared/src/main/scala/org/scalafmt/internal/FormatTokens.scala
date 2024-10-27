@@ -394,21 +394,31 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   }
 
   // Maps token to number of non-whitespace bytes before the token's position.
-  private final lazy val nonWhitespaceOffset: Array[Int] = {
-    val result = new Array[Int](arr.length)
-    var curr = 0
+  private final lazy val nonWhitespaceOffset: Array[(Int, Int)] = {
+    val result = new Array[(Int, Int)](arr.length)
+    var currLength = 0
+    var currWidth = 0
     arr.foreach { t =>
-      result(t.idx) = curr
-      curr += t.left.len
+      result(t.idx) = (currLength, currWidth)
+      val (head, last) = State
+        .getColumns(t.left, t.meta.left, 0)(identity)(identity)
+      currLength += t.left.len
+      currWidth += head.max(last)
     }
     result
   }
 
-  def span(left: FormatToken, right: FormatToken): Int = {
+  private def spanOrWidth(left: FormatToken, right: FormatToken)(
+      f: ((Int, Int)) => Int,
+  ): Int = {
     val lastIdx = nonWhitespaceOffset.length - 1
     val rightIdx = if (right.idx >= lastIdx) lastIdx else right.idx + 1
-    nonWhitespaceOffset(rightIdx) - nonWhitespaceOffset(left.idx)
+    f(nonWhitespaceOffset(rightIdx)) - f(nonWhitespaceOffset(left.idx))
   }
+  def width(left: FormatToken, right: FormatToken): Int =
+    spanOrWidth(left, right)(_._2)
+  def span(left: FormatToken, right: FormatToken): Int =
+    spanOrWidth(left, right)(_._1)
   def span(tokens: Tokens): Int =
     if (tokens.isEmpty) 0 else span(getHeadImpl(tokens), getLastImpl(tokens))
   @inline
