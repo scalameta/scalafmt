@@ -51,13 +51,13 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       start: State,
       stop: Token,
       depth: Int,
-      maxCost: Int,
+      isOpt: Boolean,
   ): Option[State] = {
     val key = (start.indentation & 0xffL) | (start.column & 0xffffffL) << 8 |
       (start.depth & 0xffffffffL) << 32
     memo.get(key).orElse {
       // Only update state if it reached stop.
-      val nextState = shortestPath(start, stop, depth, maxCost).toOption
+      val nextState = shortestPath(start, stop, depth, isOpt).toOption
       nextState.foreach(memo.update(key, _))
       nextState
     }
@@ -69,12 +69,12 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       start: State,
       stop: Token,
       depth: Int = 0,
-      maxCost: Int = Integer.MAX_VALUE,
+      isOpt: Boolean = false,
   ): Either[State, State] = {
     implicit val Q: StateQueue = new StateQueue(depth)
     Q.enqueue(start)
 
-    // TODO(olafur) this while loop is waaaaaaaaaaaaay tooo big.
+    val maxCost = if (isOpt) 0 else Int.MaxValue
     var deepestState: State = start
     while (!Q.isEmpty()) {
       val curr = Q.dequeue()
@@ -103,12 +103,12 @@ private class BestFirstSearch private (range: Set[Range])(implicit
               noOptZone) && optimizationEntities.statementStarts.contains(idx)
           ) Q.addGeneration()
 
-        val noBlockClose = start == curr && 0 != maxCost || !noOptZone ||
+        val noBlockClose = start == curr && !isOpt || !noOptZone ||
           !optimizer.recurseOnBlocks
         val blockClose =
           if (noBlockClose) None else getBlockCloseToRecurse(splitToken, stop)
         if (blockClose.nonEmpty) blockClose.foreach { end =>
-          shortestPathMemo(curr, end, depth + 1, maxCost).foreach(Q.enqueue)
+          shortestPathMemo(curr, end, depth + 1, isOpt).foreach(Q.enqueue)
         }
         else {
           if (optimizer.escapeInPathologicalCases && isSeqMulti(routes(idx)))
@@ -184,7 +184,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       if (opt.token.end <= tokens(nextState.depth).left.end) nextState
       else {
         val res =
-          shortestPath(nextState, opt.token, queue.nested + 1, maxCost = 0)
+          shortestPath(nextState, opt.token, queue.nested + 1, isOpt = true)
         res match {
           case Right(x) => x
           case Left(x) => return Left(killOnFail(opt, x))
