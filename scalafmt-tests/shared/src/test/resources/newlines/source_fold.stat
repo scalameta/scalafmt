@@ -9460,7 +9460,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 2933, stateVisits2 = 2933 }
+>>> { stateVisits = 2821, stateVisits2 = 2821 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref.Synchronized
@@ -9469,7 +9469,8 @@ object a {
         (IO[Any, Any], Exit[Any, Any] => UIO[Any])
       ]](Map.empty).map { ref =>
         new MemoMap {
-          self => final def getOrElseMemoize[E, A, B](scope: Scope)(
+          self =>
+          final def getOrElseMemoize[E, A, B](scope: Scope)(
               layer: ZLayer[A, E, B]
           ): ZIO[A, E, ZEnvironment[B]] = ref.modifyZIO { map =>
             map.get(layer) match {
