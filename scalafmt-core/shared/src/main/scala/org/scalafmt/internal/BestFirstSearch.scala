@@ -167,7 +167,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   private def killOnFail(opt: OptimalToken, nextNextState: State = null)(
       implicit nextState: State,
   ): State = {
-    val kill = opt.killOnFail || hasSlbAfter(nextState) {
+    val kill = opt.killOnFail || nextState.hasSlbUntil {
       if (
         (null ne nextNextState) &&
         nextNextState.appliedPenalty > nextState.prev.appliedPenalty
@@ -294,9 +294,6 @@ object BestFirstSearch {
   )(implicit formatOps: FormatOps, formatWriter: FormatWriter): SearchResult =
     new BestFirstSearch(range).getBestPath
 
-  private def hasSlbAfter(state: State)(ft: FormatToken): Boolean = state.policy
-    .exists(_.appliesUntil(ft)(_.isInstanceOf[PolicyOps.SingleLineBlock]))
-
   private def getNoOptZones(tokens: FormatTokens)(implicit styleMap: StyleMap) = {
     val result = Set.newBuilder[Token]
     var expire: Token = null
@@ -378,8 +375,7 @@ object BestFirstSearch {
     }
 
     private def updateBestImpl(state: State): Boolean = state.split.isNL &&
-      !state.policy
-        .exists(_.exists(_.isInstanceOf[PolicyOps.SingleLineBlock])) &&
+      !state.hasSlb() &&
       (best.getOrElseUpdate(state.prev.depth, state) eq state)
 
     def updateBest(state: State, furtherState: State)(implicit

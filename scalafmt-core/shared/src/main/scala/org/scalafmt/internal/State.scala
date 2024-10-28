@@ -4,6 +4,7 @@ import org.scalafmt.config.Comments
 import org.scalafmt.config.Indents
 import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.util.PolicyOps
 import org.scalafmt.util.TreeOps._
 
 import scala.meta._
@@ -50,6 +51,12 @@ final class State(
     this.indentation < other.indentation
 
   def costWithoutOverflowPenalty: Int = cost - appliedPenalty
+
+  def hasSlbUntil(ft: FormatToken): Boolean = policy
+    .exists(_.appliesUntil(ft)(_.isInstanceOf[PolicyOps.SingleLineBlock]))
+
+  def hasSlb(): Boolean = policy
+    .exists(_.exists(_.isInstanceOf[PolicyOps.SingleLineBlock]))
 
   /** Calculates next State given split at tok.
     */
