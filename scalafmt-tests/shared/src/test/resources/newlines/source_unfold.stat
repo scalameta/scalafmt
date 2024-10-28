@@ -2283,7 +2283,10 @@ object a {
     JField("engineVariant", JString(i.engineVariant)) ::
       JField("engineFactory", JString(i.engineFactory)) ::
       JField("batch", JString(i.batch)) ::
-      JField("env", Extraction.decompose(i.env)(DefaultFormats))
+      JField(
+        "env",
+        Extraction.decompose(i.env)(DefaultFormats)
+      )
 }
 <<< 8.10
 maxColumn = 80
@@ -2390,7 +2393,10 @@ val a =
           JField("engineVariant", JString(i.engineVariant)) ::
           JField("engineFactory", JString(i.engineFactory)) ::
           JField("batch", JString(i.batch1)) ::
-          JField("env", Extraction.decompose(i.env)(DefaultFormats)) ::
+          JField(
+            "env",
+            Extraction.decompose(i.env)(DefaultFormats)
+          ) ::
           JField(
             "sparkConf",
             Extraction.decompose(i.sparkConf)(DefaultFormats)

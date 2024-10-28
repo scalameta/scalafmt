@@ -5671,11 +5671,14 @@ runner.optimizer.defnSite
 This optimization is enabled when all these criteria are satisfied:
 
 - `xxxSite.minSpan`:
-  must be non-negative, and the character distance between the matching
-  parentheses, excluding any whitespace, must exceed this value
-  (prior to v3.8.1, this parameter was called `forceConfigStyleOnOffset`)
+  must be non-negative and not exceed the character span covered by the entire
+  clause, excluding any whitespace
+  - prior to v3.8.1, this parameter was called `forceConfigStyleOnOffset`
+  - prior to v3.8.4, the parameter had to be strictly less than the span, and
+    the span calculation excluded the last token of the clause (a closing delim
+    spanning a single-character, unless optional braces had been used)
 - `xxxSite.minCount`:
-  must be positive and may not exceed the number of arguments
+  must be positive and not exceed the number of arguments
   (prior to v3.8.2, this parameter was called `forceConfigStyleMinCount`)
 
 > These parameters cannot be [overridden within a file](#for-code-block)

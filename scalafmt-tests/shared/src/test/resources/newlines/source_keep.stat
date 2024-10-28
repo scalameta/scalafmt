@@ -2114,7 +2114,10 @@ object a {
   val fields = JField("engineVariant", JString(i.engineVariant)) ::
     JField("engineFactory", JString(i.engineFactory)) ::
     JField("batch", JString(i.batch)) ::
-    JField("env", Extraction.decompose(i.env)(DefaultFormats))
+    JField(
+      "env",
+      Extraction.decompose(i.env)(DefaultFormats)
+    )
 }
 <<< 8.10
 maxColumn = 80
