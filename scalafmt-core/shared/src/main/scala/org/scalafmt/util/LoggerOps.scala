@@ -92,7 +92,7 @@ object LoggerOps {
 
   def log(t: Tree): String = log(t, false)
   def log(t: Tree, tokensOnly: Boolean): String = {
-    val tokens = s"TOKENS: ${t.tokens.map(x => reveal(x.syntax)).mkString(",")}"
+    val tokens = s"TOKENS: ${t.tokens.map(x => reveal(x.text)).mkString(",")}"
     if (tokensOnly) tokens
     else s"""|TYPE: ${treeInfo(t)}
              |SOURCE: $t

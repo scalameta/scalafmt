@@ -37,7 +37,7 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
   def getIndex(token: T) = tokenTraverser.getIndex(token)
 
   def applyPatches: String = tokens.iterator
-    .map(x => patchBuilder.get(x.start -> x.end).fold(x.syntax)(_.newTok))
+    .map(x => patchBuilder.get(x.start -> x.end).fold(x.text)(_.newTok))
     .mkString
 
   def addPatchSet(patches: TokenPatch*): Unit =

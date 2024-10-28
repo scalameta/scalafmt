@@ -13,7 +13,7 @@ case class Provided(ft: FormatToken) extends Modification {
   override val newlines: Int = ft.newlinesBetween
   override lazy val length: Int =
     if (isNL) betweenText.indexOf('\n') else betweenText.length
-  lazy val betweenText: String = ft.between.map(_.syntax).mkString
+  lazy val betweenText: String = ft.between.map(_.text).mkString
 }
 
 case object NoSplit extends Modification {

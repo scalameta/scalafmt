@@ -56,7 +56,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
     def moveOpenDelim(prev: Token, open: Token): Unit = {
       // move delimiter (before comment or newline)
-      builder += TokenPatch.AddRight(prev, open.syntax, keepTok = true)
+      builder += TokenPatch.AddRight(prev, open.text, keepTok = true)
       builder += TokenPatch.Remove(open)
     }
 
