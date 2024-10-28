@@ -3988,7 +3988,10 @@ is applicable to a clause, the formatter will force config-style formatting.</p>
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span> = <span class="hljs-literal">null</span>): <span class="hljs-type">Boolean</span>
 
   <span class="hljs-comment">// keeps single line; min offset not satisfied</span>
-  method(a, b)
+  method(
+    a,
+    b
+  )
 
   <span class="hljs-comment">// keeps single line; min arg not satisfied</span>
   method(<span class="hljs-type">SomeVeryVeryVeryVeryLongArgument</span>)
@@ -7245,11 +7248,16 @@ runner.optimizer.defnSite = {<span class="hljs-string">"minSpan"</span>: <span c
 <p>This optimization is enabled when all these criteria are satisfied:</p>
 <ul>
 <li><code>xxxSite.minSpan</code>:
-must be non-negative, and the character distance between the matching
-parentheses, excluding any whitespace, must exceed this value
-(prior to v3.8.1, this parameter was called <code>forceConfigStyleOnOffset</code>)</li>
+must be non-negative and not exceed the character span covered by the entire
+clause, excluding any whitespace
+<ul>
+<li>prior to v3.8.1, this parameter was called <code>forceConfigStyleOnOffset</code></li>
+<li>prior to v3.8.4, the parameter had to be strictly less than the span, and
+the span calculation excluded the last token of the clause (a closing delim
+spanning a single-character, unless optional braces had been used)</li>
+</ul></li>
 <li><code>xxxSite.minCount</code>:
-must be positive and may not exceed the number of arguments
+must be positive and not exceed the number of arguments
 (prior to v3.8.2, this parameter was called <code>forceConfigStyleMinCount</code>)</li>
 </ul>
 <blockquote>
