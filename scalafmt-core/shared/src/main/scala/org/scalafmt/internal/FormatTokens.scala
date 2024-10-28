@@ -433,7 +433,7 @@ object FormatTokens {
     var fmtWasOff = false
     val arr = tokens.toArray
     def process(right: Token): Unit = {
-      val rmeta = FormatToken.TokenMeta(owner(right), right.syntax)
+      val rmeta = FormatToken.TokenMeta(owner(right), right.text)
       if (left eq null) fmtWasOff = isFormatOff(right)
       else {
         val between = arr.slice(wsIdx, tokIdx)
