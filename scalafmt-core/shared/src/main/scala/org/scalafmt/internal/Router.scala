@@ -327,7 +327,8 @@ class Router(formatOps: FormatOps) {
         val noLambdaSplit = style.newlines.keepBreak(newlines) ||
           lambdaArrow == null || !lambdaNLOnly.contains(false)
         val lambdaExpire =
-          if (noLambdaSplit) null else nextNonCommentSameLine(lambdaArrow).left
+          if (lambdaArrow eq null) null
+          else nextNonCommentSameLine(lambdaArrow).left
 
         def getSingleLinePolicy = {
           val needBreak = closeFT.right match {
@@ -406,8 +407,16 @@ class Router(formatOps: FormatOps) {
             .andPolicy(sldPolicy & slbParensPolicy)
         }
 
-        val nlSplit = Split(nl, if (nl.isNL) 1 else 0)
-          .withPolicy(newlineBeforeClosingCurly)
+        val lambdaNLPolicy = leftOwner match {
+          case t: Template.Body if lambdaExpire ne null =>
+            t.stats match {
+              case Nil | (_: Term) :: Nil => NoPolicy
+              case _ => decideNewlinesOnlyAfterToken(lambdaExpire)
+            }
+          case _ => NoPolicy
+        }
+        val nlPolicy = lambdaNLPolicy ==> newlineBeforeClosingCurly
+        val nlSplit = Split(nl, if (nl.isNL) 1 else 0, policy = nlPolicy)
           .withIndent(style.indent.main, close, Before)
 
         // must be after nlSplit
