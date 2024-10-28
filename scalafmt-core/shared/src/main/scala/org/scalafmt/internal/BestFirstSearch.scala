@@ -91,8 +91,10 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       import style.runner.optimizer
 
       if (idx > deepestState.depth) deepestState = curr
-      val noOptZone = noOptZones == null || !useNoOptZones ||
-        noOptZones.contains(leftTok)
+      val noOptZoneOrBlock =
+        if (noOptZones == null || !useNoOptZones) Some(true)
+        else noOptZones.get(leftTok)
+      val noOptZone = noOptZoneOrBlock.contains(true)
 
       if (noOptZone || stats.shouldEnterState(curr)) {
         stats.checkExplored(splitToken)
@@ -104,8 +106,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
               noOptZone) && optimizationEntities.statementStarts.contains(idx)
           ) Q.addGeneration()
 
-        val noBlockClose = start == curr && !isOpt || !noOptZone ||
-          !optimizer.recurseOnBlocks
+        val noBlockClose = start == curr && !isOpt ||
+          noOptZoneOrBlock.isEmpty || !optimizer.recurseOnBlocks
         val blockCloseState =
           if (noBlockClose) None
           else getBlockCloseToRecurse(splitToken, stop)
@@ -297,23 +299,25 @@ object BestFirstSearch {
     new BestFirstSearch(range).getBestPath
 
   private def getNoOptZones(tokens: FormatTokens)(implicit styleMap: StyleMap) = {
-    val result = Set.newBuilder[Token]
-    var expire: Token = null
+    val result = mutable.Map.empty[Token, Boolean]
+    var expire: FormatToken = null
+    @inline
+    def addRange(t: Token): Unit = expire = tokens.matching(t)
     tokens.foreach {
-      case FormatToken(x, _, _) if expire ne null =>
-        if (x eq expire) expire = null else result += x
+      case ft if expire ne null =>
+        if (ft eq expire) expire = null else result.update(ft.left, true)
       case FormatToken(t: Token.LeftParen, _, m) if (m.leftOwner match {
             case lo: Term.ArgClause => !lo.parent.is[Term.ApplyInfix] &&
               !styleMap.at(t).newlines.keep
             case _: Term.Apply => true // legacy: when enclosed in parens
             case _ => false
-          }) => expire = tokens.matching(t).left
-      case FormatToken(t: Token.LeftBrace, _, m) if (m.leftOwner match {
-            // Type compounds can be inside defn.defs
-            case lo: meta.Stat.Block => lo.parent.is[Type.Refine]
-            case _: Type.Refine => true
-            case _ => false
-          }) => expire = tokens.matching(t).left
+          }) => addRange(t)
+      case FormatToken(t: Token.LeftBrace, _, m) => m.leftOwner match {
+          // Type compounds can be inside defn.defs
+          case lo: meta.Stat.Block if lo.parent.is[Type.Refine] => addRange(t)
+          case _: Type.Refine => addRange(t)
+          case _ =>
+        }
       case _ =>
     }
     result.result()
