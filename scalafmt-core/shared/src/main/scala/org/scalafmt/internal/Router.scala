@@ -327,7 +327,7 @@ class Router(formatOps: FormatOps) {
         val noLambdaSplit = style.newlines.keepBreak(newlines) ||
           lambdaArrow == null || !lambdaNLOnly.contains(false)
         val lambdaExpire =
-          if (noLambdaSplit) null else getOptimalTokenFor(lambdaArrow)
+          if (noLambdaSplit) null else nextNonCommentSameLine(lambdaArrow).left
 
         def getSingleLinePolicy = {
           val needBreak = closeFT.right match {
@@ -461,7 +461,8 @@ class Router(formatOps: FormatOps) {
           case _ if afterCurlySpace && {
                 style.newlines.fold || !rightOwner.is[Defn]
               } =>
-            val exp = getOptimalTokenFor(getLastNonTrivial(leftFunc.body).left)
+            val exp = nextNonCommentSameLine(getLastNonTrivial(leftFunc.body))
+              .left
             spaceSplitBase.withSingleLine(exp, noSyntaxNL = true)
           case _ => Split.ignored
         }
@@ -535,7 +536,7 @@ class Router(formatOps: FormatOps) {
               Split(Space, 0)
                 .withIndent(indent, endOfFunction, expiresOn, hasBlock)
                 .withOptimalToken(
-                  getOptimalTokenFor(next(nonComment)),
+                  nextNonCommentSameLineAfter(nonComment).left,
                   killOnFail = false,
                 )
           Seq(noSplit, newlineSplit(1 + nestedApplies(leftOwner)))
@@ -847,8 +848,9 @@ class Router(formatOps: FormatOps) {
 
           val arrowFt = getFuncArrow(lambda).get
           val lambdaIsABlock = lambdaLeft.contains(arrowFt.right)
-          val lambdaToken =
-            getOptimalTokenFor(if (lambdaIsABlock) next(arrowFt) else arrowFt)
+          val lambdaToken = nextNonCommentSameLine(
+            if (lambdaIsABlock) next(arrowFt) else arrowFt,
+          ).left
 
           val spacePolicy = SingleLineBlock(lambdaToken) ==> {
             Policy ? lambdaIsABlock || delayedBreakPolicy(
@@ -989,10 +991,10 @@ class Router(formatOps: FormatOps) {
         val splitsForAssign =
           if (defnSite || isBracket || keepConfigStyleSplit) None
           else getAssignAtSingleArgCallSite(args).map { assign =>
-            val breakToken = getOptimalTokenFor(assign.rhs match {
+            val breakToken = nextNonCommentSameLine(assign.rhs match {
               case b: Term.Block if isEnclosedInBraces(b) => getHead(b)
               case x => tokenBefore(x)
-            })
+            }).left
             val newlineAfterAssignDecision = Policy ? newlinePolicy.isEmpty ||
               decideNewlinesOnlyAfterToken(breakToken)
             Seq(
