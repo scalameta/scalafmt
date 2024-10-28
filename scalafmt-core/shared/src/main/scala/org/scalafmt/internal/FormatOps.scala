@@ -1044,7 +1044,7 @@ class FormatOps(
         val values = clause.values
         if (
           values.lengthCompare(cfg.minCount) >= 0 &&
-          (cfg.minSpan == 0 || cfg.minSpan < distance(ftOpen, close))
+          (cfg.minSpan == 0 || cfg.minSpan <= span(ftOpen, close))
         ) {
           forces += ftOpen.meta.idx
           values.foreach(x => clearQueues += getHead(x).meta.idx)

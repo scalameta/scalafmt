@@ -404,13 +404,15 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     result
   }
 
-  def distance(left: FormatToken, right: FormatToken): Int =
-    nonWhitespaceOffset(right.idx) - nonWhitespaceOffset(left.idx)
-  def distance(tokens: Tokens): Int =
-    if (tokens.isEmpty) 0
-    else distance(getHeadImpl(tokens), getLastImpl(tokens))
+  def span(left: FormatToken, right: FormatToken): Int = {
+    val lastIdx = nonWhitespaceOffset.length - 1
+    val rightIdx = if (right.idx >= lastIdx) lastIdx else right.idx + 1
+    nonWhitespaceOffset(rightIdx) - nonWhitespaceOffset(left.idx)
+  }
+  def span(tokens: Tokens): Int =
+    if (tokens.isEmpty) 0 else span(getHeadImpl(tokens), getLastImpl(tokens))
   @inline
-  def distance(tree: Tree): Int = distance(tree.tokens)
+  def span(tree: Tree): Int = span(tree.tokens)
 
 }
 
