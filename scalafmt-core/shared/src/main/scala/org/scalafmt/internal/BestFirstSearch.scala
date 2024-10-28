@@ -55,12 +55,13 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   ): Option[Option[State]] = {
     val key = (start.indentation & 0xffL) | (start.column & 0xffffffL) << 8 |
       (start.depth & 0xffffffffL) << 32
-    def orElse = {
-      val nextState = shortestPath(start, stop, depth, isOpt).toOption
-      if (nextState.isDefined || !isOpt && !start.hasSlb()) memo
-        .update(key, nextState)
-      Some(nextState)
-    }
+    def orElse =
+      if (isOpt) Some(None) // we wouldn't recurse unless the span was large
+      else {
+        val nextState = shortestPath(start, stop, depth, isOpt).toOption
+        if (nextState.isDefined || !start.hasSlb()) memo.update(key, nextState)
+        Some(nextState)
+      }
     memo.get(key).orElse(orElse)
   }
 
