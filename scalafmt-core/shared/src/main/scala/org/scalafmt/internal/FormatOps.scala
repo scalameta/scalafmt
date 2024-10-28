@@ -368,11 +368,6 @@ class FormatOps(
       case _ => res
     }
 
-  def getOptimalTokenFor(token: T): T = getOptimalTokenFor(tokens(token))
-
-  def getOptimalTokenFor(ft: FormatToken): T =
-    if (isAttachedCommentThenBreak(ft)) ft.right else ft.left
-
   def insideInfixSplit(
       app: Member.Infix,
   )(implicit style: ScalafmtConfig, ft: FormatToken): Seq[Split] = {
@@ -1989,7 +1984,8 @@ class FormatOps(
       ): Option[OptionalBracesRegion] = {
         def funcSplit(arg: Term.FunctionTerm)(implicit fl: FileLine) = {
           val end = getLast(arg)
-          val opt = getOptimalTokenFor(getFuncArrow(arg).getOrElse(end))
+          val opt = nextNonCommentSameLine(getFuncArrow(arg).getOrElse(end))
+            .left
           Split(Space, 0).withSingleLine(opt)
             .andPolicy(decideNewlinesOnlyAfterToken(opt))
         }
