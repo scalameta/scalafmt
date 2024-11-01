@@ -26,9 +26,8 @@ val bindingFuture = Http().bindAndHandleSync({
     {
       val bindingFuture = Http().bindAndHandleSync(
           { case HttpRequest(_, _, headers, _, _) ⇒
-            val upgrade = headers.collectFirst { case u: UpgradeToWebSocket ⇒
-              u
-            }.get
+            val upgrade =
+              headers.collectFirst { case u: UpgradeToWebSocket ⇒ u }.get
             upgrade.handleMessages(
                 Flow.fromSinkAndSource(Sink.ignore,
                                        Source.fromPublisher(source)),

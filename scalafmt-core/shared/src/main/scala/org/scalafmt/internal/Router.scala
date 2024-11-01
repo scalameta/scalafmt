@@ -651,8 +651,9 @@ class Router(formatOps: FormatOps) {
           )
         }
 
-      case FormatToken(_, T.RightBrace(), _) =>
-        Seq(Split(xmlSpace(rightOwner), 0), Split(Newline2x(ft), 0))
+      case FormatToken(_, _: T.RightBrace, _) =>
+        Seq(Split(if (ft.hasBlankLine) Newline2x else xmlSpace(rightOwner), 0))
+
       case FormatToken(_: T.KwPackage, _, _) if leftOwner.is[Pkg] =>
         Seq(Split(Space, 0))
       // Opening [ with no leading space.
