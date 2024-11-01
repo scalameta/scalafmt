@@ -24,9 +24,8 @@ new DenseMatrix(
   isTranspose = !from.isTranspose)
 >>>
 new DenseMatrix(
-    data = from.data map {
-      _.conjugate
-    },
+    data =
+      from.data map { _.conjugate },
     offset = from.offset,
     cols = from.rows,
     rows = from.cols,
