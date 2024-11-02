@@ -2977,10 +2977,10 @@ class FormatOps(
   @inline
   def indentedPackage(pkg: Pkg): Boolean = indentedPackage(pkg.body)
 
-  def getBracesToParensModAndPolicy(rb: FormatToken, mod: Modification)(implicit
+  def getBracesToParensMod(rb: FormatToken, mod: Modification)(implicit
       style: ScalafmtConfig,
       ft: FormatToken,
-  ): (Modification, Policy) = {
+  ): Modification = {
     val isWithinBraces = ft.left.is[T.LeftBrace]
     val ok = initStyle.rewrite.bracesToParensForOneLineApply &&
       style.rewrite.trailingCommas.isOptional && (mod eq Space) &&
@@ -2990,16 +2990,7 @@ class FormatOps(
       // check if all of them can be converted to parens
       insideBracesBlock(if (isWithinBraces) ft else next(ft), rb.left).ranges
         .forall(x => couldHaveBracesConvertedToParens(x.lt.leftOwner))
-    if (ok) {
-      val end = Policy.End < rb.left
-      val beforeClose = prev(rb)
-      val policy = Policy ? isWithinBraces &&
-        end ==> Policy.on(rb.left, "BracesToParens") {
-          case Decision(`beforeClose`, ss) => ss
-              .flatMap(s => if (s.isNL) None else Some(s.withMod(NoSplit)))
-        }
-      SpaceOrNoSplit(end) -> policy
-    } else (mod, Policy.noPolicy)
+    if (ok) SpaceOrNoSplit(Policy.End < rb.left) else mod
   }
 
 }
