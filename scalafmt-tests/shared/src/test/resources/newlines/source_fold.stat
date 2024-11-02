@@ -9950,9 +9950,8 @@ val newExprs = exprs.map { _.transform {
   case a: AttributeReference => attrMap.getOrElse(a, a)
 }}
 >>>
-val newExprs = exprs.map {
-  _.transform { case a: AttributeReference => attrMap.getOrElse(a, a) }
-}
+val newExprs = exprs
+  .map(_.transform { case a: AttributeReference => attrMap.getOrElse(a, a) })
 <<< #4133 overflow comment with a forced break 1 
 maxColumn = 76
 newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
@@ -10136,18 +10135,18 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-     val metadatas = snapshotMetadatas(persistenceId, criteria)
--    Future.sequence(
--      metadatas.map(deleteAsync)
--    )(scala.collection.immutable.IndexedSeq, streamDispatcher)
--      .map(_ => ())(streamDispatcher)
-+    Future.sequence(metadatas.map(deleteAsync))(
-+      scala.collection.immutable.IndexedSeq,
-+      streamDispatcher
-+    ).map(_ => ())(streamDispatcher)
-   }
+object a {
+  override def deleteAsync(
+      persistenceId: String,
+      criteria: SnapshotSelectionCriteria
+  ): Future[Unit] = {
+    val metadatas = snapshotMetadatas(persistenceId, criteria)
+    Future.sequence {
+      metadatas.map(deleteAsync)
+    }(scala.collection.immutable.IndexedSeq, streamDispatcher)
+      .map(_ => ())(streamDispatcher)
+  }
+}
 <<< #4133 redundant braces with nested partial function 
 maxColumn = 76
 rewrite.rules = [RedundantBraces]

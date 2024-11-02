@@ -10645,9 +10645,8 @@ val newExprs = exprs.map { _.transform {
   case a: AttributeReference => attrMap.getOrElse(a, a)
 }}
 >>>
-val newExprs = exprs.map {
-  _.transform { case a: AttributeReference => attrMap.getOrElse(a, a) }
-}
+val newExprs = exprs
+  .map(_.transform { case a: AttributeReference => attrMap.getOrElse(a, a) })
 <<< #4133 overflow comment with a forced break 1 
 maxColumn = 76
 newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
