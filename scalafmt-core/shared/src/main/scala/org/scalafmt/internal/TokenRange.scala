@@ -20,6 +20,9 @@ class TokenRanges private (val ranges: Seq[TokenRange]) extends AnyVal {
     new TokenRanges(range +: ranges)
   }
 
+  def filter(f: TokenRange => Boolean): TokenRanges =
+    new TokenRanges(ranges.filter(f))
+
   def startOfFirstRange(): Option[Token] = ranges.lastOption.map(_.lt.left)
 }
 

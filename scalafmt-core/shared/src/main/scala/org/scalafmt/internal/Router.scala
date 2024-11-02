@@ -389,10 +389,12 @@ class Router(formatOps: FormatOps) {
         }
 
         val noSplitMod = xmlSpace(leftOwner)
-        val slbMod =
-          if (singleLineDecisionOpt.isEmpty) noSplitMod
+        val (slbMod, slbParensExclude) =
+          if (singleLineDecisionOpt.isEmpty) (noSplitMod, None)
           else getBracesToParensMod(closeFT, noSplitMod)
-        val singleLineSplitOpt = singleLineDecisionOpt.map { sld =>
+        val singleLineSplitOpt = {
+          if (slbParensExclude eq null) None else singleLineDecisionOpt
+        }.map { sld =>
           val sldPolicy = getSingleLinePolicy
           val expire = leftOwner.parent match {
             case Some(p: Term.ForYield)
@@ -409,8 +411,20 @@ class Router(formatOps: FormatOps) {
                   .flatMap(s => if (s.isNL) None else Some(s.withMod(NoSplit)))
             }
           }
-          Split(slbMod, 0).withSingleLine(expire, noSyntaxNL = true)
-            .andPolicy(sldPolicy & slbParensPolicy)
+          val exclude = slbParensExclude.getOrElse(TokenRanges.empty)
+          val slbPolicy =
+            if (exclude.isEmpty) slbParensPolicy
+            else Policy.RelayOnSplit { case (s, _) => s.isNL }(
+              slbParensPolicy,
+              Policy.on(close, "BracesToParensFailed") { case _ => Nil },
+            )
+          Split(slbMod, 0).withSingleLine(
+            expire,
+            exclude = exclude,
+            noOptimal = style.newlines.fold && !exclude.isEmpty &&
+              exclude.ranges.forall(_.lt.left.is[T.LeftParen]),
+            noSyntaxNL = true,
+          ).andPolicy(sldPolicy & slbPolicy)
         }
 
         val lambdaNLPolicy = leftOwner match {
@@ -1532,7 +1546,7 @@ class Router(formatOps: FormatOps) {
                   .exists(x => isTokenLastOrAfter(x.left, roPos))
             }
           } =>
-        val mod = getBracesToParensMod(matching(lb), Space)
+        val mod = getBracesToParensMod(matching(lb), Space)._1
         Seq(Split(mod, 0))
 
       // Delim
