@@ -254,7 +254,6 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: T.LeftBrace, right, _) =>
         val closeFT = matching(open)
         val close = closeFT.left
-        val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
         val isSelfAnnotationNL = style.optIn.selfAnnotationNewline &&
           (hasBreak() || style.newlines.sourceIgnored) &&
           (leftOwner match { // Self type: trait foo { self => ... }
@@ -422,8 +421,17 @@ class Router(formatOps: FormatOps) {
             }
           case _ => NoPolicy
         }
+        val nlPenalty = leftOwner match {
+          case _ if !style.newlines.fold => 0
+          case _: Term.ArgClause => 1
+          case t @ Tree.Block(x :: Nil)
+              if !x.is[Term.FunctionTerm] && t.parent.is[Term.ArgClause] => 1
+          case _ => 0
+        }
+        val nlCost = if (nl.isNL) 1 + nlPenalty else 0
+        val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
         val nlPolicy = lambdaNLPolicy ==> newlineBeforeClosingCurly
-        val nlSplit = Split(nl, if (nl.isNL) 1 else 0, policy = nlPolicy)
+        val nlSplit = Split(nl, nlCost, policy = nlPolicy)
           .withIndent(style.indent.main, close, Before)
 
         // must be after nlSplit
@@ -437,7 +445,9 @@ class Router(formatOps: FormatOps) {
                   case Decision(FormatToken(`lambdaExpire`, _, _), ss) =>
                     var hadNoSplit = false
                     val nlSplits = ss.flatMap { s =>
-                      if (s.isNL) Some(s.andPolicy(nlPolicy))
+                      // penalize NL one extra, for closing brace
+                      if (s.isNL)
+                        Some(s.andPolicy(nlPolicy).withPenalty(nlPenalty))
                       else { hadNoSplit = true; None }
                     }
                     if (hadNoSplit) slbSplit.withMod(Space) +: nlSplits
