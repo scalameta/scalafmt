@@ -9212,7 +9212,7 @@ object Build {
       }.evaluated,
     )
 }
->>> { stateVisits = 1296, stateVisits2 = 1296 }
+>>> { stateVisits = 2300, stateVisits2 = 1144 }
 object Build {
   lazy val scaladoc = project.in(file("scaladoc"))
     .settings(generateScalaDocumentation := Def.inputTaskDyn {
@@ -9460,7 +9460,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 2428, stateVisits2 = 2428 }
+>>> { stateVisits = 2449, stateVisits2 = 2449 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref.Synchronized
@@ -10130,12 +10130,7 @@ object a {
   }}
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a {
--  val defaultMethodNames = defaultGetterNames.map(_.replace {
--    case DefaultGetterName(methName, _) => methName
--  })
-+  val defaultMethodNames = defaultGetterNames
-+    .map(_.replace { case DefaultGetterName(methName, _) => methName })
- }
+object a {
+  val defaultMethodNames = defaultGetterNames
+    .map(_.replace { case DefaultGetterName(methName, _) => methName })
+}
