@@ -10582,6 +10582,35 @@ system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
             }
       }
 }
+<<< #4133 braces to parens with inner parens, possible non-idempotency
+preset = default
+newlines.source = keep
+rewrite.rules = [RedundantBraces]
+===
+object a {
+  override def deleteAsync(persistenceId: String, criteria: SnapshotSelectionCriteria): Future[Unit] = {
+    val metadatas = snapshotMetadatas(persistenceId, criteria)
+    Future
+      .sequence {
+        metadatas.map(deleteAsync)
+      }(scala.collection.immutable.IndexedSeq, streamDispatcher)
+      .map(_ => ())(streamDispatcher)
+  }
+}
+>>>
+object a {
+  override def deleteAsync(
+      persistenceId: String,
+      criteria: SnapshotSelectionCriteria
+  ): Future[Unit] = {
+    val metadatas = snapshotMetadatas(persistenceId, criteria)
+    Future
+      .sequence {
+        metadatas.map(deleteAsync)
+      }(scala.collection.immutable.IndexedSeq, streamDispatcher)
+      .map(_ => ())(streamDispatcher)
+  }
+}
 <<< #4133 redundant braces with nested partial function 
 maxColumn = 76
 rewrite.rules = [RedundantBraces]
