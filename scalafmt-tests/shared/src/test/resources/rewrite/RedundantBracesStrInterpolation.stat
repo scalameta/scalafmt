@@ -252,3 +252,7 @@ val content = {
     )
   }</p>.bar
 }
+<<< #4456
+println(s"${$}")
+>>>
+println(s"$$")
