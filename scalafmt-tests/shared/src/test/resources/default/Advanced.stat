@@ -377,7 +377,7 @@ private def withNewLocalDefs = {
             }))
         }))
   }
->>> { stateVisits = 3618 }
+>>> { stateVisits = 6110, stateVisits2 = 6110 }
 val createIsArrayOfStat = {
   envFieldDef(
       "isArrayOf",
@@ -391,33 +391,33 @@ val createIsArrayOfStat = {
                                         obj && (obj DOT "$classData")
                                       })
               val data = dataVarDef.ref
-              js.Block(dataVarDef,
-                       js.If(!data, {
-                               js.Return(js.BooleanLiteral(false))
-                             }, {
-                               val arrayDepthVarDef =
-                                 genLet(Ident("arrayDepth"),
-                                        mutable = false, {
-                                          (data DOT "arrayDepth") || js
-                                            .IntLiteral(0)
-                                        })
-                               val arrayDepth = arrayDepthVarDef.ref
-                               js.Block(arrayDepthVarDef,
-                                        js.Return {
-                                          // Array[A] </: Array[Array[A]]
-                                          !js.BinaryOp(JSBinaryOp.<,
-                                                       arrayDepth,
-                                                       depth) &&
-                                          ( // Array[Array[A]] <: Array[Object]
-                                              js.BinaryOp(JSBinaryOp.>,
-                                                          arrayDepth,
-                                                          depth) ||
-                                                // Array[Int] </: Array[Object]
-                                                !genIdentBracketSelect(
-                                                    data DOT "arrayBase",
-                                                    "isPrimitive"))
-                                        })
-                             }))
+              js.Block(
+                  dataVarDef,
+                  js.If(
+                      !data, {
+                        js.Return(js.BooleanLiteral(false))
+                      }, {
+                        val arrayDepthVarDef =
+                          genLet(Ident("arrayDepth"),
+                                 mutable = false, {
+                                   (data DOT "arrayDepth") || js.IntLiteral(0)
+                                 })
+                        val arrayDepth = arrayDepthVarDef.ref
+                        js.Block(
+                            arrayDepthVarDef,
+                            js.Return {
+                              // Array[A] </: Array[Array[A]]
+                              !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) &&
+                              ( // Array[Array[A]] <: Array[Object]
+                                  js.BinaryOp(JSBinaryOp.>,
+                                              arrayDepth,
+                                              depth) ||
+                                    // Array[Int] </: Array[Object]
+                                    !genIdentBracketSelect(
+                                        data DOT "arrayBase",
+                                        "isPrimitive"))
+                            })
+                      }))
           }))
 }
 <<< js.Return

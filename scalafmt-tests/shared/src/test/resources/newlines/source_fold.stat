@@ -10164,18 +10164,16 @@ val accumUpdatesWithTaskIds: Array[(Long, Int, Int, Seq[AccumulableInfo])] = {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--val accumUpdatesWithTaskIds: Array[(Long, Int, Int, Seq[AccumulableInfo])] =
--  accumUpdates { case (id, updates) =>
--    taskIdToTaskSetManager { taskSetMgr =>
-+val accumUpdatesWithTaskIds
-+    : Array[(Long, Int, Int, Seq[AccumulableInfo])] = accumUpdates {
-+  case (id, updates) => taskIdToTaskSetManager { taskSetMgr =>
-       getTaskAccumulableInfosAndProcessRate(updates)
-     }
--  }
-+}
+val accumUpdatesWithTaskIds: Array[(Long, Int, Int, Seq[AccumulableInfo])] =
+  accumUpdates { case (id, updates) =>
+    taskIdToTaskSetManager { taskSetMgr =>
+      getTaskAccumulableInfosAndProcessRate(updates)
+      if (efficientTaskCalcualtionEnabled) {
+        taskSetMgr.taskProcessRateCalculator
+          .foreach(_.updateRunningTaskProcessRate(id, taskProcessRate))
+      }
+    }
+  }
 <<< #4133 redundant braces with nested partial function 
 maxColumn = 76
 rewrite.rules = [RedundantBraces]

@@ -173,7 +173,13 @@ object OptimizationEntities {
           if (TreeOps.getSingleStatExceptEndMarker(s).isEmpty) s else s.drop(1),
         )
         else s match {
-          case (_: Term.FunctionTerm) :: Nil =>
+          case x :: Nil if (x match {
+                case _: Term.FunctionTerm => true
+                case _ if !t.parent.is[Term.ArgClause] => false
+                case _: Term.Apply => true
+                case x: Term.AnonymousFunction => x.body.is[Term.Apply]
+                case _ => false
+              }) =>
           case _ => addAllStmts(s)
         }
       case Tree.Block(s) => addAllStmts(s)
