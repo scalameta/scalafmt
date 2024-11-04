@@ -10938,8 +10938,8 @@ object a {
 >>>
 object a {
   def union(other: Dataset[T]): Dataset[T] =
-    buildSetOp(other, proto.SetOperation.SetOpType.SET_OP_TYPE_UNION) {
-      builder => builder.setIsAll(true)
+    buildSetOp(other, proto.SetOperation.SetOpType.SET_OP_TYPE_UNION) { builder =>
+      builder.setIsAll(true)
     }
 }
 <<< #4133 braces to parens with func
