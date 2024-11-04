@@ -101,13 +101,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macOS-12, ubuntu-latest]
+        os: [macOS-latest, ubuntu-latest]
         libc: [default, musl]
         exclude:
-          - os: macOS-12
+          - os: macOS-latest
             libc: musl
         include:
-          - os: macOS-12
+          - os: macOS-latest
             artifact: scalafmt-macos
             env:
               NATIVE_IMAGE_STATIC: false
