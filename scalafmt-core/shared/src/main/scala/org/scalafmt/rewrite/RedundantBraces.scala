@@ -335,24 +335,22 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     def isIdentifierAtStart(value: String) = value.headOption
       .exists(x => Character.isLetterOrDigit(x) || x == '_')
 
-    def isLiteralIdentifier(arg: Term.Name): Boolean = {
-      val syntax = arg.toString()
-      syntax.nonEmpty && syntax.head == '`' && syntax.last == '`'
-    }
-
     /** we need to keep braces
       *   - for interpolated literal identifiers: {{{s"string ${`type`}"}}}
       *   - and identifiers starting with '_': {{{s"string %{_id}"}}}, otherwise
       *     formatting will result in compilation error (see
       *     https://github.com/scalameta/scalafmt/issues/1420)
       */
-    def shouldTermBeEscaped(arg: Term.Name): Boolean = arg.value.head == '_' ||
-      isLiteralIdentifier(arg)
+    def canRemoveAroundName(name: String): Boolean = name.headOption.forall {
+      case '_' => false
+      case '`' => name.length <= 1 || name.last != '`'
+      case _ => true
+    }
 
     val ft2 = ftoks(ft, 2) // should point to "name}"
     ft2.right.is[Token.RightBrace] &&
     (ft2.meta.leftOwner match {
-      case t: Term.Name => !shouldTermBeEscaped(t)
+      case t: Term.Name => canRemoveAroundName(t.text)
       case _ => false
     }) &&
     (ftoks(ft2, 2).right match { // skip splice end, to get interpolation part
