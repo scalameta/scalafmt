@@ -437,47 +437,84 @@ class Router(formatOps: FormatOps) {
         }
         val nlPenalty = leftOwner match {
           case _ if !style.newlines.fold => 0
-          case _: Term.ArgClause => 1
+          case t: Term.ArgClause if (t.values match {
+                case x :: Nil if !x.is[Term.FunctionTerm] => true
+                case _ => false
+              }) => 1
           case t @ Tree.Block(x :: Nil)
               if !x.is[Term.FunctionTerm] && t.parent.is[Term.ArgClause] => 1
           case _ => 0
         }
-        val nlCost = if (nl.isNL) 1 + nlPenalty else 0
+        val (nlCost, nlArrowPenalty) =
+          if (!nl.isNL) (0, 0)
+          else if (slbMod eq noSplitMod) (1 + nlPenalty, nlPenalty)
+          else {
+            def argClausePenalty(t: Term.ArgClause)(isFunc: Term => Boolean) =
+              t.values match {
+                case arg :: Nil =>
+                  if (isFunc(arg)) Some((nestedApplies(t), 3))
+                  else t.parent match {
+                    case Some(p: Term.Apply) =>
+                      Some((nestedApplies(p), 1 + treeDepth(p.fun)))
+                    case _ => None
+                  }
+                case _ => None
+              }
+            leftOwner match {
+              case t: Term.ArgClause =>
+                argClausePenalty(t)(_.is[Term.FunctionTerm])
+              case t: Term => t.parent match {
+                  case Some(p: Term.ArgClause) => argClausePenalty(p) {
+                      case Term.Block((_: Term.FunctionTerm) :: Nil) =>
+                        getHead(t) eq ft
+                      case _ => false
+                    }
+                  case _ => None
+                }
+              case _ => None
+            }
+          }.fold((1, nlPenalty)) { case (sharedPenalty, herePenalty) =>
+            (sharedPenalty + herePenalty, sharedPenalty)
+          }
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
         val nlPolicy = lambdaNLPolicy ==> newlineBeforeClosingCurly
         val nlSplit = Split(nl, nlCost, policy = nlPolicy)
           .withIndent(style.indent.main, close, Before)
+
+        val singleLineSplit = singleLineSplitOpt match {
+          case Some(slbSplit)
+              if noLambdaSplit || !slbParensExclude.forall(_.isEmpty) =>
+            slbSplit
+          case _ => Split.ignored
+        }
 
         // must be after nlSplit
         val lambdaSplit =
           if (noLambdaSplit) Split.ignored
           else {
             val nlPolicy = newlineBeforeClosingCurly
-            val policy = singleLineSplitOpt match {
-              case Some(slbSplit) if slbMod eq noSplitMod =>
-                Policy.after(lambdaExpire, s"FNARR($slbSplit)") {
+            val (mod, policy) = singleLineSplitOpt match {
+              case Some(slbSplit) if singleLineSplit.isIgnored =>
+                val arrSplit = slbSplit.withMod(Space)
+                slbMod -> Policy.after(lambdaExpire, s"FNARR($arrSplit)") {
                   case Decision(FormatToken(`lambdaExpire`, _, _), ss) =>
                     var hadNoSplit = false
                     val nlSplits = ss.flatMap { s =>
                       // penalize NL one extra, for closing brace
                       if (s.isNL)
-                        Some(s.andPolicy(nlPolicy).withPenalty(nlPenalty))
+                        Some(s.andPolicy(nlPolicy).withPenalty(nlArrowPenalty))
                       else { hadNoSplit = true; None }
                     }
-                    if (hadNoSplit) slbSplit.withMod(Space) +: nlSplits
-                    else nlSplits
+                    if (hadNoSplit) arrSplit +: nlSplits else nlSplits
                 }
-              case _ => decideNewlinesOnlyAfterToken(lambdaExpire) ==> nlPolicy
+              case _ => noSplitMod ->
+                  (decideNewlinesOnlyAfterToken(lambdaExpire) ==> nlPolicy)
             }
-            Split(noSplitMod, 0).withSingleLine(lambdaExpire).andPolicy(policy)
+            Split(mod, 0, policy = SingleLineBlock(lambdaExpire) ==> policy)
+              .withOptimalToken(lambdaExpire, killOnFail = true)
               .withIndent(lambdaIndent, close, Before)
           }
 
-        val singleLineSplit = singleLineSplitOpt match {
-          case Some(slbSplit)
-              if (slbMod ne noSplitMod) || lambdaSplit.isIgnored => slbSplit
-          case _ => Split.ignored
-        }
         val splits = Seq(singleLineSplit, lambdaSplit, nlSplit)
         right match {
           case t: T.Xml.Start => withIndentOnXmlStart(t, splits)

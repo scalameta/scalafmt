@@ -338,7 +338,10 @@ object TreeOps {
   def treeDepth(tree: Tree): Int = tree match {
     case Member.ParamClauseGroup(tparams, paramss) =>
       maxTreeDepth(tparams +: paramss)
-    case Member.SyntaxValuesClause(v) => maxTreeDepth(v)
+    case Member.SyntaxValuesClause(v) => v match {
+        case (b: Tree.Block) :: Nil => maxTreeDepth(b.stats)
+        case _ => maxTreeDepth(v)
+      }
     case _ =>
       val children = tree.children
       if (children.isEmpty) 0 else 1 + maxTreeDepth(children)

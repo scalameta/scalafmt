@@ -10199,9 +10199,9 @@ Utils.tryWithSafeFinally {
   serializeStream.close()
 }
 >>>
-Utils.tryWithSafeFinally(serializeStream.writeObject(partitioner)) {
-  serializeStream.close()
-}
+Utils.tryWithSafeFinally {
+  serializeStream.writeObject(partitioner)
+}(serializeStream.close())
 <<< #4133 braces to parens with func
 preset = default
 newlines.source = fold
@@ -10222,8 +10222,8 @@ object a {
 >>>
 object a {
   def union(other: Dataset[T]): Dataset[T] =
-    buildSetOp(other, proto.SetOperation.SetOpType.SET_OP_TYPE_UNION) {
-      builder => builder.setIsAll(true)
+    buildSetOp(other, proto.SetOperation.SetOpType.SET_OP_TYPE_UNION) { builder =>
+      builder.setIsAll(true)
     }
 }
 <<< #4133 braces to parens with func
@@ -10253,13 +10253,9 @@ repeatTakeMapAndFold = fuse(
     .fold(new MutableElement(0))((acc, x) => { acc.value += x.value; acc })
     .toMat(testSink)(Keep.right))
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   Source.repeat(new MutableElement(0)).take(ElementCount).map(addFunc)
--    .map(addFunc).fold(new MutableElement(0)) { (acc, x) =>
--      acc.value += x.value; acc
--    }.toMat(testSink)(Keep.right)
-+    .map(addFunc)
-+    .fold(new MutableElement(0)) { (acc, x) => acc.value += x.value; acc }
-+    .toMat(testSink)(Keep.right)
- )
+repeatTakeMapAndFold = fuse(
+  Source.repeat(new MutableElement(0)).take(ElementCount).map(addFunc)
+    .map(addFunc).fold(new MutableElement(0)) { (acc, x) =>
+      acc.value += x.value; acc
+    }.toMat(testSink)(Keep.right)
+)
