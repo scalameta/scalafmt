@@ -342,7 +342,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       *     https://github.com/scalameta/scalafmt/issues/1420)
       */
     def canRemoveAroundName(name: String): Boolean = name.headOption.forall {
-      case '_' => false
+      case '_' | '$' => false
       case '`' => name.length <= 1 || name.last != '`'
       case _ => true
     }
