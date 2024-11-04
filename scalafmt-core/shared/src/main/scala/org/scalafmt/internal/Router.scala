@@ -276,23 +276,19 @@ class Router(formatOps: FormatOps) {
         def getLambdaInfo(ts: List[Tree]): LambdaInfo = ts match {
           case (t: Case) :: Nil if t.cond.isEmpty =>
             val arrow = getCaseArrow(t)
-            val nlOnly =
-              if (style.newlines.alwaysBeforeCurlyLambdaParams) Some(true)
-              else if (
-                style.newlines.beforeCurlyLambdaParams ne
-                  Newlines.BeforeCurlyLambdaParams.never
-              ) None
-              else Some(false)
+            val nlOnly = style.newlines.beforeCurlyLambdaParams match {
+              case Newlines.BeforeCurlyLambdaParams.always => Some(true)
+              case Newlines.BeforeCurlyLambdaParams.never => Some(false)
+              case _ => None
+            }
             (arrow, 0, nlOnly)
           case (t: Term.FunctionTerm) :: Nil =>
             val arrow = lastLambda(t).flatMap(getFuncArrow).getOrElse(getLast(t))
-            val nlOnly =
-              if (style.newlines.alwaysBeforeCurlyLambdaParams) Some(true)
-              else if (
-                style.newlines.beforeCurlyLambdaParams eq
-                  Newlines.BeforeCurlyLambdaParams.multiline
-              ) None
-              else Some(false)
+            val nlOnly = style.newlines.beforeCurlyLambdaParams match {
+              case Newlines.BeforeCurlyLambdaParams.always => Some(true)
+              case Newlines.BeforeCurlyLambdaParams.multiline => None
+              case _ => Some(false)
+            }
             (arrow, 0, nlOnly)
           case (t: Term.PartialFunction) :: Nil => getLambdaInfo(t.cases)
           case (t: Term.CasesBlock) :: Nil if (t.parent match {
