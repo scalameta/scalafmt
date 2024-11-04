@@ -7196,3 +7196,47 @@ names {
       (x - '0' + '₀').toChar
     }.mkString}`"
 }
+<<< #4507 partial func within func
+val bar: Int => Pf =
+  _ =>
+    case msg: Int => msg + 1
+>>>
+test does not parse: [dialect scala3] illegal start of simple expression
+val bar: Int => Pf = _ => case msg: Int => msg + 1
+                          ^
+====== full result: ======
+val bar: Int => Pf = _ => case msg: Int => msg + 1
+<<< #4507 partial func within if-then-else
+val bar: Int => Pf =
+  if foo then
+    case msg1: Int => msg1 + 1
+  else
+    case msg2: Int => msg2 + 2
+>>>
+test does not parse: [dialect scala3] illegal start of simple expression
+val bar: Int => Pf =
+  if foo then case msg1: Int => msg1 + 1 else case msg2: Int => msg2 + 2
+              ^
+====== full result: ======
+val bar: Int => Pf =
+  if foo then case msg1: Int => msg1 + 1 else case msg2: Int => msg2 + 2
+<<< #4507 partial func within if-else
+val bar: Int => Pf =
+  if (foo)
+    case msg1: Int => msg1 + 1
+  else
+    case msg2: Int => msg2 + 2
+>>>
+test does not parse: [dialect scala3] illegal start of simple expression
+val bar: Int => Pf =
+  if (foo) case msg1: Int => msg1 + 1 else case msg2: Int => msg2 + 2
+           ^
+====== full result: ======
+val bar: Int => Pf =
+  if (foo) case msg1: Int => msg1 + 1 else case msg2: Int => msg2 + 2
+<<< #4507 partial func within assignment
+val bar: Int => Pf =
+  case msg: Int => msg + 1
+>>>
+val bar: Int => Pf =
+   case msg: Int => msg + 1
