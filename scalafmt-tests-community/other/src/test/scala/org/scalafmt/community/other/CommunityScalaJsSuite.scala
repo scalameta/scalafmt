@@ -1,6 +1,7 @@
 package org.scalafmt.community.other
 
 import org.scalafmt.community.common.CommunityRepoSuite
+import org.scalafmt.community.common.TestStyles
 
 import scala.meta._
 
@@ -9,7 +10,12 @@ abstract class CommunityScalaJsSuite(name: String)
 
 class CommunityScalaJs1_17Suite extends CommunityScalaJsSuite("scala-js-1.17") {
 
-  override protected def builds =
-    Seq(getBuild("v1.17.0", dialects.Scala213, 787))
+  override protected def builds = Seq(getBuild(
+    "v1.17.0",
+    dialects.Scala213,
+    787,
+    styles = Seq(TestStyles.foldWithRewritesAndOverflow),
+    stylesIncluded = false,
+  ))
 
 }

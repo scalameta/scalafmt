@@ -42,10 +42,14 @@ private[community] object TestStyles {
       ),
     )
 
+    def withOverflow(types: Newlines.AvoidForSimpleOverflow*): ScalafmtConfig =
+      style.copy(newlines = style.newlines.copy(avoidForSimpleOverflow = types))
+
   }
 
   private val baseKeepStyle = baseClassicStyle.withSource(Newlines.keep)
   private val baseFoldStyle = baseClassicStyle.withSource(Newlines.fold)
+  private val baseUnfoldStyle = baseClassicStyle.withSource(Newlines.unfold)
 
   val classic = baseClassicStyle
   val classicWithRewrites = baseClassicStyle.withRewrites()
@@ -55,7 +59,11 @@ private[community] object TestStyles {
   val keepWithAlign = baseKeepStyle.withAlign(Align.most)
   val keepWithScalaJS = baseKeepStyle.forScalaJs
   val fold = baseFoldStyle
-  val unfold = baseClassicStyle.withSource(Newlines.unfold)
+  val foldWithRewritesAndOverflow = baseFoldStyle.withRewrites()
+    .withOverflow(Newlines.AvoidForSimpleOverflow.all.map(_.value): _*)
+  val unfold = baseUnfoldStyle
+  val unfoldWithRewritesAndOverflow = baseUnfoldStyle.withRewrites()
+    .withOverflow(Newlines.AvoidForSimpleOverflow.all.map(_.value): _*)
 
   val stylesWithLabels = Seq[sourcecode.Text[ScalafmtConfig]](
     classic,
@@ -66,7 +74,9 @@ private[community] object TestStyles {
     keepWithAlign,
     keepWithScalaJS,
     fold,
+    foldWithRewritesAndOverflow,
     unfold,
+    unfoldWithRewritesAndOverflow,
   )
   val styles: Map[String, ScalafmtConfig] =
     SortedMap(stylesWithLabels.map(x => x.source -> x.value): _*)
