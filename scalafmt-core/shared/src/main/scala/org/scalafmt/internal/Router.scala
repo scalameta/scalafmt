@@ -452,10 +452,10 @@ class Router(formatOps: FormatOps) {
             def argClausePenalty(t: Term.ArgClause)(isFunc: Term => Boolean) =
               t.values match {
                 case arg :: Nil =>
-                  if (isFunc(arg)) Some((nestedApplies(t), 3))
+                  if (isFunc(arg)) Some((nestedApplies(t), 2))
                   else t.parent match {
                     case Some(p: Term.Apply) =>
-                      Some((nestedApplies(p), 1 + treeDepth(p.fun)))
+                      Some((nestedApplies(p), treeDepth(p.fun)))
                     case _ => None
                   }
                 case _ => None

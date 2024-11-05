@@ -10210,14 +10210,9 @@ adjustStart(accept(AT)) {
   ensureApplied(parArgumentExprss(wrapNew(simpleType1())))
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--adjustStart(accept(AT))(ensureApplied(
--  parArgumentExprss(wrapNew(simpleType1()))
--))
-+adjustStart(
-+  accept(AT)
-+)(ensureApplied(parArgumentExprss(wrapNew(simpleType1()))))
+adjustStart(accept(AT)) {
+  ensureApplied(parArgumentExprss(wrapNew(simpleType1())))
+}
 <<< #4133 braces to parens with two curried params, second func
 maxColumn = 76
 newlines.avoidForSimpleOverflow = all
@@ -10230,20 +10225,12 @@ val offsets = Utils.tryWithResource {
   buffer.asLongBuffer
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--val offsets = Utils.tryWithResource(new DataInputStream(
--  Files.newInputStream(indexFile.toPath)
--)) { dis =>
--  dis.readFully(buffer.array)
--  buffer.asLongBuffer
--}
-+val offsets = Utils
-+  .tryWithResource(new DataInputStream(Files.newInputStream(indexFile.toPath))) {
-+    dis =>
-+      dis.readFully(buffer.array)
-+      buffer.asLongBuffer
-+  }
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { dis =>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
 <<< #4133 braces to parens with two curried params, second func and comment
 maxColumn = 76
 newlines.avoidForSimpleOverflow = all
