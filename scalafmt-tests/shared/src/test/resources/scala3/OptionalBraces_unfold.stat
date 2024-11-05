@@ -7828,3 +7828,13 @@ val bar: Int => Pf =
 val bar: Int => Pf =
    case msg: Int =>
      msg + 1
+<<< #4133 braceless `match` with a semicolon between cases
+tag match
+  case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
+    node.refPrivate = in0.readByte() == PRIVATE;
+  case _ =>
+>>>
+tag match
+   case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
+     node.refPrivate = in0.readByte() == PRIVATE;
+   case _ =>
