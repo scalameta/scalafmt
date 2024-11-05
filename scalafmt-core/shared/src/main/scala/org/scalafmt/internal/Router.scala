@@ -666,8 +666,14 @@ class Router(formatOps: FormatOps) {
       // New statement
       case FormatToken(_: T.Semicolon, _, StartsStatementRight(stmt))
           if !stmt.is[Term.EndMarker] =>
+        val noSpace = !style.newlines.okSpaceForSource(newlines) ||
+          style.dialect.allowSignificantIndentation &&
+          stmt.is[Case] && stmt.parent.forall {
+            case p: Tree.Block => !isEnclosedInMatching(p)
+            case _ => false
+          }
         Seq(
-          Split(!style.newlines.okSpaceForSource(newlines), 0)(Space)
+          Split(noSpace, 0)(Space)
             .withSingleLine(endOfSingleLineBlock(getLast(stmt))),
           // For some reason, this newline cannot cost 1.
           Split(Newline2x(ft), 0),

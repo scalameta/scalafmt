@@ -127,7 +127,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     getDelimsIfEnclosed(tree).map(_._2)
 
   def isEnclosedInMatching(tokens: Tokens, tree: Tree): Boolean =
-    getHeadIfEnclosed(tokens, tree).isDefined
+    getDelimsIfEnclosed(tokens, tree).isDefined
   def isEnclosedInMatching(tree: Tree): Boolean =
     isEnclosedInMatching(tree.tokens, tree)
 
