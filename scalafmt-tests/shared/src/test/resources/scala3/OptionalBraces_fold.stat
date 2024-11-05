@@ -7239,12 +7239,7 @@ tag match
     node.refPrivate = in0.readByte() == PRIVATE;
   case _ =>
 >>>
-test does not parse: [dialect scala3] `outdent` expected but `case` found
 tag match
    case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
-     node.refPrivate = in0.readByte() == PRIVATE; case _              =>
-                                                  ^
-====== full result: ======
-tag match
-   case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
-     node.refPrivate = in0.readByte() == PRIVATE; case _              =>
+     node.refPrivate = in0.readByte() == PRIVATE;
+   case _ =>
