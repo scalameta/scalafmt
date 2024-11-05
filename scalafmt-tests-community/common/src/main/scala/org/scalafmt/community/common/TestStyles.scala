@@ -5,7 +5,7 @@ import org.scalafmt.rewrite._
 
 import scala.collection.immutable.SortedMap
 
-object TestStyles {
+private[community] object TestStyles {
 
   private val baseClassicStyle = {
     val base = ScalafmtConfig.default
@@ -36,7 +36,8 @@ object TestStyles {
           removeOptionalBraces = RewriteScala3Settings.RemoveOptionalBraces.yes,
           insertEndMarkerMinLines = 5,
         ),
-        redundantBraces = RedundantBracesSettings.all,
+        redundantBraces = RedundantBracesSettings.all
+          .copy(maxBreaks = Int.MaxValue),
         redundantParens = RedundantParensSettings.all,
       ),
     )
@@ -46,16 +47,28 @@ object TestStyles {
   private val baseKeepStyle = baseClassicStyle.withSource(Newlines.keep)
   private val baseFoldStyle = baseClassicStyle.withSource(Newlines.fold)
 
-  val styles: Map[String, ScalafmtConfig] = SortedMap(
-    "classic" -> baseClassicStyle,
-    "classicWithRewrites" -> baseClassicStyle.withRewrites(),
-    "classicWithAlign" -> baseClassicStyle.withAlign(Align.most),
-    "keep" -> baseKeepStyle,
-    "keepWithRewrites" -> baseKeepStyle.withRewrites(),
-    "keepWithAlign" -> baseKeepStyle.withAlign(Align.most),
-    "keepWithScalaJS" -> baseKeepStyle.forScalaJs,
-    "fold" -> baseFoldStyle,
-    "unfold" -> baseClassicStyle.withSource(Newlines.unfold),
+  val classic = baseClassicStyle
+  val classicWithRewrites = baseClassicStyle.withRewrites()
+  val classicWithAlign = baseClassicStyle.withAlign(Align.most)
+  val keep = baseKeepStyle
+  val keepWithRewrites = baseKeepStyle.withRewrites()
+  val keepWithAlign = baseKeepStyle.withAlign(Align.most)
+  val keepWithScalaJS = baseKeepStyle.forScalaJs
+  val fold = baseFoldStyle
+  val unfold = baseClassicStyle.withSource(Newlines.unfold)
+
+  val stylesWithLabels = Seq[sourcecode.Text[ScalafmtConfig]](
+    classic,
+    classicWithRewrites,
+    classicWithAlign,
+    keep,
+    keepWithRewrites,
+    keepWithAlign,
+    keepWithScalaJS,
+    fold,
+    unfold,
   )
+  val styles: Map[String, ScalafmtConfig] =
+    SortedMap(stylesWithLabels.map(x => x.source -> x.value): _*)
 
 }

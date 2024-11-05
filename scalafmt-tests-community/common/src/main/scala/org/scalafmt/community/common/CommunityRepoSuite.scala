@@ -1,5 +1,7 @@
 package org.scalafmt.community.common
 
+import org.scalafmt.config.ScalafmtConfig
+
 import scala.meta._
 
 abstract class CommunityRepoSuite(giturl: String, name: String)
@@ -11,9 +13,10 @@ abstract class CommunityRepoSuite(giturl: String, name: String)
       files: Int,
       excluded: List[String] = Nil,
       fileOverride: String = null,
-      styles: Set[String] = Set.empty,
+      styles: Seq[sourcecode.Text[ScalafmtConfig]] = Seq.empty,
       statsPerStyle: Map[String, TestStats.Style] = Map.empty,
       statsAllStyles: Option[TestStats.Style] = None,
+      stylesIncluded: Boolean = true,
   ) = CommunityBuild(
     giturl,
     ref,
@@ -21,10 +24,13 @@ abstract class CommunityRepoSuite(giturl: String, name: String)
     excluded,
     files,
     dialect,
-    styles = styles,
+    styles = styles.map(_.source).map { x =>
+      x.substring(1 + x.lastIndexOf('.'))
+    }.toSet,
     fileOverride = Option(fileOverride),
     statsPerStyle = statsPerStyle,
     statsAllStyles = statsAllStyles,
+    stylesIncluded = stylesIncluded,
   )
 
 }
