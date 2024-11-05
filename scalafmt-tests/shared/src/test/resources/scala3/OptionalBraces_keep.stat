@@ -7517,7 +7517,7 @@ val bar: Int => Pf =
 >>>
 val bar: Int => Pf =
   _ =>
-    case msg: Int => msg + 1
+     case msg: Int => msg + 1
 <<< #4507 partial func within if-then-else
 val bar: Int => Pf =
   if foo then
@@ -7539,9 +7539,9 @@ val bar: Int => Pf =
 >>>
 val bar: Int => Pf =
   if (foo)
-    case msg1: Int => msg1 + 1
+     case msg1: Int => msg1 + 1
   else
-    case msg2: Int => msg2 + 2
+     case msg2: Int => msg2 + 2
 <<< #4507 partial func within assignment
 val bar: Int => Pf =
   case msg: Int => msg + 1

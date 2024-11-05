@@ -2095,7 +2095,7 @@ class FormatOps(
               getSplits(pp.body, shouldBreakInOptionalBraces(ft, nft)),
             ))
           case t: Term.If if !nft.right.is[T.KwThen] && {
-                !isTreeSingleExpr(t.thenp) ||
+                !isTreeSingleExpr(t.thenp) || t.thenp.is[Tree.CasesBlock] ||
                 getLastNotTrailingCommentOpt(t.thenp).exists(_.isLeft) ||
                 !ifWithoutElse(t) &&
                 (isElsePWithOptionalBraces(t) ||
@@ -2123,6 +2123,12 @@ class FormatOps(
               if (getLastNotTrailingCommentOpt(t).forall(_.isRight)) None
               else Some(Seq(Split(Newline2x(ft), 0)))
             def rightBrace = blockLast(t.body)
+          })
+        case t @ Tree.WithBody(b: Tree.CasesBlock) if nft.right.is[T.KwCase] =>
+          Some(new OptionalBracesRegion {
+            def owner = Some(t)
+            def splits = Some(getSplits(b, forceNL = true))
+            def rightBrace = treeLast(b)
           })
         case _ => BlockImpl.create(nft)
       }
@@ -2191,9 +2197,9 @@ class FormatOps(
           else WithStats(nft, Some(t.body.init), t.body, t.parent)
         case t @ Tree.WithBody(b) => (b match {
             case x: Term.Block => getBlockWithNonSingleTermStat(x)
-            case x: Term.PartialFunction => Some(x)
+            case x: Tree.CasesBlock => Some(x)
             case _ => None
-          }).flatMap(x => WithStats(nft, x.exprs.headOption, b, Some(t)))
+          }).flatMap(x => WithStats(nft, x.stats.headOption, b, Some(t)))
         case _ => BlockImpl.create(nft)
       }
     }
@@ -2353,6 +2359,7 @@ class FormatOps(
               val forceNL = isJustBeforeTree(nft)(x) && ft.hasBreak &&
                 ((ft ne nft) || style.newlines.keep)
               if (forceNL) Some(true) else None
+            case Some(_: Tree.CasesBlock) => Some(true)
             case Some(_) if !getLastNotTrailingCommentOpt(t).exists(_.isLeft) =>
               if (!isThenPWithOptionalBraces(t)) None
               else Some(shouldBreakInOptionalBraces(ft, nft))
@@ -2378,7 +2385,7 @@ class FormatOps(
         ft: FormatToken,
     ): Seq[Split] = {
       val forceNL = !hasSingleTermStatIfBlock(tree) ||
-        shouldBreakInOptionalBraces(ft, nft)
+        shouldBreakInOptionalBraces(ft, nft) || tree.is[Tree.CasesBlock]
       getSplits(tree, forceNL, danglingKeyword)
     }
 
