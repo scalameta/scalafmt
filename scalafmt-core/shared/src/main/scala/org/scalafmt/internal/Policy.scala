@@ -287,14 +287,16 @@ object Policy {
 
   class RelayOnSplit(
       before: Policy,
-      pred: (Split, FormatToken) => Boolean,
+      trigger: (Split, FormatToken) => Boolean,
+      triggerEnd: Policy.End.WithPos,
       after: Policy,
   )(implicit fileLine: FileLine)
       extends WithConv {
     override def f: Pf = before.f
     override def rank: Int = before.rank
     override def unexpired(split: Split, nextft: FormatToken): Policy =
-      if (pred(split, nextft)) after.unexpired(split, nextft)
+      if (trigger(split, nextft)) after.unexpired(split, nextft)
+      else if (!triggerEnd.notExpiredBy(nextft)) NoPolicy
       else super.unexpired(split, nextft)
 
     override def noDequeue: Boolean = before.noDequeue
@@ -302,7 +304,8 @@ object Policy {
 
     protected def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
-      if (filtered eq before) this else new RelayOnSplit(filtered, pred, after)
+      if (filtered eq before) this
+      else new RelayOnSplit(filtered, trigger, triggerEnd, after)
     }
 
     override def appliesUntil(nextft: FormatToken)(
@@ -315,10 +318,15 @@ object Policy {
   }
 
   object RelayOnSplit {
+    def by(triggerEnd: Policy.End.WithPos)(
+        trigger: (Split, FormatToken) => Boolean,
+    )(before: Policy)(after: Policy)(implicit fileLine: FileLine): Policy =
+      if (before.isEmpty) after
+      else new RelayOnSplit(before, trigger, triggerEnd, after)
     def apply(
-        pred: (Split, FormatToken) => Boolean,
-    )(before: Policy, after: Policy)(implicit fileLine: FileLine): Policy =
-      if (before.isEmpty) after else new RelayOnSplit(before, pred, after)
+        trigger: (Split, FormatToken) => Boolean,
+    )(before: Policy)(after: Policy)(implicit fileLine: FileLine): Policy =
+      by(Policy.End.Never)(trigger)(before)(after)
   }
 
   class Switch(before: Policy, trigger: Token, after: Policy)(implicit
@@ -448,6 +456,9 @@ object Policy {
           token.start
         override def toString: String = s"@${token.structure}"
       }
+    }
+    case object Never extends WithPos {
+      override def notExpiredBy(ft: FormatToken): Boolean = true
     }
   }
 

@@ -2920,11 +2920,11 @@ class FormatOps(
       def policyWithDelay(policy: Policy) = {
         val beforeDelimsEnd = beforeDelims.right.end
         // force break if multiline and if there's no other break
-        delayedBreakPolicy(Policy.End == beforeDelims.right, exclude)(
+        delayedBreakPolicy(Policy.End == beforeDelims.right, exclude) {
           Policy.RelayOnSplit { case (s, nextft) =>
             s.isNL && nextft.right.end > beforeDelimsEnd // don't need anymore
-          }(policy, NoPolicy),
-        )
+          }(policy)(NoPolicy)
+        }
       }
 
       (afterDelims.right match {
