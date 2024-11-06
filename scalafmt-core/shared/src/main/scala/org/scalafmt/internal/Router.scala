@@ -414,8 +414,7 @@ class Router(formatOps: FormatOps) {
           val exclude = slbParensExclude.getOrElse(TokenRanges.empty)
           val slbPolicy =
             if (exclude.isEmpty) slbParensPolicy
-            else Policy.RelayOnSplit { case (s, _) => s.isNL }(
-              slbParensPolicy,
+            else Policy.RelayOnSplit((s, _) => s.isNL)(slbParensPolicy)(
               Policy.on(close, "BracesToParensFailed") { case _ => Nil },
             )
           Split(slbMod, 0).withSingleLine(
@@ -2390,7 +2389,7 @@ class Router(formatOps: FormatOps) {
                 )
               }
             }
-          Policy.RelayOnSplit((s, _) => s.isNL)(onArrowPolicy, postArrowPolicy)
+          Policy.RelayOnSplit((s, _) => s.isNL)(onArrowPolicy)(postArrowPolicy)
         }
         Seq(Split(mod, 0, policy = policy))
 
