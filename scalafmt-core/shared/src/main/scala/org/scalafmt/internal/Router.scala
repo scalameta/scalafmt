@@ -936,9 +936,15 @@ class Router(formatOps: FormatOps) {
           ).left
 
           val spacePolicy = SingleLineBlock(lambdaToken) ==> {
-            Policy ? lambdaIsABlock || delayedBreakPolicy(
-              Policy.End == lambdaLeft.getOrElse(close),
-            )(newlinePolicy)
+            def before = Policy.End < close ==> Policy.on(close, "NODANGLE") {
+              case Decision(FormatToken(bc, `close`, _), _) =>
+                val isSpace = bc.is[T.Comment] || style.spaces.inParentheses
+                Seq(Split(Space(isSpace), 0))
+            }
+            Policy ? lambdaIsABlock ||
+            Policy.RelayOnSplit.by(Policy.End == lambdaLeft.getOrElse(close))(
+              (s, _) => s.isNL,
+            )(before)(newlinePolicy)
           }
           Split(noSplitMod, 0, policy = spacePolicy)
             .withOptimalToken(lambdaToken, killOnFail = true)
