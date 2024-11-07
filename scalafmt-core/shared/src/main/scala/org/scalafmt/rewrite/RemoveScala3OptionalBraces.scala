@@ -42,7 +42,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   ): Option[Replacement] = Option {
     ft.right match {
       case x: Token.LeftBrace // skip empty brace pairs
-          if !ftoks.nextNonComment(ftoks.next(ft)).right.is[Token.RightBrace] =>
+          if !ftoks.nextNonCommentAfter(ft).right.is[Token.RightBrace] =>
         ft.meta.rightOwner match {
           case t: Term.Block if t.stats.nonEmpty => onLeftForBlock(t)
           case t: Template.Body if !t.isEmpty =>
@@ -66,6 +66,12 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
           case _: Tree.CasesBlock => removeToken
           case _: Ctor.Block
               if ftoks.prevNonComment(ft).left.is[Token.Equals] => removeToken
+          case _ => null
+        }
+      case _: Token.LeftParen
+          if !ftoks.nextNonCommentAfter(ft).right.is[Token.RightParen] =>
+        ft.meta.rightOwner match {
+          case t: Term.ArgClause => onLeftForArgClause(t)
           case _ => null
         }
       case _ => null
@@ -187,7 +193,10 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   private[rewrite] def onLeftForArgClause(
       tree: Term.ArgClause,
   )(implicit ft: FormatToken, style: ScalafmtConfig): Replacement = {
-    val ok = style.dialect.allowFewerBraces &&
+    def okLeftDelim = ft.right.is[Token.LeftBrace] ||
+      style.rewrite.scala3.removeOptionalBraces.fewerBracesParensToo &&
+      (style.dialect.allowInfixOperatorAfterNL || style.newlines.formatInfix)
+    val ok = style.dialect.allowFewerBraces && okLeftDelim &&
       style.rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan > 0 &&
       isSeqSingle(tree.values)
     if (!ok) return null
