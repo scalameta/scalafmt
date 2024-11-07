@@ -2299,3 +2299,22 @@ object a:
       x + 2
       x + 3
    }
+<<< single arg with parens
+rewrite.scala3.removeOptionalBraces {
+  enabled = yes
+  fewerBracesMinSpan = 1
+  fewerBracesMaxSpan = 10
+  fewerBracesParensToo = true
+}
+===
+object a:
+  println(
+    a
+    + b
+  )
+>>>
+object a:
+   println(
+     a
+       + b
+   )

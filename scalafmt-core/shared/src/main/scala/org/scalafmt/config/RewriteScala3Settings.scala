@@ -35,6 +35,7 @@ object RewriteScala3Settings {
       enabled: Boolean = true,
       fewerBracesMinSpan: Int = 2,
       fewerBracesMaxSpan: Int = 0,
+      fewerBracesParensToo: Boolean = false,
       oldSyntaxToo: Boolean = false,
   )
 

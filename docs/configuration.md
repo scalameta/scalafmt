@@ -3853,6 +3853,11 @@ The section contains the following settings (available since v3.8.1):
   - will only apply the rewrite if the cumulative span of all visible
     (non-whitespace) tokens within the argument is between the two values
   - this rule is disabled if `fewerBracesMaxSpan == 0`
+- (since v3.8.4) `fewerBracesParensToo`
+  - will apply the rule just above to an argument in parentheses as well,
+    if the one of following is also satisfied:
+    - [`newlines.afterInfix`](#newlinesafterinfix) is NOT `keep`; or
+    - current dialect supports `allowInfixOperatorAfterNL`
 
 Prior to v3.8.1, `rewrite.scala3.removeOptionalBraces` was a flag which
 took three possible values (with their equivalent current settings shown):
