@@ -938,8 +938,9 @@ class Router(formatOps: FormatOps) {
           val spacePolicy = SingleLineBlock(lambdaToken) ==> {
             def before = Policy.End < close ==> Policy.on(close, "NODANGLE") {
               case Decision(FormatToken(bc, `close`, _), _) =>
-                val isSpace = bc.is[T.Comment] || style.spaces.inParentheses
-                Seq(Split(Space(isSpace), 0))
+                if (bc.is[T.Comment])
+                  if (bc.text.startsWith("//")) Nil else Seq(Split(Space, 0))
+                else Seq(Split(Space(style.spaces.inParentheses), 0))
             }
             Policy ? lambdaIsABlock ||
             Policy.RelayOnSplit.by(Policy.End == lambdaLeft.getOrElse(close))(
