@@ -2323,4 +2323,5 @@ object a:
   )
 >>>
 object a:
-   println(a + b)
+   println:
+      a + b
