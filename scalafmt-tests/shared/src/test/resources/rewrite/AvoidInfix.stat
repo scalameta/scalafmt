@@ -837,10 +837,6 @@ newlines.avoidForSimpleOverflow = all
 def templates = symbols.filter (x => x.isClass || x.isTrait || x == AnyRefClass// which is now a type alias */
 ).toSet
 >>>
-test does not parse: [dialect scala213] `)` expected but `end of file` found
-def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass // which is now a type alias */ )
-  .toSet
-^
-====== full result: ======
-def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass // which is now a type alias */ )
-  .toSet
+def templates = symbols.filter(x =>
+  x.isClass || x.isTrait || x == AnyRefClass // which is now a type alias */
+).toSet
