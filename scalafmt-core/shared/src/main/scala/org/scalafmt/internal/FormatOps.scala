@@ -3006,11 +3006,14 @@ class FormatOps(
             .filter(x => !couldHaveBracesConvertedToParens(x.lt.leftOwner))
           if (tr.ranges.exists(!_.lt.left.is[T.LeftBrace])) null else Some(tr)
         }
-        nft.leftOwner match {
-          case Term.Block(arg :: Nil) if style.newlines.fold =>
-            if (arg.is[Term.FunctionTerm]) Some(TokenRanges.empty)
-            else if (isTreeEndingInArgumentClause(arg)) Some(parensTuple(arg))
-            else getTokenRanges
+        (nft.leftOwner match {
+          case Term.Block(arg :: Nil) if style.newlines.fold => Some(arg)
+          case Term.ArgClause(arg :: Nil, _) if style.newlines.fold => Some(arg)
+          case _ => None
+        }) match {
+          case Some(_: Term.FunctionTerm) => Some(TokenRanges.empty)
+          case Some(arg) if isTreeEndingInArgumentClause(arg) =>
+            Some(parensTuple(arg))
           case _ => getTokenRanges
         }
       }
