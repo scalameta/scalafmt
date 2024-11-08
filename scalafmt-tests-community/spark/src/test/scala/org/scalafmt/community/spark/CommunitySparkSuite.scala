@@ -9,7 +9,7 @@ abstract class CommunitySparkSuite(name: String)
 
 class CommunitySpark3_4Suite extends CommunitySparkSuite("spark-3.4") {
 
-  override protected def totalStatesVisited: Option[Int] = Some(70715816)
+  override protected def totalStatesVisited: Option[Int] = Some(70297920)
 
   override protected def builds =
     Seq(getBuild("v3.4.1", dialects.Scala213, 2585))
@@ -18,7 +18,7 @@ class CommunitySpark3_4Suite extends CommunitySparkSuite("spark-3.4") {
 
 class CommunitySpark3_5Suite extends CommunitySparkSuite("spark-3.5") {
 
-  override protected def totalStatesVisited: Option[Int] = Some(74808431)
+  override protected def totalStatesVisited: Option[Int] = Some(74388417)
 
   override protected def builds =
     Seq(getBuild("v3.5.3", dialects.Scala213, 2756))

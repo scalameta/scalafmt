@@ -1165,7 +1165,7 @@ class Router(formatOps: FormatOps) {
               else {
                 def getSlb(implicit l: FileLine) = SingleLineBlock(
                   close,
-                  exclude = excludeBlocks,
+                  exclude = excludeBlocks.excludeCloseDelim,
                   noSyntaxNL = multipleArgs,
                 )
                 val needDifferentFromOneArgPerLine = newlinePolicy.nonEmpty &&
@@ -1960,6 +1960,7 @@ class Router(formatOps: FormatOps) {
                   val end = nextSelect
                     .fold(expire)(x => getLastNonTrivialToken(x.qual))
                   val exclude = insideBracesBlock(ft, end, parensToo = true)
+                    .excludeCloseDelim
                   Split(modSpace, 0).withSingleLine(end, exclude = exclude)
                 }
               Seq(noSplit, nlSplitBase)
