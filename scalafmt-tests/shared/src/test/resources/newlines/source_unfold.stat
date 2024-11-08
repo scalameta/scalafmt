@@ -11227,22 +11227,12 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
- object a {
--  def encodeCookieHeader(cookies: Seq[Cookie]): String = encoder.encode(
--    cookies
--      .map { cookie =>
--        new DefaultCookie(cookie.name, cookie.value)
--      }
--      .asJava
--  )
-+  def encodeCookieHeader(cookies: Seq[Cookie]): String =
-+    encoder.encode(
-+      cookies
-+        .map { cookie =>
-+          new DefaultCookie(cookie.name, cookie.value)
-+        }
-+        .asJava
-+    )
- }
+object a {
+  def encodeCookieHeader(cookies: Seq[Cookie]): String = encoder.encode(
+    cookies
+      .map { cookie =>
+        new DefaultCookie(cookie.name, cookie.value)
+      }
+      .asJava
+  )
+}
