@@ -1618,7 +1618,7 @@ class FormatOps(
       val expire = nextNonCommentSameLine(getLastNonTrivial(body)).left
       def slbSplit(end: T)(implicit fileLine: FileLine) = Split(Space, 0)
         .withSingleLine(end, noSyntaxNL = true)
-      body match {
+      getBlockStat(body) match {
         // we force newlines in for/yield
         case _: Term.ForYield => Split.ignored
         // we force newlines in try/catch/finally
