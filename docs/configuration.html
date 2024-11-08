@@ -4061,6 +4061,8 @@ change their syntactic meaning, and others will be rewritten as usual</li>
 formatted is not a test file, then these test assert methods will not
 be excluded</li>
 </ul></li>
+<li>(since 3.8.4) <code>excludePostfix</code>, unless set to <code>true</code> explicitly, will also
+apply the rule to <code>Term.Select</code> trees specified without a dot</li>
 </ul>
 <pre><code class="hljs css language-scala formatted">a.success(b)
 a.error(b, c)
@@ -7456,6 +7458,7 @@ rewrite.avoidInfix.<span class="hljs-attr">excludeFilters</span> = [
 ]
 rewrite.avoidInfix.<span class="hljs-attr">excludeScalaTest</span> = <span class="hljs-literal">null</span>
 rewrite.avoidInfix.<span class="hljs-attr">excludePlaceholderArg</span> = <span class="hljs-literal">null</span>
+rewrite.avoidInfix.<span class="hljs-attr">excludePostfix</span> = <span class="hljs-literal">false</span>
 indentOperator.<span class="hljs-attr">exemptScope</span> = <span class="hljs-literal">null</span>
 indentOperator.<span class="hljs-attr">topLevelOnly</span> = <span class="hljs-literal">true</span>
 indentOperator.<span class="hljs-attr">includeRegex</span> = <span class="hljs-string">".*"</span>
