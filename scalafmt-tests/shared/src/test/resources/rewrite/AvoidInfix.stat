@@ -330,7 +330,7 @@ val future = (actor1 ? "Hello").flatMap { case i: Int ⇒ actor2 ? i }
 <<< excluded combinators in lhs
 terminated should be theSameInstanceAs Await.result(f, 10 seconds)
 >>>
-(terminated should be).theSameInstanceAs(Await.result(f, 10 seconds))
+(terminated should be).theSameInstanceAs(Await.result(f, 10.seconds))
 <<< excluded combinators in lhs 2
 seq should have length 5
 >>>
@@ -746,7 +746,7 @@ def templates = symbols filter (x => x.isClass || x.isTrait || x == AnyRefClass/
 >>>
 def templates = symbols.filter(x =>
   x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */
-) toSet
+).toSet
 <<< #4133 infix, with comment before closing paren, and postfix; overflow slc
 maxColumn = 78
 newlines.source = fold
@@ -754,10 +754,8 @@ newlines.avoidForSimpleOverflow = [slc]
 ===
 def templates = symbols filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */) toSet
 >>>
-def templates = symbols
-  .filter(x =>
-    x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */
-  ) toSet
+def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */ )
+  .toSet
 <<< #4133 infix, with comment before closing paren, and postfix; overflow all
 maxColumn = 78
 newlines.source = fold
@@ -765,10 +763,8 @@ newlines.avoidForSimpleOverflow = all
 ===
 def templates = symbols filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */) toSet
 >>>
-def templates = symbols
-  .filter(x =>
-    x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */
-  ) toSet
+def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */ )
+  .toSet
 <<< #4133 select, apply with comment before closing paren, and postfix; overflow punct
 maxColumn = 78
 newlines.source = fold
@@ -778,7 +774,7 @@ def templates = symbols.filter (x => x.isClass || x.isTrait || x == AnyRefClass/
 >>>
 def templates = symbols.filter(x =>
   x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */
-) toSet
+).toSet
 <<< #4133 select, apply with comment before closing paren, and postfix; overflow slc
 maxColumn = 78
 newlines.source = fold
@@ -786,10 +782,8 @@ newlines.avoidForSimpleOverflow = [slc]
 ===
 def templates = symbols.filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */) toSet
 >>>
-def templates = symbols
-  .filter(x =>
-    x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */
-  ) toSet
+def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */ )
+  .toSet
 <<< #4133 select, apply with comment before closing paren, and postfix; overflow all
 maxColumn = 78
 newlines.source = fold
@@ -797,10 +791,8 @@ newlines.avoidForSimpleOverflow = all
 ===
 def templates = symbols.filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */) toSet
 >>>
-def templates = symbols
-  .filter(x =>
-    x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */
-  ) toSet
+def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */ )
+  .toSet
 <<< #4133 select, apply with comment before closing paren, and select; overflow punct
 maxColumn = 78
 newlines.source = fold

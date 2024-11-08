@@ -3023,6 +3023,8 @@ The rule takes the following parameters under `rewrite.avoidInfix`:
   - if unspecified, and `project.layout` determines that the file being
     formatted is not a test file, then these test assert methods will not
     be excluded
+- (since 3.8.4) `excludePostfix`, unless set to `true` explicitly, will also
+  apply the rule to `Term.Select` trees specified without a dot
 
 ```scala mdoc:scalafmt
 rewrite.rules = [AvoidInfix]
