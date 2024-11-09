@@ -40,11 +40,11 @@ object TestHelpers {
   private def runFile(styleName: String, path: Path, absPathString: String)(
       implicit style: ScalafmtConfig,
   ): TestStats = {
+    def formatCode(code: String): (Long, Formatted.Result) =
+      timeIt(Scalafmt.formatCode(code, style, filename = absPathString))
     val input = Input.File(path).chars
     val lines1 = input.count(_ == '\n')
-    val (duration1, result1) = timeIt(
-      Scalafmt.formatCode(new String(input), style, filename = absPathString),
-    )
+    val (duration1, result1) = formatCode(new String(input))
     result1.formatted match {
       case x1: Formatted.Failure =>
         println(s"Failed for original file $absPathString")
@@ -57,8 +57,7 @@ object TestHelpers {
         val stats1 = TestStats(1, 0, None, duration1, lines1)
         val out1 = x1.formattedCode
         val lines2 = x1.formattedCode.count(_ == '\n')
-        val (duration2, result2) =
-          timeIt(Scalafmt.formatCode(out1, style, filename = absPathString))
+        val (duration2, result2) = formatCode(out1)
         def saveFormatted(): Unit = Files.writeString(
           Paths.get(absPathString + s".formatted.$styleName"),
           out1,
