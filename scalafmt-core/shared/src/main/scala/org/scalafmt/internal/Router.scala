@@ -1950,24 +1950,27 @@ class Router(formatOps: FormatOps) {
             )
 
           case Newlines.fold =>
-            val nlCost = if (nlOnly) 0 else 1
-            def nlSplitBase(implicit fileLine: FileLine) =
-              Split(NewlineT(alt = Some(modSpace)), nlCost)
-            if (nextDotIfSig.isEmpty) {
-              val noSplit =
-                if (nlOnly) Split.ignored
-                else {
-                  val end = nextSelect
-                    .fold(expire)(x => getLastNonTrivialToken(x.qual))
-                  val exclude = insideBracesBlock(ft, end, parensToo = true)
-                    .excludeCloseDelim
-                  Split(modSpace, 0).withSingleLine(end, exclude = exclude)
-                }
-              Seq(noSplit, nlSplitBase)
-            } else {
+            def nlSplitBase(cost: Int, policy: Policy = NoPolicy)(implicit
+                fileLine: FileLine,
+            ) = Split(NewlineT(alt = Some(modSpace)), cost, policy = policy)
+            if (nextDotIfSig.isEmpty)
+              if (nlOnly) Seq(nlSplitBase(0))
+              else {
+                val end = nextSelect
+                  .fold(expire)(x => getLastNonTrivialToken(x.qual))
+                val exclude = insideBracesBlock(ft, end, parensToo = true)
+                  .excludeCloseDelim
+                val noSplit = Split(modSpace, 0)
+                  .withSingleLine(end, exclude = exclude)
+                Seq(noSplit, nlSplitBase(1))
+              }
+            else {
               val policy: Policy = forcedBreakOnNextDotPolicy
-              val noSplit = Split(nlOnly, 0)(modSpace).withPolicy(policy)
-              Seq(noSplit, nlSplitBase.withPolicy(policy))
+              if (nlOnly) Seq(nlSplitBase(0).withPolicy(policy))
+              else {
+                val noSplit = Split(modSpace, 0, policy = policy)
+                Seq(noSplit, nlSplitBase(1, policy))
+              }
             }
         }
 
