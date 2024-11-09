@@ -2988,43 +2988,43 @@ class FormatOps(
   def insideBracesBlockIfBracesToParens(
       rb: FormatToken,
       mod: Modification,
-  )(implicit style: ScalafmtConfig, ft: FormatToken): Option[TokenRanges] =
-    if (
-      initStyle.rewrite.bracesToParensForOneLineApply &&
-      style.rewrite.trailingCommas.isOptional && (mod eq Space)
-    ) {
-      val isWithinBraces = ft.left.is[T.LeftBrace]
-      if (
-        isWithinBraces && style.spaces.inParentheses ||
-        !RedundantBraces.canRewriteWithParensOnRightBrace(rb)
-      ) None
-      else {
-        // the rule for `(...` excludes brace blocks
-        // check if all of them can be converted to parens
-        val nft = if (isWithinBraces) ft else next(ft)
-        def getTokenRanges = {
-          val tr = insideBracesBlock(nft, rb.left)
-            .filter(x => !couldHaveBracesConvertedToParens(x.lt.leftOwner))
-          if (tr.ranges.exists(!_.lt.left.is[T.LeftBrace])) null else Some(tr)
-        }
-        (nft.leftOwner match {
-          case Term.Block(arg :: Nil) if style.newlines.fold => Some(arg)
-          case Term.ArgClause(arg :: Nil, _) if style.newlines.fold => Some(arg)
-          case _ => None
-        }) match {
-          case Some(_: Term.FunctionTerm) => Some(TokenRanges.empty)
-          case Some(arg) if isTreeEndingInArgumentClause(arg) =>
-            Some(parensTuple(arg))
-          case _ => getTokenRanges
-        }
+      isWithinBraces: Boolean,
+  )(implicit style: ScalafmtConfig, ft: FormatToken): Option[TokenRanges] = {
+    val ok = initStyle.rewrite.bracesToParensForOneLineApply &&
+      style.rewrite.trailingCommas.isOptional && (mod eq Space) &&
+      !(isWithinBraces && style.spaces.inParentheses) &&
+      RedundantBraces.canRewriteWithParensOnRightBrace(rb)
+    if (ok) {
+      // the rule for `(...` excludes brace blocks
+      // check if all of them can be converted to parens
+      val nft = if (isWithinBraces) ft else next(ft)
+      def getTokenRanges = {
+        val tr = insideBracesBlock(nft, rb.left)
+          .filter(x => !couldHaveBracesConvertedToParens(x.lt.leftOwner))
+        if (tr.ranges.exists(!_.lt.left.is[T.LeftBrace])) null else Some(tr)
+      }
+      (nft.leftOwner match {
+        case Term.Block(arg :: Nil) if style.newlines.fold => Some(arg)
+        case Term.ArgClause(arg :: Nil, _) if style.newlines.fold => Some(arg)
+        case _ => None
+      }) match {
+        case Some(_: Term.FunctionTerm) => Some(TokenRanges.empty)
+        case Some(arg) if isTreeEndingInArgumentClause(arg) =>
+          Some(parensTuple(arg))
+        case _ => getTokenRanges
       }
     } else None
+  }
 
-  def getBracesToParensMod(rb: FormatToken, mod: Modification)(implicit
+  def getBracesToParensMod(
+      rb: FormatToken,
+      mod: Modification,
+      isWithinBraces: Boolean,
+  )(implicit
       style: ScalafmtConfig,
       ft: FormatToken,
   ): (Modification, Option[TokenRanges]) = {
-    val tr = insideBracesBlockIfBracesToParens(rb, mod)
+    val tr = insideBracesBlockIfBracesToParens(rb, mod, isWithinBraces)
     if ((tr eq null) || tr.isEmpty) (mod, tr)
     else (SpaceOrNoSplit(Policy.End < rb.left), tr)
   }
