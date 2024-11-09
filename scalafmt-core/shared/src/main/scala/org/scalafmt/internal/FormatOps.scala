@@ -1457,6 +1457,8 @@ class FormatOps(
           val newres = getHead(tree) :: res
           args match {
             case (t: Member.Apply) :: Nil => getNestedOpens(t.argClause, newres)
+            case Tree.Block((t: Member.Apply) :: Nil) :: Nil =>
+              getNestedOpens(t.argClause, newres)
             case _ => newres
           }
         }
