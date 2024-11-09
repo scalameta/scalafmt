@@ -69,7 +69,8 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       case b: Term.Block => checkApply(b) && canRewriteBlockWithParens(b) &&
         b.parent.exists(ftoks.getLast(_) eq rb)
       case f: Term.FunctionTerm => checkApply(f) && canRewriteFuncWithParens(f)
-      case t @ SingleArgInBraces(_, arg, _) => isParentAnApply(t) &&
+      case t @ Term.ArgClause(arg :: Nil, _) => isParentAnApply(t) &&
+        ftoks.getDelimsIfEnclosed(t).exists(_._2 eq rb) &&
         canRewriteStatWithParens(arg)
       case _ => false
     })
