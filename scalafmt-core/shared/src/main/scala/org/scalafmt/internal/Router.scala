@@ -1964,7 +1964,7 @@ class Router(formatOps: FormatOps) {
                 val bracesToParensOwner =
                   if (!ftAfterRight.right.is[T.LeftBrace]) None
                   else (ftAfterRight.rightOwner match {
-                    case t: Member.ArgClause => Some(t)
+                    case t: Member.ArgClause if t.values.lengthCompare(1) == 0 => Some(t)
                     case t: Term.Block => t.parent.filter(_.is[Member.ArgClause])
                     case _ => None
                   }).filter { _ =>
