@@ -42,7 +42,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     val runner = t.style.runner
     val result = Scalafmt.formatCode(
       t.original,
-      t.style.copy(runner = scalafmtRunner(runner, debug)),
+      t.style.copy(runner = HasTests.scalafmtRunner(runner, debug)),
       filename = t.filename,
     )
     debug.printTest()
@@ -90,7 +90,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     debug2Opt = Some(debug2)
     val result2 = Scalafmt.formatCode(
       obtained,
-      t.style.copy(runner = scalafmtRunner(runner, debug2)),
+      t.style.copy(runner = HasTests.scalafmtRunner(runner, debug2)),
       filename = t.filename,
     )
     debug2.printTest()

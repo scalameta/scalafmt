@@ -27,22 +27,6 @@ import munit.Location
 
 trait HasTests extends FormatAssertions {
   import HasTests._
-  import LoggerOps._
-
-  def scalafmtRunner(sr: ScalafmtRunner, dg: Debug): ScalafmtRunner = sr.copy(
-    debug = true,
-    maxStateVisits = sr.maxStateVisits.orElse(Some(150000)),
-    completeCallback = dg.completed,
-    eventCallback = {
-      case CreateFormatOps(ops) => dg.formatOps = ops
-      case Routes(routes) => dg.routes = routes
-      case explored: Explored if explored.n % 10000 == 0 =>
-        logger.elem(explored)
-      case Enqueue(split) => dg.enqueued(split)
-      case x: Written => dg.locations = x.formatLocations
-      case _ =>
-    },
-  )
 
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
   val testDir = BuildInfo.resourceDirectory.toPath
@@ -274,5 +258,20 @@ object HasTests {
   private def stripPrefixOpt(name: String, prefix: String) =
     if (isPrefix(name, prefix)) Some(name.substring(prefix.length).trim)
     else None
+
+  def scalafmtRunner(sr: ScalafmtRunner, dg: Debug): ScalafmtRunner = sr.copy(
+    debug = true,
+    maxStateVisits = sr.maxStateVisits.orElse(Some(150000)),
+    completeCallback = dg.completed,
+    eventCallback = {
+      case CreateFormatOps(ops) => dg.formatOps = ops
+      case Routes(routes) => dg.routes = routes
+      case explored: Explored if explored.n % 10000 == 0 =>
+        org.scalafmt.util.LoggerOps.logger.elem(explored)
+      case Enqueue(split) => dg.enqueued(split)
+      case x: Written => dg.locations = x.formatLocations
+      case _ =>
+    },
+  )
 
 }
