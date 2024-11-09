@@ -11272,3 +11272,27 @@ runtime
     } yield ()
   }
   .getOrThrowFiberFailure()
+<<< #4133 first call in removed braces
+maxColumn = 78
+newlines.avoidForSimpleOverflow = all
+rewrite.rules = [RedundantBraces]
+===
+val WatchHeartBeatInterval: FiniteDuration = {
+  WatchFailureDetectorConfig.getMillisDuration("heartbeat-interval")
+}.requiring(_ > Duration.Zero, "watch-failure-detector.heartbeat-interval must be > 0")
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-val WatchHeartBeatInterval: FiniteDuration = WatchFailureDetectorConfig
+-  .getMillisDuration("heartbeat-interval")
+-  .requiring(
+-    _ > Duration.Zero,
+-    "watch-failure-detector.heartbeat-interval must be > 0"
+-  )
++val WatchHeartBeatInterval: FiniteDuration =
++  WatchFailureDetectorConfig
++    .getMillisDuration("heartbeat-interval")
++    .requiring(
++      _ > Duration.Zero,
++      "watch-failure-detector.heartbeat-interval must be > 0"
++    )
