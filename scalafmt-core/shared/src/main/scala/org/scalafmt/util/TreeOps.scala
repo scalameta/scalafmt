@@ -555,19 +555,20 @@ object TreeOps {
     case _ => Some(false)
   }.isDefined
 
-  object EndOfFirstCall {
-    def unapply(tree: Tree): Option[Token] = traverse(tree, None)
-      .map(_.tokens.last)
-
+  def getEndOfFirstCall(
+      tree: Tree,
+  )(implicit ftoks: FormatTokens): Option[Token] = {
     @tailrec
-    private def traverse(tree: Tree, res: Option[Tree]): Option[Tree] =
-      tree match {
-        case t: Term.Select if res.isDefined => traverse(t.qual, Some(t.qual))
-        case t: Term.ApplyType => traverse(t.fun, Some(t))
-        case t: Member.Apply => traverse(t.fun, Some(t.fun))
-        case t: Init => traverse(t.tpe, Some(t.tpe))
-        case _ => res
-      }
+    def traverse(tree: Tree, res: Option[Tree]): Option[Tree] = tree match {
+      case t: Term.Select if res.isDefined => traverse(t.qual, Some(t.qual))
+      case t: Term.ApplyType => traverse(t.fun, Some(t))
+      case t: Member.Apply => traverse(t.fun, Some(t.fun))
+      case t: Init => traverse(t.tpe, Some(t.tpe))
+      case Term.Block(arg :: Nil) if !ftoks.isEnclosedInBraces(tree) =>
+        traverse(arg, res)
+      case _ => res
+    }
+    traverse(tree, None).map(_.tokens.last)
   }
 
   @inline
