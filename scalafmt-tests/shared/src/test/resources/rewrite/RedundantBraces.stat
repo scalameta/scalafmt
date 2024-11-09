@@ -1959,9 +1959,9 @@ object a {
       numBreaks: Int,
       nest: Int,
   ): Option[NumBlanks] = topStatBlankLinesSorted.iterator
-    .takeWhile(_.minBreaks <= numBreaks).find { x =>
-      x.checkNest(nest) && x.pattern.forall(_.matcher(prefix).find())
-    }.flatMap(_.blanks)
+    .takeWhile(_.minBreaks <= numBreaks)
+    .find(x => x.checkNest(nest) && x.pattern.forall(_.matcher(prefix).find()))
+    .flatMap(_.blanks)
 }
 <<< fold ctrl body with redundant braces, !trailing commas
 maxColumn = 80
@@ -1987,9 +1987,9 @@ object a {
       numBreaks: Int,
       nest: Int
   ): Option[NumBlanks] = topStatBlankLinesSorted.iterator
-    .takeWhile(_.minBreaks <= numBreaks).find { x =>
-      x.checkNest(nest) && x.pattern.forall(_.matcher(prefix).find())
-    }.flatMap(_.blanks)
+    .takeWhile(_.minBreaks <= numBreaks)
+    .find(x => x.checkNest(nest) && x.pattern.forall(_.matcher(prefix).find()))
+    .flatMap(_.blanks)
 }
 <<< #4108 try with redundant parens in block, scala212
 runner.dialect = scala212
