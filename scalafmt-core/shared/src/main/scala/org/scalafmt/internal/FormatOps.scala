@@ -1625,8 +1625,9 @@ class FormatOps(
         case _: Term.TryClause => Split.ignored
         // don't tuck curried apply
         case t: Term.Apply if t.fun.is[Term.Apply] => slbSplit(expire)
-        case EndOfFirstCall(end) if !slbOnly => slbSplit(end)
-        case _ => slbSplit(expire)
+        case t =>
+          val endOpt = if (slbOnly) None else getEndOfFirstCall(t)
+          slbSplit(endOpt.getOrElse(expire))
       }
     }
 

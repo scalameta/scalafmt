@@ -11281,18 +11281,9 @@ val WatchHeartBeatInterval: FiniteDuration = {
   WatchFailureDetectorConfig.getMillisDuration("heartbeat-interval")
 }.requiring(_ > Duration.Zero, "watch-failure-detector.heartbeat-interval must be > 0")
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--val WatchHeartBeatInterval: FiniteDuration = WatchFailureDetectorConfig
--  .getMillisDuration("heartbeat-interval")
--  .requiring(
--    _ > Duration.Zero,
--    "watch-failure-detector.heartbeat-interval must be > 0"
--  )
-+val WatchHeartBeatInterval: FiniteDuration =
-+  WatchFailureDetectorConfig
-+    .getMillisDuration("heartbeat-interval")
-+    .requiring(
-+      _ > Duration.Zero,
-+      "watch-failure-detector.heartbeat-interval must be > 0"
-+    )
+val WatchHeartBeatInterval: FiniteDuration = WatchFailureDetectorConfig
+  .getMillisDuration("heartbeat-interval")
+  .requiring(
+    _ > Duration.Zero,
+    "watch-failure-detector.heartbeat-interval must be > 0"
+  )
