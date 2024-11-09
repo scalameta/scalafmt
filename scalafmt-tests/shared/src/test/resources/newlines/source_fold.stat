@@ -10405,3 +10405,19 @@ val WatchHeartBeatInterval: FiniteDuration = WatchFailureDetectorConfig
     _ > Duration.Zero,
     "watch-failure-detector.heartbeat-interval must be > 0"
   )
+<<< #4133 braces-to-parens with select, apply of nested apply, with overflow
+maxColumn = 76
+newlines.avoidForSimpleOverflow = all
+rewrite.rules = [RedundantBraces]
+===
+def commaSeparated[T](part: () => T): List[T] =
+  in.currentRegion.withCommasExpected {
+    commaSeparatedRest(part(), part)
+  }
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-def commaSeparated[T](part: () => T): List[T] = in.currentRegion
+-  .withCommasExpected(commaSeparatedRest(part(), part))
++def commaSeparated[T](part: () => T): List[T] =
++  in.currentRegion.withCommasExpected(commaSeparatedRest(part(), part))
