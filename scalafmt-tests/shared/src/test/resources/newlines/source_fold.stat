@@ -9950,9 +9950,8 @@ val newExprs = exprs.map { _.transform {
   case a: AttributeReference => attrMap.getOrElse(a, a)
 }}
 >>>
-val newExprs = exprs.map {
-  _.transform { case a: AttributeReference => attrMap.getOrElse(a, a) }
-}
+val newExprs = exprs
+  .map(_.transform { case a: AttributeReference => attrMap.getOrElse(a, a) })
 <<< #4133 overflow comment with a forced break 1 
 maxColumn = 76
 newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
@@ -10186,9 +10185,8 @@ object a {
 }
 >>>
 object a {
-  val defaultMethodNames = defaultGetterNames.map {
-    _.replace { case DefaultGetterName(methName, _) => methName }
-  }
+  val defaultMethodNames = defaultGetterNames
+    .map(_.replace { case DefaultGetterName(methName, _) => methName })
 }
 <<< #4133 braces to parens with two curried params
 maxColumn = 74
@@ -10227,12 +10225,12 @@ val offsets = Utils.tryWithResource {
   buffer.asLongBuffer
 }
 >>>
-val offsets = Utils.tryWithResource {
-  new DataInputStream(Files.newInputStream(indexFile.toPath))
-} { dis =>
-  dis.readFully(buffer.array)
-  buffer.asLongBuffer
-}
+val offsets = Utils
+  .tryWithResource(new DataInputStream(Files.newInputStream(indexFile.toPath))) {
+    dis =>
+      dis.readFully(buffer.array)
+      buffer.asLongBuffer
+  }
 <<< #4133 braces to parens with two curried params, second func and comment
 maxColumn = 76
 newlines.avoidForSimpleOverflow = all
@@ -10304,9 +10302,9 @@ repeatTakeMapAndFold = fuse(
 >>>
 repeatTakeMapAndFold = fuse(
   Source.repeat(new MutableElement(0)).take(ElementCount).map(addFunc)
-    .map(addFunc).fold(new MutableElement(0)) { (acc, x) =>
-      acc.value += x.value; acc
-    }.toMat(testSink)(Keep.right)
+    .map(addFunc)
+    .fold(new MutableElement(0)) { (acc, x) => acc.value += x.value; acc }
+    .toMat(testSink)(Keep.right)
 )
 <<< #4133 parens to braces, with function as argument
 maxColumn = 72
@@ -10374,9 +10372,8 @@ val properties = propertyArgs.map {
   }
 }
 >>>
-val properties = propertyArgs.map {
-  _.drop(2).span(_ != '=') match { case (key, v) => key -> v.tail }
-}
+val properties = propertyArgs
+  .map(_.drop(2).span(_ != '=') match { case (key, v) => key -> v.tail })
 <<< #4133 braces-to-parens with select, apply of nested for-yield, with overflow
 maxColumn = 74
 newlines.avoidForSimpleOverflow = all
@@ -10388,9 +10385,9 @@ runtime.unsafe.run {
   } yield ()
 }.getOrThrowFiberFailure()
 >>>
-runtime.unsafe.run {
-  for { _ <- ZIO.foreachDiscard(1.to(n))(_ => ZIO.yieldNow) } yield ()
-}.getOrThrowFiberFailure()
+runtime.unsafe
+  .run(for { _ <- ZIO.foreachDiscard(1.to(n))(_ => ZIO.yieldNow) } yield ())
+  .getOrThrowFiberFailure()
 <<< #4133 first call in removed braces
 maxColumn = 78
 newlines.avoidForSimpleOverflow = all
@@ -10415,9 +10412,5 @@ def commaSeparated[T](part: () => T): List[T] =
     commaSeparatedRest(part(), part)
   }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--def commaSeparated[T](part: () => T): List[T] = in.currentRegion
--  .withCommasExpected(commaSeparatedRest(part(), part))
-+def commaSeparated[T](part: () => T): List[T] =
-+  in.currentRegion.withCommasExpected(commaSeparatedRest(part(), part))
+def commaSeparated[T](part: () => T): List[T] = in.currentRegion
+  .withCommasExpected(commaSeparatedRest(part(), part))
