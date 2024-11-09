@@ -391,7 +391,7 @@ class Router(formatOps: FormatOps) {
         val noSplitMod = xmlSpace(leftOwner)
         val (slbMod, slbParensExclude) =
           if (singleLineDecisionOpt.isEmpty) (noSplitMod, None)
-          else getBracesToParensMod(closeFT, noSplitMod)
+          else getBracesToParensMod(closeFT, noSplitMod, isWithinBraces = true)
         val singleLineSplitOpt = {
           if (slbParensExclude eq null) None else singleLineDecisionOpt
         }.map { sld =>
@@ -1595,7 +1595,8 @@ class Router(formatOps: FormatOps) {
                   .exists(x => isTokenLastOrAfter(x.left, roPos))
             }
           } =>
-        val mod = getBracesToParensMod(matching(lb), Space)._1
+        val mod =
+          getBracesToParensMod(matching(lb), Space, isWithinBraces = false)._1
         Seq(Split(mod, 0))
 
       // Delim
@@ -1969,7 +1970,8 @@ class Router(formatOps: FormatOps) {
                   }).filter { _ =>
                     implicit val ft: FormatToken = next(ftAfterRight)
                     val rb = matching(ftAfterRight.right)
-                    getBracesToParensMod(rb, Space)._1 ne Space
+                    getBracesToParensMod(rb, Space, isWithinBraces = true)._1 ne
+                      Space
                   }
                 val nlPenalty = bracesToParensOwner.fold(0)(nestedApplies(_) + 1)
                 val noSplit = Split(modSpace, 0)
