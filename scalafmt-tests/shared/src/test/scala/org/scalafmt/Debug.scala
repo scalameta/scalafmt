@@ -4,13 +4,11 @@ import org.scalafmt.config.FormatEvent._
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.internal.Split
-import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
 
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
-import scala.annotation.tailrec
 import scala.collection.mutable
 
 /** (ugly) Utility to collect data about formatter.
@@ -93,35 +91,8 @@ object Debug {
         logger.debug(sb.toString())
       }
 
-      if (null ne routes) {
-        var tokidx = 0
-        while (tokidx < toks.length) {
-          logger.debug(s"FT: ${log2(toks(tokidx))}")
-          routes(tokidx).foreach(s => logger.debug(s"> S: ${log(s)}"))
-          tokidx += 1
-        }
-      }
-
-      val stack = new mutable.ListBuffer[String]
-      val posWidth = s"%${1 + math.log10(toks.last.left.end).toInt}d"
-      @tailrec
-      def iter(state: State): Unit = if (state.prev ne State.start) {
-        val prev = state.prev
-        val idx = prev.depth
-        val tok = toks(idx).left
-        val clean = "%-15s".format(cleanup(tok).slice(0, 15))
-        stack.prepend(
-          s"[$idx] ${posWidth.format(tok.end)}: $clean" +
-            s" ${state.split} ${prev.indentation} ${prev.column} [${state.cost}]",
-        )
-        iter(prev)
-      }
-      val finalState = completedEvent.finalState
-      if (null != finalState) {
-        if (finalState ne State.start) iter(finalState)
-        stack.foreach(logger.debug)
-        logger.debug(s"Total cost: ${finalState.cost}")
-      }
+      LoggerOps.logDebugRoutes(routes, formatOps.tokens)
+      LoggerOps.logDebugStateStack(completedEvent.finalState, formatOps.tokens)
     }
   }
 

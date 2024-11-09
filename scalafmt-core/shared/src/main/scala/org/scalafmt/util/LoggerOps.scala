@@ -1,6 +1,7 @@
 package org.scalafmt.util
 
 import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.FormatTokens
 import org.scalafmt.internal.Split
 import org.scalafmt.internal.State
 
@@ -13,6 +14,7 @@ import scala.meta.tokens.Token.Interpolation
 import scala.meta.tokens.Tokens
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.util.DynamicVariable
 
 import sourcecode.Text
@@ -135,5 +137,40 @@ object LoggerOps {
         fileLine: FileLine,
     ): Unit = {}
   }
+
+  def logDebugRoutes(
+      routes: IndexedSeq[Seq[Split]],
+      ftoks: FormatTokens,
+  ): Unit = if (null ne routes) {
+    var tokidx = 0
+    val toks = ftoks.arr
+    while (tokidx < toks.length) {
+      logger.debug(s"FT: ${log2(toks(tokidx))}")
+      routes(tokidx).foreach(s => logger.debug(s"> S: ${log(s)}"))
+      tokidx += 1
+    }
+  }
+
+  def logDebugStateStack(finalState: State, ftoks: FormatTokens): Unit =
+    if ((null ne finalState) && (finalState ne State.start)) {
+      val toks = ftoks.arr
+      val stack = new mutable.ListBuffer[String]
+      val posWidth = s"%${1 + math.log10(toks.last.left.end).toInt}d"
+      @tailrec
+      def iter(state: State): Unit = if (state.prev ne State.start) {
+        val prev = state.prev
+        val idx = prev.depth
+        val tok = toks(idx).left
+        val clean = "%-15s".format(cleanup(tok).slice(0, 15))
+        stack.prepend(
+          s"[$idx] ${posWidth.format(tok.end)}: $clean" +
+            s" ${state.split} ${prev.indentation} ${prev.column} [${state.cost}]",
+        )
+        iter(prev)
+      }
+      iter(finalState)
+      stack.foreach(logger.debug)
+      logger.debug(s"Total cost: ${finalState.cost}")
+    }
 
 }
