@@ -2319,10 +2319,11 @@ class Router(formatOps: FormatOps) {
             Seq(if (hasBreak()) newlineSplit(0, isConfig) else spaceSplit)
           case _ =>
             val singleLine = enclosed.forall { x =>
-              style.newlines.unfold && x.parent.exists {
-                case _: Template.Body | _: Defn | _: Member.Infix => false
-                case _ => true
-              }
+              style.newlines.unfold && findTreeWithParent(x) {
+                case _: Template.Body | _: Defn | _: Member.Infix => Some(true)
+                case t: Term.Block if !isEnclosedInBraces(t) => None
+                case _ => Some(false)
+              }.isEmpty
             }
             Seq(
               if (!singleLine) spaceSplit
