@@ -9950,8 +9950,9 @@ val newExprs = exprs.map { _.transform {
   case a: AttributeReference => attrMap.getOrElse(a, a)
 }}
 >>>
-val newExprs = exprs
-  .map(_.transform { case a: AttributeReference => attrMap.getOrElse(a, a) })
+val newExprs = exprs.map {
+  _.transform { case a: AttributeReference => attrMap.getOrElse(a, a) }
+}
 <<< #4133 overflow comment with a forced break 1 
 maxColumn = 76
 newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
@@ -10185,8 +10186,9 @@ object a {
 }
 >>>
 object a {
-  val defaultMethodNames = defaultGetterNames
-    .map(_.replace { case DefaultGetterName(methName, _) => methName })
+  val defaultMethodNames = defaultGetterNames.map {
+    _.replace { case DefaultGetterName(methName, _) => methName }
+  }
 }
 <<< #4133 braces to parens with two curried params
 maxColumn = 74
@@ -10372,13 +10374,9 @@ val properties = propertyArgs.map {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--val properties = propertyArgs.map(_.drop(2).span(_ != '=') match {
--  case (key, v) => key -> v.tail
--})
-+val properties = propertyArgs
-+  .map(_.drop(2).span(_ != '=') match { case (key, v) => key -> v.tail })
+val properties = propertyArgs.map {
+  _.drop(2).span(_ != '=') match { case (key, v) => key -> v.tail }
+}
 <<< #4133 braces-to-parens with select, apply of nested for-yield, with overflow
 maxColumn = 74
 newlines.avoidForSimpleOverflow = all
@@ -10390,11 +10388,6 @@ runtime.unsafe.run {
   } yield ()
 }.getOrThrowFiberFailure()
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--runtime.unsafe.run(for {
--  _ <- ZIO.foreachDiscard(1.to(n))(_ => ZIO.yieldNow)
--} yield ()).getOrThrowFiberFailure()
-+runtime.unsafe
-+  .run(for { _ <- ZIO.foreachDiscard(1.to(n))(_ => ZIO.yieldNow) } yield ())
-+  .getOrThrowFiberFailure()
+runtime.unsafe.run {
+  for { _ <- ZIO.foreachDiscard(1.to(n))(_ => ZIO.yieldNow) } yield ()
+}.getOrThrowFiberFailure()

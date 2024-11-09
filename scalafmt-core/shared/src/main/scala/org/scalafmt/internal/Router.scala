@@ -1960,9 +1960,21 @@ class Router(formatOps: FormatOps) {
                   .fold(expire)(x => getLastNonTrivialToken(x.qual))
                 val exclude = insideBracesBlock(ft, end, parensToo = true)
                   .excludeCloseDelim
+                val bracesToParensOwner =
+                  if (!ftAfterRight.right.is[T.LeftBrace]) None
+                  else (ftAfterRight.rightOwner match {
+                    case t: Member.ArgClause => Some(t)
+                    case t: Term.Block => t.parent.filter(_.is[Member.ArgClause])
+                    case _ => None
+                  }).filter { _ =>
+                    implicit val ft: FormatToken = next(ftAfterRight)
+                    val rb = matching(ftAfterRight.right)
+                    getBracesToParensMod(rb, Space)._1 ne Space
+                  }
+                val nlPenalty = bracesToParensOwner.fold(0)(nestedApplies(_) + 1)
                 val noSplit = Split(modSpace, 0)
                   .withSingleLine(end, exclude = exclude)
-                Seq(noSplit, nlSplitBase(1))
+                Seq(noSplit, nlSplitBase(1 + nlPenalty))
               }
             else {
               val policy: Policy = forcedBreakOnNextDotPolicy
