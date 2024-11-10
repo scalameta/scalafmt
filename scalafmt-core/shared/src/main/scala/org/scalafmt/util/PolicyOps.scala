@@ -35,8 +35,9 @@ object PolicyOps {
         penalty: Int,
         penalizeLambdas: Boolean = true,
         noSyntaxNL: Boolean = false,
-    )(implicit fileLine: FileLine, style: ScalafmtConfig): Policy =
-      new PenalizeAllNewlines(
+        ignore: Boolean = false,
+    )(implicit fileLine: FileLine, style: ScalafmtConfig): Policy = Policy ?
+      (ignore || penalty <= 0) || new PenalizeAllNewlines(
         Policy.End < expire,
         penalty,
         penalizeLambdas,
