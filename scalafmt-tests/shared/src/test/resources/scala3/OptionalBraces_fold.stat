@@ -7243,3 +7243,36 @@ tag match
    case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
      node.refPrivate = in0.readByte() == PRIVATE;
    case _ =>
+<<< #4133 lambda in parens rewritten to braces
+maxColumn = 80
+rewrite {
+  rules = [RedundantBraces]
+  scala3.removeOptionalBraces = yes
+}
+===
+object Build {
+  lazy val scaladoc = project.in(file("scaladoc")).
+    settings(
+      generateScalaDocumentation := Def.inputTaskDyn {
+        val outputDirOverride = extraArgs.headOption.fold(identity[GenerationConfig](_))(newDir => {
+          config: GenerationConfig => config.add(OutputDir(newDir))
+        })
+        val justAPI = justAPIArg.fold(identity[GenerationConfig](_))(_ => {
+          config: GenerationConfig => config.remove[SiteRoot]
+        })
+      }.evaluated,
+    )
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+          }
+-       val justAPI = justAPIArg.fold(identity[GenerationConfig](_)) { _ =>
+-         config: GenerationConfig =>
+-            config.remove[SiteRoot]
+-       }
++       val justAPI = justAPIArg
++         .fold(identity[GenerationConfig](_)) { _ => config: GenerationConfig =>
++           config.remove[SiteRoot]
++         }
+      }.evaluated)
