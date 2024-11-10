@@ -1387,7 +1387,7 @@ class FormatOps(
     ok &&
     (thisTree match {
       case _: Term.Match => // like select and apply in one
-        !tokenAfter(thisSelectLike.nameToken).right.is[T.LeftBrace] ||
+        !tokenAfter(thisSelectLike.nameFt).right.is[T.LeftBrace] ||
         style.includeCurlyBraceInSelectChains &&
         nextSelect.isDefined && !nextSelect.contains(lastApply)
       case _ => checkParent

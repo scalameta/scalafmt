@@ -1803,7 +1803,7 @@ class Router(formatOps: FormatOps) {
         }
         val nextDotIfSig = nextSelect.flatMap { ns =>
           val ok = checkFewerBraces(ns.qual)
-          if (ok) Some(tokenBefore(ns.nameToken)) else None
+          if (ok) Some(tokenBefore(ns.nameFt)) else None
         }
         def forcedBreakOnNextDotPolicy = nextSelect.map { selectLike =>
           val tree = selectLike.tree
@@ -1959,8 +1959,9 @@ class Router(formatOps: FormatOps) {
             if (nextDotIfSig.isEmpty)
               if (nlOnly) Seq(nlSplitBase(0))
               else {
-                val end = nextSelect
-                  .fold(expire)(x => getLastNonTrivialToken(x.qual))
+                val end = nextSelect.fold(expire) { x =>
+                  prevNonCommentBefore(tokenBefore(x.nameFt)).left
+                }
                 val exclude = insideBracesBlock(ft, end, parensToo = true)
                   .excludeCloseDelim
                 val bracesToParens = ftAfterRight.right.is[T.OpenDelim] &&
