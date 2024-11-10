@@ -419,7 +419,7 @@ class Router(formatOps: FormatOps) {
             )
           Split(slbMod, 0).withSingleLine(
             expire,
-            exclude = exclude,
+            exclude = exclude.excludeCloseDelim,
             noOptimal = style.newlines.fold && !exclude.isEmpty &&
               exclude.ranges.forall(_.lt.left.is[T.LeftParen]),
             noSyntaxNL = true,
