@@ -160,7 +160,7 @@ class Main
  *  Top line. Indent0 Indent1 Indent2 Indent3 Indent4
  */
 class Main
-<<< #1403 2: fold Asterisk
+<<< #1403 2: oneline=fold Asterisk
 docstrings.oneline = fold
 docstrings.style = Asterisk
 ===
@@ -171,7 +171,7 @@ class Main
 >>>
 /** Main entry-point. */
 class Main
-<<< #1403 2: fold SpaceAsterisk
+<<< #1403 2: oneline=fold SpaceAsterisk
 docstrings.oneline = fold
 docstrings.style = SpaceAsterisk
 ===
@@ -182,7 +182,7 @@ class Main
 >>>
 /** Main entry-point. */
 class Main
-<<< #1403 2: fold AsteriskSpace
+<<< #1403 2: oneline=fold AsteriskSpace
 docstrings.oneline = fold
 docstrings.style = AsteriskSpace
 ===
@@ -193,7 +193,7 @@ class Main
 >>>
 /** Main entry-point. */
 class Main
-<<< #1403 3: unfold Asterisk
+<<< #1403 3: oneline=unfold Asterisk
 docstrings.oneline = unfold
 docstrings.style = Asterisk
 ===
@@ -204,7 +204,7 @@ class Main
  * Main entry-point.
  */
 class Main
-<<< #1403 3: unfold SpaceAsterisk
+<<< #1403 3: oneline=unfold SpaceAsterisk
 docstrings.oneline = unfold
 docstrings.style = SpaceAsterisk
 ===
@@ -214,7 +214,7 @@ class Main
 /** Main entry-point.
   */
 class Main
-<<< #1403 3: unfold AsteriskSpace
+<<< #1403 3: oneline=unfold AsteriskSpace
 docstrings.oneline = unfold
 docstrings.style = AsteriskSpace
 ===
@@ -1490,7 +1490,7 @@ object a {
    */
   class QueueSequentialBenchmark {}
 }
-<<< #2028 Asterisk keep
+<<< #2028 Asterisk oneline=keep
 docstrings.style = Asterisk
 docstrings.oneline = keep
 ===
@@ -1520,7 +1520,7 @@ object a {
    * alias for [[literal]]
    */
 }
-<<< #2028 Asterisk keep, blankFirst
+<<< #2028 Asterisk oneline=keep, blankFirst
 docstrings.style = Asterisk
 docstrings.oneline = keep
 docstrings.blankFirstLine = true
@@ -1551,7 +1551,7 @@ object a {
    * alias for [[literal]]
    */
 }
-<<< #2028 Asterisk keep, !blankFirst
+<<< #2028 Asterisk oneline=keep, !blankFirst
 docstrings.style = Asterisk
 docstrings.oneline = keep
 docstrings.blankFirstLine = false
@@ -1582,7 +1582,7 @@ object a {
    * alias for [[literal]]
    */
 }
-<<< #2028 Asterisk fold
+<<< #2028 Asterisk oneline=fold
 docstrings.style = Asterisk
 docstrings.oneline = fold
 ===
@@ -1610,7 +1610,7 @@ object a {
    * alias for [[literal]]
    */
 }
-<<< #2028 Asterisk unfold
+<<< #2028 Asterisk oneline=unfold
 docstrings.style = Asterisk
 docstrings.oneline = unfold
 ===
@@ -1642,7 +1642,7 @@ object a {
    * alias for [[literal]]
    */
 }
-<<< #2028 SpaceAsterisk keep
+<<< #2028 SpaceAsterisk oneline=keep
 docstrings.style = SpaceAsterisk
 docstrings.oneline = keep
 ===
@@ -1670,7 +1670,7 @@ object a {
     * alias for [[literal]]
     */
 }
-<<< #2028 SpaceAsterisk keep, blankFirst
+<<< #2028 SpaceAsterisk oneline=keep, blankFirst
 docstrings.style = SpaceAsterisk
 docstrings.oneline = keep
 docstrings.blankFirstLine = true
@@ -1701,7 +1701,7 @@ object a {
     * alias for [[literal]]
     */
 }
-<<< #2028 SpaceAsterisk keep, !blankFirst
+<<< #2028 SpaceAsterisk oneline=keep, !blankFirst
 docstrings.style = SpaceAsterisk
 docstrings.oneline = keep
 docstrings.blankFirstLine = false
@@ -1730,7 +1730,7 @@ object a {
     * alias for [[literal]]
     */
 }
-<<< #2028 SpaceAsterisk fold
+<<< #2028 SpaceAsterisk oneline=fold
 docstrings.style = SpaceAsterisk
 docstrings.oneline = fold
 ===
@@ -1757,7 +1757,7 @@ object a {
     * alias for [[literal]]
     */
 }
-<<< #2028 SpaceAsterisk unfold
+<<< #2028 SpaceAsterisk oneline=unfold
 docstrings.style = SpaceAsterisk
 docstrings.oneline = unfold
 ===
@@ -1786,7 +1786,7 @@ object a {
     * alias for [[literal]]
     */
 }
-<<< #2028 AsteriskSpace keep
+<<< #2028 AsteriskSpace oneline=keep
 docstrings.style = AsteriskSpace
 docstrings.oneline = keep
 ===
@@ -1814,7 +1814,7 @@ object a {
    *  alias for [[literal]]
    */
 }
-<<< #2028 AsteriskSpace keep, blankFirst
+<<< #2028 AsteriskSpace oneline=keep, blankFirst
 docstrings.style = AsteriskSpace
 docstrings.oneline = keep
 docstrings.blankFirstLine = true
@@ -1845,7 +1845,7 @@ object a {
    *  alias for [[literal]]
    */
 }
-<<< #2028 AsteriskSpace keep, !blankFirst
+<<< #2028 AsteriskSpace oneline=keep, !blankFirst
 docstrings.style = AsteriskSpace
 docstrings.oneline = keep
 docstrings.blankFirstLine = false
@@ -1874,7 +1874,7 @@ object a {
    *  alias for [[literal]]
    */
 }
-<<< #2028 AsteriskSpace fold
+<<< #2028 AsteriskSpace oneline=fold
 docstrings.style = AsteriskSpace
 docstrings.oneline = fold
 ===
@@ -1901,7 +1901,7 @@ object a {
    *  alias for [[literal]]
    */
 }
-<<< #2028 AsteriskSpace unfold
+<<< #2028 AsteriskSpace oneline=unfold
 docstrings.style = AsteriskSpace
 docstrings.oneline = unfold
 ===
@@ -1930,7 +1930,7 @@ object a {
    *  alias for [[literal]]
    */
 }
-<<< #2028 Asterisk long, fold, wrap
+<<< #2028 Asterisk long, oneline=fold, wrap
 docstrings.style = Asterisk
 docstrings.oneline = fold
 docstrings.wrap = yes
@@ -1967,9 +1967,9 @@ object a {
    * for [[literal]]
    */
 }
-<<< #2028 Asterisk long, keep, wrap
+<<< #2028 Asterisk long, oneline=keep, wrap
 docstrings.style = Asterisk
-docstrings.oneline = fold
+docstrings.oneline = keep
 docstrings.wrap = yes
 maxColumn = 25
 ===
@@ -2004,7 +2004,7 @@ object a {
    * for [[literal]]
    */
 }
-<<< #2028 Asterisk long, fold, !wrap
+<<< #2028 Asterisk long, oneline=fold, !wrap
 docstrings.style = Asterisk
 docstrings.oneline = fold
 docstrings.wrap = no
@@ -2034,9 +2034,9 @@ object a {
    * alias for [[literal]]
    */
 }
-<<< #2028 Asterisk long, keep, !wrap
+<<< #2028 Asterisk long, oneline=keep, !wrap
 docstrings.style = Asterisk
-docstrings.oneline = fold
+docstrings.oneline = keep
 docstrings.wrap = no
 maxColumn = 25
 ===
@@ -2058,7 +2058,9 @@ object a {
 object a {
 
   /** alias for [[literal]] */
-  /** alias for [[literal]] */
+  /**
+   * alias for [[literal]]
+   */
   /**
    * alias for [[literal]]
    * alias for [[literal]]
