@@ -30,8 +30,8 @@ case class Docstrings(
   def withoutRewrites: Docstrings =
     copy(removeEmpty = false, wrap = Wrap.keep, style = Preserve)
 
-  def skipFirstLineIf(wasBlank: Boolean): Boolean = style.skipFirstLine
-    .orElse(blankFirstLine).exists {
+  def skipFirstLineIf(wasBlank: Boolean): Boolean = style
+    .skipFirstLine(blankFirstLine).exists {
       case BlankFirstLine.unfold => true
       case BlankFirstLine.fold => false
       case BlankFirstLine.keep => wasBlank
@@ -47,21 +47,24 @@ object Docstrings {
     .deriveCodecEx(Docstrings()).noTypos
 
   sealed abstract class Style {
-    def skipFirstLine: Option[BlankFirstLine]
+    def skipFirstLine(v: Option[BlankFirstLine]): Option[BlankFirstLine]
   }
   case object Preserve extends Style {
-    override def skipFirstLine: Option[BlankFirstLine] =
+    def skipFirstLine(v: Option[BlankFirstLine]): Option[BlankFirstLine] =
       Some(BlankFirstLine.keep)
   }
   case object Asterisk extends Style {
-    override def skipFirstLine: Option[BlankFirstLine] =
-      Some(BlankFirstLine.unfold)
+    def skipFirstLine(v: Option[BlankFirstLine]): Option[BlankFirstLine] =
+      v match {
+        case v @ Some(BlankFirstLine.fold) => v
+        case _ => Some(BlankFirstLine.unfold)
+      }
   }
   case object SpaceAsterisk extends Style {
-    override def skipFirstLine: Option[BlankFirstLine] = None
+    def skipFirstLine(v: Option[BlankFirstLine]): Option[BlankFirstLine] = v
   }
   case object AsteriskSpace extends Style {
-    override def skipFirstLine: Option[BlankFirstLine] = None
+    def skipFirstLine(v: Option[BlankFirstLine]): Option[BlankFirstLine] = v
   }
 
   implicit val reader: ConfCodecEx[Style] = ReaderUtil
