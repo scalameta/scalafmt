@@ -4120,7 +4120,8 @@ This variant used to be called `JavaDoc`.
 docstrings.style = Asterisk
 ---
 /** Skip first line, format intermediate lines with an asterisk
-  * below the first asterisk of the first line (aka JavaDoc)
+  * below the first asterisk of the first line (aka JavaDoc).
+  * Since v3.8.4, `blankFirstLine = fold` takes precedence.
   */
 ```
 
@@ -4282,9 +4283,10 @@ Takes the following values:
 - `unfold`: will enforce a blank first line
   (replaced `yes` in v3.8.2)
 
-> Since v2.7.5. Ignored for `docstrings.style = keep` or
-> `docstrings.style = Asterisk` or
-> `docstrings.wrap = no`.
+> Since v2.7.5.
+>
+> - Ignored for `docstrings.style = keep` or `docstrings.wrap = no`.
+> - [since v3.8.4] For `docstrings.style = Asterisk`, only `fold` changes default behaviour.
 
 ```scala mdoc:scalafmt
 # do not force a blank first line
