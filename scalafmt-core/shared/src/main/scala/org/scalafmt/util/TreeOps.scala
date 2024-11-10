@@ -351,14 +351,36 @@ object TreeOps {
     math.max(res, treeDepth(t))
   }
 
+  final def canBreakAfterFuncArrow(func: Term.FunctionTerm)(implicit
+      ftoks: FormatTokens,
+      style: ScalafmtConfig,
+  ): Boolean = !style.dialect.allowFewerBraces || {
+    val params = func.paramClause
+    params.values match {
+      case param :: Nil => param.decltpe match {
+          case Some(_: Type.Name) => ftoks.isEnclosedInMatching(params)
+          case _ => true
+        }
+      case _ => true
+    }
+  }
+
   @tailrec
   final def lastLambda(
       first: Term.FunctionTerm,
-  )(implicit ftoks: FormatTokens): Term.FunctionTerm = first.body match {
-    case child: Term.FunctionTerm => lastLambda(child)
-    case b @ Term.Block((child: Term.FunctionTerm) :: Nil)
-        if !ftoks.getHead(b).left.is[Token.LeftBrace] => lastLambda(child)
-    case _ => first
+      res: Option[Term.FunctionTerm] = None,
+  )(implicit
+      ftoks: FormatTokens,
+      style: ScalafmtConfig,
+  ): Option[Term.FunctionTerm] = {
+    val nextres = if (canBreakAfterFuncArrow(first)) Some(first) else res
+    first.body match {
+      case child: Term.FunctionTerm => lastLambda(child, nextres)
+      case b @ Term.Block((child: Term.FunctionTerm) :: Nil)
+          if !ftoks.getHead(b).left.is[Token.LeftBrace] =>
+        lastLambda(child, nextres)
+      case _ => nextres
+    }
   }
 
   @inline

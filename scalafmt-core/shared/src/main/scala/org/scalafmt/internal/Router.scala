@@ -285,7 +285,7 @@ class Router(formatOps: FormatOps) {
               else Some(false)
             (arrow, 0, nlOnly)
           case (t: Term.FunctionTerm) :: Nil =>
-            val arrow = getFuncArrow(lastLambda(t)).getOrElse(getLast(t))
+            val arrow = lastLambda(t).flatMap(getFuncArrow).getOrElse(getLast(t))
             val nlOnly =
               if (style.newlines.alwaysBeforeCurlyLambdaParams) Some(true)
               else if (
@@ -527,27 +527,29 @@ class Router(formatOps: FormatOps) {
             case _ => false
           }) =>
         val leftFunc = leftOwner.asInstanceOf[Term.FunctionTerm]
-        val (afterCurlySpace, afterCurlyNewlines) =
-          getSpaceAndNewlineAfterCurlyLambda(newlines)
         def spaceSplitBase(implicit line: FileLine): Split = Split(Space, 0)
-        val spaceSplit = leftFunc.body match {
-          case _: Term.FunctionTerm => spaceSplitBase
-          case Term.Block((_: Term.FunctionTerm) :: Nil)
-              if !nextNonComment(ft).right.is[T.LeftBrace] => spaceSplitBase
-          case _ if afterCurlySpace && {
-                style.newlines.fold || !rightOwner.is[Defn]
-              } =>
-            val exp = nextNonCommentSameLine(getLastNonTrivial(leftFunc.body))
-              .left
-            spaceSplitBase.withSingleLine(exp, noSyntaxNL = true)
-          case _ => Split.ignored
-        }
-        val (endIndent, expiresOn) = functionExpire(leftFunc)
-        Seq(
-          spaceSplit,
-          Split(afterCurlyNewlines, 1)
-            .withIndent(style.indent.main, endIndent, expiresOn),
-        )
+        if (canBreakAfterFuncArrow(leftFunc)) {
+          val (afterCurlySpace, afterCurlyNewlines) =
+            getSpaceAndNewlineAfterCurlyLambda(newlines)
+          val spaceSplit = leftFunc.body match {
+            case _: Term.FunctionTerm => spaceSplitBase
+            case Term.Block((_: Term.FunctionTerm) :: Nil)
+                if !nextNonComment(ft).right.is[T.LeftBrace] => spaceSplitBase
+            case _ if afterCurlySpace && {
+                  style.newlines.fold || !rightOwner.is[Defn]
+                } =>
+              val exp = nextNonCommentSameLine(getLastNonTrivial(leftFunc.body))
+                .left
+              spaceSplitBase.withSingleLine(exp, noSyntaxNL = true)
+            case _ => Split.ignored
+          }
+          val (endIndent, expiresOn) = functionExpire(leftFunc)
+          Seq(
+            spaceSplit,
+            Split(afterCurlyNewlines, 1)
+              .withIndent(style.indent.main, endIndent, expiresOn),
+          )
+        } else Seq(spaceSplitBase)
 
       case FormatToken(_: T.RightArrow | _: T.ContextArrow, right, _)
           if (leftOwner match {
