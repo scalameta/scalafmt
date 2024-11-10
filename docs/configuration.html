@@ -5470,11 +5470,14 @@ ignored.</p>
  * Skip first line, format intermediate
  * lines with an asterisk below the
  * first asterisk of the first line (aka
- * JavaDoc)
+ * JavaDoc). Since v3.8.4,
+ * `blankFirstLine = fold` takes
+ * precedence.
  */</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-comment">/** Skip first line, format intermediate lines with an asterisk
-  * below the first asterisk of the first line (aka JavaDoc)
+  * below the first asterisk of the first line (aka JavaDoc).
+  * Since v3.8.4, `blankFirstLine = fold` takes precedence.
   */</span>
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
@@ -5680,9 +5683,11 @@ Takes the following values:</p>
 (replaced <code>yes</code> in v3.8.2)</li>
 </ul>
 <blockquote>
-<p>Since v2.7.5. Ignored for <code>docstrings.style = keep</code> or
-<code>docstrings.style = Asterisk</code> or
-<code>docstrings.wrap = no</code>.</p>
+<p>Since v2.7.5.</p>
+<ul>
+<li>Ignored for <code>docstrings.style = keep</code> or <code>docstrings.wrap = no</code>.</li>
+<li>[since v3.8.4] For <code>docstrings.style = Asterisk</code>, only <code>fold</code> changes default behaviour.</li>
+</ul>
 </blockquote>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** Scaladoc oneline */</span>
 <span class="hljs-comment">/** Scaladoc multiline1
