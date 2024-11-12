@@ -45,7 +45,7 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
       .foreach { patch =>
         val key = (patch.tok.start, patch.tok.end)
         val value = patchBuilder.get(key) match {
-          case Some(prev) => Patch.merge(prev, patch)
+          case Some(prev) => TokenPatch.merge(prev, patch)
           case None => patch
         }
         patchBuilder.update(key, value)
