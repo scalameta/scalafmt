@@ -2,8 +2,7 @@ package scala.collection
 
 package object mutable {
 
-  implicit class ImplicitHashMap[K, V](private val obj: HashMap[K, V])
-      extends AnyVal {
+  implicit class ImplicitMap[K, V](private val obj: Map[K, V]) extends AnyVal {
     def updateWith(key: K)(
         remappingFunction: Option[V] => Option[V],
     ): Option[V] = obj.get(key) match {
