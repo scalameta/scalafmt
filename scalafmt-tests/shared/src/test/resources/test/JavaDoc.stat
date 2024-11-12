@@ -3516,13 +3516,8 @@ docstrings.style = Asterisk
  */
 object a {}
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--/** foo bar */
-+/**
-+ * foo bar
-+ */
- object a {}
+/** foo bar */
+object a {}
 <<< #4536 oneline=fold AsteriskSpace
 docstrings.wrap = yes
 docstrings.oneline = fold
@@ -3533,12 +3528,8 @@ docstrings.style = AsteriskSpace
  */
 object a {}
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--/** foo bar */
-+/** foo bar
-+ */
- object a {}
+/** foo bar */
+object a {}
 <<< #4536 oneline=fold SpaceAsterisk
 docstrings.wrap = yes
 docstrings.oneline = fold
@@ -3549,9 +3540,5 @@ docstrings.style = SpaceAsterisk
  */
 object a {}
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
--/** foo bar */
-+/** foo bar
-+  */
- object a {}
+/** foo bar */
+object a {}
