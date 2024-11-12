@@ -834,6 +834,8 @@ class FormatWriter(formatOps: FormatOps) {
 
         private val spaces: String = getIndentation(indent + extraIndent)
         private val margin = getIndentation(1 + leadingMargin)
+        private var numBreaks: Int = 0
+        private var lastBreak: Int = -1
 
         def format(): Unit = {
           val docOpt =
@@ -849,14 +851,17 @@ class FormatWriter(formatOps: FormatOps) {
 
         private def formatWithWrap(doc: Scaladoc): Unit = {
           sb.append("/**")
-          val sbLen =
+          val afterOpen = sb.length
+          val (sbLen, beforeText) =
             if (style.docstrings.skipFirstLineIf(false)) {
               appendBreak()
-              0 // force margin but not extra asterisk
+              (0, sb.length) // 0 force margin but not extra asterisk
             } else {
               sb.append(' ')
-              sb.length
+              val len = sb.length
+              (len, afterOpen)
             }
+          numBreaks = 0
           val paras = doc.para.iterator
           paras.foreach { para =>
             para.terms.foreach {
@@ -865,6 +870,14 @@ class FormatWriter(formatOps: FormatOps) {
             if (paras.hasNext) appendBreak()
           }
           if (sb.length == sbLen) sb.append('*')
+          else if (
+            (style.docstrings.oneline eq Docstrings.Oneline.fold) &&
+            numBreaks <= 1
+          ) {
+            if (numBreaks == 1) sb.setLength(lastBreak)
+            sb.delete(afterOpen, beforeText)
+            sb.append(' ').append('*')
+          }
           sb.append('/')
         }
 
@@ -1104,7 +1117,11 @@ class FormatWriter(formatOps: FormatOps) {
         }
 
         @inline
-        private def appendBreak() = startNewLine(spaces).append('*')
+        private def appendBreak() = {
+          numBreaks += 1
+          lastBreak = sb.length
+          startNewLine(spaces).append('*')
+        }
       }
 
     }
