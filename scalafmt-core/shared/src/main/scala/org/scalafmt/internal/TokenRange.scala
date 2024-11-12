@@ -1,6 +1,6 @@
 package org.scalafmt.internal
 
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 class TokenRange private (val lt: FormatToken, val rt: FormatToken) {
 
@@ -28,11 +28,11 @@ class TokenRanges private (val ranges: Seq[TokenRange]) extends AnyVal {
 
   def excludeCloseDelim(implicit ftoks: FormatTokens): TokenRanges =
     new TokenRanges(ranges.flatMap { x =>
-      if (!x.lt.left.is[Token.OpenDelim]) Some(x)
+      if (!x.lt.left.is[T.OpenDelim]) Some(x)
       else TokenRange.opt(x.lt, ftoks.prev(x.rt))
     })
 
-  def startOfFirstRange(): Option[Token] = ranges.lastOption.map(_.lt.left)
+  def startOfFirstRange(): Option[T] = ranges.lastOption.map(_.lt.left)
 }
 
 object TokenRange {

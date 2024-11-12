@@ -5,7 +5,7 @@ import org.scalafmt.config._
 import org.scalafmt.util._
 
 import scala.meta._
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -36,9 +36,9 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   var stats = new StateStats(tokens, initStyle.runner)
 
-  private def getBlockCloseToRecurse(ft: FormatToken, stop: Token)(implicit
+  private def getBlockCloseToRecurse(ft: FormatToken, stop: T)(implicit
       style: ScalafmtConfig,
-  ): Option[Token] = getEndOfBlock(ft, parensToo = true).collect {
+  ): Option[T] = getEndOfBlock(ft, parensToo = true).collect {
     case close if close.left != stop && {
           // Block must span at least 3 lines to be worth recursing.
           tokens.width(ft, close) > style.maxColumn * 3
@@ -49,7 +49,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   def shortestPathMemo(
       start: State,
-      stop: Token,
+      stop: T,
       depth: Int,
       isOpt: Boolean,
   ): Option[Option[State]] = {
@@ -69,7 +69,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     */
   def shortestPath(
       start: State,
-      stop: Token,
+      stop: T,
       depth: Int = 0,
       isOpt: Boolean = false,
   ): Either[State, State] = {
@@ -315,22 +315,22 @@ object BestFirstSearch {
     new BestFirstSearch(range).getBestPath
 
   private def getNoOptZones(tokens: FormatTokens)(implicit styleMap: StyleMap) = {
-    val result = mutable.Map.empty[Token, Boolean]
+    val result = mutable.Map.empty[T, Boolean]
     var expire: FormatToken = null
     @inline
-    def addRange(t: Token): Unit = expire = tokens.matching(t)
+    def addRange(t: T): Unit = expire = tokens.matching(t)
     @inline
-    def addBlock(t: Token): Unit = result.getOrElseUpdate(t, false)
+    def addBlock(t: T): Unit = result.getOrElseUpdate(t, false)
     tokens.foreach {
       case ft if expire ne null =>
         if (ft eq expire) expire = null else result.update(ft.left, true)
-      case FormatToken(t: Token.LeftParen, _, m) if (m.leftOwner match {
+      case FormatToken(t: T.LeftParen, _, m) if (m.leftOwner match {
             case lo: Term.ArgClause => !lo.parent.is[Term.ApplyInfix] &&
               !styleMap.at(t).newlines.keep
             case _: Term.Apply => true // legacy: when enclosed in parens
             case _ => false
           }) => addRange(t)
-      case FormatToken(t: Token.LeftBrace, _, m) => m.leftOwner match {
+      case FormatToken(t: T.LeftBrace, _, m) => m.leftOwner match {
           // Type compounds can be inside defn.defs
           case lo: meta.Stat.Block if lo.parent.is[Type.Refine] => addRange(t)
           case _: Type.Refine => addRange(t)

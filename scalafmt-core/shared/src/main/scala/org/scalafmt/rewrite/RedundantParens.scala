@@ -7,7 +7,7 @@ import org.scalafmt.util.InfixApp._
 import org.scalafmt.util.TreeOps
 
 import scala.meta._
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 
@@ -75,7 +75,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig,
   ): Option[Replacement] = ft.right match {
-    case _: Token.LeftParen => findEnclosed.flatMap { case (cnt, tree) =>
+    case _: T.LeftParen => findEnclosed.flatMap { case (cnt, tree) =>
         if (okToReplaceWithCount(cnt, tree)) Some(removeToken) else None
       }
     case _ => None
@@ -115,9 +115,9 @@ class RedundantParens(implicit val ftoks: FormatTokens)
         case p: Case => p.cond.contains(t) && RewriteCtx.isPostfixExpr(t)
         case _: Term.Do => false
         case p: Term.While => p.expr.eq(t) && style.dialect.allowQuietSyntax &&
-          ftoks.tokenBefore(p.body).left.is[Token.KwDo]
+          ftoks.tokenBefore(p.body).left.is[T.KwDo]
         case p: Term.If => p.cond.eq(t) && style.dialect.allowQuietSyntax &&
-          ftoks.tokenBefore(p.thenp).left.is[Token.KwThen]
+          ftoks.tokenBefore(p.thenp).left.is[T.KwThen]
         case p: Term.TryClause =>
           (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
           canRewriteBody(t)
@@ -135,7 +135,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   }
 
   private def isSelectWithDot(t: Term.Select): Boolean = ftoks
-    .tokenBefore(t.name).left.is[Token.Dot]
+    .tokenBefore(t.name).left.is[T.Dot]
 
   private def okToReplaceOther(
       t: Tree,
@@ -146,8 +146,8 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     case t: Term.Select => isSelectWithDot(t)
     case _: Ref => true // Ref must be after Select and ApplyUnary
     case t: Term.Match => style.dialect.allowMatchAsOperator &&
-      ftoks.tokenAfter(t.expr).right.is[Token.Dot] && // like select
-      ftoks.getHead(t.casesBlock).left.is[Token.LeftBrace]
+      ftoks.tokenAfter(t.expr).right.is[T.Dot] && // like select
+      ftoks.getHead(t.casesBlock).left.is[T.LeftBrace]
     case _ => false
   }
 
@@ -201,7 +201,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     val formatInfix = style.formatInfix(ia)
     def impl(ia: Member.Infix): Boolean = {
       val beforeOp = ftoks.prevNonCommentSameLine(ftoks.tokenJustBefore(ia.op))
-      beforeOp.hasBreak && (!formatInfix || beforeOp.left.is[Token.Comment]) ||
+      beforeOp.hasBreak && (!formatInfix || beforeOp.left.is[T.Comment]) ||
       ia.nestedInfixApps.exists(x => !ftoks.isEnclosedWithinParens(x) && impl(x))
     }
     impl(ia)
@@ -221,8 +221,8 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     def iter(lt: FormatToken, rt: FormatToken, cnt: Int): Option[Enclosed] =
       (ftoks.prevNonComment(lt), ftoks.nextNonComment(rt)) match {
         case (
-              prev @ FormatToken(_: Token.LeftParen, _, _),
-              next @ FormatToken(_, _: Token.RightParen, _),
+              prev @ FormatToken(_: T.LeftParen, _, _),
+              next @ FormatToken(_, _: T.RightParen, _),
             ) => iter(ftoks.prev(prev), ftoks.next(next), cnt + 1)
         case _ => TreeOps
             .findEnclosedBetweenParens(lt.right, rt.left, ft.meta.rightOwner)

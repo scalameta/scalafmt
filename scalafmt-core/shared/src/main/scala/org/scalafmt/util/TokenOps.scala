@@ -4,9 +4,9 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal._
 
 import scala.meta._
-import scala.meta.tokens.Token
 import scala.meta.tokens.Token.{Space => _, _}
 import scala.meta.tokens.Tokens
+import scala.meta.tokens.{Token => T}
 
 /** Stateless helper functions on [[scala.meta.Token]].
   */
@@ -32,7 +32,7 @@ object TokenOps {
     * type lie next to each other. @xeno-by said this should not happen.
     */
   @inline
-  def hash(token: Token): TokenHash = {
+  def hash(token: T): TokenHash = {
     val longHash: Long = (token.productPrefix.hashCode.toLong << (62 - 8)) |
       (token.start.toLong << (62 - (8 + 28))) | token.end
     longHash
@@ -52,14 +52,13 @@ object TokenOps {
   def findLast[A](seq: Seq[A])(cond: A => Boolean): Option[A] = seq
     .reverseIterator.find(cond)
 
-  def findLastVisibleTokenOpt(tokens: Tokens): Option[Token] =
-    findLast(tokens) {
-      case _: Whitespace | _: EOF => false
-      case _ => true
-    }
+  def findLastVisibleTokenOpt(tokens: Tokens): Option[T] = findLast(tokens) {
+    case _: Whitespace | _: EOF => false
+    case _ => true
+  }
 
-  def findLastVisibleToken(tokens: Tokens): Token =
-    findLastVisibleTokenOpt(tokens).getOrElse(tokens.last)
+  def findLastVisibleToken(tokens: Tokens): T = findLastVisibleTokenOpt(tokens)
+    .getOrElse(tokens.last)
 
   @inline
   def withNoIndent(ft: FormatToken): Boolean = ft.between.lastOption.is[AtEOL]
@@ -74,9 +73,9 @@ object TokenOps {
 
   @inline
   def isLeftCommentThenBreak(ft: FormatToken): Boolean = ft.left
-    .is[Token.Comment] && ft.hasBreak
+    .is[T.Comment] && ft.hasBreak
 
-  def isSingleLineIfComment(c: Token): Boolean = {
+  def isSingleLineIfComment(c: T): Boolean = {
     val off = c.start
     (c.end - off) >= 2 && {
       val chars = c.input.chars
@@ -86,8 +85,7 @@ object TokenOps {
 
   val booleanOperators = Set("&&", "||")
 
-  def isBoolOperator(token: Token): Boolean = booleanOperators
-    .contains(token.syntax)
+  def isBoolOperator(token: T): Boolean = booleanOperators.contains(token.syntax)
 
   def identModification(ident: Ident): Modification = {
     val lastCharacter = ident.syntax.last
@@ -108,23 +106,22 @@ object TokenOps {
   )
 
   @inline
-  def isFormatOn(token: Token): Boolean = isFormatIn(token, formatOnCode)
+  def isFormatOn(token: T): Boolean = isFormatIn(token, formatOnCode)
 
   @inline
-  def isFormatOff(token: Token): Boolean = isFormatIn(token, formatOffCode)
+  def isFormatOff(token: T): Boolean = isFormatIn(token, formatOffCode)
 
-  private def isFormatIn(token: Token, set: Set[String]): Boolean =
-    token match {
-      case t: Comment => set.contains(t.value.trim.toLowerCase)
-      case _ => false
-    }
+  private def isFormatIn(token: T, set: Set[String]): Boolean = token match {
+    case t: Comment => set.contains(t.value.trim.toLowerCase)
+    case _ => false
+  }
 
-  def endsWithSymbolIdent(tok: Token): Boolean = tok match {
+  def endsWithSymbolIdent(tok: T): Boolean = tok match {
     case Ident(name) => !name.last.isLetterOrDigit && !tok.isBackquoted
     case _ => false
   }
 
-  def isSymbolicIdent(tok: Token): Boolean = tok match {
+  def isSymbolicIdent(tok: T): Boolean = tok match {
     case Ident(name) => isSymbolicName(name)
     case _ => false
   }
@@ -146,6 +143,6 @@ object TokenOps {
     }
   }
 
-  def getIndentTrigger(tree: Tree): Token = tree.tokens.head
+  def getIndentTrigger(tree: Tree): T = tree.tokens.head
 
 }

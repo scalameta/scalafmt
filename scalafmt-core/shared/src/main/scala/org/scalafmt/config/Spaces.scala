@@ -2,7 +2,7 @@ package org.scalafmt.config
 
 import org.scalafmt.util.TokenOps
 
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import metaconfig._
 
@@ -65,8 +65,8 @@ case class Spaces(
     private val afterColonInMatchPattern: Spaces.AfterColonInMatchPattern =
       Spaces.AfterColonInMatchPattern.Always,
 ) {
-  def isSpaceAfterKeyword(tokenAfter: Token): Boolean =
-    afterKeywordBeforeParen || !tokenAfter.is[Token.LeftParen]
+  def isSpaceAfterKeyword(tokenAfter: T): Boolean = afterKeywordBeforeParen ||
+    !tokenAfter.is[T.LeftParen]
 
   def notAfterColon(owner: meta.Tree): Boolean = owner match {
     case x: meta.Pat.Typed => afterColonInMatchPattern match {

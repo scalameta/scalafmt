@@ -8,9 +8,9 @@ import org.scalafmt.util.LoggerOps._
 
 import scala.meta._
 import scala.meta.classifiers.Classifier
-import scala.meta.tokens.Token
 import scala.meta.tokens.Token.{Space => _, _}
 import scala.meta.tokens.Tokens
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.HashMap
@@ -75,7 +75,7 @@ object TreeOps {
     fun.parent match {
       case Some(p: Term.FunctionTerm) => isBlockFunction(p)
       case Some(p @ Term.Block(`fun` :: Nil)) => ftoks.getHead(p).left
-          .is[Token.LeftBrace] || isBlockFunction(p)
+          .is[T.LeftBrace] || isBlockFunction(p)
       case Some(SingleArgInBraces(_, `fun`, _)) => true
       case _ => false
     }
@@ -94,14 +94,14 @@ object TreeOps {
     */
   def getMatchingParentheses[A](
       coll: Iterable[A],
-  )(f: A => Token): Map[TokenHash, A] = {
+  )(f: A => T): Map[TokenHash, A] = {
     val ret = Map.newBuilder[TokenHash, A]
-    var stack = List.empty[(Token, A)]
+    var stack = List.empty[(T, A)]
     coll.foreach { elem =>
       f(elem) match {
-        case open @ (_: Token.OpenDelim | _: Interpolation.Start |
-            _: Xml.Start | _: Xml.SpliceStart) => stack = (open, elem) :: stack
-        case close @ (_: Token.CloseDelim | _: Interpolation.End | _: Xml.End |
+        case open @ (_: OpenDelim | _: Interpolation.Start | _: Xml.Start |
+            _: Xml.SpliceStart) => stack = (open, elem) :: stack
+        case close @ (_: CloseDelim | _: Interpolation.End | _: Xml.End |
             _: Xml.SpliceEnd) =>
           val (open, openElem) = stack.head
           assertValidParens(open, close)
@@ -119,7 +119,7 @@ object TreeOps {
     result
   }
 
-  def assertValidParens(open: Token, close: Token): Unit = (open, close) match {
+  def assertValidParens(open: T, close: T): Unit = (open, close) match {
     case (Interpolation.Start(), Interpolation.End()) =>
     case (Xml.Start(), Xml.End()) =>
     case (Xml.SpliceStart(), Xml.SpliceEnd()) =>
@@ -261,19 +261,19 @@ object TreeOps {
   }
 
   @inline
-  def isTokenHeadOrBefore(token: Token, owner: Tree): Boolean =
+  def isTokenHeadOrBefore(token: T, owner: Tree): Boolean =
     isTokenHeadOrBefore(token, owner.pos)
 
   @inline
-  def isTokenHeadOrBefore(token: Token, pos: Position): Boolean = pos.start >=
+  def isTokenHeadOrBefore(token: T, pos: Position): Boolean = pos.start >=
     token.start
 
   @inline
-  def isTokenLastOrAfter(token: Token, owner: Tree): Boolean =
+  def isTokenLastOrAfter(token: T, owner: Tree): Boolean =
     isTokenLastOrAfter(token, owner.pos)
 
   @inline
-  def isTokenLastOrAfter(token: Token, pos: Position): Boolean = pos.end <=
+  def isTokenLastOrAfter(token: T, pos: Position): Boolean = pos.end <=
     token.end
 
   def isArgClauseSite(tree: Tree): Boolean = tree match {
@@ -377,8 +377,7 @@ object TreeOps {
     first.body match {
       case child: Term.FunctionTerm => lastLambda(child, nextres)
       case b @ Term.Block((child: Term.FunctionTerm) :: Nil)
-          if !ftoks.getHead(b).left.is[Token.LeftBrace] =>
-        lastLambda(child, nextres)
+          if !ftoks.getHead(b).left.is[T.LeftBrace] => lastLambda(child, nextres)
       case _ => nextres
     }
   }
@@ -577,9 +576,7 @@ object TreeOps {
     case _ => Some(false)
   }.isDefined
 
-  def getEndOfFirstCall(
-      tree: Tree,
-  )(implicit ftoks: FormatTokens): Option[Token] = {
+  def getEndOfFirstCall(tree: Tree)(implicit ftoks: FormatTokens): Option[T] = {
     @tailrec
     def traverse(tree: Tree, res: Option[Tree]): Option[Tree] = tree match {
       case t: Term.Select if res.isDefined => traverse(t.qual, Some(t.qual))
@@ -638,7 +635,7 @@ object TreeOps {
   def isTripleQuote(syntax: String): Boolean = syntax.startsWith("\"\"\"")
 
   @tailrec
-  def findFirstTreeBetween(tree: Tree, beg: Token, end: Token): Option[Tree] = {
+  def findFirstTreeBetween(tree: Tree, beg: T, end: T): Option[Tree] = {
     def isWithinRange(x: Tokens): Boolean = x.nonEmpty &&
       x.head.start >= beg.start && x.last.end <= end.end
     def matches(tree: Tree): Boolean = {
@@ -682,7 +679,7 @@ object TreeOps {
 
   // Redundant {} block around case statements
   def isCaseBodyABlock(ft: FormatToken, caseStat: CaseTree): Boolean = ft.right
-    .is[Token.LeftBrace] && (caseStat.body eq ft.meta.rightOwner)
+    .is[T.LeftBrace] && (caseStat.body eq ft.meta.rightOwner)
 
   def getTemplateGroups(template: Template): Option[Seq[List[Tree]]] = {
     val groups = Seq(template.inits, template.derives).filter(_.nonEmpty)
@@ -699,7 +696,7 @@ object TreeOps {
   // in the TrailingCommas.never branch, nor does it
   // try to add them in the TrainingCommas.always branch.
   def rightIsCloseDelimForTrailingComma(
-      left: Token,
+      left: T,
       ft: FormatToken,
       whenNL: Boolean = true,
   ): Boolean = {
@@ -708,20 +705,16 @@ object TreeOps {
       isParamClauseSite(tree)
     // skip empty parens/braces/brackets
     ft.right match {
-      case _: Token.RightBrace => !left.is[Token.LeftBrace] && owner.is[Importer]
-      case _: Token.RightParen => !left.is[Token.LeftParen] &&
+      case _: T.RightBrace => !left.is[T.LeftBrace] && owner.is[Importer]
+      case _: T.RightParen => !left.is[T.LeftParen] &&
         isArgOrParamClauseSite(owner)
-      case _: Token.RightBracket => !left.is[Token.LeftBracket] &&
+      case _: T.RightBracket => !left.is[T.LeftBracket] &&
         isArgOrParamClauseSite(owner)
       case _ => false
     }
   }
 
-  def findEnclosedBetweenParens(
-      lt: Token,
-      rt: Token,
-      tree: Tree,
-  ): Option[Tree] = {
+  def findEnclosedBetweenParens(lt: T, rt: T, tree: Tree): Option[Tree] = {
     val beforeParens = lt.start
     val afterParens = rt.end
     @tailrec
@@ -750,23 +743,23 @@ object TreeOps {
     // Creates lookup table from token offset to its closest scala.meta tree
     val ownersMap = HashMap.newBuilder[TokenHash, Tree]
     @inline
-    def setOwner(tok: Token, tree: Tree): Unit = ownersMap += hash(tok) -> tree
+    def setOwner(tok: T, tree: Tree): Unit = ownersMap += hash(tok) -> tree
 
     val allTokens = topSourceTree.tokens
-    var prevParens: List[Token] = Nil
+    var prevParens: List[T] = Nil
 
     def treeAt(
         elemIdx: Int,
         elem: Tree,
-        elemBeg: Token,
-        elemEnd: Token,
+        elemBeg: T,
+        elemEnd: T,
         outerPrevLPs: Int,
     ): Int = {
       if (TreeOps.isInfixApp(elem)) infixCount += 1
 
       val treeBeg = elemBeg.start
       val treeEnd = elemEnd.end
-      val allChildren: List[(Tree, Token, Token)] = {
+      val allChildren: List[(Tree, T, T)] = {
         for {
           x <- elem.children
           tokens = x.tokens if tokens.nonEmpty
@@ -793,7 +786,7 @@ object TreeOps {
           var children = rest
           var prevChild: Tree = null
           var prevLPs = outerPrevLPs
-          var prevComma: Token = null
+          var prevComma: T = null
 
           @tailrec
           def tokenAt(idx: Int): Int =

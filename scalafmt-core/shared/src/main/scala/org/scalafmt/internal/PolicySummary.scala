@@ -2,7 +2,7 @@ package org.scalafmt.internal
 
 import org.scalafmt.util.LoggerOps
 
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 class PolicySummary(val policies: Seq[Policy]) extends AnyVal {
   import LoggerOps._
@@ -11,7 +11,7 @@ class PolicySummary(val policies: Seq[Policy]) extends AnyVal {
   def noDequeue = policies.exists(_.noDequeue)
 
   def combine(split: Split, nextft: FormatToken): PolicySummary =
-    if (nextft.right.is[Token.EOF]) PolicySummary.empty
+    if (nextft.right.is[T.EOF]) PolicySummary.empty
     else new PolicySummary(
       (split.policy +: policies).flatMap(_.unexpiredOpt(split, nextft))
         .sortBy(_.rank),
