@@ -8,14 +8,14 @@ import org.scalameta.FileLine
 import scala.meta.tokens.{Token => T}
 
 case class OptimalToken(
-    token: T,
+    token: FT,
     killOnFail: Boolean,
     recurseOnly: Boolean = false,
 ) {
   override def toString: String = {
-    val kof = if (killOnFail) "!" else ":"
+    val kof = if (killOnFail) "!" else ""
     val rec = if (recurseOnly) "+" else ""
-    s"$token$kof${token.end}$rec"
+    s"${token.left}$kof[${token.idx}]$rec"
   }
 }
 
@@ -144,7 +144,7 @@ case class Split(
     else copy()(fileLineStack.forThisLine(fileLine.file, fileLine.line))
 
   def withOptimalTokenOpt(
-      token: => Option[T],
+      token: => Option[FT],
       killOnFail: Boolean,
       extend: Boolean = false,
       recurseOnly: Boolean = false,
@@ -155,7 +155,7 @@ case class Split(
   )
 
   def withOptimalToken(
-      token: => T,
+      token: => FT,
       killOnFail: Boolean,
       ignore: Boolean = false,
       extend: Boolean = false,
@@ -180,7 +180,7 @@ case class Split(
         this.optimalAt match {
           case None => amend()
           case Some(x) if extend =>
-            if (x.token.end < opt.token.end) amend() else this
+            if (x.token.idx < opt.token.idx) amend() else this
           case _ =>
             throw new UnsupportedOperationException("Can't reset optimal token")
         }
@@ -194,11 +194,13 @@ case class Split(
     if (ignore) this
     else if (extend) andPolicy(newPolicy)
     else if (isIgnored) this
-    else if (policy.isEmpty) copy(policy = newPolicy)
-    else throw new UnsupportedOperationException("Use orPolicy or andPolicy")
+    else if (policy.isEmpty) {
+      val policyEval = newPolicy
+      if (policyEval.isEmpty) this else copy(policy = policyEval)
+    } else throw new UnsupportedOperationException("Use orPolicy or andPolicy")
 
   def withSingleLine(
-      expire: => T,
+      expire: => FT,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: => Option[Boolean] = None,
@@ -228,7 +230,7 @@ case class Split(
     }
 
   def withSingleLineNoOptimal(
-      expire: => T,
+      expire: => FT,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       rank: Int = 0,
@@ -259,19 +261,19 @@ case class Split(
     if (isIgnored || penalty <= 0) this
     else copy(penalty = this.penalty + penalty)
 
-  def withIndent(length: => Length, expire: => T, when: ExpiresOn): Split =
+  def withIndent(length: => Length, expire: => FT, when: ExpiresOn): Split =
     withIndent(length, expire, when, ignore = false)
 
   def withIndent(
       length: => Length,
-      expire: => T,
+      expire: => FT,
       when: ExpiresOn,
       ignore: Boolean,
   ): Split = withMod(modExt.withIndent(length, expire, when), ignore)
 
   def withIndentOpt(
       length: => Length,
-      expire: Option[T],
+      expire: Option[FT],
       when: ExpiresOn,
   ): Split = withMod(modExt.withIndentOpt(length, expire, when))
 
