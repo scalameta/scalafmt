@@ -16,6 +16,8 @@ import scala.collection.mutable
 import metaconfig.ConfCodecEx
 
 case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
+  import RewriteCtx._
+
   implicit val dialect: Dialect = style.dialect
 
   private val patchBuilder = mutable.Map.empty[(Int, Int), TokenPatch]
@@ -37,13 +39,12 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
   def getIndex(token: T) = tokenTraverser.getIndex(token)
 
   def applyPatches: String = tokens.iterator
-    .map(x => patchBuilder.get(x.start -> x.end).fold(x.text)(_.newTok))
-    .mkString
+    .map(x => patchBuilder.get(lookupKey(x)).fold(x.text)(_.newTok)).mkString
 
   def addPatchSet(patches: TokenPatch*): Unit =
     if (!patches.exists(x => tokenTraverser.isExcluded(x.tok))) patches
       .foreach { patch =>
-        val key = (patch.tok.start, patch.tok.end)
+        val key = lookupKey(patch.tok)
         val value = patchBuilder.get(key) match {
           case Some(prev) => TokenPatch.merge(prev, patch)
           case None => patch
@@ -84,8 +85,8 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
   }
 
   // special case for Select which might contain a space instead of dot
-  def isPrefixExpr(expr: Tree): Boolean = RewriteCtx
-    .isSimpleExprOr(expr) { case t: Term.Select =>
+  def isPrefixExpr(expr: Tree): Boolean =
+    isSimpleExprOr(expr) { case t: Term.Select =>
       val maybeDot = tokenTraverser.findBefore(t.name.tokens.head) {
         case _: T.Trivia => None
         case x => Some(x.is[T.Dot])
@@ -182,5 +183,8 @@ object RewriteCtx {
       case _: Term.Select | _: Term.ApplyInfix => true
       case _: Term.Match if style.dialect.allowMatchAsOperator => true
     }
+
+  @inline
+  private def lookupKey(tok: T) = tok.start -> tok.end
 
 }
