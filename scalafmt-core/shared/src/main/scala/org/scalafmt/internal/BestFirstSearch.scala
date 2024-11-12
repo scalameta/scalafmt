@@ -38,16 +38,16 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   private def getBlockCloseToRecurse(ft: FT)(implicit
       style: ScalafmtConfig,
-  ): Option[T] = getEndOfBlock(ft, parensToo = true).collect {
+  ): Option[Int] = getEndOfBlock(ft, parensToo = true).collect {
     // Block must span at least 3 lines to be worth recursing.
-    case close if tokens.width(ft, close) > style.maxColumn * 3 => close.left
+    case close if tokens.width(ft, close) > style.maxColumn * 3 => close.idx
   }
 
   private val memo = mutable.Map.empty[Long, Option[State]]
 
   def shortestPathMemo(
       start: State,
-      stop: T,
+      stop: Int,
       depth: Int,
       isOpt: Boolean,
   ): Option[Option[State]] = {
@@ -67,7 +67,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     */
   def shortestPath(
       start: State,
-      stop: T,
+      stop: Int,
       depth: Int = 0,
       isOpt: Boolean = false,
   ): Either[State, State] = {
@@ -82,8 +82,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       if (idx >= tokens.length) return Right(curr)
 
       val splitToken = tokens(idx)
-      if (splitToken.right.start > stop.start && !splitToken.left.isEmpty)
-        return Right(curr)
+      if (idx >= stop && !splitToken.left.isEmpty) return Right(curr)
 
       implicit val style = styleMap.at(splitToken)
       import style.runner.optimizer
@@ -184,7 +183,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     ) tokens(nextNextState.depth)
     else {
       val optEnd = end
-      if (optEnd ne null) optEnd else tokens(opt.token)
+      if (optEnd ne null) optEnd else opt.token
     }
   }
 
@@ -193,18 +192,17 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       queue: StateQueue,
       style: ScalafmtConfig,
   ): Either[State, State] = {
-    val optEnd = tokens(opt.token)
     val nextNextState =
-      if (opt.token.end <= tokens(nextState.depth).left.end) nextState
+      if (opt.token.idx <= nextState.depth) nextState
       else if (
-        tokens.width(tokens(nextState.depth), optEnd) > 3 * style.maxColumn
-      ) return Left(killOnFail(opt.killOnFail)(optEnd))
+        tokens.width(tokens(nextState.depth), opt.token) > 3 * style.maxColumn
+      ) return Left(killOnFail(opt.killOnFail)(opt.token))
       else {
         val res =
-          shortestPath(nextState, opt.token, queue.nested + 1, isOpt = true)
+          shortestPath(nextState, opt.token.idx, queue.nested + 1, isOpt = true)
         res match {
           case Right(x) => x
-          case Left(x) => return Left(killOnFail(opt, optEnd, x))
+          case Left(x) => return Left(killOnFail(opt, opt.token, x))
         }
       }
     def checkPenalty(state: State, orElse: => Either[State, State]) =
@@ -213,7 +211,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       else orElse
     traverseSameLine(nextNextState) match {
       case x @ Left(s) =>
-        if (s eq null) Left(killOnFail(opt, optEnd, nextNextState))
+        if (s eq null) Left(killOnFail(opt, opt.token, nextNextState))
         else checkPenalty(s, x)
       case x @ Right(s) => checkPenalty(s, if (opt.recurseOnly) Left(s) else x)
     }
@@ -267,8 +265,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   def getBestPath: SearchResult = {
     initStyle.runner.event(FormatEvent.Routes(routes))
     val state = {
-      val endToken = topSourceTree.tokens.last
-      def run = shortestPath(State.start, endToken)
+      def run = shortestPath(State.start, Int.MaxValue)
       run.getOrElse {
         stats.retry.flatMap { x =>
           stats = x

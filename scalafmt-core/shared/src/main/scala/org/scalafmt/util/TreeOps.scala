@@ -575,7 +575,7 @@ object TreeOps {
     case _ => Some(false)
   }.isDefined
 
-  def getEndOfFirstCall(tree: Tree)(implicit ftoks: FormatTokens): Option[T] = {
+  def getEndOfFirstCall(tree: Tree)(implicit ftoks: FormatTokens) = {
     @tailrec
     def traverse(tree: Tree, res: Option[Tree]): Option[Tree] = tree match {
       case t: Term.Select if res.isDefined => traverse(t.qual, Some(t.qual))
@@ -586,7 +586,7 @@ object TreeOps {
         traverse(arg, res)
       case _ => res
     }
-    traverse(tree, None).map(_.tokens.last)
+    traverse(tree, None).map(ftoks.getLast)
   }
 
   @inline

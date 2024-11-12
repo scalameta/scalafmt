@@ -5,17 +5,18 @@ import scala.meta.tokens.{Token => T}
 import scala.annotation.tailrec
 
 sealed abstract class ExpiresOn {
-  def notExpiredBy(ft: FT, expireEnd: Int): Boolean
+  def notExpiredBy(ft: FT, idxBeforeExpire: Int): Boolean
 }
 
 object ExpiresOn {
   case object After extends ExpiresOn {
-    def notExpiredBy(ft: FT, expireEnd: Int): Boolean = ft.right.start <
-      expireEnd
+    def notExpiredBy(ft: FT, idxBeforeExpire: Int): Boolean = ft.idx <=
+      idxBeforeExpire
   }
 
   case object Before extends ExpiresOn {
-    def notExpiredBy(ft: FT, expireEnd: Int): Boolean = ft.right.end < expireEnd
+    def notExpiredBy(ft: FT, idxBeforeExpire: Int): Boolean = ft.idx <
+      idxBeforeExpire
   }
 
   @inline
@@ -50,12 +51,13 @@ object Length {
 
 case class ActualIndent(
     length: Int,
-    expireEnd: Int,
+    expire: FT,
     expiresAt: ExpiresOn,
     reset: Boolean,
 ) {
+  private val idxBeforeExpire = expire.idx - 1
   @inline
-  def notExpiredBy(ft: FT): Boolean = expiresAt.notExpiredBy(ft, expireEnd)
+  def notExpiredBy(ft: FT): Boolean = expiresAt.notExpiredBy(ft, idxBeforeExpire)
 }
 
 abstract class Indent {
@@ -80,27 +82,22 @@ abstract class Indent {
   *   If Right, then expires when [[expire]] is curr.right, otherwise curr.left
   *   in [[BestFirstSearch]].
   */
-private class IndentImpl(length: Length, expire: T, expiresAt: ExpiresOn)
+private class IndentImpl(length: Length, expire: FT, expiresAt: ExpiresOn)
     extends Indent {
   override def hasStateColumn: Boolean = length eq Length.StateColumn
   override def switch(trigger: T, on: Boolean): Indent = this
   override def withStateOffset(offset: Int): Option[ActualIndent] = Some(
-    ActualIndent(
-      length.withStateOffset(offset),
-      expire.end,
-      expiresAt,
-      length.reset,
-    ),
+    ActualIndent(length.withStateOffset(offset), expire, expiresAt, length.reset),
   )
   override def toString: String = {
     val when = if (expiresAt == ExpiresOn.Before) '<' else '>'
-    s"$length$when$expire:${expire.end}"
+    s"$length$when${expire.left}[${expire.idx}]"
   }
 }
 
 object Indent {
 
-  def apply(length: Length, expire: => T, expiresAt: => ExpiresOn): Indent =
+  def apply(length: Length, expire: => FT, expiresAt: => ExpiresOn): Indent =
     length match {
       case Length.Num(0, _) => Empty
       case x => new IndentImpl(x, expire, expiresAt)

@@ -15,7 +15,7 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
   @inline
   def isNL: Boolean = mod.isNL
 
-  def withIndent(length: => Length, expire: => T, when: ExpiresOn): ModExt =
+  def withIndent(length: => Length, expire: => FT, when: ExpiresOn): ModExt =
     length match {
       case Length.Num(0, _) => this
       case x => withIndentImpl(Indent(x, expire, when))
@@ -23,7 +23,7 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
 
   def withIndentOpt(
       length: => Length,
-      expire: Option[T],
+      expire: Option[FT],
       when: ExpiresOn,
   ): ModExt = expire.fold(this)(withIndent(length, _, when))
 

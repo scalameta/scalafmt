@@ -1,5 +1,7 @@
 package org.scalafmt.internal
 
+import org.scalafmt.util.LoggerOps
+
 import org.scalameta.FileLine
 import scala.meta.tokens.{Token => T}
 
@@ -84,26 +86,37 @@ object Policy {
   )(f: Pf)(implicit fileLine: FileLine): Policy =
     new ClauseImpl(f, endPolicy, prefix, noDequeue, rank)
 
-  def after(token: T, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
-      f: Pf,
-  )(implicit fileLine: FileLine): Policy =
-    apply(End > token, prefix, noDequeue, rank)(f)
-
-  def before(token: T, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
-      f: Pf,
-  )(implicit fileLine: FileLine): Policy =
-    apply(End < token, prefix, noDequeue, rank)(f)
-
   def after(trigger: T, policy: Policy)(implicit fileLine: FileLine): Policy =
     new Switch(NoPolicy, trigger, policy)
 
   def before(policy: Policy, trigger: T)(implicit fileLine: FileLine): Policy =
     new Switch(policy, trigger, NoPolicy)
 
-  def on(token: T, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
+  def beforeLeft(
+      exp: FT,
+      prefix: String,
+      noDequeue: Boolean = false,
+      rank: Int = 0,
+  )(f: Pf)(implicit fileLine: FileLine): Policy =
+    apply(End < exp, prefix, noDequeue, rank)(f)
+
+  def onLeft(exp: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
       f: Pf,
   )(implicit fileLine: FileLine): Policy =
-    apply(End == token, prefix, noDequeue, rank = rank)(f)
+    apply(End <= exp, prefix, noDequeue, rank = rank)(f)
+
+  def onRight(exp: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
+      f: Pf,
+  )(implicit fileLine: FileLine): Policy =
+    apply(End >= exp, prefix, noDequeue, rank = rank)(f)
+
+  def afterRight(
+      exp: FT,
+      prefix: String,
+      noDequeue: Boolean = false,
+      rank: Int = 0,
+  )(f: Pf)(implicit fileLine: FileLine): Policy =
+    apply(End > exp, prefix, noDequeue, rank)(f)
 
   abstract class Clause(implicit val fileLine: FileLine) extends Policy {
     val endPolicy: End.WithPos
@@ -414,39 +427,55 @@ object Policy {
     }
   }
 
-  sealed trait End extends (T => End.WithPos) {
-    def apply(token: T): End.WithPos
+  sealed trait End extends (FT => End.WithPos) {
+    def apply(exp: FT): End.WithPos
   }
   object End {
-    def <(token: T): End.WithPos = Before(token)
-    def >(token: T): End.WithPos = After(token)
-    def ==(token: T): End.WithPos = On(token)
+    def <(exp: FT): End.WithPos = BeforeLeft(exp)
+    def <=(exp: FT): End.WithPos = OnLeft(exp)
+    def >=(exp: FT): End.WithPos = OnRight(exp)
+    def >(exp: FT): End.WithPos = AfterRight(exp)
+
+    @inline
+    private def getDescWithoutPos(token: T): String = LoggerOps
+      .tokWithoutPos(token)
 
     sealed trait WithPos {
-      def notExpiredBy(ft: FT): Boolean
+      protected val endIdx: Int
+      def notExpiredBy(ft: FT): Boolean = ft.idx <= endIdx
       def ==>(policy: Policy): Policy =
         if (policy.isEmpty) NoPolicy else new Policy.Delay(policy, this)
     }
-    case object After extends End {
-      def apply(token: T): WithPos = new End.WithPos {
-        def notExpiredBy(ft: FT): Boolean = ft.left.start <= token.start
-        override def toString: String = s">${token.structure}"
+    case object BeforeLeft extends End {
+      def apply(exp: FT): WithPos = new End.WithPos {
+        protected val endIdx: Int = exp.idx - 2
+        override def toString: String =
+          s"<${getDescWithoutPos(exp.left)}[${exp.idx}]"
       }
     }
-    case object Before extends End {
-      def apply(token: T): WithPos = new End.WithPos {
-        def notExpiredBy(ft: FT): Boolean = ft.right.start < token.start
-        override def toString: String = s"<${token.structure}"
+    case object OnLeft extends End {
+      def apply(exp: FT): WithPos = new End.WithPos {
+        protected val endIdx: Int = exp.idx - 1
+        override def toString: String =
+          s"<=${getDescWithoutPos(exp.left)}[${exp.idx}]"
       }
     }
-    case object On extends End {
-      def apply(token: T): WithPos = new End.WithPos {
-        def notExpiredBy(ft: FT): Boolean = ft.right.start <= token.start
-        override def toString: String = s"@${token.structure}"
+    case object OnRight extends End {
+      def apply(exp: FT): WithPos = new End.WithPos {
+        protected val endIdx: Int = exp.idx
+        override def toString: String =
+          s">=${getDescWithoutPos(exp.left)}[${exp.idx}]"
+      }
+    }
+    case object AfterRight extends End {
+      def apply(exp: FT): WithPos = new End.WithPos {
+        protected val endIdx: Int = exp.idx + 1
+        override def toString: String =
+          s">${getDescWithoutPos(exp.left)}[${exp.idx}]"
       }
     }
     case object Never extends WithPos {
-      override def notExpiredBy(ft: FT): Boolean = true
+      override protected val endIdx: Int = Int.MaxValue
     }
   }
 

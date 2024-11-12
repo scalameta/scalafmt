@@ -75,11 +75,11 @@ class Router(formatOps: FormatOps) {
       case FT(_: T.BOF, _, _) => Seq(Split(NoSplit, 0))
       case FT(_: T.Shebang, _, _) => Seq(Split(Newline2x(ft), 0))
       case FT(start: T.Interpolation.Start, _, m) =>
-        val end = matching(start).left
+        val end = matching(start)
         val policy = {
           val penalty = BreakSingleLineInterpolatedString
           if (style.newlines.inInterpolation eq Newlines.InInterpolation.avoid)
-            Policy.on(end, "INTERP-AVOID-NL", rank = -1) {
+            Policy.onLeft(end, "INTERP-AVOID-NL", rank = -1) {
               case Decision(_, ss) => ss.map { s =>
                   if (s.isNL) s.withPenalty(penalty)
                   else if (s.optimalAt.isEmpty) s
@@ -87,14 +87,14 @@ class Router(formatOps: FormatOps) {
                 }
             }
           else if (!style.newlines.sourceIgnored && !isTripleQuote(m.left.text))
-            Policy.on(end, "INTERP-KEEP-NONL") {
+            Policy.onLeft(end, "INTERP-KEEP-NONL") {
               case Decision(x, ss) if x.noBreak =>
                 ss.map(s => if (s.isNL) s.withPenalty(penalty) else s)
             }
           else Policy ?
             (style.newlines.inInterpolation eq
               Newlines.InInterpolation.allow) &&
-            Policy.on(end, "INTERP-ALLOW-NL", rank = -1) {
+            Policy.onLeft(end, "INTERP-ALLOW-NL", rank = -1) {
               case Decision(_, ss) => ss
                   .map(s => if (s.isNL) s.withPenalty(1) else s)
             }
@@ -140,9 +140,8 @@ class Router(formatOps: FormatOps) {
       // Import left brace
       case FT(open: T.LeftBrace, _, _)
           if existsParentOfType[ImportExportStat](leftOwner) =>
-        val closeFt = matching(open)
-        val close = closeFt.left
-        val beforeClose = prev(closeFt)
+        val close = matching(open)
+        val beforeClose = prev(close)
         val policy = SingleLineBlock(
           close,
           okSLC = style.importSelectors eq ImportSelectors.singleLine,
@@ -174,24 +173,22 @@ class Router(formatOps: FormatOps) {
       // Interpolated string left brace
       case FT(open @ T.LeftBrace(), _, _)
           if prev(ft).left.is[T.Interpolation.SpliceStart] =>
-        val closeFt = matching(open)
-        val close = closeFt.left
+        val close = matching(open)
         val alignIndents =
-          if (style.align.inInterpolation) Some {
-            Seq(
-              Indent(Length.StateColumn, close, ExpiresOn.After),
-              Indent(Length.Num(style.indent.main), close, ExpiresOn.Before),
-              Indent(Length.Num(-1), close, ExpiresOn.After),
-            )
-          }
-          else None
+          if (style.align.inInterpolation) Seq(
+            Indent(Length.StateColumn, close, ExpiresOn.After),
+            Indent(Length.Num(style.indent.main), close, ExpiresOn.Before),
+            Indent(Length.Num(-1), close, ExpiresOn.After),
+          )
+          else Nil
         def spaceSplit(implicit fileLine: FileLine) =
           Split(Space(style.spaces.inInterpolatedStringCurlyBraces), 0)
-            .withIndents(alignIndents.getOrElse(Nil))
+            .withIndents(alignIndents)
         def newlineSplit(cost: Int)(implicit fileLine: FileLine) = {
-          def mainIndents =
-            Seq(Indent(style.indent.main, close, ExpiresOn.Before))
-          Split(Newline, cost).withIndents(alignIndents.getOrElse(mainIndents))
+          val mainIndents =
+            if (alignIndents.nonEmpty) alignIndents
+            else Seq(Indent(style.indent.main, close, ExpiresOn.Before))
+          Split(Newline, cost).withIndents(mainIndents)
             .withPolicy(decideNewlinesOnlyBeforeClose(close))
         }
         def isSimpleInterpolate = !(leftOwner match {
@@ -214,11 +211,10 @@ class Router(formatOps: FormatOps) {
              * - 2 Interpolation.Part (next string)
              * - 3 Interpolation.End (quotes) or Interpolation.SliceStart/LBrace (${)
              */
-            val afterClose = tokens(closeFt, 3)
+            val afterClose = tokens(close, 3)
             val lastPart = afterClose.left.is[T.Interpolation.End]
-            val slbEnd = endOfSingleLineBlock(
-              if (lastPart) afterClose else next(afterClose),
-            )
+            val slbEnd =
+              getSlbEndOnLeft(if (lastPart) afterClose else next(afterClose))
             Seq(spaceSplit.withSingleLine(slbEnd), newlineSplit(1))
         }
 
@@ -251,8 +247,7 @@ class Router(formatOps: FormatOps) {
 
       // { ... } Blocks
       case FT(open: T.LeftBrace, right, _) =>
-        val closeFT = matching(open)
-        val close = closeFT.left
+        val close = matching(open)
         val isSelfAnnotationNL = style.optIn.selfAnnotationNewline &&
           (hasBreak() || style.newlines.sourceIgnored) &&
           (leftOwner match { // Self type: trait foo { self => ... }
@@ -321,20 +316,19 @@ class Router(formatOps: FormatOps) {
         val noLambdaSplit = style.newlines.keepBreak(newlines) ||
           lambdaArrow == null || !lambdaNLOnly.contains(false)
         val lambdaExpire =
-          if (lambdaArrow eq null) null
-          else nextNonCommentSameLine(lambdaArrow).left
+          if (lambdaArrow eq null) null else nextNonCommentSameLine(lambdaArrow)
 
         def getSingleLinePolicy = {
-          val needBreak = closeFT.right match {
-            case _: T.KwElse => closeFT.meta.rightOwner match {
+          val needBreak = close.right match {
+            case _: T.KwElse => close.rightOwner match {
                 case p: Term.If => p.thenp eq leftOwner
                 case _ => false
               }
-            case _: T.KwCatch => closeFT.meta.rightOwner match {
+            case _: T.KwCatch => close.rightOwner match {
                 case p: Term.TryClause => p.expr eq leftOwner
                 case _ => false
               }
-            case _: T.KwFinally => closeFT.meta.rightOwner match {
+            case _: T.KwFinally => close.rightOwner match {
                 case p: Term.TryClause => (p.expr eq leftOwner) ||
                   p.catchClause.contains(leftOwner)
                 case _ => false
@@ -386,7 +380,7 @@ class Router(formatOps: FormatOps) {
         val noSplitMod = xmlSpace(leftOwner)
         val (slbMod, slbParensExclude) =
           if (singleLineDecisionOpt.isEmpty) (noSplitMod, None)
-          else getBracesToParensMod(closeFT, noSplitMod, isWithinBraces = true)
+          else getBracesToParensMod(close, noSplitMod, isWithinBraces = true)
         val singleLineSplitOpt = {
           if (slbParensExclude eq null) None else singleLineDecisionOpt
         }.map { sld =>
@@ -394,23 +388,24 @@ class Router(formatOps: FormatOps) {
           val expire = leftOwner.parent match {
             case Some(p: Term.ForYield)
                 if !sld && sldPolicy.isEmpty && style.newlines.fold &&
-                  leftOwner.is[Term.EnumeratorsBlock] => getLastToken(p)
+                  leftOwner.is[Term.EnumeratorsBlock] => getLast(p)
             case _ if style.newlines.isBeforeOpenParenCallSite => close
-            case _ => endOfSingleLineBlock(closeFT)
+            case _ => getSlbEndOnLeft(close)
           }
           // copy logic from `( ...`, binpack=never, defining `slbSplit`
           val slbParensPolicy = Policy ? (slbMod eq noSplitMod) || {
-            val beforeClose = prev(closeFT)
-            Policy.End < close ==> Policy.on(close, "BracesToParens") {
-              case Decision(`beforeClose`, ss) => ss
-                  .flatMap(s => if (s.isNL) None else Some(s.withMod(NoSplit)))
-            }
+            val beforeClose = prev(close)
+            Policy.End <= beforeClose ==>
+              Policy.onRight(beforeClose, "BracesToParens") {
+                case Decision(`beforeClose`, ss) => ss
+                    .flatMap(s => if (s.isNL) None else Some(s.withMod(NoSplit)))
+              }
           }
           val exclude = slbParensExclude.getOrElse(TokenRanges.empty)
           val slbPolicy =
             if (exclude.isEmpty) slbParensPolicy
             else Policy.RelayOnSplit((s, _) => s.isNL)(slbParensPolicy)(
-              Policy.on(close, "BracesToParensFailed") { case _ => Nil },
+              Policy.onLeft(close, "BracesToParensFailed") { case _ => Nil },
             )
           Split(slbMod, 0).withSingleLine(
             expire,
@@ -490,8 +485,8 @@ class Router(formatOps: FormatOps) {
             val (mod, policy) = singleLineSplitOpt match {
               case Some(slbSplit) if singleLineSplit.isIgnored =>
                 val arrSplit = slbSplit.withMod(Space)
-                slbMod -> Policy.after(lambdaExpire, s"FNARR($arrSplit)") {
-                  case Decision(FT(`lambdaExpire`, _, _), ss) =>
+                slbMod -> Policy.onRight(lambdaExpire, s"FNARR($arrSplit)") {
+                  case Decision(`lambdaExpire`, ss) =>
                     var hadNoSplit = false
                     val nlSplits = ss.flatMap { s =>
                       // penalize NL one extra, for closing brace
@@ -533,7 +528,6 @@ class Router(formatOps: FormatOps) {
                   style.newlines.fold || !rightOwner.is[Defn]
                 } =>
               val exp = nextNonCommentSameLine(getLastNonTrivial(leftFunc.body))
-                .left
               spaceSplitBase.withSingleLine(exp, noSyntaxNL = true)
             case _ => Split.ignored
           }
@@ -552,7 +546,7 @@ class Router(formatOps: FormatOps) {
           }) =>
         val (endOfFunction, expiresOn) = leftOwner match {
           case t: Term.FunctionTerm => functionExpire(t)
-          case t => getLastNonTrivialToken(t) -> ExpiresOn.Before
+          case t => getLastNonTrivial(t) -> ExpiresOn.Before
         }
 
         val indent = // don't indent if the body is empty `{ x => }`
@@ -597,7 +591,7 @@ class Router(formatOps: FormatOps) {
           // 2020-01: break after same-line comments, and any open brace
           val nonComment = nextNonCommentSameLine(ft)
           val hasBlock = nonComment.right.is[T.LeftBrace] &&
-            (matching(nonComment.right).left eq endOfFunction)
+            (matching(nonComment.right) eq endOfFunction)
           val noSplit =
             if (!hasBlock && (nonComment eq ft)) Split(noSingleLine, 0)(Space)
               .withSingleLine(endOfFunction)
@@ -607,7 +601,7 @@ class Router(formatOps: FormatOps) {
               Split(Space, 0)
                 .withIndent(indent, endOfFunction, expiresOn, hasBlock)
                 .withOptimalToken(
-                  nextNonCommentSameLineAfter(nonComment).left,
+                  nextNonCommentSameLineAfter(nonComment),
                   killOnFail = false,
                 )
           Seq(noSplit, newlineSplit(1 + nestedApplies(leftOwner)))
@@ -628,7 +622,7 @@ class Router(formatOps: FormatOps) {
           Split(Newline2x(ft), cost)
         CtrlBodySplits.checkComment(nlSplit(ft)) { nft =>
           def withSlbSplit(implicit l: FileLine) = Seq(
-            baseSplit.withSingleLine(getLastNonTrivialToken(body)),
+            baseSplit.withSingleLine(getLastNonTrivial(body)),
             nlSplit(nft)(1),
           )
           implicit val beforeMultiline = style.newlines.getBeforeMultiline
@@ -668,7 +662,7 @@ class Router(formatOps: FormatOps) {
           }
         Seq(
           Split(noSpace, 0)(Space)
-            .withSingleLine(endOfSingleLineBlock(getLast(stmt))),
+            .withSingleLine(getSlbEndOnLeft(getLast(stmt))),
           // For some reason, this newline cannot cost 1.
           Split(Newline2x(ft), 0),
         )
@@ -701,12 +695,12 @@ class Router(formatOps: FormatOps) {
             case Tree.WithBody(body) => tokenBeforeOpt(body).map { x =>
                 val y = nextNonCommentSameLine(x)
                 val ok = (x ne y) && y.noBreak && y.right.is[T.LeftBrace]
-                if (ok) y.right else y.left
+                if (ok) next(y) else y
               }
             case t: Mod.Annot if !style.newlines.keep =>
-              getLastOpt(t).map(endOfSingleLineBlock)
+              getLastOpt(t).map(getSlbEndOnLeft)
             case _ => None
-          }).getOrElse(right)
+          }).getOrElse(next(ft))
           Seq(
             // This split needs to have an optimalAt field.
             Split(Space, 0).onlyIf(spaceCouldBeOk).withSingleLine(expire),
@@ -765,18 +759,16 @@ class Router(formatOps: FormatOps) {
             indentLen: Int,
             shouldAlignBefore: Align => Boolean,
         )(lastSyntaxClause: => Option[Member.SyntaxValuesClause]) = {
-          val closeFt = matching(open)
-          val close = closeFt.left
+          val close = matching(open)
           val indent = Indent(indentLen, close, ExpiresOn.After)
           val isAlignFirstParen = shouldAlignBefore(style.align) &&
             !prevNonComment(ft).left.is[T.RightParen]
           def noSplitSplit(implicit fileLine: FileLine) =
             if (isAlignFirstParen) baseNoSplit
             else baseNoSplit.withSingleLine(close)
-          def afterClose: Option[T] = {
-            val ftAfterClose = nextNonComment(closeFt)
-            val tokAfterClose = ftAfterClose.right
-            val matches = tokAfterClose match {
+          def afterClose: Option[FT] = {
+            val ftAfterClose = nextNonComment(close)
+            val matches = ftAfterClose.right match {
               case _: T.LeftParen => true
               case _: T.Colon if defn =>
                 ftAfterClose.left.is[T.Comment] ||
@@ -784,19 +776,18 @@ class Router(formatOps: FormatOps) {
                 colonDeclType(ftAfterClose.meta.rightOwner).isDefined
               case _ => false
             }
-            if (matches) Some(tokAfterClose) else None
+            if (matches) Some(next(ftAfterClose)) else None
           }
           val splits = src match {
             case Newlines.unfold =>
               val rightParent = rightOwner.parent.get
               val slbEnd =
-                if (defn) beforeDefRhs
-                  .fold(getLastToken(rightParent))(prevNonComment(_).left)
-                else getLastToken(getLastCall(rightParent))
+                if (defn) beforeDefRhs.fold(getLast(rightParent))(prevNonComment)
+                else getLast(getLastCall(rightParent))
               Seq(
                 baseNoSplit.withSingleLine(slbEnd),
                 Split(Newline, 1).withIndent(indent).withPolicy(
-                  penalizeNewlineByNesting(open, close),
+                  penalizeNewlineByNesting(ft, close),
                   isSeqMulti(getArgs(ft.meta.rightOwner)),
                 ).andPolicy(afterClose.map(decideNewlinesOnlyBeforeClose)),
               )
@@ -804,8 +795,9 @@ class Router(formatOps: FormatOps) {
               if (hasBreak()) Seq(Split(Newline, 0).withIndent(indent))
               else Seq(noSplitSplit, Split(Newline, 1).withIndent(indent))
             case _ =>
-              val nlColonPolicy = afterClose.map {
-                case t: T.Colon => decideNewlinesOnlyBeforeClose(t)
+              val nlColonPolicy = afterClose match {
+                case Some(x @ FT(_: T.Colon, _, _)) =>
+                  decideNewlinesOnlyBeforeClose(x)
                 case _ => NoPolicy
               }
               Seq(
@@ -814,7 +806,7 @@ class Router(formatOps: FormatOps) {
               )
           }
           val argsOpt = if (isAlignFirstParen) lastSyntaxClause else None
-          argsOpt.flatMap(getLastTokenOpt).fold(splits) { x =>
+          argsOpt.flatMap(getLastOpt).fold(splits) { x =>
             val noSplitIndents = Seq(
               Indent(StateColumn, x, ExpiresOn.Before),
               Indent(-indentLen, x, ExpiresOn.Before),
@@ -869,8 +861,8 @@ class Router(formatOps: FormatOps) {
           ) =>
         val policy = Policy ?
           (style.binPack.keepParentConstructors || template.pos.isEmpty) || {
-            val expire = templateDerivesOrCurlyOrLastNonTrivial(template).left
-            val forceNewlineBeforeExtends = Policy.before(expire, "NLPCTOR") {
+            val expire = templateDerivesOrCurlyOrLastNonTrivial(template)
+            val forceNewlineBeforeExtends = Policy.beforeLeft(expire, "NLPCTOR") {
               case Decision(FT(_, soft.ExtendsOrDerives(), m), s)
                   if m.rightOwner eq template =>
                 s.filter(x => x.isNL && !x.isActiveFor(SplitTag.OnelineWithChain))
@@ -885,10 +877,10 @@ class Router(formatOps: FormatOps) {
       case FT(open @ LeftParenOrBracket(), _, _)
           if ft.meta.formatOff &&
             leftOwner.isAny[Member.SyntaxValuesClause, Member.Tuple] =>
-        val close = matching(open).left
+        val close = matching(open)
         def splits(xft: FT, policy: Policy)(implicit l: FileLine) =
           Seq(Split(Provided(xft), 0, policy = policy))
-        val policy = Policy.on(close, "(FMT:OFF)", rank = Int.MaxValue) {
+        val policy = Policy.onLeft(close, "(FMT:OFF)", rank = Int.MaxValue) {
           case Decision(xft, _) => splits(xft, NoPolicy)
         }
         splits(ft, policy)
@@ -901,39 +893,40 @@ class Router(formatOps: FormatOps) {
 
       // Term.Apply and friends
       case FT(lp: T.LeftParen, _, LambdaAtSingleArgCallSite(lambda)) =>
-        val closeFt = matching(lp)
-        val close = closeFt.left
+        val close = matching(lp)
+        val beforeClose = prev(close)
         val newlinePolicy = Policy ? style.danglingParentheses.callSite &&
           decideNewlinesOnlyBeforeClose(close)
         val noSplitMod =
           if (
             style.newlines.alwaysBeforeCurlyLambdaParams ||
-            getMustDangleForTrailingCommas(prev(closeFt))
+            getMustDangleForTrailingCommas(beforeClose)
           ) null
           else getNoSplitAfterOpening(ft, commentNL = null)
 
         def multilineSpaceSplit(implicit fileLine: FileLine): Split = {
-          val lambdaLeft: Option[T] =
-            matchingOpt(functionExpire(lambda)._1) match {
-              case Some(FT(lb: T.LeftBrace, _, _)) => Some(lb)
+          val lambdaLeft: Option[FT] =
+            matchingOpt(functionExpire(lambda)._1.left) match {
+              case x @ Some(FT(_: T.LeftBrace, _, _)) => x
               case _ => None
             }
 
           val arrowFt = getFuncArrow(lambda).get
-          val lambdaIsABlock = lambdaLeft.contains(arrowFt.right)
+          val lambdaIsABlock = lambdaLeft.exists(_.left eq arrowFt.right)
           val lambdaToken = nextNonCommentSameLine(
             if (lambdaIsABlock) next(arrowFt) else arrowFt,
-          ).left
+          )
 
           val spacePolicy = SingleLineBlock(lambdaToken) ==> {
-            def before = Policy.End < close ==> Policy.on(close, "NODANGLE") {
-              case Decision(FT(bc, `close`, _), _) =>
+            def before = Policy.End < close ==> Policy.onLeft(close, "NODANGLE") {
+              case Decision(`beforeClose`, _) =>
+                val bc = beforeClose.left
                 if (bc.is[T.Comment])
                   if (bc.text.startsWith("//")) Nil else Seq(Split(Space, 0))
                 else Seq(Split(Space(style.spaces.inParentheses), 0))
             }
             Policy ? lambdaIsABlock ||
-            Policy.RelayOnSplit.by(Policy.End == lambdaLeft.getOrElse(close))(
+            Policy.RelayOnSplit.by(Policy.End <= lambdaLeft.getOrElse(close))(
               (s, _) => s.isNL,
             )(before)(newlinePolicy)
           }
@@ -967,9 +960,9 @@ class Router(formatOps: FormatOps) {
             else style.binPack.defnSiteFor(open) == BinPack.Site.Never &&
             isParamClauseSite(leftOwner)
           } =>
-        val afterClose = matching(open)
-        val close = afterClose.left
-        val beforeClose = prev(afterClose)
+        val afterOpen = next(ft)
+        val close = matching(open)
+        val beforeClose = prev(close)
         val tupleSite = isTuple(leftOwner)
         val anyDefnSite = isParamClauseSite(leftOwner)
         val defnSite = !tupleSite && anyDefnSite
@@ -1031,15 +1024,14 @@ class Router(formatOps: FormatOps) {
         val isBeforeOpenParen =
           if (defnSite) style.newlines.isBeforeOpenParenDefnSite
           else style.newlines.isBeforeOpenParenCallSite
-        val optimalFtOpt =
+        val optimalOpt =
           if (isBeforeOpenParen || !defnSite || isBracket) None
           else defnSiteLastToken(leftOwner)
-        val optimalFt: FT = getSlbEndOnLeft(optimalFtOpt.getOrElse(afterClose))
-        val optimal = optimalFt.left
+        val optimal: FT = getSlbEndOnLeft(optimalOpt.getOrElse(close))
 
         val wouldDangle = onlyConfigStyle || mustDangleForTrailingCommas ||
           dangleCloseDelim || closeBreak && beforeClose.left.is[T.Comment]
-        val optimalIsComment = optimal.is[T.Comment]
+        val optimalIsComment = optimal.left.is[T.Comment]
 
         val newlinePolicy: Policy = Policy ?
           (wouldDangle || optimalIsComment) &&
@@ -1073,7 +1065,7 @@ class Router(formatOps: FormatOps) {
             val breakToken = nextNonCommentSameLine(assign.rhs match {
               case b: Term.Block if isEnclosedInBraces(b) => getHead(b)
               case x => tokenBefore(x)
-            }).left
+            })
             val newlineAfterAssignDecision = Policy ? newlinePolicy.isEmpty ||
               decideNewlinesOnlyAfterToken(breakToken)
             Seq(
@@ -1099,8 +1091,7 @@ class Router(formatOps: FormatOps) {
               singleArgument && isTreeEndingInArgumentClause(onlyArgument)
             }
           )
-            if (onlyArgument eq leftOwner)
-              TokenRanges(TokenRange(ft, afterClose))
+            if (onlyArgument eq leftOwner) TokenRanges(TokenRange(ft, close))
             else parensTuple(onlyArgument)
           else insideBracesBlock(ft, close)
 
@@ -1112,14 +1103,16 @@ class Router(formatOps: FormatOps) {
           else {
             val penalty =
               if (!multipleArgs) newlinePenalty else Constants.ShouldBeNewline
-            policyWithExclude(excludeBlocks, Policy.End.On, Policy.End.On)(
-              PenalizeAllNewlines(
-                close,
-                penalty = penalty,
-                penalizeLambdas = multipleArgs,
-                noSyntaxNL = multipleArgs,
-              ),
-            )
+            policyWithExclude(
+              excludeBlocks,
+              Policy.End.OnLeft,
+              Policy.End.OnLeft,
+            )(PenalizeAllNewlines(
+              close,
+              penalty = penalty,
+              penalizeLambdas = multipleArgs,
+              noSyntaxNL = multipleArgs,
+            ))
           }
 
         val preferNoSplit = !skipNoSplit && singleArgument &&
@@ -1132,17 +1125,17 @@ class Router(formatOps: FormatOps) {
           })
         val extraOneArgPerLineIndent =
           if (multipleArgs && style.poorMansTrailingCommasInConfigStyle)
-            Indent(Num(2), right, After)
+            Indent(Num(2), afterOpen, After)
           else Indent.Empty
         val (implicitPenalty, implicitPolicy) =
           if (!handleImplicit) (2, Policy.NoPolicy)
-          else (0, decideNewlinesOnlyAfterToken(right))
+          else (0, decideNewlinesOnlyAfterToken(afterOpen))
 
         val splitsNoNL =
           if (noSplitMod == null) Seq.empty
           else if (onlyConfigStyle) Seq(
             Split(noSplitMod, 0).withPolicy(oneArgOneLine & implicitPolicy)
-              .withOptimalToken(right, killOnFail = true)
+              .withOptimalToken(afterOpen, killOnFail = true)
               .withIndents(extraOneArgPerLineIndent, indent),
           )
           else {
@@ -1211,7 +1204,7 @@ class Router(formatOps: FormatOps) {
                   !configStyleFlag
                 val policy =
                   if (!noSplitForNL) newlinePolicy
-                  else decideNewlinesOnlyBeforeToken(matching(right).left)
+                  else decideNewlinesOnlyBeforeToken(matching(right))
                 Split(NoSplit.orNL(noSplitForNL), cost, policy = policy)
                   .andPolicy(Policy ? noConfigStyle && singleLine(4)).andPolicy(
                     Policy ? singleArgument && asInfixApp(args.head)
@@ -1226,8 +1219,7 @@ class Router(formatOps: FormatOps) {
       case FT(open @ LeftParenOrBracket(), right, _)
           if style.binPack.defnSiteFor(open) != BinPack.Site.Never &&
             isParamClauseSite(leftOwner) =>
-        val closeFt = matching(open)
-        val close = closeFt.left
+        val close = matching(open)
         val noSplitMod = Space(style.spaces.inParentheses)
         if (close eq right) Seq(Split(noSplitMod, 0))
         else {
@@ -1247,13 +1239,13 @@ class Router(formatOps: FormatOps) {
           }
           val nextCommaOneline = if (binpack.isOneline) nextComma else None
 
-          val flags = getBinpackDefnSiteFlags(ft, prev(closeFt))
+          val flags = getBinpackDefnSiteFlags(ft, prev(close))
           val (nlOnly, nlCloseOnOpen) = flags.nlOpenClose()
           val noNLPolicy = flags.noNLPolicy
           val slbOrNL = nlOnly || noNLPolicy == null
 
           val rightIsComment = right.is[T.Comment]
-          def getNoSplit(slbEnd: Option[T])(implicit fileLine: FileLine) = {
+          def getNoSplit(slbEnd: Option[FT])(implicit fileLine: FileLine) = {
             val mod = if (rightIsComment) Space.orNL(noBreak()) else noSplitMod
             slbEnd.fold(Split(mod, 0)) { x =>
               Split(mod, 0).withOptimalToken(x, killOnFail = true)
@@ -1266,7 +1258,7 @@ class Router(formatOps: FormatOps) {
             else if (slbOrNL) getNoSplit(Some(close))
             else {
               val opensPolicy = bracketPenalty.map { p =>
-                Policy.before(close, "PENBP[") {
+                Policy.beforeLeft(close, "PENBP[") {
                   case Decision(ftd @ FT(o: T.LeftBracket, _, m), s)
                       if isParamClauseSite(m.leftOwner) &&
                         styleMap.at(o).binPack.bracketDefnSite
@@ -1275,7 +1267,7 @@ class Router(formatOps: FormatOps) {
                     else s.map(x => if (x.isNL) x.withPenalty(p) else x)
                 }
               }
-              getNoSplit(nextComma.map(endOfSingleLineBlock))
+              getNoSplit(nextComma.map(getSlbEndOnLeft))
                 .andPolicy((opensPolicy | penalizeBrackets) & noNLPolicy())
             }
 
@@ -1290,7 +1282,7 @@ class Router(formatOps: FormatOps) {
             case NlClosedOnOpen.No => NoPolicy
           }
           val nlOnelinePolicy = nextCommaOneline
-            .map(x => splitOneArgPerLineAfterCommaOnBreak(x.right))
+            .map(x => splitOneArgPerLineAfterCommaOnBreak(next(x)))
 
           val (indentLen, bpIndentLen) = style.indent
             .getBinPackDefnSites(leftOwner)
@@ -1312,9 +1304,8 @@ class Router(formatOps: FormatOps) {
       case FT(open @ LeftParenOrBracket(), right, _)
           if style.binPack.callSiteFor(open) != BinPack.Site.Never &&
             isArgClauseSite(leftOwner) =>
-        val closeFt = matching(open)
-        val close = closeFt.left
-        val beforeClose = prev(closeFt)
+        val close = matching(open)
+        val beforeClose = prev(close)
         val isBracket = open.is[T.LeftBracket]
         val bracketPenalty = if (isBracket) Constants.BracketPenalty else 1
 
@@ -1346,10 +1337,10 @@ class Router(formatOps: FormatOps) {
 
         val newlinesPenalty = 3 + indentLen * bracketPenalty
         val penalizeNewlinesPolicy =
-          policyWithExclude(exclude, Policy.End.Before, Policy.End.On) {
+          policyWithExclude(exclude, Policy.End.BeforeLeft, Policy.End.OnLeft) {
             val expire =
               findToken(beforeClose, prev)(x => !RightParenOrBracket(x.left))
-            new PenalizeAllNewlines(Policy.End == expire.left, newlinesPenalty)
+            new PenalizeAllNewlines(Policy.End <= expire, newlinesPenalty)
           }
 
         val (onelineCurryToken, onelinePolicy) = afterFirstArgOneline
@@ -1392,16 +1383,15 @@ class Router(formatOps: FormatOps) {
               if (firstArg.isEmpty) None
               else if (!oneline) tokens.findTokenEx(ft) { xft =>
                 xft.right match {
-                  case `close` | _: T.RightBrace | _: T.RightArrow => null
-                  case x: T.Comma => Right(x)
+                  case close.left | _: T.RightBrace | _: T.RightArrow => null
+                  case _: T.Comma => Right(next(xft))
                   case x: T.LeftBrace => Left(matching(x))
                   case _ => Left(next(xft))
                 }
               }.toOption
               else if (isSingleArg) None
-              else afterFirstArgOneline.map(_.right)
-            val opt = nextComma
-              .getOrElse(endOfSingleLineBlock(next(beforeClose)))
+              else afterFirstArgOneline.map(next)
+            val opt = nextComma.getOrElse(getSlbEndOnLeft(close))
 
             val slbArg = oneline && !noSplitIndents.exists(_.hasStateColumn)
             val slbPolicy: Policy = (if (slbArg) nextComma else None).map {
@@ -1415,7 +1405,7 @@ class Router(formatOps: FormatOps) {
               def indentOncePolicy =
                 Policy ? style.binPack.indentCallSiteOnce && {
                   val trigger = getIndentTrigger(leftOwner)
-                  Policy.on(close, prefix = "IND1") {
+                  Policy.onLeft(close, prefix = "IND1") {
                     case Decision(FT(LeftParenOrBracket(), _, m), s)
                         if isArgClauseSite(m.leftOwner) =>
                       s.map(x => if (x.isNL) x else x.switch(trigger, false))
@@ -1435,7 +1425,8 @@ class Router(formatOps: FormatOps) {
 
         val nlClosedOnOpenEffective = {
           val nlClosedOnOpenOk = onelineCurryToken.forall(x =>
-            if (x.is[T.Dot]) onelinePolicy.nonEmpty else flags.scalaJsStyle,
+            if (x.right.is[T.Dot]) onelinePolicy.nonEmpty
+            else flags.scalaJsStyle,
           )
           val res =
             if (nlClosedOnOpenOk) nlCloseOnOpen
@@ -1476,11 +1467,10 @@ class Router(formatOps: FormatOps) {
       case FT(left, _: T.Colon, ColonDeclTpeRight(returnType))
           if style.newlines.sometimesBeforeColonInMethodReturnType ||
             left.is[T.Comment] && hasBreak() =>
-        val expireFt = getLastNonTrivial(returnType)
-        val expire = expireFt.left
+        val expire = getLastNonTrivial(returnType)
         val sameLineSplit = Space(endsWithSymbolIdent(left))
         val bopSplits = style.newlines.getBeforeOpenParenDefnSite.map { x =>
-          val ob = OptionalBraces.at(nextAfterNonComment(expireFt))
+          val ob = OptionalBraces.at(nextAfterNonComment(expire))
           def extraIfBody = style.indent.extraBeforeOpenParenDefnSite
           val indent =
             if (ob) style.indent.getSignificant + extraIfBody
@@ -1514,7 +1504,7 @@ class Router(formatOps: FormatOps) {
         }
       case FT(_: T.Colon, _, ColonDeclTpeLeft(returnType))
           if style.newlines.avoidInResultType =>
-        val expire = getLastNonTrivialToken(returnType)
+        val expire = getLastNonTrivial(returnType)
         val policy = PenalizeAllNewlines(expire, Constants.ShouldBeNewline)
         Seq(
           Split(Space, 0).withPolicy(policy)
@@ -1532,7 +1522,7 @@ class Router(formatOps: FormatOps) {
       case FT(_: T.Comma, open: T.LeftBrace, _)
           if !style.poorMansTrailingCommasInConfigStyle &&
             isArgClauseSite(leftOwner) =>
-        val close = matching(open).left
+        val close = matching(open)
         val binPackIsEnabled = style.binPack.callSiteFor(leftOwner) !=
           BinPack.Site.Never
         val useSpace = !style.newlines.keepBreak(newlines)
@@ -1544,8 +1534,7 @@ class Router(formatOps: FormatOps) {
                 .Block(List(_: Term.FunctionTerm | _: Term.PartialFunction)) =>
             Seq(Split(Newline, 0))
           case _ =>
-            val breakAfter =
-              endOfSingleLineBlock(next(nextNonCommentSameLine(ft)))
+            val breakAfter = getSlbEndOnLeft(nextAfterNonCommentSameLine(ft))
             val multiLine = decideNewlinesOnlyAfterToken(breakAfter) ==>
               decideNewlinesOnlyBeforeClose(close)
             Seq(
@@ -1566,7 +1555,7 @@ class Router(formatOps: FormatOps) {
           ) => Seq(Split(NoSplit, 0))
       case FT(_: T.KwMatch, _, _) if !leftOwner.is[Term.Name] => // exclude end marker
         val indentLen = style.indent.matchSite.fold(0)(_ - style.indent.main)
-        def expire = getLastNonTrivialToken(leftOwner) // should rbrace
+        def expire = getLastNonTrivial(leftOwner) // should be rbrace
         Seq(Split(Space, 0).withIndent(indentLen, expire, ExpiresOn.Before))
       case FT(_, lb: T.LeftBrace, _) if ! { // partial initial expr
             @tailrec
@@ -1612,7 +1601,6 @@ class Router(formatOps: FormatOps) {
           if (binPack eq BinPack.Site.Never) None
           else optimizationEntities.argument.map { nextArg =>
             val lastFT = getLast(nextArg)
-            val lastTok = lastFT.left
             val oneline = binPack.isOneline
             val afterNextArg = nextNonComment(lastFT)
             val nextCommaOrParen = afterNextArg.right match {
@@ -1640,7 +1628,7 @@ class Router(formatOps: FormatOps) {
 
             val sjsExclude =
               if (binPack ne BinPack.Site.OnelineSjs) TokenRanges.empty
-              else insideBracesBlock(ft, lastTok)
+              else insideBracesBlock(ft, lastFT)
             val onelinePolicy = Policy ? oneline &&
               nextCommaOrParen
                 .map(BinPackOneline.getPolicy(callSite, sjsExclude)(_)._2)
@@ -1648,7 +1636,7 @@ class Router(formatOps: FormatOps) {
             val indentOncePolicy = Policy ?
               (callSite && style.binPack.indentCallSiteOnce) && {
                 val trigger = getIndentTrigger(leftOwner)
-                Policy.on(lastTok, prefix = "IND1") {
+                Policy.onLeft(lastFT, prefix = "IND1") {
                   case Decision(FT(LeftParenOrBracket(), _, m), s)
                       if isArgClauseSite(m.leftOwner) =>
                     s.map(x => if (x.isNL) x else x.switch(trigger, true))
@@ -1659,7 +1647,7 @@ class Router(formatOps: FormatOps) {
             val noSplit =
               if (style.newlines.keepBreak(newlines)) Split.ignored
               else {
-                val end = endOfSingleLineBlock(
+                val end = getSlbEndOnLeft(
                   nextCommaOrParen.flatMap(getEndOfResultType).getOrElse(lastFT),
                 )
                 val slbPolicy =
@@ -1677,7 +1665,7 @@ class Router(formatOps: FormatOps) {
           case _: Defn.Val | _: Defn.Var => Seq(
               Split(Space, 0),
               Split(Newline, 1)
-                .withIndent(style.indent.getDefnSite(leftOwner), right, After),
+                .withIndent(style.indent.getDefnSite(leftOwner), next(ft), After),
             )
           case _: Defn.RepeatedEnumCase if {
                 if (!style.newlines.sourceIgnored) hasBreak()
@@ -1686,7 +1674,7 @@ class Router(formatOps: FormatOps) {
           case _: ImportExportStat => Seq(
               Split(Space, 0),
               Split(Newline, 1)
-                .withIndent(style.indent.main, right, ExpiresOn.After),
+                .withIndent(style.indent.main, next(ft), ExpiresOn.After),
             )
           case _ => defaultSplits
         }
@@ -1705,7 +1693,7 @@ class Router(formatOps: FormatOps) {
           ).contains(sc) // something was removed
         }
         val policy = Policy ? forceBreak &&
-          decideNewlinesOnlyAfterToken(nextNonCommentSameLineAfter(ft).left)
+          decideNewlinesOnlyAfterToken(nextNonCommentSameLineAfter(ft))
         Seq(Split(NoSplit, 0, policy = policy))
 
       case FT(_: T.KwReturn, r, _) =>
@@ -1747,7 +1735,7 @@ class Router(formatOps: FormatOps) {
           case _: T.Supertype => tbounds.lo
           case _ => None
         }
-        val boundEnd = boundOpt.map(getLastNonTrivialToken)
+        val boundEnd = boundOpt.map(getLastNonTrivial)
         val typeOwner = rightOwner.parent.get
         getSplitsForTypeBounds(Space, typeOwner, boundEnd)
 
@@ -1767,7 +1755,7 @@ class Router(formatOps: FormatOps) {
               case _ => Some(false)
             }.isDefined => Seq(Split(NoSplit, 0))
 
-      case FT(left, r: T.Dot, GetSelectLike.OnRight(thisSelect)) =>
+      case FT(left, _: T.Dot, GetSelectLike.OnRight(thisSelect)) =>
         val enclosed = style.encloseSelectChains
         val (expireTree, nextSelect) =
           findLastApplyAndNextSelect(rightOwner, enclosed)
@@ -1776,8 +1764,8 @@ class Router(formatOps: FormatOps) {
         val afterComment = left.is[T.Comment]
         val nlOnly =
           style.newlines.sourceIgnored && afterComment && hasBreak() ||
-            prevApply.exists(x => getHeadToken(x.argClause).is[T.Colon])
-        val expire = getLastEnclosedToken(expireTree)
+            prevApply.exists(x => getHead(x.argClause).left.is[T.Colon])
+        val expire = getLastExceptParen(expireTree)
         val indentLen = style.indent.main
 
         def checkFewerBraces(tree: Tree) = tree match {
@@ -1794,7 +1782,7 @@ class Router(formatOps: FormatOps) {
         }
         def forcedBreakOnNextDotPolicy = nextSelect.map { selectLike =>
           val tree = selectLike.tree
-          Policy.before(selectLike.nameToken, "NEXTSELFNL") {
+          Policy.beforeLeft(selectLike.nameFt, "NEXTSELFNL") {
             case d @ Decision(FT(_, _: T.Dot, m), _) if m.rightOwner eq tree =>
               d.onlyNewlinesWithoutFallback
           }
@@ -1802,7 +1790,7 @@ class Router(formatOps: FormatOps) {
 
         def breakOnNextDot: Policy = nextSelect.map { selectLike =>
           val tree = selectLike.tree
-          Policy.before(selectLike.nameToken, "NEXTSEL2NL") {
+          Policy.beforeLeft(selectLike.nameFt, "NEXTSEL2NL") {
             case Decision(FT(_, _: T.Dot, m), s) if m.rightOwner eq tree =>
               val filtered = s.flatMap { x =>
                 val y = x.activateFor(SplitTag.SelectChainSecondNL)
@@ -1823,7 +1811,7 @@ class Router(formatOps: FormatOps) {
         def getSlbEnd() = {
           val nft = nextNonCommentSameLineAfter(ft)
           val eft = if (nft.noBreak) nextNonCommentSameLineAfter(nft) else nft
-          endOfSingleLineBlock(eft)
+          getSlbEndOnLeft(eft)
         }
 
         val ftAfterRight = tokens(ft, 2)
@@ -1836,10 +1824,10 @@ class Router(formatOps: FormatOps) {
                   val ko = style.getFewerBraces() ==
                     Indents.FewerBraces.always && checkFewerBraces(expireTree)
                   if (ko) None else Some(expire)
-                }(ns => Some(getLastNonTrivialToken(ns.qual)))
+                }(ns => Some(getLastNonTrivial(ns.qual)))
               } { nd =>
                 val ok = style.getFewerBraces() == Indents.FewerBraces.never
-                if (ok) Some(nd.left) else None
+                if (ok) Some(nd) else None
               }
               val altIndent = endSelect.map(Indent(-indentLen, _, After))
               NewlineT(alt = Some(ModExt(modSpace).withIndentOpt(altIndent)))
@@ -1848,7 +1836,7 @@ class Router(formatOps: FormatOps) {
             val prevChain = inSelectChain(prevSelect, thisSelect, expireTree)
             if (canStartSelectChain(thisSelect, nextSelect, expireTree)) {
               val chainExpire =
-                if (nextSelect.isEmpty) thisSelect.nameToken else expire
+                if (nextSelect.isEmpty) thisSelect.nameFt else expire
               val nestedPenalty = nestedSelect(rightOwner) +
                 nestedApplies(leftOwner)
               // This policy will apply to both the space and newline splits, otherwise
@@ -1890,11 +1878,11 @@ class Router(formatOps: FormatOps) {
                 else {
                   val noSplit = Split(modSpace, 0)
                   if (prevChain) noSplit
-                  else chainExpire match { // allow newlines in final {} block
+                  else chainExpire.left match { // allow newlines in final {} block
                     case x: T.RightBrace => noSplit
-                        .withSingleLine(matching(x).left, noSyntaxNL = true)
-                    case x => noSplit
-                        .withSingleLineNoOptimal(x, noSyntaxNL = true)
+                        .withSingleLine(matching(x), noSyntaxNL = true)
+                    case _ => noSplit
+                        .withSingleLineNoOptimal(chainExpire, noSyntaxNL = true)
                   }
                 }.andPolicy(penalizeBreaks)
               val nlSplit = Split(if (ignoreNoSplit) Newline else nlMod, nlCost)
@@ -1915,12 +1903,13 @@ class Router(formatOps: FormatOps) {
 
           case Newlines.keep =>
             if (hasBreak()) Seq(Split(Newline, 0))
-            else if (hasBreakAfterRightBeforeNonComment(ft))
+            else if (hasBreakAfterRightBeforeNonComment(ft)) {
+              val nft = next(ft)
               Seq(Split(modSpace, 0).withPolicy(
-                decideNewlinesOnlyAfterClose(Split(Newline, 0))(r),
-                ignore = next(ft).right.is[T.Comment],
+                decideNewlinesOnlyAfterClose(nft),
+                ignore = nft.right.is[T.Comment],
               ))
-            else Seq(
+            } else Seq(
               Split(modSpace, 0),
               Split(Newline, 1).onlyFor(SplitTag.SelectChainBinPackNL),
             )
@@ -1946,7 +1935,7 @@ class Router(formatOps: FormatOps) {
               if (nlOnly) Seq(nlSplitBase(0))
               else {
                 val end = nextSelect.fold(expire) { x =>
-                  prevNonCommentBefore(tokenBefore(x.nameFt)).left
+                  prevNonCommentBefore(tokenBefore(x.nameFt))
                 }
                 val exclude = insideBracesBlock(ft, end, parensToo = true)
                   .excludeCloseDelim
@@ -1977,7 +1966,7 @@ class Router(formatOps: FormatOps) {
 
         val delayedBreakPolicyOpt = nextSelect.map { selectLike =>
           val tree = selectLike.tree
-          Policy.before(selectLike.nameToken, "NEXTSEL1NL") {
+          Policy.beforeLeft(selectLike.nameFt, "NEXTSEL1NL") {
             case Decision(FT(_, _: T.Dot, m), s) if m.rightOwner eq tree =>
               SplitTag.SelectChainFirstNL.activateOnly(s)
             case Decision(FT(l, _: T.Comment, m), s)
@@ -2003,7 +1992,7 @@ class Router(formatOps: FormatOps) {
                 nextSelect.isEmpty && checkFewerBraces(expireTree)
               if (ok) nlIndent else Indent.empty
             } { x =>
-              if (fbIndent) Indent(indentLen, x.left, Before) else Indent.Empty
+              if (fbIndent) Indent(indentLen, x, Before) else Indent.Empty
             }
             baseSplits.map { s =>
               if (s.isNL) s.withIndent(nlIndent).andFirstPolicy(nlPolicy)
@@ -2089,7 +2078,7 @@ class Router(formatOps: FormatOps) {
             )
           case enumCase: Defn.EnumCase =>
             val indent = style.indent.withSiteRelativeToExtends
-            val expire = getLastToken(enumCase)
+            val expire = getLast(enumCase)
             Seq(
               Split(Space, 0).withIndent(indent, expire, ExpiresOn.After),
               Split(Newline, 1).withIndent(indent, expire, ExpiresOn.After),
@@ -2103,12 +2092,12 @@ class Router(formatOps: FormatOps) {
               !isTokenHeadOrBefore(open, leftOwner)
             case _ => false
           }) =>
-        val close = matching(open).left
+        val close = matching(open)
         val indentLen = style.indent.ctrlSite.getOrElse(style.indent.callSite)
         def indents =
           if (style.align.openParenCtrlSite) getOpenParenAlignIndents(close)
           else Seq(Indent(indentLen, close, ExpiresOn.Before))
-        val penalizeNewlines = penalizeNewlineByNesting(open, close)
+        val penalizeNewlines = penalizeNewlineByNesting(ft, close)
         def baseNoSplit(commentNL: Modification = null)(implicit
             fileLine: FileLine,
         ) = Split.opt(getNoSplitAfterOpening(ft, commentNL = commentNL), 0)
@@ -2131,7 +2120,7 @@ class Router(formatOps: FormatOps) {
 
       case FT(_: T.KwIf, right, _) if leftOwner.is[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
-        val expire = getLastToken(owner)
+        val expire = getLast(owner)
         val isKeep = style.newlines.keep
         val mod =
           if (isKeep && hasBreak()) Newline
@@ -2185,14 +2174,14 @@ class Router(formatOps: FormatOps) {
               case _ => t
             }
         }
-        val expire = getLastToken(body)
+        val expire = getLast(body)
         def nlSplitFunc(cost: Int)(implicit l: sourcecode.Line) =
           Split(Newline2x(ft), cost).withIndent(style.indent.main, expire, After)
         if (style.newlines.getBeforeMultiline eq Newlines.unfold) CtrlBodySplits
           .checkComment(nlSplitFunc) { nft =>
             if (nft.right.is[T.LeftBrace]) {
               val nextFt = nextNonCommentSameLineAfter(nft)
-              val policy = decideNewlinesOnlyAfterToken(nextFt.left)
+              val policy = decideNewlinesOnlyAfterToken(nextFt)
               Seq(Split(Space, 0, policy = policy))
             } else Seq(nlSplitFunc(0))
           }
@@ -2208,7 +2197,7 @@ class Router(formatOps: FormatOps) {
         if (left.is[T.RightBrace]) Seq(Split(Space, 0))
         else Seq(
           if (style.newlines.okSpaceForSource(newlines)) {
-            val expire = getLastToken(rightOwner)
+            val expire = getLast(rightOwner)
             Split(Space, 0).withSingleLineNoOptimal(
               expire,
               exclude = insideBracesBlock(ft, expire),
@@ -2221,7 +2210,7 @@ class Router(formatOps: FormatOps) {
         val okSpace = style.newlines.sourceIgnored || noBreak()
         Seq(
           Split(!okSpace, 0)(Space).withOptimalToken(
-            nextNonCommentSameLineAfter(ft).left,
+            nextNonCommentSameLineAfter(ft),
             killOnFail = false,
           ),
           Split(Newline, 1),
@@ -2238,7 +2227,7 @@ class Router(formatOps: FormatOps) {
             case x => throw new UnexpectedTree[Term.If](x)
           }) =>
         val body = leftOwner.asInstanceOf[Term.If].elsep
-        val expire = getLastToken(body)
+        val expire = getLast(body)
         def nlSplitFunc(cost: Int) = Split(Newline2x(ft), cost)
           .withIndent(style.indent.main, expire, After)
         if (style.newlines.getBeforeMultiline eq Newlines.unfold)
@@ -2261,13 +2250,12 @@ class Router(formatOps: FormatOps) {
         Seq(Split(NoSplit, 0))
 
       case FT(open: T.LeftParen, right, _) =>
-        val closeFt = matching(open)
-        val close = closeFt.left
-        val beforeClose = prev(closeFt)
+        val close = matching(open)
+        val beforeClose = prev(close)
         implicit val clauseSiteFlags = ClauseSiteFlags.atCallSite(leftOwner)
         val isConfig = couldPreserveConfigStyle(ft, beforeClose.hasBreak)
 
-        val enclosed = findEnclosedBetweenParens(open, close, leftOwner)
+        val enclosed = findEnclosedBetweenParens(open, close.left, leftOwner)
         def spaceSplitWithoutPolicy(implicit fileLine: FileLine) = {
           val indent: Length = right match {
             case _: T.KwIf => StateColumn
@@ -2329,51 +2317,47 @@ class Router(formatOps: FormatOps) {
       // Case
       case FT(_: T.KwCase, _, _) if leftOwner.is[Defn.RepeatedEnumCase] =>
         val indent =
-          Indent(style.indent.main, leftOwner.tokens.last, ExpiresOn.After)
+          Indent(style.indent.main, getLast(leftOwner), ExpiresOn.After)
         Seq(Split(Space, 0).withIndent(indent))
 
       case FT(_: T.KwCase, _, _) if leftOwner.is[CaseTree] =>
         val owner = leftOwner.asInstanceOf[CaseTree]
-        val arrowFt = leftOwner match {
+        val arrow = leftOwner match {
           case c: Case => getCaseArrow(c)
           case tc: TypeCase => getCaseArrow(tc)
         }
-        val arrow = arrowFt.left
-        val postArrowFt = nextNonCommentSameLine(arrowFt)
-        val postArrow = postArrowFt.left
+        val postArrow = nextNonCommentSameLine(arrow)
         val ownerEnd = getLast(owner)
-        val expire = nextNonCommentSameLine(ownerEnd).left
+        val expire = nextNonCommentSameLine(ownerEnd)
 
-        val bodyBlock = isCaseBodyABlock(arrowFt, owner)
+        val bodyBlock = isCaseBodyABlock(arrow, owner)
         def defaultPolicy = decideNewlinesOnlyAfterToken(postArrow)
         val postArrowPolicy =
-          if (bodyBlock || (arrowFt ne postArrowFt) && postArrowFt.hasBreak)
-            NoPolicy
+          if (bodyBlock || (arrow ne postArrow) && postArrow.hasBreak) NoPolicy
           else {
             // postArrowFt points to non-comment after arrowFt
             // possibly on next line without intervening comments
             implicit val beforeMultiline = style.newlines.getBeforeMultiline
-            getClosingIfCaseBodyEnclosedAsBlock(postArrowFt, owner).fold {
+            getClosingIfCaseBodyEnclosedAsBlock(postArrow, owner).fold {
               Policy ? beforeMultiline.in(Newlines.fold, Newlines.keep) ||
               defaultPolicy
-            } { rparenFt =>
-              val lparentFt = next(postArrowFt)
-              val postParenFt = nextNonCommentSameLine(lparentFt)
-              val rparen = rparenFt.right
+            } { rparen =>
+              val lparen = next(postArrow)
+              val postParen = nextNonCommentSameLine(lparen)
               val indent = style.indent.main
               val lindents = Seq(
-                Indent(indent, rparen, Before),
+                Indent(indent, next(rparen), Before),
                 Indent(-indent, expire, After),
               )
-              val lmod = NewlineT(noIndent = rhsIsCommentedOut(postParenFt))
+              val lmod = NewlineT(noIndent = rhsIsCommentedOut(postParen))
               val lsplit = Seq(Split(lmod, 0).withIndents(lindents))
               val rsplit = Seq(Split(Newline, 0))
-              Policy.after(postParenFt.left, prefix = "CASE[(]") {
-                case Decision(`postParenFt`, _) => lsplit
+              Policy.onRight(postParen, prefix = "CASE[(]") {
+                case Decision(`postParen`, _) => lsplit
                 // fires only if there's a comment between lparentFt and postParentFt
-                case Decision(`lparentFt`, _) => Seq(Split(Space, 0))
-              } ==> Policy.on(rparen, prefix = "CASE[)]") {
-                case Decision(`rparenFt`, _) => rsplit
+                case Decision(`lparen`, _) => Seq(Split(Space, 0))
+              } ==> Policy.afterRight(rparen, prefix = "CASE[)]") {
+                case Decision(`rparen`, _) => rsplit
               }
             }
           }
@@ -2386,30 +2370,28 @@ class Router(formatOps: FormatOps) {
         )
         val mod = ModExt(Space, indents)
         val slbExpireOpt = prevNotTrailingComment(ownerEnd).toOption
-        val policy = slbExpireOpt.fold(postArrowPolicy) { slbExpireFt =>
-          val slbExpire = slbExpireFt.left
-          val onArrowPolicy = Policy.End == arrow ==>
-            Policy.after(postArrow, "CASESLB>ARROW") { case Decision(_, ss) =>
+        val policy = slbExpireOpt.fold(postArrowPolicy) { slbExpire =>
+          val onArrowPolicy = Policy.End <= arrow ==>
+            Policy.onRight(postArrow, "CASESLB>ARROW") { case Decision(_, ss) =>
               ss.flatMap { s =>
-                Seq(
-                  s.notIf(s.isNL).withSingleLine(slbExpire, extend = true),
-                  s.andPolicy(postArrowPolicy),
-                )
+                val split = s.andPolicy(postArrowPolicy)
+                if (s.isNL) Seq(split)
+                else Seq(s.withSingleLine(slbExpire, extend = true), split)
               }
             }
           Policy.RelayOnSplit((s, _) => s.isNL)(onArrowPolicy)(postArrowPolicy)
         }
         Seq(Split(mod, 0, policy = policy))
 
-      case FT(_, cond: T.KwIf, _) if rightOwner.is[Case] =>
-        val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
+      case FT(_, _: T.KwIf, _) if rightOwner.is[Case] =>
+        val arrow = getCaseArrow(rightOwner.asInstanceOf[Case])
         val noSplit =
           if (style.newlines.keepBreak(newlines)) Split.ignored
           else {
             val afterIf = nextNonCommentSameLineAfter(ft)
             if (style.newlines.keepBreak(afterIf)) {
               val indent = Indent(style.indent.main, arrow, ExpiresOn.Before)
-              Split(Space, 0).withSingleLine(afterIf.left).withIndent(indent)
+              Split(Space, 0).withSingleLine(afterIf).withIndent(indent)
             } else {
               val exclude = insideBracesBlock(ft, arrow)
               Split(Space, 0).withSingleLine(
@@ -2421,7 +2403,7 @@ class Router(formatOps: FormatOps) {
           }
         Seq(
           noSplit,
-          Split(Newline, 1).withPolicy(penalizeNewlineByNesting(cond, arrow)),
+          Split(Newline, 1).withPolicy(penalizeNewlineByNesting(next(ft), arrow)),
         )
 
       case FT(_: T.KwIf, _, _) if leftOwner.is[Case] =>
@@ -2446,7 +2428,7 @@ class Router(formatOps: FormatOps) {
             }
           case t => t
         }
-        val end = getLastToken(body)
+        val end = getLast(body)
         val indent = Indent(style.indent.main, end, ExpiresOn.After)
         CtrlBodySplits.get(body, Seq(indent)) {
           Split(Space, 0).withSingleLineNoOptimal(end)
@@ -2454,7 +2436,7 @@ class Router(formatOps: FormatOps) {
 
       // Term.ForYield
       case FT(T.KwYield(), _, _) if leftOwner.is[Term.ForYield] =>
-        val lastToken = getLastToken(leftOwner.asInstanceOf[Term.ForYield].body)
+        val lastToken = getLast(leftOwner.asInstanceOf[Term.ForYield].body)
         val indent = Indent(style.indent.main, lastToken, ExpiresOn.After)
         if (style.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
           val noIndent = !isRightCommentWithBreak(ft)
@@ -2472,7 +2454,7 @@ class Router(formatOps: FormatOps) {
             !nextNonComment(ft).right.is[T.KwDo] =>
         val body = leftOwner.parent.get.asInstanceOf[Term.For].body
         def nlSplit(cost: Int) = Split(Newline2x(ft), cost)
-          .withIndent(style.indent.main, getLastToken(body), After)
+          .withIndent(style.indent.main, getLast(body), After)
         CtrlBodySplits.get(body)(null)(nlSplit)
 
       // After comment
@@ -2484,7 +2466,7 @@ class Router(formatOps: FormatOps) {
         val nft = nextNonCommentAfter(ft)
         def baseSplit(implicit fileLine: FileLine) = Split(mod, 0)
         def split(implicit fileLine: FileLine) = baseSplit
-          .withIndent(style.indent.main, nft.left, ExpiresOn.After)
+          .withIndent(style.indent.main, nft, ExpiresOn.After)
 
         nft match {
           case FT(_, _: T.Dot, GetSelectLike.OnRight(t)) =>
@@ -2504,7 +2486,7 @@ class Router(formatOps: FormatOps) {
             !style.verticalMultiline.atDefnSite =>
         val spaceSplit = Split(Space, 0)
           .notIf(style.newlines.forceAfterImplicitParamListModifier).withPolicy(
-            SingleLineBlock(params.tokens.last),
+            SingleLineBlock(getLast(params)),
             style.newlines.notPreferAfterImplicitParamListModifier,
           )
         Seq(spaceSplit, Split(Newline, if (spaceSplit.isActive) 1 else 0))
@@ -2543,9 +2525,10 @@ class Router(formatOps: FormatOps) {
             case t: Pat.Alternative => t.lhs
             case t => t
           })
-          val opt = nextNonComment(end).right match {
-            case _: T.KwIf => end.left
-            case x => x
+          val nft = nextAfterNonComment(end)
+          val opt = nft.left match {
+            case _: T.KwIf => end
+            case _ => nft
           }
           Seq(
             Split(Space, 0).withOptimalToken(opt, killOnFail = false),
@@ -2583,7 +2566,7 @@ class Router(formatOps: FormatOps) {
          * "if startsStatement" matches */
         style.newlines.source match {
           case Newlines.fold =>
-            val endOfGuard = getLastToken(rightOwner)
+            val endOfGuard = getLast(rightOwner)
             val exclude = insideBracesBlock(ft, endOfGuard, true)
             Seq(
               Split(Space, 0).withSingleLine(endOfGuard, exclude = exclude),
@@ -2636,16 +2619,15 @@ class Router(formatOps: FormatOps) {
       case FT(_: T.KwDo, _, _) if leftOwner.is[Term.Do] =>
         val owner = leftOwner.asInstanceOf[Term.Do]
         val eft = getLast(owner.body)
-        val end = eft.left
-        val indent = Indent(style.indent.main, end, ExpiresOn.After)
-        val kwWhile = nextNonComment(eft).right
+        val indent = Indent(style.indent.main, eft, ExpiresOn.After)
+        val kwWhile = nextAfterNonComment(eft)
         val noSplit =
           if (noBreak() && isRightCommentThenBreak(ft)) Split(Space, 0)
             .withIndents(indent)
           else {
-            val exclude = insideBracesBlock(ft, end, parensToo = true)
+            val exclude = insideBracesBlock(ft, eft, parensToo = true)
             Split(Space, 0)
-              .withSingleLine(endOfSingleLineBlock(eft), exclude = exclude)
+              .withSingleLine(getSlbEndOnLeft(eft), exclude = exclude)
           }
         val nlSplit =
           Split(Newline, 1, policy = decideNewlinesOnlyBeforeToken(kwWhile))
@@ -2719,12 +2701,12 @@ class Router(formatOps: FormatOps) {
         if (ft.noBreak) splits.map(_.withMod(Space))
         else splitsAsNewlines(splits)
       case ft if ft.meta.formatOff && ft.hasBreak => splitsAsNewlines(splits)
-      case FT(_: T.Equals, r: T.KwMacro, _)
+      case FT(_: T.Equals, _: T.KwMacro, _)
           if dialect.allowSignificantIndentation =>
         // scala3 compiler doesn't allow newline before `macro`
         splits.map { s =>
           if (!s.isNL) s
-          else s.withMod(Space).andPolicy(decideNewlinesOnlyAfterClose(r))
+          else s.withMod(Space).andPolicy(decideNewlinesOnlyAfterClose(next(ft)))
         }
       case _ => splits
     }
@@ -2742,7 +2724,7 @@ class Router(formatOps: FormatOps) {
     else if (isRightCommentWithBreak(ft))
       Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft), 0), body, endFt))
     else if (isJsNative(body))
-      Seq(Split(Space, 0).withSingleLineNoOptimal(endFt.left))
+      Seq(Split(Space, 0).withSingleLineNoOptimal(endFt))
     else if (
       style.dialect.allowSignificantIndentation &&
       (style.newlines.sourceIgnored || ft.noBreak) && body.parent.exists {
@@ -2765,7 +2747,6 @@ class Router(formatOps: FormatOps) {
       style: ScalafmtConfig,
       ft: FT,
   ): Seq[Split] = {
-    val expire = endFt.left
     def baseSplit = Split(Space, 0)
     def newlineSplit(cost: Int)(implicit fileLine: FileLine) = CtrlBodySplits
       .withIndent(Split(Newline2x(ft), cost), body, endFt)
@@ -2781,7 +2762,7 @@ class Router(formatOps: FormatOps) {
       case Newlines.keep if ft.hasBreak => Seq(newlineSplit(0))
 
       case Newlines.unfold =>
-        Seq(baseSplit.withSingleLine(expire), newlineSplit(1))
+        Seq(baseSplit.withSingleLine(endFt), newlineSplit(1))
 
       case x => CtrlBodySplits.folded(body, x eq Newlines.keep)(newlineSplit)
     }
@@ -2800,16 +2781,14 @@ class Router(formatOps: FormatOps) {
     def wouldDangle = ft.meta.leftOwner.parent
       .exists(style.danglingParentheses.atSite(_, false))
 
-    val expire = endFt.left
     // rhsOptimalToken is too aggressive here
-    val optimalFt = endFt.right match {
+    val optimal = endFt.right match {
       case _: T.Comma => next(endFt)
       case RightParenOrBracket() if !wouldDangle => next(endFt)
       case _ => endFt
     }
-    val optimal = optimalFt.left
-    def optimalWithComment = optimalFt.right match {
-      case x: T.Comment if optimalFt.noBreak => x
+    def optimalWithComment = optimal.right match {
+      case _: T.Comment if optimal.noBreak => next(optimal)
       case _ => optimal
     }
 
@@ -2825,9 +2804,9 @@ class Router(formatOps: FormatOps) {
       Split(isRightCommentThenBreak(ft), 0)(Space)
     def twoBranches(implicit fileLine: FileLine) = baseSpaceSplit
       .withOptimalToken(optimal, killOnFail = false).withPolicy {
-        val exclude = insideBracesBlock(ft, expire)
-        policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
-          PenalizeAllNewlines(expire, Constants.ShouldBeSingleLine),
+        val exclude = insideBracesBlock(ft, endFt)
+        policyWithExclude(exclude, Policy.End.OnLeft, Policy.End.OnRight)(
+          PenalizeAllNewlines(endFt, Constants.ShouldBeSingleLine),
         )
       }
     val body = CtrlBodySplits.getBlockStat(rawBody)
@@ -2851,10 +2830,9 @@ class Router(formatOps: FormatOps) {
       ft: FT,
   ): Seq[Split] = maybeGetInfixSplitsBeforeLhs() {
     val endFt = getLastNonTrivial(body)
-    val expire = endFt.left
     val spaceIndents =
       if (!style.align.arrowEnumeratorGenerator) Seq.empty
-      else Seq(Indent(StateColumn, expire, After))
+      else Seq(Indent(StateColumn, endFt, After))
     getSplitsDefValEquals(body, endFt, spaceIndents) {
       CtrlBodySplits.get(body, spaceIndents) {
         if (spaceIndents.nonEmpty) Split(Space, 0).withIndents(spaceIndents)
@@ -2865,8 +2843,8 @@ class Router(formatOps: FormatOps) {
             case _ => true
           }
           if (noSlb) Split(Space, 0)
-            .withOptimalToken(ft.right, killOnFail = false)
-          else Split(Space, 0).withSingleLine(expire)
+            .withOptimalToken(next(ft), killOnFail = false)
+          else Split(Space, 0).withSingleLine(endFt)
         }
       }(cost => CtrlBodySplits.withIndent(Split(Newline2x(ft), cost), endFt))
     }

@@ -75,7 +75,7 @@ final class State(
           (modExt.getActualIndents(offset) ++ indents).flatMap { x =>
             if (x.notExpiredBy(tok)) Some(x)
             else extendedEnd
-              .map(y => x.copy(expireEnd = y, expiresAt = ExpiresOn.After))
+              .map(y => x.copy(expire = y, expiresAt = ExpiresOn.After))
           }
         }
 
@@ -288,11 +288,11 @@ final class State(
 
   private def getRelativeToLhsLastLineEnd(
       isNL: Boolean,
-  )(implicit style: ScalafmtConfig, tokens: FormatTokens): Option[Int] = {
+  )(implicit style: ScalafmtConfig, tokens: FormatTokens): Option[FT] = {
     val allowed = style.indent.relativeToLhsLastLine
 
-    def treeEnd(x: Tree) = tokens.getLast(x).left.end
-    def indentEnd(ft: FT, isNL: Boolean)(onComment: => Option[Int]) = {
+    def treeEnd(x: Tree) = tokens.getLast(x)
+    def indentEnd(ft: FT, isNL: Boolean)(onComment: => Option[FT]) = {
       val leftOwner = ft.meta.leftOwner
       ft.left match {
         case _: T.KwMatch
@@ -315,7 +315,7 @@ final class State(
     val tok = tokens(depth)
     val right = tok.right
     if (allowed.isEmpty) None
-    else if (!isNL && right.is[T.Comment]) Some(right.end)
+    else if (!isNL && right.is[T.Comment]) Some(tokens.next(tok))
     else indentEnd(tok, isNL) {
       val earlierState = prev.prevNonCommentSameLine
       indentEnd(tokens(earlierState.depth), earlierState.split.isNL)(None)
@@ -328,7 +328,7 @@ final class State(
             allowed.contains(Indents.RelativeToLhs.`infix`)
           case _ => false
         })
-      if (delay) Some(right.end) else None
+      if (delay) Some(tokens.next(tok)) else None
     }
   }
 

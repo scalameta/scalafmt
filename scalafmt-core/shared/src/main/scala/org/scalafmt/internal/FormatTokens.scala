@@ -188,6 +188,9 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
   final def nextNonCommentSameLineAfter(curr: FT): FT =
     nextNonCommentSameLine(next(curr))
 
+  final def nextAfterNonCommentSameLine(curr: FT): FT =
+    next(nextNonCommentSameLine(curr))
+
   final def nextNonComment(curr: FT): FT =
     findToken(curr, next)(!_.right.is[T.Comment])
 
