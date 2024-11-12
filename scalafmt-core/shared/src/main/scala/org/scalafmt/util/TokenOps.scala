@@ -1,13 +1,11 @@
 package org.scalafmt.util
 
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.Modification
-import org.scalafmt.internal.Space
+import org.scalafmt.internal._
 
 import scala.meta._
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
+import scala.meta.tokens.Token.{Space => _, _}
 import scala.meta.tokens.Tokens
 
 /** Stateless helper functions on [[scala.meta.Token]].

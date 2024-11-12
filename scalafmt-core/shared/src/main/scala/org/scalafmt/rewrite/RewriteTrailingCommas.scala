@@ -2,8 +2,7 @@ package org.scalafmt.rewrite
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.TrailingCommas
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.FormatTokens
+import org.scalafmt.internal._
 
 import scala.meta._
 import scala.meta.tokens.Token

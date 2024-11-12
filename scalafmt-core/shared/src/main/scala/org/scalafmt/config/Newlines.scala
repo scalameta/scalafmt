@@ -1,7 +1,7 @@
 package org.scalafmt.config
 
 import org.scalafmt.config.Newlines._
-import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal._
 import org.scalafmt.util.TreeOps
 
 import scala.meta._
