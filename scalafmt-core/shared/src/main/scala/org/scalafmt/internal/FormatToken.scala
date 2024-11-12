@@ -21,7 +21,7 @@ import scala.annotation.tailrec
   * @param meta
   *   Extra information about the token
   */
-case class FormatToken(left: T, right: T, meta: FormatToken.Meta) {
+case class FormatToken(left: T, right: T, meta: FT.Meta) {
 
   override def toString = {
     val ws = newlinesBetween match {
@@ -51,11 +51,11 @@ case class FormatToken(left: T, right: T, meta: FormatToken.Meta) {
     else 0
   }
   @inline
-  def noBreak: Boolean = FormatToken.noBreak(newlinesBetween)
+  def noBreak: Boolean = FT.noBreak(newlinesBetween)
   @inline
   def hasBreak: Boolean = !noBreak
   @inline
-  def hasBlankLine: Boolean = FormatToken.hasBlankLine(newlinesBetween)
+  def hasBlankLine: Boolean = FT.hasBlankLine(newlinesBetween)
 
   @inline
   def leftHasNewline = meta.left.hasNL
@@ -74,8 +74,7 @@ case class FormatToken(left: T, right: T, meta: FormatToken.Meta) {
     */
   override def hashCode(): Int = hash(left).##
 
-  private[scalafmt] def withIdx(idx: Int): FormatToken =
-    copy(meta = meta.copy(idx = idx))
+  private[scalafmt] def withIdx(idx: Int): FT = copy(meta = meta.copy(idx = idx))
 
   @inline
   def idx: Int = meta.idx
@@ -147,8 +146,8 @@ object FormatToken {
     }
   }
 
-  class ExtractFromMeta[A](f: FormatToken.Meta => Option[A]) {
-    def unapply(meta: FormatToken.Meta): Option[A] = f(meta)
+  class ExtractFromMeta[A](f: FT.Meta => Option[A]) {
+    def unapply(meta: FT.Meta): Option[A] = f(meta)
   }
 
   val LeftOwner = new ExtractFromMeta(x => Some(x.leftOwner))

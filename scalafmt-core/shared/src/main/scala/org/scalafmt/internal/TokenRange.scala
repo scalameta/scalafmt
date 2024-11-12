@@ -2,7 +2,7 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.{Token => T}
 
-class TokenRange private (val lt: FormatToken, val rt: FormatToken) {
+class TokenRange private (val lt: FT, val rt: FT) {
 
   def validateAfter(other: TokenRange): Unit = require(lt.idx > other.rt.idx)
 
@@ -37,10 +37,10 @@ class TokenRanges private (val ranges: Seq[TokenRange]) extends AnyVal {
 
 object TokenRange {
 
-  def apply(lt: FormatToken, rt: FormatToken): TokenRange =
+  def apply(lt: FT, rt: FT): TokenRange =
     if (lt.idx < rt.idx) new TokenRange(lt, rt) else new TokenRange(rt, lt)
 
-  def opt(lt: FormatToken, rt: FormatToken): Option[TokenRange] =
+  def opt(lt: FT, rt: FT): Option[TokenRange] =
     if (lt.idx < rt.idx) Some(new TokenRange(lt, rt))
     else if (lt.idx > rt.idx) Some(new TokenRange(rt, lt))
     else None

@@ -15,9 +15,8 @@ class OptimizationEntities(
     val statementStarts: Map[Int, Tree],
 ) {
   def argumentAt(idx: Int): Option[Tree] = argumentStarts.get(idx)
-  def argument(implicit ft: FormatToken): Option[Tree] = argumentAt(ft.meta.idx)
-  def optionalNL(implicit ft: FormatToken): Boolean =
-    optionalNewlines(ft.meta.idx)
+  def argument(implicit ft: FT): Option[Tree] = argumentAt(ft.meta.idx)
+  def optionalNL(implicit ft: FT): Boolean = optionalNewlines(ft.meta.idx)
 }
 
 object OptimizationEntities {
@@ -86,7 +85,7 @@ object OptimizationEntities {
       case _ =>
     }
 
-    private def addStmtFT(stmt: Tree)(ft: FormatToken): Unit = {
+    private def addStmtFT(stmt: Tree)(ft: FT): Unit = {
       val isComment = ft.left.is[T.Comment]
       val nft = if (isComment) ftoks.nextAfterNonComment(ft) else ft
       statements += nft.meta.idx -> stmt

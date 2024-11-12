@@ -36,7 +36,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   var stats = new StateStats(tokens, initStyle.runner)
 
-  private def getBlockCloseToRecurse(ft: FormatToken, stop: T)(implicit
+  private def getBlockCloseToRecurse(ft: FT, stop: T)(implicit
       style: ScalafmtConfig,
   ): Option[T] = getEndOfBlock(ft, parensToo = true).collect {
     case close if close.left != stop && {
@@ -171,14 +171,14 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   private def killOnFail(
       isKillOnFail: Boolean,
-  )(end: => FormatToken)(implicit nextState: State): State = {
+  )(end: => FT)(implicit nextState: State): State = {
     val kill = isKillOnFail || nextState.hasSlbUntil(end)
     if (kill) null else nextState
   }
 
   private def killOnFail(
       opt: OptimalToken,
-      end: => FormatToken = null,
+      end: => FT = null,
       nextNextState: State = null,
   )(implicit nextState: State): State = killOnFail(opt.killOnFail) {
     if (
@@ -222,8 +222,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     }
   }
 
-  private def getActiveSplits(ft: FormatToken, state: State, maxCost: Int)(
-      implicit Q: StateQueue,
+  private def getActiveSplits(ft: FT, state: State, maxCost: Int)(implicit
+      Q: StateQueue,
   ): Seq[Split] = {
     stats.trackState(state)
     val useProvided = ft.meta.formatOff || !ft.inside(range)
@@ -316,7 +316,7 @@ object BestFirstSearch {
 
   private def getNoOptZones(tokens: FormatTokens)(implicit styleMap: StyleMap) = {
     val result = mutable.Map.empty[T, Boolean]
-    var expire: FormatToken = null
+    var expire: FT = null
     @inline
     def addRange(t: T): Unit = expire = tokens.matching(t)
     @inline
@@ -324,13 +324,13 @@ object BestFirstSearch {
     tokens.foreach {
       case ft if expire ne null =>
         if (ft eq expire) expire = null else result.update(ft.left, true)
-      case FormatToken(t: T.LeftParen, _, m) if (m.leftOwner match {
+      case FT(t: T.LeftParen, _, m) if (m.leftOwner match {
             case lo: Term.ArgClause => !lo.parent.is[Term.ApplyInfix] &&
               !styleMap.at(t).newlines.keep
             case _: Term.Apply => true // legacy: when enclosed in parens
             case _ => false
           }) => addRange(t)
-      case FormatToken(t: T.LeftBrace, _, m) => m.leftOwner match {
+      case FT(t: T.LeftBrace, _, m) => m.leftOwner match {
           // Type compounds can be inside defn.defs
           case lo: meta.Stat.Block if lo.parent.is[Type.Refine] => addRange(t)
           case _: Type.Refine => addRange(t)
@@ -413,17 +413,15 @@ object BestFirstSearch {
         updateBestImpl(state)
       }
 
-    def checkExplored(
-        ft: FormatToken,
-    )(implicit formatWriter: FormatWriter): Unit = explode(
-      ft,
-      runner.getMaxStateVisits,
-    )(explored > _, x => s"exceeded `runner.maxStateVisits`=$x")
+    def checkExplored(ft: FT)(implicit formatWriter: FormatWriter): Unit =
+      explode(ft, runner.getMaxStateVisits)(
+        explored > _,
+        x => s"exceeded `runner.maxStateVisits`=$x",
+      )
 
-    def explode[A](ft: FormatToken, value: A)(
-        cond: A => Boolean,
-        msg: A => String,
-    )(implicit formatWriter: FormatWriter): Unit = if (cond(value)) {
+    def explode[A](ft: FT, value: A)(cond: A => Boolean, msg: A => String)(
+        implicit formatWriter: FormatWriter,
+    ): Unit = if (cond(value)) {
       complete(deepestYet)
       throw new Error.SearchStateExploded(deepestYet, ft, msg(value))
     }

@@ -36,7 +36,7 @@ final class State(
   @inline
   def mod: Modification = modExt.mod
 
-  def updatedWithSubsequentEOL(ft: FormatToken): Unit = {
+  def updatedWithSubsequentEOL(ft: FT): Unit = {
     column += pendingSpaces.count(_.notExpiredBy(ft))
     val mod = split.mod
     val updatedMod = mod match {
@@ -52,7 +52,7 @@ final class State(
 
   def costWithoutOverflowPenalty: Int = cost - appliedPenalty
 
-  def hasSlbUntil(ft: FormatToken): Boolean = policy
+  def hasSlbUntil(ft: FT): Boolean = policy
     .exists(_.appliesUntil(ft)(_.isInstanceOf[PolicyOps.SingleLineBlock]))
 
   def hasSlb(): Boolean = policy
@@ -197,8 +197,8 @@ final class State(
           if (!State.allowSplitForLineStart(nextSplit, ft, isComment)) None
           else lineStartsStatement(isComment)
         val delay = startFtOpt.exists {
-          case FormatToken(_, t: T.Interpolation.Start, _) => tokens.matching(t)
-              .left ne ft.right
+          case FT(_, t: T.Interpolation.Start, _) => tokens.matching(t).left ne
+              ft.right
           case _ => true
         }
         // if delaying, estimate column if the split had been a newline
@@ -241,7 +241,7 @@ final class State(
   private def getLineStartOwner(isComment: Boolean)(implicit
       style: ScalafmtConfig,
       tokens: FormatTokens,
-  ): Option[(FormatToken, Tree)] = {
+  ): Option[(FT, Tree)] = {
     val ft = tokens(depth)
     if (ft.meta.left.hasNL) None
     else if (!split.isNL) {
@@ -271,7 +271,7 @@ final class State(
   private def lineStartsStatement(isComment: Boolean)(implicit
       style: ScalafmtConfig,
       tokens: FormatTokens,
-  ): Option[FormatToken] = getLineStartOwner(isComment)
+  ): Option[FT] = getLineStartOwner(isComment)
     .flatMap { case (lineFt, lineOwner) =>
       val ft = tokens(depth)
       val ok = {
@@ -292,7 +292,7 @@ final class State(
     val allowed = style.indent.relativeToLhsLastLine
 
     def treeEnd(x: Tree) = tokens.getLast(x).left.end
-    def indentEnd(ft: FormatToken, isNL: Boolean)(onComment: => Option[Int]) = {
+    def indentEnd(ft: FT, isNL: Boolean)(onComment: => Option[Int]) = {
       val leftOwner = ft.meta.leftOwner
       ft.left match {
         case _: T.KwMatch
@@ -410,7 +410,7 @@ object State {
     if (pipe == '|') RegexCompat.stripMarginPatternWithLineContent
     else RegexCompat.compileStripMarginPatternWithLineContent(pipe)
 
-  def getColumns(tok: T, meta: FormatToken.TokenMeta, column: Int)(
+  def getColumns(tok: T, meta: FT.TokenMeta, column: Int)(
       stringMargin: Int => Int,
   )(interpPartMargin: Int => Int): (Int, Int) = {
     val syntax = meta.text
@@ -442,7 +442,7 @@ object State {
     }
   }
 
-  def getColumns(ft: FormatToken, indent: Int, column: Int)(implicit
+  def getColumns(ft: FT, indent: Int, column: Int)(implicit
       style: ScalafmtConfig,
   ): (Int, Int) = getColumns(ft.right, ft.meta.right, column) {
     if (style.assumeStandardLibraryStripMargin) {
@@ -515,7 +515,7 @@ object State {
     */
   private def allowSplitForLineStart(
       split: Split,
-      ft: FormatToken,
+      ft: FT,
       isComment: Boolean,
   ): Boolean = {
     split.length == 0 || isComment || isInterpolation(ft.meta.rightOwner) ||

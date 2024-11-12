@@ -28,7 +28,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
     ConvertToNewScala3Syntax.enabled
 
   override def onToken(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[Replacement] = Option {
@@ -117,7 +117,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
   }
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = Option {

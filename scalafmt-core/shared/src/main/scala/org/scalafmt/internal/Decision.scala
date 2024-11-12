@@ -4,7 +4,7 @@ package org.scalafmt.internal
   *
   * Used by [[Policy]] to enforce non-local formatting.
   */
-case class Decision(formatToken: FormatToken, splits: Seq[Split]) {
+case class Decision(formatToken: FT, splits: Seq[Split]) {
 
   @inline
   def noNewlines: Seq[Split] = Decision.noNewlineSplits(splits)

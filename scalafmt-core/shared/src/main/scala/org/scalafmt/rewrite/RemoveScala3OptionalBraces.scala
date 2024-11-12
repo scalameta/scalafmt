@@ -36,7 +36,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
     RemoveScala3OptionalBraces.enabled
 
   override def onToken(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[Replacement] = Option {
@@ -79,7 +79,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   }
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = {
@@ -118,15 +118,14 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
     }
   }
 
-  private def onLeftForBlock(tree: Term.Block)(implicit
-      ft: FormatToken,
-      session: Session,
-      style: ScalafmtConfig,
-  ): Replacement = onLeftForBlock(tree, ftoks.prevNonComment(ft))
+  private def onLeftForBlock(
+      tree: Term.Block,
+  )(implicit ft: FT, session: Session, style: ScalafmtConfig): Replacement =
+    onLeftForBlock(tree, ftoks.prevNonComment(ft))
 
   @tailrec
-  private def onLeftForBlock(tree: Term.Block, pft: FormatToken)(implicit
-      ft: FormatToken,
+  private def onLeftForBlock(tree: Term.Block, pft: FT)(implicit
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Replacement = tree.parent.orNull match {
@@ -182,7 +181,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
 
   private def shouldRewriteArgClauseWithLeftParen[A <: Rule](
       lp: T,
-  )(implicit ft: FormatToken, session: Session, tag: ClassTag[A]) = {
+  )(implicit ft: FT, session: Session, tag: ClassTag[A]) = {
     val prevFt = ftoks.prevNonComment(ft)
     prevFt.left.eq(lp) && session.claimedRule(prevFt.meta.idx - 1)
       .exists(x => tag.runtimeClass.isInstance(x.rule))
@@ -190,7 +189,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
 
   private[rewrite] def onLeftForArgClause(
       tree: Term.ArgClause,
-  )(implicit ft: FormatToken, style: ScalafmtConfig): Replacement = {
+  )(implicit ft: FT, style: ScalafmtConfig): Replacement = {
     def okLeftDelim = ft.right.is[T.LeftBrace] ||
       style.rewrite.scala3.removeOptionalBraces.fewerBracesParensToo &&
       (style.dialect.allowInfixOperatorAfterNL || style.newlines.formatInfix)
@@ -210,11 +209,9 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
     }
   }
 
-  private def shouldRewriteColonOnRight(left: Replacement)(implicit
-      ft: FormatToken,
-      session: Session,
-      style: ScalafmtConfig,
-  ): Boolean = {
+  private def shouldRewriteColonOnRight(
+      left: Replacement,
+  )(implicit ft: FT, session: Session, style: ScalafmtConfig): Boolean = {
     val lft = left.ft
     lft.meta.rightOwner match {
       case t: Term.ArgClause => shouldRewriteArgClauseColonOnRight(t, lft)
@@ -229,33 +226,30 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
 
   private def shouldRewriteArgClauseColonOnRight(
       ac: Term.ArgClause,
-      lft: FormatToken,
-  )(implicit
-      ft: FormatToken,
-      session: Session,
-      style: ScalafmtConfig,
-  ): Boolean = ac.values match {
-    case arg :: Nil =>
-      val begIdx = math.max(ftoks.getHead(arg).meta.idx - 1, lft.meta.idx + 1)
-      val endIdx = math.min(ftoks.getLast(arg).meta.idx, ft.meta.idx)
-      var span = 0
-      val rob = style.rewrite.scala3.removeOptionalBraces
-      val maxStats = rob.fewerBracesMaxSpan
-      (begIdx until endIdx).foreach { idx =>
-        val tokOpt = session.claimedRule(idx) match {
-          case Some(x) if x.ft.meta.idx == idx =>
-            if (x.how == ReplacementType.Remove) None else Some(x.ft.right)
-          case _ =>
-            val tok = ftoks(idx).right
-            if (tok.is[T.Whitespace]) None else Some(tok)
+      lft: FT,
+  )(implicit ft: FT, session: Session, style: ScalafmtConfig): Boolean =
+    ac.values match {
+      case arg :: Nil =>
+        val begIdx = math.max(ftoks.getHead(arg).meta.idx - 1, lft.meta.idx + 1)
+        val endIdx = math.min(ftoks.getLast(arg).meta.idx, ft.meta.idx)
+        var span = 0
+        val rob = style.rewrite.scala3.removeOptionalBraces
+        val maxStats = rob.fewerBracesMaxSpan
+        (begIdx until endIdx).foreach { idx =>
+          val tokOpt = session.claimedRule(idx) match {
+            case Some(x) if x.ft.meta.idx == idx =>
+              if (x.how == ReplacementType.Remove) None else Some(x.ft.right)
+            case _ =>
+              val tok = ftoks(idx).right
+              if (tok.is[T.Whitespace]) None else Some(tok)
+          }
+          tokOpt.foreach { tok =>
+            span += tok.end - tok.start
+            if (span > maxStats) return false // RETURNING!!!
+          }
         }
-        tokOpt.foreach { tok =>
-          span += tok.end - tok.start
-          if (span > maxStats) return false // RETURNING!!!
-        }
-      }
-      span >= rob.fewerBracesMinSpan
-    case _ => false
-  }
+        span >= rob.fewerBracesMinSpan
+      case _ => false
+    }
 
 }
