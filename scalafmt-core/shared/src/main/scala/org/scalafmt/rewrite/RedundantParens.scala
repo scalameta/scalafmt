@@ -2,11 +2,7 @@ package org.scalafmt.rewrite
 
 import org.scalafmt.config.RedundantParensSettings
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.FormatTokens
-import org.scalafmt.internal.Side
-import org.scalafmt.internal.SyntacticGroupOps
-import org.scalafmt.internal.TreeSyntacticGroup
+import org.scalafmt.internal._
 import org.scalafmt.util.InfixApp._
 import org.scalafmt.util.TreeOps
 

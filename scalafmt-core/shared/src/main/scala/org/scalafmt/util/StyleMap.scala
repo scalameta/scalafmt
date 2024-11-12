@@ -3,8 +3,7 @@ package org.scalafmt.util
 import org.scalafmt.config.BinPack
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.FormatTokens
+import org.scalafmt.internal._
 
 import org.scalameta.FileLine
 import org.scalameta.logger

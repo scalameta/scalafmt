@@ -1,9 +1,6 @@
 package org.scalafmt.util
 
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.FormatTokens
-import org.scalafmt.internal.Split
-import org.scalafmt.internal.State
+import org.scalafmt.internal._
 
 import org.scalameta.FileLine
 import scala.meta.Tree
