@@ -1,6 +1,6 @@
 package org.scalafmt.internal
 
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import scala.language.implicitConversions
 
@@ -15,7 +15,7 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
   @inline
   def isNL: Boolean = mod.isNL
 
-  def withIndent(length: => Length, expire: => Token, when: ExpiresOn): ModExt =
+  def withIndent(length: => Length, expire: => T, when: ExpiresOn): ModExt =
     length match {
       case Length.Num(0, _) => this
       case x => withIndentImpl(Indent(x, expire, when))
@@ -23,7 +23,7 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
 
   def withIndentOpt(
       length: => Length,
-      expire: Option[Token],
+      expire: Option[T],
       when: ExpiresOn,
   ): ModExt = expire.fold(this)(withIndent(length, _, when))
 
@@ -41,7 +41,7 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
   private def withIndentImpl(indent: Indent): ModExt =
     copy(indents = indent +: indents)
 
-  def switch(trigger: Token, on: Boolean): ModExt = {
+  def switch(trigger: T, on: Boolean): ModExt = {
     val newIndents = indents.flatMap { x =>
       Some(x.switch(trigger, on)).filter(_ ne Indent.Empty)
     }

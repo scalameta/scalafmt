@@ -5,8 +5,8 @@ import org.scalafmt.rewrite.FormatTokensRewrite
 import org.scalafmt.util._
 
 import scala.meta.Tree
-import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 
@@ -29,7 +29,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   override def length: Int = arr.length
   override def apply(idx: Int): FormatToken = arr(idx)
 
-  private def getAt(tok: Token, isBefore: Boolean)(idx: Int): FormatToken =
+  private def getAt(tok: T, isBefore: Boolean)(idx: Int): FormatToken =
     if (idx >= arr.length) arr.last
     else {
       val ft = arr(idx)
@@ -39,7 +39,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
       else at(idx + 1)
     }
 
-  private def get(tok: Token, isBefore: Boolean): FormatToken =
+  private def get(tok: T, isBefore: Boolean): FormatToken =
     getAt(tok, isBefore)(leftTok2tok.getOrElse(
       FormatTokens.thash(tok),
       FormatTokens.throwNoToken(tok, "Missing token index"),
@@ -50,19 +50,19 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
 
   // get token; if rewritten, the one before
   @inline
-  def before(tok: Token): FormatToken = get(tok, true)
+  def before(tok: T): FormatToken = get(tok, true)
   // get token; if rewritten, the one after
   @inline
-  def after(tok: Token): FormatToken = get(tok, false)
+  def after(tok: T): FormatToken = get(tok, false)
   @inline
-  def apply(tok: Token): FormatToken = before(tok)
+  def apply(tok: T): FormatToken = before(tok)
 
   /** If the token is missing:
     *   - to go backward, start from the next token
     *   - to go forward, start from the previous token This ensures that the
     *     next token in the direction of search is counted.
     */
-  def apply(tok: Token, off: Int): FormatToken =
+  def apply(tok: T, off: Int): FormatToken =
     apply(if (off < 0) after(tok) else before(tok), off)
   def apply(ft: FormatToken, off: Int): FormatToken = at(ft.meta.idx + off)
 
@@ -77,18 +77,18 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   def next(ft: FormatToken): FormatToken = apply(ft, 1)
 
   @inline
-  def matching(token: Token): FormatToken = matchingParentheses.getOrElse(
+  def matching(token: T): FormatToken = matchingParentheses.getOrElse(
     FormatTokens.thash(token),
     FormatTokens.throwNoToken(token, "Missing matching token index"),
   )
   @inline
-  def matchingOpt(token: Token): Option[FormatToken] = matchingParentheses
+  def matchingOpt(token: T): Option[FormatToken] = matchingParentheses
     .get(FormatTokens.thash(token))
   @inline
-  def hasMatching(token: Token): Boolean = matchingParentheses
+  def hasMatching(token: T): Boolean = matchingParentheses
     .contains(FormatTokens.thash(token))
   @inline
-  def areMatching(t1: Token)(t2: => Token): Boolean = matchingOpt(t1) match {
+  def areMatching(t1: T)(t2: => T): Boolean = matchingOpt(t1) match {
     case Some(x) => x.left eq t2
     case _ => false
   }
@@ -133,11 +133,11 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
 
   @inline
   def getBracesIfEnclosed(tree: Tree): Option[(FormatToken, FormatToken)] =
-    getDelimsIfEnclosed(tree).filter(_._1.left.is[Token.LeftBrace])
+    getDelimsIfEnclosed(tree).filter(_._1.left.is[T.LeftBrace])
 
   @inline
   def isEnclosedInBraces(tree: Tree): Boolean = getDelimsIfEnclosed(tree)
-    .exists(_._1.left.is[Token.LeftBrace])
+    .exists(_._1.left.is[T.LeftBrace])
 
   def isEnclosedWithinParens(tree: Tree): Boolean =
     getClosingIfWithinParens(tree).isRight
@@ -149,12 +149,11 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
       last: FormatToken,
   )(head: FormatToken): Either[Boolean, FormatToken] = {
     val innerMatched = areMatching(last.left)(head.left)
-    if (innerMatched && last.left.is[Token.RightParen]) Right(prev(last))
+    if (innerMatched && last.left.is[T.RightParen]) Right(prev(last))
     else {
       val afterLast = nextNonComment(last)
       if (areMatching(afterLast.right)(prevNonCommentBefore(head).left))
-        if (afterLast.right.is[Token.RightParen]) Right(afterLast)
-        else Left(true)
+        if (afterLast.right.is[T.RightParen]) Right(afterLast) else Left(true)
       else Left(innerMatched)
     }
   }
@@ -192,13 +191,13 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   ): FormatToken = findTokenWith(ft, iter)(Some(_).filter(f)).merge
 
   final def nextNonCommentSameLine(curr: FormatToken): FormatToken =
-    findToken(curr, next)(ft => ft.hasBreak || !ft.right.is[Token.Comment])
+    findToken(curr, next)(ft => ft.hasBreak || !ft.right.is[T.Comment])
 
   final def nextNonCommentSameLineAfter(curr: FormatToken): FormatToken =
     nextNonCommentSameLine(next(curr))
 
   final def nextNonComment(curr: FormatToken): FormatToken =
-    findToken(curr, next)(!_.right.is[Token.Comment])
+    findToken(curr, next)(!_.right.is[T.Comment])
 
   final def nextNonComment(curr: FormatToken.Meta): FormatToken =
     nextNonComment(arr(curr.idx))
@@ -212,10 +211,10 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     next(nextNonComment(curr))
 
   final def prevNonCommentSameLine(curr: FormatToken): FormatToken =
-    findToken(curr, prev)(ft => ft.hasBreak || !ft.left.is[Token.Comment])
+    findToken(curr, prev)(ft => ft.hasBreak || !ft.left.is[T.Comment])
 
   final def prevNonComment(curr: FormatToken): FormatToken =
-    findToken(curr, prev)(!_.left.is[Token.Comment])
+    findToken(curr, prev)(!_.left.is[T.Comment])
 
   @inline
   final def prevNonCommentBefore(curr: FormatToken): FormatToken =
@@ -232,7 +231,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   def prevNotTrailingComment(
       curr: FormatToken,
   ): Either[FormatToken, FormatToken] = curr.left match {
-    case _: Token.Comment =>
+    case _: T.Comment =>
       val prev = prevNonCommentSameLineBefore(curr)
       if (prev.hasBreak) Left(curr) else Right(prev)
     case _ => Right(curr)
@@ -276,7 +275,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
     val last = tokens.last
     val beforeLast = before(last)
     val res = getOnOrAfterOwned(beforeLast, tree)
-    val ok = (res eq beforeLast) && res.right.is[Token.Comment] &&
+    val ok = (res eq beforeLast) && res.right.is[T.Comment] &&
       (res.noBreak || res.right.pos.startLine == last.pos.startLine)
     if (ok) next(res) else res
   }
@@ -312,7 +311,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   @inline
   def tokenAfter(ft: FormatToken): FormatToken = nextNonComment(ft)
   @inline
-  def tokenAfter(token: Token): FormatToken = tokenAfter(before(token))
+  def tokenAfter(token: T): FormatToken = tokenAfter(before(token))
   @inline
   def tokenAfter(tree: Tree): FormatToken = tokenAfter(getLast(tree))
   @inline
@@ -326,7 +325,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   /* the following methods return the last format token such that
    * its `left` is before the parameter */
   @inline
-  def justBefore(token: Token): FormatToken = apply(token, -1)
+  def justBefore(token: T): FormatToken = apply(token, -1)
   @inline
   def tokenJustBefore(ft: FormatToken): FormatToken = prev(ft)
   @inline
@@ -337,11 +336,10 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   def tokenJustBeforeOpt(trees: Seq[Tree]): Option[FormatToken] = trees
     .headOption.flatMap(tokenJustBeforeOpt)
 
-  def isTokenHeadOf(tok: => Token, tree: Tree): Boolean =
-    getHeadOpt(tree) match {
-      case None => false
-      case Some(x) => x.left eq tok
-    }
+  def isTokenHeadOf(tok: => T, tree: Tree): Boolean = getHeadOpt(tree) match {
+    case None => false
+    case Some(x) => x.left eq tok
+  }
 
   def isJustBeforeTree(ft: FormatToken)(tree: Tree): Boolean =
     isTokenHeadOf(ft.right, tree)
@@ -349,11 +347,11 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
   /* the following methods return the last format token such that
    * its `left` is before the parameter and is not a comment */
   @inline
-  def tokenOnOrBefore(token: Token): FormatToken = prevNonComment(before(token))
+  def tokenOnOrBefore(token: T): FormatToken = prevNonComment(before(token))
   @inline
   def tokenBefore(ft: FormatToken): FormatToken = prevNonCommentBefore(ft)
   @inline
-  def tokenBefore(token: Token): FormatToken = prevNonComment(justBefore(token))
+  def tokenBefore(token: T): FormatToken = prevNonComment(justBefore(token))
   @inline
   def tokenBefore(tree: Tree): FormatToken =
     prevNonComment(tokenJustBefore(tree))
@@ -378,11 +376,11 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FormatToken]
 
   @inline
   def isRightCommentThenBreak(ft: FormatToken): Boolean = ft.right
-    .is[Token.Comment] && hasBreakAfterRightBeforeNonComment(ft)
+    .is[T.Comment] && hasBreakAfterRightBeforeNonComment(ft)
 
   @inline
   def isRightCommentWithBreak(ft: FormatToken): Boolean = ft.right
-    .is[Token.Comment] && hasBreakBeforeNonComment(ft)
+    .is[T.Comment] && hasBreakBeforeNonComment(ft)
 
   @inline
   def isAttachedCommentThenBreak(ft: FormatToken): Boolean = ft.noBreak &&
@@ -433,10 +431,10 @@ object FormatTokens {
     * Since tokens might be very large, we try to allocate as little memory as
     * possible.
     */
-  def apply(tokens: Tokens, owner: Token => Tree)(implicit
+  def apply(tokens: Tokens, owner: T => Tree)(implicit
       style: ScalafmtConfig,
   ): (FormatTokens, StyleMap) = {
-    var left: Token = null
+    var left: T = null
     var lmeta: FormatToken.TokenMeta = null
     val result = Array.newBuilder[FormatToken]
     var ftIdx = 0
@@ -444,7 +442,7 @@ object FormatTokens {
     var tokIdx = 0
     var fmtWasOff = false
     val arr = tokens.toArray
-    def process(right: Token): Unit = {
+    def process(right: T): Unit = {
       val rmeta = FormatToken.TokenMeta(owner(right), right.text)
       if (left eq null) fmtWasOff = isFormatOff(right)
       else {
@@ -460,7 +458,7 @@ object FormatTokens {
     }
     val tokCnt = arr.length
     while (tokIdx < tokCnt) arr(tokIdx) match {
-      case _: Token.Whitespace => tokIdx += 1
+      case _: T.Whitespace => tokIdx += 1
       case right =>
         process(right)
         tokIdx += 1
@@ -473,18 +471,18 @@ object FormatTokens {
     FormatTokensRewrite(ftoks, styleMap) -> styleMap
   }
 
-  private def throwNoToken(t: Token, msg: String): Nothing =
+  private def throwNoToken(t: T, msg: String): Nothing =
     throw new NoSuchElementException(
       s"$msg ${t.structure} @${t.pos.startLine}:${t.pos.startColumn}: `$t`",
     )
 
   @inline
-  def thash(token: Token): TokenHash = hash(token)
+  def thash(token: T): TokenHash = hash(token)
 
   class TokenToIndexMapBuilder {
     private val builder = Map.newBuilder[TokenHash, Int]
     def sizeHint(size: Int): Unit = builder.sizeHint(size)
-    def add(idx: Int)(token: Token): Unit = builder += thash(token) -> idx
+    def add(idx: Int)(token: T): Unit = builder += thash(token) -> idx
     def result(): Map[TokenHash, Int] = builder.result()
   }
 

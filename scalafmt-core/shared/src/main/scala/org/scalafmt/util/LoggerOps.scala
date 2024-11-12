@@ -6,9 +6,8 @@ import org.scalameta.FileLine
 import scala.meta.Tree
 import scala.meta.inputs.InputRange
 import scala.meta.prettyprinters.Structure
-import scala.meta.tokens.Token
-import scala.meta.tokens.Token.Interpolation
 import scala.meta.tokens.Tokens
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -60,19 +59,19 @@ object LoggerOps {
 
   def escape(raw: String): String = raw
 
-  def log(tokens: Token*): String = tokens.map(log).mkString("\n")
+  def log(tokens: T*): String = tokens.map(log).mkString("\n")
 
-  def cleanup(token: Token): String = token match {
-    case Token.Literal() | Interpolation.Part(_) => escape(token.syntax)
+  def cleanup(token: T): String = token match {
+    case _: T.Literal | _: T.Interpolation.Part => escape(token.syntax)
         .stripPrefix("\"").stripSuffix("\"")
     case _ => token.syntax.replace("\n", "")
   }
 
   def log(tokens: Tokens): String = tokens.map(log).mkString("\n")
 
-  def log(token: Token): String = logTok(token)
-  def logTok(token: Token): String = f"[${token.structure}%-40s"
-  def logTok(token: Option[Token]): String = token.fold("")(log)
+  def log(token: T): String = logTok(token)
+  def logTok(token: T): String = f"[${token.structure}%-40s"
+  def logTok(token: Option[T]): String = token.fold("")(log)
 
   def log(range: InputRange): String = s"[${range.start}..${range.end})"
 

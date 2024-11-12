@@ -4,7 +4,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal._
 
 import scala.meta._
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import metaconfig._
 
@@ -62,21 +62,20 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
       style: ScalafmtConfig,
   ): Option[Replacement] = Option {
     ft.right match {
-      case x: Token.LeftParen if (ft.meta.rightOwner match {
+      case x: T.LeftParen if (ft.meta.rightOwner match {
             case t: Term.EnumeratorsBlock if hasMultipleNonGuardEnums(t) =>
               style.dialect.allowInfixOperatorAfterNL || hasNoLeadingInfix(t)
             case _ => false
-          }) =>
-        replaceToken("{")(new Token.LeftBrace(x.input, x.dialect, x.start))
+          }) => replaceToken("{")(new T.LeftBrace(x.input, x.dialect, x.start))
 
-      case _: Token.Semicolon
+      case _: T.Semicolon
           if !style.rewrite.preferCurlyFors.removeTrailingSemicolonsOnly ||
             hasBreakAfterRightBeforeNonComment(ft) =>
         ft.meta.rightOwner match {
           case t: Term.EnumeratorsBlock
-              if nextNonCommentAfter(ft).right.is[Token.KwIf] || {
+              if nextNonCommentAfter(ft).right.is[T.KwIf] || {
                 val parenOrBrace = tokenJustBefore(t)
-                parenOrBrace.right.is[Token.LeftBrace] ||
+                parenOrBrace.right.is[T.LeftBrace] ||
                 session.claimedRule(parenOrBrace).exists(_.rule eq this)
               } => removeToken
           case _ => null
@@ -91,11 +90,11 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = ft.right match {
-    case x: Token.RightParen
+    case x: T.RightParen
         if left.how == ReplacementType.Replace &&
-          left.ft.right.is[Token.LeftBrace] =>
+          left.ft.right.is[T.LeftBrace] =>
       val right =
-        replaceToken("}")(new Token.RightBrace(x.input, x.dialect, x.start))
+        replaceToken("}")(new T.RightBrace(x.input, x.dialect, x.start))
       Some((left, right))
     case _ => None
   }
@@ -106,11 +105,11 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
     ft.meta.rightOwner match {
       case ro: Name if (ro.parent match {
             case Some(p: Member.Infix)
-                if (p.op eq ro) && ft.right.is[Token.Ident] =>
+                if (p.op eq ro) && ft.right.is[T.Ident] =>
               prevNonCommentSameLine(ft).hasBreak
             case _ => false
           }) => Some(false)
-      case `t` if ft.right.is[Token.RightParen] => Some(true) // closing delimiter
+      case `t` if ft.right.is[T.RightParen] => Some(true) // closing delimiter
       case _ => None
     }
   }.contains(true)

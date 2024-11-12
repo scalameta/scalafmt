@@ -5,7 +5,7 @@ import org.scalafmt.config.RewriteSettings
 import org.scalafmt.util._
 
 import scala.meta._
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import java.util.regex.Pattern
 
@@ -99,8 +99,8 @@ object Imports extends RewriteFactory {
       pretty: String,
       raw: String,
       cnt: Int,
-      commentsBefore: Seq[Token] = Seq.empty,
-      commentAfter: Option[Token] = None,
+      commentsBefore: Seq[T] = Seq.empty,
+      commentAfter: Option[T] = None,
   )
 
   private class Grouping(
@@ -374,36 +374,34 @@ object Imports extends RewriteFactory {
       case _ => None
     }).exists { x =>
       // in scala3, `as` doesn't need braces
-      ctx.tokenTraverser.nextNonTrivialToken(x.tokens.last).is[Token.RightArrow]
+      ctx.tokenTraverser.nextNonTrivialToken(x.tokens.last).is[T.RightArrow]
     }
 
-    protected final def getCommentsAround(
-        tree: Tree,
-    ): (Seq[Token], Option[Token]) = {
+    protected final def getCommentsAround(tree: Tree): (Seq[T], Option[T]) = {
       val tokens = tree.tokens
       val beg = getCommentsBefore(tokens.head)
       val end = getCommentAfter(tokens.last)
       beg -> end
     }
 
-    protected final def getCommentsBefore(tok: Token): Seq[Token] = {
+    protected final def getCommentsBefore(tok: T): Seq[T] = {
       var hadLf = false
-      val slc = new ListBuffer[Token]
+      val slc = new ListBuffer[T]
       ctx.tokenTraverser.findAtOrBefore(ctx.getIndex(tok) - 1) {
-        case t: Token.AtEOL =>
+        case t: T.AtEOL =>
           if (hadLf || t.newlines > 1) Some(true) else { hadLf = true; None }
-        case t: Token.Comment if TokenOps.isSingleLineIfComment(t) =>
+        case t: T.Comment if TokenOps.isSingleLineIfComment(t) =>
           slc.prepend(t); hadLf = false; None
-        case _: Token.Whitespace => None
+        case _: T.Whitespace => None
         case _ => if (!hadLf && slc.nonEmpty) slc.remove(0); Some(false)
       }
       slc.result()
     }
 
-    protected final def getCommentAfter(tok: Token): Option[Token] = ctx
-      .tokenTraverser.findAtOrAfter(ctx.getIndex(tok) + 1) {
-        case _: Token.HSpace | _: Token.Comma => None
-        case t: Token.Comment => Some(TokenOps.isSingleLineIfComment(t))
+    protected final def getCommentAfter(tok: T): Option[T] = ctx.tokenTraverser
+      .findAtOrAfter(ctx.getIndex(tok) + 1) {
+        case _: T.HSpace | _: T.Comma => None
+        case t: T.Comment => Some(TokenOps.isSingleLineIfComment(t))
         case _ => Some(false)
       }
   }
@@ -439,13 +437,13 @@ object Imports extends RewriteFactory {
     private def processImports(stats: Iterable[ImportExportStat]): String = {
       val indent = {
         @tailrec
-        def iter(off: Int, nonWs: Token): String =
+        def iter(off: Int, nonWs: T): String =
           if (off == 0) ""
           else {
             val nextOff = off - 1
             ctx.tokens(nextOff) match {
-              case t: Token.AtEOL => t.input.text.substring(t.end, nonWs.start)
-              case _: Token.Whitespace => iter(nextOff, nonWs)
+              case t: T.AtEOL => t.input.text.substring(t.end, nonWs.start)
+              case _: T.Whitespace => iter(nextOff, nonWs)
               case t => iter(nextOff, t)
             }
           }
@@ -515,7 +513,7 @@ object Imports extends RewriteFactory {
         processEachGroup(stats)
       else processAllGroups(stats)
 
-    private def getTokenRange(x: Seq[ImportExportStat]): (Token, Token) = {
+    private def getTokenRange(x: Seq[ImportExportStat]): (T, T) = {
       val headTok = x.head.tokens.head
       val lastTok = x.last.tokens.last
       (
@@ -546,7 +544,7 @@ object Imports extends RewriteFactory {
 
     private def processTokenRanges(
         importString: String,
-        tokenRanges: (Token, Token)*,
+        tokenRanges: (T, T)*,
     ): Unit = {
       implicit val patchBuilder = Seq.newBuilder[TokenPatch]
 
@@ -638,7 +636,7 @@ object Imports extends RewriteFactory {
       t.importers.foreach { importer =>
         val selectors = getSelectors(importer.importees, false).pretty
         val replacement = getRef(importer) + selectors
-        val tokens: Iterator[Token] = importer.tokens.iterator
+        val tokens: Iterator[T] = importer.tokens.iterator
         // replace the first token
         patchBuilder += TokenPatch.Replace(tokens.next(), replacement)
         // remove all tokens except first

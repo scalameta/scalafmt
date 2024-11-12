@@ -5,10 +5,10 @@ import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.PolicyOps
 
 import org.scalameta.FileLine
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 case class OptimalToken(
-    token: Token,
+    token: T,
     killOnFail: Boolean,
     recurseOnly: Boolean = false,
 ) {
@@ -144,7 +144,7 @@ case class Split(
     else copy()(fileLineStack.forThisLine(fileLine.file, fileLine.line))
 
   def withOptimalTokenOpt(
-      token: => Option[Token],
+      token: => Option[T],
       killOnFail: Boolean,
       extend: Boolean = false,
       recurseOnly: Boolean = false,
@@ -155,7 +155,7 @@ case class Split(
   )
 
   def withOptimalToken(
-      token: => Token,
+      token: => T,
       killOnFail: Boolean,
       ignore: Boolean = false,
       extend: Boolean = false,
@@ -198,7 +198,7 @@ case class Split(
     else throw new UnsupportedOperationException("Use orPolicy or andPolicy")
 
   def withSingleLine(
-      expire: => Token,
+      expire: => T,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: => Option[Boolean] = None,
@@ -228,7 +228,7 @@ case class Split(
     }
 
   def withSingleLineNoOptimal(
-      expire: => Token,
+      expire: => T,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       rank: Int = 0,
@@ -259,19 +259,19 @@ case class Split(
     if (isIgnored || penalty <= 0) this
     else copy(penalty = this.penalty + penalty)
 
-  def withIndent(length: => Length, expire: => Token, when: ExpiresOn): Split =
+  def withIndent(length: => Length, expire: => T, when: ExpiresOn): Split =
     withIndent(length, expire, when, ignore = false)
 
   def withIndent(
       length: => Length,
-      expire: => Token,
+      expire: => T,
       when: ExpiresOn,
       ignore: Boolean,
   ): Split = withMod(modExt.withIndent(length, expire, when), ignore)
 
   def withIndentOpt(
       length: => Length,
-      expire: Option[Token],
+      expire: Option[T],
       when: ExpiresOn,
   ): Split = withMod(modExt.withIndentOpt(length, expire, when))
 
@@ -286,7 +286,7 @@ case class Split(
   def withIndents(indents: Seq[Indent], ignore: Boolean = false): Split =
     withMod(modExt.withIndents(indents), ignore)
 
-  def switch(trigger: Token, on: Boolean): Split =
+  def switch(trigger: T, on: Boolean): Split =
     if (isIgnored) this
     else {
       val switchedModExt = modExt.switch(trigger, on)

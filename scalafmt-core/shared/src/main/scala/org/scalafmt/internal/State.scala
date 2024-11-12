@@ -8,7 +8,7 @@ import org.scalafmt.util.PolicyOps
 import org.scalafmt.util.TreeOps._
 
 import scala.meta._
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 
@@ -67,7 +67,7 @@ final class State(
     val right = tok.right
 
     val (nextSplit, nextIndent, nextIndents) =
-      if (right.is[Token.EOF]) (initialNextSplit, 0, Seq.empty)
+      if (right.is[T.EOF]) (initialNextSplit, 0, Seq.empty)
       else {
         val offset = column - indentation
         def getUnexpired(modExt: ModExt, indents: Seq[ActualIndent] = Nil) = {
@@ -85,7 +85,7 @@ final class State(
         val nextIndent = Indent.getIndent(nextPushes)
         initialNextSplit.mod match {
           case m: NewlineT
-              if !tok.left.is[Token.Comment] && m.alt.isDefined &&
+              if !tok.left.is[T.Comment] && m.alt.isDefined &&
                 nextIndent >= m.alt.get.mod.length + column =>
             val alt = m.alt.get
             val altPushes = getUnexpired(alt)
@@ -128,7 +128,7 @@ final class State(
 
     val (penalty, nextDelayedPenalty) =
       if (columnOnCurrentLine <= style.maxColumn) noOverflowPenalties
-      else if (right.is[Token.Comment]) {
+      else if (right.is[T.Comment]) {
         def trailing = nextTok.hasBreak // newline after comment
         if (nextSplit.isNL) { // newline before comment
           val rtext = tok.meta.right.text
@@ -184,21 +184,21 @@ final class State(
       (penalty, if (nextActive) nextDelayedPenalty else -nextDelayedPenalty)
     }
     val ft = tokens(depth)
-    if (nextSplit.isNL || ft.right.is[Token.EOF])
+    if (nextSplit.isNL || ft.right.is[T.EOF])
       result(if (prevActive) fullPenalty else defaultOverflowPenalty, false)
     else {
       val tokLength = ft.meta.right.text.length
       def getFullPenalty = result(fullPenalty, true)
       def getCustomPenalty = {
-        val isComment = ft.right.is[Token.Comment]
+        val isComment = ft.right.is[T.Comment]
         /* we only delay penalty for overflow tokens which are part of a
          * statement that started at the beginning of the current line */
         val startFtOpt =
           if (!State.allowSplitForLineStart(nextSplit, ft, isComment)) None
           else lineStartsStatement(isComment)
         val delay = startFtOpt.exists {
-          case FormatToken(_, t: Token.Interpolation.Start, _) => tokens
-              .matching(t).left ne ft.right
+          case FormatToken(_, t: T.Interpolation.Start, _) => tokens.matching(t)
+              .left ne ft.right
           case _ => true
         }
         // if delaying, estimate column if the split had been a newline
@@ -211,19 +211,19 @@ final class State(
           (style.newlines.inInterpolation eq Newlines.InInterpolation.avoid)) &&
         State.isWithinInterpolation(ft.meta.rightOwner)
       ) ft.right match {
-        case _: Token.Interpolation.End => getCustomPenalty
-        case _: Token.Interpolation.Id if delayedPenalty != 0 => getFullPenalty // can't delay multiple times
+        case _: T.Interpolation.End => getCustomPenalty
+        case _: T.Interpolation.Id if delayedPenalty != 0 => getFullPenalty // can't delay multiple times
         case _ => // delay for intermediate interpolation tokens
           result(tokLength, true)
       }
-      else if (ft.right.isInstanceOf[Token.Punct] && tokLength == 1) { // delimiter
+      else if (ft.right.isInstanceOf[T.Punct] && tokLength == 1) { // delimiter
         val ok = delayedPenalty != 0 ||
           style.newlines.avoidForSimpleOverflowPunct &&
           column >= style.maxColumn
         if (ok) result(0, prevActive)
         else prev.getOverflowPenalty(split, defaultOverflowPenalty + 1)
       } else if (
-        style.newlines.avoidForSimpleOverflowSLC && ft.right.is[Token.Comment]
+        style.newlines.avoidForSimpleOverflowSLC && ft.right.is[T.Comment]
       ) result(0, prevActive)
       else if (
         style.newlines.avoidForSimpleOverflowTooLong && delayedPenalty == 0 // can't delay multiple times
@@ -276,7 +276,7 @@ final class State(
       val ft = tokens(depth)
       val ok = {
         // comment could be preceded by a comma
-        isComment && ft.left.is[Token.Comma] &&
+        isComment && ft.left.is[T.Comma] &&
         (tokens.prev(ft).meta.leftOwner match {
           case `lineOwner` => true
           case t: Member.SyntaxValuesClause => t.parent.contains(lineOwner)
@@ -295,11 +295,11 @@ final class State(
     def indentEnd(ft: FormatToken, isNL: Boolean)(onComment: => Option[Int]) = {
       val leftOwner = ft.meta.leftOwner
       ft.left match {
-        case _: Token.KwMatch
+        case _: T.KwMatch
             if leftOwner.is[Term.Match] &&
               allowed.contains(Indents.RelativeToLhs.`match`) =>
           Some(treeEnd(leftOwner))
-        case _: Token.Ident if !isNL =>
+        case _: T.Ident if !isNL =>
           leftOwner.parent match {
             case Some(p: Term.ApplyInfix)
                 if p.op.eq(leftOwner) &&
@@ -307,7 +307,7 @@ final class State(
               Some(treeEnd(p))
             case _ => None
           }
-        case _: Token.Comment if !isNL => onComment
+        case _: T.Comment if !isNL => onComment
         case _ => None
       }
     }
@@ -315,17 +315,16 @@ final class State(
     val tok = tokens(depth)
     val right = tok.right
     if (allowed.isEmpty) None
-    else if (!isNL && right.is[Token.Comment]) Some(right.end)
+    else if (!isNL && right.is[T.Comment]) Some(right.end)
     else indentEnd(tok, isNL) {
       val earlierState = prev.prevNonCommentSameLine
       indentEnd(tokens(earlierState.depth), earlierState.split.isNL)(None)
     }.orElse {
       val delay = !isNL &&
         (right match {
-          case _: Token.KwMatch => tok.meta.rightOwner.is[Term.Match] &&
+          case _: T.KwMatch => tok.meta.rightOwner.is[Term.Match] &&
             allowed.contains(Indents.RelativeToLhs.`match`)
-          case _: Token.Ident => tok.meta.rightOwner.parent
-              .is[Term.ApplyInfix] &&
+          case _: T.Ident => tok.meta.rightOwner.parent.is[Term.ApplyInfix] &&
             allowed.contains(Indents.RelativeToLhs.`infix`)
           case _ => false
         })
@@ -335,7 +334,7 @@ final class State(
 
   @tailrec
   private def prevNonCommentSameLine(implicit tokens: FormatTokens): State =
-    if (split.isNL || !tokens(depth).left.is[Token.Comment]) this
+    if (split.isNL || !tokens(depth).left.is[T.Comment]) this
     else prev.prevNonCommentSameLine
 }
 
@@ -411,14 +410,14 @@ object State {
     if (pipe == '|') RegexCompat.stripMarginPatternWithLineContent
     else RegexCompat.compileStripMarginPatternWithLineContent(pipe)
 
-  def getColumns(tok: Token, meta: FormatToken.TokenMeta, column: Int)(
+  def getColumns(tok: T, meta: FormatToken.TokenMeta, column: Int)(
       stringMargin: Int => Int,
   )(interpPartMargin: Int => Int): (Int, Int) = {
     val syntax = meta.text
     val firstNL = meta.firstNL
     if (firstNL < 0) {
       val syntaxLen =
-        if (column != 0 && tok.is[Token.Comment]) {
+        if (column != 0 && tok.is[T.Comment]) {
           val asSlc = RegexCompat.slcLine.matcher(syntax)
           if (asSlc.matches()) 3 + asSlc.end(1) - asSlc.start(1)
           else syntax.length
@@ -428,11 +427,11 @@ object State {
     } else {
       val firstLength = column + firstNL
       tok match {
-        case _: Token.Constant.String =>
+        case _: T.Constant.String =>
           val margin: Int => Int = stringMargin
           val pipe = getStripMarginChar(meta.owner)
           getColumnsWithStripMargin(pipe, syntax, firstNL, margin, firstLength)
-        case _: Token.Interpolation.Part =>
+        case _: T.Interpolation.Part =>
           val margin: Int => Int = interpPartMargin
           val pipe = getStripMarginCharForInterpolate(meta.owner)
           getColumnsWithStripMargin(pipe, syntax, firstNL, margin, firstLength)

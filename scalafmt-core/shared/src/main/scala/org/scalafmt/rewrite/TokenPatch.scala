@@ -1,22 +1,19 @@
 package org.scalafmt.rewrite
 
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
-sealed abstract class TokenPatch(val tok: Token, val newTok: String)
+sealed abstract class TokenPatch(val tok: T, val newTok: String)
 
 object TokenPatch {
-  case class Remove(override val tok: Token) extends TokenPatch(tok, "")
-  case class Replace(override val tok: Token, override val newTok: String)
+  case class Remove(override val tok: T) extends TokenPatch(tok, "")
+  case class Replace(override val tok: T, override val newTok: String)
       extends TokenPatch(tok, newTok)
-  def AddRight(
-      tok: Token,
-      toAdd: String,
-      keepTok: Boolean = false,
-  ): TokenPatch = Add(tok, "", toAdd, keepTok)
-  def AddLeft(tok: Token, toAdd: String, keepTok: Boolean = false): TokenPatch =
+  def AddRight(tok: T, toAdd: String, keepTok: Boolean = false): TokenPatch =
+    Add(tok, "", toAdd, keepTok)
+  def AddLeft(tok: T, toAdd: String, keepTok: Boolean = false): TokenPatch =
     Add(tok, toAdd, "", keepTok)
   private case class Add(
-      override val tok: Token,
+      override val tok: T,
       addLeft: String,
       addRight: String,
       keepTok: Boolean,

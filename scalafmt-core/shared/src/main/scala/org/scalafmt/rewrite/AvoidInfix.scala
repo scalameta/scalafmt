@@ -5,7 +5,7 @@ import org.scalafmt.util.InfixApp
 
 import scala.meta._
 import scala.meta.internal.trees.PlaceholderChecks.hasPlaceholder
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 
@@ -33,7 +33,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
     case x: Term.ApplyInfix => rewriteImpl(x.lhs, x.op, x.arg, x.targClause)
     case x: Term.Select if !cfg.excludePostfix =>
       val maybeDot = ctx.tokenTraverser.prevNonTrivialToken(x.name.tokens.head)
-      if (!maybeDot.forall(_.is[Token.Dot])) rewriteImpl(x.qual, x.name)
+      if (!maybeDot.forall(_.is[T.Dot])) rewriteImpl(x.qual, x.name)
     case _ =>
   }
 
@@ -55,7 +55,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
     if (!checkMatchingInfix(lhs, op, rhs, Some(lhsIsOK))) return
     if (!ctx.dialect.allowTryWithAnyExpr)
-      if (beforeLhsHead.exists(_.is[Token.KwTry])) return
+      if (beforeLhsHead.exists(_.is[T.KwTry])) return
 
     val builder = Seq.newBuilder[TokenPatch]
 
@@ -63,7 +63,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
     builder += TokenPatch.AddLeft(opHead, ".", keepTok = true)
 
     if (rhs ne null) {
-      def moveOpenDelim(prev: Token, open: Token): Unit = {
+      def moveOpenDelim(prev: T, open: T): Unit = {
         // move delimiter (before comment or newline)
         builder += TokenPatch.AddRight(prev, open.text, keepTok = true)
         builder += TokenPatch.Remove(open)
@@ -129,21 +129,18 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
   }
 
   @inline
-  private def isMatching(head: Token, last: => Token): Boolean = head
-    .is[Token.LeftParen] && ctx.isMatching(head, last)
+  private def isMatching(head: T, last: => T): Boolean = head.is[T.LeftParen] &&
+    ctx.isMatching(head, last)
 
-  private def isWrapped(
-      head: Token,
-      last: Token,
-      beforeHead: => Option[Token],
-  ): Boolean = isMatching(head, last) ||
-    beforeHead
-      .exists(isMatching(_, ctx.tokenTraverser.nextNonTrivialToken(last).orNull))
+  private def isWrapped(head: T, last: T, beforeHead: => Option[T]): Boolean =
+    isMatching(head, last) || beforeHead.exists(
+      isMatching(_, ctx.tokenTraverser.nextNonTrivialToken(last).orNull),
+    )
 
-  private def isWrapped(head: Token, last: Token): Boolean =
+  private def isWrapped(head: T, last: T): Boolean =
     isWrapped(head, last, ctx.tokenTraverser.prevNonTrivialToken(head))
 
-  private def ends(t: Tree): (Token, Token) = {
+  private def ends(t: Tree): (T, T) = {
     val tokens = t.tokens
     (tokens.head, tokens.last)
   }
