@@ -1,13 +1,8 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.rewrite.TokenPatch.Add
-import org.scalafmt.rewrite.TokenPatch.Remove
-
 import scala.meta.tokens.Token
 
-sealed abstract class Patch
-abstract class TreePatch extends Patch
-abstract class TokenPatch(val tok: Token, val newTok: String) extends TreePatch
+sealed abstract class TokenPatch(val tok: Token, val newTok: String)
 
 object TokenPatch {
   case class Remove(override val tok: Token) extends TokenPatch(tok, "")
@@ -20,16 +15,13 @@ object TokenPatch {
   ): TokenPatch = Add(tok, "", toAdd, keepTok)
   def AddLeft(tok: Token, toAdd: String, keepTok: Boolean = false): TokenPatch =
     Add(tok, toAdd, "", keepTok)
-  case class Add(
+  private case class Add(
       override val tok: Token,
       addLeft: String,
       addRight: String,
       keepTok: Boolean,
   ) extends TokenPatch(tok, s"""$addLeft${if (keepTok) tok else ""}$addRight""")
 
-}
-
-object Patch {
   def merge(a: TokenPatch, b: TokenPatch): TokenPatch = (a, b) match {
     case (add1: Add, add2: Add) => Add(
         add1.tok,
