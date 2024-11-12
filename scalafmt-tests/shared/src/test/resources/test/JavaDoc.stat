@@ -3506,3 +3506,52 @@ object a {}
  *    |*  does not conform to  dotty.tools.dotc.util.Property.Key[Typer.this.Deriver & Namer.this.Deriver]
  */
 object a {}
+<<< #4536 oneline=fold Asterisk
+docstrings.wrap = yes
+docstrings.oneline = fold
+docstrings.style = Asterisk
+===
+/** foo
+ * bar
+ */
+object a {}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-/** foo bar */
++/**
++ * foo bar
++ */
+ object a {}
+<<< #4536 oneline=fold AsteriskSpace
+docstrings.wrap = yes
+docstrings.oneline = fold
+docstrings.style = AsteriskSpace
+===
+/** foo
+ * bar
+ */
+object a {}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-/** foo bar */
++/** foo bar
++ */
+ object a {}
+<<< #4536 oneline=fold SpaceAsterisk
+docstrings.wrap = yes
+docstrings.oneline = fold
+docstrings.style = SpaceAsterisk
+===
+/** foo
+ * bar
+ */
+object a {}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+-/** foo bar */
++/** foo bar
++  */
+ object a {}
