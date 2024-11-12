@@ -19,7 +19,7 @@ object RewriteTrailingCommas extends FormatTokensRewrite.RuleFactory {
     new RewriteTrailingCommas
 
   private[rewrite] def checkIfPrevious(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       ftoks: FormatTokens,
   ): Boolean = ft.right match {
@@ -46,13 +46,13 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
     RewriteTrailingCommas.enabled
 
   override def onToken(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[Replacement] = if (shouldRemove(ft)) Some(removeToken) else None
 
   private[rewrite] def shouldRemove(
-      ft: FormatToken,
+      ft: FT,
   )(implicit session: Session): Boolean = ft.right.is[T.Comma] && {
     val nft = ftoks.nextNonCommentAfter(ft)
     def delimOwner = nft.meta.rightOwner
@@ -77,7 +77,7 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
   }
 
   override def onRight(lt: Replacement, hasFormatOff: Boolean)(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = None

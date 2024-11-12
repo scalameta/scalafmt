@@ -35,29 +35,29 @@ object TreeOps {
     }
 
   object SingleArgInBraces {
-    def unapply(tree: Tree)(implicit
-        ftoks: FormatTokens,
-    ): Option[(FormatToken, Term, FormatToken)] = tree match {
+    def unapply(
+        tree: Tree,
+    )(implicit ftoks: FormatTokens): Option[(FT, Term, FT)] = tree match {
       case t: Term.ArgClause => unapply(t)
       case _ => None
     }
     def unapply(tree: Term.ArgClause)(implicit
         ftoks: FormatTokens,
-    ): Option[(FormatToken, Term, FormatToken)] = getBraces(tree, tree.values)
+    ): Option[(FT, Term, FT)] = getBraces(tree, tree.values)
 
     @inline
     private def getBraces[A](tree: Tree, values: List[A])(implicit
         ftoks: FormatTokens,
-    ): Option[(FormatToken, A, FormatToken)] = values match {
+    ): Option[(FT, A, FT)] = values match {
       case arg :: Nil => ftoks.getBracesIfEnclosed(tree).map { case (b, e) =>
           (b, arg, e)
         }
       case _ => None
     }
 
-    def orBlock(tree: Tree)(implicit
-        ftoks: FormatTokens,
-    ): Option[(FormatToken, Stat, FormatToken)] = tree match {
+    def orBlock(
+        tree: Tree,
+    )(implicit ftoks: FormatTokens): Option[(FT, Stat, FT)] = tree match {
       case t: Term.ArgClause => unapply(t)
       case t: Term.Block => getBraces(t, t.stats)
       case _ => None
@@ -66,7 +66,7 @@ object TreeOps {
     object OrBlock {
       def unapply(tree: Tree)(implicit
           ftoks: FormatTokens,
-      ): Option[(FormatToken, Stat, FormatToken)] = orBlock(tree)
+      ): Option[(FT, Stat, FT)] = orBlock(tree)
     }
   }
 
@@ -244,10 +244,9 @@ object TreeOps {
     case _ => None
   }
 
-  val ColonDeclTpeLeft =
-    new FormatToken.ExtractFromMeta(x => colonDeclType(x.leftOwner))
+  val ColonDeclTpeLeft = new FT.ExtractFromMeta(x => colonDeclType(x.leftOwner))
   val ColonDeclTpeRight =
-    new FormatToken.ExtractFromMeta(x => colonDeclType(x.rightOwner))
+    new FT.ExtractFromMeta(x => colonDeclType(x.rightOwner))
 
   def isParamClauseSite(tree: Tree): Boolean = tree match {
     case _: Type.ParamClause => !tree.parent.is[Type.Lambda]
@@ -306,7 +305,7 @@ object TreeOps {
     case _ => false
   }
 
-  val DefValAssignLeft = new FormatToken.ExtractFromMeta(_.leftOwner match {
+  val DefValAssignLeft = new FT.ExtractFromMeta(_.leftOwner match {
     case _: Enumerator => None // it's WithBody
     case t: Ctor.Secondary => Some(t.body.init)
     case t: Tree.WithBody => Some(t.body)
@@ -678,7 +677,7 @@ object TreeOps {
   }
 
   // Redundant {} block around case statements
-  def isCaseBodyABlock(ft: FormatToken, caseStat: CaseTree): Boolean = ft.right
+  def isCaseBodyABlock(ft: FT, caseStat: CaseTree): Boolean = ft.right
     .is[T.LeftBrace] && (caseStat.body eq ft.meta.rightOwner)
 
   def getTemplateGroups(template: Template): Option[Seq[List[Tree]]] = {
@@ -697,7 +696,7 @@ object TreeOps {
   // try to add them in the TrainingCommas.always branch.
   def rightIsCloseDelimForTrailingComma(
       left: T,
-      ft: FormatToken,
+      ft: FT,
       whenNL: Boolean = true,
   ): Boolean = {
     def owner = ft.meta.rightOwner
@@ -860,17 +859,15 @@ object TreeOps {
     (initStyle, ownersMap.result())
   }
 
-  val ParamClauseParentLeft =
-    new FormatToken.ExtractFromMeta(_.leftOwner match {
-      case ParamClauseParent(p) => Some(p)
-      case _ => None
-    })
+  val ParamClauseParentLeft = new FT.ExtractFromMeta(_.leftOwner match {
+    case ParamClauseParent(p) => Some(p)
+    case _ => None
+  })
 
-  val LambdaAtSingleArgCallSite =
-    new FormatToken.ExtractFromMeta(_.leftOwner match {
-      case Term.ArgClause((fun: Term.FunctionTerm) :: Nil, _) => Some(fun)
-      case _ => None
-    })
+  val LambdaAtSingleArgCallSite = new FT.ExtractFromMeta(_.leftOwner match {
+    case Term.ArgClause((fun: Term.FunctionTerm) :: Nil, _) => Some(fun)
+    case _ => None
+  })
 
   def isFewerBraces(
       tree: Term.Apply,

@@ -85,7 +85,7 @@ object Error {
   ) extends Error(
         s"Search state exploded on '$tok', line $line: $why [see $cfgUrl#search-state-exploded]",
       ) {
-    def this(deepestState: State, ft: FormatToken, why: String)(implicit
+    def this(deepestState: State, ft: FT, why: String)(implicit
         formatWriter: FormatWriter,
     ) = this(
       deepestState,

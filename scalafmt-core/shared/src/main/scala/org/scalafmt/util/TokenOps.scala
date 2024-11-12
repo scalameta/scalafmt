@@ -41,7 +41,7 @@ object TokenOps {
   def isDocstring(text: String): Boolean = text.length > 4 &&
     text.startsWith("/**") // excludes /**/
 
-  def blankLineBeforeDocstring(ft: FormatToken)(implicit
+  def blankLineBeforeDocstring(ft: FT)(implicit
       style: ScalafmtConfig,
   ): Boolean = style.forceNewlineBeforeDocstring &&
     isDocstring(ft.meta.right.text) &&
@@ -61,19 +61,19 @@ object TokenOps {
     .getOrElse(tokens.last)
 
   @inline
-  def withNoIndent(ft: FormatToken): Boolean = ft.between.lastOption.is[AtEOL]
+  def withNoIndent(ft: FT): Boolean = ft.between.lastOption.is[AtEOL]
 
   @inline
-  def rhsIsCommentedOut(ft: FormatToken): Boolean = ft.right.is[Comment] &&
+  def rhsIsCommentedOut(ft: FT): Boolean = ft.right.is[Comment] &&
     rhsIsCommentedOutIfComment(ft)
 
   @inline
-  def rhsIsCommentedOutIfComment(ft: FormatToken): Boolean = withNoIndent(ft) &&
+  def rhsIsCommentedOutIfComment(ft: FT): Boolean = withNoIndent(ft) &&
     isSingleLineIfComment(ft.right)
 
   @inline
-  def isLeftCommentThenBreak(ft: FormatToken): Boolean = ft.left
-    .is[T.Comment] && ft.hasBreak
+  def isLeftCommentThenBreak(ft: FT): Boolean = ft.left.is[Comment] &&
+    ft.hasBreak
 
   def isSingleLineIfComment(c: T): Boolean = {
     val off = c.start
@@ -93,7 +93,7 @@ object TokenOps {
   }
 
   @inline
-  def getMod(ft: FormatToken): Modification = Space.orNL(ft.newlinesBetween)
+  def getMod(ft: FT): Modification = Space.orNL(ft.newlinesBetween)
 
   val formatOnCode = Set(
     "@formatter:on", // IntelliJ

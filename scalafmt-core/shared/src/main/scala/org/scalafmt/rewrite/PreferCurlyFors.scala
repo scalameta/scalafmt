@@ -57,7 +57,7 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
     PreferCurlyFors.enabled
 
   override def onToken(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[Replacement] = Option {
@@ -86,7 +86,7 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
   }
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = ft.right match {
@@ -100,7 +100,7 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
   }
 
   private def hasNoLeadingInfix(t: Term.EnumeratorsBlock)(implicit
-      head: FormatToken,
+      head: FT,
   ): Boolean = findTokenWith(nextNonCommentAfter(head), next) { ft =>
     ft.meta.rightOwner match {
       case ro: Name if (ro.parent match {

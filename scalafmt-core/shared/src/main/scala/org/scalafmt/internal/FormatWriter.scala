@@ -111,12 +111,7 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
     @tailrec
-    def iter(
-        cur: State,
-        lineId: Int,
-        gapId: Int,
-        prevEol: FormatToken,
-    ): Unit = {
+    def iter(cur: State, lineId: Int, gapId: Int, prevEol: FT): Unit = {
       val prev = cur.prev
       val idx = prev.depth
       val ft = toks(idx)
@@ -484,12 +479,9 @@ class FormatWriter(formatOps: FormatOps) {
         def isClosedDelimWithNewline(expectedNewline: Boolean): Boolean =
           getClosedDelimWithNewline(expectedNewline).isDefined
 
-        def getClosedDelimWithNewline(whenNL: Boolean): Option[FormatToken] = {
+        def getClosedDelimWithNewline(whenNL: Boolean): Option[FT] = {
           @tailrec
-          def iter(
-              floc: FormatLocation,
-              hadNL: Boolean,
-          ): Option[FormatToken] = {
+          def iter(floc: FormatLocation, hadNL: Boolean): Option[FT] = {
             val isNL = floc.hasBreakAfter
             if (isNL && !whenNL) None
             else {
@@ -1388,9 +1380,9 @@ class FormatWriter(formatOps: FormatOps) {
       def setIdxCheck(idx: => Int, cnt: Int, force: => Boolean) =
         if (cnt > 0) setIdx(idx, cnt) else if (cnt < 0 && force) setIdx(idx, 0)
       @inline
-      def setFt(ft: FormatToken) = setIdx(ft.meta.idx, 1)
+      def setFt(ft: FT) = setIdx(ft.meta.idx, 1)
       @inline
-      def setFtCheck(ft: FormatToken, cnt: Int, force: => Boolean) =
+      def setFtCheck(ft: FT, cnt: Int, force: => Boolean) =
         setIdxCheck(ft.meta.idx, cnt, force)
       def setTopStats(owner: Tree, notUnindentedPkg: Boolean)(
           stats: Seq[Tree],
@@ -1565,7 +1557,7 @@ class FormatWriter(formatOps: FormatOps) {
         statHead: Tree,
         statLast: Tree,
         nest: Int,
-    ): Option[(Newlines.NumBlanks, FormatToken, FormatToken)] = {
+    ): Option[(Newlines.NumBlanks, FT, FT)] = {
       val head = tokenJustBefore(statHead)
       val last = getLast(statLast)
       val bLoc = locations(head.meta.idx + 1)
@@ -1602,7 +1594,7 @@ object FormatWriter {
   private val NoLine = Int.MaxValue
 
   case class FormatLocation(
-      formatToken: FormatToken,
+      formatToken: FT,
       state: State,
       style: ScalafmtConfig,
       leftLineId: Int, // counts back from the end of the file
@@ -1854,8 +1846,8 @@ object FormatWriter {
     if (useLeft) floc.state.prev.column else floc.state.column
   }
 
-  private def getAlignNonSlcOwner(ft: FormatToken, nextFloc: FormatLocation)(
-      implicit floc: FormatLocation,
+  private def getAlignNonSlcOwner(ft: FT, nextFloc: FormatLocation)(implicit
+      floc: FormatLocation,
   ): Option[Option[Tree]] = {
     def getNonSlcOwner = ft.meta.rightOwner match {
       case name: Term.Name => name.parent match {
@@ -1950,11 +1942,8 @@ object FormatWriter {
     beg.leftBlankGapId - end.leftBlankGapId
 
   @inline
-  private def getLineDiff(
-      toks: Array[FormatLocation],
-      beg: FormatToken,
-      end: FormatToken,
-  ): Int = getLineDiff(toks(beg.meta.idx), toks(end.meta.idx))
+  private def getLineDiff(toks: Array[FormatLocation], beg: FT, end: FT): Int =
+    getLineDiff(toks(beg.meta.idx), toks(end.meta.idx))
 
   def isEmptyDocstring(text: String): Boolean = emptyDocstring.matcher(text)
     .matches()

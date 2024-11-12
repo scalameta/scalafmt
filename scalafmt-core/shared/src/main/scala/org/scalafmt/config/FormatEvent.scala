@@ -9,7 +9,7 @@ sealed abstract class FormatEvent
 object FormatEvent {
   case class CreateFormatOps(formatOps: FormatOps) extends FormatEvent
   case class Routes(routes: IndexedSeq[Seq[Split]]) extends FormatEvent
-  case class VisitToken(formatToken: FormatToken) extends FormatEvent
+  case class VisitToken(formatToken: FT) extends FormatEvent
   case class Explored(n: Int, depth: Int, queueSize: Int) extends FormatEvent
   case class Enqueue(split: Split) extends FormatEvent
   case class CompleteFormat(

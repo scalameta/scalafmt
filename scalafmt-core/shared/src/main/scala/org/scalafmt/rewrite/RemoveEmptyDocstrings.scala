@@ -18,7 +18,7 @@ object RemoveEmptyDocstrings
     this
 
   override def onToken(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[Replacement] = {
@@ -28,7 +28,7 @@ object RemoveEmptyDocstrings
   }
 
   override def onRight(lt: Replacement, hasFormatOff: Boolean)(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = None

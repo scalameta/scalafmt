@@ -49,13 +49,13 @@ object LoggerOps {
   }
   def log(split: Split): String = s"$split"
 
-  def log(formatToken: FormatToken): String =
+  def log(formatToken: FT): String =
     s"""|${log(formatToken.left)}
         |${log(formatToken.between: _*)}
         |${log(formatToken.right)}""".stripMargin
 
-  def log2(formatToken: FormatToken): String = formatToken.toString
-  def log2(formatToken: Option[FormatToken]): String = formatToken.fold("")(log2)
+  def log2(formatToken: FT): String = formatToken.toString
+  def log2(formatToken: Option[FT]): String = formatToken.fold("")(log2)
 
   def escape(raw: String): String = raw
 

@@ -118,7 +118,7 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
   }
 
   def opensLiteralArgumentList(
-      ft: FormatToken,
+      ft: FT,
   )(implicit style: ScalafmtConfig): Boolean = (ft.meta.leftOwner match {
     case Member.Tuple(v) => Some(v)
     case Member.SyntaxValuesClause(v) => Some(v)
@@ -138,7 +138,7 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
   }
 
   @inline
-  def at(token: FormatToken): ScalafmtConfig = at(token.left)
+  def at(token: FT): ScalafmtConfig = at(token.left)
 
   @inline
   def forall(f: ScalafmtConfig => Boolean): Boolean = styles.forall(f)

@@ -5,18 +5,17 @@ import scala.meta.tokens.{Token => T}
 import scala.annotation.tailrec
 
 sealed abstract class ExpiresOn {
-  def notExpiredBy(ft: FormatToken, expireEnd: Int): Boolean
+  def notExpiredBy(ft: FT, expireEnd: Int): Boolean
 }
 
 object ExpiresOn {
   case object After extends ExpiresOn {
-    def notExpiredBy(ft: FormatToken, expireEnd: Int): Boolean =
-      ft.right.start < expireEnd
+    def notExpiredBy(ft: FT, expireEnd: Int): Boolean = ft.right.start <
+      expireEnd
   }
 
   case object Before extends ExpiresOn {
-    def notExpiredBy(ft: FormatToken, expireEnd: Int): Boolean = ft.right.end <
-      expireEnd
+    def notExpiredBy(ft: FT, expireEnd: Int): Boolean = ft.right.end < expireEnd
   }
 
   @inline
@@ -56,8 +55,7 @@ case class ActualIndent(
     reset: Boolean,
 ) {
   @inline
-  def notExpiredBy(ft: FormatToken): Boolean = expiresAt
-    .notExpiredBy(ft, expireEnd)
+  def notExpiredBy(ft: FT): Boolean = expiresAt.notExpiredBy(ft, expireEnd)
 }
 
 abstract class Indent {
