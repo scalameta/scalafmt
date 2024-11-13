@@ -84,8 +84,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       if (idx >= tokens.length) return Right(curr)
 
       val splitToken = tokens(idx)
-      val leftTok = splitToken.left
-      if (splitToken.right.start > stop.start && leftTok.start < leftTok.end)
+      if (splitToken.right.start > stop.start && !splitToken.left.isEmpty)
         return Right(curr)
 
       implicit val style = styleMap.at(splitToken)
@@ -94,7 +93,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       if (idx > deepestState.depth) deepestState = curr
       val noOptZoneOrBlock =
         if (noOptZones == null || !useNoOptZones) Some(true)
-        else noOptZones.get(leftTok)
+        else noOptZones.get(idx)
       val noOptZone = noOptZoneOrBlock.contains(true)
 
       if (noOptZone || stats.shouldEnterState(curr)) {
@@ -315,15 +314,15 @@ object BestFirstSearch {
     new BestFirstSearch(range).getBestPath
 
   private def getNoOptZones(tokens: FormatTokens)(implicit styleMap: StyleMap) = {
-    val result = mutable.Map.empty[T, Boolean]
+    val result = mutable.Map.empty[Int, Boolean]
     var expire: FT = null
     @inline
     def addRange(t: T): Unit = expire = tokens.matching(t)
     @inline
-    def addBlock(t: T): Unit = result.getOrElseUpdate(t, false)
+    def addBlock(idx: Int): Unit = result.getOrElseUpdate(idx, false)
     tokens.foreach {
       case ft if expire ne null =>
-        if (ft eq expire) expire = null else result.update(ft.left, true)
+        if (ft eq expire) expire = null else result.update(ft.idx, true)
       case FT(t: T.LeftParen, _, m) if (m.leftOwner match {
             case lo: Term.ArgClause => !lo.parent.is[Term.ApplyInfix] &&
               !styleMap.at(t).newlines.keep
@@ -336,7 +335,7 @@ object BestFirstSearch {
           case _: Type.Refine => addRange(t)
           case lo: Term.PartialFunction
               if lo.cases.lengthCompare(1) == 0 &&
-                styleMap.at(t).newlines.fold => addBlock(t)
+                styleMap.at(t).newlines.fold => addBlock(m.idx)
           case _ =>
         }
       case _ =>
