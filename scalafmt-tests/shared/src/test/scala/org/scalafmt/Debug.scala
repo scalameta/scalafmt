@@ -17,7 +17,7 @@ import scala.collection.mutable
   */
 class Debug(val verbose: Boolean) {
 
-  val enqueuedSplits = mutable.Set.empty[Split]
+  val enqueuedSplits = mutable.Map.empty[Split, Int]
   var formatOps: FormatOps = _
   var routes: IndexedSeq[Seq[Split]] = _
   var completedEvent: Option[CompleteFormat] = None
@@ -26,7 +26,11 @@ class Debug(val verbose: Boolean) {
 
   def elapsedNs = System.nanoTime() - startTime
 
-  def enqueued(split: Split): Unit = if (verbose) enqueuedSplits += split
+  def enqueued(split: Split): Unit = if (verbose) enqueuedSplits
+    .updateWith(split) {
+      case None => Some(1)
+      case Some(x) => Some(x + 1)
+    }
 
   def completed(event: CompleteFormat): Unit = {
     completedEvent = Option(event)
@@ -42,13 +46,16 @@ class Debug(val verbose: Boolean) {
     // splits
     if (enqueuedSplits.nonEmpty) {
       val sb = new StringBuilder()
-      enqueuedSplits.groupBy(_.fileLine.line.value).toSeq.sortBy(-_._2.size)
-        .iterator.take(5).foreach { case (line, group) =>
-          sb.append("Split(line=").append(line).append(" count=")
-            .append(group.size).append("=")
-          group.foreach(sb.append("\n\t").append(_))
-          sb.append("\n")
-        }
+      val groups = enqueuedSplits.toSeq.groupBy(_._1.fileLine.line.value).toSeq
+        .sortBy(-_._2.length)
+      val minSize = groups.lift(5).fold(0)(_._2.length)
+      groups.takeWhile(_._2.length >= minSize).foreach { case (line, group) =>
+        sb.append("Split(line=").append(line).append(" unique=")
+          .append(group.length).append(" count=").append(group.map(_._2).sum)
+        group.sortBy(-_._2)
+          .foreach(x => sb.append("\n\t").append(x._2).append(' ').append(x._1))
+        sb.append("\n")
+      }
       LoggerOps.logger.debug(sb.toString())
     }
 
