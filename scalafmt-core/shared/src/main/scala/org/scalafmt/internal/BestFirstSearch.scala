@@ -36,13 +36,11 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   var stats = new StateStats(tokens, initStyle.runner)
 
-  private def getBlockCloseToRecurse(ft: FT, stop: T)(implicit
+  private def getBlockCloseToRecurse(ft: FT)(implicit
       style: ScalafmtConfig,
   ): Option[T] = getEndOfBlock(ft, parensToo = true).collect {
-    case close if close.left != stop && {
-          // Block must span at least 3 lines to be worth recursing.
-          tokens.width(ft, close) > style.maxColumn * 3
-        } => close.left
+    // Block must span at least 3 lines to be worth recursing.
+    case close if tokens.width(ft, close) > style.maxColumn * 3 => close.left
   }
 
   private val memo = mutable.Map.empty[Long, Option[State]]
@@ -110,7 +108,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           noOptZoneOrBlock.isEmpty || !optimizer.recurseOnBlocks
         val blockCloseState =
           if (noBlockClose) None
-          else getBlockCloseToRecurse(splitToken, stop)
+          else getBlockCloseToRecurse(splitToken)
             .flatMap(shortestPathMemo(curr, _, depth + 1, isOpt))
         if (blockCloseState.nonEmpty) blockCloseState
           .foreach(_.foreach(Q.enqueue))
