@@ -46,7 +46,7 @@ class Debug(val verbose: Boolean) {
     // splits
     if (enqueuedSplits.nonEmpty) {
       val sb = new StringBuilder()
-      val groups = enqueuedSplits.toSeq.groupBy(_._1.fileLine.line.value).toSeq
+      val groups = enqueuedSplits.toSeq.groupBy(_._1.fileLine.toString).toSeq
         .sortBy(-_._2.length)
       val minSize = groups.lift(5).fold(0)(_._2.length)
       groups.takeWhile(_._2.length >= minSize).foreach { case (line, group) =>
