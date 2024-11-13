@@ -92,11 +92,11 @@ object TreeOps {
     *
     * Contains lookup keys in both directions, opening [({ and closing })].
     */
-  def getMatchingParentheses[A](
-      coll: Iterable[A],
-  )(f: A => T): Map[TokenHash, A] = {
-    val ret = Map.newBuilder[TokenHash, A]
-    var stack = List.empty[(T, A)]
+  def getMatchingParentheses[K, V](
+      coll: Iterable[V],
+  )(key: V => K)(f: V => T): Map[K, V] = {
+    val ret = Map.newBuilder[K, V]
+    var stack = List.empty[(T, V)]
     coll.foreach { elem =>
       f(elem) match {
         case open @ (_: OpenDelim | _: Interpolation.Start | _: Xml.Start |
@@ -105,8 +105,8 @@ object TreeOps {
             _: Xml.SpliceEnd) =>
           val (open, openElem) = stack.head
           assertValidParens(open, close)
-          ret += hash(open) -> elem
-          ret += hash(close) -> openElem
+          ret += key(openElem) -> elem
+          ret += key(elem) -> openElem
           stack = stack.tail
         case _ =>
       }

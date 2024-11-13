@@ -154,9 +154,9 @@ class FormatWriter(formatOps: FormatOps) {
       val loc = locations(idx)
       val tok = loc.formatToken
       tok.left match {
-        case rb: T.RightBrace // look for "foo { bar }"
+        case _: T.RightBrace // look for "foo { bar }"
             if RedundantBraces.canRewriteWithParensOnRightBrace(tok) =>
-          val beg = matching(rb).idx
+          val beg = matchingLeft(tok).idx
           val bloc = locations(beg)
           val style = bloc.style
           if (

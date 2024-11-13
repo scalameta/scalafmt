@@ -229,7 +229,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
             .map((cnt, _))
       }
 
-    ftoks.matchingOpt(ft.right).flatMap(rt => iter(ft, rt, 1))
+    ftoks.matchingOptRight(ft).flatMap(rt => iter(ft, rt, 1))
   }
 
 }

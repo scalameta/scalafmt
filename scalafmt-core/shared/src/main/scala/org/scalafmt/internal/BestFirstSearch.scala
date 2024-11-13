@@ -312,22 +312,22 @@ object BestFirstSearch {
     val result = mutable.Map.empty[Int, Boolean]
     var expire: FT = null
     @inline
-    def addRange(t: T): Unit = expire = tokens.matching(t)
+    def addRange(ft: FT): Unit = expire = tokens.matchingLeft(ft)
     @inline
     def addBlock(idx: Int): Unit = result.getOrElseUpdate(idx, false)
     tokens.foreach {
       case ft if expire ne null =>
         if (ft eq expire) expire = null else result.update(ft.idx, true)
-      case FT(t: T.LeftParen, _, m) if (m.leftOwner match {
+      case ft @ FT(t: T.LeftParen, _, m) if (m.leftOwner match {
             case lo: Term.ArgClause => !lo.parent.is[Term.ApplyInfix] &&
               !styleMap.at(t).newlines.keep
             case _: Term.Apply => true // legacy: when enclosed in parens
             case _ => false
-          }) => addRange(t)
-      case FT(t: T.LeftBrace, _, m) => m.leftOwner match {
+          }) => addRange(ft)
+      case ft @ FT(t: T.LeftBrace, _, m) => m.leftOwner match {
           // Type compounds can be inside defn.defs
-          case lo: meta.Stat.Block if lo.parent.is[Type.Refine] => addRange(t)
-          case _: Type.Refine => addRange(t)
+          case lo: meta.Stat.Block if lo.parent.is[Type.Refine] => addRange(ft)
+          case _: Type.Refine => addRange(ft)
           case lo: Term.PartialFunction
               if lo.cases.lengthCompare(1) == 0 &&
                 styleMap.at(t).newlines.fold => addBlock(m.idx)

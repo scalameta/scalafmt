@@ -23,8 +23,8 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
     result.result()
   }(arr)
 
-  private lazy val matchingParentheses: Map[TokenHash, FT] = TreeOps
-    .getMatchingParentheses(arr.view)(_.left)
+  private lazy val matchingParentheses: Map[Int, FT] = TreeOps
+    .getMatchingParentheses(arr.view)(_.idx)(_.left)
 
   override def length: Int = arr.length
   override def apply(idx: Int): FT = arr(idx)
@@ -39,11 +39,10 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
       else at(idx + 1)
     }
 
-  private def get(tok: T, isBefore: Boolean): FT =
-    getAt(tok, isBefore)(leftTok2tok.getOrElse(
-      FormatTokens.thash(tok),
-      FormatTokens.throwNoToken(tok, "Missing token index"),
-    ))
+  private def get(tok: T, isBefore: Boolean): FT = getAt(tok, isBefore)(
+    leftTok2tok
+      .getOrElse(hash(tok), FormatTokens.throwNoToken(tok, "Missing token index")),
+  )
 
   def at(off: Int): FT =
     if (off < 0) arr.head else if (off < arr.length) arr(off) else arr.last
@@ -77,27 +76,26 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
   def next(ft: FT): FT = apply(ft, 1)
 
   @inline
-  def matching(token: T): FT = matchingParentheses.getOrElse(
-    FormatTokens.thash(token),
+  private def matching(idx: Int, token: T): FT = matchingParentheses.getOrElse(
+    idx,
     FormatTokens.throwNoToken(token, "Missing matching token index"),
   )
   @inline
-  def matchingOpt(token: T): Option[FT] = matchingParentheses
-    .get(FormatTokens.thash(token))
+  def matchingLeft(ft: FT): FT = matching(ft.idx, ft.left)
   @inline
-  def hasMatching(token: T): Boolean = matchingParentheses
-    .contains(FormatTokens.thash(token))
+  def matchingRight(ft: FT): FT = matching(ft.idx + 1, ft.right)
   @inline
-  def areMatching(t1: T)(t2: => T): Boolean = matchingOpt(t1) match {
-    case Some(x) => x.left eq t2
-    case _ => false
-  }
+  private def matchingOpt(idx: Int): Option[FT] = matchingParentheses.get(idx)
+  @inline
+  def matchingOptLeft(ft: FT): Option[FT] = matchingOpt(ft.idx)
+  @inline
+  def matchingOptRight(ft: FT): Option[FT] = matchingOpt(ft.idx + 1)
 
   def getHeadAndLastIfEnclosed(
       tokens: Tokens,
       tree: Tree,
   ): Option[(FT, Option[FT])] = getHeadOpt(tokens, tree).map { head =>
-    head -> matchingOpt(head.left).flatMap { other =>
+    head -> matchingOptLeft(head).flatMap { other =>
       val last = getLastNonTrivial(tokens, tree)
       if (last eq other) Some(last) else None
     }
@@ -142,11 +140,11 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
     getClosingIfWithinParens(tree) != Left(false)
 
   def getClosingIfWithinParens(last: FT)(head: FT): Either[Boolean, FT] = {
-    val innerMatched = areMatching(last.left)(head.left)
+    val innerMatched = matchingOptLeft(last).contains(head)
     if (innerMatched && last.left.is[T.RightParen]) Right(prev(last))
     else {
       val afterLast = nextNonComment(last)
-      if (areMatching(afterLast.right)(prevNonCommentBefore(head).left))
+      if (matchingOptRight(afterLast).exists(_ eq prevNonCommentBefore(head)))
         if (afterLast.right.is[T.RightParen]) Right(afterLast) else Left(true)
       else Left(innerMatched)
     }
@@ -409,7 +407,7 @@ object FormatTokens {
     * Since tokens might be very large, we try to allocate as little memory as
     * possible.
     */
-  def apply(tokens: Tokens, owner: T => Tree)(implicit
+  def apply(tokens: Tokens, owners: collection.Map[TokenHash, Tree])(implicit
       style: ScalafmtConfig,
   ): (FormatTokens, StyleMap) = {
     var left: T = null
@@ -421,7 +419,7 @@ object FormatTokens {
     var fmtWasOff = false
     val arr = tokens.toArray
     def process(right: T): Unit = {
-      val rmeta = FT.TokenMeta(owner(right), right.text)
+      val rmeta = FT.TokenMeta(owners(hash(right)), right.text)
       if (left eq null) fmtWasOff = isFormatOff(right)
       else {
         val between = arr.slice(wsIdx, tokIdx)
@@ -454,13 +452,10 @@ object FormatTokens {
       s"$msg ${t.structure} @${t.pos.startLine}:${t.pos.startColumn}: `$t`",
     )
 
-  @inline
-  def thash(token: T): TokenHash = hash(token)
-
   class TokenToIndexMapBuilder {
     private val builder = Map.newBuilder[TokenHash, Int]
     def sizeHint(size: Int): Unit = builder.sizeHint(size)
-    def add(idx: Int)(token: T): Unit = builder += thash(token) -> idx
+    def add(idx: Int)(token: T): Unit = builder += hash(token) -> idx
     def result(): Map[TokenHash, Int] = builder.result()
   }
 

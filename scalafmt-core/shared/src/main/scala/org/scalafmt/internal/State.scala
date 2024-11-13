@@ -197,8 +197,8 @@ final class State(
           if (!State.allowSplitForLineStart(nextSplit, ft, isComment)) None
           else lineStartsStatement(isComment)
         val delay = startFtOpt.exists {
-          case FT(_, t: T.Interpolation.Start, _) => tokens.matching(t).left ne
-              ft.right
+          case xft @ FT(_, _: T.Interpolation.Start, _) => tokens
+              .matchingRight(xft).left ne ft.right
           case _ => true
         }
         // if delaying, estimate column if the split had been a newline

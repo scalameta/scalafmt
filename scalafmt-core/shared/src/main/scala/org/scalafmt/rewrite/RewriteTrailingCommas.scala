@@ -61,9 +61,9 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
     // however, with optional-braces comma could be before outdent
     // and hence owned by the previous expression
     nft.right match {
-      case rp: T.RightParen => delimOwner
+      case _: T.RightParen => delimOwner
           .isAny[Member.SyntaxValuesClause, Member.Tuple] ||
-        ftoks.matchingOpt(rp).exists { lp =>
+        ftoks.matchingOptRight(nft).exists { lp =>
           val claimant = session.claimedRule(ftoks.prev(lp))
           claimant.forall(_.rule.isInstanceOf[RedundantParens])
         }

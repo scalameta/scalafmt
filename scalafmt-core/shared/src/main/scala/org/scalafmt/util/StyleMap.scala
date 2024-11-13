@@ -50,13 +50,13 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
             }
             changeStyle(style)
           }
-        case tok: T.LeftParen
+        case _: T.LeftParen
             if curr.binPack.literalArgumentLists &&
               opensLiteralArgumentList(ft)(curr) =>
           forcedBinPack += ft.meta.leftOwner
           changeStyle(setBinPack(curr, callSite = BinPack.Site.Always))
             .foreach { x =>
-              tokens.matchingOpt(tok).foreach { y =>
+              tokens.matchingOptLeft(ft).foreach { y =>
                 disableBinPack.update(y.idx, x.binPack.callSite)
               }
             }
