@@ -164,7 +164,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     case ReplacementType.Remove =>
       getRightBraceBeforeRightParen(shouldBeRemoved = false).map { rb =>
         ft.meta.rightOwner match {
-          case ac: Term.ArgClause => ftoks.matchingOpt(rb.left).map(ftoks.prev)
+          case ac: Term.ArgClause => ftoks.matchingOptLeft(rb).map(ftoks.prev)
               .foreach { lb =>
                 session.rule[RemoveScala3OptionalBraces].foreach { r =>
                   session.getClaimed(lb.meta.idx).foreach { case (leftIdx, _) =>
@@ -419,7 +419,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         nft.noBreak || style.formatInfix(p) && !nft.right.is[T.Comment]
       }
       def checkClose = {
-        val nft = ftoks.prev(ftoks.matching(ft.right))
+        val nft = ftoks.prev(ftoks.matchingRight(ft))
         nft.noBreak || style.formatInfix(p) && !nft.left.is[T.Comment]
       }
       checkOpen && checkClose
@@ -534,12 +534,13 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             case _ => true
           }
         case _: Term.TryClause =>
+          def matching(tok: T) = ftoks.matchingOptLeft(ftoks(tok))
           // "try (x).y" or "try { x }.y" isn't supported until scala 2.13
           // same is true with "try (a, b)" and "try ()"
           // return true if rewrite is not OK
           // inside exists, return true if rewrite is OK
           !stat.tokens.headOption.exists {
-            case x: T.LeftParen => ftoks.matchingOpt(x) match {
+            case x: T.LeftParen => matching(x) match {
                 case Some(y) if y.left ne stat.tokens.last =>
                   session.rule[RedundantParens].exists {
                     _.onToken(ftoks(x, -1), session, style).exists(_.isRemove)
@@ -548,7 +549,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                   !stat.isAny[Term.Tuple, Lit.Unit]
                 case _ => true
               }
-            case x: T.LeftBrace => ftoks.matchingOpt(x) match {
+            case x: T.LeftBrace => matching(x) match {
                 case Some(y) if y.left ne stat.tokens.last =>
                   findFirstTreeBetween(stat, x, y.left).exists {
                     case z: Term.Block => okToRemoveBlock(z)

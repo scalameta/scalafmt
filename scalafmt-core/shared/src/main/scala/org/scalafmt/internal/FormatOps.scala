@@ -39,7 +39,7 @@ class FormatOps(
 
   implicit val dialect: Dialect = initStyle.dialect
   implicit val (tokens: FormatTokens, styleMap: StyleMap) =
-    FormatTokens(topSourceTree.tokens, owners)(initStyle)
+    FormatTokens(topSourceTree.tokens, ownersMap)(initStyle)
   import tokens._
 
   private[internal] implicit val soft: SoftKeywordClasses =
@@ -48,9 +48,6 @@ class FormatOps(
   val (forceConfigStyle, emptyQueueSpots) = getForceConfigStyle
 
   val optimizationEntities = OptimizationEntities(topSourceTree)
-
-  @inline
-  def owners(token: T): Tree = ownersMap(hash(token))
 
   @tailrec
   final def findFirst(start: FT, end: FT)(f: FT => Boolean): Option[FT] =
@@ -83,14 +80,14 @@ class FormatOps(
               !style.newlines.isBeforeOpenParenCallSite
             case t => !isJustBeforeTree(start)(t)
           }) => null
-      case t: T.RightParen =>
+      case _: T.RightParen =>
         if (start.left.is[T.LeftParen]) null
         else {
           val owner = start.rightOwner
           val isDefnSite = isParamClauseSite(owner)
           implicit val clauseSiteFlags: ClauseSiteFlags =
             ClauseSiteFlags(owner, isDefnSite)
-          val bpFlags = getBinpackSiteFlags(matching(t), start, false)
+          val bpFlags = getBinpackSiteFlags(matchingRight(start), start, false)
           if (bpFlags.scalaJsStyle) scalaJsOptCloseOnRight(start, bpFlags)
           else if (
             !start.left.is[T.RightParen] ||
@@ -156,7 +153,7 @@ class FormatOps(
     optimizationEntities.statementStarts.get(meta.idx + 1),
   )
 
-  def parensTuple(ft: FT): TokenRanges = matchingOpt(ft.left)
+  def parensTuple(ft: FT): TokenRanges = matchingOptLeft(ft)
     .fold(TokenRanges.empty)(other => TokenRanges(TokenRange(ft, other)))
   def parensTuple(tree: Tree): TokenRanges = parensTuple(getLast(tree))
 
@@ -165,7 +162,7 @@ class FormatOps(
   ): TokenRanges = insideBlock(start, end, x => classifier(x.left))
 
   def insideBlock(start: FT, end: FT, matches: FT => Boolean): TokenRanges =
-    insideBlock(x => if (matches(x)) matchingOpt(x.left) else None)(start, end)
+    insideBlock(x => if (matches(x)) matchingOptLeft(x) else None)(start, end)
 
   def insideBracesBlock(start: FT, end: FT, parensToo: Boolean = false)(implicit
       style: ScalafmtConfig,
@@ -317,7 +314,7 @@ class FormatOps(
           val ok = initStyle.newlines.alwaysBeforeElseAfterCurlyIf || ! {
             ft.leftOwner.is[Term.Block] && ft.left.is[T.RightBrace] &&
             !prevNonCommentSameLineBefore(ft).left.is[T.LeftBrace] &&
-            matchingOpt(ft.left).exists { lb =>
+            matchingOptLeft(ft).exists { lb =>
               prev(lb).left.start < term.thenp.pos.start
             }
           }
@@ -335,7 +332,7 @@ class FormatOps(
         term.elsep match {
           case t: Term.If => getElseChain(t, newRes)
           case b @ Term.Block((t: Term.If) :: Nil)
-              if !areMatching(ftElsep.right)(getLast(b).left) =>
+              if !matchingOptRight(ftElsep).exists(_ eq getLast(b)) =>
             getElseChain(t, newRes)
           case _ => newRes
         }
@@ -644,7 +641,7 @@ class FormatOps(
         if (isAfterOp) infixSequenceMaxPrecedence(fullInfix) else 0 // 0 unused
       val breakPenalty = if (isAfterOp) maxPrecedence - app.precedence else 1
 
-      val closeOpt = matchingOpt(ft.right)
+      val closeOpt = matchingOptRight(ft)
       val finalExpireCost = fullExpire -> 0
       val expires =
         if (closeOpt.isDefined) finalExpireCost :: Nil
@@ -879,7 +876,7 @@ class FormatOps(
     val toMatch =
       if (tok.right.is[T.RightParen])
         // Hack to allow any annotations with arguments like @foo(1)
-        tokens(matching(tok.right), -2)
+        tokens(matchingRight(tok), -2)
       else tok
     toMatch match {
       case FT(T.At(), _: T.Ident, _) => true
@@ -1006,7 +1003,7 @@ class FormatOps(
       val forces = Set.newBuilder[Int]
       def process(clause: Member.SyntaxValuesClause, ftOpen: FT)(
           cfg: ScalafmtOptimizer.ClauseElement,
-      ): Unit = if (cfg.isEnabled) matchingOpt(ftOpen.left).foreach { close =>
+      ): Unit = if (cfg.isEnabled) matchingOptLeft(ftOpen).foreach { close =>
         val values = clause.values
         if (
           values.lengthCompare(cfg.minCount) >= 0 &&
@@ -1041,7 +1038,7 @@ class FormatOps(
 
     val FT(open, r, _) = ft
     val nft = next(ft)
-    val close = matching(open)
+    val close = matchingLeft(ft)
     val beforeClose = prev(close)
     val indentParam = Num(style.indent.getDefnSite(lpOwner))
     val indentSep = Num((indentParam.n - 2).max(0))
@@ -1387,15 +1384,15 @@ class FormatOps(
         case Some(x) => x
         case None => findXmlLastLineIndent(prev(ft))
       }
-    case t: T.Xml.SpliceEnd => findXmlLastLineIndent(prev(matching(t)))
+    case _: T.Xml.SpliceEnd => findXmlLastLineIndent(prev(matchingLeft(ft)))
     case _ => findXmlLastLineIndent(prev(ft))
   }
 
-  def withIndentOnXmlStart(tok: T.Xml.Start, splits: Seq[Split])(implicit
+  def withIndentOnXmlStart(xmlEnd: => FT, splits: Seq[Split])(implicit
       style: ScalafmtConfig,
   ): Seq[Split] =
     if (style.xmlLiterals.assumeFormatted) {
-      val end = matching(tok)
+      val end = xmlEnd
       val indent = Num(findXmlLastLineIndent(prev(end)), true)
       splits.map(_.withIndent(indent, end, ExpiresOn.After))
     } else splits
@@ -1403,8 +1400,8 @@ class FormatOps(
   def withIndentOnXmlSpliceStart(ft: FT, splits: Seq[Split])(implicit
       style: ScalafmtConfig,
   ): Seq[Split] = ft.left match {
-    case t: T.Xml.SpliceStart if style.xmlLiterals.assumeFormatted =>
-      val end = matching(t)
+    case _: T.Xml.SpliceStart if style.xmlLiterals.assumeFormatted =>
+      val end = matchingLeft(ft)
       val indent = Num(findXmlLastLineIndent(prev(ft)), true)
       splits.map(_.withIndent(indent, end, ExpiresOn.After))
     case _ => splits
@@ -1685,8 +1682,8 @@ class FormatOps(
         ft: FT,
         style: ScalafmtConfig,
     ): Split = withNLPolicy(endFt) {
-      val right = nextNonComment(ft).right
-      val rpOpt = if (right.is[T.LeftParen]) matchingOpt(right) else None
+      val nft = nextNonComment(ft)
+      val rpOpt = if (nft.right.is[T.LeftParen]) matchingOptRight(nft) else None
       val expire = nextNonCommentSameLine(rpOpt.fold(endFt) { rp =>
         if (rp.left.end >= endFt.left.end) rp else endFt
       })
@@ -2117,7 +2114,7 @@ class FormatOps(
           case t: Term.While => t.expr match {
               case b: Term.Block
                   if isMultiStatBlock(b) &&
-                    !matchingOpt(nft.right).exists(_.left.end >= b.pos.end) =>
+                    !matchingOptRight(nft).exists(_.left.end >= b.pos.end) =>
                 Some(new OptionalBracesRegion {
                   def owner = Some(t)
                   def splits = Some {
@@ -2291,10 +2288,8 @@ class FormatOps(
           nft: FT,
       )(implicit style: ScalafmtConfig, ft: FT): Option[OptionalBracesRegion] =
         ft.meta.leftOwner match {
-          case t: Term.If =>
-            val nr = nft.right
-            t.cond match {
-              case b: Term.Block if (matchingOpt(nr) match {
+          case t: Term.If => t.cond match {
+              case b: Term.Block if (matchingOptRight(nft) match {
                     case Some(t) => t.left.end < b.pos.end
                     case None => isMultiStatBlock(b)
                   }) =>
@@ -2302,7 +2297,7 @@ class FormatOps(
                   def owner = Some(t)
                   def splits = Some {
                     val dangle = style.danglingParentheses.ctrlSite
-                    val forceNL = !nr.is[T.LeftParen]
+                    val forceNL = !nft.right.is[T.LeftParen]
                     getSplits(b, forceNL, dangle)
                   }
                   def rightBrace = blockLast(b)
@@ -2411,7 +2406,7 @@ class FormatOps(
         case _: T.KwThen => true
         case _: T.LeftBrace => false
         case _ => !isTreeSingleExpr(thenp) &&
-          (!before.right.is[T.LeftBrace] || matchingOpt(before.right)
+          (!before.right.is[T.LeftBrace] || matchingOptRight(before)
             .exists(_.left.end < thenp.pos.end))
       }
     }
@@ -2651,8 +2646,8 @@ class FormatOps(
   def getEndOfBlock(ft: FT, parensToo: => Boolean)(implicit
       style: ScalafmtConfig,
   ): Option[FT] = ft.left match {
-    case x: T.LeftBrace => matchingOpt(x)
-    case x: T.LeftParen => if (parensToo) matchingOpt(x) else None
+    case _: T.LeftBrace => matchingOptLeft(ft)
+    case _: T.LeftParen => if (parensToo) matchingOptLeft(ft) else None
     case _ => OptionalBraces.get(ft)
         .flatMap(_.rightBrace.map(x => nextNonCommentSameLine(x)))
   }
@@ -2803,7 +2798,7 @@ class FormatOps(
         ftAfterClose.right.is[T.RightParen] && ftAfterClose.noBreak &&
         isArgClauseSite(ftAfterClose.meta.rightOwner)
       if (continue) {
-        val open = matching(ftAfterClose.right)
+        val open = matchingRight(ftAfterClose)
         implicit val style: ScalafmtConfig = styleMap.at(open)
         implicit val clauseSiteFlags: ClauseSiteFlags = ClauseSiteFlags
           .atCallSite(ftAfterClose.meta.rightOwner)
@@ -2839,7 +2834,7 @@ class FormatOps(
         @tailrec
         def iter(currft: FT): Option[Policy] = {
           val prevft = prevNonComment(currft)
-          val breakBeforeClose = matchingOpt(prevft.left) match {
+          val breakBeforeClose = matchingOptLeft(prevft) match {
             case Some(open) =>
               val cfg = styleMap.at(open)
               def cfgStyle = cfg.configStyleCallSite.prefer
