@@ -57,6 +57,16 @@ object LoggerOps {
   def log2(formatToken: FT): String = formatToken.toString
   def log2(formatToken: Option[FT]): String = formatToken.fold("")(log2)
 
+  def ftokWithoutPos(ft: FT): String = {
+    val lt = ft.meta.left.text
+    val rt = ft.meta.right.text
+    val ls = tokWithoutPos(ft.left)
+    val rs = tokWithoutPos(ft.right)
+    val lo = treeName(ft.leftOwner)
+    val ro = treeName(ft.rightOwner)
+    s"[${ft.idx}] $lt $rt >>> $ls | $rs >>> $lo | $ro"
+  }
+
   def escape(raw: String): String = raw
 
   def log(tokens: T*): String = tokens.map(log).mkString("\n")
@@ -73,20 +83,27 @@ object LoggerOps {
   def logTok(token: T): String = f"[${token.structure}%-40s"
   def logTok(token: Option[T]): String = token.fold("")(log)
 
+  def tokWithoutPos(token: T): String = {
+    val desc = token.structure
+    val posidx = desc.lastIndexOf('[')
+    if (posidx > 0) desc.substring(0, posidx - 1) else desc
+  }
+
   def log(range: InputRange): String = s"[${range.start}..${range.end})"
 
   def position(t: Tree): String = log(t.pos)
 
-  def treeInfo(t: Tree): String = {
+  def treeName(t: Tree): String = {
     val typeName = t.getClass.getName.stripPrefix("scala.meta.")
     val parts = typeName.split('$')
-    val name = parts.length match {
+    parts.length match {
       case 0 => typeName
       case 1 => parts(0)
       case _ => s"${parts(0)}.${parts(1)}"
     }
-    s"$name ${position(t)}"
   }
+
+  def treeInfo(t: Tree): String = s"${treeName(t)} ${position(t)}"
 
   def log(t: Tree): String = log(t, false)
   def log(t: Tree, tokensOnly: Boolean): String = {
@@ -141,7 +158,7 @@ object LoggerOps {
     var tokidx = 0
     val toks = ftoks.arr
     while (tokidx < toks.length) {
-      logger.debug(s"FT: ${log2(toks(tokidx))}")
+      logger.debug(s"FT: ${ftokWithoutPos(toks(tokidx))}")
       routes(tokidx).foreach(s => logger.debug(s"> S: ${log(s)}"))
       tokidx += 1
     }
