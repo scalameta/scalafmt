@@ -6529,6 +6529,8 @@ from a boolean to a wider set of options in v2.6.0.</p>
 <p>The behaviour of <code>binPack.parentConstructors = source</code> depends on the value of
 <a href="#newlinessource"><code>newlines.source</code></a>; <code>keep</code> maps to <code>keep</code> and attempts to preserve the
 space if there's no line break in the source, <code>fold</code> maps to <code>Oneline</code>, rest to <code>Never</code>.</p>
+<h4><a class="anchor" aria-hidden="true" id="binpackparentconstructorsalways"></a><a href="#binpackparentconstructorsalways" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>binPack.parentConstructors=Always</code></h4>
+<p>This option attempts to binpack parents, formatting as many on each line as will fit.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
   <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span></span>
       <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span> <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
@@ -6548,6 +6550,10 @@ space if there's no line break in the source, <code>fold</code> maps to <code>On
 maxColumn = <span class="hljs-number">30</span>
 </code></pre>
 </p></details>
+<h4><a class="anchor" aria-hidden="true" id="binpackparentconstructorsnever"></a><a href="#binpackparentconstructorsnever" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>binPack.parentConstructors=Never</code></h4>
+<p>This option will attempt to format the entire declaration on one line (starting
+with <code>class</code> or <code>trait</code> and including all parents); otherwise, will enforce
+breaks before each.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
   <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span></span>
       <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span>
@@ -6563,6 +6569,9 @@ maxColumn = <span class="hljs-number">30</span>
 maxColumn = <span class="hljs-number">30</span>
 </code></pre>
 </p></details>
+<h4><a class="anchor" aria-hidden="true" id="binpackparentconstructorsoneline"></a><a href="#binpackparentconstructorsoneline" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>binPack.parentConstructors=Oneline</code></h4>
+<p>This option will attempt to format all parents on one line (starting with
+<code>extends</code> and including all parents); otherwise, will enforce breaks before each.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span></span>)</span>
       <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span> <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
@@ -6589,6 +6598,10 @@ maxColumn = <span class="hljs-number">30</span>
 maxColumn = <span class="hljs-number">30</span>
 </code></pre>
 </p></details>
+<h4><a class="anchor" aria-hidden="true" id="binpackparentconstructorsonelineifprimaryoneline"></a><a href="#binpackparentconstructorsonelineifprimaryoneline" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>binPack.parentConstructors=OnelineIfPrimaryOneline</code></h4>
+<p>This option will attempt to format all parents on one line (from <code>extends</code> and
+including all parents), but only if the primary constructor fits on one line
+as well (the same or previous); otherwise, will enforce breaks before each.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">Int</span></span>)</span>
       <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span> <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
@@ -6616,6 +6629,8 @@ maxColumn = <span class="hljs-number">30</span>
 maxColumn = <span class="hljs-number">30</span>
 </code></pre>
 </p></details>
+<h4><a class="anchor" aria-hidden="true" id="binpackparentconstructorskeep"></a><a href="#binpackparentconstructorskeep" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>binPack.parentConstructors=keep</code></h4>
+<p>This option attempts to preserve breaks before each parent.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">Int</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Bar</span>(<span class="hljs-params">
         a,
