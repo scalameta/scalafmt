@@ -5041,6 +5041,10 @@ The behaviour of `binPack.parentConstructors = source` depends on the value of
 [`newlines.source`](#newlinessource); `keep` maps to `keep` and attempts to preserve the
 space if there's no line break in the source, `fold` maps to `Oneline`, rest to `Never`.
 
+#### `binPack.parentConstructors=Always`
+
+This option attempts to binpack parents, formatting as many on each line as will fit.
+
 ```scala mdoc:scalafmt
 binPack.parentConstructors = Always
 maxColumn = 30
@@ -5053,6 +5057,12 @@ object A {
 }
 ```
 
+#### `binPack.parentConstructors=Never`
+
+This option will attempt to format the entire declaration on one line (starting
+with `class` or `trait` and including all parents); otherwise, will enforce
+breaks before each.
+
 ```scala mdoc:scalafmt
 binPack.parentConstructors = Never
 maxColumn = 30
@@ -5061,6 +5071,11 @@ object A {
   trait Foo extends Bar with Baz
 }
 ```
+
+#### `binPack.parentConstructors=Oneline`
+
+This option will attempt to format all parents on one line (starting with
+`extends` and including all parents); otherwise, will enforce breaks before each.
 
 ```scala mdoc:scalafmt
 binPack.parentConstructors = Oneline
@@ -5079,6 +5094,12 @@ object A {
 }
 ```
 
+#### `binPack.parentConstructors=OnelineIfPrimaryOneline`
+
+This option will attempt to format all parents on one line (from `extends` and
+including all parents), but only if the primary constructor fits on one line
+as well (the same or previous); otherwise, will enforce breaks before each.
+
 ```scala mdoc:scalafmt
 binPack.parentConstructors = OnelineIfPrimaryOneline
 maxColumn = 30
@@ -5094,6 +5115,10 @@ object A {
   ) extends Bar with Baz
 }
 ```
+
+#### `binPack.parentConstructors=keep`
+
+This option attempts to preserve breaks before each parent.
 
 ```scala mdoc:scalafmt
 binPack.parentConstructors = keep
