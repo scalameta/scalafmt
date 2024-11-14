@@ -302,7 +302,9 @@ binPack.parentConstructors = ForceBreak
 ===
 class SomeClass(a: Int, b: Double, c: String) extends SomeBaseClass with SomeTrait
 >>>
-class SomeClass(a: Int, b: Double, c: String) extends SomeBaseClass with SomeTrait
+class SomeClass(a: Int, b: Double, c: String)
+    extends SomeBaseClass
+    with SomeTrait
 <<< #4542 ForceBreak narrow multi-line
 maxColumn = 40
 binPack.parentConstructors = ForceBreak
@@ -336,4 +338,6 @@ class SomeClass(a: Int, b: Double, c: String)
 extends SomeBaseClass
 with SomeTrait
 >>>
-class SomeClass(a: Int, b: Double, c: String) extends SomeBaseClass with SomeTrait
+class SomeClass(a: Int, b: Double, c: String)
+    extends SomeBaseClass
+    with SomeTrait

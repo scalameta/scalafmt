@@ -960,6 +960,8 @@ class FormatOps(
         )
       }
     else if (!isFirstCtor) Seq(Split(Space, 0), Split(Newline, 1))
+    else if (style.binPack.parentConstructors eq BinPack.ParentCtors.ForceBreak)
+      Seq(Split(nlMod, 0, policy = nlPolicy(false)).withIndent(indent))
     else {
       val parentCtors = style.binPack.parentConstructors
       val nlOnelineTag = parentCtors match {
