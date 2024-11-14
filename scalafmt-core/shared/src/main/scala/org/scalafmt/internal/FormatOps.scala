@@ -927,19 +927,6 @@ class FormatOps(
     }
   }
 
-  def ctorWithChain(ownerSet: Set[Tree], lastFt: FT)(implicit
-      style: ScalafmtConfig,
-  ): Policy = Policy ?
-    ((style.binPack.parentConstructors eq BinPack.ParentCtors.Always) ||
-      ownerSet.isEmpty) || Policy.onRight(lastFt, prefix = "WITH") {
-      case d @ Decision(t @ FT(_, _: T.KwWith, _), _)
-          if ownerSet.contains(t.meta.rightOwner) =>
-        d.onlyNewlinesWithoutFallback
-      case d @ Decision(t @ FT(T.Comma(), _, _), _)
-          if ownerSet.contains(t.meta.leftOwner) =>
-        d.onlyNewlinesWithoutFallback
-    }
-
   def binPackParentConstructorSplits(
       isFirstCtor: Boolean,
       owners: => Set[Tree],
@@ -949,6 +936,13 @@ class FormatOps(
       extendsThenWith: => Boolean = false,
   )(implicit fileLine: FileLine, ft: FT, style: ScalafmtConfig): Seq[Split] = {
     val nlMod = NewlineT(alt = Some(Space))
+    def nlPolicy(ignore: Boolean) = Policy ? (ignore || owners.isEmpty) ||
+      Policy.onRight(lastFt, prefix = "WITH") {
+        case d @ Decision(FT(_, _: T.KwWith, m), _) if owners(m.rightOwner) =>
+          d.onlyNewlinesWithoutFallback
+        case d @ Decision(FT(_: T.Comma, _, m), _) if owners(m.leftOwner) =>
+          d.onlyNewlinesWithoutFallback
+      }
     val indent =
       if (!isFirstCtor) Indent.Empty
       else Indent(Num(indentLen), lastFt, ExpiresOn.After)
@@ -965,8 +959,8 @@ class FormatOps(
           Split(nlMod, 1).withIndent(indent),
         )
       }
-    else if (isFirstCtor) {
-      val nlPolicy = ctorWithChain(owners, lastFt)
+    else if (!isFirstCtor) Seq(Split(Space, 0), Split(Newline, 1))
+    else {
       val parentCtors = style.binPack.parentConstructors
       val nlOnelineTag = parentCtors match {
         case BinPack.ParentCtors.source => Right(style.newlines.fold)
@@ -975,10 +969,9 @@ class FormatOps(
           Left(SplitTag.OnelineWithChain)
         case _ => Right(false)
       }
-      val exclude = parentCtors match {
-        case BinPack.ParentCtors.Always => insideBracesBlock(ft, lastFt, true)
-        case _ => TokenRanges.empty
-      }
+      val isAlways = parentCtors eq BinPack.ParentCtors.Always
+      val exclude =
+        if (isAlways) insideBracesBlock(ft, lastFt, true) else TokenRanges.empty
       val noSyntaxNL = extendsThenWith
       val pnlPolicy = PenalizeAllNewlines(lastFt, 1, noSyntaxNL = noSyntaxNL)
       val slbEnd = getSlbEndOnLeft(lastFt)
@@ -990,9 +983,10 @@ class FormatOps(
           .preActivateFor(nlOnelineTag.left.toOption)
           .withSingleLineNoOptimal(lastFt, noSyntaxNL = noSyntaxNL)
           .withIndent(indent),
-        Split(nlMod, 1).withPolicy(nlPolicy & pnlPolicy).withIndent(indent),
+        Split(nlMod, 1, policy = nlPolicy(isAlways) & pnlPolicy)
+          .withIndent(indent),
       )
-    } else Seq(Split(Space, 0), Split(Newline, 1))
+    }
   }
 
   def getForceConfigStyle: (Set[Int], Set[Int]) = {
