@@ -967,15 +967,15 @@ class FormatOps(
       }
     else if (isFirstCtor) {
       val nlPolicy = ctorWithChain(owners, lastFt)
-      val nlOnelineTag = style.binPack.parentConstructors match {
+      val parentCtors = style.binPack.parentConstructors
+      val nlOnelineTag = parentCtors match {
+        case BinPack.ParentCtors.source => Right(style.newlines.fold)
         case BinPack.ParentCtors.Oneline => Right(true)
         case BinPack.ParentCtors.OnelineIfPrimaryOneline =>
           Left(SplitTag.OnelineWithChain)
-        case BinPack.ParentCtors.Always | BinPack.ParentCtors.Never =>
-          Right(false)
-        case _ => Right(style.newlines.fold)
+        case _ => Right(false)
       }
-      val exclude = style.binPack.parentConstructors match {
+      val exclude = parentCtors match {
         case BinPack.ParentCtors.Always => insideBracesBlock(ft, lastFt, true)
         case _ => TokenRanges.empty
       }
