@@ -85,7 +85,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
   @inline
   def matchingRight(ft: FT): FT = matching(ft.idx + 1, ft.right)
   @inline
-  private def matchingOpt(idx: Int): Option[FT] = matchingParentheses.get(idx)
+  def matchingOpt(idx: Int): Option[FT] = matchingParentheses.get(idx)
   @inline
   def matchingOptLeft(ft: FT): Option[FT] = matchingOpt(ft.idx)
   @inline
@@ -386,13 +386,17 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
     result
   }
 
-  private def spanOrWidth(left: FT, right: FT)(f: ((Int, Int)) => Int): Int = {
+  private def spanOrWidth(left: Int, right: Int)(
+      f: ((Int, Int)) => Int,
+  ): Int = {
     val lastIdx = nonWhitespaceOffset.length - 1
-    val rightIdx = if (right.idx >= lastIdx) lastIdx else right.idx + 1
-    f(nonWhitespaceOffset(rightIdx)) - f(nonWhitespaceOffset(left.idx))
+    val rightIdx = if (right >= lastIdx) lastIdx else right + 1
+    f(nonWhitespaceOffset(rightIdx)) - f(nonWhitespaceOffset(left))
   }
-  def width(left: FT, right: FT): Int = spanOrWidth(left, right)(_._2)
-  def span(left: FT, right: FT): Int = spanOrWidth(left, right)(_._1)
+  def width(left: Int, right: Int): Int = spanOrWidth(left, right)(_._2)
+  def width(left: FT, right: FT): Int = width(left.idx, right.idx)
+  def span(left: Int, right: Int): Int = spanOrWidth(left, right)(_._1)
+  def span(left: FT, right: FT): Int = span(left.idx, right.idx)
   def span(tokens: Tokens): Int =
     if (tokens.isEmpty) 0 else span(getHeadImpl(tokens), getLastImpl(tokens))
   @inline

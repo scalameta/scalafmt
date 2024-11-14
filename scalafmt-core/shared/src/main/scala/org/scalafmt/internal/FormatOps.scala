@@ -999,14 +999,17 @@ class FormatOps(
       val forces = Set.newBuilder[Int]
       def process(clause: Member.SyntaxValuesClause, ftOpen: FT)(
           cfg: ScalafmtOptimizer.ClauseElement,
-      ): Unit = if (cfg.isEnabled) matchingOptLeft(ftOpen).foreach { close =>
-        val values = clause.values
-        if (
-          values.lengthCompare(cfg.minCount) >= 0 &&
-          (cfg.minSpan == 0 || cfg.minSpan <= span(ftOpen, close))
-        ) {
-          forces += ftOpen.meta.idx
-          values.foreach(x => clearQueues += getHead(x).meta.idx)
+      ): Unit = if (cfg.isEnabled) {
+        val openIdx = ftOpen.idx
+        matchingOpt(openIdx).foreach { close =>
+          val values = clause.values
+          if (
+            values.lengthCompare(cfg.minCount) >= 0 &&
+            (cfg.minSpan == 0 || cfg.minSpan <= span(openIdx, close.idx))
+          ) {
+            forces += openIdx
+            values.foreach(x => clearQueues += getHead(x).idx)
+          }
         }
       }
       tokens.foreach {

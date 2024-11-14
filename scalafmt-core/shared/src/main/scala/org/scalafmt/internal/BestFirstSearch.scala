@@ -192,14 +192,13 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       queue: StateQueue,
       style: ScalafmtConfig,
   ): Either[State, State] = {
+    val optIdx = opt.token.idx
     val nextNextState =
-      if (opt.token.idx <= nextState.depth) nextState
-      else if (
-        tokens.width(tokens(nextState.depth), opt.token) > 3 * style.maxColumn
-      ) return Left(killOnFail(opt.killOnFail)(opt.token))
+      if (optIdx <= nextState.depth) nextState
+      else if (tokens.width(nextState.depth, optIdx) > 3 * style.maxColumn)
+        return Left(killOnFail(opt.killOnFail)(opt.token))
       else {
-        val res =
-          shortestPath(nextState, opt.token.idx, queue.nested + 1, isOpt = true)
+        val res = shortestPath(nextState, optIdx, queue.nested + 1, isOpt = true)
         res match {
           case Right(x) => x
           case Left(x) => return Left(killOnFail(opt, opt.token, x))
