@@ -5138,6 +5138,21 @@ object A {
 }
 ```
 
+#### `binPack.parentConstructors=ForceBreak`
+
+This option will enforce a break before each parent. As usual, the break is only
+actually introduced if indented position on the next line is less than the current.
+
+```scala mdoc:scalafmt
+binPack.parentConstructors = ForceBreak
+maxColumn = 45
+---
+object A {
+  class Foo(a: Int) extends Bar with Baz
+  class Foo(a: Int, b: Int, c: String, d: Double) extends Bar with Baz
+}
+```
+
 ### `binPack.xxxSite`
 
 Controls binpacking around method/type definition sites (`binPack.defnSite`) or

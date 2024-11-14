@@ -275,3 +275,65 @@ object foo extends bar(baz) with foo with baz
 object foo
     extends bar(baz)
     with foo with baz
+<<< #4542 ForceBreak narrow single-line
+maxColumn = 40
+binPack.parentConstructors = ForceBreak
+===
+class SomeClass(a: Int, b: Double, c: String) extends SomeBaseClass with SomeTrait
+>>>
+class SomeClass(
+    a: Int,
+    b: Double,
+    c: String
+) extends SomeBaseClass
+    with SomeTrait
+<<< #4542 ForceBreak medium single-line
+maxColumn = 50
+binPack.parentConstructors = ForceBreak
+===
+class SomeClass(a: Int, b: Double, c: String) extends SomeBaseClass with SomeTrait
+>>>
+class SomeClass(a: Int, b: Double, c: String)
+    extends SomeBaseClass
+    with SomeTrait
+<<< #4542 ForceBreak wide single-line
+maxColumn = 100
+binPack.parentConstructors = ForceBreak
+===
+class SomeClass(a: Int, b: Double, c: String) extends SomeBaseClass with SomeTrait
+>>>
+class SomeClass(a: Int, b: Double, c: String) extends SomeBaseClass with SomeTrait
+<<< #4542 ForceBreak narrow multi-line
+maxColumn = 40
+binPack.parentConstructors = ForceBreak
+===
+class SomeClass(a: Int, b: Double, c: String)
+extends SomeBaseClass
+with SomeTrait
+>>>
+class SomeClass(
+    a: Int,
+    b: Double,
+    c: String
+) extends SomeBaseClass
+    with SomeTrait
+<<< #4542 ForceBreak medium multi-line
+maxColumn = 50
+binPack.parentConstructors = ForceBreak
+===
+class SomeClass(a: Int, b: Double, c: String)
+extends SomeBaseClass
+with SomeTrait
+>>>
+class SomeClass(a: Int, b: Double, c: String)
+    extends SomeBaseClass
+    with SomeTrait
+<<< #4542 ForceBreak wide multi-line
+maxColumn = 100
+binPack.parentConstructors = ForceBreak
+===
+class SomeClass(a: Int, b: Double, c: String)
+extends SomeBaseClass
+with SomeTrait
+>>>
+class SomeClass(a: Int, b: Double, c: String) extends SomeBaseClass with SomeTrait
