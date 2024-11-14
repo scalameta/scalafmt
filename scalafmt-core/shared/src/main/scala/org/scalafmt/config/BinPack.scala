@@ -103,6 +103,7 @@ object BinPack {
     case object keep extends ParentCtors
     case object Always extends ParentCtors
     case object Never extends ParentCtors
+    case object ForceBreak extends ParentCtors
     case object Oneline extends ParentCtors
     case object OnelineIfPrimaryOneline extends ParentCtors
 
@@ -112,6 +113,7 @@ object BinPack {
         keep,
         Always,
         Never,
+        ForceBreak,
         Oneline,
         OnelineIfPrimaryOneline,
       ) {
