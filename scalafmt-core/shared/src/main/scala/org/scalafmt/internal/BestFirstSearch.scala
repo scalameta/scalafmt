@@ -76,6 +76,9 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
     val maxCost = if (isOpt) 0 else Int.MaxValue
     var deepestState: State = start
+    val activeSplitsFilter: Split => Boolean =
+      if (isOpt) _.costWithPenalty <= 0 else _ => true
+
     while (!Q.isEmpty()) {
       val curr = Q.dequeue()
       val idx = curr.depth
@@ -118,11 +121,11 @@ private class BestFirstSearch private (range: Set[Range])(implicit
               x => s"exceeded `runner.optimizer.maxVisitsPerToken`=$x",
             )
 
-          val actualSplit = getActiveSplits(splitToken, curr, maxCost)
+          val actualSplits = getActiveSplits(curr)(activeSplitsFilter)
 
-          var optimalNotFound = true
+          var optimalFound = false
           val handleOptimalTokens = optimizer.acceptOptimalAtHints &&
-            depth < optimizer.maxDepth && actualSplit.lengthCompare(1) > 0
+            depth < optimizer.maxDepth && actualSplits.lengthCompare(1) > 0
 
           def processNextState(implicit nextState: State): Unit = {
             val split = nextState.split
@@ -133,7 +136,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
                   if (cost > 0) killOnFail(opt)
                   else processOptimalToken(opt) match {
                     case Left(x) => x
-                    case Right(x) => optimalNotFound = false; x
+                    case Right(x) => optimalFound = true; x
                   }
                 case _ => nextState
               }
@@ -144,9 +147,9 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             }
           }
 
-          actualSplit.foreach { split =>
-            if (optimalNotFound) processNextState(getNext(curr, split))
-            else sendEvent(split)
+          actualSplits.foreach { split =>
+            if (optimalFound) sendEvent(split)
+            else processNextState(getNext(curr, split))
           }
         }
       }
@@ -216,22 +219,25 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     }
   }
 
-  private def getActiveSplits(ft: FT, state: State, maxCost: Int)(implicit
-      Q: StateQueue,
-  ): Seq[Split] = {
+  private def getActiveSplits(
+      state: State,
+  )(pred: Split => Boolean)(implicit Q: StateQueue): Seq[Split] = {
     stats.trackState(state)
-    val useProvided = ft.meta.formatOff || !ft.inside(range)
-    val active = state.policy.execute(Decision(ft, routes(state.depth)))
-      .filter(x => x.isActive && x.costWithPenalty <= maxCost)
+    val idx = state.depth
+    val ft = tokens(idx)
+    val active = state.policy.execute(Decision(ft, routes(idx))).filter { s =>
+      s.isActive && pred(s)
+    }
     val splits =
-      if (useProvided && active.nonEmpty) {
+      if (active.isEmpty || !ft.meta.formatOff && ft.inside(range)) active
+      else {
         val isNL = ft.hasBreak
         val mod = Provided(ft)
         active.map { x =>
           val penalty = if (x.isNL == isNL) 0 else Constants.ShouldBeNewline
           x.withMod(mod).withPenalty(penalty)
         }
-      } else active
+      }
     splits.sortBy(_.costWithPenalty)
   }
 
@@ -249,16 +255,15 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       state: State,
   )(implicit queue: StateQueue): Either[State, State] =
     if (state.depth >= tokens.length) Right(state)
-    else {
-      val splitToken = tokens(state.depth)
-      implicit val style: ScalafmtConfig = styleMap.at(splitToken)
-      getActiveSplits(splitToken, state, Int.MaxValue) match {
-        case Seq() => Left(null) // dead end if empty
-        case Seq(split) =>
-          if (split.isNL) Right(state)
-          else traverseSameLine(getNext(state, split))
-        case ss => stateAsOptimal(state, ss).toRight(state)
-      }
+    else getActiveSplits(state)(_ => true) match {
+      case Seq() => Left(null) // dead end if empty
+      case Seq(split) =>
+        if (split.isNL) Right(state)
+        else {
+          implicit val style: ScalafmtConfig = styleMap.at(tokens(state.depth))
+          traverseSameLine(getNext(state, split))
+        }
+      case ss => stateAsOptimal(state, ss).toRight(state)
     }
 
   def getBestPath: SearchResult = {
