@@ -1017,7 +1017,8 @@ it will introduce its own indentation.</p>
 <pre><code class="hljs css language-scala formatted">foo(bar(baz.qux(
       xyz + zyx
     )))
-foo(bar((_, _) =&gt;
+foo(
+  bar((_, _) =&gt;
     baz { qux =&gt;
       noop
     } baz { qux =&gt;
@@ -1028,7 +1029,8 @@ foo(bar((_, _) =&gt;
       } baz { qux =&gt;
         noop
       }
-  ))
+  )
+)
 </code></pre>
 <pre><code class="hljs css language-scala original">foo(bar(baz.qux(xyz + zyx)))
 foo(bar((_, _) =&gt;
@@ -1054,18 +1056,20 @@ maxColumn = <span class="hljs-number">20</span>
 <pre><code class="hljs css language-scala formatted">foo(bar(
   baz.qux(xyz + zyx)
 ))
-foo(bar((_, _) =&gt;
-  baz { qux =&gt;
-    noop
-  } baz { qux =&gt;
-    noop
-  } baz <span class="hljs-comment">//</span>
-    { qux =&gt;
+foo(
+  bar((_, _) =&gt;
+    baz { qux =&gt;
       noop
     } baz { qux =&gt;
       noop
-    }
-))
+    } baz <span class="hljs-comment">//</span>
+      { qux =&gt;
+        noop
+      } baz { qux =&gt;
+        noop
+      }
+  )
+)
 </code></pre>
 <pre><code class="hljs css language-scala original">foo(bar(baz.qux(xyz + zyx)))
 foo(bar((_, _) =&gt;
