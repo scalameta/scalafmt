@@ -8363,7 +8363,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 4788, stateVisits2 = 4788 }
+>>> { stateVisits = 4702, stateVisits2 = 4702 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -8450,7 +8450,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 4849, stateVisits2 = 4849 }
+>>> { stateVisits = 4769, stateVisits2 = 4769 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -9460,7 +9460,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 2449, stateVisits2 = 2449 }
+>>> { stateVisits = 2250, stateVisits2 = 2250 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref.Synchronized
@@ -9578,7 +9578,7 @@ object a {
       .map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 3833, stateVisits2 = 3833 }
+>>> { stateVisits = 3668, stateVisits2 = 3668 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
@@ -10089,7 +10089,7 @@ system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
             }
       }
 }
->>> { stateVisits = 5817, stateVisits2 = 5817 }
+>>> { stateVisits = 4820, stateVisits2 = 4820 }
 system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
   case _: NoSuchMethodException => system.dynamicAccess
       .createInstanceFor[Serializer](

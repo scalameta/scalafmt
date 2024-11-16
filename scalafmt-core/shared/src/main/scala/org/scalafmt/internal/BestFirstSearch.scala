@@ -77,8 +77,12 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
     val maxCost = if (isOpt) 0 else Int.MaxValue
     var deepestState: State = start
+    var preForkState: State = start
+    var preFork = !isKillOnFail
     val activeSplitsFilter: Split => Boolean =
-      if (isOpt) _.costWithPenalty <= 0 else _ => true
+      if (isOpt)
+        s => if (s.costWithPenalty <= 0) true else { preFork = false; false }
+      else _ => true
 
     var curr: State = null
     while ({
@@ -101,6 +105,9 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       val noOptZone = noOptZoneOrBlock.contains(true)
 
       if (noOptZone || stats.shouldEnterState(curr)) {
+        if (Q.generation.nonEmpty) preFork = false
+        else if (preFork) preForkState = curr
+
         stats.checkExplored(splitToken)
 
         if (curr.split != null && curr.split.isNL)
@@ -108,7 +115,10 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             emptyQueueSpots.contains(idx) ||
             optimizer.dequeueOnNewStatements && !(depth == 0 &&
               noOptZone) && optimizationEntities.statementStarts.contains(idx)
-          ) Q.addGeneration()
+          ) {
+            preFork = false
+            Q.addGeneration()
+          }
 
         val noBlockClose = start == curr && !isOpt ||
           noOptZoneOrBlock.isEmpty || !optimizer.recurseOnBlocks
@@ -148,7 +158,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
                 stats.updateBest(nextState, stateToQueue)
                 Q.enqueue(stateToQueue)
               }
-            }
+            } else preFork = false
           }
 
           actualSplits.foreach { split =>
@@ -163,8 +173,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       val okDeepest = deepestState.appliedPenalty > start.prev.appliedPenalty
       tokens(if (okDeepest) deepestState.depth else stop)
     }
-    if (willKillOnFail(isKillOnFail, endToken)(start)) Left(null)
-    else Left(start)
+    if (preFork || willKillOnFail(isKillOnFail, endToken)(start)) Left(null)
+    else Left(preForkState)
   }
 
   private def sendEvent(split: Split): Unit = initStyle.runner
