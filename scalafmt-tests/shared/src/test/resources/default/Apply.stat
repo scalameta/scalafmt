@@ -273,7 +273,7 @@ class ResolutionCopier(x: Int) {
             toNode.rightBracket));
   }
 }
->>> { stateVisits = 57581 }
+>>> { stateVisits = 57494, stateVisits2 = 57494 }
 class ResolutionCopier(x: Int) {
 
   def visitClassDeclaration(node: ClassDeclaration): Boolean = {
