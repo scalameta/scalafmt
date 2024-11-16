@@ -418,15 +418,13 @@ object FormatTokens {
     var lmeta: FT.TokenMeta = null
     val result = Array.newBuilder[FT]
     var ftIdx = 0
-    var wsIdx = 0
-    var tokIdx = 0
+    var prevNonWsIdx = -1
     var fmtWasOff = false
-    val arr = tokens.toArray
-    def process(right: T): Unit = {
+    def process(right: T, tokIdx: Int): Unit = if (!right.is[T.Whitespace]) {
       val rmeta = FT.TokenMeta(owners(hash(right)), right.text)
       if (left eq null) fmtWasOff = isFormatOff(right)
       else {
-        val between = arr.slice(wsIdx, tokIdx)
+        val between = tokens.arraySlice(prevNonWsIdx + 1, tokIdx)
         val fmtIsOff = fmtWasOff || isFormatOff(right)
         fmtWasOff = if (fmtWasOff) !isFormatOn(right) else fmtIsOff
         val meta = FT.Meta(between, ftIdx, fmtIsOff, lmeta, rmeta)
@@ -435,15 +433,9 @@ object FormatTokens {
       }
       left = right
       lmeta = rmeta
+      prevNonWsIdx = tokIdx
     }
-    val tokCnt = arr.length
-    while (tokIdx < tokCnt) arr(tokIdx) match {
-      case _: T.Whitespace => tokIdx += 1
-      case right =>
-        process(right)
-        tokIdx += 1
-        wsIdx = tokIdx
-    }
+    tokens.foreachWithIndex(process)
 
     val ftoks = new FormatTokens(result.result)
     val styleMap = new StyleMap(ftoks, style)

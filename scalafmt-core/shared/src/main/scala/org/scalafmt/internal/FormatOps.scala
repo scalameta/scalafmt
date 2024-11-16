@@ -394,12 +394,9 @@ class FormatOps(
             case Some(p: Case) => p.cond.contains(fullInfix)
             case _ => false
           }) || { // check if the break was in the original code
-            val atokens = app.tokens
-            val ltidx = atokens.indexOf(ft.left)
-            ltidx >= 0 && {
-              val rtidx = atokens.skipIf(_.is[T.Trivia], ltidx + 1)
-              rtidx >= 0 && (atokens(rtidx) eq ft.right) // no rewritten tokens
-            }
+            val optokens = app.op.tokens
+            val idx = optokens.rskipWideIf(_.is[T.Trivia], -1, Int.MinValue)
+            optokens.getWideOpt(idx).contains(ft.left) // no rewritten tokens
           }
         val mod =
           if (ft.noBreak || !okToBreak) spaceMod
