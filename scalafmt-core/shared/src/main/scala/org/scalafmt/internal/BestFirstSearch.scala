@@ -80,8 +80,11 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     val activeSplitsFilter: Split => Boolean =
       if (isOpt) _.costWithPenalty <= 0 else _ => true
 
-    while (!Q.isEmpty()) {
-      val curr = Q.dequeue()
+    var curr: State = null
+    while ({
+      curr = Q.dequeue()
+      null ne curr
+    }) {
       val idx = curr.depth
       if (idx >= tokens.length) return Right(curr)
 
@@ -359,19 +362,18 @@ object BestFirstSearch {
       generation = newGeneration
     }
 
-    def dequeue(): State = generation.dequeue()
     def enqueue(state: State): Unit = generation.enqueue(state)
     def length: Int = generation.length
     @tailrec
-    final def isEmpty(): Boolean = generation.isEmpty && {
-      generations match {
+    final def dequeue(): State =
+      if (generation.isEmpty) generations match {
         case head :: tail =>
           generation = head
           generations = tail
-          isEmpty()
-        case _ => true
+          dequeue()
+        case _ => null
       }
-    }
+      else generation.dequeue()
   }
 
   class StateStats private (
