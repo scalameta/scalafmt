@@ -198,15 +198,19 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
     ),
     scalacOptions ++= scalacJvmOptions.value,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
-    nativeImageVersion := "22.3.0",
     nativeImageInstalled := isCI,
     nativeImageOptions ++= {
-      val isMusl = sys.env.get("NATIVE_IMAGE_MUSL").exists(_.toBoolean)
-      if (isMusl) Seq("--libc=musl") else Nil
-    },
-    nativeImageOptions ++= {
-      val isStatic = sys.env.get("NATIVE_IMAGE_STATIC").exists(_.toBoolean)
-      if (isStatic) Seq("--static") else Nil
+      // https://www.graalvm.org/22.3/reference-manual/native-image/guides/build-static-executables/
+      // https://www.graalvm.org/latest/reference-manual/native-image/guides/build-static-executables/
+      sys.env.get("NATIVE_IMAGE_STATIC") match {
+        case Some("nolibc") => Seq(
+            "-H:+UnlockExperimentalVMOptions",
+            "-H:+StaticExecutableWithDynamicLibC",
+            "-H:-UnlockExperimentalVMOptions",
+          )
+        case Some("musl") => Seq("--static", "--libc=musl")
+        case _ => Nil
+      }
     },
   ).nativeSettings(scalaNativeConfig).dependsOn(core, dynamic)
   .enablePlugins(NativeImagePlugin)

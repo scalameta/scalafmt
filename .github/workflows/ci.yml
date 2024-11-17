@@ -110,27 +110,25 @@ jobs:
           - os: macOS-latest
             artifact: scalafmt-macos
             env:
-              NATIVE_IMAGE_STATIC: false
+              NATIVE_IMAGE_STATIC: none
           - os: ubuntu-latest
             libc: default
             artifact: scalafmt-linux-glibc
             env:
-              NATIVE_IMAGE_STATIC: true
+              NATIVE_IMAGE_STATIC: nolibc
           - os: ubuntu-latest
             libc: musl
             artifact: scalafmt-linux-musl
             env:
-              NATIVE_IMAGE_STATIC: true
-              NATIVE_IMAGE_MUSL: true
+              NATIVE_IMAGE_STATIC: musl
     env: ${{ matrix.env }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.0'
-          java-version: '11'
-          components: 'native-image'
+          java-version: '21'
+          distribution: 'graalvm-community'
           native-image-musl: ${{ matrix.libc == 'musl' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: sbt/setup-sbt@v1
