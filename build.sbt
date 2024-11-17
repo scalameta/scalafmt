@@ -200,16 +200,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
     scalacOptions ++= scalacJvmOptions.value,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
     nativeImageVersion := "22.3.0",
-    nativeImageInstalled := isCI,
-    nativeImageOptions ++= {
-      val isMusl = sys.env.get("NATIVE_IMAGE_MUSL").exists(_.toBoolean)
-      if (isMusl) Seq("--libc=musl") else Nil
-    },
-    nativeImageOptions ++= {
-      val isStatic = sys.env.get("NATIVE_IMAGE_STATIC").exists(_.toBoolean)
-      if (isStatic) Seq("--static") else Nil
-    },
-  ).nativeSettings(scalaNativeConfig).dependsOn(core, dynamic)
+  ).nativeSettings(nativeSettings).dependsOn(core, dynamic)
   .enablePlugins(NativeImagePlugin)
 
 lazy val tests = crossProject(JVMPlatform, NativePlatform)
@@ -327,4 +318,15 @@ lazy val communityTestsSettings: Seq[Def.Setting[_]] = Seq(
   buildInfoPackage := "org.scalafmt.tests",
 )
 
-lazy val scalaNativeConfig = nativeConfig ~= { _.withMode(Mode.releaseFull) }
+lazy val nativeSettings: Seq[Def.Setting[_]] = Seq(
+  nativeImageInstalled := isCI,
+  nativeImageOptions ++= {
+    val isMusl = sys.env.get("NATIVE_IMAGE_MUSL").exists(_.toBoolean)
+    if (isMusl) Seq("--libc=musl") else Nil
+  },
+  nativeImageOptions ++= {
+    val isStatic = sys.env.get("NATIVE_IMAGE_STATIC").exists(_.toBoolean)
+    if (isStatic) Seq("--static") else Nil
+  },
+  nativeConfig ~= { _.withMode(Mode.releaseFull) },
+)
