@@ -950,9 +950,15 @@ class Router(formatOps: FormatOps) {
           )
         }
 
-      case FT(T.LeftParen(), T.RightParen(), _) =>
+      case FT(_: T.LeftParen, _: T.RightParen, _) =>
         val noNL = style.newlines.sourceIgnored || noBreak()
         Seq(Split(NoSplit.orNL(noNL), 0))
+
+      case FT(_: T.LeftParen, _: T.Comment, _) if (leftOwner match {
+            case _: Lit.Unit => true
+            case t: Member.ArgClause => t.values.isEmpty
+            case _ => false
+          }) && !hasBreakBeforeNonComment(ft) => Seq(Split(Space, 0))
 
       case FT(open @ LeftParenOrBracket(), right, _) if {
             if (isArgClauseSite(leftOwner)) style.binPack.callSiteFor(open) ==
