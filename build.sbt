@@ -156,7 +156,6 @@ lazy val coreJVM = core.jvm
 lazy val macros = crossProject(JVMPlatform, NativePlatform)
   .in(file("scalafmt-macros")).settings(
     moduleName := "scalafmt-macros",
-    buildInfoSettings,
     scalacOptions ++= scalacJvmOptions.value,
     libraryDependencies ++= Seq(
       scalameta.value,
