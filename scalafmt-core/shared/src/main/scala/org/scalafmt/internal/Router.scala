@@ -956,7 +956,7 @@ class Router(formatOps: FormatOps) {
 
       case FT(_: T.LeftParen, _: T.Comment, _) if (leftOwner match {
             case _: Lit.Unit => true
-            case t: Member.ArgClause => t.values.isEmpty
+            case t: Member.SyntaxValuesClause => t.values.isEmpty
             case _ => false
           }) && !hasBreakBeforeNonComment(ft) => Seq(Split(Space, 0))
 
