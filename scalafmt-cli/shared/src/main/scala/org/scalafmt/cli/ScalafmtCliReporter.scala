@@ -1,6 +1,6 @@
 package org.scalafmt.cli
 
-import org.scalafmt.Error.MisformattedFile
+import org.scalafmt.Error._
 import org.scalafmt.dynamic.exceptions.ScalafmtException
 import org.scalafmt.interfaces.PositionException
 import org.scalafmt.interfaces.ScalafmtReporter
@@ -10,6 +10,7 @@ import java.io.PrintWriter
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
 
+import scala.annotation.tailrec
 import scala.util.control.NoStackTrace
 
 class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
@@ -22,7 +23,9 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
       options.common.err.println(s"$message: $file")
       exitCode.getAndUpdate(ExitCode.merge(ExitCode.UnexpectedError, _))
     }
-  override def error(file: Path, e: Throwable): Unit = e match {
+  @tailrec
+  override final def error(file: Path, e: Throwable): Unit = e match {
+    case WithCode(e, _) => error(file, e)
     case _: PositionException if !options.ignoreWarnings =>
       options.common.err.println(s"${e.toString}: $file")
       exitCode.getAndUpdate(ExitCode.merge(ExitCode.ParseError, _))
