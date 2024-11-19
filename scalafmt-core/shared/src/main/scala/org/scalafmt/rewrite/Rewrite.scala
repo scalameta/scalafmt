@@ -137,13 +137,9 @@ object Rewrite {
 
   val default: Seq[Rewrite] = name2rewrite.values.toSeq
 
-  def apply(
-      input: Input,
-      style: ScalafmtConfig,
-      toInput: String => Input,
-  ): Input = {
+  def apply(input: Input, style: ScalafmtConfig): Option[String] = {
     val rewrites = style.rewrite.rewriteFactoryRules
-    if (rewrites.isEmpty) input
+    if (rewrites.isEmpty) None
     else style.runner.parse(input) match {
       case Parsed.Success(ast) =>
         val ctx = RewriteCtx(style, input, ast)
@@ -155,8 +151,8 @@ object Rewrite {
           }
         }
         traverser(ast)
-        toInput(ctx.applyPatches)
-      case _ => input
+        Some(ctx.applyPatches)
+      case _ => None
     }
   }
 

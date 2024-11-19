@@ -52,7 +52,8 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
       case Left(e) if err.nonEmpty && e.getMessage.contains(err) => t.expected
       case Left(e: Incomplete) => e.formattedCode
       case Left(e: SearchStateExploded) => logger.elem(e); e.partialOutput
-      case Left(e) => throw FormatException(e, t.original)
+      case Left(e: Error.WithCode) => throw e
+      case Left(e) => throw Error.WithCode(e, t.original)
       case Right(code) => code
     }
     def assertVisits(
@@ -101,7 +102,13 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
           "test does not parse: " + parseException2Message(e, obtained),
           t.expected,
         )
-      case Left(e) => throw FormatException(e, obtained)
+      case Left(Error.WithCode(e: ParseException, code)) if !onlyManual =>
+        assertEquals(
+          "test does not parse: " + parseException2Message(e, code),
+          t.expected,
+        )
+      case Left(e: Error.WithCode) => throw e
+      case Left(e) => throw Error.WithCode(e, obtained)
       case Right(code) =>
         if (onlyManual) {
           assertEquals(code, obtained, "Idempotency violated")

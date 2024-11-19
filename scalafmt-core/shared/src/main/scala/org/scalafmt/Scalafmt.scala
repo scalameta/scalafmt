@@ -105,14 +105,16 @@ object Scalafmt {
   ): Try[String] = {
     val runner = style.runner
     val codeToInput: String => Input = toInput(_, file)
-    val parsed = runner.parse(Rewrite(codeToInput(code), style, codeToInput))
-    parsed.fold(
-      _.details match {
-        case ed: ParseException =>
-          val dialect = runner.dialectName
-          val msg = s"[dialect $dialect] ${ed.shortMessage}"
-          Failure(new ParseException(ed.pos, msg))
-        case ed => Failure(ed)
+    val original = codeToInput(code)
+    val rewritten = Rewrite(original, style)
+    runner.parse(rewritten.fold(original)(codeToInput)).fold(
+      x => {
+        val err = x.details match {
+          case ParseException(pos, msg) =>
+            ParseException(pos, s"[dialect ${runner.dialectName}] $msg")
+          case ed => ed
+        }
+        Failure(Error.WithCode(err, rewritten.getOrElse(code)))
       },
       tree => {
         implicit val formatOps = new FormatOps(tree, style, file)

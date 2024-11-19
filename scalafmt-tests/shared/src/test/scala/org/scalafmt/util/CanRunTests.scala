@@ -1,5 +1,7 @@
 package org.scalafmt.util
 
+import org.scalafmt.Error
+
 import scala.meta.parsers.ParseException
 
 import munit.FunSuite
@@ -16,7 +18,7 @@ trait CanRunTests extends FunSuite with HasTests {
     else test(paddedName) {
       try run(t)
       catch {
-        case FormatException(e: ParseException, code) =>
+        case Error.WithCode(e: ParseException, code) =>
           fail("test does not parse\n" + parseException2Message(e, code), e)
       }
     }

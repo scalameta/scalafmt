@@ -120,4 +120,6 @@ object Error {
 
   case object MegaTestFailed extends Error("Mega test failed.")
 
+  case class WithCode(error: Throwable, code: String) extends Exception(error)
+
 }
