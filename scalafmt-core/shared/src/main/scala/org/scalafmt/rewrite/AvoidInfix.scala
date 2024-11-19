@@ -31,11 +31,13 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
   override def rewrite(tree: Tree): Unit = tree match {
     case x: Term.ApplyInfix => rewriteImpl(x.lhs, x.op, x.arg, x.targClause)
-    case x: Term.Select if !cfg.excludePostfix =>
-      val maybeDot = ctx.tokenTraverser.prevNonTrivialToken(x.name.tokens.head)
-      if (!maybeDot.forall(_.is[T.Dot])) rewriteImpl(x.qual, x.name)
+    case x: Term.Select if !cfg.excludePostfix && noDot(x.name.tokens.head) =>
+      rewriteImpl(x.qual, x.name)
     case _ =>
   }
+
+  private def noDot(opToken: T): Boolean =
+    !ctx.tokenTraverser.prevNonTrivialToken(opToken).forall(_.is[T.Dot])
 
   private def rewriteImpl(
       lhs: Term,
@@ -49,11 +51,11 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
     val lhsIsOK = lhsIsWrapped ||
       (lhs match {
-        case y: Term.ApplyInfix => checkMatchingInfix(y.lhs, y.op, y.arg)
+        case t: Term.ApplyInfix => checkMatchingInfix(t.lhs, t.op.value, t.arg)
         case _ => false
       })
 
-    if (!checkMatchingInfix(lhs, op, rhs, Some(lhsIsOK))) return
+    if (!checkMatchingInfix(lhs, op.value, rhs, Some(lhsIsOK))) return
     if (!ctx.dialect.allowTryWithAnyExpr)
       if (beforeLhsHead.exists(_.is[T.KwTry])) return
 
@@ -106,27 +108,24 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
   @tailrec
   private def checkMatchingInfix(
       lhs: Term,
-      name: Name,
+      op: String,
       rhs: Tree,
-      lhsIsOK: Option[Boolean] = None,
-  ): Boolean = {
-    val op = name.value
-    InfixApp.isLeftAssoc(op) && cfg.matches(lhs.text, op) &&
+      lhsIsOK: => Option[Boolean] = None,
+  ): Boolean = InfixApp.isLeftAssoc(op) && cfg.matches(lhs.text, op) &&
     (rhs match {
       case ac @ Term.ArgClause(arg :: Nil, _) if !isWrapped(ac) =>
         !hasPlaceholder(arg, ctx.style.rewrite.isAllowInfixPlaceholderArg)
       case _ => true
     }) &&
     (lhs match {
-      case lhs: Term.ApplyInfix if hasPlaceholder(lhs, true) =>
+      case lhs: Term.ApplyInfix if hasPlaceholder(lhs, includeArg = true) =>
         lhsIsOK match {
           case Some(x) => x
           case None => isWrapped(lhs) ||
-            checkMatchingInfix(lhs.lhs, lhs.op, lhs.arg)
+            checkMatchingInfix(lhs.lhs, lhs.op.value, lhs.arg)
         }
       case _ => true
     })
-  }
 
   @inline
   private def isMatching(head: T, last: => T): Boolean = head.is[T.LeftParen] &&
