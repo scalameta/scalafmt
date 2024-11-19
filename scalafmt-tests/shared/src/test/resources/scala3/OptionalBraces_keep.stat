@@ -7592,3 +7592,49 @@ object Build:
        }
      }.evaluated
    )
+<<< AvoidInfix with match
+rewrite.rules = [AvoidInfix]
+===
+object a {
+  a b c match
+    case _ =>
+}
+>>>
+object a {
+  a.b(c) match
+     case _ =>
+}
+<<< AvoidInfix with match within applyinfix
+rewrite.rules = [AvoidInfix]
+===
+object a {
+  a b c match {
+    case _ =>
+  } d e
+}
+>>>
+test does not parse
+[dialect scala3] `;` expected but `.` found
+  a .b( c) match {
+    case _ =>
+  } .d( e)
+    ^
+}
+====== full result: ======
+object a {
+  a .b( c) match {
+    case _ =>
+  } .d( e)
+}
+<<< AvoidInfix with match, with dot
+rewrite.rules = [AvoidInfix]
+===
+object a {
+  (a.b(c)).match
+      case _ =>
+}
+>>>
+object a {
+  (a.b(c)).match
+     case _ =>
+}
