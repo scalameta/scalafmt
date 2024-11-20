@@ -7919,3 +7919,25 @@ object a {
   (a.b(c)).match
      case _ =>
 }
+<<< match with dot, trailing case comment
+object a:
+      b.c.match
+        case d if e => f
+          // comment
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+           f
+-   // comment
++      // comment
+<<< match without dot, trailing case comment
+object a:
+      b.c match
+        case d if e => f
+          // comment
+>>>
+object a:
+   b.c match
+      case d if e =>
+        f
+      // comment
