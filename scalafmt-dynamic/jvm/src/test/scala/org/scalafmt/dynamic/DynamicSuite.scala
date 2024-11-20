@@ -1,7 +1,6 @@
 package org.scalafmt.dynamic
 
-import org.scalafmt.interfaces.PositionException
-import org.scalafmt.interfaces.ScalafmtReporter
+import org.scalafmt.interfaces._
 
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
@@ -593,6 +592,14 @@ class DynamicSuite extends FunSuite {
         assertEquals(cfg.indentCallSite, Some(3))
         assertEquals(cfg.indentDefnSite, Some(5))
       }
+  }
+
+  test("Scalafmt interface") {
+    import scala.util._
+    Try(Scalafmt.create(this.getClass.getClassLoader)) match {
+      case Success(value) => assertNotEquals(value, null)
+      case Failure(error) => fail(error.getMessage)
+    }
   }
 
 }

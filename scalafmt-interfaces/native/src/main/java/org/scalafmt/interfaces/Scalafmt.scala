@@ -138,6 +138,8 @@ object Scalafmt {
     * @throws NoSuchElementException
     *   if the classloader does not have the 'scalafmt-dynamic' module.
     */
-  def create(loader: ClassLoader): Scalafmt =
-    throw new Exception("Can't use different version for native CLI")
+  def create(loader: ClassLoader): Scalafmt = throw new ScalafmtException(
+    "Can't use different version for native CLI",
+    null,
+  )
 }
