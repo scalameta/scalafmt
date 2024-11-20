@@ -196,6 +196,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
     ),
     scalacOptions ++= scalacJvmOptions.value,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
+  ).jvmSettings(
     nativeImageInstalled := isCI,
     nativeImageOptions ++= {
       // https://www.graalvm.org/22.3/reference-manual/native-image/guides/build-static-executables/
@@ -211,7 +212,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
       }
     },
   ).nativeSettings(scalaNativeConfig).dependsOn(core, dynamic)
-  .enablePlugins(NativeImagePlugin)
+  .jvmEnablePlugins(NativeImagePlugin)
 
 lazy val tests = crossProject(JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests")).settings(
