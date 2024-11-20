@@ -7298,7 +7298,7 @@ object a {
 }
 >>>
 object a {
-  a.b(c) match
+  a.b(c).match
      case _ =>
 }
 <<< AvoidInfix with match within applyinfix, excludeMatch
@@ -7325,7 +7325,7 @@ object a {
 }
 >>>
 object a {
-  (a.b(c) match { case _ => }).d(e)
+  a.b(c).match { case _ => }.d(e)
 }
 <<< AvoidInfix with match, with dot, excludeMatch
 rewrite.rules = [AvoidInfix]
@@ -7376,7 +7376,7 @@ object a {
 }
 >>>
 object a {
-  a(b): @c match
+  (a(b): @c).match
      case _ =>
 }
 <<< match with dot, trailing case comment

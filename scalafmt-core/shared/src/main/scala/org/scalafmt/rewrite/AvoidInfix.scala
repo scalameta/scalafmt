@@ -21,6 +21,7 @@ object AvoidInfix extends RewriteFactory {
 class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
   private val cfg = ctx.style.rewrite.avoidInfix
+  private val allowMatchAsOperator = dialect.allowMatchAsOperator
 
   // In a perfect world, we could just use
   // Tree.transform {
@@ -30,18 +31,32 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
   // we will do these dangerous rewritings by hand.
 
   override def rewrite(tree: Tree): Unit = tree match {
-    case x: Term.ApplyInfix => rewriteImpl(x.lhs, x.op, x.arg, x.targClause)
+    case x: Term.ApplyInfix =>
+      rewriteImpl(x.lhs, Right(x.op), x.arg, x.targClause)
     case x: Term.Select if !cfg.excludePostfix && noDot(x.name.tokens.head) =>
-      rewriteImpl(x.qual, x.name)
+      rewriteImpl(x.qual, Right(x.name))
+    case x: Term.Match => noDotMatch(x)
+        .foreach(op => rewriteImpl(x.expr, Left(op), null))
     case _ =>
   }
 
   private def noDot(opToken: T): Boolean =
     !ctx.tokenTraverser.prevNonTrivialToken(opToken).forall(_.is[T.Dot])
 
+  private def noDotMatch(t: Term.Match): Either[Boolean, T] =
+    if (allowMatchAsOperator && t.mods.isEmpty)
+      ctx.tokenTraverser.prevNonTrivialToken(t.casesBlock.tokens.head) match {
+        case Some(kw) =>
+          if (!noDot(kw)) Left(true)
+          else if (cfg.excludeMatch) Left(false)
+          else Right(kw)
+        case _ => Left(false)
+      }
+    else Left(false)
+
   private def rewriteImpl(
       lhs: Term,
-      op: Name,
+      op: Either[T, Name],
       rhs: Tree = null,
       targs: Member.SyntaxValuesClause = null,
   ): Unit = {
@@ -52,19 +67,24 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
     val lhsIsOK = lhsIsWrapped ||
       (lhs match {
         case t: Term.ApplyInfix => checkMatchingInfix(t.lhs, t.op.value, t.arg)
+        case t: Term.Match => noDotMatch(t) match {
+            case Left(ok) => ok
+            case Right(kw) => checkMatchingInfix(t.expr, kw.text, t.casesBlock)
+          }
         case _ => false
       })
 
-    if (!checkMatchingInfix(lhs, op.value, rhs, Some(lhsIsOK))) return
+    if (!checkMatchingInfix(lhs, op.fold(_.text, _.value), rhs, Some(lhsIsOK)))
+      return
     if (!ctx.dialect.allowTryWithAnyExpr)
       if (beforeLhsHead.exists(_.is[T.KwTry])) return
 
     val builder = Seq.newBuilder[TokenPatch]
 
-    val (opHead, opLast) = ends(op)
+    val (opHead, opLast) = op.fold((_, null), ends)
     builder += TokenPatch.AddLeft(opHead, ".", keepTok = true)
 
-    if (rhs ne null) {
+    if ((rhs ne null) && (opLast ne null)) {
       def moveOpenDelim(prev: T, open: T): Unit = {
         // move delimiter (before comment or newline)
         builder += TokenPatch.AddRight(prev, open.text, keepTok = true)
@@ -94,7 +114,8 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
         case _: Term.ApplyInfix | _: Term.Match => !lhsIsOK
         // foo _ compose bar => (foo _).compose(bar)
         // new Foo compose bar => (new Foo).compose(bar)
-        case _: Term.Eta | _: Term.New => true
+        case _: Term.Eta | _: Term.New | _: Term.Annotate => true
+        case t: Term.Select if rhs eq null => !noDot(t.name.tokens.head)
         case _ => false
       })
     if (shouldWrapLhs) {
@@ -123,6 +144,15 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
           case Some(x) => x
           case None => isWrapped(lhs) ||
             checkMatchingInfix(lhs.lhs, lhs.op.value, lhs.arg)
+        }
+      case lhs: Term.Match if hasPlaceholder(lhs, includeArg = true) =>
+        lhsIsOK match {
+          case Some(x) => x
+          case None if isWrapped(lhs) => true
+          case None => noDotMatch(lhs) match {
+              case Left(ok) => ok
+              case Right(op) => checkMatchingInfix(lhs.expr, op.text, null)
+            }
         }
       case _ => true
     })
