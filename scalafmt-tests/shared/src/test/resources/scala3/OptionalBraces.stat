@@ -7564,8 +7564,9 @@ object Build:
          }
        }.evaluated
      )
-<<< AvoidInfix with match
+<<< AvoidInfix with match, excludeMatch
 rewrite.rules = [AvoidInfix]
+rewrite.avoidInfix.excludeMatch = true
 ===
 object a {
   a b c match
@@ -7576,8 +7577,22 @@ object a {
   a.b(c) match
      case _ =>
 }
-<<< AvoidInfix with match within applyinfix
+<<< AvoidInfix with match, !excludeMatch
 rewrite.rules = [AvoidInfix]
+rewrite.avoidInfix.excludeMatch = false
+===
+object a {
+  a b c match
+    case _ =>
+}
+>>>
+object a {
+  a.b(c) match
+     case _ =>
+}
+<<< AvoidInfix with match within applyinfix, excludeMatch
+rewrite.rules = [AvoidInfix]
+rewrite.avoidInfix.excludeMatch = true
 ===
 object a {
   a b c match {
@@ -7590,8 +7605,24 @@ object a {
     case _ =>
   }).d(e)
 }
-<<< AvoidInfix with match, with dot
+<<< AvoidInfix with match within applyinfix, !excludeMatch
 rewrite.rules = [AvoidInfix]
+rewrite.avoidInfix.excludeMatch = false
+===
+object a {
+  a b c match {
+    case _ =>
+  } d e
+}
+>>>
+object a {
+  (a.b(c) match {
+    case _ =>
+  }).d(e)
+}
+<<< AvoidInfix with match, with dot, excludeMatch
+rewrite.rules = [AvoidInfix]
+rewrite.avoidInfix.excludeMatch = true
 ===
 object a {
   (a.b(c)).match
@@ -7602,6 +7633,46 @@ object a {
   (a.b(c))
     .match
        case _ =>
+}
+<<< AvoidInfix with match, with dot, !excludeMatch
+rewrite.rules = [AvoidInfix]
+rewrite.avoidInfix.excludeMatch = false
+===
+object a {
+  (a.b(c)).match
+      case _ =>
+}
+>>>
+object a {
+  (a.b(c))
+    .match
+       case _ =>
+}
+<<< AvoidInfix with match, with annotation, excludeMatch
+rewrite.rules = [AvoidInfix]
+rewrite.avoidInfix.excludeMatch = true
+===
+object a {
+  a(b): @c match
+      case _ =>
+}
+>>>
+object a {
+  a(b): @c match
+     case _ =>
+}
+<<< AvoidInfix with match, with annotation, !excludeMatch
+rewrite.rules = [AvoidInfix]
+rewrite.avoidInfix.excludeMatch = false
+===
+object a {
+  a(b): @c match
+      case _ =>
+}
+>>>
+object a {
+  a(b): @c match
+     case _ =>
 }
 <<< match with dot, trailing case comment
 object a:
