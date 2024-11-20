@@ -315,25 +315,6 @@ class Router(formatOps: FormatOps) {
         val lambdaExpire =
           if (lambdaArrow eq null) null else nextNonCommentSameLine(lambdaArrow)
 
-        def getSingleLinePolicy = {
-          val needBreak = close.right match {
-            case _: T.KwElse => close.rightOwner match {
-                case p: Term.If => p.thenp eq leftOwner
-                case _ => false
-              }
-            case _: T.KwCatch => close.rightOwner match {
-                case p: Term.TryClause => p.expr eq leftOwner
-                case _ => false
-              }
-            case _: T.KwFinally => close.rightOwner match {
-                case p: Term.TryClause => (p.expr eq leftOwner) ||
-                  p.catchClause.contains(leftOwner)
-                case _ => false
-              }
-            case _ => false
-          }
-          Policy ? needBreak && decideNewlinesOnlyAfterClose(close)
-        }
         def getClassicSingleLineDecisionOpt =
           if (noBreak()) Some(true) else None
 
@@ -381,11 +362,28 @@ class Router(formatOps: FormatOps) {
         val singleLineSplitOpt = {
           if (slbParensExclude eq null) None else singleLineDecisionOpt
         }.map { sld =>
-          val sldPolicy = getSingleLinePolicy
+          val ownerIfNeedBreakAfterClose = close.right match {
+            case _: T.KwElse => close.rightOwner match {
+                case p: Term.If if p.thenp eq leftOwner => Some(p)
+                case _ => None
+              }
+            case _: T.KwCatch => close.rightOwner match {
+                case p: Term.TryClause if p.expr eq leftOwner => Some(p)
+                case _ => None
+              }
+            case _: T.KwFinally => close.rightOwner match {
+                case p: Term.TryClause
+                    if (p.expr eq leftOwner) ||
+                      p.catchClause.contains(leftOwner) => Some(p)
+                case _ => None
+              }
+            case _ => None
+          }
           val expire = leftOwner.parent match {
             case Some(p: Term.ForYield)
-                if !sld && sldPolicy.isEmpty && style.newlines.fold &&
-                  leftOwner.is[Term.EnumeratorsBlock] => getLast(p)
+                if !sld && ownerIfNeedBreakAfterClose.isEmpty &&
+                  style.newlines.fold && leftOwner.is[Term.EnumeratorsBlock] =>
+              getLast(p)
             case _ if style.newlines.isBeforeOpenParenCallSite => close
             case _ => getSlbEndOnLeft(close)
           }
@@ -404,6 +402,22 @@ class Router(formatOps: FormatOps) {
             else Policy.RelayOnSplit((s, _) => s.isNL)(slbParensPolicy)(
               Policy.onLeft(close, "BracesToParensFailed") { case _ => Nil },
             )
+          val sldPolicy = ownerIfNeedBreakAfterClose.map { p =>
+            if (style.newlines.fold) {
+              val pend = getSlbEndOnLeft(getLast(p))
+              def pendSlb(s: Split) = s
+                .withSingleLine(pend, noSyntaxNL = true, extend = true)
+              Policy.End <= close ==>
+                Policy.onRight(close, s"RB-ELSE[${pend.idx}]") {
+                  case Decision(`close`, ss) =>
+                    if (ss.exists(_.isNL)) ss
+                      .map(s => if (s.isNL) s else pendSlb(s))
+                    else ss.flatMap { s =>
+                      Seq(pendSlb(s), s.withMod(Newline).withPenalty(1))
+                    }
+                }
+            } else decideNewlinesOnlyAfterClose(close)
+          }
           Split(slbMod, 0).withSingleLine(
             expire,
             exclude = exclude,
