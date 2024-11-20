@@ -11360,3 +11360,72 @@ extends SomeBaseClass
 with SomeTrait
 >>>
 class SomeClass(a: Int, b: Double, c: String) extends SomeBaseClass with SomeTrait
+<<< if-else with one block, short
+maxColumn = 40
+===
+object a {
+  if (s.costWithPenalty > 0) { preFork = false; false } else true
+
+  if (s.costWithPenalty <= 0) true else { preFork = false; false }
+}
+>>>
+object a {
+  if (s.costWithPenalty > 0) {
+    preFork = false;
+    false
+  } else
+    true
+
+  if (s.costWithPenalty <= 0)
+    true
+  else {
+    preFork = false;
+    false
+  }
+}
+<<< if-else with one block, medium
+maxColumn = 60
+===
+object a {
+  if (s.costWithPenalty > 0) { preFork = false; false } else true
+
+  if (s.costWithPenalty <= 0) true else { preFork = false; false }
+}
+>>>
+object a {
+  if (s.costWithPenalty > 0) {
+    preFork = false;
+    false
+  } else
+    true
+
+  if (s.costWithPenalty <= 0)
+    true
+  else {
+    preFork = false;
+    false
+  }
+}
+<<< if-else with one block, long
+maxColumn = 80
+===
+object a {
+  if (s.costWithPenalty > 0) { preFork = false; false } else true
+
+  if (s.costWithPenalty <= 0) true else { preFork = false; false }
+}
+>>>
+object a {
+  if (s.costWithPenalty > 0) {
+    preFork = false;
+    false
+  } else
+    true
+
+  if (s.costWithPenalty <= 0)
+    true
+  else {
+    preFork = false;
+    false
+  }
+}
