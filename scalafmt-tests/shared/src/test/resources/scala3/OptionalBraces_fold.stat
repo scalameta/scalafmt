@@ -3606,8 +3606,7 @@ object a {
 }
 >>>
 object a {
-  if ({ !Yield(2); false }) { !Yield(3) }
-  else { !Yield(4) }
+  if ({ !Yield(2); false }) { !Yield(3) } else { !Yield(4) }
 }
 <<< #3005 if-then
 object a {
@@ -3620,8 +3619,7 @@ object a {
 }
 >>>
 object a {
-  if ({ !Yield(2); false }) then { !Yield(3) }
-  else { !Yield(4) }
+  if ({ !Yield(2); false }) then { !Yield(3) } else { !Yield(4) }
 }
 <<< #3005 while
 object a {
@@ -4107,9 +4105,7 @@ class Foo() {
 }
 >>>
 class Foo() {
-  def ok: Boolean =
-    if (1 == 1) { true }
-    else false
+  def ok: Boolean = if (1 == 1) { true } else false
 
   def notOK: Boolean =
     if (1 == 1) {
