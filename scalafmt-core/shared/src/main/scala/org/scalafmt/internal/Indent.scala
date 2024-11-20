@@ -1,22 +1,22 @@
 package org.scalafmt.internal
 
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 
 sealed abstract class ExpiresOn {
-  def notExpiredBy(ft: FormatToken, expireEnd: Int): Boolean
+  def notExpiredBy(ft: FT, idxBeforeExpire: Int): Boolean
 }
 
 object ExpiresOn {
   case object After extends ExpiresOn {
-    def notExpiredBy(ft: FormatToken, expireEnd: Int): Boolean =
-      ft.right.start < expireEnd
+    def notExpiredBy(ft: FT, idxBeforeExpire: Int): Boolean = ft.idx <=
+      idxBeforeExpire
   }
 
   case object Before extends ExpiresOn {
-    def notExpiredBy(ft: FormatToken, expireEnd: Int): Boolean = ft.right.end <
-      expireEnd
+    def notExpiredBy(ft: FT, idxBeforeExpire: Int): Boolean = ft.idx <
+      idxBeforeExpire
   }
 
   @inline
@@ -51,17 +51,17 @@ object Length {
 
 case class ActualIndent(
     length: Int,
-    expireEnd: Int,
+    expire: FT,
     expiresAt: ExpiresOn,
     reset: Boolean,
 ) {
+  private val idxBeforeExpire = expire.idx - 1
   @inline
-  def notExpiredBy(ft: FormatToken): Boolean = expiresAt
-    .notExpiredBy(ft, expireEnd)
+  def notExpiredBy(ft: FT): Boolean = expiresAt.notExpiredBy(ft, idxBeforeExpire)
 }
 
 abstract class Indent {
-  def switch(trigger: Token, on: Boolean): Indent
+  def switch(trigger: T, on: Boolean): Indent
   def withStateOffset(offset: Int): Option[ActualIndent]
   def hasStateColumn: Boolean
 }
@@ -82,27 +82,22 @@ abstract class Indent {
   *   If Right, then expires when [[expire]] is curr.right, otherwise curr.left
   *   in [[BestFirstSearch]].
   */
-private class IndentImpl(length: Length, expire: Token, expiresAt: ExpiresOn)
+private class IndentImpl(length: Length, expire: FT, expiresAt: ExpiresOn)
     extends Indent {
   override def hasStateColumn: Boolean = length eq Length.StateColumn
-  override def switch(trigger: Token, on: Boolean): Indent = this
+  override def switch(trigger: T, on: Boolean): Indent = this
   override def withStateOffset(offset: Int): Option[ActualIndent] = Some(
-    ActualIndent(
-      length.withStateOffset(offset),
-      expire.end,
-      expiresAt,
-      length.reset,
-    ),
+    ActualIndent(length.withStateOffset(offset), expire, expiresAt, length.reset),
   )
   override def toString: String = {
     val when = if (expiresAt == ExpiresOn.Before) '<' else '>'
-    s"$length$when$expire:${expire.end}"
+    s"$length$when${expire.left}[${expire.idx}]"
   }
 }
 
 object Indent {
 
-  def apply(length: Length, expire: => Token, expiresAt: => ExpiresOn): Indent =
+  def apply(length: Length, expire: => FT, expiresAt: => ExpiresOn): Indent =
     length match {
       case Length.Num(0, _) => Empty
       case x => new IndentImpl(x, expire, expiresAt)
@@ -112,13 +107,13 @@ object Indent {
   def empty: Indent = Empty
   case object Empty extends Indent {
     override def withStateOffset(offset: Int): Option[ActualIndent] = None
-    override def switch(trigger: Token, on: Boolean): Indent = this
+    override def switch(trigger: T, on: Boolean): Indent = this
     override def hasStateColumn: Boolean = false
   }
 
-  class Switch private (before: Indent, trigger: Token, after: Indent)
+  class Switch private (before: Indent, trigger: T, after: Indent)
       extends Indent {
-    override def switch(trigger: Token, on: Boolean): Indent =
+    override def switch(trigger: T, on: Boolean): Indent =
       if (trigger ne this.trigger) this
       else if (on) before
       else after.switch(trigger, false)
@@ -129,14 +124,14 @@ object Indent {
   }
 
   object Switch {
-    def apply(before: Indent, trigger: Token, after: Indent): Indent =
+    def apply(before: Indent, trigger: T, after: Indent): Indent =
       if (before eq after) before else new Switch(before, trigger, after)
   }
 
-  def before(indent: Indent, trigger: Token): Indent =
+  def before(indent: Indent, trigger: T): Indent =
     Switch(indent, trigger, Indent.Empty)
 
-  def after(trigger: Token, indent: Indent): Indent =
+  def after(trigger: T, indent: Indent): Indent =
     Switch(Indent.Empty, trigger, indent)
 
   def getIndent(indents: Iterable[ActualIndent]): Int = {

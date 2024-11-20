@@ -1,0 +1,103 @@
+
+<<< single import
+import scala   as  java
+>>>
+import scala as java
+<<< select import
+import java.util.List   as  `J-List`
+>>>
+import java.util.List as `J-List`
+<<< multiple imports
+import java.util.{List   as  `J-List`, LinkedList as Linked}
+>>>
+import java.util.{List as `J-List`, LinkedList as Linked}
+<<< multiple imports multiline
+maxColumn = 20
+===
+import java.util.{List   as  `J-List`, LinkedList as Linked}
+>>>
+import java.util.{
+  List as `J-List`,
+  LinkedList as Linked
+}
+<<< redundant braces
+import java.util.{List   as  `J-List`}
+>>>
+import java.util.{List as `J-List`}
+<<< remove redundant braces in import 
+rewrite.rules = [RedundantBraces]
+===
+import java.util.{List   as  `J-List`}
+>>>
+import java.util.List as `J-List`
+<<< remove redundant braces old syntax
+rewrite.rules = [RedundantBraces]
+===
+import java.util.{List   =>  `J-List`}
+>>>
+import java.util.{List => `J-List`}
+<<< remove redundant braces old syntax, converting
+rewrite.rules = [RedundantBraces]
+rewrite.scala3.convertToNewSyntax = true
+===
+import java.util.{List   =>  `J-List`}
+>>>
+import java.util.List as `J-List`
+<<< no redundant braces in import
+rewrite.rules = [RedundantBraces]
+===
+import java.util.List   as  `J-List`
+>>>
+import java.util.List as `J-List`
+<<< single export
+export scala   as  java
+>>>
+export scala as java
+<<< select export
+export java.util.List   as  `J-List`
+>>>
+export java.util.List as `J-List`
+<<< multiple exports
+export java.util.{List   as  `J-List`, LinkedList as Linked}
+>>>
+export java.util.{List as `J-List`, LinkedList as Linked}
+<<< multiple exports multiline
+maxColumn = 20
+===
+export java.util.{List   as  `J-List`, LinkedList as Linked}
+>>>
+export java.util.{
+  List as `J-List`,
+  LinkedList as Linked
+}
+<<< redundant braces export
+export java.util.{List   as  `J-List`}
+>>>
+export java.util.{List as `J-List`}
+<<< remove redundant braces in export
+rewrite.rules = [RedundantBraces]
+===
+export java.util.{List   as  _}
+>>>
+export java.util.List as _
+<<< no redundant braces in export
+rewrite.rules = [RedundantBraces]
+===
+export java.util.List   as  `J-List`
+>>>
+export java.util.List as `J-List`
+<<< expand import selectors #2535
+runner.parser = source
+rewrite.rules = [ExpandImportSelectors]
+===
+import foo.{ bar as baz, *}
+>>>
+import foo.{bar as baz, *}
+<<< #4218 with multiple rewrites
+runner.parser = source
+rewrite.rules = [ExpandImportSelectors]
+rewrite.scala3.convertToNewSyntax = true
+===
+import scala.util.{Try => T}
+>>>
+import scala.util.Try as T

@@ -1,14 +1,12 @@
 package org.scalafmt.util
 
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.Modification
-import org.scalafmt.internal.Space
+import org.scalafmt.internal._
 
 import scala.meta._
-import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
+import scala.meta.tokens.Token.{Space => _, _}
 import scala.meta.tokens.Tokens
+import scala.meta.tokens.{Token => T}
 
 /** Stateless helper functions on [[scala.meta.Token]].
   */
@@ -34,7 +32,7 @@ object TokenOps {
     * type lie next to each other. @xeno-by said this should not happen.
     */
   @inline
-  def hash(token: Token): TokenHash = {
+  def hash(token: T): TokenHash = {
     val longHash: Long = (token.productPrefix.hashCode.toLong << (62 - 8)) |
       (token.start.toLong << (62 - (8 + 28))) | token.end
     longHash
@@ -43,46 +41,41 @@ object TokenOps {
   def isDocstring(text: String): Boolean = text.length > 4 &&
     text.startsWith("/**") // excludes /**/
 
-  def blankLineBeforeDocstring(ft: FormatToken)(implicit
+  def blankLineBeforeDocstring(ft: FT)(implicit
       style: ScalafmtConfig,
   ): Boolean = style.forceNewlineBeforeDocstring &&
     isDocstring(ft.meta.right.text) &&
-    TreeOps.findTreeOrParent(ft.meta.leftOwner) {
-      case t if t.pos.end <= ft.right.start => None
-      case _: Pkg | _: Source | _: Template | _: Term.Block => Some(false)
-      case _ => Some(true)
-    }.isEmpty
+    // we need Pkg in case docstring comes before the first statement and not owned by Pkg.Body
+    ft.meta.rightOwner.isAny[Pkg, Tree.Block]
 
   // 2.13 implements SeqOps.findLast
   def findLast[A](seq: Seq[A])(cond: A => Boolean): Option[A] = seq
     .reverseIterator.find(cond)
 
-  def findLastVisibleTokenOpt(tokens: Tokens): Option[Token] =
-    findLast(tokens) {
-      case _: Whitespace | _: EOF => false
-      case _ => true
-    }
+  def findLastVisibleTokenOpt(tokens: Tokens): Option[T] = findLast(tokens) {
+    case _: Whitespace | _: EOF => false
+    case _ => true
+  }
 
-  def findLastVisibleToken(tokens: Tokens): Token =
-    findLastVisibleTokenOpt(tokens).getOrElse(tokens.last)
-
-  @inline
-  def withNoIndent(ft: FormatToken): Boolean = ft.between.lastOption
-    .exists(_.is[AtEOL])
+  def findLastVisibleToken(tokens: Tokens): T = findLastVisibleTokenOpt(tokens)
+    .getOrElse(tokens.last)
 
   @inline
-  def rhsIsCommentedOut(ft: FormatToken): Boolean = ft.right.is[Comment] &&
+  def withNoIndent(ft: FT): Boolean = ft.between.lastOption.is[AtEOL]
+
+  @inline
+  def rhsIsCommentedOut(ft: FT): Boolean = ft.right.is[Comment] &&
     rhsIsCommentedOutIfComment(ft)
 
   @inline
-  def rhsIsCommentedOutIfComment(ft: FormatToken): Boolean = withNoIndent(ft) &&
+  def rhsIsCommentedOutIfComment(ft: FT): Boolean = withNoIndent(ft) &&
     isSingleLineIfComment(ft.right)
 
   @inline
-  def isLeftCommentThenBreak(ft: FormatToken): Boolean = ft.left
-    .is[Token.Comment] && ft.hasBreak
+  def isLeftCommentThenBreak(ft: FT): Boolean = ft.left.is[Comment] &&
+    ft.hasBreak
 
-  def isSingleLineIfComment(c: Token): Boolean = {
+  def isSingleLineIfComment(c: T): Boolean = {
     val off = c.start
     (c.end - off) >= 2 && {
       val chars = c.input.chars
@@ -92,8 +85,7 @@ object TokenOps {
 
   val booleanOperators = Set("&&", "||")
 
-  def isBoolOperator(token: Token): Boolean = booleanOperators
-    .contains(token.syntax)
+  def isBoolOperator(token: T): Boolean = booleanOperators.contains(token.syntax)
 
   def identModification(ident: Ident): Modification = {
     val lastCharacter = ident.syntax.last
@@ -101,7 +93,7 @@ object TokenOps {
   }
 
   @inline
-  def getMod(ft: FormatToken): Modification = Space.orNL(ft.newlinesBetween)
+  def getMod(ft: FT): Modification = Space.orNL(ft.newlinesBetween)
 
   val formatOnCode = Set(
     "@formatter:on", // IntelliJ
@@ -114,23 +106,22 @@ object TokenOps {
   )
 
   @inline
-  def isFormatOn(token: Token): Boolean = isFormatIn(token, formatOnCode)
+  def isFormatOn(token: T): Boolean = isFormatIn(token, formatOnCode)
 
   @inline
-  def isFormatOff(token: Token): Boolean = isFormatIn(token, formatOffCode)
+  def isFormatOff(token: T): Boolean = isFormatIn(token, formatOffCode)
 
-  private def isFormatIn(token: Token, set: Set[String]): Boolean =
-    token match {
-      case t: Comment => set.contains(t.value.trim.toLowerCase)
-      case _ => false
-    }
-
-  def endsWithSymbolIdent(tok: Token): Boolean = tok match {
-    case Ident(name) => !name.last.isLetterOrDigit
+  private def isFormatIn(token: T, set: Set[String]): Boolean = token match {
+    case t: Comment => set.contains(t.value.trim.toLowerCase)
     case _ => false
   }
 
-  def isSymbolicIdent(tok: Token): Boolean = tok match {
+  def endsWithSymbolIdent(tok: T): Boolean = tok match {
+    case Ident(name) => !name.last.isLetterOrDigit && !tok.isBackquoted
+    case _ => false
+  }
+
+  def isSymbolicIdent(tok: T): Boolean = tok match {
     case Ident(name) => isSymbolicName(name)
     case _ => false
   }
@@ -152,6 +143,6 @@ object TokenOps {
     }
   }
 
-  def getIndentTrigger(tree: Tree): Token = tree.tokens.head
+  def getIndentTrigger(tree: Tree): T = tree.tokens.head
 
 }

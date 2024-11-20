@@ -426,7 +426,7 @@ plugin:
 
 Mill has scalafmt support built-in:
 
-- [scalafmt module](https://com-lihaoyi.github.io/mill/page/configuring-mill.html#reformatting-your-code)
+- [scalafmt module](https://mill-build.org/mill/scalalib/linting.html#_autoformatting_with_scalafmt)
 
 ## Standalone library
 
@@ -502,7 +502,7 @@ handle parse and config errors.
 
 Here is an example how to extend `ScalafmtReporter`.
 
-```scala mdoc:file:scalafmt-dynamic/src/main/scala/org/scalafmt/dynamic/ConsoleScalafmtReporter.scala
+```scala mdoc:file:scalafmt-dynamic/jvm/src/main/scala/org/scalafmt/dynamic/ConsoleScalafmtReporter.scala
 
 ```
 

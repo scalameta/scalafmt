@@ -1,0 +1,42 @@
+
+<<< scalajs 1
+private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
+    sym: Symbol): js.Tree = {
+  if (isScalaJSDefinedJSClass(currentClassSym) &&
+      sym.owner != currentClassSym.get) {
+    genApplyForSymJSSuperCall(minArgc, hasRestParam, sym)
+  } else {
+    genApplyForSymNonJSSuperCall(minArgc, sym)
+  }
+}
+>>>
+private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
+    sym: Symbol): js.Tree = {
+  if (
+      isScalaJSDefinedJSClass(currentClassSym) &&
+      sym.owner != currentClassSym.get
+  ) {
+    genApplyForSymJSSuperCall(minArgc, hasRestParam, sym)
+  } else {
+    genApplyForSymNonJSSuperCall(minArgc, sym)
+  }
+}
+<<< overflow infix with selects
+maxColumn = 62
+newlines.source = keep
+===
+debuglog("infer method inst " + fun + ", tparams = " + tparams + ", args = " + args1.map(_.tpe) + ", pt = " + pt + ", lobounds = " + tparams.map(_.tpe.lowerBound) + ", parambounds = " + tparams.map(_.info)) //debug
+>>>
+debuglog("infer method inst " + fun + ", tparams = " + tparams + ", args = " + args1.map(
+    _.tpe) + ", pt = " + pt + ", lobounds = " + tparams.map(
+    _.tpe.lowerBound) + ", parambounds = " + tparams.map(
+    _.info)) //debug
+<<< overflow infix with applies
+maxColumn = 74
+newlines.source = keep
+===
+realeasy && isJavaAtLeast(9) && !perFile.exists(releaseFlag.matches) && toolArgsFor(sources)(ToolName.javaVersion).isEmpty
+>>>
+realeasy && isJavaAtLeast(9) && !perFile.exists(
+    releaseFlag.matches) && toolArgsFor(sources)(
+    ToolName.javaVersion).isEmpty

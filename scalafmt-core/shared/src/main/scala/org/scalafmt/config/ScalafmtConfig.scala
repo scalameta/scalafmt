@@ -175,6 +175,25 @@ case class ScalafmtConfig(
     NamedDialect.getName(dialect).getOrElse("unknown dialect"),
   )
 
+  private[scalafmt] def withFileOverride(conf: Conf.Obj): ScalafmtConfig =
+    copy(fileOverride = conf)
+
+  private[scalafmt] def withCompleteCallback(
+      cb: FormatEvent.CompleteFormat => Unit,
+  ): ScalafmtConfig = copy(runner = runner.withCompleteCallback(cb))
+
+  // used by dynamic
+  def needGitAutoCRLF: Boolean = project.git && lineEndings.isEmpty &&
+    System.lineSeparator() == "\r\n"
+
+  // used by dynamic; assumes `needGitAutoCRLF` was used before
+  def withGitAutoCRLF(value: String): ScalafmtConfig = value.toLowerCase match {
+    case "input" => withLineEndings(LineEndings.unix)
+    case "true" => withLineEndings(LineEndings.windows)
+    case "false" => withLineEndings(LineEndings.preserve)
+    case _ => this
+  }
+
   def withLineEndings(value: LineEndings): ScalafmtConfig =
     copy(lineEndings = Option(value))
 
@@ -209,7 +228,8 @@ case class ScalafmtConfig(
     val langResult = patStyles.collect { case (Left(lang), cfg) => lang -> cfg }
     val fs = FileSystems.getDefault
     val pmResult = patStyles.collect { case (Right(pat), cfg) =>
-      val pattern = if (pat(0) == '.') "glob:**" + pat else pat.asFilename
+      val pattern =
+        if (pat(0) == '.') "glob:**" + pat else pat.inPathMatcherForm
       fs.getPathMatcher(pattern) -> cfg
     }
     (langResult, pmResult)
@@ -290,6 +310,34 @@ case class ScalafmtConfig(
   lazy val configStyleDefnSite: Newlines.ConfigStyleElement = newlines
     .configStyleDefnSite.getOrElse(getOptInConfigStyle)
 
+  def forScalaJs: ScalafmtConfig = copy(
+    binPack = BinPack.always,
+    danglingParentheses = DanglingParentheses(false, false),
+    indent = Indents(callSite = 4, defnSite = 4),
+    importSelectors = ImportSelectors.binPack,
+    newlines = newlines.copy(
+      avoidInResultType = true,
+      neverBeforeJsNative = true,
+      sometimesBeforeColonInMethodReturnType = false,
+    ),
+    // For some reason, the bin packing does not play nicely with forced
+    // config style. It's fixable, but I don't want to spend time on it
+    // right now.
+    runner = runner.conservative,
+    docstrings = docstrings.copy(style = Docstrings.Asterisk),
+    align = align.copy(
+      arrowEnumeratorGenerator = false,
+      tokens = Seq(AlignToken.caseArrow),
+      openParenCtrlSite = false,
+    ),
+  )
+
+  def withAlign(align: Align): ScalafmtConfig = copy(align = align)
+
+  def withAlign(tokens: AlignToken*): ScalafmtConfig = withAlign(
+    align.copy(tokens = if (tokens.isEmpty) AlignToken.default else tokens),
+  )
+
 }
 
 object ScalafmtConfig {
@@ -311,34 +359,12 @@ object ScalafmtConfig {
     danglingParentheses = DanglingParentheses.shortcutTrue,
   )
 
-  def addAlign(style: ScalafmtConfig): ScalafmtConfig = style
-    .copy(align = style.align.copy(tokens = AlignToken.default))
-  val defaultWithAlign: ScalafmtConfig = addAlign(default)
+  val defaultWithAlign: ScalafmtConfig = default.withAlign(Align.more)
 
   /** Experimental implementation of:
     * https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md
     */
-  val scalaJs: ScalafmtConfig = default.copy(
-    binPack = BinPack.always,
-    danglingParentheses = DanglingParentheses(false, false),
-    indent = Indents(callSite = 4, defnSite = 4),
-    importSelectors = ImportSelectors.binPack,
-    newlines = default.newlines.copy(
-      avoidInResultType = true,
-      neverBeforeJsNative = true,
-      sometimesBeforeColonInMethodReturnType = false,
-    ),
-    // For some reason, the bin packing does not play nicely with forced
-    // config style. It's fixable, but I don't want to spend time on it
-    // right now.
-    runner = default.runner.conservative,
-    docstrings = default.docstrings.copy(style = Docstrings.Asterisk),
-    align = default.align.copy(
-      arrowEnumeratorGenerator = false,
-      tokens = Seq(AlignToken.caseArrow),
-      openParenCtrlSite = false,
-    ),
-  )
+  val scalaJs: ScalafmtConfig = default.forScalaJs
 
   /** Ready styles provided by scalafmt.
     */

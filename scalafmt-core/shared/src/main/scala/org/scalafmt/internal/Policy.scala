@@ -1,7 +1,9 @@
 package org.scalafmt.internal
 
+import org.scalafmt.util.LoggerOps
+
 import org.scalameta.FileLine
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import scala.language.implicitConversions
 
@@ -16,9 +18,11 @@ abstract class Policy {
   def rank: Int
 
   def filter(pred: Policy.Clause => Boolean): Policy
-  def unexpired(split: Split, nextft: FormatToken): Policy
+  def exists(pred: Policy.Clause => Boolean): Boolean
+  def appliesUntil(nextft: FT)(pred: Policy.Clause => Boolean): Boolean
+  def unexpired(split: Split, nextft: FT): Policy
   def noDequeue: Boolean
-  def switch(trigger: Token, on: Boolean): Policy
+  def switch(trigger: T, on: Boolean): Policy
 
   def &(other: Policy): Policy =
     if (other.isEmpty) this else new Policy.AndThen(this, other)
@@ -30,7 +34,7 @@ abstract class Policy {
   def ?(flag: Boolean): Policy = if (flag) this else Policy.NoPolicy
 
   @inline
-  final def unexpiredOpt(split: Split, nextft: FormatToken): Option[Policy] =
+  final def unexpiredOpt(split: Split, nextft: FT): Option[Policy] =
     Some(unexpired(split, nextft)).filter(_.nonEmpty)
 
   @inline
@@ -64,9 +68,13 @@ object Policy {
     override def ?(flag: Boolean): Policy = this
 
     override def rank: Int = 0
-    override def unexpired(split: Split, nextft: FormatToken): Policy = this
+    override def unexpired(split: Split, nextft: FT): Policy = this
+    override def appliesUntil(nextft: FT)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = false
     override def filter(pred: Clause => Boolean): Policy = this
-    override def switch(trigger: Token, on: Boolean): Policy = this
+    override def exists(pred: Clause => Boolean): Boolean = false
+    override def switch(trigger: T, on: Boolean): Policy = this
     override def noDequeue: Boolean = false
   }
 
@@ -78,33 +86,37 @@ object Policy {
   )(f: Pf)(implicit fileLine: FileLine): Policy =
     new ClauseImpl(f, endPolicy, prefix, noDequeue, rank)
 
-  def after(
-      token: Token,
+  def after(trigger: T, policy: Policy)(implicit fileLine: FileLine): Policy =
+    new Switch(NoPolicy, trigger, policy)
+
+  def before(policy: Policy, trigger: T)(implicit fileLine: FileLine): Policy =
+    new Switch(policy, trigger, NoPolicy)
+
+  def beforeLeft(
+      exp: FT,
       prefix: String,
       noDequeue: Boolean = false,
       rank: Int = 0,
   )(f: Pf)(implicit fileLine: FileLine): Policy =
-    apply(End > token, prefix, noDequeue, rank)(f)
+    apply(End < exp, prefix, noDequeue, rank)(f)
 
-  def before(
-      token: Token,
+  def onLeft(exp: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
+      f: Pf,
+  )(implicit fileLine: FileLine): Policy =
+    apply(End <= exp, prefix, noDequeue, rank = rank)(f)
+
+  def onRight(exp: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
+      f: Pf,
+  )(implicit fileLine: FileLine): Policy =
+    apply(End >= exp, prefix, noDequeue, rank = rank)(f)
+
+  def afterRight(
+      exp: FT,
       prefix: String,
       noDequeue: Boolean = false,
       rank: Int = 0,
   )(f: Pf)(implicit fileLine: FileLine): Policy =
-    apply(End < token, prefix, noDequeue, rank)(f)
-
-  def after(trigger: Token, policy: Policy)(implicit
-      fileLine: FileLine,
-  ): Policy = new Switch(NoPolicy, trigger, policy)
-
-  def before(policy: Policy, trigger: Token)(implicit
-      fileLine: FileLine,
-  ): Policy = new Switch(policy, trigger, NoPolicy)
-
-  def on(token: Token, prefix: String, noDequeue: Boolean = false)(f: Pf)(
-      implicit fileLine: FileLine,
-  ): Policy = apply(End == token, prefix, noDequeue)(f)
+    apply(End > exp, prefix, noDequeue, rank)(f)
 
   abstract class Clause(implicit val fileLine: FileLine) extends Policy {
     val endPolicy: End.WithPos
@@ -124,13 +136,19 @@ object Policy {
       s"$prefixWithColon[$fileLine]$endPolicy${noDeqPrefix}d$suffixWithColon"
     }
 
-    override def unexpired(split: Split, nextft: FormatToken): Policy =
+    override def unexpired(split: Split, nextft: FT): Policy =
       if (endPolicy.notExpiredBy(nextft)) this else NoPolicy
 
     override def filter(pred: Clause => Boolean): Policy =
       if (pred(this)) this else NoPolicy
 
-    override def switch(trigger: Token, on: Boolean): Policy = this
+    override def exists(pred: Clause => Boolean): Boolean = pred(this)
+
+    override def switch(trigger: T, on: Boolean): Policy = this
+
+    override def appliesUntil(nextft: FT)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = endPolicy.notExpiredBy(nextft) && pred(this)
   }
 
   private class ClauseImpl(
@@ -143,12 +161,12 @@ object Policy {
       extends Clause
 
   abstract class WithConv extends Policy {
-    override def unexpired(split: Split, nextft: FormatToken): Policy =
+    override def unexpired(split: Split, nextft: FT): Policy =
       conv(_.unexpired(split, nextft))
 
     override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
 
-    override def switch(trigger: Token, on: Boolean): Policy =
+    override def switch(trigger: T, on: Boolean): Policy =
       conv(_.switch(trigger, on))
 
     protected def conv(pred: Policy => Policy): Policy
@@ -168,6 +186,13 @@ object Policy {
       val np2 = pred(p2)
       if (np1.eq(p1) && np2.eq(p2)) this else np1 | np2
     }
+
+    override def appliesUntil(nextft: FT)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = p1.appliesUntil(nextft)(pred) && p2.appliesUntil(nextft)(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean = p1.exists(pred) ||
+      p2.exists(pred)
   }
 
   private class AndThen(p1: Policy, p2: Policy) extends WithConv {
@@ -189,17 +214,24 @@ object Policy {
       val np2 = pred(p2)
       if (np1.eq(p1) && np2.eq(p2)) this else np1 & np2
     }
+
+    override def appliesUntil(nextft: FT)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = p1.appliesUntil(nextft)(pred) || p2.appliesUntil(nextft)(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean = p1.exists(pred) ||
+      p2.exists(pred)
   }
 
   private class Expire(policy: Policy, endPolicy: End.WithPos)
       extends WithConv {
     override def f: Pf = policy.f
     override def rank: Int = policy.rank
-    override def switch(trigger: Token, on: Boolean): Policy = {
+    override def switch(trigger: T, on: Boolean): Policy = {
       val res = policy.switch(trigger, on)
       if (res eq policy) this else res
     }
-    override def unexpired(split: Split, nextft: FormatToken): Policy =
+    override def unexpired(split: Split, nextft: FT): Policy =
       if (!endPolicy.notExpiredBy(nextft)) NoPolicy
       else super.unexpired(split, nextft)
     override def noDequeue: Boolean = policy.noDequeue
@@ -209,18 +241,30 @@ object Policy {
       val filtered = func(policy)
       if (filtered eq policy) this else filtered <== endPolicy
     }
+
+    override def appliesUntil(nextft: FT)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = endPolicy.notExpiredBy(nextft) &&
+      policy.appliesUntil(nextft)(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
   }
 
   private class Delay(policy: Policy, begPolicy: End.WithPos) extends Policy {
     override def f: Pf = PartialFunction.empty
     override def rank: Int = 0
     override def filter(pred: Clause => Boolean): Policy = this
-    override def switch(trigger: Token, on: Boolean): Policy = this
-    override def unexpired(split: Split, nextft: FormatToken): Policy =
+    override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
+    override def switch(trigger: T, on: Boolean): Policy = this
+    override def unexpired(split: Split, nextft: FT): Policy =
       if (begPolicy.notExpiredBy(nextft)) this
       else policy.unexpired(split, nextft)
     override def noDequeue: Boolean = policy.noDequeue
     override def toString: String = s"$begPolicy ==> $policy"
+
+    override def appliesUntil(nextft: FT)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = false
   }
 
   private class Relay(before: Policy, after: Policy)(implicit fileLine: FileLine)
@@ -236,18 +280,28 @@ object Policy {
       else if (filtered eq before) this
       else new Relay(filtered, after)
     }
+
+    override def appliesUntil(nextft: FT)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = before.appliesUntil(nextft)(pred) &&
+      after.appliesUntil(nextft)(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean = before
+      .exists(pred) || after.exists(pred)
   }
 
   class RelayOnSplit(
       before: Policy,
-      pred: (Split, FormatToken) => Boolean,
+      trigger: (Split, FT) => Boolean,
+      triggerEnd: Policy.End.WithPos,
       after: Policy,
   )(implicit fileLine: FileLine)
       extends WithConv {
     override def f: Pf = before.f
     override def rank: Int = before.rank
-    override def unexpired(split: Split, nextft: FormatToken): Policy =
-      if (pred(split, nextft)) after.unexpired(split, nextft)
+    override def unexpired(split: Split, nextft: FT): Policy =
+      if (trigger(split, nextft)) after.unexpired(split, nextft)
+      else if (!triggerEnd.notExpiredBy(nextft)) NoPolicy
       else super.unexpired(split, nextft)
 
     override def noDequeue: Boolean = before.noDequeue
@@ -255,23 +309,36 @@ object Policy {
 
     protected def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
-      if (filtered eq before) this else new RelayOnSplit(filtered, pred, after)
+      if (filtered eq before) this
+      else new RelayOnSplit(filtered, trigger, triggerEnd, after)
     }
+
+    override def appliesUntil(nextft: FT)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = before.appliesUntil(nextft)(pred) &&
+      after.appliesUntil(nextft)(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean = before
+      .exists(pred) || after.exists(pred)
   }
 
   object RelayOnSplit {
-    def apply(
-        pred: (Split, FormatToken) => Boolean,
-    )(before: Policy, after: Policy)(implicit fileLine: FileLine): Policy =
-      if (before.isEmpty) after else new RelayOnSplit(before, pred, after)
+    def by(triggerEnd: Policy.End.WithPos)(
+        trigger: (Split, FT) => Boolean,
+    )(before: Policy)(after: Policy)(implicit fileLine: FileLine): Policy =
+      if (before.isEmpty) after
+      else new RelayOnSplit(before, trigger, triggerEnd, after)
+    def apply(trigger: (Split, FT) => Boolean)(before: Policy)(after: Policy)(
+        implicit fileLine: FileLine,
+    ): Policy = by(Policy.End.Never)(trigger)(before)(after)
   }
 
-  class Switch(before: Policy, trigger: Token, after: Policy)(implicit
+  class Switch(before: Policy, trigger: T, after: Policy)(implicit
       fileLine: FileLine,
   ) extends WithConv {
     override def f: Pf = before.f
     override def rank: Int = before.rank
-    override def switch(trigger: Token, on: Boolean): Policy =
+    override def switch(trigger: T, on: Boolean): Policy =
       if (trigger ne this.trigger) super.switch(trigger, on)
       else if (on) before
       else after.switch(trigger, false)
@@ -282,6 +349,14 @@ object Policy {
       val filtered = func(before)
       if (filtered eq before) this else new Switch(filtered, trigger, after)
     }
+
+    override def appliesUntil(nextft: FT)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = before.appliesUntil(nextft)(pred) &&
+      after.appliesUntil(nextft)(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean = before
+      .exists(pred) || after.exists(pred)
   }
 
   object Proxy {
@@ -304,14 +379,20 @@ object Policy {
       if (!pred(this)) NoPolicy
       else Proxy(policy.filter(pred), endPolicy)(factory)
 
-    override def switch(trigger: Token, on: Boolean): Policy = {
+    override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
+
+    override def switch(trigger: T, on: Boolean): Policy = {
       val switched = policy.switch(trigger, on)
       if (switched eq policy) this else Proxy(switched, endPolicy)(factory)
     }
 
-    override def unexpired(split: Split, nextft: FormatToken): Policy =
+    override def unexpired(split: Split, nextft: FT): Policy =
       if (!endPolicy.notExpiredBy(nextft)) NoPolicy
       else Proxy(policy.unexpired(split, nextft), endPolicy)(factory)
+
+    override def appliesUntil(nextft: FT)(
+        pred: Policy.Clause => Boolean,
+    ): Boolean = policy.appliesUntil(nextft)(pred)
 
     override def noDequeue: Boolean = policy.noDequeue
 
@@ -346,42 +427,55 @@ object Policy {
     }
   }
 
-  sealed trait End extends (Token => End.WithPos) {
-    def apply(endPos: Int): End.WithPos
-    final def apply(token: Token): End.WithPos = apply(token.end)
+  sealed trait End extends (FT => End.WithPos) {
+    def apply(exp: FT): End.WithPos
   }
   object End {
-    def <(endPos: Int): End.WithPos = Before(endPos)
-    def <(token: Token): End.WithPos = this < token.end
+    def <(exp: FT): End.WithPos = BeforeLeft(exp)
+    def <=(exp: FT): End.WithPos = OnLeft(exp)
+    def >=(exp: FT): End.WithPos = OnRight(exp)
+    def >(exp: FT): End.WithPos = AfterRight(exp)
 
-    def >(endPos: Int): End.WithPos = After(endPos)
-    def >(token: Token): End.WithPos = this > token.end
-
-    def ==(endPos: Int): End.WithPos = On(endPos)
-    def ==(token: Token): End.WithPos = this == token.end
+    @inline
+    private def getDescWithoutPos(token: T): String = LoggerOps
+      .tokWithoutPos(token)
 
     sealed trait WithPos {
-      def notExpiredBy(ft: FormatToken): Boolean
+      protected val endIdx: Int
+      def notExpiredBy(ft: FT): Boolean = ft.idx <= endIdx
       def ==>(policy: Policy): Policy =
         if (policy.isEmpty) NoPolicy else new Policy.Delay(policy, this)
     }
-    case object After extends End {
-      def apply(endPos: Int): WithPos = new End.WithPos {
-        def notExpiredBy(ft: FormatToken): Boolean = ft.left.end <= endPos
-        override def toString: String = s">$endPos"
+    case object BeforeLeft extends End {
+      def apply(exp: FT): WithPos = new End.WithPos {
+        protected val endIdx: Int = exp.idx - 2
+        override def toString: String =
+          s"<${getDescWithoutPos(exp.left)}[${exp.idx}]"
       }
     }
-    case object Before extends End {
-      def apply(endPos: Int): WithPos = new End.WithPos {
-        def notExpiredBy(ft: FormatToken): Boolean = ft.right.end < endPos
-        override def toString: String = s"<$endPos"
+    case object OnLeft extends End {
+      def apply(exp: FT): WithPos = new End.WithPos {
+        protected val endIdx: Int = exp.idx - 1
+        override def toString: String =
+          s"<=${getDescWithoutPos(exp.left)}[${exp.idx}]"
       }
     }
-    case object On extends End {
-      def apply(endPos: Int): WithPos = new End.WithPos {
-        def notExpiredBy(ft: FormatToken): Boolean = ft.right.end <= endPos
-        override def toString: String = s"@$endPos"
+    case object OnRight extends End {
+      def apply(exp: FT): WithPos = new End.WithPos {
+        protected val endIdx: Int = exp.idx
+        override def toString: String =
+          s">=${getDescWithoutPos(exp.left)}[${exp.idx}]"
       }
+    }
+    case object AfterRight extends End {
+      def apply(exp: FT): WithPos = new End.WithPos {
+        protected val endIdx: Int = exp.idx + 1
+        override def toString: String =
+          s">${getDescWithoutPos(exp.left)}[${exp.idx}]"
+      }
+    }
+    case object Never extends WithPos {
+      override protected val endIdx: Int = Int.MaxValue
     }
   }
 

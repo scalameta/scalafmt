@@ -3,13 +3,12 @@ package org.scalafmt.util
 import org.scalafmt.config.BinPack
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.FormatTokens
+import org.scalafmt.internal._
 
 import org.scalameta.FileLine
 import org.scalameta.logger
 import scala.meta._
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -25,7 +24,7 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
     val styleBuilder = Array.newBuilder[ScalafmtConfig]
     startBuilder += 0
     styleBuilder += init
-    val disableBinPack = mutable.Map.empty[Token, BinPack.Site]
+    val disableBinPack = mutable.Map.empty[Int, BinPack.Site]
     def warn(err: String)(implicit fileLine: FileLine): Unit = logger.elem(err)
     tokens.arr.foreach { ft =>
       def changeStyle(style: ScalafmtConfig): Option[ScalafmtConfig] = {
@@ -40,7 +39,7 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
         }
       }
       ft.left match {
-        case Token.Comment(c) if prefix.matcher(c).find() =>
+        case T.Comment(c) if prefix.matcher(c).find() =>
           val configured = ScalafmtConfig
             .fromHoconString(c, init, Some("scalafmt"))
           // TODO(olafur) report error via callback
@@ -51,16 +50,17 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
             }
             changeStyle(style)
           }
-        case tok: Token.LeftParen
+        case _: T.LeftParen
             if curr.binPack.literalArgumentLists &&
               opensLiteralArgumentList(ft)(curr) =>
           forcedBinPack += ft.meta.leftOwner
           changeStyle(setBinPack(curr, callSite = BinPack.Site.Always))
             .foreach { x =>
-              tokens.matchingOpt(tok)
-                .foreach(disableBinPack.update(_, x.binPack.callSite))
+              tokens.matchingOptLeft(ft).foreach { y =>
+                disableBinPack.update(y.idx, x.binPack.callSite)
+              }
             }
-        case tok: Token.RightParen => disableBinPack.remove(tok)
+        case _: T.RightParen => disableBinPack.remove(ft.idx)
             .foreach(x => changeStyle(setBinPack(curr, callSite = x)))
         case _ =>
       }
@@ -118,7 +118,7 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
   }
 
   def opensLiteralArgumentList(
-      ft: FormatToken,
+      ft: FT,
   )(implicit style: ScalafmtConfig): Boolean = (ft.meta.leftOwner match {
     case Member.Tuple(v) => Some(v)
     case Member.SyntaxValuesClause(v) => Some(v)
@@ -138,12 +138,12 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
   }
 
   @inline
-  def at(token: FormatToken): ScalafmtConfig = at(token.left)
+  def at(token: FT): ScalafmtConfig = at(token.left)
 
   @inline
   def forall(f: ScalafmtConfig => Boolean): Boolean = styles.forall(f)
 
-  def at(token: Token): ScalafmtConfig = {
+  def at(token: T): ScalafmtConfig = {
     // since init is at pos 0, idx cannot be -1
     val idx = java.util.Arrays.binarySearch(starts, token.start)
     if (idx >= 0) styles(idx) else styles(-idx - 2)

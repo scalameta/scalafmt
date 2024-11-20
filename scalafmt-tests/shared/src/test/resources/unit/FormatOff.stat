@@ -1,0 +1,298 @@
+maxColumn = 40
+<<< identity matrix
+    object A   {
+  // format: OFF
+  val identityMatrix = Array(1, 0, 0,
+                             0, 1, 0,
+                             0, 0, 1)
+  // format: ON
+             }
+>>>
+object A {
+  // format: OFF
+  val identityMatrix = Array(1, 0, 0,
+                             0, 1, 0,
+                             0, 0, 1)
+  // format: ON
+}
+<<< disable whole file
+// format: OFF
+    object A   {
+  val identityMatrix = Array(1, 0, 0,
+                             0, 1, 0,
+                             0, 0, 1)
+                             function("I don't care about formatting at all")
+             }
+
+>>>
+// format: OFF
+    object A   {
+  val identityMatrix = Array(1, 0, 0,
+                             0, 1, 0,
+                             0, 0, 1)
+                             function("I don't care about formatting at all")
+             }
+<<< should work on comments
+// format: off
+/*
+   *
+*/
+// format: on
+42
+>>>
+// format: off
+/*
+   *
+*/
+// format: on
+42
+<<< should work on longs
+// format: off
+0x123l
+// format: on
+>>>
+// format: off
+0x123l
+// format: on
+<<< don't add extra trailing commas
+trailingCommas=always
+===
+// format: off
+f(
+    a,
+    b,
+    c
+)
+// format: on
+>>>
+// format: off
+f(
+    a,
+    b,
+    c
+)
+// format: on
+<<< should not delete multiple spaces
+// format: off
+val x    =  "ads"
+// format: on
+>>>
+// format: off
+val x    =  "ads"
+// format: on
+<<< #2596
+maxColumn = 120
+===
+object App {
+  // format: off
+  def ignoreThisFn(param: ParamType) =
+      new BigClassLotsOfArgs(
+        param.callWithType[Container[ArgType]]("argName1", Some(None)),
+        param.callWithType[Container[ArgType]]("argName2", Some(None)),
+        param.callWithType[Container[ArgType]]("argName3", Some(None)),
+        param.callWithType[Container[ArgType]]("argName4", Some(None)),
+        param.callWithType[Container[ArgType]]("argName5", Some(None)),
+        param.callWithType[Container[ArgType]]("argName6", Some(None)),
+        param.callWithType[Container[ArgType]]("argName7", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName8", Some(None)),
+        param.callWithType[Container[ArgType]]("argName9", Some(None)),
+        param.callWithType[Container[ArgType]]("argName10", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName11", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName12", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName13", Some(None)),
+        param.callWithType[Container[ArgType]]("argName14", Some(None)),
+        param.callWithType[Container[ArgType]]("argName15", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName16", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName17", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName18", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName19", Some(None)),
+        param.callWithType[Container[ObjectContainingTypes.ShortTypeName]]("argName20", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.ShortTypeName]]("argName21", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.ShortTypeName]]("argName22", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.ShortTypeName]]("argName23", Some(None)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName]]("argName24", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName1]]("argName25", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName2]]("argName26", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName3]]("argName27", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName4]]("argName28", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName5]]("slightlyLongerArgName1", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName6]]("slightlyLongerArgName2", Some(Container.empty))
+      )
+  // format: on
+}
+>>>
+object App {
+  // format: off
+  def ignoreThisFn(param: ParamType) =
+      new BigClassLotsOfArgs(
+        param.callWithType[Container[ArgType]]("argName1", Some(None)),
+        param.callWithType[Container[ArgType]]("argName2", Some(None)),
+        param.callWithType[Container[ArgType]]("argName3", Some(None)),
+        param.callWithType[Container[ArgType]]("argName4", Some(None)),
+        param.callWithType[Container[ArgType]]("argName5", Some(None)),
+        param.callWithType[Container[ArgType]]("argName6", Some(None)),
+        param.callWithType[Container[ArgType]]("argName7", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName8", Some(None)),
+        param.callWithType[Container[ArgType]]("argName9", Some(None)),
+        param.callWithType[Container[ArgType]]("argName10", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName11", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName12", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName13", Some(None)),
+        param.callWithType[Container[ArgType]]("argName14", Some(None)),
+        param.callWithType[Container[ArgType]]("argName15", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName16", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName17", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName18", Some(Container.empty)),
+        param.callWithType[Container[ArgType]]("argName19", Some(None)),
+        param.callWithType[Container[ObjectContainingTypes.ShortTypeName]]("argName20", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.ShortTypeName]]("argName21", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.ShortTypeName]]("argName22", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.ShortTypeName]]("argName23", Some(None)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName]]("argName24", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName1]]("argName25", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName2]]("argName26", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName3]]("argName27", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName4]]("argName28", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName5]]("slightlyLongerArgName1", Some(Container.empty)),
+        param.callWithType[Container[ObjectContainingTypes.AReasonablyLongTypeName6]]("slightlyLongerArgName2", Some(Container.empty))
+      )
+  // format: on
+}
+<<< #3027
+maxColumn = 120
+preset = default
+===
+// format: off
+object SearchStateExploded {
+  val veryLongString =
+    s"""
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+    """
+}
+
+>>> { stateVisits = 313, stateVisits2 = 313 }
+// format: off
+object SearchStateExploded {
+  val veryLongString =
+    s"""
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+      ${someMethodCall(
+          foo = "value",
+          bar = "another value")}
+    """
+}

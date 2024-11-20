@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - main
     tags:
       - '*'
   pull_request:
@@ -30,13 +30,58 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
           cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
       - run:
           # for GitOps tests
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: TEST="2.12" sbt ci-test
+      - run: TEST="2.12" sbt ci-test-jvm
         shell: bash
-      - run: TEST="2.13" sbt ci-test
+      - run: TEST="2.13" sbt ci-test-jvm
         shell: bash
+  test-scala-native:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JVM
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
+      - run:
+          # for GitOps tests
+          git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
+      - run: TEST="2.12" sbt ci-test-native
+        shell: bash
+      - run: TEST="2.13" sbt ci-test-native
+        shell: bash
+  community-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ '11' ]
+        os: [windows-latest, ubuntu-latest]
+        group: [Scala2, Scala3, Spark, Intellij, Other]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JVM
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
+      - run: sbt communityTests${{ matrix.group }}/test
   formatting:
     runs-on: ubuntu-latest
     steps:
@@ -56,38 +101,37 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macOS-12, ubuntu-latest]
+        os: [macOS-latest, ubuntu-latest]
         libc: [default, musl]
         exclude:
-          - os: macOS-12
+          - os: macOS-latest
             libc: musl
         include:
-          - os: macOS-12
+          - os: macOS-latest
             artifact: scalafmt-macos
             env:
-              NATIVE_IMAGE_STATIC: false
+              NATIVE_IMAGE_STATIC: none
           - os: ubuntu-latest
             libc: default
             artifact: scalafmt-linux-glibc
             env:
-              NATIVE_IMAGE_STATIC: true
+              NATIVE_IMAGE_STATIC: nolibc
           - os: ubuntu-latest
             libc: musl
             artifact: scalafmt-linux-musl
             env:
-              NATIVE_IMAGE_STATIC: true
-              NATIVE_IMAGE_MUSL: true
+              NATIVE_IMAGE_STATIC: musl
     env: ${{ matrix.env }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.3'
-          java-version: '11'
-          components: 'native-image'
+          java-version: '21'
+          distribution: 'graalvm-community'
           native-image-musl: ${{ matrix.libc == 'musl' }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: sbt/setup-sbt@v1
       - run: bin/build-native-image.sh
         env:
           CI: true

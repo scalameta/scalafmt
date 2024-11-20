@@ -1,0 +1,1417 @@
+
+<<< config style #158
+function(
+  a,
+  b
+)
+>>>
+function(
+    a,
+    b
+)
+<<< penalty #248
+optIn.breakChainOnFirstMethodDot = false
+===
+     def iterator(): Iterator[A] =
+      toIterator(it
+            .asInstanceOf[IteratorMethodAccess]
+            .bracketCall[JSIterator[A]](iteratorSymbol)())
+>>>
+def iterator(): Iterator[A] =
+  toIterator(it
+        .asInstanceOf[IteratorMethodAccess]
+        .bracketCall[JSIterator[A]](iteratorSymbol)())
+<<< penalty 2 #248
+{
+  apply(
+  body= js.undefined,
+      dir= js.undefined,
+            it.asInstanceOf[IteratorMethodAccess]
+        .bracketCall[JSIterator[A]](iteratorSymbol)(),
+      icon= js.undefined,
+      lang= js.undefined,
+      vibrate= js.undefined )
+        }
+>>>
+{
+  apply(body = js.undefined, dir = js.undefined,
+      it.asInstanceOf[IteratorMethodAccess]
+        .bracketCall[JSIterator[A]](iteratorSymbol)(), icon = js.undefined,
+      lang = js.undefined, vibrate = js.undefined)
+}
+<<< many args #248, dangle
+danglingParentheses.preset = true
+===
+apply( body= js.undefined,
+      dir= js.undefined,
+      icon= js.undefined,
+      lang= js.undefined,
+      noscreen= js.undefined,
+      renotify= js.undefined,
+      silent= js.undefined,
+      sound= js.undefined,
+      sticky= js.undefined,
+      tag= js.undefined,
+      onclick= js.undefined,
+      onerror= js.undefined,
+      vibrate= js.undefined
+        )
+>>>
+apply(body = js.undefined, dir = js.undefined, icon = js.undefined,
+    lang = js.undefined, noscreen = js.undefined, renotify = js.undefined,
+    silent = js.undefined, sound = js.undefined, sticky = js.undefined,
+    tag = js.undefined, onclick = js.undefined, onerror = js.undefined,
+    vibrate = js.undefined)
+<<< many args #248, !dangling
+danglingParentheses.preset = false
+===
+apply( body= js.undefined,
+      dir= js.undefined,
+      icon= js.undefined,
+      lang= js.undefined,
+      noscreen= js.undefined,
+      renotify= js.undefined,
+      silent= js.undefined,
+      sound= js.undefined,
+      sticky= js.undefined,
+      tag= js.undefined,
+      onclick= js.undefined,
+      onerror= js.undefined,
+      vibrate= js.undefined )
+>>>
+apply(body = js.undefined, dir = js.undefined, icon = js.undefined,
+    lang = js.undefined, noscreen = js.undefined, renotify = js.undefined,
+    silent = js.undefined, sound = js.undefined, sticky = js.undefined,
+    tag = js.undefined, onclick = js.undefined, onerror = js.undefined,
+    vibrate = js.undefined)
+<<< unindent in braces #258
+ reject(th match {
+  case JavaScriptException(e) => e
+})
+>>>
+reject(th match {
+  case JavaScriptException(e) => e
+})
+<<< blocks are special #260
+p.`then`[Unit](
+          { (v: A) =>
+            p2.success(v)
+            (): Unit | Thenable[Unit]
+          },
+          defined { (e: scala.Any) =>
+            p2.failure(e match {
+              case th: Throwable => th
+              case _             => JavaScriptException(e)
+            })
+            (): Unit | Thenable[Unit]
+          })
+>>>
+p.`then`[Unit]({ (v: A) =>
+      p2.success(v)
+      (): Unit | Thenable[Unit]
+    },
+    defined { (e: scala.Any) =>
+      p2.failure(e match {
+        case th: Throwable => th
+        case _             => JavaScriptException(e)
+      })
+      (): Unit | Thenable[Unit]
+    })
+<<< #273
+{
+{
+{
+{
+{
+{
+{
+{
+{
+inline_+(quotLo, quotHi,
+            unsignedSafeDoubleLo(rem_div_bDouble))
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+>>>
+{
+  {
+    {
+      {
+        {
+          {
+            {
+              {
+                {
+                  inline_+(quotLo, quotHi,
+                      unsignedSafeDoubleLo(rem_div_bDouble))
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+<<< #745 bin pack pls with config style
+object SharedPolicyAmounts {
+  val limits: Seq[Int] = Seq(
+      2500, 3000, 4000, 5000, 7500, 10000, 15000,
+      20000, 30000, 40000, 50000, 75000, 100000,
+      150000, 200000, 300000, 400000, 500000, 750000,
+      1000000
+  )
+}
+>>>
+object SharedPolicyAmounts {
+  val limits: Seq[Int] = Seq(
+      2500, 3000, 4000, 5000, 7500, 10000, 15000, 20000, 30000, 40000, 50000,
+      75000, 100000, 150000, 200000, 300000, 400000, 500000, 750000, 1000000
+  )
+}
+<<< #2079 avoid nested indent
+binPack.preset = true
+binPack.indentCallSiteOnce = true
+continuationIndent.callSite = 4
+===
+object a {
+  new SimpleMethodName(
+    validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))
+}
+>>>
+object a {
+  new SimpleMethodName(validateSimpleEncodedName(name, 0, len,
+      openAngleBracketOK = false))
+}
+<<< #2079 avoid nested indent, oneline
+binPack.preset = true
+binPack.unsafeCallSite = oneline
+binPack.indentCallSiteOnce = true
+continuationIndent.callSite = 4
+===
+object a {
+  new SimpleMethodName(
+    validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))
+}
+>>>
+object a {
+  new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))
+}
+<<< #2079 avoid nested indent, always; 2
+binPack.preset = true
+binPack.unsafeCallSite = always
+continuationIndent.callSite = 4
+===
+object a {
+  new SimpleMethodName(new SimpleMethodName(
+    validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
+}
+>>>
+object a {
+  new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name, 0,
+              len, openAngleBracketOK = false)))
+}
+<<< #2079 avoid nested indent, oneline; 2
+binPack.preset = true
+binPack.unsafeCallSite = oneline
+continuationIndent.callSite = 4
+===
+object a {
+  new SimpleMethodName(new SimpleMethodName(
+    validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
+}
+>>>
+object a {
+  new SimpleMethodName(new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))
+}
+<<< #2079 avoid nested indent, always; 3
+binPack.preset = true
+binPack.unsafeCallSite = always
+continuationIndent.callSite = 4
+===
+object a {
+  foo(
+    new SimpleMethodName(new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))),
+    new SimpleMethodName(new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))))
+}
+>>>
+object a {
+  foo(new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+                  0, len, openAngleBracketOK = false))),
+      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+                  0, len, openAngleBracketOK = false))))
+}
+<<< #2079 avoid nested indent, oneline; 3
+binPack.preset = true
+binPack.unsafeCallSite = oneline
+continuationIndent.callSite = 4
+===
+object a {
+  foo(
+    new SimpleMethodName(new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))),
+    new SimpleMethodName(new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false))))
+}
+>>>
+object a {
+  foo(
+      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+          0, len, openAngleBracketOK = false))),
+      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+          0, len, openAngleBracketOK = false))))
+}
+<<< #2079 avoid nested indent, always; 4
+binPack.preset = true
+binPack.unsafeCallSite = always
+continuationIndent.callSite = 4
+===
+object a {
+  new SimpleMethodName(new SimpleMethodName(new SimpleMethodName(
+    validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))).foo
+}
+>>>
+object a {
+  new SimpleMethodName(
+      new SimpleMethodName(new SimpleMethodName(validateSimpleEncodedName(name,
+                  0, len, openAngleBracketOK = false)))).foo
+}
+<<< #2079 avoid nested indent, oneline; 4
+binPack.preset = true
+binPack.unsafeCallSite = oneline
+continuationIndent.callSite = 4
+===
+object a {
+  new SimpleMethodName(new SimpleMethodName(new SimpleMethodName(
+    validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)))).foo
+}
+>>>
+object a {
+  new SimpleMethodName(new SimpleMethodName(new SimpleMethodName(
+      validateSimpleEncodedName(name, 0, len, openAngleBracketOK = false)
+  ))).foo
+}
+<<< binpack=oneline, nested, inner with multiple args
+maxColumn = 72
+binPack.unsafeCallSite = Oneline
+===
+object a {
+ if (staticInitializerStats.nonEmpty) {
+  List(genStaticConstructorWithStats(ir.Names.StaticInitializerName,
+           js.Block(staticInitializerStats)))
+ } else
+   Nil
+}
+>>>
+object a {
+  if (staticInitializerStats.nonEmpty) {
+    List(genStaticConstructorWithStats(ir.Names.StaticInitializerName,
+        js.Block(staticInitializerStats)))
+  } else
+    Nil
+}
+<<< binpack=always, nested, inner with multiple args
+maxColumn = 72
+binPack.unsafeCallSite = Always
+===
+object a {
+ if (staticInitializerStats.nonEmpty) {
+  List(genStaticConstructorWithStats(ir.Names.StaticInitializerName,
+           js.Block(staticInitializerStats)))
+ } else
+   Nil
+}
+>>>
+object a {
+  if (staticInitializerStats.nonEmpty) {
+    List(genStaticConstructorWithStats(ir.Names.StaticInitializerName,
+            js.Block(staticInitializerStats)))
+  } else
+    Nil
+}
+<<< binpack=oneline, pat.extract
+maxColumn = 80
+binPack.unsafeCallSite = Oneline
+===
+object a {
+  foo match {
+     case Apply(appMeth, Apply(wrapRefArrayMeth, StripCast(arg @ ArrayValue(
+                         elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
+         if WrapArray.isClassTagBasedWrapArrayMethod(
+                          wrapRefArrayMeth.symbol) &&
+                        appMeth.symbol == ArrayModule_genericApply =>
+      bar
+   }
+}
+>>>
+object a {
+  foo match {
+    case Apply(appMeth,
+            Apply(wrapRefArrayMeth,
+                StripCast(
+                    arg @ ArrayValue(elemtpt,
+                        elems)) :: Nil) :: classTagEvidence :: Nil)
+        if WrapArray.isClassTagBasedWrapArrayMethod(wrapRefArrayMeth.symbol) &&
+          appMeth.symbol == ArrayModule_genericApply =>
+      bar
+  }
+}
+<<< binpack=always, pat.extract
+maxColumn = 80
+binPack.unsafeCallSite = Always
+===
+object a {
+  foo match {
+     case Apply(appMeth, Apply(wrapRefArrayMeth, StripCast(arg @ ArrayValue(
+                         elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
+         if WrapArray.isClassTagBasedWrapArrayMethod(
+                          wrapRefArrayMeth.symbol) &&
+                        appMeth.symbol == ArrayModule_genericApply =>
+      bar
+   }
+}
+>>>
+object a {
+  foo match {
+    case Apply(appMeth,
+            Apply(wrapRefArrayMeth,
+                StripCast(arg @ ArrayValue(elemtpt,
+                        elems)) :: Nil) :: classTagEvidence :: Nil)
+        if WrapArray.isClassTagBasedWrapArrayMethod(wrapRefArrayMeth.symbol) &&
+          appMeth.symbol == ArrayModule_genericApply =>
+      bar
+  }
+}
+<<< binpack=oneline, with infix
+maxColumn = 80
+binPack.unsafeCallSite = Oneline
+===
+object a {
+   Apply(appMeth, Apply(wrapRefArrayMeth, StripCast(ArrayValue(
+                       elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
+}
+>>>
+object a {
+  Apply(appMeth,
+      Apply(wrapRefArrayMeth,
+          StripCast(
+              ArrayValue(elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
+}
+<<< binpack=always, with infix
+maxColumn = 80
+binPack.unsafeCallSite = Always
+===
+object a {
+   Apply(appMeth, Apply(wrapRefArrayMeth, StripCast(ArrayValue(
+                       elemtpt, elems)) :: Nil) :: classTagEvidence :: Nil)
+}
+>>>
+object a {
+  Apply(appMeth,
+      Apply(wrapRefArrayMeth,
+          StripCast(ArrayValue(elemtpt,
+                  elems)) :: Nil) :: classTagEvidence :: Nil)
+}
+<<< binpack=oneline, no break after opening, apply
+maxColumn = 80
+binPack.unsafeCallSite = Oneline
+===
+object a {
+  val call = js.JSFunctionApply(
+    js.Select(js.This()(classType), className, fFieldIdent)(
+        jstpe.AnyType),
+    actualParams)
+}
+>>>
+object a {
+  val call = js.JSFunctionApply(
+      js.Select(js.This()(classType), className, fFieldIdent)(jstpe.AnyType),
+      actualParams)
+}
+<<< binpack=always, no break after opening, apply
+maxColumn = 80
+binPack.unsafeCallSite = Always
+===
+object a {
+  val call = js.JSFunctionApply(
+    js.Select(js.This()(classType), className, fFieldIdent)(
+        jstpe.AnyType),
+    actualParams)
+}
+>>>
+object a {
+  val call =
+    js.JSFunctionApply(js.Select(js.This()(classType), className, fFieldIdent)(
+            jstpe.AnyType), actualParams)
+}
+<<< binpack=oneline, no break after opening, extract
+maxColumn = 80
+binPack.unsafeCallSite = Oneline
+===
+object a {
+  def genBodyWithinReturnableScope(): js.Tree = tree match {
+    case Block(
+        (thisDef @ ValDef(_, nme.THIS, _, initialThis)) :: otherStats,
+        rhs) =>
+      // This method has tail jumps
+  }
+}
+>>>
+object a {
+  def genBodyWithinReturnableScope(): js.Tree = tree match {
+    case Block((thisDef @ ValDef(_, nme.THIS, _, initialThis)) :: otherStats,
+            rhs) =>
+    // This method has tail jumps
+  }
+}
+<<< binpack=always, no break after opening, extract
+maxColumn = 80
+binPack.unsafeCallSite = Always
+===
+object a {
+  def genBodyWithinReturnableScope(): js.Tree = tree match {
+    case Block(
+        (thisDef @ ValDef(_, nme.THIS, _, initialThis)) :: otherStats,
+        rhs) =>
+      // This method has tail jumps
+  }
+}
+>>>
+object a {
+  def genBodyWithinReturnableScope(): js.Tree = tree match {
+    case Block((thisDef @ ValDef(_, nme.THIS, _, initialThis)) :: otherStats,
+            rhs) =>
+    // This method has tail jumps
+  }
+}
+<<< binpack with non-top-level-only infix, afterInfix=keep
+indentOperator.topLevelOnly = false
+binPack.unsafeCallSite = oneline
+newlines.afterInfix = keep
+===
+optDef.getOrElse {
+  abort(foo &&
+    bar)
+  abort(foo &&
+    bar, baz)
+  abort(foo &&
+    bar, foo &&
+    bar, foo && // c
+    bar, baz)
+}
+>>>
+optDef.getOrElse {
+  abort(foo &&
+    bar)
+  abort(
+      foo &&
+      bar,
+      baz)
+  abort(
+      foo &&
+      bar,
+      foo &&
+      bar,
+      foo && // c
+      bar,
+      baz)
+}
+<<< binpack with non-top-level-only infix, afterInfix=many
+maxColumn = 16
+indentOperator.topLevelOnly = false
+binPack.unsafeCallSite = oneline
+newlines.afterInfix = many
+===
+foo.bar {
+  abort(foo &&
+    bar)
+  abort(foo &&
+    bar, baz)
+  abort(foo &&
+    bar, foo &&
+    bar, foo && // c
+    bar, baz)
+}
+>>>
+foo.bar {
+  abort(foo &&
+    bar)
+  abort(
+      foo &&
+      bar,
+      baz)
+  abort(
+      foo &&
+      bar,
+      foo &&
+      bar,
+      foo && // c
+      bar,
+      baz)
+}
+<<< binpack with non-top-level-only infix, afterInfix=keep, indent once
+indentOperator.topLevelOnly = false
+binPack.unsafeCallSite = always
+binPack.indentCallSiteOnce = true
+newlines.afterInfix = keep
+===
+optDef.getOrElse {
+  abort(foo &&
+    bar)
+  abort(foo &&
+    bar, foo &&
+    bar, baz)
+  abort(abort(foo &&
+    bar, foo &&
+    bar, abort(foo &&
+    bar, foo &&
+    bar, baz)), abort(
+      foo &&
+      bar, foo &&
+      bar, abort(foo &&
+      bar, foo &&
+      bar, baz)
+    ), abort(foo &&
+    bar, foo &&
+    bar, baz))
+  abort(abort(foo &&
+    bar, foo &&
+    bar, { abort(foo &&
+    bar, foo &&
+    bar, baz) }), abort(
+      foo &&
+      bar, foo &&
+      bar, abort(foo &&
+      bar, foo &&
+      bar, baz)
+    ),
+    { abort(foo && bar, abort(foo && bar, foo))
+    }, abort(foo &&
+    bar, foo &&
+    bar, baz) )
+}
+>>> { stateVisits = 2070, stateVisits2 = 2038 }
+optDef.getOrElse {
+  abort(foo &&
+    bar)
+  abort(foo &&
+      bar,
+      foo &&
+      bar, baz)
+  abort(abort(foo &&
+      bar,
+      foo &&
+      bar,
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz)),
+      abort(
+          foo &&
+          bar,
+          foo &&
+          bar,
+          abort(foo &&
+              bar,
+              foo &&
+              bar, baz)
+      ),
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz))
+  abort(abort(foo &&
+      bar,
+      foo &&
+      bar, {
+        abort(foo &&
+            bar,
+            foo &&
+            bar, baz)
+      }),
+      abort(
+          foo &&
+          bar,
+          foo &&
+          bar,
+          abort(foo &&
+              bar,
+              foo &&
+              bar, baz)
+      ), { abort(foo && bar, abort(foo && bar, foo)) },
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz))
+}
+<<< binpack with non-top-level-only infix, source=keep, indent once
+indentOperator.topLevelOnly = false
+binPack.unsafeCallSite = always
+binPack.indentCallSiteOnce = true
+newlines.source = keep
+===
+optDef.getOrElse {
+  abort(foo &&
+    bar)
+  abort(foo &&
+    bar, foo &&
+    bar, baz)
+  abort(abort(foo &&
+    bar, foo &&
+    bar, abort(foo &&
+    bar, foo &&
+    bar, baz)), abort(
+      foo &&
+      bar, foo &&
+      bar, abort(foo &&
+      bar, foo &&
+      bar, baz)
+    ), abort(foo &&
+    bar, foo &&
+    bar, baz))
+  abort(abort(foo &&
+    bar, foo &&
+    bar, { abort(foo &&
+    bar, foo &&
+    bar, baz) }), abort(
+      foo &&
+      bar, foo &&
+      bar, abort(foo &&
+      bar, foo &&
+      bar, baz)
+    ),
+    { abort(foo && bar, abort(foo && bar, foo))
+    }, abort(foo &&
+    bar, foo &&
+    bar, baz) )
+}
+>>>
+optDef.getOrElse {
+  abort(foo &&
+    bar)
+  abort(foo &&
+      bar,
+      foo &&
+      bar, baz)
+  abort(abort(foo &&
+      bar,
+      foo &&
+      bar,
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz)),
+      abort(
+          foo &&
+          bar,
+          foo &&
+          bar,
+          abort(foo &&
+              bar,
+              foo &&
+              bar, baz)
+      ),
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz))
+  abort(abort(foo &&
+      bar,
+      foo &&
+      bar, {
+        abort(foo &&
+            bar,
+            foo &&
+            bar, baz)
+      }),
+      abort(
+          foo &&
+          bar,
+          foo &&
+          bar,
+          abort(foo &&
+              bar,
+              foo &&
+              bar, baz)
+      ),
+      { abort(foo && bar, abort(foo && bar, foo)) },
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz))
+}
+<<< binpack with non-top-level-only infix, source=keep, !indent once, ind=2/4
+indentOperator.topLevelOnly = false
+binPack.unsafeCallSite = always
+binPack.indentCallSiteOnce = false
+indent.callSite = 2
+indent.binPackCallSite = 4
+indent.afterInfixSite = 3
+newlines.source = keep
+===
+optDef.getOrElse {
+  abort(foo &&
+    bar)
+  abort(foo &&
+    bar, foo &&
+    bar, baz)
+  abort(abort(foo &&
+    bar, foo &&
+    bar, abort(foo &&
+    bar, foo &&
+    bar, baz)), abort(
+      foo &&
+      bar, foo &&
+      bar, abort(foo &&
+      bar, foo &&
+      bar, baz)
+    ), abort(foo &&
+    bar, foo &&
+    bar, baz))
+  abort(abort(foo &&
+    bar, foo &&
+    bar, { abort(foo &&
+    bar, foo &&
+    bar, baz) }), abort(
+      foo &&
+      bar, foo &&
+      bar, abort(foo &&
+      bar, foo &&
+      bar, baz)
+    ),
+    { abort(foo && bar, abort(foo && bar, foo))
+    }, abort(foo &&
+    bar, foo &&
+    bar, baz) )
+}
+>>>
+optDef.getOrElse {
+  abort(foo &&
+     bar)
+  abort(foo &&
+      bar,
+      foo &&
+      bar, baz)
+  abort(abort(foo &&
+          bar,
+          foo &&
+          bar,
+          abort(foo &&
+              bar,
+              foo &&
+              bar, baz)),
+      abort(
+        foo &&
+        bar,
+        foo &&
+        bar,
+        abort(foo &&
+            bar,
+            foo &&
+            bar, baz)
+      ),
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz))
+  abort(abort(foo &&
+          bar,
+          foo &&
+          bar, {
+            abort(foo &&
+                bar,
+                foo &&
+                bar, baz)
+          }),
+      abort(
+        foo &&
+        bar,
+        foo &&
+        bar,
+        abort(foo &&
+            bar,
+            foo &&
+            bar, baz)
+      ),
+      { abort(foo && bar, abort(foo && bar, foo)) },
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz))
+}
+<<< binpack with non-top-level-only infix, source=keep, indent once, ind=2/4
+indentOperator.topLevelOnly = false
+binPack.unsafeCallSite = always
+binPack.indentCallSiteOnce = true
+indent.callSite = 2
+indent.binPackCallSite = 4
+indent.afterInfixSite = 3
+newlines.source = keep
+===
+optDef.getOrElse {
+  abort(foo &&
+    bar)
+  abort(foo &&
+    bar, foo &&
+    bar, baz)
+  abort(abort(foo &&
+    bar, foo &&
+    bar, abort(foo &&
+    bar, foo &&
+    bar, baz)), abort(
+      foo &&
+      bar, foo &&
+      bar, abort(foo &&
+      bar, foo &&
+      bar, baz)
+    ), abort(foo &&
+    bar, foo &&
+    bar, baz))
+  abort(abort(foo &&
+    bar, foo &&
+    bar, { abort(foo &&
+    bar, foo &&
+    bar, baz) }), abort(
+      foo &&
+      bar, foo &&
+      bar, abort(foo &&
+      bar, foo &&
+      bar, baz)
+    ),
+    { abort(foo && bar, abort(foo && bar, foo))
+    }, abort(foo &&
+    bar, foo &&
+    bar, baz) )
+}
+>>>
+optDef.getOrElse {
+  abort(foo &&
+     bar)
+  abort(foo &&
+      bar,
+      foo &&
+      bar, baz)
+  abort(abort(foo &&
+      bar,
+      foo &&
+      bar,
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz)),
+      abort(
+        foo &&
+        bar,
+        foo &&
+        bar,
+        abort(foo &&
+            bar,
+            foo &&
+            bar, baz)
+      ),
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz))
+  abort(abort(foo &&
+      bar,
+      foo &&
+      bar, {
+        abort(foo &&
+            bar,
+            foo &&
+            bar, baz)
+      }),
+      abort(
+        foo &&
+        bar,
+        foo &&
+        bar,
+        abort(foo &&
+            bar,
+            foo &&
+            bar, baz)
+      ),
+      { abort(foo && bar, abort(foo && bar, foo)) },
+      abort(foo &&
+          bar,
+          foo &&
+          bar, baz))
+}
+<<< binpack with non-top-level-only infix, afterInfix=some
+maxColumn = 20
+indentOperator.topLevelOnly = false
+binPack.unsafeCallSite = oneline
+newlines.afterInfix = some
+===
+optDef.getOrElse {
+  abort(fooFoo &&
+    barBar)
+  abort(fooFoo &&
+    barBar, bazBaz)
+}
+>>>
+optDef.getOrElse {
+  abort(fooFoo &&
+    barBar)
+  abort(
+      fooFoo &&
+      barBar,
+      bazBaz)
+}
+<<< binpack with non-top-level-only infix, fold
+maxColumn = 20
+indentOperator.topLevelOnly = false
+binPack.unsafeCallSite = oneline
+newlines.source = fold
+===
+optDef.getOrElse {
+  abort(fooFoo &&
+    barBar)
+  abort(fooFoo &&
+    barBar, bazBaz)
+}
+>>>
+optDef.getOrElse {
+  abort(
+      fooFoo &&
+      barBar)
+  abort(
+      fooFoo &&
+      barBar,
+      bazBaz)
+}
+<<< binpack with non-top-level-only infix, single- and multi-args, fold
+maxColumn = 13
+binPack.unsafeCallSite = oneline
+newlines.source = fold
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  Seq(foo +
+    bar)
+  Seq(foo +
+    bar,
+    foo +
+    bar)
+  Seq(foo &&
+    bar)
+  Seq(foo &&
+    bar,
+    foo &&
+    bar)
+}
+>>>
+object a {
+  Seq(
+    foo +
+      bar)
+  Seq(
+    foo +
+      bar,
+    foo +
+      bar)
+  Seq(
+    foo &&
+    bar)
+  Seq(
+    foo &&
+    bar,
+    foo &&
+    bar)
+}
+<<< binpack with non-top-level-only infix, single- and multi-args, keep
+maxColumn = 100
+binPack.unsafeCallSite = oneline
+newlines.source = keep
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  Seq(foo +
+    bar)
+  Seq(foo +
+    bar,
+    foo +
+    bar)
+  Seq(foo &&
+    bar)
+  Seq(foo &&
+    bar,
+    foo &&
+    bar)
+}
+>>>
+object a {
+  Seq(foo +
+    bar)
+  Seq(
+    foo +
+      bar,
+    foo +
+      bar)
+  Seq(foo &&
+    bar)
+  Seq(
+    foo &&
+    bar,
+    foo &&
+    bar)
+}
+<<< binpack with non-top-level-only infix, single- and multi-args, classic
+maxColumn = 100
+binPack.unsafeCallSite = oneline
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  Seq(foo +
+    bar)
+  Seq(foo +
+    bar,
+    foo +
+    bar)
+  Seq(foo &&
+    bar)
+  Seq(foo &&
+    bar,
+    foo &&
+    bar)
+}
+>>>
+object a {
+  Seq(foo +
+    bar)
+  Seq(
+    foo +
+      bar,
+    foo +
+      bar)
+  Seq(foo &&
+    bar)
+  Seq(
+    foo &&
+    bar,
+    foo &&
+    bar)
+}
+<<< binpack with infix rhs in parens, 1 arg
+maxColumn = 20
+binPack.unsafeCallSite = oneline
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  val a = foo bar (baz = qux)
+}
+>>>
+object a {
+  val a = foo bar (
+    baz = qux)
+}
+<<< binpack with infix rhs in parens, 2 args, bp=oneline
+maxColumn = 25
+binPack.unsafeCallSite = oneline
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  val a = foo bar (baz = qux, bar = qux)
+}
+>>>
+object a {
+  val a = foo bar (
+    baz = qux, bar = qux)
+}
+<<< binpack with infix rhs in parens, 2 args, bp=always
+maxColumn = 25
+binPack.unsafeCallSite = always
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  val a = foo bar (baz = qux, bar = qux)
+}
+>>>
+object a {
+  val a = foo bar (
+    baz = qux, bar = qux)
+}
+<<< binpack with infix match rhs in parens
+maxColumn = 25
+binPack.unsafeCallSite = oneline
+indentOperator.topLevelOnly = false
+indent.callSite = 2
+===
+object a {
+  a match {
+     case foo bar (baz @ qux) =>
+  }
+}
+>>>
+object a {
+  a match {
+    case foo bar (baz @ qux) =>
+  }
+}
+<<< [from scala-js] changed with incorect overflow detection
+preset = default
+maxColumn = 74
+binPack.preset = true
+newlines.source = keep
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+binPack.unsafeCallSite = oneline
+===
+object a {
+  @tailrec
+  def constructOptimized(revAlts: List[(js.Tree, js.Tree)],
+      elsep: js.Tree): js.Tree = {
+    revAlts match {
+      case foo =>
+        // cannot use flatMap due to tailrec
+        foo match {
+          case bar =>
+            constructOptimized(revAltsRest,
+                js.If(cond, newBody, elsep)(tpe)(cond.pos))
+        }
+    }
+  }
+}
+>>>
+object a {
+  @tailrec
+  def constructOptimized(revAlts: List[(js.Tree, js.Tree)],
+      elsep: js.Tree): js.Tree = {
+    revAlts match {
+      case foo =>
+        // cannot use flatMap due to tailrec
+        foo match {
+          case bar =>
+            constructOptimized(revAltsRest,
+              js.If(cond, newBody, elsep)(tpe)(cond.pos))
+        }
+    }
+  }
+}
+<<< nested with oneline
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+===
+object a {
+  js.MethodDef(flags, methodIdent, originalName, jsParams, resultType, Some {
+             genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
+           })(OptimizerHints.empty, Unversioned)
+}
+>>>
+object a {
+  js.MethodDef(flags, methodIdent, originalName, jsParams, resultType,
+      Some {
+        genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
+      })(OptimizerHints.empty, Unversioned)
+}
+<<< nested with oneline, keep
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+===
+object a {
+  js.MethodDef(flags, methodIdent, originalName, jsParams, resultType, Some {
+             genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
+           })(OptimizerHints.empty, Unversioned)
+}
+>>>
+object a {
+  js.MethodDef(flags, methodIdent, originalName, jsParams, resultType,
+      Some {
+        genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
+      })(OptimizerHints.empty, Unversioned)
+}
+<<< nested with onelineSjs, keep
+newlines.source = keep
+binPack.preset = onelineSjs
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+===
+object a {
+  js.MethodDef(flags, methodIdent, originalName, jsParams, resultType, Some {
+             genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
+           })(OptimizerHints.empty, Unversioned)
+}
+>>>
+object a {
+  js.MethodDef(flags, methodIdent, originalName, jsParams, resultType, Some {
+    genApplyMethod(genLoadModule(moduleClass), m, jsParams.map(_.ref))
+  })(OptimizerHints.empty, Unversioned)
+}
+<<< multi-nested with onelineSjs, keep, and mixed paren-brace args
+preset = default
+newlines.source = keep
+binPack.preset = onelineSjs
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a { 
+  If(foo1, {
+    foo2
+  }, If(foo3, Block(
+    foo4
+  ), {
+    foo5      
+  }))
+}
+>>>
+object a {
+  If(foo1, {
+      foo2
+    },
+    If(foo3,
+      Block(
+        foo4
+      ), {
+        foo5
+      }))
+}
+<<< nested labmda with onelineSjs, keep
+preset = default
+newlines.source = keep
+binPack.preset = onelineSjs
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  buildInner(localDef, { tinner =>
+          cont(addPreTransBinding(preTransBinding, tinner))
+        })
+}
+>>>
+object a {
+  buildInner(localDef,
+    { tinner =>
+      cont(addPreTransBinding(preTransBinding, tinner))
+    })
+}
+<<< oneline with keep and select after
+preset = default
+maxColumn = 80
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  def createResetButton(): JQuery = {
+    jQuery("<input>", js.Dynamic.literal(
+        `type` = "button", value = "Reset"
+    )).click(() => reset())
+  }
+}
+>>>
+object a {
+  def createResetButton(): JQuery = {
+    jQuery("<input>",
+      js.Dynamic.literal(
+        `type` = "button",
+        value = "Reset"
+      )).click(() => reset())
+  }
+}
+<<< don't dangle if not in source
+preset = default
+maxColumn = 55
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  argss.tail.foldLeft(
+    global.NewFromConstructor(ctor, argss.head: _*))(
+    Apply(_, _))
+}
+>>>
+object a {
+  argss.tail.foldLeft(
+    global.NewFromConstructor(ctor, argss.head: _*))(
+    Apply(_, _))
+}
+<<< don't break after equals if bp, overflow
+preset = default
+maxColumn = 85
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+val rhs = genScalaArg(sym, index, formalArgsRegistry, param, static, captures = Nil)(
+            prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))
+val rhs = genScalaArg(sym, index, formalArgsRegistry, param, static)(
+            prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))
+val rhs = genScalaArg(prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))(
+            sym, index, formalArgsRegistry, param, static, captures = Nil)
+}
+>>>
+object a {
+  val rhs = genScalaArg(sym, index, formalArgsRegistry, param, static, captures = Nil)(
+    prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))
+  val rhs = genScalaArg(sym, index, formalArgsRegistry, param, static)(
+    prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))
+  val rhs = genScalaArg(prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))(
+    sym, index, formalArgsRegistry, param, static, captures = Nil)
+}
+<<< don't break after equals if bp, !overflow
+preset = default
+maxColumn = 85
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleCallSite.prefer = true
+===
+object a {
+val rhs = genScalaArg(sym, index, formalArgsRegistry, param, static, captures = Nil)(
+            prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))
+val rhs = genScalaArg(sym, index, formalArgsRegistry, param, static)(
+            prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))
+val rhs = genScalaArg(prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))(
+            sym, index, formalArgsRegistry, param, static, captures = Nil)
+}
+>>>
+object a {
+  val rhs = genScalaArg(sym, index, formalArgsRegistry, param, static,
+    captures = Nil)(prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))
+  val rhs = genScalaArg(sym, index, formalArgsRegistry, param, static)(
+    prevArgsCount => varDefs.take(prevArgsCount).toList.map(_.ref))
+  val rhs = genScalaArg(prevArgsCount =>
+    varDefs.take(prevArgsCount).toList.map(_.ref))(
+    sym, index, formalArgsRegistry, param, static, captures = Nil)
+}
+<<< #4133 overflow with nested lambda and braces 1
+Block(norm.tail.map(sym => DefDef(sym, { vparamss: List[List[Symbol]] => EmptyTree })), ddef)
+>>>
+Block(norm.tail.map(sym =>
+      DefDef(sym, { vparamss: List[List[Symbol]] => EmptyTree })), ddef)
+<<< #4133 overflow with nested lambda and braces 2
+other.exists(tpe match { case TypeRef(_, r, _) => r.isTypeParameter case _ => false })
+>>>
+other.exists(tpe match {
+  case TypeRef(_, r, _) => r.isTypeParameter
+  case _                => false
+})

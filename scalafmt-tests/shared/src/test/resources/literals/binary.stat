@@ -1,0 +1,30 @@
+<<< uppercase l by default
+0b111l
+>>>
+0b111L
+<<< lowercase l if specified
+literals.long = Lower
+===
+0b111L
+>>>
+0b111l
+<<< lowercase 0B by default
+0B111
+>>>
+0b111
+<<< uppercase 0b if specified
+literals.binPrefix = Upper
+===
+0b111
+>>>
+0B111
+<<< change both prefix and suffix
+0B111l
+>>>
+0b111L
+<<< unchanged
+literals.binPrefix = Unchanged
+===
+0B111 + 0b111
+>>>
+0B111 + 0b111

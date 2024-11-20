@@ -20,10 +20,11 @@ import metaconfig._
   */
 case class ScalafmtRunner(
     debug: Boolean = false,
+    private val completeCallback: FormatEvent.CompleteFormat => Unit = _ => (),
     private val eventCallback: FormatEvent => Unit = null,
     private[config] val parser: ScalafmtParser = ScalafmtParser.Source,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
-    maxStateVisits: Int = 1000000,
+    maxStateVisits: Option[Int] = None,
     private[config] val dialect: NamedDialect = NamedDialect.default,
     private val dialectOverride: Conf.Obj = Conf.Obj.empty,
     ignoreWarnings: Boolean = false,
@@ -56,11 +57,14 @@ case class ScalafmtRunner(
   private[scalafmt] def forCodeBlock: ScalafmtRunner =
     copy(debug = false, eventCallback = null, parser = ScalafmtParser.Source)
 
+  private[scalafmt] def withCompleteCallback(
+      cb: FormatEvent.CompleteFormat => Unit,
+  ): ScalafmtRunner = copy(completeCallback = cb)
+
+  def event(evt: FormatEvent.CompleteFormat): Unit = completeCallback(evt)
+
   def event(evt: => FormatEvent): Unit =
     if (null != eventCallback) eventCallback(evt)
-
-  def events(evts: => Iterator[FormatEvent]): Unit =
-    if (null != eventCallback) evts.foreach(eventCallback)
 
   def parse(input: meta.inputs.Input): Parsed[_ <: Tree] =
     getParser(input, getDialectForParser)
@@ -71,33 +75,35 @@ case class ScalafmtRunner(
   private[scalafmt] def conservative: ScalafmtRunner =
     copy(optimizer = optimizer.conservative)
 
+  private[scalafmt] def getMaxStateVisits: Int = maxStateVisits
+    .getOrElse(1000000)
+
 }
 
 object ScalafmtRunner {
   implicit lazy val surface: generic.Surface[ScalafmtRunner] =
     generic.deriveSurface
-  implicit lazy val formatEventEncoder: ConfEncoder[FormatEvent => Unit] =
+
+  implicit def formatEventEncoder[A <: FormatEvent]: ConfEncoder[A => Unit] =
     ConfEncoder.StringEncoder.contramap(_ => "<FormatEvent => Unit>")
 
   /** The default runner formats a compilation unit and listens to no events.
     */
-  val default = ScalafmtRunner(
-    debug = false,
-    parser = ScalafmtParser.Source,
-    optimizer = ScalafmtOptimizer.default,
-    maxStateVisits = 1000000,
-  )
+  val default = ScalafmtRunner()
 
   val sbt = default.withDialect(meta.dialects.Sbt)
 
   implicit val encoder: ConfEncoder[ScalafmtRunner] = generic.deriveEncoder
 
-  private def overrideDialect[T: ClassTag](d: Dialect, k: String, v: T) = {
-    import org.scalafmt.config.ReflectOps._
+  private[config] def overrideDialect[T: ClassTag](
+      d: Dialect,
+      k: String,
+      v: T,
+  ) = {
     val methodName =
       if (k.isEmpty || k.startsWith("with")) k
       else "with" + Character.toUpperCase(k.head) + k.tail
-    d.invokeAs[Dialect](methodName, v.asParam)
+    DialectMacro.dialectMap(methodName)(d, v)
   }
 
   implicit val decoder: ConfDecoderEx[ScalafmtRunner] = generic

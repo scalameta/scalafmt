@@ -1,7 +1,7 @@
 package org.scalafmt.config
 
 import scala.meta._
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import metaconfig._
 
@@ -48,20 +48,17 @@ case class BinPack(
 
   def keepParentConstructors(implicit style: ScalafmtConfig): Boolean =
     parentConstructors.eq(BinPack.ParentCtors.keep) ||
-      style.newlines.source.eq(Newlines.keep) &&
-      parentConstructors.eq(BinPack.ParentCtors.source)
+      style.newlines.keep && parentConstructors.eq(BinPack.ParentCtors.source)
 
   @inline
-  def callSiteFor(open: Token): BinPack.Site =
-    callSiteFor(open.is[Token.LeftBracket])
+  def callSiteFor(open: T): BinPack.Site = callSiteFor(open.is[T.LeftBracket])
   def callSiteFor(isBracket: Boolean): BinPack.Site =
     (if (isBracket) bracketCallSite else None).getOrElse(callSite)
   def callSiteFor(owner: Tree): BinPack.Site =
     callSiteFor(owner.is[Type.ArgClause])
 
   @inline
-  def defnSiteFor(open: Token): BinPack.Site =
-    defnSiteFor(open.is[Token.LeftBracket])
+  def defnSiteFor(open: T): BinPack.Site = defnSiteFor(open.is[T.LeftBracket])
   def defnSiteFor(isBracket: Boolean): BinPack.Site =
     (if (isBracket) bracketDefnSite else None).getOrElse(defnSite)
   def defnSiteFor(owner: Tree): BinPack.Site =
@@ -106,6 +103,7 @@ object BinPack {
     case object keep extends ParentCtors
     case object Always extends ParentCtors
     case object Never extends ParentCtors
+    case object ForceBreak extends ParentCtors
     case object Oneline extends ParentCtors
     case object OnelineIfPrimaryOneline extends ParentCtors
 
@@ -115,6 +113,7 @@ object BinPack {
         keep,
         Always,
         Never,
+        ForceBreak,
         Oneline,
         OnelineIfPrimaryOneline,
       ) {

@@ -1,0 +1,329 @@
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.includeUnitMethods = false
+rewrite.redundantBraces.maxLines = 1000
+<<< unit return type
+object a {
+  def x(): Unit = {
+    println(1)
+  }
+}
+>>>
+object a {
+  def x(): Unit = {
+    println(1)
+  }
+}
+<<< example 1
+object a {
+   def buildMerchantDna(subsDna: Option[SubsDna],
+                        cu: Option[String],
+                      iv: Option[String]): dim.MerchantDna = {
+   dim.MerchantDna(
+     primaryRecurPeriod = subsDna.flatMap { _.primary },
+     weekly = subsDna.map { _.weekly }.getOrElse(false),
+     monthly = subsDna.map { _.monthly }.getOrElse(false),
+     quarterly = subsDna.map { _.quarterly }.getOrElse(false),
+     annual = subsDna.map { _.annual }.getOrElse(false),
+     platformConnectUsage = cu,
+     industryVertical = iv
+   )
+ }
+}
+>>>
+object a {
+  def buildMerchantDna(
+      subsDna: Option[SubsDna],
+      cu: Option[String],
+      iv: Option[String]
+  ): dim.MerchantDna =
+    dim.MerchantDna(
+      primaryRecurPeriod = subsDna.flatMap(_.primary),
+      weekly = subsDna.map(_.weekly).getOrElse(false),
+      monthly = subsDna.map(_.monthly).getOrElse(false),
+      quarterly = subsDna.map(_.quarterly).getOrElse(false),
+      annual = subsDna.map(_.annual).getOrElse(false),
+      platformConnectUsage = cu,
+      industryVertical = iv
+    )
+}
+<<< example 2
+object a {
+  def filterPA(pa: BfCFE2ProjectedPaymentAction): Boolean = {
+    // nb: the ruby code doesn't explicitly filter on charge being nonEmpty, but its absence would trigger an error
+    pa.`type`.nonEmpty && wantedTypes.contains(pa.`type`.get) && pa.charge.nonEmpty
+  }
+}
+>>>
+object a {
+  def filterPA(pa: BfCFE2ProjectedPaymentAction): Boolean =
+    // nb: the ruby code doesn't explicitly filter on charge being nonEmpty, but its absence would trigger an error
+    pa.`type`.nonEmpty && wantedTypes.contains(
+      pa.`type`.get
+    ) && pa.charge.nonEmpty
+}
+<<< function
+object A {
+  def validStringLength(min: Int, max: Int): String => Boolean = { s =>
+    val len: Int = s.length
+      (min <= len) && (len <= max)
+  }
+  def x = { 2 }
+}
+>>>
+object A {
+  def validStringLength(min: Int, max: Int): String => Boolean = { s =>
+    val len: Int = s.length
+    (min <= len) && (len <= max)
+  }
+  def x = 2
+}
+<<< #2138
+rewrite.redundantBraces.methodBodies = false
+===
+object a {
+  foo(0, { x =>
+      val y = x
+      y
+    })
+}
+>>>
+object a {
+  foo(
+    0,
+    { x =>
+      val y = x
+      y
+    }
+  )
+}
+<<< #4133 braces outside select chain
+case object HeapMetricsSelector extends CapacityMetricsSelector {
+  override def capacity(nodeMetrics: Set[NodeMetrics]): Map[Address, Double] = {
+    nodeMetrics.collect {
+      case HeapMemory(address, _, used, committed, max) =>
+        (address, capacity)
+    }.toMap
+  }
+}
+>>>
+case object HeapMetricsSelector extends CapacityMetricsSelector {
+  override def capacity(nodeMetrics: Set[NodeMetrics]): Map[Address, Double] =
+    nodeMetrics.collect { case HeapMemory(address, _, used, committed, max) =>
+      (address, capacity)
+    }.toMap
+}
+<<< #4133 braces inside select chain
+final class RemoteSettings(val config: Config) {
+  val WatchHeartBeatInterval: FiniteDuration = {
+    WatchFailureDetectorConfig.getMillisDuration("heartbeat-interval")
+  }.requiring(_ > Duration.Zero, "watch-failure-detector.heartbeat-interval must be > 0")
+  val WatchUnreachableReaperInterval: FiniteDuration = {
+    WatchFailureDetectorConfig.getMillisDuration("unreachable-nodes-reaper-interval")
+  }.requiring(_ > Duration.Zero, "watch-failure-detector.unreachable-nodes-reaper-interval must be > 0")
+  val WatchHeartbeatExpectedResponseAfter: FiniteDuration = {
+    WatchFailureDetectorConfig.getMillisDuration("expected-response-after")
+  }.requiring(_ > Duration.Zero, "watch-failure-detector.expected-response-after > 0")
+}
+>>>
+final class RemoteSettings(val config: Config) {
+  val WatchHeartBeatInterval: FiniteDuration =
+    WatchFailureDetectorConfig
+      .getMillisDuration("heartbeat-interval")
+      .requiring(
+        _ > Duration.Zero,
+        "watch-failure-detector.heartbeat-interval must be > 0"
+      )
+  val WatchUnreachableReaperInterval: FiniteDuration =
+    WatchFailureDetectorConfig
+      .getMillisDuration("unreachable-nodes-reaper-interval")
+      .requiring(
+        _ > Duration.Zero,
+        "watch-failure-detector.unreachable-nodes-reaper-interval must be > 0"
+      )
+  val WatchHeartbeatExpectedResponseAfter: FiniteDuration =
+    WatchFailureDetectorConfig
+      .getMillisDuration("expected-response-after")
+      .requiring(
+        _ > Duration.Zero,
+        "watch-failure-detector.expected-response-after > 0"
+      )
+}
+<<< #4133 partial func in block, from spark, ifElseExpressions
+rewrite.redundantBraces.ifElseExpressions = true
+===
+object a {
+  val toIterator: Any => Iterator[_] = if (lenient) {
+    {
+      case i: scala.collection.Iterable[_] => i.iterator
+      case l: java.util.List[_] => l.iterator().asScala
+      case a: Array[_] => a.iterator
+      case o => unsupportedCollectionType(o.getClass)
+    }
+  } else {
+    unsupportedCollectionType(tag.runtimeClass)
+  }
+}
+>>>
+object a {
+  val toIterator: Any => Iterator[_] = if (lenient) {
+    case i: scala.collection.Iterable[_] => i.iterator
+    case l: java.util.List[_]            => l.iterator().asScala
+    case a: Array[_]                     => a.iterator
+    case o => unsupportedCollectionType(o.getClass)
+  }
+  else
+    unsupportedCollectionType(tag.runtimeClass)
+}
+<<< #4133 partial func in block, from spark, !ifElseExpressions
+rewrite.redundantBraces.ifElseExpressions = false
+===
+object a {
+  val toIterator: Any => Iterator[_] = if (lenient) {
+    {
+      case i: scala.collection.Iterable[_] => i.iterator
+      case l: java.util.List[_] => l.iterator().asScala
+      case a: Array[_] => a.iterator
+      case o => unsupportedCollectionType(o.getClass)
+    }
+  } else {
+    unsupportedCollectionType(tag.runtimeClass)
+  }
+}
+>>>
+object a {
+  val toIterator: Any => Iterator[_] = if (lenient) {
+    {
+      case i: scala.collection.Iterable[_] => i.iterator
+      case l: java.util.List[_]            => l.iterator().asScala
+      case a: Array[_]                     => a.iterator
+      case o => unsupportedCollectionType(o.getClass)
+    }
+  } else {
+    unsupportedCollectionType(tag.runtimeClass)
+  }
+}
+<<< #4133 if-else with braces, some blocks are empty, have only comment, !if-else
+object a {
+  if (sym.isClassConstructor) {
+    constructorTrees += dd
+  } else if (exposed && sym.is(Accessor, butNot = Lazy)) {
+    // Exposed accessors must not be emitted, since the field they access is enough.
+  } else if (sym.hasAnnotation(jsdefn.JSOptionalAnnot)) {
+    // Optional methods must not be emitted
+  } else {
+    generatedMethods ++= genMethod(dd)
+  }
+}
+>>>
+object a {
+  if (sym.isClassConstructor) {
+    constructorTrees += dd
+  } else if (exposed && sym.is(Accessor, butNot = Lazy)) {
+    // Exposed accessors must not be emitted, since the field they access is enough.
+  } else if (sym.hasAnnotation(jsdefn.JSOptionalAnnot)) {
+    // Optional methods must not be emitted
+  } else {
+    generatedMethods ++= genMethod(dd)
+  }
+}
+<<< #4133 if-else with braces, some blocks are empty, have only comment, scala3, !if-else
+runner.dialect = scala3
+rewrite.scala3.convertToNewSyntax = true
+===
+object a {
+  if (sym.isClassConstructor) {
+    constructorTrees += dd
+  } else if (exposed && sym.is(Accessor, butNot = Lazy)) {
+    // Exposed accessors must not be emitted, since the field they access is enough.
+  } else if (sym.hasAnnotation(jsdefn.JSOptionalAnnot)) {
+    // Optional methods must not be emitted
+  } else {
+    generatedMethods ++= genMethod(dd)
+  }
+}
+>>>
+object a {
+  if sym.isClassConstructor then {
+    constructorTrees += dd
+  } else if exposed && sym.is(Accessor, butNot = Lazy) then {
+    // Exposed accessors must not be emitted, since the field they access is enough.
+  } else if sym.hasAnnotation(jsdefn.JSOptionalAnnot) then {
+    // Optional methods must not be emitted
+  } else {
+    generatedMethods ++= genMethod(dd)
+  }
+}
+<<< #4133 if-else with braces, some blocks are empty, have only comment, scala3, if-else
+runner.dialect = scala3
+rewrite.scala3.convertToNewSyntax = true
+rewrite.redundantBraces.ifElseExpressions = true
+===
+object a {
+  if (sym.isClassConstructor) {
+    constructorTrees += dd
+  } else if (exposed && sym.is(Accessor, butNot = Lazy)) {
+    // Exposed accessors must not be emitted, since the field they access is enough.
+  } else if (sym.hasAnnotation(jsdefn.JSOptionalAnnot)) {
+    // Optional methods must not be emitted
+  } else {
+    generatedMethods ++= genMethod(dd)
+  }
+}
+>>>
+object a {
+  if sym.isClassConstructor then constructorTrees += dd
+  else if exposed && sym.is(Accessor, butNot = Lazy) then {
+    // Exposed accessors must not be emitted, since the field they access is enough.
+  } else if sym.hasAnnotation(jsdefn.JSOptionalAnnot) then {
+    // Optional methods must not be emitted
+  } else generatedMethods ++= genMethod(dd)
+}
+<<< if-else with one block completely empty, !if-else
+object a {
+  if (template.isEmpty || hasModifiers || definition.exists(it => it.contains(CASE) && !it.contains(OBJECT))) {} else {
+    if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length()) == "()" && !(sb.length > 2 && sb.charAt(sb.length - 3) == ')')) {
+      sb.delete(sb.length - 2, sb.length())
+    }
+  }
+}
+>>>
+object a {
+  if (
+    template.isEmpty || hasModifiers || definition
+      .exists(it => it.contains(CASE) && !it.contains(OBJECT))
+  ) {}
+  else {
+    if (
+      sb.length >= 2 && sb.substring(
+        sb.length - 2,
+        sb.length()
+      ) == "()" && !(sb.length > 2 && sb.charAt(sb.length - 3) == ')')
+    ) {
+      sb.delete(sb.length - 2, sb.length())
+    }
+  }
+}
+<<< if-else with one block completely empty, if-else
+rewrite.redundantBraces.ifElseExpressions = true
+===
+object a {
+  if (template.isEmpty || hasModifiers || definition.exists(it => it.contains(CASE) && !it.contains(OBJECT))) {} else {
+    if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length()) == "()" && !(sb.length > 2 && sb.charAt(sb.length - 3) == ')')) {
+      sb.delete(sb.length - 2, sb.length())
+    }
+  }
+}
+>>>
+object a {
+  if (
+    template.isEmpty || hasModifiers || definition
+      .exists(it => it.contains(CASE) && !it.contains(OBJECT))
+  ) {}
+  else if (
+    sb.length >= 2 && sb.substring(
+      sb.length - 2,
+      sb.length()
+    ) == "()" && !(sb.length > 2 && sb.charAt(sb.length - 3) == ')')
+  )
+    sb.delete(sb.length - 2, sb.length())
+}

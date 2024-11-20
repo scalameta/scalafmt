@@ -1,11 +1,10 @@
 package org.scalafmt.rewrite
 
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.FormatTokens
+import org.scalafmt.internal._
 
 import scala.meta._
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import metaconfig._
 
@@ -17,9 +16,9 @@ object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
     new PreferCurlyFors
 
   @inline
-  private def hasMultipleNonGuardEnums(enums: Seq[Enumerator]): Boolean =
+  private def hasMultipleNonGuardEnums(t: Term.EnumeratorsBlock): Boolean =
     // first one is never a guard
-    enums.view.drop(1).exists(!_.is[Enumerator.Guard])
+    t.enums.view.drop(1).exists(!_.is[Enumerator.Guard])
 
   case class Settings(removeTrailingSemicolonsOnly: Boolean = false)
 
@@ -58,29 +57,25 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
     PreferCurlyFors.enabled
 
   override def onToken(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[Replacement] = Option {
     ft.right match {
-      case x: Token.LeftParen if prevNonComment(ft).left.is[Token.KwFor] =>
-        val ok = ft.meta.rightOwner match {
-          case t: Term.For => matches(t)
-          case t: Term.ForYield => matches(t)
-          case _ => false
-        }
-        if (ok)
-          replaceToken("{")(new Token.LeftBrace(x.input, x.dialect, x.start))
-        else null
+      case x: T.LeftParen if (ft.meta.rightOwner match {
+            case t: Term.EnumeratorsBlock if hasMultipleNonGuardEnums(t) =>
+              style.dialect.allowInfixOperatorAfterNL || hasNoLeadingInfix(t)
+            case _ => false
+          }) => replaceToken("{")(new T.LeftBrace(x.input, x.dialect, x.start))
 
-      case _: Token.Semicolon
+      case _: T.Semicolon
           if !style.rewrite.preferCurlyFors.removeTrailingSemicolonsOnly ||
             hasBreakAfterRightBeforeNonComment(ft) =>
         ft.meta.rightOwner match {
-          case t @ (_: Term.For | _: Term.ForYield)
-              if nextNonCommentAfter(ft).right.is[Token.KwIf] || {
-                val parenOrBrace = nextNonComment(getHead(t))
-                parenOrBrace.right.is[Token.LeftBrace] ||
+          case t: Term.EnumeratorsBlock
+              if nextNonCommentAfter(ft).right.is[T.KwIf] || {
+                val parenOrBrace = tokenJustBefore(t)
+                parenOrBrace.right.is[T.LeftBrace] ||
                 session.claimedRule(parenOrBrace).exists(_.rule eq this)
               } => removeToken
           case _ => null
@@ -91,39 +86,32 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
   }
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = ft.right match {
-    case x: Token.RightParen
+    case x: T.RightParen
         if left.how == ReplacementType.Replace &&
-          left.ft.right.is[Token.LeftBrace] =>
+          left.ft.right.is[T.LeftBrace] =>
       val right =
-        replaceToken("}")(new Token.RightBrace(x.input, x.dialect, x.start))
+        replaceToken("}")(new T.RightBrace(x.input, x.dialect, x.start))
       Some((left, right))
     case _ => None
   }
 
-  private def matches(
-      tree: Tree.WithEnums with Tree.WithBody,
-  )(implicit style: ScalafmtConfig): Boolean = {
-    val enums = tree.enums
-    hasMultipleNonGuardEnums(enums) &&
-    (style.dialect.allowInfixOperatorAfterNL ||
-      hasNoLeadingInfix(getHead(enums.head), tokenBefore(tree.body)))
-  }
-
-  private def hasNoLeadingInfix(head: FormatToken, last: FormatToken): Boolean =
-    findToken(head, next) { ft =>
-      ft.eq(last) ||
-      (ft.meta.rightOwner match {
-        case ro: Name => ro.parent match {
-            case Some(p: Member.Infix) if p.op eq ro =>
+  private def hasNoLeadingInfix(t: Term.EnumeratorsBlock)(implicit
+      head: FT,
+  ): Boolean = findTokenWith(nextNonCommentAfter(head), next) { ft =>
+    ft.meta.rightOwner match {
+      case ro: Name if (ro.parent match {
+            case Some(p: Member.Infix)
+                if (p.op eq ro) && ft.right.is[T.Ident] =>
               prevNonCommentSameLine(ft).hasBreak
             case _ => false
-          }
-        case _ => false
-      }) && ft.right.is[Token.Ident]
-    } eq last
+          }) => Some(false)
+      case `t` if ft.right.is[T.RightParen] => Some(true) // closing delimiter
+      case _ => None
+    }
+  }.contains(true)
 
 }

@@ -1,0 +1,239 @@
+
+<<< Route partial function
+val Route: PartialFunction[Decision, Decision] = {
+  case FormatToken(_: Ident | _: `this` | _: `_ ` | _: `(`, _: `.` | _: `#`, _) =>
+  List(
+    NoSplit0
+  )
+}
+>>>
+val Route: PartialFunction[Decision, Decision] = {
+  case FormatToken(_: Ident | _: `this` | _: `_ ` | _: `(`,
+                   _: `.` | _: `#`,
+                   _) =>
+    List(
+        NoSplit0
+    )
+}
+<<< What idiot wrote this code
+List(Split(Space, 0).withPolicy {
+            case Decision(t, s) if tok.right.end <= lastToken.end =>
+              Decision(t, s.map {
+                    case nl if nl.modification.isNewline =>
+                      val result =
+                        if (t.right.isInstanceOf[`if`] &&
+                            owners(t.right) == owner) nl
+                        else nl.withPenalty(1)
+                      result.withPolicy(breakOnArrow)
+                    case x => x
+                  })
+            })
+>>>
+List(Split(Space, 0).withPolicy {
+  case Decision(t, s) if tok.right.end <= lastToken.end =>
+    Decision(t,
+             s.map {
+               case nl if nl.modification.isNewline =>
+                 val result =
+                   if (
+                       t.right.isInstanceOf[`if`] &&
+                       owners(t.right) == owner
+                   ) nl
+                   else nl.withPenalty(1)
+                 result.withPolicy(breakOnArrow)
+               case x => x
+             })
+})
+<<< chain of || and &&
+x match {
+  case tok if // TODO(olafur) DRY.
+      (leftOwner.isInstanceOf[Term.Interpolate] &&
+        rightOwner.isInstanceOf[Term.Interpolate]) ||
+      (leftOwner.isInstanceOf[Pat.Interpolate] &&
+        rightOwner.isInstanceOf[Pat.Interpolate]) =>
+    Seq(Split(NoSplit, 0))
+}
+>>>
+x match {
+  case tok
+      if // TODO(olafur) DRY.
+      (leftOwner.isInstanceOf[Term.Interpolate] &&
+        rightOwner.isInstanceOf[Term.Interpolate]) ||
+        (leftOwner.isInstanceOf[Pat.Interpolate] &&
+          rightOwner.isInstanceOf[Pat.Interpolate]) =>
+    Seq(Split(NoSplit, 0))
+}
+<<< PrepJSInterop
+x match {
+      case cldef if true =>
+        enterOwner(OwnerKind.EnumImpl) { super.transform(cldef) }
+
+      // Catch Scala Enumerations to transform calls to scala.Enumeration.Value
+      case i => x
+}
+>>>
+x match {
+  case cldef if true =>
+    enterOwner(OwnerKind.EnumImpl) { super.transform(cldef) }
+
+  // Catch Scala Enumerations to transform calls to scala.Enumeration.Value
+  case i => x
+}
+<<< spark case dequeueAll bug
+{
+  def testZipPartitions4(rdd: RDD[Int]): Unit = {
+    rdd.zipPartitions(rdd, rdd, rdd) { case (it1, it2, it3, it4) => return; it1 }.count()
+  }
+}
+>>>
+{
+  def testZipPartitions4(rdd: RDD[Int]): Unit = {
+    rdd
+      .zipPartitions(rdd, rdd, rdd) { case (it1, it2, it3, it4) =>
+        return; it1
+      }
+      .count()
+  }
+}
+<<< nested block in body, verify correct indentation
+object a {
+  b match {
+    case c => {}
+     d
+     case e => {
+      f
+     }
+     g
+    case h => {
+        i
+      } // comment
+  }
+}
+>>>
+object a {
+  b match {
+    case c =>
+      {}
+      d
+    case e =>
+      {
+        f
+      }
+      g
+    case h => {
+      i
+    } // comment
+  }
+}
+<<< #1244 1.1: one multiline pattern
+x match {
+  case Foo(
+      a,
+      b
+      ) =>
+        ???
+}
+>>>
+x match {
+  case Foo(
+          a,
+          b
+      ) =>
+    ???
+}
+<<< #1244 1.2: two multiline patterns with infix and multiline guard
+x match {
+  case
+    Foo(
+      a,
+      b
+  ) infix Bar(
+   c, d
+   ) if bar(
+       a,
+       b
+       ) =>
+    ???
+}
+>>>
+x match {
+  case Foo(
+          a,
+          b
+      ) infix Bar(
+          c,
+          d
+      )
+      if bar(
+          a,
+          b
+      ) =>
+    ???
+}
+<<< #1244 1.3: one single-line pattern and one multiline pattern with infix and guard
+x match {
+  case
+    a@ Foo infix Bar(
+   c, d
+   ) if baz(
+       a,
+       b
+       ) =>
+    if (qux(
+     x,
+     y
+   )) 0 else 1
+}
+>>>
+x match {
+  case a @ Foo infix Bar(
+          c,
+          d
+      )
+      if baz(
+          a,
+          b
+      ) =>
+    if (
+        qux(
+            x,
+            y
+        )
+    ) 0
+    else 1
+}
+<<< blank line after empty case clause
+object a {
+  val a = a match {
+    case a =>
+
+    case b =>
+  }
+}
+>>>
+object a {
+  val a = a match {
+    case a =>
+
+    case b =>
+  }
+}
+<<< case body with nested block
+object a {
+  val foo =
+    if (bar) baz match {
+      case baz1 if qux == 2 => quux(baz1, {
+        // c1
+      })
+    }
+}
+>>>
+object a {
+  val foo =
+    if (bar) baz match {
+      case baz1 if qux == 2 =>
+        quux(baz1, {
+               // c1
+             })
+    }
+}

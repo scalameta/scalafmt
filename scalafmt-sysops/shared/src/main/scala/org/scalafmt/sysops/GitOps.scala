@@ -46,24 +46,27 @@ trait GitOps {
   def diff(branch: String, dir: AbsoluteFile*): Seq[AbsoluteFile]
   def lsTree(dir: AbsoluteFile*): Seq[AbsoluteFile]
   def rootDir: Option[AbsoluteFile]
+  def getAutoCRLF: Option[String]
 }
 
 private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
-  private[scalafmt] def exec(cmd: Seq[String]): Seq[String] = execImpl(cmd)
+  private[scalafmt] def exec(cmd: Seq[String]): Seq[String] = tryExec(cmd).get
     .linesIterator.toSeq
 
-  private def execImpl(cmd: Seq[String]): String = {
+  private def tryExec(cmd: Seq[String]): Try[String] = {
     val errors = Seq.newBuilder[String]
     Try {
       val swallowStderr = ProcessLogger(_ => (), errors += _)
-      sys.process.Process(cmd, workingDirectory.jfile).!!(swallowStderr)
+      sys.process
+        .Process(PlatformCompat.prepareCommand(cmd), workingDirectory.jfile)
+        .!!(swallowStderr)
     } match {
       case Failure(e) =>
         val err = errors.result().mkString("\n> ", "\n> ", "\n")
         val msg = s"Failed to run command ${cmd.mkString(" ")}. Error:$err"
-        throw new IllegalStateException(msg, e)
-      case Success(x) => x.trim
+        Failure(new IllegalStateException(msg, e))
+      case Success(x) => Success(x.trim)
     }
   }
 
@@ -76,7 +79,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
   private lazy val tryRoot: Try[AbsoluteFile] = {
     val cmd = Seq("git", "rev-parse", "--show-toplevel")
-    Try(execImpl(cmd)).flatMap { x =>
+    tryExec(cmd).flatMap { x =>
       val file = AbsoluteFile(x)
       if (file.isDirectory) Success(file)
       else Failure(new InvalidPathException(x, "not a directory"))
@@ -93,6 +96,11 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
     val cmd = Seq("git", "status", "--porcelain") ++
       (if (dir.isEmpty) Seq.empty else "--" +: dir.map(_.toString()))
     withRoot(exec(cmd).map(getFileFromGitStatusLine)).filter(_.exists)
+  }
+
+  override def getAutoCRLF: Option[String] = {
+    val cmd = Seq("git", "config", "--get", "core.autocrlf")
+    tryExec(cmd).toOption
   }
 
   private final val renameStatusCode = "R"

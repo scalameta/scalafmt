@@ -5,7 +5,6 @@ title: Contributing
 
 ## Compiling project
 
-- It's recommended to use Java 8, the project has not been tested with Java 11.
 - The project is built with `sbt`, to install sbt see https://www.scala-sbt.org/
 - Use `sbt tests/test` instead of `sbt test`, the former runs modestly fast unit
   tests for the JVM while `sbt test` is slower because it runs cross-platform
@@ -81,7 +80,7 @@ To build a native image of the command-line interface using
 
 - From the project root directory,
   - run `sbt cli/assembly`
-  - run `java -jar scalafmt-cli/target/scala-2.13/scalafmt.jar`, to execute recently built artifacts
+  - run `java -jar scalafmt-cli/jvm/target/scala-2.13/scalafmt.jar`, to execute recently built artifacts
 
 ## Random stuff
 

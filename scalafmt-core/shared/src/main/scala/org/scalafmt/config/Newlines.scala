@@ -1,7 +1,7 @@
 package org.scalafmt.config
 
 import org.scalafmt.config.Newlines._
-import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal._
 import org.scalafmt.util.TreeOps
 
 import scala.meta._
@@ -239,13 +239,17 @@ case class Newlines(
     }
 
   @inline
-  def keepBreak(hasBreak: => Boolean): Boolean = source.eq(Newlines.keep) &&
-    hasBreak
+  def fold: Boolean = source eq Newlines.fold
   @inline
-  def keepBreak(newlines: Int): Boolean =
-    keepBreak(!FormatToken.noBreak(newlines))
+  def unfold: Boolean = source eq Newlines.unfold
   @inline
-  def keepBreak(implicit ft: FormatToken): Boolean = keepBreak(ft.hasBreak)
+  def keep: Boolean = source eq Newlines.keep
+  @inline
+  def keepBreak(hasBreak: => Boolean): Boolean = keep && hasBreak
+  @inline
+  def keepBreak(newlines: Int): Boolean = keepBreak(!FT.noBreak(newlines))
+  @inline
+  def keepBreak(implicit ft: FT): Boolean = keepBreak(ft.hasBreak)
 
   val breakAfterInfix: AfterInfix = afterInfix.getOrElse {
     source match {
@@ -391,8 +395,17 @@ object Newlines {
     case object punct extends AvoidForSimpleOverflow
     case object tooLong extends AvoidForSimpleOverflow
     case object slc extends AvoidForSimpleOverflow
+
+    val all: Seq[sourcecode.Text[AvoidForSimpleOverflow]] =
+      Seq(punct, tooLong, slc)
+
     implicit val codec: ConfCodecEx[AvoidForSimpleOverflow] = ReaderUtil
-      .oneOf[AvoidForSimpleOverflow](punct, tooLong, slc)
+      .oneOf[AvoidForSimpleOverflow](all: _*)
+
+    implicit val seqDecoder: ConfDecoderEx[Seq[AvoidForSimpleOverflow]] =
+      ConfDecoderEx.fromPartial[Seq[AvoidForSimpleOverflow]]("STR") {
+        case (_, Conf.Str("all")) => Configured.ok(all.map(_.value))
+      }.orElse(ConfDecoderExT.canBuildSeq[AvoidForSimpleOverflow, Seq])
   }
 
   sealed abstract class InInterpolation
@@ -456,14 +469,14 @@ object Newlines {
       }
     }
     case object anyMember extends ForceBeforeMultilineAssign {
-      def apply(tree: Tree): Boolean = tree.parent.exists(_.is[Template])
+      def apply(tree: Tree): Boolean = tree.parent.is[Template.Body]
     }
     case object topMember extends ForceBeforeMultilineAssign {
       def apply(tree: Tree): Boolean = {
         // find the first invalid tree
         val nonMemberTree = TreeOps.findTreeWithParentEx(tree) {
-          case t: Template => t.parent
-          case _: Pkg => None // all trees valid, no need to go further
+          case t: Template.Body => t.parent.parent
+          case _: Pkg.Body => None // all trees valid, no need to go further
           case _ => Some(null) // reached invalid parent, no need to go further
         }
         nonMemberTree.isEmpty

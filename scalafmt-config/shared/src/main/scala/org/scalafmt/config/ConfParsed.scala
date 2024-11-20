@@ -6,6 +6,7 @@ import java.nio.file.Path
 
 import scala.io.Codec
 import scala.util.Try
+import scala.util.control.NonFatal
 
 import metaconfig._
 
@@ -45,7 +46,10 @@ class ConfParsed(val conf: Configured[Conf]) extends AnyVal {
 object ConfParsed {
 
   def apply(input: Configured[Input], path: Option[String] = None): ConfParsed =
-    new ConfParsed(input.andThen(_.parse(path)))
+    new ConfParsed(
+      try input.andThen(_.parse(path))
+      catch { case NonFatal(ex) => Configured.exception(ex) },
+    )
 
   def fromInput(input: Input, path: Option[String] = None): ConfParsed =
     apply(Configured.Ok(input), path)
@@ -54,6 +58,6 @@ object ConfParsed {
     fromInput(Input.String(input), path)
 
   def fromPath(input: Path, path: Option[String] = None): ConfParsed =
-    apply(Configured.fromExceptionThrowing(Input.File(input)), path)
+    apply(Configured.fromExceptionThrowing(metaconfigInputFromFile(input)), path)
 
 }

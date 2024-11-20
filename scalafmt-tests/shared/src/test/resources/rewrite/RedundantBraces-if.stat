@@ -1,0 +1,435 @@
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.ifElseExpressions = true
+<<< if-else simple
+object a {
+
+  def x(i: Int): String =
+    if (i == 0) {
+      "zero"
+    } else if (i < 0) {
+      "sub-zero"
+    } else {
+      "other"
+    }
+
+}
+>>>
+object a {
+
+  def x(i: Int): String =
+    if (i == 0)
+      "zero"
+    else if (i < 0)
+      "sub-zero"
+    else
+      "other"
+
+}
+<<< if-else with stuff
+object a {
+
+  def x(i: Int): String =
+    if (i == 0) {
+      /* what */
+      "zero"
+    } else if (i < 0) {
+      // Ahh
+      // Ahh2
+      "sub-zero"
+    } else if (i > 9000) {
+      println("i = " + i)
+      "over 9000"
+    } else if (i > 90000) {
+      println("i = " + i)
+      "over 90000!"
+    } else if (i == 1) {
+      {{ "one" }}
+    } else {
+      "other"
+    }
+}
+>>>
+object a {
+
+  def x(i: Int): String =
+    if (i == 0)
+      /* what */
+      "zero"
+    else if (i < 0)
+      // Ahh
+      // Ahh2
+      "sub-zero"
+    else if (i > 9000) {
+      println("i = " + i)
+      "over 9000"
+    } else if (i > 90000) {
+      println("i = " + i)
+      "over 90000!"
+    } else if (i == 1)
+      "one"
+    else
+      "other"
+}
+<<< if-else with stuff (format:off)
+object a {
+
+  def x(i: Int): String =
+    if (i == 0) {
+      /* what */
+      "zero"
+    } else if (i < 0) {
+      // format: off
+      // Ahh2
+      "sub-zero"
+    } else if (i > 9000) {
+      println("i = " + i)
+      "over 9000"
+    } else if (i > 90000) {
+      println("i = " + i)
+      "over 90000!"
+    } else if (i == 1) {
+      {{ "one" }}
+      // format: on
+    } else {
+      "other"
+    }
+}
+>>>
+object a {
+
+  def x(i: Int): String =
+    if (i == 0)
+      /* what */
+      "zero"
+    else if (i < 0) {
+      // format: off
+      // Ahh2
+      "sub-zero"
+    } else if (i > 9000) {
+      println("i = " + i)
+      "over 9000"
+    } else if (i > 90000) {
+      println("i = " + i)
+      "over 90000!"
+    } else if (i == 1) {
+      {{ "one" }}
+      // format: on
+    } else
+      "other"
+}
+<<< if without else
+object a {
+
+  val x: Int => Unit =
+    if (i == 0) {
+      println("zero")
+    } else if (i < 0) {
+      println("sub-zero")
+    }
+
+  def y(i: Int) =
+    if (i > 0) {
+      println("yes!")
+    }
+
+}
+>>>
+object a {
+
+  val x: Int => Unit =
+    if (i == 0)
+      println("zero")
+    else if (i < 0)
+      println("sub-zero")
+
+  def y(i: Int) =
+    if (i > 0)
+      println("yes!")
+
+}
+<<< nested if
+object a {
+  def y(i: Int) =
+    if (i > 0) {
+      if (i < 100) {
+        println("yes!")
+      }
+    } else if (i < 0) {
+      if (i >= -100) {
+        println("NO!")
+      }
+    }
+}
+>>>
+object a {
+  def y(i: Int) =
+    if (i > 0) {
+      if (i < 100)
+        println("yes!")
+    } else if (i < 0)
+      if (i >= -100)
+        println("NO!")
+}
+<<< nested if-else
+object a {
+  def y(i: Int) =
+    if (i > 0) {
+      if (i < 100) {
+        println("yes!")
+      } else {
+        println("yes??")
+      }
+    } else if (i < 0) {
+      if (i >= -100) {
+        println("NO!")
+      } else {
+        println("no??")
+      }
+    }
+}
+>>>
+object a {
+  def y(i: Int) =
+    if (i > 0)
+      if (i < 100)
+        println("yes!")
+      else
+        println("yes??")
+    else if (i < 0)
+      if (i >= -100)
+        println("NO!")
+      else
+        println("no??")
+}
+<<< #1147
+object a {
+ b match {
+case FormatToken(open @ LeftParen(), _, _) if {
+            val isSuperfluous = isSuperfluousParenthesis(open, leftOwner)
+            leftOwner match {
+              case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield
+                  if !isSuperfluous =>
+                true
+              case _ => false
+            }
+          } => { a; b }
+          }}
+>>>
+object a {
+  b match {
+    case FormatToken(open @ LeftParen(), _, _) if {
+          val isSuperfluous = isSuperfluousParenthesis(open, leftOwner)
+          leftOwner match {
+            case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield
+                if !isSuperfluous =>
+              true
+            case _ => false
+          }
+        } =>
+      a; b
+  }
+}
+<<< #1956
+object a {
+  if (a) {
+    if (b)
+      println("b!")
+    else if (c)
+      println("c!")
+  } else if (d)
+    println("d!")
+}
+>>>
+object a {
+  if (a) {
+    if (b)
+      println("b!")
+    else if (c)
+      println("c!")
+  } else if (d)
+    println("d!")
+}
+<<< don't rewrite on disabled flag
+rewrite.redundantBraces.ifElseExpressions = false
+rewrite.redundantBraces.generalExpressions = true
+===
+object a {
+
+  def x(i: Int): String =
+    if (i == 0) {
+      "zero"
+    } else if (i < 0) {
+      "sub-zero"
+    } else {
+      "other"
+    }
+
+}
+>>>
+object a {
+
+  def x(i: Int): String =
+    if (i == 0) {
+      "zero"
+    } else if (i < 0) {
+      "sub-zero"
+    } else {
+      "other"
+    }
+
+}
+<<< rewrite general expression on disabled flag
+rewrite.redundantBraces.generalExpressions = true
+rewrite.redundantBraces.ifElseExpressions = false
+===
+while (x < 10) {
+  x += 1
+}
+>>>
+while (x < 10)
+  x += 1
+<<< #4133 outer braces around expression ending with `if`-without-`else`
+object a {
+  if (imported.isOverloaded) {
+    for (sym <- imported.alternatives)
+      if (isQualifyingImplicit(name, sym, pre, imported = true))
+        f(sym)
+  }
+  else if (isQualifyingImplicit(name, imported, pre, imported = true))
+    f(imported)
+}
+>>>
+object a {
+  if (imported.isOverloaded) {
+    for (sym <- imported.alternatives)
+      if (isQualifyingImplicit(name, sym, pre, imported = true))
+        f(sym)
+  } else if (isQualifyingImplicit(name, imported, pre, imported = true))
+    f(imported)
+}
+<<< #4133 nested braces around expression ending with `if`-without-`else`
+object a {
+  if (imported.isOverloaded) {
+    for (sym <- imported.alternatives) {
+      if (isQualifyingImplicit(name, sym, pre, imported = true)) {
+        f(sym)
+      }
+    }
+  }
+  else if (isQualifyingImplicit(name, imported, pre, imported = true))
+    f(imported)
+}
+>>>
+object a {
+  if (imported.isOverloaded) {
+    for (sym <- imported.alternatives)
+      if (isQualifyingImplicit(name, sym, pre, imported = true))
+        f(sym)
+  } else if (isQualifyingImplicit(name, imported, pre, imported = true))
+    f(imported)
+}
+<<< #4133 `else` after unrelated `if` with optional-braces, no end marker
+runner.dialect = scala3
+rewrite.scala3 {
+  convertToNewSyntax = true
+  removeOptionalBraces = yes
+}
+===
+object a {
+  // The symbol can be annotated with @js.native. Now check its JS native loading spec.
+  if (sym.is(Trait)) {
+    for (annot <- sym.annotations) {
+      val annotSym = annot.symbol
+      if (isJSNativeLoadingSpecAnnot(annotSym))
+        report.error(i"Traits may not have an @${annotSym.name} annotation.", annot.tree)
+    }
+  } else {
+    checkJSNativeLoadSpecOf(treePos, sym)
+  }
+}
+>>>
+object a:
+  // The symbol can be annotated with @js.native. Now check its JS native loading spec.
+  if sym.is(Trait) then
+    for annot <- sym.annotations do
+      val annotSym = annot.symbol
+      if isJSNativeLoadingSpecAnnot(annotSym) then
+        report.error(
+          i"Traits may not have an @${annotSym.name} annotation.",
+          annot.tree
+        )
+  else checkJSNativeLoadSpecOf(treePos, sym)
+<<< #4133 `else` after unrelated `if` with optional-braces, plus end marker
+runner.dialect = scala3
+rewrite.scala3 {
+  convertToNewSyntax = true
+  insertEndMarkerMinLines = 5
+  removeOptionalBraces = yes
+}
+===
+object a {
+  // The symbol can be annotated with @js.native. Now check its JS native loading spec.
+  if (sym.is(Trait)) {
+    for (annot <- sym.annotations) {
+      val annotSym = annot.symbol
+      if (isJSNativeLoadingSpecAnnot(annotSym))
+        report.error(i"Traits may not have an @${annotSym.name} annotation.", annot.tree)
+    }
+  } else {
+    checkJSNativeLoadSpecOf(treePos, sym)
+  }
+}
+>>>
+object a:
+  // The symbol can be annotated with @js.native. Now check its JS native loading spec.
+  if sym.is(Trait) then
+    for annot <- sym.annotations do
+      val annotSym = annot.symbol
+      if isJSNativeLoadingSpecAnnot(annotSym) then
+        report.error(
+          i"Traits may not have an @${annotSym.name} annotation.",
+          annot.tree
+        )
+      end if
+  else checkJSNativeLoadSpecOf(treePos, sym)
+  end if
+<<< #4133 partial function within if-else
+val toIterator: Any => Iterator[_] = if (lenient) {
+  {
+    case i: scala.collection.Iterable[_] => i.iterator
+    case l: java.util.List[_] => l.iterator().asScala
+    case a: Array[_] => a.iterator
+    case o => unsupportedCollectionType(o.getClass)
+  }
+} else {
+  unsupportedCollectionType(tag.runtimeClass)
+}
+>>>
+val toIterator: Any => Iterator[_] = if (lenient) {
+  case i: scala.collection.Iterable[_] => i.iterator
+  case l: java.util.List[_]            => l.iterator().asScala
+  case a: Array[_]                     => a.iterator
+  case o                               => unsupportedCollectionType(o.getClass)
+}
+else
+  unsupportedCollectionType(tag.runtimeClass)
+<<< #4133 indentation with comment after removed brace
+object a {
+  override def onUpstreamFinish(): Unit = {
+    if (buffer.isEmpty) {
+      completeStage()
+    } else if (isAvailable(out)) {
+      searchIndices()
+    } // else swallow the termination and wait for pull
+  }
+}
+>>>
+object a {
+  override def onUpstreamFinish(): Unit = {
+    if (buffer.isEmpty)
+      completeStage()
+    else if (isAvailable(out))
+      searchIndices()
+    // else swallow the termination and wait for pull
+  }
+}

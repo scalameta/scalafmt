@@ -2,11 +2,10 @@ package org.scalafmt.rewrite
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.TrailingCommas
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.FormatTokens
+import org.scalafmt.internal._
 
 import scala.meta._
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 object RewriteTrailingCommas extends FormatTokensRewrite.RuleFactory {
 
@@ -20,13 +19,13 @@ object RewriteTrailingCommas extends FormatTokensRewrite.RuleFactory {
     new RewriteTrailingCommas
 
   private[rewrite] def checkIfPrevious(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       ftoks: FormatTokens,
   ): Boolean = ft.right match {
-    case _: Token.RightParen =>
+    case _: T.RightParen =>
       val maybeCommaFt = ftoks.prevNonComment(ft)
-      !maybeCommaFt.left.is[Token.Comma] ||
+      !maybeCommaFt.left.is[T.Comma] ||
       session.isRemovedOnLeft(maybeCommaFt, true)
     case _ => true
   }
@@ -47,14 +46,14 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
     RewriteTrailingCommas.enabled
 
   override def onToken(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[Replacement] = if (shouldRemove(ft)) Some(removeToken) else None
 
   private[rewrite] def shouldRemove(
-      ft: FormatToken,
-  )(implicit session: Session): Boolean = ft.right.is[Token.Comma] && {
+      ft: FT,
+  )(implicit session: Session): Boolean = ft.right.is[T.Comma] && {
     val nft = ftoks.nextNonCommentAfter(ft)
     def delimOwner = nft.meta.rightOwner
 
@@ -62,23 +61,23 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
     // however, with optional-braces comma could be before outdent
     // and hence owned by the previous expression
     nft.right match {
-      case rp: Token.RightParen => delimOwner
+      case _: T.RightParen => delimOwner
           .isAny[Member.SyntaxValuesClause, Member.Tuple] ||
-        ftoks.matchingOpt(rp).exists { lp =>
-          val claimant = session.claimedRule(ftoks.justBefore(lp))
+        ftoks.matchingOptRight(nft).exists { lp =>
+          val claimant = session.claimedRule(ftoks.prev(lp))
           claimant.forall(_.rule.isInstanceOf[RedundantParens])
         }
 
-      case _: Token.RightBracket => delimOwner.is[Member.SyntaxValuesClause]
+      case _: T.RightBracket => delimOwner.is[Member.SyntaxValuesClause]
 
-      case _: Token.RightBrace => delimOwner.is[Importer]
+      case _: T.RightBrace => delimOwner.is[Importer]
 
       case _ => false
     }
   }
 
   override def onRight(lt: Replacement, hasFormatOff: Boolean)(implicit
-      ft: FormatToken,
+      ft: FT,
       session: Session,
       style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = None

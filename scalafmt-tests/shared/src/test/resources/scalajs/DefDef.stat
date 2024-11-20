@@ -1,0 +1,1070 @@
+
+<<< js.native def is special #108
+  def uniform4fv(location: WebGLUniformLocation, v: Float32Array): Unit = js.native
+>>>
+def uniform4fv(location: WebGLUniformLocation,
+    v: Float32Array): Unit = js.native
+<<< js.native val is special #108
+  val uniform4fv________________________________________________X: Unit = js.native
+>>>
+val uniform4fv________________________________________________X: Unit = js.native
+<<< newline before closing parens #162
+{
+def tee(): js.Array[_ <: ReadableStream[T]] = js.native  //TODO js.Tuple2[ReadableStream[T]]
+}
+>>>
+{
+  def tee(): js.Array[_ <: ReadableStream[T]] = js.native // TODO js.Tuple2[ReadableStream[T]]
+}
+<<< newline before closing parens #162 with arg
+{
+def tee(arg: IntAAAAAAAAAAA): js.Array[_ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[T]] = js.native  //TODO js.Tuple2[ReadableStream[T
+}
+>>>
+{
+  def tee(
+      arg: IntAAAAAAAAAAA): js.Array[_ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[T]] = js.native // TODO js.Tuple2[ReadableStream[T
+}
+<<< breaking precedence #164
+   def getUserMedia(constraints: MediaStreamConstraints,
+      success: js.Function1[MediaStream, Any],
+      error: js.Function1[DOMError, Any] ): Unit = js.native
+>>>
+def getUserMedia(constraints: MediaStreamConstraints,
+    success: js.Function1[MediaStream, Any],
+    error: js.Function1[DOMError, Any]): Unit = js.native
+<<< don't move body if it was on new line, #182
+def a =
+ js.native
+>>>
+def a = js.native
+<<< default penalty #247, binPack=always, dangle
+binPack.unsafeDefnSite = always
+danglingParentheses.defnSite = true
+===
+{
+  def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
+}
+>>>
+{
+  def fetch(info: RequestInfo,
+      init: RequestInit = null): js.Promise[Response] = js.native
+}
+<<< default penalty #247, binPack=always, !dangle
+binPack.unsafeDefnSite = always
+danglingParentheses.defnSite = false
+===
+{
+  def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
+}
+>>>
+{
+  def fetch(info: RequestInfo,
+      init: RequestInit = null): js.Promise[Response] = js.native
+}
+<<< default penalty #247, binPack=always, !dangle, avoidInResultType
+binPack.unsafeDefnSite = always
+newlines.avoidInResultType = true
+danglingParentheses.defnSite = false
+===
+{
+  def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
+}
+>>>
+{
+  def fetch(info: RequestInfo,
+      init: RequestInit = null): js.Promise[Response] = js.native
+}
+<<< default penalty #247, binPack=oneline, dangle
+binPack.unsafeDefnSite = oneline
+danglingParentheses.defnSite = true
+===
+{
+  def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
+}
+>>>
+{
+  def fetch(info: RequestInfo,
+      init: RequestInit = null): js.Promise[Response] = js.native
+}
+<<< default penalty #247, binPack=oneline, !dangle
+binPack.unsafeDefnSite = oneline
+danglingParentheses.defnSite = false
+===
+{
+  def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
+}
+>>>
+{
+  def fetch(info: RequestInfo,
+      init: RequestInit = null): js.Promise[Response] = js.native
+}
+<<< default penalty #247, binPack=oneline, !dangle, avoidInResultType
+binPack.unsafeDefnSite = oneline
+newlines.avoidInResultType = true
+danglingParentheses.defnSite = false
+===
+{
+  def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
+}
+>>>
+{
+  def fetch(info: RequestInfo,
+      init: RequestInit = null): js.Promise[Response] = js.native
+}
+<<< default penalty 2 #247
+  def apply(_status: Int = 200,
+      _statusText: ByteString = "OK",
+      _headers: HeadersInit = js.Dictionary[String]()): ResponseInit = new ResponseInit {
+  ???
+}
+>>>
+def apply(_status: Int = 200, _statusText: ByteString = "OK",
+    _headers: HeadersInit = js.Dictionary[String]()): ResponseInit =
+  new ResponseInit {
+    ???
+  }
+<<< default penalty 3 #247
+{
+  def getRegistration(scope: String = ""): js.Promise[js.UndefOr[ServiceWorkerRegistration]] = 2
+}
+>>>
+{
+  def getRegistration(
+      scope: String = ""): js.Promise[js.UndefOr[ServiceWorkerRegistration]] =
+    2
+}
+<<< default penalty 4 #247
+class RTCPeerConnection(
+    configuration: js.UndefOr[RTCConfiguration] = js.undefined) extends EventTarget {
+  ???
+}
+>>>
+class RTCPeerConnection(
+    configuration: js.UndefOr[RTCConfiguration] = js.undefined)
+    extends EventTarget {
+  ???
+}
+<<< column limit is holy
+ {
+   def insertAll(n: Int,
+               elems: scala.collection.Traversable[A]): Unit = {
+       array.splice(n, 0, elems.toSeq: _*)
+               }
+ }
+>>>
+{
+  def insertAll(n: Int, elems: scala.collection.Traversable[A]): Unit = {
+    array.splice(n, 0, elems.toSeq: _*)
+  }
+}
+<<< config style #249
+def apply(
+  body: js.UndefOr[String] = js.undefined,
+      dir: js.UndefOr[String] = js.undefined,
+      icon: js.UndefOr[String] = js.undefined,
+      lang: js.UndefOr[String] = js.undefined,
+      noscreen: js.UndefOr[Boolean] = js.undefined,
+      renotify: js.UndefOr[Boolean] = js.undefined,
+      silent: js.UndefOr[Boolean] = js.undefined,
+      sound: js.UndefOr[String] = js.undefined,
+      sticky: js.UndefOr[Boolean] = js.undefined,
+      tag: js.UndefOr[String] = js.undefined,
+      onclick: js.UndefOr[js.Function0[Any]] = js.undefined,
+      onerror: js.UndefOr[js.Function0[Any]] = js.undefined,
+      vibrate: js.UndefOr[js.Array[Double]] =
+        js.undefined
+        ): NotificationOptions = {
+        ???
+        }
+>>>
+def apply(
+    body: js.UndefOr[String] = js.undefined,
+    dir: js.UndefOr[String] = js.undefined,
+    icon: js.UndefOr[String] = js.undefined,
+    lang: js.UndefOr[String] = js.undefined,
+    noscreen: js.UndefOr[Boolean] = js.undefined,
+    renotify: js.UndefOr[Boolean] = js.undefined,
+    silent: js.UndefOr[Boolean] = js.undefined,
+    sound: js.UndefOr[String] = js.undefined,
+    sticky: js.UndefOr[Boolean] = js.undefined,
+    tag: js.UndefOr[String] = js.undefined,
+    onclick: js.UndefOr[js.Function0[Any]] = js.undefined,
+    onerror: js.UndefOr[js.Function0[Any]] = js.undefined,
+    vibrate: js.UndefOr[js.Array[Double]] = js.undefined
+): NotificationOptions = {
+  ???
+}
+<<< tuples bin packing #252
+object a {
+  object b {
+    override def iterator: Iterator[(String, Attr)] = new Iterator[(String, Attr)] {
+      ???
+    }
+  }
+}
+>>>
+object a {
+  object b {
+    override def iterator: Iterator[(String, Attr)] =
+      new Iterator[(String, Attr)] {
+        ???
+      }
+  }
+}
+<<< tuples bin packing 2 #252
+object a {
+  object b {
+    override def iterator: Iterator[AAAAAAAAAAAAAAAAAA, BBBBBBBBBBBBBBBBB, GGGGGGGGGGGGGGGGGGG, CDCCCCCCCCCCCCCCCCCC, DDDDDDDDDDDDD, EEEEEEEEEEEE, (StringAAAAAAAAAAAAAAAAAAAAAAAA, Attr)] = new Iterator[(String, Attr)] {
+      ???
+    }
+  }
+}
+>>>
+object a {
+  object b {
+    override def iterator: Iterator[AAAAAAAAAAAAAAAAAA, BBBBBBBBBBBBBBBBB,
+        GGGGGGGGGGGGGGGGGGG, CDCCCCCCCCCCCCCCCCCC, DDDDDDDDDDDDD, EEEEEEEEEEEE,
+        (StringAAAAAAAAAAAAAAAAAAAAAAAA, Attr)] =
+      new Iterator[(String, Attr)] {
+        ???
+      }
+  }
+}
+<<< weird breaking #252
+object a {
+  object b {
+        def applyDynamicNamed(name: String)(fields: (String, Any)*): Object with Dynamic = sys.error("stub")
+  }
+}
+>>>
+object a {
+  object b {
+    def applyDynamicNamed(name: String)(fields: (String,
+            Any)*): Object with Dynamic = sys.error("stub")
+  }
+}
+<<< weird breaking #252, oneline
+binPack.preset = oneline
+===
+object a {
+  object b {
+        def applyDynamicNamed(name: String)(fields: (String, Any)*): Object with Dynamic = sys.error("stub")
+  }
+}
+>>>
+object a {
+  object b {
+    def applyDynamicNamed(name: String)(fields: (String,
+            Any)*): Object with Dynamic = sys.error("stub")
+  }
+}
+<<< toFunction8 #255 avoidInResultType, sometimesBeforeColonInMethodReturnType
+newlines.avoidInResultType = true
+newlines.sometimesBeforeColonInMethodReturnType = true
+===
+  implicit def toFunction8[T1, T2, T3, T4, T5, T6, T7, T8, R](f: Function8[T1, T2, T3, T4, T5, T6, T7, T8, R]): scala.Function8[T1, T2, T3, T4, T5, T6, T7, T8, R] = (x1, x2, x3, x4, x5, x6, x7, x8) => f(x1, x2, x3, x4, x5, x6, x7, x8)
+>>>
+implicit def toFunction8[T1, T2, T3, T4, T5, T6, T7, T8, R](
+    f: Function8[T1, T2, T3, T4, T5, T6, T7, T8, R])
+    : scala.Function8[T1, T2, T3, T4, T5, T6, T7, T8, R] = (x1, x2, x3, x4, x5,
+    x6, x7, x8) => f(x1, x2, x3, x4, x5, x6, x7, x8)
+<<< toFunction8 #255 avoidInResultType, !sometimesBeforeColonInMethodReturnType
+newlines.avoidInResultType = true
+newlines.sometimesBeforeColonInMethodReturnType = false
+===
+  implicit def toFunction8[T1, T2, T3, T4, T5, T6, T7, T8, R](f: Function8[T1, T2, T3, T4, T5, T6, T7, T8, R]): scala.Function8[T1, T2, T3, T4, T5, T6, T7, T8, R] = (x1, x2, x3, x4, x5, x6, x7, x8) => f(x1, x2, x3, x4, x5, x6, x7, x8)
+>>>
+implicit def toFunction8[T1, T2, T3, T4, T5, T6, T7, T8, R](
+    f: Function8[T1, T2, T3, T4, T5, T6, T7, T8,
+        R]): scala.Function8[T1, T2, T3, T4, T5, T6, T7, T8, R] = (x1, x2, x3,
+    x4, x5, x6, x7, x8) => f(x1, x2, x3, x4, x5, x6, x7, x8)
+<<< toFunction8 #255 !avoidInResultType, sometimesBeforeColonInMethodReturnType
+newlines.avoidInResultType = false
+newlines.sometimesBeforeColonInMethodReturnType = true
+===
+  implicit def toFunction8[T1, T2, T3, T4, T5, T6, T7, T8, R](f: Function8[T1, T2, T3, T4, T5, T6, T7, T8, R]): scala.Function8[T1, T2, T3, T4, T5, T6, T7, T8, R] = (x1, x2, x3, x4, x5, x6, x7, x8) => f(x1, x2, x3, x4, x5, x6, x7, x8)
+>>>
+implicit def toFunction8[T1, T2, T3, T4, T5, T6, T7, T8, R](
+    f: Function8[T1, T2, T3, T4, T5, T6, T7, T8, R])
+    : scala.Function8[T1, T2, T3, T4, T5, T6, T7, T8, R] = (x1, x2, x3, x4, x5,
+    x6, x7, x8) => f(x1, x2, x3, x4, x5, x6, x7, x8)
+<<< toFunction8 #255 !avoidInResultType, !sometimesBeforeColonInMethodReturnType
+newlines.avoidInResultType = false
+newlines.sometimesBeforeColonInMethodReturnType = false
+===
+  implicit def toFunction8[T1, T2, T3, T4, T5, T6, T7, T8, R](f: Function8[T1, T2, T3, T4, T5, T6, T7, T8, R]): scala.Function8[T1, T2, T3, T4, T5, T6, T7, T8, R] = (x1, x2, x3, x4, x5, x6, x7, x8) => f(x1, x2, x3, x4, x5, x6, x7, x8)
+>>>
+implicit def toFunction8[T1, T2, T3, T4, T5, T6, T7, T8, R](
+    f: Function8[T1, T2, T3, T4, T5, T6, T7, T8, R]): scala.Function8[T1, T2,
+    T3, T4, T5, T6, T7, T8, R] = (x1, x2, x3, x4, x5, x6, x7, x8) =>
+  f(x1, x2, x3, x4, x5, x6, x7, x8)
+<<< toFunction22 #255
+  implicit def toFunction22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R](f: Function22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R]): scala.Function22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R] = (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22) => f(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22)
+>>>
+implicit def toFunction22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
+    T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R](
+    f: Function22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14,
+        T15, T16, T17, T18, T19, T20, T21, T22,
+        R]): scala.Function22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11,
+    T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R] = (x1, x2, x3,
+    x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19,
+    x20, x21, x22) =>
+  f(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17,
+      x18, x19, x20, x21, x22)
+<<< comment inside middle of type parameter #264 2
+   def sourceMapper: js.UndefOr[js.Function1[ // scalastyle:ignore
+    js.Array[JSStackTraceElem], js.Array[JSStackTraceElem]]] = js.native
+>>>
+def sourceMapper: js.UndefOr[js.Function1[ // scalastyle:ignore
+    js.Array[JSStackTraceElem], js.Array[JSStackTraceElem]]] = js.native
+<<< comment inside middle of type parameter #264 3
+   def sourceMapper: js.UndefOr[ // scalastyle:ignore
+    js.Array[JSStackTraceElem], js.Array[JSStackTraceElem]] = js.native
+>>>
+def sourceMapper: js.UndefOr[ // scalastyle:ignore
+    js.Array[JSStackTraceElem], js.Array[JSStackTraceElem]] = js.native
+<<< comment inside middle of type parameter #264 4
+   def sourceMapper: js.UndefOr[js.Array[ // scalastyle:ignore
+    JSStackTraceElem], js.Array[JSStackTraceElem]] = js.native
+>>>
+def sourceMapper: js.UndefOr[js.Array[ // scalastyle:ignore
+        JSStackTraceElem], js.Array[JSStackTraceElem]] = js.native
+<<< align by =>;Case #268
+   def unwrapJavaScriptException(th: Throwable): Any = th match {
+     case js.JavaScriptException(e) => e
+    case _                         => th
+   }
+>>>
+def unwrapJavaScriptException(th: Throwable): Any = th match {
+  case js.JavaScriptException(e) => e
+  case _                         => th
+}
+<<< no newline before { #305
+object RTCIceCandidateInit {
+  @inline
+  def apply(
+      candidate: js.UndefOr[String] = js.undefined,
+      sdpMid: js.UndefOr[String] = js.undefined,
+      sdpMLineIndex: js.UndefOr[Double] = js.undefined): RTCIceCandidateInit = {
+    val result = js.Dynamic.literal()
+    candidate.foreach(result.candidate = _)
+    sdpMid.foreach(result.sdpMid = _)
+    sdpMLineIndex.foreach(result.sdpMLineIndex = _)
+    result.asInstanceOf[RTCIceCandidateInit]
+  }
+}
+>>>
+object RTCIceCandidateInit {
+  @inline
+  def apply(candidate: js.UndefOr[String] = js.undefined,
+      sdpMid: js.UndefOr[String] = js.undefined,
+      sdpMLineIndex: js.UndefOr[Double] =
+        js.undefined): RTCIceCandidateInit = {
+    val result = js.Dynamic.literal()
+    candidate.foreach(result.candidate = _)
+    sdpMid.foreach(result.sdpMid = _)
+    sdpMLineIndex.foreach(result.sdpMLineIndex = _)
+    result.asInstanceOf[RTCIceCandidateInit]
+  }
+}
+<<< #496
+{
+def permissionState(
+      options: PushSubscriptionOptions = js.native): js.Promise[PushPermissionState] = js.native
+}
+>>>
+{
+  def permissionState(
+      options: PushSubscriptionOptions = js.native): js.Promise[PushPermissionState] = js.native
+}
+<<< #2078
+object a {
+  def print(optimizerHints: OptimizerHints)(
+      implicit dummy: DummyImplicit): Unit = {
+    if (optimizerHints != OptimizerHints.empty) {
+      print("@hints(")
+      print(OptimizerHints.toBits(optimizerHints).toString)
+      print(") ")
+    }
+  }
+
+  def print(flags: ApplyFlags)(
+      implicit dummy1: DummyImplicit, dummy2: DummyImplicit): Unit = {
+    if (flags.isPrivate)
+      print("private::")
+  }
+}
+>>>
+object a {
+  def print(optimizerHints: OptimizerHints)(
+      implicit dummy: DummyImplicit): Unit = {
+    if (optimizerHints != OptimizerHints.empty) {
+      print("@hints(")
+      print(OptimizerHints.toBits(optimizerHints).toString)
+      print(") ")
+    }
+  }
+
+  def print(flags: ApplyFlags)(implicit dummy1: DummyImplicit,
+      dummy2: DummyImplicit): Unit = {
+    if (flags.isPrivate)
+      print("private::")
+  }
+}
+<<< oneline def with keep, cfg+dangle
+preset = default
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = true
+newlines.configStyleDefnSite.prefer = true
+===
+object a {
+   override private[util] def newNode(key: K, hash: Int, value: V,
+      previous: HashMap.Node[K, V], next: HashMap.Node[K, V]): HashMap.Node[K, V] = {
+     new NullRejectingHashMap.Node(key, hash, value, previous, next)
+   }
+}
+>>>
+object a {
+  override private[util] def newNode(key: K, hash: Int, value: V,
+      previous: HashMap.Node[K, V], next: HashMap.Node[K, V])
+      : HashMap.Node[K, V] = {
+    new NullRejectingHashMap.Node(key, hash, value, previous, next)
+  }
+}
+<<< oneline def with keep, cfg+!dangle
+preset = default
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = true
+===
+object a {
+   override private[util] def newNode(key: K, hash: Int, value: V,
+      previous: HashMap.Node[K, V], next: HashMap.Node[K, V]): HashMap.Node[K, V] = {
+     new NullRejectingHashMap.Node(key, hash, value, previous, next)
+   }
+}
+>>>
+object a {
+  override private[util] def newNode(key: K, hash: Int, value: V,
+      previous: HashMap.Node[K, V], next: HashMap.Node[K, V])
+      : HashMap.Node[K, V] = {
+    new NullRejectingHashMap.Node(key, hash, value, previous, next)
+  }
+}
+<<< oneline def with keep, !cfg+dangle
+preset = default
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = true
+newlines.configStyleDefnSite.prefer = false
+===
+object a {
+   override private[util] def newNode(key: K, hash: Int, value: V,
+      previous: HashMap.Node[K, V], next: HashMap.Node[K, V]): HashMap.Node[K, V] = {
+     new NullRejectingHashMap.Node(key, hash, value, previous, next)
+   }
+}
+>>>
+object a {
+  override private[util] def newNode(key: K, hash: Int, value: V,
+      previous: HashMap.Node[K, V], next: HashMap.Node[K, V])
+      : HashMap.Node[K, V] = {
+    new NullRejectingHashMap.Node(key, hash, value, previous, next)
+  }
+}
+<<< oneline def with keep, !cfg+!dangle
+preset = default
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = false
+===
+object a {
+   override private[util] def newNode(key: K, hash: Int, value: V,
+      previous: HashMap.Node[K, V], next: HashMap.Node[K, V]): HashMap.Node[K, V] = {
+     new NullRejectingHashMap.Node(key, hash, value, previous, next)
+   }
+}
+>>>
+object a {
+  override private[util] def newNode(key: K, hash: Int, value: V,
+      previous: HashMap.Node[K, V], next: HashMap.Node[K, V])
+      : HashMap.Node[K, V] = {
+    new NullRejectingHashMap.Node(key, hash, value, previous, next)
+  }
+}
+<<< last comma right on maxColumn boundary, oneline
+preset = default
+maxColumn = 78
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = true
+===
+object a {
+  implicit def toFunction12[VeryVeryVeryVeryVeryVeryVeryVeryVeryLongTypeParam, R](
+    f: js.Function12[VeryVeryVeryVeryVeryVeryVeryVeryVeryLongTypeParam, R])
+    : scala.Function12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, R] =
+      (x1, x12) => f(x1, x12)
+}
+>>>
+object a {
+  implicit def toFunction12[VeryVeryVeryVeryVeryVeryVeryVeryVeryLongTypeParam,
+      R](
+      f: js.Function12[VeryVeryVeryVeryVeryVeryVeryVeryVeryLongTypeParam, R])
+      : scala.Function12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
+        R] =
+    (x1, x12) => f(x1, x12)
+}
+<<< one of the commas right on maxColumn boundary, oneline
+preset = default
+maxColumn = 80
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  implicit def fromFunction17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R](f: scala.Function17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R]): js.Function17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R] = (x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, x6: T6, x7: T7, x8: T8, x9: T9, x10: T10, x11: T11, x12: T12, x13: T13, x14: T14, x15: T15, x16: T16, x17: T17) => f(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17)
+}
+>>> { stateVisits = 920, stateVisits2 = 472 }
+object a {
+  implicit def fromFunction17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
+      T13, T14, T15, T16, T17, R](
+      f: scala.Function17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13,
+        T14, T15, T16, T17, R]): js.Function17[T1, T2, T3, T4, T5, T6, T7, T8,
+    T9, T10, T11, T12, T13, T14, T15, T16, T17, R] = (x1: T1, x2: T2, x3: T3,
+      x4: T4, x5: T5, x6: T6, x7: T7, x8: T8, x9: T9, x10: T10, x11: T11,
+      x12: T12, x13: T13, x14: T14, x15: T15, x16: T16, x17: T17) =>
+    f(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17)
+}
+<<< break at maxColumn, with overflow enabled 1
+preset = default
+maxColumn = 80
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  def setTimeout(handler: js.Function0[Any], interval: Double): SetTimeoutHandle = js.native
+}
+>>>
+object a {
+  def setTimeout(handler: js.Function0[Any], interval: Double)
+      : SetTimeoutHandle = js.native
+}
+<<< break at maxColumn, with overflow enabled 2
+preset = default
+maxColumn = 80
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  def getArrayUnderlyingTypedArrayClassRef(elemTypeRef: NonArrayTypeRef)(implicit tracking: GlobalRefTracking, pos: Position): Option[WithGlobals[VarRef]] = {
+    // foo
+  }
+}
+>>>
+object a {
+  def getArrayUnderlyingTypedArrayClassRef(
+      elemTypeRef: NonArrayTypeRef)(implicit tracking: GlobalRefTracking,
+      pos: Position): Option[WithGlobals[VarRef]] = {
+    // foo
+  }
+}
+<<< break at maxColumn, with overflow enabled 3
+preset = default
+maxColumn = 80
+newlines.source = keep
+binPack.preset = oneline
+danglingParentheses.preset = false
+newlines.configStyleDefnSite.prefer = true
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  def foo = {
+    val registry = new js_FinalizationRegistry[js_Date, String, Any]((heldValue: String) => ())
+  }
+}
+>>>
+object a {
+  def foo = {
+    val registry =
+      new js_FinalizationRegistry[js_Date, String, Any]((heldValue: String) => ())
+  }
+}
+<<< break at maxColumn, with overflow enabled 4
+preset = default
+maxColumn = 80
+newlines.source = keep
+binPack.preset = oneline
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  @inline implicit def fromScalaTuple13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](t: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)): js.Tuple13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] =
+    apply(t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10, t._11, t._12, t._13)
+}
+>>>
+object a {
+  @inline implicit def fromScalaTuple13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10,
+      T11, T12, T13](
+      t: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
+  ): js.Tuple13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] =
+    apply(t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10, t._11,
+      t._12, t._13)
+}
+<<< break at maxColumn, with overflow enabled 5
+preset = default
+maxColumn = 80
+newlines.source = keep
+binPack.preset = oneline
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+===
+object a {
+  @inline implicit def fromScalaTuple18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](t: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)): js.Tuple18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18] =
+    apply(t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10, t._11, t._12, t._13, t._14, t._15, t._16, t._17, t._18)
+}
+>>>
+object a {
+  @inline implicit def fromScalaTuple18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10,
+      T11, T12, T13, T14, T15, T16, T17, T18](t: (T1, T2, T3, T4, T5, T6, T7, T8,
+          T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)): js.Tuple18[T1, T2,
+    T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18] =
+    apply(t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10, t._11,
+      t._12, t._13, t._14, t._15, t._16, t._17, t._18)
+}
+<<< #4133 overflow selects with apply-type 1
+maxColumn = 78
+runner.parser = source
+newlines.source = keep
+===
+@inline implicit def enrichAsScalaFromToIntFunction[T](jf: java.util.function.ToIntFunction[T]): RichToIntFunctionAsFunction1[T] = new RichToIntFunctionAsFunction1[T](jf)
+>>>
+@inline implicit def enrichAsScalaFromToIntFunction[T](
+    jf: java.util.function.ToIntFunction[
+        T]): RichToIntFunctionAsFunction1[T] =
+  new RichToIntFunctionAsFunction1[T](jf)
+<<< #4133 overflow selects with apply-type 2
+maxColumn = 70
+newlines.source = keep
+===
+def asScalaFromDoubleFunction[R](jf: java.util.function.DoubleFunction[R]): scala.Function1[java.lang.Double, R]
+>>>
+def asScalaFromDoubleFunction[R](
+    jf: java.util.function.DoubleFunction[
+        R]): scala.Function1[java.lang.Double, R]
+<<< #4133 complex nested applies with long infix args
+maxColumn = 80
+newlines.source = keep
+runner.maxStateVisits = 10000
+===
+trait EntityPage extends HtmlPage {
+  def search =
+    Div(id="search", elems=
+        Span(id= "doc-title", elems= Txt(universe.settings.doctitle.value) :: Span(id= "doc-version", elems= Txt(universe.settings.docversion.value))) ::
+        Txt(" ") ::
+        Span(`class`= "close-results", elems= Span(`class`="left", elems= Txt("<")) :: Txt(" Back")) ::
+        Div(id="textfilter", elems=
+          Span(`class`= "input", elems=
+            Input(autocapitalize="none", placeholder="Search", id="index-input", `type`="text", accesskey="/") ::
+            I(`class`= "clear material-icons", elems=Txt("\uE14C")) ::
+            I(id="search-icon", `class`= "material-icons", elems=Txt("\uE8B6"))
+          )
+         ) :: NoElems
+       )
+
+}
+>>> { stateVisits = 1042, stateVisits2 = 379 }
+trait EntityPage extends HtmlPage {
+  def search =
+    Div(
+        id = "search",
+        elems =
+          Span(id = "doc-title",
+              elems = Txt(universe.settings.doctitle.value) :: Span(
+                  id = "doc-version",
+                  elems = Txt(universe.settings.docversion.value))) ::
+            Txt(" ") ::
+            Span(`class` = "close-results",
+                elems = Span(`class` = "left", elems = Txt("<")) :: Txt(
+                    " Back")) ::
+            Div(
+                id = "textfilter",
+                elems =
+                  Span(
+                      `class` = "input",
+                      elems =
+                        Input(autocapitalize = "none", placeholder = "Search",
+                            id = "index-input", `type` = "text",
+                            accesskey = "/") ::
+                          I(`class` = "clear material-icons",
+                              elems = Txt("\uE14C")) ::
+                          I(id = "search-icon", `class` = "material-icons",
+                              elems = Txt("\uE8B6"))
+                  )
+            ) :: NoElems
+    )
+
+}
+<<< #4133 complex nested applies with long infix args 2
+maxColumn = 80
+newlines.source = keep
+runner.maxStateVisits = 100000
+===
+val memberSel: Elems =
+  if (valueMembers.forall(_.kind == "package")) NoElems
+  else List(Div(id="mbrsel", elems=
+    Div(`class`="toggle") ::
+    Div(id="memberfilter", elems=
+      I(`class`="material-icons arrow", elems= Txt("\uE037")) ::
+      Span(`class`="input", elems=
+        Input(id="mbrsel-input", placeholder="Filter all members", `type`="text", accesskey="/")
+      ) ::
+      I(`class`="clear material-icons", elems=Txt("\uE14C"))
+    ) ::
+    Div(id="filterby", elems=
+      Div(id="order", elems=
+        Span(`class`="filtertype", elems=Txt("Ordering")) ::
+        Ol(elems=
+          {
+            if (!universe.settings.docGroups.value || tpl.members.map(_.group).distinct.forall(_ == ModelFactory.defaultGroup))
+              NoElems
+            else
+              Li(`class`="group out", elems=Span(elems=Txt("Grouped"))) :: NoElems
+          } ++
+          (Li(`class`="alpha in", elems=Span(elems=Txt("Alphabetic"))) ::
+          {
+            if (tpl.linearizationTemplates.isEmpty && tpl.conversions.isEmpty)
+              NoElems
+            else
+              Li(`class`="inherit out", elems=Span(elems=Txt("By Inheritance"))) :: NoElems
+          })
+        )
+      ) ++ (
+      if (tpl.linearizationTemplates.isEmpty && tpl.conversions.isEmpty) NoElems else {
+        (if (tpl.linearizationTemplates.isEmpty) NoElems else
+          Div(`class`="ancestors", elems=
+            Span(`class`="filtertype", elems=Txt("Inherited") :: Br :: NoElems) ::
+            Ol(id="linearization", elems=
+              { (tpl :: tpl.linearizationTemplates).map(wte => Li(`class`="in", name= wte.qualifiedName, elems=Span(elems= Txt(wte.name)))) }
+            )
+          ) :: NoElems) ++
+        (if (tpl.conversions.isEmpty) NoElems else
+          Div(`class`="ancestors", elems=
+            Span(`class`="filtertype", elems=Txt("Implicitly") :: Br :: NoElems) ::
+            Ol(id="implicits", elems= {
+              tpl.conversions.map { conv =>
+                val name = conv.conversionQualifiedName
+                val hide = universe.settings.hiddenImplicits(name)
+                Li(`class`="in", name= name, `data-hidden`= hide.toString, elems= Span(elems= Txt("by " + conv.conversionShortName)))
+              }
+            }
+            )
+          ) :: NoElems) ++ List(
+        Div(`class`="ancestors", elems=
+          Span(`class`="filtertype") ::
+          Ol(elems=
+            Li(`class`="hideall out", elems= Span(elems=Txt("Hide All"))) ::
+            Li(`class`="showall in", elems= Span(elems=Txt("Show All")))
+          )
+        ))
+      }) ++ List(
+      Div(id="visbl", elems=
+          Span(`class`="filtertype", elems=Txt("Visibility")) ::
+          Ol(elems=
+            List(
+              Li(`class`="public in", elems=Span(elems=Txt("Public"))),
+              Li(`class`="protected out", elems=Span(elems=Txt("Protected")))
+            ) ++ List(Li(`class`="private out", elems=Span(elems=Txt("Private")))).filter(_ => universe.settings.visibilityPrivate.value))
+      ))
+    )
+  ))
+>>> { stateVisits = 1905, stateVisits2 = 1414 }
+val memberSel: Elems =
+  if (valueMembers.forall(_.kind == "package")) NoElems
+  else List(
+      Div(
+          id = "mbrsel",
+          elems =
+            Div(`class` = "toggle") ::
+              Div(
+                  id = "memberfilter",
+                  elems =
+                    I(`class` = "material-icons arrow",
+                        elems = Txt("\uE037")) ::
+                      Span(
+                          `class` = "input",
+                          elems =
+                            Input(id = "mbrsel-input",
+                                placeholder = "Filter all members",
+                                `type` = "text", accesskey = "/")
+                      ) ::
+                      I(`class` = "clear material-icons", elems = Txt("\uE14C"))
+              ) ::
+              Div(
+                  id = "filterby",
+                  elems =
+                    Div(
+                        id = "order",
+                        elems =
+                          Span(`class` = "filtertype",
+                              elems = Txt("Ordering")) ::
+                            Ol(
+                                elems = {
+                                  if (
+                                      !universe.settings.docGroups.value || tpl.members.map(
+                                          _.group).distinct.forall(
+                                          _ == ModelFactory.defaultGroup)
+                                  )
+                                    NoElems
+                                  else
+                                    Li(`class` = "group out",
+                                        elems = Span(
+                                            elems = Txt("Grouped"))) :: NoElems
+                                } ++
+                                  (Li(`class` = "alpha in",
+                                      elems = Span(
+                                          elems = Txt("Alphabetic"))) :: {
+                                    if (
+                                        tpl.linearizationTemplates.isEmpty && tpl.conversions.isEmpty
+                                    )
+                                      NoElems
+                                    else
+                                      Li(`class` = "inherit out",
+                                          elems = Span(
+                                              elems = Txt(
+                                                  "By Inheritance"))) :: NoElems
+                                  })
+                            )
+                    ) ++ (
+                        if (
+                            tpl.linearizationTemplates.isEmpty && tpl.conversions.isEmpty
+                        ) NoElems
+                        else {
+                          (if (tpl.linearizationTemplates.isEmpty) NoElems
+                           else
+                             Div(
+                                 `class` = "ancestors",
+                                 elems =
+                                   Span(`class` = "filtertype",
+                                       elems = Txt(
+                                           "Inherited") :: Br :: NoElems) ::
+                                     Ol(
+                                         id = "linearization",
+                                         elems = {
+                                           (tpl :: tpl.linearizationTemplates).map(
+                                               wte =>
+                                                 Li(`class` = "in",
+                                                     name = wte.qualifiedName,
+                                                     elems = Span(
+                                                         elems = Txt(
+                                                             wte.name))))
+                                         }
+                                     )
+                             ) :: NoElems) ++
+                            (if (tpl.conversions.isEmpty) NoElems
+                             else
+                               Div(
+                                   `class` = "ancestors",
+                                   elems =
+                                     Span(`class` = "filtertype",
+                                         elems = Txt(
+                                             "Implicitly") :: Br :: NoElems) ::
+                                       Ol(
+                                           id = "implicits",
+                                           elems = {
+                                             tpl.conversions.map { conv =>
+                                               val name =
+                                                 conv.conversionQualifiedName
+                                               val hide =
+                                                 universe.settings.hiddenImplicits(
+                                                     name)
+                                               Li(`class` = "in", name = name,
+                                                   `data-hidden` =
+                                                     hide.toString,
+                                                   elems = Span(
+                                                       elems = Txt(
+                                                           "by " + conv.conversionShortName)))
+                                             }
+                                           }
+                                       )
+                               ) :: NoElems) ++ List(
+                                Div(
+                                    `class` = "ancestors",
+                                    elems =
+                                      Span(`class` = "filtertype") ::
+                                        Ol(
+                                            elems =
+                                              Li(`class` = "hideall out",
+                                                  elems = Span(
+                                                      elems = Txt(
+                                                          "Hide All"))) ::
+                                                Li(`class` = "showall in",
+                                                    elems = Span(
+                                                        elems = Txt(
+                                                            "Show All")))
+                                        )
+                                ))
+                        }) ++ List(
+                        Div(
+                            id = "visbl",
+                            elems =
+                              Span(`class` = "filtertype",
+                                  elems = Txt("Visibility")) ::
+                                Ol(
+                                    elems =
+                                      List(
+                                          Li(`class` = "public in",
+                                              elems = Span(
+                                                  elems = Txt("Public"))),
+                                          Li(`class` = "protected out",
+                                              elems = Span(
+                                                  elems = Txt("Protected")))
+                                      ) ++ List(Li(`class` = "private out",
+                                              elems = Span(
+                                                  elems = Txt(
+                                                      "Private")))).filter(_ =>
+                                        universe.settings.visibilityPrivate.value))
+                        ))
+              )
+      ))
+<<< #4133 complex nested applies with long infix args 3
+maxColumn = 80
+newlines.source = keep
+runner.maxStateVisits = 10000
+===
+val template: Elems = List(
+ Div(id="template", elems= List(
+    Div(id="allMembers", elems=
+         memsDiv("package members", "Package Members", packageMembers, "packages")
+      ++ memsDiv("members", "Instance Constructors", constructors, "constructors")
+      ++ memsDiv("types members", "Type Members", typeMembers, "types")
+      ++ memsDiv("types members", "Deprecated Type Members", deprTypeMembers, "deprecatedTypes")
+      ++ memsDiv("values members", "Abstract Value Members", absValueMembers)
+      ++ memsDiv("values members", if (absValueMembers.isEmpty) "Value Members" else "Concrete Value Members", concValueMembers)
+      ++ memsDiv("values members", "Shadowed Implicit Value Members", shadowedImplicitMembers)
+      ++ memsDiv("values members", "Deprecated Value Members", deprValueMembers)),
+    )
+  ))
+>>>
+val template: Elems = List(
+    Div(
+        id = "template",
+        elems = List(
+            Div(id = "allMembers",
+                elems =
+                  memsDiv("package members", "Package Members", packageMembers,
+                      "packages")
+                    ++ memsDiv("members", "Instance Constructors", constructors,
+                        "constructors")
+                    ++ memsDiv(
+                        "types members", "Type Members", typeMembers, "types")
+                    ++ memsDiv("types members", "Deprecated Type Members",
+                        deprTypeMembers, "deprecatedTypes")
+                    ++ memsDiv("values members", "Abstract Value Members",
+                        absValueMembers)
+                    ++ memsDiv("values members",
+                        if (absValueMembers.isEmpty) "Value Members"
+                        else "Concrete Value Members", concValueMembers)
+                    ++ memsDiv(
+                        "values members", "Shadowed Implicit Value Members",
+                        shadowedImplicitMembers)
+                    ++ memsDiv("values members", "Deprecated Value Members",
+                        deprValueMembers))
+        )
+    ))
+<<< #4133 implicit with bracket and comment in type
+maxColumn = 78
+newlines.source = keep
+===
+override def flatten[B](implicit asTraversable: A => /*<:<!!!*/ GenTraversableOnce[B]): Stream[B] = {
+  // foo
+}
+>>>
+override def flatten[B](
+    implicit asTraversable: A => /*<:<!!!*/ GenTraversableOnce[
+        B]): Stream[B] = {
+  // foo
+}
+<<< #4133 no implicit with bracket and comment in type
+maxColumn = 78
+newlines.source = keep
+===
+override def flatten[B](implicit_asTraversable: A => /*<:<!!!*/ GenTraversableOnce[B]): Stream[B] = {
+  // foo
+}
+>>>
+override def flatten[B](
+    implicit_asTraversable: A => /*<:<!!!*/ GenTraversableOnce[
+        B]): Stream[B] = {
+  // foo
+}
+<<< #4133 no implicit with bracket and no comment in type
+maxColumn = 78
+newlines.source = keep
+===
+override def flatten[B](implicit_asTraversable: A => hadComment_GenTraversableOnce[B]): Stream[B] = {
+  // foo
+}
+>>>
+override def flatten[B](
+    implicit_asTraversable: A => hadComment_GenTraversableOnce[
+        B]): Stream[B] = {
+  // foo
+}
+<<< #4133 no implicit with bracket and no comment in type, no arrow
+maxColumn = 78
+newlines.source = keep
+===
+override def flatten[B](implicit_asTraversable: A_aw_hadComment_GenTraversableOnce[B]): Stream[B] = {
+  // foo
+}
+>>>
+override def flatten[B](
+    implicit_asTraversable: A_aw_hadComment_GenTraversableOnce[
+        B]): Stream[B] = {
+  // foo
+}
+<<< #4133 format:off sequence of generics from play framework, subset
+newlines.source = keep
+runner.maxStateVisits=1000000
+runner.optimizer.maxVisitsPerToken=100000
+===
+abstract class GeneratedRouter extends Router {
+  // format: off
+
+  def call[A1, A2, A3, A4, A5, A6, A7, A8](pa1: Param[A1], pa2: Param[A2], pa3: Param[A3], pa4: Param[A4], pa5: Param[A5], pa6: Param[A6], pa7: Param[A7], pa8: Param[A8])(generator: Function8[A1, A2, A3, A4, A5, A6, A7, A8, Handler]): Handler = {
+  }
+
+  def call[A1, A2, A3, A4, A5, A6, A7, A8, A9](pa1: Param[A1], pa2: Param[A2], pa3: Param[A3], pa4: Param[A4], pa5: Param[A5], pa6: Param[A6], pa7: Param[A7], pa8: Param[A8], pa9: Param[A9])(generator: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, Handler]): Handler = {
+  }
+
+  def call[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10](pa1: Param[A1], pa2: Param[A2], pa3: Param[A3], pa4: Param[A4], pa5: Param[A5], pa6: Param[A6], pa7: Param[A7], pa8: Param[A8], pa9: Param[A9], pa10: Param[A10])(generator: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, Handler]): Handler = {
+  }
+
+  // format: on
+}
+>>> { stateVisits = 359, stateVisits2 = 359 }
+abstract class GeneratedRouter extends Router {
+  // format: off
+
+  def call[A1, A2, A3, A4, A5, A6, A7, A8](pa1: Param[A1], pa2: Param[A2], pa3: Param[A3], pa4: Param[A4], pa5: Param[A5], pa6: Param[A6], pa7: Param[A7], pa8: Param[A8])(generator: Function8[A1, A2, A3, A4, A5, A6, A7, A8, Handler]): Handler = {
+  }
+
+  def call[A1, A2, A3, A4, A5, A6, A7, A8, A9](pa1: Param[A1], pa2: Param[A2], pa3: Param[A3], pa4: Param[A4], pa5: Param[A5], pa6: Param[A6], pa7: Param[A7], pa8: Param[A8], pa9: Param[A9])(generator: Function9[A1, A2, A3, A4, A5, A6, A7, A8, A9, Handler]): Handler = {
+  }
+
+  def call[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10](pa1: Param[A1], pa2: Param[A2], pa3: Param[A3], pa4: Param[A4], pa5: Param[A5], pa6: Param[A6], pa7: Param[A7], pa8: Param[A8], pa9: Param[A9], pa10: Param[A10])(generator: Function10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, Handler]): Handler = {
+  }
+
+  // format: on
+}

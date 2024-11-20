@@ -1,6 +1,6 @@
 package org.scalafmt.internal
 
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import scala.language.implicitConversions
 
@@ -15,7 +15,7 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
   @inline
   def isNL: Boolean = mod.isNL
 
-  def withIndent(length: => Length, expire: => Token, when: ExpiresOn): ModExt =
+  def withIndent(length: => Length, expire: => FT, when: ExpiresOn): ModExt =
     length match {
       case Length.Num(0, _) => this
       case x => withIndentImpl(Indent(x, expire, when))
@@ -23,7 +23,7 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
 
   def withIndentOpt(
       length: => Length,
-      expire: Option[Token],
+      expire: Option[FT],
       when: ExpiresOn,
   ): ModExt = expire.fold(this)(withIndent(length, _, when))
 
@@ -41,7 +41,7 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
   private def withIndentImpl(indent: Indent): ModExt =
     copy(indents = indent +: indents)
 
-  def switch(trigger: Token, on: Boolean): ModExt = {
+  def switch(trigger: T, on: Boolean): ModExt = {
     val newIndents = indents.flatMap { x =>
       Some(x.switch(trigger, on)).filter(_ ne Indent.Empty)
     }
@@ -65,16 +65,14 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
     * for {
     *   a <- new Integer {
     *           value = 1
-    *         }
+    *        }
     *   x <- if (variable) doSomething
-    *       else doAnything
+    *        else doAnything
     * }
     * ```
     */
-  def getActualIndents(offset: Int): Seq[ActualIndent] = {
-    val adjustedOffset = if (mod eq Space) offset + 1 else offset
-    indents.flatMap(_.withStateOffset(adjustedOffset))
-  }
+  def getActualIndents(offset: Int): Seq[ActualIndent] = indents
+    .flatMap(_.withStateOffset(offset + mod.length))
 
 }
 

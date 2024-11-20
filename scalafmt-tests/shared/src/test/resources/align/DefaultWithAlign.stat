@@ -1,0 +1,2132 @@
+align.preset = more
+<<< => with comment
+x match {
+  case 1 => 2 // this is a comment
+  case 11 => 22 // another one
+  case 111 => 222 // third!
+
+  case 1111 => 1111 // Please ignore me, I'm a loner
+}
+>>>
+x match {
+  case 1   => 2   // this is a comment
+  case 11  => 22  // another one
+  case 111 => 222 // third!
+
+  case 1111 => 1111 // Please ignore me, I'm a loner
+}
+<<< val = with comment
+{
+  val x = 2 // x
+  val xx = 22 // xx
+  val xxx = 222 // xxx
+
+  val xxxx = 2222 // loner
+}
+>>>
+{
+  val x   = 2   // x
+  val xx  = 22  // xx
+  val xxx = 222 // xxx
+
+  val xxxx = 2222 // loner
+}
+<<< var = with comment
+{
+  var x = 2 // x
+  var xx = 22 // xx
+  var xxx = 222 // xxx
+
+  var xxxx = 2222 // loner
+}
+>>>
+{
+  var x   = 2   // x
+  var xx  = 22  // xx
+  var xxx = 222 // xxx
+
+  var xxxx = 2222 // loner
+}
+<<< def = with comment
+{
+  def x = 2 // x
+  def xx = 22 // xx
+  def xxx = 222 // xxx
+
+  def xxxx = 2222 // loner
+}
+>>>
+{
+  def x   = 2   // x
+  def xx  = 22  // xx
+  def xxx = 222 // xxx
+
+  def xxxx = 2222 // loner
+}
+<<< module id
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
+      "org.scala-lang" % "scala-compiler" % scalaVersion.value % "test",
+      "ch.qos.logback" % "logback-classic" % "1.1.6" % "test",
+      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % "test",
+      "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
+      "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+      "org.apache.commons" % "commons-math3" % "3.6" % "test",
+      "org.scalatest" %%% "scalatest" % Deps.scalatest % "test"
+    )
+>>>
+libraryDependencies ++= Seq(
+  "org.scala-lang" % "scala-reflect"   % scalaVersion.value % "test",
+  "org.scala-lang" % "scala-compiler"  % scalaVersion.value % "test",
+  "ch.qos.logback" % "logback-classic" % "1.1.6"            % "test",
+  "com.googlecode.java-diff-utils" % "diffutils"     % "1.3.0"        % "test",
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0"        % "test",
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4"        % "test",
+  "org.apache.commons"             % "commons-math3" % "3.6"          % "test",
+  "org.scalatest"                %%% "scalatest"     % Deps.scalatest % "test"
+)
+<<< slick #138
+{
+def address = column[String]("address", O.PrimaryKey)
+def name = column[String]("name")
+def status = column[Int]("status")
+}
+>>>
+{
+  def address = column[String]("address", O.PrimaryKey)
+  def name    = column[String]("name")
+  def status  = column[Int]("status")
+}
+<<< sbt := operator
+{
+  scalaVersion := "2.13.6"
+  version := "0.1.0-SNAPSHOT"
+}
+>>>
+{
+  scalaVersion := "2.13.6"
+  version      := "0.1.0-SNAPSHOT"
+}
+<<< sbt := operator with in ThisBuild
+{
+  scalaVersion in ThisBuild := "2.13.6"
+  version in ThisBuild := "0.1.0-SNAPSHOT"
+}
+>>>
+{
+  scalaVersion in ThisBuild := "2.13.6"
+  version in ThisBuild      := "0.1.0-SNAPSHOT"
+}
+<<< sbt := operator with /
+{
+  ThisBuild / scalaVersion := "2.13.6"
+  ThisBuild / version := "0.1.0-SNAPSHOT"
+}
+>>>
+{
+  ThisBuild / scalaVersion := "2.13.6"
+  ThisBuild / version      := "0.1.0-SNAPSHOT"
+}
+<<< colors #138
+// tuples
+val colors = Map (
+     "white"   -> white,
+     "green"   -> green,
+     "yellow"  -> yellow,
+     "red"     -> red,
+     "blue"    -> blue,
+     "cyan"    -> cyan,
+     "black"   -> black,
+     "magenta" -> magenta
+)
+>>>
+// tuples
+val colors = Map(
+  "white"   -> white,
+  "green"   -> green,
+  "yellow"  -> yellow,
+  "red"     -> red,
+  "blue"    -> blue,
+  "cyan"    -> cyan,
+  "black"   -> black,
+  "magenta" -> magenta
+)
+<<< sbt module ID #138
+{
+  addSbtPlugin("com.eed3si9n"   % "sbt-unidoc"            % "0.3.2")
+  addSbtPlugin("com.github.gseitz"    % "sbt-release"           % "1.0.0")
+  addSbtPlugin("com.jsuereth"  % "sbt-pgp"               % "1.0.0")
+  addSbtPlugin("com.typesafe.sbt"     % "sbt-ghpages"           % "0.5.3")
+  addSbtPlugin("com.typesafe.sbt"     % "sbt-site"              % "0.8.1")
+  addSbtPlugin("org.tpolecat"  % "tut-plugin"            % "0.4.0")
+  addSbtPlugin("pl.project13.scala"   % "sbt-jmh"               % "0.2.3")
+  addSbtPlugin("org.scalastyle"      %% "scalastyle-sbt-plugin" % "0.8.0")
+  addSbtPlugin("org.scoverage" % "sbt-scoverage"         % "1.2.0")
+  addSbtPlugin("com.typesafe.sbt"     % "sbt-git"               % "0.8.4")
+  addSbtPlugin("org.scala-js" % "sbt-scalajs"           % "0.6.8")
+  addSbtPlugin("com.github.tkawachi"  % "sbt-doctest"           % "0.3.5")
+  addSbtPlugin("org.xerial.sbt"       % "sbt-sonatype"          %  "1.1")
+}
+>>>
+{
+  addSbtPlugin("com.eed3si9n"        % "sbt-unidoc"            % "0.3.2")
+  addSbtPlugin("com.github.gseitz"   % "sbt-release"           % "1.0.0")
+  addSbtPlugin("com.jsuereth"        % "sbt-pgp"               % "1.0.0")
+  addSbtPlugin("com.typesafe.sbt"    % "sbt-ghpages"           % "0.5.3")
+  addSbtPlugin("com.typesafe.sbt"    % "sbt-site"              % "0.8.1")
+  addSbtPlugin("org.tpolecat"        % "tut-plugin"            % "0.4.0")
+  addSbtPlugin("pl.project13.scala"  % "sbt-jmh"               % "0.2.3")
+  addSbtPlugin("org.scalastyle"     %% "scalastyle-sbt-plugin" % "0.8.0")
+  addSbtPlugin("org.scoverage"       % "sbt-scoverage"         % "1.2.0")
+  addSbtPlugin("com.typesafe.sbt"    % "sbt-git"               % "0.8.4")
+  addSbtPlugin("org.scala-js"        % "sbt-scalajs"           % "0.6.8")
+  addSbtPlugin("com.github.tkawachi" % "sbt-doctest"           % "0.3.5")
+  addSbtPlugin("org.xerial.sbt"      % "sbt-sonatype"          % "1.1")
+}
+<<< final val #138
+object a{
+final val CAPTURED      = 1 << 16       // var
+final val LABEL         = 1 << 17       // meth
+final val INCONSTRUCTOR = 1 << 17       // class
+final val SYNTHETIC     = 1 << 21       // symbol
+final val STABLE        = 1 << 22       // f
+final val BRIDGE        = 1 << 26       // fu
+final val ACCESSOR      = 1 << 27       // a v
+final val SUPERACCESSOR = 1 << 28       // a su
+final val MODULEVAR     = 1 << 30       // for v
+final val IS_ERROR      = 1L << 32      // symbol
+final val OVERLOADED    = 1L << 33      // symbol
+}
+>>>
+object a {
+  final val CAPTURED      = 1 << 16  // var
+  final val LABEL         = 1 << 17  // meth
+  final val INCONSTRUCTOR = 1 << 17  // class
+  final val SYNTHETIC     = 1 << 21  // symbol
+  final val STABLE        = 1 << 22  // f
+  final val BRIDGE        = 1 << 26  // fu
+  final val ACCESSOR      = 1 << 27  // a v
+  final val SUPERACCESSOR = 1 << 28  // a su
+  final val MODULEVAR     = 1 << 30  // for v
+  final val IS_ERROR      = 1L << 32 // symbol
+  final val OVERLOADED    = 1L << 33 // symbol
+}
+<<< tricky regex #138
+def f[A](x: A)(f: A => Int) = f(x) match {
+  case 1 => true
+  case 222 => false
+}
+>>>
+def f[A](x: A)(f: A => Int) = f(x) match {
+  case 1   => true
+  case 222 => false
+}
+<<< tricky regex #138 2
+def f[A](x: A)(f: A => Int) = f(x) match {
+  case 1 => true
+  case 222 => false
+}
+>>>
+def f[A](x: A)(f: A => Int) = f(x) match {
+  case 1   => true
+  case 222 => false
+}
+<<< conflicting number of columns
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
+      "org.scala-lang" % "scala-compiler",
+      "ch.qos.logback" % "logback-classic" % "1.1.6" % "test"
+     )
+>>>
+libraryDependencies ++= Seq(
+  "org.scala-lang" % "scala-reflect"   % scalaVersion.value % "test",
+  "org.scala-lang" % "scala-compiler",
+  "ch.qos.logback" % "logback-classic" % "1.1.6"            % "test"
+)
+<<< 2x newline is respected
+class A {
+  override def x = 1
+
+    override def xx = 11
+}
+>>>
+class A {
+  override def x = 1
+
+  override def xx = 11
+}
+<<< align extends, #148
+object A {
+  trait B  extends A
+  trait BB extends A
+
+class B  extends A
+class BB extends A
+
+type C = Int
+type CC = String
+
+  trait Eq[-A]   extends Any            { def eqv(x: A, y: A): Boolean }
+  trait Hash[-A] extends Any with Eq[A] { def hash(x: A): Int          }
+}
+>>>
+object A {
+  trait B  extends A
+  trait BB extends A
+
+  class B  extends A
+  class BB extends A
+
+  type C  = Int
+  type CC = String
+
+  trait Eq[-A]   extends Any            { def eqv(x: A, y: A): Boolean }
+  trait Hash[-A] extends Any with Eq[A] { def hash(x: A): Int          }
+}
+<<< unicode => #155
+1 match {
+  case 1 ⇒ 1
+  case 11 ⇒ 1
+}
+>>>
+1 match {
+  case 1  ⇒ 1
+  case 11 ⇒ 1
+}
+<<< unicode -> #155
+val m = Map(
+    1 → 1,
+  11 → 1
+)
+>>>
+val m = Map(
+  1  → 1,
+  11 → 1
+)
+<<< align by <- #155
+for {
+  a <- List(1)
+  aaa <- List(1)
+} yield 1
+>>>
+for {
+  a   <- List(1)
+  aaa <- List(1)
+} yield 1
+<<< unicode <- #155
+for {
+  a ← List(1)
+  aaa ← List(1)
+} yield 1
+>>>
+for {
+  a   ← List(1)
+  aaa ← List(1)
+} yield 1
+<<< enumerator val = #155
+for {
+  a ← List(1)
+  a = List(1)
+  aaa = List(1)
+} yield 1
+>>>
+for {
+  a ← List(1)
+  a   = List(1)
+  aaa = List(1)
+} yield 1
+<<< don't jump scope #152
+object Cleaver {
+   def apply[R, A, B](): Cleaver[R, A, B] = new Cleaver[R, A, B] {
+    def split(x: R): A -> B               = (l(x), r(x))
+    def join(x: A -> B): R                = f(x._1, x._2)
+   }
+ }
+>>>
+object Cleaver {
+  def apply[R, A, B](): Cleaver[R, A, B] = new Cleaver[R, A, B] {
+    def split(x: R): A -> B = (l(x), r(x))
+    def join(x: A -> B): R  = f(x._1, x._2)
+  }
+}
+<<< don't jump scope #152 2
+object Cleaver {
+   def apply[R, A, B](): Cleaver[R, A, B] = new Cleaver[R, A, B] {
+    def split(x: R): A -> B               = (l(x), r(x))
+    def join(x: A -> B): R                = f(x._1, x._2)
+   }
+ }
+>>>
+object Cleaver {
+  def apply[R, A, B](): Cleaver[R, A, B] = new Cleaver[R, A, B] {
+    def split(x: R): A -> B = (l(x), r(x))
+    def join(x: A -> B): R  = f(x._1, x._2)
+  }
+}
+<<< only align single-line statements
+{
+val a = function(1, b)
+val aaaaa = function(1, b)
+val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
+}
+>>>
+{
+  val a     = function(1, b)
+  val aaaaa = function(1, b)
+  val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa =
+    function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
+}
+<<< infix owner
+   Ok(Json.obj(
+       "api" -> Json.obj(
+         "current" -> api.currentVersion,
+         "olds" -> api.oldVersions.map { old =>
+           Json.obj(
+             "version" -> old.version,
+             "deprecatedAt" -> old.deprecatedAt,
+             "unsupportedAt" -> old.unsupportedAt)
+         })
+     )) as JSON
+>>>
+Ok(
+  Json.obj(
+    "api" -> Json.obj(
+      "current" -> api.currentVersion,
+      "olds" -> api.oldVersions.map { old =>
+        Json.obj(
+          "version"       -> old.version,
+          "deprecatedAt"  -> old.deprecatedAt,
+          "unsupportedAt" -> old.unsupportedAt
+        )
+      }
+    )
+  )
+) as JSON
+<<< mixed val/var/def
+{
+  var x = 2 // x
+  val xx = 22 // xx
+  def xxx = 222 // xxx
+
+  def xxxx = 2222 // loner
+}
+>>>
+{
+  var x   = 2   // x
+  val xx  = 22  // xx
+  def xxx = 222 // xxx
+
+  def xxxx = 2222 // loner
+}
+<<< mixed object/class/trait
+object mixed {
+protected trait False extends Val
+protected case object False extends Val
+  protected case class Zero(zeroty: nir.Type)                     extends Val
+}
+>>>
+object mixed {
+  protected trait False                       extends Val
+  protected case object False                 extends Val
+  protected case class Zero(zeroty: nir.Type) extends Val
+}
+<<< #513
+{
+  if (cond) foo
+  else { val chars = s.toCharArray }
+  val prefix       = "sbt.paths." + projectName + "." + uncapitalize(config.name) + "."
+}
+>>>
+{
+  if (cond) foo
+  else { val chars = s.toCharArray }
+  val prefix =
+    "sbt.paths." + projectName + "." + uncapitalize(config.name) + "."
+}
+<<< #521
+x match {
+    case (xs: Seq[_], ys: Seq[_])                               =>
+      xs.length == ys.length && xs.zip(ys).forall { case (x, y) => loop(x, y) }
+  }
+>>>
+x match {
+  case (xs: Seq[_], ys: Seq[_]) =>
+    xs.length == ys.length && xs.zip(ys).forall { case (x, y) => loop(x, y) }
+}
+<<< #505
+object M {
+  implicit class TimestampOps[@specialized(Int, Long) A](val i: A){}
+}
+>>>
+object M {
+  implicit class TimestampOps[@specialized(Int, Long) A](val i: A) {}
+}
+<<< #531
+Seq(
+"com.github.seratch" %% "awscala"                     % "0.5.7",
+"org.scalatest"      % "scalatest_2.11"               % "3.0.0" % Test,
+"org.scalamock"      %% "scalamock-scalatest-support" % "3.2.2" % Test
+)
+>>>
+Seq(
+  "com.github.seratch" %% "awscala"                     % "0.5.7",
+  "org.scalatest"       % "scalatest_2.11"              % "3.0.0" % Test,
+  "org.scalamock"      %% "scalamock-scalatest-support" % "3.2.2" % Test
+)
+<<< #531 2
+Seq (
+  Seq(
+    Seq(a % b % c, a %% bb %%% ccc, aaa % bb % c),
+    Seq(aaa % bb % c, aaa %%% bb %% c, a % bb % ccc),
+    Seq(
+      aaa % bb % c,
+      aaaaa %%% bbbb %% ccc,
+      a % bb % ccc
+    ),
+    a % b % c %%%% a %% bb %%% ccc %%%% aaa % bb % c
+  ),
+  Seq(a % b % c, a %% bb %%% ccc, aaa % bb % c)
+)
+>>>
+Seq(
+  Seq(
+    Seq(a   % b  % c, a    %% bb %%% ccc, aaa % bb % c),
+    Seq(aaa % bb % c, aaa %%% bb  %% c, a     % bb % ccc),
+    Seq(
+      aaa     % bb    % c,
+      aaaaa %%% bbbb %% ccc,
+      a       % bb    % ccc
+    ),
+    a % b % c %%%% a %% bb %%% ccc %%%% aaa % bb % c
+  ),
+  Seq(a % b % c, a %% bb %%% ccc, aaa % bb % c)
+)
+<<< align comments in method chain
+foo
+  .x() // comment1
+  .xx() // comment2
+  .xxx() // comment3
+>>>
+foo
+  .x()   // comment1
+  .xx()  // comment2
+  .xxx() // comment3
+<<< should align comments on separate statements
+object test {
+  val ys = xs
+    .filter(_ > 2) // comment1
+    .filter(x => x + 1) // comment2
+  ys.map(y => y + 1) // comment3
+}
+>>>
+object test {
+  val ys = xs
+    .filter(_ > 2)      // comment1
+    .filter(x => x + 1) // comment2
+  ys.map(y => y + 1)    // comment3
+}
+<<< align comments on type infix
+foo
+  .x[T]() // comment1
+  .xx[T]() // comment2
+>>>
+foo
+  .x[T]()  // comment1
+  .xx[T]() // comment2
+<<< align comments on params
+a.b(
+  1, // comment1
+  123  // comment2
+)
+>>>
+a.b(
+  1,  // comment1
+  123 // comment2
+)
+<<< should align comments on params of methods
+def method(
+    abc: String, // abc comment
+    d: String // d comment
+) = ???
+>>>
+def method(
+    abc: String, // abc comment
+    d: String    // d comment
+) = ???
+<<< shouldn't align comments on the line which only has a comment
+object x {
+  println("foo bar") // comment
+  // comment
+  println("foo") // comment
+}
+>>>
+object x {
+  println("foo bar") // comment
+  // comment
+  println("foo") // comment
+}
+<<< #1720 original, two SL comments
+type iovec = CStruct2[Ptr[Byte], // iov_base
+                        CSize] // iov_len
+>>>
+type iovec = CStruct2[
+  Ptr[Byte], // iov_base
+  CSize
+] // iov_len
+<<< #1720 with val
+val iovec = CStruct2[Ptr[Byte], // iov_base
+                        CSize](a) // iov_len
+>>>
+val iovec = CStruct2[
+  Ptr[Byte], // iov_base
+  CSize
+](a) // iov_len
+<<< #1720 no align
+align.preset = none
+===
+type iovec = CStruct2[Ptr[Byte], // iov_base
+                        CSize] // iov_len
+>>>
+type iovec = CStruct2[
+  Ptr[Byte], // iov_base
+  CSize
+] // iov_len
+<<< #1720 second SL comment
+type iovec = CStruct2[Ptr[Byte],
+                        CSize] // iov_len
+>>>
+type iovec = CStruct2[Ptr[Byte], CSize] // iov_len
+<<< #1720 first SL comment
+type iovec = CStruct2[Ptr[Byte], // iov_base
+                        CSize]
+>>>
+type iovec = CStruct2[
+  Ptr[Byte], // iov_base
+  CSize
+]
+<<< #1720 nested multi-arg type with two SL comments
+type iovec = CStruct2[Ptr[Byte, // iov_base
+                        CSize]] // iov_len
+>>>
+type iovec = CStruct2[Ptr[
+  Byte, // iov_base
+  CSize
+]] // iov_len
+<<< #1720 one arg with SL comment
+type iovec = CStruct2[Ptr[Byte] // iov_base
+                        ]
+>>>
+type iovec = CStruct2[
+  Ptr[Byte] // iov_base
+]
+<<< #1720 first inline comment
+type iovec = CStruct2[Ptr[Byte], /* iov_base */
+                        CSize]
+>>>
+type iovec = CStruct2[
+  Ptr[Byte], /* iov_base */
+  CSize
+]
+<<< #1720 first inline comment with apply
+val iovec = CStruct2(Ptr(Byte), /* iov_base */
+                        CSize)
+>>>
+val iovec = CStruct2(
+  Ptr(Byte), /* iov_base */
+  CSize
+)
+<<< pattern matching with tuples
+x match {
+  case 1 => a -> b
+  case 42 => abc -> 3
+}
+>>>
+x match {
+  case 1  => a   -> b
+  case 42 => abc -> 3
+}
+<<< #1896 1: long non-matching first
+align.preset = most
+align.tokens."+" = [{code = "=", owner = "(Enumerator.Val|Defn.(Va(l|r)|Def|Type)|Term.Assign)"}]
+===
+object fmt {
+  val header  = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
+  val claim   = JwtClaim(content = content)
+  val content = payload.toString
+}
+>>>
+object fmt {
+  val header  = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
+  val claim   = JwtClaim(content = content)
+  val content = payload.toString
+}
+<<< #1896 2: short non-matching first
+align.preset = most
+align.tokens."+" = [{code = "=", owner = "(Enumerator.Val|Defn.(Va(l|r)|Def|Type)|Term.Assign)"}]
+===
+object fmt {
+  val claim   = JwtClaim(content = content)
+  val header  = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
+  val content = payload.toString
+}
+>>>
+object fmt {
+  val claim   = JwtClaim(content = content)
+  val header  = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
+  val content = payload.toString
+}
+<<< #1896 3
+align.preset = most
+align.tokens."+" = [{code = "=", owner = "(Enumerator.Val|Defn.(Va(l|r)|Def|Type)|Term.Assign)"}]
+===
+JwtClaim(
+  abc = cba,
+  content = content
+)
+>>>
+JwtClaim(
+  abc     = cba,
+  content = content
+)
+<<< #1504
+align.multiline = true
+===
+object a {
+  val stringFoo = thing.identifier match {
+    case foo : SuperFooBarIdentifier =>
+     "somestring" / "other_string" / foo.identifyingid
+    case tastyBar: TastyBarIdentifier =>
+     "something" / "other_other" ? ("arg1" -> tastyBar.ider) & ("limit" -> 111)
+    case unknown =>
+     throw new IllegalArgumentException(s"Not sure at all what kinda class this is: ${unknown.getClass}")
+  }
+}
+>>>
+object a {
+  val stringFoo = thing.identifier match {
+    case foo: SuperFooBarIdentifier   =>
+      "somestring" / "other_string" / foo.identifyingid
+    case tastyBar: TastyBarIdentifier =>
+      "something" / "other_other" ? ("arg1" -> tastyBar.ider) & ("limit" -> 111)
+    case unknown                      =>
+      throw new IllegalArgumentException(
+        s"Not sure at all what kinda class this is: ${unknown.getClass}"
+      )
+  }
+}
+<<< #1811 1 no blanks
+align.multiline = true
+===
+object a {
+  for {
+    a   <- Option(1)
+    bbb <- Option(2)
+    cccccc <- Option {
+      3
+    }
+    dd <- Option(4)
+  } yield ()
+}
+>>>
+object a {
+  for {
+    a      <- Option(1)
+    bbb    <- Option(2)
+    cccccc <- Option {
+      3
+    }
+    dd     <- Option(4)
+  } yield ()
+}
+<<< #1811 1 with blanks
+align.multiline = true
+===
+object a {
+  for {
+    a   <- Option(1)
+    bbb <- Option(2)
+
+    cccccc <- Option {
+      3
+    }
+
+    dd <- Option(4)
+  } yield ()
+}
+>>>
+object a {
+  for {
+    a   <- Option(1)
+    bbb <- Option(2)
+
+    cccccc <- Option {
+      3
+    }
+
+    dd <- Option(4)
+  } yield ()
+}
+<<< #1811 2
+align.multiline = true
+align.arrowEnumeratorGenerator = true
+===
+object a {
+  for {
+    a   <- Option(1)
+    bbb <- Option(2)
+    cccccc <- Option {
+      3
+    }
+    dd <- Option(4)
+  } yield ()
+}
+>>>
+object a {
+  for {
+    a      <- Option(1)
+    bbb    <- Option(2)
+    cccccc <- Option {
+                3
+              }
+    dd     <- Option(4)
+  } yield ()
+}
+<<< #1841 no blanks
+align.multiline = true
+===
+object a {
+  private[this] val pbClass       = Class.forName("java.lang.ProcessBuilder")
+  private[this] val redirectClass = pbClass.getClasses find (_.getSimpleName == "Redirect")
+}
+>>>
+object a {
+  private[this] val pbClass       = Class.forName("java.lang.ProcessBuilder")
+  private[this] val redirectClass =
+    pbClass.getClasses find (_.getSimpleName == "Redirect")
+}
+<<< #1841 with blanks
+align.multiline = true
+===
+object a {
+  private[this] val pbClass       = Class.forName("java.lang.ProcessBuilder")
+
+  private[this] val redirectClass = pbClass.getClasses find (_.getSimpleName == "Redirect")
+}
+>>>
+object a {
+  private[this] val pbClass = Class.forName("java.lang.ProcessBuilder")
+
+  private[this] val redirectClass =
+    pbClass.getClasses find (_.getSimpleName == "Redirect")
+}
+<<< multiline with blanks
+align.preset = most
+===
+object a {
+  def foo: Int = {
+    val x = ???
+    42
+  }
+
+  def bar: Int = {
+    for { x <- "hey" } yield x
+    42
+  }
+
+  def fooBig: Int = {
+    42
+  }
+
+  def fooBigger: Int = {
+    42
+  }
+}
+>>>
+object a {
+  def foo: Int = {
+    val x = ???
+    42
+  }
+
+  def bar: Int = {
+    for { x <- "hey" } yield x
+    42
+  }
+
+  def fooBig: Int = {
+    42
+  }
+
+  def fooBigger: Int = {
+    42
+  }
+}
+<<< multiline with blanks and comments and no blocks
+align.preset = most
+===
+object a {
+  def foo: Int =
+    42
+  // comment
+
+  def fooBar: Int =
+    42
+
+  /* comment */
+  def fooBarBaz: Int =
+    42
+
+  // comment
+  def fooBarBazQux: Int =
+    42
+}
+>>>
+object a {
+  def foo: Int =
+    42
+  // comment
+
+  def fooBar: Int =
+    42
+
+  /* comment */
+  def fooBarBaz: Int =
+    42
+
+  // comment
+  def fooBarBazQux: Int =
+    42
+}
+<<< multiline without blanks
+align.preset = most
+===
+object a {
+  def foo: Int = {
+    val x = ???
+    42
+  }
+  def bar: Int = {
+    for { x <- "hey" } yield x
+    42
+  }
+  def fooBig: Int = {
+    42
+  }
+  def fooBigger: Int = {
+    42
+  }
+}
+>>>
+object a {
+  def foo: Int       = {
+    val x = ???
+    42
+  }
+  def bar: Int       = {
+    for { x <- "hey" } yield x
+    42
+  }
+  def fooBig: Int    = {
+    42
+  }
+  def fooBigger: Int = {
+    42
+  }
+}
+<<< singleline def without blanks
+object a {
+  def a: Int = b % c
+  def aa: Int = bb % cc
+  def aaa: Int = bbb % ccc
+}
+>>>
+object a {
+  def a: Int   = b   % c
+  def aa: Int  = bb  % cc
+  def aaa: Int = bbb % ccc
+}
+<<< singleline def with blocks and without blanks
+object a {
+  def a: Int = { b % c }
+  def aa: Int = { bb % cc }
+  def aaa: Int = { bbb % ccc }
+}
+>>>
+object a {
+  def a: Int   = { b % c }
+  def aa: Int  = { bb % cc }
+  def aaa: Int = { bbb % ccc }
+}
+<<< singleline val without blanks
+object a {
+  val a: Int = b % c
+  val aa: Int = bb % cc
+  val aaa: Int = bbb % ccc
+}
+>>>
+object a {
+  val a: Int   = b   % c
+  val aa: Int  = bb  % cc
+  val aaa: Int = bbb % ccc
+}
+<<< singleline val with blocks and without blanks
+object a {
+  val a: Int = { b % c }
+  val aa: Int = { bb % cc }
+  val aaa: Int = { bbb % ccc }
+}
+>>>
+object a {
+  val a: Int   = { b % c }
+  val aa: Int  = { bb % cc }
+  val aaa: Int = { bbb % ccc }
+}
+<<< #1948
+align.preset = most
+===
+for {
+  aaa <- bbb % ccc
+  a <- b % c.map { x =>
+    x * x
+  }
+} yield (a, aaa)
+>>>
+for {
+  aaa <- bbb % ccc
+  a   <- b   % c.map { x =>
+           x * x
+         }
+} yield (a, aaa)
+<<< #2151 with blank line
+align.multiline = true
+===
+val x = blar match {
+  case a  =>
+    ???
+
+  case aaaaaaaaaa => ???
+}
+>>>
+val x = blar match {
+  case a =>
+    ???
+
+  case aaaaaaaaaa => ???
+}
+<<< #2151 without blank line
+align.multiline = true
+===
+val x = blar match {
+  case a  =>
+    ???
+  case aaaaaaaaaa => ???
+}
+>>>
+val x = blar match {
+  case a          =>
+    ???
+  case aaaaaaaaaa => ???
+}
+<<< #2449, allowOverflow
+align.allowOverflow = true
+===
+class ThisIsMyClass(a: Long, b: Long) {
+  val taskid = "abcd" + (new Random).nextLong
+  val init = 1234567890123L
+  val end = 1234567891123L
+  val myClass = new ThisIsMyClass(init, end)
+  val thisIsMyListOfClasses: ListBuffer[ThisIsMyClass] = ListBuffer()
+  val abcdefghijklmnopqrstuvwxyz = new ThisIsMyClass(init, end)
+  val abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst = new ThisIsMyClass(init, end)
+}
+>>>
+class ThisIsMyClass(a: Long, b: Long) {
+  val taskid                                           = "abcd" + (new Random).nextLong
+  val init                                             = 1234567890123L
+  val end                                              = 1234567891123L
+  val myClass                                          = new ThisIsMyClass(init, end)
+  val thisIsMyListOfClasses: ListBuffer[ThisIsMyClass] = ListBuffer()
+  val abcdefghijklmnopqrstuvwxyz                       = new ThisIsMyClass(init, end)
+  val abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst =
+    new ThisIsMyClass(init, end)
+}
+<<< #2449, !allowOverflow
+align.allowOverflow = false
+===
+class ThisIsMyClass(a: Long, b: Long) {
+  val taskid = "abcd" + (new Random).nextLong
+  val init = 1234567890123L
+  val end = 1234567891123L
+  val myClass = new ThisIsMyClass(init, end)
+  val thisIsMyListOfClasses: ListBuffer[ThisIsMyClass] = ListBuffer()
+  val abcdefghijklmnopqrstuvwxyz = new ThisIsMyClass(init, end)
+  val abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst = new ThisIsMyClass(init, end)
+}
+>>>
+class ThisIsMyClass(a: Long, b: Long) {
+  val taskid  = "abcd" + (new Random).nextLong
+  val init    = 1234567890123L
+  val end     = 1234567891123L
+  val myClass = new ThisIsMyClass(init, end)
+  val thisIsMyListOfClasses: ListBuffer[ThisIsMyClass] = ListBuffer()
+  val abcdefghijklmnopqrstuvwxyz = new ThisIsMyClass(init, end)
+  val abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst =
+    new ThisIsMyClass(init, end)
+}
+<<< alternating align-stop sizes and owners, allowOverflow
+align.allowOverflow = true
+===
+libraryDependencies ++= Seq(
+  "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
+  "org.scala-lang" % "scala-compiler", // c1
+  "ch.qos.logback" % "logback-classic" % "1.1.6" % "test",
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6" % "test",
+  "org.scalatest" %%% "scalatest" % Deps.scalatest % "test"
+)
+>>>
+libraryDependencies ++= Seq(
+  "org.scala-lang"                 % "scala-reflect"   % scalaVersion.value % "test",
+  "org.scala-lang"                 % "scala-compiler", // c1
+  "ch.qos.logback"                 % "logback-classic" % "1.1.6"            % "test",
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm"                       %% "couchdb-scala"   % "0.6.0"            % "test",
+  "com.lihaoyi"                   %% "scalatags"       % "0.5.4"            % "test",
+  "org.apache.commons"             % "commons-math3"   % "3.6"              % "test",
+  "org.scalatest"                %%% "scalatest"       % Deps.scalatest     % "test"
+)
+<<< alternating align-stop sizes and owners, !allowOverflow
+align.allowOverflow = false
+===
+libraryDependencies ++= Seq(
+  "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
+  "org.scala-lang" % "scala-compiler", // c1
+  "ch.qos.logback" % "logback-classic" % "1.1.6" % "test",
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6" % "test",
+  "org.scalatest" %%% "scalatest" % Deps.scalatest % "test"
+)
+>>>
+libraryDependencies ++= Seq(
+  "org.scala-lang" % "scala-reflect"   % scalaVersion.value % "test",
+  "org.scala-lang" % "scala-compiler", // c1
+  "ch.qos.logback" % "logback-classic" % "1.1.6"            % "test",
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0"        % "test",
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4"        % "test",
+  "org.apache.commons"             % "commons-math3" % "3.6"          % "test",
+  "org.scalatest"                %%% "scalatest"     % Deps.scalatest % "test"
+)
+<<< alternating align-stop sizes and owners, !allowOverflow but fits
+align.allowOverflow = false
+===
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6" % "test",
+  "org.scalatest" %%% "scalatest" % Deps.scalatest % "test"
+)
+>>>
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0"        % "test",
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4"        % "test",
+  "org.apache.commons"             % "commons-math3" % "3.6"          % "test",
+  "org.scalatest"                %%% "scalatest"     % Deps.scalatest % "test"
+)
+<<< alternating align-stop sizes and owners, allowOverflow but fits
+align.allowOverflow = true
+===
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6" % "test",
+  "org.scalatest" %%% "scalatest" % Deps.scalatest % "test"
+)
+>>>
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c2
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0"        % "test",
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4"        % "test",
+  "org.apache.commons"             % "commons-math3" % "3.6"          % "test",
+  "org.scalatest"                %%% "scalatest"     % Deps.scalatest % "test"
+)
+<<< shrinking and growing align-stop sizes and owners, allowOverflow
+align.allowOverflow = true
+===
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c1
+  "com.ibm" %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6",
+  "org.scalatest" %%% "scalatest", // c2
+  "org.apache.commons" % "commons-math3" % "3.6",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "com.ibm" %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.googlecode.java-diff-utils" % "diffutils" // c1
+)
+>>>
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c1
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4"   % "test",
+  "org.apache.commons"             % "commons-math3" % "3.6",
+  "org.scalatest"                %%% "scalatest", // c2
+  "org.apache.commons"             % "commons-math3" % "3.6",
+  "com.lihaoyi"                   %% "scalatags"     % "0.5.4"   % "test",
+  "com.ibm"                       %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.googlecode.java-diff-utils" % "diffutils" // c1
+)
+<<< shrinking and growing align-stop sizes and owners, !allowOverflow
+align.allowOverflow = false
+===
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c1
+  "com.ibm" %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6",
+  "org.scalatest" %%% "scalatest", // c2
+  "org.apache.commons" % "commons-math3" % "3.6",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "com.ibm" %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.googlecode.java-diff-utils" % "diffutils" // c1
+)
+>>>
+libraryDependencies ++= Seq(
+  "com.googlecode.java-diff-utils" % "diffutils", // c1
+  "com.ibm"           %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.lihaoyi"       %% "scalatags"     % "0.5.4"   % "test",
+  "org.apache.commons" % "commons-math3" % "3.6",
+  "org.scalatest"    %%% "scalatest", // c2
+  "org.apache.commons" % "commons-math3" % "3.6",
+  "com.lihaoyi"       %% "scalatags"     % "0.5.4"   % "test",
+  "com.ibm"           %% "couchdb-scala" % "0.6.0.1" % "test" %% 123,
+  "com.googlecode.java-diff-utils" % "diffutils" // c1
+)
+<<< align without parent
+align.tokens."+" = [{ code=":", owner="Term\\.Param" }]
+===
+object a {
+  case class Foo(
+    firstParam: Int,
+    secondParam: String,
+    thirdParam: Boolean
+  ) {
+    def Foo(
+      firstParam: Int,
+      secondParam: String,
+      thirdParam: Boolean
+    ) = ???
+  }
+}
+>>>
+object a {
+  case class Foo(
+      firstParam:  Int,
+      secondParam: String,
+      thirdParam:  Boolean
+  ) {
+    def Foo(
+        firstParam:  Int,
+        secondParam: String,
+        thirdParam:  Boolean
+    ) = ???
+  }
+}
+<<< align with parent
+align.tokens."+" = [{ code=":", owners=[{ regex="Term\\.Param", parents=["Ctor\\.Primary"] }] }]
+===
+object a {
+  case class Foo(
+    firstParam: Int,
+    secondParam: String,
+    thirdParam: Boolean
+  ) {
+    def Foo(
+      firstParam: Int,
+      secondParam: String,
+      thirdParam: Boolean
+    ) = ???
+  }
+}
+>>>
+object a {
+  case class Foo(
+      firstParam:  Int,
+      secondParam: String,
+      thirdParam:  Boolean
+  ) {
+    def Foo(
+        firstParam: Int,
+        secondParam: String,
+        thirdParam: Boolean
+    ) = ???
+  }
+}
+<<< #2562 !call, tuple
+maxColumn = 10
+align.openParenCallSite = false
+align.openParenTupleSite = true
+===
+object a {
+  foo(bar, baz)
+  (bar, baz)
+}
+>>>
+object a {
+  foo(
+    bar,
+    baz
+  )
+  (bar,
+   baz
+  )
+}
+<<< #2562 call, tuple
+maxColumn = 10
+align.openParenCallSite = true
+align.openParenTupleSite = true
+===
+object a {
+  foo(bar, baz)
+  (bar, baz)
+}
+>>>
+object a {
+  foo(bar,
+      baz
+  )
+  (bar,
+   baz
+  )
+}
+<<< #2562 call, binpack
+maxColumn = 15
+binPack.preset = true
+align.openParenCallSite = true
+===
+object a {
+  foo(bar, baz, qux)
+}
+>>>
+object a {
+  foo(bar, baz,
+      qux)
+}
+<<< #2562 tuple, binpack
+maxColumn = 13
+binPack.preset = true
+align.openParenTupleSite = true
+===
+object a {
+  (bar, baz, qux)
+}
+>>>
+object a {
+  (bar, baz,
+   qux)
+}
+<<< #2562 def, binpack
+maxColumn = 22
+binPack.preset = true
+align.openParenDefnSite = true
+===
+object a {
+  def a(b: B, c: C, ddd: DDD) = ???
+}
+>>>
+object a {
+  def a(b: B, c: C,
+        ddd: DDD) =
+    ???
+}
+<<< #2562 call, with spaces
+maxColumn = 16
+align.openParenCallSite = true
+spaces.inParentheses = true
+===
+object a {
+  foo(bar, baz, qux)
+}
+>>>
+object a {
+  foo( bar,
+       baz,
+       qux
+  )
+}
+<<< #2562 tuple, with spaces
+maxColumn = 11
+align.openParenTupleSite = true
+spaces.inParentheses = true
+===
+object a {
+  (bar, baz, qux)
+}
+>>>
+object a {
+  ( bar,
+    baz,
+    qux
+  )
+}
+<<< #2562 def, with spaces
+maxColumn = 20
+align.openParenDefnSite = true
+spaces.inParentheses = true
+===
+object a {
+  def a(b: B, c: C, ddd: DDD) = ???
+}
+>>>
+object a {
+  def a( b: B,
+         c: C,
+         ddd: DDD
+  ) = ???
+}
+<<< #2562 call, with spaces, binpack
+maxColumn = 16
+binPack.preset = true
+align.openParenCallSite = true
+spaces.inParentheses = true
+===
+object a {
+  foo(bar, baz, qux)
+}
+>>>
+object a {
+  foo( bar, baz,
+       qux )
+}
+<<< #2562 tuple, with spaces, binpack
+maxColumn = 14
+binPack.preset = true
+align.openParenTupleSite = true
+spaces.inParentheses = true
+===
+object a {
+  (bar, baz, qux)
+}
+>>>
+object a {
+  ( bar, baz,
+    qux )
+}
+<<< #2562 def, with spaces, binpack
+maxColumn = 22
+binPack.preset = true
+align.openParenDefnSite = true
+spaces.inParentheses = true
+===
+object a {
+  def a(b: B, c: C, ddd: DDD) = ???
+}
+>>>
+object a {
+  def a( b: B, c: C,
+         ddd: DDD ) =
+    ???
+}
+<<< #2562 call, !tuple
+maxColumn = 10
+align.openParenCallSite = true
+align.openParenTupleSite = false
+===
+object a {
+  foo(bar, baz)
+  (bar, baz)
+}
+>>>
+object a {
+  foo(bar,
+      baz
+  )
+  (
+    bar,
+    baz
+  )
+}
+<<< #2680 1
+align.tokens."+" = [
+  { code = "=", owners = [{regex="Term.Param|Defn|Term.Assign"}] },
+  { code = ":", owners = [{regex="Term.Param"}]  }
+]
+===
+object a {
+  case class Foo(
+      numBytes:    Int     = 4, // a comment
+      someBoolean: Boolean = false // a comment
+  )
+}
+>>>
+object a {
+  case class Foo(
+      numBytes:    Int     = 4,    // a comment
+      someBoolean: Boolean = false // a comment
+  )
+}
+<<< #2680 2
+align.tokens."+" = [
+  { code = "=", owners = [{regex="Term.Param|Defn|Term.Assign"}] },
+  { code = ":", owners = [{regex="Term.Param"}]  }
+]
+===
+object a {
+  def bar(
+      numBytes:    Int     = 4,    // a comment
+      someBoolean: Boolean = false // a comment
+  ) = new Foo(
+    numBytes    = 3, //  calling comment
+    someBoolean = true // calling comment
+  )
+}
+>>>
+object a {
+  def bar(
+      numBytes:    Int     = 4,    // a comment
+      someBoolean: Boolean = false // a comment
+  ) = new Foo(
+    numBytes    = 3,   //  calling comment
+    someBoolean = true // calling comment
+  )
+}
+<<< #2680 3
+align.tokens."+" = [
+  { code = "=", owners = [{regex="Term.Param|Defn|Term.Assign"}] },
+  { code = ":", owners = [{regex="Term.Param"}]  }
+]
+===
+object a {
+  def foo = bar(
+    numBytes    = 4, // bar comment
+    someBoolean = true // bar comment
+  )
+}
+>>>
+object a {
+  def foo = bar(
+    numBytes    = 4,   // bar comment
+    someBoolean = true // bar comment
+  )
+}
+<<< #2750 1 no blocks, blanks
+maxColumn = 160
+align.preset = most
+align.tokens."+" = [
+  { code = "=", owners=[{regex="Term.Param|Defn|Term.Assign"}] },
+  { code = ":", owners = [{regex="Term.Param|Defn|Decl.Def"}] },
+]
+===
+object Thing {
+  def apply(foo: FooBaz.booberry, someInt: Int, booControl: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz =
+    apply(policy, Some(beatBytes), booControl)
+
+  def apply(foo: FooBaz.booberry, someInt: Int)(implicit p: Parameters): FooBaz =
+    apply(policy, Some(beatBytes), booControl = None)
+
+  def apply(fooBaz: Int, someBooberry: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz =
+    apply(policy = FooBaz.booberry, Some(someInt), booControl)
+
+  def apply(fooBaz: Int)(implicit p: Parameters): TLNode =
+    apply(policy = FooBaz.booberry, Some(someInt), booControl = None)
+}
+>>>
+object Thing {
+  def apply(foo: FooBaz.booberry, someInt: Int, booControl: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz =
+    apply(policy, Some(beatBytes), booControl)
+
+  def apply(foo: FooBaz.booberry, someInt: Int)(implicit p: Parameters): FooBaz =
+    apply(policy, Some(beatBytes), booControl = None)
+
+  def apply(fooBaz: Int, someBooberry: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz =
+    apply(policy = FooBaz.booberry, Some(someInt), booControl)
+
+  def apply(fooBaz: Int)(implicit p: Parameters): TLNode =
+    apply(policy = FooBaz.booberry, Some(someInt), booControl = None)
+}
+<<< #2750 2 no blocks, no blanks
+maxColumn = 160
+align.preset = most
+align.tokens."+" = [
+  { code = "=", owners=[{regex="Term.Param|Defn|Term.Assign"}] },
+  { code = ":", owners = [{regex="Term.Param|Defn|Decl.Def"}] },
+]
+===
+object Thing {
+  def apply(foo: FooBaz.booberry, someInt: Int, booControl: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz =
+    apply(policy, Some(beatBytes), booControl)
+  def apply(foo: FooBaz.booberry, someInt: Int)(implicit p: Parameters): FooBaz =
+    apply(policy, Some(beatBytes), booControl = None)
+  def apply(fooBaz: Int, someBooberry: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz =
+    apply(policy = FooBaz.booberry, Some(someInt), booControl)
+  def apply(fooBaz: Int)(implicit p: Parameters): TLNode =
+    apply(policy = FooBaz.booberry, Some(someInt), booControl = None)
+}
+>>>
+object Thing {
+  def apply(foo: FooBaz.booberry, someInt: Int, booControl: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz =
+    apply(policy, Some(beatBytes), booControl)
+  def apply(foo: FooBaz.booberry, someInt: Int)(implicit p: Parameters):                                             FooBaz =
+    apply(policy, Some(beatBytes), booControl = None)
+  def apply(fooBaz: Int, someBooberry: Option[OptionalBooberryParams])(implicit p: Parameters):                      FooBaz =
+    apply(policy = FooBaz.booberry, Some(someInt), booControl)
+  def apply(fooBaz: Int)(implicit p: Parameters):                                                                    TLNode =
+    apply(policy = FooBaz.booberry, Some(someInt), booControl = None)
+}
+<<< #2750 3 blocks, blanks
+maxColumn = 160
+align.preset = most
+align.tokens."+" = [
+  { code = "=", owners=[{regex="Term.Param|Defn|Term.Assign"}] },
+  { code = ":", owners = [{regex="Term.Param|Defn|Decl.Def"}] },
+]
+===
+object Thing {
+  def apply(foo: FooBaz.booberry, someInt: Int, booControl: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz = {
+    apply(policy, Some(beatBytes), booControl)
+  }
+
+  def apply(foo: FooBaz.booberry, someInt: Int)(implicit p: Parameters): FooBaz = {
+    apply(policy, Some(beatBytes), booControl = None)
+  }
+
+  def apply(fooBaz: Int, someBooberry: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz = {
+    apply(policy = FooBaz.booberry, Some(someInt), booControl)
+  }
+
+  def apply(fooBaz: Int)(implicit p: Parameters): TLNode = {
+    apply(policy = FooBaz.booberry, Some(someInt), booControl = None)
+  }
+}
+>>>
+object Thing {
+  def apply(foo: FooBaz.booberry, someInt: Int, booControl: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz = {
+    apply(policy, Some(beatBytes), booControl)
+  }
+
+  def apply(foo: FooBaz.booberry, someInt: Int)(implicit p: Parameters): FooBaz = {
+    apply(policy, Some(beatBytes), booControl = None)
+  }
+
+  def apply(fooBaz: Int, someBooberry: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz = {
+    apply(policy = FooBaz.booberry, Some(someInt), booControl)
+  }
+
+  def apply(fooBaz: Int)(implicit p: Parameters): TLNode = {
+    apply(policy = FooBaz.booberry, Some(someInt), booControl = None)
+  }
+}
+<<< #2750 4 blocks, no blanks
+maxColumn = 160
+align.preset = most
+align.tokens."+" = [
+  { code = "=", owners=[{regex="Term.Param|Defn|Term.Assign"}] },
+  { code = ":", owners = [{regex="Term.Param|Defn|Decl.Def"}] },
+]
+===
+object Thing {
+  def apply(foo: FooBaz.booberry, someInt: Int, booControl: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz = {
+    apply(policy, Some(beatBytes), booControl)
+  }
+  def apply(foo: FooBaz.booberry, someInt: Int)(implicit p: Parameters): FooBaz = {
+    apply(policy, Some(beatBytes), booControl = None)
+  }
+  def apply(fooBaz: Int, someBooberry: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz = {
+    apply(policy = FooBaz.booberry, Some(someInt), booControl)
+  }
+  def apply(fooBaz: Int)(implicit p: Parameters): TLNode = {
+    apply(policy = FooBaz.booberry, Some(someInt), booControl = None)
+  }
+}
+>>>
+object Thing {
+  def apply(foo: FooBaz.booberry, someInt: Int, booControl: Option[OptionalBooberryParams])(implicit p: Parameters): FooBaz = {
+    apply(policy, Some(beatBytes), booControl)
+  }
+  def apply(foo: FooBaz.booberry, someInt: Int)(implicit p: Parameters):                                             FooBaz = {
+    apply(policy, Some(beatBytes), booControl = None)
+  }
+  def apply(fooBaz: Int, someBooberry: Option[OptionalBooberryParams])(implicit p: Parameters):                      FooBaz = {
+    apply(policy = FooBaz.booberry, Some(someInt), booControl)
+  }
+  def apply(fooBaz: Int)(implicit p: Parameters):                                                                    TLNode = {
+    apply(policy = FooBaz.booberry, Some(someInt), booControl = None)
+  }
+}
+<<< #2772 empty body for alignment
+class A {
+  @B("c") // d
+  case class E(f: Int)
+
+  val g = E(2)
+}
+>>>
+class A {
+  @B("c") // d
+  case class E(f: Int)
+
+  val g = E(2)
+}
+<<< #2775 align with modifiers and blank line 1
+align.preset = most
+===
+object a {
+  protected[this] def onStart(): Unit = {
+    startCallback()
+    super.onStart()
+  }
+
+  override def onStop(): Unit = {
+    stopCallback()
+    super.onStop()
+  }
+}
+>>>
+object a {
+  protected[this] def onStart(): Unit = {
+    startCallback()
+    super.onStart()
+  }
+
+  override def onStop(): Unit = {
+    stopCallback()
+    super.onStop()
+  }
+}
+<<< #2775 align with modifiers and blank line 2
+align.preset = most
+===
+object a {
+  override def onStart(): Unit = {
+    startCallback()
+    super.onStart()
+  }
+
+  protected[this] def onStop(): Unit = {
+    stopCallback()
+    super.onStop()
+  }
+}
+>>>
+object a {
+  override def onStart(): Unit = {
+    startCallback()
+    super.onStart()
+  }
+
+  protected[this] def onStop(): Unit = {
+    stopCallback()
+    super.onStop()
+  }
+}
+<<< scala3 align enum cases
+runner.dialect = scala3
+===
+enum Ship(val size: ShipSize) derives CanEqual:
+  case Destroyer extends Ship(ShipSize(2))
+  case Submarine extends Ship(ShipSize(3))
+  case Cruiser extends Ship(ShipSize(3))
+  case Battleship extends Ship(ShipSize(4))
+  case Carrier extends Ship(ShipSize(5))
+>>>
+enum Ship(val size: ShipSize) derives CanEqual:
+  case Destroyer  extends Ship(ShipSize(2))
+  case Submarine  extends Ship(ShipSize(3))
+  case Cruiser    extends Ship(ShipSize(3))
+  case Battleship extends Ship(ShipSize(4))
+  case Carrier    extends Ship(ShipSize(5))
+<<< scala3 align with annotation, multiline
+runner.dialect = scala3
+align.multiline = true
+===
+extension (y: YCoord)
+    @targetName("addY")
+    def +(dy: Int): YCoord = YCoord(y + dy)
+    @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+    def <(other: YCoord): Boolean = y < other
+    @targetName("addY")
+    def toInt: Int = y.toInt
+>>>
+extension (y: YCoord)
+  @targetName("addY")
+  def +(dy: Int): YCoord                     = YCoord(y + dy)
+  @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+  def <(other: YCoord): Boolean              = y < other
+  @targetName("addY")
+  def toInt: Int                             = y.toInt
+<<< scala3 align with annotation, !multiline
+runner.dialect = scala3
+align.multiline = false
+===
+extension (y: YCoord)
+    @targetName("addY")
+    def +(dy: Int): YCoord = YCoord(y + dy)
+    @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+    def <(other: YCoord): Boolean = y < other
+    @targetName("addY")
+    def toInt: Int = y.toInt
+>>>
+extension (y: YCoord)
+  @targetName("addY")
+  def +(dy: Int): YCoord                     = YCoord(y + dy)
+  @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+  def <(other: YCoord): Boolean              = y < other
+  @targetName("addY")
+  def toInt: Int = y.toInt
+<<< scala2 align with annotation, multiline
+runner.dialect = scala213
+align.multiline = true
+===
+class A(y: YCoord) {
+    @targetName("addY")
+    def +(dy: Int): YCoord = YCoord(y + dy)
+    @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+    def <(other: YCoord): Boolean = y < other
+    @targetName("addY")
+    def toInt: Int = y.toInt
+}
+>>>
+class A(y: YCoord) {
+  @targetName("addY")
+  def +(dy: Int): YCoord                     = YCoord(y + dy)
+  @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+  def <(other: YCoord): Boolean              = y < other
+  @targetName("addY")
+  def toInt: Int                             = y.toInt
+}
+<<< scala2 align with annotation, !multiline
+runner.dialect = scala213
+align.multiline = false
+===
+class A(y: YCoord) {
+    @targetName("addY")
+    def +(dy: Int): YCoord = YCoord(y + dy)
+    @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+    def <(other: YCoord): Boolean = y < other
+    @targetName("addY")
+    def toInt: Int = y.toInt
+}
+>>>
+class A(y: YCoord) {
+  @targetName("addY")
+  def +(dy: Int): YCoord                     = YCoord(y + dy)
+  @targetName("addY") def -(dy: Int): YCoord = YCoord(y - dy)
+  def <(other: YCoord): Boolean              = y < other
+  @targetName("addY")
+  def toInt: Int = y.toInt
+}
+<<< scala3 align match
+maxColumn = 100
+runner.dialect = scala3
+===
+val (xTranslation, yTranslation) = (isHMirror, isVMirror) match
+  case (true, true) => ((rotationWidth / 2).toInt, (rotationHeight / 2).toInt) /* c */ // TL
+  case (true, false) => ((rotationHeight / 2).toInt, -(rotationWidth / 2).toInt) /* c */ // BL
+  case (false, true) => (-(rotationHeight / 2).toInt, (rotationWidth / 2).toInt) /* c */ // TR
+  case (false, false) => (-(rotationWidth / 2).toInt, -(rotationHeight / 2).toInt) /* c */ // BR
+>>>
+val (xTranslation, yTranslation) = (isHMirror, isVMirror) match
+  case (true, true)   => ((rotationWidth / 2).toInt, (rotationHeight / 2).toInt) /* c */   // TL
+  case (true, false)  => ((rotationHeight / 2).toInt, -(rotationWidth / 2).toInt) /* c */  // BL
+  case (false, true)  => (-(rotationHeight / 2).toInt, (rotationWidth / 2).toInt) /* c */  // TR
+  case (false, false) => (-(rotationWidth / 2).toInt, -(rotationHeight / 2).toInt) /* c */ // BR
+<<< align params of adjacent defs
+maxColumn = 120
+align.tokens."+" = [ { code = ":", owner = "Term.Param" } ]
+===
+case class Foo() {
+  def Foo(firstParam: Int, secondParam: String, thirdParam: Boolean) = ???
+  def Bar(abc: Int, deg: String, xyz: Boolean) = ???
+  def Baz(hijk: Int, lmnop: String) = ???
+}
+>>>
+case class Foo() {
+  def Foo(firstParam: Int, secondParam: String, thirdParam: Boolean) = ???
+  def Bar(abc:        Int, deg:         String, xyz:        Boolean) = ???
+  def Baz(hijk:       Int, lmnop:       String)                      = ???
+}
+<<< align infix with breaks
+foo ++= Seq(
+  foo % bar, // c2
+  fooo %% barr % baz % "test",
+  foooo %% bar % bazz % "test",
+  fooooo % barrr %
+     baz % "test",
+  foooooo % barrrr %
+     bazz %
+     "test",
+  foo %%% bar % baz % "test"
+)
+>>>
+foo ++= Seq(
+  foo     % bar, // c2
+  fooo   %% barr % baz  % "test",
+  foooo  %% bar  % bazz % "test",
+  fooooo  % barrr %
+    baz   % "test",
+  foooooo % barrrr %
+    bazz %
+    "test",
+  foo %%% bar % baz % "test"
+)
+<<< curry params after
+align.tokens."+" = [{
+  code = ":",
+  owners = [{ regex = "Term\\.Param" }]
+}]
+===
+object a {
+  def longDefNameThatCausesLinesToWrap1(x: Type0)(y: Type1)(implicit
+    a:                                     Type2,
+    bb:                                    Type3,
+    ccc:                                   Type4,
+    dddd:                                  Type5,
+    eeeee:                                 Type6
+  ): Future[Option[ReturnType]] = { ??? }
+  def longDefNameThatCausesLinesToWrap1(x: Type0)(y: Type1)(implicit
+    dddd:                                  Type5,
+    eeeee:                                 Type6
+  ): Future[Option[ReturnType]] = { ??? }
+  def longDefNameThatCausesLinesToWrap1(x: Type0)(y: Type1)(implicit
+    eeeee:                                 Type6
+  ): Future[Option[ReturnType]] = { ??? }
+}
+>>>
+object a {
+  def longDefNameThatCausesLinesToWrap1(x: Type0)(y: Type1)(implicit
+      a:     Type2,
+      bb:    Type3,
+      ccc:   Type4,
+      dddd:  Type5,
+      eeeee: Type6
+  ): Future[Option[ReturnType]] = { ??? }
+  def longDefNameThatCausesLinesToWrap1(x: Type0)(y: Type1)(implicit
+      dddd:  Type5,
+      eeeee: Type6
+  ): Future[Option[ReturnType]] = { ??? }
+  def longDefNameThatCausesLinesToWrap1(x: Type0)(y: Type1)(implicit
+      eeeee: Type6
+  ): Future[Option[ReturnType]] = { ??? }
+}
+<<< curry params before
+align.tokens."+" = [{
+  code = ":",
+  owners = [{ regex = "Term\\.Param" }]
+}]
+===
+object a {
+  def longDefNameThatCausesLinesToWrap1(
+    a:                                     Type2,
+    bb:                                    Type3,
+    ccc:                                   Type4,
+    dddd:                                  Type5,
+    eeeee:                                 Type6
+  )(x: Type0)(y: Type1): Future[Option[ReturnType]] = { ??? }
+  def longDefNameThatCausesLinesToWrap1(
+    dddd:                                  Type5,
+    eeeee:                                 Type6
+  )(x: Type0)(y: Type1): Future[Option[ReturnType]] = { ??? }
+  def longDefNameThatCausesLinesToWrap1(
+    eeeee:                                 Type6
+  )(x: Type0)(y: Type1): Future[Option[ReturnType]] = { ??? }
+}
+>>>
+object a {
+  def longDefNameThatCausesLinesToWrap1(
+      a:     Type2,
+      bb:    Type3,
+      ccc:   Type4,
+      dddd:  Type5,
+      eeeee: Type6
+  )(x: Type0)(y: Type1): Future[Option[ReturnType]] = { ??? }
+  def longDefNameThatCausesLinesToWrap1(
+      dddd:  Type5,
+      eeeee: Type6
+  )(x: Type0)(y: Type1): Future[Option[ReturnType]] = { ??? }
+  def longDefNameThatCausesLinesToWrap1(
+      eeeee: Type6
+  )(x: Type0)(y: Type1): Future[Option[ReturnType]] = { ??? }
+}
+<<< curry params before and after
+align.tokens."+" = [{
+  code = ":",
+  owners = [{ regex = "Term\\.Param" }]
+}]
+===
+object a {
+  def longDefNameThatCausesLinesToWrap1(
+    a:                                     Type2,
+    bb:                                    Type3,
+    ccc:                                   Type4
+  )(x: Type0)(y: Type1)(
+    dddd:                                  Type5,
+    eeeee:                                 Type6
+  ): Future[Option[ReturnType]] = { ??? }
+  def longDefNameThatCausesLinesToWrap1(
+    eeeee:                                 Type6
+  )(x: Type0)(y: Type1)(
+    eeeee:                                 Type6
+  ): Future[Option[ReturnType]] = { ??? }
+}
+>>>
+object a {
+  def longDefNameThatCausesLinesToWrap1(
+      a:   Type2,
+      bb:  Type3,
+      ccc: Type4
+  )(x: Type0)(y: Type1)(
+      dddd:  Type5,
+      eeeee: Type6
+  ): Future[Option[ReturnType]] = { ??? }
+  def longDefNameThatCausesLinesToWrap1(
+      eeeee: Type6
+  )(x: Type0)(y: Type1)(
+      eeeee: Type6
+  ): Future[Option[ReturnType]] = { ??? }
+}
+<<< curry params before and after, multiline
+align.multiline = true
+align.tokens."+" = [{
+  code = ":",
+  owners = [{ regex = "Term\\.Param" }]
+}]
+===
+object a {
+  def longDefNameThatCausesLinesToWrap1(
+    a:                                     Type2,
+    bb:                                    Type3,
+    ccc:                                   Type4
+  )(x: Type0)(y: Type1)(
+    dddd:                                  Type5,
+    eeeee:                                 Type6
+  ): Future[Option[ReturnType]] = { ??? }
+  def longDefNameThatCausesLinesToWrap1(
+    eeeee:                                 Type6
+  )(x: Type0)(y: Type1)(
+    eeeee:                                 Type6
+  ): Future[Option[ReturnType]] = { ??? }
+}
+>>>
+object a {
+  def longDefNameThatCausesLinesToWrap1(
+      a:     Type2,
+      bb:    Type3,
+      ccc:   Type4
+  )(x: Type0)(y: Type1)(
+      dddd:  Type5,
+      eeeee: Type6
+  ): Future[Option[ReturnType]] = { ??? }
+  def longDefNameThatCausesLinesToWrap1(
+      eeeee: Type6
+  )(x: Type0)(y: Type1)(
+      eeeee: Type6
+  ): Future[Option[ReturnType]] = { ??? }
+}
+<<< #3439
+object ScalaFormatRecreator extends App {
+  private var s: String = _
+}
+>>>
+object ScalaFormatRecreator extends App {
+  private var s: String = _
+}
+<<< #3614 spaces.inParentheses
+spaces.inParentheses = true
+align.tokens."+" = [ { code = ":" }, { code = "(" }, { code = ")" }, { code = "=" } ]
+===
+object a {
+  def meeethod1(pram1: AnyRef): Any = ???
+  def methd2(paaaaaram2: Any): Any = ???
+  def meth3(param333333: Any): Any = ???
+  def md4(param4: Any): Any = ???
+}
+>>>
+object a {
+  def meeethod1( pram1:       AnyRef ): Any = ???
+  def methd2(    paaaaaram2:  Any    ): Any = ???
+  def meth3(     param333333: Any    ): Any = ???
+  def md4(       param4:      Any    ): Any = ???
+}
+<<< #3614 !spaces.inParentheses align.delayUntilSpace
+spaces.inParentheses = false
+align.delayUntilSpace = true
+align.tokens."+" = [ { code = ":" }, { code = "(" }, { code = ")" }, { code = "=" } ]
+===
+object a {
+  def meeethod1(pram1: AnyRef): Any = ???
+  def methd2(paaaaaram2: Any): Any = ???
+  def meth3(param333333: Any): Any = ???
+  def md4(param4: Any): Any = ???
+}
+>>>
+object a {
+  def meeethod1(pram1:       AnyRef): Any = ???
+  def methd2(paaaaaram2:     Any):    Any = ???
+  def meth3(param333333:     Any):    Any = ???
+  def md4(param4:            Any):    Any = ???
+}
+<<< #3614 !spaces.inParentheses !align.delayUntilSpace
+spaces.inParentheses = false
+align.delayUntilSpace = false
+align.tokens."+" = [ { code = ":" }, { code = "(" }, { code = ")" }, { code = "=" } ]
+===
+object a {
+  def meeethod1(pram1: AnyRef): Any = ???
+  def methd2(paaaaaram2: Any): Any = ???
+  def meth3(param333333: Any): Any = ???
+  def md4(param4: Any): Any = ???
+}
+>>>
+object a {
+  def meeethod1(pram1      : AnyRef): Any = ???
+  def methd2   (paaaaaram2 : Any   ): Any = ???
+  def meth3    (param333333: Any   ): Any = ???
+  def md4      (param4     : Any   ): Any = ???
+}
+<<< #3465
+align.tokens."+" = [
+  { code = ":", owner = "Param" }
+  { code = "=" }
+]
+===
+object a {
+  private[this] def retry_cache_key(xxx: String) = s"some_short_string$xxx"
+  private[this] val retry_timing_in_seconds = 30 seconds
+}
+>>>
+object a {
+  private[this] def retry_cache_key(xxx: String) = s"some_short_string$xxx"
+  private[this] val retry_timing_in_seconds      = 30 seconds
+}
+<<< #4133 align with a comment, one-line source but formatted multi-line
+maxColumn = 50
+align.preset = most
+===
+object a {
+   def foo(barBarBarBar: BarBarBarBar) = barBarBarBar match {
+      case baz =>
+        val qux = Qux()
+        xyzzy(barBarBarBar, qux /* barBarBarBarBarBar */)
+        val quux = Quux()
+   }
+}
+>>>
+object a {
+  def foo(barBarBarBar: BarBarBarBar) =
+    barBarBarBar match {
+      case baz =>
+        val qux = Qux()
+        xyzzy(
+          barBarBarBar,
+          qux /* barBarBarBarBarBar */
+        )
+        val quux = Quux()
+    }
+}

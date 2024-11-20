@@ -3023,6 +3023,8 @@ The rule takes the following parameters under `rewrite.avoidInfix`:
   - if unspecified, and `project.layout` determines that the file being
     formatted is not a test file, then these test assert methods will not
     be excluded
+- (since 3.8.4) `excludePostfix`, unless set to `true` explicitly, will also
+  apply the rule to `Term.Select` trees specified without a dot
 
 ```scala mdoc:scalafmt
 rewrite.rules = [AvoidInfix]
@@ -3853,6 +3855,11 @@ The section contains the following settings (available since v3.8.1):
   - will only apply the rewrite if the cumulative span of all visible
     (non-whitespace) tokens within the argument is between the two values
   - this rule is disabled if `fewerBracesMaxSpan == 0`
+- (since v3.8.4) `fewerBracesParensToo`
+  - will apply the rule just above to an argument in parentheses as well,
+    if the one of following is also satisfied:
+    - [`newlines.afterInfix`](#newlinesafterinfix) is NOT `keep`; or
+    - current dialect supports `allowInfixOperatorAfterNL`
 
 Prior to v3.8.1, `rewrite.scala3.removeOptionalBraces` was a flag which
 took three possible values (with their equivalent current settings shown):
@@ -4113,7 +4120,8 @@ This variant used to be called `JavaDoc`.
 docstrings.style = Asterisk
 ---
 /** Skip first line, format intermediate lines with an asterisk
-  * below the first asterisk of the first line (aka JavaDoc)
+  * below the first asterisk of the first line (aka JavaDoc).
+  * Since v3.8.4, `blankFirstLine = fold` takes precedence.
   */
 ```
 
@@ -4275,9 +4283,10 @@ Takes the following values:
 - `unfold`: will enforce a blank first line
   (replaced `yes` in v3.8.2)
 
-> Since v2.7.5. Ignored for `docstrings.style = keep` or
-> `docstrings.style = Asterisk` or
-> `docstrings.wrap = no`.
+> Since v2.7.5.
+>
+> - Ignored for `docstrings.style = keep` or `docstrings.wrap = no`.
+> - [since v3.8.4] For `docstrings.style = Asterisk`, only `fold` changes default behaviour.
 
 ```scala mdoc:scalafmt
 # do not force a blank first line
@@ -4594,6 +4603,39 @@ def g: Foo\/Repr
 def e = a##b
 ```
 
+### `spaces.aroundSymbolicInfixOperators`
+
+Added in v3.8.3, this parameter controls spaces around some infix operators
+(unless [`spaces.neverAroundInfixTypes`](#spacesneveraroundinfixtypes) above
+applies).
+
+This parameter contains two subparameters, `include` and `exclude`, each either
+a string containing a regex, or a list of regex alternatives. By default,
+`include` is `.*` (i.e., matches everything) and `exclude` is `^$` (matches
+nothing), thus all infix operators would use a space.
+
+The logic is applied as follows:
+
+- first, the infix operator must be symbolic (i.e., does not start with a
+  letter or underscore) and not an assignment; otherwise, space is enforced;
+- if the two characters on either side of the proposed space (i.e., the last
+  character of the left-hand side and the first character of the operator,
+  for spaces before the operator, or the last character of the operator and
+  the first character of the right-hand side for spaces after the operator)
+  can both be part of a symbolic operator, the space is enforced;
+- otherwise, if the operator doesn't match any of the `include` patterns or
+  matches one of the `exclude` patterns, the space is not output.
+
+```scala mdoc:scalafmt
+maxColumn = 80
+spaces.aroundSymbolicInfixOperators.include = ".*" # default
+spaces.aroundSymbolicInfixOperators.exclude = [ "^##$", "==" ]
+---
+def f: Foo ## Repr
+def g(a: Column, b: Column): Boolean = a === b || a###b
+def e(a: Int, b: Int) = a ## b || a == b || a!=b
+```
+
 ### `spaces.afterKeywordBeforeParen`
 
 ```scala mdoc:defaults
@@ -4759,6 +4801,8 @@ Default formatting:
 0x1Abl
 10E-1
 10e-1D
+0B111
+0b111l
 ```
 
 Each `literals.*` setting has three available options: `Upper`, `Lower`,
@@ -4834,6 +4878,24 @@ literals.long=Upper
 ---
 0xaAaA
 0xaAaAl
+```
+
+### `literals.binPrefix`
+
+> Since v3.8.4.
+
+```scala mdoc:defaults
+literals.binPrefix
+```
+
+Responsible for the case of binary integer literals prefix `0b`
+
+```scala mdoc:scalafmt
+literals.binPrefix=Lower
+literals.long=Upper
+---
+0B111
+0B111l
 ```
 
 ### `literals.scientific`
@@ -4979,6 +5041,10 @@ The behaviour of `binPack.parentConstructors = source` depends on the value of
 [`newlines.source`](#newlinessource); `keep` maps to `keep` and attempts to preserve the
 space if there's no line break in the source, `fold` maps to `Oneline`, rest to `Never`.
 
+#### `binPack.parentConstructors=Always`
+
+This option attempts to binpack parents, formatting as many on each line as will fit.
+
 ```scala mdoc:scalafmt
 binPack.parentConstructors = Always
 maxColumn = 30
@@ -4991,6 +5057,12 @@ object A {
 }
 ```
 
+#### `binPack.parentConstructors=Never`
+
+This option will attempt to format the entire declaration on one line (starting
+with `class` or `trait` and including all parents); otherwise, will enforce
+breaks before each.
+
 ```scala mdoc:scalafmt
 binPack.parentConstructors = Never
 maxColumn = 30
@@ -4999,6 +5071,11 @@ object A {
   trait Foo extends Bar with Baz
 }
 ```
+
+#### `binPack.parentConstructors=Oneline`
+
+This option will attempt to format all parents on one line (starting with
+`extends` and including all parents); otherwise, will enforce breaks before each.
 
 ```scala mdoc:scalafmt
 binPack.parentConstructors = Oneline
@@ -5017,6 +5094,12 @@ object A {
 }
 ```
 
+#### `binPack.parentConstructors=OnelineIfPrimaryOneline`
+
+This option will attempt to format all parents on one line (from `extends` and
+including all parents), but only if the primary constructor fits on one line
+as well (the same or previous); otherwise, will enforce breaks before each.
+
 ```scala mdoc:scalafmt
 binPack.parentConstructors = OnelineIfPrimaryOneline
 maxColumn = 30
@@ -5033,6 +5116,10 @@ object A {
 }
 ```
 
+#### `binPack.parentConstructors=keep`
+
+This option attempts to preserve breaks before each parent.
+
 ```scala mdoc:scalafmt
 binPack.parentConstructors = keep
 ---
@@ -5048,6 +5135,21 @@ object A {
       b
     ) with Baz
     with Qux
+}
+```
+
+#### `binPack.parentConstructors=ForceBreak`
+
+This option will enforce a break before each parent. As usual, the break is only
+actually introduced if indented position on the next line is less than the current.
+
+```scala mdoc:scalafmt
+binPack.parentConstructors = ForceBreak
+maxColumn = 45
+---
+object A {
+  class Foo(a: Int) extends Bar with Baz
+  class Foo(a: Int, b: Int, c: String, d: Double) extends Bar with Baz
 }
 ```
 
@@ -5319,7 +5421,12 @@ takes the following values:
 - `windows`: uses CRLF (`U+000D U+000A`)
 - `preserve`: if an input file _contains_ CRLF anywhere, use CRLF for every line; otherwise, LF
 
-By default, this parameter is assumed to be set to `unix`.
+By default, this parameter is assumed to be set to `unix`. However, since
+v3.8.3, if the formatter is invoked on Windows, [`project.git`](#projectgit)
+is set and `git` parameter
+[`core.autocrlf`](https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration#_core_autocrlf)
+is configured, then default value will be changed to `windows` if
+`autocrlf=true`, and `preserve` if `false`.
 
 ### `rewriteTokens`
 
@@ -5508,11 +5615,12 @@ for a state to be considered. A state need to qualify under at least one of
 the checks controlled by these parameters:
 
 - `runner.optimizer.pruneSlowStates`:
-  - if this flag is disabled, any state qualifies
+  - accepts `true` or `false`; also, since v3.8.4, `No`, `Yes` or `Only`
+  - if this flag is disabled (`false` or `No`), any state qualifies
   - if it is enabled:
     - if the search algorithm is ultimately unable to find a completed solution
-      (because some states might be discarded), then it will disable the flag
-      and make another attempt
+      (because some states might be discarded) and if the value is not `Only`,
+      then it will disable the flag and make another attempt
     - during the first run, when the flag is enabled, a state qualifies if it
       is not "worse" than a previously recorded "best" state for this token
     - the "best" state is the first state with a newline split at the given
@@ -5612,11 +5720,14 @@ runner.optimizer.defnSite
 This optimization is enabled when all these criteria are satisfied:
 
 - `xxxSite.minSpan`:
-  must be non-negative, and the character distance between the matching
-  parentheses, excluding any whitespace, must exceed this value
-  (prior to v3.8.1, this parameter was called `forceConfigStyleOnOffset`)
+  must be non-negative and not exceed the character span covered by the entire
+  clause, excluding any whitespace
+  - prior to v3.8.1, this parameter was called `forceConfigStyleOnOffset`
+  - prior to v3.8.4, the parameter had to be strictly less than the span, and
+    the span calculation excluded the last token of the clause (a closing delim
+    spanning a single-character, unless optional braces had been used)
 - `xxxSite.minCount`:
-  must be positive and may not exceed the number of arguments
+  must be positive and not exceed the number of arguments
   (prior to v3.8.2, this parameter was called `forceConfigStyleMinCount`)
 
 > These parameters cannot be [overridden within a file](#for-code-block)

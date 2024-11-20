@@ -75,11 +75,12 @@ object FileOps {
   }
 
   /** Reads file from file system or from http url */
-  def readFile(filename: String)(implicit codec: Codec): String =
-    Try(new URL(filename)) match {
-      case Success(url) => readFile(url)
-      case _ => readFile(getFile(filename))
-    }
+  def readFile(filename: String)(implicit codec: Codec): String = {
+    val urlOpt =
+      if (PlatformCompat.isScalaNative) None
+      else Try(new URL(filename)).toOption
+    urlOpt.fold(readFile(getFile(filename)))(readFile)
+  }
 
   def readFile(url: URL)(implicit codec: Codec): String = {
     val isFile = Option(url.getProtocol).forall("file".equalsIgnoreCase)

@@ -14,6 +14,7 @@ import org.scalafmt.util.MarkdownParser
 import scala.meta.Input
 import scala.meta.dialects
 import scala.meta.parsers.ParseException
+import scala.meta.tokenizers.TokenizerOptions
 
 import java.nio.file.Path
 
@@ -30,6 +31,8 @@ import metaconfig.Configured
 object Scalafmt {
 
   private val defaultFilename = "<input>"
+  private implicit val tokenizerOptions: TokenizerOptions =
+    new TokenizerOptions(groupWhitespace = true)
 
   // XXX: don't modify signature, scalafmt-dynamic expects it via reflection
   /** Format Scala code using scalafmt.
@@ -90,7 +93,7 @@ object Scalafmt {
     else doFormatOne(code, style, file, range)
 
   private[scalafmt] def toInput(code: String, file: String): Input = {
-    val fileInput = Input.VirtualFile(file, code)
+    val fileInput = Input.VirtualFile(file, code).withTokenizerOptions
     if (FileOps.isAmmonite(file)) Input.Ammonite(fileInput) else fileInput
   }
 
@@ -102,14 +105,16 @@ object Scalafmt {
   ): Try[String] = {
     val runner = style.runner
     val codeToInput: String => Input = toInput(_, file)
-    val parsed = runner.parse(Rewrite(codeToInput(code), style, codeToInput))
-    parsed.fold(
-      _.details match {
-        case ed: ParseException =>
-          val dialect = runner.dialectName
-          val msg = s"[dialect $dialect] ${ed.shortMessage}"
-          Failure(new ParseException(ed.pos, msg))
-        case ed => Failure(ed)
+    val original = codeToInput(code)
+    val rewritten = Rewrite(original, style)
+    runner.parse(rewritten.fold(original)(codeToInput)).fold(
+      x => {
+        val err = x.details match {
+          case ParseException(pos, msg) =>
+            ParseException(pos, s"[dialect ${runner.dialectName}] $msg")
+          case ed => ed
+        }
+        Failure(Error.WithCode(err, rewritten.getOrElse(code)))
       },
       tree => {
         implicit val formatOps = new FormatOps(tree, style, file)

@@ -1,0 +1,161 @@
+
+<<< incorrect indent expire
+jv.validated[AddScheduledQueryRequest]
+  .disjunction leftMap { err =>
+  badRequest(
+      "Request body %s is not a valid scheduling query request: %s"
+        .format(jv.renderCompact, err.message))
+}
+>>>
+jv.validated[AddScheduledQueryRequest]
+  .disjunction leftMap { err =>
+  badRequest(
+      "Request body %s is not a valid scheduling query request: %s"
+        .format(jv.renderCompact,
+                err.message))
+}
+<<< Init
+new DenseMatrix(
+  data = from.data map { _.conjugate },
+  offset = from.offset,
+  cols = from.rows,
+  rows = from.cols,
+  majorStride = from.majorStride,
+  isTranspose = !from.isTranspose)
+>>>
+new DenseMatrix(
+    data =
+      from.data map { _.conjugate },
+    offset = from.offset,
+    cols = from.rows,
+    rows = from.cols,
+    majorStride = from.majorStride,
+    isTranspose = !from.isTranspose)
+<<< Init, multiline map
+new DenseMatrix(
+    data = from.data map {
+      _.conjugate
+    },
+    offset = from.offset,
+    cols = from.rows,
+    rows = from.cols,
+    majorStride = from.majorStride,
+    isTranspose = !from.isTranspose)
+>>>
+new DenseMatrix(
+    data = from.data map {
+      _.conjugate
+    },
+    offset = from.offset,
+    cols = from.rows,
+    rows = from.cols,
+    majorStride = from.majorStride,
+    isTranspose = !from.isTranspose)
+<<< binpack oneline, apply followed by block
+maxColumn = 15
+binPack.unsafeCallSite = Oneline
+optIn.configStyleArguments = false
+===
+test("foo " +
+  "bar") {
+    baz
+  }
+>>>
+test("foo " +
+  "bar") {
+  baz
+}
+<<< binpack oneline, apply followed by partial function
+maxColumn = 15
+binPack.unsafeCallSite = Oneline
+optIn.configStyleArguments = false
+===
+test("foo " +
+  "bar") {
+    case baz =>
+    case qux =>
+  }
+>>>
+test("foo " +
+  "bar") {
+  case baz =>
+  case qux =>
+}
+<<< #3607 beforeApplyArgInParens=always
+spaces.beforeApplyArgInParens = always
+===
+object a {
+  + ()
+  === ()
+  bar ()
+  + (baz)
+  === (baz)
+  bar (baz)
+  + (baz, qux)
+  === (baz, qux)
+  bar (baz, qux)
+}
+>>>
+object a {
+  +()
+  === ()
+  bar ()
+  +(baz)
+  === (baz)
+  bar (baz)
+  +(baz, qux)
+  === (baz, qux)
+  bar (baz, qux)
+}
+<<< #3607 beforeApplyArgInParens=never
+spaces.beforeApplyArgInParens = never
+===
+object a {
+  + ()
+  === ()
+  bar ()
+  + (baz)
+  === (baz)
+  bar (baz)
+  + (baz, qux)
+  === (baz, qux)
+  bar (baz, qux)
+}
+>>>
+object a {
+  +()
+  ===()
+  bar()
+  +(baz)
+  ===(baz)
+  bar(baz)
+  +(baz, qux)
+  ===(baz, qux)
+  bar(baz, qux)
+}
+<<< #3607 beforeApplyArgInParens=aftersymbolic
+spaces.beforeApplyArgInParens = aftersymbolic
+===
+object a {
+  + ()
+  === ()
+  bar ()
+  + (baz)
+  === (baz)
+  bar (baz)
+  + (baz, qux)
+  === (baz, qux)
+  bar (baz, qux)
+}
+>>>
+object a {
+  +()
+  === ()
+  bar()
+  +(baz)
+  === (baz)
+  bar(baz)
+  +(baz, qux)
+  === (baz, qux)
+  bar(baz, qux)
+}

@@ -1,0 +1,1007 @@
+rewrite.rules = [Imports]
+rewrite.imports.contiguousGroups = no
+runner.dialect = scala3
+<<< basic with wildcard
+rewrite.imports.expand = true
+===
+package a
+import a._, h.{k, l}
+>>>
+package a
+import a._
+import h.k
+import h.l
+<<< basic with wildcard first
+rewrite.imports.expand = true
+===
+package a
+import a._, a.{k, l}
+>>>
+package a
+import a._
+import a.k
+import a.l
+<<< basic with wildcard later
+rewrite.imports.expand = true
+===
+package a
+import a.{k, l}, a._
+>>>
+package a
+import a.k
+import a.l
+import a._
+<<< basic expansion
+rewrite.imports.expand = true
+===
+package a
+
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  export d.e.{f, g}
+
+
+ // comment
+  import a.md.e.{f, g}
+
+//package b
+>>>
+package a
+
+import a.b
+import a.c
+import h.k
+import h.l
+export d.e.f
+export d.e.g
+
+// comment
+import a.md.e.f
+import a.md.e.g
+
+//package b
+<<< basic sort ascii
+rewrite.imports.sort = ascii
+rewrite.imports.expand = true
+===
+package a
+
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  export d.e.{f, g}
+
+
+ // comment
+  import a.md.e.{a, A, f, g}
+  import a.md.E.{a, A, f, g}
+  import a.md.{eE, ef}
+  import a.md.{Ee, EF}
+  import a.md._
+  import a.md.{a, A, f, g}
+  import a.md.e.b.{a, A, f, g}
+  import a.md.e.B.{a, A, f, g}
+  import a.md.E.b.{a, A, f, g}
+  import a.md.E.B.{a, A, f, g}
+  import a.md.E._
+  import a.md.e._
+
+//package b
+>>>
+package a
+
+import a.b
+import a.c
+import a.md.A
+import a.md.E.A
+import a.md.E.B.A
+import a.md.E.B.a
+import a.md.E.B.f
+import a.md.E.B.g
+import a.md.E._
+import a.md.E.a
+import a.md.E.b.A
+import a.md.E.b.a
+import a.md.E.b.f
+import a.md.E.b.g
+import a.md.E.f
+import a.md.E.g
+import a.md.EF
+import a.md.Ee
+import a.md._
+import a.md.a
+// comment
+import a.md.e.A
+import a.md.e.B.A
+import a.md.e.B.a
+import a.md.e.B.f
+import a.md.e.B.g
+import a.md.e._
+import a.md.e.a
+import a.md.e.b.A
+import a.md.e.b.a
+import a.md.e.b.f
+import a.md.e.b.g
+import a.md.e.f
+import a.md.e.g
+import a.md.eE
+import a.md.ef
+import a.md.f
+import a.md.g
+export d.e.f
+export d.e.g
+import h.k
+import h.l
+
+//package b
+<<< basic sort scalastyle
+rewrite.imports.sort = scalastyle
+rewrite.imports.expand = true
+===
+package a
+
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  export d.e.{f, g}
+
+
+ // comment
+  import a.md.e.{a, A, f, g}
+  import a.md.E.{a, A, f, g}
+  import a.md.{eE, ef}
+  import a.md.{Ee, EF}
+  import a.md._
+  import a.md.{a, A, f, g}
+  import a.md.e.b.{a, A, f, g}
+  import a.md.e.B.{a, A, f, g}
+  import a.md.E.b.{a, A, f, g}
+  import a.md.E.B.{a, A, f, g}
+  import a.md.E._
+  import a.md.e._
+
+//package b
+>>>
+package a
+
+import a.b
+import a.c
+import a.md._
+import a.md.A
+import a.md.E._
+import a.md.E.A
+import a.md.E.B.A
+import a.md.E.B.a
+import a.md.E.B.f
+import a.md.E.B.g
+import a.md.E.a
+import a.md.E.b.A
+import a.md.E.b.a
+import a.md.E.b.f
+import a.md.E.b.g
+import a.md.E.f
+import a.md.E.g
+import a.md.Ee
+import a.md.EF
+import a.md.a
+import a.md.e._
+// comment
+import a.md.e.A
+import a.md.e.B.A
+import a.md.e.B.a
+import a.md.e.B.f
+import a.md.e.B.g
+import a.md.e.a
+import a.md.e.b.A
+import a.md.e.b.a
+import a.md.e.b.f
+import a.md.e.b.g
+import a.md.e.f
+import a.md.e.g
+import a.md.eE
+import a.md.ef
+import a.md.f
+import a.md.g
+export d.e.f
+export d.e.g
+import h.k
+import h.l
+
+//package b
+<<< basic sort original
+rewrite.imports.sort = original
+rewrite.imports.expand = true
+===
+package a
+
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  export d.e.{f, g}
+
+
+ // comment
+  import a.md.e.{a, A, f, g}
+  import a.md.E.{a, A, f, g}
+  import a.md.{eE, ef}
+  import a.md.{Ee, EF}
+  import a.md._
+  import a.md.{a, A, f, g}
+  import a.md.e.b.{a, A, f, g}
+  import a.md.e.B.{a, A, f, g}
+  import a.md.E.b.{a, A, f, g}
+  import a.md.E.B.{a, A, f, g}
+  import a.md.E._
+  import a.md.e._
+
+//package b
+>>>
+package a
+
+import a.b
+import a.c
+import a.md._
+import a.md.a
+import a.md.e._
+// comment
+import a.md.e.a
+import a.md.e.b.a
+import a.md.e.b.f
+import a.md.e.b.g
+import a.md.e.b.A
+import a.md.e.f
+import a.md.e.g
+import a.md.e.A
+import a.md.e.B.a
+import a.md.e.B.f
+import a.md.e.B.g
+import a.md.e.B.A
+import a.md.eE
+import a.md.ef
+import a.md.f
+import a.md.g
+import a.md.A
+import a.md.E._
+import a.md.E.a
+import a.md.E.b.a
+import a.md.E.b.f
+import a.md.E.b.g
+import a.md.E.b.A
+import a.md.E.f
+import a.md.E.g
+import a.md.E.A
+import a.md.E.B.a
+import a.md.E.B.f
+import a.md.E.B.g
+import a.md.E.B.A
+import a.md.EF
+import a.md.Ee
+export d.e.f
+export d.e.g
+import h.k
+import h.l
+
+//package b
+<<< grouped sort ascii
+rewrite.imports {
+  expand = true
+  sort = ascii
+  groups = [
+    ["a.*", "A.*"],
+    ["b.*", "B.*"],
+    ["c.*", "D.*"]
+  ]
+}
+===
+package a
+
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  export d.e.{f, g}
+
+
+ // comment
+  import A.md.e.{f, g}
+
+//package b
+  export b.c.d.{f, g}
+  import B.A.d.{f, g}
+  import c.b.a.{d, f => g, g => _, _}
+  export C.b.a.{d, f => g, g => _, _}
+  import D.c.b.{d, f => g, g => _}
+>>>
+package a
+
+// comment
+import A.md.e.f
+import A.md.e.g
+import a.b
+import a.c
+
+import B.A.d.f
+import B.A.d.g
+//package b
+export b.c.d.f
+export b.c.d.g
+
+import D.c.b.d
+import D.c.b.{f => g}
+import D.c.b.{g => _}
+import c.b.a.d
+import c.b.a.{f => g, g => _, _}
+
+export C.b.a.d
+export C.b.a.{f => g, g => _, _}
+export d.e.f
+export d.e.g
+import h.k
+import h.l
+<<< grouped sort scalastyle
+rewrite.imports {
+  expand = true
+  sort = scalastyle
+  groups = [
+    ["a.*", "A.*"],
+    ["b.*", "B.*"],
+    ["c.*", "D.*"]
+  ]
+}
+===
+package a
+
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  export d.e.{f, g}
+
+
+ // comment
+  import A.md.e.{f, g}
+
+//package b
+  export b.c.d.{f, g}
+  import B.A.d.{f, g}
+  import c.b.a.{d, f => g, g => _, _}
+  export C.b.a.{d, f => g, g => _, _}
+  import D.c.b.{d, f => g, g => _}
+>>>
+package a
+
+// comment
+import A.md.e.f
+import A.md.e.g
+import a.b
+import a.c
+
+import B.A.d.f
+import B.A.d.g
+//package b
+export b.c.d.f
+export b.c.d.g
+
+import D.c.b.{f => g}
+import D.c.b.{g => _}
+import D.c.b.d
+import c.b.a.{f => g, g => _, _}
+import c.b.a.d
+
+export C.b.a.{f => g, g => _, _}
+export C.b.a.d
+export d.e.f
+export d.e.g
+import h.k
+import h.l
+<<< grouped sort original
+rewrite.imports {
+  expand = true
+  sort = original
+  groups = [
+    ["a.*", "A.*"],
+    ["b.*", "B.*"],
+    ["c.*", "D.*"]
+  ]
+}
+===
+package a
+
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  export d.e.{f, g}
+
+
+ // comment
+  import A.md.e.{f, g}
+
+//package b
+  export b.c.d.{f, g}
+  import B.A.d.{f, g}
+  import c.b.a.{d, f => g, g => _, _}
+  export C.b.a.{d, f => g, g => _, _}
+  import D.c.b.{d, f => g, g => _}
+>>>
+package a
+
+import a.b
+import a.c
+// comment
+import A.md.e.f
+import A.md.e.g
+
+//package b
+export b.c.d.f
+export b.c.d.g
+import B.A.d.f
+import B.A.d.g
+
+import c.b.a.{f => g, g => _, _}
+import c.b.a.d
+import D.c.b.{f => g}
+import D.c.b.{g => _}
+import D.c.b.d
+
+export d.e.f
+export d.e.g
+import h.k
+import h.l
+export C.b.a.{f => g, g => _, _}
+export C.b.a.d
+<<< grouped sort ascii with nested package
+rewrite.imports {
+  expand = true
+  sort = ascii
+  groups = [
+    ["a.*", "A.*"],
+    ["b.*", "B.*"],
+    ["c.*", "D.*"]
+  ]
+}
+===
+package a
+
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  export d.e.{f, g}
+
+  class A
+
+ // comment
+  import A.md.e.{f, g}
+
+package b {
+  export b.c.d.{f, g}
+  import B.A.d.{f, g}
+
+  class B
+  import c.b.a.{d, f => g, g => _, _}
+  export C.b.a.{d, f => g, g => _, _}
+
+  class C
+  import D.c.b.{d, f => g, g => _}
+}
+>>>
+package a
+
+// comment
+import A.md.e.f
+import A.md.e.g
+import a.b
+import a.c
+
+export d.e.f
+export d.e.g
+import h.k
+import h.l
+
+class A
+
+package b {
+  import B.A.d.f
+  import B.A.d.g
+  export b.c.d.f
+  export b.c.d.g
+
+  import D.c.b.d
+  import D.c.b.{f => g}
+  import D.c.b.{g => _}
+  import c.b.a.d
+  import c.b.a.{f => g, g => _, _}
+
+  export C.b.a.d
+  export C.b.a.{f => g, g => _, _}
+
+  class B
+
+  class C
+}
+<<< comments galore 1
+rewrite.imports {
+  expand = true
+  sort = ascii
+  groups = [
+    ["a.*", "A.*"],
+    ["b.*", "B.*"],
+    ["c.*", "D.*"]
+  ]
+}
+===
+package a
+
+// c1
+import a.{b, // c2
+  c // c3
+}, // c4
+ d.{e, f} // c5
+>>>
+package a
+
+// c1
+import a.b // c2
+import a.c // c3
+
+import d.e
+import d.f // c5
+<<< comments galore 2
+rewrite.imports {
+  expand = true
+  sort = ascii
+  groups = [
+    ["a.*", "A.*"],
+    ["b.*", "B.*"],
+    ["c.*", "D.*"]
+  ]
+}
+===
+package a
+
+// c1
+// C1
+import A.{B, // C2
+  c}, // C3
+// c4
+// C4
+ D.{
+// C5
+ e, // C6
+ // c7
+ // C7
+ f} // C8
+>>>
+package a
+
+// c1
+// C1
+import A.B // C2
+import A.c // C3
+
+// c4
+// C4
+// C5
+import D.e // C6
+// c7
+// C7
+import D.f // C8
+<<< comments galore 3
+rewrite.imports {
+  expand = true
+  sort = ascii
+  groups = [
+    ["a.*", "A.*"],
+    ["b.*", "B.*"],
+    ["c.*", "D.*"]
+  ]
+}
+===
+package a
+
+// C1
+import A.{B => B1, // C2
+  c => _, _}, // C3
+// C4
+ D.{
+// C5
+ e => f, // C6
+ // C7
+ f => g} // C8
+>>>
+package a
+
+// C1
+import A.{
+  B => B1, // C2
+  c => _,
+  _
+} // C3
+
+// C4
+import D.{
+// C5
+  e => f // C6
+}
+import D.{
+  // C7
+  f => g
+} // C8
+<<< multiple identical imports
+rewrite.imports.expand = true
+rewrite.imports.sort = ascii
+===
+import bar._
+class A {
+  import foo._
+}
+class B {
+  import foo._
+}
+import bar._
+>>>
+import bar._
+class A {
+  import foo._
+}
+class B {
+  import foo._
+}
+<<< #2718 contiguousGroups = only
+rewrite.imports.groups = [["""scala\..*"""]]
+rewrite.imports.contiguousGroups = only
+===
+object Main {
+  // c1
+  import Foo._ // c2
+  // c3
+  val bar: Bar = getBar
+  // c4
+  import bar.ec // c5
+
+  def getBar: Foo.Bar = ???
+}
+>>>
+object Main {
+  // c1
+  import Foo._ // c2
+  // c3
+  val bar: Bar = getBar
+  // c4
+  import bar.ec // c5
+
+  def getBar: Foo.Bar = ???
+}
+<<< #2718 contiguousGroups = no
+rewrite.imports.groups = [["""scala\..*"""]]
+rewrite.imports.contiguousGroups = no
+===
+object Main {
+  // c1
+  import Foo._ // c2
+  // c3
+  val bar: Bar = getBar
+  // c4
+  import bar.ec // c5
+
+  def getBar: Foo.Bar = ???
+}
+>>>
+object Main {
+  // c1
+  import Foo._ // c2
+  // c4
+  import bar.ec // c5
+  // c3
+  val bar: Bar = getBar
+
+  def getBar: Foo.Bar = ???
+}
+<<< #2720 expand
+rewrite.imports.expand = true
+===
+import bar.b
+
+import bar.a
+>>>
+import bar.b
+
+import bar.a
+<<< #2720 !expand
+rewrite.imports.expand = false
+===
+import bar.b
+
+import bar.a
+>>>
+import bar.b
+
+import bar.a
+<<< #2777
+rewrite.imports.groups = [
+  ["foo\\..*"],
+  [".+"],
+  ["bar\\..*"]
+]
+===
+import bar._
+import foo._
+import other._
+>>>
+import foo._
+
+import other._
+
+import bar._
+<<< imports with optional braces
+runner.dialect = scala3
+rewrite.imports.expand = true
+rewrite.imports.sort = ascii
+===
+import bar._
+class A:
+  import foo._
+  import baz._
+class B:
+  import foo._
+  import baz._
+import bar._
+>>>
+import bar._
+class A:
+  import baz._
+  import foo._
+class B:
+  import baz._
+  import foo._
+<<< imports with optional braces and comments
+runner.dialect = scala3
+rewrite.imports.expand = true
+rewrite.imports.sort = ascii
+===
+import bar._
+class A:
+  /* foo */ import foo._
+  /* baz */ import baz._
+class B:
+  /* foo */ import foo._
+  /* baz */ import baz._
+import bar._
+>>>
+import bar._
+class A:
+  /* foo */
+  import baz._
+  import foo._
+
+class B:
+  /* foo */
+  import baz._
+  import foo._
+<<< imports with optional braces and comments
+runner.dialect = scala3
+rewrite.imports.expand = true
+rewrite.imports.sort = ascii
+===
+import bar._
+class A:
+  // foo
+  import foo._
+  // baz
+  import baz._
+class B:
+// foo
+  import foo._
+// baz
+  import baz._
+import bar._
+>>>
+import bar._
+class A:
+  // baz
+  import baz._
+  // foo
+  import foo._
+class B:
+// baz
+  import baz._
+// foo
+  import foo._
+<<< #3189 ascii expand
+rewrite.imports.sort = ascii
+rewrite.imports.expand = true
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z, _}
+>>>
+import a.given Z
+import a.x
+import a.{*, given}
+import a.{given, _}
+import a.{y => z, given}
+<<< #3189 ascii !expand
+rewrite.imports.sort = ascii
+rewrite.imports.expand = false
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given Z, given}
+<<< #3189 original
+rewrite.imports.sort = original
+rewrite.imports.expand = true
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{*, given}
+import a.{y => z, given}
+import a.given
+import a.given Z
+import a.x
+<<< #3189 !original
+rewrite.imports.sort = original
+rewrite.imports.expand = false
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given Z, given}
+<<< #3189 scalastyle
+rewrite.imports.sort = scalastyle
+rewrite.imports.expand = true
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{*, given}
+import a.{y => z, given}
+import a.given
+import a.given Z
+import a.x
+<<< #3189 !scalastyle
+rewrite.imports.sort = scalastyle
+rewrite.imports.expand = false
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given Z, given}
+<<< #3240 expand
+rewrite.imports.sort = ascii
+rewrite.imports.expand = true
+===
+import java as j
+>>>
+import java as j
+<<< #3240 groups
+rewrite.imports.sort = ascii
+rewrite.imports.groups = [[".*"]]
+===
+import java as j
+>>>
+import java as j
+<<< #3240 no expand, no groups
+rewrite.imports.sort = ascii
+===
+import java as j
+>>>
+import java as j
+<<< #3384 ascii
+rewrite.imports.sort = ascii
+rewrite.imports.expand = true
+===
+import java as j
+import j.collections as collections
+>>>
+import java as j
+import j.collections as collections
+<<< #3384 original
+rewrite.imports.sort = original
+rewrite.imports.expand = true
+===
+import java as j
+import j.collections as collections
+>>>
+import java as j
+import j.collections as collections
+<<< #3384 groups, ascii
+rewrite.imports.sort = ascii
+rewrite.imports.groups = [[".*"]]
+===
+import java as j
+import j.collections as collections
+>>>
+import java as j
+import j.collections as collections
+<<< #3384 groups, original
+rewrite.imports.sort = original
+rewrite.imports.groups = [[".*"]]
+===
+import java as j
+import j.collections as collections
+>>>
+import java as j
+import j.collections as collections
+<<< #3384 no expand, no groups, ascii
+rewrite.imports.sort = ascii
+===
+import java as j
+import j.collections as collections
+>>>
+import java as j
+import j.collections as collections
+<<< #3384 no expand, no groups, original
+rewrite.imports.sort = original
+===
+import java as j
+import j.collections as collections
+>>>
+import java as j
+import j.collections as collections
+<<< comment and blank before import
+rewrite.imports.groups = [["qux"]]
+===
+package foo {
+  // c1
+
+  import bar.baz
+}
+>>>
+package foo {
+  // c1
+
+  import bar.baz
+}
+<<< #4368 comment after import and blank
+rewrite.imports.expand = true
+===
+import scala.concurrent.Future
+
+// format: off
+/** Something
+ */
+// format: on
+class Test {}
+>>>
+import scala.concurrent.Future
+
+// format: off
+/** Something
+ */
+// format: on
+class Test {}

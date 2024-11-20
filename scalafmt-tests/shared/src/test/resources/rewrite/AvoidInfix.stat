@@ -1,0 +1,834 @@
+rewrite.rules = [AvoidInfix]
+<<< too many parenthesis
+rewrite.rules = [AvoidInfix, RedundantParens]
+===
+(test fubar compile).value
+>>>
+test.fubar(compile).value
+<<< basic
+lst map foo
+>>>
+lst.map(foo)
+<<< has parens
+lst map (foo)
+>>>
+lst.map(foo)
+<<< has curly
+lst map { x => y }
+>>>
+lst.map { x => y }
+<<< to
+1 to 100
+>>>
+1 to 100
+<<< until
+1 until 100
+>>>
+1 until 100
+<<< Dangerous
+consumerPollers forall
+   (poller => poller.isSubscribeRequestProcessed())
+>>>
+consumerPollers.forall(poller => poller.isSubscribeRequestProcessed())
+<<< rewrite around comment
+consumerPollers forall // Why write a comment here??
+    (poller => poller.isSubscribeRequestProcessed())
+>>>
+consumerPollers.forall( // Why write a comment here??
+  poller => poller.isSubscribeRequestProcessed()
+)
+<<< Dangerous 2
+(consumerPollers forall
+
+
+
+   (poller => poller.isSubscribeRequestProcessed()))
+>>>
+(consumerPollers.forall(poller => poller.isSubscribeRequestProcessed()))
+<<< Dangerous 3
+consumerPollers forall (a, b)
+>>>
+consumerPollers.forall(a, b)
+<<< Dangerous 4
+consumerPollers forall (
+    a, b)
+>>>
+consumerPollers.forall(a, b)
+<<< do nothing if lhs is whitelisted
+an[SparkException] should be thrownBy {
+     // foobar
+}
+>>>
+an[SparkException] should be thrownBy {
+  // foobar
+}
+<<< nested infix
+a banana walked and orders a martini
+>>>
+a.banana(walked).and(orders).a(martini)
+<<< nested infix with excluded combinator
+a banana walked have ordered a martini
+>>>
+(a.banana(walked) have ordered).a(martini)
+<<< more scalatest
+cp should not contain (jar3.getPath())
+>>>
+cp should not contain (jar3.getPath())
+<<< in lambda !allowInfixPlaceholderArg
+rewrite.allowInfixPlaceholderArg = false
+rewrite.neverInfix {
+  includeFilters = [ "[^*]+" ]
+  excludeFilters = [ "eq" ]
+}
+===
+object a {
+  _ compareTo _
+  _ compareTo _.bar
+  _ compareTo (_.bar)
+  _ compareTo (_: Int) * 2
+  list foo (_ fun _.bar)
+  list foo (_ fun (_.bar))
+  _.foo bar _.baz
+  _ eq bar baz qux
+  _.eq(bar) baz qux
+  _ + bar baz qux
+  _ * bar baz qux
+  _ foo bar baz qux
+}
+>>>
+object a {
+  _.compareTo(_)
+  _ compareTo _.bar
+  _.compareTo(_.bar)
+  _ compareTo (_: Int) * 2
+  list.foo(_ fun _.bar)
+  list.foo(_.fun(_.bar))
+  _.foo bar _.baz
+  _ eq bar baz qux
+  _.eq(bar).baz(qux)
+  _.+(bar).baz(qux)
+  _ * bar baz qux
+  _.foo(bar).baz(qux)
+}
+<<< in lambda allowInfixPlaceholderArg
+rewrite.allowInfixPlaceholderArg = true
+rewrite.neverInfix {
+  includeFilters = [ "[^*]+" ]
+  excludeFilters = [ "eq" ]
+}
+===
+object a {
+  _ compareTo _
+  _ compareTo _.bar
+  _ compareTo (_.bar)
+  _ compareTo (_: Int) * 2
+  list foo (_ fun _.bar)
+  list foo (_ fun (_.bar))
+  _.foo bar _.baz
+  _ eq bar baz qux
+  _ + bar baz qux
+  _ * bar baz qux
+  _ foo bar baz qux
+}
+>>>
+object a {
+  _ compareTo _
+  _ compareTo _.bar
+  _.compareTo(_.bar)
+  _ compareTo (_: Int) * 2
+  list.foo(_ fun _.bar)
+  list.foo(_.fun(_.bar))
+  _.foo bar _.baz
+  _ eq bar baz qux
+  _.+(bar).baz(qux)
+  _ * bar baz qux
+  _.foo(bar).baz(qux)
+}
+<<< in lambda 2, !allowInfixPlaceholderArg
+rewrite.avoidInfix {
+  excludePlaceholderArg = false
+  includeFilters = [ "[^*]+" ]
+  excludeFilters = []
+}
+===
+object a {
+  b.c(_ + _ * _)
+  b.c(1 + _ * _)
+  b.c(_ + 2 * _)
+  b.c(_ + _ * 3)
+  b.c(1 + 2 * _)
+  b.c(_ + 2 * 3)
+  b.c(1 + 2 * 3)
+
+  b.c(_ + _ / _)
+  b.c(1 + _ / _)
+  b.c(_ + 2 / _)
+  b.c(_ + _ / 3)
+  b.c(1 + 2 / _)
+  b.c(_ + 2 / 3)
+  b.c(1 + 2 / 3)
+
+  b.c(_ * _ + _)
+  b.c(1 * _ + _)
+  b.c(_ * 2 + _)
+  b.c(_ * _ + 3)
+  b.c(1 * 2 + _)
+  b.c(_ * 2 + 3)
+  b.c(1 * 2 + 3)
+
+  b.c(_ / _ + _)
+  b.c(1 / _ + _)
+  b.c(_ / 2 + _)
+  b.c(_ / _ + 3)
+  b.c(1 / 2 + _)
+  b.c(_ / 2 + 3)
+  b.c(1 / 2 + 3)
+}
+>>>
+object a {
+  b.c(_ + _ * _)
+  b.c(1 + _ * _)
+  b.c(_ + 2 * _)
+  b.c(_ + _ * 3)
+  b.c(1 + 2 * _)
+  b.c(_.+(2 * 3))
+  b.c(1.+(2 * 3))
+
+  b.c(_ + _./(_))
+  b.c(1 + _./(_))
+  b.c(_ + 2./(_))
+  b.c(_ + _./(3))
+  b.c(1 + 2./(_))
+  b.c(_.+(2./(3)))
+  b.c(1.+(2./(3)))
+
+  b.c(_ * _ + _)
+  b.c(1 * _ + _)
+  b.c(_ * 2 + _)
+  b.c(_ * _ + 3)
+  b.c((1 * 2).+(_))
+  b.c(_ * 2 + 3)
+  b.c((1 * 2).+(3))
+
+  b.c(_./(_).+(_))
+  b.c(1./(_).+(_))
+  b.c(_./(2).+(_))
+  b.c(_./(_).+(3))
+  b.c(1./(2).+(_))
+  b.c(_./(2).+(3))
+  b.c(1./(2).+(3))
+}
+<<< in lambda 2, allowInfixPlaceholderArg
+rewrite.avoidInfix {
+  excludePlaceholderArg = true
+  includeFilters = [ "[^*]+" ]
+  excludeFilters = []
+}
+===
+object a {
+  b.c(_ + _ * _)
+  b.c(1 + _ * _)
+  b.c(_ + 2 * _)
+  b.c(_ + _ * 3)
+  b.c(1 + 2 * _)
+  b.c(_ + 2 * 3)
+  b.c(1 + 2 * 3)
+
+  b.c(_ + _ / _)
+  b.c(1 + _ / _)
+  b.c(_ + 2 / _)
+  b.c(_ + _ / 3)
+  b.c(1 + 2 / _)
+  b.c(_ + 2 / 3)
+  b.c(1 + 2 / 3)
+
+  b.c(_ * _ + _)
+  b.c(1 * _ + _)
+  b.c(_ * 2 + _)
+  b.c(_ * _ + 3)
+  b.c(1 * 2 + _)
+  b.c(_ * 2 + 3)
+  b.c(1 * 2 + 3)
+
+  b.c(_ / _ + _)
+  b.c(1 / _ + _)
+  b.c(_ / 2 + _)
+  b.c(_ / _ + 3)
+  b.c(1 / 2 + _)
+  b.c(_ / 2 + 3)
+  b.c(1 / 2 + 3)
+}
+>>>
+object a {
+  b.c(_ + _ * _)
+  b.c(1 + _ * _)
+  b.c(_ + 2 * _)
+  b.c(_ + _ * 3)
+  b.c(1 + 2 * _)
+  b.c(_.+(2 * 3))
+  b.c(1.+(2 * 3))
+
+  b.c(_ + _ / _)
+  b.c(1 + _ / _)
+  b.c(_ + 2 / _)
+  b.c(_ + _./(3))
+  b.c(1 + 2 / _)
+  b.c(_.+(2./(3)))
+  b.c(1.+(2./(3)))
+
+  b.c(_ * _ + _)
+  b.c(1 * _ + _)
+  b.c(_ * 2 + _)
+  b.c(_ * _ + 3)
+  b.c(1 * 2 + _)
+  b.c(_ * 2 + 3)
+  b.c((1 * 2).+(3))
+
+  b.c(_ / _ + _)
+  b.c(1 / _ + _)
+  b.c(_./(2) + _)
+  b.c(_ / _ + 3)
+  b.c(1./(2) + _)
+  b.c(_./(2).+(3))
+  b.c(1./(2).+(3))
+}
+<<< akka.ActivatorDist 1
+PathFinder(dir) descendantsExcept ("*", gitignoreFileFilter) filter (_.isFile)
+>>>
+PathFinder(dir).descendantsExcept("*", gitignoreFileFilter).filter(_.isFile)
+<<< akka.ActivatorDist 2
+filteredPathFinder pair Path.rebase(dir, activatorDistDirectory) map {
+  case (source, target) =>
+    s.log.info(s"copying: $source -> $target")
+    println("blah")
+}
+>>>
+filteredPathFinder.pair(Path.rebase(dir, activatorDistDirectory)).map {
+  case (source, target) =>
+    s.log.info(s"copying: $source -> $target")
+    println("blah")
+}
+<<< akka.typed.StubbedActorContext
+Iterator from 1 map (Helpers.base64(_))
+>>>
+Iterator.from(1).map(Helpers.base64(_))
+<<< akka.actor.dispatch.ActorModelSpec
+Iterator.continually(mq.dequeue) takeWhile (_ ne null) foreach System.err.println
+>>>
+Iterator
+  .continually(mq.dequeue)
+  .takeWhile(_ ne null)
+  .foreach(System.err.println)
+<<< operator
+foo + 1 bar 2
+>>>
+(foo + 1).bar(2)
+<<< operator 2
+val future = actor1 ? "Hello" flatMap { case i: Int ⇒ actor2 ? i }
+>>>
+val future = (actor1 ? "Hello").flatMap { case i: Int ⇒ actor2 ? i }
+<<< excluded combinators in lhs
+terminated should be theSameInstanceAs Await.result(f, 10 seconds)
+>>>
+(terminated should be).theSameInstanceAs(Await.result(f, 10.seconds))
+<<< excluded combinators in lhs 2
+seq should have length 5
+>>>
+(seq should have).length(5)
+<<< excluded combinators in lhs 3
+1 to total foreach /* c1 */ { _ =>
+  perform(_ + 1)
+}
+>>>
+(1 to total).foreach { /* c1 */ _ =>
+  perform(_ + 1)
+}
+<<< excluded combinators in lhs 4
+seq should have length 5 and true
+>>>
+(seq should have).length(5).and(true)
+<<< sbt
+"org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
+>>>
+("org.scalamacros" % "paradise" % "2.1.0").cross(CrossVersion.full)
+<<< empty parameter list
+"org.scalamacros" % "paradise" % "2.1.0" intransitive()
+>>>
+("org.scalamacros" % "paradise" % "2.1.0").intransitive()
+<<< double nest
+    def contains(ip: String) = apply map (_ blah strToIp(ip))
+>>>
+def contains(ip: String) = apply.map(_.blah(strToIp(ip)))
+<<< crazy
+ val makeVersion = nodots _ compose stripVersion _
+
+>>>
+val makeVersion = (nodots _).compose(stripVersion _)
+<<< crazy (format:off)
+// format: off
+ val makeVersion = nodots _ compose stripVersion _
+
+>>>
+// format: off
+ val makeVersion = nodots _ compose stripVersion _
+<<< wrap lhs correctly
+object a {
+  (a(b("c")) over d) / (e + 1) as f
+}
+>>>
+object a {
+  ((a(b("c")).over(d)) / (e + 1)).as(f)
+}
+<<< wrap lhs correctly, no parens
+rewrite.rules = [AvoidInfix, RedundantParens]
+===
+object a {
+  (a(b("c")) over d) / (e + 1) as f
+}
+>>>
+object a {
+  ((a(b("c")).over(d)) / (e + 1)).as(f)
+}
+<<< exclude "cross" for sbt
+foo("bar" % "baz" % "qux" cross CrossVersion.full)
+>>> a.sbt
+foo("bar" % "baz" % "qux" cross CrossVersion.full)
+<<< avoid double wrap 1
+rewrite.neverInfix.includeFilters = [ "[^*]+" ]
+===
+1 foo (2 +: 3) / 4
+>>>
+1.foo((2 +: 3)./(4))
+<<< avoid double wrap 2
+rewrite.neverInfix.includeFilters = [ "[^*]+" ]
+===
+1 foo ((2) +: 3) / 4
+>>>
+1.foo(((2) +: 3)./(4))
+<<< rewrite wrapped placeholder
+foo baz (_)
+>>>
+foo.baz(_)
+<<< enclosed in parens on separate lines, with RedundantParens
+rewrite.rules = [AvoidInfix, RedundantParens]
+===
+object a {
+  val foo = bar
+  (
+    a baz b
+  )
+}
+>>>
+object a {
+  val foo = bar
+  a.baz(b)
+}
+<<< #3712 scalatest usage, path main, layout standard
+project.layout = StandardConvention
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout standard
+project.layout = StandardConvention
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout standard
+project.layout = StandardConvention
+===
+a shouldBe b
+>>>
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout standard, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout standard, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path unspecified, layout standard, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>>
+a.shouldBe(b)
+<<< #3712 scalatest usage, path main, layout standard, excludeScalaTest=true
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path test, layout standard, excludeScalaTest=true
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout standard, excludeScalaTest=true
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+===
+a shouldBe b
+>>>
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout standard, excludeScalaTest=true, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path test, layout standard, excludeScalaTest=true, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout standard, excludeScalaTest=true, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>>
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout standard, excludeScalaTest=false
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout standard, excludeScalaTest=false
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path unspecified, layout standard, excludeScalaTest=false
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>>
+a.shouldBe(b)
+<<< #3712 scalatest usage, path main, layout standard, excludeScalaTest=false, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout standard, excludeScalaTest=false, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path unspecified, layout standard, excludeScalaTest=false, override exclude
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>>
+a.shouldBe(b)
+<<< #3712 scalatest usage, path main, layout unspecified
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path test, layout unspecified
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout unspecified
+a shouldBe b
+>>>
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout unspecified, override exclude
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout unspecified, override exclude
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path unspecified, layout unspecified, override exclude
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>>
+a.shouldBe(b)
+<<< #3712 scalatest usage, path main, layout unspecified, excludeScalaTest=true
+rewrite.avoidInfix.excludeScalaTest = true
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path test, layout unspecified, excludeScalaTest=true
+rewrite.avoidInfix.excludeScalaTest = true
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout unspecified, excludeScalaTest=true
+rewrite.avoidInfix.excludeScalaTest = true
+===
+a shouldBe b
+>>>
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout unspecified, excludeScalaTest=true, override exclude
+rewrite.avoidInfix.excludeScalaTest = true
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path test, layout unspecified, excludeScalaTest=true, override exclude
+rewrite.avoidInfix.excludeScalaTest = true
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout unspecified, excludeScalaTest=true, override exclude
+rewrite.avoidInfix.excludeScalaTest = true
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>>
+a shouldBe b
+<<< #3712 scalatest usage, path main, layout unspecified, excludeScalaTest=false
+rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout unspecified, excludeScalaTest=false
+rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path unspecified, layout unspecified, excludeScalaTest=false
+rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>>
+a.shouldBe(b)
+<<< #3712 scalatest usage, path main, layout unspecified, excludeScalaTest=false, override exclude
+rewrite.avoidInfix.excludeScalaTest = false
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout unspecified, excludeScalaTest=false, override exclude
+rewrite.avoidInfix.excludeScalaTest = false
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path unspecified, layout unspecified, excludeScalaTest=false, override exclude
+rewrite.avoidInfix.excludeScalaTest = false
+rewrite.avoidInfix.excludeFilters = ["foo"]
+===
+a shouldBe b
+>>>
+a.shouldBe(b)
+<<< #3712 scalatest usage, file override
+rewrite.avoidInfix.excludeScalaTest = true
+fileOverride.".scala".rewrite.avoidInfix.excludeScalaTest = false
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path main, layout standard, file override
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+fileOverride.".scala".rewrite.avoidInfix.excludeScalaTest = null
+===
+a shouldBe b
+>>> foo/src/main/scala/bar.scala
+a.shouldBe(b)
+<<< #3712 scalatest usage, path test, layout standard, file override
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+fileOverride.".scala".rewrite.avoidInfix.excludeScalaTest = null
+===
+a shouldBe b
+>>> foo/src/test/scala/bar.scala
+a shouldBe b
+<<< #3712 scalatest usage, path unspecified, layout standard, file override
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = true
+fileOverride.".scala".rewrite.avoidInfix.excludeScalaTest = null
+===
+a shouldBe b
+>>>
+a shouldBe b
+<<< in try, with scala211
+runner.dialect = scala211
+===
+object a {
+  try new compiler.Run compile (sourceFiles map (_.toString))
+  catch { case ex: Throwable => }
+}
+>>>
+object a {
+  try new compiler.Run compile (sourceFiles.map(_.toString))
+  catch { case ex: Throwable => }
+}
+<<< in try, with scala212
+runner.dialect = scala212
+===
+object a {
+  try new compiler.Run compile (sourceFiles map (_.toString))
+  catch { case ex: Throwable => }
+}
+>>>
+object a {
+  try new compiler.Run compile (sourceFiles.map(_.toString))
+  catch { case ex: Throwable => }
+}
+<<< in try, with scala213
+runner.dialect = scala213
+===
+object a {
+  try new compiler.Run compile (sourceFiles map (_.toString))
+  catch { case ex: Throwable => }
+}
+>>>
+object a {
+  try (new compiler.Run).compile(sourceFiles.map(_.toString))
+  catch { case ex: Throwable => }
+}
+<<< #4133 avoid infix, with arg in rewritten braces just before `else`
+maxColumn = 76
+newlines.source = fold
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+rewrite.rules = [RedundantBraces, RedundantParens, AvoidInfix]
+===
+def primaryConstructor: Option[MemberImpl with Constructor] = if (isClass) constructors find { _.isPrimary } else None
+>>>
+def primaryConstructor: Option[MemberImpl with Constructor] =
+  if (isClass) constructors.find(_.isPrimary) else None
+<<< #4133 infix, with comment before closing paren, and postfix; overflow punct
+maxColumn = 78
+newlines.source = fold
+newlines.avoidForSimpleOverflow = [punct]
+===
+def templates = symbols filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */) toSet
+>>>
+def templates = symbols.filter(x =>
+  x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */
+).toSet
+<<< #4133 infix, with comment before closing paren, and postfix; overflow slc
+maxColumn = 78
+newlines.source = fold
+newlines.avoidForSimpleOverflow = [slc]
+===
+def templates = symbols filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */) toSet
+>>>
+def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */ )
+  .toSet
+<<< #4133 infix, with comment before closing paren, and postfix; overflow all
+maxColumn = 78
+newlines.source = fold
+newlines.avoidForSimpleOverflow = all
+===
+def templates = symbols filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */) toSet
+>>>
+def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */ )
+  .toSet
+<<< #4133 select, apply with comment before closing paren, and postfix; overflow punct
+maxColumn = 78
+newlines.source = fold
+newlines.avoidForSimpleOverflow = [punct]
+===
+def templates = symbols.filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */) toSet
+>>>
+def templates = symbols.filter(x =>
+  x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */
+).toSet
+<<< #4133 select, apply with comment before closing paren, and postfix; overflow slc
+maxColumn = 78
+newlines.source = fold
+newlines.avoidForSimpleOverflow = [slc]
+===
+def templates = symbols.filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */) toSet
+>>>
+def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */ )
+  .toSet
+<<< #4133 select, apply with comment before closing paren, and postfix; overflow all
+maxColumn = 78
+newlines.source = fold
+newlines.avoidForSimpleOverflow = all
+===
+def templates = symbols.filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */) toSet
+>>>
+def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */ )
+  .toSet
+<<< #4133 select, apply with comment before closing paren, and select; overflow punct
+maxColumn = 78
+newlines.source = fold
+newlines.avoidForSimpleOverflow = [punct]
+===
+def templates = symbols.filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */).toSet
+>>>
+def templates = symbols.filter(x =>
+  x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */
+).toSet
+<<< #4133 select, apply with comment before closing paren, and select; overflow slc
+maxColumn = 78
+newlines.source = fold
+newlines.avoidForSimpleOverflow = [slc]
+===
+def templates = symbols.filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */).toSet
+>>>
+def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */ )
+  .toSet
+<<< #4133 select, apply with comment before closing paren, and select; overflow all
+maxColumn = 78
+newlines.source = fold
+newlines.avoidForSimpleOverflow = all
+===
+def templates = symbols.filter (x => x.isClass || x.isTrait || x == AnyRefClass/* which is now a type alias */).toSet
+>>>
+def templates = symbols.filter(x => x.isClass || x.isTrait || x == AnyRefClass /* which is now a type alias */ )
+  .toSet
+<<< #4133 select, apply with SLC comment before closing paren, and select; overflow all
+maxColumn = 78
+newlines.source = fold
+newlines.avoidForSimpleOverflow = all
+===
+def templates = symbols.filter (x => x.isClass || x.isTrait || x == AnyRefClass// which is now a type alias */
+).toSet
+>>>
+def templates = symbols.filter(x =>
+  x.isClass || x.isTrait || x == AnyRefClass // which is now a type alias */
+).toSet

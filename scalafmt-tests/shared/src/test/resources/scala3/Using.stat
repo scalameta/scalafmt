@@ -1,0 +1,268 @@
+<<< using parameter
+maxColumn = 40
+===
+def max[T](x: T, y: T)(using ord: Ord[T]): T = {}
+>>>
+def max[T](x: T, y: T)(using
+    ord: Ord[T]
+): T = {}
+<<< multiple using parameters
+maxColumn = 40
+===
+def max[T](x: T, y: T)(using a: A[T], b: B[T], c: C[T]): T = {}
+>>>
+def max[T](x: T, y: T)(using
+    a: A[T],
+    b: B[T],
+    c: C[T]
+): T = {}
+<<< apply method with context argument
+maxColumn = 40
+===
+max(2, 3)(using     intOrd)
+>>>
+max(2, 3)(using intOrd)
+<<< anonymous context parameter
+maxColumn = 40
+===
+def maximum[T](xs: List[T])(using Ord[T]): T = {}
+>>>
+def maximum[T](xs: List[T])(using
+    Ord[T]
+): T = {}
+<<< multiple anonymous context parameters
+maxColumn = 40
+===
+def max[T](x: T, y: T)(using A[T], B[T], C[T]): T = {}
+>>>
+def max[T](x: T, y: T)(using
+    A[T],
+    B[T],
+    C[T]
+): T = {}
+<<< nested calls with explicit context arguments
+maxColumn = 40
+===
+maximum(xs)(using descending(using listOrd(using intOrd)))
+>>>
+maximum(xs)(using
+  descending(using
+    listOrd(using intOrd)
+  )
+)
+<<< multiple using clauses
+maxColumn = 40
+===
+def f(u: Universe)(using ctx: u.Context)(using s: ctx.Symbol, k: ctx.Kind, o: ctx.Other) = {}
+>>>
+def f(u: Universe)(using
+    ctx: u.Context
+)(using
+    s: ctx.Symbol,
+    k: ctx.Kind,
+    o: ctx.Other
+) = {}
+<<< call with two using clauses
+maxColumn = 30
+===
+f(global)(using ctx)(using sym, kind)
+>>>
+f(global)(using ctx)(using
+  sym,
+  kind
+)
+<<< force newline before
+maxColumn = 60
+newlines.usingParamListModifierForce = [before]
+===
+def format(code: String, age: Int)(using ev: Parser, c: Context): String
+>>>
+def format(code: String, age: Int)(
+    using ev: Parser,
+    c: Context
+): String
+<<< newline force after
+maxColumn = 60
+newlines.usingParamListModifierForce = [after]
+===
+def format(code: String, age: Int)(using ev: Parser, c: Context): String
+>>>
+def format(code: String, age: Int)(using
+    ev: Parser,
+    c: Context
+): String
+<<< newline force before & after
+maxColumn = 60
+newlines.usingParamListModifierForce = [before, after]
+===
+def format(code: String, age: Int)(using ev: Parser, c: Context): String
+>>>
+def format(code: String, age: Int)(
+    using
+    ev: Parser,
+    c: Context
+): String
+<<< newline force before (arg list)
+maxColumn = 20
+newlines.usingParamListModifierForce = [before]
+===
+f(global)(using sym, kind)
+>>>
+f(global)(
+  using sym,
+  kind
+)
+<<< newline force after (arg list)
+maxColumn = 20
+newlines.usingParamListModifierForce = [after]
+===
+f(global)(using sym, kind)
+>>>
+f(global)(using
+  sym,
+  kind
+)
+<<< newline force before & after (arg list)
+maxColumn = 20
+newlines.usingParamListModifierForce = [before, after]
+===
+f(global)(using sym, kind)
+>>>
+f(global)(
+  using
+  sym,
+  kind
+)
+<<< newline prefer before
+maxColumn = 60
+newlines.usingParamListModifierPrefer = before
+===
+def format(code: String, age: Int)(using ev: Parser, c: Context): String
+>>>
+def format(code: String, age: Int)(
+    using ev: Parser,
+    c: Context
+): String
+<<< newline prefer after
+maxColumn = 60
+newlines.usingParamListModifierPrefer = after
+===
+def format(code: String, age: Int)(using ev: Parser, c: Context): String
+>>>
+def format(code: String, age: Int)(using
+    ev: Parser,
+    c: Context
+): String
+<<< newline prefer before (arg list)
+maxColumn = 25
+newlines.usingParamListModifierPrefer = before
+===
+f(global)(using sym, kind)
+>>>
+f(global)(
+  using sym,
+  kind
+)
+<<< newline prefer after (arg list)
+maxColumn = 25
+newlines.usingParamListModifierPrefer = after
+===
+f(global)(using sym, kind)
+>>>
+f(global)(using
+  sym,
+  kind
+)
+<<< vertical multiline, force newline before
+maxColumn = 60
+verticalMultiline.atDefnSite = true
+newlines.usingParamListModifierForce = [before]
+===
+def format(code: String, age: Int)(using ev: Parser, c: Context): String
+>>>
+def format(
+    code: String,
+    age: Int
+  )(
+    using ev: Parser,
+    c: Context
+  ): String
+<<< vertical multiline, force newline after
+maxColumn = 60
+verticalMultiline.atDefnSite = true
+newlines.usingParamListModifierForce = [after]
+===
+def format(code: String, age: Int)(using ev: Parser, c: Context): String
+>>>
+def format(
+    code: String,
+    age: Int
+  )(using
+    ev: Parser,
+    c: Context
+  ): String
+<<< vertical multiline, force newline before & after
+maxColumn = 60
+verticalMultiline.atDefnSite = true
+newlines.usingParamListModifierForce = [before,after]
+===
+def format(code: String, age: Int)(using ev: Parser, c: Context): String
+>>>
+def format(
+    code: String,
+    age: Int
+  )(
+    using
+    ev: Parser,
+    c: Context
+  ): String
+<<< config style
+optIn.configStyleArguments = true
+maxColumn=45
+===
+def method2(using a: Int, b: String, c: String): Boolean
+>>>
+def method2(using
+    a: Int,
+    b: String,
+    c: String
+): Boolean
+<<< using as identifier
+maxColumn = 20
+===
+def using(using using: using, using: using, using: using): Unit
+>>>
+def using(using
+    using: using,
+    using: using,
+    using: using
+): Unit
+<<< using as a val
+maxColumn = 15
+===
+val using = "aaaaaa"
+>>>
+val using =
+  "aaaaaa"
+<<< comment in definition
+maxColumn = 40
+===
+def foo( /* go scala3 */ using a: String, b: String, c: String ): Unit
+>>>
+def foo(
+    /* go scala3 */ using
+    a: String,
+    b: String,
+    c: String
+): Unit
+<<< comment in apply
+maxColumn = 40
+===
+foo( /* go scala3 */ using a: String, b: String, c: String )
+>>>
+foo(
+  /* go scala3 */ using
+  a: String,
+  b: String,
+  c: String
+)

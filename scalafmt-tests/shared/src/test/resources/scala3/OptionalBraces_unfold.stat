@@ -1,0 +1,7921 @@
+indent.significant = 3
+newlines.source = unfold
+<<< simple value equals
+val test = // comm
+    val a = ""
+     a  +    ""
+>>>
+val test = // comm
+   val a = ""
+   a + ""
+<<< if else with comment before colon
+trait A /* comm */ :
+  val cond =
+   if true then
+    stat1
+    stat2
+   else { // c1
+     stat3
+     stat4
+     }
+   end if
+>>>
+trait A /* comm */:
+   val cond =
+      if true then
+         stat1
+         stat2
+      else { // c1
+        stat3
+        stat4
+      }
+      end if
+<<< nested class with end marker
+trait A /* comm */ :
+  class B:
+    val a = ""
+  end B
+>>>
+trait A /* comm */:
+   class B:
+      val a = ""
+   end B
+<<< object
+object Obj:
+  def hello = 
+      1
+       2
+  end hello
+>>>
+object Obj:
+   def hello =
+      1
+      2
+   end hello
+<<< object with braces
+object Obj{
+  def hello = 
+    1
+    2
+}
+>>>
+object Obj {
+  def hello =
+     1
+     2
+}
+<<< extension method
+maxColumn = 40
+===
+extension [A](a: Map[A, Foooooooooooooooo[B]]) 
+    def add(b: A) = a + b
+     def add2(b: A) = a + b
+  
+    def add3(b: A) = a + b
+>>>
+extension [A](
+    a: Map[A, Foooooooooooooooo[B]]
+)
+   def add(b: A) = a + b
+   def add2(b: A) = a + b
+
+   def add3(b: A) = a + b
+<<< extension multi
+maxColumn = 40
+===
+extension [A](a: Map[A, Foooooooooooooooo[B]]) (using b: Map[A, Foooooooooooooooo[B]])
+    def add(b: A) = a + b
+     def add2(b: A) = a + b
+  
+    def add3(b: A) = a + b
+>>>
+extension [A](
+    a: Map[A, Foooooooooooooooo[B]]
+)(using b: Map[A, Foooooooooooooooo[B]])
+   def add(b: A) = a + b
+   def add2(b: A) = a + b
+
+   def add3(b: A) = a + b
+<<< #4133 if cond overflow before then
+object a:
+   if reducePattern(caseBindingMap, scrutineeSym.termRef, cdef.pat)(using         gadtCtx)    then {
+     // c1
+   }
+>>>
+object a:
+   if reducePattern(caseBindingMap, scrutineeSym.termRef, cdef.pat)(using
+        gadtCtx
+      )
+   then {
+     // c1
+   }
+<<< if(cond) indentation
+trait A:
+  val cond =
+    if (true)
+        stat1
+         stat2
+    else
+       stat3
+       stat4
+>>>
+trait A:
+   val cond =
+     if (true)
+        stat1
+        stat2
+     else
+        stat3
+        stat4
+<<< given with
+given intOrd: Ord[Int] with Eq[Int] with // c1
+    /* c2 */
+     def compare(x: Int, y: Int) =
+      if x < y then -1 else if x > y then +1 else 0
+     def compare2(x: Int, y: Int) =
+      if x < y then -1 else if x > y then +1 else 0
+>>>
+given intOrd: Ord[Int] with Eq[Int] with // c1
+   /* c2 */
+   def compare(x: Int, y: Int) =
+     if x < y then
+        -1
+     else if x > y then
+        +1
+     else
+        0
+   def compare2(x: Int, y: Int) =
+     if x < y then
+        -1
+     else if x > y then
+        +1
+     else
+        0
+<<< given with and a blank
+given intOrd: Ord[Int] with Eq[Int] with
+
+     def compare(x: Int, y: Int) =
+      if x < y then -1 else if x > y then +1 else 0
+>>>
+given intOrd: Ord[Int] with Eq[Int] with
+
+   def compare(x: Int, y: Int) =
+     if x < y then
+        -1
+     else if x > y then
+        +1
+     else
+        0
+<<< derived trait, val-end, if-end
+trait A extends B:
+  val cond1 =
+    if true then
+
+     stat1
+     stat2
+    else
+
+     stat3
+     stat4
+    end if
+  end cond1
+>>>
+trait A extends B:
+   val cond1 =
+      if true then
+
+         stat1
+         stat2
+      else
+
+         stat3
+         stat4
+      end if
+   end cond1
+<<< derived trait, val-end, if-noend
+trait A extends B:
+  val cond1 =
+    if true then
+     stat1
+     stat2
+    else
+     stat3
+     stat4
+  end cond1
+>>>
+trait A extends B:
+   val cond1 =
+     if true then
+        stat1
+        stat2
+     else
+        stat3
+        stat4
+   end cond1
+<<< derived trait, val-noend, if-end
+trait A extends B:
+  val cond1 =
+    if true then
+     stat1
+     stat2
+    else
+     stat3
+     stat4
+    end if
+>>>
+trait A extends B:
+   val cond1 =
+      if true then
+         stat1
+         stat2
+      else
+         stat3
+         stat4
+      end if
+<<< derived trait, val-noend, if-noend
+trait A extends B:
+  val cond1 =
+    if true then
+     stat1
+     stat2
+    else
+     stat3
+     stat4
+>>>
+trait A extends B:
+   val cond1 =
+     if true then
+        stat1
+        stat2
+     else
+        stat3
+        stat4
+<<< derived trait with self
+trait A extends B:
+
+  self: C =>
+  val cond =
+   if true then
+    stat1
+    stat2
+   else
+     stat3
+     stat4
+   end if
+>>>
+trait A extends B:
+
+   self: C =>
+   val cond =
+      if true then
+         stat1
+         stat2
+      else
+         stat3
+         stat4
+      end if
+<<< `end` identifier is not an end marker
+object a:
+    private def nothingButMods(end: Addr): Boolean =
+      currentAddr == end || isModifierTag(nextByte)
+>>>
+object a:
+   private def nothingButMods(end: Addr): Boolean =
+     currentAddr == end || isModifierTag(nextByte)
+<<< lots of end markers
+object a {
+ trait A:
+  val cond =
+    if true then
+      stat1
+      stat2
+    else
+      stat3
+      stat4
+    end if
+  end cond
+  val cond =
+    if true then
+      stat1
+      stat2
+    else
+      stat3
+      stat4
+    end if
+  end cond
+ end A
+}
+>>>
+object a {
+  trait A:
+     val cond =
+        if true then
+           stat1
+           stat2
+        else
+           stat3
+           stat4
+        end if
+     end cond
+     val cond =
+        if true then
+           stat1
+           stat2
+        else
+           stat3
+           stat4
+        end if
+     end cond
+  end A
+}
+<<< end marker separated by blank from comment
+object a:
+  object useNew:
+    new foo
+      def bar = ???
+    end new
+
+    /* new */
+
+  object useWhile:
+    while foo
+    do bar
+    end while
+
+    /* while */
+
+  object useValMulti:
+    val (foo, bar) =
+      (fooValue, barValue)
+    end val
+
+    /* val */
+
+  object useFor:
+    for foo <- bar
+    do baz
+    end for
+
+    // for
+
+  object useMatch:
+    foo match
+      case bar =>
+    end match
+
+    // match
+
+  object useTry:
+    try
+      bar
+    end try
+
+    // try
+
+  class useThis:
+    def this(foo: Foo) =
+      this(foo)
+    end this
+
+    /* this */
+>>>
+object a:
+   object useNew:
+      new foo
+      def bar = ???
+      end new
+
+      /* new */
+
+   object useWhile:
+      while foo do
+         bar
+      end while
+
+      /* while */
+
+   object useValMulti:
+      val (foo, bar) = (fooValue, barValue)
+      end val
+
+      /* val */
+
+   object useFor:
+      for foo <- bar do
+         baz
+      end for
+
+      // for
+
+   object useMatch:
+      foo match
+         case bar =>
+      end match
+
+      // match
+
+   object useTry:
+      try bar
+      end try
+
+      // try
+
+   class useThis:
+      def this(foo: Foo) = this(foo)
+      end this
+
+      /* this */
+<<< end marker separated by blank from next statement
+object a:
+  object useNew:
+    new foo
+      def bar = ???
+    end new
+
+    def baz = qux
+
+  object useWhile:
+    while foo
+    do bar
+    end while
+
+    val baz = qux
+
+  object useValMulti:
+    val (foo, bar) =
+      (fooValue, barValue)
+    end val
+
+    baz(qux)
+
+  object useFor:
+    for foo <- bar
+    do baz
+    end for
+
+    val qux = quux
+
+  object useMatch:
+    foo match
+      case bar =>
+    end match
+
+    baz + qux
+
+  object useTry:
+    try
+      bar
+    end try
+
+    try
+      baz
+    finally
+      qux
+
+  class useThis:
+    def this(foo: Foo) =
+      this(foo)
+    end this
+
+  end useThis
+>>>
+object a:
+   object useNew:
+      new foo
+      def bar = ???
+      end new
+
+      def baz = qux
+
+   object useWhile:
+      while foo do
+         bar
+      end while
+
+      val baz = qux
+
+   object useValMulti:
+      val (foo, bar) = (fooValue, barValue)
+      end val
+
+      baz(qux)
+
+   object useFor:
+      for foo <- bar do
+         baz
+      end for
+
+      val qux = quux
+
+   object useMatch:
+      foo match
+         case bar =>
+      end match
+
+      baz + qux
+
+   object useTry:
+      try bar
+      end try
+
+      try baz
+      finally qux
+
+   class useThis:
+      def this(foo: Foo) = this(foo)
+      end this
+
+   end useThis
+<<< ctor this
+class a(vi: Int, vs: String):
+  def this() =
+    this(0, "")
+    foo
+  end this
+  def this(vi: Int) =
+    this(vi, "")
+    foo
+  end this
+>>>
+class a(vi: Int, vs: String):
+   def this() =
+      this(0, "")
+      foo
+   end this
+   def this(vi: Int) =
+      this(vi, "")
+      foo
+   end this
+<<< match
+object a:
+  def foo =
+    this match
+      case A =>
+         that match
+            case b => bb
+            case c => cc
+         end match
+      case B =>
+         that match
+            case c => cc
+            case _ => dd
+>>>
+object a:
+   def foo =
+     this match
+        case A =>
+          that match
+             case b =>
+               bb
+             case c =>
+               cc
+          end match
+        case B =>
+          that match
+             case c =>
+               cc
+             case _ =>
+               dd
+<<< match type
+object a:
+  type foo[x] = x match
+      case A =>
+         that match
+            case b => bb
+            case c => cc
+      case B =>
+         that match
+            case c => cc
+            case _ => dd
+>>>
+object a:
+   type foo[x] =
+     x match
+        case A =>
+          that match
+             case b =>
+               bb
+             case c =>
+               cc
+        case B =>
+          that match
+             case c =>
+               cc
+             case _ =>
+               dd
+<<< catch one
+object a:
+  def foo =
+    try foo
+    catch case A => foo
+>>>
+object a:
+   def foo =
+     try
+        foo
+     catch
+        case A =>
+          foo
+<<< catch multiple
+object a:
+  def foo =
+    try foo
+    catch
+      case A =>
+         that match
+            case b => bb
+            case c => cc
+         end match
+      case B =>
+         that match
+            case c => cc
+            case _ => dd
+>>>
+object a:
+   def foo =
+     try
+        foo
+     catch
+        case A =>
+          that match
+             case b =>
+               bb
+             case c =>
+               cc
+          end match
+        case B =>
+          that match
+             case c =>
+               cc
+             case _ =>
+               dd
+<<< standalone comment at end of case body, braced match 1
+object a {
+  def foo = this match {
+      case bar =>
+        if (baz)
+          qux()
+          // c
+  }
+}
+>>>
+object a {
+  def foo =
+    this match {
+      case bar =>
+        if (baz)
+           qux()
+           // c
+    }
+}
+<<< standalone comment at end of case body, braced match 2
+object a {
+  def foo = this match {
+      case bar =>
+        if (baz)
+          qux()
+          // c1
+        else
+          quux()
+          // c2
+  }
+}
+>>>
+object a {
+  def foo =
+    this match {
+      case bar =>
+        if (baz)
+           qux()
+           // c1
+        else
+           quux()
+           // c2
+    }
+}
+<<< standalone comment at end of case body, braceless match
+object a:
+  foo match
+    case bar =>
+      baz
+      // c1
+    case _ => qux
+>>>
+object a:
+   foo match
+      case bar =>
+        baz
+        // c1
+      case _ =>
+        qux
+<<< trailing comment at end of enclosed braceless match
+maxColumn = 37
+===
+object a:
+  (xs match
+    case xs: TupleXXL => xs
+    case xs => TupleXXL.fromIArray(xs) // TODO use Iterator.toIArray
+  ).asInstanceOf[Tuple]
+>>>
+object a:
+   (
+     xs match
+        case xs: TupleXXL =>
+          xs
+        case xs =>
+          TupleXXL.fromIArray(
+            xs
+          ) // TODO use Iterator.toIArray
+   ).asInstanceOf[Tuple]
+<<< try/finally, single
+object a:
+   def foo =
+     try foo
+     catch
+       case a => baz
+     finally bar
+>>>
+object a:
+   def foo =
+     try
+        foo
+     catch
+        case a =>
+          baz
+     finally
+        bar
+<<< try/finally, multiple
+object a:
+   def foo =
+     try
+       foo
+       bar
+     catch
+       case a => baz
+     finally
+       bar
+       qux
+>>>
+object a:
+   def foo =
+     try
+        foo
+        bar
+     catch
+        case a =>
+          baz
+     finally
+        bar
+        qux
+<<< for
+object a:
+  def foo =
+    for
+      x <- y
+      x <- y
+    do
+      foo
+      bar
+  def foo =
+    for
+      x <- y
+    do
+      bar
+>>>
+object a:
+   def foo =
+     for
+        x <- y
+        x <- y
+     do
+        foo
+        bar
+   def foo =
+     for x <- y do
+        bar
+<<< for-yield
+object a:
+  def foo =
+    for
+      x <- y
+      x = y
+      if x
+    yield
+      foo
+      bar
+  def foo =
+    for
+      x <- y
+    yield
+      foo
+>>>
+object a:
+   def foo =
+     for
+        x <- y
+        x = y
+        if x
+     yield
+        foo
+        bar
+   def foo =
+     for x <- y
+     yield foo
+<<< complex "block" expression
+object a:
+  def foo =
+    if cond then
+        sb.append(doc.text.substring(offset, end))
+        sb.append(doc.text.substring(offset, end))
+  def foo =
+    if (cond) {
+        sb.append(doc.text.substring(offset, end))
+        sb.append(doc.text.substring(offset, end))
+    }
+>>>
+object a:
+   def foo =
+     if cond then
+        sb.append(doc.text.substring(offset, end))
+        sb.append(doc.text.substring(offset, end))
+   def foo =
+     if (cond) {
+       sb.append(doc.text.substring(offset, end))
+       sb.append(doc.text.substring(offset, end))
+     }
+<<< lambda with =>
+object a:
+  val func: A => B = (a: A) =>
+    a + a
+    a * a
+  func(a)
+>>>
+object a:
+   val func: A => B =
+     (a: A) =>
+        a + a
+        a * a
+   func(a)
+<<< if, with parens, without braces
+object a:
+  val a =
+    if (a)
+      if (aa)
+        aaa
+      // c1
+    else
+      b
+  if (a)
+    foo
+  if (a)
+    if (aa)
+      foo
+  if (a)
+    if (aa)
+      if (aaa) then
+        foo
+  if (a)
+    foo
+  else if (a)
+    foo
+    bar
+  if (a)
+    foo
+    bar
+  if (a)
+    foo
+    bar
+    if (aa)
+      foo
+      bar
+>>>
+object a:
+   val a =
+     if (a)
+        if (aa)
+          aaa
+        // c1
+     else
+       b
+   if (a)
+     foo
+   if (a)
+     if (aa)
+       foo
+   if (a)
+     if (aa)
+       if (aaa) then
+          foo
+   if (a)
+      foo
+   else if (a)
+      foo
+      bar
+   if (a)
+      foo
+      bar
+   if (a)
+      foo
+      bar
+      if (aa)
+         foo
+         bar
+<<< if and while, with parens
+object a:
+  if (a) then
+    foo
+  if (a) then
+    if (aa) then
+      foo
+  if (a) then
+    foo
+    bar
+  if (a) then
+    foo
+    bar
+    if (aa) then
+      foo
+      bar
+  while (foo) do
+    foo
+  while (foo) do
+  while (foo) do
+    foo
+  while (foo) do
+    foo
+    bar
+  while (foo) do
+    foo
+    bar
+    while (foo) do
+      foo
+      bar
+>>>
+object a:
+   if (a) then
+      foo
+   if (a) then
+      if (aa) then
+         foo
+   if (a) then
+      foo
+      bar
+   if (a) then
+      foo
+      bar
+      if (aa) then
+         foo
+         bar
+   while (foo) do
+      foo
+   while (foo) do
+      while (foo) do
+         foo
+   while (foo) do
+      foo
+      bar
+   while (foo) do
+      foo
+      bar
+      while (foo) do
+         foo
+         bar
+<<< redundant braces and parens around while-do cond
+rewrite.rules = [RedundantParens, RedundantBraces]
+===
+object a:
+    while ({
+      i > 0 && foo
+    }) do {
+      i -= 1
+    }
+>>>
+object a:
+   while i > 0 && foo do
+      i -= 1
+<<< nested if-else multiple
+object a:
+  val a =
+    if a then
+      if aa then
+        aaa
+        // c1
+      if aa then
+        aaa
+    else
+      if aa then
+        aaa
+        // c1
+      if aa then
+        aaa
+>>>
+object a:
+   val a =
+     if a then
+        if aa then
+           aaa
+           // c1
+        if aa then
+           aaa
+     else
+        if aa then
+           aaa
+           // c1
+        if aa then
+           aaa
+<<< nested if-else chained
+object a:
+  val a =
+    if a then
+      if aa then
+        if bb then if cc then ccc
+      else
+        if bb then
+          if cc then ccc
+          else ddd
+        else eee
+    else if aa then aaa else bbb
+>>>
+object a:
+   val a =
+     if a then
+        if aa then
+           if bb then
+              if cc then
+                 ccc
+        else if bb then
+           if cc then
+              ccc
+           else
+              ddd
+        else
+           eee
+     else if aa then
+        aaa
+     else
+        bbb
+<<< nested if-else single
+object a:
+  val a =
+    if a then
+      if aa then
+        aaa
+        // c1
+    else
+      if aa then
+        aaa
+        // c1
+>>>
+object a:
+   val a =
+     if a then
+        if aa then
+           aaa
+           // c1
+     else if aa then
+        aaa
+        // c1
+<<< #2448
+object Foo:
+  def bar = process(arg match
+    case a: A if a.b =>
+      None
+
+    case a: A if a.c() =>
+      None
+
+    case a: A if a.c() =>
+      None
+
+    case a: A if a.b =>
+      Some(someMethod().anotherMethod().fooBarMethod(ObjectWithLongName.method()))
+
+    case a: A if a.c() =>
+      val varName = a.method(a.someField.anotherField.method().map(ObjectWithLongName.A))
+      val otherVarName = varName.method(a.someField.method(ObjectWithLongName.B))
+      otherVarName
+
+    case a: A if a.someField.otherField.function().exists(SomeObjectLongName.isTrue) =>
+      None
+  )
+>>>
+object Foo:
+   def bar = process(
+     arg match
+        case a: A if a.b =>
+          None
+
+        case a: A if a.c() =>
+          None
+
+        case a: A if a.c() =>
+          None
+
+        case a: A if a.b =>
+          Some(
+            someMethod()
+              .anotherMethod()
+              .fooBarMethod(ObjectWithLongName.method())
+          )
+
+        case a: A if a.c() =>
+          val varName = a.method(
+            a.someField.anotherField.method().map(ObjectWithLongName.A)
+          )
+          val otherVarName = varName.method(
+            a.someField.method(ObjectWithLongName.B)
+          )
+          otherVarName
+
+        case a: A
+            if a
+              .someField
+              .otherField
+              .function()
+              .exists(SomeObjectLongName.isTrue) =>
+          None
+   )
+<<< #2425 partial function
+val f: String => String =
+  case "horses" => "are neat"
+  case _ => "cows are sweet"
+>>>
+val f: String => String =
+   case "horses" =>
+     "are neat"
+   case _ =>
+     "cows are sweet"
+<<< rewrite with empty blocks
+rewrite.scala3.removeOptionalBraces = oldSyntaxToo
+===
+object a {
+  def a = {
+  }
+}
+>>>
+object a:
+   def a = {}
+<<< rewrite with nested if-else, old syntax
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  val a = {
+    if (a) {
+      if (aa) {
+        aaa
+      } // c1
+    } else {
+      b
+    }
+  }
+}
+>>>
+object a:
+   val a =
+     if (a) {
+       if (aa) {
+         aaa
+       } // c1
+     } else
+       b
+<<< rewrite with nested if-else
+rewrite.scala3.removeOptionalBraces = oldSyntaxToo
+===
+object a {
+  val a = {
+    if (a) {
+      if (aa) {
+        aaa
+      } // c1
+    } else {
+      b
+    }
+  }
+}
+>>>
+object a:
+   val a =
+     if (a)
+        if (aa)
+          aaa
+        // c1
+     else
+       b
+<<< rewrite with val and if-else
+rewrite.scala3.removeOptionalBraces = oldSyntaxToo
+===
+object a {
+ trait A {
+  val cond = {
+    if true then {
+      stat1
+      stat2
+    } else {
+      stat3
+      stat4
+    }
+    end if
+  }
+  end cond
+ }
+}
+>>>
+object a:
+   trait A:
+      val cond =
+         if true then
+            stat1
+            stat2
+         else
+            stat3
+            stat4
+         end if
+      end cond
+<<< remove optional braces within if-cond
+rewrite.scala3.removeOptionalBraces = yes
+===
+private def mtd: Res =
+  if {
+     bar &&
+     baz
+  } then
+     foo
+>>>
+private def mtd: Res =
+  if bar && baz then
+     foo
+<<< remove optional braces within else-if
+rewrite.scala3.removeOptionalBraces = yes
+===
+private def mtd: Res =
+  if foo then fooBody
+  else {
+    if bar then
+      barBody
+    else bazBody
+  }
+>>>
+private def mtd: Res =
+  if foo then
+     fooBody
+  else if bar then
+     barBody
+  else
+     bazBody
+<<< remove optional braces within else-if 2
+rewrite.scala3.removeOptionalBraces = yes
+===
+private def mtd: Res =
+  if foo then fooBody
+  else {
+    if bar then barBody else bazBody
+  }
+>>>
+private def mtd: Res =
+  if foo then
+     fooBody
+  else if bar then
+     barBody
+  else
+     bazBody
+<<< remove optional braces within converted if-else, multi-stat else
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+===
+private def mtd: Res =
+  if (foo)
+    fooBody
+  else {
+    barBody
+    bazBody
+  }
+>>>
+private def mtd: Res =
+  if foo then
+     fooBody
+  else
+     barBody
+     bazBody
+<<< rewrite with given-with
+rewrite.scala3.removeOptionalBraces = oldSyntaxToo
+===
+object a {
+  given intOrd: Ord[Int] with Eq[Int] with { // c1
+    /* c2 */
+     def compare(x: Int, y: Int) = {
+      if x < y then -1 else if x > y then +1 else 0
+     }
+     def compare2(x: Int, y: Int) = {
+      if x < y then -1 else if x > y then +1 else 0
+     }
+  }
+}
+>>>
+object a:
+   given intOrd: Ord[Int] with Eq[Int] with // c1
+      /* c2 */
+      def compare(x: Int, y: Int) =
+        if x < y then
+           -1
+        else if x > y then
+           +1
+        else
+           0
+      def compare2(x: Int, y: Int) =
+        if x < y then
+           -1
+        else if x > y then
+           +1
+        else
+           0
+<<< rewrite with match
+rewrite.scala3.removeOptionalBraces = oldSyntaxToo
+rewrite.scala3.insertEndMarkerMinLines = 2 # will not apply, we use single-stat blocks
+===
+enum IndentWidth {
+   def foo = { this match {
+      case a =>
+         that match {
+            case b => bb
+            case c => cc
+         }
+         end match
+      case b =>
+         that match {
+            case c => cc
+            case _ => dd
+          }
+    }
+  }
+   def foo = { this match {
+      case a =>
+         that match {
+            case b => bb
+            case c => cc
+         }
+         end match
+      case b =>
+         that match {
+            case c => cc
+            case _ => dd
+          }
+    }
+    end match
+  }
+  end foo
+}
+>>>
+enum IndentWidth:
+   def foo =
+     this match
+        case a =>
+          that match
+             case b =>
+               bb
+             case c =>
+               cc
+          end match
+        case b =>
+          that match
+             case c =>
+               cc
+             case _ =>
+               dd
+   def foo =
+      this match
+         case a =>
+           that match
+              case b =>
+                bb
+              case c =>
+                cc
+           end match
+         case b =>
+           that match
+              case c =>
+                cc
+              case _ =>
+                dd
+      end match
+   end foo
+<<< rewrite with catch
+rewrite.scala3.removeOptionalBraces = oldSyntaxToo
+===
+enum IndentWidth {
+   def foo = { try { foo }
+         catch {
+            case a =>
+               that match {
+                  case b => bb
+                  case c => cc
+               }
+               end match
+            case b =>
+               that match {
+                  case c => cc
+                  case _ => dd
+                }
+
+         } finally {
+           foo
+           bar
+         }
+     }
+}
+>>>
+enum IndentWidth:
+   def foo =
+     try
+        foo
+     catch
+        case a =>
+          that match
+             case b =>
+               bb
+             case c =>
+               cc
+          end match
+        case b =>
+          that match
+             case c =>
+               cc
+             case _ =>
+               dd
+
+     finally
+        foo
+        bar
+<<< rewrite with catch, format-off
+rewrite.scala3.removeOptionalBraces = oldSyntaxToo
+===
+enum IndentWidth {
+   def foo = { try { foo }
+         catch {
+            case a =>
+               that match {
+               // format: off
+                  case b => bb
+               // format: on
+                  case c => cc
+               }
+               end match
+            case b =>
+               that match {
+                  case c => cc
+                  case _ => dd
+                }
+
+         } finally {
+           foo
+           bar
+         }
+     }
+}
+>>>
+enum IndentWidth {
+  def foo = {
+    try
+       foo
+    catch {
+      case a =>
+        that match {
+               // format: off
+                  case b => bb
+               // format: on
+          case c =>
+            cc
+        }
+        end match
+      case b =>
+        that match
+           case c =>
+             cc
+           case _ =>
+             dd
+
+    } finally
+       foo
+       bar
+  }
+}
+<<< rewrite with catch, config override
+rewrite.scala3.removeOptionalBraces = oldSyntaxToo
+===
+enum IndentWidth {
+   def foo = { try { foo }
+         catch {
+            case a =>
+               that match {
+               // scalafmt: { indent { significant = 1 } }
+                  case b => bb
+                  case c => cc
+               }
+               end match
+            case b =>
+               that match {
+                  case c => cc
+                  case _ => dd
+                }
+
+         } finally {
+           foo
+           bar
+         }
+     }
+}
+>>>
+enum IndentWidth:
+   def foo =
+     try
+        foo
+     catch
+        case a =>
+          that match
+             // scalafmt: { indent { significant = 1 } }
+             case b =>
+               bb
+             case c =>
+               cc
+          end match
+        case b =>
+          that match
+           case c =>
+             cc
+           case _ =>
+             dd
+
+     finally
+      foo
+      bar
+<<< rewrite with try/finally
+rewrite.scala3.removeOptionalBraces = oldSyntaxToo
+===
+object a {
+  def foo = { try { foo }
+    catch {
+      case a => baz
+    } finally {
+      bar
+    }
+  }
+}
+>>>
+object a:
+   def foo =
+     try
+        foo
+     catch
+        case a =>
+          baz
+     finally
+        bar
+<<< rewrite with end markers: this; with equals, only init
+rewrite.scala3.removeOptionalBraces = oldSyntaxToo
+===
+class a(vi: Int, vs: String):
+  def this() = {
+
+    this(0, "")
+
+  }
+  end this
+  def this(vi: Int) = {
+    this(vi, "")
+  }
+  end this
+>>>
+class a(vi: Int, vs: String):
+   def this() =
+
+     this(0, "")
+
+   end this
+   def this(vi: Int) = this(vi, "")
+   end this
+<<< rewrite with end markers: this; with equals, not only init
+rewrite.scala3.removeOptionalBraces = oldSyntaxToo
+===
+class a(vi: Int, vs: String):
+  def this() = {
+    this(0, "")
+    foo
+  }
+  end this
+  def this(vi: Int) = {
+    this(vi, "")
+    foo
+  }
+  end this
+>>>
+class a(vi: Int, vs: String):
+   def this() =
+      this(0, "")
+      foo
+   end this
+   def this(vi: Int) =
+      this(vi, "")
+      foo
+   end this
+<<< rewrite to new syntax with nested if-else
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 6
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  val a = {
+    if (a) { // scalafmt: { rewrite.scala3.newSyntax.control = false }
+      if (aa) {  // scalafmt: { rewrite.scala3.newSyntax.control = true }
+        aaa
+      } // c1
+    } else { // c2
+      b
+    }
+  }
+  val a = {
+    if (a) { // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
+      if (aa) {  // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
+        aaa
+      } // c1
+    } else {
+      /* c2 */ b
+    }
+    if (a) { // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
+      if (aa) {  // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
+        aaa
+      } // c1
+    } else {
+       /*
+          c2 */ b
+    }
+  }
+}
+>>>
+object a:
+   val a =
+     if a then // scalafmt: { rewrite.scala3.newSyntax.control = false }
+        if (aa) // scalafmt: { rewrite.scala3.newSyntax.control = true }
+          aaa
+        // c1
+     else // c2
+        b
+   val a =
+      if a then // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
+         if (aa) { // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
+           aaa
+         } // c1
+      else
+         /* c2 */ b
+      end if
+      if a then // scalafmt: { rewrite.scala3.convertToNewSyntax = false }
+         if (aa) { // scalafmt: { rewrite.scala3.convertToNewSyntax = true }
+           aaa
+         } // c1
+      else
+         /*
+          c2 */ b
+      end if
+   end a
+end a
+<<< rewrite with nested if-else and detached comment within removed braces
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 2
+    removeOptionalBraces = yes
+  }
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a:
+  if (foo1) bar1 = baz1
+  else {
+    // c1
+    if (foo2) {
+      val bar2 = baz2
+      qux2
+    } 
+  }
+>>>
+object a:
+   if foo1 then
+      bar1 = baz1
+   else
+      // c1
+      if foo2 then
+         val bar2 = baz2
+         qux2
+   end if
+<<< rewrite with nested if-else and detached comment within many removed braces
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 2
+    removeOptionalBraces = yes
+  }
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a:
+  if (foo1) bar1 = baz1
+  else {{
+    // c1
+    {if (foo2) {
+      val bar2 = baz2
+      qux2
+    }} 
+  }}
+>>>
+object a:
+   if foo1 then
+      bar1 = baz1
+   else
+      // c1
+      if foo2 then
+         val bar2 = baz2
+         qux2
+   end if
+<<< rewrite with nested if-else and detached comment within many non-removed braces
+rewrite {
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 2
+    removeOptionalBraces = yes
+  }
+}
+===
+object a:
+  if (foo1) bar1 = baz1
+  else {{
+    // c1
+    {if (foo2) {
+      val bar2 = baz2
+      qux2
+    }} 
+  }}
+>>>
+object a:
+   if foo1 then
+      bar1 = baz1
+   else
+      // c1
+      if foo2 then
+         val bar2 = baz2
+         qux2
+   end if
+<<< rewrite to new syntax with for-do, single
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 3
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+rewrite.rules = [RedundantParens]
+===
+object a {
+  for (a <- b) yield {
+    for {a <- b} yield {
+      foo
+    }
+  }
+  while (a > 0) {
+    while (a > 0) do {
+      foo
+    }
+  }
+  // scalafmt: { rewrite.scala3.newSyntax.control = false }
+  while (a > 0) {
+    while (a > 0) do {
+      foo
+    }
+  }
+  // scalafmt: { rewrite.scala3.newSyntax.control = true }
+  for (a <- b) {
+    for (a <- b) do {
+      foo
+    }
+  }
+  // scalafmt: { rewrite.scala3.newSyntax.control = false }
+  for (a <- b) do {
+    for (a <- b) {
+      foo
+    }
+  }
+  // scalafmt: { rewrite.scala3.newSyntax.control = true }
+  for {a <- b} {
+    for {a <- b} do {
+      foo
+    }
+  }
+}
+>>>
+object a:
+   for (a <- b)
+     yield for a <- b
+     yield foo
+   while a > 0 do
+      while a > 0 do
+         foo
+   end while
+   // scalafmt: { rewrite.scala3.newSyntax.control = false }
+   while (a > 0)
+     while a > 0 do
+        foo
+   end while
+   // scalafmt: { rewrite.scala3.newSyntax.control = true }
+   for a <- b do
+      for a <- b do
+         foo
+   end for
+   // scalafmt: { rewrite.scala3.newSyntax.control = false }
+   for (a <- b) do
+      for (a <- b)
+        foo
+   end for
+   // scalafmt: { rewrite.scala3.newSyntax.control = true }
+   for a <- b do
+      for a <- b do
+         foo
+   end for
+end a
+<<< rewrite to new syntax with for-do, multiple
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 6
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+rewrite.rules = [RedundantParens]
+===
+object a {
+  for (a <- b; c <- d) yield {
+    for {a <- b; c <- d} yield {
+      foo
+      bar
+    }
+    for {a <- b; c <- d} yield {
+      foo
+      bar
+    }
+  }
+  while (a > 0) {
+    while (a > 0) do {
+      foo
+      bar
+    }
+    while (a > 0) do {
+      foo
+      bar
+    }
+  }
+  for (a <- b; c <- d) {
+    for (a <- b; c <- d) do {
+      foo
+      bar
+    }
+    for (a <- b; c <- d) do {
+      foo
+      bar
+    }
+  }
+  for {a <- b; c <- d} {
+    for {a <- b; c <- d} do {
+      foo
+      bar
+    }
+    for {a <- b; c <- d} do {
+      foo
+      bar
+    }
+  }
+}
+>>>
+object a:
+   for (
+     a <- b;
+     c <- d
+   )
+     yield
+        for
+           a <- b;
+           c <- d
+        yield
+           foo
+           bar
+        end for
+        for
+           a <- b;
+           c <- d
+        yield
+           foo
+           bar
+        end for
+   end for
+   while a > 0 do
+      while a > 0 do
+         foo
+         bar
+      while a > 0 do
+         foo
+         bar
+   end while
+   for
+      a <- b;
+      c <- d
+   do
+      for
+         a <- b;
+         c <- d
+      do
+         foo
+         bar
+      end for
+      for
+         a <- b;
+         c <- d
+      do
+         foo
+         bar
+      end for
+   end for
+   for
+      a <- b;
+      c <- d
+   do
+      for
+         a <- b;
+         c <- d
+      do
+         foo
+         bar
+      end for
+      for
+         a <- b;
+         c <- d
+      do
+         foo
+         bar
+      end for
+   end for
+end a
+<<< rewrite to new syntax, imports
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a:
+ import A.{min => minimum, `*` => multiply}
+ import Predef.{augmentString => _, _}
+ import scala.{annotation => ann}
+ import java as j
+ import Predef.{augmentString => _}
+ // scalafmt: { rewrite.scala3.newSyntax.deprecated = false }
+ import Predef.{augmentString => _}
+>>>
+object a:
+   import A.{min as minimum, `*` as multiply}
+   import Predef.{augmentString as _, *}
+   import scala.annotation as ann
+   import java as j
+   import Predef.augmentString as _
+   // scalafmt: { rewrite.scala3.newSyntax.deprecated = false }
+   import Predef.{augmentString => _}
+<<< rewrite to new syntax, imports, scala2-source3
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+runner.dialect = scala213source3
+===
+object a {
+ import A.{min => minimum, `*` => multiply}
+ import Predef.{augmentString => _, _}
+ import scala.{annotation => ann}
+ import java as j
+ import Predef.{augmentString => _}
+}
+>>>
+object a {
+  import A.{min as minimum, `*` as multiply}
+  import Predef.{augmentString as _, *}
+  import scala.annotation as ann
+  import java as j
+  import Predef.augmentString as _
+}
+<<< rewrite to new syntax, wildcard
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a:
+  def foo(a: Foo[_]): Unit = ???
+>>>
+object a:
+   def foo(a: Foo[?]): Unit = ???
+<<< rewrite to new syntax, wildcard, scala2-source3
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+runner.dialect = scala213source3
+===
+object a {
+  def foo(a: Foo[_]): Unit = ???
+}
+>>>
+object a {
+  def foo(a: Foo[?]): Unit = ???
+}
+<<< rewrite to new syntax, vararg splices, call
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+===
+def foo: Unit =
+  foo(a: _*)
+>>>
+def foo: Unit = foo(a*)
+<<< rewrite to new syntax, vararg splices, call, scala2-source3
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+runner.dialect = scala213source3
+===
+def foo: Unit =
+  foo(a: _*)
+>>>
+def foo: Unit = foo(a*)
+<<< rewrite to new syntax, vararg splices, pat bind
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a:
+  lst match
+    case List(0, 1, xs @ _*) => foo
+>>>
+object a:
+   lst match
+      case List(0, 1, xs*) =>
+        foo
+<<< rewrite to new syntax, vararg splices, pat bind, scala2-source3
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+runner.dialect = scala213source3
+===
+object a {
+  lst match {
+    case List(0, 1, xs @ _*) => foo
+  }
+}
+>>>
+object a {
+  lst match {
+    case List(0, 1, xs*) =>
+      foo
+  }
+}
+<<< if break before then if multiline cond
+maxColumn = 12
+===
+object a:
+  if a &&
+     b &&
+     c then
+      foo
+>>>
+object a:
+   if a &&
+      b && c
+   then
+      foo
+<<< while break before do if multiline cond
+maxColumn = 12
+===
+object a:
+  while a &&
+     b &&
+     c do
+      foo
+>>>
+object a:
+   while a &&
+      b && c
+   do
+      foo
+<<< if break before then if multiline cond, !dangle
+maxColumn = 15
+indent.callSite = 4
+indent.ctrlSite = 6
+danglingParentheses.ctrlSite = false
+===
+object a:
+  if a &&
+     bb &&
+     c then
+      foo
+>>>
+object a:
+   if a &&
+         bb &&
+         c then
+      foo
+<<< while break before do if multiline cond, !dangle
+maxColumn = 13
+indent.callSite = 4
+indent.ctrlSite = 6
+danglingParentheses.ctrlSite = false
+===
+object a:
+  while a &&
+     b &&
+     c do
+      foo
+>>>
+object a:
+   while a &&
+         b &&
+         c do
+      foo
+<<< #2495 1
+rewrite.scala3.removeOptionalBraces = yes
+===
+val a = List(Some(1), None, Some(3), Some(4)).map({
+  case Some(x) => x match {
+    case 1 => "one"
+    case _ => "more than one"
+  }
+  case _ => "none"
+})
+>>>
+val a = List(Some(1), None, Some(3), Some(4)).map({
+  case Some(x) =>
+    x match
+       case 1 =>
+         "one"
+       case _ =>
+         "more than one"
+  case _ =>
+    "none"
+})
+<<< #2495 2
+rewrite.scala3.removeOptionalBraces = yes
+===
+val bar =
+  foo({
+    val arr = new Array[String](10)
+    var x = 0
+    while x < 10 do {
+      arr(x) = "x"
+      x += 1
+    }
+    arr
+  })
+>>>
+val bar = foo({
+  val arr = new Array[String](10)
+  var x = 0
+  while x < 10 do
+     arr(x) = "x"
+     x += 1
+  arr
+})
+<<< new optional braces
+rewrite.scala3.removeOptionalBraces = yes
+===
+val request: Request = Request(
+  "./api/notes",
+  new {
+    method = HttpMethod.POST
+  }
+)
+>>>
+val request: Request = Request(
+  "./api/notes",
+  new:
+     method = HttpMethod.POST
+)
+<<< lambda
+rewrite.scala3.removeOptionalBraces = yes
+===
+val f: Int => Int = (x: Int) => {
+  x * x
+}
+>>>
+val f: Int => Int = (x: Int) => x * x
+<<< lambda multiple statements
+rewrite.scala3.removeOptionalBraces = yes
+===
+val f: Int => Int = (x: Int) => {
+  val y = x * x
+  y
+}
+>>>
+val f: Int => Int =
+  (x: Int) =>
+     val y = x * x
+     y
+<<< braces with an attribute, remove both optional and redundant braces
+rewrite {
+  rules = [RedundantBraces]
+  scala3.removeOptionalBraces = yes
+}
+===
+object a {
+  val delimiterRow :: dataRows = {
+    if (rows.nonEmpty) rows.toList
+    else {
+      reportError("Fixing missing delimiter row")
+      Row(Cell(Paragraph(Text("-")) :: Nil) :: Nil) :: Nil
+    } 
+  }: @unchecked
+}
+>>>
+object a:
+   val delimiterRow :: dataRows = {
+     if (rows.nonEmpty)
+       rows.toList
+     else {
+       reportError("Fixing missing delimiter row")
+       Row(Cell(Paragraph(Text("-")) :: Nil) :: Nil) :: Nil
+     }
+   }: @unchecked
+<<< 2 end markers at end of file
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 2
+===
+object a:
+  class a:
+    val a =
+      a
+>>>
+object a:
+   class a:
+      val a = a
+   end a
+end a
+<<< 2 end markers at end of file, comment
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 2
+===
+object a:
+  class b:
+    val c =
+      d
+  // c
+end a
+>>>
+object a:
+   class b:
+      val c = d
+   end b
+   // c
+end a
+<<< 1 end marker at end of file
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 3
+===
+object a:
+  class b:
+    val c =
+      d
+>>>
+object a:
+   class b:
+      val c = d
+end a
+<<< 1 end marker at end of file, comment
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 3
+===
+object a:
+  class b:
+    val c =
+      d
+  // c
+end a
+>>>
+object a:
+   class b:
+      val c = d
+   // c
+end a
+<<< no end markers at end of file
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 4
+===
+object a:
+  class a:
+    val a =
+      a
+>>>
+object a:
+   class a:
+      val a = a
+<<< insert end marker after semicolon 1
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 1
+    removeOptionalBraces = yes
+  }
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a:
+  if (foo) {
+    val bar = baz
+    qux
+  };
+>>>
+object a:
+   if foo then
+      val bar = baz
+      qux;
+   end if
+<<< insert end marker after semicolon 2
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 1
+    removeOptionalBraces = yes
+  }
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a:
+  if (foo) {
+    val bar = baz
+    qux
+  }; // c1
+>>>
+object a:
+   if foo then
+      val bar = baz
+      qux; // c1
+   end if
+<<< insert end marker after semicolon 3
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 1
+    removeOptionalBraces = yes
+  }
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a:
+  if (foo) {
+    val bar = baz
+    qux
+  } /* c1 */ ;
+>>>
+object a:
+   if foo then
+      val bar = baz
+      qux
+      /* c1 */;
+   end if
+<<< insert end marker, attached comment
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 1
+    removeOptionalBraces = yes
+  }
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a:
+  if (foo) {
+    val bar = baz
+    qux
+  } /* c1 */
+>>>
+object a:
+   if foo then
+      val bar = baz
+      qux
+      /* c1 */
+   end if
+<<< insert end marker, detached comment
+rewrite.scala3.insertEndMarkerMinLines = 1
+===
+object a:
+  if foo then
+    val bar = baz
+    qux
+    /* c1 */
+>>>
+object a:
+   if foo then
+      val bar = baz
+      qux
+      /* c1 */
+   end if
+<<< ml=2 remove 0 end markers
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 2
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b
+end a
+>>>
+object a:
+   class b:
+      val c = d
+      end c
+   end b
+end a
+<<< ml=3 remove 1 end marker
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 3
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b
+end a
+>>>
+object a:
+   class b:
+      val c = d
+      end c
+end a
+<<< ml=4 remove 2 end markers
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 4
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b
+end a
+>>>
+object a:
+   class b:
+      val c = d
+      end c
+<<< ml=4 remove 0 end markers, comment 1
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 4
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b // comment
+end a
+>>>
+object a:
+   class b:
+      val c = d
+      end c
+   end b // comment
+end a
+<<< ml=5 remove 1 end marker, comment 1
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 5
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b // comment
+end a
+>>>
+object a:
+   class b:
+      val c = d
+      end c
+   end b // comment
+<<< ml=10 remove 1 end marker, comment 1
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 10
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b // comment
+end a
+>>>
+object a:
+   class b:
+      val c = d
+      end c
+   end b // comment
+<<< ml=2 remove 0 end markers, comment 2
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 2
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b
+end a // comment
+>>>
+object a:
+   class b:
+      val c = d
+      end c
+   end b
+end a // comment
+<<< ml=3 remove 1 end marker, comment 2
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 3
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b
+end a // comment
+>>>
+object a:
+   class b:
+      val c = d
+      end c
+end a // comment
+<<< ml=10 remove 1 end marker, comment 2
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 10
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b
+end a // comment
+>>>
+object a:
+   class b:
+      val c = d
+      end c
+end a // comment
+<<< package colonEol
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 4
+===
+package a.b.c:
+  object a:
+    println("ah")
+    println("ha")
+>>>
+package a.b.c:
+   object a:
+      println("ah")
+      println("ha")
+end c
+<<< two consecutive defs #2559
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 2
+===
+def f(s: String) =
+  val t = "Bar"
+  val u = "Baz"
+  s"$t $u $s"
+
+/** Some doc comment */
+def g = f("Foo")
+>>>
+def f(s: String) =
+   val t = "Bar"
+   val u = "Baz"
+   s"$t $u $s"
+end f
+
+/** Some doc comment */
+def g = f("Foo")
+<<< two consecutive defs #2559, trailing comment in block
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 2
+===
+def f(s: String) =
+  val t = "Bar"
+  val u = "Baz"
+  s"$t $u $s"
+  // final comment
+
+/** Some doc comment */
+def g = f("Foo")
+>>>
+def f(s: String) =
+   val t = "Bar"
+   val u = "Baz"
+   s"$t $u $s"
+   // final comment
+end f
+
+/** Some doc comment */
+def g = f("Foo")
+<<< oveflow infix assignment with trailing single-line comment
+maxColumn = 26
+===
+object a:
+  def foo =
+     bar = baz + baz(qux) // c1
+>>>
+object a:
+   def foo =
+     bar =
+       baz +
+         baz(qux) // c1
+<<< #2561 no forced dangle in tuples
+newlines {
+  beforeOpenParenDefnSite = source
+  beforeOpenParenCallSite = source
+}
+===
+val (length, width) =
+   if s % 5 == 0 then
+      (hourMarkLength, hourMarkWidth)
+   else
+      (secondMarkLength, secondMarkWidth)
+>>>
+val (length, width) =
+  if s % 5 == 0 then
+     (hourMarkLength, hourMarkWidth)
+  else
+     (secondMarkLength, secondMarkWidth)
+<<< if indentation
+if // comm
+    val cond1 = true
+    (a1 && a2) == cond1
+  then
+    val exitCode = 1
+    exitCode
+    
+>>>
+if // comm
+   val cond1 = true
+   (a1 && a2) == cond1
+then
+   val exitCode = 1
+   exitCode
+<<< if indentation long
+runner.parser = source
+maxColumn = 35
+rewrite.scala3.insertEndMarkerMinLines = 1
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = yes
+===
+object O {
+  if {// comm
+    def bye = "bye"
+    def hello = { val greet = "This is a long string hello!  "; greet }
+    (hello + bye).length > 10
+  } then
+    val greet = "Too many words!"
+    println(greet)
+}
+>>>
+object O:
+   if // comm
+      def bye = "bye"
+      def hello =
+         val greet =
+           "This is a long string hello!  ";
+         greet
+      end hello
+      (hello + bye).length > 10
+   then
+      val greet = "Too many words!"
+      println(greet)
+   end if
+end O
+<<< if indentation danglingParentheses false
+danglingParentheses.ctrlSite = false
+===
+if // comm
+    val cond1 = true
+    (a1 && a2) == cond1
+  then
+    val exitCode = 1
+    exitCode
+    
+>>>
+if // comm
+   val cond1 = true
+   (a1 && a2) == cond1 then
+   val exitCode = 1
+   exitCode
+<<< if indentation danglingParentheses false oneline
+danglingParentheses.ctrlSite = false
+===
+if
+    (a1 && a2) == cond1
+  then
+    val exitCode = 1
+    exitCode
+    
+>>>
+if (a1 && a2) == cond1 then
+   val exitCode = 1
+   exitCode
+<<< while indentation danglingParentheses false
+danglingParentheses.ctrlSite = false
+===
+while // comm
+    val cond1 = true
+    (a1 && a2) == cond1
+  do
+    val exitCode = 1
+    exitCode
+    
+>>>
+while // comm
+   val cond1 = true
+   (a1 && a2) == cond1 do
+   val exitCode = 1
+   exitCode
+<<< if indentation danglingParentheses false oneline
+danglingParentheses.ctrlSite = false
+===
+while
+    (a1 && a2) == cond1
+  do
+    val exitCode = 1
+    exitCode
+    
+>>>
+while (a1 && a2) == cond1 do
+   val exitCode = 1
+   exitCode
+<<< if redundant parens
+rewrite.rules = [RedundantParens]
+===
+if (a > 1) then
+  println("Hello!")
+>>>
+if a > 1 then
+   println("Hello!")
+<<< #2634
+rewrite.scala3.insertEndMarkerMinLines = 2
+===
+object a:
+  given Foo[String] with
+    def foo(s: String) =
+      true
+>>>
+object a:
+   given Foo[String] with
+      def foo(s: String) = true
+   end given
+<<< #2687 preserve break for partial function
+maxColumn = 100
+===
+given liftPropertyAlias: NiceLiftable[PropertyAlias] with {
+  def lift =
+    case PropertyAlias(a, b) => '{ PropertyAlias(${ a.expr }, ${ b.expr }) }
+}
+>>>
+given liftPropertyAlias: NiceLiftable[PropertyAlias] with {
+  def lift =
+     case PropertyAlias(a, b) =>
+       '{
+         PropertyAlias(
+           ${
+             a.expr
+           },
+           ${
+             b.expr
+           }
+         )
+       }
+}
+<<< #2725 newline after extension parameter
+extension (a: All) 
+  def getAll: Boolean = a
+>>>
+extension (a: All)
+   def getAll: Boolean = a
+<<< #2725 newline after extension parameter short
+extension (a: All) def getAll: Boolean = a
+>>>
+extension (a: All)
+   def getAll: Boolean = a
+<<< #2725 newline after extension parameter long
+maxColumn = 40
+===
+extension (a: All) def getAll: Boolean = a
+>>>
+extension (a: All)
+   def getAll: Boolean = a
+<<< #2725 no newline after extension parameter long, no optional braces
+maxColumn = 40
+runner.dialectOverride.allowSignificantIndentation = false
+===
+extension (a: All) def getAll: Boolean = a
+>>>
+extension (a: All) def getAll: Boolean =
+  a
+<<< #2740
+runner.parser = source
+rewrite.scala3.insertEndMarkerMinLines = 1
+===
+object `Accept-Ranges`:
+  val r = ""
+>>>
+object `Accept-Ranges`:
+   val r = ""
+end `Accept-Ranges`
+<<< #2781
+rewrite.scala3.removeOptionalBraces = yes
+===
+object x:
+  val y = List(1).map(v => {
+    println(v)
+    v + 1
+  })
+>>>
+object x:
+   val y = List(1).map(v =>
+      println(v)
+      v + 1
+   )
+<<< 2786 insert def
+runner.parser = source
+rewrite.scala3.countEndMarkerLines = lastBlockOnly
+rewrite.scala3.insertEndMarkerMinLines = 3
+===
+def foo(
+    a1: Int,
+    a2: Int
+): Int =
+  println()
+  42
+
+def foo(
+    a1: Int,
+    a2: Int
+): Int =
+  println()
+  42
+  43
+>>>
+def foo(a1: Int, a2: Int): Int =
+   println()
+   42
+
+def foo(a1: Int, a2: Int): Int =
+   println()
+   42
+   43
+end foo
+<<< 2786 insert else
+runner.parser = source
+rewrite.scala3.countEndMarkerLines = lastBlockOnly
+rewrite.scala3.insertEndMarkerMinLines = 3
+===
+def foo2: Int =
+  fx()
+  if true then
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    32
+  else // c
+    42
+    43
+end foo2
+
+def foo2: Int =
+  fx()
+  if true then
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    32
+  else
+    42
+    43
+    44
+end foo2
+>>>
+def foo2: Int =
+   fx()
+   if true then
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      32
+   else // c
+      42
+      43
+end foo2
+
+def foo2: Int =
+   fx()
+   if true then
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      32
+   else
+      42
+      43
+      44
+   end if
+end foo2
+<<< 2786 remove def
+runner.parser = source
+rewrite.scala3.countEndMarkerLines = lastBlockOnly
+rewrite.scala3.removeEndMarkerMaxLines = 2
+===
+def foo(
+    a1: Int,
+    a2: Int
+): Int =
+  println()
+  42
+end foo
+
+def foo(
+    a1: Int,
+    a2: Int
+): Int =
+  println()
+  42
+  43
+end foo
+>>>
+def foo(a1: Int, a2: Int): Int =
+   println()
+   42
+
+def foo(a1: Int, a2: Int): Int =
+   println()
+   42
+   43
+end foo
+<<< 2786 remove else
+runner.parser = source
+rewrite.scala3.countEndMarkerLines = lastBlockOnly
+rewrite.scala3.removeEndMarkerMaxLines = 2
+===
+def foo2: Int =
+  fx()
+  if true then
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    32
+  else // c
+    42
+    43
+  end if
+end foo2
+
+def foo2: Int =
+  fx()
+  if true then
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    println()
+    32
+  else
+    42
+    43
+    44
+  end if
+end foo2
+>>>
+def foo2: Int =
+   fx()
+   if true then
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      32
+   else // c
+      42
+      43
+end foo2
+
+def foo2: Int =
+   fx()
+   if true then
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      println()
+      32
+   else
+      42
+      43
+      44
+   end if
+end foo2
+<<< 2790 for loops indentation
+def update(tpf: Float): Unit =
+  for (scene <- scenes.all) 
+    scene.updateLogicalState(tpf)
+    scene.updateGeometricState()
+  for (scene <- scenes.all) 
+    scene.updateLogicalState(tpf)
+>>>
+def update(tpf: Float): Unit =
+   for (scene <- scenes.all)
+      scene.updateLogicalState(tpf)
+      scene.updateGeometricState()
+   for (scene <- scenes.all)
+     scene.updateLogicalState(tpf)
+<<< 2790 while loops indentation
+def update(tpf: Float): Unit =
+  while (true) 
+    scene.updateLogicalState(tpf)
+    scene.updateGeometricState()
+  while (true) 
+    scene.updateLogicalState(tpf)
+>>>
+def update(tpf: Float): Unit =
+   while (true)
+      scene.updateLogicalState(tpf)
+      scene.updateGeometricState()
+   while (true)
+     scene.updateLogicalState(tpf)
+<<< 2790 for loops indentation end marker
+maxColumn = 60
+rewrite.scala3.insertEndMarkerMinLines = 1
+===
+def update(tpf: Float): Unit =
+  for (scene <- scenes.all) 
+    scene.updateLogicalState(tpf)
+    scene.updateGeometricState()
+  for (scene <- scenes.all) 
+    scene.updateLogicalState(tpf)
+  for (scene <- scenes.all)
+    for (scene <- scenes.all)
+      scene.updateLogicalState(tpf)
+  for (scene <- scenes.all) scene.updateLogicalState(
+    tpf,
+    scene.updateLogicalState(tpf)
+  )
+>>>
+def update(tpf: Float): Unit =
+   for (scene <- scenes.all)
+      scene.updateLogicalState(tpf)
+      scene.updateGeometricState()
+   end for
+   for (scene <- scenes.all)
+     scene.updateLogicalState(tpf)
+   end for
+   for (scene <- scenes.all)
+     for (scene <- scenes.all)
+       scene.updateLogicalState(tpf)
+   end for
+   for (scene <- scenes.all)
+     scene.updateLogicalState(
+       tpf,
+       scene.updateLogicalState(tpf)
+     )
+   end for
+<<< 2790 while loops indentation end marker
+rewrite.scala3.insertEndMarkerMinLines = 1
+===
+def update(tpf: Float): Unit =
+  while (true) 
+    scene.updateLogicalState(tpf)
+    scene.updateGeometricState()
+  while (true)
+    scene.updateLogicalState(tpf)
+  while (true)
+    while (true)
+      scene.updateLogicalState(tpf)
+  while (true) scene.updateLogicalState(
+    tpf,
+    scene.updateLogicalState(tpf)
+  )
+>>>
+def update(tpf: Float): Unit =
+   while (true)
+      scene.updateLogicalState(tpf)
+      scene.updateGeometricState()
+   end while
+   while (true)
+     scene.updateLogicalState(tpf)
+   end while
+   while (true)
+     while (true)
+       scene.updateLogicalState(tpf)
+   end while
+   while (true)
+     scene.updateLogicalState(tpf, scene.updateLogicalState(tpf))
+   end while
+<<< #3731 exclude leading multiline comment, one shorter
+rewrite.scala3.insertEndMarkerMinLines = 2
+rewrite.scala3.removeEndMarkerMaxLines = 1
+===
+object a:
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  end foo
+>>>
+object a:
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+   end foo
+
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+   end foo
+<<< #3731 exclude leading multiline comment, body length
+rewrite.scala3.insertEndMarkerMinLines = 3
+rewrite.scala3.removeEndMarkerMaxLines = 2
+===
+object a:
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  end foo
+>>>
+object a:
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+   end foo
+
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+   end foo
+<<< #3731 exclude leading multiline comment, one longer
+rewrite.scala3.insertEndMarkerMinLines = 4
+rewrite.scala3.removeEndMarkerMaxLines = 3
+===
+object a:
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  end foo
+>>>
+object a:
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+<<< #3731 exclude leading multiline comment, body + comment length
+rewrite.scala3.insertEndMarkerMinLines = 5
+rewrite.scala3.removeEndMarkerMaxLines = 4
+===
+object a:
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  /**
+     * c */
+  def foo() =
+    require(bar)
+    bar
+  end foo
+>>>
+object a:
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+
+   /** c
+     */
+   def foo() =
+      require(bar)
+      bar
+<<< TryWithHandler: newline after catch
+object a {
+  def foo = try
+    a
+  catch
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo =
+    try a
+    catch bar
+    finally a
+}
+<<< TryWithHandler: newline after catch, short
+maxColumn = 12
+===
+object a {
+  def foo = try
+    a
+  catch
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo =
+    try a
+    catch
+      bar
+    finally
+      a
+}
+<<< TryWithHandler: newline after catch, space comment
+object a {
+  def foo = try
+    a
+  catch /* c1 */
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo =
+    try a
+    catch /* c1 */
+      bar
+    finally a
+}
+<<< TryWithHandler: newline after catch, break comment
+object a {
+  def foo = try
+    a
+  catch
+    /* c2 */
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo =
+    try a
+    catch
+      /* c2 */
+      bar
+    finally a
+}
+<<< TryWithHandler: newline after catch, comments
+object a {
+  def foo = try
+    a
+  catch /* c1 */
+    /* c2 */
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo =
+    try a
+    catch /* c1 */
+      /* c2 */
+      bar
+    finally a
+}
+<<< TryWithHandler: newline after catch, comments
+object a {
+  def foo = try
+    a
+  catch /* c1 */ bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo =
+    try a
+    catch /* c1 */ bar
+    finally a
+}
+<<< #2019 infix
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  def foo =
+    a +
+    b
+  val foo =
+    a +
+    b
+  var foo =
+    a +
+    b
+}
+>>>
+object a {
+  def foo = {
+    a +
+      b
+  }
+  val foo = {
+    a +
+      b
+  }
+  var foo = {
+    a +
+      b
+  }
+}
+<<< #2019 if-else !alwaysBeforeElseAfterCurlyIf
+newlines.afterInfix = keep
+newlines.alwaysBeforeElseAfterCurlyIf = false
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  def foo = if (a)
+    a +
+    b
+  else
+    a +
+    b
+  val foo = if (a)
+    a +
+    b
+  else if (b)
+    a +
+    b
+  else if (c)
+    a +
+    b
+  var foo = if (a)
+    a +
+    b
+  else
+    a +
+    b
+}
+>>>
+object a {
+  def foo = {
+    if (a) {
+      a +
+        b
+    } else {
+      a +
+        b
+    }
+  }
+  val foo = {
+    if (a) {
+      a +
+        b
+    } else if (b) {
+      a +
+        b
+    } else if (c) {
+      a +
+        b
+    }
+  }
+  var foo = {
+    if (a) {
+      a +
+        b
+    } else {
+      a +
+        b
+    }
+  }
+}
+<<< #2019 if-else alwaysBeforeElseAfterCurlyIf
+newlines.afterInfix = keep
+newlines.alwaysBeforeElseAfterCurlyIf = true
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  def foo = if (a)
+    a +
+    b
+  else
+    a +
+    b
+  val foo = if (a)
+    a +
+    b
+  else if (b)
+    a +
+    b
+  else if (c)
+    a +
+    b
+  var foo = if (a)
+    a +
+    b
+  else
+    a +
+    b
+}
+>>>
+object a {
+  def foo = {
+    if (a) {
+      a +
+        b
+    }
+    else {
+      a +
+        b
+    }
+  }
+  val foo = {
+    if (a) {
+      a +
+        b
+    }
+    else if (b) {
+      a +
+        b
+    }
+    else if (c) {
+      a +
+        b
+    }
+  }
+  var foo = {
+    if (a) {
+      a +
+        b
+    }
+    else {
+      a +
+        b
+    }
+  }
+}
+<<< #2019 try !alwaysBeforeElseAfterCurlyIf !allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+newlines.alwaysBeforeElseAfterCurlyIf = false
+rewrite.insertBraces.minLines = 2
+rewrite.scala3.removeOptionalBraces = no
+indent.significant = null
+===
+object a {
+  def foo = try
+    a +
+      b
+  catch
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo = {
+    try {
+      a +
+        b
+    } catch
+      bar
+    finally
+      a
+  }
+}
+<<< #2019 try !alwaysBeforeElseAfterCurlyIf allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+newlines.alwaysBeforeElseAfterCurlyIf = false
+rewrite.insertBraces.minLines = 2
+rewrite.insertBraces.allBlocks = true
+rewrite.scala3.removeOptionalBraces = no
+indent.significant = null
+===
+object a {
+  def foo = try
+    a +
+      b
+  catch
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo = {
+    try {
+      a +
+        b
+    } catch {
+      bar
+    } finally {
+      a
+    }
+  }
+}
+<<< #2019 try alwaysBeforeElseAfterCurlyIf !allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+newlines.alwaysBeforeElseAfterCurlyIf = true
+rewrite.insertBraces.minLines = 2
+rewrite.scala3.removeOptionalBraces = no
+indent.significant = null
+===
+object a {
+  def foo = try
+    a +
+      b
+  catch
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo = {
+    try {
+      a +
+        b
+    }
+    catch
+      bar
+    finally
+      a
+  }
+}
+<<< #2019 try alwaysBeforeElseAfterCurlyIf allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+newlines.alwaysBeforeElseAfterCurlyIf = true
+rewrite.insertBraces.minLines = 2
+rewrite.insertBraces.allBlocks = true
+rewrite.scala3.removeOptionalBraces = no
+indent.significant = null
+===
+object a {
+  def foo = try
+    a +
+      b
+  catch
+    bar
+  finally
+    a
+}
+>>>
+object a {
+  def foo = {
+    try {
+      a +
+        b
+    }
+    catch {
+      bar
+    }
+    finally {
+      a
+    }
+  }
+}
+<<< #2019 function
+maxColumn = 12
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  foo(x =>
+    a +
+      b
+  )
+  foo(x =>
+    a
+      + b
+  )
+  foo { x =>
+    a +
+      b
+  }
+}
+>>>
+object a {
+  foo(x => {
+    a +
+      b
+  })
+  foo(x =>
+    a
+      + b
+  )
+  foo { x =>
+    a +
+      b
+  }
+}
+<<< #2019 partial function
+maxColumn = 25
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  foo { case (x, y) =>
+    a +
+      b
+  }
+}
+>>>
+object a {
+  foo { case (x, y) =>
+    a +
+      b
+  }
+}
+<<< #2019 for-yield !allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  for {
+    a <- b
+    c <- d
+  } yield // c
+    a
+  for { a <- b } yield // c
+    a +
+      b
+}
+>>>
+object a {
+  for {
+    a <- b
+    c <- d
+  } yield // c
+    a
+  for {
+    a <- b
+  } yield { // c
+    a +
+      b
+  }
+}
+<<< #2019 for-yield allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+rewrite.insertBraces.allBlocks = true
+===
+object a {
+  for {
+    a <- b
+    c <- d
+  } yield // c
+    a
+  for { a <- b } yield // c
+    a +
+      b
+}
+>>>
+object a {
+  for {
+    a <- b
+    c <- d
+  } yield { // c
+    a
+  }
+  for {
+    a <- b
+  } yield { // c
+    a +
+      b
+  }
+}
+<<< #2019 for-do !allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+rewrite.scala3.removeOptionalBraces = no
+indent.significant = null
+===
+object a {
+  for {
+    a <- b
+    c <- d
+  } // c
+    a
+  for ( a <- b ) // c
+    a +
+      b
+  for { a <- b } // c
+    a +
+      b
+  for ( a <- b )
+    a +
+      b
+  for { a <- b }
+    a +
+      b
+  for ( a <- b ) a +
+      b
+  for { a <- b } a +
+      b
+}
+>>>
+object a {
+  for {
+    a <- b
+    c <- d
+  } // c
+    a
+  for (
+    a <- b
+  ) { // c
+    a +
+      b
+  }
+  for {
+    a <- b
+  } { // c
+    a +
+      b
+  }
+  for (
+    a <- b
+  ) {
+    a +
+      b
+  }
+  for {
+    a <- b
+  } {
+    a +
+      b
+  }
+  for (
+    a <- b
+  ) {
+    a +
+      b
+  }
+  for {
+    a <- b
+  } {
+    a +
+      b
+  }
+}
+<<< #2019 for-do allBlocks
+maxColumn = 12
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+rewrite.insertBraces.allBlocks = true
+rewrite.scala3.removeOptionalBraces = no
+indent.significant = null
+===
+object a {
+  for {
+    a <- b
+    c <- d
+  } // c
+    a
+  for ( a <- b ) // c
+    a +
+      b
+  for { a <- b } // c
+    a +
+      b
+  for ( a <- b )
+    a +
+      b
+  for { a <- b }
+    a +
+      b
+  for ( a <- b ) a +
+      b
+  for { a <- b } a +
+      b
+}
+>>>
+object a {
+  for {
+    a <- b
+    c <- d
+  } { // c
+    a
+  }
+  for (
+    a <- b
+  ) { // c
+    a +
+      b
+  }
+  for {
+    a <- b
+  } { // c
+    a +
+      b
+  }
+  for (
+    a <- b
+  ) {
+    a +
+      b
+  }
+  for {
+    a <- b
+  } {
+    a +
+      b
+  }
+  for (
+    a <- b
+  ) {
+    a +
+      b
+  }
+  for {
+    a <- b
+  } {
+    a +
+      b
+  }
+}
+<<< #3005 if
+object a {
+  if ({ !Yield(2); false }) {
+    !Yield(3)
+  } else {
+    !Yield(4)
+  }
+}
+>>>
+object a {
+  if ({
+    !Yield(2);
+    false
+  }) {
+    !Yield(3)
+  } else {
+    !Yield(4)
+  }
+}
+<<< #3005 if-then
+object a {
+  if
+    ({ !Yield(2); false }) then {
+    !Yield(3)
+  } else {
+    !Yield(4)
+  }
+}
+>>>
+object a {
+  if ({
+    !Yield(2);
+    false
+  }) then {
+    !Yield(3)
+  } else {
+    !Yield(4)
+  }
+}
+<<< #3005 while
+object a {
+  while ({ !Yield(2); false }) {
+    !Yield(3)
+  }
+}
+>>>
+object a {
+  while ({
+    !Yield(2);
+    false
+  }) {
+    !Yield(3)
+  }
+}
+<<< #3005 while-do
+object a {
+  while
+    ({ !Yield(2); false }) do {
+    !Yield(3)
+  }
+}
+>>>
+object a {
+  while ({
+    !Yield(2);
+    false
+  }) do {
+    !Yield(3)
+  }
+}
+<<< #3033 if-then danglingParentheses
+danglingParentheses.ctrlSite = true
+===
+class C:
+  if true
+  then 3
+  else 4
+  if true
+  then
+    3
+  else 4
+  if
+    true
+  then
+    3
+  else 4
+>>>
+class C:
+   if true then
+      3
+   else
+      4
+   if true then
+      3
+   else
+      4
+   if true then
+      3
+   else
+      4
+<<< #3033 if-then !danglingParentheses
+danglingParentheses.ctrlSite = false
+===
+class C:
+  if true
+  then 3
+  else 4
+  if true
+  then
+    3
+  else 4
+  if
+    true
+  then
+    3
+  else 4
+>>>
+class C:
+   if true then
+      3
+   else
+      4
+   if true then
+      3
+   else
+      4
+   if true then
+      3
+   else
+      4
+<<< #4133 for-yield with multiple semicolon-separated enumerators 1
+align.preset = some
+===
+object a:
+      val abstractTypeNames =
+        for (parent <- parents; mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol))
+        yield mbr.name.asTypeName
+>>>
+object a:
+   val abstractTypeNames =
+     for (
+       parent <- parents;
+       mbr <- parent.abstractTypeMembers
+       if qualifies(mbr.symbol)
+     )
+       yield mbr.name.asTypeName
+<<< #4133 for-yield with multiple semicolon-separated enumerators 2
+align.preset = some
+===
+object a:
+      val abstractTypeNames =
+        for (
+          parent <-
+           parents;
+          mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol))
+        yield mbr.name.asTypeName
+>>>
+object a:
+   val abstractTypeNames =
+     for (
+       parent <- parents;
+       mbr <- parent.abstractTypeMembers
+       if qualifies(mbr.symbol)
+     )
+       yield mbr.name.asTypeName
+<<< #4133 for-yield with multiple semicolon-separated enumerators 3
+align.preset = some
+runner.dialect = scala213
+===
+object a {
+      val abstractTypeNames =
+        for (parent <-
+          parents;
+          mbr <- parent.abstractTypeMembers if qualifies(mbr.symbol))
+        yield mbr.name.asTypeName
+}
+>>>
+object a {
+  val abstractTypeNames =
+    for (
+      parent <- parents;
+      mbr <- parent.abstractTypeMembers
+      if qualifies(mbr.symbol)
+    )
+      yield mbr.name.asTypeName
+}
+<<< #4133 for-yield with multiple semicolon-separated enumerators 4
+align.preset = some
+===
+object a:
+      val abstractTypeNames =
+        for (
+          parent <- parents;
+          mbr <- parent.abstractTypeMembers
+          if qualifies(mbr.symbol)
+        )
+        yield mbr.name.asTypeName
+>>>
+object a:
+   val abstractTypeNames =
+     for (
+       parent <- parents;
+       mbr <- parent.abstractTypeMembers
+       if qualifies(mbr.symbol)
+     )
+       yield mbr.name.asTypeName
+<<< #3034 for-yield danglingParentheses
+danglingParentheses.ctrlSite = true
+===
+object a:
+  for x <- range
+  yield matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range
+  yield
+    matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   for x <- range
+   yield matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range
+   yield matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 for-yield !danglingParentheses
+danglingParentheses.ctrlSite = false
+===
+object a:
+  for x <- range
+  yield matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range
+  yield
+    matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   for x <- range
+   yield matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range
+   yield matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 for-do danglingParentheses
+danglingParentheses.ctrlSite = true
+===
+object a:
+  for x <- range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range do
+    matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range
+  do
+   matrix(x)(0) += matrix(x - 1)(0)
+  for
+   x <- range
+  do
+   matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 for-do !danglingParentheses
+danglingParentheses.ctrlSite = false
+===
+object a:
+  for x <- range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range do
+    matrix(x)(0) += matrix(x - 1)(0)
+  for x <- range
+  do
+   matrix(x)(0) += matrix(x - 1)(0)
+  for
+   x <- range
+  do
+   matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   for x <- range do
+      matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 while-do danglingParentheses
+danglingParentheses.ctrlSite = true
+===
+object a:
+  while x < range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  while x < range do
+    matrix(x)(0) += matrix(x - 1)(0)
+  while
+    x < range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  while x < range
+  do
+    matrix(x)(0) += matrix(x - 1)(0)
+  while
+    x < range
+  do
+    matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+<<< #3034 while-do !danglingParentheses
+danglingParentheses.ctrlSite = false
+===
+object a:
+  while x < range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  while x < range do
+    matrix(x)(0) += matrix(x - 1)(0)
+  while
+    x < range
+  do matrix(x)(0) += matrix(x - 1)(0)
+  while x < range
+  do
+    matrix(x)(0) += matrix(x - 1)(0)
+  while
+    x < range
+  do
+    matrix(x)(0) += matrix(x - 1)(0)
+>>>
+object a:
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+   while x < range do
+      matrix(x)(0) += matrix(x - 1)(0)
+<<< align.beforeOpenParenCallSite
+maxColumn = 30
+align.closeParenSite = true
+align.beforeOpenParenCallSite = true
+newlines.beforeOpenParenCallSite = source
+===
+allMatching(versionString)
+                 (partialFunctions)
+>>>
+allMatching
+   (versionString)
+   (partialFunctions)
+<<< align.beforeOpenParenCallSite + align.openParenCallSite
+maxColumn = 30
+align.closeParenSite = true
+align.openParenCallSite = true
+align.beforeOpenParenCallSite = true
+newlines.beforeOpenParenCallSite = source
+===
+allMatching(versionString, partialFunctions)
+                 (partialFunctions)
+>>>
+allMatching
+   (versionString,
+    partialFunctions
+   )
+   (partialFunctions)
+<<< #3056
+enum SerializedField extends jl.Enum[SerializedField] {
+  case UNKNOWN,         // represents a field code we didn't recognize
+    END_MARKER,         // end of a list of fields
+    ROOT_VALUE,         // Fields at the root
+    ROOT_WAS_CONFIG,
+    VALUE_DATA,         // Fields that make up a value
+    VALUE_ORIGIN,
+    ORIGIN_DESCRIPTION, // Fields that make up an origin
+    ORIGIN_LINE_NUMBER,
+    ORIGIN_END_LINE_NUMBER, ORIGIN_TYPE, ORIGIN_URL,
+    ORIGIN_COMMENTS, ORIGIN_NULL_URL, ORIGIN_NULL_COMMENTS, ORIGIN_RESOURCE, ORIGIN_NULL_RESOURCE
+}
+>>>
+enum SerializedField extends jl.Enum[SerializedField] {
+  case UNKNOWN, // represents a field code we didn't recognize
+    END_MARKER, // end of a list of fields
+    ROOT_VALUE, // Fields at the root
+    ROOT_WAS_CONFIG,
+    VALUE_DATA, // Fields that make up a value
+    VALUE_ORIGIN,
+    ORIGIN_DESCRIPTION, // Fields that make up an origin
+    ORIGIN_LINE_NUMBER,
+    ORIGIN_END_LINE_NUMBER,
+    ORIGIN_TYPE,
+    ORIGIN_URL,
+    ORIGIN_COMMENTS,
+    ORIGIN_NULL_URL,
+    ORIGIN_NULL_COMMENTS,
+    ORIGIN_RESOURCE,
+    ORIGIN_NULL_RESOURCE
+}
+<<< #3158
+for { foobar <- LongClassName(database).longMethodName() } yield doSomething(foobar)
+>>>
+for {
+  foobar <- LongClassName(database).longMethodName()
+} yield doSomething(foobar)
+<<< #3153
+maxColumn = 14
+indentOperator.excludeRegex = "^(&|\\||&&|\\|\\|)$"
+indentOperator.exemptScope = aloneArgOrBody
+===
+type T =
+  Byte |
+  Short |
+  Int |
+  Long |
+  Double
+>>>
+type T =
+  Byte |
+  Short |
+  Int | Long |
+  Double
+<<< #3188
+maxColumn = 60
+===
+object a {
+  implicit def generate[T](value: T): Clue[T] =
+    macro MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro
+    MacroCompatScala2.clueImpl
+  implicit def generate[T](
+    value: T
+  ): Clue[T] = macro MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T)
+    : Clue[T] = macro MacroCompatScala2.clueImpl
+}
+>>>
+object a {
+  implicit def generate[T](value: T): Clue[T] = macro
+    MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro
+    MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro
+    MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro
+    MacroCompatScala2.clueImpl
+  implicit def generate[T](value: T): Clue[T] = macro
+    MacroCompatScala2.clueImpl
+}
+<<< #3204 if
+object a:
+  if
+    val x = 4
+    4 == 3
+  then 5
+  else 4
+>>>
+object a:
+   if
+      val x = 4
+      4 == 3
+   then
+      5
+   else
+      4
+<<< #3204 while
+object a:
+  while
+    val x = 4
+    4 == 3
+  do 5
+>>>
+object a:
+   while
+      val x = 4
+      4 == 3
+   do
+      5
+<<< #3276
+class Foo() {
+  def ok: Boolean =
+    if (1 == 1) {
+      true
+    } else
+      false
+
+  def notOK: Boolean =
+    if (1 == 1) {
+      println("Some code")
+      true
+    } else
+      false
+}
+>>>
+class Foo() {
+  def ok: Boolean =
+    if (1 == 1) {
+      true
+    } else
+      false
+
+  def notOK: Boolean =
+    if (1 == 1) {
+      println("Some code")
+      true
+    } else
+      false
+}
+<<< #3276 2
+class Foo() {
+  def notOK: Boolean =
+    if (1 == 1)
+      {c; a + b}.foo
+    else
+      false
+}
+>>>
+class Foo() {
+  def notOK: Boolean =
+    if (1 == 1) {
+      c;
+      a + b
+    }.foo
+    else
+      false
+}
+<<< #3276 3
+class Foo() {
+  def notOK: Boolean =
+    if (1 == 1)
+      {a + b}.foo
+      c
+    else
+      false
+}
+>>>
+class Foo() {
+  def notOK: Boolean =
+    if (1 == 1)
+       {
+         a + b
+       }.foo
+       c
+    else
+       false
+}
+<<< #3276 4
+class Foo() {
+  def notOK: Boolean =
+    try {c; a + b}.foo
+    finally {c; a + b}.foo
+}
+>>>
+class Foo() {
+  def notOK: Boolean =
+    try
+      {
+        c;
+        a + b
+      }.foo
+    finally
+      {
+        c;
+        a + b
+      }.foo
+}
+<<< #3295 1
+maxColumn = 40
+===
+class Foo() {
+  def ok: Boolean =
+    if (1 == 1)
+      true
+    else {
+      false
+    }
+
+  def notOK: Boolean =
+    if (1 == 1)
+      true
+    else {
+      println("Some code")
+      false
+    }
+}
+>>>
+class Foo() {
+  def ok: Boolean =
+    if (1 == 1)
+      true
+    else {
+      false
+    }
+
+  def notOK: Boolean =
+    if (1 == 1)
+      true
+    else {
+      println("Some code")
+      false
+    }
+}
+<<< #3302
+rewrite.scala3.convertToNewSyntax = yes
+===
+type Inner[A] = A match
+  case Seq[x] => x
+  case _ => A
+>>>
+type Inner[A] =
+  A match
+     case Seq[x] =>
+       x
+     case _ =>
+       A
+<<< #3327 match
+indent.relativeToLhsLastLine = [match]
+===
+object A {
+  private def get(ds: Any): IO[Long] =
+    IO.delay {
+      ds // c1
+        .headOption match
+          case Some(Row(value: Long)) => value
+          case _                      => 0
+    }
+}
+>>>
+object A {
+  private def get(ds: Any): IO[Long] = IO.delay {
+    ds // c1
+      .headOption match
+         case Some(Row(value: Long)) =>
+           value
+         case _ =>
+           0
+  }
+}
+<<< #3337
+rewrite.scala3.convertToNewSyntax = yes
+===
+object a {
+  val a = test("" +: Seq("").map{_ + ""}: _*)
+  val a = test(("" +: Seq("").map{_ + ""}): _*)
+}
+>>>
+object a {
+  val a = test(
+    "" +:
+      Seq("").map {
+        _ + ""
+      }: _*
+  )
+  val a = test(
+    (
+      "" +:
+        Seq("").map {
+          _ + ""
+        }
+    )*
+  )
+}
+<<< coloneol in fewer braces 1
+maxColumn = 80
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).foldLeft(1):
+      case (a, b) => a + b
+>>>
+object a:
+   def f(): Unit =
+     List(1, 2, 3).foldLeft(1):
+        case (a, b) =>
+          a + b
+<<< coloneol in fewer braces 1, main > sig
+maxColumn = 80
+indent.main = 4
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).foldLeft(1):
+          case (a, b) => a + b
+>>>
+object a:
+   def f(): Unit =
+       List(1, 2, 3).foldLeft(1):
+          case (a, b) =>
+              a + b
+<<< coloneol in fewer braces 2
+maxColumn = 80
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).foo: a =>
+      a + 2
+    .foo: a =>
+      2 + a
+    .apply:
+      12 + 3
+>>>
+object a:
+   def f(): Unit = List(1, 2, 3)
+     .foo: a =>
+        a + 2
+     .foo: a =>
+        2 + a
+     .apply:
+        12 + 3
+<<< coloneol in fewer braces 2, main > sig
+maxColumn = 80
+indent.main = 4
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).foo: a =>
+      a + 2
+    .foo: a =>
+      2 + a
+    .apply:
+      12 + 3
+>>>
+object a:
+   def f(): Unit = List(1, 2, 3)
+       .foo: a =>
+          a + 2
+       .foo: a =>
+          2 + a
+       .apply:
+          12 + 3
+<<< coloneol in fewer braces 3
+maxColumn = 80
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).foo:
+       case a : Int =>
+       case _ =>
+    otherTerm()
+>>>
+object a:
+   def f(): Unit =
+      List(1, 2, 3).foo:
+         case a: Int =>
+         case _      =>
+      otherTerm()
+<<< coloneol in fewer braces 3, main > sig
+maxColumn = 80
+indent.main = 4
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).foo:
+       case a : Int =>
+       case _ =>
+    otherTerm()
+>>>
+object a:
+   def f(): Unit =
+      List(1, 2, 3).foo:
+         case a: Int =>
+         case _      =>
+      otherTerm()
+<<< match with eol
+maxColumn = 80
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).match
+      case _ => a + 2
+    .foo: a =>
+      2 + a
+    .apply:
+      12 + 3
+>>>
+object a:
+   def f(): Unit =
+     List(1, 2, 3)
+       .match
+          case _ =>
+            a + 2
+       .foo: a =>
+          2 + a
+       .apply:
+          12 + 3
+<<< match with eol, main > sig
+maxColumn = 80
+indent.main = 4
+===
+object a:
+  def f(): Unit =
+    List(1, 2, 3).match
+      case _ => a + 2
+    .foo: a =>
+      2 + a
+    .apply:
+      12 + 3
+>>>
+object a:
+   def f(): Unit =
+       List(1, 2, 3)
+           .match
+              case _ =>
+                  a + 2
+           .foo: a =>
+              2 + a
+           .apply:
+              12 + 3
+<<< coloneol in refined types
+maxColumn = 80
+===
+object a:
+  type T = String:
+    type U = Int
+>>>
+object a:
+   type T =
+     String:
+        type U = Int
+<<< coloneol in refined types, main > sig
+maxColumn = 80
+indent.main = 4
+===
+object a:
+  type T = String:
+    type U = Int
+>>>
+object a:
+   type T =
+       String:
+          type U = Int
+<<< with in refined types
+maxColumn = 80
+===
+object a:
+  type T = String with
+    type U = Int
+>>>
+object a:
+   type T =
+     String with
+        type U = Int
+<<< with in refined types, main > sig
+maxColumn = 80
+indent.main = 4
+===
+object a:
+  type T = String with
+    type U = Int
+>>>
+object a:
+   type T =
+       String with
+          type U = Int
+<<< #3448 1
+def test(): String =
+  Block:
+    2 + 2
+  .toString
+>>>
+def test(): String =
+  Block:
+     2 + 2
+  .toString
+<<< #3448 2
+indent.significant = 1
+===
+def test(): String =
+  Block:
+    2 + 2
+  .toString
+>>>
+def test(): String =
+  Block:
+   2 + 2
+  .toString
+<<< #3448 3
+indent.significant = 1
+===
+def test(): String =
+  foo.bar:
+   2 + 2
+  .baz.qux:
+   3 + 3
+>>>
+def test(): String = foo
+  .bar:
+   2 + 2
+  .baz
+  .qux:
+   3 + 3
+<<< #3448 4
+indent.significant = 1
+===
+def test(): String =
+  bar:
+    2 + 2
+  .baz.qux:
+    3 + 3
+>>>
+def test(): String = bar:
+ 2 + 2
+.baz
+  .qux:
+   3 + 3
+<<< #3448 5
+indent.significant = 1
+===
+class test:
+  bar:
+    2 + 2
+  .baz.qux:
+    3 + 3
+>>>
+class test:
+ bar:
+  2 + 2
+ .baz
+   .qux:
+    3 + 3
+<<< #3489 1 fewerBraces = always
+indent.fewerBraces = always
+===
+class test:
+  bar:
+    2 + 2
+>>>
+class test:
+   bar:
+        2 + 2
+<<< #3489 2 fewerBraces = always
+indent.fewerBraces = always
+===
+class test:
+  baz.qux:
+    2 + 2
+>>>
+class test:
+   baz.qux:
+        2 + 2
+<<< #3489 3 fewerBraces = always
+indent.fewerBraces = always
+===
+class test:
+  foo.bar:
+    2 + 2
+  .baz
+>>>
+class test:
+   foo
+     .bar:
+        2 + 2
+     .baz
+<<< #3489 4 fewerBraces = always
+indent.fewerBraces = always
+===
+class test:
+  bar:
+     2 + 2
+    .baz
+>>>
+class test:
+   bar:
+        2 + 2
+     .baz
+<<< #3489 5 fewerBraces = always
+indent.fewerBraces = always
+===
+class test:
+  bar:
+     2 + 2
+    .baz:
+       3 + 3
+>>>
+class test:
+   bar:
+        2 + 2
+     .baz:
+        3 + 3
+<<< #3489 6 fewerBraces = always
+indent.fewerBraces = always
+===
+class test:
+  bar:
+     2 + 2
+    .baz.qux:
+       3 + 3
+>>>
+class test:
+   bar:
+        2 + 2
+     .baz
+     .qux:
+        3 + 3
+<<< #3489 7 fewerBraces = always
+indent.fewerBraces = always
+===
+class test:
+  bar (
+     2 + 2
+     )
+    .baz.qux:
+       3 + 3
+>>>
+class test:
+   bar(2 + 2)
+     .baz
+     .qux:
+        3 + 3
+<<< #3489 8 fewerBraces = always
+indent.fewerBraces = always
+===
+class test:
+  bar.baz:
+     2 + 2
+    .qux:
+       3 + 3
+>>>
+class test:
+   bar
+     .baz:
+        2 + 2
+     .qux:
+        3 + 3
+<<< #3489 9 fewerBraces = always
+indent.fewerBraces = always
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+>>>
+class test:
+   foo.match
+        case bar =>
+          ""
+        case baz =>
+          ""
+<<< #3489 10 fewerBraces = always
+indent.fewerBraces = always
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+  .qux
+>>>
+class test:
+   foo
+     .match
+        case bar =>
+          ""
+        case baz =>
+          ""
+     .qux
+<<< #3489 11 fewerBraces = always
+indent.fewerBraces = always
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+  .qux:
+       3 + 3
+>>>
+class test:
+   foo
+     .match
+        case bar =>
+          ""
+        case baz =>
+          ""
+     .qux:
+        3 + 3
+<<< #3489 1 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  bar:
+    2 + 2
+>>>
+class test:
+   bar:
+      2 + 2
+<<< #3489 2 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  baz.qux:
+    2 + 2
+>>>
+class test:
+   baz.qux:
+      2 + 2
+<<< #3489 3 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  foo.bar:
+    2 + 2
+  .baz
+>>>
+class test:
+   foo
+     .bar:
+        2 + 2
+     .baz
+<<< #3489 4 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  bar:
+     2 + 2
+    .baz
+>>>
+class test:
+   bar:
+        2 + 2
+     .baz
+<<< #3489 5 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  bar:
+     2 + 2
+    .baz:
+       3 + 3
+>>>
+class test:
+   bar:
+        2 + 2
+     .baz:
+        3 + 3
+<<< #3489 6 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  bar:
+     2 + 2
+    .baz.qux:
+       3 + 3
+>>>
+class test:
+   bar:
+        2 + 2
+     .baz
+     .qux:
+        3 + 3
+<<< #3489 7 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  bar (
+     2 + 2
+     )
+    .baz.qux:
+       3 + 3
+>>>
+class test:
+   bar(2 + 2)
+     .baz
+     .qux:
+        3 + 3
+<<< #3489 8 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  bar.baz:
+     2 + 2
+    .qux:
+       3 + 3
+>>>
+class test:
+   bar
+     .baz:
+        2 + 2
+     .qux:
+        3 + 3
+<<< #3489 9 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+>>>
+class test:
+   foo.match
+      case bar =>
+        ""
+      case baz =>
+        ""
+<<< #3489 10 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+  .qux
+>>>
+class test:
+   foo
+     .match
+        case bar =>
+          ""
+        case baz =>
+          ""
+     .qux
+<<< #3489 11 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+  .qux:
+       3 + 3
+>>>
+class test:
+   foo
+     .match
+        case bar =>
+          ""
+        case baz =>
+          ""
+     .qux:
+        3 + 3
+<<< #3489 1 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  bar:
+    2 + 2
+>>>
+class test:
+   bar:
+      2 + 2
+<<< #3489 2 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  baz.qux:
+    2 + 2
+>>>
+class test:
+   baz.qux:
+      2 + 2
+<<< #3489 3 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  foo.bar:
+    2 + 2
+  .baz
+  .qux
+>>>
+class test:
+   foo
+     .bar:
+        2 + 2
+     .baz
+     .qux
+<<< #3489 4 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  bar:
+     2 + 2
+    .baz
+  .qux
+>>>
+class test:
+   bar:
+      2 + 2
+   .baz
+     .qux
+<<< #3489 5 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  bar:
+     2 + 2
+    .baz:
+       3 + 3
+>>>
+class test:
+   bar:
+      2 + 2
+   .baz:
+      3 + 3
+<<< #3489 6 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  bar:
+     2 + 2
+    .baz
+    .qux:
+       3 + 3
+>>>
+class test:
+   bar:
+      2 + 2
+   .baz
+     .qux:
+        3 + 3
+<<< #3489 7 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  bar (
+     2 + 2
+     )
+    .baz.qux:
+       3 + 3
+>>>
+class test:
+   bar(2 + 2)
+     .baz
+     .qux:
+        3 + 3
+<<< #3489 8 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  bar.baz:
+     2 + 2
+    .qux:
+       3 + 3
+>>>
+class test:
+   bar
+     .baz:
+        2 + 2
+     .qux:
+        3 + 3
+<<< #3489 9 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+>>>
+class test:
+   foo.match
+      case bar =>
+        ""
+      case baz =>
+        ""
+<<< #3489 10 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+  .qux
+>>>
+class test:
+   foo
+     .match
+        case bar =>
+          ""
+        case baz =>
+          ""
+     .qux
+<<< #3489 11 fewerBraces = never
+indent.fewerBraces = never
+===
+class test:
+  foo.match
+     case bar => ""
+     case baz => ""
+  .qux:
+       3 + 3
+>>>
+class test:
+   foo
+     .match
+        case bar =>
+          ""
+        case baz =>
+          ""
+     .qux:
+        3 + 3
+<<< overflowing type
+object types:
+  type GOutputStreamClass = CStruct21[GObjectClass, CFuncPtr5[Ptr[GOutputStream], Ptr[Byte], gsize, Ptr[GCancellable], Ptr[Ptr[GError]], gssize], CFuncPtr5[Ptr[GOutputStream], Ptr[GInputStream], GOutputStreamSpliceFlags, Ptr[GCancellable], Ptr[Ptr[GError]], gssize], CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr7[Ptr[GOutputStream], Ptr[Byte], gsize, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize], CFuncPtr7[Ptr[GOutputStream], Ptr[GInputStream], GOutputStreamSpliceFlags, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize], CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gboolean], CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gboolean], CFuncPtr6[Ptr[GOutputStream], Ptr[GOutputVector], gsize, Ptr[gsize], Ptr[GCancellable], Ptr[Ptr[GError]], gboolean], CFuncPtr7[Ptr[GOutputStream], Ptr[GOutputVector], gsize, CInt, Ptr[GCancellable], GAsyncReadyCallback, gpointer, Unit], CFuncPtr4[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[gsize], Ptr[Ptr[GError]], gboolean], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit], CFuncPtr0[Unit]]
+>>> { stateVisits = 834, stateVisits2 = 834 }
+object types:
+   type GOutputStreamClass = CStruct21[
+     GObjectClass,
+     CFuncPtr5[Ptr[GOutputStream], Ptr[Byte], gsize, Ptr[GCancellable], Ptr[
+       Ptr[GError]
+     ], gssize],
+     CFuncPtr5[Ptr[GOutputStream], Ptr[
+       GInputStream
+     ], GOutputStreamSpliceFlags, Ptr[GCancellable], Ptr[Ptr[GError]], gssize],
+     CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[
+       Ptr[GError]
+     ], gboolean],
+     CFuncPtr3[Ptr[GOutputStream], Ptr[GCancellable], Ptr[
+       Ptr[GError]
+     ], gboolean],
+     CFuncPtr7[Ptr[GOutputStream], Ptr[Byte], gsize, CInt, Ptr[
+       GCancellable
+     ], GAsyncReadyCallback, gpointer, Unit],
+     CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize],
+     CFuncPtr7[
+       Ptr[GOutputStream],
+       Ptr[GInputStream],
+       GOutputStreamSpliceFlags,
+       CInt,
+       Ptr[GCancellable],
+       GAsyncReadyCallback,
+       gpointer,
+       Unit
+     ],
+     CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[Ptr[GError]], gssize],
+     CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[
+       GCancellable
+     ], GAsyncReadyCallback, gpointer, Unit],
+     CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[
+       Ptr[GError]
+     ], gboolean],
+     CFuncPtr5[Ptr[GOutputStream], CInt, Ptr[
+       GCancellable
+     ], GAsyncReadyCallback, gpointer, Unit],
+     CFuncPtr3[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[
+       Ptr[GError]
+     ], gboolean],
+     CFuncPtr6[Ptr[GOutputStream], Ptr[GOutputVector], gsize, Ptr[gsize], Ptr[
+       GCancellable
+     ], Ptr[Ptr[GError]], gboolean],
+     CFuncPtr7[Ptr[GOutputStream], Ptr[GOutputVector], gsize, CInt, Ptr[
+       GCancellable
+     ], GAsyncReadyCallback, gpointer, Unit],
+     CFuncPtr4[Ptr[GOutputStream], Ptr[GAsyncResult], Ptr[gsize], Ptr[
+       Ptr[GError]
+     ], gboolean],
+     CFuncPtr0[Unit],
+     CFuncPtr0[Unit],
+     CFuncPtr0[Unit],
+     CFuncPtr0[Unit],
+     CFuncPtr0[Unit]
+   ]
+<<< interleaved
+maxColumn = 40
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )(implicit c: C): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )[C](implicit c: C): B = ???
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       implicit val d: D
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit
+       c: C,
+       d: D,
+       implicit val e: E
+   ) {}
+<<< interleaved, implicitParamListModifierPrefer = before
+maxColumn = 40
+newlines.implicitParamListModifierPrefer = before
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )(implicit c: C): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )[C](implicit c: C): B = ???
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       implicit val d: D
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       d: D,
+       implicit val e: E
+   ) {}
+<<< interleaved, implicitParamListModifierPrefer = after
+maxColumn = 40
+newlines.implicitParamListModifierPrefer = after
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )(implicit c: C): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )[C](implicit c: C): B = ???
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       implicit val d: D
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit
+       c: C,
+       d: D,
+       implicit val e: E
+   ) {}
+<<< interleaved, implicitParamListModifierForce = [after]
+maxColumn = 40
+newlines.implicitParamListModifierForce = [after]
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )(implicit
+       c: C
+   ): B = ???
+   def f[A](a: A, as: A*)[B](
+       b: B,
+       bs: B*
+   )[C](implicit
+       c: C
+   ): B = ???
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       implicit val d: D
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit
+       c: C,
+       d: D,
+       implicit val e: E
+   ) {}
+<<< interleaved, implicitParamListModifierForce = [before]
+maxColumn = 40
+newlines.implicitParamListModifierForce = [before]
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+   )[B](b: B, bs: B*)(
+       implicit c: C
+   ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+   )[B](b: B, bs: B*)[C](
+       implicit c: C
+   ): B = ???
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       implicit val d: D
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       d: D,
+       implicit val e: E
+   ) {}
+<<< interleaved, implicitParamListModifierForce = [before,after]
+maxColumn = 40
+newlines.implicitParamListModifierForce = [before,after]
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+   )[B](b: B, bs: B*)(
+       implicit
+       c: C
+   ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+   )[B](b: B, bs: B*)[C](
+       implicit
+       c: C
+   ): B = ???
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit c: C,
+       implicit val d: D
+   ) {}
+   class F(a: A, as: A*)(b: B, bs: B*)(
+       implicit
+       c: C,
+       d: D,
+       implicit val e: E
+   ) {}
+<<< interleaved, vertical multiline
+maxColumn = 40
+verticalMultiline.atDefnSite = true
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )(implicit c: C
+     ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )[C](
+       implicit c: C
+     ): B = ???
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(implicit c: C,
+       implicit val d: D) {}
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(implicit
+       c: C,
+       d: D,
+       implicit val e: E) {}
+<<< interleaved, vertical multiline, implicitParamListModifierPrefer = before
+maxColumn = 40
+verticalMultiline.atDefnSite = true
+newlines.implicitParamListModifierPrefer = before
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )(implicit c: C
+     ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )[C](
+       implicit c: C
+     ): B = ???
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(implicit c: C,
+       implicit val d: D) {}
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(implicit c: C,
+       d: D,
+       implicit val e: E) {}
+<<< interleaved, vertical multiline, implicitParamListModifierPrefer = after
+maxColumn = 40
+verticalMultiline.atDefnSite = true
+newlines.implicitParamListModifierPrefer = after
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )(implicit c: C
+     ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )[C](
+       implicit c: C
+     ): B = ???
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(implicit c: C,
+       implicit val d: D) {}
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(implicit
+       c: C,
+       d: D,
+       implicit val e: E) {}
+<<< interleaved, vertical multiline, implicitParamListModifierForce = [after]
+maxColumn = 40
+verticalMultiline.atDefnSite = true
+newlines.implicitParamListModifierForce = [after]
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )(implicit
+       c: C
+     ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )[C](
+       implicit
+       c: C
+     ): B = ???
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(implicit c: C,
+       implicit val d: D) {}
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(implicit
+       c: C,
+       d: D,
+       implicit val e: E) {}
+<<< interleaved, vertical multiline, implicitParamListModifierForce = [before]
+maxColumn = 40
+verticalMultiline.atDefnSite = true
+newlines.implicitParamListModifierForce = [before]
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )(
+       implicit c: C
+     ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )[C](
+       implicit c: C
+     ): B = ???
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(
+       implicit c: C,
+       implicit val d: D) {}
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(
+       implicit c: C,
+       d: D,
+       implicit val e: E) {}
+<<< interleaved, vertical multiline, implicitParamListModifierForce = [before,after]
+maxColumn = 40
+verticalMultiline.atDefnSite = true
+newlines.implicitParamListModifierForce = [before,after]
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )(
+       implicit
+       c: C
+     ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )[C](
+       implicit
+       c: C
+     ): B = ???
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(
+       implicit c: C,
+       implicit val d: D) {}
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(
+       implicit
+       c: C,
+       d: D,
+       implicit val e: E) {}
+<<< interleaved, short
+maxColumn = 23
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+   )[B](b: B, bs: B*)(
+       implicit c: C
+   ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+   )[B](
+       b: B,
+       bs: B*
+   )[C](implicit
+       c: C
+   ): B = ???
+   class F(
+       a: A,
+       as: A*
+   )(b: B, bs: B*)(
+       implicit c: C,
+       implicit val d: D
+   ) {}
+   class F(
+       a: A,
+       as: A*
+   )(b: B, bs: B*)(
+       implicit
+       c: C,
+       d: D,
+       implicit val e: E
+   ) {}
+<<< interleaved, short, vertical multiline
+maxColumn = 23
+verticalMultiline.atDefnSite = true
+===
+object a:
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)(implicit c: C): B = ???
+  def f[A](a: A, as: A*)[B](b: B, bs: B*)[C](implicit c: C): B = ???
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, implicit val d: D) {}
+  class F(a: A, as: A*)(b: B, bs: B*)(implicit c: C, d: D, implicit val e: E) {}
+>>>
+object a:
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )(implicit c: C
+     ): B = ???
+   def f[A](
+       a: A,
+       as: A*
+     )[B](
+       b: B,
+       bs: B*
+     )[C](
+       implicit c: C
+     ): B = ???
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(implicit c: C,
+       implicit val d: D) {}
+   class F(
+       a: A,
+       as: A*
+     )(b: B,
+       bs: B*
+     )(implicit
+       c: C,
+       d: D,
+       implicit val e: E) {}
+<<< #3492
+object Test:
+  def test =
+    try
+      1; 2
+    catch
+      case _: RuntimeException => 2
+      case _: Exception        => 3
+>>>
+object Test:
+   def test =
+     try
+        1;
+        2
+     catch
+        case _: RuntimeException =>
+          2
+        case _: Exception =>
+          3
+<<< #3497
+newlines.beforeOpenParenDefnSite = unfold
+===
+extension (s: String)
+  /** ... */
+  def foo(): Unit = ???
+  def bar(): Unit = ???
+>>>
+extension (s: String)
+   /** ... */
+   def foo(): Unit = ???
+   def bar(): Unit = ???
+<<< #3527 fewerBraces = always
+indent.fewerBraces = always
+===
+def foo(xs: List[Int]) =
+  xs.map: x =>
+    x + 1
+  .toSet
+  .filter: x =>
+    x > 0
+  .toList
+>>>
+def foo(xs: List[Int]) =
+  xs.map: x =>
+       x + 1
+    .toSet
+    .filter: x =>
+       x > 0
+    .toList
+<<< #3527 fewerBraces = beforeSelect
+indent.fewerBraces = beforeSelect
+===
+def foo(xs: List[Int]) =
+  xs.map: x =>
+    x + 1
+  .toSet
+  .filter: x =>
+    x > 0
+  .toList
+>>>
+def foo(xs: List[Int]) =
+  xs.map: x =>
+       x + 1
+    .toSet
+    .filter: x =>
+       x > 0
+    .toList
+<<< #3527 fewerBraces = never
+indent.fewerBraces = never
+===
+def foo(xs: List[Int]) =
+  xs.map: x =>
+    x + 1
+  .toSet
+  .filter: x =>
+    x > 0
+  .toList
+>>>
+def foo(xs: List[Int]) =
+  xs.map: x =>
+       x + 1
+    .toSet
+    .filter: x =>
+       x > 0
+    .toList
+<<< #3537 1
+rewrite.scala3.convertToNewSyntax = yes
+rewrite.scala3.removeOptionalBraces = yes
+===
+object A:
+  new Foo("xyz") {
+    print("msg")
+  }.bar()
+>>>
+object A:
+   new Foo("xyz"):
+      print("msg")
+   .bar()
+<<< #3537 2
+object A:
+  new Foo("xyz"):
+    print("msg")
+  .bar()
+>>>
+object A:
+   new Foo("xyz"):
+      print("msg")
+   .bar()
+<<< match inside infix chain, with rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  withEval.so(evalComment so { c =>
+    s"($c) "
+  }) +
+  this.match {
+    case MateAdvice(seq, _, _, _) => seq.desc
+    case CpAdvice(judgment, _, _) => judgment.toString
+  } + "."
+}
+>>>
+object a:
+   withEval.so(
+     evalComment so { c =>
+       s"($c) "
+     }
+   ) +
+     this.match
+        case MateAdvice(seq, _, _, _) =>
+          seq.desc
+        case CpAdvice(judgment, _, _) =>
+          judgment.toString
+     + "."
+<<< match as infix lhs, with rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+def foo(url: String) = {
+  url match {
+    case "foo" => Some("")
+    case _ => None
+  } map { img =>
+    Html(s"""<img class="embed" src="$img" alt="$url"/>""")
+  }
+}
+>>>
+def foo(url: String) =
+  url match {
+    case "foo" =>
+      Some("")
+    case _ =>
+      None
+  } map { img =>
+    Html(s"""<img class="embed" src="$img" alt="$url"/>""")
+  }
+<<< match as select lhs, with rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+def foo(url: String) = {
+  url.match {
+    case "foo" => Some("")
+    case _ => None
+  }.map { img =>
+    Html(s"""<img class="embed" src="$img" alt="$url"/>""")
+  }
+}
+>>>
+def foo(url: String) =
+  url
+    .match
+       case "foo" =>
+         Some("")
+       case _ =>
+         None
+    .map { img =>
+      Html(s"""<img class="embed" src="$img" alt="$url"/>""")
+    }
+<<< new anon as infix lhs, with rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  new AdapterLike[Study] {
+    def query                           = Query(text take 100, me.map(_.id))
+    def nbResults                       = api count query
+    def slice(offset: Int, length: Int) = api.search(query, From(offset), Size(length))
+  } mapFutureList pager.withChaptersAndLiking(me)
+}
+>>>
+object a:
+   new AdapterLike[Study] {
+     def query = Query(text take 100, me.map(_.id))
+     def nbResults = api count query
+     def slice(offset: Int, length: Int) = api.search(
+       query,
+       From(offset),
+       Size(length)
+     )
+   } mapFutureList pager.withChaptersAndLiking(me)
+<<< new anon as postfix lhs, with rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  new AdapterLike[Study] {
+    def query                           = Query(text take 100, me.map(_.id))
+    def nbResults                       = api count query
+    def slice(offset: Int, length: Int) = api.search(query, From(offset), Size(length))
+  } mapFutureList
+}
+>>>
+object a:
+   new AdapterLike[Study] {
+     def query = Query(text take 100, me.map(_.id))
+     def nbResults = api count query
+     def slice(offset: Int, length: Int) = api.search(
+       query,
+       From(offset),
+       Size(length)
+     )
+   } mapFutureList
+<<< new anon as select lhs, with rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  new AdapterLike[Study] {
+    def query                           = Query(text take 100, me.map(_.id))
+    def nbResults                       = api count query
+    def slice(offset: Int, length: Int) = api.search(query, From(offset), Size(length))
+  }.mapFutureList
+}
+>>>
+object a:
+   new AdapterLike[Study]:
+      def query = Query(text take 100, me.map(_.id))
+      def nbResults = api count query
+      def slice(offset: Int, length: Int) = api.search(
+        query,
+        From(offset),
+        Size(length)
+      )
+   .mapFutureList
+<<< #3623 beforeCurlyLambdaParams
+newlines.beforeCurlyLambdaParams = true
+===
+object a:
+  List(1, 2, 3) map: x =>
+    x + 1
+>>>
+object a:
+   List(1, 2, 3) map:
+      x => x + 1
+<<< #3623 !beforeCurlyLambdaParams
+newlines.beforeCurlyLambdaParams = false
+===
+object a:
+  List(1, 2, 3) map: x =>
+    x + 1
+>>>
+object a:
+   List(1, 2, 3) map: x =>
+     x + 1
+<<< #3653 try
+object a:
+  try
+    val x = 3 / 0
+  catch
+    case e: Throwable =>
+>>>
+object a:
+   try
+      val x = 3 / 0
+   catch
+      case e: Throwable =>
+<<< #3653 try-finally
+object a:
+  try
+    val x = 3 / 0
+  catch
+    case e: Throwable =>
+  finally
+    val _ = 5
+>>>
+object a:
+   try
+      val x = 3 / 0
+   catch
+      case e: Throwable =>
+   finally
+      val _ = 5
+<<< #3653 if-!then
+object a:
+  if (true)
+    val x = 3 / 0
+>>>
+object a:
+   if (true)
+      val x = 3 / 0
+<<< #3653 for-!do
+object a:
+  for (a <- b)
+    val x = 3 / 0
+>>>
+object a:
+   for (a <- b)
+      val x = 3 / 0
+<<< #4104
+object a:
+  if b1 then
+    if b2 then x else y
+  else
+    if b2 then p else q
+>>>
+object a:
+   if b1 then
+      if b2 then
+         x
+      else
+         y
+   else if b2 then
+      p
+   else
+      q
+<<< block with trailing comment
+maxColumn = 80
+===
+object a:
+  private def allInheritedOverriddenSymbols(sym: Symbol)(using Context): List[Symbol] =
+    if (!sym.owner.isClass) Nil
+    else sym.allOverriddenSymbols.toList.filter(_ != NoSymbol) //TODO: could also be `sym.owner.allOverrid..`
+    //else sym.owner.ancestors map (sym overriddenSymbol _) filter (_ != NoSymbol)
+>>>
+object a:
+   private def allInheritedOverriddenSymbols(
+       sym: Symbol
+   )(using Context): List[Symbol] =
+     if (!sym.owner.isClass)
+       Nil
+     else
+       sym
+         .allOverriddenSymbols
+         .toList
+         .filter(_ != NoSymbol) // TODO: could also be `sym.owner.allOverrid..`
+     // else sym.owner.ancestors map (sym overriddenSymbol _) filter (_ != NoSymbol)
+<<< braceless catch, single multi-line case, empty body
+object a:
+  try
+    baz
+  catch
+    case ex: Baz =>
+
+  val qux = quux
+>>>
+object a:
+   try
+      baz
+   catch
+      case ex: Baz =>
+
+   val qux = quux
+<<< braceless catch, single multi-line case, non-empty body, try is not last
+object a:
+  try
+    baz
+  catch
+    case ex: Baz => foo
+
+  val qux = quux
+>>>
+object a:
+   try
+      baz
+   catch
+      case ex: Baz =>
+        foo
+
+   val qux = quux
+<<< braceless catch, single multi-line case, non-empty body, try is not last, comment
+object a:
+  try
+    baz
+  catch
+    case ex: Baz => foo
+
+  // comment
+  val qux = quux
+>>>
+object a:
+   try
+      baz
+   catch
+      case ex: Baz =>
+        foo
+
+   // comment
+   val qux = quux
+<<< braceless catch, single multi-line case, non-empty body, try is last
+object a:
+  object b:
+    try
+      baz
+    catch
+      case ex: Baz => foo
+
+  val qux = quux
+>>>
+object a:
+   object b:
+      try
+         baz
+      catch
+         case ex: Baz =>
+           foo
+
+   val qux = quux
+<<< braceless catch, single inline case, non-empty non-indented body
+object a:
+  try baz
+  catch case ex: Baz =>
+
+  val qux = quux
+>>>
+object a:
+   try
+      baz
+   catch
+      case ex: Baz =>
+
+        val qux = quux
+<<< braceless match, empty body
+object a:
+  foo match
+    case bar =>
+  val qux = quux
+>>>
+object a:
+   foo match
+      case bar =>
+   val qux = quux
+<<< convert to new if-then syntax, remove redundant braces
+maxColumn = 76
+rewrite {
+  rules = [RedundantBraces]
+  scala3.convertToNewSyntax = true
+  redundantBraces.ifElseExpressions = yes
+}
+===
+object a {
+      val (diff: Set[File], msg: String) = if (packlibJars.size > hashbangClasspathJars.size) {
+        (packlibJars.toSet -- hashbangJars.toSet , "only in packlib classpath")
+      } else {
+        (hashbangJars.toSet -- packlibJars.toSet , "only in hashbang classpath")
+      }
+}
+>>>
+object a {
+  val (diff: Set[File], msg: String) =
+    if packlibJars.size > hashbangClasspathJars.size then
+       (
+         packlibJars.toSet -- hashbangJars.toSet,
+         "only in packlib classpath"
+       )
+    else
+       (
+         hashbangJars.toSet -- packlibJars.toSet,
+         "only in hashbang classpath"
+       )
+}
+<<< complex code with selects and brace lambda 1
+maxColumn = 81
+===
+object a:
+  private val packageIndex: scala.collection.Map[String, scala.collection.Seq[Path]] = {
+    val index = collection.mutable.AnyRefMap[String, collection.mutable.ListBuffer[Path]]()
+    val isJava12OrHigher = scala.util.Properties.isJavaAtLeast("12")
+    rootsForRelease.foreach(root => Files.walk(root).iterator().asScala.filter(Files.isDirectory(_)).foreach { p =>
+      val moduleNamePathElementCount = if (isJava12OrHigher) 1 else 0
+      if (p.getNameCount > root.getNameCount + moduleNamePathElementCount) {
+        val packageDotted = p.subpath(moduleNamePathElementCount + root.getNameCount, p.getNameCount).toString.replace('/', '.')
+        index.getOrElseUpdate(packageDotted, new collection.mutable.ListBuffer) += p
+      }
+    }) 
+    index
+  }
+>>>
+object a:
+   private val packageIndex
+       : scala.collection.Map[String, scala.collection.Seq[Path]] = {
+     val index = collection
+       .mutable
+       .AnyRefMap[String, collection.mutable.ListBuffer[Path]]()
+     val isJava12OrHigher = scala.util.Properties.isJavaAtLeast("12")
+     rootsForRelease.foreach(root =>
+       Files
+         .walk(root)
+         .iterator()
+         .asScala
+         .filter(Files.isDirectory(_))
+         .foreach { p =>
+            val moduleNamePathElementCount =
+              if (isJava12OrHigher)
+                1
+              else
+                0
+            if (
+              p.getNameCount > root.getNameCount + moduleNamePathElementCount
+            ) {
+              val packageDotted = p
+                .subpath(
+                  moduleNamePathElementCount + root.getNameCount,
+                  p.getNameCount
+                )
+                .toString
+                .replace('/', '.')
+              index.getOrElseUpdate(
+                packageDotted,
+                new collection.mutable.ListBuffer
+              ) += p
+            }
+         }
+     )
+     index
+   }
+<<< complex code with selects and brace lambda 2
+maxColumn = 79
+===
+object a:
+  rootsForRelease_foreach(root => Files.walkingIterator().useScalaFilter(Files__Is__Directory).foreach { p =>
+    val_moduleNamePathElementCount_е_0
+    if (p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount) {
+      val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
+      index_getOrElseUpdate(packageDotted__new_collectionMutableListBuffer)
+    }
+  })
+>>>
+object a:
+   rootsForRelease_foreach(root =>
+     Files
+       .walkingIterator()
+       .useScalaFilter(Files__Is__Directory)
+       .foreach { p =>
+          val_moduleNamePathElementCount_е_0
+          if (
+            p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount
+          ) {
+            val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
+            index_getOrElseUpdate(
+              packageDotted__new_collectionMutableListBuffer
+            )
+          }
+       }
+   )
+<<< braces to parens in one-line apply: overflow with braces, fit with parens
+maxColumn = 32
+rewrite.rules = [RedundantBraces]
+===
+object a:
+  def foo() = if bar then baz { _ => qux() }
+>>>
+object a:
+   def foo() =
+     if bar then
+        baz { _ =>
+          qux()
+        }
+<<< #4133 match with nested catch, with comment at end of last catch case
+object a:
+  def foo = {
+    bar match {
+      case none =>
+
+        def baz = {
+          // c1
+        }
+
+        try
+          qux
+        catch case ex => quux
+          // use focussed sourcePos since tree might be a large definition
+          // and a large error span would hide all errors in interior.
+          // TODO: Not clear that hiding is what we want, actually
+    }
+  }
+>>>
+object a:
+   def foo = {
+     bar match {
+       case none =>
+
+         def baz = {
+           // c1
+         }
+
+         try
+            qux
+         catch
+            case ex =>
+              quux
+            // use focussed sourcePos since tree might be a large definition
+            // and a large error span would hide all errors in interior.
+            // TODO: Not clear that hiding is what we want, actually
+     }
+   }
+<<< case with trailing comment, followed by case class
+object a:
+  class Foo1():
+    foo1 match
+      case bar1 => baz1
+
+  // c1
+  case class Foo2() {}
+>>>
+object a:
+   class Foo1():
+      foo1 match
+         case bar1 =>
+           baz1
+
+   // c1
+   case class Foo2() {}
+<<< #4133 match with trailing comments 1
+object a:
+    foo match
+      case foo1 =>
+        bar1 match
+          case baz11 => baz11
+            // c11-1
+          // c11-2
+          case baz12 => baz12
+            // c12-1
+          // c12-2
+        // c1
+      case foo2 =>
+        bar2 match
+          case baz21 => baz21
+            // c21-1
+          // c21-2
+          case baz22 => baz22
+            // c22-1
+          // c22-2
+        // c2
+      // cc
+    // cf
+>>>
+object a:
+   foo match
+      case foo1 =>
+        bar1 match
+           case baz11 =>
+             baz11
+           // c11-1
+           // c11-2
+           case baz12 =>
+             baz12
+           // c12-1
+           // c12-2
+        // c1
+      case foo2 =>
+        bar2 match
+           case baz21 =>
+             baz21
+           // c21-1
+           // c21-2
+           case baz22 =>
+             baz22
+           // c22-1
+           // c22-2
+        // c2
+      // cc
+   // cf
+<<< #4133 match with trailing comments 2
+object a:
+    foo match
+      case foo1 =>
+        bar1 match
+          case baz11 =>
+            baz11
+            // c11-1
+          // c11-2
+          case baz12 =>
+            baz12
+            // c12-1
+          // c12-2
+        // c1
+      case foo2 =>
+        bar2 match
+          case baz21 =>
+            baz21
+            // c21-1
+          // c21-2
+          case baz22 =>
+            baz22
+            // c22-1
+          // c22-2
+        // c2
+      // cc
+    // cf
+>>>
+object a:
+   foo match
+      case foo1 =>
+        bar1 match
+           case baz11 =>
+             baz11
+             // c11-1
+           // c11-2
+           case baz12 =>
+             baz12
+             // c12-1
+           // c12-2
+        // c1
+      case foo2 =>
+        bar2 match
+           case baz21 =>
+             baz21
+             // c21-1
+           // c21-2
+           case baz22 =>
+             baz22
+             // c22-1
+           // c22-2
+        // c2
+      // cc
+   // cf
+<<< #4133 try-catch with trailing comments 1
+object a:
+    try foo
+    catch
+      case ex1 =>
+        bar1 match
+          case baz11 => baz11
+            // c11-1
+          // c11-2
+          case baz12 => baz12
+            // c12-1
+          // c12-2
+        // c1
+      case ex2 =>
+        bar2 match
+          case baz21 => baz21
+            // c21-1
+          // c21-2
+          case baz22 => baz22
+            // c22-1
+          // c22-2
+        // c2
+      // cc
+    // cf
+    finally qux
+>>>
+object a:
+   try
+      foo
+   catch
+      case ex1 =>
+        bar1 match
+           case baz11 =>
+             baz11
+           // c11-1
+           // c11-2
+           case baz12 =>
+             baz12
+           // c12-1
+           // c12-2
+        // c1
+      case ex2 =>
+        bar2 match
+           case baz21 =>
+             baz21
+           // c21-1
+           // c21-2
+           case baz22 =>
+             baz22
+           // c22-1
+           // c22-2
+        // c2
+      // cc
+   // cf
+   finally
+      qux
+<<< #4133 try-catch with trailing comments 2
+object a:
+    try foo
+    catch
+      case ex1 =>
+        bar1 match
+          case baz11 =>
+            baz11
+            // c11-1
+          // c11-2
+          case baz12 =>
+            baz12
+            // c12-1
+          // c12-2
+        // c1
+      case ex2 =>
+        bar2 match
+          case baz21 =>
+            baz21
+            // c21-1
+          // c21-2
+          case baz22 =>
+            baz22
+            // c22-1
+          // c22-2
+        // c2
+      // cc
+    // cf
+    finally qux
+>>>
+object a:
+   try
+      foo
+   catch
+      case ex1 =>
+        bar1 match
+           case baz11 =>
+             baz11
+             // c11-1
+           // c11-2
+           case baz12 =>
+             baz12
+             // c12-1
+           // c12-2
+        // c1
+      case ex2 =>
+        bar2 match
+           case baz21 =>
+             baz21
+             // c21-1
+           // c21-2
+           case baz22 =>
+             baz22
+             // c22-1
+           // c22-2
+        // c2
+      // cc
+   // cf
+   finally
+      qux
+<<< #4133 try-catch with trailing comments 3
+object a:
+    foo match {
+      case null =>
+        try
+          val bar = baz
+        catch case ex => qux
+          // c1
+          // c2
+    }
+>>>
+object a:
+   foo match {
+     case null =>
+       try
+          val bar = baz
+       catch
+          case ex =>
+            qux
+          // c1
+          // c2
+   }
+<<< #4133 try-catch with trailing comments 4
+object a:
+    foo match {
+      case null =>
+        try
+          val bar = baz
+        catch case ex => qux
+          // c1
+
+        // c2
+    }
+>>>
+object a:
+   foo match {
+     case null =>
+       try
+          val bar = baz
+       catch
+          case ex =>
+            qux
+          // c1
+
+     // c2
+   }
+<<< #4133 try-catch with trailing comments 5, in braces
+object a {
+  def foo = try
+    bar
+  catch case baz => qux
+
+  /** c1 */
+  def quux = ???
+}
+>>>
+object a {
+  def foo =
+    try
+       bar
+    catch
+       case baz =>
+         qux
+
+  /** c1 */
+  def quux = ???
+}
+<<< #4133 try-catch with trailing comments 6, insert end markers
+rewrite.scala3.insertEndMarkerMinLines = 2
+===
+object a:
+  def foo =
+    try
+      bar
+    catch case baz => qux
+
+    // c1
+    quux
+  end foo
+>>>
+object a:
+   def foo =
+      try
+         bar
+      catch
+         case baz =>
+           qux
+      end try
+
+      // c1
+      quux
+   end foo
+<<< #4133 enclosed new anonymous with comments and added end marker
+rewrite.scala3 {
+  convertToNewSyntax = true
+  insertEndMarkerMinLines = 5
+  removeOptionalBraces = yes
+}
+===
+object a:
+  def foo =
+    (new Bar {
+      def baz() = {
+        this match {
+          case _ =>
+            // c1
+        }
+        qux // c2
+      }
+    })(quux)
+>>>
+object a:
+   def foo =
+     (
+       new Bar:
+          def baz() =
+             this match
+                case _ =>
+                // c1
+             qux // c2
+          end baz
+     )(quux)
+<<< scala.js tucked close paren after optional braces region, dangling
+binPack.preset = always
+danglingParentheses.preset = true
+runner.optimizer {
+  forceConfigStyleMinSpan = 500
+  forceConfigStyleMinArgCount = 5
+}
+===
+object a:
+    def handleNewLine(lastToken: Token) =
+      if indentIsSignificant then
+            currentRegion match
+              case r =>
+                handleNewIndentWidth(r.enclosing, ir =>
+                  if next.token == DOT
+                  then
+                    ir.otherIndentWidths += nextWidth
+                  else
+                    val lw = lastWidth
+                    errorButContinue(
+                      em"""The start of this line does not match any of the previous indentation widths.
+                          |Indentation width of current line : $nextWidth
+                          |This falls between previous widths: ${ir.width} and $lw"""))
+>>>
+object a:
+   def handleNewLine(lastToken: Token) =
+     if indentIsSignificant then
+        currentRegion match
+           case r =>
+             handleNewIndentWidth(
+               r.enclosing,
+               ir =>
+                 if next.token == DOT then
+                    ir.otherIndentWidths += nextWidth
+                 else
+                    val lw = lastWidth
+                    errorButContinue(
+                      em"""The start of this line does not match any of the previous indentation widths.
+                          |Indentation width of current line : $nextWidth
+                          |This falls between previous widths: ${ir
+                          .width} and $lw"""
+                    )
+             )
+<<< scala.js tucked close paren after optional braces region, !dangling
+binPack.preset = always
+danglingParentheses.preset = false
+runner.optimizer {
+  forceConfigStyleMinSpan = 500
+  forceConfigStyleMinArgCount = 5
+}
+===
+object a:
+    def handleNewLine(lastToken: Token) =
+      if indentIsSignificant then
+            currentRegion match
+              case r =>
+                handleNewIndentWidth(r.enclosing, ir =>
+                  if next.token == DOT
+                  then
+                    ir.otherIndentWidths += nextWidth
+                  else
+                    val lw = lastWidth
+                    errorButContinue(
+                      em"""The start of this line does not match any of the previous indentation widths.
+                          |Indentation width of current line : $nextWidth
+                          |This falls between previous widths: ${ir.width} and $lw"""))
+>>>
+object a:
+   def handleNewLine(lastToken: Token) =
+     if indentIsSignificant then
+        currentRegion match
+           case r =>
+             handleNewIndentWidth(
+               r.enclosing,
+               ir =>
+                 if next.token == DOT then
+                    ir.otherIndentWidths += nextWidth
+                 else
+                    val lw = lastWidth
+                    errorButContinue(
+                      em"""The start of this line does not match any of the previous indentation widths.
+                          |Indentation width of current line : $nextWidth
+                          |This falls between previous widths: ${ir
+                          .width} and $lw"""))
+<<< scala.js overflow within for-yield dangling
+binPack.preset = always
+danglingParentheses.preset = true
+===
+object a:
+    def foo =
+      for template <- templates do
+        val current_Map_String__Object = template_templateFile_settings_getOrElse("page", Map.empty).asInstanceOf[Map_String_Object]
+>>>
+object a:
+   def foo =
+     for template <- templates do
+        val current_Map_String__Object =
+          template_templateFile_settings_getOrElse("page", Map.empty)
+            .asInstanceOf[Map_String_Object]
+<<< scala.js overflow within for-yield !dangling
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+    def foo =
+      for template <- templates do
+        val current_Map_String__Object = template_templateFile_settings_getOrElse("page", Map.empty).asInstanceOf[Map_String_Object]
+>>>
+object a:
+   def foo =
+     for template <- templates do
+        val current_Map_String__Object =
+          template_templateFile_settings_getOrElse("page", Map.empty)
+            .asInstanceOf[Map_String_Object]
+<<< #4133 for-yield with rewritten body
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a:
+    def foo = {
+      val bar = for (baz <- bazs) yield {
+        def foo = baz
+      }
+    }
+>>>
+object a:
+   def foo =
+      val bar =
+        for (baz <- bazs)
+          yield
+             def foo = baz
+<<< #4133 enclosed for-yield with added end marker
+rewrite.scala3 {
+  convertToNewSyntax = true
+  insertEndMarkerMinLines = 5
+  removeOptionalBraces = yes
+}
+===
+object a {
+    (for {
+      bar <- bars
+    } yield {
+      baz
+
+      qux match {
+        case Qux1 =>
+          qux1
+
+        case Qux2 =>
+          qux2
+      }
+    }).quux
+}
+>>>
+object a:
+   (
+     for bar <- bars
+     yield
+        baz
+
+        qux match
+           case Qux1 =>
+             qux1
+
+           case Qux2 =>
+             qux2
+        end match
+   ).quux
+<<< #4133 enclosed match within enclosed match, with overflow and comment
+object a:
+  def foo = (bar match
+    case _ =>
+      (baz match
+        case qux => TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[Object].toArray_asInstanceOf[IArray_Object] // TODO
+      ).asInstanceOf[Tuple]
+  )
+>>>
+object a:
+   def foo =
+     (bar match
+        case _ =>
+          (
+            baz match
+               case qux =>
+                 TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[Object]
+                   .toArray_asInstanceOf[IArray_Object] // TODO
+          ).asInstanceOf[Tuple]
+     )
+<<< #4133 enclosed match within enclosed match, with overflow and comment, and rewrite
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a:
+  def foo = (bar match {
+    case _ =>
+      (baz match {
+        case qux => TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[Object].toArray_asInstanceOf[IArray_Object] // TODO
+      }).asInstanceOf[Tuple]
+  })
+>>>
+object a:
+   def foo =
+     (bar match
+        case _ =>
+          (
+            baz match
+               case qux =>
+                 TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[Object]
+                   .toArray_asInstanceOf[IArray_Object] // TODO
+          ).asInstanceOf[Tuple]
+     )
+<<< rewrite opt-braces match as apply arg
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+    def foo =
+      Try(bar match {
+        case baz =>
+          qux  // c1
+      })
+}
+>>>
+object a:
+   def foo = Try(
+     bar match
+        case baz =>
+          qux // c1
+   )
+<<< #4133 complex overflow apply
+object a:
+  def load(config: Seq[String], revision: Option[String], projectRoot: Path = Paths.get("").toAbsolutePath)(using CompilerContext): SourceLinks =
+    PathBased.parse(config, projectRoot)(using SourceLinkParser(revision)) match {
+      case PathBased.ParsingResult(errors, sourceLinks) =>
+        if errors.nonEmpty then report.warning(
+          s"""Following templates has invalid format:
+            |$errors
+            |
+            |${SourceLinks.usage} 
+            |""".stripMargin
+        )
+        SourceLinks(sourceLinks)
+    }
+>>>
+object a:
+   def load(
+       config: Seq[String],
+       revision: Option[String],
+       projectRoot: Path = Paths.get("").toAbsolutePath
+   )(using CompilerContext): SourceLinks =
+     PathBased.parse(config, projectRoot)(using
+       SourceLinkParser(revision)
+     ) match {
+       case PathBased.ParsingResult(errors, sourceLinks) =>
+         if errors.nonEmpty then
+            report.warning(s"""Following templates has invalid format:
+            |$errors
+            |
+            |${SourceLinks.usage} 
+            |""".stripMargin)
+         SourceLinks(sourceLinks)
+     }
+<<< #4133 avoid braces to parens rewrite when overflow 1
+rewrite.rules = [RedundantBraces]
+===
+object a:
+    val hashbangClasspathJars = hashbangJars.map { _.name }.sorted.distinct // get jar basenames, remove duplicates
+>>>
+object a:
+   val hashbangClasspathJars =
+     hashbangJars
+       .map {
+         _.name
+       }
+       .sorted
+       .distinct // get jar basenames, remove duplicates
+<<< #4133 avoid braces to parens rewrite when overflow 2
+rewrite.rules = [RedundantBraces]
+===
+object a:
+    val hashbangClasspathJars = hashbangJars_map { _.name }.sorted_distinct // get jar basenames, remove duplicates
+>>>
+object a:
+   val hashbangClasspathJars =
+     hashbangJars_map {
+       _.name
+     }.sorted_distinct // get jar basenames, remove duplicates
+<<< redundant block within block, outer semicolon-terminated
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 5
+    removeOptionalBraces = yes
+  }
+}
+===
+object a:
+    def writeTo(`_output__`: SemanticdbOutputStream): _root_.scala.Unit = {
+      {
+        val __v = dotty.tools.dotc.semanticdb.ConstantType._typemapper_constant.toBase(constant)
+        if (__v.serializedSize != 0) {
+          _output__.writeTag(1, 2)
+          _output__.writeUInt32NoTag(__v.serializedSize)
+          __v.writeTo(_output__)
+        }
+      };
+    }
+    def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType = copy(constant = __v)
+>>>
+object a:
+   def writeTo(`_output__`: SemanticdbOutputStream): _root_.scala.Unit =
+      val __v = dotty
+        .tools
+        .dotc
+        .semanticdb
+        .ConstantType
+        ._typemapper_constant
+        .toBase(constant)
+      if __v.serializedSize != 0 then
+         _output__.writeTag(1, 2)
+         _output__.writeUInt32NoTag(__v.serializedSize)
+         __v.writeTo(_output__);
+   end writeTo
+   def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType =
+     copy(constant = __v)
+<<< redundant block within block, inner semicolon-terminated
+rewrite {
+  rules = [RedundantBraces]
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 5
+    removeOptionalBraces = yes
+  }
+}
+===
+object a:
+    def writeTo(`_output__`: SemanticdbOutputStream): _root_.scala.Unit = {
+      {
+        val __v = dotty.tools.dotc.semanticdb.ConstantType._typemapper_constant.toBase(constant)
+        if (__v.serializedSize != 0) {
+          _output__.writeTag(1, 2)
+          _output__.writeUInt32NoTag(__v.serializedSize)
+          __v.writeTo(_output__)
+        };
+      }
+    }
+    def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType = copy(constant = __v)
+>>>
+object a:
+   def writeTo(`_output__`: SemanticdbOutputStream): _root_.scala.Unit =
+      val __v = dotty
+        .tools
+        .dotc
+        .semanticdb
+        .ConstantType
+        ._typemapper_constant
+        .toBase(constant)
+      if __v.serializedSize != 0 then
+         _output__.writeTag(1, 2)
+         _output__.writeUInt32NoTag(__v.serializedSize)
+         __v.writeTo(_output__);
+   end writeTo
+   def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType =
+     copy(constant = __v)
+<<< #4133 binpack overflow assignment tupled, !dangling
+indent.callSite = 4
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a {
+  def tupledFunction18[F, G]: TupledFunction[F, G] = TupledFunction[F, G](
+    untupledImpl = (g: G) =>
+      ((x1: Any, x2: Any, x3: Any, x4: Any, x5: Any, x6: Any, x7: Any, x8: Any, x9: Any, x10: Any, x11: Any, x12: Any, x13: Any, x14: Any, x15: Any, x16: Any, x17: Any, x18: Any) =>
+        g.asInstanceOf[Tuple18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => Any].apply((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18))).asInstanceOf[F]
+  )
+}
+>>> { stateVisits = 627, stateVisits2 = 627 }
+object a {
+  def tupledFunction18[F, G]: TupledFunction[F, G] = TupledFunction[F, G](
+      untupledImpl =
+        (g: G) =>
+          (
+              (
+                  x1: Any, x2: Any, x3: Any, x4: Any, x5: Any, x6: Any, x7: Any,
+                  x8: Any, x9: Any, x10: Any, x11: Any, x12: Any, x13: Any,
+                  x14: Any, x15: Any, x16: Any, x17: Any, x18: Any) =>
+                g.asInstanceOf[
+                      Tuple18[
+                          _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _,
+                          _] => Any]
+                  .apply(
+                      (
+                          x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12,
+                          x13, x14, x15, x16, x17, x18))).asInstanceOf[F])
+}
+<<< #4133 binpack overflow assignment with selects, attributes, !dangling
+indent.callSite = 4
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a {
+  @threadUnsafe lazy val AnnotationRetentionSourceAttr: TermSymbol = requiredClass("java.lang.annotation.RetentionPolicy").linkedClass.requiredValue("SOURCE")
+}
+>>>
+object a {
+  @threadUnsafe
+  lazy val AnnotationRetentionSourceAttr: TermSymbol = requiredClass(
+      "java.lang.annotation.RetentionPolicy")
+    .linkedClass
+    .requiredValue("SOURCE")
+}
+<<< #4133 overflow apply with binpack, dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = true
+===
+object a:
+  if (args.isEmpty) {
+    run(insertClasspathInArgs(args1, List(dottyCompiler, dottyInterfaces, asm, dottyStaging, dottyTastyInspector, tastyCore, compilerInterface)))
+  } else run(args)
+>>>
+object a:
+   if (args.isEmpty) {
+     run(
+       insertClasspathInArgs(
+         args1,
+         List(
+           dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore, compilerInterface
+         )
+       )
+     )
+   } else
+     run(args)
+<<< #4133 overflow apply/select with binpack, dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = true
+===
+object a:
+  if (args.isEmpty) {
+    run(insertClasspathInArgs(args1, List(dottyCompiler, dottyInterfaces, asm, dottyStaging, dottyTastyInspector, tastyCore, compilerInterface).mkString(File.pathSeparator)))
+  } else run(args)
+>>>
+object a:
+   if (args.isEmpty) {
+     run(
+       insertClasspathInArgs(
+         args1,
+         List(
+           dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore, compilerInterface
+         ).mkString(File.pathSeparator)
+       )
+     )
+   } else
+     run(args)
+<<< #4133 overflow apply/selects with binpack, dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = true
+===
+object a:
+  if (args.isEmpty) {
+    run(insertClasspathInArgs(args1, List(dottyCompiler, dottyInterfaces, asm, dottyStaging, dottyTastyInspector, tastyCore, compilerInterface).mkString(File.pathSeparator).mkString(File.pathSeparator)))
+  } else run(args)
+>>>
+object a:
+   if (args.isEmpty) {
+     run(
+       insertClasspathInArgs(
+         args1,
+         List(
+           dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore, compilerInterface
+         ).mkString(File.pathSeparator).mkString(File.pathSeparator)
+       )
+     )
+   } else
+     run(args)
+<<< #4133 overflow apply with binpack, !dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+  if (args.isEmpty) {
+    run(insertClasspathInArgs(args1, List(dottyCompiler, dottyInterfaces, asm, dottyStaging, dottyTastyInspector, tastyCore, compilerInterface)))
+  } else run(args)
+>>>
+object a:
+   if (args.isEmpty) {
+     run(
+       insertClasspathInArgs(
+         args1,
+         List(
+           dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore, compilerInterface)))
+   } else
+     run(args)
+<<< #4133 overflow apply/select with binpack, !dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+  if (args.isEmpty) {
+    run(insertClasspathInArgs(args1, List(dottyCompiler, dottyInterfaces, asm, dottyStaging, dottyTastyInspector, tastyCore, compilerInterface).mkString(File.pathSeparator)))
+  } else run(args)
+>>>
+object a:
+   if (args.isEmpty) {
+     run(
+       insertClasspathInArgs(
+         args1,
+         List(
+           dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore, compilerInterface)
+           .mkString(File.pathSeparator)))
+   } else
+     run(args)
+<<< #4133 overflow apply/selects with binpack, !dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+  if (args.isEmpty) {
+    run(insertClasspathInArgs(args1, List(dottyCompiler, dottyInterfaces, asm, dottyStaging, dottyTastyInspector, tastyCore, compilerInterface).mkString(File.pathSeparator).mkString(File.pathSeparator)))
+  } else run(args)
+>>>
+object a:
+   if (args.isEmpty) {
+     run(
+       insertClasspathInArgs(
+         args1,
+         List(
+           dottyCompiler, dottyInterfaces, asm, dottyStaging,
+           dottyTastyInspector, tastyCore, compilerInterface)
+           .mkString(File.pathSeparator)
+           .mkString(File.pathSeparator)
+       ))
+   } else
+     run(args)
+<<< #4133 overflow select with binpack, dangling
+binPack.preset = always
+danglingParentheses.preset = true
+===
+object a:
+   val foo = map { postFile =>
+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year).resolve(month).resolve(day).resolve(name)
+   }
+>>>
+object a:
+   val foo = map { postFile =>
+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year)
+        .resolve(month)
+        .resolve(day)
+        .resolve(name)
+   }
+<<< #4133 overflow select with binpack, !dangling
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+   val foo = map { postFile =>
+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year).resolve(month).resolve(day).resolve(name)
+   }
+>>>
+object a:
+   val foo = map { postFile =>
+      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year)
+        .resolve(month)
+        .resolve(day)
+        .resolve(name)
+   }
+<<< #4133 overflow selects/applies, nobreak-dot-break, binpack + !dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+  lazy val `stdlib-bootstrapped` = project.in(file("stdlib-bootstrapped")).
+    withCommonSettings(Bootstrapped).
+    dependsOn(dottyCompiler(Bootstrapped) % "provided; compile->runtime; test->test").
+    settings(
+      moduleName := "scala-library",
+    )
+>>>
+object a:
+   lazy val `stdlib-bootstrapped` = project
+     .in(file("stdlib-bootstrapped"))
+     .withCommonSettings(Bootstrapped)
+     .dependsOn(
+       dottyCompiler(Bootstrapped) %
+         "provided; compile->runtime; test->test")
+     .settings(moduleName := "scala-library")
+<<< #4133 overflow selects/applies, nobreak-dot-nobreak, binpack + !dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+  lazy val `stdlib-bootstrapped` = project.in(file("stdlib-bootstrapped")).withCommonSettings(Bootstrapped).dependsOn(dottyCompiler(Bootstrapped) % "provided; compile->runtime; test->test").settings(
+      moduleName := "scala-library",
+    )
+>>>
+object a:
+   lazy val `stdlib-bootstrapped` = project
+     .in(file("stdlib-bootstrapped"))
+     .withCommonSettings(Bootstrapped)
+     .dependsOn(
+       dottyCompiler(Bootstrapped) %
+         "provided; compile->runtime; test->test")
+     .settings(moduleName := "scala-library")
+<<< #4133 overflow selects/applies, break-dot-nobreak, binpack + !dangling
+maxColumn = 70
+binPack.preset = always
+danglingParentheses.preset = false
+===
+object a:
+  lazy val `stdlib-bootstrapped` = project.in(file("stdlib-bootstrapped"))
+    .withCommonSettings(Bootstrapped)
+    .dependsOn(dottyCompiler(Bootstrapped) % "provided; compile->runtime; test->test")
+    .settings(
+      moduleName := "scala-library",
+    )
+>>>
+object a:
+   lazy val `stdlib-bootstrapped` = project
+     .in(file("stdlib-bootstrapped"))
+     .withCommonSettings(Bootstrapped)
+     .dependsOn(
+       dottyCompiler(Bootstrapped) %
+         "provided; compile->runtime; test->test")
+     .settings(moduleName := "scala-library")
+<<< #4133 overflow select within interpolate
+object a:
+  def lub(tp1: Type, tp2: Type, canConstrain: Boolean = false, isSoft: Boolean = true): Type = /*>|>*/ trace(s"lub(${tp1.show}, ${tp2.show}, canConstrain=$canConstrain, isSoft=$isSoft)", subtyping, show = true) /*<|<*/ {
+    // foo
+  }
+>>>
+object a:
+   def lub(
+       tp1: Type,
+       tp2: Type,
+       canConstrain: Boolean = false,
+       isSoft: Boolean = true
+   ): Type = /*>|>*/
+     trace(
+       s"lub(${tp1.show}, ${tp2
+           .show}, canConstrain=$canConstrain, isSoft=$isSoft)",
+       subtyping,
+       show = true
+     ) /*<|<*/ {
+       // foo
+     }
+<<< #4133 remove opt-braces to get fewer braces, with AvoidInfix
+rewrite {
+  rules = [AvoidInfix]
+  scala3.removeOptionalBraces = yes
+}
+===
+object Streamable {
+  def slurp(is: => InputStream)(implicit codec: Codec): String =
+    new Chars { def inputStream() = is } slurp codec
+}
+>>>
+object Streamable:
+   def slurp(is: => InputStream)(implicit codec: Codec): String =
+     new Chars:
+        def inputStream() = is
+     .slurp(codec)
+<<< #4133 remove opt-braces to get fewer braces, without AvoidInfix
+rewrite {
+  scala3.removeOptionalBraces = yes
+}
+===
+object Streamable {
+  def slurp(is: => InputStream)(implicit codec: Codec): String =
+    new Chars { def inputStream() = is }.slurp(codec)
+}
+>>>
+object Streamable:
+   def slurp(is: => InputStream)(implicit codec: Codec): String =
+     new Chars:
+        def inputStream() = is
+     .slurp(codec)
+<<< #4133 no need to remove opt-braces to get fewer braces
+object Streamable {
+  def slurp(is: => InputStream)(implicit codec: Codec): String =
+    new Chars:
+      def inputStream() = is
+    .slurp(codec)
+}
+>>>
+object Streamable {
+  def slurp(is: => InputStream)(implicit codec: Codec): String =
+    new Chars:
+       def inputStream() = is
+    .slurp(codec)
+}
+<<< #4133 overflow case body, could lead to non-idempotence
+maxColumn = 78
+===
+object a:
+  def foo = tree match {
+    case tree: untpd.TermLambdaTypeTree => typedTermLambdaTypeTree(tree)(using ctx.localContext(tree, NoSymbol).setNewScope)
+  }
+>>>
+object a:
+   def foo =
+     tree match {
+       case tree: untpd.TermLambdaTypeTree =>
+         typedTermLambdaTypeTree(tree)(using
+           ctx.localContext(tree, NoSymbol).setNewScope
+         )
+     }
+<<< #4133 case body with added end marker, could lead to non-idempotence
+maxColumn = 76
+rewrite.scala3.insertEndMarkerMinLines = 4
+===
+object a:
+  def checkImportAlternatives(previous: Type, prevPrec: BindingPrec, prevCtx: Context)(using Context): Type =
+
+    if Feature.enabled(Feature.relaxedExtensionImports) && altImports != null && ctx.isImportContext then
+      val curImport = ctx.importInfo.uncheckedNN
+      namedImportRef(curImport) match
+        case _ =>
+          checkImportAlternatives(previous, prevPrec, prevCtx)(using ctx.outer)
+    else
+      val found = findRefRecur(previous, prevPrec, prevCtx)
+  end checkImportAlternatives
+>>>
+object a:
+   def checkImportAlternatives(
+       previous: Type,
+       prevPrec: BindingPrec,
+       prevCtx: Context
+   )(using Context): Type =
+
+     if Feature.enabled(Feature.relaxedExtensionImports) &&
+        altImports != null && ctx.isImportContext
+     then
+        val curImport = ctx.importInfo.uncheckedNN
+        namedImportRef(curImport) match
+           case _ =>
+             checkImportAlternatives(previous, prevPrec, prevCtx)(using
+               ctx.outer
+             )
+        end match
+     else
+        val found = findRefRecur(previous, prevPrec, prevCtx)
+   end checkImportAlternatives
+<<< #4133 binpack with enum cases and trailing comment
+binPack.preset = always
+===
+object Parsers:
+  enum Location(inArgs: Boolean):
+    case InPatternArgs extends Location(false, true, true) // InParens not true, since it might be an alternative
+>>>
+object Parsers:
+   enum Location(inArgs: Boolean):
+      case InPatternArgs extends Location(
+            false, true, true
+          ) // InParens not true, since it might be an alternative
+<<< #4219
+object a:
+  val expression = for (
+    x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    z <-
+      loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+  ) yield x + y
+>>>
+object a:
+   val expression =
+     for (
+       x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+       y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+       z <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+     )
+       yield x + y
+<<< #4219 forceBeforeAssign
+newlines.forceBeforeAssign = any
+===
+object a:
+  val expression = for (
+    x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    z <-
+      loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+  ) yield x + y
+>>>
+object a:
+   val expression =
+     for (
+       x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+       y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+       z <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+     )
+       yield x + y
+<<< #4133 avoid braces-to-parens restrictions on break
+runner.maxStateVisits = 1000
+rewrite.rules = [RedundantBraces]
+===
+processTreeOpt(s) { s match
+    case td: TypeDef if !td.symbol.flags.is(Flags.Synthetic) && (!td.symbol.flags.is(Flags.Case) || !td.symbol.flags.is(Flags.Enum)) =>
+      Some(parseTypeDef(td, c))
+
+    case vd: ValDef if !isSyntheticField(vd.symbol) && (!vd.symbol.flags.is(Flags.Case) || !vd.symbol.flags.is(Flags.Enum)) =>
+      Some(parseValDef(c, vd))
+
+    case c: ClassDef if c.symbol.shouldDocumentClasslike =>
+      Some(parseClasslike(c))
+}
+>>>
+processTreeOpt(s) {
+  s match
+     case td: TypeDef
+         if !td.symbol.flags.is(Flags.Synthetic) &&
+           (!td.symbol.flags.is(Flags.Case) ||
+             !td.symbol.flags.is(Flags.Enum)) =>
+       Some(parseTypeDef(td, c))
+
+     case vd: ValDef
+         if !isSyntheticField(vd.symbol) &&
+           (!vd.symbol.flags.is(Flags.Case) ||
+             !vd.symbol.flags.is(Flags.Enum)) =>
+       Some(parseValDef(c, vd))
+
+     case c: ClassDef if c.symbol.shouldDocumentClasslike =>
+       Some(parseClasslike(c))
+}
+<<< #4133 semicolon after removed brace, no folding
+maxColumn = 78
+runner.dialect = scala3
+newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
+rewrite {
+  rules = [RedundantBraces, RedundantParens]
+  scala3 {
+    insertEndMarkerMinLines = 5
+    convertToNewSyntax = true,
+    removeOptionalBraces = yes
+  }
+  redundantBraces.ifElseExpressions = true
+}
+===
+private[this] def __computeSerializedSize(): _root_.scala.Int = {
+  var __size = 0
+  if (sealedValue.nullConstant.isDefined) {
+    val __value = sealedValue.nullConstant.get
+    __size += 1 + SemanticdbOutputStream.computeUInt32SizeNoTag(__value.serializedSize) + __value.serializedSize
+  };
+  __size
+}
+>>>
+private[this] def __computeSerializedSize(): _root_.scala.Int =
+   var __size = 0
+   if sealedValue.nullConstant.isDefined then
+      val __value = sealedValue.nullConstant.get
+      __size += 1 +
+        SemanticdbOutputStream.computeUInt32SizeNoTag(
+          __value.serializedSize
+        ) + __value.serializedSize;
+   end if
+   __size
+<<< #4133 convert to new syntax: add then at possible line end
+maxColumn = 74
+rewrite.scala3.convertToNewSyntax = true
+===
+foo match {
+  case Literal(value) => 
+    if (value.tag != UnitTag) (value.tag, expectedType) match {
+      case (IntTag,   LONG  ) => bc.lconst(value.longValue);       generatedType = LONG
+      case (FloatTag, DOUBLE) => bc.dconst(value.doubleValue);     generatedType = DOUBLE
+      case (NullTag,  _     ) => bc.emit(asm.Opcodes.ACONST_NULL); generatedType = srNullRef
+      case _                  => genConstant(value);               generatedType = tpeTK(tree)
+    }
+}
+>>>
+foo match {
+  case Literal(value) =>
+    if value.tag != UnitTag then
+       (value.tag, expectedType) match {
+         case (IntTag, LONG) =>
+           bc.lconst(value.longValue);
+           generatedType = LONG
+         case (FloatTag, DOUBLE) =>
+           bc.dconst(value.doubleValue);
+           generatedType = DOUBLE
+         case (NullTag, _) =>
+           bc.emit(asm.Opcodes.ACONST_NULL);
+           generatedType = srNullRef
+         case _ =>
+           genConstant(value);
+           generatedType = tpeTK(tree)
+       }
+}
+<<< #4133 single-quote interpolation with partial function
+maxColumn = 70
+===
+names {
+  s"`$name0${index.toString.toCharArray.nn.map {x => (x - '0' + '₀').toChar}.mkString}`"
+}
+>>>
+names {
+  s"`$name0${index
+      .toString
+      .toCharArray
+      .nn
+      .map { x =>
+        (x - '0' + '₀').toChar
+      }
+      .mkString}`"
+}
+<<< #4507 partial func within func
+val bar: Int => Pf =
+  _ =>
+    case msg: Int => msg + 1
+>>>
+val bar: Int => Pf =
+  _ =>
+     case msg: Int =>
+       msg + 1
+<<< #4507 partial func within if-then-else
+val bar: Int => Pf =
+  if foo then
+    case msg1: Int => msg1 + 1
+  else
+    case msg2: Int => msg2 + 2
+>>>
+val bar: Int => Pf =
+  if foo then
+     case msg1: Int =>
+       msg1 + 1
+  else
+     case msg2: Int =>
+       msg2 + 2
+<<< #4507 partial func within if-else
+val bar: Int => Pf =
+  if (foo)
+    case msg1: Int => msg1 + 1
+  else
+    case msg2: Int => msg2 + 2
+>>>
+val bar: Int => Pf =
+  if (foo)
+     case msg1: Int =>
+       msg1 + 1
+  else
+     case msg2: Int =>
+       msg2 + 2
+<<< #4507 partial func within assignment
+val bar: Int => Pf =
+  case msg: Int => msg + 1
+>>>
+val bar: Int => Pf =
+   case msg: Int =>
+     msg + 1
+<<< #4133 braceless `match` with a semicolon between cases
+tag match
+  case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
+    node.refPrivate = in0.readByte() == PRIVATE;
+  case _ =>
+>>>
+tag match
+   case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
+     node.refPrivate = in0.readByte() == PRIVATE;
+   case _ =>
+<<< #4133 lambda in parens rewritten to braces
+maxColumn = 80
+rewrite {
+  rules = [RedundantBraces]
+  scala3.removeOptionalBraces = yes
+}
+===
+object Build {
+  lazy val scaladoc = project.in(file("scaladoc")).
+    settings(
+      generateScalaDocumentation := Def.inputTaskDyn {
+        val outputDirOverride = extraArgs.headOption.fold(identity[GenerationConfig](_))(newDir => {
+          config: GenerationConfig => config.add(OutputDir(newDir))
+        })
+        val justAPI = justAPIArg.fold(identity[GenerationConfig](_))(_ => {
+          config: GenerationConfig => config.remove[SiteRoot]
+        })
+      }.evaluated,
+    )
+}
+>>>
+object Build:
+   lazy val scaladoc = project
+     .in(file("scaladoc"))
+     .settings(
+       generateScalaDocumentation :=
+         Def
+           .inputTaskDyn {
+             val outputDirOverride =
+               extraArgs
+                 .headOption
+                 .fold(identity[GenerationConfig](_)) { newDir =>
+                   config: GenerationConfig => config.add(OutputDir(newDir))
+                 }
+             val justAPI =
+               justAPIArg.fold(identity[GenerationConfig](_)) { _ =>
+                 config: GenerationConfig => config.remove[SiteRoot]
+               }
+           }
+           .evaluated
+     )
+<<< AvoidInfix with match
+rewrite.rules = [AvoidInfix]
+===
+object a {
+  a b c match
+    case _ =>
+}
+>>>
+object a {
+  a.b(c) match
+     case _ =>
+}
+<<< AvoidInfix with match within applyinfix
+rewrite.rules = [AvoidInfix]
+===
+object a {
+  a b c match {
+    case _ =>
+  } d e
+}
+>>>
+object a {
+  (
+    a.b(c) match {
+      case _ =>
+    }
+  ).d(e)
+}
+<<< AvoidInfix with match, with dot
+rewrite.rules = [AvoidInfix]
+===
+object a {
+  (a.b(c)).match
+      case _ =>
+}
+>>>
+object a {
+  (a.b(c)).match
+     case _ =>
+}

@@ -1,0 +1,3544 @@
+docstrings.style = Asterisk
+docstrings.wrap = no
+<<< test 1
+object a {
+/**
+   * Y is cool
+   */
+val y = 2
+}
+>>>
+object a {
+
+  /**
+   * Y is cool
+   */
+  val y = 2
+}
+<<< #1403 1: keep
+docstrings.style = keep
+===
+/** Top line.
+   * Main entry-point.
+    */
+class Main
+>>>
+/** Top line.
+   * Main entry-point.
+    */
+class Main
+<<< #1403 1: Asterisk 1
+docstrings.style = Asterisk
+===
+/**Top line.
+   *Main entry-point.
+    */
+class Main
+>>>
+/**
+ * Top line.
+ * Main entry-point.
+ */
+class Main
+<<< #1403 1: Asterisk 2
+docstrings.style = Asterisk
+===
+/**
+   *Main entry-point.
+    */
+class Main
+>>>
+/**
+ * Main entry-point.
+ */
+class Main
+<<< #1403 1: Asterisk 3, wrap
+docstrings.style = Asterisk
+docstrings.wrap = yes
+docstrings.blankFirstLine = yes
+===
+/**
+   *Main entry-point.
+    */
+class Main
+>>>
+/**
+ * Main entry-point.
+ */
+class Main
+<<< #1403 1: SpaceAsterisk 1
+docstrings.style = SpaceAsterisk
+===
+/**Top line.
+   *Main entry-point.
+    */
+class Main
+>>>
+/** Top line.
+  * Main entry-point.
+  */
+class Main
+<<< #1403 1: SpaceAsterisk 2
+docstrings.style = SpaceAsterisk
+===
+/**
+   *Main entry-point.
+    */
+class Main
+>>>
+/** Main entry-point.
+  */
+class Main
+<<< #1403 1: SpaceAsterisk 3, wrap
+docstrings.style = SpaceAsterisk
+docstrings.wrap = yes
+docstrings.blankFirstLine = yes
+===
+/**
+   *Main entry-point.
+    */
+class Main
+>>>
+/**
+  * Main entry-point.
+  */
+class Main
+<<< #1403 1: AsteriskSpace 1
+docstrings.style = AsteriskSpace
+===
+/**
+   *Indent0
+  * Indent1
+  *  Indent2
+ *   Indent3
+*    Indent4
+    */
+class Main
+>>>
+/** Indent0
+ *  Indent1
+ *  Indent2
+ *   Indent3
+ *    Indent4
+ */
+class Main
+<<< #1403 1: AsteriskSpace 2
+docstrings.style = AsteriskSpace
+===
+/**Top line.
+   *Indent0
+  * Indent1
+  *  Indent2
+ *   Indent3
+*    Indent4
+    */
+class Main
+>>>
+/** Top line.
+ *  Indent0
+ *  Indent1
+ *  Indent2
+ *   Indent3
+ *    Indent4
+ */
+class Main
+<<< #1403 1: AsteriskSpace 3, wrap
+docstrings.style = AsteriskSpace
+docstrings.wrap = yes
+docstrings.blankFirstLine = yes
+===
+/**Top line.
+   *Indent0
+  * Indent1
+  *  Indent2
+ *   Indent3
+*    Indent4
+    */
+class Main
+>>>
+/**
+ *  Top line. Indent0 Indent1 Indent2 Indent3 Indent4
+ */
+class Main
+<<< #1403 2: oneline=fold Asterisk
+docstrings.oneline = fold
+docstrings.style = Asterisk
+===
+/**
+  * Main entry-point.
+  */
+class Main
+>>>
+/** Main entry-point. */
+class Main
+<<< #1403 2: oneline=fold SpaceAsterisk
+docstrings.oneline = fold
+docstrings.style = SpaceAsterisk
+===
+/**
+  * Main entry-point.
+  */
+class Main
+>>>
+/** Main entry-point. */
+class Main
+<<< #1403 2: oneline=fold AsteriskSpace
+docstrings.oneline = fold
+docstrings.style = AsteriskSpace
+===
+/**
+  * Main entry-point.
+  */
+class Main
+>>>
+/** Main entry-point. */
+class Main
+<<< #1403 3: oneline=unfold Asterisk
+docstrings.oneline = unfold
+docstrings.style = Asterisk
+===
+/** Main entry-point. */
+class Main
+>>>
+/**
+ * Main entry-point.
+ */
+class Main
+<<< #1403 3: oneline=unfold SpaceAsterisk
+docstrings.oneline = unfold
+docstrings.style = SpaceAsterisk
+===
+/** Main entry-point. */
+class Main
+>>>
+/** Main entry-point.
+  */
+class Main
+<<< #1403 3: oneline=unfold AsteriskSpace
+docstrings.oneline = unfold
+docstrings.style = AsteriskSpace
+===
+/** Main entry-point. */
+class Main
+>>>
+/** Main entry-point.
+ */
+class Main
+<<< #1387 1 Asterisk
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 30
+===
+/** Start the comment here
+  *
+  * @param d the Double to square, meaning multiply by itself
+  * @returns the result of squaring d
+
+{{{
+multi
+  line
+    code
+}}}
+* {{{
+* multi
+*   line
+*     code
+* }}}
+@tparam t type, @see [[d]] ({{{single-line code}}})
+  */
+  val a = 1
+>>>
+/**
+ * Start the comment here
+ *
+ * @param d
+ *   the Double to square,
+ *   meaning multiply by
+ *   itself
+ * @returns
+ *   the result of squaring d
+ *
+ * {{{
+ * multi
+ * line
+ * code
+ * }}}
+ * {{{
+ * multi
+ *   line
+ *     code
+ * }}}
+ * @tparam t
+ *   type, @see [[d]]
+ *   ({{{single-line code}}})
+ */
+val a = 1
+<<< #1387 1 SpaceAsterisk
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+/** Start the comment here
+ *
+ * @param d the Double to square, meaning multiply by itself
+ * @returns the result of squaring d
+
+{{{
+multi
+  line
+    code
+}}}
+* {{{
+* multi
+*   line
+*     code
+* }}}
+@tparam t type, @see [[d]] ({{{single-line code}}})
+  */
+  val a = 1
+>>>
+/** Start the comment here
+  *
+  * @param d
+  *   the Double to square,
+  *   meaning multiply by
+  *   itself
+  * @returns
+  *   the result of squaring d
+  *
+  * {{{
+  * multi
+  * line
+  * code
+  * }}}
+  * {{{
+  * multi
+  *   line
+  *     code
+  * }}}
+  * @tparam t
+  *   type, @see [[d]]
+  *   ({{{single-line code}}})
+  */
+val a = 1
+<<< #1387 1 AsteriskSpace
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+/** Start the comment here
+ *
+ * @param d the Double to square, meaning multiply by itself
+ * @returns the result of squaring d
+
+{{{
+multi
+  line
+
+    code
+}}}
+*  {{{
+*  multi
+
+*    line
+*      code
+*  }}}
+@tparam t type, @see [[d]] ({{{single-line code}}})
+  */
+  val a = 1
+>>>
+/** Start the comment here
+ *
+ *  @param d
+ *    the Double to square,
+ *    meaning multiply by
+ *    itself
+ *  @returns
+ *    the result of squaring d
+ *
+ *  {{{
+ *  multi
+ *  line
+ *
+ *  code
+ *  }}}
+ *  {{{
+ *  multi
+ *
+ *    line
+ *      code
+ *  }}}
+ *  @tparam t
+ *    type, @see [[d]]
+ *    ({{{single-line code}}})
+ */
+val a = 1
+<<< #1887 1 Asterisk
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 30
+===
+/** Start the comment here
+  *
+  * @inheritdoc
+  * some text1 some text2 some text3 some text4
+  *  1. list1 list2 list3 list4 list5
+  *   - sublist1 sublist2 sublist3
+  *    a. subsublist1 subsublist2
+  *   - foolist1 foolist2 foolist3
+  *  1. barlist1 barlist2 barlist3
+  */
+  val a = 1
+>>>
+/**
+ * Start the comment here
+ *
+ * @inheritdoc
+ * some text1 some text2 some
+ * text3 some text4
+ *   1. list1 list2 list3
+ *      list4 list5
+ *      - sublist1 sublist2
+ *        sublist3
+ *        a. subsublist1
+ *           subsublist2
+ *      - foolist1 foolist2
+ *        foolist3
+ *   1. barlist1 barlist2
+ *      barlist3
+ */
+val a = 1
+<<< #1887 1 SpaceAsterisk
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+/** Start the comment here
+  *
+  * @inheritdoc
+  * some text1 some text2 some text3 some text4
+  *  1. list1 list2 list3 list4 list5
+  *   - sublist1 sublist2 sublist3
+  *    a. subsublist1 subsublist2
+  *   - foolist1 foolist2 foolist3
+  *  1. barlist1 barlist2 barlist3
+  */
+  val a = 1
+>>>
+/** Start the comment here
+  *
+  * @inheritdoc
+  * some text1 some text2 some
+  * text3 some text4
+  *   1. list1 list2 list3
+  *      list4 list5
+  *      - sublist1 sublist2
+  *        sublist3
+  *        a. subsublist1
+  *           subsublist2
+  *      - foolist1 foolist2
+  *        foolist3
+  *   1. barlist1 barlist2
+  *      barlist3
+  */
+val a = 1
+<<< #1887 1 AsteriskSpace
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+/** Start the comment here
+  *
+  * @inheritdoc
+  * some text1 some text2 some text3 some text4
+  *  1. list1 list2 list3 list4 list5
+  *   - sublist1 sublist2 sublist3
+  *    a. subsublist1 subsublist2
+  *   - foolist1 foolist2 foolist3
+  *  1. barlist1 barlist2 barlist3
+  */
+  val a = 1
+>>>
+/** Start the comment here
+ *
+ *  @inheritdoc
+ *  some text1 some text2 some
+ *  text3 some text4
+ *    1. list1 list2 list3
+ *       list4 list5
+ *       - sublist1 sublist2
+ *         sublist3
+ *         a. subsublist1
+ *            subsublist2
+ *       - foolist1 foolist2
+ *         foolist3
+ *    1. barlist1 barlist2
+ *       barlist3
+ */
+val a = 1
+<<< #1887 2 Asterisk: first line max
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 30
+===
+object a {
+  /** Binds values which should
+   * be wrapped */
+}
+>>>
+object a {
+
+  /**
+   * Binds values which should
+   * be wrapped
+   */
+}
+<<< #1887 2 Asterisk: first line different max
+docstrings.wrap = yes
+docstrings.wrapMaxColumn = 35
+docstrings.oneline = fold
+docstrings.style = Asterisk
+maxColumn = 30
+===
+object a {
+  /**
+   * Binds values to wrap
+   */
+  /**
+   * Binds values to be wrapped
+   */
+  /** Binds values which should
+   * be wrapped */
+}
+>>>
+object a {
+
+  /** Binds values to wrap */
+  /** Binds values to be wrapped */
+  /**
+   * Binds values which should be
+   * wrapped
+   */
+}
+<<< #1887 2 SpaceAsterisk: first line max
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+object a {
+  /** Binds values which should
+   * be wrapped */
+}
+>>>
+object a {
+
+  /** Binds values which
+    * should be wrapped
+    */
+}
+<<< #1887 2 SpaceAsterisk: first line different max
+docstrings.wrap = yes
+docstrings.wrapMaxColumn = 35
+docstrings.oneline = fold
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+object a {
+  /**
+   * Binds values to wrap
+   */
+  /**
+   * Binds values to be wrapped
+   */
+  /** Binds values which should
+   * be wrapped */
+}
+>>>
+object a {
+
+  /** Binds values to wrap */
+  /** Binds values to be wrapped */
+  /** Binds values which should be
+    * wrapped
+    */
+}
+<<< #1887 2 AsteriskSpace: first line max
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+object a {
+  /** Binds values which should
+   * be wrapped */
+}
+>>>
+object a {
+
+  /** Binds values which
+   *  should be wrapped
+   */
+}
+<<< #1887 2 AsteriskSpace: first line different max
+docstrings.wrap = yes
+docstrings.wrapMaxColumn = 35
+docstrings.oneline = fold
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+object a {
+  /**
+   * Binds values to wrap
+   */
+  /**
+   * Binds values to be wrapped
+   */
+  /** Binds values which should
+   * be wrapped */
+}
+>>>
+object a {
+
+  /** Binds values to wrap */
+  /** Binds values to be wrapped */
+  /** Binds values which should be
+   *  wrapped
+   */
+}
+<<< #1887 3 Asterisk: markdown
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 15
+# https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html#markup
+===
+object a {
+  /**
+  `mono space`
+  ''italic text''
+  '''bold text'''
+  __under line__
+  ^super script^
+  ,,sub script,,
+  'single quoted'
+  "double quoted"
+   */
+}
+>>>
+object a {
+
+  /**
+   * `mono space`
+   * ''italic
+   * text''
+   * '''bold
+   * text'''
+   * __under
+   * line__
+   * ^super
+   * script^
+   * ,,sub
+   * script,,
+   * 'single
+   * quoted'
+   * "double
+   * quoted"
+   */
+}
+<<< #1887 3 SpaceAsterisk: markdown
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 15
+===
+object a {
+  /**
+  `mono space`
+  ''italic text''
+  '''bold text'''
+  __under line__
+  ^super script^
+  ,,sub script,,
+  'single quoted'
+  "double quoted"
+   */
+}
+>>>
+object a {
+
+  /** `mono space`
+    * ''italic
+    * text''
+    * '''bold
+    * text'''
+    * __under
+    * line__
+    * ^super
+    * script^
+    * ,,sub
+    * script,,
+    * 'single
+    * quoted'
+    * "double
+    * quoted"
+    */
+}
+<<< #1887 3 AsteriskSpace: markdown
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 15
+===
+object a {
+  /**
+  `mono space`
+  ''italic text''
+  '''bold text'''
+  __under line__
+  ^super script^
+  ,,sub script,,
+  'single quoted'
+  "double quoted"
+   */
+}
+>>>
+object a {
+
+  /** `mono space`
+   *  ''italic
+   *  text''
+   *  '''bold
+   *  text'''
+   *  __under
+   *  line__
+   *  ^super
+   *  script^
+   *  ,,sub
+   *  script,,
+   *  'single
+   *  quoted'
+   *  "double
+   *  quoted"
+   */
+}
+<<< #1887 4 Asterisk: urls
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 23
+===
+object a {
+  /** go to
+  http:/a.b.c/d . good luck.
+   */
+}
+>>>
+object a {
+
+  /**
+   * go to
+   * http:/a.b.c/d .
+   * good luck.
+   */
+}
+<<< #1887 4 SpaceAsterisk: urls
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 24
+===
+object a {
+  /** go to
+  http:/a.b.c/d . good luck.
+   */
+}
+>>>
+object a {
+
+  /** go to
+    * http:/a.b.c/d .
+    * good luck.
+    */
+}
+<<< #1887 4 AsteriskSpace: urls
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 24
+===
+object a {
+  /** go to
+  http:/a.b.c/d . good luck.
+   */
+}
+>>>
+object a {
+
+  /** go to
+   *  http:/a.b.c/d .
+   *  good luck.
+   */
+}
+<<< #1887 5 Asterisk: html
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 30
+===
+object a {
+  /** go to <a href="http:/a.b.c/d">this url</a>
+   */
+}
+>>>
+object a {
+
+  /**
+   * go to <a
+   * href="http:/a.b.c/d">this
+   * url</a>
+   */
+}
+<<< #1887 5 SpaceAsterisk: html
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+object a {
+  /** go to <a href="http:/a.b.c/d">this url</a>
+   */
+}
+>>>
+object a {
+
+  /** go to <a
+    * href="http:/a.b.c/d">this
+    * url</a>
+    */
+}
+<<< #1887 5 AsteriskSpace: html
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+object a {
+  /** go to <a href="http:/a.b.c/d">this url</a>
+   */
+}
+>>>
+object a {
+
+  /** go to <a
+   *  href="http:/a.b.c/d">this
+   *  url</a>
+   */
+}
+<<< #1887 6 Asterisk: table
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 24
+===
+object a {
+  /**
+   * head
+   * | hdr1 | hdr22 | hdr333 |
+   * | :- | -: | :-: | -: | :-: |
+   * | r1 1 | r1 2 | r1 3 | r1 4 |
+   * | r22 1 | r22 2 |
+   * | r333 1 | r333 2 | r333 3 | r333 4 | r333 5 | r333 6 |
+   * tail
+   */
+}
+>>>
+object a {
+
+  /**
+   * head
+   * | hdr1   |  hdr22 | hdr333 |        |        |        |
+   * |:-------|-------:|:------:|-------:|:------:|:-------|
+   * | r1 1   |   r1 2 |  r1 3  |   r1 4 |        |        |
+   * | r22 1  |  r22 2 |        |        |        |        |
+   * | r333 1 | r333 2 | r333 3 | r333 4 | r333 5 | r333 6 |
+   * tail
+   */
+}
+<<< #1887 6 SpaceAsterisk: table
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 24
+===
+object a {
+  /**
+   * head
+   * | hdr1 | hdr22 | hdr333 |
+   * | :- | -: | :-: | -: | :-: |
+   * | r1 1 | r1 2 | r1 3 | r1 4 |
+   * | r22 1 | r22 2 |
+   * | r333 1 | r333 2 | r333 3 | r333 4 | r333 5 | r333 6 |
+   * tail
+   */
+}
+>>>
+object a {
+
+  /** head
+    * | hdr1   |  hdr22 | hdr333 |        |        |        |
+    * |:-------|-------:|:------:|-------:|:------:|:-------|
+    * | r1 1   |   r1 2 |  r1 3  |   r1 4 |        |        |
+    * | r22 1  |  r22 2 |        |        |        |        |
+    * | r333 1 | r333 2 | r333 3 | r333 4 | r333 5 | r333 6 |
+    * tail
+    */
+}
+<<< #1887 6 AsteriskSpace: table
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 24
+===
+object a {
+  /**
+   * head
+   * | hdr1 | hdr22 | hdr333 |
+   * | :- | -: | :-: | -: | :-: |
+   * | r1 1 | r1 2 | r1 3 | r1 4 |
+   * | r22 1 | r22 2 |
+   * | r333 1 | r333 2 | r333 3 | r333 4 | r333 5 | r333 6 |
+   * tail
+   */
+}
+>>>
+object a {
+
+  /** head
+   *  | hdr1   |  hdr22 | hdr333 |        |        |        |
+   *  |:-------|-------:|:------:|-------:|:------:|:-------|
+   *  | r1 1   |   r1 2 |  r1 3  |   r1 4 |        |        |
+   *  | r22 1  |  r22 2 |        |        |        |        |
+   *  | r333 1 | r333 2 | r333 3 | r333 4 | r333 5 | r333 6 |
+   *  tail
+   */
+}
+<<< #1887 7 Asterisk: list only
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 24
+===
+object a {
+  /** 1. foo
+    * 1. bar
+   */
+}
+>>>
+object a {
+
+  /**
+   *   1. foo
+   *   1. bar
+   */
+}
+<<< #1887 7 SpaceAsterisk: list only
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 24
+===
+object a {
+  /** 1. foo
+   * 1. bar
+   */
+}
+>>>
+object a {
+
+  /**   1. foo
+    *   1. bar
+    */
+}
+<<< #1887 7 AsteriskSpace: list only
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 24
+===
+object a {
+  /** 1. foo
+    * 1. bar
+   */
+}
+>>>
+object a {
+
+  /**
+   *    1. foo
+   *    1. bar
+   */
+}
+<<< #1887 8 Asterisk: punctuation after link/code
+docstrings.wrap = yes
+docstrings.style = Asterisk
+===
+object a {
+  /** [[ref]]!.. {{{foo}}}??? */
+}
+>>>
+object a {
+
+  /** [[ref]]!.. {{{foo}}}??? */
+}
+<<< #1887 8 SpaceAsterisk: punctuation after link/code
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+===
+object a {
+  /** [[ref]]!.. {{{foo}}}??? */
+}
+>>>
+object a {
+
+  /** [[ref]]!.. {{{foo}}}??? */
+}
+<<< #1887 8 AsteriskSpace: punctuation after link/code
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+===
+object a {
+  /** [[ref]]!.. {{{foo}}}??? */
+}
+>>>
+object a {
+
+  /** [[ref]]!.. {{{foo}}}??? */
+}
+<<< #1887 9 Asterisk: list with embedded elements
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 30
+===
+object a {
+  /** 1. foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *      - foo1
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *        - foo2
+   *   {{{
+   *         embedded code
+   *   }}}
+   *           ```
+   *         code foo2
+   *           ```
+   *        ```
+   *         code foo1
+   *        ```
+   *      ```
+   *         code foo
+   *      ```
+   * 1. bar
+   */
+}
+>>>
+object a {
+
+  /**
+   *   1. foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *      - foo1
+   *        | hdr1 | hdr22 |
+   *        |:-----|------:|
+   *        | r1 1 |  r1 2 |
+   *        - foo2
+   *          {{{
+   *         embedded code
+   *          }}}
+   *          ```
+   *          code foo2
+   *          ```
+   *        ```
+   *         code foo1
+   *        ```
+   *      ```
+   *         code foo
+   *      ```
+   *   1. bar
+   */
+}
+<<< #1887 9 SpaceAsterisk: list with embedded elements
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+object a {
+  /** 1. foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *      - foo1
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *        - foo2
+   *   {{{
+   *         embedded code
+   *   }}}
+   *           ```
+   *         code foo2
+   *           ```
+   *        ```
+   *         code foo1
+   *        ```
+   *      ```
+   *         code foo
+   *      ```
+   * 1. bar
+   */
+}
+>>>
+object a {
+
+  /**   1. foo
+    *      {{{
+    *         embedded code
+    *      }}}
+    *      - foo1
+    *        | hdr1 | hdr22 |
+    *        |:-----|------:|
+    *        | r1 1 |  r1 2 |
+    *        - foo2
+    *          {{{
+    *         embedded code
+    *          }}}
+    *          ```
+    *          code foo2
+    *          ```
+    *        ```
+    *         code foo1
+    *        ```
+    *      ```
+    *         code foo
+    *      ```
+    *   1. bar
+    */
+}
+<<< #1887 9 AsteriskSpace: list with embedded elements
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+object a {
+  /** 1. foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *      - foo1
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *        - foo2
+   *   {{{
+   *         embedded code
+   *   }}}
+   *           ```
+   *         code foo2
+   *           ```
+   *        ```
+   *         code foo1
+   *        ```
+   *      ```
+   *         code foo
+   *      ```
+   * 1. bar
+   */
+}
+>>>
+object a {
+
+  /**
+   *    1. foo
+   *       {{{
+   *         embedded code
+   *       }}}
+   *       - foo1
+   *         | hdr1 | hdr22 |
+   *         |:-----|------:|
+   *         | r1 1 |  r1 2 |
+   *         - foo2
+   *           {{{
+   *         embedded code
+   *           }}}
+   *           ```
+   *           code foo2
+   *           ```
+   *         ```
+   *          code foo1
+   *         ```
+   *       ```
+   *          code foo
+   *       ```
+   *    1. bar
+   */
+}
+<<< #1887 10 Asterisk: tags with embedded elements
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 30
+===
+object a {
+  /** @param foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *   {{{
+   *         embedded code
+   *   }}}
+   *      ```
+   *         code foo5
+   *      ```
+   *     ```
+   *         code foo4
+   *     ```
+   *    ```
+   *         code foo3
+   *    ```
+   *   ```
+   *         code foo2
+   *   ```
+   *  ```
+   *         code foo1
+   *  ```
+   * ```
+   *         code foo0
+   * ```
+   * foo
+   * @inheritdoc
+   */
+}
+>>>
+object a {
+
+  /**
+   * @param foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *   {{{
+   *         embedded code
+   *   }}}
+   *      ```
+   *         code foo5
+   *      ```
+   *     ```
+   *         code foo4
+   *     ```
+   *    ```
+   *         code foo3
+   *    ```
+   *   ```
+   *         code foo2
+   *   ```
+   *  ```
+   *         code foo1
+   *  ```
+   * ```
+   *         code foo0
+   * ```
+   * foo
+   * @inheritdoc
+   */
+}
+<<< #1887 10 SpaceAsterisk: tags with embedded elements
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+object a {
+  /** @param foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *   {{{
+   *         embedded code
+   *   }}}
+   *      ```
+   *         code foo5
+   *      ```
+   *     ```
+   *         code foo4
+   *     ```
+   *    ```
+   *         code foo3
+   *    ```
+   *   ```
+   *         code foo2
+   *   ```
+   *  ```
+   *         code foo1
+   *  ```
+   * ```
+   *         code foo0
+   * ```
+   * foo
+   * @inheritdoc
+   */
+}
+>>>
+object a {
+
+  /** @param foo
+    *      {{{
+    *         embedded code
+    *      }}}
+    *  | hdr1   |  hdr22 |
+    *   |:-------|-------:|
+    *    | r1 1   |   r1 2 |
+    *   {{{
+    *         embedded code
+    *   }}}
+    *      ```
+    *         code foo5
+    *      ```
+    *     ```
+    *         code foo4
+    *     ```
+    *    ```
+    *         code foo3
+    *    ```
+    *   ```
+    *         code foo2
+    *   ```
+    *  ```
+    *         code foo1
+    *  ```
+    * ```
+    *         code foo0
+    * ```
+    * foo
+    * @inheritdoc
+    */
+}
+<<< #1887 10 AsteriskSpace: tags with embedded elements
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+object a {
+  /** @param foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *   {{{
+   *         embedded code
+   *   }}}
+   *      ```
+   *         code foo5
+   *      ```
+   *     ```
+   *         code foo4
+   *     ```
+   *    ```
+   *         code foo3
+   *    ```
+   *   ```
+   *         code foo2
+   *   ```
+   *  ```
+   *         code foo1
+   *  ```
+   * ```
+   *         code foo0
+   * ```
+   * foo
+   * @inheritdoc
+   */
+}
+>>>
+object a {
+
+  /** @param foo
+   *      {{{
+   *         embedded code
+   *      }}}
+   *  | hdr1   |  hdr22 |
+   *   |:-------|-------:|
+   *    | r1 1   |   r1 2 |
+   *   {{{
+   *         embedded code
+   *   }}}
+   *      ```
+   *         code foo5
+   *      ```
+   *     ```
+   *         code foo4
+   *     ```
+   *    ```
+   *         code foo3
+   *    ```
+   *   ```
+   *         code foo2
+   *   ```
+   *  ```
+   *         code foo1
+   *  ```
+   *  ```
+   *         code foo0
+   *  ```
+   *  foo
+   *  @inheritdoc
+   */
+}
+<<< keep inner asterisks, Asterisk
+docstrings.style = Asterisk
+===
+object a {
+  /** *************** tests ******************
+    * *************** tests ****************** */
+}
+>>>
+object a {
+
+  /**
+   * *************** tests ******************
+   * *************** tests ******************
+   */
+}
+<<< keep inner asterisks, SpaceAsterisk
+docstrings.style = SpaceAsterisk
+===
+object a {
+  /** *************** tests ******************
+   * *************** tests ****************** */
+}
+>>>
+object a {
+
+  /** *************** tests ******************
+    * *************** tests ******************
+    */
+}
+<<< keep inner asterisks, AsteriskSpace
+docstrings.style = AsteriskSpace
+===
+object a {
+  /** *************** tests ******************
+    * *************** tests ****************** */
+}
+>>>
+object a {
+
+  /** *************** tests ******************
+   *  *************** tests ******************
+   */
+}
+<<< empty comment
+object a {
+  /**//**/
+}
+>>>
+object a {
+  /**/ /**/
+}
+<<< #2027 1
+object a {
+  @foo
+  /**
+   * scaladoc
+   */
+  class QueueSequentialBenchmark {}
+}
+>>>
+object a {
+  @foo
+  /**
+   * scaladoc
+   */
+  class QueueSequentialBenchmark {}
+}
+<<< #2027 2
+object a {
+  @foo(bar)
+  /**
+   * scaladoc
+   */
+  class QueueSequentialBenchmark {}
+}
+>>>
+object a {
+  @foo(bar)
+  /**
+   * scaladoc
+   */
+  class QueueSequentialBenchmark {}
+}
+<<< #2027 3
+object a {
+  private
+  /**
+   * scaladoc
+   */
+  class QueueSequentialBenchmark {}
+}
+>>>
+object a {
+  private
+  /**
+   * scaladoc
+   */
+  class QueueSequentialBenchmark {}
+}
+<<< #2028 Asterisk oneline=keep
+docstrings.style = Asterisk
+docstrings.oneline = keep
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /**
+   * alias for [[literal]]
+   */
+  /**
+   * alias for [[literal]]
+   * alias for [[literal]]
+   */
+}
+<<< #2028 Asterisk oneline=keep, blankFirst
+docstrings.style = Asterisk
+docstrings.oneline = keep
+docstrings.blankFirstLine = true
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /**
+   * alias for [[literal]]
+   */
+  /**
+   * alias for [[literal]]
+   * alias for [[literal]]
+   */
+}
+<<< #2028 Asterisk oneline=keep, !blankFirst
+docstrings.style = Asterisk
+docstrings.oneline = keep
+docstrings.blankFirstLine = false
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]]
+   */
+  /** alias for [[literal]]
+   * alias for [[literal]]
+   */
+}
+<<< #2028 Asterisk oneline=fold
+docstrings.style = Asterisk
+docstrings.oneline = fold
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]] */
+  /**
+   * alias for [[literal]]
+   * alias for [[literal]]
+   */
+}
+<<< #2028 Asterisk oneline=unfold
+docstrings.style = Asterisk
+docstrings.oneline = unfold
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /**
+   * alias for [[literal]]
+   */
+  /**
+   * alias for [[literal]]
+   */
+  /**
+   * alias for [[literal]]
+   * alias for [[literal]]
+   */
+}
+<<< #2028 SpaceAsterisk oneline=keep
+docstrings.style = SpaceAsterisk
+docstrings.oneline = keep
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]]
+    */
+  /** alias for [[literal]]
+    * alias for [[literal]]
+    */
+}
+<<< #2028 SpaceAsterisk oneline=keep, blankFirst
+docstrings.style = SpaceAsterisk
+docstrings.oneline = keep
+docstrings.blankFirstLine = true
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /**
+    * alias for [[literal]]
+    */
+  /**
+    * alias for [[literal]]
+    * alias for [[literal]]
+    */
+}
+<<< #2028 SpaceAsterisk oneline=keep, !blankFirst
+docstrings.style = SpaceAsterisk
+docstrings.oneline = keep
+docstrings.blankFirstLine = false
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]]
+    */
+  /** alias for [[literal]]
+    * alias for [[literal]]
+    */
+}
+<<< #2028 SpaceAsterisk oneline=fold
+docstrings.style = SpaceAsterisk
+docstrings.oneline = fold
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]] */
+  /** alias for [[literal]]
+    * alias for [[literal]]
+    */
+}
+<<< #2028 SpaceAsterisk oneline=unfold
+docstrings.style = SpaceAsterisk
+docstrings.oneline = unfold
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]]
+    */
+  /** alias for [[literal]]
+    */
+  /** alias for [[literal]]
+    * alias for [[literal]]
+    */
+}
+<<< #2028 AsteriskSpace oneline=keep
+docstrings.style = AsteriskSpace
+docstrings.oneline = keep
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]]
+   */
+  /** alias for [[literal]]
+   *  alias for [[literal]]
+   */
+}
+<<< #2028 AsteriskSpace oneline=keep, blankFirst
+docstrings.style = AsteriskSpace
+docstrings.oneline = keep
+docstrings.blankFirstLine = true
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /**
+   *  alias for [[literal]]
+   */
+  /**
+   *  alias for [[literal]]
+   *  alias for [[literal]]
+   */
+}
+<<< #2028 AsteriskSpace oneline=keep, !blankFirst
+docstrings.style = AsteriskSpace
+docstrings.oneline = keep
+docstrings.blankFirstLine = false
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]]
+   */
+  /** alias for [[literal]]
+   *  alias for [[literal]]
+   */
+}
+<<< #2028 AsteriskSpace oneline=fold
+docstrings.style = AsteriskSpace
+docstrings.oneline = fold
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]] */
+  /** alias for [[literal]]
+   *  alias for [[literal]]
+   */
+}
+<<< #2028 AsteriskSpace oneline=unfold
+docstrings.style = AsteriskSpace
+docstrings.oneline = unfold
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]]
+   */
+  /** alias for [[literal]]
+   */
+  /** alias for [[literal]]
+   *  alias for [[literal]]
+   */
+}
+<<< #2028 Asterisk long, oneline=fold, wrap
+docstrings.style = Asterisk
+docstrings.oneline = fold
+docstrings.wrap = yes
+maxColumn = 25
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /**
+   * alias for
+   * [[literal]]
+   */
+  /**
+   * alias for
+   * [[literal]]
+   */
+  /**
+   * alias for
+   * [[literal]] alias
+   * for [[literal]]
+   */
+}
+<<< #2028 Asterisk long, oneline=keep, wrap
+docstrings.style = Asterisk
+docstrings.oneline = keep
+docstrings.wrap = yes
+maxColumn = 25
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /**
+   * alias for
+   * [[literal]]
+   */
+  /**
+   * alias for
+   * [[literal]]
+   */
+  /**
+   * alias for
+   * [[literal]] alias
+   * for [[literal]]
+   */
+}
+<<< #2028 Asterisk long, oneline=fold, !wrap
+docstrings.style = Asterisk
+docstrings.oneline = fold
+docstrings.wrap = no
+maxColumn = 25
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /** alias for [[literal]] */
+  /**
+   * alias for [[literal]]
+   * alias for [[literal]]
+   */
+}
+<<< #2028 Asterisk long, oneline=keep, !wrap
+docstrings.style = Asterisk
+docstrings.oneline = keep
+docstrings.wrap = no
+maxColumn = 25
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+  /**
+   *
+   * alias for [[literal]]
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /**
+   * alias for [[literal]]
+   */
+  /**
+   * alias for [[literal]]
+   * alias for [[literal]]
+   */
+}
+<<< #2043
+object Day extends Enumeration {
+  type Day = Value
+
+  val
+  /** Monday */
+  MON = Value
+}
+>>>
+object Day extends Enumeration {
+  type Day = Value
+
+  val
+  /** Monday */
+  MON = Value
+}
+<<< docstring after block
+preset = default
+===
+object a {
+  input.read
+     /** foo */
+     .foo { bar }
+     /** baz */
+     .baz(qux)
+}
+>>>
+object a {
+  input.read
+    /** foo */
+    .foo { bar }
+    /** baz */
+    .baz(qux)
+}
+<<< must break before/after docstring
+object a {
+  /** a */ /* b */ foo /** a */ /* b */
+
+  /* a */ /** b */ bar /* a */ /** b */
+}
+>>>
+object a {
+
+  /** a */
+  /* b */
+  foo
+
+  /** a */
+  /* b */
+
+  /* a */
+  /** b */
+  bar /* a */
+  /** b */
+}
+<<< empty docstring Asterisk
+docstrings.style = Asterisk
+docstrings.wrap = yes
+===
+object a {
+  /** */
+}
+>>>
+object a {
+
+  /**
+   */
+}
+<<< empty docstring SpaceAsterisk
+docstrings.style = SpaceAsterisk
+docstrings.wrap = yes
+===
+object a {
+  /** */
+}
+>>>
+object a {
+
+  /** */
+}
+<<< empty docstring AsteriskSpace
+docstrings.style = AsteriskSpace
+docstrings.wrap = yes
+===
+object a {
+  /** */
+}
+>>>
+object a {
+
+  /** */
+}
+<<< wrap long docstring with leading space at start of document
+docstrings.wrap = yes
+===
+ /**
+   * If any errors happen below this line, but before a groupBy, write to a TypedSink
+   */
+ val a = 1
+>>>
+/**
+ * If any errors happen below this line, but before a groupBy, write to a
+ * TypedSink
+ */
+val a = 1
+<<< #2498 format embedded scala code block, Asterisk
+docstrings.style = Asterisk
+docstrings.wrap = yes
+maxColumn = 50
+===
+/**
+  * {{{
+  * // scala
+  * class Formatter(style: ScalaStyle, tree1: Tree)
+  * class Formatter(style: ScalaStyle, tree12: Tree)
+  * class Formatter(style: ScalaStyle, tree: Tree, toks: Array[FormatToken], statementStarts: Set[Token], owners: Map[Token, Tree])
+  * }}}
+  */
+val a = 1
+>>>
+/**
+ * {{{
+ * // scala
+ * class Formatter(style: ScalaStyle, tree1: Tree)
+ * class Formatter(
+ *     style: ScalaStyle,
+ *     tree12: Tree
+ * )
+ * class Formatter(
+ *     style: ScalaStyle,
+ *     tree: Tree,
+ *     toks: Array[FormatToken],
+ *     statementStarts: Set[Token],
+ *     owners: Map[Token, Tree]
+ * )
+ * }}}
+ */
+val a = 1
+<<< #2498 format embedded scala code block, SpaceAsterisk
+docstrings.style = SpaceAsterisk
+docstrings.wrap = yes
+maxColumn = 50
+===
+/**
+  * {{{
+  * // scala
+  * class Formatter(style: ScalaStyle, tree: Tree)
+  * class Formatter(style: ScalaStyle, tree1: Tree)
+  * class Formatter(style: ScalaStyle, tree: Tree, toks: Array[FormatToken], statementStarts: Set[Token], owners: Map[Token, Tree])
+  * }}}
+  */
+val a = 1
+>>>
+/** {{{
+  * // scala
+  * class Formatter(style: ScalaStyle, tree: Tree)
+  * class Formatter(
+  *     style: ScalaStyle,
+  *     tree1: Tree
+  * )
+  * class Formatter(
+  *     style: ScalaStyle,
+  *     tree: Tree,
+  *     toks: Array[FormatToken],
+  *     statementStarts: Set[Token],
+  *     owners: Map[Token, Tree]
+  * )
+  * }}}
+  */
+val a = 1
+<<< #2498 format embedded scala code block, AsteriskSpace
+docstrings.style = AsteriskSpace
+docstrings.wrap = yes
+maxColumn = 50
+===
+/**
+  * {{{
+  * // scala
+  * class Formatter(style: ScalaStyle, tree: Tree)
+  * class Formatter(style: ScalaStyle, tree1: Tree)
+  * class Formatter(style: ScalaStyle, tree: Tree, toks: Array[FormatToken], statementStarts: Set[Token], owners: Map[Token, Tree])
+  * }}}
+  */
+val a = 1
+>>>
+/** {{{
+ *  // scala
+ *  class Formatter(style: ScalaStyle, tree: Tree)
+ *  class Formatter(
+ *      style: ScalaStyle,
+ *      tree1: Tree
+ *  )
+ *  class Formatter(
+ *      style: ScalaStyle,
+ *      tree: Tree,
+ *      toks: Array[FormatToken],
+ *      statementStarts: Set[Token],
+ *      owners: Map[Token, Tree]
+ *  )
+ *  }}}
+ */
+val a = 1
+<<< #2498 do not format broken embedded scala code block
+docstrings.style = SpaceAsterisk
+docstrings.wrap = yes
+===
+/**
+  *   {{{
+  * // scala
+  * class Formatter(style: ScalaStyle, tree: Tree, toks: Array[FormatToken
+  *   }}}
+  */
+val a = 1
+>>>
+/** {{{
+  * // scala
+  * class Formatter(style: ScalaStyle, tree: Tree, toks: Array[FormatToken
+  * }}}
+  */
+val a = 1
+<<< #2498 format fenced scala code block, Asterisk
+docstrings.style = Asterisk
+docstrings.wrap = yes
+maxColumn = 50
+===
+/** Nice scala code:
+  *  ```scala
+  *   class Formatter(style: ScalaStyle, tree1: Tree)
+  *   class Formatter(style: ScalaStyle, tree12: Tree)
+  *   class Formatter(style: ScalaStyle, tree: Tree, toks: Array[FormatToken], statementStarts: Set[Token], owners: Map[Token, Tree])
+  * ```
+  * No more nice scala code.
+  */
+val a = 1
+>>>
+/**
+ * Nice scala code:
+ * ```scala
+ * class Formatter(style: ScalaStyle, tree1: Tree)
+ * class Formatter(
+ *     style: ScalaStyle,
+ *     tree12: Tree
+ * )
+ * class Formatter(
+ *     style: ScalaStyle,
+ *     tree: Tree,
+ *     toks: Array[FormatToken],
+ *     statementStarts: Set[Token],
+ *     owners: Map[Token, Tree]
+ * )
+ * ```
+ * No more nice scala code.
+ */
+val a = 1
+<<< #2498 format fenced scala code block, SpaceAsterisk
+docstrings.style = SpaceAsterisk
+docstrings.wrap = yes
+maxColumn = 50
+===
+/** Nice scala code:
+  *  ```scala
+  *   class Formatter(style: ScalaStyle, tree1: Tree)
+  *   class Formatter(style: ScalaStyle, tree12: Tree)
+  *   class Formatter(style: ScalaStyle, tree: Tree, toks: Array[FormatToken], statementStarts: Set[Token], owners: Map[Token, Tree])
+  * ```
+  * No more nice scala code.
+  */
+val a = 1
+>>>
+/** Nice scala code:
+  * ```scala
+  * class Formatter(
+  *     style: ScalaStyle,
+  *     tree1: Tree
+  * )
+  * class Formatter(
+  *     style: ScalaStyle,
+  *     tree12: Tree
+  * )
+  * class Formatter(
+  *     style: ScalaStyle,
+  *     tree: Tree,
+  *     toks: Array[FormatToken],
+  *     statementStarts: Set[Token],
+  *     owners: Map[Token, Tree]
+  * )
+  * ```
+  * No more nice scala code.
+  */
+val a = 1
+<<< #2498 format fenced scala code block, AsteriskSpace
+docstrings.style = AsteriskSpace
+docstrings.wrap = yes
+maxColumn = 50
+===
+/** Nice scala code:
+  *  ```scala
+  *   class Formatter(style: ScalaStyle, tree1: Tree)
+  *   class Formatter(style: ScalaStyle, tree12: Tree)
+  *   class Formatter(style: ScalaStyle, tree: Tree, toks: Array[FormatToken], statementStarts: Set[Token], owners: Map[Token, Tree])
+  * ```
+  * No more nice scala code.
+  */
+val a = 1
+>>>
+/** Nice scala code:
+ *  ```scala
+ *  class Formatter(
+ *      style: ScalaStyle,
+ *      tree1: Tree
+ *  )
+ *  class Formatter(
+ *      style: ScalaStyle,
+ *      tree12: Tree
+ *  )
+ *  class Formatter(
+ *      style: ScalaStyle,
+ *      tree: Tree,
+ *      toks: Array[FormatToken],
+ *      statementStarts: Set[Token],
+ *      owners: Map[Token, Tree]
+ *  )
+ *  ```
+ *  No more nice scala code.
+ */
+val a = 1
+<<< #2498 do not format broken fenced scala code block
+docstrings.style = SpaceAsterisk
+docstrings.wrap = yes
+===
+/** Nice scala code:
+  *   ```scala    sc:compile
+  * class Formatter(style: ScalaStyle, tree: Tree, toks: Array[FormatToken
+  * ```
+  */
+val a = 1
+>>>
+/** Nice scala code:
+  * ```scala sc:compile
+  * class Formatter(style: ScalaStyle, tree: Tree, toks: Array[FormatToken
+  * ```
+  */
+val a = 1
+<<< scalameta #2398
+docstrings.wrap = yes
+===
+/**
+  * @throws foo bar baz
+  * qux
+  */
+val a = 1
+>>>
+/**
+ * @throws foo
+ *   bar baz qux
+ */
+val a = 1
+<<< #2619 do not modify wikidoc heading delimiters
+docstrings.style = SpaceAsterisk
+docstrings.wrap = yes
+maxColumn = 20
+===
+/** =Heading1=
+  *
+  * I exceed the configured column count in a docstring.
+  *
+  * ==Heading2 - Long headings will not get wrapped==
+  *
+  * ===Heading3 also not getting wrapped===
+  */
+val a = 1
+>>>
+/** =Heading1=
+  *
+  * I exceed the
+  * configured
+  * column count in
+  * a docstring.
+  *
+  * ==Heading2 - Long headings will not get wrapped==
+  *
+  * ===Heading3 also not getting wrapped===
+  */
+val a = 1
+<<< SM#2444 tag with code block
+docstrings.wrap = yes
+maxColumn = 30
+===
+object a {
+  /** Some scaladoc. A few examples are shown here to help clarify.
+    *
+    * @example
+    * {{{
+    * {"errors":["error1", "error2", "error3"]}
+    * {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
+    * }}}
+    */
+}
+>>>
+object a {
+
+  /**
+   * Some scaladoc. A few
+   * examples are shown here
+   * to help clarify.
+   *
+   * @example
+   *   {{{
+   * {"errors":["error1", "error2", "error3"]}
+   * {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
+   *   }}}
+   */
+}
+<<< SM#2444 tag with markdown code block
+docstrings.wrap = yes
+maxColumn = 30
+===
+object a {
+  /** Some scaladoc. A few examples are shown here to help clarify.
+    *
+    * @example
+    * ```scala
+    * {"errors":["error1", "error2", "error3"]}
+    * {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
+    * ```
+    */
+}
+>>>
+object a {
+
+  /**
+   * Some scaladoc. A few
+   * examples are shown here
+   * to help clarify.
+   *
+   * @example
+   *   ```scala
+   *   {"errors":["error1", "error2", "error3"]}
+   *   {"errors":[{"code":"1","message":"error1"},{"code":"2","message":"error2"},{"code":"3","message":"error3"}]}
+   *   ```
+   */
+}
+<<< indents within markdown code block, Asterisk
+align.preset = more
+docstrings.wrap = yes
+docstrings.style = Asterisk
+===
+object a {
+  /**
+    * ```
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * ```
+    * ```
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * ```
+    * ```
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * ```
+    *  ```
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    *  ```
+    * ```scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * ```
+    * ```scala
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * ```
+    * ```scala
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * ```
+    *  ```scala
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    *  ```
+    */
+  def getAlignColumn(floc: FormatLocation): Int = _
+}
+>>>
+object a {
+
+  /**
+   * ```
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
+   * ```
+   * ```
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   * ```
+   * ```
+   *   libraryDependencies ++= Seq(
+   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *     "io.get-coursier" % "interface"  % "0.0.17"
+   *   )
+   * ```
+   * ```
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   * ```
+   * ```scala
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
+   * ```
+   * ```scala
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
+   * ```
+   * ```scala
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
+   * ```
+   * ```scala
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
+   * ```
+   */
+  def getAlignColumn(floc: FormatLocation): Int = _
+}
+<<< indents within code block, Asterisk
+align.preset = more
+docstrings.wrap = yes
+docstrings.style = Asterisk
+===
+object a {
+  /**
+    * {{{
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * }}}
+    * {{{
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * }}}
+    * {{{
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * }}}
+    *  {{{
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    *  }}}
+    * {{{
+    * // scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * }}}
+    * {{{
+    *  // scala
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * }}}
+    * {{{
+    *   // scala
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * }}}
+    *  {{{
+    *   // scala
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    *  }}}
+    */
+  def getAlignColumn(floc: FormatLocation): Int = _
+}
+>>>
+object a {
+
+  /**
+   * {{{
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
+   * }}}
+   * {{{
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   * }}}
+   * {{{
+   *   libraryDependencies ++= Seq(
+   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *     "io.get-coursier" % "interface"  % "0.0.17"
+   *   )
+   * }}}
+   * {{{
+   *   libraryDependencies ++= Seq(
+   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *     "io.get-coursier" % "interface"  % "0.0.17"
+   *   )
+   * }}}
+   * {{{
+   * // scala
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
+   * }}}
+   * {{{
+   * // scala
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
+   * }}}
+   * {{{
+   * // scala
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
+   * }}}
+   * {{{
+   * // scala
+   * libraryDependencies ++= Seq(
+   *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *   "io.get-coursier" % "interface"  % "0.0.17"
+   * )
+   * }}}
+   */
+  def getAlignColumn(floc: FormatLocation): Int = _
+}
+<<< indents within markdown code block, SpaceAsterisk
+align.preset = more
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+===
+object a {
+  /**
+    * ```
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * ```
+    * ```
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * ```
+    * ```
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * ```
+    *  ```
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    *  ```
+    * ```scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * ```
+    * ```scala
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * ```
+    * ```scala
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * ```
+    *  ```scala
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    *  ```
+    */
+  def getAlignColumn(floc: FormatLocation): Int = _
+}
+>>>
+object a {
+
+  /** ```
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * ```
+    * ```
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * ```
+    * ```
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * ```
+    * ```
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * ```
+    * ```scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * ```
+    * ```scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * ```
+    * ```scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * ```
+    * ```scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * ```
+    */
+  def getAlignColumn(floc: FormatLocation): Int = _
+}
+<<< indents within code block, SpaceAsterisk
+align.preset = more
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+===
+object a {
+  /**
+    * {{{
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * }}}
+    * {{{
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * }}}
+    * {{{
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * }}}
+    *  {{{
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    *  }}}
+    * {{{
+    * // scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * }}}
+    * {{{
+    *  // scala
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * }}}
+    * {{{
+    *   // scala
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * }}}
+    *  {{{
+    *   // scala
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    *  }}}
+    */
+  def getAlignColumn(floc: FormatLocation): Int = _
+}
+>>>
+object a {
+
+  /** {{{
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * }}}
+    * {{{
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * }}}
+    * {{{
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * }}}
+    * {{{
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * }}}
+    * {{{
+    * // scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * }}}
+    * {{{
+    * // scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * }}}
+    * {{{
+    * // scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * }}}
+    * {{{
+    * // scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * }}}
+    */
+  def getAlignColumn(floc: FormatLocation): Int = _
+}
+<<< indents within markdown code block, AsteriskSpace
+align.preset = more
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+===
+object a {
+  /**
+    * ```
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * ```
+    * ```
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * ```
+    * ```
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * ```
+    *  ```
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    *  ```
+    * ```scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * ```
+    * ```scala
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * ```
+    * ```scala
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * ```
+    *  ```scala
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    *  ```
+    */
+  def getAlignColumn(floc: FormatLocation): Int = _
+}
+>>>
+object a {
+
+  /**
+   *  ```
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   *  ```
+   *  ```
+   *   libraryDependencies ++= Seq(
+   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *     "io.get-coursier" % "interface"  % "0.0.17"
+   *   )
+   *  ```
+   *  ```
+   *    libraryDependencies ++= Seq(
+   *      "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *      "io.get-coursier" % "interface"  % "0.0.17"
+   *    )
+   *  ```
+   *  ```
+   *   libraryDependencies ++= Seq(
+   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *     "io.get-coursier" % "interface"  % "0.0.17"
+   *   )
+   *  ```
+   *  ```scala
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   *  ```
+   *  ```scala
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   *  ```
+   *  ```scala
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   *  ```
+   *  ```scala
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   *  ```
+   */
+  def getAlignColumn(floc: FormatLocation): Int = _
+}
+<<< indents within code block, AsteriskSpace
+align.preset = more
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+===
+object a {
+  /**
+    * {{{
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * }}}
+    * {{{
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * }}}
+    * {{{
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * }}}
+    *  {{{
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    *  }}}
+    * {{{
+    * // scala
+    * libraryDependencies ++= Seq(
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *   "io.get-coursier" % "interface"  % "0.0.17"
+    * )
+    * }}}
+    * {{{
+    *  // scala
+    *  libraryDependencies ++= Seq(
+    *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *    "io.get-coursier" % "interface"  % "0.0.17"
+    *  )
+    * }}}
+    * {{{
+    *   // scala
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    * }}}
+    *  {{{
+    *   // scala
+    *   libraryDependencies ++= Seq(
+    *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+    *     "io.get-coursier" % "interface"  % "0.0.17"
+    *   )
+    *  }}}
+    */
+  def getAlignColumn(floc: FormatLocation): Int = _
+}
+>>>
+object a {
+
+  /** {{{
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   *  }}}
+   *  {{{
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   *  }}}
+   *  {{{
+   *   libraryDependencies ++= Seq(
+   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *     "io.get-coursier" % "interface"  % "0.0.17"
+   *   )
+   *  }}}
+   *  {{{
+   *   libraryDependencies ++= Seq(
+   *     "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *     "io.get-coursier" % "interface"  % "0.0.17"
+   *   )
+   *  }}}
+   *  {{{
+   *  // scala
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   *  }}}
+   *  {{{
+   *  // scala
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   *  }}}
+   *  {{{
+   *  // scala
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   *  }}}
+   *  {{{
+   *  // scala
+   *  libraryDependencies ++= Seq(
+   *    "org.scalacheck" %% "scalacheck" % scalacheckV,
+   *    "io.get-coursier" % "interface"  % "0.0.17"
+   *  )
+   *  }}}
+   */
+  def getAlignColumn(floc: FormatLocation): Int = _
+}
+<<< #2039
+docstrings.removeEmpty = true
+===
+object a {
+  /** */
+  /**
+    *
+    */
+  /**
+    **
+    */
+  /** */ /** */
+  val a = 1
+}
+>>>
+object a {
+
+  /**
+   * *
+   */
+  val a = 1
+}
+<<< preserve indentation in code blocks Asterisk
+docstrings.style = Asterisk
+docstrings.wrap = yes
+===
+object a {
+ /**
+   * {{{
+   *    checkPositions(
+   *       """|Type.Bounds [X@@] =>> (X, X)
+   *          |Type.Tuple (X, X)
+   *          |""".stripMargin
+   *    )
+   * }}}
+   */
+  val a = 1
+}
+>>>
+object a {
+
+  /**
+   * {{{
+   *    checkPositions(
+   *       """|Type.Bounds [X@@] =>> (X, X)
+   *          |Type.Tuple (X, X)
+   *          |""".stripMargin
+   *    )
+   * }}}
+   */
+  val a = 1
+}
+<<< preserve indentation in code blocks SpaceAsterisk
+docstrings.style = SpaceAsterisk
+docstrings.wrap = yes
+===
+object a {
+  /**
+   * {{{
+   *    checkPositions(
+   *       """|Type.Bounds [X@@] =>> (X, X)
+   *          |Type.Tuple (X, X)
+   *          |""".stripMargin
+   *    )
+   * }}}
+   */
+  val a = 1
+}
+>>>
+object a {
+
+  /** {{{
+    *    checkPositions(
+    *       """|Type.Bounds [X@@] =>> (X, X)
+    *          |Type.Tuple (X, X)
+    *          |""".stripMargin
+    *    )
+    * }}}
+    */
+  val a = 1
+}
+<<< preserve indentation in code blocks AsteriskSpace
+docstrings.style = AsteriskSpace
+docstrings.wrap = yes
+===
+object a {
+  /**
+   * {{{
+   *    checkPositions(
+   *       """|Type.Bounds [X@@] =>> (X, X)
+   *          |Type.Tuple (X, X)
+   *          |""".stripMargin
+   *    )
+   * }}}
+   */
+  val a = 1
+}
+>>>
+object a {
+
+  /** {{{
+   *    checkPositions(
+   *       """|Type.Bounds [X@@] =>> (X, X)
+   *          |Type.Tuple (X, X)
+   *          |""".stripMargin
+   *    )
+   *  }}}
+   */
+  val a = 1
+}
+<<< #3129 1 code without leading space, Asterisk
+docstrings.wrap = yes
+docstrings.style = Asterisk
+===
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  *some.example(foo)
+  *   }}}
+  */
+def foo = ()
+>>>
+/**
+ * Title
+ * @example
+ *   {{{
+ *    println("example")
+ * some.example(foo)
+ *   }}}
+ */
+def foo = ()
+<<< #3129 1 code without leading space, SpaceAsterisk
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+===
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  *some.example(foo)
+  *   }}}
+  */
+def foo = ()
+>>>
+/** Title
+  * @example
+  *   {{{
+  *    println("example")
+  * some.example(foo)
+  *   }}}
+  */
+def foo = ()
+<<< #3129 1 code without leading space, AsteriskSpace
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+===
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  *some.example(foo)
+  *   }}}
+  */
+def foo = ()
+>>>
+/** Title
+ *  @example
+ *    {{{
+ *     println("example")
+ *  some.example(foo)
+ *    }}}
+ */
+def foo = ()
+<<< #3129 2 code without leading space, Asterisk
+docstrings.wrap = yes
+docstrings.style = Asterisk
+===
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  some.example(foo)
+  *   }}}
+  */
+def foo = ()
+>>>
+/**
+ * Title
+ * @example
+ *   {{{
+ *    println("example")
+ * some.example(foo)
+ *   }}}
+ */
+def foo = ()
+<<< #3129 2 code without leading space, SpaceAsterisk
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+===
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  some.example(foo)
+  *   }}}
+  */
+def foo = ()
+>>>
+/** Title
+  * @example
+  *   {{{
+  *    println("example")
+  * some.example(foo)
+  *   }}}
+  */
+def foo = ()
+<<< #3129 2 code without leading space, AsteriskSpace
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+===
+/** Title
+  * @example
+  *   {{{
+  *   println("example")
+  some.example(foo)
+  *   }}}
+  */
+def foo = ()
+>>>
+/** Title
+ *  @example
+ *    {{{
+ *     println("example")
+ *  some.example(foo)
+ *    }}}
+ */
+def foo = ()
+<<< #1387 add fold
+docstrings.wrap = fold
+docstrings.style = Asterisk
+maxColumn = 30
+===
+/** Start the comment here
+  *
+  * @param d a b c d e f g h i jj k l m n
+  * @param ee a b c d e f g h i j k l m n
+  */
+def foo = ()
+>>>
+/**
+ * Start the comment here
+ *
+ * @param d a b c d e f g h i
+ *   jj k l m n
+ * @param ee a b c d e f g h i
+ *   j k l m n
+ */
+def foo = ()
+<<< don't break before words which look like a scaladoc element
+docstrings.wrap = fold
+docstrings.style = Asterisk
+maxColumn = 10
+===
+/** foo
+  * barBar - bazBaz
+  */
+def foo = ()
+>>>
+/**
+ * foo
+ * barBar -
+ * bazBaz
+ */
+def foo =
+  ()
+<<< properly escape scaladoc element at line start
+docstrings.wrap = fold
+===
+  /** When called from `pre1.A <:< pre2.A` does `pre1` relate to `pre2` so that
+    *  the subtype test is true? This is the case if
+    *
+    *    val Deriver         : Property.Key[typer.Deriver]       = new Property.Key
+    *        ^
+    *  value Deriver in class Namer is not a legal implementation of `Deriver` in class Namer.
+    *  its type             dotty.tools.dotc.util.Property.Key[Namer.this.Deriver]
+    *    |*  does not conform to  dotty.tools.dotc.util.Property.Key[Typer.this.Deriver & Namer.this.Deriver]
+    */
+object a {}
+>>>
+/**
+ * When called from `pre1.A <:< pre2.A` does `pre1` relate to `pre2` so that
+ *  the subtype test is true? This is the case if
+ *
+ *    val Deriver         : Property.Key[typer.Deriver]       = new Property.Key
+ *        ^
+ *  value Deriver in class Namer is not a legal implementation of `Deriver` in class Namer.
+ *  its type             dotty.tools.dotc.util.Property.Key[Namer.this.Deriver]
+ *    |*  does not conform to  dotty.tools.dotc.util.Property.Key[Typer.this.Deriver & Namer.this.Deriver]
+ */
+object a {}
+<<< #4536 oneline=fold Asterisk
+docstrings.wrap = yes
+docstrings.oneline = fold
+docstrings.style = Asterisk
+===
+/** foo
+ * bar
+ */
+object a {}
+>>>
+/** foo bar */
+object a {}
+<<< #4536 oneline=fold AsteriskSpace
+docstrings.wrap = yes
+docstrings.oneline = fold
+docstrings.style = AsteriskSpace
+===
+/** foo
+ * bar
+ */
+object a {}
+>>>
+/** foo bar */
+object a {}
+<<< #4536 oneline=fold SpaceAsterisk
+docstrings.wrap = yes
+docstrings.oneline = fold
+docstrings.style = SpaceAsterisk
+===
+/** foo
+ * bar
+ */
+object a {}
+>>>
+/** foo bar */
+object a {}

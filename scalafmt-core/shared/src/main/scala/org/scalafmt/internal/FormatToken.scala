@@ -1,9 +1,10 @@
 package org.scalafmt.internal
 
+import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps._
 
 import scala.meta.Tree
-import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 
@@ -20,7 +21,7 @@ import scala.annotation.tailrec
   * @param meta
   *   Extra information about the token
   */
-case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
+case class FormatToken(left: T, right: T, meta: FT.Meta) {
 
   override def toString = {
     val ws = newlinesBetween match {
@@ -28,7 +29,13 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
       case 1 => "LF"
       case _ => "LFLF"
     }
-    s"${meta.left.text}∙${meta.right.text}: ${left.structure} [$ws] ${right.structure}"
+    val lt = meta.left.text
+    val rt = meta.right.text
+    val ls = left.structure
+    val rs = right.structure
+    val lo = LoggerOps.treeInfo(leftOwner)
+    val ro = LoggerOps.treeInfo(rightOwner)
+    s"[$idx] $lt $rt >>> $ls | $rs >>> $lo | $ro <<<[$ws]>>>"
   }
 
   def inside(range: Set[Range]): Boolean =
@@ -39,27 +46,27 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
     val nl = meta.newlinesBetween
     // make sure to break before/after docstring
     if (nl != 0) nl
-    else if (left.is[Token.Comment] && isDocstring(meta.left.text)) 1
-    else if (right.is[Token.Comment] && isDocstring(meta.right.text)) 1
+    else if (left.is[T.Comment] && isDocstring(meta.left.text)) 1
+    else if (right.is[T.Comment] && isDocstring(meta.right.text)) 1
     else 0
   }
   @inline
-  def noBreak: Boolean = FormatToken.noBreak(newlinesBetween)
+  def noBreak: Boolean = FT.noBreak(newlinesBetween)
   @inline
   def hasBreak: Boolean = !noBreak
   @inline
-  def hasBlankLine: Boolean = FormatToken.hasBlankLine(newlinesBetween)
+  def hasBlankLine: Boolean = FT.hasBlankLine(newlinesBetween)
 
   @inline
   def leftHasNewline = meta.left.hasNL
   @inline
   def rightHasNewline = meta.right.hasNL
   @inline
-  def hasBreakOrEOF: Boolean = hasBreak || right.is[Token.EOF]
+  def hasBreakOrEOF: Boolean = hasBreak || right.is[T.EOF]
 
   def hasCRLF: Boolean = between.exists {
-    case _: Token.CRLF => true
-    case t: Token.MultiNL => t.tokens.exists(_.is[Token.CRLF])
+    case _: T.CRLF => true
+    case t: T.MultiNL => t.tokens.exists(_.is[T.CRLF])
     case _ => false
   }
 
@@ -67,9 +74,14 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
     */
   override def hashCode(): Int = hash(left).##
 
-  private[scalafmt] def withIdx(idx: Int): FormatToken =
-    copy(meta = meta.copy(idx = idx))
+  private[scalafmt] def withIdx(idx: Int): FT = copy(meta = meta.copy(idx = idx))
 
+  @inline
+  def idx: Int = meta.idx
+  @inline
+  def leftOwner: Tree = meta.leftOwner
+  @inline
+  def rightOwner: Tree = meta.rightOwner
 }
 
 object FormatToken {
@@ -80,10 +92,10 @@ object FormatToken {
   def hasBlankLine(newlines: Int): Boolean = newlines > 1
 
   @inline
-  def isNL(token: Token): Boolean = token.is[Token.AtEOL]
+  def isNL(token: T): Boolean = token.is[T.AtEOL]
   @inline
-  def newlines(token: Token): Int = token match {
-    case t: Token.AtEOL => t.newlines
+  def newlines(token: T): Int = token match {
+    case t: T.AtEOL => t.newlines
     case _ => 0
   }
 
@@ -95,7 +107,7 @@ object FormatToken {
     *   if true, between and right should not be formatted
     */
   case class Meta(
-      between: Array[Token],
+      between: Array[T],
       idx: Int,
       formatOff: Boolean,
       left: TokenMeta,
@@ -134,8 +146,8 @@ object FormatToken {
     }
   }
 
-  class ExtractFromMeta[A](f: FormatToken.Meta => Option[A]) {
-    def unapply(meta: FormatToken.Meta): Option[A] = f(meta)
+  class ExtractFromMeta[A](f: FT.Meta => Option[A]) {
+    def unapply(meta: FT.Meta): Option[A] = f(meta)
   }
 
   val LeftOwner = new ExtractFromMeta(x => Some(x.leftOwner))

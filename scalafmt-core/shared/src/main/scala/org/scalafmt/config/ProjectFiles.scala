@@ -43,7 +43,8 @@ object ProjectFiles {
 
   private implicit val fs: file.FileSystem = file.FileSystems.getDefault
 
-  val defaultIncludePaths = Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc")
+  val defaultIncludePaths =
+    Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc", "glob:**.mill")
 
   private sealed abstract class PathMatcher {
     def matches(path: file.Path): Boolean
@@ -65,7 +66,7 @@ object ProjectFiles {
     }
 
     private def create(seq: Seq[String], f: String => PathMatcher) = seq
-      .map(_.asFilename).distinct.map(f)
+      .map(_.inPathMatcherForm).distinct.map(f)
     private def nio(seq: Seq[String]) = create(seq, new Nio(_))
     private def regex(seq: Seq[String]) = create(seq, new Regex(_))
 

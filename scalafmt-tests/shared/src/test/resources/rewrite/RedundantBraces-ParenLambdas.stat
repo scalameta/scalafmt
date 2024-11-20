@@ -1,0 +1,311 @@
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.methodBodies = true
+rewrite.redundantBraces.maxLines = 1
+<<< #1237 1 ctor is treated as multi-stat
+object a {
+  val a = new b(c => { d })(c => {d}, c => { d; e })
+}
+>>>
+object a {
+  val a = new b(c => d)(c => d, c => { d; e })
+}
+<<< #1237 2 apply single-stat with comments
+object a {
+  val a = b(c => {
+  d // c1
+  } // c2
+  )
+}
+>>>
+object a {
+  val a = b { c =>
+    d // c1
+  } // c2
+}
+<<< #1237 3 apply multiple single-stat
+object a {
+  val a = b(c => { d }, e => { f })
+}
+>>>
+object a {
+  val a = b(c => d, e => f)
+}
+<<< #1237 4 apply multiple single-stat multiline
+object a {
+  val a = b(
+    c => { d },
+    e => {
+    f + f
+    },
+    g => {
+      h +
+          h
+    },
+    i => {
+      j +
+          j -
+              j
+    }
+  )
+}
+>>>
+object a {
+  val a = b(
+    c => d,
+    e => f + f,
+    g =>
+      h +
+        h,
+    i => {
+      j +
+        j -
+        j
+    }
+  )
+}
+<<< #1237 5 apply single multi-stat with newline
+object a {
+  val a = b(c => { d
+   e})
+}
+>>>
+object a {
+  val a = b { c =>
+    d
+    e
+  }
+}
+<<< #1237 6 apply single multi-stat with semicolon
+object a {
+  val a = b(c => { d; e })
+}
+>>>
+object a {
+  val a = b { c => d; e }
+}
+<<< #1237 7 apply single multi-stat with semicolon and newline
+object a {
+  val a = b(c => { d;
+   e })
+}
+>>>
+object a {
+  val a = b { c =>
+    d;
+    e
+  }
+}
+<<< #1237 8 block single multi-stat with newline
+object a {
+  val a = b { c => { d
+   e}}
+}
+>>>
+object a {
+  val a = b { c =>
+    d
+    e
+  }
+}
+<<< #1237 8 block single multi-stat with newline (format:off)
+object a {
+  // format: off
+  val a = b { c => { d
+   e}}
+}
+
+>>>
+object a {
+  // format: off
+  val a = b { c => { d
+   e}}
+}
+<<< look only for immediate braces around lambda
+object a {
+  val a = b { c => d => { e; f } }
+}
+>>>
+object a {
+  val a = b(c => d => { e; f })
+}
+<<< #1707 1: don't rewrite to parens if typed lambda param
+override def run(args: List[String]): IO[ExitCode] =
+  Slf4jLogger
+    .create[IO]
+    .flatMap { implicit logger: Logger[IO] =>
+      program
+    }
+>>>
+override def run(args: List[String]): IO[ExitCode] =
+  Slf4jLogger
+    .create[IO]
+    .flatMap { implicit logger: Logger[IO] =>
+      program
+    }
+<<< #1707 2: don't rewrite to parens if typed lambda param
+def a(b: B): C[D] =
+    C[String].contramap[D] { i: D =>
+      b.format(i)
+    }
+>>>
+def a(b: B): C[D] =
+  C[String].contramap[D] { i: D =>
+    b.format(i)
+  }
+<<< #1707 3: rewrite to parens if typed lambda param with parens and newlines.afterCurlyLambda=squash
+newlines.afterCurlyLambda=squash
+===
+def a(b: B): C[D] =
+    C[String].contramap[D] { (i: D) =>
+      b.format(i)
+    }
+>>>
+def a(b: B): C[D] =
+  C[String].contramap[D]((i: D) => b.format(i))
+<<< #1707 4: rewrite to parens if multiple params and newlines.afterCurlyLambda=squash
+newlines.afterCurlyLambda=squash
+===
+def a(b: B): C[D] =
+    C[String].contramap[D] { (i: D, j: Int) =>
+      b.format(i)
+    }
+>>>
+def a(b: B): C[D] =
+  C[String].contramap[D]((i: D, j: Int) => b.format(i))
+<<< #1708
+danglingParentheses.preset = false
+===
+val a = b[IO](
+{ c: Int => if (d) e else f }, g)
+>>>
+val a = b[IO]({ c: Int => if (d) e else f }, g)
+<<< #1708 with an assignment block
+F.runAsync(stream.compile.toVector) {
+           case Right(bs) => IO { bytes = bs }
+           case Left(t) => IO.raiseError(t)
+         }
+>>>
+F.runAsync(stream.compile.toVector) {
+  case Right(bs) => IO { bytes = bs }
+  case Left(t)   => IO.raiseError(t)
+}
+<<< #1748 no braces to parens with nested lambda, with types
+def old = foo.map { a => b: SomeType => blah() }
+>>>
+def old = foo.map { a => b: SomeType => blah() }
+<<< #1756 val within lambda
+object a {
+  childContext.onDone { _ =>
+    val _ = self.withChildren(_.remove(childContext))
+  }
+}
+>>>
+object a {
+  childContext.onDone { _ =>
+    val _ = self.withChildren(_.remove(childContext))
+  }
+}
+<<< #1756 def within lambda
+object a {
+  childContext.onDone { _ =>
+    def a = self.withChildren(_.remove(childContext))
+  }
+}
+>>>
+object a {
+  childContext.onDone { _ =>
+    def a = self.withChildren(_.remove(childContext))
+  }
+}
+<<< #1756 type within lambda
+object a {
+  childContext.onDone { _ =>
+    type a = Int
+  }
+}
+>>>
+object a {
+  childContext.onDone { _ =>
+    type a = Int
+  }
+}
+<<< #1756 val without lambda
+object a {
+  childContext.onDone { val _ = self.withChildren(_.remove(childContext)) }
+}
+>>>
+object a {
+  childContext.onDone { val _ = self.withChildren(_.remove(childContext)) }
+}
+<<< #1756 def without lambda
+object a {
+  childContext.onDone { def a = self.withChildren(_.remove(childContext)) }
+}
+>>>
+object a {
+  childContext.onDone { def a = self.withChildren(_.remove(childContext)) }
+}
+<<< #1756 type without lambda
+object a {
+  childContext.onDone { type a = Int }
+}
+>>>
+object a {
+  childContext.onDone { type a = Int }
+}
+<<< #4133 lambda body with a comment
+rewrite.redundantBraces.maxLines = 100
+===
+object a {
+  lowClass.isJavaDefined && highClass.isJavaDefined && { // skip if both are java-defined, and
+    lowClass.isNonBottomSubClass(highClass) || {         //  - low <:< high, which means they are overrides in Java and javac is doing the check; or
+      base.info.parents.tail.forall(p => {               //  - every mixin parent is unrelated to (not a subclass of) low and high, i.e.,
+        val psym = p.typeSymbol                          //    we're not mixing in high or low, both are coming from the superclass
+        !psym.isNonBottomSubClass(lowClass) && !psym.isNonBottomSubClass(highClass)
+      })
+    }
+  }
+}
+>>>
+object a {
+  lowClass.isJavaDefined && highClass.isJavaDefined && { // skip if both are java-defined, and
+    lowClass.isNonBottomSubClass(
+      highClass
+    ) || { //  - low <:< high, which means they are overrides in Java and javac is doing the check; or
+      base.info.parents.tail.forall {
+        p => //  - every mixin parent is unrelated to (not a subclass of) low and high, i.e.,
+          val psym =
+            p.typeSymbol //    we're not mixing in high or low, both are coming from the superclass
+          !psym.isNonBottomSubClass(lowClass) && !psym.isNonBottomSubClass(
+            highClass
+          )
+      }
+    }
+  }
+}
+<<< #4133 lambda body without a comment
+rewrite.redundantBraces.maxLines = 100
+===
+object a {
+  lowClass.isJavaDefined && highClass.isJavaDefined && {
+    lowClass.isNonBottomSubClass(highClass) || {
+      base.info.parents.tail.forall(p => {
+        val psym = p.typeSymbol
+        !psym.isNonBottomSubClass(lowClass) && !psym.isNonBottomSubClass(highClass)
+      })
+    }
+  }
+}
+>>>
+object a {
+  lowClass.isJavaDefined && highClass.isJavaDefined && {
+    lowClass.isNonBottomSubClass(highClass) || {
+      base.info.parents.tail.forall { p =>
+        val psym = p.typeSymbol
+        !psym.isNonBottomSubClass(lowClass) && !psym.isNonBottomSubClass(
+          highClass
+        )
+      }
+    }
+  }
+}

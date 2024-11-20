@@ -19,11 +19,21 @@ case class RedundantBracesSettings(
 object RedundantBracesSettings {
 
   val default = RedundantBracesSettings()
+  private[scalafmt] val all =
+    RedundantBracesSettings(stringInterpolation = true, ifElseExpressions = true)
+
+  private implicit val preset
+      : PartialFunction[Conf, RedundantBracesSettings] = {
+    case Conf.Str("default") => default
+    case Conf.Str("all") => all
+  }
 
   implicit lazy val surface: generic.Surface[RedundantBracesSettings] =
     generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[RedundantBracesSettings] = generic
-    .deriveCodecEx(default).noTypos
+  implicit lazy val encoder: ConfEncoder[RedundantBracesSettings] =
+    generic.deriveEncoder
+  implicit lazy val decoder: ConfDecoderEx[RedundantBracesSettings] = Presets
+    .mapDecoder(generic.deriveDecoderEx(default).noTypos, "RedundantBraces")
 
   sealed abstract class DefnBodies
 

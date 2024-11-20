@@ -30,15 +30,13 @@ object TreeSyntacticGroup {
 //    case _: Term.Tuple => g.Term.Expr1 // ??? Was SimpleExpr1, which is buggy for `a op ((b, c))
     case _: Term.If => g.Term.Expr1
     case _: Term.Match => g.Term.Expr1
-    case _: Term.Try => g.Term.Expr1
-    case _: Term.TryWithHandler => g.Term.Expr1
+    case _: Term.TryClause => g.Term.Expr1
     case _: Term.FunctionTerm => g.Term.Expr
     case _: Term.PolyFunction => g.Term.Expr
     case _: Term.PartialFunction => g.Term.SimpleExpr
     case _: Term.While => g.Term.Expr1
     case _: Term.Do => g.Term.Expr1
-    case _: Term.For => g.Term.Expr1
-    case _: Term.ForYield => g.Term.Expr1
+    case _: Term.ForClause => g.Term.Expr1
     case _: Term.New => g.Term.SimpleExpr
     case _: Term.Placeholder => g.Term.SimpleExpr1
     case _: Term.Eta => g.Term.SimpleExpr

@@ -1,0 +1,258 @@
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.stringInterpolation = true
+<<< redundant enclosing braces
+object a {
+  s"Hello ${value}"
+}
+>>>
+object a {
+  s"Hello $value"
+}
+<<< not redundant enclosing braces (right part starts with a letter)
+object a {
+  s"Hello ${foo}bar"
+}
+>>>
+object a {
+  s"Hello ${foo}bar"
+}
+<<< not redundant enclosing braces (right part starts with a number)
+object a {
+  s"Hello ${foo}5"
+}
+>>>
+object a {
+  s"Hello ${foo}5"
+}
+<<< not redundant enclosing braces (right part starts with underscore)
+object a {
+  s"Hello ${foo}_bar"
+}
+>>>
+object a {
+  s"Hello ${foo}_bar"
+}
+<<< not redundant enclosing braces (right part starts with special symbol)
+object a {
+  s"Hello ${foo}æ"
+}
+>>>
+object a {
+  s"Hello ${foo}æ"
+}
+<<< redundant enclosing braces (right part starts operand)
+object a {
+  s"Hello ${foo}+bar"
+}
+>>>
+object a {
+  s"Hello $foo+bar"
+}
+<<< redundant enclosing braces (right part starts with space)
+object a {
+  s"Hello ${foo} ${bar}"
+}
+>>>
+object a {
+  s"Hello $foo $bar"
+}
+<<< enclosing braces
+object a {
+  s"Hello ${d.toString}"
+}
+>>>
+object a {
+  s"Hello ${d.toString}"
+}
+<<< identifier started with underscore
+object a {
+  s"Hello ${_id}"
+}
+>>>
+object a {
+  s"Hello ${_id}"
+}
+<<< literal identifier
+object a {
+  s"Hello ${`type`}"
+}
+>>>
+object a {
+  s"Hello ${`type`}"
+}
+<<< #2754 stringInterpolation
+rewrite.redundantBraces.stringInterpolation = true
+===
+object Test {
+  s"${foo}_${bar}"
+}
+>>>
+object Test {
+  s"${foo}_$bar"
+}
+<<< #2754 !stringInterpolation
+rewrite.redundantBraces.stringInterpolation = false
+===
+object Test {
+  s"${foo}_${bar}"
+}
+>>>
+object Test {
+  s"${foo}_${bar}"
+}
+<<< #3891 braces within xml
+<testcase id={ id }/>
+>>>
+<testcase id={id}/>
+<<< braces around xml, followed by another xml
+maxColumn = 60
+===
+val content = {
+    val owner = {
+        <p id="owner">{ templatesToHtml(tpl.inTemplate.toRoot.reverse.tail, scala.xml.Text(".")) }</p>
+    }
+
+    <body class={ tpl.kind + (if (tpl.isType) " type" else " value") }>
+    </body>
+}
+>>>
+val content = {
+  val owner = {
+    <p id="owner">{
+      templatesToHtml(
+        tpl.inTemplate.toRoot.reverse.tail,
+        scala.xml.Text(".")
+      )
+    }</p>
+  }
+
+  <body class={
+    tpl.kind + (if (tpl.isType) " type" else " value")
+  }>
+    </body>
+}
+<<< braces around xml, followed by another xml 2
+maxColumn = 60
+===
+val content = {
+    val owner = {
+      if (tpl.isRootPackage || tpl.inTemplate.isRootPackage)
+        NodeSeq.Empty
+      else
+        <p id="owner">{ templatesToHtml(tpl.inTemplate.toRoot.reverse.tail, scala.xml.Text(".")) }</p>
+    }
+
+    <body class={ tpl.kind + (if (tpl.isType) " type" else " value") }>
+    </body>
+}
+>>>
+val content = {
+  val owner = {
+    if (tpl.isRootPackage || tpl.inTemplate.isRootPackage)
+      NodeSeq.Empty
+    else
+      <p id="owner">{
+        templatesToHtml(
+          tpl.inTemplate.toRoot.reverse.tail,
+          scala.xml.Text(".")
+        )
+      }</p>
+  }
+
+  <body class={
+    tpl.kind + (if (tpl.isType) " type" else " value")
+  }>
+    </body>
+}
+<<< braces around xml, preceded by another xml 3
+maxColumn = 60
+===
+val content = {
+    <body class={ tpl.kind + (if (tpl.isType) " type" else " value") }>
+    </body>
+
+    {
+       <p id="owner">{ templatesToHtml(tpl.inTemplate.toRoot.reverse.tail, scala.xml.Text(".")) }</p> . bar
+    }
+}
+>>>
+val content = {
+  <body class={
+    tpl.kind + (if (tpl.isType) " type" else " value")
+  }>
+    </body>
+
+  {
+    <p id="owner">{
+      templatesToHtml(
+        tpl.inTemplate.toRoot.reverse.tail,
+        scala.xml.Text(".")
+      )
+    }</p>.bar
+  }
+}
+<<< braces around xml, followed by another xml after comments 4
+maxColumn = 60
+===
+val content = {
+    val owner = {
+      if (tpl.isRootPackage || tpl.inTemplate.isRootPackage)
+        NodeSeq.Empty
+      else
+        <p id="owner">{ templatesToHtml(tpl.inTemplate.toRoot.reverse.tail, scala.xml.Text(".")) }</p>
+    }
+
+    // comment
+    <body class={ tpl.kind + (if (tpl.isType) " type" else " value") }>
+    </body>
+}
+>>>
+val content = {
+  val owner =
+    if (tpl.isRootPackage || tpl.inTemplate.isRootPackage)
+      NodeSeq.Empty
+    else
+      <p id="owner">{
+        templatesToHtml(
+          tpl.inTemplate.toRoot.reverse.tail,
+          scala.xml.Text(".")
+        )
+      }</p>
+
+  // comment
+  <body class={
+    tpl.kind + (if (tpl.isType) " type" else " value")
+  }>
+    </body>
+}
+<<< braces around xml, preceded by another xml after comments 5
+maxColumn = 60
+===
+val content = {
+    <body class={ tpl.kind + (if (tpl.isType) " type" else " value") }>
+    </body>
+
+    {
+       // comment
+       <p id="owner">{ templatesToHtml(tpl.inTemplate.toRoot.reverse.tail, scala.xml.Text(".")) }</p> . bar
+    }
+}
+>>>
+val content = {
+  <body class={
+    tpl.kind + (if (tpl.isType) " type" else " value")
+  }>
+    </body>
+
+  // comment
+  <p id="owner">{
+    templatesToHtml(
+      tpl.inTemplate.toRoot.reverse.tail,
+      scala.xml.Text(".")
+    )
+  }</p>.bar
+}
+<<< #4456
+println(s"${$}")
+>>>
+println(s"${$}")

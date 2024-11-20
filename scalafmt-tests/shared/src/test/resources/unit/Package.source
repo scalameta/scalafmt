@@ -1,0 +1,109 @@
+
+<<< separate by two newlines with docstring
+package foo
+/**
+ * comment
+ */
+object a
+>>>
+package foo
+
+/** comment
+  */
+object a
+<<< separate by two newlines with docstring 2
+package foo
+/**
+ * comment 1
+ */
+object a1
+/**
+ * comment 2
+ */
+object a2
+>>>
+package foo
+
+/** comment 1
+  */
+object a1
+
+/** comment 2
+  */
+object a2
+<<< separate by two newlines
+package foo
+object a
+>>>
+package foo
+object a
+<<< with inline comment
+package foo // this package is cool
+object a
+>>>
+package foo // this package is cool
+object a
+<<< with import
+package foo
+import a.b
+object a
+>>>
+package foo
+import a.b
+object a
+<<< 2x packages
+package foo
+package bar
+object a
+>>>
+package foo
+package bar
+object a
+
+<<< top-level stats have flexible newlines #153
+package foo
+abstract class Dsl
+class A     extends Dsl
+class B extends Dsl
+>>>
+package foo
+abstract class Dsl
+class A extends Dsl
+class B extends Dsl
+<<< format comment with single asterisk, SpaceAsterisk
+docstrings.style = SpaceAsterisk
+docstrings.wrap = no
+===
+/** Align by
+ * second asterisk.
+ *
+ */
+>>>
+/** Align by
+  * second asterisk.
+  */
+<<< format comment with single asterisk, AsteriskSpace
+docstrings.style = AsteriskSpace
+docstrings.wrap = no
+===
+/** Align space by
+  * second asterisk.
+  *
+  */
+>>>
+/** Align space by
+ *  second asterisk.
+ */
+<<< format comment with single asterisk, Asterisk
+docstrings.style = Asterisk
+docstrings.wrap = no
+===
+/** Align by
+  * first asterisk.
+  *
+  */
+>>>
+/**
+ * Align by
+ * first asterisk.
+ */

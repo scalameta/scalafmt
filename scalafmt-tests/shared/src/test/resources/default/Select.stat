@@ -1,0 +1,1051 @@
+
+<<< basic
+a .b .c
+>>>
+a.b.c
+<<< longer
+val logger = Logger(this .getClass)
+>>>
+val logger = Logger(this.getClass)
+<<< Break on .
+val expire = owner.body.tokens.filterNot(_.isInstanceOf[Whitespace]).lastOption.getOrElse(
+            arrow)
+>>>
+val expire = owner.body.tokens
+  .filterNot(_.isInstanceOf[Whitespace])
+  .lastOption
+  .getOrElse(arrow)
+<<< Bind . to closing }
+map {
+    // foo
+} .withIndent
+>>>
+map {
+  // foo
+}.withIndent
+<<< Break on . 2
+Split(NoSplit, 0, policy = SingleLineBlock(owner.thenp.tokens.last)).withIndent(
+              StateColumn, close, Left)
+>>>
+Split(NoSplit, 0, policy = SingleLineBlock(owner.thenp.tokens.last))
+  .withIndent(StateColumn, close, Left)
+<<< Break on . 3
+val expire = owner.tokens.find(_.isInstanceOf[`{`]).getOrElse(owner.tokens.last)
+>>>
+val expire =
+  owner.tokens.find(_.isInstanceOf[`{`]).getOrElse(owner.tokens.last)
+<<< state explosion
+a.b.c.d.e.f.g.h.i.j.k {
+ // Crazy comment =================================================================>
+}
+>>>
+a.b.c.d.e.f.g.h.i.j.k {
+  // Crazy comment =================================================================>
+}
+<<< state explosion 2
+a.b(c).d(e).f(g).h(i).j(k) {
+ // Crazy comment =================================================================>
+}
+>>>
+a.b(c).d(e).f(g).h(i).j(k) {
+  // Crazy comment =================================================================>
+}
+<<< Crazy comment
+val lastToken = owner.body.tokens
+    .filter {
+        case _: Whitespace | _: Comment => false
+        case _ => true
+    } // edge case, if body is empty expire on arrow.
+    .lastOption.getOrElse(arrow)
+>>>
+val lastToken = owner.body.tokens.filter {
+  case _: Whitespace | _: Comment => false
+  case _ => true
+} // edge case, if body is empty expire on arrow.
+  .lastOption.getOrElse(arrow)
+<<< apply infix has indent
+val expireAAAAAAAAAAAAAAAAAAAAA = owner.tokens.
+  find(t => t.isInstanceOf[`=`] && owners(t) == owner)
+  .getOrElse(owner.tokens.last)
+>>>
+val expireAAAAAAAAAAAAAAAAAAAAA = owner.tokens
+  .find(t => t.isInstanceOf[`=`] && owners(t) == owner)
+  .getOrElse(owner.tokens.last)
+<<< preserve chains 0
+ a.b(1).c[T].d(f.g).e(2).k(3)
+>>>
+a.b(1).c[T].d(f.g).e(2).k(3)
+<<< preserve chains
+  val files = FilesUtil.listFiles(".")
+    .filter(_.endsWith(".scala"))
+    .filterNot(_.contains("/target/"))
+    .filterNot(_.contains("/resources/"))
+>>>
+val files = FilesUtil
+  .listFiles(".")
+  .filter(_.endsWith(".scala"))
+  .filterNot(_.contains("/target/"))
+  .filterNot(_.contains("/resources/"))
+<<< rhino superfluous parenthesis
+
+  private def extractRhino(e: js.Dynamic): js.Array[String] = {
+    (e.stack.asInstanceOf[js.UndefOr[String]]).getOrElse("")
+      .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+      .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+      .jsReplace("""\r\n?""".re("gm"), "\n") // Rhino has platform-dependent EOL's
+      .jsSplit("\n")
+  }
+>>>
+private def extractRhino(e: js.Dynamic): js.Array[String] = {
+  (e.stack
+    .asInstanceOf[js.UndefOr[String]])
+    .getOrElse("")
+    .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+    .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+    .jsReplace("""\r\n?""".re("gm"),
+               "\n"
+    ) // Rhino has platform-dependent EOL's
+    .jsSplit("\n")
+}
+<<< rhino superfluous parenthesis, with breaks before paren/comment
+private def extractRhino(e: js.Dynamic): js.Array[String] = {
+  (e.stack
+    .asInstanceOf[js.UndefOr[String]])
+    .getOrElse("")
+    .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+    .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+    .jsReplace("""\r\n?""".re("gm"),
+               "\n"
+    ) // Rhino has platform-dependent EOL's
+    .jsSplit("\n")
+}
+>>>
+private def extractRhino(e: js.Dynamic): js.Array[String] = {
+  (e.stack
+    .asInstanceOf[js.UndefOr[String]])
+    .getOrElse("")
+    .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+    .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+    .jsReplace("""\r\n?""".re("gm"),
+               "\n"
+    ) // Rhino has platform-dependent EOL's
+    .jsSplit("\n")
+}
+<<< rhino superfluous parenthesis, align close
+align.closeParenSite = true
+===
+  private def extractRhino(e: js.Dynamic): js.Array[String] = {
+    (e.stack.asInstanceOf[js.UndefOr[String]]).getOrElse("")
+      .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+      .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+      .jsReplace("""\r\n?""".re("gm"), "\n") // Rhino has platform-dependent EOL's
+      .jsSplit("\n")
+  }
+>>>
+private def extractRhino(e: js.Dynamic): js.Array[String] = {
+  (e.stack
+    .asInstanceOf[js.UndefOr[String]])
+    .getOrElse("")
+    .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+    .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+    .jsReplace("""\r\n?""".re("gm"),
+               "\n"
+              ) // Rhino has platform-dependent EOL's
+    .jsSplit("\n")
+}
+<<< rhino superfluous parenthesis, align close, with breaks before paren/comment
+align.closeParenSite = true
+===
+private def extractRhino(e: js.Dynamic): js.Array[String] = {
+  (e.stack
+    .asInstanceOf[js.UndefOr[String]])
+    .getOrElse("")
+    .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+    .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+    .jsReplace("""\r\n?""".re("gm"),
+               "\n"
+              ) // Rhino has platform-dependent EOL's
+    .jsSplit("\n")
+}
+>>>
+private def extractRhino(e: js.Dynamic): js.Array[String] = {
+  (e.stack
+    .asInstanceOf[js.UndefOr[String]])
+    .getOrElse("")
+    .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+    .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+    .jsReplace("""\r\n?""".re("gm"),
+               "\n"
+              ) // Rhino has platform-dependent EOL's
+    .jsSplit("\n")
+}
+<<< select is cheaper
+      new ReflectiveDynamicAccess(classLoader).createInstanceFor[ScalaFmtLike](
+          "org.scalafmt.ScalaFmt210", Seq.empty)
+>>>
+new ReflectiveDynamicAccess(classLoader)
+  .createInstanceFor[ScalaFmtLike]("org.scalafmt.ScalaFmt210", Seq.empty)
+<<< indent until closing }
+abb.b(c).j {
+x + 1
+}
+>>>
+abb.b(c).j {
+  x + 1
+}
+<<< Comment indent
+lst.map { x =>
+    // complicated stuff
+}
+>>>
+lst.map { x =>
+  // complicated stuff
+}
+<<< rightSumming chain conflict
+  LookupJoin.rightSumming(TypedPipe.from(in1))
+    .map {
+      x =>
+        x
+    }
+    .write(TypedTsv[(String, String, String, String)]("output2"))
+>>>
+LookupJoin
+  .rightSumming(TypedPipe.from(in1))
+  .map { x =>
+    x
+  }
+  .write(TypedTsv[(String, String, String, String)]("output2"))
+<<< scalding discardTestJob
+
+class DiscardTestJob(args: Args) extends Job(args) {
+  TextLine(args("in"))
+    .map('words -> 'wsize) { word: String => word.length }
+    .discard('words)
+    .map('* -> 'correct) { te: TupleEntry => te.getFields.contains('words) }
+    .write(Tsv(args("out")))
+}
+>>>
+class DiscardTestJob(args: Args) extends Job(args) {
+  TextLine(args("in"))
+    .map('words -> 'wsize) { word: String => word.length }
+    .discard('words)
+    .map('* -> 'correct) { te: TupleEntry => te.getFields.contains('words) }
+    .write(Tsv(args("out")))
+}
+<<< scalding typedthrowserrorsjov
+  TypedPipe.from(input)
+  .map { trans1 }
+  .addTrap
+  .addTrap
+  .addTrap
+  .addTrap
+  .addTrap
+  .addTrap2(trap2)
+>>>
+TypedPipe
+  .from(input)
+  .map { trans1 }
+  .addTrap
+  .addTrap
+  .addTrap
+  .addTrap
+  .addTrap
+  .addTrap2(trap2)
+<<< scalding  hashjoin with inline comment
+class TypedPipeJoinWithDescriptionJob {
+  x.hashJoin() // this triggers an implicit that somehow pushes the line number to the next one
+    .withDescription("hashJoin")
+    .leftJoin(z)
+    .withDescription("leftJoin")
+    .values
+    .write(TypedTsv[((Int, String), Option[Boolean])]("output"))
+}
+>>>
+class TypedPipeJoinWithDescriptionJob {
+  x.hashJoin() // this triggers an implicit that somehow pushes the line number to the next one
+    .withDescription("hashJoin")
+    .leftJoin(z)
+    .withDescription("leftJoin")
+    .values
+    .write(TypedTsv[((Int, String), Option[Boolean])]("output"))
+}
+<<< chain indent expire #194
+{
+ (playerStore
+      .updatePlayer(_: String, _: PlayerUpdate))
+      .expects("123", PlayerUpdate(active = Some(true)))
+      .returning(Future.value(Unit))
+    (cache.delete _).expects("123")
+  Await.result(service.setActive("123", active = true))
+}
+>>>
+{
+  (playerStore
+    .updatePlayer(_: String, _: PlayerUpdate))
+    .expects("123", PlayerUpdate(active = Some(true)))
+    .returning(Future.value(Unit))
+  (cache.delete _).expects("123")
+  Await.result(service.setActive("123", active = true))
+}
+<<< chain indent expire #194, anon func enclosed
+{
+ (playerStore
+      .updatePlayer(_))
+      .expects("123", PlayerUpdate(active = Some(true)))
+      .returning(Future.value(Unit))
+}
+>>>
+{
+  (playerStore
+    .updatePlayer(_))
+    .expects("123", PlayerUpdate(active = Some(true)))
+    .returning(Future.value(Unit))
+}
+<<< indent expire
+Seq(
+            Split()
+              .withIndent(indent, close, Left)
+              .withPolicy(penalizeAllNewlines(close, 1))
+          )
+>>>
+Seq(
+    Split()
+      .withIndent(indent, close, Left)
+      .withPolicy(penalizeAllNewlines(close, 1))
+)
+<<< #197
+{{{
+      system.actorOf(Props[ThreadNameEcho].withDispatcher("myapp.balancing-dispatcher")) ! "what's the name?"
+      }}}
+>>>
+{
+  {
+    {
+      system.actorOf(
+          Props[ThreadNameEcho].withDispatcher(
+              "myapp.balancing-dispatcher")) ! "what's the name?"
+    }
+  }
+}
+<<< #294
+object a {
+SparkEnv.get.blockManager.getOrElseUpdate(blockId, storageLevel, elementClassTag, () => {
+      readCachedBlock = false
+      computeOrReadCheckpoint(partition, context)
+    })
+}
+>>>
+object a {
+  SparkEnv.get.blockManager.getOrElseUpdate(
+      blockId,
+      storageLevel,
+      elementClassTag,
+      () => {
+        readCachedBlock = false
+        computeOrReadCheckpoint(partition, context)
+      })
+}
+<<< #599
+{{
+ logger
+      .elem(threp1, threp2, threp3, tax.total.value, tax.usedPersonalDiscount)
+}}
+>>>
+{
+  {
+    logger.elem(threp1,
+                threp2,
+                threp3,
+                tax.total.value,
+                tax.usedPersonalDiscount)
+  }
+}
+<<< No args #599
+  keys.clear() // we need to remove the selected keys from the set, otherwise they remain selected
+>>>
+keys.clear() // we need to remove the selected keys from the set, otherwise they remain selected
+<<< #2042 1
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+===
+object a {
+  val res = Seq(1, 2, 3)
+    // Keep odd numbers
+    .filter(_ % 2 == 1)
+}
+>>>
+object a {
+  val res = Seq(1, 2, 3)
+    // Keep odd numbers
+    .filter(_ % 2 == 1)
+}
+<<< #2042 2
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+===
+object a {
+  (TypedPipe.from[(Int, Int)](Tsv("in0", (0, 1)), (0, 1))
+     joinBy TypedPipe.from[(Int, Int)](Tsv("in1", (0, 1)), (0, 1)))(_._1, _._1)
+   //Flatten out to three values:
+  .toTypedPipe
+     .map { kvw => (kvw._1, kvw._2._1._2, kvw._2._2._2) }
+     .write(TypedText.tsv[(Int, Int, Int)]("out2"))
+}
+>>>
+object a {
+  (TypedPipe.from[(Int, Int)](Tsv("in0", (0, 1)), (0, 1))
+    joinBy TypedPipe.from[(Int, Int)](Tsv("in1", (0, 1)), (0, 1)))(_._1, _._1)
+    // Flatten out to three values:
+    .toTypedPipe
+    .map { kvw => (kvw._1, kvw._2._1._2, kvw._2._2._2) }
+    .write(TypedText.tsv[(Int, Int, Int)]("out2"))
+}
+<<< #2061 1
+object a {
+@SerialVersionUID(1)
+ class VectorBuilder[@spec(Double, Int, Float, Long) E](
+     private var _index: Array[Int],
+     private var _data: Array[E],
+     private var used: Int,
+     var length: Int)(implicit
+     ring: Semiring[E],
+     zero: Zero[E])
+     extends NumericOps[VectorBuilder[E]]
+     with Serializable {
+
+     }
+}
+>>>
+object a {
+  @SerialVersionUID(1)
+  class VectorBuilder[@spec(Double, Int, Float, Long) E](
+      private var _index: Array[Int],
+      private var _data: Array[E],
+      private var used: Int,
+      var length: Int)(implicit ring: Semiring[E], zero: Zero[E])
+      extends NumericOps[VectorBuilder[E]]
+      with Serializable {}
+}
+<<< #2061 2
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+===
+object a {
+  object b {
+   val existingNamespace = client.admin.listNamespaceDescriptors()
+     .map(_.getName)
+    val existingNamespace = client.admin
+      .listNamespaceDescriptors()
+      .map(_.getName)
+  }
+  def insertAndGetEvents(eventClient: LEvents) = {
+    val insertedEvent: List[Option[Event]] = listOfEvents.zip(insertedEventId)
+      .map { case (e, id) => Some(e.copy(eventId = Some(id))) }
+  }
+}
+>>>
+object a {
+  object b {
+    val existingNamespace = client.admin
+      .listNamespaceDescriptors()
+      .map(_.getName)
+    val existingNamespace = client.admin
+      .listNamespaceDescriptors()
+      .map(_.getName)
+  }
+  def insertAndGetEvents(eventClient: LEvents) = {
+    val insertedEvent: List[Option[Event]] = listOfEvents
+      .zip(insertedEventId)
+      .map { case (e, id) => Some(e.copy(eventId = Some(id))) }
+  }
+}
+<<< #2061 3
+preset = default
+===
+object a {
+  val algoPredictsMap: Map[EX, RDD[(QX, Seq[P])]] = (0 until evalCount)
+    .map { ex => {
+      val unionAlgoPredicts: RDD[(QX, Seq[P])] = sc.union(algoPredicts)
+       .groupByKey()
+       .mapValues { ps => {
+         assert (ps.size == algoCount, "Must have same length as algoCount")
+         // TODO. Check size == algoCount
+         ps.toSeq.sortBy(_._1).map(_._2)
+       }}
+    }
+  }
+}
+>>>
+object a {
+  val algoPredictsMap: Map[EX, RDD[(QX, Seq[P])]] = (0 until evalCount)
+    .map { ex =>
+      {
+        val unionAlgoPredicts: RDD[(QX, Seq[P])] = sc
+          .union(algoPredicts)
+          .groupByKey()
+          .mapValues { ps =>
+            {
+              assert(ps.size == algoCount, "Must have same length as algoCount")
+              // TODO. Check size == algoCount
+              ps.toSeq.sortBy(_._1).map(_._2)
+            }
+          }
+      }
+    }
+}
+<<< #2061 4
+preset = default
+optIn.breakChainOnFirstMethodDot = false
+includeNoParensInSelectChains = false
+===
+object a {
+  override def extraTests(): Unit = {
+     "decode concatenated compressions" in {
+       ourDecode(
+         Seq(
+           encode("Hello, "),
+           encode("dear "),
+           encode("User!")).join) should readAs("Hello, dear User!")
+     }
+  }
+}
+>>>
+object a {
+  override def extraTests(): Unit = {
+    "decode concatenated compressions" in {
+      ourDecode(
+        Seq(encode("Hello, "), encode("dear "), encode("User!")).join
+      ) should readAs("Hello, dear User!")
+    }
+  }
+}
+<<< #2061 5
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  def a = {
+    try {
+      pmmObject.instance
+        .asInstanceOf[PersistentModelLoader[AP, M]](runId, params, sc)
+      pmmObject.instance.asInstanceOf[PersistentModelLoader[AP, M]](
+              runId,
+              params,
+              sc)
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      pmmObject.instance
+        .asInstanceOf[PersistentModelLoader[AP, M]](runId, params, sc)
+      pmmObject.instance
+        .asInstanceOf[PersistentModelLoader[AP, M]](runId, params, sc)
+    }
+  }
+}
+<<< #2061 6.1 with break
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  def a = {
+    try {
+    val a =
+          actorSystem.scheduler.schedule(
+            0.seconds,
+            1.days,
+            upgrade,
+            UpgradeCheck())
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      val a =
+        actorSystem.scheduler.schedule(
+          0.seconds,
+          1.days,
+          upgrade,
+          UpgradeCheck()
+        )
+    }
+  }
+}
+<<< #2061 6.1 without break
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  def a = {
+    try {
+    val a = actorSystem.scheduler.schedule(
+      0.seconds,
+      1.days,
+      upgrade,
+      UpgradeCheck())
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      val a = actorSystem.scheduler.schedule(
+        0.seconds,
+        1.days,
+        upgrade,
+        UpgradeCheck()
+      )
+    }
+  }
+}
+<<< #2061 7
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  def a = {
+    try {
+      val driver = extendedSystem.dynamicAccess
+        .createInstanceFor[Transport](fqn, args)
+        .recover({
+
+          case exception ⇒
+            throw new IllegalArgumentException(
+              s"Cannot instantiate transport [$fqn]. " +
+                "Make sure it extends [akka.remote.transport.Transport] and has constructor with " +
+                "[akka.actor.ExtendedActorSystem] and [com.typesafe.config.Config] parameters",
+              exception)
+
+        })
+        .get
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      val driver = extendedSystem.dynamicAccess
+        .createInstanceFor[Transport](fqn, args)
+        .recover({ case exception ⇒
+          throw new IllegalArgumentException(
+            s"Cannot instantiate transport [$fqn]. " +
+              "Make sure it extends [akka.remote.transport.Transport] and has constructor with " +
+              "[akka.actor.ExtendedActorSystem] and [com.typesafe.config.Config] parameters",
+            exception
+          )
+
+        })
+        .get
+    }
+  }
+}
+<<< #2061 8
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  val identifier: P[Ast.identifier] =
+    P((letter | "_") ~ (letter | digit | "_").rep).!.filter(
+      !keywordList.contains(_)).map(Ast.identifier)
+  def a = {
+    a match {
+      case (
+          com.twitter.finagle.exp.Address
+            .ServiceFactory(sf: ServiceFactory[Req, Rep], _),
+           _) =>
+       sf
+    }
+  }
+}
+>>>
+object a {
+  val identifier: P[Ast.identifier] =
+    P((letter | "_") ~ (letter | digit | "_").rep).!.filter(
+      !keywordList.contains(_)
+    ).map(Ast.identifier)
+  def a = {
+    a match {
+      case (
+            com.twitter.finagle.exp.Address
+              .ServiceFactory(sf: ServiceFactory[Req, Rep], _),
+            _
+          ) =>
+        sf
+    }
+  }
+}
+<<< #2061 9
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  "produce one-to-several transformation as expected" in assertAllStagesStopped {
+      val p2 = Source
+        .fromPublisher(p)
+        .transform(() ⇒
+          new StatefulStage[Int, Int] {
+            var tot = 0
+
+            lazy val waitForNext = new State {
+            }
+          })
+  }
+}
+>>>
+object a {
+  "produce one-to-several transformation as expected" in assertAllStagesStopped {
+    val p2 = Source
+      .fromPublisher(p)
+      .transform(() ⇒
+        new StatefulStage[Int, Int] {
+          var tot = 0
+
+          lazy val waitForNext = new State {}
+        }
+      )
+  }
+}
+<<< #2061 10
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  def a = {
+    try {
+      (r.param("args").map { args =>
+        <result>{args.split(",").map(_.toInt).reduceLeft(operation)}</result>
+      }) ?~ "Missing args"
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      (r.param("args").map { args =>
+        <result>{args.split(",").map(_.toInt).reduceLeft(operation)}</result>
+      }) ?~ "Missing args"
+    }
+  }
+}
+<<< #2061 11
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def a = {
+    (BinaryFormat.clock(since).read(ByteArray.parseBytes(bytes), false, false))(
+      chess.White)
+  }
+}
+>>>
+object a {
+  def a = {
+    (BinaryFormat.clock(since).read(ByteArray.parseBytes(bytes), false, false))(
+      chess.White)
+  }
+}
+<<< #2061 12
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def a = {
+    try {
+      if (patt.getParent /*list of ids*/ .getParent
+              .isInstanceOf[ScVariable]) {
+        kinds contains VAR
+        val isNamedDynamic =
+          r.isDynamic && r.name == ResolvableReferenceExpression
+              .APPLY_DYNAMIC_NAMED
+        }
+       else kinds contains VAL
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      if (patt.getParent /*list of ids*/ .getParent
+          .isInstanceOf[ScVariable]) {
+        kinds contains VAR
+        val isNamedDynamic =
+          r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED
+      } else kinds contains VAL
+    }
+  }
+}
+<<< #2061 13
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def getReturnType: PsiType = {
+    if (DumbService
+        .getInstance(getProject)
+        .isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
+       return null //no resolve during dumb mode or while synthetic classes is not registered
+    }
+  }
+}
+>>>
+object a {
+  def getReturnType: PsiType = {
+    if (DumbService
+        .getInstance(getProject)
+        .isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
+      return null // no resolve during dumb mode or while synthetic classes is not registered
+    }
+  }
+}
+<<< #2061 14
+preset = default
+optIn.breakChainOnFirstMethodDot = false
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  class a {
+    def a = {
+      "zip" in {
+        intercept[IllegalStateException] {
+          Await.result(
+            Promise
+              .failed[String](f)
+              .future zip Promise.successful("foo").future,
+            timeout)
+        } should ===(f)
+      }
+    }
+  }
+}
+>>>
+object a {
+  class a {
+    def a = {
+      "zip" in {
+        intercept[IllegalStateException] {
+          Await.result(
+            Promise
+              .failed[String](f)
+              .future zip Promise.successful("foo").future,
+            timeout)
+        } should ===(f)
+      }
+    }
+  }
+}
+<<< #2061 14.1
+preset = default
+optIn.breakChainOnFirstMethodDot = false
+includeNoParensInSelectChains = true
+optIn.breaksInsideChains = true
+danglingParentheses.preset = false
+===
+object a {
+  class a {
+    def a = {
+      "zip" in {
+        intercept[IllegalStateException] {
+          Await.result(Promise.failed[String](f).future zip Promise.successful("foo").future, timeout)
+        } should ===(f)
+      }
+    }
+  }
+}
+>>>
+object a {
+  class a {
+    def a = {
+      "zip" in {
+        intercept[IllegalStateException] {
+          Await.result(
+            Promise
+              .failed[String](f).future zip Promise.successful("foo").future,
+            timeout)
+        } should ===(f)
+      }
+    }
+  }
+}
+<<< #2061 14.2
+preset = default
+optIn.breakChainOnFirstMethodDot = false
+includeNoParensInSelectChains = true
+optIn.breaksInsideChains = false
+danglingParentheses.preset = false
+===
+object a {
+  class a {
+   if (!cell
+       .routerConfig
+       .isInstanceOf[Pool] && !cell.routerConfig.isInstanceOf[Group])
+     throw ActorInitializationException(
+       "Cluster router actor can only be used with Pool or Group, not with " +
+         cell.routerConfig.getClass)
+  }
+}
+>>>
+object a {
+  class a {
+    if (!cell
+        .routerConfig
+        .isInstanceOf[Pool] && !cell.routerConfig.isInstanceOf[Group])
+      throw ActorInitializationException(
+        "Cluster router actor can only be used with Pool or Group, not with " +
+          cell.routerConfig.getClass)
+  }
+}
+<<< #2061 15
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def a = {
+    try {
+      intercept[IllegalStateException] {
+        if (sqlSerDe == null || sqlSerDe._2 == null || !(sqlSerDe._2)(
+              dos,
+              value)) {
+          writeType(dos, "jobj")
+          writeJObj(dos, value)
+        }
+      } should ===(f)
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      intercept[IllegalStateException] {
+        if (sqlSerDe == null || sqlSerDe._2 == null || !(sqlSerDe._2)(
+            dos,
+            value)) {
+          writeType(dos, "jobj")
+          writeJObj(dos, value)
+        }
+      } should ===(f)
+    }
+  }
+}
+<<< #2061 16
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def a = {
+    val paramFieldId: Box[String] = (stuff.collect {
+         case FormFieldId(id) => id
+    }).headOption
+  }
+}
+>>>
+object a {
+  def a = {
+    val paramFieldId: Box[String] = (stuff.collect { case FormFieldId(id) =>
+      id
+    }).headOption
+  }
+}
+<<< #2061 16.1 no break before case, break after arrow
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def a = {
+    val paramFieldId: Box[String] = (stuff.collect { case FormFieldId(id) =>
+     id }).headOption
+  }
+}
+>>>
+object a {
+  def a = {
+    val paramFieldId: Box[String] = (stuff.collect { case FormFieldId(id) =>
+      id
+    }).headOption
+  }
+}
+<<< #2061 16.1 no break before case, no break after arrow
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def a = {
+    val paramFieldId: Box[String] = (stuff.collect { case FormFieldId(id) => id }).headOption
+  }
+}
+>>>
+object a {
+  def a = {
+    val paramFieldId: Box[String] =
+      (stuff.collect { case FormFieldId(id) => id }).headOption
+  }
+}
+<<< curly select chain followed by infix
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+===
+object a {
+  val reduces = node
+    .foldDown[List[dag.Reduce]](true) {
+       case r: dag.Reduce => List(r)
+    } distinct
+}
+>>>
+object a {
+  val reduces = node
+    .foldDown[List[dag.Reduce]](true) { case r: dag.Reduce =>
+      List(r)
+    } distinct
+}
+<<< #2070
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+===
+object Dummy {
+  def dummy(list: List[Int]): List[Int] =
+    list
+      .map(_ + 1)
+      // format: off
+      .map(_ * 2)
+      // format: on
+}
+>>>
+object Dummy {
+  def dummy(list: List[Int]): List[Int] =
+    list
+      .map(_ + 1)
+      // format: off
+      .map(_ * 2)
+      // format: on
+}
