@@ -89,7 +89,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
     val shouldWrapLhs = !lhsIsWrapped &&
       (lhs match {
-        case _: Term.ApplyInfix => !lhsIsOK
+        case _: Term.ApplyInfix | _: Term.Match => !lhsIsOK
         // foo _ compose bar => (foo _).compose(bar)
         // new Foo compose bar => (new Foo).compose(bar)
         case _: Term.Eta | _: Term.New => true

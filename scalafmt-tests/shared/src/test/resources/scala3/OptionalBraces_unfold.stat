@@ -7900,18 +7900,12 @@ object a {
   } d e
 }
 >>>
-test does not parse
-[dialect scala3] `;` expected but `.` found
-  a .b( c) match {
-    case _ =>
-  } .d( e)
-    ^
-}
-====== full result: ======
 object a {
-  a .b( c) match {
-    case _ =>
-  } .d( e)
+  (
+    a.b(c) match {
+      case _ =>
+    }
+  ).d(e)
 }
 <<< AvoidInfix with match, with dot
 rewrite.rules = [AvoidInfix]
