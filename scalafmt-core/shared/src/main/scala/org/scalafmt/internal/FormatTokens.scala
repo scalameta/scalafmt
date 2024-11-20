@@ -161,8 +161,9 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
 
   def getLastExceptParen(tree: Tree): FT = {
     val tokens = tree.tokens
-    val last = getLastNonTrivial(tokens, tree)
-    getClosingIfWithinParens(last)(getHead(tokens, tree)).getOrElse(last)
+    val last = getLast(tokens, tree)
+    getClosingIfWithinParens(prevNonComment(last))(getHead(tokens, tree))
+      .getOrElse(last)
   }
 
   final def findTokenWith[A](ft: FT, iter: FT => FT)(

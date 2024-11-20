@@ -18,7 +18,7 @@ class CommunitySpark3_4Suite extends CommunitySparkSuite("spark-3.4") {
 
 class CommunitySpark3_5Suite extends CommunitySparkSuite("spark-3.5") {
 
-  override protected def totalStatesVisited: Option[Int] = Some(91352350)
+  override protected def totalStatesVisited: Option[Int] = Some(91352348)
 
   override protected def builds =
     Seq(getBuild("v3.5.3", dialects.Scala213, 2756))
