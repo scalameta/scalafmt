@@ -3025,6 +3025,9 @@ The rule takes the following parameters under `rewrite.avoidInfix`:
     be excluded
 - (since 3.8.4) `excludePostfix`, unless set to `true` explicitly, will also
   apply the rule to `Term.Select` trees specified without a dot
+- (since 3.8.4) `excludeMatch`, if set to `false` explicitly and if the dialect
+  enables `allowMatchAsOperator` (such as Scala 3), will also apply the rule to
+  `Term.Match` trees specified without a dot
 
 ```scala mdoc:scalafmt
 rewrite.rules = [AvoidInfix]
@@ -5142,6 +5145,7 @@ object A {
 
 This option will enforce a break before each parent. As usual, the break is only
 actually introduced if indented position on the next line is less than the current.
+Added in 3.8.4.
 
 ```scala mdoc:scalafmt
 binPack.parentConstructors = ForceBreak
