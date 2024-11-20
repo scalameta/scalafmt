@@ -85,8 +85,6 @@ lazy val interfaces = crossProject(JVMPlatform, NativePlatform)
     moduleName := "scalafmt-interfaces",
     description :=
       "Dependency-free, pure Java public interfaces to integrate with Scalafmt through a build tool or editor plugin.",
-    crossVersion := CrossVersion.disabled,
-    autoScalaLibrary := false,
     Compile / resourceGenerators += Def.task {
       val out = (Compile / managedResourceDirectories).value.head /
         "scalafmt.properties"
@@ -95,7 +93,7 @@ lazy val interfaces = crossProject(JVMPlatform, NativePlatform)
       IO.write(props, "scalafmt properties", out)
       List(out)
     },
-  )
+  ).jvmSettings(crossVersion := CrossVersion.disabled, autoScalaLibrary := false)
 
 lazy val sysops = crossProject(JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-sysops")).settings(
