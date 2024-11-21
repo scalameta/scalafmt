@@ -8014,3 +8014,168 @@ object a:
       case d if e =>
         f
       // comment
+<<< implicit parameter type conversion with "into" modifier 1
+runner.dialect = scala3future
+===
+object a:
+  def ++ (elems: into IterableOnce[A]): List[A]
+>>>
+object a:
+   def ++(elems: into IterableOnce[A]): List[A]
+<<< implicit parameter type conversion with "into" modifier 2
+runner.dialect = scala3future
+===
+object a:
+  def ++ (elems: => into IterableOnce[A]): List[A]
+>>>
+object a:
+   def ++(elems: => into IterableOnce[A]): List[A]
+<<< implicit parameter type conversion with "into" modifier 3
+runner.dialect = scala3future
+===
+object a:
+  def flatMap[B](f: into A => IterableOnce[B]): List[B]
+>>>
+object a:
+   def flatMap[B](f: into A => IterableOnce[B]): List[B]
+<<< implicit parameter type conversion with "into" modifier 4
+runner.dialect = scala3future
+===
+object a:
+  def flatMap[B](f: A => into IterableOnce[B]): List[B]
+>>>
+object a:
+   def flatMap[B](f: A => into IterableOnce[B]): List[B]
+<<< implicit parameter type conversion with "into" modifier 5
+runner.dialect = scala3future
+===
+object a:
+  def concatAll(xss: (into IterableOnce[Char])*): List[Char]
+>>>
+object a:
+   def concatAll(xss: (into IterableOnce[Char])*): List[Char]
+<<< pure type functions 1
+runner.dialect = scala3future
+===
+object a:
+  val func: A -> B = foo
+>>>
+object a:
+   val func: A -> B = foo
+<<< pure type functions 2
+runner.dialect = scala3future
+===
+object a:
+  def func(f: A -> B): Unit
+>>>
+object a:
+   def func(f: A -> B): Unit
+<<< pure type functions 3
+runner.dialect = scala3future
+===
+object a:
+  def map[T <: (A -> B)](f: T): A -> B = ???
+>>>
+object a:
+   def map[T <: (A -> B)](f: T): A -> B = ???
+<<< pure type functions 4
+runner.dialect = scala3future
+===
+object a:
+  val func: A ?-> B = foo
+>>>
+object a:
+   val func: A ?-> B = foo
+<<< pure type functions 5
+runner.dialect = scala3future
+===
+object a:
+  def func(f: A ?-> B): Unit
+>>>
+object a:
+   def func(f: A ?-> B): Unit
+<<< pure type functions 6
+runner.dialect = scala3future
+===
+object a:
+  def map[T <: (A ?-> B)](f: T): A ?-> B = ???
+>>>
+object a:
+   def map[T <: (A ?-> B)](f: T): A ?-> B = ???
+<<< pure type functions 7
+runner.dialect = scala3future
+===
+object a:
+  def func(f: -> B): Unit
+>>>
+object a:
+   def func(f: -> B): Unit
+<<< capability capture checking 1
+runner.dialect = scala3future
+===
+object a:
+  class Logger(fs: FileSystem^)
+>>>
+object a:
+   class Logger(fs: FileSystem ^)
+<<< capability capture checking 2
+runner.dialect = scala3future
+===
+object a:
+  val l: Logger^{fs} = Logger(fs)
+>>>
+object a:
+   val l: Logger ^ {
+     fs
+   } = Logger(fs)
+<<< capability capture checking 3
+runner.dialect = scala3future
+===
+object a:
+  def tail: LazyList[A]^{this}
+>>>
+object a:
+   def tail: LazyList[A] ^ {
+     this
+   }
+<<< capability capture checking 4
+runner.dialect = scala3future
+===
+object a:
+  def p: Pair[Int ->{ct} String, Logger^{fs}] = Pair(x, y)
+>>>
+object a:
+   def p: Pair[
+     Int -> {
+       ct
+     } String,
+     Logger ^ {
+       fs
+     }
+   ] = Pair(x, y)
+<<< capability capture checking 5
+runner.dialect = scala3future
+===
+object a:
+  def map[T <: (A ?->{a, c} B)](f: T): A ?-> B = ???
+>>>
+object a:
+   def map[
+       T <: (
+         A ?-> {
+           a, c
+         } B
+       )
+   ](f: T): A ?-> B = ???
+<<< capability capture checking 6
+runner.dialect = scala3future
+===
+object a:
+  def func(f: ->{a, b, c} B): Unit
+>>>
+object a:
+   def func(
+       f: -> {
+         a, b, c
+       } B
+   ): Unit
