@@ -1,4 +1,5 @@
 rewrite.rules = [RedundantParens]
+rewrite.redundantParens.infixSide = some
 <<< basic
 object a {
   def c(b: List[Int]): List[Int] =
@@ -553,6 +554,29 @@ object a {
   )
 }
 >>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+     case false => false
+-    + e
++  + e
+   val b = c + (d match
+<<< #2194 6 match with parens, dot and no braces, !infixSide
+runner.dialect = scala3
+rewrite.redundantParens.infixSide = null
+===
+object a {
+  val b = c + (d.match
+      case true  => true
+      case false => false)
+  val b = c + (d.match
+      case true  => true
+      case false => false) + e
+  val b = c + (d match
+      case true  => true
+      case false => false
+  )
+}
+>>>
 object a {
   val b = c + (d.match
     case true  => true
@@ -941,6 +965,22 @@ object a {
 }
 >>>
 object a {
+  foo * new bar
+  foo * new bar(baz).qux
+  new foo * bar
+  new foo(bar).baz * qux
+}
+<<< infix with new, !infixSide
+rewrite.redundantParens.infixSide = null
+===
+object a {
+  foo * (new bar)
+  foo * (new bar(baz).qux)
+  (new foo) * bar
+  (new foo(bar).baz) * qux
+}
+>>>
+object a {
   foo * (new bar)
   foo * (new bar(baz).qux)
   (new foo) * bar
@@ -987,6 +1027,8 @@ object a {
   new foo(bar: baz)
 }
 <<< infix expressions with infixSide = null
+rewrite.redundantParens.infixSide = null
+===
 object a {
   // null+
   foo & (0) // literal
