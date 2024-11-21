@@ -84,7 +84,7 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
 
   @tailrec
   private def isSimpleLiteral(tree: Tree): Boolean = tree match {
-    case t: Term.Select => isSimpleLiteral(t.qual)
+    case t: Term.SelectLike => isSimpleLiteral(t.qual)
     case t: Term.Assign => isSimpleLiteral(t.rhs)
     case _ => isBasicLiteral(tree) ||
       (tree.children match {

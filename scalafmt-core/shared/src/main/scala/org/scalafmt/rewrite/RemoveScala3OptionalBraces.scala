@@ -87,7 +87,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
     val notOkToRewrite = hasFormatOff || // can't force significant indentation
       (nextFt.meta.rightOwner match {
         case t: Term.Name => t.parent.exists {
-            case p: Term.Select => p.name eq t // select without `.`
+            case p: Term.SelectPostfix => p.name eq t // select without `.`
             case p: Term.ApplyInfix if p.op eq t =>
               !style.dialect.allowInfixOperatorAfterNL ||
               !t.tokens.head.isSymbolicInfixOperator

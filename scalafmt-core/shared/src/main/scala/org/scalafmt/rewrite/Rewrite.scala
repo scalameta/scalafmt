@@ -81,16 +81,6 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
     case _ => Some(false)
   }
 
-  // special case for Select which might contain a space instead of dot
-  def isPrefixExpr(expr: Tree): Boolean =
-    isSimpleExprOr(expr) { case t: Term.Select =>
-      val maybeDot = tokenTraverser.findBefore(t.name.tokens.head) {
-        case _: T.Trivia => None
-        case x => Some(x.is[T.Dot])
-      }
-      maybeDot.isDefined
-    }
-
 }
 
 trait Rewrite
@@ -167,14 +157,19 @@ object RewriteCtx {
     case _: Lit | _: Name | _: Term.Interpolate => true
     case _: Term.New | _: Term.NewAnonymous => true
     case _: Term.Apply | _: Term.ApplyUnary => true
+    case _: Term.Select | _: Term.SelectMatch | _: Term.PartialFunction => true
     case _ => orElse.applyOrElse(expr, (_: Tree) => false)
   }
 
   @inline
+  def isPrefixExpr(expr: Tree): Boolean =
+    isSimpleExprOr(expr)(PartialFunction.empty)
+
+  @inline
   def isPostfixExpr(expr: Tree)(implicit style: ScalafmtConfig): Boolean =
     isSimpleExprOr(expr) {
-      case _: Term.Select | _: Term.ApplyInfix => true
-      case _: Term.Match if style.dialect.allowMatchAsOperator => true
+      case _: Term.SelectPostfix | _: Term.ApplyInfix => true
+      case _: Term.Match => style.dialect.allowMatchAsOperator
     }
 
   @inline

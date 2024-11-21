@@ -506,6 +506,7 @@ object a {
 }
 <<< #2194 6 match with parens and dot
 runner.dialect = scala3
+rewrite.redundantParens.infixSide = some
 ===
 object a {
   val b = c + (d.match{
