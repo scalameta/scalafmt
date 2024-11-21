@@ -122,12 +122,10 @@ class RedundantParens(implicit val ftoks: FormatTokens)
           (style.dialect.allowTryWithAnyExpr || p.expr.ne(t)) &&
           canRewriteBody(t)
         case p: Term.ArgClause => p.parent.exists {
-            case pia: Member.Infix => !infixNeedsParens(pia, t) &&
-              okToReplaceInfix(pia, t)
+            case pia: Member.Infix => okToReplaceInfix(pia, t)
             case _ => true
           }
-        case pia: Member.Infix if !infixNeedsParens(pia, t) =>
-          okToReplaceInfix(pia, t)
+        case pia: Member.Infix => okToReplaceInfix(pia, t)
         case p: Tree.WithDeclTpe if p.decltpe eq t => true
         case p: Tree.WithDeclTpeOpt if p.decltpe.contains(t) => true
         case _ => okToReplaceOther(t)
@@ -152,9 +150,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
         case _: Lit.Unit | _: Member.Tuple => false
         case _: Term.SelectPostfix => false
         case _ => t.parent.exists {
-            case pia: Member.Infix =>
-              val keep = infixNeedsParens(pia, arg)
-              if (keep) okToReplaceOther(arg) else okToReplaceInfix(pia, arg)
+            case pia: Member.Infix => okToReplaceInfix(pia, arg)
             case _ => false
           }
       }
@@ -180,11 +176,10 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   private def okToReplaceInfix(pia: Member.Infix, t: Tree)(implicit
       style: ScalafmtConfig,
   ): Boolean = t match {
+    case _: Term.AnonymousFunction | _: Term.SelectPostfix => false
+    case _ if infixNeedsParens(pia, t) => false
     case tia: Member.Infix => okToReplaceInfix(pia, tia)
     case _: Lit | _: Name | _: Term.Interpolate => true
-    case _: Term.PartialFunction => true
-    case _: Term.AnonymousFunction => false
-    case _: Term.SelectPostfix => false
     case _ => style.rewrite.redundantParens.infixSide.isDefined
   }
 
