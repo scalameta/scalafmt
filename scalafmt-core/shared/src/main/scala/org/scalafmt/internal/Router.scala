@@ -225,10 +225,10 @@ class Router(formatOps: FormatOps) {
       // optional braces: block follows
       case FT(
             _: T.Equals | _: T.Colon | _: T.KwWith | _: T.RightParen |
-            _: T.KwReturn | _: T.ContextArrow | _: T.LeftArrow |
-            _: T.RightArrow | _: T.KwMatch | _: T.KwThen | _: T.KwElse |
-            _: T.KwThrow | _: T.KwTry | _: T.KwCatch | _: T.KwFinally |
-            _: T.KwFor | _: T.KwDo | _: T.KwWhile | _: T.KwYield | _: T.KwIf,
+            _: T.KwReturn | _: T.FunctionArrow | _: T.LeftArrow | _: T.KwMatch |
+            _: T.KwThen | _: T.KwElse | _: T.KwThrow | _: T.KwTry |
+            _: T.KwCatch | _: T.KwFinally | _: T.KwFor | _: T.KwDo |
+            _: T.KwWhile | _: T.KwYield | _: T.KwIf,
             _,
             OptionalBraces(splits),
           ) if dialect.allowSignificantIndentation => splits
@@ -285,12 +285,8 @@ class Router(formatOps: FormatOps) {
             }
             (arrow, 0, nlOnly)
           case (t: Term.PartialFunction) :: Nil => getLambdaInfo(t.cases)
-          case (t: Term.CasesBlock) :: Nil if (t.parent match {
-                case Some(t: Term.Match)
-                    if dialect.allowMatchAsOperator &&
-                      tokenAfter(t.expr).right.is[T.Dot] => true
-                case _ => false
-              }) => getLambdaInfo(t.cases)
+          case (t: Term.CasesBlock) :: Nil if t.parent.is[Term.SelectMatch] =>
+            getLambdaInfo(t.cases)
           case (t: Term.Block) :: Nil if !isEnclosedInBraces(t) =>
             getLambdaInfo(t.stats)
           case _ => getLambdaNone
@@ -510,7 +506,7 @@ class Router(formatOps: FormatOps) {
           case _ => splits
         }
 
-      case FT(_: T.RightArrow | _: T.ContextArrow, r, _) if (leftOwner match {
+      case FT(_: T.FunctionArrow, r, _) if (leftOwner match {
             case t: Term.FunctionTerm => !r.is[T.Comment] &&
               !tokens.isEmpty(t.body) && isBlockFunction(t)
             case _ => false
@@ -539,7 +535,7 @@ class Router(formatOps: FormatOps) {
           )
         } else Seq(spaceSplitBase)
 
-      case FT(_: T.RightArrow | _: T.ContextArrow, right, _) if (leftOwner match {
+      case FT(_: T.FunctionArrow, right, _) if (leftOwner match {
             case _: Term.FunctionTerm | _: Term.PolyFunction => true
             case t: Self => t.ancestor(2).is[Term.NewAnonymous]
             case _ => false
@@ -1777,7 +1773,7 @@ class Router(formatOps: FormatOps) {
 
         def checkFewerBraces(tree: Tree) = tree match {
           case p: Term.Apply => isFewerBraces(p)
-          case p: Term.Match => getHead(p.casesBlock).meta.leftOwner ne
+          case p: Term.MatchLike => getHead(p.casesBlock).meta.leftOwner ne
               p.casesBlock
           case p: Term.NewAnonymous => getHeadOpt(p.templ.body)
               .exists(_.left.is[T.Colon])

@@ -578,7 +578,7 @@ object TreeOps {
   def getEndOfFirstCall(tree: Tree)(implicit ftoks: FormatTokens) = {
     @tailrec
     def traverse(tree: Tree, res: Option[Tree]): Option[Tree] = tree match {
-      case t: Term.Select if res.isDefined => traverse(t.qual, Some(t.qual))
+      case t: Term.SelectLike if res.isDefined => traverse(t.qual, Some(t.qual))
       case t: Term.ApplyType => traverse(t.fun, Some(t))
       case t: Member.Apply => traverse(t.fun, Some(t.fun))
       case t: Init => traverse(t.tpe, Some(t.tpe))
@@ -622,7 +622,7 @@ object TreeOps {
     findInterpolate(tree).flatMap(getStripMarginChar)
 
   def getStripMarginChar(t: Tree): Option[Char] = t.parent match {
-    case Some(ts: Term.Select) if ts.name.value == "stripMargin" =>
+    case Some(ts: Term.SelectLike) if ts.name.value == "stripMargin" =>
       ts.parent match {
         case Some(Term.Apply.Initial(_, List(arg: Lit.Char))) => Some(arg.value)
         case _ => Some('|')

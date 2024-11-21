@@ -134,20 +134,13 @@ class RedundantParens(implicit val ftoks: FormatTokens)
       }
   }
 
-  private def isSelectWithDot(t: Term.Select): Boolean = ftoks
-    .tokenBefore(t.name).left.is[T.Dot]
-
-  private def okToReplaceOther(
-      t: Tree,
-  )(implicit style: ScalafmtConfig): Boolean = t match {
+  private def okToReplaceOther(t: Tree): Boolean = t match {
     case _: Lit => t.tokens.length == 1 || !t.parent.is[Term.Ref]
     case _: Term.ApplyUnary => !t.parent.is[Term.Ref]
     case _: Member.Apply | _: Term.Interpolate | _: Term.PartialFunction => true
-    case t: Term.Select => isSelectWithDot(t)
-    case _: Ref => true // Ref must be after Select and ApplyUnary
-    case t: Term.Match => style.dialect.allowMatchAsOperator &&
-      ftoks.tokenAfter(t.expr).right.is[T.Dot] && // like select
-      ftoks.getHead(t.casesBlock).left.is[T.LeftBrace]
+    case _: Term.SelectPostfix => false
+    case _: Ref => true // Ref must be after SelectPostfix and ApplyUnary
+    case t: Term.SelectMatch => ftoks.getHead(t.casesBlock).left.is[T.LeftBrace]
     case _ => false
   }
 
@@ -157,7 +150,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     case arg :: Nil => arg match {
         case _: Term.Block | _: Term.PartialFunction => !t.parent.isOpt[Init]
         case _: Lit.Unit | _: Member.Tuple => false
-        case t: Term.Select if !isSelectWithDot(t) => false
+        case _: Term.SelectPostfix => false
         case _ => t.parent.exists {
             case pia: Member.Infix =>
               val keep = infixNeedsParens(pia, arg)
@@ -191,7 +184,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     case _: Lit | _: Name | _: Term.Interpolate => true
     case _: Term.PartialFunction => true
     case _: Term.AnonymousFunction => false
-    case t: Term.Select if !isSelectWithDot(t) => false
+    case _: Term.SelectPostfix => false
     case _ => style.rewrite.redundantParens.infixSide.isDefined
   }
 

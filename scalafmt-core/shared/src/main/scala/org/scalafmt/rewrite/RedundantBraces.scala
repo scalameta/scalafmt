@@ -561,7 +561,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           }
 
         // can't do it for try until 2.13.3
-        case _ if isPrefixExpr(stat) => false
+        case _ if RewriteCtx.isPrefixExpr(stat) => false
 
         case parentIf: Term.If if stat.is[Term.If] =>
           // if (a) { if (b) c } else d
@@ -583,7 +583,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             case _ => true // don't allow other non-infix
           }
 
-        case p: Term.Match => p.expr eq b
+        case p: Term.MatchLike => p.expr eq b
         case p: Type.Match => p.tpe eq b
 
         case p: Term.ForClause if p.body eq b =>
@@ -638,12 +638,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
   private def okLineSpan(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
     getTreeLineSpan(tree) <= settings.maxBreaks
-
-  // special case for Select which might contain a space instead of dot
-  private def isPrefixExpr(expr: Tree): Boolean = RewriteCtx
-    .isSimpleExprOr(expr) { case t: Term.Select =>
-      ftoks(t.name.tokens.head, -1).left.is[T.Dot]
-    }
 
   private def braceSeparatesTwoXmlTokens(implicit ft: FT): Boolean = ft.left
     .is[T.Xml.End] && ftoks.next(ft).right.is[T.Xml.Start]

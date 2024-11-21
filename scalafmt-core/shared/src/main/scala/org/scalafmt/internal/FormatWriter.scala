@@ -1944,7 +1944,7 @@ object FormatWriter {
     case _: Defn.ExtensionGroup => "extension"
     case _: Term.If => "if"
     case _: Term.While => "while"
-    case _: Term.Match | _: Type.Match => "match"
+    case _: Term.MatchLike | _: Type.Match => "match"
     case _: Term.ForClause => "for"
     case _: Term.TryClause => "try"
     case _ => null

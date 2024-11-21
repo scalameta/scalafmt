@@ -1351,7 +1351,7 @@ class FormatOps(
     }
     ok &&
     (thisTree match {
-      case _: Term.Match => // like select and apply in one
+      case _: Term.SelectMatch => // like select and apply in one
         !tokenAfter(thisSelectLike.nameFt).right.is[T.LeftBrace] ||
         style.includeCurlyBraceInSelectChains &&
         nextSelect.isDefined && !nextSelect.contains(lastApply)
@@ -1525,7 +1525,7 @@ class FormatOps(
         case _: Term.If => getSlbSplits()
         case _: Term.TryClause =>
           if (hasStateColumn) getSplits(getSpaceSplit(1)) else getSlbSplits()
-        case _: Term.Block | _: Term.Match | _: Type.Match |
+        case _: Term.Block | _: Term.MatchLike | _: Type.Match |
             _: Term.NewAnonymous => getSplits(getSpaceSplit(1))
         case t: Term.ForYield => getDelimsIfEnclosed(t.enumsBlock) match {
             case Some((forEnumHead, forEnumLast)) =>
@@ -1743,25 +1743,27 @@ class FormatOps(
     val OnRight =
       new FT.ExtractFromMeta(m => onRightOpt(m.rightOwner, tokens(m.idx)))
 
-    private[FormatOps] def onRightOpt(
+    private def get(
         ro: Tree,
-        ftOrNull: => FT,
-    ): Option[SelectLike] = ro match {
+    )(onMatch: Term.SelectMatch => Option[FT]): Option[SelectLike] = ro match {
       case x: Term.Select => Some(SelectLike(x))
-      case x: Term.Match if dialect.allowMatchAsOperator =>
-        val ft = Option(ftOrNull).getOrElse(tokenAfter(x.expr))
-        if (!ft.right.is[T.Dot]) None
-        else nextNonCommentAfter(ft) match {
-          case xft @ FT(_, _: T.KwMatch, _) => Some(SelectLike(x, next(xft)))
-          case _ => None
-        }
+      case x: Term.SelectMatch => onMatch(x).map(ft => SelectLike(x, ft))
       case _ => None
     }
+
+    private[FormatOps] def onRightOpt(ro: Tree, ft: => FT): Option[SelectLike] =
+      get(ro) { _ =>
+        nextNonCommentAfter(ft) match {
+          case xft @ FT(_, _: T.KwMatch, _) => Some(next(xft))
+          case _ => None
+        }
+      }
 
     def onRightOpt(ft: FT): Option[SelectLike] =
       onRightOpt(ft.meta.rightOwner, ft)
 
-    def unapply(tree: Tree): Option[SelectLike] = onRightOpt(tree, null)
+    def unapply(tree: Tree): Option[SelectLike] =
+      get(tree)(x => Some(tokenBefore(x.casesBlock)))
   }
 
   def getSplitsForTypeBounds(
@@ -2968,7 +2970,7 @@ object FormatOps {
   object SelectLike {
     def apply(tree: Term.Select)(implicit ftoks: FormatTokens): SelectLike =
       new SelectLike(tree, tree.qual, ftoks.getHead(tree.name))
-    def apply(tree: Term.Match, kw: FT): SelectLike =
+    def apply(tree: Term.SelectMatch, kw: FT): SelectLike =
       new SelectLike(tree, tree.expr, kw)
   }
 
