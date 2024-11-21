@@ -401,7 +401,7 @@ class FormatOps(
         val mod =
           if (ft.noBreak || !okToBreak) spaceMod
           else Newline2x(isFullInfixEnclosed && ft.hasBlankLine)
-        val split = Split(mod, 0)
+        def split(implicit fl: FileLine) = Split(mod, 0)
         if (isBeforeOp && isFewerBracesRhs(app.arg)) Seq(split)
         else Seq(InfixSplits.withNLIndent(split, app, fullInfix))
       }
