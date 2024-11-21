@@ -888,6 +888,7 @@ object TreeOps {
           case t: Term.ApplyInfix => isFewerBracesLhs(t.argClause)
           case _ => false
         }
+      case t: Tree.WithCasesBlock => !ftoks.isEnclosedInMatching(t.casesBlock)
       case _ => false
     })
 

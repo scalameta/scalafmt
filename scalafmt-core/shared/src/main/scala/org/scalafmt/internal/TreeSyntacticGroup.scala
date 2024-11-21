@@ -19,6 +19,7 @@ object TreeSyntacticGroup {
     case _: Term.Xml => g.Term.SimpleExpr1
     case _: Term.Apply => g.Term.SimpleExpr1
     case _: Term.ApplyType => g.Term.SimpleExpr1
+    case _: Term.SelectMatch => g.Term.SimpleExpr1
     case t: Term.ApplyInfix => g.Term.InfixExpr(t.op.value)
     case t: Term.ApplyUnary => g.Term.PrefixExpr(t.op.value)
     case _: Term.Assign => g.Term.Expr1
@@ -34,7 +35,6 @@ object TreeSyntacticGroup {
     case _: Term.TryClause => g.Term.Expr1
     case _: Term.FunctionTerm => g.Term.Expr
     case _: Term.PolyFunction => g.Term.Expr
-    case _: Term.SelectMatch => g.Term.SimpleExpr
     case _: Term.PartialFunction => g.Term.SimpleExpr
     case _: Term.While => g.Term.Expr1
     case _: Term.Do => g.Term.Expr1
