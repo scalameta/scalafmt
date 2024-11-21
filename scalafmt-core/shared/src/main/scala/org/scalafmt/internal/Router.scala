@@ -73,6 +73,8 @@ class Router(formatOps: FormatOps) {
       case FT(_, _: T.EOF, _) => Seq(Split(Newline, 0))
       case FT(_: T.BOF, _, _) => Seq(Split(NoSplit, 0))
       case FT(_: T.Shebang, _, _) => Seq(Split(Newline2x(ft), 0))
+
+      // Interpolation
       case FT(_: T.Interpolation.Start, _, m) =>
         val end = matchingLeft(ft)
         val policy = {
@@ -118,20 +120,19 @@ class Router(formatOps: FormatOps) {
         val indents = alignIndents
           .getOrElse(Seq(Indent(style.indent.main, end, After)))
         Seq(split.withIndents(indents))
-      // Interpolation
       case FT(
             _: T.Interpolation.Id | _: T.Interpolation.Part |
-            _: T.Interpolation.Start | _: T.Interpolation.SpliceStart,
+            _: T.Interpolation.SpliceStart,
             _,
             _,
           ) => Seq(Split(NoSplit, 0))
       case FT(
             _,
-            T.Interpolation.Part(_) | T.Interpolation.End() | T.Interpolation
-              .SpliceEnd(),
+            _: T.Interpolation.Part | _: T.Interpolation.End |
+            _: T.Interpolation.SpliceEnd,
             _,
           ) => Seq(Split(NoSplit, 0))
-      case FT(T.LeftBrace(), T.RightBrace(), _) => Seq(Split(NoSplit, 0))
+
       // Import
       case FT(_: T.Dot, _, _)
           if existsParentOfType[ImportExportStat](rightOwner) =>
@@ -170,7 +171,7 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Space(style.spaces.inImportCurlyBraces), 0))
 
       // Interpolated string left brace
-      case FT(open @ T.LeftBrace(), _, _)
+      case FT(open: T.LeftBrace, _, _)
           if prev(ft).left.is[T.Interpolation.SpliceStart] =>
         val close = matchingLeft(ft)
         val alignIndents =
@@ -245,6 +246,7 @@ class Router(formatOps: FormatOps) {
         }
 
       // { ... } Blocks
+      case FT(_: T.LeftBrace, _: T.RightBrace, _) => Seq(Split(NoSplit, 0))
       case FT(_: T.LeftBrace, right, _) =>
         val close = matchingLeft(ft)
         val isSelfAnnotationNL = style.optIn.selfAnnotationNewline &&
@@ -1508,12 +1510,12 @@ class Router(formatOps: FormatOps) {
             .withOptimalToken(expire, killOnFail = false),
         )
 
-      case FT(T.LeftParen(), T.LeftBrace(), _) => Seq(Split(NoSplit, 0))
+      case FT(_: T.LeftParen, _: T.LeftBrace, _) => Seq(Split(NoSplit, 0))
 
-      case FT(_, T.LeftBrace(), _) if isXmlBrace(rightOwner) =>
+      case FT(_, _: T.LeftBrace, _) if isXmlBrace(rightOwner) =>
         withIndentOnXmlSpliceStart(ft, Seq(Split(NoSplit, 0)))
 
-      case FT(T.RightBrace(), _, _) if isXmlBrace(leftOwner) =>
+      case FT(_: T.RightBrace, _, _) if isXmlBrace(leftOwner) =>
         Seq(Split(NoSplit, 0))
       // non-statement starting curly brace
       case FT(_: T.Comma, _: T.LeftBrace, _)
@@ -2003,7 +2005,7 @@ class Router(formatOps: FormatOps) {
         else baseSplits ++ splits.map(_.onlyFor(SplitTag.SelectChainFirstNL))
 
       // ApplyUnary
-      case FT(T.Ident(_), T.Literal(), _) if leftOwner == rightOwner =>
+      case FT(_: T.Ident, _: T.Literal, _) if leftOwner eq rightOwner =>
         Seq(Split(NoSplit, 0))
       case FT(op: T.Ident, right, _) if leftOwner.parent.exists {
             case unary: Term.ApplyUnary => unary.op.tokens.head == op
@@ -2012,8 +2014,8 @@ class Router(formatOps: FormatOps) {
       // Annotations, see #183 for discussion on this.
       case FT(_, _: T.At, _) if rightOwner.is[Pat.Bind] => Seq(Split(Space, 0))
       case FT(_: T.At, _, _) if leftOwner.is[Pat.Bind] => Seq(Split(Space, 0))
-      case FT(T.At(), _: T.Symbolic, _) => Seq(Split(NoSplit, 0))
-      case FT(T.At(), right @ T.Ident(_), _) =>
+      case FT(_: T.At, _: T.Symbolic, _) => Seq(Split(NoSplit, 0))
+      case FT(_: T.At, right: T.Ident, _) =>
         // Add space if right starts with a symbol
         Seq(Split(identModification(right), 0))
 
@@ -2236,11 +2238,7 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Space(isSymbolicIdent(right)), 0))
 
       // Kind projector type lambda
-      case FT(T.Ident("+" | "-"), T.Underscore(), _) if rightOwner.is[Type] =>
-        Seq(Split(NoSplit, 0))
-
-      // Var args
-      case FT(_, T.Ident("*"), _) if rightOwner.is[Type.Repeated] =>
+      case FT(T.Ident("+" | "-"), _: T.Underscore, _) if rightOwner.is[Type] =>
         Seq(Split(NoSplit, 0))
 
       case FT(open: T.LeftParen, right, _) =>
@@ -2532,12 +2530,14 @@ class Router(formatOps: FormatOps) {
       case FT(_, T.Ident("|"), _) if rightOwner.is[Pat.Alternative] =>
         val noNL = !style.newlines.keepBreak(newlines)
         Seq(Split(Space.orNL(noNL), 0))
+
       case FT(_, T.Ident("*"), _)
-          if rightOwner.is[Pat.SeqWildcard] || rightOwner.is[Term.Repeated] ||
-            rightOwner.is[Pat.Repeated] => Seq(Split(NoSplit, 0))
+          if rightOwner.isAny[Tree.Repeated, Pat.SeqWildcard] =>
+        Seq(Split(NoSplit, 0))
+
       case FT(
-            T.Ident(_) | T.Literal() | T.Interpolation.End() | T.Xml.End(),
-            T.Ident(_) | T.Literal() | T.Xml.Start(),
+            _: T.Ident | _: T.Literal | _: T.Interpolation.End | _: T.Xml.End,
+            _: T.Ident | _: T.Literal,
             _,
           ) => Seq(Split(Space, 0))
 
@@ -2546,12 +2546,6 @@ class Router(formatOps: FormatOps) {
         // do not split `.match`
         val noSplit = left.is[T.Dot] && dialect.allowMatchAsOperator
         Seq(Split(Space(!noSplit), 0))
-
-      // Protected []
-      case FT(_, T.LeftBracket(), _) if isModPrivateProtected(leftOwner) =>
-        Seq(Split(NoSplit, 0))
-      case FT(T.LeftBracket(), _, _) if isModPrivateProtected(leftOwner) =>
-        Seq(Split(NoSplit, 0))
 
       // Term.ForYield
       case FT(_, _: T.KwIf, _) if rightOwner.is[Enumerator.Guard] =>
@@ -2571,17 +2565,13 @@ class Router(formatOps: FormatOps) {
         }
       // Interpolation
       case FT(_, _: T.Interpolation.Id, _) => Seq(Split(Space, 0))
-      // Throw exception
-      case FT(T.KwThrow(), _, _) => Seq(Split(Space, 0))
 
       // Singleton types
-      case FT(_, T.KwType(), _) if rightOwner.is[Type.Singleton] =>
+      case FT(_, _: T.KwType, _) if rightOwner.is[Type.Singleton] =>
         Seq(Split(NoSplit, 0))
       // seq to var args foo(seq:_*)
-      case FT(T.Colon(), T.Underscore(), _)
-          if next(ft).meta.right.text == "*" => Seq(Split(Space, 0))
-      case FT(T.Underscore(), T.Ident("*"), _) if prev(ft).left.is[T.Colon] =>
-        Seq(Split(NoSplit, 0))
+      case FT(_: T.Colon, _: T.Underscore, _)
+          if leftOwner.isAny[Term.Repeated, Pat.Repeated] => Seq(Split(Space, 0))
 
       // Xml
       case FT(_, _: T.Xml.Start, _) => Seq(Split(Space, 0))
@@ -2592,18 +2582,22 @@ class Router(formatOps: FormatOps) {
       case FT(_: T.Xml.SpliceStart, _, _)
           if style.xmlLiterals.assumeFormatted =>
         withIndentOnXmlSpliceStart(ft, Seq(Split(NoSplit, 0)))
-      case FT(T.Xml.Part(_), _, _) => Seq(Split(NoSplit, 0))
-      case FT(_, T.Xml.Part(_), _) => Seq(Split(NoSplit, 0))
+      case FT(_: T.Xml.Part, _, _) => Seq(Split(NoSplit, 0))
+      case FT(_, _: T.Xml.Part, _) => Seq(Split(NoSplit, 0))
 
       // Fallback
-      case FT(_, T.Dot(), _) => Seq(Split(NoSplit, 0))
-      case FT(left, T.Hash(), _) =>
+      case FT(_, _: T.Dot, _) => Seq(Split(NoSplit, 0))
+      case FT(_: T.Dot, _, _) => Seq(Split(NoSplit, 0))
+      case FT(left, _: T.Hash, _) =>
         Seq(Split(Space(endsWithSymbolIdent(left)), 0))
-      case FT(T.Hash(), ident: T.Ident, _) =>
+      case FT(_: T.Hash, ident: T.Ident, _) =>
         Seq(Split(Space(isSymbolicIdent(ident)), 0))
-      case FT(T.Dot(), T.Ident(_) | T.KwThis() | T.KwSuper(), _) =>
-        Seq(Split(NoSplit, 0))
-      case FT(_, T.RightBracket(), _) => Seq(Split(NoSplit, 0))
+
+      case FT(_, _: T.LeftBracket, _) =>
+        val noSpace = isModPrivateProtected(leftOwner)
+        Seq(Split(Space(!noSpace), 0))
+      case FT(_: T.LeftBracket, _, _) => Seq(Split(NoSplit, 0))
+      case FT(_, _: T.RightBracket, _) => Seq(Split(NoSplit, 0))
       case FT(_, _: T.RightParen, _) =>
         val ok = !style.newlines.keepBreak(newlines) ||
           style.binPack.siteFor(rightOwner)
@@ -2649,10 +2643,8 @@ class Router(formatOps: FormatOps) {
       case FT(_, Reserved(), _) => Seq(Split(Space, 0))
       case FT(Reserved(), _, _) => Seq(Split(Space, 0))
 
-      case FT(T.LeftBracket(), _, _) => Seq(Split(NoSplit, 0))
       case FT(_, _: T.Symbolic, _) => Seq(Split(Space, 0))
-      case FT(T.Underscore(), T.Ident("*"), _) => Seq(Split(NoSplit, 0))
-      case FT(T.RightArrow(), _, _) if leftOwner.is[Type.ByName] =>
+      case FT(_: T.RightArrow, _, _) if leftOwner.is[Type.ByName] =>
         val mod = Space(style.spaces.inByNameTypes)
         Seq(Split(mod, 0))
       case FT(_: T.Colon, _, _) if style.spaces.notAfterColon(leftOwner) =>

@@ -13,7 +13,7 @@ sealed trait TokenClassifier extends Function[T, Boolean] {
 
 object Reserved extends TokenClassifier {
   def matches(token: T): Boolean = token match {
-    case _: Keyword | _: KwFalse | _: KwNull | _: KwTrue => true
+    case _: Keyword | _: KwNull | _: BooleanConstant => true
     case _ => false
   }
 }
