@@ -1,6 +1,5 @@
 package org.scalafmt.internal
 
-import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.config.Align
 import org.scalafmt.config.BinPack
 import org.scalafmt.config.ImportSelectors
@@ -506,12 +505,9 @@ class Router(formatOps: FormatOps) {
           case _ => splits
         }
 
-      case FT(_: T.FunctionArrow, r, _) if (leftOwner match {
-            case t: Term.FunctionTerm => !r.is[T.Comment] &&
-              !tokens.isEmpty(t.body) && isBlockFunction(t)
-            case _ => false
-          }) =>
-        val leftFunc = leftOwner.asInstanceOf[Term.FunctionTerm]
+      case FT(_: T.FunctionArrow, r, FT.LeftOwner(leftFunc: Term.FunctionTerm))
+          if !r.is[T.Comment] && !tokens.isEmpty(leftFunc.body) &&
+            isBlockFunction(leftFunc) =>
         def spaceSplitBase(implicit line: FileLine): Split = Split(Space, 0)
         if (canBreakAfterFuncArrow(leftFunc)) {
           val (afterCurlySpace, afterCurlyNewlines) =
@@ -604,9 +600,8 @@ class Router(formatOps: FormatOps) {
         }
 
       // Case arrow
-      case FT(_: T.RightArrow, rt, _)
-          if leftOwner.is[CaseTree] && !rt.isAny[T.KwCatch, T.KwFinally] =>
-        val owner = leftOwner.asInstanceOf[CaseTree]
+      case FT(_: T.RightArrow, rt, FT.LeftOwner(owner: CaseTree))
+          if !rt.isAny[T.KwCatch, T.KwFinally] =>
         val body = owner.body
         val condIsDefined = leftOwner match {
           case c: Case => c.cond.isDefined
@@ -1714,8 +1709,7 @@ class Router(formatOps: FormatOps) {
        * Type Bounds
        */
 
-      case FT(_, _: T.Colon, _) if rightOwner.is[Type.Param] =>
-        val tp = rightOwner.asInstanceOf[Type.Param]
+      case FT(_, _: T.Colon, FT.RightOwner(tp: Type.Param)) =>
         def noNLMod = Space(style.spaces.beforeContextBoundColon match {
           case Spaces.BeforeContextBound.Always => true
           case Spaces.BeforeContextBound.IfMultipleBounds => 1 <
@@ -1724,22 +1718,22 @@ class Router(formatOps: FormatOps) {
           case _ => false
         })
         getSplitsForTypeBounds(noNLMod, tp, _.cbounds)
-      case FT(_, _: T.Viewbound, _) if rightOwner.is[Type.Param] =>
-        val tp = rightOwner.asInstanceOf[Type.Param]
+      case FT(_, _: T.Viewbound, FT.RightOwner(tp: Type.Param)) =>
         getSplitsForTypeBounds(Space, tp, _.vbounds)
       /* Type bounds in type definitions and declarations such as:
        * type `Tuple <: Alpha & Beta = Another` or `Tuple <: Alpha & Beta`
        */
-      case FT(_, bound @ (_: T.Subtype | _: T.Supertype), _)
-          if rightOwner.is[Type.Bounds] && rightOwner.parent.isDefined =>
-        val tbounds = rightOwner.asInstanceOf[Type.Bounds]
+      case FT(
+            _,
+            bound @ (_: T.Subtype | _: T.Supertype),
+            FT.RightOwnerParent((tbounds: Type.Bounds, Some(typeOwner))),
+          ) =>
         val boundOpt = bound match {
           case _: T.Subtype => tbounds.hi
           case _: T.Supertype => tbounds.lo
           case _ => None
         }
         val boundEnd = boundOpt.map(getLastNonTrivial)
-        val typeOwner = rightOwner.parent.get
         getSplitsForTypeBounds(Space, typeOwner, boundEnd)
 
       case FT(left, _: T.Colon, _) =>
@@ -2024,8 +2018,7 @@ class Router(formatOps: FormatOps) {
         Seq(Split(identModification(right), 0))
 
       // Enum Case
-      case FT(_, T.KwExtends(), _) if rightOwner.isInstanceOf[Defn.EnumCase] =>
-        val enumCase = rightOwner.asInstanceOf[Defn.EnumCase]
+      case FT(_, _: T.KwExtends, FT.RightOwner(enumCase: Defn.EnumCase)) =>
         binPackParentConstructorSplits(
           true,
           Set(rightOwner),
@@ -2050,8 +2043,7 @@ class Router(formatOps: FormatOps) {
         )
 
       // trait A extends B, C, D, E
-      case FT(_: T.Comma, _, _) if leftOwner.is[Template] =>
-        val template = leftOwner.asInstanceOf[Template]
+      case FT(_: T.Comma, _, FT.LeftOwner(template: Template)) =>
         typeTemplateSplits(template, style.indent.commaSiteRelativeToExtends)
 
       case FT(_, _: T.KwWith, _) => rightOwner match {
@@ -2123,8 +2115,7 @@ class Router(formatOps: FormatOps) {
           baseNoSplit(Newline).withIndents(indents).withPolicy(penalizeNewlines),
         )
 
-      case FT(_: T.KwIf, right, _) if leftOwner.is[Term.If] =>
-        val owner = leftOwner.asInstanceOf[Term.If]
+      case FT(_: T.KwIf, right, FT.LeftOwner(owner: Term.If)) =>
         val expire = getLast(owner)
         val isKeep = style.newlines.keep
         val mod =
@@ -2221,17 +2212,15 @@ class Router(formatOps: FormatOps) {
           Split(Newline, 1),
         )
       // Last else branch
-      case FT(_: T.KwElse, _, _) if (leftOwner match {
-            case t: Term.If => t.elsep match {
-                case _: Term.If => false
-                case b @ Term.Block((_: Term.If) :: Nil) =>
-                  matchingOptRight(nextNonComment(ft))
-                    .exists(_.left.end >= b.pos.end)
-                case _ => true
-              }
-            case x => throw new UnexpectedTree[Term.If](x)
+      case FT(_: T.KwElse, _, FT.LeftOwner(owner: Term.If))
+          if (owner.elsep match {
+            case _: Term.If => false
+            case b @ Term.Block((_: Term.If) :: Nil) =>
+              matchingOptRight(nextNonComment(ft))
+                .exists(_.left.end >= b.pos.end)
+            case _ => true
           }) =>
-        val body = leftOwner.asInstanceOf[Term.If].elsep
+        val body = owner.elsep
         val expire = getLast(body)
         def nlSplitFunc(cost: Int) = Split(Newline2x(ft), cost)
           .withIndent(style.indent.main, expire, After)
@@ -2325,8 +2314,7 @@ class Router(formatOps: FormatOps) {
           Indent(style.indent.main, getLast(leftOwner), ExpiresOn.After)
         Seq(Split(Space, 0).withIndent(indent))
 
-      case FT(_: T.KwCase, _, _) if leftOwner.is[CaseTree] =>
-        val owner = leftOwner.asInstanceOf[CaseTree]
+      case FT(_: T.KwCase, _, FT.LeftOwner(owner: CaseTree)) =>
         val arrow = leftOwner match {
           case c: Case => getCaseArrow(c)
           case tc: TypeCase => getCaseArrow(tc)
@@ -2388,8 +2376,8 @@ class Router(formatOps: FormatOps) {
         }
         Seq(Split(mod, 0, policy = policy))
 
-      case FT(_, _: T.KwIf, _) if rightOwner.is[Case] =>
-        val arrow = getCaseArrow(rightOwner.asInstanceOf[Case])
+      case FT(_, _: T.KwIf, FT.RightOwner(owner: Case)) =>
+        val arrow = getCaseArrow(owner)
         val noSplit =
           if (style.newlines.keepBreak(newlines)) Split.ignored
           else {
@@ -2440,8 +2428,8 @@ class Router(formatOps: FormatOps) {
         }(Split(Newline2x(ft), _).withIndent(indent))
 
       // Term.ForYield
-      case FT(T.KwYield(), _, _) if leftOwner.is[Term.ForYield] =>
-        val lastToken = getLast(leftOwner.asInstanceOf[Term.ForYield].body)
+      case FT(_: T.KwYield, _, FT.LeftOwner(owner: Term.ForYield)) =>
+        val lastToken = getLast(owner.body)
         val indent = Indent(style.indent.main, lastToken, ExpiresOn.After)
         if (style.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
           val noIndent = !isRightCommentWithBreak(ft)
@@ -2453,11 +2441,12 @@ class Router(formatOps: FormatOps) {
         )
 
       // Term.For
-      case FT(_: T.RightBrace, _, _)
-          if leftOwner.is[Term.EnumeratorsBlock] &&
-            leftOwner.parent.is[Term.For] &&
-            !nextNonComment(ft).right.is[T.KwDo] =>
-        val body = leftOwner.parent.get.asInstanceOf[Term.For].body
+      case FT(
+            _: T.RightBrace,
+            _,
+            FT.LeftOwnerParent((_: Term.EnumeratorsBlock, Some(p: Term.For))),
+          ) if !nextNonComment(ft).right.is[T.KwDo] =>
+        val body = p.body
         def nlSplit(cost: Int) = Split(Newline2x(ft), cost)
           .withIndent(style.indent.main, getLast(body), After)
         CtrlBodySplits.get(body)(null)(nlSplit)
@@ -2523,10 +2512,10 @@ class Router(formatOps: FormatOps) {
         }
 
       // Pattern alternatives
-      case FT(T.Ident("|"), _, _) if leftOwner.is[Pat.Alternative] =>
+      case FT(T.Ident("|"), _, FT.LeftOwner(owner: Pat.Alternative)) =>
         if (style.newlines.keep) Seq(Split(Space.orNL(noBreak()), 0))
         else {
-          val end = getLast(leftOwner.asInstanceOf[Pat.Alternative].rhs match {
+          val end = getLast(owner.rhs match {
             case t: Pat.Alternative => t.lhs
             case t => t
           })
@@ -2621,8 +2610,7 @@ class Router(formatOps: FormatOps) {
             .fold(!rightOwner.is[Pat.Alternative])(_._1 eq BinPack.Site.Never)
         Seq(Split(if (ok) getNoSplitBeforeClosing(ft, Newline) else Newline, 0))
 
-      case FT(_: T.KwDo, _, _) if leftOwner.is[Term.Do] =>
-        val owner = leftOwner.asInstanceOf[Term.Do]
+      case FT(_: T.KwDo, _, FT.LeftOwner(owner: Term.Do)) =>
         val eft = getLast(owner.body)
         val indent = Indent(style.indent.main, eft, ExpiresOn.After)
         val kwWhile = nextAfterNonComment(eft)
