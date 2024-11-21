@@ -62,8 +62,8 @@ object LoggerOps {
     val rt = ft.meta.right.text
     val ls = tokWithoutPos(ft.left)
     val rs = tokWithoutPos(ft.right)
-    val lo = treeName(ft.leftOwner)
-    val ro = treeName(ft.rightOwner)
+    val lo = treeNameWithParent(ft.leftOwner)
+    val ro = treeNameWithParent(ft.rightOwner)
     s"[${ft.idx}] $lt $rt >>> $ls | $rs >>> $lo | $ro"
   }
 
@@ -103,7 +103,13 @@ object LoggerOps {
     }
   }
 
-  def treeInfo(t: Tree): String = s"${treeName(t)} ${position(t)}"
+  def treeName(t: Option[Tree]): String = t.fold("")(treeName)
+
+  def treeNameWithParent(t: Tree): String =
+    s"${treeName(t)} [${treeName(t.parent)}]"
+
+  def treeInfo(t: Tree): String =
+    s"${treeName(t)} ${position(t)} [${treeName(t.parent)}]"
 
   def log(t: Tree): String = log(t, false)
   def log(t: Tree, tokensOnly: Boolean): String = {
