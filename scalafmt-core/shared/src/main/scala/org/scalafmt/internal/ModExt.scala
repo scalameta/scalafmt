@@ -13,6 +13,7 @@ case class ModExt(
     mod: Modification,
     indents: Seq[Indent] = Nil,
     altOpt: Option[ModExt] = None,
+    noAltIndent: Boolean = false,
 ) {
   @inline
   def isNL: Boolean = mod.isNL
@@ -27,18 +28,20 @@ case class ModExt(
 
     altOpt match {
       case None => res("")
-      case Some(x) => x.toString(res("|"), "+")
+      case Some(x) => x.toString(res("|"), if (noAltIndent) "" else "+")
     }
   }
 
   override def toString: String = toString("", "")
 
-  def withAlt(alt: ModExt): ModExt =
-    if (altOpt.contains(alt)) this else copy(altOpt = Some(alt))
+  def withAlt(alt: => ModExt, noAltIndent: Boolean = false): ModExt =
+    copy(altOpt = Some(alt), noAltIndent = noAltIndent)
 
   @inline
-  def withAltIf(ok: Boolean)(alt: => ModExt): ModExt =
-    if (ok) withAlt(alt) else this
+  def withAltIf(
+      ok: Boolean,
+  )(alt: => ModExt, noAltIndent: Boolean = false): ModExt =
+    if (ok) withAlt(alt, noAltIndent = noAltIndent) else this
 
   def orMod(flag: Boolean, mod: => ModExt): ModExt = if (flag) this else mod
 
