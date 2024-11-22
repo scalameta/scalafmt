@@ -97,7 +97,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     case _ if numParens >= 2 => true
 
     case _: Term.AnonymousFunction | _: Term.Param => false
-    case _: Type.FunctionType => false
+    case _: Type.ParamFunctionType => false
     case _: Init => false
 
     case t: Member.ArgClause => okToReplaceArgClause(t)

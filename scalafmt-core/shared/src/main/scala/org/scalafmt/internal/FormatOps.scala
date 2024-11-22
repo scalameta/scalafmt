@@ -193,8 +193,8 @@ class FormatOps(
   // invoked on closing paren, part of ParamClause
   @tailrec
   final def defnSiteLastToken(t: Tree): Option[FT] = t match {
-    case _: Term.ParamClause | _: Type.FuncParamClause | _: Type.FunctionType |
-        _: Member.ParamClauseGroup => t.parent match {
+    case _: Member.SyntaxValuesClause | _: Member.ParamClauseGroup |
+        _: Type.ParamFunctionType => t.parent match {
         case Some(p) => defnSiteLastToken(p)
         case _ => None
       }

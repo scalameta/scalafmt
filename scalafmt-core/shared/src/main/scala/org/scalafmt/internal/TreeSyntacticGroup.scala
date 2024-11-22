@@ -52,7 +52,7 @@ object TreeSyntacticGroup {
     case _: Type.Singleton => g.Type.SimpleTyp
     case _: Type.Apply => g.Type.SimpleTyp
     case t: Type.ApplyInfix => g.Type.InfixTyp(t.op.value)
-    case _: Type.FunctionType => g.Type.Typ
+    case _: Type.ParamFunctionType => g.Type.Typ
     case _: Type.PolyFunction => g.Type.Typ
     case _: Type.Tuple => g.Type.SimpleTyp
     case _: Type.With => g.Type.WithTyp
@@ -64,7 +64,7 @@ object TreeSyntacticGroup {
     case _: Type.Wildcard => g.Type.SimpleTyp
     case _: Type.Bounds => g.Path // ???
     case _: Type.Repeated => g.Type.ParamTyp
-    case _: Type.ByName => g.Type.ParamTyp
+    case _: Type.ByNameType => g.Type.ParamTyp
     case _: Type.Var => g.Type.ParamTyp
     case _: Type.Param => g.Path // ???
     case _: Type.Match => g.Type.Typ

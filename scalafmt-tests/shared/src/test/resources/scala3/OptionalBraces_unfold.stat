@@ -8117,7 +8117,7 @@ object a:
   class Logger(fs: FileSystem^)
 >>>
 object a:
-   class Logger(fs: FileSystem ^)
+   class Logger(fs: FileSystem^)
 <<< capability capture checking 2
 runner.dialect = scala3future
 ===
@@ -8125,9 +8125,7 @@ object a:
   val l: Logger^{fs} = Logger(fs)
 >>>
 object a:
-   val l: Logger ^ {
-     fs
-   } = Logger(fs)
+   val l: Logger^{fs} = Logger(fs)
 <<< capability capture checking 3
 runner.dialect = scala3future
 ===
@@ -8135,9 +8133,7 @@ object a:
   def tail: LazyList[A]^{this}
 >>>
 object a:
-   def tail: LazyList[A] ^ {
-     this
-   }
+   def tail: LazyList[A]^{this}
 <<< capability capture checking 4
 runner.dialect = scala3future
 ===
@@ -8145,14 +8141,7 @@ object a:
   def p: Pair[Int ->{ct} String, Logger^{fs}] = Pair(x, y)
 >>>
 object a:
-   def p: Pair[
-     Int -> {
-       ct
-     } String,
-     Logger ^ {
-       fs
-     }
-   ] = Pair(x, y)
+   def p: Pair[Int ->{ct} String, Logger^{fs}] = Pair(x, y)
 <<< capability capture checking 5
 runner.dialect = scala3future
 ===
@@ -8160,13 +8149,7 @@ object a:
   def map[T <: (A ?->{a, c} B)](f: T): A ?-> B = ???
 >>>
 object a:
-   def map[
-       T <: (
-         A ?-> {
-           a, c
-         } B
-       )
-   ](f: T): A ?-> B = ???
+   def map[T <: (A ?->{a, c} B)](f: T): A ?-> B = ???
 <<< capability capture checking 6
 runner.dialect = scala3future
 ===
@@ -8174,8 +8157,4 @@ object a:
   def func(f: ->{a, b, c} B): Unit
 >>>
 object a:
-   def func(
-       f: -> {
-         a, b, c
-       } B
-   ): Unit
+   def func(f: ->{a, b, c} B): Unit
