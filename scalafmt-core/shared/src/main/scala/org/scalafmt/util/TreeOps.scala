@@ -911,11 +911,19 @@ object TreeOps {
 
   def isParentAnApply(t: Tree): Boolean = t.parent.is[Term.Apply]
 
-  def isTreeOrBlockParent(owner: Tree)(pred: Tree => Boolean): Boolean =
-    if (owner.is[Term.Block]) owner.parent.exists(pred) else pred(owner)
+  def isCapturingBrace(owner: Tree): Boolean = owner match {
+    case _: Type.Capturing => true
+    case t: Type.FunctionLikeType => t.parent.is[Type.Capturing]
+    case _ => false
+  }
 
-  def xmlSpace(owner: Tree): Modification =
-    Space(!isTreeOrBlockParent(owner)(_.isAny[Term.Xml, Pat.Xml]))
+  def braceSpace(owner: Tree): Modification = Space {
+    def isXml(t: Tree) = t.isAny[Term.Xml, Pat.Xml]
+    owner match {
+      case t: Term.Block => !t.parent.exists(isXml)
+      case t => !isXml(t) && !isCapturingBrace(t)
+    }
+  }
 
   def isEmptyTree(tree: Tree): Boolean = tree match {
     case t: Term.Block => t.stats.isEmpty

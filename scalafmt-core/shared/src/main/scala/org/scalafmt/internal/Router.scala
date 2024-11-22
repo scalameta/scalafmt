@@ -247,6 +247,14 @@ class Router(formatOps: FormatOps) {
 
       // { ... } Blocks
       case FT(_: T.LeftBrace, _: T.RightBrace, _) => Seq(Split(NoSplit, 0))
+
+      // Capture checking
+      case FT(_, _: T.LeftBrace, _) if isCapturingBrace(rightOwner) =>
+        Seq(Split(NoSplit, 0))
+      case FT(_: T.LeftBrace, _, _) if isCapturingBrace(leftOwner) =>
+        val close = matchingLeft(ft)
+        Seq(Split(NoSplit, 0).withIndent(style.indent.main, close, Before))
+
       case FT(_: T.LeftBrace, right, _) =>
         val close = matchingLeft(ft)
         val isSelfAnnotationNL = style.optIn.selfAnnotationNewline &&
@@ -355,7 +363,7 @@ class Router(formatOps: FormatOps) {
             else getSingleLineLambdaDecisionOpt
         }
 
-        val noSplitMod = xmlSpace(leftOwner)
+        val noSplitMod = braceSpace(leftOwner)
         val (slbMod, slbParensExclude) =
           if (singleLineDecisionOpt.isEmpty) (noSplitMod, None)
           else getBracesToParensMod(close, noSplitMod, isWithinBraces = true)
@@ -717,7 +725,7 @@ class Router(formatOps: FormatOps) {
         }
 
       case FT(_, _: T.RightBrace, _) =>
-        Seq(Split(if (ft.hasBlankLine) Newline2x else xmlSpace(rightOwner), 0))
+        Seq(Split(if (ft.hasBlankLine) Newline2x else braceSpace(rightOwner), 0))
 
       case FT(_: T.KwPackage, _, _) if leftOwner.is[Pkg] => Seq(Split(Space, 0))
       // Opening [ with no leading space.
@@ -1586,9 +1594,8 @@ class Router(formatOps: FormatOps) {
                   .exists(x => isTokenLastOrAfter(x.left, roPos))
             }
           } =>
-        val mod =
-          getBracesToParensMod(matchingRight(ft), Space, isWithinBraces = false)
-            ._1
+        val rb = matchingRight(ft)
+        val mod = getBracesToParensMod(rb, Space, isWithinBraces = false)._1
         Seq(Split(mod, 0))
 
       // Delim
@@ -2549,6 +2556,9 @@ class Router(formatOps: FormatOps) {
           if rightOwner.isAny[Tree.Repeated, Pat.SeqWildcard] =>
         Seq(Split(NoSplit, 0))
 
+      case FT(_, T.Ident("^"), _) if rightOwner.is[Type.Capturing] =>
+        Seq(Split(NoSplit, 0))
+
       case FT(
             _: T.Ident | _: T.Literal | _: T.Interpolation.End | _: T.Xml.End,
             _: T.Ident | _: T.Literal,
@@ -2658,7 +2668,8 @@ class Router(formatOps: FormatOps) {
       case FT(Reserved(), _, _) => Seq(Split(Space, 0))
 
       case FT(_, _: T.Symbolic, _) => Seq(Split(Space, 0))
-      case FT(_: T.RightArrow, _, _) if leftOwner.is[Type.ByName] =>
+      case FT(_: T.RightArrow | soft.KwPureFunctionArrow(), _, _)
+          if leftOwner.is[Type.ByNameType] =>
         val mod = Space(style.spaces.inByNameTypes)
         Seq(Split(mod, 0))
       case FT(_: T.Colon, _, _) if style.spaces.notAfterColon(leftOwner) =>
