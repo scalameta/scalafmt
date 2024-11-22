@@ -1474,11 +1474,11 @@ class Router(formatOps: FormatOps) {
         val nlIndentLen =
           if (nlClosedOnOpenEffective eq NlClosedOnOpen.Cfg) indentLen
           else bpIndentLen
-        val nlMod =
-          if (nlOnly && noBreak() && right.is[T.Comment]) Space
-          else NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None)
+        val nlMod = {
+          if (nlOnly && noBreak() && right.is[T.Comment]) Space.toExt
+          else Newline.withAltIf(singleLineOnly)(NoSplit)
+        }.withIndent(nlIndentLen, close, Before)
         val nlSplit = Split(nlMod, bracketPenalty * (if (oneline) 4 else 2))
-          .withIndent(nlIndentLen, close, Before)
           .withSingleLineNoOptimal(close, ignore = !singleLineOnly).andPolicy(
             Policy ? singleLineOnly || nlPolicy & penalizeNewlinesPolicy,
           ).andPolicy(singleArgAsInfix.map(InfixSplits(_, ft).nlPolicy))
@@ -1850,7 +1850,7 @@ class Router(formatOps: FormatOps) {
                 if (ok) Some(nd) else None
               }
               val altIndent = endSelect.map(Indent(-indentLen, _, After))
-              NewlineT(alt = Some(ModExt(modSpace).withIndentOpt(altIndent)))
+              Newline.withAlt(modSpace.withIndentOpt(altIndent))
             }
 
             val prevChain = inSelectChain(prevSelect, thisSelect, expireTree)
@@ -1889,9 +1889,8 @@ class Router(formatOps: FormatOps) {
               val nlCost = nlBaseCost + nestedPenalty + chainLengthPenalty
               val nlMod = getNlMod
               val legacySplit = Split(!prevChain, 1) { // must come first, for backwards compat
-                if (style.optIn.breaksInsideChains) Newline
-                  .orMod(hasBreak(), modSpace)
-                else nlMod
+                if (!style.optIn.breaksInsideChains) nlMod
+                else Newline.orMod(hasBreak(), modSpace)
               }.withPolicy(newlinePolicy).onlyFor(SplitTag.SelectChainSecondNL)
               val slbSplit =
                 if (ignoreNoSplit) Split.ignored
@@ -1907,7 +1906,7 @@ class Router(formatOps: FormatOps) {
                         .withSingleLineNoOptimal(chainExpire, noSyntaxNL = true)
                   }
                 }.andPolicy(penalizeBreaks)
-              val nlSplit = Split(if (ignoreNoSplit) Newline else nlMod, nlCost)
+              val nlSplit = Split(Newline.orMod(ignoreNoSplit, nlMod), nlCost)
                 .withPolicy(newlinePolicy)
               Seq(legacySplit, slbSplit, nlSplit)
             } else {
@@ -1945,14 +1944,14 @@ class Router(formatOps: FormatOps) {
             else Seq(
               Split(nlOnly, 0)(modSpace)
                 .withSingleLine(expire, noSyntaxNL = true),
-              Split(NewlineT(alt = Some(modSpace)), nlCost)
+              Split(Newline.withAlt(modSpace), nlCost)
                 .withPolicy(forcedBreakOnNextDotPolicy),
             )
 
           case Newlines.fold =>
             def nlSplitBase(cost: Int, policy: Policy = NoPolicy)(implicit
                 fileLine: FileLine,
-            ) = Split(NewlineT(alt = Some(modSpace)), cost, policy = policy)
+            ) = Split(Newline.withAlt(modSpace), cost, policy = policy)
             if (nextDotIfSig.isEmpty)
               if (nlOnly) Seq(nlSplitBase(0))
               else {
