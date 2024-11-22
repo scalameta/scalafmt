@@ -85,6 +85,7 @@ final class State(
         initialModExt.altOpt.flatMap { alt =>
           if (tok.left.is[T.Comment]) None
           else if (nextIndent < alt.mod.length + column) None
+          else if (initialModExt.noAltIndent) Some(alt)
           else Some(alt.withIndents(initialModExt.indents))
         }.fold((initialNextSplit, nextIndent, nextPushes)) { alt =>
           val altPushes = getUnexpired(alt, pushes)

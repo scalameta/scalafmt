@@ -8430,7 +8430,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 4769, stateVisits2 = 4769 }
+>>> { stateVisits = 3882, stateVisits2 = 3882 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -9558,61 +9558,57 @@ object a {
       .map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 3668, stateVisits2 = 3668 }
+>>> { stateVisits = 52849, stateVisits2 = 52849 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
   ): Seq[Seq[File]] = {
-    packages.map(_.filterNot(_.getName.contains("$")))
-      .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/deploy")))
-      .map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/examples")
-      )).map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/internal")
-      ))
-      .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/memory")))
-      .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/network")))
-      .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/rpc")))
-      .map(_.filterNot(f =>
-        f.getCanonicalPath.contains("org/apache/spark/shuffle") &&
-          !f.getCanonicalPath.contains("org/apache/spark/shuffle/api")
-      )).map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/executor")
-      )).map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/ExecutorAllocationClient")
-      )).map(_.filterNot(_.getCanonicalPath.contains(
-        "org/apache/spark/scheduler/cluster/CoarseGrainedSchedulerBackend"
-      ))).map(_.filterNot(f =>
-        f.getCanonicalPath.contains("org/apache/spark/unsafe") &&
-          !f.getCanonicalPath
-            .contains("org/apache/spark/unsafe/types/CalendarInterval")
-      )).map(_.filterNot(_.getCanonicalPath.contains("python")))
-      .map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/util/collection")
-      ))
-      .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/util/io")))
-      .map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/util/kvstore")
-      )).map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/sql/catalyst")
-      )).map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/sql/connect/")
-      )).map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/sql/execution")
-      )).map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/sql/internal")
-      )).map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/sql/hive")
-      )).map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/sql/catalog/v2/utils")
-      ))
-      .map(_.filterNot(_.getCanonicalPath.contains("org.apache.spark.errors")))
-      .map(_.filterNot(
-        _.getCanonicalPath.contains("org.apache.spark.sql.errors")
-      )).map(_.filterNot(_.getCanonicalPath.contains("org/apache/hive")))
-      .map(_.filterNot(
-        _.getCanonicalPath.contains("org/apache/spark/sql/v2/avro")
-      )).map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
+    packages.map(_.filterNot(_.getName.contains("$"))).map(_.filterNot(
+      _.getCanonicalPath.contains("org/apache/spark/deploy")
+    )).map(_.filterNot(
+      _.getCanonicalPath.contains("org/apache/spark/examples")
+    ))
+    .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/internal")))
+    .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/memory")))
+    .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/network")))
+    .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/rpc")))
+    .map(_.filterNot(f =>
+      f.getCanonicalPath.contains("org/apache/spark/shuffle") &&
+        !f.getCanonicalPath.contains("org/apache/spark/shuffle/api")
+    ))
+    .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/executor")))
+    .map(_.filterNot(
+      _.getCanonicalPath.contains("org/apache/spark/ExecutorAllocationClient")
+    )).map(_.filterNot(_.getCanonicalPath.contains(
+      "org/apache/spark/scheduler/cluster/CoarseGrainedSchedulerBackend"
+    ))).map(_.filterNot(f =>
+      f.getCanonicalPath.contains("org/apache/spark/unsafe") &&
+        !f.getCanonicalPath
+          .contains("org/apache/spark/unsafe/types/CalendarInterval")
+    )).map(_.filterNot(_.getCanonicalPath.contains("python"))).map(_.filterNot(
+      _.getCanonicalPath.contains("org/apache/spark/util/collection")
+    )).map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/util/io")))
+    .map(_.filterNot(
+      _.getCanonicalPath.contains("org/apache/spark/util/kvstore")
+    )).map(_.filterNot(
+      _.getCanonicalPath.contains("org/apache/spark/sql/catalyst")
+    )).map(_.filterNot(
+      _.getCanonicalPath.contains("org/apache/spark/sql/connect/")
+    )).map(_.filterNot(
+      _.getCanonicalPath.contains("org/apache/spark/sql/execution")
+    )).map(_.filterNot(
+      _.getCanonicalPath.contains("org/apache/spark/sql/internal")
+    ))
+    .map(_.filterNot(_.getCanonicalPath.contains("org/apache/spark/sql/hive")))
+    .map(_.filterNot(
+      _.getCanonicalPath.contains("org/apache/spark/sql/catalog/v2/utils")
+    )).map(_.filterNot(_.getCanonicalPath.contains("org.apache.spark.errors")))
+    .map(_.filterNot(
+      _.getCanonicalPath.contains("org.apache.spark.sql.errors")
+    )).map(_.filterNot(_.getCanonicalPath.contains("org/apache/hive")))
+    .map(_.filterNot(
+      _.getCanonicalPath.contains("org/apache/spark/sql/v2/avro")
+    )).map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
 <<< #4133 #4133 spark: massive chain of applies with function calls
@@ -10069,7 +10065,7 @@ system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
             }
       }
 }
->>> { stateVisits = 4820, stateVisits2 = 4820 }
+>>> { stateVisits = 3689, stateVisits2 = 3689 }
 system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
   case _: NoSuchMethodException => system.dynamicAccess
       .createInstanceFor[Serializer](
@@ -10512,9 +10508,9 @@ object a {
     // c1
     baz
   }.qux { x =>
-      // c2
-      quux(x)
-    }
+    // c2
+    quux(x)
+  }
 }
 <<< chained maps with multi-line blocks, with braces-to-parens not OK
 object a {

@@ -1948,7 +1948,10 @@ class Router(formatOps: FormatOps) {
           case Newlines.fold =>
             def nlSplitBase(cost: Int, policy: Policy = NoPolicy)(implicit
                 fileLine: FileLine,
-            ) = Split(Newline.withAlt(modSpace), cost, policy = policy)
+            ) = {
+              val nlMod = Newline.withAlt(modSpace, noAltIndent = true)
+              Split(nlMod, cost, policy = policy)
+            }
             if (nextDotIfSig.isEmpty)
               if (nlOnly) Seq(nlSplitBase(0))
               else {
