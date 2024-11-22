@@ -70,7 +70,7 @@ final class State(
       if (right.is[T.EOF]) (initialNextSplit, 0, Seq.empty)
       else {
         val offset = column - indentation
-        def getUnexpired(modExt: ModExt, indents: Seq[ActualIndent] = Nil) = {
+        def getUnexpired(modExt: ModExt, indents: Seq[ActualIndent]) = {
           val extendedEnd = getRelativeToLhsLastLineEnd(modExt.isNL)
           (modExt.getActualIndents(offset) ++ indents).flatMap { x =>
             if (x.notExpiredBy(tok)) Some(x)
@@ -80,19 +80,17 @@ final class State(
         }
 
         val initialModExt = initialNextSplit.modExt
-        val indents = initialModExt.indents
         val nextPushes = getUnexpired(initialModExt, pushes)
         val nextIndent = Indent.getIndent(nextPushes)
-        initialNextSplit.mod match {
-          case m: NewlineT
-              if !tok.left.is[T.Comment] && m.alt.isDefined &&
-                nextIndent >= m.alt.get.mod.length + column =>
-            val alt = m.alt.get
-            val altPushes = getUnexpired(alt)
-            val altIndent = Indent.getIndent(altPushes)
-            val split = initialNextSplit.withMod(alt.withIndents(indents))
-            (split, nextIndent + altIndent, nextPushes ++ altPushes)
-          case _ => (initialNextSplit, nextIndent, nextPushes)
+        initialModExt.altOpt.flatMap { alt =>
+          if (tok.left.is[T.Comment]) None
+          else if (nextIndent < alt.mod.length + column) None
+          else Some(alt.withIndents(initialModExt.indents))
+        }.fold((initialNextSplit, nextIndent, nextPushes)) { alt =>
+          val altPushes = getUnexpired(alt, pushes)
+          val altIndent = Indent.getIndent(altPushes)
+          val split = initialNextSplit.withMod(alt)
+          (split, altIndent, altPushes)
         }
       }
 

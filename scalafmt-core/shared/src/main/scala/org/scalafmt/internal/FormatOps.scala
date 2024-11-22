@@ -932,7 +932,7 @@ class FormatOps(
       indentLen: Int,
       extendsThenWith: => Boolean = false,
   )(implicit fileLine: FileLine, ft: FT, style: ScalafmtConfig): Seq[Split] = {
-    val nlMod = NewlineT(alt = Some(Space))
+    val nlMod = Newline.withAlt(Space)
     def nlPolicy(ignore: Boolean) = Policy ? (ignore || owners.isEmpty) ||
       Policy.onRight(lastFt, prefix = "WITH") {
         case d @ Decision(FT(_, _: T.KwWith, m), _) if owners(m.rightOwner) =>
@@ -1161,7 +1161,7 @@ class FormatOps(
         style.newlines.forceAfterImplicitParamListModifier
       val nlNoAlt = implicitNL ||
         !rightIsImplicit && style.verticalMultiline.newlineAfterOpenParen
-      val nlMod = NewlineT(alt = if (nlNoAlt) None else Some(slbSplit.modExt))
+      val nlMod = Newline.withAltIf(!nlNoAlt)(slbSplit.modExt)
       val spaceImplicit = !implicitNL && implicitParams.lengthCompare(1) > 0 &&
         style.newlines.notBeforeImplicitParamListModifier
       Seq(

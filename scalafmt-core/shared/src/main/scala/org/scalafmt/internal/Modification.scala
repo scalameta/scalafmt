@@ -34,25 +34,18 @@ case object NoSplit extends Modification {
   *   optional additional set of indents) if the newline will indent beyond the
   *   current column? For example, used by select chains in [[Router]].
   */
-case class NewlineT(
-    isDouble: Boolean = false,
-    noIndent: Boolean = false,
-    alt: Option[ModExt] = None,
-) extends Modification {
+case class NewlineT(isDouble: Boolean = false, noIndent: Boolean = false)
+    extends Modification {
   override def toString = {
     val double = if (isDouble) "x2" else ""
     val indent = if (noIndent) "[NoIndent]" else ""
-    val altStr = alt.fold("")(x => "|" + x.mod.toString)
-    "NL" + double + indent + altStr
+    "NL" + double + indent
   }
   override val newlines: Int = if (isDouble) 2 else 1
   override val length: Int = 0
 }
 
-object Newline extends NewlineT {
-  def orMod(flag: Boolean, mod: => Modification): Modification =
-    if (flag) this else mod
-}
+object Newline extends NewlineT
 
 object Newline2x extends NewlineT(isDouble = true) {
   def apply(isDouble: Boolean): NewlineT = if (isDouble) this else Newline

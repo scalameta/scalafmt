@@ -47,7 +47,7 @@ object LoggerOps {
     s"d=${s.depth} w=${s.cost}[${s.appliedPenalty}] i=${s.indentation} col=${s
         .column} #nl=${s.lineId}$policies;${delim}s=${log(s.split)}$nls"
   }
-  def log(split: Split): String = s"$split"
+  def log(split: Split): String = split.toString
 
   def log(formatToken: FT): String =
     s"""|${log(formatToken.left)}

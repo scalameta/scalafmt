@@ -59,7 +59,7 @@ case class Split(
   import PolicyOps._
 
   def withNoIndent: Split = mod match {
-    case x @ NewlineT(_, false, _) =>
+    case x: NewlineT if !x.noIndent =>
       copy(modExt = modExt.copy(mod = x.copy(noIndent = true)))
     case _ => this
   }
@@ -69,9 +69,6 @@ case class Split(
 
   @inline
   def fileLine: FileLine = fileLineStack.fileLineLast
-
-  @inline
-  def indentation: String = modExt.indentation
 
   @inline
   def isNL: Boolean = modExt.isNL
@@ -318,7 +315,7 @@ case class Split(
         else ""
       }
     val opt = optimalAt.fold("")(", opt=" + _)
-    s"""${prefix}c=$cost[$penalty] $mod:[$fileLineStack](indents=$indentation, $policy$opt)"""
+    s"""${prefix}c=$cost[$penalty] $modExt:[$fileLineStack]($policy$opt)"""
   }
 }
 

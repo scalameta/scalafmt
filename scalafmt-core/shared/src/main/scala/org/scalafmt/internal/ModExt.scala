@@ -2,18 +2,45 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.{Token => T}
 
-import scala.language.implicitConversions
+import scala.annotation.tailrec
 
 /** @param mod
   *   Is this a space, no space, newline or 2 newlines?
   * @param indents
   *   Does this add indentation?
   */
-case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
-  lazy val indentation = indents.mkString("[", ", ", "]")
-
+case class ModExt(
+    mod: Modification,
+    indents: Seq[Indent] = Nil,
+    altOpt: Option[ModExt] = None,
+) {
   @inline
   def isNL: Boolean = mod.isNL
+
+  @tailrec
+  private def toString(prefix: String, indentPrefix: String): String = {
+    @inline
+    def res(suffix: String) = {
+      val ind = if (indents.isEmpty) "" else indents.mkString("[", ", ", "]")
+      s"$prefix$mod($indentPrefix$ind)$suffix"
+    }
+
+    altOpt match {
+      case None => res("")
+      case Some(x) => x.toString(res("|"), "+")
+    }
+  }
+
+  override def toString: String = toString("", "")
+
+  def withAlt(alt: ModExt): ModExt =
+    if (altOpt.contains(alt)) this else copy(altOpt = Some(alt))
+
+  @inline
+  def withAltIf(ok: Boolean)(alt: => ModExt): ModExt =
+    if (ok) withAlt(alt) else this
+
+  def orMod(flag: Boolean, mod: => ModExt): ModExt = if (flag) this else mod
 
   def withIndent(length: => Length, expire: => FT, when: ExpiresOn): ModExt =
     length match {
@@ -73,11 +100,5 @@ case class ModExt(mod: Modification, indents: Seq[Indent] = Seq.empty) {
     */
   def getActualIndents(offset: Int): Seq[ActualIndent] = indents
     .flatMap(_.withStateOffset(offset + mod.length))
-
-}
-
-object ModExt {
-
-  implicit def implicitModToModExt(mod: Modification): ModExt = ModExt(mod)
 
 }
