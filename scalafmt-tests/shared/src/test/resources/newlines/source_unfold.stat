@@ -11429,3 +11429,45 @@ object a {
     false
   }
 }
+<<< chained maps with multi-line blocks, with braces-to-parens OK
+rewrite.rules = [RedundantBraces]
+===
+object a {
+  def foo = bar {
+    // c1
+    baz
+  }.qux { x =>
+    // c2
+    quux(x)
+  }
+}
+>>>
+object a {
+  def foo = bar {
+    // c1
+    baz
+  }.qux { x =>
+    // c2
+    quux(x)
+  }
+}
+<<< chained maps with multi-line blocks, with braces-to-parens not OK
+object a {
+  def foo = bar {
+    // c1
+    baz
+  }.qux { x =>
+      // c2
+      quux(x)
+    }
+}
+>>>
+object a {
+  def foo = bar {
+    // c1
+    baz
+  }.qux { x =>
+    // c2
+    quux(x)
+  }
+}
