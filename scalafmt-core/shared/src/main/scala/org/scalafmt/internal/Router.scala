@@ -725,7 +725,7 @@ class Router(formatOps: FormatOps) {
         }
 
       case FT(_, _: T.RightBrace, _) =>
-        Seq(Split(if (ft.hasBlankLine) Newline2x else braceSpace(rightOwner), 0))
+        Seq(Split(Newline2x.orMod(ft.hasBlankLine, braceSpace(rightOwner)), 0))
 
       case FT(_: T.KwPackage, _, _) if leftOwner.is[Pkg] => Seq(Split(Space, 0))
       // Opening [ with no leading space.
@@ -1796,37 +1796,35 @@ class Router(formatOps: FormatOps) {
               .exists(_.left.is[T.Colon])
           case _ => false
         }
+
+        val nextDotOpt = nextSelect.map(ns => tokenBefore(ns.nameFt))
+        val beforeNextDotOpt = nextDotOpt.map(prev)
         val nextDotIfSig = nextSelect.flatMap { ns =>
-          val ok = checkFewerBraces(ns.qual)
-          if (ok) Some(tokenBefore(ns.nameFt)) else None
-        }
-        def forcedBreakOnNextDotPolicy = nextSelect.map { selectLike =>
-          val tree = selectLike.tree
-          Policy.beforeLeft(selectLike.nameFt, "NEXTSELFNL") {
-            case d @ Decision(FT(_, _: T.Dot, m), _) if m.rightOwner eq tree =>
-              d.onlyNewlinesWithoutFallback
-          }
+          if (checkFewerBraces(ns.qual)) nextDotOpt else None
         }
 
-        def breakOnNextDot: Policy = nextSelect.map { selectLike =>
-          val tree = selectLike.tree
-          Policy.beforeLeft(selectLike.nameFt, "NEXTSEL2NL") {
-            case Decision(FT(_, _: T.Dot, m), s) if m.rightOwner eq tree =>
-              val filtered = s.flatMap { x =>
-                val y = x.activateFor(SplitTag.SelectChainSecondNL)
-                if (y.isActive) Some(y) else None
+        def forcedBreakOnNextDotPolicy(implicit fileLine: FileLine) =
+          beforeNextDotOpt.map(decideNewlinesOnlyAfterToken(_))
+        def getClassicNonFirstBreakOnDot(
+            dot: FT,
+        )(implicit fileLine: FileLine): Policy = Policy.End <= dot ==>
+          Policy.onRight(dot, "NEXTSEL2NL") { case Decision(`dot`, s) =>
+            val filtered = s.flatMap { x =>
+              val y = x.activateFor(SplitTag.SelectChainSecondNL)
+              if (y.isActive) Some(y) else None
+            }
+            if (filtered.isEmpty) Seq.empty
+            else {
+              val minCost = math.max(0, filtered.map(_.costWithPenalty).min - 1)
+              filtered.map { x =>
+                val p = x.policy.filter(!_.isInstanceOf[PenalizeAllNewlines])
+                implicit val fileLine = x.fileLineStack.fileLineHead
+                x.copy(penalty = x.costWithPenalty - minCost, policy = p)
               }
-              if (filtered.isEmpty) Seq.empty
-              else {
-                val minCost = math
-                  .max(0, filtered.map(_.costWithPenalty).min - 1)
-                filtered.map { x =>
-                  val p = x.policy.filter(!_.isInstanceOf[PenalizeAllNewlines])
-                  x.copy(penalty = x.costWithPenalty - minCost, policy = p)
-                }
-              }
+            }
           }
-        }
+        def classicNonFirstBreakOnNextDot(implicit fileLine: FileLine): Policy =
+          beforeNextDotOpt.map(getClassicNonFirstBreakOnDot)
 
         def getSlbEnd() = {
           val nft = nextNonCommentSameLineAfter(ft)
@@ -1854,6 +1852,12 @@ class Router(formatOps: FormatOps) {
             }
 
             val prevChain = inSelectChain(prevSelect, thisSelect, expireTree)
+            def splitSecondNL(
+                modNoBreaks: ModExt,
+            )(implicit fileLine: FileLine) = Split(!prevChain, 1) {
+              if (!style.optIn.breaksInsideChains) modNoBreaks
+              else Newline.orMod(hasBreak(), modSpace)
+            }.onlyFor(SplitTag.SelectChainSecondNL)
             if (canStartSelectChain(thisSelect, nextSelect, expireTree)) {
               val chainExpire =
                 if (nextSelect.isEmpty) thisSelect.nameFt else expire
@@ -1862,7 +1866,7 @@ class Router(formatOps: FormatOps) {
               // This policy will apply to both the space and newline splits, otherwise
               // the newline is too cheap even it doesn't actually prevent other newlines.
               val penalizeBreaks = PenalizeAllNewlines(chainExpire, 2)
-              val newlinePolicy = breakOnNextDot & penalizeBreaks
+              val newlinePolicy = classicNonFirstBreakOnNextDot & penalizeBreaks
               val ignoreNoSplit = nlOnly ||
                 hasBreak &&
                 (afterComment || style.optIn.breakChainOnFirstMethodDot)
@@ -1888,20 +1892,17 @@ class Router(formatOps: FormatOps) {
                 if (style.optIn.breakChainOnFirstMethodDot) 3 else 2
               val nlCost = nlBaseCost + nestedPenalty + chainLengthPenalty
               val nlMod = getNlMod
-              val legacySplit = Split(!prevChain, 1) { // must come first, for backwards compat
-                if (!style.optIn.breaksInsideChains) nlMod
-                else Newline.orMod(hasBreak(), modSpace)
-              }.withPolicy(newlinePolicy).onlyFor(SplitTag.SelectChainSecondNL)
+              // must come first, for backwards compat
+              val legacySplit = splitSecondNL(nlMod).withPolicy(newlinePolicy)
               val slbSplit =
                 if (ignoreNoSplit) Split.ignored
                 else {
                   val noSplit = Split(modSpace, 0)
                   if (prevChain) noSplit
                   else chainExpire.left match { // allow newlines in final {} block
-                    case _: T.RightBrace => noSplit.withSingleLine(
-                        matchingLeft(chainExpire),
-                        noSyntaxNL = true,
-                      )
+                    case _: T.RightBrace =>
+                      val lb = matchingLeft(chainExpire)
+                      noSplit.withSingleLine(lb, noSyntaxNL = true)
                     case _ => noSplit
                         .withSingleLineNoOptimal(chainExpire, noSyntaxNL = true)
                   }
@@ -1912,12 +1913,8 @@ class Router(formatOps: FormatOps) {
             } else {
               val doBreak = nlOnly || afterComment && hasBreak
               Seq(
-                Split(!prevChain, 1) {
-                  if (style.optIn.breaksInsideChains) Newline
-                    .orMod(hasBreak(), modSpace)
-                  else Newline.orMod(doBreak, getNlMod)
-                }.withPolicy(breakOnNextDot)
-                  .onlyFor(SplitTag.SelectChainSecondNL),
+                splitSecondNL(Newline.orMod(doBreak, getNlMod))
+                  .withPolicy(classicNonFirstBreakOnNextDot),
                 Split(Newline.orMod(doBreak, modSpace), 0),
               )
             }
@@ -2156,7 +2153,7 @@ class Router(formatOps: FormatOps) {
         def spaceMod = Space(style.spaces.isSpaceAfterKeyword(right))
         def splitBase(implicit fileLine: FileLine) = {
           val onlyNL = style.newlines.keepBreak(newlines)
-          Split(if (onlyNL) Newline else spaceMod, 0)
+          Split(Newline.orMod(onlyNL, spaceMod), 0)
         }
         val split = (leftOwner match {
           // block expr case is handled in OptionalBraces.WhileImpl
