@@ -7,7 +7,6 @@ import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.ScalafmtOptimizer
 import org.scalafmt.config.TrailingCommas
-import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.InfixApp._
@@ -588,13 +587,12 @@ class FormatOps(
     }
 
     private val fullIndent: Indent = assignBodyExpire match {
-      case Some(x) if beforeLhs =>
-        Indent(Num(style.indent.main), x, ExpiresOn.After)
+      case Some(x) if beforeLhs => Indent(style.indent.main, x, ExpiresOn.After)
       case None if isLeftInfix && isAfterAssignmentOp(true) =>
-        Indent(Num(style.indent.main), fullExpire, ExpiresOn.After)
+        Indent(style.indent.main, fullExpire, ExpiresOn.After)
       case _ =>
         val len = style.indent.getAfterInfixSite
-        Indent(Num(len), fullExpire, ExpiresOn.After)
+        Indent(len, fullExpire, ExpiresOn.After)
     }
 
     val (nlIndent, nlPolicy) = {
@@ -687,7 +685,7 @@ class FormatOps(
         else {
           val expire = expires.head._1
           val indentLen = if (skip) 0 else style.indent.main
-          val indent = Indent(Num(indentLen), expire, ExpiresOn.After)
+          val indent = Indent(indentLen, expire, ExpiresOn.After)
           (expire, indent)
         }
       }
@@ -904,7 +902,7 @@ class FormatOps(
       val expire = x.getExpireToken
       val indent =
         if (!x.isSecond) Indent.Empty
-        else Indent(Num(indentIfSecond), expire, ExpiresOn.After)
+        else Indent(indentIfSecond, expire, ExpiresOn.After)
       def nlSplit(cost: Int) = Split(Newline, cost)
         .withPolicy(getPolicy(expire)).withIndent(indent)
       if (!style.binPack.keepParentConstructors)
@@ -942,7 +940,7 @@ class FormatOps(
       }
     val indent =
       if (!isFirstCtor) Indent.Empty
-      else Indent(Num(indentLen), lastFt, ExpiresOn.After)
+      else Indent(indentLen, lastFt, ExpiresOn.After)
     if (style.binPack.keepParentConstructors)
       if (ft.hasBreak) Seq(Split(nlMod, 0).withIndent(indent))
       else {
@@ -1036,8 +1034,8 @@ class FormatOps(
     val nft = next(ft)
     val close = matchingLeft(ft)
     val beforeClose = prev(close)
-    val indentParam = Num(style.indent.getDefnSite(lpOwner))
-    val indentSep = Num((indentParam.n - 2).max(0))
+    val indentParam = style.indent.getDefnSite(lpOwner)
+    val indentSep = Indent((indentParam - 2).max(0), close, ExpiresOn.After)
     val isBracket = open.is[T.LeftBracket]
 
     def getClausesFromClauseGroup(tree: Member.ParamClauseGroup) = {
@@ -1094,7 +1092,7 @@ class FormatOps(
       case Decision(`beforeLastParen`, _) => Seq(Split(NoSplit, 0))
       // Indent separators `)(` and `](` by `indentSep`
       case Decision(`beforeClose`, _) =>
-        Seq(Split(Newline, 0).withIndent(indentSep, close, ExpiresOn.After))
+        Seq(Split(Newline, 0).withIndent(indentSep))
       case Decision(FT(LeftParenOrBracket(), _, m), ss)
           if allParenOwners.contains(m.leftOwner) =>
         ss.filter(!_.isActiveFor(SplitTag.VerticalMultilineSingleLine))
@@ -1109,8 +1107,7 @@ class FormatOps(
     val policy = oneLinePerArg | paramGroupSplitter
 
     val firstIndent =
-      if (r.is[T.RightParen]) // An empty param group
-        Indent(indentSep, close, ExpiresOn.After)
+      if (r.is[T.RightParen]) indentSep // An empty param group
       else Indent(indentParam, close, ExpiresOn.Before)
 
     def aboveArityThreshold = {
@@ -1384,22 +1381,27 @@ class FormatOps(
     case _ => findXmlLastLineIndent(prev(ft))
   }
 
-  def withIndentOnXmlStart(xmlEnd: => FT, splits: Seq[Split])(implicit
-      style: ScalafmtConfig,
-  ): Seq[Split] =
+  private def withIndentOnXmlToken(
+      ft: => Option[FT],
+      xmlEnd: => FT,
+      splits: Seq[Split],
+  )(implicit style: ScalafmtConfig): Seq[Split] =
     if (style.xmlLiterals.assumeFormatted) {
       val end = xmlEnd
-      val indent = Num(findXmlLastLineIndent(prev(end)), true)
-      splits.map(_.withIndent(indent, end, ExpiresOn.After))
+      val len = findXmlLastLineIndent(prev(ft.getOrElse(end)))
+      val indent = Indent(Length.Num(len, reset = true), end, ExpiresOn.After)
+      splits.map(_.withIndent(indent))
     } else splits
+
+  def withIndentOnXmlStart(xmlEnd: => FT, splits: Seq[Split])(implicit
+      style: ScalafmtConfig,
+  ): Seq[Split] = withIndentOnXmlToken(None, xmlEnd, splits)
 
   def withIndentOnXmlSpliceStart(ft: FT, splits: Seq[Split])(implicit
       style: ScalafmtConfig,
   ): Seq[Split] = ft.left match {
-    case _: T.Xml.SpliceStart if style.xmlLiterals.assumeFormatted =>
-      val end = matchingLeft(ft)
-      val indent = Num(findXmlLastLineIndent(prev(ft)), true)
-      splits.map(_.withIndent(indent, end, ExpiresOn.After))
+    case _: T.Xml.SpliceStart =>
+      withIndentOnXmlToken(Some(ft), matchingLeft(ft), splits)
     case _ => splits
   }
 
@@ -1683,7 +1685,7 @@ class FormatOps(
       val expire = nextNonCommentSameLine(rpOpt.fold(endFt) { rp =>
         if (rp.left.end >= endFt.left.end) rp else endFt
       })
-      nlSplit.withIndent(Num(style.indent.main), expire, ExpiresOn.After)
+      nlSplit.withIndent(style.indent.main, expire, ExpiresOn.After)
     }
 
     def withIndent(nlSplit: Split, body: Tree, endFt: => FT)(implicit
@@ -1783,7 +1785,7 @@ class FormatOps(
   )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] = {
     val typeEnd = getLastNonTrivial(typeOwner)
     val boundEnd = boundEndOpt.getOrElse(typeEnd)
-    def indent = Indent(Num(style.indent.main), boundEnd, ExpiresOn.After)
+    def indent = Indent(style.indent.main, boundEnd, ExpiresOn.After)
     def unfoldPolicy = typeOwner match {
       case tparam: Type.Param => Policy.onLeft(typeEnd, prefix = "VB") {
           case Decision(t @ FT(_, _: T.Colon | _: T.Viewbound, _), s)
@@ -1885,7 +1887,7 @@ class FormatOps(
         else decideNewlinesOnlyAfterToken(rank = 1, ifAny = true)(close)
       }
       val indentLen = indentOpt.getOrElse(style.indent.getSignificant)
-      val indent = Indent(Num(indentLen), close, ExpiresOn.After)
+      val indent = Indent(indentLen, close, ExpiresOn.After)
       def nlOnly = forceNLIfTrailingStandaloneComments &&
         slbExpire.right.is[T.Comment] && slbExpire.idx < close.idx
       if (ft.hasBlankLine)
@@ -2463,7 +2465,7 @@ class FormatOps(
       def policy =
         if (split.isNL) decideNewlinesOnlyBeforeClose(kw)
         else decideNewlinesOnlyBeforeCloseOnBreak(kw)
-      split.withIndent(Num(indent), kw, ExpiresOn.Before)
+      split.withIndent(indent, kw, ExpiresOn.Before)
         .andPolicy(policy, !style.danglingParentheses.ctrlSite)
     }
 
@@ -3002,8 +3004,8 @@ object FormatOps {
   )(implicit style: ScalafmtConfig): Seq[Indent] =
     if (style.align.closeParenSite) Seq(
       Indent(Length.StateColumn, end, ExpiresOn.After),
-      Indent(Length.Num(1), end, ExpiresOn.Before),
-      Indent(Length.Num(-1), end, ExpiresOn.After),
+      Indent(1, end, ExpiresOn.Before),
+      Indent(-1, end, ExpiresOn.After),
     )
     else Seq(Indent(Length.StateColumn, end, ExpiresOn.Before))
 

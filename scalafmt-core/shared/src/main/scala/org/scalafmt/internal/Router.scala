@@ -9,7 +9,6 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.Spaces
 import org.scalafmt.internal.ExpiresOn.After
 import org.scalafmt.internal.ExpiresOn.Before
-import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Length.StateColumn
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
@@ -19,7 +18,6 @@ import scala.meta._
 import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
-import scala.language.implicitConversions
 
 object Constants {
   val ShouldBeNewline = 100000
@@ -176,9 +174,9 @@ class Router(formatOps: FormatOps) {
         val close = matchingLeft(ft)
         val alignIndents =
           if (style.align.inInterpolation) Seq(
-            Indent(Length.StateColumn, close, ExpiresOn.After),
-            Indent(Length.Num(style.indent.main), close, ExpiresOn.Before),
-            Indent(Length.Num(-1), close, ExpiresOn.After),
+            Indent(StateColumn, close, ExpiresOn.After),
+            Indent(style.indent.main, close, ExpiresOn.Before),
+            Indent(-1, close, ExpiresOn.After),
           )
           else Nil
         def spaceSplit(implicit fileLine: FileLine) =
@@ -1040,7 +1038,7 @@ class Router(formatOps: FormatOps) {
         val indentLen =
           if (anyDefnSite) style.indent.getDefnSite(leftOwner)
           else style.indent.callSite
-        val indent = Indent(Num(indentLen), close, ExpiresOn.Before)
+        val indent = Indent(indentLen, close, ExpiresOn.Before)
 
         val isBeforeOpenParen =
           if (defnSite) style.newlines.isBeforeOpenParenDefnSite
@@ -1146,7 +1144,7 @@ class Router(formatOps: FormatOps) {
           })
         val extraOneArgPerLineIndent =
           if (multipleArgs && style.poorMansTrailingCommasInConfigStyle)
-            Indent(Num(2), afterOpen, After)
+            Indent(2, afterOpen, After)
           else Indent.Empty
         val (implicitPenalty, implicitPolicy) =
           if (!handleImplicit) (2, Policy.NoPolicy)
@@ -1422,7 +1420,7 @@ class Router(formatOps: FormatOps) {
               penalizeNewlinesPolicy
             val indentPolicy = Policy ? noSplitIndents.isEmpty || {
               def unindentPolicy = Policy ? (isSingleArg || sjsOneline) &&
-                unindentAtExclude(exclude, Num(-bpIndentLen))
+                unindentAtExclude(exclude, -bpIndentLen)
               def indentOncePolicy =
                 Policy ? style.binPack.indentCallSiteOnce && {
                   val trigger = getIndentTrigger(leftOwner)
@@ -2281,7 +2279,7 @@ class Router(formatOps: FormatOps) {
                 val pft = prevNonCommentSameLine(beforeClose)
                 (pft eq beforeClose) && beforeClose.left.is[T.Comment]
               }
-              Num(if (needIndent) style.indent.main else 0)
+              if (needIndent) style.indent.main else 0
           }
           Split.opt(getNoSplitAfterOpening(ft, commentNL = null), 0)
             .withIndent(indent, close, Before)
@@ -2720,8 +2718,6 @@ class Router(formatOps: FormatOps) {
       case _ => splits
     }
   }
-
-  private implicit def int2num(n: Int): Num = Num(n)
 
   private def getSplitsDefValEquals(
       body: Tree,
