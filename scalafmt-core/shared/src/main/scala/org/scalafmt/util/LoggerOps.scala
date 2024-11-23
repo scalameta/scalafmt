@@ -86,7 +86,10 @@ object LoggerOps {
   def tokWithoutPos(token: T): String = {
     val desc = token.structure
     val posidx = desc.lastIndexOf('[')
-    if (posidx > 0) desc.substring(0, posidx - 1) else desc
+    val len = if (posidx > 0) posidx - 1 else desc.length
+    val txtidx = desc.indexOf('(')
+    if (txtidx < 0 || len <= txtidx + 52) desc.substring(0, len)
+    else desc.substring(0, txtidx + 50) + "...)"
   }
 
   def log(range: InputRange): String = s"[${range.start}..${range.end})"

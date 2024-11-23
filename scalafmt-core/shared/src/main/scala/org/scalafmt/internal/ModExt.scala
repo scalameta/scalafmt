@@ -22,7 +22,7 @@ case class ModExt(
     @inline
     def res(suffix: String) = {
       val ind = if (indents.isEmpty) "" else indents.mkString("[", ", ", "]")
-      s"$prefix$mod($indentPrefix$ind)$suffix"
+      s"$prefix$mod$indentPrefix$ind$suffix"
     }
 
     altOpt match {
