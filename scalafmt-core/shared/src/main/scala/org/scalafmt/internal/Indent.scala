@@ -3,6 +3,7 @@ package org.scalafmt.internal
 import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
+import scala.language.implicitConversions
 
 sealed abstract class ExpiresOn {
   def notExpiredBy(ft: FT, idxBeforeExpire: Int): Boolean
@@ -29,6 +30,8 @@ sealed abstract class Length {
 }
 
 object Length {
+
+  implicit def intToNum(len: Int): Num = Num(len)
 
   case class Num(n: Int, reset: Boolean = false) extends Length {
     override def withStateOffset(offset: Int): Int = n
