@@ -11043,3 +11043,37 @@ object a {
     quux(x)
   }
 }
+<<< #4133 select with braced apply and single function arg, !parensForOneLineApply
+maxColumn = 74
+newlines {
+  avoidForSimpleOverflow = [punct, slc, tooLong]
+  ignoreInSyntax = false
+}
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.parensForOneLineApply = false
+===
+  topLevelStatementBlankLines.filter(x => x.minNest <= x.maxNest).sortBy { x =>
+    (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length))
+  }
+>>>
+topLevelStatementBlankLines.filter(x => x.minNest <= x.maxNest).sortBy {
+  x =>
+    (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length))
+}
+<<< #4133 select with braced apply and single function arg, parensForOneLineApply
+maxColumn = 74
+newlines {
+  avoidForSimpleOverflow = [punct, slc, tooLong]
+  ignoreInSyntax = false
+}
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.parensForOneLineApply = true
+===
+  topLevelStatementBlankLines.filter(x => x.minNest <= x.maxNest).sortBy { x =>
+    (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length))
+  }
+>>>
+topLevelStatementBlankLines.filter(x => x.minNest <= x.maxNest).sortBy {
+  x =>
+    (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length))
+}
