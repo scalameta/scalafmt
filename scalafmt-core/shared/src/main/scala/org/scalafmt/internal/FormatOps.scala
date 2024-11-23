@@ -2814,18 +2814,21 @@ class FormatOps(
       case _ => Some(xft)
     }
 
+    @inline
+    def getBeforeRightDelims(ft: FT): FT =
+      findTokenWith(ft, prev)(xft => noRighDelim(xft.left, xft)).merge
+    @inline
+    def getAfterRightDelims(ft: FT): FT =
+      findTokenWith(ft, next)(xft => noRighDelim(xft.right, xft)).merge
+
     private def policyOnRightDelim(
         ft: FT,
         exclude: TokenRanges,
     ): (Option[FT], Policy) = {
-      val beforeDelims = findTokenWith(ft, prev) { xft =>
-        noRighDelim(xft.left, xft)
-      }.merge
+      val beforeDelims = getBeforeRightDelims(ft)
       if (beforeDelims eq null) return (None, NoPolicy)
 
-      val afterDelims = findTokenWith(ft, next) { xft =>
-        noRighDelim(xft.right, xft)
-      }.merge
+      val afterDelims = getAfterRightDelims(ft)
       if (afterDelims eq null) return (None, NoPolicy)
 
       def closeBreakPolicy() = {
