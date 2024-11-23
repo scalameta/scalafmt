@@ -7840,3 +7840,42 @@ object a:
 >>>
 object a:
    def func(f: ->{a, b, c} B): Unit
+<<< #4133 select with braced apply and single function arg, within interpolation
+maxColumn = 70
+rewrite.rules = [RedundantBraces]
+===
+s"`$name0${index.toString.toCharArray.nn.map {x => (x - '0' + '₀').toChar}.mkString}`"
+>>>
+s"`$name0${index.toString.toCharArray.nn.map { x =>
+    (x - '0' + '₀').toChar
+  }.mkString}`"
+<<< #4133 select with braced apply, single function arg in second clause
+maxColumn = 66
+rewrite.rules = [RedundantBraces]
+===
+next.fold {
+  resultsDiv.appendChild(m.toHTML)
+} { next =>
+  resultsDiv.insertBefore(m.toHTML, next)
+}
+>>>
+next.fold {
+  resultsDiv.appendChild(m.toHTML)
+} { next =>
+  resultsDiv.insertBefore(m.toHTML, next)
+}
+<<< #4133 select with braced apply, single function arg, within another apply
+maxColumn = 66
+rewrite.rules = [RedundantBraces]
+===
+lazy val onlyImplicitOrTypeParams = paramss.forall(
+  _.exists { sym =>
+    sym.isType || sym.is(Implicit) || sym.is(Given)
+  }
+)
+>>>
+lazy val onlyImplicitOrTypeParams = paramss.forall(
+  _.exists { sym =>
+    sym.isType || sym.is(Implicit) || sym.is(Given)
+  }
+)
