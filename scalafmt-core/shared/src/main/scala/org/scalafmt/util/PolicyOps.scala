@@ -36,13 +36,17 @@ object PolicyOps {
         penalizeLambdas: Boolean = true,
         noSyntaxNL: Boolean = false,
         ignore: Boolean = false,
+        exclude: TokenRanges = TokenRanges.empty,
+        excludeLt: FT => Policy.End.WithPos = Policy.End.OnLeft,
+        excludeRt: FT => Policy.End.WithPos = Policy.End.OnLeft,
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Policy = Policy ?
-      (ignore || penalty <= 0) || new PenalizeAllNewlines(
+      (ignore || penalty <= 0) ||
+      policyWithExclude(exclude, excludeLt, excludeRt)(new PenalizeAllNewlines(
         Policy.End < expire,
         penalty,
         penalizeLambdas,
         noSyntaxNL,
-      )
+      ))
   }
 
   def penalizeNewlineByNesting(before: FT, after: FT)(implicit
