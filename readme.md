@@ -11,7 +11,7 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 - `sbt compile` or `sbt core/compile` (specific project).
 - Run all unit tests: `sbt test`
 - Run only formatting tests: `tests/testOnly *FormatTests`.
-- Write new formatting test: read [this doc](scalafmt-tests/src/test/resources/readme.md).
+- Write new formatting test: read [this doc](scalafmt-tests/shared/src/test/resources/readme.md).
 - Build docs: See instructions on the [site][docs-guide] or locally at `./docs/contributing-website.md`.
 - Hack on sbt plugin: run `sbt scripted`.
 - Run jmh benchmarks: `./bin/run-benchmarks.sh`.
