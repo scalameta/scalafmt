@@ -1119,20 +1119,14 @@ class Router(formatOps: FormatOps) {
             SingleLineBlock(close, noSyntaxNL = true)
           else if (isBracket)
             PenalizeAllNewlines(close, newlinePenalty, penalizeLambdas = false)
-          else {
-            val penalty =
-              if (!multipleArgs) newlinePenalty else Constants.ShouldBeNewline
-            policyWithExclude(
-              excludeBlocks,
-              Policy.End.OnLeft,
-              Policy.End.OnLeft,
-            )(PenalizeAllNewlines(
-              close,
-              penalty = penalty,
-              penalizeLambdas = multipleArgs,
-              noSyntaxNL = multipleArgs,
-            ))
-          }
+          else PenalizeAllNewlines(
+            close,
+            penalty =
+              if (!multipleArgs) newlinePenalty else Constants.ShouldBeNewline,
+            penalizeLambdas = multipleArgs,
+            noSyntaxNL = multipleArgs,
+            exclude = excludeBlocks,
+          )
 
         val preferNoSplit = !skipNoSplit && singleArgument &&
           style.newlines.keepBreak(noBreak())
