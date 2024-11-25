@@ -1410,7 +1410,7 @@ class FormatOps(
     private object CallSite {
 
       private val penalizeOpenNL: Policy.Pf = { case Decision(_, s) =>
-        s.map(x => if (x.isNL) x.withPenalty(1) else x)
+        s.penalizeNL(1)
       }
 
       @tailrec
