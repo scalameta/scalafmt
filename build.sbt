@@ -71,7 +71,7 @@ lazy val dynamic = crossProject(JVMPlatform, NativePlatform)
     buildInfoPackage := "org.scalafmt.dynamic",
     buildInfoObject := "BuildInfo",
     libraryDependencies ++= List(
-      "io.get-coursier" % "interface" % "1.0.23",
+      "io.get-coursier" % "interface" % "1.0.24",
       "com.typesafe" % "config" % "1.4.3",
       munit.value % Test,
       scalametaTestkit.value % Test,
