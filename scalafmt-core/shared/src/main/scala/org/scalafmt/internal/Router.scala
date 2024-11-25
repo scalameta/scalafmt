@@ -87,15 +87,13 @@ class Router(formatOps: FormatOps) {
             }
           else if (!style.newlines.sourceIgnored && !isTripleQuote(m.left.text))
             Policy.onLeft(end, "INTERP-KEEP-NONL") {
-              case Decision(x, ss) if x.noBreak =>
-                ss.map(s => if (s.isNL) s.withPenalty(penalty) else s)
+              case Decision(x, ss) if x.noBreak => ss.penalizeNL(penalty)
             }
           else Policy ?
             (style.newlines.inInterpolation eq
               Newlines.InInterpolation.allow) &&
             Policy.onLeft(end, "INTERP-ALLOW-NL", rank = -1) {
-              case Decision(_, ss) => ss
-                  .map(s => if (s.isNL) s.withPenalty(1) else s)
+              case Decision(_, ss) => ss.penalizeNL(1)
             }
         }
         val split = Split(NoSplit, 0, policy = policy)
@@ -1276,8 +1274,7 @@ class Router(formatOps: FormatOps) {
                       if isParamClauseSite(m.leftOwner) &&
                         styleMap.at(o).binPack.bracketDefnSite
                           .exists(_ != BinPack.Site.Never) =>
-                    if (isRightCommentThenBreak(ftd)) s
-                    else s.map(x => if (x.isNL) x.withPenalty(p) else x)
+                    if (isRightCommentThenBreak(ftd)) s else s.penalizeNL(p)
                 }
               }
               getNoSplit(nextComma.map(getSlbEndOnLeft))

@@ -23,8 +23,8 @@ object PolicyOps {
     private val checkSyntax = noSyntaxNL || !style.newlines.ignoreInSyntax
     override val f: Policy.Pf = {
       case Decision(ft, s) if penalizeLambdas || !ft.left.is[T.RightArrow] =>
-        if (checkSyntax && ft.leftHasNewline) s.map(_.withPenalty(penalty))
-        else s.map(x => if (x.isNL) x.withPenalty(penalty) else x)
+        if (checkSyntax && ft.leftHasNewline) s.penalize(penalty)
+        else s.penalizeNL(penalty)
     }
     override def prefix: String = s"PNL+$penalty"
   }
@@ -56,7 +56,7 @@ object PolicyOps {
       val nonBoolPenalty = if (TokenOps.isBoolOperator(l)) 0 else 5
       val penalty = TreeOps.nestedSelect(m.leftOwner) +
         TreeOps.nestedApplies(m.rightOwner) + nonBoolPenalty
-      s.map(x => if (x.isNL) x.withPenalty(penalty) else x)
+      s.penalizeNL(penalty)
   }
 
   /** Forces all splits up to including expire to be on a single line.

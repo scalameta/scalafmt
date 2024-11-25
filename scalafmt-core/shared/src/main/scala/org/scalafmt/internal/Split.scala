@@ -334,4 +334,11 @@ object Split {
       fileLineStack: FileLineStack,
   ): Split = if (mod eq null) ignored else Split(mod, cost)
 
+  implicit class ImplicitSeqSplit(private val obj: Seq[Split]) extends AnyVal {
+    def penalize(penalty: Int): Seq[Split] = obj.map(_.withPenalty(penalty))
+    def penalizeIf(penalty: Int)(f: Split => Boolean): Seq[Split] = obj
+      .map(x => if (f(x)) x.withPenalty(penalty) else x)
+    def penalizeNL(penalty: Int): Seq[Split] = penalizeIf(penalty)(_.isNL)
+  }
+
 }
