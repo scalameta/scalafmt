@@ -36,7 +36,7 @@ inThisBuild(List(
   resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
   testFrameworks += new TestFramework("munit.Framework"),
   // causes native image issues
-  dependencyOverrides += "org.jline" % "jline" % "3.23.0",
+  dependencyOverrides += "org.jline" % "jline" % "3.27.1",
 ))
 
 name := "scalafmtRoot"
