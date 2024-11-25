@@ -20,4 +20,4 @@ addSbtPlugin(
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % crossProjectV)
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.4")
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.10.4")
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.5")
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.6")
