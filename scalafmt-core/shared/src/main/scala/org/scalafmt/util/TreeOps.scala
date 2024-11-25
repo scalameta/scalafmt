@@ -350,6 +350,42 @@ object TreeOps {
     math.max(res, treeDepth(t))
   }
 
+  def getSingleArgOnLeftBraceOnLeft(ft: FT)(implicit
+      ftoks: FormatTokens,
+  ): Option[(Term.ArgClause, Stat)] = ft.leftOwner match {
+    case ac: Term.ArgClause => (ac.values match {
+        case (t: Term.Block) :: Nil if ftoks.getHead(t) eq ft =>
+          getBlockSingleStat(t)
+        case t :: Nil => Some(t)
+        case _ => None
+      }).map(x => (ac, x))
+    case t: Term => t.parent match {
+        case Some(ac: Term.ArgClause) if ac.values.lengthCompare(1) == 0 =>
+          (t match {
+            case t: Term.Block if ftoks.getHead(ac) eq ft =>
+              getBlockSingleStat(t)
+            case _ => Some(t)
+          }).map(x => (ac, x))
+        case _ => None
+      }
+    case _ => None
+  }
+
+  def getSingleArgLambdaPenalties(
+      ac: Term.ArgClause,
+      arg: Stat,
+  ): Option[(Int, Int)] =
+    if (arg.is[Term.FunctionTerm]) Some((nestedApplies(ac), 2))
+    else ac.parent match {
+      case Some(p: Term.Apply) => Some((nestedApplies(p), treeDepth(p.fun)))
+      case _ => None
+    }
+
+  def getLambdaPenaltiesOnLeftBraceOnLeft(ft: FormatToken)(implicit
+      ftoks: FormatTokens,
+  ): Option[(Int, Int)] = getSingleArgOnLeftBraceOnLeft(ft)
+    .flatMap((getSingleArgLambdaPenalties _).tupled)
+
   final def canBreakAfterFuncArrow(func: Term.FunctionTerm)(implicit
       ftoks: FormatTokens,
       style: ScalafmtConfig,
