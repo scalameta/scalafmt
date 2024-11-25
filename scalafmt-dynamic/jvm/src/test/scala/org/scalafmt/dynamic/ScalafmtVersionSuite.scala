@@ -69,7 +69,7 @@ class ScalafmtVersionSuite extends FunSuite {
     assertEquals(ScalafmtVersion.parse("1.1.1.1"), None)
     assertEquals(ScalafmtVersion.parse("2.-1.0"), None)
     assertEquals(ScalafmtVersion.parse("2.1.0."), None)
-    assertEquals(ScalafmtVersion.parse(",2.1.0"), None)
+    assertEquals(ScalafmtVersion.parse(",2.3.0"), None)
     assertEquals(ScalafmtVersion.parse("2.1a.0"), None)
     assertEquals(ScalafmtVersion.parse("2.1.0-"), None)
   }
