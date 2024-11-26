@@ -9440,7 +9440,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 2250, stateVisits2 = 2250 }
+>>> { stateVisits = 2229, stateVisits2 = 2229 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref.Synchronized
