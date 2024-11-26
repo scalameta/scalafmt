@@ -7380,9 +7380,8 @@ class a {
 }
 >>>
 class a {
-  def this(settings: Settings, eventStream: EventStream) = this(() ⇒
-    eventStream.logLevel
-  )
+  def this(settings: Settings, eventStream: EventStream) =
+    this(() ⇒ eventStream.logLevel)
 }
 <<< SM 7.4.0: 47.2
 maxColumn = 76
@@ -9155,14 +9154,14 @@ validateStructuralIntegrityWithReasonImpl(row, expectedSchema).map {
       s"UnsafeRow status: ${getStructuralIntegrityStatus(row, expectedSchema)}"
 }
 >>>
-validateStructuralIntegrityWithReasonImpl(row, expectedSchema)
-  .map { errorMessage =>
+validateStructuralIntegrityWithReasonImpl(row, expectedSchema).map {
+  errorMessage =>
     s"Error message is: $errorMessage, " +
       s"UnsafeRow status: ${getStructuralIntegrityStatus(
           row,
           expectedSchema
         )}"
-  }
+}
 <<< #4133 lambda in braces, overflow after brace 2
 maxColumn = 74
 ===
@@ -9200,10 +9199,9 @@ object Build {
         .fold(identity[GenerationConfig](_)) {
           newDir => config: GenerationConfig => config.add(OutputDir(newDir))
         }
-      val justAPI = justAPIArg
-        .fold(identity[GenerationConfig](_)) { _ => config: GenerationConfig =>
-          config.remove[SiteRoot]
-        }
+      val justAPI = justAPIArg.fold(identity[GenerationConfig](_)) {
+        _ => config: GenerationConfig => config.remove[SiteRoot]
+      }
     }.evaluated)
 }
 <<< #4133 monads with binpack and no newlines in types
@@ -9440,7 +9438,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 2229, stateVisits2 = 2229 }
+>>> { stateVisits = 2151, stateVisits2 = 2151 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref.Synchronized
@@ -10201,12 +10199,12 @@ val offsets = Utils.tryWithResource {
   buffer.asLongBuffer
 }
 >>>
-val offsets = Utils
-  .tryWithResource(new DataInputStream(Files.newInputStream(indexFile.toPath))) {
-    dis =>
-      dis.readFully(buffer.array)
-      buffer.asLongBuffer
-  }
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { dis =>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
 <<< #4133 braces to parens with two curried params, second func and comment
 maxColumn = 76
 newlines.avoidForSimpleOverflow = all
@@ -10333,10 +10331,9 @@ object a {
 }
 >>>
 object a {
-  def encodeCookieHeader(cookies: Seq[Cookie]): String = encoder
-    .encode(cookies.map { cookie =>
-      new DefaultCookie(cookie.name, cookie.value)
-    }.asJava)
+  def encodeCookieHeader(cookies: Seq[Cookie]): String = encoder.encode(
+    cookies.map(cookie => new DefaultCookie(cookie.name, cookie.value)).asJava
+  )
 }
 <<< #4133 braces-to-parens with select, apply of nested match
 maxColumn = 76
@@ -10561,7 +10558,6 @@ rewrite.redundantBraces.parensForOneLineApply = true
     (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length))
   }
 >>>
-topLevelStatementBlankLines.filter(x => x.minNest <= x.maxNest)
-  .sortBy { x =>
-    (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length))
-  }
+topLevelStatementBlankLines.filter(x => x.minNest <= x.maxNest).sortBy {
+  x => (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length))
+}
