@@ -434,23 +434,12 @@ class Router(formatOps: FormatOps) {
             }
           case _ => NoPolicy
         }
-        val nlPenalty = leftOwner match {
-          case _ if !style.newlines.fold => 0
-          case t: Term.ArgClause if (t.values match {
-                case x :: Nil if !x.is[Term.FunctionTerm] => true
-                case _ => false
-              }) => 1
-          case t @ Tree.Block(x :: Nil)
-              if !x.is[Term.FunctionTerm] && t.parent.is[Term.ArgClause] => 1
-          case _ => 0
-        }
         val (nlCost, nlArrowPenalty) =
           if (!nl.isNL) (0, 0)
-          else if (slbMod eq noSplitMod) (1 + nlPenalty, nlPenalty)
-          else getLambdaPenaltiesOnLeftBraceOnLeft(ft)
-            .fold((1, nlPenalty)) { case (sharedPenalty, herePenalty) =>
-              (sharedPenalty + herePenalty, sharedPenalty)
-            }
+          else {
+            if (slbMod eq noSplitMod) None
+            else getLambdaPenaltiesOnLeftBraceOnLeft(ft)
+          }.fold((1, 0)) { case (shared, here) => (shared + here, shared) }
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
         val nlPolicy = lambdaNLPolicy ==> newlineBeforeClosingCurly
         val nlSplit = Split(nl, nlCost, policy = nlPolicy)
