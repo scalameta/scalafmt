@@ -892,11 +892,10 @@ class Router(formatOps: FormatOps) {
           else getNoSplitAfterOpening(ft, commentNL = null)
 
         def multilineSpaceSplit(implicit fileLine: FileLine): Split = {
-          val lambdaLeft: Option[FT] =
-            matchingOptLeft(functionExpire(lambda)._1) match {
-              case x @ Some(FT(_: T.LeftBrace, _, _)) => x
-              case _ => None
-            }
+          val lambdaLeft: Option[FT] = functionExpire(lambda)._1 match {
+            case x @ FT(_: T.RightBrace, _, _) => matchingOptLeft(x)
+            case _ => None
+          }
 
           val arrowFt = getFuncArrow(lambda).get
           val lambdaIsABlock = lambdaLeft.exists(_.left eq arrowFt.right)
