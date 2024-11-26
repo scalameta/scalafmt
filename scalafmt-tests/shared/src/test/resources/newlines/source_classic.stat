@@ -7919,9 +7919,8 @@ class a {
 }
 >>>
 class a {
-  def this(settings: Settings, eventStream: EventStream) = this(() ⇒
-    eventStream.logLevel
-  )
+  def this(settings: Settings, eventStream: EventStream) =
+    this(() ⇒ eventStream.logLevel)
 }
 <<< SM 7.4.0: 47.2
 maxColumn = 76
@@ -10096,9 +10095,8 @@ object a {
                       observers <- Ref.make(0)
                       promise <- Promise
                         .make[E, (FiberRefs.Patch, ZEnvironment[B])]
-                      finalizerRef <- Ref.make[Exit[Any, Any] => UIO[Any]](_ =>
-                        ZIO.unit
-                      )
+                      finalizerRef <- Ref
+                        .make[Exit[Any, Any] => UIO[Any]](_ => ZIO.unit)
 
                       resource = ZIO.uninterruptibleMask { restore =>
                         for {
@@ -11079,9 +11077,9 @@ object a {
 >>>
 object a {
   def encodeCookieHeader(cookies: Seq[Cookie]): String =
-    encoder.encode(cookies.map { cookie =>
-      new DefaultCookie(cookie.name, cookie.value)
-    }.asJava)
+    encoder.encode(
+      cookies.map(cookie => new DefaultCookie(cookie.name, cookie.value)).asJava
+    )
 }
 <<< #4133 braces-to-parens with select, apply of nested match
 maxColumn = 76

@@ -439,7 +439,7 @@ class Router(formatOps: FormatOps) {
           else {
             if (slbMod eq noSplitMod) None
             else getLambdaPenaltiesOnLeftBraceOnLeft(ft)
-          }.fold((1, 0)) { case (shared, here) => (shared + here, shared) }
+          }.fold((1, 0)) { case (shared, here) => (shared + here, shared + 1) }
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
         val nlPolicy = lambdaNLPolicy ==> newlineBeforeClosingCurly
         val nlSplit = Split(nl, nlCost, policy = nlPolicy)
@@ -895,9 +895,9 @@ class Router(formatOps: FormatOps) {
               else Seq(Split(Space(style.spaces.inParentheses), 0))
             }
             Policy ? lambdaIsABlock ||
-            Policy.RelayOnSplit.by(Policy.End <= lambdaLeft.getOrElse(close))(
-              (s, _) => s.isNL,
-            )(before)(newlinePolicy)
+            penalizeOneNewline(lambdaToken, 1) & Policy.RelayOnSplit.by(
+              Policy.End <= lambdaLeft.getOrElse(close),
+            )((s, _) => s.isNL)(before)(newlinePolicy)
           }
           Split(noSplitMod, 0, policy = spacePolicy)
             .withOptimalToken(lambdaToken, killOnFail = true)
@@ -1906,6 +1906,21 @@ class Router(formatOps: FormatOps) {
                 }
                 val exclude = insideBracesBlock(ft, end, parensToo = true)
                   .excludeCloseDelim
+                val arrowPolicy = exclude.ranges.map { tr =>
+                  Policy.End <= tr.lt ==> Policy.onRight(tr.rt, "PNL+DOTARR") {
+                    case Decision(FT(_: T.FunctionArrow, r, m), ss)
+                        if !r.is[T.Comment] &&
+                          m.leftOwner.is[Term.FunctionTerm] &&
+                          findTreeWithParent(m.leftOwner) {
+                            case _: Member.Apply => Some(true)
+                            case p: Term.ArgClause
+                                if !isSeqSingle(p.values) => Some(false)
+                            case p: Tree.Block
+                                if !isSeqSingle(p.stats) => Some(false)
+                            case _ => None
+                          }.isDefined => ss.penalizeNL(1)
+                  }
+                }.foldLeft(Policy.noPolicy) { case (res, pol) => pol ==> res }
                 val ftNextAfterRight = next(ftAfterRight)
                 val singleArg =
                   if (!ftAfterRight.right.is[T.OpenDelim]) None
@@ -1918,7 +1933,9 @@ class Router(formatOps: FormatOps) {
                 }
                 val noSplit = Split(modSpace, 0)
                   .withSingleLine(end, exclude = exclude)
-                Seq(noSplit, nlSplitBase(if (bracesToParens) 0 else 1))
+                val nlCost = if (bracesToParens) 0 else 1
+                val nlSplit = nlSplitBase(nlCost, arrowPolicy)
+                Seq(noSplit, nlSplit)
               }
             else {
               val policy: Policy = forcedBreakOnNextDotPolicy
