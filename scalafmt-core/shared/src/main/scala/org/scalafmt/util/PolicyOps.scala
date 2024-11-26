@@ -49,6 +49,10 @@ object PolicyOps {
       ))
   }
 
+  def penalizeOneNewline(on: FT, penalty: Int)(implicit
+      fileLine: FileLine,
+  ): Policy = Policy.onlyFor(on, s"PNL+$penalty")(_.penalizeNL(penalty))
+
   def penalizeNewlineByNesting(before: FT, after: FT)(implicit
       fileLine: FileLine,
   ): Policy = Policy.End < before ==> Policy.beforeLeft(after, prefix = "PNL()") {
@@ -256,12 +260,10 @@ object PolicyOps {
       val unindent = Indent(indent, rt, ExpiresOn.After)
       val triggeredIndent = Indent.before(unindent, trigger)
       val triggerUnindent = Policy
-        .onLeft(rt, prefix = "UNIND{") { case Decision(`lt`, s) =>
-          s.map(_.withIndent(triggeredIndent))
-        }
+        .onlyFor(lt, prefix = "UNIND{")(_.map(_.withIndent(triggeredIndent)))
       val cancelUnindent = delayedBreakPolicy(Policy.End <= lt) {
-        Policy.onRight(lt, rank = 1, prefix = "UNIND}") { // use rank to apply after policy above
-          case Decision(`lt`, s) => s.map(_.switch(trigger, false))
+        Policy.onlyFor(lt, rank = 1, prefix = "UNIND}") { // use rank to apply after policy above
+          _.map(_.switch(trigger, false))
         }
       }
       policy ==> triggerUnindent & cancelUnindent

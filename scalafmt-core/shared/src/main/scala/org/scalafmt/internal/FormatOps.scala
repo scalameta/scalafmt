@@ -246,8 +246,8 @@ class FormatOps(
       implicit fileLine: FileLine,
   ): Policy = Policy ? (comma.right.is[T.Comment] && comma.noBreak) ||
     delayedBreakPolicy(Policy.End < comma, exclude) {
-      Policy.onRight(comma, prefix = "NL->A[,]") { case Decision(`comma`, ss) =>
-        getOneArgPerLineSplitsAfterComma(comma.right, ss)
+      Policy.onlyFor(comma, prefix = "NL->A[,]") {
+        getOneArgPerLineSplitsAfterComma(comma.right, _)
       }
     }
 
@@ -292,10 +292,9 @@ class FormatOps(
     getTemplateGroups(template).flatMap(iter)
   }
 
-  def getBreakBeforeElsePolicy(beforeElse: FT): Policy = Policy.End <=
-    beforeElse ==> Policy.onRight(beforeElse, prefix = "ELSE") {
-      case d @ Decision(`beforeElse`, _) => d
-          .onlyNewlinesWithFallback(Split(Newline, 0))
+  def getBreakBeforeElsePolicy(beforeElse: FT): Policy = Policy
+    .onlyFor(beforeElse, prefix = "ELSE") {
+      Decision.onlyNewlinesWithFallback(_, Seq(Split(Newline, 0)))
     }
 
   def getBreakBeforeElsePolicy(term: Term.If): Policy = getElseToken(term)
@@ -1620,8 +1619,7 @@ class FormatOps(
             val split = nlSplitFunc(0).forThisLine
             Seq(if (rhsIsCommentedOut(nextFt)) split.withNoIndent else split)
           }
-        val policy = Policy
-          .onRight(nextFt, "CBCMT") { case Decision(`nextFt`, _) => splits }
+        val policy = Policy.onlyFor(nextFt, "CBCMT")(_ => splits)
         Seq(Split(Space, 0, policy = policy))
       }
 
@@ -2731,10 +2729,8 @@ class FormatOps(
 
     def noNLPolicy(): Policy = {
       def close = next(ftBeforeClose)
-      if (scalaJsStyle)
-        Policy(Policy.End >= ftBeforeClose, prefix = "tuckSJS") {
-          case Decision(`ftBeforeClose`, ss) => Decision.noNewlineSplits(ss)
-        }
+      if (scalaJsStyle) Policy
+        .onlyFor(ftBeforeClose, prefix = "tuckSJS")(Decision.noNewlineSplits)
       else style.newlines.source match {
         case Newlines.keep if closeBreak => decideNewlinesOnlyBeforeClose(close)
         case Newlines.fold
@@ -2877,10 +2873,9 @@ class FormatOps(
                   findLastApplyAndNextSelect(x.tree, cfg.encloseSelectChains)
                 Right(canStartSelectChain(x, nextSelect, expireTree))
               case Newlines.keep =>
-                Left(Policy.onRight(afterDelims, "BP1L.NL") {
-                  case Decision(`afterDelims`, ss) => Decision
-                      .onlyNewlineSplits(ss)
-                      .map(_.preActivateFor(SplitTag.SelectChainBinPackNL))
+                Left(Policy.onlyFor(afterDelims, "BP1L.NL") {
+                  Decision.onlyNewlineSplits(_)
+                    .map(_.preActivateFor(SplitTag.SelectChainBinPackNL))
                 })
               case _ => Right(true)
             }

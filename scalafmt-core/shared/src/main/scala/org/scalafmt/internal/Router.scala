@@ -394,11 +394,9 @@ class Router(formatOps: FormatOps) {
           // copy logic from `( ...`, binpack=never, defining `slbSplit`
           val slbParensPolicy = Policy ? (slbMod eq noSplitMod) || {
             val beforeClose = prev(close)
-            Policy.End <= beforeClose ==>
-              Policy.onRight(beforeClose, "BracesToParens") {
-                case Decision(`beforeClose`, ss) => ss
-                    .flatMap(s => if (s.isNL) None else Some(s.withMod(NoSplit)))
-              }
+            Policy.onlyFor(beforeClose, "BracesToParens") {
+              _.flatMap(s => if (s.isNL) None else Some(s.withMod(NoSplit)))
+            }
           }
           val exclude = slbParensExclude.getOrElse(TokenRanges.empty)
           val slbPolicy =
@@ -411,15 +409,12 @@ class Router(formatOps: FormatOps) {
               val pend = getSlbEndOnLeft(getLast(p))
               def pendSlb(s: Split) = s
                 .withSingleLine(pend, noSyntaxNL = true, extend = true)
-              Policy.End <= close ==>
-                Policy.onRight(close, s"RB-ELSE[${pend.idx}]") {
-                  case Decision(`close`, ss) =>
-                    if (ss.exists(_.isNL)) ss
-                      .map(s => if (s.isNL) s else pendSlb(s))
-                    else ss.flatMap { s =>
-                      Seq(pendSlb(s), s.withMod(Newline).withPenalty(1))
-                    }
+              Policy.onlyFor(close, s"RB-ELSE[${pend.idx}]") { ss =>
+                if (ss.exists(_.isNL)) ss.map(s => if (s.isNL) s else pendSlb(s))
+                else ss.flatMap { s =>
+                  Seq(pendSlb(s), s.withMod(Newline).withPenalty(1))
                 }
+              }
             } else decideNewlinesOnlyAfterClose(close)
           }
           Split(slbMod, 0).withSingleLine(
@@ -476,16 +471,16 @@ class Router(formatOps: FormatOps) {
             val (mod, policy) = singleLineSplitOpt match {
               case Some(slbSplit) if singleLineSplit.isIgnored =>
                 val arrSplit = slbSplit.withMod(Space)
-                slbMod -> Policy.onRight(lambdaExpire, s"FNARR($arrSplit)") {
-                  case Decision(`lambdaExpire`, ss) =>
-                    var hadNoSplit = false
-                    val nlSplits = ss.flatMap { s =>
-                      // penalize NL one extra, for closing brace
-                      if (s.isNL)
-                        Some(s.andPolicy(nlPolicy).withPenalty(nlArrowPenalty))
-                      else { hadNoSplit = true; None }
-                    }
-                    if (hadNoSplit) arrSplit +: nlSplits else nlSplits
+                val fnarrDesc = s"FNARR($nlArrowPenalty;$arrSplit)"
+                slbMod -> Policy.onlyFor(lambdaExpire, fnarrDesc) { ss =>
+                  var hadNoSplit = false
+                  val nlSplits = ss.flatMap { s =>
+                    // penalize NL one extra, for closing brace
+                    if (s.isNL)
+                      Some(s.andPolicy(nlPolicy).withPenalty(nlArrowPenalty))
+                    else { hadNoSplit = true; None }
+                  }
+                  if (hadNoSplit) arrSplit +: nlSplits else nlSplits
                 }
               case _ => noSplitMod ->
                   (decideNewlinesOnlyAfterToken(lambdaExpire) ==> nlPolicy)
@@ -905,12 +900,11 @@ class Router(formatOps: FormatOps) {
           )
 
           val spacePolicy = SingleLineBlock(lambdaToken) ==> {
-            def before = Policy.End < close ==> Policy.onLeft(close, "NODANGLE") {
-              case Decision(`beforeClose`, _) =>
-                val bc = beforeClose.left
-                if (bc.is[T.Comment])
-                  if (bc.text.startsWith("//")) Nil else Seq(Split(Space, 0))
-                else Seq(Split(Space(style.spaces.inParentheses), 0))
+            def before = Policy.onlyFor(beforeClose, "NODANGLE") { _ =>
+              val bc = beforeClose.left
+              if (bc.is[T.Comment])
+                if (bc.text.startsWith("//")) Nil else Seq(Split(Space, 0))
+              else Seq(Split(Space(style.spaces.inParentheses), 0))
             }
             Policy ? lambdaIsABlock ||
             Policy.RelayOnSplit.by(Policy.End <= lambdaLeft.getOrElse(close))(
@@ -1770,24 +1764,23 @@ class Router(formatOps: FormatOps) {
 
         def forcedBreakOnNextDotPolicy(implicit fileLine: FileLine) =
           beforeNextDotOpt.map(decideNewlinesOnlyAfterToken(_))
-        def getClassicNonFirstBreakOnDot(
-            dot: FT,
-        )(implicit fileLine: FileLine): Policy = Policy.End <= dot ==>
-          Policy.onRight(dot, "NEXTSEL2NL") { case Decision(`dot`, s) =>
-            val filtered = s.flatMap { x =>
-              val y = x.activateFor(SplitTag.SelectChainSecondNL)
-              if (y.isActive) Some(y) else None
-            }
-            if (filtered.isEmpty) Seq.empty
-            else {
-              val minCost = math.max(0, filtered.map(_.costWithPenalty).min - 1)
-              filtered.map { x =>
-                val p = x.policy.filter(!_.isInstanceOf[PenalizeAllNewlines])
-                implicit val fileLine = x.fileLineStack.fileLineHead
-                x.copy(penalty = x.costWithPenalty - minCost, policy = p)
-              }
+        def getClassicNonFirstBreakOnDot(dot: FT)(implicit
+            fileLine: FileLine,
+        ): Policy = Policy.onlyFor(dot, "NEXTSEL2NL") { s =>
+          val filtered = s.flatMap { x =>
+            val y = x.activateFor(SplitTag.SelectChainSecondNL)
+            if (y.isActive) Some(y) else None
+          }
+          if (filtered.isEmpty) Seq.empty
+          else {
+            val minCost = math.max(0, filtered.map(_.costWithPenalty).min - 1)
+            filtered.map { x =>
+              val p = x.policy.filter(!_.isInstanceOf[PenalizeAllNewlines])
+              implicit val fileLine = x.fileLineStack.fileLineHead
+              x.copy(penalty = x.costWithPenalty - minCost, policy = p)
             }
           }
+        }
         def classicNonFirstBreakOnNextDot(implicit fileLine: FileLine): Policy =
           beforeNextDotOpt.map(getClassicNonFirstBreakOnDot)
 
@@ -2326,13 +2319,12 @@ class Router(formatOps: FormatOps) {
               )
               val lmod = NewlineT(noIndent = rhsIsCommentedOut(postParen))
               val lsplit = Seq(Split(lmod, 0).withIndents(lindents))
-              val rsplit = Seq(Split(Newline, 0))
               Policy.onRight(postParen, prefix = "CASE[(]") {
                 case Decision(`postParen`, _) => lsplit
                 // fires only if there's a comment between lparentFt and postParentFt
                 case Decision(`lparen`, _) => Seq(Split(Space, 0))
-              } ==> Policy.afterRight(rparen, prefix = "CASE[)]") {
-                case Decision(`rparen`, _) => rsplit
+              } ==> Policy.onlyFor(rparen, prefix = "CASE[)]") { _ =>
+                Seq(Split(Newline, 0))
               }
             }
           }
