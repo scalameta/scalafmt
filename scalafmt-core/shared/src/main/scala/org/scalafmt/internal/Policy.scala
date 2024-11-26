@@ -118,6 +118,13 @@ object Policy {
   )(f: Pf)(implicit fileLine: FileLine): Policy =
     apply(End > exp, prefix, noDequeue, rank)(f)
 
+  def onlyFor(on: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
+      f: Seq[Split] => Seq[Split],
+  )(implicit fileLine: FileLine): Policy = Policy.End <= on ==>
+    Policy.onRight(on, s"$prefix[${on.idx}]", noDequeue, rank) {
+      case Decision(`on`, ss) => f(ss)
+    }
+
   abstract class Clause(implicit val fileLine: FileLine) extends Policy {
     val endPolicy: End.WithPos
     def prefix: String
