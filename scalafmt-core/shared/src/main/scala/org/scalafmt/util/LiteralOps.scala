@@ -54,8 +54,7 @@ object LiteralOps {
       suffixCase: Literals.Case,
   )(implicit style: ScalafmtConfig): String =
     if (str.last == suffixUpper || str.last == suffixLower) style.literals
-      .scientific.process(str.dropRight(1)) +
-      suffixCase.process(str.takeRight(1))
+      .scientific.process(str.dropRight(1)) + suffixCase.process(str.takeRight(1))
     else style.literals.scientific.process(str)
 
   private def prettyPrintHexOrBin(

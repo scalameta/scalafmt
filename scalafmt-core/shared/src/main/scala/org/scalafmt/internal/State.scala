@@ -478,9 +478,10 @@ object State {
       firstNL: Int,
       adjustMargin: Int => Int,
       firstLength: Int,
-  ): (Int, Int) = pipeOpt.fold(
-    getColumnsFromMultiline(syntax, firstNL, firstLength),
-  )(getColumnsWithStripMargin(_, syntax, firstNL, adjustMargin, firstLength))
+  ): (Int, Int) = pipeOpt
+    .fold(getColumnsFromMultiline(syntax, firstNL, firstLength))(
+      getColumnsWithStripMargin(_, syntax, firstNL, adjustMargin, firstLength),
+    )
 
   private def getColumnsWithStripMargin(
       pipe: Char,

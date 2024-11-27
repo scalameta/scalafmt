@@ -61,20 +61,21 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
     @inline
     def fail(e: Throwable) =
       Failure(new ConfigParseError(path, e.getMessage, e.getCause))
-    f.map { configured =>
-      new ScalafmtReflectConfig(this)(configured.invoke("get"))
-    }.recoverWith {
-      case e: ReflectiveOperationException =>
-        fail(Option(e.getCause).getOrElse(e))
-      case e => fail(e)
-    }
+    f.map(configured => new ScalafmtReflectConfig(this)(configured.invoke("get")))
+      .recoverWith {
+        case e: ReflectiveOperationException =>
+          fail(Option(e.getCause).getOrElse(e))
+        case e => fail(e)
+      }
   }
 
   def parseConfig(path: Path): Try[ScalafmtReflectConfig] =
     parseConfigWith(parseConfigPost300(path), path)
 
-  def parseConfigFromString(path: Path, text: String): Try[ScalafmtReflectConfig] =
-    parseConfigWith(parseConfigPre300(text), path)
+  def parseConfigFromString(
+      path: Path,
+      text: String,
+  ): Try[ScalafmtReflectConfig] = parseConfigWith(parseConfigPre300(text), path)
 
   def parseConfigFromString(text: String): Try[ScalafmtReflectConfig] =
     parseConfigWith(parseConfigPre300(text))

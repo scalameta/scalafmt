@@ -89,8 +89,8 @@ class DynamicSuite extends FunSuite {
     }
     def relevant: String = out.toString
       .replace(config.toString, "path/.scalafmt.conf")
-    def errors: String = out.toString.linesIterator
-      .filter(_.startsWith("error")).mkString("\n")
+    def errors: String = out.toString.linesIterator.filter(_.startsWith("error"))
+      .mkString("\n")
     def assertNotIgnored(filename: String)(implicit loc: Location): Unit =
       assertFormat("object A  {  }", "object A {}\n", Paths.get(filename))
     def assertIgnored(filename: String): Unit = {
@@ -224,7 +224,8 @@ class DynamicSuite extends FunSuite {
                     |project.excludeFilters = [
                     |  "UserSpec\\.scala$"
                     |]
-                    |""".stripMargin
+                    |"""
+      .stripMargin
     def check(version: String): Unit = {
       f.setVersion(version, "scala211", config)
       f.assertNotIgnored("path/FooSpec.scala")
@@ -243,7 +244,8 @@ class DynamicSuite extends FunSuite {
                     |project.excludeFilters = [
                     |  "UserSpec\\.scala$"
                     |]
-                    |""".stripMargin
+                    |"""
+      .stripMargin
     def check(version: String): Unit = {
       f.setVersion(version, "scala211", config)
       f.assertNotIgnored("path/App.pm")
@@ -430,7 +432,8 @@ class DynamicSuite extends FunSuite {
                       |  argument1: Type1
                       |  ): ReturnType
                       |}
-                      |      """.stripMargin
+                      |      """
+      .stripMargin
     val expected = """|class A {
                       |  function1(
                       |       argument1,
@@ -441,7 +444,8 @@ class DynamicSuite extends FunSuite {
                       |     argument1: Type1
                       |  ): ReturnType
                       |}
-                      |""".stripMargin
+                      |"""
+      .stripMargin
     f.assertFormat(original, expected)
   }
 
@@ -560,8 +564,8 @@ class DynamicSuite extends FunSuite {
       assertDynamicConfig(fmt)(f)
     }
 
-  checkExhaustive("check project.git=true")(_ => "project.git = true") {
-    (f, _) => assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, true))
+  checkExhaustive("check project.git=true")(_ => "project.git = true") { (f, _) =>
+    assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, true))
   }
 
   checkExhaustive("check project.git=false")(_ => "project.git = false") {

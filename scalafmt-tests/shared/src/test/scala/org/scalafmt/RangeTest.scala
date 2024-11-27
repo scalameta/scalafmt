@@ -10,12 +10,14 @@ class RangeTest extends FunSuite {
                       |val x = 1
                       |val y = 2
                       |}
-                      |      """.stripMargin
+                      |      """
+      .stripMargin
     val expected = """|object a {
                       |val x = 1
                       |  val y = 2
                       |}
-                      |      """.stripMargin
+                      |      """
+      .stripMargin
     val obtained = Scalafmt
       .format(original, HasTests.unitTest40, range = Set(Range(2, 2).inclusive))
       .get

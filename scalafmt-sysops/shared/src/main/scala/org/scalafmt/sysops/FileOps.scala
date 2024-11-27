@@ -89,9 +89,7 @@ object FileOps {
 
   @inline
   private[sysops] def readAsURL(url: URL)(implicit codec: Codec): String = Using
-    .resource(scala.io.Source.fromURL(url)) {
-      _.getLines().mkString("", "\n", "\n")
-    }
+    .resource(scala.io.Source.fromURL(url))(_.getLines().mkString("", "\n", "\n"))
 
   @inline
   private[sysops] def readAsURI(uri: URI)(implicit codec: Codec): String =

@@ -146,9 +146,10 @@ case class CliOptions(
 
   private[cli] lazy val hoconOpt: Option[ConfParsed] = configStr
     .map(ConfParsed.fromString(_)).orElse {
-      canonicalConfigFile.map(
-        _.fold(x => new ConfParsed(Configured.exception(x)), ConfParsed.fromPath(_)),
-      )
+      canonicalConfigFile.map(_.fold(
+        x => new ConfParsed(Configured.exception(x)),
+        ConfParsed.fromPath(_),
+      ))
     }
 
   lazy val fileFetchMode: FileFetchMode = mode

@@ -93,8 +93,7 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
     case x: T.RightParen
         if left.how == ReplacementType.Replace &&
           left.ft.right.is[T.LeftBrace] =>
-      val right =
-        replaceToken("}")(new T.RightBrace(x.input, x.dialect, x.start))
+      val right = replaceToken("}")(new T.RightBrace(x.input, x.dialect, x.start))
       Some((left, right))
     case _ => None
   }

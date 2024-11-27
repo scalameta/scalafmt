@@ -52,8 +52,7 @@ case class ScalafmtOptimizer(
     pruneSlowStates: ScalafmtOptimizer.PruneSlowStates =
       ScalafmtOptimizer.PruneSlowStates.Yes,
     recurseOnBlocks: Boolean = true,
-    @annotation.ExtraName("forceConfigStyleOnOffset")
-    @annotation.DeprecatedName(
+    @annotation.ExtraName("forceConfigStyleOnOffset") @annotation.DeprecatedName(
       "forceConfigStyleMinSpan",
       "Use `callSite.minSpan` instead",
       "3.8.2",

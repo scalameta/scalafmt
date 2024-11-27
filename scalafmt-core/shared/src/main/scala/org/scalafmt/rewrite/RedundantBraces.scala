@@ -77,9 +77,8 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   private[scalafmt] def isLeftParenReplacedWithBraceOnLeft(pft: FT)(implicit
       session: Session,
-  ): Boolean = session.claimedRuleOnLeft(pft).exists { x =>
-    (x.how eq ReplacementType.Replace) && x.ft.right.is[T.LeftBrace]
-  }
+  ): Boolean = session.claimedRuleOnLeft(pft)
+    .exists(x => (x.how eq ReplacementType.Replace) && x.ft.right.is[T.LeftBrace])
 
 }
 
@@ -357,11 +356,11 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   ): Boolean = f.parent.flatMap(okToReplaceFunctionInSingleArgApply)
     .exists(_._2 eq f)
 
-  private def getOpeningParen(t: Term.ArgClause): Option[T.LeftParen] =
-    ftoks.getHead(t).left match {
-      case lp: T.LeftParen => Some(lp)
-      case _ => None
-    }
+  private def getOpeningParen(t: Term.ArgClause): Option[T.LeftParen] = ftoks
+    .getHead(t).left match {
+    case lp: T.LeftParen => Some(lp)
+    case _ => None
+  }
 
   // single-arg apply of a lambda
   // a(b => { c; d }) change to a { b => c; d }
@@ -439,9 +438,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           def isArgDelimRemoved = session.isRemovedOnLeft(ldelim, ok = true)
           def hasExpressionWithBraces: Boolean =
             // there's a nested expression with braces that will be kept
-            getSingleStatIfLineSpanOk(b).exists {
-              getBlockNestedPartialFunction(_).isDefined
-            }
+            getSingleStatIfLineSpanOk(b)
+              .exists(getBlockNestedPartialFunction(_).isDefined)
           ldelim.left match {
             case lb: T.LeftBrace =>
               // either arg clause has separate braces, or we guarantee braces
@@ -613,15 +611,14 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   private def okToRemoveAroundFunctionBody(
       b: Term,
       okIfMultipleStats: => Boolean,
-  )(implicit style: ScalafmtConfig): Boolean = isDefnBodiesEnabled(noParams =
-    false,
-  ) &&
-    (getTreeSingleStat(b) match {
-      case Some(_: Term.PartialFunction) => false
-      case Some(_: Term.Block) => true
-      case Some(s) => okLineSpan(s)
-      case _ => okIfMultipleStats
-    })
+  )(implicit style: ScalafmtConfig): Boolean =
+    isDefnBodiesEnabled(noParams = false) &&
+      (getTreeSingleStat(b) match {
+        case Some(_: Term.PartialFunction) => false
+        case Some(_: Term.Block) => true
+        case Some(s) => okLineSpan(s)
+        case _ => okIfMultipleStats
+      })
 
   @tailrec
   private def getBlockNestedPartialFunction(

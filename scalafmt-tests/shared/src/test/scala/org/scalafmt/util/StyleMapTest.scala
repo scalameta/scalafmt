@@ -35,7 +35,8 @@ class StyleMapTest extends FunSuite {
          |  // scalafmt: { align.tokens."+" = [{ code="=", owner=".*" }] }
          |  println(1)
          |}
-         |      """.stripMargin.parse[Source].get
+         |      """
+        .stripMargin.parse[Source].get
     val formatOps = new FormatOps(code, ScalafmtConfig.defaultWithAlign)
     val headToken = formatOps.tokens.head
     val printlnToken = formatOps.tokens.find(_.left.syntax == "println").get
@@ -74,7 +75,8 @@ class StyleMapTest extends FunSuite {
          |  // scalafmt: { newlines.implicitParamListModifierForce = [after] }
          |  println(1)
          |}
-         |""".stripMargin.parse[Source].get
+         |"""
+        .stripMargin.parse[Source].get
     val formatOps = new FormatOps(
       code,
       ScalafmtConfig(newlines =

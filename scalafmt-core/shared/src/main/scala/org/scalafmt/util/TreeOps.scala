@@ -49,9 +49,8 @@ object TreeOps {
     private def getBraces[A](tree: Tree, values: List[A])(implicit
         ftoks: FormatTokens,
     ): Option[(FT, A, FT)] = values match {
-      case arg :: Nil => ftoks.getBracesIfEnclosed(tree).map { case (b, e) =>
-          (b, arg, e)
-        }
+      case arg :: Nil => ftoks.getBracesIfEnclosed(tree)
+          .map { case (b, e) => (b, arg, e) }
       case _ => None
     }
 
@@ -245,8 +244,7 @@ object TreeOps {
   }
 
   val ColonDeclTpeLeft = new FT.ExtractFromMeta(x => colonDeclType(x.leftOwner))
-  val ColonDeclTpeRight =
-    new FT.ExtractFromMeta(x => colonDeclType(x.rightOwner))
+  val ColonDeclTpeRight = new FT.ExtractFromMeta(x => colonDeclType(x.rightOwner))
 
   def isParamClauseSite(tree: Tree): Boolean = tree match {
     case _: Type.ParamClause => !tree.parent.is[Type.Lambda]
@@ -346,9 +344,8 @@ object TreeOps {
       if (children.isEmpty) 0 else 1 + maxTreeDepth(children)
   }
 
-  def maxTreeDepth(trees: Seq[Tree]): Int = trees.foldLeft(0) { case (res, t) =>
-    math.max(res, treeDepth(t))
-  }
+  def maxTreeDepth(trees: Seq[Tree]): Int = trees
+    .foldLeft(0) { case (res, t) => math.max(res, treeDepth(t)) }
 
   def getSingleArgOnLeftBraceOnLeft(ft: FT)(implicit
       ftoks: FormatTokens,
@@ -534,14 +531,13 @@ object TreeOps {
    * block contains only a single statement. NB: in FormatWriter, when choosing
    * to insert or remove end markers, we avoid such borderline cases.
    */
-  def getSingleStatExceptEndMarker[A <: Tree](ss: List[A]): Option[A] =
-    ss match {
-      case s :: rs if (rs match {
-            case Nil | (_: Term.EndMarker) :: Nil => true
-            case _ => false
-          }) => Some(s)
-      case _ => None
-    }
+  def getSingleStatExceptEndMarker[A <: Tree](ss: List[A]): Option[A] = ss match {
+    case s :: rs if (rs match {
+          case Nil | (_: Term.EndMarker) :: Nil => true
+          case _ => false
+        }) => Some(s)
+    case _ => None
+  }
 
   def getSingleStatExceptEndMarker(t: Tree): Option[Tree] = t match {
     case Term.Block(s) => getSingleStatExceptEndMarker(s)

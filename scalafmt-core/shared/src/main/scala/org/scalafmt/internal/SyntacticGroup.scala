@@ -60,8 +60,7 @@ object SyntacticGroup {
       def precedence = 4
     }
     object PrefixArg {
-      def apply(tree: Tree): PrefixArg =
-        PrefixArg(tree, TreeSyntacticGroup(tree))
+      def apply(tree: Tree): PrefixArg = PrefixArg(tree, TreeSyntacticGroup(tree))
     }
     case class PrefixArg(tree: Tree, innerGroup: SyntacticGroup) extends Term {
       def precedence = innerGroup.precedence

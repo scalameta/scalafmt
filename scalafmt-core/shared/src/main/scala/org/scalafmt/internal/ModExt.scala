@@ -72,9 +72,8 @@ case class ModExt(
     copy(indents = indent +: indents)
 
   def switch(trigger: T, on: Boolean): ModExt = {
-    val newIndents = indents.flatMap { x =>
-      Some(x.switch(trigger, on)).filter(_ ne Indent.Empty)
-    }
+    val newIndents = indents
+      .flatMap(x => Some(x.switch(trigger, on)).filter(_ ne Indent.Empty))
     copy(indents = newIndents)
   }
 

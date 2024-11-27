@@ -79,11 +79,12 @@ class CliOptionsTest extends FunSuite {
   test(".scalafmtConfig returns the configuration read from configuration file located on configPath") {
     val expected = "foo bar"
     val configPath = Files.createTempFile(".scalafmt", ".conf")
-    val config = s"""|
-                     |version="${Versions.version}"
-                     |maxColumn=100
-                     |onTestFailure="$expected"
-                     |""".stripMargin
+    val config =
+      s"""|
+          |version="${Versions.version}"
+          |maxColumn=100
+          |onTestFailure="$expected"
+          |""".stripMargin
     Files.write(configPath, config.getBytes)
 
     val opt = baseCliOptions.copy(config = Some(configPath))

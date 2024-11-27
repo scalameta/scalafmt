@@ -62,8 +62,8 @@ case class Indents(
 
 object Indents {
   implicit lazy val surface: generic.Surface[Indents] = generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[Indents] = generic
-    .deriveCodecEx(Indents()).noTypos
+  implicit lazy val codec: ConfCodecEx[Indents] = generic.deriveCodecEx(Indents())
+    .noTypos
 
   sealed abstract class RelativeToLhs
   object RelativeToLhs {
