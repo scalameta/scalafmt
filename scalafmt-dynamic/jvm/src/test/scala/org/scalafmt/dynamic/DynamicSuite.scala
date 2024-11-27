@@ -210,6 +210,7 @@ class DynamicSuite extends FunSuite {
       )
     }
   }
+  checkParseError(nightly, "scala212")
   checkParseError(latest, "scala212")
   checkParseError("1.0.0", "Scala211")
 
@@ -386,8 +387,10 @@ class DynamicSuite extends FunSuite {
       }
     }
   }
+  checkSbt(nightly, "scala213")
   checkSbt(latest, "scala213")
   checkSbt("3.8.0", "scala213")
+  checkSbt(nightly, "scala211")
   checkSbt(latest, "scala211")
   checkSbt("3.8.0", "scala211")
   checkSbt("1.2.0", "Scala211")
@@ -607,7 +610,18 @@ class DynamicSuite extends FunSuite {
 private object DynamicSuite {
 
   def nightly = BuildInfo.nightly
-  def latest = BuildInfo.previousStable
+  def latest = {
+    val latest = BuildInfo.previousStable
+    ScalafmtVersion.parse(latest).flatMap { ver =>
+      if (ver.rc <= 0 && ver.snapshot.isEmpty) None
+      else if (ver.patch > 0)
+        Some(ScalafmtVersion(ver.major, ver.minor, ver.patch - 1).toString)
+      else if (ver.minor > 0)
+        Some(ScalafmtVersion(ver.major, ver.minor - 1, 0).toString)
+      else if (ver.major > 0) Some(ScalafmtVersion(ver.major - 1, 0, 0).toString)
+      else None
+    }.getOrElse(latest)
+  }
 
   def getDialectError(version: String, dialect: String, sbt: Boolean = false) =
     if (version < "3.1.0") "" else s" [dialect ${if (sbt) "sbt" else dialect}]"
