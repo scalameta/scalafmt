@@ -28,11 +28,11 @@ class GitOpsTest extends FunSuite {
   override def beforeEach(context: BeforeEach): Unit = {
     path = AbsoluteFile(Files.createTempDirectory(dirName))
     ops = new GitOpsImpl(path)
-    init(ops)
+    init
     // initial commit is needed
     initFile = touch("initialfile")
-    add(initFile)(ops)
-    commit(ops)
+    add(initFile)
+    commit
   }
 
   override def afterEach(context: AfterEach): Unit =
@@ -341,20 +341,28 @@ private object GitOpsTest {
     case Success(s) => s
   }
 
-  def init(implicit ops: GitOpsImpl): Unit = git("init", "-b", defaultBranch)
+  def init(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
+    git("init", "-b", defaultBranch)
 
-  def add(file: AbsoluteFile*)(implicit ops: GitOpsImpl): Unit =
+  def add(
+      file: AbsoluteFile*,
+  )(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
     git("add", file.map(_.toString()): _*)
 
-  def rm(file: AbsoluteFile*)(implicit ops: GitOpsImpl): Unit =
+  def rm(
+      file: AbsoluteFile*,
+  )(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
     git("rm", file.map(_.toString()): _*)
 
-  def commit(implicit ops: GitOpsImpl): Unit =
+  def commit(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
     git("commit", "-m", "'some-message'")
 
-  def checkout(br: String)(implicit ops: GitOpsImpl): Unit =
-    git("checkout", "$br")
+  def checkout(
+      br: String,
+  )(implicit ops: GitOpsImpl, loc: munit.Location): Unit = git("checkout", br)
 
-  def checkoutBr(newBr: String)(implicit ops: GitOpsImpl): Unit =
-    git("checkout", "-b", "$newBr")
+  def checkoutBr(
+      newBr: String,
+  )(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
+    git("checkout", "-b", newBr)
 }
