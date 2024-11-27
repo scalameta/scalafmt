@@ -57,9 +57,8 @@ object ScalafmtModuleLoader {
     }
 
     override def close(): Unit = {
-      cache.clear().foreach {
-        _.foreach(_.right.foreach(_.close()))(ExecutionContext.global)
-      }
+      cache.clear()
+        .foreach(_.foreach(_.right.foreach(_.close()))(ExecutionContext.global))
       loader.close()
     }
   }

@@ -156,9 +156,8 @@ case class ScalafmtConfig(
   import ScalafmtConfig._
 
   private[scalafmt] lazy val alignMap: Map[String, Seq[AlignToken.Matcher]] =
-    align.tokens.map(x => x.code -> x).toMap.map { case (k, v) =>
-      k -> v.getMatcher
-    }
+    align.tokens.map(x => x.code -> x).toMap
+      .map { case (k, v) => k -> v.getMatcher }
 
   private[scalafmt] def withDialect(dialect: NamedDialect): ScalafmtConfig =
     copy(runner = runner.withDialect(dialect))
@@ -218,9 +217,8 @@ case class ScalafmtConfig(
       val cfg = conf match {
         case x: Conf.Str => withDialect(NamedDialect.codec.read(None, x).get)
         case x =>
-          val styleOpt = eitherPat.left.toOption.flatMap { lang =>
-            project.layout.map(_.withLang(lang, this))
-          }
+          val styleOpt = eitherPat.left.toOption
+            .flatMap(lang => project.layout.map(_.withLang(lang, this)))
           decoder.read(styleOpt.orElse(Some(this)), x).get
       }
       eitherPat -> cfg
@@ -378,9 +376,8 @@ object ScalafmtConfig {
 
   private def readActiveStylePresets(conf: Conf): Configured[ScalafmtConfig] =
     (conf match {
-      case Conf.Str(x) => availableStyles.get(x.toLowerCase).map { style =>
-          Configured.ok(style)
-        }
+      case Conf.Str(x) => availableStyles.get(x.toLowerCase)
+          .map(style => Configured.ok(style))
       case _ => None
     }).getOrElse {
       val alternatives = activeStyles.keys.mkString(", ")
@@ -466,9 +463,8 @@ object ScalafmtConfig {
     (stateOpt, conf) => {
       val stylePreset = conf match {
         case x: Conf.Obj =>
-          val section = Seq(Presets.presetKey, "style").flatMap { y =>
-            x.field(y).map(y -> _)
-          }
+          val section = Seq(Presets.presetKey, "style")
+            .flatMap(y => x.field(y).map(y -> _))
           section.headOption.map { case (field, obj) =>
             obj -> Conf.Obj((x.map - field).toList)
           }

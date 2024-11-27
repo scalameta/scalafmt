@@ -56,9 +56,8 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
           forcedBinPack += ft.meta.leftOwner
           changeStyle(setBinPack(curr, callSite = BinPack.Site.Always))
             .foreach { x =>
-              tokens.matchingOptLeft(ft).foreach { y =>
-                disableBinPack.update(y.idx, x.binPack.callSite)
-              }
+              tokens.matchingOptLeft(ft)
+                .foreach(y => disableBinPack.update(y.idx, x.binPack.callSite))
             }
         case _: T.RightParen => disableBinPack.remove(ft.idx)
             .foreach(x => changeStyle(setBinPack(curr, callSite = x)))

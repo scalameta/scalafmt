@@ -104,9 +104,8 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
     getHeadAndLastIfEnclosed(tree.tokens, tree)
 
   def getDelimsIfEnclosed(tokens: Tokens, tree: Tree): Option[(FT, FT)] =
-    getHeadAndLastIfEnclosed(tokens, tree).flatMap { case (head, lastOpt) =>
-      lastOpt.map(last => (head, last))
-    }
+    getHeadAndLastIfEnclosed(tokens, tree)
+      .flatMap { case (head, lastOpt) => lastOpt.map(last => (head, last)) }
   def getDelimsIfEnclosed(tree: Tree): Option[(FT, FT)] =
     getDelimsIfEnclosed(tree.tokens, tree)
 
@@ -387,9 +386,10 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
     result
   }
 
-  private def spanOrWidth(left: Int, right: Int)(
-      f: ((Int, Int)) => Int,
-  ): Int = {
+  private def spanOrWidth(
+      left: Int,
+      right: Int,
+  )(f: ((Int, Int)) => Int): Int = {
     val lastIdx = nonWhitespaceOffset.length - 1
     val rightIdx = if (right >= lastIdx) lastIdx else right + 1
     f(nonWhitespaceOffset(rightIdx)) - f(nonWhitespaceOffset(left))

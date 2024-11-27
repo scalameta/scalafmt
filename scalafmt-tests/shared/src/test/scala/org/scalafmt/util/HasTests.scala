@@ -60,8 +60,8 @@ trait HasTests extends FormatAssertions {
     val content = FileOps.readFile(filename)
     val sep =
       if (content.contains(System.lineSeparator)) System.lineSeparator else "\n"
-    val spec = BuildInfo.resourceDirectory.toPath
-      .relativize(Paths.get(filename)).getName(0).toString
+    val spec = BuildInfo.resourceDirectory.toPath.relativize(Paths.get(filename))
+      .getName(0).toString
 
     val split = content.split(s"(?:^|$sep)<<< ")
     if (split.length <= 1) return Seq.empty // RETURNING!!!
@@ -81,9 +81,8 @@ trait HasTests extends FormatAssertions {
     val style: ScalafmtConfig = loadStyle(
       stripPrefixOpt(head, onlyPrefix).getOrElse(head), {
         val base = spec2style(spec)
-        filename2parse(filename).fold(base) { x =>
-          base.copy(runner = base.runner.withParser(x))
-        }
+        filename2parse(filename)
+          .fold(base)(x => base.copy(runner = base.runner.withParser(x)))
       },
       1,
     )
@@ -236,8 +235,7 @@ object HasTests {
       openParenCallSite = true,
       openParenDefnSite = true,
     ),
-    optIn = ScalafmtConfig.default.optIn
-      .copy(breakChainOnFirstMethodDot = false),
+    optIn = ScalafmtConfig.default.optIn.copy(breakChainOnFirstMethodDot = false),
     // The new aggressive config style breaks ~40 unit tests. The diff output
     // looks nice, but updating the unit tests would take too much time.
     // I can imagine that I will throw away most of the tests and replace them

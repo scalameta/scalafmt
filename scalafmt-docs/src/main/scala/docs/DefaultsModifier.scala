@@ -35,9 +35,7 @@ class DefaultsModifier extends StringModifier {
         val param = params(0)
         s"Default: `$param = ${getDefaultValue(param)}`\n"
       } else {
-        val defaults = params.map { param =>
-          s"$param = ${getDefaultValue(param)}"
-        }
+        val defaults = params.map(param => s"$param = ${getDefaultValue(param)}")
         ScalafmtModifier
           .mdConfigCodeBlock(defaults.mkString("# Defaults\n", "\n", ""))
       }

@@ -105,8 +105,8 @@ object CliArgParser {
             |${FileFetchMode.help}
             |""".stripMargin,
       )
-      opt[Unit]("diff")
-        .action((_, c) => c.copy(mode = Option(DiffFiles("master")))).text(
+      opt[Unit]("diff").action((_, c) => c.copy(mode = Option(DiffFiles("master"))))
+        .text(
           s"""|Format files listed in `git diff` against master.
               |Deprecated: use --mode diff instead""".stripMargin,
         )

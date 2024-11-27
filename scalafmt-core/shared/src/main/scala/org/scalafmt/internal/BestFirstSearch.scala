@@ -242,9 +242,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     stats.trackState(state)
     val idx = state.depth
     val ft = tokens(idx)
-    val active = state.policy.execute(Decision(ft, routes(idx))).filter { s =>
-      s.isActive && pred(s)
-    }
+    val active = state.policy.execute(Decision(ft, routes(idx)))
+      .filter(s => s.isActive && pred(s))
     val splits =
       if (active.isEmpty || !ft.meta.formatOff && ft.inside(range)) active
       else {
@@ -259,9 +258,9 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   }
 
   private def stateAsOptimal(state: State, splits: Seq[Split]) = {
-    val isOptimal = splits.exists { s =>
-      s.isNL && s.penalty < Constants.ShouldBeNewline
-    } || tokens.isRightCommentWithBreak(tokens(state.depth))
+    val isOptimal = splits
+      .exists(s => s.isNL && s.penalty < Constants.ShouldBeNewline) ||
+      tokens.isRightCommentWithBreak(tokens(state.depth))
     if (isOptimal) Some(state) else None
   }
 
@@ -301,15 +300,15 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       val deepestYet = stats.deepestYet
       val nextSplits = routes(deepestYet.depth)
       val tok = tokens(deepestYet.depth)
-      val splitsAfterPolicy = deepestYet.policy
-        .execute(Decision(tok, nextSplits))
+      val splitsAfterPolicy = deepestYet.policy.execute(Decision(tok, nextSplits))
       def printSeq(vals: Seq[_]): String = vals.mkString("\n  ", "\n  ", "")
-      val msg = s"""|UNABLE TO FORMAT,
-                    |tok #${deepestYet.depth}/${tokens.length}: $tok
-                    |policies:${printSeq(deepestYet.policy.policies)}
-                    |splits (before policy):${printSeq(nextSplits)}
-                    |splits (after policy):${printSeq(splitsAfterPolicy)}
-                    |""".stripMargin
+      val msg =
+        s"""|UNABLE TO FORMAT,
+            |tok #${deepestYet.depth}/${tokens.length}: $tok
+            |policies:${printSeq(deepestYet.policy.policies)}
+            |splits (before policy):${printSeq(nextSplits)}
+            |splits (after policy):${printSeq(splitsAfterPolicy)}
+            |""".stripMargin
       if (initStyle.runner.debug) logger.debug(
         s"""|Failed to format
             |$msg""".stripMargin,
@@ -416,8 +415,7 @@ object BestFirstSearch {
     }
 
     private def updateBestImpl(state: State): Boolean = state.split.isNL &&
-      !state.hasSlb() &&
-      (best.getOrElseUpdate(state.prev.depth, state) eq state)
+      !state.hasSlb() && (best.getOrElseUpdate(state.prev.depth, state) eq state)
 
     def updateBest(state: State, furtherState: State)(implicit
         Q: StateQueue,
@@ -446,9 +444,8 @@ object BestFirstSearch {
     def retry: Option[StateStats] = {
       val ok = best.nonEmpty &&
         (pruneSlowStates eq ScalafmtOptimizer.PruneSlowStates.Yes)
-      if (ok) Some(
-        new StateStats(tokens, runner, ScalafmtOptimizer.PruneSlowStates.No),
-      )
+      if (ok)
+        Some(new StateStats(tokens, runner, ScalafmtOptimizer.PruneSlowStates.No))
       else None
     }
   }

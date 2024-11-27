@@ -24,9 +24,8 @@ abstract class CommunityRepoSuite(giturl: String, name: String)
     excluded,
     files,
     dialect,
-    styles = styles.map(_.source).map { x =>
-      x.substring(1 + x.lastIndexOf('.'))
-    }.toSet,
+    styles = styles.map(_.source).map(x => x.substring(1 + x.lastIndexOf('.')))
+      .toSet,
     fileOverride = Option(fileOverride),
     statsPerStyle = statsPerStyle,
     statsAllStyles = statsAllStyles,

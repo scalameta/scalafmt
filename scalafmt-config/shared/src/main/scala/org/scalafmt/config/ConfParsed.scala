@@ -34,9 +34,8 @@ class ConfParsed(val conf: Configured[Conf]) extends AnyVal {
     getHoconValueOpt[String]("onTestFailure")
 
   def encoding: Option[Either[String, Codec]] =
-    getHoconValueOpt[String]("encoding").map {
-      _.flatMap(x => Try(Codec(x)).toEither.left.map(_.getMessage))
-    }
+    getHoconValueOpt[String]("encoding")
+      .map(_.flatMap(x => Try(Codec(x)).toEither.left.map(_.getMessage)))
 
   def version: Option[Either[String, String]] =
     getHoconValueOpt[String]("version")

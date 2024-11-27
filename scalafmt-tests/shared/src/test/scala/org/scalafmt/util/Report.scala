@@ -74,32 +74,32 @@ object Report {
     explanation,
     after.intersectResults(before).sortBy { case (aft, bef) =>
       -Math.abs(aft.visitedStates - bef.visitedStates)
-    }.map {
-      case (aft, bef) => div(
-          h2(aft.test.fullName),
-          table(
-            tr(th(""), th("Before"), th("After"), th("Diff")),
-            tr(
-              td("Time (ms)"),
-              td(bef.timeMs),
-              td(aft.timeMs),
-              td(bef.timeMs - aft.timeMs),
-            ),
-            tr(
-              td("States"),
-              td(bef.visitedStates),
-              td(aft.visitedStates),
-              td(aft.visitedStates - bef.visitedStates),
-            ),
+    }.map { case (aft, bef) =>
+      div(
+        h2(aft.test.fullName),
+        table(
+          tr(th(""), th("Before"), th("After"), th("Diff")),
+          tr(
+            td("Time (ms)"),
+            td(bef.timeMs),
+            td(aft.timeMs),
+            td(bef.timeMs - aft.timeMs),
           ),
-          pre(
-            fontFamily := "monospace",
-            background := "#fff",
-            fontSize := "16px",
-            width := testWidth(aft),
-            code(heatmapBar(aft.test.style), raw(mkHtml(mergeResults(aft, bef)))),
+          tr(
+            td("States"),
+            td(bef.visitedStates),
+            td(aft.visitedStates),
+            td(aft.visitedStates - bef.visitedStates),
           ),
-        )
+        ),
+        pre(
+          fontFamily := "monospace",
+          background := "#fff",
+          fontSize := "16px",
+          width := testWidth(aft),
+          code(heatmapBar(aft.test.style), raw(mkHtml(mergeResults(aft, bef)))),
+        ),
+      )
     },
   )).render
 

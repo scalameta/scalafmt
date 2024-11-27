@@ -104,24 +104,21 @@ case class Split(
     if (isIgnored) this
     else {
       val newNeededTags = neededTags + splitTag
-      if (newNeededTags eq neededTags) this
-      else copy(neededTags = newNeededTags)
+      if (newNeededTags eq neededTags) this else copy(neededTags = newNeededTags)
     }
 
   def activateFor(splitTag: SplitTag): Split =
     if (isIgnored) this
     else {
       val newActiveTags = activeTags + splitTag
-      if (newActiveTags eq activeTags) this
-      else copy(activeTags = newActiveTags)
+      if (newActiveTags eq activeTags) this else copy(activeTags = newActiveTags)
     }
 
   def deActivateFor(splitTag: SplitTag): Split =
     if (isIgnored) this
     else {
       val newActiveTags = activeTags - splitTag
-      if (newActiveTags eq activeTags) this
-      else copy(activeTags = newActiveTags)
+      if (newActiveTags eq activeTags) this else copy(activeTags = newActiveTags)
     }
 
   def preActivateFor(splitTag: SplitTag): Split =
@@ -146,8 +143,7 @@ case class Split(
       extend: Boolean = false,
       recurseOnly: Boolean = false,
   ): Split = withOptimalAt(
-    token
-      .map(OptimalToken(_, killOnFail = killOnFail, recurseOnly = recurseOnly)),
+    token.map(OptimalToken(_, killOnFail = killOnFail, recurseOnly = recurseOnly)),
     extend = extend,
   )
 

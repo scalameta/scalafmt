@@ -249,10 +249,10 @@ object Policy {
       if (filtered eq policy) this else filtered <== endPolicy
     }
 
-    override def appliesUntil(nextft: FT)(
-        pred: Policy.Clause => Boolean,
-    ): Boolean = endPolicy.notExpiredBy(nextft) &&
-      policy.appliesUntil(nextft)(pred)
+    override def appliesUntil(
+        nextft: FT,
+    )(pred: Policy.Clause => Boolean): Boolean = endPolicy
+      .notExpiredBy(nextft) && policy.appliesUntil(nextft)(pred)
 
     override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
   }
@@ -288,10 +288,10 @@ object Policy {
       else new Relay(filtered, after)
     }
 
-    override def appliesUntil(nextft: FT)(
-        pred: Policy.Clause => Boolean,
-    ): Boolean = before.appliesUntil(nextft)(pred) &&
-      after.appliesUntil(nextft)(pred)
+    override def appliesUntil(
+        nextft: FT,
+    )(pred: Policy.Clause => Boolean): Boolean = before
+      .appliesUntil(nextft)(pred) && after.appliesUntil(nextft)(pred)
 
     override def exists(pred: Clause => Boolean): Boolean = before
       .exists(pred) || after.exists(pred)
@@ -320,10 +320,10 @@ object Policy {
       else new RelayOnSplit(filtered, trigger, triggerEnd, after)
     }
 
-    override def appliesUntil(nextft: FT)(
-        pred: Policy.Clause => Boolean,
-    ): Boolean = before.appliesUntil(nextft)(pred) &&
-      after.appliesUntil(nextft)(pred)
+    override def appliesUntil(
+        nextft: FT,
+    )(pred: Policy.Clause => Boolean): Boolean = before
+      .appliesUntil(nextft)(pred) && after.appliesUntil(nextft)(pred)
 
     override def exists(pred: Clause => Boolean): Boolean = before
       .exists(pred) || after.exists(pred)
@@ -357,20 +357,19 @@ object Policy {
       if (filtered eq before) this else new Switch(filtered, trigger, after)
     }
 
-    override def appliesUntil(nextft: FT)(
-        pred: Policy.Clause => Boolean,
-    ): Boolean = before.appliesUntil(nextft)(pred) &&
-      after.appliesUntil(nextft)(pred)
+    override def appliesUntil(
+        nextft: FT,
+    )(pred: Policy.Clause => Boolean): Boolean = before
+      .appliesUntil(nextft)(pred) && after.appliesUntil(nextft)(pred)
 
     override def exists(pred: Clause => Boolean): Boolean = before
       .exists(pred) || after.exists(pred)
   }
 
   object Proxy {
-    def apply(policy: Policy, end: End.WithPos)(
-        factory: Policy => Pf,
-    )(implicit fileLine: FileLine): Policy =
-      if (policy.isEmpty) NoPolicy else new Proxy(policy, factory, end)
+    def apply(policy: Policy, end: End.WithPos)(factory: Policy => Pf)(implicit
+        fileLine: FileLine,
+    ): Policy = if (policy.isEmpty) NoPolicy else new Proxy(policy, factory, end)
   }
 
   private class Proxy(

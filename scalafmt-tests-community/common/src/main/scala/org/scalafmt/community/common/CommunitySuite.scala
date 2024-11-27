@@ -36,9 +36,8 @@ abstract class CommunitySuite extends FunSuite {
   }
 
   override def afterAll(): Unit = {
-    if (!OsSpecific.isWindows) totalStatesVisited.foreach { cnt =>
-      assertEquals(atomicTotalStatesVisited.get(), cnt)
-    }
+    if (!OsSpecific.isWindows) totalStatesVisited
+      .foreach(cnt => assertEquals(atomicTotalStatesVisited.get(), cnt))
     super.afterAll()
   }
 
@@ -76,9 +75,8 @@ abstract class CommunitySuite extends FunSuite {
     )
     if (!OsSpecific.isWindows) {
       atomicTotalStatesVisited.getAndAdd(statesVisited)
-      build.statsPerStyle.get(styleName).foreach { x =>
-        assertEquals(statesVisited, x.expectedStatesVisited)
-      }
+      build.statsPerStyle.get(styleName)
+        .foreach(x => assertEquals(statesVisited, x.expectedStatesVisited))
     }
   }
 

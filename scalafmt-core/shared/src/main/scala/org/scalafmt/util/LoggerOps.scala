@@ -155,9 +155,7 @@ object LoggerOps {
   object NoLogger extends LoggerLike {
     def println(x: Any): Unit = {}
     def debug(x: Any)(implicit fileLine: FileLine): Unit = {}
-    def elem(values: sourcecode.Text[Any]*)(implicit
-        fileLine: FileLine,
-    ): Unit = {}
+    def elem(values: sourcecode.Text[Any]*)(implicit fileLine: FileLine): Unit = {}
   }
 
   def logDebugRoutes(
@@ -184,10 +182,8 @@ object LoggerOps {
         val idx = prev.depth
         val tok = toks(idx).left
         val clean = "%-15s".format(cleanup(tok).slice(0, 15))
-        stack.prepend(
-          s"[$idx] ${posWidth.format(tok.end)}: $clean" +
-            s" ${state.split} ${prev.indentation} ${prev.column} [${state.cost}]",
-        )
+        stack.prepend(s"[$idx] ${posWidth.format(tok.end)}: $clean" + s" ${state
+            .split} ${prev.indentation} ${prev.column} [${state.cost}]")
         iter(prev)
       }
       iter(finalState)

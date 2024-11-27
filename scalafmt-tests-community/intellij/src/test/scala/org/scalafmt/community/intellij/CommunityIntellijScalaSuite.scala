@@ -43,7 +43,8 @@ class CommunityIntellijScala_2024_2_Suite
                       |    runner.dialect = scala33
                       |  }
                       |}
-                      |""".stripMargin,
+                      |"""
+      .stripMargin,
   ))
 
 }
@@ -84,7 +85,8 @@ class CommunityIntellijScala_2024_3_Suite
                       |    runner.dialect = scala33
                       |  }
                       |}
-                      |""".stripMargin,
+                      |"""
+      .stripMargin,
   ))
 
 }

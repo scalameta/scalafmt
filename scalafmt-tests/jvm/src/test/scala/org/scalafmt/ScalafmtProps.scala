@@ -22,8 +22,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
   ): mutable.Seq[(CorpusFile, Observation[Bug])] = {
     val corpus = Corpus.files(
       // TODO(olafur) remove once testkit 1.7 is out
-      Corpus.fastparse
-        .copy(Corpus.fastparse.url.replace("olafurpg", "scalameta")),
+      Corpus.fastparse.copy(Corpus.fastparse.url.replace("olafurpg", "scalameta")),
     ).take(count).toBuffer.compatPar
     SyntaxAnalysis.run[Observation[Bug]](corpus) { file =>
       val code = file.read

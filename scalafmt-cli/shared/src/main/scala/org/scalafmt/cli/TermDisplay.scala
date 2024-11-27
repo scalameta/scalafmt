@@ -116,12 +116,14 @@ object TermDisplay extends TermUtils {
     def display(): String =
       if (isDone) (currentTimeOpt, remoteTimeOpt) match {
         case (Some(current), Some(remote)) =>
-          if (current < remote)
-            s"Updated since ${formatTimestamp(current)} (${formatTimestamp(remote)})"
+          if (current < remote) s"Updated since ${formatTimestamp(
+              current,
+            )} (${formatTimestamp(remote)})"
           else if (current == remote)
             s"No new update since ${formatTimestamp(current)}"
-          else
-            s"Warning: local copy newer than remote one (${formatTimestamp(current)} > ${formatTimestamp(remote)})"
+          else s"Warning: local copy newer than remote one (${formatTimestamp(
+              current,
+            )} > ${formatTimestamp(remote)})"
         case (Some(_), None) =>
           // FIXME Likely a 404 Not found, that should be taken into account by the cache
           "No modified time in response"

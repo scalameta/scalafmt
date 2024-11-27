@@ -91,9 +91,8 @@ object Debug {
       if (null != completedEvent.best) {
         val sb = new StringBuilder()
         sb.append("Best splits:")
-        completedEvent.best.values.toSeq.sortBy(_.depth).take(5).foreach {
-          state => sb.append("\n\t").append(log(state))
-        }
+        completedEvent.best.values.toSeq.sortBy(_.depth).take(5)
+          .foreach(state => sb.append("\n\t").append(log(state)))
         sb.append("\n")
         logger.debug(sb.toString())
       }

@@ -33,9 +33,8 @@ object GitOps {
     def getProposedConfigFile(
         cwd: AbsoluteFile,
         config: Option[Path] = None,
-    ): AbsoluteFile = config.fold {
-      obj.rootDir.getOrElse(cwd) / FileOps.defaultConfigFileName
-    }(cwd / _)
+    ): AbsoluteFile = config
+      .fold(obj.rootDir.getOrElse(cwd) / FileOps.defaultConfigFileName)(cwd / _)
 
   }
 

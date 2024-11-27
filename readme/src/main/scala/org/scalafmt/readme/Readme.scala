@@ -57,8 +57,9 @@ object Readme {
     val expressions = s"{$code}".parse[Stat].get.asInstanceOf[Term.Block].stats
     val evaluated = eval[Any](code)
     val output = evaluated match {
-      case s: String => s"""|
-                            |"$s"""".stripMargin
+      case s: String =>
+        s"""|
+            |"$s"""".stripMargin
       case x => x.toString
     }
     val result = s"""|${expressions.map(x => s"scala> ${x.toString().trim}")
@@ -142,8 +143,8 @@ object Readme {
   }
 
   def demoStyle(style: ScalafmtConfig)(code: String): TypedTag[String] = {
-    val formatted = Scalafmt
-      .format(code, style.copy(runner = ScalafmtRunner.sbt)).get
+    val formatted = Scalafmt.format(code, style.copy(runner = ScalafmtRunner.sbt))
+      .get
     div(sideBySide(code, formatted), configurationBlock(style))
   }
 
