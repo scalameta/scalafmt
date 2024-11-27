@@ -131,7 +131,7 @@ final class State(
         def trailing = nextTok.hasBreak // newline after comment
         if (nextSplit.isNL) { // newline before comment
           val rtext = tok.meta.right.text
-          if (rtext.length >= (style.maxColumn - nextIndent) || trailing)
+          if (rtext.length >= style.maxColumn - nextIndent || trailing)
             noOverflowPenalties
           else overflowPenalties(columnOnCurrentLine)
         } else if (style.comments.wrap.eq(Comments.Wrap.trailing) && trailing) {

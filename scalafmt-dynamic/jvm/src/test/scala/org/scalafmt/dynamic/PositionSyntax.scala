@@ -60,7 +60,7 @@ object PositionSyntax {
         val span = pos.end - pos.start
         val caret =
           if (span != 0 && pos.startLine == pos.endLine) "^" * span else "^"
-        (" " * pos.startColumn) + caret
+        " " * pos.startColumn + caret
     }
 
     private def lineContent(

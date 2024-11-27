@@ -51,7 +51,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       depth: Int,
       isOpt: Boolean,
   ): Option[Option[State]] = {
-    val key = (start.indentation & 0xffL) | (start.column & 0xffffffL) << 8 |
+    val key = start.indentation & 0xffL | (start.column & 0xffffffL) << 8 |
       (start.depth & 0xffffffffL) << 32
     def orElse =
       if (isOpt) Some(None) // we wouldn't recurse unless the span was large
