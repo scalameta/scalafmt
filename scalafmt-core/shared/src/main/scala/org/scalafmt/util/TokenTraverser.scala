@@ -16,7 +16,7 @@ class TokenTraverser(tokens: Tokens, input: Input) {
       if (!formatOff) { if (TokenOps.isFormatOff(tok)) formatOff = true }
       else if (TokenOps.isFormatOn(tok)) formatOff = false
       else excluded += TokenOps.hash(tok)
-      map += (tok -> i)
+      map += tok -> i
       i += 1
     }
     if (input.isInstanceOf[Input.Ammonite]) {

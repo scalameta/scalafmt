@@ -87,7 +87,7 @@ trait FormatAssertions {
     Seq(
       e.shortMessage,
       linesBeforeCaret.mkString("\n"),
-      (" " * e.pos.startColumn) + "^", // arrow
+      " " * e.pos.startColumn + "^", // arrow
       linesAfterCaret.mkString("\n"),
       "====== full result: ======",
       obtained.stripTrailing(),

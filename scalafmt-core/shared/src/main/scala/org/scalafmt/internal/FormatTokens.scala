@@ -66,7 +66,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
   def apply(ft: FT, off: Int): FT = at(ft.meta.idx + off)
 
   @inline
-  def hasNext(ft: FT): Boolean = ft.meta.idx < (arr.length - 1)
+  def hasNext(ft: FT): Boolean = ft.meta.idx < arr.length - 1
   @inline
   def hasPrev(ft: FT): Boolean = ft.meta.idx > 0
 

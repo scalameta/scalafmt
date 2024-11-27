@@ -25,7 +25,7 @@ object Report {
         code(
           heatmapBar(result.test.style),
           raw(result.obtainedHtml),
-          span("\n" + ("‾" * result.test.style.maxColumn)),
+          span("\n" + "‾" * result.test.style.maxColumn),
         ),
       ),
     ),
@@ -36,12 +36,12 @@ object Report {
       val v = Math.pow(2, i).toInt
       val color = red(v)
       span(background := s"rgb(256, $color, $color)", s" $v ")
-    } :+ span("\n" + ("_" * scalaStyle.maxColumn) + "\n")
+    } :+ span("\n" + "_" * scalaStyle.maxColumn + "\n")
 
   def red(visits: Int): Int = {
     val v = log(visits, 2)
     val ratio = v / MaxVisits.toDouble
-    val result = Math.min(256, 20 + 256 - (ratio * 256)).toInt
+    val result = Math.min(256, 20 + 256 - ratio * 256).toInt
     result
   }
 

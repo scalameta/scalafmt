@@ -1106,9 +1106,9 @@ class Router(formatOps: FormatOps) {
               .withIndents(extraOneArgPerLineIndent, indent),
           )
           else {
-            val useOneArgPerLineSplit = (notTooManyArgs && align) ||
-              (handleImplicit &&
-                style.newlines.notBeforeImplicitParamListModifier)
+            val useOneArgPerLineSplit = notTooManyArgs && align ||
+              handleImplicit &&
+              style.newlines.notBeforeImplicitParamListModifier
             val slbSplit =
               if (mustDangleForTrailingCommas) Split.ignored
               else {

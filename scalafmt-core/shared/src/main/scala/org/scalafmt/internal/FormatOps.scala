@@ -656,7 +656,7 @@ class FormatOps(
             infixes.foreach { ia =>
               val cost = maxPrecedence - ia.precedence
               if (cost < minCost) {
-                out += (getMidInfixToken(ia) -> cost)
+                out += getMidInfixToken(ia) -> cost
                 minCost = cost
               }
             }
@@ -1973,7 +1973,7 @@ class FormatOps(
                   // https://dotty.epfl.ch/docs/internals/syntax.html
                   (tf.paramClause match { // LambdaStart
                     case tpc @ Term.ParamClause(tp :: Nil, mod) =>
-                      (mod.isEmpty && tp.mods.isEmpty && tp.decltpe.isEmpty) ||
+                      mod.isEmpty && tp.mods.isEmpty && tp.decltpe.isEmpty ||
                       isEnclosedWithinParens(tpc)
                     case _ => true // multiple params are always in parens
                   }) =>
@@ -2000,7 +2000,7 @@ class FormatOps(
             okRightBrace: => Boolean,
         ) =
           if (
-            (nft.right.is[T.LeftBrace] && (nft.meta.rightOwner eq tb)) ||
+            nft.right.is[T.LeftBrace] && (nft.meta.rightOwner eq tb) ||
             tb.pos.start > nft.right.start
           ) None
           else Some(new OptionalBracesRegion {

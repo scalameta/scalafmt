@@ -62,7 +62,7 @@ object Cli extends CliUtils {
     }
 
   private val isNative: Boolean = isScalaNative ||
-    ("true" == System.getProperty("scalafmt.native-image", "false"))
+    "true" == System.getProperty("scalafmt.native-image", "false")
 
   private def getProposedConfigVersion(options: CliOptions): String =
     s"version = $stableVersion"

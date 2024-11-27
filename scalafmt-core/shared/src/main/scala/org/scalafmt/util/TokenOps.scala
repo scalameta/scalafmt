@@ -33,8 +33,8 @@ object TokenOps {
     */
   @inline
   def hash(token: T): TokenHash = {
-    val longHash: Long = (token.productPrefix.hashCode.toLong << (62 - 8)) |
-      (token.start.toLong << (62 - (8 + 28))) | token.end
+    val longHash: Long = token.productPrefix.hashCode.toLong << 62 - 8 |
+      token.start.toLong << 62 - (8 + 28) | token.end
     longHash
   }
 
@@ -77,7 +77,7 @@ object TokenOps {
 
   def isSingleLineIfComment(c: T): Boolean = {
     val off = c.start
-    (c.end - off) >= 2 && {
+    c.end - off >= 2 && {
       val chars = c.input.chars
       chars(off) == '/' && chars(off + 1) == '/'
     }
