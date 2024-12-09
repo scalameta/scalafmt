@@ -12,7 +12,7 @@ object Dependencies {
   val scalacheckV = "1.18.1"
   val coursier    = "2.1.10"
   val munitV      = "1.0.2"
-  val mdocV       = "2.6.1"
+  val mdocV       = mdoc.BuildInfo.version
 
   val scalapb = Def.setting {
     ExclusionRule(
