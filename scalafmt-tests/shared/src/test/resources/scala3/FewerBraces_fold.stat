@@ -2045,3 +2045,444 @@ object a:
 object a:
    println:
       a + b
+<<< #4614 for-yield then select, never
+indent.fewerBraces = never
+===
+@main def main() =
+  val first =
+    for i <- 0 to 10
+    yield i
+  .head
+  println(first)
+>>>
+@main
+def main() =
+   val first = for i <- 0 to 10 yield i.head
+   println(first)
+<<< #4614 for-yield then apply, never
+indent.fewerBraces = never
+===
+@main def main() =
+  val first =
+    for i <- 0 to 10
+    yield i
+  .map(_ * 2)
+  println(first)
+>>>
+@main
+def main() =
+   val first = for i <- 0 to 10 yield i.map(_ * 2)
+   println(first)
+<<< #4614 for-yield then apply and select, never
+indent.fewerBraces = never
+===
+@main def main() =
+  val first =
+    for i <- 0 to 10
+    yield i
+  .map(_ * 2)
+  .last
+  println(first)
+>>>
+@main
+def main() =
+   val first = for i <- 0 to 10 yield i.map(_ * 2).last
+   println(first)
+<<< #4614 for-yield then select, always
+indent.fewerBraces = always
+===
+@main def main() =
+  val first =
+    for i <- 0 to 10
+    yield i
+  .head
+  println(first)
+>>>
+@main
+def main() =
+   val first = for i <- 0 to 10 yield i.head
+   println(first)
+<<< #4614 for-yield then apply, always
+indent.fewerBraces = always
+===
+@main def main() =
+  val first =
+    for i <- 0 to 10
+    yield i
+  .map(_ * 2)
+  println(first)
+>>>
+@main
+def main() =
+   val first = for i <- 0 to 10 yield i.map(_ * 2)
+   println(first)
+<<< #4614 for-yield then apply and select, always
+indent.fewerBraces = always
+===
+@main def main() =
+  val first =
+    for i <- 0 to 10
+    yield i
+  .map(_ * 2)
+  .last
+  println(first)
+>>>
+@main
+def main() =
+   val first = for i <- 0 to 10 yield i.map(_ * 2).last
+   println(first)
+<<< #4614 for-yield then select, beforeSelect
+indent.fewerBraces = beforeSelect
+===
+@main def main() =
+  val first =
+    for i <- 0 to 10
+    yield i
+  .head
+  println(first)
+>>>
+@main
+def main() =
+   val first = for i <- 0 to 10 yield i.head
+   println(first)
+<<< #4614 for-yield then apply, beforeSelect
+indent.fewerBraces = beforeSelect
+===
+@main def main() =
+  val first =
+    for i <- 0 to 10
+    yield i
+  .map(_ * 2)
+  println(first)
+>>>
+@main
+def main() =
+   val first = for i <- 0 to 10 yield i.map(_ * 2)
+   println(first)
+<<< #4614 for-yield then apply and select, beforeSelect
+indent.fewerBraces = beforeSelect
+===
+@main def main() =
+  val first =
+    for i <- 0 to 10
+    yield i
+  .map(_ * 2)
+  .last
+  println(first)
+>>>
+@main
+def main() =
+   val first = for i <- 0 to 10 yield i.map(_ * 2).last
+   println(first)
+<<< #4614 infix then select, never
+indent.fewerBraces = never
+===
+@main def main() =
+  val first =
+    foo :: bar ::
+    baz
+  .head
+  println(first)
+>>>
+@main
+def main() =
+   val first = foo :: bar :: baz.head
+   println(first)
+<<< #4614 infix then apply, never
+indent.fewerBraces = never
+===
+@main def main() =
+  val first =
+    foo :: bar ::
+    baz
+  .map(_ * 2)
+  println(first)
+>>>
+@main
+def main() =
+   val first = foo :: bar :: baz.map(_ * 2)
+   println(first)
+<<< #4614 infix then apply and select, never
+indent.fewerBraces = never
+===
+@main def main() =
+  val first =
+    foo :: bar ::
+    baz
+  .map(_ * 2)
+  .last
+  println(first)
+>>>
+@main
+def main() =
+   val first = foo :: bar :: baz.map(_ * 2).last
+   println(first)
+<<< #4614 infix then select, always
+indent.fewerBraces = always
+===
+@main def main() =
+  val first =
+    foo :: bar ::
+    baz
+  .head
+  println(first)
+>>>
+@main
+def main() =
+   val first = foo :: bar :: baz.head
+   println(first)
+<<< #4614 infix then apply, always
+indent.fewerBraces = always
+===
+@main def main() =
+  val first =
+    foo :: bar ::
+    baz
+  .map(_ * 2)
+  println(first)
+>>>
+@main
+def main() =
+   val first = foo :: bar :: baz.map(_ * 2)
+   println(first)
+<<< #4614 infix then apply and select, always
+indent.fewerBraces = always
+===
+@main def main() =
+  val first =
+    foo :: bar ::
+    baz
+  .map(_ * 2)
+  .last
+  println(first)
+>>>
+@main
+def main() =
+   val first = foo :: bar :: baz.map(_ * 2).last
+   println(first)
+<<< #4614 infix then select, beforeSelect
+indent.fewerBraces = beforeSelect
+===
+@main def main() =
+  val first =
+    foo :: bar ::
+    baz
+  .head
+  println(first)
+>>>
+@main
+def main() =
+   val first = foo :: bar :: baz.head
+   println(first)
+<<< #4614 infix then apply, beforeSelect
+indent.fewerBraces = beforeSelect
+===
+@main def main() =
+  val first =
+    foo :: bar ::
+    baz
+  .map(_ * 2)
+  println(first)
+>>>
+@main
+def main() =
+   val first = foo :: bar :: baz.map(_ * 2)
+   println(first)
+<<< #4614 infix then apply and select, beforeSelect
+indent.fewerBraces = beforeSelect
+===
+@main def main() =
+  val first =
+    foo :: bar ::
+    baz
+  .map(_ * 2)
+  .last
+  println(first)
+>>>
+@main
+def main() =
+   val first = foo :: bar :: baz.map(_ * 2).last
+   println(first)
+<<< #4614 postfix then select, never
+indent.fewerBraces = never
+===
+@main def main() =
+  val first =
+    foo bar
+  .head
+  println(first)
+>>>
+test does not parse: [dialect scala3] `;` expected but `.` found
+@main
+def main() =
+   val first = foo bar.head
+                      ^
+   println(first)
+====== full result: ======
+@main
+def main() =
+   val first = foo bar.head
+   println(first)
+<<< #4614 postfix then apply, never
+indent.fewerBraces = never
+===
+@main def main() =
+  val first =
+    foo bar
+  .map(_ * 2)
+  println(first)
+>>>
+test does not parse: [dialect scala3] `;` expected but `.` found
+@main
+def main() =
+   val first = foo bar.map(_ * 2)
+                      ^
+   println(first)
+====== full result: ======
+@main
+def main() =
+   val first = foo bar.map(_ * 2)
+   println(first)
+<<< #4614 postfix then apply and select, never
+indent.fewerBraces = never
+===
+@main def main() =
+  val first =
+    foo bar
+  .map(_ * 2)
+  .last
+  println(first)
+>>>
+test does not parse: [dialect scala3] `;` expected but `.` found
+@main
+def main() =
+   val first = foo bar.map(_ * 2).last
+                      ^
+   println(first)
+====== full result: ======
+@main
+def main() =
+   val first = foo bar.map(_ * 2).last
+   println(first)
+<<< #4614 postfix then select, always
+indent.fewerBraces = always
+===
+@main def main() =
+  val first =
+    foo bar
+  .head
+  println(first)
+>>>
+test does not parse: [dialect scala3] `;` expected but `.` found
+@main
+def main() =
+   val first = foo bar.head
+                      ^
+   println(first)
+====== full result: ======
+@main
+def main() =
+   val first = foo bar.head
+   println(first)
+<<< #4614 postfix then apply, always
+indent.fewerBraces = always
+===
+@main def main() =
+  val first =
+    foo bar
+  .map(_ * 2)
+  println(first)
+>>>
+test does not parse: [dialect scala3] `;` expected but `.` found
+@main
+def main() =
+   val first = foo bar.map(_ * 2)
+                      ^
+   println(first)
+====== full result: ======
+@main
+def main() =
+   val first = foo bar.map(_ * 2)
+   println(first)
+<<< #4614 postfix then apply and select, always
+indent.fewerBraces = always
+===
+@main def main() =
+  val first =
+    foo bar
+  .map(_ * 2)
+  .last
+  println(first)
+>>>
+test does not parse: [dialect scala3] `;` expected but `.` found
+@main
+def main() =
+   val first = foo bar.map(_ * 2).last
+                      ^
+   println(first)
+====== full result: ======
+@main
+def main() =
+   val first = foo bar.map(_ * 2).last
+   println(first)
+<<< #4614 postfix then select, beforeSelect
+indent.fewerBraces = beforeSelect
+===
+@main def main() =
+  val first =
+    foo bar
+  .head
+  println(first)
+>>>
+test does not parse: [dialect scala3] `;` expected but `.` found
+@main
+def main() =
+   val first = foo bar.head
+                      ^
+   println(first)
+====== full result: ======
+@main
+def main() =
+   val first = foo bar.head
+   println(first)
+<<< #4614 postfix then apply, beforeSelect
+indent.fewerBraces = beforeSelect
+===
+@main def main() =
+  val first =
+    foo bar
+  .map(_ * 2)
+  println(first)
+>>>
+test does not parse: [dialect scala3] `;` expected but `.` found
+@main
+def main() =
+   val first = foo bar.map(_ * 2)
+                      ^
+   println(first)
+====== full result: ======
+@main
+def main() =
+   val first = foo bar.map(_ * 2)
+   println(first)
+<<< #4614 postfix then apply and select, beforeSelect
+indent.fewerBraces = beforeSelect
+===
+@main def main() =
+  val first =
+    foo bar
+  .map(_ * 2)
+  .last
+  println(first)
+>>>
+test does not parse: [dialect scala3] `;` expected but `.` found
+@main
+def main() =
+   val first = foo bar.map(_ * 2).last
+                      ^
+   println(first)
+====== full result: ======
+@main
+def main() =
+   val first = foo bar.map(_ * 2).last
+   println(first)
