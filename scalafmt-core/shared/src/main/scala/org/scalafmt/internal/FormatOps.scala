@@ -1282,6 +1282,17 @@ class FormatOps(
   ): Option[SelectLike] = findPrevSelectAndApply(tree.qual, enclosed)._1
 
   @tailrec
+  final def findFirstSelect(
+      tree: Tree,
+      enclosed: Boolean,
+      select: Option[SelectLike] = None,
+  ): Option[SelectLike] = findPrevSelectAndApply(tree, enclosed) match {
+    case (x @ Some(prevSelect), _) =>
+      findFirstSelect(prevSelect.qual, enclosed, x)
+    case _ => select
+  }
+
+  @tailrec
   private def findLastApplyAndNextSelectEnclosed(
       tree: Tree,
       select: Option[SelectLike] = None,
@@ -2161,7 +2172,9 @@ class FormatOps(
               case x: Term.Block => getBlockWithNonSingleTermStat(x)
               case x: Tree.CasesBlock => Some(x)
               case _ => None
-            }).flatMap(x => WithStats(nft, x.stats.headOption, b, Some(t)))
+            }).fold(getMaybeFewerBracesSelectSplits(b))(x =>
+              WithStats(nft, x.stats.headOption, b, Some(t)),
+            )
           case _ => BlockImpl.create(nft)
         }
     }
@@ -2348,6 +2361,40 @@ class FormatOps(
       val forceNL = !hasSingleTermStatIfBlock(tree) ||
         shouldBreakInOptionalBraces(ft, nft) || tree.is[Tree.CasesBlock]
       getSplits(tree, forceNL, danglingKeyword)
+    }
+
+    private def getMaybeFewerBracesSelectSplits(body: Tree)(implicit
+        ft: FT,
+        style: ScalafmtConfig,
+    ) = findFirstSelect(body, enclosed = true).filter(_.qual match {
+      case q @ (_: Term.ForClause | _: Term.ApplyInfix |
+          _: Term.SelectPostfix) => !isEnclosedInMatching(q)
+      case _ => false
+    }).map { selectLike =>
+      new OptionalBracesRegion {
+        def splits: Option[Seq[Split]] = {
+          val noFbIndent = style.getFewerBraces() == Indents.FewerBraces.never
+          val indentLen =
+            if (noFbIndent) style.indent.getSignificant
+            else style.indent.main + style.indent.getSignificant
+          val dot = prev(prevNonCommentBefore(selectLike.nameFt))
+          val beforeDot = prevNonCommentSameLine(dot)
+          val policy = Policy.End <= beforeDot ==>
+            Policy.onRight(dot, "NL-NOIND-SELECT") {
+              case Decision(`beforeDot`, ss) => ss.flatMap { s =>
+                  if ((dot eq beforeDot) && !s.isNL) None
+                  else Some(s.deActivateFor(SplitTag.SelectChainFirstNL))
+                }
+              case Decision(_, ss) => ss
+                  .map(_.deActivateFor(SplitTag.SelectChainFirstNL))
+            }
+          val nlSplit = Split(Newline2x(ft), 1, policy = policy)
+            .withIndent(indentLen, beforeDot, ExpiresOn.After)
+          Some(Seq(nlSplit))
+        }
+        def rightBrace: Option[FT] = treeLast(body)
+        def owner: Option[Tree] = body.parent
+      }
     }
 
     private class WithStats private (
