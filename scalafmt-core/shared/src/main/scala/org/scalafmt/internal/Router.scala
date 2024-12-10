@@ -1735,6 +1735,8 @@ class Router(formatOps: FormatOps) {
                 p.casesBlock
             case p: Term.NewAnonymous => getHeadOpt(p.templ.body)
                 .exists(_.left.is[T.Colon])
+            case _: Term.ForClause | _: Term.ApplyInfix |
+                _: Term.SelectPostfix => true
             case _ => false
           }) && !isEnclosedInMatching(tree)
         val fewerBracesLike = checkFewerBraces(thisSelect.qual)
