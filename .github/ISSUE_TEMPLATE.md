@@ -1,15 +1,23 @@
-This template is mostly a guideline, not a strict requirement, except
-the sections marked `(required)`.
+This template is a strict requirement when it comes to the sections marked `(required)`.
 
-Please make sure that the issue is observable using the latest version of `scalafmt` and
-within the `scalafmt` **CLI**: `https://scalameta.org/scalafmt/docs/installation.html#cli`
+## Required: Do not submit if... ##
 
-Using the CLI is _mandatory_, in one of these configurations:
-- latest version of CLI and latest version in `.scalafmt.conf`
-- previous version of CLI and latest version in `.scalafmt.conf`
-- latest version of CLI and previous version in `.scalafmt.conf`
+This repository is not the appropriate place for this submission if:
 
-## Configuration (required) ##
+- you're running into parsing errors, that is, anything to do with the source code
+  - issues regarding parsing should be submitted to [Scalameta](http://github.com/scalameta/scalameta) 
+  - this tool is only about formatting, i.e., what happens on the output
+- you're running this using `sbt`, `Intellij` or any other integration
+  - Please make sure that the issue is observable using the latest version of `scalafmt` and
+    within the `scalafmt` **CLI**: `https://scalameta.org/scalafmt/docs/installation.html#cli`
+  - Using the CLI is _mandatory_, in one of these configurations:
+    - if the problem is not with dynamic version loading:
+      - latest version of CLI and latest version in `.scalafmt.conf`
+    - if the problem is with dynamic loading, then both:
+      - previous version of CLI and latest version in `.scalafmt.conf`
+      - latest version of CLI and previous version in `.scalafmt.conf`
+
+## Required: Configuration ##
 
 Please paste the **smallest** possible set of `.scalafmt.conf`
 configuration parameters that reproduces the problem:
@@ -23,7 +31,7 @@ NB: before submitting, please confirm that the problem is observed in the
 versions, and the problem you have observed in an older version may have already
 been fixed.
 
-## Command-line parameters (required) ##
+## Required: Command-line parameters ##
 
 When I run scalafmt via CLI like this: `<command-line parameter>`
 
