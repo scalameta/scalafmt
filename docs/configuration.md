@@ -219,7 +219,7 @@ It uses modified detection of [config-style formatting](#newlinesconfigstylexxxs
   config-style should be driven solely by presence of a dangling closing parenthesis
 - to achieve that, use a combination of
   [`danglingParentheses.xxxSite = false`](#danglingparenthesescallsite) and
-  [`newlines.configStyleXxxSite.prefer = true`](#newlinesconfigstylexxxsiteprefer)
+  [`newlines.configStyle.xxxSite.prefer = true`](#newlinesconfigstylexxxsiteprefer)
 
 The preset itself is defined as:
 
@@ -343,7 +343,7 @@ style). Defaults to `indent.callSite`.
 Example:
 
 ```scala mdoc:scalafmt
-newlines.configStyleCallSite.prefer = false
+newlines.configStyle.callSite.prefer = false
 danglingParentheses.callSite = false
 binPack.callSite = always
 indent.callSite = 2
@@ -413,7 +413,7 @@ style). Defaults to `indent.defnSite`.
 Example:
 
 ```scala mdoc:scalafmt
-newlines.configStyleDefnSite.prefer = false
+newlines.configStyle.defnSite.prefer = false
 danglingParentheses.defnSite = false
 binPack.defnSite = always
 indent.defnSite = 2
@@ -2403,14 +2403,14 @@ newlines.implicitParamListModifierForce = [before,after]
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
-#### Implicit with `newlines.configStyleDefnSite.prefer`
+#### Implicit with `newlines.configStyle.defnSite.prefer`
 
 While config-style normally requires a newline after the opening parenthesis,
 postponing that break until after the `implicit` keyword is allowed if other
 parameters require keeping this keyword attached to the opening brace.
 
 Therefore, any of the parameters described in this section will take precedence
-even when `newlines.configStyleDefnSite.prefer = true` is used.
+even when `newlines.configStyle.defnSite.prefer = true` is used.
 
 ### `newlines.afterInfix`
 
@@ -2919,12 +2919,19 @@ clauses in definitions. It outputs a newline after the opening parenthesis
 (or after the `implicit` keyword) and a newline before the closing parenthesis,
 with arguments or parameters listed one per line.
 
-### `newlines.configStyleXxxSite.prefer`
+### `newlines.configStyle.xxxSite`
 
-`CallSite` applies to argument clauses method calls, while `DefnSite` to
-parameter clauses in method or class definitions.
-In v3.8.2 replaced a single parameter `optIn.configStyleArguments` and
-falls back to its value (which is enabled by default).
+The `xxxSite` portion refers to:
+
+- `fallBack` [since v3.8.4]: used if a more specific group is not defined
+  - its `prefer` field replaced `optIn.configStyleArguments`, enabled by default
+- `callSite` [since v3.8.4]: applies to argument clauses in method calls
+  - replaced section called `newlines.configStyleCallSite`
+- `defnSite` [since v3.8.4]: applies to parameter clauses in method or class
+  definitions
+  - replaced section called `newlines.configStyleDefnSite`
+
+### `newlines.configStyle.xxxSite.prefer`
 
 If true, applies config-style formatting:
 
@@ -2942,7 +2949,7 @@ If true, applies config-style formatting:
 Please note that other parameters might also force config-style (see below).
 
 ```scala mdoc:scalafmt
-newlines.configStyleDefnSite.prefer = true
+newlines.configStyle.defnSite.prefer = true
 maxColumn=45
 ---
 object a {
@@ -2961,16 +2968,16 @@ object a {
 
 ### Forcing config style
 
-When `newlines.configStyleXxxSite.forceIfOptimized` is enabled and
+When `newlines.configStyle.xxxSite.forceIfOptimized` is enabled and
 [route search optimization](#route-search-optimizations-arg-or-param-clause)
 is applicable to a clause, the formatter will force config-style formatting.
 
 By default, takes the same value as
-[`newlines.configStyleXxxSite.prefer`](#newlinesconfigstylexxxsiteprefer).
+[`newlines.configStyle.xxxSite.prefer`](#newlinesconfigstylexxxsiteprefer).
 
 ```scala mdoc:scalafmt
-newlines.configStyleCallSite.forceIfOptimized = true
-newlines.configStyleDefnSite.forceIfOptimized = false
+newlines.configStyle.callSite.forceIfOptimized = true
+newlines.configStyle.defnSite.forceIfOptimized = false
 runner.optimizer.callSite { minSpan = 5, minCount = 2 }
 maxColumn = 60
 ---
@@ -5182,7 +5189,7 @@ otherwise.
 
 When not disabled, these parameters have complex interactions with
 [`newline.source`](#newlinessource),
-[`newlines.configStyleXxxSite.prefer`](#newlinesconfigstylexxxsiteprefer)
+[`newlines.configStyle.xxxSite.prefer`](#newlinesconfigstylexxxsiteprefer)
 (aka `cfgStyle` below) and
 [`danglingParentheses.xxxSite`](#newlines-danglingparentheses) (aka `dangle`).
 Keep in mind that when [config-style is forced](#forcing-config-style),

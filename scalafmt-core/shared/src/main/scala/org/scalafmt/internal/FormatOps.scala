@@ -1153,8 +1153,8 @@ class FormatOps(
           .fold(Nil: List[Tree])(_.values)
         else Nil
       val noSlb = implicitNL || aboveArityThreshold ||
-        ft.hasBreak &&
-        !style.newlines.sourceIgnored && style.configStyleDefnSite.prefer ||
+        ft.hasBreak && !style.newlines.sourceIgnored &&
+        style.newlines.configStyle.getDefnSite.prefer ||
         implicitParams.nonEmpty &&
         style.newlines.forceAfterImplicitParamListModifier
       val nlNoAlt = implicitNL ||
@@ -2885,7 +2885,7 @@ class FormatOps(
           val breakBeforeClose = matchingOptLeft(prevft) match {
             case Some(open) =>
               val cfg = styleMap.at(open)
-              def cfgStyle = cfg.configStyleCallSite.prefer
+              def cfgStyle = cfg.newlines.configStyle.getCallSite.prefer
               def dangle = cfg.danglingParentheses
                 .atCallSite(prevft.meta.leftOwner)
               cfg.newlines.source match {
@@ -2935,7 +2935,7 @@ class FormatOps(
             case _ => // check if break would cause cfg style but not otherwise
               val cfg = styleMap.at(x)
               val ok = cfg.newlines.sourceIgnored || ! {
-                cfg.configStyleCallSite.prefer &&
+                cfg.newlines.configStyle.getCallSite.prefer &&
                 cfg.danglingParentheses.atCallSite(afterDelims.meta.rightOwner)
               } || next(afterDelims).hasBreak
               nft -> Right(ok)
@@ -3080,7 +3080,7 @@ object FormatOps {
     def atDefnSite(
         owner: Tree,
     )(implicit style: ScalafmtConfig): ClauseSiteFlags = ClauseSiteFlags(
-      configStyle = style.configStyleDefnSite,
+      configStyle = style.newlines.configStyle.getDefnSite,
       alignOpenDelim = style.align.atDefnSite(owner),
       dangleCloseDelim = style.danglingParentheses.atDefnSite(owner),
     )
@@ -3088,7 +3088,7 @@ object FormatOps {
     def atCallSite(
         owner: Tree,
     )(implicit style: ScalafmtConfig): ClauseSiteFlags = ClauseSiteFlags(
-      configStyle = style.configStyleCallSite,
+      configStyle = style.newlines.configStyle.getCallSite,
       alignOpenDelim = style.align.atCallSite(owner),
       dangleCloseDelim = style.danglingParentheses.atCallSite(owner),
     )

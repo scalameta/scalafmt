@@ -103,6 +103,7 @@ import metaconfig._
   *   }}}
   */
 // scalafmt: { maxColumn = 100 }
+@annotation.SectionRename("optIn.configStyleArguments", "newlines.configStyle.fallBack.prefer") // v3.8.2
 @annotation.SectionRename("trailingCommas", "rewrite.trailingCommas.style") // v3.0.5
 @annotation.SectionRename("optIn.forceBlankLineBeforeDocstring", "docstrings.forceBlankLineBefore") // v3.4.0
 // scalafmt: { maxColumn = 80 }
@@ -288,15 +289,6 @@ case class ScalafmtConfig(
     if (indent.getSignificant < 2) Indents.FewerBraces.never
     else indent.fewerBraces
 
-  private def getOptInConfigStyle: Newlines.ConfigStyleElement = Newlines
-    .ConfigStyleElement(prefer = optIn.configStyleArguments)
-
-  lazy val configStyleCallSite: Newlines.ConfigStyleElement = newlines
-    .configStyleCallSite.getOrElse(getOptInConfigStyle)
-
-  lazy val configStyleDefnSite: Newlines.ConfigStyleElement = newlines
-    .configStyleDefnSite.getOrElse(getOptInConfigStyle)
-
   def forScalaJs: ScalafmtConfig = copy(
     binPack = BinPack.always,
     danglingParentheses = DanglingParentheses(false, false),
@@ -342,7 +334,10 @@ object ScalafmtConfig {
   val intellij: ScalafmtConfig = default.copy(
     indent = Indents(callSite = 2, defnSite = 2),
     align = default.align.copy(openParenCallSite = false),
-    optIn = default.optIn.copy(configStyleArguments = false),
+    newlines = default.newlines.copy(configStyle =
+      default.newlines.configStyle
+        .copy(fallBack = Newlines.ConfigStyleElement(prefer = false)),
+    ),
     danglingParentheses = DanglingParentheses.shortcutTrue,
   )
 
@@ -384,12 +379,12 @@ object ScalafmtConfig {
       implicit val errors = new mutable.ArrayBuffer[String]
       if (newlines.sourceIgnored) {
         newlines.beforeOpenParenCallSite.fold(addIfDirect(
-          configStyleCallSite.prefer && align.openParenCallSite,
-          "newlines.configStyleCallSite && align.openParenCallSite && !newlines.beforeOpenParenCallSite",
+          newlines.configStyle.getParenCallSite.prefer && align.openParenCallSite,
+          "newlines.configStyle.callSite && align.openParenCallSite && !newlines.beforeOpenParenCallSite",
         ))(x => addIfDirect(x.src eq Newlines.keep, "newlines.beforeOpenParenCallSite.src = keep"))
         newlines.beforeOpenParenDefnSite.fold(addIfDirect(
-          configStyleDefnSite.prefer && align.openParenDefnSite,
-          "newlines.configStyleDefnSite && align.openParenDefnSite && !newlines.beforeOpenParenDefnSite",
+          newlines.configStyle.getParenDefnSite.prefer && align.openParenDefnSite,
+          "newlines.configStyle.defnSite && align.openParenDefnSite && !newlines.beforeOpenParenDefnSite",
         ))(x => addIfDirect(x.src eq Newlines.keep, "newlines.beforeOpenParenDefnSite.src = keep"))
         def mustIgnoreSourceSplit(what: sourcecode.Text[Option[Newlines.IgnoreSourceSplit]]) = what.value
           .foreach(x => addIfDirect(!x.ignoreSourceSplit, s"${what.source}=$x"))
