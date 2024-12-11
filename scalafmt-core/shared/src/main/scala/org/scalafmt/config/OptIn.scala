@@ -2,12 +2,7 @@ package org.scalafmt.config
 
 import metaconfig._
 
-/** @param configStyleArguments
-  *   Call-sites where there is a newline after opening ( and newline before
-  *   closing ). If true, preserves the newlines and keeps one line per
-  *   argument.
-  *
-  * @param breaksInsideChains
+/** @param breaksInsideChains
   *   NB: failure unless newlines.source=classic If true, then the user can opt
   *   out of line breaks inside select chains.
   *   {{{
@@ -77,12 +72,6 @@ import metaconfig._
   *   before.
   */
 case class OptIn(
-    @annotation.DeprecatedName(
-      "configStyleArguments",
-      "Use `newlines.configStyleCallSite` instead",
-      "3.8.2",
-    )
-    private[config] val configStyleArguments: Boolean = true,
     breaksInsideChains: Boolean = false,
     breakChainOnFirstMethodDot: Boolean = true,
     encloseClassicChains: Boolean = false,

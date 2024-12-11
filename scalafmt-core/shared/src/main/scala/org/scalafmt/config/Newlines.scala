@@ -210,8 +210,7 @@ case class Newlines(
     inInterpolation: InInterpolation = InInterpolation.allow,
     ignoreInSyntax: Boolean = true,
     avoidAfterYield: Boolean = true,
-    configStyleCallSite: Option[ConfigStyleElement] = None,
-    configStyleDefnSite: Option[ConfigStyleElement] = None,
+    configStyle: ConfigStyle = ConfigStyle.default,
 ) {
   if (
     implicitParamListModifierForce.nonEmpty &&
@@ -338,6 +337,10 @@ object Newlines {
   implicit lazy val surface: generic.Surface[Newlines] = generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[Newlines] = generic
     .deriveCodecEx(Newlines()).noTypos.withSectionRenames(
+      // deprecated since v3.0.4
+      annotation.SectionRename("configStyleCallSite", "configStyle.callSite"),
+      // deprecated since v3.0.4
+      annotation.SectionRename("configStyleDefnSite", "configStyle.defnSite"),
       // deprecated since v3.0.0
       annotation.SectionRename { case Conf.Bool(value) =>
         Conf.Str(if (value) "def" else "never")
@@ -579,6 +582,25 @@ object Newlines {
       .deriveSurface[ConfigStyleElement]
     implicit val codec: ConfCodecEx[ConfigStyleElement] = generic
       .deriveCodecEx(default).noTypos
+  }
+
+  case class ConfigStyle(
+      callSite: Option[ConfigStyleElement] = None,
+      defnSite: Option[ConfigStyleElement] = None,
+      fallBack: ConfigStyleElement = ConfigStyleElement(),
+  ) {
+    def getParenCallSite: ConfigStyleElement = callSite.getOrElse(fallBack)
+    def getCallSite: ConfigStyleElement = getParenCallSite
+
+    def getParenDefnSite: ConfigStyleElement = defnSite.getOrElse(fallBack)
+    def getDefnSite: ConfigStyleElement = getParenDefnSite
+  }
+  private[config] object ConfigStyle {
+    val default = ConfigStyle()
+    implicit val surface: generic.Surface[ConfigStyle] = generic
+      .deriveSurface[ConfigStyle]
+    implicit val codec: ConfCodecEx[ConfigStyle] = generic.deriveCodecEx(default)
+      .noTypos
   }
 
 }
