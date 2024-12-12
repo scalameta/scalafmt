@@ -43,7 +43,7 @@ object TokenOps {
 
   def blankLineBeforeDocstring(ft: FT)(implicit
       style: ScalafmtConfig,
-  ): Boolean = style.forceNewlineBeforeDocstring &&
+  ): Boolean = style.docstrings.forceBlankLineBefore &&
     isDocstring(ft.meta.right.text) &&
     // we need Pkg in case docstring comes before the first statement and not owned by Pkg.Body
     ft.meta.rightOwner.isAny[Pkg, Tree.Block]

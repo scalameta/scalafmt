@@ -42,6 +42,9 @@ import metaconfig._
   *   starting a new search queue, we can perform aggressive optimizations
   *   inside optimizations zones.
   */
+@annotation.SectionRename("forceConfigStyleMinSpan", "callSite.minSpan") // v3.8.2
+@annotation.SectionRename("forceConfigStyleMinArgCount", "callSite.minCount") // v3.8.2
+@annotation.SectionRename("forceConfigStyleOnOffset", "callSite.minSpan") // v3.8.2
 case class ScalafmtOptimizer(
     dequeueOnNewStatements: Boolean = true,
     escapeInPathologicalCases: Boolean = true,
@@ -52,31 +55,14 @@ case class ScalafmtOptimizer(
     pruneSlowStates: ScalafmtOptimizer.PruneSlowStates =
       ScalafmtOptimizer.PruneSlowStates.Yes,
     recurseOnBlocks: Boolean = true,
-    @annotation.ExtraName("forceConfigStyleOnOffset") @annotation.DeprecatedName(
-      "forceConfigStyleMinSpan",
-      "Use `callSite.minSpan` instead",
-      "3.8.2",
-    )
-    private val forceConfigStyleMinSpan: Int = 150,
-    @annotation.DeprecatedName(
-      "forceConfigStyleMinArgCount",
-      "Use `callSite.minCount` instead",
-      "3.8.2",
-    )
-    private val forceConfigStyleMinArgCount: Int = 2,
-    private val callSite: Option[ClauseElement] = None,
-    private val defnSite: ClauseElement = ClauseElement.default,
+    callSite: ClauseElement = ClauseElement(minCount = 2, minSpan = 150),
+    defnSite: ClauseElement = ClauseElement.disabled,
 ) {
-  def getCallSite: ClauseElement = callSite.getOrElse(ClauseElement(
-    minSpan = forceConfigStyleMinSpan,
-    minCount = forceConfigStyleMinArgCount,
-  ))
-  def getDefnSite: ClauseElement = defnSite
 
   private[config] def conservative: ScalafmtOptimizer = {
     // The tests were not written in this style
     val cfg = ClauseElement(minSpan = 500, minCount = 5)
-    copy(callSite = Some(cfg), defnSite = cfg)
+    copy(callSite = cfg, defnSite = cfg)
   }
 
 }
@@ -87,7 +73,7 @@ object ScalafmtOptimizer {
   implicit lazy val surface: generic.Surface[ScalafmtOptimizer] =
     generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[ScalafmtOptimizer] = generic
-    .deriveCodecEx(default).noTypos
+    .deriveCodecEx(default).noTypos.detectSectionRenames
 
   /** Parameters to optimize route search and greatly reduce search space on
     * argument clauses (all conditions must be met):
@@ -105,11 +91,11 @@ object ScalafmtOptimizer {
   }
 
   private[config] object ClauseElement {
-    val default = ClauseElement()
+    val disabled = ClauseElement()
     implicit val surface: generic.Surface[ClauseElement] = generic
       .deriveSurface[ClauseElement]
     implicit val codec: ConfCodecEx[ClauseElement] = generic
-      .deriveCodecEx(default).noTypos
+      .deriveCodecEx(disabled).noTypos
   }
 
   sealed abstract class PruneSlowStates

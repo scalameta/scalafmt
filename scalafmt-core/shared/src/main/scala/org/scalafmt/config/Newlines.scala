@@ -194,12 +194,6 @@ case class Newlines(
       ForceBeforeMultilineAssign.never,
     private val forceBeforeMultilineAssign: Option[ForceBeforeMultilineAssign] =
       None,
-    @annotation.DeprecatedName(
-      "alwaysBeforeMultilineDef",
-      "Use newlines.forceBeforeMultilineAssign instead",
-      "3.0.0",
-    )
-    private val alwaysBeforeMultilineDef: Boolean = false,
     private[config] val beforeMultiline: Option[SourceHints] = None,
     @annotation.DeprecatedName(
       "beforeMultilineDef",
@@ -293,8 +287,7 @@ case class Newlines(
   lazy val getBeforeMultiline = beforeMultiline.getOrElse(source)
   lazy val shouldForceBeforeMultilineAssign = forceBeforeMultilineAssign
     .getOrElse {
-      val useDef = alwaysBeforeMultilineDef ||
-        beforeMultilineDef.contains(Newlines.unfold)
+      val useDef = beforeMultilineDef.contains(Newlines.unfold)
       if (useDef) ForceBeforeMultilineAssign.`def`
       else ForceBeforeMultilineAssign.never
     }
@@ -344,7 +337,12 @@ case class Newlines(
 object Newlines {
   implicit lazy val surface: generic.Surface[Newlines] = generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[Newlines] = generic
-    .deriveCodecEx(Newlines()).noTypos
+    .deriveCodecEx(Newlines()).noTypos.withSectionRenames(
+      // deprecated since v3.0.0
+      annotation.SectionRename { case Conf.Bool(value) =>
+        Conf.Str(if (value) "def" else "never")
+      }("alwaysBeforeMultilineDef", "forceBeforeMultilineAssign"),
+    )
 
   sealed abstract class IgnoreSourceSplit {
     val ignoreSourceSplit: Boolean

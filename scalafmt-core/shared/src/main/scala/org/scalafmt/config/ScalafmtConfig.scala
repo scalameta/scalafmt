@@ -1,19 +1,14 @@
 package org.scalafmt.config
 
 import org.scalafmt.Versions
-import org.scalafmt.rewrite.FormatTokensRewrite
-import org.scalafmt.rewrite.RedundantBraces
+import org.scalafmt.rewrite._
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.OsSpecific._
-import org.scalafmt.util.LoggerOps
-import org.scalafmt.util.ValidationOps
+import org.scalafmt.util._
 
-import scala.meta.Dialect
-import scala.meta.Tree
-import scala.meta.Type
+import scala.meta._
 
-import java.nio.file.FileSystems
-import java.nio.file.Path
+import java.nio.file._
 
 import scala.collection.mutable
 import scala.io.Codec
@@ -107,6 +102,10 @@ import metaconfig._
   *       .filter(_ > 2)
   *   }}}
   */
+// scalafmt: { maxColumn = 100 }
+@annotation.SectionRename("trailingCommas", "rewrite.trailingCommas.style") // v3.0.5
+@annotation.SectionRename("optIn.forceBlankLineBeforeDocstring", "docstrings.forceBlankLineBefore") // v3.4.0
+// scalafmt: { maxColumn = 80 }
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
     maxColumn: Int = 80,
@@ -139,12 +138,6 @@ case class ScalafmtConfig(
       "2.5.0",
     )
     poorMansTrailingCommasInConfigStyle: Boolean = false,
-    @annotation.DeprecatedName(
-      "trailingCommas",
-      "use rewrite.trailingCommas.style instead",
-      "3.0.5",
-    )
-    private val trailingCommas: Option[TrailingCommas.Style] = None,
     verticalMultiline: VerticalMultiline = VerticalMultiline(),
     verticalAlignMultilineOperators: Boolean = false,
     onTestFailure: String = "",
@@ -277,13 +270,9 @@ case class ScalafmtConfig(
 
   // used in ScalafmtReflectConfig
   def withoutRewrites: ScalafmtConfig = copy(
-    trailingCommas = None,
     docstrings = docstrings.withoutRewrites,
     rewrite = rewrite.withoutRewrites,
   )
-
-  lazy val forceNewlineBeforeDocstring: Boolean = docstrings
-    .forceBlankLineBefore.getOrElse(optIn.forceBlankLineBeforeDocstring)
 
   def breakAfterInfix(tree: => Tree): Newlines.AfterInfix = newlines.afterInfix
     .getOrElse {
@@ -458,6 +447,7 @@ object ScalafmtConfig {
   }
 
   private val baseDecoder = generic.deriveDecoderEx(default).noTypos
+    .detectSectionRenames
 
   implicit final val decoder: ConfDecoderEx[ScalafmtConfig] =
     (stateOpt, conf) => {
@@ -487,12 +477,8 @@ object ScalafmtConfig {
             }
         case _ => baseDecoder.read(stateOpt, conf)
       }
-      parsed.map { cfg =>
-        cfg.trailingCommas.fold(cfg) { tc =>
-          val rt = cfg.rewrite.trailingCommas.copy(style = tc)
-          cfg.copy(rewrite = cfg.rewrite.copy(trailingCommas = rt))
-        }
-      }.andThen(validate)
+      val res = parsed.andThen(validate)
+      res
     }
 
   def fromHoconString(

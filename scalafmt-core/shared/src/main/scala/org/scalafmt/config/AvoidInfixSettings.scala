@@ -10,7 +10,7 @@ case class AvoidInfixSettings(
     // strict match
     private[config] val excludeFilters: Seq[AvoidInfixSettings.Filter],
     private val excludeScalaTest: Option[Boolean] = None,
-    excludePlaceholderArg: Option[Boolean] = None,
+    excludePlaceholderArg: Boolean = true,
     excludePostfix: Boolean = false,
     excludeMatch: Boolean = true,
 ) {

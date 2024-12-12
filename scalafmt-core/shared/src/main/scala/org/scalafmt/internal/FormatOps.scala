@@ -568,7 +568,7 @@ class FormatOps(
         case t: Term.Param => t.default.contains(child)
         case _ => false
       }
-      val allowNoIndent = style.indentOperator.getExemptScope match {
+      val allowNoIndent = style.indentOperator.exemptScope match {
         case IndentOperator.Exempt.all => true
         case IndentOperator.Exempt.oldTopLevel => isOldTopLevel(getChild)
         case IndentOperator.Exempt.aloneEnclosed => isAloneEnclosed(getChild)
@@ -988,8 +988,8 @@ class FormatOps(
   }
 
   def getForceConfigStyle: (Set[Int], Set[Int]) = {
-    val callSite = initStyle.runner.optimizer.getCallSite
-    val defnSite = initStyle.runner.optimizer.getDefnSite
+    val callSite = initStyle.runner.optimizer.callSite
+    val defnSite = initStyle.runner.optimizer.defnSite
     if (callSite.isEnabled || defnSite.isEnabled) {
       val clearQueues = Set.newBuilder[Int]
       val forces = Set.newBuilder[Int]

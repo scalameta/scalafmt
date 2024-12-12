@@ -13,24 +13,20 @@ import metaconfig._
   * @param owners
   *   array of owner specs.
   */
-case class AlignToken(
-    code: String,
-    @annotation.DeprecatedName("owner", "use owners instead", "3.0.0")
-    owner: String = null,
-    owners: Seq[AlignToken.Owner] = Seq.empty,
-) {
-  def getMatcher: Seq[AlignToken.Matcher] = {
-    val specs =
-      if (owners.isEmpty) Option(owner) match {
-        case None => Seq.empty
-        case x => Seq(AlignToken.Owner(x))
-      }
-      else owners.distinct
-    specs.map(_.getMatcher)
-  }
+
+case class AlignToken(code: String, owners: Seq[AlignToken.Owner] = Seq.empty) {
+  def getMatcher: Seq[AlignToken.Matcher] = owners.distinct.map(_.getMatcher)
 }
 
 object AlignToken {
+
+  def apply(code: String, owner: String): AlignToken = {
+    val owners = Option(owner) match {
+      case None => Seq.empty
+      case x => Seq(AlignToken.Owner(x))
+    }
+    AlignToken(code, owners)
+  }
 
   private def pattern(value: String): jurPattern = value.r.pattern
 
@@ -58,6 +54,12 @@ object AlignToken {
   protected[scalafmt] val fallbackAlign = new AlignToken("<empty>")
   implicit val decoder: ConfDecoderEx[AlignToken] = {
     val base = generic.deriveDecoderEx[AlignToken](fallbackAlign).noTypos
+      .withSectionRenames(
+        // deprecated since v3.0.0
+        annotation.SectionRename { case x: Conf.Str =>
+          Conf.Lst(Conf.Obj("regex" -> x))
+        }("owner", "owners"),
+      )
     ConfDecoderEx.from {
       case (_, Conf.Str("caseArrow")) => Configured.Ok(caseArrow)
       case (_, Conf.Str(regex)) => Configured

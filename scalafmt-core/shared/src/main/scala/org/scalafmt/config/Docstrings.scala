@@ -15,13 +15,34 @@ import metaconfig._
   *     both below the two asterisks of the first line
   *   - AsteriskSpace: format intermediate lines with an asterisk and a space,
   *     both below the two asterisks of the first line
+  * @param forceBlankLineBefore
+  *   If true, always insert a blank line before docstrings, If false, preserves
+  *   blank line only if one exists before. Example:
+  *   {{{
+  *     // before
+  *     object Foo {
+  *       /** Docstring */
+  *       def foo = 2
+  *     }
+  *     // after, if forceBlankLineBefore=false
+  *     object Foo {
+  *       /** Docstring */
+  *       def foo = 2
+  *     }
+  *     // after, if forceBlankLineBefore=true
+  *     object Foo {
+  *
+  *       /** Docstring */
+  *       def foo = 2
+  *     }
+  *   }}}
   */
 case class Docstrings(
     oneline: Docstrings.Oneline = Docstrings.Oneline.keep,
     removeEmpty: Boolean = false,
     wrap: Docstrings.Wrap = Docstrings.Wrap.unfold,
     private[config] val wrapMaxColumn: Option[Int] = None,
-    forceBlankLineBefore: Option[Boolean] = None,
+    forceBlankLineBefore: Boolean = true,
     blankFirstLine: Option[Docstrings.BlankFirstLine] = None,
     style: Docstrings.Style = Docstrings.SpaceAsterisk,
 ) {
