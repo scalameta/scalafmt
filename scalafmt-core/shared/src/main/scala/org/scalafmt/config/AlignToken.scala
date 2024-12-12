@@ -4,10 +4,7 @@ import org.scalafmt.util.ParamClauseParent
 
 import java.util.regex.{Pattern => jurPattern}
 
-import metaconfig.Configured.Ok
 import metaconfig._
-import metaconfig.annotation.DeprecatedName
-import metaconfig.generic.Surface
 
 /** Configuration option for aligning tokens.
   *
@@ -18,7 +15,7 @@ import metaconfig.generic.Surface
   */
 case class AlignToken(
     code: String,
-    @DeprecatedName("owner", "use owners instead", "3.0.0")
+    @annotation.DeprecatedName("owner", "use owners instead", "3.0.0")
     owner: String = null,
     owners: Seq[AlignToken.Owner] = Seq.empty,
 ) {
@@ -49,10 +46,11 @@ object AlignToken {
     def getMatcher: Matcher =
       new Matcher(regex.map(pattern), parents.map(pattern))
   }
-  implicit val ownerSurface: Surface[Owner] = generic.deriveSurface[Owner]
+  implicit val ownerSurface: generic.Surface[Owner] = generic
+    .deriveSurface[Owner]
   implicit val ownerCodec: ConfCodecEx[Owner] = generic.deriveCodecEx(Owner())
 
-  implicit lazy val surface: Surface[AlignToken] = generic
+  implicit lazy val surface: generic.Surface[AlignToken] = generic
     .deriveSurface[AlignToken]
   implicit lazy val encoder: ConfEncoder[AlignToken] = generic.deriveEncoder
   val applyInfix = "Term.ApplyInfix"
@@ -61,9 +59,9 @@ object AlignToken {
   implicit val decoder: ConfDecoderEx[AlignToken] = {
     val base = generic.deriveDecoderEx[AlignToken](fallbackAlign).noTypos
     ConfDecoderEx.from {
-      case (_, Conf.Str("caseArrow")) => Ok(caseArrow)
-      case (_, Conf.Str(regex)) =>
-        Ok(default.find(_.code == regex).getOrElse(AlignToken(regex)))
+      case (_, Conf.Str("caseArrow")) => Configured.Ok(caseArrow)
+      case (_, Conf.Str(regex)) => Configured
+          .Ok(default.find(_.code == regex).getOrElse(AlignToken(regex)))
       case (state, conf) => base.read(state, conf)
     }
   }

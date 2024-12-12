@@ -20,8 +20,7 @@ import java.util.regex.Pattern
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-import metaconfig.Conf
-import metaconfig.Configured
+import metaconfig._
 import munit.Assertions._
 import munit.Location
 

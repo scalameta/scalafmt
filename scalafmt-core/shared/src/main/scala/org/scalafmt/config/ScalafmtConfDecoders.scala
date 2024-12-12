@@ -4,10 +4,7 @@ import scala.meta.parsers.Parse._
 
 import scala.io.Codec
 
-import metaconfig.Conf
-import metaconfig.ConfCodecEx
-import metaconfig.ConfDecoderEx
-import metaconfig.Configured
+import metaconfig._
 
 object ScalafmtConfDecoders extends ScalafmtConfDecoders
 

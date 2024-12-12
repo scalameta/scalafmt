@@ -3,8 +3,6 @@ package org.scalafmt.config
 import scala.meta._
 
 import metaconfig._
-import metaconfig.annotation.ExtraName
-import metaconfig.generic.Surface
 
 /** @param openParenCallSite
   *   If true AND bin-packing is true, then call-site arguments won't be aligned
@@ -78,7 +76,7 @@ case class Align(
     closeParenSite: Boolean = false,
     private val openBracketCallSite: Option[Boolean] = None,
     openParenCallSite: Boolean = false,
-    @ExtraName("ifWhileOpenParen")
+    @annotation.ExtraName("ifWhileOpenParen")
     openParenCtrlSite: Boolean = false,
     private val openBracketDefnSite: Option[Boolean] = None,
     openParenDefnSite: Boolean = false,
@@ -134,7 +132,8 @@ object Align {
   val some = Align()
   val default = some
   val more: Align = some.copy(tokens = AlignToken.default)
-  implicit lazy val surface: Surface[Align] = generic.deriveSurface[Align]
+  implicit lazy val surface: generic.Surface[Align] = generic
+    .deriveSurface[Align]
   implicit lazy val encoder: ConfEncoder[Align] = generic.deriveEncoder
   implicit lazy val decoder: ConfDecoderEx[Align] = Presets
     .mapDecoder(generic.deriveDecoderEx(default).noTypos, "align")

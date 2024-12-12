@@ -1,8 +1,6 @@
 package org.scalafmt.config
 
-import metaconfig.Conf
-import metaconfig.ConfCodecEx
-import metaconfig.Configured
+import metaconfig._
 
 sealed abstract class LineEndings
 
