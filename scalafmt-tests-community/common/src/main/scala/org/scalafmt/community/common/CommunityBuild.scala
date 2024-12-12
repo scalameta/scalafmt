@@ -4,8 +4,7 @@ import org.scalafmt.config.ConfParsed
 
 import scala.meta._
 
-import java.nio.file.FileSystems
-import java.nio.file.Path
+import java.nio.file._
 
 import metaconfig.Conf
 

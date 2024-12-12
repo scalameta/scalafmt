@@ -1,7 +1,6 @@
 package org.scalafmt.config
 
 import metaconfig._
-import metaconfig.generic.Surface
 
 /** @param configStyleArguments
   *   Call-sites where there is a newline after opening ( and newline before
@@ -121,7 +120,7 @@ case class OptIn(
 )
 
 object OptIn {
-  implicit lazy val surface: Surface[OptIn] = generic.deriveSurface
+  implicit lazy val surface: generic.Surface[OptIn] = generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[OptIn] = generic.deriveCodecEx(OptIn())
     .noTypos
 }

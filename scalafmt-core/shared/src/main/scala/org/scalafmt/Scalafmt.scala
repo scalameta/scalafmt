@@ -1,12 +1,8 @@
 package org.scalafmt
 
 import org.scalafmt.Error.PreciseIncomplete
-import org.scalafmt.config.FormatEvent.CreateFormatOps
-import org.scalafmt.config.NamedDialect
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.BestFirstSearch
-import org.scalafmt.internal.FormatOps
-import org.scalafmt.internal.FormatWriter
+import org.scalafmt.config._
+import org.scalafmt.internal._
 import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.sysops.FileOps
 import org.scalafmt.util.MarkdownParser
@@ -18,9 +14,7 @@ import scala.meta.tokenizers.TokenizerOptions
 
 import java.nio.file.Path
 
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util._
 
 import metaconfig.Configured
 
@@ -121,7 +115,7 @@ object Scalafmt {
       },
       tree => {
         implicit val formatOps = new FormatOps(tree, style, file)
-        runner.event(CreateFormatOps(formatOps))
+        runner.event(FormatEvent.CreateFormatOps(formatOps))
         implicit val formatWriter = new FormatWriter(formatOps)
         Try(BestFirstSearch(range)).flatMap { res =>
           val formattedString = formatWriter.mkString(res.state)

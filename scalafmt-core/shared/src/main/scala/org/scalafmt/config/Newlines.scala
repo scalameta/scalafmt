@@ -7,7 +7,6 @@ import org.scalafmt.util.TreeOps
 import scala.meta._
 
 import metaconfig._
-import metaconfig.generic.Surface
 
 /** @param penalizeSingleSelectMultiArgList
   *   - If true, adds a penalty to newlines before a dot starting a select chain
@@ -343,7 +342,7 @@ case class Newlines(
 }
 
 object Newlines {
-  implicit lazy val surface: Surface[Newlines] = generic.deriveSurface
+  implicit lazy val surface: generic.Surface[Newlines] = generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[Newlines] = generic
     .deriveCodecEx(Newlines()).noTypos
 
@@ -500,7 +499,8 @@ object Newlines {
     def isEmpty: Boolean = before == 0 && after == 0
   }
   object NumBlanks {
-    implicit val surface: Surface[NumBlanks] = generic.deriveSurface[NumBlanks]
+    implicit val surface: generic.Surface[NumBlanks] = generic
+      .deriveSurface[NumBlanks]
     implicit val encoder: ConfEncoder[NumBlanks] = generic
       .deriveEncoder[NumBlanks]
     implicit val decoder: ConfDecoderEx[NumBlanks] = {
@@ -540,7 +540,7 @@ object Newlines {
         pattern.forall(_.matcher(prefix).find())
   }
   object TopStatBlanks {
-    implicit val surface: Surface[TopStatBlanks] = generic
+    implicit val surface: generic.Surface[TopStatBlanks] = generic
       .deriveSurface[TopStatBlanks]
     implicit val codec: ConfCodecEx[TopStatBlanks] = generic
       .deriveCodecEx(TopStatBlanks()).noTypos
@@ -577,7 +577,7 @@ object Newlines {
   }
   private[config] object ConfigStyleElement {
     private val default = ConfigStyleElement()
-    implicit val surface: Surface[ConfigStyleElement] = generic
+    implicit val surface: generic.Surface[ConfigStyleElement] = generic
       .deriveSurface[ConfigStyleElement]
     implicit val codec: ConfCodecEx[ConfigStyleElement] = generic
       .deriveCodecEx(default).noTypos

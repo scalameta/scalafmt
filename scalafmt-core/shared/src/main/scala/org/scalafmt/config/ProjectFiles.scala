@@ -11,20 +11,19 @@ import java.nio.file
 import scala.annotation.tailrec
 
 import metaconfig._
-import metaconfig.annotation.DeprecatedName
 
 case class ProjectFiles(
     git: Boolean = false,
     layout: Option[ProjectFiles.Layout] = None,
     includePaths: Seq[String] = ProjectFiles.defaultIncludePaths,
     excludePaths: Seq[String] = Nil,
-    @DeprecatedName(
+    @annotation.DeprecatedName(
       "includeFilters",
       "use `includePaths` with `regex:` prefix",
       "v3.0.0",
     )
     includeFilters: Seq[String] = Nil,
-    @DeprecatedName(
+    @annotation.DeprecatedName(
       "excludeFilters",
       "use `excludePaths` with `regex:` prefix",
       "v3.0.0",

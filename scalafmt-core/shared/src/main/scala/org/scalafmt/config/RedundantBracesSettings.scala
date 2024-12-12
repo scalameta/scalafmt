@@ -1,14 +1,13 @@
 package org.scalafmt.config
 
 import metaconfig._
-import metaconfig.annotation.ExtraName
 
 case class RedundantBracesSettings(
-    @ExtraName("methodBodies")
+    @annotation.ExtraName("methodBodies")
     defnBodies: RedundantBracesSettings.DefnBodies =
       RedundantBracesSettings.DefnBodies.all,
     includeUnitMethods: Boolean = true,
-    @ExtraName("maxLines")
+    @annotation.ExtraName("maxLines")
     maxBreaks: Int = 100,
     stringInterpolation: Boolean = false,
     parensForOneLineApply: Boolean = true,
