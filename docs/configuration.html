@@ -7307,7 +7307,7 @@ a no-optimization zone.</li>
 <p>Similar to statements above, we might create a new priority queue when we
 encounter a long-enough call-site argument or defn-site parameter clause.</p>
 <pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-runner.optimizer.callSite = <span class="hljs-literal">null</span>
+runner.optimizer.callSite = {<span class="hljs-string">"minSpan"</span>: <span class="hljs-number">150</span>, <span class="hljs-string">"minCount"</span>: <span class="hljs-number">2</span>}
 runner.optimizer.defnSite = {<span class="hljs-string">"minSpan"</span>: <span class="hljs-number">-1</span>, <span class="hljs-string">"minCount"</span>: <span class="hljs-number">0</span>}
 </code></pre>
 <p>This optimization is enabled when all these criteria are satisfied:</p>
@@ -7351,7 +7351,7 @@ docstrings.<span class="hljs-attr">oneline</span> = keep
 docstrings.<span class="hljs-attr">removeEmpty</span> = <span class="hljs-literal">false</span>
 docstrings.<span class="hljs-attr">wrap</span> = unfold
 docstrings.<span class="hljs-attr">wrapMaxColumn</span> = <span class="hljs-literal">null</span>
-docstrings.<span class="hljs-attr">forceBlankLineBefore</span> = <span class="hljs-literal">null</span>
+docstrings.<span class="hljs-attr">forceBlankLineBefore</span> = <span class="hljs-literal">true</span>
 docstrings.<span class="hljs-attr">blankFirstLine</span> = <span class="hljs-literal">null</span>
 docstrings.<span class="hljs-attr">style</span> = SpaceAsterisk
 comments.<span class="hljs-attr">wrap</span> = no
@@ -7363,7 +7363,6 @@ optIn.<span class="hljs-attr">breakChainOnFirstMethodDot</span> = <span class="h
 optIn.<span class="hljs-attr">encloseClassicChains</span> = <span class="hljs-literal">false</span>
 optIn.<span class="hljs-attr">selfAnnotationNewline</span> = <span class="hljs-literal">true</span>
 optIn.<span class="hljs-attr">annotationNewlines</span> = <span class="hljs-literal">true</span>
-optIn.<span class="hljs-attr">forceBlankLineBeforeDocstring</span> = <span class="hljs-literal">true</span>
 binPack.<span class="hljs-attr">callSite</span> = Never
 binPack.<span class="hljs-attr">defnSite</span> = Never
 binPack.<span class="hljs-attr">bracketCallSite</span> = <span class="hljs-literal">null</span>
@@ -7416,8 +7415,12 @@ align.<span class="hljs-attr">inInterpolation</span> = <span class="hljs-literal
 align.<span class="hljs-attr">tokens</span> = [
   {
     <span class="hljs-attr">code</span> = <span class="hljs-string">"=&gt;"</span>
-    <span class="hljs-attr">owner</span> = Case
-    <span class="hljs-attr">owners</span> = []
+    <span class="hljs-attr">owners</span> = [
+      {
+        <span class="hljs-attr">regex</span> = Case
+        <span class="hljs-attr">parents</span> = []
+      }
+    ]
   }
 ]
 align.<span class="hljs-attr">arrowEnumeratorGenerator</span> = <span class="hljs-literal">false</span>
@@ -7499,7 +7502,6 @@ rewrite.imports.<span class="hljs-attr">groups</span> = []
 rewrite.preferCurlyFors.<span class="hljs-attr">removeTrailingSemicolonsOnly</span> = <span class="hljs-literal">false</span>
 rewrite.trailingCommas.<span class="hljs-attr">allowFolding</span> = <span class="hljs-literal">true</span>
 rewrite.trailingCommas.<span class="hljs-attr">style</span> = never
-rewrite.<span class="hljs-attr">allowInfixPlaceholderArg</span> = <span class="hljs-literal">true</span>
 rewrite.avoidInfix.<span class="hljs-attr">includeFilters</span> = [
   <span class="hljs-string">"[\w\d_]+"</span>
 ]
@@ -7511,11 +7513,10 @@ rewrite.avoidInfix.<span class="hljs-attr">excludeFilters</span> = [
   ne
 ]
 rewrite.avoidInfix.<span class="hljs-attr">excludeScalaTest</span> = <span class="hljs-literal">null</span>
-rewrite.avoidInfix.<span class="hljs-attr">excludePlaceholderArg</span> = <span class="hljs-literal">null</span>
+rewrite.avoidInfix.<span class="hljs-attr">excludePlaceholderArg</span> = <span class="hljs-literal">true</span>
 rewrite.avoidInfix.<span class="hljs-attr">excludePostfix</span> = <span class="hljs-literal">false</span>
 rewrite.avoidInfix.<span class="hljs-attr">excludeMatch</span> = <span class="hljs-literal">true</span>
-indentOperator.<span class="hljs-attr">exemptScope</span> = <span class="hljs-literal">null</span>
-indentOperator.<span class="hljs-attr">topLevelOnly</span> = <span class="hljs-literal">true</span>
+indentOperator.<span class="hljs-attr">exemptScope</span> = oldTopLevel
 indentOperator.<span class="hljs-attr">includeRegex</span> = <span class="hljs-string">".*"</span>
 indentOperator.<span class="hljs-attr">excludeRegex</span> = <span class="hljs-string">"^(&amp;&amp;|\|\|)$"</span>
 newlines.<span class="hljs-attr">source</span> = <span class="hljs-literal">null</span>
@@ -7539,7 +7540,6 @@ newlines.<span class="hljs-attr">implicitParamListModifierPrefer</span> = <span 
 newlines.<span class="hljs-attr">alwaysBeforeElseAfterCurlyIf</span> = <span class="hljs-literal">false</span>
 newlines.<span class="hljs-attr">forceBeforeAssign</span> = never
 newlines.<span class="hljs-attr">forceBeforeMultilineAssign</span> = <span class="hljs-literal">null</span>
-newlines.<span class="hljs-attr">alwaysBeforeMultilineDef</span> = <span class="hljs-literal">false</span>
 newlines.<span class="hljs-attr">beforeMultiline</span> = <span class="hljs-literal">null</span>
 newlines.<span class="hljs-attr">beforeMultilineDef</span> = <span class="hljs-literal">null</span>
 newlines.<span class="hljs-attr">selectChains</span> = <span class="hljs-literal">null</span>
@@ -7565,9 +7565,8 @@ runner.optimizer.<span class="hljs-attr">acceptOptimalAtHints</span> = <span cla
 runner.optimizer.<span class="hljs-attr">disableOptimizationsInsideSensitiveAreas</span> = <span class="hljs-literal">true</span>
 runner.optimizer.<span class="hljs-attr">pruneSlowStates</span> = Yes
 runner.optimizer.<span class="hljs-attr">recurseOnBlocks</span> = <span class="hljs-literal">true</span>
-runner.optimizer.<span class="hljs-attr">forceConfigStyleMinSpan</span> = <span class="hljs-number">150</span>
-runner.optimizer.<span class="hljs-attr">forceConfigStyleMinArgCount</span> = <span class="hljs-number">2</span>
-runner.optimizer.<span class="hljs-attr">callSite</span> = <span class="hljs-literal">null</span>
+runner.optimizer.callSite.<span class="hljs-attr">minSpan</span> = <span class="hljs-number">150</span>
+runner.optimizer.callSite.<span class="hljs-attr">minCount</span> = <span class="hljs-number">2</span>
 runner.optimizer.defnSite.<span class="hljs-attr">minSpan</span> = -<span class="hljs-number">1</span>
 runner.optimizer.defnSite.<span class="hljs-attr">minCount</span> = <span class="hljs-number">0</span>
 runner.<span class="hljs-attr">maxStateVisits</span> = <span class="hljs-literal">null</span>
@@ -7587,7 +7586,6 @@ danglingParentheses.<span class="hljs-attr">bracketCallSite</span> = <span class
 danglingParentheses.<span class="hljs-attr">bracketDefnSite</span> = <span class="hljs-literal">null</span>
 danglingParentheses.<span class="hljs-attr">exclude</span> = <span class="hljs-literal">null</span>
 <span class="hljs-attr">poorMansTrailingCommasInConfigStyle</span> = <span class="hljs-literal">false</span>
-<span class="hljs-attr">trailingCommas</span> = <span class="hljs-literal">null</span>
 verticalMultiline.<span class="hljs-attr">atDefnSite</span> = <span class="hljs-literal">false</span>
 verticalMultiline.<span class="hljs-attr">arityThreshold</span> = <span class="hljs-number">100</span>
 verticalMultiline.<span class="hljs-attr">newlineAfterOpenParen</span> = <span class="hljs-literal">false</span>
