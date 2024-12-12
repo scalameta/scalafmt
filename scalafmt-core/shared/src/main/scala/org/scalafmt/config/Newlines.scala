@@ -587,13 +587,27 @@ object Newlines {
   case class ConfigStyle(
       callSite: Option[ConfigStyleElement] = None,
       defnSite: Option[ConfigStyleElement] = None,
+      bracketCallSite: Option[ConfigStyleElement] = None,
+      bracketDefnSite: Option[ConfigStyleElement] = None,
       fallBack: ConfigStyleElement = ConfigStyleElement(),
   ) {
     def getParenCallSite: ConfigStyleElement = callSite.getOrElse(fallBack)
-    def getCallSite: ConfigStyleElement = getParenCallSite
+    def getBracketCallSite: ConfigStyleElement = bracketCallSite
+      .getOrElse(getParenCallSite)
+    def getCallSite(isBracket: Boolean): ConfigStyleElement =
+      if (isBracket) getBracketCallSite else getParenCallSite
+    @inline
+    def getCallSite(tree: Tree): ConfigStyleElement =
+      getCallSite(tree.is[Type.ArgClause])
 
     def getParenDefnSite: ConfigStyleElement = defnSite.getOrElse(fallBack)
-    def getDefnSite: ConfigStyleElement = getParenDefnSite
+    def getBracketDefnSite: ConfigStyleElement = bracketDefnSite
+      .getOrElse(getParenDefnSite)
+    def getDefnSite(isBracket: Boolean): ConfigStyleElement =
+      if (isBracket) getBracketDefnSite else getParenDefnSite
+    @inline
+    def getDefnSite(tree: Tree): ConfigStyleElement =
+      getDefnSite(tree.is[Type.ArgClause])
   }
   private[config] object ConfigStyle {
     val default = ConfigStyle()

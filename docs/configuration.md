@@ -2927,9 +2927,13 @@ The `xxxSite` portion refers to:
   - its `prefer` field replaced `optIn.configStyleArguments`, enabled by default
 - `callSite` [since v3.8.4]: applies to argument clauses in method calls
   - replaced section called `newlines.configStyleCallSite`
+- `bracketCallSite` [since v3.8.4]: applies to type argument clauses, falls
+  back to `callSite` if not specified
 - `defnSite` [since v3.8.4]: applies to parameter clauses in method or class
   definitions
   - replaced section called `newlines.configStyleDefnSite`
+- `bracketDefnSite` [since v3.8.4]: applies to type parameter clauses, falls
+  back to `defnSite` if not specified
 
 ### `newlines.configStyle.xxxSite.prefer`
 
