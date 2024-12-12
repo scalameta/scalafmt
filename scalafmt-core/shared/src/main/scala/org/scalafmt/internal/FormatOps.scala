@@ -1154,7 +1154,7 @@ class FormatOps(
         else Nil
       val noSlb = implicitNL || aboveArityThreshold ||
         ft.hasBreak && !style.newlines.sourceIgnored &&
-        style.newlines.configStyle.getDefnSite.prefer ||
+        style.newlines.configStyle.getDefnSite(isBracket).prefer ||
         implicitParams.nonEmpty &&
         style.newlines.forceAfterImplicitParamListModifier
       val nlNoAlt = implicitNL ||
@@ -2885,9 +2885,9 @@ class FormatOps(
           val breakBeforeClose = matchingOptLeft(prevft) match {
             case Some(open) =>
               val cfg = styleMap.at(open)
-              def cfgStyle = cfg.newlines.configStyle.getCallSite.prefer
-              def dangle = cfg.danglingParentheses
-                .atCallSite(prevft.meta.leftOwner)
+              val owner = prevft.meta.leftOwner
+              def cfgStyle = cfg.newlines.configStyle.getCallSite(owner).prefer
+              def dangle = cfg.danglingParentheses.atCallSite(owner)
               cfg.newlines.source match {
                 case Newlines.unfold => true
                 case Newlines.fold => cfgStyle ||
@@ -2934,9 +2934,10 @@ class FormatOps(
             case _: T.Comment => null
             case _ => // check if break would cause cfg style but not otherwise
               val cfg = styleMap.at(x)
+              val owner = afterDelims.meta.rightOwner
               val ok = cfg.newlines.sourceIgnored || ! {
-                cfg.newlines.configStyle.getCallSite.prefer &&
-                cfg.danglingParentheses.atCallSite(afterDelims.meta.rightOwner)
+                cfg.newlines.configStyle.getCallSite(owner).prefer &&
+                cfg.danglingParentheses.atCallSite(owner)
               } || next(afterDelims).hasBreak
               nft -> Right(ok)
           }
@@ -3080,7 +3081,7 @@ object FormatOps {
     def atDefnSite(
         owner: Tree,
     )(implicit style: ScalafmtConfig): ClauseSiteFlags = ClauseSiteFlags(
-      configStyle = style.newlines.configStyle.getDefnSite,
+      configStyle = style.newlines.configStyle.getDefnSite(owner),
       alignOpenDelim = style.align.atDefnSite(owner),
       dangleCloseDelim = style.danglingParentheses.atDefnSite(owner),
     )
@@ -3088,7 +3089,7 @@ object FormatOps {
     def atCallSite(
         owner: Tree,
     )(implicit style: ScalafmtConfig): ClauseSiteFlags = ClauseSiteFlags(
-      configStyle = style.newlines.configStyle.getCallSite,
+      configStyle = style.newlines.configStyle.getCallSite(owner),
       alignOpenDelim = style.align.atCallSite(owner),
       dangleCloseDelim = style.danglingParentheses.atCallSite(owner),
     )
