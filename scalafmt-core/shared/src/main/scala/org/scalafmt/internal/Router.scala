@@ -620,6 +620,84 @@ class Router(formatOps: FormatOps) {
           ) withSlbSplit
           else getFolded(beforeMultiline eq Newlines.keep)
         }
+
+      // Given decl
+      case FT(_: T.KwGiven, _, FT.LeftOwner(gvn: Stat.GivenLike)) =>
+        if (style.newlines.unfold && gvn.paramClauseGroups.nonEmpty) {
+          val nonSlbPolicy = gvn.paramClauseGroups.flatMap { pcg =>
+            if (pcg.tparamClause.values.isEmpty) pcg.paramClauses
+            else pcg.tparamClause +: pcg.paramClauses
+          }.foldLeft(Policy.noPolicy) { case (policy, pc) =>
+            val pcLast = getLast(pc)
+            val pcPolicy = Policy ? pcLast.left.is[T.RightArrow] &&
+              decideNewlinesOnlyAfterToken(nextNonCommentSameLine(pcLast))
+            policy ==> pcPolicy
+          }
+          if (nonSlbPolicy.isEmpty) Seq(Split(Space, 0))
+          else Seq(
+            Split(Space, 0)
+              .withSingleLine(getSlbEndOnLeft(getLast(gvn.paramClauseGroups.last))),
+            Split(Space, 1, policy = nonSlbPolicy),
+          )
+        } else Seq(Split(Space, 0))
+
+      // Given conditional arrow
+      case FT(
+            left: T.RightArrow,
+            _,
+            FT.LeftOwnerParent(
+              pcg: Member.ParamClauseGroup,
+              Some(gvn: Stat.GivenLike),
+            ),
+          ) =>
+        val nlOnly = !style.newlines.sourceIgnored && hasBreak()
+        def spaceSplit(implicit fl: FileLine) = Split(nlOnly, 0)(Space)
+        val nextParamClause = pcg.paramClauses.find(_.pos.start > left.start)
+          .orElse(gvn.paramClauseGroups.dropWhile(_ ne pcg) match {
+            case `pcg` :: pcgNext :: _ =>
+              val tpc = pcgNext.tparamClause
+              if (tpc.nonEmpty) Some(tpc) else pcgNext.paramClauses.headOption
+            case _ => None
+          })
+        nextParamClause.fold {
+          gvn match {
+            case gvn: Defn.Given => binPackParentConstructorSplits(
+                isFirstCtor = true,
+                owners = Set(gvn.templ),
+                rhs = gvn.templ.inits.headOption,
+                lastFt = templateDerivesOrCurlyOrLastNonTrivial(gvn.templ),
+                indentLen = style.indent.extendSite,
+                extendsThenWith = gvn.templ.inits.lengthCompare(1) > 0,
+              )
+            case _ =>
+              val end = gvn match {
+                case gvn: Tree.WithBody => tokenBefore(gvn.body)
+                case _ => getLast(gvn)
+              }
+              val noSlb = gvn match {
+                case gvn: Tree.WithDeclTpe => gvn.decltpe match {
+                    case t: Type.Tuple => t.args.lengthCompare(1) > 0
+                    case _ => false
+                  }
+                case _ => false
+              }
+              Seq(
+                spaceSplit.withSingleLine(getSlbEndOnLeft(end), ignore = noSlb),
+                Split(Newline, 1)
+                  .withIndent(style.indent.main, end, ExpiresOn.After),
+              )
+          }
+        } { npc =>
+          val nextArrow =
+            getSlbEndOnLeft(nextAfterNonCommentSameLine(getLast(npc)))
+          val noSlb = npc.values.lengthCompare(1) != 0
+          Seq(
+            spaceSplit.withSingleLine(nextArrow, ignore = noSlb),
+            Split(Newline, 1)
+              .withIndent(style.indent.main, nextArrow, ExpiresOn.After),
+          )
+        }
+
       // New statement
       case FT(_: T.Semicolon, _, StartsStatementRight(stmt))
           if !stmt.is[Term.EndMarker] =>
