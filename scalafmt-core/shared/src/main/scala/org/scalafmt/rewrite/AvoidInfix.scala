@@ -126,7 +126,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
   ): Boolean = InfixApp.isLeftAssoc(op) && cfg.matches(lhs.text, op) &&
     (rhs match {
       case ac @ Term.ArgClause(arg :: Nil, _) if !isWrapped(ac) =>
-        !hasPlaceholder(arg, ctx.style.rewrite.isAllowInfixPlaceholderArg)
+        !hasPlaceholder(arg, cfg.excludePlaceholderArg)
       case _ => true
     }) &&
     (lhs match {

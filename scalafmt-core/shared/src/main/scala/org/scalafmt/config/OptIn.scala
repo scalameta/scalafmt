@@ -75,28 +75,6 @@ import metaconfig._
   *   See https://github.com/scalameta/scalafmt/issues/938 If true, will force a
   *   line break before a self annotation if there was a line break there
   *   before.
-  *
-  * @param forceBlankLineBeforeDocstring
-  *   If true, always insert a blank line before docstrings, If false, preserves
-  *   blank line only if one exists before. Example:
-  *   {{{
-  *     // before
-  *     object Foo {
-  *       /** Docstring */
-  *       def foo = 2
-  *     }
-  *     // after, if forceBlankLineBeforeDocstring=false
-  *     object Foo {
-  *       /** Docstring */
-  *       def foo = 2
-  *     }
-  *     // after, if forceBlankLineBeforeDocstring=true
-  *     object Foo {
-  *
-  *       /** Docstring */
-  *       def foo = 2
-  *     }
-  *   }}}
   */
 case class OptIn(
     @annotation.DeprecatedName(
@@ -110,13 +88,6 @@ case class OptIn(
     encloseClassicChains: Boolean = false,
     selfAnnotationNewline: Boolean = true,
     annotationNewlines: Boolean = true,
-    // Candidate to become default false at some point.
-    @annotation.DeprecatedName(
-      "forceBlankLineBeforeDocstring",
-      "Use docstrings.forceBlankLineBefore instead",
-      "3.4.0",
-    )
-    forceBlankLineBeforeDocstring: Boolean = true,
 )
 
 object OptIn {

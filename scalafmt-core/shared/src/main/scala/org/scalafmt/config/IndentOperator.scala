@@ -51,13 +51,7 @@ import metaconfig._
   *   [[https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md#long-expressions-with-binary-operators]]
   */
 case class IndentOperator(
-    private val exemptScope: Option[IndentOperator.Exempt] = None,
-    @annotation.DeprecatedName(
-      "topLevelOnly",
-      "Use indentOperator.exemptScope instead (true->topLevelOnly, false->all)",
-      "3.4.0",
-    )
-    private val topLevelOnly: Boolean = true,
+    exemptScope: IndentOperator.Exempt = IndentOperator.Exempt.oldTopLevel,
     @annotation.ExtraName("include")
     includeRegex: String = ".*",
     @annotation.ExtraName("exclude")
@@ -68,11 +62,6 @@ case class IndentOperator(
 
   def noindent(op: String): Boolean = excludeRegexp.matcher(op).find() ||
     !includeRegexp.matcher(op).find()
-
-  lazy val getExemptScope: IndentOperator.Exempt = exemptScope.getOrElse(
-    if (topLevelOnly) IndentOperator.Exempt.oldTopLevel
-    else IndentOperator.Exempt.all,
-  )
 }
 
 object IndentOperator {
@@ -87,7 +76,12 @@ object IndentOperator {
     .mapDecoder(generic.deriveDecoderEx(default).noTypos, "indentOperator") {
       case Conf.Str("spray" | "akka" | "akka-http") => IndentOperator.akka
       case Conf.Str("default") => IndentOperator.default
-    }
+    }.withSectionRenames(
+      // deprecated since v3.4.0
+      annotation.SectionRename { case Conf.Bool(value) =>
+        Conf.Str(if (value) "oldTopLevel" else "all")
+      }("topLevelOnly", "exemptScope"),
+    )
 
   sealed abstract class Exempt
   object Exempt {

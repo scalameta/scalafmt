@@ -4,6 +4,11 @@ import org.scalafmt.rewrite._
 
 import metaconfig._
 
+@annotation.SectionRename("neverInfix", "avoidInfix") // renamed in v3.8.0
+@annotation.SectionRename(
+  "allowInfixPlaceholderArg",
+  "avoidInfix.excludePlaceholderArg",
+) // deprecated since v3.8.0
 case class RewriteSettings(
     rules: Seq[Rewrite] = Nil,
     scala3: RewriteScala3Settings = RewriteScala3Settings.default,
@@ -14,18 +19,8 @@ case class RewriteSettings(
     imports: Imports.Settings = Imports.Settings(),
     preferCurlyFors: PreferCurlyFors.Settings = PreferCurlyFors.Settings(),
     trailingCommas: TrailingCommas = TrailingCommas(),
-    @annotation.DeprecatedName(
-      "allowInfixPlaceholderArg",
-      "Use `avoidInfix.excludePlaceholderArg` instead",
-      "3.8.0",
-    )
-    private val allowInfixPlaceholderArg: Boolean = true,
-    @annotation.ExtraName("neverInfix")
     avoidInfix: AvoidInfixSettings = AvoidInfixSettings.default,
 ) {
-  def isAllowInfixPlaceholderArg: Boolean = avoidInfix.excludePlaceholderArg
-    .getOrElse(allowInfixPlaceholderArg)
-
   def withoutRewrites: RewriteSettings =
     copy(rules = Nil, trailingCommas = trailingCommas.withoutRewrites)
 
@@ -67,6 +62,7 @@ object RewriteSettings {
 
   implicit lazy val decoder: ConfDecoderEx[RewriteSettings] = generic
     .deriveDecoderEx(default).noTypos.flatMap(Imports.validateImports)
+    .detectSectionRenames
 
   case class InsertBraces(minLines: Int = 0, allBlocks: Boolean = false)
 
