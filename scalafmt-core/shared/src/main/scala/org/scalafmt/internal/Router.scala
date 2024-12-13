@@ -954,10 +954,18 @@ class Router(formatOps: FormatOps) {
         }
 
         // XXX: sometimes we have zero args, so multipleArgs != !singleArgument
-        val numArgs = args.length
-        val singleArgument = numArgs == 1
-        val multipleArgs = numArgs > 1
-        val notTooManyArgs = multipleArgs && numArgs <= 100
+        val (
+          onlyArgument,
+          enclosedOnlyArgumentHead,
+          multipleArgs,
+          notTooManyArgs,
+        ) = args match {
+          case arg :: Nil =>
+            val onlyArgument = CtrlBodySplits.getBlockStat(arg)
+            (onlyArgument, getHeadIfEnclosed(arg), false, false)
+          case _ :: rest => (null, None, true, rest.lengthCompare(100) < 0)
+          case _ => (null, None, false, false)
+        }
 
         val isBracket = open.is[T.LeftBracket]
         val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
@@ -974,12 +982,6 @@ class Router(formatOps: FormatOps) {
         val configStyleFlag = configStyleFlags.prefer
 
         val sourceIgnored = style.newlines.sourceIgnored
-        val (onlyArgument, isSingleEnclosedArgument) =
-          if (singleArgument) {
-            val arg = args(0)
-            (arg, isEnclosedInMatching(arg))
-          } else (null, false)
-
         val nestedPenalty = 1 + nestedApplies(leftOwner) + lhsPenalty
 
         val indentLen =
@@ -1047,13 +1049,13 @@ class Router(formatOps: FormatOps) {
             insideBlock[T.LeftBracket](excludeBeg, close)
           } else if (
             multipleArgs ||
-            (!isSingleEnclosedArgument || leftOwnerIsEnclosed) &&
-            style.newlines.unfold
+            style.newlines.unfold &&
+            (leftOwnerIsEnclosed || enclosedOnlyArgumentHead.forall(_ eq ft))
           ) TokenRanges.empty
           else if (
-            style.newlines.fold && {
-              isSingleEnclosedArgument ||
-              singleArgument && isTreeEndingInArgumentClause(onlyArgument)
+            style.newlines.fold && (onlyArgument ne null) && {
+              enclosedOnlyArgumentHead.isDefined ||
+              isTreeEndingInArgumentClause(onlyArgument)
             }
           )
             if (onlyArgument eq leftOwner) TokenRanges(TokenRange(ft, close))
@@ -1076,7 +1078,7 @@ class Router(formatOps: FormatOps) {
             exclude = excludeBlocks,
           )
 
-        val preferNoSplit = !skipNoSplit && singleArgument &&
+        val preferNoSplit = !skipNoSplit && (onlyArgument ne null) &&
           style.newlines.keepBreak(noBreak())
         val oneArgOneLine = newlinePolicy &
           (leftOwner match {
@@ -1120,14 +1122,14 @@ class Router(formatOps: FormatOps) {
                   else if (
                     wouldDangle || optimalIsComment && isBracket ||
                     sourceIgnored &&
-                    configStyleFlag && !isSingleEnclosedArgument
+                    configStyleFlag && enclosedOnlyArgumentHead.isEmpty
                   ) getSlb
                   else if (splitsForAssign.isDefined) singleLine(3)
                   else singleLine(10)
                 val kof = (style.newlines.keep || excludeBlocks.isEmpty) &&
                   needDifferentFromOneArgPerLine
                 val noOptimal = style.newlines.keep && !useOneArgPerLineSplit ||
-                  singleArgument && !excludeBlocks.isEmpty &&
+                  (onlyArgument ne null) && !excludeBlocks.isEmpty &&
                   excludeBlocks.ranges.forall(_.lt.left.is[T.LeftParen])
                 val okIndent = rightIsComment || handleImplicit
                 Split(noSplitMod, 0, policy = noSplitPolicy).withOptimalToken(
@@ -1167,10 +1169,10 @@ class Router(formatOps: FormatOps) {
                   if (!noSplitForNL) newlinePolicy
                   else decideNewlinesOnlyBeforeToken(matchingRight(ft))
                 Split(NoSplit.orNL(noSplitForNL), cost, policy = policy)
-                  .andPolicy(Policy ? noConfigStyle && singleLine(4)).andPolicy(
-                    Policy ? singleArgument && asInfixApp(args.head)
-                      .map(InfixSplits(_, ft).nlPolicy),
-                  )
+                  .andPolicy(Policy ? noConfigStyle && singleLine(4))
+                  .andPolicy(asInfixApp(onlyArgument).map(
+                    InfixSplits(_, ft).nlPolicy,
+                  ))
               }
             Seq(split.withIndent(indent, ignore = !split.isNL))
           }
