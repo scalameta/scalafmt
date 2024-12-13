@@ -896,11 +896,6 @@ object TreeOps {
     case _ => None
   })
 
-  val LambdaAtSingleArgCallSite = new FT.ExtractFromMeta(_.leftOwner match {
-    case Term.ArgClause((fun: Term.FunctionTerm) :: Nil, _) => Some(fun)
-    case _ => None
-  })
-
   def isFewerBraces(
       tree: Term.Apply,
   )(implicit dialect: Dialect, ftoks: FormatTokens): Boolean =
