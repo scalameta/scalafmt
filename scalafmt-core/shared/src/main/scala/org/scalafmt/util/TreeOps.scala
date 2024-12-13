@@ -984,7 +984,7 @@ object TreeOps {
     throw Error.UnexpectedTree[Member.SyntaxValuesClause](t)
   }
 
-  def getArgs(owner: Tree): Seq[Tree] = getArgsPartial
+  def getArgs(owner: Tree): List[Tree] = getArgsPartial
     .applyOrElse(owner, throwUnexpectedGetArgs)
 
   @tailrec

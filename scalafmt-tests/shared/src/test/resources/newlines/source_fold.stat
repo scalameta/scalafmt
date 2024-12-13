@@ -7220,14 +7220,12 @@ object a {
 }
 >>>
 object a {
-  (
-      (a: A) => {
-        class N extends M[a.C] {
-          def m(x: a.C) = true
-        }
-        new N: M[Null]
-      }
-  ).apply(a).m(null) // NPE, missing bridge
+  ((a: A) => {
+    class N extends M[a.C] {
+      def m(x: a.C) = true
+    }
+    new N: M[Null]
+  }).apply(a).m(null) // NPE, missing bridge
 }
 <<< SM 7.4.0: 42.1
 maxColumn = 76

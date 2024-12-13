@@ -977,13 +977,7 @@ class Router(formatOps: FormatOps) {
         val (onlyArgument, isSingleEnclosedArgument) =
           if (singleArgument) {
             val arg = args(0)
-            val maybeEnclosed = arg.parent match {
-              case Some(p: Member.SyntaxValuesClause)
-                  if lhsPenalty != 0 && !p.is[Member.ArgClause] => p
-              case _ => arg
-            }
-            val isEnclosed = isEnclosedInMatching(maybeEnclosed)
-            if (isEnclosed) (maybeEnclosed, true) else (arg, false)
+            (arg, isEnclosedInMatching(arg))
           } else (null, false)
 
         val nestedPenalty = 1 + nestedApplies(leftOwner) + lhsPenalty
