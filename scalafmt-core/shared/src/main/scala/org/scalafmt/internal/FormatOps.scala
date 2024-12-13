@@ -1709,7 +1709,7 @@ class FormatOps(
     @tailrec
     def getBlockStat(t: Tree): Tree = t match {
       case b: Term.Block => getSingleStatExceptEndMarker(b.stats) match {
-          case Some(s) if !isEnclosedInMatching(b) => getBlockStat(s)
+          case Some(s) if !isEnclosedInBraces(b) => getBlockStat(s)
           case _ => t
         }
       case _ => t
