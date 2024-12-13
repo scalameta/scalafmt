@@ -3011,6 +3011,21 @@ class FormatOps(
     else (SpaceOrNoSplit(Policy.End < rb), tr)
   }
 
+  @tailrec
+  private def getSingleFunctionArg(
+      values: List[Tree],
+  ): Option[Term.FunctionTerm] = values match {
+    case (t: Term.FunctionTerm) :: Nil => Some(t)
+    case (t: Term.Block) :: Nil if !isEnclosedInBraces(t) =>
+      getSingleFunctionArg(t.stats)
+    case _ => None
+  }
+
+  val LambdaAtSingleArgCallSite = new FT.ExtractFromMeta(_.leftOwner match {
+    case Term.ArgClause(v, None) => getSingleFunctionArg(v)
+    case _ => None
+  })
+
 }
 
 object FormatOps {
