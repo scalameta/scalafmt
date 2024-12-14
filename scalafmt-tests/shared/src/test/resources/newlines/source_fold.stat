@@ -9823,6 +9823,46 @@ private def partitionsAssignedToConsumer = uninterruptibleThreadRunner
     partitions.asScala.map(p => p -> consumer.position(p))
       .foreach { _ => }
   }
+<<< #4133 block function with rewritten empty-block body, braces to parens
+maxColumn = 74
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.oneStatApply = parens
+===
+private def partitionsAssignedToConsumer = uninterruptibleThreadRunner.runUninterruptibly {
+  // Call `position` to wait until the potential offset request triggered by `poll(0)` is
+  // done. This is a workaround for KAFKA-7703, which an async `seekToBeginning` triggered by
+  // `poll(0)` may reset offsets that should have been set by another request.
+  partitions.asScala.map(p => p -> consumer.position(p)).foreach(_ => {})
+}
+>>>
+private def partitionsAssignedToConsumer = uninterruptibleThreadRunner
+  .runUninterruptibly {
+    // Call `position` to wait until the potential offset request triggered by `poll(0)` is
+    // done. This is a workaround for KAFKA-7703, which an async `seekToBeginning` triggered by
+    // `poll(0)` may reset offsets that should have been set by another request.
+    partitions.asScala.map(p => p -> consumer.position(p))
+      .foreach { _ => }
+  }
+<<< #4133 block function with rewritten empty-block body, parens to braces 
+maxColumn = 74
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.oneStatApply = braces
+===
+private def partitionsAssignedToConsumer = uninterruptibleThreadRunner.runUninterruptibly {
+  // Call `position` to wait until the potential offset request triggered by `poll(0)` is
+  // done. This is a workaround for KAFKA-7703, which an async `seekToBeginning` triggered by
+  // `poll(0)` may reset offsets that should have been set by another request.
+  partitions.asScala.map(p => p -> consumer.position(p)).foreach(_ => {})
+}
+>>>
+private def partitionsAssignedToConsumer = uninterruptibleThreadRunner
+  .runUninterruptibly {
+    // Call `position` to wait until the potential offset request triggered by `poll(0)` is
+    // done. This is a workaround for KAFKA-7703, which an async `seekToBeginning` triggered by
+    // `poll(0)` may reset offsets that should have been set by another request.
+    partitions.asScala.map(p => p -> consumer.position(p))
+      .foreach { _ => }
+  }
 <<< #4133 rewritten def body as infix in parens with break before op
 maxColumn = 76
 rewrite {
@@ -10559,3 +10599,108 @@ rewrite.redundantBraces.parensForOneLineApply = true
 topLevelStatementBlankLines.filter(x => x.minNest <= x.maxNest).sortBy {
   x => (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length))
 }
+<<< don't rewrite to braces apply with function and infix as arg
+rewrite.redundantBraces.oneStatApply = braces
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+val sym1 = sym filter (alt =>
+     isApplicableBasedOnArity(pre memberType alt, argtypes.length, varargsStar = false, tuplingAllowed = false)
+  || alt.tpe.params.exists(_.hasDefault)
+)
+>>>
+val sym1 = sym filter
+  (alt =>
+    isApplicableBasedOnArity(
+      pre memberType alt,
+      argtypes.length,
+      varargsStar = false,
+      tuplingAllowed = false
+    ) ||
+      alt.tpe.params
+        .exists(_.hasDefault)
+  )
+<<< SKIP zio, nested tests and suites, with redundant braces to parens rewrite
+maxColumn = 80
+runner.optimizer.maxVisitsPerToken = 20000
+newlines.avoidForSimpleOverflow = all
+rewrite {
+  rules = [RedundantBraces]
+  redundantBraces.preset = all
+  redundantBraces.oneStatApply = parens
+}
+===
+object ZStreamSpec extends DefaultRunnableSpec {
+  def spec: ZSpec[Environment, Failure] =
+    suite("ZStreamSpec")(
+      suite("Combinators")(
+        suite("aggregateAsyncWithin")(
+          testM("aggregateAsyncWithin") (
+            assertM(
+              ZStream(1, 1, 1, 1, 2, 2)
+                .aggregateAsyncWithin(
+                  ZTransducer
+                    .fold((List[Int](), true))(_._2) ( (acc, el: Int) =>
+                      if (el == 1) (el :: acc._1, true)
+                      else if (el == 2 && acc._1.isEmpty) (el :: acc._1, false)
+                      else (el :: acc._1, false)
+                    )
+                    .map(_._1),
+                  Schedule.spaced(30.minutes)
+                )
+                .runCollect
+            )(equalTo(Chunk(List(2, 1, 1, 1, 1), List(2))))
+          )
+        ),
+        
+        
+        suite("bufferDropping")(
+          testM("buffer the Stream with Error") (
+            assertM(
+              (ZStream.range(1, 1000) ++ ZStream.fail(e) ++ ZStream.range(1001, 2000))
+            )(fails(equalTo(e)))
+          ),
+          testM("fast producer progress independently") (
+            for {
+              s1 = ZStream(0) ++ ZStream
+                .fromEffect(latch1.await)
+                .flatMap(_ => ZStream.range(1, 17).chunkN(1).ensuring(latch2.succeed(())))
+              snapshots <- s.process.use ( as =>
+                for {
+                  _         <- latch1.succeed(())
+                  _         <- as.flatMap(a => ref.update(a.toList ::: _)).repeatN(7)
+                  snapshot1 <- ref.get
+                  _         <- latch3.succeed(())
+                  _         <- latch4.await
+                  _         <- as.flatMap(a => ref.update(a.toList ::: _)).repeatN(7)
+                  snapshot2 <- ref.get
+                } yield (zero, snapshot1, snapshot2)
+              )
+            } yield assert(snapshots._1)(equalTo(Chunk.single(0))) && assert(snapshots._2)(
+              equalTo(List(8, 7, 6, 5, 4, 3, 2, 1))
+            ) &&
+              assert(snapshots._3)(
+                equalTo(List(24, 23, 22, 21, 20, 19, 18, 17, 8, 7, 6, 5, 4, 3, 2, 1))
+              )
+          )
+        ),
+      ),
+    )
+
+}
+>>>
+BestFirstSearch:312 Failed to format
+UNABLE TO FORMAT,
+tok #408/485: [408] . _2 >>> Dot [1968..1969) | Ident(_2) [1969..1971) >>> Term.Select [1959..1971) [Term.ArgClause] | Term.Name [1969..1971) [Term.Select] <<<[]>>>
+policies:
+  SLB:[Router:1933]<=Ident(_2)[409]!d
+  SLB:[Router:1126]<=RightParen[410]!d
+  (SLB:[FormatOps:702]<=RightParen[479]!d & INFSLB:[FormatOps:756]<=RightParen[479]d)
+  SLB:[Router:1126]<=RightParen[480]!d
+  (<RightParen[481] ==> NB:[Router:1006]<=RightParen[481]d & A[,]:[Router:1086]<RightParen[481]d)
+  (<RightParen[482] ==> NB:[Router:1006]<=RightParen[482]d & A[,]:[Router:1086]<RightParen[482]d)
+  >=RightParen[481] ==> SLB:[Router:1126]<=RightParen[483]!d
+  <RightBrace[484] ==> NB:[Router:441]<=RightBrace[484]d
+splits (before policy):
+  c=0[0] nS:[Router:2570->Router:2570](NoPolicy)
+splits (after policy):
+  c=0[0] nS:[Router:2570->Router:2570](NoPolicy)

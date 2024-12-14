@@ -344,6 +344,37 @@ object a {
 object a {
   b.c({ d => e + f })
 }
+<<< #1027 2.2: one-arg parens to braces yes, one-line braces to parens yes
+rewrite.redundantBraces.oneStatApply = braces
+===
+object a {
+  b.c ({d =>    e     + f})
+}
+>>>
+object a {
+  b.c({ d => e + f })
+}
+<<< #1027 2.2: one-arg parens to braces yes, one-line braces to parens no
+rewrite.redundantBraces.parensForOneLineApply = false
+rewrite.redundantBraces.oneStatApply = braces
+===
+object a {
+  b.c ({d =>    e     + f})
+}
+>>>
+object a {
+  b.c({ d => e + f })
+}
+<<< #1027 2.2: one-arg braces to parens yes
+rewrite.redundantBraces.oneStatApply = parens
+===
+object a {
+  b.c ({d =>    e     + f})
+}
+>>>
+object a {
+  b.c({ d => e + f })
+}
 <<< #1027 3.1: with align
 align.preset = more
 ===
@@ -1082,6 +1113,38 @@ object a {
     y
   }
 }
+<<< single-block function with block one-arg apply, use parens
+rewrite.redundantBraces.oneStatApply = parens
+===
+object a {
+  val foo = bar {
+    { x => y }
+  }
+  val foo = bar {
+    { { x => y } }
+  }
+  val foo = bar.baz {
+    { x => y }
+  }
+  val foo = bar.baz {
+    { { x => y } }
+  }
+}
+>>>
+object a {
+  val foo = bar { x =>
+    y
+  }
+  val foo = bar { x =>
+    y
+  }
+  val foo = bar.baz { x =>
+    y
+  }
+  val foo = bar.baz { x =>
+    y
+  }
+}
 <<< single-block partial function with parens one-arg apply
 object a {
   val foo = bar (
@@ -1557,6 +1620,30 @@ object a {
   }
 }
 <<< #3263 assign value to var, use as arg
+object a {
+  foo({ bar = baz })
+  foo({ bar = baz }, qux)
+}
+>>>
+object a {
+  foo({ bar = baz })
+  foo({ bar = baz }, qux)
+}
+<<< #3263 assign value to var, use as arg, try to use parens
+rewrite.redundantBraces.oneStatApply = parens
+===
+object a {
+  foo({ bar = baz })
+  foo({ bar = baz }, qux)
+}
+>>>
+object a {
+  foo({ bar = baz })
+  foo({ bar = baz }, qux)
+}
+<<< #3263 assign value to var, use as arg, try to use braces
+rewrite.redundantBraces.oneStatApply = braces
+===
 object a {
   foo({ bar = baz })
   foo({ bar = baz }, qux)
@@ -2221,6 +2308,12 @@ run( { worklist.push(startBlock); } )
 >>>
 run { worklist.push(startBlock); }
 <<< #4133 can't rewrite with parens if semicolon, without redundant parens
+run( { worklist.push(startBlock); } )
+>>>
+run({ worklist.push(startBlock); })
+<<< #4133 can't rewrite with parens if semicolon, but can with braces
+rewrite.redundantBraces.oneStatApply = braces
+===
 run( { worklist.push(startBlock); } )
 >>>
 run({ worklist.push(startBlock); })
