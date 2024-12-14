@@ -208,29 +208,27 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   private def getRightBraceBeforeRightParen(
       shouldBeRemoved: Boolean,
   )(implicit ft: FT, session: Session, style: ScalafmtConfig): Option[FT] = {
+    @inline
+    def isRemovedOnLeft(xft: FT): Boolean = session
+      .isRemovedOnLeft(xft, ok = true)
+    @tailrec
+    def shouldNotBeRemoved(xft: FT): Boolean = !isRemovedOnLeft(xft) || {
+      val pxft = ftoks.prevNonCommentBefore(xft)
+      pxft.left.is[T.RightBrace] && shouldNotBeRemoved(pxft)
+    }
+    def checkBrace(xft: FT): Boolean = xft.left.is[T.RightBrace] &&
+      (if (shouldBeRemoved) isRemovedOnLeft(xft) else shouldNotBeRemoved(xft))
     val pft = ftoks.prevNonComment(ft)
-    val ok = pft.left match {
-      case _: T.Comma => // looks like trailing comma
-        val pft2 = ftoks.prevNonCommentBefore(pft)
-        pft2.left.is[T.RightBrace] &&
-        session.isRemovedOnLeft(pft2, true) == shouldBeRemoved &&
+    val ok =
+      if (pft.left.is[T.Comma]) // looks like trailing comma
+        checkBrace(ftoks.prevNonCommentBefore(pft)) &&
         session.isRemovedOnLeftOpt(pft).getOrElse {
           val crt = ftoks.prev(pft)
           val crepl = Replacement(this, crt, ReplacementType.Remove, style)
           session.claim(crepl)(crt)
           true
         }
-      case _: T.RightBrace =>
-        @tailrec
-        def shouldNotBeRemoved(xft: FT): Boolean =
-          !session.isRemovedOnLeft(xft, ok = true) || {
-            val pxft = ftoks.prevNonCommentBefore(xft)
-            pxft.left.is[T.RightBrace] && shouldNotBeRemoved(pxft)
-          }
-        if (shouldBeRemoved) session.isRemovedOnLeft(pft, ok = true)
-        else shouldNotBeRemoved(pft)
-      case _ => false
-    }
+      else checkBrace(pft)
     if (ok) Some(pft) else None
   }
 
