@@ -119,40 +119,43 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
   private def onLeftParen(implicit ft: FT, style: ScalafmtConfig): Replacement = {
     val rt = ft.right
-    val rtOwner = ft.meta.rightOwner
-    def lpFunction = okToReplaceFunctionInSingleArgApply(rtOwner).map {
-      case (`rt`, f) => f.body match {
-          case b: Term.Block => ftoks.getHead(b) match {
-              case FT(_: T.LeftBrace, _, lbm) =>
-                val lb = new T.LeftBrace(rt.input, rt.dialect, rt.start)
-                replaceToken("{", claim = lbm.idx - 1 :: Nil)(lb)
+
+    def replaceWithBrace(owner: Option[Tree] = None, claim: List[Int] = Nil) = {
+      val lb = new T.LeftBrace(rt.input, rt.dialect, rt.start)
+      replaceToken("{", owner = owner, claim = claim)(lb)
+    }
+
+    ft.rightOwner match {
+      case ta @ Term.ArgClause(arg :: Nil, _)
+          if !ta.parent.is[Init] && getOpeningParen(ta).contains(rt) =>
+        def replaceWithNextBrace() = ftoks.nextNonCommentAfter(ft) match {
+          case FT(lt, _: T.LeftBrace, m) =>
+            val claim = m.idx :: Nil
+            if (lt eq rt) removeToken(claim = claim)
+            else replaceWithBrace(owner = Some(m.rightOwner), claim = claim)
+          case _ => replaceWithBrace(Some(arg))
+        }
+        arg match {
+          // single-arg apply of a partial function or optionally any arg
+          // a({ case b => c; d }) change to a { case b => c; d }
+          case _: Term.PartialFunction => replaceWithNextBrace()
+          case _: Term.Block =>
+            val ok = getBlockNestedPartialFunction(arg).nonEmpty
+            if (ok) replaceWithNextBrace() else null
+          case f: Term.FunctionTerm
+              if okToReplaceFunctionInSingleArgApply(ta, f) =>
+            f.body match {
+              case b: Term.Block => ftoks.getHead(b) match {
+                  case FT(_: T.LeftBrace, _, lbm) =>
+                    replaceWithBrace(claim = lbm.idx - 1 :: Nil)
+                  case _ => null
+                }
               case _ => null
             }
           case _ => null
         }
       case _ => null
     }
-    // single-arg apply of a partial function
-    // a({ case b => c; d }) change to a { case b => c; d }
-    def lpPartialFunction = rtOwner match {
-      case ta @ Term.ArgClause(arg :: Nil, _) if !ta.parent.is[Init] =>
-        getOpeningParen(ta).map { lp =>
-          if (lp.ne(rt) || getBlockNestedPartialFunction(arg).isEmpty) null
-          else ftoks.nextNonCommentAfter(ft) match {
-            case FT(lt, _: T.LeftBrace, lbm) =>
-              if (lt eq rt) removeToken(claim = lbm.idx :: Nil)
-              else {
-                val lbo = Some(lbm.rightOwner)
-                val lb = new T.LeftBrace(rt.input, rt.dialect, rt.start)
-                replaceToken("{", owner = lbo, claim = lbm.idx :: Nil)(lb)
-              }
-            case _ => null
-          }
-        }
-      case _ => None
-    }
-
-    lpFunction.orElse(lpPartialFunction).orNull
   }
 
   private def onRightParen(left: Replacement, hasFormatOff: Boolean)(implicit
@@ -181,18 +184,22 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       }.orNull
 
     case ReplacementType.Replace if left.ft.right.is[T.LeftBrace] =>
+      // this also removes any trailing commas, so can't be conditionally invoked
       val pftOpt = getRightBraceBeforeRightParen(shouldBeRemoved = true)
+      def replaceWithBrace(rb: T, rtype: ReplacementType, startOff: Int) = {
+        val rbo = Some(left.ft.rightOwner)
+        left -> replaceToken("}", owner = rbo, rtype = rtype) {
+          new T.RightBrace(rb.input, rb.dialect, rb.start + startOff)
+        }
+      }
       def replaceIfAfterRightBrace = pftOpt.map { pft =>
         val rb = pft.left
         // move right to the end of the function
         val rType = new ReplacementType.RemoveAndResurrect(ftoks.prev(pft))
-        val rbo = Some(left.ft.rightOwner)
-        left -> replaceToken("}", owner = rbo, rtype = rType) {
-          // create a shifted token so that any child tree wouldn't own it
-          new T.RightBrace(rb.input, rb.dialect, rb.start + 1)
-        }
+        // create a shifted token so that any child tree wouldn't own it
+        replaceWithBrace(rb, rType, startOff = 1)
       }
-      (ft.meta.rightOwner match {
+      (ft.rightOwner match {
         case ac: Term.ArgClause => session.rule[RemoveScala3OptionalBraces]
             .flatMap { r =>
               val repl = r.onLeftForArgClause(ac)(left.ft, left.style)
@@ -259,8 +266,12 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           case _ => null
         }
       case t: Term.Block => t.parent match {
-          case Some(f: Term.FunctionTerm)
-              if okToReplaceFunctionInSingleArgApply(f) => removeToken
+          case Some(f: Term.FunctionTerm) if (f.parent match {
+                case Some(ta @ Term.ArgClause(`f` :: Nil, _)) =>
+                  getOpeningParen(ta).isDefined &&
+                  okToReplaceFunctionInSingleArgApply(ta, f)
+                case _ => false
+              }) => removeToken
           case Some(_: Term.Interpolate) => handleInterpolation
           case Some(_: Term.Xml) => null
           case Some(_: Term.Annotate) => null
@@ -353,11 +364,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     })
   }
 
-  private def okToReplaceFunctionInSingleArgApply(f: Term.FunctionTerm)(implicit
-      style: ScalafmtConfig,
-  ): Boolean = f.parent.flatMap(okToReplaceFunctionInSingleArgApply)
-    .exists(_._2 eq f)
-
   private def getOpeningParen(t: Term.ArgClause): Option[T.LeftParen] = ftoks
     .getHead(t).left match {
     case lp: T.LeftParen => Some(lp)
@@ -366,15 +372,13 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
   // single-arg apply of a lambda
   // a(b => { c; d }) change to a { b => c; d }
-  private def okToReplaceFunctionInSingleArgApply(tree: Tree)(implicit
-      style: ScalafmtConfig,
-  ): Option[(T.LeftParen, Term.FunctionTerm)] = tree match {
-    case ta @ Term.ArgClause((func: Term.FunctionTerm) :: Nil, _) if {
-          val body = func.body
-          (body.is[Term.Block] || func.tokens.last.ne(body.tokens.last)) &&
-          isParentAnApply(ta) && okToRemoveAroundFunctionBody(body, true)
-        } => getOpeningParen(ta).map((_, func))
-    case _ => None
+  private def okToReplaceFunctionInSingleArgApply(
+      ta: Term.ArgClause,
+      func: Term.FunctionTerm,
+  )(implicit style: ScalafmtConfig): Boolean = {
+    val body = func.body
+    (body.is[Term.Block] || func.tokens.last.ne(body.tokens.last)) &&
+    isParentAnApply(ta) && okToRemoveAroundFunctionBody(body, true)
   }
 
   // multi-arg apply of single-stat lambdas
