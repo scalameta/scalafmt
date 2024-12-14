@@ -304,19 +304,23 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         }
       case _ => false
     }
-    val ok = ft.meta.rightOwner match {
-      case t: Term.Block => !braceSeparatesTwoXmlTokens &&
-        (ftoks.prevNonComment(ft) match {
-          case FT(_: T.Semicolon, _, m) =>
-            val plo = m.leftOwner
-            (plo eq t) || !plo.parent.contains(t)
-          case _ => true
-        }) &&
-        (style.dialect.allowSignificantIndentation ||
-          okComment(ft) && !elseAfterRightBraceThenpOnLeft)
-      case _ => true
+    ft.rightOwner match {
+      case t: Term.Block => left.how match {
+          case ReplacementType.Remove
+              if !braceSeparatesTwoXmlTokens &&
+                (ftoks.prevNonComment(ft) match {
+                  case FT(_: T.Semicolon, _, m) =>
+                    val plo = m.leftOwner
+                    (plo eq t) || !plo.parent.contains(t)
+                  case _ => true
+                }) &&
+                (style.dialect.allowSignificantIndentation ||
+                  okComment(ft) && !elseAfterRightBraceThenpOnLeft) =>
+            (left, removeToken)
+          case _ => null
+        }
+      case _ => (left, removeToken)
     }
-    if (ok) (left, removeToken) else null
   }
 
   private def settings(implicit
