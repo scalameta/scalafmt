@@ -114,11 +114,11 @@ object LoggerOps {
   def treeInfo(t: Tree): String =
     s"${treeName(t)} ${position(t)} [${treeName(t.parent)}]"
 
-  def log(t: Tree): String = logTree(t)
+  def log(t: Tree): String = logTree(t, noStructure = false)
   def logTree(
       t: Tree,
       tokensOnly: Boolean = false,
-      noStructure: Boolean = false,
+      noStructure: Boolean = true,
   ): String = {
     val tokens = s"TOKENS: ${t.tokens.map(x => reveal(x.text)).mkString(",")}"
     if (tokensOnly) tokens
@@ -129,11 +129,11 @@ object LoggerOps {
              |""".stripMargin
   }
 
-  def log(t: Option[Tree]): String = logTreeOpt(t)
+  def log(t: Option[Tree]): String = logTreeOpt(t, noStructure = false)
   def logTreeOpt(
       t: Option[Tree],
       tokensOnly: Boolean = false,
-      noStructure: Boolean = false,
+      noStructure: Boolean = true,
   ): String = t
     .fold("")(logTree(_, tokensOnly = tokensOnly, noStructure = noStructure))
 
