@@ -1520,15 +1520,17 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Space, 0).withIndent(indentLen, expire, ExpiresOn.Before))
       case FT(_, lb: T.LeftBrace, _) if ! { // partial initial expr
             @tailrec
-            def startsInfix(ai: Term.ApplyInfix): Boolean = ai.parent match {
-              case Some(_: Term.ArgClause) => false
-              case Some(p: Term.ApplyInfix) => startsInfix(p)
-              case _ => true
-            }
+            def startsInfix(ai: Term.ApplyInfix, t: Tree): Boolean =
+              (ai.lhs eq t) &&
+                (ai.parent match {
+                  case Some(_: Term.ArgClause) => false
+                  case Some(p: Term.ApplyInfix) => startsInfix(p, ai)
+                  case _ => true
+                })
             val roPos = rightOwner.pos
             isTokenHeadOrBefore(lb, roPos) && rightOwner.parent.exists {
               case p: Term.ApplyInfix => // exclude start of infix
-                startsInfix(p)
+                startsInfix(p, rightOwner)
               case _: Term.ArgClause => false
               case p => isTokenHeadOrBefore(lb, p) && matchingOptRight(ft)
                   .exists(x => isTokenLastOrAfter(x.left, roPos))
