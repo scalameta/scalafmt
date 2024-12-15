@@ -172,19 +172,31 @@ object OptimizationEntities {
           if (TreeOps.getSingleStatExceptEndMarker(s).isEmpty) s else s.drop(1),
         )
         else s match {
-          case x :: Nil if (x match {
-                case _: Term.FunctionTerm => true
-                case _ if !t.parent.is[Term.ArgClause] => false
-                case _: Term.Apply => true
-                case x: Term.AnonymousFunction => x.body.is[Term.Apply]
-                case _ => false
-              }) =>
+          case x :: Nil
+              if skipBlockSingleStat(x, t.parent.is[Term.ArgClause]) =>
           case _ => addAllStmts(s)
+        }
+      // handle argclause rewritten with braces
+      case t @ Term.ArgClause(s :: Nil, _)
+          if !s.isAny[Term.Block, Term.PartialFunction] &&
+            !skipBlockSingleStat(s, isInArgClause = true) =>
+        t.tokens.headOption.foreach { x =>
+          // check for single-stat arg if opening paren was replaced with brace
+          if (x.is[T.LeftParen] && ftoks(x).left.is[T.LeftBrace]) addOneStmt(s)
         }
       case Tree.Block(s) => addAllStmts(s)
       case _ => // Nothing
     }
 
   }
+
+  private def skipBlockSingleStat(t: Tree, isInArgClause: => Boolean): Boolean =
+    t match {
+      case _: Term.FunctionTerm => true
+      case _ if !isInArgClause => false
+      case _: Term.Apply => true
+      case x: Term.AnonymousFunction => x.body.is[Term.Apply]
+      case _ => false
+    }
 
 }
