@@ -1429,14 +1429,14 @@ class FormatOps(
           tree: Member.ArgClause,
           res: List[FT],
       ): List[FT] = {
-        val args = tree.values
-        if (args.isEmpty) res
-        else {
-          val newres = getHead(tree) :: res
-          args match {
-            case (t: Member.Apply) :: Nil => getNestedOpens(t.argClause, newres)
-            case _ => newres
-          }
+        def newres = getHead(tree) :: res
+        tree.values match {
+          case Nil => res
+          case arg :: Nil => getBlockStat(arg) match {
+              case t: Member.Apply => getNestedOpens(t.argClause, newres)
+              case _ => newres
+            }
+          case _ => newres
         }
       }
 
