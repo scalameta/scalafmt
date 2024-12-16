@@ -3001,8 +3001,11 @@ class FormatOps(
     } else None
   }
 
-  def getBracesToParensMod(rb: FT, mod: Modification, isWithinBraces: Boolean)(
-      implicit
+  def getBracesToParensMod(
+      rb: FT,
+      mod: Modification = Space,
+      isWithinBraces: Boolean = true,
+  )(implicit
       style: ScalafmtConfig,
       ft: FT,
   ): (Modification, Option[TokenRanges]) = {
@@ -3010,6 +3013,14 @@ class FormatOps(
     if ((tr eq null) || tr.isEmpty) (mod, tr)
     else (SpaceOrNoSplit(Policy.End < rb), tr)
   }
+
+  @inline
+  def getBracesToParensModOnly(
+      rb: FT,
+      mod: Modification = Space,
+      isWithinBraces: Boolean = true,
+  )(implicit style: ScalafmtConfig, ft: FT): Modification =
+    getBracesToParensMod(rb, mod, isWithinBraces)._1
 
   @tailrec
   private def getSingleFunctionArg(

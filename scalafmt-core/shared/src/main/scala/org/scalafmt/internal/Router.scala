@@ -361,7 +361,7 @@ class Router(formatOps: FormatOps) {
         val noSplitMod = braceSpace(leftOwner)
         val (slbMod, slbParensExclude) =
           if (singleLineDecisionOpt.isEmpty) (noSplitMod, None)
-          else getBracesToParensMod(close, noSplitMod, isWithinBraces = true)
+          else getBracesToParensMod(close, noSplitMod)
         val singleLineSplitOpt = {
           if (slbParensExclude eq null) None else singleLineDecisionOpt
         }.map { sld =>
@@ -1537,7 +1537,7 @@ class Router(formatOps: FormatOps) {
             }
           } =>
         val rb = matchingRight(ft)
-        val mod = getBracesToParensMod(rb, Space, isWithinBraces = false)._1
+        val mod = getBracesToParensModOnly(rb, isWithinBraces = false)
         Seq(Split(mod, 0))
 
       // Delim
@@ -1921,15 +1921,11 @@ class Router(formatOps: FormatOps) {
                           }.isDefined => ss.penalizeNL(1)
                   }
                 }.foldLeft(Policy.noPolicy) { case (res, pol) => pol ==> res }
-                val ftNextAfterRight = next(ftAfterRight)
-                val singleArg =
-                  if (!ftAfterRight.right.is[T.OpenDelim]) None
-                  else getSingleArgOnLeftBraceOnLeft(ftNextAfterRight).map(_._2)
-                val bracesToParens = singleArg.isDefined && {
-                  implicit val ft: FT = ftNextAfterRight
+                // include paren as it may have been a brace earlier (i.e. idempotence)
+                val bracesToParens = ftAfterRight.right.is[T.OpenDelim] && {
+                  implicit val ft: FT = next(ftAfterRight)
                   val rb = matchingRight(ftAfterRight)
-                  getBracesToParensMod(rb, Space, isWithinBraces = true)._1 ne
-                    Space
+                  getBracesToParensModOnly(rb) ne Space
                 }
                 val noSplit = Split(modSpace, 0)
                   .withSingleLine(end, exclude = exclude)
