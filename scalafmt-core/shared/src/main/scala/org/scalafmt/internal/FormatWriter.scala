@@ -153,45 +153,43 @@ class FormatWriter(formatOps: FormatOps) {
     while (0 <= idx) {
       val loc = locations(idx)
       val tok = loc.formatToken
-      tok.left match {
-        case _: T.RightBrace // look for "foo { bar }"
-            if RedundantBraces.canRewriteWithParensOnRightBrace(tok) =>
-          val beg = matchingLeft(tok).idx
-          val bloc = locations(beg)
-          val style = bloc.style
-          if (
-            style.rewrite.trailingCommas.isOptional &&
-            loc.leftLineId == bloc.leftLineId
-          ) {
-            val state = bloc.state
-            val inParentheses = style.spaces.inParentheses
-            // remove space before "{"
-            if (0 != beg && state.prev.mod.length != 0) {
-              val prevState = state.prev
-              prevState.split = prevState.split.withMod(NoSplit)
-              locations(beg - 1).shift -= 1
-            }
-
-            // update "{"
-            bloc.replace = "("
-            if (!inParentheses && state.mod.length != 0) {
-              // remove space after "{"
-              state.split = state.split.withMod(NoSplit)
-              bloc.shift -= 1
-            }
-
-            val prevEndLoc = locations(idx - 1)
-            val prevEndState = prevEndLoc.state
-            if (!inParentheses && prevEndState.mod.length != 0) {
-              // remove space before "}"
-              prevEndState.split = prevEndState.split.withMod(NoSplit)
-              prevEndLoc.shift -= 1
-            }
-
-            // update "}"
-            loc.replace = ")"
+      if (tok.left.is[T.RightBrace]) { // look for "foo { bar }"
+        val beg = matchingLeft(tok).idx
+        val bloc = locations(beg)
+        implicit val style = bloc.style
+        if (
+          RedundantBraces.canRewriteWithParensOnRightBrace(tok) &&
+          style.rewrite.trailingCommas.isOptional &&
+          loc.leftLineId == bloc.leftLineId
+        ) {
+          val state = bloc.state
+          val inParentheses = style.spaces.inParentheses
+          // remove space before "{"
+          if (0 != beg && state.prev.mod.length != 0) {
+            val prevState = state.prev
+            prevState.split = prevState.split.withMod(NoSplit)
+            locations(beg - 1).shift -= 1
           }
-        case _ =>
+
+          // update "{"
+          bloc.replace = "("
+          if (!inParentheses && state.mod.length != 0) {
+            // remove space after "{"
+            state.split = state.split.withMod(NoSplit)
+            bloc.shift -= 1
+          }
+
+          val prevEndLoc = locations(idx - 1)
+          val prevEndState = prevEndLoc.state
+          if (!inParentheses && prevEndState.mod.length != 0) {
+            // remove space before "}"
+            prevEndState.split = prevEndState.split.withMod(NoSplit)
+            prevEndLoc.shift -= 1
+          }
+
+          // update "}"
+          loc.replace = ")"
+        }
       }
       idx -= 1
     }
