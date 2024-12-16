@@ -7964,9 +7964,9 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 ===
 val privateFlag = !sym.isClass && (sym.is(Private) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
 >>>
-val privateFlag = !sym.isClass && (sym.is(
+val privateFlag = !sym.isClass && (sym.is {
   Private
-) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
+} || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
 <<< rewrite infix function to braces
 rewrite.redundantBraces.oneStatApply = braces
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -7974,9 +7974,9 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 foo map (x => // force break
   x + 1) 
 >>>
-foo map (x => // force break
+foo map { x => // force break
   x + 1
-)
+}
 <<< rewrite to parens with repeated
 rewrite.redundantBraces.oneStatApply = parens
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -8036,8 +8036,10 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 throw MatchError(tree.show( // using clause
 using Printer.TreeStructure))
 >>>
-throw MatchError(tree.show( // using clause
-  using Printer.TreeStructure))
+throw MatchError {
+  tree.show( // using clause
+    using Printer.TreeStructure)
+}
 <<< handle rewritten-to-braces argclause as optimization zone
 rewrite.redundantBraces.oneStatApply = braces
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -8084,7 +8086,7 @@ object a {
 >>>
 object a {
   private def isIgnoredByPackages(file: File): Boolean = {
-    val ignoredByPackages = ignoredPackages.exists { pkg =>
+    val ignoredByPackages = ignoredPackages.exists(pkg =>
       getPackageName(file.toURI.toString) match {
         case Some(packageName) =>
           val ignored = packageName.startsWith(pkg)
@@ -8096,7 +8098,7 @@ object a {
           ignored
         case None => false
       }
-    }
+    )
     ignoredByPackages
   }
 }
@@ -8117,15 +8119,15 @@ object a {
 }
 >>>
 object a {
-  within(3.seconds) {
-    awaitAssert {
-      additionaSystems.foreach { s =>
-        withClue(s"${Cluster(s).selfAddress}:") {
+  within(3.seconds)(
+    awaitAssert(
+      additionaSystems.foreach(s =>
+        withClue(s"${Cluster(s).selfAddress}:")(
           Cluster(s).isTerminated should be(true)
-        }
-      }
-    }
-  }
+        )
+      )
+    )
+  )
 }
 <<< rewrite to parens a call with a tuple
 rewrite.redundantBraces.oneStatApply = parens
@@ -8150,13 +8152,13 @@ object a {
 }
 >>>
 object a {
-  val (document, module, psiFile) = inReadAction {
+  val (document, module, psiFile) = inReadAction(
     (
       FileDocumentManager.getInstance().getDocument(vf),
       ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(vf),
       PsiManager.getInstance(project).findFile(vf)
     )
-  }
+  )
 
   val (document, module, psiFile) = inReadAction(
     (
@@ -8185,7 +8187,7 @@ object a {
 }
 >>>
 object a {
-  val resultIterator = Iterator.continually {
+  val resultIterator = Iterator.continually(
     transformers.foldLeft(false) { (hadApply, transformer) =>
        val elementIterator =
          range.map(elementsIn(file, _)).getOrElse(file.depthFirst())
@@ -8197,7 +8199,7 @@ object a {
        }
        hadApply || hasApply
     }
-  }
+  )
 }
 <<< do not rewrite to braces with an ascribe argument
 rewrite.redundantBraces.oneStatApply = braces
