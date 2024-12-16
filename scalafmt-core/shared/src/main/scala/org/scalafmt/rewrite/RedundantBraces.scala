@@ -28,34 +28,45 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       case _ => false
     }
 
-  private def canRewriteBlockWithParens(b: Term.Block)(implicit
-      ftoks: FormatTokens,
-  ): Boolean = getBlockSingleStat(b).exists(canRewriteStatWithParens)
-
-  private def canRewriteStatWithParens(
-      t: Stat,
-  )(implicit ftoks: FormatTokens): Boolean = t match {
-    case f: Term.FunctionTerm => canRewriteFuncWithParens(f)
-    case _: Term.Assign => false // disallowed in 2.13
-    case _: Defn => false
-    case _: Term.PartialFunction => false
-    case Term.Block(s :: Nil) if !ftoks.isEnclosedInMatching(t) =>
-      canRewriteStatWithParens(s)
-    case _ => true
+  def canRewriteStatWithParens(
+      stat: Tree,
+  )(implicit ftoks: FormatTokens): Boolean = {
+    @tailrec
+    def stripTopBlock(tree: Tree, singleStatOnly: Boolean): Option[Tree] =
+      tree match {
+        case Term.Block(s :: Nil) =>
+          val ko = (tree eq stat) && ftoks.tokenAfter(s).right.is[T.Semicolon]
+          if (ko) None else stripTopBlock(s, singleStatOnly)
+        case b: Term.Block
+            if b.stats.isEmpty || singleStatOnly ||
+              !ftoks.isEnclosedInBraces(b) => None
+        /* guard for statements requiring a wrapper block
+         * "foo { x => y; z }" can't become "foo(x => y; z)"
+         * "foo { x1 => x2 => y; z }" can't become "foo(x1 => x2 => y; z)"
+         */
+        case t: Term.FunctionTerm =>
+          if (needParensAroundParams(t)) None
+          else stripTopBlock(t.body, singleStatOnly = t eq stat)
+        case _ => Some(tree)
+      }
+    @tailrec
+    def iter(trees: List[Tree]): Boolean = trees match {
+      case head :: rest => head match {
+          case _: Term.Repeated => iter(rest)
+          case _: Term.PartialFunction | _: Defn | _: Term.Assign => false
+          case b @ Term.Block(s :: ss) =>
+            if (ss.isEmpty) iter(s :: rest)
+            else ftoks.isEnclosedInBraces(b) && iter(rest)
+          case t: Term.If => iter(t.thenp :: t.elsep :: rest)
+          case t: Term.FunctionTerm if needParensAroundParams(t) => false
+          case t: Tree.WithBody => iter(t.body :: rest)
+          case t: Term.AnonymousFunction => iter(t.body :: rest)
+          case _ => iter(rest)
+        }
+      case _ => true
+    }
+    stripTopBlock(stat, singleStatOnly = true).exists(t => iter(t :: Nil))
   }
-
-  /* guard for statements requiring a wrapper block
-   * "foo { x => y; z }" can't become "foo(x => y; z)"
-   * "foo { x1 => x2 => y; z }" can't become "foo(x1 => x2 => y; z)"
-   */
-  @tailrec
-  private def canRewriteFuncWithParens(f: Term.FunctionTerm): Boolean =
-    !needParensAroundParams(f) &&
-      (getTreeSingleStat(f.body) match {
-        case Some(t: Term.FunctionTerm) => canRewriteFuncWithParens(t)
-        case Some(_: Defn) => false
-        case x => x.isDefined
-      })
 
   private def checkApply(t: Tree): Boolean = t.parent match {
     case Some(p @ Term.ArgClause(`t` :: Nil, _)) => isParentAnApply(p)
@@ -66,9 +77,9 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       ftoks: FormatTokens,
   ): Boolean = !ftoks.prevNonCommentBefore(rb).left.is[T.Semicolon] &&
     (rb.meta.leftOwner match { // look for "foo { bar }"
-      case b: Term.Block => checkApply(b) && canRewriteBlockWithParens(b) &&
+      case b: Term.Block => checkApply(b) && canRewriteStatWithParens(b) &&
         b.parent.exists(ftoks.getLast(_) eq rb)
-      case f: Term.FunctionTerm => checkApply(f) && canRewriteFuncWithParens(f)
+      case f: Term.FunctionTerm => checkApply(f) && canRewriteStatWithParens(f)
       case t @ Term.ArgClause(arg :: Nil, _) => isParentAnApply(t) &&
         ftoks.getDelimsIfEnclosed(t).exists(_._2 eq rb) &&
         canRewriteStatWithParens(arg)
