@@ -47,7 +47,9 @@ case class RewriteSettings(
     .forTestOpt.map(x => copy(avoidInfix = x))
 
   def bracesToParensForOneLineApply = redundantBraces.parensForOneLineApply &&
-    rules.contains(RedundantBraces)
+    (redundantBraces.oneStatApply ne
+      RedundantBracesSettings.OneStatApply.parens) &&
+    RedundantBraces.usedIn(this)
 
 }
 
