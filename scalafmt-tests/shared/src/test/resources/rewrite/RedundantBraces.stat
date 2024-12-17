@@ -319,7 +319,7 @@ object a {
 }
 >>>
 object a {
-  b.c(d => e => { f; g })
+  b.c { d => e => f; g }
 }
 <<< #1027 2.1: parens to braces no
 newlines.afterInfix = keep
