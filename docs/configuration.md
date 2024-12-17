@@ -3216,6 +3216,10 @@ s"user id is ${id}"
 
 #### `RedundantBraces`: `parensForOneLineApply`
 
+If set, if an apply argument in braces ends up formatted on a single line,
+we'll replace braces with parens. However, this parameter is superseded by
+[`oneStatApply = parens`](#redundantbraces-onestatapply) below.
+
 ```scala mdoc:defaults
 rewrite.redundantBraces.parensForOneLineApply
 ```
@@ -3227,6 +3231,55 @@ rewrite.rules = [RedundantBraces]
 rewrite.redundantBraces.parensForOneLineApply = true
 ---
 xs.map { x => x + 1 }
+```
+
+#### `RedundantBraces`: `oneStatApply`
+
+Added in v3.8.4, controls treatment of single-argument apply delimiters and
+takes the following values:
+
+- `keep`: the delimiters are kept as-is
+- `braces`: attempt to rewrite parens to braces
+  - see also [`fewerBracesParensToo`](#rewritescala3removeoptionalbraces)
+- `parens`: attempt to rewrite braces to parens
+  - the sole argument will be checked using [`maxBreaks`](#redundantbraces-maxbreaks)
+  - also, if this parameter is set,
+    [`parensForOneLineApply`](#redundantbraces-parensforonelineapply) will be
+    ignored
+
+In all cases, redundant delimiters will be rewritten, as before.
+
+```scala mdoc:defaults
+rewrite.redundantBraces.oneStatApply
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.oneStatApply = parens
+---
+xs.map { x => // should rewrite this
+  x + 1
+}
+xs.map { x => // should not rewrite this, not a single-stat argument
+  x + 1
+  x + 2
+}
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.oneStatApply = braces
+---
+xs.map(x => // should rewrite this
+  x + 1
+)
+xs.map( // should not rewrite this, contains an infix
+  x + 1
+)
+// scalafmt: { newlines.afterInfix = some }
+xs.map( // should rewrite this, allows formatting infix
+  x + 1
+)
 ```
 
 #### `RedundantBraces`: `maxBreaks`
