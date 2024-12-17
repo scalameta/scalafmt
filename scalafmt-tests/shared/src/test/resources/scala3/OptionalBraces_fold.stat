@@ -7195,7 +7195,7 @@ final case class UserCheck(
           case b =>
         }
     )
->>> { stateVisits = 3818, stateVisits2 = 3818 }
+>>> { stateVisits = 3889, stateVisits2 = 3889 }
 final case class UserCheck(
     options: PublishSetupOptions,
     configDb: () => ConfigDb,

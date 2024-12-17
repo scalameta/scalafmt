@@ -377,7 +377,7 @@ private def withNewLocalDefs = {
             }))
         }))
   }
->>> { stateVisits = 5621, stateVisits2 = 5621 }
+>>> { stateVisits = 5267, stateVisits2 = 5267 }
 val createIsArrayOfStat = {
   envFieldDef(
       "isArrayOf",
