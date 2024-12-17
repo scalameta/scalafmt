@@ -45,17 +45,17 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
   }
 
   /* guard for statements requiring a wrapper block
-   * "foo { x => y; z }" can't become "foo(x => y; z)" */
+   * "foo { x => y; z }" can't become "foo(x => y; z)"
+   * "foo { x1 => x2 => y; z }" can't become "foo(x1 => x2 => y; z)"
+   */
   @tailrec
-  private def canRewriteFuncWithParens(
-      f: Term.FunctionTerm,
-      nested: Boolean = false,
-  ): Boolean = !needParensAroundParams(f) &&
-    (getTreeSingleStat(f.body) match {
-      case Some(t: Term.FunctionTerm) => canRewriteFuncWithParens(t, true)
-      case Some(_: Defn) => false
-      case x => nested || x.isDefined
-    })
+  private def canRewriteFuncWithParens(f: Term.FunctionTerm): Boolean =
+    !needParensAroundParams(f) &&
+      (getTreeSingleStat(f.body) match {
+        case Some(t: Term.FunctionTerm) => canRewriteFuncWithParens(t)
+        case Some(_: Defn) => false
+        case x => x.isDefined
+      })
 
   private def checkApply(t: Tree): Boolean = t.parent match {
     case Some(p @ Term.ArgClause(`t` :: Nil, _)) => isParentAnApply(p)
@@ -142,14 +142,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           case _: Term.Block =>
             val ok = getBlockNestedPartialFunction(arg).nonEmpty
             if (ok) replaceWithNextBrace() else null
-          case f: Term.FunctionTerm
-              if okToReplaceFunctionInSingleArgApply(ta, f) =>
-            f.body match {
-              case b: Term.Block => ftoks.getHead(b) match {
-                  case FT(_: T.LeftBrace, _, lbm) =>
-                    replaceWithBrace(claim = lbm.idx - 1 :: Nil)
-                  case _ => null
-                }
+          case f: Term.FunctionTerm =>
+            getBlockToReplaceAsFuncBodyInSingleArgApply(ta, f) match {
+              case Some((_, xlb)) => replaceWithBrace(claim = xlb.idx - 1 :: Nil)
               case _ => null
             }
           case _ => null
@@ -266,12 +261,10 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           case _ => null
         }
       case t: Term.Block => t.parent match {
-          case Some(f: Term.FunctionTerm) if (f.parent match {
-                case Some(ta @ Term.ArgClause(`f` :: Nil, _)) =>
-                  getOpeningParen(ta).isDefined &&
-                  okToReplaceFunctionInSingleArgApply(ta, f)
-                case _ => false
-              }) => removeToken
+          case Some(f: Term.FunctionTerm)
+              if getBlockToReplaceAsFuncBodyIfInSingleArgApply(f)
+                .exists { case (_, xft) => xft.idx <= ft.idx + 1 } =>
+            removeToken
           case Some(_: Term.Interpolate) => handleInterpolation
           case Some(_: Term.Xml) => null
           case Some(_: Term.Annotate) => null
@@ -372,13 +365,52 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
   // single-arg apply of a lambda
   // a(b => { c; d }) change to a { b => c; d }
-  private def okToReplaceFunctionInSingleArgApply(
+
+  private def getBlockToReplaceAsFuncBodyInSingleArgApply(
       ta: Term.ArgClause,
       func: Term.FunctionTerm,
-  )(implicit style: ScalafmtConfig): Boolean = {
-    val body = func.body
-    (body.is[Term.Block] || func.tokens.last.ne(body.tokens.last)) &&
-    isParentAnApply(ta) && okToRemoveAroundFunctionBody(body, true)
+  )(implicit
+      style: ScalafmtConfig,
+      ftoks: FormatTokens,
+  ): Option[(Term.Block, FT)] = {
+    @tailrec
+    def iter(body: Tree): Option[(Term.Block, FT)] = body match {
+      case b: Term.Block => ftoks.getDelimsIfEnclosed(b) match {
+          case Some((lb, _)) =>
+            if (!lb.left.is[T.LeftBrace]) None
+            else {
+              val lbo = lb.leftOwner
+              if (lbo eq b) Some((b, lb)) else iter(lbo)
+            }
+          case None => b.stats match {
+              case (s: Term) :: Nil => iter(s)
+              case _ => None
+            }
+        }
+      case f: Term.FunctionTerm if !needParensAroundParams(f) => iter(f.body)
+      case _ => None
+    }
+
+    val ok = isDefnBodiesEnabled(noParams = false) && isParentAnApply(ta)
+    if (ok) iter(func.body) else None
+  }
+
+  private def getBlockToReplaceAsFuncBodyIfInSingleArgApply(
+      func: Term.FunctionTerm,
+  )(implicit
+      style: ScalafmtConfig,
+      ftoks: FormatTokens,
+  ): Option[(Term.Block, FT)] = {
+    @tailrec
+    def iter(t: Tree, f: Term.FunctionTerm): Option[(Term.Block, FT)] =
+      t.parent match {
+        case Some(p @ Term.ArgClause(_ :: Nil, _)) =>
+          getBlockToReplaceAsFuncBodyInSingleArgApply(p, f)
+        case Some(p: Term.Block) => iter(p, f)
+        case Some(p: Term.FunctionTerm) => iter(p, p)
+        case _ => None
+      }
+    iter(func, func)
   }
 
   // multi-arg apply of single-stat lambdas
