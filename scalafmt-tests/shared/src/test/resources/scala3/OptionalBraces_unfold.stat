@@ -7735,6 +7735,90 @@ private[this] def __computeSerializedSize(): _root_.scala.Int =
         ) + __value.serializedSize;
    end if
    __size
+<<< expression with long `then` block and multi-line `else` block
+final case class UserCheck(
+  options: PublishSetupOptions,
+  configDb: () => ConfigDb,
+  workspace: os.Path,
+  logger: Logger
+) extends OptionCheck:
+  def defaultValue(pubOpt: BPublishOptions): Either[BuildException, OptionCheck.DefaultValue] =
+    either (
+      if options.publishParams.setupCi then
+        val user0 = options.publishRepo.user match
+          case None =>
+            value(userOpt(pubOpt)) match
+              case Some(user) =>
+                logger.message(
+                  s"  using ${Keys.publishCredentials.fullName} from Scala CLI configuration"
+                )
+                user
+              case None =>
+                value (
+                  Left (
+                    new MissingPublishOptionError(
+                      "publish user",
+                      "--user",
+                      "publish.credentials",
+                      configKeys = Seq(Keys.publishCredentials.fullName)
+                    )
+                  )
+                )
+
+        OptionCheck.DefaultValue.simple(
+          Nil,
+        )
+        //
+      else
+        CheckUtils.getHostOpt(
+          logger
+        ) match {
+          case a =>
+          case b =>
+        }
+    )
+>>>
+final case class UserCheck(
+    options: PublishSetupOptions,
+    configDb: () => ConfigDb,
+    workspace: os.Path,
+    logger: Logger
+) extends OptionCheck:
+   def defaultValue(
+       pubOpt: BPublishOptions
+   ): Either[BuildException, OptionCheck.DefaultValue] = either(
+     if options.publishParams.setupCi then
+        val user0 =
+          options.publishRepo.user match
+             case None =>
+               value(userOpt(pubOpt)) match
+                  case Some(user) =>
+                    logger.message(
+                      s"  using ${Keys
+                          .publishCredentials
+                          .fullName} from Scala CLI configuration"
+                    )
+                    user
+                  case None =>
+                    value(
+                      Left(
+                        new MissingPublishOptionError(
+                          "publish user",
+                          "--user",
+                          "publish.credentials",
+                          configKeys = Seq(Keys.publishCredentials.fullName)
+                        )
+                      )
+                    )
+
+        OptionCheck.DefaultValue.simple(Nil)
+        //
+     else
+        CheckUtils.getHostOpt(logger) match {
+          case a =>
+          case b =>
+        }
+   )
 <<< #4133 convert to new syntax: add then at possible line end
 maxColumn = 74
 rewrite.scala3.convertToNewSyntax = true
