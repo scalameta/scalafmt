@@ -11507,3 +11507,21 @@ topLevelStatementBlankLines
   .sortBy { x =>
     (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length))
   }
+<<< complex infix with final rhs an apply with multiline block
+maxColumn = 80
+===
+object a {
+  def memberRef(description: String) = u2 ~ u2 ^^ add1 {
+    case classRef ~ nameAndTypeRef => pool => description + ": " + pool(classRe
+f) + ", " + pool(nameAndTypeRef)
+  }
+}
+>>>
+object a {
+  def memberRef(description: String) =
+    u2 ~ u2 ^^
+      add1 { case classRef ~ nameAndTypeRef =>
+        pool =>
+          description + ": " + pool(classRe f) + ", " + pool(nameAndTypeRef)
+      }
+}
