@@ -126,21 +126,15 @@ object a {
 }
 >>>
 object a {
-  val a = b(c => d => { e; f })
+  val a = b { c => d => e; f }
 }
 <<< look not only for immediate braces around lambda, nested
 object a {
   val a = b { c => { d => { e; f } } }
 }
 >>>
-test does not parse: [dialect scala213] `)` expected but `;` found
 object a {
-  val a = b(c => d => e; f)
-                       ^
-}
-====== full result: ======
-object a {
-  val a = b(c => d => e; f)
+  val a = b { c => d => e; f }
 }
 <<< #1707 1: don't rewrite to parens if typed lambda param
 override def run(args: List[String]): IO[ExitCode] =
