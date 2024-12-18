@@ -213,7 +213,6 @@ class FormatOps(
 
   @inline
   def splitOneArgOneLine(close: FT, owner: Tree)(implicit
-      fileLine: FileLine,
       style: ScalafmtConfig,
   ): Policy =
     if (style.poorMansTrailingCommasInConfigStyle) Policy
@@ -245,12 +244,11 @@ class FormatOps(
       getOneArgPerLineSplitsAfterComma(right, splits)
   }
 
-  def splitOneArgPerLineAfterCommaOnBreak(comma: FT)(implicit
-      fileLine: FileLine,
-  ): Policy = splitOneArgPerLineAfterCommaOnBreak(TokenRanges.empty)(comma)
+  def splitOneArgPerLineAfterCommaOnBreak(comma: FT): Policy =
+    splitOneArgPerLineAfterCommaOnBreak(TokenRanges.empty)(comma)
 
-  def splitOneArgPerLineAfterCommaOnBreak(exclude: TokenRanges)(comma: FT)(
-      implicit fileLine: FileLine,
+  def splitOneArgPerLineAfterCommaOnBreak(exclude: TokenRanges)(
+      comma: FT,
   ): Policy = Policy ? (comma.right.is[T.Comment] && comma.noBreak) ||
     delayedBreakPolicy(Policy.End < comma, exclude) {
       Policy.onlyFor(comma, prefix = "NL->A[,]") {
@@ -599,8 +597,8 @@ class FormatOps(
     }
 
     val (nlIndent, nlPolicy) = {
-      def policy(triggers: T*)(implicit fileLine: FileLine) =
-        Policy ? triggers.isEmpty || Policy.onLeft(fullExpire, prefix = "INF") {
+      def policy(triggers: T*) = Policy ? triggers.isEmpty ||
+        Policy.onLeft(fullExpire, prefix = "INF") {
           case Decision(t: FT, s)
               if isInfixOp(t.meta.leftOwner) ||
                 isInfixOp(t.meta.rightOwner) &&
@@ -2954,8 +2952,8 @@ class FormatOps(
       }
     }
 
-    def getPolicy(isCallSite: Boolean, exclude: TokenRanges)(afterArg: FT)(
-        implicit fileLine: FileLine,
+    def getPolicy(isCallSite: Boolean, exclude: TokenRanges)(
+        afterArg: FT,
     ): (Option[FT], Policy) = afterArg.right match {
       case _: T.Comma // check for trailing comma, which needs no breaks
           if !nextNonCommentAfter(afterArg).right.is[T.CloseDelim] =>

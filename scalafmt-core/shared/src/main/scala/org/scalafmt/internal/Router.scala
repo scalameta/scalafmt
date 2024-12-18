@@ -1753,25 +1753,24 @@ class Router(formatOps: FormatOps) {
 
         def forcedBreakOnNextDotPolicy(implicit fileLine: FileLine) =
           beforeNextDotOpt.map(decideNewlinesOnlyAfterToken(_))
-        def getClassicNonFirstBreakOnDot(dot: FT)(implicit
-            fileLine: FileLine,
-        ): Policy = Policy.onlyFor(dot, "NEXTSEL2NL") { s =>
-          val filtered = s.flatMap { x =>
-            val y = x.activateFor(SplitTag.SelectChainSecondNL)
-            if (y.isActive) Some(y) else None
-          }
-          if (filtered.isEmpty) Seq.empty
-          else {
-            val minCost = math.max(0, filtered.map(_.costWithPenalty).min - 1)
-            filtered.map { x =>
-              val p = x.policy.filter(!_.isInstanceOf[PenalizeAllNewlines])
-              implicit val fileLine = x.fileLineStack.fileLineHead
-              x.copy(penalty = x.costWithPenalty - minCost, policy = p)
+        def getClassicNonFirstBreakOnDot(dot: FT): Policy = Policy
+          .onlyFor(dot, "NEXTSEL2NL") { s =>
+            val filtered = s.flatMap { x =>
+              val y = x.activateFor(SplitTag.SelectChainSecondNL)
+              if (y.isActive) Some(y) else None
+            }
+            if (filtered.isEmpty) Seq.empty
+            else {
+              val minCost = math.max(0, filtered.map(_.costWithPenalty).min - 1)
+              filtered.map { x =>
+                val p = x.policy.filter(!_.isInstanceOf[PenalizeAllNewlines])
+                implicit val fileLine = x.fileLineStack.fileLineHead
+                x.copy(penalty = x.costWithPenalty - minCost, policy = p)
+              }
             }
           }
-        }
-        def classicNonFirstBreakOnNextDot(implicit fileLine: FileLine): Policy =
-          beforeNextDotOpt.map(getClassicNonFirstBreakOnDot)
+        def classicNonFirstBreakOnNextDot: Policy = beforeNextDotOpt
+          .map(getClassicNonFirstBreakOnDot)
 
         def getSlbEnd() = {
           val nft = nextNonCommentSameLineAfter(ft)

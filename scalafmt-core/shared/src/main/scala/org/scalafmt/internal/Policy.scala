@@ -28,7 +28,7 @@ abstract class Policy {
     if (other.isEmpty) this else new Policy.AndThen(this, other)
   def |(other: Policy): Policy =
     if (other.isEmpty) this else new Policy.OrElse(this, other)
-  def ==>(other: Policy)(implicit fileLine: FileLine): Policy =
+  def ==>(other: Policy): Policy =
     if (other.isEmpty) this else new Policy.Relay(this, other)
   def <==(other: Policy.End.WithPos): Policy = new Policy.Expire(this, other)
   def ?(flag: Boolean): Policy = if (flag) this else Policy.NoPolicy
@@ -63,7 +63,7 @@ object Policy {
     override def f: Pf = PartialFunction.empty
     override def |(other: Policy): Policy = other
     override def &(other: Policy): Policy = other
-    override def ==>(other: Policy)(implicit fileLine: FileLine): Policy = other
+    override def ==>(other: Policy): Policy = other
     override def <==(other: Policy.End.WithPos): Policy = this
     override def ?(flag: Boolean): Policy = this
 
@@ -83,13 +83,13 @@ object Policy {
       prefix: String,
       noDequeue: Boolean = false,
       rank: Int = 0,
-  )(f: Pf)(implicit fileLine: FileLine): Policy =
+  )(f: Pf)(implicit fl: FileLine): Policy =
     new ClauseImpl(f, endPolicy, prefix, noDequeue, rank)
 
-  def after(trigger: T, policy: Policy)(implicit fileLine: FileLine): Policy =
+  def after(trigger: T, policy: Policy)(implicit fl: FileLine): Policy =
     new Switch(NoPolicy, trigger, policy)
 
-  def before(policy: Policy, trigger: T)(implicit fileLine: FileLine): Policy =
+  def before(policy: Policy, trigger: T)(implicit fl: FileLine): Policy =
     new Switch(policy, trigger, NoPolicy)
 
   def beforeLeft(
@@ -97,35 +97,31 @@ object Policy {
       prefix: String,
       noDequeue: Boolean = false,
       rank: Int = 0,
-  )(f: Pf)(implicit fileLine: FileLine): Policy =
-    apply(End < exp, prefix, noDequeue, rank)(f)
+  )(f: Pf): Policy = apply(End < exp, prefix, noDequeue, rank)(f)
 
   def onLeft(exp: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
       f: Pf,
-  )(implicit fileLine: FileLine): Policy =
-    apply(End <= exp, prefix, noDequeue, rank = rank)(f)
+  ): Policy = apply(End <= exp, prefix, noDequeue, rank = rank)(f)
 
   def onRight(exp: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
       f: Pf,
-  )(implicit fileLine: FileLine): Policy =
-    apply(End >= exp, prefix, noDequeue, rank = rank)(f)
+  ): Policy = apply(End >= exp, prefix, noDequeue, rank = rank)(f)
 
   def afterRight(
       exp: FT,
       prefix: String,
       noDequeue: Boolean = false,
       rank: Int = 0,
-  )(f: Pf)(implicit fileLine: FileLine): Policy =
-    apply(End > exp, prefix, noDequeue, rank)(f)
+  )(f: Pf): Policy = apply(End > exp, prefix, noDequeue, rank)(f)
 
   def onlyFor(on: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
       f: Seq[Split] => Seq[Split],
-  )(implicit fileLine: FileLine): Policy = Policy.End <= on ==>
+  ): Policy = Policy.End <= on ==>
     Policy.onRight(on, s"$prefix[${on.idx}]", noDequeue, rank) {
       case Decision(`on`, ss) => f(ss)
     }
 
-  abstract class Clause(implicit val fileLine: FileLine) extends Policy {
+  abstract class Clause(implicit val fl: FileLine) extends Policy {
     val endPolicy: End.WithPos
     def prefix: String
     def suffix: String = ""
@@ -140,7 +136,7 @@ object Policy {
         case "" => ""
         case x => s":$x"
       }
-      s"$prefixWithColon[$fileLine]$endPolicy${noDeqPrefix}d$suffixWithColon"
+      s"$prefixWithColon[$fl]$endPolicy${noDeqPrefix}d$suffixWithColon"
     }
 
     override def unexpired(split: Split, nextft: FT): Policy =
@@ -164,7 +160,7 @@ object Policy {
       val prefix: String,
       val noDequeue: Boolean,
       val rank: Int = 0,
-  )(implicit fileLine: FileLine)
+  )(implicit fl: FileLine)
       extends Clause
 
   abstract class WithConv extends Policy {
@@ -274,12 +270,11 @@ object Policy {
     ): Boolean = false
   }
 
-  private class Relay(before: Policy, after: Policy)(implicit fileLine: FileLine)
-      extends WithConv {
+  private class Relay(before: Policy, after: Policy) extends WithConv {
     override def f: Pf = before.f
     override def rank: Int = before.rank
     override def noDequeue: Boolean = before.noDequeue
-    override def toString: String = s"REL:[$fileLine]($before ==> $after)"
+    override def toString: String = s"$before ==> $after"
 
     protected def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
@@ -302,7 +297,7 @@ object Policy {
       trigger: (Split, FT) => Boolean,
       triggerEnd: Policy.End.WithPos,
       after: Policy,
-  )(implicit fileLine: FileLine)
+  )(implicit fl: FileLine)
       extends WithConv {
     override def f: Pf = before.f
     override def rank: Int = before.rank
@@ -312,7 +307,7 @@ object Policy {
       else super.unexpired(split, nextft)
 
     override def noDequeue: Boolean = before.noDequeue
-    override def toString: String = s"REL?:[$fileLine]($before ??? $after)"
+    override def toString: String = s"REL?:[$fl]($before ??? $after)"
 
     protected def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
@@ -332,7 +327,7 @@ object Policy {
   object RelayOnSplit {
     def by(triggerEnd: Policy.End.WithPos)(
         trigger: (Split, FT) => Boolean,
-    )(before: Policy)(after: Policy)(implicit fileLine: FileLine): Policy =
+    )(before: Policy)(after: Policy)(implicit fl: FileLine): Policy =
       if (before.isEmpty) after
       else new RelayOnSplit(before, trigger, triggerEnd, after)
     def apply(trigger: (Split, FT) => Boolean)(before: Policy)(after: Policy)(
@@ -340,9 +335,8 @@ object Policy {
     ): Policy = by(Policy.End.Never)(trigger)(before)(after)
   }
 
-  class Switch(before: Policy, trigger: T, after: Policy)(implicit
-      fileLine: FileLine,
-  ) extends WithConv {
+  class Switch(before: Policy, trigger: T, after: Policy)(implicit fl: FileLine)
+      extends WithConv {
     override def f: Pf = before.f
     override def rank: Int = before.rank
     override def switch(trigger: T, on: Boolean): Policy =
@@ -350,7 +344,7 @@ object Policy {
       else if (on) before
       else after.switch(trigger, false)
     override def noDequeue: Boolean = before.noDequeue
-    override def toString: String = s"SW:[$fileLine]($before,$trigger,$after)"
+    override def toString: String = s"SW:[$fl]($before,$trigger,$after)"
 
     protected def conv(func: Policy => Policy): Policy = {
       val filtered = func(before)
@@ -367,9 +361,8 @@ object Policy {
   }
 
   object Proxy {
-    def apply(policy: Policy, end: End.WithPos)(factory: Policy => Pf)(implicit
-        fileLine: FileLine,
-    ): Policy = if (policy.isEmpty) NoPolicy else new Proxy(policy, factory, end)
+    def apply(policy: Policy, end: End.WithPos)(factory: Policy => Pf): Policy =
+      if (policy.isEmpty) NoPolicy else new Proxy(policy, factory, end)
   }
 
   private class Proxy(
