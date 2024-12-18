@@ -22,6 +22,7 @@ abstract class Policy {
   def exists(pred: Clause => Boolean): Boolean
   def maxEndPos: End.WithPos
   def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean
+  def appliesOn(nextft: FT)(pred: Clause => Boolean): Option[Boolean]
   def unexpired(split: Split, nextft: FT): Policy
   def noDequeue: Boolean
   def switch(trigger: T, on: Boolean): Policy
@@ -84,6 +85,9 @@ object Policy {
     override def maxEndPos: End.WithPos = End.Never
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       false
+    override def appliesOn(nextft: FT)(
+        pred: Clause => Boolean,
+    ): Option[Boolean] = None
     override def filter(pred: Clause => Boolean): Policy = this
     override def exists(pred: Clause => Boolean): Boolean = false
     override def switch(trigger: T, on: Boolean): Policy = this
@@ -158,6 +162,10 @@ object Policy {
     override def maxEndPos: End.WithPos = End.Never
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       pred(this)
+
+    override def appliesOn(nextft: FT)(
+        pred: Clause => Boolean,
+    ): Option[Boolean] = Some(pred(this))
   }
 
   private class ClauseImpl(
@@ -180,6 +188,25 @@ object Policy {
     protected def conv(pred: Policy => Policy): Policy
   }
 
+  private def appliesOnAll(nextft: FT, p1: Policy, p2: Policy)(
+      pred: Clause => Boolean,
+  ): Option[Boolean] = {
+    def r2 = p2.appliesOn(nextft)(pred)
+    p1.appliesOn(nextft)(pred).fold(r2)(r1 => Some(r1 && !r2.contains(false)))
+  }
+
+  private def appliesOnAny(nextft: FT, p1: Policy, p2: Policy)(
+      pred: Clause => Boolean,
+  ): Option[Boolean] = {
+    def r2 = p2.appliesOn(nextft)(pred)
+    p1.appliesOn(nextft)(pred).fold(r2)(r1 => Some(r1 || r2.contains(true)))
+  }
+
+  private def appliesOn1st(nextft: FT, p1: Policy, p2: Policy)(
+      pred: Clause => Boolean,
+  ): Option[Boolean] = p1.appliesOn(nextft)(pred)
+    .orElse(p2.appliesOn(nextft)(pred))
+
   private class OrElse(p1: Policy, p2: Policy) extends WithConv {
     override lazy val f: Pf = p1.f.orElse(p2.f)
 
@@ -198,6 +225,10 @@ object Policy {
     override def maxEndPos: End.WithPos = p1.maxEndPos.max(p2.maxEndPos)
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean = p1
       .appliesUntil(nextft)(pred) && p2.appliesUntil(nextft)(pred)
+
+    override def appliesOn(nextft: FT)(
+        pred: Clause => Boolean,
+    ): Option[Boolean] = appliesOnAll(nextft, p1, p2)(pred)
 
     override def exists(pred: Clause => Boolean): Boolean = p1.exists(pred) ||
       p2.exists(pred)
@@ -226,6 +257,10 @@ object Policy {
     override def maxEndPos: End.WithPos = p1.maxEndPos.max(p2.maxEndPos)
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean = p1
       .appliesUntil(nextft)(pred) || p2.appliesUntil(nextft)(pred)
+
+    override def appliesOn(nextft: FT)(
+        pred: Clause => Boolean,
+    ): Option[Boolean] = appliesOnAny(nextft, p1, p2)(pred)
 
     override def exists(pred: Clause => Boolean): Boolean = p1.exists(pred) ||
       p2.exists(pred)
@@ -258,6 +293,12 @@ object Policy {
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       endPolicy.notExpiredBy(nextft) && policy.appliesUntil(nextft)(pred)
 
+    override def appliesOn(
+        nextft: FT,
+    )(pred: Clause => Boolean): Option[Boolean] =
+      if (!endPolicy.notExpiredBy(nextft)) None
+      else policy.appliesOn(nextft)(pred)
+
     override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
   }
 
@@ -280,6 +321,12 @@ object Policy {
     override def maxEndPos: End.WithPos = begPolicy.max(policy.maxEndPos)
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       false
+
+    override def appliesOn(
+        nextft: FT,
+    )(pred: Clause => Boolean): Option[Boolean] =
+      if (begPolicy.notExpiredBy(nextft)) None
+      else policy.appliesOn(nextft)(pred)
   }
 
   abstract class WithBeforeAndAfter extends WithConv {
@@ -301,6 +348,10 @@ object Policy {
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       before.appliesUntil(nextft)(pred) && after.appliesUntil(nextft)(pred)
 
+    override def appliesOn(nextft: FT)(
+        pred: Clause => Boolean,
+    ): Option[Boolean] = appliesOnAll(nextft, before, after)(pred)
+
     override def exists(pred: Clause => Boolean): Boolean = before
       .exists(pred) || after.exists(pred)
   }
@@ -311,6 +362,9 @@ object Policy {
     override protected def withBefore(before: Policy)(
         func: Policy => Policy,
     ): Policy = if (before.isEmpty) func(after) else new Relay(before, after)
+    override def appliesOn(nextft: FT)(
+        pred: Clause => Boolean,
+    ): Option[Boolean] = appliesOn1st(nextft, before, after)(pred)
   }
 
   class RelayOnSplit(
