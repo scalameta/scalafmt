@@ -1447,7 +1447,7 @@ class FormatOps(
           case _: T.LeftBrace => Policy.End > xft
           case _ => Policy.End >= xft
         }
-        val onOpen = Policy(endPos, "NSTOPEN")(penalizeOpenNL)
+        val onOpen = Policy("NSTOPEN")(penalizeOpenNL) <== endPos
         Policy.End <= x ==> onOpen ==> res
       }
 
@@ -1480,7 +1480,7 @@ class FormatOps(
       val blast = getLastNonTrivial(btokens, body)
       val expire = nextNonCommentSameLine(blast)
       def penalize(penalty: Int) = Policy ? (penalty > 0) &&
-        new PolicyOps.PenalizeAllNewlines(Policy.End <= blast, penalty)
+        new PolicyOps.PenalizeAllNewlines(penalty) <= blast
       def getNlSplit(penalty: Int, nlCost: Int = 1)(implicit
           fileLine: FileLine,
       ): Split = nlSplitFunc(nlCost).andPolicy(penalize(penalty))

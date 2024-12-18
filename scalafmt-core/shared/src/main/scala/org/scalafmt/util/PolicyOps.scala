@@ -12,7 +12,6 @@ object PolicyOps {
     *   do not allow newlines in token syntax
     */
   class PenalizeAllNewlines(
-      val endPolicy: Policy.End.WithPos,
       penalty: Int,
       penalizeLambdas: Boolean = true,
       noSyntaxNL: Boolean = false,
@@ -41,12 +40,9 @@ object PolicyOps {
         excludeRt: FT => Policy.End.WithPos = Policy.End.OnLeft,
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Policy = Policy ?
       (ignore || penalty <= 0) ||
-      policyWithExclude(exclude, excludeLt, excludeRt)(new PenalizeAllNewlines(
-        Policy.End < expire,
-        penalty,
-        penalizeLambdas,
-        noSyntaxNL,
-      ))
+      policyWithExclude(exclude, excludeLt, excludeRt)(
+        new PenalizeAllNewlines(penalty, penalizeLambdas, noSyntaxNL) < expire,
+      )
   }
 
   def penalizeOneNewline(on: FT, penalty: Int): Policy = Policy
@@ -68,7 +64,6 @@ object PolicyOps {
     *   if false, allow newlines in token syntax
     */
   class SingleLineBlock(
-      val endPolicy: Policy.End.WithPos,
       okSLC: Boolean = false,
       noSyntaxNL: Boolean = false,
       val rank: Int = 0,
@@ -96,11 +91,10 @@ object PolicyOps {
     )(implicit fileLine: FileLine, style: ScalafmtConfig): Policy =
       policyWithExclude(exclude, Policy.End.OnLeft, Policy.End.OnRight)(
         new SingleLineBlock(
-          Policy.End <= expire,
           okSLC = okSLC,
           noSyntaxNL = noSyntaxNL,
           rank = rank,
-        ),
+        ) <= expire,
       )
   }
 
@@ -111,7 +105,6 @@ object PolicyOps {
       ifAny: Boolean,
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
-    override val endPolicy: Policy.End.WithPos = Policy.End <= token
     override val noDequeue: Boolean = false
     override val prefix: String = "NB"
     override val f: Policy.Pf = split match {
@@ -137,7 +130,7 @@ object PolicyOps {
         rank: Int = 0,
         ifAny: Boolean = false,
     )(implicit fileLine: FileLine): Policy = Policy.End < token ==>
-      new DecideNewlinesOnlyBeforeToken(token, split, rank, ifAny)
+      new DecideNewlinesOnlyBeforeToken(token, split, rank, ifAny) <= token
   }
 
   final class DecideNewlinesOnlyAfterToken private (
@@ -147,7 +140,6 @@ object PolicyOps {
       ifAny: Boolean,
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
-    override val endPolicy: Policy.End.WithPos = Policy.End >= token
     override val noDequeue: Boolean = false
     override val prefix: String = "NA"
     override val f: Policy.Pf = split match {
@@ -172,7 +164,7 @@ object PolicyOps {
         rank: Int = 0,
         ifAny: Boolean = false,
     )(implicit fileLine: FileLine): Policy = Policy.End <= token ==>
-      new DecideNewlinesOnlyAfterToken(token, split, rank, ifAny)
+      new DecideNewlinesOnlyAfterToken(token, split, rank, ifAny) >= token
   }
 
   def policyWithExclude(
@@ -189,9 +181,9 @@ object PolicyOps {
       exclude: TokenRanges = TokenRanges.empty,
   )(onBreakPolicy: Policy): Policy = Policy ? onBreakPolicy.isEmpty ||
     policyWithExclude(exclude, Policy.End.OnLeft, Policy.End.OnRight)(
-      new Policy.Map(end, desc = onBreakPolicy.toString)({ s =>
+      new Policy.Map(desc = onBreakPolicy.toString)({ s =>
         if (s.isNL) s.orPolicy(onBreakPolicy) else s
-      }),
+      }) <== end,
     )
 
   def delayedBreakPolicyBefore(token: FT)(onBreakPolicy: Policy): Policy =
