@@ -49,19 +49,17 @@ object PolicyOps {
       ))
   }
 
-  def penalizeOneNewline(on: FT, penalty: Int)(implicit
-      fileLine: FileLine,
-  ): Policy = Policy.onlyFor(on, s"PNL+$penalty")(_.penalizeNL(penalty))
+  def penalizeOneNewline(on: FT, penalty: Int): Policy = Policy
+    .onlyFor(on, s"PNL+$penalty")(_.penalizeNL(penalty))
 
-  def penalizeNewlineByNesting(before: FT, after: FT)(implicit
-      fileLine: FileLine,
-  ): Policy = Policy.End < before ==> Policy.beforeLeft(after, prefix = "PNL()") {
-    case Decision(FT(l, _, m), s) =>
-      val nonBoolPenalty = if (TokenOps.isBoolOperator(l)) 0 else 5
-      val penalty = TreeOps.nestedSelect(m.leftOwner) +
-        TreeOps.nestedApplies(m.rightOwner) + nonBoolPenalty
-      s.penalizeNL(penalty)
-  }
+  def penalizeNewlineByNesting(before: FT, after: FT): Policy = Policy.End <
+    before ==> Policy.beforeLeft(after, prefix = "PNL()") {
+      case Decision(FT(l, _, m), s) =>
+        val nonBoolPenalty = if (TokenOps.isBoolOperator(l)) 0 else 5
+        val penalty = TreeOps.nestedSelect(m.leftOwner) +
+          TreeOps.nestedApplies(m.rightOwner) + nonBoolPenalty
+        s.penalizeNL(penalty)
+    }
 
   /** Forces all splits up to including expire to be on a single line.
     * @param okSLC
@@ -181,7 +179,7 @@ object PolicyOps {
       exclude: TokenRanges,
       endLt: FT => Policy.End.WithPos,
       endRt: FT => Policy.End.WithPos,
-  )(lastPolicy: Policy)(implicit fileLine: FileLine): Policy = exclude.ranges
+  )(lastPolicy: Policy): Policy = exclude.ranges
     .foldLeft(lastPolicy) { case (policy, range) =>
       (lastPolicy <== endLt(range.lt)) ==> (endRt(range.rt) ==> policy)
     }
@@ -189,13 +187,12 @@ object PolicyOps {
   def delayedBreakPolicy(
       end: => Policy.End.WithPos,
       exclude: TokenRanges = TokenRanges.empty,
-  )(onBreakPolicy: Policy)(implicit fileLine: FileLine): Policy =
-    Policy ? onBreakPolicy.isEmpty ||
-      policyWithExclude(exclude, Policy.End.OnLeft, Policy.End.OnRight)(
-        new Policy.Map(end, desc = onBreakPolicy.toString)({ s =>
-          if (s.isNL) s.orPolicy(onBreakPolicy) else s
-        }),
-      )
+  )(onBreakPolicy: Policy): Policy = Policy ? onBreakPolicy.isEmpty ||
+    policyWithExclude(exclude, Policy.End.OnLeft, Policy.End.OnRight)(
+      new Policy.Map(end, desc = onBreakPolicy.toString)({ s =>
+        if (s.isNL) s.orPolicy(onBreakPolicy) else s
+      }),
+    )
 
   def delayedBreakPolicyBefore(token: FT)(onBreakPolicy: Policy): Policy =
     delayedBreakPolicy(Policy.End < token)(onBreakPolicy)
