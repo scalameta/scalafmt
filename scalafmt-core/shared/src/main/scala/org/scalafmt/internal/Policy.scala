@@ -18,6 +18,8 @@ abstract class Policy {
   def f: Pf
   def rank: Int
 
+  def asDelayedAfter(pos: End.WithPos): Policy
+
   def filter(pred: Clause => Boolean): Policy
   def exists(pred: Clause => Boolean): Boolean
   def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean
@@ -78,6 +80,7 @@ object Policy {
     override def ?(flag: Boolean): Policy = this
 
     override def rank: Int = 0
+    override def asDelayedAfter(pos: End.WithPos): Policy = this
     override def unexpired(split: Split, nextft: FT): Policy = this
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       false
@@ -143,6 +146,8 @@ object Policy {
       s"$prefixWithColon[$fl]${noDeqPrefix}d$suffixWithColon"
     }
 
+    override def asDelayedAfter(pos: End.WithPos): Policy = this
+
     override def unexpired(split: Split, nextft: FT): Policy = this
 
     override def filter(pred: Clause => Boolean): Policy =
@@ -165,6 +170,9 @@ object Policy {
       extends Clause
 
   abstract class WithConv extends Policy {
+    override def asDelayedAfter(pos: End.WithPos): Policy =
+      conv(_.asDelayedAfter(pos))
+
     override def unexpired(split: Split, nextft: FT): Policy =
       conv(_.unexpired(split, nextft))
 
@@ -232,6 +240,8 @@ object Policy {
 
     override def <==(pos: End.WithPos): Policy =
       if (pos >= endPolicy) this else policy <== pos
+    override final def asDelayedAfter(pos: End.WithPos): Policy = this ?
+      (pos <= endPolicy)
 
     override def switch(trigger: T, on: Boolean): Policy = {
       val res = policy.switch(trigger, on)
@@ -254,12 +264,26 @@ object Policy {
     override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
   }
 
-  private class Delay(policy: Policy, begPolicy: End.WithPos) extends Policy {
+  private object Delay {
+    def apply(policy: Policy, begPolicy: End.WithPos): Delay = policy
+      .asDelayedAfter(begPolicy) match {
+      case p: Delay => p
+      case p => new Delay(p, begPolicy)
+    }
+  }
+
+  private class Delay private (val policy: Policy, val begPolicy: End.WithPos)
+      extends Policy {
     override def f: Pf = PartialFunction.empty
     override def rank: Int = 0
 
     override def <==(pos: End.WithPos): Policy =
       if (pos <= begPolicy) NoPolicy else new Expire(this, pos)
+    override def ==>(other: Policy): Policy =
+      if (other.isEmpty) this else new Delay(policy ==> other, begPolicy)
+
+    override def asDelayedAfter(pos: End.WithPos): Policy =
+      if (pos <= begPolicy) this else policy.asDelayedAfter(pos)
 
     override def filter(pred: Clause => Boolean): Policy = this
     override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
@@ -390,8 +414,7 @@ object Policy {
     sealed trait WithPos extends Ordered[WithPos] {
       protected val endIdx: Int
       def notExpiredBy(ft: FT): Boolean = ft.idx <= endIdx
-      def ==>(policy: Policy): Policy =
-        if (policy.isEmpty) NoPolicy else new Delay(policy, this)
+      def ==>(policy: Policy): Policy = Delay(policy, this)
       override final def compare(that: WithPos): Int = endIdx - that.endIdx
     }
     case object BeforeLeft extends End {
