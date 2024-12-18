@@ -1300,9 +1300,8 @@ class Router(formatOps: FormatOps) {
         val newlinesPenalty = 3 + indentLen * bracketPenalty
         val penalizeNewlinesPolicy =
           policyWithExclude(exclude, Policy.End.BeforeLeft, Policy.End.OnLeft) {
-            val expire =
+            new PenalizeAllNewlines(newlinesPenalty) <=
               findToken(beforeClose, prev)(x => !RightParenOrBracket(x.left))
-            new PenalizeAllNewlines(Policy.End <= expire, newlinesPenalty)
           }
 
         val (onelineCurryToken, onelinePolicy) = afterFirstArgOneline
