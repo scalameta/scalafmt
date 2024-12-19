@@ -1,5 +1,6 @@
 package org.scalafmt.community.common
 
+import org.scalafmt.config.RedundantBracesSettings._
 import org.scalafmt.config._
 import org.scalafmt.rewrite._
 
@@ -28,7 +29,9 @@ private[community] object TestStyles {
     def withSource(source: Newlines.SourceHints): ScalafmtConfig = style
       .copy(newlines = style.newlines.copy(source = source))
 
-    def withRewrites(): ScalafmtConfig = style.copy(rewrite =
+    def withRewrites(
+        oneStatApply: OneStatApply = OneStatApply.keep,
+    ): ScalafmtConfig = style.copy(rewrite =
       style.rewrite.copy(
         rules = Seq(RedundantParens, RedundantBraces, SortModifiers, AvoidInfix),
         scala3 = style.rewrite.scala3.copy(
@@ -37,7 +40,7 @@ private[community] object TestStyles {
           insertEndMarkerMinLines = 5,
         ),
         redundantBraces = RedundantBracesSettings.all
-          .copy(maxBreaks = Int.MaxValue),
+          .copy(maxBreaks = Int.MaxValue, oneStatApply = oneStatApply),
         redundantParens = RedundantParensSettings.all,
       ),
     )
@@ -59,10 +62,12 @@ private[community] object TestStyles {
   val keepWithAlign = baseKeepStyle.withAlign(Align.most)
   val keepWithScalaJS = baseKeepStyle.forScalaJs
   val fold = baseFoldStyle
-  val foldWithRewritesAndOverflow = baseFoldStyle.withRewrites()
+  val foldWithRewritesAndOverflow = baseFoldStyle
+    .withRewrites(oneStatApply = OneStatApply.parens)
     .withOverflow(Newlines.AvoidForSimpleOverflow.all.map(_.value): _*)
   val unfold = baseUnfoldStyle
-  val unfoldWithRewritesAndOverflow = baseUnfoldStyle.withRewrites()
+  val unfoldWithRewritesAndOverflow = baseUnfoldStyle
+    .withRewrites(oneStatApply = OneStatApply.braces)
     .withOverflow(Newlines.AvoidForSimpleOverflow.all.map(_.value): _*)
 
   val stylesWithLabels = Seq[sourcecode.Text[ScalafmtConfig]](

@@ -11,6 +11,8 @@ case class RedundantBracesSettings(
     maxBreaks: Int = 100,
     stringInterpolation: Boolean = false,
     parensForOneLineApply: Boolean = true,
+    oneStatApply: RedundantBracesSettings.OneStatApply =
+      RedundantBracesSettings.OneStatApply.keep,
     generalExpressions: Boolean = true,
     ifElseExpressions: Boolean = false,
 )
@@ -46,6 +48,16 @@ object RedundantBracesSettings {
     case object all extends DefnBodies
     case object none extends DefnBodies
     case object noParams extends DefnBodies
+  }
+
+  sealed abstract class OneStatApply
+  object OneStatApply {
+    implicit val codec: ConfCodecEx[OneStatApply] = ReaderUtil
+      .oneOf[OneStatApply](keep, braces, parens)
+
+    case object keep extends OneStatApply
+    case object braces extends OneStatApply
+    case object parens extends OneStatApply
   }
 
 }
