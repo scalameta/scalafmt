@@ -332,8 +332,7 @@ class FormatOps(
         val newRes = elsOpt.fold(res)(_ :: res)
         term.elsep match {
           case t: Term.If => getElseChain(t, newRes)
-          case b @ Term.Block((t: Term.If) :: Nil)
-              if !matchingOptRight(ftElsep).exists(_ eq getLast(b)) =>
+          case b @ Term.Block((t: Term.If) :: Nil) if ftElsep.rightOwner ne b =>
             getElseChain(t, newRes)
           case _ => newRes
         }
