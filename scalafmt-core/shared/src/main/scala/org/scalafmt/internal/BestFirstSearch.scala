@@ -44,6 +44,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   }
 
   private val memo = mutable.Map.empty[Long, Option[State]]
+  private val slbMemo = mutable.Map.empty[Long, Option[State]]
 
   def shortestPathMemo(
       start: State,
@@ -53,14 +54,20 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   ): Option[Option[State]] = {
     val key = start.indentation & 0xffL | (start.column & 0xffffffL) << 8 |
       (start.depth & 0xffffffffL) << 32
-    def orElse =
-      if (isOpt) Some(None) // we wouldn't recurse unless the span was large
-      else {
-        val nextState = shortestPath(start, stop, depth, isOpt).toOption
-        if (nextState.isDefined || !start.hasSlb()) memo.update(key, nextState)
-        Some(nextState)
+    def orElse(hadSlb: Boolean) = {
+      val nextState = shortestPath(start, stop, depth, isOpt).toOption
+      nextState match {
+        case None if hadSlb => slbMemo.update(key, nextState)
+        case Some(ns) if ns.hasSlb() => slbMemo.update(key, nextState)
+        case _ => memo.update(key, nextState)
       }
-    memo.get(key).orElse(orElse)
+      Some(nextState)
+    }
+    memo.get(key).orElse {
+      if (isOpt) Some(None) // we wouldn't recurse unless the span was large
+      else if (!start.hasSlb()) orElse(hadSlb = false)
+      else slbMemo.get(key).orElse(orElse(hadSlb = true))
+    }
   }
 
   /** Runs best first search to find lowest penalty split.
