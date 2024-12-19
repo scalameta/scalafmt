@@ -274,18 +274,20 @@ object Policy {
       false
   }
 
-  private class Relay(before: Policy, after: Policy) extends WithConv {
+  abstract class WithBeforeAndAfter extends WithConv {
+    def before: Policy
+    def after: Policy
+
+    protected def withBefore(before: Policy)(func: Policy => Policy): Policy
+
+    override protected def conv(func: Policy => Policy): Policy = {
+      val filtered = func(before)
+      if (filtered eq before) this else withBefore(filtered)(func)
+    }
+
     override def f: Pf = before.f
     override def rank: Int = before.rank
     override def noDequeue: Boolean = before.noDequeue
-    override def toString: String = s"$before ==> $after"
-
-    protected def conv(func: Policy => Policy): Policy = {
-      val filtered = func(before)
-      if (filtered.isEmpty) func(after)
-      else if (filtered eq before) this
-      else new Relay(filtered, after)
-    }
 
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       before.appliesUntil(nextft)(pred) && after.appliesUntil(nextft)(pred)
@@ -294,34 +296,31 @@ object Policy {
       .exists(pred) || after.exists(pred)
   }
 
+  private class Relay(val before: Policy, val after: Policy)
+      extends WithBeforeAndAfter {
+    override def toString: String = s"$before ==> $after"
+    override protected def withBefore(before: Policy)(
+        func: Policy => Policy,
+    ): Policy = if (before.isEmpty) func(after) else new Relay(before, after)
+  }
+
   class RelayOnSplit(
-      before: Policy,
+      val before: Policy,
       trigger: (Split, FT) => Boolean,
       triggerEnd: End.WithPos,
-      after: Policy,
+      val after: Policy,
   )(implicit fl: FileLine)
-      extends WithConv {
-    override def f: Pf = before.f
-    override def rank: Int = before.rank
+      extends WithBeforeAndAfter {
     override def unexpired(split: Split, nextft: FT): Policy =
       if (trigger(split, nextft)) after.unexpired(split, nextft)
       else if (!triggerEnd.notExpiredBy(nextft)) NoPolicy
       else super.unexpired(split, nextft)
 
-    override def noDequeue: Boolean = before.noDequeue
     override def toString: String = s"REL?:[$fl]($before ??? $after)"
 
-    protected def conv(func: Policy => Policy): Policy = {
-      val filtered = func(before)
-      if (filtered eq before) this
-      else new RelayOnSplit(filtered, trigger, triggerEnd, after)
-    }
-
-    override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
-      before.appliesUntil(nextft)(pred) && after.appliesUntil(nextft)(pred)
-
-    override def exists(pred: Clause => Boolean): Boolean = before
-      .exists(pred) || after.exists(pred)
+    override protected def withBefore(before: Policy)(
+        func: Policy => Policy,
+    ): Policy = new RelayOnSplit(before, trigger, triggerEnd, after)
   }
 
   object RelayOnSplit {
@@ -335,27 +334,18 @@ object Policy {
     ): Policy = by(End.Never)(trigger)(before)(after)
   }
 
-  class Switch(before: Policy, trigger: T, after: Policy)(implicit fl: FileLine)
-      extends WithConv {
-    override def f: Pf = before.f
-    override def rank: Int = before.rank
+  class Switch(val before: Policy, trigger: T, val after: Policy)(implicit
+      fl: FileLine,
+  ) extends WithBeforeAndAfter {
     override def switch(trigger: T, on: Boolean): Policy =
       if (trigger ne this.trigger) super.switch(trigger, on)
       else if (on) before
-      else after.switch(trigger, false)
-    override def noDequeue: Boolean = before.noDequeue
+      else after.switch(trigger, on = false)
     override def toString: String = s"SW:[$fl]($before,$trigger,$after)"
 
-    protected def conv(func: Policy => Policy): Policy = {
-      val filtered = func(before)
-      if (filtered eq before) this else new Switch(filtered, trigger, after)
-    }
-
-    override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
-      before.appliesUntil(nextft)(pred) && after.appliesUntil(nextft)(pred)
-
-    override def exists(pred: Clause => Boolean): Boolean = before
-      .exists(pred) || after.exists(pred)
+    override protected def withBefore(before: Policy)(
+        func: Policy => Policy,
+    ): Policy = new Switch(before, trigger, after)
   }
 
   object Proxy {
