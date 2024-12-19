@@ -1787,3 +1787,9 @@ object a {
     )
   }
 }
+<<< #4645
+runner.dialect = scala3
+===
+given fooBar: (Foo & Bar) = new Foo with Bar {}
+>>>
+given fooBar: Foo & Bar = new Foo with Bar {}
