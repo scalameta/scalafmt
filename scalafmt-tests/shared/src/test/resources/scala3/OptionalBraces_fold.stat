@@ -7154,7 +7154,7 @@ private[this] def __computeSerializedSize(): _root_.scala.Int =
         __value.serializedSize;
    end if
    __size
-<<< SKIP expression with long `then` block and multi-line `else` block
+<<< expression with long `then` block and multi-line `else` block
 final case class UserCheck(
   options: PublishSetupOptions,
   configDb: () => ConfigDb,
@@ -7195,19 +7195,37 @@ final case class UserCheck(
           case b =>
         }
     )
->>>
-BestFirstSearch:341 Failed to format
-UNABLE TO FORMAT,
-tok #140/157: [140] else CheckUtils >>> KwElse [1075..1079) | Ident(CheckUtils) [1088..1098) >>> Term.If [265..1195) [Term.ArgClause] | Term.Name [1088..1098) [Term.Select] <<<[LF]>>>
-policies:
-  SLB:[Router:1127]!d <== <=LeftBrace[148] ==> >=RightArrow[154] ==> SLB:[Router:1127]!d <== <=RightParen[156]
-  PNL+1:[FormatOps:1482]d <== <=RightParen[156]
-  <=RightParen[156] ==> NA:[FormatOps:1923]d <== >=RightParen[156]
-splits (before policy):
-  c=0[0] SP[3>}[155]]:[FormatOps:2341->FormatOps:1907](SLB:[FormatOps:2341]!d <== <=RightBrace[155], opt=}![155])
-  c=1[0] NL[3>}[155]]:[FormatOps:2341->FormatOps:1908](<=RightBrace[155] ==> NA:[FormatOps:2341]d <== >=RightBrace[155])
-splits (after policy):
-  c=0[0] SP[3>}[155]]:[FormatOps:2341->FormatOps:1907](SLB:[FormatOps:2341]!d <== <=RightBrace[155], opt=}![155])
+>>> { stateVisits = 3818, stateVisits2 = 3818 }
+final case class UserCheck(
+    options: PublishSetupOptions,
+    configDb: () => ConfigDb,
+    workspace: os.Path,
+    logger: Logger
+) extends OptionCheck:
+   def defaultValue(
+       pubOpt: BPublishOptions
+   ): Either[BuildException, OptionCheck.DefaultValue] = either(
+     if options.publishParams.setupCi then
+        val user0 = options.publishRepo.user match
+           case None => value(userOpt(pubOpt)) match
+                case Some(user) =>
+                  logger.message(s"  using ${Keys.publishCredentials
+                      .fullName} from Scala CLI configuration")
+                  user
+                case None => value(Left(new MissingPublishOptionError(
+                    "publish user",
+                    "--user",
+                    "publish.credentials",
+                    configKeys = Seq(Keys.publishCredentials.fullName)
+                  )))
+
+        OptionCheck.DefaultValue.simple(Nil)
+     else
+        CheckUtils.getHostOpt(logger) match {
+          case a =>
+          case b =>
+        }
+   )
 <<< #4133 convert to new syntax: add then at possible line end
 maxColumn = 74
 rewrite.scala3.convertToNewSyntax = true

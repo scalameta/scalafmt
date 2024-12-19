@@ -10061,7 +10061,7 @@ system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
             }
       }
 }
->>> { stateVisits = 3689, stateVisits2 = 3689 }
+>>> { stateVisits = 6655, stateVisits2 = 6655 }
 system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
   case _: NoSuchMethodException => system.dynamicAccess
       .createInstanceFor[Serializer](
