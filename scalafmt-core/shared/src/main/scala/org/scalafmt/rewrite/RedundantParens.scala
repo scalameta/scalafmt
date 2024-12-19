@@ -59,6 +59,14 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
     }
   }
 
+  private def okToReplaceDeclTpe(p: Tree.WithDeclTpe, t: Tree): Boolean =
+    (t, p) match {
+      // https://dotty.epfl.ch/docs/reference/syntax.html#declarations-and-definitions-1
+      // given requires AnnotType, not any Type
+      case (_: Type.ApplyInfix, _: Stat.GivenLike) => false
+      case _ => true
+    }
+
 }
 
 class RedundantParens(implicit val ftoks: FormatTokens)
@@ -126,7 +134,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
             case _ => true
           }
         case pia: Member.Infix => okToReplaceInfix(pia, t)
-        case p: Tree.WithDeclTpe if p.decltpe eq t => true
+        case p: Tree.WithDeclTpe if p.decltpe eq t => okToReplaceDeclTpe(p, t)
         case p: Tree.WithDeclTpeOpt if p.decltpe.contains(t) => true
         case _ => okToReplaceOther(t)
       }
