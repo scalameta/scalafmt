@@ -348,40 +348,6 @@ object Policy {
     ): Policy = new Switch(before, trigger, after)
   }
 
-  object Proxy {
-    def apply(policy: Policy)(factory: Policy => Pf)(implicit
-        fl: FileLine,
-    ): Policy = if (policy.isEmpty) NoPolicy else new Proxy(policy, factory)
-  }
-
-  private class Proxy(policy: Policy, factory: Policy => Pf)(implicit
-      fl: FileLine,
-  ) extends Clause {
-    override val f: Pf = factory(policy)
-    override def rank: Int = policy.rank
-
-    override def filter(pred: Clause => Boolean): Policy =
-      if (!pred(this)) NoPolicy else Proxy(policy.filter(pred))(factory)
-
-    override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
-
-    override def switch(trigger: T, on: Boolean): Policy = {
-      val switched = policy.switch(trigger, on)
-      if (switched eq policy) this else Proxy(switched)(factory)
-    }
-
-    override def unexpired(split: Split, nextft: FT): Policy =
-      Proxy(policy.unexpired(split, nextft))(factory)
-
-    override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
-      policy.appliesUntil(nextft)(pred)
-
-    override def noDequeue: Boolean = policy.noDequeue
-
-    override val prefix: String = "*"
-    override def suffix: String = s"($policy)"
-  }
-
   final class Map(
       val noDequeue: Boolean = false,
       val rank: Int = 0,
