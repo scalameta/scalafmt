@@ -20,6 +20,7 @@ abstract class Policy {
 
   def filter(pred: Clause => Boolean): Policy
   def exists(pred: Clause => Boolean): Boolean
+  def maxEndPos: End.WithPos
   def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean
   def unexpired(split: Split, nextft: FT): Policy
   def noDequeue: Boolean
@@ -79,6 +80,8 @@ object Policy {
 
     override def rank: Int = 0
     override def unexpired(split: Split, nextft: FT): Policy = this
+
+    override def maxEndPos: End.WithPos = End.Never
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       false
     override def filter(pred: Clause => Boolean): Policy = this
@@ -152,6 +155,7 @@ object Policy {
 
     override def switch(trigger: T, on: Boolean): Policy = this
 
+    override def maxEndPos: End.WithPos = End.Never
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       pred(this)
   }
@@ -191,6 +195,7 @@ object Policy {
       if (np1.eq(p1) && np2.eq(p2)) this else np1 | np2
     }
 
+    override def maxEndPos: End.WithPos = p1.maxEndPos.max(p2.maxEndPos)
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean = p1
       .appliesUntil(nextft)(pred) && p2.appliesUntil(nextft)(pred)
 
@@ -218,6 +223,7 @@ object Policy {
       if (np1.eq(p1) && np2.eq(p2)) this else np1 & np2
     }
 
+    override def maxEndPos: End.WithPos = p1.maxEndPos.max(p2.maxEndPos)
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean = p1
       .appliesUntil(nextft)(pred) || p2.appliesUntil(nextft)(pred)
 
@@ -248,6 +254,7 @@ object Policy {
       if (filtered eq policy) this else filtered <== endPolicy
     }
 
+    override def maxEndPos: End.WithPos = endPolicy.min(policy.maxEndPos)
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       endPolicy.notExpiredBy(nextft) && policy.appliesUntil(nextft)(pred)
 
@@ -270,6 +277,7 @@ object Policy {
     override def noDequeue: Boolean = policy.noDequeue
     override def toString: String = s"$begPolicy ==> $policy"
 
+    override def maxEndPos: End.WithPos = begPolicy.max(policy.maxEndPos)
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       false
   }
@@ -288,6 +296,7 @@ object Policy {
     override def f: Pf = before.f
     override def rank: Int = before.rank
     override def noDequeue: Boolean = before.noDequeue
+    override def maxEndPos: End.WithPos = before.maxEndPos.max(after.maxEndPos)
 
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       before.appliesUntil(nextft)(pred) && after.appliesUntil(nextft)(pred)
@@ -388,42 +397,44 @@ object Policy {
       .tokWithoutPos(token)
 
     sealed trait WithPos extends Ordered[WithPos] {
-      protected val endIdx: Int
+      val endIdx: Int
       def notExpiredBy(ft: FT): Boolean = ft.idx <= endIdx
       def ==>(policy: Policy): Policy =
         if (policy.isEmpty) NoPolicy else new Delay(policy, this)
       override final def compare(that: WithPos): Int = endIdx - that.endIdx
+      def max(that: WithPos): WithPos = if (this < that) that else this
+      def min(that: WithPos): WithPos = if (this > that) that else this
     }
     case object BeforeLeft extends End {
       def apply(exp: FT): WithPos = new End.WithPos {
-        protected val endIdx: Int = exp.idx - 2
+        val endIdx: Int = exp.idx - 2
         override def toString: String =
           s"<${getDescWithoutPos(exp.left)}[${exp.idx}]"
       }
     }
     case object OnLeft extends End {
       def apply(exp: FT): WithPos = new End.WithPos {
-        protected val endIdx: Int = exp.idx - 1
+        val endIdx: Int = exp.idx - 1
         override def toString: String =
           s"<=${getDescWithoutPos(exp.left)}[${exp.idx}]"
       }
     }
     case object OnRight extends End {
       def apply(exp: FT): WithPos = new End.WithPos {
-        protected val endIdx: Int = exp.idx
+        val endIdx: Int = exp.idx
         override def toString: String =
           s">=${getDescWithoutPos(exp.left)}[${exp.idx}]"
       }
     }
     case object AfterRight extends End {
       def apply(exp: FT): WithPos = new End.WithPos {
-        protected val endIdx: Int = exp.idx + 1
+        val endIdx: Int = exp.idx + 1
         override def toString: String =
           s">${getDescWithoutPos(exp.left)}[${exp.idx}]"
       }
     }
     case object Never extends WithPos {
-      override protected val endIdx: Int = Int.MaxValue
+      override val endIdx: Int = Int.MaxValue
     }
   }
 
