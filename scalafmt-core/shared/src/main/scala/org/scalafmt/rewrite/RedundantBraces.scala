@@ -1,7 +1,6 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.config.RedundantBracesSettings
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config._
 import org.scalafmt.internal._
 import org.scalafmt.util.TreeOps._
 
@@ -15,6 +14,9 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
   import FormatTokensRewrite._
 
   override def enabled(implicit style: ScalafmtConfig): Boolean = true
+
+  def usedIn(rewrite: RewriteSettings): Boolean = rewrite.rules.contains(this)
+  def used(implicit style: ScalafmtConfig): Boolean = usedIn(style.rewrite)
 
   override def create(implicit ftoks: FormatTokens): Rule = new RedundantBraces
 
@@ -91,6 +93,17 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
   ): Boolean = session.claimedRuleOnLeft(pft)
     .exists(x => (x.how eq ReplacementType.Replace) && x.ft.right.is[T.LeftBrace])
 
+  def useParensWithinApply(tree: Tree, isWithinParensNow: Boolean)(implicit
+      style: ScalafmtConfig,
+      ftoks: FormatTokens,
+  ): Boolean =
+    (style.rewrite.redundantBraces.oneStatApply eq
+      RedundantBracesSettings.OneStatApply.parens) &&
+      canRewriteStatWithParens(tree) && (isWithinParensNow || okLineSpan(tree))
+
+  private def okLineSpan(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
+    getTreeLineSpan(tree) <= style.rewrite.redundantBraces.maxBreaks
+
 }
 
 /** Removes/adds curly braces where desired.
@@ -137,8 +150,10 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     }
 
     ft.rightOwner match {
-      case ta @ Term.ArgClause(arg :: Nil, _)
+      case ta @ Term.ArgClause(arg :: Nil, None)
           if !ta.parent.is[Init] && getOpeningParen(ta).contains(rt) =>
+        def useBraces = style.rewrite.redundantBraces.oneStatApply eq
+          RedundantBracesSettings.OneStatApply.braces
         def replaceWithNextBrace() = ftoks.nextNonCommentAfter(ft) match {
           case FT(lt, _: T.LeftBrace, m) =>
             val claim = m.idx :: Nil
@@ -146,19 +161,27 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             else replaceWithBrace(owner = Some(m.rightOwner), claim = claim)
           case _ => replaceWithBrace(Some(arg))
         }
+        def infixOK: Boolean = style.newlines.formatInfix ||
+          style.dialect.allowInfixOperatorAfterNL
         arg match {
           // single-arg apply of a partial function or optionally any arg
           // a({ case b => c; d }) change to a { case b => c; d }
           case _: Term.PartialFunction => replaceWithNextBrace()
           case _: Term.Block =>
-            val ok = getBlockNestedPartialFunction(arg).nonEmpty
+            val ok = useBraces || getBlockNestedPartialFunction(arg).nonEmpty
             if (ok) replaceWithNextBrace() else null
+          case _: Term.Assign | _: Term.Repeated | _: Term.Ascribe => null
+          case t if useParensWithinApply(t, isWithinParensNow = true) => null
           case f: Term.FunctionTerm =>
             getBlockToReplaceAsFuncBodyInSingleArgApply(ta, f) match {
               case Some((_, xlb)) => replaceWithBrace(claim = xlb.idx - 1 :: Nil)
-              case _ => null
+              case _ =>
+                val ok = useBraces && (!f.body.is[Term.ApplyInfix] || infixOK)
+                if (ok) replaceWithBrace() else null
             }
-          case _ => null
+          case _ if !useBraces || ta.parent.is[Term.ApplyInfix] => null
+          case _: Term.ApplyInfix if !infixOK => null
+          case _ => replaceWithBrace()
         }
       case _ => null
     }
@@ -192,7 +215,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     case ReplacementType.Replace if left.ft.right.is[T.LeftBrace] =>
       // this also removes any trailing commas, so can't be conditionally invoked
       val pftOpt = getRightBraceBeforeRightParen(shouldBeRemoved = true)
-      def replaceWithBrace(rb: T, rtype: ReplacementType, startOff: Int) = {
+      def replaceWithBrace(rb: T, rtype: ReplacementType, startOff: Int = 0) = {
         val rbo = Some(left.ft.rightOwner)
         left -> replaceToken("}", owner = rbo, rtype = rtype) {
           new T.RightBrace(rb.input, rb.dialect, rb.start + startOff)
@@ -210,6 +233,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             .flatMap { r =>
               val repl = r.onLeftForArgClause(ac)(left.ft, left.style)
               if (repl eq null) None else repl.onRight(hasFormatOff)
+            }.orElse {
+              if (left.claim.nonEmpty) None
+              else Some(replaceWithBrace(ft.right, ReplacementType.Replace))
             }
         case _ => None
       }).getOrElse {
@@ -272,6 +298,14 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           case _ => null
         }
       case t: Term.Block => t.parent match {
+          case Some(p: Term.ArgClause)
+              if isParentAnApply(p) &&
+                useParensWithinApply(t, isWithinParensNow = false) =>
+            val acHead = ftoks.getHead(p)
+            if (acHead.left eq ft.right) replaceTokenBy("(", Some(p)) { x =>
+              new T.LeftParen(x.input, x.dialect, x.start)
+            }
+            else removeToken
           case Some(f: Term.FunctionTerm)
               if getBlockToReplaceAsFuncBodyIfInSingleArgApply(f)
                 .exists { case (_, xft) => xft.idx <= ft.idx + 1 } =>
@@ -330,6 +364,10 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                 (style.dialect.allowSignificantIndentation ||
                   okComment(ft) && !elseAfterRightBraceThenpOnLeft) =>
             (left, removeToken)
+          case ReplacementType.Replace if left.ft.right.is[T.LeftParen] =>
+            left -> replaceTokenBy(")", t.parent) { x =>
+              new T.RightParen(x.input, x.dialect, x.start)
+            }
           case _ => null
         }
       case _ => (left, removeToken)
@@ -681,9 +719,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   private def getSingleStatIfLineSpanOk(b: Term.Block)(implicit
       style: ScalafmtConfig,
   ): Option[Stat] = getBlockSingleStat(b).filter(okLineSpan(_))
-
-  private def okLineSpan(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
-    getTreeLineSpan(tree) <= settings.maxBreaks
 
   private def braceSeparatesTwoXmlTokens(implicit ft: FT): Boolean = ft.left
     .is[T.Xml.End] && ftoks.next(ft).right.is[T.Xml.Start]
