@@ -1940,8 +1940,9 @@ val strings = Seq(
   s"  $bestEPStr",
   "Metrics:",
   s"  $metricHeader: ${bestScore.score}"
-) ++ otherMetricHeaders.zip(bestScore.otherScores)
-  .map { case (h, s) => s"  $h: $s" } ++ outputPath.toSeq.map { p =>
+) ++ otherMetricHeaders.zip(bestScore.otherScores).map { case (h, s) =>
+  s"  $h: $s"
+} ++ outputPath.toSeq.map { p =>
   s"The best variant params can be found in $p"
 }
 <<< 8.6: assignment with short expression
@@ -6723,9 +6724,9 @@ if (
 }
 >>>
 if (
-  settings.fuzzingMode &&
-  !system.settings.config
-    .hasPath("akka.stream.secret-test-fuzzing-warning-disable")
+  settings.fuzzingMode && !system.settings.config.hasPath(
+    "akka.stream.secret-test-fuzzing-warning-disable"
+  )
 ) {
   //
 }
@@ -6821,7 +6822,7 @@ object a {
     }
   ))
 }
->>> { stateVisits = 2039, stateVisits2 = 2039 }
+>>> { stateVisits = 2070, stateVisits2 = 2070 }
 object a {
   buffer.append((
     if (!fetchContent) {
@@ -9068,13 +9069,14 @@ val stats = Profiler.getStatistics().asScala.toSeq.map {
   case (trace, count) => MethodCallTrace(trace.className, trace.methodName, trace.methodDescriptor) -> count.intValue
 }
 >>>
-val stats = Profiler.getStatistics().asScala.toSeq.map {
-  case (trace, count) => MethodCallTrace(
+val stats = Profiler.getStatistics().asScala.toSeq
+  .map { case (trace, count) =>
+    MethodCallTrace(
       trace.className,
       trace.methodName,
       trace.methodDescriptor
     ) -> count.intValue
-}
+  }
 <<< #4133 partial function within apply, short
 rdd.map(
     {case (id, count) => (count, id)})
@@ -10061,7 +10063,7 @@ system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
             }
       }
 }
->>> { stateVisits = 6655, stateVisits2 = 6655 }
+>>> { stateVisits = 3689, stateVisits2 = 3689 }
 system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
   case _: NoSuchMethodException => system.dynamicAccess
       .createInstanceFor[Serializer](
@@ -10568,10 +10570,10 @@ object a {
 f) + ", " + pool(nameAndTypeRef)
   }
 }
->>> { stateVisits = 194, stateVisits2 = 194 }
+>>> { stateVisits = 161, stateVisits2 = 161 }
 object a {
-  def memberRef(description: String) = u2 ~ u2 ^^
-    add1 { case classRef ~ nameAndTypeRef =>
+  def memberRef(description: String) = u2 ~ u2 ^^ add1 {
+    case classRef ~ nameAndTypeRef =>
       pool => description + ": " + pool(classRe f) + ", " + pool(nameAndTypeRef)
-    }
+  }
 }

@@ -21,6 +21,9 @@ abstract class Policy {
   def noDequeue: Boolean
   def maxEndPos: End.WithPos
 
+  protected def asAfter(pos: End.WithPos): Policy
+  protected def asUntil(pos: End.WithPos): Policy
+
   def filter(pred: Clause => Boolean): Policy
   def exists(pred: Clause => Boolean): Boolean
   def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean
@@ -32,9 +35,8 @@ abstract class Policy {
     if (other.isEmpty) this else new AndThen(this, other)
   def |(other: Policy): Policy =
     if (other.isEmpty) this else new OrElse(this, other)
-  def ==>(other: Policy): Policy =
-    if (other.isEmpty) this else new Relay(this, other)
-  def <==(pos: End.WithPos): Policy = new Expire(this, pos)
+  def ==>(other: Policy): Policy = Relay(this, other)
+  def <==(pos: End.WithPos): Policy = Expire(this, pos)
   def ?(flag: Boolean): Policy = if (flag) this else NoPolicy
 
   @inline
@@ -84,6 +86,9 @@ object Policy {
     override def terminal: Boolean = false
     override def noDequeue: Boolean = false
     override def maxEndPos: End.WithPos = End.Never
+
+    override protected def asAfter(pos: End.WithPos): Policy = this
+    override protected def asUntil(pos: End.WithPos): Policy = this
 
     override def unexpired(split: Split, nextft: FT): Policy = this
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
@@ -174,6 +179,9 @@ object Policy {
       s"$prefixWithColon[$fl]${noDeqPrefix}d$suffixWithColon"
     }
 
+    override protected def asAfter(pos: End.WithPos): Policy = this
+    override protected def asUntil(pos: End.WithPos): Policy = this
+
     override def unexpired(split: Split, nextft: FT): Policy = this
 
     override def filter(pred: Clause => Boolean): Policy =
@@ -202,6 +210,11 @@ object Policy {
       extends Clause
 
   abstract class WithConv extends Policy {
+    override protected def asAfter(pos: End.WithPos): Policy =
+      conv(_.asAfter(pos))
+    override protected def asUntil(pos: End.WithPos): Policy =
+      conv(_.asUntil(pos))
+
     override def unexpired(split: Split, nextft: FT): Policy =
       conv(_.unexpired(split, nextft))
 
@@ -288,7 +301,15 @@ object Policy {
       p2.exists(pred)
   }
 
-  private class Expire(policy: Policy, endPolicy: End.WithPos)
+  private object Expire {
+    def apply(policy: Policy, endPolicy: End.WithPos): Expire = policy
+      .asUntil(endPolicy) match {
+      case p: Expire => p
+      case p => new Expire(p, endPolicy)
+    }
+  }
+
+  private class Expire private (policy: Policy, endPolicy: End.WithPos)
       extends WithConv {
     override def toString: String = s"$policy <== $endPolicy"
 
@@ -298,13 +319,15 @@ object Policy {
     override def noDequeue: Boolean = policy.noDequeue
     override def maxEndPos: End.WithPos = endPolicy.min(policy.maxEndPos)
 
-    override def <==(pos: End.WithPos): Policy =
-      if (pos >= endPolicy) this else policy <== pos
+    override protected def asAfter(pos: End.WithPos): Policy =
+      if (pos >= endPolicy) NoPolicy
+      else {
+        val p = policy.asAfter(pos)
+        if (p eq policy) this else new Expire(p, endPolicy)
+      }
+    override protected def asUntil(pos: End.WithPos): Policy =
+      if (pos >= endPolicy) this else policy.asUntil(pos)
 
-    override def switch(trigger: T, on: Boolean): Policy = {
-      val res = policy.switch(trigger, on)
-      if (res eq policy) this else res <== endPolicy
-    }
     override def unexpired(split: Split, nextft: FT): Policy =
       if (!endPolicy.notExpiredBy(nextft)) NoPolicy
       else super.unexpired(split, nextft)
@@ -325,7 +348,16 @@ object Policy {
     override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
   }
 
-  private class Delay(policy: Policy, begPolicy: End.WithPos) extends Policy {
+  private object Delay {
+    def apply(policy: Policy, begPolicy: End.WithPos): Delay = policy
+      .asAfter(begPolicy) match {
+      case p: Delay => p
+      case p => new Delay(p, begPolicy)
+    }
+  }
+
+  private class Delay private (val policy: Policy, val begPolicy: End.WithPos)
+      extends Policy {
     override def toString: String = s"$begPolicy ==> $policy"
 
     override def f: Pf = PartialFunction.empty
@@ -335,7 +367,18 @@ object Policy {
     override def maxEndPos: End.WithPos = begPolicy.max(policy.maxEndPos)
 
     override def <==(pos: End.WithPos): Policy =
-      if (pos <= begPolicy) NoPolicy else new Expire(this, pos)
+      if (pos <= begPolicy) NoPolicy else Expire(this, pos)
+    override def ==>(other: Policy): Policy =
+      Relay(this, other.asAfter(begPolicy))
+
+    override protected def asAfter(pos: End.WithPos): Policy =
+      if (pos <= begPolicy) this else policy.asAfter(pos)
+    override protected def asUntil(pos: End.WithPos): Policy =
+      if (pos <= begPolicy) NoPolicy
+      else {
+        val p = policy.asUntil(pos)
+        if (p eq policy) this else new Delay(p, begPolicy)
+      }
 
     override def filter(pred: Clause => Boolean): Policy = this
     override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
@@ -381,7 +424,12 @@ object Policy {
       .exists(pred) || after.exists(pred)
   }
 
-  private class Relay(val before: Policy, val after: Policy)
+  private object Relay {
+    def apply(before: Policy, after: Policy): Policy =
+      if (after.isEmpty) before else new Relay(before, after)
+  }
+
+  private class Relay private (val before: Policy, val after: Policy)
       extends WithBeforeAndAfter {
     override def toString: String = s"$before ==> $after"
     override protected def withBefore(before: Policy)(
@@ -480,8 +528,7 @@ object Policy {
     sealed trait WithPos extends Ordered[WithPos] {
       val endIdx: Int
       def notExpiredBy(ft: FT): Boolean = ft.idx <= endIdx
-      def ==>(policy: Policy): Policy =
-        if (policy.isEmpty) NoPolicy else new Delay(policy, this)
+      def ==>(policy: Policy): Policy = Delay(policy, this)
       override final def compare(that: WithPos): Int = endIdx - that.endIdx
       def max(that: WithPos): WithPos = if (this < that) that else this
       def min(that: WithPos): WithPos = if (this > that) that else this
