@@ -25,11 +25,16 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   /** Precomputed table of splits for each token.
     */
-  val routes: Array[Seq[Split]] = {
+  val (routes, hasNLOnly): (Array[Seq[Split]], Array[Int]) = {
     val router = new Router(formatOps)
     val result = Array.newBuilder[Seq[Split]]
-    tokens.foreach(t => result += router.getSplits(t))
-    result.result()
+    val nlOnly = Array.newBuilder[Int]
+    tokens.foreach { t =>
+      val splits = router.getSplits(t)
+      result += splits
+      if (splits.forall(_.isNL)) nlOnly += t.idx
+    }
+    (result.result(), nlOnly.result())
   }
   private val noOptZones =
     if (useNoOptZones(initStyle)) getNoOptZones(tokens) else null
@@ -133,8 +138,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           if (noBlockClose) None
           else getBlockCloseToRecurse(splitToken)
             .flatMap(shortestPathMemo(curr, _, depth + 1, isOpt))
-        if (blockCloseState.nonEmpty) blockCloseState
-          .foreach(_.foreach(Q.enqueue))
+        if (blockCloseState.nonEmpty) blockCloseState.foreach(_.foreach(enqueue))
         else {
           if (optimizer.escapeInPathologicalCases && isSeqMulti(routes(idx)))
             stats.explode(splitToken, optimizer.maxVisitsPerToken)(
@@ -161,10 +165,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
                   }
                 case _ => nextState
               }
-              if (null ne stateToQueue) {
-                stats.updateBest(nextState, stateToQueue)
-                Q.enqueue(stateToQueue)
-              }
+              if (enqueue(stateToQueue)) stats
+                .updateBest(nextState, stateToQueue)
             } else preFork = false
           }
 
@@ -194,6 +196,30 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     state.next(split)
   }
 
+  private def getNLOnlyIndexAfter(ftIdx: Int) = {
+    val idx = java.util.Arrays.binarySearch(hasNLOnly, ftIdx + 1)
+    if (idx >= 0) idx else -(idx + 1)
+  }
+
+  private def hasImpossibleSlb(state: State, optFtIdx: Int = -1) = {
+    val maxFtIdx =
+      (optFtIdx +: state.policy.policies.view.map(_.maxEndPos.endIdx)).max
+    @tailrec
+    def iter(nlOnlyIdx: Int): Boolean = nlOnlyIdx < hasNLOnly.length && {
+      val nlOnlyFtIdx = hasNLOnly(nlOnlyIdx)
+      state.hasSlbOn(tokens(nlOnlyFtIdx)) ||
+      nlOnlyFtIdx < maxFtIdx && iter(nlOnlyIdx + 1)
+    }
+    iter(getNLOnlyIndexAfter(state.depth))
+  }
+
+  private def enqueue(state: State)(implicit q: StateQueue): Boolean =
+    (state ne null) && {
+      val ok = !hasImpossibleSlb(state)
+      if (ok) q.enqueue(state)
+      ok
+    }
+
   private def willKillOnFail(kill: Boolean, end: => FT)(implicit
       nextState: State,
   ): Boolean = kill || nextState.hasSlbUntil(end)
@@ -209,6 +235,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     val optIdx = opt.token.idx
     val nextNextState =
       if (optIdx <= nextState.depth) nextState
+      else if (hasImpossibleSlb(nextState, optIdx)) return Left(null)
       else if (tokens.width(nextState.depth, optIdx) > 3 * style.maxColumn)
         return Left(killOnFail(opt))
       else {

@@ -55,6 +55,10 @@ final class State(
   def hasSlbUntil(ft: FT): Boolean = policy
     .exists(_.appliesUntil(ft)(_.isInstanceOf[PolicyOps.SingleLineBlock]))
 
+  def hasSlbOn(ft: FT): Boolean = policy.exists(
+    _.appliesOn(ft)(_.isInstanceOf[PolicyOps.SingleLineBlock]).contains(true),
+  )
+
   def hasSlb(): Boolean = policy
     .exists(_.exists(_.isInstanceOf[PolicyOps.SingleLineBlock]))
 
