@@ -17,14 +17,14 @@ abstract class Policy {
   /** applied to every decision until expire */
   def f: Pf
   def rank: Int
+  def noDequeue: Boolean
+  def maxEndPos: End.WithPos
 
   def filter(pred: Clause => Boolean): Policy
   def exists(pred: Clause => Boolean): Boolean
-  def maxEndPos: End.WithPos
   def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean
   def appliesOn(nextft: FT)(pred: Clause => Boolean): Option[Boolean]
   def unexpired(split: Split, nextft: FT): Policy
-  def noDequeue: Boolean
   def switch(trigger: T, on: Boolean): Policy
 
   def &(other: Policy): Policy =
@@ -80,9 +80,10 @@ object Policy {
     override def ?(flag: Boolean): Policy = this
 
     override def rank: Int = 0
-    override def unexpired(split: Split, nextft: FT): Policy = this
-
+    override def noDequeue: Boolean = false
     override def maxEndPos: End.WithPos = End.Never
+
+    override def unexpired(split: Split, nextft: FT): Policy = this
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       false
     override def appliesOn(nextft: FT)(
@@ -91,7 +92,6 @@ object Policy {
     override def filter(pred: Clause => Boolean): Policy = this
     override def exists(pred: Clause => Boolean): Boolean = false
     override def switch(trigger: T, on: Boolean): Policy = this
-    override def noDequeue: Boolean = false
   }
 
   def apply(prefix: String, noDequeue: Boolean = false, rank: Int = 0)(f: Pf)(
@@ -208,13 +208,12 @@ object Policy {
     .orElse(p2.appliesOn(nextft)(pred))
 
   private class OrElse(p1: Policy, p2: Policy) extends WithConv {
-    override lazy val f: Pf = p1.f.orElse(p2.f)
-
-    override def rank: Int = math.min(p1.rank, p2.rank)
-
-    override def noDequeue: Boolean = p1.noDequeue || p2.noDequeue
-
     override def toString: String = s"($p1 | $p2)"
+
+    override lazy val f: Pf = p1.f.orElse(p2.f)
+    override def rank: Int = math.min(p1.rank, p2.rank)
+    override def noDequeue: Boolean = p1.noDequeue || p2.noDequeue
+    override def maxEndPos: End.WithPos = p1.maxEndPos.max(p2.maxEndPos)
 
     protected def conv(pred: Policy => Policy): Policy = {
       val np1 = pred(p1)
@@ -222,10 +221,8 @@ object Policy {
       if (np1.eq(p1) && np2.eq(p2)) this else np1 | np2
     }
 
-    override def maxEndPos: End.WithPos = p1.maxEndPos.max(p2.maxEndPos)
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean = p1
       .appliesUntil(nextft)(pred) && p2.appliesUntil(nextft)(pred)
-
     override def appliesOn(nextft: FT)(
         pred: Clause => Boolean,
     ): Option[Boolean] = appliesOnAll(nextft, p1, p2)(pred)
@@ -235,6 +232,8 @@ object Policy {
   }
 
   private class AndThen(p1: Policy, p2: Policy) extends WithConv {
+    override def toString: String = s"($p1 & $p2)"
+
     override lazy val f: Pf = { case x =>
       p2.f.applyOrElse(
         p1.f.andThen(x.withSplits _).applyOrElse(x, identity[Decision]),
@@ -243,10 +242,8 @@ object Policy {
     }
 
     override def rank: Int = math.min(p1.rank, p2.rank)
-
     override def noDequeue: Boolean = p1.noDequeue || p2.noDequeue
-
-    override def toString: String = s"($p1 & $p2)"
+    override def maxEndPos: End.WithPos = p1.maxEndPos.max(p2.maxEndPos)
 
     protected def conv(pred: Policy => Policy): Policy = {
       val np1 = pred(p1)
@@ -254,10 +251,8 @@ object Policy {
       if (np1.eq(p1) && np2.eq(p2)) this else np1 & np2
     }
 
-    override def maxEndPos: End.WithPos = p1.maxEndPos.max(p2.maxEndPos)
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean = p1
       .appliesUntil(nextft)(pred) || p2.appliesUntil(nextft)(pred)
-
     override def appliesOn(nextft: FT)(
         pred: Clause => Boolean,
     ): Option[Boolean] = appliesOnAny(nextft, p1, p2)(pred)
@@ -268,8 +263,12 @@ object Policy {
 
   private class Expire(policy: Policy, endPolicy: End.WithPos)
       extends WithConv {
+    override def toString: String = s"$policy <== $endPolicy"
+
     override def f: Pf = policy.f
     override def rank: Int = policy.rank
+    override def noDequeue: Boolean = policy.noDequeue
+    override def maxEndPos: End.WithPos = endPolicy.min(policy.maxEndPos)
 
     override def <==(pos: End.WithPos): Policy =
       if (pos >= endPolicy) this else policy <== pos
@@ -281,18 +280,14 @@ object Policy {
     override def unexpired(split: Split, nextft: FT): Policy =
       if (!endPolicy.notExpiredBy(nextft)) NoPolicy
       else super.unexpired(split, nextft)
-    override def noDequeue: Boolean = policy.noDequeue
-    override def toString: String = s"$policy <== $endPolicy"
 
     protected def conv(func: Policy => Policy): Policy = {
       val filtered = func(policy)
       if (filtered eq policy) this else filtered <== endPolicy
     }
 
-    override def maxEndPos: End.WithPos = endPolicy.min(policy.maxEndPos)
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       endPolicy.notExpiredBy(nextft) && policy.appliesUntil(nextft)(pred)
-
     override def appliesOn(
         nextft: FT,
     )(pred: Clause => Boolean): Option[Boolean] =
@@ -303,8 +298,12 @@ object Policy {
   }
 
   private class Delay(policy: Policy, begPolicy: End.WithPos) extends Policy {
+    override def toString: String = s"$begPolicy ==> $policy"
+
     override def f: Pf = PartialFunction.empty
     override def rank: Int = 0
+    override def noDequeue: Boolean = policy.noDequeue
+    override def maxEndPos: End.WithPos = begPolicy.max(policy.maxEndPos)
 
     override def <==(pos: End.WithPos): Policy =
       if (pos <= begPolicy) NoPolicy else new Expire(this, pos)
@@ -315,13 +314,9 @@ object Policy {
     override def unexpired(split: Split, nextft: FT): Policy =
       if (begPolicy.notExpiredBy(nextft)) this
       else policy.unexpired(split, nextft)
-    override def noDequeue: Boolean = policy.noDequeue
-    override def toString: String = s"$begPolicy ==> $policy"
 
-    override def maxEndPos: End.WithPos = begPolicy.max(policy.maxEndPos)
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       false
-
     override def appliesOn(
         nextft: FT,
     )(pred: Clause => Boolean): Option[Boolean] =
@@ -374,12 +369,12 @@ object Policy {
       val after: Policy,
   )(implicit fl: FileLine)
       extends WithBeforeAndAfter {
+    override def toString: String = s"REL?:[$fl]($before ??? $after)"
+
     override def unexpired(split: Split, nextft: FT): Policy =
       if (trigger(split, nextft)) after.unexpired(split, nextft)
       else if (!triggerEnd.notExpiredBy(nextft)) NoPolicy
       else super.unexpired(split, nextft)
-
-    override def toString: String = s"REL?:[$fl]($before ??? $after)"
 
     override protected def withBefore(before: Policy)(
         func: Policy => Policy,
@@ -400,11 +395,12 @@ object Policy {
   class Switch(val before: Policy, trigger: T, val after: Policy)(implicit
       fl: FileLine,
   ) extends WithBeforeAndAfter {
+    override def toString: String = s"SW:[$fl]($before,$trigger,$after)"
+
     override def switch(trigger: T, on: Boolean): Policy =
       if (trigger ne this.trigger) super.switch(trigger, on)
       else if (on) before
       else after.switch(trigger, on = false)
-    override def toString: String = s"SW:[$fl]($before,$trigger,$after)"
 
     override protected def withBefore(before: Policy)(
         func: Policy => Policy,
