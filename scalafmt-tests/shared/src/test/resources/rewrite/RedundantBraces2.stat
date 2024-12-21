@@ -327,3 +327,42 @@ object a {
   )
     sb.delete(sb.length - 2, sb.length())
 }
+<<< block within parens: single-stat apply
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+    foo(bar)
+  })
+}
+>>>
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+    foo(bar)
+  })
+}
+<<< block within parens: single-stat infix
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+    foo + bar
+  })
+}
+>>>
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+    foo + bar
+  })
+}
+<<< block within parens: single-stat func with single-stat body (term)
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({ (initialState: State, args: Seq[String]) =>
+    {
+      foo + bar
+    }
+  })
+}
+>>>
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+    (initialState: State, args: Seq[String]) =>
+      foo + bar
+  })
+}
