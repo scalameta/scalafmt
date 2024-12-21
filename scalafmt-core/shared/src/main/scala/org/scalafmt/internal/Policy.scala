@@ -17,6 +17,7 @@ abstract class Policy {
   /** applied to every decision until expire */
   def f: Pf
   def rank: Int
+  def terminal: Boolean
   def noDequeue: Boolean
   def maxEndPos: End.WithPos
 
@@ -80,6 +81,7 @@ object Policy {
     override def ?(flag: Boolean): Policy = this
 
     override def rank: Int = 0
+    override def terminal: Boolean = false
     override def noDequeue: Boolean = false
     override def maxEndPos: End.WithPos = End.Never
 
@@ -94,9 +96,13 @@ object Policy {
     override def switch(trigger: T, on: Boolean): Policy = this
   }
 
-  def apply(prefix: String, noDequeue: Boolean = false, rank: Int = 0)(f: Pf)(
-      implicit fl: FileLine,
-  ): Policy = new ClauseImpl(f, prefix, noDequeue, rank)
+  def apply(
+      prefix: String,
+      noDequeue: Boolean = false,
+      rank: Int = 0,
+      terminal: Boolean = false,
+  )(f: Pf)(implicit fl: FileLine): Policy =
+    new ClauseImpl(f, prefix, noDequeue, rank, terminal = terminal)
 
   def after(trigger: T, policy: Policy)(implicit fl: FileLine): Policy =
     new Switch(NoPolicy, trigger, policy)
@@ -109,31 +115,45 @@ object Policy {
       prefix: String,
       noDequeue: Boolean = false,
       rank: Int = 0,
-  )(f: Pf)(implicit fl: FileLine): Policy = apply(prefix, noDequeue, rank)(f) <
-    exp
+      terminal: Boolean = false,
+  )(f: Pf)(implicit fl: FileLine): Policy =
+    apply(prefix, noDequeue, rank, terminal = terminal)(f) < exp
 
-  def onLeft(exp: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
-      f: Pf,
-  )(implicit fl: FileLine): Policy = apply(prefix, noDequeue, rank = rank)(f) <=
-    exp
+  def onLeft(
+      exp: FT,
+      prefix: String,
+      noDequeue: Boolean = false,
+      rank: Int = 0,
+      terminal: Boolean = false,
+  )(f: Pf)(implicit fl: FileLine): Policy =
+    apply(prefix, noDequeue, rank = rank, terminal = terminal)(f) <= exp
 
-  def onRight(exp: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
-      f: Pf,
-  )(implicit fl: FileLine): Policy = apply(prefix, noDequeue, rank = rank)(f) >=
-    exp
+  def onRight(
+      exp: FT,
+      prefix: String,
+      noDequeue: Boolean = false,
+      rank: Int = 0,
+      terminal: Boolean = false,
+  )(f: Pf)(implicit fl: FileLine): Policy =
+    apply(prefix, noDequeue, rank = rank, terminal = terminal)(f) >= exp
 
   def afterRight(
       exp: FT,
       prefix: String,
       noDequeue: Boolean = false,
       rank: Int = 0,
-  )(f: Pf)(implicit fl: FileLine): Policy = apply(prefix, noDequeue, rank)(f) >
-    exp
+      terminal: Boolean = false,
+  )(f: Pf)(implicit fl: FileLine): Policy =
+    apply(prefix, noDequeue, rank, terminal = terminal)(f) > exp
 
-  def onlyFor(on: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
-      f: Seq[Split] => Seq[Split],
-  )(implicit fl: FileLine): Policy = End <= on ==>
-    onRight(on, s"$prefix[${on.idx}]", noDequeue, rank) {
+  def onlyFor(
+      on: FT,
+      prefix: String,
+      noDequeue: Boolean = false,
+      rank: Int = 0,
+      terminal: Boolean = false,
+  )(f: Seq[Split] => Seq[Split])(implicit fl: FileLine): Policy = End <= on ==>
+    onRight(on, s"$prefix[${on.idx}]", noDequeue, rank, terminal = terminal) {
       case Decision(`on`, ss) => f(ss)
     }
 
@@ -177,6 +197,7 @@ object Policy {
       val prefix: String,
       val noDequeue: Boolean,
       val rank: Int = 0,
+      val terminal: Boolean = false,
   )(implicit fl: FileLine)
       extends Clause
 
@@ -216,6 +237,7 @@ object Policy {
 
     override lazy val f: Pf = p1.f.orElse(p2.f)
     override def rank: Int = math.min(p1.rank, p2.rank)
+    override def terminal: Boolean = p1.terminal || p2.terminal
     override def noDequeue: Boolean = p1.noDequeue || p2.noDequeue
     override def maxEndPos: End.WithPos = p1.maxEndPos.max(p2.maxEndPos)
 
@@ -246,6 +268,7 @@ object Policy {
     }
 
     override def rank: Int = math.min(p1.rank, p2.rank)
+    override def terminal: Boolean = p1.terminal || p2.terminal
     override def noDequeue: Boolean = p1.noDequeue || p2.noDequeue
     override def maxEndPos: End.WithPos = p1.maxEndPos.max(p2.maxEndPos)
 
@@ -271,6 +294,7 @@ object Policy {
 
     override def f: Pf = policy.f
     override def rank: Int = policy.rank
+    override def terminal: Boolean = policy.terminal
     override def noDequeue: Boolean = policy.noDequeue
     override def maxEndPos: End.WithPos = endPolicy.min(policy.maxEndPos)
 
@@ -306,6 +330,7 @@ object Policy {
 
     override def f: Pf = PartialFunction.empty
     override def rank: Int = 0
+    override def terminal: Boolean = policy.terminal
     override def noDequeue: Boolean = policy.noDequeue
     override def maxEndPos: End.WithPos = begPolicy.max(policy.maxEndPos)
 
@@ -342,6 +367,7 @@ object Policy {
     override def f: Pf = before.f
     override def rank: Int = before.rank
     override def noDequeue: Boolean = before.noDequeue
+    override def terminal: Boolean = before.terminal || after.terminal
     override def maxEndPos: End.WithPos = before.maxEndPos.max(after.maxEndPos)
 
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
@@ -415,6 +441,7 @@ object Policy {
       val noDequeue: Boolean = false,
       val rank: Int = 0,
       desc: => String = "",
+      val terminal: Boolean = false,
   )(pred: Split => Split)(implicit fl: FileLine)
       extends Clause {
     private object PredicateDecision {

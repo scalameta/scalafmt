@@ -19,6 +19,7 @@ object PolicyOps {
   )(implicit fileLine: FileLine, style: ScalafmtConfig)
       extends Policy.Clause {
     override val noDequeue: Boolean = false
+    override def terminal: Boolean = false
     private val checkSyntax = noSyntaxNL || !style.newlines.ignoreInSyntax
     override val f: Policy.Pf = {
       case Decision(ft, s) if penalizeLambdas || !ft.left.is[T.RightArrow] =>
@@ -71,6 +72,7 @@ object PolicyOps {
       extends Policy.Clause {
     import TokenOps.isLeftCommentThenBreak
     override val noDequeue: Boolean = true
+    override def terminal: Boolean = true
     override val prefix: String = "SLB"
     private val checkSyntax = noSyntaxNL || !style.newlines.ignoreInSyntax
     override val f: Policy.Pf = {
@@ -106,6 +108,7 @@ object PolicyOps {
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
     override val noDequeue: Boolean = false
+    override def terminal: Boolean = false
     override val prefix: String = "NB"
     override val f: Policy.Pf = split match {
       case Some(s) => {
@@ -141,6 +144,7 @@ object PolicyOps {
   )(implicit fileLine: FileLine)
       extends Policy.Clause {
     override val noDequeue: Boolean = false
+    override def terminal: Boolean = false
     override val prefix: String = "NA"
     override val f: Policy.Pf = split match {
       case Some(s) => {
