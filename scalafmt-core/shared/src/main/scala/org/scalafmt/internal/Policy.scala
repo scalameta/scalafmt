@@ -109,26 +109,30 @@ object Policy {
       prefix: String,
       noDequeue: Boolean = false,
       rank: Int = 0,
-  )(f: Pf): Policy = apply(prefix, noDequeue, rank)(f) < exp
+  )(f: Pf)(implicit fl: FileLine): Policy = apply(prefix, noDequeue, rank)(f) <
+    exp
 
   def onLeft(exp: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
       f: Pf,
-  ): Policy = apply(prefix, noDequeue, rank = rank)(f) <= exp
+  )(implicit fl: FileLine): Policy = apply(prefix, noDequeue, rank = rank)(f) <=
+    exp
 
   def onRight(exp: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
       f: Pf,
-  ): Policy = apply(prefix, noDequeue, rank = rank)(f) >= exp
+  )(implicit fl: FileLine): Policy = apply(prefix, noDequeue, rank = rank)(f) >=
+    exp
 
   def afterRight(
       exp: FT,
       prefix: String,
       noDequeue: Boolean = false,
       rank: Int = 0,
-  )(f: Pf): Policy = apply(prefix, noDequeue, rank)(f) > exp
+  )(f: Pf)(implicit fl: FileLine): Policy = apply(prefix, noDequeue, rank)(f) >
+    exp
 
   def onlyFor(on: FT, prefix: String, noDequeue: Boolean = false, rank: Int = 0)(
       f: Seq[Split] => Seq[Split],
-  ): Policy = End <= on ==>
+  )(implicit fl: FileLine): Policy = End <= on ==>
     onRight(on, s"$prefix[${on.idx}]", noDequeue, rank) {
       case Decision(`on`, ss) => f(ss)
     }
@@ -415,7 +419,7 @@ object Policy {
       val noDequeue: Boolean = false,
       val rank: Int = 0,
       desc: => String = "",
-  )(pred: Split => Split)
+  )(pred: Split => Split)(implicit fl: FileLine)
       extends Clause {
     private object PredicateDecision {
       def unapply(d: Decision): Option[Seq[Split]] = {
