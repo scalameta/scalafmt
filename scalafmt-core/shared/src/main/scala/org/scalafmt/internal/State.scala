@@ -55,8 +55,7 @@ final class State(
   def hasSlbUntil(ft: FT): Boolean = policy
     .exists(_.appliesUntil(ft)(_.isInstanceOf[PolicyOps.SingleLineBlock]))
 
-  def hasSlb(): Boolean = policy
-    .exists(_.exists(_.isInstanceOf[PolicyOps.SingleLineBlock]))
+  def terminal(): Boolean = policy.exists(_.exists(_.terminal))
 
   /** Calculates next State given split at tok.
     */

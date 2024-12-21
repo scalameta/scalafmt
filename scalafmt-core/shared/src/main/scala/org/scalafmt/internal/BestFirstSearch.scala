@@ -58,14 +58,14 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       val nextState = shortestPath(start, stop, depth, isOpt).toOption
       nextState match {
         case None if hadSlb => slbMemo.update(key, nextState)
-        case Some(ns) if ns.hasSlb() => slbMemo.update(key, nextState)
+        case Some(ns) if ns.terminal() => slbMemo.update(key, nextState)
         case _ => memo.update(key, nextState)
       }
       Some(nextState)
     }
     memo.get(key).orElse {
       if (isOpt) Some(None) // we wouldn't recurse unless the span was large
-      else if (!start.hasSlb()) orElse(hadSlb = false)
+      else if (!start.terminal()) orElse(hadSlb = false)
       else slbMemo.get(key).orElse(orElse(hadSlb = true))
     }
   }
@@ -422,15 +422,15 @@ object BestFirstSearch {
     }
 
     private def updateBestImpl(state: State): Boolean = state.split.isNL &&
-      !state.hasSlb() && (best.getOrElseUpdate(state.prev.depth, state) eq state)
+      !state.terminal() &&
+      (best.getOrElseUpdate(state.prev.depth, state) eq state)
 
     def updateBest(state: State, furtherState: State)(implicit
         Q: StateQueue,
     ): Boolean = (pruneSlowStates ne ScalafmtOptimizer.PruneSlowStates.No) &&
-      Q.nested == 0 && {
-        if (state ne furtherState) updateBestImpl(furtherState)
-        updateBestImpl(state)
-      }
+      Q.nested == 0 &&
+      ((state eq furtherState) || updateBestImpl(furtherState)) &&
+      updateBestImpl(state)
 
     def checkExplored(ft: FT)(implicit formatWriter: FormatWriter): Unit =
       explode(ft, runner.getMaxStateVisits)(

@@ -751,7 +751,7 @@ class FormatOps(
   }
 
   def getSingleLineInfixPolicy(end: FT) = Policy
-    .onLeft(end, prefix = "INFSLB") {
+    .onLeft(end, prefix = "INFSLB", terminal = true) {
       case Decision(t: FT, s) if isInfixOp(t.meta.leftOwner) =>
         SplitTag.InfixChainNoNL.activateOnly(s)
     }

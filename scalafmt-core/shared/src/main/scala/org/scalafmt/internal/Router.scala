@@ -401,7 +401,9 @@ class Router(formatOps: FormatOps) {
           val slbPolicy =
             if (exclude.isEmpty) slbParensPolicy
             else Policy.RelayOnSplit((s, _) => s.isNL)(slbParensPolicy)(
-              Policy.onLeft(close, "BracesToParensFailed") { case _ => Nil },
+              Policy.onLeft(close, "BracesToParensFailed", terminal = true) {
+                case _ => Nil
+              },
             )
           val sldPolicy = ownerIfNeedBreakAfterClose.map { p =>
             if (style.newlines.fold) {
