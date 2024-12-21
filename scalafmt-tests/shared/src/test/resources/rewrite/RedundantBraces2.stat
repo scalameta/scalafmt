@@ -327,3 +327,20 @@ object a {
   )
     sb.delete(sb.length - 2, sb.length())
 }
+<<< non-redundant parens in `new`
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+object a {
+  private val reloadCache: Try[Application] => T = new InlineCache[Try[Application], T]({ (tryApp: Try[Application]) =>
+    reloadCounter.incrementAndGet()
+    reloadValue(tryApp)
+  })
+}
+>>>
+object a {
+  private val reloadCache: Try[Application] => T =
+    new InlineCache[Try[Application], T]({ (tryApp: Try[Application]) =>
+      reloadCounter.incrementAndGet()
+      reloadValue(tryApp)
+    })
+}

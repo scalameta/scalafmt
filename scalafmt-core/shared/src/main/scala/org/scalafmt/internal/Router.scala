@@ -1042,7 +1042,8 @@ class Router(formatOps: FormatOps) {
         ) = args match {
           case arg :: Nil =>
             val onlyArgument = CtrlBodySplits.getBlockStat(arg)
-            (onlyArgument, getHeadIfEnclosed(arg), false, false)
+            val enclosedHead = getHeadIfEnclosed(onlyArgument)
+            (onlyArgument, enclosedHead, false, false)
           case _ :: rest => (null, None, true, rest.lengthCompare(100) < 0)
           case _ => (null, None, false, false)
         }
