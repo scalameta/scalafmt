@@ -186,8 +186,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           // single-arg apply of a partial function or optionally any arg
           // a({ case b => c; d }) change to a { case b => c; d }
           case _: Term.PartialFunction => replaceWithNextBrace()
-          case _: Term.Block =>
-            val ok = getBlockNestedPartialFunction(arg).nonEmpty
+          case b: Term.Block =>
+            val ok = getTreeSingleExpr(b).is[Term.PartialFunction]
             if (ok) replaceWithNextBrace() else null
           case f: Term.FunctionTerm =>
             getBlockToReplaceAsFuncBodyInSingleArgApply(ta, f) match {
@@ -297,11 +297,18 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     owner match {
       case t: Term.FunctionTerm if t.tokens.last.is[T.RightBrace] =>
         if (!okToRemoveFunctionInApplyOrInit(t)) null else removeToken
-      case _: Term.PartialFunction =>
+      case t: Term.PartialFunction =>
         val pft = ftoks.prevNonComment(ft)
         pft.left match {
           case _: T.LeftParen if isLeftParenReplacedWithBraceOnLeft(pft) =>
             removeToken
+          case _: T.LeftBrace
+              if owner.parent.contains(pft.leftOwner) && okLineSpan(t) &&
+                findTreeWithParentEx(owner) {
+                  case p: Term.Block => Some(p)
+                  case _: Term.ArgClause => None
+                  case _ => Some(null)
+                }.isEmpty => removeToken
           case _ => null
         }
       case t: Term.Block => t.parent match {
@@ -361,7 +368,18 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                   case _ => true
                 }) &&
                 (style.dialect.allowSignificantIndentation ||
-                  okComment(ft) && !elseAfterRightBraceThenpOnLeft) =>
+                  (t.parent match {
+                    case Some(_: Term.Block) => true
+                    case Some(_: Term.ArgClause) =>
+                      val pft = ftoks.prevNonComment(left.ft)
+                      pft.left match {
+                        case _: T.LeftParen =>
+                          isLeftParenReplacedWithBraceOnLeft(pft)
+                        case _: T.LeftBrace => true
+                        case _ => false
+                      }
+                    case _ => false
+                  }) || okComment(ft) && !elseAfterRightBraceThenpOnLeft) =>
             (left, removeToken)
           case _ => null
         }
@@ -514,16 +532,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         if (isSeqMulti(t.values)) okToRemoveBlockWithinApply(b)
         else ftoks.getDelimsIfEnclosed(t).exists { case (ldelim, _) =>
           def isArgDelimRemoved = session.isRemovedOnLeft(ldelim, ok = true)
-          def hasExpressionWithBraces: Boolean =
-            // there's a nested expression with braces that will be kept
-            getSingleStatIfLineSpanOk(b)
-              .exists(getBlockNestedPartialFunction(_).isDefined)
           ldelim.left match {
-            case lb: T.LeftBrace =>
-              // either arg clause has separate braces, or we guarantee braces
-              (ft.right ne lb) && !isArgDelimRemoved || hasExpressionWithBraces
-            case _: T.LeftParen => isLeftParenReplacedWithBraceOnLeft(ldelim) ||
-              hasExpressionWithBraces
+            case lb: T.LeftBrace => (ft.right ne lb) && !isArgDelimRemoved // arg clause has separate braces
+            case _: T.LeftParen => isLeftParenReplacedWithBraceOnLeft(ldelim) // this brace replaces paren
             case _ => false
           }
         }
@@ -672,15 +683,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
       innerOk(b)(stat) && !b.parent.exists(keepForParent)
     }
-
-  @tailrec
-  private def getBlockNestedPartialFunction(
-      tree: Tree,
-  ): Option[Term.PartialFunction] = tree match {
-    case x: Term.PartialFunction => Some(x)
-    case Term.Block(x :: Nil) => getBlockNestedPartialFunction(x)
-    case _ => None
-  }
 
   private def braceSeparatesTwoXmlTokens(implicit ft: FT): Boolean = ft.left
     .is[T.Xml.End] && ftoks.next(ft).right.is[T.Xml.Start]
