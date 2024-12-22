@@ -365,3 +365,63 @@ object a {
     (initialState: State, args: Seq[String]) => foo + bar
   )
 }
+<<< block within parens: single-stat func with single-stat body (defn)
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({ (initialState: State, args: Seq[String]) =>
+    {
+      def run = ???
+    }
+  })
+}
+>>>
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+    (initialState: State, args: Seq[String]) =>
+      def run = ???
+  })
+}
+<<< block within parens: single-stat func with multi-stat body
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({ (initialState: State, args: Seq[String]) =>
+    {
+      val requestedVersionPrefix = args.head
+      def run = ???
+    }
+  })
+}
+>>>
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+    (initialState: State, args: Seq[String]) =>
+      val requestedVersionPrefix = args.head
+      def run = ???
+  })
+}
+<<< block within parens: single-stat defn
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+    val foo = ???
+  })
+}
+>>>
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+    val foo = ???
+  })
+}
+<<< block within parens: multi-stat
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+    val foo = 0
+    val bar = 1
+    foo + bar
+  })
+}
+>>>
+object a {
+  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+    val foo = 0
+    val bar = 1
+    foo + bar
+  })
+}
