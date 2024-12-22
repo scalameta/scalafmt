@@ -515,13 +515,13 @@ object TreeOps {
   }
 
   @tailrec
-  def getTreeSingleExpr(tree: Tree): Option[Tree] = tree match {
+  def getTreeSingleExpr(tree: Tree): Option[Term] = tree match {
     case t: Term.Block => t.stats match {
         case stat :: Nil => getTreeSingleExpr(stat)
         case _ => None
       }
-    case _: Defn => None
-    case t => Some(t)
+    case t: Term => Some(t)
+    case _ => None
   }
 
   def isTreeSingleExpr(tree: Tree): Boolean = getTreeSingleExpr(tree).isDefined
