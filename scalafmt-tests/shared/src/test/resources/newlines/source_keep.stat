@@ -10782,6 +10782,27 @@ repeatTakeMapAndFold = fuse(
 <<< #4133 parens to braces, with function as argument
 maxColumn = 72
 rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.maxBreaks = 3 
+===
+val seqArgs = map3(newPs, oldPs, isRepeated)((param, oldParam, isRep) => {
+  if (!isRep) Ident(param)
+  else {
+    val parTp = elementType(ArrayClass, param.tpe)
+    val wrap = gen.mkWrapArray(Ident(param), parTp)
+  }
+})
+>>>
+val seqArgs = map3(newPs, oldPs, isRepeated) {
+  (param, oldParam, isRep) =>
+    if (!isRep) Ident(param)
+    else {
+      val parTp = elementType(ArrayClass, param.tpe)
+      val wrap = gen.mkWrapArray(Ident(param), parTp)
+    }
+}
+<<< #4133 keep parens, remove braces, with function as argument
+maxColumn = 72
+rewrite.rules = [RedundantBraces]
 ===
 val seqArgs = map3(newPs, oldPs, isRepeated)((param, oldParam, isRep) => {
   if (!isRep) Ident(param)
