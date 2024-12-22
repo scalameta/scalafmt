@@ -8779,12 +8779,8 @@ object a {
 object a {
   foo :=
     bar {
-      val baz = qux { x => plugh =>
-        xyzzy
-      }
-      val baz = qux { x => quux =>
-        fred
-      }
+      val baz = qux(x => plugh => xyzzy)
+      val baz = qux(x => quux => fred)
     }
 }
 <<< no braces around nested lambda, braces around outer
@@ -11210,14 +11206,14 @@ val seqArgs = map3(newPs, oldPs, isRepeated)((param, oldParam, isRep) => {
 })
 >>>
 val seqArgs =
-  map3(newPs, oldPs, isRepeated) { (param, oldParam, isRep) =>
+  map3(newPs, oldPs, isRepeated)((param, oldParam, isRep) =>
     if (!isRep)
       Ident(param)
     else {
       val parTp = elementType(ArrayClass, param.tpe)
       val wrap = gen.mkWrapArray(Ident(param), parTp)
     }
-  }
+  )
 <<< #4133 nested apply followed by select
 maxColumn = 80
 newlines.avoidForSimpleOverflow = all

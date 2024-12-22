@@ -11057,14 +11057,13 @@ val seqArgs = map3(newPs, oldPs, isRepeated)((param, oldParam, isRep) => {
   }
 })
 >>>
-val seqArgs =
-  map3(newPs, oldPs, isRepeated) { (param, oldParam, isRep) =>
-    if (!isRep) Ident(param)
-    else {
-      val parTp = elementType(ArrayClass, param.tpe)
-      val wrap = gen.mkWrapArray(Ident(param), parTp)
-    }
+val seqArgs = map3(newPs, oldPs, isRepeated)((param, oldParam, isRep) =>
+  if (!isRep) Ident(param)
+  else {
+    val parTp = elementType(ArrayClass, param.tpe)
+    val wrap = gen.mkWrapArray(Ident(param), parTp)
   }
+)
 <<< #4133 nested apply followed by select
 maxColumn = 80
 newlines.avoidForSimpleOverflow = all
