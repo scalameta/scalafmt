@@ -36,23 +36,19 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       stat: Tree,
   )(implicit ftoks: FormatTokens): Boolean = {
     @tailrec
-    def stripTopBlock(tree: Tree, singleStatOnly: Boolean): Option[Tree] =
-      tree match {
-        case Term.Block(s :: Nil) =>
-          val ko = (tree eq stat) && ftoks.tokenAfter(s).right.is[T.Semicolon]
-          if (ko) None else stripTopBlock(s, singleStatOnly)
-        case b: Term.Block
-            if b.stats.isEmpty || singleStatOnly ||
-              !ftoks.isEnclosedInBraces(b) => None
-        /* guard for statements requiring a wrapper block
-         * "foo { x => y; z }" can't become "foo(x => y; z)"
-         * "foo { x1 => x2 => y; z }" can't become "foo(x1 => x2 => y; z)"
-         */
-        case t: Term.FunctionTerm =>
-          if (needParensAroundParams(t)) None
-          else stripTopBlock(t.body, singleStatOnly = t eq stat)
-        case _ => Some(tree)
-      }
+    def stripTopBlock(tree: Tree): Option[Tree] = tree match {
+      case Term.Block(s :: Nil)
+          if (tree ne stat) || !ftoks.tokenAfter(s).right.is[T.Semicolon] =>
+        stripTopBlock(s)
+      case _: Term.Block => None
+      /* guard for statements requiring a wrapper block
+       * "foo { x => y; z }" can't become "foo(x => y; z)"
+       * "foo { x1 => x2 => y; z }" can't become "foo(x1 => x2 => y; z)"
+       */
+      case t: Term.FunctionTerm =>
+        if (needParensAroundParams(t)) None else stripTopBlock(t.body)
+      case _ => Some(tree)
+    }
     @tailrec
     def iter(trees: List[Tree]): Boolean = trees match {
       case head :: rest => head match {
@@ -69,7 +65,7 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
         }
       case _ => true
     }
-    stripTopBlock(stat, singleStatOnly = true).exists(t => iter(t :: Nil))
+    stripTopBlock(stat).exists(t => iter(t :: Nil))
   }
 
   private def checkApply(t: Tree): Boolean = t.parent match {
@@ -90,10 +86,12 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       case _ => false
     })
 
+  private[scalafmt] def isReplacedWithBrace(repl: Replacement): Boolean =
+    (repl.how eq ReplacementType.Replace) && repl.ft.right.is[T.LeftBrace]
+
   private[scalafmt] def isLeftParenReplacedWithBraceOnLeft(pft: FT)(implicit
       session: Session,
-  ): Boolean = session.claimedRuleOnLeft(pft)
-    .exists(x => (x.how eq ReplacementType.Replace) && x.ft.right.is[T.LeftBrace])
+  ): Boolean = session.claimedRuleOnLeft(pft).exists(isReplacedWithBrace)
 
   private def okLineSpan(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
     getTreeLineSpan(tree) <= settings.maxBreaks
@@ -534,7 +532,10 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           def isArgDelimRemoved = session.isRemovedOnLeft(ldelim, ok = true)
           ldelim.left match {
             case lb: T.LeftBrace => (ft.right ne lb) && !isArgDelimRemoved // arg clause has separate braces
-            case _: T.LeftParen => isLeftParenReplacedWithBraceOnLeft(ldelim) // this brace replaces paren
+            case _: T.LeftParen => session.claimedRuleOnLeft(ldelim) match {
+                case Some(x) => isReplacedWithBrace(x) // this brace replaces paren
+                case None => okLineSpan(b) && canRewriteStatWithParens(b)
+              }
             case _ => false
           }
         }
