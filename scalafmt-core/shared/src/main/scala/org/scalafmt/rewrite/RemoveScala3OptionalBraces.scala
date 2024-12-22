@@ -244,7 +244,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
               if (tok.is[T.Whitespace]) None else Some(tok)
           }
           tokOpt.foreach { tok =>
-            span += tok.end - tok.start
+            span += tok.len
             if (span > maxStats) return false // RETURNING!!!
           }
         }
