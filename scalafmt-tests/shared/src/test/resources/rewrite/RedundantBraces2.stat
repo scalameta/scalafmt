@@ -335,9 +335,9 @@ object a {
 }
 >>>
 object a {
-  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+  val switchVersion: Command = Command.args("+~", "<version> <args>")(
     foo(bar)
-  })
+  )
 }
 <<< block within parens: single-stat infix
 object a {
@@ -347,9 +347,9 @@ object a {
 }
 >>>
 object a {
-  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+  val switchVersion: Command = Command.args("+~", "<version> <args>")(
     foo + bar
-  })
+  )
 }
 <<< block within parens: single-stat func with single-stat body (term)
 object a {
@@ -361,8 +361,7 @@ object a {
 }
 >>>
 object a {
-  val switchVersion: Command = Command.args("+~", "<version> <args>")({
-    (initialState: State, args: Seq[String]) =>
-      foo + bar
-  })
+  val switchVersion: Command = Command.args("+~", "<version> <args>")(
+    (initialState: State, args: Seq[String]) => foo + bar
+  )
 }
