@@ -1739,7 +1739,9 @@ foo
     },
   )
 >>>
-foo.mtd1 { x => x + 1 }.mtd2: x =>
+foo.mtd1(
+  x => x + 1,
+).mtd2: x =>
    x + 1
    x + 2
 .mtd3 { x =>

@@ -151,13 +151,15 @@ class RedundantParens(implicit val ftoks: FormatTokens)
   }
 
   private def okToReplaceArgClause(
-      t: Member.ArgClause,
-  )(implicit style: ScalafmtConfig): Boolean = t.values match {
+      ac: Member.ArgClause,
+  )(implicit style: ScalafmtConfig): Boolean = ac.values match {
     case arg :: Nil => arg match {
-        case _: Term.Block | _: Term.PartialFunction => !t.parent.isOpt[Init]
+        case b: Term.Block => !(ac.parent.isOpt[Init] ||
+            RedundantBraces.used && RedundantBraces.canRewriteStatWithParens(b))
+        case _: Term.PartialFunction => !ac.parent.isOpt[Init]
         case _: Lit.Unit | _: Member.Tuple => false
         case _: Term.SelectPostfix => false
-        case _ => t.parent.exists {
+        case _ => ac.parent.exists {
             case pia: Member.Infix => okToReplaceInfix(pia, arg)
             case _ => false
           }

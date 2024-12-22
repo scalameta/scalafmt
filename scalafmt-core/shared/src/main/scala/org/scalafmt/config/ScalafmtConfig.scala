@@ -426,7 +426,7 @@ object ScalafmtConfig {
         addIf(rewrite.scala3.removeEndMarkerMaxLines >= rewrite.scala3.insertEndMarkerMinLines)
       addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.insertEndMarkerMinLines != 0)
       addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.removeOptionalBraces.oldSyntaxToo)
-      if (rewrite.insertBraces.minLines != 0 && rewrite.rules.contains(RedundantBraces))
+      if (rewrite.insertBraces.minLines != 0 && RedundantBraces.usedIn(rewrite))
         addIf(rewrite.insertBraces.minLines < rewrite.redundantBraces.maxBreaks)
       addIf(align.beforeOpenParenDefnSite && !align.closeParenSite)
       addIf(align.beforeOpenParenCallSite && !align.closeParenSite)

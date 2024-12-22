@@ -698,8 +698,10 @@ object a {
 }
 >>>
 object a {
-  val b = c(d => e) // comment1
-  /* comment2 */
+  val b = c(d =>
+    e // comment1
+    /* comment2 */
+  )
   /* comment3 */
 }
 <<< #1633 5.2: keep config style
@@ -1593,11 +1595,11 @@ object A {
 >>>
 object A:
   implicit def map: Array[Any] => List[String] = a =>
-    a.map { ae =>
+    a.map(ae =>
       ae match
         case s: String => s
         case _         => ae.toString
-    }.toList
+    ).toList
 <<< #3540
 object Bar extends Foo[(Int, String)]({ case (i, s) => () })
 >>>

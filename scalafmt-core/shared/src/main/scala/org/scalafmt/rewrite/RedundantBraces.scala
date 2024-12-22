@@ -1,7 +1,6 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.config.RedundantBracesSettings
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config._
 import org.scalafmt.internal._
 import org.scalafmt.util.TreeOps._
 
@@ -15,6 +14,9 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
   import FormatTokensRewrite._
 
   override def enabled(implicit style: ScalafmtConfig): Boolean = true
+
+  def usedIn(rewrite: RewriteSettings): Boolean = rewrite.rules.contains(this)
+  def used(implicit style: ScalafmtConfig): Boolean = usedIn(style.rewrite)
 
   override def create(implicit ftoks: FormatTokens): Rule = new RedundantBraces
 
@@ -203,7 +205,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             }
           case f: Term.FunctionTerm =>
             getBlockToReplaceAsFuncBodyInSingleArgApply(ta, f) match {
-              case Some((_, xlb)) => replaceWithBrace(claim = xlb.idx - 1 :: Nil)
+              case Some((xb, xlb)) =>
+                if (canRewriteStatWithParens(xb) && okLineSpan(xb)) null
+                else replaceWithBrace(claim = xlb.idx - 1 :: Nil)
               case _ => null
             }
           case _ => null
