@@ -372,31 +372,32 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
   }
 
   // Maps token to number of non-whitespace bytes before the token's position.
-  private final lazy val nonWhitespaceOffset: Array[(Int, Int)] = {
-    val result = new Array[(Int, Int)](arr.length)
-    var currLength = 0
-    var currWidth = 0
+  private final lazy val offsets: Array[FormatTokens.Offsets] = {
+    val result = new Array[FormatTokens.Offsets](arr.length)
+    var offsets = new FormatTokens.Offsets(0, 0, 0)
     arr.foreach { t =>
-      result(t.idx) = (currLength, currWidth)
-      val (head, last) = State
-        .getColumns(t.left, t.meta.left, 0)(identity)(identity)
-      currLength += t.left.len
-      currWidth += head.max(last)
+      result(t.idx) = offsets
+      offsets += t
     }
     result
   }
 
-  private def spanOrWidth(
-      left: Int,
-      right: Int,
-  )(f: ((Int, Int)) => Int): Int = {
-    val lastIdx = nonWhitespaceOffset.length - 1
+  private def offsetDiff(left: Int, right: Int)(
+      f: FormatTokens.Offsets => Int,
+  ): Int = {
+    val lastIdx = offsets.length - 1
     val rightIdx = if (right >= lastIdx) lastIdx else right + 1
-    f(nonWhitespaceOffset(rightIdx)) - f(nonWhitespaceOffset(left))
+    f(offsets(rightIdx)) - f(offsets(left))
   }
-  def width(left: Int, right: Int): Int = spanOrWidth(left, right)(_._2)
+  def offsetDiff(left: FT, right: FT)(f: FormatTokens.Offsets => Int): Int =
+    offsetDiff(left.idx, right.idx)(f)
+  def offsetDiff(tree: Tree)(f: FormatTokens.Offsets => Int): Int = {
+    val tokens = tree.tokens
+    offsetDiff(getHead(tokens, tree), getLast(tokens, tree))(f)
+  }
+  def width(left: Int, right: Int): Int = offsetDiff(left, right)(_.width)
   def width(left: FT, right: FT): Int = width(left.idx, right.idx)
-  def span(left: Int, right: Int): Int = spanOrWidth(left, right)(_._1)
+  def span(left: Int, right: Int): Int = offsetDiff(left, right)(_.nonWs)
   def span(left: FT, right: FT): Int = span(left.idx, right.idx)
   def span(tokens: Tokens): Int =
     if (tokens.isEmpty) 0 else span(getHeadImpl(tokens), getLastImpl(tokens))
@@ -454,6 +455,19 @@ object FormatTokens {
     def sizeHint(size: Int): Unit = builder.sizeHint(size)
     def add(idx: Int)(token: T): Unit = builder += hash(token) -> idx
     def result(): Map[TokenHash, Int] = builder.result()
+  }
+
+  class Offsets(val nonWs: Int, val width: Int, val nonWsNonPunct: Int) {
+    def +(ft: FT): Offsets = {
+      val tok = ft.left
+      val (head, last) = State
+        .getColumns(tok, ft.meta.left, 0)(identity)(identity)
+      new Offsets(
+        this.nonWs + tok.len,
+        this.width + head.max(last),
+        this.nonWsNonPunct + (if (tok.is[T.Punct]) 0 else tok.len),
+      )
+    }
   }
 
 }
