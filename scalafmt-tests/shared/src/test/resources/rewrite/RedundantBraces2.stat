@@ -375,10 +375,10 @@ object a {
 }
 >>>
 object a {
-  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+  val switchVersion: Command = Command.args("+~", "<version> <args>") {
     (initialState: State, args: Seq[String]) =>
       def run = ???
-  })
+  }
 }
 <<< block within parens: single-stat func with multi-stat body
 object a {
@@ -391,11 +391,11 @@ object a {
 }
 >>>
 object a {
-  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+  val switchVersion: Command = Command.args("+~", "<version> <args>") {
     (initialState: State, args: Seq[String]) =>
       val requestedVersionPrefix = args.head
       def run = ???
-  })
+  }
 }
 <<< block within parens: single-stat defn
 object a {
@@ -405,9 +405,9 @@ object a {
 }
 >>>
 object a {
-  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+  val switchVersion: Command = Command.args("+~", "<version> <args>") {
     val foo = ???
-  })
+  }
 }
 <<< block within parens: multi-stat
 object a {
@@ -419,9 +419,9 @@ object a {
 }
 >>>
 object a {
-  val switchVersion: Command = Command.args("+~", "<version> <args>")({
+  val switchVersion: Command = Command.args("+~", "<version> <args>") {
     val foo = 0
     val bar = 1
     foo + bar
-  })
+  }
 }

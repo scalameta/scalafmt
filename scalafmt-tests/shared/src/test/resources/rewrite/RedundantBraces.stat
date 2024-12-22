@@ -1573,7 +1573,7 @@ object a {
 }
 >>>
 object a {
-  foo({ bar = baz })
+  foo { bar = baz }
   foo({ bar = baz }, qux)
 }
 <<< #3296
@@ -1612,10 +1612,10 @@ foo.mtd({
   },
 )
 >>>
-foo.mtd({
+foo.mtd {
   x + 1
   x + 2
-})
+}
 <<< rewrite with trailing commas: block simple, !allowFolding
 rewrite.trailingCommas.style = keep
 rewrite.trailingCommas.allowFolding = false
@@ -1626,10 +1626,10 @@ foo.mtd({
   },
 )
 >>>
-foo.mtd({
+foo.mtd {
   x + 1
   x + 2
-})
+}
 <<< rewrite with trailing commas: func, allowFolding
 rewrite.trailingCommas.style = keep
 rewrite.trailingCommas.allowFolding = true
@@ -1640,10 +1640,10 @@ foo.mtd1({ x =>
   },
 )
 >>>
-foo.mtd1({ x =>
+foo.mtd1 { x =>
   x + 1
   x + 2
-})
+}
 <<< rewrite with trailing commas: func, !allowFolding
 rewrite.trailingCommas.style = keep
 rewrite.trailingCommas.allowFolding = false
@@ -1654,10 +1654,10 @@ foo.mtd1({ x =>
   },
 )
 >>>
-foo.mtd1({ x =>
+foo.mtd1 { x =>
   x + 1
   x + 2
-})
+}
 <<< rewrite with trailing commas: func in parens, infix after, allowFolding
 rewrite.trailingCommas.style = keep
 rewrite.trailingCommas.allowFolding = true
@@ -1720,12 +1720,10 @@ foo.mtd(
     },
   )
 >>>
-foo.mtd(
-  { x =>
-    x + 1
-    x + 2
-  },
-)
+foo.mtd { x =>
+  x + 1
+  x + 2
+}
 <<< rewrite with trailing commas: func in parens and braces, !allowFolding
 rewrite.rules = [RedundantBraces, RedundantParens]
 rewrite.trailingCommas.style = keep
@@ -1738,12 +1736,10 @@ foo.mtd(
     },
   )
 >>>
-foo.mtd(
-  { x =>
-    x + 1
-    x + 2
-  },
-)
+foo.mtd { x =>
+  x + 1
+  x + 2
+}
 <<< rewrite with trailing commas: func in parens and braces, infix after, allowFolding
 rewrite.rules = [RedundantBraces, RedundantParens]
 rewrite.trailingCommas.style = keep
@@ -1769,22 +1765,16 @@ object a {
 }
 >>>
 object a {
-  mtd1(
-    { x =>
-      x + 1
-    },
-  ) + mtd2(
-    { x =>
-      x + 1
-      x + 2
-    },
-  ) + mtd3(
-    { x =>
-      x + 1
-      x + 2
-      x + 3
-    },
-  )
+  mtd1 { x =>
+    x + 1
+  } + mtd2 { x =>
+    x + 1
+    x + 2
+  } + mtd3 { x =>
+    x + 1
+    x + 2
+    x + 3
+  }
 }
 <<< rewrite with trailing commas: func in parens and braces, infix after, !allowFolding
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -1811,22 +1801,16 @@ object a {
 }
 >>>
 object a {
-  mtd1(
-    { x =>
-      x + 1
-    },
-  ) + mtd2(
-    { x =>
-      x + 1
-      x + 2
-    },
-  ) + mtd3(
-    { x =>
-      x + 1
-      x + 2
-      x + 3
-    },
-  )
+  mtd1 { x =>
+    x + 1
+  } + mtd2 { x =>
+    x + 1
+    x + 2
+  } + mtd3 { x =>
+    x + 1
+    x + 2
+    x + 3
+  }
 }
 <<< rewrite with trailing commas: partial func, allowFolding
 rewrite.trailingCommas.style = keep
@@ -1867,11 +1851,11 @@ foo.mtd({
   },
 )
 >>>
-foo.mtd({
+foo.mtd {
   bar match {
     case x => x + 1
   }
-})
+}
 <<< rewrite with trailing commas: match, !allowFolding
 rewrite.trailingCommas.style = keep
 rewrite.trailingCommas.allowFolding = false
@@ -1883,11 +1867,11 @@ foo.mtd({
   },
 )
 >>>
-foo.mtd({
+foo.mtd {
   bar match {
     case x => x + 1
   }
-})
+}
 <<< with infix (from sbt-scalafmt plugin)
 maxColumn = 80
 newlines.source = fold
@@ -2233,7 +2217,7 @@ run { worklist.push(startBlock); }
 <<< #4133 can't rewrite with parens if semicolon, without redundant parens
 run( { worklist.push(startBlock); } )
 >>>
-run({ worklist.push(startBlock); })
+run { worklist.push(startBlock); }
 <<< #4133 rewrites with assignment and infix chain
 maxColumn = 76
 rewrite.redundantBraces {

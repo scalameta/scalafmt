@@ -165,7 +165,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   private def onLeftParen(implicit ft: FT, style: ScalafmtConfig): Replacement = {
     val rt = ft.right
 
-    def replaceWithBrace(owner: Option[Tree] = None, claim: List[Int] = Nil) = {
+    def replaceWithBrace(claim: List[Int], owner: Option[Tree] = None) = {
       val lb = new T.LeftBrace(rt.input, rt.dialect, rt.start)
       replaceToken("{", owner = owner, claim = claim)(lb)
     }
@@ -173,20 +173,34 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     ft.rightOwner match {
       case ta @ Term.ArgClause(arg :: Nil, _)
           if !ta.parent.is[Init] && getOpeningParen(ta).contains(rt) =>
-        def replaceWithNextBrace() = ftoks.nextNonCommentAfter(ft) match {
+        def replaceWithNextBrace(claimToo: List[Int] = Nil) = ftoks
+          .nextNonCommentAfter(ft) match {
           case FT(lt, _: T.LeftBrace, m) =>
-            val claim = m.idx :: Nil
+            val claim = m.idx :: claimToo
             if (lt eq rt) removeToken(claim = claim)
             else replaceWithBrace(owner = Some(m.rightOwner), claim = claim)
-          case _ => replaceWithBrace(Some(arg))
+          case _ => replaceWithBrace(owner = Some(arg), claim = claimToo)
         }
         arg match {
           // single-arg apply of a partial function or optionally any arg
           // a({ case b => c; d }) change to a { case b => c; d }
           case _: Term.PartialFunction => replaceWithNextBrace()
           case b: Term.Block =>
-            val ok = getTreeSingleExpr(b).is[Term.PartialFunction]
-            if (ok) replaceWithNextBrace() else null
+            val stat = getBlockSingleStat(b)
+            stat.flatMap(getTreeSingleExpr) match {
+              case Some(f: Term.FunctionTerm) =>
+                getBlockToReplaceAsFuncBodyInSingleArgApply(ta, f) match {
+                  case Some((xb, xlb)) =>
+                    if (canRewriteStatWithParens(xb)) null
+                    else replaceWithNextBrace(claimToo = xlb.idx - 1 :: Nil)
+                  case _ => replaceWithNextBrace()
+                }
+              case Some(s: Term)
+                  if okLineSpan(b) &&
+                    !stat.exists(ftoks.tokenAfter(_).right.is[T.Semicolon]) &&
+                    canRewriteStatWithParens(s) => null
+              case _ => replaceWithNextBrace()
+            }
           case f: Term.FunctionTerm =>
             getBlockToReplaceAsFuncBodyInSingleArgApply(ta, f) match {
               case Some((_, xlb)) => replaceWithBrace(claim = xlb.idx - 1 :: Nil)
