@@ -18,6 +18,10 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   override def create(implicit ftoks: FormatTokens): Rule = new RedundantBraces
 
+  private def settings(implicit
+      style: ScalafmtConfig,
+  ): RedundantBracesSettings = style.rewrite.redundantBraces
+
   private def needParensAroundParams(f: Term.FunctionTerm): Boolean =
     /* either we have parens or no type; multiple params or
      * no params guarantee parens, so we look for type and
@@ -90,6 +94,38 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       session: Session,
   ): Boolean = session.claimedRuleOnLeft(pft)
     .exists(x => (x.how eq ReplacementType.Replace) && x.ft.right.is[T.LeftBrace])
+
+  private def okLineSpan(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
+    getTreeLineSpan(tree) <= settings.maxBreaks
+
+  private def isDefnBodiesEnabled(
+      noParams: => Boolean,
+  )(implicit style: ScalafmtConfig): Boolean = settings.defnBodies match {
+    case RedundantBracesSettings.DefnBodies.all => true
+    case RedundantBracesSettings.DefnBodies.none => false
+    case RedundantBracesSettings.DefnBodies.noParams => noParams
+  }
+
+  private def okToRemoveAroundFunctionBody(
+      b: Term,
+      okIfMultipleStats: => Boolean,
+  )(implicit style: ScalafmtConfig): Boolean =
+    isDefnBodiesEnabled(noParams = false) &&
+      (getTreeSingleStat(b) match {
+        case Some(_: Term.PartialFunction) => false
+        case Some(_: Term.Block) => true
+        case Some(s) => okLineSpan(s)
+        case _ => okIfMultipleStats
+      })
+
+  @inline
+  private def okToRemoveAroundFunctionBody(b: Term, s: Seq[Tree])(implicit
+      style: ScalafmtConfig,
+  ): Boolean = okToRemoveAroundFunctionBody(b, isSeqSingle(s))
+
+  private def getSingleStatIfLineSpanOk(b: Term.Block)(implicit
+      style: ScalafmtConfig,
+  ): Option[Stat] = getBlockSingleStat(b).filter(okLineSpan(_))
 
 }
 
@@ -255,10 +291,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       owner: Tree,
   )(implicit ft: FT, session: Session, style: ScalafmtConfig): Replacement = {
     def handleInterpolation =
-      if (
-        style.rewrite.redundantBraces.stringInterpolation &&
-        processInterpolation
-      ) removeToken
+      if (settings.stringInterpolation && processInterpolation) removeToken
       else null
 
     owner match {
@@ -335,10 +368,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       case _ => (left, removeToken)
     }
   }
-
-  private def settings(implicit
-      style: ScalafmtConfig,
-  ): RedundantBracesSettings = style.rewrite.redundantBraces
 
   private def processInterpolation(implicit ft: FT): Boolean = {
     def isIdentifierAtStart(value: String) = value.headOption
@@ -535,14 +564,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   ): Boolean = rhs.eq(b) && getSingleStatIfLineSpanOk(b).exists(innerOk(b)) &&
     isDefnBodiesEnabled(noParams)
 
-  private def isDefnBodiesEnabled(
-      noParams: => Boolean,
-  )(implicit style: ScalafmtConfig): Boolean = settings.defnBodies match {
-    case RedundantBracesSettings.DefnBodies.all => true
-    case RedundantBracesSettings.DefnBodies.none => false
-    case RedundantBracesSettings.DefnBodies.noParams => noParams
-  }
-
   private def innerOk(b: Term.Block)(s: Stat): Boolean = s match {
     case _: Term.FunctionTerm | _: Term.Xml => false
     case t: Term.NewAnonymous =>
@@ -652,23 +673,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       innerOk(b)(stat) && !b.parent.exists(keepForParent)
     }
 
-  @inline
-  private def okToRemoveAroundFunctionBody(b: Term, s: Seq[Tree])(implicit
-      style: ScalafmtConfig,
-  ): Boolean = okToRemoveAroundFunctionBody(b, isSeqSingle(s))
-
-  private def okToRemoveAroundFunctionBody(
-      b: Term,
-      okIfMultipleStats: => Boolean,
-  )(implicit style: ScalafmtConfig): Boolean =
-    isDefnBodiesEnabled(noParams = false) &&
-      (getTreeSingleStat(b) match {
-        case Some(_: Term.PartialFunction) => false
-        case Some(_: Term.Block) => true
-        case Some(s) => okLineSpan(s)
-        case _ => okIfMultipleStats
-      })
-
   @tailrec
   private def getBlockNestedPartialFunction(
       tree: Tree,
@@ -677,13 +681,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     case Term.Block(x :: Nil) => getBlockNestedPartialFunction(x)
     case _ => None
   }
-
-  private def getSingleStatIfLineSpanOk(b: Term.Block)(implicit
-      style: ScalafmtConfig,
-  ): Option[Stat] = getBlockSingleStat(b).filter(okLineSpan(_))
-
-  private def okLineSpan(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
-    getTreeLineSpan(tree) <= settings.maxBreaks
 
   private def braceSeparatesTwoXmlTokens(implicit ft: FT): Boolean = ft.left
     .is[T.Xml.End] && ftoks.next(ft).right.is[T.Xml.Start]
