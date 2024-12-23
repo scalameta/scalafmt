@@ -2032,9 +2032,9 @@ foo
   )
 >>>
 foo
-  .mtd1 { x =>
+  .mtd1(x =>
     x + 1
-  }
+  )
   .mtd2: x =>
      x + 1
      x + 2
@@ -2071,10 +2071,9 @@ object a {
 }
 >>>
 object a:
-   mtd1 { x =>
+   mtd1(x =>
      x + 1
-   }
-   + mtd2: x =>
+   ) + mtd2: x =>
       x + 1
       x + 2
    + mtd3 { x =>

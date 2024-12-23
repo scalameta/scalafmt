@@ -167,13 +167,13 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   private def onLeftParen(implicit ft: FT, style: ScalafmtConfig): Replacement = {
     val rt = ft.right
 
-    def replaceWithBrace(claim: List[Int], owner: Option[Tree] = None) = {
+    def replaceWithBrace(claim: List[Int] = Nil, owner: Option[Tree] = None) = {
       val lb = new T.LeftBrace(rt.input, rt.dialect, rt.start)
       replaceToken("{", owner = owner, claim = claim)(lb)
     }
 
     ft.rightOwner match {
-      case ta @ Term.ArgClause(arg :: Nil, _)
+      case ta @ Term.ArgClause(arg :: Nil, None)
           if !ta.parent.is[Init] && getOpeningParen(ta).contains(rt) =>
         def replaceWithNextBrace(claimToo: List[Int] = Nil) = ftoks
           .nextNonCommentAfter(ft) match {
@@ -183,33 +183,42 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             else replaceWithBrace(owner = Some(m.rightOwner), claim = claim)
           case _ => replaceWithBrace(owner = Some(arg), claim = claimToo)
         }
+        def rewriteFunction(f: Term.FunctionTerm)(shouldMoveBrace: => Boolean) =
+          getBlockToReplaceAsFuncBodyInSingleArgApply(ta, f).fold {
+            if (!shouldMoveBrace) null
+            else if (f eq arg) replaceWithBrace()
+            else replaceWithNextBrace()
+          } { case (xb, xlb) =>
+            val shouldMoveNextBrace = !canRewriteStatWithParens(xb) ||
+              !okLineSpan(xb)
+            if (!shouldMoveNextBrace) null
+            else {
+              val claim = xlb.idx - 1 :: Nil
+              if (f eq arg) replaceWithBrace(claim = claim)
+              else replaceWithNextBrace(claimToo = claim)
+            }
+          }
         arg match {
           // single-arg apply of a partial function or optionally any arg
           // a({ case b => c; d }) change to a { case b => c; d }
           case _: Term.PartialFunction => replaceWithNextBrace()
           case b: Term.Block =>
-            val stat = getBlockSingleStat(b)
-            stat.flatMap(getTreeSingleExpr) match {
+            // do nothing if the block can and will be stripped, else move brace
+            def blockCantBeStripped = ftoks.prevNonCommentBefore(ftoks.getLast(b))
+              .left.is[T.Semicolon]
+            def blockWontBeStripped = !okLineSpan(b)
+            def shouldMoveBrace(s: Stat): Boolean =
+              !canRewriteStatWithParens(s) ||
+                // TODO: check oneStatApply
+                blockCantBeStripped || blockWontBeStripped
+            getTreeSingleExpr(b) match {
               case Some(f: Term.FunctionTerm) =>
-                getBlockToReplaceAsFuncBodyInSingleArgApply(ta, f) match {
-                  case Some((xb, xlb)) =>
-                    if (canRewriteStatWithParens(xb)) null
-                    else replaceWithNextBrace(claimToo = xlb.idx - 1 :: Nil)
-                  case _ => replaceWithNextBrace()
-                }
-              case Some(s: Term)
-                  if okLineSpan(b) &&
-                    !stat.exists(ftoks.tokenAfter(_).right.is[T.Semicolon]) &&
-                    canRewriteStatWithParens(s) => null
+                rewriteFunction(f)(shouldMoveBrace(f))
+              case Some(s: Term) if !shouldMoveBrace(s) => null
               case _ => replaceWithNextBrace()
             }
           case f: Term.FunctionTerm =>
-            getBlockToReplaceAsFuncBodyInSingleArgApply(ta, f) match {
-              case Some((xb, xlb)) =>
-                if (canRewriteStatWithParens(xb) && okLineSpan(xb)) null
-                else replaceWithBrace(claim = xlb.idx - 1 :: Nil)
-              case _ => null
-            }
+            rewriteFunction(f)(shouldMoveBrace = false)
           case _ => null
         }
       case _ => null
