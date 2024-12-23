@@ -354,10 +354,10 @@ object a {
 }
 >>>
 object a {
-  b.c { d => e + f }
-  b.c { d => //
+  b.c(d => e + f)
+  b.c(d => //
     e + f
-  }
+  )
 }
 <<< #1027 3.1: with align
 align.preset = more
