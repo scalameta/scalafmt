@@ -1433,7 +1433,8 @@ class FormatOps(
         def newres = getHead(tree) :: res
         tree.values match {
           case Nil => res
-          case arg :: Nil => getBlockStat(arg) match {
+          case arg :: Nil if isEnclosedWithinParens(tree) =>
+            getBlockStat(arg) match {
               case t: Member.Apply => getNestedOpens(t.argClause, newres)
               case _ => newres
             }
