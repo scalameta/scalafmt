@@ -371,10 +371,10 @@ object a {
 }
 >>>
 object a {
-  b.c(d => e + f)
-  b.c(d => //
+  b.c { d => e + f }
+  b.c { d => //
     e + f
-  )
+  }
 }
 <<< #1027 2.2: one-arg braces to parens yes
 rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
@@ -1151,18 +1151,10 @@ object a {
 }
 >>>
 object a {
-  val foo = bar { x =>
-    y
-  }
-  val foo = bar { x =>
-    y
-  }
-  val foo = bar.baz { x =>
-    y
-  }
-  val foo = bar.baz { x =>
-    y
-  }
+  val foo = bar(x => y)
+  val foo = bar(x => y)
+  val foo = bar.baz(x => y)
+  val foo = bar.baz(x => y)
 }
 <<< single-block function with block one-arg apply, use parens
 rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
@@ -1184,18 +1176,10 @@ object a {
 }
 >>>
 object a {
-  val foo = bar { x =>
-    y
-  }
-  val foo = bar { x =>
-    y
-  }
-  val foo = bar.baz { x =>
-    y
-  }
-  val foo = bar.baz { x =>
-    y
-  }
+  val foo = bar(x => y)
+  val foo = bar(x => y)
+  val foo = bar.baz(x => y)
+  val foo = bar.baz(x => y)
 }
 <<< single-block partial function with parens one-arg apply
 object a {
@@ -2368,7 +2352,7 @@ rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
 ===
 run( { worklist.push(startBlock); } )
 >>>
-run { worklist.push(startBlock); }
+run { worklist.push { startBlock }; }
 <<< #4133 rewrites with assignment and infix chain
 maxColumn = 76
 rewrite.redundantBraces {

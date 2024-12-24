@@ -8030,7 +8030,7 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 val simpleVersionString: String = {
   val v = scalaPropOrElse("version.number", "(unknown)")
   v + (
-    if (v.contains("SNAPSHOT") || v.contains("NIGHTLY"))
+    if (v.contains { "SNAPSHOT" } || v.contains { "NIGHTLY" })
       "-git-" + scalaPropOrElse("git.hash", "(unknown)")
     else
       ""
@@ -8074,9 +8074,9 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 ===
 val privateFlag = !sym.isClass && (sym.is(Private) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
 >>>
-val privateFlag = !sym.isClass && (sym.is(
+val privateFlag = !sym.isClass && (sym.is {
   Private
-) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
+} || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
 <<< rewrite infix function to braces
 rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -8084,9 +8084,9 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 foo map (x => // force break
   x + 1) 
 >>>
-foo map (x => // force break
+foo map { x => // force break
   x + 1
-)
+}
 <<< rewrite to parens with repeated
 rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -8135,7 +8135,7 @@ object a:
       val elem: T = elemFactory()
       def unpackTags(tags: TagArg*): Unit = tags.foreach {
         case e: domhtml.Element => elem.appendChild(e)
-        case s: String          => elem.appendChild(textNode(s))
+        case s: String          => elem.appendChild { textNode(s) }
         case elemSeq: (Seq[domhtml.Element | String] @unchecked) =>
           unpackTags(elemSeq*)
       }
@@ -8146,8 +8146,10 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 throw MatchError(tree.show( // using clause
 using Printer.TreeStructure))
 >>>
-throw MatchError(tree.show( // using clause
-  using Printer.TreeStructure))
+throw MatchError {
+  tree.show( // using clause
+    using Printer.TreeStructure)
+}
 <<< handle rewritten-to-braces argclause as optimization zone
 rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -8163,7 +8165,7 @@ object a {
 object a {
   sortedRegionEntries.zipWithIndex.collectFirst {
     case (RegionEntry(region, _, shards), i)
-        if shards.contains(neighbor) && shards.size < optimalNumberOfShards(
+        if shards.contains { neighbor } && shards.size < optimalNumberOfShards(
           i,
           sortedRegionEntries.size
         ) + overfill =>
@@ -8227,15 +8229,15 @@ object a {
 }
 >>>
 object a {
-  within(3.seconds) {
-    awaitAssert {
-      additionaSystems.foreach { s =>
-        withClue(s"${Cluster(s).selfAddress}:") {
+  within(3.seconds)(
+    awaitAssert(
+      additionaSystems.foreach(s =>
+        withClue(s"${Cluster(s).selfAddress}:")(
           Cluster(s).isTerminated should be(true)
-        }
-      }
-    }
-  }
+        )
+      )
+    )
+  )
 }
 <<< rewrite argclause to parens and braces
 rewrite.redundantBraces.oneStatApply.parensMaxSpan = 80
@@ -8255,15 +8257,15 @@ object a {
 }
 >>>
 object a {
-  within(3.seconds)(
-    awaitAssert(
-      additionaSystems.foreach { s =>
-        withClue(s"${Cluster(s).selfAddress}:") {
+  within(3.seconds) {
+    awaitAssert {
+      additionaSystems.foreach(s =>
+        withClue(s"${Cluster(s).selfAddress}:")(
           Cluster(s).isTerminated should be(true)
-        }
-      }
-    )
-  )
+        )
+      )
+    }
+  }
 }
 <<< rewrite to parens a call with a tuple
 rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
@@ -8288,13 +8290,13 @@ object a {
 }
 >>>
 object a {
-  val (document, module, psiFile) = inReadAction {
+  val (document, module, psiFile) = inReadAction(
     (
       FileDocumentManager.getInstance().getDocument(vf),
       ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(vf),
       PsiManager.getInstance(project).findFile(vf)
     )
-  }
+  )
 
   val (document, module, psiFile) = inReadAction(
     (
@@ -8323,7 +8325,7 @@ object a {
 }
 >>>
 object a {
-  val resultIterator = Iterator.continually {
+  val resultIterator = Iterator.continually(
     transformers.foldLeft(false) { (hadApply, transformer) =>
        val elementIterator =
          range.map(elementsIn(file, _)).getOrElse(file.depthFirst())
@@ -8335,7 +8337,7 @@ object a {
        }
        hadApply || hasApply
     }
-  }
+  )
 }
 <<< do not rewrite to braces with an ascribe argument
 rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
@@ -8357,7 +8359,7 @@ object a {
       foo match {
         case bar => baz
       }
-    ): Foo => Baz).map(qux(_))
+    ): Foo => Baz).map { qux(_) }
 }
 <<< rewrite to parens or braces while also adding new scala3 syntax (changes span)
 rewrite {
@@ -8383,9 +8385,9 @@ object a:
 >>>
 object a:
    def ensureOuterAccessors(cls: ClassSymbol)(using Context): Unit =
-     atPhase(explicitOuterPhase.next) {
+     atPhase(explicitOuterPhase.next)(
        if !hasOuter(cls) then
           newOuterAccessors(cls).foreach(
             _.enteredAfter(explicitOuterPhase.asInstanceOf[DenotTransformer])
           )
-     }
+     )

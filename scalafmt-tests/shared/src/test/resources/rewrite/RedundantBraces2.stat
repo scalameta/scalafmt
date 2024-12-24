@@ -549,22 +549,21 @@ condDefs(nullPointers != CheckedBehavior.Unchecked)(
   }
 )
 >>>
-condDefs(nullPointers != CheckedBehavior.Unchecked)(
-  defineFunction0(VarField.throwNullPointerException) {
+condDefs(nullPointers != CheckedBehavior.Unchecked) {
+  defineFunction0(VarField.throwNullPointerException)(
     Throw(maybeWrapInUBE(
       nullPointers,
       genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
     ))
-  } :::
-
+  ) :::
     // "checkNotNull", but with a very short name
-    defineFunction1(VarField.n) { x =>
+    defineFunction1(VarField.n)(x =>
       Block(
         If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
         Return(x)
       )
-    }
-)
+    )
+}
 <<< ok to rewrite parens to braces removing blank line within infix [scala3]
 maxColumn = 80
 runner.dialect = scala3
@@ -590,22 +589,21 @@ condDefs(nullPointers != CheckedBehavior.Unchecked)(
   }
 )
 >>>
-condDefs(nullPointers != CheckedBehavior.Unchecked)(
-  defineFunction0(VarField.throwNullPointerException) {
+condDefs(nullPointers != CheckedBehavior.Unchecked) {
+  defineFunction0(VarField.throwNullPointerException)(
     Throw(maybeWrapInUBE(
       nullPointers,
       genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
     ))
-  } :::
-
+  ) :::
     // "checkNotNull", but with a very short name
-    defineFunction1(VarField.n) { x =>
+    defineFunction1(VarField.n)(x =>
       Block(
         If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
         Return(x)
       )
-    }
-)
+    )
+}
 <<< ok to rewrite parens to braces if infix has no blank line
 maxColumn = 80
 newlines.source = keep
@@ -629,18 +627,18 @@ condDefs(nullPointers != CheckedBehavior.Unchecked)(
   }
 )
 >>>
-condDefs(nullPointers != CheckedBehavior.Unchecked)(
-  defineFunction0(VarField.throwNullPointerException) {
+condDefs(nullPointers != CheckedBehavior.Unchecked) {
+  defineFunction0(VarField.throwNullPointerException)(
     Throw(maybeWrapInUBE(
       nullPointers,
       genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
     ))
-  } :::
+  ) :::
     // "checkNotNull", but with a very short name
-    defineFunction1(VarField.n) { x =>
+    defineFunction1(VarField.n)(x =>
       Block(
         If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
         Return(x)
       )
-    }
-)
+    )
+}

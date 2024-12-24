@@ -53,7 +53,7 @@ case class RewriteSettings(
 
   def bracesToParensForOneLineApply: Boolean = {
     val settings = redundantBraces.oneStatApply
-    settings.parensMaxSpan == 0 && // TODO: check bracesMinSpan
+    settings.parensMaxSpan == 0 && settings.bracesMinSpan < 0 &&
     RedundantBraces.usedIn(this)
   }
 
