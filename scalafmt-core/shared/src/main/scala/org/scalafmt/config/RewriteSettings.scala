@@ -46,8 +46,11 @@ case class RewriteSettings(
   private[config] def forTestOpt: Option[RewriteSettings] = avoidInfix
     .forTestOpt.map(x => copy(avoidInfix = x))
 
-  def bracesToParensForOneLineApply = redundantBraces.parensForOneLineApply &&
+  def bracesToParensForOneLineApply: Boolean = {
+    val settings = redundantBraces.oneStatApply
+    settings.parensMaxSpan == 0 && // TODO: check bracesMinSpan
     RedundantBraces.usedIn(this)
+  }
 
 }
 

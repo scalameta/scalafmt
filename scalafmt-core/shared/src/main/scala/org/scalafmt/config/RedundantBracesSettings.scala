@@ -10,7 +10,8 @@ case class RedundantBracesSettings(
     @annotation.ExtraName("maxLines")
     maxBreaks: Int = 100,
     stringInterpolation: Boolean = false,
-    parensForOneLineApply: Boolean = true,
+    oneStatApply: RedundantBracesSettings.OneStatApply =
+      RedundantBracesSettings.OneStatApply.default,
     generalExpressions: Boolean = true,
     ifElseExpressions: Boolean = false,
 )
@@ -32,7 +33,15 @@ object RedundantBracesSettings {
   implicit lazy val encoder: ConfEncoder[RedundantBracesSettings] =
     generic.deriveEncoder
   implicit lazy val decoder: ConfDecoderEx[RedundantBracesSettings] = Presets
-    .mapDecoder(generic.deriveDecoderEx(default).noTypos, "RedundantBraces")
+    .mapDecoder(
+      generic.deriveDecoderEx(default).noTypos
+        .withSectionRenames(annotation.SectionRename(
+          "parensForOneLineApply",
+          "oneStatApply.parensMaxSpan",
+          { case Conf.Bool(value) => Conf.Num(if (value) 0 else -1) },
+        )),
+      "RedundantBraces",
+    )
 
   sealed abstract class DefnBodies
 
@@ -46,6 +55,14 @@ object RedundantBracesSettings {
     case object all extends DefnBodies
     case object none extends DefnBodies
     case object noParams extends DefnBodies
+  }
+
+  case class OneStatApply(parensMaxSpan: Int = 0, bracesMinSpan: Int = -1)
+  object OneStatApply {
+    val default = OneStatApply()
+    implicit val surface: generic.Surface[OneStatApply] = generic.deriveSurface
+    implicit val codec: ConfCodecEx[OneStatApply] = generic
+      .deriveCodecEx(default).noTypos
   }
 
 }

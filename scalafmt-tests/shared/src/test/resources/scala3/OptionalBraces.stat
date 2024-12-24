@@ -7990,3 +7990,383 @@ given foo: (a: A) =>
 given foo: (a: A) =>
   [B, C <: AnyRef] => (b: B[A], C) =>
   List[A] = foo
+<<< don't rewrite complex infix to braces
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+  val simpleVersionString: String = {
+    val v = scalaPropOrElse("version.number", "(unknown)")
+    v + (
+      if (v.contains("SNAPSHOT") || v.contains("NIGHTLY"))
+        "-git-" + scalaPropOrElse("git.hash", "(unknown)")
+      else
+        ""
+    )
+  }
+>>>
+val simpleVersionString: String = {
+  val v = scalaPropOrElse("version.number", "(unknown)")
+  v + (
+    if (v.contains("SNAPSHOT") || v.contains("NIGHTLY"))
+      "-git-" + scalaPropOrElse("git.hash", "(unknown)")
+    else
+      ""
+  )
+}
+<<< don't rewrite complex infix to parens
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+  val simpleVersionString: String = {
+    val v = scalaPropOrElse("version.number", "(unknown)")
+    v + {
+      if (v.contains("SNAPSHOT") || v.contains("NIGHTLY"))
+        "-git-" + scalaPropOrElse("git.hash", "(unknown)")
+      else
+        ""
+    }
+  }
+>>>
+val simpleVersionString: String = {
+  val v = scalaPropOrElse("version.number", "(unknown)")
+  v + {
+    if (v.contains("SNAPSHOT") || v.contains("NIGHTLY"))
+      "-git-" + scalaPropOrElse("git.hash", "(unknown)")
+    else
+      ""
+  }
+}
+<<< do not rewrite infix to parens
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+val privateFlag = !sym.isClass && (sym.is(Private) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
+>>>
+val privateFlag = !sym.isClass && (sym.is(
+  Private
+) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
+<<< do not rewrite infix to braces
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+val privateFlag = !sym.isClass && (sym.is(Private) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
+>>>
+val privateFlag = !sym.isClass && (sym.is(
+  Private
+) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
+<<< rewrite infix function to braces
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+foo map (x => // force break
+  x + 1) 
+>>>
+foo map (x => // force break
+  x + 1
+)
+<<< rewrite to parens with repeated
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = true
+===
+object a:
+    def apply(first: AttrArg, rest: AttrArg*): T = apply((first +: rest):_*)()
+    def apply(attrs: AttrArg*)(tags: TagArg*): T =
+      val elem: T = elemFactory()
+      def unpackTags(tags: TagArg*): Unit = tags.foreach {
+        case e: domhtml.Element => elem.appendChild(e)
+        case s: String => elem.appendChild(textNode(s))
+        case elemSeq: (Seq[domhtml.Element | String] @unchecked) => unpackTags(elemSeq*)
+      }
+>>>
+object a:
+   def apply(first: AttrArg, rest: AttrArg*): T = apply((first +: rest)*)()
+   def apply(attrs: AttrArg*)(tags: TagArg*): T =
+      val elem: T = elemFactory()
+      def unpackTags(tags: TagArg*): Unit = tags.foreach {
+        case e: domhtml.Element => elem.appendChild(e)
+        case s: String          => elem.appendChild(textNode(s))
+        case elemSeq: (Seq[domhtml.Element | String] @unchecked) =>
+          unpackTags(elemSeq*)
+      }
+<<< rewrite to braces with repeated
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.scala3.convertToNewSyntax = true
+rewrite.scala3.removeOptionalBraces = true
+===
+object a:
+    def apply(first: AttrArg, rest: AttrArg*): T = apply((first +: rest):_*)()
+    def apply(attrs: AttrArg*)(tags: TagArg*): T =
+      val elem: T = elemFactory()
+      def unpackTags(tags: TagArg*): Unit = tags.foreach {
+        case e: domhtml.Element => elem.appendChild(e)
+        case s: String => elem.appendChild(textNode(s))
+        case elemSeq: (Seq[domhtml.Element | String] @unchecked) => unpackTags(elemSeq*)
+      }
+>>>
+object a:
+   def apply(first: AttrArg, rest: AttrArg*): T = apply((first +: rest)*)()
+   def apply(attrs: AttrArg*)(tags: TagArg*): T =
+      val elem: T = elemFactory()
+      def unpackTags(tags: TagArg*): Unit = tags.foreach {
+        case e: domhtml.Element => elem.appendChild(e)
+        case s: String          => elem.appendChild(textNode(s))
+        case elemSeq: (Seq[domhtml.Element | String] @unchecked) =>
+          unpackTags(elemSeq*)
+      }
+<<< do not rewrite to braces with `using`
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+throw MatchError(tree.show( // using clause
+using Printer.TreeStructure))
+>>>
+throw MatchError(
+  tree.show( // using clause
+    using Printer.TreeStructure
+  )
+)
+<<< handle rewritten-to-braces argclause as optimization zone
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+object a {
+  sortedRegionEntries.zipWithIndex.collectFirst {
+    case (RegionEntry(region, _, shards), i)
+        if shards.contains(neighbor) && shards.size < optimalNumberOfShards(i, sortedRegionEntries.size) + overfill =>
+      region
+  }
+}
+>>>
+object a {
+  sortedRegionEntries.zipWithIndex.collectFirst {
+    case (RegionEntry(region, _, shards), i)
+        if shards.contains(neighbor) && shards.size < optimalNumberOfShards(
+          i,
+          sortedRegionEntries.size
+        ) + overfill =>
+      region
+  }
+}
+<<< handle rewritten-to-parens argclause with function in parens with block body
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+object a {
+  private def isIgnoredByPackages(file: File): Boolean = {
+    val ignoredByPackages = ignoredPackages.exists(pkg => {
+      getPackageName(file.toURI.toString) match {
+        case Some(packageName) =>
+          val ignored = packageName.startsWith(pkg)
+          if (ignored) {
+            stdoutLogger.debug(
+              s"$descriptor ignored file with pkg:$pkg for package:$packageName file:[${file.toPath}] ")
+          }
+          ignored
+        case None => false
+      }
+    })
+    ignoredByPackages
+  }
+}
+>>>
+object a {
+  private def isIgnoredByPackages(file: File): Boolean = {
+    val ignoredByPackages = ignoredPackages.exists(pkg =>
+      getPackageName(file.toURI.toString) match {
+        case Some(packageName) =>
+          val ignored = packageName.startsWith(pkg)
+          if (ignored) {
+            stdoutLogger.debug(
+              s"$descriptor ignored file with pkg:$pkg for package:$packageName file:[${file.toPath}] "
+            )
+          }
+          ignored
+        case None => false
+      }
+    )
+    ignoredByPackages
+  }
+}
+<<< handle rewritten-to-parens argclause with function in braces
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+object a {
+    within(3.seconds) {
+      awaitAssert {
+        additionaSystems.foreach { s =>
+          withClue(s"${Cluster(s).selfAddress}:") {
+            Cluster(s).isTerminated should be(true)
+          }
+        }
+      }
+    } 
+}
+>>>
+object a {
+  within(3.seconds) {
+    awaitAssert {
+      additionaSystems.foreach { s =>
+        withClue(s"${Cluster(s).selfAddress}:") {
+          Cluster(s).isTerminated should be(true)
+        }
+      }
+    }
+  }
+}
+<<< rewrite argclause to parens and braces
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 80
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 80
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+object a {
+    within(3.seconds) (
+      awaitAssert (
+        additionaSystems.foreach { s =>
+          withClue(s"${Cluster(s).selfAddress}:") {
+            Cluster(s).isTerminated should be(true)
+          }
+        }
+      )
+    )
+}
+>>>
+object a {
+  within(3.seconds)(
+    awaitAssert(
+      additionaSystems.foreach { s =>
+        withClue(s"${Cluster(s).selfAddress}:") {
+          Cluster(s).isTerminated should be(true)
+        }
+      }
+    )
+  )
+}
+<<< rewrite to parens a call with a tuple
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+object a {
+  val (document, module, psiFile) = inReadAction {
+    (
+      FileDocumentManager.getInstance().getDocument(vf),
+      ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(vf),
+      PsiManager.getInstance(project).findFile(vf)
+    )
+  }
+
+  val (document, module, psiFile) = inReadAction (
+    (
+      FileDocumentManager.getInstance().getDocument(vf),
+      ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(vf),
+      PsiManager.getInstance(project).findFile(vf)
+    )
+  )
+}
+>>>
+object a {
+  val (document, module, psiFile) = inReadAction {
+    (
+      FileDocumentManager.getInstance().getDocument(vf),
+      ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(vf),
+      PsiManager.getInstance(project).findFile(vf)
+    )
+  }
+
+  val (document, module, psiFile) = inReadAction(
+    (
+      FileDocumentManager.getInstance().getDocument(vf),
+      ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(vf),
+      PsiManager.getInstance(project).findFile(vf)
+    )
+  )
+}
+<<< rewrite to parens nested apply calls
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+object a {
+  val resultIterator = Iterator.continually {
+    transformers.foldLeft(false) { (hadApply, transformer) =>
+      val elementIterator = range.map(elementsIn(file, _)).getOrElse(file.depthFirst())
+      val hasApply = elementIterator.foldLeft(false) { (hadApply, element) =>
+        val (result, marker) = applyTransformer(element, transformer, document)
+        marker.foreach(markers ::= _)
+        hadApply || result
+      } 
+      hadApply || hasApply
+    }
+  }
+}
+>>>
+object a {
+  val resultIterator = Iterator.continually {
+    transformers.foldLeft(false) { (hadApply, transformer) =>
+       val elementIterator =
+         range.map(elementsIn(file, _)).getOrElse(file.depthFirst())
+       val hasApply = elementIterator.foldLeft(false) { (hadApply, element) =>
+          val (result, marker) =
+            applyTransformer(element, transformer, document)
+          marker.foreach(markers ::= _)
+          hadApply || result
+       }
+       hadApply || hasApply
+    }
+  }
+}
+<<< do not rewrite to braces with an ascribe argument
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+object a {
+  Option( //
+    (
+      foo match {
+        case bar => baz
+      }
+    ): Foo => Baz
+  ).map(qux(_))
+}
+>>>
+object a {
+  Option( //
+    (
+      foo match {
+        case bar => baz
+      }
+    ): Foo => Baz
+  ).map(qux(_))
+}
+<<< rewrite to parens or braces while also adding new scala3 syntax (changes span)
+rewrite {
+  rules = [RedundantBraces]
+  redundantBraces {
+    preset = all
+    oneStatApply {
+      parensMaxSpan = 100
+      bracesMinSpan = 100
+    }
+  }
+  scala3 {
+    convertToNewSyntax = yes
+  }
+}
+===
+object a:
+  def ensureOuterAccessors(cls: ClassSymbol)(using Context): Unit =
+    atPhase(explicitOuterPhase.next) {
+      if (!hasOuter(cls))
+        newOuterAccessors(cls).foreach(_.enteredAfter(explicitOuterPhase.asInstanceOf[DenotTransformer]))
+    }
+>>>
+object a:
+   def ensureOuterAccessors(cls: ClassSymbol)(using Context): Unit =
+     atPhase(explicitOuterPhase.next) {
+       if !hasOuter(cls) then
+          newOuterAccessors(cls).foreach(
+            _.enteredAfter(explicitOuterPhase.asInstanceOf[DenotTransformer])
+          )
+     }

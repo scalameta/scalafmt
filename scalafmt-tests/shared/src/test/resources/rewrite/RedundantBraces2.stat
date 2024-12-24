@@ -327,6 +327,23 @@ object a {
   )
     sb.delete(sb.length - 2, sb.length())
 }
+<<< non-redundant parens in `new`
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+object a {
+  private val reloadCache: Try[Application] => T = new InlineCache[Try[Application], T]({ (tryApp: Try[Application]) =>
+    reloadCounter.incrementAndGet()
+    reloadValue(tryApp)
+  })
+}
+>>>
+object a {
+  private val reloadCache: Try[Application] => T =
+    new InlineCache[Try[Application], T]({ (tryApp: Try[Application]) =>
+      reloadCounter.incrementAndGet()
+      reloadValue(tryApp)
+    })
+}
 <<< block within parens: single-stat apply
 object a {
   val switchVersion: Command = Command.args("+~", "<version> <args>")({
@@ -506,4 +523,124 @@ dataFrameCachingWrapper(
     fn(args.df, args.batchId) // dfId is not used, see hack comment above.
   ,
   sessionHolder
+)
+<<< ok to rewrite parens to braces removing blank line within infix [scala213]
+maxColumn = 80
+runner.dialect = scala213
+newlines.source = keep
+rewrite.redundantBraces.oneStatApply {
+  parensMaxSpan = 100
+  bracesMinSpan = 100
+}
+===
+condDefs(nullPointers != CheckedBehavior.Unchecked)(
+  defineFunction0(VarField.throwNullPointerException) {
+    Throw(maybeWrapInUBE(nullPointers, {
+      genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
+    }))
+  } :::
+
+  // "checkNotNull", but with a very short name
+  defineFunction1(VarField.n) { x =>
+    Block(
+      If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
+      Return(x)
+    )
+  }
+)
+>>>
+condDefs(nullPointers != CheckedBehavior.Unchecked)(
+  defineFunction0(VarField.throwNullPointerException) {
+    Throw(maybeWrapInUBE(
+      nullPointers,
+      genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
+    ))
+  } :::
+
+    // "checkNotNull", but with a very short name
+    defineFunction1(VarField.n) { x =>
+      Block(
+        If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
+        Return(x)
+      )
+    }
+)
+<<< ok to rewrite parens to braces removing blank line within infix [scala3]
+maxColumn = 80
+runner.dialect = scala3
+newlines.source = keep
+rewrite.redundantBraces.oneStatApply {
+  parensMaxSpan = 100
+  bracesMinSpan = 100
+}
+===
+condDefs(nullPointers != CheckedBehavior.Unchecked)(
+  defineFunction0(VarField.throwNullPointerException) {
+    Throw(maybeWrapInUBE(nullPointers, {
+      genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
+    }))
+  } :::
+
+  // "checkNotNull", but with a very short name
+  defineFunction1(VarField.n) { x =>
+    Block(
+      If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
+      Return(x)
+    )
+  }
+)
+>>>
+condDefs(nullPointers != CheckedBehavior.Unchecked)(
+  defineFunction0(VarField.throwNullPointerException) {
+    Throw(maybeWrapInUBE(
+      nullPointers,
+      genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
+    ))
+  } :::
+
+    // "checkNotNull", but with a very short name
+    defineFunction1(VarField.n) { x =>
+      Block(
+        If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
+        Return(x)
+      )
+    }
+)
+<<< ok to rewrite parens to braces if infix has no blank line
+maxColumn = 80
+newlines.source = keep
+rewrite.redundantBraces.oneStatApply {
+  parensMaxSpan = 100
+  bracesMinSpan = 100
+}
+===
+condDefs(nullPointers != CheckedBehavior.Unchecked)(
+  defineFunction0(VarField.throwNullPointerException) {
+    Throw(maybeWrapInUBE(nullPointers, {
+      genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
+    }))
+  } :::
+  // "checkNotNull", but with a very short name
+  defineFunction1(VarField.n) { x =>
+    Block(
+      If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
+      Return(x)
+    )
+  }
+)
+>>>
+condDefs(nullPointers != CheckedBehavior.Unchecked)(
+  defineFunction0(VarField.throwNullPointerException) {
+    Throw(maybeWrapInUBE(
+      nullPointers,
+      genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
+    ))
+  } :::
+    // "checkNotNull", but with a very short name
+    defineFunction1(VarField.n) { x =>
+      Block(
+        If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
+        Return(x)
+      )
+    }
 )
