@@ -1793,3 +1793,76 @@ runner.dialect = scala3
 given fooBar: (Foo & Bar) = new Foo with Bar {}
 >>>
 given fooBar: (Foo & Bar) = new Foo with Bar {}
+
+<<< remove parens but also remove blank line within infix [scala213]
+maxColumn = 80
+runner.dialect = scala213
+newlines.source = keep
+===
+val foo = (
+  defineFunction0(VarField.throwNullPointerException) {
+    Throw(maybeWrapInUBE(nullPointers, {
+      genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
+    }))
+  } :::
+
+  // "checkNotNull", but with a very short name
+  defineFunction1(VarField.n) { x =>
+    Block(
+      If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
+      Return(x)
+    )
+  }
+)
+>>>
+val foo =
+  defineFunction0(VarField.throwNullPointerException) {
+    Throw(maybeWrapInUBE(
+      nullPointers, {
+        genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
+      }
+    ))
+  } :::
+    // "checkNotNull", but with a very short name
+    defineFunction1(VarField.n) { x =>
+      Block(
+        If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
+        Return(x)
+      )
+    }
+<<< remove parens but also remove blank line within infix [scala3]
+maxColumn = 80
+runner.dialect = scala3
+newlines.source = keep
+===
+val foo = (
+  defineFunction0(VarField.throwNullPointerException) {
+    Throw(maybeWrapInUBE(nullPointers, {
+      genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
+    }))
+  } :::
+
+  // "checkNotNull", but with a very short name
+  defineFunction1(VarField.n) { x =>
+    Block(
+      If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
+      Return(x)
+    )
+  }
+)
+>>>
+val foo =
+  defineFunction0(VarField.throwNullPointerException) {
+    Throw(maybeWrapInUBE(
+      nullPointers, {
+        genScalaClassNew(NullPointerExceptionClass, NoArgConstructorName)
+      }
+    ))
+  } :::
+    // "checkNotNull", but with a very short name
+    defineFunction1(VarField.n) { x =>
+      Block(
+        If(x === Null(), genCallHelper(VarField.throwNullPointerException)),
+        Return(x)
+      )
+    }
