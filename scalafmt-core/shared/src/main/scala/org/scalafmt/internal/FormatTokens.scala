@@ -133,28 +133,37 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
     .exists(_._1.left.is[T.LeftBrace])
 
   def isEnclosedWithinParens(tree: Tree): Boolean =
-    getClosingIfWithinParens(tree).isRight
+    getClosingIfWithinParens(tree).isDefined
+
+  def getClosingIfWithinParens(tree: Tree): Option[FT] =
+    getClosingIfWithinParensOrBraces(tree).flatMap(_.toOption)
+
+  def getClosingIfWithinParens(last: FT)(head: FT): Option[FT] =
+    getClosingIfWithinParensOrBraces(last)(head).flatMap(_.toOption)
 
   def isEnclosedWithinParensOrBraces(tree: Tree): Boolean =
-    getClosingIfWithinParens(tree) != Left(false)
+    getClosingIfWithinParensOrBraces(tree).isDefined
 
-  def getClosingIfWithinParens(last: FT)(head: FT): Either[Boolean, FT] = {
+  def getClosingIfWithinParensOrBraces(
+      last: FT,
+  )(head: FT): Option[Either[FT, FT]] = {
     val innerMatched = matchingOptLeft(last).contains(head)
-    if (innerMatched && last.left.is[T.RightParen]) Right(prev(last))
+    if (innerMatched && last.left.is[T.RightParen]) Some(Right(prev(last)))
     else {
       val afterLast = nextNonComment(last)
-      if (matchingOptRight(afterLast).exists(_ eq prevNonCommentBefore(head)))
-        if (afterLast.right.is[T.RightParen]) Right(afterLast) else Left(true)
-      else Left(innerMatched)
+      if (!matchingOptRight(afterLast).exists(_ eq prevNonCommentBefore(head)))
+        if (innerMatched) Some(Left(prev(last))) else None
+      else
+        Some(Either.cond(afterLast.right.is[T.RightParen], afterLast, afterLast))
     }
   }
 
-  def getClosingIfWithinParens(tree: Tree): Either[Boolean, FT] = {
+  def getClosingIfWithinParensOrBraces(tree: Tree): Option[Either[FT, FT]] = {
     val tokens = tree.tokens
     getHeadOpt(tokens, tree) match {
       case Some(head) =>
-        getClosingIfWithinParens(getLastNonTrivial(tokens, tree))(head)
-      case None => Left(false)
+        getClosingIfWithinParensOrBraces(getLastNonTrivial(tokens, tree))(head)
+      case None => None
     }
   }
 
