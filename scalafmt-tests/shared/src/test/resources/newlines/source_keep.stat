@@ -10294,9 +10294,50 @@ private def partitionsAssignedToConsumer =
     partitions.asScala.map(p => p -> consumer.position(p)).foreach { _ =>
     }
   }
+<<< #4133 block function with rewritten empty-block body, braces to parens
+maxColumn = 74
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
+===
+private def partitionsAssignedToConsumer = uninterruptibleThreadRunner.runUninterruptibly {
+  // Call `position` to wait until the potential offset request triggered by `poll(0)` is
+  // done. This is a workaround for KAFKA-7703, which an async `seekToBeginning` triggered by
+  // `poll(0)` may reset offsets that should have been set by another request.
+  partitions.asScala.map(p => p -> consumer.position(p)).foreach(_ => {})
+}
+>>>
+private def partitionsAssignedToConsumer =
+  uninterruptibleThreadRunner.runUninterruptibly {
+    // Call `position` to wait until the potential offset request triggered by `poll(0)` is
+    // done. This is a workaround for KAFKA-7703, which an async `seekToBeginning` triggered by
+    // `poll(0)` may reset offsets that should have been set by another request.
+    partitions.asScala.map(p => p -> consumer.position(p)).foreach { _ =>
+    }
+  }
+<<< #4133 block function with rewritten empty-block body, parens to braces 
+maxColumn = 74
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
+===
+private def partitionsAssignedToConsumer = uninterruptibleThreadRunner.runUninterruptibly {
+  // Call `position` to wait until the potential offset request triggered by `poll(0)` is
+  // done. This is a workaround for KAFKA-7703, which an async `seekToBeginning` triggered by
+  // `poll(0)` may reset offsets that should have been set by another request.
+  partitions.asScala.map(p => p -> consumer.position(p)).foreach(_ => {})
+}
+>>>
+private def partitionsAssignedToConsumer =
+  uninterruptibleThreadRunner.runUninterruptibly {
+    // Call `position` to wait until the potential offset request triggered by `poll(0)` is
+    // done. This is a workaround for KAFKA-7703, which an async `seekToBeginning` triggered by
+    // `poll(0)` may reset offsets that should have been set by another request.
+    partitions.asScala.map(p => p -> consumer.position(p)).foreach { _ =>
+    }
+  }
 <<< #4133 rewritten def body as infix in parens with break before op
 maxColumn = 76
 rewrite {
+
   rules = [RedundantParens, RedundantBraces]
   redundantParens.infixSide = all
 }
@@ -11114,3 +11155,217 @@ object a {
       pool => description + ": " + pool(classRe f) + ", " + pool(nameAndTypeRef)
   }
 }
+<<< don't rewrite to braces apply with function and infix as arg
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+val sym1 = sym filter (alt =>
+     isApplicableBasedOnArity(pre memberType alt, argtypes.length, varargsStar = false, tuplingAllowed = false)
+  || alt.tpe.params.exists(_.hasDefault)
+)
+>>>
+val sym1 = sym filter (alt =>
+  isApplicableBasedOnArity(
+    pre memberType alt,
+    argtypes.length,
+    varargsStar = false,
+    tuplingAllowed = false
+  )
+    || alt.tpe.params.exists(
+      _.hasDefault
+    )
+)
+<<< zio, nested tests and suites, with redundant braces to parens rewrite
+maxColumn = 80
+runner.optimizer.maxVisitsPerToken = 20000
+newlines.avoidForSimpleOverflow = all
+rewrite {
+  rules = [RedundantBraces]
+  redundantBraces.preset = all
+  redundantBraces.oneStatApply.parensMaxSpan = 500
+}
+===
+object ZStreamSpec extends DefaultRunnableSpec {
+  def spec: ZSpec[Environment, Failure] =
+    suite("ZStreamSpec")(
+      suite("Combinators")(
+        suite("aggregateAsyncWithin")(
+          testM("aggregateAsyncWithin") (
+            assertM(
+              ZStream(1, 1, 1, 1, 2, 2)
+                .aggregateAsyncWithin(
+                  ZTransducer
+                    .fold((List[Int](), true))(_._2) ( (acc, el: Int) =>
+                      if (el == 1) (el :: acc._1, true)
+                      else if (el == 2 && acc._1.isEmpty) (el :: acc._1, false)
+                      else (el :: acc._1, false)
+                    )
+                    .map(_._1),
+                  Schedule.spaced(30.minutes)
+                )
+                .runCollect
+            )(equalTo(Chunk(List(2, 1, 1, 1, 1), List(2))))
+          )
+        ),
+        
+        
+        suite("bufferDropping")(
+          testM("buffer the Stream with Error") (
+            assertM(
+              (ZStream.range(1, 1000) ++ ZStream.fail(e) ++ ZStream.range(1001, 2000))
+            )(fails(equalTo(e)))
+          ),
+          testM("fast producer progress independently") (
+            for {
+              s1 = ZStream(0) ++ ZStream
+                .fromEffect(latch1.await)
+                .flatMap(_ => ZStream.range(1, 17).chunkN(1).ensuring(latch2.succeed(())))
+              snapshots <- s.process.use ( as =>
+                for {
+                  _         <- latch1.succeed(())
+                  _         <- as.flatMap(a => ref.update(a.toList ::: _)).repeatN(7)
+                  snapshot1 <- ref.get
+                  _         <- latch3.succeed(())
+                  _         <- latch4.await
+                  _         <- as.flatMap(a => ref.update(a.toList ::: _)).repeatN(7)
+                  snapshot2 <- ref.get
+                } yield (zero, snapshot1, snapshot2)
+              )
+            } yield assert(snapshots._1)(equalTo(Chunk.single(0))) && assert(snapshots._2)(
+              equalTo(List(8, 7, 6, 5, 4, 3, 2, 1))
+            ) &&
+              assert(snapshots._3)(
+                equalTo(List(24, 23, 22, 21, 20, 19, 18, 17, 8, 7, 6, 5, 4, 3, 2, 1))
+              )
+          )
+        ),
+      ),
+    )
+
+}
+>>>
+object ZStreamSpec extends DefaultRunnableSpec {
+  def spec: ZSpec[Environment, Failure] =
+    suite("ZStreamSpec")(
+      suite("Combinators")(
+        suite("aggregateAsyncWithin")(
+          testM("aggregateAsyncWithin")(
+            assertM(
+              ZStream(1, 1, 1, 1, 2, 2)
+                .aggregateAsyncWithin(
+                  ZTransducer
+                    .fold((List[Int](), true))(_._2)((acc, el: Int) =>
+                      if (el == 1) (el :: acc._1, true)
+                      else if (el == 2 && acc._1.isEmpty) (el :: acc._1, false)
+                      else (el :: acc._1, false)
+                    )
+                    .map(_._1),
+                  Schedule.spaced(30.minutes)
+                )
+                .runCollect
+            )(equalTo(Chunk(List(2, 1, 1, 1, 1), List(2))))
+          )
+        ),
+        suite("bufferDropping")(
+          testM("buffer the Stream with Error")(
+            assertM(
+              (ZStream.range(1, 1000) ++ ZStream.fail(e) ++ ZStream.range(
+                1001,
+                2000
+              ))
+            )(fails(equalTo(e)))
+          ),
+          testM("fast producer progress independently")(
+            for {
+              s1 = ZStream(0) ++ ZStream
+                .fromEffect(latch1.await)
+                .flatMap(_ =>
+                  ZStream.range(1, 17).chunkN(1).ensuring(latch2.succeed(()))
+                )
+              snapshots <- s.process.use(as =>
+                for {
+                  _ <- latch1.succeed(())
+                  _ <- as.flatMap(a => ref.update(a.toList ::: _)).repeatN(7)
+                  snapshot1 <- ref.get
+                  _ <- latch3.succeed(())
+                  _ <- latch4.await
+                  _ <- as.flatMap(a => ref.update(a.toList ::: _)).repeatN(7)
+                  snapshot2 <- ref.get
+                } yield (zero, snapshot1, snapshot2)
+              )
+            } yield assert(snapshots._1)(equalTo(Chunk.single(0))) && assert(
+              snapshots._2
+            )(
+              equalTo(List(8, 7, 6, 5, 4, 3, 2, 1))
+            ) &&
+              assert(snapshots._3)(
+                equalTo(List(
+                  24, 23, 22, 21, 20, 19, 18, 17, 8, 7, 6, 5, 4, 3, 2, 1
+                ))
+              )
+          )
+        )
+      )
+    )
+
+}
+<<< keep function in braces if contains nested function with multi-stat block
+maxColumn = 80
+newlines.avoidForSimpleOverflow = all
+rewrite {
+  rules = [RedundantBraces]
+  redundantBraces.preset = all
+  redundantBraces.oneStatApply.parensMaxSpan = 500
+}
+===
+object a {
+  def ignoreAfterCancellation[T]: Flow[T, T, Future[Done]] = {
+    Flow.fromGraph(GraphDSL.createGraph(Sink.ignore) { implicit builder => ignore =>
+      import GraphDSL.Implicits._
+      // This pattern is an effective way to absorb cancellation, Sink.ignore will keep the broadcast always flowing
+      // even after sink.inlet cancels.
+      val broadcast = builder.add(Broadcast[T](2, eagerCancel = false))
+      broadcast.out(0) ~> ignore.in
+      FlowShape(broadcast.in, broadcast.out(1))
+    })
+  }
+}
+>>>
+object a {
+  def ignoreAfterCancellation[T]: Flow[T, T, Future[Done]] =
+    Flow.fromGraph(GraphDSL.createGraph(Sink.ignore) {
+      implicit builder => ignore =>
+        import GraphDSL.Implicits._
+        // This pattern is an effective way to absorb cancellation, Sink.ignore will keep the broadcast always flowing
+        // even after sink.inlet cancels.
+        val broadcast = builder.add(Broadcast[T](2, eagerCancel = false))
+        broadcast.out(0) ~> ignore.in
+        FlowShape(broadcast.in, broadcast.out(1))
+    })
+}
+<<< detect rewritten parens-to-braces in nested opens rule
+maxColumn = 74
+rewrite {
+  rules = [RedundantBraces]
+  redundantBraces {
+    preset = all
+    oneStatApply {
+      parensMaxSpan = 100
+      bracesMinSpan = 100
+    }
+  }
+}
+===
+val bypasser = Flow.fromGraph(GraphDSL.create[FlowShape[Either[FlowIn, Out], Out]]() { implicit builder =>
+  import GraphDSL.Implicits._
+
+  FlowShape(broadcast.in, merge.out)
+})
+>>>
+val bypasser =
+  Flow.fromGraph(GraphDSL.create[FlowShape[Either[FlowIn, Out], Out]]() {
+    implicit builder =>
+      import GraphDSL.Implicits._
+
+      FlowShape(broadcast.in, merge.out)
+  })

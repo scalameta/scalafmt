@@ -3225,19 +3225,94 @@ rewrite.redundantBraces.stringInterpolation = true
 s"user id is ${id}"
 ```
 
-#### `RedundantBraces`: `parensForOneLineApply`
+#### `RedundantBraces`: `oneStatApply`
+
+Added in v3.8.4, controls treatment of single-argument apply delimiters,
+has lower priority than [fewer braces](#rewritescala3removeoptionalbraces),
+and takes the following values:
+
+- `parensMaxSpan`: if non-negative, converts braces to parentheses in an
+  argument clause if its span is _not larger than_ the specified value
+  (and can be legally used with parentheses)
+- `bracesMinSpan`: if non-negative, converts parentheses to braces in a
+  single-statement argument clause if its span _strictly larger than_ the
+  specified value
+  - clearly, `parensMaxSpan` may not exceed `bracesMinSpan` but might be
+    the same (for convenience of specifying the pivot point)
+- `parensMaxSpan=0, bracesMinSpan<0` is a special combination which
+  replaced an earlier parameter `parensForOneLineApply = true` and uses parens
+  when the argument clause ends up formatted on a single line (rather than
+  looking at the argument clause span)
+  - see also
+    [newlines.afterCurlyLambdaParams = squash](#newlinesaftercurlylambdaparams)
+
+> Here, the span is computed a bit differently than for
+> [fewer braces](#rewritescala3removeoptionalbraces) or
+> [search optimizer](#route-search-optimizations-arg-or-param-clause),
+> in that it removes not only whitespace but also all punctuation (opening and
+> closing delimiters, commas, semicolons and dots), comments and any optional
+> syntax tokens in scala3 (such as `then`, `:` in coloneol or varargs, etc).
+>
+> The reason is that this happens during the rewrite phase where this or other
+> rules could modify or remove braces, trim trailing commas, add dots and
+> parentheses to an infix, rewrite scala3 code using new syntax, or reformat
+> comments.
+>
+> Thus, to avoid non-idempotent formatting, we ignore them.
+
+In all cases, redundant delimiters will be rewritten, as before.
 
 ```scala mdoc:defaults
-rewrite.redundantBraces.parensForOneLineApply
+rewrite.redundantBraces.oneStatApply
 ```
-
-See also [newlines.afterCurlyLambdaParams = squash](#newlinesaftercurlylambdaparams).
 
 ```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
-rewrite.redundantBraces.parensForOneLineApply = true
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 0
 ---
 xs.map { x => x + 1 }
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 3
+---
+xs.map { x => // should rewrite this
+  x + 1
+}
+xs.map { x => // should not rewrite this, not a single-stat argument
+  x + 1
+  x + 2
+}
+xs.map { x => // should not rewrite outer, too many breaks
+  foo {
+    x
+  }
+}
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 2
+---
+xs.map(x => // should rewrite this
+  x + 1
+)
+xs.map( // should not rewrite this, contains an infix with a break before operator
+  x
+  + 1
+)
+xs.map( // should rewrite this, contains an infix with a break after operator
+  x +
+  1
+)
+// scalafmt: { newlines.afterInfix = some }
+xs.map( // should rewrite this, allows formatting infix
+  x
+  + 1
+)
+xs.map( // should not rewrite this, too few breaks
+  x + 1)
 ```
 
 #### `RedundantBraces`: `maxBreaks`

@@ -356,7 +356,7 @@ object ScalafmtConfig {
     }
 
   private def validate(cfg: ScalafmtConfig): Configured[ScalafmtConfig] = {
-    // scalafmt: { maxColumn = 130 }
+    // scalafmt: { maxColumn = 140 }
     import cfg._
     import ValidationOps._
     val errDialect = s" (no support in Scala dialect ${runner.dialectName})"
@@ -412,8 +412,11 @@ object ScalafmtConfig {
         addIf(rewrite.scala3.removeEndMarkerMaxLines >= rewrite.scala3.insertEndMarkerMinLines)
       addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.insertEndMarkerMinLines != 0)
       addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.removeOptionalBraces.oldSyntaxToo)
-      if (rewrite.insertBraces.minLines != 0 && RedundantBraces.usedIn(rewrite))
-        addIf(rewrite.insertBraces.minLines < rewrite.redundantBraces.maxBreaks)
+      if (RedundantBraces.usedIn(rewrite)) {
+        if (rewrite.insertBraces.minLines != 0) addIf(rewrite.insertBraces.minLines < rewrite.redundantBraces.maxBreaks)
+        if (rewrite.redundantBraces.oneStatApply.bracesMinSpan >= 0)
+          addIf(rewrite.redundantBraces.oneStatApply.bracesMinSpan < rewrite.redundantBraces.oneStatApply.parensMaxSpan)
+      }
       addIf(align.beforeOpenParenDefnSite && !align.closeParenSite)
       addIf(align.beforeOpenParenCallSite && !align.closeParenSite)
       addIf(rewrite.scala3.removeOptionalBraces.fewerBracesMinSpan <= 0)

@@ -344,8 +344,40 @@ object a {
 object a {
   b.c(d => e + f)
 }
+<<< #1027 2.2: one-arg parens to braces yes, one-line braces to parens yes
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 7
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 7
+===
+object a {
+  b.c ({d =>    e     + f})
+  b.c ({d => //
+      e     + f})
+}
+>>>
+object a {
+  b.c(d => e + f)
+  b.c(d => //
+    e + f
+  )
+}
+<<< #1027 2.2: one-arg parens to braces yes, one-line braces to parens no
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = -1
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
+===
+object a {
+  b.c ({d =>    e     + f})
+  b.c ({d => //
+      e     + f})
+}
+>>>
+object a {
+  b.c(d => e + f)
+  b.c(d => //
+    e + f
+  )
+}
 <<< #1027 2.2: one-arg braces to parens yes
-rewrite.redundantBraces.parensForOneLineApply = false
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
 ===
 object a {
   b.c ({d =>    e     + f})
@@ -1099,6 +1131,72 @@ object a {
     y
   }
 }
+<<< single-block function with block one-arg apply, can't use parens
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
+rewrite.redundantBraces.maxBreaks = 1
+===
+object a {
+  val foo = bar {
+    { x => y }
+  }
+  val foo = bar {
+    { { x => y } }
+  }
+  val foo = bar.baz {
+    { x => y }
+  }
+  val foo = bar.baz {
+    { { x => y } }
+  }
+}
+>>>
+object a {
+  val foo = bar { x =>
+    y
+  }
+  val foo = bar { x =>
+    y
+  }
+  val foo = bar.baz { x =>
+    y
+  }
+  val foo = bar.baz { x =>
+    y
+  }
+}
+<<< single-block function with block one-arg apply, use parens
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
+rewrite.redundantBraces.maxBreaks = 10
+===
+object a {
+  val foo = bar {
+    { x => y }
+  }
+  val foo = bar {
+    { { x => y } }
+  }
+  val foo = bar.baz {
+    { x => y }
+  }
+  val foo = bar.baz {
+    { { x => y } }
+  }
+}
+>>>
+object a {
+  val foo = bar { x =>
+    y
+  }
+  val foo = bar { x =>
+    y
+  }
+  val foo = bar.baz { x =>
+    y
+  }
+  val foo = bar.baz { x =>
+    y
+  }
+}
 <<< single-block partial function with parens one-arg apply
 object a {
   val foo = bar (
@@ -1584,6 +1682,30 @@ object a {
   }
 }
 <<< #3263 assign value to var, use as arg
+object a {
+  foo({ bar = baz })
+  foo({ bar = baz }, qux)
+}
+>>>
+object a {
+  foo { bar = baz }
+  foo({ bar = baz }, qux)
+}
+<<< #3263 assign value to var, use as arg, try to use parens
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
+===
+object a {
+  foo({ bar = baz })
+  foo({ bar = baz }, qux)
+}
+>>>
+object a {
+  foo { bar = baz }
+  foo({ bar = baz }, qux)
+}
+<<< #3263 assign value to var, use as arg, try to use braces
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
+===
 object a {
   foo({ bar = baz })
   foo({ bar = baz }, qux)
@@ -2232,6 +2354,18 @@ run( { worklist.push(startBlock); } )
 >>>
 run { worklist.push(startBlock); }
 <<< #4133 can't rewrite with parens if semicolon, without redundant parens
+run( { worklist.push(startBlock); } )
+>>>
+run { worklist.push(startBlock); }
+<<< #4133 can't rewrite with parens if semicolon, even if explicitly requested
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
+===
+run( { worklist.push(startBlock); } )
+>>>
+run { worklist.push(startBlock); }
+<<< #4133 can't rewrite with parens if semicolon, but can with braces
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
+===
 run( { worklist.push(startBlock); } )
 >>>
 run { worklist.push(startBlock); }
