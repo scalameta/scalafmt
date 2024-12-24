@@ -4,7 +4,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.FormatTokensRewrite
 import org.scalafmt.util._
 
-import scala.meta.Tree
+import scala.meta._
 import scala.meta.tokens.Tokens
 import scala.meta.tokens.{Token => T}
 
@@ -462,10 +462,32 @@ object FormatTokens {
       val tok = ft.left
       val (head, last) = State
         .getColumns(tok, ft.meta.left, 0)(identity)(identity)
+      def tokLenUnless(flag: Boolean) = if (flag) 0 else tok.len
+      val owner = ft.leftOwner
+      val nonPunct = tok match {
+        case _: T.Punct | _: T.KwThen | _: T.Comment => 0
+        case _: T.KwDo => tokLenUnless(owner.is[Term.While])
+        case _: T.At => tokLenUnless(owner match {
+            case t: Pat.Bind => t.rhs.is[Pat.SeqWildcard]
+            case _ => false
+          })
+        case _: T.Colon => tokLenUnless(owner match {
+            case _: Template | _: Term.Apply | _: Term.Repeated => true
+            case t: Pat.Bind => t.rhs.is[Pat.SeqWildcard]
+            case _ => false
+          })
+        case _: T.Underscore =>
+          tokLenUnless(owner.isAny[Term.Repeated, Pat.SeqWildcard])
+        case _: T.Ident => tokLenUnless(
+            owner.is[Term.EndMarker] || owner.parent.is[Term.EndMarker],
+          )
+        case _: T.Keyword => tokLenUnless(owner.parent.is[Term.EndMarker])
+        case _ => tok.len
+      }
       new Offsets(
         this.nonWs + tok.len,
         this.width + head.max(last),
-        this.nonWsNonPunct + (if (tok.is[T.Punct]) 0 else tok.len),
+        this.nonWsNonPunct + nonPunct,
       )
     }
   }
