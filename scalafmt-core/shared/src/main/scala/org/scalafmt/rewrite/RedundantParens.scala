@@ -27,6 +27,18 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
     SyntacticGroupOps.groupNeedsParenthesis(sgOuter, sgInner, side)
   }
 
+  def breaksBeforeOp(
+      ia: Member.Infix,
+  )(implicit style: ScalafmtConfig, ftoks: FormatTokens): Boolean = {
+    val formatInfix = style.formatInfix(ia)
+    def impl(ia: Member.Infix): Boolean = {
+      val beforeOp = ftoks.prevNonCommentSameLine(ftoks.tokenJustBefore(ia.op))
+      beforeOp.hasBreak && (!formatInfix || beforeOp.left.is[T.Comment]) ||
+      ia.nestedInfixApps.exists(x => !ftoks.isEnclosedWithinParens(x) && impl(x))
+    }
+    impl(ia)
+  }
+
   private val precedenceVeryHigh = getPrecedence("+")
   private val precedenceHigh = getPrecedence("=")
   private val precedenceMedium = getPrecedence("<")
@@ -191,18 +203,6 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     case tia: Member.Infix => okToReplaceInfix(pia, tia)
     case _: Lit | _: Name | _: Term.Interpolate => true
     case _ => style.rewrite.redundantParens.infixSide.isDefined
-  }
-
-  private def breaksBeforeOp(
-      ia: Member.Infix,
-  )(implicit style: ScalafmtConfig): Boolean = {
-    val formatInfix = style.formatInfix(ia)
-    def impl(ia: Member.Infix): Boolean = {
-      val beforeOp = ftoks.prevNonCommentSameLine(ftoks.tokenJustBefore(ia.op))
-      beforeOp.hasBreak && (!formatInfix || beforeOp.left.is[T.Comment]) ||
-      ia.nestedInfixApps.exists(x => !ftoks.isEnclosedWithinParens(x) && impl(x))
-    }
-    impl(ia)
   }
 
   private def canRewriteBody(
