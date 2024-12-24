@@ -179,8 +179,17 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     ft.rightOwner match {
       case ta @ Term.ArgClause(arg :: Nil, None)
           if !ta.parent.is[Init] && getOpeningParen(ta).contains(rt) =>
+        val lp = ftoks.next(ft)
+        def useDelim = settings.oneStatApply.changeDelim(lp, ftoks.getLast(ta))
+        def shouldReplaceWithBrace(s: Stat): Boolean = s match {
+          case x: Term.ApplyInfix
+              if !style.newlines.formatInfix &&
+                !style.dialect.allowInfixOperatorAfterNL &&
+                RedundantParens.breaksBeforeOp(x) => false
+          case _ => useDelim eq T.LeftBrace
+        }
         def replaceWithNextBrace(claimToo: List[Int] = Nil) = ftoks
-          .nextNonCommentAfter(ft) match {
+          .nextNonComment(lp) match {
           case FT(lt, _: T.LeftBrace, m) =>
             val claim = m.idx :: claimToo
             if (lt eq rt) removeToken(claim = claim)
@@ -194,7 +203,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             else replaceWithNextBrace()
           } { case (xb, xlb) =>
             val shouldMoveNextBrace = !canRewriteStatWithParens(xb) ||
-              !okLineSpan(xb)
+              !okLineSpan(xb) || (useDelim eq T.LeftBrace)
             if (!shouldMoveNextBrace) null
             else {
               val claim = xlb.idx - 1 :: Nil
@@ -207,14 +216,20 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           // a({ case b => c; d }) change to a { case b => c; d }
           case _: Term.PartialFunction => replaceWithNextBrace()
           case b: Term.Block =>
-            // do nothing if the block can and will be stripped, else move brace
+            // options:
+            // 1. if oneStatApply wants braces, move brace
+            // 2. if oneStatApply wants parens and the block can be stripped, do nothing here
+            // 3. otherwise, do nothing if the block can and will be stripped, else move brace
             def blockCantBeStripped = ftoks.prevNonCommentBefore(ftoks.getLast(b))
               .left.is[T.Semicolon]
             def blockWontBeStripped = !okLineSpan(b)
             def shouldMoveBrace(s: Stat): Boolean =
               !canRewriteStatWithParens(s) ||
-                // TODO: check oneStatApply
-                blockCantBeStripped || blockWontBeStripped
+                (useDelim match {
+                  case T.LeftBrace => true
+                  case T.LeftParen => blockCantBeStripped
+                  case _ => blockCantBeStripped || blockWontBeStripped
+                })
             getTreeSingleExpr(b) match {
               case Some(f: Term.FunctionTerm) =>
                 rewriteFunction(f)(shouldMoveBrace(f))
@@ -222,8 +237,10 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
               case _ => replaceWithNextBrace()
             }
           case f: Term.FunctionTerm =>
-            rewriteFunction(f)(shouldMoveBrace = false)
-          case _ => null
+            rewriteFunction(f)(shouldReplaceWithBrace(f.body))
+          case _: Term.Assign | _: Term.Repeated | _: Term.Ascribe => null
+          case _ if ta.parent.is[Term.ApplyInfix] => null
+          case t => if (shouldReplaceWithBrace(t)) replaceWithBrace() else null
         }
       case _ => null
     }
@@ -257,7 +274,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     case ReplacementType.Replace if left.ft.right.is[T.LeftBrace] =>
       // this also removes any trailing commas, so can't be conditionally invoked
       val pftOpt = getRightBraceBeforeRightParen(shouldBeRemoved = true)
-      def replaceWithBrace(rb: T, rtype: ReplacementType, startOff: Int) = {
+      def replaceWithBrace(rb: T, rtype: ReplacementType, startOff: Int = 0) = {
         val rbo = Some(left.ft.rightOwner)
         left -> replaceToken("}", owner = rbo, rtype = rtype) {
           new T.RightBrace(rb.input, rb.dialect, rb.start + startOff)
@@ -275,6 +292,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             .flatMap { r =>
               val repl = r.onLeftForArgClause(ac)(left.ft, left.style)
               if (repl eq null) None else repl.onRight(hasFormatOff)
+            }.orElse {
+              if (left.claim.nonEmpty) None
+              else Some(replaceWithBrace(ft.right, ReplacementType.Replace))
             }
         case _ => None
       }).getOrElse {
@@ -341,6 +361,20 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           case _ => null
         }
       case t: Term.Block => t.parent match {
+          case Some(p: Term.ArgClause)
+              if isParentAnApply(p) && canRewriteStatWithParens(t) =>
+            val head = ftoks.getHead(p)
+            def useParens = settings.oneStatApply
+              .changeDelim(head, ftoks.getLast(p)) eq T.LeftParen
+            if (head.left ne ft.right) { // it was a left paren
+              val keepBrace = session.claimedRuleOnLeft(head)
+                .exists(_.isRemove) || !useParens && !okLineSpan(t)
+              if (keepBrace) null else removeToken
+            } else // arg clause is this block
+            if (useParens) replaceTokenBy("(", Some(p)) { x =>
+              new T.LeftParen(x.input, x.dialect, x.start)
+            }
+            else null
           case Some(f: Term.FunctionTerm)
               if getBlockToReplaceAsFuncBodyIfInSingleArgApply(f)
                 .exists { case (_, xft) => xft.idx <= ft.idx + 1 } =>
@@ -410,6 +444,10 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                     case _ => false
                   }) || okComment(ft) && !elseAfterRightBraceThenpOnLeft) =>
             (left, removeToken)
+          case ReplacementType.Replace if left.ft.right.is[T.LeftParen] =>
+            left -> replaceTokenBy(")", t.parent) { x =>
+              new T.RightParen(x.input, x.dialect, x.start)
+            }
           case _ => null
         }
       case _ => (left, removeToken)

@@ -1,5 +1,9 @@
 package org.scalafmt.config
 
+import org.scalafmt.internal._
+
+import scala.meta.tokens.Token
+
 import metaconfig._
 
 case class RedundantBracesSettings(
@@ -57,7 +61,17 @@ object RedundantBracesSettings {
     case object noParams extends DefnBodies
   }
 
-  case class OneStatApply(parensMaxSpan: Int = 0, bracesMinSpan: Int = -1)
+  case class OneStatApply(parensMaxSpan: Int = 0, bracesMinSpan: Int = -1) {
+    def changeDelim(lt: FT, rt: FT)(implicit ftoks: FormatTokens): AnyRef =
+      if (bracesMinSpan < 0 && parensMaxSpan <= 0) null
+      else {
+        val span = ftoks.offsetDiff(lt, rt)(_.nonWsNonPunct)
+        if (parensMaxSpan >= span) Token.LeftParen
+        else if (bracesMinSpan >= 0 && bracesMinSpan < span) Token.LeftBrace
+        else null
+      }
+  }
+
   object OneStatApply {
     val default = OneStatApply()
     implicit val surface: generic.Surface[OneStatApply] = generic.deriveSurface
