@@ -10440,11 +10440,10 @@ def isNeverSubType(tp1: Type, tp2: Type): Boolean = /*logResult(s"isNeverSubType
 def isNeverSubType(tp1: Type, tp2: Type): Boolean = /*logResult(s"isNeverSubType($tp1, $tp2)")*/
   (tp1.dealias, tp2.dealias) match {
     case (TypeRef(_, sym1, args1), TypeRef(_, sym2, args2)) =>
-      isNeverSubClass(sym1, sym2) || {
-        (sym1 isSubClass sym2) && {
-          val tp1seen = tp1 baseType sym2
-          isNeverSubArgs(tp1seen.typeArgs, args2, sym2.typeParams)
-        }
+      isNeverSubClass(sym1, sym2) ||
+      (sym1 isSubClass sym2) && {
+        val tp1seen = tp1 baseType sym2
+        isNeverSubArgs(tp1seen.typeArgs, args2, sym2.typeParams)
       }
     case _ => false
   }
@@ -10471,11 +10470,10 @@ override def isHidden(dia: Diagnostic)(using Context): Boolean =
   }
 >>>
 override def isHidden(dia: Diagnostic)(using Context): Boolean =
-  super.isHidden(dia) || {
+  super.isHidden(dia) ||
     dia.msg.isNonSensical &&
     hasErrors && // if there are no errors yet, report even if diagnostic is non-sensical
     !ctx.settings.YshowSuppressedErrors.value
-  }
 <<< #4133 redundant braces around inner infix
 maxColumn = 78
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -10491,10 +10489,9 @@ lazy val defaultSettings: Seq[Setting[_]] = Def.settings(
 >>>
 lazy val defaultSettings: Seq[Setting[_]] = Def.settings(
   Dependencies.Versions,
-  Compile / javacOptions ++= {
+  Compile / javacOptions ++=
     DefaultJavacOptions ++
-      JdkOptions.targetJdkJavacOptions(targetSystemJdk.value)
-  },
+      JdkOptions.targetJdkJavacOptions(targetSystemJdk.value),
   resolverSettings
 )
 <<< #4133 redundant braces with overflow

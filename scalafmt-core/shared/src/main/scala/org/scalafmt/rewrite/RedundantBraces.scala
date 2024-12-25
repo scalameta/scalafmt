@@ -533,20 +533,31 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   )(implicit ft: FT, style: ScalafmtConfig): Boolean = p match {
     case _: Member.Infix =>
       /* for infix, we will preserve the block unless the closing brace
+       * is not followed by an operator of a further infix expression, or
        * follows a non-whitespace character on the same line as we don't
        * break lines around infix expressions.
        * we shouldn't join with the previous line (which might also end
        * in a comment), and if we keep the break before the right brace
        * we are removing, that will likely invalidate the expression. */
-      def checkOpen = {
-        val nft = ftoks.next(ft)
-        nft.noBreak || style.formatInfix(p) && !nft.right.is[T.Comment]
+      val rft = ftoks.matchingRight(ft)
+      def checkAfterRight(wasNonComment: => Boolean) = {
+        val nrft = ftoks.nextNonComment(rft)
+        !nrft.right.is[T.Ident] || wasNonComment && style.formatInfix(p) ||
+        findTreeWithParent(p) { // check if infix is in parens
+          case pp: Member.ArgClause => ftoks.getClosingIfWithinParensOrBraces(pp)
+              .map(_.isRight)
+          case _: Member.Infix => None
+          case _: Tree.Block => Some(false)
+          case pp => Some(ftoks.isEnclosedWithinParens(pp))
+        }.isDefined
       }
-      def checkClose = {
-        val nft = ftoks.prev(ftoks.matchingRight(ft))
-        nft.noBreak || style.formatInfix(p) && !nft.left.is[T.Comment]
+      val prft = ftoks.prev(rft)
+      prft.left match {
+        case _: T.Comma => RewriteTrailingCommas.enabled &&
+          checkAfterRight(!ftoks.prev(prft).left.is[T.Comment])
+        case _: T.Comment => prft.noBreak || checkAfterRight(false)
+        case _ => prft.noBreak || checkAfterRight(true)
       }
-      checkOpen && checkClose
     case _ => true
   }
 
