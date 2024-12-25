@@ -458,10 +458,10 @@ Def.settings(
 )
 >>>
 Def.settings(
-  saveForStabilityTest / artifactPath := {
+  saveForStabilityTest / artifactPath :=
     // this path intentionally survives a `clean`
     (LocalRootProject / baseDirectory).value / "test-suite/target/test-suite-stability.js" /* c */
-  },
+  ,
   saveForStabilityTest := foo
 )
 <<< braces at end of infix expressions
@@ -480,16 +480,17 @@ Switch(typeof(instance), List(
     } + 1
 ))
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-   List(
--    str("string") -> Return(constantClassResult(BoxedStringClass)),
--    str("boolean") -> Return(constantClassResult(BoxedBooleanClass)),
--    str("undefined") -> Return(constantClassResult(BoxedUnitClass)) + 1
-+    str("string") -> { Return(constantClassResult(BoxedStringClass)) },
-+    str("boolean") -> { Return(constantClassResult(BoxedBooleanClass)) },
-+    str("undefined") -> { Return(constantClassResult(BoxedUnitClass)) } + 1
-   )
+Switch(
+  typeof(instance),
+  List(
+    str("string") ->
+      Return(constantClassResult(BoxedStringClass)),
+    str("boolean") ->
+      Return(constantClassResult(BoxedBooleanClass)),
+    str("undefined") ->
+      Return(constantClassResult(BoxedUnitClass)) + 1
+  )
+)
 <<< closing brace between comment and comma
 newlines.source = fold
 newlines.afterInfix = keep
