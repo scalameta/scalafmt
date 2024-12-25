@@ -198,6 +198,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
   ).jvmSettings(
     nativeImageInstalled := isCI,
+    nativeImageOptions += "-march=compatibility",
     nativeImageOptions ++= {
       // https://www.graalvm.org/22.3/reference-manual/native-image/guides/build-static-executables/
       // https://www.graalvm.org/latest/reference-manual/native-image/guides/build-static-executables/
