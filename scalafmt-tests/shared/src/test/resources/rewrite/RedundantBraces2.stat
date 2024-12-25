@@ -425,3 +425,37 @@ object a {
     foo + bar
   }
 }
+<<< remove a trailing comma within braces
+rewrite.trailingCommas.style = always
+===
+def foo = {
+  // this path intentionally survives a `clean`
+  (LocalRootProject / baseDirectory).value / "test-suite/target/test-suite-stability.js",
+}
+>>>
+test does not parse: [dialect scala213] `end of file` expected but `,` found
+def foo =
+  // this path intentionally survives a `clean`
+  (LocalRootProject / baseDirectory).value / "test-suite/target/test-suite-stability.js",
+                                                                                        ^
+====== full result: ======
+def foo =
+  // this path intentionally survives a `clean`
+  (LocalRootProject / baseDirectory).value / "test-suite/target/test-suite-stability.js",
+<<< keep a trailing comma within braces
+rewrite.trailingCommas.style = keep
+===
+def foo = {
+  // this path intentionally survives a `clean`
+  (LocalRootProject / baseDirectory).value / "test-suite/target/test-suite-stability.js",
+}
+>>>
+test does not parse: [dialect scala213] `end of file` expected but `,` found
+def foo =
+  // this path intentionally survives a `clean`
+  (LocalRootProject / baseDirectory).value / "test-suite/target/test-suite-stability.js",
+                                                                                        ^
+====== full result: ======
+def foo =
+  // this path intentionally survives a `clean`
+  (LocalRootProject / baseDirectory).value / "test-suite/target/test-suite-stability.js",
