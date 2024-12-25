@@ -51,30 +51,12 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
       style: ScalafmtConfig,
   ): Option[Replacement] = if (shouldRemove(ft)) Some(removeToken) else None
 
-  private[rewrite] def shouldRemove(
-      ft: FT,
-  )(implicit session: Session): Boolean = ft.right.is[T.Comma] && {
-    val nft = ftoks.nextNonCommentAfter(ft)
-    def delimOwner = nft.meta.rightOwner
-
+  private[rewrite] def shouldRemove(ft: FT): Boolean = ft.right.is[T.Comma] &&
     // comma and paren/bracket/brace should generally have the same owner
     // however, with optional-braces comma could be before outdent
     // and hence owned by the previous expression
-    nft.right match {
-      case _: T.RightParen => delimOwner
-          .isAny[Member.SyntaxValuesClause, Member.Tuple] ||
-        ftoks.matchingOptRight(nft).exists { lp =>
-          val claimant = session.claimedRule(ftoks.prev(lp))
-          claimant.forall(_.rule.isInstanceOf[RedundantParens])
-        }
-
-      case _: T.RightBracket => delimOwner.is[Member.SyntaxValuesClause]
-
-      case _: T.RightBrace => delimOwner.is[Importer]
-
-      case _ => false
-    }
-  }
+    // there's no construct which requires a comma before a closing delim
+    ftoks.nextNonCommentAfter(ft).right.is[T.CloseDelim]
 
   override def onRight(lt: Replacement, hasFormatOff: Boolean)(implicit
       ft: FT,

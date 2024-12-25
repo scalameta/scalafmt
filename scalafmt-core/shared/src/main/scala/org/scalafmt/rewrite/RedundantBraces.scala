@@ -156,12 +156,16 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[(Replacement, Replacement)] = Option {
-    ft.right match {
-      case _: T.RightBrace => onRightBrace(left)
+  ): Option[(Replacement, Replacement)] = {
+    def okTrailingComma = RewriteTrailingCommas.enabled || {
+      val pft = ftoks.prevNonComment(ft)
+      !pft.left.is[T.Comma] || session.isRemovedOnLeft(pft, ok = true)
+    }
+    Option(ft.right match {
+      case _: T.RightBrace if okTrailingComma => onRightBrace(left)
       case _: T.RightParen => onRightParen(left, hasFormatOff)
       case _ => null
-    }
+    })
   }
 
   private def onLeftParen(implicit ft: FT, style: ScalafmtConfig): Replacement = {
