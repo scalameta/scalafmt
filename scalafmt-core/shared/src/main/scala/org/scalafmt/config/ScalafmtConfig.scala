@@ -83,6 +83,7 @@ import metaconfig._
 // scalafmt: { maxColumn = 100 }
 @annotation.SectionRename("optIn.configStyleArguments", "newlines.configStyle.fallBack.prefer") // v3.8.2
 @annotation.SectionRename("trailingCommas", "rewrite.trailingCommas.style") // v3.0.5
+@annotation.SectionRename("poorMansTrailingCommasInConfigStyle", "newlines.configStyle.beforeComma") // v3.8.4
 @annotation.SectionRename("optIn.forceBlankLineBeforeDocstring", "docstrings.forceBlankLineBefore") // v3.4.0
 @annotation.SectionRename("indentOperator", "indent.infix") // v3.8.4
 @annotation.SectionRename("verticalAlignMultilineOperators", "indent.infix.assignmentOnly") // v3.8.4
@@ -111,12 +112,6 @@ case class ScalafmtConfig(
     includeNoParensInSelectChains: Boolean = false,
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: DanglingParentheses = DanglingParentheses.default,
-    @annotation.DeprecatedName(
-      "poorMansTrailingCommasInConfigStyle",
-      "Scala supports trailing commas after 2.12.2. Use trailingCommas instead",
-      "2.5.0",
-    )
-    poorMansTrailingCommasInConfigStyle: Boolean = false,
     verticalMultiline: VerticalMultiline = VerticalMultiline(),
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",

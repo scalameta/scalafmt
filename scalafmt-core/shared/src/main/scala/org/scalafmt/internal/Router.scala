@@ -1167,7 +1167,7 @@ class Router(formatOps: FormatOps) {
             case _ => Policy.NoPolicy
           })
         val extraOneArgPerLineIndent =
-          if (multipleArgs && style.poorMansTrailingCommasInConfigStyle)
+          if (multipleArgs && style.newlines.configStyle.beforeComma)
             Indent(2, afterOpen, After)
           else Indent.Empty
         val (implicitPenalty, implicitPolicy) =
@@ -1560,7 +1560,7 @@ class Router(formatOps: FormatOps) {
         Seq(Split(NoSplit, 0))
       // non-statement starting curly brace
       case FT(_: T.Comma, _: T.LeftBrace, _)
-          if !style.poorMansTrailingCommasInConfigStyle &&
+          if !style.newlines.configStyle.beforeComma &&
             isArgClauseSite(leftOwner) =>
         val close = matchingRight(ft)
         val binPackIsEnabled = style.binPack.callSiteFor(leftOwner) !=

@@ -3008,6 +3008,14 @@ object a {
 }
 ```
 
+### `newlines.configStyle.beforeComma`
+
+If enabled, will break before comma (instead of after) when using config style.
+However, if the `runner.dialect` supports trailing commas, using
+[`rewrite.trailingCommas`](#trailing-commas) is recommended (which is why,
+prior to v3.8.4, this parameter was called `poorMansTrailingCommasInConfigStyle`).
+`
+
 ## Rewrite Rules
 
 To enable a rewrite rule, add it to the config like this

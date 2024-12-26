@@ -215,7 +215,7 @@ class FormatOps(
   def splitOneArgOneLine(close: FT, owner: Tree)(implicit
       style: ScalafmtConfig,
   ): Policy =
-    if (style.poorMansTrailingCommasInConfigStyle) Policy
+    if (style.newlines.configStyle.beforeComma) Policy
       .beforeLeft(close, prefix = "B[,]")(splitOneArgPerLineBeforeComma(owner))
     else Policy
       .beforeLeft(close, prefix = "A[,]")(splitOneArgPerLineAfterComma(owner))
