@@ -7,6 +7,7 @@ import org.scalafmt.util.TreeOps
 import scala.meta._
 
 import metaconfig._
+import metaconfig.annotation._
 
 /** @param penalizeSingleSelectMultiArgList
   *   - If true, adds a penalty to newlines before a dot starting a select chain
@@ -153,10 +154,25 @@ import metaconfig._
   *   - punct: don't force break if overflow is only due to trailing punctuation
   *   - tooLong: don't force break if overflow is due to tokens which are too
   *     long and would likely overflow even after a break
+  *
+  * @param annotation
+  *   - if `newlines.source` is missing or keep:
+  *     - if true, will keep existing line breaks around annotations
+  *   - if `newlines.source` is fold:
+  *     - if true, will break before the entity being annotated
+  *     - will not force break between consecutive annotations
+  *   - if `newlines.source` is unfold:
+  *     - if true, will break between consecutive annotations
+  *     - will always break before the entity being annotated
+  *
+  * @param selfAnnotation
+  *   If true, will keep a line break before a self annotation for
+  *   `newlines.source=classic/keep`, or force it for `fold/unfold`; see
+  *   [[https://github.com/scalameta/scalafmt/issues/938]]
   */
 case class Newlines(
     source: SourceHints = Newlines.classic,
-    @annotation.ExtraName("neverInResultType")
+    @ExtraName("neverInResultType")
     avoidInResultType: Boolean = false,
     beforeTypeBounds: SourceHints = Newlines.classic,
     neverBeforeJsNative: Boolean = false,
@@ -167,13 +183,13 @@ case class Newlines(
     beforeCurlyLambdaParams: BeforeCurlyLambdaParams =
       BeforeCurlyLambdaParams.never,
     private val topLevelStatementBlankLines: Seq[TopStatBlanks] = Seq.empty,
-    @annotation.DeprecatedName(
+    @DeprecatedName(
       "topLevelStatementsMinBreaks",
       "Use newlines.topLevelStatementBlankLines instead",
       "3.0.0",
     )
     private val topLevelStatementsMinBreaks: Int = 1,
-    @annotation.DeprecatedName(
+    @DeprecatedName(
       "topLevelStatements",
       "Use newlines.topLevelStatementBlankLines instead",
       "3.0.0",
@@ -182,12 +198,12 @@ case class Newlines(
     beforeTemplateBodyIfBreakInParentCtors: Boolean = false,
     topLevelBodyIfMinStatements: Seq[BeforeAfter] = Seq.empty,
     topLevelBodyMinStatements: Int = 2,
-    @annotation.ExtraName("afterCurlyLambda")
+    @ExtraName("afterCurlyLambda")
     afterCurlyLambdaParams: AfterCurlyLambdaParams =
       AfterCurlyLambdaParams.never,
-    @annotation.ExtraName("usingParamListModifierForce")
+    @ExtraName("usingParamListModifierForce")
     implicitParamListModifierForce: Seq[BeforeAfter] = Seq.empty,
-    @annotation.ExtraName("usingParamListModifierPrefer")
+    @ExtraName("usingParamListModifierPrefer")
     implicitParamListModifierPrefer: Option[BeforeAfter] = None,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     forceBeforeAssign: ForceBeforeMultilineAssign =
@@ -195,7 +211,7 @@ case class Newlines(
     private val forceBeforeMultilineAssign: Option[ForceBeforeMultilineAssign] =
       None,
     private[config] val beforeMultiline: Option[SourceHints] = None,
-    @annotation.DeprecatedName(
+    @DeprecatedName(
       "beforeMultilineDef",
       "Use newlines.beforeMultiline, newlines.forceBeforeMultilineAssign instead",
       "3.0.0",
@@ -211,6 +227,8 @@ case class Newlines(
     ignoreInSyntax: Boolean = true,
     avoidAfterYield: Boolean = true,
     configStyle: ConfigStyle = ConfigStyle.default,
+    annotation: Boolean = true,
+    selfAnnotation: Boolean = true,
 ) {
   if (
     implicitParamListModifierForce.nonEmpty &&

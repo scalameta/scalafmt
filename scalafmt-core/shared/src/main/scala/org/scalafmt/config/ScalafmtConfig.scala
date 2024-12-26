@@ -97,13 +97,15 @@ import metaconfig._
 @annotation.SectionRename("optIn.breaksInsideChains", "newlines.selectChains.classicKeepAfterFirstBreak") // v3.8.4
 @annotation.SectionRename("includeNoParensInSelectChains", "newlines.selectChains.classicCanStartWithoutApply") // v3.8.4
 @annotation.SectionRename("includeCurlyBraceInSelectChains", "newlines.selectChains.classicCanStartWithBraceApply") // v3.8.4
+// annotations
+@annotation.SectionRename("optIn.annotationNewlines", "newlines.annotation") // v3.8.4
+@annotation.SectionRename("optIn.selfAnnotationNewline", "newlines.selfAnnotation") // v3.8.4
 // scalafmt: { maxColumn = 80 }
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
     maxColumn: Int = 80,
     docstrings: Docstrings = Docstrings(),
     comments: Comments = Comments(),
-    optIn: OptIn = OptIn(),
     binPack: BinPack = BinPack(),
     @annotation.ExtraName("continuationIndent")
     indent: Indents = Indents(),
