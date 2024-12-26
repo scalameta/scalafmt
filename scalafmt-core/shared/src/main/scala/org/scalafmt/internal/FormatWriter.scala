@@ -41,28 +41,23 @@ class FormatWriter(formatOps: FormatOps) {
     locations.foreach { entry =>
       val location = entry.curr
       implicit val style: ScalafmtConfig = location.style
-      val formatToken = location.formatToken
+      val ft = location.formatToken
+      def ltext = ft.meta.left.text
       var skipWs = false
 
-      formatToken.left match {
-        case _ if entry.previous.formatToken.meta.formatOff =>
-          sb.append(formatToken.meta.left.text) // checked the state for left
+      ft.left match {
+        case _ if entry.previous.formatToken.meta.formatOff => sb.append(ltext) // checked the state for left
         case _: T.Comment => entry.formatComment
         case _: T.Interpolation.Part | _: T.Constant.String => sb
             .append(entry.formatMarginized)
-        case _: T.Constant.Int => sb
-            .append(LiteralOps.prettyPrintInteger(formatToken.meta.left.text))
-        case _: T.Constant.Long => sb
-            .append(LiteralOps.prettyPrintInteger(formatToken.meta.left.text))
-        case _: T.Constant.Float => sb
-            .append(LiteralOps.prettyPrintFloat(formatToken.meta.left.text))
+        case _: T.Constant.Int => sb.append(LiteralOps.prettyPrintInteger(ltext))
+        case _: T.Constant.Long => sb.append(LiteralOps.prettyPrintInteger(ltext))
+        case _: T.Constant.Float => sb.append(LiteralOps.prettyPrintFloat(ltext))
         case _: T.Constant.Double => sb
-            .append(LiteralOps.prettyPrintDouble(formatToken.meta.left.text))
+            .append(LiteralOps.prettyPrintDouble(ltext))
         case _ =>
-          val syntax = Option(location.replace)
-            .getOrElse(formatToken.meta.left.text)
-          val rewrittenToken = style.rewriteTokens.getOrElse(syntax, syntax)
-          sb.append(rewrittenToken)
+          val syntax = Option(location.replace).getOrElse(ltext)
+          sb.append(style.rewriteTokens.getOrElse(syntax, syntax))
       }
 
       location.optionalBraces.toSeq.sortBy { case (indent, _) => -indent }
@@ -89,7 +84,7 @@ class FormatWriter(formatOps: FormatOps) {
         if (location.missingBracesOpenOrTuck) {
           skipWs = true
           sb.append(" ")
-        } else if (formatToken.right.is[T.RightParen]) skipWs = true
+        } else if (ft.right.is[T.RightParen]) skipWs = true
       } else if (location.missingBracesOpenOrTuck) sb.append(" {")
 
       if (!skipWs) delayedAlign = entry.formatWhitespace(delayedAlign)
