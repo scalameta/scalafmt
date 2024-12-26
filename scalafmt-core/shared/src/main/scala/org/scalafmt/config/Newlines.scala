@@ -201,7 +201,7 @@ case class Newlines(
       "3.0.0",
     )
     beforeMultilineDef: Option[SourceHints] = None,
-    private[config] val selectChains: Option[SourceHints] = None,
+    selectChains: SelectChain = SelectChain.default,
     afterInfix: Option[AfterInfix] = None,
     afterInfixBreakOnNested: Boolean = false,
     afterInfixMaxCountPerExprForSome: Int = 10,
@@ -291,7 +291,7 @@ case class Newlines(
       else ForceBeforeMultilineAssign.never
     }
 
-  lazy val getSelectChains = selectChains.getOrElse(source)
+  lazy val getSelectChains = selectChains.style.getOrElse(source)
 
   private lazy val topStatBlankLinesSorted =
     if (topLevelStatementBlankLines.isEmpty) {
@@ -331,6 +331,10 @@ case class Newlines(
     .map(getBeforeOpenParen)
   def isBeforeOpenParenCallSite: Boolean = beforeOpenParenCallSite.isDefined
   def isBeforeOpenParenDefnSite: Boolean = beforeOpenParenDefnSite.isDefined
+
+  private[scalafmt] lazy val encloseSelectChains = selectChains.enclose
+    .getOrElse(source.ne(Newlines.classic))
+
 }
 
 object Newlines {
@@ -621,6 +625,85 @@ object Newlines {
       .deriveSurface[ConfigStyle]
     implicit val codec: ConfCodecEx[ConfigStyle] = generic.deriveCodecEx(default)
       .noTypos
+  }
+
+  /** @param classicKeepAfterFirstBreak
+    *   NB: failure unless newlines.source=classic If true, then the user can
+    *   opt out of line breaks inside select chains.
+    *   {{{
+    *     // original
+    *     foo
+    *       .map(_ + 1).map(_ + 1)
+    *       .filter(_ > 2)
+    *     // if true
+    *     foo
+    *       .map(_ + 1).map(_ + 1)
+    *       .filter(_ > 2)
+    *     // if false
+    *     foo
+    *       .map(_ + 1)
+    *       .map(_ + 1)
+    *       .filter(_ > 2)
+    *   }}}
+    *
+    * @param classicKeepFirst
+    *   NB: ignored unless newlines.source=classic If true, keeps the line break
+    *   before a dot if it already exists.
+    *   {{{
+    *     // original
+    *     foo
+    *       .map(_ + 1)
+    *       .filter( > 2)
+    *     // if true
+    *     foo
+    *       .map(_ + 1)
+    *       .filter( > 2)
+    *     // if false
+    *     foo.map(_ + 1).filter( > 2)
+    *   }}}
+    *
+    * @param encloseIfClassic
+    *   NB: ignored unless newlines.source=classic. Controls what happens if a
+    *   chain enclosed in parentheses is followed by additional selects. Those
+    *   additional selects will be considered part of the enclosed chain if and
+    *   only if this flag is false.
+    *   {{{
+    *     // original
+    *     (foo.map(_ + 1).map(_ + 1))
+    *       .filter(_ > 2)
+    *     // if true
+    *     (foo.map(_ + 1).map(_ + 1))
+    *       .filter(_ > 2)
+    *     // if false
+    *     (foo
+    *       .map(_ + 1)
+    *       .map(_ + 1))
+    *       .filter(_ > 2)
+    *   }}}
+    */
+
+  case class SelectChain(
+      style: Option[SourceHints] = None,
+      enclose: Option[Boolean] = None,
+      // classic-only parameters
+      classicKeepFirst: Boolean = true,
+      classicKeepAfterFirstBreak: Boolean = false,
+      classicCanStartWithBraceApply: Boolean = true,
+      classicCanStartWithoutApply: Boolean = false,
+  )
+  private[config] object SelectChain {
+    val default = SelectChain()
+    implicit val surface: generic.Surface[SelectChain] = generic
+      .deriveSurface[SelectChain]
+    implicit val encoder: ConfEncoder[SelectChain] = generic.deriveEncoder
+    implicit val decoder: ConfDecoderEx[SelectChain] = {
+      val base = generic.deriveDecoderEx(default).noTypos
+      ConfDecoderEx.from {
+        case (_, conf: Conf.Str) => SourceHints.codec.read(None, conf)
+            .map(x => SelectChain(style = Some(x)))
+        case (state, conf) => base.read(state, conf)
+      }
+    }
   }
 
 }

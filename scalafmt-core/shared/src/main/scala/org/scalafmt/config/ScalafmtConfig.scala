@@ -80,7 +80,7 @@ import metaconfig._
   *       .filter(_ > 2)
   *   }}}
   */
-// scalafmt: { maxColumn = 100 }
+// scalafmt: { maxColumn = 120 }
 @annotation.SectionRename("optIn.configStyleArguments", "newlines.configStyle.fallBack.prefer") // v3.8.2
 @annotation.SectionRename("trailingCommas", "rewrite.trailingCommas.style") // v3.0.5
 @annotation.SectionRename("poorMansTrailingCommasInConfigStyle", "newlines.configStyle.beforeComma") // v3.8.4
@@ -91,6 +91,12 @@ import metaconfig._
 @annotation.SectionRename("rewriteTokens", "rewrite.tokens") // v3.8.4
 @annotation.SectionRename("importSelectors", "binPack.importSelectors") // v3.8.4
 @annotation.SectionRename("binPackImportSelectors", "binPack.importSelectors") // v3.8.4
+// select chains
+@annotation.SectionRename("optIn.encloseClassicChains", "newlines.selectChains.enclose") // v3.8.4
+@annotation.SectionRename("optIn.breakChainOnFirstMethodDot", "newlines.selectChains.classicKeepFirst") // v3.8.4
+@annotation.SectionRename("optIn.breaksInsideChains", "newlines.selectChains.classicKeepAfterFirstBreak") // v3.8.4
+@annotation.SectionRename("includeNoParensInSelectChains", "newlines.selectChains.classicCanStartWithoutApply") // v3.8.4
+@annotation.SectionRename("includeCurlyBraceInSelectChains", "newlines.selectChains.classicCanStartWithBraceApply") // v3.8.4
 // scalafmt: { maxColumn = 80 }
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
@@ -108,8 +114,6 @@ case class ScalafmtConfig(
     rewrite: RewriteSettings = RewriteSettings.default,
     newlines: Newlines = Newlines(),
     runner: ScalafmtRunner = ScalafmtRunner.default,
-    includeCurlyBraceInSelectChains: Boolean = true,
-    includeNoParensInSelectChains: Boolean = false,
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: DanglingParentheses = DanglingParentheses.default,
     verticalMultiline: VerticalMultiline = VerticalMultiline(),
@@ -227,9 +231,6 @@ case class ScalafmtConfig(
       pmStyle.orElse(langStyle).getOrElse(forTest)
     }
   }
-
-  private[scalafmt] lazy val encloseSelectChains = optIn.encloseClassicChains ||
-    newlines.source.ne(Newlines.classic)
 
   private[scalafmt] lazy val docstringsWrapMaxColumn: Int = docstrings
     .wrapMaxColumn.getOrElse(maxColumn)
@@ -375,13 +376,13 @@ object ScalafmtConfig {
         mustIgnoreSourceSplit(newlines.beforeMultilineDef)
         addIf(newlines.beforeTypeBounds eq Newlines.keep)
         addIf(binPack.parentConstructors eq BinPack.ParentCtors.keep)
-        addIf(newlines.selectChains.exists(_ eq Newlines.keep))
+        addIf(newlines.selectChains.style.orNull eq Newlines.keep)
         addIf(getTrailingCommas.eq(TrailingCommas.keep))
       }
       if (newlines.source == Newlines.unfold) addIf(align.arrowEnumeratorGenerator)
       if (newlines.source != Newlines.classic) {
-        addIf(optIn.breaksInsideChains)
-        addIf(!includeCurlyBraceInSelectChains)
+        addIf(newlines.selectChains.classicKeepAfterFirstBreak)
+        addIf(!newlines.selectChains.classicCanStartWithBraceApply)
       }
       if (errors.nonEmpty) {
         allErrors += s"newlines.source=${newlines.source} and ["

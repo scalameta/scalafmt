@@ -227,14 +227,16 @@ object HasTests {
   private val testing = defaultConfig.copy(
     maxColumn = 79,
     assumeStandardLibraryStripMargin = false,
-    includeCurlyBraceInSelectChains = false,
     danglingParentheses = DanglingParentheses(false, false),
     align = defaultConfig.align.copy(
       tokens = Seq.empty,
       openParenCallSite = true,
       openParenDefnSite = true,
     ),
-    optIn = ScalafmtConfig.default.optIn.copy(breakChainOnFirstMethodDot = false),
+    newlines = defaultConfig.newlines.copy(selectChains =
+      defaultConfig.newlines.selectChains
+        .copy(classicKeepFirst = false, classicCanStartWithBraceApply = false),
+    ),
     // The new aggressive config style breaks ~40 unit tests. The diff output
     // looks nice, but updating the unit tests would take too much time.
     // I can imagine that I will throw away most of the tests and replace them

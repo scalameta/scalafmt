@@ -1797,7 +1797,7 @@ class Router(formatOps: FormatOps) {
             }.isDefined => Seq(Split(NoSplit, 0))
 
       case FT(left, _: T.Dot, GetSelectLike.OnRight(thisSelect)) =>
-        val enclosed = style.encloseSelectChains
+        val enclosed = style.newlines.encloseSelectChains
         val (expireTree, nextSelect) =
           findLastApplyAndNextSelect(rightOwner, enclosed)
         val (prevSelect, prevApply) =
@@ -1880,7 +1880,8 @@ class Router(formatOps: FormatOps) {
             def splitSecondNL(
                 modNoBreaks: ModExt,
             )(implicit fileLine: FileLine) = Split(!prevChain, 1) {
-              if (!style.optIn.breaksInsideChains) modNoBreaks
+              if (!style.newlines.selectChains.classicKeepAfterFirstBreak)
+                modNoBreaks
               else Newline.orMod(hasBreak(), modSpace)
             }.onlyFor(SplitTag.SelectChainSecondNL)
             if (canStartSelectChain(thisSelect, nextSelect, expireTree)) {
@@ -1894,7 +1895,7 @@ class Router(formatOps: FormatOps) {
               val newlinePolicy = classicNonFirstBreakOnNextDot & penalizeBreaks
               val ignoreNoSplit = nlOnly ||
                 hasBreak &&
-                (afterComment || style.optIn.breakChainOnFirstMethodDot)
+                (afterComment || style.newlines.selectChains.classicKeepFirst)
               val chainLengthPenalty =
                 if (
                   style.newlines.penalizeSingleSelectMultiArgList &&
@@ -1914,7 +1915,7 @@ class Router(formatOps: FormatOps) {
               // when the flag is on, penalize break, to avoid idempotence issues;
               // otherwise, after the break is chosen, the flag prohibits nosplit
               val nlBaseCost =
-                if (style.optIn.breakChainOnFirstMethodDot) 3 else 2
+                if (style.newlines.selectChains.classicKeepFirst) 3 else 2
               val nlCost = nlBaseCost + nestedPenalty + chainLengthPenalty
               val nlMod = getNlMod
               // must come first, for backwards compat
@@ -2515,12 +2516,14 @@ class Router(formatOps: FormatOps) {
 
         nft match {
           case FT(_, _: T.Dot, GetSelectLike.OnRight(t)) =>
-            if (findPrevSelect(t, style.encloseSelectChains).isEmpty) Seq(split)
+            if (findPrevSelect(t, style.newlines.encloseSelectChains).isEmpty)
+              Seq(split)
             else Seq(baseSplit, split.onlyFor(SplitTag.SelectChainFirstNL))
           case _ => prevBeforeNonComment(ft) match {
               case FT(_, _: T.Dot, GetSelectLike.OnRight(t)) =>
-                if (findPrevSelect(t, style.encloseSelectChains).isEmpty)
-                  Seq(split)
+                if (
+                  findPrevSelect(t, style.newlines.encloseSelectChains).isEmpty
+                ) Seq(split)
                 else Seq(baseSplit, split.onlyFor(SplitTag.SelectChainFirstNL))
               case _ => Seq(baseSplit)
             }
