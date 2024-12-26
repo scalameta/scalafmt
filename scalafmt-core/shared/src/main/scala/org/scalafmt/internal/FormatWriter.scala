@@ -50,11 +50,10 @@ class FormatWriter(formatOps: FormatOps) {
         case _: T.Comment => entry.formatComment
         case _: T.Interpolation.Part | _: T.Constant.String => sb
             .append(entry.formatMarginized)
-        case _: T.Constant.Int => sb.append(LiteralOps.prettyPrintInteger(ltext))
-        case _: T.Constant.Long => sb.append(LiteralOps.prettyPrintInteger(ltext))
-        case _: T.Constant.Float => sb.append(LiteralOps.prettyPrintFloat(ltext))
-        case _: T.Constant.Double => sb
-            .append(LiteralOps.prettyPrintDouble(ltext))
+        case _: T.Constant.Int => LiteralOps.prettyPrintInteger(ltext)
+        case _: T.Constant.Long => LiteralOps.prettyPrintInteger(ltext)
+        case _: T.Constant.Float => LiteralOps.prettyPrintFloat(ltext)
+        case _: T.Constant.Double => LiteralOps.prettyPrintDouble(ltext)
         case _ =>
           val syntax = Option(location.replace).getOrElse(ltext)
           sb.append(style.rewriteTokens.getOrElse(syntax, syntax))
