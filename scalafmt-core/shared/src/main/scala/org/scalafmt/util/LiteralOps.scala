@@ -23,16 +23,22 @@ object LiteralOps {
     *   - literals.hexDigits applies to body (if hex) and
     *   - literals.long applies to suffix
     */
-  def prettyPrintInteger(str: String)(implicit style: ScalafmtConfig): String =
-    if (str.endsWith("L") || str.endsWith("l"))
-      prettyPrintHexOrBin(str.dropRight(1)) +
-        style.literals.long.process(str.takeRight(1))
-    else prettyPrintHexOrBin(str)
+  def prettyPrintInteger(
+      str: String,
+  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit =
+    if (str.endsWith("L") || str.endsWith("l")) {
+      prettyPrintHexOrBin(str.dropRight(1))
+      sb.append(style.literals.long.process(str.takeRight(1)))
+    } else prettyPrintHexOrBin(str)
 
-  def prettyPrintFloat(str: String)(implicit style: ScalafmtConfig): String =
+  def prettyPrintFloat(
+      str: String,
+  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit =
     prettyPrintFloatingPoint(str, 'F', 'f', style.literals.float)
 
-  def prettyPrintDouble(str: String)(implicit style: ScalafmtConfig): String =
+  def prettyPrintDouble(
+      str: String,
+  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit =
     prettyPrintFloatingPoint(str, 'D', 'd', style.literals.double)
 
   /** Prints floating point literals with specified case
@@ -52,20 +58,22 @@ object LiteralOps {
       suffixUpper: Char,
       suffixLower: Char,
       suffixCase: Literals.Case,
-  )(implicit style: ScalafmtConfig): String =
-    if (str.last == suffixUpper || str.last == suffixLower) style.literals
-      .scientific.process(str.dropRight(1)) + suffixCase.process(str.takeRight(1))
-    else style.literals.scientific.process(str)
+  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit =
+    if (str.last == suffixUpper || str.last == suffixLower) sb
+      .append(style.literals.scientific.process(str.dropRight(1)))
+      .append(suffixCase.process(str.takeRight(1)))
+    else sb.append(style.literals.scientific.process(str))
 
   private def prettyPrintHexOrBin(
       str: String,
-  )(implicit style: ScalafmtConfig): String = {
+  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit = {
     val (prefix, body) = str.splitAt(2)
     prefix match {
-      case "0x" | "0X" => style.literals.hexPrefix.process(prefix) +
-          style.literals.hexDigits.process(body)
-      case "0b" | "0B" => style.literals.binPrefix.process(prefix) + body
-      case _ => str
+      case "0x" | "0X" => sb.append(style.literals.hexPrefix.process(prefix))
+          .append(style.literals.hexDigits.process(body))
+      case "0b" | "0B" => sb.append(style.literals.binPrefix.process(prefix))
+          .append(body)
+      case _ => sb.append(str)
     }
   }
 }
