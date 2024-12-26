@@ -5,9 +5,9 @@ import metaconfig._
 /** ADT representing import selectors settings, specifically pertaining to the
   * handling when multiple names are imported from the same package.
   *
-  * When [[org.scalafmt.config.ImportSelectors.noBinPack]] is selected, imports
-  * are organized such that each line contains a single name imported from the
-  * base package:
+  * When [[org.scalafmt.config.ImportSelectors.unfold]] is selected, imports are
+  * organized such that each line contains a single name imported from the base
+  * package:
   * {{{
   *   // max columns     |
   *   import org.{
@@ -19,9 +19,9 @@ import metaconfig._
   *   }
   * }}}
   *
-  * When [[org.scalafmt.config.ImportSelectors.binPack]] is selected, imports
-  * are organized such that each line contains as many names as will fit within
-  * the column limit:
+  * When [[org.scalafmt.config.ImportSelectors.fold]] is selected, imports are
+  * organized such that each line contains as many names as will fit within the
+  * column limit:
   * {{{
   *   // max columns     |
   *   import org.{
@@ -43,13 +43,15 @@ sealed abstract class ImportSelectors
 object ImportSelectors {
 
   implicit val codec: ConfCodecEx[ImportSelectors] = ReaderUtil
-    .oneOfCustom[ImportSelectors](noBinPack, binPack, singleLine) {
-      case Conf.Bool(true) => Configured.ok(ImportSelectors.binPack)
-      case Conf.Bool(false) => Configured.ok(ImportSelectors.noBinPack)
+    .oneOfCustom[ImportSelectors](unfold, fold, singleLine) {
+      case Conf.Bool(value) => Configured
+          .ok(if (value) ImportSelectors.fold else ImportSelectors.unfold)
+      case Conf.Str("binPack") => Configured.ok(ImportSelectors.fold)
+      case Conf.Str("noBinPack") => Configured.ok(ImportSelectors.unfold)
     }
 
-  case object noBinPack extends ImportSelectors
-  case object binPack extends ImportSelectors
+  case object fold extends ImportSelectors
+  case object unfold extends ImportSelectors
   case object singleLine extends ImportSelectors
 
 }
