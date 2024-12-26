@@ -4412,6 +4412,16 @@ val identity = Array(1, 0, 0,
 // format: on
 ```
 
+Since v3.8.4, these format on-off tags can be configured:
+
+- `formatOff`: tags to turn formatting off
+- `formatOn`: tags to turn formatting back on
+
+```scala mdoc:defaults
+formatOff
+formatOn
+```
+
 ### Project
 
 Configure which source files should be formatted in this project.

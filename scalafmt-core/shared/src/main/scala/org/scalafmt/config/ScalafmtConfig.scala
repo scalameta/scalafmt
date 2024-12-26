@@ -7,6 +7,7 @@ import org.scalafmt.sysops.OsSpecific._
 import org.scalafmt.util._
 
 import scala.meta._
+import scala.meta.tokens.{Token => T}
 
 import java.nio.file._
 
@@ -146,6 +147,8 @@ case class ScalafmtConfig(
     project: ProjectFiles = ProjectFiles(),
     fileOverride: Conf.Obj = Conf.Obj.empty,
     xmlLiterals: XmlLiterals = XmlLiterals(),
+    private val formatOn: List[String] = ScalafmtConfig.defaultFormatOn,
+    private val formatOff: List[String] = ScalafmtConfig.defaultFormatOff,
 ) {
   import ScalafmtConfig._
 
@@ -316,6 +319,16 @@ case class ScalafmtConfig(
   def withAlign(tokens: AlignToken*): ScalafmtConfig = withAlign(
     align.copy(tokens = if (tokens.isEmpty) AlignToken.default else tokens),
   )
+
+  @inline
+  def isFormatOn(token: T.Comment): Boolean = isFormatIn(token, formatOn)
+  @inline
+  def isFormatOn(token: T): Boolean = isFormatIn(token, formatOn)
+
+  @inline
+  def isFormatOff(token: T.Comment): Boolean = isFormatIn(token, formatOff)
+  @inline
+  def isFormatOff(token: T): Boolean = isFormatIn(token, formatOff)
 
 }
 
@@ -508,5 +521,22 @@ object ScalafmtConfig {
         Configured.error(NamedDialect.getUnknownError)
       case x => x
     }
+
+  private lazy val (defaultFormatOn, defaultFormatOff) = {
+    val prefixes = List(
+      "@formatter:", // IntelliJ
+      "format: ", // scalariform
+    )
+    (prefixes.map(_ + "on"), prefixes.map(_ + "off"))
+  }
+
+  @inline
+  private def isFormatIn(token: T.Comment, set: List[String]): Boolean = set
+    .contains(token.value.trim.toLowerCase)
+
+  private def isFormatIn(token: T, set: List[String]): Boolean = token match {
+    case t: T.Comment => isFormatIn(t, set)
+    case _ => false
+  }
 
 }
