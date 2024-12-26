@@ -1,20 +1,24 @@
 package org.scalafmt.util
 
+import org.scalafmt.config.ScalafmtConfig
+
 import scala.meta.Input
 import scala.meta.tokens.Tokens
 import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 
-class TokenTraverser(tokens: Tokens, input: Input) {
+class TokenTraverser(tokens: Tokens, input: Input)(implicit
+    style: ScalafmtConfig,
+) {
   private[this] val (tok2idx, excludedTokens) = {
     val map = Map.newBuilder[T, Int]
     val excluded = Set.newBuilder[TokenOps.TokenHash]
     var formatOff = false
     var i = 0
     tokens.foreach { tok =>
-      if (!formatOff) { if (TokenOps.isFormatOff(tok)) formatOff = true }
-      else if (TokenOps.isFormatOn(tok)) formatOff = false
+      if (!formatOff) { if (style.isFormatOff(tok)) formatOff = true }
+      else if (style.isFormatOn(tok)) formatOff = false
       else excluded += TokenOps.hash(tok)
       map += tok -> i
       i += 1

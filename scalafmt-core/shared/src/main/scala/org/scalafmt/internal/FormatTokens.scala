@@ -433,11 +433,11 @@ object FormatTokens {
     var fmtWasOff = false
     def process(right: T, tokIdx: Int): Unit = if (!right.is[T.Whitespace]) {
       val rmeta = FT.TokenMeta(owners(hash(right)), right.text)
-      if (left eq null) fmtWasOff = isFormatOff(right)
+      if (left eq null) fmtWasOff = style.isFormatOff(right)
       else {
         val between = tokens.arraySlice(prevNonWsIdx + 1, tokIdx)
-        val fmtIsOff = fmtWasOff || isFormatOff(right)
-        fmtWasOff = if (fmtWasOff) !isFormatOn(right) else fmtIsOff
+        val fmtIsOff = fmtWasOff || style.isFormatOff(right)
+        fmtWasOff = if (fmtWasOff) !style.isFormatOn(right) else fmtIsOff
         val meta = FT.Meta(between, ftIdx, fmtIsOff, lmeta, rmeta)
         result += FT(left, right, meta)
         ftIdx += 1

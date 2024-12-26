@@ -95,27 +95,6 @@ object TokenOps {
   @inline
   def getMod(ft: FT): Modification = Space.orNL(ft.newlinesBetween)
 
-  val formatOnCode = Set(
-    "@formatter:on", // IntelliJ
-    "format: on", // scalariform
-  )
-
-  val formatOffCode = Set(
-    "@formatter:off", // IntelliJ
-    "format: off", // scalariform
-  )
-
-  @inline
-  def isFormatOn(token: T): Boolean = isFormatIn(token, formatOnCode)
-
-  @inline
-  def isFormatOff(token: T): Boolean = isFormatIn(token, formatOffCode)
-
-  private def isFormatIn(token: T, set: Set[String]): Boolean = token match {
-    case t: Comment => set.contains(t.value.trim.toLowerCase)
-    case _ => false
-  }
-
   def endsWithSymbolIdent(tok: T): Boolean = tok match {
     case Ident(name) => !name.last.isLetterOrDigit && !tok.isBackquoted
     case _ => false
