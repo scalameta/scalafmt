@@ -2668,22 +2668,6 @@ def fooFunc(foo1: String)(foo2: String, foo3: String): String = ???
 val res = fooFunc("foo1")("foo2", "foo3")
 ```
 
-### `newlines.selectChains`
-
-This parameter controls how select chains (sequences of `.method` invocations)
-are formatted.
-
-It takes the same values as [newlines.source](#newlinessource); use `null`
-(default) to fall back on the current value of `newlines.source`.
-
-> Since v3.0.0.
-
-- `keep`: attempts to preserve break
-- `fold`: attempts to avoid breaks
-- `unfold`: forces breaks on each select unless all fit on a single line
-- `classic` (i.e., `null` and `newlines.source` is not specified):
-  see [Classic select chains](#classic-select-chains).
-
 ### `newlines.inInterpolation`
 
 This parameter controls how to format spliced scala code within string constants
@@ -5336,25 +5320,75 @@ binPack.importSelectors = singleLine
 import a.b.{c, d, e, f, g}
 ```
 
-## Classic select chains
+## Select chains
 
-The parameters below control formatting of select chains when
-`newlines.source = classic`, and specifically which select expressions are
-included in a chain.
+The parameters below control formatting of select chains, such as which select
+expressions are considered to start a chain.
 
 Generally, a chain can either be formatted on one line up to the last select, or
 will have a break on the first select.
 
-### `includeCurlyBraceInSelectChains`
+when
+
+### `newlines.selectChains.style`
+
+This parameter controls how select chains (sequences of `.method` invocations)
+are formatted.
+
+It takes the same values as [newlines.source](#newlinessource); use `null`
+(default) to fall back on the current value of `newlines.source`.
+
+> Since v3.0.0.
+
+- `keep`: attempts to preserve break
+- `fold`: attempts to avoid breaks
+- `unfold`: forces breaks on each select unless all fit on a single line
+- `classic` (i.e., `null` and `newlines.source` is not specified).
+
+### `newlines.selectChains.enclose`
+
+> - Prior to v3.8.4, was called `optIn.encloseClassicChains` and applied only to `style = classic`.
+> - By default, enabled unless `style = classic`.
+
+Controls what happens if a chain enclosed in parentheses is followed by
+additional selects. Those additional selects will be considered part of the
+enclosed chain if and only if this flag is false.
+
+> Since v2.6.2.
+
+```scala mdoc:defaults
+newlines.selectChains.enclose
+```
+
+```scala mdoc:scalafmt
+newlines.selectChains.enclose = true
+maxColumn = 30
+---
+(foo.map(_ + 1).map(_ + 1))
+  .filter(_ > 2)
+```
+
+```scala mdoc:scalafmt
+newlines.selectChains.enclose = false
+maxColumn = 30
+---
+(foo.map(_ + 1).map(_ + 1))
+  .filter(_ > 2)
+```
+
+### `newlines.selectChains.classicCanStartWithBraceApply`
+
+> - Prior to v3.8.4, was called `includeCurlyBraceInSelectChains`.
+> - Applies only if `style = classic` (always enabled for others).
 
 Controls if select followed by curly braces can _start_ a chain.
 
 ```scala mdoc:defaults
-includeCurlyBraceInSelectChains
+newlines.selectChains.classicCanStartWithBraceApply
 ```
 
 ```scala mdoc:scalafmt
-includeCurlyBraceInSelectChains = true
+newlines.selectChains.classicCanStartWithBraceApply = true
 ---
 List(1).map { x =>
     x + 2
@@ -5363,7 +5397,7 @@ List(1).map { x =>
 ```
 
 ```scala mdoc:scalafmt
-includeCurlyBraceInSelectChains = false
+newlines.selectChains.classicCanStartWithBraceApply = false
 ---
 List(1)
   .map { x =>
@@ -5372,16 +5406,19 @@ List(1)
   .filter(_ > 2)
 ```
 
-### `includeNoParensInSelectChains`
+### `newlines.selectChains.classicCanStartWithoutApply`
+
+> - Prior to v3.8.4, was called `includeNoParensInSelectChains`.
+> - Applies only if `style = classic` (always enabled for others).
 
 Controls if select _not_ followed by an apply can _start_ a chain.
 
 ```scala mdoc:defaults
-includeNoParensInSelectChains
+newlines.selectChains.classicCanStartWithoutApply
 ```
 
 ```scala mdoc:scalafmt
-includeNoParensInSelectChains = true
+newlines.selectChains.classicCanStartWithoutApply = true
 ---
 List(1).toIterator.buffered
   .map(_ + 2)
@@ -5389,22 +5426,25 @@ List(1).toIterator.buffered
 ```
 
 ```scala mdoc:scalafmt
-includeNoParensInSelectChains = false
+newlines.selectChains.classicCanStartWithoutApply = false
 ---
 List(1).toIterator.buffered.map(_ + 2).filter(_ > 2)
 ```
 
-### `optIn.breakChainOnFirstMethodDot`
+### `newlines.selectChains.classicKeepFirst`
+
+> - Prior to v3.8.4, was called `optIn.breakChainOnFirstMethodDot`.
+> - Applies only if `style = classic` (always enabled for others).
 
 Keeps the break on the first select of the chain if the source contained one.
 Has no effect if there was no newline in the source.
 
 ```scala mdoc:defaults
-optIn.breakChainOnFirstMethodDot
+newlines.selectChains.classicKeepFirst
 ```
 
 ```scala mdoc:scalafmt
-optIn.breakChainOnFirstMethodDot = false
+newlines.selectChains.classicKeepFirst = false
 ---
 // collapse into a single line
 foo
@@ -5413,14 +5453,17 @@ foo
 ```
 
 ```scala mdoc:scalafmt
-optIn.breakChainOnFirstMethodDot = true
+newlines.selectChains.classicKeepFirst = true
 ---
 // preserve break on first dot and break on subsequent dots
 foo
   .map(_ + 1).filter(_ > 2)
 ```
 
-### `optIn.breaksInsideChains`
+### `newlines.selectChains.classicKeepAfterFirstBreak`
+
+> - Prior to v3.8.4, was called `optIn.breaksInsideChains`.
+> - Applies only if `style = classic` (always enabled for others).
 
 Controls whether to preserve a newline before each subsequent select when the
 very first one used a line break; that is, this parameter doesn't prohibit
@@ -5434,11 +5477,11 @@ If true, preserves existence or lack of breaks on subsequent selects if the
 first select was formatted with a newline.
 
 ```scala mdoc:defaults
-optIn.breaksInsideChains
+newlines.selectChains.classicKeepAfterFirstBreak
 ```
 
 ```scala mdoc:scalafmt
-optIn.breaksInsideChains = true
+newlines.selectChains.classicKeepAfterFirstBreak = true
 maxColumn = 35
 ---
 foo.bar(_ + 1)
@@ -5451,7 +5494,7 @@ foo.bar(_ + 1)
 ```
 
 ```scala mdoc:scalafmt
-optIn.breaksInsideChains = false
+newlines.selectChains.classicKeepAfterFirstBreak = false
 maxColumn = 35
 ---
 foo.bar(_ + 1)
@@ -5461,34 +5504,6 @@ foo.bar(_ + 1).baz(_ > 2).qux(_ * 12)
 foo.bar(_ + 1).baz(_ > 2).qux { _ * 12 }
 foo.bar(_ + 1)
   .baz(_ > 2).qux(_ * 12)
-```
-
-### `optIn.encloseClassicChains`
-
-Controls what happens if a chain enclosed in parentheses is followed by
-additional selects. Those additional selects will be considered part of the
-enclosed chain if and only if this flag is false.
-
-> Since v2.6.2.
-
-```scala mdoc:defaults
-optIn.encloseClassicChains
-```
-
-```scala mdoc:scalafmt
-optIn.encloseClassicChains = true
-maxColumn = 30
----
-(foo.map(_ + 1).map(_ + 1))
-  .filter(_ > 2)
-```
-
-```scala mdoc:scalafmt
-optIn.encloseClassicChains = false
-maxColumn = 30
----
-(foo.map(_ + 1).map(_ + 1))
-  .filter(_ > 2)
 ```
 
 ## Miscellaneous

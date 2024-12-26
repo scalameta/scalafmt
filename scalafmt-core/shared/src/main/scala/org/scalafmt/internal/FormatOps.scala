@@ -1351,10 +1351,11 @@ class FormatOps(
     val nextSelect = nextSelectLike.map(_.tree)
     val ok = thisTree.ne(lastApply) &&
       !cannotStartSelectChainOnExpr(thisSelectLike.qual)
+    val cfg = style.newlines.selectChains
     def checkParent = thisTree.parent match {
-      case `nextSelect` => style.includeNoParensInSelectChains
+      case `nextSelect` => cfg.classicCanStartWithoutApply
       case Some(p: Term.Apply) if getHead(p.argClause).left.is[T.LeftBrace] =>
-        style.includeCurlyBraceInSelectChains && !nextSelect.contains(lastApply) // exclude short curly
+        cfg.classicCanStartWithBraceApply && !nextSelect.contains(lastApply) // exclude short curly
       case Some(p: Member.Apply) => p.fun eq thisTree
       case _ => false
     }
@@ -1362,7 +1363,7 @@ class FormatOps(
     (thisTree match {
       case _: Term.SelectMatch => // like select and apply in one
         !tokenAfter(thisSelectLike.nameFt).right.is[T.LeftBrace] ||
-        style.includeCurlyBraceInSelectChains &&
+        cfg.classicCanStartWithBraceApply &&
         nextSelect.isDefined && !nextSelect.contains(lastApply)
       case _ => checkParent
     })
@@ -1378,7 +1379,7 @@ class FormatOps(
     case None => false
     case Some(p) if canStartSelectChain(p, Some(thisSelect), lastApply) => true
     case Some(p) =>
-      val prevPrevSelect = findPrevSelect(p, style.encloseSelectChains)
+      val prevPrevSelect = findPrevSelect(p, style.newlines.encloseSelectChains)
       inSelectChain(prevPrevSelect, p, lastApply)
   }
 
@@ -2920,8 +2921,10 @@ class FormatOps(
             implicit val cfg = styleMap.at(afterDelims)
             cfg.newlines.getSelectChains match {
               case Newlines.classic =>
-                val (expireTree, nextSelect) =
-                  findLastApplyAndNextSelect(x.tree, cfg.encloseSelectChains)
+                val (expireTree, nextSelect) = findLastApplyAndNextSelect(
+                  x.tree,
+                  cfg.newlines.encloseSelectChains,
+                )
                 Right(canStartSelectChain(x, nextSelect, expireTree))
               case Newlines.keep => Left(Policy.onlyFor(afterDelims, "BP1L.NL") {
                   Decision.onlyNewlineSplits(_)
