@@ -590,6 +590,12 @@ object Newlines {
       bracketCallSite: Option[ConfigStyleElement] = None,
       bracketDefnSite: Option[ConfigStyleElement] = None,
       fallBack: ConfigStyleElement = ConfigStyleElement(),
+      @annotation.DeprecatedName(
+        "beforeComma",
+        "Scala supports trailing commas after 2.12.2. Use trailingCommas instead",
+        "2.5.0",
+      )
+      beforeComma: Boolean = false,
   ) {
     def getParenCallSite: ConfigStyleElement = callSite.getOrElse(fallBack)
     def getBracketCallSite: ConfigStyleElement = bracketCallSite
