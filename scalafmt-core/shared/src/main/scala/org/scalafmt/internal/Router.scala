@@ -252,7 +252,7 @@ class Router(formatOps: FormatOps) {
 
       case FT(_: T.LeftBrace, right, _) =>
         val close = matchingLeft(ft)
-        val isSelfAnnotationNL = style.optIn.selfAnnotationNewline &&
+        val isSelfAnnotationNL = style.newlines.selfAnnotation &&
           (hasBreak() || style.newlines.sourceIgnored) &&
           (leftOwner match { // Self type: trait foo { self => ... }
             case t: Template.Body => t.selfOpt.nonEmpty
@@ -724,7 +724,7 @@ class Router(formatOps: FormatOps) {
         val annoLeft = isSingleIdentifierAnnotation(prev(ft))
 
         if (
-          (annoRight || annoLeft) && style.optIn.annotationNewlines &&
+          (annoRight || annoLeft) && style.newlines.annotation &&
           !style.newlines.sourceIgnored
         ) Seq(Split(getMod(ft), 0))
         else maybeGetInfixSplitsBeforeLhs(
@@ -733,9 +733,9 @@ class Router(formatOps: FormatOps) {
           val spaceCouldBeOk = annoLeft &&
             (style.newlines.source match {
               case Newlines.unfold => right.is[T.Comment] ||
-                !style.optIn.annotationNewlines && annoRight
+                !style.newlines.annotation && annoRight
               case Newlines.fold => right.is[T.Comment] || annoRight ||
-                !style.optIn.annotationNewlines && Reserved(right)
+                !style.newlines.annotation && Reserved(right)
               case Newlines.keep => noBreak() && (annoRight || Reserved(right))
               case _ => noBreak() && Reserved(right)
             })
@@ -2548,7 +2548,7 @@ class Router(formatOps: FormatOps) {
         }
         def noAnnoLeft = leftOwner.is[Mod] || noAnnoLeftFor(leftOwner)
         def newlineOrBoth = {
-          val spaceOk = !style.optIn.annotationNewlines
+          val spaceOk = !style.newlines.annotation
           Seq(Split(Space.orNL(spaceOk), 0), Split(Newline, 1).onlyIf(spaceOk))
         }
         style.newlines.source match {
@@ -2561,7 +2561,7 @@ class Router(formatOps: FormatOps) {
             else if (noAnnoLeft) Seq(Split(Space, 0))
             else newlineOrBoth
           case _ =>
-            val noNL = !style.optIn.annotationNewlines || noBreak()
+            val noNL = !style.newlines.annotation || noBreak()
             Seq(Split(Space.orNL(noNL), 0))
         }
 

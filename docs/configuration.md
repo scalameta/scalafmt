@@ -2723,24 +2723,35 @@ println(s"""${1}
 )
 ```
 
-### `optIn.annotationNewlines`
+### `newlines.annotation`
 
-This boolean parameter controls newlines after annotations.
+This boolean parameter controls newlines after annotations. Prior to v3.8.4,
+was called `optIn.annotationNewlines`.
 
 ```scala mdoc:defaults
-optIn.annotationNewlines
+newlines.annotation
 ```
 
 Its behaviour depends on [newlines.source](#newlinessource):
 
-- `optIn.annotationNewlines = true`:
+- `newlines.annotation = true`:
   - `newlines.source=fold`: allows space before another annotation
   - `newlines.source=unfold`: forces break
   - otherwise: preserves space _before_ or after an annotation
-- `optIn.annotationNewlines = false`:
+- `newlines.annotation = false`:
   - `newlines.source=fold`: allows space before a keyword or another annotation
   - `newlines.source=unfold`: allows space before another annotation
   - otherwise: allows space before a keyword
+
+### `newlines.selfAnnotation`
+
+If enabled, this parameter forces a break after a self annotation in a template if
+`newlines.source=fold/unfold`, and preserves it otherwise.
+Prior to v3.8.4, was called `optIn.selfAnnotationNewline`.
+
+```scala mdoc:defaults
+newlines.selfAnnotation
+```
 
 ## Newlines: `danglingParentheses`
 
