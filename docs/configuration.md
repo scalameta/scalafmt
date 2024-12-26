@@ -236,7 +236,6 @@ The preset itself is defined as:
       defnSite = false
     }
     docstrings.style = Asterisk
-    importSelectors = binPack
     indent.callSite = 4
     newlines {
       avoidInResultType = true
@@ -5299,21 +5298,43 @@ the selection of breaks, such as when dealing with multiline arguments
 If set explicitly, will be used for type arguments or parameters,
 instead of the respective [`binPack.xxxSite`](#binpackxxxsite).
 
-### binpacking of `importSelectors`
+### `binPack.importSelectors`
 
 Import selectors (those grouped in `{...}`) will always be formatted on a single
 line if they fit without exceeding `maxColumn`. This parameter controls how they
 will be handled _if_ they overflow.
+(Prior to v3.8.4, it was called `importSelectors`.)
 
 ```scala mdoc:defaults
-importSelectors
+binPack.importSelectors
 ```
 
 Takes the following parameters:
 
-- `noBinPack`: format one per line
-- `binPack`: binpack, with as many as would fit on each line
+- `unfold`: format one per line (prior to v3.8.4, called `noBinPack`)
+- `fold`: fit as many as possible on each line (prior to v3.8.4, called `binPack`)
 - `singleLine`: format all on one line
+
+```scala mdoc:scalafmt
+maxColumn = 10
+binPack.importSelectors = unfold
+---
+import a.b.{c, d, e, f, g}
+```
+
+```scala mdoc:scalafmt
+maxColumn = 10
+binPack.importSelectors = fold
+---
+import a.b.{c, d, e, f, g}
+```
+
+```scala mdoc:scalafmt
+maxColumn = 10
+binPack.importSelectors = singleLine
+---
+import a.b.{c, d, e, f, g}
+```
 
 ## Classic select chains
 
@@ -5487,35 +5508,6 @@ is set and `git` parameter
 [`core.autocrlf`](https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration#_core_autocrlf)
 is configured, then default value will be changed to `windows` if
 `autocrlf=true`, and `preserve` if `false`.
-
-### `importSelectors`
-
-This parameter controls formatting of imports.
-
-```scala mdoc:defaults
-importSelectors
-```
-
-```scala mdoc:scalafmt
-maxColumn = 10
-importSelectors = noBinPack
----
-import a.b.{c, d, e, f, g}
-```
-
-```scala mdoc:scalafmt
-maxColumn = 10
-importSelectors = binPack
----
-import a.b.{c, d, e, f, g}
-```
-
-```scala mdoc:scalafmt
-maxColumn = 10
-importSelectors = singleLine
----
-import a.b.{c, d, e, f, g}
-```
 
 ## Markdown Formatting
 

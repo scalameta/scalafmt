@@ -42,15 +42,6 @@ import metaconfig._
   *         longerArg3
   *     )
   *   }}}
-  * @param importSelectors
-  *   Controls formatting of import selectors with multiple names from the same
-  *   package
-  *   - If [[org.scalafmt.config.ImportSelectors.binPack]], import selectors are
-  *     arranged to fit within the maximum line width
-  *   - If [[org.scalafmt.config.ImportSelectors.noBinPack]], import selectors
-  *     are broken to one per line
-  *   - If [[org.scalafmt.config.ImportSelectors.singleLine]], import selectors
-  *     are kept on a single line The default setting is currently `noBinPack`.
   * @param lineEndings
   *   - If [[LineEndings.unix]], output will include only unix line endings
   *   - If [[LineEndings.windows]], output will include only windows line
@@ -97,6 +88,8 @@ import metaconfig._
 @annotation.SectionRename("verticalAlignMultilineOperators", "indent.infix.assignmentOnly") // v3.8.4
 @annotation.SectionRename("indentYieldKeyword", "indent.yieldKeyword") // v3.8.4
 @annotation.SectionRename("rewriteTokens", "rewrite.tokens") // v3.8.4
+@annotation.SectionRename("importSelectors", "binPack.importSelectors") // v3.8.4
+@annotation.SectionRename("binPackImportSelectors", "binPack.importSelectors") // v3.8.4
 // scalafmt: { maxColumn = 80 }
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
@@ -114,8 +107,6 @@ case class ScalafmtConfig(
     rewrite: RewriteSettings = RewriteSettings.default,
     newlines: Newlines = Newlines(),
     runner: ScalafmtRunner = ScalafmtRunner.default,
-    @annotation.ExtraName("binPackImportSelectors")
-    importSelectors: ImportSelectors = ImportSelectors.noBinPack,
     includeCurlyBraceInSelectChains: Boolean = true,
     includeNoParensInSelectChains: Boolean = false,
     assumeStandardLibraryStripMargin: Boolean = false,
@@ -281,7 +272,6 @@ case class ScalafmtConfig(
     binPack = BinPack.always,
     danglingParentheses = DanglingParentheses(false, false),
     indent = Indents(callSite = 4, defnSite = 4),
-    importSelectors = ImportSelectors.binPack,
     newlines = newlines.copy(
       avoidInResultType = true,
       neverBeforeJsNative = true,

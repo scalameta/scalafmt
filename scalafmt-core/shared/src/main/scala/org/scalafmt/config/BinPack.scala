@@ -25,6 +25,12 @@ import metaconfig._
   *   Parent constructors are C and D in "class A extends B with C and D". If
   *   "Always", scalafmt will fit as many parent constructors on a single line.
   *   If "Never", each parent constructor gets its own line.
+  * @param importSelectors
+  *   Controls formatting of import selectors with multiple names from the same
+  *   package (default is currently `unfold`)
+  *   - If `fold`, arranged to fit within the maximum line width
+  *   - If `unfold`, broken to one per line
+  *   - If `singleLine`, kept on a single line
   */
 case class BinPack(
     @annotation.ExtraName("unsafeCallSite")
@@ -42,6 +48,7 @@ case class BinPack(
     literalsMinArgCount: Int = 5,
     literalsInclude: Seq[String] = Seq(".*"),
     literalsExclude: Seq[String] = Seq("String", "Term.Name"),
+    importSelectors: ImportSelectors = ImportSelectors.unfold,
 ) {
   def literalsRegex: FilterMatcher =
     FilterMatcher(literalsInclude, literalsExclude)
@@ -79,10 +86,18 @@ object BinPack {
     .deriveSurface[BinPack]
   implicit lazy val encoder: ConfEncoder[BinPack] = generic.deriveEncoder
 
-  def ctor(site: Site, parents: ParentCtors): BinPack =
-    BinPack(defnSite = site, callSite = site, parentConstructors = parents)
+  def ctor(
+      site: Site,
+      parents: ParentCtors,
+      imports: ImportSelectors = ImportSelectors.fold,
+  ): BinPack = BinPack(
+    defnSite = site,
+    callSite = site,
+    parentConstructors = parents,
+    importSelectors = imports,
+  )
 
-  val never = BinPack.ctor(Site.Never, ParentCtors.Never)
+  val never = BinPack.ctor(Site.Never, ParentCtors.Never, ImportSelectors.unfold)
   val always = BinPack.ctor(Site.Always, ParentCtors.Always)
   private val oneline = BinPack.ctor(Site.Oneline, ParentCtors.Oneline)
   private val onelineSjs = BinPack.ctor(Site.OnelineSjs, ParentCtors.Oneline)

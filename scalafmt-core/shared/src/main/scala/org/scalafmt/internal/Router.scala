@@ -139,18 +139,18 @@ class Router(formatOps: FormatOps) {
         val beforeClose = prev(close)
         val policy = SingleLineBlock(
           close,
-          okSLC = style.importSelectors eq ImportSelectors.singleLine,
+          okSLC = style.binPack.importSelectors eq ImportSelectors.singleLine,
         )
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
 
         val mustDangleForTrailingCommas =
           getMustDangleForTrailingCommas(beforeClose)
         val mustUseNL = hasBreak() && isRightCommentThenBreak(ft)
-        val newlinePolicy = style.importSelectors match {
+        val newlinePolicy = style.binPack.importSelectors match {
           case ImportSelectors.singleLine if mustUseNL => policy
           case ImportSelectors.singleLine if !mustDangleForTrailingCommas =>
             NoPolicy
-          case ImportSelectors.binPack => newlineBeforeClosingCurly
+          case ImportSelectors.fold => newlineBeforeClosingCurly
           case _ => newlineBeforeClosingCurly &
               splitOneArgOneLine(close, leftOwner)
         }
