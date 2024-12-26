@@ -3612,21 +3612,6 @@ newlines {
 }
 </code></pre>
 </p></details>
-<h3><a class="anchor" aria-hidden="true" id="newlinesselectchains"></a><a href="#newlinesselectchains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.selectChains</code></h3>
-<p>This parameter controls how select chains (sequences of <code>.method</code> invocations)
-are formatted.</p>
-<p>It takes the same values as <a href="#newlinessource">newlines.source</a>; use <code>null</code>
-(default) to fall back on the current value of <code>newlines.source</code>.</p>
-<blockquote>
-<p>Since v3.0.0.</p>
-</blockquote>
-<ul>
-<li><code>keep</code>: attempts to preserve break</li>
-<li><code>fold</code>: attempts to avoid breaks</li>
-<li><code>unfold</code>: forces breaks on each select unless all fit on a single line</li>
-<li><code>classic</code> (i.e., <code>null</code> and <code>newlines.source</code> is not specified):
-see <a href="#classic-select-chains">Classic select chains</a>.</li>
-</ul>
 <h3><a class="anchor" aria-hidden="true" id="newlinesininterpolation"></a><a href="#newlinesininterpolation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.inInterpolation</code></h3>
 <p>This parameter controls how to format spliced scala code within string constants
 (e.g., <code>s&quot;...&quot;</code>, etc). Also see <a href="#alignininterpolation"><code>align.inInterpolation</code></a>.</p>
@@ -6912,15 +6897,73 @@ binPack.importSelectors = fold
 binPack.importSelectors = singleLine
 </code></pre>
 </p></details>
-<h2><a class="anchor" aria-hidden="true" id="classic-select-chains"></a><a href="#classic-select-chains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Classic select chains</h2>
-<p>The parameters below control formatting of select chains when
-<code>newlines.source = classic</code>, and specifically which select expressions are
-included in a chain.</p>
+<h2><a class="anchor" aria-hidden="true" id="select-chains"></a><a href="#select-chains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Select chains</h2>
+<p>The parameters below control formatting of select chains, such as which select
+expressions are considered to start a chain.</p>
 <p>Generally, a chain can either be formatted on one line up to the last select, or
 will have a break on the first select.</p>
-<h3><a class="anchor" aria-hidden="true" id="includecurlybraceinselectchains"></a><a href="#includecurlybraceinselectchains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>includeCurlyBraceInSelectChains</code></h3>
+<p>when</p>
+<h3><a class="anchor" aria-hidden="true" id="newlinesselectchainsstyle"></a><a href="#newlinesselectchainsstyle" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.selectChains.style</code></h3>
+<p>This parameter controls how select chains (sequences of <code>.method</code> invocations)
+are formatted.</p>
+<p>It takes the same values as <a href="#newlinessource">newlines.source</a>; use <code>null</code>
+(default) to fall back on the current value of <code>newlines.source</code>.</p>
+<blockquote>
+<p>Since v3.0.0.</p>
+</blockquote>
+<ul>
+<li><code>keep</code>: attempts to preserve break</li>
+<li><code>fold</code>: attempts to avoid breaks</li>
+<li><code>unfold</code>: forces breaks on each select unless all fit on a single line</li>
+<li><code>classic</code> (i.e., <code>null</code> and <code>newlines.source</code> is not specified).</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="newlinesselectchainsenclose"></a><a href="#newlinesselectchainsenclose" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.selectChains.enclose</code></h3>
+<blockquote>
+<ul>
+<li>Prior to v3.8.4, was called <code>optIn.encloseClassicChains</code> and applied only to <code>style = classic</code>.</li>
+<li>By default, enabled unless <code>style = classic</code>.</li>
+</ul>
+</blockquote>
+<p>Controls what happens if a chain enclosed in parentheses is followed by
+additional selects. Those additional selects will be considered part of the
+enclosed chain if and only if this flag is false.</p>
+<blockquote>
+<p>Since v2.6.2.</p>
+</blockquote>
+<p>Default: <code>newlines.selectChains.enclose = null</code></p>
+<pre><code class="hljs css language-scala formatted">(foo.map(_ + <span class="hljs-number">1</span>).map(_ + <span class="hljs-number">1</span>))
+  .filter(_ &gt; <span class="hljs-number">2</span>)
+</code></pre>
+<pre><code class="hljs css language-scala original">(foo.map(_ + <span class="hljs-number">1</span>).map(_ + <span class="hljs-number">1</span>))
+  .filter(_ &gt; <span class="hljs-number">2</span>)
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">newlines.selectChains.enclose = <span class="hljs-literal">true</span>
+maxColumn = <span class="hljs-number">30</span>
+</code></pre>
+</p></details>
+<pre><code class="hljs css language-scala formatted">(foo
+  .map(_ + <span class="hljs-number">1</span>)
+  .map(_ + <span class="hljs-number">1</span>))
+  .filter(_ &gt; <span class="hljs-number">2</span>)
+</code></pre>
+<pre><code class="hljs css language-scala original">(foo.map(_ + <span class="hljs-number">1</span>).map(_ + <span class="hljs-number">1</span>))
+  .filter(_ &gt; <span class="hljs-number">2</span>)
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">newlines.selectChains.enclose = <span class="hljs-literal">false</span>
+maxColumn = <span class="hljs-number">30</span>
+</code></pre>
+</p></details>
+<h3><a class="anchor" aria-hidden="true" id="newlinesselectchainsclassiccanstartwithbraceapply"></a><a href="#newlinesselectchainsclassiccanstartwithbraceapply" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.selectChains.classicCanStartWithBraceApply</code></h3>
+<blockquote>
+<ul>
+<li>Prior to v3.8.4, was called <code>includeCurlyBraceInSelectChains</code>.</li>
+<li>Applies only if <code>style = classic</code> (always enabled for others).</li>
+</ul>
+</blockquote>
 <p>Controls if select followed by curly braces can <em>start</em> a chain.</p>
-<p>Default: <code>includeCurlyBraceInSelectChains = true</code></p>
+<p>Default: <code>newlines.selectChains.classicCanStartWithBraceApply = true</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>)
   .map { x =&gt;
     x + <span class="hljs-number">2</span>
@@ -6933,7 +6976,7 @@ will have a break on the first select.</p>
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">includeCurlyBraceInSelectChains = <span class="hljs-literal">true</span>
+<pre><code class="hljs css language-scala config">newlines.selectChains.classicCanStartWithBraceApply = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>).map { x =&gt;
@@ -6948,12 +6991,18 @@ will have a break on the first select.</p>
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">includeCurlyBraceInSelectChains = <span class="hljs-literal">false</span>
+<pre><code class="hljs css language-scala config">newlines.selectChains.classicCanStartWithBraceApply = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
-<h3><a class="anchor" aria-hidden="true" id="includenoparensinselectchains"></a><a href="#includenoparensinselectchains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>includeNoParensInSelectChains</code></h3>
+<h3><a class="anchor" aria-hidden="true" id="newlinesselectchainsclassiccanstartwithoutapply"></a><a href="#newlinesselectchainsclassiccanstartwithoutapply" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.selectChains.classicCanStartWithoutApply</code></h3>
+<blockquote>
+<ul>
+<li>Prior to v3.8.4, was called <code>includeNoParensInSelectChains</code>.</li>
+<li>Applies only if <code>style = classic</code> (always enabled for others).</li>
+</ul>
+</blockquote>
 <p>Controls if select <em>not</em> followed by an apply can <em>start</em> a chain.</p>
-<p>Default: <code>includeNoParensInSelectChains = false</code></p>
+<p>Default: <code>newlines.selectChains.classicCanStartWithoutApply = false</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>)
   .toIterator
   .buffered
@@ -6965,7 +7014,7 @@ will have a break on the first select.</p>
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">includeNoParensInSelectChains = <span class="hljs-literal">true</span>
+<pre><code class="hljs css language-scala config">newlines.selectChains.classicCanStartWithoutApply = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>).toIterator.buffered
@@ -6975,13 +7024,19 @@ will have a break on the first select.</p>
 <pre><code class="hljs css language-scala original"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>).toIterator.buffered.map(_ + <span class="hljs-number">2</span>).filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">includeNoParensInSelectChains = <span class="hljs-literal">false</span>
+<pre><code class="hljs css language-scala config">newlines.selectChains.classicCanStartWithoutApply = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
-<h3><a class="anchor" aria-hidden="true" id="optinbreakchainonfirstmethoddot"></a><a href="#optinbreakchainonfirstmethoddot" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>optIn.breakChainOnFirstMethodDot</code></h3>
+<h3><a class="anchor" aria-hidden="true" id="newlinesselectchainsclassickeepfirst"></a><a href="#newlinesselectchainsclassickeepfirst" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.selectChains.classicKeepFirst</code></h3>
+<blockquote>
+<ul>
+<li>Prior to v3.8.4, was called <code>optIn.breakChainOnFirstMethodDot</code>.</li>
+<li>Applies only if <code>style = classic</code> (always enabled for others).</li>
+</ul>
+</blockquote>
 <p>Keeps the break on the first select of the chain if the source contained one.
 Has no effect if there was no newline in the source.</p>
-<p>Default: <code>optIn.breakChainOnFirstMethodDot = true</code></p>
+<p>Default: <code>newlines.selectChains.classicKeepFirst = true</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// collapse into a single line</span>
 foo.map(_ + <span class="hljs-number">1</span>).filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
@@ -6991,7 +7046,7 @@ foo
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">optIn.breakChainOnFirstMethodDot = <span class="hljs-literal">false</span>
+<pre><code class="hljs css language-scala config">newlines.selectChains.classicKeepFirst = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// preserve break on first dot and break on subsequent dots</span>
@@ -7004,10 +7059,16 @@ foo
   .map(_ + <span class="hljs-number">1</span>).filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">optIn.breakChainOnFirstMethodDot = <span class="hljs-literal">true</span>
+<pre><code class="hljs css language-scala config">newlines.selectChains.classicKeepFirst = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
-<h3><a class="anchor" aria-hidden="true" id="optinbreaksinsidechains"></a><a href="#optinbreaksinsidechains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>optIn.breaksInsideChains</code></h3>
+<h3><a class="anchor" aria-hidden="true" id="newlinesselectchainsclassickeepafterfirstbreak"></a><a href="#newlinesselectchainsclassickeepafterfirstbreak" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.selectChains.classicKeepAfterFirstBreak</code></h3>
+<blockquote>
+<ul>
+<li>Prior to v3.8.4, was called <code>optIn.breaksInsideChains</code>.</li>
+<li>Applies only if <code>style = classic</code> (always enabled for others).</li>
+</ul>
+</blockquote>
 <p>Controls whether to preserve a newline before each subsequent select when the
 very first one used a line break; that is, this parameter doesn't prohibit
 single-line formatting even if there are source breaks down the chain.</p>
@@ -7016,7 +7077,7 @@ first, that is, either the entire chain will be formatted on one line, or will
 contain a break on every select.</p>
 <p>If true, preserves existence or lack of breaks on subsequent selects if the
 first select was formatted with a newline.</p>
-<p>Default: <code>optIn.breaksInsideChains = false</code></p>
+<p>Default: <code>newlines.selectChains.classicKeepAfterFirstBreak = false</code></p>
 <pre><code class="hljs css language-scala formatted">foo
   .bar(_ + <span class="hljs-number">1</span>)
   .baz(_ &gt; <span class="hljs-number">2</span>).qux
@@ -7041,7 +7102,7 @@ foo.bar(_ + <span class="hljs-number">1</span>)
   .baz(_ &gt; <span class="hljs-number">2</span>).qux(_ * <span class="hljs-number">12</span>)
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">optIn.breaksInsideChains = <span class="hljs-literal">true</span>
+<pre><code class="hljs css language-scala config">newlines.selectChains.classicKeepAfterFirstBreak = <span class="hljs-literal">true</span>
 maxColumn = <span class="hljs-number">35</span>
 </code></pre>
 </p></details>
@@ -7071,40 +7132,8 @@ foo.bar(_ + <span class="hljs-number">1</span>)
   .baz(_ &gt; <span class="hljs-number">2</span>).qux(_ * <span class="hljs-number">12</span>)
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">optIn.breaksInsideChains = <span class="hljs-literal">false</span>
+<pre><code class="hljs css language-scala config">newlines.selectChains.classicKeepAfterFirstBreak = <span class="hljs-literal">false</span>
 maxColumn = <span class="hljs-number">35</span>
-</code></pre>
-</p></details>
-<h3><a class="anchor" aria-hidden="true" id="optinencloseclassicchains"></a><a href="#optinencloseclassicchains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>optIn.encloseClassicChains</code></h3>
-<p>Controls what happens if a chain enclosed in parentheses is followed by
-additional selects. Those additional selects will be considered part of the
-enclosed chain if and only if this flag is false.</p>
-<blockquote>
-<p>Since v2.6.2.</p>
-</blockquote>
-<p>Default: <code>optIn.encloseClassicChains = false</code></p>
-<pre><code class="hljs css language-scala formatted">(foo.map(_ + <span class="hljs-number">1</span>).map(_ + <span class="hljs-number">1</span>))
-  .filter(_ &gt; <span class="hljs-number">2</span>)
-</code></pre>
-<pre><code class="hljs css language-scala original">(foo.map(_ + <span class="hljs-number">1</span>).map(_ + <span class="hljs-number">1</span>))
-  .filter(_ &gt; <span class="hljs-number">2</span>)
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">optIn.encloseClassicChains = <span class="hljs-literal">true</span>
-maxColumn = <span class="hljs-number">30</span>
-</code></pre>
-</p></details>
-<pre><code class="hljs css language-scala formatted">(foo
-  .map(_ + <span class="hljs-number">1</span>)
-  .map(_ + <span class="hljs-number">1</span>))
-  .filter(_ &gt; <span class="hljs-number">2</span>)
-</code></pre>
-<pre><code class="hljs css language-scala original">(foo.map(_ + <span class="hljs-number">1</span>).map(_ + <span class="hljs-number">1</span>))
-  .filter(_ &gt; <span class="hljs-number">2</span>)
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">optIn.encloseClassicChains = <span class="hljs-literal">false</span>
-maxColumn = <span class="hljs-number">30</span>
 </code></pre>
 </p></details>
 <h2><a class="anchor" aria-hidden="true" id="miscellaneous"></a><a href="#miscellaneous" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Miscellaneous</h2>
@@ -7397,9 +7426,6 @@ docstrings.<span class="hljs-attr">style</span> = SpaceAsterisk
 comments.<span class="hljs-attr">wrap</span> = no
 comments.<span class="hljs-attr">wrapSingleLineMlcAsSlc</span> = <span class="hljs-literal">false</span>
 comments.<span class="hljs-attr">wrapStandaloneSlcAsSlc</span> = <span class="hljs-literal">false</span>
-optIn.<span class="hljs-attr">breaksInsideChains</span> = <span class="hljs-literal">false</span>
-optIn.<span class="hljs-attr">breakChainOnFirstMethodDot</span> = <span class="hljs-literal">true</span>
-optIn.<span class="hljs-attr">encloseClassicChains</span> = <span class="hljs-literal">false</span>
 optIn.<span class="hljs-attr">selfAnnotationNewline</span> = <span class="hljs-literal">true</span>
 optIn.<span class="hljs-attr">annotationNewlines</span> = <span class="hljs-literal">true</span>
 binPack.<span class="hljs-attr">callSite</span> = Never
@@ -7584,7 +7610,12 @@ newlines.<span class="hljs-attr">forceBeforeAssign</span> = never
 newlines.<span class="hljs-attr">forceBeforeMultilineAssign</span> = <span class="hljs-literal">null</span>
 newlines.<span class="hljs-attr">beforeMultiline</span> = <span class="hljs-literal">null</span>
 newlines.<span class="hljs-attr">beforeMultilineDef</span> = <span class="hljs-literal">null</span>
-newlines.<span class="hljs-attr">selectChains</span> = <span class="hljs-literal">null</span>
+newlines.selectChains.<span class="hljs-attr">style</span> = <span class="hljs-literal">null</span>
+newlines.selectChains.<span class="hljs-attr">enclose</span> = <span class="hljs-literal">null</span>
+newlines.selectChains.<span class="hljs-attr">classicKeepFirst</span> = <span class="hljs-literal">true</span>
+newlines.selectChains.<span class="hljs-attr">classicKeepAfterFirstBreak</span> = <span class="hljs-literal">false</span>
+newlines.selectChains.<span class="hljs-attr">classicCanStartWithBraceApply</span> = <span class="hljs-literal">true</span>
+newlines.selectChains.<span class="hljs-attr">classicCanStartWithoutApply</span> = <span class="hljs-literal">false</span>
 newlines.<span class="hljs-attr">afterInfix</span> = <span class="hljs-literal">null</span>
 newlines.<span class="hljs-attr">afterInfixBreakOnNested</span> = <span class="hljs-literal">false</span>
 newlines.<span class="hljs-attr">afterInfixMaxCountPerExprForSome</span> = <span class="hljs-number">10</span>
@@ -7620,8 +7651,6 @@ runner.<span class="hljs-attr">maxStateVisits</span> = <span class="hljs-literal
 runner.<span class="hljs-attr">dialect</span> = <span class="hljs-literal">null</span>
 runner.<span class="hljs-attr">ignoreWarnings</span> = <span class="hljs-literal">false</span>
 runner.<span class="hljs-attr">fatalWarnings</span> = <span class="hljs-literal">false</span>
-<span class="hljs-attr">includeCurlyBraceInSelectChains</span> = <span class="hljs-literal">true</span>
-<span class="hljs-attr">includeNoParensInSelectChains</span> = <span class="hljs-literal">false</span>
 <span class="hljs-attr">assumeStandardLibraryStripMargin</span> = <span class="hljs-literal">false</span>
 danglingParentheses.<span class="hljs-attr">callSite</span> = <span class="hljs-literal">true</span>
 danglingParentheses.<span class="hljs-attr">defnSite</span> = <span class="hljs-literal">true</span>
@@ -7656,7 +7685,7 @@ xmlLiterals.<span class="hljs-attr">assumeFormatted</span> = <span class="hljs-l
   <span class="hljs-string">"format: off"</span>
 ]
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#version">Version</a></li><li><a href="#scala-dialects">Scala Dialects</a><ul class="toc-headings"><li><a href="#runnerdialectoverride"><code>runner.dialectOverride</code></a></li><li><a href="#scala-3">Scala 3</a></li><li><a href="#scala-2-with--xsource3">Scala 2 with <code>-Xsource:3</code></a></li></ul></li><li><a href="#presets">Presets</a><ul class="toc-headings"><li><a href="#top-level-presets">Top-level presets</a></li><li><a href="#appending-to-preset-collections">Appending to preset collections</a></li></ul></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#indentmain"><code>indent.main</code></a></li><li><a href="#indentsignificant"><code>indent.significant</code></a></li><li><a href="#indentcallsite"><code>indent.callSite</code></a></li><li><a href="#indentbinpackcallsite"><code>indent.binPackCallSite</code></a></li><li><a href="#indentctrlsite"><code>indent.ctrlSite</code></a></li><li><a href="#indentdefnsite"><code>indent.defnSite</code></a></li><li><a href="#indentbinpackdefnsite"><code>indent.binPackDefnSite</code></a></li><li><a href="#indentctorsite"><code>indent.ctorSite</code></a></li><li><a href="#indentmatchsite"><code>indent.matchSite</code></a></li><li><a href="#indentcasesite"><code>indent.caseSite</code></a></li><li><a href="#indentextendsite"><code>indent.extendSite</code></a></li><li><a href="#indentwithsiterelativetoextends"><code>indent.withSiteRelativeToExtends</code></a></li><li><a href="#indentcommasiterelativetoextends"><code>indent.commaSiteRelativeToExtends</code></a></li><li><a href="#indentextrabeforeopenparendefnsite"><code>indent.extraBeforeOpenParenDefnSite</code></a></li><li><a href="#indentafterinfixsite"><code>indent.afterInfixSite</code></a></li><li><a href="#indent-for-binpackcallsite">Indent for <code>binPack.callSite</code></a></li><li><a href="#indentinfix"><code>indent.infix</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#alignpreset"><code>align.preset</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#aligncloseparensite"><code>align.closeParenSite</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenbracketcallsite"><code>align.openBracketCallSite</code></a></li><li><a href="#alignopenparenctrlsite"><code>align.openParenCtrlSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li><li><a href="#alignopenbracketdefnsite"><code>align.openBracketDefnSite</code></a></li><li><a href="#alignopenparentuplesite"><code>align.openParenTupleSite</code></a></li><li><a href="#alignbeforeopenparenxxxsite"><code>align.beforeOpenParenXxxSite</code></a></li><li><a href="#alignstripmargin"><code>align.stripMargin</code></a></li><li><a href="#alignmultiline"><code>align.multiline</code></a></li><li><a href="#alignallowoverflow"><code>align.allowOverflow</code></a></li><li><a href="#alignininterpolation"><code>align.inInterpolation</code></a></li><li><a href="#aligndelayuntilspace"><code>align.delayUntilSpace</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinessource"><code>newlines.source</code></a></li><li><a href="#newlinestoplevelstatementblanklines"><code>newlines.topLevelStatementBlankLines</code></a></li><li><a href="#newlines-around-package-or-template-body">Newlines around package or template body</a></li><li><a href="#newlinesbeforemultiline"><code>newlines.beforeMultiline</code></a></li><li><a href="#newlinesforcebeforemultilineassign"><code>newlines.forceBeforeMultilineAssign</code></a></li><li><a href="#newlinesforcebeforeassign"><code>newlines.forceBeforeAssign</code></a></li><li><a href="#newlinesbeforetypebounds"><code>newlines.beforeTypeBounds</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li><li><a href="#newlinesbeforecurlylambdaparams"><code>newlines.beforeCurlyLambdaParams</code></a></li><li><a href="#newlinesaftercurlylambdaparams"><code>newlines.afterCurlyLambdaParams</code></a></li><li><a href="#newlinesimplicitparamlistmodifierxxx"><code>newlines.implicitParamListModifierXXX</code></a></li><li><a href="#newlinesafterinfix"><code>newlines.afterInfix</code></a></li><li><a href="#newlinesavoidforsimpleoverflow"><code>newlines.avoidForSimpleOverflow</code></a></li><li><a href="#newlinesavoidinresulttype"><code>newlines.avoidInResultType</code></a></li><li><a href="#newlinessometimesbeforecoloninmethodreturntype"><code>newlines.sometimesBeforeColonInMethodReturnType</code></a></li><li><a href="#newlinesbeforeopenparenxxxsite"><code>newlines.beforeOpenParenXxxSite</code></a></li><li><a href="#newlinesselectchains"><code>newlines.selectChains</code></a></li><li><a href="#newlinesininterpolation"><code>newlines.inInterpolation</code></a></li><li><a href="#newlinesignoreinsyntax"><code>newlines.ignoreInSyntax</code></a></li><li><a href="#optinannotationnewlines"><code>optIn.annotationNewlines</code></a></li></ul></li><li><a href="#newlines-danglingparentheses">Newlines: <code>danglingParentheses</code></a><ul class="toc-headings"><li><a href="#danglingparenthesesdefnsite"><code>danglingParentheses.defnSite</code></a></li><li><a href="#danglingparenthesescallsite"><code>danglingParentheses.callSite</code></a></li><li><a href="#danglingparenthesesbracketxxxsite"><code>danglingParentheses.bracketXxxSite</code></a></li><li><a href="#danglingparenthesesctrlsite"><code>danglingParentheses.ctrlSite</code></a></li><li><a href="#danglingparenthesestuplesite"><code>danglingParentheses.tupleSite</code></a></li><li><a href="#danglingparenthesesexclude"><code>danglingParentheses.exclude</code></a></li></ul></li><li><a href="#newlines-config-style-formatting">Newlines: Config-style formatting</a><ul class="toc-headings"><li><a href="#newlinesconfigstylexxxsite"><code>newlines.configStyle.xxxSite</code></a></li><li><a href="#newlinesconfigstylexxxsiteprefer"><code>newlines.configStyle.xxxSite.prefer</code></a></li><li><a href="#forcing-config-style">Forcing config style</a></li><li><a href="#newlinesconfigstylebeforecomma"><code>newlines.configStyle.beforeComma</code></a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#inserting-braces">Inserting braces</a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#imports"><code>Imports</code></a></li><li><a href="#trailing-commas">Trailing commas</a></li><li><a href="#rewritetokens"><code>rewrite.tokens</code></a></li></ul></li><li><a href="#scala3-rewrites">Scala3 rewrites</a><ul class="toc-headings"><li><a href="#rewritescala3converttonewsyntax"><code>rewrite.scala3.convertToNewSyntax</code></a></li><li><a href="#rewritescala3removeoptionalbraces"><code>rewrite.scala3.removeOptionalBraces</code></a></li><li><a href="#rewritescala3insertendmarkerminlines"><code>rewrite.scala3.insertEndMarkerMinLines</code></a></li><li><a href="#rewritescala3removeendmarkermaxlines"><code>rewrite.scala3.removeEndMarkerMaxLines</code></a></li><li><a href="#rewritescala3countendmarkerlines"><code>rewrite.scala3.countEndMarkerLines</code></a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilineexcludedanglingparens"><code>verticalMultiline.excludeDanglingParens</code></a></li><li><a href="#vertical-multiline-with-implicit-parameter-lists">Vertical multiline with <code>implicit</code> parameter lists</a></li></ul></li><li><a href="#comment-processing">Comment processing</a><ul class="toc-headings"><li><a href="#commentswrap"><code>comments.wrap</code></a></li><li><a href="#commentswrapstandaloneslcasslc"><code>comments.wrapStandaloneSlcAsSlc</code></a></li><li><a href="#commentswrapsinglelinemlcasslc"><code>comments.wrapSingleLineMlcAsSlc</code></a></li><li><a href="#docstringsstyle"><code>docstrings.style</code></a></li><li><a href="#docstringsremoveempty"><code>docstrings.removeEmpty</code></a></li><li><a href="#docstringsoneline"><code>docstrings.oneline</code></a></li><li><a href="#docstringswrap"><code>docstrings.wrap</code></a></li><li><a href="#docstringswrapmaxcolumn"><code>docstrings.wrapMaxColumn</code></a></li><li><a href="#docstringsblankfirstline"><code>docstrings.blankFirstLine</code></a></li><li><a href="#docstringsforceblanklinebefore"><code>docstrings.forceBlankLineBefore</code></a></li></ul></li><li><a href="#disabling-or-customizing-formatting">Disabling or customizing formatting</a><ul class="toc-headings"><li><a href="#search-state-exploded"><code>Search state exploded</code></a></li><li><a href="#for-code-block">For code block</a></li><li><a href="#-format-off">// format: off</a></li><li><a href="#project">Project</a></li><li><a href="#fileoverride"><code>fileOverride</code></a></li></ul></li><li><a href="#spaces">Spaces</a><ul class="toc-headings"><li><a href="#spacesbeforecontextboundcolon"><code>spaces.beforeContextBoundColon</code></a></li><li><a href="#spacesinimportcurlybraces"><code>spaces.inImportCurlyBraces</code></a></li><li><a href="#spacesininterpolatedstringcurlybraces"><code>spaces.inInterpolatedStringCurlyBraces</code></a></li><li><a href="#spacesinparentheses"><code>spaces.inParentheses</code></a></li><li><a href="#spacesneveraroundinfixtypes"><code>spaces.neverAroundInfixTypes</code></a></li><li><a href="#spacesaroundsymbolicinfixoperators"><code>spaces.aroundSymbolicInfixOperators</code></a></li><li><a href="#spacesafterkeywordbeforeparen"><code>spaces.afterKeywordBeforeParen</code></a></li><li><a href="#spacesinbynametypes"><code>spaces.inByNameTypes</code></a></li><li><a href="#spacesaftersymbolicdefs"><code>spaces.afterSymbolicDefs</code></a></li><li><a href="#spacesbeforexxxarginparens"><code>spaces.beforeXxxArgInParens</code></a></li><li><a href="#spacesaftercoloninmatchpattern"><code>spaces.afterColonInMatchPattern</code></a></li></ul></li><li><a href="#literals">Literals</a><ul class="toc-headings"><li><a href="#literalslong"><code>literals.long</code></a></li><li><a href="#literalsfloat"><code>literals.float</code></a></li><li><a href="#literalsdouble"><code>literals.double</code></a></li><li><a href="#literalshexprefix"><code>literals.hexPrefix</code></a></li><li><a href="#literalshexdigits"><code>literals.hexDigits</code></a></li><li><a href="#literalsbinprefix"><code>literals.binPrefix</code></a></li><li><a href="#literalsscientific"><code>literals.scientific</code></a></li></ul></li><li><a href="#xml">XML</a><ul class="toc-headings"><li><a href="#xmlliteralsassumeformatted"><code>xmlLiterals.assumeFormatted</code></a></li></ul></li><li><a href="#binpacking">Binpacking</a><ul class="toc-headings"><li><a href="#binpack-presets"><code>binPack</code> presets</a></li><li><a href="#literal-argument-lists">Literal argument lists</a></li><li><a href="#binpackparentconstructors"><code>binPack.parentConstructors</code></a></li><li><a href="#binpackxxxsite"><code>binPack.xxxSite</code></a></li><li><a href="#binpackbracketxxxsite"><code>binPack.bracketXxxSite</code></a></li><li><a href="#binpackimportselectors"><code>binPack.importSelectors</code></a></li></ul></li><li><a href="#classic-select-chains">Classic select chains</a><ul class="toc-headings"><li><a href="#includecurlybraceinselectchains"><code>includeCurlyBraceInSelectChains</code></a></li><li><a href="#includenoparensinselectchains"><code>includeNoParensInSelectChains</code></a></li><li><a href="#optinbreakchainonfirstmethoddot"><code>optIn.breakChainOnFirstMethodDot</code></a></li><li><a href="#optinbreaksinsidechains"><code>optIn.breaksInsideChains</code></a></li><li><a href="#optinencloseclassicchains"><code>optIn.encloseClassicChains</code></a></li></ul></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#lineendings"><code>lineEndings</code></a></li></ul></li><li><a href="#markdown-formatting">Markdown Formatting</a></li><li><a href="#advanced-formatting-process">Advanced: formatting process</a></li><li><a href="#advanced-route-search-optimizations">Advanced: Route search optimizations</a><ul class="toc-headings"><li><a href="#route-search-optimizations-giving-up">Route search optimizations: giving up</a></li><li><a href="#route-search-optimizations-discarding-some-states">Route search optimizations: discarding some states</a></li><li><a href="#route-search-optimizations-preferential-treatment">Route search optimizations: preferential treatment</a></li></ul></li><li><a href="#edition">Edition</a></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><a href="/scalafmt/" class="nav-home"><img src="/scalafmt/img/scalameta-logo.png" alt="Scalafmt" width="66" height="58"/></a><div><h5>Docs</h5><a href="
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#version">Version</a></li><li><a href="#scala-dialects">Scala Dialects</a><ul class="toc-headings"><li><a href="#runnerdialectoverride"><code>runner.dialectOverride</code></a></li><li><a href="#scala-3">Scala 3</a></li><li><a href="#scala-2-with--xsource3">Scala 2 with <code>-Xsource:3</code></a></li></ul></li><li><a href="#presets">Presets</a><ul class="toc-headings"><li><a href="#top-level-presets">Top-level presets</a></li><li><a href="#appending-to-preset-collections">Appending to preset collections</a></li></ul></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#indentmain"><code>indent.main</code></a></li><li><a href="#indentsignificant"><code>indent.significant</code></a></li><li><a href="#indentcallsite"><code>indent.callSite</code></a></li><li><a href="#indentbinpackcallsite"><code>indent.binPackCallSite</code></a></li><li><a href="#indentctrlsite"><code>indent.ctrlSite</code></a></li><li><a href="#indentdefnsite"><code>indent.defnSite</code></a></li><li><a href="#indentbinpackdefnsite"><code>indent.binPackDefnSite</code></a></li><li><a href="#indentctorsite"><code>indent.ctorSite</code></a></li><li><a href="#indentmatchsite"><code>indent.matchSite</code></a></li><li><a href="#indentcasesite"><code>indent.caseSite</code></a></li><li><a href="#indentextendsite"><code>indent.extendSite</code></a></li><li><a href="#indentwithsiterelativetoextends"><code>indent.withSiteRelativeToExtends</code></a></li><li><a href="#indentcommasiterelativetoextends"><code>indent.commaSiteRelativeToExtends</code></a></li><li><a href="#indentextrabeforeopenparendefnsite"><code>indent.extraBeforeOpenParenDefnSite</code></a></li><li><a href="#indentafterinfixsite"><code>indent.afterInfixSite</code></a></li><li><a href="#indent-for-binpackcallsite">Indent for <code>binPack.callSite</code></a></li><li><a href="#indentinfix"><code>indent.infix</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#alignpreset"><code>align.preset</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#aligncloseparensite"><code>align.closeParenSite</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenbracketcallsite"><code>align.openBracketCallSite</code></a></li><li><a href="#alignopenparenctrlsite"><code>align.openParenCtrlSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li><li><a href="#alignopenbracketdefnsite"><code>align.openBracketDefnSite</code></a></li><li><a href="#alignopenparentuplesite"><code>align.openParenTupleSite</code></a></li><li><a href="#alignbeforeopenparenxxxsite"><code>align.beforeOpenParenXxxSite</code></a></li><li><a href="#alignstripmargin"><code>align.stripMargin</code></a></li><li><a href="#alignmultiline"><code>align.multiline</code></a></li><li><a href="#alignallowoverflow"><code>align.allowOverflow</code></a></li><li><a href="#alignininterpolation"><code>align.inInterpolation</code></a></li><li><a href="#aligndelayuntilspace"><code>align.delayUntilSpace</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinessource"><code>newlines.source</code></a></li><li><a href="#newlinestoplevelstatementblanklines"><code>newlines.topLevelStatementBlankLines</code></a></li><li><a href="#newlines-around-package-or-template-body">Newlines around package or template body</a></li><li><a href="#newlinesbeforemultiline"><code>newlines.beforeMultiline</code></a></li><li><a href="#newlinesforcebeforemultilineassign"><code>newlines.forceBeforeMultilineAssign</code></a></li><li><a href="#newlinesforcebeforeassign"><code>newlines.forceBeforeAssign</code></a></li><li><a href="#newlinesbeforetypebounds"><code>newlines.beforeTypeBounds</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li><li><a href="#newlinesbeforecurlylambdaparams"><code>newlines.beforeCurlyLambdaParams</code></a></li><li><a href="#newlinesaftercurlylambdaparams"><code>newlines.afterCurlyLambdaParams</code></a></li><li><a href="#newlinesimplicitparamlistmodifierxxx"><code>newlines.implicitParamListModifierXXX</code></a></li><li><a href="#newlinesafterinfix"><code>newlines.afterInfix</code></a></li><li><a href="#newlinesavoidforsimpleoverflow"><code>newlines.avoidForSimpleOverflow</code></a></li><li><a href="#newlinesavoidinresulttype"><code>newlines.avoidInResultType</code></a></li><li><a href="#newlinessometimesbeforecoloninmethodreturntype"><code>newlines.sometimesBeforeColonInMethodReturnType</code></a></li><li><a href="#newlinesbeforeopenparenxxxsite"><code>newlines.beforeOpenParenXxxSite</code></a></li><li><a href="#newlinesininterpolation"><code>newlines.inInterpolation</code></a></li><li><a href="#newlinesignoreinsyntax"><code>newlines.ignoreInSyntax</code></a></li><li><a href="#optinannotationnewlines"><code>optIn.annotationNewlines</code></a></li></ul></li><li><a href="#newlines-danglingparentheses">Newlines: <code>danglingParentheses</code></a><ul class="toc-headings"><li><a href="#danglingparenthesesdefnsite"><code>danglingParentheses.defnSite</code></a></li><li><a href="#danglingparenthesescallsite"><code>danglingParentheses.callSite</code></a></li><li><a href="#danglingparenthesesbracketxxxsite"><code>danglingParentheses.bracketXxxSite</code></a></li><li><a href="#danglingparenthesesctrlsite"><code>danglingParentheses.ctrlSite</code></a></li><li><a href="#danglingparenthesestuplesite"><code>danglingParentheses.tupleSite</code></a></li><li><a href="#danglingparenthesesexclude"><code>danglingParentheses.exclude</code></a></li></ul></li><li><a href="#newlines-config-style-formatting">Newlines: Config-style formatting</a><ul class="toc-headings"><li><a href="#newlinesconfigstylexxxsite"><code>newlines.configStyle.xxxSite</code></a></li><li><a href="#newlinesconfigstylexxxsiteprefer"><code>newlines.configStyle.xxxSite.prefer</code></a></li><li><a href="#forcing-config-style">Forcing config style</a></li><li><a href="#newlinesconfigstylebeforecomma"><code>newlines.configStyle.beforeComma</code></a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#inserting-braces">Inserting braces</a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#imports"><code>Imports</code></a></li><li><a href="#trailing-commas">Trailing commas</a></li><li><a href="#rewritetokens"><code>rewrite.tokens</code></a></li></ul></li><li><a href="#scala3-rewrites">Scala3 rewrites</a><ul class="toc-headings"><li><a href="#rewritescala3converttonewsyntax"><code>rewrite.scala3.convertToNewSyntax</code></a></li><li><a href="#rewritescala3removeoptionalbraces"><code>rewrite.scala3.removeOptionalBraces</code></a></li><li><a href="#rewritescala3insertendmarkerminlines"><code>rewrite.scala3.insertEndMarkerMinLines</code></a></li><li><a href="#rewritescala3removeendmarkermaxlines"><code>rewrite.scala3.removeEndMarkerMaxLines</code></a></li><li><a href="#rewritescala3countendmarkerlines"><code>rewrite.scala3.countEndMarkerLines</code></a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilineexcludedanglingparens"><code>verticalMultiline.excludeDanglingParens</code></a></li><li><a href="#vertical-multiline-with-implicit-parameter-lists">Vertical multiline with <code>implicit</code> parameter lists</a></li></ul></li><li><a href="#comment-processing">Comment processing</a><ul class="toc-headings"><li><a href="#commentswrap"><code>comments.wrap</code></a></li><li><a href="#commentswrapstandaloneslcasslc"><code>comments.wrapStandaloneSlcAsSlc</code></a></li><li><a href="#commentswrapsinglelinemlcasslc"><code>comments.wrapSingleLineMlcAsSlc</code></a></li><li><a href="#docstringsstyle"><code>docstrings.style</code></a></li><li><a href="#docstringsremoveempty"><code>docstrings.removeEmpty</code></a></li><li><a href="#docstringsoneline"><code>docstrings.oneline</code></a></li><li><a href="#docstringswrap"><code>docstrings.wrap</code></a></li><li><a href="#docstringswrapmaxcolumn"><code>docstrings.wrapMaxColumn</code></a></li><li><a href="#docstringsblankfirstline"><code>docstrings.blankFirstLine</code></a></li><li><a href="#docstringsforceblanklinebefore"><code>docstrings.forceBlankLineBefore</code></a></li></ul></li><li><a href="#disabling-or-customizing-formatting">Disabling or customizing formatting</a><ul class="toc-headings"><li><a href="#search-state-exploded"><code>Search state exploded</code></a></li><li><a href="#for-code-block">For code block</a></li><li><a href="#-format-off">// format: off</a></li><li><a href="#project">Project</a></li><li><a href="#fileoverride"><code>fileOverride</code></a></li></ul></li><li><a href="#spaces">Spaces</a><ul class="toc-headings"><li><a href="#spacesbeforecontextboundcolon"><code>spaces.beforeContextBoundColon</code></a></li><li><a href="#spacesinimportcurlybraces"><code>spaces.inImportCurlyBraces</code></a></li><li><a href="#spacesininterpolatedstringcurlybraces"><code>spaces.inInterpolatedStringCurlyBraces</code></a></li><li><a href="#spacesinparentheses"><code>spaces.inParentheses</code></a></li><li><a href="#spacesneveraroundinfixtypes"><code>spaces.neverAroundInfixTypes</code></a></li><li><a href="#spacesaroundsymbolicinfixoperators"><code>spaces.aroundSymbolicInfixOperators</code></a></li><li><a href="#spacesafterkeywordbeforeparen"><code>spaces.afterKeywordBeforeParen</code></a></li><li><a href="#spacesinbynametypes"><code>spaces.inByNameTypes</code></a></li><li><a href="#spacesaftersymbolicdefs"><code>spaces.afterSymbolicDefs</code></a></li><li><a href="#spacesbeforexxxarginparens"><code>spaces.beforeXxxArgInParens</code></a></li><li><a href="#spacesaftercoloninmatchpattern"><code>spaces.afterColonInMatchPattern</code></a></li></ul></li><li><a href="#literals">Literals</a><ul class="toc-headings"><li><a href="#literalslong"><code>literals.long</code></a></li><li><a href="#literalsfloat"><code>literals.float</code></a></li><li><a href="#literalsdouble"><code>literals.double</code></a></li><li><a href="#literalshexprefix"><code>literals.hexPrefix</code></a></li><li><a href="#literalshexdigits"><code>literals.hexDigits</code></a></li><li><a href="#literalsbinprefix"><code>literals.binPrefix</code></a></li><li><a href="#literalsscientific"><code>literals.scientific</code></a></li></ul></li><li><a href="#xml">XML</a><ul class="toc-headings"><li><a href="#xmlliteralsassumeformatted"><code>xmlLiterals.assumeFormatted</code></a></li></ul></li><li><a href="#binpacking">Binpacking</a><ul class="toc-headings"><li><a href="#binpack-presets"><code>binPack</code> presets</a></li><li><a href="#literal-argument-lists">Literal argument lists</a></li><li><a href="#binpackparentconstructors"><code>binPack.parentConstructors</code></a></li><li><a href="#binpackxxxsite"><code>binPack.xxxSite</code></a></li><li><a href="#binpackbracketxxxsite"><code>binPack.bracketXxxSite</code></a></li><li><a href="#binpackimportselectors"><code>binPack.importSelectors</code></a></li></ul></li><li><a href="#select-chains">Select chains</a><ul class="toc-headings"><li><a href="#newlinesselectchainsstyle"><code>newlines.selectChains.style</code></a></li><li><a href="#newlinesselectchainsenclose"><code>newlines.selectChains.enclose</code></a></li><li><a href="#newlinesselectchainsclassiccanstartwithbraceapply"><code>newlines.selectChains.classicCanStartWithBraceApply</code></a></li><li><a href="#newlinesselectchainsclassiccanstartwithoutapply"><code>newlines.selectChains.classicCanStartWithoutApply</code></a></li><li><a href="#newlinesselectchainsclassickeepfirst"><code>newlines.selectChains.classicKeepFirst</code></a></li><li><a href="#newlinesselectchainsclassickeepafterfirstbreak"><code>newlines.selectChains.classicKeepAfterFirstBreak</code></a></li></ul></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#lineendings"><code>lineEndings</code></a></li></ul></li><li><a href="#markdown-formatting">Markdown Formatting</a></li><li><a href="#advanced-formatting-process">Advanced: formatting process</a></li><li><a href="#advanced-route-search-optimizations">Advanced: Route search optimizations</a><ul class="toc-headings"><li><a href="#route-search-optimizations-giving-up">Route search optimizations: giving up</a></li><li><a href="#route-search-optimizations-discarding-some-states">Route search optimizations: discarding some states</a></li><li><a href="#route-search-optimizations-preferential-treatment">Route search optimizations: preferential treatment</a></li></ul></li><li><a href="#edition">Edition</a></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><a href="/scalafmt/" class="nav-home"><img src="/scalafmt/img/scalameta-logo.png" alt="Scalafmt" width="66" height="58"/></a><div><h5>Docs</h5><a href="
                 /scalafmt/docs/installation.html">Installation</a><a href="
                 /scalafmt/docs/configuration.html">Configuration</a><a href="
                 /scalafmt/docs/contributing-scalafmt.html">Contributing</a></div><div><h5>Community</h5><a href="https://discord.gg/N43mbnH" target="_blank">Join on Discord</a><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter (defunct)</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2024 Scalafmt</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
