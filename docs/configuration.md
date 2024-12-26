@@ -3812,6 +3812,32 @@ rewrite.trailingCommas.allowFolding
 
 If set to false, the trailing comma will always be forced.
 
+### `rewrite.tokens`
+
+> Prior to v3.8.4, was called `rewriteTokens`.
+
+Map of tokens to rewrite. For example, Map("⇒" -> "=>") will rewrite unicode
+arrows to regular ascii arrows.
+
+```scala mdoc:defaults
+rewrite.tokens
+```
+
+```scala mdoc:scalafmt
+rewrite.tokens = {
+  "⇒": "=>"
+  "→": "->"
+  "←": "<-"
+}
+---
+val tuple = "a" → 1
+val lambda = (x: Int) ⇒ x + 1
+for {
+  a ← Option(1)
+  b ← Option(2)
+} yield a + b
+```
+
 ## Scala3 rewrites
 
 This section describes rules which are applied if the appropriate dialect (e.g.,
@@ -5461,30 +5487,6 @@ is set and `git` parameter
 [`core.autocrlf`](https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration#_core_autocrlf)
 is configured, then default value will be changed to `windows` if
 `autocrlf=true`, and `preserve` if `false`.
-
-### `rewriteTokens`
-
-Map of tokens to rewrite. For example, Map("⇒" -> "=>") will rewrite unicode
-arrows to regular ascii arrows.
-
-```scala mdoc:defaults
-rewriteTokens
-```
-
-```scala mdoc:scalafmt
-rewriteTokens = {
-  "⇒": "=>"
-  "→": "->"
-  "←": "<-"
-}
----
-val tuple = "a" → 1
-val lambda = (x: Int) ⇒ x + 1
-for {
-  a ← Option(1)
-  b ← Option(2)
-} yield a + b
-```
 
 ### `importSelectors`
 

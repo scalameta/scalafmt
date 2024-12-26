@@ -42,9 +42,6 @@ import metaconfig._
   *         longerArg3
   *     )
   *   }}}
-  * @param rewriteTokens
-  *   Map of tokens to rewrite. For example, Map("⇒" -> "=>") will rewrite
-  *   unicode arrows to regular ascii arrows.
   * @param importSelectors
   *   Controls formatting of import selectors with multiple names from the same
   *   package
@@ -99,6 +96,7 @@ import metaconfig._
 @annotation.SectionRename("indentOperator", "indent.infix") // v3.8.4
 @annotation.SectionRename("verticalAlignMultilineOperators", "indent.infix.assignmentOnly") // v3.8.4
 @annotation.SectionRename("indentYieldKeyword", "indent.yieldKeyword") // v3.8.4
+@annotation.SectionRename("rewriteTokens", "rewrite.tokens") // v3.8.4
 // scalafmt: { maxColumn = 80 }
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
@@ -113,7 +111,6 @@ case class ScalafmtConfig(
     spaces: Spaces = Spaces(),
     literals: Literals = Literals(),
     lineEndings: Option[LineEndings] = None,
-    rewriteTokens: Map[String, String] = Map.empty[String, String],
     rewrite: RewriteSettings = RewriteSettings.default,
     newlines: Newlines = Newlines(),
     runner: ScalafmtRunner = ScalafmtRunner.default,
