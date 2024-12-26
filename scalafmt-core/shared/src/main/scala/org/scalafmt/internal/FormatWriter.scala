@@ -56,7 +56,7 @@ class FormatWriter(formatOps: FormatOps) {
         case _: T.Constant.Double => LiteralOps.prettyPrintDouble(ltext)
         case _ =>
           val syntax = Option(location.replace).getOrElse(ltext)
-          sb.append(style.rewriteTokens.getOrElse(syntax, syntax))
+          sb.append(style.rewrite.tokens.getOrElse(syntax, syntax))
       }
 
       location.optionalBraces.toSeq.sortBy { case (indent, _) => -indent }

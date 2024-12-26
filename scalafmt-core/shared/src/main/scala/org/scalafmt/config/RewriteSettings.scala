@@ -4,6 +4,10 @@ import org.scalafmt.rewrite._
 
 import metaconfig._
 
+/** @param tokens
+  *   Map of tokens to rewrite. For example, Map("⇒" -> "=>") will rewrite
+  *   unicode arrows to regular ascii arrows.
+  */
 @annotation.SectionRename("neverInfix", "avoidInfix") // renamed in v3.8.0
 @annotation.SectionRename(
   "allowInfixPlaceholderArg",
@@ -20,6 +24,7 @@ case class RewriteSettings(
     preferCurlyFors: PreferCurlyFors.Settings = PreferCurlyFors.Settings(),
     trailingCommas: TrailingCommas = TrailingCommas(),
     avoidInfix: AvoidInfixSettings = AvoidInfixSettings.default,
+    tokens: Map[String, String] = Map.empty[String, String],
 ) {
   def withoutRewrites: RewriteSettings =
     copy(rules = Nil, trailingCommas = trailingCommas.withoutRewrites)
