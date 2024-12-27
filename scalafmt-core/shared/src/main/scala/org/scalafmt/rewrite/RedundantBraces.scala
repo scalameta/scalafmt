@@ -358,7 +358,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         }
       case _: Term.Interpolate => handleInterpolation
       case Importer(_, List(x))
-          if !(x.is[Importee.Rename] || x.is[Importee.Unimport]) ||
+          if !x.isAny[Importee.Rename, Importee.Unimport] ||
             style.dialect.allowAsForImportRename &&
             (ConvertToNewScala3Syntax.enabled ||
               !x.tokens.exists(_.is[T.RightArrow])) => removeToken

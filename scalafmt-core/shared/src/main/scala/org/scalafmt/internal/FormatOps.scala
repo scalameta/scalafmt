@@ -581,8 +581,7 @@ class FormatOps(
       if (cfg.assignmentOnly) isAfterAssignmentOp(false)
       else if (beforeLhs) assignBodyExpire.isEmpty
       else if (
-        !app.singleArg
-          .exists(x => x.is[Term.Block] || x.is[Term.NewAnonymous]) &&
+        !app.singleArg.exists(_.isAny[Term.Block, Term.NewAnonymous]) &&
         isInfixTopLevelMatch(ft.meta.left.text, false)
       ) false
       else if (isInfixTopLevelMatch(app.op.value, true)) true
