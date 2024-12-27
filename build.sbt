@@ -105,7 +105,7 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform)
         case Some((2, 12)) =>
           Seq("com.github.bigwheel" %% "util-backports" % "2.1")
         case Some((2, 13)) =>
-          Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4")
+          Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "1.1.0")
         case _ => Seq()
       }
     },
