@@ -11384,9 +11384,7 @@ object ops {
 }
 >>>
 object ops {
-  implicit def toAllConsKOps[F[_], A](target: F[A])(implicit
-      tc: ConsK[F]
-  ): AllOps[F, A] {
+  implicit def toAllConsKOps[F[_], A](target: F[A])(implicit tc: ConsK[F]): AllOps[F, A] {
     type TypeClassType = ConsK[F]
   }
   implicit def toAllConsKOps[F[_], A](target: F[A])(implicit_tc: ConsK[F]): AllOps[F, A] {
@@ -11406,9 +11404,7 @@ object ops {
 }
 >>>
 object ops {
-  implicit def toAllConsKOps[F[_], A](target: F[A])(implicit
-      tc: ConsK[F]
-  ): AllOps[F, A] {
+  implicit def toAllConsKOps[F[_], A](target: F[A])(implicit tc: ConsK[F]): AllOps[F, A] {
     type TypeClassType = ConsK[F]
   } = foo
   implicit def toAllConsKOps[F[_], A](target: F[A])(implicit_tc: ConsK[F]): AllOps[F, A] {
@@ -11428,9 +11424,7 @@ object ops {
 }
 >>>
 object ops {
-  implicit def toAllConsKOps[F[_], A](target: F[A])(implicit
-      tc: ConsK[F]
-  ): AllOps[F, A] {
+  implicit def toAllConsKOps[F[_], A](target: F[A])(implicit tc: ConsK[F]): AllOps[F, A] {
     type TypeClassType = ConsK[F]
   } = macro foo
   implicit def toAllConsKOps[F[_], A](target: F[A])(implicit_tc: ConsK[F]): AllOps[F, A] {
