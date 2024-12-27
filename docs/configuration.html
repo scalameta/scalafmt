@@ -4300,16 +4300,128 @@ rewrite.redundantBraces.includeUnitMethods = <span class="hljs-literal">false</s
 rewrite.redundantBraces.stringInterpolation = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
-<h4><a class="anchor" aria-hidden="true" id="redundantbraces-parensforonelineapply"></a><a href="#redundantbraces-parensforonelineapply" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>RedundantBraces</code>: <code>parensForOneLineApply</code></h4>
-<p>Default: <code>rewrite.redundantBraces.parensForOneLineApply = true</code></p>
-<p>See also <a href="#newlinesaftercurlylambdaparams">newlines.afterCurlyLambdaParams = squash</a>.</p>
+<h4><a class="anchor" aria-hidden="true" id="redundantbraces-onestatapply"></a><a href="#redundantbraces-onestatapply" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>RedundantBraces</code>: <code>oneStatApply</code></h4>
+<p>Added in v3.8.4, controls treatment of single-argument apply delimiters,
+has lower priority than <a href="#rewritescala3removeoptionalbraces">fewer braces</a>,
+and takes the following values:</p>
+<ul>
+<li><code>parensMaxSpan</code>: if non-negative, converts braces to parentheses in an
+argument clause if its span is <em>not larger than</em> the specified value
+(and can be legally used with parentheses)</li>
+<li><code>bracesMinSpan</code>: if non-negative, converts parentheses to braces in a
+single-statement argument clause if its span <em>strictly larger than</em> the
+specified value
+<ul>
+<li>clearly, <code>parensMaxSpan</code> may not exceed <code>bracesMinSpan</code> but might be
+the same (for convenience of specifying the pivot point)</li>
+</ul></li>
+<li><code>parensMaxSpan=0, bracesMinSpan&lt;0</code> is a special combination which
+replaced an earlier parameter <code>parensForOneLineApply = true</code> and uses parens
+when the argument clause ends up formatted on a single line (rather than
+looking at the argument clause span)
+<ul>
+<li>see also
+<a href="#newlinesaftercurlylambdaparams">newlines.afterCurlyLambdaParams = squash</a></li>
+</ul></li>
+</ul>
+<blockquote>
+<p>Here, the span is computed a bit differently than for
+<a href="#rewritescala3removeoptionalbraces">fewer braces</a> or
+<a href="#route-search-optimizations-arg-or-param-clause">search optimizer</a>,
+in that it removes not only whitespace but also all punctuation (opening and
+closing delimiters, commas, semicolons and dots), comments and any optional
+syntax tokens in scala3 (such as <code>then</code>, <code>:</code> in coloneol or varargs, etc).</p>
+<p>The reason is that this happens during the rewrite phase where this or other
+rules could modify or remove braces, trim trailing commas, add dots and
+parentheses to an infix, rewrite scala3 code using new syntax, or reformat
+comments.</p>
+<p>Thus, to avoid non-idempotent formatting, we ignore them.</p>
+</blockquote>
+<p>In all cases, redundant delimiters will be rewritten, as before.</p>
+<p>Default: <code>rewrite.redundantBraces.oneStatApply = {&quot;parensMaxSpan&quot;: 0, &quot;bracesMinSpan&quot;: -1}</code></p>
 <pre><code class="hljs css language-scala formatted">xs.map(x =&gt; x + <span class="hljs-number">1</span>)
 </code></pre>
 <pre><code class="hljs css language-scala original">xs.map { x =&gt; x + <span class="hljs-number">1</span> }
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
-rewrite.redundantBraces.parensForOneLineApply = <span class="hljs-literal">true</span>
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = <span class="hljs-number">0</span>
+</code></pre>
+</p></details>
+<pre><code class="hljs css language-scala formatted">xs.map { x =&gt; <span class="hljs-comment">// should rewrite this</span>
+  x + <span class="hljs-number">1</span>
+}
+xs.map {
+  x =&gt; <span class="hljs-comment">// should not rewrite this, not a single-stat argument</span>
+    x + <span class="hljs-number">1</span>
+    x + <span class="hljs-number">2</span>
+}
+xs.map {
+  x =&gt; <span class="hljs-comment">// should not rewrite outer, too many breaks</span>
+    foo(
+      x
+    )
+}
+</code></pre>
+<pre><code class="hljs css language-scala original">xs.map { x =&gt; <span class="hljs-comment">// should rewrite this</span>
+  x + <span class="hljs-number">1</span>
+}
+xs.map { x =&gt; <span class="hljs-comment">// should not rewrite this, not a single-stat argument</span>
+  x + <span class="hljs-number">1</span>
+  x + <span class="hljs-number">2</span>
+}
+xs.map { x =&gt; <span class="hljs-comment">// should not rewrite outer, too many breaks</span>
+  foo {
+    x
+  }
+}
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = <span class="hljs-number">3</span>
+</code></pre>
+</p></details>
+<pre><code class="hljs css language-scala formatted">xs.map { x =&gt; <span class="hljs-comment">// should rewrite this</span>
+  x + <span class="hljs-number">1</span>
+}
+xs.map( <span class="hljs-comment">// should not rewrite this, contains an infix with a break before operator</span>
+  x
+    + <span class="hljs-number">1</span>
+)
+xs.map { <span class="hljs-comment">// should rewrite this, contains an infix with a break after operator</span>
+  x +
+    <span class="hljs-number">1</span>
+}
+<span class="hljs-comment">// scalafmt: { newlines.afterInfix = some }</span>
+xs.map { <span class="hljs-comment">// should rewrite this, allows formatting infix</span>
+  x + <span class="hljs-number">1</span>
+}
+xs.map { <span class="hljs-comment">// should not rewrite this, too few breaks</span>
+  x + <span class="hljs-number">1</span>
+}
+</code></pre>
+<pre><code class="hljs css language-scala original">xs.map(x =&gt; <span class="hljs-comment">// should rewrite this</span>
+  x + <span class="hljs-number">1</span>
+)
+xs.map( <span class="hljs-comment">// should not rewrite this, contains an infix with a break before operator</span>
+  x
+  + <span class="hljs-number">1</span>
+)
+xs.map( <span class="hljs-comment">// should rewrite this, contains an infix with a break after operator</span>
+  x +
+  <span class="hljs-number">1</span>
+)
+<span class="hljs-comment">// scalafmt: { newlines.afterInfix = some }</span>
+xs.map( <span class="hljs-comment">// should rewrite this, allows formatting infix</span>
+  x
+  + <span class="hljs-number">1</span>
+)
+xs.map( <span class="hljs-comment">// should not rewrite this, too few breaks</span>
+  x + <span class="hljs-number">1</span>)
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = <span class="hljs-number">2</span>
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="redundantbraces-maxbreaks"></a><a href="#redundantbraces-maxbreaks" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>RedundantBraces</code>: <code>maxBreaks</code></h4>
@@ -7550,7 +7662,8 @@ rewrite.redundantBraces.<span class="hljs-attr">defnBodies</span> = all
 rewrite.redundantBraces.<span class="hljs-attr">includeUnitMethods</span> = <span class="hljs-literal">true</span>
 rewrite.redundantBraces.<span class="hljs-attr">maxBreaks</span> = <span class="hljs-number">100</span>
 rewrite.redundantBraces.<span class="hljs-attr">stringInterpolation</span> = <span class="hljs-literal">false</span>
-rewrite.redundantBraces.<span class="hljs-attr">parensForOneLineApply</span> = <span class="hljs-literal">true</span>
+rewrite.redundantBraces.oneStatApply.<span class="hljs-attr">parensMaxSpan</span> = <span class="hljs-number">0</span>
+rewrite.redundantBraces.oneStatApply.<span class="hljs-attr">bracesMinSpan</span> = -<span class="hljs-number">1</span>
 rewrite.redundantBraces.<span class="hljs-attr">generalExpressions</span> = <span class="hljs-literal">true</span>
 rewrite.redundantBraces.<span class="hljs-attr">ifElseExpressions</span> = <span class="hljs-literal">false</span>
 rewrite.redundantParens.<span class="hljs-attr">infixSide</span> = <span class="hljs-literal">null</span>
