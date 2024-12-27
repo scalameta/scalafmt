@@ -196,12 +196,12 @@ class FormatOps(
     result
   }
 
-  // invoked on closing paren, part of ParamClause
+  // invoked on opening paren, part of ParamClause
   @tailrec
-  final def defnSiteLastToken(t: Tree): Option[FT] = t match {
+  final def defnSiteOptimalToken(t: Tree): Option[FT] = t match {
     case _: Member.SyntaxValuesClause | _: Member.ParamClauseGroup |
         _: Type.ParamFunctionType => t.parent match {
-        case Some(p) => defnSiteLastToken(p)
+        case Some(p) => defnSiteOptimalToken(p)
         case _ => None
       }
     case t: Defn.Macro => tokenBeforeOpt(t.body).map(prevNonCommentBefore)
