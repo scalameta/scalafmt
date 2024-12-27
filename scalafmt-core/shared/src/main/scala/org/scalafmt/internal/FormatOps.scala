@@ -204,6 +204,11 @@ class FormatOps(
         case Some(p) => defnSiteOptimalToken(p)
         case _ => None
       }
+    case Tree.WithDeclTpe(tpe: Type.Refine) if tpe.body.nonEmpty =>
+      getHeadOpt(tpe.body)
+    case Tree.WithDeclTpeOpt(Some(tpe: Type.Refine)) if tpe.body.nonEmpty =>
+      getHeadOpt(tpe.body)
+    // macro body comes after KwMacro, not directly after Equals
     case t: Defn.Macro => tokenBeforeOpt(t.body).map(prevNonCommentBefore)
     case t: Tree.WithBody => tokenBeforeOpt(t.body)
     case t: Stat.WithTemplate => tokenBeforeOpt(t.templ)
