@@ -37,3 +37,167 @@ object Foo3 {
   a +
   b
 }
+<<< #4681 verticalAlignMultilineOperators
+maxColumn = 16
+===
+object a {
+  val foo1 = a +
+    b
+  foo1 = aaaa -
+    bbbb
+  foo1 =
+    aaaabbbb
+  foo1 += aaaa -
+    bbbb
+  foo1 +=
+    aaaabbbb
+  foo1 == aaaa -
+    bbbb
+  foo1 ==
+    aaaabbbb
+  foo1 := aaaa -
+    bbbb
+  foo1 :=
+    aaaabbbb
+  foo1 >= aaaa -
+    bbbb
+  foo1 >=
+    aaaabbbb
+}
+>>>
+object a {
+  val foo1 = a +
+    b
+  foo1 = aaaa -
+    bbbb
+  foo1 =
+    aaaabbbb
+  foo1 += aaaa -
+  bbbb
+  foo1 +=
+    aaaabbbb
+  foo1 == aaaa -
+  bbbb
+  foo1 ==
+  aaaabbbb
+  foo1 := aaaa -
+  bbbb
+  foo1 :=
+    aaaabbbb
+  foo1 >= aaaa -
+  bbbb
+  foo1 >=
+  aaaabbbb
+}
+<<< #4681 notAssign
+maxColumn = 16
+indent.infix {
+  exemptScope = notAssign
+  excludeRegex = ".*"
+}
+===
+object a {
+  val foo1 = a +
+    b
+  foo1 = aaaa -
+    bbbb
+  foo1 =
+    aaaabbbb
+  foo1 += aaaa -
+    bbbb
+  foo1 +=
+    aaaabbbb
+  foo1 == aaaa -
+    bbbb
+  foo1 ==
+    aaaabbbb
+  foo1 := aaaa -
+    bbbb
+  foo1 :=
+    aaaabbbb
+  foo1 >= aaaa -
+    bbbb
+  foo1 >=
+    aaaabbbb
+}
+>>>
+object a {
+  val foo1 = a +
+    b
+  foo1 = aaaa -
+    bbbb
+  foo1 =
+    aaaabbbb
+  foo1 += aaaa -
+  bbbb
+  foo1 +=
+    aaaabbbb
+  foo1 == aaaa -
+  bbbb
+  foo1 ==
+  aaaabbbb
+  foo1 := aaaa -
+  bbbb
+  foo1 :=
+    aaaabbbb
+  foo1 >= aaaa -
+  bbbb
+  foo1 >=
+  aaaabbbb
+}
+<<< #4681 notWithinAssign
+maxColumn = 16
+indent.infix {
+  exemptScope = notWithinAssign
+  excludeRegex = ".*"
+}
+===
+object a {
+  val foo1 = a +
+    b
+  foo1 = aaaa -
+    bbbb
+  foo1 =
+    aaaabbbb
+  foo1 += aaaa -
+    bbbb
+  foo1 +=
+    aaaabbbb
+  foo1 == aaaa -
+    bbbb
+  foo1 ==
+    aaaabbbb
+  foo1 := aaaa -
+    bbbb
+  foo1 :=
+    aaaabbbb
+  foo1 >= aaaa -
+    bbbb
+  foo1 >=
+    aaaabbbb
+}
+>>>
+object a {
+  val foo1 = a +
+    b
+  foo1 = aaaa -
+    bbbb
+  foo1 =
+    aaaabbbb
+  foo1 += aaaa -
+  bbbb
+  foo1 +=
+    aaaabbbb
+  foo1 == aaaa -
+  bbbb
+  foo1 ==
+  aaaabbbb
+  foo1 := aaaa -
+  bbbb
+  foo1 :=
+    aaaabbbb
+  foo1 >= aaaa -
+  bbbb
+  foo1 >=
+  aaaabbbb
+}
