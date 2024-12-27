@@ -1079,7 +1079,7 @@ class Router(formatOps: FormatOps) {
           else style.newlines.isBeforeOpenParenCallSite
         val optimalOpt =
           if (isBeforeOpenParen || !defnSite || isBracket) None
-          else defnSiteLastToken(leftOwner)
+          else defnSiteOptimalToken(leftOwner)
         val optimal: FT = getSlbEndOnLeft(optimalOpt.getOrElse(close))
 
         val wouldDangle = onlyConfigStyle || mustDangleForTrailingCommas ||
