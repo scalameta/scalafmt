@@ -376,9 +376,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             }
             else null
           case Some(f: Term.FunctionTerm)
-              if getBlockToReplaceAsFuncBodyIfInSingleArgApply(f)
-                .exists { case (_, xft) => xft.idx <= ft.idx + 1 } =>
-            removeToken
+              if getBlockToReplaceAsFuncBodyIfInSingleArgApply(f).exists {
+                case (_, xft) => xft.idx <= ft.idx + 1
+              } => removeToken
           case Some(_: Term.Interpolate) => handleInterpolation
           case Some(_: Term.Xml) => null
           case Some(_: Term.Annotate) => null

@@ -272,15 +272,15 @@ final class State(
   ): Option[FT] = getLineStartOwner(isComment)
     .flatMap { case (lineFt, lineOwner) =>
       val ft = tokens(depth)
-      val ok = {
+      val ok =
         // comment could be preceded by a comma
         isComment && ft.left.is[T.Comma] &&
-        (tokens.prev(ft).meta.leftOwner match {
-          case `lineOwner` => true
-          case t: Member.SyntaxValuesClause => t.parent.contains(lineOwner)
-          case _ => false
-        })
-      } || findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner).isDefined
+          (tokens.prev(ft).meta.leftOwner match {
+            case `lineOwner` => true
+            case t: Member.SyntaxValuesClause => t.parent.contains(lineOwner)
+            case _ => false
+          }) || findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner)
+            .isDefined
       if (ok) Some(lineFt) else None
     }
 
