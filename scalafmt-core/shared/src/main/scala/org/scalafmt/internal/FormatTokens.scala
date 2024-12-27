@@ -104,8 +104,9 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
     getHeadAndLastIfEnclosed(tree.tokens, tree)
 
   def getDelimsIfEnclosed(tokens: Tokens, tree: Tree): Option[(FT, FT)] =
-    getHeadAndLastIfEnclosed(tokens, tree)
-      .flatMap { case (head, lastOpt) => lastOpt.map(last => (head, last)) }
+    getHeadAndLastIfEnclosed(tokens, tree).flatMap { case (head, lastOpt) =>
+      lastOpt.map(last => (head, last))
+    }
   def getDelimsIfEnclosed(tree: Tree): Option[(FT, FT)] =
     getDelimsIfEnclosed(tree.tokens, tree)
 

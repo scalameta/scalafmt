@@ -49,8 +49,9 @@ object TreeOps {
     private def getBraces[A](tree: Tree, values: List[A])(implicit
         ftoks: FormatTokens,
     ): Option[(FT, A, FT)] = values match {
-      case arg :: Nil => ftoks.getBracesIfEnclosed(tree)
-          .map { case (b, e) => (b, arg, e) }
+      case arg :: Nil => ftoks.getBracesIfEnclosed(tree).map { case (b, e) =>
+          (b, arg, e)
+        }
       case _ => None
     }
 
