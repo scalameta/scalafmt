@@ -190,7 +190,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
         oldStrategy(x)
     },
     libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit-diff" % "1.0.2",
+      "org.scalameta" %%% "munit-diff" % "1.0.3",
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
       "com.github.scopt" %%% "scopt" % "4.1.0",
     ),
