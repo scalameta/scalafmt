@@ -1133,6 +1133,12 @@ only statement in a block; entire body of an assignment, case clause, control st
 <ul>
 <li>this value replaced deprecated <code>indentOperator.topLevelOnly=false</code></li>
 </ul></li>
+<li><code>notAssign</code> (since v3.8.4): any non-assignment operator
+<ul>
+<li>this value expanded upon deprecated <code>verticalAlignMultilineOperators</code>
+which now simply maps to <code>{ exemptScope = notAssign, excludeRegex = &quot;.*&quot; }</code></li>
+</ul></li>
+<li><code>notWithinAssign</code> (since v3.8.4): any infix not part of a larger assignment expression</li>
 </ul>
 <pre><code class="hljs css language-scala formatted">function(
   a &amp;&amp;
@@ -1346,9 +1352,6 @@ operator matches and is not excluded explicitly by
 <p>In v3.1.0, due to conflict with built-in HOCON keyword, this parameter was
 renamed from <code>indentOperator.include</code>.</p>
 <p>Default: <code>indent.infix.includeRegex = &quot;.*&quot;</code></p>
-<h4><a class="anchor" aria-hidden="true" id="indentinfixassignmentonly"></a><a href="#indentinfixassignmentonly" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.infix.assignmentOnly</code></h4>
-<p>Indents only after an assignment operator. Prior to v3.8.4, was called
-<code>verticalAlignMultilineOperators</code>.</p>
 <h4><a class="anchor" aria-hidden="true" id="indentinfixpreset"></a><a href="#indentinfixpreset" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.infix.preset</code></h4>
 <ul>
 <li><code>default</code>
@@ -7584,7 +7587,6 @@ indent.<span class="hljs-attr">yieldKeyword</span> = <span class="hljs-literal">
 indent.infix.<span class="hljs-attr">exemptScope</span> = oldTopLevel
 indent.infix.<span class="hljs-attr">includeRegex</span> = <span class="hljs-string">".*"</span>
 indent.infix.<span class="hljs-attr">excludeRegex</span> = <span class="hljs-string">"^(&amp;&amp;|\|\|)$"</span>
-indent.infix.<span class="hljs-attr">assignmentOnly</span> = <span class="hljs-literal">false</span>
 align.<span class="hljs-attr">allowOverflow</span> = <span class="hljs-literal">false</span>
 align.<span class="hljs-attr">delayUntilSpace</span> = <span class="hljs-literal">true</span>
 align.<span class="hljs-attr">multiline</span> = <span class="hljs-literal">false</span>
