@@ -570,23 +570,15 @@ class FormatOps(
         case _ => false
       }
       val cfg = style.indent.infix
-      val allowNoIndent = cfg.exemptScope match {
+      def allowNoIndent = cfg.exemptScope match {
         case IndentOperator.Exempt.all => true
         case IndentOperator.Exempt.oldTopLevel => isOldTopLevel(getChild)
         case IndentOperator.Exempt.aloneEnclosed => isAloneEnclosed(getChild)
         case IndentOperator.Exempt.aloneArgOrBody => isAloneArgOrBody(getChild)
       }
-      def isInfixTopLevelMatch(op: String, noindent: Boolean): Boolean =
-        noindent == cfg.noindent(op) && noindent == allowNoIndent
       if (cfg.assignmentOnly) isAfterAssignmentOp(false)
       else if (beforeLhs) assignBodyExpire.isEmpty
-      else if (
-        !app.singleArg.exists(_.isAny[Term.Block, Term.NewAnonymous]) &&
-        isInfixTopLevelMatch(ft.meta.left.text, false)
-      ) false
-      else if (isInfixTopLevelMatch(app.op.value, true)) true
-      else if (app.is[Pat] && isChildOfCaseClause(app)) true
-      else false
+      else app.is[Pat] || allowNoIndent && cfg.noindent(app.op.value)
     }
 
     private val fullIndent: Indent = assignBodyExpire match {
