@@ -901,6 +901,10 @@ to be exempted from the default indentation rule:
     [scala-js coding style](https://github.com/scala-js/scala-js/blob/main/CODINGSTYLE.md#long-expressions-with-binary-operators).
 - `all`: all infix operators
   - this value replaced deprecated `indentOperator.topLevelOnly=false`
+- `notAssign` (since v3.8.4): any non-assignment operator
+  - this value expanded upon deprecated `verticalAlignMultilineOperators`
+    which now simply maps to `{ exemptScope = notAssign, excludeRegex = ".*" }`
+- `notWithinAssign` (since v3.8.4): any infix not part of a larger assignment expression
 
 ```scala mdoc:scalafmt
 indent.infix.exemptScope = oldTopLevel
@@ -1025,11 +1029,6 @@ renamed from `indentOperator.include`.
 ```scala mdoc:defaults
 indent.infix.includeRegex
 ```
-
-#### `indent.infix.assignmentOnly`
-
-Indents only after an assignment operator. Prior to v3.8.4, was called
-`verticalAlignMultilineOperators`.
 
 #### `indent.infix.preset`
 

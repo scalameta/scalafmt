@@ -90,8 +90,16 @@ object IndentOperator {
     case object oldTopLevel extends Exempt
     case object aloneEnclosed extends Exempt
     case object aloneArgOrBody extends Exempt
+    case object notAssign extends Exempt
+    case object notWithinAssign extends Exempt
 
-    implicit val reader: ConfCodecEx[Exempt] = ReaderUtil
-      .oneOf[Exempt](all, oldTopLevel, aloneEnclosed, aloneArgOrBody)
+    implicit val reader: ConfCodecEx[Exempt] = ReaderUtil.oneOf[Exempt](
+      all,
+      oldTopLevel,
+      aloneEnclosed,
+      aloneArgOrBody,
+      notAssign,
+      notWithinAssign,
+    )
   }
 }

@@ -575,6 +575,7 @@ class FormatOps(
         case IndentOperator.Exempt.oldTopLevel => isOldTopLevel(getChild)
         case IndentOperator.Exempt.aloneEnclosed => isAloneEnclosed(getChild)
         case IndentOperator.Exempt.aloneArgOrBody => isAloneArgOrBody(getChild)
+        case _ => true
       }
       if (cfg.assignmentOnly) isAfterAssignmentOp(false)
       else if (beforeLhs) assignBodyExpire.isEmpty
