@@ -39,8 +39,8 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
     case p: Term.Param =>
       val start = p.pos.start
       sortMods(p.mods.filterNot { m =>
-        m.is[Mod.ValParam] || m.is[Mod.VarParam] || m.is[Mod.Using] ||
-        m.is[Mod.Erased] || TreeOps.noExplicitImplicit(start, false)(m)
+        m.isAny[Mod.ValParam, Mod.VarParam, Mod.Using, Mod.Erased] ||
+        TreeOps.noExplicitImplicit(start, orElse = false)(m)
       })
     case _ =>
   }
