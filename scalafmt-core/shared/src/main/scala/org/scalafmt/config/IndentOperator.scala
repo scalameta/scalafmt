@@ -56,7 +56,6 @@ case class IndentOperator(
     includeRegex: String = ".*",
     @annotation.ExtraName("exclude")
     excludeRegex: String = "^(&&|\\|\\|)$",
-    assignmentOnly: Boolean = false,
 ) {
   private val includeRegexp = includeRegex.r.pattern
   private val excludeRegexp = excludeRegex.r.pattern
@@ -101,5 +100,13 @@ object IndentOperator {
       notAssign,
       notWithinAssign,
     )
+  }
+
+  val boolToAssign: PartialFunction[Conf, Conf] = { case Conf.Bool(value) =>
+    if (value) Conf.Obj(
+      "exemptScope" -> Conf.Str("notAssign"),
+      "excludeRegex" -> Conf.Str(".*"),
+    )
+    else Conf.Obj.empty
   }
 }

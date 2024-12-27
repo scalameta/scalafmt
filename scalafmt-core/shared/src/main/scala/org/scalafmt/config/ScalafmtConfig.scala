@@ -86,7 +86,7 @@ import metaconfig._
 @annotation.SectionRename("poorMansTrailingCommasInConfigStyle", "newlines.configStyle.beforeComma") // v3.8.4
 @annotation.SectionRename("optIn.forceBlankLineBeforeDocstring", "docstrings.forceBlankLineBefore") // v3.4.0
 @annotation.SectionRename("indentOperator", "indent.infix") // v3.8.4
-@annotation.SectionRename("verticalAlignMultilineOperators", "indent.infix.assignmentOnly") // v3.8.4
+@annotation.SectionRename("verticalAlignMultilineOperators", "indent.infix", IndentOperator.boolToAssign) // v3.8.4
 @annotation.SectionRename("indentYieldKeyword", "indent.yieldKeyword") // v3.8.4
 @annotation.SectionRename("rewriteTokens", "rewrite.tokens") // v3.8.4
 @annotation.SectionRename("importSelectors", "binPack.importSelectors") // v3.8.4
