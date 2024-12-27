@@ -97,7 +97,7 @@ object TreeOps {
   )(key: V => K)(f: V => T): Map[K, V] = {
     val ret = Map.newBuilder[K, V]
     var stack = List.empty[(T, V)]
-    coll.foreach { elem =>
+    coll.foreach(elem =>
       f(elem) match {
         case open @ (_: OpenDelim | _: Interpolation.Start | _: Xml.Start |
             _: Xml.SpliceStart) => stack = (open, elem) :: stack
@@ -109,8 +109,8 @@ object TreeOps {
           ret += key(elem) -> openElem
           stack = stack.tail
         case _ =>
-      }
-    }
+      },
+    )
     if (stack.nonEmpty) throw new IllegalArgumentException(
       stack.map { case (x, _) => s"[${x.end}]$x" }
         .mkString("Orphan parens (", ", ", ")"),
@@ -144,13 +144,13 @@ object TreeOps {
     */
   def findTreeOrParent(
       tree: Tree,
-  )(pred: Tree => Option[Boolean]): Option[Tree] = findTreeEx(tree) { t =>
+  )(pred: Tree => Option[Boolean]): Option[Tree] = findTreeEx(tree)(t =>
     pred(t) match {
       case None => t.parent
       case Some(true) => Some(null)
       case Some(false) => None
-    }
-  }
+    },
+  )
 
   /** Returns first tree which matches the given predicate. The predicate
     * returns None to indicate failure; or the tree to recurse to; if the tree
@@ -175,13 +175,13 @@ object TreeOps {
     */
   def findTreeWithParent(tree: Tree)(
       pred: Tree => Option[Boolean],
-  ): Option[Tree] = findTreeWithParentEx(tree) { t =>
+  ): Option[Tree] = findTreeWithParentEx(tree)(t =>
     pred(t) match {
       case None => Some(t)
       case Some(true) => Some(null)
       case Some(false) => None
-    }
-  }
+    },
+  )
 
   /** Returns first ancestor whose parent matches the given predicate. The
     * predicate returns None to indicate failure; or the tree to recurse to; if
@@ -345,8 +345,9 @@ object TreeOps {
       if (children.isEmpty) 0 else 1 + maxTreeDepth(children)
   }
 
-  def maxTreeDepth(trees: Seq[Tree]): Int = trees
-    .foldLeft(0) { case (res, t) => math.max(res, treeDepth(t)) }
+  def maxTreeDepth(trees: Seq[Tree]): Int = trees.foldLeft(0) { case (res, t) =>
+    math.max(res, treeDepth(t))
+  }
 
   def getSingleArgOnLeftBraceOnLeft(ft: FT)(implicit
       ftoks: FormatTokens,

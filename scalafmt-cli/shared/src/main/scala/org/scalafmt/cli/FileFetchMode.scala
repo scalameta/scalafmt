@@ -27,12 +27,12 @@ object FileFetchMode {
     * RecursiveSearch and GitFiles are the fallback used in the absence of other
     * options
     */
-  implicit val read: Read[FileFetchMode] = Read.reads { x =>
+  implicit val read: Read[FileFetchMode] = Read.reads(x =>
     if (x.startsWith(diffRefPrefix))
       DiffFiles(x.substring(diffRefPrefix.length).trim)
     else availableModesMap
-      .getOrElse(x, throw new IllegalArgumentException(s"unknown mode: $x"))
-  }
+      .getOrElse(x, throw new IllegalArgumentException(s"unknown mode: $x")),
+  )
 
 }
 

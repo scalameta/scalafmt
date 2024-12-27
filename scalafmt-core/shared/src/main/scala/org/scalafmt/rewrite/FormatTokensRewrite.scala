@@ -316,10 +316,12 @@ object FormatTokensRewrite {
     private[rewrite] def claimedRule(ftIdx: Int): Option[Replacement] = claimed
       .get(ftIdx).map(tokens.apply).filter(_ ne null)
 
-    private[rewrite] def claim(ftIdx: Int, repl: Replacement): Int =
-      justClaim(ftIdx) {
-        if (repl eq null) null
-        else (repl.how match {
+    private[rewrite] def claim(ftIdx: Int, repl: Replacement): Int = justClaim(
+      ftIdx,
+    )(
+      if (repl eq null) null
+      else (
+        repl.how match {
           case rt: ReplacementType.RemoveAndResurrect =>
             val rtidx = rt.ft.meta.idx
             def swapWith(oldidx: Int) = Some {
@@ -331,8 +333,9 @@ object FormatTokensRewrite {
               case _ => None
             }
           case _ => None
-        }).getOrElse(repl)
-      }
+        }
+      ).getOrElse(repl),
+    )
 
     @inline
     private[rewrite] def claim(repl: Replacement)(implicit ft: FT): Int =

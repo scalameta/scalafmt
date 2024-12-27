@@ -38,10 +38,10 @@ object FileTestOps {
   def dir2string(file: AbsoluteFile): String = {
     val rootPath = file.path
     val prefix = rootPath.toString
-    FileOps.listFiles(rootPath).sortBy(_.toString).map { path =>
+    FileOps.listFiles(rootPath).sortBy(_.toString).map(path =>
       s"""|${path.toString.stripPrefix(prefix)}
-          |${FileOps.readFile(path)}""".stripMargin
-    }.mkString("\n").replace(File.separator, "/") // ensure original separators
+          |${FileOps.readFile(path)}""".stripMargin,
+    ).mkString("\n").replace(File.separator, "/") // ensure original separators
   }
 
   def getMockOptions(baseDir: AbsoluteFile): CliOptions =

@@ -65,43 +65,45 @@ object Report {
 
   def reportBody(xs: Text.Modifier*) = html(body(background := "#f9f9f9", xs))
 
-  def compare(before: TestStats, after: TestStats): String = reportBody(div(
-    h1(
-      id := "title",
-      s"Compare ${after.gitInfo.branch} and" + s" ${before.gitInfo.branch}" +
-        s" (${before.shortCommit}...${after.shortCommit})",
-    ),
-    explanation,
-    after.intersectResults(before).sortBy { case (aft, bef) =>
-      -Math.abs(aft.visitedStates - bef.visitedStates)
-    }.map { case (aft, bef) =>
-      div(
-        h2(aft.test.fullName),
-        table(
-          tr(th(""), th("Before"), th("After"), th("Diff")),
-          tr(
-            td("Time (ms)"),
-            td(bef.timeMs),
-            td(aft.timeMs),
-            td(bef.timeMs - aft.timeMs),
+  def compare(before: TestStats, after: TestStats): String = reportBody {
+    div(
+      h1(
+        id := "title",
+        s"Compare ${after.gitInfo.branch} and" + s" ${before.gitInfo.branch}" +
+          s" (${before.shortCommit}...${after.shortCommit})",
+      ),
+      explanation,
+      after.intersectResults(before).sortBy { case (aft, bef) =>
+        -Math.abs(aft.visitedStates - bef.visitedStates)
+      }.map { case (aft, bef) =>
+        div(
+          h2(aft.test.fullName),
+          table(
+            tr(th(""), th("Before"), th("After"), th("Diff")),
+            tr(
+              td("Time (ms)"),
+              td(bef.timeMs),
+              td(aft.timeMs),
+              td(bef.timeMs - aft.timeMs),
+            ),
+            tr(
+              td("States"),
+              td(bef.visitedStates),
+              td(aft.visitedStates),
+              td(aft.visitedStates - bef.visitedStates),
+            ),
           ),
-          tr(
-            td("States"),
-            td(bef.visitedStates),
-            td(aft.visitedStates),
-            td(aft.visitedStates - bef.visitedStates),
+          pre(
+            fontFamily := "monospace",
+            background := "#fff",
+            fontSize := "16px",
+            width := testWidth(aft),
+            code(heatmapBar(aft.test.style), raw(mkHtml(mergeResults(aft, bef)))),
           ),
-        ),
-        pre(
-          fontFamily := "monospace",
-          background := "#fff",
-          fontSize := "16px",
-          width := testWidth(aft),
-          code(heatmapBar(aft.test.style), raw(mkHtml(mergeResults(aft, bef)))),
-        ),
-      )
-    },
-  )).render
+        )
+      },
+    )
+  }.render
 
   def mergeResults(after: Result, before: Result): Seq[FormatOutput] = after
     .tokens.zip(before.tokens).map { case (aft, bef) =>

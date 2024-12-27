@@ -13,15 +13,15 @@ class ReentrantCache[K, V] {
   @tailrec
   final def getOrAddToCache(key: K, shouldEvict: V => Boolean = _ => false)(
       get: () => V,
-  ): V = synchronized { // try to exit quickly from synchronized block
+  ): V = synchronized( // try to exit quickly from synchronized block
     cache.get(key) match {
       case Some(fut) => Right(fut)
       case None =>
         val p = Promise[V]()
         cache += key -> p.future
         Left(p)
-    }
-  } match {
+    },
+  ) match {
     case Right(fut) =>
       // we set the timeout to 10 minutes because
       // we can't expect everybody to have the same internet connection speed.

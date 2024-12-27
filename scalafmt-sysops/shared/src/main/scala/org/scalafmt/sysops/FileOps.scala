@@ -145,9 +145,9 @@ object FileOps {
   def getFileMatcher(paths: Seq[Path]): Path => Boolean = {
     val dirBuilder = Seq.newBuilder[Path]
     val fileBuilder = Set.newBuilder[Path]
-    paths.foreach { path =>
-      if (isRegularFile(path)) fileBuilder += path else dirBuilder += path
-    }
+    paths.foreach(path =>
+      if (isRegularFile(path)) fileBuilder += path else dirBuilder += path,
+    )
     val dirs = dirBuilder.result()
     val files = fileBuilder.result()
     x =>

@@ -302,11 +302,11 @@ object Policy {
   }
 
   private object Expire {
-    def apply(policy: Policy, endPolicy: End.WithPos): Expire = policy
-      .asUntil(endPolicy) match {
-      case p: Expire => p
-      case p => new Expire(p, endPolicy)
-    }
+    def apply(policy: Policy, endPolicy: End.WithPos): Expire =
+      policy.asUntil(endPolicy) match {
+        case p: Expire => p
+        case p => new Expire(p, endPolicy)
+      }
   }
 
   private class Expire private (policy: Policy, endPolicy: End.WithPos)
@@ -349,11 +349,11 @@ object Policy {
   }
 
   private object Delay {
-    def apply(policy: Policy, begPolicy: End.WithPos): Delay = policy
-      .asAfter(begPolicy) match {
-      case p: Delay => p
-      case p => new Delay(p, begPolicy)
-    }
+    def apply(policy: Policy, begPolicy: End.WithPos): Delay =
+      policy.asAfter(begPolicy) match {
+        case p: Delay => p
+        case p => new Delay(p, begPolicy)
+      }
   }
 
   private class Delay private (val policy: Policy, val begPolicy: End.WithPos)
@@ -495,12 +495,12 @@ object Policy {
     private object PredicateDecision {
       def unapply(d: Decision): Option[Seq[Split]] = {
         var replaced = false
-        def applyMap(s: Split): Option[Split] = Option(pred(s)).filter { ss =>
+        def applyMap(s: Split): Option[Split] = Option(pred(s)).filter(ss =>
           (s eq ss) || {
             replaced = true
             !ss.isIgnored
-          }
-        }
+          },
+        )
         val splits = d.splits.flatMap(applyMap)
         if (replaced) Some(splits) else None
       }

@@ -181,13 +181,13 @@ class FormatOps(
 
     @tailrec
     def run(tok: FT): Unit = if (tok.idx < end.idx) {
-      val nextTokOpt = matches(tok).flatMap { closeFt =>
+      val nextTokOpt = matches(tok).flatMap(closeFt =>
         if (tok.left.start >= closeFt.left.end) None
         else {
           result = result.append(TokenRange(tok, closeFt))
           Some(closeFt)
-        }
-      }
+        },
+      )
       val nextTok = nextTokOpt.getOrElse(next(tok))
       if (nextTok ne tok) run(nextTok)
     }
@@ -250,11 +250,11 @@ class FormatOps(
   def splitOneArgPerLineAfterCommaOnBreak(exclude: TokenRanges)(
       comma: FT,
   ): Policy = Policy ? (comma.right.is[T.Comment] && comma.noBreak) ||
-    delayedBreakPolicy(Policy.End < comma, exclude) {
-      Policy.onlyFor(comma, prefix = "NL->A[,]") {
-        getOneArgPerLineSplitsAfterComma(comma.right, _)
-      }
-    }
+    delayedBreakPolicy(Policy.End < comma, exclude)(
+      Policy.onlyFor(comma, prefix = "NL->A[,]")(
+        getOneArgPerLineSplitsAfterComma(comma.right, _),
+      ),
+    )
 
   private def getOneArgPerLineSplitsAfterComma(r: T, s: Seq[Split]) =
     if (r.is[T.LeftBrace]) SplitTag.OneArgPerLine.activateOnly(s)
@@ -266,9 +266,9 @@ class FormatOps(
   def templateCurlyOrLastNonTrivial(tpl: Template): FT = templateCurly(tpl.body)
     .getOrElse(getLastNonTrivial(tpl))
 
-  def templateDerivesOrCurlyOrLastNonTrivial(template: Template)(implicit
-      ft: FT,
-  ): FT = findTemplateGroupOnRight(_.getExpireToken)(template)
+  def templateDerivesOrCurlyOrLastNonTrivial(
+      template: Template,
+  )(implicit ft: FT): FT = findTemplateGroupOnRight(_.getExpireToken)(template)
     .getOrElse(templateCurlyOrLastNonTrivial(template))
 
   private def findTreeInGroup[A](
@@ -285,9 +285,9 @@ class FormatOps(
     def iter(groups: Seq[Seq[Tree]]): Option[A] =
       if (isSeqSingle(groups))
         // for the last group, return '{' or ':'
-        findTreeInGroup(groups.head, func) { x =>
-          getHeadOpt(template.body).getOrElse(getLastNonTrivial(x.last))
-        }
+        findTreeInGroup(groups.head, func)(x =>
+          getHeadOpt(template.body).getOrElse(getLastNonTrivial(x.last)),
+        )
       else {
         // for intermediate groups, return its last token
         val res = findTreeInGroup(groups.head, func)(tokenAfter)
@@ -297,9 +297,9 @@ class FormatOps(
   }
 
   def getBreakBeforeElsePolicy(beforeElse: FT): Policy = Policy
-    .onlyFor(beforeElse, prefix = "ELSE") {
-      Decision.onlyNewlinesWithFallback(_, Seq(Split(Newline, 0)))
-    }
+    .onlyFor(beforeElse, prefix = "ELSE")(
+      Decision.onlyNewlinesWithFallback(_, Seq(Split(Newline, 0))),
+    )
 
   def getBreakBeforeElsePolicy(term: Term.If): Policy = getElseToken(term)
     .flatMap { case (_, elsOpt) => elsOpt.map(getBreakBeforeElsePolicy) }
@@ -445,9 +445,9 @@ class FormatOps(
     }
 
     private def switch(splits: Seq[Split], triggers: T*): Seq[Split] = splits
-      .map { x =>
-        triggers.foldLeft(x) { case (y, trigger) => y.switch(trigger, false) }
-      }
+      .map(x =>
+        triggers.foldLeft(x) { case (y, trigger) => y.switch(trigger, false) },
+      )
 
     @tailrec
     private def findMaybeEnclosingInfix(
@@ -917,9 +917,9 @@ class FormatOps(
           nlSplit(1),
         )
       }
-    }(template).getOrElse {
-      Seq(Split(Space, 0)) // shouldn't happen
-    }
+    }(template).getOrElse(
+      Seq(Split(Space, 0)), // shouldn't happen
+    )
   }
 
   def binPackParentConstructorSplits(
@@ -1066,8 +1066,8 @@ class FormatOps(
     val lastParens = allParenOwners.map(getLast)
     val lastParen = lastParens.lastOption.getOrElse(close)
 
-    val shouldNotDangle = !style.danglingParentheses
-      .atVerticalMultilineSite(lpOwner)
+    val shouldNotDangle =
+      !style.danglingParentheses.atVerticalMultilineSite(lpOwner)
 
     // Since classes and defs aren't the same (see below), we need to
     // create two (2) OneArgOneLineSplit when dealing with classes. One
@@ -1243,9 +1243,10 @@ class FormatOps(
     .orElse(tokenAfterOpt(term.paramClause).map(getArrowAfter[T.FunctionArrow]))
 
   // look for arrow before body, if any, else after cond/pat
-  def getCaseArrow(term: Case): FT = tokenBeforeOpt(term.body).getOrElse {
-    getArrowAfter[T.RightArrow](tokenAfter(term.cond.getOrElse(term.pat)))
-  }
+  def getCaseArrow(term: Case): FT = tokenBeforeOpt(term.body)
+    .getOrElse(getArrowAfter[T.RightArrow](tokenAfter(
+      term.cond.getOrElse(term.pat),
+    )))
 
   // look for arrow before body, if any, else after cond/pat
   def getCaseArrow(term: TypeCase): FT = next(tokenAfter(term.pat))
@@ -1643,12 +1644,11 @@ class FormatOps(
         body: Tree,
         isKeep: Boolean,
         spaceIndents: Seq[Indent] = Seq.empty,
-    )(nlSplitFunc: Int => Split)(implicit
-        style: ScalafmtConfig,
-        ft: FT,
-    ): Seq[Split] = checkComment(nlSplitFunc) { _ =>
-      foldedNonComment(body, nlSplitFunc, isKeep, spaceIndents)
-    }
+    )(
+        nlSplitFunc: Int => Split,
+    )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] = checkComment(
+      nlSplitFunc,
+    )(_ => foldedNonComment(body, nlSplitFunc, isKeep, spaceIndents))
 
     def slbOnly(body: Tree, spaceIndents: Seq[Indent] = Seq.empty)(
         nlSplitFunc: Int => Split,
@@ -1670,9 +1670,9 @@ class FormatOps(
         case Newlines.unfold =>
           unfoldedNonComment(body, nlSplitFunc, spaceIndents, false)
         case Newlines.classic if x.noBreak =>
-          Option(classicNoBreakFunc).fold(getFolded(true)) { func =>
-            func.forThisLine +: getFoldedKeepNLOnly
-          }
+          Option(classicNoBreakFunc).fold(getFolded(true))(func =>
+            func.forThisLine +: getFoldedKeepNLOnly,
+          )
         case Newlines.keep if x.noBreak => getFolded(true)
         case _ => getFoldedKeepNLOnly // keep/classic with break
       }
@@ -1767,12 +1767,12 @@ class FormatOps(
     }
 
     private[FormatOps] def onRightOpt(ro: Tree, ft: => FT): Option[SelectLike] =
-      get(ro) { _ =>
+      get(ro)(_ =>
         nextNonCommentAfter(ft) match {
           case xft @ FT(_, _: T.KwMatch, _) => Some(next(xft))
           case _ => None
-        }
-      }
+        },
+      )
 
     def onRightOpt(ft: FT): Option[SelectLike] =
       onRightOpt(ft.meta.rightOwner, ft)
@@ -1841,31 +1841,33 @@ class FormatOps(
         ft: FT,
     )(implicit style: ScalafmtConfig): Option[OptionalBracesRegion] =
       if (!style.dialect.allowSignificantIndentation) None
-      else Option(ft.left match {
-        case _: T.Colon => ColonEolImpl
-        case _: T.KwWith => WithImpl
-        case _: T.RightArrow => RightArrowImpl
-        case _: T.RightParen => RightParenImpl
-        case _: T.KwFor => ForImpl
-        case _: T.KwWhile => WhileImpl
-        case _: T.KwDo => DoImpl
-        case _: T.Equals => EqualsImpl
-        case _: T.KwTry => TryImpl
-        case _: T.KwCatch => CatchImpl
-        case _: T.KwFinally => FinallyImpl
-        case _: T.KwMatch => MatchImpl
-        case _: T.KwThen => ThenImpl
-        case _: T.KwIf => IfImpl
-        case _: T.KwElse => ElseImpl
-        case _: T.KwReturn | _: T.ContextArrow | _: T.LeftArrow | _: T.KwThrow |
-            _: T.KwYield => BlockImpl
-        case _ => null
-      }).flatMap { impl =>
+      else Option {
+        ft.left match {
+          case _: T.Colon => ColonEolImpl
+          case _: T.KwWith => WithImpl
+          case _: T.RightArrow => RightArrowImpl
+          case _: T.RightParen => RightParenImpl
+          case _: T.KwFor => ForImpl
+          case _: T.KwWhile => WhileImpl
+          case _: T.KwDo => DoImpl
+          case _: T.Equals => EqualsImpl
+          case _: T.KwTry => TryImpl
+          case _: T.KwCatch => CatchImpl
+          case _: T.KwFinally => FinallyImpl
+          case _: T.KwMatch => MatchImpl
+          case _: T.KwThen => ThenImpl
+          case _: T.KwIf => IfImpl
+          case _: T.KwElse => ElseImpl
+          case _: T.KwReturn | _: T.ContextArrow | _: T.LeftArrow |
+              _: T.KwThrow | _: T.KwYield => BlockImpl
+          case _ => null
+        }
+      }.flatMap { impl =>
         implicit val ift: FT = ft
         val nft = nextNonComment(ft)
-        impl.create(nft).filter { ob =>
-          !nft.right.is[T.LeftBrace] || nft.meta.rightOwner.parent != ob.owner
-        }
+        impl.create(nft).filter(ob =>
+          !nft.right.is[T.LeftBrace] || nft.meta.rightOwner.parent != ob.owner,
+        )
       }
 
     def at(ft: FT)(implicit style: ScalafmtConfig): Boolean = get(ft).nonEmpty
@@ -1977,26 +1979,30 @@ class FormatOps(
             else Some(style.indent.main + style.indent.getSignificant)
           case _ => None
         }
-        Some(new OptionalBracesRegion {
-          def owner = ac.parent
-          def splits = Some(args match {
-            case (tf: Term.FunctionTerm) :: Nil
-                if !style.newlines.alwaysBeforeCurlyLambdaParams &&
-                  // https://dotty.epfl.ch/docs/internals/syntax.html
-                  (tf.paramClause match { // LambdaStart
-                    case tpc @ Term.ParamClause(tp :: Nil, mod) =>
-                      mod.isEmpty && tp.mods.isEmpty && tp.decltpe.isEmpty ||
-                      isEnclosedWithinParens(tpc)
-                    case _ => true // multiple params are always in parens
-                  }) =>
-              getSplits(ac, forceNL = false, indentOpt = indent) match {
-                case s +: rs if !s.isNL => funcSplit(tf)(s.fileLine) +: rs
-                case ss => ss
+        Some {
+          new OptionalBracesRegion {
+            def owner = ac.parent
+            def splits = Some {
+              args match {
+                case (tf: Term.FunctionTerm) :: Nil
+                    if !style.newlines.alwaysBeforeCurlyLambdaParams &&
+                      // https://dotty.epfl.ch/docs/internals/syntax.html
+                      (tf.paramClause match { // LambdaStart
+                        case tpc @ Term.ParamClause(tp :: Nil, mod) =>
+                          mod.isEmpty && tp.mods.isEmpty &&
+                          tp.decltpe.isEmpty || isEnclosedWithinParens(tpc)
+                        case _ => true // multiple params are always in parens
+                      }) =>
+                  getSplits(ac, forceNL = false, indentOpt = indent) match {
+                    case s +: rs if !s.isNL => funcSplit(tf)(s.fileLine) +: rs
+                    case ss => ss
+                  }
+                case _ => getSplits(ac, forceNL = true, indentOpt = indent)
               }
-            case _ => getSplits(ac, forceNL = true, indentOpt = indent)
-          })
-          def rightBrace = treeLast(ac)
-        })
+            }
+            def rightBrace = treeLast(ac)
+          }
+        }
       }
     }
 
@@ -2262,9 +2268,9 @@ class FormatOps(
           }
         }
         lo match {
-          case t: Term.Try => t.finallyp.map(createImpl {
-              isCatchUsingOptionalBraces(t) || isTreeUsingOptionalBraces(t.expr)
-            })
+          case t: Term.Try => t.finallyp.map(createImpl(
+              isCatchUsingOptionalBraces(t) || isTreeUsingOptionalBraces(t.expr),
+            ))
           case t: Term.TryWithHandler => t.finallyp
               .map(createImpl(isTreeUsingOptionalBraces(t.expr)))
           case _ => None
@@ -2339,13 +2345,13 @@ class FormatOps(
                 if (!isThenPWithOptionalBraces(t)) None
                 else Some(shouldBreakInOptionalBraces(ft, nft))
               case _ => Some(true)
-            }).map { forceNL =>
+            }).map(forceNL =>
               new OptionalBracesRegion {
                 def owner = Some(t)
                 def splits = Some(getSplits(t.elsep, forceNL))
                 def rightBrace = blockLast(t.elsep)
-              }
-            }
+              },
+            )
           case _ => None
         }
     }
@@ -2382,10 +2388,10 @@ class FormatOps(
           val beforeDot = prevNonCommentSameLine(dot)
           val policy = Policy.End <= beforeDot ==>
             Policy.onRight(dot, "NL-NOIND-SELECT") {
-              case Decision(`beforeDot`, ss) => ss.flatMap { s =>
+              case Decision(`beforeDot`, ss) => ss.flatMap(s =>
                   if ((dot eq beforeDot) && !s.isNL) None
-                  else Some(s.deActivateFor(SplitTag.SelectChainFirstNL))
-                }
+                  else Some(s.deActivateFor(SplitTag.SelectChainFirstNL)),
+                )
               case Decision(_, ss) => ss
                   .map(_.deActivateFor(SplitTag.SelectChainFirstNL))
             }
@@ -2425,10 +2431,10 @@ class FormatOps(
           fileLine: FileLine,
           style: ScalafmtConfig,
           ft: FT,
-      ): Option[WithStats] = head.flatMap { head =>
+      ): Option[WithStats] = head.flatMap(head =>
         if (!isJustBeforeTree(nft)(head)) None
-        else Some(new WithStats(nft, body, owner, nlOnly, indentOpt))
-      }
+        else Some(new WithStats(nft, body, owner, nlOnly, indentOpt)),
+      )
     }
 
     private def getSplitsForIf(nft: FT, t: Term.If)(implicit
@@ -2907,11 +2913,11 @@ class FormatOps(
 
       def policyWithDelay(policy: Policy) =
         // force break if multiline and if there's no other break
-        delayedBreakPolicy(Policy.End >= beforeDelims, exclude) {
+        delayedBreakPolicy(Policy.End >= beforeDelims, exclude)(
           Policy.RelayOnSplit { case (s, nextft) =>
             s.isNL && nextft.idx > beforeDelims.idx // don't need anymore
-          }(policy)(NoPolicy)
-        }
+          }(policy)(NoPolicy),
+        )
 
       (afterDelims.right match {
         case _: T.Dot => // check if Dot rule includes a break option
@@ -2924,10 +2930,10 @@ class FormatOps(
                   cfg.newlines.encloseSelectChains,
                 )
                 Right(canStartSelectChain(x, nextSelect, expireTree))
-              case Newlines.keep => Left(Policy.onlyFor(afterDelims, "BP1L.NL") {
+              case Newlines.keep => Left(Policy.onlyFor(afterDelims, "BP1L.NL")(
                   Decision.onlyNewlineSplits(_)
-                    .map(_.preActivateFor(SplitTag.SelectChainBinPackNL))
-                })
+                    .map(_.preActivateFor(SplitTag.SelectChainBinPackNL)),
+                ))
               case _ => Right(true)
             }
           }.getOrElse(Right(false))

@@ -19,7 +19,7 @@ class ScalafmtConfigTest extends FunSuite {
   }
 
   test("file overrides") {
-    val config = ScalafmtConfig.fromHoconString(
+    val config = ScalafmtConfig.fromHoconString {
       """
         |newlines.source = fold
         |newlines.topLevelBodyIfMinStatements = [before,after]
@@ -29,8 +29,8 @@ class ScalafmtConfigTest extends FunSuite {
         |    newlines.topLevelBodyIfMinStatements = []
         |  }
         |}
-        |      """.stripMargin,
-    ).get
+        |      """.stripMargin
+    }.get
     val nlCfg1 = config.getConfigFor("/x/src/main/scala/foo.scala").get.newlines
     val nlCfg2 = config.getConfigFor("/x/src/test/scala/bar.scala").get.newlines
     assertEquals(nlCfg1.source, Newlines.fold)

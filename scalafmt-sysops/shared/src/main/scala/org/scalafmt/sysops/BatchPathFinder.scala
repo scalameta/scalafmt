@@ -19,13 +19,13 @@ trait BatchPathFinder {
     else {
       val files = Seq.newBuilder[AbsoluteFile]
       val dirs = Seq.newBuilder[AbsoluteFile]
-      paths.foreach { x =>
+      paths.foreach(x =>
         if (!x.isRegularFile) dirs += x
         // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
         // formatted regardless of what it is or where it is.
         // NB: Unless respectProjectFilters is also specified.
-        else if (!filterFilesToo || matches(x.path)) files += x
-      }
+        else if (!filterFilesToo || matches(x.path)) files += x,
+      )
       files.result() ++ findFilesExplicit(dirs.result())
     }
 }

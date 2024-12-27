@@ -14,8 +14,8 @@ class FileOpsTest extends munit.FunSuite {
 
   private var path: Path = _
 
-  override def beforeEach(context: BeforeEach): Unit = path = Files
-    .createTempDirectory("FileOpsTestDir")
+  override def beforeEach(context: BeforeEach): Unit =
+    path = Files.createTempDirectory("FileOpsTestDir")
 
   override def afterEach(context: AfterEach): Unit =
     try deleteTree(path)

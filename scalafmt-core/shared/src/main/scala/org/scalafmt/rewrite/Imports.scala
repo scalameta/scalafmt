@@ -372,10 +372,10 @@ object Imports extends RewriteFactory {
       case t: Importee.Rename => Some(t.name)
       case t: Importee.Unimport => Some(t.name)
       case _ => None
-    }).exists { x =>
+    }).exists(x =>
       // in scala3, `as` doesn't need braces
-      ctx.tokenTraverser.nextNonTrivialToken(x.tokens.last).is[T.RightArrow]
-    }
+      ctx.tokenTraverser.nextNonTrivialToken(x.tokens.last).is[T.RightArrow],
+    )
 
     protected final def getCommentsAround(tree: Tree): (Seq[T], Option[T]) = {
       val tokens = tree.tokens
@@ -482,12 +482,12 @@ object Imports extends RewriteFactory {
                       else Seq.empty
                     headImportComments ++ getCommentsBefore(x.owner.tokens.head)
                   }
-                val tailComments = x.selectors.commentAfter.orElse {
+                val tailComments = x.selectors.commentAfter.orElse(
                   if (newImporteeCount != x.owner.importees.length) None
                   else if (p.importers.lastOption.contains(x.owner))
                     getCommentAfter(p.tokens.last)
-                  else getCommentAfter(x.owner.tokens.last)
-                }
+                  else getCommentAfter(x.owner.tokens.last),
+                )
                 (headComments ++ x.selectors.commentsBefore, tailComments)
               case _ => (Seq.empty, None)
             }

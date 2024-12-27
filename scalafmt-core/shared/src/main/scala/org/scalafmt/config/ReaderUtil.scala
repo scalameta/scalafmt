@@ -41,11 +41,11 @@ object ReaderUtil {
           ConfError.message(msg)
         }
     })
-    val encoder = ConfEncoder.instance[T] { value =>
+    val encoder = ConfEncoder.instance[T](value =>
       options.collectFirst { case sourcecode.Text(`value`, source) =>
         Conf.Str(source)
-      }.getOrElse(Conf.Null())
-    }
+      }.getOrElse(Conf.Null()),
+    )
     new ConfCodecEx(encoder, decoder)
   }
 

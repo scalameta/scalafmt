@@ -261,14 +261,12 @@ case class Newlines(
   @inline
   def keepBreak(implicit ft: FT): Boolean = keepBreak(ft.hasBreak)
 
-  val breakAfterInfix: AfterInfix = afterInfix.getOrElse {
-    source match {
-      case Newlines.unfold => AfterInfix.many
-      case Newlines.fold => AfterInfix.some
-      case Newlines.keep => AfterInfix.keep
-      case Newlines.classic => AfterInfix.keep
-    }
-  }
+  val breakAfterInfix: AfterInfix = afterInfix.getOrElse(source match {
+    case Newlines.unfold => AfterInfix.many
+    case Newlines.fold => AfterInfix.some
+    case Newlines.keep => AfterInfix.keep
+    case Newlines.classic => AfterInfix.keep
+  })
   val formatInfix: Boolean = breakAfterInfix ne AfterInfix.keep
 
   def checkInfixConfig(infixCount: Int): Newlines =
@@ -326,9 +324,9 @@ case class Newlines(
       /* minBreaks has to come first; since we'll be adding blanks, this could
        * potentially move us into another setting which didn't match before we
        * we added the blanks; the rest are sorted to put more specific first */
-      topLevelStatementBlankLines.filter(x => x.minNest <= x.maxNest).sortBy {
-        x => (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length))
-      }
+      topLevelStatementBlankLines.filter(x => x.minNest <= x.maxNest).sortBy(
+        x => (x.minBreaks, x.maxNest, -x.minNest, x.regex.fold(0)(-_.length)),
+      )
 
   @inline
   def hasTopStatBlankLines = topStatBlankLinesSorted.nonEmpty

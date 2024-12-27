@@ -210,12 +210,12 @@ case class ScalafmtConfig(
 
   private def getConfigViaLayoutInfoFor(absfile: AbsoluteFile)(
       f: (ProjectFiles.Layout, String) => ScalafmtConfig,
-  ): Option[ScalafmtConfig] = project.layout.flatMap { layout =>
+  ): Option[ScalafmtConfig] = project.layout.flatMap(layout =>
     layout.getInfo(absfile).map { info =>
       val style = f(layout, info.lang)
       if (info.isTest) style.forTest else style.forMain
-    }
-  }
+    },
+  )
 
   def getConfigFor(filename: String): Try[ScalafmtConfig] = {
     val absfile = AbsoluteFile(filename)

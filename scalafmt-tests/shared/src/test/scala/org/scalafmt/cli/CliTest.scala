@@ -255,7 +255,7 @@ trait CliTestBehavior {
     }
 
     test(s"excludefilters are respected: $label") {
-      val input = string2dir(
+      val input = string2dir {
         s"""|/foo.sbt
             |lazy   val x   = project
             |
@@ -270,8 +270,8 @@ trait CliTestBehavior {
             |
             |/target/nested3/DoNotFormatMe.scala
             |object    CIgnoreME   {  }
-            |""".stripMargin,
-      )
+            |""".stripMargin
+      }
       val expected =
         s"""|/foo.sbt
             |lazy val x = project
@@ -308,12 +308,12 @@ trait CliTestBehavior {
           "--config-str",
           s"""{version="$version",style=IntelliJ}""",
         )
-        if (PlatformCompat.isNativeOnWindows()) intercept[UncheckedIOException] {
-          Cli.exceptionThrowingMainWithOptions(args, baseCliOptions)
-        }
-        else intercept[IOException] {
-          Cli.exceptionThrowingMainWithOptions(args, baseCliOptions)
-        }
+        if (PlatformCompat.isNativeOnWindows()) intercept[UncheckedIOException](
+          Cli.exceptionThrowingMainWithOptions(args, baseCliOptions),
+        )
+        else intercept[IOException](
+          Cli.exceptionThrowingMainWithOptions(args, baseCliOptions),
+        )
       }
       check("notfound")
       check("target/notfound")
@@ -346,7 +346,7 @@ trait CliTestBehavior {
     }
 
     test(s"scalafmt (no arg) read config from git repo: $label") {
-      val input = string2dir(
+      val input = string2dir {
         s"""|/foo.scala
             |object    FormatMe {
             |  val x = 1
@@ -358,8 +358,8 @@ trait CliTestBehavior {
             |version = "$version"
             |maxColumn = 2
             |project.excludeFilters = [target]
-            |""".stripMargin,
-      )
+            |""".stripMargin
+      }
 
       val expected =
         s"""|/.scalafmt.conf
@@ -425,7 +425,7 @@ trait CliTestBehavior {
     }
 
     test(s"if project.includeFilters isn't modified (and files aren't passed manually), it should ONLY accept scala and sbt files: $label") {
-      val root = string2dir(
+      val root = string2dir {
         s"""|
             |/scalafmt.conf
             |style = default
@@ -437,8 +437,8 @@ trait CliTestBehavior {
             |/sbt.sbt
             |$sbtOriginal
             |/sbt.sbtfile
-            |$sbtOriginal""".stripMargin,
-      )
+            |$sbtOriginal""".stripMargin
+      }
 
       val config = root / "scalafmt.conf"
       runWith(root, s"--config $config")
@@ -576,12 +576,11 @@ trait CliTestBehavior {
     }
 
     test(s"command line argument error: $label") {
-      val exit = Console.withErr(Output.NoopStream.printStream) {
-        Cli.mainWithOptions(
+      val exit = Console
+        .withErr(Output.NoopStream.printStream)(Cli.mainWithOptions(
           Array("--foobar"),
           getMockOptions(AbsoluteFile.userDir),
-        )
-      }
+        ))
       assertEquals(exit, ExitCode.CommandLineArgumentError, exit)
     }
 
@@ -865,12 +864,10 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
 
   test("can't specify both --config and --config-str") {
     val errStream = new ByteArrayOutputStream()
-    val obtained = Console.withErr(errStream) {
-      Cli.getConfig(
-        Array("--config", "foo", "--config-str", "bar"),
-        CliTest.defaultOptions,
-      )
-    }
+    val obtained = Console.withErr(errStream)(Cli.getConfig(
+      Array("--config", "foo", "--config-str", "bar"),
+      CliTest.defaultOptions,
+    ))
     assertEquals(
       errStream.toString.trim,
       "Error: may not specify both --config and --config-str",
@@ -879,7 +876,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   }
 
   test(s"scalafmt use includePaths") {
-    val input = string2dir(
+    val input = string2dir {
       s"""|/bar.scala
           |object    FormatMe {
           |  val x = 1
@@ -892,8 +889,8 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |version = $stableVersion
           |maxColumn = 2
           |project { includePaths = ["glob:**/bar.scala"] }
-          |""".stripMargin,
-    )
+          |""".stripMargin
+    }
 
     val expected =
       s"""|/.scalafmt.conf
@@ -914,7 +911,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   }
 
   test(s"scalafmt use excludePaths") {
-    val input = string2dir(
+    val input = string2dir {
       s"""|/foo.scala
           |object    FormatMe {
           |  val x = 1
@@ -927,8 +924,8 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |version = $stableVersion
           |maxColumn = 2
           |project { excludePaths = ["glob:**target**"] }
-          |""".stripMargin,
-    )
+          |""".stripMargin
+    }
 
     val expected =
       s"""|/.scalafmt.conf
@@ -949,7 +946,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   }
 
   test(s"scalafmt: includeFilters overrides default includePaths") {
-    val input = string2dir(
+    val input = string2dir {
       s"""|/bar.scala
           |object    FormatMe {
           |  val x = 1
@@ -962,8 +959,8 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |version = $stableVersion
           |maxColumn = 2
           |project { includeFilters = ["bar"] }
-          |""".stripMargin,
-    )
+          |""".stripMargin
+    }
 
     val expected =
       s"""|/.scalafmt.conf
@@ -986,7 +983,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   test(s"scalafmt: includeFilters with explicit includePaths") {
     val defaultIncludePathsJson = ProjectFiles.defaultIncludePaths
       .mkString("[\"", "\", \"", "\"]")
-    val input = string2dir(
+    val input = string2dir {
       s"""|/bar.scala
           |object    FormatMe {
           |  val x = 1
@@ -1002,8 +999,8 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |  includePaths = $defaultIncludePathsJson
           |  includeFilters = ["bar"]
           |}
-          |""".stripMargin,
-    )
+          |""".stripMargin
+    }
 
     val expected =
       s"""|/.scalafmt.conf
@@ -1027,7 +1024,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   }
 
   test(s"handles .md files when present in includePaths") {
-    val input = string2dir(
+    val input = string2dir {
       s"""|/foobar.md
           |# Hello
           |Example usage 1 with long   spaced line
@@ -1042,8 +1039,8 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |version = $stableVersion
           |maxColumn   = 8
           |project.includePaths."+" = ["glob:**.md"]
-          |""".stripMargin,
-    )
+          |""".stripMargin
+    }
     val expected =
       s"""|
           |/.scalafmt.conf
@@ -1201,7 +1198,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   }
 
   test(s"handles .md fences with uneven backticks") {
-    val input = string2dir(
+    val input = string2dir {
       s"""|/foobar.md
           |# Hello
           |Example usage 1 with long   spaced line
@@ -1216,8 +1213,8 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |version = $stableVersion
           |maxColumn   = 8
           |project.includePaths."+" = ["glob:**.md"]
-          |""".stripMargin,
-    )
+          |""".stripMargin
+    }
     val expected =
       s"""|
           |/.scalafmt.conf
@@ -1249,20 +1246,18 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
                        |    1
                        |}"""
       .stripMargin
-    Console.withOut(out) {
-      Console.withErr(err) {
-        val options = getConfig(Array("--stdin", "--test"))
-        val options2 = options.copy(
-          configStr = Some(s"{version = $stableVersion}"),
-          common = options.common.copy(
-            in = new ByteArrayInputStream(codeNoEol.getBytes),
-            out = Console.out,
-            err = Console.err,
-          ),
-        )
-        run(options2, ExitCode.TestError)
-      }
-    }
+    Console.withOut(out)(Console.withErr(err) {
+      val options = getConfig(Array("--stdin", "--test"))
+      val options2 = options.copy(
+        configStr = Some(s"{version = $stableVersion}"),
+        common = options.common.copy(
+          in = new ByteArrayInputStream(codeNoEol.getBytes),
+          out = Console.out,
+          err = Console.err,
+        ),
+      )
+      run(options2, ExitCode.TestError)
+    })
     assertEquals(CliTest.stripCR(out.toString), "error: --test failed\n")
     assertEquals(
       CliTest.stripCR(err.toString),

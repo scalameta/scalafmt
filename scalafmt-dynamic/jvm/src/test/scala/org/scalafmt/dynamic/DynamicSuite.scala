@@ -116,9 +116,9 @@ class DynamicSuite extends FunSuite {
     def assertMissingVersion()(implicit loc: Location): Unit = {
       out.reset()
       missingVersions.clear()
-      intercept[ScalafmtDynamicError.ConfigMissingVersion] {
-        dynamic.format(config, filename, "object  A")
-      }
+      intercept[ScalafmtDynamicError.ConfigMissingVersion](
+        dynamic.format(config, filename, "object  A"),
+      )
       assertEquals(out.toString(), "")
       assert(missingVersions.nonEmpty)
     }
@@ -172,7 +172,7 @@ class DynamicSuite extends FunSuite {
 
   def checkExhaustive(name: String)(
       config: String => String,
-  )(fn: (Format, String) => Unit): Unit = testedVersions.foreach { version =>
+  )(fn: (Format, String) => Unit): Unit = testedVersions.foreach(version =>
     test(s"$name [v=$version]") {
       val format = new Format(name, identity)
       val dialect = if (version < "3.0.0") null else "scala213"
@@ -180,8 +180,8 @@ class DynamicSuite extends FunSuite {
         format.setVersion(version, dialect, config(version))
         fn(format, version)
       } finally format.dynamic.clear()
-    }
-  }
+    },
+  )
 
   def checkVersion(version: String, dialect: String): Unit =
     check(s"v$version") { f =>
@@ -419,9 +419,9 @@ class DynamicSuite extends FunSuite {
     }
   }
 
-  checkExhaustive("continuation-indent-callSite-and-defnSite") { _ =>
-    "continuationIndent { callSite = 5, defnSite = 3 }"
-  } { (f, _) =>
+  checkExhaustive("continuation-indent-callSite-and-defnSite")(_ =>
+    "continuationIndent { callSite = 5, defnSite = 3 }",
+  ) { (f, _) =>
     val original = """|class A {
                       |  function1(
                       |  argument1,
@@ -449,9 +449,9 @@ class DynamicSuite extends FunSuite {
     f.assertFormat(original, expected)
   }
 
-  checkExhaustive("hasRewriteRules-and-withoutRewriteRules") { _ =>
-    "rewrite.rules = [RedundantBraces]"
-  } { (f, version) =>
+  checkExhaustive("hasRewriteRules-and-withoutRewriteRules")(_ =>
+    "rewrite.rules = [RedundantBraces]",
+  ) { (f, version) =>
     f.assertFormat()
     val cache = f.dynamic.configLoader match {
       case x: ScalafmtConfigLoader.CachedProxy => x.cache
@@ -475,17 +475,17 @@ class DynamicSuite extends FunSuite {
     val loader = f.dynamic.moduleLoader
     val module = loader.load(f.config, version, f.dynamic.properties).right.get
 
-    val thrown1 = intercept[ScalafmtDynamicError.ConfigParseError] {
-      module.parseConfig(f.config).get
-    }
+    val thrown1 = intercept[ScalafmtDynamicError.ConfigParseError](
+      module.parseConfig(f.config).get,
+    )
     assertNoDiff(
       thrown1.getMessage.take(60),
       "Invalid config: Default dialect is deprecated; use explicit:",
     )
 
-    val thrown2 = intercept[ScalafmtDynamicError.ConfigParseError] {
-      module.parseConfigFromString(config).get
-    }
+    val thrown2 = intercept[ScalafmtDynamicError.ConfigParseError](
+      module.parseConfigFromString(config).get,
+    )
     assertNoDiff(
       thrown2.getMessage.take(60),
       "Invalid config: Default dialect is deprecated; use explicit:",
@@ -564,17 +564,17 @@ class DynamicSuite extends FunSuite {
       assertDynamicConfig(fmt)(f)
     }
 
-  checkExhaustive("check project.git=true")(_ => "project.git = true") { (f, _) =>
-    assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, true))
-  }
+  checkExhaustive("check project.git=true")(_ => "project.git = true")((f, _) =>
+    assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, true)),
+  )
 
-  checkExhaustive("check project.git=false")(_ => "project.git = false") {
-    (f, _) => assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, false))
-  }
+  checkExhaustive("check project.git=false")(_ => "project.git = false")(
+    (f, _) => assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, false)),
+  )
 
-  checkExhaustive("check project.git missing")(_ => "") { (f, _) =>
-    assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, false))
-  }
+  checkExhaustive("check project.git missing")(_ => "")((f, _) =>
+    assertDynamicConfig(f)(x => assertEquals(x.projectIsGit, false)),
+  )
 
   checkDynamicConfig(
     s"check indent.main",
@@ -616,15 +616,15 @@ private object DynamicSuite {
   def nightly = BuildInfo.nightly
   def latest = {
     val latest = BuildInfo.previousStable
-    ScalafmtVersion.parse(latest).flatMap { ver =>
+    ScalafmtVersion.parse(latest).flatMap(ver =>
       if (ver.rc <= 0 && ver.snapshot.isEmpty) None
       else if (ver.patch > 0)
         Some(ScalafmtVersion(ver.major, ver.minor, ver.patch - 1).toString)
       else if (ver.minor > 0)
         Some(ScalafmtVersion(ver.major, ver.minor - 1, 0).toString)
       else if (ver.major > 0) Some(ScalafmtVersion(ver.major - 1, 0, 0).toString)
-      else None
-    }.getOrElse(latest)
+      else None,
+    ).getOrElse(latest)
   }
 
   def getDialectError(version: String, dialect: String, sbt: Boolean = false) =

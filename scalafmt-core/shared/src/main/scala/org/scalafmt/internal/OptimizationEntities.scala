@@ -151,10 +151,11 @@ object OptimizationEntities {
         addDefn[T.KwDef](t.mods, t)
         addAllStmts(t.body.stats)
       // special handling for rewritten blocks
-      case t @ Term.Block(_ :: Nil) if t.tokens.headOption.exists { x =>
+      case t @ Term.Block(_ :: Nil)
+          if t.tokens.headOption.exists(x =>
             // ignore single-stat block if opening brace was removed
-            x.is[T.LeftBrace] && ftoks(x).left.ne(x)
-          } =>
+            x.is[T.LeftBrace] && ftoks(x).left.ne(x),
+          ) =>
       case t: Term.EnumeratorsBlock =>
         var wasGuard = false
         t.enums.tail.foreach { x =>
@@ -180,10 +181,10 @@ object OptimizationEntities {
       case t @ Term.ArgClause(s :: Nil, _)
           if !s.isAny[Term.Block, Term.PartialFunction] &&
             !skipBlockSingleStat(s, isInArgClause = true) =>
-        t.tokens.headOption.foreach { x =>
+        t.tokens.headOption.foreach(x =>
           // check for single-stat arg if opening paren was replaced with brace
-          if (x.is[T.LeftParen] && ftoks(x).left.is[T.LeftBrace]) addOneStmt(s)
-        }
+          if (x.is[T.LeftParen] && ftoks(x).left.is[T.LeftBrace]) addOneStmt(s),
+        )
       case Tree.Block(s) => addAllStmts(s)
       case _ => // Nothing
     }

@@ -22,11 +22,11 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
   private val projectField = target.invoke("project")
   private val projectMatcherField = projectField.invoke("matcher")
 
-  private lazy val indentField = Try {
+  private lazy val indentField = Try(
     if (getVersion < ScalafmtVersion(3, 0, 0)) target
       .invoke("continuationIndent")
-    else target.invoke("indent")
-  }
+    else target.invoke("indent"),
+  )
 
   lazy val projectIsGit = Try(projectField.invokeAs[Boolean]("git"))
     .getOrElse(false)

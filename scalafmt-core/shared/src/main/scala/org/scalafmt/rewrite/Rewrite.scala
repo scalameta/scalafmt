@@ -43,10 +43,10 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
     .map(x => patchBuilder.get(lookupKey(x)).fold(x.text)(_.newTok)).mkString
 
   def addPatchSet(ps: TokenPatch*): Unit =
-    if (!ps.exists(p => tokenTraverser.isExcluded(p.tok))) ps.foreach { p =>
+    if (!ps.exists(p => tokenTraverser.isExcluded(p.tok))) ps.foreach(p =>
       patchBuilder
-        .updateWith(lookupKey(p.tok))(v => Some(v.fold(p)(TokenPatch.merge(_, p))))
-    }
+        .updateWith(lookupKey(p.tok))(v => Some(v.fold(p)(TokenPatch.merge(_, p)))),
+    )
 
   def onlyWhitespaceBefore(index: Int): Boolean = tokenTraverser
     .findAtOrBefore(index - 1) {

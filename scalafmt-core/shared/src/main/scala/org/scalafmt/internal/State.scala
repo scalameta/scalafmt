@@ -71,22 +71,22 @@ final class State(
         val offset = column - indentation
         def getUnexpired(modExt: ModExt, indents: Seq[ActualIndent]) = {
           val extendedEnd = getRelativeToLhsLastLineEnd(modExt.isNL)
-          (modExt.getActualIndents(offset) ++ indents).flatMap { x =>
+          (modExt.getActualIndents(offset) ++ indents).flatMap(x =>
             if (x.notExpiredBy(tok)) Some(x)
             else extendedEnd
-              .map(y => x.copy(expire = y, expiresAt = ExpiresOn.After))
-          }
+              .map(y => x.copy(expire = y, expiresAt = ExpiresOn.After)),
+          )
         }
 
         val initialModExt = initialNextSplit.modExt
         val nextPushes = getUnexpired(initialModExt, pushes)
         val nextIndent = Indent.getIndent(nextPushes)
-        initialModExt.altOpt.flatMap { alt =>
+        initialModExt.altOpt.flatMap(alt =>
           if (tok.left.is[T.Comment]) None
           else if (nextIndent < alt.mod.length + column) None
           else if (initialModExt.noAltIndent) Some(alt)
-          else Some(alt.withIndents(initialModExt.indents))
-        }.fold((initialNextSplit, nextIndent, nextPushes)) { alt =>
+          else Some(alt.withIndents(initialModExt.indents)),
+        ).fold((initialNextSplit, nextIndent, nextPushes)) { alt =>
           val altPushes = getUnexpired(alt, pushes)
           val altIndent = Indent.getIndent(altPushes)
           val split = initialNextSplit.withMod(alt)
@@ -254,10 +254,10 @@ final class State(
       val owner = optionIfStartsWithLeft(ft.meta.rightOwner)
         .orElse(optionIfStartsWithLeft(ft.meta.leftOwner))
       owner.map { x =>
-        val y = x.parent.flatMap { p =>
+        val y = x.parent.flatMap(p =>
           if (!startsWithLeft(p)) None
-          else findTreeWithParentSimple(p, false)(startsWithLeft)
-        }
+          else findTreeWithParentSimple(p, false)(startsWithLeft),
+        )
         (ft, y.getOrElse(x))
       }
     }
@@ -442,19 +442,17 @@ object State {
 
   def getColumns(ft: FT, indent: Int, column: Int)(implicit
       style: ScalafmtConfig,
-  ): (Int, Int) = getColumns(ft.right, ft.meta.right, column) {
+  ): (Int, Int) = getColumns(ft.right, ft.meta.right, column)(
     if (style.assumeStandardLibraryStripMargin) {
       // 3 for '|' + 2 spaces
       val adjusted = 3 + (if (style.align.stripMargin) column else indent)
       _ => adjusted
-    } else identity
-  } {
-    if (style.assumeStandardLibraryStripMargin) {
-      // 1 for '|'
-      val adjusted = 1 + indent
-      _ => adjusted
-    } else identity
-  }
+    } else identity,
+  )(if (style.assumeStandardLibraryStripMargin) {
+    // 1 for '|'
+    val adjusted = 1 + indent
+    _ => adjusted
+  } else identity)
 
   private def getColumnsFromMultiline(
       syntax: String,
@@ -477,10 +475,9 @@ object State {
       firstNL: Int,
       adjustMargin: Int => Int,
       firstLength: Int,
-  ): (Int, Int) = pipeOpt
-    .fold(getColumnsFromMultiline(syntax, firstNL, firstLength))(
-      getColumnsWithStripMargin(_, syntax, firstNL, adjustMargin, firstLength),
-    )
+  ): (Int, Int) = pipeOpt.fold(
+    getColumnsFromMultiline(syntax, firstNL, firstLength),
+  )(getColumnsWithStripMargin(_, syntax, firstNL, adjustMargin, firstLength))
 
   private def getColumnsWithStripMargin(
       pipe: Char,

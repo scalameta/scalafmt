@@ -94,12 +94,12 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
   def getHeadAndLastIfEnclosed(
       tokens: Tokens,
       tree: Tree,
-  ): Option[(FT, Option[FT])] = getHeadOpt(tokens, tree).map { head =>
+  ): Option[(FT, Option[FT])] = getHeadOpt(tokens, tree).map(head =>
     head -> matchingOptLeft(head).flatMap { other =>
       val last = getLastNonTrivial(tokens, tree)
       if (last eq other) Some(last) else None
-    }
-  }
+    },
+  )
   def getHeadAndLastIfEnclosed(tree: Tree): Option[(FT, Option[FT])] =
     getHeadAndLastIfEnclosed(tree.tokens, tree)
 

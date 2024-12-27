@@ -63,11 +63,11 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       }
       Some(nextState)
     }
-    memo.get(key).orElse {
+    memo.get(key).orElse(
       if (isOpt) Some(None) // we wouldn't recurse unless the span was large
       else if (!start.terminal()) orElse(hadSlb = false)
-      else slbMemo.get(key).orElse(orElse(hadSlb = true))
-    }
+      else slbMemo.get(key).orElse(orElse(hadSlb = true)),
+    )
   }
 
   /** Runs best first search to find lowest penalty split.
@@ -168,10 +168,10 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             } else preFork = false
           }
 
-          actualSplits.foreach { split =>
+          actualSplits.foreach(split =>
             if (optimalFound) sendEvent(split)
-            else processNextState(getNext(curr, split))
-          }
+            else processNextState(getNext(curr, split)),
+          )
         }
       }
     }
@@ -293,12 +293,10 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     initStyle.runner.event(FormatEvent.Routes(routes))
     val state = {
       def run = shortestPath(State.start, Int.MaxValue)
-      run.getOrElse {
-        stats.retry.flatMap { x =>
-          stats = x
-          run.toOption
-        }.orNull
-      }
+      run.getOrElse(stats.retry.flatMap { x =>
+        stats = x
+        run.toOption
+      }.orNull)
     }
     if (null != state) {
       stats.complete(state)
