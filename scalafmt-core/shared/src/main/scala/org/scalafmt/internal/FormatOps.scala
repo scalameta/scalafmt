@@ -575,10 +575,16 @@ class FormatOps(
         case IndentOperator.Exempt.oldTopLevel => isOldTopLevel(getChild)
         case IndentOperator.Exempt.aloneEnclosed => isAloneEnclosed(getChild)
         case IndentOperator.Exempt.aloneArgOrBody => isAloneArgOrBody(getChild)
-        case _ => true
+        case IndentOperator.Exempt.notAssign => isAfterAssignmentOp(false)
+        case IndentOperator.Exempt.notWithinAssign => !app.isAssignment &&
+          // fullInfix itself is never an assignment
+          fullInfix.parent.exists {
+            case _: Member.Infix => false
+            case p: Member.ArgClause => !p.parent.is[Member.Infix]
+            case _ => true
+          }
       }
-      if (cfg.assignmentOnly) isAfterAssignmentOp(false)
-      else if (beforeLhs) assignBodyExpire.isEmpty
+      if (beforeLhs) assignBodyExpire.isEmpty
       else app.is[Pat] || allowNoIndent && cfg.noindent(app.op.value)
     }
 

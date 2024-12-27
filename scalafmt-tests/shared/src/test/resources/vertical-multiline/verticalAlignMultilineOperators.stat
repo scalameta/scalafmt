@@ -91,6 +91,7 @@ object a {
 }
 <<< #4681 notAssign
 maxColumn = 16
+verticalAlignMultilineOperators = false
 indent.infix {
   exemptScope = notAssign
   excludeRegex = ".*"
@@ -147,6 +148,7 @@ object a {
 }
 <<< #4681 notWithinAssign
 maxColumn = 16
+verticalAlignMultilineOperators = false
 indent.infix {
   exemptScope = notWithinAssign
   excludeRegex = ".*"
@@ -185,7 +187,7 @@ object a {
   foo1 =
     aaaabbbb
   foo1 += aaaa -
-  bbbb
+    bbbb
   foo1 +=
     aaaabbbb
   foo1 == aaaa -
@@ -193,7 +195,7 @@ object a {
   foo1 ==
   aaaabbbb
   foo1 := aaaa -
-  bbbb
+    bbbb
   foo1 :=
     aaaabbbb
   foo1 >= aaaa -
