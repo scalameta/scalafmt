@@ -121,10 +121,10 @@ case class CliOptions(
     * @return
     *   A path to a configuration file
     */
-  def configPath: Path = tempConfigPath.getOrElse {
+  def configPath: Path = tempConfigPath.getOrElse(
     canonicalConfigFile
-      .fold(throw new NoSuchFileException("Config file not found"))(_.get)
-  }
+      .fold(throw new NoSuchFileException("Config file not found"))(_.get),
+  )
 
   private[cli] lazy val canonicalConfigFile: Option[Try[Path]] = gitOps
     .getCanonicalConfigFile(cwd, config)
@@ -145,12 +145,9 @@ case class CliOptions(
     .fold(Configured.ok(baseConfig))(ScalafmtConfig.fromConf(_, baseConfig))
 
   private[cli] lazy val hoconOpt: Option[ConfParsed] = configStr
-    .map(ConfParsed.fromString(_)).orElse {
-      canonicalConfigFile.map(_.fold(
-        x => new ConfParsed(Configured.exception(x)),
-        ConfParsed.fromPath(_),
-      ))
-    }
+    .map(ConfParsed.fromString(_)).orElse(canonicalConfigFile.map(
+      _.fold(x => new ConfParsed(Configured.exception(x)), ConfParsed.fromPath(_)),
+    ))
 
   lazy val fileFetchMode: FileFetchMode = mode
     .getOrElse(if (isGit) GitFiles else RecursiveSearch)

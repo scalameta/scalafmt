@@ -254,11 +254,11 @@ object PolicyOps {
       val triggeredIndent = Indent.before(unindent, trigger)
       val triggerUnindent = Policy
         .onlyFor(lt, prefix = "UNIND{")(_.map(_.withIndent(triggeredIndent)))
-      val cancelUnindent = delayedBreakPolicy(Policy.End <= lt) {
-        Policy.onlyFor(lt, rank = 1, prefix = "UNIND}") { // use rank to apply after policy above
-          _.map(_.switch(trigger, false))
-        }
-      }
+      val cancelUnindent = delayedBreakPolicy(Policy.End <= lt)(
+        Policy.onlyFor(lt, rank = 1, prefix = "UNIND}")( // use rank to apply after policy above
+          _.map(_.switch(trigger, false)),
+        ),
+      )
       policy ==> triggerUnindent & cancelUnindent
     }
 

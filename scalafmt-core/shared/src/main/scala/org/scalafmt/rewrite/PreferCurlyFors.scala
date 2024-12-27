@@ -100,7 +100,7 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
 
   private def hasNoLeadingInfix(t: Term.EnumeratorsBlock)(implicit
       head: FT,
-  ): Boolean = findTokenWith(nextNonCommentAfter(head), next) { ft =>
+  ): Boolean = findTokenWith(nextNonCommentAfter(head), next)(ft =>
     ft.meta.rightOwner match {
       case ro: Name if (ro.parent match {
             case Some(p: Member.Infix)
@@ -110,7 +110,7 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
           }) => Some(false)
       case `t` if ft.right.is[T.RightParen] => Some(true) // closing delimiter
       case _ => None
-    }
-  }.contains(true)
+    },
+  ).contains(true)
 
 }

@@ -14,12 +14,10 @@ object Dependencies {
   val munitV      = "1.0.2"
   val mdocV       = mdoc.BuildInfo.version
 
-  val scalapb = Def.setting {
-    ExclusionRule(
-      organization = "com.thesamet.scalapb",
-      name = s"scalapb-runtime_${scalaBinaryVersion.value}",
-    )
-  }
+  val scalapb = Def.setting(ExclusionRule(
+    organization = "com.thesamet.scalapb",
+    name = s"scalapb-runtime_${scalaBinaryVersion.value}",
+  ))
 
   val scalametaTestkit = Def.setting("org.scalameta" %%% "testkit" % scalametaV)
 

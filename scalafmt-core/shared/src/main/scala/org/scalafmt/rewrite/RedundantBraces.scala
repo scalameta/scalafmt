@@ -144,13 +144,11 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[Replacement] = Option {
-    ft.right match {
-      case _: T.LeftBrace => onLeftBrace
-      case _: T.LeftParen => onLeftParen
-      case _ => null
-    }
-  }
+  ): Option[Replacement] = Option(ft.right match {
+    case _: T.LeftBrace => onLeftBrace
+    case _: T.LeftParen => onLeftParen
+    case _ => null
+  })
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FT,
@@ -188,20 +186,20 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                 RedundantParens.breaksBeforeOp(x) => false
           case _ => useDelim eq T.LeftBrace
         }
-        def replaceWithNextBrace(claimToo: List[Int] = Nil) = ftoks
-          .nextNonComment(lp) match {
-          case FT(lt, _: T.LeftBrace, m) =>
-            val claim = m.idx :: claimToo
-            if (lt eq rt) removeToken(claim = claim)
-            else replaceWithBrace(owner = Some(m.rightOwner), claim = claim)
-          case _ => replaceWithBrace(owner = Some(arg), claim = claimToo)
-        }
+        def replaceWithNextBrace(claimToo: List[Int] = Nil) =
+          ftoks.nextNonComment(lp) match {
+            case FT(lt, _: T.LeftBrace, m) =>
+              val claim = m.idx :: claimToo
+              if (lt eq rt) removeToken(claim = claim)
+              else replaceWithBrace(owner = Some(m.rightOwner), claim = claim)
+            case _ => replaceWithBrace(owner = Some(arg), claim = claimToo)
+          }
         def rewriteFunction(f: Term.FunctionTerm)(shouldMoveBrace: => Boolean) =
-          getBlockToReplaceAsFuncBodyInSingleArgApply(ta, f).fold {
+          getBlockToReplaceAsFuncBodyInSingleArgApply(ta, f).fold(
             if (!shouldMoveBrace) null
             else if (f eq arg) replaceWithBrace()
-            else replaceWithNextBrace()
-          } { case (xb, xlb) =>
+            else replaceWithNextBrace(),
+          ) { case (xb, xlb) =>
             val shouldMoveNextBrace = !canRewriteStatWithParens(xb) ||
               !okLineSpan(xb) || (useDelim eq T.LeftBrace)
             if (!shouldMoveNextBrace) null
@@ -255,17 +253,17 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       getRightBraceBeforeRightParen(shouldBeRemoved = false).map { rb =>
         ft.meta.rightOwner match {
           case ac: Term.ArgClause => ftoks.matchingOptLeft(rb).map(ftoks.prev)
-              .foreach { lb =>
-                session.rule[RemoveScala3OptionalBraces].foreach { r =>
+              .foreach(lb =>
+                session.rule[RemoveScala3OptionalBraces].foreach(r =>
                   session.getClaimed(lb.meta.idx).foreach { case (leftIdx, _) =>
                     val repl = r.onLeftForArgClause(ac)(lb, left.style)
                     if (null ne repl) {
                       implicit val ft: FT = ftoks.prev(rb)
                       repl.onRightAndClaim(hasFormatOff, leftIdx)
                     }
-                  }
-                }
-              }
+                  },
+                ),
+              )
           case _ =>
         }
         (left, removeToken)
@@ -276,9 +274,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       val pftOpt = getRightBraceBeforeRightParen(shouldBeRemoved = true)
       def replaceWithBrace(rb: T, rtype: ReplacementType, startOff: Int = 0) = {
         val rbo = Some(left.ft.rightOwner)
-        left -> replaceToken("}", owner = rbo, rtype = rtype) {
-          new T.RightBrace(rb.input, rb.dialect, rb.start + startOff)
-        }
+        left -> replaceToken("}", owner = rbo, rtype = rtype)(
+          new T.RightBrace(rb.input, rb.dialect, rb.start + startOff),
+        )
       }
       def replaceIfAfterRightBrace = pftOpt.map { pft =>
         val rb = pft.left
@@ -292,14 +290,14 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             .flatMap { r =>
               val repl = r.onLeftForArgClause(ac)(left.ft, left.style)
               if (repl eq null) None else repl.onRight(hasFormatOff)
-            }.orElse {
+            }.orElse(
               if (left.claim.nonEmpty) None
-              else Some(replaceWithBrace(ft.right, ReplacementType.Replace))
-            }
+              else Some(replaceWithBrace(ft.right, ReplacementType.Replace)),
+            )
         case _ => None
-      }).getOrElse {
-        replaceIfAfterRightBrace.orNull // don't know how to Replace
-      }
+      }).getOrElse(
+        replaceIfAfterRightBrace.orNull, // don't know how to Replace
+      )
     case _ => null
   }
 
@@ -371,9 +369,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                 .exists(_.isRemove) || !useParens && !okLineSpan(t)
               if (keepBrace) null else removeToken
             } else // arg clause is this block
-            if (useParens) replaceTokenBy("(", Some(p)) { x =>
-              new T.LeftParen(x.input, x.dialect, x.start)
-            }
+            if (useParens) replaceTokenBy("(", Some(p))(x =>
+              new T.LeftParen(x.input, x.dialect, x.start),
+            )
             else null
           case Some(f: Term.FunctionTerm)
               if getBlockToReplaceAsFuncBodyIfInSingleArgApply(f).exists {
@@ -400,9 +398,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           if t.stats.isEmpty && isDefnBodiesEnabled(noParams = false) =>
         val prevIsEquals = ftoks.prevNonComment(ft).left.is[T.Equals]
         if (prevIsEquals) removeToken
-        else replaceTokenBy("=", t.parent) { x =>
-          new T.Equals(x.input, x.dialect, x.start)
-        }
+        else replaceTokenBy("=", t.parent)(x =>
+          new T.Equals(x.input, x.dialect, x.start),
+        )
       case _ => null
     }
   }
@@ -445,9 +443,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                   }) || okComment(ft) && !elseAfterRightBraceThenpOnLeft) =>
             (left, removeToken)
           case ReplacementType.Replace if left.ft.right.is[T.LeftParen] =>
-            left -> replaceTokenBy(")", t.parent) { x =>
-              new T.RightParen(x.input, x.dialect, x.start)
-            }
+            left -> replaceTokenBy(")", t.parent)(x =>
+              new T.RightParen(x.input, x.dialect, x.start),
+            )
           case _ => null
         }
       case _ => (left, removeToken)
@@ -482,11 +480,11 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     })
   }
 
-  private def getOpeningParen(t: Term.ArgClause): Option[T.LeftParen] = ftoks
-    .getHead(t).left match {
-    case lp: T.LeftParen => Some(lp)
-    case _ => None
-  }
+  private def getOpeningParen(t: Term.ArgClause): Option[T.LeftParen] =
+    ftoks.getHead(t).left match {
+      case lp: T.LeftParen => Some(lp)
+      case _ => None
+    }
 
   // single-arg apply of a lambda
   // a(b => { c; d }) change to a { b => c; d }
@@ -702,9 +700,9 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           !stat.tokens.headOption.exists {
             case x: T.LeftParen => matching(x) match {
                 case Some(y) if y.left ne stat.tokens.last =>
-                  session.rule[RedundantParens].exists {
-                    _.onToken(ftoks(x, -1), session, style).exists(_.isRemove)
-                  }
+                  session.rule[RedundantParens].exists(
+                    _.onToken(ftoks(x, -1), session, style).exists(_.isRemove),
+                  )
                 case Some(_) if !style.dialect.allowTryWithAnyExpr =>
                   !stat.isAny[Term.Tuple, Lit.Unit]
                 case _ => true
@@ -773,22 +771,22 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       ftoks: FormatTokens,
       session: Session,
   ): Boolean = ftoks.nextNonCommentAfter(ft).right.is[T.KwElse] && {
-    val pft = ftoks.findToken(ft, ftoks.prev) { xft =>
+    val pft = ftoks.findToken(ft, ftoks.prev)(xft =>
       xft.left match {
         case _: T.Comment => false
         case _: T.RightBrace => !session.isRemovedOnLeft(xft, ok = true)
         case _ => true
-      }
-    }
+      },
+    )
     val rbOwner = ft.rightOwner
-    findTreeWithParent(pft.leftOwner) { p =>
+    findTreeWithParent(pft.leftOwner)(p =>
       if (p eq rbOwner) Some(false)
       else p.parent match {
         case None => Some(false)
         case Some(pp: Term.If) if pp.thenp eq p => Some(true)
         case _ => None
-      }
-    }.isDefined
+      },
+    ).isDefined
   }
 
 }

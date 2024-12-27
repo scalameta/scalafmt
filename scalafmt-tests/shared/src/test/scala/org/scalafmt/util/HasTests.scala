@@ -70,13 +70,13 @@ trait HasTests extends FormatAssertions {
     val moduleSkip = isSkip(head)
 
     def loadStyle(cfg: String, base: ScalafmtConfig, ln: Int): ScalafmtConfig =
-      ScalafmtConfig.fromHoconString(cfg, base).getOrRecover { c =>
+      ScalafmtConfig.fromHoconString(cfg, base).getOrRecover(c =>
         throw new IllegalArgumentException(
           s"""|Failed to parse line=$ln filename $filename:
               |$cfg
               |$c""".stripMargin,
-        )
-      }
+        ),
+      )
     val style: ScalafmtConfig = loadStyle(
       stripPrefixOpt(head, onlyPrefix).getOrElse(head), {
         val base = spec2style(spec)
@@ -103,12 +103,12 @@ trait HasTests extends FormatAssertions {
       val name = matcher.group(1)
       val extraConfig = Option(matcher.group(2))
       val original = matcher.group(3)
-      val extra = Option(matcher.group(4)).flatMap { x =>
+      val extra = Option(matcher.group(4)).flatMap(x =>
         ConfParsed.fromString(x).conf match {
           case Configured.Ok(v) => Some(v)
           case _ => Some(Conf.Str(x))
-        }
-      }
+        },
+      )
       val expected = matcher.group(5)
       val testStyle = extraConfig.fold(style)(loadStyle(_, style, linenum))
 

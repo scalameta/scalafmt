@@ -70,15 +70,13 @@ object Cli extends CliUtils {
   private type MaybeRunner = Either[String, ScalafmtRunner]
 
   private def findRunner(options: CliOptions): MaybeRunner = options.hoconOpt
-    .fold[MaybeRunner] {
-      Left(
-        s"""|error: missing Scalafmt configuration file.
-            |Consider creating '${options.getProposedConfigFile}'
-            |with the following (other parameters may also be required):
-            |${getProposedConfigVersion(options)}
-            |""".stripMargin,
-      )
-    } {
+    .fold[MaybeRunner](Left(
+      s"""|error: missing Scalafmt configuration file.
+          |Consider creating '${options.getProposedConfigFile}'
+          |with the following (other parameters may also be required):
+          |${getProposedConfigVersion(options)}
+          |""".stripMargin,
+    )) {
       // Run format using
       // - `scalafmt-dynamic` if the specified `version` setting doesn't match build version.
       // - `scalafmt-core` if the specified `version` setting match with build version
@@ -101,7 +99,7 @@ object Cli extends CliUtils {
           options.common.debug.println(s"Using core runner [$stableVersion]")
           Right(ScalafmtCoreRunner)
         case Right(v) if isNative =>
-          Left(
+          Left {
             s"""|error: invalid Scalafmt version.
                 |
                 |This Scalafmt installation has version '$stableVersion' and the version configured in '${options
@@ -113,8 +111,8 @@ object Cli extends CliUtils {
                 |
                 |NOTE: this error happens only when running a native Scalafmt binary.
                 |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
-                |""".stripMargin,
-          )
+                |""".stripMargin
+          }
         case Right(v) =>
           options.common.debug.println(s"Using dynamic runner [$v]")
           Right(getDynamicRunner())

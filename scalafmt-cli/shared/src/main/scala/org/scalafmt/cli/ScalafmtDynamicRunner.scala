@@ -38,19 +38,17 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
 
     val exitCode = new AtomicReference(ExitCode.Ok)
-    breakable {
-      inputMethods.compatPar.foreach { inputMethod =>
-        try {
-          val code = handleFile(inputMethod, session, options)
-          exitCode.getAndUpdate(ExitCode.merge(code, _))
-        } catch {
-          case e: Error.MisformattedFile =>
-            reporter.error(e.file, e)
-            if (options.check) break
-        }
-        termDisplay.taskProgress(termDisplayMessage)
+    breakable(inputMethods.compatPar.foreach { inputMethod =>
+      try {
+        val code = handleFile(inputMethod, session, options)
+        exitCode.getAndUpdate(ExitCode.merge(code, _))
+      } catch {
+        case e: Error.MisformattedFile =>
+          reporter.error(e.file, e)
+          if (options.check) break
       }
-    }
+      termDisplay.taskProgress(termDisplayMessage)
+    })
 
     val exit = ExitCode.merge(exitCode.get, reporter.getExitCode)
 

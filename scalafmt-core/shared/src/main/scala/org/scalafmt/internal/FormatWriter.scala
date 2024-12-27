@@ -194,7 +194,7 @@ class FormatWriter(formatOps: FormatOps) {
       minBlockStats: Int,
   ): Option[Tree] = {
     val ob = formatOps.OptionalBraces.get(floc.formatToken)(floc.style)
-    ob.flatMap(_.owner).filter {
+    ob.flatMap(_.owner).filter(
       /* if we add the end marker, it might turn a single-stat expression (or
        * block) into a multi-stat block and thus potentially change how that
        * parent expression would have been formatted; so, avoid those cases.
@@ -203,8 +203,8 @@ class FormatWriter(formatOps: FormatOps) {
         case Some(t: Term.Block) => t.stats.lengthCompare(minBlockStats) >= 0
         case Some(_: Template.Body | _: Source | _: Pkg.Body) => true
         case _ => false
-      }
-    }
+      },
+    )
   }
 
   private def checkRemoveEndMarkers(locations: Array[FormatLocation]): Unit = {
@@ -379,8 +379,8 @@ class FormatWriter(formatOps: FormatOps) {
         ) {
           val addLine = style.newlines.alwaysBeforeElseAfterCurlyIf ||
             (endFt.right match {
-              case _: T.KwElse | _: T.KwCatch | _: T.KwFinally => !owner.parent
-                  .contains(endFt.meta.rightOwner)
+              case _: T.KwElse | _: T.KwCatch | _: T.KwFinally =>
+                !owner.parent.contains(endFt.meta.rightOwner)
               case _ => true
             })
           if (addLine) willAddLines.prepend(end)
@@ -1260,50 +1260,50 @@ class FormatWriter(formatOps: FormatOps) {
         child: Tree,
         depth: Int,
         maybeParent: Option[Tree] = None,
-    )(implicit fl: FormatLocation): (Tree, Int) = maybeParent
-      .orElse(child.parent) match {
-      case Some(AlignContainer(p)) => (p, depth)
-      case Some(
-            p @ (_: Term.Select | _: Pat.Var | _: Term.ApplyInfix |
-            _: Template | _: Member.ParamClauseGroup),
-          ) => getAlignContainerParent(p, depth)
-      case Some(p: Term.Apply) if (p.argClause.values match {
-            case (_: Term.Apply) :: Nil => true
-            case _ => p.fun eq child
-          }) => getAlignContainerParent(p, depth)
-      // containers that can be traversed further if on same line
-      case Some(p @ (_: Case | _: Enumerator)) =>
-        if (isEarlierLine(p)) (p, depth) else getAlignContainerParent(p, depth)
-      // containers that can be traversed further if lhs single-line
-      case Some(p @ AlignContainer.WithBody(mods, b)) =>
-        val keepGoing = {
-          val ptokens = p.tokens
-          val beg = mods.lastOption
-            .fold(after(ptokens.head))(m => next(tokenAfter(m)))
-          val useBody = b.eq(child) || p.eq(child)
-          val beforeBody = if (useBody) tokenJustBeforeOpt(b) else None
-          val end = beforeBody.getOrElse(before(ptokens.last))
-          getLineDiff(locations, beg, end) == 0
-        }
-        if (keepGoing) getAlignContainerParent(p, depth) else (p, depth)
-      case Some(p: Term.ForYield) if child ne p.body => (p, depth)
-      case Some(p: Member.ParamClause) => p.parent match {
-          // if all on single line, keep going
-          case Some(q) if onSingleLine(q) =>
-            getAlignContainerParent(p, depth + 1)
-          // if this one not on single line, use parent as the owner
-          case Some(q) if !onSingleLine(p) => // skip ParamClauseGroup
-            val ac =
-              if (q.is[Member.ParamClauseGroup]) q.parent.getOrElse(q) else q
-            (ac, depth)
-          case _ => (p, depth) // this one on single line, but the rest are not
-        }
-      case Some(p: Member.SyntaxValuesClause) =>
-        val isEnclosed = isEnclosedInMatching(p)
-        getAlignContainerParent(p, if (isEnclosed) depth + 1 else depth)
-      case Some(p) => (p.parent.getOrElse(p), depth)
-      case _ => (child, depth)
-    }
+    )(implicit fl: FormatLocation): (Tree, Int) =
+      maybeParent.orElse(child.parent) match {
+        case Some(AlignContainer(p)) => (p, depth)
+        case Some(
+              p @ (_: Term.Select | _: Pat.Var | _: Term.ApplyInfix |
+              _: Template | _: Member.ParamClauseGroup),
+            ) => getAlignContainerParent(p, depth)
+        case Some(p: Term.Apply) if (p.argClause.values match {
+              case (_: Term.Apply) :: Nil => true
+              case _ => p.fun eq child
+            }) => getAlignContainerParent(p, depth)
+        // containers that can be traversed further if on same line
+        case Some(p @ (_: Case | _: Enumerator)) =>
+          if (isEarlierLine(p)) (p, depth) else getAlignContainerParent(p, depth)
+        // containers that can be traversed further if lhs single-line
+        case Some(p @ AlignContainer.WithBody(mods, b)) =>
+          val keepGoing = {
+            val ptokens = p.tokens
+            val beg = mods.lastOption
+              .fold(after(ptokens.head))(m => next(tokenAfter(m)))
+            val useBody = b.eq(child) || p.eq(child)
+            val beforeBody = if (useBody) tokenJustBeforeOpt(b) else None
+            val end = beforeBody.getOrElse(before(ptokens.last))
+            getLineDiff(locations, beg, end) == 0
+          }
+          if (keepGoing) getAlignContainerParent(p, depth) else (p, depth)
+        case Some(p: Term.ForYield) if child ne p.body => (p, depth)
+        case Some(p: Member.ParamClause) => p.parent match {
+            // if all on single line, keep going
+            case Some(q) if onSingleLine(q) =>
+              getAlignContainerParent(p, depth + 1)
+            // if this one not on single line, use parent as the owner
+            case Some(q) if !onSingleLine(p) => // skip ParamClauseGroup
+              val ac =
+                if (q.is[Member.ParamClauseGroup]) q.parent.getOrElse(q) else q
+              (ac, depth)
+            case _ => (p, depth) // this one on single line, but the rest are not
+          }
+        case Some(p: Member.SyntaxValuesClause) =>
+          val isEnclosed = isEnclosedInMatching(p)
+          getAlignContainerParent(p, if (isEnclosed) depth + 1 else depth)
+        case Some(p) => (p.parent.getOrElse(p), depth)
+        case _ => (child, depth)
+      }
 
     @tailrec
     private def getAlignContainer(t: Tree, depth: Int = 0)(implicit
@@ -1341,7 +1341,7 @@ class FormatWriter(formatOps: FormatOps) {
             shiftStateColumnIndent(ftIndex + 1, headStop.shift)
         }
         var previousShift = 0
-        x.stops.foreach { stop =>
+        x.stops.foreach(stop =>
           if (stop.isActive) {
             val currentShift = stop.shift
             val offset = currentShift - previousShift
@@ -1349,8 +1349,8 @@ class FormatWriter(formatOps: FormatOps) {
               builder += stop.ft.meta.idx -> offset
               previousShift = currentShift
             }
-          }
-        }
+          },
+        )
       }
     }
 
@@ -1457,8 +1457,9 @@ class FormatWriter(formatOps: FormatOps) {
           }
           val newImports = stat match {
             case t: ImportExportStat =>
-              val (idxHead, head) = imports
-                .fold((idx, t)) { case (i, h, _) => (i, h) }
+              val (idxHead, head) = imports.fold((idx, t)) { case (i, h, _) =>
+                (i, h)
+              }
               if (!isLast) Some((idxHead, head, t))
               else {
                 setStats(idxHead, head, t, true)
@@ -1508,13 +1509,11 @@ class FormatWriter(formatOps: FormatOps) {
         override def apply(tree: Tree): Unit = tree match {
           case t: Source => applySeq(t)(t.stats)
           case t: Template => applySeqWith(t)(t.body.stats) { stats =>
-              beforeBody(stats) {
-                _.beforeTemplateBodyIfBreakInParentCtors && {
-                  val beg = leadingComment(t).meta.idx
-                  val end = templateCurlyOrLastNonTrivial(t).meta.idx
-                  locations(beg).leftLineId != locations(end).leftLineId
-                }
-              }
+              beforeBody(stats)(_.beforeTemplateBodyIfBreakInParentCtors && {
+                val beg = leadingComment(t).meta.idx
+                val end = templateCurlyOrLastNonTrivial(t).meta.idx
+                locations(beg).leftLineId != locations(end).leftLineId
+              })
               afterBody(t, stats)
             }
           case t: Defn.ExtensionGroup => applySeqWith(t)(t.body match {
@@ -1785,15 +1784,16 @@ object FormatWriter {
 
       def finalize(endRefIdx: Int): Boolean = newStops.nonEmpty &&
         (line.style.align.allowOverflow || // check overflow
-          line.noOverflow(curShift) && buffer.forall { bl =>
+          line.noOverflow(curShift) && buffer.forall(bl =>
             bl.style.align.allowOverflow ||
-            bl.stops.reverseIterator.find(_.isActive).forall { bs =>
-              val shiftedColumn = bs.shifted
-              val idx = newStops
-                .lastIndexWhere(ns => ns.isActive && ns.shifted <= shiftedColumn)
-              idx >= 0 && bl.noOverflow(newColumns(idx) - bs.column)
-            }
-          }) && {
+              bl.stops.reverseIterator.find(_.isActive).forall { bs =>
+                val shiftedColumn = bs.shifted
+                val idx = newStops.lastIndexWhere(ns =>
+                  ns.isActive && ns.shifted <= shiftedColumn,
+                )
+                idx >= 0 && bl.noOverflow(newColumns(idx) - bs.column)
+              },
+          )) && {
           // now we mutate
           (0 until newStops.length)
             .foreach(idx => newStops(idx).shifted = newColumns(idx))

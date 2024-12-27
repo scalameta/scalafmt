@@ -16,28 +16,30 @@ def isCI = System.getenv("CI") != null
 def scala212 = "2.12.20"
 def scala213 = "2.13.15"
 
-inThisBuild(List(
-  version ~= { dynVer =>
-    if (isCI) dynVer else localSnapshotVersion // only for local publishing
-  },
-  organization := "org.scalameta",
-  homepage := Some(url("https://github.com/scalameta/scalafmt")),
-  licenses :=
-    List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  developers := List(Developer(
-    "olafurpg",
-    "Ólafur Páll Geirsson",
-    "olafurpg@gmail.com",
-    url("https://geirsson.com"),
-  )),
-  scalaVersion := scala213,
-  crossScalaVersions := List(scala213, scala212),
-  resolvers ++= Resolver.sonatypeOssRepos("releases"),
-  resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
-  testFrameworks += new TestFramework("munit.Framework"),
-  // causes native image issues
-  dependencyOverrides += "org.jline" % "jline" % "3.28.0",
-))
+inThisBuild {
+  List(
+    version ~= { dynVer =>
+      if (isCI) dynVer else localSnapshotVersion // only for local publishing
+    },
+    organization := "org.scalameta",
+    homepage := Some(url("https://github.com/scalameta/scalafmt")),
+    licenses :=
+      List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    developers := List(Developer(
+      "olafurpg",
+      "Ólafur Páll Geirsson",
+      "olafurpg@gmail.com",
+      url("https://geirsson.com"),
+    )),
+    scalaVersion := scala213,
+    crossScalaVersions := List(scala213, scala212),
+    resolvers ++= Resolver.sonatypeOssRepos("releases"),
+    resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
+    testFrameworks += new TestFramework("munit.Framework"),
+    // causes native image issues
+    dependencyOverrides += "org.jline" % "jline" % "3.28.0",
+  )
+}
 
 name := "scalafmtRoot"
 publish / skip := true

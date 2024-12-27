@@ -36,7 +36,7 @@ class FidelityTest extends FunSuite with FormatAssertions {
     }.map(x => TestCase(x, FileOps.readFile(x)))
   }
 
-  examples.foreach { example =>
+  examples.foreach(example =>
     test(example.filename) {
       val formatted = Scalafmt.formatCode(
         example.code,
@@ -47,6 +47,6 @@ class FidelityTest extends FunSuite with FormatAssertions {
         scala.meta.parsers.Parse.parseSource,
         Scala213,
       )
-    }
-  }
+    },
+  )
 }

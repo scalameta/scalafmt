@@ -27,10 +27,10 @@ class TokenRanges private (val ranges: Seq[TokenRange]) extends AnyVal {
     new TokenRanges(ranges.map(f))
 
   def excludeCloseDelim(implicit ftoks: FormatTokens): TokenRanges =
-    new TokenRanges(ranges.flatMap { x =>
+    new TokenRanges(ranges.flatMap(x =>
       if (!x.lt.left.is[T.OpenDelim]) Some(x)
-      else TokenRange.opt(x.lt, ftoks.prev(x.rt))
-    })
+      else TokenRange.opt(x.lt, ftoks.prev(x.rt)),
+    ))
 
   def startOfFirstRange(): Option[T] = ranges.lastOption.map(_.lt.left)
 }

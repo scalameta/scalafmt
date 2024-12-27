@@ -42,9 +42,9 @@ object CoursierDependencyDownloader extends DependencyDownloaderFactory {
     val repositories = properties.repositories.map { x =>
       val host = new URI(x).getHost
       val repo = MavenRepository.of(x)
-      properties.repositoryCredentials.find(_.host == host).fold(repo) { cred =>
-        repo.withCredentials(Credentials.of(cred.username, cred.password))
-      }
+      properties.repositoryCredentials.find(_.host == host).fold(repo)(cred =>
+        repo.withCredentials(Credentials.of(cred.username, cred.password)),
+      )
     }
     new CoursierDependencyDownloader(writer, repositories)
   }

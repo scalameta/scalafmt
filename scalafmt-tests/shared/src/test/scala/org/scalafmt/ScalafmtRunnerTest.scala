@@ -7,7 +7,7 @@ import scala.meta._
 import munit.FunSuite
 
 class ScalafmtRunnerTest extends FunSuite {
-  test("sbt dialect supports trailing commas") {
+  test("sbt dialect supports trailing commas")(
     ScalafmtRunner.sbt.getDialect(
       """|
          |lazy
@@ -18,6 +18,6 @@ class ScalafmtRunnerTest extends FunSuite {
          |  b,
          |)
          |        """.stripMargin,
-    ).parse[Source].get
-  }
+    ).parse[Source].get,
+  )
 }
