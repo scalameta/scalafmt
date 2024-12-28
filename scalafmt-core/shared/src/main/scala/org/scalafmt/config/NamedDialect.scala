@@ -34,6 +34,7 @@ object NamedDialect {
     Scala33,
     Scala34,
     Scala35,
+    Scala36,
   ).map(apply).sortBy(_.name)
 
   private[config] val defaultName = "default"
