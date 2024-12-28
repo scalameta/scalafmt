@@ -3234,8 +3234,8 @@ and takes the following values:
   argument clause if its span is _not larger than_ the specified value
   (and can be legally used with parentheses)
 - `bracesMinSpan`: if non-negative, converts parentheses to braces in a
-  single-statement argument clause if its span _strictly larger than_ the
-  specified value
+  single-statement argument clause if its span is _strictly larger than_
+  the specified value
   - clearly, `parensMaxSpan` may not exceed `bracesMinSpan` but might be
     the same (for convenience of specifying the pivot point)
 - `parensMaxSpan=0, bracesMinSpan<0` is a special combination which
@@ -3250,7 +3250,8 @@ and takes the following values:
 > [search optimizer](#route-search-optimizations-arg-or-param-clause),
 > in that it removes not only whitespace but also all punctuation (opening and
 > closing delimiters, commas, semicolons and dots), comments and any optional
-> syntax tokens in scala3 (such as `then`, `:` in coloneol or varargs, etc).
+> syntax tokens in scala3 (such as `then`, `:` in coloneol or varargs, end
+> markers etc.), anything that a rewrite rule could modify.
 >
 > The reason is that this happens during the rewrite phase where this or other
 > rules could modify or remove braces, trim trailing commas, add dots and
@@ -3262,7 +3263,8 @@ and takes the following values:
 In all cases, redundant delimiters will be rewritten, as before.
 
 ```scala mdoc:defaults
-rewrite.redundantBraces.oneStatApply
+rewrite.redundantBraces.oneStatApply.parensMaxSpan
+rewrite.redundantBraces.oneStatApply.bracesMinSpan
 ```
 
 ```scala mdoc:scalafmt
@@ -3274,7 +3276,7 @@ xs.map { x => x + 1 }
 
 ```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
-rewrite.redundantBraces.oneStatApply.parensMaxSpan = 3
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = 15
 ---
 xs.map { x => // should rewrite this
   x + 1
@@ -3283,9 +3285,9 @@ xs.map { x => // should not rewrite this, not a single-stat argument
   x + 1
   x + 2
 }
-xs.map { x => // should not rewrite outer, too many breaks
-  foo {
-    x
+xs.map { x => // should not rewrite outer, span too long
+  x.foo {
+    bar.baz(qux)
   }
 }
 ```
@@ -3310,8 +3312,8 @@ xs.map( // should rewrite this, allows formatting infix
   x
   + 1
 )
-xs.map( // should not rewrite this, too few breaks
-  x + 1)
+xs.map( // should not rewrite this, span too short
+  xy)
 ```
 
 #### `RedundantBraces`: `maxBreaks`
