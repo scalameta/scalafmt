@@ -5442,14 +5442,13 @@ It takes the same values as [newlines.source](#newlinessource); use `null`
 
 ### `newlines.selectChains.enclose`
 
-> - Prior to v3.8.4, was called `optIn.encloseClassicChains` and applied only to `style = classic`.
-> - By default, enabled unless `style = classic`.
+> - Added in v2.6.2
+> - Before v3.8.4, was called `optIn.encloseClassicChains` and applied only to `style = classic`
+> - By default, enabled unless `style = classic`
 
 Controls what happens if a chain enclosed in parentheses is followed by
 additional selects. Those additional selects will be considered part of the
 enclosed chain if and only if this flag is false.
-
-> Since v2.6.2.
 
 ```scala mdoc:defaults
 newlines.selectChains.enclose
@@ -5473,8 +5472,8 @@ maxColumn = 30
 
 ### `newlines.selectChains.classicCanStartWithBraceApply`
 
-> - Prior to v3.8.4, was called `includeCurlyBraceInSelectChains`.
-> - Applies only if `style = classic` (always enabled for others).
+> - Prior to v3.8.4, was called `includeCurlyBraceInSelectChains`
+> - Applies only if `style = classic` (always enabled for others)
 
 Controls if select followed by curly braces can _start_ a chain.
 
@@ -5503,8 +5502,8 @@ List(1)
 
 ### `newlines.selectChains.classicCanStartWithoutApply`
 
-> - Prior to v3.8.4, was called `includeNoParensInSelectChains`.
-> - Applies only if `style = classic` (always enabled for others).
+> - Prior to v3.8.4, was called `includeNoParensInSelectChains`
+> - Applies only if `style = classic` (always enabled for others)
 
 Controls if select _not_ followed by an apply can _start_ a chain.
 
@@ -5528,8 +5527,8 @@ List(1).toIterator.buffered.map(_ + 2).filter(_ > 2)
 
 ### `newlines.selectChains.classicKeepFirst`
 
-> - Prior to v3.8.4, was called `optIn.breakChainOnFirstMethodDot`.
-> - Applies only if `style = classic` (always enabled for others).
+> - Prior to v3.8.4, was called `optIn.breakChainOnFirstMethodDot`
+> - Applies only if `style = classic`
 
 Keeps the break on the first select of the chain if the source contained one.
 Has no effect if there was no newline in the source.
@@ -5557,8 +5556,8 @@ foo
 
 ### `newlines.selectChains.classicKeepAfterFirstBreak`
 
-> - Prior to v3.8.4, was called `optIn.breaksInsideChains`.
-> - Applies only if `style = classic` (always enabled for others).
+> - Prior to v3.8.4, was called `optIn.breaksInsideChains`
+> - Applies only if `style = classic`
 
 Controls whether to preserve a newline before each subsequent select when the
 very first one used a line break; that is, this parameter doesn't prohibit
