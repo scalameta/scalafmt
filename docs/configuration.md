@@ -113,14 +113,19 @@ used to select it.
 
 Available dialects are:
 
-- `scala211`
-- `scala212`
-- `scala212source3`
-- `scala213`
-- `scala213source3`
-- `scala3`
-- `sbt0137`
-- `sbt1`
+- Scala 2
+  - `scala211`
+  - `scala212`
+  - `scala212source3`
+  - `scala213`
+  - `scala213source3`
+- Scala 3
+  - `scala3`: most recent release
+  - `Scala3Future`: scala3 plus experimental, unreleased features
+  - specific versions from `Scala30` to `Scala36`
+- sbt-specific
+  - `sbt0137`
+  - `sbt1`
 
 You can also specify `runner.dialect` for a subset of files using [fileOverride](#fileoverride):
 
