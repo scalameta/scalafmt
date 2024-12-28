@@ -4312,8 +4312,8 @@ and takes the following values:</p>
 argument clause if its span is <em>not larger than</em> the specified value
 (and can be legally used with parentheses)</li>
 <li><code>bracesMinSpan</code>: if non-negative, converts parentheses to braces in a
-single-statement argument clause if its span <em>strictly larger than</em> the
-specified value
+single-statement argument clause if its span is <em>strictly larger than</em>
+the specified value
 <ul>
 <li>clearly, <code>parensMaxSpan</code> may not exceed <code>bracesMinSpan</code> but might be
 the same (for convenience of specifying the pivot point)</li>
@@ -4333,7 +4333,8 @@ looking at the argument clause span)
 <a href="#route-search-optimizations-arg-or-param-clause">search optimizer</a>,
 in that it removes not only whitespace but also all punctuation (opening and
 closing delimiters, commas, semicolons and dots), comments and any optional
-syntax tokens in scala3 (such as <code>then</code>, <code>:</code> in coloneol or varargs, etc).</p>
+syntax tokens in scala3 (such as <code>then</code>, <code>:</code> in coloneol or varargs, end
+markers etc.), anything that a rewrite rule could modify.</p>
 <p>The reason is that this happens during the rewrite phase where this or other
 rules could modify or remove braces, trim trailing commas, add dots and
 parentheses to an infix, rewrite scala3 code using new syntax, or reformat
@@ -4341,7 +4342,10 @@ comments.</p>
 <p>Thus, to avoid non-idempotent formatting, we ignore them.</p>
 </blockquote>
 <p>In all cases, redundant delimiters will be rewritten, as before.</p>
-<p>Default: <code>rewrite.redundantBraces.oneStatApply = {&quot;parensMaxSpan&quot;: 0, &quot;bracesMinSpan&quot;: -1}</code></p>
+<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = <span class="hljs-number">0</span>
+rewrite.redundantBraces.oneStatApply.bracesMinSpan = <span class="hljs-number">-1</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted">xs.map(x =&gt; x + <span class="hljs-number">1</span>)
 </code></pre>
 <pre><code class="hljs css language-scala original">xs.map { x =&gt; x + <span class="hljs-number">1</span> }
@@ -4351,18 +4355,18 @@ comments.</p>
 rewrite.redundantBraces.oneStatApply.parensMaxSpan = <span class="hljs-number">0</span>
 </code></pre>
 </p></details>
-<pre><code class="hljs css language-scala formatted">xs.map { x =&gt; <span class="hljs-comment">// should rewrite this</span>
+<pre><code class="hljs css language-scala formatted">xs.map(x =&gt; <span class="hljs-comment">// should rewrite this</span>
   x + <span class="hljs-number">1</span>
-}
+)
 xs.map {
   x =&gt; <span class="hljs-comment">// should not rewrite this, not a single-stat argument</span>
     x + <span class="hljs-number">1</span>
     x + <span class="hljs-number">2</span>
 }
 xs.map {
-  x =&gt; <span class="hljs-comment">// should not rewrite outer, too many breaks</span>
-    foo(
-      x
+  x =&gt; <span class="hljs-comment">// should not rewrite outer, span too long</span>
+    x.foo(
+      bar.baz(qux)
     )
 }
 </code></pre>
@@ -4373,15 +4377,15 @@ xs.map { x =&gt; <span class="hljs-comment">// should not rewrite this, not a si
   x + <span class="hljs-number">1</span>
   x + <span class="hljs-number">2</span>
 }
-xs.map { x =&gt; <span class="hljs-comment">// should not rewrite outer, too many breaks</span>
-  foo {
-    x
+xs.map { x =&gt; <span class="hljs-comment">// should not rewrite outer, span too long</span>
+  x.foo {
+    bar.baz(qux)
   }
 }
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
-rewrite.redundantBraces.oneStatApply.parensMaxSpan = <span class="hljs-number">3</span>
+rewrite.redundantBraces.oneStatApply.parensMaxSpan = <span class="hljs-number">15</span>
 </code></pre>
 </p></details>
 <pre><code class="hljs css language-scala formatted">xs.map { x =&gt; <span class="hljs-comment">// should rewrite this</span>
@@ -4399,9 +4403,9 @@ xs.map { <span class="hljs-comment">// should rewrite this, contains an infix wi
 xs.map { <span class="hljs-comment">// should rewrite this, allows formatting infix</span>
   x + <span class="hljs-number">1</span>
 }
-xs.map { <span class="hljs-comment">// should not rewrite this, too few breaks</span>
-  x + <span class="hljs-number">1</span>
-}
+xs.map( <span class="hljs-comment">// should not rewrite this, span too short</span>
+  xy
+)
 </code></pre>
 <pre><code class="hljs css language-scala original">xs.map(x =&gt; <span class="hljs-comment">// should rewrite this</span>
   x + <span class="hljs-number">1</span>
@@ -4419,8 +4423,8 @@ xs.map( <span class="hljs-comment">// should rewrite this, allows formatting inf
   x
   + <span class="hljs-number">1</span>
 )
-xs.map( <span class="hljs-comment">// should not rewrite this, too few breaks</span>
-  x + <span class="hljs-number">1</span>)
+xs.map( <span class="hljs-comment">// should not rewrite this, span too short</span>
+  xy)
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
