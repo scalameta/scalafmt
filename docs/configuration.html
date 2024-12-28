@@ -169,14 +169,25 @@ used to select it.</p>
 </blockquote>
 <p>Available dialects are:</p>
 <ul>
+<li>Scala 2
+<ul>
 <li><code>scala211</code></li>
 <li><code>scala212</code></li>
 <li><code>scala212source3</code></li>
 <li><code>scala213</code></li>
 <li><code>scala213source3</code></li>
-<li><code>scala3</code></li>
+</ul></li>
+<li>Scala 3
+<ul>
+<li><code>scala3</code>: most recent release</li>
+<li><code>Scala3Future</code>: scala3 plus experimental, unreleased features</li>
+<li>specific versions from <code>Scala30</code> to <code>Scala36</code></li>
+</ul></li>
+<li>sbt-specific
+<ul>
 <li><code>sbt0137</code></li>
 <li><code>sbt1</code></li>
+</ul></li>
 </ul>
 <p>You can also specify <code>runner.dialect</code> for a subset of files using <a href="#fileoverride">fileOverride</a>:</p>
 <pre><code class="hljs">fileOverride {
