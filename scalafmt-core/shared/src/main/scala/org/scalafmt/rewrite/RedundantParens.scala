@@ -30,10 +30,10 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
   def breaksBeforeOp(
       ia: Member.Infix,
   )(implicit style: ScalafmtConfig, ftoks: FormatTokens): Boolean = {
-    val formatInfix = style.formatInfix(ia)
+    val keepInfix = style.newlines.infix.keep(ia)
     def impl(ia: Member.Infix): Boolean = {
       val beforeOp = ftoks.prevNonCommentSameLine(ftoks.tokenJustBefore(ia.op))
-      beforeOp.hasBreak && (!formatInfix || beforeOp.left.is[T.Comment]) ||
+      beforeOp.hasBreak && (keepInfix || beforeOp.left.is[T.Comment]) ||
       ia.nestedInfixApps.exists(x => !ftoks.isEnclosedWithinParens(x) && impl(x))
     }
     impl(ia)

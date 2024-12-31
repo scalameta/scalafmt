@@ -418,6 +418,7 @@ object TreeOps {
   final def isInfixOp(tree: Tree): Boolean = AsInfixOp.unapply(tree).isDefined
 
   object AsInfixOp {
+    def apply(tree: Tree) = unapply(tree)
     def unapply(tree: Tree): Option[Member.Infix] = tree.parent
       .collect { case ia: Member.Infix if ia.op eq tree => ia }
   }
@@ -884,7 +885,8 @@ object TreeOps {
 
     treeAt(0, topSourceTree, allTokens.head, allTokens.last, 0)
 
-    val checkedNewlines = baseStyle.newlines.checkInfixConfig(infixCount)
+    val checkedNewlines = baseStyle.newlines
+      .checkInfixConfig(infixCount)(baseStyle)
     val initStyle =
       if (checkedNewlines eq baseStyle.newlines) baseStyle
       else baseStyle.copy(newlines = checkedNewlines)
