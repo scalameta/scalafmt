@@ -245,9 +245,9 @@ case class Newlines(
   @inline
   def keepBreak(implicit ft: FT): Boolean = keepBreak(ft.hasBreak)
 
-  def checkInfixConfig(termCnt: Int)(implicit
-      cfg: ScalafmtConfig, // TODO: add typeSite, patSite
-  ): Newlines = copy(infix = infix.checkInfixCounts(termCnt))
+  def checkInfixConfig(termCnt: Int, typeCnt: Int, patCnt: Int)(implicit
+      cfg: ScalafmtConfig,
+  ): Newlines = copy(infix = infix.checkInfixCounts(termCnt, typeCnt, patCnt))
 
   lazy val forceBeforeImplicitParamListModifier: Boolean =
     implicitParamListModifierForce.contains(before)
@@ -382,22 +382,27 @@ object Newlines {
 
   case class Infix(
       private val termSite: Infix.Site = Infix.Site.default,
-      // TODO: add typeSite and patSite
+      private val typeSite: Option[Infix.Site] = None,
+      private val patSite: Option[Infix.Site] = None,
   ) {
-    def checkInfixCounts(termCnt: Int)(implicit
-        cfg: ScalafmtConfig, // TODO: add typeSite, patSite
+    def checkInfixCounts(termCnt: Int, typeInfix: Int, patInfix: Int)(implicit
+        cfg: ScalafmtConfig,
     ): Infix = copy(
-      // TODO: add typeSite, patSite
       termSite = termSite.checkConfig(termCnt)(None),
+      typeSite = Some(typeSite.getOrElse(termSite).checkConfig(typeInfix) {
+        val useSome = !cfg.newlines.keep && cfg.dialect.useInfixTypePrecedence
+        if (useSome) Some(Infix.some) else None
+      }),
+      patSite = Some(patSite.getOrElse(termSite).checkConfig(patInfix)(None)),
     )
 
-    def get(tree: Tree)(implicit cfg: ScalafmtConfig) = {
-      val useSome = (termSite.style eq null) && !cfg.newlines.keep &&
-        tree.is[Type] && cfg.dialect.useInfixTypePrecedence
-      if (useSome) termSite.copy(style = Infix.some) else termSite
+    def get(tree: Tree): Infix.Site = tree match {
+      case _: Type => typeSite.getOrElse(termSite)
+      case _: Pat => patSite.getOrElse(termSite)
+      case _ => termSite
     }
 
-    def keep(tree: Tree)(implicit cfg: ScalafmtConfig) = get(tree).isKeep
+    def keep(tree: Tree): Boolean = get(tree).isKeep
   }
 
   object Infix {
