@@ -2431,6 +2431,12 @@ around infix expressions. It contains the following parameter groups:
 
 - `termSite`
   - primarily applies to ordinary infix expressions (`Term.ApplyInfix`)
+- `typeSite`:
+  - applies to infix expressions within types (`Type.ApplyInfix`) only
+  - defaults to `termSite` if _no fields_ are specified
+- `patSite`:
+  - applies to infix expressions within patterns (`Pat.ExtractInfix`) only
+  - defaults to `termSite` if _no fields_ are specified
 
 Each of these groups has several parameters of its own (replacing deprecated
 `newlines.afterInfixXxx`, originally added in v2.5.0, which moved to `termSite`):

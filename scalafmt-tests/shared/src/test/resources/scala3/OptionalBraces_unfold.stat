@@ -8716,6 +8716,8 @@ object a:
           )
      )
 <<< #4705
+newlines.infix.typeSite.style = many
+===
 object Foo {
   def oldStyle: Traverse[Option] with MonadError[Option, Unit] with Alternative[Option] with CommutativeMonad[Option] with CoflatMap[Option] with Align[Option] =
     ???
