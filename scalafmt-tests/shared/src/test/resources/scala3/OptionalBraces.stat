@@ -8368,3 +8368,28 @@ object a:
             _.enteredAfter(explicitOuterPhase.asInstanceOf[DenotTransformer])
           )
      )
+<<< #4705
+object Foo {
+  def oldStyle: Traverse[Option] with MonadError[Option, Unit] with Alternative[Option] with CommutativeMonad[Option] with CoflatMap[Option] with Align[Option] =
+    ???
+
+  def newStyle: Traverse[Option] & MonadError[Option, Unit] & Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] & Align[Option] =
+    Traverse[Option] & MonadError[Option, Unit] & Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] & Align[Option]
+}
+>>>
+object Foo {
+  def oldStyle: Traverse[Option]
+    with MonadError[Option, Unit]
+    with Alternative[Option]
+    with CommutativeMonad[Option]
+    with CoflatMap[Option]
+    with Align[Option] =
+    ???
+
+  def newStyle: Traverse[Option] & MonadError[Option, Unit] &
+    Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] &
+    Align[Option] =
+    Traverse[Option] & MonadError[Option, Unit] & Alternative[
+      Option
+    ] & CommutativeMonad[Option] & CoflatMap[Option] & Align[Option]
+}
