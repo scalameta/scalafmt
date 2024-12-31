@@ -362,8 +362,7 @@ object State {
       new WithComparisons(compareCost, compareDepth, compareLineId)
 
     def get(style: ScalafmtConfig): Ordering[State] =
-      if (style.newlines.source eq Newlines.classic) classicOrdering
-      else compactOrdering
+      if (style.newlines.classic) classicOrdering else compactOrdering
 
     class WithComparisons(comparisons: (State, State) => Int*)
         extends Ordering[State] {

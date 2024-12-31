@@ -255,6 +255,8 @@ case class Newlines(
   @inline
   def keep: Boolean = source eq Newlines.keep
   @inline
+  def classic: Boolean = source eq Newlines.classic
+  @inline
   def keepBreak(hasBreak: => Boolean): Boolean = keep && hasBreak
   @inline
   def keepBreak(newlines: Int): Boolean = keepBreak(!FT.noBreak(newlines))
@@ -349,7 +351,7 @@ case class Newlines(
   def isBeforeOpenParenDefnSite: Boolean = beforeOpenParenDefnSite.isDefined
 
   private[scalafmt] lazy val encloseSelectChains = selectChains.enclose
-    .getOrElse(source.ne(Newlines.classic))
+    .getOrElse(!classic)
 
 }
 
