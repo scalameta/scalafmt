@@ -383,10 +383,6 @@ object ScalafmtConfig {
         addIf(getTrailingCommas.eq(TrailingCommas.keep))
       }
       if (newlines.source == Newlines.unfold) addIf(align.arrowEnumeratorGenerator)
-      if (newlines.source != Newlines.classic) {
-        addIf(newlines.selectChains.classicKeepAfterFirstBreak)
-        addIf(!newlines.selectChains.classicCanStartWithBraceApply)
-      }
       if (errors.nonEmpty) {
         allErrors += s"newlines.source=${newlines.source} and ["
         errors.foreach(x => allErrors += "\t" + x)
