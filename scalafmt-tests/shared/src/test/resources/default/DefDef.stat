@@ -334,3 +334,224 @@ trait Test {
 trait Test {
   def `x_`: String
 }
+<<< comment after implicit, prefer=before
+maxColumn = 60
+newlines.implicitParamListModifierPrefer = before
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(implicit // TODO
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      implicit // TODO
+      cfg: ScalafmtConfig): Infix = ???
+}
+<<< comment after implicit, force=before
+maxColumn = 60
+newlines.implicitParamListModifierForce = [before]
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(implicit // TODO
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      implicit // TODO
+      cfg: ScalafmtConfig): Infix = ???
+}
+<<< comment after implicit, force=before,after
+maxColumn = 60
+newlines.implicitParamListModifierForce = [before,after]
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(implicit // TODO
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      implicit // TODO
+      cfg: ScalafmtConfig): Infix = ???
+}
+<<< comment after implicit, prefer=after
+maxColumn = 60
+newlines.implicitParamListModifierPrefer = after
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(implicit // TODO
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      implicit // TODO
+      cfg: ScalafmtConfig): Infix = ???
+}
+<<< comment after implicit, force=after
+maxColumn = 60
+newlines.implicitParamListModifierForce = [after]
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(implicit // TODO
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      implicit // TODO
+      cfg: ScalafmtConfig
+  ): Infix = ???
+}
+<<< comment before implicit, prefer=before
+maxColumn = 60
+newlines.implicitParamListModifierPrefer = before
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(/* TODO */ implicit
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      /* TODO */ implicit cfg: ScalafmtConfig): Infix = ???
+}
+<<< comment before implicit, force=before
+maxColumn = 60
+newlines.implicitParamListModifierForce = [before]
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(/* TODO */ implicit
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      /* TODO */ implicit cfg: ScalafmtConfig): Infix = ???
+}
+<<< comment before implicit, force=before,after
+maxColumn = 60
+newlines.implicitParamListModifierForce = [before,after]
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(/* TODO */ implicit
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      /* TODO */ implicit
+      cfg: ScalafmtConfig): Infix = ???
+}
+<<< comment before implicit, prefer=after
+maxColumn = 60
+newlines.implicitParamListModifierPrefer = after
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(/* TODO */ implicit
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      /* TODO */ implicit cfg: ScalafmtConfig): Infix = ???
+}
+<<< comment before implicit, force=after
+maxColumn = 60
+newlines.implicitParamListModifierForce = [after]
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(/* TODO */ implicit
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      /* TODO */ implicit
+      cfg: ScalafmtConfig): Infix = ???
+}
+<<< no comment around implicit, prefer=before
+maxColumn = 60
+newlines.implicitParamListModifierPrefer = before
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(implicit
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      implicit cfg: ScalafmtConfig): Infix = ???
+}
+<<< no comment around implicit, force=before
+maxColumn = 60
+newlines.implicitParamListModifierForce = [before]
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(implicit
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      implicit cfg: ScalafmtConfig): Infix = ???
+}
+<<< no comment around implicit, force=before,after
+maxColumn = 60
+newlines.implicitParamListModifierForce = [before,after]
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(implicit
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(
+      implicit
+      cfg: ScalafmtConfig): Infix = ???
+}
+<<< no comment around implicit, prefer=after
+maxColumn = 60
+newlines.implicitParamListModifierPrefer = after
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(implicit
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(implicit
+      cfg: ScalafmtConfig
+  ): Infix = ???
+}
+<<< no comment around implicit, force=after
+maxColumn = 60
+newlines.implicitParamListModifierForce = [after]
+===
+object a {
+    def checkInfixCounts(termCnt: Int)(implicit
+        cfg: ScalafmtConfig,
+    ): Infix = ???
+}
+>>>
+object a {
+  def checkInfixCounts(termCnt: Int)(implicit
+      cfg: ScalafmtConfig
+  ): Infix = ???
+}
