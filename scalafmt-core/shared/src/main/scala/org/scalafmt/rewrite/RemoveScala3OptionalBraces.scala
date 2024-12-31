@@ -192,7 +192,8 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   )(implicit ft: FT, style: ScalafmtConfig): Replacement = {
     def okLeftDelim = ft.right.is[T.LeftBrace] ||
       style.rewrite.scala3.removeOptionalBraces.fewerBracesParensToo &&
-      (style.dialect.allowInfixOperatorAfterNL || style.newlines.formatInfix)
+      (style.dialect.allowInfixOperatorAfterNL ||
+        !style.newlines.infix.keep(tree))
     val ok = style.dialect.allowFewerBraces && okLeftDelim &&
       style.rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan > 0 &&
       isSeqSingle(tree.values)

@@ -2424,25 +2424,37 @@ parameters require keeping this keyword attached to the opening brace.
 Therefore, any of the parameters described in this section will take precedence
 even when `newlines.configStyle.defnSite.prefer = true` is used.
 
-### `newlines.afterInfix`
+### `newlines.infix`
 
-> Since v2.5.0.
+Introduced in v3.8.4, this parameter (and its companions) controls formatting
+around infix expressions. It contains the following parameter groups:
 
-This parameter (and its companions) controls formatting around infix
-expressions.
+- `termSite`
+  - primarily applies to ordinary infix expressions (`Term.ApplyInfix`)
 
-> The default value depends on `newlines.source` (see below).
+Each of these groups has several parameters of its own (replacing deprecated
+`newlines.afterInfixXxx`, originally added in v2.5.0, which moved to `termSite`):
 
-#### `newlines.afterInfix=keep`
+- `style`:
+- `maxCountPerFile`
+- `maxCountPerExprForSome`
+- `breakOnNested`
+
+#### `newlines.infix: style=keep`
 
 This approach preserves line breaks in the input. This is the original
 behaviour, and default for `newlines.source=classic,keep`.
 
-#### `newlines.afterInfix=many,some`
+One caveat is: for `classic` type infixes with Scala3 (or if the dialect
+[enables](#runnerdialectoverride) the `useInfixTypePrecedence` flag),
+`some` is the default.
+
+#### `newlines.infix: style=many,some`
 
 These approaches _completely ignore_ existing newlines around infix, always use
 a space before an infix operator and occasionally break after it. `some` is
-default for `newlines.source=fold`, and `many` for `newlines.source=unfold`.
+default for `newlines.source=fold` (also see caveat under `keep` aboce), and
+`many` for `newlines.source=unfold`.
 
 > Might require increasing
 > [optimizer limits](#route-search-optimizations-giving-up),
@@ -2454,31 +2466,31 @@ after
 and both will _always_ break before an expression enclosed in matching
 parentheses.
 
-#### `newlines.afterInfixMaxCountPerFile`
+#### `newlines.infix: maxCountPerFile`
 
 ```scala mdoc:defaults
-newlines.afterInfixMaxCountPerFile
+newlines.infix.termSite.maxCountPerFile
 ```
 
-If the total number of infix operations in the _entire file_ exceeds
-`newlines.afterInfixMaxCountPerFile`, the formatter automatically switches to
-`newlines.afterInfix=keep` for this file.
+If the total number of matching infix operations in the _entire file_ exceeds
+`newlines.infix.xxxSite.maxCountPerFile`, the formatter automatically switches to
+`newlines.infix.xxxSite.style=keep` for this file.
 
-#### `newlines.afterInfixMaxCountPerExprForSome`
+#### `newlines.infix: maxCountPerExprForSome`
 
 ```scala mdoc:defaults
-newlines.afterInfixMaxCountPerExprForSome
+newlines.infix.termSite.maxCountPerExprForSome
 ```
 
-If `newlines.afterInfix` is set to `some` and the number of infix operations in
+If `newlines.infix.xxxSite.style` is set to `some` and the number of infix operations in
 a _given expression sequence_ (top-level or enclosed in parens/braces) exceeds
-`newlines.afterInfixMaxCountPerExprForSome`, the formatter switches to `many`
+`newlines.infix.xxxSite.maxCountPerExprForSome`, the formatter switches to `many`
 for that sequence only.
 
-#### `newlines.afterInfixBreakOnNested`
+#### `newlines.infix: breakOnNested`
 
 ```scala mdoc:defaults
-newlines.afterInfixBreakOnNested
+newlines.infix.termSite.breakOnNested
 ```
 
 If enabled, will force line breaks around a nested parenthesized sub-expression
@@ -3312,7 +3324,7 @@ xs.map( // should rewrite this, contains an infix with a break after operator
   x +
   1
 )
-// scalafmt: { newlines.afterInfix = some }
+// scalafmt: { newlines.infix.termSite.style = some }
 xs.map( // should rewrite this, allows formatting infix
   x
   + 1
@@ -3990,7 +4002,7 @@ The section contains the following settings (available since v3.8.1):
 - (since v3.8.4) `fewerBracesParensToo`
   - will apply the rule just above to an argument in parentheses as well,
     if the one of following is also satisfied:
-    - [`newlines.afterInfix`](#newlinesafterinfix) is NOT `keep`; or
+    - [`newlines.infix.xxxSite.style`](#newlinesinfix-stylekeep) is NOT `keep`; or
     - current dialect supports `allowInfixOperatorAfterNL`
 
 Prior to v3.8.1, `rewrite.scala3.removeOptionalBraces` was a flag which

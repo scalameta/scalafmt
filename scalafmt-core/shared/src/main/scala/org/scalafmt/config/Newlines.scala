@@ -129,23 +129,8 @@ import metaconfig.annotation._
   *   - If `fold`, ignore source and try to remove line breaks
   *   - If `unfold`, ignore source and try to break lines
   *
-  * @param afterInfix
-  *   Controls how line breaks around operations are handled
-  *   - If `keep` (default for source=classic,keep), preserve existing
-  *   - If `some` (default for source=fold), break after some infix ops
-  *   - If `many` (default for source=unfold), break after many infix ops
-  *
-  * @param afterInfixBreakOnNested
-  *   Force breaks around nested (enclosed in parentheses) expressions
-  *
-  * @param afterInfixMaxCountPerFile
-  *   Switch to `keep` for a given file if the total number of infix operations
-  *   in that file exceeds this value
-  *
-  * @param afterInfixMaxCountPerExprForSome
-  *   Switch to `many` for a given expression (possibly nested) if the number of
-  *   operations in that expression exceeds this value AND `afterInfix` had been
-  *   set to `some`.
+  * @param infix
+  *   Controls how line breaks around infix operations are handled
   *
   * @param topLevelStatementBlankLines
   *   Controls blank line before and/or after a top-level statement.
@@ -218,10 +203,7 @@ case class Newlines(
     )
     beforeMultilineDef: Option[SourceHints] = None,
     selectChains: SelectChain = SelectChain.default,
-    afterInfix: Option[AfterInfix] = None,
-    afterInfixBreakOnNested: Boolean = false,
-    afterInfixMaxCountPerExprForSome: Int = 10,
-    afterInfixMaxCountPerFile: Int = 500,
+    infix: Infix = Infix.default,
     avoidForSimpleOverflow: Seq[AvoidForSimpleOverflow] = Seq.empty,
     inInterpolation: InInterpolation = InInterpolation.allow,
     ignoreInSyntax: Boolean = true,
@@ -263,17 +245,9 @@ case class Newlines(
   @inline
   def keepBreak(implicit ft: FT): Boolean = keepBreak(ft.hasBreak)
 
-  val breakAfterInfix: AfterInfix = afterInfix.getOrElse(source match {
-    case Newlines.unfold => AfterInfix.many
-    case Newlines.fold => AfterInfix.some
-    case Newlines.keep => AfterInfix.keep
-    case Newlines.classic => AfterInfix.keep
-  })
-  val formatInfix: Boolean = breakAfterInfix ne AfterInfix.keep
-
-  def checkInfixConfig(infixCount: Int): Newlines =
-    if (infixCount <= afterInfixMaxCountPerFile || !formatInfix) this
-    else copy(afterInfix = Some(AfterInfix.keep))
+  def checkInfixConfig(termCnt: Int)(implicit
+      cfg: ScalafmtConfig, // TODO: add typeSite, patSite
+  ): Newlines = copy(infix = infix.checkInfixCounts(termCnt))
 
   lazy val forceBeforeImplicitParamListModifier: Boolean =
     implicitParamListModifierForce.contains(before)
@@ -360,13 +334,24 @@ object Newlines {
   implicit lazy val codec: ConfCodecEx[Newlines] = generic
     .deriveCodecEx(Newlines()).noTypos.withSectionRenames(
       // deprecated since v3.0.4
-      annotation.SectionRename("configStyleCallSite", "configStyle.callSite"),
+      SectionRename("configStyleCallSite", "configStyle.callSite"),
       // deprecated since v3.0.4
-      annotation.SectionRename("configStyleDefnSite", "configStyle.defnSite"),
+      SectionRename("configStyleDefnSite", "configStyle.defnSite"),
       // deprecated since v3.0.0
-      annotation.SectionRename { case Conf.Bool(value) =>
+      SectionRename { case Conf.Bool(value) =>
         Conf.Str(if (value) "def" else "never")
       }("alwaysBeforeMultilineDef", "forceBeforeMultilineAssign"),
+      // deprecated since v3.8.4
+      SectionRename("afterInfix", "infix.termSite.style"),
+      SectionRename("afterInfixBreakOnNested", "infix.termSite.breakOnNested"),
+      SectionRename(
+        "afterInfixMaxCountPerFile",
+        "infix.termSite.maxCountPerFile",
+      ),
+      SectionRename(
+        "afterInfixMaxCountPerExprForSome",
+        "infix.termSite.maxCountPerExprForSome",
+      ),
     )
 
   sealed abstract class IgnoreSourceSplit {
@@ -395,14 +380,81 @@ object Newlines {
       }
   }
 
-  sealed abstract class AfterInfix
-  object AfterInfix {
-    case object keep extends AfterInfix
-    case object some extends AfterInfix
-    case object many extends AfterInfix
+  case class Infix(
+      private val termSite: Infix.Site = Infix.Site.default,
+      // TODO: add typeSite and patSite
+  ) {
+    def checkInfixCounts(termCnt: Int)(implicit
+        cfg: ScalafmtConfig, // TODO: add typeSite, patSite
+    ): Infix = copy(
+      // TODO: add typeSite, patSite
+      termSite = termSite.checkConfig(termCnt)(None),
+    )
 
-    implicit val reader: ConfCodecEx[AfterInfix] = ReaderUtil
-      .oneOf[AfterInfix](keep, some, many)
+    def get(tree: Tree)(implicit cfg: ScalafmtConfig) = {
+      val useSome = (termSite.style eq null) && !cfg.newlines.keep &&
+        tree.is[Type] && cfg.dialect.useInfixTypePrecedence
+      if (useSome) termSite.copy(style = Infix.some) else termSite
+    }
+
+    def keep(tree: Tree)(implicit cfg: ScalafmtConfig) = get(tree).isKeep
+  }
+
+  object Infix {
+    private[Newlines] val default = Infix()
+    implicit lazy val surface: generic.Surface[Infix] = generic.deriveSurface
+    implicit lazy val codec: ConfCodecEx[Infix] = generic.deriveCodecEx(default)
+      .noTypos
+
+    sealed abstract class Style
+    case object keep extends Style
+    case object some extends Style
+    case object many extends Style
+    implicit val styleReader: ConfCodecEx[Style] = ReaderUtil
+      .oneOf[Style](keep, some, many)
+
+    /** @param style
+      *   Controls how line breaks around infix operations are handled
+      *   - If `keep` (default for source=classic,keep), preserve existing
+      *   - If `some` (default for source=fold), break after some infix ops
+      *   - If `many` (default for source=unfold), break after many infix ops
+      * @param breakOnNested
+      *   Force breaks around nested (enclosed in parentheses) expressions
+      * @param maxCountPerFile
+      *   Switch to `keep` for a given file if the total number of infix
+      *   operations in that file exceeds this value
+      * @param maxCountPerExprForSome
+      *   Switch to `many` for a given expression (possibly nested) if the
+      *   number of operations in that expression exceeds this value AND
+      *   `afterInfix` had been set to `some`.
+      */
+    case class Site(
+        style: Style = null,
+        breakOnNested: Boolean = false,
+        maxCountPerFile: Int = 500,
+        maxCountPerExprForSome: Int = 10,
+    ) {
+      def checkConfig(
+          infixCount: Int,
+      )(orElseStyle: => Option[Style])(implicit cfg: ScalafmtConfig): Site =
+        if (maxCountPerFile < infixCount) copy(style = keep)
+        else if (style eq null) Infix.defaultStyle(cfg.newlines.source)
+          .orElse(orElseStyle).fold(this)(x => copy(style = x))
+        else this
+      def isKeep: Boolean = (style eq keep) || (style eq null)
+    }
+    object Site {
+      private[Infix] val default = Site()
+      implicit lazy val surface: generic.Surface[Site] = generic.deriveSurface
+      implicit lazy val codec: ConfCodecEx[Site] = generic.deriveCodecEx(default)
+        .noTypos
+    }
+
+    def defaultStyle(source: SourceHints): Option[Style] = source match {
+      case Newlines.unfold => Some(many)
+      case Newlines.fold => Some(some)
+      case _ => None
+    }
   }
 
   sealed abstract class BeforeAfter
@@ -612,7 +664,7 @@ object Newlines {
       bracketCallSite: Option[ConfigStyleElement] = None,
       bracketDefnSite: Option[ConfigStyleElement] = None,
       fallBack: ConfigStyleElement = ConfigStyleElement(),
-      @annotation.DeprecatedName(
+      @DeprecatedName(
         "beforeComma",
         "Scala supports trailing commas after 2.12.2. Use trailingCommas instead",
         "2.5.0",
