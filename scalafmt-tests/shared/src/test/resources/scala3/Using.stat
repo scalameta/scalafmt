@@ -249,8 +249,7 @@ maxColumn = 40
 ===
 def foo( /* go scala3 */ using a: String, b: String, c: String ): Unit
 >>>
-def foo(
-    /* go scala3 */ using
+def foo( /* go scala3 */ using
     a: String,
     b: String,
     c: String
@@ -260,8 +259,7 @@ maxColumn = 40
 ===
 foo( /* go scala3 */ using a: String, b: String, c: String )
 >>>
-foo(
-  /* go scala3 */ using
+foo( /* go scala3 */ using
   a: String,
   b: String,
   c: String

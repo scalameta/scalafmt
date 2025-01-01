@@ -1016,10 +1016,12 @@ class Router(formatOps: FormatOps) {
             else style.binPack.defnSiteFor(open) == BinPack.Site.Never &&
             isParamClauseSite(leftOwner)
           } =>
-        val afterOpen = next(ft)
+        val rightIsComment = right.is[T.Comment]
+        val nft = if (rightIsComment) nextNonCommentSameLine(ft) else ft
+        val afterOpen = nextNonCommentSameLineAfter(nft)
         val close = matchingLeft(ft)
         val beforeClose = prev(close)
-        val tupleSite = isTuple(leftOwner)
+        val tupleSite = leftOwner.is[Member.Tuple]
         val anyDefnSite = isParamClauseSite(leftOwner)
         val defnSite = !tupleSite && anyDefnSite
 
@@ -1091,11 +1093,10 @@ class Router(formatOps: FormatOps) {
           decideNewlinesOnlyBeforeClose(close)
 
         // covers using as well
-        val handleImplicit = !tupleSite &&
+        val handleImplicit = !(tupleSite || rightIsComment && nft.hasBreak) &&
           (if (onlyConfigStyle) opensConfigStyleImplicitParamList(ft)
-           else hasImplicitParamList(rightOwner))
+           else hasImplicitParamList(nft.rightOwner))
 
-        val rightIsComment = right.is[T.Comment]
         val align = !rightIsComment && alignOpenDelim &&
           (!handleImplicit || style.newlines.forceAfterImplicitParamListModifier)
         val alignTuple = align && tupleSite && !onlyConfigStyle
@@ -1189,7 +1190,9 @@ class Router(formatOps: FormatOps) {
           else {
             val useOneArgPerLineSplit = notTooManyArgs && align ||
               handleImplicit &&
-              style.newlines.notBeforeImplicitParamListModifier
+              (style.newlines.notBeforeImplicitParamListModifier ||
+                afterOpen.hasBreak && // prefer before, but must break after
+                (afterOpen.left.is[T.Comment] || afterOpen.right.is[T.Comment]))
             val slbSplit =
               if (mustDangleForTrailingCommas) Split.ignored
               else {
