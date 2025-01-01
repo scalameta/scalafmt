@@ -253,16 +253,6 @@ case class ScalafmtConfig(
     rewrite = rewrite.withoutRewrites,
   )
 
-  def breakAfterInfix(tree: => Tree): Newlines.AfterInfix = newlines.afterInfix
-    .getOrElse {
-      val useSome = newlines.source == Newlines.classic &&
-        tree.is[Type.ApplyInfix] && dialect.useInfixTypePrecedence
-      if (useSome) Newlines.AfterInfix.some else newlines.breakAfterInfix
-    }
-
-  def formatInfix(tree: => Tree): Boolean = breakAfterInfix(tree) ne
-    Newlines.AfterInfix.keep
-
   def getFewerBraces(): Indents.FewerBraces =
     if (indent.getSignificant < 2) Indents.FewerBraces.never
     else indent.fewerBraces

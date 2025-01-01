@@ -418,6 +418,7 @@ object TreeOps {
   final def isInfixOp(tree: Tree): Boolean = AsInfixOp.unapply(tree).isDefined
 
   object AsInfixOp {
+    def apply(tree: Tree) = unapply(tree)
     def unapply(tree: Tree): Option[Member.Infix] = tree.parent
       .collect { case ia: Member.Infix if ia.op eq tree => ia }
   }
@@ -770,7 +771,9 @@ object TreeOps {
       topSourceTree: Tree,
       baseStyle: ScalafmtConfig,
   ): (ScalafmtConfig, collection.Map[TokenHash, Tree]) = {
-    var infixCount = 0
+    var termInfixCount = 0
+    var typeInfixCount = 0
+    var patInfixCount = 0
     // Creates lookup table from token offset to its closest scala.meta tree
     val ownersMap = HashMap.newBuilder[TokenHash, Tree]
     @inline
@@ -786,7 +789,12 @@ object TreeOps {
         elemEnd: T,
         outerPrevLPs: Int,
     ): Int = {
-      if (TreeOps.isInfixApp(elem)) infixCount += 1
+      elem match {
+        case _: Term.ApplyInfix => termInfixCount += 1
+        case _: Type.ApplyInfix => typeInfixCount += 1
+        case _: Pat.ExtractInfix => patInfixCount += 1
+        case _ =>
+      }
 
       val treeBeg = elemBeg.start
       val treeEnd = elemEnd.end
@@ -884,7 +892,8 @@ object TreeOps {
 
     treeAt(0, topSourceTree, allTokens.head, allTokens.last, 0)
 
-    val checkedNewlines = baseStyle.newlines.checkInfixConfig(infixCount)
+    val checkedNewlines = baseStyle.newlines
+      .checkInfixConfig(termInfixCount, typeInfixCount, patInfixCount)(baseStyle)
     val initStyle =
       if (checkedNewlines eq baseStyle.newlines) baseStyle
       else baseStyle.copy(newlines = checkedNewlines)

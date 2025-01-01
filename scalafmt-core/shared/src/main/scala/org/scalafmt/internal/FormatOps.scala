@@ -70,10 +70,11 @@ class FormatOps(
           _: T.Interpolation.End | _: T.Interpolation.SpliceStart |
           _: T.Interpolation.Part => null
       case _ if start.hasBlankLine => start
-      case _ if !style.newlines.formatInfix && {
-            isInfixOp(start.rightOwner) ||
-            isInfixOp(prevNonComment(start).leftOwner)
-          } => if (start.hasBreak) start else null
+      case _
+          if AsInfixOp(start.rightOwner)
+            .orElse(AsInfixOp(prevNonComment(start).leftOwner))
+            .exists(style.newlines.infix.keep) =>
+        if (start.hasBreak) start else null
       case _: T.LeftParen if (start.rightOwner match {
             case _: Member.ArgClause =>
               !style.newlines.isBeforeOpenParenCallSite
@@ -375,8 +376,8 @@ class FormatOps(
         }
       def spaceMod = Space(useSpaceAroundOp && (isBeforeOp || useSpaceBeforeArg))
 
-      val afterInfix = style.breakAfterInfix(app)
-      if (afterInfix ne Newlines.AfterInfix.keep)
+      val afterInfix = style.newlines.infix.get(app)
+      if (!afterInfix.isKeep)
         if (isBeforeOp) Seq(Split(spaceMod, 0))
         else {
           val (fullInfix, enclosedIn) = InfixSplits.findMaybeEnclosingInfix(app)
@@ -417,7 +418,7 @@ class FormatOps(
 
   def getInfixSplitsBeforeLhs(
       lhsApp: Member.Infix,
-      afterInfix: Newlines.AfterInfix,
+      afterInfix: Newlines.Infix.Site,
       newStmtMod: Option[Modification] = None,
   )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] = {
     val fullInfixTreeOpt = findTreeWithParentSimple(lhsApp, false)(isInfixApp)
@@ -429,12 +430,12 @@ class FormatOps(
 
   final def maybeGetInfixSplitsBeforeLhs(mod: => Option[Modification] = None)(
       nonInfixSplits: => Seq[Split],
-  )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] = {
-    val tree = ft.meta.rightOwner
-    val ai = style.breakAfterInfix(tree)
-    val app = if (ai eq Newlines.AfterInfix.keep) None else asInfixApp(tree)
-    app.fold(nonInfixSplits)(getInfixSplitsBeforeLhs(_, ai, mod))
-  }
+  )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] =
+    asInfixApp(ft.meta.rightOwner).fold(nonInfixSplits) { ia =>
+      val infixSite = style.newlines.infix.get(ia)
+      if (infixSite.isKeep) nonInfixSplits
+      else getInfixSplitsBeforeLhs(ia, infixSite, mod)
+    }
 
   private[internal] object InfixSplits {
 
@@ -606,9 +607,8 @@ class FormatOps(
       def policy(triggers: T*) = Policy ? triggers.isEmpty ||
         Policy.onLeft(fullExpire, prefix = "INF") {
           case Decision(t: FT, s)
-              if isInfixOp(t.meta.leftOwner) ||
-                isInfixOp(t.meta.rightOwner) &&
-                !t.meta.rightOwner.parent.exists(style.formatInfix(_)) =>
+              if isInfixOp(t.meta.leftOwner) || AsInfixOp(t.meta.rightOwner)
+                .exists(style.newlines.infix.keep) =>
             InfixSplits.switch(s, triggers: _*)
         }
 
@@ -634,7 +634,7 @@ class FormatOps(
       .andPolicy(nlPolicy)
 
     def getBeforeLhsOrRhs(
-        afterInfix: Newlines.AfterInfix,
+        afterInfix: Newlines.Infix.Site,
         newStmtMod: Option[Modification] = None,
         spaceMod: Modification = Space,
     )(implicit ft: FT): Seq[Split] = {
@@ -649,7 +649,7 @@ class FormatOps(
         else {
           val res = mutable.Buffer.empty[Member.Infix]
           findNextInfixes(fullInfix, app.lhs, res)(
-            if (!style.newlines.afterInfixBreakOnNested) _ => true
+            if (!afterInfix.breakOnNested) _ => true
             else x => !isEnclosedWithinParensOrBraces(x.lhs),
           )
           val infixes = if (isAfterOp) res.toSeq.drop(1) else res.toSeq
@@ -670,8 +670,8 @@ class FormatOps(
         }
 
       val infixTooLong = infixSequenceLength(fullInfix) >
-        style.newlines.afterInfixMaxCountPerExprForSome
-      val breakMany = infixTooLong || afterInfix == Newlines.AfterInfix.many
+        afterInfix.maxCountPerExprForSome
+      val breakMany = infixTooLong || (afterInfix.style eq Newlines.Infix.many)
       val rightAsInfix = asInfixApp(ft.meta.rightOwner)
 
       def breakAfterComment(t: FT) = {
@@ -717,7 +717,7 @@ class FormatOps(
         val noSingleLine = newStmtMod.isDefined || breakMany ||
           rightAsInfix.exists(10 < infixSequenceLength(_))
         val nextOp =
-          if (!style.newlines.afterInfixBreakOnNested) None
+          if (!afterInfix.breakOnNested) None
           else if (!isAfterOp) Some(app.op)
           else getInfixRhsAsInfix(app) match {
             case Some(ia) => Some(findLeftInfix(ia).op)
