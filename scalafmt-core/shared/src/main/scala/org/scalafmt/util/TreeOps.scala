@@ -285,8 +285,6 @@ object TreeOps {
     case _ => false
   }
 
-  def isTuple(tree: Tree): Boolean = tree.is[Member.Tuple]
-
   def noSpaceBeforeOpeningParen(tree: Tree): Boolean = tree match {
     case _: Term.Super => true
     case t: Member.ArgClause => !t.parent.is[Member.Infix]

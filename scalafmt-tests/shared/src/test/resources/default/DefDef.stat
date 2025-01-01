@@ -345,8 +345,7 @@ object a {
 }
 >>>
 object a {
-  def checkInfixCounts(termCnt: Int)(
-      implicit // TODO
+  def checkInfixCounts(termCnt: Int)(implicit // TODO
       cfg: ScalafmtConfig): Infix = ???
 }
 <<< comment after implicit, force=before
@@ -390,8 +389,7 @@ object a {
 }
 >>>
 object a {
-  def checkInfixCounts(termCnt: Int)(
-      implicit // TODO
+  def checkInfixCounts(termCnt: Int)(implicit // TODO
       cfg: ScalafmtConfig): Infix = ???
 }
 <<< comment after implicit, force=after
@@ -405,8 +403,7 @@ object a {
 }
 >>>
 object a {
-  def checkInfixCounts(termCnt: Int)(
-      implicit // TODO
+  def checkInfixCounts(termCnt: Int)(implicit // TODO
       cfg: ScalafmtConfig
   ): Infix = ???
 }
@@ -464,8 +461,8 @@ object a {
 }
 >>>
 object a {
-  def checkInfixCounts(termCnt: Int)(
-      /* TODO */ implicit cfg: ScalafmtConfig): Infix = ???
+  def checkInfixCounts(termCnt: Int)( /* TODO */ implicit
+      cfg: ScalafmtConfig): Infix = ???
 }
 <<< comment before implicit, force=after
 maxColumn = 60
@@ -478,8 +475,7 @@ object a {
 }
 >>>
 object a {
-  def checkInfixCounts(termCnt: Int)(
-      /* TODO */ implicit
+  def checkInfixCounts(termCnt: Int)( /* TODO */ implicit
       cfg: ScalafmtConfig): Infix = ???
 }
 <<< no comment around implicit, prefer=before
