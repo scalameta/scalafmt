@@ -24,6 +24,12 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
   `browser-sync start --server --files "target/*.html"`.
   See [Browsersync](https://www.browsersync.io/).
 
+### JDK compatibility
+| JDK  | Release         |
+| ---- | ----------------|
+| 8    | Up to `v3.7.16` |
+| 11+  | _latest_        |
+
 ### Team
 The current maintainers (people who can merge pull requests) are:
 
