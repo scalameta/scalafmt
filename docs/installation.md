@@ -5,6 +5,12 @@ title: Installation
 
 You can use Scalafmt from your editor, build tool or terminal.
 
+## JDK compatibility
+| JDK  | Release          |
+| ---- | -----------------|
+| 8    | Up to `v3.7.16`  |
+| 11+  | @STABLE_VERSION@ |
+
 ## IntelliJ
 
 The _Scala_ plugin compatible with recent versions of IntelliJ IDEA has

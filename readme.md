@@ -1,6 +1,5 @@
 # scalafmt
 [![Build Status](https://img.shields.io/github/actions/workflow/status/scalameta/scalafmt/ci.yml)](https://github.com/scalameta/scalafmt/actions)
-[![Build status](https://ci.appveyor.com/api/projects/status/7gha7cxm5lw8fsc3)](https://ci.appveyor.com/project/olafurpg/scalafmt/branch/master)
 [![Join the discord chat](https://img.shields.io/discord/632642981228314653?label=discord)](https://discord.gg/N43mbnH)
 [![Latest version](https://index.scala-lang.org/scalameta/scalafmt/scalafmt-core/latest.svg?color=orange&kill_cache=1)](https://index.scala-lang.org/scalameta/scalafmt/scalafmt-core)
 
@@ -23,12 +22,6 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
   along with this background process:
   `browser-sync start --server --files "target/*.html"`.
   See [Browsersync](https://www.browsersync.io/).
-
-### JDK compatibility
-| JDK  | Release         |
-| ---- | ----------------|
-| 8    | Up to `v3.7.16` |
-| 11+  | _latest_        |
 
 ### Team
 The current maintainers (people who can merge pull requests) are:
