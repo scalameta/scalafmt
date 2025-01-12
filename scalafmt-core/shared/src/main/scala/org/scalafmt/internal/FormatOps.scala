@@ -1788,28 +1788,25 @@ class FormatOps(
 
   def getSplitsForTypeBounds(
       noNLMod: => Modification,
-      tparam: Type.Param,
-      bounds: Type.Param => Seq[Type],
+      tbounds: Type.Bounds,
+      bounds: => Seq[Type],
   )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] = {
-    val boundOpt = bounds(tparam).find(_.pos.start > ft.right.end)
+    val boundOpt = bounds.find(_.pos.start > ft.right.end)
     val expireOpt = boundOpt.map(getLastNonTrivial)
-    getSplitsForTypeBounds(noNLMod, tparam, expireOpt)
+    getSplitsForTypeBounds(noNLMod, tbounds, expireOpt)
   }
 
   def getSplitsForTypeBounds(
       noNLMod: => Modification,
-      typeOwner: Tree,
+      tbounds: Type.Bounds,
       boundEndOpt: Option[FT],
   )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] = {
-    val typeEnd = getLastNonTrivial(typeOwner)
+    val typeEnd = getLastNonTrivial(tbounds)
     val boundEnd = boundEndOpt.getOrElse(typeEnd)
     def indent = Indent(style.indent.main, boundEnd, ExpiresOn.After)
-    def unfoldPolicy = typeOwner match {
-      case tparam: Type.Param => Policy.onLeft(typeEnd, prefix = "VB") {
-          case Decision(t @ FT(_, _: T.Colon | _: T.Viewbound, _), s)
-              if t.meta.rightOwner eq tparam => Decision.onlyNewlineSplits(s)
-        }
-      case _ => NoPolicy
+    def unfoldPolicy = Policy.onLeft(typeEnd, prefix = "VB/CB") {
+      case Decision(FT(_, _: T.Colon | _: T.Viewbound, m), s)
+          if m.rightOwner eq tbounds => Decision.onlyNewlineSplits(s)
     }
     style.newlines.beforeTypeBounds match {
       case Newlines.classic => Seq(Split(noNLMod, 0))

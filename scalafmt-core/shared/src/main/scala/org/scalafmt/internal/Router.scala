@@ -1761,32 +1761,25 @@ class Router(formatOps: FormatOps) {
        * Type Bounds
        */
 
-      case FT(_, _: T.Colon, FT.RightOwner(tp: Type.Param)) =>
+      case FT(_, _: T.Colon, FT.RightOwner(tp: Type.Bounds)) =>
         def noNLMod = Space(style.spaces.beforeContextBoundColon match {
           case Spaces.BeforeContextBound.Always => true
           case Spaces.BeforeContextBound.IfMultipleBounds => 1 <
-              tp.cbounds.length +
-              tp.vbounds.length + tp.tbounds.lo.size + tp.tbounds.hi.size
+              tp.context.length + tp.view.length + tp.lo.size + tp.hi.size
           case _ => false
         })
-        getSplitsForTypeBounds(noNLMod, tp, _.cbounds)
-      case FT(_, _: T.Viewbound, FT.RightOwner(tp: Type.Param)) =>
-        getSplitsForTypeBounds(Space, tp, _.vbounds)
+        getSplitsForTypeBounds(noNLMod, tp, tp.context)
+      case FT(_, _: T.Viewbound, FT.RightOwner(tp: Type.Bounds)) =>
+        getSplitsForTypeBounds(Space, tp, tp.view)
       /* Type bounds in type definitions and declarations such as:
        * type `Tuple <: Alpha & Beta = Another` or `Tuple <: Alpha & Beta`
        */
-      case FT(
-            _,
-            bound @ (_: T.Subtype | _: T.Supertype),
-            FT.RightOwnerParent((tbounds: Type.Bounds, Some(typeOwner))),
-          ) =>
-        val boundOpt = bound match {
-          case _: T.Subtype => tbounds.hi
-          case _: T.Supertype => tbounds.lo
-          case _ => None
-        }
-        val boundEnd = boundOpt.map(getLastNonTrivial)
-        getSplitsForTypeBounds(Space, typeOwner, boundEnd)
+      case FT(_, _: T.Subtype, FT.RightOwner(tbounds: Type.Bounds)) =>
+        val boundEnd = tbounds.hi.map(getLastNonTrivial)
+        getSplitsForTypeBounds(Space, tbounds, boundEnd)
+      case FT(_, _: T.Supertype, FT.RightOwner(tbounds: Type.Bounds)) =>
+        val boundEnd = tbounds.lo.map(getLastNonTrivial)
+        getSplitsForTypeBounds(Space, tbounds, boundEnd)
 
       case FT(left, _: T.Colon, _) =>
         val mod = left match {
