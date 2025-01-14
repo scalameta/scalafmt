@@ -3542,3 +3542,40 @@ object a {}
 >>>
 /** foo bar */
 object a {}
+<<< #4716
+docstrings.wrap = yes
+===
+/** Options:
+ * - foo`bar`s
+ * - foo `bar`s
+ * - foo `bar`'s
+ * - foo(`bar`)
+ * - foo (`bar`)
+ * - foo[[bar]]baz
+ * - foo [[bar]]s
+ * - foo([[bar]])
+ * - foo ([[bar]])
+ * - foo{{{bar}}}baz
+ * - foo {{{bar}}}s
+ * - foo({{{bar}}})
+ * - foo ({{{bar}}})
+ */
+object a
+>>>
+/**
+ * Options:
+ *   - foo`bar`s
+ *   - foo `bar` s
+ *   - foo `bar` 's
+ *   - foo(`bar`)
+ *   - foo (`bar`)
+ *   - foo[[bar]]baz
+ *   - foo [[bar]]s
+ *   - foo([[bar]])
+ *   - foo ([[bar]])
+ *   - foo{{{bar}}}baz
+ *   - foo {{{bar}}} s
+ *   - foo({{{bar}}})
+ *   - foo ({{{bar}}})
+ */
+object a
