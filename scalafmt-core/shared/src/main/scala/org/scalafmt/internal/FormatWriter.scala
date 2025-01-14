@@ -948,7 +948,21 @@ class FormatWriter(formatOps: FormatOps) {
               word.length == 2 && word(1) == '.' && "1aiI".contains(word(0))
 
           val wf = new WordFormatter(appendBreak, termIndent, likeNonText)
-          val words = text.parts.iterator.map(_.syntax)
+          val wordIter = text.parts.iterator.buffered
+          val words = wordIter.map { info =>
+            val text = info.part.syntax
+            wordIter.headOption match {
+              case Some(next) if next.attachedToPrevious =>
+                val partsb = new StringBuilder()
+                partsb.append(text)
+                while ({ // poor man's do-while
+                  partsb.append(wordIter.next().part.syntax)
+                  wordIter.headOption.exists(_.attachedToPrevious)
+                }) {}
+                partsb.result()
+              case _ => text
+            }
+          }
           val lineLength = math.max(lineLengthSoFar, termIndent.length)
           wf(words, lineLength, lineLengthSoFar == 0, false)
           appendBreak()
