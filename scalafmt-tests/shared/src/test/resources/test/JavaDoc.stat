@@ -3565,8 +3565,8 @@ object a
 /**
  * Options:
  *   - foo`bar`s
- *   - foo `bar` s
- *   - foo `bar` 's
+ *   - foo `bar`s
+ *   - foo `bar`'s
  *   - foo(`bar`)
  *   - foo (`bar`)
  *   - foo[[bar]]baz
@@ -3574,7 +3574,7 @@ object a
  *   - foo([[bar]])
  *   - foo ([[bar]])
  *   - foo{{{bar}}}baz
- *   - foo {{{bar}}} s
+ *   - foo {{{bar}}}s
  *   - foo({{{bar}}})
  *   - foo ({{{bar}}})
  */
