@@ -20,6 +20,11 @@ jobs:
       matrix:
         java: [ '11', '21' ]
         os: [windows-latest, ubuntu-latest]
+        include:
+          - java: '11'
+            SCALAFMT_LIB_JAVA_RELEASE: '8'
+    env:
+      SCALAFMT_LIB_JAVA_RELEASE: ${{ matrix.SCALAFMT_LIB_JAVA_RELEASE || '' }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

@@ -19,6 +19,7 @@ jobs:
       - name: Publish ${{ github.ref }}
         run: sbt ci-release docs/docusaurusPublishGhpages
         env:
+          SCALAFMT_LIB_JAVA_RELEASE: '8'
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}

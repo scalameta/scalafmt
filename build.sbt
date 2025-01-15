@@ -80,7 +80,7 @@ lazy val dynamic = crossProject(JVMPlatform, NativePlatform)
     ),
     scalacOptions ++= scalacJvmOptions.value,
   ).dependsOn(interfaces, sysops).dependsOn(core % "test")
-  .enablePlugins(BuildInfoPlugin)
+  .jvmSettings(libJavaVerJvmSettings).enablePlugins(BuildInfoPlugin)
 
 lazy val interfaces = crossProject(JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-interfaces")).settings(
@@ -96,6 +96,7 @@ lazy val interfaces = crossProject(JVMPlatform, NativePlatform)
       List(out)
     },
   ).jvmSettings(crossVersion := CrossVersion.disabled, autoScalaLibrary := false)
+  .jvmSettings(libJavaVerJvmSettings)
 
 lazy val sysops = crossProject(JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-sysops")).settings(
@@ -111,7 +112,7 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform)
         case _ => Seq()
       }
     },
-  )
+  ).jvmSettings(libJavaVerJvmSettings)
 
 lazy val config = crossProject(JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-config")).settings(
@@ -332,3 +333,20 @@ lazy val communityTestsSettings: Seq[Def.Setting[_]] = Seq(
 )
 
 lazy val scalaNativeConfig = nativeConfig ~= { _.withMode(Mode.releaseFull) }
+
+def libJavaVer = sys.env.get("SCALAFMT_LIB_JAVA_RELEASE").filter(_.nonEmpty)
+
+lazy val libJavaVerJvmSettings: Seq[Def.Setting[_]] = Seq(
+  Compile / scalacOptions ++= {
+    val options = libJavaVer.fold(Seq.empty[String])(v => Seq("-release", v))
+    if (options.nonEmpty)
+      println(options.mkString(s"Add Java release scalacOptions: [", ", ", "]"))
+    options
+  },
+  Compile / javacOptions ++= {
+    val options = libJavaVer.fold(Seq.empty[String])(v => Seq("--release", v))
+    if (options.nonEmpty)
+      println(options.mkString(s"Add Java release javacOptions: [", ", ", "]"))
+    options
+  },
+)
