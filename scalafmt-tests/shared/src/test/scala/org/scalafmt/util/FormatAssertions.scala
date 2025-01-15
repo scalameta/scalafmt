@@ -90,7 +90,7 @@ trait FormatAssertions {
       " " * e.pos.startColumn + "^", // arrow
       linesAfterCaret.mkString("\n"),
       "====== full result: ======",
-      obtained.stripTrailing(),
+      obtained.trim(),
     ).filter(_.nonEmpty).mkString("", "\n", "\n")
   }
 }

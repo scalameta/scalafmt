@@ -58,9 +58,9 @@ object TestHelpers {
         val out1 = x1.formattedCode
         val lines2 = x1.formattedCode.count(_ == '\n')
         val (duration2, result2) = formatCode(out1)
-        def saveFormatted(): Unit = Files.writeString(
+        def saveFormatted(): Unit = Files.write(
           Paths.get(absPathString + s".formatted.$styleName"),
-          out1,
+          out1.getBytes(),
           StandardOpenOption.CREATE,
           StandardOpenOption.TRUNCATE_EXISTING,
         )

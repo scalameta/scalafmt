@@ -95,7 +95,12 @@ lazy val interfaces = crossProject(JVMPlatform, NativePlatform)
       IO.write(props, "scalafmt properties", out)
       List(out)
     },
-  ).jvmSettings(crossVersion := CrossVersion.disabled, autoScalaLibrary := false)
+  ).jvmSettings(
+    javacOptions ++= Seq("-source", "8", "-target", "8"),
+    Compile / doc / javacOptions := Seq(),
+    crossVersion := CrossVersion.disabled,
+    autoScalaLibrary := false,
+  )
 
 lazy val sysops = crossProject(JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-sysops")).settings(
@@ -175,7 +180,7 @@ val scalacJvmOptions = Def.setting {
   val unused = Seq("imports", "privates", "locals", "patvars", "implicits")
     .map(x => s"-Ywarn-unused:$x")
 
-  cross ++ unused
+  cross ++ unused ++ Seq("-target:8", "-release:8")
 }
 
 lazy val cli = crossProject(JVMPlatform, NativePlatform)
