@@ -85,9 +85,6 @@ import metaconfig._
 @annotation.SectionRename("trailingCommas", "rewrite.trailingCommas.style") // v3.0.5
 @annotation.SectionRename("poorMansTrailingCommasInConfigStyle", "newlines.configStyle.beforeComma") // v3.8.4
 @annotation.SectionRename("optIn.forceBlankLineBeforeDocstring", "docstrings.forceBlankLineBefore") // v3.4.0
-@annotation.SectionRename("indentOperator", "indent.infix") // v3.8.4
-@annotation.SectionRename("verticalAlignMultilineOperators", "indent.infix", IndentOperator.boolToAssign) // v3.8.4
-@annotation.SectionRename("indentYieldKeyword", "indent.yieldKeyword") // v3.8.4
 @annotation.SectionRename("rewriteTokens", "rewrite.tokens") // v3.8.4
 @annotation.SectionRename("importSelectors", "binPack.importSelectors") // v3.8.4
 @annotation.SectionRename("binPackImportSelectors", "binPack.importSelectors") // v3.8.4
@@ -100,6 +97,11 @@ import metaconfig._
 // annotations
 @annotation.SectionRename("optIn.annotationNewlines", "newlines.annotation") // v3.8.4
 @annotation.SectionRename("optIn.selfAnnotationNewline", "newlines.selfAnnotation") // v3.8.4
+// indent
+@annotation.SectionRename("continuationIndent", "indent") // v3.8.5
+@annotation.SectionRename("indentOperator", "indent.infix") // v3.8.4
+@annotation.SectionRename("verticalAlignMultilineOperators", "indent.infix", IndentOperator.boolToAssign) // v3.8.4
+@annotation.SectionRename("indentYieldKeyword", "indent.yieldKeyword") // v3.8.4
 // scalafmt: { maxColumn = 80 }
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
@@ -107,7 +109,6 @@ case class ScalafmtConfig(
     docstrings: Docstrings = Docstrings(),
     comments: Comments = Comments(),
     binPack: BinPack = BinPack(),
-    @annotation.ExtraName("continuationIndent")
     indent: Indents = Indents(),
     align: Align = Align(),
     spaces: Spaces = Spaces(),

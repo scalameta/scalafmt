@@ -4082,6 +4082,6 @@ final case class Appends(
 ) extends Batch_4_1_0
 >>>
 final case class Appends(
-    offset: Offset,
-    records: NonEmptyList[ActionRecord[Action.Append]]
+  offset: Offset,
+  records: NonEmptyList[ActionRecord[Action.Append]]
 ) extends Batch_4_1_0
