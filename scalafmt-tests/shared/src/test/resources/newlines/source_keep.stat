@@ -11522,3 +11522,237 @@ object Foo {
       Option
     ] & CommutativeMonad[Option] & CoflatMap[Option] & Align[Option]
 }
+<<< consistency between string and interpolation: stripMargin, ignoreInSyntax
+maxColumn = 40
+align.stripMargin = true
+newlines.ignoreInSyntax = true
+assumeStandardLibraryStripMargin = true
+===
+object a {
+  val foo1s = """bar
+   baz
+   qux"""
+  val foo1i = s"""bar
+   baz
+   qux"""
+  val foo2s = """|bar
+   |baz
+   |qux""".stripMargin
+  val foo2i = s"""|bar
+   |baz
+   |qux""".stripMargin
+  val foo3si = """|bar
+   |baz
+   |qux""".stripMargin + s"""|bar
+   |baz
+   |qux""".stripMargin
+  val foo3is = s"""|bar
+   |baz
+   |qux""".stripMargin + """|bar
+   |baz
+   |qux""".stripMargin
+}
+>>>
+object a {
+  val foo1s = """bar
+   baz
+   qux"""
+  val foo1i = s"""bar
+   baz
+   qux"""
+  val foo2s = """|bar
+                 |baz
+                 |qux""".stripMargin
+  val foo2i = s"""|bar
+                  |baz
+                  |qux""".stripMargin
+  val foo3si =
+    """|bar
+       |baz
+       |qux""".stripMargin + s"""|bar
+                                |baz
+                                |qux""".stripMargin
+  val foo3is =
+    s"""|bar
+        |baz
+        |qux""".stripMargin + """|bar
+                                |baz
+                                |qux""".stripMargin
+}
+<<< consistency between string and interpolation: stripMargin, !ignoreInSyntax
+maxColumn = 40
+align.stripMargin = true
+newlines.ignoreInSyntax = false
+assumeStandardLibraryStripMargin = true
+===
+object a {
+  val foo1s = """bar
+   baz
+   qux"""
+  val foo1i = s"""bar
+   baz
+   qux"""
+  val foo2s = """|bar
+   |baz
+   |qux""".stripMargin
+  val foo2i = s"""|bar
+   |baz
+   |qux""".stripMargin
+  val foo3si = """|bar
+   |baz
+   |qux""".stripMargin + s"""|bar
+   |baz
+   |qux""".stripMargin
+  val foo3is = s"""|bar
+   |baz
+   |qux""".stripMargin + """|bar
+   |baz
+   |qux""".stripMargin
+}
+>>>
+object a {
+  val foo1s = """bar
+   baz
+   qux"""
+  val foo1i =
+    s"""bar
+   baz
+   qux"""
+  val foo2s =
+    """|bar
+       |baz
+       |qux""".stripMargin
+  val foo2i =
+    s"""|bar
+        |baz
+        |qux""".stripMargin
+  val foo3si =
+    """|bar
+       |baz
+       |qux""".stripMargin + s"""|bar
+                                |baz
+                                |qux""".stripMargin
+  val foo3is =
+    s"""|bar
+        |baz
+        |qux""".stripMargin + """|bar
+                                |baz
+                                |qux""".stripMargin
+}
+<<< consistency between string and interpolation: !stripMargin, ignoreInSyntax
+maxColumn = 40
+align.stripMargin = false
+newlines.ignoreInSyntax = true
+assumeStandardLibraryStripMargin = true
+===
+object a {
+  val foo1s = """bar
+   baz
+   qux"""
+  val foo1i = s"""bar
+   baz
+   qux"""
+  val foo2s = """|bar
+   |baz
+   |qux""".stripMargin
+  val foo2i = s"""|bar
+   |baz
+   |qux""".stripMargin
+  val foo3si = """|bar
+   |baz
+   |qux""".stripMargin + s"""|bar
+   |baz
+   |qux""".stripMargin
+  val foo3is = s"""|bar
+   |baz
+   |qux""".stripMargin + """|bar
+   |baz
+   |qux""".stripMargin
+}
+>>>
+object a {
+  val foo1s = """bar
+   baz
+   qux"""
+  val foo1i = s"""bar
+   baz
+   qux"""
+  val foo2s = """|bar
+    |baz
+    |qux""".stripMargin
+  val foo2i = s"""|bar
+    |baz
+    |qux""".stripMargin
+  val foo3si =
+    """|bar
+      |baz
+      |qux""".stripMargin + s"""|bar
+      |baz
+      |qux""".stripMargin
+  val foo3is =
+    s"""|bar
+      |baz
+      |qux""".stripMargin + """|bar
+      |baz
+      |qux""".stripMargin
+}
+<<< consistency between string and interpolation: !stripMargin, !ignoreInSyntax
+maxColumn = 40
+align.stripMargin = false
+newlines.ignoreInSyntax = false
+assumeStandardLibraryStripMargin = true
+===
+object a {
+  val foo1s = """bar
+   baz
+   qux"""
+  val foo1i = s"""bar
+   baz
+   qux"""
+  val foo2s = """|bar
+   |baz
+   |qux""".stripMargin
+  val foo2i = s"""|bar
+   |baz
+   |qux""".stripMargin
+  val foo3si = """|bar
+   |baz
+   |qux""".stripMargin + s"""|bar
+   |baz
+   |qux""".stripMargin
+  val foo3is = s"""|bar
+   |baz
+   |qux""".stripMargin + """|bar
+   |baz
+   |qux""".stripMargin
+}
+>>>
+object a {
+  val foo1s = """bar
+   baz
+   qux"""
+  val foo1i =
+    s"""bar
+   baz
+   qux"""
+  val foo2s =
+    """|bar
+      |baz
+      |qux""".stripMargin
+  val foo2i =
+    s"""|bar
+      |baz
+      |qux""".stripMargin
+  val foo3si =
+    """|bar
+      |baz
+      |qux""".stripMargin + s"""|bar
+      |baz
+      |qux""".stripMargin
+  val foo3is =
+    s"""|bar
+      |baz
+      |qux""".stripMargin + """|bar
+      |baz
+      |qux""".stripMargin
+}
