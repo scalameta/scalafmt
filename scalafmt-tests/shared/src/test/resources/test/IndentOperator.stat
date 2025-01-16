@@ -4068,3 +4068,20 @@ object A {
 
   /* Some comment */
 }
+<<< #4717 interplay between indentOperator and continuationIndent
+maxColumn = 80
+indentOperator.topLevelOnly = true
+continuationIndent {
+  callSite = 2
+  defnSite = 2
+}
+===
+final case class Appends(
+    offset: Offset,
+    records: NonEmptyList[ActionRecord[Action.Append]],
+) extends Batch_4_1_0
+>>>
+final case class Appends(
+    offset: Offset,
+    records: NonEmptyList[ActionRecord[Action.Append]]
+) extends Batch_4_1_0
