@@ -7665,10 +7665,10 @@ given [A] => (Seq[A] =>
 given [A] => (Seq[A]
  => List[A]) => List[A] = foo
 >>>
-given [A] => (Seq[A] => List[A]) =>
-  List[A] = foo
-given [A] => (Seq[A] => List[A]) =>
-  List[A] = foo
+given [A] => (Seq[A] => List[A])
+  => List[A] = foo
+given [A] => (Seq[A] => List[A])
+  => List[A] = foo
 <<< scala-3.6 given 3
 maxColumn = 40
 runner.parser = source
@@ -7678,10 +7678,10 @@ given foo: (a: A) =>
 given foo: (a: A)
  => [B, C <: AnyRef] => (b: B[A], C) => List[A] = foo
 >>>
-given foo: (a: A) => [B, C <: AnyRef] =>
-  (b: B[A], C) => List[A] = foo
-given foo: (a: A) => [B, C <: AnyRef] =>
-  (b: B[A], C) => List[A] = foo
+given foo: (a: A) => [B, C <: AnyRef]
+  => (b: B[A], C) => List[A] = foo
+given foo: (a: A) => [B, C <: AnyRef]
+  => (b: B[A], C) => List[A] = foo
 <<< don't rewrite complex infix to braces
 rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
 rewrite.rules = [RedundantBraces, RedundantParens]

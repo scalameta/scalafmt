@@ -630,9 +630,9 @@ class Router(formatOps: FormatOps) {
             if (pcg.tparamClause.values.isEmpty) pcg.paramClauses
             else pcg.tparamClause +: pcg.paramClauses,
           ).foldLeft(Policy.noPolicy) { case (policy, pc) =>
-            val pcLast = getLast(pc)
-            val pcPolicy = Policy ? pcLast.left.is[T.RightArrow] &&
-              decideNewlinesOnlyAfterToken(nextNonCommentSameLine(pcLast))
+            val afterpc = tokenAfter(pc)
+            val pcPolicy = Policy ? afterpc.right.is[T.RightArrow] &&
+              decideNewlinesOnlyAfterToken(afterpc)
             policy ==> pcPolicy
           }
           if (nonSlbPolicy.isEmpty) Seq(Split(Space, 0))
@@ -645,16 +645,17 @@ class Router(formatOps: FormatOps) {
 
       // Given conditional arrow
       case FT(
-            left: T.RightArrow,
             _,
-            FT.LeftOwnerParent(
+            right: T.RightArrow,
+            FT.RightOwnerParent(
               pcg: Member.ParamClauseGroup,
               Some(gvn: Stat.GivenLike),
             ),
           ) =>
         val nlOnly = !style.newlines.sourceIgnored && hasBreak()
         def spaceSplit(implicit fl: FileLine) = Split(nlOnly, 0)(Space)
-        val nextParamClause = pcg.paramClauses.find(_.pos.start > left.start)
+        val nextParamClause = (pcg.tparamClause +: pcg.paramClauses)
+          .find(_.pos.end > right.end)
           .orElse(gvn.paramClauseGroups.dropWhile(_ ne pcg) match {
             case `pcg` :: pcgNext :: _ =>
               val tpc = pcgNext.tparamClause
@@ -690,13 +691,12 @@ class Router(formatOps: FormatOps) {
               )
           }
         } { npc =>
-          val nextArrow =
-            getSlbEndOnLeft(nextAfterNonCommentSameLine(getLast(npc)))
+          val nextArrow = getSlbEndOnLeft(nextNonCommentSameLine(getLast(npc)))
           val noSlb = npc.values.lengthCompare(1) != 0
           Seq(
             spaceSplit.withSingleLine(nextArrow, ignore = noSlb),
             Split(Newline, 1)
-              .withIndent(style.indent.main, nextArrow, ExpiresOn.After),
+              .withIndent(style.indent.main, nextArrow, ExpiresOn.Before),
           )
         }
 

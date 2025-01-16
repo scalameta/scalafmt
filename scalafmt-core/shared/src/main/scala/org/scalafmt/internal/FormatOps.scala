@@ -65,10 +65,12 @@ class FormatOps(
   final def getSlbEndOnLeft(start: FT)(implicit style: ScalafmtConfig): FT = {
     val nft = start.right match {
       case _: T.EOF => start
-      case _: T.Comma | _: T.Semicolon | _: T.RightArrow | _: T.Equals |
+      case _: T.Comma | _: T.Semicolon | _: T.Equals |
           _: T.Interpolation.Start | _: T.Interpolation.SpliceEnd |
           _: T.Interpolation.End | _: T.Interpolation.SpliceStart |
           _: T.Interpolation.Part => null
+      case _: T.RightArrow => // given breaks before `=>`
+        if (start.rightOwner.is[Member.ParamClauseGroup]) start else null
       case _ if start.hasBlankLine => start
       case _
           if AsInfixOp(start.rightOwner)
