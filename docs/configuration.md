@@ -4716,6 +4716,50 @@ def method[A: Bound: Bound2]: B
 def method[A <: Bound: Bound2]: B
 ```
 
+### `spaces.withinContextBoundBraces`
+
+This parameter controls if a space should be used within braces which surround
+type context bounds and takes the same values as
+[`beforeContextBoundColon`](#spacesbeforecontextboundcolon) above.
+
+```scala mdoc:defaults
+spaces.withinContextBoundBraces
+```
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+spaces.withinContextBoundBraces=Never
+---
+def method[A: {Bound}]: B
+def method[A: {Bound, Bound2}]: B
+```
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+spaces.withinContextBoundBraces=Always
+---
+def method[A: {Bound}]: B
+def method[A: {Bound, Bound2}]: B
+```
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+spaces.withinContextBoundBraces=IfMultipleBounds
+---
+def method[A: {Bound}]: B
+def method[A <: Bound : {Bound2}]: B
+def method[A: {Bound, Bound2}]: B
+```
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+spaces.withinContextBoundBraces=IfMultipleContextBounds
+---
+def method[A: {Bound}]: B
+def method[A <: Bound : {Bound2}]: B
+def method[A: {Bound, Bound2}]: B
+```
+
 ### `spaces.inImportCurlyBraces`
 
 ```scala mdoc:defaults

@@ -50,6 +50,8 @@ import metaconfig._
 case class Spaces(
     beforeContextBoundColon: Spaces.BeforeContextBound =
       Spaces.BeforeContextBound.Never,
+    withinContextBoundBraces: Spaces.BeforeContextBound =
+      Spaces.BeforeContextBound.Never,
     beforeApplyArgInParens: Spaces.BeforeArgInParens =
       Spaces.BeforeArgInParens.Never,
     beforeInfixArgInParens: Spaces.BeforeArgInParens =
