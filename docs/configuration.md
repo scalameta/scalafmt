@@ -4673,8 +4673,8 @@ The parameter also allows the following shortcuts:
 ### `spaces.beforeContextBoundColon`
 
 This parameter controls if a space should be used before a colon that precedes
-type context bounds and takes values 'never', 'always', 'ifMultipleBounds', and
-(added in v3.8.6) 'ifMultipleContextBounds'. The difference between the latter
+type context bounds and takes values `never`, `always`, `ifMultipleBounds`, and
+(added in v3.8.6) `ifMultipleContextBounds`. The difference between the latter
 two is: the first considers all bounds (including subtype and supertype),
 whereas the second only the context bounds.
 
