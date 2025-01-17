@@ -1515,18 +1515,24 @@ class FormatOps(
       def getSpaceSplit(penalty: Int, policy: Policy = Policy.NoPolicy)(implicit
           fileLine: FileLine,
       ) = {
-        val spacePolicy = policy | penalize(penalty)
         val miniSlbEnd = getSlbEndOnLeft(next(ft))
-        val slbLite = style.newlines.keep &&
-          (body.parent match {
-            case Some(p: Term.Assign) => !p.parent.is[Term.ArgClause] ||
-              style.binPack.callSite == BinPack.Site.Never
-            case _ => true
-          })
-        val opt = if (style.newlines.keep) miniSlbEnd else blast
-        Split(Space, 0).withSingleLineNoOptimal(miniSlbEnd)
-          .andPolicy(spacePolicy)
-          .withOptimalToken(opt, killOnFail = slbLite, recurseOnly = slbLite)
+        val slbPolicy = SingleLineBlock(miniSlbEnd)
+        val slbFails = slbPolicy.exists { // wouldn't check, past expiration
+          case p: SingleLineBlock => p.failsLeftSyntaxNL(miniSlbEnd)
+          case _ => false
+        }
+        if (slbFails) Split.ignored
+        else {
+          val slbLite = style.newlines.keep &&
+            (body.parent match {
+              case Some(p: Term.Assign) => !p.parent.is[Term.ArgClause] ||
+                style.binPack.callSite == BinPack.Site.Never
+              case _ => true
+            })
+          val opt = if (style.newlines.keep) miniSlbEnd else blast
+          Split(Space, 0, policy = slbPolicy & (policy | penalize(penalty)))
+            .withOptimalToken(opt, killOnFail = slbLite, recurseOnly = slbLite)
+        }
       }
       def getPolicySplits(penalty: Int, policy: Policy, nlCost: Int = 1)(
           implicit fileLine: FileLine,
