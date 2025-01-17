@@ -75,10 +75,11 @@ object PolicyOps {
     override def terminal: Boolean = true
     override val prefix: String = "SLB"
     private val checkSyntax = noSyntaxNL || !style.newlines.ignoreInSyntax
+    def failsLeftSyntaxNL(ft: FT): Boolean = checkSyntax && ft.leftHasNewline
     override val f: Policy.Pf = {
       case Decision(ft, s)
           if !(ft.right.is[T.EOF] || okSLC && isLeftCommentThenBreak(ft)) =>
-        if (checkSyntax && ft.leftHasNewline) Seq.empty else s.filterNot(_.isNL)
+        if (failsLeftSyntaxNL(ft)) Seq.empty else s.filterNot(_.isNL)
     }
   }
 

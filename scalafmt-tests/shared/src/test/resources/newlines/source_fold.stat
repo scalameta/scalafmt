@@ -11070,16 +11070,18 @@ object a {
 }
 >>>
 object a {
-  val foo1s = """bar
+  val foo1s =
+    """bar
    baz
    qux"""
   val foo1i =
     s"""bar
    baz
    qux"""
-  val foo2s = """|bar
-                 |baz
-                 |qux""".stripMargin
+  val foo2s =
+    """|bar
+       |baz
+       |qux""".stripMargin
   val foo2i =
     s"""|bar
         |baz
@@ -11188,16 +11190,18 @@ object a {
 }
 >>>
 object a {
-  val foo1s = """bar
+  val foo1s =
+    """bar
    baz
    qux"""
   val foo1i =
     s"""bar
    baz
    qux"""
-  val foo2s = """|bar
-    |baz
-    |qux""".stripMargin
+  val foo2s =
+    """|bar
+      |baz
+      |qux""".stripMargin
   val foo2i =
     s"""|bar
       |baz
