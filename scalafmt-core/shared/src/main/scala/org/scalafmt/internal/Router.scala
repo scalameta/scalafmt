@@ -6,7 +6,6 @@ import org.scalafmt.config.ImportSelectors
 import org.scalafmt.config.Indents
 import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.Spaces
 import org.scalafmt.internal.ExpiresOn.After
 import org.scalafmt.internal.ExpiresOn.Before
 import org.scalafmt.internal.Length.StateColumn
@@ -1762,12 +1761,7 @@ class Router(formatOps: FormatOps) {
        */
 
       case FT(_, _: T.Colon, FT.RightOwner(tp: Type.Bounds)) =>
-        def noNLMod = Space(style.spaces.beforeContextBoundColon match {
-          case Spaces.BeforeContextBound.Always => true
-          case Spaces.BeforeContextBound.IfMultipleBounds => 1 <
-              tp.context.length + tp.view.length + tp.lo.size + tp.hi.size
-          case _ => false
-        })
+        def noNLMod = Space(style.spaces.beforeContextBoundColon(tp))
         getSplitsForTypeBounds(noNLMod, tp, tp.context)
       case FT(_, _: T.Viewbound, FT.RightOwner(tp: Type.Bounds)) =>
         getSplitsForTypeBounds(Space, tp, tp.view)

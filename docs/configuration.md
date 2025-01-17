@@ -4672,6 +4672,12 @@ The parameter also allows the following shortcuts:
 
 ### `spaces.beforeContextBoundColon`
 
+This parameter controls if a space should be used before a colon that precedes
+type context bounds and takes values 'never', 'always', 'ifMultipleBounds', and
+'ifMultipleContextBounds'. The difference between the latter two is: the first
+considers all bounds (including subtype and supertype), whereas the second only
+the context bounds.
+
 ```scala mdoc:defaults
 spaces.beforeContextBoundColon
 ```
@@ -4698,6 +4704,16 @@ spaces.beforeContextBoundColon=IfMultipleBounds
 def method[A: Bound]: B
 def method[A : Bound]: B
 def method[A: Bound: Bound2]: B
+def method[A <: Bound: Bound2]: B
+```
+
+```scala mdoc:scalafmt
+spaces.beforeContextBoundColon=IfMultipleContextBounds
+---
+def method[A: Bound]: B
+def method[A : Bound]: B
+def method[A: Bound: Bound2]: B
+def method[A <: Bound: Bound2]: B
 ```
 
 ### `spaces.inImportCurlyBraces`
