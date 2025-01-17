@@ -2722,7 +2722,16 @@ class Router(formatOps: FormatOps) {
     * lead out from the format token.
     */
   def getSplits(ft: FT): Seq[Split] = {
-    val splits = getSplitsImpl(ft).filter(!_.isIgnored)
+    val splits = getSplitsImpl(ft).flatMap(s =>
+      if (s.isIgnored) None
+      else {
+        val penalize = !s.isNL && s.policy.exists {
+          case p: PolicyOps.PenalizeAllNewlines => p.failsSyntaxNL(ft)
+          case _ => false
+        }
+        if (penalize) Some(s.withPenalty(1)) else Some(s)
+      },
+    )
     require(
       splits.nonEmpty,
       s"""|

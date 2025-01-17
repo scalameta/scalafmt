@@ -21,10 +21,10 @@ object PolicyOps {
     override val noDequeue: Boolean = false
     override def terminal: Boolean = false
     private val checkSyntax = noSyntaxNL || !style.newlines.ignoreInSyntax
+    def failsSyntaxNL(ft: FT): Boolean = checkSyntax && ft.rightHasNewline
     override val f: Policy.Pf = {
       case Decision(ft, s) if penalizeLambdas || !ft.left.is[T.RightArrow] =>
-        if (checkSyntax && ft.leftHasNewline) s.penalize(penalty)
-        else s.penalizeNL(penalty)
+        if (failsSyntaxNL(ft)) s.penalize(penalty) else s.penalizeNL(penalty)
     }
     override def prefix: String = s"PNL+$penalty"
   }
