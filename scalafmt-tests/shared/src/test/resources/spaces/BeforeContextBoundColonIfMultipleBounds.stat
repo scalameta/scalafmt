@@ -15,3 +15,25 @@ def myMethod[F[_]: Functor](): Foo
 final class Test[A <: B: ClassTag]
 >>>
 final class Test[A <: B : ClassTag]
+<<< single or multiple context bounds, ifMultipleBounds
+runner.parser = source
+spaces.beforeContextBoundColon = ifMultipleBounds
+===
+final class Test[B: ClassTag]
+final class Test[A <: B: ClassTag]
+final class Test[A <: B: ClassTag: Seq]
+>>>
+final class Test[B: ClassTag]
+final class Test[A <: B : ClassTag]
+final class Test[A <: B : ClassTag : Seq]
+<<< single or multiple context bounds, ifMultipleContextBounds
+runner.parser = source
+spaces.beforeContextBoundColon = ifMultipleContextBounds
+===
+final class Test[B: ClassTag]
+final class Test[A <: B: ClassTag]
+final class Test[A <: B: ClassTag: Seq]
+>>>
+final class Test[B: ClassTag]
+final class Test[A <: B: ClassTag]
+final class Test[A <: B : ClassTag : Seq]
