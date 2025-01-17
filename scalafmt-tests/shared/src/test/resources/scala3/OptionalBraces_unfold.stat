@@ -8768,18 +8768,8 @@ spaces.withinContextBoundBraces = always
 given [A: {Foo}] => A = ???
 given [B: {Bar, Baz}] => B = ???
 >>>
-given [
-    A : {
-      Foo
-    }
-]
-  => A = ???
-given [
-    B : {
-      Bar, Baz
-    }
-]
-  => B = ???
+given [A : { Foo }] => A = ???
+given [B : { Bar, Baz }] => B = ???
 <<< grouped context bounds: before = never, within = always
 runner.parser = source
 spaces.beforeContextBoundColon = never
@@ -8788,18 +8778,8 @@ spaces.withinContextBoundBraces = always
 given [A: {Foo}] => A = ???
 given [B: {Bar, Baz}] => B = ???
 >>>
-given [
-    A: {
-      Foo
-    }
-]
-  => A = ???
-given [
-    B: {
-      Bar, Baz
-    }
-]
-  => B = ???
+given [A: { Foo }] => A = ???
+given [B: { Bar, Baz }] => B = ???
 <<< grouped context bounds: before = IfMultipleContextBounds, within = always
 runner.parser = source
 spaces.beforeContextBoundColon = IfMultipleContextBounds
@@ -8808,18 +8788,8 @@ spaces.withinContextBoundBraces = always
 given [A: {Foo}] => A = ???
 given [B: {Bar, Baz}] => B = ???
 >>>
-given [
-    A: {
-      Foo
-    }
-]
-  => A = ???
-given [
-    B : {
-      Bar, Baz
-    }
-]
-  => B = ???
+given [A: { Foo }] => A = ???
+given [B : { Bar, Baz }] => B = ???
 <<< grouped context bounds: before = always, within = never
 runner.parser = source
 spaces.beforeContextBoundColon = always
@@ -8828,18 +8798,8 @@ spaces.withinContextBoundBraces = never
 given [A: {Foo}] => A = ???
 given [B: {Bar, Baz}] => B = ???
 >>>
-given [
-    A : {
-      Foo
-    }
-]
-  => A = ???
-given [
-    B : {
-      Bar, Baz
-    }
-]
-  => B = ???
+given [A : {Foo}] => A = ???
+given [B : {Bar, Baz}] => B = ???
 <<< grouped context bounds: before = never, within = never
 runner.parser = source
 spaces.beforeContextBoundColon = never
@@ -8848,18 +8808,8 @@ spaces.withinContextBoundBraces = never
 given [A: {Foo}] => A = ???
 given [B: {Bar, Baz}] => B = ???
 >>>
-given [
-    A: {
-      Foo
-    }
-]
-  => A = ???
-given [
-    B: {
-      Bar, Baz
-    }
-]
-  => B = ???
+given [A: {Foo}] => A = ???
+given [B: {Bar, Baz}] => B = ???
 <<< grouped context bounds: before = IfMultipleContextBounds, within = never
 runner.parser = source
 spaces.beforeContextBoundColon = IfMultipleContextBounds
@@ -8868,18 +8818,8 @@ spaces.withinContextBoundBraces = never
 given [A: {Foo}] => A = ???
 given [B: {Bar, Baz}] => B = ???
 >>>
-given [
-    A: {
-      Foo
-    }
-]
-  => A = ???
-given [
-    B : {
-      Bar, Baz
-    }
-]
-  => B = ???
+given [A: {Foo}] => A = ???
+given [B : {Bar, Baz}] => B = ???
 <<< grouped context bounds: before = always, within = IfMultipleContextBounds
 runner.parser = source
 spaces.beforeContextBoundColon = always
@@ -8888,18 +8828,8 @@ spaces.withinContextBoundBraces = IfMultipleContextBounds
 given [A: {Foo}] => A = ???
 given [B: {Bar, Baz}] => B = ???
 >>>
-given [
-    A : {
-      Foo
-    }
-]
-  => A = ???
-given [
-    B : {
-      Bar, Baz
-    }
-]
-  => B = ???
+given [A : {Foo}] => A = ???
+given [B : { Bar, Baz }] => B = ???
 <<< grouped context bounds: before = never, within = IfMultipleContextBounds
 runner.parser = source
 spaces.beforeContextBoundColon = never
@@ -8908,18 +8838,8 @@ spaces.withinContextBoundBraces = IfMultipleContextBounds
 given [A: {Foo}] => A = ???
 given [B: {Bar, Baz}] => B = ???
 >>>
-given [
-    A: {
-      Foo
-    }
-]
-  => A = ???
-given [
-    B: {
-      Bar, Baz
-    }
-]
-  => B = ???
+given [A: {Foo}] => A = ???
+given [B: { Bar, Baz }] => B = ???
 <<< grouped context bounds: before = IfMultipleContextBounds, within = IfMultipleContextBounds
 runner.parser = source
 spaces.beforeContextBoundColon = IfMultipleContextBounds
@@ -8928,15 +8848,5 @@ spaces.withinContextBoundBraces = IfMultipleContextBounds
 given [A: {Foo}] => A = ???
 given [B: {Bar, Baz}] => B = ???
 >>>
-given [
-    A: {
-      Foo
-    }
-]
-  => A = ???
-given [
-    B : {
-      Bar, Baz
-    }
-]
-  => B = ???
+given [A: {Foo}] => A = ???
+given [B : { Bar, Baz }] => B = ???

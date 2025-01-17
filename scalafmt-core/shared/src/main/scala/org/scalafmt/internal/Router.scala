@@ -249,6 +249,14 @@ class Router(formatOps: FormatOps) {
         val close = matchingLeft(ft)
         Seq(Split(NoSplit, 0).withIndent(style.indent.main, close, Before))
 
+      // context bounds
+      case FT(_: T.LeftBrace, _, FT.LeftOwner(tb: Type.Bounds)) =>
+        val close = matchingLeft(ft)
+        val mod = Space(style.spaces.withinContextBoundBraces(tb))
+        Seq(Split(mod, 0).withIndent(style.indent.main, close, Before))
+      case FT(_, _: T.RightBrace, FT.RightOwner(tb: Type.Bounds)) =>
+        Seq(Split(Space(style.spaces.withinContextBoundBraces(tb)), 0))
+
       case FT(_: T.LeftBrace, right, _) =>
         val close = matchingLeft(ft)
         val isSelfAnnotationNL = style.newlines.selfAnnotation &&
