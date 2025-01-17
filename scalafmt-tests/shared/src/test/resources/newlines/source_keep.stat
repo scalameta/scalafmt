@@ -11611,7 +11611,8 @@ object a {
 }
 >>>
 object a {
-  val foo1s = """bar
+  val foo1s =
+    """bar
    baz
    qux"""
   val foo1i =
@@ -11728,7 +11729,8 @@ object a {
 }
 >>>
 object a {
-  val foo1s = """bar
+  val foo1s =
+    """bar
    baz
    qux"""
   val foo1i =

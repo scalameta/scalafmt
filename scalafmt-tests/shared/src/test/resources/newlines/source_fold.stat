@@ -11079,8 +11079,7 @@ object a {
    qux"""
   val foo2s = """|bar
                  |baz
-                 |qux"""
-    .stripMargin
+                 |qux""".stripMargin
   val foo2i =
     s"""|bar
         |baz
@@ -11088,8 +11087,7 @@ object a {
   val foo3si =
     """|bar
        |baz
-       |qux"""
-      .stripMargin +
+       |qux""".stripMargin +
       s"""|bar
           |baz
           |qux""".stripMargin
@@ -11099,8 +11097,7 @@ object a {
         |qux""".stripMargin +
       """|bar
          |baz
-         |qux"""
-        .stripMargin
+         |qux""".stripMargin
 }
 <<< consistency between string and interpolation: !stripMargin, ignoreInSyntax
 maxColumn = 40
@@ -11200,8 +11197,7 @@ object a {
    qux"""
   val foo2s = """|bar
     |baz
-    |qux"""
-    .stripMargin
+    |qux""".stripMargin
   val foo2i =
     s"""|bar
       |baz
@@ -11209,8 +11205,7 @@ object a {
   val foo3si =
     """|bar
       |baz
-      |qux"""
-      .stripMargin +
+      |qux""".stripMargin +
       s"""|bar
         |baz
         |qux""".stripMargin
@@ -11220,6 +11215,5 @@ object a {
       |qux""".stripMargin +
       """|bar
         |baz
-        |qux"""
-        .stripMargin
+        |qux""".stripMargin
 }
