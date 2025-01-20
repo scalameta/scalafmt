@@ -1,12 +1,3 @@
----
-name: Custom issue template
-about: Issue template
-title: ''
-labels: ''
-assignees: ''
-
----
-
 This template is a strict requirement when it comes to the sections marked `(required)`.
 
 ## Required: Do not submit if... ##
