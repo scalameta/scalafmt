@@ -682,3 +682,83 @@ class SampleSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers {
   it should "be formatted correctly, too" in
     IO(2).asserting(_ shouldBe 2)
 }
+<<< #4731 scala3 with end marker
+runner.dialect = scala3
+rewrite.scala3.removeOptionalBraces = yes
+rewrite.scala3.insertEndMarkerMinLines = 1
+===
+object a:
+  def readRawVarint32(input: InputStream): Int = {
+    {
+      val firstByte = input.read()
+      if (firstByte == -1) {
+        throw InvalidProtocolBufferException.truncatedMessage()
+      }
+      readRawVarint32(firstByte, input)
+    } //todo: labels is not supported
+  }
+>>>
+object a:
+  def readRawVarint32(input: InputStream): Int =
+    val firstByte = input.read()
+    if (firstByte == -1) {
+      throw InvalidProtocolBufferException.truncatedMessage()
+    }
+    readRawVarint32(firstByte, input)
+    // todo: labels is not supported
+  end readRawVarint32
+<<< #4731 scala2
+runner.dialect = scala213
+===
+"Service" must {
+  "have at least one test" in {
+    pending
+    // Write here your test ....
+    // don't forget to remove `pending`
+  }
+}
+>>>
+"Service" must {
+  "have at least one test" in {
+    pending
+    // Write here your test ....
+    // don't forget to remove `pending`
+  }
+}
+<<< #4731 scala3
+runner.dialect = scala3
+===
+"Service" must {
+  "have at least one test" in {
+    pending
+    // Write here your test ....
+    // don't forget to remove `pending`
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- obtained, + expected)
+     pending
+-  // Write here your test ....
+-  // don't forget to remove `pending`
++    // Write here your test ....
++    // don't forget to remove `pending`
+ }
+<<< #4731 scala3 coloneol
+runner.dialect = scala3
+===
+"Service" must {
+  "have at least one test" in:
+    {
+      pending
+      // Write here your test ....
+      // don't forget to remove `pending`
+    }
+}
+>>>
+"Service" must {
+  "have at least one test" in:
+    pending
+    // Write here your test ....
+    // don't forget to remove `pending`
+}
