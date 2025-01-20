@@ -642,3 +642,44 @@ condDefs(nullPointers != CheckedBehavior.Unchecked) {
       )
     )
 }
+<<< #4730
+class SampleSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers {
+  "Sample" should "be formatted correctly" in {
+    IO(1).asserting(_ shouldBe 1)
+  }
+
+  it should "be formatted correctly, too" in {
+    IO(2).asserting(_ shouldBe 2)
+  }
+}
+>>>
+class SampleSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers {
+  "Sample" should "be formatted correctly" in {
+    IO(1).asserting(_ shouldBe 1)
+  }
+
+  it should "be formatted correctly, too" in
+    IO(2).asserting(_ shouldBe 2)
+}
+<<< #4730 1
+class SampleSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers {
+  "Sample" should "be formatted correctly" in {
+    IO(1).asserting(_ shouldBe 1)
+  }
+}
+>>>
+class SampleSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers {
+  "Sample" should "be formatted correctly" in
+    IO(1).asserting(_ shouldBe 1)
+}
+<<< #4730 2
+class SampleSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers {
+  it should "be formatted correctly, too" in {
+    IO(2).asserting(_ shouldBe 2)
+  }
+}
+>>>
+class SampleSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers {
+  it should "be formatted correctly, too" in
+    IO(2).asserting(_ shouldBe 2)
+}
