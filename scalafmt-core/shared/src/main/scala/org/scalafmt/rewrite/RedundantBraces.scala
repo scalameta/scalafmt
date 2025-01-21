@@ -428,19 +428,18 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                     (plo eq t) || !plo.parent.contains(t)
                   case _ => true
                 }) &&
-                (style.dialect.allowSignificantIndentation ||
-                  (t.parent match {
-                    case Some(_: Term.Block) => true
-                    case Some(_: Term.ArgClause) =>
-                      val pft = ftoks.prevNonComment(left.ft)
-                      pft.left match {
-                        case _: T.LeftParen =>
-                          isLeftParenReplacedWithBraceOnLeft(pft)
-                        case _: T.LeftBrace => true
-                        case _ => false
-                      }
-                    case _ => false
-                  }) || okComment(ft) && !elseAfterRightBraceThenpOnLeft) =>
+                ((t.parent match {
+                  case Some(_: Term.Block) => true
+                  case Some(_: Term.ArgClause) =>
+                    val pft = ftoks.prevNonComment(left.ft)
+                    pft.left match {
+                      case _: T.LeftParen =>
+                        isLeftParenReplacedWithBraceOnLeft(pft)
+                      case _: T.LeftBrace => true
+                      case _ => false
+                    }
+                  case _ => style.dialect.allowSignificantIndentation
+                }) || okComment(ft) && !elseAfterRightBraceThenpOnLeft) =>
             (left, removeToken)
           case ReplacementType.Replace if left.ft.right.is[T.LeftParen] =>
             left -> replaceTokenBy(")", t.parent)(x =>

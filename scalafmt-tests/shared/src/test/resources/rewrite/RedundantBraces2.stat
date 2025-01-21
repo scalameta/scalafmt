@@ -736,14 +736,13 @@ runner.dialect = scala3
   }
 }
 >>>
-Idempotency violated
-=> Diff (- obtained, + expected)
-     pending
--  // Write here your test ....
--  // don't forget to remove `pending`
-+    // Write here your test ....
-+    // don't forget to remove `pending`
- }
+"Service" must {
+  "have at least one test" in {
+    pending
+    // Write here your test ....
+    // don't forget to remove `pending`
+  }
+}
 <<< #4731 scala3 coloneol
 runner.dialect = scala3
 ===
