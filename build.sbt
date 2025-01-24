@@ -34,15 +34,12 @@ inThisBuild {
     resolvers ++= Resolver.sonatypeOssRepos("releases"),
     resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     testFrameworks += new TestFramework("munit.Framework"),
-    // causes native image issues
-    dependencyOverrides += "org.jline" % "jline" % "3.28.0",
   )
 }
 
 name := "scalafmtRoot"
 publish / skip := true
 
-addCommandAlias("native-image", "cli/nativeImage")
 addCommandAlias("scala-native", "cliNative/compile;cliNative/nativeLink")
 
 commands ++= Seq(
@@ -194,22 +191,6 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
     scalacOptions ++= scalacJvmOptions.value,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
     sharedTestSettings,
-  ).jvmSettings(
-    nativeImageInstalled := isCI,
-    nativeImageOptions += "-march=compatibility",
-    nativeImageOptions ++= {
-      // https://www.graalvm.org/22.3/reference-manual/native-image/guides/build-static-executables/
-      // https://www.graalvm.org/latest/reference-manual/native-image/guides/build-static-executables/
-      sys.env.get("NATIVE_IMAGE_STATIC") match {
-        case Some("nolibc") => Seq(
-            "-H:+UnlockExperimentalVMOptions",
-            "-H:+StaticExecutableWithDynamicLibC",
-            "-H:-UnlockExperimentalVMOptions",
-          )
-        case Some("musl") => Seq("--static", "--libc=musl")
-        case _ => Nil
-      }
-    },
   ).nativeSettings(scalaNativeConfig).jvmEnablePlugins(NativeImagePlugin)
   .dependsOn(core, interfaces).aggregate(core)
   .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm))
