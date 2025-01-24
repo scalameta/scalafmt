@@ -21,31 +21,31 @@ class CommunityIntellijScala_2024_2_Suite
       dialects.Scala213,
       3469,
       excluded = "glob:**/{testdata,testData,resources}/**" :: Nil,
-      fileOverride = """|{
-                        |  "glob:**/sbt/sbt-impl/workspace-entities/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scala/structure-view/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scala/repl/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scala/tasty-reader/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scala/package-search-client/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scala/integration/textAnalysis/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scala/integration/features-trainer/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |}
-                        |"""
-        .stripMargin,
+      fileOverride =
+        """|{
+           |  "glob:**/sbt/sbt-impl/workspace-entities/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scala/structure-view/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scala/repl/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scala/tasty-reader/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scala/package-search-client/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scala/integration/textAnalysis/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scala/integration/features-trainer/**" {
+           |    runner.dialect = scala33
+           |  }
+           |}
+           |""".stripMargin,
     )
   }
 
@@ -62,34 +62,34 @@ class CommunityIntellijScala_2024_3_Suite
       dialects.Scala213,
       3475,
       excluded = "glob:**/{testdata,testData,resources}/**" :: Nil,
-      fileOverride = """|{
-                        |  "glob:**/sbt/sbt-impl/workspace-entities/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scala/structure-view/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scala/repl/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scala/tasty-reader/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scala/package-search-client/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scalac-patches/scalac3-patches/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scala/integration/textAnalysis/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |  "glob:**/scala/integration/features-trainer/**" {
-                        |    runner.dialect = scala33
-                        |  }
-                        |}
-                        |"""
-        .stripMargin,
+      fileOverride =
+        """|{
+           |  "glob:**/sbt/sbt-impl/workspace-entities/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scala/structure-view/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scala/repl/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scala/tasty-reader/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scala/package-search-client/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scalac-patches/scalac3-patches/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scala/integration/textAnalysis/**" {
+           |    runner.dialect = scala33
+           |  }
+           |  "glob:**/scala/integration/features-trainer/**" {
+           |    runner.dialect = scala33
+           |  }
+           |}
+           |""".stripMargin,
     )
   }
 

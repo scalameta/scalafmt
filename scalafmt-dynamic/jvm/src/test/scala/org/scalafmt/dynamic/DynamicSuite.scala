@@ -217,15 +217,15 @@ class DynamicSuite extends FunSuite {
   check("missing-version")(f => f.assertMissingVersion())
 
   check("excluded-file") { f =>
-    val config = """|
-                    |project.includeFilters = [
-                    |  ".*Spec\\.scala$"
-                    |]
-                    |project.excludeFilters = [
-                    |  "UserSpec\\.scala$"
-                    |]
-                    |"""
-      .stripMargin
+    val config =
+      """|
+         |project.includeFilters = [
+         |  ".*Spec\\.scala$"
+         |]
+         |project.excludeFilters = [
+         |  "UserSpec\\.scala$"
+         |]
+         |""".stripMargin
     def check(version: String): Unit = {
       f.setVersion(version, "scala211", config)
       f.assertNotIgnored("path/FooSpec.scala")
@@ -237,15 +237,15 @@ class DynamicSuite extends FunSuite {
   }
 
   check("ignore-exclude-filters", _.withRespectProjectFilters(false)) { f =>
-    val config = """|
-                    |project.includeFilters = [
-                    |  ".*Spec\\.scala$"
-                    |]
-                    |project.excludeFilters = [
-                    |  "UserSpec\\.scala$"
-                    |]
-                    |"""
-      .stripMargin
+    val config =
+      """|
+         |project.includeFilters = [
+         |  ".*Spec\\.scala$"
+         |]
+         |project.excludeFilters = [
+         |  "UserSpec\\.scala$"
+         |]
+         |""".stripMargin
     def check(version: String): Unit = {
       f.setVersion(version, "scala211", config)
       f.assertNotIgnored("path/App.pm")
@@ -422,30 +422,30 @@ class DynamicSuite extends FunSuite {
   checkExhaustive("continuation-indent-callSite-and-defnSite")(_ =>
     "continuationIndent { callSite = 5, defnSite = 3 }",
   ) { (f, _) =>
-    val original = """|class A {
-                      |  function1(
-                      |  argument1,
-                      |  ""
-                      |  )
-                      |
-                      |  def function2(
-                      |  argument1: Type1
-                      |  ): ReturnType
-                      |}
-                      |      """
-      .stripMargin
-    val expected = """|class A {
-                      |  function1(
-                      |       argument1,
-                      |       ""
-                      |  )
-                      |
-                      |  def function2(
-                      |     argument1: Type1
-                      |  ): ReturnType
-                      |}
-                      |"""
-      .stripMargin
+    val original =
+      """|class A {
+         |  function1(
+         |  argument1,
+         |  ""
+         |  )
+         |
+         |  def function2(
+         |  argument1: Type1
+         |  ): ReturnType
+         |}
+         |      """.stripMargin
+    val expected =
+      """|class A {
+         |  function1(
+         |       argument1,
+         |       ""
+         |  )
+         |
+         |  def function2(
+         |     argument1: Type1
+         |  ): ReturnType
+         |}
+         |""".stripMargin
     f.assertFormat(original, expected)
   }
 
