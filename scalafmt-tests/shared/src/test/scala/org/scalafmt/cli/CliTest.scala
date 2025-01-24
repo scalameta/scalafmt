@@ -47,41 +47,41 @@ abstract class AbstractCliTest extends FunSuite {
     out + "\n should have contained \n" + expected,
   )
 
-  val unformatted = """|
-                       |object a    extends   App {
-                       |pr("h")
-                       |}
-                       |                    """
-    .stripMargin
+  val unformatted =
+    """|
+       |object a    extends   App {
+       |pr("h")
+       |}
+       |                    """.stripMargin
   // Using maxColumn 10 just to see the CLI uses the custom style.
-  val expected10 = """|object a
-                      |    extends App {
-                      |  pr(
-                      |    "h"
-                      |  )
-                      |}
-                      |"""
-    .stripMargin
-  val formatted = """|object a extends App {
-                     |  pr("h")
-                     |}
-                     |"""
-    .stripMargin
-  val customConfig = """|
-                        |maxColumn   = 2
-                        |      """
-    .stripMargin
-  val sbtOriginal = """|lazy val x = project
-                       |   lazy val y    = project
-                       |   """
-    .stripMargin
+  val expected10 =
+    """|object a
+       |    extends App {
+       |  pr(
+       |    "h"
+       |  )
+       |}
+       |""".stripMargin
+  val formatted =
+    """|object a extends App {
+       |  pr("h")
+       |}
+       |""".stripMargin
+  val customConfig =
+    """|
+       |maxColumn   = 2
+       |      """.stripMargin
+  val sbtOriginal =
+    """|lazy val x = project
+       |   lazy val y    = project
+       |   """.stripMargin
 
-  val sbtExpected = """|lazy val x =
-                       |  project
-                       |lazy val y =
-                       |  project
-                       |"""
-    .stripMargin
+  val sbtExpected =
+    """|lazy val x =
+       |  project
+       |lazy val y =
+       |  project
+       |""".stripMargin
 
   def gimmeConfig(string: String): ScalafmtConfig = ScalafmtConfig
     .fromHoconString(string).get
@@ -400,12 +400,12 @@ trait CliTestBehavior {
 
     test(s"config is read even from nested dir: $label") {
       val original = "object a { val x = 1 }"
-      val expected = """|object a {
-                        |  val x =
-                        |    1
-                        |}
-                        |"""
-        .stripMargin
+      val expected =
+        """|object a {
+           |  val x =
+           |    1
+           |}
+           |""".stripMargin
       val input = string2dir(
         s"""|/nested/foo.scala
             |$original
@@ -447,10 +447,10 @@ trait CliTestBehavior {
       assertNoDiff(dir2string(root / "sbt.sbtfile"), sbtOriginal)
 
       assertNoDiff(dir2string(root / "scalafile.scala"), formatted)
-      val sbtFormatted = """|lazy val x = project
-                            |lazy val y = project
-                            |"""
-        .stripMargin
+      val sbtFormatted =
+        """|lazy val x = project
+           |lazy val y = project
+           |""".stripMargin
       assertNoDiff(dir2string(root / "sbt.sbt"), sbtFormatted)
     }
 
@@ -555,10 +555,10 @@ trait CliTestBehavior {
     }
 
     test(s"parse error is formatted nicely: $label") {
-      val input = """|/foo.scala
-                     |object    A { foo( }
-                     |"""
-        .stripMargin
+      val input =
+        """|/foo.scala
+           |object    A { foo( }
+           |""".stripMargin
       noArgTest(
         string2dir(input),
         input,
@@ -615,10 +615,10 @@ trait CliTestBehavior {
     }
 
     test(s"--test succeeds even with parse error: $label") {
-      val input = """|/foo.scala
-                     |object A {
-                     |"""
-        .stripMargin
+      val input =
+        """|/foo.scala
+           |object A {
+           |""".stripMargin
       noArgTest(
         string2dir(input),
         input,
@@ -794,8 +794,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           """|Illegal regex in configuration: .*foo(
              |reason: Unclosed group near index 6
              |.*foo(
-             |"""
-            .stripMargin,
+             |""".stripMargin,
         ),
       Some(ExitCode.UnexpectedError),
     )
@@ -1241,11 +1240,11 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   test("no final EOL") {
     val out = new ByteArrayOutputStream()
     val err = new ByteArrayOutputStream()
-    val codeNoEol = """|object FormatMe {
-                       |  val x =
-                       |    1
-                       |}"""
-      .stripMargin
+    val codeNoEol =
+      """|object FormatMe {
+         |  val x =
+         |    1
+         |}""".stripMargin
     Console.withOut(out)(Console.withErr(err) {
       val options = getConfig(Array("--stdin", "--test"))
       val options2 = options.copy(

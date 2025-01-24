@@ -32,23 +32,23 @@ class CommentTest extends FunSuite {
           |val y = 2
           |}
           |                   """.stripMargin
-    val expected = """|object a {
-                      |  // inline comment
-                      |  /**
-                      |   * Y is cool
-                      |   */
-                      |  /*
-                      |   * X is cool
-                      |   */
-                      |  /*
-                      |    I have blank lines.
-                      |
-                      |    Please preserve them.
-                      |   */
-                      |  val y = 2
-                      |}
-                      |"""
-      .stripMargin
+    val expected =
+      """|object a {
+         |  // inline comment
+         |  /**
+         |   * Y is cool
+         |   */
+         |  /*
+         |   * X is cool
+         |   */
+         |  /*
+         |    I have blank lines.
+         |
+         |    Please preserve them.
+         |   */
+         |  val y = 2
+         |}
+         |""".stripMargin
     val obtained = Scalafmt.format(original, javadocStyle).get
     assertNoDiff(obtained, expected)
   }
@@ -72,23 +72,23 @@ class CommentTest extends FunSuite {
           |val y = 2
           |}
           |                   """.stripMargin
-    val expected = """|object a {
-                      |  // inline comment
-                      |  /**
-                      |   * Y is cool
-                      |   */
-                      |  /*
-                      |   * X is cool
-                      |   */
-                      |  /*
-                      |    I have blank lines.
-                      |
-                      |    Please preserve them.
-                      |   */
-                      |  val y = 2
-                      |}
-                      |"""
-      .stripMargin
+    val expected =
+      """|object a {
+         |  // inline comment
+         |  /**
+         |   * Y is cool
+         |   */
+         |  /*
+         |   * X is cool
+         |   */
+         |  /*
+         |    I have blank lines.
+         |
+         |    Please preserve them.
+         |   */
+         |  val y = 2
+         |}
+         |""".stripMargin
     val obtained = Scalafmt.format(original, javadocStyle).get
     assertNoDiff(obtained, expected)
   }
@@ -112,23 +112,23 @@ class CommentTest extends FunSuite {
           |val y = 2
           |}
           |                   """.stripMargin
-    val expected = """|object a {
-                      |  // inline comment
-                      |  /**
-                      |   * Y is cool
-                      |   */
-                      |  /*
-                      |   * X is cool
-                      |   */
-                      |  /*
-                      |    I have blank lines.
-                      |
-                      |    Please preserve them.
-                      |   */
-                      |  val y = 2
-                      |}
-                      |"""
-      .stripMargin
+    val expected =
+      """|object a {
+         |  // inline comment
+         |  /**
+         |   * Y is cool
+         |   */
+         |  /*
+         |   * X is cool
+         |   */
+         |  /*
+         |    I have blank lines.
+         |
+         |    Please preserve them.
+         |   */
+         |  val y = 2
+         |}
+         |""".stripMargin
     val obtained = Scalafmt.format(original, javadocStyle).get
     assertNoDiff(obtained, expected)
   }

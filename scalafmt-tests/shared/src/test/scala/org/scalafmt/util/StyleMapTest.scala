@@ -11,12 +11,13 @@ import munit.FunSuite
 
 class StyleMapTest extends FunSuite {
   test("basic") {
-    val code = """|object a {
-                  |  // scalafmt: { maxColumn = 100 }
-                  |  println(1)
-                  |  // scalafmt: { maxColumn = 110 }
-                  |}
-                  |      """.stripMargin.parse[Source].get
+    val code =
+      """|object a {
+         |  // scalafmt: { maxColumn = 100 }
+         |  println(1)
+         |  // scalafmt: { maxColumn = 110 }
+         |}
+         |      """.stripMargin.parse[Source].get
     val m = new FormatOps(code, ScalafmtConfig.default)
     assertEquals(
       m.styleMap.at(m.tokens.head).maxColumn,
@@ -35,8 +36,7 @@ class StyleMapTest extends FunSuite {
          |  // scalafmt: { align.tokens."+" = [{ code="=", owner=".*" }] }
          |  println(1)
          |}
-         |      """
-        .stripMargin.parse[Source].get
+         |      """.stripMargin.parse[Source].get
     val formatOps = new FormatOps(code, ScalafmtConfig.defaultWithAlign)
     val headToken = formatOps.tokens.head
     val printlnToken = formatOps.tokens.find(_.left.syntax == "println").get
@@ -75,8 +75,7 @@ class StyleMapTest extends FunSuite {
          |  // scalafmt: { newlines.implicitParamListModifierForce = [after] }
          |  println(1)
          |}
-         |"""
-        .stripMargin.parse[Source].get
+         |""".stripMargin.parse[Source].get
     val formatOps = new FormatOps(
       code,
       ScalafmtConfig(newlines =
@@ -118,13 +117,14 @@ class StyleMapTest extends FunSuite {
      * One test uses the default settings (meaning, unsafeCallSite=false) while
      * the other starts with BinPack.enabled, which includes unsafeCallSite=true.
      */
-    val code = """|object a {
-                  |  println(1, 2, 3, 4, 5, 6)
-                  |  println(1, 2, 3, 4, 5, 6)
-                  |  // scalafmt: { binPack.unsafeCallSite = false }
-                  |  println(1, 2, 3, 4, 5, 6)
-                  |}
-                  |      """.stripMargin.parse[Source].get
+    val code =
+      """|object a {
+         |  println(1, 2, 3, 4, 5, 6)
+         |  println(1, 2, 3, 4, 5, 6)
+         |  // scalafmt: { binPack.unsafeCallSite = false }
+         |  println(1, 2, 3, 4, 5, 6)
+         |}
+         |      """.stripMargin.parse[Source].get
     val fops1 = new FormatOps(code, ScalafmtConfig.default)
     val fops2 = new FormatOps(code, ScalafmtConfig(binPack = BinPack.always))
     /*
