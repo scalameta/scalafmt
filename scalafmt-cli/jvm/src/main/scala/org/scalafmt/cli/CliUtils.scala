@@ -30,6 +30,7 @@ private[scalafmt] trait CliUtils {
     nGContext.exit(exit.code)
   }
 
-  protected def getDynamicRunner(): ScalafmtRunner = ScalafmtDynamicRunner
+  protected def getDynamicRunner: Option[ScalafmtRunner] =
+    Some(ScalafmtDynamicRunner)
 
 }
