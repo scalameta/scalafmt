@@ -1,6 +1,8 @@
 package org.scalafmt.dynamic.exceptions
 
+import org.scalafmt.interfaces
+
 import scala.util.control.NoStackTrace
 
 case class ScalafmtException(message: String, cause: Throwable)
-    extends Exception(message, cause) with NoStackTrace
+    extends interfaces.ScalafmtException(message, cause) with NoStackTrace

@@ -10,7 +10,7 @@ import org.scalafmt.sysops.FileOps
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
 
-import util.control.Breaks._
+import scala.util.control.Breaks._
 
 object ScalafmtDynamicRunner extends ScalafmtRunner {
   override private[cli] def run(

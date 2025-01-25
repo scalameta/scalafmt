@@ -61,13 +61,28 @@ object Cli extends CliUtils {
       case Right(runner) => runWithRunner(options, runner)
     }
 
-  private val isNative: Boolean = isScalaNative ||
-    "true" == System.getProperty("scalafmt.native-image", "false")
+  private val isNativeImage: Boolean = "true" ==
+    System.getProperty("scalafmt.native-image", "false")
 
   private def getProposedConfigVersion(options: CliOptions): String =
     s"version = $stableVersion"
 
   private type MaybeRunner = Either[String, ScalafmtRunner]
+
+  private def noDynamicRunner(version: String, options: CliOptions) = {
+    val path = options.configPath
+    s"""|error: invalid Scalafmt version.
+        |
+        |This Scalafmt installation has version '$stableVersion' and the version configured in '$path' is '$version'.
+        |To fix this problem, add the following line to .scalafmt.conf:
+        |```
+        |version = $stableVersion
+        |```
+        |
+        |NOTE: this error happens only when running a native Scalafmt binary.
+        |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
+        |""".stripMargin
+  }
 
   private def findRunner(options: CliOptions): MaybeRunner = options.hoconOpt
     .fold[MaybeRunner](Left(
@@ -98,24 +113,11 @@ object Cli extends CliUtils {
         case Right(`stableVersion`) =>
           options.common.debug.println(s"Using core runner [$stableVersion]")
           Right(ScalafmtCoreRunner)
-        case Right(v) if isNative =>
-          Left {
-            s"""|error: invalid Scalafmt version.
-                |
-                |This Scalafmt installation has version '$stableVersion' and the version configured in '${options
-                 .configPath}' is '$v'.
-                |To fix this problem, add the following line to .scalafmt.conf:
-                |```
-                |version = $stableVersion
-                |```
-                |
-                |NOTE: this error happens only when running a native Scalafmt binary.
-                |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
-                |""".stripMargin
-          }
         case Right(v) =>
-          options.common.debug.println(s"Using dynamic runner [$v]")
-          Right(getDynamicRunner())
+          val runnerOpt = if (isNativeImage) None else getDynamicRunner
+          if (runnerOpt.isDefined) options.common.debug
+            .println(s"Using dynamic runner [$v]")
+          runnerOpt.toRight(noDynamicRunner(v, options))
       }
     }
 

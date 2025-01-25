@@ -1,9 +1,7 @@
 package org.scalafmt.cli
 
 import org.scalafmt.Error._
-import org.scalafmt.dynamic.exceptions.ScalafmtException
-import org.scalafmt.interfaces.PositionException
-import org.scalafmt.interfaces.ScalafmtReporter
+import org.scalafmt.interfaces._
 
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
@@ -32,8 +30,11 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
     case MisformattedFile(_, diff) =>
       options.common.err.println(diff)
       exitCode.getAndUpdate(ExitCode.merge(ExitCode.TestError, _))
-    case ScalafmtException(_, cause) => error(file, cause)
-    case _ if !options.ignoreWarnings =>
+    case e: ScalafmtException => error(file, e.getCause)
+    case _ if e.getClass.getSimpleName.contains("ScalafmtException") =>
+      error(file, e.getCause)
+    case _ if options.ignoreWarnings =>
+    case _ =>
       new FailedToFormat(file.toString, e).printStackTrace(options.common.err)
       exitCode.getAndUpdate(ExitCode.merge(ExitCode.UnexpectedError, _))
   }

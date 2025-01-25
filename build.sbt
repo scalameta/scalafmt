@@ -65,7 +65,7 @@ commands += Command.command("ci-test-native") { s =>
   s"++$scalaVersion" :: "testsNative/test" :: s
 }
 
-lazy val dynamic = crossProject(JVMPlatform, NativePlatform)
+lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-dynamic")).settings(
     moduleName := "scalafmt-dynamic",
     description := "Implementation of scalafmt-interfaces",
@@ -217,7 +217,8 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
       }
     },
   ).nativeSettings(scalaNativeConfig).jvmEnablePlugins(NativeImagePlugin)
-  .dependsOn(core, dynamic).aggregate(core, dynamic)
+  .dependsOn(core, interfaces).aggregate(core)
+  .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm))
 
 lazy val tests = crossProject(JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests")).settings(
@@ -233,8 +234,7 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
         .get
     }),
   ).enablePlugins(BuildInfoPlugin)
-  .jvmSettings(javaOptions += "-Dfile.encoding=UTF8")
-  .dependsOn(core, dynamic, cli)
+  .jvmSettings(javaOptions += "-Dfile.encoding=UTF8").dependsOn(core, cli)
 
 lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
 
