@@ -17,9 +17,20 @@ jobs:
     if: github.event_name != 'release'
     strategy:
       fail-fast: false
+      max-parallel: 8
       matrix:
-        java: [ '11', '21' ]
-        os: [windows-latest, ubuntu-latest]
+        java:
+          - '11'
+          - '21'          
+        os:
+          - windows-latest
+          - ubuntu-latest
+        platform:
+          - 'jvm'
+          - 'native'
+        scala:
+          - '2.12.20'
+          - '2.13.16'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -35,34 +46,7 @@ jobs:
       - run:
           # for GitOps tests
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: TEST="2.12" sbt ci-test-jvm
-        shell: bash
-      - run: TEST="2.13" sbt ci-test-jvm
-        shell: bash
-  test-scala-native:
-    if: github.event_name != 'release'
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Set up JVM
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: 'sbt'
-      - uses: sbt/setup-sbt@v1
-      - run:
-          # for GitOps tests
-          git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: TEST="2.12" sbt ci-test-native
-        shell: bash
-      - run: TEST="2.13" sbt ci-test-native
+      - run: sbt ++${{ matrix.scala }} ci-test-${{ matrix.platform }}
         shell: bash
   community-test:
     if: github.event_name != 'release'

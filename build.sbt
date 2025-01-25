@@ -1,5 +1,3 @@
-import java.nio.file.Paths
-
 import scala.scalanative.build._
 
 import Dependencies._
@@ -47,23 +45,17 @@ publish / skip := true
 addCommandAlias("native-image", "cli/nativeImage")
 addCommandAlias("scala-native", "cliNative/compile;cliNative/nativeLink")
 
-commands += Command.command("ci-test-jvm") { s =>
-  val scalaVersion = sys.env.get("TEST") match {
-    case Some("2.12") => scala212
-    case _ => scala213
-  }
-  val docsTest = if (scalaVersion == scala212) "docs/run" else "version"
-  s"++$scalaVersion" :: "tests/test" :: "cli/test" :: "publishLocal" ::
-    docsTest :: s
-}
-
-commands += Command.command("ci-test-native") { s =>
-  val scalaVersion = sys.env.get("TEST") match {
-    case Some("2.12") => scala212
-    case _ => scala213
-  }
-  s"++$scalaVersion" :: "testsNative/test" :: "cliNative/test" :: s
-}
+commands ++= Seq(
+  Command.command("ci-test-jvm") { s =>
+    val docsTest =
+      if (scalaBinaryVersion.value == "2.12") "docs/run" else "version"
+    "tests/test" :: "cli/test" :: "publishLocal" :: docsTest :: s
+  },
+  Command.command("ci-test-native")(s =>
+    // for native, we don't publish nor build docs
+    "testsNative/test" :: "cliNative/test" :: s,
+  ),
+)
 
 lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-dynamic")).settings(
