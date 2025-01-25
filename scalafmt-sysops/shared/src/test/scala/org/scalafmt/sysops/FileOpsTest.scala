@@ -1,7 +1,5 @@
 package org.scalafmt.sysops
 
-import org.scalafmt.util.DeleteTree.deleteTree
-
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
@@ -18,7 +16,7 @@ class FileOpsTest extends munit.FunSuite {
     path = Files.createTempDirectory("FileOpsTestDir")
 
   override def afterEach(context: AfterEach): Unit =
-    try deleteTree(path)
+    try DeleteTree(path)
     catch {
       case e: Throwable =>
         println("Unable to delete test files")

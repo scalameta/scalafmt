@@ -53,7 +53,7 @@ commands += Command.command("ci-test-jvm") { s =>
     case _ => scala213
   }
   val docsTest = if (scalaVersion == scala212) "docs/run" else "version"
-  s"++$scalaVersion" :: "tests/test" :: "dynamic/test" :: "publishLocal" ::
+  s"++$scalaVersion" :: "tests/test" :: "cli/test" :: "publishLocal" ::
     docsTest :: s
 }
 
@@ -62,7 +62,7 @@ commands += Command.command("ci-test-native") { s =>
     case Some("2.12") => scala212
     case _ => scala213
   }
-  s"++$scalaVersion" :: "testsNative/test" :: s
+  s"++$scalaVersion" :: "testsNative/test" :: "cliNative/test" :: s
 }
 
 lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
@@ -113,6 +113,7 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform)
         case _ => Seq()
       }
     },
+    sharedTestSettings,
   )
 
 lazy val config = crossProject(JVMPlatform, NativePlatform)
@@ -200,6 +201,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
     ),
     scalacOptions ++= scalacJvmOptions.value,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
+    sharedTestSettings,
   ).jvmSettings(
     nativeImageInstalled := isCI,
     nativeImageOptions += "-march=compatibility",
