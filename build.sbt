@@ -69,15 +69,12 @@ lazy val dynamic = crossProject(JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-dynamic")).settings(
     moduleName := "scalafmt-dynamic",
     description := "Implementation of scalafmt-interfaces",
-    buildInfoSettings,
-    buildInfoPackage := "org.scalafmt.dynamic",
-    buildInfoObject := "BuildInfo",
+    buildInfoSettings("org.scalafmt.dynamic", "BuildInfo"),
     libraryDependencies ++= List(
       "io.get-coursier" % "interface" % "1.0.26",
       "com.typesafe" % "config" % "1.4.3",
-      munit.value % Test,
-      scalametaTestkit.value % Test,
     ),
+    sharedTestSettings,
     scalacOptions ++= scalacJvmOptions.value,
   ).dependsOn(interfaces, sysops).dependsOn(core % "test")
   .enablePlugins(BuildInfoPlugin)
@@ -135,7 +132,7 @@ lazy val config = crossProject(JVMPlatform, NativePlatform)
 lazy val core = crossProject(JVMPlatform, NativePlatform)
   .in(file("scalafmt-core")).settings(
     moduleName := "scalafmt-core",
-    buildInfoSettings,
+    buildInfoSettings("org.scalafmt", "Versions"),
     scalacOptions ++= scalacJvmOptions.value,
     libraryDependencies ++= Seq("org.scalameta" %%% "mdoc-parser" % mdocV),
     libraryDependencies ++= {
@@ -153,7 +150,7 @@ lazy val core = crossProject(JVMPlatform, NativePlatform)
   //   )
   // )
   .nativeSettings(libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.1.1")
-  .jvmSettings(Test / run / fork := true).dependsOn(sysops, config, macros)
+  .aggregate(sysops, config, macros).dependsOn(sysops, config, macros)
   .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm
 // lazy val coreJS = core.js
@@ -197,7 +194,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
         oldStrategy(x)
     },
     libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit-diff" % "1.0.3",
+      "org.scalameta" %%% "munit-diff" % munitV,
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
       "com.github.scopt" %%% "scopt" % "4.1.0",
     ),
@@ -219,18 +216,15 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
         case _ => Nil
       }
     },
-  ).nativeSettings(scalaNativeConfig).dependsOn(core, dynamic)
-  .jvmEnablePlugins(NativeImagePlugin)
+  ).nativeSettings(scalaNativeConfig).jvmEnablePlugins(NativeImagePlugin)
+  .dependsOn(core, dynamic).aggregate(core, dynamic)
 
 lazy val tests = crossProject(JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests")).settings(
     publish / skip := true,
-    libraryDependencies ++= Seq(
-      // Test dependencies
-      "com.lihaoyi" %%% "scalatags" % "0.13.1",
-      scalametaTestkit.value,
-      munit.value,
-    ),
+    sharedTestSettings,
+    libraryDependencies += scalametaTestkit.value % Test,
+    libraryDependencies += "com.lihaoyi" %%% "scalatags" % "0.13.1" % Test,
     scalacOptions ++= scalacJvmOptions.value,
     buildInfoPackage := "org.scalafmt.tests",
     buildInfoKeys := Seq[BuildInfoKey]("resourceDirectory" -> {
@@ -242,41 +236,38 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
   .jvmSettings(javaOptions += "-Dfile.encoding=UTF8")
   .dependsOn(core, dynamic, cli)
 
+lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
+
 lazy val communityTestsCommon = project
-  .in(file("scalafmt-tests-community/common")).settings(
-    communityTestsSettings,
-    libraryDependencies ++= Seq(
-      // Test dependencies
-      "com.lihaoyi" %% "scalatags" % "0.13.1",
-      scalametaTestkit.value,
-      munit.value,
-    ),
-  ).enablePlugins(BuildInfoPlugin).dependsOn(coreJVM)
+  .in(file("scalafmt-tests-community/common")).settings(communityTestsSettings)
+  .enablePlugins(BuildInfoPlugin).dependsOn(coreJVM)
+
+lazy val communityTestsCommonAsTestDep = communityTestsCommon % "test->test"
 
 lazy val communityTestsScala2 = project
   .in(file("scalafmt-tests-community/scala2")).settings(communityTestsSettings)
-  .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommon)
+  .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommonAsTestDep)
 
 lazy val communityTestsScala3 = project
   .in(file("scalafmt-tests-community/scala3")).settings(communityTestsSettings)
-  .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommon)
+  .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommonAsTestDep)
 
 lazy val communityTestsSpark = project.in(file("scalafmt-tests-community/spark"))
   .settings(communityTestsSettings).enablePlugins(BuildInfoPlugin)
-  .dependsOn(communityTestsCommon)
+  .dependsOn(communityTestsCommonAsTestDep)
 
 lazy val communityTestsIntellij = project
   .in(file("scalafmt-tests-community/intellij")).settings(communityTestsSettings)
-  .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommon)
+  .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommonAsTestDep)
 
 lazy val communityTestsOther = project.in(file("scalafmt-tests-community/other"))
   .settings(communityTestsSettings).enablePlugins(BuildInfoPlugin)
-  .dependsOn(communityTestsCommon)
+  .dependsOn(communityTestsCommonAsTestDep)
 
 lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
   publish / skip := true,
   moduleName := "scalafmt-benchmarks",
-  libraryDependencies ++= Seq(scalametaTestkit.value),
+  libraryDependencies += scalametaTestkit.value,
   run / javaOptions ++= Seq(
     "-Djava.net.preferIPv4Stack=true",
     "-XX:+AggressiveOpts",
@@ -308,7 +299,7 @@ val Milestone = s"($V-M\\d+).*".r
 lazy val stableVersion = Def
   .setting((ThisBuild / version).value.replaceAll("\\+.*", ""))
 
-lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
+def buildInfoSettings(pkg: String, obj: String): Seq[Def.Setting[_]] = Seq(
   buildInfoKeys := Seq[BuildInfoKey](
     name,
     version,
@@ -325,8 +316,8 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     scalaVersion,
     sbtVersion,
   ),
-  buildInfoPackage := "org.scalafmt",
-  buildInfoObject := "Versions",
+  buildInfoPackage := pkg,
+  buildInfoObject := obj,
 )
 
 lazy val communityTestsSettings: Seq[Def.Setting[_]] = Seq(
@@ -334,6 +325,6 @@ lazy val communityTestsSettings: Seq[Def.Setting[_]] = Seq(
   scalacOptions ++= scalacJvmOptions.value,
   javaOptions += "-Dfile.encoding=UTF8",
   buildInfoPackage := "org.scalafmt.tests",
-)
+) ++ sharedTestSettings
 
 lazy val scalaNativeConfig = nativeConfig ~= { _.withMode(Mode.releaseFull) }
