@@ -1,4 +1,4 @@
-package org.scalafmt.util
+package org.scalafmt.sysops
 
 import java.io.IOException
 import java.nio.file.FileVisitResult
@@ -8,7 +8,7 @@ import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
 
 object DeleteTree {
-  def deleteTree(path: Path): Unit = {
+  def apply(path: Path): Unit = {
     Files.walkFileTree(path, new DeleteTree)
     ()
   }

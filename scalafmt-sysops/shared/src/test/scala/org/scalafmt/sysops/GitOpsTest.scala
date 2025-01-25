@@ -1,7 +1,5 @@
 package org.scalafmt.sysops
 
-import org.scalafmt.util.DeleteTree.deleteTree
-
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -36,7 +34,7 @@ class GitOpsTest extends FunSuite {
   }
 
   override def afterEach(context: AfterEach): Unit =
-    try deleteTree(path.path)
+    try DeleteTree(path.path)
     catch {
       case e: Throwable =>
         println("Unable to delete test files")
