@@ -7,6 +7,7 @@ import org.scalafmt.Versions
 import org.scalafmt.config.ProjectFiles
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.ScalafmtConfigException
+import org.scalafmt.sysops.PlatformRunOps
 
 import scala.meta.parsers.ParseException
 import scala.meta.tokenizers.TokenizeException
@@ -62,8 +63,8 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
       inputMethod: InputMethod,
       options: CliOptions,
       scalafmtConfig: ScalafmtConfig,
-  ): Future[ExitCode] = inputMethod.readInput(options).map { input =>
-    val filename = inputMethod.path.toString
+  ): Future[ExitCode] = {
+    val path = inputMethod.path.toString
     @tailrec
     def handleError(e: Throwable): ExitCode = e match {
       case Error.WithCode(e, _) => handleError(e)
@@ -71,15 +72,23 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         options.common.err.println(e.toString)
         ExitCode.ParseError
       case e =>
-        new FailedToFormat(filename, e).printStackTrace(options.common.err)
+        new FailedToFormat(path, e).printStackTrace(options.common.err)
         ExitCode.UnexpectedError
     }
-    Scalafmt.formatCode(input, scalafmtConfig, options.range, filename)
-      .formatted match {
-      case Formatted.Success(x) => inputMethod.write(x, input, options)
-      case x: Formatted.Failure =>
-        if (scalafmtConfig.runner.ignoreWarnings) ExitCode.Ok // do nothing
-        else handleError(x.e)
-    }
+    inputMethod.readInput(options).map { code =>
+      val res = Scalafmt.formatCode(code, scalafmtConfig, options.range, path)
+      res.formatted match {
+        case x: Formatted.Success => Right(code -> x.formattedCode)
+        case x: Formatted.Failure => Left(
+            if (res.config.runner.ignoreWarnings) ExitCode.Ok // do nothing
+            else handleError(x.e),
+          )
+      }
+    }.flatMap {
+      case Right((code, formattedCode)) => inputMethod
+          .write(formattedCode, code, options)
+      case Left(exitCode) => exitCode.future
+    }(PlatformRunOps.ioExecutionContext)
   }
+
 }

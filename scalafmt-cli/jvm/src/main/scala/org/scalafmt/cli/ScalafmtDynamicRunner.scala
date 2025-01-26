@@ -5,6 +5,7 @@ import org.scalafmt.dynamic.ScalafmtDynamicError
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtSession
 import org.scalafmt.sysops.PlatformFileOps
+import org.scalafmt.sysops.PlatformRunOps
 
 import java.nio.file.Path
 
@@ -52,10 +53,11 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       inputMethod: InputMethod,
       session: ScalafmtSession,
       options: CliOptions,
-  ): Future[ExitCode] = inputMethod.readInput(options).map { input =>
-    val formatResult = session.format(inputMethod.path, input)
-    inputMethod.write(formatResult, input, options)
-  }
+  ): Future[ExitCode] = inputMethod.readInput(options)
+    .map(code => code -> session.format(inputMethod.path, code))
+    .flatMap { case (code, formattedCode) =>
+      inputMethod.write(formattedCode, code, options)
+    }(PlatformRunOps.ioExecutionContext)
 
   private def getFileMatcher(paths: Seq[Path]): Path => Boolean = {
     val dirBuilder = Seq.newBuilder[Path]

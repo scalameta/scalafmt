@@ -1,13 +1,10 @@
 package org.scalafmt.sysops
 
-//import org.scalafmt.CompatCollections.JavaConverters._
-
 import scala.meta.internal.io._
 
 import java.nio.file._
 
 import scala.concurrent.Future
-import scala.concurrent.Promise
 import scala.io.Codec
 import scala.scalajs.js
 import scala.util.Try
@@ -77,19 +74,18 @@ object PlatformFileOps {
   def readFile(path: Path)(implicit codec: Codec): String = JSFs
     .readFileSync(path.toString, codec.name)
 
-  def readFileAsync(file: Path)(implicit codec: Codec): Future[String] = {
-    val promise = Promise[String]()
-    def cb(err: js.Error, res: String): Unit =
-      if (err == null) promise.trySuccess(res)
-      else promise.tryFailure(new RuntimeException(err.message))
-    JSFs.readFile(file.toString, codec.name, cb)
-    promise.future
-  }
+  def readFileAsync(file: Path)(implicit codec: Codec): Future[String] =
+    JSFsPromises.readFile(file.toString, codec.name).toFuture
 
   def readStdinAsync: Future[String] = JSIO.readStdinAsync
 
   def writeFile(path: Path, content: String)(implicit codec: Codec): Unit = JSFs
     .writeFileSync(path.toString, content, codec.name)
+
+  def writeFileAsync(file: Path, data: String)(implicit
+      codec: Codec,
+  ): Future[Unit] = JSFsPromises.writeFile(file.toString, data, codec.name)
+    .toFuture
 
   def cwd() = js.Dynamic.global.process.cwd().asInstanceOf[String]
 }

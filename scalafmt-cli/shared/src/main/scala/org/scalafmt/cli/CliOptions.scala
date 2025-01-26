@@ -96,7 +96,7 @@ case class CliOptions(
     quiet: Boolean = false,
     stdIn: Boolean = false,
     noStdErr: Boolean = false,
-    error: Boolean = false,
+    private val error: Boolean = false,
     check: Boolean = false,
 ) {
   val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
@@ -204,5 +204,8 @@ case class CliOptions(
   /** Returns None if .scalafmt.conf is not found or version setting is missing.
     */
   private[cli] def getVersionOpt: Option[String] = getHoconValueOpt(_.version)
+
+  private[cli] def exitCodeOnChange =
+    if (error) ExitCode.TestError else ExitCode.Ok
 
 }

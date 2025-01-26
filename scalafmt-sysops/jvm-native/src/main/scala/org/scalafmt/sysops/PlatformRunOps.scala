@@ -13,6 +13,9 @@ private[scalafmt] object PlatformRunOps {
 
   implicit def executionContext: ExecutionContext = ExecutionContext.global
 
+  def ioExecutionContext: ExecutionContext =
+    GranularPlatformAsyncOps.ioExecutionContext
+
   def getSingleThreadExecutionContext: ExecutionContext = ExecutionContext
     .fromExecutor(Executors.newSingleThreadExecutor())
 
