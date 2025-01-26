@@ -7,6 +7,8 @@ import java.nio.file._
 import java.util.concurrent.atomic.AtomicInteger
 
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.Await
+import scala.concurrent.Future
 import scala.concurrent.duration
 import scala.sys.process._
 
@@ -48,9 +50,17 @@ abstract class CommunitySuite extends FunSuite {
     val atomicStatesVisited = new AtomicInteger(0)
     implicit val customStyle: ScalafmtConfig = style
       .withCompleteCallback(x => atomicStatesVisited.getAndAdd(x.totalExplored))
+    implicit val tasksBuilder = Seq.newBuilder[Future[TestStats]]
 
-    val stats = checkFilesRecursive(styleName, folder.toAbsolutePath)
-      .getOrElse(TestStats.init)
+    checkFilesRecursive(styleName, folder.toAbsolutePath)
+    val tasks = tasksBuilder.result()
+    val stats =
+      if (tasks.isEmpty) TestStats.init
+      else {
+        val allTasks = Future
+          .reduceLeft(tasks)(TestStats.merge)(TestHelpers.executionContext)
+        Await.result(allTasks, duration.Duration.Inf)
+      }
     val timePer1KLines = Math
       .round(stats.timeTaken / (stats.linesParsed / 1000.0))
     val statesVisited = atomicStatesVisited.get()

@@ -1,7 +1,6 @@
 package org.scalafmt.community.common
 
 import org.scalafmt.CompatCollections.JavaConverters._
-import org.scalafmt.CompatCollections.ParConverters._
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
 import org.scalafmt.config._
@@ -11,11 +10,17 @@ import scala.meta._
 import java.io._
 import java.nio.file._
 
+import scala.collection.mutable
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+
 import munit.ComparisonFailException
 import munit.diff.Diff
 import munit.diff.console.AnsiColors
 
 object TestHelpers {
+
+  implicit val executionContext: ExecutionContext = ExecutionContext.global
 
   private[common] val communityProjectsDirectory = Paths
     .get("scalafmt-tests-community/target/community-projects")
@@ -47,11 +52,11 @@ object TestHelpers {
     val (duration1, result1) = formatCode(new String(input))
     result1.formatted match {
       case x1: Formatted.Failure =>
-        println(s"Failed for original file $absPathString")
-        val trace = new StringWriter()
-        trace.append(x1.e.getMessage).append('\n')
-        x1.e.printStackTrace(new PrintWriter(trace))
-        println(s"Error: " + trace.toString)
+        val error = new StringWriter()
+        error.append(s"Failed for original file $absPathString\n")
+        error.append("Error: ").append(x1.e.getMessage).append('\n')
+        x1.e.printStackTrace(new PrintWriter(error))
+        println(error.toString)
         TestStats(1, 1, Some(x1.e), duration1, lines1)
       case x1: Formatted.Success =>
         val stats1 = TestStats(1, 0, None, duration1, lines1)
@@ -66,8 +71,11 @@ object TestHelpers {
         )
         val stats2 = result2.formatted match {
           case x2: Formatted.Failure =>
-            println(s"Failed for formatted file $absPathString")
-            println(s"Error: " + x2.e.getMessage)
+            print(
+              s"""|Failed for formatted file $absPathString
+                  |Error: ${x2.e.getMessage}
+                  |""".stripMargin,
+            )
             saveFormatted()
             TestStats(1, 1, Some(x2.e), duration2, lines2)
           case x2: Formatted.Success =>
@@ -78,8 +86,11 @@ object TestHelpers {
               val msg = AnsiColors.filterAnsi(diff.createDiffOnlyReport())
               val loc = new munit.Location(absPathString, 0)
               val exc = new ComparisonFailException(msg, out2, out1, loc, false)
-              println(s"Failed idempotency for file $absPathString")
-              println(msg)
+              print(
+                s"""|Failed idempotency for file $absPathString
+                    |$msg
+                    |""".stripMargin,
+              )
               saveFormatted()
               TestStats(1, 1, Some(exc), duration2, lines2)
             }
@@ -91,23 +102,18 @@ object TestHelpers {
   def checkFilesRecursive(styleName: String, path: Path)(implicit
       build: CommunityBuild,
       style: ScalafmtConfig,
-  ): Option[TestStats] =
-    if (ignoreParts.exists(path.endsWith)) None
-    else {
-      val ds = Files.newDirectoryStream(path)
-      val (dirs, files) =
-        try ds.iterator().asScala.toList.partition(Files.isDirectory(_))
-        finally ds.close()
-      val fileStats = files.compatPar.flatMap { x =>
-        val fileStr = x.toString
-        if (!fileStr.endsWith(".scala") || build.isExcluded(x)) None
-        else Some(runFile(styleName, x, fileStr))
-      }.reduceLeftOption(TestStats.merge)
-      val dirStats = dirs.compatPar.flatMap(checkFilesRecursive(styleName, _))
-        .reduceLeftOption(TestStats.merge)
-      fileStats.fold(dirStats)(x =>
-        dirStats.map(TestStats.merge(_, x)).orElse(fileStats),
-      )
+      futures: mutable.Growable[Future[TestStats]],
+  ): Unit = if (!ignoreParts.exists(path.endsWith)) {
+    val ds = Files.newDirectoryStream(path)
+    val (dirs, files) =
+      try ds.iterator().asScala.toList.partition(Files.isDirectory(_))
+      finally ds.close()
+    files.foreach { x =>
+      val fileStr = x.toString
+      if (fileStr.endsWith(".scala") && !build.isExcluded(x)) futures +=
+        Future(runFile(styleName, x, fileStr))
     }
+    dirs.foreach(checkFilesRecursive(styleName, _))
+  }
 
 }
