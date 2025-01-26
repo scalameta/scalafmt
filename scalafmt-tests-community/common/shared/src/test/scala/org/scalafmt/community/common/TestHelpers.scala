@@ -4,9 +4,8 @@ import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
 import org.scalafmt.config._
+import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.sysops.PlatformRunOps
-
-import scala.meta._
 
 import java.io._
 import java.nio.file._
@@ -14,6 +13,7 @@ import java.nio.file._
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.concurrent.Promise
 
 import munit.ComparisonFailException
 import munit.diff.Diff
@@ -44,14 +44,13 @@ object TestHelpers {
     (t1 - t0, res)
   }
 
-  private def runFile(styleName: String, path: Path, absPathString: String)(
+  private def runFile(styleName: String, code: String, absPathString: String)(
       implicit style: ScalafmtConfig,
   ): TestStats = {
     def formatCode(code: String): (Long, Formatted.Result) =
       timeIt(Scalafmt.formatCode(code, style, filename = absPathString))
-    val input = Input.File(path).chars
-    val lines1 = input.count(_ == '\n')
-    val (duration1, result1) = formatCode(new String(input))
+    val lines1 = code.count(_ == '\n')
+    val (duration1, result1) = formatCode(code)
     result1.formatted match {
       case x1: Formatted.Failure =>
         val error = new StringWriter()
@@ -112,8 +111,13 @@ object TestHelpers {
       finally ds.close()
     files.foreach { x =>
       val fileStr = x.toString
-      if (fileStr.endsWith(".scala") && !build.isExcluded(x)) futures +=
-        Future(runFile(styleName, x, fileStr))
+      if (fileStr.endsWith(".scala") && !build.isExcluded(x)) {
+        val promise = Promise[TestStats]()
+        PlatformFileOps.readFileAsync(x).onComplete(r =>
+          promise.tryComplete(r.map(runFile(styleName, _, fileStr))),
+        )
+        futures += promise.future
+      }
     }
     dirs.foreach(checkFilesRecursive(styleName, _))
   }
