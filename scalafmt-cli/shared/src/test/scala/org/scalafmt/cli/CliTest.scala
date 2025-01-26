@@ -27,25 +27,33 @@ import munit.FunSuite
 abstract class AbstractCliTest extends FunSuite {
   def mkArgs(str: String): Array[String] = str.split(' ')
 
-  def runWith(root: AbsoluteFile, argStr: String): Unit =
-    runArgs(mkArgs(argStr), getMockOptions(root))
+  def runWith(root: AbsoluteFile, argStr: String)(implicit
+      loc: munit.Location,
+  ): Unit = runArgs(mkArgs(argStr), getMockOptions(root))
 
   def runArgs(
       args: Array[String],
       init: CliOptions = baseCliOptions,
       exitCode: ExitCode = ExitCode.Ok,
-  ): Unit = run(Cli.getConfig(args, init).get, exitCode)
+  )(implicit loc: munit.Location): Unit =
+    run(Cli.getConfig(args, init).get, exitCode)
 
-  def run(options: CliOptions, exitCode: ExitCode = ExitCode.Ok) =
-    assertEquals(Cli.run(options), exitCode)
+  def run(options: CliOptions, exitCode: ExitCode = ExitCode.Ok)(implicit
+      loc: munit.Location,
+  ) = assertEquals(Cli.run(options), exitCode)
 
   def getConfig(args: Array[String]): CliOptions = Cli
     .getConfig(args, baseCliOptions).get
 
-  def assertContains(out: String, expected: String) = assert(
-    CliTest.stripCR(out).contains(CliTest.stripCR(expected)),
-    out + "\n should have contained \n" + expected,
+  def assertContains(out: String, expected: String, flag: Boolean = true)(
+      implicit loc: munit.Location,
+  ): Unit = assert(
+    flag == CliTest.stripCR(out).contains(CliTest.stripCR(expected)),
+    s"$out\n should ${if (flag) "" else " NOT "} have contained\n$expected",
   )
+  def assertNotContains(out: String, expected: String)(implicit
+      loc: munit.Location,
+  ): Unit = assertContains(out, expected, flag = false)
 
   val unformatted =
     """|
@@ -93,7 +101,7 @@ abstract class AbstractCliTest extends FunSuite {
       exitCode: ExitCode = ExitCode.Ok,
       assertOut: String => Unit = { _ => },
       testExitCode: Option[ExitCode] = None,
-  ): Unit = cmds.foreach { args =>
+  )(implicit loc: munit.Location): Unit = cmds.foreach { args =>
     val out = new ByteArrayOutputStream()
     val init: CliOptions = getMockOptions(input, input, new PrintStream(out))
     val config = Cli.getConfig(args, init).get
@@ -623,12 +631,11 @@ trait CliTestBehavior {
         string2dir(input),
         input,
         Seq(Array("--test", "--config-str", s"""{version="$version"}""")),
-        assertOut = out =>
-          assert(
-            out.contains(s"foo.scala:2: error:$dialectError") &&
-              out.contains("end of file") && out.contains("error: ParseError=2"),
-            out,
-          ),
+        assertOut = out => {
+          assertContains(out, s"foo.scala:2: error:$dialectError")
+          assertContains(out, "end of file")
+          assertContains(out, "error: ParseError=2")
+        },
       )
     }
 
@@ -645,12 +652,11 @@ trait CliTestBehavior {
         input,
         Seq(Array("--test")),
         ExitCode.ParseError,
-        assertOut = out =>
-          assert(
-            out.contains(s"foo.scala:2: error:$dialectError") &&
-              out.contains(s"end of file") && out.contains("error: ParseError=2"),
-            out,
-          ),
+        assertOut = out => {
+          assertContains(out, s"foo.scala:2: error:$dialectError")
+          assertContains(out, "end of file")
+          assertContains(out, "error: ParseError=2")
+        },
       )
     }
 
@@ -706,8 +712,10 @@ trait CliTestBehavior {
           "--test",
         )),
         ExitCode.TestError,
-        assertOut =
-          out => assert(out.contains(expected) && !out.contains(unexpected)),
+        assertOut = out => {
+          assertContains(out, expected)
+          assertNotContains(out, unexpected)
+        },
       )
     }
 
@@ -731,11 +739,14 @@ trait CliTestBehavior {
         input,
         Seq(Array("--list")),
         ExitCode.TestError,
-        assertOut = out =>
-          assert(
-            out.contains("bar.scala") && !out.contains("baz.scala") &&
-              out.contains(PlatformCompat.fixPathOnNativeWindows("dir/foo.scala")),
-          ),
+        assertOut = out => {
+          assertContains(out, "bar.scala")
+          assertContains(
+            out,
+            PlatformCompat.fixPathOnNativeWindows("dir/foo.scala"),
+          )
+          assertNotContains(out, "baz.scala")
+        },
       )
     }
   }
