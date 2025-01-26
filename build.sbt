@@ -227,31 +227,39 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
 
 lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
 
-lazy val communityTestsCommon = project
-  .in(file("scalafmt-tests-community/common")).settings(communityTestsSettings)
-  .enablePlugins(BuildInfoPlugin).dependsOn(coreJVM)
+lazy val communityTestsCommon = crossProject(JVMPlatform, NativePlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .configureCross(confCommunityTestShared("scalafmt-tests-community/common"))
+  .dependsOn(core)
 
-lazy val communityTestsCommonAsTestDep = communityTestsCommon % "test->test"
+lazy val communityTestsScala2 = crossProject(JVMPlatform, NativePlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .configureCross(confCommunityTest("scalafmt-tests-community/scala2"))
 
-lazy val communityTestsScala2 = project
-  .in(file("scalafmt-tests-community/scala2")).settings(communityTestsSettings)
-  .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommonAsTestDep)
+lazy val communityTestsScala3 = crossProject(JVMPlatform, NativePlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .configureCross(confCommunityTest("scalafmt-tests-community/scala3"))
 
-lazy val communityTestsScala3 = project
-  .in(file("scalafmt-tests-community/scala3")).settings(communityTestsSettings)
-  .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommonAsTestDep)
+lazy val communityTestsSpark = crossProject(JVMPlatform, NativePlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .configureCross(confCommunityTest("scalafmt-tests-community/spark"))
 
-lazy val communityTestsSpark = project.in(file("scalafmt-tests-community/spark"))
-  .settings(communityTestsSettings).enablePlugins(BuildInfoPlugin)
-  .dependsOn(communityTestsCommonAsTestDep)
+lazy val communityTestsIntellij = crossProject(JVMPlatform, NativePlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .configureCross(confCommunityTest("scalafmt-tests-community/intellij"))
 
-lazy val communityTestsIntellij = project
-  .in(file("scalafmt-tests-community/intellij")).settings(communityTestsSettings)
-  .enablePlugins(BuildInfoPlugin).dependsOn(communityTestsCommonAsTestDep)
+lazy val communityTestsOther = crossProject(JVMPlatform, NativePlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .configureCross(confCommunityTest("scalafmt-tests-community/other"))
 
-lazy val communityTestsOther = project.in(file("scalafmt-tests-community/other"))
-  .settings(communityTestsSettings).enablePlugins(BuildInfoPlugin)
-  .dependsOn(communityTestsCommonAsTestDep)
+def confCommunityTestShared(where: String)(
+    project: sbtcrossproject.CrossProject,
+) = project.in(file(where)).settings(communityTestsSettings)
+  .settings(sharedTestSettings).nativeSettings(scalaNativeConfig)
+
+def confCommunityTest(where: String)(project: sbtcrossproject.CrossProject) =
+  project.configureCross(confCommunityTestShared(where))
+    .dependsOn(communityTestsCommon % "test->test")
 
 lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
   publish / skip := true,
@@ -313,7 +321,6 @@ lazy val communityTestsSettings: Seq[Def.Setting[_]] = Seq(
   publish / skip := true,
   scalacOptions ++= scalacJvmOptions.value,
   javaOptions += "-Dfile.encoding=UTF8",
-  buildInfoPackage := "org.scalafmt.tests",
-) ++ sharedTestSettings
+)
 
 lazy val scalaNativeConfig = nativeConfig ~= { _.withMode(Mode.releaseFull) }
