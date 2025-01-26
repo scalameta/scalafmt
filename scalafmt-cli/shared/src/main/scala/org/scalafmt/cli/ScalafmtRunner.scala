@@ -3,8 +3,15 @@ package org.scalafmt.cli
 import org.scalafmt.Error
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.BatchPathFinder
+import org.scalafmt.sysops.PlatformCompat
 
 import java.nio.file.Path
+
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.Promise
+import scala.concurrent.duration
 
 trait ScalafmtRunner {
   private[cli] def run(
@@ -68,4 +75,40 @@ trait ScalafmtRunner {
     val excludeRegexp = options.excludeFilterRegexp.pattern
     files.filter(f => !excludeRegexp.matcher(f.toString()).find())
   }
+
+  protected def runInputs(
+      options: CliOptions,
+      inputMethods: Seq[InputMethod],
+      termDisplayMessage: String,
+  )(f: InputMethod => Future[ExitCode]): ExitCode = {
+    val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
+
+    implicit val executionContext: ExecutionContext =
+      PlatformCompat.executionContext
+    val completed = Promise[ExitCode]()
+
+    val tasks = List.newBuilder[Future[ExitCode]]
+    inputMethods.foreach(inputMethod =>
+      if (!completed.isCompleted) {
+        val future = f(inputMethod)
+        future.onComplete(r =>
+          if (options.check && !r.toOption.exists(_.isOk)) completed
+            .tryComplete(r)
+          else termDisplay.taskProgress(termDisplayMessage),
+        )
+        tasks += future
+      },
+    )
+
+    Future.foldLeft(tasks.result())(ExitCode.Ok)(ExitCode.merge)
+      .onComplete(completed.tryComplete)
+
+    completed.future.onComplete { r =>
+      termDisplay.completedTask(termDisplayMessage, r.toOption.exists(_.isOk))
+      termDisplay.stop()
+    }
+
+    Await.result(completed.future, duration.Duration.Inf)
+  }
+
 }

@@ -1,6 +1,5 @@
 package org.scalafmt.cli
 
-import org.scalafmt.CompatCollections.ParConverters._
 import org.scalafmt.Error
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
@@ -12,11 +11,8 @@ import org.scalafmt.config.ScalafmtConfigException
 import scala.meta.parsers.ParseException
 import scala.meta.tokenizers.TokenizeException
 
-import java.util.concurrent.atomic.AtomicReference
-
 import scala.annotation.tailrec
-
-import util.control.Breaks
+import scala.concurrent.Future
 
 object ScalafmtCoreRunner extends ScalafmtRunner {
   override private[cli] def run(
@@ -31,41 +27,29 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
       try ProjectFiles.FileMatcher(scalafmtConf.project, options.customExcludes)
       catch {
         case e: ScalafmtConfigException =>
-          options.common.err.println(e.getMessage())
+          options.common.err.println(e.getMessage)
           return ExitCode.UnexpectedError // RETURNING EARLY!
       }
 
     val inputMethods = getInputMethods(options, filterMatcher.matchesPath)
-    val adjustedScalafmtConf = {
-      if (scalafmtConf.needGitAutoCRLF) options.gitOps.getAutoCRLF else None
-    }.fold(scalafmtConf)(scalafmtConf.withGitAutoCRLF)
+    if (inputMethods.isEmpty) ExitCode.Ok
+    else {
+      val adjustedScalafmtConf = {
+        if (scalafmtConf.needGitAutoCRLF) options.gitOps.getAutoCRLF else None
+      }.fold(scalafmtConf)(scalafmtConf.withGitAutoCRLF)
 
-    val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
-    val exitCode = new AtomicReference(ExitCode.Ok)
-    Breaks.breakable(inputMethods.compatPar.foreach { inputMethod =>
-      val code = handleFile(inputMethod, options, adjustedScalafmtConf)
-      exitCode.getAndUpdate(ExitCode.merge(code, _))
-      if (options.check && !code.isOk) Breaks.break
-      termDisplay.taskProgress(termDisplayMessage)
-    })
-    termDisplay.completedTask(termDisplayMessage, exitCode.get.isOk)
-    termDisplay.stop()
-    exitCode.get()
+      runInputs(options, inputMethods, termDisplayMessage) { inputMethod =>
+        import org.scalafmt.sysops.PlatformCompat.executionContext
+        Future(handleFile(inputMethod, options, adjustedScalafmtConf)).recover {
+          case e: Error.MisformattedFile =>
+            options.common.err.println(e.customMessage)
+            ExitCode.TestError
+        }
+      }
+    }
   }
 
   private[this] def handleFile(
-      inputMethod: InputMethod,
-      options: CliOptions,
-      config: ScalafmtConfig,
-  ): ExitCode =
-    try unsafeHandleFile(inputMethod, options, config)
-    catch {
-      case Error.MisformattedFile(_, diff) =>
-        options.common.err.println(diff)
-        ExitCode.TestError
-    }
-
-  private[this] def unsafeHandleFile(
       inputMethod: InputMethod,
       options: CliOptions,
       scalafmtConfig: ScalafmtConfig,

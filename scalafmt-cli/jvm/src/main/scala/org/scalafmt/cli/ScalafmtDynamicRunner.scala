@@ -1,6 +1,5 @@
 package org.scalafmt.cli
 
-import org.scalafmt.CompatCollections.ParConverters._
 import org.scalafmt.Error
 import org.scalafmt.dynamic.ScalafmtDynamicError
 import org.scalafmt.interfaces.Scalafmt
@@ -8,9 +7,8 @@ import org.scalafmt.interfaces.ScalafmtSession
 import org.scalafmt.sysops.FileOps
 
 import java.nio.file.Path
-import java.util.concurrent.atomic.AtomicReference
 
-import scala.util.control.Breaks._
+import scala.concurrent.Future
 
 object ScalafmtDynamicRunner extends ScalafmtRunner {
   override private[cli] def run(
@@ -34,28 +32,13 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
         x => customMatcher(x) && sessionMatcher(x)
       }
     val inputMethods = getInputMethods(options, filterMatcher)
-
-    val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
-
-    val exitCode = new AtomicReference(ExitCode.Ok)
-    breakable(inputMethods.compatPar.foreach { inputMethod =>
-      try {
-        val code = handleFile(inputMethod, session, options)
-        exitCode.getAndUpdate(ExitCode.merge(code, _))
-      } catch {
-        case e: Error.MisformattedFile =>
-          reporter.error(e.file, e)
-          if (options.check) break
-      }
-      termDisplay.taskProgress(termDisplayMessage)
-    })
-
-    val exit = ExitCode.merge(exitCode.get, reporter.getExitCode)
-
-    termDisplay.completedTask(termDisplayMessage, exit.isOk)
-    termDisplay.stop()
-
-    exit
+    if (inputMethods.isEmpty) ExitCode.Ok
+    else runInputs(options, inputMethods, termDisplayMessage) { inputMethod =>
+      import org.scalafmt.sysops.PlatformCompat.executionContext
+      Future(handleFile(inputMethod, session, options)).recover {
+        case x: Error.MisformattedFile => reporter.fail(x)(x.file)
+      }.map(ExitCode.merge(_, reporter.getExitCode))
+    }
   }
 
   private[this] def handleFile(
