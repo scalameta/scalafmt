@@ -15,28 +15,35 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
   private val exitCode = new AtomicReference(ExitCode.Ok)
 
   def getExitCode: ExitCode = exitCode.get()
+  private def updateExitCode(code: ExitCode): Unit =
+    if (!code.isOk) exitCode.getAndUpdate(ExitCode.merge(code, _))
 
   override def error(file: Path, message: String): Unit =
     if (!options.ignoreWarnings) {
       options.common.err.println(s"$message: $file")
-      exitCode.getAndUpdate(ExitCode.merge(ExitCode.UnexpectedError, _))
+      updateExitCode(ExitCode.UnexpectedError)
     }
+  override final def error(file: Path, e: Throwable): Unit =
+    updateExitCode(fail(e)(file))
   @tailrec
-  override final def error(file: Path, e: Throwable): Unit = e match {
-    case WithCode(e, _) => error(file, e)
-    case _: PositionException if !options.ignoreWarnings =>
-      options.common.err.println(s"${e.toString}: $file")
-      exitCode.getAndUpdate(ExitCode.merge(ExitCode.ParseError, _))
-    case MisformattedFile(_, diff) =>
-      options.common.err.println(diff)
-      exitCode.getAndUpdate(ExitCode.merge(ExitCode.TestError, _))
-    case e: ScalafmtException => error(file, e.getCause)
-    case _ if e.getClass.getSimpleName.contains("ScalafmtException") =>
-      error(file, e.getCause)
-    case _ if options.ignoreWarnings =>
+  private[cli] final def fail(e: Throwable)(file: Path): ExitCode = e match {
+    case e: MisformattedFile =>
+      options.common.err.println(e.customMessage)
+      ExitCode.TestError
+    case _: PositionException =>
+      if (options.ignoreWarnings) ExitCode.Ok
+      else {
+        options.common.err.println(s"${e.toString}: $file")
+        ExitCode.ParseError
+      }
     case _ =>
-      new FailedToFormat(file.toString, e).printStackTrace(options.common.err)
-      exitCode.getAndUpdate(ExitCode.merge(ExitCode.UnexpectedError, _))
+      val cause = e.getCause
+      if (cause ne null) fail(cause)(file)
+      else if (options.ignoreWarnings) ExitCode.Ok
+      else {
+        new FailedToFormat(file.toString, e).printStackTrace(options.common.err)
+        ExitCode.UnexpectedError
+      }
   }
 
   override def excluded(file: Path): Unit = options.common.debug
