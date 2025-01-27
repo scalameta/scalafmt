@@ -1,10 +1,11 @@
 package org.scalafmt.dynamic
 
+import org.scalafmt.CompatCollections.JavaConverters._
+
 import java.io.OutputStreamWriter
 import java.net.URI
 import java.net.URL
 
-import scala.collection.JavaConverters._
 import scala.util.Try
 
 import coursierapi.{Dependency => CoursierDependency, _}

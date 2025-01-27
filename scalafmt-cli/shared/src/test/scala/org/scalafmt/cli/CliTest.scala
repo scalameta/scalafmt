@@ -1,5 +1,6 @@
 package org.scalafmt.cli
 
+import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Versions.{stable => stableVersion}
 import org.scalafmt.cli.FileTestOps._
@@ -19,8 +20,6 @@ import java.io.UncheckedIOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
-
-import scala.collection.JavaConverters._
 
 import munit.FunSuite
 
@@ -301,7 +300,7 @@ trait CliTestBehavior {
         s"""{version="$version",style=IntelliJ}""",
         input.toString(),
         "--exclude",
-        "target/nested".asFilename,
+        fixSeparatorsInPathPattern("target/nested"),
       ))
 
       val obtained = dir2string(input)
@@ -312,7 +311,7 @@ trait CliTestBehavior {
     test(s"scalafmt doesnotexist.scala throws error: $label") {
       def check(filename: String): Unit = {
         val args = Array(
-          s"$filename.scala".asFilename,
+          fixSeparatorsInPathPattern(s"$filename.scala"),
           "--config-str",
           s"""{version="$version",style=IntelliJ}""",
         )
