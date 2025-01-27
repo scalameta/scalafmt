@@ -1,7 +1,7 @@
 import scala.scalanative.build._
+import scala.util.Properties
 
 import Dependencies._
-import _root_.scala.util.Properties
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def parseTagVersion: String = {

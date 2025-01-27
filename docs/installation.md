@@ -295,27 +295,17 @@ If you use sbt to install a pre-release, be sure to add the following setting:
 resolvers += Resolver.sonatypeRepo("snapshots")
 ```
 
-### Native image
+### Native binaries
 
-For macOS and Linux, it's possible to download pre-built GraalVm native binaries
-with instant startup and fast performance for short-lived Scalafmt runs.
+It's possible to download pre-built Scala Native binaries
+with instant startup and fast performance for short-lived Scalafmt runs using Scala CLI and
+[Scala CLI Setup Action](https://github.com/marketplace/actions/scala-cli-setup-action).
 
 ```sh
-VERSION=@STABLE_VERSION@
-INSTALL_LOCATION=/usr/local/bin/scalafmt-native
-curl https://raw.githubusercontent.com/scalameta/scalafmt/master/bin/install-scalafmt-native.sh | \
-  bash -s -- $VERSION $INSTALL_LOCATION
-scalafmt-native --help # should show version @STABLE_VERSION@
+scala-cli format
 ```
 
-> The native image binaries have the limitation of working only with one version
-> of Scalafmt. The native binaries fail when the `version` setting in
-> `.scalafmt.conf` does not match the version of the native binary. It's
-> recommended to use the JVM binary if you expect to use Scalafmt in multiple
-> projects with different Scalafmt versions.
-
-Please see issue [#1569](https://github.com/scalameta/scalafmt/issues/1569) if
-you'd like to contribute support for building native images for Windows!
+Scala CLI will download the native binary and run it with the same arguments as the `scalafmt` command.
 
 ### Nailgun
 
