@@ -1,6 +1,7 @@
 import scala.scalanative.build._
 
 import Dependencies._
+import _root_.scala.util.Properties
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def parseTagVersion: String = {
@@ -40,7 +41,21 @@ inThisBuild {
 name := "scalafmtRoot"
 publish / skip := true
 
-addCommandAlias("scala-native", "cliNative/compile;cliNative/nativeLink")
+lazy val copyScalaNative = taskKey[Unit]("Copy Scala Native output to root")
+
+copyScalaNative := {
+  val binaryVersion = (cli.native / scalaBinaryVersion).value
+  val suffix = if (Properties.isWin) ".exe" else ""
+  val nativeOutput = (cli.native / Compile / target).value /
+    s"scala-$binaryVersion" / s"scalafmt-cli$suffix"
+  val output = baseDirectory.value / s"scalafmt$suffix"
+  IO.copyFile(nativeOutput, output)
+}
+
+addCommandAlias(
+  "scala-native",
+  "cliNative/compile;cliNative/nativeLink;copyScalaNative",
+)
 
 commands ++= Seq(
   Command.command("ci-test-jvm") { s =>
@@ -191,9 +206,8 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
     scalacOptions ++= scalacJvmOptions.value,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
     sharedTestSettings,
-  ).nativeSettings(scalaNativeConfig).jvmEnablePlugins(NativeImagePlugin)
-  .dependsOn(core, interfaces).aggregate(core)
-  .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm))
+  ).nativeSettings(scalaNativeConfig).dependsOn(core, interfaces)
+  .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm, core.jvm))
 
 lazy val tests = crossProject(JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests")).settings(

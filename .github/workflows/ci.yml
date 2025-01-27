@@ -89,13 +89,15 @@ jobs:
       fail-fast: false
       matrix:
         deploy: [ 
-          { os : macOS-13, name: scalafmt-x86_64-apple-darwin, path: "scalafmt-cli/native/target/scala-2.13/scalafmt-cli"}, 
-          { os : macOS-14, name: scalafmt-aarch64-apple-darwin, path: "scalafmt-cli/native/target/scala-2.13/scalafmt-cli"}, 
-          { os : ubuntu-latest, name: scalafmt-x86_64-pc-linux, path: "scalafmt-cli/native/target/scala-2.13/scalafmt-cli"}, 
-          { os : ubuntu-24.04-arm, name: scalafmt-aarch64-pc-linux, path: "scalafmt-cli/native/target/scala-2.13/scalafmt-cli"}, 
-          { os : windows-latest, name: scalafmt-x86_64-pc-win32, path: "scalafmt-cli/native/target/scala-2.13/scalafmt-cli.exe"}
+          { os : macOS-13, name: scalafmt-x86_64-apple-darwin}, 
+          { os : macOS-14, name: scalafmt-aarch64-apple-darwin}, 
+          { os : ubuntu-latest, name: scalafmt-x86_64-pc-linux}, 
+          { os : ubuntu-24.04-arm, name: scalafmt-aarch64-pc-linux}, 
+          { os : windows-latest, name: scalafmt-x86_64-pc-win32}
         ]
     runs-on: ${{ matrix.deploy.os }}
+    env:
+      BINARY_NAME: ${{ (startsWith(matrix.deploy.os, 'windows') && 'scalafmt.exe') || 'scalafmt' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -112,7 +114,7 @@ jobs:
       - uses: actions/upload-artifact@master
         with:
           name: ${{ matrix.deploy.name }}
-          path: ${{ matrix.deploy.path }}
+          path: ${{ env.BINARY_NAME }}
       - name: Upload release
         if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1.0.2
@@ -120,7 +122,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: scalafmt-cli/native/target/scala-2.13/scalafmt-cli
+          asset_path: ${{ env.BINARY_NAME }}
           asset_name: ${{ matrix.deploy.name }}
           asset_content_type: application/zip
   dockerize:
