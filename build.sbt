@@ -1,4 +1,5 @@
 import scala.scalanative.build._
+import scala.util.Properties
 
 import Dependencies._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
@@ -34,16 +35,27 @@ inThisBuild {
     resolvers ++= Resolver.sonatypeOssRepos("releases"),
     resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     testFrameworks += new TestFramework("munit.Framework"),
-    // causes native image issues
-    dependencyOverrides += "org.jline" % "jline" % "3.28.0",
   )
 }
 
 name := "scalafmtRoot"
 publish / skip := true
 
-addCommandAlias("native-image", "cli/nativeImage")
-addCommandAlias("scala-native", "cliNative/compile;cliNative/nativeLink")
+lazy val copyScalaNative = taskKey[Unit]("Copy Scala Native output to root")
+
+copyScalaNative := {
+  val binaryVersion = (cli.native / scalaBinaryVersion).value
+  val suffix = if (Properties.isWin) ".exe" else ""
+  val nativeOutput = (cli.native / Compile / target).value /
+    s"scala-$binaryVersion" / s"scalafmt-cli$suffix"
+  val output = baseDirectory.value / s"scalafmt$suffix"
+  IO.copyFile(nativeOutput, output)
+}
+
+addCommandAlias(
+  "scala-native",
+  "cliNative/compile;cliNative/nativeLink;copyScalaNative",
+)
 
 commands ++= Seq(
   Command.command("ci-test-jvm") { s =>
@@ -194,25 +206,8 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
     scalacOptions ++= scalacJvmOptions.value,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
     sharedTestSettings,
-  ).jvmSettings(
-    nativeImageInstalled := isCI,
-    nativeImageOptions += "-march=compatibility",
-    nativeImageOptions ++= {
-      // https://www.graalvm.org/22.3/reference-manual/native-image/guides/build-static-executables/
-      // https://www.graalvm.org/latest/reference-manual/native-image/guides/build-static-executables/
-      sys.env.get("NATIVE_IMAGE_STATIC") match {
-        case Some("nolibc") => Seq(
-            "-H:+UnlockExperimentalVMOptions",
-            "-H:+StaticExecutableWithDynamicLibC",
-            "-H:-UnlockExperimentalVMOptions",
-          )
-        case Some("musl") => Seq("--static", "--libc=musl")
-        case _ => Nil
-      }
-    },
-  ).nativeSettings(scalaNativeConfig).jvmEnablePlugins(NativeImagePlugin)
-  .dependsOn(core, interfaces).aggregate(core)
-  .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm))
+  ).nativeSettings(scalaNativeConfig).dependsOn(core, interfaces)
+  .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm, core.jvm))
 
 lazy val tests = crossProject(JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests")).settings(

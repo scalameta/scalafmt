@@ -82,51 +82,39 @@ jobs:
       - run: ./scalafmt --test
       - run: yarn install
       - run: yarn format-check
-  native-image:
+  scala-native:
     permissions:
       contents: write  # for actions/upload-release-asset to upload release asset
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [macOS-latest, ubuntu-latest]
-        libc: [default, musl]
-        exclude:
-          - os: macOS-latest
-            libc: musl
-        include:
-          - os: macOS-latest
-            artifact: scalafmt-macos
-            env:
-              NATIVE_IMAGE_STATIC: none
-          - os: ubuntu-latest
-            libc: default
-            artifact: scalafmt-linux-glibc
-            env:
-              NATIVE_IMAGE_STATIC: nolibc
-          - os: ubuntu-latest
-            libc: musl
-            artifact: scalafmt-linux-musl
-            env:
-              NATIVE_IMAGE_STATIC: musl
-    env: ${{ matrix.env }}
+        deploy: [ 
+          { os : macOS-13, name: scalafmt-x86_64-apple-darwin}, 
+          { os : macOS-14, name: scalafmt-aarch64-apple-darwin}, 
+          { os : ubuntu-latest, name: scalafmt-x86_64-pc-linux}, 
+          { os : ubuntu-24.04-arm, name: scalafmt-aarch64-pc-linux}, 
+          { os : windows-latest, name: scalafmt-x86_64-pc-win32}
+        ]
+    runs-on: ${{ matrix.deploy.os }}
+    env:
+      BINARY_NAME: ${{ (startsWith(matrix.deploy.os, 'windows') && 'scalafmt.exe') || 'scalafmt' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Set up GraalVM
-        uses: graalvm/setup-graalvm@v1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'graalvm-community'
-          native-image-musl: ${{ matrix.libc == 'musl' }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          distribution: 'temurin'
+          cache: 'sbt'
       - uses: sbt/setup-sbt@v1
-      - run: bin/build-native-image.sh
+      - run: sbt scala-native
         env:
           CI: true
       - uses: actions/upload-artifact@master
         with:
-          name: ${{ matrix.artifact }}
-          path: scalafmt
+          name: ${{ matrix.deploy.name }}
+          path: ${{ env.BINARY_NAME }}
       - name: Upload release
         if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1.0.2
@@ -134,11 +122,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: scalafmt
-          asset_name: ${{ matrix.artifact }}
+          asset_path: ${{ env.BINARY_NAME }}
+          asset_name: ${{ matrix.deploy.name }}
           asset_content_type: application/zip
   dockerize:
-    needs: [native-image,test]
+    needs: [scala-native,test]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') && github.event_name != 'release'
     steps:
@@ -153,8 +141,8 @@ jobs:
       - name: Downloading scalafmt-linux-musl for Docker Build
         uses: actions/download-artifact@v4
         with:
-          name: scalafmt-linux-musl
-          path: tmp/scalafmt-linux-musl
+          name: scalafmt-x86_64-pc-linux
+          path: tmp/scalafmt
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
