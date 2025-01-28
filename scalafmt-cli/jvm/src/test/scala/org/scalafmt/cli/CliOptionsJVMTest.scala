@@ -10,7 +10,7 @@ class CliOptionsJVMTest extends FunSuite {
 
   Seq("--stdin", "--stdout").foreach { arg =>
     test(s"don't write info when using $arg") {
-      val options = Cli.getConfig(Array(arg), baseCliOptionsWithOut).get
+      val options = Cli.getConfig(baseCliOptionsWithOut, arg).get
       val cons = System.console()
       if (cons ne null) options.common.info match {
         case x: Output.FromWriter if x.obj eq cons.writer() =>

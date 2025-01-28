@@ -7,36 +7,21 @@ import java.nio.file.Paths
 
 import scala.io.Source
 import scala.util.Using
-import scala.util.control.NoStackTrace
 
 object Cli extends CliUtils {
 
-  private def throwIfError(exit: ExitCode): Unit = if (exit != ExitCode.Ok)
-    throw new RuntimeException(exit.toString) with NoStackTrace
-
   def main(args: Array[String]): Unit = {
-    val exit = mainWithOptions(args, CliOptions.default)
+    val exit = mainWithOptions(CliOptions.default, args: _*)
     sys.exit(exit.code)
   }
 
-  def exceptionThrowingMain(args: Array[String]): Unit =
-    exceptionThrowingMainWithOptions(args, CliOptions.default)
-
-  def exceptionThrowingMainWithOptions(
-      args: Array[String],
-      options: CliOptions,
-  ): Unit = {
-    val exit = mainWithOptions(args, options)
-    throwIfError(exit)
-  }
-
-  def mainWithOptions(args: Array[String], options: CliOptions): ExitCode =
-    getConfig(args, options) match {
+  def mainWithOptions(options: CliOptions, args: String*): ExitCode =
+    getConfig(options, args: _*) match {
       case Some(x) => run(x)
       case None => ExitCode.CommandLineArgumentError
     }
 
-  def getConfig(args: Array[String], init: CliOptions): Option[CliOptions] = {
+  def getConfig(init: CliOptions, args: String*): Option[CliOptions] = {
     val expandedArguments = expandArguments(args)
     CliArgParser.scoptParser.parse(expandedArguments, init).map(CliOptions.auto)
   }

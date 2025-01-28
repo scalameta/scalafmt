@@ -108,7 +108,7 @@ class CliOptionsTest extends FunSuite {
   }
 
   test("write info to out if not writing to stdout") {
-    val options = Cli.getConfig(Array.empty[String], baseCliOptionsWithOut).get
+    val options = Cli.getConfig(baseCliOptionsWithOut).get
     assertEquals(options.common.info.printStream, System.out)
   }
 

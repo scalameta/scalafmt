@@ -28,21 +28,20 @@ abstract class AbstractCliTest extends FunSuite {
 
   def runWith(root: AbsoluteFile, argStr: String)(implicit
       loc: munit.Location,
-  ): Unit = runArgs(mkArgs(argStr), getMockOptions(root))
+  ): Unit = runArgs(getMockOptions(root))(mkArgs(argStr): _*)
 
   def runArgs(
-      args: Array[String],
-      init: CliOptions = baseCliOptions,
+      cliOptions: CliOptions = baseCliOptions,
       exitCode: ExitCode = ExitCode.Ok,
-  )(implicit loc: munit.Location): Unit =
-    run(Cli.getConfig(args, init).get, exitCode)
+  )(args: String*)(implicit loc: munit.Location): Unit =
+    run(Cli.getConfig(cliOptions, args: _*).get, exitCode)
 
   def run(options: CliOptions, exitCode: ExitCode = ExitCode.Ok)(implicit
       loc: munit.Location,
   ) = assertEquals(Cli.run(options), exitCode)
 
-  def getConfig(args: Array[String]): CliOptions = Cli
-    .getConfig(args, baseCliOptions).get
+  def getConfig(args: String*): CliOptions = Cli
+    .getConfig(baseCliOptions, args: _*).get
 
   def assertContains(out: String, expected: String, flag: Boolean = true)(
       implicit loc: munit.Location,
@@ -102,13 +101,14 @@ abstract class AbstractCliTest extends FunSuite {
       testExitCode: Option[ExitCode] = None,
   )(implicit loc: munit.Location): Unit = cmds.foreach { args =>
     val out = new ByteArrayOutputStream()
-    val init: CliOptions = getMockOptions(input, input, new PrintStream(out))
-    val config = Cli.getConfig(args, init).get
+    val config = Cli
+      .getConfig(getMockOptions(input, input, new PrintStream(out)), args: _*)
+      .get
     run(config, exitCode)
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
     val testConfig = config.copy(writeModeOpt = None)
-    runArgs(Array("--test"), testConfig, testExitCode.getOrElse(exitCode))
+    runArgs(testConfig, testExitCode.getOrElse(exitCode))("--test")
     assertOut(out.toString())
   }
 
@@ -133,13 +133,12 @@ trait CliTestBehavior {
       Files.write(originalTmpFile, unformatted.getBytes)
       Files.write(originalTmpFile2, unformatted.getBytes)
       Files.write(scalafmtConfig, config.getBytes)
-      val args = Array(
+      runArgs()(
         "--config",
         scalafmtConfig.toFile.getPath,
         originalTmpFile.toFile.getPath,
         originalTmpFile2.toFile.getPath,
       )
-      runArgs(args)
       val obtained = FileOps.readFile(originalTmpFile.toString)
       val obtained2 = FileOps.readFile(originalTmpFile2.toString)
       assertNoDiff(obtained, expected10)
@@ -149,17 +148,14 @@ trait CliTestBehavior {
     test(s"scalafmt --stdout tmpFile prints to stdout: $label") {
       val originalTmpFile = Files.createTempFile("prefix", ".scala")
       Files.write(originalTmpFile, unformatted.getBytes)
-      val args = Array(
+      val baos = new ByteArrayOutputStream()
+      val ps = new PrintStream(baos)
+      runArgs(baseCliOptions.copy(common = baseCliOptions.common.copy(out = ps)))(
         "--stdout",
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
         originalTmpFile.toFile.getPath,
       )
-      val baos = new ByteArrayOutputStream()
-      val ps = new PrintStream(baos)
-      val init = baseCliOptions
-        .copy(common = baseCliOptions.common.copy(out = ps))
-      runArgs(args, init)
       val obtained = new String(baos.toByteArray, StandardCharsets.UTF_8)
       assertNoDiff(obtained, formatted)
       assertEquals(obtained.length, formatted.length)
@@ -175,14 +171,13 @@ trait CliTestBehavior {
             |    """.stripMargin
       Files.write(scalafmtConfig, config.getBytes)
 
-      val args = Array(
+      val printToStdout = getConfig(
         "--stdin",
         "--assume-filename",
         "build.sbt",
         "--config",
         scalafmtConfig.toFile.getPath,
       )
-      val printToStdout = getConfig(args)
       val bais = new ByteArrayInputStream(sbtOriginal.getBytes)
       val baos = new ByteArrayOutputStream()
       val ps = new PrintStream(baos)
@@ -196,26 +191,24 @@ trait CliTestBehavior {
     test(s"scalafmt --test tmpFile is left unformatted: $label") {
       val tmpFile = Files.createTempFile("prefix", ".scala")
       Files.write(tmpFile, unformatted.getBytes)
-      val args = Array(
+      runArgs(exitCode = ExitCode.TestError)(
         tmpFile.toFile.getPath,
         "--test",
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
       )
-      runArgs(args, exitCode = ExitCode.TestError)
       val str = FileOps.readFile(tmpFile.toString)
       assertNoDiff(str, unformatted)
     }
     test(s"scalafmt --test fails with non zero exit code $label") {
       val tmpFile = Files.createTempFile("prefix", ".scala")
       Files.write(tmpFile, unformatted.getBytes)
-      val args = Array(
+      runArgs(exitCode = ExitCode.UnexpectedError)(
         tmpFile.toFile.getPath,
         "--test",
         "--config-str",
         s"""{version="$version",style=IntelliJ, docstring = Asterisk}""",
       )
-      runArgs(args, exitCode = ExitCode.UnexpectedError)
     }
 
     test(s"scalafmt foo.randomsuffix is formatted: $label") {
@@ -226,7 +219,7 @@ trait CliTestBehavior {
         s"""{version="$version",style=IntelliJ}""",
         tmpFile.toFile.getAbsolutePath,
       )
-      Cli.exceptionThrowingMainWithOptions(args, baseCliOptions)
+      assertEquals(Cli.mainWithOptions(baseCliOptions, args: _*), ExitCode.Ok)
       val obtained = FileOps.readFile(tmpFile.toString)
       // TODO: We need to pass customFiles information to ProjectFiles
       assertNoDiff(obtained, formatted)
@@ -252,11 +245,11 @@ trait CliTestBehavior {
             |/foobar.scala
             |object A {}
             |""".stripMargin
-      runArgs(Array(
+      runArgs()(
         input.toString(),
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
-      ))
+      )
       val obtained = dir2string(input)
       assertNoDiff(obtained, expected)
     }
@@ -295,13 +288,13 @@ trait CliTestBehavior {
             |/target/nested3/DoNotFormatMe.scala
             |object    CIgnoreME   {  }
             |""".stripMargin
-      runArgs(Array(
+      runArgs()(
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
         input.toString(),
         "--exclude",
         fixSeparatorsInPathPattern("target/nested"),
-      ))
+      )
 
       val obtained = dir2string(input)
       assertNoDiff(obtained, expected)
@@ -310,17 +303,14 @@ trait CliTestBehavior {
 
     test(s"scalafmt doesnotexist.scala throws error: $label") {
       def check(filename: String): Unit = {
-        val args = Array(
+        def runCli = Cli.mainWithOptions(
+          baseCliOptions,
           fixSeparatorsInPathPattern(s"$filename.scala"),
           "--config-str",
           s"""{version="$version",style=IntelliJ}""",
         )
-        if (PlatformCompat.isNativeOnWindows()) intercept[UncheckedIOException](
-          Cli.exceptionThrowingMainWithOptions(args, baseCliOptions),
-        )
-        else intercept[IOException](
-          Cli.exceptionThrowingMainWithOptions(args, baseCliOptions),
-        )
+        if (!PlatformCompat.isNativeOnWindows()) intercept[IOException](runCli)
+        else intercept[UncheckedIOException](runCli)
       }
       check("notfound")
       check("target/notfound")
@@ -338,17 +328,17 @@ trait CliTestBehavior {
     }
 
     test(s"scalafmt (no matching files) is okay with --mode diff and --stdin: $label") {
-      runArgs(Array(
+      runArgs()(
         "--mode",
         "diff",
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
-      ))
-      val stdin = getConfig(Array(
+      )
+      val stdin = getConfig(
         "--stdin",
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
-      )).copy(common = CommonOptions(in = new ByteArrayInputStream("".getBytes)))
+      ).copy(common = CommonOptions(in = new ByteArrayInputStream("".getBytes)))
       run(stdin)
     }
 
@@ -426,7 +416,7 @@ trait CliTestBehavior {
         val mock = getMockOptions(input, workingDir)
         mock.copy(common = mock.common.copy(cwd = Some(workingDir)))
       }
-      runArgs(Array("foo.scala"), options)
+      runArgs(options)("foo.scala")
       val obtained = (workingDir / "foo.scala").readFile
       assertNoDiff(obtained, expected)
     }
@@ -530,8 +520,7 @@ trait CliTestBehavior {
       )
       val config = (root / "scalafmt.conf").toString()
       val toFormat = (root / "foo.scala").toString()
-      val args = Array[String]("--config", config, toFormat)
-      Cli.exceptionThrowingMainWithOptions(args, baseCliOptions)
+      Cli.mainWithOptions(baseCliOptions, "--config", config, toFormat)
       val obtained = FileOps.readFile(toFormat)
       assertNoDiff(obtained, "object A\n")
     }
@@ -545,14 +534,13 @@ trait CliTestBehavior {
       Files.write(file2, unformatted.getBytes)
       Files.write(file3, unformatted.getBytes)
       def fileStr(fs: Path*) = fs.map(_.toFile.getPath).mkString(",")
-      val args = Array(
+      runArgs()(
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
         "-i",
         "-f",
         fileStr(file1, file2, file3),
       )
-      runArgs(args)
       val obtained = FileOps.readFile(file1.toString)
       val obtained2 = FileOps.readFile(file2.toString)
       val obtained3 = FileOps.readFile(file3.toString)
@@ -583,11 +571,9 @@ trait CliTestBehavior {
     }
 
     test(s"command line argument error: $label") {
-      val exit = Console
-        .withErr(Output.NoopStream.printStream)(Cli.mainWithOptions(
-          Array("--foobar"),
-          getMockOptions(AbsoluteFile.userDir),
-        ))
+      val exit = Console.withErr(Output.NoopStream.printStream)(
+        Cli.mainWithOptions(getMockOptions(AbsoluteFile.userDir), "--foobar"),
+      )
       assertEquals(exit, ExitCode.CommandLineArgumentError, exit)
     }
 
@@ -685,7 +671,7 @@ trait CliTestBehavior {
       val in = Files.createTempFile("scalafmt", "Foo.scala")
       Files.write(in, "object A".getBytes(StandardCharsets.UTF_8))
       val args = Array("--config-str", s"""{version="$version"}""", in.toString)
-      val exit = Cli.mainWithOptions(args, baseCliOptions)
+      val exit = Cli.mainWithOptions(baseCliOptions, args: _*)
       assertEquals(exit, ExitCode.Ok)
       val obtained = new String(Files.readAllBytes(in), StandardCharsets.UTF_8)
       assertEquals(obtained, "object A\n")
@@ -864,8 +850,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     val arguments = List("--config", configFile.toString, "foobar.scala")
     Files.write(argumentsFile, arguments.asJava)
     Files.write(configFile, List("maxColumn=40").asJava)
-    val obtained = Cli
-      .getConfig(Array(s"@$argumentsFile"), CliTest.defaultOptions).get
+    val obtained = Cli.getConfig(CliTest.defaultOptions, s"@$argumentsFile").get
     val config = obtained.scalafmtConfig.get
     assertEquals(config.maxColumn, 40)
     assertEquals(obtained.customFiles.head.getFileName.toString, "foobar.scala")
@@ -874,8 +859,11 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   test("can't specify both --config and --config-str") {
     val errStream = new ByteArrayOutputStream()
     val obtained = Console.withErr(errStream)(Cli.getConfig(
-      Array("--config", "foo", "--config-str", "bar"),
       CliTest.defaultOptions,
+      "--config",
+      "foo",
+      "--config-str",
+      "bar",
     ))
     assertEquals(
       errStream.toString.trim,
@@ -1132,11 +1120,11 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |}
           |```
           |""".stripMargin
-    runArgs(Array(
+    runArgs()(
       input.toString(),
       "--config-str",
       s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}""",
-    ))
+    )
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
   }
@@ -1158,11 +1146,11 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |  object A {}
           |  ```
           |""".stripMargin
-    runArgs(Array(
+    runArgs()(
       input.toString(),
       "--config-str",
       s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}""",
-    ))
+    )
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
   }
@@ -1194,13 +1182,10 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
           |  }
           |```
           |""".stripMargin
-    runArgs(
-      Array(
-        input.toString(),
-        "--config-str",
-        s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}""",
-      ),
-      exitCode = ExitCode.ParseError,
+    runArgs(exitCode = ExitCode.ParseError)(
+      input.toString(),
+      "--config-str",
+      s"""{version = "$stableVersion", project.includePaths."+" = ["glob:**.md"]}""",
     )
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
@@ -1256,7 +1241,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
          |    1
          |}""".stripMargin
     Console.withOut(out)(Console.withErr(err) {
-      val options = getConfig(Array("--stdin", "--test"))
+      val options = getConfig("--stdin", "--test")
       val options2 = options.copy(
         configStr = Some(s"{version = $stableVersion}"),
         common = options.common.copy(
