@@ -17,7 +17,6 @@ private[scalafmt] trait CliUtils {
         ),
       )
     val exit = Cli.mainWithOptions(
-      nGContext.getArgs,
       CliOptions.default.copy(common =
         CliOptions.default.common.copy(
           cwd = Some(workingDirectory),
@@ -26,6 +25,7 @@ private[scalafmt] trait CliUtils {
           err = nGContext.err,
         ),
       ),
+      nGContext.getArgs: _*,
     )
     nGContext.exit(exit.code)
   }
