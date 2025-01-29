@@ -82,6 +82,61 @@ jobs:
       - run: ./scalafmt --test
       - run: yarn install
       - run: yarn format-check
+  native-image: # deprecated, will soon be removed
+    permissions:
+      contents: write  # for actions/upload-release-asset to upload release asset
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macOS-latest, ubuntu-latest]
+        libc: [default, musl]
+        exclude:
+          - os: macOS-latest
+            libc: musl
+        include:
+          - os: macOS-latest
+            artifact: scalafmt-macos
+            env:
+              NATIVE_IMAGE_STATIC: none
+          - os: ubuntu-latest
+            libc: default
+            artifact: scalafmt-linux-glibc
+            env:
+              NATIVE_IMAGE_STATIC: nolibc
+          - os: ubuntu-latest
+            libc: musl
+            artifact: scalafmt-linux-musl
+            env:
+              NATIVE_IMAGE_STATIC: musl
+    env: ${{ matrix.env }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm-community'
+          native-image-musl: ${{ matrix.libc == 'musl' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: sbt/setup-sbt@v1
+      - run: bin/build-native-image.sh
+        env:
+          CI: true
+      - uses: actions/upload-artifact@master
+        with:
+          name: ${{ matrix.artifact }}
+          path: scalafmt
+      - name: Upload release
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: scalafmt
+          asset_name: ${{ matrix.artifact }}
+          asset_content_type: application/zip
   scala-native:
     permissions:
       contents: write  # for actions/upload-release-asset to upload release asset

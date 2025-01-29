@@ -7,6 +7,9 @@ INSTALL_LOCATION=${2:-/usr/local/bin/scalafmt-native}
 
 CWD=$(pwd)
 
+echo "The script is being deprecated and will be removed in the first quarter of 2025"
+echo "An alternative is to use Scala CLI or https://github.com/VirtusLab/scala-cli-setup action"
+
 # from https://gist.github.com/Ariel-Rodriguez/9e3c2163f4644d7a389759b224bfe7f3
 semver_compare() {
   local version_a version_b pr_a pr_b
