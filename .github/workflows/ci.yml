@@ -127,7 +127,7 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: scalafmt
-      - name: Upload release
+      - name: Upload release to Github
         if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1.0.2
         env:
@@ -138,6 +138,7 @@ jobs:
           asset_name: ${{ matrix.artifact }}
           asset_content_type: application/zip
   scala-native:
+    if: github.event_name == 'release'
     permissions:
       contents: write  # for actions/upload-release-asset to upload release asset
     strategy:
@@ -170,8 +171,7 @@ jobs:
         with:
           name: ${{ matrix.deploy.name }}
           path: ${{ env.BINARY_NAME }}
-      - name: Upload release
-        if: github.event_name == 'release'
+      - name: Upload release to Github
         uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
