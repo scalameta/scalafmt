@@ -2,8 +2,6 @@ package org.scalafmt.internal
 
 import java.util.regex.Pattern
 
-import scala.util.matching.Regex
-
 /* Before text matching (?=re), after text matching (?<=re)
  * and more are incompatible in Scala Native, so custom functions
  * have to be used.
@@ -99,14 +97,6 @@ object RegexCompat {
 
   val stripMarginPatternWithLineContent =
     compileStripMarginPatternWithLineContent('|')
-
-  // see: https://ammonite.io/#Save/LoadSession
-  val ammonitePattern: Regex = "(?:\\s*\\n@)".r
-
-  val stripMarginPattern = Pattern.compile(
-    fixHorizontalSpaceInRegex("\n(\\h*\\|)?([^\n]*)"),
-    Pattern.MULTILINE,
-  )
 
   // startAfterPattern and endBeforePattern should be unique in basePattern
   // basePattern = startAfterPattern + matched pattern + endBeforePattern

@@ -44,8 +44,6 @@ private[scalafmt] object RegexCompat {
   def compileStripMarginPatternWithLineContent(pipe: Char) = Pattern
     .compile(s"\n(\\h*+\\$pipe)?([^\n]*+)")
 
-  val stripMarginPattern = compileStripMarginPattern('|')
-
   val stripMarginPatternWithLineContent =
     compileStripMarginPatternWithLineContent('|')
 
