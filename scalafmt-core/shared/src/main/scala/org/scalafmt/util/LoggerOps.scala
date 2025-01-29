@@ -199,4 +199,8 @@ object LoggerOps {
       logger.debug(s"Total cost: ${finalState.cost}")
     }
 
+  def lf(str: String): String = str.replaceAll("\r*\n", "\n")
+  def crlf(str: String): String = str.replaceAll("\r*\n", "\r\n")
+  def showCR(str: String): String = str.replace("\r", "^M")
+
 }
