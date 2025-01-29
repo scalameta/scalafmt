@@ -17,7 +17,6 @@ import scala.concurrent.duration._
 
 import munit.FunSuite
 import munit.diff.Diff
-import munit.diff.console.AnsiColors
 
 // TODO(olafur) property test: same solution without optimization or timeout.
 
@@ -26,6 +25,8 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)
+
+  private val noAnsiDiffOptions = diffOptions.withForceAnsi(Some(false))
 
   override def ignore(t: DiffTest): Boolean = false
 
@@ -115,10 +116,10 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
           assertObtained
         } else if (code == obtained) assertObtained
         else {
-          val diff = new Diff(code, obtained)
+          val diff = new Diff(code, obtained, noAnsiDiffOptions)
           if (diff.isEmpty) assertObtained
           else {
-            val report = AnsiColors.filterAnsi(diff.createDiffOnlyReport())
+            val report = diff.createDiffOnlyReport()
             val eol = if (report.last == '\n') "" else "\n"
             val error = "Idempotency violated\n" + report + eol
             if (error != t.expected) failComparison(error, code, obtained)
