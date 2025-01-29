@@ -5,6 +5,7 @@ import org.scalafmt.config._
 import org.scalafmt.internal._
 import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.sysops.FileOps
+import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.MarkdownParser
 
 import scala.meta.Input
@@ -90,8 +91,8 @@ object Scalafmt {
       val res = MarkdownParser
         .transformMdoc(code)(doFormatOne(_, mdocStyle, file, range))
       style.lineEndings match {
-        case Some(LineEndings.unix) => res.map(_.replaceAll("\r*\n", "\n"))
-        case Some(LineEndings.windows) => res.map(_.replaceAll("\r*\n", "\r\n"))
+        case Some(LineEndings.unix) => res.map(LoggerOps.lf)
+        case Some(LineEndings.windows) => res.map(LoggerOps.crlf)
         case _ => res
       }
     } else doFormatOne(code, style, file, range)
