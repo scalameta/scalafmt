@@ -18,11 +18,9 @@ object RegexCompat {
    */
   private def fixHorizontalSpaceInRegex(reg: String) = {
 
-    @inline
     val replacingInsideClass =
       "\t \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000"
 
-    @inline
     val replacingOutsideClass = s"[$replacingInsideClass]"
 
     val sb = new StringBuilder()
@@ -50,56 +48,43 @@ object RegexCompat {
     sb.toString()
   }
 
-  @inline
   val trailingSpace = Pattern
     .compile(fixHorizontalSpaceInRegex("\\h+$"), Pattern.MULTILINE)
 
   // "slc" stands for single-line comment
-  @inline
   val slcLine = Pattern
     .compile(fixHorizontalSpaceInRegex("^/\\/\\/*\\h*(.*?)\\h*$"))
 
-  @inline
   val slcDelim = Pattern.compile(fixHorizontalSpaceInRegex("\\h+"))
 
   // "mlc" stands for multi-line comment
-  @inline
   val mlcHeader = Pattern
     .compile(fixHorizontalSpaceInRegex("^/\\*\\h*(?:\n\\h*[*]*\\h*)?"))
 
-  @inline
   val mlcLineDelim = Pattern
     .compile(fixHorizontalSpaceInRegex("\\h*\n\\h*[*]*\\h*"))
 
-  @inline
   val mlcParagraphEnd = Pattern.compile("[.:!?=]$")
 
-  @inline
   val mlcParagraphBeg = Pattern.compile("^(?:[-*@=]|\\d+[.:])")
 
-  @inline
   val leadingAsteriskSpace = Pattern
     .compile(fixHorizontalSpaceInRegex("\n\\h*[*][^*]"), Pattern.MULTILINE)
 
-  @inline
   val docstringLine = Pattern.compile(
     fixHorizontalSpaceInRegex("^(?:\\h*\\*)?(\\h*)(.*?)\\h*$"),
     Pattern.MULTILINE,
   )
 
-  @inline
   val emptyLines = fixHorizontalSpaceInRegex("\\h*(\n\\h*\\*?\\h*)*")
 
-  @inline
   val emptyDocstring = Pattern.compile(s"^/\\*\\*$emptyLines\\*/$$")
 
-  @inline
   val onelineDocstring = {
     val oneline = fixHorizontalSpaceInRegex("[^*\n\\h](?:[^\n]*[^\n\\h])?")
     Pattern.compile(s"^/\\*\\*$emptyLines($oneline)$emptyLines\\*/$$")
   }
 
-  @inline
   val docstringLeadingSpace = Pattern.compile(fixHorizontalSpaceInRegex("^\\h+"))
 
   @inline
@@ -116,10 +101,8 @@ object RegexCompat {
     compileStripMarginPatternWithLineContent('|')
 
   // see: https://ammonite.io/#Save/LoadSession
-  @inline
   val ammonitePattern: Regex = "(?:\\s*\\n@)".r
 
-  @inline
   val stripMarginPattern = Pattern.compile(
     fixHorizontalSpaceInRegex("\n(\\h*\\|)?([^\n]*)"),
     Pattern.MULTILINE,
@@ -161,7 +144,6 @@ object RegexCompat {
     sb.toString()
   }
 
-  @inline
   private val leadingPipeSpace = compileStripMarginPattern('|')
 
   @inline
@@ -169,6 +151,7 @@ object RegexCompat {
     if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
 
   private val startAfterForReplaceAllStripMargin = Pattern.compile("\n+")
+
   @inline
   def replaceAllStripMargin(
       text: String,
@@ -199,7 +182,6 @@ object RegexCompat {
     )
 
   // replaces baseText.split("(?={beforeText})")
-  @inline
   def splitByBeforeTextMatching(
       baseText: String,
       beforeText: String,

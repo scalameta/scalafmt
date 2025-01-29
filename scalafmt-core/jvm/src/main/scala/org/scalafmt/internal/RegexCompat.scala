@@ -4,49 +4,36 @@ import java.util.regex.Pattern
 
 private[scalafmt] object RegexCompat {
 
-  @inline
   val trailingSpace = Pattern.compile("\\h++$", Pattern.MULTILINE)
 
   // "slc" stands for single-line comment
-  @inline
   val slcLine = Pattern.compile("^/\\/\\/*+\\h*+(.*?)\\h*+$")
 
-  @inline
   val slcDelim = Pattern.compile("\\h++")
 
   // "mlc" stands for multi-line comment
-  @inline
   val mlcHeader = Pattern.compile("^/\\*\\h*+(?:\n\\h*+[*]*+\\h*+)?")
 
-  @inline
   val mlcLineDelim = Pattern.compile("\\h*+\n\\h*+[*]*+\\h*+")
 
-  @inline
   val mlcParagraphEnd = Pattern.compile("[.:!?=]$")
 
-  @inline
   val mlcParagraphBeg = Pattern.compile("^(?:[-*@=]|\\d++[.:])")
 
-  @inline
   private val leadingAsteriskSpace = Pattern.compile("(?<=\n)\\h*+(?=[*][^*])")
 
-  @inline
   val docstringLine = Pattern
     .compile("^(?:\\h*+\\*)?(\\h*+)(.*?)\\h*+$", Pattern.MULTILINE)
 
-  @inline
   private val emptyLines = "\\h*+(\n\\h*+\\*?\\h*+)*"
 
-  @inline
   val emptyDocstring = Pattern.compile(s"^/\\*\\*$emptyLines\\*/$$")
 
-  @inline
   val onelineDocstring = {
     val oneline = "[^*\n\\h](?:[^\n]*[^\n\\h])?"
     Pattern.compile(s"^/\\*\\*$emptyLines($oneline)$emptyLines\\*/$$")
   }
 
-  @inline
   val docstringLeadingSpace = Pattern.compile("^\\h++")
 
   @inline
@@ -57,14 +44,11 @@ private[scalafmt] object RegexCompat {
   def compileStripMarginPatternWithLineContent(pipe: Char) = Pattern
     .compile(s"\n(\\h*+\\$pipe)?([^\n]*+)")
 
-  @inline
   val stripMarginPattern = compileStripMarginPattern('|')
 
-  @inline
   val stripMarginPatternWithLineContent =
     compileStripMarginPatternWithLineContent('|')
 
-  @inline
   private val leadingPipeSpace = compileStripMarginPattern('|')
 
   @inline
