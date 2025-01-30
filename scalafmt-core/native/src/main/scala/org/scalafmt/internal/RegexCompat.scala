@@ -68,7 +68,7 @@ object RegexCompat {
 
   val mlcParagraphBeg = pat("^(?:[-*@=]|\\d+[.:])")
 
-  val leadingAsteriskSpace = pat("\n\\h*[*][^*]", Pattern.MULTILINE)
+  val leadingAsteriskSpace = pat("\\h*\\r*\\n(\\h*)(?:[*][^*])?")
 
   val docstringLine = pat("^(?:\\h*\\*)?(\\h*)(.*?)\\h*$", Pattern.MULTILINE)
 
@@ -93,59 +93,11 @@ object RegexCompat {
   val stripMarginPatternWithLineContent =
     compileStripMarginPatternWithLineContent('|')
 
-  // startAfterPattern and endBeforePattern should be unique in basePattern
-  // basePattern = startAfterPattern + matched pattern + endBeforePattern
-  private def replaceAll(
-      basePattern: Pattern,
-      startAfterPattern: Pattern,
-      endBeforePattern: Pattern,
-      baseText: String,
-      replacingText: String,
-  ): String = {
-    val sb = new java.lang.StringBuilder()
-    val matcher = basePattern.matcher(baseText)
-    var currPosition = 0
-    while (matcher.find()) {
-      val start = matcher.start()
-      val end = matcher.end()
-
-      sb.append(baseText, currPosition, start)
-
-      val subtext = baseText.substring(start, end)
-      val startAfterMatcher = startAfterPattern.matcher(subtext)
-      val endBeforeMatcher = endBeforePattern.matcher(subtext)
-
-      startAfterMatcher.find()
-      endBeforeMatcher.find()
-
-      sb.append(startAfterMatcher.group())
-      sb.append(replacingText)
-      sb.append(endBeforeMatcher.group())
-
-      currPosition = end
-    }
-
-    sb.append(baseText, currPosition, baseText.length())
-    sb.toString()
-  }
-
   private val leadingPipeSpace = compileStripMarginPattern('|')
 
   @inline
   def getStripMarginPattern(pipe: Char) =
     if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
-
-  private val startAfterForReplaceAllLeadingAsterisk = pat("\n")
-  private val endBeforeForReplaceAllLeadingAsterisk = pat("([*][^*])")
-  @inline
-  def replaceAllLeadingAsterisk(trimmed: String, spaces: String): String =
-    replaceAll(
-      leadingAsteriskSpace,
-      startAfterForReplaceAllLeadingAsterisk,
-      endBeforeForReplaceAllLeadingAsterisk,
-      trimmed,
-      spaces,
-    )
 
   // replaces baseText.split("(?={beforeText})")
   def splitByBeforeTextMatching(

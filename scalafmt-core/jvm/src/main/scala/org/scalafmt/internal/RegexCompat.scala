@@ -20,7 +20,7 @@ private[scalafmt] object RegexCompat {
 
   val mlcParagraphBeg = Pattern.compile("^(?:[-*@=]|\\d++[.:])")
 
-  private val leadingAsteriskSpace = Pattern.compile("(?<=\n)\\h*+(?=[*][^*])")
+  val leadingAsteriskSpace = Pattern.compile("\\h*\\r*\\n(\\h*+)(?:[*][^*])?")
 
   val docstringLine = Pattern
     .compile("^(?:\\h*+\\*)?(\\h*+)(.*?)\\h*+$", Pattern.MULTILINE)
@@ -52,10 +52,6 @@ private[scalafmt] object RegexCompat {
   @inline
   def getStripMarginPattern(pipe: Char) =
     if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
-
-  @inline
-  def replaceAllLeadingAsterisk(trimmed: String, spaces: String): String =
-    leadingAsteriskSpace.matcher(trimmed).replaceAll(spaces)
 
   // Replaces baseText.split("(?={beforeText})")
   @inline
