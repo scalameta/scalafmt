@@ -385,7 +385,13 @@ object a {
     |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
     |""".stripMargin
   s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} f4
+    |""".stripMargin
+  s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} foo4
     |""".stripMargin
 }
 >>>
@@ -395,7 +401,13 @@ object a {
     |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
     |""".stripMargin
   s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} f4
+    |""".stripMargin
+  s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} foo4
     |""".stripMargin
 }
 <<< #3079 allow
@@ -408,7 +420,13 @@ object a {
     |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
     |""".stripMargin
   s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} f4
+    |""".stripMargin
+  s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} foo4
     |""".stripMargin
 }
 >>>
@@ -420,8 +438,15 @@ object a {
         bar)} foo4
     |""".stripMargin
   s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} f4
+    |""".stripMargin
+  s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
                                        br)} fo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
+                                       br)} foo4
     |""".stripMargin
 }
 <<< #3079 allow, source=keep
@@ -437,7 +462,13 @@ object a {
     |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
     |""".stripMargin
   s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} f4
+    |""".stripMargin
+  s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} foo4
     |""".stripMargin
 }
 >>>
@@ -451,8 +482,15 @@ object a {
         bar)} foo4
     |""".stripMargin
   s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} f4
+    |""".stripMargin
+  s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
                                        br)} fo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
+                                       br)} foo4
     |""".stripMargin
 }
 <<< #3079 allow, source=keep, align
@@ -470,7 +508,13 @@ object a {
     |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
     |""".stripMargin
   s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} f4
+    |""".stripMargin
+  s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} foo4
     |""".stripMargin
 }
 >>>
@@ -485,8 +529,15 @@ object a {
                                              bar)} foo4
     |""".stripMargin
   s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} f4
+    |""".stripMargin
+  s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
                                        br)} fo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz,
+                                       br)} foo4
     |""".stripMargin
 }
 <<< #3079 oneline
@@ -500,7 +551,13 @@ object a {
     |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
     |""".stripMargin
   s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} f4
+    |""".stripMargin
+  s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} foo4
     |""".stripMargin
 }
 >>>
@@ -514,9 +571,17 @@ object a {
     } foo4
     |""".stripMargin
   s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} f4
+    |""".stripMargin
+  s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${
       qux(bz, br)
     } fo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${
+      qux(bz, br)
+    } foo4
     |""".stripMargin
 }
 <<< #3079 oneline, align
@@ -532,7 +597,13 @@ object a {
     |foo1 ${bar} foo2 ${baz(bar)} foo3 ${qux(baz, bar)} foo4
     |""".stripMargin
   s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} f4
+    |""".stripMargin
+  s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} fo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} foo4
     |""".stripMargin
 }
 >>>
@@ -547,9 +618,17 @@ object a {
                                         } foo4
     |""".stripMargin
   s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${qux(bz, br)} f4
+    |""".stripMargin
+  s"""
     |fo1 ${br} fo2 ${bz(br)} fo3 ${
                                     qux(bz, br)
                                   } fo4
+    |""".stripMargin
+  s"""
+    |fo1 ${br} fo2 ${bz(br)} fo3 ${
+                                    qux(bz, br)
+                                  } foo4
     |""".stripMargin
 }
 <<< #3113 allow with scala3 if-else: sig indent must align
