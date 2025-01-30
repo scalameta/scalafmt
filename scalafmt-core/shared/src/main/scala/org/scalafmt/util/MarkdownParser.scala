@@ -16,8 +16,11 @@ private[scalafmt] object MarkdownParser {
     val parts = MarkdownPart.parse(code, settings)
     parts.foreach {
       case p: CodeFence if p.getMdocMode.isDefined =>
-        fmt(p.body.value) match {
-          case Success(b) => hadFencedParts = true; p.newBody = Some(b.trim)
+        val old = p.body.value
+        fmt(old) match {
+          case Success(b) =>
+            hadFencedParts = true
+            p.newBody = Some(if (old.endsWith("\n")) b else b.trim)
           case failure => return failure // RETURNING!
         }
       case _ =>
