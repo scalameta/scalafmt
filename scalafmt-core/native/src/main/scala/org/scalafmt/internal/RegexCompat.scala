@@ -50,19 +50,19 @@ object RegexCompat {
   private def pat(str: String, flags: Int = 0): Pattern = Pattern
     .compile(fixHorizontalSpaceInRegex(str), flags)
 
-  val trailingSpace = pat("\\h+$", Pattern.MULTILINE)
+  val trailingSpace = pat("\\h+\\r*$", Pattern.MULTILINE)
 
   // "slc" stands for single-line comment
-  val slcLine = pat("^/\\/\\/*\\h*(.*?)\\h*$")
+  val slcLine = pat("^/\\/\\/*\\h*(.*?)\\h*\\r*$")
 
   val slcDelim = pat("\\h+")
 
   // "mlc" stands for multi-line comment
-  val mlcHeader = pat("^/\\*\\h*(?:\n\\h*[*]*\\h*)?")
+  private val mlcLineDelimPat = "\\r*\\n\\h*(?:[*]+\\h*)?"
+  val mlcHeader = pat(s"^/\\*\\h*(?:$mlcLineDelimPat)?")
+  val mlcLineDelim = pat(s"\\h*$mlcLineDelimPat")
 
-  val mlcLineDelim = pat("\\h*\n\\h*[*]*\\h*")
-
-  val mlcParagraphEnd = pat("[.:!?=]$")
+  val mlcParagraphEnd = pat("[.:!?=]\\h*\\r*$")
 
   val mlcParagraphBeg = pat("^(?:[-*@=]|\\d+[.:])")
 
