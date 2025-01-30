@@ -48,8 +48,8 @@ class FormatWriter(formatOps: FormatOps) {
       ft.left match {
         case _ if entry.previous.formatToken.meta.formatOff => sb.append(ltext) // checked the state for left
         case _: T.Comment => entry.formatComment
-        case _: T.Interpolation.Part | _: T.Constant.String => sb
-            .append(entry.formatMarginized)
+        case _: T.Interpolation.Part | _: T.Constant.String =>
+          entry.formatMarginized
         case _: T.Constant.Int => LiteralOps.prettyPrintInteger(ltext)
         case _: T.Constant.Long => LiteralOps.prettyPrintInteger(ltext)
         case _: T.Constant.Float => LiteralOps.prettyPrintFloat(ltext)
@@ -533,7 +533,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
 
-      def formatMarginized: String = {
+      def formatMarginized(implicit sb: StringBuilder): Unit = {
         val text = tok.meta.left.text
         val tupleOpt = tok.left match {
           case _ if !style.assumeStandardLibraryStripMargin => None
@@ -557,9 +557,18 @@ class FormatWriter(formatOps: FormatOps) {
               }
           case _ => None
         }
-        tupleOpt.fold(text) { case (pipe, indent) =>
-          val spaces = getIndentation(indent)
-          RegexCompat.replaceAllStripMargin(text, spaces, pipe)
+        tupleOpt match {
+          case Some((pipe, indent)) =>
+            val spaces = getIndentation(indent)
+            val matcher = RegexCompat.getStripMarginPattern(pipe).matcher(text)
+            var pos = 0
+            while (matcher.find()) {
+              sb.append(CharBuffer.wrap(text, pos, matcher.start())).append(eol)
+              if (matcher.start(1) >= 0) sb.append(spaces).append(pipe)
+              pos = matcher.end()
+            }
+            sb.append(CharBuffer.wrap(text, pos, text.length))
+          case _ => sb.append(text)
         }
       }
 

@@ -82,12 +82,11 @@ object RegexCompat {
   val docstringLeadingSpace = pat("^\\h+")
 
   @inline
-  def compileStripMarginPattern(pipe: Char) =
-    pat(s"\n+\\h*?\\$pipe", Pattern.MULTILINE)
+  def compileStripMarginPattern(pipe: Char) = pat(s"\\h*\\r*\\n(\\h*\\$pipe)?")
 
   @inline
   def compileStripMarginPatternWithLineContent(pipe: Char) =
-    pat(s"\n(\\h*\\$pipe)?([^\n]*)", Pattern.MULTILINE)
+    pat(s"\\n(\\h*\\$pipe)?([^\\r\\n]*)")
 
   val stripMarginPatternWithLineContent =
     compileStripMarginPatternWithLineContent('|')
@@ -131,26 +130,8 @@ object RegexCompat {
   private val leadingPipeSpace = compileStripMarginPattern('|')
 
   @inline
-  private def getStripMarginPattern(pipe: Char) =
+  def getStripMarginPattern(pipe: Char) =
     if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
-
-  private val startAfterForReplaceAllStripMargin = pat("\n+")
-
-  @inline
-  def replaceAllStripMargin(
-      text: String,
-      spaces: String,
-      pipe: Char,
-  ): String = {
-    val endBefore = pat(s"\\$pipe")
-    replaceAll(
-      getStripMarginPattern(pipe),
-      startAfterForReplaceAllStripMargin,
-      endBefore,
-      text,
-      spaces,
-    )
-  }
 
   private val startAfterForReplaceAllLeadingAsterisk = pat("\n")
   private val endBeforeForReplaceAllLeadingAsterisk = pat("([*][^*])")
