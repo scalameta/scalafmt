@@ -48,54 +48,48 @@ object RegexCompat {
     sb.toString()
   }
 
-  val trailingSpace = Pattern
-    .compile(fixHorizontalSpaceInRegex("\\h+$"), Pattern.MULTILINE)
+  @inline
+  private def pat(str: String, flags: Int = 0): Pattern = Pattern
+    .compile(fixHorizontalSpaceInRegex(str), flags)
+
+  val trailingSpace = pat("\\h+$", Pattern.MULTILINE)
 
   // "slc" stands for single-line comment
-  val slcLine = Pattern
-    .compile(fixHorizontalSpaceInRegex("^/\\/\\/*\\h*(.*?)\\h*$"))
+  val slcLine = pat("^/\\/\\/*\\h*(.*?)\\h*$")
 
-  val slcDelim = Pattern.compile(fixHorizontalSpaceInRegex("\\h+"))
+  val slcDelim = pat("\\h+")
 
   // "mlc" stands for multi-line comment
-  val mlcHeader = Pattern
-    .compile(fixHorizontalSpaceInRegex("^/\\*\\h*(?:\n\\h*[*]*\\h*)?"))
+  val mlcHeader = pat("^/\\*\\h*(?:\n\\h*[*]*\\h*)?")
 
-  val mlcLineDelim = Pattern
-    .compile(fixHorizontalSpaceInRegex("\\h*\n\\h*[*]*\\h*"))
+  val mlcLineDelim = pat("\\h*\n\\h*[*]*\\h*")
 
-  val mlcParagraphEnd = Pattern.compile("[.:!?=]$")
+  val mlcParagraphEnd = pat("[.:!?=]$")
 
-  val mlcParagraphBeg = Pattern.compile("^(?:[-*@=]|\\d+[.:])")
+  val mlcParagraphBeg = pat("^(?:[-*@=]|\\d+[.:])")
 
-  val leadingAsteriskSpace = Pattern
-    .compile(fixHorizontalSpaceInRegex("\n\\h*[*][^*]"), Pattern.MULTILINE)
+  val leadingAsteriskSpace = pat("\n\\h*[*][^*]", Pattern.MULTILINE)
 
-  val docstringLine = Pattern.compile(
-    fixHorizontalSpaceInRegex("^(?:\\h*\\*)?(\\h*)(.*?)\\h*$"),
-    Pattern.MULTILINE,
-  )
+  val docstringLine = pat("^(?:\\h*\\*)?(\\h*)(.*?)\\h*$", Pattern.MULTILINE)
 
   val emptyLines = fixHorizontalSpaceInRegex("\\h*(\n\\h*\\*?\\h*)*")
 
-  val emptyDocstring = Pattern.compile(s"^/\\*\\*$emptyLines\\*/$$")
+  val emptyDocstring = pat(s"^/\\*\\*$emptyLines\\*/$$")
 
   val onelineDocstring = {
     val oneline = fixHorizontalSpaceInRegex("[^*\n\\h](?:[^\n]*[^\n\\h])?")
-    Pattern.compile(s"^/\\*\\*$emptyLines($oneline)$emptyLines\\*/$$")
+    pat(s"^/\\*\\*$emptyLines($oneline)$emptyLines\\*/$$")
   }
 
-  val docstringLeadingSpace = Pattern.compile(fixHorizontalSpaceInRegex("^\\h+"))
+  val docstringLeadingSpace = pat("^\\h+")
 
   @inline
-  def compileStripMarginPattern(pipe: Char) = Pattern
-    .compile(fixHorizontalSpaceInRegex(s"\n+\\h*?\\$pipe"), Pattern.MULTILINE)
+  def compileStripMarginPattern(pipe: Char) =
+    pat(s"\n+\\h*?\\$pipe", Pattern.MULTILINE)
 
   @inline
-  def compileStripMarginPatternWithLineContent(pipe: Char) = Pattern.compile(
-    fixHorizontalSpaceInRegex(s"\n(\\h*\\$pipe)?([^\n]*)"),
-    Pattern.MULTILINE,
-  )
+  def compileStripMarginPatternWithLineContent(pipe: Char) =
+    pat(s"\n(\\h*\\$pipe)?([^\n]*)", Pattern.MULTILINE)
 
   val stripMarginPatternWithLineContent =
     compileStripMarginPatternWithLineContent('|')
@@ -150,7 +144,7 @@ object RegexCompat {
   private def getStripMarginPattern(pipe: Char) =
     if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
 
-  private val startAfterForReplaceAllStripMargin = Pattern.compile("\n+")
+  private val startAfterForReplaceAllStripMargin = pat("\n+")
 
   @inline
   def replaceAllStripMargin(
@@ -158,7 +152,7 @@ object RegexCompat {
       spaces: String,
       pipe: Char,
   ): String = {
-    val endBefore = Pattern.compile(s"\\$pipe")
+    val endBefore = pat(s"\\$pipe")
     replaceAll(
       getStripMarginPattern(pipe),
       startAfterForReplaceAllStripMargin,
@@ -168,9 +162,8 @@ object RegexCompat {
     )
   }
 
-  private val startAfterForReplaceAllLeadingAsterisk = Pattern.compile("\n")
-  private val endBeforeForReplaceAllLeadingAsterisk = Pattern
-    .compile("([*][^*])")
+  private val startAfterForReplaceAllLeadingAsterisk = pat("\n")
+  private val endBeforeForReplaceAllLeadingAsterisk = pat("([*][^*])")
   @inline
   def replaceAllLeadingAsterisk(trimmed: String, spaces: String): String =
     replaceAll(
@@ -186,7 +179,7 @@ object RegexCompat {
       baseText: String,
       beforeText: String,
   ): Array[String] = {
-    val beforeTextPattern = Pattern.compile(beforeText)
+    val beforeTextPattern = pat(beforeText)
     val matcher = beforeTextPattern.matcher(baseText)
 
     val res = new scala.collection.mutable.ArrayBuffer[String]()
