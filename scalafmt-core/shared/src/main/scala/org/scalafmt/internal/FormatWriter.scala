@@ -1020,6 +1020,7 @@ class FormatWriter(formatOps: FormatOps) {
         ): Boolean = {
           val codeStyle = style.copy(
             runner = style.runner.forCodeBlock,
+            lineEndings = Some(LineEndings.unix),
             // let's not wrap docstrings, to avoid recursion
             docstrings = style.docstrings.withoutRewrites,
             maxColumn = style.maxColumn - spaces.length - termIndent.length - 1,
