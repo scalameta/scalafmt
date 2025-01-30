@@ -85,9 +85,16 @@ object Scalafmt {
       file: String,
       range: Set[Range],
   ): Try[String] =
-    if (FileOps.isMarkdown(file)) MarkdownParser
-      .transformMdoc(code)(doFormatOne(_, style, file, range))
-    else doFormatOne(code, style, file, range)
+    if (FileOps.isMarkdown(file)) {
+      val mdocStyle = style.withLineEndings(LineEndings.preserve)
+      val res = MarkdownParser
+        .transformMdoc(code)(doFormatOne(_, mdocStyle, file, range))
+      style.lineEndings match {
+        case Some(LineEndings.unix) => res.map(_.replaceAll("\r*\n", "\n"))
+        case Some(LineEndings.windows) => res.map(_.replaceAll("\r*\n", "\r\n"))
+        case _ => res
+      }
+    } else doFormatOne(code, style, file, range)
 
   private[scalafmt] def toInput(code: String, file: String): Input = {
     val fileInput = Input.VirtualFile(file, code).withTokenizerOptions
