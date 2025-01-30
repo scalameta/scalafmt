@@ -422,7 +422,7 @@ object State {
       val firstLineLength = column + syntaxLen
       (firstLineLength, firstLineLength)
     } else {
-      val firstLength = column + firstNL
+      val firstLength = column + getLineLength(syntax, 0, firstNL)
       tok match {
         case _: T.Constant.String =>
           val margin: Int => Int = stringMargin
@@ -453,6 +453,9 @@ object State {
     _ => adjusted
   } else identity)
 
+  def getLineLength(syntax: String, lineBeg: Int, lineEnd: Int): Int =
+    (syntax.lastIndexWhere(!_.isWhitespace, lineEnd - 1) + 1 - lineBeg).max(0)
+
   private def getColumnsFromMultiline(
       syntax: String,
       firstNL: Int,
@@ -461,7 +464,9 @@ object State {
     @tailrec
     def iter(prevMaxLength: Int, lineBeg: Int): (Int, Int) = {
       val nextNL = syntax.indexOf('\n', lineBeg)
-      val length = (if (nextNL < 0) syntax.length else nextNL) - lineBeg
+      val length =
+        if (nextNL < 0) syntax.length - lineBeg
+        else getLineLength(syntax, lineBeg, nextNL)
       val maxLength = math.max(prevMaxLength, length)
       if (nextNL < 0) (maxLength, length) else iter(maxLength, nextNL + 1)
     }
