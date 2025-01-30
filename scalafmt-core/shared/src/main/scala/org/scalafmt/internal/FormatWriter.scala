@@ -778,8 +778,18 @@ class FormatWriter(formatOps: FormatOps) {
             val lines = iterSections(sectionIter)
             terminateMlc(curlen, lines)
           } else {
-            val trimmed = removeTrailingWhiteSpace(text)
-            sb.append(RegexCompat.replaceAllLeadingAsterisk(trimmed, spaces))
+            val matcher = RegexCompat.leadingAsteriskSpace.matcher(text)
+            var pos = 0
+            while (matcher.find()) {
+              sb.append(CharBuffer.wrap(text, pos, matcher.start())).append(eol)
+              val end = matcher.end()
+              val endMargin = matcher.end(1)
+              if (endMargin == end) // no asterisk
+                pos = if (end < text.length) matcher.start(1) else text.length
+              else { sb.append(spaces); pos = endMargin }
+            }
+            val lastLength = State.getLineLength(text, pos, text.length)
+            sb.append(CharBuffer.wrap(text, pos, pos + lastLength))
           }
 
         private def appendLineBreak(): Unit = startNewLine(spaces).append('*')
