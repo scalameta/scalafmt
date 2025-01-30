@@ -2,6 +2,8 @@ package org.scalafmt.internal
 
 import java.util.regex.Pattern
 
+import scala.collection.mutable
+
 /* Before text matching (?=re), after text matching (?<=re)
  * and more are incompatible in Scala Native, so custom functions
  * have to be used.
@@ -150,19 +152,18 @@ object RegexCompat {
       baseText: String,
       beforeText: String,
   ): Array[String] = {
-    val beforeTextPattern = pat(beforeText)
-    val matcher = beforeTextPattern.matcher(baseText)
+    val matcher = Pattern.compile(beforeText).matcher(baseText)
+    matcher.region(1, baseText.length)
 
-    val res = new scala.collection.mutable.ArrayBuffer[String]()
+    val res = new mutable.ArrayBuilder.ofRef[String]
     var currPosition = 0
     while (matcher.find()) {
       val start = matcher.start()
-      if (start != 0) res.append(baseText.substring(currPosition, start))
-
+      res += baseText.substring(currPosition, start)
       currPosition = start
     }
-    res.append(baseText.substring(currPosition, baseText.size))
+    res += baseText.substring(currPosition, baseText.length)
 
-    res.toArray
+    res.result()
   }
 }
