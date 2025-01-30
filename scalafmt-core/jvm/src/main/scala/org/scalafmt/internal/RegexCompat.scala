@@ -4,19 +4,19 @@ import java.util.regex.Pattern
 
 private[scalafmt] object RegexCompat {
 
-  val trailingSpace = Pattern.compile("\\h++$", Pattern.MULTILINE)
+  val trailingSpace = Pattern.compile("\\h+\\r*$", Pattern.MULTILINE)
 
   // "slc" stands for single-line comment
-  val slcLine = Pattern.compile("^/\\/\\/*+\\h*+(.*?)\\h*+$")
+  val slcLine = Pattern.compile("^/\\/\\/*+\\h*+(.*?)\\h*+\\r*+$")
 
   val slcDelim = Pattern.compile("\\h++")
 
   // "mlc" stands for multi-line comment
-  val mlcHeader = Pattern.compile("^/\\*\\h*+(?:\n\\h*+[*]*+\\h*+)?")
+  private val mlcLineDelimPat = "\\r*\\n\\h*+(?:[*]++\\h*+)?"
+  val mlcHeader = Pattern.compile(s"^/\\*\\h*+(?:$mlcLineDelimPat)?")
+  val mlcLineDelim = Pattern.compile(s"\\h*+$mlcLineDelimPat")
 
-  val mlcLineDelim = Pattern.compile("\\h*+\n\\h*+[*]*+\\h*+")
-
-  val mlcParagraphEnd = Pattern.compile("[.:!?=]$")
+  val mlcParagraphEnd = Pattern.compile("[.:!?=]\\h*+\\r*+$")
 
   val mlcParagraphBeg = Pattern.compile("^(?:[-*@=]|\\d++[.:])")
 
