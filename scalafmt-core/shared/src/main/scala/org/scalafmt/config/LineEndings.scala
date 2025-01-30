@@ -12,4 +12,6 @@ object LineEndings {
   case object unix extends LineEndings
   case object windows extends LineEndings
   case object preserve extends LineEndings
+
+  def eol(isWin: Boolean): String = if (isWin) "\r\n" else "\n"
 }

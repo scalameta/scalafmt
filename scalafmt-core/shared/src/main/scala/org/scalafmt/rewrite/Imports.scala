@@ -1,7 +1,6 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.config.ReaderUtil
-import org.scalafmt.config.RewriteSettings
+import org.scalafmt.config._
 import org.scalafmt.util._
 
 import scala.meta._
@@ -309,12 +308,12 @@ object Imports extends RewriteFactory {
         val sb = new StringBuilder
         sb.append('{')
         commentsBefore.foreach { x =>
-          sb.append('\n')
+          sb.appendNL
           if (x.pos.startColumn != 0) sb.append(' ')
-          sb.append(x.text).append('\n')
+          sb.append(x.text).appendNL
         }
         sb.append(selectorString)
-        commentAfter.foreach(x => sb.append(' ').append(x.text).append('\n'))
+        commentAfter.foreach(x => sb.append(' ').append(x.text).appendNL)
         val pretty = sb.append('}').result()
         val hadComments = commentsBefore.nonEmpty || commentAfter.isDefined
         Selectors(
@@ -348,14 +347,14 @@ object Imports extends RewriteFactory {
           val (commentBefore, commentAfter) = getCommentsAround(selector)
           commentBefore.foreach { x =>
             hadComments = true
-            if (!sb.lastOption.contains('\n')) sb.append('\n')
-            sb.append(x).append('\n')
+            if (!sb.lastOption.contains('\n')) sb.appendNL
+            sb.append(x).appendNL
           }
           sb.append(selectorString)
           if (index != selectorCount) sb.append(',')
           commentAfter.foreach { x =>
             hadComments = true
-            sb.append(' ').append(x).append('\n')
+            sb.append(' ').append(x).appendNL
           }
         }
         val pretty = sb.append('}').result()
@@ -404,6 +403,14 @@ object Imports extends RewriteFactory {
         case t: T.Comment => Some(TokenOps.isSingleLineIfComment(t))
         case _ => Some(false)
       }
+
+    private val eol = LineEndings
+      .eol(ctx.style.lineEndings.contains(LineEndings.windows))
+
+    protected implicit class ImplicitStringBuilder(private val sb: StringBuilder) {
+      def appendNL: StringBuilder = sb.append(eol)
+    }
+
   }
 
   private abstract class ExpandBase(implicit ctx: RewriteCtx) extends Base {
@@ -465,7 +472,7 @@ object Imports extends RewriteFactory {
       groups.foreach { group =>
         val entries = group.result()
         if (entries.nonEmpty) {
-          if (sb.nonEmpty) sb.append('\n')
+          if (sb.nonEmpty) sb.appendNL
           // sort and add empty line in all groups
           settings.sort.sortGrouping(entries).foreach { x =>
             val (commentBefore, commentAfter) = x.owner.parent match {
@@ -493,12 +500,12 @@ object Imports extends RewriteFactory {
             }
             commentBefore.foreach { x =>
               if (x.pos.startColumn != 0) appendIndent()
-              sb.append(x.text).append('\n')
+              sb.append(x.text).appendNL
             }
             appendIndent()
             sb.append(x.stat)
             commentAfter.foreach(x => sb.append(' ').append(x.text))
-            sb.append('\n')
+            sb.appendNL
           }
         }
       }

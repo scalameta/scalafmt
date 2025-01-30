@@ -138,7 +138,7 @@ class FormatWriter(formatOps: FormatOps) {
         replaceRedundantBraces(result)
     }
 
-    new FormatLocations(result, if (useCRLF > 0) "\r\n" else "\n")
+    new FormatLocations(result, LineEndings.eol(useCRLF > 0))
   }
 
   private def replaceRedundantBraces(locations: Array[FormatLocation]): Unit = {
