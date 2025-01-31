@@ -8162,7 +8162,8 @@ using Printer.TreeStructure))
 >>>
 throw MatchError {
   tree.show( // using clause
-    using Printer.TreeStructure)
+    using Printer.TreeStructure
+  )
 }
 <<< handle rewritten-to-braces argclause as optimization zone
 rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
@@ -8373,7 +8374,8 @@ object a {
       foo match {
         case bar => baz
       }
-    ): Foo => Baz).map { qux(_) }
+    ): Foo => Baz
+  ).map { qux(_) }
 }
 <<< rewrite to parens or braces while also adding new scala3 syntax (changes span)
 rewrite {
@@ -8529,10 +8531,9 @@ object a {
 }
 >>>
 object a {
-  val _ =
-    println( //
-      x = "string"
-    )
+  val _ = println( //
+    x = "string"
+  )
 }
 <<< #4744 !cfgstyle
 optIn.configStyleArguments = false
@@ -8544,8 +8545,7 @@ object a {
 }
 >>>
 object a {
-  val _ =
-    println( //
-      x = "string"
-    )
+  val _ = println( //
+    x = "string"
+  )
 }

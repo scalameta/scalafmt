@@ -8478,10 +8478,9 @@ throw MatchError(tree.show( // using clause
 using Printer.TreeStructure))
 >>>
 throw MatchError {
-  tree
-    .show( // using clause
-      using Printer.TreeStructure
-    )
+  tree.show( // using clause
+    using Printer.TreeStructure
+  )
 }
 <<< handle rewritten-to-braces argclause as optimization zone
 rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
