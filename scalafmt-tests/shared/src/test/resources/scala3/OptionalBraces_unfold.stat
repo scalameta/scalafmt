@@ -8850,3 +8850,31 @@ given [B: {Bar, Baz}] => B = ???
 >>>
 given [A: {Foo}] => A = ???
 given [B : { Bar, Baz }] => B = ???
+<<< #4744 cfgstyle
+optIn.configStyleArguments = true
+===
+object a {
+  val _ = println( //
+    x = "string"
+  )
+}
+>>>
+object a {
+  val _ = println( //
+    x = "string"
+  )
+}
+<<< #4744 !cfgstyle
+optIn.configStyleArguments = false
+===
+object a {
+  val _ = println( //
+    x = "string"
+  )
+}
+>>>
+object a {
+  val _ = println( //
+    x = "string"
+  )
+}
