@@ -4,8 +4,6 @@ import java.util.regex.Pattern
 
 private[scalafmt] object RegexCompat {
 
-  val trailingSpace = Pattern.compile("\\h+\\r*$", Pattern.MULTILINE)
-
   // "slc" stands for single-line comment
   val slcLine = Pattern.compile("^/\\/\\/*+\\h*+(.*?)\\h*+\\r*+$")
 
