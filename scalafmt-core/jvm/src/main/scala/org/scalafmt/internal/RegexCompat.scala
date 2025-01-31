@@ -21,15 +21,15 @@ private[scalafmt] object RegexCompat {
   val leadingAsteriskSpace = Pattern.compile("\\h*\\r*\\n(\\h*+)(?:[*][^*])?")
 
   val docstringLine = Pattern
-    .compile("^(?:\\h*+\\*)?(\\h*+)(.*?)\\h*+$", Pattern.MULTILINE)
+    .compile("^(\\h*+)([*]\\h*+)?.*$", Pattern.MULTILINE)
 
-  private val emptyLines = "\\h*+(\n\\h*+\\*?\\h*+)*"
+  private val emptyLines = "\\h*(\\r*\\n\\h*+\\*?\\h*+)*"
 
-  val emptyDocstring = Pattern.compile(s"^/\\*\\*$emptyLines\\*/$$")
+  val emptyDocstring = Pattern.compile(s"^/\\*\\*$emptyLines\\*/\\h*+\\r*+$$")
 
   val onelineDocstring = {
-    val oneline = "[^*\n\\h](?:[^\n]*[^\n\\h])?"
-    Pattern.compile(s"^/\\*\\*$emptyLines($oneline)$emptyLines\\*/$$")
+    val oneline = "[^*\\s\\h](?:.*?[^\\s\\h])?"
+    Pattern.compile(s"^/\\*\\*$emptyLines($oneline)$emptyLines\\*/\\h*+\\r*+$$")
   }
 
   val docstringLeadingSpace = Pattern.compile("^\\h++")
