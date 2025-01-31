@@ -1428,8 +1428,8 @@ class FormatOps(
 
     private object CallSite {
 
-      private val penalizeOpenNL: Policy.Pf = { case Decision(_, s) =>
-        s.penalizeNL(1)
+      private val penalizeOpenNL: Policy.Pf = {
+        case Decision(ft, s) if !ft.left.is[T.Comment] => s.penalizeNL(1)
       }
 
       @tailrec

@@ -1025,6 +1025,8 @@ class Router(formatOps: FormatOps) {
           } =>
         val rightIsComment = right.is[T.Comment]
         val nft = if (rightIsComment) nextNonCommentSameLine(ft) else ft
+        val rightIsCommentWithBreak = rightIsComment &&
+          ((nft eq ft) || nft.hasBreak)
         val afterOpen = nextNonCommentSameLineAfter(nft)
         val close = matchingLeft(ft)
         val beforeClose = prev(close)
@@ -1109,7 +1111,8 @@ class Router(formatOps: FormatOps) {
         val alignTuple = align && tupleSite && !onlyConfigStyle
 
         val noSplitForNL = !onlyConfigStyle && right.is[T.LeftBrace]
-        val skipNoSplit = !noSplitForNL && !alignTuple &&
+        val skipNoSplit = rightIsCommentWithBreak ||
+          !noSplitForNL && !alignTuple &&
           (style.newlines.keepBreak(newlines) || {
             if (!handleImplicit) onlyConfigStyle
             else style.newlines.forceBeforeImplicitParamListModifier
@@ -1118,9 +1121,10 @@ class Router(formatOps: FormatOps) {
           if (skipNoSplit) null
           else getNoSplitAfterOpening(ft, commentNL = null, spaceOk = !isBracket)
 
-        val keepConfigStyleSplit = !sourceIgnored && configStyleFlag && hasBreak()
+        val noSplitsForAssign = rightIsCommentWithBreak || defnSite ||
+          isBracket || !sourceIgnored && configStyleFlag && hasBreak()
         val splitsForAssign =
-          if (defnSite || isBracket || keepConfigStyleSplit) None
+          if (noSplitsForAssign) None
           else getAssignAtSingleArgCallSite(args).map { assign =>
             val breakToken = nextNonCommentSameLine(assign.rhs match {
               case b: Term.Block if isEnclosedInBraces(b) => getHead(b)
@@ -1251,7 +1255,8 @@ class Router(formatOps: FormatOps) {
           ) Seq.empty
           else {
             val cost =
-              if (forceConfigStyle) if (splitsNoNL.isEmpty) 0 else 1
+              if (forceConfigStyle || rightIsCommentWithBreak)
+                if (splitsNoNL.isEmpty) 0 else 1
               else (if (preferNoSplit) Constants.ExceedColumnPenalty else 0) +
                 bracketCoef * (nestedPenalty + (if (multipleArgs) 2 else 0))
             val split =
