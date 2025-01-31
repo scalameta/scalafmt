@@ -1098,15 +1098,23 @@ class FormatWriter(formatOps: FormatOps) {
 
         private def formatNoWrap(): Unit = {
           // remove "/*" (keep one asterisk) and "*/"
-          val trimmed = CharBuffer.wrap(text, 2, text.length - 2)
-          val matcher = docstringLine.matcher(trimmed)
+          val off = 2 // matcher.region is broken in scala-native
+          val matcher = docstringLine
+            .matcher(CharBuffer.wrap(text, off, text.length - 2))
           sb.append("/**")
           val sbLen = sb.length
           @tailrec
           def iter(prevWasBlank: Boolean): Unit = if (matcher.find()) {
-            val contentBeg = matcher.start(2)
-            val contentEnd = matcher.end(2)
-            if (contentBeg == contentEnd) iter(true)
+            val (marginBeg, marginEnd) = {
+              val beg2 = matcher.start(2)
+              // +1 is for leading asterisk
+              if (beg2 >= 0) (beg2 + 1, matcher.end(2))
+              else (matcher.start(), matcher.end(1))
+            }
+            val contentBeg = marginEnd + off
+            val contentLen = State
+              .getLineLength(text, contentBeg, off + matcher.end())
+            if (contentLen == 0) iter(true)
             else {
               if (sb.length != sbLen) {
                 if (prevWasBlank) appendBreak()
@@ -1114,10 +1122,9 @@ class FormatWriter(formatOps: FormatOps) {
               } else if (style.docstrings.skipFirstLineIf(prevWasBlank))
                 appendBreak().append(margin)
               else sb.append(' ')
-              val extraMargin = matcher.end(1) - matcher.start(1) -
-                margin.length
+              val extraMargin = marginEnd - marginBeg - margin.length
               if (extraMargin > 0) sb.append(getIndentation(extraMargin))
-              sb.add(trimmed, contentBeg, contentEnd)
+              sb.add(text, contentBeg, contentBeg + contentLen)
               iter(false)
             }
           }

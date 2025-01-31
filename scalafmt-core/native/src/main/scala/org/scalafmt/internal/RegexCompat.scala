@@ -70,15 +70,15 @@ object RegexCompat {
 
   val leadingAsteriskSpace = pat("\\h*\\r*\\n(\\h*)(?:[*][^*])?")
 
-  val docstringLine = pat("^(?:\\h*\\*)?(\\h*)(.*?)\\h*$", Pattern.MULTILINE)
+  val docstringLine = pat("^(\\h*)([*]\\h*)?.*$", Pattern.MULTILINE)
 
-  val emptyLines = fixHorizontalSpaceInRegex("\\h*(\n\\h*\\*?\\h*)*")
+  private val emptyLines = "\\h*(\\r*\\n\\h*\\*?\\h*)*"
 
-  val emptyDocstring = pat(s"^/\\*\\*$emptyLines\\*/$$")
+  val emptyDocstring = pat(s"^/\\*\\*$emptyLines\\*/\\h*\\r*$$")
 
   val onelineDocstring = {
-    val oneline = fixHorizontalSpaceInRegex("[^*\n\\h](?:[^\n]*[^\n\\h])?")
-    pat(s"^/\\*\\*$emptyLines($oneline)$emptyLines\\*/$$")
+    val oneline = "[^*\\s\\h](?:.*?[^\\s\\h])?"
+    pat(s"^/\\*\\*$emptyLines($oneline)$emptyLines\\*/\\h*\\r*$$")
   }
 
   val docstringLeadingSpace = pat("^\\h+")
