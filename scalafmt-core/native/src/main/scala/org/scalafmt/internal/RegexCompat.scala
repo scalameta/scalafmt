@@ -52,8 +52,6 @@ object RegexCompat {
   private def pat(str: String, flags: Int = 0): Pattern = Pattern
     .compile(fixHorizontalSpaceInRegex(str), flags)
 
-  val trailingSpace = pat("\\h+\\r*$", Pattern.MULTILINE)
-
   // "slc" stands for single-line comment
   val slcLine = pat("^/\\/\\/*\\h*(.*?)\\h*\\r*$")
 

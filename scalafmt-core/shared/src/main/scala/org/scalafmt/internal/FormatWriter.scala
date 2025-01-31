@@ -686,25 +686,24 @@ class FormatWriter(formatOps: FormatOps) {
       private class FormatSlc(text: String)(implicit sb: StringBuilder)
           extends FormatCommentBase(style.maxColumn) {
         def format(): Unit = {
-          val trimmed = removeTrailingWhiteSpace(text)
+          val len = State.getLineLength(text, 0, text.length)
           val isCommentedOut = prevState.mod match {
             case m: NewlineT if m.noIndent => true
             case _ => indent == 0
           }
-          if (isCommentedOut) sb.append(trimmed)
+          if (isCommentedOut) sb.add(text, 0, len)
           else {
-            val nonSlash = trimmed.indexWhere(_ != '/')
+            val nonSlash = text.indexWhere(_ != '/', 2)
             val hasSpace = nonSlash < 0 || // else space not needed
-              !State.nonSpace(trimmed.charAt(nonSlash))
-            val column = prevState.column - text.length + trimmed.length +
+              !State.nonSpace(text.charAt(nonSlash))
+            val column = prevState.column - text.length + len +
               (if (hasSpace) 0 else 1)
-            if (column > maxColumn && canRewrite) reFormat(trimmed)
-            else if (hasSpace) sb.append(trimmed)
-            else sb.add(trimmed, 0, nonSlash).append(' ')
-              .add(trimmed, nonSlash, trimmed.length)
+            if (column > maxColumn && canRewrite) reFormat(nonSlash, len)
+            else if (hasSpace) sb.add(text, 0, len)
+            else sb.add(text, 0, nonSlash).append(' ').add(text, nonSlash, len)
           }
         }
-        private def reFormat(text: String): Unit = {
+        private def reFormat(nonSlash: Int, end: Int): Unit = {
           val useSlc = breakBefore && style.comments.wrapStandaloneSlcAsSlc
           val appendLineBreak: () => Unit =
             if (useSlc) {
@@ -714,7 +713,8 @@ class FormatWriter(formatOps: FormatOps) {
               val spaces: String = getIndentation(indent + 1)
               () => startNewLine(spaces).append('*')
             }
-          val contents = text.substring(2).trim
+          val beg = text.indexWhere(State.nonSpace, 2.max(nonSlash))
+          val contents = CharBuffer.wrap(text, beg, end)
           val wordIter = splitAsIterator(slcDelim)(contents)
           sb.append(if (useSlc) "//" else "/*")
           val curlen = sb.length
@@ -1911,11 +1911,9 @@ object FormatWriter {
   private def getIndentation(len: Int): String =
     if (len < indentations.length) indentations(len) else " " * len
 
-  private def removeTrailingWhiteSpace(str: String): String = trailingSpace
-    .matcher(str).replaceAll("")
-
-  private def splitAsIterator(regex: Pattern)(value: String): Iterator[String] =
-    regex.splitAsStream(value).iterator().asScala
+  private def splitAsIterator(regex: Pattern)(
+      value: CharSequence,
+  ): Iterator[String] = regex.splitAsStream(value).iterator().asScala
 
   /** [[https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html#the-end-marker]]
     */
