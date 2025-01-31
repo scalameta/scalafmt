@@ -453,8 +453,11 @@ object State {
     _ => adjusted
   } else identity)
 
+  def nonSpace(ch: Char): Boolean = // isWhitespace excludes non-breaking space
+    !Character.isSpaceChar(ch) && !Character.isWhitespace(ch)
+
   def getLineLength(syntax: String, lineBeg: Int, lineEnd: Int): Int =
-    (syntax.lastIndexWhere(!_.isWhitespace, lineEnd - 1) + 1 - lineBeg).max(0)
+    (syntax.lastIndexWhere(nonSpace, lineEnd - 1) + 1 - lineBeg).max(0)
 
   private def getColumnsFromMultiline(
       syntax: String,
