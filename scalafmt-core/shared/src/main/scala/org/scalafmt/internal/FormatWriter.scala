@@ -563,11 +563,11 @@ class FormatWriter(formatOps: FormatOps) {
             val matcher = RegexCompat.getStripMarginPattern(pipe).matcher(text)
             var pos = 0
             while (matcher.find()) {
-              sb.append(CharBuffer.wrap(text, pos, matcher.start())).append(eol)
+              sb.add(text, pos, matcher.start()).append(eol)
               if (matcher.start(1) >= 0) sb.append(spaces).append(pipe)
               pos = matcher.end()
             }
-            sb.append(CharBuffer.wrap(text, pos, text.length))
+            sb.add(text, pos, text.length)
           case _ => sb.append(text)
         }
       }
@@ -681,10 +681,6 @@ class FormatWriter(formatOps: FormatOps) {
           if (lines == 0 && style.comments.wrapSingleLineMlcAsSlc) sb
             .setCharAt(begpos - 1, '/')
           else sb.append(" */")
-
-        protected def append(csq: CharSequence, beg: Int, end: Int) = sb
-          .append(CharBuffer.wrap(csq, beg, end))
-
       }
 
       private class FormatSlc(text: String)(implicit sb: StringBuilder)
@@ -704,10 +700,8 @@ class FormatWriter(formatOps: FormatOps) {
               (if (hasSpace) 0 else 1)
             if (column > maxColumn && canRewrite) reFormat(trimmed)
             else if (hasSpace) sb.append(trimmed)
-            else {
-              append(trimmed, 0, nonSlash).append(' ')
-              append(trimmed, nonSlash, trimmed.length)
-            }
+            else sb.add(trimmed, 0, nonSlash).append(' ')
+              .add(trimmed, nonSlash, trimmed.length)
           }
         }
         private def reFormat(text: String): Unit = {
@@ -781,7 +775,7 @@ class FormatWriter(formatOps: FormatOps) {
             val matcher = RegexCompat.leadingAsteriskSpace.matcher(text)
             var pos = 0
             while (matcher.find()) {
-              sb.append(CharBuffer.wrap(text, pos, matcher.start())).append(eol)
+              sb.add(text, pos, matcher.start()).append(eol)
               val end = matcher.end()
               val endMargin = matcher.end(1)
               if (endMargin == end) // no asterisk
@@ -789,7 +783,7 @@ class FormatWriter(formatOps: FormatOps) {
               else { sb.append(spaces); pos = endMargin }
             }
             val lastLength = State.getLineLength(text, pos, text.length)
-            sb.append(CharBuffer.wrap(text, pos, pos + lastLength))
+            sb.add(text, pos, pos + lastLength)
           }
 
         private def appendLineBreak(): Unit = startNewLine(spaces).append('*')
@@ -1025,7 +1019,7 @@ class FormatWriter(formatOps: FormatOps) {
               offsetOpt match {
                 case Some((offset, lineStart)) =>
                   sb.append(offset)
-                  append(x, lineStart, x.length)
+                  sb.add(x, lineStart, x.length)
                 case _ => sb.append(x)
               }
             }
@@ -1123,7 +1117,7 @@ class FormatWriter(formatOps: FormatOps) {
               val extraMargin = matcher.end(1) - matcher.start(1) -
                 margin.length
               if (extraMargin > 0) sb.append(getIndentation(extraMargin))
-              append(trimmed, contentBeg, contentEnd)
+              sb.add(trimmed, contentBeg, contentEnd)
               iter(false)
             }
           }
@@ -1981,5 +1975,11 @@ object FormatWriter {
 
   def isEmptyDocstring(text: String): Boolean = emptyDocstring.matcher(text)
     .matches()
+
+  private implicit class ImplicitStringBuilder(private val sb: StringBuilder)
+      extends AnyVal {
+    def add(csq: CharSequence, beg: Int, end: Int): StringBuilder = sb
+      .append(CharBuffer.wrap(csq, beg, end))
+  }
 
 }
