@@ -695,7 +695,7 @@ class FormatWriter(formatOps: FormatOps) {
           else {
             val nonSlash = trimmed.indexWhere(_ != '/')
             val hasSpace = nonSlash < 0 || // else space not needed
-              Character.isWhitespace(trimmed.charAt(nonSlash))
+              !State.nonSpace(trimmed.charAt(nonSlash))
             val column = prevState.column - text.length + trimmed.length +
               (if (hasSpace) 0 else 1)
             if (column > maxColumn && canRewrite) reFormat(trimmed)
@@ -953,8 +953,8 @@ class FormatWriter(formatOps: FormatOps) {
         ): Unit = {
           def likeNonText(word: String): Boolean = // if parser can be confused
             word.startsWith("```") || word.startsWith("~~~") || // code fence
-              word.length > 1 && word.charAt(0) == '@' &&
-              !Character.isWhitespace(word.charAt(1)) || // tag
+              word.length > 1 &&
+              word.charAt(0) == '@' && State.nonSpace(word.charAt(1)) || // tag
               word.startsWith("=") || // heading
               word.startsWith("|") || word.startsWith("+-") || // table
               word == "-" || // list, this and next
