@@ -661,8 +661,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       // can allow if: no ".foo", no "with B", or has braces
       !b.parent.is[Term.Select] || t.templ.inits.lengthCompare(1) <= 0 ||
       t.templ.body.stats.nonEmpty || t.tokens.last.is[T.RightBrace]
-    case _: Term => true
-    case _ => false
+    case _ => isTreeSingleExpr(s)
   }
 
   private def okToRemoveBlockWithinApply(b: Term.Block)(implicit

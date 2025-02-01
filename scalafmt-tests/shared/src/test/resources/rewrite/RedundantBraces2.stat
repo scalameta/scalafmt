@@ -768,16 +768,10 @@ object a {
   }
 }
 >>>
-test does not parse: [dialect scala213] illegal start of simple expression
 object a {
-  def foo =
+  def foo = {
     val len = firstColumn + syntax.length; (len, len)
-    ^
-}
-====== full result: ======
-object a {
-  def foo =
-    val len = firstColumn + syntax.length; (len, len)
+  }
 }
 <<< def body as nested block 2
 object a {
@@ -786,16 +780,10 @@ object a {
   }
 }
 >>>
-test does not parse: [dialect scala213] illegal start of simple expression
 object a {
-  def foo =
+  def foo = {
     val len = firstColumn + syntax.length; (len, len)
-    ^
-}
-====== full result: ======
-object a {
-  def foo =
-    val len = firstColumn + syntax.length; (len, len)
+  }
 }
 <<< def body as nested block 3
 object a {
@@ -804,14 +792,8 @@ object a {
   }
 }
 >>>
-test does not parse: [dialect scala213] illegal start of simple expression
 object a {
-  def foo =
+  def foo = {
     val len = firstColumn + syntax.length; (len, len)
-    ^
-}
-====== full result: ======
-object a {
-  def foo =
-    val len = firstColumn + syntax.length; (len, len)
+  }
 }
