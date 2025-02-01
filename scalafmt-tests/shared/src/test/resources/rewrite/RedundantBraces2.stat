@@ -761,3 +761,57 @@ runner.dialect = scala3
     // Write here your test ....
     // don't forget to remove `pending`
 }
+<<< def body as nested block 1
+object a {
+  def foo = {
+    { val len = firstColumn + syntax.length; (len, len) }
+  }
+}
+>>>
+test does not parse: [dialect scala213] illegal start of simple expression
+object a {
+  def foo =
+    val len = firstColumn + syntax.length; (len, len)
+    ^
+}
+====== full result: ======
+object a {
+  def foo =
+    val len = firstColumn + syntax.length; (len, len)
+}
+<<< def body as nested block 2
+object a {
+  def foo = {
+    { { val len = firstColumn + syntax.length; (len, len) } }
+  }
+}
+>>>
+test does not parse: [dialect scala213] illegal start of simple expression
+object a {
+  def foo =
+    val len = firstColumn + syntax.length; (len, len)
+    ^
+}
+====== full result: ======
+object a {
+  def foo =
+    val len = firstColumn + syntax.length; (len, len)
+}
+<<< def body as nested block 3
+object a {
+  def foo = {
+    { { { val len = firstColumn + syntax.length; (len, len) } } }
+  }
+}
+>>>
+test does not parse: [dialect scala213] illegal start of simple expression
+object a {
+  def foo =
+    val len = firstColumn + syntax.length; (len, len)
+    ^
+}
+====== full result: ======
+object a {
+  def foo =
+    val len = firstColumn + syntax.length; (len, len)
+}
