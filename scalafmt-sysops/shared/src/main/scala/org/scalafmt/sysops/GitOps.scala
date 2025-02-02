@@ -55,11 +55,11 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
   private def tryExec(cmd: Seq[String]): Try[String] = {
     val errors = Seq.newBuilder[String]
+    val inQuotes = PlatformCompat.isNativeOnWindows
+    val argv = if (inQuotes) cmd.map(arg => '"' + arg + '"') else cmd
     Try {
       val swallowStderr = ProcessLogger(_ => (), errors += _)
-      sys.process
-        .Process(PlatformCompat.prepareCommand(cmd), workingDirectory.jfile)
-        .!!(swallowStderr)
+      sys.process.Process(argv, workingDirectory.jfile).!!(swallowStderr)
     } match {
       case Failure(e) =>
         val err = errors.result().mkString("\n> ", "\n> ", "\n")
