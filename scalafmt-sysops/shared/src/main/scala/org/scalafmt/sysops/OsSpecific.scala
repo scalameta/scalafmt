@@ -13,7 +13,7 @@ object OsSpecific {
     else unixSpecificPattern
 
   def inPathMatcherForm(str: String): String =
-    if (PlatformCompat.isNativeOnWindows()) str.replace("\\\\", "/")
+    if (PlatformCompat.isNativeOnWindows) str.replace("\\\\", "/")
     else fixSeparatorsInPathPattern(str)
 
 }

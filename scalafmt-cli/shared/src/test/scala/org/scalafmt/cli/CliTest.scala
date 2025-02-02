@@ -309,7 +309,7 @@ trait CliTestBehavior {
           "--config-str",
           s"""{version="$version",style=IntelliJ}""",
         )
-        if (!PlatformCompat.isNativeOnWindows()) intercept[IOException](runCli)
+        if (!PlatformCompat.isNativeOnWindows) intercept[IOException](runCli)
         else intercept[UncheckedIOException](runCli)
       }
       check("notfound")
