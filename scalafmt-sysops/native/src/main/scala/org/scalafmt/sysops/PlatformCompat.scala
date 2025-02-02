@@ -10,9 +10,6 @@ private[scalafmt] object PlatformCompat {
   def fixPathOnNativeWindows(path: String) =
     if (Platform.isWindows()) path.replace('/', '\\') else path
   def isNativeOnWindows = Platform.isWindows()
-  def relativize(base: AbsoluteFile, file: AbsoluteFile) =
-    if (Platform.isWindows()) base.path.relativize(file.path)
-    else base.toUri.relativize(file.toUri)
 
   implicit def executionContext: ExecutionContext = ExecutionContext.global
 
