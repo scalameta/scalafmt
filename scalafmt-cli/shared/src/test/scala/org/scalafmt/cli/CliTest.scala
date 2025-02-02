@@ -726,10 +726,8 @@ trait CliTestBehavior {
         ExitCode.TestError,
         assertOut = out => {
           assertContains(out, "bar.scala")
-          assertContains(
-            out,
-            PlatformCompat.fixPathOnNativeWindows("dir/foo.scala"),
-          )
+          val bslash = PlatformCompat.isNativeOnWindows
+          assertContains(out, if (bslash) "dir\\foo.scala" else "dir/foo.scala")
           assertNotContains(out, "baz.scala")
         },
       )
