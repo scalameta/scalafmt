@@ -23,7 +23,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
     val corpus = Corpus.files(
       // TODO(olafur) remove once testkit 1.7 is out
       Corpus.fastparse.copy(Corpus.fastparse.url.replace("olafurpg", "scalameta")),
-    ).take(count).toBuffer.compatPar
+    ).take(count).toBuffer.par
     SyntaxAnalysis.run[Observation[Bug]](corpus) { file =>
       val code = file.read
       try Scalafmt.format(code, config) match {
