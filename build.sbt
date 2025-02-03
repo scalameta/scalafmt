@@ -86,7 +86,7 @@ lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
   ).dependsOn(interfaces, sysops).dependsOn(core % "test")
   .enablePlugins(BuildInfoPlugin)
 
-lazy val interfaces = crossProject(JVMPlatform, NativePlatform)
+lazy val interfaces = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-interfaces")).settings(
     moduleName := "scalafmt-interfaces",
     description :=
