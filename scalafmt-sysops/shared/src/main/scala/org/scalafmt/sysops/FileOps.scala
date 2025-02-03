@@ -19,24 +19,8 @@ object FileOps {
 
   val defaultConfigFileName = ".scalafmt.conf"
 
-  def getLastModifiedMsec(file: Path): Long = {
-    val attributes = getAttributesNoLinks(file)
-    val mtime = attributes.lastModifiedTime().toMillis
-    if (attributes.isSymbolicLink) math
-      .max(mtime, Files.getLastModifiedTime(file).toMillis)
-    else mtime
-  }
-
-  @inline
-  def getLastModifiedMsecNoLinks(file: Path): Long = Files
-    .getLastModifiedTime(file, LinkOption.NOFOLLOW_LINKS).toMillis
-
   @inline
   def isDirectory(file: Path): Boolean = Files.isDirectory(file)
-
-  @inline
-  def isDirectoryNoLinks(file: Path): Boolean = Files
-    .isDirectory(file, LinkOption.NOFOLLOW_LINKS)
 
   @inline
   def isRegularFile(file: Path): Boolean = Files.isRegularFile(file)
@@ -48,14 +32,6 @@ object FileOps {
   @inline
   def getAttributes(file: Path): BasicFileAttributes = Files
     .readAttributes(file, classOf[BasicFileAttributes])
-
-  @inline
-  def getAttributesNoLinks(file: Path): BasicFileAttributes = Files
-    .readAttributes(
-      file,
-      classOf[BasicFileAttributes],
-      LinkOption.NOFOLLOW_LINKS,
-    )
 
   def listFiles(path: String): Seq[Path] = listFiles(getFile(path))
 
