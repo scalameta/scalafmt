@@ -15,6 +15,10 @@ def isCI = System.getenv("CI") != null
 def scala212 = "2.12.20"
 def scala213 = "2.13.16"
 
+def isScalaVer(ver: String) = Def.setting(scalaBinaryVersion.value == ver)
+def isScala212 = isScalaVer("2.12")
+def isScala213 = isScalaVer("2.13")
+
 inThisBuild {
   List(
     version ~= { dynVer =>
@@ -62,8 +66,7 @@ addCommandAlias(
 
 commands ++= Seq(
   Command.command("ci-test-jvm") { s =>
-    val docsTest =
-      if (scalaBinaryVersion.value == "2.12") "docs/run" else "version"
+    val docsTest = if (isScala212.value) "docs/run" else "version"
     "tests/test" :: "cli/test" :: "publishLocal" :: docsTest :: s
   },
   Command.command("ci-test-native")(s =>
@@ -112,15 +115,10 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform)
     description := "Scalafmt systems operations",
     scalacOptions ++= scalacJvmOptions.value,
     libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 12)) =>
-          Seq("com.github.bigwheel" %% "util-backports" % "2.1")
-        case Some((2, 13)) => Seq(
-            "org.scala-lang.modules" %%% "scala-parallel-collections" % "1.2.0",
-          )
-        case _ => Seq()
-      }
+      if (!isScala212.value) Nil
+      else Seq("com.github.bigwheel" %% "util-backports" % "2.1")
     },
+    parallelCollections,
     sharedTestSettings,
   )
 
@@ -145,12 +143,10 @@ lazy val core = crossProject(JVMPlatform, NativePlatform)
     scalacOptions ++= scalacJvmOptions.value,
     libraryDependencies ++= Seq("org.scalameta" %%% "mdoc-parser" % mdocV),
     libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 13)) => Seq()
-        case _ => Seq(compilerPlugin(
-            "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full,
-          ))
-      }
+      if (!isScala212.value) Nil
+      else Seq(compilerPlugin(
+        "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full,
+      ))
     },
   )
   // .jsSettings(
@@ -177,11 +173,9 @@ lazy val macros = crossProject(JVMPlatform, NativePlatform)
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
 val scalacJvmOptions = Def.setting {
-  val cross = CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 13)) =>
-      Seq("-Ymacro-annotations", "-Xfatal-warnings", "-deprecation:false")
-    case _ => Seq.empty
-  }
+  val cross =
+    if (!isScala213.value) Nil
+    else Seq("-Ymacro-annotations", "-Xfatal-warnings", "-deprecation:false")
 
   val unused = Seq("imports", "privates", "locals", "patvars", "implicits")
     .map(x => s"-Ywarn-unused:$x")
@@ -345,3 +339,8 @@ lazy val communityTestsSettings: Seq[Def.Setting[_]] = Seq(
 )
 
 lazy val scalaNativeConfig = nativeConfig ~= { _.withMode(Mode.releaseFull) }
+
+def parallelCollections = libraryDependencies ++= {
+  if (!isScala213.value) Nil
+  else Seq("org.scala-lang.modules" %%% "scala-parallel-collections" % "1.2.0")
+}
