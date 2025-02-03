@@ -14,7 +14,7 @@ import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.sysops.FileOps
 import org.scalafmt.tests.BuildInfo
 
-import java.nio.file.Paths
+import java.nio.file.Path
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
@@ -55,19 +55,26 @@ trait HasTests extends FormatAssertions {
 
   def extension(filename: String): String = filename.replaceAll(".*\\.", "")
 
-  def parseDiffTests(filename: String): Seq[DiffTest] = {
-    val content = FileOps.readFile(filename)
+  def parseDiffTests(path: Path, notOnly: Boolean): Seq[DiffTest] = {
+    val filename = path.toString
+    val content = FileOps.readFile(path)
+    val moduleOnly = isOnly(content)
+    val moduleSkip = isSkip(content)
     val sep =
       if (content.contains(System.lineSeparator)) System.lineSeparator else "\n"
-    val spec = BuildInfo.resourceDirectory.toPath.relativize(Paths.get(filename))
-      .getName(0).toString
+    if (notOnly) if (moduleOnly || content.contains(s"$sep<<< $onlyPrefix")) sys
+      .error(
+        s"""|Please remove ONLY from file '$filename'.
+            |Tests with ONLY will not be merged, this feature is only meant to be used for local development.
+            |           """.stripMargin,
+      )
+    val spec = BuildInfo.resourceDirectory.toPath.relativize(path).getName(0)
+      .toString
 
     val split = content.split(s"(?:^|$sep)<<< ")
     if (split.length <= 1) return Seq.empty // RETURNING!!!
 
     val (head, tail) = (split.head, split.tail)
-    val moduleOnly = isOnly(head)
-    val moduleSkip = isSkip(head)
 
     def loadStyle(cfg: String, base: ScalafmtConfig, ln: Int): ScalafmtConfig =
       ScalafmtConfig.fromHoconString(cfg, base).getOrRecover(c =>

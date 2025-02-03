@@ -6,6 +6,7 @@ import org.scalafmt.util.DiffTest
 import org.scalafmt.util.HasTests
 
 import java.io.File
+import java.nio.file.Paths
 
 import munit.Location
 
@@ -19,7 +20,7 @@ object ManualTests extends HasTests {
       test <- readFile(path).linesIterator
         .withFilter(_.startsWith(HasTests.onlyPrefix)).map { name =>
           val testPath = stripPrefix(name)
-          val original = readFile(testPath)
+          val original = readFile(Paths.get(testPath))
           val testFile = testPath.stripPrefix(testPrefix)
           DiffTest(
             testFile,
