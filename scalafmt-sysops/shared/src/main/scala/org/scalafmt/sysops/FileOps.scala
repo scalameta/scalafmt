@@ -2,8 +2,6 @@ package org.scalafmt.sysops
 
 import org.scalafmt.CompatCollections.JavaConverters._
 
-import java.net.URI
-import java.net.URL
 import java.nio.file.AccessDeniedException
 import java.nio.file.Files
 import java.nio.file.LinkOption
@@ -16,7 +14,6 @@ import scala.io.Codec
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-import scala.util.Using
 
 object FileOps {
 
@@ -73,27 +70,6 @@ object FileOps {
     try iter.iterator().asScala.toList
     finally iter.close()
   }
-
-  /** Reads file from file system or from http url */
-  def readFile(filename: String)(implicit codec: Codec): String = {
-    val urlOpt =
-      if (PlatformCompat.isScalaNative) None
-      else Try(new URL(filename)).toOption
-    urlOpt.fold(readFile(getFile(filename)))(readFile)
-  }
-
-  def readFile(url: URL)(implicit codec: Codec): String = {
-    val isFile = Option(url.getProtocol).forall("file".equalsIgnoreCase)
-    if (isFile) readAsURI(url.toURI) else readAsURL(url)
-  }
-
-  @inline
-  private[sysops] def readAsURL(url: URL)(implicit codec: Codec): String = Using
-    .resource(scala.io.Source.fromURL(url))(_.getLines().mkString("", "\n", "\n"))
-
-  @inline
-  private[sysops] def readAsURI(uri: URI)(implicit codec: Codec): String =
-    readFile(Paths.get(uri))
 
   def readFile(file: Path)(implicit codec: Codec): String =
     new String(Files.readAllBytes(file), codec.charSet)

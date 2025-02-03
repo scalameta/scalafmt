@@ -139,8 +139,8 @@ trait CliTestBehavior {
         originalTmpFile.toFile.getPath,
         originalTmpFile2.toFile.getPath,
       )
-      val obtained = FileOps.readFile(originalTmpFile.toString)
-      val obtained2 = FileOps.readFile(originalTmpFile2.toString)
+      val obtained = FileOps.readFile(originalTmpFile)
+      val obtained2 = FileOps.readFile(originalTmpFile2)
       assertNoDiff(obtained, expected10)
       assertNoDiff(obtained2, expected10)
     }
@@ -197,7 +197,7 @@ trait CliTestBehavior {
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
       )
-      val str = FileOps.readFile(tmpFile.toString)
+      val str = FileOps.readFile(tmpFile)
       assertNoDiff(str, unformatted)
     }
     test(s"scalafmt --test fails with non zero exit code $label") {
@@ -220,7 +220,7 @@ trait CliTestBehavior {
         tmpFile.toFile.getAbsolutePath,
       )
       assertEquals(Cli.mainWithOptions(baseCliOptions, args: _*), ExitCode.Ok)
-      val obtained = FileOps.readFile(tmpFile.toString)
+      val obtained = FileOps.readFile(tmpFile)
       // TODO: We need to pass customFiles information to ProjectFiles
       assertNoDiff(obtained, formatted)
     }
@@ -519,9 +519,9 @@ trait CliTestBehavior {
             |      """.stripMargin,
       )
       val config = (root / "scalafmt.conf").toString()
-      val toFormat = (root / "foo.scala").toString()
-      Cli.mainWithOptions(baseCliOptions, "--config", config, toFormat)
-      val obtained = FileOps.readFile(toFormat)
+      val toFormat = root / "foo.scala"
+      Cli.mainWithOptions(baseCliOptions, "--config", config, toFormat.toString())
+      val obtained = toFormat.readFile
       assertNoDiff(obtained, "object A\n")
     }
 
@@ -541,9 +541,9 @@ trait CliTestBehavior {
         "-f",
         fileStr(file1, file2, file3),
       )
-      val obtained = FileOps.readFile(file1.toString)
-      val obtained2 = FileOps.readFile(file2.toString)
-      val obtained3 = FileOps.readFile(file3.toString)
+      val obtained = FileOps.readFile(file1)
+      val obtained2 = FileOps.readFile(file2)
+      val obtained3 = FileOps.readFile(file3)
       assertNoDiff(obtained, formatted)
       assertNoDiff(obtained2, formatted)
       assertNoDiff(obtained3, formatted)
