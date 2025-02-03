@@ -1,6 +1,5 @@
 package org.scalafmt.internal
 
-import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
@@ -1920,7 +1919,7 @@ object FormatWriter {
 
   private def splitAsIterator(regex: Pattern)(
       value: CharSequence,
-  ): Iterator[String] = regex.splitAsStream(value).iterator().asScala
+  ): Iterator[String] = regex.split(value).iterator
 
   /** [[https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html#the-end-marker]]
     */
