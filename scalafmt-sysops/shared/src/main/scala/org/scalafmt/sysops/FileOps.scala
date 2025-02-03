@@ -118,26 +118,4 @@ object FileOps {
     else if (file.isRegularFile) Some(Success(file.path))
     else Some(Failure(new AccessDeniedException(s"Config not a file: $file")))
 
-  def getFileMatcher(paths: Seq[Path]): Path => Boolean = {
-    val dirBuilder = Seq.newBuilder[Path]
-    val fileBuilder = Set.newBuilder[Path]
-    paths.foreach(path =>
-      if (isRegularFile(path)) fileBuilder += path else dirBuilder += path,
-    )
-    val dirs = dirBuilder.result()
-    val files = fileBuilder.result()
-    x =>
-      files(x) || {
-        val filename = x.toString
-        val sep = x.getFileSystem.getSeparator
-        dirs.exists { dir =>
-          val dirname = dir.toString
-          filename.startsWith(dirname) && {
-            filename.length == dirname.length ||
-            filename.startsWith(sep, dirname.length)
-          }
-        }
-      }
-  }
-
 }
