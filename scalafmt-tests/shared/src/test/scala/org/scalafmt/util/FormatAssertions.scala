@@ -84,13 +84,14 @@ trait FormatAssertions {
     val lines = obtained.linesIterator
     val linesBeforeCaret = lines.slice(startLine - range + 1, startLine + 1)
     val linesAfterCaret = lines.take(range)
-    Seq(
-      e.shortMessage,
-      linesBeforeCaret.mkString("\n"),
-      " " * e.pos.startColumn + "^", // arrow
-      linesAfterCaret.mkString("\n"),
-      "====== full result: ======",
-      obtained.trim(),
-    ).filter(_.nonEmpty).mkString("", "\n", "\n")
+    val sb = new StringBuilder()
+    def add(str: String): Unit = if (str.nonEmpty) sb.append(str).append('\n')
+    add(e.shortMessage)
+    linesBeforeCaret.foreach(add)
+    add(" " * e.pos.startColumn + "^") // arrow
+    linesAfterCaret.foreach(add)
+    add("====== full result: ======")
+    add(obtained.trim())
+    sb.result()
   }
 }
