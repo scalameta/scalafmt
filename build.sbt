@@ -115,8 +115,9 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform)
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 12)) =>
           Seq("com.github.bigwheel" %% "util-backports" % "2.1")
-        case Some((2, 13)) =>
-          Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "1.2.0")
+        case Some((2, 13)) => Seq(
+            "org.scala-lang.modules" %%% "scala-parallel-collections" % "1.2.0",
+          )
         case _ => Seq()
       }
     },
