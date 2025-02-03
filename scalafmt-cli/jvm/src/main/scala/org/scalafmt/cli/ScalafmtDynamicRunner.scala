@@ -28,7 +28,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
     val sessionMatcher = session.matchesProjectFilters _
     val filterMatcher: Path => Boolean = options.customFilesOpt
       .fold(sessionMatcher) { customFiles =>
-        val customMatcher = FileOps.getFileMatcher(customFiles.map(_.path))
+        val customMatcher = getFileMatcher(customFiles.map(_.path))
         x => customMatcher(x) && sessionMatcher(x)
       }
     val inputMethods = getInputMethods(options, filterMatcher)
@@ -50,6 +50,29 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
 
     val formatResult = session.format(inputMethod.path, input)
     inputMethod.write(formatResult, input, options)
+  }
+
+  private def getFileMatcher(paths: Seq[Path]): Path => Boolean = {
+    val dirBuilder = Seq.newBuilder[Path]
+    val fileBuilder = Set.newBuilder[Path]
+    paths.foreach(path =>
+      if (FileOps.isRegularFile(path)) fileBuilder += path
+      else dirBuilder += path,
+    )
+    val dirs = dirBuilder.result()
+    val files = fileBuilder.result()
+    x =>
+      files(x) || {
+        val filename = x.toString
+        val sep = x.getFileSystem.getSeparator
+        dirs.exists { dir =>
+          val dirname = dir.toString
+          filename.startsWith(dirname) && {
+            filename.length == dirname.length ||
+            filename.startsWith(sep, dirname.length)
+          }
+        }
+      }
   }
 
 }
