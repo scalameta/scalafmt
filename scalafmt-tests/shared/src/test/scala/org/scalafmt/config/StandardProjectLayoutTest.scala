@@ -1,10 +1,14 @@
 package org.scalafmt.config
 
-import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops._
 
 import scala.meta.dialects
 
 class StandardProjectLayoutTest extends munit.FunSuite {
+
+  override def munitIgnore: Boolean =
+    // TODO: remove when scala.meta.internal.io.NodeNIOPath works on Windows
+    PlatformCompat.isJS && OsSpecific.isWindows
 
   import ProjectFiles.Layout.StandardConvention._
 
