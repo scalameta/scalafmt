@@ -72,7 +72,7 @@ commands ++= Seq(
     // jvm tests
     "tests/test" :: "cli/test" ::
       // js tests
-      "sysopsJS/test" ::
+      "testsJS/test" :: "sysopsJS/test" ::
       // other
       "publishLocal" :: docsTest :: s
   },
@@ -229,7 +229,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
   .jvmEnablePlugins(NativeImagePlugin)
   .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm, core.jvm))
 
-lazy val tests = crossProject(JVMPlatform, NativePlatform)
+lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests")).settings(
     publish / skip := true,
     sharedTestSettings,
@@ -243,7 +243,8 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
         .get
     }),
   ).enablePlugins(BuildInfoPlugin)
-  .jvmSettings(javaOptions += "-Dfile.encoding=UTF8").dependsOn(core, cli)
+  .jvmSettings(javaOptions += "-Dfile.encoding=UTF8").dependsOn(core)
+  .jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin)
 
 lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
 

@@ -1,8 +1,14 @@
 package org.scalafmt.config
 
+import org.scalafmt.sysops._
+
 import munit.FunSuite
 
 class ScalafmtConfigTest extends FunSuite {
+
+  override def munitIgnore: Boolean =
+    // TODO: remove when scala.meta.internal.io.NodeNIOPath works on Windows
+    PlatformCompat.isJS && OsSpecific.isWindows
 
   test("project.matcher") {
     val config = ScalafmtConfig.fromHoconString(

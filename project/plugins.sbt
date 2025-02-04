@@ -1,10 +1,9 @@
 // scalafmt: { maxColumn = 100, align.preset = more, align.allowOverflow = true }
 
-resolvers ++= Seq(
-  Classpaths.sbtPluginReleases,
-  Resolver.sonatypeRepo("releases"),
-  Resolver.bintrayIvyRepo("jetbrains", "sbt-plugins"),
-)
+resolvers ++= Resolver.sonatypeOssRepos("releases")
+resolvers ++= Resolver.sonatypeOssRepos("snapshots")
+
+resolvers ++= Seq(Classpaths.sbtPluginReleases, Resolver.bintrayIvyRepo("jetbrains", "sbt-plugins"))
 
 val crossProjectV = "1.3.2"
 

@@ -1,6 +1,7 @@
 package org.scalafmt.sysops
 
 private[scalafmt] object PlatformCompat {
+  def isJS = true
   def isJVM = false
   def isScalaNative = false
   def isNativeOnWindows = false
