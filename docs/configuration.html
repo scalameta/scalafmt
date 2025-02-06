@@ -4819,6 +4819,20 @@ will not be moved and in many cases will likely be removed instead</li>
 <blockquote>
 <p>Since v3.0.0.</p>
 </blockquote>
+<p>Let's define some terminology: an import statement consists of several parts:</p>
+<ul>
+<li>keyword: <code>import</code> or <code>export</code></li>
+<li>one or more comma-separated <em>importers</em>
+<ul>
+<li>for instance, <code>import foo.bar, foo.baz.{qux =&gt; quux}</code> contains two
+importers, <code>foo.bar</code> and <code>foo.baz.{qux =&gt; quux}</code></li>
+</ul></li>
+<li>each importer is split, on the final dot, into
+<ul>
+<li><em>reference</em>: <code>foo</code> and <code>foo.baz</code> in the example above</li>
+<li><em>selectors</em>: <code>bar</code> and <code>{qux =&gt; quux}</code> above</li>
+</ul></li>
+</ul>
 <h4><a class="anchor" aria-hidden="true" id="imports-expand"></a><a href="#imports-expand" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Imports: <code>expand</code></h4>
 <p>This parameter will attempt to create a separate line for each selector
 within a <code>{...}</code>. It replaces the deprecated rule <code>ExpandImportSelectors</code>.</p>
@@ -4849,6 +4863,26 @@ within a <code>{...}</code>. It replaces the deprecated rule <code>ExpandImportS
 rewrite.imports.expand = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
+<h4><a class="anchor" aria-hidden="true" id="imports-sorting"></a><a href="#imports-sorting" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Imports: sorting</h4>
+<p>Sorting is applied as follows:</p>
+<ul>
+<li>if disabled, no sorting</li>
+<li>if enabled, it applies to import <em>selectors</em> within one <em>importer</em></li>
+<li>if <a href="#imports-groups"><code>groups</code></a> are used, sorting will also apply to importers
+in the same group
+<ul>
+<li>without groups, multiple import statements will <strong>not</strong> be sorted</li>
+<li>importers are sorted one dot-separated label at a time
+<ul>
+<li>importers <code>foo.bar.baz</code> and <code>foo.bar as fbar</code> will compare:
+<ul>
+<li><code>foo</code> and <code>foo</code>: equal</li>
+<li><code>bar</code> and <code>bar as fbar</code>: <code>bar</code> comes earlier, just like it does
+with equivalent scala2 selector syntax <code>{bar =&gt; fbar}</code></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
 <h4><a class="anchor" aria-hidden="true" id="imports-sort--none"></a><a href="#imports-sort--none" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Imports: <code>sort = none</code></h4>
 <p>This default option causes no sorting.</p>
 <h4><a class="anchor" aria-hidden="true" id="imports-sort--original"></a><a href="#imports-sort--original" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Imports: <code>sort = original</code></h4>
@@ -4911,8 +4945,9 @@ should only refer to typical top-level domains such as <code>java</code>, <code>
 rule like <code>OrganizeImports</code>. However, on a large codebase, the overhead
 of using semantic <code>scalafix</code> rules might be substantial.</p>
 </blockquote>
-<p>This rule will separate all import statements into groups. If sorting is
-enabled (i.e., not <code>none</code>), imports will also be sorted within each group.</p>
+<p>This rule will separate all import statements (or, to be more precise, all
+<a href="#imports">importers</a> from all import statements) into groups. If sorting
+is enabled (i.e., not <code>none</code>), imports will also be sorted within each group.</p>
 <p>The rule accepts the following parameters:</p>
 <ul>
 <li><code>rewrite.imports.groups</code>: defines several sets of regular expressions
@@ -4953,6 +4988,7 @@ statement, up to and including the final dot</li>
   bar,
   ~&gt;
 }
+<span class="hljs-keyword">import</span> bar.bar as bbar
 <span class="hljs-keyword">import</span> baz.<span class="hljs-type">Baz</span>.{bar =&gt; xyz, _}
 <span class="hljs-keyword">import</span> baz._
 <span class="hljs-keyword">import</span> baz.bar.{
@@ -4976,7 +5012,8 @@ statement, up to and including the final dot</li>
   ~&gt;
 }
 </code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-keyword">import</span> bar.bar.{<span class="hljs-type">Random</span>, bar, ~&gt;, `symbol`}
+<pre><code class="hljs css language-scala original"><span class="hljs-keyword">import</span> bar.bar as bbar
+<span class="hljs-keyword">import</span> bar.bar.{<span class="hljs-type">Random</span>, bar, ~&gt;, `symbol`}
 <span class="hljs-keyword">import</span> baz.<span class="hljs-type">Baz</span>.{bar =&gt; xyz, _}
 <span class="hljs-keyword">import</span> qux.`qux`.{<span class="hljs-type">Random</span>, bar, ~&gt;, `symbol`}
 <span class="hljs-keyword">import</span> foo._
@@ -4990,7 +5027,8 @@ statement, up to and including the final dot</li>
 <span class="hljs-keyword">import</span> baz._
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">Imports</span>]
+<pre><code class="hljs css language-scala config">runner.dialect = scala3
+rewrite.rules = [<span class="hljs-type">Imports</span>]
 rewrite.imports.sort = ascii
 rewrite.imports.groups = [
   [<span class="hljs-string">"foo\\..*"</span>],
