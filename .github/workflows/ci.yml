@@ -68,7 +68,7 @@ jobs:
           distribution: 'temurin'
           cache: 'sbt'
       - uses: sbt/setup-sbt@v1
-      - run: sbt communityTests${{ matrix.group }}/test
+      - run: sbt communityTests${{ matrix.group }}Native/test
   formatting:
     if: github.event_name != 'release'
     runs-on: ubuntu-latest
