@@ -129,9 +129,9 @@ lazy val config = crossProject(JVMPlatform, NativePlatform)
     moduleName := "scalafmt-config",
     description := "Scalafmt config parsing",
     scalacOptions ++= scalacJvmOptions.value,
-    libraryDependencies ++= Seq(metaconfig.value),
-  ).jvmSettings(libraryDependencies ++= Seq(metaconfigTypesafe.value))
-  .nativeSettings(libraryDependencies ++= Seq(metaconfigSconfig.value))
+    libraryDependencies += metaconfigCore.value,
+  ).jvmSettings(libraryDependencies += metaconfigTypesafe.value)
+  .nativeSettings(libraryDependencies += metaconfigSconfig.value)
 // .jsSettings(
 //   libraryDependencies ++= Seq(
 //     metaconfigHocon.value,
@@ -168,10 +168,9 @@ lazy val macros = crossProject(JVMPlatform, NativePlatform)
   .in(file("scalafmt-macros")).settings(
     moduleName := "scalafmt-macros",
     scalacOptions ++= scalacJvmOptions.value,
-    libraryDependencies ++= Seq(
-      scalameta.value,
+    libraryDependencies += scalameta.value,
+    libraryDependencies +=
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    ),
   )
 
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
