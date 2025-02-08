@@ -1,11 +1,7 @@
 package org.scalafmt.sysops
 
 import java.io.IOException
-import java.nio.file.FileVisitResult
-import java.nio.file.FileVisitor
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file._
 
 object DeleteTree {
   def apply(path: Path): Unit = {
@@ -17,12 +13,12 @@ object DeleteTree {
 class DeleteTree extends FileVisitor[Path] {
   override def preVisitDirectory(
       dir: Path,
-      attrs: BasicFileAttributes,
+      attrs: attribute.BasicFileAttributes,
   ): FileVisitResult = FileVisitResult.CONTINUE
 
   override def visitFile(
       file: Path,
-      attrs: BasicFileAttributes,
+      attrs: attribute.BasicFileAttributes,
   ): FileVisitResult = {
     Files.delete(file)
     FileVisitResult.CONTINUE

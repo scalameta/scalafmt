@@ -1,8 +1,6 @@
 package org.scalafmt.sysops
 
-import java.io.File
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 
 import scala.util._
 
@@ -24,7 +22,7 @@ class GitOpsTest extends FunSuite {
   private var initFile: AbsoluteFile = _
 
   override def beforeEach(context: BeforeEach): Unit = {
-    path = AbsoluteFile(Files.createTempDirectory(dirName))
+    path = AbsoluteFile(PlatformFileOps.mkdtemp(dirName))
     ops = new GitOpsImpl(path)
     init
     // initial commit is needed
@@ -37,42 +35,24 @@ class GitOpsTest extends FunSuite {
     try DeleteTree(path.path)
     catch {
       case e: Throwable =>
-        println("Unable to delete test files")
+        println(s"Unable to delete test files: $path")
         e.printStackTrace()
     }
 
   private def touch(dir: AbsoluteFile): AbsoluteFile = touch(dir = Some(dir))
 
+  private def getTempFile(
+      dir: Option[AbsoluteFile],
+      name: String = Random.alphanumeric.take(10).mkString,
+  ): AbsoluteFile = dir.orElse(ops.rootDir).get.join(s"$name.ext")
+
   private def touch(
       name: String = Random.alphanumeric.take(10).mkString,
       dir: Option[AbsoluteFile] = None,
   ): AbsoluteFile = {
-    val d = dir.orElse(ops.rootDir).get.jfile
-    val f = File.createTempFile(name, ".ext", d)
-    f.deleteOnExit()
-    AbsoluteFile(f)
-  }
-
-  def symbolicLinkTo(
-      file: AbsoluteFile,
-      name: String = Random.alphanumeric.take(10).mkString,
-      dir: Option[AbsoluteFile] = None,
-  ): AbsoluteFile = {
-    val linkFile = File
-      .createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
-    linkFile.delete()
-    val link = AbsoluteFile(linkFile)
-    Files.createSymbolicLink(link.path, file.path)
-    link
-  }
-
-  def mv(f: AbsoluteFile, dir: Option[AbsoluteFile] = None): AbsoluteFile = {
-    val destDir = Files
-      .createTempDirectory(dir.orElse(ops.rootDir).get.path, "dir_")
-    val dest = Files
-      .move(f.path, destDir, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-    rm(f)
-    AbsoluteFile(dest)
+    val file = getTempFile(dir, name)
+    file.writeFile("")
+    file
   }
 
   def modify(f: AbsoluteFile): Unit = {
@@ -115,7 +95,10 @@ class GitOpsTest extends FunSuite {
   test("lsTree should exclude symbolic links") {
     val f = touch()
     add(f)
-    val g = symbolicLinkTo(f)
+
+    val g = getTempFile(None)
+    PlatformFileOps.symlink(g.path, f.path)
+
     add(g)
     commit
     assertEquals(ls.toSet, Set(f))
@@ -282,7 +265,12 @@ class GitOpsTest extends FunSuite {
     val f = touch()
     add(f)
     commit
-    val f1 = mv(f)
+
+    val newf = FileOps.getPath(s"$f.moved")
+    PlatformFileOps.move(f.path, newf)
+    rm(f)
+    val f1 = AbsoluteFile(newf)
+
     add(f1)
     assertEquals(status().toSet, Set(f1))
   }

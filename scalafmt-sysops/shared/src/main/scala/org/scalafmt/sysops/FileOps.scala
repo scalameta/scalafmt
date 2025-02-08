@@ -1,16 +1,10 @@
 package org.scalafmt.sysops
 
-import org.scalafmt.CompatCollections.JavaConverters._
-
 import java.nio.file.AccessDeniedException
-import java.nio.file.Files
-import java.nio.file.LinkOption
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.attribute.BasicFileAttributes
 
-import scala.io.Codec
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
@@ -19,54 +13,19 @@ object FileOps {
 
   val defaultConfigFileName = ".scalafmt.conf"
 
-  @inline
-  def isDirectory(file: Path): Boolean = Files.isDirectory(file)
-
-  @inline
-  def isRegularFile(file: Path): Boolean = Files.isRegularFile(file)
-
-  @inline
-  def isRegularFileNoLinks(file: Path): Boolean = Files
-    .isRegularFile(file, LinkOption.NOFOLLOW_LINKS)
-
-  @inline
-  def getAttributes(file: Path): BasicFileAttributes = Files
-    .readAttributes(file, classOf[BasicFileAttributes])
-
-  def listFiles(path: String): Seq[Path] = listFiles(getFile(path))
+  def listFiles(path: String): Seq[Path] = listFiles(getPath(path))
 
   def listFiles(file: Path): Seq[Path] =
-    listFiles(file, (_, a) => a.isRegularFile)
+    listFiles((_, a) => a.isRegularFile)(file)
 
-  def listFiles(
-      file: Path,
-      matches: (Path, BasicFileAttributes) => Boolean,
-  ): Seq[Path] = {
-    val iter = Files.find(file, Integer.MAX_VALUE, (p, a) => matches(p, a))
-    try iter.iterator().asScala.toList
-    finally iter.close()
-  }
-
-  def readFile(file: Path)(implicit codec: Codec): String =
-    new String(Files.readAllBytes(file), codec.charSet)
-
-  @inline
-  def getFile(path: String): Path = getPath(path)
+  def listFiles(matches: (Path, FileStat) => Boolean)(file: Path): Seq[Path] =
+    PlatformFileOps.listFiles(file, matches)
 
   @inline
   def getFile(path: Seq[String]): Path = getPath(path.head, path.tail: _*)
 
   @inline
   def getPath(head: String, tail: String*): Path = Paths.get(head, tail: _*)
-
-  def writeFile(path: Path, content: String)(implicit codec: Codec): Unit = {
-    val bytes = content.getBytes(codec.charSet)
-    Files.write(path, bytes)
-  }
-
-  def writeFile(filename: String, content: String)(implicit
-      codec: Codec,
-  ): Unit = writeFile(getFile(filename), content)
 
   @inline
   def isMarkdown(filename: String): Boolean = filename.endsWith(".md")

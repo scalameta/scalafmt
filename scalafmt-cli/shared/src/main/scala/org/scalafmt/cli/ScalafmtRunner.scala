@@ -1,17 +1,11 @@
 package org.scalafmt.cli
 
 import org.scalafmt.Error
-import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.BatchPathFinder
-import org.scalafmt.sysops.PlatformCompat
+import org.scalafmt.sysops._
 
 import java.nio.file.Path
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.concurrent.Promise
-import scala.concurrent.duration
+import scala.concurrent._
 
 trait ScalafmtRunner {
   private[cli] def run(
@@ -84,7 +78,7 @@ trait ScalafmtRunner {
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
 
     implicit val executionContext: ExecutionContext =
-      PlatformCompat.executionContext
+      PlatformRunOps.executionContext
     val completed = Promise[ExitCode]()
 
     val tasks = List.newBuilder[Future[ExitCode]]

@@ -22,7 +22,7 @@ object UnitTests extends HasTests {
   override lazy val tests: Seq[DiffTest] = {
     def checkPath(p: Path) = filename2parse(p.toString).isDefined
     for {
-      filename <- listFiles(testDir, (p, a) => checkPath(p) && a.isRegularFile)
+      filename <- listFiles((p, a) => checkPath(p) && a.isRegularFile)(testDir)
       test <- parseDiffTests(filename, notOnly = sys.env.contains("CI"))
     } yield test
   }

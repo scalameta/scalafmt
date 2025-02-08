@@ -2,6 +2,7 @@ package org.scalafmt
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.sysops.FileOps
+import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.HasTests
 
@@ -12,15 +13,14 @@ import munit.Location
 
 object ManualTests extends HasTests {
   lazy val tests: Seq[DiffTest] = {
-    import FileOps._
     val testPrefix = testDir + File.separator
-    val testFiles = listFiles(testDir).map(x => (x, x.toString))
+    val testFiles = FileOps.listFiles(testDir).map(x => (x, x.toString))
     val manualFiles = for {
       (path, filename) <- testFiles if filename.endsWith(manual)
-      test <- readFile(path).linesIterator
+      test <- PlatformFileOps.readFile(path).linesIterator
         .withFilter(_.startsWith(HasTests.onlyPrefix)).map { name =>
           val testPath = stripPrefix(name)
-          val original = readFile(Paths.get(testPath))
+          val original = PlatformFileOps.readFile(Paths.get(testPath))
           val testFile = testPath.stripPrefix(testPrefix)
           DiffTest(
             testFile,
@@ -37,7 +37,7 @@ object ManualTests extends HasTests {
     val scalaFiles = for {
       (path, filename) <- testFiles if filename.endsWith(".scala")
     } yield {
-      val content = readFile(path)
+      val content = PlatformFileOps.readFile(path)
       DiffTest(
         filename,
         filename,

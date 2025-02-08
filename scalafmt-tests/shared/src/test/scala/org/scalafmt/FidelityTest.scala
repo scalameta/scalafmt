@@ -2,6 +2,7 @@ package org.scalafmt
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.sysops.FileOps
+import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.util.FormatAssertions
 
 import scala.meta.dialects.Scala213
@@ -33,7 +34,7 @@ class FidelityTest extends FunSuite with FormatAssertions {
     FileOps.listFiles(".").filter { x =>
       val filename = x.toString
       filename.endsWith(".scala") && !denyList.exists(filename.contains)
-    }.map(x => TestCase(x, FileOps.readFile(x)))
+    }.map(x => TestCase(x, PlatformFileOps.readFile(x)))
   }
 
   examples.foreach(example =>

@@ -5,11 +5,10 @@ import org.scalafmt.Error.SearchStateExploded
 import org.scalafmt.config.LineEndings
 import org.scalafmt.rewrite.FormatTokensRewrite
 import org.scalafmt.sysops.FileOps
+import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.util._
 
 import scala.meta.parsers.ParseException
-
-import java.io.File
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -155,13 +154,12 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     logger.debug(s"Total explored: $explored")
     if (!onlyUnit && !onlyManual)
       assertEquals(explored, 2520110, "total explored")
-    val results = debugResults.result()
     // TODO(olafur) don't block printing out test results.
     // I don't want to deal with scalaz's Tasks :'(
     val k = for {
-      _ <- Future(FileOps.writeFile(
-        s"target${File.separator}index.html",
-        Report.heatmap(results),
+      _ <- Future(PlatformFileOps.writeFile(
+        FileOps.getPath("target", "index.html"),
+        Report.heatmap(debugResults.result()),
       ))
     } yield ()
     // Travis exits right after running tests.

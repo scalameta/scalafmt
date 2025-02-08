@@ -2,15 +2,13 @@ package org.scalafmt.sysops
 
 import java.io.File
 import java.net.URI
-import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.attribute.BasicFileAttributes
 
 import scala.io.Codec
 
 /** Wrapper around java.io.File with an absolute path. */
 final class AbsoluteFile(val path: Path) extends AnyVal {
-  def exists: Boolean = Files.exists(path)
+  def exists: Boolean = PlatformFileOps.exists(path)
   def /(other: Path) = join(other)
   def /(other: String) = join(other)
 
@@ -24,30 +22,28 @@ final class AbsoluteFile(val path: Path) extends AnyVal {
   def jfile: File = path.toFile
 
   @inline
-  def isDirectory: Boolean = FileOps.isDirectory(path)
+  def isDirectory: Boolean = PlatformFileOps.isDirectory(path)
   @inline
-  def isRegularFile: Boolean = FileOps.isRegularFile(path)
+  def isRegularFile: Boolean = PlatformFileOps.isRegularFile(path)
   @inline
-  def isRegularFileNoLinks: Boolean = FileOps.isRegularFileNoLinks(path)
-  @inline
-  def attributes: BasicFileAttributes = FileOps.getAttributes(path)
+  def isRegularFileNoLinks: Boolean = PlatformFileOps.isRegularFileNoLinks(path)
 
   @inline
   def listFiles: Seq[AbsoluteFile] = join(FileOps.listFiles(path))
   @inline
-  def readFile(implicit codec: Codec): String = FileOps.readFile(path)
+  def readFile(implicit codec: Codec): String = PlatformFileOps.readFile(path)
   @inline
-  def writeFile(content: String)(implicit codec: Codec): Unit = FileOps
+  def writeFile(content: String)(implicit codec: Codec): Unit = PlatformFileOps
     .writeFile(path, content)
 
   @inline
   def parent: AbsoluteFile = new AbsoluteFile(path.getParent)
   @inline
-  def delete(): Unit = Files.delete(path)
+  def delete(): Unit = PlatformFileOps.delete(path)
   @inline
-  def mkdir(): Unit = Files.createDirectory(path)
+  def mkdir(): Unit = PlatformFileOps.mkdir(path)
   @inline
-  def mkdirs(): Unit = Files.createDirectories(path)
+  def mkdirs(): Unit = PlatformFileOps.mkdirs(path)
 
   override def toString: String = path.toString
   @inline
@@ -66,9 +62,9 @@ object AbsoluteFile {
     apply(FileOps.getPath(head, tail: _*))
 
   def fromPathIfAbsolute(path: String): Option[AbsoluteFile] = {
-    val file = FileOps.getFile(path)
+    val file = FileOps.getPath(path)
     if (file.isAbsolute) Some(new AbsoluteFile(file)) else None
   }
 
-  def userDir = AbsoluteFile(System.getProperty("user.dir"))
+  def userDir = AbsoluteFile(PlatformFileOps.cwd())
 }

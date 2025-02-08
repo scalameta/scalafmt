@@ -39,7 +39,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
       }.fold(scalafmtConf)(scalafmtConf.withGitAutoCRLF)
 
       runInputs(options, inputMethods, termDisplayMessage) { inputMethod =>
-        import org.scalafmt.sysops.PlatformCompat.executionContext
+        import org.scalafmt.sysops.PlatformRunOps.executionContext
         Future(handleFile(inputMethod, options, adjustedScalafmtConf)).recover {
           case e: Error.MisformattedFile =>
             options.common.err.println(e.customMessage)

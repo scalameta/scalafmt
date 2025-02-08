@@ -1,9 +1,7 @@
 package org.scalafmt.sysops
 
-import java.nio.file.InvalidPathException
 import java.nio.file.Path
 
-import scala.sys.process.ProcessLogger
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
@@ -38,6 +36,7 @@ object GitOps {
 
   }
 
+  class GitException(message: String) extends Exception(message)
 }
 
 trait GitOps {
@@ -53,21 +52,8 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
   private[scalafmt] def exec(cmd: Seq[String]): Seq[String] = tryExec(cmd).get
     .linesIterator.toSeq
 
-  private def tryExec(cmd: Seq[String]): Try[String] = {
-    val errors = Seq.newBuilder[String]
-    val inQuotes = PlatformCompat.isNativeOnWindows
-    val argv = if (inQuotes) cmd.map(arg => '"' + arg + '"') else cmd
-    Try {
-      val swallowStderr = ProcessLogger(_ => (), errors += _)
-      sys.process.Process(argv, workingDirectory.jfile).!!(swallowStderr)
-    } match {
-      case Failure(e) =>
-        val err = errors.result().mkString("\n> ", "\n> ", "\n")
-        val msg = s"Failed to run command ${cmd.mkString(" ")}. Error:$err"
-        Failure(new IllegalStateException(msg, e))
-      case Success(x) => Success(x.trim)
-    }
-  }
+  private def tryExec(cmd: Seq[String]): Try[String] = PlatformRunOps
+    .runArgv(cmd, Some(workingDirectory.path))
 
   override def lsTree(dir: AbsoluteFile*): Seq[AbsoluteFile] = {
     val cmd = Seq("git", "ls-files", "--full-name") ++ dir.map(_.toString())
@@ -81,7 +67,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
     tryExec(cmd).flatMap { x =>
       val file = AbsoluteFile(x)
       if (file.isDirectory) Success(file)
-      else Failure(new InvalidPathException(x, "not a directory"))
+      else Failure(new GitOps.GitException(s"not a directory: $x"))
     }
   }
 

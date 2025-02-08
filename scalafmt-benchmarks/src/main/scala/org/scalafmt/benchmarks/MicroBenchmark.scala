@@ -2,6 +2,7 @@ package org.scalafmt.benchmarks
 
 import org.scalafmt.Scalafmt
 import org.scalafmt.sysops.FileOps
+import org.scalafmt.sysops.PlatformFileOps
 
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
@@ -27,13 +28,13 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
   var code: String = _
 
   @Setup
-  def setup(): Unit = code = FileOps.readFile(getPath)
+  def setup(): Unit = code = PlatformFileOps.readFile(getPath)
 
   def getPath: Path = {
     val filename = FileOps.getFile(Seq("src", "resources") ++ path)
     // jmh runs from benchmarks directory while tests run from from root.
     // Can't bother to find more generic solution
-    if (FileOps.isRegularFile(filename)) filename
+    if (PlatformFileOps.isRegularFile(filename)) filename
     else FileOps.getFile(Seq("scalafmt-benchmarks", "src", "resources") ++ path)
   }
 
