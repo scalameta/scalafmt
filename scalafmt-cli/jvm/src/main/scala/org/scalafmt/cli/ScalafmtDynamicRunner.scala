@@ -4,7 +4,7 @@ import org.scalafmt.Error
 import org.scalafmt.dynamic.ScalafmtDynamicError
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtSession
-import org.scalafmt.sysops.FileOps
+import org.scalafmt.sysops.PlatformFileOps
 
 import java.nio.file.Path
 
@@ -34,7 +34,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
     val inputMethods = getInputMethods(options, filterMatcher)
     if (inputMethods.isEmpty) ExitCode.Ok
     else runInputs(options, inputMethods, termDisplayMessage) { inputMethod =>
-      import org.scalafmt.sysops.PlatformCompat.executionContext
+      import org.scalafmt.sysops.PlatformRunOps.executionContext
       Future(handleFile(inputMethod, session, options)).recover {
         case x: Error.MisformattedFile => reporter.fail(x)(x.file)
       }.map(ExitCode.merge(_, reporter.getExitCode))
@@ -56,7 +56,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
     val dirBuilder = Seq.newBuilder[Path]
     val fileBuilder = Set.newBuilder[Path]
     paths.foreach(path =>
-      if (FileOps.isRegularFile(path)) fileBuilder += path
+      if (PlatformFileOps.isRegularFile(path)) fileBuilder += path
       else dirBuilder += path,
     )
     val dirs = dirBuilder.result()

@@ -1,7 +1,6 @@
 package org.scalafmt.sysops
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.nio.file.Path
 
 import scala.util.Random
@@ -13,13 +12,13 @@ class FileOpsTest extends munit.FunSuite {
   private var path: Path = _
 
   override def beforeEach(context: BeforeEach): Unit =
-    path = Files.createTempDirectory("FileOpsTestDir")
+    path = PlatformFileOps.mkdtemp("FileOpsTestDir")
 
   override def afterEach(context: AfterEach): Unit =
     try DeleteTree(path)
     catch {
       case e: Throwable =>
-        println("Unable to delete test files")
+        println(s"Unable to delete test files: $path")
         e.printStackTrace()
     }
 
@@ -27,17 +26,17 @@ class FileOpsTest extends munit.FunSuite {
     assertEquals(FileOps.listFiles(path), Nil)
 
     val subfile = subpath(path)
-    Files.write(subfile, "file".getBytes(StandardCharsets.UTF_8))
+    PlatformFileOps.writeFile(subfile, "file")(StandardCharsets.UTF_8)
     assertEquals(FileOps.listFiles(path), Seq(subfile))
     assertEquals(FileOps.listFiles(subfile), Seq(subfile))
 
     val subdir = subpath(path)
-    Files.createDirectory(subdir)
+    PlatformFileOps.mkdir(subdir)
     assertEquals(FileOps.listFiles(path), Seq(subfile))
     assertEquals(FileOps.listFiles(subdir), Nil)
 
     val subsubfile = subpath(subdir)
-    Files.write(subsubfile, "file".getBytes(StandardCharsets.UTF_8))
+    PlatformFileOps.writeFile(subsubfile, "file")(StandardCharsets.UTF_8)
     assertEquals(FileOps.listFiles(path).toSet, Set(subfile, subsubfile))
     assertEquals(FileOps.listFiles(subdir), Seq(subsubfile))
     assertEquals(FileOps.listFiles(subsubfile), Seq(subsubfile))

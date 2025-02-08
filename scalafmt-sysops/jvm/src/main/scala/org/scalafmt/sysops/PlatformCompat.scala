@@ -1,11 +1,10 @@
 package org.scalafmt.sysops
 
-import scala.concurrent.ExecutionContext
-
 private[scalafmt] object PlatformCompat {
+  def isJVM = true
   def isScalaNative = false
   def isNativeOnWindows = false
 
-  implicit def executionContext: ExecutionContext = ExecutionContext.global
-
+  def relativize(cwd: AbsoluteFile, file: AbsoluteFile): String = cwd.toUri
+    .relativize(file.toUri).toString
 }

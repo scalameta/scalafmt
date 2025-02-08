@@ -2,12 +2,10 @@ package org.scalafmt.cli
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.RegexCompat
-import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.FileOps
+import org.scalafmt.sysops._
 
 import java.io.File
 import java.io.PrintStream
-import java.nio.file.Files
 
 object FileTestOps {
 
@@ -15,7 +13,7 @@ object FileTestOps {
     * necessary files/directories with respective file contents.
     */
   def string2dir(layout: String): AbsoluteFile = {
-    val root = AbsoluteFile(Files.createTempDirectory("root"))
+    val root = AbsoluteFile(PlatformFileOps.mkdtemp("root"))
     RegexCompat.splitByBeforeTextMatching(layout, "\n/").foreach { row =>
       val path :: contents :: Nil = row.stripPrefix("\n").split("\n", 2).toList
       val file = root / path.stripPrefix("/")
@@ -40,7 +38,7 @@ object FileTestOps {
     val prefix = rootPath.toString
     FileOps.listFiles(rootPath).sortBy(_.toString).map(path =>
       s"""|${path.toString.stripPrefix(prefix)}
-          |${FileOps.readFile(path)}""".stripMargin,
+          |${PlatformFileOps.readFile(path)}""".stripMargin,
     ).mkString("\n").replace(File.separator, "/") // ensure original separators
   }
 
@@ -59,5 +57,5 @@ object FileTestOps {
   )
 
   val baseCliOptions: CliOptions =
-    getMockOptions(AbsoluteFile(Files.createTempDirectory("base-dir")))
+    getMockOptions(AbsoluteFile(PlatformFileOps.mkdtemp("base-dir")))
 }

@@ -11,7 +11,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.ScalafmtOptimizer
 import org.scalafmt.config.ScalafmtParser
 import org.scalafmt.config.ScalafmtRunner
-import org.scalafmt.sysops.FileOps
+import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.tests.BuildInfo
 
 import java.nio.file.Path
@@ -57,7 +57,7 @@ trait HasTests extends FormatAssertions {
 
   def parseDiffTests(path: Path, notOnly: Boolean): Seq[DiffTest] = {
     val filename = path.toString
-    val content = FileOps.readFile(path)
+    val content = PlatformFileOps.readFile(path)
     val moduleOnly = isOnly(content)
     val moduleSkip = isSkip(content)
     val sep =

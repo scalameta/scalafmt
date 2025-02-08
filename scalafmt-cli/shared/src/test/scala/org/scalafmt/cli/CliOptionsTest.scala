@@ -2,11 +2,10 @@ package org.scalafmt.cli
 
 import org.scalafmt.Versions
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.sysops._
 
-import java.nio.file.Files
 import java.nio.file.NoSuchFileException
 import java.nio.file.Path
-import java.nio.file.Paths
 
 import FileTestOps._
 import metaconfig.Configured
@@ -58,7 +57,8 @@ class CliOptionsTest extends FunSuite {
   }
 
   test(".configPath returns path to specified configuration path") {
-    val tempPath = Files.createTempFile(".scalafmt", ".conf")
+    val tempPath = PlatformFileOps.mkdtemp("temp-dir").resolve(".scalafmt.conf")
+    PlatformFileOps.writeFile(tempPath, "")
     val opt = baseCliOptions.copy(config = Some(tempPath))
     assertEquals(opt.configPath, tempPath)
   }
@@ -78,22 +78,23 @@ class CliOptionsTest extends FunSuite {
 
   test(".scalafmtConfig returns the configuration read from configuration file located on configPath") {
     val expected = "foo bar"
-    val configPath = Files.createTempFile(".scalafmt", ".conf")
+    val configPath = PlatformFileOps.mkdtemp("temp-dir")
+      .resolve(".scalafmt.conf")
     val config =
       s"""|
           |version="${Versions.version}"
           |maxColumn=100
           |onTestFailure="$expected"
           |""".stripMargin
-    Files.write(configPath, config.getBytes)
+    PlatformFileOps.writeFile(configPath, config)
 
     val opt = baseCliOptions.copy(config = Some(configPath))
     assertEquals(opt.scalafmtConfig.get.onTestFailure, expected)
   }
 
   test(".scalafmtConfig returns default ScalafmtConfig if configuration file is missing") {
-    val configDir = Files.createTempDirectory("temp-dir")
-    val configPath = Paths.get(configDir.toString + "/.scalafmt.conf")
+    val configPath = PlatformFileOps.mkdtemp("temp-dir")
+      .resolve(".scalafmt.conf")
     val opt = baseCliOptions.copy(config = Some(configPath))
     assert(opt.scalafmtConfig.isInstanceOf[Configured.NotOk])
     val confError = opt.scalafmtConfig.asInstanceOf[Configured.NotOk].error

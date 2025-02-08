@@ -76,13 +76,8 @@ object InputMethod {
     override protected def overwrite(text: String, options: CliOptions): Unit =
       file.writeFile(text)(options.encoding)
 
-    override protected def list(options: CliOptions): Unit = {
-      val usePath = PlatformCompat.isNativeOnWindows
-      options.common.out.println(
-        if (usePath) options.cwd.path.relativize(file.path)
-        else options.cwd.toUri.relativize(file.toUri),
-      )
-    }
+    override protected def list(options: CliOptions): Unit = options.common.out
+      .println(PlatformCompat.relativize(options.cwd, file))
   }
 
   def unifiedDiff(filename: String, original: String, revised: String): String = {

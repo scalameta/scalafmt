@@ -1,7 +1,6 @@
 package org.scalafmt.sysops
 
 import java.nio.file.Path
-import java.nio.file.attribute.BasicFileAttributes
 
 trait BatchPathFinder {
 
@@ -34,11 +33,11 @@ object BatchPathFinder {
 
   final class DirFiles(val cwd: AbsoluteFile)(val matches: Path => Boolean)
       extends BatchPathFinder {
-    private def filter(path: Path, attrs: BasicFileAttributes): Boolean =
+    private def filter(path: Path, attrs: FileStat): Boolean =
       attrs.isRegularFile && matches(path)
     override def findFiles(dir: AbsoluteFile*): Seq[AbsoluteFile] = {
       val dirs = if (dir.isEmpty) Seq(cwd.path) else dir.map(_.path)
-      dirs.flatMap(FileOps.listFiles(_, filter)).map(new AbsoluteFile(_))
+      dirs.flatMap(FileOps.listFiles(filter)).map(new AbsoluteFile(_))
     }
   }
 

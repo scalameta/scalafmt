@@ -4,13 +4,12 @@ import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Versions.{stable => stableVersion}
 import org.scalafmt.cli.FileTestOps._
-import org.scalafmt.config.PlatformConfig
 import org.scalafmt.config.ProjectFiles
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.FileOps
 import org.scalafmt.sysops.OsSpecific._
 import org.scalafmt.sysops.PlatformCompat
+import org.scalafmt.sysops.PlatformFileOps
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -139,8 +138,8 @@ trait CliTestBehavior {
         originalTmpFile.toFile.getPath,
         originalTmpFile2.toFile.getPath,
       )
-      val obtained = FileOps.readFile(originalTmpFile)
-      val obtained2 = FileOps.readFile(originalTmpFile2)
+      val obtained = PlatformFileOps.readFile(originalTmpFile)
+      val obtained2 = PlatformFileOps.readFile(originalTmpFile2)
       assertNoDiff(obtained, expected10)
       assertNoDiff(obtained2, expected10)
     }
@@ -197,7 +196,7 @@ trait CliTestBehavior {
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
       )
-      val str = FileOps.readFile(tmpFile)
+      val str = PlatformFileOps.readFile(tmpFile)
       assertNoDiff(str, unformatted)
     }
     test(s"scalafmt --test fails with non zero exit code $label") {
@@ -220,7 +219,7 @@ trait CliTestBehavior {
         tmpFile.toFile.getAbsolutePath,
       )
       assertEquals(Cli.mainWithOptions(baseCliOptions, args: _*), ExitCode.Ok)
-      val obtained = FileOps.readFile(tmpFile)
+      val obtained = PlatformFileOps.readFile(tmpFile)
       // TODO: We need to pass customFiles information to ProjectFiles
       assertNoDiff(obtained, formatted)
     }
@@ -541,9 +540,9 @@ trait CliTestBehavior {
         "-f",
         fileStr(file1, file2, file3),
       )
-      val obtained = FileOps.readFile(file1)
-      val obtained2 = FileOps.readFile(file2)
-      val obtained3 = FileOps.readFile(file3)
+      val obtained = PlatformFileOps.readFile(file1)
+      val obtained2 = PlatformFileOps.readFile(file2)
+      val obtained3 = PlatformFileOps.readFile(file3)
       assertNoDiff(obtained, formatted)
       assertNoDiff(obtained2, formatted)
       assertNoDiff(obtained3, formatted)
@@ -736,7 +735,7 @@ trait CliTestBehavior {
 }
 
 class CliTest extends AbstractCliTest with CliTestBehavior {
-  if (!PlatformConfig.isScalaNative) testCli("1.6.0-RC4") // test for runDynamic, incompatible with Scala Native
+  if (PlatformCompat.isJVM) testCli("1.6.0-RC4") // test for runDynamic, incompatible with Scala Native
   testCli(stableVersion) // test for runScalafmt
 
   test(s"path-error") {

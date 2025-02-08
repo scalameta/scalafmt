@@ -4,6 +4,7 @@ import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
 import org.scalafmt.config._
+import org.scalafmt.sysops.PlatformRunOps
 
 import scala.meta._
 
@@ -20,7 +21,8 @@ import munit.diff.console.AnsiColors
 
 object TestHelpers {
 
-  implicit val executionContext: ExecutionContext = ExecutionContext.global
+  implicit val executionContext: ExecutionContext =
+    PlatformRunOps.executionContext
 
   private[common] val communityProjectsDirectory = Paths
     .get("scalafmt-tests-community/target/community-projects")
