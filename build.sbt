@@ -67,7 +67,12 @@ addCommandAlias(
 commands ++= Seq(
   Command.command("ci-test-jvm") { s =>
     val docsTest = if (isScala212.value) "docs/run" else "version"
-    "tests/test" :: "cli/test" :: "publishLocal" :: docsTest :: s
+    // jvm tests
+    "tests/test" :: "cli/test" ::
+      // js tests
+      "sysopsJS/test" ::
+      // other
+      "publishLocal" :: docsTest :: s
   },
   Command.command("ci-test-native")(s =>
     // for native, we don't publish nor build docs
@@ -109,7 +114,7 @@ lazy val interfaces = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     autoScalaLibrary := false,
   )
 
-lazy val sysops = crossProject(JVMPlatform, NativePlatform)
+lazy val sysops = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-sysops")).settings(
     moduleName := "scalafmt-sysops",
     description := "Scalafmt systems operations",
@@ -118,8 +123,11 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform)
       if (!isScala212.value) Nil
       else Seq("com.github.bigwheel" %% "util-backports" % "2.1")
     },
-    parallelCollections,
     sharedTestSettings,
+  ).platformsSettings(JVMPlatform, NativePlatform)(parallelCollections)
+  .jsEnablePlugins(ScalaJSPlugin).jsSettings(
+    libraryDependencies += "org.scalameta" %%% "io" % scalametaV,
+    scalaJsSettings,
   )
 
 lazy val config = crossProject(JVMPlatform, NativePlatform)
@@ -340,6 +348,11 @@ lazy val communityTestsSettings: Seq[Def.Setting[_]] = Seq(
   publish / skip := true,
   scalacOptions ++= scalacJvmOptions.value,
   javaOptions += "-Dfile.encoding=UTF8",
+)
+
+lazy val scalaJsSettings = Seq(
+  // to support Node.JS functionality
+  scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
 )
 
 lazy val scalaNativeConfig = nativeConfig ~= { _.withMode(Mode.releaseFull) }
