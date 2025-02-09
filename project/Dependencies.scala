@@ -20,6 +20,7 @@ object Dependencies {
     smorg("scalameta", scalametaV).value
       .excludeAll("com.thesamet.scalapb" % s"scalapb-runtime_${scalaBinaryVersion.value}"),
   )
+  val scalametaIO      = smorg("io", scalametaV)
   val scalametaTestkit = smorg("testkit", scalametaV)
 
   private def metaconfig(pkg: String) = smorg(s"metaconfig-$pkg", metaconfigV)
