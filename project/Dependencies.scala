@@ -10,7 +10,7 @@ object Dependencies {
   val metaconfigV = "0.14.0"
   val scalametaV  = "4.12.7"
   val scalacheckV = "1.18.1"
-  val coursier    = "2.1.10"
+  val coursier    = "2.1.24"
   val munitV      = "1.1.0"
   val mdocV       = mdoc.BuildInfo.version
 
