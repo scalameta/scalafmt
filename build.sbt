@@ -160,7 +160,7 @@ lazy val core = crossProject(JVMPlatform, NativePlatform)
 lazy val coreJVM = core.jvm
 // lazy val coreJS = core.js
 
-lazy val macros = crossProject(JVMPlatform, NativePlatform)
+lazy val macros = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .in(file("scalafmt-macros")).settings(
     moduleName := "scalafmt-macros",
     scalacOptions ++= scalacJvmOptions.value,
