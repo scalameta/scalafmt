@@ -9,7 +9,7 @@ import org.scalafmt.util._
 import scala.meta._
 import scala.meta.tokens.{Token => T}
 
-import java.nio.file._
+import java.nio.file.Path
 
 import scala.collection.mutable
 import scala.io.Codec
@@ -200,11 +200,10 @@ case class ScalafmtConfig(
       eitherPat -> cfg
     }
     val langResult = patStyles.collect { case (Left(lang), cfg) => lang -> cfg }
-    val fs = FileSystems.getDefault
     val pmResult = patStyles.collect { case (Right(pat), cfg) =>
       val pattern =
         if (pat(0) == '.') "glob:**" + pat else inPathMatcherForm(pat)
-      fs.getPathMatcher(pattern) -> cfg
+      PlatformPathMatcher(pattern) -> cfg
     }
     (langResult, pmResult)
   }
