@@ -1,6 +1,8 @@
 import scala.scalanative.build._
 import scala.util.Properties
 
+import org.scalajs.linker.interface.ESVersion
+
 import Dependencies._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
@@ -141,7 +143,7 @@ lazy val config = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     libraryDependencies += metaconfigSconfig.value,
   ).jsSettings(scalaJsSettings)
 
-lazy val core = crossProject(JVMPlatform, NativePlatform)
+lazy val core = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .in(file("scalafmt-core")).settings(
     moduleName := "scalafmt-core",
     buildInfoSettings("org.scalafmt", "Versions"),
@@ -154,16 +156,10 @@ lazy val core = crossProject(JVMPlatform, NativePlatform)
       ))
     },
   )
-  // .jsSettings(
-  //   libraryDependencies ++= List(
-  //     scalatest.value % Test // must be here for coreJS/test to run anything
-  //   )
-  // )
   .nativeSettings(libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.1.1")
   .aggregate(sysops, config, macros).dependsOn(sysops, config, macros)
   .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm
-// lazy val coreJS = core.js
 
 lazy val macros = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .in(file("scalafmt-macros")).settings(
@@ -350,6 +346,8 @@ lazy val communityTestsSettings: Seq[Def.Setting[_]] = Seq(
 lazy val scalaJsSettings = Seq(
   // to support Node.JS functionality
   scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
+  // to support MULTILINE in regex
+  scalaJSLinkerConfig ~= (_.withESFeatures(_.withESVersion(ESVersion.ES2018))),
 )
 
 lazy val scalaNativeConfig = nativeConfig ~= { _.withMode(Mode.releaseFull) }

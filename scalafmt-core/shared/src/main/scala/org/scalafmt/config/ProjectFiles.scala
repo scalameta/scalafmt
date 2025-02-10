@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
 import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.FileOps
 import org.scalafmt.sysops.OsSpecific._
 
 import scala.meta.Dialect
@@ -40,14 +41,8 @@ object ProjectFiles {
   implicit lazy val codec: ConfCodecEx[ProjectFiles] = generic
     .deriveCodecEx(ProjectFiles()).noTypos
 
-  private implicit val fs: file.FileSystem = file.FileSystems.getDefault
-
   val defaultIncludePaths =
     Seq("glob:**.scala", "glob:**.sbt", "glob:**.sc", "glob:**.mill")
-
-  private sealed abstract class PathMatcher {
-    def matches(path: file.Path): Boolean
-  }
 
   object FileMatcher {
     def apply(
@@ -66,39 +61,16 @@ object ProjectFiles {
 
     private def create(seq: Seq[String], f: String => PathMatcher) = seq
       .map(inPathMatcherForm).distinct.map(f)
-    private def nio(seq: Seq[String]) = create(seq, new Nio(_))
-    private def regex(seq: Seq[String]) = create(seq, new Regex(_))
+    private def nio(seq: Seq[String]) = create(seq, PlatformPathMatcher.apply)
+    private def regex(seq: Seq[String]) = create(seq, PathMatcher.Regex.apply)
 
-    private final class Nio(pattern: String) extends PathMatcher {
-      private val matcher =
-        try fs.getPathMatcher(pattern)
-        catch {
-          case _: IllegalArgumentException => throw new ScalafmtConfigException(
-              s"Illegal pattern in configuration: $pattern",
-            )
-        }
-      def matches(path: file.Path): Boolean = matcher.matches(path)
-    }
-    private final class Regex(regex: String) extends PathMatcher {
-      private val pattern =
-        try java.util.regex.Pattern.compile(regex)
-        catch {
-          case e: java.util.regex.PatternSyntaxException =>
-            throw new ScalafmtConfigException(
-              s"""|Illegal regex in configuration: $regex
-                  |reason: ${e.getMessage()}""".stripMargin,
-            )
-        }
-
-      def matches(path: file.Path): Boolean = pattern.matcher(path.toString)
-        .find()
-    }
   }
 
   class FileMatcher(include: Seq[PathMatcher], exclude: Seq[PathMatcher]) {
     def matchesPath(path: file.Path): Boolean = include
       .exists(_.matches(path)) && !exclude.exists(_.matches(path))
-    def matches(filename: String): Boolean = matchesPath(fs.getPath(filename))
+    def matches(filename: String): Boolean =
+      matchesPath(FileOps.getPath(filename))
     def matchesFile(file: AbsoluteFile): Boolean = matchesPath(file.path)
   }
 
@@ -123,7 +95,7 @@ object ProjectFiles {
 
       override def getInfo(af: AbsoluteFile): Option[FileInfo] = {
         val parent = af.path.getParent
-        val depth = parent.getNameCount()
+        val depth = parent.getNameCount
         val dirs = new Array[String](depth)
         for (i <- 0 until depth) dirs(i) = parent.getName(i).toString
         getInfo(dirs, depth)
