@@ -81,7 +81,7 @@ lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
     description := "Implementation of scalafmt-interfaces",
     buildInfoSettings("org.scalafmt.dynamic", "BuildInfo"),
     libraryDependencies ++= List(
-      "io.get-coursier" % "interface" % "1.0.27",
+      "io.get-coursier" % "interface" % "1.0.28",
       "com.typesafe" % "config" % "1.4.3",
     ),
     sharedTestSettings,
@@ -203,6 +203,11 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
     scalacOptions ++= scalacJvmOptions.value,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
     sharedTestSettings,
+    assembly / assemblyMergeStrategy := {
+      case PathList("scala-collection-compat.properties") =>
+        sbtassembly.MergeStrategy.first
+      case x => (assembly / assemblyMergeStrategy).value(x)
+    },
   ).jvmSettings(
     nativeImageInstalled := isCI,
     nativeImageOptions += "-march=compatibility",
