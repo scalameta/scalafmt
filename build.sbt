@@ -130,19 +130,16 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     scalaJsSettings,
   )
 
-lazy val config = crossProject(JVMPlatform, NativePlatform)
+lazy val config = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-config")).settings(
     moduleName := "scalafmt-config",
     description := "Scalafmt config parsing",
     scalacOptions ++= scalacJvmOptions.value,
     libraryDependencies += metaconfigCore.value,
   ).jvmSettings(libraryDependencies += metaconfigTypesafe.value)
-  .nativeSettings(libraryDependencies += metaconfigSconfig.value)
-// .jsSettings(
-//   libraryDependencies ++= Seq(
-//     metaconfigHocon.value,
-//   )
-// )
+  .platformsSettings(NativePlatform, JSPlatform)(
+    libraryDependencies += metaconfigSconfig.value,
+  ).jsSettings(scalaJsSettings)
 
 lazy val core = crossProject(JVMPlatform, NativePlatform)
   .in(file("scalafmt-core")).settings(
