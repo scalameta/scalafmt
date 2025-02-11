@@ -201,14 +201,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Docker Meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: scalameta/scalafmt
-          tags: |
-            type=raw,value=${{ github.event.release.tag_name }}-${{ matrix.platform == 'linux/arm64' && 'arm64' || 'amd64' }}
-            type=raw,value=${{ github.event.release.tag_name }},enabled=${{ matrix.platform == 'linux/amd64' && 'true' || 'false' }}
       - name: Downloading scalafmt for Docker Build
         uses: actions/download-artifact@v4
         with:
@@ -219,9 +211,58 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Build and push
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
+          platforms: ${{ matrix.platform }}
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          outputs: type=image,"name=scalameta/scalafmt",push-by-digest=true,name-canonical=true
+      - name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.platform == 'linux/arm64' && 'arm64' || 'amd64' }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge-docker-manifest:
+    runs-on: ubuntu-latest
+    needs: [dockerize]
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Docker Meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: scalameta/scalafmt
+          tags: |
+            type=raw,value=${{ github.event.release.tag_name }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf 'scalameta/scalafmt@sha256:%s ' *)
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect scalameta/scalafmt:${{ steps.meta.outputs.tags }}
