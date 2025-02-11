@@ -21,10 +21,11 @@ jobs:
       matrix:
         java:
           - '11'
-          - '21'          
+          - '21'
         os:
           - windows-latest
           - ubuntu-latest
+          - ubuntu-24.04-arm
         platform:
           - 'jvm'
           - 'native'
@@ -54,7 +55,7 @@ jobs:
       fail-fast: false
       matrix:
         java: [ '11' ]
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest, ubuntu-24.04-arm]
         group: [Scala2, Scala3, Spark, Intellij, Other]
     runs-on: ${{ matrix.os }}
     steps:
@@ -89,7 +90,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macOS-latest, ubuntu-latest]
+        os: [macOS-latest, ubuntu-latest, ubuntu-24.04-arm]
         libc: [default, musl]
         exclude:
           - os: macOS-latest
@@ -107,6 +108,16 @@ jobs:
           - os: ubuntu-latest
             libc: musl
             artifact: scalafmt-linux-musl
+            env:
+              NATIVE_IMAGE_STATIC: musl
+          - os: ubuntu-24.04-arm
+            libc: default
+            artifact: scalafmt-linux-glibc-arm64
+            env:
+              NATIVE_IMAGE_STATIC: nolibc
+          - os: ubuntu-24.04-arm
+            libc: musl
+            artifact: scalafmt-linux-musl-arm64
             env:
               NATIVE_IMAGE_STATIC: musl
     env: ${{ matrix.env }}
