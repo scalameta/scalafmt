@@ -193,8 +193,11 @@ jobs:
           asset_content_type: application/zip
   dockerize:
     needs: [scala-native]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     if: github.event_name == 'release'
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -203,11 +206,13 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: scalameta/scalafmt
-          tags: type=raw,value=${{ github.event.release.tag_name }}
+          tags: |
+            type=raw,value=${{ github.event.release.tag_name }}-${{ matrix.platform == 'linux/arm64' && 'arm64' || 'amd64' }}
+            type=raw,value=${{ github.event.release.tag_name }},enabled=${{ matrix.platform == 'linux/amd64' && 'true' || 'false' }}
       - name: Downloading scalafmt for Docker Build
         uses: actions/download-artifact@v4
         with:
-          name: scalafmt-x86_64-pc-linux
+          name: scalafmt${{ matrix.platform == 'linux/arm64' && 'aarch64' || 'x86_64' }}-pc-linux
           path: tmp/scalafmt
       - name: Login to DockerHub
         uses: docker/login-action@v3
