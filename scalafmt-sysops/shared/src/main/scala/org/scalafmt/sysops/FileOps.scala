@@ -1,5 +1,7 @@
 package org.scalafmt.sysops
 
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -50,5 +52,13 @@ object FileOps {
     if (!file.exists) None
     else if (file.isRegularFile) Some(Success(file.path))
     else Some(Failure(new RuntimeException(s"Config not a file: $file")))
+
+  def readInputStream(is: InputStream): String = {
+    val baos = new ByteArrayOutputStream()
+    val buf = new Array[Byte](1024)
+    var cnt = 0
+    while ({ cnt = is.read(buf); cnt >= 0 }) baos.write(buf, 0, cnt)
+    baos.toString("utf-8")
+  }
 
 }

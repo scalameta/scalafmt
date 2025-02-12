@@ -1,6 +1,7 @@
 package org.scalafmt.cli
 
 import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.PlatformRunOps.executionContext
 
 import scala.io.Source
 
@@ -16,7 +17,7 @@ private[scalafmt] trait CliUtils {
                 .getWorkingDirectory}",
         ),
       )
-    val exit = Cli.mainWithOptions(
+    Cli.mainWithOptions(
       CliOptions.default.copy(common =
         CliOptions.default.common.copy(
           cwd = Some(workingDirectory),
@@ -26,8 +27,7 @@ private[scalafmt] trait CliUtils {
         ),
       ),
       nGContext.getArgs: _*,
-    )
-    nGContext.exit(exit.code)
+    ).map(exit => nGContext.exit(exit.code))
   }
 
   protected def getDynamicRunner: Option[ScalafmtRunner] =

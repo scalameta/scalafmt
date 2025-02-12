@@ -4,6 +4,7 @@ import org.scalafmt.CompatCollections.JavaConverters._
 
 import java.nio.file._
 
+import scala.concurrent.Future
 import scala.io.Codec
 import scala.util.Try
 
@@ -52,6 +53,12 @@ object PlatformFileOps {
 
   def readFile(file: Path)(implicit codec: Codec): String =
     new String(Files.readAllBytes(file), codec.charSet)
+
+  def readFileAsync(file: Path)(implicit codec: Codec): Future[String] = Future
+    .successful(readFile(file))
+
+  def readStdinAsync: Future[String] = Future
+    .successful(FileOps.readInputStream(System.in))
 
   def writeFile(path: Path, content: String)(implicit codec: Codec): Unit = {
     val bytes = content.getBytes(codec.charSet)
