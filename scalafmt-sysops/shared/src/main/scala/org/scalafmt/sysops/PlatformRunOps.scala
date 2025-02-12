@@ -31,4 +31,6 @@ private[scalafmt] object PlatformRunOps {
     }
   }
 
+  def exit(code: Int): Nothing = sys.exit(code)
+
 }
