@@ -108,8 +108,9 @@ case class CliOptions(
     * See https://github.com/scalameta/scalafmt/pull/1367#issuecomment-464744077
     */
   private[this] val tempConfigPath: Option[Path] = configStr.map { s =>
-    val file = PlatformFileOps.mkdtemp(Random.alphanumeric.take(10).mkString)
-      .resolve(".scalafmt.conf")
+    // -temp is for JS; if random sequence ends with 'X', JS complains
+    val tmpprefix = s"scalafmt-${Random.alphanumeric.take(10).mkString}-temp"
+    val file = PlatformFileOps.mkdtemp(tmpprefix).resolve(".scalafmt.conf")
     PlatformFileOps.writeFile(file, s)
     file
   }
