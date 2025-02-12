@@ -2,6 +2,8 @@ package org.scalafmt.cli
 
 import org.scalafmt.sysops.AbsoluteFile
 
+import scala.io.Source
+
 import com.martiansoftware.nailgun.NGContext
 
 private[scalafmt] trait CliUtils {
@@ -31,4 +33,5 @@ private[scalafmt] trait CliUtils {
   protected def getDynamicRunner: Option[ScalafmtRunner] =
     Some(ScalafmtDynamicRunner)
 
+  def readInputLines: Iterator[String] = Source.stdin.getLines()
 }

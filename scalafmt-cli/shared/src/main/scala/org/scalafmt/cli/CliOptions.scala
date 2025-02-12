@@ -6,14 +6,15 @@ import org.scalafmt.config.ScalafmtConfigException
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.GitOps
 import org.scalafmt.sysops.OsSpecific
+import org.scalafmt.sysops.PlatformFileOps
 
 import java.io.InputStream
 import java.io.PrintStream
 import java.io.PrintWriter
-import java.nio.file.Files
 import java.nio.file.Path
 
 import scala.io.Codec
+import scala.util.Random
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -107,8 +108,9 @@ case class CliOptions(
     * See https://github.com/scalameta/scalafmt/pull/1367#issuecomment-464744077
     */
   private[this] val tempConfigPath: Option[Path] = configStr.map { s =>
-    val file = Files.createTempFile(".scalafmt", ".conf")
-    Files.write(file, s.getBytes)
+    val file = PlatformFileOps.mkdtemp(Random.alphanumeric.take(10).mkString)
+      .resolve(".scalafmt.conf")
+    PlatformFileOps.writeFile(file, s)
     file
   }
 
