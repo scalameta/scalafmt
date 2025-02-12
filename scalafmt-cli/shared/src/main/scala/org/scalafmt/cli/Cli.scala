@@ -1,6 +1,7 @@
 package org.scalafmt.cli
 
 import org.scalafmt.Versions.{stable => stableVersion}
+import org.scalafmt.sysops.PlatformRunOps
 
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -12,7 +13,7 @@ object Cli extends CliUtils {
 
   def main(args: Array[String]): Unit = {
     val exit = mainWithOptions(CliOptions.default, args: _*)
-    sys.exit(exit.code)
+    PlatformRunOps.exit(exit.code)
   }
 
   def mainWithOptions(options: CliOptions, args: String*): ExitCode =
