@@ -5,8 +5,6 @@ import org.scalafmt.sysops.AbsoluteFile
 import com.martiansoftware.nailgun.NGContext
 
 private[scalafmt] trait CliUtils {
-  protected val isScalaNative: Boolean = false
-
   def nailMain(nGContext: NGContext): Unit = {
     val workingDirectory = AbsoluteFile
       .fromPathIfAbsolute(nGContext.getWorkingDirectory).getOrElse(

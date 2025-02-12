@@ -6,13 +6,14 @@ package org.scalafmt.cli
   * which in turn was copy/pasted from (MIT licence)
   * https://github.com/lihaoyi/Ammonite/blob/10854e3b8b454a74198058ba258734a17af32023/terminal/src/main/scala/ammonite/terminal/Utils.scala
   */
+
+import org.scalafmt.sysops.PlatformRunOps
+
 import java.io.File
 import java.io.Writer
 import java.util.concurrent._
 
-import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
-import scala.util.Try
+import scala.collection.mutable
 
 object Terminal {
 
@@ -22,18 +23,9 @@ object Terminal {
   def consoleDim(s: String): Option[Int] =
     if (System.getenv("TERM") == null) None
     else if (!new File("/dev/tty").exists()) None
-    else {
-      import sys.process._
-      val nullLog = new ProcessLogger {
-        def out(s: => String): Unit = {}
-        def err(s: => String): Unit = {}
-        def buffer[T](f: => T): T = f
-      }
-      Try(
-        Process(Seq("bash", "-c", s"$pathedTput $s 2> /dev/tty")).!!(nullLog)
-          .trim.toInt,
-      ).toOption
-    }
+    else PlatformRunOps
+      .runArgv(Seq("bash", "-c", s"$pathedTput $s 2> /dev/tty"), None)
+      .map(_.trim.toInt).toOption
 
   implicit class Ansi(val output: Writer) extends AnyVal {
     private def control(n: Int, c: Char) = output.write("\u001b[" + n + c)
@@ -146,27 +138,30 @@ object TermDisplay extends TermUtils {
   private val refreshInterval = 1000 / 60
   private val fallbackRefreshInterval = 1000
 
-  private class UpdateDisplayThread(out: Writer, var fallbackMode: Boolean)
-      extends Thread("TermDisplay") {
+  private class UpdateDisplayThread(out: Writer, var fallbackMode: Boolean) {
 
     import Terminal.Ansi
 
-    setDaemon(true)
-
     private var width = 80
     private var currentHeight = 0
+    private val previousDownloads = mutable.Set.empty[String]
 
-    private val q = new LinkedBlockingQueue[Message]
+    private val scheduler = new PlatformPollingScheduler
+    private var polling: PollingScheduler.Cancelable = _
+    private val isStarted = new atomic.AtomicBoolean
+    private val shouldUpdateFlag = new atomic.AtomicBoolean
 
-    def update(): Unit = if (q.size() == 0) q.put(Message.Update)
+    def update(): Unit = shouldUpdateFlag.set(true)
+    private def shouldUpdate(): Boolean = shouldUpdateFlag
+      .compareAndSet(true, false)
 
-    def end(): Unit = {
-      q.put(Message.Stop)
-      join()
+    def end(): Unit = if (isStarted.get()) {
+      polling.cancel()
+      if (fallbackMode) processStopFallback() else processStop()
     }
 
-    private val downloads = new ArrayBuffer[String]
-    private val doneQueue = new ArrayBuffer[(String, Info)]
+    private val downloads = new mutable.ArrayBuffer[String]
+    private val doneQueue = new mutable.ArrayBuffer[(String, Info)]
     val infos = new ConcurrentHashMap[String, Info]
 
     def newEntry(url: String, info: Info, fallbackMessage: => String): Unit = {
@@ -260,100 +255,88 @@ object TermDisplay extends TermUtils {
         -info.fraction.sum
       }
 
-    @tailrec
-    private def updateDisplayLoop(lineCount: Int): Unit = {
-      currentHeight = lineCount
+    private def processStop(): Unit = {} // poison pill
 
-      Option(q.poll(100L, TimeUnit.MILLISECONDS)) match {
-        case None => updateDisplayLoop(lineCount)
-        case Some(Message.Stop) => // poison pill
-        case Some(Message.Update) =>
-          val (done0, downloads0) = downloads.synchronized {
-            val q = doneQueue.toVector.filter { case (url, _) =>
-              !url.endsWith(".sha1") && !url.endsWith(".md5")
-            }.sortBy { case (url, _) => url }
+    private def processUpdate(): Unit = if (shouldUpdate()) {
+      val (done0, downloads0) = downloads.synchronized {
+        val q = doneQueue.toVector.filter { case (url, _) =>
+          !url.endsWith(".sha1") && !url.endsWith(".md5")
+        }.sortBy { case (url, _) => url }
 
-            doneQueue.clear()
+        doneQueue.clear()
 
-            val dw = getDownloadInfos
+        val dw = getDownloadInfos
 
-            (q, dw)
-          }
-
-          for ((url, info) <- done0 ++ downloads0) {
-            assert(info != null, s"Incoherent state ($url)")
-
-            truncatedPrintln(url)
-            out.clearLine(2)
-            out.write(s"  ${info.display()}\n")
-          }
-
-          val displayedCount = (done0 ++ downloads0).length
-
-          if (displayedCount < lineCount) {
-            for (_ <- 1 to 2; _ <- displayedCount until lineCount) {
-              out.clearLine(2)
-              out.down(1)
-            }
-
-            for (_ <- displayedCount until lineCount) out.up(2)
-          }
-
-          for (_ <- downloads0.indices) out.up(2)
-
-          out.left(10000)
-
-          out.flush()
-          Thread.sleep(refreshInterval)
-          updateDisplayLoop(downloads0.length)
+        (q, dw)
       }
+
+      for ((url, info) <- done0 ++ downloads0) {
+        assert(info != null, s"Incoherent state ($url)")
+
+        truncatedPrintln(url)
+        out.clearLine(2)
+        out.write(s"  ${info.display()}\n")
+      }
+
+      val displayedCount = (done0 ++ downloads0).length
+
+      if (displayedCount < currentHeight) {
+        for (_ <- 1 to 2; _ <- displayedCount until currentHeight) {
+          out.clearLine(2)
+          out.down(1)
+        }
+
+        for (_ <- displayedCount until currentHeight) out.up(2)
+      }
+
+      for (_ <- downloads0.indices) out.up(2)
+
+      out.left(10000)
+
+      out.flush()
+      currentHeight = downloads0.length
     }
 
-    @tailrec
-    private def fallbackDisplayLoop(previous: Set[String]): Unit =
-      Option(q.poll(100L, TimeUnit.MILLISECONDS)) match {
-        case None => fallbackDisplayLoop(previous)
-        case Some(Message.Stop) => // poison pill
-          // clean up display
-          for (_ <- 1 to 2; _ <- 0 until currentHeight) {
-            out.clearLine(2)
-            out.down(1)
-          }
-          for (_ <- 0 until currentHeight) out.up(2)
+    private def processStopFallback(): Unit = { // poison pill
+      // clean up display
+      for (_ <- 1 to 2; _ <- 0 until currentHeight) {
+        out.clearLine(2)
+        out.down(1)
+      }
+      for (_ <- 0 until currentHeight) out.up(2)
+    }
 
-        case Some(Message.Update) =>
-          val downloads0 = downloads.synchronized(getDownloadInfos)
+    private def processUpdateFallback(): Unit = if (shouldUpdate()) {
+      val downloads0 = downloads.synchronized(getDownloadInfos)
 
-          var displayedSomething = false
-          for ((url, info) <- downloads0 if previous(url)) {
-            assert(info != null, s"Incoherent state ($url)")
+      var displayedSomething = false
+      for ((url, info) <- downloads0 if previousDownloads(url)) {
+        assert(info != null, s"Incoherent state ($url)")
 
-            val (url0, extra0) = reflowed(url, info)
+        val (url0, extra0) = reflowed(url, info)
 
-            displayedSomething = true
-            out.write(s"$url0 $extra0\n")
-          }
-
-          if (displayedSomething) out.write("\n")
-
-          out.flush()
-          Thread.sleep(fallbackRefreshInterval)
-          fallbackDisplayLoop(previous ++ downloads0.map { case (url, _) =>
-            url
-          })
+        displayedSomething = true
+        out.write(s"$url0 $extra0\n")
       }
 
-    override def run(): Unit = {
+      if (displayedSomething) out.write("\n")
 
+      out.flush()
+      previousDownloads ++= downloads0.map { case (url, _) => url }
+    }
+
+    def start(): Unit = if (isStarted.compareAndSet(false, true)) {
       Terminal.consoleDim("cols") match {
         case Some(cols) =>
           width = cols
           out.clearLine(2)
         case None => fallbackMode = true
       }
-
-      if (fallbackMode) fallbackDisplayLoop(Set.empty) else updateDisplayLoop(0)
+      polling =
+        if (!fallbackMode) scheduler.start(refreshInterval)(processUpdate)
+        else scheduler.start(fallbackRefreshInterval)(processUpdateFallback)
     }
+
   }
 
 }
