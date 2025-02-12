@@ -72,7 +72,7 @@ commands ++= Seq(
     // jvm tests
     "tests/test" :: "cli/test" ::
       // js tests
-      "testsJS/test" :: "sysopsJS/test" ::
+      "testsJS/test" :: "cliJS/test" ::
       // other
       "publishLocal" :: docsTest :: s
   },
@@ -183,7 +183,7 @@ val scalacJvmOptions = Def.setting {
   cross ++ unused ++ Seq("-target:8", "-release:8")
 }
 
-lazy val cli = crossProject(JVMPlatform, NativePlatform)
+lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-cli")).settings(
     moduleName := "scalafmt-cli",
     assembly / mainClass := Some("org.scalafmt.cli.Cli"),
@@ -226,8 +226,10 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
       }
     },
   ).nativeSettings(scalaNativeConfig).dependsOn(core, interfaces)
+  // TODO: enable NPM publishing
+  .jsSettings(scalaJsSettings, scalaJSUseMainModuleInitializer := true)
   .jvmEnablePlugins(NativeImagePlugin)
-  .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm, core.jvm))
+  .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm)).aggregate(core)
 
 lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests")).settings(
