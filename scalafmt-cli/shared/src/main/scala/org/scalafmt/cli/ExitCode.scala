@@ -1,11 +1,14 @@
 package org.scalafmt.cli
 
 import scala.collection.mutable
+import scala.concurrent.Future
 
 sealed abstract case class ExitCode(code: Int, name: String) {
   def isOk: Boolean = this == ExitCode.Ok
   def is(c: ExitCode): Boolean = (code & c.code) != 0
   override def toString: String = s"$name=$code"
+
+  def future: Future[ExitCode] = Future.successful(this)
 }
 
 object ExitCode {

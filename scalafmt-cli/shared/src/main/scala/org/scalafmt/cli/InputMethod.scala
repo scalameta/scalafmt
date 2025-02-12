@@ -2,18 +2,20 @@ package org.scalafmt.cli
 
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.FileOps
 import org.scalafmt.sysops.PlatformCompat
+import org.scalafmt.sysops.PlatformFileOps
 
 import java.io.InputStream
 import java.nio.file.Path
 import java.nio.file.Paths
 
-import scala.io.Source
+import scala.concurrent.Future
 
 import munit.{diff => difflib}
 
 sealed abstract class InputMethod {
-  def readInput(options: CliOptions): String
+  def readInput(options: CliOptions): Future[String]
   def path: Path
 
   protected def print(text: String, options: CliOptions): Unit
@@ -46,15 +48,15 @@ sealed abstract class InputMethod {
 
 object InputMethod {
 
-  object StdinCode {
-    def apply(assumeFilename: String, inputStream: InputStream): StdinCode =
-      StdinCode
-        .apply(assumeFilename, Source.fromInputStream(inputStream).mkString)
-  }
-  case class StdinCode(filename: String, input: String) extends InputMethod {
+  case class StdinCode(filename: String, inputStream: InputStream)
+      extends InputMethod {
     override def path: Path = Paths.get(filename)
 
-    def readInput(options: CliOptions): String = input
+    def readInput(options: CliOptions): Future[String] = {
+      val stdin = (inputStream eq null) || (inputStream eq System.in)
+      if (stdin) PlatformFileOps.readStdinAsync
+      else Future.successful(FileOps.readInputStream(inputStream))
+    }
 
     override protected def print(text: String, options: CliOptions): Unit =
       options.common.out.print(text)
@@ -68,7 +70,8 @@ object InputMethod {
 
   case class FileContents(file: AbsoluteFile) extends InputMethod {
     override def path = file.path
-    def readInput(options: CliOptions): String = file.readFile(options.encoding)
+    def readInput(options: CliOptions): Future[String] = PlatformFileOps
+      .readFileAsync(path)(options.encoding)
 
     override protected def print(text: String, options: CliOptions): Unit =
       options.common.out.print(text)

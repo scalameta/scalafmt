@@ -11,20 +11,28 @@ import java.nio.file.Path
 import scala.concurrent.Future
 
 object ScalafmtDynamicRunner extends ScalafmtRunner {
+  import org.scalafmt.sysops.PlatformRunOps.executionContext
+
   override private[cli] def run(
       options: CliOptions,
       termDisplayMessage: String,
-  ): ExitCode = {
+  ): Future[ExitCode] = {
     val reporter = new ScalafmtCliReporter(options)
     val scalafmtInstance = Scalafmt.create(this.getClass.getClassLoader)
       .withReporter(reporter).withRespectProjectFilters(false)
+    try runWithSession(options, termDisplayMessage, reporter)(
+        scalafmtInstance.createSession(options.configPath),
+      )
+    catch {
+      case _: ScalafmtDynamicError.ConfigError => reporter.getExitCode.future
+    }
+  }
 
-    val session =
-      try scalafmtInstance.createSession(options.configPath)
-      catch {
-        case _: ScalafmtDynamicError.ConfigError => return reporter.getExitCode // XXX: returning
-      }
-
+  private def runWithSession(
+      options: CliOptions,
+      termDisplayMessage: String,
+      reporter: ScalafmtCliReporter,
+  )(session: ScalafmtSession): Future[ExitCode] = {
     val sessionMatcher = session.matchesProjectFilters _
     val filterMatcher: Path => Boolean = options.customFilesOpt
       .fold(sessionMatcher) { customFiles =>
@@ -32,22 +40,19 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
         x => customMatcher(x) && sessionMatcher(x)
       }
     val inputMethods = getInputMethods(options, filterMatcher)
-    if (inputMethods.isEmpty) ExitCode.Ok
-    else runInputs(options, inputMethods, termDisplayMessage) { inputMethod =>
-      import org.scalafmt.sysops.PlatformRunOps.executionContext
-      Future(handleFile(inputMethod, session, options)).recover {
+    if (inputMethods.isEmpty) ExitCode.Ok.future
+    else runInputs(options, inputMethods, termDisplayMessage)(inputMethod =>
+      handleFile(inputMethod, session, options).recover {
         case x: Error.MisformattedFile => reporter.fail(x)(x.file)
-      }.map(ExitCode.merge(_, reporter.getExitCode))
-    }
+      }.map(ExitCode.merge(_, reporter.getExitCode)),
+    )
   }
 
   private[this] def handleFile(
       inputMethod: InputMethod,
       session: ScalafmtSession,
       options: CliOptions,
-  ): ExitCode = {
-    val input = inputMethod.readInput(options)
-
+  ): Future[ExitCode] = inputMethod.readInput(options).map { input =>
     val formatResult = session.format(inputMethod.path, input)
     inputMethod.write(formatResult, input, options)
   }

@@ -5,17 +5,20 @@ import org.scalafmt.sysops.FileOps
 import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.sysops.PlatformRunOps
 
+import scala.concurrent.Future
+
 object Cli extends CliUtils {
 
-  def main(args: Array[String]): Unit = {
-    val exit = mainWithOptions(CliOptions.default, args: _*)
-    PlatformRunOps.exit(exit.code)
-  }
+  import PlatformRunOps.executionContext
 
-  def mainWithOptions(options: CliOptions, args: String*): ExitCode =
+  def main(args: Array[String]): Unit =
+    mainWithOptions(CliOptions.default, args: _*)
+      .map(exit => PlatformRunOps.exit(exit.code))
+
+  def mainWithOptions(options: CliOptions, args: String*): Future[ExitCode] =
     getConfig(options, args: _*) match {
       case Some(x) => run(x)
-      case None => ExitCode.CommandLineArgumentError
+      case None => ExitCode.CommandLineArgumentError.future
     }
 
   def getConfig(init: CliOptions, args: String*): Option[CliOptions] = {
@@ -39,12 +42,17 @@ object Cli extends CliUtils {
     builder.result()
   }
 
-  private[cli] def run(options: CliOptions): ExitCode =
+  private[cli] def run(options: CliOptions): Future[ExitCode] =
     findRunner(options) match {
       case Left(message) =>
         options.common.err.println(message)
-        ExitCode.UnsupportedVersion
-      case Right(runner) => runWithRunner(options, runner)
+        ExitCode.UnsupportedVersion.future
+      case Right(runner) =>
+        val termDisplayMessage =
+          if (options.writeMode != WriteMode.Test) "Reformatting..."
+          else "Looking for unformatted files..."
+        options.common.debug.println("Working directory: " + options.cwd)
+        runner.run(options, termDisplayMessage).map(postProcess(options))
     }
 
   private val isNativeImage: Boolean = "true" ==
@@ -107,18 +115,7 @@ object Cli extends CliUtils {
       }
     }
 
-  private[cli] def runWithRunner(
-      options: CliOptions,
-      runner: ScalafmtRunner,
-  ): ExitCode = {
-    val termDisplayMessage =
-      if (options.writeMode == WriteMode.Test)
-        "Looking for unformatted files..."
-      else "Reformatting..."
-    options.common.debug.println("Working directory: " + options.cwd)
-
-    val exit = runner.run(options, termDisplayMessage)
-
+  private def postProcess(options: CliOptions)(exit: ExitCode): ExitCode = {
     if (options.writeMode == WriteMode.Test)
       if (exit.isOk) options.common.out
         .println("All files are formatted with scalafmt :)")
