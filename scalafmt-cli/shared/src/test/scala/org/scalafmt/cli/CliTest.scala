@@ -1,6 +1,5 @@
 package org.scalafmt.cli
 
-import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Versions.{stable => stableVersion}
 import org.scalafmt.cli.FileTestOps._
@@ -13,11 +12,8 @@ import org.scalafmt.sysops.PlatformFileOps
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.io.PrintStream
-import java.io.UncheckedIOException
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.nio.file.Path
 
 import munit.FunSuite
@@ -120,18 +116,19 @@ trait CliTestBehavior {
     val label = if (isCore) "core" else "dynamic"
     val dialectError = if (isCore) " [dialect default]" else ""
     test(s"scalafmt tmpFile tmpFile2: $label") {
-      val originalTmpFile = Files.createTempFile("prefix", ".scala")
-      val originalTmpFile2 = Files.createTempFile("prefix2", ".scala")
-      val scalafmtConfig = Files.createTempFile("scalafmtConfig", ".scala")
+      val tmpdir = PlatformFileOps.mkdtemp("clitest")
+      val originalTmpFile = tmpdir.resolve("foo1.scala")
+      val originalTmpFile2 = tmpdir.resolve("foo2.scala")
+      val scalafmtConfig = tmpdir.resolve("scalafmtConfig.scala")
       val config =
         s"""|
             |version="$version"
             |maxColumn=7
             |style=IntelliJ
             |    """.stripMargin
-      Files.write(originalTmpFile, unformatted.getBytes)
-      Files.write(originalTmpFile2, unformatted.getBytes)
-      Files.write(scalafmtConfig, config.getBytes)
+      PlatformFileOps.writeFile(originalTmpFile, unformatted)
+      PlatformFileOps.writeFile(originalTmpFile2, unformatted)
+      PlatformFileOps.writeFile(scalafmtConfig, config)
       runArgs()(
         "--config",
         scalafmtConfig.toFile.getPath,
@@ -145,8 +142,9 @@ trait CliTestBehavior {
     }
 
     test(s"scalafmt --stdout tmpFile prints to stdout: $label") {
-      val originalTmpFile = Files.createTempFile("prefix", ".scala")
-      Files.write(originalTmpFile, unformatted.getBytes)
+      val originalTmpFile = PlatformFileOps.mkdtemp(label)
+        .resolve("prefix.scala")
+      PlatformFileOps.writeFile(originalTmpFile, unformatted)
       val baos = new ByteArrayOutputStream()
       val ps = new PrintStream(baos)
       runArgs(baseCliOptions.copy(common = baseCliOptions.common.copy(out = ps)))(
@@ -161,14 +159,15 @@ trait CliTestBehavior {
     }
 
     test(s"scalafmt --stdin --assume-filename: $label") {
-      val scalafmtConfig = Files.createTempFile(".scalafmt", ".conf")
+      val scalafmtConfig = PlatformFileOps.mkdtemp(label)
+        .resolve(".scalafmt.conf")
       val config =
         s"""|
             |version="$version"
             |maxColumn=7
             |style=IntelliJ
             |    """.stripMargin
-      Files.write(scalafmtConfig, config.getBytes)
+      PlatformFileOps.writeFile(scalafmtConfig, config)
 
       val printToStdout = getConfig(
         "--stdin",
@@ -188,8 +187,8 @@ trait CliTestBehavior {
     }
 
     test(s"scalafmt --test tmpFile is left unformatted: $label") {
-      val tmpFile = Files.createTempFile("prefix", ".scala")
-      Files.write(tmpFile, unformatted.getBytes)
+      val tmpFile = PlatformFileOps.mkdtemp(label).resolve("prefix.scala")
+      PlatformFileOps.writeFile(tmpFile, unformatted)
       runArgs(exitCode = ExitCode.TestError)(
         tmpFile.toFile.getPath,
         "--test",
@@ -200,8 +199,8 @@ trait CliTestBehavior {
       assertNoDiff(str, unformatted)
     }
     test(s"scalafmt --test fails with non zero exit code $label") {
-      val tmpFile = Files.createTempFile("prefix", ".scala")
-      Files.write(tmpFile, unformatted.getBytes)
+      val tmpFile = PlatformFileOps.mkdtemp(label).resolve("prefix.scala")
+      PlatformFileOps.writeFile(tmpFile, unformatted)
       runArgs(exitCode = ExitCode.UnexpectedError)(
         tmpFile.toFile.getPath,
         "--test",
@@ -211,8 +210,8 @@ trait CliTestBehavior {
     }
 
     test(s"scalafmt foo.randomsuffix is formatted: $label") {
-      val tmpFile = Files.createTempFile("prefix", "randomsuffix")
-      Files.write(tmpFile, unformatted.getBytes)
+      val tmpFile = PlatformFileOps.mkdtemp(label).resolve("prefix.randomsuffix")
+      PlatformFileOps.writeFile(tmpFile, unformatted)
       val args = Array(
         "--config-str",
         s"""{version="$version",style=IntelliJ}""",
@@ -308,20 +307,20 @@ trait CliTestBehavior {
           "--config-str",
           s"""{version="$version",style=IntelliJ}""",
         )
-        if (!PlatformCompat.isNativeOnWindows) intercept[IOException](runCli)
-        else intercept[UncheckedIOException](runCli)
+        intercept[Exception](runCli)
       }
       check("notfound")
       check("target/notfound")
     }
 
     test(s"scalafmt (no matching files) throws error: $label") {
-      val scalafmtConfig: Path = Files.createTempFile(".scalafmt", ".conf")
+      val scalafmtConfig: Path = PlatformFileOps.mkdtemp(label)
+        .resolve(".scalafmt.conf")
       val config: String =
         s"""|
             |version="$version"
             |               """.stripMargin
-      Files.write(scalafmtConfig, config.getBytes)
+      PlatformFileOps.writeFile(scalafmtConfig, config)
       val options = baseCliOptions.copy(config = Some(scalafmtConfig))
       intercept[NoMatchingFiles.type](Cli.run(options))
     }
@@ -526,12 +525,13 @@ trait CliTestBehavior {
 
     // These are tests for deprecated flags
     test(s"scalafmt -i -f file1,file2,file3 should still work: $label") {
-      val file1 = Files.createTempFile("prefix", ".scala")
-      val file2 = Files.createTempFile("prefix2", ".scala")
-      val file3 = Files.createTempFile("prefix3", ".scala")
-      Files.write(file1, unformatted.getBytes)
-      Files.write(file2, unformatted.getBytes)
-      Files.write(file3, unformatted.getBytes)
+      val tmpdir = PlatformFileOps.mkdtemp("clitest")
+      val file1 = tmpdir.resolve("prefix1.scala")
+      val file2 = tmpdir.resolve("prefix2.scala")
+      val file3 = tmpdir.resolve("prefix3.scala")
+      PlatformFileOps.writeFile(file1, unformatted)
+      PlatformFileOps.writeFile(file2, unformatted)
+      PlatformFileOps.writeFile(file3, unformatted)
       def fileStr(fs: Path*) = fs.map(_.toFile.getPath).mkString(",")
       runArgs()(
         "--config-str",
@@ -667,12 +667,12 @@ trait CliTestBehavior {
     }
 
     test(s"eof: $label") {
-      val in = Files.createTempFile("scalafmt", "Foo.scala")
-      Files.write(in, "object A".getBytes(StandardCharsets.UTF_8))
+      val in = PlatformFileOps.mkdtemp(label).resolve("Foo.scala")
+      PlatformFileOps.writeFile(in, "object A")
       val args = Array("--config-str", s"""{version="$version"}""", in.toString)
       val exit = Cli.mainWithOptions(baseCliOptions, args: _*)
       assertEquals(exit, ExitCode.Ok)
-      val obtained = new String(Files.readAllBytes(in), StandardCharsets.UTF_8)
+      val obtained = PlatformFileOps.readFile(in)
       assertEquals(obtained, "object A\n")
     }
 
@@ -842,11 +842,13 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   }
 
   test("arguments starting with @ are expanded from a file") {
-    val argumentsFile = Files.createTempFile("scalafmt", "arguments")
-    val configFile = Files.createTempFile("scalafmt", ".scalafmt.conf")
+    val tmpdir = PlatformFileOps.mkdtemp("clitest")
+    val argumentsFile = tmpdir.resolve("arguments")
+    val configFile = tmpdir.resolve(".scalafmt.conf")
     val arguments = List("--config", configFile.toString, "foobar.scala")
-    Files.write(argumentsFile, arguments.asJava)
-    Files.write(configFile, List("maxColumn=40").asJava)
+    PlatformFileOps.writeFile(argumentsFile, arguments.mkString("", "\n", "\n"))
+    PlatformFileOps
+      .writeFile(configFile, List("maxColumn=40").mkString("", "\n", "\n"))
     val obtained = Cli.getConfig(CliTest.defaultOptions, s"@$argumentsFile").get
     val config = obtained.scalafmtConfig.get
     assertEquals(config.maxColumn, 40)

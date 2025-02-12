@@ -1,13 +1,9 @@
 package org.scalafmt.cli
 
 import org.scalafmt.Versions.{stable => stableVersion}
+import org.scalafmt.sysops.FileOps
+import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.sysops.PlatformRunOps
-
-import java.nio.file.Files
-import java.nio.file.Paths
-
-import scala.io.Source
-import scala.util.Using
 
 object Cli extends CliUtils {
 
@@ -32,9 +28,13 @@ object Cli extends CliUtils {
     args.foreach { arg =>
       val atFile = arg.stripPrefix("@")
       if (atFile == arg) builder += arg // doesn't start with @
-      else if (atFile == "-") builder ++= Source.stdin.getLines()
-      else if (!Files.isRegularFile(Paths.get(atFile))) builder += arg
-      else Using.resource(Source.fromFile(atFile))(builder ++= _.getLines())
+      else if (atFile == "-") builder ++= readInputLines
+      else {
+        val path = FileOps.getPath(atFile)
+        if (!PlatformFileOps.isRegularFile(path)) builder += arg
+        else PlatformFileOps.readFile(path).split('\n')
+          .foreach(builder += _.trim)
+      }
     }
     builder.result()
   }
